@@ -19,3 +19,114 @@
 [submodule "templates/template-audiogram"]
 	path = templates/template-audiogram
 	url = https://github.com/remotion-dev/template-audiogram.git
+[submodule "vendor/short-video-maker-leke"]
+	path = vendor/short-video-maker-leke
+	url = https://github.com/leke-adewa/short-video-maker
+[submodule "vendor/short-video-maker-gyori"]
+	path = vendor/short-video-maker-gyori
+	url = https://github.com/gyoridavid/short-video-maker
+[submodule "vendor/MoneyPrinterV2"]
+	path = vendor/MoneyPrinterV2
+	url = https://github.com/FujiwaraChoki/MoneyPrinterV2
+[submodule "vendor/ShortGPT"]
+	path = vendor/ShortGPT
+	url = https://github.com/RayVentura/ShortGPT
+[submodule "vendor/YASGU"]
+	path = vendor/YASGU
+	url = https://github.com/hankerspace/YASGU
+[submodule "vendor/AI-Content-Studio"]
+	path = vendor/AI-Content-Studio
+	url = https://github.com/naqashafzal/AI-Content-Studio
+[submodule "vendor/viralfactory"]
+	path = vendor/viralfactory
+	url = https://github.com/Paillat-dev/viralfactory
+[submodule "vendor/TikTokAIVideoGenerator"]
+	path = vendor/TikTokAIVideoGenerator
+	url = https://github.com/GabrielLaxy/TikTokAIVideoGenerator
+[submodule "vendor/youtube-auto-shorts-generator"]
+	path = vendor/youtube-auto-shorts-generator
+	url = https://github.com/3d0n1/youtube-auto-shorts-generator
+[submodule "vendor/videoGenerator"]
+	path = vendor/videoGenerator
+	url = https://github.com/DuxSec/videoGenerator
+[submodule "vendor/Cassette"]
+	path = vendor/Cassette
+	url = https://github.com/M3rcuryLake/Cassette
+[submodule "vendor/Crank"]
+	path = vendor/Crank
+	url = https://github.com/ecnivs/Crank
+[submodule "vendor/Auto-YouTube-Shorts-Maker"]
+	path = vendor/Auto-YouTube-Shorts-Maker
+	url = https://github.com/Binary-Bytes/Auto-YouTube-Shorts-Maker
+[submodule "vendor/silent_autopost"]
+	path = vendor/silent_autopost
+	url = https://github.com/GrecuAlexandru/silent_autopost
+[submodule "vendor/AutoShortsAI"]
+	path = vendor/AutoShortsAI
+	url = https://github.com/smith1302/AutoShortsAI
+[submodule "vendor/Faceless-short"]
+	path = vendor/Faceless-short
+	url = https://github.com/codewithdark-git/Faceless-short
+[submodule "vendor/short-video-creator"]
+	path = vendor/short-video-creator
+	url = https://github.com/enoobis/short-video-creator
+[submodule "vendor/AI-short-creator"]
+	path = vendor/AI-short-creator
+	url = https://github.com/shreesha345/AI-short-creator
+[submodule "vendor/reels-clips-automator"]
+	path = vendor/reels-clips-automator
+	url = https://github.com/eddieoz/reels-clips-automator
+[submodule "vendor/ai-clips-maker"]
+	path = vendor/ai-clips-maker
+	url = https://github.com/alperensumeroglu/ai-clips-maker
+[submodule "vendor/ShortReelX"]
+	path = vendor/ShortReelX
+	url = https://github.com/kashyapprajapat/ShortReelX
+[submodule "vendor/Clip-Anything"]
+	path = vendor/Clip-Anything
+	url = https://github.com/SamurAIGPT/Clip-Anything
+[submodule "vendor/shorts_maker"]
+	path = vendor/shorts_maker
+	url = https://github.com/rajathjn/shorts_maker
+[submodule "vendor/AI-Youtube-Shorts-Generator-fork"]
+	path = vendor/AI-Youtube-Shorts-Generator-fork
+	url = https://github.com/YassineKADER/AI-Youtube-Shorts-Generator-
+[submodule "templates/vidosy"]
+	path = templates/vidosy
+	url = https://github.com/aaurelions/vidosy
+[submodule "templates/Short-Video-Creator"]
+	path = templates/Short-Video-Creator
+	url = https://github.com/sw-aka/Short-Video-Creator
+[submodule "vendor/auto-subtitle-generator"]
+	path = vendor/auto-subtitle-generator
+	url = https://github.com/zubu007/auto-subtitle-generator
+[submodule "vendor/captacity"]
+	path = vendor/captacity
+	url = https://github.com/unconv/captacity
+[submodule "vendor/auto-subtitle"]
+	path = vendor/auto-subtitle
+	url = https://github.com/m1guelpf/auto-subtitle
+[submodule "vendor/video-subtitles-generator"]
+	path = vendor/video-subtitles-generator
+	url = https://github.com/Santos6808/video-subtitles-generator
+[submodule "vendor/shortrocity"]
+	path = vendor/shortrocity
+	url = https://github.com/unconv/shortrocity
+[submodule "vendor/tiktok-automatic-videos"]
+	path = vendor/tiktok-automatic-videos
+	url = https://github.com/jarle/tiktok-automatic-videos
+[submodule "vendor/YouTube-shorts-generator"]
+	path = vendor/YouTube-shorts-generator
+	url = https://github.com/zackmawaldi/YouTube-shorts-generator
+[submodule "vendor/youtube-shorts-reddit-scraper"]
+	path = vendor/youtube-shorts-reddit-scraper
+	url = https://github.com/IanTerzo/youtube-shorts-reddit-scraper
+[submodule "vendor/OBrainRot"]
+	path = vendor/OBrainRot
+	url = https://github.com/harvestingmoon/OBrainRot
+[submodule "vendor/RedditShortVideoMaker"]
+	path = vendor/RedditShortVideoMaker
+	url = https://github.com/michaelbrusegard/RedditShortVideoMaker
+[submodule "vendor/TikTok-Compilation-Video-Generator"]
+	path = vendor/TikTok-Compilation-Video-Generator
+	url = https://github.com/HA6Bots/TikTok-Compilation-Video-Generator
