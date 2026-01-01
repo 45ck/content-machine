@@ -1,0 +1,95 @@
+# Research Report: ShortGPT
+
+**Repo:** `RayVentura/ShortGPT`  
+**Location:** `vendor/ShortGPT/`  
+**Stars:** 5k+ (very popular)  
+**Language:** Python  
+**License:** MIT
+
+---
+
+## What It Does
+
+Full **AI video automation framework** with multiple engines for different content types. Highly modular with support for:
+
+1. Short video creation
+2. Long-form video creation  
+3. Video translation/dubbing to 30+ languages
+4. Custom editing via "Editing Markup Language"
+
+## Key Features
+
+| Feature | Details |
+|---------|---------|
+| **ContentShortEngine** | Creates shorts from script to final render |
+| **ContentVideoEngine** | Longer videos with auto footage sourcing |
+| **ContentTranslationEngine** | Dub/translate entire videos to 30+ languages |
+| **EditingEngine** | LLM-oriented editing with JSON markup |
+| **TTS** | ElevenLabs + EdgeTTS (free, 30+ languages) |
+| **Footage** | Pexels + Bing Image sourcing |
+| **Captions** | Automatic generation |
+| **Persistence** | TinyDB for long-term state |
+
+## Tech Stack
+
+- **Language:** Python
+- **Video:** MoviePy
+- **TTS:** ElevenLabs (paid) + EdgeTTS (free)
+- **LLM:** OpenAI
+- **Footage:** Pexels API + Bing Image
+- **Database:** TinyDB
+- **UI:** Gradio
+- **Deployment:** Docker, Google Colab
+
+## What We Can Reuse
+
+### ✅ High Value
+- **Multi-engine architecture** - Content types as separate engines
+- **EdgeTTS integration** - Free TTS for 30+ languages
+- **Translation/dubbing workflow** - Video localization
+- **LLM editing language** - JSON-based editing instructions
+- **Pexels + Bing Image patterns** - Multiple asset sources
+
+### ⚠️ Medium Value
+- **TinyDB persistence** - State management between runs
+- **Docker setup** - Deployment patterns
+
+### ❌ Not Needed
+- **Gradio UI** - We're CLI-first
+
+## How It Helps Us
+
+1. **Multi-language support** - EdgeTTS for free voiceovers in many languages
+2. **Video dubbing** - Could add translation feature later
+3. **Editing Markup Language** - Interesting pattern for LLM-controlled editing
+4. **Asset sourcing** - Pexels + Bing patterns
+
+## Key Files to Study
+
+```
+shortGPT/
+├── engine/
+│   ├── content_short_engine.py     # Shorts creation ⭐
+│   ├── content_video_engine.py     # Long-form
+│   └── content_translation_engine.py # Dubbing
+├── audio/
+│   ├── eleven_voice_module.py      # ElevenLabs
+│   └── edge_voice_module.py        # Free EdgeTTS ⭐
+├── editing_framework/
+│   └── editing_engine.py           # LLM editing ⭐
+└── source_material/
+    └── pexels_footage.py           # Asset sourcing
+```
+
+## Gaps / Limitations
+
+- Python only (not TypeScript)
+- Uses MoviePy (not Remotion)
+- GPU-heavy for some features
+- Complex codebase
+
+---
+
+## Verdict
+
+**Value: HIGH** - Excellent reference for multi-language TTS (EdgeTTS is free!), video translation/dubbing, and LLM-controlled editing workflows. The engine architecture is well-designed.

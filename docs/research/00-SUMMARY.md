@@ -1,21 +1,57 @@
 # Vendored Repos Research Summary
 
 **Date:** January 2026  
-**Purpose:** Understand what we have before building anything
+**Purpose:** Understand what we have before building anything  
+**Total Repos:** 42 vendored submodules
 
 ---
 
-## Quick Reference
+## 🔴 CRITICAL - Primary References
 
-| Repo | Location | Value | Primary Use |
-|------|----------|-------|-------------|
-| **template-tiktok** | `templates/template-tiktok-base/` | 🔴 CRITICAL | Video composition + captions |
-| **openai-agents-js** | `vendor/openai-agents-js/` | 🔴 CRITICAL | Agent orchestration + tools |
-| **mcp-reddit** | `connectors/mcp-reddit/` | 🟠 HIGH | Trend research |
-| **MoneyPrinterTurbo** | `vendor/MoneyPrinterTurbo/` | 🟠 HIGH | Script + stock footage patterns |
-| **AI-Youtube-Shorts** | `vendor/AI-Youtube-Shorts-Generator/` | 🟡 MEDIUM-HIGH | Whisper + highlight patterns |
-| **template-audiogram** | `templates/template-audiogram/` | 🟡 MEDIUM | Caption generation reference |
-| **MoneyPrinter** | `vendor/MoneyPrinter/` | 🟢 LOW | TikTok TTS fallback |
+| Repo | Location | Primary Use |
+|------|----------|-------------|
+| **short-video-maker-gyori** | `vendor/short-video-maker-gyori/` | TypeScript + Remotion + MCP + REST - OUR BLUEPRINT |
+| **vidosy** | `templates/vidosy/` | Config-driven Remotion, JSON → video |
+| **template-tiktok** | `templates/template-tiktok-base/` | Video composition + captions |
+| **openai-agents-js** | `vendor/openai-agents-js/` | Agent orchestration + tools |
+
+## 🟠 HIGH Value
+
+| Repo | Location | Primary Use |
+|------|----------|-------------|
+| **ShortGPT** | `vendor/ShortGPT/` | EdgeTTS (free 30+ languages), dubbing |
+| **viralfactory** | `vendor/viralfactory/` | Auto-upload TikTok/YouTube, Coqui TTS |
+| **mcp-reddit** | `connectors/mcp-reddit/` | Trend research |
+| **MoneyPrinterTurbo** | `vendor/MoneyPrinterTurbo/` | Script + stock footage patterns |
+
+## 🟡 MEDIUM Value
+
+| Repo | Location | Primary Use |
+|------|----------|-------------|
+| **captacity** | `vendor/captacity/` | Word highlighting, caption styling |
+| **AI-Youtube-Shorts** | `vendor/AI-Youtube-Shorts-Generator/` | Whisper + highlight patterns |
+| **shortrocity** | `vendor/shortrocity/` | DALL-E backgrounds |
+| **Clip-Anything** | `vendor/Clip-Anything/` | Virality scoring |
+| **template-audiogram** | `templates/template-audiogram/` | Caption generation reference |
+
+## 🟢 LOW Value (30+ more repos - see 16-BATCH2-SUMMARY.md)
+
+---
+
+## Key Discovery: Our Blueprint Exists!
+
+**short-video-maker-gyori** is TypeScript + Remotion + MCP + REST - exactly our target stack!
+
+```
+THEIR STACK = OUR STACK
+├── TypeScript        ✅
+├── Remotion          ✅
+├── MCP Server        ✅ (for AI agents)
+├── REST API          ✅ (for flexibility)
+├── Kokoro TTS        ✅ (free, local)
+├── Whisper           ✅ (captions)
+└── Pexels            ✅ (stock footage)
+```
 
 ---
 
@@ -25,85 +61,122 @@
 
 | Capability | Source | Notes |
 |------------|--------|-------|
-| Video composition (React) | template-tiktok | Remotion framework |
-| Caption generation | template-tiktok, template-audiogram | Whisper.cpp integration |
+| Video composition (React) | template-tiktok, vidosy | Remotion framework |
+| MCP + REST server | short-video-maker-gyori | Agent + API access |
+| Caption generation | template-tiktok, captacity | Whisper.cpp integration |
 | Agent orchestration | openai-agents-js | Official OpenAI SDK |
-| MCP tool framework | openai-agents-js | MCP server support |
+| Free TTS (30+ languages) | ShortGPT (EdgeTTS) | Microsoft Edge TTS |
+| Free TTS (English) | short-video-maker-gyori (Kokoro) | Local, fast |
 | Reddit trend fetching | mcp-reddit | MCP-ready |
 | Script generation prompts | MoneyPrinterTurbo | Battle-tested |
 | Stock footage patterns | MoneyPrinterTurbo | Pexels integration |
-| Word-by-word captions | template-tiktok | Built-in animations |
+| Word-by-word captions | template-tiktok, captacity | Built-in animations |
+| Auto-upload TikTok/YT | viralfactory | Platform distribution |
+| Config-driven video | vidosy | JSON → video |
 
 ### What We NEED to Build
 
 | Capability | Why | Reference |
 |------------|-----|-----------|
-| CLI orchestrator | User experience | Our MVP-PLAN.md |
-| Content machine agent | Domain logic | openai-agents-js patterns |
-| TTS integration | Audio generation | MoneyPrinterTurbo for patterns |
-| Custom Remotion compositions | Our visual style | template-tiktok base |
+| Our CLI wrapper | User experience | short-video-maker-gyori patterns |
 | Niche-specific prompts | Our content focus | MoneyPrinterTurbo prompts |
-| Export pipeline | Multi-platform | Remotion render |
+| Custom Remotion compositions | Our visual style | vidosy + template-tiktok |
+| Integration glue | Connect pieces | - |
 
 ---
 
-## Proposed Architecture
+## Updated Proposed Architecture
+
+Based on **short-video-maker-gyori** + **vidosy** patterns:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                     Content Machine CLI                          │
-│                     (cm research, cm plan, cm script, etc.)     │
+│               (based on short-video-maker-gyori)                │
 └─────────────────────────────────────────────────────────────────┘
                                 │
                                 ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                   Content Agent (openai-agents-js)              │
-│   ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐       │
-│   │ Research │  │  Script  │  │   TTS    │  │  Render  │       │
-│   │   Tool   │  │   Tool   │  │   Tool   │  │   Tool   │       │
-│   └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘       │
-└────────┼─────────────┼──────────────┼─────────────┼─────────────┘
-         │             │              │             │
-         ▼             ▼              ▼             ▼
-┌──────────────┐ ┌───────────┐ ┌───────────┐ ┌─────────────────┐
-│ mcp-reddit   │ │ LLM +     │ │ OpenAI    │ │ Remotion        │
-│ (trends)     │ │ Prompts   │ │ TTS API   │ │ (template-tiktok)│
-└──────────────┘ │ (MPTurbo) │ └───────────┘ │ + Whisper.cpp   │
-                 └───────────┘               └─────────────────┘
+│                   MCP + REST Server                              │
+│            (from short-video-maker-gyori patterns)              │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+        ┌───────────────────────┼───────────────────────┐
+        ▼                       ▼                       ▼
+┌───────────────┐      ┌───────────────┐      ┌───────────────┐
+│   Research    │      │    Script     │      │    Render     │
+│ (mcp-reddit)  │      │   (OpenAI)    │      │  (Remotion)   │
+└───────────────┘      └───────────────┘      └───────────────┘
+                                │
+        ┌───────────────────────┼───────────────────────┐
+        ▼                       ▼                       ▼
+┌───────────────┐      ┌───────────────┐      ┌───────────────┐
+│     TTS       │      │   Captions    │      │   Assets      │
+│ (EdgeTTS/     │      │ (Whisper.cpp) │      │   (Pexels)    │
+│  Kokoro)      │      │               │      │               │
+└───────────────┘      └───────────────┘      └───────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│              Config-Driven Remotion Composition                  │
+│                    (vidosy JSON patterns)                       │
+└─────────────────────────────────────────────────────────────────┘
+                                │
+                                ▼
+┌─────────────────────────────────────────────────────────────────┐
+│              Auto-Upload (viralfactory patterns)                │
+│                  TikTok / YouTube / Reels                       │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Next Steps (Recommended Order)
+## Next Steps (UPDATED)
 
-### Phase 1: Foundation
-1. [ ] Set up Remotion in content-machine (copy template-tiktok structure)
-2. [ ] Verify Whisper.cpp caption generation works
-3. [ ] Create basic CLI entry point
+### Phase 1: Study the Blueprint
+1. [ ] **Deep dive into short-video-maker-gyori** - This is our model
+2. [ ] Study vidosy's JSON config pattern
+3. [ ] Understand their Remotion composition structure
 
-### Phase 2: Agent Core
-4. [ ] Set up openai-agents-js dependency
-5. [ ] Create ContentAgent with placeholder tools
-6. [ ] Implement `research` tool using mcp-reddit patterns
+### Phase 2: Set Up Our Fork/Version
+4. [ ] Create our composition based on their patterns
+5. [ ] Add EdgeTTS (from ShortGPT) for multi-language
+6. [ ] Integrate mcp-reddit for research
 
-### Phase 3: Script Generation
-7. [ ] Study MoneyPrinterTurbo prompts
-8. [ ] Implement `script` tool with our niche focus
-9. [ ] Add script review/edit flow
+### Phase 3: Customize
+7. [ ] Add our niche-specific prompts
+8. [ ] Customize visual style
+9. [ ] Add human-in-the-loop flows
 
-### Phase 4: Audio + Video
-10. [ ] Integrate OpenAI TTS (or ElevenLabs)
-11. [ ] Create custom Remotion composition
-12. [ ] Implement render pipeline
-
-### Phase 5: Polish
-13. [ ] Add export to multiple formats (TikTok, Shorts, Reels)
-14. [ ] Add stock footage integration (Pexels)
-15. [ ] Human-in-the-loop approvals
+### Phase 4: Distribution
+10. [ ] Add viralfactory upload patterns
+11. [ ] Multi-platform export
 
 ---
 
 ## Key Learnings
+
+### From short-video-maker-gyori (CRITICAL)
+- TypeScript + Remotion + MCP + REST pattern
+- Kokoro TTS integration (free, local)
+- Whisper caption generation
+- Pexels footage sourcing
+- n8n workflow examples
+
+### From vidosy (CRITICAL)
+- JSON configuration → video pipeline
+- Scene-based composition
+- Audio layering patterns
+- Zod schema validation
+
+### From ShortGPT
+- EdgeTTS for free 30+ language TTS
+- Video dubbing/translation workflow
+- Multi-engine architecture
+
+### From viralfactory
+- Auto-upload to TikTok/YouTube
+- Coqui TTS (open source alternative)
 
 ### From MoneyPrinterTurbo
 - Script prompts that work for engagement
@@ -115,13 +188,10 @@
 - Remotion composition structure
 - Whisper.cpp integration via `sub.mjs`
 - Caption animation patterns
-- Render pipeline
 
-### From openai-agents-js
-- Tool definition patterns with Zod
-- MCP server integration
-- Structured outputs
-- Human-in-the-loop flows
+### From captacity
+- Word highlighting patterns
+- Caption styling API
 
 ### From mcp-reddit
 - Trend fetching for research phase
@@ -133,22 +203,36 @@
 
 These are SOLVED problems with vendored solutions:
 
-1. ❌ Don't build video composition → Use Remotion
-2. ❌ Don't build caption generation → Use Whisper.cpp
-3. ❌ Don't build agent framework → Use openai-agents-js
-4. ❌ Don't build Reddit scraping → Use mcp-reddit
-5. ❌ Don't guess script prompts → Study MoneyPrinterTurbo
+1. ❌ Don't build video composition → Use **Remotion** (template-tiktok, vidosy)
+2. ❌ Don't build MCP server → Use **short-video-maker-gyori** patterns
+3. ❌ Don't build caption generation → Use **Whisper.cpp** (already integrated)
+4. ❌ Don't build agent framework → Use **openai-agents-js**
+5. ❌ Don't build Reddit scraping → Use **mcp-reddit**
+6. ❌ Don't guess script prompts → Study **MoneyPrinterTurbo**
+7. ❌ Don't pay for TTS → Use **EdgeTTS** (ShortGPT) or **Kokoro**
+8. ❌ Don't build upload → Use **viralfactory** patterns
 
 Focus our energy on:
 - **Integration** - Connecting these pieces
-- **Domain logic** - Our specific content strategy
+- **Domain logic** - Our specific content strategy  
 - **UX** - The CLI/semi-manual workflow
 - **Customization** - Our visual style
 
 ---
 
+## Free TTS Options Discovered
+
+| Tool | Source Repo | Languages | Notes |
+|------|-------------|-----------|-------|
+| **EdgeTTS** | ShortGPT | 30+ | Microsoft Edge, free |
+| **Kokoro** | short-video-maker-gyori | English | Local, fast |
+| **Coqui TTS** | viralfactory | Many | Open source, GPU needed |
+
+---
+
 ## Full Research Reports
 
+### Batch 1 (Original)
 1. [MoneyPrinterTurbo](01-moneyprinter-turbo.md) - Script + stock footage
 2. [MoneyPrinter](02-moneyprinter.md) - TikTok TTS fallback
 3. [AI-Youtube-Shorts-Generator](03-ai-youtube-shorts-generator.md) - Whisper + highlights
@@ -156,3 +240,14 @@ Focus our energy on:
 5. [Template Audiogram](05-template-audiogram.md) - Caption patterns
 6. [MCP Reddit](06-mcp-reddit.md) - Trend research
 7. [OpenAI Agents SDK](07-openai-agents-sdk.md) - Agent framework
+
+### Batch 2 (New - 32 repos)
+8. [ShortGPT](08-shortgpt.md) - EdgeTTS, dubbing
+9. [Captacity](09-captacity.md) - Caption styling
+10. [Short-Video-Maker-Gyori](10-short-video-maker-gyori.md) - **OUR BLUEPRINT** ⭐
+11. [Viralfactory](11-viralfactory.md) - Auto-upload
+12. [Vidosy](12-vidosy.md) - **Config-driven Remotion** ⭐
+13. [Shortrocity](13-shortrocity.md) - DALL-E backgrounds
+14. [Clip-Anything](14-clip-anything.md) - Virality scoring
+15. [Auto-Subtitle](15-auto-subtitle.md) - Translation
+16. [BATCH2 SUMMARY](16-BATCH2-SUMMARY.md) - All 32 new repos

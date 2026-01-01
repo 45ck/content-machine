@@ -1,0 +1,111 @@
+# Research Report: Vidosy
+
+**Repo:** `aaurelions/vidosy`  
+**Location:** `templates/vidosy/`  
+**Stars:** New  
+**Language:** TypeScript  
+**License:** MIT
+
+---
+
+## What It Does
+
+**Configuration-driven video generation tool** using Remotion. Define videos in JSON, add assets, render. Very clean architecture!
+
+## Key Features
+
+| Feature | Details |
+|---------|---------|
+| **Config-Driven** | JSON video definitions |
+| **Multi-Media Backgrounds** | Video, image, color |
+| **Audio System** | Background music + scene narration |
+| **Scene Management** | Transitions, timing, text overlays |
+| **Quality Presets** | Low, medium, high |
+| **Output Formats** | MP4, MOV, AVI |
+| **Schema Validation** | Zod for type safety |
+
+## Tech Stack
+
+- **Language:** TypeScript ⭐
+- **Video:** Remotion ⭐
+- **Validation:** Zod
+- **Build:** npm
+
+## Configuration Example
+
+```json
+{
+  "video": {
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "duration": 15
+  },
+  "audio": {
+    "background": "music.mp3",
+    "volume": 0.3,
+    "fadeIn": 2,
+    "fadeOut": 3
+  },
+  "scenes": [
+    {
+      "id": "intro",
+      "duration": 5,
+      "background": {
+        "type": "image",
+        "value": "intro.png"
+      }
+    }
+  ]
+}
+```
+
+## What We Can Reuse
+
+### ✅ High Value (CRITICAL)
+- **JSON configuration pattern** - Video as data
+- **Remotion + TypeScript** - Same stack as us!
+- **Scene composition** - Multi-scene architecture
+- **Audio layering** - Background + narration
+- **Zod schemas** - Type-safe config validation
+
+### ⚠️ Medium Value
+- **Transition effects** - Fade in/out, scale
+
+### ❌ Not Needed
+- Nothing - very aligned
+
+## How It Helps Us
+
+1. **Config-driven pattern** - JSON → video pipeline
+2. **Remotion composition** - Clean TypeScript patterns
+3. **Audio system** - Background + per-scene audio
+4. **Scene architecture** - How to structure multi-scene videos
+5. **Zod validation** - Configuration schema patterns
+
+## Key Files to Study
+
+```
+src/
+├── config/
+│   └── schema.ts        # Zod schemas ⭐
+├── composition/
+│   └── Video.tsx        # Main Remotion component ⭐
+├── scenes/
+│   └── Scene.tsx        # Scene component
+└── audio/
+    └── AudioManager.tsx # Audio handling ⭐
+```
+
+## Gaps / Limitations
+
+- No TTS (audio must be pre-generated)
+- No caption generation
+- No asset sourcing (manual)
+- Newer project
+
+---
+
+## Verdict
+
+**Value: CRITICAL** 🔴 - Excellent **config-driven Remotion template**. The JSON → video pattern is exactly what we want. Should study alongside short-video-maker-gyori for our implementation.

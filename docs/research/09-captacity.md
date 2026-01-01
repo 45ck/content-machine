@@ -1,0 +1,94 @@
+# Research Report: Captacity
+
+**Repo:** `unconv/captacity`  
+**Location:** `vendor/captacity/`  
+**Stars:** Growing  
+**Language:** Python  
+**License:** MIT
+
+---
+
+## What It Does
+
+**Dead-simple caption/subtitle library** for adding automatic captions to videos using Whisper + MoviePy.
+
+Install with pip, run with one command. Perfect for YouTube Shorts.
+
+## Key Features
+
+| Feature | Details |
+|---------|---------|
+| **Simplicity** | `captacity video.mp4 output.mp4` |
+| **Whisper** | Local or API-based transcription |
+| **Word Highlighting** | Highlight current word being spoken |
+| **Customizable** | Font, size, color, stroke, shadow |
+| **Line Count** | Control caption line count |
+| **Padding** | Position control |
+
+## Tech Stack
+
+- **Language:** Python
+- **Transcription:** OpenAI Whisper (local or API)
+- **Video:** MoviePy
+- **Installation:** `pip install captacity`
+
+## Configuration Options
+
+```python
+captacity.add_captions(
+    video_file="video.mp4",
+    output_file="output.mp4",
+    font = "/path/to/font.ttf",
+    font_size = 130,
+    font_color = "yellow",
+    stroke_width = 3,
+    stroke_color = "black",
+    shadow_strength = 1.0,
+    shadow_blur = 0.1,
+    highlight_current_word = True,
+    word_highlight_color = "red",
+    line_count = 1,
+    padding = 50,
+)
+```
+
+## What We Can Reuse
+
+### ✅ High Value
+- **Word highlighting logic** - Karaoke-style captions
+- **Caption styling API** - Font/color/stroke parameters
+- **Whisper local vs API** - Fallback pattern
+
+### ⚠️ Medium Value
+- **Simple CLI pattern** - Good UX reference
+
+### ❌ Not Needed
+- **Full library** - We use Remotion for rendering
+
+## How It Helps Us
+
+1. **Caption styling patterns** - What parameters matter
+2. **Word highlighting** - Implement similar in Remotion
+3. **Whisper fallback** - Local vs API pattern
+
+## Key Files to Study
+
+```
+captacity/
+├── __init__.py          # Main API
+├── captions.py          # Caption generation
+├── whisper.py           # Transcription
+└── styles.py            # Styling logic ⭐
+```
+
+## Gaps / Limitations
+
+- Python only
+- MoviePy-based (not Remotion)
+- No video composition (captions only)
+
+---
+
+## Verdict
+
+**Value: MEDIUM** - Simple, focused tool for caption generation. The styling API and word highlighting patterns are useful references even though we use Remotion. Used by shortrocity.
