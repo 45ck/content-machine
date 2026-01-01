@@ -1,0 +1,21 @@
+[submodule "vendor/MoneyPrinterTurbo"]
+	path = vendor/MoneyPrinterTurbo
+	url = https://github.com/harry0703/MoneyPrinterTurbo.git
+[submodule "vendor/MoneyPrinter"]
+	path = vendor/MoneyPrinter
+	url = https://github.com/FujiwaraChoki/MoneyPrinter.git
+[submodule "vendor/AI-Youtube-Shorts-Generator"]
+	path = vendor/AI-Youtube-Shorts-Generator
+	url = https://github.com/SamurAIGPT/AI-Youtube-Shorts-Generator.git
+[submodule "templates/template-tiktok-base"]
+	path = templates/template-tiktok-base
+	url = https://github.com/remotion-dev/template-tiktok.git
+[submodule "connectors/mcp-reddit"]
+	path = connectors/mcp-reddit
+	url = https://github.com/adhikasp/mcp-reddit.git
+[submodule "vendor/openai-agents-js"]
+	path = vendor/openai-agents-js
+	url = https://github.com/openai/openai-agents-js.git
+[submodule "templates/template-audiogram"]
+	path = templates/template-audiogram
+	url = https://github.com/remotion-dev/template-audiogram.git
