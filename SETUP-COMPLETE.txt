@@ -1,0 +1,88 @@
+﻿
+
+         CONTENT-MACHINE REPO - READY FOR DEVELOPMENT          
+
+
+ Repository Structure Complete
+
+ Core Directories:
+    src/              - Implementation (empty, ready for code)
+    vendor/           - 118 vendored repos (git submodules)
+    docs/             - Documentation (Diátaxis framework)
+    tasks/            - Task management (INVEST + TDD)
+    scripts/          - Automation scripts
+    tests/            - Test suites (unit, integration, e2e)
+    .github/          - CI/CD workflows (ready for setup)
+
+ Documentation System:
+    AGENTS.md         - Comprehensive project guide
+    docs/README.md    - Documentation index
+    docs/templates/   - Doc templates (with YYYYMMDD convention)
+    Research reports  - 16 reports on vendored repos
+
+ Task Management:
+    tasks/README.md   - Task workflow guide
+    tasks/templates/  - Task templates (4 types)
+    TDD workflow      - Red  Green  Refactor
+    INVEST criteria   - Task quality standards
+
+ Key Features:
+    Date Convention   - All files MUST use YYYYMMDD suffix
+    Templates         - Never start from scratch
+    TDD Required      - Tests before implementation
+    ADR Pattern       - Architecture decisions documented
+    Diátaxis Docs     - Tutorial/Guide/Reference/Explanation
+
+ Vendored Repos (118 total):
+    Orchestration:    temporal, n8n, airflow
+    MCP:              modelcontextprotocol SDKs, fastmcp
+    Agents:           langchain, langgraph, llama_index
+    Capture:          playwright, playwright-mcp
+    Render:           remotion, vidosy, chuk-mcp-remotion
+    Video:            ffmpeg, moviepy, pyav
+    ASR:              whisper variants, captacity
+    TTS:              kokoro, piper, coqui-tts
+    Storage:          minio, qdrant, pgvector
+    ...and 80+ more
+
+ Blueprint Repos (Study These First):
+    short-video-maker-gyori - TypeScript + Remotion + MCP + REST
+    vidosy                  - JSON config  video pattern
+    ShortGPT                - EdgeTTS (30+ languages)
+    captacity               - Caption styling patterns
+
+ Next Steps:
+   1. Deep dive into blueprint repos:
+       cd vendor/short-video-maker/short-video-maker-gyori
+       cd vendor/templates/vidosy
+   
+   2. Write initial ADRs:
+       adr-001-use-remotion-for-rendering-20260102.md
+       adr-002-mcp-server-architecture-20260102.md
+   
+   3. Define core schemas:
+       Content Object (Zod)
+       Scene Schema (Zod)
+       Render Config (Zod)
+   
+   4. Implement foundation:
+       src/types/       - Core types
+       src/connectors/  - MCP servers
+       src/render/      - Remotion pipeline
+
+ Quick Commands:
+    npm install              - Install dependencies
+    npm run dev              - Start dev server (when implemented)
+    npm test                 - Run tests
+    .\scripts\vendor.ps1     - Update submodules
+    git submodule status     - Check submodules
+
+ Documentation:
+    Read: AGENTS.md          - Full project guide
+    Read: docs/README.md     - Doc index
+    Read: tasks/README.md    - Task workflow
+
+
+Ready to start development! 
+
+
