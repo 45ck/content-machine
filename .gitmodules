@@ -184,6 +184,7 @@
 [submodule "vendor/connectors/youtube/google-api-python"]
 	path = vendor/connectors/youtube/google-api-python
 	url = https://github.com/googleapis/google-api-python-client
+	ignore = dirty
 [submodule "vendor/connectors/youtube/youtube-transcript-api"]
 	path = vendor/connectors/youtube/youtube-transcript-api
 	url = https://github.com/jdepoix/youtube-transcript-api
