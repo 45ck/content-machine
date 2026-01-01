@@ -1,0 +1,32 @@
+node_modules/
+dist/
+.env
+.env.local
+
+# Output
+output/
+*.mp4
+*.mp3
+*.wav
+
+# Logs
+*.log
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Test
+coverage/
+.vitest/
+
+# Remotion
+.remotion/
+out/
