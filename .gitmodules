@@ -130,3 +130,225 @@
 [submodule "vendor/TikTok-Compilation-Video-Generator"]
 	path = vendor/TikTok-Compilation-Video-Generator
 	url = https://github.com/HA6Bots/TikTok-Compilation-Video-Generator
+[submodule "vendor/orchestration/temporal"]
+	path = vendor/orchestration/temporal
+	url = https://github.com/temporalio/temporal
+[submodule "vendor/orchestration/n8n"]
+	path = vendor/orchestration/n8n
+	url = https://github.com/n8n-io/n8n
+[submodule "vendor/orchestration/airflow"]
+	path = vendor/orchestration/airflow
+	url = https://github.com/apache/airflow
+[submodule "vendor/job-queue/bullmq"]
+	path = vendor/job-queue/bullmq
+	url = https://github.com/taskforcesh/bullmq
+[submodule "vendor/job-queue/celery"]
+	path = vendor/job-queue/celery
+	url = https://github.com/celery/celery
+[submodule "vendor/job-queue/rq"]
+	path = vendor/job-queue/rq
+	url = https://github.com/rq/rq
+[submodule "vendor/mcp/mcp-servers"]
+	path = vendor/mcp/mcp-servers
+	url = https://github.com/modelcontextprotocol/servers
+[submodule "vendor/mcp/mcp-python-sdk"]
+	path = vendor/mcp/mcp-python-sdk
+	url = https://github.com/modelcontextprotocol/python-sdk
+[submodule "vendor/mcp/mcp-quickstart"]
+	path = vendor/mcp/mcp-quickstart
+	url = https://github.com/modelcontextprotocol/quickstart-resources
+[submodule "vendor/mcp/fastmcp-python"]
+	path = vendor/mcp/fastmcp-python
+	url = https://github.com/jlowin/fastmcp
+[submodule "vendor/mcp/fastmcp-typescript"]
+	path = vendor/mcp/fastmcp-typescript
+	url = https://github.com/punkpeye/fastmcp
+[submodule "vendor/connectors/reddit/praw"]
+	path = vendor/connectors/reddit/praw
+	url = https://github.com/praw-dev/praw
+[submodule "vendor/connectors/reddit/asyncpraw"]
+	path = vendor/connectors/reddit/asyncpraw
+	url = https://github.com/praw-dev/asyncpraw
+[submodule "vendor/connectors/reddit/reddit-mcp-geli"]
+	path = vendor/connectors/reddit/reddit-mcp-geli
+	url = https://github.com/GeLi2001/reddit-mcp
+[submodule "vendor/connectors/reddit/reddit-mcp-ts"]
+	path = vendor/connectors/reddit/reddit-mcp-ts
+	url = https://github.com/jordanburke/reddit-mcp-server
+[submodule "vendor/connectors/reddit/reddit-mcp-buddy"]
+	path = vendor/connectors/reddit/reddit-mcp-buddy
+	url = https://github.com/karanb192/reddit-mcp-buddy
+[submodule "vendor/connectors/youtube/google-api-nodejs"]
+	path = vendor/connectors/youtube/google-api-nodejs
+	url = https://github.com/googleapis/google-api-nodejs-client
+[submodule "vendor/connectors/youtube/google-api-python"]
+	path = vendor/connectors/youtube/google-api-python
+	url = https://github.com/googleapis/google-api-python-client
+[submodule "vendor/connectors/youtube/youtube-transcript-api"]
+	path = vendor/connectors/youtube/youtube-transcript-api
+	url = https://github.com/jdepoix/youtube-transcript-api
+[submodule "vendor/connectors/youtube/yt-dlp"]
+	path = vendor/connectors/youtube/yt-dlp
+	url = https://github.com/yt-dlp/yt-dlp
+[submodule "vendor/connectors/trends/pytrends"]
+	path = vendor/connectors/trends/pytrends
+	url = https://github.com/GeneralMills/pytrends
+[submodule "vendor/connectors/hackernews/hn-api-official"]
+	path = vendor/connectors/hackernews/hn-api-official
+	url = https://github.com/HackerNews/API
+[submodule "vendor/connectors/hackernews/hn-search-algolia"]
+	path = vendor/connectors/hackernews/hn-search-algolia
+	url = https://github.com/algolia/hn-search
+[submodule "vendor/connectors/hackernews/hn-client"]
+	path = vendor/connectors/hackernews/hn-client
+	url = https://github.com/imotkin/hn-client
+[submodule "vendor/connectors/hackernews/hn-api-rust"]
+	path = vendor/connectors/hackernews/hn-api-rust
+	url = https://github.com/dbrgn/hn_api
+[submodule "vendor/connectors/web/firecrawl"]
+	path = vendor/connectors/web/firecrawl
+	url = https://github.com/mendableai/firecrawl
+[submodule "vendor/connectors/web/tavily-python"]
+	path = vendor/connectors/web/tavily-python
+	url = https://github.com/tavily-ai/tavily-python
+[submodule "vendor/connectors/scrapers/snscrape"]
+	path = vendor/connectors/scrapers/snscrape
+	url = https://github.com/JustAnotherArchivist/snscrape
+[submodule "vendor/connectors/scrapers/instaloader"]
+	path = vendor/connectors/scrapers/instaloader
+	url = https://github.com/instaloader/instaloader
+[submodule "vendor/research/open-deep-research"]
+	path = vendor/research/open-deep-research
+	url = https://github.com/langchain-ai/open_deep_research
+[submodule "vendor/research/gpt-researcher"]
+	path = vendor/research/gpt-researcher
+	url = https://github.com/assafelovic/gpt-researcher
+[submodule "vendor/agents/langgraph"]
+	path = vendor/agents/langgraph
+	url = https://github.com/langchain-ai/langgraph
+[submodule "vendor/agents/langchain"]
+	path = vendor/agents/langchain
+	url = https://github.com/langchain-ai/langchain
+[submodule "vendor/agents/llama-index"]
+	path = vendor/agents/llama-index
+	url = https://github.com/run-llama/llama_index
+[submodule "vendor/agents/crewai"]
+	path = vendor/agents/crewai
+	url = https://github.com/crewAIInc/crewAI
+[submodule "vendor/agents/pydantic-ai"]
+	path = vendor/agents/pydantic-ai
+	url = https://github.com/pydantic/pydantic-ai
+[submodule "vendor/observability/promptfoo"]
+	path = vendor/observability/promptfoo
+	url = https://github.com/promptfoo/promptfoo
+[submodule "vendor/observability/langfuse"]
+	path = vendor/observability/langfuse
+	url = https://github.com/langfuse/langfuse
+[submodule "vendor/observability/sentry"]
+	path = vendor/observability/sentry
+	url = https://github.com/getsentry/sentry
+[submodule "vendor/observability/opentelemetry-js"]
+	path = vendor/observability/opentelemetry-js
+	url = https://github.com/open-telemetry/opentelemetry-js
+[submodule "vendor/schema/zod"]
+	path = vendor/schema/zod
+	url = https://github.com/colinhacks/zod
+[submodule "vendor/schema/ajv"]
+	path = vendor/schema/ajv
+	url = https://github.com/ajv-validator/ajv
+[submodule "vendor/schema/pydantic"]
+	path = vendor/schema/pydantic
+	url = https://github.com/pydantic/pydantic
+[submodule "vendor/schema/instructor"]
+	path = vendor/schema/instructor
+	url = https://github.com/instructor-ai/instructor
+[submodule "vendor/storage/minio"]
+	path = vendor/storage/minio
+	url = https://github.com/minio/minio
+[submodule "vendor/storage/qdrant"]
+	path = vendor/storage/qdrant
+	url = https://github.com/qdrant/qdrant
+[submodule "vendor/storage/weaviate"]
+	path = vendor/storage/weaviate
+	url = https://github.com/weaviate/weaviate
+[submodule "vendor/mcp-servers/genai-toolbox"]
+	path = vendor/mcp-servers/genai-toolbox
+	url = https://github.com/googleapis/genai-toolbox
+[submodule "vendor/mcp-servers/postgres-mcp-server"]
+	path = vendor/mcp-servers/postgres-mcp-server
+	url = https://github.com/ahmedmustahid/postgres-mcp-server
+[submodule "vendor/mcp-servers/postgres-mcp"]
+	path = vendor/mcp-servers/postgres-mcp
+	url = https://github.com/crystaldba/postgres-mcp
+[submodule "vendor/mcp-servers/upstash-mcp-server"]
+	path = vendor/mcp-servers/upstash-mcp-server
+	url = https://github.com/upstash/mcp-server
+[submodule "vendor/mcp-servers/qdrant-mcp-server"]
+	path = vendor/mcp-servers/qdrant-mcp-server
+	url = https://github.com/qdrant/mcp-server-qdrant
+[submodule "vendor/capture/playwright"]
+	path = vendor/capture/playwright
+	url = https://github.com/microsoft/playwright
+[submodule "vendor/capture/screen-capture-patterns"]
+	path = vendor/capture/screen-capture-patterns
+	url = https://github.com/trion-development/screen-capture-puppeteer-playwright
+[submodule "vendor/capture/puppeteer-screen-recorder"]
+	path = vendor/capture/puppeteer-screen-recorder
+	url = https://github.com/prasanaworld/puppeteer-screen-recorder
+[submodule "vendor/render/remotion"]
+	path = vendor/render/remotion
+	url = https://github.com/remotion-dev/remotion
+[submodule "vendor/render/chuk-mcp-remotion"]
+	path = vendor/render/chuk-mcp-remotion
+	url = https://github.com/chrishayuk/chuk-mcp-remotion
+[submodule "vendor/video-processing/ffmpeg"]
+	path = vendor/video-processing/ffmpeg
+	url = https://github.com/FFmpeg/FFmpeg
+[submodule "vendor/video-processing/pyav"]
+	path = vendor/video-processing/pyav
+	url = https://github.com/PyAV-Org/PyAV
+[submodule "vendor/video-processing/moviepy"]
+	path = vendor/video-processing/moviepy
+	url = https://github.com/Zulko/moviepy
+[submodule "vendor/captions/whisper"]
+	path = vendor/captions/whisper
+	url = https://github.com/openai/whisper
+[submodule "vendor/captions/whisperx"]
+	path = vendor/captions/whisperx
+	url = https://github.com/m-bain/whisperX
+[submodule "vendor/captions/auto-subtitle-generator"]
+	path = vendor/captions/auto-subtitle-generator
+	url = https://github.com/zubu007/auto-subtitle-generator
+[submodule "vendor/captions/video-subtitles-generator"]
+	path = vendor/captions/video-subtitles-generator
+	url = https://github.com/Santos6808/video-subtitles-generator
+[submodule "vendor/audio/kokoro"]
+	path = vendor/audio/kokoro
+	url = https://github.com/hexgrad/kokoro
+[submodule "vendor/audio/kokoro-fastapi"]
+	path = vendor/audio/kokoro-fastapi
+	url = https://github.com/remsky/Kokoro-FastAPI
+[submodule "vendor/clipping/pyscenedetect"]
+	path = vendor/clipping/pyscenedetect
+	url = https://github.com/Breakthrough/PySceneDetect
+[submodule "vendor/publish/mixpost"]
+	path = vendor/publish/mixpost
+	url = https://github.com/inovector/mixpost
+[submodule "vendor/publish/youtube-upload"]
+	path = vendor/publish/youtube-upload
+	url = https://github.com/pillargg/youtube-upload
+[submodule "vendor/review-ui/appsmith"]
+	path = vendor/review-ui/appsmith
+	url = https://github.com/appsmithorg/appsmith
+[submodule "vendor/review-ui/budibase"]
+	path = vendor/review-ui/budibase
+	url = https://github.com/Budibase/budibase
+[submodule "vendor/review-ui/react-admin"]
+	path = vendor/review-ui/react-admin
+	url = https://github.com/marmelab/react-admin
+[submodule "vendor/github/octokit-rest"]
+	path = vendor/github/octokit-rest
+	url = https://github.com/octokit/rest.js
+[submodule "vendor/github/octokit"]
+	path = vendor/github/octokit
+	url = https://github.com/octokit/octokit.js
