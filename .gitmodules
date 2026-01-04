@@ -353,3 +353,162 @@
 [submodule "vendor/github/octokit"]
 	path = vendor/github/octokit
 	url = https://github.com/octokit/octokit.js
+[submodule "vendor/Viral-Faceless-Shorts-Generator"]
+	path = vendor/Viral-Faceless-Shorts-Generator
+	url = https://github.com/Dark2C/Viral-Faceless-Shorts-Generator
+[submodule "vendor/Auto-YT-Shorts"]
+	path = vendor/Auto-YT-Shorts
+	url = https://github.com/pro-grammer-SD/Auto-YT-Shorts
+[submodule "vendor/AI-Youtube-Shorts-Generator-SaarD00"]
+	path = vendor/AI-Youtube-Shorts-Generator-SaarD00
+	url = https://github.com/SaarD00/AI-Youtube-Shorts-Generator
+[submodule "vendor/VideoShortsCreator-Gemini"]
+	path = vendor/VideoShortsCreator-Gemini
+	url = https://github.com/EduardohrqX/VideoShortsCreator-With-Gemini-VSCWG
+[submodule "vendor/AI-reels"]
+	path = vendor/AI-reels
+	url = https://github.com/selever3467/AI-reels
+[submodule "vendor/automated-short-generator"]
+	path = vendor/automated-short-generator
+	url = https://github.com/RushabhShahPrograms/automated-short-generator
+[submodule "vendor/gemini-youtube-automation"]
+	path = vendor/gemini-youtube-automation
+	url = https://github.com/ChaituRajSagar/gemini-youtube-automation
+[submodule "vendor/VideoGraphAI"]
+	path = vendor/VideoGraphAI
+	url = https://github.com/mikeoller82/VideoGraphAI
+[submodule "vendor/Autotube"]
+	path = vendor/Autotube
+	url = https://github.com/Hritikraj8804/Autotube
+[submodule "vendor/ShortFormGenerator"]
+	path = vendor/ShortFormGenerator
+	url = https://github.com/DrewStewart7/ShortFormGenerator
+[submodule "vendor/orchestration/ai-video-workflow"]
+	path = vendor/orchestration/ai-video-workflow
+	url = https://github.com/toki-plus/ai-video-workflow
+[submodule "vendor/orchestration/ai-video-workflow-envergadcr"]
+	path = vendor/orchestration/ai-video-workflow-envergadcr
+	url = https://github.com/envergadcr/ai-video-workflow
+[submodule "vendor/postcrest-ai-content-creation-platform"]
+	path = vendor/postcrest-ai-content-creation-platform
+	url = https://github.com/Martin-Balk/postcrest-ai-content-creation-platform
+[submodule "vendor/clipping/ai-highlight-clip"]
+	path = vendor/clipping/ai-highlight-clip
+	url = https://github.com/toki-plus/ai-highlight-clip
+[submodule "vendor/clipping/ai-highlight-clip-arielitotupai"]
+	path = vendor/clipping/ai-highlight-clip-arielitotupai
+	url = https://github.com/arielitotupai/ai-highlight-clip
+[submodule "vendor/clipping/FunClip"]
+	path = vendor/clipping/FunClip
+	url = https://github.com/modelscope/FunClip
+[submodule "vendor/clipping/Video-AutoClip"]
+	path = vendor/clipping/Video-AutoClip
+	url = https://github.com/smokkerelf-2000a3h/Video-AutoClip-Automatic-Stream-Highlights-Smart-Video-Cutter
+[submodule "vendor/clipping/autoclipper"]
+	path = vendor/clipping/autoclipper
+	url = https://github.com/VadlapatiKarthik/autoclipper
+[submodule "vendor/clipping/awesome-free-opusclip-alternatives"]
+	path = vendor/clipping/awesome-free-opusclip-alternatives
+	url = https://github.com/cipher-vault-hq/awesome-free-opusclip-alternatives
+[submodule "vendor/video-processing/capcut-mate"]
+	path = vendor/video-processing/capcut-mate
+	url = https://github.com/Hommy-master/capcut-mate
+[submodule "vendor/video-processing/capcut-mate-electron"]
+	path = vendor/video-processing/capcut-mate-electron
+	url = https://github.com/Hommy-master/capcut-mate-electron
+[submodule "vendor/video-processing/jianying-protocol-service"]
+	path = vendor/video-processing/jianying-protocol-service
+	url = https://github.com/qingpingwang/jianying-protocol-service
+[submodule "vendor/video-processing/FFMPerative"]
+	path = vendor/video-processing/FFMPerative
+	url = https://github.com/remyxai/FFMPerative
+[submodule "vendor/video-processing/Video_Automator"]
+	path = vendor/video-processing/Video_Automator
+	url = https://github.com/matthewthomasbeck/Video_Automator
+[submodule "vendor/video-processing/moviepy-audio-insert"]
+	path = vendor/video-processing/moviepy-audio-insert
+	url = https://github.com/amr2018/Add-an-Audio-Clip-to-a-Video-at-a-Specific-Time-with-MoviePy
+[submodule "vendor/video-processing/plainly-ae-plugin"]
+	path = vendor/video-processing/plainly-ae-plugin
+	url = https://github.com/plainly-videos/after-effects-plugin
+[submodule "vendor/mcp-servers/plainly-mcp-server"]
+	path = vendor/mcp-servers/plainly-mcp-server
+	url = https://github.com/plainly-videos/mcp-server
+[submodule "vendor/render/json2video-php-sdk"]
+	path = vendor/render/json2video-php-sdk
+	url = https://github.com/JSON2Video/json2video-php-sdk
+[submodule "vendor/render/mosaico"]
+	path = vendor/render/mosaico
+	url = https://github.com/FolhaSP/mosaico
+[submodule "vendor/AI-Text-Video"]
+	path = vendor/AI-Text-Video
+	url = https://github.com/TornadoInsight/AI-Text-Video
+[submodule "vendor/FinanceVision-AIagent"]
+	path = vendor/FinanceVision-AIagent
+	url = https://github.com/Liucong-JunZi/FinanceVision-AIagent
+[submodule "vendor/video-automation-php"]
+	path = vendor/video-automation-php
+	url = https://github.com/5baddi/video-automation
+[submodule "vendor/render/remotion-subtitles"]
+	path = vendor/render/remotion-subtitles
+	url = https://github.com/ahgsql/remotion-subtitles
+[submodule "vendor/render/remotion-templates"]
+	path = vendor/render/remotion-templates
+	url = https://github.com/reactvideoeditor/remotion-templates
+[submodule "templates/template-overlay"]
+	path = templates/template-overlay
+	url = https://github.com/remotion-dev/template-overlay
+[submodule "vendor/render/remotion-template-aeither"]
+	path = vendor/render/remotion-template-aeither
+	url = https://github.com/aeither/remotion-template
+[submodule "vendor/publish/my-youtube-automation"]
+	path = vendor/publish/my-youtube-automation
+	url = https://github.com/Sandip-Tiwari-435/my-youtube-automation
+[submodule "vendor/publish/go-youtube-reddit-automation"]
+	path = vendor/publish/go-youtube-reddit-automation
+	url = https://github.com/alfredosa/go-youtube-reddit-automation
+[submodule "vendor/publish/rednote-instagram-auto-uploader"]
+	path = vendor/publish/rednote-instagram-auto-uploader
+	url = https://github.com/mrxehmad/rednote-instagram-auto-uploader
+[submodule "vendor/publish/TiktokAutoUploader"]
+	path = vendor/publish/TiktokAutoUploader
+	url = https://github.com/makiisthenes/TiktokAutoUploader
+[submodule "vendor/mcp-servers/Nano-Banana-MCP"]
+	path = vendor/mcp-servers/Nano-Banana-MCP
+	url = https://github.com/ConechoAI/Nano-Banana-MCP
+[submodule "vendor/mcp-servers/gemini-image-mcp-server"]
+	path = vendor/mcp-servers/gemini-image-mcp-server
+	url = https://github.com/brunoqgalvao/gemini-image-mcp-server
+[submodule "vendor/mcp-servers/gemini-nanobanana-mcp"]
+	path = vendor/mcp-servers/gemini-nanobanana-mcp
+	url = https://github.com/Junhan2/gemini-nanobanana-mcp
+[submodule "vendor/mcp-servers/nanobanana-mcp-server"]
+	path = vendor/mcp-servers/nanobanana-mcp-server
+	url = https://github.com/zhongweili/nanobanana-mcp-server
+[submodule "vendor/mcp-servers/nano-banana-mcp-riti"]
+	path = vendor/mcp-servers/nano-banana-mcp-riti
+	url = https://github.com/Riti0208/nano-banana-mcp
+[submodule "vendor/mcp-servers/Nano-Banana-MCP-vineexoxo"]
+	path = vendor/mcp-servers/Nano-Banana-MCP-vineexoxo
+	url = https://github.com/Vineexoxo/Nano-Banana-MCP
+[submodule "vendor/mcp-servers/mcp-nanobanana"]
+	path = vendor/mcp-servers/mcp-nanobanana
+	url = https://github.com/DakineMI/mcp-nanobanana
+[submodule "vendor/mcp-servers/nanobanana-cli"]
+	path = vendor/mcp-servers/nanobanana-cli
+	url = https://github.com/gemini-cli-extensions/nanobanana
+[submodule "vendor/research/nano-banana-hackathon-kit"]
+	path = vendor/research/nano-banana-hackathon-kit
+	url = https://github.com/google-gemini/nano-banana-hackathon-kit
+[submodule "vendor/research/awesome-nano-banana"]
+	path = vendor/research/awesome-nano-banana
+	url = https://github.com/JimmyLv/awesome-nano-banana
+[submodule "vendor/research/awesome-nano-banana-samurai"]
+	path = vendor/research/awesome-nano-banana-samurai
+	url = https://github.com/SamurAIGPT/awesome-nano-banana
+[submodule "vendor/research/awesome-nanobanana-pro"]
+	path = vendor/research/awesome-nanobanana-pro
+	url = https://github.com/ZeroLu/awesome-nanobanana-pro
+[submodule "vendor/mcp/Create-MCP"]
+	path = vendor/mcp/Create-MCP
+	url = https://github.com/AnnieBabs/Create-MCP
