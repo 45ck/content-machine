@@ -1509,20 +1509,49 @@ This section shows what content-machine produces at each stage.
 | Integration | 20% | Vitest + MSW |
 | E2E | 10% | Playwright |
 
-### 10.2 LLM Evals
+### 10.2 LLM Evals (V&V Framework)
 
-Script generation and visual matching quality are measured using evaluation datasets:
+Script generation and visual matching quality are measured using a 4-layer evaluation framework:
 
-```json
-{
-  "input": {"topic": "Minecraft parkour fails"},
-  "expectedQualities": {
-    "hasHook": true,
-    "sceneCount": {"min": 3, "max": 8},
-    "hasVisualDirections": true
-  }
-}
+| Layer | Type | Tool | Example |
+|-------|------|------|---------|
+| 1 | Schema Validation | Zod | JSON structure, required fields |
+| 2 | Programmatic Checks | Vitest | Word count 100-250, scenes 3-8 |
+| 3 | LLM-as-Judge | promptfoo | Hook quality, TikTok voice |
+| 4 | Human Review | Manual | Random sample QA |
+
+**Promptfoo Integration:**
+
+```yaml
+# evals/configs/cm-script.yaml
+tests:
+  - vars:
+      topic: "5 JavaScript tips"
+      archetype: "listicle"
+    assert:
+      - type: javascript
+        value: |
+          const script = JSON.parse(output);
+          return script.scenes.length >= 3 && script.scenes.length <= 8;
+      - type: llm-rubric
+        value: The script opens with an attention-grabbing hook
+        threshold: 0.7
 ```
+
+**Key Evaluation Metrics:**
+
+| Metric | Target | Alert Threshold |
+|--------|--------|-----------------|
+| Script hook score | ≥0.85 | <0.75 |
+| Script archetype adherence | ≥0.90 | <0.80 |
+| Visual relevance score | ≥0.80 | <0.70 |
+| Word alignment accuracy | ≥0.95 | <0.90 |
+| Video PSNR | ≥35 dB | <30 dB |
+
+**Full V&V Documentation:**
+- [RQ-24: LLM Evaluation & Quality Assurance](../research/investigations/RQ-24-LLM-EVALUATION-QUALITY-ASSURANCE-20260105.md)
+- [V&V Framework Guide](../guides/VV-FRAMEWORK-20260105.md)
+- [evals/ directory](../../evals/README.md)
 
 Evaluation frameworks from [L3-CAT-G-AGENT-FRAMEWORKS-20260104.md](../research/synthesis/L3-CAT-G-AGENT-FRAMEWORKS-20260104.md) (promptfoo, Langfuse) track quality over prompt iterations.
 

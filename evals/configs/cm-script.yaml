@@ -1,0 +1,269 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+#
+# content-machine Script Generation Evaluation
+# Evaluates the quality of LLM-generated video scripts
+#
+# Usage:
+#   npx promptfoo eval -c evals/configs/cm-script.yaml --env-file .env
+#   npx promptfoo eval -c evals/configs/cm-script.yaml --no-cache  # Skip cache
+#   npx promptfoo view  # View results in browser
+
+description: content-machine script generation quality evaluation
+
+# The prompt template to test (using Nunjucks syntax)
+prompts:
+  - |
+    You are a viral short-form video scriptwriter. Generate a script for a {{ archetype }} video about:
+
+    Topic: {{ topic }}
+
+    Requirements:
+    - 3-8 scenes
+    - 30-60 seconds total (100-250 words)
+    - TikTok-style casual language
+    - Each scene needs a visual direction (what to show)
+    - Start with an attention-grabbing hook
+
+    Output as JSON:
+    {
+      "title": "...",
+      "hook": "...",
+      "scenes": [
+        {
+          "id": 1,
+          "narration": "...",
+          "visualDirection": "...",
+          "durationHint": "short|medium|long"
+        }
+      ],
+      "callToAction": "...",
+      "metadata": {
+        "archetype": "{{ archetype }}",
+        "estimatedDuration": 45
+      }
+    }
+
+# LLM providers to test against
+providers:
+  - id: openai:gpt-4o
+    config:
+      temperature: 0.7
+      response_format:
+        type: json_object
+
+# Default assertions applied to all tests
+defaultTest:
+  options:
+    # Use a cheaper model for grading (LLM-as-judge)
+    provider: openai:gpt-4o-mini
+
+# Test cases with various topics and archetypes
+tests:
+  # Listicle archetype
+  - vars:
+      topic: "5 JavaScript tips every developer should know"
+      archetype: "listicle"
+    assert:
+      # Layer 1: Schema validation
+      - type: javascript
+        value: |
+          try {
+            const script = JSON.parse(output);
+            return script.scenes && Array.isArray(script.scenes) && script.scenes.length >= 3 && script.scenes.length <= 8;
+          } catch { return false; }
+        weight: 2
+
+      # Layer 2: Programmatic quality checks
+      - type: javascript
+        value: |
+          try {
+            const script = JSON.parse(output);
+            const wordCount = script.scenes.reduce((acc, s) => acc + s.narration.split(/\s+/).length, 0);
+            return wordCount >= 100 && wordCount <= 250;
+          } catch { return false; }
+        weight: 1
+
+      - type: javascript
+        value: |
+          try {
+            const script = JSON.parse(output);
+            return script.scenes.every(s => s.visualDirection && s.visualDirection.length > 5);
+          } catch { return false; }
+        weight: 1
+
+      # Layer 3: LLM-graded quality checks
+      - type: llm-rubric
+        value: |
+          The script opens with an attention-grabbing hook that would stop a TikTok user from scrolling.
+          The first sentence should be surprising, controversial, or promise immediate value.
+          Score 0 if it's a generic introduction like "In this video..." or "Today we'll cover...".
+        threshold: 0.7
+        weight: 2
+
+      - type: llm-rubric
+        value: |
+          The language is casual, conversational, and suitable for TikTok/Reels/Shorts.
+          No corporate jargon, no formal academic language, no "as a developer" phrases.
+          Should sound like a friend giving advice, not a textbook.
+        threshold: 0.8
+        weight: 1
+
+      - type: llm-rubric
+        value: |
+          Each scene has a specific, filmable visual description.
+          Visual directions should describe what the viewer will SEE on screen.
+          Avoid abstract concepts that cannot be filmed (like "efficiency" or "code quality").
+        threshold: 0.8
+        weight: 1
+
+      - type: llm-rubric
+        value: |
+          For a listicle archetype, the script should have a clear numbered structure.
+          Each tip should be distinct and actionable.
+          The list should feel complete, not like it was cut off.
+        threshold: 0.8
+        weight: 1
+
+  # Versus archetype
+  - vars:
+      topic: "Redis vs PostgreSQL for caching"
+      archetype: "versus"
+    assert:
+      - type: javascript
+        value: |
+          try {
+            const script = JSON.parse(output);
+            return script.scenes && Array.isArray(script.scenes) && script.scenes.length >= 3;
+          } catch { return false; }
+        weight: 2
+
+      - type: llm-rubric
+        value: |
+          The script opens with an attention-grabbing hook.
+          For a versus video, this might be a provocative statement like "You're using the wrong database"
+          or a relatable problem statement.
+        threshold: 0.7
+        weight: 2
+
+      - type: llm-rubric
+        value: |
+          For a versus archetype, the script should clearly compare both options.
+          It should present pros and cons of each, not just favor one.
+          The comparison should be fair and technically accurate.
+        threshold: 0.8
+        weight: 2
+
+      - type: llm-rubric
+        value: |
+          The script provides a clear recommendation or decision framework at the end.
+          Viewers should know when to use each option.
+        threshold: 0.7
+        weight: 1
+
+  # Story archetype
+  - vars:
+      topic: "How I learned React in 2 weeks"
+      archetype: "story"
+    assert:
+      - type: javascript
+        value: |
+          try {
+            const script = JSON.parse(output);
+            return script.scenes && Array.isArray(script.scenes) && script.scenes.length >= 3;
+          } catch { return false; }
+        weight: 2
+
+      - type: llm-rubric
+        value: |
+          The script has a narrative arc: setup, challenge, resolution.
+          It should feel like a personal story, not a tutorial.
+        threshold: 0.8
+        weight: 2
+
+      - type: llm-rubric
+        value: |
+          The language uses first-person perspective and includes emotional elements.
+          The viewer should feel connected to the storyteller.
+        threshold: 0.7
+        weight: 1
+
+  # Hot-take archetype
+  - vars:
+      topic: "TypeScript is overrated"
+      archetype: "hot-take"
+    assert:
+      - type: javascript
+        value: |
+          try {
+            const script = JSON.parse(output);
+            return script.scenes && Array.isArray(script.scenes) && script.scenes.length >= 3;
+          } catch { return false; }
+        weight: 2
+
+      - type: llm-rubric
+        value: |
+          The script opens with a bold, controversial statement that will spark debate.
+          It should immediately make viewers want to comment (agree or disagree).
+        threshold: 0.8
+        weight: 2
+
+      - type: llm-rubric
+        value: |
+          Despite being a hot take, the script provides actual reasoning and evidence.
+          It's not just rage bait; there should be substance behind the opinion.
+        threshold: 0.7
+        weight: 2
+
+  # Howto archetype
+  - vars:
+      topic: "How to deploy a Node.js app in 5 minutes"
+      archetype: "howto"
+    assert:
+      - type: javascript
+        value: |
+          try {
+            const script = JSON.parse(output);
+            return script.scenes && Array.isArray(script.scenes) && script.scenes.length >= 3;
+          } catch { return false; }
+        weight: 2
+
+      - type: llm-rubric
+        value: |
+          The script has clear, sequential steps that are easy to follow.
+          Each step should be actionable and specific.
+        threshold: 0.8
+        weight: 2
+
+      - type: llm-rubric
+        value: |
+          The visual directions show what the viewer should be doing at each step.
+          This could include screen recordings, terminal commands, or UI interactions.
+        threshold: 0.8
+        weight: 1
+
+  # Myth archetype
+  - vars:
+      topic: "You need a CS degree to be a developer"
+      archetype: "myth"
+    assert:
+      - type: javascript
+        value: |
+          try {
+            const script = JSON.parse(output);
+            return script.scenes && Array.isArray(script.scenes) && script.scenes.length >= 3;
+          } catch { return false; }
+        weight: 2
+
+      - type: llm-rubric
+        value: |
+          The script clearly states the myth, then definitively debunks it.
+          The structure should be "Myth: X / Reality: Y" or similar.
+        threshold: 0.8
+        weight: 2
+
+      - type: llm-rubric
+        value: |
+          The debunking includes evidence, examples, or statistics.
+          It's not just opinion; there should be factual backing.
+        threshold: 0.7
+        weight: 1

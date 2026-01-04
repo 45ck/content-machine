@@ -218,13 +218,34 @@ content-machine/
 
 ---
 
-## 🧪 Testing Strategy
+## 🧪 Testing & Validation Strategy
 
 | Type | Coverage | Tool | Scope |
 |------|----------|------|-------|
 | **Unit** | 70% | Vitest | Schema validation, utilities |
 | **Integration** | 20% | Vitest + MSW | LLM calls, API responses |
 | **E2E** | 10% | Vitest | Full pipeline, video output |
+| **LLM Evals** | Per stage | promptfoo | Quality scoring, regression |
+
+### V&V Framework (4-Layer Approach)
+
+| Layer | Type | Example |
+|-------|------|---------|
+| 1 | Schema Validation | Zod safeParse for JSON structure |
+| 2 | Programmatic Checks | Word count, scene count, duration |
+| 3 | LLM-as-Judge | Hook quality, TikTok voice, visual relevance |
+| 4 | Human Review | Random sample QA |
+
+**Key Evaluation Metrics:**
+- Script hook score: ≥0.85
+- Archetype adherence: ≥0.90
+- Visual relevance: ≥0.80
+- Video PSNR: ≥35 dB
+
+**Documentation:**
+- [RQ-24: LLM Evaluation](docs/research/investigations/RQ-24-LLM-EVALUATION-QUALITY-ASSURANCE-20260105.md)
+- [V&V Framework Guide](docs/guides/VV-FRAMEWORK-20260105.md)
+- [evals/](evals/) — promptfoo configurations
 
 ### Test Stubs (Required for All Providers)
 
@@ -244,8 +265,10 @@ export class FakeLLMProvider implements LLMProvider {
 | Document | Purpose |
 |----------|---------|
 | [SYSTEM-DESIGN-20260104.md](docs/architecture/SYSTEM-DESIGN-20260104.md) | **Authoritative specification** (3,100 lines) |
+| [RQ-24: LLM Evaluation](docs/research/investigations/RQ-24-LLM-EVALUATION-QUALITY-ASSURANCE-20260105.md) | LLM-as-judge, promptfoo patterns |
+| [V&V Framework](docs/guides/VV-FRAMEWORK-20260105.md) | Validation & verification guide |
 | [00-SUMMARY-20260102.md](docs/research/00-SUMMARY-20260102.md) | Research overview |
-| [investigations/](docs/research/investigations/) | 23 investigation documents (RQ-01 to RQ-23) |
+| [investigations/](docs/research/investigations/) | 24 investigation documents (RQ-01 to RQ-24) |
 | [deep-dives/](docs/research/deep-dives/) | 13 deep-dive analyses |
 | [sections/](docs/research/sections/) | 7 section-specific research docs |
 

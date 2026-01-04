@@ -1,0 +1,160 @@
+# yaml-language-server: $schema=https://promptfoo.dev/config-schema.json
+#
+# content-machine Visual Matching Evaluation
+# Evaluates the quality of search term generation for stock footage
+#
+# Usage:
+#   npx promptfoo eval -c evals/configs/cm-visuals.yaml --env-file .env
+
+description: content-machine visual matching quality evaluation
+
+prompts:
+  - |
+    You are a stock footage researcher. Given a scene narration, generate search terms 
+    that will find relevant video clips on Pexels or Pixabay.
+
+    Scene Narration: {{ narration }}
+    Visual Direction from Script: {{ visual_direction }}
+
+    Requirements:
+    - Generate 3-5 search terms
+    - Terms must be concrete and filmable (things that can be visually captured)
+    - Avoid abstract concepts like "efficiency" or "performance"
+    - Include both literal and metaphorical options
+    - Consider B-roll that would complement the narration
+
+    Output as JSON:
+    {
+      "primaryTerm": "most specific term",
+      "alternativeTerms": ["term2", "term3", "term4"],
+      "reasoning": "brief explanation of choices"
+    }
+
+providers:
+  - id: openai:gpt-4o-mini
+    config:
+      temperature: 0.5
+      response_format:
+        type: json_object
+
+defaultTest:
+  options:
+    provider: openai:gpt-4o-mini
+
+tests:
+  # Technology/coding scenes
+  - vars:
+      narration: "Redis stores everything in memory, making it blazingly fast"
+      visual_direction: "Show server room or computer hardware"
+    assert:
+      - type: javascript
+        value: |
+          try {
+            const result = JSON.parse(output);
+            return result.primaryTerm && result.alternativeTerms && result.alternativeTerms.length >= 2;
+          } catch { return false; }
+        weight: 2
+
+      - type: llm-rubric
+        value: |
+          The search terms are relevant to the narration about Redis and memory/speed.
+          At least one term should relate to servers, data centers, or technology hardware.
+          Terms should be things that can actually be filmed.
+        threshold: 0.7
+        weight: 2
+
+      - type: model-graded-closedqa
+        value: |
+          The search terms do NOT include abstract concepts that cannot be filmed,
+          such as "performance", "efficiency", "speed" (the concept), or "blazingly fast".
+          Technical concepts are only allowed if they refer to filmable objects.
+        weight: 2
+
+  # Coding/development scenes
+  - vars:
+      narration: "First, you need to understand how closures work in JavaScript"
+      visual_direction: "Show code on screen, developer typing"
+    assert:
+      - type: javascript
+        value: |
+          try {
+            const result = JSON.parse(output);
+            return result.primaryTerm && result.alternativeTerms;
+          } catch { return false; }
+        weight: 2
+
+      - type: llm-rubric
+        value: |
+          For a coding explanation scene, search terms should include:
+          - Developer/programmer working
+          - Code on screen
+          - Computer/laptop
+          The terms should find relevant B-roll even though "closures" itself is abstract.
+        threshold: 0.7
+        weight: 2
+
+  # Comparison scenes
+  - vars:
+      narration: "PostgreSQL is better when you need complex queries and transactions"
+      visual_direction: "Show database visualization or data flow"
+    assert:
+      - type: llm-rubric
+        value: |
+          Search terms should find footage related to databases, data, or technology.
+          Could include: data center, server, database visualization, network connections.
+          Should NOT just search for "PostgreSQL" which won't find stock footage.
+        threshold: 0.7
+        weight: 2
+
+  # Story/emotional scenes
+  - vars:
+      narration: "I was stuck for weeks, nothing was working, and I almost gave up"
+      visual_direction: "Show frustrated developer, stressed person at computer"
+    assert:
+      - type: llm-rubric
+        value: |
+          For an emotional story scene, search terms should capture the mood:
+          - Frustrated developer
+          - Stressed person working
+          - Person at computer looking tired
+          The terms should find footage that conveys struggle and frustration.
+        threshold: 0.7
+        weight: 2
+
+  # Success/celebration scenes
+  - vars:
+      narration: "And then it finally clicked! I built my first app and it worked!"
+      visual_direction: "Show celebration, success moment"
+    assert:
+      - type: llm-rubric
+        value: |
+          For a success/celebration scene, search terms should capture positive emotion:
+          - Celebration, success, achievement
+          - Happy developer, person celebrating
+          - Victory, accomplishment
+          The terms should find uplifting B-roll footage.
+        threshold: 0.7
+        weight: 2
+
+  # Generic/abstract topics (challenging case)
+  - vars:
+      narration: "Clean code isn't just about making it work, it's about making it maintainable"
+      visual_direction: "Show organized code, clean workspace"
+    assert:
+      - type: llm-rubric
+        value: |
+          For abstract concepts like "clean code" or "maintainability", search terms must
+          find concrete visual metaphors:
+          - Organized desk/workspace
+          - Clean, minimalist environment
+          - Person organizing/cleaning
+          The terms should NOT include abstract words that won't find footage.
+        threshold: 0.7
+        weight: 2
+
+      - type: model-graded-closedqa
+        value: |
+          The search terms do NOT include programming concepts that can't be filmed:
+          "maintainability", "clean code", "refactoring", "abstraction".
+          Only filmable objects and scenes are acceptable.
+        weight: 2
