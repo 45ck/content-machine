@@ -6,7 +6,8 @@
 
 ## Quick Links
 
-- [AGENTS.md](../AGENTS.md) — Project overview, architecture, commands
+- [AGENTS.md](../AGENTS.md) — Project overview, north star, commands
+- [SYSTEM-DESIGN-20260104.md](architecture/SYSTEM-DESIGN-20260104.md) — **Authoritative spec** (3,100 lines)
 - [VENDORING.md](../VENDORING.md) — Vendored repo policy
 - [Tasks](../tasks/README.md) — Task management system
 - [Templates](templates/README.md) — Documentation templates
@@ -17,45 +18,118 @@
 
 ```
 docs/
-├── research/           # Research reports on vendored repos
-├── architecture/       # ADRs and system design
+├── architecture/       # SYSTEM-DESIGN, ADRs
+├── research/          
+│   ├── investigations/ # 23 research investigations (RQ-01 to RQ-23)
+│   ├── deep-dives/     # 13 deep-dive analyses
+│   ├── sections/       # 7 section-specific research docs
+│   └── synthesis/      # Cross-cutting patterns
 ├── features/          # Feature specifications
 ├── bugs/              # Bug reports
 ├── guides/            # How-to guides
 ├── reference/         # API documentation
 ├── tutorials/         # Step-by-step tutorials
-├── investigations/    # Technical investigations
 ├── postmortems/       # Incident postmortems
 └── templates/         # Documentation templates
 ```
 
 ---
 
+## 📚 Key Documents
+
+| Document | Purpose | Lines |
+|----------|---------|-------|
+| [SYSTEM-DESIGN-20260104.md](architecture/SYSTEM-DESIGN-20260104.md) | **Authoritative technical specification** | 3,100 |
+| [00-SUMMARY-20260102.md](research/00-SUMMARY-20260102.md) | Research overview | ~500 |
+| [investigations/](research/investigations/) | 23 RQ documents (RQ-01 to RQ-23) | ~16,000 |
+| [deep-dives/](research/deep-dives/) | 13 deep-dive analyses | ~8,000 |
+| [sections/](research/sections/) | 7 pipeline section research | ~4,000 |
+
+---
+
 ## Research Reports
 
-Located in `research/`, these document findings from vendored repos:
+Located in `research/`, these document findings from 139 vendored repos:
+
+### Top-Level Reports
 
 | Report | Topic | Date |
 |--------|-------|------|
-| [00-SUMMARY](research/00-SUMMARY.md) | Master summary + architecture | 2026-01-01 |
-| [01-07](research/) | Original 7 vendored repos | 2026-01-01 |
-| [08-16](research/) | 76 infrastructure/dependency repos | 2026-01-01 |
+| [00-SUMMARY](research/00-SUMMARY-20260102.md) | Master summary + architecture | 2026-01-02 |
+| [10-short-video-maker-gyori](research/10-short-video-maker-gyori-20260102.md) | Blueprint repo (TypeScript + Remotion) | 2026-01-02 |
+| [12-vidosy](research/12-vidosy-20260102.md) | JSON config → video pattern | 2026-01-02 |
+| [01-moneyprinter-turbo](research/01-moneyprinter-turbo-20260102.md) | Multi-provider LLM | 2026-01-02 |
+| [08-shortgpt](research/08-shortgpt-20260102.md) | EdgeTTS (30+ languages) | 2026-01-02 |
+| [16-BATCH2-SUMMARY](research/16-BATCH2-SUMMARY-20260102.md) | Infrastructure repos summary | 2026-01-02 |
+
+### Investigations (research/investigations/)
+
+23 investigation documents (RQ-01 to RQ-23) covering:
+- Pipeline resumability, concurrency, schema versioning
+- TTS timestamps, forced alignment, drift handling
+- Video testing, memory management, licensing
+- Error taxonomy, cost tracking, rate limiting
+- Extensibility architecture, expert code review
+
+### Deep Dives (research/deep-dives/)
+
+13 deep-dive analyses including:
+- CLI architecture patterns
+- LLM structured JSON output
+- TTS/ASR patterns
+- Remotion patterns
+- Footage matching strategies
+
+### Section Research (research/sections/)
+
+7 section-specific research documents:
+- Script generation (LLM prompts)
+- Audio pipeline (TTS + ASR)
+- Visual matching (Pexels/Pixabay)
+- Video rendering (Remotion)
+- CLI architecture
+- Configuration systems
+- Schema validation
 
 ---
 
 ## Architecture
 
-Located in `architecture/`, contains ADRs (Architecture Decision Records):
+Located in `architecture/`:
 
-**Format:** `adr-NNN-[decision]-YYYYMMDD.md`
+### Current Documents
+
+| Document | Purpose |
+|----------|---------|
+| [SYSTEM-DESIGN-20260104.md](architecture/SYSTEM-DESIGN-20260104.md) | **AWS-style narrative spec** (authoritative, 3,100 lines) |
 
 ### Planned ADRs
 
-- [ ] ADR-001: Choose rendering approach (Remotion vs alternatives)
-- [ ] ADR-002: MCP server architecture
-- [ ] ADR-003: TTS provider selection (EdgeTTS vs Kokoro vs Piper)
-- [ ] ADR-004: Storage strategy (local vs cloud)
-- [ ] ADR-005: Job queue selection (BullMQ vs Temporal)
+- [ ] ADR-001: LLM provider selection
+- [ ] ADR-002: TTS engine selection (Kokoro vs EdgeTTS)
+- [ ] ADR-003: Stock footage provider strategy
+
+---
+
+## Implementation Roadmap
+
+From [AGENTS.md](../AGENTS.md):
+
+### Week 1-2: Foundation
+- [ ] TypeScript project setup
+- [ ] Core infrastructure (config, logger, errors)
+- [ ] Zod schemas for all pipeline stages
+
+### Week 3-4: Pipeline Stages
+- [ ] `cm script` with OpenAI structured outputs
+- [ ] `cm audio` with kokoro-js + whisper.cpp
+- [ ] `cm visuals` with Pexels API
+- [ ] `cm render` with Remotion
+
+### Week 5-6: Integration
+- [ ] `cm generate` full pipeline
+- [ ] `cm init` setup wizard
+- [ ] Documentation + examples
 
 ---
 
@@ -191,4 +265,4 @@ Always link related docs:
 
 ---
 
-**Last Updated:** 2026-01-02
+**Last Updated:** 2026-01-05
