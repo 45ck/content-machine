@@ -132,7 +132,11 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
   const orientation = options.orientation ?? 'portrait';
 
   log.info(
-    { sceneCount: options.timestamps.scenes?.length ?? 0, duration: options.timestamps.totalDuration, mock: options.mock },
+    {
+      sceneCount: options.timestamps.scenes?.length ?? 0,
+      duration: options.timestamps.totalDuration,
+      mock: options.mock,
+    },
     'Starting visual matching'
   );
 
@@ -167,7 +171,10 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
   };
 
   const validated = VisualsOutputSchema.parse(output);
-  log.info({ assetCount: validated.scenes.length, fallbacks: validated.fallbacks }, 'Visual matching complete');
+  log.info(
+    { assetCount: validated.scenes.length, fallbacks: validated.fallbacks },
+    'Visual matching complete'
+  );
   return validated;
 }
 

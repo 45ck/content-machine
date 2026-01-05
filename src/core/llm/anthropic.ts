@@ -8,7 +8,10 @@ import { getApiKey } from '../config.js';
 import { withRetry } from '../retry.js';
 
 /** Build system content with optional JSON mode instruction */
-function buildSystemContent(systemContent: string | undefined, jsonMode: boolean | undefined): string | undefined {
+function buildSystemContent(
+  systemContent: string | undefined,
+  jsonMode: boolean | undefined
+): string | undefined {
   if (jsonMode && systemContent) {
     return `${systemContent}\n\nYou MUST respond with valid JSON only. Do not include any other text.`;
   }
@@ -63,7 +66,11 @@ export class AnthropicProvider implements LLMProvider {
   private client: Anthropic;
   private maxRetries: number;
 
-  constructor(model: string = 'claude-3-5-sonnet-20241022', apiKey?: string, maxRetries: number = 2) {
+  constructor(
+    model: string = 'claude-3-5-sonnet-20241022',
+    apiKey?: string,
+    maxRetries: number = 2
+  ) {
     this.model = model;
     this.maxRetries = maxRetries;
     this.client = new Anthropic({
@@ -83,4 +90,19 @@ export class AnthropicProvider implements LLMProvider {
             max_tokens: options?.maxTokens ?? 4096,
             system: systemContent,
             messages: transformMessages(messages),
-            temperature: options?.temperature
+            temperature: options?.temperature ?? 0.7,
+            stop_sequences: options?.stopSequences,
+          });
+
+          return transformResponse(response);
+        } catch (error: unknown) {
+          handleApiError(error);
+        }
+      },
+      {
+        maxRetries: this.maxRetries,
+        context: { provider: 'anthropic', model: this.model },
+      }
+    );
+  }
+}

@@ -62,13 +62,13 @@ function calculateDelay(
 ): number {
   // Exponential backoff: delay = base * 2^attempt
   const exponentialDelay = baseDelayMs * Math.pow(2, attempt);
-  
+
   // Cap at max delay
   const cappedDelay = Math.min(exponentialDelay, maxDelayMs);
-  
+
   // Add jitter to prevent thundering herd
   const jitter = cappedDelay * jitterFactor * (Math.random() * 2 - 1);
-  
+
   return Math.max(0, cappedDelay + jitter);
 }
 
@@ -82,10 +82,7 @@ function sleep(ms: number): Promise<void> {
 /**
  * Execute a function with retry logic
  */
-export async function withRetry<T>(
-  fn: () => Promise<T>,
-  options: RetryOptions = {}
-): Promise<T> {
+export async function withRetry<T>(fn: () => Promise<T>, options: RetryOptions = {}): Promise<T> {
   const {
     maxRetries = 2,
     baseDelayMs = 1000,
@@ -107,27 +104,21 @@ export async function withRetry<T>(
 
       // Check if we should retry
       if (attempt >= maxRetries || !isRetryable(error)) {
-        log.error(
-          { attempt, maxRetries, error },
-          'Retry exhausted or error not retryable'
-        );
+        log.error({ attempt, maxRetries, error }, 'Retry exhausted or error not retryable');
         throw error;
       }
 
       // Calculate delay
       let delayMs: number;
-      
+
       // Use rate limit retry-after if available
-      if (error instanceof RateLimitError && error.retryAfterSeconds) {
-        delayMs = error.retryAfterSeconds * 1000;
+      if (error instanceof RateLimitError && error.retryAfter) {
+        delayMs = error.retryAfter * 1000;
       } else {
         delayMs = calculateDelay(attempt, baseDelayMs, maxDelayMs, jitterFactor);
       }
 
-      log.warn(
-        { attempt, maxRetries, delayMs, error },
-        `Retrying after ${delayMs}ms`
-      );
+      log.warn({ attempt, maxRetries, delayMs, error }, `Retrying after ${delayMs}ms`);
 
       await sleep(delayMs);
     }

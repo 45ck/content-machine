@@ -20,22 +20,18 @@ import {
   RENDER_SCHEMA_VERSION,
 } from './schema';
 import { join, dirname, resolve, basename } from 'path';
+import { fileURLToPath } from 'url';
 
 // Get the directory containing this file for Remotion bundling
-// Works in both ESM and CJS contexts
+// In ESM, we use import.meta.url; __dirname is injected by esbuild for CJS
 function getCurrentDir(): string {
-  // Try ESM first
-  try {
-    const meta = (import.meta as unknown as { url?: string })?.url;
-    if (meta) {
-      const { fileURLToPath } = require('url');
-      return dirname(fileURLToPath(meta));
-    }
-  } catch {
-    // Fall through to CJS
+  // ESM path - always try this first when running with tsx or native ESM
+  if (typeof import.meta !== 'undefined' && import.meta.url) {
+    return dirname(fileURLToPath(import.meta.url));
   }
-  // CJS fallback
-  return __dirname;
+  // CJS fallback - __dirname is available when bundled with esbuild
+  // This line is only reached in bundled CJS context where esbuild injects __dirname
+  return typeof __dirname !== 'undefined' ? __dirname : process.cwd();
 }
 
 const RENDER_DIR = getCurrentDir();
@@ -229,7 +225,10 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
     };
 
     const validated = RenderOutputSchema.parse(output);
-    log.info({ duration: validated.duration, fileSize: validated.fileSize }, 'Video render complete');
+    log.info(
+      { duration: validated.duration, fileSize: validated.fileSize },
+      'Video render complete'
+    );
     return validated;
   } catch (error) {
     log.error({ error }, 'Video render failed');
@@ -272,4 +271,8 @@ async function generateMockRender(
       duration: output.duration,
       fileSize: output.fileSize,
     },
-    'Mock video rende
+    'Mock video render complete'
+  );
+
+  return RenderOutputSchema.parse(output);
+}

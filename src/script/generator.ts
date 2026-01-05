@@ -134,7 +134,12 @@ export async function generateScript(options: GenerateScriptOptions): Promise<Sc
   );
 
   const llmResponse = parseLLMResponse(response.content, log);
-  const output = buildScriptOutput(llmResponse, options, response.model, response.usage?.totalTokens);
+  const output = buildScriptOutput(
+    llmResponse,
+    options,
+    response.model,
+    response.usage?.totalTokens
+  );
 
   const validated = ScriptOutputSchema.safeParse(output);
   if (!validated.success) {
@@ -143,7 +148,11 @@ export async function generateScript(options: GenerateScriptOptions): Promise<Sc
   }
 
   log.info(
-    { wordCount: output.meta?.wordCount, estimatedDuration: output.meta?.estimatedDuration, sceneCount: output.scenes.length },
+    {
+      wordCount: output.meta?.wordCount,
+      estimatedDuration: output.meta?.estimatedDuration,
+      sceneCount: output.scenes.length,
+    },
     'Script generated successfully'
   );
 
