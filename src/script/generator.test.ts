@@ -133,6 +133,40 @@ describe('Script Generator', () => {
       expect(result.scenes).toHaveLength(4);
     });
 
+    it('should attach packaging info when provided', async () => {
+      fakeLLM.queueJsonResponse({
+        scenes: [
+          { text: 'Hook line', visualDirection: 'hook' },
+          { text: 'Body line', visualDirection: 'body' },
+          { text: 'CTA line', visualDirection: 'cta' },
+        ],
+        reasoning: 'Test reasoning.',
+        title: 'LLM title (should be overridden)',
+        hook: 'Hook line',
+        cta: 'CTA line',
+      });
+
+      const packaging = {
+        title: 'My packaged title',
+        coverText: 'Cover text',
+        onScreenHook: 'Muted hook text',
+      };
+
+      const result = await generateScript({
+        topic: 'test',
+        archetype: 'listicle',
+        llmProvider: fakeLLM,
+        packaging,
+      });
+
+      expect(result.title).toBe(packaging.title);
+      expect(result.extra).toMatchObject({ virality: { packaging } });
+
+      const lastCall = fakeLLM.getLastCall();
+      const userMessage = lastCall?.find((m) => m.role === 'user');
+      expect(userMessage?.content).toContain(packaging.title);
+    });
+
     it('should validate LLM response schema', async () => {
       // Queue an invalid response (missing required fields)
       fakeLLM.queueJsonResponse({

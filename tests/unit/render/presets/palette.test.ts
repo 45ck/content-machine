@@ -28,7 +28,7 @@ describe('PALETTES', () => {
     });
 
     it('should use Pantone 2025 colors', () => {
-      expect(PALETTES.earthyComfort.primary).toBe(COLORS.mochaMousesse);
+      expect(PALETTES.earthyComfort.primary).toBe(COLORS.mochaMousse);
       expect(PALETTES.earthyComfort.secondary).toBe(COLORS.warmTaupe);
       expect(PALETTES.earthyComfort.accent).toBe(COLORS.dustyRose);
     });

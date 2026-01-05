@@ -18,8 +18,8 @@ describe('COLORS', () => {
   });
 
   describe('Earthy Comfort palette (Pantone 2025)', () => {
-    it('should export mochaMousesse', () => {
-      expect(COLORS.mochaMousesse).toBe('#A47551');
+    it('should export mochaMousse', () => {
+      expect(COLORS.mochaMousse).toBe('#A47551');
     });
 
     it('should export warmTaupe', () => {
@@ -92,7 +92,7 @@ describe('COLORS', () => {
     const colorNames: ColorName[] = [
       'white',
       'black',
-      'mochaMousesse',
+      'mochaMousse',
       'warmTaupe',
       'dustyRose',
       'oliveGreen',

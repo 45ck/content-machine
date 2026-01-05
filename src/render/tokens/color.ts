@@ -12,7 +12,7 @@ export const COLORS = Object.freeze({
 
   // Earthy Comfort (Pantone 2025)
   // Source: Research §3 "Earthy Comfort"
-  mochaMousesse: '#A47551',
+  mochaMousse: '#A47551',
   warmTaupe: '#8B7355',
   dustyRose: '#D4A5A5',
   oliveGreen: '#6B7B3C',

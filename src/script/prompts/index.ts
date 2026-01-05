@@ -10,6 +10,11 @@ export interface PromptContext {
   topic: string;
   targetWordCount: number;
   targetDuration: number;
+  packaging?: {
+    title: string;
+    coverText: string;
+    onScreenHook: string;
+  };
 }
 
 // Common JSON output format for all archetypes
@@ -44,6 +49,18 @@ export function getPromptForArchetype(archetype: Archetype, context: PromptConte
   return prompts[archetype];
 }
 
+function packagingBlock(context: PromptContext): string {
+  if (!context.packaging) return '';
+
+  return `
+PACKAGING (must follow):
+- Title MUST be exactly: "${context.packaging.title}"
+- Cover text (mobile-readable): "${context.packaging.coverText}"
+- Muted autoplay on-screen hook text: "${context.packaging.onScreenHook}"
+- Make the first spoken line align with the on-screen hook (same promise, same topic)
+`;
+}
+
 function getListiclePrompt(context: PromptContext): string {
   return `Create a short-form video script about: "${context.topic}"
 
@@ -56,6 +73,7 @@ REQUIREMENTS:
 - Each point should be concise and actionable
 - End with a call-to-action (follow, like, comment)
 - Use conversational, TikTok-style language
+${packagingBlock(context)}
 
 STRUCTURE:
 1. Scene 1: Hook (attention-grabbing opening)
@@ -75,6 +93,7 @@ REQUIREMENTS:
 - Compare 3-4 key aspects fairly
 - Give a clear recommendation at the end
 - Use conversational, TikTok-style language
+${packagingBlock(context)}
 
 STRUCTURE:
 1. Scene 1: Hook (present the choice/dilemma)
@@ -94,6 +113,7 @@ REQUIREMENTS:
 - Break into 3-5 clear steps
 - Each step should be actionable and specific
 - Use conversational, TikTok-style language
+${packagingBlock(context)}
 
 STRUCTURE:
 1. Scene 1: Hook (show result or problem)
@@ -114,6 +134,7 @@ REQUIREMENTS:
 - Use "You probably think X, but actually Y" pattern
 - End with the key takeaway
 - Use conversational, TikTok-style language
+${packagingBlock(context)}
 
 STRUCTURE:
 1. Scene 1: Hook (state the common misconception)
@@ -134,6 +155,7 @@ REQUIREMENTS:
 - Make it relatable and emotional
 - End with a lesson or insight
 - Use conversational, TikTok-style language
+${packagingBlock(context)}
 
 STRUCTURE:
 1. Scene 1: Hook (create intrigue)
@@ -156,6 +178,7 @@ REQUIREMENTS:
 - End confidently with your stance
 - Use conversational, TikTok-style language
 - Be bold but not offensive
+${packagingBlock(context)}
 
 STRUCTURE:
 1. Scene 1: Hook (bold statement)

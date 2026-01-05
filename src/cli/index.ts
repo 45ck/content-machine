@@ -13,6 +13,7 @@ import { visualsCommand } from './commands/visuals';
 import { renderCommand } from './commands/render';
 import { generateCommand } from './commands/generate';
 import { initCommand } from './commands/init';
+import { packageCommand } from './commands/package';
 
 const program = new Command();
 
@@ -28,6 +29,7 @@ program.addCommand(scriptCommand);
 program.addCommand(audioCommand);
 program.addCommand(visualsCommand);
 program.addCommand(renderCommand);
+program.addCommand(packageCommand);
 program.addCommand(generateCommand);
 program.addCommand(initCommand);
 

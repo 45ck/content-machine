@@ -214,6 +214,50 @@ function parseKeywordResponse(
   }
 }
 
+function fillMissingKeywordResponses(
+  keywordResponses: KeywordResponse[],
+  sceneCount: number,
+  log: ReturnType<typeof createLogger>
+): KeywordResponse[] {
+  if (keywordResponses.length >= sceneCount) return keywordResponses;
+
+  log.warn(
+    { expected: sceneCount, got: keywordResponses.length },
+    'LLM returned fewer keywords than scenes, filling gaps'
+  );
+
+  const filled = [...keywordResponses];
+  for (let i = filled.length; i < sceneCount; i++) {
+    filled.push({ sceneIndex: i, keyword: 'abstract technology' });
+  }
+  return filled;
+}
+
+function mapKeywordResponsesToKeywords(
+  keywordResponses: KeywordResponse[],
+  scenes: SceneTimestamp[],
+  log: ReturnType<typeof createLogger>
+): Keyword[] {
+  return keywordResponses.map((kr) => {
+    const scene = scenes[kr.sceneIndex];
+    if (!scene) {
+      log.warn({ sceneIndex: kr.sceneIndex }, 'Invalid scene index in keyword response');
+      return {
+        keyword: kr.keyword,
+        sectionId: `scene-${kr.sceneIndex}`,
+        startTime: 0,
+        endTime: 5,
+      };
+    }
+    return {
+      keyword: kr.keyword,
+      sectionId: scene.sceneId,
+      startTime: scene.audioStart,
+      endTime: scene.audioEnd,
+    };
+  });
+}
+
 /**
  * Extract keywords from scene timestamps using LLM
  */
@@ -241,23 +285,26 @@ async function extractKeywords(
     [
       {
         role: 'system',
-        content: `You are a visual search keyword expert. Extract 1-3 word search queries that would find relevant stock footage for each video scene. Focus on visual concepts, not abstract ideas. Prefer concrete, filmable subjects.
+        content: `You are a visual search keyword expert. Your task is to extract 1-3 word search queries that find relevant stock footage for video scenes.
 
-Examples of GOOD keywords: "office laptop", "coffee shop", "running fitness", "city traffic"
-Examples of BAD keywords: "productivity", "happiness", "success", "concept"
+RULES:
+1. ALWAYS return a JSON array with EXACTLY the same number of entries as scenes provided
+2. Focus on visual, concrete, filmable concepts (not abstract ideas)
+3. Each keyword should be 1-3 words optimized for stock footage search
 
-IMPORTANT: Your response MUST be a JSON array with one entry per scene. Always return an array, even for a single scene.`,
+GOOD keywords: "laptop typing", "coffee shop", "city skyline", "person running"
+BAD keywords: "productivity", "success", "happiness", "concept"`,
       },
       {
         role: 'user',
-        content: `Extract video search keywords for each of the ${scenes.length} scenes below. Return a JSON array with exactly ${scenes.length} entries:
+        content: `You have ${scenes.length} scenes. Return a JSON array with EXACTLY ${scenes.length} keyword entries.
 
+Scenes:
 ${sceneTexts}
 
-Respond with a JSON array (not an object). Example format:
+Return ONLY a valid JSON array like this (with ${scenes.length} items):
 [
-  {"sceneIndex": 0, "keyword": "your keyword"},
-  {"sceneIndex": 1, "keyword": "your keyword"}
+${scenes.map((_, i) => `  {"sceneIndex": ${i}, "keyword": "your search term"}`).join(',\n')}
 ]`,
       },
     ],
@@ -277,16 +324,8 @@ Respond with a JSON array (not an object). Example format:
     throw new APIError('Failed to extract keywords from LLM response');
   }
 
-  // Map to our Keyword format
-  return keywordResponses.map((kr) => {
-    const scene = scenes[kr.sceneIndex];
-    return {
-      keyword: kr.keyword,
-      sectionId: scene.sceneId,
-      startTime: scene.audioStart,
-      endTime: scene.audioEnd,
-    };
-  });
+  keywordResponses = fillMissingKeywordResponses(keywordResponses, scenes.length, log);
+  return mapKeywordResponsesToKeywords(keywordResponses, scenes, log);
 }
 
 interface VideoSearchResult {

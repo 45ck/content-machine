@@ -26,6 +26,11 @@ export interface GenerateScriptOptions {
   archetype: Archetype;
   targetDuration?: number;
   llmProvider?: LLMProvider;
+  packaging?: {
+    title: string;
+    coverText: string;
+    onScreenHook: string;
+  };
 }
 
 /**
@@ -67,12 +72,13 @@ function buildScriptOutput(
     .join(' ');
   const wordCount = allText.split(/\s+/).filter(Boolean).length;
   const estimatedDuration = wordCount / 2.5;
+  const title = options.packaging?.title ?? llmResponse.title;
 
   return {
     schemaVersion: SCRIPT_SCHEMA_VERSION,
     scenes,
     reasoning: llmResponse.reasoning,
-    title: llmResponse.title,
+    title,
     hook: llmResponse.hook,
     cta: llmResponse.cta,
     hashtags: llmResponse.hashtags,
@@ -85,6 +91,13 @@ function buildScriptOutput(
       model: responseModel,
       llmCost: calculateCost(totalTokens ?? 0, responseModel ?? 'gpt-4o'),
     },
+    extra: options.packaging
+      ? {
+          virality: {
+            packaging: options.packaging,
+          },
+        }
+      : undefined,
   };
 }
 
@@ -120,6 +133,7 @@ export async function generateScript(options: GenerateScriptOptions): Promise<Sc
     topic: options.topic,
     targetWordCount,
     targetDuration,
+    packaging: options.packaging,
   });
 
   const response = await llm.chat(

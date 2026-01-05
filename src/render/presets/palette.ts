@@ -24,7 +24,7 @@ export const PALETTES = Object.freeze({
    * Source: Research §3 "warm, grounding tones"
    */
   earthyComfort: Object.freeze({
-    primary: COLORS.mochaMousesse,
+    primary: COLORS.mochaMousse,
     secondary: COLORS.warmTaupe,
     accent: COLORS.dustyRose,
     background: '#1A1410',
