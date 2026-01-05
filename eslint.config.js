@@ -73,6 +73,7 @@ export default [
       complexity: 'off',
       'sonarjs/cognitive-complexity': 'off',
       'max-lines-per-function': 'off',
+      'sonarjs/no-duplicate-string': 'off', // Test assertions often repeat strings
     },
   },
 ];

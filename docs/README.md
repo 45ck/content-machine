@@ -20,9 +20,9 @@
 docs/
 ├── architecture/       # SYSTEM-DESIGN, ADRs
 ├── research/
-│   ├── investigations/ # 23 research investigations (RQ-01 to RQ-23)
+│   ├── investigations/ # 25 research investigations (RQ-01 to RQ-25)
 │   ├── deep-dives/     # 13 deep-dive analyses
-│   ├── sections/       # 7 section-specific research docs
+│   ├── sections/       # 8 section-specific research docs
 │   └── synthesis/      # Cross-cutting patterns
 ├── features/          # Feature specifications
 ├── bugs/              # Bug reports
@@ -41,9 +41,9 @@ docs/
 | ------------------------------------------------------------------- | ----------------------------------------- | ------- |
 | [SYSTEM-DESIGN-20260104.md](architecture/SYSTEM-DESIGN-20260104.md) | **Authoritative technical specification** | 3,100   |
 | [00-SUMMARY-20260102.md](research/00-SUMMARY-20260102.md)           | Research overview                         | ~500    |
-| [investigations/](research/investigations/)                         | 23 RQ documents (RQ-01 to RQ-23)          | ~16,000 |
+| [investigations/](research/investigations/)                         | 25 RQ documents (RQ-01 to RQ-25)          | ~16,000 |
 | [deep-dives/](research/deep-dives/)                                 | 13 deep-dive analyses                     | ~8,000  |
-| [sections/](research/sections/)                                     | 7 pipeline section research               | ~4,000  |
+| [sections/](research/sections/)                                     | 8 pipeline section research               | ~4,000  |
 
 ---
 
@@ -64,7 +64,7 @@ Located in `research/`, these document findings from 139 vendored repos:
 
 ### Investigations (research/investigations/)
 
-23 investigation documents (RQ-01 to RQ-23) covering:
+25 investigation documents (RQ-01 to RQ-25) covering:
 
 - Pipeline resumability, concurrency, schema versioning
 - TTS timestamps, forced alignment, drift handling
@@ -84,7 +84,7 @@ Located in `research/`, these document findings from 139 vendored repos:
 
 ### Section Research (research/sections/)
 
-7 section-specific research documents:
+8 section-specific research documents:
 
 - Script generation (LLM prompts)
 - Audio pipeline (TTS + ASR)
@@ -93,6 +93,7 @@ Located in `research/`, these document findings from 139 vendored repos:
 - CLI architecture
 - Configuration systems
 - Schema validation
+- Virality engineering (packaging, hook, retention, publish): [SECTION-VIRALITY-ENGINEERING-20260105.md](research/sections/SECTION-VIRALITY-ENGINEERING-20260105.md)
 
 ---
 
@@ -195,6 +196,7 @@ Located in `features/`, feature specifications:
 ### Planned Features
 
 - [ ] MCP Reddit Connector
+- [ ] Virality Director (Packaging + Publish Metadata) — [feature-virality-director-20260105.md](features/feature-virality-director-20260105.md)
 - [ ] Content Planning Agent
 - [ ] Playwright Capture Pipeline
 - [ ] Script Generation + TTS

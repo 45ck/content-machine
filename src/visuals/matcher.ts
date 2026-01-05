@@ -178,6 +178,42 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
   return validated;
 }
 
+/** Keyword response from LLM */
+interface KeywordResponse {
+  sceneIndex: number;
+  keyword: string;
+}
+
+/**
+ * Parse LLM response for keywords, handling various formats
+ */
+function parseKeywordResponse(
+  content: string,
+  log: ReturnType<typeof createLogger>
+): KeywordResponse[] {
+  const parsed = JSON.parse(content);
+  // Handle various response formats from LLM
+  if (Array.isArray(parsed)) {
+    return parsed;
+  } else if (parsed && Array.isArray(parsed.keywords)) {
+    return parsed.keywords;
+  } else if (parsed && Array.isArray(parsed.scenes)) {
+    return parsed.scenes;
+  } else if (
+    parsed &&
+    typeof parsed === 'object' &&
+    'sceneIndex' in parsed &&
+    'keyword' in parsed
+  ) {
+    // Single object response - wrap in array
+    log.warn('LLM returned single object instead of array, wrapping');
+    return [parsed as KeywordResponse];
+  } else {
+    log.error({ parsed }, 'Unexpected response format - expected array');
+    throw new APIError('Unexpected keyword response format from LLM');
+  }
+}
+
 /**
  * Extract keywords from scene timestamps using LLM
  */
@@ -208,18 +244,20 @@ async function extractKeywords(
         content: `You are a visual search keyword expert. Extract 1-3 word search queries that would find relevant stock footage for each video scene. Focus on visual concepts, not abstract ideas. Prefer concrete, filmable subjects.
 
 Examples of GOOD keywords: "office laptop", "coffee shop", "running fitness", "city traffic"
-Examples of BAD keywords: "productivity", "happiness", "success", "concept"`,
+Examples of BAD keywords: "productivity", "happiness", "success", "concept"
+
+IMPORTANT: Your response MUST be a JSON array with one entry per scene. Always return an array, even for a single scene.`,
       },
       {
         role: 'user',
-        content: `Extract video search keywords for each scene:
+        content: `Extract video search keywords for each of the ${scenes.length} scenes below. Return a JSON array with exactly ${scenes.length} entries:
 
 ${sceneTexts}
 
-Respond with JSON array:
+Respond with a JSON array (not an object). Example format:
 [
-  {"sceneIndex": 0, "keyword": "search query"},
-  ...
+  {"sceneIndex": 0, "keyword": "your keyword"},
+  {"sceneIndex": 1, "keyword": "your keyword"}
 ]`,
       },
     ],
@@ -230,15 +268,11 @@ Respond with JSON array:
     }
   );
 
-  interface KeywordResponse {
-    sceneIndex: number;
-    keyword: string;
-  }
-
   let keywordResponses: KeywordResponse[];
   try {
-    keywordResponses = JSON.parse(response.content);
-  } catch {
+    keywordResponses = parseKeywordResponse(response.content, log);
+  } catch (error) {
+    if (error instanceof APIError) throw error;
     log.error({ content: response.content }, 'Failed to parse keyword response');
     throw new APIError('Failed to extract keywords from LLM response');
   }

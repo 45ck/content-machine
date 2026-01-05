@@ -7,12 +7,14 @@
 import { z } from 'zod';
 import { VideoClipSchema, VisualAssetSchema } from '../visuals/schema';
 import { WordTimestampSchema } from '../audio/schema';
+import { ANIMATION_TYPES } from './presets/animation';
 
 /** Current schema version for migrations */
 export const RENDER_SCHEMA_VERSION = '1.0.0';
 
 /**
  * Caption style configuration (matches SYSTEM-DESIGN archetype caption settings)
+ * Animation types imported from presets/animation.ts (Single Source of Truth)
  */
 export const CaptionStyleSchema = z.object({
   fontFamily: z.string().default('Inter'),
@@ -24,7 +26,7 @@ export const CaptionStyleSchema = z.object({
   strokeColor: z.string().default('#000000'),
   strokeWidth: z.number().int().nonnegative().default(3),
   position: z.enum(['bottom', 'center', 'top']).default('center'),
-  animation: z.enum(['none', 'pop', 'bounce', 'karaoke', 'typewriter']).default('pop'),
+  animation: z.enum(ANIMATION_TYPES).default('pop'),
 });
 
 export type CaptionStyle = z.infer<typeof CaptionStyleSchema>;

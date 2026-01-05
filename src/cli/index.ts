@@ -4,6 +4,7 @@
  *
  * Command-line tool for generating short-form video content.
  */
+import 'dotenv/config';
 import { Command } from 'commander';
 import { version } from '../../package.json';
 import { scriptCommand } from './commands/script';
