@@ -1,4 +1,5 @@
 # Deep Dive: Video Generation Pipeline Patterns & Tools
+
 > **Document ID:** `video-generation-pipeline-patterns-DEEP-20260102`
 > **Date:** 2026-01-02
 > **Category:** Research Deep Dive
@@ -33,18 +34,18 @@ All analyzed video generators follow a similar high-level pattern:
 
 ### 1.2 Common Technology Stacks
 
-| Project | Language | Render Engine | TTS | ASR | LLM |
-|---------|----------|---------------|-----|-----|-----|
-| **short-video-maker-gyori** | TypeScript | Remotion | ElevenLabs | Whisper | OpenAI |
-| **vidosy** | TypeScript | Remotion | - | - | - |
-| **Crank** | Python | FFmpeg | Whisper | Whisper | Gemini |
-| **VideoGraphAI** | Python | FFmpeg | F5-TTS | Gentle | Groq |
-| **Autotube** | Python | FFmpeg | OpenTTS | - | Ollama |
-| **Cassette** | Python | MoviePy | UnrealSpeech | - | GPT-3.5 |
-| **OBrainRot** | Python | FFmpeg | Coqui xTTS | wav2vec2 | - |
-| **FunClip** | Python | FFmpeg | - | FunASR | Qwen/GPT |
-| **MoneyPrinterTurbo** | Python | MoviePy | EdgeTTS | - | GPT |
-| **ShortGPT** | Python | MoviePy | EdgeTTS | Whisper | GPT |
+| Project                     | Language   | Render Engine | TTS          | ASR      | LLM      |
+| --------------------------- | ---------- | ------------- | ------------ | -------- | -------- |
+| **short-video-maker-gyori** | TypeScript | Remotion      | ElevenLabs   | Whisper  | OpenAI   |
+| **vidosy**                  | TypeScript | Remotion      | -            | -        | -        |
+| **Crank**                   | Python     | FFmpeg        | Whisper      | Whisper  | Gemini   |
+| **VideoGraphAI**            | Python     | FFmpeg        | F5-TTS       | Gentle   | Groq     |
+| **Autotube**                | Python     | FFmpeg        | OpenTTS      | -        | Ollama   |
+| **Cassette**                | Python     | MoviePy       | UnrealSpeech | -        | GPT-3.5  |
+| **OBrainRot**               | Python     | FFmpeg        | Coqui xTTS   | wav2vec2 | -        |
+| **FunClip**                 | Python     | FFmpeg        | -            | FunASR   | Qwen/GPT |
+| **MoneyPrinterTurbo**       | Python     | MoviePy       | EdgeTTS      | -        | GPT      |
+| **ShortGPT**                | Python     | MoviePy       | EdgeTTS      | Whisper  | GPT      |
 
 ### 1.3 Key Observations
 
@@ -65,6 +66,7 @@ All analyzed video generators follow a similar high-level pattern:
 **License:** Custom
 
 **Pipeline:**
+
 1. Topic → Gemini generates transcript
 2. Transcript → Whisper for TTS audio + timestamps
 3. YouTube scraping for background video
@@ -72,24 +74,26 @@ All analyzed video generators follow a similar high-level pattern:
 5. Auto-upload to YouTube with metadata
 
 **Key Configuration:**
+
 ```yaml
 # config/preset.yml
-NAME: "Channel Name"
-PROMPT: "Topic to generate"
+NAME: 'Channel Name'
+PROMPT: 'Topic to generate'
 UPLOAD: true
-DELAY: 2.5  # Hours between uploads
-WHISPER_MODEL: "small"
-FONT: "Comic Sans MS"
+DELAY: 2.5 # Hours between uploads
+WHISPER_MODEL: 'small'
+FONT: 'Comic Sans MS'
 ```
 
 **Prompt Configuration:**
+
 ```yaml
 # config/prompt.yml
-GET_CONTENT: "Guidelines for transcript"
-GET_TITLE: "Guidelines for title"
-GET_SEARCH_TERM: "YouTube search term for background"
-GET_DESCRIPTION: "Description guidelines"
-GET_CATEGORY_ID: "Category selection"
+GET_CONTENT: 'Guidelines for transcript'
+GET_TITLE: 'Guidelines for title'
+GET_SEARCH_TERM: 'YouTube search term for background'
+GET_DESCRIPTION: 'Description guidelines'
+GET_CATEGORY_ID: 'Category selection'
 ```
 
 **Takeaway:** Clean configuration separation (preset.yml vs prompt.yml).
@@ -103,8 +107,9 @@ GET_CATEGORY_ID: "Category selection"
 **License:** MIT
 
 **Architecture:**
+
 ```
-Input (topic, timeframe) 
+Input (topic, timeframe)
     → Graph Agents (research using Tavily)
     → Content Generation (Groq LLM)
     → Media Production (TogetherAI FLUX.schnell)
@@ -115,12 +120,14 @@ Input (topic, timeframe)
 ```
 
 **Key Features:**
+
 - Real-time research via Tavily Search API
 - Graph-based agent architecture
 - F5-TTS for high-quality voiceovers
 - Gentle server for subtitle synchronization
 
 **APIs Required:**
+
 - Groq API (LLM)
 - Together AI API (image generation)
 - Tavily Search API (research)
@@ -137,6 +144,7 @@ Input (topic, timeframe)
 **License:** MIT
 
 **System Architecture:**
+
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │  n8n Workflow (5678) → Ollama LLaMA 3.1 (11434)              │
@@ -151,17 +159,18 @@ Input (topic, timeframe)
 
 **Docker Components:**
 
-| Service | Port | Purpose |
-|---------|------|---------|
-| n8n | 5678 | Workflow orchestration |
-| Ollama | 11434 | Local LLM (LLaMA 3.1) |
-| OpenTTS | 5500 | Text-to-speech |
-| Python API | 5001 | Video creation |
-| PostgreSQL | 5432 | n8n database |
-| Redis | 6379 | Caching |
-| FileBrowser | 8080 | File management |
+| Service     | Port  | Purpose                |
+| ----------- | ----- | ---------------------- |
+| n8n         | 5678  | Workflow orchestration |
+| Ollama      | 11434 | Local LLM (LLaMA 3.1)  |
+| OpenTTS     | 5500  | Text-to-speech         |
+| Python API  | 5001  | Video creation         |
+| PostgreSQL  | 5432  | n8n database           |
+| Redis       | 6379  | Caching                |
+| FileBrowser | 8080  | File management        |
 
 **Video Features:**
+
 - Ken Burns zoom effects
 - Crossfade transitions
 - Text overlays
@@ -178,11 +187,13 @@ Input (topic, timeframe)
 **License:** Not specified
 
 **Key Innovation:** Uses only free/open APIs:
+
 - **LLM:** g4f (free GPT wrapper)
 - **TTS:** UnrealSpeech API (free tier)
 - **Video:** MoviePy + FFmpeg
 
 **Customization Options:**
+
 - Background music selection
 - Voice selection
 - Background gameplay videos
@@ -201,6 +212,7 @@ Input (topic, timeframe)
 **License:** Not specified
 
 **Force Alignment Approach:**
+
 ```python
 # Using wav2vec2 for precise alignment
 # Based on Motu Hira's tutorial
@@ -216,6 +228,7 @@ Input (topic, timeframe)
 ```
 
 **Key Files:**
+
 - `video_generator.py` - Image overlay algorithm
 
 **Takeaway:** wav2vec2 force alignment for precise word-level timestamps.
@@ -228,18 +241,21 @@ Input (topic, timeframe)
 **Source:** Alibaba DAMO Academy
 
 **Key Features:**
+
 - **FunASR Paraformer** - Industrial-grade Chinese ASR (13M+ downloads)
 - **SeACo-Paraformer** - Hotword customization
 - **CAM++** - Speaker diarization
 - **LLM Smart Clipping** - GPT/Qwen for intelligent segment selection
 
 **LLM Clipping Workflow:**
+
 1. Run ASR recognition on video
 2. Select LLM model + configure API key
 3. Click "LLM Inference" → combines prompts with SRT subtitles
 4. Click "AI Clip" → extracts timestamps based on LLM output
 
 **Command Line Usage:**
+
 ```bash
 # Step 1: Recognize
 python funclip/videoclipper.py --stage 1 \
@@ -265,12 +281,14 @@ python funclip/videoclipper.py --stage 2 \
 **License:** Open Source
 
 **Use Case:** Build video review dashboard with:
+
 - Video preview player
 - Approval/rejection workflow
 - Metadata editing
 - Publishing queue management
 
 **Features:**
+
 - Drag-and-drop UI builder
 - Connect to any database/API
 - Custom JavaScript widgets
@@ -284,12 +302,14 @@ python funclip/videoclipper.py --stage 2 \
 **License:** GPL v3
 
 **Features:**
+
 - Visual app builder
 - Data sources: PostgreSQL, MySQL, MongoDB, REST API
 - Automation workflows
 - User authentication
 
 **Use Case for content-machine:**
+
 - Video queue management
 - Multi-user review workflow
 - Analytics dashboard
@@ -304,6 +324,7 @@ python funclip/videoclipper.py --stage 2 \
 **License:** Apache 2.0
 
 **Key Capabilities:**
+
 - Cross-browser (Chromium, Firefox, WebKit)
 - Auto-wait (no artificial timeouts)
 - Video recording
@@ -311,6 +332,7 @@ python funclip/videoclipper.py --stage 2 \
 - Network interception
 
 **Recording Example:**
+
 ```typescript
 import { chromium } from 'playwright';
 
@@ -318,17 +340,18 @@ const browser = await chromium.launch();
 const context = await browser.newContext({
   recordVideo: {
     dir: 'videos/',
-    size: { width: 1080, height: 1920 }
-  }
+    size: { width: 1080, height: 1920 },
+  },
 });
 
 const page = await context.newPage();
 await page.goto('https://demo.app.com');
 // Perform actions...
-await context.close();  // Video saved
+await context.close(); // Video saved
 ```
 
 **MCP Integration Pattern:**
+
 ```typescript
 // Playwright MCP Server exposes tools like:
 // - navigate(url)
@@ -349,11 +372,13 @@ await context.close();  // Video saved
 **Note:** Now source-only distribution, maintenance mode.
 
 **Use Case:**
+
 - Store generated videos
 - Asset library (backgrounds, music, fonts)
 - Cache rendered segments
 
 **Quick Start:**
+
 ```bash
 go install github.com/minio/minio@latest
 minio server /data
@@ -367,6 +392,7 @@ minio server /data
 **Location:** `vendor/storage/qdrant`
 
 **Use Case:**
+
 - Semantic search over video content
 - Similar video recommendation
 - Trend pattern matching
@@ -378,6 +404,7 @@ minio server /data
 **Location:** `vendor/storage/weaviate`
 
 **Use Case:**
+
 - Multi-modal search (text + images)
 - Content deduplication
 - Asset discovery
@@ -414,14 +441,14 @@ script = {
 def generate_audio_with_timestamps(script_text):
     # Generate audio
     audio = tts_engine.synthesize(script_text)
-    
+
     # Get word timestamps via:
     # Option A: Whisper alignment
     # Option B: wav2vec2 force alignment
     # Option C: TTS engine native timestamps (Kokoro-FastAPI)
-    
+
     timestamps = align(audio, script_text)
-    
+
     return {
         "audio_file": audio,
         "word_timestamps": timestamps,  # [{word, start, end}, ...]
@@ -452,12 +479,12 @@ ffmpeg_cmd = [
 
 ### 6.4 Platform-Specific Export
 
-| Platform | Resolution | Duration | Format |
-|----------|------------|----------|--------|
-| TikTok | 1080x1920 | <60s | MP4 H.264 |
-| YouTube Shorts | 1080x1920 | <60s | MP4 H.264 |
-| Instagram Reels | 1080x1920 | <90s | MP4 H.264 |
-| YouTube Long | 1920x1080 | Any | MP4 H.264 |
+| Platform        | Resolution | Duration | Format    |
+| --------------- | ---------- | -------- | --------- |
+| TikTok          | 1080x1920  | <60s     | MP4 H.264 |
+| YouTube Shorts  | 1080x1920  | <60s     | MP4 H.264 |
+| Instagram Reels | 1080x1920  | <90s     | MP4 H.264 |
+| YouTube Long    | 1920x1080  | Any      | MP4 H.264 |
 
 ---
 
@@ -467,19 +494,19 @@ Based on analysis of all patterns:
 
 ### 7.1 Technology Stack
 
-| Layer | Choice | Rationale |
-|-------|--------|-----------|
-| **Orchestration** | BullMQ | Parent-child flows, TypeScript |
-| **MCP Framework** | FastMCP (Python + TS) | Enterprise-grade, composable |
-| **Render Engine** | Remotion + chuk-motion | Design tokens, 51 components |
-| **TTS** | Kokoro-FastAPI | OpenAI-compatible, word timestamps |
-| **ASR** | WhisperX | 70x realtime, diarization |
-| **Captions** | remotion-subtitles | 17 animated templates |
-| **LLM** | Claude + Instructor | Structured output, type-safe |
-| **Research** | Tavily + Reddit MCP | AI-native search |
-| **Storage** | MinIO + Qdrant | S3-compatible + vector search |
-| **Review UI** | Budibase/Appsmith | Low-code internal tools |
-| **Observability** | Langfuse + Promptfoo | LLM tracing + evals |
+| Layer             | Choice                 | Rationale                          |
+| ----------------- | ---------------------- | ---------------------------------- |
+| **Orchestration** | BullMQ                 | Parent-child flows, TypeScript     |
+| **MCP Framework** | FastMCP (Python + TS)  | Enterprise-grade, composable       |
+| **Render Engine** | Remotion + chuk-motion | Design tokens, 51 components       |
+| **TTS**           | Kokoro-FastAPI         | OpenAI-compatible, word timestamps |
+| **ASR**           | WhisperX               | 70x realtime, diarization          |
+| **Captions**      | remotion-subtitles     | 17 animated templates              |
+| **LLM**           | Claude + Instructor    | Structured output, type-safe       |
+| **Research**      | Tavily + Reddit MCP    | AI-native search                   |
+| **Storage**       | MinIO + Qdrant         | S3-compatible + vector search      |
+| **Review UI**     | Budibase/Appsmith      | Low-code internal tools            |
+| **Observability** | Langfuse + Promptfoo   | LLM tracing + evals                |
 
 ### 7.2 Pipeline Implementation
 
@@ -607,15 +634,15 @@ content-machine-mcp/
 
 ## 10. References
 
-| Project | Key Pattern | URL |
-|---------|-------------|-----|
-| Crank | Config separation | vendor/Crank |
-| VideoGraphAI | Graph agents | vendor/VideoGraphAI |
-| Autotube | n8n + Docker | vendor/Autotube |
-| OBrainRot | Force alignment | vendor/OBrainRot |
-| FunClip | LLM clipping | vendor/clipping/FunClip |
-| chuk-motion | Design tokens | vendor/render/chuk-mcp-remotion |
+| Project      | Key Pattern       | URL                             |
+| ------------ | ----------------- | ------------------------------- |
+| Crank        | Config separation | vendor/Crank                    |
+| VideoGraphAI | Graph agents      | vendor/VideoGraphAI             |
+| Autotube     | n8n + Docker      | vendor/Autotube                 |
+| OBrainRot    | Force alignment   | vendor/OBrainRot                |
+| FunClip      | LLM clipping      | vendor/clipping/FunClip         |
+| chuk-motion  | Design tokens     | vendor/render/chuk-mcp-remotion |
 
 ---
 
-*Document generated as part of content-machine research initiative. Last updated: 2026-01-02*
+_Document generated as part of content-machine research initiative. Last updated: 2026-01-02_

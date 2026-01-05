@@ -31,79 +31,115 @@ import { generateScript, ScriptOutput } from './generator';
 
 describe('Script Generator', () => {
   let fakeLLM: FakeLLMProvider;
-  
+
   beforeEach(() => {
     fakeLLM = new FakeLLMProvider();
   });
-  
+
   describe('generateScript', () => {
     it('should generate a listicle script with scenes', async () => {
       // Queue a valid LLM response with new schema
       fakeLLM.queueJsonResponse({
         scenes: [
-          { text: 'Stop making these JavaScript mistakes!', visualDirection: 'developer frustrated', mood: 'dramatic' },
-          { text: 'Number one: Use const by default.', visualDirection: 'code editor', mood: 'explanatory' },
-          { text: 'Number two: Destructure your objects.', visualDirection: 'javascript code', mood: 'explanatory' },
-          { text: 'Number three: Use optional chaining.', visualDirection: 'modern code', mood: 'explanatory' },
-          { text: 'Apply these tips and level up your code!', visualDirection: 'success celebration', mood: 'positive' },
+          {
+            text: 'Stop making these JavaScript mistakes!',
+            visualDirection: 'developer frustrated',
+            mood: 'dramatic',
+          },
+          {
+            text: 'Number one: Use const by default.',
+            visualDirection: 'code editor',
+            mood: 'explanatory',
+          },
+          {
+            text: 'Number two: Destructure your objects.',
+            visualDirection: 'javascript code',
+            mood: 'explanatory',
+          },
+          {
+            text: 'Number three: Use optional chaining.',
+            visualDirection: 'modern code',
+            mood: 'explanatory',
+          },
+          {
+            text: 'Apply these tips and level up your code!',
+            visualDirection: 'success celebration',
+            mood: 'positive',
+          },
         ],
         reasoning: 'Used hook-body-CTA structure with numbered tips for listicle format.',
         title: '5 JavaScript Tips You Need to Know',
         hook: 'Stop making these JavaScript mistakes!',
         cta: 'Follow for more JavaScript tips!',
       });
-      
+
       const result = await generateScript({
         topic: '5 JavaScript tips',
         archetype: 'listicle',
         targetDuration: 45,
         llmProvider: fakeLLM,
       });
-      
+
       // Validate structure
       expect(result.title).toBe('5 JavaScript Tips You Need to Know');
       expect(result.hook).toBe('Stop making these JavaScript mistakes!');
       expect(result.scenes).toHaveLength(5);
       expect(result.reasoning).toContain('hook-body-CTA');
       expect(result.cta).toBe('Follow for more JavaScript tips!');
-      
+
       // Validate metadata
       expect(result.meta?.archetype).toBe('listicle');
       expect(result.meta?.topic).toBe('5 JavaScript tips');
       expect(result.meta?.wordCount).toBeGreaterThan(0);
     });
-    
+
     it('should generate a versus script', async () => {
       fakeLLM.queueJsonResponse({
         scenes: [
-          { text: 'React or Vue? Let me settle this debate.', visualDirection: 'vs graphic', mood: 'dramatic' },
-          { text: 'Learning curve: Vue is easier to start with.', visualDirection: 'learning chart', mood: 'analytical' },
-          { text: 'Job market: React has more opportunities.', visualDirection: 'job listings', mood: 'informative' },
-          { text: 'My verdict: Start with Vue, but learn React eventually.', visualDirection: 'conclusion graphic', mood: 'decisive' },
+          {
+            text: 'React or Vue? Let me settle this debate.',
+            visualDirection: 'vs graphic',
+            mood: 'dramatic',
+          },
+          {
+            text: 'Learning curve: Vue is easier to start with.',
+            visualDirection: 'learning chart',
+            mood: 'analytical',
+          },
+          {
+            text: 'Job market: React has more opportunities.',
+            visualDirection: 'job listings',
+            mood: 'informative',
+          },
+          {
+            text: 'My verdict: Start with Vue, but learn React eventually.',
+            visualDirection: 'conclusion graphic',
+            mood: 'decisive',
+          },
         ],
         reasoning: 'Compared two frameworks objectively with pros and cons.',
         title: 'React vs Vue: Which Should You Learn?',
         hook: 'React or Vue? Let me settle this debate.',
         cta: 'What do you think? Comment below!',
       });
-      
+
       const result = await generateScript({
         topic: 'React vs Vue',
         archetype: 'versus',
         llmProvider: fakeLLM,
       });
-      
+
       expect(result.meta?.archetype).toBe('versus');
       expect(result.scenes).toHaveLength(4);
     });
-    
+
     it('should validate LLM response schema', async () => {
       // Queue an invalid response (missing required fields)
       fakeLLM.queueJsonResponse({
         title: 'Test',
         // Missing scenes and reasoning
       });
-      
+
       await expect(
         generateScript({
           topic: 'test',
@@ -112,7 +148,7 @@ describe('Script Generator', () => {
         })
       ).rejects.toThrow();
     });
-    
+
     it('should calculate word count correctly', async () => {
       fakeLLM.queueJsonResponse({
         scenes: [
@@ -125,17 +161,17 @@ describe('Script Generator', () => {
         hook: 'This is a hook.',
         cta: 'Follow me!',
       });
-      
+
       const result = await generateScript({
         topic: 'test',
         archetype: 'listicle',
         llmProvider: fakeLLM,
       });
-      
+
       // Verify word count is calculated
       expect(result.meta?.wordCount).toBeGreaterThan(10);
     });
-    
+
     it('should include scene IDs', async () => {
       fakeLLM.queueJsonResponse({
         scenes: [
@@ -147,49 +183,47 @@ describe('Script Generator', () => {
         title: 'Test',
         hook: 'Hook text',
       });
-      
+
       const result = await generateScript({
         topic: 'test',
         archetype: 'listicle',
         llmProvider: fakeLLM,
       });
-      
+
       // Check scene IDs are generated
       expect(result.scenes[0].id).toBe('scene-001');
       expect(result.scenes[1].id).toBe('scene-002');
       expect(result.scenes[2].id).toBe('scene-003');
     });
-    
+
     it('should pass correct prompt for each archetype', async () => {
       const archetypes = ['listicle', 'versus', 'howto', 'myth', 'story', 'hot-take'] as const;
-      
+
       for (const archetype of archetypes) {
         fakeLLM.reset();
         fakeLLM.queueJsonResponse({
-          scenes: [
-            { text: 'Test hook', visualDirection: 'test' },
-          ],
+          scenes: [{ text: 'Test hook', visualDirection: 'test' }],
           reasoning: 'Test reasoning.',
           title: `Test ${archetype}`,
           hook: 'Test hook',
         });
-        
+
         await generateScript({
           topic: 'test topic',
           archetype,
           llmProvider: fakeLLM,
         });
-        
+
         // Verify LLM was called with appropriate prompt
         const calls = fakeLLM.getCalls();
         expect(calls).toHaveLength(1);
-        
-        const userMessage = calls[0].find(m => m.role === 'user');
+
+        const userMessage = calls[0].find((m) => m.role === 'user');
         expect(userMessage?.content).toContain('test topic');
       }
     });
   });
-  
+
   describe('ScriptOutputSchema', () => {
     it('should validate correct output with new schema', () => {
       const validOutput: ScriptOutput = {
@@ -209,11 +243,11 @@ describe('Script Generator', () => {
           generatedAt: new Date().toISOString(),
         },
       };
-      
+
       const result = ScriptOutputSchema.safeParse(validOutput);
       expect(result.success).toBe(true);
     });
-    
+
     it('should reject empty scenes', () => {
       const invalidOutput = {
         schemaVersion: SCRIPT_SCHEMA_VERSION,
@@ -221,31 +255,27 @@ describe('Script Generator', () => {
         reasoning: 'Test',
         title: 'Title',
       };
-      
+
       const result = ScriptOutputSchema.safeParse(invalidOutput);
       expect(result.success).toBe(false);
     });
-    
+
     it('should require reasoning field', () => {
       const invalidOutput = {
         schemaVersion: SCRIPT_SCHEMA_VERSION,
-        scenes: [
-          { id: 'scene-001', text: 'Test', visualDirection: 'test' },
-        ],
+        scenes: [{ id: 'scene-001', text: 'Test', visualDirection: 'test' }],
         title: 'Title',
         // Missing reasoning
       };
-      
+
       const result = ScriptOutputSchema.safeParse(invalidOutput);
       expect(result.success).toBe(false);
     });
-    
+
     it('should allow optional hashtags', () => {
       const validOutput: ScriptOutput = {
         schemaVersion: SCRIPT_SCHEMA_VERSION,
-        scenes: [
-          { id: 'scene-001', text: 'Test', visualDirection: 'test' },
-        ],
+        scenes: [{ id: 'scene-001', text: 'Test', visualDirection: 'test' }],
         reasoning: 'Test reasoning.',
         hashtags: ['#javascript', '#coding', '#tips'],
         meta: {
@@ -254,7 +284,7 @@ describe('Script Generator', () => {
           generatedAt: new Date().toISOString(),
         },
       };
-      
+
       const result = ScriptOutputSchema.safeParse(validOutput);
       expect(result.success).toBe(true);
       if (result.success) {
@@ -262,20 +292,18 @@ describe('Script Generator', () => {
       }
     });
   });
-  
+
   describe('LLMScriptResponseSchema', () => {
     it('should validate minimal LLM response', () => {
       const response = {
-        scenes: [
-          { text: 'Test text', visualDirection: 'test visual' },
-        ],
+        scenes: [{ text: 'Test text', visualDirection: 'test visual' }],
         reasoning: 'Test reasoning',
       };
-      
+
       const result = LLMScriptResponseSchema.safeParse(response);
       expect(result.success).toBe(true);
     });
-    
+
     it('should validate full LLM response', () => {
       const response = {
         scenes: [
@@ -288,7 +316,7 @@ describe('Script Generator', () => {
         cta: 'Call to action',
         hashtags: ['#test'],
       };
-      
+
       const result = LLMScriptResponseSchema.safeParse(response);
       expect(result.success).toBe(true);
     });

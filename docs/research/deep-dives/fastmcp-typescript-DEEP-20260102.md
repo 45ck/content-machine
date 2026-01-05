@@ -71,10 +71,10 @@ server.addTool({
   execute: async (args, context) => {
     // Log during execution
     context.log.info('Fetching...', { url: args.url });
-    
+
     // Report progress
     await context.reportProgress({ progress: 50, total: 100 });
-    
+
     return 'Content here';
   },
 });
@@ -181,14 +181,14 @@ const server = new FastMCP({
   version: '1.0.0',
   authenticate: async (request) => {
     const apiKey = request.headers['x-api-key'];
-    
+
     if (apiKey !== 'secret') {
       throw new Response(null, {
         status: 401,
         statusText: 'Unauthorized',
       });
     }
-    
+
     // Return session data
     return { userId: 1, role: 'admin' };
   },
@@ -214,7 +214,7 @@ server.addTool({
 ```typescript
 execute: async (args) => {
   return 'Hello, world!';
-}
+};
 ```
 
 ### Multiple Messages
@@ -227,7 +227,7 @@ execute: async (args) => {
       { type: 'text', text: 'Second message' },
     ],
   };
-}
+};
 ```
 
 ### Image Content
@@ -241,7 +241,7 @@ execute: async (args) => {
     // or: path: '/path/to/image.png',
     // or: buffer: Buffer.from('...'),
   });
-}
+};
 ```
 
 ### Audio Content
@@ -253,7 +253,7 @@ execute: async (args) => {
   return audioContent({
     url: 'https://example.com/audio.mp3',
   });
-}
+};
 ```
 
 ### Streaming Output
@@ -264,12 +264,12 @@ server.addTool({
   annotations: { streamingHint: true },
   execute: async (args, { streamContent }) => {
     await streamContent({ type: 'text', text: 'Starting...\n' });
-    
+
     // Generate incrementally
     for (const word of words) {
       await streamContent({ type: 'text', text: word + ' ' });
     }
-    
+
     // Return void or final content
     return;
   },
@@ -287,7 +287,7 @@ server.sessions;
 // Listen to connection events
 server.on('connect', (event) => {
   console.log('Client connected:', event.session);
-  
+
   // Listen to session-specific events
   event.session.on('rootsChanged', (e) => {
     console.log('Roots changed:', e.roots);
@@ -305,12 +305,12 @@ server.on('disconnect', (event) => {
 execute: async (args, context) => {
   // Session ID (HTTP transports only)
   const sessionId = context.sessionId;
-  
+
   // Request ID
   const requestId = context.requestId;
-  
+
   return `Session: ${sessionId}, Request: ${requestId}`;
-}
+};
 ```
 
 ---
@@ -320,7 +320,7 @@ execute: async (args, context) => {
 ```typescript
 server.on('connect', (event) => {
   const session = event.session;
-  
+
   // Request LLM to generate a response
   const result = await session.requestSampling({
     messages: [
@@ -351,7 +351,7 @@ execute: async (args) => {
     throw new UserError('This URL is not allowed');
   }
   return 'OK';
-}
+};
 ```
 
 ---
@@ -397,25 +397,25 @@ server.addTool({
   },
   execute: async (args, { streamContent, reportProgress }) => {
     const generator = new VideoGenerator();
-    
+
     await reportProgress({ progress: 0, total: 100 });
     await streamContent({ type: 'text', text: 'Starting video generation...\n' });
-    
+
     // Step 1: Generate audio
     await reportProgress({ progress: 10, total: 100 });
     const audioPath = await generator.generateAudio(args.script, args.language);
     await streamContent({ type: 'text', text: 'Audio generated.\n' });
-    
+
     // Step 2: Generate captions
     await reportProgress({ progress: 30, total: 100 });
     const captions = await generator.transcribe(audioPath);
     await streamContent({ type: 'text', text: 'Captions generated.\n' });
-    
+
     // Step 3: Source assets
     await reportProgress({ progress: 50, total: 100 });
     const assets = await generator.sourceAssets(args.script);
     await streamContent({ type: 'text', text: 'Assets sourced.\n' });
-    
+
     // Step 4: Render
     await reportProgress({ progress: 70, total: 100 });
     const videoPath = await generator.render({
@@ -424,13 +424,11 @@ server.addTool({
       assets,
       style: args.style,
     });
-    
+
     await reportProgress({ progress: 100, total: 100 });
-    
+
     return {
-      content: [
-        { type: 'text', text: `Video generated: ${videoPath}` },
-      ],
+      content: [{ type: 'text', text: `Video generated: ${videoPath}` }],
     };
   },
 });
@@ -440,9 +438,7 @@ server.addResourceTemplate({
   uriTemplate: 'video://generated/{id}',
   name: 'Generated Video',
   mimeType: 'video/mp4',
-  arguments: [
-    { name: 'id', required: true },
-  ],
+  arguments: [{ name: 'id', required: true }],
   async load({ id }) {
     const path = await getVideoPath(id);
     return { blob: await fs.readFile(path, 'base64') };

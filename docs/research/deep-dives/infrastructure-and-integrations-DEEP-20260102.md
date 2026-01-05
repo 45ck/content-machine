@@ -11,6 +11,7 @@
 This document explores the infrastructure layer of the vendored repos - the MCP servers, clipping tools, publishing pipelines, orchestration workflows, and job queue systems. These form the backbone of any production video automation system.
 
 **Key Discoveries:**
+
 1. **Plainly MCP Server** - Programmatic video rendering via MCP (template-based like Remotion)
 2. **Qdrant MCP Server** - Semantic memory for LLMs (useful for trend/context storage)
 3. **Nano-Banana MCP** - Gemini 2.5 Flash image generation via MCP
@@ -27,22 +28,24 @@ This document explores the infrastructure layer of the vendored repos - the MCP 
 ## 1. MCP Servers (Tool Calling for LLMs)
 
 ### 1.1 Plainly MCP Server
+
 **Path:** `vendor/mcp-servers/plainly-mcp-server`  
 **Purpose:** Programmatic video rendering via MCP protocol
 
 **Available Tools:**
+
 ```typescript
 // List all renderable templates
-list_renderable_items()
+list_renderable_items();
 
 // Get template details (parameters, previews, aspect ratios)
-get_renderable_items_details(itemId)
+get_renderable_items_details(itemId);
 
 // Submit render with parameters
-render_item({ templateId, parameters: { headline: "...", background: "..." }})
+render_item({ templateId, parameters: { headline: '...', background: '...' } });
 
 // Check render status
-check_render_status(renderId)
+check_render_status(renderId);
 ```
 
 **Key Pattern:** Template-based rendering with parameter injection - similar to Remotion but as a service.
@@ -52,10 +55,12 @@ check_render_status(renderId)
 ---
 
 ### 1.2 Qdrant MCP Server
+
 **Path:** `vendor/mcp-servers/qdrant-mcp-server`  
 **Purpose:** Semantic memory layer for LLM workflows
 
 **Available Tools:**
+
 ```python
 # Store information with semantic embeddings
 qdrant-store(information="User prefers tech content", metadata={"type": "preference"})
@@ -65,6 +70,7 @@ qdrant-find(query="what kind of content does user like")
 ```
 
 **Configuration:**
+
 ```bash
 QDRANT_URL=http://localhost:6333
 COLLECTION_NAME=content-machine-memories
@@ -72,6 +78,7 @@ EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
 ```
 
 **Use Cases for content-machine:**
+
 1. Store analyzed trends for semantic retrieval
 2. Cache product knowledge for script generation
 3. Store successful video patterns for reuse
@@ -80,25 +87,28 @@ EMBEDDING_MODEL=sentence-transformers/all-MiniLM-L6-v2
 ---
 
 ### 1.3 Nano-Banana MCP Server
+
 **Path:** `vendor/mcp-servers/Nano-Banana-MCP`  
 **Purpose:** AI image generation via Gemini 2.5 Flash
 
 **Available Tools:**
+
 ```typescript
 // Generate new image
-generate_image({ prompt: "A futuristic city with neon lights" })
+generate_image({ prompt: 'A futuristic city with neon lights' });
 
 // Edit existing image
-edit_image({ imagePath: "/path/to/image.png", prompt: "Add rainbow" })
+edit_image({ imagePath: '/path/to/image.png', prompt: 'Add rainbow' });
 
 // Continue editing last image
-continue_editing({ prompt: "Make it more colorful" })
+continue_editing({ prompt: 'Make it more colorful' });
 
 // Get last image info
-get_last_image_info()
+get_last_image_info();
 ```
 
 **Cross-Platform File Storage:**
+
 - Windows: `%USERPROFILE%\Documents\nano-banana-images\`
 - macOS/Linux: `./generated_imgs/`
 
@@ -109,16 +119,19 @@ get_last_image_info()
 ## 2. Clipping & Highlight Extraction Tools
 
 ### 2.1 FunClip (Alibaba)
+
 **Path:** `vendor/clipping/FunClip`  
 **Purpose:** Speech-driven video clipping with LLM analysis
 
 **Core Features:**
+
 1. **FunASR Paraformer** - Industrial-grade Chinese ASR with timestamps
 2. **SeACo-Paraformer** - Hotword customization for entity recognition
 3. **CAM++** - Speaker diarization (clip by speaker ID)
 4. **LLM Smart Clipping** - GPT/Qwen analyzes transcript for key moments
 
 **LLM Clipping Workflow:**
+
 ```python
 # 1. Run ASR recognition
 python funclip/videoclipper.py --stage 1 --file video.mp4 --output_dir ./output
@@ -137,22 +150,26 @@ python funclip/videoclipper.py --stage 2 \
 ---
 
 ### 2.2 AI Highlight Clip
+
 **Path:** `vendor/clipping/ai-highlight-clip`  
 **Purpose:** Automatic highlight extraction with AI scoring
 
 **Core Features:**
+
 1. **Whisper Transcription** - Multi-language with timestamps
 2. **Sliding Window Algorithm** - Scans entire video without missing moments
 3. **AI Highlight Scoring** - LLM rates each segment's "viral potential"
 4. **Title Generation** - Auto-generates viral titles for each clip
 
 **Configuration Parameters:**
+
 - `生成片段数量` - Number of clips to generate
 - `目标片段时长` - Target duration per clip (seconds)
 - `高光关键词` - Priority keywords for selection
 - `添加字幕` - Embed subtitles in output
 
 **Key Algorithm:**
+
 ```python
 # Sliding window scans for highlights
 for window in sliding_windows(transcript, window_size=60):
@@ -167,10 +184,12 @@ final_clips = filter_overlapping(highlights, count=n)
 ---
 
 ### 2.3 PySceneDetect
+
 **Path:** `vendor/clipping/pyscenedetect`  
 **Purpose:** Production-grade scene/cut detection
 
 **Detection Algorithms:**
+
 ```python
 from scenedetect import detect, ContentDetector, AdaptiveDetector, ThresholdDetector
 
@@ -185,6 +204,7 @@ scenes = detect('video.mp4', ThresholdDetector())
 ```
 
 **Splitting Videos:**
+
 ```python
 from scenedetect import split_video_ffmpeg
 
@@ -193,6 +213,7 @@ split_video_ffmpeg('video.mp4', scene_list, show_progress=True)
 ```
 
 **CLI Usage:**
+
 ```bash
 # Split on fast cuts
 scenedetect -i video.mp4 split-video
@@ -207,10 +228,12 @@ scenedetect -i video.mp4 time -s 10s
 ---
 
 ### 2.4 Autoclipper
+
 **Path:** `vendor/clipping/autoclipper`  
 **Purpose:** YouTube/Twitch highlight extraction + upload
 
 **Architecture:**
+
 ```
 backend/
 ├── app/
@@ -223,6 +246,7 @@ docker-compose.yml       # Redis + backend + frontend
 ```
 
 **Cloud Deployment:**
+
 ```bash
 # Google Cloud Run deployment
 gcloud run deploy auto-clipper-backend \
@@ -238,12 +262,14 @@ gcloud run deploy auto-clipper-backend \
 ## 3. Publishing & Distribution
 
 ### 3.1 TikTokAutoUploader
+
 **Path:** `vendor/publish/TiktokAutoUploader`  
 **Purpose:** Fast TikTok uploads using requests (not Selenium)
 
 **Key Advantage:** Uploads in ~3 seconds vs minutes with Selenium
 
 **CLI Usage:**
+
 ```bash
 # Login and save cookies
 python cli.py login -n my_username
@@ -256,6 +282,7 @@ python cli.py upload --user my_username -yt "https://youtube.com/shorts/xxx" -t 
 ```
 
 **Multi-Account Support:**
+
 ```bash
 # Show all saved accounts
 python cli.py show -c
@@ -269,10 +296,12 @@ python cli.py show -v
 ---
 
 ### 3.2 Mixpost
+
 **Path:** `vendor/publish/mixpost`  
 **Purpose:** Full social media management platform
 
 **Key Features:**
+
 1. **Multi-Platform Scheduling** - All accounts in one place
 2. **Post Versions & Conditions** - Different content per platform
 3. **Analytics Dashboard** - Cross-platform metrics
@@ -289,10 +318,12 @@ python cli.py show -v
 ## 4. Orchestration & Workflows
 
 ### 4.1 AI Video Workflow
+
 **Path:** `vendor/orchestration/ai-video-workflow`  
 **Purpose:** Complete text→image→video→music pipeline
 
 **Pipeline Stages:**
+
 ```
 1. Text-to-Image (LibLibAI)
    ↓
@@ -304,11 +335,13 @@ python cli.py show -v
 ```
 
 **AI Prompt Generator:**
+
 - Uses **Doubao (豆包)** LLM for prompt generation
 - Preset themes with style options
 - Generates: image prompt + music prompt + viral title + hashtags
 
 **Configuration:**
+
 ```bash
 # Environment variables
 DOUBAO_API_KEY=...
@@ -321,10 +354,12 @@ JIMENG_AK=... JIMENG_SK=...
 ---
 
 ### 4.2 BullMQ
+
 **Path:** `vendor/job-queue/bullmq`  
 **Purpose:** Production-grade Redis job queue for Node.js
 
 **Core Features:**
+
 1. **Parent-Child Dependencies** - Jobs wait for children to complete
 2. **Rate Limiting** - Control throughput
 3. **Delayed Jobs** - Schedule for future execution
@@ -333,6 +368,7 @@ JIMENG_AK=... JIMENG_SK=...
 6. **Pause/Resume** - Queue flow control
 
 **Basic Usage:**
+
 ```typescript
 import { Queue, Worker } from 'bullmq';
 
@@ -341,7 +377,7 @@ const queue = new Queue('render');
 queue.add('generate-video', { scriptId: '123' });
 
 // Process jobs
-const worker = new Worker('render', async job => {
+const worker = new Worker('render', async (job) => {
   if (job.name === 'generate-video') {
     await generateVideo(job.data.scriptId);
   }
@@ -349,6 +385,7 @@ const worker = new Worker('render', async job => {
 ```
 
 **Parent-Child Jobs (FlowProducer):**
+
 ```typescript
 import { FlowProducer } from 'bullmq';
 
@@ -360,8 +397,8 @@ await flow.add({
   children: [
     { name: 'generate-audio', queueName: 'tts', data: { scriptId: '123' } },
     { name: 'generate-captions', queueName: 'captions', data: { scriptId: '123' } },
-    { name: 'fetch-visuals', queueName: 'visuals', data: { query: 'tech' } }
-  ]
+    { name: 'fetch-visuals', queueName: 'visuals', data: { query: 'tech' } },
+  ],
 });
 // render-complete waits for all children to finish
 ```
@@ -373,9 +410,11 @@ await flow.add({
 ## 5. AI-Content-Studio Deep Dive
 
 ### 5.1 Pipeline Architecture
+
 **Path:** `vendor/AI-Content-Studio/pipeline.py`
 
 **Pipeline Steps (14 total):**
+
 ```python
 PIPELINE_STEPS = [
     "Deep Research",          # Web search + news gathering
@@ -396,6 +435,7 @@ PIPELINE_STEPS = [
 ```
 
 ### 5.2 Multi-Speaker TTS with Chunking
+
 ```python
 # Script chunking for quality
 CHUNK_SIZE_LIMIT = 4500
@@ -421,6 +461,7 @@ payload["generationConfig"]["speechConfig"] = {
 ```
 
 ### 5.3 Deep Research with Fact-Checking
+
 ```python
 # Step 1: Facet analysis with Google Search
 facet_prompt = f"Using Google Search, analyze '{topic}': key sub-topics, entities, controversies"
@@ -441,6 +482,7 @@ revised = gemini.generate(f"Revise based on: {fact_check}\n\nOriginal: {research
 ```
 
 ### 5.4 SEO Metadata from Script
+
 ```python
 metadata = gemini.generate(
     prompt=f"""
@@ -448,7 +490,7 @@ metadata = gemini.generate(
     - title: keyword-rich, under 70 chars
     - description: 3 paragraphs, hook first
     - tags: 10-15 comma-separated
-    
+
     VIDEO TOPIC: {topic}
     FULL SCRIPT: {script}
     """,
@@ -461,6 +503,7 @@ metadata = gemini.generate(
 ## 6. Kokoro-FastAPI Deep Dive
 
 ### 6.1 OpenAI-Compatible API
+
 ```python
 from openai import OpenAI
 
@@ -483,6 +526,7 @@ response = client.audio.speech.create(
 ```
 
 ### 6.2 Timestamped Captions
+
 ```python
 import requests
 
@@ -504,6 +548,7 @@ for chunk in response.iter_lines():
 ```
 
 ### 6.3 Performance Metrics
+
 - **GPU (4060Ti):** 35x-100x realtime speed
 - **First Token Latency:** ~300ms (GPU), ~3500ms (CPU)
 - **Streaming:** Adjustable chunk size for real-time playback
@@ -513,23 +558,26 @@ for chunk in response.iter_lines():
 ## 7. Architecture Recommendations for content-machine
 
 ### 7.1 MCP Server Stack
+
 ```yaml
 mcp-servers:
-  - qdrant:      Semantic memory for trends/patterns
+  - qdrant: Semantic memory for trends/patterns
   - nano-banana: Image generation for thumbnails
-  - plainly:     Template-based quick renders (optional)
-  - postgres:    Structured data storage
+  - plainly: Template-based quick renders (optional)
+  - postgres: Structured data storage
 ```
 
 ### 7.2 Clipping Pipeline
+
 ```yaml
 clipping:
-  scene-detection: pyscenedetect  # ContentDetector
+  scene-detection: pyscenedetect # ContentDetector
   highlight-scoring: LLM + sliding window (ai-highlight-clip pattern)
   speaker-separation: FunClip CAM++ (if needed)
 ```
 
 ### 7.3 Job Queue Architecture
+
 ```typescript
 // BullMQ with parent-child dependencies
 const videoFlow = new FlowProducer();
@@ -544,15 +592,16 @@ await videoFlow.add({
       children: [
         { name: 'generate-tts', queueName: 'audio' },
         { name: 'generate-captions', queueName: 'captions' },
-        { name: 'fetch-visuals', queueName: 'visuals' }
-      ]
+        { name: 'fetch-visuals', queueName: 'visuals' },
+      ],
     },
-    { name: 'generate-seo', queueName: 'metadata' }
-  ]
+    { name: 'generate-seo', queueName: 'metadata' },
+  ],
 });
 ```
 
 ### 7.4 Publishing Strategy
+
 ```yaml
 publishing:
   primary: TiktokAutoUploader (requests-based, fast)
@@ -565,10 +614,11 @@ publishing:
 ## 8. Code Patterns Reference
 
 ### 8.1 Sliding Window Highlight Detection
+
 ```python
 def extract_highlights(transcript, window_size=60, step=30, top_n=5):
     highlights = []
-    
+
     for start in range(0, len(transcript), step):
         window = transcript[start:start + window_size]
         score = llm.score_highlight(window.text)
@@ -578,35 +628,37 @@ def extract_highlights(transcript, window_size=60, step=30, top_n=5):
             'score': score,
             'text': window.text
         })
-    
+
     # Sort by score and filter overlapping
     sorted_highlights = sorted(highlights, key=lambda x: x['score'], reverse=True)
     return filter_overlapping(sorted_highlights, top_n)
 ```
 
 ### 8.2 Fact-Checking Pipeline
+
 ```python
 def research_with_fact_check(topic: str) -> str:
     # Initial research
     research = deep_research(topic)
-    
+
     if config.FACT_CHECK_ENABLED:
         # Find potential issues
         issues = llm.fact_check(research)
-        
+
         # Revise if issues found
         if issues:
             research = llm.revise(research, issues)
-    
+
     return research
 ```
 
 ### 8.3 Multi-Account Upload Pattern
+
 ```python
 class MultiAccountUploader:
     def __init__(self):
         self.accounts = load_saved_cookies("CookiesDir")
-    
+
     def upload_to_all(self, video_path: str, title: str, schedule: datetime = None):
         results = []
         for account in self.accounts:
@@ -623,20 +675,24 @@ class MultiAccountUploader:
 ## 9. Integration Priorities
 
 ### Phase 1: Core Infrastructure
+
 1. **BullMQ** - Job queue for all async processing
 2. **Qdrant MCP** - Trend/pattern memory
 3. **Kokoro-FastAPI** - Local TTS with timestamps
 
 ### Phase 2: Clipping & Analysis
+
 4. **PySceneDetect** - Scene boundary detection
 5. **FunClip patterns** - LLM-driven highlight extraction
 
 ### Phase 3: Publishing
+
 6. **TikTokAutoUploader** - Primary upload (fastest)
 7. **YouTube API** - Official upload
 8. **Mixpost patterns** - Scheduling logic
 
 ### Phase 4: Advanced Features
+
 9. **AI Video Workflow patterns** - Multi-model orchestration
 10. **AI-Content-Studio patterns** - Fact-checking, SEO generation
 
@@ -645,14 +701,17 @@ class MultiAccountUploader:
 ## 10. Risk Assessment
 
 ### High Priority
+
 - **TikTokAutoUploader** - Unofficial API, may break
 - **Cookie-based auth** - Requires maintenance
 
-### Medium Priority  
+### Medium Priority
+
 - **Qdrant local** - Needs Redis for persistence
 - **Kokoro model** - English-only currently
 
 ### Low Risk
+
 - **BullMQ** - Production-proven, used by Microsoft/Vendure
 - **PySceneDetect** - Stable, well-maintained
 - **FFmpeg** - Industry standard
@@ -663,17 +722,18 @@ class MultiAccountUploader:
 
 The infrastructure layer provides critical capabilities:
 
-| Component | Tool | Key Feature |
-|-----------|------|-------------|
-| **Memory** | Qdrant MCP | Semantic storage for trends/patterns |
-| **Images** | Nano-Banana MCP | Gemini 2.5 Flash generation |
-| **Clipping** | PySceneDetect + FunClip | Scene detection + LLM scoring |
-| **Queue** | BullMQ | Parent-child job dependencies |
-| **TTS** | Kokoro-FastAPI | OpenAI-compatible with timestamps |
-| **Upload** | TikTokAutoUploader | Requests-based (3 second uploads) |
-| **Orchestration** | AI Video Workflow | Multi-model coordination |
+| Component         | Tool                    | Key Feature                          |
+| ----------------- | ----------------------- | ------------------------------------ |
+| **Memory**        | Qdrant MCP              | Semantic storage for trends/patterns |
+| **Images**        | Nano-Banana MCP         | Gemini 2.5 Flash generation          |
+| **Clipping**      | PySceneDetect + FunClip | Scene detection + LLM scoring        |
+| **Queue**         | BullMQ                  | Parent-child job dependencies        |
+| **TTS**           | Kokoro-FastAPI          | OpenAI-compatible with timestamps    |
+| **Upload**        | TikTokAutoUploader      | Requests-based (3 second uploads)    |
+| **Orchestration** | AI Video Workflow       | Multi-model coordination             |
 
 **Recommended Stack:**
+
 ```
 TypeScript + Remotion + Kokoro-FastAPI + BullMQ + Qdrant MCP
 ```
@@ -681,6 +741,7 @@ TypeScript + Remotion + Kokoro-FastAPI + BullMQ + Qdrant MCP
 ---
 
 **Next Steps:**
+
 1. Prototype BullMQ flow for video pipeline
 2. Integrate Qdrant MCP for trend storage
 3. Evaluate TikTokAutoUploader stability

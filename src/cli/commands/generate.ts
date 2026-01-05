@@ -1,6 +1,6 @@
 /**
  * Generate command - Full pipeline: topic → video
- * 
+ *
  * Usage: cm generate "Redis vs PostgreSQL" --archetype versus --output video.mp4
  */
 import { Command } from 'commander';
@@ -19,11 +19,31 @@ function createMockLLMProvider(topic: string): FakeLLMProvider {
   const provider = new FakeLLMProvider();
   provider.queueJsonResponse({
     scenes: [
-      { text: `Here's the thing about ${topic}...`, visualDirection: 'Speaker on camera', mood: 'engaging' },
-      { text: 'First, you need to know this key point.', visualDirection: 'B-roll of related topic', mood: 'informative' },
-      { text: 'Second, this is what most people get wrong.', visualDirection: 'Text overlay with key stat', mood: 'surprising' },
-      { text: "And finally, here's what you should actually do.", visualDirection: 'Action shot', mood: 'empowering' },
-      { text: 'Follow for more tips like this!', visualDirection: 'End card with social handles', mood: 'friendly' },
+      {
+        text: `Here's the thing about ${topic}...`,
+        visualDirection: 'Speaker on camera',
+        mood: 'engaging',
+      },
+      {
+        text: 'First, you need to know this key point.',
+        visualDirection: 'B-roll of related topic',
+        mood: 'informative',
+      },
+      {
+        text: 'Second, this is what most people get wrong.',
+        visualDirection: 'Text overlay with key stat',
+        mood: 'surprising',
+      },
+      {
+        text: "And finally, here's what you should actually do.",
+        visualDirection: 'Action shot',
+        mood: 'empowering',
+      },
+      {
+        text: 'Follow for more tips like this!',
+        visualDirection: 'End card with social handles',
+        mood: 'friendly',
+      },
     ],
     reasoning: 'Mock script generated for testing. Real LLM would provide creative reasoning.',
     title: `Mock: ${topic}`,
@@ -50,12 +70,12 @@ export const generateCommand = new Command('generate')
     console.log(chalk.gray(`Topic: ${topic}`));
     console.log(chalk.gray(`Archetype: ${options.archetype}`));
     console.log(chalk.gray(`Output: ${options.output}\n`));
-    
+
     try {
       // Validate options
       const archetype = ArchetypeEnum.parse(options.archetype);
       const orientation = OrientationEnum.parse(options.orientation);
-      
+
       // Dry-run: just show what would happen
       if (options.dryRun) {
         console.log(chalk.yellow('🔍 Dry-run mode - no execution\n'));
@@ -73,18 +93,18 @@ export const generateCommand = new Command('generate')
         console.log(`   4. Render → ${options.output}\n`);
         return;
       }
-      
+
       logger.info({ topic, archetype, orientation }, 'Starting full pipeline');
-      
+
       // Create mock provider if --mock flag is set
       const llmProvider = options.mock ? createMockLLMProvider(topic) : undefined;
       if (options.mock) {
         console.log(chalk.yellow('⚠️  Mock mode - using fake providers\n'));
       }
-      
+
       // Stage 1: Script
       const scriptSpinner = ora('Stage 1/4: Generating script...').start();
-      
+
       const result = await runPipeline({
         topic,
         archetype,
@@ -95,7 +115,7 @@ export const generateCommand = new Command('generate')
         keepArtifacts: options.keepArtifacts,
         llmProvider,
         mock: options.mock,
-        onProgress: (stage, message) => {
+        onProgress: (stage, _message) => {
           if (stage === 'script') {
             scriptSpinner.succeed('Stage 1/4: Script generated');
           }
@@ -110,7 +130,7 @@ export const generateCommand = new Command('generate')
           }
         },
       });
-      
+
       // Final summary
       console.log(chalk.green.bold('\n✅ Video generated successfully!\n'));
       console.log(`   📝 Title: ${result.script.title}`);
@@ -118,14 +138,13 @@ export const generateCommand = new Command('generate')
       console.log(`   📐 Resolution: ${result.width}x${result.height}`);
       console.log(`   💾 Size: ${(result.fileSize / 1024 / 1024).toFixed(1)} MB`);
       console.log(`   📁 Output: ${chalk.cyan(result.outputPath)}\n`);
-      
+
       // Show cost summary if available
       if (result.costs) {
         console.log(chalk.gray(`   💰 API Costs: $${result.costs.total.toFixed(4)}`));
         console.log(chalk.gray(`      - LLM: $${result.costs.llm.toFixed(4)}`));
         console.log(chalk.gray(`      - TTS: $${result.costs.tts.toFixed(4)}\n`));
       }
-      
     } catch (error) {
       handleCommandError(error);
     }

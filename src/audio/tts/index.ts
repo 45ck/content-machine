@@ -1,6 +1,6 @@
 /**
  * TTS - Text-to-Speech using kokoro-js
- * 
+ *
  * Generates high-quality speech audio locally.
  */
 
@@ -39,12 +39,12 @@ let cachedTTS: any = null;
  */
 export async function synthesizeSpeech(options: TTSOptions): Promise<TTSResult> {
   const log = createLogger({ module: 'tts', voice: options.voice });
-  
+
   log.info({ textLength: options.text.length }, 'Starting TTS synthesis');
-  
+
   try {
     const kokoro = await getKokoro();
-    
+
     // Initialize TTS model if not cached
     if (!cachedTTS) {
       log.debug('Loading TTS model');
@@ -54,29 +54,28 @@ export async function synthesizeSpeech(options: TTSOptions): Promise<TTSResult> 
       );
       log.debug('TTS model loaded');
     }
-    
+
     // Generate audio
     log.debug('Generating audio');
     const audio = await cachedTTS.generate(options.text, {
       voice: options.voice,
       speed: options.speed ?? 1.0,
     });
-    
+
     // Save to file
     await audio.save(options.outputPath);
-    
+
     // Calculate duration from audio data
     const duration = audio.audio.length / audio.sampling_rate;
-    
+
     log.info({ duration, outputPath: options.outputPath }, 'TTS synthesis complete');
-    
+
     return {
       audioPath: options.outputPath,
       duration,
       sampleRate: audio.sampling_rate,
       cost: 0, // Local TTS is free
     };
-    
   } catch (error) {
     log.error({ error }, 'TTS synthesis failed');
     throw new APIError(
@@ -92,16 +91,16 @@ export async function synthesizeSpeech(options: TTSOptions): Promise<TTSResult> 
 export async function getAvailableVoices(): Promise<string[]> {
   // kokoro-js voices
   return [
-    'af_heart',    // American Female (warm)
-    'af_bella',    // American Female (professional)
-    'af_nicole',   // American Female (young)
-    'af_sarah',    // American Female (mature)
-    'af_sky',      // American Female (energetic)
-    'am_adam',     // American Male (warm)
-    'am_michael',  // American Male (professional)
-    'bf_emma',     // British Female
+    'af_heart', // American Female (warm)
+    'af_bella', // American Female (professional)
+    'af_nicole', // American Female (young)
+    'af_sarah', // American Female (mature)
+    'af_sky', // American Female (energetic)
+    'am_adam', // American Male (warm)
+    'am_michael', // American Male (professional)
+    'bf_emma', // British Female
     'bf_isabella', // British Female (refined)
-    'bm_george',   // British Male
-    'bm_lewis',    // British Male (young)
+    'bm_george', // British Male
+    'bm_lewis', // British Male (young)
   ];
 }

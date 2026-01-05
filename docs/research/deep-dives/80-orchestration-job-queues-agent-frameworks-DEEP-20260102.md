@@ -12,6 +12,7 @@
 This deep dive synthesizes the complete orchestration layer for content-machine, covering **workflow orchestration** (Temporal, n8n, Airflow), **job queues** (BullMQ, Celery, RQ), **agent frameworks** (CrewAI, LangGraph), and **observability** (Langfuse, Promptfoo). These components form the "brain" of the video generation pipeline—coordinating async tasks, managing long-running agents, and providing visibility into LLM operations.
 
 **Key Findings:**
+
 - **Temporal:** Production-grade durable execution, ideal for complex video workflows
 - **n8n:** Visual workflow builder with AI-native LangChain integration
 - **BullMQ:** Redis-based, TypeScript-first, ideal for Node.js backends
@@ -33,13 +34,13 @@ Temporal is a durable execution platform for building scalable, resilient applic
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Durable Execution** | Workflows persist through crashes/restarts |
-| **Automatic Retries** | Configurable retry policies with backoff |
-| **Visibility** | Web UI for monitoring workflow state |
-| **Multi-language** | Go, Java, TypeScript, Python, PHP SDKs |
-| **Versioning** | Safely update running workflows |
+| Feature               | Description                                 |
+| --------------------- | ------------------------------------------- |
+| **Durable Execution** | Workflows persist through crashes/restarts  |
+| **Automatic Retries** | Configurable retry policies with backoff    |
+| **Visibility**        | Web UI for monitoring workflow state        |
+| **Multi-language**    | Go, Java, TypeScript, Python, PHP SDKs      |
+| **Versioning**        | Safely update running workflows             |
 | **Signals & Queries** | External interaction with running workflows |
 
 #### Installation
@@ -75,32 +76,31 @@ export async function videoGenerationWorkflow(
   topic: string,
   style: string
 ): Promise<{ videoUrl: string }> {
-  
   // Step 1: Generate script (with LLM)
   const script = await generateScript(topic, style);
-  
+
   // Step 2: Wait for human approval (up to 24 hours)
   let approved = false;
   setHandler(approveSignal, (isApproved: boolean) => {
     approved = isApproved;
   });
-  
+
   // Poll for approval or timeout
   const deadline = Date.now() + 24 * 60 * 60 * 1000;
   while (!approved && Date.now() < deadline) {
     await sleep('5 minutes');
   }
-  
+
   if (!approved) {
     throw new Error('Video not approved within 24 hours');
   }
-  
+
   // Step 3: Render video (long-running)
   const videoPath = await renderVideo(script);
-  
+
   // Step 4: Upload to platforms
   const videoUrl = await uploadVideo(videoPath);
-  
+
   return { videoUrl };
 }
 ```
@@ -123,14 +123,14 @@ n8n is a workflow automation platform with visual editor and 400+ integrations.
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Visual Editor** | Drag-and-drop workflow builder |
+| Feature               | Description                           |
+| --------------------- | ------------------------------------- |
+| **Visual Editor**     | Drag-and-drop workflow builder        |
 | **400+ Integrations** | Reddit, YouTube, Slack, Discord, etc. |
-| **AI-Native** | Built-in LangChain agents |
-| **Self-Hostable** | Full control over data |
-| **Code Flexibility** | JavaScript/Python nodes |
-| **Webhooks** | Trigger workflows via HTTP |
+| **AI-Native**         | Built-in LangChain agents             |
+| **Self-Hostable**     | Full control over data                |
+| **Code Flexibility**  | JavaScript/Python nodes               |
+| **Webhooks**          | Trigger workflows via HTTP            |
 
 #### Quick Start
 
@@ -149,28 +149,28 @@ docker run -it --rm --name n8n -p 5678:5678 docker.n8n.io/n8nio/n8n
 ```yaml
 # Conceptual n8n workflow
 nodes:
-  - name: "Reddit Trigger"
-    type: "n8n-nodes-base.redditTrigger"
+  - name: 'Reddit Trigger'
+    type: 'n8n-nodes-base.redditTrigger'
     parameters:
-      subreddit: "programming"
-      postType: "top"
-      
-  - name: "AI Script Generator"
-    type: "@n8n/n8n-nodes-langchain.agent"
+      subreddit: 'programming'
+      postType: 'top'
+
+  - name: 'AI Script Generator'
+    type: '@n8n/n8n-nodes-langchain.agent'
     parameters:
-      model: "gpt-4o"
-      systemPrompt: "Generate viral TikTok script..."
-      
-  - name: "Render Video"
-    type: "n8n-nodes-base.httpRequest"
+      model: 'gpt-4o'
+      systemPrompt: 'Generate viral TikTok script...'
+
+  - name: 'Render Video'
+    type: 'n8n-nodes-base.httpRequest'
     parameters:
-      url: "http://localhost:3000/api/render"
-      method: "POST"
-      
-  - name: "Upload to TikTok"
-    type: "n8n-nodes-base.httpRequest"
+      url: 'http://localhost:3000/api/render'
+      method: 'POST'
+
+  - name: 'Upload to TikTok'
+    type: 'n8n-nodes-base.httpRequest'
     parameters:
-      url: "{{$env.TIKTOK_UPLOAD_URL}}"
+      url: '{{$env.TIKTOK_UPLOAD_URL}}'
 ```
 
 #### content-machine Integration
@@ -191,13 +191,13 @@ Desktop application for automated AI video generation with LibLibAI, Jimeng, and
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Text-to-Image** | LibLibAI integration with LoRA support |
-| **Image-to-Video** | Jimeng I2V model |
-| **Text-to-Music** | Jimeng music generation |
-| **Auto-Merge** | FFmpeg composition |
-| **Prompt Generator** | Doubao LLM for inspiration |
+| Feature              | Description                            |
+| -------------------- | -------------------------------------- |
+| **Text-to-Image**    | LibLibAI integration with LoRA support |
+| **Image-to-Video**   | Jimeng I2V model                       |
+| **Text-to-Music**    | Jimeng music generation                |
+| **Auto-Merge**       | FFmpeg composition                     |
+| **Prompt Generator** | Doubao LLM for inspiration             |
 
 #### Pipeline
 
@@ -220,15 +220,15 @@ The fastest, most reliable Redis-based queue for Node.js.
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Redis-Backed** | Persistent, distributed jobs |
-| **Priority Queues** | Job prioritization |
-| **Rate Limiting** | Control throughput |
-| **Delayed Jobs** | Schedule for future |
-| **Repeatable Jobs** | Cron-like scheduling |
-| **Flow (DAG)** | Job dependencies |
-| **Events** | Real-time job tracking |
+| Feature             | Description                  |
+| ------------------- | ---------------------------- |
+| **Redis-Backed**    | Persistent, distributed jobs |
+| **Priority Queues** | Job prioritization           |
+| **Rate Limiting**   | Control throughput           |
+| **Delayed Jobs**    | Schedule for future          |
+| **Repeatable Jobs** | Cron-like scheduling         |
+| **Flow (DAG)**      | Job dependencies             |
+| **Events**          | Real-time job tracking       |
 
 #### Installation
 
@@ -250,35 +250,43 @@ const videoQueue = new Queue('video-rendering', {
 });
 
 // Add job
-await videoQueue.add('render', {
-  script: 'Hello world video script...',
-  style: 'viral-tiktok',
-  outputPath: '/videos/output.mp4',
-}, {
-  priority: 1,
-  attempts: 3,
-  backoff: {
-    type: 'exponential',
-    delay: 5000,
+await videoQueue.add(
+  'render',
+  {
+    script: 'Hello world video script...',
+    style: 'viral-tiktok',
+    outputPath: '/videos/output.mp4',
   },
-});
+  {
+    priority: 1,
+    attempts: 3,
+    backoff: {
+      type: 'exponential',
+      delay: 5000,
+    },
+  }
+);
 
 // Create worker
-const worker = new Worker('video-rendering', async (job) => {
-  console.log(`Processing job ${job.id}`);
-  
-  // Long-running render task
-  const videoPath = await renderVideo(job.data);
-  
-  // Update progress
-  await job.updateProgress(50);
-  
-  // Return result
-  return { videoPath };
-}, {
-  connection: { host: 'localhost', port: 6379 },
-  concurrency: 2,  // 2 concurrent renders
-});
+const worker = new Worker(
+  'video-rendering',
+  async (job) => {
+    console.log(`Processing job ${job.id}`);
+
+    // Long-running render task
+    const videoPath = await renderVideo(job.data);
+
+    // Update progress
+    await job.updateProgress(50);
+
+    // Return result
+    return { videoPath };
+  },
+  {
+    connection: { host: 'localhost', port: 6379 },
+    concurrency: 2, // 2 concurrent renders
+  }
+);
 
 // Handle completion
 worker.on('completed', (job, result) => {
@@ -403,13 +411,13 @@ Multi-agent automation framework built independently from LangChain.
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Crews** | Autonomous collaborative agents |
-| **Flows** | Enterprise event-driven control |
-| **100k+ Certified Devs** | Large community |
-| **LLM-Agnostic** | Works with any model |
-| **Tools Integration** | Custom tool creation |
+| Feature                  | Description                     |
+| ------------------------ | ------------------------------- |
+| **Crews**                | Autonomous collaborative agents |
+| **Flows**                | Enterprise event-driven control |
+| **100k+ Certified Devs** | Large community                 |
+| **LLM-Agnostic**         | Works with any model            |
+| **Tools Integration**    | Custom tool creation            |
 
 #### Installation
 
@@ -470,18 +478,18 @@ result = crew.kickoff(inputs={"niche": "developer tools", "topic": "AI coding as
 from crewai.flow.flow import Flow, listen, start
 
 class VideoGenerationFlow(Flow):
-    
+
     @start()
     def research_trends(self):
         # Single LLM call for trend research
         return self.llm.invoke("Find trending topics...")
-    
+
     @listen(research_trends)
     def generate_script(self, trends):
         # Use crew for collaborative script generation
         crew = Crew(agents=[...], tasks=[...])
         return crew.kickoff(inputs={"trends": trends})
-    
+
     @listen(generate_script)
     def render_video(self, script):
         # Trigger external render service
@@ -503,13 +511,13 @@ Low-level orchestration framework for stateful, long-running agents.
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Durable Execution** | Persist through failures |
-| **Human-in-the-Loop** | State inspection/modification |
-| **Comprehensive Memory** | Short-term + long-term |
-| **LangSmith Debugging** | Visual tracing |
-| **Production Deployment** | Scalable infrastructure |
+| Feature                   | Description                   |
+| ------------------------- | ----------------------------- |
+| **Durable Execution**     | Persist through failures      |
+| **Human-in-the-Loop**     | State inspection/modification |
+| **Comprehensive Memory**  | Short-term + long-term        |
+| **LangSmith Debugging**   | Visual tracing                |
+| **Production Deployment** | Scalable infrastructure       |
 
 #### Installation
 
@@ -595,14 +603,14 @@ Open-source LLM engineering platform for tracing, evals, and prompt management.
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Tracing** | Full LLM call observability |
+| Feature               | Description                 |
+| --------------------- | --------------------------- |
+| **Tracing**           | Full LLM call observability |
 | **Prompt Management** | Version control for prompts |
-| **Evaluations** | LLM-as-judge, user feedback |
-| **Datasets** | Test sets for benchmarking |
-| **Playground** | Prompt testing UI |
-| **Self-Hostable** | Docker, Kubernetes |
+| **Evaluations**       | LLM-as-judge, user feedback |
+| **Datasets**          | Test sets for benchmarking  |
+| **Playground**        | Prompt testing UI           |
+| **Self-Hostable**     | Docker, Kubernetes          |
 
 #### Installation
 
@@ -636,12 +644,12 @@ def generate_video_script(topic: str, style: str) -> str:
             {"role": "user", "content": topic}
         ]
     )
-    
+
     # Add metadata
     langfuse_context.update_current_observation(
         metadata={"style": style, "topic": topic}
     )
-    
+
     return response.choices[0].message.content
 
 # Trace appears in Langfuse UI with timing, tokens, cost
@@ -697,13 +705,13 @@ Developer-local LLM testing and red teaming tool.
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Local Evaluation** | Prompts never leave your machine |
-| **Model Comparison** | Side-by-side testing |
-| **Red Teaming** | Security vulnerability scanning |
-| **CI/CD Integration** | Automated checks |
-| **Multi-Provider** | OpenAI, Anthropic, Ollama, etc. |
+| Feature               | Description                      |
+| --------------------- | -------------------------------- |
+| **Local Evaluation**  | Prompts never leave your machine |
+| **Model Comparison**  | Side-by-side testing             |
+| **Red Teaming**       | Security vulnerability scanning  |
+| **CI/CD Integration** | Automated checks                 |
+| **Multi-Provider**    | OpenAI, Anthropic, Ollama, etc.  |
 
 #### Quick Start
 
@@ -722,7 +730,7 @@ npx promptfoo view
 
 ```yaml
 # promptfooconfig.yaml
-description: "Video script generation evaluation"
+description: 'Video script generation evaluation'
 
 prompts:
   - file://prompts/script-generator.txt
@@ -735,22 +743,22 @@ providers:
 
 tests:
   - vars:
-      topic: "AI coding assistants"
-      style: "viral"
+      topic: 'AI coding assistants'
+      style: 'viral'
     assert:
       - type: contains
-        value: "hook"
+        value: 'hook'
       - type: llm-rubric
-        value: "Should be engaging and under 60 seconds"
+        value: 'Should be engaging and under 60 seconds'
       - type: cost
         threshold: 0.05
 
   - vars:
-      topic: "JavaScript frameworks"
-      style: "educational"
+      topic: 'JavaScript frameworks'
+      style: 'educational'
     assert:
       - type: similar
-        value: "Expected output structure..."
+        value: 'Expected output structure...'
         threshold: 0.8
 ```
 
@@ -782,12 +790,12 @@ npx promptfoo redteam run
 
 ### 5.1 Recommended Stack
 
-| Layer | Primary | Alternative | Notes |
-|-------|---------|-------------|-------|
-| **Orchestration** | Temporal | n8n | Temporal for prod, n8n for prototyping |
-| **Job Queue** | BullMQ | Celery | BullMQ for TS, Celery for Python |
-| **Agents** | LangGraph | CrewAI | LangGraph for control, CrewAI for autonomous |
-| **Observability** | Langfuse | Promptfoo | Langfuse for prod, Promptfoo for dev |
+| Layer             | Primary   | Alternative | Notes                                        |
+| ----------------- | --------- | ----------- | -------------------------------------------- |
+| **Orchestration** | Temporal  | n8n         | Temporal for prod, n8n for prototyping       |
+| **Job Queue**     | BullMQ    | Celery      | BullMQ for TS, Celery for Python             |
+| **Agents**        | LangGraph | CrewAI      | LangGraph for control, CrewAI for autonomous |
+| **Observability** | Langfuse  | Promptfoo   | Langfuse for prod, Promptfoo for dev         |
 
 ### 5.2 Video Pipeline Architecture
 
@@ -826,16 +834,16 @@ const activities = proxyActivities<typeof import('./activities')>({
 export async function videoGenerationWorkflow(topic: string) {
   // Step 1: Research (LangGraph agent via activity)
   const research = await activities.runResearchAgent(topic);
-  
+
   // Step 2: Generate script (LangGraph agent)
   const script = await activities.runScriptAgent(research);
-  
+
   // Step 3: Queue render job (BullMQ)
   const jobId = await activities.queueRenderJob(script);
-  
+
   // Step 4: Wait for render completion (poll BullMQ)
   const videoPath = await activities.waitForRenderJob(jobId);
-  
+
   // Step 5: Upload
   return await activities.uploadVideo(videoPath);
 }
@@ -854,7 +862,7 @@ export async function queueRenderJob(script: string): Promise<string> {
 
 export async function waitForRenderJob(jobId: string): Promise<string> {
   const job = await Job.fromId(renderQueue, jobId);
-  
+
   // Wait for completion with timeout
   const result = await job.waitUntilFinished(renderQueue, 30 * 60 * 1000);
   return result.videoPath;
@@ -867,37 +875,37 @@ export async function waitForRenderJob(jobId: string): Promise<string> {
 
 ### 6.1 Orchestration Choice
 
-| Factor | Temporal | n8n | Airflow |
-|--------|----------|-----|---------|
-| **Durability** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ |
-| **TypeScript** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐ (Python) |
-| **Visual Editor** | ⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
-| **Complexity** | High | Low | Medium |
-| **Enterprise** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ |
+| Factor            | Temporal   | n8n        | Airflow     |
+| ----------------- | ---------- | ---------- | ----------- |
+| **Durability**    | ⭐⭐⭐⭐⭐ | ⭐⭐⭐     | ⭐⭐⭐⭐    |
+| **TypeScript**    | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐ (Python) |
+| **Visual Editor** | ⭐⭐       | ⭐⭐⭐⭐⭐ | ⭐⭐⭐      |
+| **Complexity**    | High       | Low        | Medium      |
+| **Enterprise**    | ⭐⭐⭐⭐⭐ | ⭐⭐⭐     | ⭐⭐⭐⭐    |
 
 **Recommendation:** Temporal for production, n8n for rapid prototyping.
 
 ### 6.2 Agent Framework Choice
 
-| Factor | LangGraph | CrewAI | OpenAI Agents SDK |
-|--------|-----------|--------|-------------------|
-| **Control** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ |
-| **Autonomy** | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
-| **TypeScript** | ⭐⭐⭐⭐ | ⭐ (Python) | ⭐⭐⭐⭐⭐ |
-| **Debugging** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ |
-| **Learning Curve** | Medium | Low | Low |
+| Factor             | LangGraph  | CrewAI      | OpenAI Agents SDK |
+| ------------------ | ---------- | ----------- | ----------------- |
+| **Control**        | ⭐⭐⭐⭐⭐ | ⭐⭐⭐      | ⭐⭐⭐⭐          |
+| **Autonomy**       | ⭐⭐⭐     | ⭐⭐⭐⭐⭐  | ⭐⭐⭐            |
+| **TypeScript**     | ⭐⭐⭐⭐   | ⭐ (Python) | ⭐⭐⭐⭐⭐        |
+| **Debugging**      | ⭐⭐⭐⭐⭐ | ⭐⭐⭐      | ⭐⭐⭐⭐          |
+| **Learning Curve** | Medium     | Low         | Low               |
 
 **Recommendation:** LangGraph for complex workflows, CrewAI for multi-agent collaboration.
 
 ### 6.3 Queue Choice
 
-| Factor | BullMQ | Celery | RQ |
-|--------|--------|--------|-----|
-| **TypeScript** | ⭐⭐⭐⭐⭐ | ⭐ | ⭐ |
-| **Python** | ⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| **Features** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
-| **Simplicity** | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| **Scaling** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
+| Factor         | BullMQ     | Celery     | RQ         |
+| -------------- | ---------- | ---------- | ---------- |
+| **TypeScript** | ⭐⭐⭐⭐⭐ | ⭐         | ⭐         |
+| **Python**     | ⭐⭐       | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| **Features**   | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐     |
+| **Simplicity** | ⭐⭐⭐⭐   | ⭐⭐⭐     | ⭐⭐⭐⭐⭐ |
+| **Scaling**    | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐     |
 
 **Recommendation:** BullMQ for TypeScript stack, Celery if Python-heavy.
 
@@ -906,21 +914,25 @@ export async function waitForRenderJob(jobId: string): Promise<string> {
 ## 7. Implementation Priority
 
 ### Phase 1: Foundation (Week 1-2)
+
 1. BullMQ queue setup for render jobs
 2. Langfuse integration for LLM tracing
 3. Basic workflow without orchestrator
 
 ### Phase 2: Orchestration (Week 3-4)
+
 1. Temporal server deployment
 2. Video generation workflow
 3. Human approval gates
 
 ### Phase 3: Agents (Week 5-6)
+
 1. LangGraph research agent
 2. Script generation agent
 3. Integration with Temporal
 
 ### Phase 4: Observability (Week 7-8)
+
 1. Promptfoo eval suite
 2. Langfuse dashboards
 3. Alert rules
@@ -950,6 +962,7 @@ export async function waitForRenderJob(jobId: string): Promise<string> {
 ---
 
 **Document Statistics:**
+
 - **Tools Covered:** 12
 - **Code Examples:** 20+
 - **Architecture Diagrams:** 2

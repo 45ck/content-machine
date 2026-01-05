@@ -64,8 +64,8 @@ export const RemotionRoot: React.FC = () => {
 
 ```typescript
 export enum AvailableComponentsEnum {
-  PortraitVideo = "ShortVideo",
-  LandscapeVideo = "LandscapeVideo",
+  PortraitVideo = 'ShortVideo',
+  LandscapeVideo = 'LandscapeVideo',
 }
 
 export type OrientationConfig = {
@@ -174,7 +174,7 @@ export function useCalculation(config: VidosyConfig) {
 
     for (const scene of config.scenes) {
       const durationInFrames = Math.floor(scene.duration * config.video.fps);
-      
+
       timings.push({
         start: currentFrame,
         duration: durationInFrames,
@@ -205,29 +205,31 @@ const { fps } = useVideoConfig();
 
 const activeStyle = {
   backgroundColor: captionBackgroundColor,
-  padding: "10px",
-  marginLeft: "-10px",
-  marginRight: "-10px",
-  borderRadius: "10px",
+  padding: '10px',
+  marginLeft: '-10px',
+  marginRight: '-10px',
+  borderRadius: '10px',
 };
 
 // Word-level highlighting based on frame timing
-{line.texts.map((text, l) => {
-  const active =
-    frame >= startFrame + (text.startMs / 1000) * fps &&
-    frame <= startFrame + (text.endMs / 1000) * fps;
-  return (
-    <span
-      style={{
-        fontWeight: "bold",
-        ...(active ? activeStyle : {}),
-      }}
-      key={`scene-${i}-page-${j}-line-${k}-text-${l}`}
-    >
-      {text.text}
-    </span>
-  );
-})}
+{
+  line.texts.map((text, l) => {
+    const active =
+      frame >= startFrame + (text.startMs / 1000) * fps &&
+      frame <= startFrame + (text.endMs / 1000) * fps;
+    return (
+      <span
+        style={{
+          fontWeight: 'bold',
+          ...(active ? activeStyle : {}),
+        }}
+        key={`scene-${i}-page-${j}-line-${k}-text-${l}`}
+      >
+        {text.text}
+      </span>
+    );
+  });
+}
 ```
 
 ### 2.2 TikTok-Style Captions (Official @remotion/captions)
@@ -235,11 +237,11 @@ const activeStyle = {
 **File:** [templates/template-tiktok-base/src/CaptionedVideo/Page.tsx](../../../templates/template-tiktok-base/src/CaptionedVideo/Page.tsx)
 
 ```tsx
-import { TikTokPage } from "@remotion/captions";
-import { fitText } from "@remotion/layout-utils";
-import { makeTransform, scale, translateY } from "@remotion/animation-utils";
+import { TikTokPage } from '@remotion/captions';
+import { fitText } from '@remotion/layout-utils';
+import { makeTransform, scale, translateY } from '@remotion/animation-utils';
 
-const HIGHLIGHT_COLOR = "#39E508";
+const HIGHLIGHT_COLOR = '#39E508';
 
 export const Page: React.FC<{
   readonly enterProgress: number;
@@ -253,7 +255,7 @@ export const Page: React.FC<{
     fontFamily,
     text: page.text,
     withinWidth: width * 0.9,
-    textTransform: "uppercase",
+    textTransform: 'uppercase',
   });
 
   return (
@@ -261,27 +263,25 @@ export const Page: React.FC<{
       <div
         style={{
           fontSize: Math.min(DESIRED_FONT_SIZE, fittedText.fontSize),
-          color: "white",
-          WebkitTextStroke: "20px black",
-          paintOrder: "stroke",
+          color: 'white',
+          WebkitTextStroke: '20px black',
+          paintOrder: 'stroke',
           transform: makeTransform([
             scale(interpolate(enterProgress, [0, 1], [0.8, 1])),
             translateY(interpolate(enterProgress, [0, 1], [50, 0])),
           ]),
-          textTransform: "uppercase",
+          textTransform: 'uppercase',
         }}
       >
         {page.tokens.map((t) => {
-          const active =
-            (t.fromMs - page.startMs) <= timeInMs &&
-            (t.toMs - page.startMs) > timeInMs;
+          const active = t.fromMs - page.startMs <= timeInMs && t.toMs - page.startMs > timeInMs;
           return (
             <span
               key={t.fromMs}
               style={{
-                display: "inline",
-                whiteSpace: "pre",
-                color: active ? HIGHLIGHT_COLOR : "white",
+                display: 'inline',
+                whiteSpace: 'pre',
+                color: active ? HIGHLIGHT_COLOR : 'white',
               }}
             >
               {t.text}
@@ -306,9 +306,9 @@ export function createCaptionPages({
   maxDistanceMs,
 }: {
   captions: Caption[];
-  lineMaxLength: number;      // Max chars per line (20 for portrait, 30 for landscape)
-  lineCount: number;          // Lines per page (usually 1)
-  maxDistanceMs: number;      // Max gap before new page (1000ms)
+  lineMaxLength: number; // Max chars per line (20 for portrait, 30 for landscape)
+  lineCount: number; // Lines per page (usually 1)
+  maxDistanceMs: number; // Max gap before new page (1000ms)
 }) {
   const pages = [];
   let currentPage: CaptionPage = { startMs: 0, endMs: 0, lines: [] };
@@ -324,7 +324,7 @@ export function createCaptionPages({
     }
 
     // Start new line if exceeds length
-    const currentLineText = currentLine.texts.map((t) => t.text).join(" ");
+    const currentLineText = currentLine.texts.map((t) => t.text).join(' ');
     if (currentLineText.length + 1 + caption.text.length > lineMaxLength) {
       currentPage.lines.push(currentLine);
       currentLine = { texts: [] };
@@ -354,15 +354,15 @@ export function createCaptionPages({
 **File:** [vendor/short-video-maker-gyori/src/components/videos/PortraitVideo.tsx](../../../vendor/short-video-maker-gyori/src/components/videos/PortraitVideo.tsx)
 
 ```tsx
-const captionPosition = config.captionPosition ?? "center";
+const captionPosition = config.captionPosition ?? 'center';
 let captionStyle = {};
-if (captionPosition === "top") {
+if (captionPosition === 'top') {
   captionStyle = { top: 100 };
 }
-if (captionPosition === "center") {
-  captionStyle = { top: "50%", transform: "translateY(-50%)" };
+if (captionPosition === 'center') {
+  captionStyle = { top: '50%', transform: 'translateY(-50%)' };
 }
-if (captionPosition === "bottom") {
+if (captionPosition === 'bottom') {
   captionStyle = { bottom: 100 };
 }
 ```
@@ -372,12 +372,17 @@ if (captionPosition === "bottom") {
 ```tsx
 const getPositionStyle = (position: string) => {
   switch (position) {
-    case 'top':    return { top: '10%', left: '50%', transform: 'translateX(-50%)' };
-    case 'bottom': return { bottom: '10%', left: '50%', transform: 'translateX(-50%)' };
-    case 'left':   return { left: '10%', top: '50%', transform: 'translateY(-50%)' };
-    case 'right':  return { right: '10%', top: '50%', transform: 'translateY(-50%)' };
+    case 'top':
+      return { top: '10%', left: '50%', transform: 'translateX(-50%)' };
+    case 'bottom':
+      return { bottom: '10%', left: '50%', transform: 'translateX(-50%)' };
+    case 'left':
+      return { left: '10%', top: '50%', transform: 'translateY(-50%)' };
+    case 'right':
+      return { right: '10%', top: '50%', transform: 'translateY(-50%)' };
     case 'center':
-    default:       return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
+    default:
+      return { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
   }
 };
 ```
@@ -409,7 +414,7 @@ const opacity = interpolate(
   frame,
   [msToFrame(item.startMs), msToFrame(item.startMs) + 15],
   [0, 1],
-  { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
+  { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
 );
 
 const translateY = interpolate(
@@ -418,8 +423,8 @@ const translateY = interpolate(
   [0.25, 0],
   {
     easing: Easing.out(Easing.quad),
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
   }
 );
 ```
@@ -446,19 +451,19 @@ const enter = spring({
 **File:** [vendor/short-video-maker-gyori/src/components/videos/PortraitVideo.tsx](../../../vendor/short-video-maker-gyori/src/components/videos/PortraitVideo.tsx)
 
 ```tsx
-import { OffthreadVideo, Audio, Sequence } from "remotion";
+import { OffthreadVideo, Audio, Sequence } from 'remotion';
 
 // Background video (muted) + separate audio track
 <Sequence from={startFrame} durationInFrames={durationInFrames}>
   <OffthreadVideo src={video} muted />
   <Audio src={audio.url} />
-</Sequence>
+</Sequence>;
 ```
 
 ### 3.2 Background Music with Volume Control
 
 ```tsx
-import { Audio } from "remotion";
+import { Audio } from 'remotion';
 
 const [musicVolume, musicMuted] = calculateVolume(config.musicVolume);
 
@@ -469,7 +474,7 @@ const [musicVolume, musicMuted] = calculateVolume(config.musicVolume);
   endAt={music.end * fps}
   volume={() => musicVolume}
   muted={musicMuted}
-/>
+/>;
 ```
 
 ### 3.3 Volume Level Calculation
@@ -477,15 +482,18 @@ const [musicVolume, musicMuted] = calculateVolume(config.musicVolume);
 **File:** [vendor/short-video-maker-gyori/src/components/utils.ts](../../../vendor/short-video-maker-gyori/src/components/utils.ts)
 
 ```typescript
-export function calculateVolume(
-  level: MusicVolumeEnum = MusicVolumeEnum.high
-): [number, boolean] {
+export function calculateVolume(level: MusicVolumeEnum = MusicVolumeEnum.high): [number, boolean] {
   switch (level) {
-    case "muted":  return [0, true];
-    case "low":    return [0.2, false];
-    case "medium": return [0.45, false];
-    case "high":   return [0.7, false];
-    default:       return [0.7, false];
+    case 'muted':
+      return [0, true];
+    case 'low':
+      return [0.2, false];
+    case 'medium':
+      return [0.45, false];
+    case 'high':
+      return [0.7, false];
+    default:
+      return [0.7, false];
   }
 }
 ```
@@ -496,7 +504,7 @@ export function calculateVolume(
 
 ```tsx
 const backgroundVolume = audio?.volume || 1;
-const fadeInDuration = (audio?.fadeIn || 0) * 30;  // Convert seconds to frames
+const fadeInDuration = (audio?.fadeIn || 0) * 30; // Convert seconds to frames
 const fadeOutDuration = (audio?.fadeOut || 0) * 30;
 
 const backgroundVolumeMultiplier = interpolate(
@@ -505,13 +513,13 @@ const backgroundVolumeMultiplier = interpolate(
     startFrame,
     startFrame + fadeInDuration,
     startFrame + durationFrames - fadeOutDuration,
-    startFrame + durationFrames
+    startFrame + durationFrames,
   ],
   [0, backgroundVolume, backgroundVolume, 0],
   { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
 );
 
-<Audio src={resolveAssetUrl(audio.background)} volume={backgroundVolumeMultiplier} />
+<Audio src={resolveAssetUrl(audio.background)} volume={backgroundVolumeMultiplier} />;
 ```
 
 ### 3.5 Scene-Based Audio Layering
@@ -528,7 +536,7 @@ const backgroundVolumeMultiplier = interpolate(
       durationFrames={config.video.fps * config.video.duration}
     />
   )}
-  
+
   {/* Scene-specific audio */}
   {config.scenes.map((scene, index) => (
     <Sequence key={scene.id} from={sceneTimings[index].start} durationInFrames={sceneTimings[index].duration}>
@@ -549,9 +557,10 @@ const startFrame = Math.round((page.startMs / 1000) * fps);
 const durationInFrames = Math.round(((page.endMs - page.startMs) / 1000) * fps);
 
 // Scene cumulative timing
-const startFrame = scenes.slice(0, i).reduce((acc, curr) => {
-  return acc + curr.audio.duration;
-}, 0) * fps;
+const startFrame =
+  scenes.slice(0, i).reduce((acc, curr) => {
+    return acc + curr.audio.duration;
+  }, 0) * fps;
 ```
 
 ---
@@ -563,11 +572,14 @@ const startFrame = scenes.slice(0, i).reduce((acc, curr) => {
 **File:** [vendor/short-video-maker-gyori/src/short-creator/libraries/Remotion.ts](../../../vendor/short-video-maker-gyori/src/short-creator/libraries/Remotion.ts)
 
 ```typescript
-import { bundle } from "@remotion/bundler";
-import { renderMedia, selectComposition, ensureBrowser } from "@remotion/renderer";
+import { bundle } from '@remotion/bundler';
+import { renderMedia, selectComposition, ensureBrowser } from '@remotion/renderer';
 
 export class Remotion {
-  constructor(private bundled: string, private config: Config) {}
+  constructor(
+    private bundled: string,
+    private config: Config
+  ) {}
 
   static async init(config: Config): Promise<Remotion> {
     await ensureBrowser();
@@ -575,19 +587,17 @@ export class Remotion {
     const bundled = await bundle({
       entryPoint: path.join(
         config.packageDirPath,
-        config.devMode ? "src" : "dist",
-        "components", "root", `index.${config.devMode ? "ts" : "js"}`
+        config.devMode ? 'src' : 'dist',
+        'components',
+        'root',
+        `index.${config.devMode ? 'ts' : 'js'}`
       ),
     });
 
     return new Remotion(bundled, config);
   }
 
-  async render(
-    data: z.infer<typeof shortVideoSchema>,
-    id: string,
-    orientation: OrientationEnum
-  ) {
+  async render(data: z.infer<typeof shortVideoSchema>, id: string, orientation: OrientationEnum) {
     const { component } = getOrientationConfig(orientation);
 
     const composition = await selectComposition({
@@ -599,7 +609,7 @@ export class Remotion {
     const outputLocation = path.join(this.config.videosDirPath, `${id}.mp4`);
 
     await renderMedia({
-      codec: "h264",
+      codec: 'h264',
       composition,
       serveUrl: this.bundled,
       outputLocation,
@@ -644,7 +654,7 @@ export async function render(configPath: string, options: RenderOptions): Promis
 
   // 4. Get and select composition
   const compositions = await getCompositions(bundled);
-  const composition = compositions.find(c => c.id === 'VidosyComposition');
+  const composition = compositions.find((c) => c.id === 'VidosyComposition');
 
   // 5. Render video
   await renderMedia({
@@ -666,10 +676,14 @@ export async function render(configPath: string, options: RenderOptions): Promis
 ```typescript
 function getQualitySettings(quality: string) {
   switch (quality) {
-    case 'low':    return { width: 1280, height: 720, fps: 24 };
-    case 'medium': return { width: 1920, height: 1080, fps: 30 };
-    case 'high':   return { width: 1920, height: 1080, fps: 60 };
-    default:       return { width: 1920, height: 1080, fps: 30 };
+    case 'low':
+      return { width: 1280, height: 720, fps: 24 };
+    case 'medium':
+      return { width: 1920, height: 1080, fps: 30 };
+    case 'high':
+      return { width: 1920, height: 1080, fps: 60 };
+    default:
+      return { width: 1920, height: 1080, fps: 30 };
   }
 }
 ```
@@ -679,9 +693,9 @@ function getQualitySettings(quality: string) {
 **File:** [templates/template-tiktok-base/remotion.config.ts](../../../templates/template-tiktok-base/remotion.config.ts)
 
 ```typescript
-import { Config } from "@remotion/cli/config";
+import { Config } from '@remotion/cli/config';
 
-Config.setVideoImageFormat("jpeg");
+Config.setVideoImageFormat('jpeg');
 Config.setOverwriteOutput(true);
 ```
 
@@ -694,7 +708,7 @@ Config.setOverwriteOutput(true);
 **File:** [vendor/short-video-maker-gyori/src/components/utils.ts](../../../vendor/short-video-maker-gyori/src/components/utils.ts)
 
 ```typescript
-import { z } from "zod";
+import { z } from 'zod';
 
 export const shortVideoSchema = z.object({
   scenes: z.array(
@@ -709,7 +723,7 @@ export const shortVideoSchema = z.object({
   ),
   config: z.object({
     paddingBack: z.number().optional(),
-    captionPosition: z.enum(["top", "center", "bottom"]).optional(),
+    captionPosition: z.enum(['top', 'center', 'bottom']).optional(),
     captionBackgroundColor: z.string().optional(),
     durationMs: z.number(),
     musicVolume: z.nativeEnum(MusicVolumeEnum).optional(),
@@ -738,7 +752,10 @@ export const backgroundSchema = z.object({
 export const textSchema = z.object({
   content: z.string(),
   fontSize: z.number().min(12).max(200).optional(),
-  color: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+  color: z
+    .string()
+    .regex(/^#[0-9A-Fa-f]{6}$/)
+    .optional(),
   position: z.enum(['top', 'center', 'bottom', 'left', 'right']).optional(),
 });
 
@@ -747,11 +764,13 @@ export const sceneSchema = z.object({
   duration: z.number().positive(),
   background: backgroundSchema.optional(),
   text: textSchema.optional(),
-  audio: z.object({
-    file: z.string().optional(),
-    volume: z.number().min(0).max(1).optional(),
-    startTime: z.number().min(0).optional(),
-  }).optional(),
+  audio: z
+    .object({
+      file: z.string().optional(),
+      volume: z.number().min(0).max(1).optional(),
+      startTime: z.number().min(0).optional(),
+    })
+    .optional(),
 });
 
 export const videoSchema = z.object({
@@ -787,11 +806,11 @@ export const vidosyConfigSchema = z.object({
 **File:** [templates/template-audiogram/src/Audiogram/schema.ts](../../../templates/template-audiogram/src/Audiogram/schema.ts)
 
 ```typescript
-import { zColor } from "@remotion/zod-types";
-import { z } from "zod";
-import { Caption } from "@remotion/captions";
+import { zColor } from '@remotion/zod-types';
+import { z } from 'zod';
+import { Caption } from '@remotion/captions';
 
-const visualizerSchema = z.discriminatedUnion("type", [
+const visualizerSchema = z.discriminatedUnion('type', [
   spectrumVisualizerSchema,
   oscilloscopeVisualizerSchema,
 ]);
@@ -801,10 +820,9 @@ export const audiogramSchema = z.object({
   coverImageUrl: z.string(),
   titleText: z.string(),
   titleColor: zColor(),
-  captionsFileName: z.string().refine(
-    (s) => s.endsWith(".srt") || s.endsWith(".json"),
-    { message: "Subtitles file must be a .srt or .json file" }
-  ),
+  captionsFileName: z.string().refine((s) => s.endsWith('.srt') || s.endsWith('.json'), {
+    message: 'Subtitles file must be a .srt or .json file',
+  }),
   captionsTextColor: zColor(),
   onlyDisplayCurrentSentence: z.boolean(),
   audioFileUrl: z.string(),
@@ -835,7 +853,12 @@ export const audiogramSchema = z.object({
       "id": "intro",
       "duration": 5,
       "background": { "type": "image", "value": "my-intro-background.png" },
-      "text": { "content": "Welcome to Vidosy", "fontSize": 72, "color": "#ffffff", "position": "center" },
+      "text": {
+        "content": "Welcome to Vidosy",
+        "fontSize": 72,
+        "color": "#ffffff",
+        "position": "center"
+      },
       "audio": { "file": "my-intro-narration.mp3", "volume": 0.9 }
     }
   ]
@@ -863,7 +886,11 @@ export function resolveAssetUrl(assetPath: string): string {
 
 ```tsx
 // Pattern 1: Via component props (schema-validated)
-export const PortraitVideo: React.FC<z.infer<typeof shortVideoSchema>> = ({ scenes, music, config }) => {
+export const PortraitVideo: React.FC<z.infer<typeof shortVideoSchema>> = ({
+  scenes,
+  music,
+  config,
+}) => {
   // ...
 };
 
@@ -889,14 +916,14 @@ import {
   useVideoConfig,
   Audio,
   OffthreadVideo,
-} from "remotion";
+} from 'remotion';
 
 export const PortraitVideo: React.FC<Props> = ({ scenes, music, config }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
   return (
-    <AbsoluteFill style={{ backgroundColor: "white" }}>
+    <AbsoluteFill style={{ backgroundColor: 'white' }}>
       {/* Background music layer */}
       <Audio loop src={music.url} startFrom={music.start * fps} volume={() => 0.7} />
 
@@ -945,32 +972,32 @@ export type CaptionPage = {
 
 ## Summary of Key Patterns
 
-| Pattern | Implementation |
-|---------|---------------|
-| **Composition Registration** | `<Composition>` in Root.tsx with schema, calculateMetadata |
-| **Dynamic Duration** | `calculateMetadata` async function computing frames from props |
-| **Scene Organization** | Array of scenes with cumulative timing via `<Sequence>` |
-| **Word Highlighting** | Compare frame to word timing, apply conditional styles |
-| **Caption Pagination** | Group words by line length and time gaps |
-| **Video Backgrounds** | `<OffthreadVideo muted />` for memory efficiency |
-| **Audio Layering** | Separate `<Audio>` for music, narration, effects |
-| **Volume Control** | `volume={() => number}` or `interpolate()` for fades |
-| **Rendering** | `bundle()` → `selectComposition()` → `renderMedia()` |
-| **Props Validation** | Zod schemas with `z.infer<typeof schema>` |
-| **Asset Resolution** | `staticFile()` for local, passthrough for URLs |
+| Pattern                      | Implementation                                                 |
+| ---------------------------- | -------------------------------------------------------------- |
+| **Composition Registration** | `<Composition>` in Root.tsx with schema, calculateMetadata     |
+| **Dynamic Duration**         | `calculateMetadata` async function computing frames from props |
+| **Scene Organization**       | Array of scenes with cumulative timing via `<Sequence>`        |
+| **Word Highlighting**        | Compare frame to word timing, apply conditional styles         |
+| **Caption Pagination**       | Group words by line length and time gaps                       |
+| **Video Backgrounds**        | `<OffthreadVideo muted />` for memory efficiency               |
+| **Audio Layering**           | Separate `<Audio>` for music, narration, effects               |
+| **Volume Control**           | `volume={() => number}` or `interpolate()` for fades           |
+| **Rendering**                | `bundle()` → `selectComposition()` → `renderMedia()`           |
+| **Props Validation**         | Zod schemas with `z.infer<typeof schema>`                      |
+| **Asset Resolution**         | `staticFile()` for local, passthrough for URLs                 |
 
 ---
 
 ## Files Referenced
 
-| File | Purpose |
-|------|---------|
-| [vendor/short-video-maker-gyori/src/components/root/Root.tsx](../../../vendor/short-video-maker-gyori/src/components/root/Root.tsx) | Composition registration |
-| [vendor/short-video-maker-gyori/src/components/videos/PortraitVideo.tsx](../../../vendor/short-video-maker-gyori/src/components/videos/PortraitVideo.tsx) | Main video component |
-| [vendor/short-video-maker-gyori/src/components/utils.ts](../../../vendor/short-video-maker-gyori/src/components/utils.ts) | Caption pagination, schema |
-| [vendor/short-video-maker-gyori/src/short-creator/libraries/Remotion.ts](../../../vendor/short-video-maker-gyori/src/short-creator/libraries/Remotion.ts) | Rendering pipeline |
-| [templates/vidosy/src/remotion/VidosyComposition.tsx](../../../templates/vidosy/src/remotion/VidosyComposition.tsx) | Scene-based composition |
-| [templates/vidosy/src/shared/zod-schema.ts](../../../templates/vidosy/src/shared/zod-schema.ts) | Full video schema |
-| [templates/template-tiktok-base/src/CaptionedVideo/Page.tsx](../../../templates/template-tiktok-base/src/CaptionedVideo/Page.tsx) | TikTok-style captions |
-| [templates/template-audiogram/src/Audiogram/Captions.tsx](../../../templates/template-audiogram/src/Audiogram/Captions.tsx) | Paginated captions |
-| [templates/template-audiogram/src/Audiogram/Word.tsx](../../../templates/template-audiogram/src/Audiogram/Word.tsx) | Animated word rendering |
+| File                                                                                                                                                      | Purpose                    |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| [vendor/short-video-maker-gyori/src/components/root/Root.tsx](../../../vendor/short-video-maker-gyori/src/components/root/Root.tsx)                       | Composition registration   |
+| [vendor/short-video-maker-gyori/src/components/videos/PortraitVideo.tsx](../../../vendor/short-video-maker-gyori/src/components/videos/PortraitVideo.tsx) | Main video component       |
+| [vendor/short-video-maker-gyori/src/components/utils.ts](../../../vendor/short-video-maker-gyori/src/components/utils.ts)                                 | Caption pagination, schema |
+| [vendor/short-video-maker-gyori/src/short-creator/libraries/Remotion.ts](../../../vendor/short-video-maker-gyori/src/short-creator/libraries/Remotion.ts) | Rendering pipeline         |
+| [templates/vidosy/src/remotion/VidosyComposition.tsx](../../../templates/vidosy/src/remotion/VidosyComposition.tsx)                                       | Scene-based composition    |
+| [templates/vidosy/src/shared/zod-schema.ts](../../../templates/vidosy/src/shared/zod-schema.ts)                                                           | Full video schema          |
+| [templates/template-tiktok-base/src/CaptionedVideo/Page.tsx](../../../templates/template-tiktok-base/src/CaptionedVideo/Page.tsx)                         | TikTok-style captions      |
+| [templates/template-audiogram/src/Audiogram/Captions.tsx](../../../templates/template-audiogram/src/Audiogram/Captions.tsx)                               | Paginated captions         |
+| [templates/template-audiogram/src/Audiogram/Word.tsx](../../../templates/template-audiogram/src/Audiogram/Word.tsx)                                       | Animated word rendering    |

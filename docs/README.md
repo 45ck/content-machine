@@ -19,7 +19,7 @@
 ```
 docs/
 ├── architecture/       # SYSTEM-DESIGN, ADRs
-├── research/          
+├── research/
 │   ├── investigations/ # 23 research investigations (RQ-01 to RQ-23)
 │   ├── deep-dives/     # 13 deep-dive analyses
 │   ├── sections/       # 7 section-specific research docs
@@ -37,13 +37,13 @@ docs/
 
 ## 📚 Key Documents
 
-| Document | Purpose | Lines |
-|----------|---------|-------|
-| [SYSTEM-DESIGN-20260104.md](architecture/SYSTEM-DESIGN-20260104.md) | **Authoritative technical specification** | 3,100 |
-| [00-SUMMARY-20260102.md](research/00-SUMMARY-20260102.md) | Research overview | ~500 |
-| [investigations/](research/investigations/) | 23 RQ documents (RQ-01 to RQ-23) | ~16,000 |
-| [deep-dives/](research/deep-dives/) | 13 deep-dive analyses | ~8,000 |
-| [sections/](research/sections/) | 7 pipeline section research | ~4,000 |
+| Document                                                            | Purpose                                   | Lines   |
+| ------------------------------------------------------------------- | ----------------------------------------- | ------- |
+| [SYSTEM-DESIGN-20260104.md](architecture/SYSTEM-DESIGN-20260104.md) | **Authoritative technical specification** | 3,100   |
+| [00-SUMMARY-20260102.md](research/00-SUMMARY-20260102.md)           | Research overview                         | ~500    |
+| [investigations/](research/investigations/)                         | 23 RQ documents (RQ-01 to RQ-23)          | ~16,000 |
+| [deep-dives/](research/deep-dives/)                                 | 13 deep-dive analyses                     | ~8,000  |
+| [sections/](research/sections/)                                     | 7 pipeline section research               | ~4,000  |
 
 ---
 
@@ -53,18 +53,19 @@ Located in `research/`, these document findings from 139 vendored repos:
 
 ### Top-Level Reports
 
-| Report | Topic | Date |
-|--------|-------|------|
-| [00-SUMMARY](research/00-SUMMARY-20260102.md) | Master summary + architecture | 2026-01-02 |
+| Report                                                                        | Topic                                  | Date       |
+| ----------------------------------------------------------------------------- | -------------------------------------- | ---------- |
+| [00-SUMMARY](research/00-SUMMARY-20260102.md)                                 | Master summary + architecture          | 2026-01-02 |
 | [10-short-video-maker-gyori](research/10-short-video-maker-gyori-20260102.md) | Blueprint repo (TypeScript + Remotion) | 2026-01-02 |
-| [12-vidosy](research/12-vidosy-20260102.md) | JSON config → video pattern | 2026-01-02 |
-| [01-moneyprinter-turbo](research/01-moneyprinter-turbo-20260102.md) | Multi-provider LLM | 2026-01-02 |
-| [08-shortgpt](research/08-shortgpt-20260102.md) | EdgeTTS (30+ languages) | 2026-01-02 |
-| [16-BATCH2-SUMMARY](research/16-BATCH2-SUMMARY-20260102.md) | Infrastructure repos summary | 2026-01-02 |
+| [12-vidosy](research/12-vidosy-20260102.md)                                   | JSON config → video pattern            | 2026-01-02 |
+| [01-moneyprinter-turbo](research/01-moneyprinter-turbo-20260102.md)           | Multi-provider LLM                     | 2026-01-02 |
+| [08-shortgpt](research/08-shortgpt-20260102.md)                               | EdgeTTS (30+ languages)                | 2026-01-02 |
+| [16-BATCH2-SUMMARY](research/16-BATCH2-SUMMARY-20260102.md)                   | Infrastructure repos summary           | 2026-01-02 |
 
 ### Investigations (research/investigations/)
 
 23 investigation documents (RQ-01 to RQ-23) covering:
+
 - Pipeline resumability, concurrency, schema versioning
 - TTS timestamps, forced alignment, drift handling
 - Video testing, memory management, licensing
@@ -74,6 +75,7 @@ Located in `research/`, these document findings from 139 vendored repos:
 ### Deep Dives (research/deep-dives/)
 
 13 deep-dive analyses including:
+
 - CLI architecture patterns
 - LLM structured JSON output
 - TTS/ASR patterns
@@ -83,6 +85,7 @@ Located in `research/`, these document findings from 139 vendored repos:
 ### Section Research (research/sections/)
 
 7 section-specific research documents:
+
 - Script generation (LLM prompts)
 - Audio pipeline (TTS + ASR)
 - Visual matching (Pexels/Pixabay)
@@ -99,8 +102,8 @@ Located in `architecture/`:
 
 ### Current Documents
 
-| Document | Purpose |
-|----------|---------|
+| Document                                                            | Purpose                                                   |
+| ------------------------------------------------------------------- | --------------------------------------------------------- |
 | [SYSTEM-DESIGN-20260104.md](architecture/SYSTEM-DESIGN-20260104.md) | **AWS-style narrative spec** (authoritative, 3,100 lines) |
 
 ### Planned ADRs
@@ -116,17 +119,20 @@ Located in `architecture/`:
 From [AGENTS.md](../AGENTS.md):
 
 ### Week 1-2: Foundation
+
 - [ ] TypeScript project setup
 - [ ] Core infrastructure (config, logger, errors)
 - [ ] Zod schemas for all pipeline stages
 
 ### Week 3-4: Pipeline Stages
+
 - [ ] `cm script` with OpenAI structured outputs
 - [ ] `cm audio` with kokoro-js + whisper.cpp
 - [ ] `cm visuals` with Pexels API
 - [ ] `cm render` with Remotion
 
 ### Week 5-6: Integration
+
 - [ ] `cm generate` full pipeline
 - [ ] `cm init` setup wizard
 - [ ] Documentation + examples
@@ -225,12 +231,12 @@ Located in `postmortems/`, incident reports:
 
 All docs follow [Diátaxis](https://diataxis.fr/):
 
-| Type | Purpose | Example |
-|------|---------|---------|
-| **Tutorial** | Learning | "Your first video" |
-| **Guide** | Problem-solving | "How to add MCP connector" |
-| **Reference** | Information | "API documentation" |
-| **Explanation** | Understanding | "Why Remotion over X?" |
+| Type            | Purpose         | Example                    |
+| --------------- | --------------- | -------------------------- |
+| **Tutorial**    | Learning        | "Your first video"         |
+| **Guide**       | Problem-solving | "How to add MCP connector" |
+| **Reference**   | Information     | "API documentation"        |
+| **Explanation** | Understanding   | "Why Remotion over X?"     |
 
 ---
 
@@ -239,11 +245,13 @@ All docs follow [Diátaxis](https://diataxis.fr/):
 ### Date Suffix (MANDATORY)
 
 ✅ **Correct:**
+
 - `feature-caption-system-20260102.md`
 - `adr-001-use-remotion-20260102.md`
 - `guide-setup-dev-20260102.md`
 
 ❌ **Wrong:**
+
 - `feature-caption-system.md` (NO DATE)
 - `adr-001-use-remotion.md` (NO DATE)
 

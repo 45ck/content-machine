@@ -1,6 +1,6 @@
 /**
  * Render Schemas
- * 
+ *
  * Zod schemas for video rendering.
  * Based on SYSTEM-DESIGN §7.4 render command
  */

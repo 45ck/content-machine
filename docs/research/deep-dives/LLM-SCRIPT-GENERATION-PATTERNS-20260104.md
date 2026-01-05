@@ -8,13 +8,13 @@
 
 ## Executive Summary
 
-| Aspect | Dominant Pattern | Best Implementation |
-|--------|------------------|---------------------|
-| **Prompt Templates** | YAML files with `system_prompt` + `chat_prompt` | ShortGPT |
+| Aspect                       | Dominant Pattern                                      | Best Implementation             |
+| ---------------------------- | ----------------------------------------------------- | ------------------------------- |
+| **Prompt Templates**         | YAML files with `system_prompt` + `chat_prompt`       | ShortGPT                        |
 | **LLM Provider Abstraction** | Factory pattern with config-driven provider selection | viralfactory, MoneyPrinterTurbo |
-| **Structured Output** | JSON parsing with regex fallback + retry loops | ShortGPT, MoneyPrinterTurbo |
-| **Scene Generation** | LLM generates timed segments with captions | ShortGPT (editing prompts) |
-| **Search Term Generation** | LLM generates JSON array of 1-3 word terms | MoneyPrinterTurbo, ShortGPT |
+| **Structured Output**        | JSON parsing with regex fallback + retry loops        | ShortGPT, MoneyPrinterTurbo     |
+| **Scene Generation**         | LLM generates timed segments with captions            | ShortGPT (editing prompts)      |
+| **Search Term Generation**   | LLM generates JSON array of 1-3 word terms            | MoneyPrinterTurbo, ShortGPT     |
 
 ---
 
@@ -25,6 +25,7 @@
 **Location:** `vendor/ShortGPT/shortGPT/prompt_templates/`
 
 **Structure:**
+
 ```yaml
 # Example: reddit_generate_script.yaml
 system_prompt: |
@@ -36,11 +37,12 @@ system_prompt: |
 
 chat_prompt: |
   Reddit question: <<QUESTION>>
-  
+
   -New Generated story...
 ```
 
 **Loading Code:** [gpt_utils.py#L49-L54](../../../vendor/ShortGPT/shortGPT/gpt/gpt_utils.py)
+
 ```python
 def load_local_yaml_prompt(file_path):
     _here = Path(__file__).parent
@@ -50,6 +52,7 @@ def load_local_yaml_prompt(file_path):
 ```
 
 **Templates Available:**
+
 - `reddit_generate_script.yaml` - Story generation from Reddit questions
 - `facts_generator.yaml` - Facts video scripts with examples
 - `editing_generate_images.yaml` - Image search query generation
@@ -106,7 +109,7 @@ Respond with a pair of an image description in square brackets and a narration b
 [Description of a background image]
 Narrator: "One sentence of narration"
 
-[Description of a background image]  
+[Description of a background image]
 Narrator: "One sentence of narration"
 ###
 
@@ -122,6 +125,7 @@ The short should be 6 sentences maximum.
 ```
 
 **Parsing:** [vendor/shortrocity/narration.py#L12-L25](../../../vendor/shortrocity/narration.py)
+
 ```python
 def parse(narration):
     data = []
@@ -153,6 +157,7 @@ def parse(narration):
 **Location:** [vendor/MoneyPrinterTurbo/app/services/llm.py#L17-L320](../../../vendor/MoneyPrinterTurbo/app/services/llm.py)
 
 **Providers Supported:** 13 total
+
 - OpenAI, Azure OpenAI, Gemini, Ollama, g4f (free)
 - Moonshot, OneAPI, Qwen, Cloudflare, DeepSeek
 - ModelScope, Ernie, Pollinations
@@ -160,7 +165,7 @@ def parse(narration):
 ```python
 def _generate_response(prompt: str) -> str:
     llm_provider = config.app.get("llm_provider", "openai")
-    
+
     if llm_provider == "g4f":
         content = g4f.ChatCompletion.create(
             model=model_name,
@@ -172,7 +177,7 @@ def _generate_response(prompt: str) -> str:
         base_url = config.app.get("openai_base_url", "https://api.openai.com/v1")
         client = OpenAI(api_key=api_key, base_url=base_url)
         response = client.chat.completions.create(
-            model=model_name, 
+            model=model_name,
             messages=[{"role": "user", "content": prompt}]
         )
     elif llm_provider == "gemini":
@@ -208,9 +213,10 @@ class BaseLLMEngine(BaseEngine):
 ```
 
 **OpenAI Implementation:** [vendor/viralfactory/src/engines/LLMEngine/OpenaiLLMEngine.py](../../../vendor/viralfactory/src/engines/LLMEngine/OpenaiLLMEngine.py)
+
 ```python
 class OpenaiLLMEngine(BaseLLMEngine):
-    def generate(self, system_prompt, chat_prompt="", messages=[], 
+    def generate(self, system_prompt, chat_prompt="", messages=[],
                  max_tokens=512, temperature=1.0, json_mode=False, ...):
         response = self.client.chat.completions.create(
             model=self.model,
@@ -233,13 +239,13 @@ class OpenaiLLMEngine(BaseLLMEngine):
 **Location:** [vendor/ShortGPT/shortGPT/gpt/gpt_utils.py#L58-L100](../../../vendor/ShortGPT/shortGPT/gpt/gpt_utils.py)
 
 ```python
-def llm_completion(chat_prompt="", system="", temp=0.7, max_tokens=2000, 
+def llm_completion(chat_prompt="", system="", temp=0.7, max_tokens=2000,
                    remove_nl=True, conversation=None):
     openai_key = ApiKeyManager.get_api_key("OPENAI_API_KEY")
     gemini_key = ApiKeyManager.get_api_key("GEMINI_API_KEY")
-    
+
     if gemini_key:
-        client = OpenAI( 
+        client = OpenAI(
             api_key=gemini_key,
             base_url="https://generativelanguage.googleapis.com/v1beta/openai/"
         )
@@ -249,7 +255,7 @@ def llm_completion(chat_prompt="", system="", temp=0.7, max_tokens=2000,
         model = "gpt-4o-mini"
     else:
         raise Exception("No OpenAI or Gemini API Key found")
-    
+
     response = client.chat.completions.create(
         model=model,
         messages=[
@@ -279,16 +285,16 @@ class JSONResponse(BaseModel):
 
 def GetHighlight(Transcription):
     llm = ChatOpenAI(model="gpt-5-nano", temperature=1.0, api_key=api_key)
-    
+
     prompt = ChatPromptTemplate.from_messages([
         ("system", system),
         ("user", Transcription)
     ])
-    
+
     # LangChain structured output with function calling
     chain = prompt | llm.with_structured_output(JSONResponse, method="function_calling")
     response = chain.invoke({"Transcription": Transcription})
-    
+
     return int(response.start), int(response.end)
 ```
 
@@ -358,9 +364,10 @@ chat_prompt: |
 ```
 
 **Parsing:** [vendor/ShortGPT/shortGPT/gpt/gpt_editing.py#L4-L9](../../../vendor/ShortGPT/shortGPT/gpt/gpt_editing.py)
+
 ```python
 def extractJsonFromString(text):
-    start = text.find('{') 
+    start = text.find('{')
     end = text.rfind('}') + 1
     if start == -1 or end == 0:
         raise Exception("Error: No JSON object found in response")
@@ -377,7 +384,7 @@ def generate_title_description_dict(content):
     out = {"title": "", "description":""}
     chat, system = gpt_utils.load_local_yaml_prompt('prompt_templates/yt_title_description.yaml')
     chat = chat.replace("<<CONTENT>>", f"{content}")
-    
+
     while out["title"] == "" or out["description"] == "":
         result = gpt_utils.llm_completion(chat_prompt=chat, system=system, temp=1)
         try:
@@ -388,7 +395,7 @@ def generate_title_description_dict(content):
                 out["description"] = response["description"]
         except Exception as e:
             pass  # Retry on failure
-        
+
     return out['title'], out['description']
 ```
 
@@ -431,35 +438,36 @@ chat_prompt: |
       }
     ]
   }
-  
+
   Timed captions:
   <<TIMED_CAPTIONS>>
 ```
 
 **Processing:** [vendor/ShortGPT/shortGPT/gpt/gpt_editing.py#L46-L85](../../../vendor/ShortGPT/shortGPT/gpt/gpt_editing.py)
+
 ```python
 def getVideoSearchQueriesTimed(captions_timed):
     end_time = captions_timed[-1][0][1]
     chat, system = gpt_utils.load_local_yaml_prompt('prompt_templates/editing_generate_videos.yaml')
     prompt = chat.replace("<<TIMED_CAPTIONS>>", f"{captions_timed}")
-    
+
     res = gpt_utils.llm_completion(chat_prompt=prompt, system=system)
     data = extractJsonFromString(res)
-    
+
     formatted_queries = []
     for segment in data["video_segments"]:
         time_range = segment["time_range"]
         queries = segment["queries"]
-        
+
         # Validate time range
         if not (0 <= time_range[0] < time_range[1] <= end_time):
             continue
-            
+
         # Ensure exactly 3 queries
         while len(queries) < 3:
             queries.append(queries[-1])
         queries = queries[:3]
-        
+
         formatted_queries.append([time_range, queries])
 ```
 
@@ -484,7 +492,7 @@ class ContentShortEngine(AbstractContentEngine):
             11: self._editAndRenderShort,       # Remotion/MoviePy: Render
             12: self._addYoutubeMetadata        # LLM: Generate title/description
         }
-    
+
     def _generateImageSearchTerms(self):
         """Use LLM to generate image search terms from timed captions"""
         self._db_timed_image_searches = gpt_editing.getImageQueryPairs(
@@ -495,6 +503,7 @@ class ContentShortEngine(AbstractContentEngine):
 ### Pattern C: Text + Image Interleaving (shortrocity)
 
 **Output Format:**
+
 ```
 [Description of a background image]
 Narrator: "One sentence of narration"
@@ -504,6 +513,7 @@ Narrator: "One sentence of narration"
 ```
 
 **Parsing creates interleaved data:**
+
 ```python
 data = [
     {"type": "image", "description": "background image description"},
@@ -520,32 +530,33 @@ data = [
 ```typescript
 // LLM generates this structure, validated by Zod
 export const sceneInput = z.object({
-  text: z.string().describe("Text to be spoken in the video"),
+  text: z.string().describe('Text to be spoken in the video'),
   searchTerms: z
     .array(z.string())
     .describe(
-      "Search term for video, 1 word, and at least 2-3 search terms should be provided for each scene. Make sure to match the overall context with the word."
+      'Search term for video, 1 word, and at least 2-3 search terms should be provided for each scene. Make sure to match the overall context with the word.'
     ),
 });
 
 export const createShortInput = z.object({
-  scenes: z.array(sceneInput).describe("Each scene to be created"),
-  config: renderConfig.describe("Configuration for rendering the video"),
+  scenes: z.array(sceneInput).describe('Each scene to be created'),
+  config: renderConfig.describe('Configuration for rendering the video'),
 });
 ```
 
 **MCP Tool Definition:** [vendor/short-video-maker-gyori/src/server/routers/mcp.ts](../../../vendor/short-video-maker-gyori/src/server/routers/mcp.ts)
+
 ```typescript
 this.mcpServer.tool(
-  "create-short-video",
-  "Create a short video from a list of scenes",
+  'create-short-video',
+  'Create a short video from a list of scenes',
   {
-    scenes: z.array(sceneInput).describe("Each scene to be created"),
-    config: renderConfig.describe("Configuration for rendering the video"),
+    scenes: z.array(sceneInput).describe('Each scene to be created'),
+    config: renderConfig.describe('Configuration for rendering the video'),
   },
   async ({ scenes, config }) => {
     const videoId = await this.shortCreator.addToQueue(scenes, config);
-    return { content: [{ type: "text", text: videoId }] };
+    return { content: [{ type: 'text', text: videoId }] };
   }
 );
 ```
@@ -588,10 +599,10 @@ Generate {amount} search terms for stock videos, depending on the subject of a v
 
 **Location:** [vendor/MoneyPrinterV2/src/classes/YouTube.py#L192-L244](../../../vendor/MoneyPrinterV2/src/classes/YouTube.py)
 
-```python
+````python
 def generate_prompts(self) -> List[str]:
     n_prompts = len(self.script) / 3  # ~1 image per 3 characters
-    
+
     prompt = f"""
     Generate {n_prompts} Image Prompts for AI Image Generation,
     depending on the subject of a video.
@@ -604,39 +615,40 @@ def generate_prompts(self) -> List[str]:
 
     Be emotional and use interesting adjectives to make the
     Image Prompt as detailed as possible.
-    
+
     YOU MUST ONLY RETURN THE JSON-ARRAY OF STRINGS.
-    
+
     Here is an example of a JSON-Array of strings:
     ["image prompt 1", "image prompt 2", "image prompt 3"]
 
     For context, here is the full text:
     {self.script}
     """
-    
+
     completion = str(self.generate_response(prompt, model=parse_model(get_image_prompt_llm()))) \
         .replace("```json", "") \
         .replace("```", "")
-    
+
     # Parse with fallback
     try:
         image_prompts = json.loads(completion)
     except:
         r = re.compile(r"\[.*\]")
         image_prompts = r.findall(completion)
-```
+````
 
 ### Pattern C: Timed Queries with Timestamps (ShortGPT)
 
 **Prompt:** See `editing_generate_images.yaml` above
 
 **Output:**
+
 ```json
 {
   "image_queries": [
-    {"timestamp": 1.0, "query": "happy person"},
-    {"timestamp": 3.2, "query": "red car"},
-    {"timestamp": 5.5, "query": "city skyline"}
+    { "timestamp": 1.0, "query": "happy person" },
+    { "timestamp": 3.2, "query": "red car" },
+    { "timestamp": 5.5, "query": "city skyline" }
   ]
 }
 ```
@@ -647,11 +659,11 @@ def generate_prompts(self) -> List[str]:
 
 ### Prompt Template Best Practices
 
-| Pattern | Pros | Cons | Use When |
-|---------|------|------|----------|
-| **YAML files** | Versioned, reusable, clean separation | Extra file I/O | Many prompts, multiple languages |
-| **F-strings** | Simple, inline context | Hard to version, messy | Quick prototypes |
-| **LangChain templates** | Type-safe, structured output | Heavy dependency | Production apps |
+| Pattern                 | Pros                                  | Cons                   | Use When                         |
+| ----------------------- | ------------------------------------- | ---------------------- | -------------------------------- |
+| **YAML files**          | Versioned, reusable, clean separation | Extra file I/O         | Many prompts, multiple languages |
+| **F-strings**           | Simple, inline context                | Hard to version, messy | Quick prototypes                 |
+| **LangChain templates** | Type-safe, structured output          | Heavy dependency       | Production apps                  |
 
 ### LLM Abstraction Recommendations
 
@@ -679,22 +691,22 @@ def generate_prompts(self) -> List[str]:
 
 ## 7. File Reference Index
 
-| Repo | Key File | Purpose |
-|------|----------|---------|
-| ShortGPT | `shortGPT/gpt/gpt_utils.py` | LLM completion, YAML loading |
-| ShortGPT | `shortGPT/prompt_templates/*.yaml` | All prompt templates |
-| ShortGPT | `shortGPT/gpt/gpt_editing.py` | Image/video query generation |
-| ShortGPT | `shortGPT/engine/content_short_engine.py` | Full pipeline orchestration |
-| MoneyPrinterTurbo | `app/services/llm.py` | Multi-provider LLM, script generation |
-| viralfactory | `src/engines/LLMEngine/BaseLLMEngine.py` | Abstract LLM interface |
-| viralfactory | `src/engines/LLMEngine/OpenaiLLMEngine.py` | OpenAI with JSON mode |
-| viralfactory | `src/utils/prompting.py` | YAML prompt loader |
-| short-video-maker-gyori | `src/types/shorts.ts` | Zod schemas for scenes |
-| short-video-maker-gyori | `src/server/routers/mcp.ts` | MCP tool definitions |
-| shortrocity | `main.py` | Inline prompts, GPT-4 |
-| shortrocity | `narration.py` | Text/image interleave parsing |
-| AI-Youtube-Shorts-Generator | `Components/LanguageTasks.py` | LangChain structured output |
-| MoneyPrinterV2 | `src/classes/YouTube.py` | Script + image prompt generation |
+| Repo                        | Key File                                   | Purpose                               |
+| --------------------------- | ------------------------------------------ | ------------------------------------- |
+| ShortGPT                    | `shortGPT/gpt/gpt_utils.py`                | LLM completion, YAML loading          |
+| ShortGPT                    | `shortGPT/prompt_templates/*.yaml`         | All prompt templates                  |
+| ShortGPT                    | `shortGPT/gpt/gpt_editing.py`              | Image/video query generation          |
+| ShortGPT                    | `shortGPT/engine/content_short_engine.py`  | Full pipeline orchestration           |
+| MoneyPrinterTurbo           | `app/services/llm.py`                      | Multi-provider LLM, script generation |
+| viralfactory                | `src/engines/LLMEngine/BaseLLMEngine.py`   | Abstract LLM interface                |
+| viralfactory                | `src/engines/LLMEngine/OpenaiLLMEngine.py` | OpenAI with JSON mode                 |
+| viralfactory                | `src/utils/prompting.py`                   | YAML prompt loader                    |
+| short-video-maker-gyori     | `src/types/shorts.ts`                      | Zod schemas for scenes                |
+| short-video-maker-gyori     | `src/server/routers/mcp.ts`                | MCP tool definitions                  |
+| shortrocity                 | `main.py`                                  | Inline prompts, GPT-4                 |
+| shortrocity                 | `narration.py`                             | Text/image interleave parsing         |
+| AI-Youtube-Shorts-Generator | `Components/LanguageTasks.py`              | LangChain structured output           |
+| MoneyPrinterV2              | `src/classes/YouTube.py`                   | Script + image prompt generation      |
 
 ---
 
@@ -741,18 +753,20 @@ interface LLMProvider {
 import { z } from 'zod';
 
 const ScriptOutputSchema = z.object({
-  scenes: z.array(z.object({
-    text: z.string(),
-    searchTerms: z.array(z.string()).min(2).max(5),
-    duration: z.number().optional(),
-  })),
+  scenes: z.array(
+    z.object({
+      text: z.string(),
+      searchTerms: z.array(z.string()).min(2).max(5),
+      duration: z.number().optional(),
+    })
+  ),
   title: z.string().max(100),
   description: z.string().max(500),
 });
 
 // Parse with retry
 async function parseWithRetry<T>(
-  response: string, 
+  response: string,
   schema: z.ZodSchema<T>,
   maxRetries = 3
 ): Promise<T> {

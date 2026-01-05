@@ -15,13 +15,13 @@ Caption systems convert speech to text with precise timing. Key requirements: **
 
 ## ASR Engine Comparison
 
-| Engine | Speed | Accuracy | Word-Level | Diarization | GPU? |
-|--------|-------|----------|------------|-------------|------|
-| **WhisperX** | 70x RT | Excellent | Yes (aligned) | Yes | Yes |
-| **faster-whisper** | 4x faster | Excellent | Yes | No | Yes |
-| **Whisper.cpp** | 10x RT | Excellent | Yes | No | Optional |
-| **Whisper (OpenAI)** | 1x RT | Excellent | Yes | No | Yes |
-| **AssemblyAI** | Fast | Excellent | Yes | Yes | No (API) |
+| Engine               | Speed     | Accuracy  | Word-Level    | Diarization | GPU?     |
+| -------------------- | --------- | --------- | ------------- | ----------- | -------- |
+| **WhisperX**         | 70x RT    | Excellent | Yes (aligned) | Yes         | Yes      |
+| **faster-whisper**   | 4x faster | Excellent | Yes           | No          | Yes      |
+| **Whisper.cpp**      | 10x RT    | Excellent | Yes           | No          | Optional |
+| **Whisper (OpenAI)** | 1x RT     | Excellent | Yes           | No          | Yes      |
+| **AssemblyAI**       | Fast      | Excellent | Yes           | Yes         | No (API) |
 
 ---
 
@@ -108,6 +108,7 @@ result = whisperx.assign_word_speakers(diarize_segments, result)
 ## Secondary Choice: faster-whisper
 
 ### When to Use
+
 - Don't need diarization
 - Lower VRAM available
 - Simpler pipeline
@@ -152,15 +153,15 @@ captions.apply(video_path, transcript, output_path)
 
 ### Style Options
 
-| Option | Values |
-|--------|--------|
-| `font` | Any TTF/OTF |
-| `font_size` | 40-200 |
-| `font_color` | Hex or name |
-| `stroke_width` | 0-10 |
-| `highlight_current_word` | true/false |
-| `line_count` | 1-3 |
-| `position` | top/center/bottom |
+| Option                   | Values            |
+| ------------------------ | ----------------- |
+| `font`                   | Any TTF/OTF       |
+| `font_size`              | 40-200            |
+| `font_color`             | Hex or name       |
+| `stroke_width`           | 0-10              |
+| `highlight_current_word` | true/false        |
+| `line_count`             | 1-3               |
+| `position`               | top/center/bottom |
 
 ---
 
@@ -192,25 +193,25 @@ export const CaptionOverlay = () => (
 
 ### Available Styles
 
-| Style | Description |
-|-------|-------------|
-| `bounce` | Words bounce in |
-| `typewriter` | Character by character |
-| `fade` | Fade in/out |
-| `slide` | Slide from side |
-| `word-by-word` | Each word appears |
-| `karaoke` | Highlight current |
-| `pop` | Scale animation |
-| `glow` | Glow effect |
-| `outline` | Animated outline |
-| `shadow` | Shadow grows |
-| `split` | Split animation |
-| `stack` | Stack words |
-| `wave` | Wave effect |
-| `zoom` | Zoom in |
-| `spin` | Rotation |
-| `shake` | Shake effect |
-| `pulse` | Pulse animation |
+| Style          | Description            |
+| -------------- | ---------------------- |
+| `bounce`       | Words bounce in        |
+| `typewriter`   | Character by character |
+| `fade`         | Fade in/out            |
+| `slide`        | Slide from side        |
+| `word-by-word` | Each word appears      |
+| `karaoke`      | Highlight current      |
+| `pop`          | Scale animation        |
+| `glow`         | Glow effect            |
+| `outline`      | Animated outline       |
+| `shadow`       | Shadow grows           |
+| `split`        | Split animation        |
+| `stack`        | Stack words            |
+| `wave`         | Wave effect            |
+| `zoom`         | Zoom in                |
+| `spin`         | Rotation               |
+| `shake`        | Shake effect           |
+| `pulse`        | Pulse animation        |
 
 ---
 
@@ -225,7 +226,7 @@ def generate_srt(result, output_path):
             start = format_timestamp(segment['start'])
             end = format_timestamp(segment['end'])
             text = segment['text'].strip()
-            
+
             f.write(f"{i}\n")
             f.write(f"{start} --> {end}\n")
             f.write(f"{text}\n\n")
@@ -248,7 +249,7 @@ def generate_word_srt(result, output_path):
             for word in segment['words']:
                 start = format_timestamp(word['start'])
                 end = format_timestamp(word['end'])
-                
+
                 f.write(f"{counter}\n")
                 f.write(f"{start} --> {end}\n")
                 f.write(f"{word['word']}\n\n")
@@ -297,7 +298,7 @@ async def generate_multilingual_speech(text, language):
         'ja': 'ja-JP-NanamiNeural',
         'zh': 'zh-CN-XiaoxiaoNeural'
     }
-    
+
     communicate = edge_tts.Communicate(text, voices[language])
     await communicate.save(f"speech_{language}.mp3")
 
@@ -323,13 +324,13 @@ import { Caption } from 'remotion-subtitles';
 interface CaptionPipeline {
   // 1. Transcribe audio
   transcribe(audioPath: string): Promise<Transcript>;
-  
+
   // 2. Align words
   align(transcript: Transcript, audioPath: string): Promise<AlignedTranscript>;
-  
+
   // 3. Generate SRT
   generateSRT(aligned: AlignedTranscript): string;
-  
+
   // 4. Render captions
   render(srt: string, style: CaptionStyle): ReactElement;
 }
@@ -340,7 +341,7 @@ async function processCaptions(audioPath: string, style: CaptionStyle) {
   const transcript = await whisperxService.transcribe(audioPath);
   const aligned = await whisperxService.align(transcript, audioPath);
   const srt = generateSRT(aligned);
-  
+
   // Remotion for rendering
   return <Caption captions={parseSRT(srt)} style={style} />;
 }
@@ -352,18 +353,18 @@ async function processCaptions(audioPath: string, style: CaptionStyle) {
 // /api/captions endpoint
 app.post('/api/captions', async (req, res) => {
   const { audioPath, style, language } = req.body;
-  
+
   // Process
   const result = await captionPipeline.process({
     audioPath,
     style: style || 'bounce',
-    language: language || 'auto'
+    language: language || 'auto',
   });
-  
+
   res.json({
     srt: result.srt,
     words: result.words,
-    duration: result.duration
+    duration: result.duration,
   });
 });
 ```

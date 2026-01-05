@@ -1,4 +1,5 @@
 # Deep Dive: Additional Video Generators & Agent Frameworks
+
 > **Document ID:** `additional-generators-agent-frameworks-DEEP-20260102`
 > **Date:** 2026-01-02
 > **Category:** Research Deep Dive
@@ -22,6 +23,7 @@ This document covers additional video generators discovered during comprehensive
 **Purpose:** Turn long-form content into short viral clips
 
 **Key Features:**
+
 - Word-level transcription via WhisperX
 - Speaker diarization via Pyannote
 - Face/body-aware cropping focused on active speaker
@@ -38,6 +40,7 @@ This document covers additional video generators discovered during comprehensive
 | ML Inference | PyTorch |
 
 **Usage Pattern:**
+
 ```python
 from ai_clips_maker import Transcriber, ClipFinder, resize
 
@@ -69,6 +72,7 @@ crops = resize(
 **Purpose:** Transform long videos into Instagram Reels
 
 **Key Features:**
+
 - Horizontal to vertical video conversion
 - GPT-powered viral section identification
 - Face tracking during editing
@@ -76,6 +80,7 @@ crops = resize(
 - GPU acceleration optional
 
 **Pipeline:**
+
 ```
 YouTube/Local Video
     ↓
@@ -91,6 +96,7 @@ Vertical crop output
 ```
 
 **Usage:**
+
 ```bash
 # From YouTube
 python reelsfy.py -v <youtube_url>
@@ -112,6 +118,7 @@ python reelsfy.py -f <video_file>
 **Purpose:** Generate shorts from TikTok content
 
 **Workflow:**
+
 1. Select random topic from user list
 2. Search TikTok for hashtag videos
 3. Download video without watermark (3rd party API)
@@ -130,6 +137,7 @@ python reelsfy.py -f <video_file>
 **Purpose:** AI-powered long-to-short video conversion
 
 **API Endpoints:**
+
 ```
 POST /upload           - Upload video, get transcript
 POST /generate-shorts  - Create clips from key moments
@@ -148,30 +156,33 @@ POST /hashtag-generator - Generate relevant hashtags
 **Purpose:** AI-generated shorts with ChatGPT scripts
 
 **Stack:**
+
 - **Script:** ChatGPT
 - **Narration:** ElevenLabs or OpenAI TTS
 - **Images:** DALL-E 3
 - **Captions:** Captacity (OpenAI Whisper)
 
 **Usage:**
+
 ```bash
 ./main.py source.txt settings.json
 ```
 
 **Settings Format:**
+
 ```json
 {
-    "font": "Bangers-Regular.ttf",
-    "font_size": 130,
-    "font_color": "yellow",
-    "stroke_width": 3,
-    "stroke_color": "black",
-    "highlight_current_word": true,
-    "word_highlight_color": "red",
-    "line_count": 2,
-    "padding": 50,
-    "shadow_strength": 1.0,
-    "shadow_blur": 0.1
+  "font": "Bangers-Regular.ttf",
+  "font_size": 130,
+  "font_color": "yellow",
+  "stroke_width": 3,
+  "stroke_color": "black",
+  "highlight_current_word": true,
+  "word_highlight_color": "red",
+  "line_count": 2,
+  "padding": 50,
+  "shadow_strength": 1.0,
+  "shadow_blur": 0.1
 }
 ```
 
@@ -184,6 +195,7 @@ POST /hashtag-generator - Generate relevant hashtags
 **Purpose:** Reddit-based short video creation
 
 **Key Features:**
+
 - Reddit post fetching (URL or random from subreddit)
 - AskLLM agent for metadata generation
 - GenerateImage for text-to-image (Flux)
@@ -192,6 +204,7 @@ POST /hashtag-generator - Generate relevant hashtags
 - Ollama integration for local LLM
 
 **Usage:**
+
 ```python
 from ShortsMaker import MoviepyCreateVideo, ShortsMaker
 
@@ -216,6 +229,7 @@ create_video(output_path="output.mp4")
 **Purpose:** Automated financial video generation (Chinese)
 
 **Pipeline:**
+
 1. Crawl 东方财富网 (East Money) financial data
 2. AI-generate video scripts via DeepSeek-R1
 3. Synthesize voice via 火山引擎 TTS
@@ -230,6 +244,7 @@ create_video(output_path="output.mp4")
 | Ark | 字节跳动 | Image generation |
 
 **Structure:**
+
 ```
 main.py                 # Main scheduler
 content_generator.py    # Content generation
@@ -250,6 +265,7 @@ eastmoney_scraper.py    # Data crawling
 **Purpose:** Automated YouTube Shorts posting
 
 **Features:**
+
 - Runs on system startup
 - Scheduled posting (11 AM, 1 PM, 6 PM, 8 PM)
 - Random video + sound combination
@@ -257,6 +273,7 @@ eastmoney_scraper.py    # Data crawling
 - YouTube Data API v3 upload
 
 **Key Dependencies:**
+
 - Google APIs Client Library
 - Pillow (text overlay)
 - OpenCV + MoviePy (video composition)
@@ -273,6 +290,7 @@ eastmoney_scraper.py    # Data crawling
 **Purpose:** VAU API integration for video rendering
 
 **API Endpoints:**
+
 ```
 GET  /api/v1/templates           - List templates
 POST /api/v1/templates           - Add template
@@ -283,18 +301,19 @@ GET  /api/v1/notify/:renderID    - Send notification
 ```
 
 **Template Structure:**
+
 ```json
 {
-    "vau_id": 26,
-    "name": "Laidback Swingy Slides",
-    "rotation": "square",
-    "medias": [
-        {
-            "placeholder": "logo_1",
-            "type": "image",
-            "default_value": "https://..."
-        }
-    ]
+  "vau_id": 26,
+  "name": "Laidback Swingy Slides",
+  "rotation": "square",
+  "medias": [
+    {
+      "placeholder": "logo_1",
+      "type": "image",
+      "default_value": "https://..."
+    }
+  ]
 }
 ```
 
@@ -311,6 +330,7 @@ GET  /api/v1/notify/:renderID    - Send notification
 **Purpose:** Production-grade GenAI agent framework
 
 **Key Features:**
+
 1. **Model-agnostic:** OpenAI, Anthropic, Gemini, DeepSeek, etc.
 2. **Type-safe:** Static type checking for tools and outputs
 3. **MCP Integration:** Model Context Protocol support
@@ -321,6 +341,7 @@ GET  /api/v1/notify/:renderID    - Send notification
 8. **Graph Support:** Complex workflow graphs
 
 **Usage Pattern:**
+
 ```python
 from pydantic_ai import Agent, RunContext
 from pydantic import BaseModel
@@ -357,6 +378,7 @@ print(result.output)  # Typed as SupportOutput
 **Purpose:** Multi-agent workflows in Node.js
 
 **Key Features:**
+
 - Multi-agent handoffs
 - Tool integration with Zod schemas
 - Streaming responses
@@ -366,6 +388,7 @@ print(result.output)  # Typed as SupportOutput
 - Browser package for Realtime agents
 
 **Usage:**
+
 ```typescript
 import { Agent, run, tool } from '@openai/agents';
 import { z } from 'zod';
@@ -388,6 +411,7 @@ console.log(result.finalOutput);
 ```
 
 **Handoffs:**
+
 ```typescript
 const dataAgent = new Agent({
   name: 'Data agent',
@@ -414,6 +438,7 @@ const result = await run(mainAgent, 'What is the weather in SF?');
 **Purpose:** OpenAI-compatible TTS server
 
 **Key Features:**
+
 - Multi-language: English, Japanese, Chinese
 - OpenAI-compatible `/v1/audio/speech` endpoint
 - NVIDIA GPU or CPU inference
@@ -422,6 +447,7 @@ const result = await run(mainAgent, 'What is the weather in SF?');
 - Docker-ready
 
 **Quick Start:**
+
 ```bash
 # CPU
 docker run -p 8880:8880 ghcr.io/remsky/kokoro-fastapi-cpu:latest
@@ -431,6 +457,7 @@ docker run --gpus all -p 8880:8880 ghcr.io/remsky/kokoro-fastapi-gpu:latest
 ```
 
 **OpenAI-Compatible Usage:**
+
 ```python
 from openai import OpenAI
 
@@ -445,6 +472,7 @@ with client.audio.speech.with_streaming_response.create(
 ```
 
 **Voice Mixing:**
+
 ```python
 # Equal weights
 voice="af_bella+af_sky"
@@ -475,27 +503,27 @@ Output/Upload (YouTube API, TikTok, Instagram)
 
 ### Key Differentiators
 
-| Project | Unique Feature |
-|---------|---------------|
-| ai-clips-maker | Speaker-aware cropping |
-| reels-clips-automator | GPT viral section detection |
-| ShortReelX | Thumbnail + hashtag generation |
-| Shortrocity | DALL-E 3 backgrounds |
-| ClipForge | Ollama local LLM |
-| FinanceVision | Domain-specific (finance) |
-| silent_autopost | Scheduled auto-posting |
+| Project               | Unique Feature                 |
+| --------------------- | ------------------------------ |
+| ai-clips-maker        | Speaker-aware cropping         |
+| reels-clips-automator | GPT viral section detection    |
+| ShortReelX            | Thumbnail + hashtag generation |
+| Shortrocity           | DALL-E 3 backgrounds           |
+| ClipForge             | Ollama local LLM               |
+| FinanceVision         | Domain-specific (finance)      |
+| silent_autopost       | Scheduled auto-posting         |
 
 ### Agent Framework Comparison
 
-| Feature | Pydantic AI | OpenAI Agents JS |
-|---------|-------------|------------------|
-| Language | Python | TypeScript |
-| Type Safety | Pydantic | Zod |
-| MCP Support | ✅ | ✅ |
-| Handoffs | ✅ | ✅ |
-| Voice | No | ✅ WebRTC |
-| Observability | Logfire | Built-in tracing |
-| Durable Execution | ✅ | Future |
+| Feature           | Pydantic AI | OpenAI Agents JS |
+| ----------------- | ----------- | ---------------- |
+| Language          | Python      | TypeScript       |
+| Type Safety       | Pydantic    | Zod              |
+| MCP Support       | ✅          | ✅               |
+| Handoffs          | ✅          | ✅               |
+| Voice             | No          | ✅ WebRTC        |
+| Observability     | Logfire     | Built-in tracing |
+| Durable Execution | ✅          | Future           |
 
 ---
 
@@ -512,20 +540,21 @@ Output/Upload (YouTube API, TikTok, Instagram)
 
 ### Implementation Priority
 
-| Priority | Pattern | Source |
-|----------|---------|--------|
-| P0 | OpenAI-compatible TTS | Kokoro-FastAPI |
-| P0 | Agent framework | Pydantic AI |
-| P1 | Speaker-aware cropping | ai-clips-maker |
-| P1 | Viral section detection | reels-clips-automator |
-| P2 | Thumbnail generation | ShortReelX |
-| P2 | Scheduled posting | silent_autopost |
+| Priority | Pattern                 | Source                |
+| -------- | ----------------------- | --------------------- |
+| P0       | OpenAI-compatible TTS   | Kokoro-FastAPI        |
+| P0       | Agent framework         | Pydantic AI           |
+| P1       | Speaker-aware cropping  | ai-clips-maker        |
+| P1       | Viral section detection | reels-clips-automator |
+| P2       | Thumbnail generation    | ShortReelX            |
+| P2       | Scheduled posting       | silent_autopost       |
 
 ---
 
 ## 8. References
 
 ### Repositories
+
 - ai-clips-maker: github.com/alperensumeroglu/ai-clips-maker
 - reels-clips-automator: github.com/eddieoz/reels-clips-automator
 - Shortrocity: github.com/unconv/shortrocity
@@ -535,9 +564,10 @@ Output/Upload (YouTube API, TikTok, Instagram)
 - Kokoro-FastAPI: github.com/remsky/Kokoro-FastAPI
 
 ### Documentation
+
 - Pydantic AI: ai.pydantic.dev
 - OpenAI Agents: openai.github.io/openai-agents-js
 
 ---
 
-*Document generated as part of content-machine research initiative. Last updated: 2026-01-02*
+_Document generated as part of content-machine research initiative. Last updated: 2026-01-02_

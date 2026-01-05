@@ -38,6 +38,7 @@ CONNECTION_CLOSED = -32000 # Connection was closed unexpectedly
 ```
 
 **Usage Example:**
+
 ```python
 from mcp import types
 
@@ -79,8 +80,7 @@ const TEST_RUN_ERROR_CODES = {
 // Type-safe error code types
 export type TestCaseExecutionErrorCodes =
   (typeof TEST_CASE_EXECUTION_ERROR_CODE)[keyof typeof TEST_CASE_EXECUTION_ERROR_CODE];
-export type TestRunErrorCode = 
-  (typeof TEST_RUN_ERROR_CODES)[keyof typeof TEST_RUN_ERROR_CODES];
+export type TestRunErrorCode = (typeof TEST_RUN_ERROR_CODES)[keyof typeof TEST_RUN_ERROR_CODES];
 ```
 
 ---
@@ -211,15 +211,18 @@ onStream({
 const COMMON_ERRORS: IDataObject = {
   // Node.js network errors
   ECONNREFUSED: 'The service refused the connection - perhaps it is offline',
-  ECONNRESET: 'The connection to the server was closed unexpectedly, perhaps it is offline. You can retry the request immediately or wait and retry later.',
-  ENOTFOUND: 'The connection cannot be established, this usually occurs due to an incorrect host (domain) value',
-  ETIMEDOUT: "The connection timed out, consider setting the 'Retry on Fail' option in the node settings",
+  ECONNRESET:
+    'The connection to the server was closed unexpectedly, perhaps it is offline. You can retry the request immediately or wait and retry later.',
+  ENOTFOUND:
+    'The connection cannot be established, this usually occurs due to an incorrect host (domain) value',
+  ETIMEDOUT:
+    "The connection timed out, consider setting the 'Retry on Fail' option in the node settings",
   ERRADDRINUSE: 'The port is already occupied by some other application',
   EADDRNOTAVAIL: 'The address is not available, ensure that you have the right IP address',
   ECONNABORTED: 'The connection was aborted, perhaps the server is offline',
   EHOSTUNREACH: 'The host is unreachable, perhaps the server is offline',
   EAI_AGAIN: 'The DNS server returned an error, perhaps the server is offline',
-  
+
   // File system errors
   ENOENT: 'The file or directory does not exist',
   EISDIR: 'The file path was expected but the given path is a directory',
@@ -227,7 +230,7 @@ const COMMON_ERRORS: IDataObject = {
   EACCES: 'Forbidden by access permissions, make sure you have the right permissions',
   EEXIST: 'The file or directory already exists',
   EPERM: 'Operation not permitted, make sure you have the right permissions',
-  
+
   // Other
   GETADDRINFO: 'The server closed the connection unexpectedly',
 };
@@ -244,19 +247,19 @@ const COMMON_ERRORS: IDataObject = {
 ```python
 class ErrorData(BaseModel):
     """Error information for JSON-RPC error responses."""
-    
+
     code: int
     """The error type that occurred."""
-    
+
     message: str
     """
-    A short description of the error. The message SHOULD be limited 
+    A short description of the error. The message SHOULD be limited
     to a concise single sentence.
     """
-    
+
     data: Any | None = None
     """
-    Additional information about the error. The value of this member 
+    Additional information about the error. The value of this member
     is defined by the sender (e.g. detailed error information, nested errors).
     """
 
@@ -298,7 +301,7 @@ class McpError(Exception):
 
 class UrlElicitationRequiredError(McpError):
     """
-    Specialized error for when a tool requires URL mode elicitation(s) 
+    Specialized error for when a tool requires URL mode elicitation(s)
     before proceeding.
     """
     def __init__(
@@ -333,14 +336,14 @@ function formatZodError(error: ZodError): ValidationErrorResult {
 
   // Extract all errors into human-readable format
   error.errors.forEach((err) => {
-    const path = err.path.join(".");
+    const path = err.path.join('.');
     missingFields[path] = err.message;
   });
 
   // Create human-readable message
   const errorPaths = Object.keys(missingFields);
   let message = `Validation failed for ${errorPaths.length} field(s): `;
-  message += errorPaths.join(", ");
+  message += errorPaths.join(', ');
 
   return { message, missingFields };
 }
@@ -350,7 +353,7 @@ throw new Error(
   JSON.stringify({
     message: errorResult.message,
     missingFields: errorResult.missingFields,
-  }),
+  })
 );
 ```
 
@@ -361,30 +364,30 @@ throw new Error(
 ```typescript
 // Validation error response (400)
 res.status(400).json({
-  error: "Validation failed",
+  error: 'Validation failed',
   message: errorData.message,
   missingFields: errorData.missingFields,
 });
 
 // Generic error response (400)
 res.status(400).json({
-  error: "Invalid input",
-  message: error instanceof Error ? error.message : "Unknown error",
+  error: 'Invalid input',
+  message: error instanceof Error ? error.message : 'Unknown error',
 });
 
 // Not found response (404)
 res.status(404).json({
-  error: "Video not found",
+  error: 'Video not found',
 });
 
 // Required field error (400)
 res.status(400).json({
-  error: "videoId is required",
+  error: 'videoId is required',
 });
 
 // Server error response (500)
 res.status(500).json({
-  error: "Error reading tmp file",
+  error: 'Error reading tmp file',
   tmpFile,
 });
 ```
@@ -398,14 +401,14 @@ res.status(500).json({
 ```typescript
 // Common exit code conventions:
 const EXIT_CODES = {
-  SUCCESS: 0,              // Successful execution
-  GENERAL_ERROR: 1,        // General/unspecified error
-  MISUSE: 2,               // Misuse of shell command
-  CANNOT_EXECUTE: 126,     // Command found but not executable
-  COMMAND_NOT_FOUND: 127,  // Command not found
-  INVALID_ARGUMENT: 128,   // Invalid argument
-  FATAL_SIGNAL_BASE: 128,  // + signal number for fatal signals
-  CTRL_C: 130,             // Script terminated by Ctrl+C (SIGINT)
+  SUCCESS: 0, // Successful execution
+  GENERAL_ERROR: 1, // General/unspecified error
+  MISUSE: 2, // Misuse of shell command
+  CANNOT_EXECUTE: 126, // Command found but not executable
+  COMMAND_NOT_FOUND: 127, // Command not found
+  INVALID_ARGUMENT: 128, // Invalid argument
+  FATAL_SIGNAL_BASE: 128, // + signal number for fatal signals
+  CTRL_C: 130, // Script terminated by Ctrl+C (SIGINT)
 } as const;
 ```
 
@@ -435,35 +438,35 @@ export const EXIT_CODES = {
   // Success (0-9)
   SUCCESS: 0,
   SUCCESS_WITH_WARNINGS: 1,
-  
+
   // User Errors (10-29)
   INVALID_ARGUMENTS: 10,
   INVALID_CONFIG: 11,
   MISSING_REQUIRED_FILE: 12,
   PERMISSION_DENIED: 13,
   VALIDATION_ERROR: 14,
-  
+
   // Operational Errors (30-49) - Retryable
   NETWORK_ERROR: 30,
   TIMEOUT: 31,
   SERVICE_UNAVAILABLE: 32,
   RATE_LIMITED: 33,
   TEMPORARY_FAILURE: 34,
-  
+
   // Fatal Errors (50-69)
   INTERNAL_ERROR: 50,
   OUT_OF_MEMORY: 51,
   DEPENDENCY_MISSING: 52,
   CORRUPTED_STATE: 53,
-  
+
   // External Tool Errors (70-89)
   FFMPEG_ERROR: 70,
   REMOTION_ERROR: 71,
   PLAYWRIGHT_ERROR: 72,
   TTS_ERROR: 73,
-  
+
   // Interrupts (128+)
-  SIGINT: 130,  // Ctrl+C
+  SIGINT: 130, // Ctrl+C
   SIGTERM: 143, // Graceful termination
 } as const;
 ```
@@ -486,11 +489,12 @@ const STATUS_CODE_MESSAGES: IStatusCodeMessages = {
   '404': 'The resource you are requesting could not be found',
   '405': 'Method not allowed - please check you are using the right HTTP method',
   '429': 'The service is receiving too many requests from you',
-  
+
   '5XX': 'The service failed to process your request',
   '500': 'The service was not able to process your request',
   '502': 'Bad gateway - the service failed to handle your request',
-  '503': 'Service unavailable - try again later or consider setting this node to retry automatically (in the node settings)',
+  '503':
+    'Service unavailable - try again later or consider setting this node to retry automatically (in the node settings)',
   '504': 'Gateway timed out - perhaps try again later?',
 };
 ```
@@ -545,13 +549,13 @@ export abstract class BaseError extends Error {
 
   constructor(message: string, opts: BaseErrorOptions = {}) {
     super(message, opts);
-    
+
     this.level = opts.level ?? 'error';
     this.shouldReport = opts.shouldReport ?? (this.level === 'error' || this.level === 'fatal');
     this.description = opts.description;
     this.tags = opts.tags ?? {};
     this.extra = opts.extra;
-    
+
     // Auto-detect package name from call stack
     try {
       const filePath = callsites()[2].getFileName() ?? '';
@@ -577,27 +581,27 @@ export const ErrorCodes = {
   E102_INVALID_VIDEO_FORMAT: 'E102',
   E103_INVALID_AUDIO_FORMAT: 'E103',
   E104_SCENE_VALIDATION_FAILED: 'E104',
-  
+
   // Network/API (E2xx)
   E200_NETWORK_ERROR: 'E200',
   E201_API_RATE_LIMITED: 'E201',
   E202_API_UNAUTHORIZED: 'E202',
   E203_API_NOT_FOUND: 'E203',
   E204_API_SERVER_ERROR: 'E204',
-  
+
   // External Tools (E3xx)
   E300_FFMPEG_ERROR: 'E300',
   E301_REMOTION_RENDER_FAILED: 'E301',
   E302_PLAYWRIGHT_ERROR: 'E302',
   E303_WHISPER_ERROR: 'E303',
   E304_TTS_ERROR: 'E304',
-  
+
   // File System (E4xx)
   E400_FILE_NOT_FOUND: 'E400',
   E401_PERMISSION_DENIED: 'E401',
   E402_DISK_FULL: 'E402',
   E403_PATH_TOO_LONG: 'E403',
-  
+
   // Internal (E5xx)
   E500_INTERNAL_ERROR: 'E500',
   E501_NOT_IMPLEMENTED: 'E501',
@@ -683,14 +687,14 @@ export class InternalError extends ContentMachineError {
 // Human-readable format (default)
 $ cm render video.json
 Error [E301]: Remotion render failed
-  
+
   The video rendering process encountered an error.
-  
+
   Details:
     - Frame 42: Memory limit exceeded
     - Composition: main
     - Duration: 30s
-  
+
   Suggestions:
     - Try reducing video resolution
     - Close other applications to free memory
@@ -728,15 +732,15 @@ $ cm render video.json --json
 
 ## Summary Table
 
-| Pattern | Source | Key Feature |
-|---------|--------|-------------|
-| JSON-RPC Codes | MCP SDK | Standard numeric codes (-32xxx) |
-| Error Hierarchy | n8n | User/Operational/Unexpected classes |
-| Flaky Detection | Remotion | Pattern matching for retryable errors |
-| Structured Output | short-video-maker-gyori | Zod + JSON error responses |
-| i18n Mapping | n8n | Error codes → localized messages |
-| HTTP Mapping | n8n | Status codes → user-friendly text |
-| Exit Codes | Standard | POSIX conventions + custom ranges |
+| Pattern           | Source                  | Key Feature                           |
+| ----------------- | ----------------------- | ------------------------------------- |
+| JSON-RPC Codes    | MCP SDK                 | Standard numeric codes (-32xxx)       |
+| Error Hierarchy   | n8n                     | User/Operational/Unexpected classes   |
+| Flaky Detection   | Remotion                | Pattern matching for retryable errors |
+| Structured Output | short-video-maker-gyori | Zod + JSON error responses            |
+| i18n Mapping      | n8n                     | Error codes → localized messages      |
+| HTTP Mapping      | n8n                     | Status codes → user-friendly text     |
+| Exit Codes        | Standard                | POSIX conventions + custom ranges     |
 
 ---
 

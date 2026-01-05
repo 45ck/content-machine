@@ -1,6 +1,6 @@
 /**
  * Pipeline Orchestration
- * 
+ *
  * Coordinates the full video generation pipeline:
  * topic → script → audio → visuals → render → video
  */
@@ -9,7 +9,7 @@ import { generateAudio, AudioOutput } from '../audio/pipeline';
 import { matchVisuals, VisualsOutput } from '../visuals/matcher';
 import { renderVideo, RenderOutput } from '../render/service';
 import { Archetype, Orientation } from './config';
-import { logger, createLogger, logTiming } from './logger';
+import { createLogger, logTiming, Logger } from './logger';
 import { PipelineError } from './errors';
 import { LLMProvider } from './llm';
 import { rm } from 'fs/promises';
@@ -50,49 +50,67 @@ export interface PipelineResult {
   };
 }
 
+interface PipelineArtifacts {
+  script: string;
+  audio: string;
+  timestamps: string;
+  visuals: string;
+}
+
+interface PipelineCosts {
+  llm: number;
+  tts: number;
+  total: number;
+}
+
 /**
- * Run the full video generation pipeline
+ * Execute Stage 1: Script generation
  */
-export async function runPipeline(options: PipelineOptions): Promise<PipelineResult> {
-  const log = createLogger({ pipeline: 'main', topic: options.topic });
-  const workDir = options.workDir ?? dirname(options.outputPath);
-  
-  // Track costs
-  const costs = { llm: 0, tts: 0, total: 0 };
-  
-  // Artifact paths
-  const artifacts = {
-    script: join(workDir, 'script.json'),
-    audio: join(workDir, 'audio.wav'),
-    timestamps: join(workDir, 'timestamps.json'),
-    visuals: join(workDir, 'visuals.json'),
-  };
-  
-  try {
-    // Stage 1: Generate Script
-    log.info('Starting Stage 1: Script generation');
-    options.onProgress?.('script', 'Generating script...');
-    
-    const script = await logTiming('script-generation', async () => {
+async function executeScriptStage(
+  options: PipelineOptions,
+  log: Logger,
+  costs: PipelineCosts
+): Promise<ScriptOutput> {
+  log.info('Starting Stage 1: Script generation');
+  options.onProgress?.('script', 'Generating script...');
+
+  const script = await logTiming(
+    'script-generation',
+    async () => {
       return generateScript({
         topic: options.topic,
         archetype: options.archetype,
         targetDuration: options.targetDuration,
         llmProvider: options.llmProvider,
       });
-    }, log);
-    
-    if (script.meta?.llmCost) {
-      costs.llm += script.meta.llmCost;
-    }
-    
-    options.onProgress?.('script', 'Script generated');
-    
-    // Stage 2: Generate Audio
-    log.info('Starting Stage 2: Audio generation');
-    options.onProgress?.('audio', 'Generating audio...');
-    
-    const audio = await logTiming('audio-generation', async () => {
+    },
+    log
+  );
+
+  if (script.meta?.llmCost) {
+    costs.llm += script.meta.llmCost;
+  }
+
+  options.onProgress?.('script', 'Script generated');
+  return script;
+}
+
+/**
+ * Execute Stage 2: Audio generation
+ */
+async function executeAudioStage(
+  options: PipelineOptions,
+  script: ScriptOutput,
+  artifacts: PipelineArtifacts,
+  log: Logger,
+  costs: PipelineCosts
+): Promise<AudioOutput> {
+  log.info('Starting Stage 2: Audio generation');
+  options.onProgress?.('audio', 'Generating audio...');
+
+  const audio = await logTiming(
+    'audio-generation',
+    async () => {
       return generateAudio({
         script,
         voice: options.voice,
@@ -100,33 +118,61 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
         timestampsPath: artifacts.timestamps,
         mock: options.mock,
       });
-    }, log);
-    
-    if (audio.ttsCost) {
-      costs.tts += audio.ttsCost;
-    }
-    
-    options.onProgress?.('audio', 'Audio generated');
-    
-    // Stage 3: Match Visuals
-    log.info('Starting Stage 3: Visual matching');
-    options.onProgress?.('visuals', 'Matching visuals...');
-    
-    const visuals = await logTiming('visual-matching', async () => {
+    },
+    log
+  );
+
+  if (audio.ttsCost) {
+    costs.tts += audio.ttsCost;
+  }
+
+  options.onProgress?.('audio', 'Audio generated');
+  return audio;
+}
+
+/**
+ * Execute Stage 3: Visual matching
+ */
+async function executeVisualsStage(
+  options: PipelineOptions,
+  audio: AudioOutput,
+  log: Logger
+): Promise<VisualsOutput> {
+  log.info('Starting Stage 3: Visual matching');
+  options.onProgress?.('visuals', 'Matching visuals...');
+
+  const visuals = await logTiming(
+    'visual-matching',
+    async () => {
       return matchVisuals({
         timestamps: audio.timestamps,
         provider: 'pexels',
         mock: options.mock,
       });
-    }, log);
-    
-    options.onProgress?.('visuals', 'Visuals matched');
-    
-    // Stage 4: Render Video
-    log.info('Starting Stage 4: Video rendering');
-    options.onProgress?.('render', 'Rendering video...');
-    
-    const render = await logTiming('video-rendering', async () => {
+    },
+    log
+  );
+
+  options.onProgress?.('visuals', 'Visuals matched');
+  return visuals;
+}
+
+/**
+ * Execute Stage 4: Video rendering
+ */
+async function executeRenderStage(
+  options: PipelineOptions,
+  visuals: VisualsOutput,
+  audio: AudioOutput,
+  artifacts: PipelineArtifacts,
+  log: Logger
+): Promise<RenderOutput> {
+  log.info('Starting Stage 4: Video rendering');
+  options.onProgress?.('render', 'Rendering video...');
+
+  const render = await logTiming(
+    'video-rendering',
+    async () => {
       return renderVideo({
         visuals,
         timestamps: audio.timestamps,
@@ -136,30 +182,58 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
         fps: 30,
         mock: options.mock,
       });
-    }, log);
-    
-    options.onProgress?.('render', 'Video rendered');
-    
-    // Calculate total costs
+    },
+    log
+  );
+
+  options.onProgress?.('render', 'Video rendered');
+  return render;
+}
+
+/**
+ * Clean up pipeline artifacts
+ */
+async function cleanupArtifacts(artifacts: PipelineArtifacts, outputPath?: string): Promise<void> {
+  const paths = [artifacts.script, artifacts.audio, artifacts.timestamps, artifacts.visuals];
+  if (outputPath) {
+    paths.push(outputPath);
+  }
+  await Promise.all(paths.map((p) => rm(p, { force: true }))).catch(() => {});
+}
+
+/**
+ * Run the full video generation pipeline
+ */
+export async function runPipeline(options: PipelineOptions): Promise<PipelineResult> {
+  const log = createLogger({ pipeline: 'main', topic: options.topic });
+  const workDir = options.workDir ?? dirname(options.outputPath);
+  const costs: PipelineCosts = { llm: 0, tts: 0, total: 0 };
+
+  const artifacts: PipelineArtifacts = {
+    script: join(workDir, 'script.json'),
+    audio: join(workDir, 'audio.wav'),
+    timestamps: join(workDir, 'timestamps.json'),
+    visuals: join(workDir, 'visuals.json'),
+  };
+
+  try {
+    const script = await executeScriptStage(options, log, costs);
+    const audio = await executeAudioStage(options, script, artifacts, log, costs);
+    const visuals = await executeVisualsStage(options, audio, log);
+    const render = await executeRenderStage(options, visuals, audio, artifacts, log);
+
     costs.total = costs.llm + costs.tts;
-    
-    // Clean up artifacts if not keeping them
+
     if (!options.keepArtifacts) {
       log.debug('Cleaning up artifacts');
-      await Promise.all([
-        rm(artifacts.script, { force: true }),
-        rm(artifacts.audio, { force: true }),
-        rm(artifacts.timestamps, { force: true }),
-        rm(artifacts.visuals, { force: true }),
-      ]);
+      await cleanupArtifacts(artifacts);
     }
-    
-    log.info({ 
-      duration: render.duration, 
-      fileSize: render.fileSize,
-      costs: costs.total 
-    }, 'Pipeline completed successfully');
-    
+
+    log.info(
+      { duration: render.duration, fileSize: render.fileSize, costs: costs.total },
+      'Pipeline completed successfully'
+    );
+
     return {
       script,
       audio,
@@ -172,21 +246,13 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
       fileSize: render.fileSize,
       costs: costs.total > 0 ? costs : undefined,
     };
-    
   } catch (error) {
     log.error({ error }, 'Pipeline failed');
-    
-    // Clean up artifacts on failure if not keeping them
+
     if (!options.keepArtifacts) {
-      await Promise.all([
-        rm(artifacts.script, { force: true }),
-        rm(artifacts.audio, { force: true }),
-        rm(artifacts.timestamps, { force: true }),
-        rm(artifacts.visuals, { force: true }),
-        rm(options.outputPath, { force: true }),
-      ]).catch(() => {}); // Ignore cleanup errors
+      await cleanupArtifacts(artifacts, options.outputPath);
     }
-    
+
     throw new PipelineError(
       'generate',
       `Pipeline failed: ${error instanceof Error ? error.message : String(error)}`,

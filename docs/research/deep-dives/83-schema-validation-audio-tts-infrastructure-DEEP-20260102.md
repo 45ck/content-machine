@@ -12,6 +12,7 @@
 This deep dive covers **schema validation tools** (Instructor, Zod, Pydantic) for structured LLM outputs and **audio/TTS infrastructure** (Kokoro, Kokoro-FastAPI) for voice generation. These are foundational components for content-machine's script-to-audio pipeline.
 
 **Key Findings:**
+
 - **Instructor:** LLM structured extraction with auto-retries, 3M+ downloads/month
 - **Zod:** TypeScript-first validation, 2kb gzipped, type inference
 - **Pydantic:** Python validation standard, used by OpenAI SDK, FastAPI
@@ -29,12 +30,12 @@ Instructor gets reliable JSON from any LLM—built on Pydantic for validation, t
 
 ### 1.1 Core Value
 
-| Without Instructor | With Instructor |
-|-------------------|-----------------|
+| Without Instructor          | With Instructor        |
+| --------------------------- | ---------------------- |
 | Write JSON schemas manually | Define Pydantic models |
-| Parse tool call responses | Get validated objects |
-| Handle validation errors | Auto-retry on failure |
-| Multi-provider code | Single unified API |
+| Parse tool call responses   | Get validated objects  |
+| Handle validation errors    | Auto-retry on failure  |
+| Multi-provider code         | Single unified API     |
 
 ### 1.2 Basic Usage
 
@@ -89,7 +90,7 @@ class VideoScript(BaseModel):
     body: str
     cta: str
     duration_seconds: int
-    
+
     @field_validator('duration_seconds')
     def validate_duration(cls, v):
         if v < 15 or v > 60:
@@ -144,12 +145,12 @@ script = client.chat.completions.create(
 
 ### 1.5 content-machine Integration
 
-| Use Case | Implementation |
-|----------|----------------|
+| Use Case          | Implementation                    |
+| ----------------- | --------------------------------- |
 | Script Generation | VideoScript model with validation |
-| Scene Extraction | List[Scene] with timing |
-| Trend Analysis | TrendResult with scoring |
-| Caption Timing | List[CaptionSegment] |
+| Scene Extraction  | List[Scene] with timing           |
+| Trend Analysis    | TrendResult with scoring          |
+| Caption Timing    | List[CaptionSegment]              |
 
 ---
 
@@ -162,18 +163,18 @@ Zod is TypeScript-first schema validation with static type inference—the go-to
 
 ### 2.1 Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Zero Dependencies** | No external packages |
-| **Tiny Bundle** | 2kb gzipped core |
-| **Type Inference** | `z.infer<>` extracts types |
-| **Immutable API** | Methods return new instances |
-| **JSON Schema** | Built-in conversion |
+| Feature               | Description                  |
+| --------------------- | ---------------------------- |
+| **Zero Dependencies** | No external packages         |
+| **Tiny Bundle**       | 2kb gzipped core             |
+| **Type Inference**    | `z.infer<>` extracts types   |
+| **Immutable API**     | Methods return new instances |
+| **JSON Schema**       | Built-in conversion          |
 
 ### 2.2 Basic Usage
 
 ```typescript
-import * as z from "zod";
+import * as z from 'zod';
 
 // Define schema
 const VideoScript = z.object({
@@ -182,10 +183,12 @@ const VideoScript = z.object({
   body: z.string(),
   cta: z.string(),
   duration: z.number().min(15).max(60),
-  scenes: z.array(z.object({
-    text: z.string(),
-    duration: z.number(),
-  })),
+  scenes: z.array(
+    z.object({
+      text: z.string(),
+      duration: z.number(),
+    })
+  ),
 });
 
 // Infer TypeScript type
@@ -213,8 +216,7 @@ if (!result.success) {
 ### 2.4 Transforms
 
 ```typescript
-const DurationSchema = z.string()
-  .transform((val) => parseFloat(val));
+const DurationSchema = z.string().transform((val) => parseFloat(val));
 
 type Duration = z.infer<typeof DurationSchema>;
 // number (output type differs from input)
@@ -226,22 +228,28 @@ type Duration = z.infer<typeof DurationSchema>;
 // Video config schema (vidosy pattern)
 const VideoConfig = z.object({
   title: z.string(),
-  aspectRatio: z.enum(["9:16", "16:9", "1:1"]),
+  aspectRatio: z.enum(['9:16', '16:9', '1:1']),
   fps: z.number().default(30),
-  scenes: z.array(z.object({
-    type: z.enum(["text", "image", "video"]),
-    content: z.string(),
-    duration: z.number(),
-    position: z.object({
-      x: z.number(),
-      y: z.number(),
-    }).optional(),
-  })),
-  audio: z.object({
-    voiceover: z.string().optional(),
-    music: z.string().optional(),
-    volume: z.number().min(0).max(1).default(0.5),
-  }).optional(),
+  scenes: z.array(
+    z.object({
+      type: z.enum(['text', 'image', 'video']),
+      content: z.string(),
+      duration: z.number(),
+      position: z
+        .object({
+          x: z.number(),
+          y: z.number(),
+        })
+        .optional(),
+    })
+  ),
+  audio: z
+    .object({
+      voiceover: z.string().optional(),
+      music: z.string().optional(),
+      volume: z.number().min(0).max(1).default(0.5),
+    })
+    .optional(),
 });
 
 type VideoConfig = z.infer<typeof VideoConfig>;
@@ -285,7 +293,7 @@ from pydantic import BaseModel, Field, field_validator
 class VideoScript(BaseModel):
     hook: str = Field(min_length=10, max_length=100)
     duration: int = Field(ge=15, le=60)
-    
+
     @field_validator('hook')
     def hook_must_be_engaging(cls, v):
         if not any(word in v.lower() for word in ['you', 'your', 'how', 'why']):
@@ -318,13 +326,13 @@ Kokoro is an open-weight TTS model with 82 million parameters—comparable quali
 
 ### 4.1 Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **82M Parameters** | Lightweight yet high-quality |
-| **Apache License** | Deploy anywhere |
-| **Multi-Language** | EN, JP, CN, ES, FR, IT, PT, HI |
-| **GPU/CPU** | CUDA or MPS acceleration |
-| **IPA Phonemes** | Fine-grained pronunciation control |
+| Feature            | Description                        |
+| ------------------ | ---------------------------------- |
+| **82M Parameters** | Lightweight yet high-quality       |
+| **Apache License** | Deploy anywhere                    |
+| **Multi-Language** | EN, JP, CN, ES, FR, IT, PT, HI     |
+| **GPU/CPU**        | CUDA or MPS acceleration           |
+| **IPA Phonemes**   | Fine-grained pronunciation control |
 
 ### 4.2 Basic Usage
 
@@ -350,17 +358,17 @@ for i, (graphemes, phonemes, audio) in enumerate(generator):
 
 ### 4.3 Language Codes
 
-| Code | Language |
-|------|----------|
-| `a` | American English 🇺🇸 |
-| `b` | British English 🇬🇧 |
-| `e` | Spanish 🇪🇸 |
-| `f` | French 🇫🇷 |
-| `h` | Hindi 🇮🇳 |
-| `i` | Italian 🇮🇹 |
-| `j` | Japanese 🇯🇵 |
-| `p` | Portuguese 🇧🇷 |
-| `z` | Mandarin 🇨🇳 |
+| Code | Language            |
+| ---- | ------------------- |
+| `a`  | American English 🇺🇸 |
+| `b`  | British English 🇬🇧  |
+| `e`  | Spanish 🇪🇸          |
+| `f`  | French 🇫🇷           |
+| `h`  | Hindi 🇮🇳            |
+| `i`  | Italian 🇮🇹          |
+| `j`  | Japanese 🇯🇵         |
+| `p`  | Portuguese 🇧🇷       |
+| `z`  | Mandarin 🇨🇳         |
 
 ### 4.4 Voice Customization
 
@@ -388,14 +396,14 @@ Dockerized FastAPI wrapper for Kokoro—OpenAI-compatible TTS endpoint with GPU 
 
 ### 5.1 Key Features
 
-| Feature | Description |
-|---------|-------------|
+| Feature               | Description                        |
+| --------------------- | ---------------------------------- |
 | **OpenAI Compatible** | Drop-in replacement for OpenAI TTS |
-| **GPU Accelerated** | NVIDIA CUDA support |
-| **Voice Mixing** | Combine voices with weights |
-| **Streaming** | Real-time audio generation |
-| **Timestamps** | Word-level caption timing |
-| **Multi-Format** | MP3, WAV, OPUS, FLAC, M4A, PCM |
+| **GPU Accelerated**   | NVIDIA CUDA support                |
+| **Voice Mixing**      | Combine voices with weights        |
+| **Streaming**         | Real-time audio generation         |
+| **Timestamps**        | Word-level caption timing          |
+| **Multi-Format**      | MP3, WAV, OPUS, FLAC, M4A, PCM     |
 
 ### 5.2 Quick Start
 
@@ -479,11 +487,11 @@ result = response.json()
 
 ### 5.6 Performance
 
-| Metric | GPU (4060Ti) | CPU (M3 Pro) |
-|--------|--------------|--------------|
-| Realtime Factor | 35x-100x | ~5x |
-| First Token | ~300ms | ~1000ms |
-| Tokens/sec | 137.67 | ~30 |
+| Metric          | GPU (4060Ti) | CPU (M3 Pro) |
+| --------------- | ------------ | ------------ |
+| Realtime Factor | 35x-100x     | ~5x          |
+| First Token     | ~300ms       | ~1000ms      |
+| Tokens/sec      | 137.67       | ~30          |
 
 ---
 
@@ -530,42 +538,45 @@ result = response.json()
 
 ### 7.1 Schema Validation
 
-| Feature | Instructor | Pydantic | Zod |
-|---------|-----------|----------|-----|
-| **Language** | Python | Python | TypeScript |
-| **LLM Integration** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
-| **Validation** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| **Type Inference** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| **Auto-Retry** | ⭐⭐⭐⭐⭐ | ❌ | ❌ |
-| **Streaming** | ⭐⭐⭐⭐⭐ | ❌ | ❌ |
+| Feature             | Instructor | Pydantic   | Zod        |
+| ------------------- | ---------- | ---------- | ---------- |
+| **Language**        | Python     | Python     | TypeScript |
+| **LLM Integration** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐     | ⭐⭐⭐     |
+| **Validation**      | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| **Type Inference**  | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| **Auto-Retry**      | ⭐⭐⭐⭐⭐ | ❌         | ❌         |
+| **Streaming**       | ⭐⭐⭐⭐⭐ | ❌         | ❌         |
 
 ### 7.2 TTS Options
 
-| Feature | Kokoro | EdgeTTS | OpenAI TTS |
-|---------|--------|---------|------------|
-| **Cost** | Free | Free | $15/1M chars |
-| **Languages** | 9 | 30+ | 6 |
-| **Quality** | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| **Speed** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ |
-| **Voice Mixing** | ✅ Yes | ❌ No | ❌ No |
-| **Self-Hosted** | ✅ Yes | ❌ No | ❌ No |
-| **Timestamps** | ✅ Yes | ❌ No | ❌ No |
+| Feature          | Kokoro     | EdgeTTS  | OpenAI TTS   |
+| ---------------- | ---------- | -------- | ------------ |
+| **Cost**         | Free       | Free     | $15/1M chars |
+| **Languages**    | 9          | 30+      | 6            |
+| **Quality**      | ⭐⭐⭐⭐   | ⭐⭐⭐   | ⭐⭐⭐⭐⭐   |
+| **Speed**        | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐       |
+| **Voice Mixing** | ✅ Yes     | ❌ No    | ❌ No        |
+| **Self-Hosted**  | ✅ Yes     | ❌ No    | ❌ No        |
+| **Timestamps**   | ✅ Yes     | ❌ No    | ❌ No        |
 
 ---
 
 ## 8. Implementation Priority
 
 ### Phase 1: Schema Setup (Week 1)
+
 1. Define Pydantic models for all pipeline data
 2. Instructor integration for script generation
 3. Zod schemas for Remotion configs
 
 ### Phase 2: TTS Integration (Week 2)
+
 1. Deploy Kokoro-FastAPI (Docker)
 2. Integrate with script pipeline
 3. Timestamp extraction for captions
 
 ### Phase 3: Production (Week 3)
+
 1. Voice selection UI
 2. Voice mixing presets
 3. Caching layer for repeated TTS
@@ -593,6 +604,7 @@ result = response.json()
 ---
 
 **Document Statistics:**
+
 - **Tools Covered:** 5 (Instructor, Zod, Pydantic, Kokoro, Kokoro-FastAPI)
 - **Code Examples:** 20+
 - **Architecture Diagrams:** 1

@@ -8,15 +8,15 @@
 
 ## 1. Vendor Evidence Summary
 
-| Pattern | Vendor Source | Key Finding |
-|---------|---------------|-------------|
-| Commander.js | vidosy, budibase | Declarative command registration with `.command()`, `.option()`, `.action()` |
-| Subcommand Pattern | vidosy | `vidosy render [config]` with argument + options |
-| Command Wrapper Class | budibase | Abstraction for registering complex command hierarchies |
-| CLI Logger | vidosy | chalk-based icons (ℹ✓⚠✗) for human-readable output |
-| Structured Logger | short-video-maker-gyori | pino for JSON logs in production |
-| Progress Display | remotion | AnsiDiff for overwriteable terminal output |
-| Config Loading | short-video-maker-gyori | dotenv + class-based config with validation |
+| Pattern               | Vendor Source           | Key Finding                                                                  |
+| --------------------- | ----------------------- | ---------------------------------------------------------------------------- |
+| Commander.js          | vidosy, budibase        | Declarative command registration with `.command()`, `.option()`, `.action()` |
+| Subcommand Pattern    | vidosy                  | `vidosy render [config]` with argument + options                             |
+| Command Wrapper Class | budibase                | Abstraction for registering complex command hierarchies                      |
+| CLI Logger            | vidosy                  | chalk-based icons (ℹ✓⚠✗) for human-readable output                           |
+| Structured Logger     | short-video-maker-gyori | pino for JSON logs in production                                             |
+| Progress Display      | remotion                | AnsiDiff for overwriteable terminal output                                   |
+| Config Loading        | short-video-maker-gyori | dotenv + class-based config with validation                                  |
 
 ---
 
@@ -24,12 +24,12 @@
 
 ### 2.1 Framework Comparison
 
-| Framework | Stars | Used By | Complexity | Best For |
-|-----------|-------|---------|------------|----------|
-| **Commander.js** | 27.8k | vidosy, budibase | Simple | Standard CLI apps ✅ |
-| **yargs** | 11.4k | Various | Medium | Complex arg parsing |
-| **oclif** | 9k+ | n8n | High | Enterprise plugins |
-| **Ink** | 33.7k | Claude Code | High | Interactive React TUIs |
+| Framework        | Stars | Used By          | Complexity | Best For               |
+| ---------------- | ----- | ---------------- | ---------- | ---------------------- |
+| **Commander.js** | 27.8k | vidosy, budibase | Simple     | Standard CLI apps ✅   |
+| **yargs**        | 11.4k | Various          | Medium     | Complex arg parsing    |
+| **oclif**        | 9k+   | n8n              | High       | Enterprise plugins     |
+| **Ink**          | 33.7k | Claude Code      | High       | Interactive React TUIs |
 
 ### 2.2 vidosy Pattern (Recommended)
 
@@ -43,10 +43,7 @@ import { logger } from './utils/logger';
 
 const program = new Command();
 
-program
-  .name('vidosy')
-  .description('A video generation tool using Remotion')
-  .version('1.0.0');
+program.name('vidosy').description('A video generation tool using Remotion').version('1.0.0');
 
 program
   .command('render')
@@ -67,6 +64,7 @@ program.parse(process.argv);
 ```
 
 **Key Patterns:**
+
 - Shebang for direct execution (`#!/usr/bin/env node`)
 - Single `program` instance
 - Subcommands via `.command('render')`
@@ -113,6 +111,7 @@ export class Command {
 ```
 
 **Key Patterns:**
+
 - Fluent builder API (`.addHelp().addSubOption()`)
 - Deferred registration via `.configure(program)`
 - Allows organizing commands into separate modules
@@ -124,40 +123,41 @@ export class Command {
 
 ```typescript
 #!/usr/bin/env node
-import "./environment"
-import { getCommands } from "./options"
-import { Command } from "commander"
+import './environment';
+import { getCommands } from './options';
+import { Command } from 'commander';
 
 async function init() {
   const program = new Command()
-    .addHelpCommand("help", getHelpDescription("Help with Budibase commands."))
+    .addHelpCommand('help', getHelpDescription('Help with Budibase commands.'))
     .helpOption(false)
-    .version(version)
-    
+    .version(version);
+
   // Register all commands from modules
   for (let command of getCommands()) {
-    command.configure(program)
+    command.configure(program);
   }
-  
-  await program.parseAsync(process.argv)
+
+  await program.parseAsync(process.argv);
 }
 
 // Handle process signals
-const events = ["exit", "SIGINT", "SIGUSR1", "SIGUSR2", "uncaughtException"]
-events.forEach(event => {
+const events = ['exit', 'SIGINT', 'SIGUSR1', 'SIGUSR2', 'uncaughtException'];
+events.forEach((event) => {
   process.on(event, (evt?: number) => {
     if (evt && !isNaN(evt)) return;
     if (evt) {
-      console.error(error("Failed to run CLI command - please report:"));
+      console.error(error('Failed to run CLI command - please report:'));
       console.error(error(evt));
     }
   });
 });
 
-init().catch(err => console.error(`Unexpected error - `, err));
+init().catch((err) => console.error(`Unexpected error - `, err));
 ```
 
 **Key Patterns:**
+
 - Environment import first (`./environment`)
 - Async init function for top-level await
 - Signal handling for graceful shutdown
@@ -211,6 +211,7 @@ export const logger = new Logger();
 ```
 
 **Key Patterns:**
+
 - Unicode icons for visual status (ℹ✓⚠✗🔍⏳)
 - chalk for ANSI colors
 - Debug gated by `process.env.DEBUG`
@@ -221,7 +222,7 @@ export const logger = new Logger();
 **Source:** [vendor/short-video-maker-gyori/src/config.ts](../../../vendor/short-video-maker-gyori/src/config.ts)
 
 ```typescript
-import pino from "pino";
+import pino from 'pino';
 
 export const logger = pino({
   level: process.env.LOG_LEVEL || 'info',
@@ -236,12 +237,13 @@ export const logger = pino({
 });
 
 // Usage
-logger.info("Starting server");
-logger.debug({ port: 3000 }, "Server configuration");
-logger.error(error, "Failed to render video");
+logger.info('Starting server');
+logger.debug({ port: 3000 }, 'Server configuration');
+logger.error(error, 'Failed to render video');
 ```
 
 **Key Patterns:**
+
 - JSON output for log aggregation
 - ISO timestamps
 - Structured context objects
@@ -285,7 +287,7 @@ try {
 **Source:** [vendor/review-ui/budibase/packages/cli/src/utils.ts](../../../vendor/review-ui/budibase/packages/cli/src/utils.ts)
 
 ```typescript
-const progress = require("cli-progress");
+const progress = require('cli-progress');
 
 export function progressBar(total: number) {
   const bar = new progress.SingleBar({}, progress.Presets.shades_classic);
@@ -330,13 +332,13 @@ updateProgress('Rendering: 75%');
 **Source:** [vendor/short-video-maker-gyori/src/config.ts](../../../vendor/short-video-maker-gyori/src/config.ts)
 
 ```typescript
-import "dotenv/config";  // Auto-loads .env file
+import 'dotenv/config'; // Auto-loads .env file
 
 export class Config {
   public pexelsApiKey: string;
   public logLevel: pino.Level;
   public port: number;
-  
+
   constructor() {
     this.pexelsApiKey = process.env.PEXELS_API_KEY as string;
     this.logLevel = (process.env.LOG_LEVEL || 'info') as pino.Level;
@@ -375,13 +377,13 @@ const configSchema = z.object({
 
 export function loadConfig(cliOptions: Record<string, unknown>) {
   config(); // Load .env
-  
+
   const merged = {
     port: cliOptions.port ?? process.env.PORT,
     logLevel: cliOptions.logLevel ?? process.env.LOG_LEVEL,
     pexelsApiKey: process.env.PEXELS_API_KEY,
   };
-  
+
   return configSchema.parse(merged);
 }
 ```
@@ -397,7 +399,7 @@ src/cli/
 ├── index.ts              # Entry point with Commander
 ├── commands/
 │   ├── script.ts         # cm script
-│   ├── audio.ts          # cm audio  
+│   ├── audio.ts          # cm audio
 │   ├── visuals.ts        # cm visuals
 │   ├── render.ts         # cm render
 │   └── generate.ts       # cm generate (full pipeline)
@@ -469,13 +471,13 @@ export function registerScriptCommand(program: Command): void {
     .option('-p, --provider <provider>', 'LLM provider', 'openai')
     .action(async (options) => {
       const spinner = ora('Generating script...').start();
-      
+
       try {
         const opts = optionsSchema.parse(options);
         const script = await generateScript(opts);
-        
+
         spinner.succeed(`Script saved to ${opts.output}`);
-        
+
         if (!program.opts().quiet) {
           console.log(JSON.stringify(script, null, 2));
         }
@@ -493,6 +495,7 @@ export function registerScriptCommand(program: Command): void {
 ## 7. Dependencies
 
 ### Core (Required)
+
 ```json
 {
   "commander": "^12.0.0",
@@ -502,6 +505,7 @@ export function registerScriptCommand(program: Command): void {
 ```
 
 ### Logging & Progress
+
 ```json
 {
   "pino": "^9.0.0",
@@ -511,6 +515,7 @@ export function registerScriptCommand(program: Command): void {
 ```
 
 ### Optional (Interactive)
+
 ```json
 {
   "@clack/prompts": "^0.7.0"
@@ -521,22 +526,23 @@ export function registerScriptCommand(program: Command): void {
 
 ## 8. Adoption Priority
 
-| Pattern | Priority | Rationale |
-|---------|----------|-----------|
-| Commander.js | P0 | Proven in vidosy, simple, TypeScript-friendly |
-| chalk CLI logger | P0 | Essential for user-friendly output |
-| ora spinner | P0 | Clean progress indication |
-| Zod config validation | P0 | Type-safe config loading |
-| dotenv | P0 | Standard env var loading |
-| pino structured logger | P1 | For debugging and production logs |
-| preAction hook | P1 | Clean config loading pattern |
-| Command wrapper class | P2 | Only if many subcommands |
+| Pattern                | Priority | Rationale                                     |
+| ---------------------- | -------- | --------------------------------------------- |
+| Commander.js           | P0       | Proven in vidosy, simple, TypeScript-friendly |
+| chalk CLI logger       | P0       | Essential for user-friendly output            |
+| ora spinner            | P0       | Clean progress indication                     |
+| Zod config validation  | P0       | Type-safe config loading                      |
+| dotenv                 | P0       | Standard env var loading                      |
+| pino structured logger | P1       | For debugging and production logs             |
+| preAction hook         | P1       | Clean config loading pattern                  |
+| Command wrapper class  | P2       | Only if many subcommands                      |
 
 ---
 
 ## 9. References
 
 ### Vendor Files
+
 - [templates/vidosy/src/cli/index.ts](../../../templates/vidosy/src/cli/index.ts) - Commander pattern
 - [templates/vidosy/src/cli/utils/logger.ts](../../../templates/vidosy/src/cli/utils/logger.ts) - CLI logger
 - [vendor/review-ui/budibase/packages/cli/src/structures/Command.ts](../../../vendor/review-ui/budibase/packages/cli/src/structures/Command.ts) - Wrapper pattern
@@ -544,11 +550,13 @@ export function registerScriptCommand(program: Command): void {
 - [vendor/short-video-maker-gyori/src/config.ts](../../../vendor/short-video-maker-gyori/src/config.ts) - Config class
 
 ### Existing Research
+
 - [CLI-ARCHITECTURE-RESEARCH-20260104.md](../deep-dives/CLI-ARCHITECTURE-RESEARCH-20260104.md) - Full deep dive
 - [12-vidosy-20260102.md](../12-vidosy-20260102.md) - vidosy analysis
 - [10-short-video-maker-gyori-20260102.md](../10-short-video-maker-gyori-20260102.md) - Config patterns
 
 ### External
+
 - [Commander.js Documentation](https://github.com/tj/commander.js)
 - [pino Documentation](https://github.com/pinojs/pino)
 - [ora Documentation](https://github.com/sindresorhus/ora)

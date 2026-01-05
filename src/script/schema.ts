@@ -1,6 +1,6 @@
 /**
  * Script Schemas
- * 
+ *
  * Zod schemas for script generation output validation.
  * Based on SYSTEM-DESIGN §6.3 GeneratedScriptSchema
  */
@@ -28,7 +28,8 @@ export type Scene = z.infer<typeof SceneSchema>;
  */
 export const ScriptSectionSchema = z.object({
   id: z.string().describe('Unique section identifier'),
-  type: z.enum(['hook', 'intro', 'point', 'transition', 'conclusion', 'cta'])
+  type: z
+    .enum(['hook', 'intro', 'point', 'transition', 'conclusion', 'cta'])
     .describe('Section type'),
   text: z.string().min(1).describe('The spoken text for this section'),
   visualHint: z.string().optional().describe('Hint for visual matching'),
@@ -67,7 +68,7 @@ export const ScriptOutputSchema = z.object({
   hashtags: z.array(z.string()).optional().describe('Suggested hashtags'),
   meta: ScriptMetadataSchema.optional(),
   extra: z.record(z.unknown()).optional().describe('Freeform LLM extension data'),
-  
+
   // Legacy fields for backward compatibility
   sections: z.array(ScriptSectionSchema).optional().describe('@deprecated Use scenes'),
   metadata: ScriptMetadataSchema.optional().describe('@deprecated Use meta'),
@@ -80,11 +81,13 @@ export type ScriptOutput = z.infer<typeof ScriptOutputSchema>;
  * (What we expect the LLM to return - minimal structure)
  */
 export const LLMScriptResponseSchema = z.object({
-  scenes: z.array(z.object({
-    text: z.string(),
-    visualDirection: z.string(),
-    mood: z.string().optional(),
-  })),
+  scenes: z.array(
+    z.object({
+      text: z.string(),
+      visualDirection: z.string(),
+      mood: z.string().optional(),
+    })
+  ),
   reasoning: z.string(),
   title: z.string().optional(),
   hook: z.string().optional(),

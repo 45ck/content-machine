@@ -37,17 +37,19 @@ evals/
 
 We use a 4-layer evaluation approach:
 
-| Layer | Type | Example |
-|-------|------|---------|
-| 1 | Schema Validation | JSON structure, required fields |
-| 2 | Programmatic Checks | Word count, scene count, duration |
-| 3 | LLM-as-Judge | Hook quality, TikTok voice, relevance |
-| 4 | Human Review | Random sample quality check |
+| Layer | Type                | Example                               |
+| ----- | ------------------- | ------------------------------------- |
+| 1     | Schema Validation   | JSON structure, required fields       |
+| 2     | Programmatic Checks | Word count, scene count, duration     |
+| 3     | LLM-as-Judge        | Hook quality, TikTok voice, relevance |
+| 4     | Human Review        | Random sample quality check           |
 
 ## Available Evaluations
 
 ### cm-script.yaml
+
 Evaluates script generation quality:
+
 - JSON schema compliance
 - Scene count (3-8 scenes)
 - Word count (100-250 words)
@@ -57,7 +59,9 @@ Evaluates script generation quality:
 - Archetype adherence (listicle, versus, story, etc.)
 
 ### cm-visuals.yaml
+
 Evaluates stock footage search term generation:
+
 - Search term relevance to narration
 - Filmability (concrete vs abstract terms)
 - Variety of visual options
@@ -67,6 +71,7 @@ Evaluates stock footage search term generation:
 ### Environment Variables
 
 Create a `.env` file with:
+
 ```bash
 OPENAI_API_KEY=sk-...
 ANTHROPIC_API_KEY=sk-ant-...  # Optional
@@ -103,12 +108,12 @@ jobs:
 
 ## Quality Thresholds
 
-| Metric | Target | Alert |
-|--------|--------|-------|
-| Script eval pass rate | ≥80% | <70% |
-| Visual eval pass rate | ≥80% | <70% |
-| Hook quality (avg) | ≥0.8 | <0.7 |
-| TikTok voice (avg) | ≥0.8 | <0.7 |
+| Metric                | Target | Alert |
+| --------------------- | ------ | ----- |
+| Script eval pass rate | ≥80%   | <70%  |
+| Visual eval pass rate | ≥80%   | <70%  |
+| Hook quality (avg)    | ≥0.8   | <0.7  |
+| TikTok voice (avg)    | ≥0.8   | <0.7  |
 
 ## Adding New Evaluations
 

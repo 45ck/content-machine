@@ -24,7 +24,7 @@ describe('WordTimestampSchema', () => {
       end: 0.5,
       confidence: 0.95,
     };
-    
+
     const result = WordTimestampSchema.safeParse(word);
     expect(result.success).toBe(true);
   });
@@ -35,7 +35,7 @@ describe('WordTimestampSchema', () => {
       start: 1.0,
       end: 1.5,
     };
-    
+
     const result = WordTimestampSchema.safeParse(word);
     expect(result.success).toBe(true);
   });
@@ -46,7 +46,7 @@ describe('WordTimestampSchema', () => {
       start: -1,
       end: 0.5,
     };
-    
+
     const result = WordTimestampSchema.safeParse(word);
     expect(result.success).toBe(false);
   });
@@ -57,7 +57,7 @@ describe('WordTimestampSchema', () => {
       start: 0,
       end: 0.5,
     };
-    
+
     const result = WordTimestampSchema.safeParse(word);
     expect(result.success).toBe(false);
   });
@@ -74,7 +74,7 @@ describe('SceneTimestampSchema', () => {
         { word: 'world', start: 0.6, end: 1.2 },
       ],
     };
-    
+
     const result = SceneTimestampSchema.safeParse(scene);
     expect(result.success).toBe(true);
   });
@@ -92,7 +92,7 @@ describe('TranscriptSegmentSchema (legacy)', () => {
         { word: 'world', start: 0.6, end: 1.2 },
       ],
     };
-    
+
     const result = TranscriptSegmentSchema.safeParse(segment);
     expect(result.success).toBe(true);
   });
@@ -121,7 +121,7 @@ describe('TimestampsOutputSchema', () => {
       ttsEngine: 'kokoro',
       asrEngine: 'whisper-cpp',
     };
-    
+
     const result = TimestampsOutputSchema.safeParse(output);
     expect(result.success).toBe(true);
   });
@@ -134,7 +134,7 @@ describe('TimestampsOutputSchema', () => {
       ttsEngine: 'kokoro',
       asrEngine: 'whisper-cpp',
     };
-    
+
     const result = TimestampsOutputSchema.safeParse(output);
     expect(result.success).toBe(false);
   });
@@ -148,12 +148,14 @@ describe('AudioOutputSchema', () => {
       timestampsPath: '/path/to/timestamps.json',
       timestamps: {
         schemaVersion: AUDIO_SCHEMA_VERSION,
-        scenes: [{
-          sceneId: 'scene-001',
-          audioStart: 0,
-          audioEnd: 1.0,
-          words: [{ word: 'Test', start: 0, end: 0.5 }],
-        }],
+        scenes: [
+          {
+            sceneId: 'scene-001',
+            audioStart: 0,
+            audioEnd: 1.0,
+            words: [{ word: 'Test', start: 0, end: 0.5 }],
+          },
+        ],
         allWords: [{ word: 'Test', start: 0, end: 0.5 }],
         totalDuration: 1.0,
         ttsEngine: 'kokoro',
@@ -164,7 +166,7 @@ describe('AudioOutputSchema', () => {
       voice: 'af_heart',
       sampleRate: 24000,
     };
-    
+
     const result = AudioOutputSchema.safeParse(output);
     expect(result.success).toBe(true);
   });
@@ -176,12 +178,14 @@ describe('AudioOutputSchema', () => {
       timestampsPath: '/path/to/timestamps.json',
       timestamps: {
         schemaVersion: AUDIO_SCHEMA_VERSION,
-        scenes: [{
-          sceneId: 'scene-001',
-          audioStart: 0,
-          audioEnd: 1.0,
-          words: [{ word: 'Test', start: 0, end: 0.5 }],
-        }],
+        scenes: [
+          {
+            sceneId: 'scene-001',
+            audioStart: 0,
+            audioEnd: 1.0,
+            words: [{ word: 'Test', start: 0, end: 0.5 }],
+          },
+        ],
         allWords: [{ word: 'Test', start: 0, end: 0.5 }],
         totalDuration: 1.0,
         ttsEngine: 'kokoro',
@@ -193,7 +197,7 @@ describe('AudioOutputSchema', () => {
       sampleRate: 24000,
       ttsCost: 0.001,
     };
-    
+
     const result = AudioOutputSchema.safeParse(output);
     expect(result.success).toBe(true);
     if (result.success) {

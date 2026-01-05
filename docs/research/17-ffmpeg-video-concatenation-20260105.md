@@ -12,11 +12,13 @@
 **Best for:** Short videos with **identical encoding parameters** (same codec, resolution, fps, sample rate).
 
 **Pros:**
+
 - **No re-encoding** → Fastest, lossless
 - Simple file list syntax
 - Supports `inpoint`/`outpoint` for frame-accurate trimming
 
 **Cons:**
+
 - Requires identical video parameters across all inputs
 - Cannot handle different codecs, resolutions, or frame rates
 
@@ -73,11 +75,13 @@ ffmpeg -i "concat:split1.ts|split2.ts|split3.ts" -c copy output.ts
 **Best for:** Videos with **different resolutions, codecs, or frame rates**.
 
 **Pros:**
+
 - Handles any input format
 - Can normalize parameters during concatenation
 - Supports transitions and effects
 
 **Cons:**
+
 - **Requires re-encoding** → Slower, potential quality loss
 - More complex filter syntax
 
@@ -108,27 +112,30 @@ ffmpeg -i part1.mp4 -i part2.mp4 -filter_complex \
 
 ### Decision Matrix
 
-| Scenario | Method | Re-encode? | Speed |
-|----------|--------|------------|-------|
-| Same codec, resolution, fps | **Concat demuxer** | No | ⚡ Fast |
-| MPEG-TS streams | **Concat protocol** | No | ⚡ Fast |
-| Different resolutions | **Concat filter** | Yes | 🐢 Slow |
-| Different codecs | **Concat filter** | Yes | 🐢 Slow |
-| Different frame rates | **Concat filter** | Yes | 🐢 Slow |
-| Need transitions | **Concat filter** | Yes | 🐢 Slow |
+| Scenario                    | Method              | Re-encode? | Speed   |
+| --------------------------- | ------------------- | ---------- | ------- |
+| Same codec, resolution, fps | **Concat demuxer**  | No         | ⚡ Fast |
+| MPEG-TS streams             | **Concat protocol** | No         | ⚡ Fast |
+| Different resolutions       | **Concat filter**   | Yes        | 🐢 Slow |
+| Different codecs            | **Concat filter**   | Yes        | 🐢 Slow |
+| Different frame rates       | **Concat filter**   | Yes        | 🐢 Slow |
+| Need transitions            | **Concat filter**   | Yes        | 🐢 Slow |
 
 **Remotion's Approach:**
 
 ```typescript
 // vendor/render/remotion/packages/renderer/src/can-concat-seamlessly.ts
 
-export const canConcatAudioSeamlessly = (audioCodec: AudioCodec | null, chunkDurationInFrames: number) => {
-  if (chunkDurationInFrames <= 4) return false;  // Too small = overhead
-  return audioCodec === 'aac';  // Only AAC supports seamless concat
+export const canConcatAudioSeamlessly = (
+  audioCodec: AudioCodec | null,
+  chunkDurationInFrames: number
+) => {
+  if (chunkDurationInFrames <= 4) return false; // Too small = overhead
+  return audioCodec === 'aac'; // Only AAC supports seamless concat
 };
 
 export const canConcatVideoSeamlessly = (codec: Codec) => {
-  return codec === 'h264';  // Only H.264 supports seamless concat
+  return codec === 'h264'; // Only H.264 supports seamless concat
 };
 ```
 
@@ -139,6 +146,7 @@ export const canConcatVideoSeamlessly = (codec: Codec) => {
 ### Cause of Audio Pops
 
 Audio pops/clicks occur when:
+
 1. **Abrupt amplitude discontinuity** at segment boundaries
 2. **Non-zero crossing** at cut points
 3. **Missing/extra samples** causing gaps or overlaps
@@ -203,7 +211,7 @@ ffmpeg -i first.flac -i second.flac -i third.flac \
 ```typescript
 // vendor/render/remotion/packages/renderer/src/combine-audio.ts
 
-export const durationOf1Frame = (1024 / DEFAULT_SAMPLE_RATE) * 1_000_000;  // microseconds
+export const durationOf1Frame = (1024 / DEFAULT_SAMPLE_RATE) * 1_000_000; // microseconds
 
 export const getClosestAlignedTime = (targetTime: number) => {
   const decimalFramesToTargetTime = (targetTime * 1_000_000) / durationOf1Frame;
@@ -212,16 +220,19 @@ export const getClosestAlignedTime = (targetTime: number) => {
 };
 
 // Use inpoint/outpoint aligned to AAC frame boundaries
-const fileList = files.map((p, i) => {
-  const startTime = getClosestAlignedTime(i * chunkDurationInSeconds) * 1_000_000;
-  const endTime = getClosestAlignedTime((i + 1) * chunkDurationInSeconds) * 1_000_000;
-  
-  // Add 4 frames of padding for priming samples, then trim precisely
-  let inpoint = i > 0 ? durationOf1Frame * 4 : 0;
-  const outpoint = (i === 0 ? durationOf1Frame * 2 : inpoint) + realDuration - (isLast ? 0 : durationOf1Frame);
-  
-  return [`file '${p}'`, `inpoint ${inpoint}us`, `outpoint ${outpoint}us`].join('\n');
-}).join('\n');
+const fileList = files
+  .map((p, i) => {
+    const startTime = getClosestAlignedTime(i * chunkDurationInSeconds) * 1_000_000;
+    const endTime = getClosestAlignedTime((i + 1) * chunkDurationInSeconds) * 1_000_000;
+
+    // Add 4 frames of padding for priming samples, then trim precisely
+    let inpoint = i > 0 ? durationOf1Frame * 4 : 0;
+    const outpoint =
+      (i === 0 ? durationOf1Frame * 2 : inpoint) + realDuration - (isLast ? 0 : durationOf1Frame);
+
+    return [`file '${p}'`, `inpoint ${inpoint}us`, `outpoint ${outpoint}us`].join('\n');
+  })
+  .join('\n');
 ```
 
 ### Solution 4: Short Micro-Fades at Cut Points
@@ -237,14 +248,14 @@ ffmpeg -i segment.mp4 -af "afade=t=in:d=0.01,afade=t=out:st=-0.01:d=0.01" segmen
 
 ### When Re-encoding is Required
 
-| Situation | Re-encode Required? |
-|-----------|---------------------|
-| Different codecs (H.264 + H.265) | ✅ Yes |
-| Different resolutions | ✅ Yes |
-| Different frame rates | ✅ Yes |
-| Different pixel formats | ✅ Yes |
-| Adding transitions/effects | ✅ Yes |
-| Same parameters, different files | ❌ No |
+| Situation                        | Re-encode Required? |
+| -------------------------------- | ------------------- |
+| Different codecs (H.264 + H.265) | ✅ Yes              |
+| Different resolutions            | ✅ Yes              |
+| Different frame rates            | ✅ Yes              |
+| Different pixel formats          | ✅ Yes              |
+| Adding transitions/effects       | ✅ Yes              |
+| Same parameters, different files | ❌ No               |
 
 ### Quality vs Speed Presets
 
@@ -269,11 +280,11 @@ ffmpeg -i input.mp4 -c:v libx264 -preset veryslow -crf 18 output.mp4
 # vendor/ShortGPT/shortGPT/editing_framework/core_editing_engine.py
 
 video.write_videofile(
-    output_file, 
+    output_file,
     threads=threads,
-    codec='libx264', 
-    audio_codec='aac', 
-    fps=25, 
+    codec='libx264',
+    audio_codec='aac',
+    fps=25,
     preset='veryfast'  # Balance for short video rendering
 )
 ```
@@ -284,10 +295,10 @@ video.write_videofile(
 # vendor/VideoShortsCreator-Gemini/video_editing.py
 
 command.extend([
-    "-c:v", "libx264", 
+    "-c:v", "libx264",
     "-preset", "medium",  # Good balance
     "-crf", "23",         # Reasonable quality
-    "-c:a", "aac", 
+    "-c:a", "aac",
     "-b:a", "192k",
 ])
 ```
@@ -323,14 +334,14 @@ const {encoderName, hardwareAccelerated} = getCodecName({
 
 ### Critical Parameters to Match
 
-| Parameter | Why It Matters | How to Check |
-|-----------|---------------|--------------|
-| **Resolution** | Different sizes can't concat | `ffprobe -v error -select_streams v:0 -show_entries stream=width,height` |
-| **Frame Rate** | Causes timing issues | `ffprobe -v error -select_streams v:0 -show_entries stream=r_frame_rate` |
-| **Pixel Format** | Color space mismatch | `ffprobe -v error -select_streams v:0 -show_entries stream=pix_fmt` |
-| **Codec** | Different containers | `ffprobe -v error -select_streams v:0 -show_entries stream=codec_name` |
-| **Audio Sample Rate** | Audio sync issues | `ffprobe -v error -select_streams a:0 -show_entries stream=sample_rate` |
-| **Audio Channels** | Mono/stereo mismatch | `ffprobe -v error -select_streams a:0 -show_entries stream=channels` |
+| Parameter             | Why It Matters               | How to Check                                                             |
+| --------------------- | ---------------------------- | ------------------------------------------------------------------------ |
+| **Resolution**        | Different sizes can't concat | `ffprobe -v error -select_streams v:0 -show_entries stream=width,height` |
+| **Frame Rate**        | Causes timing issues         | `ffprobe -v error -select_streams v:0 -show_entries stream=r_frame_rate` |
+| **Pixel Format**      | Color space mismatch         | `ffprobe -v error -select_streams v:0 -show_entries stream=pix_fmt`      |
+| **Codec**             | Different containers         | `ffprobe -v error -select_streams v:0 -show_entries stream=codec_name`   |
+| **Audio Sample Rate** | Audio sync issues            | `ffprobe -v error -select_streams a:0 -show_entries stream=sample_rate`  |
+| **Audio Channels**    | Mono/stereo mismatch         | `ffprobe -v error -select_streams a:0 -show_entries stream=channels`     |
 
 ### Normalization Before Concatenation
 
@@ -345,7 +356,7 @@ clip_w, clip_h = clip.size
 if clip_w != video_width or clip_h != video_height:
     clip_ratio = clip.w / clip.h
     video_ratio = video_width / video_height
-    
+
     if clip_ratio == video_ratio:
         # Same aspect ratio - simple resize
         clip = clip.resized(new_size=(video_width, video_height))
@@ -355,10 +366,10 @@ if clip_w != video_width or clip_h != video_height:
             scale_factor = video_width / clip_w
         else:
             scale_factor = video_height / clip_h
-        
+
         new_width = int(clip_w * scale_factor)
         new_height = int(clip_h * scale_factor)
-        
+
         background = ColorClip(size=(video_width, video_height), color=(0, 0, 0))
         clip_resized = clip.resized(new_size=(new_width, new_height)).with_position("center")
         clip = CompositeVideoClip([background, clip_resized])
@@ -516,26 +527,26 @@ ffmpeg -i clip1.mp4 -i clip2.mp4 -filter_complex \
 
 ```typescript
 // Based on vendor/short-video-maker-gyori patterns
-import ffmpeg from "fluent-ffmpeg";
-import { writeFileSync } from "fs";
-import { join } from "path";
+import ffmpeg from 'fluent-ffmpeg';
+import { writeFileSync } from 'fs';
+import { join } from 'path';
 
 interface ConcatOptions {
   inputs: string[];
   output: string;
   normalize?: boolean;
-  crossfade?: number;  // seconds
+  crossfade?: number; // seconds
 }
 
 async function concatenateVideos(options: ConcatOptions): Promise<string> {
   const { inputs, output, normalize = false, crossfade = 0 } = options;
-  
+
   if (!normalize && crossfade === 0) {
     // Fast path: concat demuxer
-    const fileList = inputs.map(p => `file '${p}'`).join('\n');
+    const fileList = inputs.map((p) => `file '${p}'`).join('\n');
     const listPath = join(__dirname, 'temp-filelist.txt');
     writeFileSync(listPath, fileList);
-    
+
     return new Promise((resolve, reject) => {
       ffmpeg()
         .input(listPath)
@@ -546,7 +557,7 @@ async function concatenateVideos(options: ConcatOptions): Promise<string> {
         .save(output);
     });
   }
-  
+
   // Slow path: re-encode with normalization
   // ... (implementation with filter_complex)
 }
@@ -568,14 +579,14 @@ def concatenate_videos_safe(
     fade_duration: float = 0.05
 ) -> str:
     """Concatenate videos with normalization and audio fade to prevent pops."""
-    
+
     clips = []
     for path in video_paths:
         clip = VideoFileClip(path)
-        
+
         # Resize to target dimensions with padding
         clip = resize_with_padding(clip, target_width, target_height)
-        
+
         # Apply micro-fade to prevent audio pops
         if clip.audio:
             clip = clip.with_audio(
@@ -584,12 +595,12 @@ def concatenate_videos_safe(
                     afx.AudioFadeOut(fade_duration)
                 ])
             )
-        
+
         clips.append(clip)
-    
+
     # Concatenate using chain method (no re-compositing)
     final = concatenate_videoclips(clips, method="chain")
-    
+
     # Write with optimized settings
     final.write_videofile(
         output_path,
@@ -599,39 +610,39 @@ def concatenate_videos_safe(
         preset='medium',
         threads=4
     )
-    
+
     # Cleanup
     for clip in clips:
         clip.close()
     final.close()
-    
+
     return output_path
 
 
 def resize_with_padding(clip, target_w, target_h):
     """Resize clip to target dimensions, adding black padding if needed."""
     clip_w, clip_h = clip.size
-    
+
     if clip_w == target_w and clip_h == target_h:
         return clip
-    
+
     clip_ratio = clip_w / clip_h
     target_ratio = target_w / target_h
-    
+
     if clip_ratio > target_ratio:
         scale_factor = target_w / clip_w
     else:
         scale_factor = target_h / clip_h
-    
+
     new_w = int(clip_w * scale_factor)
     new_h = int(clip_h * scale_factor)
-    
+
     resized = clip.resized(new_size=(new_w, new_h))
     background = ColorClip(
-        size=(target_w, target_h), 
+        size=(target_w, target_h),
         color=(0, 0, 0)
     ).with_duration(clip.duration)
-    
+
     return CompositeVideoClip([
         background,
         resized.with_position("center")

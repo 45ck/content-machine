@@ -12,6 +12,7 @@
 This deep dive synthesizes the complete Model Context Protocol (MCP) ecosystem for content-machine, covering **MCP SDKs** (FastMCP Python/TypeScript), **specialized MCP servers** (Qdrant, Plainly, Nano-Banana, GenAI Toolbox), and **integration patterns**. MCP is the "USB-C for AI"—a standardized protocol that lets LLM applications connect to external tools and data sources.
 
 **Key Findings:**
+
 - **FastMCP (Python):** Production-ready framework with auth, deployment, OpenAPI generation
 - **FastMCP (TypeScript):** Full-featured with sessions, streaming, auth
 - **Qdrant MCP:** Semantic memory layer for vector search
@@ -28,19 +29,19 @@ This deep dive synthesizes the complete Model Context Protocol (MCP) ecosystem f
 
 The **Model Context Protocol (MCP)** is an open standard for connecting LLM applications to external data and tools. It provides:
 
-| Concept | Description | HTTP Analogy |
-|---------|-------------|--------------|
-| **Tools** | Execute code, produce side effects | POST endpoints |
-| **Resources** | Read-only data loading | GET endpoints |
-| **Prompts** | Reusable interaction templates | API schemas |
+| Concept       | Description                        | HTTP Analogy   |
+| ------------- | ---------------------------------- | -------------- |
+| **Tools**     | Execute code, produce side effects | POST endpoints |
+| **Resources** | Read-only data loading             | GET endpoints  |
+| **Prompts**   | Reusable interaction templates     | API schemas    |
 
 ### 1.2 Transport Options
 
-| Transport | Use Case | Latency |
-|-----------|----------|---------|
-| **stdio** | Local tools, CLI | Lowest |
-| **HTTP/SSE** | Remote servers | Medium |
-| **WebSocket** | Bi-directional streaming | Low |
+| Transport     | Use Case                 | Latency |
+| ------------- | ------------------------ | ------- |
+| **stdio**     | Local tools, CLI         | Lowest  |
+| **HTTP/SSE**  | Remote servers           | Medium  |
+| **WebSocket** | Bi-directional streaming | Low     |
 
 ---
 
@@ -53,14 +54,14 @@ FastMCP is the standard Python framework for building MCP servers, created by Pr
 
 ### 2.1 Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Simple Decorators** | `@mcp.tool`, `@mcp.resource`, `@mcp.prompt` |
-| **Enterprise Auth** | Google, GitHub, WorkOS, Azure, Auth0 |
-| **Deployment Tools** | CLI for running and testing |
-| **OpenAPI Generation** | Auto-generate FastAPI from MCP |
-| **Server Composition** | Combine multiple MCP servers |
-| **Proxy Servers** | Route between MCP servers |
+| Feature                | Description                                 |
+| ---------------------- | ------------------------------------------- |
+| **Simple Decorators**  | `@mcp.tool`, `@mcp.resource`, `@mcp.prompt` |
+| **Enterprise Auth**    | Google, GitHub, WorkOS, Azure, Auth0        |
+| **Deployment Tools**   | CLI for running and testing                 |
+| **OpenAPI Generation** | Auto-generate FastAPI from MCP              |
+| **Server Composition** | Combine multiple MCP servers                |
+| **Proxy Servers**      | Route between MCP servers                   |
 
 ### 2.2 Quick Start
 
@@ -171,32 +172,32 @@ TypeScript implementation with additional features for web environments.
 
 ### 3.1 Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Session Management** | Track client sessions |
-| **HTTP Streaming** | SSE-compatible remote access |
-| **Image/Audio Content** | Built-in media handling |
-| **Progress Notifications** | Real-time updates |
-| **Stateless Mode** | Serverless deployments |
-| **Health Checks** | Built-in endpoint |
+| Feature                    | Description                  |
+| -------------------------- | ---------------------------- |
+| **Session Management**     | Track client sessions        |
+| **HTTP Streaming**         | SSE-compatible remote access |
+| **Image/Audio Content**    | Built-in media handling      |
+| **Progress Notifications** | Real-time updates            |
+| **Stateless Mode**         | Serverless deployments       |
+| **Health Checks**          | Built-in endpoint            |
 
 ### 3.2 Quick Start
 
 ```typescript
-import { FastMCP } from "fastmcp";
-import { z } from "zod";
+import { FastMCP } from 'fastmcp';
+import { z } from 'zod';
 
 const server = new FastMCP({
-  name: "Video Pipeline",
-  version: "1.0.0",
+  name: 'Video Pipeline',
+  version: '1.0.0',
 });
 
 server.addTool({
-  name: "generate_script",
-  description: "Generate a video script",
+  name: 'generate_script',
+  description: 'Generate a video script',
   parameters: z.object({
     topic: z.string(),
-    style: z.enum(["viral", "educational", "promotional"]),
+    style: z.enum(['viral', 'educational', 'promotional']),
   }),
   execute: async (args) => {
     const script = await generateScript(args.topic, args.style);
@@ -205,30 +206,30 @@ server.addTool({
 });
 
 server.addTool({
-  name: "render_video",
-  description: "Render video from script",
+  name: 'render_video',
+  description: 'Render video from script',
   parameters: z.object({
     script: z.string(),
-    format: z.enum(["mp4", "webm"]).default("mp4"),
+    format: z.enum(['mp4', 'webm']).default('mp4'),
   }),
   execute: async (args, { reportProgress }) => {
     // Report progress
     await reportProgress({ progress: 0, total: 100 });
-    
+
     const result = await renderVideo(args.script, args.format);
-    
+
     await reportProgress({ progress: 100, total: 100 });
-    
+
     return JSON.stringify(result);
   },
 });
 
 // Start with stdio (local)
-server.start({ transportType: "stdio" });
+server.start({ transportType: 'stdio' });
 
 // Or HTTP (remote)
 server.start({
-  transportType: "httpStream",
+  transportType: 'httpStream',
   httpStream: { port: 8000 },
 });
 ```
@@ -236,35 +237,35 @@ server.start({
 ### 3.3 Image/Audio Content
 
 ```typescript
-import { imageContent, audioContent } from "fastmcp";
-import * as fs from "fs";
+import { imageContent, audioContent } from 'fastmcp';
+import * as fs from 'fs';
 
 server.addTool({
-  name: "generate_thumbnail",
-  description: "Generate video thumbnail",
+  name: 'generate_thumbnail',
+  description: 'Generate video thumbnail',
   parameters: z.object({ videoPath: z.string() }),
   execute: async (args) => {
     const thumbnailPath = await generateThumbnail(args.videoPath);
     const data = fs.readFileSync(thumbnailPath);
-    
+
     return imageContent({
-      data: data.toString("base64"),
-      mimeType: "image/png",
+      data: data.toString('base64'),
+      mimeType: 'image/png',
     });
   },
 });
 
 server.addTool({
-  name: "extract_audio",
-  description: "Extract audio from video",
+  name: 'extract_audio',
+  description: 'Extract audio from video',
   parameters: z.object({ videoPath: z.string() }),
   execute: async (args) => {
     const audioPath = await extractAudio(args.videoPath);
     const data = fs.readFileSync(audioPath);
-    
+
     return audioContent({
-      data: data.toString("base64"),
-      mimeType: "audio/mp3",
+      data: data.toString('base64'),
+      mimeType: 'audio/mp3',
     });
   },
 });
@@ -274,28 +275,28 @@ server.addTool({
 
 ```typescript
 const server = new FastMCP({
-  name: "Stateful Server",
-  version: "1.0.0",
+  name: 'Stateful Server',
+  version: '1.0.0',
 });
 
 // Access session in tools
 server.addTool({
-  name: "track_progress",
+  name: 'track_progress',
   parameters: z.object({ step: z.string() }),
   execute: async (args, { session }) => {
     // Store progress in session
-    session.set("lastStep", args.step);
-    session.set("timestamp", Date.now());
-    
+    session.set('lastStep', args.step);
+    session.set('timestamp', Date.now());
+
     return `Step ${args.step} recorded`;
   },
 });
 
 server.addTool({
-  name: "get_progress",
+  name: 'get_progress',
   parameters: z.object({}),
   execute: async (args, { session }) => {
-    const lastStep = session.get("lastStep");
+    const lastStep = session.get('lastStep');
     return `Last step: ${lastStep}`;
   },
 });
@@ -312,10 +313,10 @@ server.addTool({
 
 #### Tools
 
-| Tool | Description |
-|------|-------------|
+| Tool           | Description                       |
+| -------------- | --------------------------------- |
 | `qdrant-store` | Store information with embeddings |
-| `qdrant-find` | Semantic search for relevant info |
+| `qdrant-find`  | Semantic search for relevant info |
 
 #### Configuration
 
@@ -362,12 +363,12 @@ Agent: "Find video ideas about developer productivity"
 
 #### Tools
 
-| Tool | Description |
-|------|-------------|
-| `list_renderable_items` | List available designs/templates |
-| `get_renderable_items_details` | Get template parameters |
-| `render_item` | Submit render job |
-| `check_render_status` | Check render progress |
+| Tool                           | Description                      |
+| ------------------------------ | -------------------------------- |
+| `list_renderable_items`        | List available designs/templates |
+| `get_renderable_items_details` | Get template parameters          |
+| `render_item`                  | Submit render job                |
+| `check_render_status`          | Check render progress            |
 
 #### Configuration
 
@@ -400,12 +401,12 @@ Agent: "Find video ideas about developer productivity"
 
 #### Features
 
-| Feature | Description |
-|---------|-------------|
-| **Generate Images** | Text-to-image with Gemini 2.5 Flash |
-| **Edit Images** | Modify existing images |
-| **Iterative Editing** | Continue editing last image |
-| **Reference Images** | Style transfer/guidance |
+| Feature               | Description                         |
+| --------------------- | ----------------------------------- |
+| **Generate Images**   | Text-to-image with Gemini 2.5 Flash |
+| **Edit Images**       | Modify existing images              |
+| **Iterative Editing** | Continue editing last image         |
+| **Reference Images**  | Style transfer/guidance             |
 
 #### Configuration
 
@@ -446,12 +447,12 @@ Agent: "Find video ideas about developer productivity"
 
 #### Features
 
-| Feature | Description |
-|---------|-------------|
-| **Natural Language Queries** | SQL generation from English |
-| **Connection Pooling** | Efficient database connections |
-| **Auth Integration** | Secure data access |
-| **OpenTelemetry** | Built-in observability |
+| Feature                      | Description                    |
+| ---------------------------- | ------------------------------ |
+| **Natural Language Queries** | SQL generation from English    |
+| **Connection Pooling**       | Efficient database connections |
+| **Auth Integration**         | Secure data access             |
+| **OpenTelemetry**            | Built-in observability         |
 
 #### Supported Databases
 
@@ -543,13 +544,13 @@ def get_google_trends(keywords: list[str]) -> dict:
     """Get Google Trends data for keywords."""
     pytrends = TrendReq(hl='en-US', tz=360)
     pytrends.build_payload(keywords, timeframe='now 7-d')
-    
+
     interest = pytrends.interest_over_time()
     related = pytrends.related_queries()
-    
+
     return {
         "interest": interest.to_dict(),
-        "related": {k: v['rising'].to_dict() if v['rising'] is not None else [] 
+        "related": {k: v['rising'].to_dict() if v['rising'] is not None else []
                     for k, v in related.items()}
     }
 
@@ -557,15 +558,15 @@ def get_google_trends(keywords: list[str]) -> dict:
 def get_hn_top_stories(limit: int = 10) -> list[dict]:
     """Get top stories from Hacker News."""
     import httpx
-    
+
     resp = httpx.get("https://hacker-news.firebaseio.com/v0/topstories.json")
     story_ids = resp.json()[:limit]
-    
+
     stories = []
     for sid in story_ids:
         resp = httpx.get(f"https://hacker-news.firebaseio.com/v0/item/{sid}.json")
         stories.append(resp.json())
-    
+
     return stories
 
 if __name__ == "__main__":
@@ -589,16 +590,16 @@ def render_video(
     output_path: str = "./output.mp4"
 ) -> dict:
     """Render a video using Remotion."""
-    
+
     # Create props file
     props = {
         "script": script,
         "style": style,
     }
-    
+
     with open("/tmp/props.json", "w") as f:
         json.dump(props, f)
-    
+
     # Call Remotion
     result = subprocess.run([
         "npx", "remotion", "render",
@@ -607,10 +608,10 @@ def render_video(
         output_path,
         "--props=/tmp/props.json"
     ], capture_output=True, text=True)
-    
+
     if result.returncode != 0:
         raise Exception(f"Render failed: {result.stderr}")
-    
+
     return {
         "path": output_path,
         "success": True,
@@ -624,10 +625,10 @@ def add_captions(
 ) -> dict:
     """Add captions to a video."""
     output_path = video_path.replace(".mp4", "_captioned.mp4")
-    
+
     # Use FFmpeg or Remotion for captions
     # ...
-    
+
     return {"path": output_path}
 
 @mcp.tool
@@ -638,7 +639,7 @@ def add_background_music(
 ) -> dict:
     """Add background music to a video."""
     output_path = video_path.replace(".mp4", "_music.mp4")
-    
+
     subprocess.run([
         "ffmpeg", "-i", video_path,
         "-i", music_url,
@@ -646,7 +647,7 @@ def add_background_music(
         "-c:v", "copy",
         output_path
     ])
-    
+
     return {"path": output_path}
 
 if __name__ == "__main__":
@@ -728,47 +729,51 @@ Claude:
 
 ### 7.1 FastMCP Python vs TypeScript
 
-| Feature | Python | TypeScript |
-|---------|--------|------------|
-| **Ecosystem** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
-| **Enterprise Auth** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
-| **Deployment** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
-| **Sessions** | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| **Streaming** | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| **Media Content** | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| Feature             | Python     | TypeScript |
+| ------------------- | ---------- | ---------- |
+| **Ecosystem**       | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐   |
+| **Enterprise Auth** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐   |
+| **Deployment**      | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐   |
+| **Sessions**        | ⭐⭐⭐     | ⭐⭐⭐⭐⭐ |
+| **Streaming**       | ⭐⭐⭐⭐   | ⭐⭐⭐⭐⭐ |
+| **Media Content**   | ⭐⭐⭐     | ⭐⭐⭐⭐⭐ |
 
 **Recommendation:** Python for backend/ML tools, TypeScript for web/media.
 
 ### 7.2 MCP Server Selection
 
-| Server | Use Case | Effort |
-|--------|----------|--------|
-| Qdrant MCP | Semantic memory | Low |
-| Plainly MCP | Template videos | Low |
-| Nano-Banana MCP | Image generation | Low |
-| GenAI Toolbox | Database queries | Medium |
-| Custom FastMCP | Pipeline-specific | High |
+| Server          | Use Case          | Effort |
+| --------------- | ----------------- | ------ |
+| Qdrant MCP      | Semantic memory   | Low    |
+| Plainly MCP     | Template videos   | Low    |
+| Nano-Banana MCP | Image generation  | Low    |
+| GenAI Toolbox   | Database queries  | Medium |
+| Custom FastMCP  | Pipeline-specific | High   |
 
 ---
 
 ## 8. Implementation Priority
 
 ### Phase 1: Core MCP Servers (Week 1)
+
 1. Research MCP server (Reddit, HN, Trends)
 2. Qdrant MCP for idea storage
 3. Claude Desktop configuration
 
 ### Phase 2: Render MCP Server (Week 2)
+
 1. Remotion integration
 2. Caption tools
 3. Music/audio tools
 
 ### Phase 3: Publishing MCP (Week 3)
+
 1. Upload tools (TikTok, YouTube)
 2. Scheduling tools
 3. Analytics integration
 
 ### Phase 4: Composition (Week 4)
+
 1. Server composition
 2. Proxy server for routing
 3. Auth integration
@@ -797,6 +802,7 @@ Claude:
 ---
 
 **Document Statistics:**
+
 - **Tools Covered:** 8 (2 SDKs + 6 servers)
 - **Code Examples:** 15+
 - **Architecture Diagrams:** 1

@@ -26,13 +26,13 @@ The OpenAI Agents SDK is a lightweight yet powerful framework for building multi
 
 ### 1.2 Core Concepts
 
-| Concept | Description |
-|---------|-------------|
-| **Agents** | LLMs configured with instructions, tools, guardrails, and handoffs |
-| **Handoffs** | Specialized tool calls for transferring control between agents |
-| **Guardrails** | Configurable safety checks for input/output validation |
-| **Tracing** | Built-in tracking for debugging and optimization |
-| **Sessions** | Memory management across conversation turns |
+| Concept        | Description                                                        |
+| -------------- | ------------------------------------------------------------------ |
+| **Agents**     | LLMs configured with instructions, tools, guardrails, and handoffs |
+| **Handoffs**   | Specialized tool calls for transferring control between agents     |
+| **Guardrails** | Configurable safety checks for input/output validation             |
+| **Tracing**    | Built-in tracking for debugging and optimization                   |
+| **Sessions**   | Memory management across conversation turns                        |
 
 ### 1.3 Supported Features
 
@@ -220,7 +220,7 @@ const [res1, res2, res3] = await Promise.all([
 ]);
 
 // Pick the best one
-const outputs = [res1, res2, res3].map(r => extractAllTextOutput(r.newItems));
+const outputs = [res1, res2, res3].map((r) => extractAllTextOutput(r.newItems));
 const best = await run(pickerAgent, `Choose best: ${outputs.join('\n\n')}`);
 ```
 
@@ -235,10 +235,12 @@ export const plannerAgent = new Agent({
   instructions: 'Generate 5-20 web searches for the query',
   model: 'gpt-5.2',
   outputType: z.object({
-    searches: z.array(z.object({
-      reason: z.string(),
-      query: z.string(),
-    })),
+    searches: z.array(
+      z.object({
+        reason: z.string(),
+        query: z.string(),
+      })
+    ),
   }),
 });
 
@@ -267,7 +269,7 @@ class ResearchManager {
 
   async _performSearches(plan) {
     // Parallel execution
-    const tasks = plan.searches.map(item => this._search(item));
+    const tasks = plan.searches.map((item) => this._search(item));
     return Promise.all(tasks);
   }
 }
@@ -423,12 +425,12 @@ Open Deep Research is a fully configurable, open source deep research agent that
 
 ### 3.3 Configurable Models
 
-| Stage | Default Model | Purpose |
-|-------|--------------|---------|
-| Summarization | gpt-4.1-mini | Summarize search results |
-| Research | gpt-4.1 | Power search agent |
-| Compression | gpt-4.1 | Compress research findings |
-| Final Report | gpt-4.1 | Write final report |
+| Stage         | Default Model | Purpose                    |
+| ------------- | ------------- | -------------------------- |
+| Summarization | gpt-4.1-mini  | Summarize search results   |
+| Research      | gpt-4.1       | Power search agent         |
+| Compression   | gpt-4.1       | Compress research findings |
+| Final Report  | gpt-4.1       | Write final report         |
 
 ### 3.4 Search API Support
 
@@ -439,11 +441,11 @@ Open Deep Research is a fully configurable, open source deep research agent that
 
 ### 3.5 Performance Results
 
-| Model Config | RACE Score | Total Cost |
-|-------------|------------|------------|
-| GPT-5 | 0.4943 | - |
-| Claude Sonnet 4 | 0.4401 | $187 |
-| gpt-4.1 (default) | 0.4309 | $46 |
+| Model Config      | RACE Score | Total Cost |
+| ----------------- | ---------- | ---------- |
+| GPT-5             | 0.4943     | -          |
+| Claude Sonnet 4   | 0.4401     | $187       |
+| gpt-4.1 (default) | 0.4309     | $46        |
 
 ### 3.6 Running Open Deep Research
 
@@ -471,12 +473,14 @@ const redditMcpTool = hostedMcpTool({
 
 // Trend analysis output schema
 const trendSchema = z.object({
-  trending_topics: z.array(z.object({
-    topic: z.string(),
-    subreddit: z.string(),
-    score: z.number(),
-    relevance: z.string(),
-  })),
+  trending_topics: z.array(
+    z.object({
+      topic: z.string(),
+      subreddit: z.string(),
+      score: z.number(),
+      relevance: z.string(),
+    })
+  ),
   recommended_topics: z.array(z.string()),
 });
 
@@ -502,10 +506,12 @@ const scriptSchema = z.object({
   hook: z.string().describe('Attention-grabbing first 3 seconds'),
   main_points: z.array(z.string()).describe('Key talking points'),
   call_to_action: z.string().describe('Ending CTA'),
-  visual_cues: z.array(z.object({
-    timestamp: z.string(),
-    description: z.string(),
-  })),
+  visual_cues: z.array(
+    z.object({
+      timestamp: z.string(),
+      description: z.string(),
+    })
+  ),
   duration_estimate: z.number().describe('Seconds'),
 });
 
@@ -520,11 +526,14 @@ const scriptAgent = new Agent({
   outputType: scriptSchema,
 });
 
-const script = await run(scriptAgent, `
+const script = await run(
+  scriptAgent,
+  `
   Create a script about: ${trends.recommended_topics[0]}
   Target audience: Developers
   Tone: Excited but authentic
-`);
+`
+);
 ```
 
 ### 4.3 Multi-Agent Video Production Flow
@@ -560,11 +569,14 @@ const orchestrator = new Agent({
   ],
 });
 
-const video = await run(orchestrator, `
+const video = await run(
+  orchestrator,
+  `
   Create a TikTok video about: ${topic}
   Product: ${productName}
   Key features: ${features.join(', ')}
-`);
+`
+);
 ```
 
 ### 4.4 Research → Content Pipeline
@@ -609,27 +621,29 @@ class ContentPipeline {
 
 ### 5.1 OpenAI Agents SDK vs Pydantic AI vs LangGraph
 
-| Feature | OpenAI Agents SDK | Pydantic AI | LangGraph |
-|---------|------------------|-------------|-----------|
-| Language | TypeScript | Python | Python |
-| Structured Output | Zod schemas | Pydantic models | Custom |
-| MCP Support | ✅ Native | ✅ Native | Via tools |
-| Handoffs | ✅ First-class | ✅ Delegation | Via edges |
-| Tracing | ✅ Built-in | ✅ Logfire | ✅ LangSmith |
-| Memory | Sessions | Deps injection | Checkpointing |
-| Voice/Realtime | ✅ WebRTC | ❌ | ❌ |
-| Streaming | ✅ | ✅ | ✅ |
-| Parallelization | ✅ | ✅ | ✅ |
+| Feature           | OpenAI Agents SDK | Pydantic AI     | LangGraph     |
+| ----------------- | ----------------- | --------------- | ------------- |
+| Language          | TypeScript        | Python          | Python        |
+| Structured Output | Zod schemas       | Pydantic models | Custom        |
+| MCP Support       | ✅ Native         | ✅ Native       | Via tools     |
+| Handoffs          | ✅ First-class    | ✅ Delegation   | Via edges     |
+| Tracing           | ✅ Built-in       | ✅ Logfire      | ✅ LangSmith  |
+| Memory            | Sessions          | Deps injection  | Checkpointing |
+| Voice/Realtime    | ✅ WebRTC         | ❌              | ❌            |
+| Streaming         | ✅                | ✅              | ✅            |
+| Parallelization   | ✅                | ✅              | ✅            |
 
 ### 5.2 Recommended Stack for content-machine
 
 **Primary Agent Framework:** OpenAI Agents SDK (TypeScript)
+
 - Native TypeScript aligns with Remotion
 - Excellent MCP support
 - Built-in tracing
 - Research bot pattern fits our needs
 
 **Secondary (Python Services):**
+
 - Pydantic AI for typed Python agents
 - LangGraph for complex stateful workflows
 
@@ -720,9 +734,7 @@ class VideoProductionManager {
       const plan = await this.runner.run(this.agents.planner, topic);
 
       // 2. Research in parallel
-      const researchTasks = plan.searches.map(q =>
-        this.runner.run(this.agents.researcher, q)
-      );
+      const researchTasks = plan.searches.map((q) => this.runner.run(this.agents.researcher, q));
       const research = await Promise.all(researchTasks);
 
       // 3. Write script
@@ -780,13 +792,13 @@ const agent = new Agent({
 
 ### 8.1 Primary Stack
 
-| Component | Recommendation | Reason |
-|-----------|---------------|--------|
-| Agent Framework | OpenAI Agents SDK | TypeScript, MCP, research patterns |
-| Research | GPT Researcher | Proven deep research |
-| Structured Output | Zod | TypeScript native |
-| Tracing | Built-in + Langfuse | Comprehensive observability |
-| Memory | MemorySession + Qdrant | Local + semantic |
+| Component         | Recommendation         | Reason                             |
+| ----------------- | ---------------------- | ---------------------------------- |
+| Agent Framework   | OpenAI Agents SDK      | TypeScript, MCP, research patterns |
+| Research          | GPT Researcher         | Proven deep research               |
+| Structured Output | Zod                    | TypeScript native                  |
+| Tracing           | Built-in + Langfuse    | Comprehensive observability        |
+| Memory            | MemorySession + Qdrant | Local + semantic                   |
 
 ### 8.2 Integration Architecture
 
@@ -820,6 +832,7 @@ const agent = new Agent({
 ---
 
 **Next Steps:**
+
 1. Implement TrendAgent with Reddit MCP integration
 2. Create ScriptAgent with structured Zod schemas
 3. Build VisualAgent for Playwright capture coordination

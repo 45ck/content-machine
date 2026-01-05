@@ -2,7 +2,7 @@
 
 **Date:** 2026-01-02  
 **Category:** Platform Infrastructure  
-**Status:** Complete  
+**Status:** Complete
 
 ---
 
@@ -11,6 +11,7 @@
 This deep dive analyzes the foundational infrastructure vendored for content-machine: vector databases, orchestration platforms, job queues, observability tools, agent frameworks, schema validation, web connectors, and research agents.
 
 **Key Findings:**
+
 1. **Qdrant** is the recommended vector database (Rust, blazing fast, MIT)
 2. **Temporal** is superior for durable workflow execution; **n8n** for visual workflows
 3. **BullMQ** is the definitive TypeScript queue (Redis-based)
@@ -24,13 +25,15 @@ This deep dive analyzes the foundational infrastructure vendored for content-mac
 ## Vector Databases
 
 ### 1. Qdrant ⭐ (Champion)
+
 **Language:** Rust  
 **License:** Apache-2.0  
-**Stars:** 16k+  
+**Stars:** 16k+
 
 High-performance vector similarity search engine.
 
 **Key Features:**
+
 - Written in Rust (speed + reliability)
 - Production-ready
 - Extended filtering support
@@ -39,6 +42,7 @@ High-performance vector similarity search engine.
 - Client libraries: Python, Node.js, Go, Rust, .NET, Java
 
 **Quick Start:**
+
 ```bash
 # Docker
 docker run -p 6333:6333 qdrant/qdrant
@@ -58,6 +62,7 @@ qdrant = QdrantClient("http://localhost:6333")
 ```
 
 **Use Cases:**
+
 - Embedding storage for semantic search
 - Similar video retrieval
 - Content deduplication
@@ -65,13 +70,15 @@ qdrant = QdrantClient("http://localhost:6333")
 ---
 
 ### 2. Weaviate
+
 **Language:** Go  
 **License:** BSD-3-Clause  
-**Stars:** 10k+  
+**Stars:** 10k+
 
 Cloud-native vector database with built-in ML model integration.
 
 **Key Features:**
+
 - Hybrid search (vector + keyword)
 - Built-in vectorizers (OpenAI, Cohere, HuggingFace)
 - GraphQL API
@@ -94,8 +101,9 @@ client.collections.create(
 ---
 
 ### 3. MinIO ⭐ (Object Storage)
+
 **Type:** S3-compatible object storage  
-**License:** AGPL-3.0  
+**License:** AGPL-3.0
 
 **Use Case:** Store rendered videos, assets, thumbnails
 
@@ -111,13 +119,15 @@ docker run -p 9000:9000 -p 9001:9001 \
 ## Orchestration Platforms
 
 ### 1. Temporal ⭐ (Champion for Durable Execution)
+
 **Language:** Go  
 **License:** MIT  
-**Stars:** 11k+  
+**Stars:** 11k+
 
 Durable execution platform for resilient workflows.
 
 **Key Features:**
+
 - Automatic retry on failures
 - Long-running workflow support
 - Version-safe updates
@@ -130,11 +140,13 @@ temporal server start-dev
 ```
 
 **Concepts:**
+
 - **Workflow:** Orchestration logic (survives crashes)
 - **Activity:** Individual task execution
 - **Worker:** Process that runs activities
 
 **When to Use:**
+
 - Complex multi-step pipelines
 - Long-running async operations
 - Business-critical workflows
@@ -142,13 +154,15 @@ temporal server start-dev
 ---
 
 ### 2. n8n ⭐ (Champion for Visual Workflows)
+
 **Language:** TypeScript  
 **License:** Sustainable Use License (fair-code)  
-**Stars:** 43k+  
+**Stars:** 43k+
 
 Visual workflow automation with 400+ integrations.
 
 **Key Features:**
+
 - No-code / low-code interface
 - AI-native (LangChain integration)
 - 400+ pre-built integrations
@@ -164,6 +178,7 @@ docker run -it --rm --name n8n -p 5678:5678 docker.n8n.io/n8nio/n8n
 ```
 
 **When to Use:**
+
 - Visual workflow design
 - Non-developer team members
 - Rapid prototyping
@@ -172,6 +187,7 @@ docker run -it --rm --name n8n -p 5678:5678 docker.n8n.io/n8nio/n8n
 ---
 
 ### 3. Airflow
+
 **Language:** Python  
 **Use Case:** DAG-based batch processing  
 **Note:** Overkill for real-time; better for scheduled jobs
@@ -181,13 +197,15 @@ docker run -it --rm --name n8n -p 5678:5678 docker.n8n.io/n8nio/n8n
 ## Job Queues
 
 ### 1. BullMQ ⭐ (Champion for TypeScript)
+
 **Language:** TypeScript  
 **License:** MIT  
-**Backend:** Redis  
+**Backend:** Redis
 
 The fastest Redis-based distributed queue for Node.js.
 
 **Key Features:**
+
 - Rock-solid stability
 - Atomic operations
 - Rate limiting
@@ -211,6 +229,7 @@ const worker = new Worker('video-render', async (job) => {
 ```
 
 **Use Cases:**
+
 - Video rendering pipeline
 - Background processing
 - Scheduled tasks
@@ -219,9 +238,10 @@ const worker = new Worker('video-render', async (job) => {
 ---
 
 ### 2. RQ (Redis Queue)
+
 **Language:** Python  
 **License:** BSD  
-**Backend:** Redis  
+**Backend:** Redis
 
 Simple Python job queue.
 
@@ -236,6 +256,7 @@ job = q.enqueue(render_video, video_config)
 ---
 
 ### 3. Celery
+
 **Language:** Python  
 **License:** BSD  
 **Use Case:** Distributed task processing (heavier than RQ)
@@ -245,13 +266,15 @@ job = q.enqueue(render_video, video_config)
 ## Observability
 
 ### 1. Langfuse ⭐ (Champion for LLM Observability)
+
 **Language:** TypeScript + Python  
 **License:** MIT  
-**Stars:** 6k+  
+**Stars:** 6k+
 
 Open-source LLM engineering platform.
 
 **Core Features:**
+
 - LLM tracing (all prompts, completions, tokens)
 - Prompt management (version control)
 - Evaluations (LLM-as-judge, user feedback)
@@ -260,16 +283,18 @@ Open-source LLM engineering platform.
 - Comprehensive API
 
 **Self-Hosting:**
+
 ```yaml
 # docker-compose.yml
 services:
   langfuse:
     image: langfuse/langfuse
     ports:
-      - "3000:3000"
+      - '3000:3000'
 ```
 
 **Python Integration:**
+
 ```python
 from langfuse import Langfuse
 
@@ -284,8 +309,9 @@ span.end(output=result)
 ---
 
 ### 2. Promptfoo
+
 **Type:** LLM evaluation framework  
-**Use Case:** Systematic prompt testing  
+**Use Case:** Systematic prompt testing
 
 ```bash
 npx promptfoo@latest init
@@ -295,27 +321,31 @@ npx promptfoo@latest eval
 ---
 
 ### 3. Sentry
+
 **Type:** Error tracking  
-**Use Case:** Production error monitoring  
+**Use Case:** Production error monitoring
 
 ---
 
 ### 4. OpenTelemetry
+
 **Type:** Distributed tracing standard  
-**Use Case:** Cross-service observability  
+**Use Case:** Cross-service observability
 
 ---
 
 ## Agent Frameworks
 
 ### 1. Pydantic AI ⭐ (Champion for Python Agents)
+
 **Creator:** Pydantic Team  
 **License:** MIT  
-**Philosophy:** "FastAPI for GenAI"  
+**Philosophy:** "FastAPI for GenAI"
 
 Production-grade agent framework with Pydantic validation.
 
 **Key Features:**
+
 - Model-agnostic (40+ providers)
 - Type-safe with IDE support
 - Tool calling with dependency injection
@@ -338,6 +368,7 @@ print(result.output)
 ```
 
 **Tool Example:**
+
 ```python
 from dataclasses import dataclass
 from pydantic_ai import Agent, RunContext
@@ -356,37 +387,42 @@ async def get_user(ctx: RunContext[Dependencies], user_id: int) -> dict:
 ---
 
 ### 2. LangGraph
+
 **Type:** Graph-based agent orchestration  
 **Use Case:** Complex multi-step agent workflows  
-**Note:** Used by Open Deep Research  
+**Note:** Used by Open Deep Research
 
 ---
 
 ### 3. LangChain
+
 **Type:** LLM application framework  
 **Use Case:** Chains, agents, tools  
-**Note:** Good for building blocks, can be verbose  
+**Note:** Good for building blocks, can be verbose
 
 ---
 
 ### 4. CrewAI
+
 **Type:** Multi-agent collaboration  
-**Use Case:** Team of specialized agents  
+**Use Case:** Team of specialized agents
 
 ---
 
 ### 5. LlamaIndex
+
 **Type:** RAG framework  
-**Use Case:** Document retrieval, indexing  
+**Use Case:** Document retrieval, indexing
 
 ---
 
 ## Schema Validation
 
 ### 1. Zod ⭐ (Champion for TypeScript)
+
 **Language:** TypeScript  
 **License:** MIT  
-**Stars:** 33k+  
+**Stars:** 33k+
 
 TypeScript-first schema validation with static type inference.
 
@@ -410,8 +446,9 @@ const config = VideoConfig.parse(input);
 ---
 
 ### 2. Pydantic ⭐ (Champion for Python)
+
 **Language:** Python  
-**Use Case:** Data validation in FastAPI, agents, etc.  
+**Use Case:** Data validation in FastAPI, agents, etc.
 
 ```python
 from pydantic import BaseModel
@@ -427,7 +464,8 @@ class VideoConfig(BaseModel):
 ---
 
 ### 3. Instructor ⭐ (Champion for LLM Structured Outputs)
-**Use Case:** Extract structured data from LLM outputs  
+
+**Use Case:** Extract structured data from LLM outputs
 
 ```python
 import instructor
@@ -451,20 +489,23 @@ plan = client.chat.completions.create(
 ---
 
 ### 4. AJV
+
 **Type:** JSON Schema validator (JavaScript)  
-**Use Case:** Runtime validation against JSON schemas  
+**Use Case:** Runtime validation against JSON schemas
 
 ---
 
 ## Web Research Tools
 
 ### 1. Firecrawl ⭐ (Champion for Web Crawling)
+
 **Type:** Web scraping API  
-**License:** AGPL-3.0 (commercial options)  
+**License:** AGPL-3.0 (commercial options)
 
 Crawl websites and convert to LLM-ready markdown.
 
 **Key Features:**
+
 - URL → clean markdown
 - Crawl entire sites
 - Map all URLs (fast)
@@ -491,12 +532,14 @@ result = app.crawl_url('https://docs.example.com', {
 ---
 
 ### 2. Tavily ⭐ (Champion for AI Search)
+
 **Type:** Search API for AI agents  
-**License:** Proprietary (free tier available)  
+**License:** Proprietary (free tier available)
 
 Purpose-built search for LLMs.
 
 **Key Features:**
+
 - Search with source citations
 - RAG context generation
 - Q&A search
@@ -521,8 +564,9 @@ answer = client.qna_search(query="Who won the World Cup 2022?")
 ---
 
 ### 3. PyTrends (Google Trends)
+
 **Type:** Unofficial Google Trends API  
-**Use Case:** Trend research  
+**Use Case:** Trend research
 
 ```python
 from pytrends.request import TrendReq
@@ -535,20 +579,23 @@ interest = pytrends.interest_over_time()
 ---
 
 ### 4. HackerNews Algolia Search
+
 **Type:** HN search API  
-**Use Case:** Tech trend research  
+**Use Case:** Tech trend research
 
 ---
 
 ## Research Agents
 
 ### 1. GPT Researcher ⭐
+
 **License:** MIT  
-**Stars:** 14k+  
+**Stars:** 14k+
 
 Autonomous research agent for comprehensive reports.
 
 **Architecture:**
+
 1. Generate research questions
 2. Crawl and gather information
 3. Summarize and source-track
@@ -556,6 +603,7 @@ Autonomous research agent for comprehensive reports.
 5. Generate final report
 
 **Features:**
+
 - 2000+ word reports
 - 20+ source aggregation
 - PDF/Word export
@@ -576,12 +624,14 @@ report = await researcher.conduct_research()
 ---
 
 ### 2. Open Deep Research ⭐ (LangChain)
+
 **Framework:** LangGraph  
-**License:** MIT  
+**License:** MIT
 
 Open-source deep research agent competitive with commercial solutions.
 
 **Key Features:**
+
 - Multi-model support
 - MCP compatibility
 - Configurable search APIs
@@ -589,6 +639,7 @@ Open-source deep research agent competitive with commercial solutions.
 - Evaluation framework (Deep Research Bench)
 
 **Architecture:**
+
 - Summarization model
 - Research model (search agent)
 - Compression model
@@ -605,13 +656,15 @@ langgraph dev
 ## Review/Admin UI
 
 ### 1. Appsmith ⭐
+
 **Type:** Low-code internal tools  
 **License:** Apache-2.0  
-**Stars:** 30k+  
+**Stars:** 30k+
 
 Build admin panels, dashboards, and approval workflows.
 
 **Key Features:**
+
 - Visual app builder
 - 45+ database connectors
 - REST/GraphQL support
@@ -619,6 +672,7 @@ Build admin panels, dashboards, and approval workflows.
 - Self-hostable
 
 **Use Cases:**
+
 - Content review dashboard
 - Video approval workflow
 - Analytics panels
@@ -626,13 +680,15 @@ Build admin panels, dashboards, and approval workflows.
 ---
 
 ### 2. Budibase
+
 **Type:** Low-code platform  
 **License:** GPL-3.0  
-**Stars:** 20k+  
+**Stars:** 20k+
 
 Similar to Appsmith with different design philosophy.
 
 **Key Features:**
+
 - Open-source
 - Database integration
 - Automation workflows
@@ -641,57 +697,64 @@ Similar to Appsmith with different design philosophy.
 ---
 
 ### 3. React Admin
+
 **Type:** React framework for admin UIs  
-**Use Case:** Custom admin panel development  
+**Use Case:** Custom admin panel development
 
 ---
 
 ## Recommended Stack for content-machine
 
 ### Storage Layer
-| Component | Tool | Purpose |
-|-----------|------|---------|
-| Object Storage | MinIO | Videos, assets, thumbnails |
-| Vector DB | Qdrant | Embeddings, semantic search |
-| Queue Backend | Redis | BullMQ backend |
-| Database | PostgreSQL | Metadata, configs |
+
+| Component      | Tool       | Purpose                     |
+| -------------- | ---------- | --------------------------- |
+| Object Storage | MinIO      | Videos, assets, thumbnails  |
+| Vector DB      | Qdrant     | Embeddings, semantic search |
+| Queue Backend  | Redis      | BullMQ backend              |
+| Database       | PostgreSQL | Metadata, configs           |
 
 ### Orchestration Layer
-| Component | Tool | Purpose |
-|-----------|------|---------|
-| Workflows | Temporal | Complex pipelines, durability |
-| Visual Workflows | n8n | Integrations, prototyping |
-| Job Queue | BullMQ | Background tasks |
+
+| Component        | Tool     | Purpose                       |
+| ---------------- | -------- | ----------------------------- |
+| Workflows        | Temporal | Complex pipelines, durability |
+| Visual Workflows | n8n      | Integrations, prototyping     |
+| Job Queue        | BullMQ   | Background tasks              |
 
 ### Agent Layer
-| Component | Tool | Purpose |
-|-----------|------|---------|
-| Python Agents | Pydantic AI | Content planning, research |
-| LLM Structured Output | Instructor | Structured data extraction |
-| Research | Open Deep Research | Trend research automation |
+
+| Component             | Tool               | Purpose                    |
+| --------------------- | ------------------ | -------------------------- |
+| Python Agents         | Pydantic AI        | Content planning, research |
+| LLM Structured Output | Instructor         | Structured data extraction |
+| Research              | Open Deep Research | Trend research automation  |
 
 ### Observability Layer
-| Component | Tool | Purpose |
-|-----------|------|---------|
-| LLM Tracing | Langfuse | Debug, monitor, evaluate |
-| Error Tracking | Sentry | Production errors |
-| Metrics | OpenTelemetry | Cross-service metrics |
-| Eval | Promptfoo | Prompt testing |
+
+| Component      | Tool          | Purpose                  |
+| -------------- | ------------- | ------------------------ |
+| LLM Tracing    | Langfuse      | Debug, monitor, evaluate |
+| Error Tracking | Sentry        | Production errors        |
+| Metrics        | OpenTelemetry | Cross-service metrics    |
+| Eval           | Promptfoo     | Prompt testing           |
 
 ### Schema Layer
-| Component | Tool | Purpose |
-|-----------|------|---------|
-| TypeScript | Zod | Runtime validation |
-| Python | Pydantic | Data models |
+
+| Component  | Tool       | Purpose               |
+| ---------- | ---------- | --------------------- |
+| TypeScript | Zod        | Runtime validation    |
+| Python     | Pydantic   | Data models           |
 | LLM Output | Instructor | Structured extraction |
 
 ### Web Research Layer
-| Component | Tool | Purpose |
-|-----------|------|---------|
-| Web Crawling | Firecrawl | Site → Markdown |
-| AI Search | Tavily | Agent search |
-| Trends | PyTrends | Google Trends |
-| HackerNews | Algolia API | Tech trends |
+
+| Component    | Tool        | Purpose         |
+| ------------ | ----------- | --------------- |
+| Web Crawling | Firecrawl   | Site → Markdown |
+| AI Search    | Tavily      | Agent search    |
+| Trends       | PyTrends    | Google Trends   |
+| HackerNews   | Algolia API | Tech trends     |
 
 ---
 
@@ -704,29 +767,29 @@ graph TB
         Firecrawl[Firecrawl]
         GPTRes[GPT Researcher]
     end
-    
+
     subgraph Orchestration
         Temporal[Temporal]
         BullMQ[BullMQ]
         n8n[n8n]
     end
-    
+
     subgraph Agents
         PydanticAI[Pydantic AI]
         Instructor[Instructor]
     end
-    
+
     subgraph Storage
         MinIO[MinIO]
         Qdrant[Qdrant]
         Redis[Redis]
     end
-    
+
     subgraph Observability
         Langfuse[Langfuse]
         Sentry[Sentry]
     end
-    
+
     Research --> PydanticAI
     PydanticAI --> Temporal
     Temporal --> BullMQ
@@ -768,4 +831,4 @@ graph TB
 
 **Document ID:** DD-048  
 **Last Updated:** 2026-01-02  
-**Author:** Research Agent  
+**Author:** Research Agent

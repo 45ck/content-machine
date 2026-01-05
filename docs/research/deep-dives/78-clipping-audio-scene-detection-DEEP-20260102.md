@@ -34,16 +34,16 @@ FunClip is a **fully open-source automated video clipping tool** using Alibaba's
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Paraformer-Large** | Industrial-grade Chinese ASR (13M+ downloads) |
-| **SeACo-Paraformer** | Hotword customization |
-| **CAM++ Speaker Recognition** | Clip by speaker ID |
-| **LLM Smart Clipping** | GPT/Qwen integration |
-| **Gradio UI** | Web-based interface |
-| **SRT Generation** | Full video subtitles |
-| **Multi-segment Clipping** | Free selection |
-| **English Support** | Since v2.0 |
+| Feature                       | Description                                   |
+| ----------------------------- | --------------------------------------------- |
+| **Paraformer-Large**          | Industrial-grade Chinese ASR (13M+ downloads) |
+| **SeACo-Paraformer**          | Hotword customization                         |
+| **CAM++ Speaker Recognition** | Clip by speaker ID                            |
+| **LLM Smart Clipping**        | GPT/Qwen integration                          |
+| **Gradio UI**                 | Web-based interface                           |
+| **SRT Generation**            | Full video subtitles                          |
+| **Multi-segment Clipping**    | Free selection                                |
+| **English Support**           | Since v2.0                                    |
 
 #### LLM Clipping Workflow
 
@@ -103,12 +103,12 @@ python funclip/videoclipper.py --stage 2 \
 
 #### ASR Models Used
 
-| Model | Purpose |
-|-------|---------|
-| **Paraformer-Large** | Main Chinese ASR |
-| **SeACo-Paraformer** | Hotword customization |
-| **CAM++** | Speaker recognition/diarization |
-| **Whisper** | English (optional) |
+| Model                | Purpose                         |
+| -------------------- | ------------------------------- |
+| **Paraformer-Large** | Main Chinese ASR                |
+| **SeACo-Paraformer** | Hotword customization           |
+| **CAM++**            | Speaker recognition/diarization |
+| **Whisper**          | English (optional)              |
 
 ---
 
@@ -128,15 +128,15 @@ PySceneDetect is a **video scene detection and analysis tool** for finding cuts,
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Content Detection** | Detect fast cuts |
-| **Adaptive Detection** | Handles camera movement |
-| **Threshold Detection** | Fade in/out detection |
-| **Video Splitting** | FFmpeg/mkvmerge integration |
-| **Frame Saving** | Save frames from each scene |
-| **Python API** | Full programmatic control |
-| **CLI** | Command-line interface |
+| Feature                 | Description                 |
+| ----------------------- | --------------------------- |
+| **Content Detection**   | Detect fast cuts            |
+| **Adaptive Detection**  | Handles camera movement     |
+| **Threshold Detection** | Fade in/out detection       |
+| **Video Splitting**     | FFmpeg/mkvmerge integration |
+| **Frame Saving**        | Save frames from each scene |
+| **Python API**          | Full programmatic control   |
+| **CLI**                 | Command-line interface      |
 
 #### Installation
 
@@ -193,26 +193,26 @@ from scenedetect.video_splitter import split_video_ffmpeg
 def split_video_into_scenes(video_path, threshold=27.0):
     # Open video
     video = open_video(video_path)
-    
+
     # Create scene manager with detector
     scene_manager = SceneManager()
     scene_manager.add_detector(ContentDetector(threshold=threshold))
-    
+
     # Detect scenes
     scene_manager.detect_scenes(video, show_progress=True)
     scene_list = scene_manager.get_scene_list()
-    
+
     # Split video
     split_video_ffmpeg(video_path, scene_list, show_progress=True)
 ```
 
 #### Detection Algorithms
 
-| Detector | Use Case |
-|----------|----------|
-| **ContentDetector** | Fast cuts based on HSL changes |
-| **AdaptiveDetector** | Two-pass, handles camera movement |
-| **ThresholdDetector** | Fade in/out detection |
+| Detector              | Use Case                          |
+| --------------------- | --------------------------------- |
+| **ContentDetector**   | Fast cuts based on HSL changes    |
+| **AdaptiveDetector**  | Two-pass, handles camera movement |
+| **ThresholdDetector** | Fade in/out detection             |
 
 ---
 
@@ -232,24 +232,24 @@ Kokoro-FastAPI is a **Dockerized FastAPI wrapper** for the Kokoro-82M text-to-sp
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **OpenAI Compatible** | Drop-in replacement for OpenAI TTS |
-| **Multi-language** | English, Japanese, Chinese (Vietnamese soon) |
-| **GPU Accelerated** | NVIDIA CUDA or CPU inference |
-| **Streaming** | Real-time audio generation |
-| **Voice Mixing** | Weighted voice combinations |
-| **Timestamped Captions** | Per-word timestamps |
-| **Multiple Formats** | mp3, wav, opus, flac, m4a, pcm |
-| **Web UI** | Built-in interface at /web |
+| Feature                  | Description                                  |
+| ------------------------ | -------------------------------------------- |
+| **OpenAI Compatible**    | Drop-in replacement for OpenAI TTS           |
+| **Multi-language**       | English, Japanese, Chinese (Vietnamese soon) |
+| **GPU Accelerated**      | NVIDIA CUDA or CPU inference                 |
+| **Streaming**            | Real-time audio generation                   |
+| **Voice Mixing**         | Weighted voice combinations                  |
+| **Timestamped Captions** | Per-word timestamps                          |
+| **Multiple Formats**     | mp3, wav, opus, flac, m4a, pcm               |
+| **Web UI**               | Built-in interface at /web                   |
 
 #### Performance
 
-| Metric | GPU | CPU |
-|--------|-----|-----|
-| **Realtime Factor** | 35x-100x | Variable |
-| **First Token Latency** | ~300ms | ~3500ms |
-| **Tokens/Second** | ~137 | Lower |
+| Metric                  | GPU      | CPU      |
+| ----------------------- | -------- | -------- |
+| **Realtime Factor**     | 35x-100x | Variable |
+| **First Token Latency** | ~300ms   | ~3500ms  |
+| **Tokens/Second**       | ~137     | Lower    |
 
 #### Quick Start
 
@@ -417,20 +417,20 @@ with open("speech.wav", "wb") as f:
 
 ### 4.1 Clipping Tools
 
-| Tool | ASR | LLM Clipping | Speaker ID | Output |
-|------|-----|--------------|------------|--------|
-| **FunClip** | Paraformer (Chinese/English) | ✅ GPT/Qwen | ✅ CAM++ | Video + SRT |
-| **PySceneDetect** | N/A | ❌ | ❌ | Video segments |
-| **Clip-Anything** | N/A | ✅ | ❌ | Video clips |
+| Tool              | ASR                          | LLM Clipping | Speaker ID | Output         |
+| ----------------- | ---------------------------- | ------------ | ---------- | -------------- |
+| **FunClip**       | Paraformer (Chinese/English) | ✅ GPT/Qwen  | ✅ CAM++   | Video + SRT    |
+| **PySceneDetect** | N/A                          | ❌           | ❌         | Video segments |
+| **Clip-Anything** | N/A                          | ✅           | ❌         | Video clips    |
 
 ### 4.2 TTS Tools
 
-| Tool | OpenAI Compatible | Languages | Streaming | Voice Mixing |
-|------|-------------------|-----------|-----------|--------------|
-| **Kokoro-FastAPI** | ✅ | EN, JA, ZH | ✅ | ✅ |
-| **EdgeTTS** | ❌ | 30+ | ❌ | ❌ |
-| **Coqui TTS** | ❌ | Many | ❌ | ❌ |
-| **ElevenLabs** | ❌ | Many | ✅ | ❌ |
+| Tool               | OpenAI Compatible | Languages  | Streaming | Voice Mixing |
+| ------------------ | ----------------- | ---------- | --------- | ------------ |
+| **Kokoro-FastAPI** | ✅                | EN, JA, ZH | ✅        | ✅           |
+| **EdgeTTS**        | ❌                | 30+        | ❌        | ❌           |
+| **Coqui TTS**      | ❌                | Many       | ❌        | ❌           |
+| **ElevenLabs**     | ❌                | Many       | ✅        | ❌           |
 
 ---
 
@@ -508,12 +508,12 @@ with open("speech.wav", "wb") as f:
 
 ### Recommended Stack
 
-| Component | Tool | Rationale |
-|-----------|------|-----------|
-| **Scene Detection** | PySceneDetect | Fast, accurate, Python |
-| **AI Clipping** | FunClip | LLM-based, speaker ID |
-| **TTS** | Kokoro-FastAPI | OpenAI-compatible, fast |
-| **Caption Sync** | WhisperX + Kokoro timestamps | Word-level accuracy |
+| Component           | Tool                         | Rationale               |
+| ------------------- | ---------------------------- | ----------------------- |
+| **Scene Detection** | PySceneDetect                | Fast, accurate, Python  |
+| **AI Clipping**     | FunClip                      | LLM-based, speaker ID   |
+| **TTS**             | Kokoro-FastAPI               | OpenAI-compatible, fast |
+| **Caption Sync**    | WhisperX + Kokoro timestamps | Word-level accuracy     |
 
 ### Integration Example
 
@@ -603,10 +603,10 @@ client = OpenAI(base_url="http://localhost:8880/v1", api_key="not-needed")
 
 ## 8. Document Metadata
 
-| Field | Value |
-|-------|-------|
-| **Document ID** | DD-078 |
-| **Created** | 2026-01-02 |
-| **Author** | Research Agent |
-| **Status** | Complete |
+| Field            | Value          |
+| ---------------- | -------------- |
+| **Document ID**  | DD-078         |
+| **Created**      | 2026-01-02     |
+| **Author**       | Research Agent |
+| **Status**       | Complete       |
 | **Dependencies** | DD-055, DD-064 |

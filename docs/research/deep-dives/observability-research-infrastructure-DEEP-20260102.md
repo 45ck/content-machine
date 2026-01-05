@@ -1,4 +1,5 @@
 # Observability, Research Tools & Infrastructure - Deep Dive Analysis
+
 **Date:** 2026-01-02  
 **Category:** Deep Research  
 **Status:** Complete
@@ -11,16 +12,16 @@ This deep dive analyzes the observability, research tools, and infrastructure co
 
 ### Key Discoveries
 
-| Category | Tool | Key Value |
-|----------|------|-----------|
-| **LLM Observability** | Langfuse | Tracing + Prompt Management + Evals |
-| **Prompt Testing** | Promptfoo | LLM evals + red teaming + CI/CD |
-| **Deep Research** | GPT Researcher | Autonomous research with 20+ sources |
-| **Deep Research** | Open Deep Research | LangGraph-based, top-6 on benchmark |
-| **Job Queue** | BullMQ | Redis-based, parent-child jobs, rate limiting |
-| **MCP Infrastructure** | Postgres MCP Pro | Index tuning + health checks + schema intelligence |
-| **MCP Infrastructure** | Qdrant MCP | Vector search memory layer |
-| **Video Rendering** | Plainly MCP | Programmatic video rendering via MCP |
+| Category               | Tool               | Key Value                                          |
+| ---------------------- | ------------------ | -------------------------------------------------- |
+| **LLM Observability**  | Langfuse           | Tracing + Prompt Management + Evals                |
+| **Prompt Testing**     | Promptfoo          | LLM evals + red teaming + CI/CD                    |
+| **Deep Research**      | GPT Researcher     | Autonomous research with 20+ sources               |
+| **Deep Research**      | Open Deep Research | LangGraph-based, top-6 on benchmark                |
+| **Job Queue**          | BullMQ             | Redis-based, parent-child jobs, rate limiting      |
+| **MCP Infrastructure** | Postgres MCP Pro   | Index tuning + health checks + schema intelligence |
+| **MCP Infrastructure** | Qdrant MCP         | Vector search memory layer                         |
+| **Video Rendering**    | Plainly MCP        | Programmatic video rendering via MCP               |
 
 ---
 
@@ -36,13 +37,13 @@ Langfuse is an **open source LLM engineering platform** for development, monitor
 
 #### Core Features
 
-| Feature | Description |
-|---------|-------------|
-| **Tracing** | Track LLM calls, retrieval, embedding, agent actions |
-| **Prompt Management** | Version control, collaborative iteration, cached |
-| **Evaluations** | LLM-as-judge, user feedback, manual labeling |
-| **Datasets** | Test sets and benchmarks for regression testing |
-| **Playground** | Test prompts and model configs interactively |
+| Feature               | Description                                          |
+| --------------------- | ---------------------------------------------------- |
+| **Tracing**           | Track LLM calls, retrieval, embedding, agent actions |
+| **Prompt Management** | Version control, collaborative iteration, cached     |
+| **Evaluations**       | LLM-as-judge, user feedback, manual labeling         |
+| **Datasets**          | Test sets and benchmarks for regression testing      |
+| **Playground**        | Test prompts and model configs interactively         |
 
 #### Integration Pattern
 
@@ -67,13 +68,13 @@ video_pipeline()  # Automatically traced
 
 #### Key Integrations
 
-| Integration | Type | Notes |
-|-------------|------|-------|
-| **LangChain** | Python/JS | Callback handler for auto-tracing |
-| **LlamaIndex** | Python | Callback system integration |
-| **CrewAI** | Python | Multi-agent tracing |
-| **Vercel AI SDK** | JS/TS | Next.js, React, Svelte |
-| **LiteLLM** | Python/Proxy | 100+ LLM providers |
+| Integration       | Type         | Notes                             |
+| ----------------- | ------------ | --------------------------------- |
+| **LangChain**     | Python/JS    | Callback handler for auto-tracing |
+| **LlamaIndex**    | Python       | Callback system integration       |
+| **CrewAI**        | Python       | Multi-agent tracing               |
+| **Vercel AI SDK** | JS/TS        | Next.js, React, Svelte            |
+| **LiteLLM**       | Python/Proxy | 100+ LLM providers                |
 
 #### Deployment Options
 
@@ -94,13 +95,13 @@ Promptfoo is a **developer-first LLM evaluation and red-teaming tool** that runs
 
 #### Core Capabilities
 
-| Capability | Description |
-|------------|-------------|
-| **Prompt Testing** | Automated evaluations with test cases |
-| **Red Teaming** | Vulnerability scanning for LLM apps |
-| **Model Comparison** | Side-by-side OpenAI vs Anthropic vs Ollama |
-| **CI/CD Integration** | Automate checks in pipelines |
-| **Code Scanning** | PR reviews for LLM security/compliance |
+| Capability            | Description                                |
+| --------------------- | ------------------------------------------ |
+| **Prompt Testing**    | Automated evaluations with test cases      |
+| **Red Teaming**       | Vulnerability scanning for LLM apps        |
+| **Model Comparison**  | Side-by-side OpenAI vs Anthropic vs Ollama |
+| **CI/CD Integration** | Automate checks in pipelines               |
+| **Code Scanning**     | PR reviews for LLM security/compliance     |
 
 #### Usage Pattern
 
@@ -115,8 +116,8 @@ npx promptfoo eval
 ```yaml
 # promptfooconfig.yaml
 prompts:
-  - "Write a TikTok script about {{topic}}"
-  - "Generate a viral short video script for {{topic}}"
+  - 'Write a TikTok script about {{topic}}'
+  - 'Generate a viral short video script for {{topic}}'
 
 providers:
   - openai:gpt-4o
@@ -125,12 +126,12 @@ providers:
 
 tests:
   - vars:
-      topic: "coding tips"
+      topic: 'coding tips'
     assert:
       - type: contains
-        value: "hook"
+        value: 'hook'
       - type: llm-rubric
-        value: "Script should be engaging and under 60 seconds"
+        value: 'Script should be engaging and under 60 seconds'
 ```
 
 #### Key Value for content-machine
@@ -175,14 +176,14 @@ GPT Researcher is an **open deep research agent** for web and local research tas
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Multi-Source** | Aggregates 20+ sources per research |
-| **Long Reports** | Generates 2000+ word reports |
-| **Image Scraping** | Smart image filtering for reports |
-| **Local Documents** | Research from PDF, Word, Excel |
-| **MCP Support** | GitHub, databases, custom APIs |
-| **Deep Research** | Tree-like exploration (5 min, ~$0.40) |
+| Feature             | Description                           |
+| ------------------- | ------------------------------------- |
+| **Multi-Source**    | Aggregates 20+ sources per research   |
+| **Long Reports**    | Generates 2000+ word reports          |
+| **Image Scraping**  | Smart image filtering for reports     |
+| **Local Documents** | Research from PDF, Word, Excel        |
+| **MCP Support**     | GitHub, databases, custom APIs        |
+| **Deep Research**   | Tree-like exploration (5 min, ~$0.40) |
 
 #### Usage
 
@@ -202,7 +203,7 @@ async def research_trends():
             }
         ]
     )
-    
+
     research_result = await researcher.conduct_research()
     report = await researcher.write_report()
     return report
@@ -245,12 +246,12 @@ Input Question
 
 #### Model Configuration
 
-| Role | Default Model | Purpose |
-|------|---------------|---------|
-| **Summarization** | gpt-4.1-mini | Summarize search results |
-| **Research** | gpt-4.1 | Power the search agent |
-| **Compression** | gpt-4.1 | Compress findings |
-| **Final Report** | gpt-4.1 | Write comprehensive report |
+| Role              | Default Model | Purpose                    |
+| ----------------- | ------------- | -------------------------- |
+| **Summarization** | gpt-4.1-mini  | Summarize search results   |
+| **Research**      | gpt-4.1       | Power the search agent     |
+| **Compression**   | gpt-4.1       | Compress findings          |
+| **Final Report**  | gpt-4.1       | Write comprehensive report |
 
 #### Search API Support
 
@@ -260,11 +261,11 @@ Input Question
 
 #### Benchmark Results
 
-| Model Config | RACE Score | Cost | Tokens |
-|--------------|------------|------|--------|
-| GPT-5 | 0.4943 | - | 204M |
-| Claude Sonnet 4 | 0.4401 | $187 | 139M |
-| GPT-4.1 (default) | 0.4309 | $46 | 58M |
+| Model Config      | RACE Score | Cost | Tokens |
+| ----------------- | ---------- | ---- | ------ |
+| GPT-5             | 0.4943     | -    | 204M   |
+| Claude Sonnet 4   | 0.4401     | $187 | 139M   |
+| GPT-4.1 (default) | 0.4309     | $46  | 58M    |
 
 #### Usage
 
@@ -289,15 +290,15 @@ BullMQ is the **fastest, most reliable Redis-based distributed queue** for Node.
 
 #### Core Features
 
-| Feature | Description |
-|---------|-------------|
+| Feature                       | Description                |
+| ----------------------------- | -------------------------- |
 | **Parent-Child Dependencies** | Job flow with dependencies |
-| **Rate Limiting** | Queue-level rate limiting |
-| **Priorities** | Prioritized job processing |
-| **Delayed Jobs** | Schedule jobs for future |
-| **Repeatable Jobs** | Cron-like scheduling |
-| **Sandboxed Workers** | Isolated job processing |
-| **Pause/Resume** | Queue control |
+| **Rate Limiting**             | Queue-level rate limiting  |
+| **Priorities**                | Prioritized job processing |
+| **Delayed Jobs**              | Schedule jobs for future   |
+| **Repeatable Jobs**           | Cron-like scheduling       |
+| **Sandboxed Workers**         | Isolated job processing    |
+| **Pause/Resume**              | Queue control              |
 
 #### Basic Usage
 
@@ -306,14 +307,14 @@ import { Queue, Worker, QueueEvents, FlowProducer } from 'bullmq';
 
 // Add jobs to queue
 const queue = new Queue('video-render');
-await queue.add('render-tiktok', { 
-  script: "Hook your audience...",
-  voice: "kokoro-en",
-  style: "modern"
+await queue.add('render-tiktok', {
+  script: 'Hook your audience...',
+  voice: 'kokoro-en',
+  style: 'modern',
 });
 
 // Process jobs
-const worker = new Worker('video-render', async job => {
+const worker = new Worker('video-render', async (job) => {
   if (job.name === 'render-tiktok') {
     return await renderTikTok(job.data);
   }
@@ -347,34 +348,34 @@ await flow.add({
         {
           name: 'generate-tts',
           queueName: 'audio',
-          data: { voice: 'kokoro-en' }
+          data: { voice: 'kokoro-en' },
         },
         {
           name: 'fetch-visuals',
           queueName: 'assets',
-          data: { source: 'pexels' }
+          data: { source: 'pexels' },
         },
         {
           name: 'generate-captions',
           queueName: 'captions',
-          data: { style: 'word-highlight' }
-        }
-      ]
-    }
-  ]
+          data: { style: 'word-highlight' },
+        },
+      ],
+    },
+  ],
 });
 ```
 
 #### Feature Comparison
 
-| Feature | BullMQ | BullMQ Pro | Bull | Kue | Agenda |
-|---------|--------|------------|------|-----|--------|
-| **Backend** | Redis | Redis | Redis | Redis | Mongo |
-| **Parent-Child** | ✓ | ✓ | ✗ | ✗ | ✗ |
-| **Rate Limiter** | ✓ | ✓ | ✓ | ✗ | ✗ |
-| **Group Rate Limit** | ✗ | ✓ | ✗ | ✗ | ✗ |
-| **Batches** | ✗ | ✓ | ✗ | ✗ | ✗ |
-| **Priorities** | ✓ | ✓ | ✓ | ✓ | ✗ |
+| Feature              | BullMQ | BullMQ Pro | Bull  | Kue   | Agenda |
+| -------------------- | ------ | ---------- | ----- | ----- | ------ |
+| **Backend**          | Redis  | Redis      | Redis | Redis | Mongo  |
+| **Parent-Child**     | ✓      | ✓          | ✗     | ✗     | ✗      |
+| **Rate Limiter**     | ✓      | ✓          | ✓     | ✗     | ✗      |
+| **Group Rate Limit** | ✗      | ✓          | ✗     | ✗     | ✗      |
+| **Batches**          | ✗      | ✓          | ✗     | ✗     | ✗      |
+| **Priorities**       | ✓      | ✓          | ✓     | ✓     | ✗      |
 
 #### Why BullMQ for content-machine
 
@@ -397,23 +398,23 @@ Postgres MCP Pro is an **advanced MCP server for PostgreSQL** with index tuning,
 
 #### Core Tools
 
-| Tool | Description |
-|------|-------------|
-| `list_schemas` | List all database schemas |
-| `list_objects` | List tables, views, sequences |
-| `get_object_details` | Columns, constraints, indexes |
-| `execute_sql` | Safe SQL execution (read-only mode available) |
-| `explain_query` | Execution plan with hypothetical indexes |
-| `get_top_queries` | Slowest queries via pg_stat_statements |
-| `analyze_workload_indexes` | Recommend optimal indexes |
-| `analyze_db_health` | Buffer cache, connections, vacuum health |
+| Tool                       | Description                                   |
+| -------------------------- | --------------------------------------------- |
+| `list_schemas`             | List all database schemas                     |
+| `list_objects`             | List tables, views, sequences                 |
+| `get_object_details`       | Columns, constraints, indexes                 |
+| `execute_sql`              | Safe SQL execution (read-only mode available) |
+| `explain_query`            | Execution plan with hypothetical indexes      |
+| `get_top_queries`          | Slowest queries via pg_stat_statements        |
+| `analyze_workload_indexes` | Recommend optimal indexes                     |
+| `analyze_db_health`        | Buffer cache, connections, vacuum health      |
 
 #### Access Modes
 
-| Mode | Description |
-|------|-------------|
-| **Unrestricted** | Full read/write for development |
-| **Restricted** | Read-only with execution time limits |
+| Mode             | Description                          |
+| ---------------- | ------------------------------------ |
+| **Unrestricted** | Full read/write for development      |
+| **Restricted**   | Read-only with execution time limits |
 
 #### Index Tuning Algorithm
 
@@ -449,10 +450,10 @@ Official MCP server for **Qdrant vector search** as a semantic memory layer.
 
 #### Tools
 
-| Tool | Description |
-|------|-------------|
+| Tool           | Description                       |
+| -------------- | --------------------------------- |
 | `qdrant-store` | Store information with embeddings |
-| `qdrant-find` | Semantic search for relevant info |
+| `qdrant-find`  | Semantic search for relevant info |
 
 #### Usage Pattern
 
@@ -470,7 +471,7 @@ uvx mcp-server-qdrant --transport sse
 
 ```bash
 # Configure for code snippet storage
-TOOL_STORE_DESCRIPTION="Store code snippets. 'information' = description, 
+TOOL_STORE_DESCRIPTION="Store code snippets. 'information' = description,
                         'metadata.code' = actual code."
 TOOL_FIND_DESCRIPTION="Search code by natural language description."
 ```
@@ -484,12 +485,12 @@ MCP server for **programmatic video rendering** via Plainly's API.
 
 #### Tools
 
-| Tool | Description |
-|------|-------------|
-| `list_renderable_items` | List designs and projects |
+| Tool                           | Description                         |
+| ------------------------------ | ----------------------------------- |
+| `list_renderable_items`        | List designs and projects           |
 | `get_renderable_items_details` | Parameters, previews, aspect ratios |
-| `render_item` | Submit render with parameters |
-| `check_render_status` | Check status, get preview links |
+| `render_item`                  | Submit render with parameters       |
+| `check_render_status`          | Check status, get preview links     |
 
 #### Configuration
 
@@ -521,14 +522,14 @@ Mixpost is a **social media management platform** with scheduling, analytics, an
 
 #### Features
 
-| Feature | Description |
-|---------|-------------|
-| **Multi-Account** | Manage all social accounts in one place |
-| **Scheduling** | Queue system for optimal timing |
-| **Analytics** | Platform-specific insights |
-| **Team Collaboration** | Workspaces, tasks, permissions |
-| **Post Versions** | Tailor content per platform |
-| **Media Library** | Reusable assets, stock integration |
+| Feature                | Description                             |
+| ---------------------- | --------------------------------------- |
+| **Multi-Account**      | Manage all social accounts in one place |
+| **Scheduling**         | Queue system for optimal timing         |
+| **Analytics**          | Platform-specific insights              |
+| **Team Collaboration** | Workspaces, tasks, permissions          |
+| **Post Versions**      | Tailor content per platform             |
+| **Media Library**      | Reusable assets, stock integration      |
 
 ### 5.2 TikTok Auto Uploader
 
@@ -538,12 +539,12 @@ Mixpost is a **social media management platform** with scheduling, analytics, an
 
 #### Features
 
-| Feature | Description |
-|---------|-------------|
-| **Multi-Account** | Handle multiple TikTok accounts |
-| **Scheduling** | Up to 10 days in advance |
-| **YouTube Sourcing** | Upload directly from YouTube Shorts |
-| **Fast** | Requests-based, not browser automation |
+| Feature              | Description                            |
+| -------------------- | -------------------------------------- |
+| **Multi-Account**    | Handle multiple TikTok accounts        |
+| **Scheduling**       | Up to 10 days in advance               |
+| **YouTube Sourcing** | Upload directly from YouTube Shorts    |
+| **Fast**             | Requests-based, not browser automation |
 
 #### Usage
 
@@ -568,12 +569,12 @@ Viral Factory is a **modular content automation platform** with custom pipelines
 
 #### Capabilities
 
-| Capability | Description |
-|------------|-------------|
-| **Script Writing** | LLM-powered scripts |
-| **TTS** | Coqui TTS integration |
+| Capability          | Description             |
+| ------------------- | ----------------------- |
+| **Script Writing**  | LLM-powered scripts     |
+| **TTS**             | Coqui TTS integration   |
 | **Asset Retrieval** | Video/audio backgrounds |
-| **Upload** | TikTok and YouTube |
+| **Upload**          | TikTok and YouTube      |
 
 ---
 
@@ -597,12 +598,12 @@ Crank generates **complete YouTube Shorts** from a topic, including video and me
 
 ```yaml
 # config/preset.yml
-NAME: "MyChannel"
-PROMPT: "coding tips for beginners"
+NAME: 'MyChannel'
+PROMPT: 'coding tips for beginners'
 UPLOAD: true
-DELAY: 2.5  # Hours before upload
-WHISPER_MODEL: "small"
-FONT: "Comic Sans MS"
+DELAY: 2.5 # Hours before upload
+WHISPER_MODEL: 'small'
+FONT: 'Comic Sans MS'
 ```
 
 ### 6.2 Cassette
@@ -691,15 +692,15 @@ Open Brain Rot generates **brain rot videos from Reddit URLs** with sentiment an
 
 ### Implementation Priorities
 
-| Priority | Component | Rationale |
-|----------|-----------|-----------|
-| **P0** | BullMQ | Pipeline orchestration foundation |
-| **P0** | Langfuse | LLM observability from day 1 |
-| **P1** | Promptfoo | Script quality validation |
-| **P1** | GPT Researcher | Automated trend research |
-| **P2** | Qdrant MCP | Semantic memory for scripts |
-| **P2** | Postgres MCP | Database management |
-| **P3** | Plainly MCP | Alternative rendering option |
+| Priority | Component      | Rationale                         |
+| -------- | -------------- | --------------------------------- |
+| **P0**   | BullMQ         | Pipeline orchestration foundation |
+| **P0**   | Langfuse       | LLM observability from day 1      |
+| **P1**   | Promptfoo      | Script quality validation         |
+| **P1**   | GPT Researcher | Automated trend research          |
+| **P2**   | Qdrant MCP     | Semantic memory for scripts       |
+| **P2**   | Postgres MCP   | Database management               |
+| **P3**   | Plainly MCP    | Alternative rendering option      |
 
 ### Configuration Template
 
@@ -767,10 +768,10 @@ await flow.add({
       children: [
         { name: 'tts', queueName: 'audio', data: { script } },
         { name: 'captions', queueName: 'captions', data: { script } },
-        { name: 'assets', queueName: 'assets', data: { keywords } }
-      ]
-    }
-  ]
+        { name: 'assets', queueName: 'assets', data: { keywords } },
+      ],
+    },
+  ],
 });
 ```
 
@@ -787,12 +788,12 @@ providers:
   - anthropic:claude-sonnet-4-20250514
 
 tests:
-  - vars: { topic: "React hooks" }
+  - vars: { topic: 'React hooks' }
     assert:
       - type: llm-rubric
-        value: "Hook grabs attention in first 2 seconds"
+        value: 'Hook grabs attention in first 2 seconds'
       - type: javascript
-        value: output.length < 500  # Under 60 seconds
+        value: output.length < 500 # Under 60 seconds
 ```
 
 ### Pattern 4: MCP Server Composition
@@ -808,7 +809,7 @@ tests:
     "qdrant": {
       "command": "uvx",
       "args": ["mcp-server-qdrant"],
-      "env": { 
+      "env": {
         "QDRANT_URL": "http://localhost:6333",
         "COLLECTION_NAME": "video-memory"
       }
@@ -845,32 +846,33 @@ tests:
 
 ### Cost Considerations
 
-| Tool | Cost | Notes |
-|------|------|-------|
-| Langfuse Cloud | Free tier available | Self-host for unlimited |
-| Promptfoo | Free (local) | No API costs |
-| GPT Researcher | ~$0.40/deep research | Can use local models |
-| BullMQ | Free | Redis hosting costs |
-| Qdrant | Free (self-hosted) | Cloud has free tier |
+| Tool           | Cost                 | Notes                   |
+| -------------- | -------------------- | ----------------------- |
+| Langfuse Cloud | Free tier available  | Self-host for unlimited |
+| Promptfoo      | Free (local)         | No API costs            |
+| GPT Researcher | ~$0.40/deep research | Can use local models    |
+| BullMQ         | Free                 | Redis hosting costs     |
+| Qdrant         | Free (self-hosted)   | Cloud has free tier     |
 
 ---
 
 ## 10. References
 
-| Tool | Documentation | Key Resource |
-|------|---------------|--------------|
-| Langfuse | https://langfuse.com/docs | Tracing guide |
-| Promptfoo | https://promptfoo.dev/docs | Red teaming guide |
-| GPT Researcher | https://docs.gptr.dev | MCP integration |
-| Open Deep Research | https://blog.langchain.com/open-deep-research/ | Launch blog |
-| BullMQ | https://docs.bullmq.io | Flows documentation |
-| Postgres MCP | https://github.com/crystaldba/postgres-mcp | Index tuning |
-| Qdrant MCP | https://github.com/qdrant/mcp-server-qdrant | Memory patterns |
+| Tool               | Documentation                                  | Key Resource        |
+| ------------------ | ---------------------------------------------- | ------------------- |
+| Langfuse           | https://langfuse.com/docs                      | Tracing guide       |
+| Promptfoo          | https://promptfoo.dev/docs                     | Red teaming guide   |
+| GPT Researcher     | https://docs.gptr.dev                          | MCP integration     |
+| Open Deep Research | https://blog.langchain.com/open-deep-research/ | Launch blog         |
+| BullMQ             | https://docs.bullmq.io                         | Flows documentation |
+| Postgres MCP       | https://github.com/crystaldba/postgres-mcp     | Index tuning        |
+| Qdrant MCP         | https://github.com/qdrant/mcp-server-qdrant    | Memory patterns     |
 
 ---
 
 **Document Status:** Complete  
 **Next Steps:** Create implementation tasks for P0 components (BullMQ, Langfuse)  
-**Related Docs:** 
+**Related Docs:**
+
 - [agent-frameworks-orchestration-DEEP-20260102.md](agent-frameworks-orchestration-DEEP-20260102.md)
 - [e2e-video-generation-patterns-DEEP-20260102.md](e2e-video-generation-patterns-DEEP-20260102.md)

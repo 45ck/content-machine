@@ -1,4 +1,5 @@
 # Deep Dive #55: Audio/TTS, Captions & Publishing Infrastructure
+
 **Date:** 2026-01-02
 **Category:** Audio Processing, TTS, Captions, Social Media Publishing
 **Status:** Complete
@@ -11,12 +12,12 @@ This deep dive documents the audio processing (TTS), caption generation (ASR/ali
 
 ### Key Findings
 
-| Category | Top Tools | Key Features |
-|----------|-----------|--------------|
-| **TTS** | Kokoro, Kokoro-FastAPI | 82M params, 8 languages, Apache license |
-| **ASR/Captions** | WhisperX, FunClip | Word-level timestamps, speaker diarization |
-| **Scene Detection** | PySceneDetect | Content-aware cutting, Python API |
-| **Publishing** | TiktokAutoUploader, youtube-upload, Mixpost | Multi-platform, scheduling |
+| Category            | Top Tools                                   | Key Features                               |
+| ------------------- | ------------------------------------------- | ------------------------------------------ |
+| **TTS**             | Kokoro, Kokoro-FastAPI                      | 82M params, 8 languages, Apache license    |
+| **ASR/Captions**    | WhisperX, FunClip                           | Word-level timestamps, speaker diarization |
+| **Scene Detection** | PySceneDetect                               | Content-aware cutting, Python API          |
+| **Publishing**      | TiktokAutoUploader, youtube-upload, Mixpost | Multi-platform, scheduling                 |
 
 ---
 
@@ -32,12 +33,12 @@ Kokoro is the most compelling open-weight TTS model in the ecosystem:
 
 #### Features
 
-| Feature | Value |
-|---------|-------|
-| Parameters | 82M (lightweight) |
-| Sample Rate | 24kHz |
-| Languages | 8 supported |
-| License | Apache (deployable anywhere) |
+| Feature     | Value                        |
+| ----------- | ---------------------------- |
+| Parameters  | 82M (lightweight)            |
+| Sample Rate | 24kHz                        |
+| Languages   | 8 supported                  |
+| License     | Apache (deployable anywhere) |
 
 #### Supported Languages
 
@@ -110,15 +111,15 @@ Production-ready Docker deployment of Kokoro:
 
 #### Features
 
-| Feature | Description |
-|---------|-------------|
-| Multi-language | English, Japanese, Chinese, Vietnamese |
-| OpenAI Compatible | Drop-in replacement for OpenAI Speech |
-| GPU Accelerated | NVIDIA CUDA support |
-| Voice Mixing | Weighted voice combinations |
-| Timestamps | Per-word caption generation |
-| Smart Templates | Pre-built prompts for photography, design |
-| Web UI | localhost:8880/web |
+| Feature           | Description                               |
+| ----------------- | ----------------------------------------- |
+| Multi-language    | English, Japanese, Chinese, Vietnamese    |
+| OpenAI Compatible | Drop-in replacement for OpenAI Speech     |
+| GPU Accelerated   | NVIDIA CUDA support                       |
+| Voice Mixing      | Weighted voice combinations               |
+| Timestamps        | Per-word caption generation               |
+| Smart Templates   | Pre-built prompts for photography, design |
+| Web UI            | localhost:8880/web                        |
 
 #### Deployment
 
@@ -167,13 +168,13 @@ Audio ──▶ [faster-whisper] ──▶ [wav2vec2 alignment] ──▶ Word T
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| Batched Inference | 70x realtime transcription |
-| Word-level Timestamps | wav2vec2 forced alignment |
-| Speaker Diarization | pyannote-audio integration |
-| VAD Preprocessing | Reduces hallucination |
-| Memory Efficient | <8GB GPU for large-v2 |
+| Feature               | Description                |
+| --------------------- | -------------------------- |
+| Batched Inference     | 70x realtime transcription |
+| Word-level Timestamps | wav2vec2 forced alignment  |
+| Speaker Diarization   | pyannote-audio integration |
+| VAD Preprocessing     | Reduces hallucination      |
+| Memory Efficient      | <8GB GPU for large-v2      |
 
 #### Usage
 
@@ -235,13 +236,13 @@ Video ──▶ FunASR ──▶ Transcription ──▶ LLM Analysis ──▶ 
 
 #### Features
 
-| Feature | Description |
-|---------|-------------|
-| FunASR Integration | Alibaba's industrial-grade Paraformer |
-| Hotword Customization | SeACo-Paraformer for entity recognition |
-| Speaker Recognition | CAM++ for speaker-based clipping |
-| LLM Clipping | GPT/Qwen for intelligent segment selection |
-| Multi-segment | Free clipping with SRT output |
+| Feature               | Description                                |
+| --------------------- | ------------------------------------------ |
+| FunASR Integration    | Alibaba's industrial-grade Paraformer      |
+| Hotword Customization | SeACo-Paraformer for entity recognition    |
+| Speaker Recognition   | CAM++ for speaker-based clipping           |
+| LLM Clipping          | GPT/Qwen for intelligent segment selection |
+| Multi-segment         | Free clipping with SRT output              |
 
 #### LLM Clipping Flow
 
@@ -270,11 +271,11 @@ PySceneDetect provides scene boundary detection:
 
 #### Detection Algorithms
 
-| Algorithm | Use Case |
-|-----------|----------|
-| ContentDetector | Fast cuts, content changes |
-| AdaptiveDetector | Camera movement (two-pass) |
-| ThresholdDetector | Fade in/out events |
+| Algorithm         | Use Case                   |
+| ----------------- | -------------------------- |
+| ContentDetector   | Fast cuts, content changes |
+| AdaptiveDetector  | Camera movement (two-pass) |
+| ThresholdDetector | Fade in/out events         |
 
 #### API Usage
 
@@ -319,13 +320,13 @@ The fastest TikTok uploader available:
 
 #### Features
 
-| Feature | Description |
-|---------|-------------|
-| Speed | 3 seconds per upload |
-| Multi-account | Handle multiple accounts locally |
-| Scheduling | Up to 10 days in advance |
-| Sourcing | Local videos or YouTube Short links |
-| Robust | No Selenium, survives layout changes |
+| Feature       | Description                          |
+| ------------- | ------------------------------------ |
+| Speed         | 3 seconds per upload                 |
+| Multi-account | Handle multiple accounts locally     |
+| Scheduling    | Up to 10 days in advance             |
+| Sourcing      | Local videos or YouTube Short links  |
+| Robust        | No Selenium, survives layout changes |
 
 #### CLI Usage
 
@@ -392,15 +393,15 @@ Enterprise-grade social media management:
 
 #### Features
 
-| Feature | Description |
-|---------|-------------|
-| Multi-platform | All major social networks |
-| Scheduling | Queue and calendar management |
-| Analytics | Per-platform analytics |
-| Team Collaboration | Workspaces and permissions |
-| Post Versions | Tailor content per network |
-| Media Library | Reusable assets, stock integration |
-| Templates | Reusable post templates |
+| Feature            | Description                        |
+| ------------------ | ---------------------------------- |
+| Multi-platform     | All major social networks          |
+| Scheduling         | Queue and calendar management      |
+| Analytics          | Per-platform analytics             |
+| Team Collaboration | Workspaces and permissions         |
+| Post Versions      | Tailor content per network         |
+| Media Library      | Reusable assets, stock integration |
+| Templates          | Reusable post templates            |
 
 #### Architecture
 
@@ -436,39 +437,39 @@ Enterprise-grade social media management:
 ```typescript
 // content-machine integration
 interface TTSRequest {
-    text: string;
-    voice: string;
-    language: 'a' | 'b' | 'e' | 'f' | 'h' | 'i' | 'j' | 'p' | 'z';
-    speed?: number;
+  text: string;
+  voice: string;
+  language: 'a' | 'b' | 'e' | 'f' | 'h' | 'i' | 'j' | 'p' | 'z';
+  speed?: number;
 }
 
 interface TTSResponse {
-    audioPath: string;
-    duration: number;
-    wordTimestamps: Array<{
-        word: string;
-        start: number;
-        end: number;
-    }>;
+  audioPath: string;
+  duration: number;
+  wordTimestamps: Array<{
+    word: string;
+    start: number;
+    end: number;
+  }>;
 }
 
 async function synthesizeTTS(request: TTSRequest): Promise<TTSResponse> {
-    // Kokoro-FastAPI call
-    const response = await fetch('http://localhost:8880/v1/audio/speech', {
-        method: 'POST',
-        body: JSON.stringify({
-            model: 'kokoro',
-            voice: request.voice,
-            input: request.text,
-            response_format: 'mp3'
-        })
-    });
-    
-    return {
-        audioPath: await response.blob(),
-        duration: response.headers.get('X-Audio-Duration'),
-        wordTimestamps: JSON.parse(response.headers.get('X-Word-Timestamps'))
-    };
+  // Kokoro-FastAPI call
+  const response = await fetch('http://localhost:8880/v1/audio/speech', {
+    method: 'POST',
+    body: JSON.stringify({
+      model: 'kokoro',
+      voice: request.voice,
+      input: request.text,
+      response_format: 'mp3',
+    }),
+  });
+
+  return {
+    audioPath: await response.blob(),
+    duration: response.headers.get('X-Audio-Duration'),
+    wordTimestamps: JSON.parse(response.headers.get('X-Word-Timestamps')),
+  };
 }
 ```
 
@@ -478,13 +479,13 @@ async function synthesizeTTS(request: TTSRequest): Promise<TTSResponse> {
 # WhisperX integration for caption generation
 async def generate_captions(audio_path: str) -> list[dict]:
     import whisperx
-    
+
     # Load model
     model = whisperx.load_model("large-v2", "cuda")
-    
+
     # Transcribe with word timestamps
     result = model.transcribe(audio_path, batch_size=16)
-    
+
     # Align for word-level precision
     model_a, metadata = whisperx.load_align_model(
         language_code=result["language"],
@@ -497,7 +498,7 @@ async def generate_captions(audio_path: str) -> list[dict]:
         audio_path,
         "cuda"
     )
-    
+
     # Format for Remotion captions
     captions = []
     for segment in aligned["segments"]:
@@ -507,7 +508,7 @@ async def generate_captions(audio_path: str) -> list[dict]:
                 "startMs": int(word["start"] * 1000),
                 "endMs": int(word["end"] * 1000)
             })
-    
+
     return captions
 ```
 
@@ -516,45 +517,45 @@ async def generate_captions(audio_path: str) -> list[dict]:
 ```typescript
 // Unified publishing interface
 interface PublishRequest {
-    videoPath: string;
-    title: string;
-    description: string;
-    tags: string[];
-    platforms: ('tiktok' | 'youtube' | 'instagram')[];
-    scheduleTime?: Date;
+  videoPath: string;
+  title: string;
+  description: string;
+  tags: string[];
+  platforms: ('tiktok' | 'youtube' | 'instagram')[];
+  scheduleTime?: Date;
 }
 
 async function publishVideo(request: PublishRequest): Promise<void> {
-    const publishPromises = request.platforms.map(async platform => {
-        switch (platform) {
-            case 'tiktok':
-                return publishToTikTok(request);
-            case 'youtube':
-                return publishToYouTube(request);
-            case 'instagram':
-                return publishToInstagram(request);
-        }
-    });
-    
-    await Promise.all(publishPromises);
+  const publishPromises = request.platforms.map(async (platform) => {
+    switch (platform) {
+      case 'tiktok':
+        return publishToTikTok(request);
+      case 'youtube':
+        return publishToYouTube(request);
+      case 'instagram':
+        return publishToInstagram(request);
+    }
+  });
+
+  await Promise.all(publishPromises);
 }
 
 // TikTok via TiktokAutoUploader
 async function publishToTikTok(request: PublishRequest): Promise<void> {
-    const { exec } = require('child_process');
-    exec(`python cli.py upload -v ${request.videoPath} -t "${request.title}"`);
+  const { exec } = require('child_process');
+  exec(`python cli.py upload -v ${request.videoPath} -t "${request.title}"`);
 }
 
 // YouTube via youtube-upload
 async function publishToYouTube(request: PublishRequest): Promise<void> {
-    const { YoutubeUploader } = require('pillar-youtube-upload');
-    const uploader = new YoutubeUploader();
-    await uploader.upload(request.videoPath, {
-        title: request.title,
-        description: request.description,
-        tags: request.tags,
-        privacyStatus: 'public'
-    });
+  const { YoutubeUploader } = require('pillar-youtube-upload');
+  const uploader = new YoutubeUploader();
+  await uploader.upload(request.videoPath, {
+    title: request.title,
+    description: request.description,
+    tags: request.tags,
+    privacyStatus: 'public',
+  });
 }
 ```
 
@@ -568,26 +569,26 @@ Most generators use word highlighting for engagement:
 
 ```json
 {
-    "font": "Bangers-Regular.ttf",
-    "font_size": 130,
-    "font_color": "yellow",
-    "stroke_width": 3,
-    "stroke_color": "black",
-    "highlight_current_word": true,
-    "word_highlight_color": "red",
-    "line_count": 2,
-    "shadow_strength": 1.0
+  "font": "Bangers-Regular.ttf",
+  "font_size": 130,
+  "font_color": "yellow",
+  "stroke_width": 3,
+  "stroke_color": "black",
+  "highlight_current_word": true,
+  "word_highlight_color": "red",
+  "line_count": 2,
+  "shadow_strength": 1.0
 }
 ```
 
 ### 5.2 Caption Animation Styles
 
-| Style | Description | Use Case |
-|-------|-------------|----------|
-| Word-by-word | Highlight current word | Engagement |
-| Bounce | Scale animation on word | Energy |
-| Fade | Opacity transition | Professional |
-| Typewriter | Characters appear sequentially | Tutorial |
+| Style        | Description                    | Use Case     |
+| ------------ | ------------------------------ | ------------ |
+| Word-by-word | Highlight current word         | Engagement   |
+| Bounce       | Scale animation on word        | Energy       |
+| Fade         | Opacity transition             | Professional |
+| Typewriter   | Characters appear sequentially | Tutorial     |
 
 ---
 
@@ -596,22 +597,26 @@ Most generators use word highlighting for engagement:
 ### 6.1 TTS Strategy
 
 **Primary:** Kokoro-FastAPI (Docker deployment)
+
 - OpenAI-compatible API
 - Multi-language support
 - Word timestamps for captions
 
 **Fallback:** Edge TTS (free, no GPU needed)
+
 - 30+ languages
 - No local compute required
 
 ### 6.2 Caption Strategy
 
 **Primary:** WhisperX
+
 - 70x realtime
 - Word-level timestamps
 - Speaker diarization
 
 **Integration:** Remotion's caption system
+
 - React-based styling
 - Animation support
 - Word highlighting
@@ -619,14 +624,17 @@ Most generators use word highlighting for engagement:
 ### 6.3 Publishing Strategy
 
 **TikTok:** TiktokAutoUploader
+
 - Fastest option
 - Request-based (reliable)
 
 **YouTube:** youtube-upload (PillarGG)
+
 - Clean API
 - OAuth 2.0 support
 
 **Multi-Platform:** Consider Mixpost
+
 - Laravel-based
 - Enterprise features
 - Self-hosted
@@ -637,28 +645,28 @@ Most generators use word highlighting for engagement:
 
 ### TTS Performance
 
-| Engine | Speed | Quality | GPU Required |
-|--------|-------|---------|--------------|
-| Kokoro | 10x realtime | High | Optional |
-| Edge TTS | API-limited | Good | No |
-| OpenAI TTS | API-limited | Excellent | No (cloud) |
-| CoquiTTS | 5x realtime | Good | Recommended |
+| Engine     | Speed        | Quality   | GPU Required |
+| ---------- | ------------ | --------- | ------------ |
+| Kokoro     | 10x realtime | High      | Optional     |
+| Edge TTS   | API-limited  | Good      | No           |
+| OpenAI TTS | API-limited  | Excellent | No (cloud)   |
+| CoquiTTS   | 5x realtime  | Good      | Recommended  |
 
 ### ASR Performance
 
-| Engine | Speed | Accuracy | Features |
-|--------|-------|----------|----------|
-| WhisperX | 70x realtime | 97%+ | Word timestamps, diarization |
-| Whisper | 10x realtime | 97%+ | Basic timestamps |
-| FunASR | 50x realtime | 95%+ | Hotwords, Chinese |
+| Engine   | Speed        | Accuracy | Features                     |
+| -------- | ------------ | -------- | ---------------------------- |
+| WhisperX | 70x realtime | 97%+     | Word timestamps, diarization |
+| Whisper  | 10x realtime | 97%+     | Basic timestamps             |
+| FunASR   | 50x realtime | 95%+     | Hotwords, Chinese            |
 
 ### Publishing Speed
 
-| Platform | Tool | Speed |
-|----------|------|-------|
-| TikTok | TiktokAutoUploader | ~3 seconds |
-| YouTube | youtube-upload | ~30 seconds |
-| Instagram | rednote-uploader | ~10 seconds |
+| Platform  | Tool               | Speed       |
+| --------- | ------------------ | ----------- |
+| TikTok    | TiktokAutoUploader | ~3 seconds  |
+| YouTube   | youtube-upload     | ~30 seconds |
+| Instagram | rednote-uploader   | ~10 seconds |
 
 ---
 
@@ -674,25 +682,26 @@ Most generators use word highlighting for engagement:
 
 ### Kokoro Voices
 
-| Voice ID | Description | Gender | Tone |
-|----------|-------------|--------|------|
-| af_heart | Warm, engaging | Female | Conversational |
-| am_rock | Energetic | Male | Confident |
-| bf_emma | British accent | Female | Professional |
-| bm_george | British accent | Male | Formal |
+| Voice ID  | Description    | Gender | Tone           |
+| --------- | -------------- | ------ | -------------- |
+| af_heart  | Warm, engaging | Female | Conversational |
+| am_rock   | Energetic      | Male   | Confident      |
+| bf_emma   | British accent | Female | Professional   |
+| bm_george | British accent | Male   | Formal         |
 
 ### Edge TTS Popular Voices
 
-| Voice | Language | Description |
-|-------|----------|-------------|
-| en-US-JennyNeural | English (US) | Natural female |
-| en-US-GuyNeural | English (US) | Natural male |
-| en-AU-WilliamNeural | English (AU) | Australian male |
-| zh-CN-XiaoxiaoNeural | Chinese | Female |
+| Voice                | Language     | Description     |
+| -------------------- | ------------ | --------------- |
+| en-US-JennyNeural    | English (US) | Natural female  |
+| en-US-GuyNeural      | English (US) | Natural male    |
+| en-AU-WilliamNeural  | English (AU) | Australian male |
+| zh-CN-XiaoxiaoNeural | Chinese      | Female          |
 
 ---
 
 **Next Steps:**
+
 1. Create master index of all 55 deep dives
 2. Document remaining connector repos
 3. Explore observability/tracing infrastructure

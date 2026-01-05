@@ -19,16 +19,16 @@ AI-powered tool to **automatically extract highlights from long-form videos** an
 
 ## Key Features
 
-| Feature | Details |
-|---------|---------|
-| **Input** | YouTube URLs OR local video files |
-| **Transcription** | CUDA-accelerated Whisper |
-| **Highlight Selection** | GPT-4o finds engaging segments |
-| **Interactive Approval** | Review selections, 15s auto-approve timeout |
-| **Smart Cropping** | Face-centered (static) OR screen recordings (motion tracking) |
-| **Subtitles** | Franklin Gothic font, burned into video |
-| **Output** | 9:16 vertical format (TikTok/Shorts/Reels) |
-| **Batch Processing** | Process multiple URLs via `urls.txt` |
+| Feature                  | Details                                                       |
+| ------------------------ | ------------------------------------------------------------- |
+| **Input**                | YouTube URLs OR local video files                             |
+| **Transcription**        | CUDA-accelerated Whisper                                      |
+| **Highlight Selection**  | GPT-4o finds engaging segments                                |
+| **Interactive Approval** | Review selections, 15s auto-approve timeout                   |
+| **Smart Cropping**       | Face-centered (static) OR screen recordings (motion tracking) |
+| **Subtitles**            | Franklin Gothic font, burned into video                       |
+| **Output**               | 9:16 vertical format (TikTok/Shorts/Reels)                    |
+| **Batch Processing**     | Process multiple URLs via `urls.txt`                          |
 
 ## Tech Stack
 
@@ -41,16 +41,19 @@ AI-powered tool to **automatically extract highlights from long-form videos** an
 ## What We Can Reuse
 
 ### ✅ High Value
+
 - **Highlight detection prompts** - GPT-4o prompt for finding engaging segments
 - **Smart cropping logic** - Face detection vs screen recording handling
 - **Whisper integration patterns** - GPU-accelerated transcription
 - **Batch processing** - Multiple video handling
 
 ### ⚠️ Medium Value
+
 - **Interactive approval flow** - Human-in-the-loop pattern
 - **Subtitle styling** - Franklin Gothic font burning
 
 ### ❌ Not Needed
+
 - **YouTube download** - We're generating original content
 - **Full pipeline** - Different use case (repurposing vs generating)
 

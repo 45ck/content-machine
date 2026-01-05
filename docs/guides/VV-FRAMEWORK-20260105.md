@@ -18,6 +18,7 @@ This document defines the Validation & Verification (V&V) framework for content-
 > **"If you can't measure it, you can't improve it."**
 
 Every pipeline output must be:
+
 1. **Validated** — Does it conform to the expected schema/format?
 2. **Verified** — Does it meet quality standards?
 
@@ -73,7 +74,7 @@ export const SceneSchema = z.object({
   id: z.number().int().positive(),
   narration: z.string().min(10).max(500),
   visualDirection: z.string().min(5).max(200),
-  durationHint: z.enum(['short', 'medium', 'long']).optional()
+  durationHint: z.enum(['short', 'medium', 'long']).optional(),
 });
 
 export const ScriptOutputSchema = z.object({
@@ -83,8 +84,8 @@ export const ScriptOutputSchema = z.object({
   callToAction: z.string().optional(),
   metadata: z.object({
     archetype: z.string(),
-    estimatedDuration: z.number().positive()
-  })
+    estimatedDuration: z.number().positive(),
+  }),
 });
 
 export type ScriptOutput = z.infer<typeof ScriptOutputSchema>;
@@ -101,26 +102,26 @@ export interface ScriptQualityChecks {
 }
 
 export function validateScriptQuality(script: ScriptOutput): ScriptQualityChecks {
-  const wordCount = script.scenes.reduce(
-    (acc, s) => acc + s.narration.split(/\s+/).length, 0
-  );
-  
+  const wordCount = script.scenes.reduce((acc, s) => acc + s.narration.split(/\s+/).length, 0);
+
   return {
     sceneCount: {
-      min: 3, max: 8,
+      min: 3,
+      max: 8,
       actual: script.scenes.length,
-      pass: script.scenes.length >= 3 && script.scenes.length <= 8
+      pass: script.scenes.length >= 3 && script.scenes.length <= 8,
     },
     wordCount: {
-      min: 100, max: 250,
+      min: 100,
+      max: 250,
       actual: wordCount,
-      pass: wordCount >= 100 && wordCount <= 250
+      pass: wordCount >= 100 && wordCount <= 250,
     },
     hasVisualDirections: {
       required: true,
-      actual: script.scenes.every(s => s.visualDirection.length > 0),
-      pass: script.scenes.every(s => s.visualDirection.length > 0)
-    }
+      actual: script.scenes.every((s) => s.visualDirection.length > 0),
+      pass: script.scenes.every((s) => s.visualDirection.length > 0),
+    },
   };
 }
 ```
@@ -138,12 +139,12 @@ providers:
 
 defaultTest:
   options:
-    provider: openai:gpt-4o-mini  # Cheaper model for judging
+    provider: openai:gpt-4o-mini # Cheaper model for judging
 
 tests:
   - vars:
-      topic: "5 JavaScript tips every developer should know"
-      archetype: "listicle"
+      topic: '5 JavaScript tips every developer should know'
+      archetype: 'listicle'
     assert:
       # Schema checks (Layer 1)
       - type: javascript
@@ -152,14 +153,14 @@ tests:
             const script = JSON.parse(output);
             return script.scenes && script.scenes.length >= 3;
           } catch { return false; }
-      
-      # Quality checks (Layer 2)  
+
+      # Quality checks (Layer 2)
       - type: javascript
         value: |
           const script = JSON.parse(output);
           const words = script.scenes.map(s => s.narration).join(' ').split(/\s+/).length;
           return words >= 100 && words <= 250;
-      
+
       # LLM-graded checks (Layer 3)
       - type: llm-rubric
         value: |
@@ -167,14 +168,14 @@ tests:
           a TikTok user from scrolling. The first sentence should be surprising,
           controversial, or promise immediate value.
         threshold: 0.7
-      
+
       - type: llm-rubric
         value: |
           The language is casual, conversational, and suitable for TikTok.
           No corporate jargon, no formal academic language.
           Should sound like a friend giving advice.
         threshold: 0.8
-      
+
       - type: llm-rubric
         value: |
           Each scene has a specific, filmable visual description.
@@ -243,13 +244,13 @@ export const WordTimestampSchema = z.object({
   word: z.string().min(1),
   start: z.number().nonnegative(),
   end: z.number().positive(),
-  confidence: z.number().min(0).max(1).optional()
+  confidence: z.number().min(0).max(1).optional(),
 });
 
 export const TimestampsOutputSchema = z.object({
   words: z.array(WordTimestampSchema),
   duration: z.number().positive(),
-  sampleRate: z.number().int().positive()
+  sampleRate: z.number().int().positive(),
 });
 ```
 
@@ -271,45 +272,43 @@ export async function validateAudioQuality(
   expectedWords: string[]
 ): Promise<AudioQualityChecks> {
   const audioInfo = await getAudioInfo(audioPath);
-  
+
   // Check for overlapping timestamps
   const overlaps = timestamps.words.filter((w, i) => {
     if (i === 0) return false;
     return w.start < timestamps.words[i - 1].end;
   });
-  
+
   // Calculate silence gaps
-  const gaps = timestamps.words.slice(1).map((w, i) => 
-    w.start - timestamps.words[i].end
-  );
+  const gaps = timestamps.words.slice(1).map((w, i) => w.start - timestamps.words[i].end);
   const maxGap = Math.max(...gaps);
-  
+
   return {
     sampleRate: {
       expected: 44100,
       actual: audioInfo.sampleRate,
-      pass: audioInfo.sampleRate === 44100
+      pass: audioInfo.sampleRate === 44100,
     },
     duration: {
       expected: expectedDuration,
       actual: audioInfo.duration,
       deviation: Math.abs(audioInfo.duration - expectedDuration) / expectedDuration,
-      pass: Math.abs(audioInfo.duration - expectedDuration) / expectedDuration < 0.05
+      pass: Math.abs(audioInfo.duration - expectedDuration) / expectedDuration < 0.05,
     },
     wordCoverage: {
       expected: expectedWords.length,
       actual: timestamps.words.length,
-      pass: timestamps.words.length === expectedWords.length
+      pass: timestamps.words.length === expectedWords.length,
     },
     maxSilenceGap: {
       threshold: 500, // ms
       actual: maxGap * 1000,
-      pass: maxGap * 1000 < 500
+      pass: maxGap * 1000 < 500,
     },
     noOverlaps: {
       overlaps: overlaps.length,
-      pass: overlaps.length === 0
-    }
+      pass: overlaps.length === 0,
+    },
   };
 }
 ```
@@ -326,20 +325,20 @@ export async function verifyTranscription(
 ): Promise<{ wer: number; pass: boolean }> {
   // Re-transcribe with Whisper
   const transcription = await whisper.transcribe(audioPath);
-  
+
   // Calculate Word Error Rate
   const wer = calculateWER(expectedText, transcription.text);
-  
+
   return {
     wer,
-    pass: wer < 0.10  // Less than 10% error rate
+    pass: wer < 0.1, // Less than 10% error rate
   };
 }
 
 function calculateWER(reference: string, hypothesis: string): number {
   const refWords = reference.toLowerCase().split(/\s+/);
   const hypWords = hypothesis.toLowerCase().split(/\s+/);
-  
+
   // Levenshtein distance at word level
   const distance = levenshteinDistance(refWords, hypWords);
   return distance / refWords.length;
@@ -369,14 +368,14 @@ export const FootageClipSchema = z.object({
     orientation: z.enum(['portrait', 'landscape', 'square']),
     resolution: z.object({
       width: z.number().int().positive(),
-      height: z.number().int().positive()
-    })
-  })
+      height: z.number().int().positive(),
+    }),
+  }),
 });
 
 export const VisualsOutputSchema = z.object({
   clips: z.array(FootageClipSchema),
-  totalDuration: z.number().positive()
+  totalDuration: z.number().positive(),
 });
 ```
 
@@ -397,18 +396,16 @@ export async function validateVisualsQuality(
   audioDuration: number
 ): Promise<VisualsQualityChecks> {
   // Check for missing scenes
-  const sceneIds = new Set(visuals.clips.map(c => c.sceneId));
-  const missing = [1, 2, 3, 4, 5].filter(id => !sceneIds.has(id));
-  
+  const sceneIds = new Set(visuals.clips.map((c) => c.sceneId));
+  const missing = [1, 2, 3, 4, 5].filter((id) => !sceneIds.has(id));
+
   // Check orientation
-  const incorrect = visuals.clips.filter(
-    c => c.metadata.orientation !== 'portrait'
-  );
-  
+  const incorrect = visuals.clips.filter((c) => c.metadata.orientation !== 'portrait');
+
   // Check for duplicate URLs
-  const urls = visuals.clips.map(c => c.url);
+  const urls = visuals.clips.map((c) => c.url);
   const duplicates = urls.filter((url, i) => urls.indexOf(url) !== i);
-  
+
   // Validate URLs are accessible
   const invalid: string[] = [];
   for (const clip of visuals.clips) {
@@ -419,20 +416,20 @@ export async function validateVisualsQuality(
       invalid.push(clip.url);
     }
   }
-  
+
   return {
     allScenesHaveFootage: { missing, pass: missing.length === 0 },
-    correctOrientation: { 
-      incorrect: incorrect.map(c => c.sceneId), 
-      pass: incorrect.length === 0 
+    correctOrientation: {
+      incorrect: incorrect.map((c) => c.sceneId),
+      pass: incorrect.length === 0,
     },
     durationCoverage: {
       required: audioDuration,
       actual: visuals.totalDuration,
-      pass: visuals.totalDuration >= audioDuration
+      pass: visuals.totalDuration >= audioDuration,
     },
     noDuplicates: { duplicates, pass: duplicates.length === 0 },
-    allUrlsValid: { invalid, pass: invalid.length === 0 }
+    allUrlsValid: { invalid, pass: invalid.length === 0 },
   };
 }
 ```
@@ -449,23 +446,23 @@ defaultTest:
 
 tests:
   - vars:
-      scene_narration: "Redis stores everything in memory, making it blazingly fast"
+      scene_narration: 'Redis stores everything in memory, making it blazingly fast'
       search_terms: '["redis server", "computer memory", "fast technology"]'
-      visual_description: "Database server room with blinking lights"
+      visual_description: 'Database server room with blinking lights'
     assert:
       - type: llm-rubric
         value: |
           Evaluate if the search terms and visual description are relevant
           to the narration content.
-          
+
           CRITERIA:
           1. Do search terms capture the key concepts? (Redis, memory, speed)
           2. Are search terms concrete and filmable?
           3. Does visual description match what would appear in footage?
-          
+
           Score 0-1 where 1 is perfectly relevant.
         threshold: 0.7
-      
+
       - type: model-graded-closedqa
         value: |
           The search terms do NOT include abstract concepts that cannot
@@ -501,33 +498,34 @@ export async function validateRenderQuality(
   baselinePath?: string
 ): Promise<RenderQualityChecks> {
   const info = await getVideoInfo(videoPath);
-  
-  let psnr = 0, ssim = 0;
+
+  let psnr = 0,
+    ssim = 0;
   if (baselinePath) {
     ({ psnr, ssim } = await compareVideos(videoPath, baselinePath));
   }
-  
+
   return {
     resolution: {
       expected: '1080x1920',
       actual: `${info.width}x${info.height}`,
-      pass: info.width === 1080 && info.height === 1920
+      pass: info.width === 1080 && info.height === 1920,
     },
     frameRate: {
       expected: 30,
       actual: info.fps,
-      pass: Math.abs(info.fps - 30) < 0.1
+      pass: Math.abs(info.fps - 30) < 0.1,
     },
     duration: {
       expected: expectedDuration,
       actual: info.duration,
       deviation: Math.abs(info.duration - expectedDuration) / expectedDuration,
-      pass: Math.abs(info.duration - expectedDuration) / expectedDuration < 0.02
+      pass: Math.abs(info.duration - expectedDuration) / expectedDuration < 0.02,
     },
     psnr: { threshold: 35, actual: psnr, pass: psnr >= 35 },
     ssim: { threshold: 0.95, actual: ssim, pass: ssim >= 0.95 },
     hasAudio: info.hasAudio,
-    captionSync: { maxDrift: 50, pass: true } // Implement caption sync check
+    captionSync: { maxDrift: 50, pass: true }, // Implement caption sync check
   };
 }
 ```
@@ -596,13 +594,13 @@ jobs:
 
 ### 3.2 Quality Gates
 
-| Gate | Trigger | Threshold | Blocks Merge |
-|------|---------|-----------|--------------|
-| Unit Tests | All PRs | 100% pass | Yes |
-| Schema Validation | All PRs | 100% pass | Yes |
-| LLM Evals | `run-evals` label | ≥80% pass | Yes |
-| Video Tests | `run-video-tests` label | ≥95% pass | Yes |
-| Manual Review | Release PRs | Approval | Yes |
+| Gate              | Trigger                 | Threshold | Blocks Merge |
+| ----------------- | ----------------------- | --------- | ------------ |
+| Unit Tests        | All PRs                 | 100% pass | Yes          |
+| Schema Validation | All PRs                 | 100% pass | Yes          |
+| LLM Evals         | `run-evals` label       | ≥80% pass | Yes          |
+| Video Tests       | `run-video-tests` label | ≥95% pass | Yes          |
+| Manual Review     | Release PRs             | Approval  | Yes          |
 
 ---
 
@@ -617,7 +615,7 @@ import { Langfuse } from 'langfuse';
 export const langfuse = new Langfuse({
   publicKey: process.env.LANGFUSE_PUBLIC_KEY!,
   secretKey: process.env.LANGFUSE_SECRET_KEY!,
-  baseUrl: 'https://cloud.langfuse.com'
+  baseUrl: 'https://cloud.langfuse.com',
 });
 
 export async function traceGeneration<T>(
@@ -628,17 +626,17 @@ export async function traceGeneration<T>(
   const trace = langfuse.trace({
     name,
     metadata,
-    tags: ['content-machine']
+    tags: ['content-machine'],
   });
-  
+
   try {
     const result = await fn();
     trace.update({ output: result });
     return result;
   } catch (error) {
-    trace.update({ 
+    trace.update({
       output: { error: String(error) },
-      level: 'ERROR'
+      level: 'ERROR',
     });
     throw error;
   } finally {
@@ -646,17 +644,12 @@ export async function traceGeneration<T>(
   }
 }
 
-export function scoreOutput(
-  traceId: string,
-  name: string,
-  value: number,
-  comment?: string
-) {
+export function scoreOutput(traceId: string, name: string, value: number, comment?: string) {
   langfuse.score({
     traceId,
     name,
     value,
-    comment
+    comment,
   });
 }
 ```
@@ -665,15 +658,15 @@ export function scoreOutput(
 
 Track in Langfuse/Grafana:
 
-| Metric | Description | Alert |
-|--------|-------------|-------|
-| `script.hook_score` | Average hook quality | <0.75 |
-| `script.archetype_adherence` | Archetype conformance | <0.80 |
-| `visuals.relevance_score` | Visual-text match | <0.70 |
-| `audio.wer` | Word error rate | >0.10 |
-| `render.psnr` | Video quality | <30 dB |
-| `pipeline.success_rate` | E2E completion | <90% |
-| `pipeline.cost_per_video` | Total API cost | >$1.00 |
+| Metric                       | Description           | Alert  |
+| ---------------------------- | --------------------- | ------ |
+| `script.hook_score`          | Average hook quality  | <0.75  |
+| `script.archetype_adherence` | Archetype conformance | <0.80  |
+| `visuals.relevance_score`    | Visual-text match     | <0.70  |
+| `audio.wer`                  | Word error rate       | >0.10  |
+| `render.psnr`                | Video quality         | <30 dB |
+| `pipeline.success_rate`      | E2E completion        | <90%   |
+| `pipeline.cost_per_video`    | Total API cost        | >$1.00 |
 
 ---
 
@@ -722,12 +715,12 @@ npm run test:regression
 
 ## 6. Document References
 
-| Document | Purpose |
-|----------|---------|
+| Document                                                                                     | Purpose                           |
+| -------------------------------------------------------------------------------------------- | --------------------------------- |
 | [RQ-24: LLM Evaluation](./investigations/RQ-24-LLM-EVALUATION-QUALITY-ASSURANCE-20260105.md) | Research on LLM-as-judge patterns |
-| [RQ-10: Video Testing](./investigations/RQ-10-VIDEO-OUTPUT-TESTING-20260104.md) | Video quality testing strategies |
-| [RQ-13: Video Metrics](./investigations/RQ-13-VIDEO-QUALITY-METRICS-20260104.md) | PSNR/SSIM/VMAF thresholds |
-| [SECTION-SCHEMAS-VALIDATION](./sections/SECTION-SCHEMAS-VALIDATION-20260104.md) | Zod schema patterns |
+| [RQ-10: Video Testing](./investigations/RQ-10-VIDEO-OUTPUT-TESTING-20260104.md)              | Video quality testing strategies  |
+| [RQ-13: Video Metrics](./investigations/RQ-13-VIDEO-QUALITY-METRICS-20260104.md)             | PSNR/SSIM/VMAF thresholds         |
+| [SECTION-SCHEMAS-VALIDATION](./sections/SECTION-SCHEMAS-VALIDATION-20260104.md)              | Zod schema patterns               |
 
 ---
 

@@ -70,26 +70,26 @@ Multiple Short Videos (output_clips/)
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **ASR Engine** | OpenAI Whisper (multi-language, multi-model) |
-| **AI Scoring** | Qwen LLM for "highlight index" calculation |
-| **Title Generation** | AI generates viral-style titles per clip |
-| **Sliding Window** | Ensures no potential highlight missed |
-| **Keyword Filtering** | Prioritize clips with specified keywords |
-| **Smart Subtitles** | Optimized line breaks and formatting |
-| **Batch Processing** | Process entire directories (e.g., TV series) |
+| Feature               | Description                                  |
+| --------------------- | -------------------------------------------- |
+| **ASR Engine**        | OpenAI Whisper (multi-language, multi-model) |
+| **AI Scoring**        | Qwen LLM for "highlight index" calculation   |
+| **Title Generation**  | AI generates viral-style titles per clip     |
+| **Sliding Window**    | Ensures no potential highlight missed        |
+| **Keyword Filtering** | Prioritize clips with specified keywords     |
+| **Smart Subtitles**   | Optimized line breaks and formatting         |
+| **Batch Processing**  | Process entire directories (e.g., TV series) |
 
 #### Configuration Options
 
-| Parameter | Description |
-|-----------|-------------|
-| Number of Clips | How many shorts to generate |
-| Target Duration | Length per clip (seconds) |
-| Highlight Keywords | Comma-separated priority keywords |
-| Add Subtitles | Embed captions in output |
-| Language | Whisper ASR language |
-| Model | Whisper model size (accuracy vs speed) |
+| Parameter          | Description                            |
+| ------------------ | -------------------------------------- |
+| Number of Clips    | How many shorts to generate            |
+| Target Duration    | Length per clip (seconds)              |
+| Highlight Keywords | Comma-separated priority keywords      |
+| Add Subtitles      | Embed captions in output               |
+| Language           | Whisper ASR language                   |
+| Model              | Whisper model size (accuracy vs speed) |
 
 #### Real-World Example
 
@@ -164,14 +164,14 @@ gcloud run deploy auto-clipper-backend \
 
 #### Market Comparison (2025)
 
-| Tool | Free Limit | Cost/Month | Watermark | Best For |
-|------|------------|------------|-----------|----------|
-| **Reelify AI** | 90 hrs | $0 (Beta) | No | High Volume |
-| Vizard AI | 120 mins | $30 | Yes | Manual Editing |
-| OpusClip | 60 mins | $29 | Yes | Polish/Captions |
-| GetMunch | 0 mins | $49 | Yes | Trend Analysis |
-| 2Short.ai | 15 mins | $9.90 | Yes | YouTube URL |
-| Klap | 1 video | $29 | Yes | Basic |
+| Tool           | Free Limit | Cost/Month | Watermark | Best For        |
+| -------------- | ---------- | ---------- | --------- | --------------- |
+| **Reelify AI** | 90 hrs     | $0 (Beta)  | No        | High Volume     |
+| Vizard AI      | 120 mins   | $30        | Yes       | Manual Editing  |
+| OpusClip       | 60 mins    | $29        | Yes       | Polish/Captions |
+| GetMunch       | 0 mins     | $49        | Yes       | Trend Analysis  |
+| 2Short.ai      | 15 mins    | $9.90      | Yes       | YouTube URL     |
+| Klap           | 1 video    | $29        | Yes       | Basic           |
 
 #### Key Insight
 
@@ -205,6 +205,7 @@ Fully automated bot: Reddit → TTS → Images → Video → YouTube + Instagram
 #### Database Tracking
 
 PostgreSQL tracks Reddit posts to:
+
 - Never upload duplicates
 - Enable sentiment analysis
 - Store data for future AI training
@@ -223,13 +224,13 @@ Downloads videos from RedNote, preserves captions/hashtags, uploads to Instagram
 
 #### Features
 
-| Feature | Description |
-|---------|-------------|
-| Caption Preservation | Original captions + hashtags |
-| Continuous Mode | Auto-check for new URLs |
-| Video Conversion | Auto-convert for Instagram |
-| Smart Fallback | Random hashtags if caption missing |
-| Chinese Support | Handles Chinese characters + emojis |
+| Feature              | Description                         |
+| -------------------- | ----------------------------------- |
+| Caption Preservation | Original captions + hashtags        |
+| Continuous Mode      | Auto-check for new URLs             |
+| Video Conversion     | Auto-convert for Instagram          |
+| Smart Fallback       | Random hashtags if caption missing  |
+| Chinese Support      | Handles Chinese characters + emojis |
 
 #### Code Pattern
 
@@ -359,6 +360,7 @@ Chat-based video editing copilot. Describe edits in natural language.
 #### Usage Patterns
 
 **CLI:**
+
 ```bash
 # Add closed captions
 ffmperative do --prompt "merge subtitles 'captions.srt' with video 'video.mp4' calling it 'video_caps.mp4'"
@@ -368,6 +370,7 @@ ffmperative compose --clips /path/to/dir --output my_video.mp4 --prompt "Edit fo
 ```
 
 **Python:**
+
 ```python
 from ffmperative import ffmp
 
@@ -394,12 +397,12 @@ Records video from Puppeteer-controlled browser using native Chrome DevTools scr
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| `followNewTab` | Follow pages opened by current page |
-| FPS Control | Configurable frame rate |
-| Resolution | Custom video frame dimensions |
-| FFmpeg Integration | Path configuration |
+| Feature            | Description                         |
+| ------------------ | ----------------------------------- |
+| `followNewTab`     | Follow pages opened by current page |
+| FPS Control        | Configurable frame rate             |
+| Resolution         | Custom video frame dimensions       |
+| FFmpeg Integration | Path configuration                  |
 
 #### Configuration
 
@@ -461,17 +464,18 @@ Full AI-native video creation pipeline: Text→Image→Video→Music→Final Com
 
 #### Features
 
-| Stage | Technology | Description |
-|-------|------------|-------------|
-| **Prompts** | Doubao LLM | Generate image/music prompts from themes |
-| **Text→Image** | LibLibAI | Checkpoint + LoRA support |
-| **Image→Video** | Jimeng I2V | Smooth animation from stills |
-| **Text→Music** | Jimeng Music | Style/mood/instrument control |
-| **Composition** | FFmpeg | Merge video + audio |
+| Stage           | Technology   | Description                              |
+| --------------- | ------------ | ---------------------------------------- |
+| **Prompts**     | Doubao LLM   | Generate image/music prompts from themes |
+| **Text→Image**  | LibLibAI     | Checkpoint + LoRA support                |
+| **Image→Video** | Jimeng I2V   | Smooth animation from stills             |
+| **Text→Music**  | Jimeng Music | Style/mood/instrument control            |
+| **Composition** | FFmpeg       | Merge video + audio                      |
 
 #### Preset Themes
 
 Built-in prompt generators for:
+
 - "Beauty" (beach, gym, fashion)
 - "Labubu" (candy, magic, cute)
 - Custom themes
@@ -512,6 +516,7 @@ Built-in prompt generators for:
 Simple but effective: Whisper + MoviePy for caption burning.
 
 Key options:
+
 ```python
 captacity.add_captions(
     video_file="my_short.mp4",
@@ -528,30 +533,30 @@ captacity.add_captions(
 
 ### Clipping Tools
 
-| Tool | AI Model | GUI | Batch | Cloud | Best For |
-|------|----------|-----|-------|-------|----------|
-| AI Highlight Clip | Qwen + Whisper | ✅ Desktop | ✅ Yes | ❌ No | Knowledge content |
-| AutoClipper | OpenAI | ✅ React | ⚠️ Limited | ✅ GCP | Live streams |
-| FunClip | Qwen | ✅ Gradio | ❌ No | ❌ No | Precise segments |
-| Clip Anything | Vadoo API | ❌ No | ❌ No | ✅ Yes | Multimodal |
+| Tool              | AI Model       | GUI        | Batch      | Cloud  | Best For          |
+| ----------------- | -------------- | ---------- | ---------- | ------ | ----------------- |
+| AI Highlight Clip | Qwen + Whisper | ✅ Desktop | ✅ Yes     | ❌ No  | Knowledge content |
+| AutoClipper       | OpenAI         | ✅ React   | ⚠️ Limited | ✅ GCP | Live streams      |
+| FunClip           | Qwen           | ✅ Gradio  | ❌ No      | ❌ No  | Precise segments  |
+| Clip Anything     | Vadoo API      | ❌ No      | ❌ No      | ✅ Yes | Multimodal        |
 
 ### Publishing Tools
 
-| Tool | Source | Target | Auto-Upload | Database |
-|------|--------|--------|-------------|----------|
-| go-youtube-reddit | Reddit | YT + IG | ✅ Yes | PostgreSQL |
-| RedNote-Instagram | RedNote | Instagram | ✅ Yes | File-based |
-| TiktokAutoUploader | Any | TikTok | ✅ Yes | None |
-| gemini-youtube | Generated | YouTube | ✅ Yes | None |
+| Tool               | Source    | Target    | Auto-Upload | Database   |
+| ------------------ | --------- | --------- | ----------- | ---------- |
+| go-youtube-reddit  | Reddit    | YT + IG   | ✅ Yes      | PostgreSQL |
+| RedNote-Instagram  | RedNote   | Instagram | ✅ Yes      | File-based |
+| TiktokAutoUploader | Any       | TikTok    | ✅ Yes      | None       |
+| gemini-youtube     | Generated | YouTube   | ✅ Yes      | None       |
 
 ### Video Processing
 
-| Tool | Interface | LLM-Powered | Platform |
-|------|-----------|-------------|----------|
-| CapCut Mate API | REST API | ❌ No | CapCut/JianYing |
-| FFMPerative | CLI/Python | ✅ Yes | FFmpeg |
-| MoviePy | Python | ❌ No | Any |
-| puppeteer-screen-recorder | TS Library | ❌ No | Browser |
+| Tool                      | Interface  | LLM-Powered | Platform        |
+| ------------------------- | ---------- | ----------- | --------------- |
+| CapCut Mate API           | REST API   | ❌ No       | CapCut/JianYing |
+| FFMPerative               | CLI/Python | ✅ Yes      | FFmpeg          |
+| MoviePy                   | Python     | ❌ No       | Any             |
+| puppeteer-screen-recorder | TS Library | ❌ No       | Browser         |
 
 ---
 
@@ -627,23 +632,23 @@ def score_highlights(transcript_segments, keywords):
     for segment in transcript_segments:
         # Base score from LLM analysis
         base_score = llm_analyze_engagement(segment.text)
-        
+
         # Keyword bonus
         keyword_bonus = sum(
-            1 for kw in keywords 
+            1 for kw in keywords
             if kw.lower() in segment.text.lower()
         )
-        
+
         scores.append({
             "segment": segment,
             "score": base_score + keyword_bonus,
             "start": segment.start,
             "end": segment.end
         })
-    
+
     # Remove overlapping segments
     filtered = remove_overlaps(scores)
-    
+
     # Return top N
     return sorted(filtered, key=lambda x: x["score"], reverse=True)[:TOP_N]
 ```
@@ -741,21 +746,25 @@ await browser.close();
 ## Appendix B: Integration Roadmap
 
 ### Phase 1: Core Clipping
+
 - Integrate AI Highlight Clip scoring algorithm
 - Connect WhisperX for word-level timestamps
 - Build highlight selection API
 
 ### Phase 2: Publishing
+
 - Implement TikTok uploader (unofficial API)
 - Setup YouTube Data API integration
 - Add Mixpost for scheduling
 
 ### Phase 3: Capture
+
 - Integrate puppeteer-screen-recorder
 - Build product demo capture workflow
 - Add FFMPerative post-processing
 
 ### Phase 4: Advanced Processing
+
 - Evaluate CapCut Mate for cloud rendering
 - Implement natural language editing commands
 - Build batch processing pipeline
@@ -773,6 +782,7 @@ This deep dive documents critical tools for:
 5. **Workflow:** AI Video Workflow shows full AIGC pipeline
 
 **Key Decisions:**
+
 - Use AI Highlight Clip scoring pattern (Whisper + LLM)
 - Implement puppeteer-screen-recorder for UI capture
 - Consider FFMPerative for natural language post-processing
@@ -780,4 +790,4 @@ This deep dive documents critical tools for:
 
 ---
 
-*Document created as part of content-machine deep research initiative*
+_Document created as part of content-machine deep research initiative_

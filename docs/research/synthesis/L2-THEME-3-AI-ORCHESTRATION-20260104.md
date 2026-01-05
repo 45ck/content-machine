@@ -48,10 +48,10 @@ The **AI & Orchestration** theme covers how LLM agents coordinate the video gene
 
 ### Dual-Language Strategy
 
-| Layer | Language | Framework | Purpose |
-|-------|----------|-----------|---------|
-| **Orchestrator** | TypeScript | OpenAI Agents SDK | Coordinate pipeline |
-| **Specialists** | Python | Pydantic AI | Domain-specific agents |
+| Layer            | Language   | Framework         | Purpose                |
+| ---------------- | ---------- | ----------------- | ---------------------- |
+| **Orchestrator** | TypeScript | OpenAI Agents SDK | Coordinate pipeline    |
+| **Specialists**  | Python     | Pydantic AI       | Domain-specific agents |
 
 ### Why This Split?
 
@@ -75,11 +75,11 @@ const researchTool = tool({
   description: 'Research a topic using Reddit, HN, and web search',
   parameters: z.object({
     topic: z.string(),
-    depth: z.enum(['quick', 'deep']).default('quick')
+    depth: z.enum(['quick', 'deep']).default('quick'),
   }),
   execute: async ({ topic, depth }) => {
     return await mcpClient.call('research', 'discover_trends', { topic, depth });
-  }
+  },
 });
 
 const generateScriptTool = tool({
@@ -88,11 +88,11 @@ const generateScriptTool = tool({
   parameters: z.object({
     topic: z.string(),
     research: z.any(),
-    length: z.number().default(60)
+    length: z.number().default(60),
   }),
   execute: async ({ topic, research, length }) => {
     return await mcpClient.call('script', 'generate', { topic, research, length });
-  }
+  },
 });
 
 const renderVideoTool = tool({
@@ -100,11 +100,11 @@ const renderVideoTool = tool({
   description: 'Render a video from script',
   parameters: z.object({
     script: z.any(),
-    template: z.string().default('tiktok-bold')
+    template: z.string().default('tiktok-bold'),
   }),
   execute: async ({ script, template }) => {
     return await mcpClient.call('render', 'create_video', { script, template });
-  }
+  },
 });
 
 const publishTool = tool({
@@ -112,11 +112,11 @@ const publishTool = tool({
   description: 'Publish video to social platforms',
   parameters: z.object({
     videoPath: z.string(),
-    platforms: z.array(z.enum(['tiktok', 'youtube', 'instagram']))
+    platforms: z.array(z.enum(['tiktok', 'youtube', 'instagram'])),
   }),
   execute: async ({ videoPath, platforms }) => {
     return await mcpClient.call('publish', 'upload', { videoPath, platforms });
-  }
+  },
 });
 
 // Create orchestrator
@@ -130,13 +130,11 @@ const videoOrchestrator = new Agent({
     4. Publish to social platforms
     
     Always validate each step before proceeding to the next.`,
-  tools: [researchTool, generateScriptTool, renderVideoTool, publishTool]
+  tools: [researchTool, generateScriptTool, renderVideoTool, publishTool],
 });
 
 // Run orchestration
-const result = await videoOrchestrator.run(
-  'Create a viral TikTok about AI coding assistants'
-);
+const result = await videoOrchestrator.run('Create a viral TikTok about AI coding assistants');
 ```
 
 ---
@@ -242,10 +240,10 @@ async def generate_script(
     """Generate a video script from research."""
     result = await script_agent.run(
         f"""Create a {length}-second video script about: {topic}
-        
+
         Research context:
         {json.dumps(research, indent=2)}
-        
+
         Make it engaging and viral-worthy."""
     )
     return result.data.model_dump()
@@ -263,33 +261,33 @@ servers:
   research:
     transport: http
     url: http://localhost:8001
-    description: "Research and trend discovery"
+    description: 'Research and trend discovery'
     tools:
       - discover_trends
       - search_reddit
       - get_transcripts
-    
+
   script:
     transport: http
     url: http://localhost:8002
-    description: "Script generation"
+    description: 'Script generation'
     tools:
       - generate_script
       - refine_script
-    
+
   render:
     transport: http
     url: http://localhost:8003
-    description: "Video rendering"
+    description: 'Video rendering'
     tools:
       - create_video
       - get_render_status
       - download_video
-    
+
   publish:
     transport: http
     url: http://localhost:8004
-    description: "Social media publishing"
+    description: 'Social media publishing'
     tools:
       - upload_video
       - schedule_post
@@ -336,7 +334,7 @@ const queues = {
   script: new Queue('script', { connection }),
   audio: new Queue('audio', { connection }),
   render: new Queue('render', { connection }),
-  publish: new Queue('publish', { connection })
+  publish: new Queue('publish', { connection }),
 };
 
 // Flow producer for multi-step jobs
@@ -348,28 +346,36 @@ async function createVideoJob(topic: string, config: VideoConfig): Promise<strin
     name: 'publish',
     queueName: 'publish',
     data: { platforms: config.platforms },
-    children: [{
-      name: 'render',
-      queueName: 'render',
-      data: { template: config.template },
-      children: [{
-        name: 'audio',
-        queueName: 'audio',
-        data: { voice: config.voice },
-        children: [{
-          name: 'script',
-          queueName: 'script',
-          data: { length: config.length },
-          children: [{
-            name: 'research',
-            queueName: 'research',
-            data: { topic, depth: 'deep' }
-          }]
-        }]
-      }]
-    }]
+    children: [
+      {
+        name: 'render',
+        queueName: 'render',
+        data: { template: config.template },
+        children: [
+          {
+            name: 'audio',
+            queueName: 'audio',
+            data: { voice: config.voice },
+            children: [
+              {
+                name: 'script',
+                queueName: 'script',
+                data: { length: config.length },
+                children: [
+                  {
+                    name: 'research',
+                    queueName: 'research',
+                    data: { topic, depth: 'deep' },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
   });
-  
+
   return job.job.id!;
 }
 ```
@@ -378,37 +384,49 @@ async function createVideoJob(topic: string, config: VideoConfig): Promise<strin
 
 ```typescript
 // Research worker
-const researchWorker = new Worker('research', async (job) => {
-  const { topic, depth } = job.data;
-  
-  await job.updateProgress(10);
-  const result = await mcpClient.call('research', 'discover_trends', { topic, depth });
-  
-  await job.updateProgress(100);
-  return result;
-}, { connection });
+const researchWorker = new Worker(
+  'research',
+  async (job) => {
+    const { topic, depth } = job.data;
+
+    await job.updateProgress(10);
+    const result = await mcpClient.call('research', 'discover_trends', { topic, depth });
+
+    await job.updateProgress(100);
+    return result;
+  },
+  { connection }
+);
 
 // Script worker
-const scriptWorker = new Worker('script', async (job) => {
-  const { topic, research, length } = job.data;
-  
-  await job.updateProgress(10);
-  const script = await mcpClient.call('script', 'generate', { topic, research, length });
-  
-  await job.updateProgress(100);
-  return script;
-}, { connection });
+const scriptWorker = new Worker(
+  'script',
+  async (job) => {
+    const { topic, research, length } = job.data;
+
+    await job.updateProgress(10);
+    const script = await mcpClient.call('script', 'generate', { topic, research, length });
+
+    await job.updateProgress(100);
+    return script;
+  },
+  { connection }
+);
 
 // Render worker
-const renderWorker = new Worker('render', async (job) => {
-  const { script, template } = job.data;
-  
-  await job.updateProgress(10);
-  const video = await mcpClient.call('render', 'create_video', { script, template });
-  
-  await job.updateProgress(100);
-  return video;
-}, { connection });
+const renderWorker = new Worker(
+  'render',
+  async (job) => {
+    const { script, template } = job.data;
+
+    await job.updateProgress(10);
+    const video = await mcpClient.call('render', 'create_video', { script, template });
+
+    await job.updateProgress(100);
+    return video;
+  },
+  { connection }
+);
 ```
 
 ---
@@ -423,15 +441,15 @@ from langfuse.decorators import observe
 @observe()
 async def generate_video(topic: str):
     """Traced end-to-end video generation."""
-    
+
     # All LLM calls are automatically traced
     research = await research_agent.run(topic)
     script = await script_agent.run(research)
-    
+
     # Trace custom spans
     with langfuse.span("render"):
         video = await render_service.create(script)
-    
+
     return video
 
 # View traces at: https://langfuse.com/dashboard
@@ -445,7 +463,7 @@ prompts:
   - id: script-generation
     prompt: |
       Create a {length}-second video script about: {topic}
-      
+
       Research: {research}
 
 providers:
@@ -454,14 +472,14 @@ providers:
 
 tests:
   - vars:
-      topic: "AI coding assistants"
+      topic: 'AI coding assistants'
       length: 60
-      research: {...}
+      research: { ... }
     assert:
       - type: contains
-        value: "hook"
+        value: 'hook'
       - type: llm-rubric
-        value: "Script is engaging and follows 60-second format"
+        value: 'Script is engaging and follows 60-second format'
 ```
 
 ---
@@ -476,20 +494,20 @@ const jobOptions = {
   attempts: 3,
   backoff: {
     type: 'exponential',
-    delay: 1000  // 1s, 2s, 4s
-  }
+    delay: 1000, // 1s, 2s, 4s
+  },
 };
 
 // Handle failures
 worker.on('failed', async (job, error) => {
   console.error(`Job ${job.id} failed: ${error.message}`);
-  
+
   // Send to dead letter queue after max retries
   if (job.attemptsMade >= job.opts.attempts!) {
     await deadLetterQueue.add('failed-job', {
       originalJob: job.data,
       error: error.message,
-      failedAt: new Date()
+      failedAt: new Date(),
     });
   }
 });
@@ -504,7 +522,7 @@ async function generateWithFallback(topic: string): Promise<Script> {
     return await scriptAgent.run(topic, { model: 'gpt-4o' });
   } catch (error) {
     console.warn('GPT-4o failed, falling back to GPT-4o-mini');
-    
+
     // Fallback: GPT-4o-mini
     return await scriptAgent.run(topic, { model: 'gpt-4o-mini' });
   }

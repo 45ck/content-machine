@@ -4,7 +4,7 @@
 **Duration:** Weeks 5-7  
 **Status:** Not Started  
 **Document ID:** IMPL-PHASE-4-RENDER-20260105  
-**Prerequisites:** Phases 1-3 complete (all artifacts available)  
+**Prerequisites:** Phases 1-3 complete (all artifacts available)
 
 ---
 
@@ -59,17 +59,17 @@ src/render/
 
 ### 2.2 Component Matrix
 
-| Component | File | Interface | Test Coverage |
-|-----------|------|-----------|---------------|
-| Schema | `src/render/schema.ts` | `RenderProps`, `RenderOptions` | 100% |
-| Service | `src/render/service.ts` | `RenderService` | 85% |
-| Bundle | `src/render/bundle.ts` | `bundleRemotionProject()` | 80% |
-| Root | `src/render/remotion/Root.tsx` | Remotion root | N/A |
-| Video | `src/render/remotion/Video.tsx` | Main composition | E2E |
-| Caption | `src/render/remotion/components/Caption.tsx` | `<Caption>` | 90% |
-| Scene | `src/render/remotion/components/Scene.tsx` | `<Scene>` | 85% |
-| Background | `src/render/remotion/components/Background.tsx` | `<Background>` | 80% |
-| CLI | `src/cli/commands/render.ts` | `cm render` command | 80% |
+| Component  | File                                            | Interface                      | Test Coverage |
+| ---------- | ----------------------------------------------- | ------------------------------ | ------------- |
+| Schema     | `src/render/schema.ts`                          | `RenderProps`, `RenderOptions` | 100%          |
+| Service    | `src/render/service.ts`                         | `RenderService`                | 85%           |
+| Bundle     | `src/render/bundle.ts`                          | `bundleRemotionProject()`      | 80%           |
+| Root       | `src/render/remotion/Root.tsx`                  | Remotion root                  | N/A           |
+| Video      | `src/render/remotion/Video.tsx`                 | Main composition               | E2E           |
+| Caption    | `src/render/remotion/components/Caption.tsx`    | `<Caption>`                    | 90%           |
+| Scene      | `src/render/remotion/components/Scene.tsx`      | `<Scene>`                      | 85%           |
+| Background | `src/render/remotion/components/Background.tsx` | `<Background>`                 | 80%           |
+| CLI        | `src/cli/commands/render.ts`                    | `cm render` command            | 80%           |
 
 ---
 
@@ -111,7 +111,7 @@ export const RenderPropsSchema = z.object({
   script: ScriptOutputSchema,
   audio: AudioOutputSchema,
   visuals: VisualsOutputSchema,
-  audioUrl: z.string(),  // Path to audio file
+  audioUrl: z.string(), // Path to audio file
   captionStyle: CaptionStyleSchema.optional(),
 });
 
@@ -181,33 +181,33 @@ export const Video: React.FC<RenderProps> = ({
 }) => {
   const { fps } = useVideoConfig();
   const frame = useCurrentFrame();
-  
+
   // Calculate current time in seconds
   const currentTime = frame / fps;
-  
+
   // Find current scene based on audio timing
   const currentSceneIndex = audio.scenes.findIndex(
     s => currentTime >= s.audioStart && currentTime < s.audioEnd
   );
-  
+
   // Get current word for highlighting
   const currentScene = audio.scenes[currentSceneIndex];
   const currentWord = currentScene?.words.find(
     w => currentTime >= w.start && currentTime < w.end
   );
-  
+
   return (
     <AbsoluteFill style={{ backgroundColor: '#000' }}>
       {/* Background video layers */}
       {visuals.scenes.map((visual, index) => {
         const audioScene = audio.scenes[index];
         if (!audioScene) return null;
-        
+
         const startFrame = Math.floor(audioScene.audioStart * fps);
         const durationFrames = Math.floor(
           (audioScene.audioEnd - audioScene.audioStart) * fps
         );
-        
+
         return (
           <Sequence
             key={visual.sceneId}
@@ -221,14 +221,14 @@ export const Video: React.FC<RenderProps> = ({
           </Sequence>
         );
       })}
-      
+
       {/* Caption layer */}
       <Caption
         scenes={audio.scenes}
         currentTime={currentTime}
         style={captionStyle}
       />
-      
+
       {/* Audio layer */}
       <Audio src={audioUrl} />
     </AbsoluteFill>
@@ -252,7 +252,7 @@ interface SceneProps {
 
 export const Scene: React.FC<SceneProps> = ({ visual, duration }) => {
   const frame = useCurrentFrame();
-  
+
   // Ken Burns effect: subtle zoom and pan
   const scale = interpolate(
     frame,
@@ -260,14 +260,14 @@ export const Scene: React.FC<SceneProps> = ({ visual, duration }) => {
     [1.0, 1.15],  // 15% zoom over scene
     { extrapolateRight: 'clamp' }
   );
-  
+
   const translateX = interpolate(
     frame,
     [0, duration],
     [0, -20],  // Slight pan
     { extrapolateRight: 'clamp' }
   );
-  
+
   return (
     <AbsoluteFill>
       <OffthreadVideo
@@ -280,7 +280,7 @@ export const Scene: React.FC<SceneProps> = ({ visual, duration }) => {
           transform: `scale(${scale}) translateX(${translateX}px)`,
         }}
       />
-      
+
       {/* Slight vignette overlay for depth */}
       <AbsoluteFill
         style={{
@@ -318,24 +318,24 @@ export const Caption: React.FC<CaptionProps> = ({
   const currentWordIndex = allWords.findIndex(
     w => currentTime >= w.start && currentTime < w.end
   );
-  
+
   if (currentWordIndex === -1) return null;
-  
+
   // Get words to display (current + context)
   const displayStart = Math.max(0, currentWordIndex - 1);
   const displayEnd = Math.min(allWords.length, currentWordIndex + style.wordsPerLine);
   const displayWords = allWords.slice(displayStart, displayEnd);
-  
+
   // Position based on style
   const positionStyle = {
     top: style.position === 'top' ? '15%' : undefined,
     bottom: style.position === 'bottom' ? '15%' : undefined,
   };
-  
+
   if (style.position === 'center') {
     positionStyle.top = '50%';
   }
-  
+
   return (
     <AbsoluteFill
       style={{
@@ -356,7 +356,7 @@ export const Caption: React.FC<CaptionProps> = ({
       >
         {displayWords.map((word, index) => {
           const isHighlighted = displayStart + index === currentWordIndex;
-          
+
           return (
             <Word
               key={`${word.word}-${word.start}`}
@@ -432,36 +432,33 @@ export interface RenderResult {
 
 export class RenderService {
   private bundlePath: string | null = null;
-  
+
   async ensureBundled(): Promise<string> {
     if (this.bundlePath && existsSync(this.bundlePath)) {
       return this.bundlePath;
     }
-    
+
     logger.info('Bundling Remotion project...');
-    
+
     this.bundlePath = await bundle({
       entryPoint: resolve(__dirname, 'remotion/index.ts'),
       onProgress: (progress) => {
         logger.debug({ progress }, 'Bundle progress');
       },
     });
-    
+
     logger.info({ path: this.bundlePath }, 'Bundle complete');
     return this.bundlePath;
   }
-  
-  async render(
-    input: RenderInput,
-    options: Partial<RenderOptions> = {}
-  ): Promise<RenderResult> {
+
+  async render(input: RenderInput, options: Partial<RenderOptions> = {}): Promise<RenderResult> {
     const startTime = Date.now();
-    
+
     // Load and validate all inputs
     const script = validateScript(JSON.parse(readFileSync(input.scriptPath, 'utf-8')));
     const audio = validateAudioOutput(JSON.parse(readFileSync(input.timestampsPath, 'utf-8')));
     const visuals = validateVisualsOutput(JSON.parse(readFileSync(input.visualsPath, 'utf-8')));
-    
+
     const renderOptions: RenderOptions = {
       width: options.width ?? 1080,
       height: options.height ?? 1920,
@@ -470,7 +467,7 @@ export class RenderService {
       crf: options.crf ?? 23,
       outputPath: options.outputPath ?? 'output.mp4',
     };
-    
+
     // Build props
     const props: RenderProps = {
       script,
@@ -478,33 +475,36 @@ export class RenderService {
       visuals,
       audioUrl: resolve(input.audioPath),
     };
-    
+
     // Ensure output directory exists
     const outputDir = dirname(renderOptions.outputPath);
     if (!existsSync(outputDir)) {
       mkdirSync(outputDir, { recursive: true });
     }
-    
+
     // Bundle if needed
     const bundlePath = await this.ensureBundled();
-    
+
     // Calculate duration
     const durationInSeconds = audio.duration;
     const durationInFrames = Math.ceil(durationInSeconds * renderOptions.fps);
-    
-    logger.info({
-      duration: durationInSeconds,
-      frames: durationInFrames,
-      output: renderOptions.outputPath,
-    }, 'Starting render');
-    
+
+    logger.info(
+      {
+        duration: durationInSeconds,
+        frames: durationInFrames,
+        output: renderOptions.outputPath,
+      },
+      'Starting render'
+    );
+
     // Get composition
     const composition = await selectComposition({
       serveUrl: bundlePath,
       id: 'ContentMachineVideo',
       inputProps: props,
     });
-    
+
     // Render
     await renderMedia({
       composition: {
@@ -523,24 +523,27 @@ export class RenderService {
         logger.debug({ progress: Math.round(progress * 100) }, 'Render progress');
       },
     });
-    
+
     // Get file size
-    const stats = await import('fs').then(fs => fs.statSync(renderOptions.outputPath));
-    
+    const stats = await import('fs').then((fs) => fs.statSync(renderOptions.outputPath));
+
     const result: RenderResult = {
       outputPath: renderOptions.outputPath,
       duration: durationInSeconds,
       fileSize: stats.size,
       renderTime: (Date.now() - startTime) / 1000,
     };
-    
-    logger.info({
-      output: result.outputPath,
-      duration: result.duration,
-      size: `${(result.fileSize / 1024 / 1024).toFixed(1)}MB`,
-      renderTime: `${result.renderTime.toFixed(1)}s`,
-    }, 'Render complete');
-    
+
+    logger.info(
+      {
+        output: result.outputPath,
+        duration: result.duration,
+        size: `${(result.fileSize / 1024 / 1024).toFixed(1)}MB`,
+        renderTime: `${result.renderTime.toFixed(1)}s`,
+      },
+      'Render complete'
+    );
+
     return result;
   }
 }
@@ -577,19 +580,19 @@ export function createRenderCommand(): Command {
         ['visuals', options.visuals],
         ['audio', options.audio],
       ] as const;
-      
+
       for (const [name, path] of inputs) {
         if (!existsSync(path)) {
           console.error(`${name} file not found: ${path}`);
           process.exit(1);
         }
       }
-      
+
       const spinner = ora('Rendering video...').start();
-      
+
       try {
         const service = new RenderService();
-        
+
         const result = await service.render(
           {
             scriptPath: resolve(options.script),
@@ -605,11 +608,12 @@ export function createRenderCommand(): Command {
             crf: options.crf,
           }
         );
-        
-        spinner.succeed(`Video rendered (${result.duration.toFixed(1)}s, ${(result.fileSize / 1024 / 1024).toFixed(1)}MB)`);
+
+        spinner.succeed(
+          `Video rendered (${result.duration.toFixed(1)}s, ${(result.fileSize / 1024 / 1024).toFixed(1)}MB)`
+        );
         console.log(`Output: ${result.outputPath}`);
         console.log(`Render time: ${result.renderTime.toFixed(1)}s`);
-        
       } catch (error) {
         spinner.fail('Render failed');
         console.error(error instanceof Error ? error.message : error);
@@ -633,7 +637,7 @@ import { RenderOptionsSchema, CaptionStyleSchema } from '../schema';
 describe('RenderOptionsSchema', () => {
   it('should use default values', () => {
     const result = RenderOptionsSchema.parse({ outputPath: 'out.mp4' });
-    
+
     expect(result.width).toBe(1080);
     expect(result.height).toBe(1920);
     expect(result.fps).toBe(30);
@@ -641,17 +645,19 @@ describe('RenderOptionsSchema', () => {
   });
 
   it('should reject invalid FPS', () => {
-    expect(() => RenderOptionsSchema.parse({ 
-      outputPath: 'out.mp4', 
-      fps: 10 
-    })).toThrow();
+    expect(() =>
+      RenderOptionsSchema.parse({
+        outputPath: 'out.mp4',
+        fps: 10,
+      })
+    ).toThrow();
   });
 });
 
 describe('CaptionStyleSchema', () => {
   it('should use default values', () => {
     const result = CaptionStyleSchema.parse({});
-    
+
     expect(result.fontFamily).toBe('Inter');
     expect(result.fontSize).toBe(48);
     expect(result.highlightColor).toBe('#FFE135');
@@ -747,10 +753,10 @@ vi.mock('@remotion/renderer', () => ({
 describe('RenderService', () => {
   it('should bundle once and reuse', async () => {
     const service = new RenderService();
-    
+
     await service.ensureBundled();
     await service.ensureBundled();
-    
+
     // Bundle should only be called once
     const { bundle } = await import('@remotion/bundler');
     expect(bundle).toHaveBeenCalledTimes(1);
@@ -763,11 +769,13 @@ describe('RenderService', () => {
 ## 5. Validation Checklist
 
 ### 5.1 Layer 1: Schema Validation
+
 - [ ] `RenderPropsSchema` validates all inputs
 - [ ] Caption style defaults work
 - [ ] Render options have sensible limits
 
 ### 5.2 Layer 2: Programmatic Checks
+
 - [ ] Output file is valid MP4
 - [ ] Resolution is 1080×1920
 - [ ] FPS is 30
@@ -775,12 +783,14 @@ describe('RenderService', () => {
 - [ ] File size < 50MB for 60s
 
 ### 5.3 Layer 3: Video Quality
+
 - [ ] PSNR ≥ 35dB (if comparing to reference)
 - [ ] No visible compression artifacts
 - [ ] Smooth transitions between scenes
 - [ ] Captions sync with audio (within 50ms)
 
 ### 5.4 Layer 4: Manual Review
+
 - [ ] Watch 3 complete renders
 - [ ] Captions are readable
 - [ ] Ken Burns effect is subtle
@@ -790,20 +800,21 @@ describe('RenderService', () => {
 
 ## 6. Research References
 
-| Topic | Document |
-|-------|----------|
-| Video rendering architecture | [SECTION-VIDEO-RENDERING-20260104.md](../research/sections/SECTION-VIDEO-RENDERING-20260104.md) |
-| Remotion architecture | [RQ-10-REMOTION-ARCHITECTURE-20260104.md](../research/investigations/RQ-10-REMOTION-ARCHITECTURE-20260104.md) |
-| Stock footage integration | [RQ-11-REMOTION-STOCK-FOOTAGE-20260104.md](../research/investigations/RQ-11-REMOTION-STOCK-FOOTAGE-20260104.md) |
-| Caption system | [RQ-13-CAPTION-SYSTEM-20260104.md](../research/investigations/RQ-13-CAPTION-SYSTEM-20260104.md) |
-| short-video-maker patterns | [10-short-video-maker-gyori-20260102.md](../research/10-short-video-maker-gyori-20260102.md) |
-| vidosy JSON-to-video | [12-vidosy-20260102.md](../research/12-vidosy-20260102.md) |
+| Topic                        | Document                                                                                                        |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Video rendering architecture | [SECTION-VIDEO-RENDERING-20260104.md](../research/sections/SECTION-VIDEO-RENDERING-20260104.md)                 |
+| Remotion architecture        | [RQ-10-REMOTION-ARCHITECTURE-20260104.md](../research/investigations/RQ-10-REMOTION-ARCHITECTURE-20260104.md)   |
+| Stock footage integration    | [RQ-11-REMOTION-STOCK-FOOTAGE-20260104.md](../research/investigations/RQ-11-REMOTION-STOCK-FOOTAGE-20260104.md) |
+| Caption system               | [RQ-13-CAPTION-SYSTEM-20260104.md](../research/investigations/RQ-13-CAPTION-SYSTEM-20260104.md)                 |
+| short-video-maker patterns   | [10-short-video-maker-gyori-20260102.md](../research/10-short-video-maker-gyori-20260102.md)                    |
+| vidosy JSON-to-video         | [12-vidosy-20260102.md](../research/12-vidosy-20260102.md)                                                      |
 
 ---
 
 ## 7. Remotion Licensing Note
 
 **CRITICAL:** Remotion requires a company license for commercial use. The open-source license only covers:
+
 - Personal projects
 - Open-source projects
 - Evaluation

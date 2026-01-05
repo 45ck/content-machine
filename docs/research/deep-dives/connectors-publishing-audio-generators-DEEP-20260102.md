@@ -1,7 +1,8 @@
 # Deep Dive: Connectors, Publishing, Audio/TTS, and Video Generators
+
 **Date:** 2026-01-02  
 **Category:** Deep Research Analysis  
-**Status:** Complete  
+**Status:** Complete
 
 ---
 
@@ -11,15 +12,15 @@ This document provides comprehensive analysis of **connectors** (Reddit, YouTube
 
 ### Key Discoveries
 
-| Category | Top Picks | Rationale |
-|----------|-----------|-----------|
-| **Reddit API** | PRAW/AsyncPRAW | Official SDK, well-maintained |
-| **YouTube Download** | yt-dlp | 1000+ sites, active development, Unlicense |
-| **Web Scraping** | Firecrawl + Tavily | LLM-ready, crawl + search capabilities |
-| **TTS** | Kokoro-FastAPI | OpenAI-compatible, 35-100x realtime |
-| **YouTube Upload** | pillar-youtube-upload | Simple OAuth flow, well-documented |
-| **TikTok Upload** | TiktokAutoUploader | Fast Requests-based, ~3 seconds |
-| **Video Generator** | TikTokAIVideoGenerator | Kokoro + Groq + MoviePy integration |
+| Category             | Top Picks              | Rationale                                  |
+| -------------------- | ---------------------- | ------------------------------------------ |
+| **Reddit API**       | PRAW/AsyncPRAW         | Official SDK, well-maintained              |
+| **YouTube Download** | yt-dlp                 | 1000+ sites, active development, Unlicense |
+| **Web Scraping**     | Firecrawl + Tavily     | LLM-ready, crawl + search capabilities     |
+| **TTS**              | Kokoro-FastAPI         | OpenAI-compatible, 35-100x realtime        |
+| **YouTube Upload**   | pillar-youtube-upload  | Simple OAuth flow, well-documented         |
+| **TikTok Upload**    | TiktokAutoUploader     | Fast Requests-based, ~3 seconds            |
+| **Video Generator**  | TikTokAIVideoGenerator | Kokoro + Groq + MoviePy integration        |
 
 ---
 
@@ -28,11 +29,13 @@ This document provides comprehensive analysis of **connectors** (Reddit, YouTube
 ### 2.1 Reddit Connectors
 
 **Available Options:**
+
 - `vendor/connectors/reddit/praw/` - Python Reddit API Wrapper (PRAW)
 - `vendor/connectors/reddit/asyncpraw/` - Async version
 - `vendor/connectors/reddit/reddit-mcp-*` - MCP servers for Reddit
 
 **PRAW Pattern (Standard):**
+
 ```python
 import praw
 
@@ -49,6 +52,7 @@ for submission in reddit.subreddit("technology").hot(limit=10):
 ```
 
 **AsyncPRAW Pattern (Async):**
+
 ```python
 import asyncpraw
 
@@ -64,12 +68,14 @@ async def get_posts():
 ### 2.2 YouTube Connectors
 
 **yt-dlp (vendor/connectors/youtube/yt-dlp)**
+
 - Fork of youtube-dl, actively maintained
 - 1000+ supported sites
 - Unlicense (very permissive)
 - Features: SponsorBlock, subtitles, thumbnails
 
 **Key yt-dlp Patterns:**
+
 ```python
 import yt_dlp
 
@@ -90,6 +96,7 @@ def extract_info(url: str):
 ```
 
 **youtube-transcript-api:**
+
 ```python
 from youtube_transcript_api import YouTubeTranscriptApi
 
@@ -100,6 +107,7 @@ transcript = YouTubeTranscriptApi.get_transcript("VIDEO_ID")
 ### 2.3 Web Scraping Connectors
 
 **Firecrawl (vendor/connectors/web/firecrawl)**
+
 - LLM-ready markdown output
 - Crawl entire sites with depth control
 - Map site structure
@@ -123,6 +131,7 @@ crawl_result = app.crawl_url("https://docs.example.com", params={
 ```
 
 **Tavily (vendor/connectors/web/tavily-python)**
+
 - AI-native search API
 - RAG context generation
 - Q&A search with direct answers
@@ -152,6 +161,7 @@ research = client.research(
 ### 2.4 Trends Connectors
 
 **PyTrends (vendor/connectors/trends/pytrends)**
+
 - Google Trends API wrapper
 - Interest over time, related queries
 - Trending searches by region
@@ -172,6 +182,7 @@ trending = pytrends.trending_searches(pn='united_states')
 ### 3.1 YouTube Upload
 
 **pillar-youtube-upload (vendor/publish/youtube-upload)**
+
 - OAuth 2.0 authentication
 - Full metadata support (title, description, tags, thumbnails)
 - Privacy settings (public, private, unlisted)
@@ -214,6 +225,7 @@ uploader.close()
 ### 3.2 TikTok Upload
 
 **TiktokAutoUploader (vendor/publish/TiktokAutoUploader)**
+
 - Fast Requests-based (not Selenium)
 - ~3 second upload time
 - Session cookie authentication
@@ -235,6 +247,7 @@ upload_video(
 ### 3.3 Instagram Upload
 
 **rednote-instagram-auto-uploader (vendor/publish/rednote-instagram-auto-uploader)**
+
 - Uses instagrapi library
 - Reel format support
 - Caption preservation
@@ -256,12 +269,14 @@ cl.clip_upload(
 ### 3.4 Multi-Platform Publishing
 
 **Mixpost (vendor/publish/mixpost)**
+
 - Laravel-based social media management
 - Schedule posts across platforms
 - Team collaboration features
 - Analytics dashboard
 
 **Postiz Patterns:**
+
 - Open-source alternative to Buffer/Hootsuite
 - API-based scheduling
 - Multi-tenant architecture
@@ -275,6 +290,7 @@ cl.clip_upload(
 **Location:** `vendor/audio/kokoro-fastapi`
 
 **Key Features:**
+
 - 82M parameter TTS model
 - OpenAI-compatible API endpoint
 - Multi-language support (EN, JP, CN)
@@ -284,6 +300,7 @@ cl.clip_upload(
 - Docker-ready
 
 **Quickstart:**
+
 ```bash
 # GPU version
 docker run --gpus all -p 8880:8880 ghcr.io/remsky/kokoro-fastapi-gpu:latest
@@ -293,6 +310,7 @@ docker run -p 8880:8880 ghcr.io/remsky/kokoro-fastapi-cpu:latest
 ```
 
 **OpenAI-Compatible Usage:**
+
 ```python
 from openai import OpenAI
 
@@ -307,6 +325,7 @@ with client.audio.speech.with_streaming_response.create(
 ```
 
 **Voice Mixing:**
+
 ```python
 # 67% bella, 33% sky
 response = requests.post(
@@ -320,6 +339,7 @@ response = requests.post(
 ```
 
 **Timestamped Captions:**
+
 ```python
 response = requests.post(
     "http://localhost:8880/dev/captioned_speech",
@@ -351,6 +371,7 @@ for chunk in response.iter_lines(decode_unicode=True):
 **Location:** `vendor/audio/kokoro`
 
 **Direct Usage:**
+
 ```python
 from kokoro import KPipeline
 
@@ -377,6 +398,7 @@ for i, (graphemes, phonemes, audio) in enumerate(generator):
 ### 4.3 EdgeTTS (Fallback)
 
 **Pattern from ShortGPT:**
+
 ```python
 import edge_tts
 import asyncio
@@ -392,6 +414,7 @@ async def generate_speech(text: str, voice: str, output: str):
 ```
 
 **Advantages:**
+
 - Free (Microsoft Edge service)
 - 30+ languages
 - No API key required
@@ -404,6 +427,7 @@ async def generate_speech(text: str, voice: str, output: str):
 ### 5.1 Full Pipeline Generators
 
 **TikTokAIVideoGenerator (vendor/TikTokAIVideoGenerator)**
+
 - Groq (Llama3) for script generation
 - Together AI (FLUX-1) for images
 - Kokoro TTS with EdgeTTS fallback
@@ -423,6 +447,7 @@ async def generate_speech(text: str, voice: str, output: str):
 ```
 
 **AI-Content-Studio (vendor/AI-Content-Studio)**
+
 - Google Gemini for script + research
 - Vertex AI for images/video
 - Google TTS for voices
@@ -441,6 +466,7 @@ async def generate_speech(text: str, voice: str, output: str):
 ### 5.2 Reddit-to-Video Generators
 
 **Pattern: Reddit Story Video**
+
 ```python
 # Common architecture:
 # 1. Fetch Reddit post (PRAW)
@@ -454,6 +480,7 @@ async def generate_speech(text: str, voice: str, output: str):
 ```
 
 **tiktok-automatic-videos (vendor/tiktok-automatic-videos)**
+
 - Uses Remotion for video composition
 - Google Wavenet for TTS
 - Tokenizes text for phrase display
@@ -462,6 +489,7 @@ async def generate_speech(text: str, voice: str, output: str):
 ### 5.3 Trend-Based Generators
 
 **YASGU (vendor/YASGU)**
+
 - YouTube Automated Shorts Generator
 - Multi-LLM support (GPT, Claude, Mixtral, Gemini)
 - CoquiTTS for voice
@@ -480,6 +508,7 @@ async def generate_speech(text: str, voice: str, output: str):
 ```
 
 **Viral-Faceless-Shorts-Generator (vendor/Viral-Faceless-Shorts-Generator)**
+
 - Google Trends scraping with Puppeteer
 - Gemini for script generation
 - Coqui TTS
@@ -497,6 +526,7 @@ async def generate_speech(text: str, voice: str, output: str):
 ### 5.4 Clipping/Repurposing Tools
 
 **ai-clips-maker (vendor/ai-clips-maker)**
+
 - WhisperX for word-level transcription
 - Pyannote for speaker diarization
 - OpenCV + PyAV for video processing
@@ -520,6 +550,7 @@ crops = resize(
 ```
 
 **reels-clips-automator (vendor/reels-clips-automator)**
+
 - GPT for viral section identification
 - Face tracking with OpenCV
 - Whisper for subtitles
@@ -564,10 +595,10 @@ await flow.add({
       children: [
         { name: 'generate-tts', queueName: 'audio', data: { scriptId } },
         { name: 'generate-images', queueName: 'assets', data: { prompts } },
-        { name: 'generate-captions', queueName: 'captions', data: { audioId } }
-      ]
-    }
-  ]
+        { name: 'generate-captions', queueName: 'captions', data: { audioId } },
+      ],
+    },
+  ],
 });
 ```
 
@@ -581,15 +612,15 @@ const trendServer = new MCPServer({
       name: 'search_reddit',
       handler: async ({ subreddit, limit }) => {
         return await praw.getHot(subreddit, limit);
-      }
+      },
     },
     {
       name: 'search_web',
       handler: async ({ query }) => {
         return await tavily.search(query);
-      }
-    }
-  ]
+      },
+    },
+  ],
 });
 ```
 
@@ -599,36 +630,36 @@ const trendServer = new MCPServer({
 
 ### 7.1 TTS Solutions
 
-| Solution | Speed | Quality | Languages | Cost | License |
-|----------|-------|---------|-----------|------|---------|
-| **Kokoro-FastAPI** | 35-100x RT | High | 7 | Free | Apache 2.0 |
-| EdgeTTS | Realtime | Good | 30+ | Free | MS Service |
-| ElevenLabs | Realtime | Excellent | 29 | $5+/mo | Proprietary |
-| Google TTS | Realtime | Good | 40+ | Pay/use | Proprietary |
-| Coqui TTS | 2-5x RT | Good | Multi | Free | MPL 2.0 |
+| Solution           | Speed      | Quality   | Languages | Cost    | License     |
+| ------------------ | ---------- | --------- | --------- | ------- | ----------- |
+| **Kokoro-FastAPI** | 35-100x RT | High      | 7         | Free    | Apache 2.0  |
+| EdgeTTS            | Realtime   | Good      | 30+       | Free    | MS Service  |
+| ElevenLabs         | Realtime   | Excellent | 29        | $5+/mo  | Proprietary |
+| Google TTS         | Realtime   | Good      | 40+       | Pay/use | Proprietary |
+| Coqui TTS          | 2-5x RT    | Good      | Multi     | Free    | MPL 2.0     |
 
 **Recommendation:** Kokoro-FastAPI for MVP, EdgeTTS as fallback for additional languages.
 
 ### 7.2 Video Generators
 
-| Generator | Pipeline | TTS | Images | Upload | Complexity |
-|-----------|----------|-----|--------|--------|------------|
-| TikTokAIVideoGenerator | Full | Kokoro | FLUX | Manual | Medium |
-| AI-Content-Studio | Full | Google | Vertex | Auto | High |
-| YASGU | Full | Coqui | DALL-E | Selenium | High |
-| shortrocity | Full | ElevenLabs | DALL-E | Manual | Low |
-| Autotube | Full | OpenTTS | Pexels | Manual | Medium |
+| Generator              | Pipeline | TTS        | Images | Upload   | Complexity |
+| ---------------------- | -------- | ---------- | ------ | -------- | ---------- |
+| TikTokAIVideoGenerator | Full     | Kokoro     | FLUX   | Manual   | Medium     |
+| AI-Content-Studio      | Full     | Google     | Vertex | Auto     | High       |
+| YASGU                  | Full     | Coqui      | DALL-E | Selenium | High       |
+| shortrocity            | Full     | ElevenLabs | DALL-E | Manual   | Low        |
+| Autotube               | Full     | OpenTTS    | Pexels | Manual   | Medium     |
 
 **Recommendation:** Study TikTokAIVideoGenerator for Kokoro integration pattern, Autotube for n8n orchestration.
 
 ### 7.3 Upload Solutions
 
-| Solution | Platform | Method | Reliability | Maintenance |
-|----------|----------|--------|-------------|-------------|
-| pillar-youtube-upload | YouTube | OAuth API | High | Active |
-| TiktokAutoUploader | TikTok | Requests | Medium | Risk |
-| instagrapi | Instagram | Unofficial | Medium | Active |
-| Selenium browsers | All | Browser auto | Low | High |
+| Solution              | Platform  | Method       | Reliability | Maintenance |
+| --------------------- | --------- | ------------ | ----------- | ----------- |
+| pillar-youtube-upload | YouTube   | OAuth API    | High        | Active      |
+| TiktokAutoUploader    | TikTok    | Requests     | Medium      | Risk        |
+| instagrapi            | Instagram | Unofficial   | Medium      | Active      |
+| Selenium browsers     | All       | Browser auto | Low         | High        |
 
 **Recommendation:** Official APIs where available (YouTube), unofficial for TikTok/Instagram with monitoring.
 
@@ -637,24 +668,28 @@ const trendServer = new MCPServer({
 ## 8. Implementation Recommendations
 
 ### 8.1 Phase 1: Connector Layer
+
 1. Implement Reddit connector using AsyncPRAW
 2. Integrate Tavily for web research
 3. Add yt-dlp for YouTube content analysis
 4. Setup PyTrends for trend detection
 
 ### 8.2 Phase 2: Audio Pipeline
+
 1. Deploy Kokoro-FastAPI via Docker
 2. Implement voice mixing for variety
 3. Add timestamped caption generation
 4. Setup EdgeTTS fallback
 
 ### 8.3 Phase 3: Video Generation
+
 1. Integrate Remotion with Kokoro audio
 2. Add FLUX/DALL-E image generation
 3. Implement Whisper caption overlay
 4. Build BullMQ job orchestration
 
 ### 8.4 Phase 4: Publishing
+
 1. Implement YouTube upload with OAuth
 2. Add TikTok upload (monitor for breaks)
 3. Implement Instagram via instagrapi
@@ -666,23 +701,23 @@ const trendServer = new MCPServer({
 
 ### 9.1 API Stability Risks
 
-| Component | Risk Level | Mitigation |
-|-----------|------------|------------|
-| YouTube API | Low | Official, stable |
-| TikTok Upload | High | Monitor, have backup |
-| Instagram API | Medium | Use instagrapi, monitor |
-| EdgeTTS | Medium | Microsoft may rate limit |
-| Reddit API | Low | Official PRAW library |
+| Component     | Risk Level | Mitigation               |
+| ------------- | ---------- | ------------------------ |
+| YouTube API   | Low        | Official, stable         |
+| TikTok Upload | High       | Monitor, have backup     |
+| Instagram API | Medium     | Use instagrapi, monitor  |
+| EdgeTTS       | Medium     | Microsoft may rate limit |
+| Reddit API    | Low        | Official PRAW library    |
 
 ### 9.2 License Risks
 
-| Component | License | Commercial Use |
-|-----------|---------|----------------|
-| yt-dlp | Unlicense | ✅ Free |
-| Kokoro | Apache 2.0 | ✅ Free |
-| Firecrawl | AGPL | ⚠️ Self-host OK |
-| Remotion | Custom | ⚠️ Check company license |
-| PRAW | BSD | ✅ Free |
+| Component | License    | Commercial Use           |
+| --------- | ---------- | ------------------------ |
+| yt-dlp    | Unlicense  | ✅ Free                  |
+| Kokoro    | Apache 2.0 | ✅ Free                  |
+| Firecrawl | AGPL       | ⚠️ Self-host OK          |
+| Remotion  | Custom     | ⚠️ Check company license |
+| PRAW      | BSD        | ✅ Free                  |
 
 ---
 
@@ -691,6 +726,7 @@ const trendServer = new MCPServer({
 ### 10.1 Quick Reference: API Endpoints
 
 **Kokoro-FastAPI:**
+
 - `POST /v1/audio/speech` - Generate audio
 - `GET /v1/audio/voices` - List voices
 - `POST /v1/audio/voices/combine` - Mix voices
@@ -698,12 +734,14 @@ const trendServer = new MCPServer({
 - `POST /dev/phonemize` - Text to phonemes
 
 **Firecrawl:**
+
 - `POST /v2/crawl` - Start crawl job
 - `GET /v2/crawl/:id` - Check crawl status
 - `POST /v2/scrape` - Scrape single URL
 - `POST /v2/map` - Map site structure
 
 **Tavily:**
+
 - `POST /search` - Web search
 - `POST /extract` - Extract from URLs
 - `POST /research` - Deep research

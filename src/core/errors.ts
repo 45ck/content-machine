@@ -1,6 +1,6 @@
 /**
  * Error Taxonomy for content-machine
- * 
+ *
  * All errors extend CMError with:
  * - Unique error codes
  * - Structured context
@@ -24,18 +24,13 @@ export class CMError extends Error {
   readonly code: string;
   readonly context?: ErrorContext;
 
-  constructor(
-    code: string,
-    message: string,
-    context?: ErrorContext,
-    cause?: Error
-  ) {
+  constructor(code: string, message: string, context?: ErrorContext, cause?: Error) {
     super(message);
     this.name = 'CMError';
     this.code = code;
     this.context = context;
     this.cause = cause;
-    
+
     // Maintain proper stack trace in V8
     if (Error.captureStackTrace) {
       Error.captureStackTrace(this, this.constructor);
@@ -76,11 +71,10 @@ export class RateLimitError extends CMError {
   readonly retryAfter: number;
 
   constructor(provider: string, retryAfter: number) {
-    super(
-      'RATE_LIMIT',
-      `Rate limited by ${provider}. Retry after ${retryAfter} seconds.`,
-      { provider, retryAfter }
-    );
+    super('RATE_LIMIT', `Rate limited by ${provider}. Retry after ${retryAfter} seconds.`, {
+      provider,
+      retryAfter,
+    });
     this.name = 'RateLimitError';
     this.provider = provider;
     this.retryAfter = retryAfter;
@@ -154,13 +148,13 @@ export function isRetryable(error: unknown): boolean {
   if (error instanceof RateLimitError) {
     return true;
   }
-  
+
   if (error instanceof APIError) {
     // 429 (rate limit) or 5xx (server errors) are retryable
     if (error.status === 429) return true;
     if (error.status && error.status >= 500 && error.status < 600) return true;
   }
-  
+
   return false;
 }
 
@@ -171,10 +165,10 @@ export function wrapError(error: unknown, defaultCode: string = 'UNKNOWN_ERROR')
   if (isCMError(error)) {
     return error;
   }
-  
+
   if (error instanceof Error) {
     return new CMError(defaultCode, error.message, undefined, error);
   }
-  
+
   return new CMError(defaultCode, String(error));
 }

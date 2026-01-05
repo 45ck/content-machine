@@ -15,6 +15,7 @@
 ## Table of Contents
 
 ### Part I: Vision & User Experience
+
 - [Executive Summary](#executive-summary) — Problem, solution, differentiation
 - [User Experience & Interaction](#user-experience--interaction) — Installation, CLI demos, workflows
 - [MVP Scope & Boundaries](#mvp-scope--boundaries) — What's in, what's out
@@ -22,6 +23,7 @@
 - [Post-MVP Roadmap](#post-mvp-roadmap) — Future features v1.5 through v3.0
 
 ### Part II: Technical Specification
+
 - [§1. Introduction](#1-introduction) — Document purpose, product vision
 - [§2. Design Principles](#2-design-principles) — LLM-native, config-first, embeddings
 - [§3. System Overview](#3-system-overview) — Architecture, pipeline stages
@@ -33,18 +35,21 @@
 - [§9. Performance Expectations](#9-performance-expectations) — Timing, costs, outputs
 
 ### Part III: Quality & Implementation
+
 - [§10. Testing Strategy](#10-testing-strategy) — Test pyramid, V&V framework, LLM evals
 - [§11. Implementation Plan](#11-implementation-plan) — Development phases, detailed execution
 - [§12. Security Considerations](#12-security-considerations) — API keys, content safety
 - [§13. References](#13-references) — Research documents
 
 ### Part IV: Critical Evaluation & Iterations
+
 - [§14. Critical Evaluation](#14-critical-evaluation) — Gaps, risks, questions
 - [§15. Updated Design Decisions](#15-updated-design-decisions-post-investigation) — Post-investigation
 - [§16. Critical Evaluation — Iterations 2-5](#16-critical-evaluation--iteration-2) — Convergence
 - [§17. Implementation Readiness Assessment](#17-implementation-readiness-assessment) — Go/no-go
 
 ### Part V: Extensibility & Appendices
+
 - [§18. Extensibility Architecture](#18-extensibility-architecture) — 12 extension points
 - [§19. Appendix: Investigation Documents](#19-appendix-investigation-documents-index) — RQ-01 to RQ-24
 - [§20. Appendix: Implementation Phase Documents](#20-appendix-implementation-phase-documents) — Phase 0-5 guides
@@ -58,6 +63,7 @@
 ### The Problem
 
 Creating short-form video content today requires:
+
 - **Video editing skills** — Learning Premiere Pro, DaVinci Resolve, or CapCut
 - **Voice recording** — Quality microphone, quiet room, confident delivery
 - **Stock footage hunting** — Manually searching Pexels/Pixabay, downloading clips
@@ -82,6 +88,7 @@ cm generate "Why Redis is faster than PostgreSQL for caching"
 ```
 
 The system handles:
+
 - ✅ Script writing with viral hooks and clear structure
 - ✅ Natural-sounding voiceover (no robotic TTS)
 - ✅ Automatic stock footage matching (semantic, not keyword)
@@ -90,25 +97,25 @@ The system handles:
 
 ### Who Is This For?
 
-| Persona | Use Case | Content Style |
-|---------|----------|---------------|
-| **Developer Advocates** | Explain technical concepts | Educational |
-| **Indie Hackers** | Promote SaaS products | Product Demo |
-| **Content Agencies** | Scale video production | All styles |
-| **Educators** | Create learning content | Educational |
-| **Meme Creators** | Gen Z entertainment | Brainrot, Meme |
-| **Story Narrators** | Reddit stories, drama | Story |
+| Persona                 | Use Case                   | Content Style  |
+| ----------------------- | -------------------------- | -------------- |
+| **Developer Advocates** | Explain technical concepts | Educational    |
+| **Indie Hackers**       | Promote SaaS products      | Product Demo   |
+| **Content Agencies**    | Scale video production     | All styles     |
+| **Educators**           | Create learning content    | Educational    |
+| **Meme Creators**       | Gen Z entertainment        | Brainrot, Meme |
+| **Story Narrators**     | Reddit stories, drama      | Story          |
 
 ### What Makes This Different?
 
-| Feature | Existing Tools | content-machine |
-|---------|----------------|-----------------|
-| **Video quality** | Stock templates, generic | LLM-reasoned, semantic |
-| **Voice quality** | Robotic TTS | Kokoro (human-like) |
-| **Footage matching** | Keyword search | Embedding similarity |
-| **Customization** | Limited presets | Full archetype system |
-| **Price** | $20-100/month | Free (open source) |
-| **Privacy** | Cloud-only | Local-first option |
+| Feature              | Existing Tools           | content-machine        |
+| -------------------- | ------------------------ | ---------------------- |
+| **Video quality**    | Stock templates, generic | LLM-reasoned, semantic |
+| **Voice quality**    | Robotic TTS              | Kokoro (human-like)    |
+| **Footage matching** | Keyword search           | Embedding similarity   |
+| **Customization**    | Limited presets          | Full archetype system  |
+| **Price**            | $20-100/month            | Free (open source)     |
+| **Privacy**          | Cloud-only               | Local-first option     |
 
 ---
 
@@ -155,7 +162,7 @@ $ cm init
     af_nicole (energetic female)
 
   ✓ Configuration saved to ~/.cmrc.json
-  
+
   You're ready! Try: cm generate "Your topic here"
 ```
 
@@ -250,7 +257,7 @@ cm render . --quality high
       "mood": "dramatic"
     },
     {
-      "id": "scene-002", 
+      "id": "scene-002",
       "text": "Redis stores everything in RAM. That means microsecond reads.",
       "visualDirection": "server room with blinking lights, fast motion",
       "mood": "energetic"
@@ -260,12 +267,14 @@ cm render . --quality high
 ```
 
 You can:
+
 - Edit the spoken text
 - Change visual directions for better footage matches
 - Add/remove scenes
 - Adjust mood indicators
 
 Then re-run downstream stages:
+
 ```bash
 cm audio script.json    # Re-generate audio with your edits
 cm visuals script.json  # Re-match visuals
@@ -275,9 +284,11 @@ cm render .             # Re-render
 ### Content Style Examples
 
 **Brainrot Style (Gen Z):**
+
 ```bash
 cm generate "POV: you mass mass assignment in production" --archetype brainrot
 ```
+
 - Split-screen with Minecraft parkour
 - Rapid 1.5-second cuts
 - Bouncing captions, red highlights
@@ -285,9 +296,11 @@ cm generate "POV: you mass mass assignment in production" --archetype brainrot
 - 120 WPM speech rate
 
 **Educational Style:**
+
 ```bash
 cm generate "How DNS actually works" --archetype educational
 ```
+
 - Clean stock footage
 - 5-8 second scenes
 - Professional font, bottom captions
@@ -295,9 +308,11 @@ cm generate "How DNS actually works" --archetype educational
 - 95 WPM speech rate
 
 **Reddit Story Style:**
+
 ```bash
 cm generate "AITA for refusing to cook for my roommate's guests?" --archetype story
 ```
+
 - Moody, abstract backgrounds
 - Dramatic pauses
 - Suspenseful music
@@ -309,28 +324,28 @@ cm generate "AITA for refusing to cook for my roommate's guests?" --archetype st
 
 ### ✅ What MVP Includes
 
-| Capability | Implementation |
-|------------|----------------|
-| **Script generation** | GPT-4o with archetype-specific prompts |
-| **Voice synthesis** | Kokoro (local, free, high-quality English) |
-| **Stock footage** | Pexels API (free, semantic matching) |
-| **Caption rendering** | Word-level timing, 17 caption styles |
-| **Video output** | 1080x1920 (9:16), H.264, 30fps |
-| **Content styles** | 6 archetypes (brainrot, meme, educational, story, product, motivational) |
-| **CLI interface** | `cm generate`, `cm script`, `cm audio`, `cm visuals`, `cm render` |
+| Capability            | Implementation                                                           |
+| --------------------- | ------------------------------------------------------------------------ |
+| **Script generation** | GPT-4o with archetype-specific prompts                                   |
+| **Voice synthesis**   | Kokoro (local, free, high-quality English)                               |
+| **Stock footage**     | Pexels API (free, semantic matching)                                     |
+| **Caption rendering** | Word-level timing, 17 caption styles                                     |
+| **Video output**      | 1080x1920 (9:16), H.264, 30fps                                           |
+| **Content styles**    | 6 archetypes (brainrot, meme, educational, story, product, motivational) |
+| **CLI interface**     | `cm generate`, `cm script`, `cm audio`, `cm visuals`, `cm render`        |
 
 ### ❌ What MVP Does NOT Include
 
-| Not Included | Why | Post-MVP Plan |
-|--------------|-----|---------------|
-| **Web UI** | Complexity, needs API server | v2.0 with React dashboard |
-| **Auto-publishing** | ToS risks, API complexity | v2.0 with official APIs |
-| **Trend research** | Scope creep, needs MCP servers | v1.5 with Reddit/YouTube MCP |
-| **Batch processing** | Needs job queue infrastructure | v1.5 with BullMQ |
-| **Screen recording** | Playwright complexity | v2.0 for product demos |
-| **Music/background audio** | Licensing complexity | v1.5 with royalty-free sources |
-| **Multi-language** | TTS quality varies | v2.0 with Edge TTS fallback |
-| **Team collaboration** | Needs database, auth | v3.0 with Supabase |
+| Not Included               | Why                            | Post-MVP Plan                  |
+| -------------------------- | ------------------------------ | ------------------------------ |
+| **Web UI**                 | Complexity, needs API server   | v2.0 with React dashboard      |
+| **Auto-publishing**        | ToS risks, API complexity      | v2.0 with official APIs        |
+| **Trend research**         | Scope creep, needs MCP servers | v1.5 with Reddit/YouTube MCP   |
+| **Batch processing**       | Needs job queue infrastructure | v1.5 with BullMQ               |
+| **Screen recording**       | Playwright complexity          | v2.0 for product demos         |
+| **Music/background audio** | Licensing complexity           | v1.5 with royalty-free sources |
+| **Multi-language**         | TTS quality varies             | v2.0 with Edge TTS fallback    |
+| **Team collaboration**     | Needs database, auth           | v3.0 with Supabase             |
 
 ### 🎯 MVP Success Criteria
 
@@ -347,45 +362,45 @@ cm generate "AITA for refusing to cook for my roommate's guests?" --archetype st
 
 ### ✅ You CAN Expect
 
-| Expectation | Confidence | Evidence |
-|-------------|------------|----------|
-| **Professional-quality output** | High | Remotion rendering, Kokoro TTS |
-| **Semantic footage matching** | High | Embedding similarity + LLM reasoning |
-| **Consistent styling** | High | Archetype system with 50+ parameters |
-| **Fast generation** | High | ~4 minutes per video with GPU |
-| **Low cost** | High | ~$0.05/video with GPT-4o-mini |
-| **Reproducibility** | High | JSON configs, seed control |
-| **Extensibility** | High | 12 extension points, plugin system |
+| Expectation                     | Confidence | Evidence                             |
+| ------------------------------- | ---------- | ------------------------------------ |
+| **Professional-quality output** | High       | Remotion rendering, Kokoro TTS       |
+| **Semantic footage matching**   | High       | Embedding similarity + LLM reasoning |
+| **Consistent styling**          | High       | Archetype system with 50+ parameters |
+| **Fast generation**             | High       | ~4 minutes per video with GPU        |
+| **Low cost**                    | High       | ~$0.05/video with GPT-4o-mini        |
+| **Reproducibility**             | High       | JSON configs, seed control           |
+| **Extensibility**               | High       | 12 extension points, plugin system   |
 
 ### ⚠️ You SHOULD Expect (With Caveats)
 
-| Expectation | Caveat | Mitigation |
-|-------------|--------|------------|
-| **Good scripts** | LLMs can produce generic content | Edit script.json before rendering |
-| **Relevant footage** | Pexels doesn't cover everything | Provide your own clips via `--footage` |
-| **Natural voice** | Kokoro is English-only | Edge TTS fallback for other languages |
-| **Fast on CPU** | Whisper/Remotion are GPU-optimized | Allow 10+ minutes without GPU |
+| Expectation          | Caveat                             | Mitigation                             |
+| -------------------- | ---------------------------------- | -------------------------------------- |
+| **Good scripts**     | LLMs can produce generic content   | Edit script.json before rendering      |
+| **Relevant footage** | Pexels doesn't cover everything    | Provide your own clips via `--footage` |
+| **Natural voice**    | Kokoro is English-only             | Edge TTS fallback for other languages  |
+| **Fast on CPU**      | Whisper/Remotion are GPU-optimized | Allow 10+ minutes without GPU          |
 
 ### ❌ You CANNOT Expect
 
-| Don't Expect | Reality | Alternative |
-|--------------|---------|-------------|
-| **Viral videos guaranteed** | Content quality ≠ virality | A/B test, iterate on hooks |
-| **Zero editing needed** | AI isn't perfect | Review and edit script.json |
-| **Free stock for everything** | Pexels has gaps | Upload custom footage |
-| **Real product demos** | No screen recording yet | Manually record, use as footage |
-| **One-click publishing** | Not in MVP | Manual upload to platforms |
-| **Offline mode** | LLM/TTS need internet | Post-MVP local model support |
+| Don't Expect                  | Reality                    | Alternative                     |
+| ----------------------------- | -------------------------- | ------------------------------- |
+| **Viral videos guaranteed**   | Content quality ≠ virality | A/B test, iterate on hooks      |
+| **Zero editing needed**       | AI isn't perfect           | Review and edit script.json     |
+| **Free stock for everything** | Pexels has gaps            | Upload custom footage           |
+| **Real product demos**        | No screen recording yet    | Manually record, use as footage |
+| **One-click publishing**      | Not in MVP                 | Manual upload to platforms      |
+| **Offline mode**              | LLM/TTS need internet      | Post-MVP local model support    |
 
 ### ⚙️ Known Limitations
 
-| Limitation | Impact | Workaround |
-|------------|--------|------------|
-| **API rate limits** | Pexels: 200 req/hour | Multi-key rotation, caching |
-| **Remotion memory** | 4-8GB RAM needed | Reduce concurrency, split scenes |
-| **Long videos** | >90s may OOM | Split into multiple videos |
-| **Copyright** | User's responsibility | Use your own footage for sensitive content |
-| **Prompt injection** | User input goes to LLM | Don't run on untrusted input |
+| Limitation           | Impact                 | Workaround                                 |
+| -------------------- | ---------------------- | ------------------------------------------ |
+| **API rate limits**  | Pexels: 200 req/hour   | Multi-key rotation, caching                |
+| **Remotion memory**  | 4-8GB RAM needed       | Reduce concurrency, split scenes           |
+| **Long videos**      | >90s may OOM           | Split into multiple videos                 |
+| **Copyright**        | User's responsibility  | Use your own footage for sensitive content |
+| **Prompt injection** | User input goes to LLM | Don't run on untrusted input               |
 
 ---
 
@@ -393,42 +408,42 @@ cm generate "AITA for refusing to cook for my roommate's guests?" --archetype st
 
 ### v1.5: Research & Batch (Q2 2026)
 
-| Feature | Description |
-|---------|-------------|
-| **cm research** | MCP-powered trend discovery from Reddit, Hacker News, YouTube |
-| **Batch mode** | Generate multiple videos from CSV/JSON list |
-| **Music library** | Royalty-free background tracks, auto-matched to mood |
-| **Local caching** | Don't re-download same stock footage |
-| **--offline flag** | Ollama + local Whisper for air-gapped usage |
+| Feature            | Description                                                   |
+| ------------------ | ------------------------------------------------------------- |
+| **cm research**    | MCP-powered trend discovery from Reddit, Hacker News, YouTube |
+| **Batch mode**     | Generate multiple videos from CSV/JSON list                   |
+| **Music library**  | Royalty-free background tracks, auto-matched to mood          |
+| **Local caching**  | Don't re-download same stock footage                          |
+| **--offline flag** | Ollama + local Whisper for air-gapped usage                   |
 
 ### v2.0: Web Interface (Q3 2026)
 
-| Feature | Description |
-|---------|-------------|
-| **Dashboard** | Web UI for non-technical users |
-| **Project library** | Browse and manage generated videos |
-| **Template editor** | Visual archetype customization |
-| **Team sharing** | Share projects, templates, footage |
-| **Auto-publish** | One-click TikTok/YouTube/Instagram upload |
+| Feature             | Description                               |
+| ------------------- | ----------------------------------------- |
+| **Dashboard**       | Web UI for non-technical users            |
+| **Project library** | Browse and manage generated videos        |
+| **Template editor** | Visual archetype customization            |
+| **Team sharing**    | Share projects, templates, footage        |
+| **Auto-publish**    | One-click TikTok/YouTube/Instagram upload |
 
 ### v2.5: Product Demos (Q4 2026)
 
-| Feature | Description |
-|---------|-------------|
+| Feature                | Description                          |
+| ---------------------- | ------------------------------------ |
 | **Playwright capture** | Record real product UI automatically |
-| **Product-truthful** | Sync voiceover to actual UI actions |
-| **Cursor animations** | Natural mouse movements |
-| **Highlight regions** | Auto-zoom on clicked elements |
+| **Product-truthful**   | Sync voiceover to actual UI actions  |
+| **Cursor animations**  | Natural mouse movements              |
+| **Highlight regions**  | Auto-zoom on clicked elements        |
 
 ### v3.0: Enterprise (2027)
 
-| Feature | Description |
-|---------|-------------|
-| **Multi-tenant** | Isolated workspaces for agencies |
-| **Usage analytics** | Track generation stats, costs |
-| **SSO/SAML** | Enterprise authentication |
-| **API access** | REST/GraphQL for integrations |
-| **White-label** | Remove content-machine branding |
+| Feature             | Description                      |
+| ------------------- | -------------------------------- |
+| **Multi-tenant**    | Isolated workspaces for agencies |
+| **Usage analytics** | Track generation stats, costs    |
+| **SSO/SAML**        | Enterprise authentication        |
+| **API access**      | REST/GraphQL for integrations    |
+| **White-label**     | Remove content-machine branding  |
 
 ---
 
@@ -449,6 +464,7 @@ The document consolidates research from 139 vendored repositories and 86 deep-di
 **content-machine democratizes short-form video creation.**
 
 Today, creating a single 60-second TikTok video requires:
+
 1. Writing a compelling script (30 min)
 2. Recording or sourcing voiceover (30 min)
 3. Finding and downloading stock footage (30 min)
@@ -471,14 +487,14 @@ The system generates short-form videos (15-60 seconds) for TikTok, Instagram Ree
 
 **Multi-Demographic Support:** The system supports multiple content archetypes to serve diverse audiences:
 
-| Archetype | Target Demographic | Style |
-|-----------|-------------------|-------|
-| **Brainrot** | Gen Z (13-24) | Fast cuts, gameplay background, meme energy |
-| **Meme/Comedy** | Gen Z/Millennials (16-35) | Punchy, ironic, reaction-based |
-| **Educational** | All ages (18-55) | Clear, well-paced, informative |
-| **Reddit Story** | Millennials/Gen Z (16-40) | Dramatic, suspenseful, narrative |
-| **Product Demo** | Professionals (20-45) | Clean, focused, product-truthful |
-| **Motivational** | Millennials (18-40) | Inspiring, quote-driven, aspirational |
+| Archetype        | Target Demographic        | Style                                       |
+| ---------------- | ------------------------- | ------------------------------------------- |
+| **Brainrot**     | Gen Z (13-24)             | Fast cuts, gameplay background, meme energy |
+| **Meme/Comedy**  | Gen Z/Millennials (16-35) | Punchy, ironic, reaction-based              |
+| **Educational**  | All ages (18-55)          | Clear, well-paced, informative              |
+| **Reddit Story** | Millennials/Gen Z (16-40) | Dramatic, suspenseful, narrative            |
+| **Product Demo** | Professionals (20-45)     | Clean, focused, product-truthful            |
+| **Motivational** | Millennials (18-40)       | Inspiring, quote-driven, aspirational       |
 
 ### 1.3 Research Foundation
 
@@ -491,13 +507,13 @@ This design draws from extensive analysis of existing solutions. The synthesis p
 
 Key blueprint repositories that inform this design:
 
-| Repository | Analysis | Key Contribution |
-|------------|----------|------------------|
-| short-video-maker-gyori | [10-short-video-maker-gyori-20260102.md](../research/10-short-video-maker-gyori-20260102.md) | TypeScript + Remotion + MCP architecture |
-| vidosy | [12-vidosy-20260102.md](../research/12-vidosy-20260102.md) | JSON-driven video configuration pattern |
-| MoneyPrinterTurbo | [01-moneyprinter-turbo-20260102.md](../research/01-moneyprinter-turbo-20260102.md) | End-to-end pipeline with multi-provider TTS |
-| template-tiktok | [04-template-tiktok-20260102.md](../research/04-template-tiktok-20260102.md) | Remotion caption rendering patterns |
-| captacity | [09-captacity-20260102.md](../research/09-captacity-20260102.md) | Word-level caption timing and styling |
+| Repository              | Analysis                                                                                     | Key Contribution                            |
+| ----------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| short-video-maker-gyori | [10-short-video-maker-gyori-20260102.md](../research/10-short-video-maker-gyori-20260102.md) | TypeScript + Remotion + MCP architecture    |
+| vidosy                  | [12-vidosy-20260102.md](../research/12-vidosy-20260102.md)                                   | JSON-driven video configuration pattern     |
+| MoneyPrinterTurbo       | [01-moneyprinter-turbo-20260102.md](../research/01-moneyprinter-turbo-20260102.md)           | End-to-end pipeline with multi-provider TTS |
+| template-tiktok         | [04-template-tiktok-20260102.md](../research/04-template-tiktok-20260102.md)                 | Remotion caption rendering patterns         |
+| captacity               | [09-captacity-20260102.md](../research/09-captacity-20260102.md)                             | Word-level caption timing and styling       |
 
 ---
 
@@ -536,13 +552,13 @@ The MVP uses a CLI-first architecture where each pipeline stage is an independen
 
 This pattern was selected based on analysis of orchestration approaches in [L3-CAT-I-ORCHESTRATION-QUEUES-20260104.md](../research/synthesis/L3-CAT-I-ORCHESTRATION-QUEUES-20260104.md). The CLI approach offers advantages for an MVP:
 
-| Benefit | Description |
-|---------|-------------|
-| Debuggable | JSON outputs between stages can be inspected and edited |
-| Composable | Individual stages can be re-run without restarting the pipeline |
-| Testable | Each command can be tested in isolation |
-| Scriptable | Commands can be chained in shell scripts or CI/CD workflows |
-| No infrastructure | No Redis, PostgreSQL, or Docker required |
+| Benefit           | Description                                                     |
+| ----------------- | --------------------------------------------------------------- |
+| Debuggable        | JSON outputs between stages can be inspected and edited         |
+| Composable        | Individual stages can be re-run without restarting the pipeline |
+| Testable          | Each command can be tested in isolation                         |
+| Scriptable        | Commands can be chained in shell scripts or CI/CD workflows     |
+| No infrastructure | No Redis, PostgreSQL, or Docker required                        |
 
 ### 3.2 Pipeline Stages
 
@@ -658,13 +674,16 @@ The system defines a provider interface that abstracts LLM interactions:
 
 ```typescript
 interface LLMProvider {
-  chat(messages: LLMMessage[], options?: {
-    temperature?: number;
-    maxTokens?: number;
-    jsonMode?: boolean;
-    schema?: z.ZodSchema;
-  }): Promise<LLMResponse>;
-  
+  chat(
+    messages: LLMMessage[],
+    options?: {
+      temperature?: number;
+      maxTokens?: number;
+      jsonMode?: boolean;
+      schema?: z.ZodSchema;
+    }
+  ): Promise<LLMResponse>;
+
   embed(texts: string[]): Promise<number[][]>;
 }
 ```
@@ -686,12 +705,15 @@ variables:
 ---
 
 # System
+
 You are a viral short-form video scriptwriter.
 
 # Task
+
 Generate a {{targetDuration}}-second video script about: {{topic}}
 
 # Research Context
+
 {{research}}
 ```
 
@@ -720,14 +742,14 @@ cm script research.json --archetype reddit-story
 
 ### 5.2 Built-in Archetypes
 
-| ID | Name | Target | Pacing | Background |
-|----|------|--------|--------|------------|
-| `brainrot` | Gen Z Brainrot | 13-24 | 30 cuts/min | Gameplay split-screen |
-| `meme` | Meme/Comedy | 16-35 | 20 cuts/min | Stock + reactions |
-| `educational` | Educational | 18-55 | 10 cuts/min | Stock footage |
-| `story` | Reddit Story | 16-40 | 12 cuts/min | Abstract/moody |
-| `product` | Product Demo | 20-45 | 15 cuts/min | Screen capture |
-| `motivational` | Motivational | 18-40 | 15 cuts/min | Stock + quotes |
+| ID             | Name           | Target | Pacing      | Background            |
+| -------------- | -------------- | ------ | ----------- | --------------------- |
+| `brainrot`     | Gen Z Brainrot | 13-24  | 30 cuts/min | Gameplay split-screen |
+| `meme`         | Meme/Comedy    | 16-35  | 20 cuts/min | Stock + reactions     |
+| `educational`  | Educational    | 18-55  | 10 cuts/min | Stock footage         |
+| `story`        | Reddit Story   | 16-40  | 12 cuts/min | Abstract/moody        |
+| `product`      | Product Demo   | 20-45  | 15 cuts/min | Screen capture        |
+| `motivational` | Motivational   | 18-40  | 15 cuts/min | Stock + quotes        |
 
 ### 5.3 Archetype Configuration Structure
 
@@ -738,28 +760,28 @@ interface ContentArchetype {
   id: string;
   name: string;
   description: string;
-  
+
   // Target audience
   targetDemographic: {
     ageRange: { min: number; max: number };
     interests: string[];
   };
-  
+
   // Pacing controls
   pacing: {
     sceneDurationMs: { min: number; max: number };
     cutsPerMinute: { target: number; tolerance: number };
     transitionStyle: 'cut' | 'fade' | 'zoom' | 'glitch';
   };
-  
+
   // Audio configuration
   audio: {
-    voiceRate: number;        // 0.8-1.4
-    musicMood: MusicMood;     // happy, dark, euphoric, etc.
+    voiceRate: number; // 0.8-1.4
+    musicMood: MusicMood; // happy, dark, euphoric, etc.
     musicVolume: 'off' | 'low' | 'medium' | 'high';
     useMemeAudio: boolean;
   };
-  
+
   // Caption styling
   captions: {
     fontFamily: string;
@@ -773,18 +795,23 @@ interface ContentArchetype {
     animation: 'none' | 'bounce' | 'scale' | 'karaoke';
     wordsPerCaption: number;
   };
-  
+
   // Visual configuration
   visuals: {
-    backgroundType: 'stock-footage' | 'gameplay' | 'screen-capture' | 
-                    'split-screen' | 'abstract' | 'user-footage';
+    backgroundType:
+      | 'stock-footage'
+      | 'gameplay'
+      | 'screen-capture'
+      | 'split-screen'
+      | 'abstract'
+      | 'user-footage';
     gameplayStyle?: 'minecraft-parkour' | 'subway-surfers' | 'car-racing';
     splitScreenRatio?: number;
     useEffects: boolean;
     effectTypes?: ('zoom' | 'shake' | 'glitch' | 'emoji-overlay')[];
     colorGrading?: 'none' | 'vibrant' | 'muted' | 'dark' | 'retro';
   };
-  
+
   // Script generation
   script: {
     wordCountRange: { min: number; max: number };
@@ -794,7 +821,7 @@ interface ContentArchetype {
     useHook: boolean;
     useCTA: boolean;
   };
-  
+
   // Platform targeting
   platform: {
     platform: 'tiktok' | 'youtube-shorts' | 'instagram-reels' | 'all';
@@ -806,12 +833,13 @@ interface ContentArchetype {
 ### 5.4 Archetype Examples
 
 **Gen Z Brainrot:**
+
 ```typescript
 {
   id: 'brainrot',
   pacing: { sceneDurationMs: { min: 1500, max: 2500 }, cutsPerMinute: { target: 30 } },
   audio: { voiceRate: 1.3, musicMood: 'euphoric', musicVolume: 'high', useMemeAudio: true },
-  captions: { fontFamily: 'Bangers', fontSize: 130, position: 'center', 
+  captions: { fontFamily: 'Bangers', fontSize: 130, position: 'center',
               highlightCurrentWord: true, highlightColor: '#FF0000', animation: 'bounce' },
   visuals: { backgroundType: 'split-screen', gameplayStyle: 'minecraft-parkour' },
   script: { tone: 'energetic', language: 'gen-z', wordCountRange: { min: 80, max: 120 } },
@@ -819,12 +847,13 @@ interface ContentArchetype {
 ```
 
 **Educational:**
+
 ```typescript
 {
   id: 'educational',
   pacing: { sceneDurationMs: { min: 5000, max: 8000 }, cutsPerMinute: { target: 10 } },
   audio: { voiceRate: 0.95, musicMood: 'contemplative', musicVolume: 'low' },
-  captions: { fontFamily: 'Inter', fontSize: 60, position: 'bottom', 
+  captions: { fontFamily: 'Inter', fontSize: 60, position: 'bottom',
               highlightCurrentWord: false, animation: 'none' },
   visuals: { backgroundType: 'stock-footage', useEffects: false },
   script: { tone: 'informative', language: 'formal', wordCountRange: { min: 120, max: 180 } },
@@ -858,10 +887,12 @@ archetype: brainrot
 ---
 
 # System
+
 You are a Gen Z content creator making viral TikToks.
 Use slang, be chaotic, be unhinged but relatable.
 
 # Rules
+
 - HOOK in first 2 seconds (shocking statement or question)
 - SHORT sentences (3-5 words max)
 - Use filler: "bro", "literally", "lowkey", "no cap"
@@ -870,6 +901,7 @@ Use slang, be chaotic, be unhinged but relatable.
 - Target: 80-120 words
 
 # Topic
+
 {{topic}}
 ```
 
@@ -926,23 +958,35 @@ const ResearchDocumentSchema = z.object({
   topic: z.string(),
   targetDuration: z.number().optional(),
   targetPlatform: z.string().optional(),
-  research: z.unknown(),  // Freeform LLM output
-  structured: z.object({
-    facts: z.array(z.string()).optional(),
-    quotes: z.array(z.object({
-      text: z.string(),
-      source: z.string().optional(),
-    })).optional(),
-    suggestedAngles: z.array(z.string()).optional(),
-  }).optional(),
-  sources: z.array(z.object({
-    url: z.string().optional(),
-    title: z.string().optional(),
-  })).optional(),
-  meta: z.object({
-    createdAt: z.string().datetime(),
-    researchModel: z.string().optional(),
-  }).optional(),
+  research: z.unknown(), // Freeform LLM output
+  structured: z
+    .object({
+      facts: z.array(z.string()).optional(),
+      quotes: z
+        .array(
+          z.object({
+            text: z.string(),
+            source: z.string().optional(),
+          })
+        )
+        .optional(),
+      suggestedAngles: z.array(z.string()).optional(),
+    })
+    .optional(),
+  sources: z
+    .array(
+      z.object({
+        url: z.string().optional(),
+        title: z.string().optional(),
+      })
+    )
+    .optional(),
+  meta: z
+    .object({
+      createdAt: z.string().datetime(),
+      researchModel: z.string().optional(),
+    })
+    .optional(),
   extra: z.record(z.unknown()).optional(),
 });
 ```
@@ -970,12 +1014,14 @@ const GeneratedScriptSchema = z.object({
   hook: z.string().optional(),
   cta: z.string().optional(),
   hashtags: z.array(z.string()).optional(),
-  meta: z.object({
-    estimatedDuration: z.number().optional(),
-    generatedAt: z.string().datetime(),
-    model: z.string().optional(),
-    promptVersion: z.string().optional(),
-  }).optional(),
+  meta: z
+    .object({
+      estimatedDuration: z.number().optional(),
+      generatedAt: z.string().datetime(),
+      model: z.string().optional(),
+      promptVersion: z.string().optional(),
+    })
+    .optional(),
   extra: z.record(z.unknown()).optional(),
 });
 ```
@@ -995,12 +1041,14 @@ const WordTimestampSchema = z.object({
 });
 
 const TimestampsSchema = z.object({
-  scenes: z.array(z.object({
-    sceneId: z.string(),
-    audioStart: z.number(),
-    audioEnd: z.number(),
-    words: z.array(WordTimestampSchema),
-  })),
+  scenes: z.array(
+    z.object({
+      sceneId: z.string(),
+      audioStart: z.number(),
+      audioEnd: z.number(),
+      words: z.array(WordTimestampSchema),
+    })
+  ),
   allWords: z.array(WordTimestampSchema),
   totalDuration: z.number(),
   ttsEngine: z.string(),
@@ -1019,10 +1067,14 @@ const MatchReasoningSchema = z.object({
   reasoning: z.string(),
   conceptsMatched: z.array(z.string()).optional(),
   moodAlignment: z.string().optional(),
-  alternatives: z.array(z.object({
-    path: z.string(),
-    whyNotChosen: z.string(),
-  })).optional(),
+  alternatives: z
+    .array(
+      z.object({
+        path: z.string(),
+        whyNotChosen: z.string(),
+      })
+    )
+    .optional(),
 });
 
 const VisualAssetSchema = z.object({
@@ -1065,6 +1117,7 @@ The `matchReasoning` field preserves the LLM's explanation for each footage sele
 **Purpose:** Generate video script from research input using archetype-specific prompts and settings.
 
 **Usage:**
+
 ```bash
 cm script <research.json> [--archetype <name>] [--prompt <template>] [--llm <config>]
 ```
@@ -1089,12 +1142,12 @@ cm script <research.json> [--archetype <name>] [--prompt <template>] [--llm <con
 
 **Error handling:**
 
-| Condition | Behavior |
-|-----------|----------|
-| research.json not found | Exit 1 with usage message |
-| Schema validation fails | Exit 1 with validation errors |
-| LLM returns invalid JSON | Retry 5x with progressive repair |
-| Unknown archetype | Exit 1 with list of valid archetypes |
+| Condition                | Behavior                             |
+| ------------------------ | ------------------------------------ |
+| research.json not found  | Exit 1 with usage message            |
+| Schema validation fails  | Exit 1 with validation errors        |
+| LLM returns invalid JSON | Retry 5x with progressive repair     |
+| Unknown archetype        | Exit 1 with list of valid archetypes |
 
 ### 7.2 cm audio
 
@@ -1103,6 +1156,7 @@ cm script <research.json> [--archetype <name>] [--prompt <template>] [--llm <con
 **Purpose:** Generate voiceover audio with archetype-specific voice rate and style.
 
 **Usage:**
+
 ```bash
 cm audio <script.json> [--voice <name>] [--speed <factor>]
 ```
@@ -1114,28 +1168,28 @@ cm audio <script.json> [--voice <name>] [--speed <factor>]
 3. Concatenate scene text, track scene boundaries
 4. Call TTS engine (Kokoro or EdgeTTS) with archetype voice rate
 5. Call ASR engine (whisper.cpp) to extract word timestamps
-5. Align words back to scene boundaries
-6. Normalize audio volume with FFmpeg
-7. Write audio.mp3 and timestamps.json
+6. Align words back to scene boundaries
+7. Normalize audio volume with FFmpeg
+8. Write audio.mp3 and timestamps.json
 
 **TTS options** were evaluated in [L3-CAT-F-TTS-AUDIO-20260104.md](../research/synthesis/L3-CAT-F-TTS-AUDIO-20260104.md):
 
-| Engine | Quality | Cost | Languages |
-|--------|---------|------|-----------|
-| Kokoro | Excellent | Free (local) | English |
-| EdgeTTS | Good | Free (cloud) | 30+ |
-| ElevenLabs | Excellent | Paid | Many |
+| Engine     | Quality   | Cost         | Languages |
+| ---------- | --------- | ------------ | --------- |
+| Kokoro     | Excellent | Free (local) | English   |
+| EdgeTTS    | Good      | Free (cloud) | 30+       |
+| ElevenLabs | Excellent | Paid         | Many      |
 
 Kokoro is the default for English content. EdgeTTS provides free multilingual fallback.
 
 **Error handling:**
 
-| Condition | Behavior |
-|-----------|----------|
-| Kokoro unavailable | Fall back to EdgeTTS |
-| WhisperX fails | Retry with different model size |
+| Condition                 | Behavior                           |
+| ------------------------- | ---------------------------------- |
+| Kokoro unavailable        | Fall back to EdgeTTS               |
+| WhisperX fails            | Retry with different model size    |
 | Timestamp alignment fails | Use estimated timings, log warning |
-| FFmpeg not installed | Exit 1 with install instructions |
+| FFmpeg not installed      | Exit 1 with install instructions   |
 
 ### 7.3 cm visuals
 
@@ -1144,19 +1198,20 @@ Kokoro is the default for English content. EdgeTTS provides free multilingual fa
 **Purpose:** Match footage to scene descriptions using archetype-specific visual sources.
 
 **Usage:**
+
 ```bash
 cm visuals <script.json> [--footage <dir>] [--gameplay <dir>] [--stock] [--dry-run]
 ```
 
 **Archetype-Specific Behavior:**
 
-| Archetype | Primary Source | Fallback |
-|-----------|----------------|----------|
-| `brainrot` | `--gameplay` directory | Solid color + effects |
-| `meme` | Stock footage + reactions | User footage |
-| `educational` | Pexels/Pixabay | Abstract gradients |
-| `story` | Abstract loops, moody stock | User footage |
-| `product` | Screen capture (user-provided) | Stock |
+| Archetype     | Primary Source                 | Fallback              |
+| ------------- | ------------------------------ | --------------------- |
+| `brainrot`    | `--gameplay` directory         | Solid color + effects |
+| `meme`        | Stock footage + reactions      | User footage          |
+| `educational` | Pexels/Pixabay                 | Abstract gradients    |
+| `story`       | Abstract loops, moody stock    | User footage          |
+| `product`     | Screen capture (user-provided) | Stock                 |
 
 **Processing:**
 
@@ -1173,6 +1228,7 @@ cm visuals <script.json> [--footage <dir>] [--gameplay <dir>] [--stock] [--dry-r
 
 **Split-Screen Handling (Brainrot):**
 When archetype uses `split-screen` background type, visuals.json includes:
+
 ```json
 {
   "sceneId": "scene-001",
@@ -1189,6 +1245,7 @@ When archetype uses `split-screen` background type, visuals.json includes:
 **Purpose:** Compose final video using archetype-specific caption styling, pacing, and effects.
 
 **Usage:**
+
 ```bash
 cm render <project-dir> [--quality <level>]
 ```
@@ -1197,15 +1254,15 @@ cm render <project-dir> [--quality <level>]
 
 The archetype (stored in script.json) controls all rendering decisions:
 
-| Setting | Brainrot | Educational | Story |
-|---------|----------|-------------|-------|
-| Caption font | Bangers 130px | Inter 60px | LuckiestGuy 100px |
-| Caption position | center | bottom | center |
-| Word highlight | ✓ red | ✗ | ✓ blue |
-| Animation | bounce | none | karaoke |
-| Transition | cut | fade | fade |
-| Color grading | vibrant | none | dark |
-| Background | split-screen | stock | abstract |
+| Setting          | Brainrot      | Educational | Story             |
+| ---------------- | ------------- | ----------- | ----------------- |
+| Caption font     | Bangers 130px | Inter 60px  | LuckiestGuy 100px |
+| Caption position | center        | bottom      | center            |
+| Word highlight   | ✓ red         | ✗           | ✓ blue            |
+| Animation        | bounce        | none        | karaoke           |
+| Transition       | cut           | fade        | fade              |
+| Color grading    | vibrant       | none        | dark              |
+| Background       | split-screen  | stock       | abstract          |
 
 **Processing:**
 
@@ -1233,35 +1290,36 @@ The archetype (stored in script.json) controls all rendering decisions:
 
 **Caption styling** uses patterns from remotion-subtitles with 17 presets:
 
-| Style | Description |
-|-------|-------------|
+| Style       | Description                                |
+| ----------- | ------------------------------------------ |
 | tiktok-bold | White text, black stroke, bounce animation |
-| karaoke | Word-by-word highlight |
-| typewriter | Character-by-character reveal |
-| minimal | Simple fade |
+| karaoke     | Word-by-word highlight                     |
+| typewriter  | Character-by-character reveal              |
+| minimal     | Simple fade                                |
 
 **Templates** define style presets:
 
-| Template | Use Case |
-|----------|----------|
-| default | General purpose |
-| gaming-hype | Gaming content with effects |
+| Template       | Use Case                    |
+| -------------- | --------------------------- |
+| default        | General purpose             |
+| gaming-hype    | Gaming content with effects |
 | story-dramatic | Reddit stories with tension |
-| product-demo | Clean, focused on UI |
+| product-demo   | Clean, focused on UI        |
 
 **Quality levels** control encoding:
 
-| Level | Resolution | Bitrate | Use Case |
-|-------|------------|---------|----------|
-| draft | 720p | Low | Preview |
-| standard | 1080p | Medium | General |
-| high | 1080p | High | Final export |
+| Level    | Resolution | Bitrate | Use Case     |
+| -------- | ---------- | ------- | ------------ |
+| draft    | 720p       | Low     | Preview      |
+| standard | 1080p      | Medium  | General      |
+| high     | 1080p      | High    | Final export |
 
 ### 7.5 cm generate (Convenience Wrapper)
 
 **Purpose:** One-command video generation that runs all four stages automatically.
 
 **Usage:**
+
 ```bash
 cm generate <topic> [--archetype <name>] [--output <dir>] [--quality <level>]
 ```
@@ -1277,6 +1335,7 @@ cm generate <topic> [--archetype <name>] [--output <dir>] [--quality <level>]
 | `--dry-run` | Generate script.json only, don't render | `false` |
 
 **Example:**
+
 ```bash
 cm generate "Why Redis is faster than PostgreSQL" --archetype educational --quality high
 ```
@@ -1296,6 +1355,7 @@ cm generate "Why Redis is faster than PostgreSQL" --archetype educational --qual
 **Purpose:** Interactive first-time setup for API keys and preferences.
 
 **Usage:**
+
 ```bash
 cm init
 ```
@@ -1311,16 +1371,16 @@ cm init
 
 ### 7.7 CLI Quick Reference
 
-| Command | Purpose | Key Flags |
-|---------|---------|-----------|
-| `cm generate <topic>` | One-command video generation | `--archetype`, `--quality` |
-| `cm script <research.json>` | Generate video script | `--archetype`, `--prompt` |
-| `cm audio <script.json>` | Generate voiceover + timestamps | `--voice`, `--speed` |
-| `cm visuals <script.json>` | Match footage to scenes | `--footage`, `--stock` |
-| `cm render <project-dir>` | Render final video | `--quality` |
-| `cm init` | First-time setup | — |
-| `cm --version` | Show version | — |
-| `cm --help` | Show help | — |
+| Command                     | Purpose                         | Key Flags                  |
+| --------------------------- | ------------------------------- | -------------------------- |
+| `cm generate <topic>`       | One-command video generation    | `--archetype`, `--quality` |
+| `cm script <research.json>` | Generate video script           | `--archetype`, `--prompt`  |
+| `cm audio <script.json>`    | Generate voiceover + timestamps | `--voice`, `--speed`       |
+| `cm visuals <script.json>`  | Match footage to scenes         | `--footage`, `--stock`     |
+| `cm render <project-dir>`   | Render final video              | `--quality`                |
+| `cm init`                   | First-time setup                | —                          |
+| `cm --version`              | Show version                    | —                          |
+| `cm --help`                 | Show help                       | —                          |
 
 ---
 
@@ -1330,30 +1390,30 @@ cm init
 
 Technology choices were evaluated across synthesis documents. Final selections:
 
-| Component | Technology | Reference |
-|-----------|------------|-----------|
-| Language | TypeScript | Remotion compatibility |
-| CLI Framework | Commander.js | Node.js standard |
-| Validation | Zod | TypeScript-native schemas |
-| Rendering | Remotion | [L3-CAT-C-RENDERING-COMPOSITION-20260104.md](../research/synthesis/L3-CAT-C-RENDERING-COMPOSITION-20260104.md) |
-| Captions | remotion-subtitles | [04-template-tiktok-20260102.md](../research/04-template-tiktok-20260102.md) |
-| TTS | Kokoro / EdgeTTS | [L3-CAT-F-TTS-AUDIO-20260104.md](../research/synthesis/L3-CAT-F-TTS-AUDIO-20260104.md) |
-| ASR | WhisperX | [L3-CAT-E-CAPTIONS-TRANSCRIPTION-20260104.md](../research/synthesis/L3-CAT-E-CAPTIONS-TRANSCRIPTION-20260104.md) |
-| Encoding | FFmpeg | Industry standard |
-| Stock Footage | Pexels / Pixabay | Free commercial use |
+| Component     | Technology         | Reference                                                                                                        |
+| ------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| Language      | TypeScript         | Remotion compatibility                                                                                           |
+| CLI Framework | Commander.js       | Node.js standard                                                                                                 |
+| Validation    | Zod                | TypeScript-native schemas                                                                                        |
+| Rendering     | Remotion           | [L3-CAT-C-RENDERING-COMPOSITION-20260104.md](../research/synthesis/L3-CAT-C-RENDERING-COMPOSITION-20260104.md)   |
+| Captions      | remotion-subtitles | [04-template-tiktok-20260102.md](../research/04-template-tiktok-20260102.md)                                     |
+| TTS           | Kokoro / EdgeTTS   | [L3-CAT-F-TTS-AUDIO-20260104.md](../research/synthesis/L3-CAT-F-TTS-AUDIO-20260104.md)                           |
+| ASR           | WhisperX           | [L3-CAT-E-CAPTIONS-TRANSCRIPTION-20260104.md](../research/synthesis/L3-CAT-E-CAPTIONS-TRANSCRIPTION-20260104.md) |
+| Encoding      | FFmpeg             | Industry standard                                                                                                |
+| Stock Footage | Pexels / Pixabay   | Free commercial use                                                                                              |
 
 ### 8.2 Future Additions
 
 Post-MVP infrastructure evaluated in [L2-THEME-4-INFRASTRUCTURE-PUBLISHING-20260104.md](../research/synthesis/L2-THEME-4-INFRASTRUCTURE-PUBLISHING-20260104.md):
 
-| Component | Technology | Trigger |
-|-----------|------------|---------|
-| Job Queue | BullMQ | Batch processing needed |
-| API Server | Hono | Web interface needed |
-| Database | PostgreSQL + Drizzle | Persistence needed |
-| Object Storage | MinIO | Cloud deployment |
-| Vector Search | Qdrant | Large footage libraries |
-| Observability | Langfuse | LLM debugging |
+| Component      | Technology           | Trigger                 |
+| -------------- | -------------------- | ----------------------- |
+| Job Queue      | BullMQ               | Batch processing needed |
+| API Server     | Hono                 | Web interface needed    |
+| Database       | PostgreSQL + Drizzle | Persistence needed      |
+| Object Storage | MinIO                | Cloud deployment        |
+| Vector Search  | Qdrant               | Large footage libraries |
+| Observability  | Langfuse             | LLM debugging           |
 
 ---
 
@@ -1363,13 +1423,13 @@ Post-MVP infrastructure evaluated in [L2-THEME-4-INFRASTRUCTURE-PUBLISHING-20260
 
 Estimated times for a 60-second video on a machine with GPU:
 
-| Stage | Time | Notes |
-|-------|------|-------|
-| cm script | ~5s | LLM API call |
-| cm audio | ~30s | TTS + ASR with GPU |
-| cm visuals | ~10s | Embedding + reasoning |
-| cm render | ~3min | Remotion + FFmpeg |
-| **Total** | **~4min** | With GPU acceleration |
+| Stage      | Time      | Notes                 |
+| ---------- | --------- | --------------------- |
+| cm script  | ~5s       | LLM API call          |
+| cm audio   | ~30s      | TTS + ASR with GPU    |
+| cm visuals | ~10s      | Embedding + reasoning |
+| cm render  | ~3min     | Remotion + FFmpeg     |
+| **Total**  | **~4min** | With GPU acceleration |
 
 CPU-only processing increases cm audio time to approximately 5 minutes.
 
@@ -1377,23 +1437,25 @@ CPU-only processing increases cm audio time to approximately 5 minutes.
 
 Estimated costs using standard API pricing:
 
-| Component | Cost |
-|-----------|------|
-| GPT-4o (script) | ~$0.02 |
-| GPT-4o (visuals reasoning) | ~$0.03 |
-| Embeddings | ~$0.001 |
-| TTS (Kokoro) | Free |
-| Stock API | Free |
-| **Total** | **~$0.05** |
+| Component                  | Cost       |
+| -------------------------- | ---------- |
+| GPT-4o (script)            | ~$0.02     |
+| GPT-4o (visuals reasoning) | ~$0.03     |
+| Embeddings                 | ~$0.001    |
+| TTS (Kokoro)               | Free       |
+| Stock API                  | Free       |
+| **Total**                  | **~$0.05** |
 
 ### 9.3 Output Examples
 
 This section shows what content-machine produces at each stage.
 
 #### Example Topic
+
 **"Why Redis is faster than PostgreSQL for caching"**
 
 #### Generated Script (script.json)
+
 ```json
 {
   "schemaVersion": "1.0.0",
@@ -1436,6 +1498,7 @@ This section shows what content-machine produces at each stage.
 ```
 
 #### Generated Timestamps (timestamps.json)
+
 ```json
 {
   "schemaVersion": "1.0.0",
@@ -1452,7 +1515,7 @@ This section shows what content-machine produces at each stage.
         { "word": "using", "start": 0.35, "end": 0.62, "confidence": 0.99 },
         { "word": "PostgreSQL", "start": 0.62, "end": 1.45, "confidence": 0.97 },
         { "word": "for", "start": 1.45, "end": 1.58, "confidence": 0.99 },
-        { "word": "caching.", "start": 1.58, "end": 2.10, "confidence": 0.98 }
+        { "word": "caching.", "start": 1.58, "end": 2.1, "confidence": 0.98 }
       ]
     }
   ]
@@ -1460,6 +1523,7 @@ This section shows what content-machine produces at each stage.
 ```
 
 #### Visual Plan (visuals.json)
+
 ```json
 {
   "schemaVersion": "1.0.0",
@@ -1489,15 +1553,15 @@ This section shows what content-machine produces at each stage.
 
 #### Final Output Specifications
 
-| Property | Value |
-|----------|-------|
-| **Resolution** | 1080 × 1920 (9:16 portrait) |
-| **Frame rate** | 30 fps |
-| **Codec** | H.264 (libx264) |
-| **Audio** | AAC 128kbps stereo |
-| **Duration** | 28.4 seconds |
-| **File size** | ~15 MB |
-| **Captions** | Word-level, bottom-positioned, Inter font |
+| Property       | Value                                     |
+| -------------- | ----------------------------------------- |
+| **Resolution** | 1080 × 1920 (9:16 portrait)               |
+| **Frame rate** | 30 fps                                    |
+| **Codec**      | H.264 (libx264)                           |
+| **Audio**      | AAC 128kbps stereo                        |
+| **Duration**   | 28.4 seconds                              |
+| **File size**  | ~15 MB                                    |
+| **Captions**   | Word-level, bottom-positioned, Inter font |
 
 ---
 
@@ -1505,22 +1569,22 @@ This section shows what content-machine produces at each stage.
 
 ### 10.1 Test Pyramid
 
-| Level | Coverage | Tools |
-|-------|----------|-------|
-| Unit | 70% | Vitest |
-| Integration | 20% | Vitest + MSW |
-| E2E | 10% | Playwright |
+| Level       | Coverage | Tools        |
+| ----------- | -------- | ------------ |
+| Unit        | 70%      | Vitest       |
+| Integration | 20%      | Vitest + MSW |
+| E2E         | 10%      | Playwright   |
 
 ### 10.2 LLM Evals (V&V Framework)
 
 Script generation and visual matching quality are measured using a 4-layer evaluation framework:
 
-| Layer | Type | Tool | Example |
-|-------|------|------|---------|
-| 1 | Schema Validation | Zod | JSON structure, required fields |
-| 2 | Programmatic Checks | Vitest | Word count 100-250, scenes 3-8 |
-| 3 | LLM-as-Judge | promptfoo | Hook quality, TikTok voice |
-| 4 | Human Review | Manual | Random sample QA |
+| Layer | Type                | Tool      | Example                         |
+| ----- | ------------------- | --------- | ------------------------------- |
+| 1     | Schema Validation   | Zod       | JSON structure, required fields |
+| 2     | Programmatic Checks | Vitest    | Word count 100-250, scenes 3-8  |
+| 3     | LLM-as-Judge        | promptfoo | Hook quality, TikTok voice      |
+| 4     | Human Review        | Manual    | Random sample QA                |
 
 **Promptfoo Integration:**
 
@@ -1528,8 +1592,8 @@ Script generation and visual matching quality are measured using a 4-layer evalu
 # evals/configs/cm-script.yaml
 tests:
   - vars:
-      topic: "5 JavaScript tips"
-      archetype: "listicle"
+      topic: '5 JavaScript tips'
+      archetype: 'listicle'
     assert:
       - type: javascript
         value: |
@@ -1542,15 +1606,16 @@ tests:
 
 **Key Evaluation Metrics:**
 
-| Metric | Target | Alert Threshold |
-|--------|--------|-----------------|
-| Script hook score | ≥0.85 | <0.75 |
-| Script archetype adherence | ≥0.90 | <0.80 |
-| Visual relevance score | ≥0.80 | <0.70 |
-| Word alignment accuracy | ≥0.95 | <0.90 |
-| Video PSNR | ≥35 dB | <30 dB |
+| Metric                     | Target | Alert Threshold |
+| -------------------------- | ------ | --------------- |
+| Script hook score          | ≥0.85  | <0.75           |
+| Script archetype adherence | ≥0.90  | <0.80           |
+| Visual relevance score     | ≥0.80  | <0.70           |
+| Word alignment accuracy    | ≥0.95  | <0.90           |
+| Video PSNR                 | ≥35 dB | <30 dB          |
 
 **Full V&V Documentation:**
+
 - [RQ-24: LLM Evaluation & Quality Assurance](../research/investigations/RQ-24-LLM-EVALUATION-QUALITY-ASSURANCE-20260105.md)
 - [V&V Framework Guide](../guides/VV-FRAMEWORK-20260105.md)
 - [evals/ directory](../../evals/README.md)
@@ -1579,14 +1644,14 @@ This section provides a comprehensive implementation roadmap. Each phase has a d
 
 ### 11.1 Phase Overview
 
-| Phase | Duration | Focus | Implementation Guide |
-|-------|----------|-------|---------------------|
-| **0** | Week 1 | Foundation & Infrastructure | [IMPL-PHASE-0-FOUNDATION-20260105.md](IMPL-PHASE-0-FOUNDATION-20260105.md) |
-| **1** | Weeks 2-3 | cm script: Script Generation | [IMPL-PHASE-1-SCRIPT-20260105.md](IMPL-PHASE-1-SCRIPT-20260105.md) |
-| **2** | Weeks 4-5 | cm audio: TTS & Timestamps | [IMPL-PHASE-2-AUDIO-20260105.md](IMPL-PHASE-2-AUDIO-20260105.md) |
-| **3** | Weeks 6-7 | cm visuals: Footage Matching | [IMPL-PHASE-3-VISUALS-20260105.md](IMPL-PHASE-3-VISUALS-20260105.md) |
-| **4** | Weeks 8-9 | cm render: Video Rendering | [IMPL-PHASE-4-RENDER-20260105.md](IMPL-PHASE-4-RENDER-20260105.md) |
-| **5** | Week 10 | Integration & Polish | [IMPL-PHASE-5-INTEGRATION-20260105.md](IMPL-PHASE-5-INTEGRATION-20260105.md) |
+| Phase | Duration  | Focus                        | Implementation Guide                                                         |
+| ----- | --------- | ---------------------------- | ---------------------------------------------------------------------------- |
+| **0** | Week 1    | Foundation & Infrastructure  | [IMPL-PHASE-0-FOUNDATION-20260105.md](IMPL-PHASE-0-FOUNDATION-20260105.md)   |
+| **1** | Weeks 2-3 | cm script: Script Generation | [IMPL-PHASE-1-SCRIPT-20260105.md](IMPL-PHASE-1-SCRIPT-20260105.md)           |
+| **2** | Weeks 4-5 | cm audio: TTS & Timestamps   | [IMPL-PHASE-2-AUDIO-20260105.md](IMPL-PHASE-2-AUDIO-20260105.md)             |
+| **3** | Weeks 6-7 | cm visuals: Footage Matching | [IMPL-PHASE-3-VISUALS-20260105.md](IMPL-PHASE-3-VISUALS-20260105.md)         |
+| **4** | Weeks 8-9 | cm render: Video Rendering   | [IMPL-PHASE-4-RENDER-20260105.md](IMPL-PHASE-4-RENDER-20260105.md)           |
+| **5** | Week 10   | Integration & Polish         | [IMPL-PHASE-5-INTEGRATION-20260105.md](IMPL-PHASE-5-INTEGRATION-20260105.md) |
 
 ### 11.2 Phase 0: Foundation & Infrastructure (Week 1)
 
@@ -1594,22 +1659,24 @@ This section provides a comprehensive implementation roadmap. Each phase has a d
 
 **Deliverables:**
 
-| Component | Files | V&V Criteria |
-|-----------|-------|--------------|
-| Project structure | `src/`, `tests/`, `evals/` | Vitest runs, TypeScript compiles |
-| Configuration system | `src/core/config.ts` | Loads `.env`, `~/.cmrc.json` |
-| LLM provider abstraction | `src/core/llm/` | OpenAI + Anthropic work |
-| Zod schemas | `src/schemas/` | All schemas validate |
-| Logger | `src/core/logger.ts` | pino structured output |
-| Error taxonomy | `src/core/errors.ts` | Typed errors with codes |
-| Test stubs | `src/test/stubs/` | FakeLLMProvider works |
+| Component                | Files                      | V&V Criteria                     |
+| ------------------------ | -------------------------- | -------------------------------- |
+| Project structure        | `src/`, `tests/`, `evals/` | Vitest runs, TypeScript compiles |
+| Configuration system     | `src/core/config.ts`       | Loads `.env`, `~/.cmrc.json`     |
+| LLM provider abstraction | `src/core/llm/`            | OpenAI + Anthropic work          |
+| Zod schemas              | `src/schemas/`             | All schemas validate             |
+| Logger                   | `src/core/logger.ts`       | pino structured output           |
+| Error taxonomy           | `src/core/errors.ts`       | Typed errors with codes          |
+| Test stubs               | `src/test/stubs/`          | FakeLLMProvider works            |
 
 **Research References:**
+
 - [SECTION-CONFIG-SYSTEMS-20260104.md](../research/sections/SECTION-CONFIG-SYSTEMS-20260104.md)
 - [SECTION-SCHEMAS-VALIDATION-20260104.md](../research/sections/SECTION-SCHEMAS-VALIDATION-20260104.md)
 - [RQ-14-ERROR-TAXONOMY-20260104.md](../research/investigations/RQ-14-ERROR-TAXONOMY-20260104.md)
 
 **Validation:**
+
 - [ ] `npm run build` succeeds
 - [ ] `npm test` passes with 100% coverage on core modules
 - [ ] `cm --help` outputs version and commands
@@ -1620,20 +1687,22 @@ This section provides a comprehensive implementation roadmap. Each phase has a d
 
 **Deliverables:**
 
-| Component | Files | V&V Criteria |
-|-----------|-------|--------------|
-| Script generator | `src/script/generator.ts` | Generates valid JSON |
-| Prompt templates | `src/script/prompts/` | YAML templates per archetype |
-| 6 archetypes | `src/script/archetypes/` | listicle, versus, howto, myth, story, hot-take |
-| Schema | `src/script/schema.ts` | ScriptOutput validates |
-| CLI command | `src/cli/commands/script.ts` | `cm script` works |
+| Component        | Files                        | V&V Criteria                                   |
+| ---------------- | ---------------------------- | ---------------------------------------------- |
+| Script generator | `src/script/generator.ts`    | Generates valid JSON                           |
+| Prompt templates | `src/script/prompts/`        | YAML templates per archetype                   |
+| 6 archetypes     | `src/script/archetypes/`     | listicle, versus, howto, myth, story, hot-take |
+| Schema           | `src/script/schema.ts`       | ScriptOutput validates                         |
+| CLI command      | `src/cli/commands/script.ts` | `cm script` works                              |
 
 **Research References:**
+
 - [SECTION-SCRIPT-GENERATION-20260104.md](../research/sections/SECTION-SCRIPT-GENERATION-20260104.md)
 - [RQ-04-STRUCTURED-LLM-OUTPUT-20260104.md](../research/investigations/RQ-04-STRUCTURED-LLM-OUTPUT-20260104.md)
 - [RQ-21-CONTENT-ARCHETYPES-20260105.md](../research/investigations/RQ-21-CONTENT-ARCHETYPES-20260105.md)
 
 **Validation (Layer 1-3):**
+
 - [ ] Zod schema validates all outputs (Layer 1)
 - [ ] Scene count 3-8, word count 100-250 (Layer 2)
 - [ ] Hook score ≥0.85, archetype adherence ≥0.90 (Layer 3 via promptfoo)
@@ -1645,21 +1714,23 @@ This section provides a comprehensive implementation roadmap. Each phase has a d
 
 **Deliverables:**
 
-| Component | Files | V&V Criteria |
-|-----------|-------|--------------|
-| TTS provider (Kokoro) | `src/audio/tts/kokoro.ts` | Generates WAV |
-| ASR provider (Whisper) | `src/audio/asr/whisper.ts` | Word timestamps |
-| Timestamp alignment | `src/audio/alignment.ts` | <50ms drift |
-| Schema | `src/audio/schema.ts` | AudioOutput validates |
-| CLI command | `src/cli/commands/audio.ts` | `cm audio` works |
+| Component              | Files                       | V&V Criteria          |
+| ---------------------- | --------------------------- | --------------------- |
+| TTS provider (Kokoro)  | `src/audio/tts/kokoro.ts`   | Generates WAV         |
+| ASR provider (Whisper) | `src/audio/asr/whisper.ts`  | Word timestamps       |
+| Timestamp alignment    | `src/audio/alignment.ts`    | <50ms drift           |
+| Schema                 | `src/audio/schema.ts`       | AudioOutput validates |
+| CLI command            | `src/cli/commands/audio.ts` | `cm audio` works      |
 
 **Research References:**
+
 - [SECTION-AUDIO-PIPELINE-20260104.md](../research/sections/SECTION-AUDIO-PIPELINE-20260104.md)
 - [RQ-07-EDGE-TTS-TIMESTAMPS-20260104.md](../research/investigations/RQ-07-EDGE-TTS-TIMESTAMPS-20260104.md)
 - [RQ-08-FORCED-ALIGNMENT-20260104.md](../research/investigations/RQ-08-FORCED-ALIGNMENT-20260104.md)
 - [RQ-09-TIMESTAMP-DRIFT-20260104.md](../research/investigations/RQ-09-TIMESTAMP-DRIFT-20260104.md)
 
 **Validation:**
+
 - [ ] WAV output at 44100 Hz
 - [ ] Word alignment accuracy ≥95%
 - [ ] No silence gaps >500ms
@@ -1671,21 +1742,23 @@ This section provides a comprehensive implementation roadmap. Each phase has a d
 
 **Deliverables:**
 
-| Component | Files | V&V Criteria |
-|-----------|-------|--------------|
-| Pexels provider | `src/visuals/providers/pexels.ts` | Returns videos |
-| Keyword extractor | `src/visuals/keywords.ts` | LLM-based extraction |
-| Footage matcher | `src/visuals/matcher.ts` | Best match selection |
-| Download manager | `src/visuals/download.ts` | Caches locally |
-| Schema | `src/visuals/schema.ts` | VisualsOutput validates |
-| CLI command | `src/cli/commands/visuals.ts` | `cm visuals` works |
+| Component         | Files                             | V&V Criteria            |
+| ----------------- | --------------------------------- | ----------------------- |
+| Pexels provider   | `src/visuals/providers/pexels.ts` | Returns videos          |
+| Keyword extractor | `src/visuals/keywords.ts`         | LLM-based extraction    |
+| Footage matcher   | `src/visuals/matcher.ts`          | Best match selection    |
+| Download manager  | `src/visuals/download.ts`         | Caches locally          |
+| Schema            | `src/visuals/schema.ts`           | VisualsOutput validates |
+| CLI command       | `src/cli/commands/visuals.ts`     | `cm visuals` works      |
 
 **Research References:**
+
 - [SECTION-VISUAL-MATCHING-20260104.md](../research/sections/SECTION-VISUAL-MATCHING-20260104.md)
 - [RQ-05-VISUAL-TO-KEYWORD-20260104.md](../research/investigations/RQ-05-VISUAL-TO-KEYWORD-20260104.md)
 - [RQ-06-EMBEDDING-MODEL-SELECTION-20260104.md](../research/investigations/RQ-06-EMBEDDING-MODEL-SELECTION-20260104.md)
 
 **Validation:**
+
 - [ ] All scenes have footage URLs
 - [ ] All clips are portrait orientation (1080x1920)
 - [ ] Visual relevance score ≥0.80 (promptfoo)
@@ -1697,22 +1770,24 @@ This section provides a comprehensive implementation roadmap. Each phase has a d
 
 **Deliverables:**
 
-| Component | Files | V&V Criteria |
-|-----------|-------|--------------|
-| Remotion composition | `src/render/remotion/` | React components |
-| Caption component | `src/render/remotion/Caption.tsx` | Word-level animation |
-| Video assembly | `src/render/service.ts` | Clips + audio + captions |
-| Encoder | `src/render/encoder.ts` | H.264 output |
-| Schema | `src/render/schema.ts` | RenderProps validates |
-| CLI command | `src/cli/commands/render.ts` | `cm render` works |
+| Component            | Files                             | V&V Criteria             |
+| -------------------- | --------------------------------- | ------------------------ |
+| Remotion composition | `src/render/remotion/`            | React components         |
+| Caption component    | `src/render/remotion/Caption.tsx` | Word-level animation     |
+| Video assembly       | `src/render/service.ts`           | Clips + audio + captions |
+| Encoder              | `src/render/encoder.ts`           | H.264 output             |
+| Schema               | `src/render/schema.ts`            | RenderProps validates    |
+| CLI command          | `src/cli/commands/render.ts`      | `cm render` works        |
 
 **Research References:**
+
 - [SECTION-VIDEO-RENDERING-20260104.md](../research/sections/SECTION-VIDEO-RENDERING-20260104.md)
 - [RQ-10-VIDEO-OUTPUT-TESTING-20260104.md](../research/investigations/RQ-10-VIDEO-OUTPUT-TESTING-20260104.md)
 - [RQ-11-REMOTION-MEMORY-20260104.md](../research/investigations/RQ-11-REMOTION-MEMORY-20260104.md)
 - [RQ-13-VIDEO-QUALITY-METRICS-20260104.md](../research/investigations/RQ-13-VIDEO-QUALITY-METRICS-20260104.md)
 
 **Validation:**
+
 - [ ] Output resolution 1080x1920
 - [ ] Frame rate 30 fps
 - [ ] PSNR ≥35 dB (vs reference render)
@@ -1725,20 +1800,22 @@ This section provides a comprehensive implementation roadmap. Each phase has a d
 
 **Deliverables:**
 
-| Component | Files | V&V Criteria |
-|-----------|-------|--------------|
-| Pipeline orchestrator | `src/core/pipeline.ts` | Chains stages |
-| cm generate | `src/cli/commands/generate.ts` | One-command flow |
-| Error recovery | `src/core/recovery.ts` | Retries, fallbacks |
-| Progress UI | `src/cli/ui/progress.ts` | ora spinners, ETA |
-| Documentation | `docs/`, `README.md` | Complete guides |
+| Component             | Files                          | V&V Criteria       |
+| --------------------- | ------------------------------ | ------------------ |
+| Pipeline orchestrator | `src/core/pipeline.ts`         | Chains stages      |
+| cm generate           | `src/cli/commands/generate.ts` | One-command flow   |
+| Error recovery        | `src/core/recovery.ts`         | Retries, fallbacks |
+| Progress UI           | `src/cli/ui/progress.ts`       | ora spinners, ETA  |
+| Documentation         | `docs/`, `README.md`           | Complete guides    |
 
 **Research References:**
+
 - [RQ-01-RESUMABLE-PIPELINES-20260104.md](../research/investigations/RQ-01-RESUMABLE-PIPELINES-20260104.md)
 - [RQ-02-CONCURRENCY-MODEL-20260104.md](../research/investigations/RQ-02-CONCURRENCY-MODEL-20260104.md)
 - [RQ-14-ERROR-TAXONOMY-20260104.md](../research/investigations/RQ-14-ERROR-TAXONOMY-20260104.md)
 
 **Validation:**
+
 - [ ] `cm generate "topic"` produces video.mp4
 - [ ] Pipeline completes in <5 minutes
 - [ ] Error messages are actionable
@@ -1748,12 +1825,12 @@ This section provides a comprehensive implementation roadmap. Each phase has a d
 
 Every phase follows the 4-layer V&V approach from [RQ-24](../research/investigations/RQ-24-LLM-EVALUATION-QUALITY-ASSURANCE-20260105.md):
 
-| Layer | What | Tool | When |
-|-------|------|------|------|
-| **1. Schema** | JSON structure valid | Zod safeParse | Every output |
-| **2. Programmatic** | Metrics in range | Vitest assertions | Every test run |
-| **3. LLM-as-Judge** | Quality scores | promptfoo | PR reviews |
-| **4. Human Review** | Sample QA | Manual | Release gates |
+| Layer               | What                 | Tool              | When           |
+| ------------------- | -------------------- | ----------------- | -------------- |
+| **1. Schema**       | JSON structure valid | Zod safeParse     | Every output   |
+| **2. Programmatic** | Metrics in range     | Vitest assertions | Every test run |
+| **3. LLM-as-Judge** | Quality scores       | promptfoo         | PR reviews     |
+| **4. Human Review** | Sample QA            | Manual            | Release gates  |
 
 **Detailed V&V Guide:** [VV-FRAMEWORK-20260105.md](../guides/VV-FRAMEWORK-20260105.md)
 
@@ -1761,13 +1838,13 @@ Every phase follows the 4-layer V&V approach from [RQ-24](../research/investigat
 
 After core pipeline is stable:
 
-| Version | Features |
-|---------|----------|
-| v1.1 | `cm research`: Web search, Reddit scraping |
-| v1.2 | `cm publish`: YouTube/TikTok upload APIs |
-| v1.5 | Background music, transitions, B-roll mixing |
-| v2.0 | Queue-based batch processing, web UI |
-| v3.0 | Multi-language TTS, browser capture for product demos |
+| Version | Features                                              |
+| ------- | ----------------------------------------------------- |
+| v1.1    | `cm research`: Web search, Reddit scraping            |
+| v1.2    | `cm publish`: YouTube/TikTok upload APIs              |
+| v1.5    | Background music, transitions, B-roll mixing          |
+| v2.0    | Queue-based batch processing, web UI                  |
+| v3.0    | Multi-language TTS, browser capture for product demos |
 
 ---
 
@@ -1791,41 +1868,41 @@ Publishing to social platforms uses official APIs where available. Unofficial AP
 
 ### 13.1 Research Documents
 
-| Document | Path |
-|----------|------|
-| Master Architecture | [synthesis/L1-MASTER-ARCHITECTURE-20260104.md](../research/synthesis/L1-MASTER-ARCHITECTURE-20260104.md) |
-| Content Pipeline Theme | [synthesis/L2-THEME-1-CONTENT-PIPELINE-20260104.md](../research/synthesis/L2-THEME-1-CONTENT-PIPELINE-20260104.md) |
-| Video Production Theme | [synthesis/L2-THEME-2-VIDEO-PRODUCTION-20260104.md](../research/synthesis/L2-THEME-2-VIDEO-PRODUCTION-20260104.md) |
-| AI Orchestration Theme | [synthesis/L2-THEME-3-AI-ORCHESTRATION-20260104.md](../research/synthesis/L2-THEME-3-AI-ORCHESTRATION-20260104.md) |
-| Infrastructure Theme | [synthesis/L2-THEME-4-INFRASTRUCTURE-PUBLISHING-20260104.md](../research/synthesis/L2-THEME-4-INFRASTRUCTURE-PUBLISHING-20260104.md) |
-| Blueprint Repos | [synthesis/L3-CAT-B-BLUEPRINT-REPOS-20260104.md](../research/synthesis/L3-CAT-B-BLUEPRINT-REPOS-20260104.md) |
-| Rendering | [synthesis/L3-CAT-C-RENDERING-COMPOSITION-20260104.md](../research/synthesis/L3-CAT-C-RENDERING-COMPOSITION-20260104.md) |
-| Captions | [synthesis/L3-CAT-E-CAPTIONS-TRANSCRIPTION-20260104.md](../research/synthesis/L3-CAT-E-CAPTIONS-TRANSCRIPTION-20260104.md) |
-| TTS/Audio | [synthesis/L3-CAT-F-TTS-AUDIO-20260104.md](../research/synthesis/L3-CAT-F-TTS-AUDIO-20260104.md) |
+| Document               | Path                                                                                                                                 |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Master Architecture    | [synthesis/L1-MASTER-ARCHITECTURE-20260104.md](../research/synthesis/L1-MASTER-ARCHITECTURE-20260104.md)                             |
+| Content Pipeline Theme | [synthesis/L2-THEME-1-CONTENT-PIPELINE-20260104.md](../research/synthesis/L2-THEME-1-CONTENT-PIPELINE-20260104.md)                   |
+| Video Production Theme | [synthesis/L2-THEME-2-VIDEO-PRODUCTION-20260104.md](../research/synthesis/L2-THEME-2-VIDEO-PRODUCTION-20260104.md)                   |
+| AI Orchestration Theme | [synthesis/L2-THEME-3-AI-ORCHESTRATION-20260104.md](../research/synthesis/L2-THEME-3-AI-ORCHESTRATION-20260104.md)                   |
+| Infrastructure Theme   | [synthesis/L2-THEME-4-INFRASTRUCTURE-PUBLISHING-20260104.md](../research/synthesis/L2-THEME-4-INFRASTRUCTURE-PUBLISHING-20260104.md) |
+| Blueprint Repos        | [synthesis/L3-CAT-B-BLUEPRINT-REPOS-20260104.md](../research/synthesis/L3-CAT-B-BLUEPRINT-REPOS-20260104.md)                         |
+| Rendering              | [synthesis/L3-CAT-C-RENDERING-COMPOSITION-20260104.md](../research/synthesis/L3-CAT-C-RENDERING-COMPOSITION-20260104.md)             |
+| Captions               | [synthesis/L3-CAT-E-CAPTIONS-TRANSCRIPTION-20260104.md](../research/synthesis/L3-CAT-E-CAPTIONS-TRANSCRIPTION-20260104.md)           |
+| TTS/Audio              | [synthesis/L3-CAT-F-TTS-AUDIO-20260104.md](../research/synthesis/L3-CAT-F-TTS-AUDIO-20260104.md)                                     |
 
 ### 12.2 Section Research Documents
 
 Each major system component has a dedicated research document with vendor code evidence:
 
-| Section | Research Document | Key Patterns |
-|---------|-------------------|--------------|
-| Configuration System (§4) | [SECTION-CONFIG-SYSTEMS-20260104.md](../research/sections/SECTION-CONFIG-SYSTEMS-20260104.md) | TOML, Pydantic BaseSettings, dotenv |
-| Data Schemas (§5) | [SECTION-SCHEMAS-VALIDATION-20260104.md](../research/sections/SECTION-SCHEMAS-VALIDATION-20260104.md) | Zod safeParse, z.infer, two-tier validation |
-| cm script (§6.1) | [SECTION-SCRIPT-GENERATION-20260104.md](../research/sections/SECTION-SCRIPT-GENERATION-20260104.md) | YAML prompts, 13 LLM providers, structured output |
-| cm audio (§6.2) | [SECTION-AUDIO-PIPELINE-20260104.md](../research/sections/SECTION-AUDIO-PIPELINE-20260104.md) | Edge TTS SubMaker, Kokoro, Whisper.cpp |
-| cm visuals (§6.3) | [SECTION-VISUAL-MATCHING-20260104.md](../research/sections/SECTION-VISUAL-MATCHING-20260104.md) | Pexels API, keyword matching, joker fallbacks |
-| cm render (§6.4) | [SECTION-VIDEO-RENDERING-20260104.md](../research/sections/SECTION-VIDEO-RENDERING-20260104.md) | Remotion compositions, TikTok captions |
-| CLI Architecture | [SECTION-CLI-ARCHITECTURE-20260104.md](../research/sections/SECTION-CLI-ARCHITECTURE-20260104.md) | Commander.js, ora, chalk, pino |
+| Section                   | Research Document                                                                                     | Key Patterns                                      |
+| ------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| Configuration System (§4) | [SECTION-CONFIG-SYSTEMS-20260104.md](../research/sections/SECTION-CONFIG-SYSTEMS-20260104.md)         | TOML, Pydantic BaseSettings, dotenv               |
+| Data Schemas (§5)         | [SECTION-SCHEMAS-VALIDATION-20260104.md](../research/sections/SECTION-SCHEMAS-VALIDATION-20260104.md) | Zod safeParse, z.infer, two-tier validation       |
+| cm script (§6.1)          | [SECTION-SCRIPT-GENERATION-20260104.md](../research/sections/SECTION-SCRIPT-GENERATION-20260104.md)   | YAML prompts, 13 LLM providers, structured output |
+| cm audio (§6.2)           | [SECTION-AUDIO-PIPELINE-20260104.md](../research/sections/SECTION-AUDIO-PIPELINE-20260104.md)         | Edge TTS SubMaker, Kokoro, Whisper.cpp            |
+| cm visuals (§6.3)         | [SECTION-VISUAL-MATCHING-20260104.md](../research/sections/SECTION-VISUAL-MATCHING-20260104.md)       | Pexels API, keyword matching, joker fallbacks     |
+| cm render (§6.4)          | [SECTION-VIDEO-RENDERING-20260104.md](../research/sections/SECTION-VIDEO-RENDERING-20260104.md)       | Remotion compositions, TikTok captions            |
+| CLI Architecture          | [SECTION-CLI-ARCHITECTURE-20260104.md](../research/sections/SECTION-CLI-ARCHITECTURE-20260104.md)     | Commander.js, ora, chalk, pino                    |
 
 ### 12.3 External Documentation
 
-| Resource | URL |
-|----------|-----|
-| Remotion | https://www.remotion.dev/docs/ |
-| Zod | https://zod.dev/ |
+| Resource     | URL                                |
+| ------------ | ---------------------------------- |
+| Remotion     | https://www.remotion.dev/docs/     |
+| Zod          | https://zod.dev/                   |
 | Commander.js | https://github.com/tj/commander.js |
-| WhisperX | https://github.com/m-bain/whisperX |
-| Kokoro | https://github.com/hexgrad/kokoro |
+| WhisperX     | https://github.com/m-bain/whisperX |
+| Kokoro       | https://github.com/hexgrad/kokoro  |
 
 ---
 
@@ -1842,6 +1919,7 @@ This section provides a candid assessment of architectural gaps, engineering ris
 **Impact:** High. Video rendering is expensive (3+ minutes). Network failures, API rate limits, or OOM crashes waste significant time.
 
 **Missing pieces:**
+
 - No checkpointing mechanism
 - No partial output handling
 - No cleanup of orphaned assets on failure
@@ -1856,12 +1934,14 @@ This section provides a candid assessment of architectural gaps, engineering ris
 **Problem:** The document assumes sequential execution but doesn't address parallelism opportunities or thread safety.
 
 **Missed opportunities:**
+
 - Embedding multiple visual directions in parallel
 - Downloading stock footage concurrently
 - Rendering scenes in parallel (Remotion supports this)
 - TTS generation could overlap with early ASR processing
 
 **Missing pieces:**
+
 - No `Promise.all()` patterns
 - No worker pool sizing strategy
 - No discussion of Node.js event loop implications
@@ -1876,6 +1956,7 @@ This section provides a candid assessment of architectural gaps, engineering ris
 **Problem:** Schema changes between stages could break saved projects. If `script.json` schema evolves, old projects become incompatible.
 
 **Missing pieces:**
+
 - No schema version field in JSON outputs
 - No migration strategy for existing projects
 - No backwards compatibility guarantees
@@ -1888,11 +1969,13 @@ This section provides a candid assessment of architectural gaps, engineering ris
 #### GAP-4: State Management Across Stages is File-Based Only
 
 **Problem:** JSON files work for MVP but create issues at scale:
+
 - No atomic writes (crash during write = corrupted file)
 - No locking (concurrent pipeline runs could collide)
 - No change detection (can't tell if input changed since last run)
 
 **Missing pieces:**
+
 - No content hashing for change detection
 - No file locking mechanism
 - No transactional write pattern (write to temp, rename)
@@ -1904,12 +1987,14 @@ This section provides a candid assessment of architectural gaps, engineering ris
 #### GAP-5: Error Taxonomy is Incomplete
 
 **Problem:** Error handling tables exist but lack systematic classification:
+
 - No distinction between retryable vs. fatal errors
 - No error codes for programmatic handling
 - No structured error output for CI/CD integration
 - No guidance on user-facing vs. debug messages
 
 **Missing pieces:**
+
 - Error code taxonomy (E001, E002, etc.)
 - Retry policies (exponential backoff? max attempts?)
 - Error serialization format for JSON output mode
@@ -1923,11 +2008,13 @@ This section provides a candid assessment of architectural gaps, engineering ris
 #### RISK-1: LLM Output Validation is Naive (Single Retry)
 
 **Problem:** §6.1 says "LLM returns invalid JSON → Retry once, then exit 1". This is insufficient:
+
 - LLMs may consistently produce invalid output for certain inputs
 - Single retry doesn't address systematic prompt issues
 - No feedback loop to improve prompts from failures
 
 **Better approaches:**
+
 - Structured output modes (OpenAI JSON mode, Anthropic tool_use)
 - Multiple validation attempts with progressive prompt fixes
 - Logging failed outputs for prompt debugging
@@ -1942,6 +2029,7 @@ This section provides a candid assessment of architectural gaps, engineering ris
 **Problem:** Config allows `embedding.dimensions: 1536` but different models produce different dimensions. Switching models without reindexing footage breaks similarity search.
 
 **Missing pieces:**
+
 - No validation that footage embeddings match current model
 - No re-embedding trigger when config changes
 - No dimension normalization strategy
@@ -1953,11 +2041,13 @@ This section provides a candid assessment of architectural gaps, engineering ris
 #### RISK-3: TTS-ASR Timestamp Alignment is Hand-Waved
 
 **Problem:** §6.2 says "Align words back to scene boundaries" without specifying the algorithm. This is a non-trivial problem:
+
 - TTS may change word timing (pauses, emphasis)
 - ASR confidence affects word boundaries
 - Scene boundaries are character-based, timestamps are time-based
 
 **Missing pieces:**
+
 - Alignment algorithm (DTW? Forced alignment?)
 - Handling of ASR errors (missed words, hallucinated words)
 - Confidence thresholds for fallback to estimation
@@ -1969,12 +2059,14 @@ This section provides a candid assessment of architectural gaps, engineering ris
 #### RISK-4: No Observability Design
 
 **Problem:** §7.2 mentions "Langfuse for LLM debugging" as post-MVP but there's no structured logging strategy for MVP:
+
 - No trace IDs across pipeline stages
 - No structured log format defined
 - No metrics collection strategy
 - No way to correlate failures across stages
 
 **Missing pieces:**
+
 - Correlation ID passed through all stages
 - Structured log schema
 - Timing metrics for performance analysis
@@ -1987,12 +2079,14 @@ This section provides a candid assessment of architectural gaps, engineering ris
 #### RISK-5: Testing Strategy Gaps
 
 **Problem:** §9 defines a test pyramid but misses critical testing scenarios:
+
 - No mocking strategy for LLM calls (expensive, non-deterministic)
 - No snapshot testing for video frames
 - No visual regression testing for caption styling
 - No performance benchmarks defined
 
 **Missing pieces:**
+
 - LLM response fixtures for reproducible tests
 - Golden video frame snapshots
 - CSS snapshot testing for caption styles
@@ -2007,6 +2101,7 @@ This section provides a candid assessment of architectural gaps, engineering ris
 #### CONTRADICTION-1: "Flexible Schemas" vs. Type Safety
 
 **Problem:** §2.1 advocates "flexible schemas" with `z.unknown()` and `extra: z.record(z.unknown())`, but §5 shows extensive typed schemas. This tension is unresolved:
+
 - Where exactly should flexibility exist?
 - How do downstream stages handle unknown fields?
 - Does `extra` get passed through or dropped?
@@ -2020,6 +2115,7 @@ This section provides a candid assessment of architectural gaps, engineering ris
 **Problem:** §2.1 emphasizes "no keyword matching" for footage selection, but Pexels API is keyword-based. The document doesn't explain how semantic embeddings translate to API queries.
 
 **Missing pieces:**
+
 - LLM-generated keyword extraction from visual directions
 - Query expansion strategy
 - Handling of Pexels API limitations (max 80 chars, English only)
@@ -2031,6 +2127,7 @@ This section provides a candid assessment of architectural gaps, engineering ris
 #### CONTRADICTION-3: CLI-First vs. LLM-Native
 
 **Problem:** CLI architecture (§3.1) optimizes for human debugging ("JSON outputs can be inspected and edited"), but LLM-native architecture (§2.1) assumes automated decision-making. These create tension:
+
 - Who is the user? Developers debugging? End users generating?
 - Should outputs be human-readable or machine-optimized?
 - How does "chain of thought reasoning" help a CLI user?
@@ -2076,43 +2173,43 @@ The following questions must be answered before implementation can proceed confi
 
 #### Pipeline Architecture
 
-| ID | Question | Priority | Research Approach |
-|----|----------|----------|-------------------|
-| RQ-1 | How do we implement resumable/idempotent pipeline stages? | P0 | Study Make, Bazel, dvc patterns |
-| RQ-2 | What concurrency model fits Node.js + external processes? | P0 | Analyze short-video-maker-gyori, Remotion |
-| RQ-3 | How do we version inter-stage JSON schemas? | P1 | Review JSON Schema evolution patterns |
+| ID   | Question                                                  | Priority | Research Approach                         |
+| ---- | --------------------------------------------------------- | -------- | ----------------------------------------- |
+| RQ-1 | How do we implement resumable/idempotent pipeline stages? | P0       | Study Make, Bazel, dvc patterns           |
+| RQ-2 | What concurrency model fits Node.js + external processes? | P0       | Analyze short-video-maker-gyori, Remotion |
+| RQ-3 | How do we version inter-stage JSON schemas?               | P1       | Review JSON Schema evolution patterns     |
 
 #### LLM Integration
 
-| ID | Question | Priority | Research Approach |
-|----|----------|----------|-------------------|
-| RQ-4 | How do we reliably get structured output from LLMs? | P0 | Test OpenAI JSON mode, Anthropic tool_use |
-| RQ-5 | How do we translate semantic visual directions to keyword queries? | P0 | Analyze existing implementations |
-| RQ-6 | What's the optimal embedding model for visual matching? | P1 | Benchmark CLIP, text-embedding-3, voyage |
+| ID   | Question                                                           | Priority | Research Approach                         |
+| ---- | ------------------------------------------------------------------ | -------- | ----------------------------------------- |
+| RQ-4 | How do we reliably get structured output from LLMs?                | P0       | Test OpenAI JSON mode, Anthropic tool_use |
+| RQ-5 | How do we translate semantic visual directions to keyword queries? | P0       | Analyze existing implementations          |
+| RQ-6 | What's the optimal embedding model for visual matching?            | P1       | Benchmark CLIP, text-embedding-3, voyage  |
 
 #### Audio Pipeline
 
-| ID | Question | Priority | Research Approach |
-|----|----------|----------|-------------------|
-| RQ-7 | How does Edge TTS SubMaker extract timestamps? | P0 | Code review of MoneyPrinterTurbo |
-| RQ-8 | What forced alignment algorithms are production-ready? | P1 | Evaluate MFA, Gentle, WhisperX align |
-| RQ-9 | How do we handle TTS/ASR timestamp drift? | P1 | Measure error rates in practice |
+| ID   | Question                                               | Priority | Research Approach                    |
+| ---- | ------------------------------------------------------ | -------- | ------------------------------------ |
+| RQ-7 | How does Edge TTS SubMaker extract timestamps?         | P0       | Code review of MoneyPrinterTurbo     |
+| RQ-8 | What forced alignment algorithms are production-ready? | P1       | Evaluate MFA, Gentle, WhisperX align |
+| RQ-9 | How do we handle TTS/ASR timestamp drift?              | P1       | Measure error rates in practice      |
 
 #### Rendering
 
-| ID | Question | Priority | Research Approach |
-|----|----------|----------|-------------------|
-| RQ-10 | How do we test video output for correctness? | P0 | Study Remotion testing patterns |
-| RQ-11 | What's the memory footprint of Remotion for 1080p? | P1 | Benchmark on target hardware |
-| RQ-12 | How do we handle Remotion licensing for commercial use? | P0 | Review Remotion license terms |
+| ID    | Question                                                | Priority | Research Approach               |
+| ----- | ------------------------------------------------------- | -------- | ------------------------------- |
+| RQ-10 | How do we test video output for correctness?            | P0       | Study Remotion testing patterns |
+| RQ-11 | What's the memory footprint of Remotion for 1080p?      | P1       | Benchmark on target hardware    |
+| RQ-12 | How do we handle Remotion licensing for commercial use? | P0       | Review Remotion license terms   |
 
 #### Quality & Operations
 
-| ID | Question | Priority | Research Approach |
-|----|----------|----------|-------------------|
-| RQ-13 | How do we measure video quality programmatically? | P1 | Research VMAF, SSIM, perceptual metrics |
-| RQ-14 | What error taxonomy should we adopt? | P1 | Study npm, cargo, gh CLI patterns |
-| RQ-15 | How do we implement cost tracking across LLM calls? | P2 | Review Langfuse, Helicone patterns |
+| ID    | Question                                            | Priority | Research Approach                       |
+| ----- | --------------------------------------------------- | -------- | --------------------------------------- |
+| RQ-13 | How do we measure video quality programmatically?   | P1       | Research VMAF, SSIM, perceptual metrics |
+| RQ-14 | What error taxonomy should we adopt?                | P1       | Study npm, cargo, gh CLI patterns       |
+| RQ-15 | How do we implement cost tracking across LLM calls? | P2       | Review Langfuse, Helicone patterns      |
 
 ---
 
@@ -2122,70 +2219,70 @@ All 15 research questions from §13.5 have been investigated. Findings are docum
 
 #### Pipeline Architecture (RQ-1 to RQ-3)
 
-| ID | Question | Resolution | Investigation |
-|----|----------|------------|---------------|
-| RQ-1 | Resumable/idempotent pipelines | **Content-addressable caching** with SHA256 hashes, atomic write-rename pattern, BullMQ job deduplication. Use `pipeline-state.json` per project. | [RQ-01-RESUMABLE-PIPELINES](../research/investigations/RQ-01-RESUMABLE-PIPELINES-20260104.md) |
-| RQ-2 | Concurrency model | **p-limit** for API rate limiting (Remotion pattern), Pool class for worker management, sequential queue for dependent operations. Default: 4 concurrent embeddings, 2 concurrent downloads. | [RQ-02-CONCURRENCY-MODEL](../research/investigations/RQ-02-CONCURRENCY-MODEL-20260104.md) |
-| RQ-3 | Schema versioning | **Zod `.extend()`** for backwards-compatible additions, `schemaVersion` field in all JSON outputs, two-tier validation (strict for new, lenient for legacy). | [RQ-03-SCHEMA-VERSIONING](../research/investigations/RQ-03-SCHEMA-VERSIONING-20260104.md) |
+| ID   | Question                       | Resolution                                                                                                                                                                                   | Investigation                                                                                 |
+| ---- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| RQ-1 | Resumable/idempotent pipelines | **Content-addressable caching** with SHA256 hashes, atomic write-rename pattern, BullMQ job deduplication. Use `pipeline-state.json` per project.                                            | [RQ-01-RESUMABLE-PIPELINES](../research/investigations/RQ-01-RESUMABLE-PIPELINES-20260104.md) |
+| RQ-2 | Concurrency model              | **p-limit** for API rate limiting (Remotion pattern), Pool class for worker management, sequential queue for dependent operations. Default: 4 concurrent embeddings, 2 concurrent downloads. | [RQ-02-CONCURRENCY-MODEL](../research/investigations/RQ-02-CONCURRENCY-MODEL-20260104.md)     |
+| RQ-3 | Schema versioning              | **Zod `.extend()`** for backwards-compatible additions, `schemaVersion` field in all JSON outputs, two-tier validation (strict for new, lenient for legacy).                                 | [RQ-03-SCHEMA-VERSIONING](../research/investigations/RQ-03-SCHEMA-VERSIONING-20260104.md)     |
 
 #### LLM Integration (RQ-4 to RQ-6)
 
-| ID | Question | Resolution | Investigation |
-|----|----------|------------|---------------|
-| RQ-4 | Structured LLM output | **OpenAI JSON mode with strict schema** as primary. 5-retry with progressive prompt repair (MoneyPrinterTurbo pattern). Regex fallback extraction. pydantic-ai ModelRetry for Anthropic. | [RQ-04-STRUCTURED-LLM-OUTPUT](../research/investigations/RQ-04-STRUCTURED-LLM-OUTPUT-20260104.md) |
-| RQ-5 | Visual-to-keyword translation | **LLM-generated keywords** (3-5 per scene). Cascading search: exact → relaxed → joker fallback terms ("nature", "abstract"). 1-3 word constraint per query. | [RQ-05-VISUAL-TO-KEYWORD](../research/investigations/RQ-05-VISUAL-TO-KEYWORD-20260104.md) |
-| RQ-6 | Embedding model selection | **text-embedding-3-small** (1024 dimensions, $0.02/1M tokens). CLIP is for image-text, not text-text. Threshold: 0.65 cosine similarity for matches. Cache embeddings with content hash. | [RQ-06-EMBEDDING-MODEL-SELECTION](../research/investigations/RQ-06-EMBEDDING-MODEL-SELECTION-20260104.md) |
+| ID   | Question                      | Resolution                                                                                                                                                                               | Investigation                                                                                             |
+| ---- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| RQ-4 | Structured LLM output         | **OpenAI JSON mode with strict schema** as primary. 5-retry with progressive prompt repair (MoneyPrinterTurbo pattern). Regex fallback extraction. pydantic-ai ModelRetry for Anthropic. | [RQ-04-STRUCTURED-LLM-OUTPUT](../research/investigations/RQ-04-STRUCTURED-LLM-OUTPUT-20260104.md)         |
+| RQ-5 | Visual-to-keyword translation | **LLM-generated keywords** (3-5 per scene). Cascading search: exact → relaxed → joker fallback terms ("nature", "abstract"). 1-3 word constraint per query.                              | [RQ-05-VISUAL-TO-KEYWORD](../research/investigations/RQ-05-VISUAL-TO-KEYWORD-20260104.md)                 |
+| RQ-6 | Embedding model selection     | **text-embedding-3-small** (1024 dimensions, $0.02/1M tokens). CLIP is for image-text, not text-text. Threshold: 0.65 cosine similarity for matches. Cache embeddings with content hash. | [RQ-06-EMBEDDING-MODEL-SELECTION](../research/investigations/RQ-06-EMBEDDING-MODEL-SELECTION-20260104.md) |
 
 #### Audio Pipeline (RQ-7 to RQ-9)
 
-| ID | Question | Resolution | Investigation |
-|----|----------|------------|---------------|
-| RQ-7 | Edge TTS timestamps | **SubMaker captures WordBoundary WebSocket events** during streaming. Timestamps in 100-nanosecond ticks (divide by 10,000 for ms). Offset compensation for >4KB text chunks. | [RQ-07-EDGE-TTS-TIMESTAMPS](../research/investigations/RQ-07-EDGE-TTS-TIMESTAMPS-20260104.md) |
-| RQ-8 | Forced alignment | **WhisperX wav2vec2 CTC alignment** at 70x realtime. Per-word confidence scores. Interpolation fills gaps (nearest-neighbor for NaN). whisper.cpp fallback for edge deployment. | [RQ-08-FORCED-ALIGNMENT](../research/investigations/RQ-08-FORCED-ALIGNMENT-20260104.md) |
-| RQ-9 | Timestamp drift | **Levenshtein similarity matching** (>80% threshold). VAD filtering prevents hallucinations. Proportional character distribution when word boundaries unavailable. | [RQ-09-TIMESTAMP-DRIFT](../research/investigations/RQ-09-TIMESTAMP-DRIFT-20260104.md) |
+| ID   | Question            | Resolution                                                                                                                                                                      | Investigation                                                                                 |
+| ---- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| RQ-7 | Edge TTS timestamps | **SubMaker captures WordBoundary WebSocket events** during streaming. Timestamps in 100-nanosecond ticks (divide by 10,000 for ms). Offset compensation for >4KB text chunks.   | [RQ-07-EDGE-TTS-TIMESTAMPS](../research/investigations/RQ-07-EDGE-TTS-TIMESTAMPS-20260104.md) |
+| RQ-8 | Forced alignment    | **WhisperX wav2vec2 CTC alignment** at 70x realtime. Per-word confidence scores. Interpolation fills gaps (nearest-neighbor for NaN). whisper.cpp fallback for edge deployment. | [RQ-08-FORCED-ALIGNMENT](../research/investigations/RQ-08-FORCED-ALIGNMENT-20260104.md)       |
+| RQ-9 | Timestamp drift     | **Levenshtein similarity matching** (>80% threshold). VAD filtering prevents hallucinations. Proportional character distribution when word boundaries unavailable.              | [RQ-09-TIMESTAMP-DRIFT](../research/investigations/RQ-09-TIMESTAMP-DRIFT-20260104.md)         |
 
 #### Rendering (RQ-10 to RQ-12)
 
-| ID | Question | Resolution | Investigation |
-|----|----------|------------|---------------|
+| ID    | Question             | Resolution                                                                                                                                                                           | Investigation                                                                                   |
+| ----- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------- |
 | RQ-10 | Video output testing | **Vitest + jest-image-snapshot** for frame comparison. ffprobe for metadata validation. PSNR/SSIM for quality regression. `@remotion/deterministic-randomness` ESLint rule enforced. | [RQ-10-VIDEO-OUTPUT-TESTING](../research/investigations/RQ-10-VIDEO-OUTPUT-TESTING-20260104.md) |
-| RQ-11 | Remotion memory | **4-8GB production**, 3-4GB minimum. Default concurrency = CPUs/2, max 8. `offthreadVideoCacheSizeInBytes` = 512MB. `--gl=angle` has memory leaks — split renders >20 scenes. | [RQ-11-REMOTION-MEMORY](../research/investigations/RQ-11-REMOTION-MEMORY-20260104.md) |
-| RQ-12 | Remotion licensing | **Free for ≤3 employees**, $100+/month for larger companies. NOT triggered by revenue/renders. content-machine (MIT) must document users need their own Remotion license. | [RQ-12-REMOTION-LICENSING](../research/investigations/RQ-12-REMOTION-LICENSING-20260104.md) |
+| RQ-11 | Remotion memory      | **4-8GB production**, 3-4GB minimum. Default concurrency = CPUs/2, max 8. `offthreadVideoCacheSizeInBytes` = 512MB. `--gl=angle` has memory leaks — split renders >20 scenes.        | [RQ-11-REMOTION-MEMORY](../research/investigations/RQ-11-REMOTION-MEMORY-20260104.md)           |
+| RQ-12 | Remotion licensing   | **Free for ≤3 employees**, $100+/month for larger companies. NOT triggered by revenue/renders. content-machine (MIT) must document users need their own Remotion license.            | [RQ-12-REMOTION-LICENSING](../research/investigations/RQ-12-REMOTION-LICENSING-20260104.md)     |
 
 #### Quality & Operations (RQ-13 to RQ-15)
 
-| ID | Question | Resolution | Investigation |
-|----|----------|------------|---------------|
-| RQ-13 | Video quality metrics | **PSNR >35dB good, SSIM >0.95 good, VMAF >80 good**. CRF 18 default (h264). PSNR fastest for CI, VMAF slowest for nightly. | [RQ-13-VIDEO-QUALITY-METRICS](../research/investigations/RQ-13-VIDEO-QUALITY-METRICS-20260104.md) |
-| RQ-14 | Error taxonomy | **Exit codes 0-143** (POSIX compatible). Semantic string codes (E_NETWORK_TIMEOUT). Categories: retryable vs fatal. Structured JSON error output for CI. | [RQ-14-ERROR-TAXONOMY](../research/investigations/RQ-14-ERROR-TAXONOMY-20260104.md) |
-| RQ-15 | Cost tracking | **Langfuse Trace→Span hierarchy**. Token counting per request. Model-specific pricing tables. BullMQ for budget threshold alerts. ~$0.05/video with gpt-4o-mini. | [RQ-15-COST-TRACKING](../research/investigations/RQ-15-COST-TRACKING-20260104.md) |
+| ID    | Question              | Resolution                                                                                                                                                       | Investigation                                                                                     |
+| ----- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| RQ-13 | Video quality metrics | **PSNR >35dB good, SSIM >0.95 good, VMAF >80 good**. CRF 18 default (h264). PSNR fastest for CI, VMAF slowest for nightly.                                       | [RQ-13-VIDEO-QUALITY-METRICS](../research/investigations/RQ-13-VIDEO-QUALITY-METRICS-20260104.md) |
+| RQ-14 | Error taxonomy        | **Exit codes 0-143** (POSIX compatible). Semantic string codes (E_NETWORK_TIMEOUT). Categories: retryable vs fatal. Structured JSON error output for CI.         | [RQ-14-ERROR-TAXONOMY](../research/investigations/RQ-14-ERROR-TAXONOMY-20260104.md)               |
+| RQ-15 | Cost tracking         | **Langfuse Trace→Span hierarchy**. Token counting per request. Model-specific pricing tables. BullMQ for budget threshold alerts. ~$0.05/video with gpt-4o-mini. | [RQ-15-COST-TRACKING](../research/investigations/RQ-15-COST-TRACKING-20260104.md)                 |
 
 #### Iteration 2 Research (RQ-16 to RQ-20)
 
-| ID | Question | Resolution | Investigation |
-|----|----------|------------|---------------|
-| RQ-16 | Python subprocess management | **Avoid Python**: use kokoro-js (TypeScript) and whisper.cpp (Remotion package). When unavoidable, use `child_process.spawn` with `windowsHide: true` and `.cmd` extension on Windows. Promise wrapper with timeout. | [RQ-16-PYTHON-SUBPROCESS](../research/investigations/RQ-16-PYTHON-SUBPROCESS-20260105.md) |
-| RQ-17 | FFmpeg concatenation | **Concat demuxer** (no re-encode) for same-format clips. 20ms micro-fades prevent audio pops. AAC frame alignment at 1024 samples. `-fflags +genpts` regenerates timestamps. | [RQ-17-FFMPEG-CONCATENATION](../research/investigations/RQ-17-FFMPEG-CONCATENATION-20260105.md) |
-| RQ-18 | Rate limiting | **p-limit** for concurrency (Remotion pattern). Per-provider config. OpenAI `x-ratelimit-remaining-tokens` header for adaptive limiting. Exponential backoff on HTTP 429. | [RQ-18-RATE-LIMITING](../research/investigations/RQ-18-RATE-LIMITING-20260105.md) |
-| RQ-19 | GPU detection | **systeminformation** package for cross-platform GPU detection. nvidia-smi for CUDA verification. Device selection: cuda > mps > cpu. Graceful fallback always available. | [RQ-19-GPU-DETECTION](../research/investigations/RQ-19-GPU-DETECTION-20260105.md) |
-| RQ-20 | Offline mode | **Minimum viable: ~6.6GB** (Ollama llama3.1:8b + Kokoro + whisper.cpp medium.en + MiniLM). Edge profile: ~2.5GB. FastEmbed (ONNX) for local embeddings. Not for MVP but architecture supports it. | [RQ-20-OFFLINE-MODE](../research/investigations/RQ-20-OFFLINE-MODE-20260105.md) |
+| ID    | Question                     | Resolution                                                                                                                                                                                                           | Investigation                                                                                   |
+| ----- | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| RQ-16 | Python subprocess management | **Avoid Python**: use kokoro-js (TypeScript) and whisper.cpp (Remotion package). When unavoidable, use `child_process.spawn` with `windowsHide: true` and `.cmd` extension on Windows. Promise wrapper with timeout. | [RQ-16-PYTHON-SUBPROCESS](../research/investigations/RQ-16-PYTHON-SUBPROCESS-20260105.md)       |
+| RQ-17 | FFmpeg concatenation         | **Concat demuxer** (no re-encode) for same-format clips. 20ms micro-fades prevent audio pops. AAC frame alignment at 1024 samples. `-fflags +genpts` regenerates timestamps.                                         | [RQ-17-FFMPEG-CONCATENATION](../research/investigations/RQ-17-FFMPEG-CONCATENATION-20260105.md) |
+| RQ-18 | Rate limiting                | **p-limit** for concurrency (Remotion pattern). Per-provider config. OpenAI `x-ratelimit-remaining-tokens` header for adaptive limiting. Exponential backoff on HTTP 429.                                            | [RQ-18-RATE-LIMITING](../research/investigations/RQ-18-RATE-LIMITING-20260105.md)               |
+| RQ-19 | GPU detection                | **systeminformation** package for cross-platform GPU detection. nvidia-smi for CUDA verification. Device selection: cuda > mps > cpu. Graceful fallback always available.                                            | [RQ-19-GPU-DETECTION](../research/investigations/RQ-19-GPU-DETECTION-20260105.md)               |
+| RQ-20 | Offline mode                 | **Minimum viable: ~6.6GB** (Ollama llama3.1:8b + Kokoro + whisper.cpp medium.en + MiniLM). Edge profile: ~2.5GB. FastEmbed (ONNX) for local embeddings. Not for MVP but architecture supports it.                    | [RQ-20-OFFLINE-MODE](../research/investigations/RQ-20-OFFLINE-MODE-20260105.md)                 |
 
 #### Iteration 3 Research (RQ-21)
 
-| ID | Question | Resolution | Investigation |
-|----|----------|------------|---------------|
+| ID    | Question                          | Resolution                                                                                                                                                                                                                                                                | Investigation                                                                               |
+| ----- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | RQ-21 | Multi-demographic content support | **Content Archetype System** with 6 presets (brainrot, meme, educational, story, product, motivational). Each archetype configures pacing, audio, captions, visuals, and script generation. Supports Gen Z (13-24) through older demographics. Split-screen for brainrot. | [RQ-21-CONTENT-ARCHETYPES](../research/investigations/RQ-21-CONTENT-ARCHETYPES-20260105.md) |
 
 #### Iteration 4 Research (RQ-22 — Extensibility)
 
-| ID | Question | Resolution | Investigation |
-|----|----------|------------|---------------|
+| ID    | Question                   | Resolution                                                                                                                                                                                                                                                                                                                                                                                                    | Investigation                                                                                               |
+| ----- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | RQ-22 | Extensibility architecture | **12 extension points**: Provider interfaces (LLM, TTS, ASR, Stock), ProviderRegistry for dynamic registration, PipelineBuilder for stage insertion, Hook system for cross-cutting concerns, Plugin system with activate/deactivate lifecycle, Event emitter for observability, Middleware chain for request interception, Config extensibility with plugin-specific keys, Feature flags for gradual rollout. | [RQ-22-EXTENSIBILITY-ARCHITECTURE](../research/investigations/RQ-22-EXTENSIBILITY-ARCHITECTURE-20260105.md) |
 
 #### Iteration 5 Research (RQ-23 — Expert Code Review)
 
-| ID | Question | Resolution | Investigation |
-|----|----------|------------|---------------|
+| ID    | Question                               | Resolution                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | Investigation                                                                               |
+| ----- | -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
 | RQ-23 | Implementation gaps from expert review | **10 critical patterns adopted**: (1) Constructor injection + static factory (short-video-maker-gyori), (2) FakeLLM/FakeTTS test stubs (openai-agents-js), (3) Multi-key API rotation (MoneyPrinterTurbo), (4) Joker term fallback for stock footage, (5) FFprobe video validation after download, (6) 3-retry within TTS provider before fallback, (7) AbortSignal propagation for SIGINT handling, (8) CostTracker accumulator class, (9) Typed lifecycle hooks with exact signatures, (10) Reasoning model settings (P2). | [RQ-23-EXPERT-REVIEW-GAPS](../research/investigations/RQ-23-EXPERT-REVIEW-GAPS-20260105.md) |
 
 ---
@@ -2200,23 +2297,24 @@ Based on RQ investigations, the following design decisions are now finalized:
 // pipeline-state.json structure
 interface PipelineState {
   projectId: string;
-  schemaVersion: "1.0.0";
+  schemaVersion: '1.0.0';
   stages: {
-    script: { status: "pending" | "complete"; hash?: string; completedAt?: string };
-    audio: { status: "pending" | "complete"; hash?: string; completedAt?: string };
-    visuals: { status: "pending" | "complete"; hash?: string; completedAt?: string };
-    render: { status: "pending" | "complete"; hash?: string; completedAt?: string };
+    script: { status: 'pending' | 'complete'; hash?: string; completedAt?: string };
+    audio: { status: 'pending' | 'complete'; hash?: string; completedAt?: string };
+    visuals: { status: 'pending' | 'complete'; hash?: string; completedAt?: string };
+    render: { status: 'pending' | 'complete'; hash?: string; completedAt?: string };
   };
   checkpoints: Array<{ stage: string; file: string; hash: string }>;
 }
 ```
 
 **Atomic write pattern:**
+
 ```typescript
 async function atomicWrite(path: string, content: string): Promise<void> {
   const tempPath = `${path}.tmp.${process.pid}`;
   await fs.writeFile(tempPath, content);
-  await fs.rename(tempPath, path);  // Atomic on POSIX
+  await fs.rename(tempPath, path); // Atomic on POSIX
 }
 ```
 
@@ -2225,9 +2323,9 @@ async function atomicWrite(path: string, content: string): Promise<void> {
 ```typescript
 // Default concurrency limits
 const CONCURRENCY_DEFAULTS = {
-  embeddings: 4,      // OpenAI rate limit friendly
-  downloads: 2,       // Network bandwidth
-  llmCalls: 1,        // Sequential for context
+  embeddings: 4, // OpenAI rate limit friendly
+  downloads: 2, // Network bandwidth
+  llmCalls: 1, // Sequential for context
   remotionWorkers: Math.min(os.cpus().length / 2, 8),
 };
 ```
@@ -2251,11 +2349,11 @@ class ContentMachineError extends Error {
 // Exit code ranges
 const EXIT_CODES = {
   SUCCESS: 0,
-  USER_ERROR: 1,        // 1-19: User input/config errors
-  NETWORK_ERROR: 20,    // 20-39: External service errors
-  RESOURCE_ERROR: 40,   // 40-59: File/memory errors
-  PIPELINE_ERROR: 60,   // 60-79: Stage-specific errors
-  INTERNAL_ERROR: 100,  // 100+: Bugs
+  USER_ERROR: 1, // 1-19: User input/config errors
+  NETWORK_ERROR: 20, // 20-39: External service errors
+  RESOURCE_ERROR: 40, // 40-59: File/memory errors
+  PIPELINE_ERROR: 60, // 60-79: Stage-specific errors
+  INTERNAL_ERROR: 100, // 100+: Bugs
 };
 ```
 
@@ -2264,9 +2362,9 @@ const EXIT_CODES = {
 ```typescript
 // All output schemas include version
 const BaseOutputSchema = z.object({
-  schemaVersion: z.literal("1.0.0"),
+  schemaVersion: z.literal('1.0.0'),
   generatedAt: z.string().datetime(),
-  generatedBy: z.string(),  // "cm script v1.0.0"
+  generatedBy: z.string(), // "cm script v1.0.0"
 });
 
 // Extend for specific outputs
@@ -2281,7 +2379,7 @@ const ScriptOutputSchema = BaseOutputSchema.extend({
 ```typescript
 // Per-video cost accumulator
 interface CostEntry {
-  category: "llm" | "tts" | "embedding" | "stock" | "compute";
+  category: 'llm' | 'tts' | 'embedding' | 'stock' | 'compute';
   service: string;
   amount: number;
   metadata: Record<string, unknown>;
@@ -2302,8 +2400,8 @@ interface CostEntry {
 // Rendering defaults
 const REMOTION_DEFAULTS = {
   concurrency: Math.min(os.cpus().length / 2, 8),
-  offthreadVideoCacheSizeInBytes: 512 * 1024 * 1024,  // 512MB
-  gl: process.platform === "win32" ? "angle" : "swangle",
+  offthreadVideoCacheSizeInBytes: 512 * 1024 * 1024, // 512MB
+  gl: process.platform === 'win32' ? 'angle' : 'swangle',
   crf: 18,
 };
 
@@ -2321,21 +2419,18 @@ Based on investigation, the MVP avoids Python entirely:
 
 ```typescript
 // TTS: kokoro-js (TypeScript native)
-import { KokoroTTS } from "kokoro-js";
+import { KokoroTTS } from 'kokoro-js';
 
-const tts = await KokoroTTS.from_pretrained(
-  "onnx-community/Kokoro-82M-v1.0-ONNX",
-  { dtype: "q8" }
-);
-const audio = await tts.generate(text, { voice: "af_heart" });
+const tts = await KokoroTTS.from_pretrained('onnx-community/Kokoro-82M-v1.0-ONNX', { dtype: 'q8' });
+const audio = await tts.generate(text, { voice: 'af_heart' });
 
 // ASR: @remotion/install-whisper-cpp (C++ via Remotion)
-import { installWhisperCpp, transcribe } from "@remotion/install-whisper-cpp";
+import { installWhisperCpp, transcribe } from '@remotion/install-whisper-cpp';
 
-await installWhisperCpp({ to: "./whisper", version: "1.7.4" });
+await installWhisperCpp({ to: './whisper', version: '1.7.4' });
 const result = await transcribe({
   inputPath: audioPath,
-  model: "medium.en",
+  model: 'medium.en',
   tokenLevelTimestamps: true,
 });
 ```
@@ -2346,16 +2441,21 @@ const result = await transcribe({
 // Create file list for concat demuxer (no re-encoding)
 async function concatenateClips(clips: string[], output: string): Promise<void> {
   const listPath = `${output}.list.txt`;
-  const listContent = clips.map(c => `file '${c}'`).join('\n');
+  const listContent = clips.map((c) => `file '${c}'`).join('\n');
   await fs.writeFile(listPath, listContent);
 
   await execFile('ffmpeg', [
-    '-f', 'concat',
-    '-safe', '0',
-    '-i', listPath,
-    '-c', 'copy',           // No re-encode
-    '-fflags', '+genpts',   // Regenerate timestamps
-    output
+    '-f',
+    'concat',
+    '-safe',
+    '0',
+    '-i',
+    listPath,
+    '-c',
+    'copy', // No re-encode
+    '-fflags',
+    '+genpts', // Regenerate timestamps
+    output,
   ]);
 
   await fs.unlink(listPath);
@@ -2363,18 +2463,24 @@ async function concatenateClips(clips: string[], output: string): Promise<void> 
 
 // For mismatched formats, use filter with micro-fade
 async function concatenateWithFade(clips: string[], output: string): Promise<void> {
-  const inputs = clips.flatMap(c => ['-i', c]);
-  const filterParts = clips.map((_, i) => 
-    `[${i}:v]scale=1080:1920,setsar=1[v${i}];[${i}:a]afade=t=in:d=0.02:curve=exp,afade=t=out:st=${getDuration(clips[i]) - 0.02}:d=0.02[a${i}]`
+  const inputs = clips.flatMap((c) => ['-i', c]);
+  const filterParts = clips.map(
+    (_, i) =>
+      `[${i}:v]scale=1080:1920,setsar=1[v${i}];[${i}:a]afade=t=in:d=0.02:curve=exp,afade=t=out:st=${getDuration(clips[i]) - 0.02}:d=0.02[a${i}]`
   );
-  
+
   await execFile('ffmpeg', [
     ...inputs,
-    '-filter_complex', filterParts.join(';') + ';' + 
-      clips.map((_, i) => `[v${i}][a${i}]`).join('') + 
+    '-filter_complex',
+    filterParts.join(';') +
+      ';' +
+      clips.map((_, i) => `[v${i}][a${i}]`).join('') +
       `concat=n=${clips.length}:v=1:a=1[outv][outa]`,
-    '-map', '[outv]', '-map', '[outa]',
-    output
+    '-map',
+    '[outv]',
+    '-map',
+    '[outa]',
+    output,
   ]);
 }
 ```
@@ -2386,19 +2492,16 @@ import pLimit from 'p-limit';
 
 // Per-provider rate limiters
 const rateLimiters = {
-  openai: pLimit(4),        // 4 concurrent
-  anthropic: pLimit(2),     // Conservative
-  pexels: pLimit(1),        // Sequential (200/hour limit)
+  openai: pLimit(4), // 4 concurrent
+  anthropic: pLimit(2), // Conservative
+  pexels: pLimit(1), // Sequential (200/hour limit)
   pixabay: pLimit(2),
 };
 
 // Exponential backoff for 429 responses
-async function withRetry<T>(
-  fn: () => Promise<T>,
-  maxRetries: number = 5
-): Promise<T> {
+async function withRetry<T>(fn: () => Promise<T>, maxRetries: number = 5): Promise<T> {
   let lastError: Error | undefined;
-  
+
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
       return await fn();
@@ -2412,7 +2515,7 @@ async function withRetry<T>(
       throw error;
     }
   }
-  
+
   throw lastError;
 }
 ```
@@ -2427,12 +2530,10 @@ type WhisperDevice = 'cuda' | 'mps' | 'cpu';
 
 async function detectBestDevice(): Promise<WhisperDevice> {
   const graphics = await si.graphics();
-  
+
   // Check for NVIDIA GPU
-  const hasNvidia = graphics.controllers.some(c => 
-    c.vendor?.toLowerCase().includes('nvidia')
-  );
-  
+  const hasNvidia = graphics.controllers.some((c) => c.vendor?.toLowerCase().includes('nvidia'));
+
   if (hasNvidia) {
     try {
       execSync('nvidia-smi', { encoding: 'utf-8', timeout: 5000 });
@@ -2441,15 +2542,13 @@ async function detectBestDevice(): Promise<WhisperDevice> {
       // nvidia-smi failed, CUDA not available
     }
   }
-  
+
   // Check for Apple Silicon
   if (process.platform === 'darwin') {
-    const hasAppleGpu = graphics.controllers.some(c =>
-      c.vendor?.toLowerCase().includes('apple')
-    );
+    const hasAppleGpu = graphics.controllers.some((c) => c.vendor?.toLowerCase().includes('apple'));
     if (hasAppleGpu) return 'mps';
   }
-  
+
   return 'cpu';
 }
 ```
@@ -2458,7 +2557,7 @@ async function detectBestDevice(): Promise<WhisperDevice> {
 
 ## 16. Critical Evaluation — Iteration 2
 
-*Conducted: 2026-01-05*
+_Conducted: 2026-01-05_
 
 After integrating RQ investigation findings, a second critical evaluation identifies remaining gaps.
 
@@ -2466,93 +2565,94 @@ After integrating RQ investigation findings, a second critical evaluation identi
 
 The following issues from §13 are now resolved:
 
-| Original Issue | Resolution |
-|----------------|------------|
-| GAP-1: No idempotency | Content-addressable caching + atomic writes (RQ-01) |
-| GAP-2: No concurrency model | p-limit + Pool pattern defined (RQ-02) |
-| GAP-3: No schema versioning | schemaVersion field + Zod extend (RQ-03) |
-| GAP-4: No atomic writes | Write-temp-rename pattern adopted (RQ-01) |
-| GAP-5: Error taxonomy incomplete | Full exit code + semantic code taxonomy (RQ-14) |
-| RISK-1: Naive LLM validation | 5-retry + regex fallback pattern (RQ-04) |
-| RISK-2: Embedding dimension mismatch | Cache invalidation on model change (RQ-06) |
-| RISK-3: Timestamp alignment | Edge TTS SubMaker + Levenshtein matching (RQ-07, RQ-09) |
-| RISK-4: No observability | Langfuse integration + cost tracking (RQ-15) |
-| RISK-5: Testing gaps | Frame snapshots + ffprobe validation (RQ-10) |
-| CONTRADICTION-2: Keywords vs embeddings | LLM keyword extraction defined (RQ-05) |
+| Original Issue                          | Resolution                                              |
+| --------------------------------------- | ------------------------------------------------------- |
+| GAP-1: No idempotency                   | Content-addressable caching + atomic writes (RQ-01)     |
+| GAP-2: No concurrency model             | p-limit + Pool pattern defined (RQ-02)                  |
+| GAP-3: No schema versioning             | schemaVersion field + Zod extend (RQ-03)                |
+| GAP-4: No atomic writes                 | Write-temp-rename pattern adopted (RQ-01)               |
+| GAP-5: Error taxonomy incomplete        | Full exit code + semantic code taxonomy (RQ-14)         |
+| RISK-1: Naive LLM validation            | 5-retry + regex fallback pattern (RQ-04)                |
+| RISK-2: Embedding dimension mismatch    | Cache invalidation on model change (RQ-06)              |
+| RISK-3: Timestamp alignment             | Edge TTS SubMaker + Levenshtein matching (RQ-07, RQ-09) |
+| RISK-4: No observability                | Langfuse integration + cost tracking (RQ-15)            |
+| RISK-5: Testing gaps                    | Frame snapshots + ffprobe validation (RQ-10)            |
+| CONTRADICTION-2: Keywords vs embeddings | LLM keyword extraction defined (RQ-05)                  |
 
 ### 15.2 Partially Resolved Issues ⚠️ → Now Resolved ✅
 
-| Issue | Status | Resolution |
-|-------|--------|------------|
-| GAP-6: Python dependencies | ✅ Resolved | Avoid Python entirely — use kokoro-js + whisper.cpp (RQ-16) |
-| RISK-6: Concatenation artifacts | ✅ Resolved | Concat demuxer + 20ms micro-fades (RQ-17) |
-| RISK-7: Rate limiting | ✅ Resolved | p-limit per-provider + exponential backoff (RQ-18) |
-| GAP-8: GPU degradation | ✅ Resolved | systeminformation detection + graceful fallback (RQ-19) |
-| NFR-4: Offline mode | ✅ Documented | ~6.6GB minimum stack defined, post-MVP (RQ-20) |
+| Issue                           | Status        | Resolution                                                  |
+| ------------------------------- | ------------- | ----------------------------------------------------------- |
+| GAP-6: Python dependencies      | ✅ Resolved   | Avoid Python entirely — use kokoro-js + whisper.cpp (RQ-16) |
+| RISK-6: Concatenation artifacts | ✅ Resolved   | Concat demuxer + 20ms micro-fades (RQ-17)                   |
+| RISK-7: Rate limiting           | ✅ Resolved   | p-limit per-provider + exponential backoff (RQ-18)          |
+| GAP-8: GPU degradation          | ✅ Resolved   | systeminformation detection + graceful fallback (RQ-19)     |
+| NFR-4: Offline mode             | ✅ Documented | ~6.6GB minimum stack defined, post-MVP (RQ-20)              |
 
 ### 15.3 Issues Remaining After Iteration 2
 
-| Issue | Status | Remaining Work |
-|-------|--------|----------------|
-| CONTRADICTION-1: Flexible vs strict schemas | Open | Need concrete guidance on which fields allow flexibility |
-| CONTRADICTION-3: CLI vs LLM-native | Open | Need `--json` vs `--human` output modes |
-| NFR-1: Resource limits | Open | Need file size limits (max input video size) |
-| GAP-7: Asset cleanup | Open | When are downloaded assets safe to delete? |
-| GAP-9: Multi-language | Deferred | Prompts English-only for MVP |
-| RISK-8: Data privacy | Documented | User responsibility, documented in README |
+| Issue                                       | Status     | Remaining Work                                           |
+| ------------------------------------------- | ---------- | -------------------------------------------------------- |
+| CONTRADICTION-1: Flexible vs strict schemas | Open       | Need concrete guidance on which fields allow flexibility |
+| CONTRADICTION-3: CLI vs LLM-native          | Open       | Need `--json` vs `--human` output modes                  |
+| NFR-1: Resource limits                      | Open       | Need file size limits (max input video size)             |
+| GAP-7: Asset cleanup                        | Open       | When are downloaded assets safe to delete?               |
+| GAP-9: Multi-language                       | Deferred   | Prompts English-only for MVP                             |
+| RISK-8: Data privacy                        | Documented | User responsibility, documented in README                |
 
 ---
 
 ### 16.6 Critical Evaluation — Iteration 3
 
-*Conducted: 2026-01-05*
+_Conducted: 2026-01-05_
 
 #### 16.6.1 Newly Resolved in Iteration 2-3 ✅
 
 All P0 and P1 research questions are now answered. The following design decisions are final:
 
-| Component | Decision | Confidence |
-|-----------|----------|------------|
-| Audio pipeline | TypeScript-native (kokoro-js + whisper.cpp) | High |
-| Video concatenation | FFmpeg concat demuxer + micro-fades | High |
-| Rate limiting | p-limit + per-provider config | High |
-| GPU detection | systeminformation + nvidia-smi fallback | High |
-| Offline architecture | Ollama + Kokoro + whisper.cpp (post-MVP) | Medium |
+| Component            | Decision                                    | Confidence |
+| -------------------- | ------------------------------------------- | ---------- |
+| Audio pipeline       | TypeScript-native (kokoro-js + whisper.cpp) | High       |
+| Video concatenation  | FFmpeg concat demuxer + micro-fades         | High       |
+| Rate limiting        | p-limit + per-provider config               | High       |
+| GPU detection        | systeminformation + nvidia-smi fallback     | High       |
+| Offline architecture | Ollama + Kokoro + whisper.cpp (post-MVP)    | Medium     |
 
 #### 16.6.2 Remaining Open Issues (Prioritized)
 
-| ID | Issue | Priority | Resolution Strategy |
-|----|-------|----------|---------------------|
-| OPEN-1 | `--json` vs `--human` output modes | P1 | Add `--format json|human` flag, default human |
-| OPEN-2 | Asset cleanup strategy | P2 | Add `cm cleanup` command, 30-day retention |
-| OPEN-3 | Max input file size | P2 | Document 2GB limit (Remotion constraint) |
-| OPEN-4 | Multi-language prompts | P3 | Post-MVP with community contributions |
-| OPEN-5 | Schema flexibility guidance | P3 | Document in contributing guide |
+| ID     | Issue                              | Priority | Resolution Strategy                        |
+| ------ | ---------------------------------- | -------- | ------------------------------------------ | -------------------------- |
+| OPEN-1 | `--json` vs `--human` output modes | P1       | Add `--format json                         | human` flag, default human |
+| OPEN-2 | Asset cleanup strategy             | P2       | Add `cm cleanup` command, 30-day retention |
+| OPEN-3 | Max input file size                | P2       | Document 2GB limit (Remotion constraint)   |
+| OPEN-4 | Multi-language prompts             | P3       | Post-MVP with community contributions      |
+| OPEN-5 | Schema flexibility guidance        | P3       | Document in contributing guide             |
 
 #### 16.6.3 Final Trade-off Decisions
 
 These are explicitly **accepted** and **documented** trade-offs for MVP:
 
-| Trade-off | Justification | Future Path |
-|-----------|---------------|-------------|
-| **English-only prompts** | 80%+ short-form content is English. Edge TTS/Whisper support other languages at runtime. | Community-contributed prompt translations |
-| **No offline mode** | Requires 6.6GB+ local models. Most users have internet. | Post-MVP `--offline` profile |
-| **No RTL captions** | Complex CSS/rendering changes. Tiny user base for MVP. | v2 with proper bidi support |
-| **No accessibility** | MVP targets entertainment creators, not accessibility. | Add audio descriptions in v2 |
-| **No batch processing** | CLI handles one video at a time. Simple is better for MVP. | Add BullMQ queue post-MVP |
-| **Data sent to cloud APIs** | Required for LLM/TTS quality. Document in README. | Add local-first option post-MVP |
+| Trade-off                   | Justification                                                                            | Future Path                               |
+| --------------------------- | ---------------------------------------------------------------------------------------- | ----------------------------------------- |
+| **English-only prompts**    | 80%+ short-form content is English. Edge TTS/Whisper support other languages at runtime. | Community-contributed prompt translations |
+| **No offline mode**         | Requires 6.6GB+ local models. Most users have internet.                                  | Post-MVP `--offline` profile              |
+| **No RTL captions**         | Complex CSS/rendering changes. Tiny user base for MVP.                                   | v2 with proper bidi support               |
+| **No accessibility**        | MVP targets entertainment creators, not accessibility.                                   | Add audio descriptions in v2              |
+| **No batch processing**     | CLI handles one video at a time. Simple is better for MVP.                               | Add BullMQ queue post-MVP                 |
+| **Data sent to cloud APIs** | Required for LLM/TTS quality. Document in README.                                        | Add local-first option post-MVP           |
 
 #### 16.6.4 Risk Assessment Summary
 
-| Risk Level | Count | Examples |
-|------------|-------|----------|
-| 🟢 Low | 15 | Schema versioning, error handling, cost tracking |
-| 🟡 Medium | 4 | Memory limits, long video splitting, rate limits |
-| 🔴 High | 0 | All high-risk issues resolved |
+| Risk Level | Count | Examples                                         |
+| ---------- | ----- | ------------------------------------------------ |
+| 🟢 Low     | 15    | Schema versioning, error handling, cost tracking |
+| 🟡 Medium  | 4     | Memory limits, long video splitting, rate limits |
+| 🔴 High    | 0     | All high-risk issues resolved                    |
 
 #### 16.6.5 Convergence Status
 
 **Iteration 3 finds no new P0/P1 issues.** All identified issues are either:
+
 - ✅ Resolved with documented patterns
 - ⚠️ Documented as accepted trade-offs
 - 📋 Logged as P2/P3 for post-MVP
@@ -2563,55 +2663,55 @@ These are explicitly **accepted** and **documented** trade-offs for MVP:
 
 ### 16.7 Critical Evaluation — Iteration 4 (Extensibility)
 
-*Conducted: 2026-01-05*
+_Conducted: 2026-01-05_
 
 #### 16.7.1 Extensibility Additions Verified ✅
 
 The new extensibility architecture (§18) provides comprehensive extension mechanisms:
 
-| Extension Point | Completeness | Notes |
-|-----------------|--------------|-------|
-| Provider Interfaces | ✅ Complete | LLM, TTS, ASR, Stock, Render defined |
-| ProviderRegistry | ✅ Complete | Generic registry with lazy instantiation |
-| PipelineBuilder | ✅ Complete | Insert before/after, remove stage |
-| Hook System | ✅ Complete | Pipeline and stage-level hooks |
-| Plugin System | ✅ Complete | Activate/deactivate lifecycle |
-| Event System | ✅ Complete | Typed events for observability |
-| Middleware | ✅ Complete | Request/response interception |
-| Config Extension | ✅ Complete | Plugin-specific keys in ~/.cmrc.json |
-| Archetype Extension | ✅ Complete | JSON/YAML files + extends pattern |
-| Feature Flags | ✅ Complete | Env var overrides |
+| Extension Point     | Completeness | Notes                                    |
+| ------------------- | ------------ | ---------------------------------------- |
+| Provider Interfaces | ✅ Complete  | LLM, TTS, ASR, Stock, Render defined     |
+| ProviderRegistry    | ✅ Complete  | Generic registry with lazy instantiation |
+| PipelineBuilder     | ✅ Complete  | Insert before/after, remove stage        |
+| Hook System         | ✅ Complete  | Pipeline and stage-level hooks           |
+| Plugin System       | ✅ Complete  | Activate/deactivate lifecycle            |
+| Event System        | ✅ Complete  | Typed events for observability           |
+| Middleware          | ✅ Complete  | Request/response interception            |
+| Config Extension    | ✅ Complete  | Plugin-specific keys in ~/.cmrc.json     |
+| Archetype Extension | ✅ Complete  | JSON/YAML files + extends pattern        |
+| Feature Flags       | ✅ Complete  | Env var overrides                        |
 
 #### 16.7.2 Extensibility Gap Analysis
 
-| Potential Gap | Assessment | Resolution |
-|---------------|------------|------------|
-| Plugin versioning | Low risk | Plugins declare version, core checks compatibility |
-| Plugin dependencies | Medium risk | Plugins can require other plugins, load order matters |
-| Registry conflicts | Low risk | Error thrown on duplicate registration |
-| Breaking interface changes | Medium risk | Use semantic versioning, deprecation warnings |
-| Hot reloading | Deferred | Post-MVP feature, not needed for CLI |
+| Potential Gap              | Assessment  | Resolution                                            |
+| -------------------------- | ----------- | ----------------------------------------------------- |
+| Plugin versioning          | Low risk    | Plugins declare version, core checks compatibility    |
+| Plugin dependencies        | Medium risk | Plugins can require other plugins, load order matters |
+| Registry conflicts         | Low risk    | Error thrown on duplicate registration                |
+| Breaking interface changes | Medium risk | Use semantic versioning, deprecation warnings         |
+| Hot reloading              | Deferred    | Post-MVP feature, not needed for CLI                  |
 
 #### 16.7.3 Software Engineering Verification
 
-| Principle | Implementation | Status |
-|-----------|----------------|--------|
-| **SOLID: Open-Closed** | Registry pattern, no switch statements | ✅ |
-| **SOLID: Dependency Inversion** | All stages depend on interfaces | ✅ |
-| **SOLID: Interface Segregation** | Separate interfaces per concern | ✅ |
-| **SOLID: Single Responsibility** | Each stage/provider has one job | ✅ |
-| **SOLID: Liskov Substitution** | Providers interchangeable | ✅ |
+| Principle                        | Implementation                         | Status |
+| -------------------------------- | -------------------------------------- | ------ |
+| **SOLID: Open-Closed**           | Registry pattern, no switch statements | ✅     |
+| **SOLID: Dependency Inversion**  | All stages depend on interfaces        | ✅     |
+| **SOLID: Interface Segregation** | Separate interfaces per concern        | ✅     |
+| **SOLID: Single Responsibility** | Each stage/provider has one job        | ✅     |
+| **SOLID: Liskov Substitution**   | Providers interchangeable              | ✅     |
 
 #### 16.7.4 AI/ML Engineering Verification
 
-| Concern | Implementation | Status |
-|---------|----------------|--------|
-| **Model Swapping** | LLMProvider interface, config-driven | ✅ |
-| **Evals Integration** | Event system + Langfuse hooks | ✅ |
-| **Cost Tracking** | Cost events, middleware pattern | ✅ |
-| **Prompt Versioning** | Template system with versions | ✅ |
-| **A/B Testing** | Feature flags, config overrides | ✅ |
-| **Observability** | Typed events, trace IDs | ✅ |
+| Concern               | Implementation                       | Status |
+| --------------------- | ------------------------------------ | ------ |
+| **Model Swapping**    | LLMProvider interface, config-driven | ✅     |
+| **Evals Integration** | Event system + Langfuse hooks        | ✅     |
+| **Cost Tracking**     | Cost events, middleware pattern      | ✅     |
+| **Prompt Versioning** | Template system with versions        | ✅     |
+| **A/B Testing**       | Feature flags, config overrides      | ✅     |
+| **Observability**     | Typed events, trace IDs              | ✅     |
 
 #### 16.7.5 Convergence Status
 
@@ -2629,16 +2729,16 @@ The new extensibility architecture (§18) provides comprehensive extension mecha
 
 ### 16.8 Critical Evaluation — Iteration 5 (Expert Code Review)
 
-*Conducted: 2026-01-05*
+_Conducted: 2026-01-05_
 
 Expert code review of vendored blueprint repos (short-video-maker-gyori, MoneyPrinterTurbo, openai-agents-js) revealed 10 critical implementation patterns missing from the design.
 
 #### 16.8.1 P0 Gaps Resolved ✅
 
-| Gap | Pattern Adopted | Source |
-|-----|-----------------|--------|
-| **Constructor injection** | Static factory + pure DI, `createForTest()` method | short-video-maker-gyori |
-| **Test stub infrastructure** | `FakeLLMProvider`, `FakeTTSProvider` classes | openai-agents-js |
+| Gap                          | Pattern Adopted                                    | Source                  |
+| ---------------------------- | -------------------------------------------------- | ----------------------- |
+| **Constructor injection**    | Static factory + pure DI, `createForTest()` method | short-video-maker-gyori |
+| **Test stub infrastructure** | `FakeLLMProvider`, `FakeTTSProvider` classes       | openai-agents-js        |
 
 **Constructor Injection Pattern:**
 
@@ -2646,7 +2746,7 @@ Expert code review of vendored blueprint repos (short-video-maker-gyori, MoneyPr
 class AudioPipeline {
   private constructor(
     private tts: TTSProvider,
-    private asr: ASRProvider,
+    private asr: ASRProvider
   ) {}
 
   static async create(config: Config): Promise<AudioPipeline> {
@@ -2663,29 +2763,29 @@ class AudioPipeline {
 
 #### 16.8.2 P1 Gaps Resolved ✅
 
-| Gap | Pattern Adopted | Implementation |
-|-----|-----------------|----------------|
-| **Multi-key rotation** | `ApiKeyRotator` class with round-robin | Config supports `string \| string[]` |
-| **Joker term fallback** | `JOKER_TERMS` array appended to search | `['nature', 'abstract', 'sky', 'ocean']` |
-| **Video validation** | FFprobe check after download | Delete corrupt files, return null |
-| **Retry-within-provider** | 3 retries before fallback | Configurable `retries` per provider |
-| **AbortSignal propagation** | SIGINT → AbortController → all calls | Signal passed to fetch, TTS, render |
-| **CostTracker class** | Usage accumulator with pricing table | `add()`, `getTotalCost()`, `getSummary()` |
-| **Typed lifecycle hooks** | `PipelineEvents` interface with signatures | 10 event types with exact payloads |
+| Gap                         | Pattern Adopted                            | Implementation                            |
+| --------------------------- | ------------------------------------------ | ----------------------------------------- |
+| **Multi-key rotation**      | `ApiKeyRotator` class with round-robin     | Config supports `string \| string[]`      |
+| **Joker term fallback**     | `JOKER_TERMS` array appended to search     | `['nature', 'abstract', 'sky', 'ocean']`  |
+| **Video validation**        | FFprobe check after download               | Delete corrupt files, return null         |
+| **Retry-within-provider**   | 3 retries before fallback                  | Configurable `retries` per provider       |
+| **AbortSignal propagation** | SIGINT → AbortController → all calls       | Signal passed to fetch, TTS, render       |
+| **CostTracker class**       | Usage accumulator with pricing table       | `add()`, `getTotalCost()`, `getSummary()` |
+| **Typed lifecycle hooks**   | `PipelineEvents` interface with signatures | 10 event types with exact payloads        |
 
 **AbortSignal Pattern:**
 
 ```typescript
 class Pipeline {
   private abortController = new AbortController();
-  
+
   constructor() {
     process.on('SIGINT', () => {
       console.log('\n⚠️  Cancelling...');
       this.abortController.abort();
     });
   }
-  
+
   get signal(): AbortSignal {
     return this.abortController.signal;
   }
@@ -2705,7 +2805,7 @@ class CostTracker {
     'gpt-4o': { input: 2.50, output: 10.00 },  // $ per 1M tokens
     'gpt-4o-mini': { input: 0.15, output: 0.60 },
   };
-  
+
   add(entry: UsageEntry): void { ... }
   getTotalCost(): number { ... }
   getSummary(): string { ... }
@@ -2714,23 +2814,24 @@ class CostTracker {
 
 #### 16.8.3 P2 Gap Deferred
 
-| Gap | Status | Notes |
-|-----|--------|-------|
+| Gap                          | Status               | Notes                           |
+| ---------------------------- | -------------------- | ------------------------------- |
 | **Reasoning model settings** | Deferred to post-MVP | o1/o3 `reasoning.effort` config |
 
 #### 16.8.4 Risk Assessment After Iteration 5
 
-| Risk Level | Count | Change |
-|------------|-------|--------|
-| 🟢 Low | 17 | +2 (test stubs, cost tracking) |
-| 🟡 Medium | 3 | -1 (cancellation resolved) |
-| 🔴 High | 0 | No change |
+| Risk Level | Count | Change                         |
+| ---------- | ----- | ------------------------------ |
+| 🟢 Low     | 17    | +2 (test stubs, cost tracking) |
+| 🟡 Medium  | 3     | -1 (cancellation resolved)     |
+| 🔴 High    | 0     | No change                      |
 
 #### 16.8.5 Convergence Status
 
 **Iteration 5 found 10 implementation gaps; all 9 P0/P1 gaps are now resolved.**
 
 The design now includes:
+
 - ✅ Constructor injection with testable factory pattern
 - ✅ Complete test stub infrastructure
 - ✅ Multi-key API rotation for rate limit scaling
@@ -2749,68 +2850,68 @@ The design now includes:
 
 ### 17.1 Ready for Implementation ✅
 
-| Component | Confidence | Evidence |
-|-----------|------------|----------|
-| Configuration system | High | TOML/JSON patterns from MoneyPrinterTurbo |
-| Schema definitions | High | Zod patterns validated, versioning solved |
-| `cm script` command | High | LLM structured output patterns proven |
-| Error handling | High | Exit codes + semantic codes defined |
-| Cost tracking | High | Langfuse integration documented |
-| Audio pipeline | High | kokoro-js + whisper.cpp (no Python) |
-| Rate limiting | High | p-limit + per-provider config |
-| Provider abstraction | High | Interface patterns documented |
-| Plugin system | High | Lifecycle + registry defined |
+| Component            | Confidence | Evidence                                  |
+| -------------------- | ---------- | ----------------------------------------- |
+| Configuration system | High       | TOML/JSON patterns from MoneyPrinterTurbo |
+| Schema definitions   | High       | Zod patterns validated, versioning solved |
+| `cm script` command  | High       | LLM structured output patterns proven     |
+| Error handling       | High       | Exit codes + semantic codes defined       |
+| Cost tracking        | High       | Langfuse integration documented           |
+| Audio pipeline       | High       | kokoro-js + whisper.cpp (no Python)       |
+| Rate limiting        | High       | p-limit + per-provider config             |
+| Provider abstraction | High       | Interface patterns documented             |
+| Plugin system        | High       | Lifecycle + registry defined              |
 
 ### 17.2 Ready with Documented Patterns ✅
 
-| Component | Confidence | Pattern Source |
-|-----------|------------|----------------|
-| `cm audio` command | High | kokoro-js + @remotion/install-whisper-cpp |
-| `cm visuals` command | High | p-limit + exponential backoff |
-| `cm render` command | High | Remotion + FFmpeg concat demuxer |
-| GPU acceleration | High | systeminformation + nvidia-smi |
-| Extensibility | High | 12 extension points defined |
-| Content archetypes | High | 6 presets + extension pattern |
+| Component            | Confidence | Pattern Source                            |
+| -------------------- | ---------- | ----------------------------------------- |
+| `cm audio` command   | High       | kokoro-js + @remotion/install-whisper-cpp |
+| `cm visuals` command | High       | p-limit + exponential backoff             |
+| `cm render` command  | High       | Remotion + FFmpeg concat demuxer          |
+| GPU acceleration     | High       | systeminformation + nvidia-smi            |
+| Extensibility        | High       | 12 extension points defined               |
+| Content archetypes   | High       | 6 presets + extension pattern             |
 
 ### 17.3 Extensibility Readiness ✅
 
-| Mechanism | Implementation Status | Notes |
-|-----------|----------------------|-------|
-| Provider interfaces | Ready | TypeScript interfaces defined |
-| ProviderRegistry | Ready | Generic class implementation |
-| PipelineBuilder | Ready | Stage manipulation methods |
-| Hook system | Ready | Event-based hooks |
-| Plugin system | Ready | Activate/deactivate lifecycle |
-| Event emitter | Ready | Typed events pattern |
-| Middleware chain | Ready | Compose pattern |
-| Archetype extension | Ready | JSON/YAML + extends |
-| Feature flags | Ready | Env var pattern |
-| Config extension | Ready | Plugin-specific keys |
+| Mechanism           | Implementation Status | Notes                         |
+| ------------------- | --------------------- | ----------------------------- |
+| Provider interfaces | Ready                 | TypeScript interfaces defined |
+| ProviderRegistry    | Ready                 | Generic class implementation  |
+| PipelineBuilder     | Ready                 | Stage manipulation methods    |
+| Hook system         | Ready                 | Event-based hooks             |
+| Plugin system       | Ready                 | Activate/deactivate lifecycle |
+| Event emitter       | Ready                 | Typed events pattern          |
+| Middleware chain    | Ready                 | Compose pattern               |
+| Archetype extension | Ready                 | JSON/YAML + extends           |
+| Feature flags       | Ready                 | Env var pattern               |
+| Config extension    | Ready                 | Plugin-specific keys          |
 
 ### 17.4 Post-MVP Items 📋
 
-| Component | Effort | Dependency |
-|-----------|--------|------------|
-| Offline mode | Medium | Ollama + local embeddings |
-| Multi-language prompts | Low | Community contributions |
-| `--json` output mode | Low | None |
-| `cm cleanup` command | Low | None |
-| Batch processing | Medium | BullMQ |
-| Web interface | High | API server |
-| Plugin marketplace | High | Registry infrastructure |
-| Hot reloading | Medium | File watcher |
+| Component              | Effort | Dependency                |
+| ---------------------- | ------ | ------------------------- |
+| Offline mode           | Medium | Ollama + local embeddings |
+| Multi-language prompts | Low    | Community contributions   |
+| `--json` output mode   | Low    | None                      |
+| `cm cleanup` command   | Low    | None                      |
+| Batch processing       | Medium | BullMQ                    |
+| Web interface          | High   | API server                |
+| Plugin marketplace     | High   | Registry infrastructure   |
+| Hot reloading          | Medium | File watcher              |
 
 ### 17.5 Development Sequence (Updated)
 
-| Week | Deliverable | Dependencies |
-|------|-------------|--------------|
-| 1 | Project setup, Zod schemas, config system, ProviderRegistry | None |
-| 2 | LLM provider abstraction, `cm script`, Plugin loader | Week 1 |
-| 3 | kokoro-js TTS, whisper.cpp ASR, `cm audio` | Week 1 |
-| 4 | Embedding pipeline, Pexels API, `cm visuals` | Weeks 1-2 |
-| 5 | Remotion composition, `cm render` | Weeks 1-4 |
-| 6 | Integration, `cm generate`, error handling, hooks | Weeks 1-5 |
-| 7 | Testing, documentation, polish | Weeks 1-6 |
+| Week | Deliverable                                                 | Dependencies |
+| ---- | ----------------------------------------------------------- | ------------ |
+| 1    | Project setup, Zod schemas, config system, ProviderRegistry | None         |
+| 2    | LLM provider abstraction, `cm script`, Plugin loader        | Week 1       |
+| 3    | kokoro-js TTS, whisper.cpp ASR, `cm audio`                  | Week 1       |
+| 4    | Embedding pipeline, Pexels API, `cm visuals`                | Weeks 1-2    |
+| 5    | Remotion composition, `cm render`                           | Weeks 1-4    |
+| 6    | Integration, `cm generate`, error handling, hooks           | Weeks 1-5    |
+| 7    | Testing, documentation, polish                              | Weeks 1-6    |
 
 ---
 
@@ -2822,10 +2923,10 @@ The design now includes:
 
 The architecture is designed for **extension without core modification** (Open-Closed Principle):
 
-| Principle | Implementation |
-|-----------|----------------|
-| **Open-Closed** | New providers added via registry, not switch statements |
-| **Dependency Inversion** | Components depend on interfaces, not implementations |
+| Principle                 | Implementation                                                |
+| ------------------------- | ------------------------------------------------------------- |
+| **Open-Closed**           | New providers added via registry, not switch statements       |
+| **Dependency Inversion**  | Components depend on interfaces, not implementations          |
 | **Interface Segregation** | Focused interfaces (TTSProvider, LLMProvider) vs. god objects |
 
 ### 18.2 Provider Interface System
@@ -2838,7 +2939,7 @@ All external services are abstracted behind interfaces. New providers are added 
 export interface LLMProvider {
   readonly name: string;
   readonly supportedFeatures: ('json-mode' | 'tool-calling' | 'streaming' | 'vision')[];
-  
+
   chat(messages: ChatMessage[], options?: ChatOptions): Promise<ChatResponse>;
   embed?(texts: string[]): Promise<EmbeddingResult>;
   streamChat?(messages: ChatMessage[], options?: ChatOptions): AsyncIterable<ChatChunk>;
@@ -2852,7 +2953,7 @@ export interface TTSProvider {
   readonly name: string;
   readonly supportedVoices: Voice[];
   readonly supportedLanguages: string[];
-  
+
   synthesize(text: string, options: TTSOptions): Promise<TTSResult>;
   synthesizeWithTimestamps?(text: string, options: TTSOptions): Promise<TTSResultWithTimestamps>;
 }
@@ -2865,7 +2966,7 @@ export interface ASRProvider {
   readonly name: string;
   readonly supportedLanguages: string[];
   readonly supportsWordTimestamps: boolean;
-  
+
   transcribe(audio: Buffer | string, options?: ASROptions): Promise<ASRResult>;
 }
 ```
@@ -2877,7 +2978,7 @@ export interface StockFootageProvider {
   readonly name: string;
   readonly requiresApiKey: boolean;
   readonly supportedMediaTypes: ('video' | 'image')[];
-  
+
   search(query: string, options?: SearchOptions): Promise<StockResult[]>;
   download(asset: StockResult, destination: string): Promise<string>;
 }
@@ -2891,28 +2992,26 @@ A generic registry enables dynamic provider registration:
 export class ProviderRegistry<T> {
   private providers = new Map<string, () => T>();
   private instances = new Map<string, T>();
-  
+
   register(name: string, factory: () => T): void {
     if (this.providers.has(name)) {
       throw new Error(`Provider "${name}" already registered`);
     }
     this.providers.set(name, factory);
   }
-  
+
   get(name: string): T {
     // Lazy instantiation with caching
     if (!this.instances.has(name)) {
       const factory = this.providers.get(name);
       if (!factory) {
-        throw new Error(
-          `Provider "${name}" not found. Available: ${this.list().join(', ')}`
-        );
+        throw new Error(`Provider "${name}" not found. Available: ${this.list().join(', ')}`);
       }
       this.instances.set(name, factory());
     }
     return this.instances.get(name)!;
   }
-  
+
   list(): string[] {
     return Array.from(this.providers.keys());
   }
@@ -2951,7 +3050,7 @@ The pipeline supports stage insertion, removal, and replacement:
 export interface PipelineStage<TInput, TOutput> {
   readonly name: string;
   readonly version: string;
-  
+
   execute(input: TInput, context: PipelineContext): Promise<TOutput>;
   beforeExecute?(input: TInput, context: PipelineContext): Promise<TInput>;
   afterExecute?(output: TOutput, context: PipelineContext): Promise<TOutput>;
@@ -2971,12 +3070,12 @@ export class PipelineBuilder {
 
 ```typescript
 const researchPipeline = new PipelineBuilder()
-  .addStage(new ResearchStage())     // New stage
+  .addStage(new ResearchStage()) // New stage
   .addStage(new ScriptStage())
   .addStage(new AudioStage())
   .addStage(new VisualsStage())
   .addStage(new RenderStage())
-  .addStage(new PublishStage())      // New stage
+  .addStage(new PublishStage()) // New stage
   .build();
 ```
 
@@ -3000,10 +3099,10 @@ const pipeline = new PipelineBuilder()
   .addStage(new AudioStage())
   .withHooks({
     onStageEnd: async (stage, output, ctx) => {
-      await langfuse.logStage(stage, output);  // Observability
+      await langfuse.logStage(stage, output); // Observability
     },
     onProgress: (stage, progress, message) => {
-      progressBar.update(progress, { message });  // UI
+      progressBar.update(progress, { message }); // UI
     },
   })
   .build();
@@ -3018,7 +3117,7 @@ export interface Plugin {
   readonly name: string;
   readonly version: string;
   readonly description?: string;
-  
+
   activate(context: PluginContext): Promise<void>;
   deactivate?(): Promise<void>;
 }
@@ -3043,9 +3142,9 @@ import type { Plugin, TTSProvider } from 'content-machine';
 
 class ElevenLabsTTS implements TTSProvider {
   readonly name = 'elevenlabs';
-  readonly supportedVoices = [{ id: 'adam', name: 'Adam' }, /* ... */];
-  readonly supportedLanguages = ['en', 'es', 'fr', /* ... */];
-  
+  readonly supportedVoices = [{ id: 'adam', name: 'Adam' } /* ... */];
+  readonly supportedLanguages = ['en', 'es', 'fr' /* ... */];
+
   async synthesize(text: string, options: TTSOptions): Promise<TTSResult> {
     // ElevenLabs API implementation
   }
@@ -3055,7 +3154,7 @@ const plugin: Plugin = {
   name: 'elevenlabs-tts',
   version: '1.0.0',
   description: 'Adds ElevenLabs TTS support',
-  
+
   async activate(ctx) {
     ctx.ttsProviders.register('elevenlabs', () => new ElevenLabsTTS());
     ctx.logger.info('ElevenLabs TTS provider registered');
@@ -3083,7 +3182,7 @@ Archetypes can be extended or created from JSON/YAML:
 ```typescript
 // Extend existing archetype
 export function extendArchetype(
-  baseId: string, 
+  baseId: string,
   overrides: DeepPartial<ContentArchetype>
 ): ContentArchetype {
   const base = archetypeRegistry.get(baseId);
@@ -3109,7 +3208,7 @@ id: my-style
 name: My Custom Style
 captions:
   fontFamily: Comic Sans MS
-  textColor: "#00FF00"
+  textColor: '#00FF00'
 audio:
   voiceRate: 1.5
 ```
@@ -3132,11 +3231,11 @@ export interface ContentMachineEvents {
 
 // Integration points
 events.on('llm:response', async (event) => {
-  await langfuse.logGeneration(event);  // Evals
+  await langfuse.logGeneration(event); // Evals
 });
 
 events.on('cost:incurred', (event) => {
-  budgetTracker.add(event);  // Budget alerts
+  budgetTracker.add(event); // Budget alerts
 });
 ```
 
@@ -3145,10 +3244,7 @@ events.on('cost:incurred', (event) => {
 Middleware enables request/response interception:
 
 ```typescript
-export type Middleware<T> = (
-  input: T, 
-  next: () => Promise<T>
-) => Promise<T>;
+export type Middleware<T> = (input: T, next: () => Promise<T>) => Promise<T>;
 
 // Example: Add middleware for caching, retry, logging
 const llmMiddleware = new MiddlewareChain<ChatRequest>()
@@ -3165,7 +3261,9 @@ The config system supports plugin-specific keys:
 ```json
 {
   "schemaVersion": "1.0.0",
-  "llm": { /* core config */ },
+  "llm": {
+    /* core config */
+  },
   "plugins": ["elevenlabs-tts", "youtube-publish"],
   "customProviders": {
     "elevenlabs": {
@@ -3213,20 +3311,20 @@ export function isFeatureEnabled(flag: keyof typeof featureFlags): boolean {
 
 ### 18.12 Extension Points Summary
 
-| Extension Point | Mechanism | User Action |
-|-----------------|-----------|-------------|
-| **LLM Providers** | `llmProviders.register()` | Implement `LLMProvider` interface |
-| **TTS Providers** | `ttsProviders.register()` | Implement `TTSProvider` interface |
-| **ASR Providers** | `asrProviders.register()` | Implement `ASRProvider` interface |
-| **Stock Providers** | `stockProviders.register()` | Implement `StockFootageProvider` interface |
-| **Content Archetypes** | `archetypeRegistry.register()` | JSON/YAML file or `extendArchetype()` |
-| **Pipeline Stages** | `pipelineBuilder.insertAfter()` | Implement `PipelineStage` interface |
-| **Hooks** | `pipeline.withHooks()` | Provide hook functions |
-| **Plugins** | `~/.cm/plugins/` directory | Export `Plugin` object |
-| **Events** | `events.on()` | Subscribe to typed events |
-| **Middleware** | `middleware.use()` | Implement middleware function |
-| **Config** | `~/.cmrc.json` | Add provider/archetype configs |
-| **Feature Flags** | `CM_FEATURE_*` env vars | Set environment variables |
+| Extension Point        | Mechanism                       | User Action                                |
+| ---------------------- | ------------------------------- | ------------------------------------------ |
+| **LLM Providers**      | `llmProviders.register()`       | Implement `LLMProvider` interface          |
+| **TTS Providers**      | `ttsProviders.register()`       | Implement `TTSProvider` interface          |
+| **ASR Providers**      | `asrProviders.register()`       | Implement `ASRProvider` interface          |
+| **Stock Providers**    | `stockProviders.register()`     | Implement `StockFootageProvider` interface |
+| **Content Archetypes** | `archetypeRegistry.register()`  | JSON/YAML file or `extendArchetype()`      |
+| **Pipeline Stages**    | `pipelineBuilder.insertAfter()` | Implement `PipelineStage` interface        |
+| **Hooks**              | `pipeline.withHooks()`          | Provide hook functions                     |
+| **Plugins**            | `~/.cm/plugins/` directory      | Export `Plugin` object                     |
+| **Events**             | `events.on()`                   | Subscribe to typed events                  |
+| **Middleware**         | `middleware.use()`              | Implement middleware function              |
+| **Config**             | `~/.cmrc.json`                  | Add provider/archetype configs             |
+| **Feature Flags**      | `CM_FEATURE_*` env vars         | Set environment variables                  |
 
 ---
 
@@ -3234,56 +3332,56 @@ export function isFeatureEnabled(flag: keyof typeof featureFlags): boolean {
 
 ### 19.1 Iteration 1 (RQ-01 to RQ-15)
 
-| ID | Title | File |
-|----|-------|------|
-| RQ-01 | Resumable Pipelines | [RQ-01-RESUMABLE-PIPELINES-20260104.md](../research/investigations/RQ-01-RESUMABLE-PIPELINES-20260104.md) |
-| RQ-02 | Concurrency Model | [RQ-02-CONCURRENCY-MODEL-20260104.md](../research/investigations/RQ-02-CONCURRENCY-MODEL-20260104.md) |
-| RQ-03 | Schema Versioning | [RQ-03-SCHEMA-VERSIONING-20260104.md](../research/investigations/RQ-03-SCHEMA-VERSIONING-20260104.md) |
-| RQ-04 | Structured LLM Output | [RQ-04-STRUCTURED-LLM-OUTPUT-20260104.md](../research/investigations/RQ-04-STRUCTURED-LLM-OUTPUT-20260104.md) |
-| RQ-05 | Visual to Keyword Translation | [RQ-05-VISUAL-TO-KEYWORD-20260104.md](../research/investigations/RQ-05-VISUAL-TO-KEYWORD-20260104.md) |
-| RQ-06 | Embedding Model Selection | [RQ-06-EMBEDDING-MODEL-SELECTION-20260104.md](../research/investigations/RQ-06-EMBEDDING-MODEL-SELECTION-20260104.md) |
-| RQ-07 | Edge TTS Timestamps | [RQ-07-EDGE-TTS-TIMESTAMPS-20260104.md](../research/investigations/RQ-07-EDGE-TTS-TIMESTAMPS-20260104.md) |
-| RQ-08 | Forced Alignment | [RQ-08-FORCED-ALIGNMENT-20260104.md](../research/investigations/RQ-08-FORCED-ALIGNMENT-20260104.md) |
-| RQ-09 | Timestamp Drift | [RQ-09-TIMESTAMP-DRIFT-20260104.md](../research/investigations/RQ-09-TIMESTAMP-DRIFT-20260104.md) |
-| RQ-10 | Video Output Testing | [RQ-10-VIDEO-OUTPUT-TESTING-20260104.md](../research/investigations/RQ-10-VIDEO-OUTPUT-TESTING-20260104.md) |
-| RQ-11 | Remotion Memory | [RQ-11-REMOTION-MEMORY-20260104.md](../research/investigations/RQ-11-REMOTION-MEMORY-20260104.md) |
-| RQ-12 | Remotion Licensing | [RQ-12-REMOTION-LICENSING-20260104.md](../research/investigations/RQ-12-REMOTION-LICENSING-20260104.md) |
-| RQ-13 | Video Quality Metrics | [RQ-13-VIDEO-QUALITY-METRICS-20260104.md](../research/investigations/RQ-13-VIDEO-QUALITY-METRICS-20260104.md) |
-| RQ-14 | Error Taxonomy | [RQ-14-ERROR-TAXONOMY-20260104.md](../research/investigations/RQ-14-ERROR-TAXONOMY-20260104.md) |
-| RQ-15 | Cost Tracking | [RQ-15-COST-TRACKING-20260104.md](../research/investigations/RQ-15-COST-TRACKING-20260104.md) |
+| ID    | Title                         | File                                                                                                                  |
+| ----- | ----------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| RQ-01 | Resumable Pipelines           | [RQ-01-RESUMABLE-PIPELINES-20260104.md](../research/investigations/RQ-01-RESUMABLE-PIPELINES-20260104.md)             |
+| RQ-02 | Concurrency Model             | [RQ-02-CONCURRENCY-MODEL-20260104.md](../research/investigations/RQ-02-CONCURRENCY-MODEL-20260104.md)                 |
+| RQ-03 | Schema Versioning             | [RQ-03-SCHEMA-VERSIONING-20260104.md](../research/investigations/RQ-03-SCHEMA-VERSIONING-20260104.md)                 |
+| RQ-04 | Structured LLM Output         | [RQ-04-STRUCTURED-LLM-OUTPUT-20260104.md](../research/investigations/RQ-04-STRUCTURED-LLM-OUTPUT-20260104.md)         |
+| RQ-05 | Visual to Keyword Translation | [RQ-05-VISUAL-TO-KEYWORD-20260104.md](../research/investigations/RQ-05-VISUAL-TO-KEYWORD-20260104.md)                 |
+| RQ-06 | Embedding Model Selection     | [RQ-06-EMBEDDING-MODEL-SELECTION-20260104.md](../research/investigations/RQ-06-EMBEDDING-MODEL-SELECTION-20260104.md) |
+| RQ-07 | Edge TTS Timestamps           | [RQ-07-EDGE-TTS-TIMESTAMPS-20260104.md](../research/investigations/RQ-07-EDGE-TTS-TIMESTAMPS-20260104.md)             |
+| RQ-08 | Forced Alignment              | [RQ-08-FORCED-ALIGNMENT-20260104.md](../research/investigations/RQ-08-FORCED-ALIGNMENT-20260104.md)                   |
+| RQ-09 | Timestamp Drift               | [RQ-09-TIMESTAMP-DRIFT-20260104.md](../research/investigations/RQ-09-TIMESTAMP-DRIFT-20260104.md)                     |
+| RQ-10 | Video Output Testing          | [RQ-10-VIDEO-OUTPUT-TESTING-20260104.md](../research/investigations/RQ-10-VIDEO-OUTPUT-TESTING-20260104.md)           |
+| RQ-11 | Remotion Memory               | [RQ-11-REMOTION-MEMORY-20260104.md](../research/investigations/RQ-11-REMOTION-MEMORY-20260104.md)                     |
+| RQ-12 | Remotion Licensing            | [RQ-12-REMOTION-LICENSING-20260104.md](../research/investigations/RQ-12-REMOTION-LICENSING-20260104.md)               |
+| RQ-13 | Video Quality Metrics         | [RQ-13-VIDEO-QUALITY-METRICS-20260104.md](../research/investigations/RQ-13-VIDEO-QUALITY-METRICS-20260104.md)         |
+| RQ-14 | Error Taxonomy                | [RQ-14-ERROR-TAXONOMY-20260104.md](../research/investigations/RQ-14-ERROR-TAXONOMY-20260104.md)                       |
+| RQ-15 | Cost Tracking                 | [RQ-15-COST-TRACKING-20260104.md](../research/investigations/RQ-15-COST-TRACKING-20260104.md)                         |
 
 ### 19.2 Iteration 2 (RQ-16 to RQ-20)
 
-| ID | Title | File |
-|----|-------|------|
-| RQ-16 | Python Subprocess Management | [RQ-16-PYTHON-SUBPROCESS-20260105.md](../research/investigations/RQ-16-PYTHON-SUBPROCESS-20260105.md) |
-| RQ-17 | FFmpeg Concatenation | [RQ-17-FFMPEG-CONCATENATION-20260105.md](../research/investigations/RQ-17-FFMPEG-CONCATENATION-20260105.md) |
-| RQ-18 | Rate Limiting | [RQ-18-RATE-LIMITING-20260105.md](../research/investigations/RQ-18-RATE-LIMITING-20260105.md) |
-| RQ-19 | GPU Detection | [RQ-19-GPU-DETECTION-20260105.md](../research/investigations/RQ-19-GPU-DETECTION-20260105.md) |
-| RQ-20 | Offline Mode | [RQ-20-OFFLINE-MODE-20260105.md](../research/investigations/RQ-20-OFFLINE-MODE-20260105.md) |
+| ID    | Title                        | File                                                                                                        |
+| ----- | ---------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| RQ-16 | Python Subprocess Management | [RQ-16-PYTHON-SUBPROCESS-20260105.md](../research/investigations/RQ-16-PYTHON-SUBPROCESS-20260105.md)       |
+| RQ-17 | FFmpeg Concatenation         | [RQ-17-FFMPEG-CONCATENATION-20260105.md](../research/investigations/RQ-17-FFMPEG-CONCATENATION-20260105.md) |
+| RQ-18 | Rate Limiting                | [RQ-18-RATE-LIMITING-20260105.md](../research/investigations/RQ-18-RATE-LIMITING-20260105.md)               |
+| RQ-19 | GPU Detection                | [RQ-19-GPU-DETECTION-20260105.md](../research/investigations/RQ-19-GPU-DETECTION-20260105.md)               |
+| RQ-20 | Offline Mode                 | [RQ-20-OFFLINE-MODE-20260105.md](../research/investigations/RQ-20-OFFLINE-MODE-20260105.md)                 |
 
 ### 19.3 Iteration 3 (RQ-21 — Multi-Demographic Support)
 
-| ID | Title | File |
-|----|-------|------|
+| ID    | Title              | File                                                                                                    |
+| ----- | ------------------ | ------------------------------------------------------------------------------------------------------- |
 | RQ-21 | Content Archetypes | [RQ-21-CONTENT-ARCHETYPES-20260105.md](../research/investigations/RQ-21-CONTENT-ARCHETYPES-20260105.md) |
 
 ### 19.4 Iteration 4 (RQ-22 — Extensibility Architecture)
 
-| ID | Title | File |
-|----|-------|------|
+| ID    | Title                      | File                                                                                                                    |
+| ----- | -------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | RQ-22 | Extensibility Architecture | [RQ-22-EXTENSIBILITY-ARCHITECTURE-20260105.md](../research/investigations/RQ-22-EXTENSIBILITY-ARCHITECTURE-20260105.md) |
 
 ### 19.5 Iteration 5 (RQ-23 — Expert Code Review)
 
-| ID | Title | File |
-|----|-------|------|
+| ID    | Title                       | File                                                                                                    |
+| ----- | --------------------------- | ------------------------------------------------------------------------------------------------------- |
 | RQ-23 | Expert Review Critical Gaps | [RQ-23-EXPERT-REVIEW-GAPS-20260105.md](../research/investigations/RQ-23-EXPERT-REVIEW-GAPS-20260105.md) |
 
 ### 19.6 Iteration 6 (RQ-24 — Validation & Verification)
 
-| ID | Title | File |
-|----|-------|------|
+| ID    | Title                              | File                                                                                                                                |
+| ----- | ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
 | RQ-24 | LLM Evaluation & Quality Assurance | [RQ-24-LLM-EVALUATION-QUALITY-ASSURANCE-20260105.md](../research/investigations/RQ-24-LLM-EVALUATION-QUALITY-ASSURANCE-20260105.md) |
 
 ---
@@ -3291,38 +3389,39 @@ export function isFeatureEnabled(flag: keyof typeof featureFlags): boolean {
 ## 20. Appendix: Implementation Phase Documents
 
 Detailed implementation guides for each development phase. These documents provide:
+
 - Step-by-step implementation instructions
 - Code patterns to follow (from vendored repos)
 - File-by-file deliverables
 - Test cases to write first (TDD)
 - Validation checklists
 
-| Phase | Document | Focus |
-|-------|----------|-------|
-| 0 | [IMPL-PHASE-0-FOUNDATION-20260105.md](IMPL-PHASE-0-FOUNDATION-20260105.md) | Project setup, core infrastructure |
-| 1 | [IMPL-PHASE-1-SCRIPT-20260105.md](IMPL-PHASE-1-SCRIPT-20260105.md) | Script generation pipeline |
-| 2 | [IMPL-PHASE-2-AUDIO-20260105.md](IMPL-PHASE-2-AUDIO-20260105.md) | TTS and ASR integration |
-| 3 | [IMPL-PHASE-3-VISUALS-20260105.md](IMPL-PHASE-3-VISUALS-20260105.md) | Stock footage matching |
-| 4 | [IMPL-PHASE-4-RENDER-20260105.md](IMPL-PHASE-4-RENDER-20260105.md) | Remotion video rendering |
-| 5 | [IMPL-PHASE-5-INTEGRATION-20260105.md](IMPL-PHASE-5-INTEGRATION-20260105.md) | Pipeline integration, polish |
+| Phase | Document                                                                     | Focus                              |
+| ----- | ---------------------------------------------------------------------------- | ---------------------------------- |
+| 0     | [IMPL-PHASE-0-FOUNDATION-20260105.md](IMPL-PHASE-0-FOUNDATION-20260105.md)   | Project setup, core infrastructure |
+| 1     | [IMPL-PHASE-1-SCRIPT-20260105.md](IMPL-PHASE-1-SCRIPT-20260105.md)           | Script generation pipeline         |
+| 2     | [IMPL-PHASE-2-AUDIO-20260105.md](IMPL-PHASE-2-AUDIO-20260105.md)             | TTS and ASR integration            |
+| 3     | [IMPL-PHASE-3-VISUALS-20260105.md](IMPL-PHASE-3-VISUALS-20260105.md)         | Stock footage matching             |
+| 4     | [IMPL-PHASE-4-RENDER-20260105.md](IMPL-PHASE-4-RENDER-20260105.md)           | Remotion video rendering           |
+| 5     | [IMPL-PHASE-5-INTEGRATION-20260105.md](IMPL-PHASE-5-INTEGRATION-20260105.md) | Pipeline integration, polish       |
 
 ### 20.1 V&V Documentation
 
-| Document | Purpose |
-|----------|---------|
-| [VV-FRAMEWORK-20260105.md](../guides/VV-FRAMEWORK-20260105.md) | 4-layer validation approach |
-| [evals/README.md](../../evals/README.md) | Promptfoo evaluation suite |
-| [evals/configs/cm-script.yaml](../../evals/configs/cm-script.yaml) | Script generation evals |
-| [evals/configs/cm-visuals.yaml](../../evals/configs/cm-visuals.yaml) | Visual matching evals |
+| Document                                                             | Purpose                     |
+| -------------------------------------------------------------------- | --------------------------- |
+| [VV-FRAMEWORK-20260105.md](../guides/VV-FRAMEWORK-20260105.md)       | 4-layer validation approach |
+| [evals/README.md](../../evals/README.md)                             | Promptfoo evaluation suite  |
+| [evals/configs/cm-script.yaml](../../evals/configs/cm-script.yaml)   | Script generation evals     |
+| [evals/configs/cm-visuals.yaml](../../evals/configs/cm-visuals.yaml) | Visual matching evals       |
 
 ---
 
-*Document version: 8.1 — Implementation Ready*  
-*Last updated: 2026-01-05*  
-*Critical evaluation iterations: 6 (converged)*  
-*Research questions resolved: 24/24*  
-*Implementation phases: 6 (Phase 0-5)*  
-*Content archetypes: 6 (listicle, versus, howto, myth, story, hot-take)*  
-*Extension points: 12 (providers, archetypes, stages, hooks, plugins, events, middleware)*  
-*CLI commands: 7 (generate, script, audio, visuals, render, init, help)*  
-*Based on: 139 vendored repositories, 86 deep-dive documents, 12 category syntheses, 4 theme syntheses, 7 section research documents, 23 investigation documents*
+_Document version: 8.1 — Implementation Ready_  
+_Last updated: 2026-01-05_  
+_Critical evaluation iterations: 6 (converged)_  
+_Research questions resolved: 24/24_  
+_Implementation phases: 6 (Phase 0-5)_  
+_Content archetypes: 6 (listicle, versus, howto, myth, story, hot-take)_  
+_Extension points: 12 (providers, archetypes, stages, hooks, plugins, events, middleware)_  
+_CLI commands: 7 (generate, script, audio, visuals, render, init, help)_  
+_Based on: 139 vendored repositories, 86 deep-dive documents, 12 category syntheses, 4 theme syntheses, 7 section research documents, 23 investigation documents_

@@ -1,6 +1,6 @@
 /**
  * Visuals command - Find matching stock footage
- * 
+ *
  * Usage: cm visuals --input timestamps.json --output visuals.json
  * Based on SYSTEM-DESIGN §7.3 cm visuals command.
  */
@@ -18,25 +18,25 @@ export const visualsCommand = new Command('visuals')
   .option('--provider <provider>', 'Stock footage provider', 'pexels')
   .action(async (options) => {
     const spinner = ora('Finding matching visuals...').start();
-    
+
     try {
       // Read input timestamps
       const audioOutput = await readInputFile<AudioOutput>(options.input);
-      
+
       logger.info({ input: options.input, provider: options.provider }, 'Starting visual matching');
-      
+
       const visuals = await matchVisuals({
         timestamps: audioOutput.timestamps,
         provider: options.provider,
       });
-      
+
       spinner.succeed('Visuals matched successfully');
-      
+
       // Write output
       await writeOutputFile(options.output, visuals);
-      
+
       logger.info({ output: options.output }, 'Visuals saved');
-      
+
       // Show summary
       console.log(`\n🎬 Visuals Matched`);
       console.log(`   Scenes: ${visuals.scenes.length}`);
@@ -44,7 +44,6 @@ export const visualsCommand = new Command('visuals')
       console.log(`   From stock: ${visuals.fromStock}`);
       console.log(`   Fallbacks: ${visuals.fallbacks}`);
       console.log(`   Output: ${options.output}\n`);
-      
     } catch (error) {
       spinner.fail('Visual matching failed');
       handleCommandError(error);

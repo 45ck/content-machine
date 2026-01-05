@@ -15,11 +15,11 @@ Key difference from MoneyPrinterTurbo: Uses **TikTok's TTS** instead of Azure/Op
 
 ## Key Features
 
-| Feature | Details |
-|---------|---------|
-| **TTS** | TikTok session-based TTS |
-| **Video Composition** | moviepy + ImageMagick |
-| **Platform Focus** | YouTube Shorts |
+| Feature               | Details                  |
+| --------------------- | ------------------------ |
+| **TTS**               | TikTok session-based TTS |
+| **Video Composition** | moviepy + ImageMagick    |
+| **Platform Focus**    | YouTube Shorts           |
 
 ## Tech Stack
 
@@ -31,13 +31,16 @@ Key difference from MoneyPrinterTurbo: Uses **TikTok's TTS** instead of Azure/Op
 ## What We Can Reuse
 
 ### ✅ High Value
+
 - **TikTok TTS integration** - Free TTS option (session-based)
 - **ImageMagick subtitle patterns** - Text overlay techniques
 
 ### ⚠️ Medium Value
+
 - **Simpler architecture** - Good for understanding basics
 
 ### ❌ Not Needed
+
 - **Full pipeline** - MoneyPrinterTurbo is more complete
 
 ## How It Helps Us

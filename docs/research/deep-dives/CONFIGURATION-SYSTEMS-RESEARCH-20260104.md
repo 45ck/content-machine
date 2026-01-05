@@ -25,6 +25,7 @@ This report analyzes configuration patterns across 12+ vendored video generation
 **Pattern:** TOML config file + Python dict access
 
 **File Paths:**
+
 - [config.example.toml](../../../vendor/MoneyPrinterTurbo/config.example.toml)
 - [app/config/config.py](../../../vendor/MoneyPrinterTurbo/app/config/config.py)
 - [app/services/llm.py](../../../vendor/MoneyPrinterTurbo/app/services/llm.py)
@@ -63,7 +64,7 @@ azure = _cfg.get("azure", {})
 # app/services/llm.py
 def _generate_response(prompt: str) -> str:
     llm_provider = config.app.get("llm_provider", "openai")
-    
+
     if llm_provider == "moonshot":
         api_key = config.app.get("moonshot_api_key")
         model_name = config.app.get("moonshot_model_name")
@@ -120,6 +121,7 @@ https = ""
 ```
 
 **Strengths:**
+
 - Excellent multi-provider support (12+ LLM providers)
 - TOML is human-readable
 - Supports array values for API key rotation
@@ -127,6 +129,7 @@ https = ""
 - Auto-copy from example file
 
 **Weaknesses:**
+
 - No type validation
 - Dictionary access pattern (`config.app.get("key")`) - typo-prone
 - No environment variable override support
@@ -139,6 +142,7 @@ https = ""
 **Pattern:** TypeScript class + dotenv
 
 **File Paths:**
+
 - [.env.example](../../../vendor/short-video-maker-gyori/.env.example)
 - [src/config.ts](../../../vendor/short-video-maker-gyori/src/config.ts)
 
@@ -146,16 +150,16 @@ https = ""
 
 ```typescript
 // src/config.ts
-import path from "path";
-import "dotenv/config";  // Auto-loads .env
-import os from "os";
-import fs from "fs-extra";
-import pino from "pino";
-import { kokoroModelPrecision, whisperModels } from "./types/shorts";
+import path from 'path';
+import 'dotenv/config'; // Auto-loads .env
+import os from 'os';
+import fs from 'fs-extra';
+import pino from 'pino';
+import { kokoroModelPrecision, whisperModels } from './types/shorts';
 
-const defaultLogLevel: pino.Level = "info";
+const defaultLogLevel: pino.Level = 'info';
 const defaultPort = 3123;
-const defaultWhisperModel: whisperModels = "medium.en";
+const defaultWhisperModel: whisperModels = 'medium.en';
 
 export class Config {
   private dataDirPath: string;
@@ -168,13 +172,13 @@ export class Config {
   public runningInDocker: boolean;
   public devMode: boolean;
   public whisperModel: whisperModels = defaultWhisperModel;
-  public kokoroModelPrecision: kokoroModelPrecision = "fp32";
+  public kokoroModelPrecision: kokoroModelPrecision = 'fp32';
   public concurrency?: number;
   public videoCacheSizeInBytes: number | null = null;
 
   constructor() {
-    this.dataDirPath = process.env.DATA_DIR_PATH ||
-      path.join(os.homedir(), ".ai-agents-az-video-generator");
+    this.dataDirPath =
+      process.env.DATA_DIR_PATH || path.join(os.homedir(), '.ai-agents-az-video-generator');
 
     // Ensure directories exist
     fs.ensureDirSync(this.dataDirPath);
@@ -183,10 +187,10 @@ export class Config {
     // Load from environment variables with defaults
     this.pexelsApiKey = process.env.PEXELS_API_KEY as string;
     this.logLevel = (process.env.LOG_LEVEL || defaultLogLevel) as pino.Level;
-    this.whisperVerbose = process.env.WHISPER_VERBOSE === "true";
+    this.whisperVerbose = process.env.WHISPER_VERBOSE === 'true';
     this.port = process.env.PORT ? parseInt(process.env.PORT) : defaultPort;
-    this.runningInDocker = process.env.DOCKER === "true";
-    this.devMode = process.env.DEV === "true";
+    this.runningInDocker = process.env.DOCKER === 'true';
+    this.devMode = process.env.DEV === 'true';
 
     if (process.env.WHISPER_MODEL) {
       this.whisperModel = process.env.WHISPER_MODEL as whisperModels;
@@ -202,7 +206,7 @@ export class Config {
   public ensureConfig() {
     if (!this.pexelsApiKey) {
       throw new Error(
-        "PEXELS_API_KEY environment variable is missing. Get your free API key: https://www.pexels.com/api/key/"
+        'PEXELS_API_KEY environment variable is missing. Get your free API key: https://www.pexels.com/api/key/'
       );
     }
   }
@@ -221,6 +225,7 @@ DATA_DIR_PATH=      # only for docker, otherwise leave empty
 ```
 
 **Strengths:**
+
 - Type-safe (TypeScript types)
 - Environment variable based (12-factor app)
 - Directory auto-creation on init
@@ -228,6 +233,7 @@ DATA_DIR_PATH=      # only for docker, otherwise leave empty
 - Clean singleton pattern
 
 **Weaknesses:**
+
 - No runtime validation (uses `as` casts)
 - Limited multi-provider support
 - Boolean parsing requires manual `=== "true"` checks
@@ -239,6 +245,7 @@ DATA_DIR_PATH=      # only for docker, otherwise leave empty
 **Pattern:** Pydantic BaseSettings
 
 **File Paths:**
+
 - [api/src/core/config.py](../../../vendor/audio/kokoro-fastapi/api/src/core/config.py)
 
 **BaseSettings Pattern:**
@@ -310,6 +317,7 @@ settings = Settings()
 ```
 
 **Strengths:**
+
 - Full type validation at runtime
 - Auto-loads from `.env` file
 - Environment variable override (auto: `PORT=8080` overrides `port`)
@@ -318,6 +326,7 @@ settings = Settings()
 - Best practice Python pattern
 
 **Weaknesses:**
+
 - Requires `pydantic-settings` dependency
 - Singleton at module level (testing challenges)
 
@@ -328,6 +337,7 @@ settings = Settings()
 **Pattern:** Zod schemas + JSON config files
 
 **File Paths:**
+
 - [src/shared/zod-schema.ts](../../../templates/vidosy/src/shared/zod-schema.ts)
 - [src/shared/constants.ts](../../../templates/vidosy/src/shared/constants.ts)
 - [demo-vidosy.json](../../../templates/vidosy/demo-vidosy.json)
@@ -346,7 +356,10 @@ export const backgroundSchema = z.object({
 export const textSchema = z.object({
   content: z.string(),
   fontSize: z.number().min(12).max(200).optional(),
-  color: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+  color: z
+    .string()
+    .regex(/^#[0-9A-Fa-f]{6}$/)
+    .optional(),
   position: z.enum(['top', 'center', 'bottom', 'left', 'right']).optional(),
 });
 
@@ -355,11 +368,13 @@ export const sceneSchema = z.object({
   duration: z.number().positive(),
   background: backgroundSchema.optional(),
   text: textSchema.optional(),
-  audio: z.object({
-    file: z.string().optional(),
-    volume: z.number().min(0).max(1).optional(),
-    startTime: z.number().min(0).optional(),
-  }).optional(),
+  audio: z
+    .object({
+      file: z.string().optional(),
+      volume: z.number().min(0).max(1).optional(),
+      startTime: z.number().min(0).optional(),
+    })
+    .optional(),
 });
 
 export const videoSchema = z.object({
@@ -405,9 +420,9 @@ export const DEFAULT_TEXT_CONFIG = {
 } as const;
 
 export const FILE_SIZE_LIMITS = {
-  image: 50 * 1024 * 1024,   // 50MB
-  audio: 100 * 1024 * 1024,  // 100MB
-  video: 500 * 1024 * 1024,  // 500MB
+  image: 50 * 1024 * 1024, // 50MB
+  audio: 100 * 1024 * 1024, // 100MB
+  video: 500 * 1024 * 1024, // 500MB
 } as const;
 ```
 
@@ -444,6 +459,7 @@ export const FILE_SIZE_LIMITS = {
 ```
 
 **Strengths:**
+
 - Runtime validation with detailed error messages
 - Auto-generated TypeScript types from schemas
 - JSON configs are portable/serializable
@@ -451,6 +467,7 @@ export const FILE_SIZE_LIMITS = {
 - Preset system for common configurations
 
 **Weaknesses:**
+
 - No environment variable integration
 - Requires Zod parsing call on every load
 - Verbose for simple configs
@@ -462,6 +479,7 @@ export const FILE_SIZE_LIMITS = {
 **Pattern:** dotenv + Database-backed API key management
 
 **File Paths:**
+
 - [shortGPT/config/config.py](../../../vendor/ShortGPT/shortGPT/config/config.py)
 - [shortGPT/config/api_db.py](../../../vendor/ShortGPT/shortGPT/config/api_db.py)
 - [shortGPT/database/db_document.py](../../../vendor/ShortGPT/shortGPT/database/db_document.py)
@@ -491,7 +509,7 @@ class ApiKeyManager:
     def get_api_key(cls, key: str | ApiProvider):
         if isinstance(key, ApiProvider):
             key = key.value
-            
+
         # Priority 1: Check database
         api_key = cls.api_key_doc_manager._get(key)
         if api_key:
@@ -502,7 +520,7 @@ class ApiKeyManager:
         api_key = os.environ.get(env_key)
         if api_key:
             return api_key
-        
+
         return ""
 
     @classmethod
@@ -555,6 +573,7 @@ class TinyMongoDocument:
 ```
 
 **Strengths:**
+
 - Runtime-modifiable API keys (GUI-friendly)
 - Fallback chain: Database → Environment → Empty
 - Thread-safe with locks
@@ -562,6 +581,7 @@ class TinyMongoDocument:
 - Persistent storage in JSON file
 
 **Weaknesses:**
+
 - Complex for simple use cases
 - File-based "database" not production-ready
 - No validation on stored values
@@ -573,6 +593,7 @@ class TinyMongoDocument:
 **Pattern:** Per-provider environment variable conventions
 
 **File Paths:**
+
 - [pydantic_ai_slim/pydantic_ai/providers/openai.py](../../../vendor/agents/pydantic-ai/pydantic_ai_slim/pydantic_ai/providers/openai.py)
 - [pydantic_ai_slim/pydantic_ai/providers/anthropic.py](../../../vendor/agents/pydantic-ai/pydantic_ai_slim/pydantic_ai/providers/anthropic.py)
 - [pydantic_ai_slim/pydantic_ai/settings.py](../../../vendor/agents/pydantic-ai/pydantic_ai_slim/pydantic_ai/settings.py)
@@ -630,7 +651,7 @@ from typing_extensions import TypedDict
 
 class ModelSettings(TypedDict, total=False):
     """Settings that apply to multiple models/providers."""
-    
+
     max_tokens: int
     temperature: float
     top_p: float
@@ -653,6 +674,7 @@ def merge_model_settings(base: ModelSettings | None, overrides: ModelSettings | 
 ```
 
 **Strengths:**
+
 - Convention-based env vars (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`)
 - Graceful fallback for local models
 - TypedDict for partial settings
@@ -660,6 +682,7 @@ def merge_model_settings(base: ModelSettings | None, overrides: ModelSettings | 
 - Client injection pattern for testing
 
 **Weaknesses:**
+
 - No centralized config object
 - Each provider has different validation logic
 
@@ -670,6 +693,7 @@ def merge_model_settings(base: ModelSettings | None, overrides: ModelSettings | 
 **Pattern:** Pydantic BaseModel + RunnableConfig integration
 
 **File Path:**
+
 - [src/open_deep_research/configuration.py](../../../vendor/research/open-deep-research/src/open_deep_research/configuration.py)
 
 **LangGraph Configuration Pattern:**
@@ -703,7 +727,7 @@ class Configuration(BaseModel):
             }
         }
     )
-    
+
     search_api: SearchAPI = Field(
         default=SearchAPI.TAVILY,
         metadata={
@@ -718,7 +742,7 @@ class Configuration(BaseModel):
             }
         }
     )
-    
+
     research_model: str = Field(
         default="openai:gpt-4.1",
         metadata={
@@ -735,7 +759,7 @@ class Configuration(BaseModel):
         """Create from LangGraph RunnableConfig with env var fallback."""
         configurable = config.get("configurable", {}) if config else {}
         field_names = list(cls.model_fields.keys())
-        
+
         values: dict[str, Any] = {
             field_name: os.environ.get(field_name.upper(), configurable.get(field_name))
             for field_name in field_names
@@ -744,6 +768,7 @@ class Configuration(BaseModel):
 ```
 
 **Strengths:**
+
 - UI metadata for auto-generating config forms
 - LangGraph `RunnableConfig` integration
 - Environment variable fallback
@@ -751,6 +776,7 @@ class Configuration(BaseModel):
 - Self-documenting with Field descriptions
 
 **Weaknesses:**
+
 - Complex metadata structure
 - LangGraph-specific pattern
 
@@ -761,6 +787,7 @@ class Configuration(BaseModel):
 **Pattern:** JSON config file + getter functions
 
 **File Paths:**
+
 - [config/config.example.json](../../../vendor/YASGU/config/config.example.json)
 - [src/utils/config.py](../../../vendor/YASGU/src/utils/config.py)
 
@@ -816,11 +843,13 @@ def get_generators() -> list:
 ```
 
 **Strengths:**
+
 - Simple JSON format
 - Supports arrays of generators (batch processing)
 - Per-generator configuration
 
 **Weaknesses:**
+
 - File read on every getter call (inefficient)
 - No validation
 - No type hints
@@ -833,6 +862,7 @@ def get_generators() -> list:
 **Pattern:** dotenv + environment variable with auto-detection
 
 **File Path:**
+
 - [moviepy/config.py](../../../vendor/video-processing/moviepy/moviepy/config.py)
 
 **Binary Detection Pattern:**
@@ -876,12 +906,14 @@ elif FFMPEG_BINARY == "auto-detect":
 ```
 
 **Strengths:**
+
 - Graceful dotenv import (optional dependency)
 - Multiple detection strategies (imageio, auto-detect, explicit)
 - Platform-aware (.exe on Windows)
 - Verification of binary availability
 
 **Weaknesses:**
+
 - Limited to binary paths
 - No structured configuration
 
@@ -892,6 +924,7 @@ elif FFMPEG_BINARY == "auto-detect":
 **Pattern:** Python constants + hardcoded paths
 
 **File Path:**
+
 - [agent/config.py](../../../vendor/short-video-maker-leke/agent/config.py)
 
 **Constants Pattern:**
@@ -909,7 +942,7 @@ TTS_MODEL = "gemini-2.5-flash-preview-tts"
 
 # TTS Settings
 TTS_SUPPORTED_LANGUAGES = {
-    'arabic', 'german', 'english', 'spanish', 'french', 'hindi', 
+    'arabic', 'german', 'english', 'spanish', 'french', 'hindi',
     'japanese', 'korean', 'portuguese', 'russian', ...
 }
 
@@ -946,12 +979,14 @@ FONT_MAPPINGS = {
 ```
 
 **Strengths:**
+
 - Simple, no dependencies
 - Comprehensive language/font mappings
 - Rate limit documentation inline
 - Tuple for dimensions (typed)
 
 **Weaknesses:**
+
 - No environment variable override
 - Hardcoded paths (macOS-specific)
 - Requires code changes to modify
@@ -960,17 +995,17 @@ FONT_MAPPINGS = {
 
 ## Pattern Comparison Matrix
 
-| Repo | Pattern | Type Safety | Env Vars | Multi-Provider | Validation | Persistence |
-|------|---------|-------------|----------|----------------|------------|-------------|
-| MoneyPrinterTurbo | TOML + dict | ❌ | ❌ | ✅ 12+ LLMs | ❌ | ✅ File |
-| short-video-maker-gyori | TS Class + dotenv | ✅ | ✅ | ❌ | ⚠️ Manual | ❌ |
-| kokoro-fastapi | Pydantic BaseSettings | ✅ | ✅ Auto | ❌ | ✅ | ❌ |
-| vidosy | Zod schemas | ✅ | ❌ | ❌ | ✅ | ✅ JSON |
-| ShortGPT | DB + dotenv | ⚠️ Enum | ✅ | ⚠️ 4 providers | ❌ | ✅ TinyDB |
-| pydantic-ai | Provider classes | ✅ | ✅ Convention | ✅ 20+ | ⚠️ Per-provider | ❌ |
-| open-deep-research | Pydantic + RunnableConfig | ✅ | ✅ | ✅ | ✅ | ❌ |
-| YASGU | JSON + getters | ❌ | ❌ | ⚠️ | ❌ | ✅ JSON |
-| moviepy | dotenv + auto-detect | ❌ | ✅ | ❌ | ❌ | ❌ |
+| Repo                    | Pattern                   | Type Safety | Env Vars      | Multi-Provider | Validation      | Persistence |
+| ----------------------- | ------------------------- | ----------- | ------------- | -------------- | --------------- | ----------- |
+| MoneyPrinterTurbo       | TOML + dict               | ❌          | ❌            | ✅ 12+ LLMs    | ❌              | ✅ File     |
+| short-video-maker-gyori | TS Class + dotenv         | ✅          | ✅            | ❌             | ⚠️ Manual       | ❌          |
+| kokoro-fastapi          | Pydantic BaseSettings     | ✅          | ✅ Auto       | ❌             | ✅              | ❌          |
+| vidosy                  | Zod schemas               | ✅          | ❌            | ❌             | ✅              | ✅ JSON     |
+| ShortGPT                | DB + dotenv               | ⚠️ Enum     | ✅            | ⚠️ 4 providers | ❌              | ✅ TinyDB   |
+| pydantic-ai             | Provider classes          | ✅          | ✅ Convention | ✅ 20+         | ⚠️ Per-provider | ❌          |
+| open-deep-research      | Pydantic + RunnableConfig | ✅          | ✅            | ✅             | ✅              | ❌          |
+| YASGU                   | JSON + getters            | ❌          | ❌            | ⚠️             | ❌              | ✅ JSON     |
+| moviepy                 | dotenv + auto-detect      | ❌          | ✅            | ❌             | ❌              | ❌          |
 
 ---
 
@@ -1041,15 +1076,15 @@ class Settings(BaseSettings):
     openai_api_key: str | None = None
     anthropic_api_key: str | None = None
     openai_model: str = "gpt-4o-mini"
-    
-    # TTS Configuration  
+
+    # TTS Configuration
     tts_provider: TTSProvider = TTSProvider.EDGE
     elevenlabs_api_key: str | None = None
-    
+
     # Video Configuration
     pexels_api_key: str
     video_source: str = "pexels"
-    
+
     # Paths
     output_dir: str = "output"
     temp_dir: str = "temp"
@@ -1085,11 +1120,11 @@ export const videoConfigSchema = z.object({
 
 ## Appendix: Environment Variable Conventions
 
-| Provider | Env Var | Used By |
-|----------|---------|---------|
-| OpenAI | `OPENAI_API_KEY` | pydantic-ai, ShortGPT, MoneyPrinterTurbo |
-| Anthropic | `ANTHROPIC_API_KEY` | pydantic-ai |
-| Gemini | `GEMINI_API_KEY` | ShortGPT |
-| Pexels | `PEXELS_API_KEY` | short-video-maker-gyori, ShortGPT |
-| ElevenLabs | `ELEVENLABS_API_KEY` | ShortGPT |
-| FFmpeg | `FFMPEG_BINARY` | moviepy |
+| Provider   | Env Var              | Used By                                  |
+| ---------- | -------------------- | ---------------------------------------- |
+| OpenAI     | `OPENAI_API_KEY`     | pydantic-ai, ShortGPT, MoneyPrinterTurbo |
+| Anthropic  | `ANTHROPIC_API_KEY`  | pydantic-ai                              |
+| Gemini     | `GEMINI_API_KEY`     | ShortGPT                                 |
+| Pexels     | `PEXELS_API_KEY`     | short-video-maker-gyori, ShortGPT        |
+| ElevenLabs | `ELEVENLABS_API_KEY` | ShortGPT                                 |
+| FFmpeg     | `FFMPEG_BINARY`      | moviepy                                  |

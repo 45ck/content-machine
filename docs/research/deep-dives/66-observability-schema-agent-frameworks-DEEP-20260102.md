@@ -11,6 +11,7 @@
 This deep dive analyzes the **development infrastructure** critical for building production-ready AI-powered video generation systems: LLM observability for debugging and monitoring, schema validation for type-safe data handling, and agent frameworks for orchestrating AI-driven workflows. These tools transform content-machine from a prototype into a maintainable, debuggable, and reliable production system.
 
 **Key Findings:**
+
 - **Observability:** Langfuse is the go-to for LLM tracing; Promptfoo for evals and red-teaming; Sentry for error tracking
 - **Schema Validation:** Zod for TypeScript runtime validation; Instructor for structured LLM outputs
 - **Agent Frameworks:** PydanticAI for TypeScript-first agent development; CrewAI for multi-agent orchestration
@@ -23,12 +24,14 @@ This deep dive analyzes the **development infrastructure** critical for building
 ### The Debugging Challenge
 
 LLM applications are notoriously hard to debug:
+
 - Non-deterministic outputs
 - Multi-step chains with hidden failures
 - Token costs that spiral out of control
 - Prompt drift and regression
 
 Content-machine uses LLMs for:
+
 - Script generation
 - Caption timing
 - Trend analysis
@@ -47,14 +50,14 @@ Langfuse is an **open-source LLM engineering platform** that provides observabil
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Tracing** | Visualize multi-step LLM chains |
-| **Prompt Management** | Version control for prompts |
-| **Evaluations** | LLM-as-judge, user feedback, manual labels |
-| **Datasets** | Test sets for regression testing |
-| **Playground** | Test prompts interactively |
-| **Cost Tracking** | Token usage and cost analysis |
+| Feature               | Description                                |
+| --------------------- | ------------------------------------------ |
+| **Tracing**           | Visualize multi-step LLM chains            |
+| **Prompt Management** | Version control for prompts                |
+| **Evaluations**       | LLM-as-judge, user feedback, manual labels |
+| **Datasets**          | Test sets for regression testing           |
+| **Playground**        | Test prompts interactively                 |
+| **Cost Tracking**     | Token usage and cost analysis              |
 
 #### Architecture
 
@@ -91,34 +94,34 @@ const openai = observeOpenAI(new OpenAI());
 async function generateScript(trend: Trend): Promise<Script> {
   const trace = langfuse.trace({
     name: 'script-generation',
-    metadata: { trendId: trend.id, source: trend.source }
+    metadata: { trendId: trend.id, source: trend.source },
   });
-  
+
   try {
     const generation = trace.generation({
       name: 'script-llm-call',
       model: 'gpt-4o',
       input: { trend },
     });
-    
+
     const response = await openai.chat.completions.create({
       model: 'gpt-4o',
       messages: [
         { role: 'system', content: SCRIPT_PROMPT },
-        { role: 'user', content: JSON.stringify(trend) }
-      ]
+        { role: 'user', content: JSON.stringify(trend) },
+      ],
     });
-    
+
     const script = parseScriptResponse(response);
-    
+
     generation.end({
       output: script,
       usage: {
         promptTokens: response.usage?.prompt_tokens,
         completionTokens: response.usage?.completion_tokens,
-      }
+      },
     });
-    
+
     return script;
   } catch (error) {
     trace.update({ level: 'ERROR', statusMessage: error.message });
@@ -135,10 +138,10 @@ from langfuse.openai import openai  # Drop-in replacement
 @observe()
 async def generate_script(trend: Trend) -> Script:
     """Generate video script from trend - fully traced"""
-    
+
     # Nested spans are automatically captured
     features = await extract_product_features(trend.product)
-    
+
     response = await openai.chat.completions.create(
         model="gpt-4o",
         messages=[
@@ -146,14 +149,14 @@ async def generate_script(trend: Trend) -> Script:
             {"role": "user", "content": f"Trend: {trend.title}\nFeatures: {features}"}
         ]
     )
-    
+
     # Add custom scores
     langfuse_context.score_current_trace(
         name="script_quality",
         value=0.8,
         comment="Auto-scored"
     )
-    
+
     return parse_script(response.choices[0].message.content)
 ```
 
@@ -163,24 +166,24 @@ async def generate_script(trend: Trend) -> Script:
 // Fetch versioned prompts from Langfuse
 async function getScriptPrompt(): Promise<string> {
   const prompt = await langfuse.getPrompt('video-script-generator');
-  
+
   return prompt.compile({
     product: 'GitHub Copilot',
     style: 'casual',
-    duration: '30s'
+    duration: '30s',
   });
 }
 ```
 
 #### Pros & Cons
 
-| Pros | Cons |
-|------|------|
-| ✅ MIT license, self-hostable | ⚠️ Another service to maintain |
-| ✅ Excellent TypeScript support | ⚠️ Learning curve for full features |
-| ✅ Drop-in OpenAI replacement | |
-| ✅ Production-proven (BullMQ uses it) | |
-| ✅ Prompt version control | |
+| Pros                                  | Cons                                |
+| ------------------------------------- | ----------------------------------- |
+| ✅ MIT license, self-hostable         | ⚠️ Another service to maintain      |
+| ✅ Excellent TypeScript support       | ⚠️ Learning curve for full features |
+| ✅ Drop-in OpenAI replacement         |                                     |
+| ✅ Production-proven (BullMQ uses it) |                                     |
+| ✅ Prompt version control             |                                     |
 
 ---
 
@@ -197,14 +200,14 @@ Promptfoo is a **developer-first LLM testing platform**. It's focused on evaluat
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Prompt Testing** | Compare prompts side-by-side |
-| **Model Comparison** | Evaluate multiple models |
-| **Red Teaming** | Security vulnerability scanning |
-| **CI/CD Integration** | Automate eval in pipelines |
-| **Code Scanning** | PR review for LLM issues |
-| **100% Local** | No data leaves your machine |
+| Feature               | Description                     |
+| --------------------- | ------------------------------- |
+| **Prompt Testing**    | Compare prompts side-by-side    |
+| **Model Comparison**  | Evaluate multiple models        |
+| **Red Teaming**       | Security vulnerability scanning |
+| **CI/CD Integration** | Automate eval in pipelines      |
+| **Code Scanning**     | PR review for LLM issues        |
+| **100% Local**        | No data leaves your machine     |
 
 #### Content-Machine Integration
 
@@ -222,23 +225,23 @@ providers:
 tests:
   - description: Product demo script
     vars:
-      trend: "AI coding assistants"
-      product: "GitHub Copilot"
+      trend: 'AI coding assistants'
+      product: 'GitHub Copilot'
     assert:
       - type: contains
-        value: "Copilot"
+        value: 'Copilot'
       - type: llm-rubric
-        value: "Script mentions at least 3 product features"
+        value: 'Script mentions at least 3 product features'
       - type: not-contains
-        value: "competitor names"
-      
+        value: 'competitor names'
+
   - description: Tutorial script
     vars:
-      trend: "Python best practices"
-      product: "Ruff linter"
+      trend: 'Python best practices'
+      product: 'Ruff linter'
     assert:
       - type: llm-rubric
-        value: "Script is suitable for a 30-second video"
+        value: 'Script is suitable for a 30-second video'
       - type: cost
         threshold: 0.05
 ```
@@ -270,13 +273,13 @@ Cost Analysis:
 
 #### Pros & Cons
 
-| Pros | Cons |
-|------|------|
-| ✅ 100% local, private | ⚠️ Not runtime observability |
-| ✅ CI/CD integration | ⚠️ Learning curve for complex evals |
-| ✅ Red-teaming built-in | |
-| ✅ Model comparison | |
-| ✅ MIT license | |
+| Pros                    | Cons                                |
+| ----------------------- | ----------------------------------- |
+| ✅ 100% local, private  | ⚠️ Not runtime observability        |
+| ✅ CI/CD integration    | ⚠️ Learning curve for complex evals |
+| ✅ Red-teaming built-in |                                     |
+| ✅ Model comparison     |                                     |
+| ✅ MIT license          |                                     |
 
 ---
 
@@ -293,13 +296,13 @@ Sentry is a **debugging platform** for detecting, tracing, and fixing issues acr
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Error Tracking** | Automatic exception capture |
-| **Distributed Tracing** | Cross-service request tracing |
-| **Session Replay** | See what users experienced |
-| **Performance Monitoring** | Identify slow paths |
-| **Release Tracking** | Correlate errors with deploys |
+| Feature                    | Description                   |
+| -------------------------- | ----------------------------- |
+| **Error Tracking**         | Automatic exception capture   |
+| **Distributed Tracing**    | Cross-service request tracing |
+| **Session Replay**         | See what users experienced    |
+| **Performance Monitoring** | Identify slow paths           |
+| **Release Tracking**       | Correlate errors with deploys |
 
 #### Content-Machine Integration
 
@@ -311,9 +314,7 @@ Sentry.init({
   dsn: process.env.SENTRY_DSN,
   environment: process.env.NODE_ENV,
   release: process.env.GIT_COMMIT,
-  integrations: [
-    Sentry.prismaIntegration(),
-  ],
+  integrations: [Sentry.prismaIntegration()],
 });
 
 // Capture render failures
@@ -322,7 +323,7 @@ async function renderVideo(config: RenderConfig): Promise<Video> {
     name: 'video-render',
     op: 'render',
   });
-  
+
   try {
     const result = await remotionRender(config);
     transaction.finish();
@@ -332,7 +333,7 @@ async function renderVideo(config: RenderConfig): Promise<Video> {
       extra: {
         renderConfig: config,
         templateId: config.template.id,
-      }
+      },
     });
     throw error;
   }
@@ -343,12 +344,12 @@ async function renderVideo(config: RenderConfig): Promise<Video> {
 
 ### Observability Stack Recommendation
 
-| Use Case | Tool | Rationale |
-|----------|------|-----------|
-| **LLM Tracing** | Langfuse | Purpose-built for LLM debugging |
-| **Prompt Evals** | Promptfoo | CI/CD integration, red-teaming |
-| **Error Tracking** | Sentry | Industry standard, full-stack |
-| **Metrics** | OpenTelemetry | Vendor-neutral, extensible |
+| Use Case           | Tool          | Rationale                       |
+| ------------------ | ------------- | ------------------------------- |
+| **LLM Tracing**    | Langfuse      | Purpose-built for LLM debugging |
+| **Prompt Evals**   | Promptfoo     | CI/CD integration, red-teaming  |
+| **Error Tracking** | Sentry        | Industry standard, full-stack   |
+| **Metrics**        | OpenTelemetry | Vendor-neutral, extensible      |
 
 ---
 
@@ -357,12 +358,14 @@ async function renderVideo(config: RenderConfig): Promise<Video> {
 ### The Type Safety Challenge
 
 Content-machine processes complex data structures:
+
 - Trend objects from various sources
 - Video render configurations
 - Caption timing data
 - LLM structured outputs
 
 Without validation:
+
 - Runtime crashes from malformed data
 - Silent failures from missing fields
 - Debugging nightmares
@@ -380,13 +383,13 @@ Zod is a **TypeScript-first schema validation library** with static type inferen
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Type Inference** | `z.infer<typeof schema>` |
-| **Zero Dependencies** | 2kb gzipped |
-| **Immutable API** | Methods return new instances |
-| **JSON Schema** | Built-in conversion |
-| **Ecosystem** | zod-to-json-schema, zod-openapi, etc. |
+| Feature               | Description                           |
+| --------------------- | ------------------------------------- |
+| **Type Inference**    | `z.infer<typeof schema>`              |
+| **Zero Dependencies** | 2kb gzipped                           |
+| **Immutable API**     | Methods return new instances          |
+| **JSON Schema**       | Built-in conversion                   |
+| **Ecosystem**         | zod-to-json-schema, zod-openapi, etc. |
 
 #### Content-Machine Schemas
 
@@ -416,13 +419,15 @@ export const RenderConfigSchema = z.object({
   }),
   duration: z.number().positive().max(60), // Max 60 seconds
   fps: z.number().int().min(24).max(60).default(30),
-  scenes: z.array(z.object({
-    id: z.string(),
-    type: z.enum(['intro', 'demo', 'cta', 'outro']),
-    duration: z.number().positive(),
-    text: z.string().optional(),
-    asset: z.string().url().optional(),
-  })),
+  scenes: z.array(
+    z.object({
+      id: z.string(),
+      type: z.enum(['intro', 'demo', 'cta', 'outro']),
+      duration: z.number().positive(),
+      text: z.string().optional(),
+      asset: z.string().url().optional(),
+    })
+  ),
 });
 
 export type RenderConfig = z.infer<typeof RenderConfigSchema>;
@@ -432,12 +437,16 @@ export const CaptionSchema = z.object({
   text: z.string(),
   start: z.number().min(0),
   end: z.number().positive(),
-  words: z.array(z.object({
-    word: z.string(),
-    start: z.number().min(0),
-    end: z.number().positive(),
-    confidence: z.number().min(0).max(1).optional(),
-  })).optional(),
+  words: z
+    .array(
+      z.object({
+        word: z.string(),
+        start: z.number().min(0),
+        end: z.number().positive(),
+        confidence: z.number().min(0).max(1).optional(),
+      })
+    )
+    .optional(),
 });
 
 export type Caption = z.infer<typeof CaptionSchema>;
@@ -447,12 +456,12 @@ export type Caption = z.infer<typeof CaptionSchema>;
 // Runtime validation
 function processTrend(data: unknown): Trend {
   const result = TrendSchema.safeParse(data);
-  
+
   if (!result.success) {
     console.error('Validation failed:', result.error.issues);
     throw new Error(`Invalid trend data: ${result.error.message}`);
   }
-  
+
   return result.data; // Fully typed!
 }
 
@@ -480,13 +489,13 @@ Instructor provides **reliable structured outputs from LLMs**. It handles JSON p
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
+| Feature                  | Description                       |
+| ------------------------ | --------------------------------- |
 | **Pydantic Integration** | Define schemas as Pydantic models |
-| **Automatic Retries** | Retry on validation failures |
-| **Streaming** | Stream partial objects |
-| **Provider Agnostic** | OpenAI, Anthropic, Gemini, Ollama |
-| **Nested Objects** | Complex data structures |
+| **Automatic Retries**    | Retry on validation failures      |
+| **Streaming**            | Stream partial objects            |
+| **Provider Agnostic**    | OpenAI, Anthropic, Gemini, Ollama |
+| **Nested Objects**       | Complex data structures           |
 
 #### Content-Machine Integration
 
@@ -502,7 +511,7 @@ class VideoScript(BaseModel):
     hook: str = Field(..., description="Opening hook (first 3 seconds)")
     scenes: List[Scene] = Field(..., min_length=3, max_length=10)
     cta: str = Field(..., description="Call to action")
-    
+
 class Scene(BaseModel):
     """Individual scene in the video"""
     description: str = Field(..., max_length=200)
@@ -536,12 +545,17 @@ import OpenAI from 'openai';
 const VideoScriptSchema = z.object({
   title: z.string().max(100),
   hook: z.string().describe('Opening hook (first 3 seconds)'),
-  scenes: z.array(z.object({
-    description: z.string().max(200),
-    duration_seconds: z.number().min(2).max(15),
-    visual_type: z.enum(['screen_capture', 'b_roll', 'text_overlay']),
-    narration: z.string().max(300),
-  })).min(3).max(10),
+  scenes: z
+    .array(
+      z.object({
+        description: z.string().max(200),
+        duration_seconds: z.number().min(2).max(15),
+        visual_type: z.enum(['screen_capture', 'b_roll', 'text_overlay']),
+        narration: z.string().max(300),
+      })
+    )
+    .min(3)
+    .max(10),
   cta: z.string().describe('Call to action'),
 });
 
@@ -552,7 +566,7 @@ async function generateScript(trend: Trend): Promise<z.infer<typeof VideoScriptS
     model: 'gpt-4o',
     messages: [
       { role: 'system', content: 'You are a video script writer...' },
-      { role: 'user', content: `Write a script about: ${trend.title}` }
+      { role: 'user', content: `Write a script about: ${trend.title}` },
     ],
     response_format: {
       type: 'json_schema',
@@ -560,10 +574,10 @@ async function generateScript(trend: Trend): Promise<z.infer<typeof VideoScriptS
         name: 'video_script',
         schema: zodToJsonSchema(VideoScriptSchema),
         strict: true,
-      }
-    }
+      },
+    },
   });
-  
+
   const content = JSON.parse(response.choices[0].message.content!);
   return VideoScriptSchema.parse(content); // Validate with Zod
 }
@@ -576,6 +590,7 @@ async function generateScript(trend: Trend): Promise<z.infer<typeof VideoScriptS
 ### The Orchestration Challenge
 
 Content-machine requires complex AI workflows:
+
 - Multi-step reasoning (trend → script → scenes)
 - Tool use (search, product data, image generation)
 - Human-in-the-loop approvals
@@ -594,14 +609,14 @@ PydanticAI is an **agent framework from the Pydantic team**. It brings the "Fast
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Type-Safe** | Full IDE support, static checking |
-| **Model Agnostic** | All major providers |
-| **Dependency Injection** | Clean, testable code |
-| **Durable Execution** | Survive failures and restarts |
-| **MCP Integration** | Model Context Protocol support |
-| **Human-in-the-Loop** | Tool approval workflows |
+| Feature                  | Description                       |
+| ------------------------ | --------------------------------- |
+| **Type-Safe**            | Full IDE support, static checking |
+| **Model Agnostic**       | All major providers               |
+| **Dependency Injection** | Clean, testable code              |
+| **Durable Execution**    | Survive failures and restarts     |
+| **MCP Integration**      | Model Context Protocol support    |
+| **Human-in-the-Loop**    | Tool approval workflows           |
 
 #### Content-Machine Agent
 
@@ -665,24 +680,24 @@ async def main():
         trend_api=TrendAPI(),
         render_service=RenderService(),
     )
-    
+
     result = await content_planner.run(
         "Create a video about AI coding assistants",
         deps=deps,
     )
-    
+
     print(result.output)  # ContentPlan object
 ```
 
 #### Pros & Cons
 
-| Pros | Cons |
-|------|------|
-| ✅ Type-safe, IDE-friendly | ⚠️ Python only |
-| ✅ Built by Pydantic team | ⚠️ Newer framework |
-| ✅ MCP integration | |
-| ✅ Human-in-the-loop built-in | |
-| ✅ Durable execution support | |
+| Pros                          | Cons               |
+| ----------------------------- | ------------------ |
+| ✅ Type-safe, IDE-friendly    | ⚠️ Python only     |
+| ✅ Built by Pydantic team     | ⚠️ Newer framework |
+| ✅ MCP integration            |                    |
+| ✅ Human-in-the-loop built-in |                    |
+| ✅ Durable execution support  |                    |
 
 ---
 
@@ -699,14 +714,14 @@ CrewAI is a **multi-agent orchestration framework** where specialized agents col
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Crews** | Teams of autonomous agents |
-| **Flows** | Event-driven production workflows |
-| **Role-Based** | Agents with defined expertise |
-| **Tool Integration** | Extensive tool ecosystem |
-| **Enterprise Ready** | Control plane, observability |
-| **100k+ Developers** | Large community |
+| Feature              | Description                       |
+| -------------------- | --------------------------------- |
+| **Crews**            | Teams of autonomous agents        |
+| **Flows**            | Event-driven production workflows |
+| **Role-Based**       | Agents with defined expertise     |
+| **Tool Integration** | Extensive tool ecosystem          |
+| **Enterprise Ready** | Control plane, observability      |
+| **100k+ Developers** | Large community                   |
 
 #### Content-Machine Crew
 
@@ -783,24 +798,24 @@ class ContentGenerationFlow(Flow):
         """Entry point - fetch trending topics"""
         trends = self.trend_api.fetch_daily()
         return trends
-    
+
     @listen(fetch_trends)
     def select_best_trend(self, trends):
         """Score and select the best trend"""
         scored = [(t, self.score_trend(t)) for t in trends]
         return max(scored, key=lambda x: x[1])[0]
-    
+
     @listen(select_best_trend)
     def generate_script(self, trend):
         """Generate video script using crew"""
         return self.script_crew.kickoff(inputs={"trend": trend})
-    
+
     @listen(generate_script)
     def await_approval(self, script):
         """Human review step"""
         self.send_for_review(script)
         return self.wait_for_approval(script.id, timeout="7d")
-    
+
     @listen(await_approval)
     def queue_render(self, approval):
         """Queue approved scripts for rendering"""
@@ -827,14 +842,14 @@ CapCut Mate is a **FastAPI-based API for programmatic video editing** using CapC
 
 ### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Draft Management** | Create, save, get drafts |
-| **Video/Audio/Image** | Add media assets |
-| **Captions** | Add subtitles with styling |
-| **Effects** | Filters, animations, masks |
-| **Keyframes** | Animation control |
-| **Cloud Render** | Generate final video |
+| Feature               | Description                |
+| --------------------- | -------------------------- |
+| **Draft Management**  | Create, save, get drafts   |
+| **Video/Audio/Image** | Add media assets           |
+| **Captions**          | Add subtitles with styling |
+| **Effects**           | Filters, animations, masks |
+| **Keyframes**         | Animation control          |
+| **Cloud Render**      | Generate final video       |
 
 ### API Endpoints
 
@@ -861,34 +876,42 @@ async function renderWithCapCut(script: VideoScript, assets: Assets): Promise<st
     width: 1080,
     height: 1920, // TikTok format
   });
-  
+
   // Add video clips
-  await capcutMate.addVideos(draft.id, assets.clips.map((clip, i) => ({
-    url: clip.url,
-    start: script.scenes[i].startMs * 1000,
-    end: script.scenes[i].endMs * 1000,
-  })));
-  
+  await capcutMate.addVideos(
+    draft.id,
+    assets.clips.map((clip, i) => ({
+      url: clip.url,
+      start: script.scenes[i].startMs * 1000,
+      end: script.scenes[i].endMs * 1000,
+    }))
+  );
+
   // Add captions
-  await capcutMate.addCaptions(draft.id, script.captions.map(cap => ({
-    text: cap.text,
-    start: cap.start * 1000000, // microseconds
-    end: cap.end * 1000000,
-    keywords: cap.highlightWords,
-  })));
-  
+  await capcutMate.addCaptions(
+    draft.id,
+    script.captions.map((cap) => ({
+      text: cap.text,
+      start: cap.start * 1000000, // microseconds
+      end: cap.end * 1000000,
+      keywords: cap.highlightWords,
+    }))
+  );
+
   // Add background music
-  await capcutMate.addAudios(draft.id, [{
-    url: assets.music.url,
-    start: 0,
-    end: script.durationMs * 1000,
-    volume: 0.3,
-  }]);
-  
+  await capcutMate.addAudios(draft.id, [
+    {
+      url: assets.music.url,
+      start: 0,
+      end: script.durationMs * 1000,
+      volume: 0.3,
+    },
+  ]);
+
   // Save and render
   await capcutMate.saveDraft(draft.id);
   const { taskId } = await capcutMate.genVideo(draft.id);
-  
+
   // Poll for completion
   while (true) {
     const status = await capcutMate.getVideoStatus(taskId);
@@ -953,15 +976,15 @@ async function renderWithCapCut(script: VideoScript, assets: Assets): Promise<st
 
 ### Final Stack Recommendations
 
-| Layer | Primary Tool | Alternative | Rationale |
-|-------|--------------|-------------|-----------|
-| **LLM Tracing** | Langfuse | OpenTelemetry | Purpose-built, MIT license |
-| **Evals** | Promptfoo | - | CI/CD integration, red-teaming |
-| **Error Tracking** | Sentry | - | Industry standard |
-| **TS Schema** | Zod | - | TypeScript-first, tiny bundle |
-| **LLM Schema** | Instructor | zod-to-openai | Provider agnostic |
-| **Agent (Python)** | PydanticAI | CrewAI | Type-safe, FastAPI-feeling |
-| **Multi-Agent** | CrewAI | LangGraph | Enterprise-ready, Flows |
+| Layer              | Primary Tool | Alternative   | Rationale                      |
+| ------------------ | ------------ | ------------- | ------------------------------ |
+| **LLM Tracing**    | Langfuse     | OpenTelemetry | Purpose-built, MIT license     |
+| **Evals**          | Promptfoo    | -             | CI/CD integration, red-teaming |
+| **Error Tracking** | Sentry       | -             | Industry standard              |
+| **TS Schema**      | Zod          | -             | TypeScript-first, tiny bundle  |
+| **LLM Schema**     | Instructor   | zod-to-openai | Provider agnostic              |
+| **Agent (Python)** | PydanticAI   | CrewAI        | Type-safe, FastAPI-feeling     |
+| **Multi-Agent**    | CrewAI       | LangGraph     | Enterprise-ready, Flows        |
 
 ### Implementation Priority
 
@@ -983,9 +1006,9 @@ async function renderWithCapCut(script: VideoScript, assets: Assets): Promise<st
 ---
 
 **Document Stats:**
+
 - Tools Analyzed: 8
 - Code Examples: 15
 - Architecture Diagrams: 1
 - Comparison Tables: 4
 - Word Count: ~6,500
-

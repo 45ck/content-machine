@@ -12,6 +12,7 @@
 This deep dive covers **Python agent frameworks** (PydanticAI, LlamaIndex) and **AI research systems** (GPT Researcher, Open Deep Research) that are foundational for content-machine's intelligent content generation. These tools enable building production-grade agents for trend research, script generation, and content ideation.
 
 **Key Findings:**
+
 - **PydanticAI:** FastAPI-like ergonomics for agent development, type-safe, model-agnostic
 - **LlamaIndex:** Data framework for RAG, 300+ integrations, mature ecosystem
 - **GPT Researcher:** Deep research agent with multi-agent architecture, MCP integration
@@ -28,15 +29,15 @@ PydanticAI brings the "FastAPI feeling" to GenAI agent development—elegant, ty
 
 ### 1.1 Why PydanticAI?
 
-| Feature | Description |
-|---------|-------------|
-| **By Pydantic Team** | Validation layer for OpenAI SDK, Anthropic SDK, LangChain, etc. |
-| **Model-Agnostic** | OpenAI, Anthropic, Gemini, DeepSeek, Mistral, Ollama, 20+ providers |
-| **Type-Safe** | Full IDE completion, static type checking |
-| **Observability** | Pydantic Logfire integration (OpenTelemetry) |
-| **MCP Integration** | Model Context Protocol support |
-| **Human-in-the-Loop** | Tool approval workflows |
-| **Durable Execution** | Preserve progress across failures |
+| Feature               | Description                                                         |
+| --------------------- | ------------------------------------------------------------------- |
+| **By Pydantic Team**  | Validation layer for OpenAI SDK, Anthropic SDK, LangChain, etc.     |
+| **Model-Agnostic**    | OpenAI, Anthropic, Gemini, DeepSeek, Mistral, Ollama, 20+ providers |
+| **Type-Safe**         | Full IDE completion, static type checking                           |
+| **Observability**     | Pydantic Logfire integration (OpenTelemetry)                        |
+| **MCP Integration**   | Model Context Protocol support                                      |
+| **Human-in-the-Loop** | Tool approval workflows                                             |
+| **Durable Execution** | Preserve progress across failures                                   |
 
 ### 1.2 Hello World
 
@@ -81,7 +82,7 @@ trend_agent = Agent(
 
 @trend_agent.tool
 async def get_reddit_trends(
-    ctx: RunContext[TrendDependencies], 
+    ctx: RunContext[TrendDependencies],
     subreddit: str
 ) -> list[dict]:
     """Get trending posts from a subreddit."""
@@ -123,12 +124,12 @@ async def generate_script():
 
 ### 1.5 content-machine Integration Points
 
-| Use Case | Implementation |
-|----------|----------------|
-| Trend Analysis | Agent with Reddit/HN/Trends tools |
+| Use Case          | Implementation                      |
+| ----------------- | ----------------------------------- |
+| Trend Analysis    | Agent with Reddit/HN/Trends tools   |
 | Script Generation | Structured output with video schema |
-| Content Planning | Multi-agent workflow with handoffs |
-| Quality Check | Agent with approval gates |
+| Content Planning  | Multi-agent workflow with handoffs  |
+| Quality Check     | Agent with approval gates           |
 
 ---
 
@@ -141,14 +142,14 @@ LlamaIndex is the leading data framework for LLM applications—connecting your 
 
 ### 2.1 Core Concepts
 
-| Concept | Description |
-|---------|-------------|
-| **Indices** | Data structures for fast LLM retrieval |
-| **Retrievers** | Find relevant context for queries |
-| **Query Engines** | Answer questions over indexed data |
-| **Data Connectors** | Load from APIs, PDFs, DBs, etc. |
-| **Embeddings** | Convert text to vectors |
-| **Vector Stores** | Store and search embeddings |
+| Concept             | Description                            |
+| ------------------- | -------------------------------------- |
+| **Indices**         | Data structures for fast LLM retrieval |
+| **Retrievers**      | Find relevant context for queries      |
+| **Query Engines**   | Answer questions over indexed data     |
+| **Data Connectors** | Load from APIs, PDFs, DBs, etc.        |
+| **Embeddings**      | Convert text to vectors                |
+| **Vector Stores**   | Store and search embeddings            |
 
 ### 2.2 Basic RAG Pipeline
 
@@ -192,12 +193,12 @@ index = VectorStoreIndex.from_documents(documents)
 
 ### 2.4 Integration Ecosystem
 
-| Category | Examples |
-|----------|----------|
-| **LLMs** | OpenAI, Anthropic, Gemini, Ollama, Replicate |
-| **Embeddings** | OpenAI, HuggingFace, Cohere, Voyage |
-| **Vector Stores** | Qdrant, Weaviate, Pinecone, Chroma, Milvus |
-| **Data Loaders** | PDFs, Notion, Slack, GitHub, S3 |
+| Category          | Examples                                     |
+| ----------------- | -------------------------------------------- |
+| **LLMs**          | OpenAI, Anthropic, Gemini, Ollama, Replicate |
+| **Embeddings**    | OpenAI, HuggingFace, Cohere, Voyage          |
+| **Vector Stores** | Qdrant, Weaviate, Pinecone, Chroma, Milvus   |
+| **Data Loaders**  | PDFs, Notion, Slack, GitHub, S3              |
 
 ### 2.5 content-machine Integration
 
@@ -301,24 +302,24 @@ report = await researcher.write_report()
 
 ### 3.4 Features
 
-| Feature | Description |
-|---------|-------------|
-| **20+ Sources** | Aggregates from multiple web sources |
-| **2,000+ Words** | Detailed research reports |
-| **Citations** | Full source tracking |
-| **Image Scraping** | Smart image filtering |
-| **Local Docs** | Research on your own documents |
-| **Multi-Agent** | LangGraph-based team research |
-| **Deep Research** | Tree-like recursive exploration |
+| Feature            | Description                          |
+| ------------------ | ------------------------------------ |
+| **20+ Sources**    | Aggregates from multiple web sources |
+| **2,000+ Words**   | Detailed research reports            |
+| **Citations**      | Full source tracking                 |
+| **Image Scraping** | Smart image filtering                |
+| **Local Docs**     | Research on your own documents       |
+| **Multi-Agent**    | LangGraph-based team research        |
+| **Deep Research**  | Tree-like recursive exploration      |
 
 ### 3.5 content-machine Use Cases
 
-| Use Case | Implementation |
-|----------|----------------|
-| **Trend Research** | Research viral topics in tech niches |
-| **Competitor Analysis** | Analyze competing video content |
-| **Script Research** | Gather facts for video scripts |
-| **Fact Checking** | Verify claims before publishing |
+| Use Case                | Implementation                       |
+| ----------------------- | ------------------------------------ |
+| **Trend Research**      | Research viral topics in tech niches |
+| **Competitor Analysis** | Analyze competing video content      |
+| **Script Research**     | Gather facts for video scripts       |
+| **Fact Checking**       | Verify claims before publishing      |
 
 ---
 
@@ -331,12 +332,12 @@ Open Deep Research is a LangGraph-based configurable deep research agent with be
 
 ### 4.1 Architecture
 
-| Stage | Model | Purpose |
-|-------|-------|---------|
-| **Summarization** | gpt-4.1-mini | Summarize search results |
-| **Research** | gpt-4.1 | Power search agent |
-| **Compression** | gpt-4.1 | Compress findings |
-| **Final Report** | gpt-4.1 | Write comprehensive report |
+| Stage             | Model        | Purpose                    |
+| ----------------- | ------------ | -------------------------- |
+| **Summarization** | gpt-4.1-mini | Summarize search results   |
+| **Research**      | gpt-4.1      | Power search agent         |
+| **Compression**   | gpt-4.1      | Compress findings          |
+| **Final Report**  | gpt-4.1      | Write comprehensive report |
 
 ### 4.2 Quick Start
 
@@ -367,10 +368,10 @@ uvx --refresh --from "langgraph-cli[inmem]" \
     "research_model": "openai:gpt-4.1",
     "compression_model": "openai:gpt-4.1",
     "final_report_model": "openai:gpt-4.1",
-    
+
     # Search Settings
     "search_api": "tavily",  # or "google", "bing", "perplexity"
-    
+
     # MCP Integration
     "mcp_config": [
         {"name": "github", "command": "npx", "args": [...]}
@@ -380,12 +381,12 @@ uvx --refresh --from "langgraph-cli[inmem]" \
 
 ### 4.4 Performance (Deep Research Bench)
 
-| Configuration | RACE Score | Cost |
-|---------------|------------|------|
-| GPT-5 | **0.4943** | - |
-| Claude Sonnet 4 | 0.4401 | $187 |
-| Defaults (GPT-4.1) | 0.4309 | $46 |
-| Submission | 0.4344 | $88 |
+| Configuration      | RACE Score | Cost |
+| ------------------ | ---------- | ---- |
+| GPT-5              | **0.4943** | -    |
+| Claude Sonnet 4    | 0.4401     | $187 |
+| Defaults (GPT-4.1) | 0.4309     | $46  |
+| Submission         | 0.4344     | $88  |
 
 ### 4.5 content-machine Integration
 
@@ -413,16 +414,17 @@ script_context = result.final_report
 
 ### 5.1 Agent Frameworks
 
-| Feature | PydanticAI | LlamaIndex | CrewAI | LangGraph |
-|---------|------------|------------|--------|-----------|
-| **Learning Curve** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐ |
-| **Type Safety** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐ |
-| **RAG Support** | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐ |
-| **Multi-Agent** | ⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| **Observability** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| **MCP Support** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐⭐ |
+| Feature            | PydanticAI | LlamaIndex | CrewAI     | LangGraph  |
+| ------------------ | ---------- | ---------- | ---------- | ---------- |
+| **Learning Curve** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐     | ⭐⭐⭐⭐   | ⭐⭐       |
+| **Type Safety**    | ⭐⭐⭐⭐⭐ | ⭐⭐⭐     | ⭐⭐       | ⭐⭐⭐     |
+| **RAG Support**    | ⭐⭐⭐     | ⭐⭐⭐⭐⭐ | ⭐⭐⭐     | ⭐⭐⭐     |
+| **Multi-Agent**    | ⭐⭐⭐     | ⭐⭐       | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| **Observability**  | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐   | ⭐⭐⭐     | ⭐⭐⭐⭐⭐ |
+| **MCP Support**    | ⭐⭐⭐⭐⭐ | ⭐⭐⭐     | ⭐⭐       | ⭐⭐⭐⭐   |
 
 **Recommendation:**
+
 - **PydanticAI:** Simple agents, structured outputs, type safety
 - **LlamaIndex:** RAG pipelines, document retrieval
 - **CrewAI:** Multi-agent teams, autonomous research
@@ -430,15 +432,15 @@ script_context = result.final_report
 
 ### 5.2 Research Systems
 
-| Feature | GPT Researcher | Open Deep Research |
-|---------|----------------|-------------------|
-| **Stars** | 25k+ | 5k+ |
-| **Architecture** | Plan-and-Execute | LangGraph |
-| **MCP Support** | ✅ Yes | ✅ Yes |
-| **Benchmarks** | Custom | Deep Research Bench |
-| **Multi-Agent** | ✅ Yes (LangGraph) | ✅ Yes |
-| **Cost** | ~$0.40/research | ~$46-$187/100 |
-| **Report Length** | 2,000+ words | 5-6 pages |
+| Feature           | GPT Researcher     | Open Deep Research  |
+| ----------------- | ------------------ | ------------------- |
+| **Stars**         | 25k+               | 5k+                 |
+| **Architecture**  | Plan-and-Execute   | LangGraph           |
+| **MCP Support**   | ✅ Yes             | ✅ Yes              |
+| **Benchmarks**    | Custom             | Deep Research Bench |
+| **Multi-Agent**   | ✅ Yes (LangGraph) | ✅ Yes              |
+| **Cost**          | ~$0.40/research    | ~$46-$187/100       |
+| **Report Length** | 2,000+ words       | 5-6 pages           |
 
 ---
 
@@ -487,21 +489,25 @@ script_context = result.final_report
 ## 7. Implementation Priority
 
 ### Phase 1: Trend Agent (Week 1)
+
 1. PydanticAI agent with Reddit/HN/Trends tools
 2. Structured TrendOutput schema
 3. MCP server wrapper
 
 ### Phase 2: Script Agent (Week 2)
+
 1. LlamaIndex RAG for past successful scripts
 2. PydanticAI agent with template tools
 3. Streaming output for hook/body/CTA
 
 ### Phase 3: Research Integration (Week 3)
+
 1. GPT Researcher for deep topic analysis
 2. Fact-checking pipeline
 3. Citation tracking
 
 ### Phase 4: Quality Gates (Week 4)
+
 1. Human-in-the-loop approval
 2. Brand safety checks
 3. Automated quality scoring
@@ -528,6 +534,7 @@ script_context = result.final_report
 ---
 
 **Document Statistics:**
+
 - **Frameworks Covered:** 4 (PydanticAI, LlamaIndex, GPT Researcher, Open Deep Research)
 - **Code Examples:** 12+
 - **Architecture Diagrams:** 2

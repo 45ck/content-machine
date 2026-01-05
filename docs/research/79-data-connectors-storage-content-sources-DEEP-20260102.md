@@ -12,6 +12,7 @@
 This deep dive synthesizes the complete data infrastructure layer for content-machine, covering **content sources** (Reddit, YouTube, HackerNews, Google Trends), **web crawling** (Firecrawl, Tavily), **vector storage** (Qdrant, Weaviate, MinIO), and **MCP integrations** that enable AI-driven content discovery. These tools form the "intake" layer of the video generation pipeline—discovering trending topics, extracting transcripts, and storing embeddings for semantic search.
 
 **Key Findings:**
+
 - **YouTube Ecosystem:** yt-dlp (thousands of sites), youtube-transcript-api (no API key needed)
 - **Reddit Ecosystem:** 5 tools ranging from simple API wrappers (praw) to full MCP servers (reddit-mcp-ts)
 - **Web Crawling:** Firecrawl (LLM-optimized markdown), Tavily (RAG-focused search)
@@ -32,15 +33,15 @@ yt-dlp is the definitive audio/video downloader, forked from youtube-dl with mas
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Multi-site Support** | Thousands of extractors (see supportedsites.md) |
-| **Format Selection** | Complex format filtering and sorting |
-| **SponsorBlock** | Automatic sponsor segment skipping |
-| **Subtitle Download** | Multiple languages, auto-generated included |
-| **Metadata Extraction** | JSON output with full video info |
-| **Plugin System** | Custom extractors and post-processors |
-| **Embedding** | Can be imported as Python library |
+| Feature                 | Description                                     |
+| ----------------------- | ----------------------------------------------- |
+| **Multi-site Support**  | Thousands of extractors (see supportedsites.md) |
+| **Format Selection**    | Complex format filtering and sorting            |
+| **SponsorBlock**        | Automatic sponsor segment skipping              |
+| **Subtitle Download**   | Multiple languages, auto-generated included     |
+| **Metadata Extraction** | JSON output with full video info                |
+| **Plugin System**       | Custom extractors and post-processors           |
+| **Embedding**           | Can be imported as Python library               |
 
 #### Usage Patterns
 
@@ -154,13 +155,13 @@ def extract_viral_scripts(video_ids: list[str]) -> list[dict]:
     """Extract transcripts from viral videos for hook analysis."""
     api = YouTubeTranscriptApi()
     scripts = []
-    
+
     for vid in video_ids:
         try:
             transcript = api.fetch(vid)
             # First 15 seconds = hook
             hook = " ".join([
-                s.text for s in transcript 
+                s.text for s in transcript
                 if s.start < 15
             ])
             scripts.append({
@@ -171,7 +172,7 @@ def extract_viral_scripts(video_ids: list[str]) -> list[dict]:
             })
         except Exception as e:
             print(f"Failed {vid}: {e}")
-    
+
     return scripts
 ```
 
@@ -242,11 +243,11 @@ async def get_trending():
         client_secret="CLIENT_SECRET",
         user_agent="content-machine:v1.0"
     )
-    
+
     subreddit = await reddit.subreddit("technology")
     async for post in subreddit.hot(limit=10):
         print(f"{post.score}: {post.title}")
-    
+
     await reddit.close()
 
 asyncio.run(get_trending())
@@ -263,16 +264,16 @@ Three MCP server implementations provide Reddit access for AI agents:
 
 **Available Tools:**
 
-| Tool | Description | Auth Required |
-|------|-------------|---------------|
-| `get_reddit_post` | Get specific post by ID | Read-only |
-| `get_top_posts` | Top posts from subreddit | Read-only |
-| `get_trending_subreddits` | Currently trending | Read-only |
-| `search_reddit` | Search posts | Read-only |
-| `get_post_comments` | Comments on a post | Read-only |
-| `get_user_posts` | User's submission history | Read-only |
-| `create_post` | Submit new post | User credentials |
-| `reply_to_post` | Comment on post | User credentials |
+| Tool                      | Description               | Auth Required    |
+| ------------------------- | ------------------------- | ---------------- |
+| `get_reddit_post`         | Get specific post by ID   | Read-only        |
+| `get_top_posts`           | Top posts from subreddit  | Read-only        |
+| `get_trending_subreddits` | Currently trending        | Read-only        |
+| `search_reddit`           | Search posts              | Read-only        |
+| `get_post_comments`       | Comments on a post        | Read-only        |
+| `get_user_posts`          | User's submission history | Read-only        |
+| `create_post`             | Submit new post           | User credentials |
+| `reply_to_post`           | Comment on post           | User credentials |
 
 **Claude Desktop Configuration:**
 
@@ -303,18 +304,19 @@ Three MCP server implementations provide Reddit access for AI agents:
 **Stars:** Growing | **Language:** TypeScript
 
 **Unique Features:**
+
 - **No API Key Required** - Uses public endpoints
 - **Three-tier Rate Limits** - 10/60/100 requests per minute
 - **LLM-Optimized Output** - Clean data for Claude
 
 **Available Tools:**
 
-| Tool | Description |
-|------|-------------|
-| `browse_subreddit` | Browse with sorting (hot, new, top, rising) |
-| `search_posts` | Search across subreddits |
-| `get_post_comments` | Full comment threads |
-| `get_user_profile` | User karma and activity |
+| Tool                | Description                                 |
+| ------------------- | ------------------------------------------- |
+| `browse_subreddit`  | Browse with sorting (hot, new, top, rising) |
+| `search_posts`      | Search across subreddits                    |
+| `get_post_comments` | Full comment threads                        |
+| `get_user_profile`  | User karma and activity                     |
 
 **Installation (One-liner):**
 
@@ -335,15 +337,15 @@ LLM-optimized web scraping that converts any URL to clean markdown or structured
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Scrape** | Single URL → LLM-ready markdown/HTML |
-| **Crawl** | All subpages of a site |
-| **Map** | Get all URLs from a site instantly |
-| **Search** | Web search with full content |
-| **Extract** | Structured data extraction with AI |
-| **Actions** | Click, scroll, wait before extraction |
-| **Batching** | Thousands of URLs async |
+| Feature      | Description                           |
+| ------------ | ------------------------------------- |
+| **Scrape**   | Single URL → LLM-ready markdown/HTML  |
+| **Crawl**    | All subpages of a site                |
+| **Map**      | Get all URLs from a site instantly    |
+| **Search**   | Web search with full content          |
+| **Extract**  | Structured data extraction with AI    |
+| **Actions**  | Click, scroll, wait before extraction |
+| **Batching** | Thousands of URLs async               |
 
 #### API Usage
 
@@ -447,23 +449,23 @@ from tavily import TavilyClient
 async def research_trend(topic: str) -> dict:
     """Research a trending topic for video script."""
     client = TavilyClient(api_key="...")
-    
+
     # Get general context
     context = client.get_search_context(
         query=f"latest news and opinions about {topic}"
     )
-    
+
     # Get specific data points
     facts = client.qna_search(
         query=f"key statistics and facts about {topic}"
     )
-    
+
     # Find viral discussions
     discussions = client.search(
         query=f"{topic} reddit twitter viral discussion",
         max_results=10
     )
-    
+
     return {
         "context": context,
         "facts": facts,
@@ -485,17 +487,17 @@ The official Hacker News API via Firebase. Real-time updates, no authentication 
 
 #### Endpoints
 
-| Endpoint | Description |
-|----------|-------------|
-| `/v0/item/<id>.json` | Story, comment, job, poll |
-| `/v0/user/<username>.json` | User profile |
-| `/v0/topstories.json` | Top 500 story IDs |
-| `/v0/newstories.json` | Newest 500 story IDs |
-| `/v0/beststories.json` | Best 500 story IDs |
-| `/v0/askstories.json` | Ask HN story IDs |
-| `/v0/showstories.json` | Show HN story IDs |
-| `/v0/jobstories.json` | Job story IDs |
-| `/v0/maxitem.json` | Current max item ID |
+| Endpoint                   | Description               |
+| -------------------------- | ------------------------- |
+| `/v0/item/<id>.json`       | Story, comment, job, poll |
+| `/v0/user/<username>.json` | User profile              |
+| `/v0/topstories.json`      | Top 500 story IDs         |
+| `/v0/newstories.json`      | Newest 500 story IDs      |
+| `/v0/beststories.json`     | Best 500 story IDs        |
+| `/v0/askstories.json`      | Ask HN story IDs          |
+| `/v0/showstories.json`     | Show HN story IDs         |
+| `/v0/jobstories.json`      | Job story IDs             |
+| `/v0/maxitem.json`         | Current max item ID       |
 
 #### Item Schema
 
@@ -526,7 +528,7 @@ async def get_top_hn_stories(limit: int = 10) -> list[dict]:
             "https://hacker-news.firebaseio.com/v0/topstories.json"
         )
         story_ids = resp.json()[:limit]
-        
+
         # Fetch story details
         stories = []
         for sid in story_ids:
@@ -534,7 +536,7 @@ async def get_top_hn_stories(limit: int = 10) -> list[dict]:
                 f"https://hacker-news.firebaseio.com/v0/item/{sid}.json"
             )
             stories.append(resp.json())
-        
+
         return stories
 
 # Filter for tech content
@@ -583,14 +585,14 @@ Unofficial Google Trends API. Useful for detecting rising topics.
 
 #### Features
 
-| Method | Description |
-|--------|-------------|
-| `interest_over_time()` | Search volume over time |
-| `interest_by_region()` | Geographic distribution |
-| `related_topics()` | Related rising/top topics |
-| `related_queries()` | Related search queries |
-| `trending_searches()` | Daily trending searches |
-| `realtime_trending_searches()` | Real-time trends |
+| Method                         | Description               |
+| ------------------------------ | ------------------------- |
+| `interest_over_time()`         | Search volume over time   |
+| `interest_by_region()`         | Geographic distribution   |
+| `related_topics()`             | Related rising/top topics |
+| `related_queries()`            | Related search queries    |
+| `trending_searches()`          | Daily trending searches   |
+| `realtime_trending_searches()` | Real-time trends          |
 
 #### Usage
 
@@ -635,11 +637,11 @@ async def discover_rising_topics(seed_keywords: list[str]) -> list[dict]:
     """Find rising topics related to seed keywords."""
     pytrends = TrendReq(hl='en-US', tz=360)
     rising_topics = []
-    
+
     for kw in seed_keywords:
         pytrends.build_payload([kw], timeframe='now 7-d')
         related = pytrends.related_queries()
-        
+
         if related[kw]['rising'] is not None:
             for _, row in related[kw]['rising'].iterrows():
                 if row['value'] > 100:  # Breakout threshold
@@ -648,7 +650,7 @@ async def discover_rising_topics(seed_keywords: list[str]) -> list[dict]:
                         "topic": row['query'],
                         "growth": row['value']
                     })
-    
+
     return sorted(rising_topics, key=lambda x: x['growth'], reverse=True)
 ```
 
@@ -665,14 +667,14 @@ High-performance vector database optimized for speed and scale.
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Rust Performance** | Fast even under high load |
+| Feature                | Description                             |
+| ---------------------- | --------------------------------------- |
+| **Rust Performance**   | Fast even under high load               |
 | **Extended Filtering** | Payload-based filtering + vector search |
-| **Hybrid Search** | Combine dense + sparse vectors |
-| **Horizontal Scaling** | Distributed deployment |
-| **Multi-tenancy** | Namespace isolation |
-| **On-disk Mode** | Handle larger-than-memory datasets |
+| **Hybrid Search**      | Combine dense + sparse vectors          |
+| **Horizontal Scaling** | Distributed deployment                  |
+| **Multi-tenancy**      | Namespace isolation                     |
+| **On-disk Mode**       | Handle larger-than-memory datasets      |
 
 #### Quick Start
 
@@ -738,14 +740,14 @@ Cloud-native vector database with integrated ML model support.
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
+| Feature                    | Description                          |
+| -------------------------- | ------------------------------------ |
 | **Integrated Vectorizers** | OpenAI, Cohere, HuggingFace built-in |
-| **Hybrid Search** | BM25 + Vector in single query |
-| **RAG Built-in** | Generative search with LLMs |
-| **Multi-tenancy** | First-class support |
-| **RBAC** | Role-based access control |
-| **Vector Compression** | PQ, SQ, BQ for memory efficiency |
+| **Hybrid Search**          | BM25 + Vector in single query        |
+| **RAG Built-in**           | Generative search with LLMs          |
+| **Multi-tenancy**          | First-class support                  |
+| **RBAC**                   | Role-based access control            |
+| **Vector Compression**     | PQ, SQ, BQ for memory efficiency     |
 
 #### Quick Start
 
@@ -872,14 +874,14 @@ Multi-platform scraper supporting Twitter, Instagram, Reddit, Telegram, etc.
 
 #### Supported Platforms
 
-| Platform | Features |
-|----------|----------|
-| Twitter | Users, hashtags, searches, trends |
-| Instagram | Profiles, hashtags, locations |
-| Reddit | Users, subreddits (via Pushshift) |
-| Telegram | Channels |
-| Facebook | Profiles, groups |
-| TikTok | (Limited) |
+| Platform  | Features                          |
+| --------- | --------------------------------- |
+| Twitter   | Users, hashtags, searches, trends |
+| Instagram | Profiles, hashtags, locations     |
+| Reddit    | Users, subreddits (via Pushshift) |
+| Telegram  | Channels                          |
+| Facebook  | Profiles, groups                  |
+| TikTok    | (Limited)                         |
 
 #### Example (Research Only)
 
@@ -949,15 +951,15 @@ instaloader --stories --login your_username profile_name
 
 ### 8.2 Recommended Stack
 
-| Layer | Primary | Backup | Notes |
-|-------|---------|--------|-------|
-| **Reddit** | reddit-mcp-ts | PRAW | MCP for agents, PRAW for batch |
-| **YouTube** | yt-dlp + transcript-api | - | Combined coverage |
-| **HackerNews** | Firebase API | Algolia Search | Firebase for real-time |
-| **Trends** | PyTrends | - | Rate limit carefully |
-| **Web Crawl** | Firecrawl | Tavily | Firecrawl for docs, Tavily for search |
-| **Vectors** | Qdrant | Weaviate | Qdrant faster, Weaviate more features |
-| **Objects** | MinIO | S3 | MinIO for self-hosted |
+| Layer          | Primary                 | Backup         | Notes                                 |
+| -------------- | ----------------------- | -------------- | ------------------------------------- |
+| **Reddit**     | reddit-mcp-ts           | PRAW           | MCP for agents, PRAW for batch        |
+| **YouTube**    | yt-dlp + transcript-api | -              | Combined coverage                     |
+| **HackerNews** | Firebase API            | Algolia Search | Firebase for real-time                |
+| **Trends**     | PyTrends                | -              | Rate limit carefully                  |
+| **Web Crawl**  | Firecrawl               | Tavily         | Firecrawl for docs, Tavily for search |
+| **Vectors**    | Qdrant                  | Weaviate       | Qdrant faster, Weaviate more features |
+| **Objects**    | MinIO                   | S3             | MinIO for self-hosted                 |
 
 ### 8.3 MCP Server Composition
 
@@ -997,54 +999,58 @@ instaloader --stories --login your_username profile_name
 
 ### 9.1 API Key Management
 
-| Service | Storage | Rotation |
-|---------|---------|----------|
-| Reddit | `.env` / Vault | Monthly |
-| Firecrawl | `.env` / Vault | Monthly |
-| Tavily | `.env` / Vault | Monthly |
+| Service             | Storage        | Rotation  |
+| ------------------- | -------------- | --------- |
+| Reddit              | `.env` / Vault | Monthly   |
+| Firecrawl           | `.env` / Vault | Monthly   |
+| Tavily              | `.env` / Vault | Monthly   |
 | OpenAI (embeddings) | `.env` / Vault | Quarterly |
 
 ### 9.2 Rate Limits
 
-| Service | Limit | Handling |
-|---------|-------|----------|
-| Reddit | 60 req/min | PRAW handles automatically |
-| HN Firebase | None | Be respectful |
-| PyTrends | ~5 req/min | Exponential backoff |
-| Firecrawl | By plan | Queue with delays |
-| Tavily | By plan | Queue with delays |
+| Service     | Limit      | Handling                   |
+| ----------- | ---------- | -------------------------- |
+| Reddit      | 60 req/min | PRAW handles automatically |
+| HN Firebase | None       | Be respectful              |
+| PyTrends    | ~5 req/min | Exponential backoff        |
+| Firecrawl   | By plan    | Queue with delays          |
+| Tavily      | By plan    | Queue with delays          |
 
 ### 9.3 ToS Compliance
 
-| Tool | Risk Level | Recommendation |
-|------|------------|----------------|
-| PRAW | ✅ Low | Use with proper user agent |
-| yt-dlp | ⚠️ Medium | Personal use, respect robots.txt |
-| youtube-transcript-api | ✅ Low | Public transcripts only |
-| Firecrawl | ✅ Low | Respects robots.txt |
-| snscrape | ❌ High | Research only, never production |
-| instaloader | ❌ High | Research only, never production |
+| Tool                   | Risk Level | Recommendation                   |
+| ---------------------- | ---------- | -------------------------------- |
+| PRAW                   | ✅ Low     | Use with proper user agent       |
+| yt-dlp                 | ⚠️ Medium  | Personal use, respect robots.txt |
+| youtube-transcript-api | ✅ Low     | Public transcripts only          |
+| Firecrawl              | ✅ Low     | Respects robots.txt              |
+| snscrape               | ❌ High    | Research only, never production  |
+| instaloader            | ❌ High    | Research only, never production  |
 
 ---
 
 ## 10. Implementation Priority
 
 ### Phase 1: Core Connectors (Week 1-2)
+
 1. Reddit MCP Server integration
 2. YouTube transcript extraction
 3. HN Firebase client wrapper
 
 ### Phase 2: Storage Layer (Week 3)
+
 1. Qdrant collection schema for video ideas
 2. Embedding pipeline (OpenAI)
 3. Semantic search API
 
 ### Phase 3: Web Crawling (Week 4)
+
 1. Firecrawl integration for product docs
 2. Tavily for research queries
 3. Cache layer (MinIO/S3)
 
 ### Phase 4: Trend Detection (Week 5)
+
 1. PyTrends wrapper with rate limiting
 2. Cross-platform trend scoring
 3. Daily trend digest generation
@@ -1074,6 +1080,7 @@ instaloader --stories --login your_username profile_name
 ---
 
 **Document Statistics:**
+
 - **Tools Covered:** 18
 - **Code Examples:** 25+
 - **Integration Patterns:** 5

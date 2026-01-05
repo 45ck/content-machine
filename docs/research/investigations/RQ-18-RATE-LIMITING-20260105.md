@@ -10,11 +10,13 @@
 ## 1. Problem Statement
 
 The pipeline calls multiple APIs with different rate limits:
+
 - OpenAI: 60 RPM, 90,000 TPM (varies by tier)
 - Pexels: 200 requests/hour
 - ElevenLabs: varies by plan
 
 We need:
+
 - Per-provider rate limiting
 - HTTP 429 detection and retry
 - Token-per-minute tracking (not just requests)
@@ -51,7 +53,7 @@ export const pLimit = (concurrency: number) => {
         resolve(result);
         next();
       };
-      
+
       if (activeCount < concurrency) run();
       else queue.push(run);
     });
@@ -122,8 +124,8 @@ async findVideo(searchTerms: string[], retryCounter: number = 0): Promise<Video>
 ```typescript
 interface ProviderRateConfig {
   requestsPerMinute: number;
-  tokensPerMinute?: number;  // For LLM APIs
-  burstLimit?: number;       // Max concurrent
+  tokensPerMinute?: number; // For LLM APIs
+  burstLimit?: number; // Max concurrent
   retryConfig: {
     maxRetries: number;
     initialDelayMs: number;
@@ -145,7 +147,7 @@ const PROVIDER_CONFIGS: Record<string, ProviderRateConfig> = {
     },
   },
   pexels: {
-    requestsPerMinute: 3,  // 200/hour = ~3.3/min, be conservative
+    requestsPerMinute: 3, // 200/hour = ~3.3/min, be conservative
     burstLimit: 2,
     retryConfig: {
       maxRetries: 2,
@@ -196,8 +198,8 @@ class RateLimiter {
 
   private resetWindowIfNeeded(): void {
     const now = Date.now();
-    const windowMs = 60_000;  // 1 minute window
-    
+    const windowMs = 60_000; // 1 minute window
+
     if (now - this.state.windowStart > windowMs) {
       this.state = {
         windowStart: now,
@@ -233,10 +235,7 @@ class RateLimiter {
     }
   }
 
-  async execute<T>(
-    fn: () => Promise<T>,
-    options?: { estimatedTokens?: number }
-  ): Promise<T> {
+  async execute<T>(fn: () => Promise<T>, options?: { estimatedTokens?: number }): Promise<T> {
     return this.limiter(async () => {
       await this.waitIfNeeded(options?.estimatedTokens);
 
@@ -261,10 +260,7 @@ interface RetryOptions {
   backoffMultiplier: number;
 }
 
-async function withRetry<T>(
-  fn: () => Promise<T>,
-  options: RetryOptions
-): Promise<T> {
+async function withRetry<T>(fn: () => Promise<T>, options: RetryOptions): Promise<T> {
   let lastError: Error | null = null;
   let delay = options.initialDelayMs;
 
@@ -280,7 +276,7 @@ async function withRetry<T>(
       const isServerError = status >= 500 && status < 600;
 
       if (!isRateLimited && !isServerError) {
-        throw error;  // Not retryable
+        throw error; // Not retryable
       }
 
       if (attempt < options.maxRetries) {
@@ -290,7 +286,7 @@ async function withRetry<T>(
 
         console.warn(
           `Rate limited (attempt ${attempt + 1}/${options.maxRetries + 1}), ` +
-          `waiting ${waitMs}ms before retry`
+            `waiting ${waitMs}ms before retry`
         );
 
         await sleep(waitMs);
@@ -334,27 +330,18 @@ class ApiClient {
     return this.rateLimiters.get(provider)!;
   }
 
-  async callOpenAI<T>(
-    fn: () => Promise<T>,
-    estimatedTokens: number
-  ): Promise<T> {
+  async callOpenAI<T>(fn: () => Promise<T>, estimatedTokens: number): Promise<T> {
     const limiter = this.getLimiter('openai');
     const config = PROVIDER_CONFIGS.openai;
 
-    return withRetry(
-      () => limiter.execute(fn, { estimatedTokens }),
-      config.retryConfig
-    );
+    return withRetry(() => limiter.execute(fn, { estimatedTokens }), config.retryConfig);
   }
 
   async callPexels<T>(fn: () => Promise<T>): Promise<T> {
     const limiter = this.getLimiter('pexels');
     const config = PROVIDER_CONFIGS.pexels;
 
-    return withRetry(
-      () => limiter.execute(fn),
-      config.retryConfig
-    );
+    return withRetry(() => limiter.execute(fn), config.retryConfig);
   }
 }
 ```
@@ -368,8 +355,7 @@ class OpenAIRateLimiter extends RateLimiter {
   private resetAt: number = 0;
 
   updateFromHeaders(headers: Headers | Record<string, string>): void {
-    const get = (key: string) => 
-      headers instanceof Headers ? headers.get(key) : headers[key];
+    const get = (key: string) => (headers instanceof Headers ? headers.get(key) : headers[key]);
 
     const remaining = get('x-ratelimit-remaining-requests');
     if (remaining) this.remainingRequests = parseInt(remaining, 10);
@@ -391,7 +377,7 @@ class OpenAIRateLimiter extends RateLimiter {
     }
 
     if (estimatedTokens && this.remainingTokens < estimatedTokens) {
-      await sleep(1000);  // Brief pause for token refresh
+      await sleep(1000); // Brief pause for token refresh
     }
 
     // Fall back to window-based limiting
@@ -408,11 +394,16 @@ function parseResetTime(value: string): number {
   const unit = match[2] ?? 'ms';
 
   switch (unit) {
-    case 'ms': return num;
-    case 's': return num * 1000;
-    case 'm': return num * 60_000;
-    case 'h': return num * 3_600_000;
-    default: return num;
+    case 'ms':
+      return num;
+    case 's':
+      return num * 1000;
+    case 'm':
+      return num * 60_000;
+    case 'h':
+      return num * 3_600_000;
+    default:
+      return num;
   }
 }
 ```
@@ -432,29 +423,26 @@ interface PersistedRateState {
   updatedAt: number;
 }
 
-async function saveRateState(
-  provider: string,
-  state: RateLimitState
-): Promise<void> {
+async function saveRateState(provider: string, state: RateLimitState): Promise<void> {
   const stateFile = path.join(os.tmpdir(), 'cm-rate-limits.json');
   const existing = await loadRateStates();
-  
+
   existing[provider] = {
     ...state,
     provider,
     updatedAt: Date.now(),
   };
-  
+
   await fs.writeFile(stateFile, JSON.stringify(existing, null, 2));
 }
 
 async function loadRateStates(): Promise<Record<string, PersistedRateState>> {
   const stateFile = path.join(os.tmpdir(), 'cm-rate-limits.json');
-  
+
   try {
     const content = await fs.readFile(stateFile, 'utf-8');
     const states = JSON.parse(content);
-    
+
     // Expire old entries (>1 hour)
     const now = Date.now();
     for (const [key, state] of Object.entries(states)) {
@@ -462,7 +450,7 @@ async function loadRateStates(): Promise<Record<string, PersistedRateState>> {
         delete states[key];
       }
     }
-    
+
     return states;
   } catch {
     return {};
@@ -474,14 +462,14 @@ async function loadRateStates(): Promise<Record<string, PersistedRateState>> {
 
 ## 5. Implementation Recommendations
 
-| Decision | Recommendation | Rationale |
-|----------|----------------|-----------|
-| Library | Custom p-limit + retry | Remotion pattern, minimal deps |
-| Per-provider config | Yes | Different APIs, different limits |
-| Token tracking | For LLM APIs only | Prevents expensive overages |
-| Retry strategy | Exponential backoff | Industry standard |
-| Retry-After header | Respect it | API's authoritative timing |
-| State persistence | Optional, temp file | Helps batch jobs |
+| Decision            | Recommendation         | Rationale                        |
+| ------------------- | ---------------------- | -------------------------------- |
+| Library             | Custom p-limit + retry | Remotion pattern, minimal deps   |
+| Per-provider config | Yes                    | Different APIs, different limits |
+| Token tracking      | For LLM APIs only      | Prevents expensive overages      |
+| Retry strategy      | Exponential backoff    | Industry standard                |
+| Retry-After header  | Respect it             | API's authoritative timing       |
+| State persistence   | Optional, temp file    | Helps batch jobs                 |
 
 ---
 

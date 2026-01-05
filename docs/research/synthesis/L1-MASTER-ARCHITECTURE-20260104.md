@@ -79,28 +79,28 @@ Our architecture optimizes each stage with best-in-class open-source tools while
 
 ### Primary Stack
 
-| Component | Technology | Justification |
-|-----------|------------|---------------|
-| **Language** | TypeScript | Remotion native, type safety, ecosystem |
-| **Orchestrator** | OpenAI Agents SDK | Official SDK, simple API, TypeScript native |
-| **Rendering** | Remotion | React-based, extensive components |
-| **TTS** | Kokoro-FastAPI | Best free quality, Apache license |
-| **ASR** | WhisperX | 70x realtime, word-level timestamps |
-| **Captions** | remotion-subtitles | 17 presets, TikTok-optimized |
-| **Queue** | BullMQ | Redis-based, FlowProducer for dependencies |
-| **MCP** | FastMCP 2.0 | Python + TypeScript, enterprise features |
-| **Storage** | MinIO | S3-compatible, self-hosted |
-| **Database** | PostgreSQL + Drizzle | Type-safe ORM |
-| **Vectors** | Qdrant | Fast semantic search |
-| **Observability** | Langfuse | LLM tracing, self-hostable |
+| Component         | Technology           | Justification                               |
+| ----------------- | -------------------- | ------------------------------------------- |
+| **Language**      | TypeScript           | Remotion native, type safety, ecosystem     |
+| **Orchestrator**  | OpenAI Agents SDK    | Official SDK, simple API, TypeScript native |
+| **Rendering**     | Remotion             | React-based, extensive components           |
+| **TTS**           | Kokoro-FastAPI       | Best free quality, Apache license           |
+| **ASR**           | WhisperX             | 70x realtime, word-level timestamps         |
+| **Captions**      | remotion-subtitles   | 17 presets, TikTok-optimized                |
+| **Queue**         | BullMQ               | Redis-based, FlowProducer for dependencies  |
+| **MCP**           | FastMCP 2.0          | Python + TypeScript, enterprise features    |
+| **Storage**       | MinIO                | S3-compatible, self-hosted                  |
+| **Database**      | PostgreSQL + Drizzle | Type-safe ORM                               |
+| **Vectors**       | Qdrant               | Fast semantic search                        |
+| **Observability** | Langfuse             | LLM tracing, self-hostable                  |
 
 ### Python Services
 
-| Component | Technology | Justification |
-|-----------|------------|---------------|
-| **Agent Framework** | Pydantic AI | Type-safe, FastAPI ergonomics |
-| **Research** | Tavily + Reddit MCP | Web search + social trends |
-| **API** | FastAPI | Standard Python API framework |
+| Component           | Technology          | Justification                 |
+| ------------------- | ------------------- | ----------------------------- |
+| **Agent Framework** | Pydantic AI         | Type-safe, FastAPI ergonomics |
+| **Research**        | Tavily + Reddit MCP | Web search + social trends    |
+| **API**             | FastAPI             | Standard Python API framework |
 
 ---
 
@@ -118,18 +118,17 @@ const SceneSchema = z.object({
   duration: z.number().min(2).max(15),
   visualPrompt: z.string().optional(),
   searchTerms: z.array(z.string()).optional(),
-  assetPath: z.string().optional()
+  assetPath: z.string().optional(),
 });
 
 // Caption configuration
 const CaptionConfigSchema = z.object({
-  style: z.enum([
-    'tiktok-bold', 'youtube-shorts', 'minimal',
-    'karaoke', 'typewriter', 'bounce'
-  ]).default('tiktok-bold'),
+  style: z
+    .enum(['tiktok-bold', 'youtube-shorts', 'minimal', 'karaoke', 'typewriter', 'bounce'])
+    .default('tiktok-bold'),
   fontSize: z.number().default(80),
   position: z.enum(['top', 'center', 'bottom']).default('center'),
-  highlightColor: z.string().default('#00FF00')
+  highlightColor: z.string().default('#00FF00'),
 });
 
 // Audio configuration
@@ -137,18 +136,18 @@ const AudioConfigSchema = z.object({
   voice: z.string().default('af_heart'),
   speed: z.number().min(0.5).max(2).default(1),
   music: z.string().optional(),
-  musicVolume: z.number().min(0).max(1).default(0.1)
+  musicVolume: z.number().min(0).max(1).default(0.1),
 });
 
 // Output configuration
 const OutputConfigSchema = z.object({
   resolution: z.object({
     width: z.number().default(1080),
-    height: z.number().default(1920)
+    height: z.number().default(1920),
   }),
   fps: z.number().default(30),
   codec: z.enum(['h264', 'h265', 'vp9']).default('h264'),
-  quality: z.number().min(1).max(100).default(80)
+  quality: z.number().min(1).max(100).default(80),
 });
 
 // Complete video configuration
@@ -162,7 +161,7 @@ export const VideoConfigSchema = z.object({
   output: OutputConfigSchema.default({}),
   template: z.string().default('default'),
   createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime()
+  updatedAt: z.string().datetime(),
 });
 
 export type VideoConfig = z.infer<typeof VideoConfigSchema>;
@@ -174,20 +173,25 @@ export type VideoConfig = z.infer<typeof VideoConfigSchema>;
 const GeneratedScriptSchema = z.object({
   title: z.string().max(100),
   hook: z.string().max(50).describe('First 3 seconds - grab attention'),
-  scenes: z.array(z.object({
-    text: z.string().max(200),
-    duration: z.number().min(2).max(15),
-    visual: z.string().describe('Visual description for asset search'),
-    searchTerms: z.array(z.string()).max(5)
-  })).min(3).max(10),
+  scenes: z
+    .array(
+      z.object({
+        text: z.string().max(200),
+        duration: z.number().min(2).max(15),
+        visual: z.string().describe('Visual description for asset search'),
+        searchTerms: z.array(z.string()).max(5),
+      })
+    )
+    .min(3)
+    .max(10),
   cta: z.string().max(100).describe('Call to action'),
   totalDuration: z.number().min(15).max(60),
   metadata: z.object({
     topic: z.string(),
     audience: z.string(),
     tone: z.enum(['educational', 'entertaining', 'promotional']),
-    hashtags: z.array(z.string()).max(10)
-  })
+    hashtags: z.array(z.string()).max(10),
+  }),
 });
 
 export type GeneratedScript = z.infer<typeof GeneratedScriptSchema>;
@@ -232,7 +236,7 @@ export type GeneratedScript = z.infer<typeof GeneratedScriptSchema>;
 services:
   research-mcp:
     build: ./services/research
-    ports: ["8001:8001"]
+    ports: ['8001:8001']
     environment:
       - REDDIT_CLIENT_ID
       - TAVILY_API_KEY
@@ -243,7 +247,7 @@ services:
 
   script-mcp:
     build: ./services/script
-    ports: ["8002:8002"]
+    ports: ['8002:8002']
     environment:
       - OPENAI_API_KEY
       - LANGFUSE_PUBLIC_KEY
@@ -251,7 +255,7 @@ services:
 
   audio-mcp:
     build: ./services/audio
-    ports: ["8003:8003"]
+    ports: ['8003:8003']
     environment:
       - KOKORO_URL=http://kokoro:8880
     depends_on:
@@ -260,7 +264,7 @@ services:
 
   render-mcp:
     build: ./services/render
-    ports: ["8004:8004"]
+    ports: ['8004:8004']
     environment:
       - MINIO_ENDPOINT
       - MINIO_ACCESS_KEY
@@ -271,7 +275,7 @@ services:
 
   publish-mcp:
     build: ./services/publish
-    ports: ["8005:8005"]
+    ports: ['8005:8005']
     environment:
       - YOUTUBE_CLIENT_ID
       - YOUTUBE_CLIENT_SECRET
@@ -280,7 +284,7 @@ services:
 
   storage-mcp:
     build: ./services/storage
-    ports: ["8006:8006"]
+    ports: ['8006:8006']
     environment:
       - MINIO_ENDPOINT
       - MINIO_ACCESS_KEY
@@ -319,43 +323,43 @@ const videoOrchestrator = new Agent({
     tool({
       name: 'discover_trends',
       parameters: z.object({ topic: z.string() }),
-      execute: async ({ topic }) => mcpClient.call('research', 'discover_trends', { topic })
+      execute: async ({ topic }) => mcpClient.call('research', 'discover_trends', { topic }),
     }),
     // Script tools
     tool({
       name: 'generate_script',
       parameters: z.object({ topic: z.string(), research: z.any() }),
-      execute: async (params) => mcpClient.call('script', 'generate_script', params)
+      execute: async (params) => mcpClient.call('script', 'generate_script', params),
     }),
     // Audio tools
     tool({
       name: 'generate_speech',
       parameters: z.object({ text: z.string(), voice: z.string().optional() }),
-      execute: async (params) => mcpClient.call('audio', 'generate_speech', params)
+      execute: async (params) => mcpClient.call('audio', 'generate_speech', params),
     }),
     tool({
       name: 'transcribe_audio',
       parameters: z.object({ audioPath: z.string() }),
-      execute: async (params) => mcpClient.call('audio', 'transcribe_audio', params)
+      execute: async (params) => mcpClient.call('audio', 'transcribe_audio', params),
     }),
     // Render tools
     tool({
       name: 'render_video',
       parameters: VideoConfigSchema,
-      execute: async (config) => mcpClient.call('render', 'render_video', config)
+      execute: async (config) => mcpClient.call('render', 'render_video', config),
     }),
     // Publish tools
     tool({
       name: 'upload_youtube',
       parameters: z.object({ videoPath: z.string(), metadata: z.any() }),
-      execute: async (params) => mcpClient.call('publish', 'upload_youtube', params)
+      execute: async (params) => mcpClient.call('publish', 'upload_youtube', params),
     }),
     tool({
       name: 'upload_tiktok',
       parameters: z.object({ videoPath: z.string(), metadata: z.any() }),
-      execute: async (params) => mcpClient.call('publish', 'upload_tiktok', params)
-    })
-  ]
+      execute: async (params) => mcpClient.call('publish', 'upload_tiktok', params),
+    }),
+  ],
 });
 
 // Run orchestration
@@ -366,7 +370,7 @@ async function createVideo(topic: string): Promise<VideoResult> {
     Research trending angles, write an engaging script,
     render with bold captions, and publish to TikTok.`
   );
-  
+
   return result;
 }
 ```
@@ -385,7 +389,7 @@ const queues = {
   script: new Queue('script', { connection }),
   audio: new Queue('audio', { connection }),
   render: new Queue('render', { connection }),
-  publish: new Queue('publish', { connection })
+  publish: new Queue('publish', { connection }),
 };
 
 // Flow producer for job dependencies
@@ -397,45 +401,61 @@ async function queueVideoJob(topic: string, config: Partial<VideoConfig>): Promi
     name: 'publish',
     queueName: 'publish',
     data: { platforms: config.platforms || ['youtube'] },
-    children: [{
-      name: 'render',
-      queueName: 'render',
-      data: { template: config.template || 'tiktok-bold' },
-      children: [{
-        name: 'audio',
-        queueName: 'audio',
-        data: { voice: config.audio?.voice || 'af_heart' },
-        children: [{
-          name: 'script',
-          queueName: 'script',
-          data: { length: 60 },
-          children: [{
-            name: 'research',
-            queueName: 'research',
-            data: { topic, depth: 'deep' }
-          }]
-        }]
-      }]
-    }]
+    children: [
+      {
+        name: 'render',
+        queueName: 'render',
+        data: { template: config.template || 'tiktok-bold' },
+        children: [
+          {
+            name: 'audio',
+            queueName: 'audio',
+            data: { voice: config.audio?.voice || 'af_heart' },
+            children: [
+              {
+                name: 'script',
+                queueName: 'script',
+                data: { length: 60 },
+                children: [
+                  {
+                    name: 'research',
+                    queueName: 'research',
+                    data: { topic, depth: 'deep' },
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+    ],
   });
-  
+
   return job.job.id!;
 }
 
 // Workers
-const researchWorker = new Worker('research', async (job) => {
-  const result = await mcpClient.call('research', 'discover_trends', job.data);
-  return result;
-}, { connection });
+const researchWorker = new Worker(
+  'research',
+  async (job) => {
+    const result = await mcpClient.call('research', 'discover_trends', job.data);
+    return result;
+  },
+  { connection }
+);
 
-const scriptWorker = new Worker('script', async (job) => {
-  const research = await job.getChildrenValues();
-  const result = await mcpClient.call('script', 'generate_script', {
-    ...job.data,
-    research: research.research
-  });
-  return result;
-}, { connection });
+const scriptWorker = new Worker(
+  'script',
+  async (job) => {
+    const research = await job.getChildrenValues();
+    const result = await mcpClient.call('script', 'generate_script', {
+      ...job.data,
+      research: research.research,
+    });
+    return result;
+  },
+  { connection }
+);
 
 // ... similar workers for audio, render, publish
 ```
@@ -610,6 +630,7 @@ All LLM calls traced via **Langfuse**. Job status via **BullMQ**. Errors to **Se
 ### 5. Graceful Degradation
 
 **Fallback strategies** for all critical paths:
+
 - TTS: Kokoro → EdgeTTS → OpenAI TTS
 - LLM: GPT-4o → GPT-4o-mini → Claude
 - Assets: Pexels → Unsplash → placeholder
@@ -620,12 +641,12 @@ All LLM calls traced via **Langfuse**. Job status via **BullMQ**. Errors to **Se
 
 This architecture synthesizes findings from:
 
-| Layer | Documents | Key Sources |
-|-------|-----------|-------------|
-| **Layer 4** | 86 deep-dives | All 139 vendored repos |
-| **Layer 3** | 12 categories | A-L category syntheses |
-| **Layer 2** | 4 themes | Content, Video, AI, Infra |
-| **Layer 1** | This document | All above |
+| Layer       | Documents     | Key Sources               |
+| ----------- | ------------- | ------------------------- |
+| **Layer 4** | 86 deep-dives | All 139 vendored repos    |
+| **Layer 3** | 12 categories | A-L category syntheses    |
+| **Layer 2** | 4 themes      | Content, Video, AI, Infra |
+| **Layer 1** | This document | All above                 |
 
 ### Blueprint Repos (Most Influential)
 
@@ -683,4 +704,4 @@ This architecture synthesizes findings from:
 
 ---
 
-*Last Updated: 2026-01-04*
+_Last Updated: 2026-01-04_

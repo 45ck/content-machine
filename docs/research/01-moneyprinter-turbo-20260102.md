@@ -19,16 +19,16 @@ Complete end-to-end short video generation pipeline. You provide a **topic/keywo
 
 ## Key Features
 
-| Feature | Details |
-|---------|---------|
-| **Architecture** | Full MVC, WebUI + API |
-| **Video Sizes** | Portrait 9:16 (1080x1920), Landscape 16:9 (1920x1080) |
-| **Batch Generation** | Create multiple videos at once |
-| **Voice Synthesis** | Multiple TTS providers with preview |
-| **Subtitles** | Font, position, color, size, outline customization |
-| **Background Music** | Random or specified, volume adjustable |
-| **Stock Footage** | Pexels (HD, royalty-free) or local materials |
-| **LLM Support** | OpenAI, Moonshot, Azure, Gemini, Ollama, DeepSeek, Qwen, etc. |
+| Feature              | Details                                                       |
+| -------------------- | ------------------------------------------------------------- |
+| **Architecture**     | Full MVC, WebUI + API                                         |
+| **Video Sizes**      | Portrait 9:16 (1080x1920), Landscape 16:9 (1920x1080)         |
+| **Batch Generation** | Create multiple videos at once                                |
+| **Voice Synthesis**  | Multiple TTS providers with preview                           |
+| **Subtitles**        | Font, position, color, size, outline customization            |
+| **Background Music** | Random or specified, volume adjustable                        |
+| **Stock Footage**    | Pexels (HD, royalty-free) or local materials                  |
+| **LLM Support**      | OpenAI, Moonshot, Azure, Gemini, Ollama, DeepSeek, Qwen, etc. |
 
 ## Tech Stack
 
@@ -41,6 +41,7 @@ Complete end-to-end short video generation pipeline. You provide a **topic/keywo
 ## What We Can Reuse
 
 ### ✅ High Value
+
 - **Script generation prompts** - Battle-tested prompts for engaging copy
 - **Pexels integration** - Stock footage fetching logic
 - **Subtitle positioning/styling** - Font, color, outline logic
@@ -48,10 +49,12 @@ Complete end-to-end short video generation pipeline. You provide a **topic/keywo
 - **MVC architecture patterns** - API design reference
 
 ### ⚠️ Medium Value
+
 - **Voice synthesis abstraction** - Multi-provider TTS patterns
 - **Batch generation** - Parallel video creation
 
 ### ❌ Not Needed
+
 - **WebUI** - We're using Remotion templates
 - **Docker deployment** - Different stack
 

@@ -23,12 +23,12 @@ This deep dive analyzes the core creative pipeline for content-machine:
 
 ### 1.1 Rendering Tool Comparison
 
-| Tool | Language | Approach | License | Key Feature |
-|------|----------|----------|---------|-------------|
-| **Remotion** | React/TypeScript | React components | Company License | Programmatic video |
-| **Mosaico** | Python | MoviePy-based | MIT | AI script generation |
-| **JSON2Video** | API | JSON config | Commercial | Cloud rendering |
-| **remotion-subtitles** | TypeScript | Remotion plugin | MIT | 17 caption templates |
+| Tool                   | Language         | Approach         | License         | Key Feature          |
+| ---------------------- | ---------------- | ---------------- | --------------- | -------------------- |
+| **Remotion**           | React/TypeScript | React components | Company License | Programmatic video   |
+| **Mosaico**            | Python           | MoviePy-based    | MIT             | AI script generation |
+| **JSON2Video**         | API              | JSON config      | Commercial      | Cloud rendering      |
+| **remotion-subtitles** | TypeScript       | Remotion plugin  | MIT             | 17 caption templates |
 
 ### 1.2 Remotion (React Video) ⭐ RECOMMENDED
 
@@ -37,12 +37,14 @@ This deep dive analyzes the core creative pipeline for content-machine:
 **Framework:** React + TypeScript
 
 #### Why Remotion for content-machine:
+
 - **React-based** - Leverage web technologies
 - **Programmatic** - Use APIs, variables, algorithms
 - **Component reuse** - Build video component library
 - **Package ecosystem** - Use any npm package
 
 #### ⚠️ License Warning:
+
 Remotion requires a company license for commercial use. Review the license terms before production deployment.
 
 #### Code Pattern:
@@ -56,17 +58,17 @@ export const ProductDemo: React.FC<{
   script: ScriptSegment[];
 }> = ({ productUrl, script }) => {
   const frame = useCurrentFrame();
-  
+
   return (
     <AbsoluteFill style={{ backgroundColor: 'black' }}>
       {/* Background video/capture */}
       <Sequence from={0} durationInFrames={30 * 60}>
         <ProductCapture url={productUrl} />
       </Sequence>
-      
+
       {/* Captions overlay */}
       {script.map((segment, i) => (
-        <Sequence 
+        <Sequence
           key={i}
           from={segment.startFrame}
           durationInFrames={segment.endFrame - segment.startFrame}
@@ -89,6 +91,7 @@ export const ProductDemo: React.FC<{
 **Purpose:** Animated caption components for Remotion
 
 #### Why remotion-subtitles:
+
 - **17 built-in templates** - Professional caption styles
 - **SRT parsing** - Direct subtitle file import
 - **Animation effects** - Bounce, glow, typewriter, etc.
@@ -96,51 +99,51 @@ export const ProductDemo: React.FC<{
 
 #### Available Caption Styles:
 
-| Template | Effect |
-|----------|--------|
-| BounceCaption | Bounce in animation |
-| ColorfulCaption | Rainbow text effect |
-| ExplosiveCaption | Explosive entrance |
-| FadeCaption | Fade in/out |
-| FireCaption | Fire effect |
-| GlitchCaption | Glitch animation |
-| GlowingCaption | Glow effect |
-| LightningCaption | Lightning flash |
-| NeonCaption | Neon sign style |
-| RotatingCaption | 3D rotation |
-| ShakeCaption | Screen shake |
-| ThreeDishCaption | 3D perspective |
-| TiltShiftCaption | Tilt-shift blur |
-| TypewriterCaption | Typewriter effect |
-| WavingCaption | Wave animation |
-| ZoomCaption | Zoom in/out |
+| Template          | Effect              |
+| ----------------- | ------------------- |
+| BounceCaption     | Bounce in animation |
+| ColorfulCaption   | Rainbow text effect |
+| ExplosiveCaption  | Explosive entrance  |
+| FadeCaption       | Fade in/out         |
+| FireCaption       | Fire effect         |
+| GlitchCaption     | Glitch animation    |
+| GlowingCaption    | Glow effect         |
+| LightningCaption  | Lightning flash     |
+| NeonCaption       | Neon sign style     |
+| RotatingCaption   | 3D rotation         |
+| ShakeCaption      | Screen shake        |
+| ThreeDishCaption  | 3D perspective      |
+| TiltShiftCaption  | Tilt-shift blur     |
+| TypewriterCaption | Typewriter effect   |
+| WavingCaption     | Wave animation      |
+| ZoomCaption       | Zoom in/out         |
 
 #### Code Pattern:
 
 ```tsx
-import { SubtitleSequence } from "remotion-subtitle";
-import { TypewriterCaption as Caption } from "remotion-subtitle";
-import { useEffect, useState } from "react";
+import { SubtitleSequence } from 'remotion-subtitle';
+import { TypewriterCaption as Caption } from 'remotion-subtitle';
+import { useEffect, useState } from 'react';
 
 export const Subtitles = () => {
   const { fps } = useVideoConfig();
   const [sequences, setSequences] = useState([]);
   const [loaded, setLoaded] = useState(false);
-  
-  const subtitles = new SubtitleSequence("audio.srt");
-  
+
+  const subtitles = new SubtitleSequence('audio.srt');
+
   useEffect(() => {
     subtitles.ready().then(() => {
       setSequences(subtitles.getSequences(<Caption />, fps));
       setLoaded(true);
     });
   }, []);
-  
+
   return (
     <>
       {loaded && (
         <>
-          <Audio src={staticFile("narration.mp3")} />
+          <Audio src={staticFile('narration.mp3')} />
           {sequences}
         </>
       )}
@@ -156,12 +159,14 @@ export const Subtitles = () => {
 **Framework:** Python + MoviePy
 
 #### Why Mosaico for Python workflows:
+
 - **AI script generation** - Built-in LLM integration
 - **TTS integration** - ElevenLabs, etc.
 - **Caption transcription** - AssemblyAI integration
 - **Python-native** - No JavaScript required
 
 #### Key Features:
+
 - AI-powered script generation for videos
 - Rich media asset management (audio, images, text, subtitles)
 - Flexible positioning system
@@ -215,6 +220,7 @@ render_video(project, "output/")
 **Approach:** JSON config → cloud rendering
 
 #### Use Cases:
+
 - Simple video templates
 - High-volume rendering
 - No local GPU required
@@ -244,12 +250,12 @@ render_video(project, "output/")
 
 ### 1.6 Rendering Recommendation
 
-| Use Case | Tool | Reason |
-|----------|------|--------|
-| TypeScript/React pipeline | **Remotion** | Programmatic, component-based |
-| Python pipeline | **Mosaico** | Native Python, AI integration |
-| Quick prototypes | **JSON2Video** | Cloud-based, no setup |
-| Caption animations | **remotion-subtitles** | 17 templates ready |
+| Use Case                  | Tool                   | Reason                        |
+| ------------------------- | ---------------------- | ----------------------------- |
+| TypeScript/React pipeline | **Remotion**           | Programmatic, component-based |
+| Python pipeline           | **Mosaico**            | Native Python, AI integration |
+| Quick prototypes          | **JSON2Video**         | Cloud-based, no setup         |
+| Caption animations        | **remotion-subtitles** | 17 templates ready            |
 
 ---
 
@@ -257,11 +263,11 @@ render_video(project, "output/")
 
 ### 2.1 ASR Tool Comparison
 
-| Tool | Speed | Accuracy | Key Feature |
-|------|-------|----------|-------------|
-| **WhisperX** | 70x realtime | High | Word-level timestamps |
-| **Whisper** | 1x realtime | High | OpenAI original |
-| **faster-whisper** | 4x realtime | High | CTranslate2 backend |
+| Tool               | Speed        | Accuracy | Key Feature           |
+| ------------------ | ------------ | -------- | --------------------- |
+| **WhisperX**       | 70x realtime | High     | Word-level timestamps |
+| **Whisper**        | 1x realtime  | High     | OpenAI original       |
+| **faster-whisper** | 4x realtime  | High     | CTranslate2 backend   |
 
 ### 2.2 WhisperX (Word-Level Timestamps) ⭐ RECOMMENDED
 
@@ -271,6 +277,7 @@ render_video(project, "output/")
 **INTERSPEECH 2023:** Accepted paper
 
 #### Why WhisperX for content-machine:
+
 - **70x realtime** - Batched inference on GPU
 - **Word-level timestamps** - Precise caption timing
 - **Speaker diarization** - Multi-speaker identification
@@ -383,11 +390,11 @@ whisperx audio.wav --model large-v2 --language de
 
 ### 2.4 Caption Recommendation
 
-| Use Case | Tool | Reason |
-|----------|------|--------|
-| Word-level timestamps | **WhisperX** | Accurate, fast |
-| Basic transcription | **Whisper** | Simple setup |
-| Low GPU memory | **faster-whisper** | CTranslate2 backend |
+| Use Case              | Tool               | Reason              |
+| --------------------- | ------------------ | ------------------- |
+| Word-level timestamps | **WhisperX**       | Accurate, fast      |
+| Basic transcription   | **Whisper**        | Simple setup        |
+| Low GPU memory        | **faster-whisper** | CTranslate2 backend |
 
 ---
 
@@ -395,12 +402,12 @@ whisperx audio.wav --model large-v2 --language de
 
 ### 3.1 TTS Tool Comparison
 
-| Tool | Size | Languages | Speed | Quality |
-|------|------|-----------|-------|---------|
-| **Kokoro** | 82M params | Multi | 35-100x realtime | High |
-| **EdgeTTS** | Cloud | 30+ | API | Good |
-| **ElevenLabs** | Cloud | Multi | API | Excellent |
-| **Piper** | Local | Multi | Fast | Good |
+| Tool           | Size       | Languages | Speed            | Quality   |
+| -------------- | ---------- | --------- | ---------------- | --------- |
+| **Kokoro**     | 82M params | Multi     | 35-100x realtime | High      |
+| **EdgeTTS**    | Cloud      | 30+       | API              | Good      |
+| **ElevenLabs** | Cloud      | Multi     | API              | Excellent |
+| **Piper**      | Local      | Multi     | Fast             | Good      |
 
 ### 3.2 Kokoro (Local TTS) ⭐ RECOMMENDED
 
@@ -410,12 +417,14 @@ whisperx audio.wav --model large-v2 --language de
 **Output:** 24kHz audio
 
 #### Why Kokoro for content-machine:
+
 - **Apache licensed** - Fully open-source
 - **Small model** - 82M params, runs anywhere
 - **High quality** - Comparable to larger models
 - **Fast** - 35-100x realtime on GPU
 
 #### Supported Languages:
+
 - 🇺🇸 American English (`a`)
 - 🇬🇧 British English (`b`)
 - 🇪🇸 Spanish (`e`)
@@ -438,7 +447,7 @@ pipeline = KPipeline(lang_code='a')  # American English
 # Generate speech
 text = """
 Kokoro is an open-weight TTS model with 82 million parameters.
-Despite its lightweight architecture, it delivers comparable quality 
+Despite its lightweight architecture, it delivers comparable quality
 to larger models while being significantly faster.
 """
 
@@ -457,6 +466,7 @@ for i, (graphemes, phonemes, audio) in enumerate(generator):
 **Deployment:** Docker (GPU/CPU)
 
 #### Why Kokoro-FastAPI:
+
 - **OpenAI-compatible** - Drop-in replacement
 - **Docker ready** - GPU and CPU images
 - **Streaming support** - Real-time output
@@ -535,20 +545,20 @@ timestamps = result["timestamps"]  # Word-level timing!
 
 ### 3.4 Performance Metrics:
 
-| Metric | GPU (4060Ti) | CPU (i7) |
-|--------|--------------|----------|
-| Realtime Factor | 35-100x | 3-10x |
-| First Token Latency | ~300ms | ~3500ms |
-| Memory (large model) | <8GB | N/A |
+| Metric               | GPU (4060Ti) | CPU (i7) |
+| -------------------- | ------------ | -------- |
+| Realtime Factor      | 35-100x      | 3-10x    |
+| First Token Latency  | ~300ms       | ~3500ms  |
+| Memory (large model) | <8GB         | N/A      |
 
 ### 3.5 TTS Recommendation
 
-| Use Case | Tool | Reason |
-|----------|------|--------|
-| Production API | **Kokoro-FastAPI** | OpenAI-compatible, streaming |
-| Python integration | **Kokoro** | Direct library use |
-| 30+ languages | **EdgeTTS** | Free, Microsoft backend |
-| Highest quality | **ElevenLabs** | Commercial, cloning |
+| Use Case           | Tool               | Reason                       |
+| ------------------ | ------------------ | ---------------------------- |
+| Production API     | **Kokoro-FastAPI** | OpenAI-compatible, streaming |
+| Python integration | **Kokoro**         | Direct library use           |
+| 30+ languages      | **EdgeTTS**        | Free, Microsoft backend      |
+| Highest quality    | **ElevenLabs**     | Commercial, cloning          |
 
 ---
 
@@ -585,32 +595,32 @@ timestamps = result["timestamps"]  # Word-level timing!
 ```typescript
 // Step 1: Generate script
 const script = await instructor.chat.completions.create({
-  model: "gpt-4o",
+  model: 'gpt-4o',
   response_model: { schema: VideoScriptSchema },
-  messages: [{ role: "user", content: "Create a 30s TikTok about VS Code..." }]
+  messages: [{ role: 'user', content: 'Create a 30s TikTok about VS Code...' }],
 });
 
 // Step 2: Generate TTS
-const ttsResponse = await fetch("http://localhost:8880/dev/captioned_speech", {
-  method: "POST",
+const ttsResponse = await fetch('http://localhost:8880/dev/captioned_speech', {
+  method: 'POST',
   body: JSON.stringify({
-    model: "kokoro",
+    model: 'kokoro',
     input: script.fullText,
-    voice: "af_heart",
-    response_format: "mp3"
-  })
+    voice: 'af_heart',
+    response_format: 'mp3',
+  }),
 });
 const { audio, timestamps } = await ttsResponse.json();
 
 // Step 3: Render video
 await renderMedia({
   composition: ProductDemo,
-  outputLocation: "output.mp4",
+  outputLocation: 'output.mp4',
   inputProps: {
-    captureUrl: "https://product.example.com",
+    captureUrl: 'https://product.example.com',
     audioBase64: audio,
-    captions: timestamps
-  }
+    captions: timestamps,
+  },
 });
 ```
 
@@ -631,15 +641,15 @@ export const TikTokVideo: React.FC<{
   captions: CaptionSegment[];
 }> = ({ audioSrc, captions }) => {
   const { fps } = useVideoConfig();
-  
+
   return (
     <AbsoluteFill style={{ backgroundColor: '#000' }}>
       {/* Background */}
       <ProductCapture />
-      
+
       {/* Audio */}
       <Audio src={audioSrc} />
-      
+
       {/* Animated captions */}
       {captions.map((caption, i) => (
         <Sequence
@@ -661,14 +671,14 @@ export const TikTokVideo: React.FC<{
 
 ### 5.1 Recommended Stack
 
-| Category | Tool | Priority | Notes |
-|----------|------|----------|-------|
-| Video Rendering | **Remotion** | P0 | Review license |
-| Caption Animation | **remotion-subtitles** | P0 | 17 templates |
-| ASR/Transcription | **WhisperX** | P0 | Word-level timestamps |
-| TTS (API) | **Kokoro-FastAPI** | P0 | OpenAI-compatible |
-| TTS (Library) | **Kokoro** | P1 | Direct integration |
-| Python Rendering | **Mosaico** | P2 | Alternative to Remotion |
+| Category          | Tool                   | Priority | Notes                   |
+| ----------------- | ---------------------- | -------- | ----------------------- |
+| Video Rendering   | **Remotion**           | P0       | Review license          |
+| Caption Animation | **remotion-subtitles** | P0       | 17 templates            |
+| ASR/Transcription | **WhisperX**           | P0       | Word-level timestamps   |
+| TTS (API)         | **Kokoro-FastAPI**     | P0       | OpenAI-compatible       |
+| TTS (Library)     | **Kokoro**             | P1       | Direct integration      |
+| Python Rendering  | **Mosaico**            | P2       | Alternative to Remotion |
 
 ### 5.2 Deployment Order
 
@@ -701,7 +711,7 @@ services:
   kokoro-tts:
     image: ghcr.io/remsky/kokoro-fastapi-gpu:latest
     ports:
-      - "8880:8880"
+      - '8880:8880'
     deploy:
       resources:
         reservations:
@@ -716,16 +726,19 @@ services:
 ## References
 
 ### Rendering
+
 - Remotion Docs: https://www.remotion.dev/docs
 - remotion-subtitles: https://github.com/ahgsql/remotion-subtitles
 - Mosaico: https://folhasp.github.io/mosaico/
 
 ### Captions/ASR
+
 - WhisperX Paper: https://arxiv.org/abs/2303.00747
 - Whisper: https://github.com/openai/whisper
 - faster-whisper: https://github.com/guillaumekln/faster-whisper
 
 ### TTS
+
 - Kokoro Model: https://huggingface.co/hexgrad/Kokoro-82M
 - Kokoro-FastAPI: https://github.com/remsky/Kokoro-FastAPI
 
@@ -735,9 +748,9 @@ services:
 **Total Deep-Dive Documents:** 44
 
 **Next Steps:**
+
 1. Deploy Kokoro-FastAPI
 2. Install WhisperX
 3. Initialize Remotion project
 4. Build caption component library
 5. Test full pipeline integration
-

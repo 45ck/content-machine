@@ -1,8 +1,9 @@
 # Deep Dive #57: Agent Frameworks, MCP Infrastructure & Screen Capture
+
 **Date:** 2026-01-02  
 **Category:** Agent Orchestration, MCP, Capture  
 **Status:** Complete  
-**Priority:** Critical - Core Architecture  
+**Priority:** Critical - Core Architecture
 
 ---
 
@@ -11,6 +12,7 @@
 This deep dive documents the comprehensive agent frameworks, MCP (Model Context Protocol) infrastructure, and screen capture capabilities available in content-machine's vendored repositories. These form the backbone of intelligent orchestration for automated video generation.
 
 **Key Findings:**
+
 1. **5 Major Agent Frameworks** vendored with distinct paradigms
 2. **FastMCP (Python & TypeScript)** provides production-ready MCP server infrastructure
 3. **OpenAI Agents SDK** (JS/TS) offers first-party multi-agent capabilities
@@ -23,26 +25,28 @@ This deep dive documents the comprehensive agent frameworks, MCP (Model Context 
 
 ### 1.1 Framework Overview
 
-| Framework | Language | Paradigm | License | Stars | Key Feature |
-|-----------|----------|----------|---------|-------|-------------|
-| **CrewAI** | Python | Role-based Crews + Flows | MIT | 30k+ | YAML config, sequential/hierarchical |
-| **Pydantic AI** | Python | Type-safe agents | MIT | 8k+ | Pydantic validation, dependency injection |
-| **LangGraph** | Python/JS | State graphs + checkpoints | MIT | 15k+ | Durable execution, interrupts |
-| **LangChain** | Python/JS | Chains + integrations | MIT | 95k+ | 600+ integrations, LCEL |
-| **LlamaIndex** | Python/TS | Data framework + RAG | MIT | 40k+ | 300+ data connectors |
-| **OpenAI Agents SDK** | JS/TS | Handoffs + guardrails | MIT | 5k+ | Realtime voice, MCP support |
+| Framework             | Language  | Paradigm                   | License | Stars | Key Feature                               |
+| --------------------- | --------- | -------------------------- | ------- | ----- | ----------------------------------------- |
+| **CrewAI**            | Python    | Role-based Crews + Flows   | MIT     | 30k+  | YAML config, sequential/hierarchical      |
+| **Pydantic AI**       | Python    | Type-safe agents           | MIT     | 8k+   | Pydantic validation, dependency injection |
+| **LangGraph**         | Python/JS | State graphs + checkpoints | MIT     | 15k+  | Durable execution, interrupts             |
+| **LangChain**         | Python/JS | Chains + integrations      | MIT     | 95k+  | 600+ integrations, LCEL                   |
+| **LlamaIndex**        | Python/TS | Data framework + RAG       | MIT     | 40k+  | 300+ data connectors                      |
+| **OpenAI Agents SDK** | JS/TS     | Handoffs + guardrails      | MIT     | 5k+   | Realtime voice, MCP support               |
 
 ### 1.2 CrewAI Deep Dive
 
 **Philosophy:** "Fast and Flexible Multi-Agent Automation Framework"
 
 **Key Concepts:**
+
 - **Agents**: LLM instances with roles, goals, backstories
 - **Tasks**: Work items with expected outputs
 - **Crews**: Teams of agents collaborating on tasks
 - **Flows**: Event-driven orchestration for production
 
 **Architecture Pattern:**
+
 ```python
 from crewai import Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
@@ -50,7 +54,7 @@ from crewai.project import CrewBase, agent, crew, task
 @CrewBase
 class VideoProductionCrew:
     """Video Production crew"""
-    
+
     @agent
     def script_writer(self) -> Agent:
         return Agent(
@@ -58,21 +62,21 @@ class VideoProductionCrew:
             tools=[SearchTool(), TrendAnalyzer()],
             verbose=True
         )
-    
+
     @agent
     def video_editor(self) -> Agent:
         return Agent(
             config=self.agents_config['video_editor'],
             tools=[RemotionRenderer(), CaptionGenerator()]
         )
-    
+
     @task
     def write_script(self) -> Task:
         return Task(
             config=self.tasks_config['write_script'],
             agent=self.script_writer
         )
-    
+
     @crew
     def crew(self) -> Crew:
         return Crew(
@@ -83,21 +87,23 @@ class VideoProductionCrew:
 ```
 
 **YAML Configuration:**
+
 ```yaml
 # agents.yaml
 script_writer:
-  role: "{topic} Script Writer"
-  goal: "Create engaging 60-second video scripts"
-  backstory: "Expert at viral short-form content creation"
+  role: '{topic} Script Writer'
+  goal: 'Create engaging 60-second video scripts'
+  backstory: 'Expert at viral short-form content creation'
 
 # tasks.yaml
 write_script:
-  description: "Write a {length}-second script about {topic}"
-  expected_output: "Complete script with hook, body, CTA"
+  description: 'Write a {length}-second script about {topic}'
+  expected_output: 'Complete script with hook, body, CTA'
   agent: script_writer
 ```
 
 **Flows for Production:**
+
 ```python
 from crewai.flow.flow import Flow, listen, start, router, or_
 
@@ -106,12 +112,12 @@ class VideoProductionFlow(Flow[VideoState]):
     def analyze_trends(self):
         # Demonstrate low-level control
         return {"topic": "AI Tools", "angle": "productivity"}
-    
+
     @listen(analyze_trends)
     def generate_with_crew(self, trend_data):
         # Crew for autonomous collaboration
         return VideoProductionCrew().crew().kickoff(inputs=trend_data)
-    
+
     @router(generate_with_crew)
     def quality_gate(self, result):
         if result.score > 0.8:
@@ -120,6 +126,7 @@ class VideoProductionFlow(Flow[VideoState]):
 ```
 
 **content-machine Relevance:**
+
 - Role-based agents ideal for content pipeline (researcher, scriptwriter, editor)
 - Flows provide production control for approval workflows
 - YAML config aligns with our configuration-driven philosophy
@@ -131,6 +138,7 @@ class VideoProductionFlow(Flow[VideoState]):
 **Philosophy:** "GenAI Agent Framework, the Pydantic way"
 
 **Key Features:**
+
 1. **Type-safe**: Static type checking for agent outputs
 2. **Model-agnostic**: 40+ model providers supported
 3. **Dependency injection**: Clean separation of concerns
@@ -139,6 +147,7 @@ class VideoProductionFlow(Flow[VideoState]):
 6. **Durable execution**: Handle long-running workflows
 
 **Architecture Pattern:**
+
 ```python
 from dataclasses import dataclass
 from pydantic import BaseModel, Field
@@ -165,7 +174,7 @@ video_agent = Agent(
 
 @video_agent.tool
 async def get_trending_topics(
-    ctx: RunContext[VideoDependencies], 
+    ctx: RunContext[VideoDependencies],
     platform: str
 ) -> list[str]:
     """Get current trending topics for the platform."""
@@ -181,6 +190,7 @@ async def render_preview(
 ```
 
 **Observability with Logfire:**
+
 ```python
 from pydantic_ai import Agent
 import logfire
@@ -192,6 +202,7 @@ result = await video_agent.run("Create a video about Python tips", deps=deps)
 ```
 
 **content-machine Relevance:**
+
 - Type-safe outputs prevent pipeline errors
 - Dependency injection perfect for managing Remotion/TTS/DB connections
 - Built-in evals for quality assurance
@@ -204,12 +215,14 @@ result = await video_agent.run("Create a video about Python tips", deps=deps)
 **Philosophy:** "Low-level orchestration framework for building, managing, and deploying long-running, stateful agents"
 
 **Core Benefits:**
+
 - **Durable execution**: Resume from failures
 - **Human-in-the-loop**: Pause/approve at any point
 - **Comprehensive memory**: Short-term + long-term
 - **Debugging**: Full execution visualization
 
 **State Graph Pattern:**
+
 ```python
 from langgraph.graph import START, StateGraph, END
 from typing_extensions import TypedDict
@@ -257,6 +270,7 @@ result = app.invoke({"topic": "AI coding tools"})
 ```
 
 **Checkpointing for Durability:**
+
 ```python
 from langgraph.checkpoint.memory import MemorySaver
 
@@ -270,6 +284,7 @@ result = app.invoke({"topic": "AI tools"}, config)
 ```
 
 **Human-in-the-Loop:**
+
 ```python
 from langgraph.graph import interrupt
 
@@ -282,6 +297,7 @@ def review_script(state: VideoState) -> dict:
 ```
 
 **content-machine Relevance:**
+
 - State graph perfect for video generation pipeline
 - Checkpointing enables recovery from FFmpeg/render failures
 - Human-in-the-loop for content approval
@@ -294,6 +310,7 @@ def review_script(state: VideoState) -> dict:
 **Philosophy:** "Lightweight yet powerful framework for building multi-agent workflows"
 
 **Key Features:**
+
 - **Handoffs**: Transfer control between specialized agents
 - **Guardrails**: Input/output validation
 - **Realtime Voice**: WebRTC/WebSocket voice agents
@@ -301,6 +318,7 @@ def review_script(state: VideoState) -> dict:
 - **Streaming**: Real-time event streaming
 
 **Architecture Pattern:**
+
 ```typescript
 import { Agent, run, tool } from '@openai/agents';
 import { z } from 'zod';
@@ -325,7 +343,7 @@ const scriptWriter = new Agent({
   name: 'Script Writer',
   instructions: 'Write engaging 60-second video scripts',
   handoffDescription: 'Expert at viral script creation',
-  handoffs: [trendResearcher],  // Can delegate to researcher
+  handoffs: [trendResearcher], // Can delegate to researcher
 });
 
 const videoOrchestrator = Agent.create({
@@ -335,20 +353,20 @@ const videoOrchestrator = Agent.create({
 });
 
 // Run the agent loop
-const result = await run(
-  videoOrchestrator,
-  'Create a video about the latest AI tools'
-);
+const result = await run(videoOrchestrator, 'Create a video about the latest AI tools');
 ```
 
 **Realtime Voice Agent:**
+
 ```typescript
 import { RealtimeAgent, RealtimeSession, tool } from '@openai/agents-realtime';
 
 const voiceAgent = new RealtimeAgent({
   name: 'Voice Narrator',
   instructions: 'You are a professional voice narrator',
-  tools: [/* voice tools */],
+  tools: [
+    /* voice tools */
+  ],
 });
 
 // Browser-based voice interaction
@@ -357,6 +375,7 @@ await session.connect({ apiKey });
 ```
 
 **content-machine Relevance:**
+
 - TypeScript aligns with our tech stack
 - Handoffs enable specialized agent delegation
 - Realtime voice for future voice-driven content creation
@@ -371,6 +390,7 @@ await session.connect({ apiKey });
 **Location:** `vendor/mcp/fastmcp-typescript`
 
 **Key Features:**
+
 - Simple Tool, Resource, Prompt definition
 - Authentication & session management
 - HTTP Streaming (SSE compatible)
@@ -379,23 +399,24 @@ await session.connect({ apiKey });
 - Typed server events
 
 **Server Pattern:**
+
 ```typescript
-import { FastMCP } from "fastmcp";
-import { z } from "zod";
+import { FastMCP } from 'fastmcp';
+import { z } from 'zod';
 
 const server = new FastMCP({
-  name: "Video Generator",
-  version: "1.0.0",
+  name: 'Video Generator',
+  version: '1.0.0',
 });
 
 // Add a tool for script generation
 server.addTool({
-  name: "generate_script",
-  description: "Generate a video script from a topic",
+  name: 'generate_script',
+  description: 'Generate a video script from a topic',
   parameters: z.object({
     topic: z.string(),
     duration_seconds: z.number().min(15).max(60),
-    style: z.enum(["educational", "entertaining", "promotional"]),
+    style: z.enum(['educational', 'entertaining', 'promotional']),
   }),
   execute: async (args) => {
     const script = await generateScript(args);
@@ -405,15 +426,15 @@ server.addTool({
 
 // Add a resource for templates
 server.addResource({
-  uri: "template://video-templates",
-  name: "Video Templates",
-  mimeType: "application/json",
+  uri: 'template://video-templates',
+  name: 'Video Templates',
+  mimeType: 'application/json',
   read: async () => {
     return JSON.stringify(await getTemplates());
   },
 });
 
-server.start({ transportType: "stdio" });
+server.start({ transportType: 'stdio' });
 ```
 
 ### 2.2 FastMCP (Python)
@@ -423,6 +444,7 @@ server.start({ transportType: "stdio" });
 **Philosophy:** "The fast, Pythonic way to build MCP servers and clients"
 
 **Key Features:**
+
 - Decorator-based tool definition
 - Server composition (mount multiple servers)
 - OpenAPI & FastAPI generation
@@ -430,6 +452,7 @@ server.start({ transportType: "stdio" });
 - Proxy server support
 
 **Server Pattern:**
+
 ```python
 from fastmcp import FastMCP
 
@@ -438,7 +461,7 @@ mcp = FastMCP("Video Generator 🎬")
 @mcp.tool
 def generate_script(topic: str, duration: int = 60) -> dict:
     """Generate a video script from a topic.
-    
+
     Args:
         topic: The topic for the video
         duration: Target duration in seconds (15-60)
@@ -455,7 +478,7 @@ def get_template(template_id: str) -> str:
 def video_brief(topic: str) -> str:
     """Generate a video production brief."""
     return f"""Create a 60-second video about: {topic}
-    
+
     Requirements:
     - Hook in first 3 seconds
     - Clear value proposition
@@ -467,6 +490,7 @@ if __name__ == "__main__":
 ```
 
 **Server Composition:**
+
 ```python
 from fastmcp import FastMCP
 
@@ -508,6 +532,7 @@ main.mount("/render", rendering)
 **Location:** `vendor/capture/playwright`
 
 **Capabilities:**
+
 - Cross-browser: Chromium, Firefox, WebKit
 - Auto-wait for elements
 - Video recording built-in
@@ -515,6 +540,7 @@ main.mount("/render", rendering)
 - Trace viewer for debugging
 
 **Video Recording Pattern:**
+
 ```typescript
 import { chromium } from 'playwright';
 
@@ -522,8 +548,8 @@ const browser = await chromium.launch();
 const context = await browser.newContext({
   recordVideo: {
     dir: './recordings',
-    size: { width: 1080, height: 1920 }  // Vertical for shorts
-  }
+    size: { width: 1080, height: 1920 }, // Vertical for shorts
+  },
 });
 
 const page = await context.newPage();
@@ -538,11 +564,12 @@ await page.click('[data-testid="submit"]');
 await page.waitForSelector('.results');
 await page.screenshot({ path: 'result.png' });
 
-await context.close();  // Video saved automatically
+await context.close(); // Video saved automatically
 await browser.close();
 ```
 
 **Docker Deployment:**
+
 ```dockerfile
 FROM mcr.microsoft.com/playwright:v1.52.0
 WORKDIR /app
@@ -556,6 +583,7 @@ CMD ["npx", "playwright", "test"]
 **Location:** `vendor/capture/puppeteer-screen-recorder`
 
 **Key Features:**
+
 - Native Chrome DevTools Protocol
 - Frame-by-frame capture
 - Follow new tabs automatically
@@ -563,24 +591,26 @@ CMD ["npx", "playwright", "test"]
 - FFmpeg integration
 
 **Configuration:**
+
 ```javascript
 const Config = {
   followNewTab: true,
   fps: 30,
-  ffmpeg_Path: null,  // Auto-install
+  ffmpeg_Path: null, // Auto-install
   videoFrame: {
     width: 1080,
-    height: 1920  // Vertical format
+    height: 1920, // Vertical format
   },
   videoCrf: 18,
   videoCodec: 'libx264',
   videoPreset: 'ultrafast',
   videoBitrate: 1000,
-  aspectRatio: '9:16'  // Vertical shorts
+  aspectRatio: '9:16', // Vertical shorts
 };
 ```
 
 **Recording Pattern:**
+
 ```javascript
 import { PuppeteerScreenRecorder } from 'puppeteer-screen-recorder';
 import puppeteer from 'puppeteer';
@@ -607,6 +637,7 @@ await browser.close();
 **Purpose:** Reference implementations for Playwright and Puppeteer in Docker
 
 **Structure:**
+
 ```
 screen-capture-patterns/
 ├── playwright/
@@ -633,7 +664,7 @@ screen-capture-patterns/
 ### 4.1 Architecture
 
 ```
-AI Agent (Claude/GPT) 
+AI Agent (Claude/GPT)
     ↓ MCP Protocol
 chuk-mcp-remotion Server
     ↓ Remotion CLI
@@ -660,6 +691,7 @@ Video Output (.mp4)
 ### 4.3 Component Library
 
 **51 Video Components:**
+
 - **Charts (6):** Pie, Bar, Line, Area, Donut, Horizontal Bar
 - **Scenes (2):** TitleScene, EndScreen
 - **Overlays (3):** LowerThird, TextOverlay, SubscribeButton
@@ -668,6 +700,7 @@ Video Output (.mp4)
 - **Animations (20+):** Fade, Bounce, Glitch, Neon, etc.
 
 **MCP Tool Pattern:**
+
 ```python
 @mcp.tool
 def create_title_scene(
@@ -694,13 +727,13 @@ def create_title_scene(
 
 ### 5.1 Agent Selection Matrix
 
-| Use Case | Recommended Framework | Reasoning |
-|----------|----------------------|-----------|
-| **Content Pipeline** | CrewAI + LangGraph | Role-based crews with durable state |
-| **Type-Safe Tools** | Pydantic AI | Guaranteed output validation |
-| **Real-time Voice** | OpenAI Agents SDK | Native WebRTC support |
-| **Data Processing** | LlamaIndex | 300+ data connectors |
-| **Complex Orchestration** | LangGraph | State graphs with checkpoints |
+| Use Case                  | Recommended Framework | Reasoning                           |
+| ------------------------- | --------------------- | ----------------------------------- |
+| **Content Pipeline**      | CrewAI + LangGraph    | Role-based crews with durable state |
+| **Type-Safe Tools**       | Pydantic AI           | Guaranteed output validation        |
+| **Real-time Voice**       | OpenAI Agents SDK     | Native WebRTC support               |
+| **Data Processing**       | LlamaIndex            | 300+ data connectors                |
+| **Complex Orchestration** | LangGraph             | State graphs with checkpoints       |
 
 ### 5.2 MCP Server Architecture
 
@@ -726,22 +759,22 @@ def create_title_scene(
 async function captureProductDemo(product: Product): Promise<string> {
   const browser = await chromium.launch();
   const context = await browser.newContext({
-    recordVideo: { dir: './captures', size: { width: 1080, height: 1920 } }
+    recordVideo: { dir: './captures', size: { width: 1080, height: 1920 } },
   });
-  
+
   const page = await context.newPage();
-  
+
   // Execute product demo script
   for (const step of product.demoSteps) {
     await page.goto(step.url);
     await page.click(step.selector);
     await page.waitForTimeout(step.pauseMs);
   }
-  
+
   await context.close();
   const video = await page.video()!.path();
   await browser.close();
-  
+
   return video;
 }
 ```
@@ -776,7 +809,7 @@ trend_researcher = Agent(
 )
 
 video_renderer = Agent(
-    role="Video Renderer", 
+    role="Video Renderer",
     goal="Create polished video output",
     tools=[
         mcp_tool(remotion_mcp, "create_title_scene"),
@@ -805,16 +838,16 @@ async def capture_product(state: CaptureState) -> dict:
             record_video_size={"width": 1080, "height": 1920}
         )
         page = await context.new_page()
-        
+
         await page.goto(state["product_url"])
         for step in state["demo_script"]:
             await page.click(step["selector"])
             await page.wait_for_timeout(step["wait_ms"])
-        
+
         await context.close()
         video = await page.video.path()
         await browser.close()
-        
+
     return {"recording_path": video}
 
 # Add to graph

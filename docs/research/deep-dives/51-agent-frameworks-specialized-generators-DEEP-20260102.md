@@ -28,13 +28,13 @@ Low-level orchestration framework for building, managing, and deploying long-run
 
 #### Core Capabilities
 
-| Feature | Description |
-|---------|-------------|
-| **Durable Execution** | Agents persist through failures, auto-resume |
-| **Human-in-the-Loop** | Inspect/modify state at any point |
-| **Comprehensive Memory** | Short-term working + long-term persistent |
-| **Debugging** | LangSmith integration for tracing |
-| **Production-Ready** | Scalable deployment infrastructure |
+| Feature                  | Description                                  |
+| ------------------------ | -------------------------------------------- |
+| **Durable Execution**    | Agents persist through failures, auto-resume |
+| **Human-in-the-Loop**    | Inspect/modify state at any point            |
+| **Comprehensive Memory** | Short-term working + long-term persistent    |
+| **Debugging**            | LangSmith integration for tracing            |
+| **Production-Ready**     | Scalable deployment infrastructure           |
 
 #### Code Pattern
 
@@ -82,25 +82,26 @@ Lightweight multi-agent workflow framework from OpenAI. Provider-agnostic (not j
 
 #### Supported Features
 
-| Feature | Status |
-|---------|--------|
-| Multi-Agent Workflows | ✅ |
-| Tool Integration | ✅ |
-| Handoffs Between Agents | ✅ |
-| Structured Outputs (Zod) | ✅ |
-| Streaming Responses | ✅ |
-| Tracing & Debugging | ✅ |
-| Guardrails (I/O Validation) | ✅ |
-| Parallelization | ✅ |
-| Human-in-the-Loop | ✅ |
-| Realtime Voice Agents | ✅ |
-| Local MCP Server Support | ✅ |
-| Browser Package | ✅ |
-| Non-OpenAI Models (Vercel AI SDK) | ✅ |
+| Feature                           | Status |
+| --------------------------------- | ------ |
+| Multi-Agent Workflows             | ✅     |
+| Tool Integration                  | ✅     |
+| Handoffs Between Agents           | ✅     |
+| Structured Outputs (Zod)          | ✅     |
+| Streaming Responses               | ✅     |
+| Tracing & Debugging               | ✅     |
+| Guardrails (I/O Validation)       | ✅     |
+| Parallelization                   | ✅     |
+| Human-in-the-Loop                 | ✅     |
+| Realtime Voice Agents             | ✅     |
+| Local MCP Server Support          | ✅     |
+| Browser Package                   | ✅     |
+| Non-OpenAI Models (Vercel AI SDK) | ✅     |
 
 #### Code Patterns
 
 **Basic Agent:**
+
 ```typescript
 import { Agent, run } from '@openai/agents';
 
@@ -109,14 +110,12 @@ const agent = new Agent({
   instructions: 'You are a helpful assistant',
 });
 
-const result = await run(
-  agent,
-  'Write a haiku about recursion.',
-);
+const result = await run(agent, 'Write a haiku about recursion.');
 console.log(result.finalOutput);
 ```
 
 **With Tools (Zod Schema):**
+
 ```typescript
 import { z } from 'zod';
 import { Agent, run, tool } from '@openai/agents';
@@ -138,6 +137,7 @@ const agent = new Agent({
 ```
 
 **Handoffs Between Agents:**
+
 ```typescript
 const dataAgent = new Agent({
   name: 'Data agent',
@@ -153,6 +153,7 @@ const agent = Agent.create({
 ```
 
 **Voice Agent (WebRTC):**
+
 ```typescript
 import { RealtimeAgent, RealtimeSession, tool } from '@openai/agents-realtime';
 
@@ -196,23 +197,23 @@ Multi-agent orchestration framework for role-based AI teams. More opinionated th
 
 #### Key Concepts
 
-| Concept | Description |
-|---------|-------------|
-| **Crews** | Teams of agents with assigned roles |
-| **Flows** | Workflow orchestration |
-| **Tasks** | Specific work items for agents |
-| **Tools** | Capabilities agents can use |
-| **Knowledge** | Shared context across crew |
+| Concept       | Description                         |
+| ------------- | ----------------------------------- |
+| **Crews**     | Teams of agents with assigned roles |
+| **Flows**     | Workflow orchestration              |
+| **Tasks**     | Specific work items for agents      |
+| **Tools**     | Capabilities agents can use         |
+| **Knowledge** | Shared context across crew          |
 
 #### Comparison with LangGraph
 
-| Aspect | CrewAI | LangGraph |
-|--------|--------|-----------|
-| Abstraction Level | High | Low |
-| Role-Based | ✅ Yes | ❌ Manual |
-| Graph Control | ❌ Limited | ✅ Full |
-| Ease of Use | ✅ Easier | ⚠️ More Complex |
-| Flexibility | ⚠️ Less | ✅ More |
+| Aspect            | CrewAI     | LangGraph       |
+| ----------------- | ---------- | --------------- |
+| Abstraction Level | High       | Low             |
+| Role-Based        | ✅ Yes     | ❌ Manual       |
+| Graph Control     | ❌ Limited | ✅ Full         |
+| Ease of Use       | ✅ Easier  | ⚠️ More Complex |
+| Flexibility       | ⚠️ Less    | ✅ More         |
 
 #### Why It Matters
 
@@ -267,15 +268,15 @@ Final Research Report
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| Web + Local Research | PDF, text, CSV, Excel, MD, PPTX, DOCX |
-| Smart Image Scraping | Filtered images for reports |
-| Reports > 2,000 words | Detailed, factual content |
-| 20+ Sources | Aggregated for objectivity |
-| Export Formats | PDF, Word, Markdown |
-| MCP Integration | Connect specialized data sources |
-| Deep Research | Tree-like exploration with depth/breadth |
+| Feature               | Description                              |
+| --------------------- | ---------------------------------------- |
+| Web + Local Research  | PDF, text, CSV, Excel, MD, PPTX, DOCX    |
+| Smart Image Scraping  | Filtered images for reports              |
+| Reports > 2,000 words | Detailed, factual content                |
+| 20+ Sources           | Aggregated for objectivity               |
+| Export Formats        | PDF, Word, Markdown                      |
+| MCP Integration       | Connect specialized data sources         |
+| Deep Research         | Tree-like exploration with depth/breadth |
 
 #### Code Pattern
 
@@ -289,6 +290,7 @@ report = await researcher.write_report()
 ```
 
 **With MCP Integration:**
+
 ```python
 import os
 os.environ["RETRIEVER"] = "tavily,mcp"
@@ -335,12 +337,12 @@ Multimodal AI clipping using visual, audio, and sentiment cues. Finds moments in
 
 #### Capabilities
 
-| Feature | Description |
-|---------|-------------|
-| Advanced Video Analysis | Frame-by-frame visual/audio/sentiment |
-| Virality Rating | Scores scenes for potential engagement |
-| Prompt-Based Clipping | "Find the funniest moment" |
-| Customizable | Tailor clips to specific needs |
+| Feature                 | Description                            |
+| ----------------------- | -------------------------------------- |
+| Advanced Video Analysis | Frame-by-frame visual/audio/sentiment  |
+| Virality Rating         | Scores scenes for potential engagement |
+| Prompt-Based Clipping   | "Find the funniest moment"             |
+| Customizable            | Tailor clips to specific needs         |
 
 #### Why It Matters
 
@@ -359,6 +361,7 @@ Alternative to manual clip selection. Can identify engaging moments in long-form
 **Specialty:** Long-form → Shorts extraction
 
 **Key Features:**
+
 - YouTube URL or local file input
 - GPU-accelerated Whisper transcription
 - AI highlight selection (GPT-4o-mini)
@@ -369,6 +372,7 @@ Alternative to manual clip selection. Can identify engaging moments in long-form
 - Concurrent execution with session IDs
 
 **Cropping Logic:**
+
 ```
 IF faces_detected:
     static_face_centered_crop()
@@ -385,6 +389,7 @@ ELSE:
 **Stack:** Groq + TogetherAI + F5-TTS + Gentle + Tavily
 
 **Pipeline:**
+
 1. Input: Topic + timeframe + length
 2. Research: Tavily Search API
 3. Content: Titles, descriptions, hashtags, script
@@ -422,6 +427,7 @@ ELSE:
 **Stack:** Gemini 2.5 + Vertex AI + Google TTS
 
 **Full Pipeline:**
+
 1. Deep Research (Google Search grounding)
 2. News Integration (NewsAPI)
 3. Fact-Checking (optional AI review)
@@ -447,12 +453,14 @@ ELSE:
 **Specialty:** Reddit stories → Brain rot videos
 
 **Technical Highlights:**
+
 - Sentiment analysis (VADER + Llama 3.3 70b) for thread selection
 - Forced alignment with wav2vec2 (Motu Hira's tutorial)
 - Image overlay algorithm for sentence-synchronized character images
 - Pre-loaded characters: Trump, SpongeBob, LeBron, Griffin
 
 **Forced Alignment Process:**
+
 ```
 Audio → wav2vec2 → Frame-wise Probabilities
                           ↓
@@ -472,6 +480,7 @@ Audio → wav2vec2 → Frame-wise Probabilities
 **Specialty:** Topic → Complete YouTube Short + metadata
 
 **Features:**
+
 - Fully configurable via YAML
 - Background video plugins
 - Scheduled uploads (delay hours)
@@ -487,6 +496,7 @@ Audio → wav2vec2 → Frame-wise Probabilities
 **Specialty:** Terminal-based 30-second videos
 
 **Customization:**
+
 - Background music
 - Voice selection
 - Background gameplay
@@ -514,6 +524,7 @@ Audio → wav2vec2 → Frame-wise Probabilities
 **Repository:** `vendor/Viral-Faceless-Shorts-Generator`  
 **Technology:** Docker (Puppeteer, Gemini, Coqui, Aeneas, FFmpeg)  
 **Pipeline:**
+
 1. Trendscraper (Puppeteer) → Google Trends
 2. Gemini → Script
 3. Coqui TTS → Voice
@@ -521,6 +532,7 @@ Audio → wav2vec2 → Frame-wise Probabilities
 5. FFmpeg → Video assembly
 
 **Containerized Architecture:**
+
 ```
 trendscraper/   # Puppeteer + Gemini + FFmpeg
 coqui/          # Coqui TTS container
@@ -547,6 +559,7 @@ nginx/          # Web trigger interface
 **100+ Videos Generated and Posted**
 
 **Innovations:**
+
 - Emoji matching for phrases
 - Gender detection for voice
 - Remotion for rendering
@@ -562,6 +575,7 @@ nginx/          # Web trigger interface
 **Specialty:** TikTok content → Unique shorts
 
 **Workflow:**
+
 1. Select random topic
 2. Search TikTok by hashtag
 3. Download watermark-free (3rd party API)
@@ -579,6 +593,7 @@ nginx/          # Web trigger interface
 **Specialty:** Long-form → Instagram Reels
 
 **Features:**
+
 - Face tracking (computer vision)
 - GPT for viral segment identification
 - Whisper for subtitles
@@ -594,6 +609,7 @@ nginx/          # Web trigger interface
 **Automation:** Daily at 7:00 AM UTC
 
 **Fully Automated:**
+
 - Generate lesson scripts (Gemini)
 - Produce long-form + short videos
 - Upload with thumbnails + metadata
@@ -604,37 +620,37 @@ nginx/          # Web trigger interface
 
 ### Agent Frameworks
 
-| Feature | LangGraph | OpenAI Agents SDK | CrewAI |
-|---------|-----------|-------------------|--------|
-| Language | Python | TypeScript | Python |
-| Abstraction | Low | Medium | High |
-| State Machines | ✅ Full | ⚠️ Limited | ❌ No |
-| MCP Support | Via LangChain | ✅ Native | ⚠️ Via tools |
-| Durable Execution | ✅ Yes | ⚠️ Partial | ❌ No |
-| Human-in-Loop | ✅ Native | ✅ Native | ⚠️ Manual |
-| Voice Agents | ❌ No | ✅ Yes | ❌ No |
-| Best For | Complex workflows | TypeScript projects | Quick prototypes |
+| Feature           | LangGraph         | OpenAI Agents SDK   | CrewAI           |
+| ----------------- | ----------------- | ------------------- | ---------------- |
+| Language          | Python            | TypeScript          | Python           |
+| Abstraction       | Low               | Medium              | High             |
+| State Machines    | ✅ Full           | ⚠️ Limited          | ❌ No            |
+| MCP Support       | Via LangChain     | ✅ Native           | ⚠️ Via tools     |
+| Durable Execution | ✅ Yes            | ⚠️ Partial          | ❌ No            |
+| Human-in-Loop     | ✅ Native         | ✅ Native           | ⚠️ Manual        |
+| Voice Agents      | ❌ No             | ✅ Yes              | ❌ No            |
+| Best For          | Complex workflows | TypeScript projects | Quick prototypes |
 
 ### TTS Technologies Across Repos
 
-| Tool | TTS Service | Cost | Languages |
-|------|-------------|------|-----------|
-| ShortGPT | EdgeTTS | FREE | 30+ |
-| OBrainRot | Coqui xTTSv2 | FREE | Multi |
-| Cassette | UnrealSpeech | Freemium | EN |
-| VideoGraphAI | F5-TTS | FREE | EN, CN |
-| AI Content Studio | Google TTS | Paid | Multi |
-| Viral Faceless | Coqui TTS | FREE | Multi |
-| TikTokAIVideoGenerator | Kokoro | FREE | EN |
+| Tool                   | TTS Service  | Cost     | Languages |
+| ---------------------- | ------------ | -------- | --------- |
+| ShortGPT               | EdgeTTS      | FREE     | 30+       |
+| OBrainRot              | Coqui xTTSv2 | FREE     | Multi     |
+| Cassette               | UnrealSpeech | Freemium | EN        |
+| VideoGraphAI           | F5-TTS       | FREE     | EN, CN    |
+| AI Content Studio      | Google TTS   | Paid     | Multi     |
+| Viral Faceless         | Coqui TTS    | FREE     | Multi     |
+| TikTokAIVideoGenerator | Kokoro       | FREE     | EN        |
 
 ### Forced Alignment Solutions
 
-| Tool | Method | Notes |
-|------|--------|-------|
-| OBrainRot | wav2vec2 | Motu Hira tutorial |
-| Viral Faceless | Aeneas | Docker container |
-| VideoGraphAI | Gentle | Docker server |
-| AI YouTube Shorts | Whisper | GPU-accelerated |
+| Tool              | Method   | Notes              |
+| ----------------- | -------- | ------------------ |
+| OBrainRot         | wav2vec2 | Motu Hira tutorial |
+| Viral Faceless    | Aeneas   | Docker container   |
+| VideoGraphAI      | Gentle   | Docker server      |
+| AI YouTube Shorts | Whisper  | GPU-accelerated    |
 
 ---
 
@@ -646,7 +662,6 @@ nginx/          # Web trigger interface
    - Native MCP support
    - Zod schema validation
    - Handoffs for multi-agent workflows
-   
 2. **Secondary (Python):** LangGraph (via Pydantic AI)
    - For research agents (GPT Researcher)
    - Durable execution for long tasks
@@ -659,14 +674,14 @@ nginx/          # Web trigger interface
 
 ### Generator Patterns to Extract
 
-| Pattern | From | Implementation |
-|---------|------|----------------|
-| Forced Alignment | OBrainRot | wav2vec2 + trellis matrix |
-| Editing Markup | ShortGPT | JSON-based LLM editing language |
-| Motion Tracking | AI YouTube Shorts | 1 shift/second smoothing |
-| Face Centering | AI YouTube Shorts | Static crop for talking heads |
-| Sentiment Selection | OBrainRot | VADER + LLM for thread ranking |
-| GitHub Actions | gemini-youtube | Scheduled daily generation |
+| Pattern             | From              | Implementation                  |
+| ------------------- | ----------------- | ------------------------------- |
+| Forced Alignment    | OBrainRot         | wav2vec2 + trellis matrix       |
+| Editing Markup      | ShortGPT          | JSON-based LLM editing language |
+| Motion Tracking     | AI YouTube Shorts | 1 shift/second smoothing        |
+| Face Centering      | AI YouTube Shorts | Static crop for talking heads   |
+| Sentiment Selection | OBrainRot         | VADER + LLM for thread ranking  |
+| GitHub Actions      | gemini-youtube    | Scheduled daily generation      |
 
 ### Integration Architecture
 
@@ -701,28 +716,31 @@ nginx/          # Web trigger interface
 ## Appendix A: Repository Quick Reference
 
 ### Agent Frameworks
-| Repo | Language | Best For |
-|------|----------|----------|
-| `langgraph` | Python | Complex stateful workflows |
-| `openai-agents-js` | TypeScript | TypeScript native, MCP |
-| `crewai` | Python | Quick multi-agent prototypes |
-| `pydantic-ai` | Python | FastAPI ergonomics |
+
+| Repo               | Language   | Best For                     |
+| ------------------ | ---------- | ---------------------------- |
+| `langgraph`        | Python     | Complex stateful workflows   |
+| `openai-agents-js` | TypeScript | TypeScript native, MCP       |
+| `crewai`           | Python     | Quick multi-agent prototypes |
+| `pydantic-ai`      | Python     | FastAPI ergonomics           |
 
 ### Research Tools
-| Repo | Purpose |
-|------|---------|
-| `gpt-researcher` | Deep web/local research |
-| `Clip-Anything` | Multimodal clip detection |
-| `open-deep-research` | LangGraph-based research |
+
+| Repo                 | Purpose                   |
+| -------------------- | ------------------------- |
+| `gpt-researcher`     | Deep web/local research   |
+| `Clip-Anything`      | Multimodal clip detection |
+| `open-deep-research` | LangGraph-based research  |
 
 ### Generators (Top Tier)
-| Repo | Stack | Notable Feature |
-|------|-------|-----------------|
-| `AI-Content-Studio` | Gemini + Vertex | Most complete pipeline |
-| `ShortGPT` | MoviePy + EdgeTTS | Editing Markup Language |
-| `AI-Youtube-Shorts-Generator` | Whisper + MoviePy | Smart cropping |
-| `OBrainRot` | wav2vec2 + Coqui | Forced alignment |
-| `Crank` | Gemini + FFmpeg | YAML configuration |
+
+| Repo                          | Stack             | Notable Feature         |
+| ----------------------------- | ----------------- | ----------------------- |
+| `AI-Content-Studio`           | Gemini + Vertex   | Most complete pipeline  |
+| `ShortGPT`                    | MoviePy + EdgeTTS | Editing Markup Language |
+| `AI-Youtube-Shorts-Generator` | Whisper + MoviePy | Smart cropping          |
+| `OBrainRot`                   | wav2vec2 + Coqui  | Forced alignment        |
+| `Crank`                       | Gemini + FFmpeg   | YAML configuration      |
 
 ---
 
@@ -764,10 +782,10 @@ async def research_for_video(topic: str) -> dict:
         query=f"What are the most engaging facts about {topic}?",
         report_type="outline_report"
     )
-    
+
     await researcher.conduct_research()
     report = await researcher.write_report()
-    
+
     return {
         "research": report,
         "sources": researcher.sources,
@@ -810,12 +828,14 @@ const pipelineAgent = Agent.create({
 This deep dive documents the cognitive layer for content-machine:
 
 **Key Decisions:**
+
 1. **OpenAI Agents SDK** for TypeScript agent orchestration
 2. **LangGraph** for complex Python workflows
 3. **GPT Researcher** for automated trend research
 4. **Extract patterns** from specialized generators (forced alignment, smart cropping, editing markup)
 
 **Next Steps:**
+
 - Implement agent layer with MCP integration
 - Build research pipeline using GPT Researcher
 - Extract forced alignment from OBrainRot
@@ -823,4 +843,4 @@ This deep dive documents the cognitive layer for content-machine:
 
 ---
 
-*Document created as part of content-machine deep research initiative*
+_Document created as part of content-machine deep research initiative_

@@ -11,6 +11,7 @@
 This document investigates LLM-based script generation patterns across vendored repositories to inform content-machine's `cm script` command design.
 
 **Key Questions:**
+
 1. How are prompt templates structured and stored?
 2. How do repos abstract multiple LLM providers?
 3. How is LLM output parsed into structured data?
@@ -21,11 +22,11 @@ This document investigates LLM-based script generation patterns across vendored 
 
 ## 2. Vendor Evidence Summary
 
-| Repo | Prompt Format | LLM Abstraction | Output Parsing | Scene Generation |
-|------|---------------|-----------------|----------------|------------------|
-| MoneyPrinterTurbo | Inline f-strings | Config-driven factory (13 providers) | JSON + regex fallback | Paragraph-based |
-| ShortGPT | YAML files | Gemini/OpenAI dual | JSON + regex fallback | Timed from captions |
-| short-video-maker-gyori | External (no prompts) | None (validation only) | Zod safeParse | Input already structured |
+| Repo                    | Prompt Format         | LLM Abstraction                      | Output Parsing        | Scene Generation         |
+| ----------------------- | --------------------- | ------------------------------------ | --------------------- | ------------------------ |
+| MoneyPrinterTurbo       | Inline f-strings      | Config-driven factory (13 providers) | JSON + regex fallback | Paragraph-based          |
+| ShortGPT                | YAML files            | Gemini/OpenAI dual                   | JSON + regex fallback | Timed from captions      |
+| short-video-maker-gyori | External (no prompts) | None (validation only)               | Zod safeParse         | Input already structured |
 
 ---
 
@@ -64,6 +65,7 @@ Generate a script for a video, depending on the subject of the video.
 ```
 
 **Pattern:**
+
 - Markdown-structured prompt with clear sections (Role, Goals, Constraints)
 - Numbered constraints list for instruction clarity
 - Variable injection via f-string placeholders
@@ -101,6 +103,7 @@ Please note that you must use English for generating video search terms; Chinese
 ```
 
 **Pattern:**
+
 - Explicit JSON output format in prompt
 - Example output provided for LLM guidance
 - Context section with all inputs
@@ -111,7 +114,7 @@ Please note that you must use English for generating video search terms; Chinese
 ```python
 def _generate_response(prompt: str) -> str:
     llm_provider = config.app.get("llm_provider", "openai")
-    
+
     if llm_provider == "g4f":
         model_name = config.app.get("g4f_model_name", "gpt-3.5-turbo-16k-0613")
         content = g4f.ChatCompletion.create(
@@ -131,22 +134,24 @@ def _generate_response(prompt: str) -> str:
         model_name = config.app.get("openai_model_name")
         base_url = config.app.get("openai_base_url", "https://api.openai.com/v1")
     # ... 10+ more providers: azure, gemini, qwen, cloudflare, deepseek, etc.
-    
+
     client = OpenAI(api_key=api_key, base_url=base_url)
     response = client.chat.completions.create(
-        model=model_name, 
+        model=model_name,
         messages=[{"role": "user", "content": prompt}]
     )
     return response.choices[0].message.content
 ```
 
 **Pattern:**
+
 - Config-driven provider selection
 - Each provider has its own config keys (`{provider}_api_key`, `{provider}_model_name`, `{provider}_base_url`)
 - Fallback to OpenAI SDK for most providers (via base_url)
 - Special handling for non-OpenAI-compatible APIs (Gemini, Qwen)
 
 **Supported Providers (13):**
+
 1. OpenAI
 2. Azure OpenAI
 3. Ollama (local)
@@ -169,7 +174,7 @@ def generate_terms(...) -> List[str]:
         try:
             response = _generate_response(prompt)
             search_terms = json.loads(response)
-            
+
             if not isinstance(search_terms, list) or not all(
                 isinstance(term, str) for term in search_terms
             ):
@@ -192,9 +197,10 @@ def generate_terms(...) -> List[str]:
 ```
 
 **Pattern:**
+
 1. Try `json.loads()` first
 2. Validate structure (list of strings)
-3. Fallback: regex extract `\[.*\]` 
+3. Fallback: regex extract `\[.*\]`
 4. Retry loop (5 attempts)
 5. Break on success
 
@@ -232,9 +238,9 @@ system_prompt: |
   You are an expert video writer. You ONLY produce text that is read. You only produce the script.
   that will be read by a voice actor for a video. The user will give you the description of the video
   they want you to make and from that, you will write the script.
-  
+
   Make sure the text is not longer than 200 words (keep the video pretty short and neat).
-  
+
   # Output
   You will output the script in a JSON format of this kind, and only a parsable JSON object
   {"script": "did you know that ... ?"}
@@ -246,6 +252,7 @@ chat_prompt: |
 ```
 
 **Pattern:**
+
 - Separate `system_prompt` and `chat_prompt` fields
 - `<<PLACEHOLDER>>` syntax for variable injection
 - JSON output format specified in system prompt
@@ -296,12 +303,13 @@ chat_prompt: |
       }
     ]
   }
-  
+
   Timed captions:
   <<TIMED_CAPTIONS>>
 ```
 
 **Pattern:**
+
 - Detailed guidelines with numbered list
 - Good/bad examples for disambiguation
 - Exact JSON schema in prompt
@@ -316,7 +324,7 @@ system_prompt: >
   You are an expert content writer of a YouTube shorts channel. You specialize in `facts` shorts.
   Your facts shorts are less than 50 seconds verbally (around 140 words maximum).
   They are extremely captivating, and original.
-  
+
   The user will ask you a type of facts short and you will produce it.
   For examples, when the user Asks:
   `Weird facts`
@@ -336,6 +344,7 @@ chat_prompt: >
 ```
 
 **Pattern:**
+
 - Few-shot example embedded in system prompt
 - Word/time duration constraint
 - Hook pattern guidance
@@ -364,42 +373,37 @@ def load_local_yaml_prompt(file_path):
 ### 5.1 External LLM → Validation Pattern
 
 ```typescript
-this.router.post(
-  "/short-video",
-  async (req: ExpressRequest, res: ExpressResponse) => {
-    try {
-      // Validate incoming JSON against Zod schema
-      const input = validateCreateShortInput(req.body);
+this.router.post('/short-video', async (req: ExpressRequest, res: ExpressResponse) => {
+  try {
+    // Validate incoming JSON against Zod schema
+    const input = validateCreateShortInput(req.body);
 
-      logger.info({ input }, "Creating short video");
+    logger.info({ input }, 'Creating short video');
 
-      const videoId = this.shortCreator.addToQueue(
-        input.scenes,
-        input.config,
-      );
+    const videoId = this.shortCreator.addToQueue(input.scenes, input.config);
 
-      res.status(201).json({ videoId });
-    } catch (error: unknown) {
-      // Handle validation errors
-      if (error instanceof Error && error.message.startsWith("{")) {
-        const errorData = JSON.parse(error.message);
-        res.status(400).json({
-          error: "Validation failed",
-          message: errorData.message,
-          missingFields: errorData.missingFields,
-        });
-        return;
-      }
+    res.status(201).json({ videoId });
+  } catch (error: unknown) {
+    // Handle validation errors
+    if (error instanceof Error && error.message.startsWith('{')) {
+      const errorData = JSON.parse(error.message);
       res.status(400).json({
-        error: "Invalid input",
-        message: error instanceof Error ? error.message : "Unknown error",
+        error: 'Validation failed',
+        message: errorData.message,
+        missingFields: errorData.missingFields,
       });
+      return;
     }
-  },
-);
+    res.status(400).json({
+      error: 'Invalid input',
+      message: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+});
 ```
 
 **Pattern:**
+
 - No script generation - receives pre-generated content
 - Validates against Zod schema (from [SECTION-SCHEMAS-VALIDATION](SECTION-SCHEMAS-VALIDATION-20260104.md))
 - Returns structured error on validation failure
@@ -426,12 +430,14 @@ The MCP router allows LLMs (like Claude) to call the video creation tool directl
 **Recommendation:** Use **YAML files with `<<PLACEHOLDER>>` syntax**.
 
 **Rationale:**
+
 1. Version-controllable (git diff-friendly)
 2. Separate system/chat prompts
 3. Easy to test prompt variations
 4. Decoupled from code changes
 
 **File structure:**
+
 ```
 src/script/prompts/
 ├── generate-script.yaml
@@ -453,10 +459,7 @@ import { ollama } from 'ollama-ai-provider';
 
 type Provider = 'openai' | 'anthropic' | 'ollama' | 'google';
 
-async function generateScript(
-  prompt: string,
-  provider: Provider = 'openai'
-): Promise<string> {
+async function generateScript(prompt: string, provider: Provider = 'openai'): Promise<string> {
   const model = getModel(provider);
   const { text } = await generateText({ model, prompt });
   return text;
@@ -464,15 +467,20 @@ async function generateScript(
 
 function getModel(provider: Provider) {
   switch (provider) {
-    case 'openai': return openai('gpt-4o');
-    case 'anthropic': return anthropic('claude-sonnet-4-20250514');
-    case 'ollama': return ollama('llama3.2');
-    case 'google': return google('gemini-2.0-flash');
+    case 'openai':
+      return openai('gpt-4o');
+    case 'anthropic':
+      return anthropic('claude-sonnet-4-20250514');
+    case 'ollama':
+      return ollama('llama3.2');
+    case 'google':
+      return google('gemini-2.0-flash');
   }
 }
 ```
 
 **Rationale:**
+
 1. Unified API across providers
 2. Structured outputs via `generateObject()`
 3. Streaming support
@@ -488,11 +496,15 @@ import { generateObject } from 'ai';
 import { z } from 'zod';
 
 const ScriptOutputSchema = z.object({
-  scenes: z.array(z.object({
-    voiceover: z.string().describe("Text to be spoken"),
-    searchTerms: z.array(z.string()).describe("1-2 word visual search terms"),
-    duration: z.number().optional().describe("Estimated duration in seconds"),
-  })).describe("Array of scenes for the video"),
+  scenes: z
+    .array(
+      z.object({
+        voiceover: z.string().describe('Text to be spoken'),
+        searchTerms: z.array(z.string()).describe('1-2 word visual search terms'),
+        duration: z.number().optional().describe('Estimated duration in seconds'),
+      })
+    )
+    .describe('Array of scenes for the video'),
 });
 
 async function generateScript(topic: string) {
@@ -501,7 +513,7 @@ async function generateScript(topic: string) {
     schema: ScriptOutputSchema,
     prompt: `Generate a short video script about: ${topic}`,
   });
-  
+
   return object; // Type-safe, validated
 }
 ```
@@ -553,7 +565,7 @@ interface PromptTemplate {
 export function loadPrompt(name: string, variables: Record<string, string>): PromptTemplate {
   const path = join(__dirname, 'prompts', `${name}.yaml`);
   const content = load(readFileSync(path, 'utf-8')) as PromptTemplate;
-  
+
   // Replace <<PLACEHOLDER>> with values
   const interpolate = (text: string) => {
     return Object.entries(variables).reduce(
@@ -561,7 +573,7 @@ export function loadPrompt(name: string, variables: Record<string, string>): Pro
       text
     );
   };
-  
+
   return {
     system_prompt: interpolate(content.system_prompt),
     chat_prompt: interpolate(content.chat_prompt),
@@ -576,21 +588,27 @@ export function loadPrompt(name: string, variables: Record<string, string>): Pro
 import { z } from 'zod';
 
 export const SceneSchema = z.object({
-  voiceover: z.string().min(10).max(500)
-    .describe("The narration text for this scene"),
-  searchTerms: z.array(z.string().min(1).max(30)).min(1).max(5)
-    .describe("1-2 word visual search terms for finding footage"),
-  estimatedDurationSec: z.number().positive().optional()
-    .describe("Estimated speaking duration in seconds"),
+  voiceover: z.string().min(10).max(500).describe('The narration text for this scene'),
+  searchTerms: z
+    .array(z.string().min(1).max(30))
+    .min(1)
+    .max(5)
+    .describe('1-2 word visual search terms for finding footage'),
+  estimatedDurationSec: z
+    .number()
+    .positive()
+    .optional()
+    .describe('Estimated speaking duration in seconds'),
 });
 
 export const ScriptOutputSchema = z.object({
-  title: z.string().max(100)
-    .describe("Video title for metadata"),
-  scenes: z.array(SceneSchema).min(1).max(20)
-    .describe("Ordered list of scenes"),
-  totalEstimatedDurationSec: z.number().positive().optional()
-    .describe("Total video duration estimate"),
+  title: z.string().max(100).describe('Video title for metadata'),
+  scenes: z.array(SceneSchema).min(1).max(20).describe('Ordered list of scenes'),
+  totalEstimatedDurationSec: z
+    .number()
+    .positive()
+    .optional()
+    .describe('Total video duration estimate'),
 });
 
 export type ScriptOutput = z.infer<typeof ScriptOutputSchema>;
@@ -600,16 +618,16 @@ export type ScriptOutput = z.infer<typeof ScriptOutputSchema>;
 
 ## 7. Key Takeaways
 
-| Pattern | Source | Adoption Priority |
-|---------|--------|-------------------|
-| YAML prompt templates | ShortGPT | **Must have** |
-| `<<PLACEHOLDER>>` interpolation | ShortGPT | **Must have** |
-| Provider abstraction via config | MoneyPrinterTurbo | **Must have** |
-| JSON output in prompt + schema | ShortGPT, MoneyPrinterTurbo | **Must have** |
-| Regex fallback extraction | MoneyPrinterTurbo, ShortGPT | **Should have** |
-| Retry loop (3-5 attempts) | MoneyPrinterTurbo | **Should have** |
-| Good/bad examples in prompt | ShortGPT | **Should have** |
-| Markdown stripping | MoneyPrinterTurbo | Nice to have |
+| Pattern                         | Source                      | Adoption Priority |
+| ------------------------------- | --------------------------- | ----------------- |
+| YAML prompt templates           | ShortGPT                    | **Must have**     |
+| `<<PLACEHOLDER>>` interpolation | ShortGPT                    | **Must have**     |
+| Provider abstraction via config | MoneyPrinterTurbo           | **Must have**     |
+| JSON output in prompt + schema  | ShortGPT, MoneyPrinterTurbo | **Must have**     |
+| Regex fallback extraction       | MoneyPrinterTurbo, ShortGPT | **Should have**   |
+| Retry loop (3-5 attempts)       | MoneyPrinterTurbo           | **Should have**   |
+| Good/bad examples in prompt     | ShortGPT                    | **Should have**   |
+| Markdown stripping              | MoneyPrinterTurbo           | Nice to have      |
 
 ---
 

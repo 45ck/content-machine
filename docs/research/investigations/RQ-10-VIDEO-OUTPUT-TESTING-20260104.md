@@ -10,6 +10,7 @@
 ## 1. Problem Statement
 
 Video rendering is non-trivial to test. We need strategies to:
+
 - Detect regressions in video quality
 - Ensure deterministic outputs for snapshot testing
 - Validate metadata (resolution, duration, codec)
@@ -44,7 +45,7 @@ test("frame 50 matches snapshot", async () => {
     frames: [50],
     outputDir: "./test-output",
   });
-  
+
   const frame = await fs.readFile("./test-output/frame-50.png");
   expect(frame).toMatchImageSnapshot();
 });
@@ -77,7 +78,7 @@ const color = random("color-seed") > 0.5 ? "red" : "blue";
 **Source:** [vendor/remotion/packages/renderer/src/validate-output-filename.ts](../../../vendor/remotion/packages/renderer/src/validate-output-filename.ts)
 
 ```typescript
-import { execa } from "execa";
+import { execa } from 'execa';
 
 interface VideoMetadata {
   width: number;
@@ -88,17 +89,19 @@ interface VideoMetadata {
 }
 
 async function getVideoMetadata(videoPath: string): Promise<VideoMetadata> {
-  const { stdout } = await execa("ffprobe", [
-    "-v", "quiet",
-    "-print_format", "json",
-    "-show_format",
-    "-show_streams",
+  const { stdout } = await execa('ffprobe', [
+    '-v',
+    'quiet',
+    '-print_format',
+    'json',
+    '-show_format',
+    '-show_streams',
     videoPath,
   ]);
-  
+
   const data = JSON.parse(stdout);
-  const videoStream = data.streams.find((s: any) => s.codec_type === "video");
-  
+  const videoStream = data.streams.find((s: any) => s.codec_type === 'video');
+
   return {
     width: videoStream.width,
     height: videoStream.height,
@@ -131,16 +134,16 @@ ffmpeg -i reference.mp4 -i output.mp4 -lavfi libvmaf -f null -
 Playwright's visual comparison approach:
 
 ```typescript
-import { test, expect } from "@playwright/test";
+import { test, expect } from '@playwright/test';
 
-test("video player matches baseline", async ({ page }) => {
-  await page.goto("http://localhost:3000/preview/my-video");
+test('video player matches baseline', async ({ page }) => {
+  await page.goto('http://localhost:3000/preview/my-video');
   await page.waitForTimeout(1000); // Wait for render
-  
+
   // Take screenshot and compare
-  await expect(page).toHaveScreenshot("video-frame.png", {
-    maxDiffPixels: 100,  // Allow small differences
-    threshold: 0.2,       // 20% pixel difference tolerance
+  await expect(page).toHaveScreenshot('video-frame.png', {
+    maxDiffPixels: 100, // Allow small differences
+    threshold: 0.2, // 20% pixel difference tolerance
   });
 });
 ```
@@ -161,15 +164,15 @@ describe("Caption Component", () => {
     const { container } = render(
       <Caption text="Hello" style="word" />
     );
-    
+
     expect(container.querySelector(".caption-word")).toHaveTextContent("Hello");
   });
-  
+
   it("handles special characters", () => {
     const { getByText } = render(
       <Caption text="Don't & Can't" style="word" />
     );
-    
+
     expect(getByText("Don't & Can't")).toBeInTheDocument();
   });
 });
@@ -179,40 +182,40 @@ describe("Caption Component", () => {
 
 ```typescript
 // test/integration/rendering.test.ts
-import { renderFrames, getCompositions } from "@remotion/renderer";
-import { toMatchImageSnapshot } from "jest-image-snapshot";
+import { renderFrames, getCompositions } from '@remotion/renderer';
+import { toMatchImageSnapshot } from 'jest-image-snapshot';
 
 expect.extend({ toMatchImageSnapshot });
 
-describe("Video Rendering", () => {
-  it("renders frame 0 correctly", async () => {
-    const compositions = await getCompositions("./src/index.ts");
-    const comp = compositions.find(c => c.id === "main");
-    
+describe('Video Rendering', () => {
+  it('renders frame 0 correctly', async () => {
+    const compositions = await getCompositions('./src/index.ts');
+    const comp = compositions.find((c) => c.id === 'main');
+
     await renderFrames({
       composition: comp,
-      outputDir: "./test-output",
+      outputDir: './test-output',
       frames: [0],
     });
-    
-    const frame = await fs.readFile("./test-output/element-0.png");
+
+    const frame = await fs.readFile('./test-output/element-0.png');
     expect(frame).toMatchImageSnapshot({
       failureThreshold: 0.01,
-      failureThresholdType: "percent",
+      failureThresholdType: 'percent',
     });
   });
-  
-  it("renders last frame correctly", async () => {
-    const compositions = await getCompositions("./src/index.ts");
-    const comp = compositions.find(c => c.id === "main");
-    
+
+  it('renders last frame correctly', async () => {
+    const compositions = await getCompositions('./src/index.ts');
+    const comp = compositions.find((c) => c.id === 'main');
+
     await renderFrames({
       composition: comp,
-      outputDir: "./test-output",
+      outputDir: './test-output',
       frames: [comp.durationInFrames - 1],
     });
-    
-    const frame = await fs.readFile("./test-output/element-0.png");
+
+    const frame = await fs.readFile('./test-output/element-0.png');
     expect(frame).toMatchImageSnapshot();
   });
 });
@@ -222,30 +225,30 @@ describe("Video Rendering", () => {
 
 ```typescript
 // test/integration/metadata.test.ts
-describe("Video Metadata", () => {
-  const testVideo = "./test-fixtures/output.mp4";
-  
+describe('Video Metadata', () => {
+  const testVideo = './test-fixtures/output.mp4';
+
   beforeAll(async () => {
     await renderVideo({ outputPath: testVideo });
   });
-  
-  it("has correct resolution", async () => {
+
+  it('has correct resolution', async () => {
     const meta = await getVideoMetadata(testVideo);
     expect(meta.width).toBe(1080);
     expect(meta.height).toBe(1920);
   });
-  
-  it("has correct duration", async () => {
+
+  it('has correct duration', async () => {
     const meta = await getVideoMetadata(testVideo);
     expect(meta.duration).toBeCloseTo(15.0, 1); // 15 seconds ±0.1
   });
-  
-  it("uses expected codec", async () => {
+
+  it('uses expected codec', async () => {
     const meta = await getVideoMetadata(testVideo);
-    expect(meta.codec).toBe("h264");
+    expect(meta.codec).toBe('h264');
   });
-  
-  it("has expected frame rate", async () => {
+
+  it('has expected frame rate', async () => {
     const meta = await getVideoMetadata(testVideo);
     expect(meta.fps).toBe(30);
   });
@@ -256,20 +259,20 @@ describe("Video Metadata", () => {
 
 ```typescript
 // test/integration/quality.test.ts
-import { computePSNR, computeSSIM } from "./video-metrics";
+import { computePSNR, computeSSIM } from './video-metrics';
 
-describe("Video Quality", () => {
-  const reference = "./test-fixtures/reference.mp4";
-  const output = "./test-output/output.mp4";
-  
-  it("meets PSNR threshold", async () => {
+describe('Video Quality', () => {
+  const reference = './test-fixtures/reference.mp4';
+  const output = './test-output/output.mp4';
+
+  it('meets PSNR threshold', async () => {
     const psnr = await computePSNR(reference, output);
     expect(psnr).toBeGreaterThan(30); // 30dB minimum
   });
-  
-  it("meets SSIM threshold", async () => {
+
+  it('meets SSIM threshold', async () => {
     const ssim = await computeSSIM(reference, output);
-    expect(ssim).toBeGreaterThan(0.90); // 90% similarity
+    expect(ssim).toBeGreaterThan(0.9); // 90% similarity
   });
 });
 ```
@@ -278,11 +281,11 @@ describe("Video Quality", () => {
 
 ## 4. Quality Metric Thresholds
 
-| Metric | Excellent | Good | Acceptable | Poor |
-|--------|-----------|------|------------|------|
-| **PSNR** | >40 dB | >35 dB | >30 dB | <30 dB |
-| **SSIM** | >0.98 | >0.95 | >0.90 | <0.90 |
-| **VMAF** | >90 | >80 | >70 | <70 |
+| Metric   | Excellent | Good   | Acceptable | Poor   |
+| -------- | --------- | ------ | ---------- | ------ |
+| **PSNR** | >40 dB    | >35 dB | >30 dB     | <30 dB |
+| **SSIM** | >0.98     | >0.95  | >0.90      | <0.90  |
+| **VMAF** | >90       | >80    | >70        | <70    |
 
 ---
 
@@ -292,15 +295,12 @@ describe("Video Quality", () => {
 
 ```typescript
 // vitest.config.ts
-import { defineConfig } from "vitest/config";
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
-    include: [
-      "test/unit/**/*.test.ts",
-      "test/integration/**/*.test.ts",
-    ],
-    setupFiles: ["./test/setup.ts"],
+    include: ['test/unit/**/*.test.ts', 'test/integration/**/*.test.ts'],
+    setupFiles: ['./test/setup.ts'],
     testTimeout: 60000, // Video rendering needs time
     snapshotFormat: {
       printBasicPrototype: false,
@@ -313,31 +313,39 @@ export default defineConfig({
 
 ```typescript
 // test/helpers/video-metrics.ts
-import { execa } from "execa";
+import { execa } from 'execa';
 
 export async function computePSNR(reference: string, output: string): Promise<number> {
-  const { stderr } = await execa("ffmpeg", [
-    "-i", reference,
-    "-i", output,
-    "-lavfi", "psnr",
-    "-f", "null",
-    "-",
+  const { stderr } = await execa('ffmpeg', [
+    '-i',
+    reference,
+    '-i',
+    output,
+    '-lavfi',
+    'psnr',
+    '-f',
+    'null',
+    '-',
   ]);
-  
+
   // Parse: PSNR y:38.25 u:43.12 v:44.56 average:39.58
   const match = stderr.match(/average:([\d.]+)/);
   return match ? parseFloat(match[1]) : 0;
 }
 
 export async function computeSSIM(reference: string, output: string): Promise<number> {
-  const { stderr } = await execa("ffmpeg", [
-    "-i", reference,
-    "-i", output,
-    "-lavfi", "ssim",
-    "-f", "null",
-    "-",
+  const { stderr } = await execa('ffmpeg', [
+    '-i',
+    reference,
+    '-i',
+    output,
+    '-lavfi',
+    'ssim',
+    '-f',
+    'null',
+    '-',
   ]);
-  
+
   // Parse: SSIM All:0.954678
   const match = stderr.match(/All:([\d.]+)/);
   return match ? parseFloat(match[1]) : 0;
@@ -390,12 +398,12 @@ jobs:
 
 ## 6. Implementation Recommendations
 
-| Test Type | Priority | CI Stage | Speed |
-|-----------|----------|----------|-------|
-| Unit tests | P0 | Every commit | Fast |
-| Metadata validation | P0 | Every commit | Fast |
-| Frame snapshots | P1 | PR merge | Medium |
-| Quality metrics | P2 | Nightly | Slow |
+| Test Type           | Priority | CI Stage     | Speed  |
+| ------------------- | -------- | ------------ | ------ |
+| Unit tests          | P0       | Every commit | Fast   |
+| Metadata validation | P0       | Every commit | Fast   |
+| Frame snapshots     | P1       | PR merge     | Medium |
+| Quality metrics     | P2       | Nightly      | Slow   |
 
 ---
 

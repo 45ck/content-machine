@@ -38,11 +38,11 @@ def trellis_algo(labels, ts, emission, blank_id=0):
     dictionary = {c: i for i, c in enumerate(labels)}
     transcript = format_text(ts)  # |WORD|WORD|WORD|
     tokens = [dictionary.get(c, 0) for c in transcript]
-    
+
     num_frame = emission.size(0)
     num_tokens = len(tokens)
     trellis = torch.zeros((num_frame, num_tokens))
-    
+
     # Forward pass with CTC blank handling
     for t in range(num_frame - 1):
         trellis[t + 1, 1:] = torch.maximum(
@@ -71,6 +71,7 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 ```
 
 ### Key Takeaways
+
 - **When to use:** Known transcript needing precise alignment
 - **Advantage:** More accurate than Whisper for pre-generated TTS
 - **Pattern:** Trellis → Backtrack → Segment → Merge Words
@@ -115,6 +116,7 @@ plugins/
 ```
 
 ### Key Takeaways
+
 - **Pattern:** Registry-based plugin discovery
 - **Benefit:** Swap video sources without code changes
 - **Examples:** Pexels, AI-generated, local stock, YouTube clips
@@ -147,19 +149,20 @@ plugins/
 ```python
 def create_image_scene(image_path, text, duration=6, zoom=True):
     img = ImageClip(image_path).with_duration(duration)
-    
+
     # Ken Burns: 1.0x to 1.08x zoom over duration
     if zoom:
         img = img.resized(lambda t: 1 + 0.08 * (t / duration))
-    
+
     # Dark overlay for text readability
     overlay = ColorClip(size=(WIDTH, HEIGHT), color=(0, 0, 0))
     overlay = overlay.with_opacity(0.3).with_duration(duration)
-    
+
     return CompositeVideoClip([img, overlay, text_clip])
 ```
 
 ### Key Takeaways
+
 - **n8n for orchestration:** Visual workflows, error handling
 - **Containerized services:** Each component isolated
 - **Ken Burns:** Simple zoom interpolation for static images
@@ -175,52 +178,55 @@ def create_image_scene(image_path, text, duration=6, zoom=True):
 
 ```tsx
 const RemotionVideo: React.FC = () => {
-    const baseUrl = 'https://storage.googleapis.com/tiktok-video-assets/video-assets'
-    const projectId = process.env.REMOTION_PROJECT_ID
-    const scriptUrl = `${baseUrl}/${projectId}/script.json`
-    
-    const [content, setContent] = useState<JustContent[]>([])
-    const [handle] = useState(() => delayRender())
+  const baseUrl = 'https://storage.googleapis.com/tiktok-video-assets/video-assets';
+  const projectId = process.env.REMOTION_PROJECT_ID;
+  const scriptUrl = `${baseUrl}/${projectId}/script.json`;
 
-    useEffect(() => {
-        fetch(scriptUrl)
-            .then(res => res.json())
-            .then(json => {
-                // Parse script into content segments
-                const parsedContent = [json.title, ...json.script].map(entry => ({
-                    text: entry.text,
-                    duration: Math.max(entry.duration, 1),
-                    audioFile: `${projectAssets}/sounds/${entry.audio_file}`,
-                    emoji: [entry.emoji]
-                }))
-                setContent(parsedContent)
-                continueRender(handle)
-            })
-    }, [])
-}
+  const [content, setContent] = useState<JustContent[]>([]);
+  const [handle] = useState(() => delayRender());
+
+  useEffect(() => {
+    fetch(scriptUrl)
+      .then((res) => res.json())
+      .then((json) => {
+        // Parse script into content segments
+        const parsedContent = [json.title, ...json.script].map((entry) => ({
+          text: entry.text,
+          duration: Math.max(entry.duration, 1),
+          audioFile: `${projectAssets}/sounds/${entry.audio_file}`,
+          emoji: [entry.emoji],
+        }));
+        setContent(parsedContent);
+        continueRender(handle);
+      });
+  }, []);
+};
 ```
 
 ### Word-by-Word Animation
 
 ```tsx
 const TextComponent = () => (
-    <div style={{ background: 'black', color: 'white' }}>
-        <p>
-            {content.text.split(' ').map((word, i) => (
-                <span style={{
-                    opacity: opacity(i),  // Fade in per word
-                    transform: `translateY(${translate(i)}px)`,  // Bounce in
-                    marginLeft: 11
-                }}>
-                    {word}
-                </span>
-            ))}
-        </p>
-    </div>
-)
+  <div style={{ background: 'black', color: 'white' }}>
+    <p>
+      {content.text.split(' ').map((word, i) => (
+        <span
+          style={{
+            opacity: opacity(i), // Fade in per word
+            transform: `translateY(${translate(i)}px)`, // Bounce in
+            marginLeft: 11,
+          }}
+        >
+          {word}
+        </span>
+      ))}
+    </p>
+  </div>
+);
 ```
 
 ### Key Takeaways
+
 - **Cloud assets:** Script/audio hosted externally, render dynamically
 - **delayRender/continueRender:** Wait for async data before rendering
 - **Per-word animation:** Spring-based interpolation for bounce effect
@@ -264,6 +270,7 @@ def splitWordsBySize(words, maxCaptionSize):
 ```
 
 ### Key Takeaways
+
 - **Utility-based modularity:** Each concern isolated
 - **Caption chunking:** Half-size break for natural flow
 - **Whisper timestamped:** `whisper_timestamped` library for word timing
@@ -283,7 +290,7 @@ def generate_subtitles_ass(transcription_data, start_sec, end_sec, subtitle_opti
     font = subtitle_options.get("font", "Impact")
     font_size = int(subtitle_options.get("font_size", 60))
     animation_style = subtitle_options.get("animation_style", "Elastic-Jump")
-    
+
     # Color themes
     color_map = {
         "Yellow/White": {"primary": "&H00FFFFFF", "highlight": "&H0000FFFF"},
@@ -291,19 +298,19 @@ def generate_subtitles_ass(transcription_data, start_sec, end_sec, subtitle_opti
         "Red/White": {"primary": "&H00FFFFFF", "highlight": "&H000000FF"},
         "Neon Blue/White": {"primary": "&H00FFFFFF", "highlight": "&H00FFD700"}
     }
-    
+
     # Position mapping
     pos_map = {
         "Inferior": {"align": 2, "marginV": 30},
         "Centralizado": {"align": 5, "marginV": 30},
         "Superior": {"align": 8, "marginV": 30}
     }
-    
+
     # Animation per word
     for word_info in segment.get("words", []):
         style = word_info.get("style", "normal").capitalize()
         text = word_info.get("word", "")
-        
+
         if style == "Impact":
             if animation_style == "Elastic-Jump":
                 # ASS animation tags for elastic bounce
@@ -311,6 +318,7 @@ def generate_subtitles_ass(transcription_data, start_sec, end_sec, subtitle_opti
 ```
 
 ### Key Takeaways
+
 - **ASS format:** Rich styling, animations, positioning
 - **Word-level styling:** Impact words get different treatment
 - **Configurable themes:** User-selectable color schemes
@@ -326,28 +334,28 @@ def generate_subtitles_ass(transcription_data, start_sec, end_sec, subtitle_opti
 
 ```javascript
 async function analyzeFrames(videoPath, numShorts, frameCount = 10) {
-    const keyFrames = await extractFrames(videoPath, frameCount);
-    const model = await mobilenet.load();
+  const keyFrames = await extractFrames(videoPath, frameCount);
+  const model = await mobilenet.load();
 
-    const scores = await Promise.all(
-        keyFrames.map(async (frame) => {
-            const processedFrame = await preprocessImage(frame);
-            const tensor = tf.node.decodeImage(processedFrame);
-            const prediction = await model.classify(tensor);
-            // Average classification probability as "interestingness" score
-            const score = prediction.reduce((acc, p) => 
-                acc + p.probability, 0) / prediction.length;
-            return { frame, score };
-        })
-    );
+  const scores = await Promise.all(
+    keyFrames.map(async (frame) => {
+      const processedFrame = await preprocessImage(frame);
+      const tensor = tf.node.decodeImage(processedFrame);
+      const prediction = await model.classify(tensor);
+      // Average classification probability as "interestingness" score
+      const score = prediction.reduce((acc, p) => acc + p.probability, 0) / prediction.length;
+      return { frame, score };
+    })
+  );
 
-    // Return top N most "interesting" frames by MobileNet confidence
-    validScores.sort((a, b) => b.score - a.score);
-    return validScores.slice(0, numShorts);
+  // Return top N most "interesting" frames by MobileNet confidence
+  validScores.sort((a, b) => b.score - a.score);
+  return validScores.slice(0, numShorts);
 }
 ```
 
 ### Key Takeaways
+
 - **Visual scoring:** MobileNet classification confidence as proxy for interest
 - **Keyframe extraction:** FFmpeg screenshots at intervals
 - **Limitation:** Classification confidence != virality (better: CLIP similarity)
@@ -366,11 +374,11 @@ def generate_curriculum(previous_titles=None):
     """Generate course curriculum with Gemini"""
     prompt = f"""
     Generate a curriculum for 'AI for Developers by {YOUR_NAME}'.
-    
+
     The curriculum must guide from beginner to advanced AI:
     - Generative AI, LLMs, Vector Databases, Agentic AI
     - Transformers internals, multi-agent systems, LangGraph
-    
+
     Respond with ONLY valid JSON:
     {{"lessons": [{{"chapter", "part", "title", "status": "pending"}}]}}
     """
@@ -387,7 +395,7 @@ def create_video(slide_paths, audio_paths, output_path, video_type):
     for i, (img_path, audio_path) in enumerate(zip(slide_paths, audio_paths)):
         audio_clip = AudioFileClip(str(audio_path))
         duration = audio_clip.duration + 0.5  # Padding
-        
+
         img_clip = (
             ImageClip(img_path)
             .set_duration(duration)
@@ -396,11 +404,12 @@ def create_video(slide_paths, audio_paths, output_path, video_type):
             .fadeout(0.5)
         )
         image_clips.append(img_clip)
-    
+
     final_video = concatenate_videoclips(image_clips, method="compose")
 ```
 
 ### Key Takeaways
+
 - **GitHub Actions:** Daily automated generation
 - **Curriculum continuity:** Previous lesson titles for continuation
 - **Slide-audio sync:** Each slide timed to its audio clip
@@ -433,13 +442,14 @@ def create_video(slide_paths, audio_paths, output_path, video_type):
 ```yaml
 # docker-compose.yml
 services:
-  trendscraper:  # Puppeteer + Gemini + FFmpeg
-  coqui:         # Coqui TTS container
-  speechalign:   # Aeneas alignment
-  nginx:         # Web interface
+  trendscraper: # Puppeteer + Gemini + FFmpeg
+  coqui: # Coqui TTS container
+  speechalign: # Aeneas alignment
+  nginx: # Web interface
 ```
 
 ### Key Takeaways
+
 - **Trend-driven:** Content based on real-time Google Trends
 - **Aeneas alignment:** Alternative to Whisper for subtitle timing
 - **One-click interface:** nginx frontend triggers full pipeline
@@ -474,12 +484,13 @@ services:
 
 ### Available Models
 
-| Type | Models |
-|------|--------|
-| **LLM** | gpt-4, claude-3-sonnet, mixtral-8x7b, gemini, llama2-70b |
-| **Image** | DALL-E v3, lexica, prodia, simurg, animefy |
+| Type      | Models                                                   |
+| --------- | -------------------------------------------------------- |
+| **LLM**   | gpt-4, claude-3-sonnet, mixtral-8x7b, gemini, llama2-70b |
+| **Image** | DALL-E v3, lexica, prodia, simurg, animefy               |
 
 ### Key Takeaways
+
 - **Multi-generator:** Different topics with different models
 - **LLM routing:** gpt4free for model abstraction
 - **Firefox automation:** Selenium for YouTube upload
@@ -519,10 +530,10 @@ def process_transcript_to_captions(transcript, maxCaptionSize: int = 15):
     captions = []
     current_caption = []
     current_start = 0
-    
+
     for word in transcript.words:
         word_start = word.start / 1000  # ms to seconds
-        
+
         test_caption = ' '.join(current_caption + [word.text])
         if len(test_caption) <= maxCaptionSize:
             current_caption.append(word.text)
@@ -534,11 +545,12 @@ def process_transcript_to_captions(transcript, maxCaptionSize: int = 15):
                 ))
             current_caption = [word.text]
             current_start = word_start
-    
+
     return captions
 ```
 
 ### Key Takeaways
+
 - **Single file:** ~500 lines covers entire pipeline
 - **AssemblyAI:** Paid but reliable transcription
 - **OpenRouter fallback:** Multiple LLM provider support
@@ -564,12 +576,12 @@ def analyze_transcript(subtitle_file_path):
     ]
 
     prompt = f"""
-    This is a transcript of a video/podcast. 
+    This is a transcript of a video/podcast.
     Please identify the most viral sections from this part of the video.
     Make sure they are more than 30 seconds in duration.
     Provide extremely accurate timestamps.
     Respond only in this format: {json.dumps(response_obj)}
-    
+
     Transcription:
     {subtitle_content}
     """
@@ -581,6 +593,7 @@ def analyze_transcript(subtitle_file_path):
 ```
 
 ### Key Takeaways
+
 - **LLM as curator:** GPT identifies viral-worthy segments
 - **Duration constraints:** 30-58 seconds for Shorts compliance
 - **JSON extraction:** Direct time ranges from LLM
@@ -593,6 +606,7 @@ def analyze_transcript(subtitle_file_path):
 **Pattern:** Terminal-based video generation with seewav visualization
 
 ### Features
+
 - GPT-3.5-turbo for transcript
 - UnrealSpeech API for voice
 - seewav module for audio visualization
@@ -605,69 +619,73 @@ def analyze_transcript(subtitle_file_path):
 
 ### Orchestration Patterns
 
-| Pattern | Repo | Description |
-|---------|------|-------------|
-| **n8n Workflows** | AutoTube | Visual workflow automation |
-| **Docker Compose** | Viral-Faceless | Service containerization |
-| **GitHub Actions** | Gemini-YT | Scheduled daily generation |
-| **Single File** | youtube-auto | All-in-one Python script |
+| Pattern            | Repo           | Description                |
+| ------------------ | -------------- | -------------------------- |
+| **n8n Workflows**  | AutoTube       | Visual workflow automation |
+| **Docker Compose** | Viral-Faceless | Service containerization   |
+| **GitHub Actions** | Gemini-YT      | Scheduled daily generation |
+| **Single File**    | youtube-auto   | All-in-one Python script   |
 
 ### Alignment Patterns
 
-| Pattern | Repo | Technology |
-|---------|------|------------|
-| **Wav2Vec2 Trellis** | OBrainRot | PyTorch forced alignment |
-| **Whisper Timestamped** | Faceless-short | Word-level from ASR |
-| **AssemblyAI** | youtube-auto | Paid cloud transcription |
-| **Aeneas** | Viral-Faceless | Force alignment tool |
+| Pattern                 | Repo           | Technology               |
+| ----------------------- | -------------- | ------------------------ |
+| **Wav2Vec2 Trellis**    | OBrainRot      | PyTorch forced alignment |
+| **Whisper Timestamped** | Faceless-short | Word-level from ASR      |
+| **AssemblyAI**          | youtube-auto   | Paid cloud transcription |
+| **Aeneas**              | Viral-Faceless | Force alignment tool     |
 
 ### Video Composition Patterns
 
-| Pattern | Repo | Framework |
-|---------|------|-----------|
-| **Ken Burns Zoom** | AutoTube | MoviePy lambda resize |
-| **Remotion Sequences** | tiktok-automatic | React composition |
-| **ASS Subtitles** | VideoShortsCreator | FFmpeg subtitle burn |
-| **MoviePy Composite** | Faceless-short | Python video editing |
+| Pattern                | Repo               | Framework             |
+| ---------------------- | ------------------ | --------------------- |
+| **Ken Burns Zoom**     | AutoTube           | MoviePy lambda resize |
+| **Remotion Sequences** | tiktok-automatic   | React composition     |
+| **ASS Subtitles**      | VideoShortsCreator | FFmpeg subtitle burn  |
+| **MoviePy Composite**  | Faceless-short     | Python video editing  |
 
 ### Content Discovery Patterns
 
-| Pattern | Repo | Source |
-|---------|------|--------|
-| **Google Trends** | Viral-Faceless | Puppeteer scraping |
-| **LLM Virality** | AI-short-creator | GPT segment detection |
-| **MobileNet Scoring** | ShortReelX | Frame classification |
-| **Curriculum LLM** | Gemini-YT | Topic generation |
+| Pattern               | Repo             | Source                |
+| --------------------- | ---------------- | --------------------- |
+| **Google Trends**     | Viral-Faceless   | Puppeteer scraping    |
+| **LLM Virality**      | AI-short-creator | GPT segment detection |
+| **MobileNet Scoring** | ShortReelX       | Frame classification  |
+| **Curriculum LLM**    | Gemini-YT        | Topic generation      |
 
 ### Plugin/Extensibility Patterns
 
-| Pattern | Repo | Mechanism |
-|---------|------|-----------|
-| **Background Video Plugins** | Crank | Registry discovery |
-| **Multi-Generator Config** | YASGU | JSON configuration |
-| **Utility Modules** | Faceless-short | Clean separation |
+| Pattern                      | Repo           | Mechanism          |
+| ---------------------------- | -------------- | ------------------ |
+| **Background Video Plugins** | Crank          | Registry discovery |
+| **Multi-Generator Config**   | YASGU          | JSON configuration |
+| **Utility Modules**          | Faceless-short | Clean separation   |
 
 ---
 
 ## Recommendations for content-machine
 
 ### 1. Adopt Plugin Architecture (from Crank)
+
 - Abstract video sources behind plugin interface
 - Support Pexels, Unsplash, AI-generated, local stock
 
 ### 2. Use Wav2Vec2 for Known Text (from OBrainRot)
+
 - When transcript is known (TTS output), use forced alignment
 - More accurate than ASR for pre-generated audio
 
 ### 3. Implement ASS Subtitle System (from VideoShortsCreator)
+
 - Rich styling, animation, positioning
 - Word-level effects via ASS tags
 
 ### 4. Consider n8n for Orchestration (from AutoTube)
+
 - Visual workflow debugging
 - Easy monitoring and retry
 
 ### 5. LLM-Based Virality Detection (from AI-short-creator)
+
 - For clipping long-form content
 - Prompt engineering for duration constraints
-

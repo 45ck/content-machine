@@ -4,7 +4,7 @@
  */
 import { describe, it, expect, beforeEach } from 'vitest';
 import { FakeLLMProvider } from '../../test/stubs/fake-llm';
-import type { LLMMessage, LLMProvider } from './provider';
+import type { LLMMessage } from './provider';
 
 describe('LLMProvider Interface', () => {
   describe('FakeLLMProvider', () => {
@@ -78,17 +78,15 @@ describe('LLMProvider Interface', () => {
     });
 
     it('should throw when no response queued', async () => {
-      await expect(
-        provider.chat([{ role: 'user', content: 'Hi' }])
-      ).rejects.toThrow('No response queued');
+      await expect(provider.chat([{ role: 'user', content: 'Hi' }])).rejects.toThrow(
+        'No response queued'
+      );
     });
 
     it('should queue error', async () => {
       provider.queueError(new Error('API Error'));
 
-      await expect(
-        provider.chat([{ role: 'user', content: 'Hi' }])
-      ).rejects.toThrow('API Error');
+      await expect(provider.chat([{ role: 'user', content: 'Hi' }])).rejects.toThrow('API Error');
     });
 
     it('should track total tokens used', async () => {

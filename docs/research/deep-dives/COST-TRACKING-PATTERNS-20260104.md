@@ -34,7 +34,7 @@ export class RequestUsage {
   public inputTokens: number;
   public outputTokens: number;
   public totalTokens: number;
-  public inputTokensDetails: Record<string, number>;  // { cached_tokens: 2, audio: 10 }
+  public inputTokensDetails: Record<string, number>; // { cached_tokens: 2, audio: 10 }
   public outputTokensDetails: Record<string, number>; // { reasoning_tokens: 3 }
   public endpoint?: 'responses.create' | 'responses.compact' | (string & {});
 
@@ -42,9 +42,7 @@ export class RequestUsage {
     this.inputTokens = input?.inputTokens ?? input?.input_tokens ?? 0;
     this.outputTokens = input?.outputTokens ?? input?.output_tokens ?? 0;
     this.totalTokens =
-      input?.totalTokens ??
-      input?.total_tokens ??
-      this.inputTokens + this.outputTokens;
+      input?.totalTokens ?? input?.total_tokens ?? this.inputTokens + this.outputTokens;
     // ... details handling
   }
 }
@@ -171,6 +169,7 @@ static calculateUsageCosts(
 ```
 
 **Key Patterns:**
+
 1. **User-provided costs take precedence** - Never override explicit costs
 2. **Fallback calculation** from model pricing when no cost provided
 3. **Cost details object** with per-usage-type breakdown (input, output, total)
@@ -211,7 +210,8 @@ static calculateUsageCosts(
 ]
 ```
 
-**Key Pattern:** 
+**Key Pattern:**
+
 - Model matching via regex patterns (handles variations like `openai/gpt-4o`)
 - Pricing tiers for different rates (standard, cached, etc.)
 - Prices in USD per token
@@ -226,12 +226,12 @@ model Observation {
   promptTokens         Int      @default(0) @map("prompt_tokens")
   completionTokens     Int      @default(0) @map("completion_tokens")
   totalTokens          Int      @default(0) @map("total_tokens")
-  
+
   // User provided cost at ingestion
   inputCost            Decimal? @map("input_cost")
   outputCost           Decimal? @map("output_cost")
   totalCost            Decimal? @map("total_cost")
-  
+
   // Calculated cost (from model pricing)
   calculatedInputCost  Decimal? @map("calculated_input_cost")
   calculatedOutputCost Decimal? @map("calculated_output_cost")
@@ -270,7 +270,7 @@ export type ObservationCostData = {
  */
 export const findObservationDescendants = <T extends ObservationCostData>(
   rootObsId: string,
-  allObservations: T[],
+  allObservations: T[]
 ): T[] => {
   // Build lookup structures for efficient traversal
   const childrenByParentId = new Map<string, T[]>();
@@ -315,9 +315,7 @@ export const findObservationDescendants = <T extends ObservationCostData>(
 /**
  * Sum costs for a list of observations
  */
-export const sumObservationCosts = (
-  observations: ObservationCostData[],
-): Decimal | undefined => {
+export const sumObservationCosts = (observations: ObservationCostData[]): Decimal | undefined => {
   return observations.reduce<Decimal | undefined>((prev, curr) => {
     const totalCost = curr.totalCost ? new Decimal(curr.totalCost) : undefined;
     const inputCost = curr.inputCost ? new Decimal(curr.inputCost) : undefined;
@@ -350,7 +348,7 @@ export const sumObservationCosts = (
  */
 export const calculateRecursiveCost = (
   rootObsId: string,
-  allObservations: ObservationCostData[],
+  allObservations: ObservationCostData[]
 ): Decimal | undefined => {
   const descendants = findObservationDescendants(rootObsId, allObservations);
   return sumObservationCosts(descendants);
@@ -358,8 +356,9 @@ export const calculateRecursiveCost = (
 ```
 
 **Key Patterns:**
+
 1. **Trace → Span hierarchy** for cost attribution to pipeline stages
-2. **BFS traversal** to find all descendants 
+2. **BFS traversal** to find all descendants
 3. **Prefer totalCost**, fallback to input+output sum
 4. **Use Decimal.js** for precise currency math
 
@@ -373,7 +372,7 @@ add(newUsage: Usage) {
   this.inputTokens += newUsage.inputTokens ?? 0;
   this.outputTokens += newUsage.outputTokens ?? 0;
   this.totalTokens += newUsage.totalTokens ?? 0;
-  
+
   if (newUsage.inputTokensDetails) {
     this.inputTokensDetails.push(...newUsage.inputTokensDetails);
   }
@@ -418,32 +417,27 @@ add(newUsage: Usage) {
 **File:** [vendor/observability/langfuse/worker/src/queues/cloudFreeTierUsageThresholdQueue.ts](../../vendor/observability/langfuse/worker/src/queues/cloudFreeTierUsageThresholdQueue.ts)
 
 ```typescript
-import { Processor } from "bullmq";
-import { logger, QueueJobs } from "@langfuse/shared/src/server";
-import { handleCloudFreeTierUsageThresholdJob } from "../ee/usageThresholds/handleCloudFreeTierUsageThresholdJob";
+import { Processor } from 'bullmq';
+import { logger, QueueJobs } from '@langfuse/shared/src/server';
+import { handleCloudFreeTierUsageThresholdJob } from '../ee/usageThresholds/handleCloudFreeTierUsageThresholdJob';
 
-export const cloudFreeTierUsageThresholdQueueProcessor: Processor = async (
-  job,
-) => {
+export const cloudFreeTierUsageThresholdQueueProcessor: Processor = async (job) => {
   if (job.name === QueueJobs.CloudFreeTierUsageThresholdJob) {
-    logger.info(
-      "[CloudFreeTierUsageThresholdJob] Executing Free Tier Usage Threshold Job",
-      {
-        jobId: job.id,
-        jobName: job.name,
-        jobData: job.data,
-        timestamp: new Date().toISOString(),
-        opts: {
-          repeat: job.opts.repeat,
-          jobId: job.opts.jobId,
-        },
+    logger.info('[CloudFreeTierUsageThresholdJob] Executing Free Tier Usage Threshold Job', {
+      jobId: job.id,
+      jobName: job.name,
+      jobData: job.data,
+      timestamp: new Date().toISOString(),
+      opts: {
+        repeat: job.opts.repeat,
+        jobId: job.opts.jobId,
       },
-    );
+    });
     try {
       return await handleCloudFreeTierUsageThresholdJob(job);
     } catch (error) {
       logger.error(
-        "[CloudFreeTierUsageThresholdJob] Error executing Free Tier Usage Threshold Job",
+        '[CloudFreeTierUsageThresholdJob] Error executing Free Tier Usage Threshold Job',
         error
       );
       throw error;
@@ -479,7 +473,7 @@ From the API documentation, the standard metrics format includes:
       "aggregation": "sum"
     },
     {
-      "measure": "inputTokens", 
+      "measure": "inputTokens",
       "aggregation": "sum"
     },
     {
@@ -487,14 +481,12 @@ From the API documentation, the standard metrics format includes:
       "aggregation": "sum"
     }
   ],
-  "dimensions": [
-    { "field": "name" },
-    { "field": "providedModelName" }
-  ]
+  "dimensions": [{ "field": "name" }, { "field": "providedModelName" }]
 }
 ```
 
 **Available measures for observations:**
+
 - `count` - Total number of observations
 - `inputTokens` - Sum of input tokens consumed
 - `outputTokens` - Sum of output tokens produced
@@ -520,7 +512,7 @@ export type ModelResponse = {
   output: AgentOutputItem[];
 
   /**
-   * An ID for the response which can be used to refer to the response 
+   * An ID for the response which can be used to refer to the response
    * in subsequent calls to the model.
    */
   responseId?: string;
@@ -547,15 +539,15 @@ interface UsageRecord {
   traceId: string;
   spanId?: string;
   parentSpanId?: string;
-  
+
   // Timestamps
   timestamp: Date;
-  
+
   // Model Info
   model: string;
-  modelId?: string;  // Internal ID after matching
+  modelId?: string; // Internal ID after matching
   provider: string;
-  
+
   // Token Counts
   usage: {
     inputTokens: number;
@@ -570,7 +562,7 @@ interface UsageRecord {
       audio?: number;
     };
   };
-  
+
   // Costs (USD)
   cost: {
     input?: number;
@@ -578,9 +570,9 @@ interface UsageRecord {
     total: number;
     isUserProvided: boolean;
   };
-  
+
   // Attribution
-  operation?: string;  // e.g., "script_generation", "capture"
+  operation?: string; // e.g., "script_generation", "capture"
   userId?: string;
   sessionId?: string;
   metadata?: Record<string, unknown>;
@@ -595,7 +587,7 @@ interface CostReport {
     start: Date;
     end: Date;
   };
-  
+
   totals: {
     requests: number;
     inputTokens: number;
@@ -603,14 +595,14 @@ interface CostReport {
     totalTokens: number;
     totalCost: number;
   };
-  
+
   byModel: Array<{
     model: string;
     requests: number;
     totalCost: number;
     avgCostPerRequest: number;
   }>;
-  
+
   byOperation: Array<{
     operation: string;
     requests: number;

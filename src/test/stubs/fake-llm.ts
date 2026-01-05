@@ -1,6 +1,6 @@
 /**
  * Fake LLM Provider for Testing
- * 
+ *
  * Allows queueing responses and tracking calls.
  */
 import type { LLMProvider, LLMMessage, LLMOptions, LLMResponse } from '../../core/llm/provider.js';

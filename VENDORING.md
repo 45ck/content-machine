@@ -4,11 +4,11 @@ Content Machine vendors external repositories for stability and offline developm
 
 ## Vendored Repositories
 
-| Repo | Purpose | Branch | Notes |
-|------|---------|--------|-------|
-| `remotion` | Video composition framework | main | Core dependency |
-| `short-video-maker` | Reference patterns (Pexels, Kokoro) | main | Patterns only, not imported |
-| `open-deep-research` | Deep research agent patterns | main | Reference for weekly job |
+| Repo                 | Purpose                             | Branch | Notes                       |
+| -------------------- | ----------------------------------- | ------ | --------------------------- |
+| `remotion`           | Video composition framework         | main   | Core dependency             |
+| `short-video-maker`  | Reference patterns (Pexels, Kokoro) | main   | Patterns only, not imported |
+| `open-deep-research` | Deep research agent patterns        | main   | Reference for weekly job    |
 
 ## Adding a Vendor
 

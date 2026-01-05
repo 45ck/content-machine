@@ -27,14 +27,14 @@ describe('CaptionStyleSchema', () => {
       position: 'center',
       animation: 'bounce',
     };
-    
+
     const result = CaptionStyleSchema.safeParse(style);
     expect(result.success).toBe(true);
   });
 
   it('should apply defaults', () => {
     const style = {};
-    
+
     const result = CaptionStyleSchema.safeParse(style);
     expect(result.success).toBe(true);
     if (result.success) {
@@ -52,7 +52,7 @@ describe('CaptionStyleSchema', () => {
 
   it('should validate all animation types', () => {
     const animations = ['none', 'pop', 'bounce', 'karaoke', 'typewriter'];
-    
+
     for (const animation of animations) {
       const style = { animation };
       const result = CaptionStyleSchema.safeParse(style);
@@ -62,7 +62,7 @@ describe('CaptionStyleSchema', () => {
 
   it('should validate all position types', () => {
     const positions = ['bottom', 'center', 'top'];
-    
+
     for (const position of positions) {
       const style = { position };
       const result = CaptionStyleSchema.safeParse(style);
@@ -72,7 +72,7 @@ describe('CaptionStyleSchema', () => {
 
   it('should reject invalid animation', () => {
     const style = { animation: 'slide' };
-    
+
     const result = CaptionStyleSchema.safeParse(style);
     expect(result.success).toBe(false);
   });
@@ -100,7 +100,7 @@ describe('RenderPropsSchema', () => {
       height: 1920,
       fps: 30,
     };
-    
+
     const result = RenderPropsSchema.safeParse(props);
     expect(result.success).toBe(true);
   });
@@ -132,7 +132,7 @@ describe('RenderPropsSchema', () => {
       height: 1920,
       fps: 30,
     };
-    
+
     const result = RenderPropsSchema.safeParse(props);
     expect(result.success).toBe(true);
   });
@@ -161,7 +161,7 @@ describe('RenderPropsSchema', () => {
         animation: 'none',
       },
     };
-    
+
     const result = RenderPropsSchema.safeParse(props);
     expect(result.success).toBe(true);
     if (result.success) {
@@ -181,7 +181,7 @@ describe('RenderPropsSchema', () => {
       height: 1920,
       fps: 30,
     };
-    
+
     const result = RenderPropsSchema.safeParse(props);
     expect(result.success).toBe(false);
   });
@@ -199,7 +199,7 @@ describe('RenderOutputSchema', () => {
       fileSize: 15000000,
       codec: 'h264',
     };
-    
+
     const result = RenderOutputSchema.safeParse(output);
     expect(result.success).toBe(true);
   });
@@ -216,7 +216,7 @@ describe('RenderOutputSchema', () => {
       codec: 'h264',
       archetype: 'listicle',
     };
-    
+
     const result = RenderOutputSchema.safeParse(output);
     expect(result.success).toBe(true);
     if (result.success) {
@@ -235,7 +235,7 @@ describe('RenderOutputSchema', () => {
       fileSize: -1,
       codec: 'h264',
     };
-    
+
     const result = RenderOutputSchema.safeParse(output);
     expect(result.success).toBe(false);
   });

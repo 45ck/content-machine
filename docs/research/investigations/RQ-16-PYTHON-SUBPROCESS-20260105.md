@@ -19,11 +19,11 @@ Edge TTS, WhisperX, and potentially other tools are Python packages. The TypeScr
 
 **Key Finding:** short-video-maker-gyori avoids Python entirely by using native alternatives.
 
-| Capability | Python Approach | Native Approach |
-|------------|-----------------|-----------------|
-| TTS | edge-tts (Python) | **kokoro-js** (TypeScript) |
-| ASR | whisperx (Python) | **@remotion/install-whisper-cpp** (C++ binary) |
-| FFmpeg | ffmpeg-python | **fluent-ffmpeg** (Node.js wrapper) |
+| Capability | Python Approach   | Native Approach                                |
+| ---------- | ----------------- | ---------------------------------------------- |
+| TTS        | edge-tts (Python) | **kokoro-js** (TypeScript)                     |
+| ASR        | whisperx (Python) | **@remotion/install-whisper-cpp** (C++ binary) |
+| FFmpeg     | ffmpeg-python     | **fluent-ffmpeg** (Node.js wrapper)            |
 
 **Source:** [vendor/short-video-maker-gyori](../../../vendor/short-video-maker-gyori)
 
@@ -61,8 +61,12 @@ const execute = ({
     let stdout = '';
     let stderr = '';
 
-    child.stdout?.on('data', (data) => { stdout += data; });
-    child.stderr?.on('data', (data) => { stderr += data; });
+    child.stdout?.on('data', (data) => {
+      stdout += data;
+    });
+    child.stderr?.on('data', (data) => {
+      stderr += data;
+    });
 
     child.on('exit', (code) => {
       if (code !== 0) {
@@ -79,9 +83,8 @@ const execute = ({
 
 ```typescript
 async function findPythonExecutable(): Promise<string> {
-  const candidates = process.platform === 'win32'
-    ? ['python', 'python3', 'py -3', 'py']
-    : ['python3', 'python'];
+  const candidates =
+    process.platform === 'win32' ? ['python', 'python3', 'py -3', 'py'] : ['python3', 'python'];
 
   for (const candidate of candidates) {
     try {
@@ -92,7 +95,7 @@ async function findPythonExecutable(): Promise<string> {
         signal: null,
         printOutput: false,
       });
-      
+
       // Check version is 3.x
       if (stdout.includes('Python 3')) {
         return candidate;
@@ -113,7 +116,7 @@ async function findPythonExecutable(): Promise<string> {
 ```typescript
 function getPackageManagerCommand(packageManager: string): string {
   if (process.platform === 'win32') {
-    return `${packageManager}.cmd`;  // Windows requires .cmd extension
+    return `${packageManager}.cmd`; // Windows requires .cmd extension
   }
   return packageManager;
 }
@@ -164,28 +167,24 @@ function getSpawnOptions(): SpawnOptions {
 
 ```typescript
 // Preferred: No Python required
-import { KokoroTTS } from "kokoro-js";
-import { transcribe } from "@remotion/install-whisper-cpp";
-import ffmpeg from "fluent-ffmpeg";
+import { KokoroTTS } from 'kokoro-js';
+import { transcribe } from '@remotion/install-whisper-cpp';
+import ffmpeg from 'fluent-ffmpeg';
 
 // TTS: kokoro-js (TypeScript native)
-const tts = await KokoroTTS.from_pretrained("onnx-community/Kokoro-82M-v1.0-ONNX");
-const audio = await tts.generate(text, { voice: "af_heart" });
+const tts = await KokoroTTS.from_pretrained('onnx-community/Kokoro-82M-v1.0-ONNX');
+const audio = await tts.generate(text, { voice: 'af_heart' });
 
 // ASR: whisper.cpp via Remotion (C++ binary)
 const result = await transcribe({
   inputPath: audioPath,
-  model: "medium.en",
+  model: 'medium.en',
   tokenLevelTimestamps: true,
 });
 
 // FFmpeg: fluent-ffmpeg (Node.js wrapper)
 await new Promise((resolve, reject) => {
-  ffmpeg(inputPath)
-    .output(outputPath)
-    .on('end', resolve)
-    .on('error', reject)
-    .run();
+  ffmpeg(inputPath).output(outputPath).on('end', resolve).on('error', reject).run();
 });
 ```
 
@@ -218,15 +217,10 @@ class PythonRunner {
 
   private async ensureDependencies(): Promise<void> {
     // Check if edge-tts is installed
-    const result = await this.run<{ installed: boolean }>(
-      'import edge_tts; print("ok")',
-      {}
-    );
+    const result = await this.run<{ installed: boolean }>('import edge_tts; print("ok")', {});
 
     if (!result.success) {
-      throw new Error(
-        'Python dependencies not installed. Run: pip install edge-tts'
-      );
+      throw new Error('Python dependencies not installed. Run: pip install edge-tts');
     }
   }
 
@@ -246,8 +240,12 @@ ${script}
     let stdout = '';
     let stderr = '';
 
-    child.stdout.on('data', (data) => { stdout += data; });
-    child.stderr.on('data', (data) => { stderr += data; });
+    child.stdout.on('data', (data) => {
+      stdout += data;
+    });
+    child.stderr.on('data', (data) => {
+      stderr += data;
+    });
 
     const [code] = await once(child, 'exit');
 
@@ -278,18 +276,18 @@ import edge_tts
 async def generate(text: str, voice: str, output: str) -> dict:
     communicate = edge_tts.Communicate(text, voice)
     sub_maker = edge_tts.SubMaker()
-    
+
     audio_data = bytearray()
-    
+
     async for chunk in communicate.stream():
         if chunk["type"] == "audio":
             audio_data.extend(chunk["data"])
         elif chunk["type"] == "WordBoundary":
             sub_maker.feed(chunk)
-    
+
     with open(output, "wb") as f:
         f.write(audio_data)
-    
+
     return {
         "audioPath": output,
         "words": [
@@ -316,7 +314,7 @@ if __name__ == "__main__":
 
 Document Python requirements clearly:
 
-```markdown
+````markdown
 ## Prerequisites
 
 - Node.js 18+
@@ -329,6 +327,8 @@ If Kokoro doesn't support your language, install Edge TTS:
 ```bash
 pip install edge-tts
 ```
+````
+
 ```
 
 ### 4.2 Future: Bundled Python (Post-MVP)
@@ -358,3 +358,4 @@ For end-user distribution, consider:
 - [vendor/short-video-maker-gyori](../../../vendor/short-video-maker-gyori) — Native alternatives
 - [vendor/mcp/create-mcp](../../../vendor/mcp/create-mcp) — Cross-platform command execution
 - [vendor/video-processing/moviepy](../../../vendor/video-processing/moviepy) — Windows subprocess handling
+```

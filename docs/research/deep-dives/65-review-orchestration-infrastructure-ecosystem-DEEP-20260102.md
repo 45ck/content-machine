@@ -11,6 +11,7 @@
 This deep dive analyzes the **infrastructure layer** critical for content-machine's production deployment: review dashboards for human-in-the-loop approval, workflow orchestration for pipeline automation, job queues for async processing, and storage systems for assets and embeddings. These tools form the operational backbone that transforms content-machine from a prototype into a production-ready system.
 
 **Key Findings:**
+
 - **Review UI:** Appsmith and Budibase offer no-code admin panel builders; React-Admin provides React-native flexibility
 - **Orchestration:** n8n excels for visual AI workflows; Temporal for durable execution; Airflow for batch scheduling
 - **Job Queue:** BullMQ is the clear winner for TypeScript/Node.js with Redis
@@ -23,6 +24,7 @@ This deep dive analyzes the **infrastructure layer** critical for content-machin
 ### The Human-in-the-Loop Challenge
 
 Content-machine requires human review before publishing AI-generated videos. Operators need:
+
 - Preview videos before publish
 - Approve/reject with feedback
 - Edit metadata (titles, tags, descriptions)
@@ -42,14 +44,14 @@ Appsmith is an **open-source low-code platform** for building internal tools, da
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Visual Builder** | Drag-and-drop UI components |
-| **Data Sources** | 45+ integrations (PostgreSQL, MySQL, MongoDB, REST APIs, GraphQL) |
-| **JavaScript Support** | Write custom logic inside widgets |
-| **Git Integration** | Version control for applications |
-| **Self-Hosted** | Full control over data and deployment |
-| **Appsmith Agents** | New AI-native platform for business automation |
+| Feature                | Description                                                       |
+| ---------------------- | ----------------------------------------------------------------- |
+| **Visual Builder**     | Drag-and-drop UI components                                       |
+| **Data Sources**       | 45+ integrations (PostgreSQL, MySQL, MongoDB, REST APIs, GraphQL) |
+| **JavaScript Support** | Write custom logic inside widgets                                 |
+| **Git Integration**    | Version control for applications                                  |
+| **Self-Hosted**        | Full control over data and deployment                             |
+| **Appsmith Agents**    | New AI-native platform for business automation                    |
 
 #### Architecture
 
@@ -92,13 +94,13 @@ ORDER BY v.created_at DESC
 
 #### Pros & Cons
 
-| Pros | Cons |
-|------|------|
-| ✅ Self-hosted, full control | ⚠️ Java backend (memory heavy) |
-| ✅ Rich component library | ⚠️ Learning curve for complex apps |
-| ✅ Active community | ⚠️ Some enterprise features paywalled |
-| ✅ Git-based version control | |
-| ✅ JavaScript for custom logic | |
+| Pros                           | Cons                                  |
+| ------------------------------ | ------------------------------------- |
+| ✅ Self-hosted, full control   | ⚠️ Java backend (memory heavy)        |
+| ✅ Rich component library      | ⚠️ Learning curve for complex apps    |
+| ✅ Active community            | ⚠️ Some enterprise features paywalled |
+| ✅ Git-based version control   |                                       |
+| ✅ JavaScript for custom logic |                                       |
 
 ---
 
@@ -115,14 +117,14 @@ Budibase is an **open-source low-code platform** focused on building internal ap
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Form Builder** | Approval forms, data entry |
-| **Automation** | Built-in workflow automation |
-| **Data Sources** | PostgreSQL, MySQL, REST, Google Sheets, Airtable |
-| **Self-Hosted** | Docker, Kubernetes, Digital Ocean |
-| **Public API** | Full REST API for external integration |
-| **Responsive Design** | Mobile-friendly by default |
+| Feature               | Description                                      |
+| --------------------- | ------------------------------------------------ |
+| **Form Builder**      | Approval forms, data entry                       |
+| **Automation**        | Built-in workflow automation                     |
+| **Data Sources**      | PostgreSQL, MySQL, REST, Google Sheets, Airtable |
+| **Self-Hosted**       | Docker, Kubernetes, Digital Ocean                |
+| **Public API**        | Full REST API for external integration           |
+| **Responsive Design** | Mobile-friendly by default                       |
 
 #### Architecture
 
@@ -167,13 +169,13 @@ Budibase is an **open-source low-code platform** focused on building internal ap
 
 #### Pros & Cons
 
-| Pros | Cons |
-|------|------|
+| Pros                                       | Cons                          |
+| ------------------------------------------ | ----------------------------- |
 | ✅ Node.js backend (lighter than Appsmith) | ⚠️ GPL license considerations |
-| ✅ Built-in automations | ⚠️ Smaller component library |
-| ✅ Modern Svelte UI | ⚠️ Younger ecosystem |
-| ✅ Great documentation | |
-| ✅ Public API | |
+| ✅ Built-in automations                    | ⚠️ Smaller component library  |
+| ✅ Modern Svelte UI                        | ⚠️ Younger ecosystem          |
+| ✅ Great documentation                     |                               |
+| ✅ Public API                              |                               |
 
 ---
 
@@ -190,14 +192,14 @@ React-Admin is a **frontend framework** for building admin applications using Re
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **45+ Data Adapters** | REST, GraphQL, Firebase, Supabase, Hasura |
-| **Full React** | Use any React library or custom components |
-| **TypeScript Native** | Type-safe development |
-| **Material UI** | Beautiful, accessible components |
-| **Undo/Redo** | Optimistic rendering |
-| **I18n** | Built-in internationalization |
+| Feature               | Description                                |
+| --------------------- | ------------------------------------------ |
+| **45+ Data Adapters** | REST, GraphQL, Firebase, Supabase, Hasura  |
+| **Full React**        | Use any React library or custom components |
+| **TypeScript Native** | Type-safe development                      |
+| **Material UI**       | Beautiful, accessible components           |
+| **Undo/Redo**         | Optimistic rendering                       |
+| **I18n**              | Built-in internationalization              |
 
 #### Architecture
 
@@ -214,9 +216,17 @@ React-Admin is a **frontend framework** for building admin applications using Re
 
 ```tsx
 // Video Review Component
-import { List, DataTable, Edit, SimpleForm, 
-         TextInput, SelectInput, DateTimeInput,
-         useRecordContext, Button } from 'react-admin';
+import {
+  List,
+  DataTable,
+  Edit,
+  SimpleForm,
+  TextInput,
+  SelectInput,
+  DateTimeInput,
+  useRecordContext,
+  Button,
+} from 'react-admin';
 
 export const VideoList = () => (
   <List filters={videoFilters}>
@@ -252,41 +262,46 @@ const ApproveButton = () => {
     data: { status: 'approved' },
     previousData: record,
   });
-  
-  return <Button onClick={approve} disabled={loading}>Approve</Button>;
+
+  return (
+    <Button onClick={approve} disabled={loading}>
+      Approve
+    </Button>
+  );
 };
 ```
 
 #### Pros & Cons
 
-| Pros | Cons |
-|------|------|
-| ✅ Full React flexibility | ⚠️ Requires coding skills |
-| ✅ MIT license | ⚠️ More setup time |
-| ✅ TypeScript native | ⚠️ No visual builder |
-| ✅ 45+ data adapters | ⚠️ Need separate hosting |
-| ✅ Enterprise Edition available | |
+| Pros                            | Cons                      |
+| ------------------------------- | ------------------------- |
+| ✅ Full React flexibility       | ⚠️ Requires coding skills |
+| ✅ MIT license                  | ⚠️ More setup time        |
+| ✅ TypeScript native            | ⚠️ No visual builder      |
+| ✅ 45+ data adapters            | ⚠️ Need separate hosting  |
+| ✅ Enterprise Edition available |                           |
 
 ---
 
 ### Review UI Comparison Matrix
 
-| Criteria | Appsmith | Budibase | React-Admin |
-|----------|----------|----------|-------------|
-| **Build Speed** | Fast (visual) | Fast (visual) | Slower (code) |
-| **Flexibility** | Medium | Medium | High |
-| **TypeScript** | ❌ | ❌ | ✅ Native |
-| **Self-Hosted** | ✅ | ✅ | ✅ (DIY) |
-| **License** | Apache 2.0 | GPL v3 | MIT |
-| **Automations** | ⚠️ Limited | ✅ Built-in | ❌ (external) |
-| **Learning Curve** | Low | Low | Medium |
-| **Production Ready** | ✅ | ✅ | ✅ |
+| Criteria             | Appsmith      | Budibase      | React-Admin   |
+| -------------------- | ------------- | ------------- | ------------- |
+| **Build Speed**      | Fast (visual) | Fast (visual) | Slower (code) |
+| **Flexibility**      | Medium        | Medium        | High          |
+| **TypeScript**       | ❌            | ❌            | ✅ Native     |
+| **Self-Hosted**      | ✅            | ✅            | ✅ (DIY)      |
+| **License**          | Apache 2.0    | GPL v3        | MIT           |
+| **Automations**      | ⚠️ Limited    | ✅ Built-in   | ❌ (external) |
+| **Learning Curve**   | Low           | Low           | Medium        |
+| **Production Ready** | ✅            | ✅            | ✅            |
 
 ### Recommendation for Content-Machine
 
 **Primary: React-Admin** + custom React components
 
 **Rationale:**
+
 1. **TypeScript Native:** Matches content-machine tech stack
 2. **Full Flexibility:** Custom video preview, approval workflows
 3. **MIT License:** No restrictions
@@ -301,11 +316,13 @@ const ApproveButton = () => {
 ### The Pipeline Automation Challenge
 
 Content-machine has a complex multi-stage pipeline:
+
 ```
 Trend Research → Content Planning → Capture → Script → TTS → Render → Review → Publish
 ```
 
 Each stage may:
+
 - Take minutes to hours
 - Fail and need retry
 - Depend on external APIs
@@ -324,14 +341,14 @@ n8n is a **workflow automation platform** that lets you connect anything to ever
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
+| Feature               | Description                                    |
+| --------------------- | ---------------------------------------------- |
 | **400+ Integrations** | HTTP, databases, AI services, social platforms |
-| **AI-Native** | LangChain nodes, AI agent workflows |
-| **Code When Needed** | JavaScript/Python in any node |
-| **Self-Hosted** | Full data control |
-| **Visual Editor** | Drag-and-drop workflow builder |
-| **Credentials Vault** | Secure API key management |
+| **AI-Native**         | LangChain nodes, AI agent workflows            |
+| **Code When Needed**  | JavaScript/Python in any node                  |
+| **Self-Hosted**       | Full data control                              |
+| **Visual Editor**     | Drag-and-drop workflow builder                 |
+| **Credentials Vault** | Secure API key management                      |
 
 #### Architecture
 
@@ -419,13 +436,13 @@ n8n is a **workflow automation platform** that lets you connect anything to ever
 
 #### Pros & Cons
 
-| Pros | Cons |
-|------|------|
-| ✅ Visual workflow builder | ⚠️ Fair-code license (not OSI approved) |
-| ✅ 400+ integrations | ⚠️ Memory heavy for large workflows |
-| ✅ AI-native with LangChain | ⚠️ Self-hosted complexity |
-| ✅ Active community | |
-| ✅ Can embed custom code | |
+| Pros                        | Cons                                    |
+| --------------------------- | --------------------------------------- |
+| ✅ Visual workflow builder  | ⚠️ Fair-code license (not OSI approved) |
+| ✅ 400+ integrations        | ⚠️ Memory heavy for large workflows     |
+| ✅ AI-native with LangChain | ⚠️ Self-hosted complexity               |
+| ✅ Active community         |                                         |
+| ✅ Can embed custom code    |                                         |
 
 ---
 
@@ -442,14 +459,14 @@ Temporal is a **durable execution platform** that makes code fault-tolerant by d
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Durable Execution** | Survives crashes, restarts, network failures |
-| **Language Native** | Write workflows in TypeScript/Python/Go/Java |
-| **Long-Running** | Workflows can run for years |
-| **Visibility** | Built-in Web UI for monitoring |
-| **Versioning** | Safe workflow updates without breaking running instances |
-| **Retry Policies** | Configurable retry with backoff |
+| Feature               | Description                                              |
+| --------------------- | -------------------------------------------------------- |
+| **Durable Execution** | Survives crashes, restarts, network failures             |
+| **Language Native**   | Write workflows in TypeScript/Python/Go/Java             |
+| **Long-Running**      | Workflows can run for years                              |
+| **Visibility**        | Built-in Web UI for monitoring                           |
+| **Versioning**        | Safe workflow updates without breaking running instances |
+| **Retry Policies**    | Configurable retry with backoff                          |
 
 #### Architecture
 
@@ -472,43 +489,44 @@ Temporal is a **durable execution platform** that makes code fault-tolerant by d
 import { proxyActivities, sleep, defineSignal } from '@temporalio/workflow';
 import type * as activities from './activities';
 
-const { generateScript, generateTTS, captureUI, renderVideo, uploadVideo } = 
-  proxyActivities<typeof activities>({
-    startToCloseTimeout: '10 minutes',
-    retry: { maximumAttempts: 3 }
-  });
+const { generateScript, generateTTS, captureUI, renderVideo, uploadVideo } = proxyActivities<
+  typeof activities
+>({
+  startToCloseTimeout: '10 minutes',
+  retry: { maximumAttempts: 3 },
+});
 
 export const reviewSignal = defineSignal<[{ approved: boolean; feedback?: string }]>('review');
 
 export async function videoGenerationWorkflow(trend: TrendInput): Promise<VideoOutput> {
   // Step 1: Generate script
   const script = await generateScript(trend);
-  
+
   // Step 2: Generate TTS audio
   const audio = await generateTTS(script);
-  
+
   // Step 3: Capture product UI
   const captures = await captureUI(trend.product, script.scenes);
-  
+
   // Step 4: Render video
   const video = await renderVideo({ script, audio, captures });
-  
+
   // Step 5: Wait for human review (can wait forever!)
   let reviewResult: { approved: boolean; feedback?: string } | null = null;
-  
+
   setHandler(reviewSignal, (result) => {
     reviewResult = result;
   });
-  
+
   await condition(() => reviewResult !== null, '7 days'); // Wait up to 7 days
-  
+
   if (!reviewResult?.approved) {
     throw ApplicationFailure.nonRetryable('Video rejected', { feedback: reviewResult?.feedback });
   }
-  
+
   // Step 6: Upload to platforms
   const uploaded = await uploadVideo(video, trend.platforms);
-  
+
   return { videoId: video.id, platforms: uploaded };
 }
 ```
@@ -518,7 +536,7 @@ export async function videoGenerationWorkflow(trend: TrendInput): Promise<VideoO
 export async function generateScript(trend: TrendInput): Promise<Script> {
   const response = await fetch('http://localhost:3000/api/script', {
     method: 'POST',
-    body: JSON.stringify(trend)
+    body: JSON.stringify(trend),
   });
   return response.json();
 }
@@ -526,7 +544,7 @@ export async function generateScript(trend: TrendInput): Promise<Script> {
 export async function renderVideo(input: RenderInput): Promise<Video> {
   // Call Remotion render
   const { id } = await startRender(input);
-  
+
   // Poll for completion (Temporal handles retries)
   while (true) {
     const status = await getRenderStatus(id);
@@ -538,13 +556,13 @@ export async function renderVideo(input: RenderInput): Promise<Video> {
 
 #### Pros & Cons
 
-| Pros | Cons |
-|------|------|
-| ✅ Code-native (TypeScript!) | ⚠️ Steeper learning curve |
-| ✅ True durability | ⚠️ Requires Temporal server |
-| ✅ MIT license | ⚠️ Overkill for simple workflows |
-| ✅ Long-running workflows | |
-| ✅ Signal-based human-in-the-loop | |
+| Pros                              | Cons                             |
+| --------------------------------- | -------------------------------- |
+| ✅ Code-native (TypeScript!)      | ⚠️ Steeper learning curve        |
+| ✅ True durability                | ⚠️ Requires Temporal server      |
+| ✅ MIT license                    | ⚠️ Overkill for simple workflows |
+| ✅ Long-running workflows         |                                  |
+| ✅ Signal-based human-in-the-loop |                                  |
 
 ---
 
@@ -561,14 +579,14 @@ Apache Airflow is the **industry standard** for batch workflow orchestration. It
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **DAG-Based** | Define workflows as Python code |
-| **Scheduling** | Cron-like scheduling with catchup |
-| **Rich UI** | Monitor DAGs, tasks, logs |
-| **Extensible** | 1000+ provider packages |
-| **Kubernetes Native** | KubernetesExecutor for scaling |
-| **XCom** | Pass data between tasks |
+| Feature               | Description                       |
+| --------------------- | --------------------------------- |
+| **DAG-Based**         | Define workflows as Python code   |
+| **Scheduling**        | Cron-like scheduling with catchup |
+| **Rich UI**           | Monitor DAGs, tasks, logs         |
+| **Extensible**        | 1000+ provider packages           |
+| **Kubernetes Native** | KubernetesExecutor for scaling    |
+| **XCom**              | Pass data between tasks           |
 
 #### Architecture
 
@@ -604,46 +622,46 @@ with DAG(
     start_date=datetime(2026, 1, 1),
     catchup=False,
 ) as dag:
-    
+
     fetch_trends = PythonOperator(
         task_id='fetch_trends',
         python_callable=fetch_reddit_trends,
     )
-    
+
     generate_scripts = PythonOperator(
         task_id='generate_scripts',
         python_callable=generate_video_scripts,
     )
-    
+
     render_videos = BashOperator(
         task_id='render_videos',
         bash_command='npm run render -- --batch {{ task_instance.xcom_pull("generate_scripts") }}',
     )
-    
+
     wait_for_approval = PythonSensor(
         task_id='wait_for_approval',
         python_callable=check_approvals,
         poke_interval=300,  # Check every 5 minutes
         timeout=86400,  # Wait up to 24 hours
     )
-    
+
     publish_videos = PythonOperator(
         task_id='publish_videos',
         python_callable=publish_approved_videos,
     )
-    
+
     fetch_trends >> generate_scripts >> render_videos >> wait_for_approval >> publish_videos
 ```
 
 #### Pros & Cons
 
-| Pros | Cons |
-|------|------|
-| ✅ Industry standard | ⚠️ Python only |
-| ✅ Rich ecosystem | ⚠️ Not for real-time |
-| ✅ Excellent UI | ⚠️ Complex setup |
+| Pros                  | Cons                   |
+| --------------------- | ---------------------- |
+| ✅ Industry standard  | ⚠️ Python only         |
+| ✅ Rich ecosystem     | ⚠️ Not for real-time   |
+| ✅ Excellent UI       | ⚠️ Complex setup       |
 | ✅ Apache 2.0 license | ⚠️ DAG paradigm limits |
-| ✅ Kubernetes native | |
+| ✅ Kubernetes native  |                        |
 
 ---
 
@@ -659,13 +677,13 @@ AI Video Workflow is a **desktop application** (not a platform) that orchestrate
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Text-to-Image** | LibLibAI integration |
-| **Image-to-Video** | Jimeng (Volcano Engine) I2V |
-| **Text-to-Music** | Jimeng music generation |
-| **FFmpeg Merge** | Automatic audio+video composition |
-| **Doubao LLM** | AI prompt generation |
+| Feature            | Description                       |
+| ------------------ | --------------------------------- |
+| **Text-to-Image**  | LibLibAI integration              |
+| **Image-to-Video** | Jimeng (Volcano Engine) I2V       |
+| **Text-to-Music**  | Jimeng music generation           |
+| **FFmpeg Merge**   | Automatic audio+video composition |
+| **Doubao LLM**     | AI prompt generation              |
 
 #### Relevance to Content-Machine
 
@@ -677,21 +695,22 @@ AI Video Workflow is a **desktop application** (not a platform) that orchestrate
 
 ### Orchestration Comparison Matrix
 
-| Criteria | n8n | Temporal | Airflow | AI Video Workflow |
-|----------|-----|----------|---------|-------------------|
-| **Paradigm** | Visual | Code | DAG | Desktop App |
-| **Language** | JS/Python | TS/Py/Go/Java | Python | Python |
-| **Best For** | Integrations | Durability | Batch ETL | Reference Only |
-| **Real-time** | ✅ | ✅ | ❌ | N/A |
-| **Human-in-loop** | ⚠️ Webhooks | ✅ Signals | ⚠️ Sensors | ❌ |
-| **Learning Curve** | Low | High | Medium | N/A |
-| **License** | Fair-code | MIT | Apache 2.0 | MIT |
+| Criteria           | n8n          | Temporal      | Airflow    | AI Video Workflow |
+| ------------------ | ------------ | ------------- | ---------- | ----------------- |
+| **Paradigm**       | Visual       | Code          | DAG        | Desktop App       |
+| **Language**       | JS/Python    | TS/Py/Go/Java | Python     | Python            |
+| **Best For**       | Integrations | Durability    | Batch ETL  | Reference Only    |
+| **Real-time**      | ✅           | ✅            | ❌         | N/A               |
+| **Human-in-loop**  | ⚠️ Webhooks  | ✅ Signals    | ⚠️ Sensors | ❌                |
+| **Learning Curve** | Low          | High          | Medium     | N/A               |
+| **License**        | Fair-code    | MIT           | Apache 2.0 | MIT               |
 
 ### Recommendation for Content-Machine
 
 **Primary: Temporal** for core pipeline orchestration
 
 **Rationale:**
+
 1. **TypeScript Native:** Matches content-machine stack
 2. **Durable Execution:** Survives crashes, network issues
 3. **Human-in-the-Loop:** Built-in signal support for review workflow
@@ -717,16 +736,16 @@ BullMQ is the **fastest, most reliable Redis-based distributed queue** for Node.
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Redis-Based** | Fast, reliable message passing |
-| **TypeScript Native** | Full type safety |
-| **Job Priority** | Process important jobs first |
-| **Rate Limiting** | Prevent API abuse |
-| **Job Progress** | Track long-running jobs |
-| **Retries** | Configurable retry policies |
-| **Cron Jobs** | Scheduled/repeated jobs |
-| **Flows** | Job dependencies and chains |
+| Feature               | Description                    |
+| --------------------- | ------------------------------ |
+| **Redis-Based**       | Fast, reliable message passing |
+| **TypeScript Native** | Full type safety               |
+| **Job Priority**      | Process important jobs first   |
+| **Rate Limiting**     | Prevent API abuse              |
+| **Job Progress**      | Track long-running jobs        |
+| **Retries**           | Configurable retry policies    |
+| **Cron Jobs**         | Scheduled/repeated jobs        |
+| **Flows**             | Job dependencies and chains    |
 
 #### Content-Machine Integration
 
@@ -765,17 +784,18 @@ await flowProducer.add({
             {
               name: 'generate-script',
               queueName: 'script-generation',
-              data: { trend: 'AI coding tools' }
-            }
-          ]
-        }
-      ]
-    }
-  ]
+              data: { trend: 'AI coding tools' },
+            },
+          ],
+        },
+      ],
+    },
+  ],
 });
 
 // Worker with rate limiting
-const ttsWorker = new Worker('tts-generation', 
+const ttsWorker = new Worker(
+  'tts-generation',
   async (job: Job) => {
     const audio = await generateTTS(job.data.text, job.data.voice);
     await job.updateProgress(100);
@@ -784,9 +804,9 @@ const ttsWorker = new Worker('tts-generation',
   {
     connection,
     limiter: {
-      max: 10,        // Max 10 jobs
-      duration: 1000  // Per second
-    }
+      max: 10, // Max 10 jobs
+      duration: 1000, // Per second
+    },
   }
 );
 
@@ -802,18 +822,19 @@ ttsWorker.on('failed', (job, err) => {
 
 #### Pros & Cons
 
-| Pros | Cons |
-|------|------|
-| ✅ TypeScript native | ⚠️ Requires Redis |
-| ✅ Extremely fast | ⚠️ Redis can be memory-heavy |
-| ✅ Job flows/dependencies | |
-| ✅ Rate limiting built-in | |
-| ✅ Production-proven (NestJS, Langfuse) | |
-| ✅ MIT license | |
+| Pros                                    | Cons                         |
+| --------------------------------------- | ---------------------------- |
+| ✅ TypeScript native                    | ⚠️ Requires Redis            |
+| ✅ Extremely fast                       | ⚠️ Redis can be memory-heavy |
+| ✅ Job flows/dependencies               |                              |
+| ✅ Rate limiting built-in               |                              |
+| ✅ Production-proven (NestJS, Langfuse) |                              |
+| ✅ MIT license                          |                              |
 
 ### BullMQ for Content-Machine
 
 **Recommendation: Use BullMQ** for all async job processing:
+
 - Script generation jobs
 - TTS generation jobs
 - Render jobs
@@ -821,6 +842,7 @@ ttsWorker.on('failed', (job, err) => {
 - Analytics processing
 
 **Architecture:**
+
 ```
 [API Server]
     ├── Add jobs to queues
@@ -856,14 +878,14 @@ Qdrant is a **vector similarity search engine** and database. It's designed for 
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Vector Search** | Fast similarity search on embeddings |
-| **Payload Filtering** | Filter by JSON metadata |
-| **Hybrid Search** | Combine dense + sparse vectors |
-| **Quantization** | Reduce memory by 97% |
-| **Multi-Language SDKs** | Python, TypeScript, Rust, Go, .NET |
-| **REST + gRPC** | Multiple API options |
+| Feature                 | Description                          |
+| ----------------------- | ------------------------------------ |
+| **Vector Search**       | Fast similarity search on embeddings |
+| **Payload Filtering**   | Filter by JSON metadata              |
+| **Hybrid Search**       | Combine dense + sparse vectors       |
+| **Quantization**        | Reduce memory by 97%                 |
+| **Multi-Language SDKs** | Python, TypeScript, Rust, Go, .NET   |
+| **REST + gRPC**         | Multiple API options                 |
 
 #### Content-Machine Use Cases
 
@@ -888,10 +910,10 @@ await client.upsert('trends', {
         source: 'reddit',
         subreddit: 'programming',
         score: trend.score,
-        created_at: trend.created_at
-      }
-    }
-  ]
+        created_at: trend.created_at,
+      },
+    },
+  ],
 });
 
 // Semantic search for similar trends
@@ -900,10 +922,10 @@ const results = await client.search('trends', {
   filter: {
     must: [
       { key: 'source', match: { value: 'reddit' } },
-      { key: 'score', range: { gte: 100 } }
-    ]
+      { key: 'score', range: { gte: 100 } },
+    ],
   },
-  limit: 10
+  limit: 10,
 });
 ```
 
@@ -922,14 +944,14 @@ MinIO is a **high-performance, S3-compatible object storage** solution. It's the
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **S3 Compatible** | Drop-in S3 replacement |
+| Feature              | Description                   |
+| -------------------- | ----------------------------- |
+| **S3 Compatible**    | Drop-in S3 replacement        |
 | **High Performance** | Optimized for AI/ML workloads |
-| **Erasure Coding** | Data protection |
-| **Bucket Policies** | Access control |
-| **Object Lifecycle** | Automatic deletion/archival |
-| **Versioning** | Object version history |
+| **Erasure Coding**   | Data protection               |
+| **Bucket Policies**  | Access control                |
+| **Object Lifecycle** | Automatic deletion/archival   |
+| **Versioning**       | Object version history        |
 
 **Note:** MinIO is now in **maintenance mode** for the open-source community edition. Source builds only—no pre-compiled binaries.
 
@@ -949,30 +971,36 @@ const s3 = new S3Client({
   region: 'us-east-1',
   credentials: {
     accessKeyId: 'minioadmin',
-    secretAccessKey: 'minioadmin'
+    secretAccessKey: 'minioadmin',
   },
-  forcePathStyle: true
+  forcePathStyle: true,
 });
 
 // Upload rendered video
-await s3.send(new PutObjectCommand({
-  Bucket: 'videos',
-  Key: `renders/${videoId}/final.mp4`,
-  Body: videoBuffer,
-  ContentType: 'video/mp4',
-  Metadata: {
-    'x-video-id': videoId,
-    'x-render-time': renderTime.toString()
-  }
-}));
+await s3.send(
+  new PutObjectCommand({
+    Bucket: 'videos',
+    Key: `renders/${videoId}/final.mp4`,
+    Body: videoBuffer,
+    ContentType: 'video/mp4',
+    Metadata: {
+      'x-video-id': videoId,
+      'x-render-time': renderTime.toString(),
+    },
+  })
+);
 
 // Generate presigned URL for review
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-const url = await getSignedUrl(s3, new GetObjectCommand({
-  Bucket: 'videos',
-  Key: `renders/${videoId}/final.mp4`
-}), { expiresIn: 3600 });
+const url = await getSignedUrl(
+  s3,
+  new GetObjectCommand({
+    Bucket: 'videos',
+    Key: `renders/${videoId}/final.mp4`,
+  }),
+  { expiresIn: 3600 }
+);
 ```
 
 ---
@@ -1041,7 +1069,7 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       - redis_data:/data
 
@@ -1049,7 +1077,7 @@ services:
   qdrant:
     image: qdrant/qdrant
     ports:
-      - "6333:6333"
+      - '6333:6333'
     volumes:
       - qdrant_data:/qdrant/storage
 
@@ -1057,8 +1085,8 @@ services:
   minio:
     image: minio/minio
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - '9000:9000'
+      - '9001:9001'
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
@@ -1070,7 +1098,7 @@ services:
   postgres:
     image: postgres:15
     ports:
-      - "5432:5432"
+      - '5432:5432'
     environment:
       POSTGRES_DB: content_machine
       POSTGRES_USER: postgres
@@ -1082,8 +1110,8 @@ services:
   temporal:
     image: temporalio/auto-setup:latest
     ports:
-      - "7233:7233"
-      - "8233:8233"
+      - '7233:7233'
+      - '8233:8233'
     environment:
       - DB=postgresql
       - POSTGRES_USER=postgres
@@ -1096,7 +1124,7 @@ services:
   n8n:
     image: docker.n8n.io/n8nio/n8n
     ports:
-      - "5678:5678"
+      - '5678:5678'
     environment:
       - N8N_BASIC_AUTH_ACTIVE=true
       - N8N_BASIC_AUTH_USER=admin
@@ -1118,14 +1146,14 @@ volumes:
 
 ### Final Stack Recommendations
 
-| Layer | Primary Tool | Alternative | Rationale |
-|-------|--------------|-------------|-----------|
-| **Review UI** | React-Admin | Budibase | TypeScript native, MIT license, full flexibility |
-| **Orchestration** | Temporal | n8n | Durable execution, human-in-loop signals |
-| **Job Queue** | BullMQ | - | TypeScript native, Redis-based, production-proven |
-| **Vector Storage** | Qdrant | - | Fast, Rust-based, Apache 2.0 |
-| **Object Storage** | MinIO | S3 | Self-hosted, S3-compatible |
-| **Relational DB** | PostgreSQL | - | Industry standard, great TypeScript support |
+| Layer              | Primary Tool | Alternative | Rationale                                         |
+| ------------------ | ------------ | ----------- | ------------------------------------------------- |
+| **Review UI**      | React-Admin  | Budibase    | TypeScript native, MIT license, full flexibility  |
+| **Orchestration**  | Temporal     | n8n         | Durable execution, human-in-loop signals          |
+| **Job Queue**      | BullMQ       | -           | TypeScript native, Redis-based, production-proven |
+| **Vector Storage** | Qdrant       | -           | Fast, Rust-based, Apache 2.0                      |
+| **Object Storage** | MinIO        | S3          | Self-hosted, S3-compatible                        |
+| **Relational DB**  | PostgreSQL   | -           | Industry standard, great TypeScript support       |
 
 ### Implementation Priority
 
@@ -1148,9 +1176,9 @@ volumes:
 ---
 
 **Document Stats:**
+
 - Tools Analyzed: 9
 - Code Examples: 12
 - Architecture Diagrams: 3
 - Comparison Tables: 4
 - Word Count: ~7,500
-

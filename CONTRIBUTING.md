@@ -19,6 +19,7 @@ Thank you for your interest in contributing to Content Machine! This document pr
 ## Code of Conduct
 
 This project follows a code of conduct. By participating, you agree to:
+
 - Be respectful and inclusive
 - Welcome newcomers
 - Focus on constructive feedback
@@ -37,22 +38,26 @@ This project follows a code of conduct. By participating, you agree to:
 ### Setup
 
 1. **Fork and clone:**
+
    ```bash
    git fork https://github.com/45ck/content-machine.git
    cd content-machine
    ```
 
 2. **Install dependencies:**
+
    ```bash
    npm install
    ```
 
 3. **Update submodules:**
+
    ```bash
    .\scripts\vendor.ps1
    ```
 
 4. **Set up environment:**
+
    ```bash
    cp .env.example .env
    # Add your OPENAI_API_KEY
@@ -83,32 +88,38 @@ npm run dup:check      # Code duplication detection
 
 ### Quality Gate Thresholds
 
-| Check | Threshold | Action on Failure |
-|-------|-----------|-------------------|
+| Check                 | Threshold        | Action on Failure               |
+| --------------------- | ---------------- | ------------------------------- |
 | Cyclomatic complexity | ≤15 per function | Refactor into smaller functions |
-| Cognitive complexity | ≤15 per function | Simplify logic flow |
-| Nesting depth | ≤5 levels | Extract nested blocks |
-| Line coverage | ≥60% | Add tests for uncovered code |
-| Branch coverage | ≥50% | Add tests for edge cases |
-| Code duplication | ≤5% | Extract shared utilities |
+| Cognitive complexity  | ≤15 per function | Simplify logic flow             |
+| Nesting depth         | ≤5 levels        | Extract nested blocks           |
+| Line coverage         | ≥60%             | Add tests for uncovered code    |
+| Branch coverage       | ≥50%             | Add tests for edge cases        |
+| Code duplication      | ≤5%              | Extract shared utilities        |
 
 ### Fixing Common Issues
 
 **Complexity too high:**
+
 ```typescript
 // ❌ High complexity
 function processData(data) {
   if (data.type === 'A') {
-    if (data.subtype === 'A1') { /* ... */ }
-    else if (data.subtype === 'A2') { /* ... */ }
-  } else if (data.type === 'B') { /* ... */ }
+    if (data.subtype === 'A1') {
+      /* ... */
+    } else if (data.subtype === 'A2') {
+      /* ... */
+    }
+  } else if (data.type === 'B') {
+    /* ... */
+  }
 }
 
 // ✅ Lower complexity
 const processors = {
   'A-A1': processA1,
   'A-A2': processA2,
-  'B': processB,
+  B: processB,
 };
 function processData(data) {
   const key = data.subtype ? `${data.type}-${data.subtype}` : data.type;
@@ -117,18 +128,19 @@ function processData(data) {
 ```
 
 **Coverage too low:**
+
 - Add unit tests for new functions
 - Test error paths and edge cases
 - Use `npm run test:coverage` to identify uncovered lines
 
 ### Coverage Ratchet Schedule
 
-| Milestone | Coverage | Action |
-|-----------|----------|--------|
-| **Now** | Any | Overall thresholds: 60/60/60/50 |
-| **≥70%** | 70%+ overall | Enable `src/core/**` glob threshold (70/70/70/55) |
-| **≥75%** | 75%+ overall | Switch to negative thresholds (freeze uncovered counts) |
-| **Quarterly** | — | Review and tighten warn-level rules |
+| Milestone     | Coverage     | Action                                                  |
+| ------------- | ------------ | ------------------------------------------------------- |
+| **Now**       | Any          | Overall thresholds: 60/60/60/50                         |
+| **≥70%**      | 70%+ overall | Enable `src/core/**` glob threshold (70/70/70/55)       |
+| **≥75%**      | 75%+ overall | Switch to negative thresholds (freeze uncovered counts) |
+| **Quarterly** | —            | Review and tighten warn-level rules                     |
 
 ---
 
@@ -139,17 +151,20 @@ function processData(data) {
 **REQUIRED:** All work must be tracked via tasks in `tasks/`.
 
 1. **Check existing tasks:**
+
    ```bash
    ls tasks/todo/*.md
    ```
 
 2. **Create a task:**
+
    ```bash
    # Copy appropriate template
    cp tasks/templates/TASK-FEATURE.template.md tasks/todo/TASK-NNN-feature-your-feature-YYYYMMDD.md
    ```
 
 3. **Move to in-progress:**
+
    ```bash
    mv tasks/todo/TASK-NNN-*.md tasks/in_progress/
    ```
@@ -186,30 +201,36 @@ function processData(data) {
 
 ```markdown
 ## Description
+
 [What does this PR do?]
 
 ## Related Task
+
 Closes #NNN [TASK-NNN-type-description-YYYYMMDD.md](link)
 
 ## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Breaking change
 - [ ] Documentation update
 
 ## Testing
+
 - [ ] Unit tests added/updated
 - [ ] Integration tests added/updated
 - [ ] E2E tests added/updated (if applicable)
 - [ ] Manual testing completed
 
 ## Documentation
+
 - [ ] AGENTS.md updated (if needed)
 - [ ] docs/ updated with YYYYMMDD suffix
 - [ ] README updated (if needed)
 - [ ] Task file completed
 
 ## Verification Checklist
+
 - [ ] All acceptance criteria met
 - [ ] Tests pass locally
 - [ ] No merge conflicts
@@ -230,14 +251,17 @@ Closes #NNN [TASK-NNN-type-description-YYYYMMDD.md](link)
 ### File Naming
 
 **Documentation:**
+
 - Format: `[type]-[name]-YYYYMMDD.md`
 - Example: `feature-mcp-reddit-20260102.md`
 
 **Tasks:**
+
 - Format: `TASK-NNN-[type]-[name]-YYYYMMDD.md`
 - Example: `TASK-001-feature-captions-20260102.md`
 
 **Code:**
+
 - camelCase for variables/functions
 - PascalCase for classes/types
 - kebab-case for file names
@@ -292,7 +316,7 @@ logger.info('Video generated', {
   videoId,
   duration,
   outputPath,
-  timestamp: new Date().toISOString()
+  timestamp: new Date().toISOString(),
 });
 
 // ❌ Bad - console.log
@@ -308,17 +332,20 @@ console.log('Video generated:', videoId);
 **ALL documentation MUST include `YYYYMMDD` suffix:**
 
 ✅ **Correct:**
+
 - `feature-caption-system-20260102.md`
 - `adr-001-use-remotion-20260102.md`
 - `guide-setup-playwright-20260102.md`
 
 ❌ **Wrong:**
+
 - `feature-caption-system.md` (NO DATE)
 - `adr-001-use-remotion.md` (NO DATE)
 
 ### Templates
 
 **ALWAYS use templates** from `docs/templates/`:
+
 - Feature specs → `FEATURE.template.md`
 - Bug reports → `BUG.template.md`
 - ADRs → `ADR.template.md`
@@ -327,6 +354,7 @@ console.log('Video generated:', videoId);
 ### Diátaxis Framework
 
 Follow [Diátaxis](https://diataxis.fr/) categorization:
+
 - **Tutorials** - Learning-oriented (step-by-step)
 - **Guides** - Task-oriented (solve specific problem)
 - **Reference** - Information-oriented (technical specs)
@@ -360,12 +388,14 @@ describe('functionToTest', () => {
 **Tests MUST be written BEFORE implementation:**
 
 1. **🔴 RED**: Write failing test
+
    ```bash
    npm test
    # Test should FAIL
    ```
 
 2. **🟢 GREEN**: Write minimal code to pass
+
    ```bash
    # Implement feature
    npm test

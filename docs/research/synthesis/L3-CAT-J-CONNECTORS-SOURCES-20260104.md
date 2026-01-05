@@ -15,15 +15,15 @@ Content connectors source trending topics and raw content for video generation. 
 
 ## Source Comparison
 
-| Source | API Cost | Content Type | Rate Limits |
-|--------|----------|--------------|-------------|
-| **Reddit** | Free* | Text, discussions | Varies |
-| **YouTube** | Free | Transcripts | Generous |
-| **Hacker News** | Free | Tech news | Unlimited |
-| **Tavily** | $$ | Web search | Per call |
-| **Firecrawl** | Self-host | Web scraping | Unlimited |
+| Source          | API Cost  | Content Type      | Rate Limits |
+| --------------- | --------- | ----------------- | ----------- |
+| **Reddit**      | Free\*    | Text, discussions | Varies      |
+| **YouTube**     | Free      | Transcripts       | Generous    |
+| **Hacker News** | Free      | Tech news         | Unlimited   |
+| **Tavily**      | $$        | Web search        | Per call    |
+| **Firecrawl**   | Self-host | Web scraping      | Unlimited   |
 
-*Reddit API now requires developer account
+\*Reddit API now requires developer account
 
 ---
 
@@ -43,7 +43,7 @@ async with Client("http://localhost:8001") as reddit:
         "sort": "hot",
         "limit": 20
     })
-    
+
     # Get comments
     comments = await reddit.call_tool("get_post_comments", {
         "post_url": posts[0]["url"],
@@ -60,7 +60,7 @@ import { createRedditClient } from './reddit-mcp';
 
 const client = createRedditClient({
   clientId: process.env.REDDIT_CLIENT_ID,
-  clientSecret: process.env.REDDIT_CLIENT_SECRET
+  clientSecret: process.env.REDDIT_CLIENT_SECRET,
 });
 
 // Get trending posts
@@ -70,7 +70,7 @@ const posts = await client.getHot('programming', { limit: 25 });
 const results = await client.search('AI tools', {
   subreddit: 'technology',
   sort: 'top',
-  time: 'week'
+  time: 'week',
 });
 ```
 
@@ -79,10 +79,10 @@ const results = await client.search('AI tools', {
 ```python
 async def extract_trending_topics(subreddits: list[str]) -> list[Topic]:
     topics = []
-    
+
     for sub in subreddits:
         posts = await reddit.browse(sub, sort="hot", limit=25)
-        
+
         for post in posts:
             if post['score'] > 100 and post['num_comments'] > 20:
                 topics.append(Topic(
@@ -91,7 +91,7 @@ async def extract_trending_topics(subreddits: list[str]) -> list[Topic]:
                     engagement=post['score'] + post['num_comments'],
                     url=post['url']
                 ))
-    
+
     # Rank by engagement
     return sorted(topics, key=lambda t: t.engagement, reverse=True)[:10]
 ```
@@ -165,7 +165,7 @@ async def get_top_stories(limit: int = 30) -> list[dict]:
         # Get top story IDs
         async with session.get('https://hacker-news.firebaseio.com/v0/topstories.json') as resp:
             story_ids = await resp.json()
-        
+
         # Fetch story details
         stories = []
         for story_id in story_ids[:limit]:
@@ -178,7 +178,7 @@ async def get_top_stories(limit: int = 30) -> list[dict]:
                     'score': story.get('score', 0),
                     'comments': story.get('descendants', 0)
                 })
-        
+
         return stories
 
 @mcp.tool()
@@ -311,7 +311,7 @@ class TrendingTopic:
 
 async def aggregate_trends(topic: str) -> list[TrendingTopic]:
     """Aggregate trending content from multiple sources."""
-    
+
     # Parallel fetch from all sources
     reddit_task = asyncio.create_task(
         reddit_mcp.call_tool("browse_subreddit", {
@@ -320,22 +320,22 @@ async def aggregate_trends(topic: str) -> list[TrendingTopic]:
             "limit": 20
         })
     )
-    
+
     hn_task = asyncio.create_task(
         hn_mcp.call_tool("get_top_stories", {"limit": 20})
     )
-    
+
     search_task = asyncio.create_task(
         tavily.search(topic, max_results=10)
     )
-    
+
     reddit_posts, hn_stories, search_results = await asyncio.gather(
         reddit_task, hn_task, search_task
     )
-    
+
     # Normalize and score
     trends = []
-    
+
     for post in reddit_posts:
         trends.append(TrendingTopic(
             title=post['title'],
@@ -344,7 +344,7 @@ async def aggregate_trends(topic: str) -> list[TrendingTopic]:
             url=post['url'],
             summary=post.get('selftext', '')[:200]
         ))
-    
+
     for story in hn_stories:
         trends.append(TrendingTopic(
             title=story['title'],
@@ -353,7 +353,7 @@ async def aggregate_trends(topic: str) -> list[TrendingTopic]:
             url=story['url'],
             summary=''
         ))
-    
+
     for result in search_results['results']:
         trends.append(TrendingTopic(
             title=result['title'],
@@ -362,7 +362,7 @@ async def aggregate_trends(topic: str) -> list[TrendingTopic]:
             url=result['url'],
             summary=result['content'][:200]
         ))
-    
+
     # Sort by score and deduplicate
     return sorted(trends, key=lambda t: t.score, reverse=True)[:15]
 ```
@@ -376,10 +376,10 @@ async def aggregate_trends(topic: str) -> list[TrendingTopic]:
 ```python
 async def reddit_to_video_topic(subreddit: str) -> VideoTopic:
     """Find viral Reddit story for video content."""
-    
+
     # Get top posts
     posts = await reddit.browse(subreddit, sort="top", time="week", limit=50)
-    
+
     # Filter for video-worthy content
     candidates = [
         p for p in posts
@@ -387,17 +387,17 @@ async def reddit_to_video_topic(subreddit: str) -> VideoTopic:
         and len(p.get('selftext', '')) > 100
         and not p['is_video']  # Text stories only
     ]
-    
+
     if not candidates:
         return None
-    
+
     # Pick best candidate
     best = max(candidates, key=lambda p: p['score'])
-    
+
     # Extract story content
     comments = await reddit.get_comments(best['url'], limit=30)
     top_comments = [c['body'] for c in comments if c['score'] > 50][:5]
-    
+
     return VideoTopic(
         title=best['title'],
         story=best['selftext'],
@@ -412,10 +412,10 @@ async def reddit_to_video_topic(subreddit: str) -> VideoTopic:
 ```python
 async def youtube_research_to_script(topic: str) -> str:
     """Research YouTube videos to create original script."""
-    
+
     # Find top videos on topic
     videos = await youtube.search(topic, max_results=5)
-    
+
     # Get transcripts
     transcripts = []
     for video in videos:
@@ -427,20 +427,20 @@ async def youtube_research_to_script(topic: str) -> str:
             })
         except:
             continue
-    
+
     # Synthesize into original script (via LLM)
     prompt = f"""
     Research the following video transcripts about "{topic}":
-    
+
     {json.dumps(transcripts, indent=2)}
-    
+
     Create an ORIGINAL 60-second script that:
     - Synthesizes key insights from these sources
     - Does NOT copy any content directly
     - Adds new perspective or angle
     - Is engaging for TikTok/Reels audience
     """
-    
+
     return await llm.generate(prompt)
 ```
 
@@ -458,13 +458,13 @@ class CachedConnector:
     def __init__(self, ttl_minutes: int = 30):
         self.cache = {}
         self.ttl = timedelta(minutes=ttl_minutes)
-    
+
     async def get_cached(self, key: str, fetch_fn):
         if key in self.cache:
             data, timestamp = self.cache[key]
             if datetime.now() - timestamp < self.ttl:
                 return data
-        
+
         data = await fetch_fn()
         self.cache[key] = (data, datetime.now())
         return data
@@ -489,19 +489,19 @@ class RateLimiter:
         self.semaphore = Semaphore(requests_per_minute)
         self.window_start = time()
         self.request_count = 0
-    
+
     async def acquire(self):
         current = time()
         if current - self.window_start > 60:
             self.window_start = current
             self.request_count = 0
-        
+
         if self.request_count >= self.rpm:
             wait_time = 60 - (current - self.window_start)
             await asyncio.sleep(wait_time)
             self.window_start = time()
             self.request_count = 0
-        
+
         self.request_count += 1
 
 # Usage

@@ -42,31 +42,33 @@ const videoQueue = new Queue('video-generation');
 // Add job
 await videoQueue.add('render', {
   contentId: 'video-123',
-  config: { /* render config */ }
+  config: {
+    /* render config */
+  },
 });
 
 // Process jobs
 const worker = new Worker('video-generation', async (job) => {
   const { contentId, config } = job.data;
-  
+
   // Long-running video generation
   const result = await generateVideo(contentId, config);
-  
+
   return result;
 });
 ```
 
 ### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Priority queues** | Prioritize urgent jobs |
-| **Rate limiting** | Control API call rates |
-| **Retries** | Configurable retry strategies |
-| **Delayed jobs** | Schedule for future execution |
-| **Job dependencies** | Parent-child relationships |
-| **Sandboxed workers** | Isolated process execution |
-| **Repeatable jobs** | Cron-like scheduling |
+| Feature               | Description                   |
+| --------------------- | ----------------------------- |
+| **Priority queues**   | Prioritize urgent jobs        |
+| **Rate limiting**     | Control API call rates        |
+| **Retries**           | Configurable retry strategies |
+| **Delayed jobs**      | Schedule for future execution |
+| **Job dependencies**  | Parent-child relationships    |
+| **Sandboxed workers** | Isolated process execution    |
+| **Repeatable jobs**   | Cron-like scheduling          |
 
 ### Content-Machine Use Cases
 
@@ -86,59 +88,71 @@ export const queues = {
 };
 
 // Trend research worker
-const trendsWorker = new Worker('trends', async (job) => {
-  const { source, keywords } = job.data;
-  
-  // Research trends from Reddit/HN/YouTube
-  const trends = await researchTrends(source, keywords);
-  
-  // Queue content planning for each trend
-  for (const trend of trends) {
-    await queues.capture.add('plan-content', {
-      trendId: trend.id,
-      topic: trend.topic,
-    });
-  }
-  
-  return { trendsFound: trends.length };
-}, { connection });
+const trendsWorker = new Worker(
+  'trends',
+  async (job) => {
+    const { source, keywords } = job.data;
+
+    // Research trends from Reddit/HN/YouTube
+    const trends = await researchTrends(source, keywords);
+
+    // Queue content planning for each trend
+    for (const trend of trends) {
+      await queues.capture.add('plan-content', {
+        trendId: trend.id,
+        topic: trend.topic,
+      });
+    }
+
+    return { trendsFound: trends.length };
+  },
+  { connection }
+);
 
 // Render worker with progress tracking
-const renderWorker = new Worker('render', async (job) => {
-  const { contentId, sceneConfigs } = job.data;
-  
-  for (let i = 0; i < sceneConfigs.length; i++) {
-    await renderScene(sceneConfigs[i]);
-    
-    // Update progress
-    await job.updateProgress((i + 1) / sceneConfigs.length * 100);
-  }
-  
-  const videoPath = await concatenateScenes(contentId);
-  return { videoPath };
-}, { 
-  connection,
-  concurrency: 2,  // 2 concurrent renders
-  limiter: {
-    max: 5,        // Max 5 jobs
-    duration: 60000, // Per minute
+const renderWorker = new Worker(
+  'render',
+  async (job) => {
+    const { contentId, sceneConfigs } = job.data;
+
+    for (let i = 0; i < sceneConfigs.length; i++) {
+      await renderScene(sceneConfigs[i]);
+
+      // Update progress
+      await job.updateProgress(((i + 1) / sceneConfigs.length) * 100);
+    }
+
+    const videoPath = await concatenateScenes(contentId);
+    return { videoPath };
   },
-});
+  {
+    connection,
+    concurrency: 2, // 2 concurrent renders
+    limiter: {
+      max: 5, // Max 5 jobs
+      duration: 60000, // Per minute
+    },
+  }
+);
 ```
 
 ### Job Flow Pattern
 
 ```typescript
 // Parent-child job dependencies
-const parentJob = await queues.render.add('full-video', {
-  contentId: 'video-123',
-}, {
-  children: [
-    { name: 'render-scene', data: { sceneId: 'scene-1' }, queueName: 'render' },
-    { name: 'render-scene', data: { sceneId: 'scene-2' }, queueName: 'render' },
-    { name: 'render-scene', data: { sceneId: 'scene-3' }, queueName: 'render' },
-  ],
-});
+const parentJob = await queues.render.add(
+  'full-video',
+  {
+    contentId: 'video-123',
+  },
+  {
+    children: [
+      { name: 'render-scene', data: { sceneId: 'scene-1' }, queueName: 'render' },
+      { name: 'render-scene', data: { sceneId: 'scene-2' }, queueName: 'render' },
+      { name: 'render-scene', data: { sceneId: 'scene-3' }, queueName: 'render' },
+    ],
+  }
+);
 
 // Wait for all children to complete
 await parentJob.waitUntilFinished();
@@ -166,22 +180,22 @@ const workflow = defineWorkflow('video-generation', async (input: VideoRequest) 
   const audio = await executeActivity('generateTTS', script);
   const video = await executeActivity('renderVideo', { audio, script });
   const published = await executeActivity('publishVideo', video);
-  
+
   return { videoId: published.id };
 });
 ```
 
 ### When to Use Temporal vs BullMQ
 
-| Scenario | BullMQ | Temporal |
-|----------|--------|----------|
-| Simple job queue | ✅ | Overkill |
-| Background processing | ✅ | ✅ |
-| Long-running (hours) | ⚠️ | ✅ |
-| Complex state machine | ⚠️ | ✅ |
-| Human-in-the-loop | ❌ | ✅ |
-| Multi-service orchestration | ⚠️ | ✅ |
-| Infrastructure complexity | Low | High |
+| Scenario                    | BullMQ | Temporal |
+| --------------------------- | ------ | -------- |
+| Simple job queue            | ✅     | Overkill |
+| Background processing       | ✅     | ✅       |
+| Long-running (hours)        | ⚠️     | ✅       |
+| Complex state machine       | ⚠️     | ✅       |
+| Human-in-the-loop           | ❌     | ✅       |
+| Multi-service orchestration | ⚠️     | ✅       |
+| Infrastructure complexity   | Low    | High     |
 
 ### Temporal for Content Pipeline
 
@@ -190,14 +204,14 @@ const workflow = defineWorkflow('video-generation', async (input: VideoRequest) 
 import * as workflow from '@temporalio/workflow';
 import type * as activities from './activities';
 
-const { 
-  researchTrends, 
-  generateScript, 
-  captureProduct, 
+const {
+  researchTrends,
+  generateScript,
+  captureProduct,
   generateTTS,
   renderVideo,
   submitForReview,
-  publishVideo 
+  publishVideo,
 } = workflow.proxyActivities<typeof activities>({
   startToCloseTimeout: '30 minutes',
   retry: { maximumAttempts: 3 },
@@ -206,49 +220,49 @@ const {
 export async function videoGenerationWorkflow(input: VideoRequest): Promise<VideoResult> {
   // Step 1: Research
   const trend = await researchTrends(input.topic);
-  
+
   // Step 2: Plan content
   const script = await generateScript({
     trend,
     productId: input.productId,
     targetLength: 60,
   });
-  
+
   // Step 3: Capture product UI
   const captures = await captureProduct({
     productId: input.productId,
     script,
   });
-  
+
   // Step 4: Generate TTS
   const audio = await generateTTS({
     script,
     voice: input.voice || 'alloy',
   });
-  
+
   // Step 5: Render video
   const video = await renderVideo({
     captures,
     audio,
     template: input.template,
   });
-  
+
   // Step 6: Human review (can pause for days)
   const approved = await workflow.condition(
     () => workflow.getExternalSignalByName('reviewCompleted'),
     { timeout: '7 days' }
   );
-  
+
   if (!approved) {
     throw new Error('Video rejected during review');
   }
-  
+
   // Step 7: Publish
   const result = await publishVideo({
     videoId: video.id,
     platforms: input.platforms,
   });
-  
+
   return result;
 }
 ```
@@ -278,10 +292,11 @@ This repo demonstrates orchestrating multiple AI APIs:
 ### Key Patterns
 
 **API Client with Authentication:**
+
 ```python
 class VolcengineAuth:
     """HMAC-SHA256 authentication for Volcengine APIs"""
-    
+
     def get_auth_headers(self, method, host, uri, query_params, body):
         # Sign request with HMAC-SHA256
         signature = self._sign_request(method, host, uri, query_params, body)
@@ -293,45 +308,47 @@ class VolcengineAuth:
 ```
 
 **Task Polling Pattern:**
+
 ```python
 def generate_image(self, params, poll_interval=5, timeout=300):
     # Submit task
     task_id = self.client.submit_task(params)
-    
+
     # Poll for completion
     start_time = time.time()
     while time.time() - start_time < timeout:
         result = self.client.query_status(task_id)
-        
+
         if result['status'] == 'done':
             return result['output_url']
-        
+
         if result['status'] in ['failed', 'error']:
             raise RuntimeError(f"Task failed: {result}")
-        
+
         time.sleep(poll_interval)
-    
+
     raise TimeoutError(f"Task did not complete in {timeout}s")
 ```
 
 **Pipeline Class:**
+
 ```python
 class AIGenerationPipeline:
     def __init__(self):
         self.liblib_client = None
         self.jimeng_i2v_client = None
         self.jimeng_music_client = None
-    
+
     def run_full_pipeline(self, image_params, video_params, music_params, output_path):
         # Step 1: Generate image
         image_url, image_path = self.generate_image(image_params)
-        
+
         # Step 2: Generate video from image
         video_url, video_path = self.generate_video(image_url, video_params)
-        
+
         # Step 3: Generate music and merge
         final_path = self.generate_music_and_merge(video_path, music_params, output_path)
-        
+
         return final_path
 ```
 
@@ -378,12 +395,12 @@ export function createWorker<T, R>(
     },
     { connection: redis, ...options }
   );
-  
+
   // Error handling
   worker.on('failed', (job, err) => {
     console.error(`Job ${job?.id} failed with: ${err.message}`);
   });
-  
+
   return worker;
 }
 ```
@@ -413,14 +430,14 @@ export async function startContentPipeline(request: ContentRequest): Promise<str
       delay: 5000,
     },
   });
-  
+
   return job.id;
 }
 
 // Content worker orchestrates the full pipeline
 createWorker<ContentRequest, ContentResult>('content', async (job) => {
   const { contentId, topic, productId } = job.data;
-  
+
   // Step 1: Capture product
   await job.updateProgress(10);
   const captureJob = await queues.capture.add('capture', {
@@ -428,14 +445,14 @@ createWorker<ContentRequest, ContentResult>('content', async (job) => {
     topic,
   });
   const captureResult = await captureJob.waitUntilFinished();
-  
+
   // Step 2: Generate TTS
   await job.updateProgress(30);
   const ttsJob = await queues.tts.add('generate', {
     script: captureResult.script,
   });
   const ttsResult = await ttsJob.waitUntilFinished();
-  
+
   // Step 3: Render video
   await job.updateProgress(50);
   const renderJob = await queues.render.add('render', {
@@ -444,14 +461,14 @@ createWorker<ContentRequest, ContentResult>('content', async (job) => {
     captions: ttsResult.wordTimings,
   });
   const renderResult = await renderJob.waitUntilFinished();
-  
+
   // Step 4: Submit for review
   await job.updateProgress(80);
   await queues.review.add('review', {
     contentId,
     videoPath: renderResult.videoPath,
   });
-  
+
   await job.updateProgress(100);
   return { videoPath: renderResult.videoPath, status: 'pending_review' };
 });
@@ -465,35 +482,35 @@ import { QueueEvents } from 'bullmq';
 
 export class PipelineEventEmitter {
   private events: Map<string, QueueEvents> = new Map();
-  
+
   constructor(queueNames: string[]) {
     for (const name of queueNames) {
       const queueEvents = new QueueEvents(name);
       this.events.set(name, queueEvents);
-      
+
       queueEvents.on('progress', ({ jobId, data }) => {
         this.onProgress(name, jobId, data);
       });
-      
+
       queueEvents.on('completed', ({ jobId, returnvalue }) => {
         this.onCompleted(name, jobId, returnvalue);
       });
-      
+
       queueEvents.on('failed', ({ jobId, failedReason }) => {
         this.onFailed(name, jobId, failedReason);
       });
     }
   }
-  
+
   private onProgress(queue: string, jobId: string, progress: number) {
     console.log(`[${queue}] Job ${jobId} progress: ${progress}%`);
     // Emit to SSE/WebSocket for client updates
   }
-  
+
   private onCompleted(queue: string, jobId: string, result: any) {
     console.log(`[${queue}] Job ${jobId} completed`);
   }
-  
+
   private onFailed(queue: string, jobId: string, reason: string) {
     console.error(`[${queue}] Job ${jobId} failed: ${reason}`);
   }
@@ -534,6 +551,7 @@ export class PipelineEventEmitter {
 ### Phase 2: Production (Consider Temporal)
 
 When complexity grows:
+
 - Human-in-the-loop review workflows
 - Long-running operations (multi-day approval)
 - Cross-service orchestration

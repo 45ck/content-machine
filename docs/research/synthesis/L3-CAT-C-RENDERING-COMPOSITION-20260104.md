@@ -15,12 +15,12 @@ Rendering and composition tools assemble final videos from audio, visuals, and c
 
 ## Rendering Engine Comparison
 
-| Engine | Language | Flexibility | Speed | Best For |
-|--------|----------|-------------|-------|----------|
-| **Remotion** | TypeScript/React | Excellent | Medium | Complex compositions |
-| **MoviePy** | Python | Good | Medium | Quick scripts |
-| **FFmpeg** | CLI | Limited | Fast | Simple assembly |
-| **Mosaico** | Python | Excellent | Medium | Declarative video |
+| Engine       | Language         | Flexibility | Speed  | Best For             |
+| ------------ | ---------------- | ----------- | ------ | -------------------- |
+| **Remotion** | TypeScript/React | Excellent   | Medium | Complex compositions |
+| **MoviePy**  | Python           | Good        | Medium | Quick scripts        |
+| **FFmpeg**   | CLI              | Limited     | Fast   | Simple assembly      |
+| **Mosaico**  | Python           | Excellent   | Medium | Declarative video    |
 
 ---
 
@@ -41,7 +41,7 @@ Rendering and composition tools assemble final videos from audio, visuals, and c
 export const ShortVideo = () => {
   const frame = useCurrentFrame();
   const { fps, durationInFrames } = useVideoConfig();
-  
+
   return (
     <AbsoluteFill>
       <BackgroundVideo />
@@ -65,13 +65,13 @@ registerRoot(() => (
 
 ### Key Libraries
 
-| Library | Purpose |
-|---------|---------|
-| **@remotion/player** | Preview in browser |
-| **@remotion/bundler** | Bundle for render |
-| **@remotion/renderer** | Headless rendering |
+| Library                   | Purpose               |
+| ------------------------- | --------------------- |
+| **@remotion/player**      | Preview in browser    |
+| **@remotion/bundler**     | Bundle for render     |
+| **@remotion/renderer**    | Headless rendering    |
 | **@remotion/media-utils** | Audio/video utilities |
-| **remotion-subtitles** | 17 caption styles |
+| **remotion-subtitles**    | 17 caption styles     |
 
 ### remotion-subtitles Integration
 
@@ -95,6 +95,7 @@ const captions = parseSRT(srtContent);
 ```
 
 ### Available Caption Styles
+
 - bounce, typewriter, fade, slide
 - word-by-word, karaoke, pop
 - glow, outline, shadow
@@ -114,7 +115,7 @@ const components = {
   media: ['image-gallery', 'video-player', 'logo-animation'],
   data: ['progress-bar', 'countdown', 'social-proof'],
   effects: ['particle-overlay', 'floating-icon', 'transition'],
-  captions: ['caption-sequence', 'word-highlight', 'karaoke']
+  captions: ['caption-sequence', 'word-highlight', 'karaoke'],
 };
 ```
 
@@ -125,19 +126,23 @@ const tokens = {
   colors: {
     primary: '#3B82F6',
     secondary: '#8B5CF6',
-    accent: '#F59E0B'
+    accent: '#F59E0B',
   },
   typography: {
     heading: { fontFamily: 'Inter', fontWeight: 700 },
-    body: { fontFamily: 'Inter', fontWeight: 400 }
+    body: { fontFamily: 'Inter', fontWeight: 400 },
   },
   spacing: {
-    xs: 4, sm: 8, md: 16, lg: 24, xl: 32
+    xs: 4,
+    sm: 8,
+    md: 16,
+    lg: 24,
+    xl: 32,
   },
   motion: {
     spring: { stiffness: 100, damping: 15 },
-    duration: { short: 150, medium: 300, long: 500 }
-  }
+    duration: { short: 150, medium: 300, long: 500 },
+  },
 };
 ```
 
@@ -146,19 +151,19 @@ const tokens = {
 ```typescript
 const platforms = {
   tiktok: {
-    safeTop: 150,     // For username
-    safeBottom: 250,  // For description/controls
+    safeTop: 150, // For username
+    safeBottom: 250, // For description/controls
     safeLeft: 50,
-    safeRight: 100    // For buttons
+    safeRight: 100, // For buttons
   },
   instagram: {
     safeTop: 120,
-    safeBottom: 200
+    safeBottom: 200,
   },
   youtube: {
     safeTop: 100,
-    safeBottom: 180
-  }
+    safeBottom: 180,
+  },
 };
 ```
 
@@ -194,6 +199,7 @@ video.render("output.mp4")
 ```
 
 ### When to Use Mosaico
+
 - Python-only environments
 - Simple compositions
 - Rapid prototyping
@@ -219,6 +225,7 @@ result = agent.execute(
 ```
 
 ### How It Works
+
 1. User describes edit in natural language
 2. LLM generates FFmpeg command
 3. Command is executed
@@ -257,11 +264,13 @@ video.write_videofile("output.mp4", fps=30, codec="libx264")
 ```
 
 ### Pros
+
 - Simple Python API
 - Good for quick scripts
 - No React knowledge needed
 
 ### Cons
+
 - Slower than FFmpeg
 - Less flexible than Remotion
 - Memory issues with long videos
@@ -283,6 +292,7 @@ ffmpeg -i background.mp4 \
 ```
 
 ### Caption Styling via ASS
+
 ```
 [Script Info]
 ScriptType: v4.00+
@@ -299,6 +309,7 @@ Style: Default,Arial,80,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,1,0,0,0,100,
 ## Composition Patterns
 
 ### Pattern 1: Layer-Based
+
 ```typescript
 <AbsoluteFill>
   <Layer z={0}><BackgroundVideo /></Layer>
@@ -309,6 +320,7 @@ Style: Default,Arial,80,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,1,0,0,0,100,
 ```
 
 ### Pattern 2: Timeline-Based
+
 ```typescript
 <Sequence from={0} durationInFrames={90}>
   <Scene1 />
@@ -319,6 +331,7 @@ Style: Default,Arial,80,&H00FFFFFF,&H000000FF,&H00000000,&H80000000,1,0,0,0,100,
 ```
 
 ### Pattern 3: Configuration-Driven (Vidosy)
+
 ```json
 {
   "scenes": [
@@ -341,49 +354,52 @@ await renderMedia({
   serveUrl: bundledPath,
   codec: 'h264',
   outputLocation: 'output.mp4',
-  
+
   // Quality settings
-  crf: 18,                    // Lower = better quality
-  
+  crf: 18, // Lower = better quality
+
   // Performance
-  concurrency: 2,             // Parallel browser tabs
-  
+  concurrency: 2, // Parallel browser tabs
+
   // Video config
   scale: 1,
-  
+
   // Audio
   audioBitrate: '128k',
-  
+
   // Progress callback
   onProgress: ({ progress }) => {
     console.log(`${Math.round(progress * 100)}%`);
-  }
+  },
 });
 ```
 
 ### Output Formats
 
-| Platform | Codec | Resolution | FPS | Bitrate |
-|----------|-------|------------|-----|---------|
-| TikTok | H.264 | 1080x1920 | 30 | 3-5 Mbps |
-| Reels | H.264 | 1080x1920 | 30 | 3-5 Mbps |
-| Shorts | H.264 | 1080x1920 | 30 | 3-5 Mbps |
+| Platform | Codec | Resolution | FPS | Bitrate  |
+| -------- | ----- | ---------- | --- | -------- |
+| TikTok   | H.264 | 1080x1920  | 30  | 3-5 Mbps |
+| Reels    | H.264 | 1080x1920  | 30  | 3-5 Mbps |
+| Shorts   | H.264 | 1080x1920  | 30  | 3-5 Mbps |
 
 ---
 
 ## Recommendations
 
 ### Primary Stack
+
 - **Remotion** for composition
 - **remotion-subtitles** for captions
 - **chuk-motion components** for UI elements
 
 ### Configuration Pattern
+
 - **Vidosy-style JSON** for video definition
 - **Zod schemas** for validation
 - **Scene-based model** for structure
 
 ### Rendering Pipeline
+
 ```typescript
 // 1. Parse configuration
 const config = VideoConfigSchema.parse(input);
@@ -403,7 +419,7 @@ await renderMedia({
   serveUrl: bundled,
   codec: 'h264',
   outputLocation: `output/${config.id}.mp4`,
-  inputProps: { config, captions, audioPath }
+  inputProps: { config, captions, audioPath },
 });
 ```
 

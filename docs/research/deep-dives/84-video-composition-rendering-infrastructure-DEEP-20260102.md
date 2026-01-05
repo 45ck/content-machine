@@ -1,4 +1,5 @@
 # Deep Dive #84: Video Composition & Rendering Infrastructure
+
 **Date:** 2026-01-02
 **Category:** Render Pipeline
 **Priority:** CRITICAL - Core Rendering Stack
@@ -55,13 +56,13 @@ chuk-motion Architecture:
 
 Critical for social media compliance:
 
-| Platform | Top | Bottom | Left | Right | Notes |
-|----------|-----|--------|------|-------|-------|
-| **LinkedIn Feed** | 40px | 40px | 24px | 24px | 8-24px safe zone |
-| **Instagram Stories** | 100px | 120px | 24px | 24px | UI overlays |
-| **TikTok** | 100px | 180px | 24px | 80px | Side buttons right |
-| **YouTube** | 20px | 20px | 20px | 20px | Standard |
-| **Instagram Square** | 32px | 32px | 32px | 32px | 1:1 format |
+| Platform              | Top   | Bottom | Left | Right | Notes              |
+| --------------------- | ----- | ------ | ---- | ----- | ------------------ |
+| **LinkedIn Feed**     | 40px  | 40px   | 24px | 24px  | 8-24px safe zone   |
+| **Instagram Stories** | 100px | 120px  | 24px | 24px  | UI overlays        |
+| **TikTok**            | 100px | 180px  | 24px | 80px  | Side buttons right |
+| **YouTube**           | 20px  | 20px   | 20px | 20px  | Standard           |
+| **Instagram Square**  | 32px  | 32px   | 32px | 32px  | 1:1 format         |
 
 ### 51 Component Library
 
@@ -141,24 +142,24 @@ gap_before="250ms"  # Gap before component
 
 The remotion-subtitles library provides production-ready animated caption components:
 
-| Template | Effect | Use Case |
-|----------|--------|----------|
-| **BounceCaption** | Spring bounce entry | High energy content |
-| **ColorfulCaption** | Multi-color text | Youth/creative content |
-| **ExplosiveCaption** | Dramatic reveal | Emphasis moments |
-| **FadeCaption** | Smooth fade in/out | Professional content |
-| **FireCaption** | Fire effect overlay | Gaming/dramatic |
-| **GlitchCaption** | Digital glitch | Tech/cyberpunk |
-| **GlowingCaption** | Neon glow | Night/urban aesthetic |
-| **LightningCaption** | Electric effects | Energy/power moments |
-| **NeonCaption** | Neon sign style | Retro/synthwave |
-| **RotatingCaption** | 3D rotation entry | Dynamic transitions |
-| **ShakeCaption** | Vibration effect | Emphasis/impact |
-| **ThreeDishCaption** | 3D perspective | Modern/premium |
-| **TiltShiftCaption** | Miniature effect | Creative/artistic |
-| **TypewriterCaption** | Character-by-char | Technical/documentary |
-| **WavingCaption** | Wave motion | Playful/casual |
-| **ZoomCaption** | Scale animation | Focus attention |
+| Template              | Effect              | Use Case               |
+| --------------------- | ------------------- | ---------------------- |
+| **BounceCaption**     | Spring bounce entry | High energy content    |
+| **ColorfulCaption**   | Multi-color text    | Youth/creative content |
+| **ExplosiveCaption**  | Dramatic reveal     | Emphasis moments       |
+| **FadeCaption**       | Smooth fade in/out  | Professional content   |
+| **FireCaption**       | Fire effect overlay | Gaming/dramatic        |
+| **GlitchCaption**     | Digital glitch      | Tech/cyberpunk         |
+| **GlowingCaption**    | Neon glow           | Night/urban aesthetic  |
+| **LightningCaption**  | Electric effects    | Energy/power moments   |
+| **NeonCaption**       | Neon sign style     | Retro/synthwave        |
+| **RotatingCaption**   | 3D rotation entry   | Dynamic transitions    |
+| **ShakeCaption**      | Vibration effect    | Emphasis/impact        |
+| **ThreeDishCaption**  | 3D perspective      | Modern/premium         |
+| **TiltShiftCaption**  | Miniature effect    | Creative/artistic      |
+| **TypewriterCaption** | Character-by-char   | Technical/documentary  |
+| **WavingCaption**     | Wave motion         | Playful/casual         |
+| **ZoomCaption**       | Scale animation     | Focus attention        |
 
 ### Integration Pattern
 
@@ -261,6 +262,7 @@ render_video(project, "output/demo.mp4")
 ```
 
 ### Key Features
+
 - **Script Generators:** LangChain, Haystack integration
 - **TTS Providers:** ElevenLabs, Google Cloud, AWS Polly
 - **Transcription:** AssemblyAI, Whisper, Google Speech
@@ -297,6 +299,7 @@ final.write_videofile("output.mp4")
 ```
 
 ### Core Capabilities
+
 - **Cuts & Concatenations:** subclipped(), concatenate_videoclips()
 - **Compositing:** CompositeVideoClip for layering
 - **Effects:** Custom effects as Python functions
@@ -305,14 +308,15 @@ final.write_videofile("output.mp4")
 - **Formats:** All FFmpeg-supported formats
 
 ### When to Use MoviePy vs Remotion
-| Use Case | MoviePy | Remotion |
-|----------|---------|----------|
-| Programmatic editing | ✅ | ✅ |
-| Complex animations | ❌ Limited | ✅ Full React |
-| Template reuse | ❌ | ✅ Components |
-| Python ecosystem | ✅ | ❌ |
-| Performance | ❌ Slower | ✅ Faster |
-| Design system | ❌ | ✅ Tokens |
+
+| Use Case             | MoviePy    | Remotion      |
+| -------------------- | ---------- | ------------- |
+| Programmatic editing | ✅         | ✅            |
+| Complex animations   | ❌ Limited | ✅ Full React |
+| Template reuse       | ❌         | ✅ Components |
+| Python ecosystem     | ✅         | ❌            |
+| Performance          | ❌ Slower  | ✅ Faster     |
+| Design system        | ❌         | ✅ Tokens     |
 
 ---
 
@@ -351,6 +355,7 @@ ffmperative compose \
 ```
 
 ### Capabilities
+
 - Change speed, resize, crop, flip, reverse
 - Speech-to-text transcription
 - Closed captions
@@ -444,6 +449,7 @@ render_response = requests.post(
 ```
 
 ### Features
+
 - **Draft Management:** Create, save, retrieve drafts
 - **Materials:** Videos, images, stickers, audio
 - **Captions:** Text styles, keyword highlighting
@@ -472,7 +478,7 @@ for frame in container.decode(video=0):
     # frame is numpy-convertible
     array = frame.to_ndarray(format='rgb24')
     # Process with PIL, OpenCV, etc.
-    
+
 # Encode output
 output = av.open('output.mp4', 'w')
 out_stream = output.add_stream('h264', rate=30)
@@ -483,6 +489,7 @@ for frame in frames:
 ```
 
 ### When to Use PyAV
+
 - Maximum control over encoding
 - Custom frame processing pipelines
 - Direct FFmpeg library access
@@ -595,15 +602,15 @@ content-machine Rendering Pipeline:
 
 ### Implementation Recommendations
 
-| Component | Primary Tool | Fallback | Notes |
-|-----------|--------------|----------|-------|
-| **MCP Orchestration** | chuk-motion | - | 51 components, design tokens |
-| **Caption Animation** | remotion-subtitles | chuk-motion TextAnims | 17 templates |
-| **Python Pipeline** | Mosaico | MoviePy | AI script generation |
-| **Quick Edits** | FFMPerative | MoviePy | Natural language |
-| **Low-Level Control** | PyAV | FFmpeg CLI | Performance critical |
-| **CapCut Integration** | capcut-mate | - | Draft automation |
-| **Cloud Rendering** | Railway/Remotion | Plainly | Scalability |
+| Component              | Primary Tool       | Fallback              | Notes                        |
+| ---------------------- | ------------------ | --------------------- | ---------------------------- |
+| **MCP Orchestration**  | chuk-motion        | -                     | 51 components, design tokens |
+| **Caption Animation**  | remotion-subtitles | chuk-motion TextAnims | 17 templates                 |
+| **Python Pipeline**    | Mosaico            | MoviePy               | AI script generation         |
+| **Quick Edits**        | FFMPerative        | MoviePy               | Natural language             |
+| **Low-Level Control**  | PyAV               | FFmpeg CLI            | Performance critical         |
+| **CapCut Integration** | capcut-mate        | -                     | Draft automation             |
+| **Cloud Rendering**    | Railway/Remotion   | Plainly               | Scalability                  |
 
 ### Suggested MCP Tool Registration
 
@@ -615,7 +622,7 @@ async def render_video(
     strategy: Literal["fast", "quality", "premium"] = "quality"
 ) -> RenderResult:
     """Route to appropriate renderer based on spec complexity."""
-    
+
     if strategy == "fast" or spec.is_simple():
         return await mosaico_render(spec)
     elif strategy == "quality":
@@ -630,10 +637,10 @@ async def add_animated_captions(
     style: CaptionStyle = "TypewriterCaption"
 ) -> str:
     """Add animated captions using remotion-subtitles templates."""
-    
+
     # Generate SRT
     srt_path = generate_srt(transcript)
-    
+
     # Render with selected caption template
     return await render_with_captions(
         video_path,
@@ -646,33 +653,36 @@ async def add_animated_captions(
 
 ## 10. Cross-Reference Matrix
 
-| Tool | Type | Language | MCP | Cloud | Captions | Safe Margins |
-|------|------|----------|-----|-------|----------|--------------|
-| chuk-motion | Orchestration | Python | ✅ | ❌ | ✅ 6 types | ✅ 7 platforms |
-| remotion-subtitles | Captions | TypeScript | ❌ | ❌ | ✅ 17 types | ❌ |
-| Mosaico | Composition | Python | ❌ | ❌ | ✅ via transcriber | ❌ |
-| MoviePy | Editing | Python | ❌ | ❌ | ❌ manual | ❌ |
-| FFMPerative | LLM Edit | Python | ❌ | ❌ | ✅ via prompt | ❌ |
-| capcut-mate | CapCut API | Python | ❌ | ✅ | ✅ keywords | ❌ |
-| PyAV | Low-level | Python | ❌ | ❌ | ❌ | ❌ |
-| JSON2Video | Cloud | PHP | ❌ | ✅ | ✅ built-in | ❌ |
-| Plainly | AE Cloud | Node | ✅ | ✅ | ✅ AE native | ❌ |
+| Tool               | Type          | Language   | MCP | Cloud | Captions           | Safe Margins   |
+| ------------------ | ------------- | ---------- | --- | ----- | ------------------ | -------------- |
+| chuk-motion        | Orchestration | Python     | ✅  | ❌    | ✅ 6 types         | ✅ 7 platforms |
+| remotion-subtitles | Captions      | TypeScript | ❌  | ❌    | ✅ 17 types        | ❌             |
+| Mosaico            | Composition   | Python     | ❌  | ❌    | ✅ via transcriber | ❌             |
+| MoviePy            | Editing       | Python     | ❌  | ❌    | ❌ manual          | ❌             |
+| FFMPerative        | LLM Edit      | Python     | ❌  | ❌    | ✅ via prompt      | ❌             |
+| capcut-mate        | CapCut API    | Python     | ❌  | ✅    | ✅ keywords        | ❌             |
+| PyAV               | Low-level     | Python     | ❌  | ❌    | ❌                 | ❌             |
+| JSON2Video         | Cloud         | PHP        | ❌  | ✅    | ✅ built-in        | ❌             |
+| Plainly            | AE Cloud      | Node       | ✅  | ✅    | ✅ AE native       | ❌             |
 
 ---
 
 ## 11. Action Items for content-machine
 
 ### Immediate (Week 1)
+
 1. **Integrate chuk-motion** - Primary MCP rendering orchestrator
 2. **Import remotion-subtitles templates** - Caption animation library
 3. **Define VideoSpec schema** - Unified video specification format
 
 ### Short-term (Week 2-3)
+
 4. **Mosaico for quick renders** - Python fallback pipeline
 5. **FFMPerative for edits** - Natural language video editing
 6. **Rendering router logic** - Strategy-based renderer selection
 
 ### Medium-term (Month 1)
+
 7. **Cloud rendering integration** - Railway deployment for scale
 8. **CapCut integration** - Alternative rendering path
 9. **Platform-specific templates** - Pre-configured safe margins
@@ -681,17 +691,18 @@ async def add_animated_captions(
 
 ## Appendix: Component Count Summary
 
-| Library | Components | Themes | Animations |
-|---------|------------|--------|------------|
-| chuk-motion | 51 | 7 | 50+ |
-| remotion-subtitles | 17 (captions only) | - | 17 |
-| remotion-templates (RVE) | Variable | - | - |
-| Mosaico | - | - | via TTS |
-| MoviePy | - | - | Manual |
+| Library                  | Components         | Themes | Animations |
+| ------------------------ | ------------------ | ------ | ---------- |
+| chuk-motion              | 51                 | 7      | 50+        |
+| remotion-subtitles       | 17 (captions only) | -      | 17         |
+| remotion-templates (RVE) | Variable           | -      | -          |
+| Mosaico                  | -                  | -      | via TTS    |
+| MoviePy                  | -                  | -      | Manual     |
 
 ---
 
 **Related Deep Dives:**
+
 - DD-081: MCP Ecosystem & Server Infrastructure
 - DD-082: Python Agent Frameworks & Research Systems
 - DD-083: Schema Validation & Audio/TTS Infrastructure

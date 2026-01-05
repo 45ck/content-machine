@@ -16,16 +16,16 @@ Key differentiator: Exposes both **MCP server** (for AI agents) and **REST API**
 
 ## Key Features
 
-| Feature | Details |
-|---------|---------|
+| Feature        | Details                              |
+| -------------- | ------------------------------------ |
 | **MCP Server** | AI agent integration (n8n workflows) |
-| **REST API** | Direct programmatic access |
-| **TTS** | Kokoro TTS (English only) |
-| **Captions** | Whisper for transcription |
-| **Footage** | Pexels for backgrounds |
-| **Music** | Genre/mood selection |
-| **Rendering** | Remotion-based composition |
-| **Web UI** | Included |
+| **REST API**   | Direct programmatic access           |
+| **TTS**        | Kokoro TTS (English only)            |
+| **Captions**   | Whisper for transcription            |
+| **Footage**    | Pexels for backgrounds               |
+| **Music**      | Genre/mood selection                 |
+| **Rendering**  | Remotion-based composition           |
+| **Web UI**     | Included                             |
 
 ## Tech Stack
 
@@ -39,6 +39,7 @@ Key differentiator: Exposes both **MCP server** (for AI agents) and **REST API**
 ## What We Can Reuse
 
 ### ✅ High Value (CRITICAL)
+
 - **Remotion + TypeScript** - Same stack as us!
 - **MCP server pattern** - Agent integration
 - **REST API design** - Programmatic access
@@ -46,10 +47,12 @@ Key differentiator: Exposes both **MCP server** (for AI agents) and **REST API**
 - **n8n workflow examples** - Integration patterns
 
 ### ⚠️ Medium Value
+
 - **Web UI** - Reference for future
 - **Docker deployment** - Cloud patterns
 
 ### ❌ Not Needed
+
 - Nothing - this is very aligned with our goals
 
 ## How It Helps Us

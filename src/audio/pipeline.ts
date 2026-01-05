@@ -68,7 +68,10 @@ export async function generateAudio(options: GenerateAudioOptions): Promise<Audi
     audioDuration: ttsResult.duration,
   });
 
-  log.info({ wordCount: asrResult.words.length, engine: asrResult.engine }, 'Transcription complete');
+  log.info(
+    { wordCount: asrResult.words.length, engine: asrResult.engine },
+    'Transcription complete'
+  );
 
   // Step 3: Build timestamps output
   const timestamps = buildTimestamps(asrResult, options.script);

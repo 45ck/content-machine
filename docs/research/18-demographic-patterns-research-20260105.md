@@ -23,15 +23,15 @@ Analysis of 15+ vendored short-form video generators reveals distinct configurat
 
 ### 1.1 Defining Characteristics
 
-| Feature | Brainrot / Gen Z | Source |
-|---------|------------------|--------|
-| Scene Duration | 1.5-3 seconds | Implicit in `video_clip_duration` configs |
-| Voice Rate | 1.2-1.4x normal | MoneyPrinterTurbo `voice_rate` |
-| Music Volume | High (0.4-0.7) | short-video-maker-gyori `MusicVolumeEnum.high` |
-| Caption Position | Center screen | captacity `position = ("center", "center")` |
-| Caption Font | Bold/playful (Bangers, LuckiestGuy) | ShortGPT `LuckiestGuy-Regular.ttf` |
-| Word Highlighting | Active word highlighted | captacity `highlight_current_word = True` |
-| Background Video | Gameplay (Subway Surfers, Minecraft) | ShortGPT template_asset_db.json |
+| Feature           | Brainrot / Gen Z                     | Source                                         |
+| ----------------- | ------------------------------------ | ---------------------------------------------- |
+| Scene Duration    | 1.5-3 seconds                        | Implicit in `video_clip_duration` configs      |
+| Voice Rate        | 1.2-1.4x normal                      | MoneyPrinterTurbo `voice_rate`                 |
+| Music Volume      | High (0.4-0.7)                       | short-video-maker-gyori `MusicVolumeEnum.high` |
+| Caption Position  | Center screen                        | captacity `position = ("center", "center")`    |
+| Caption Font      | Bold/playful (Bangers, LuckiestGuy)  | ShortGPT `LuckiestGuy-Regular.ttf`             |
+| Word Highlighting | Active word highlighted              | captacity `highlight_current_word = True`      |
+| Background Video  | Gameplay (Subway Surfers, Minecraft) | ShortGPT template_asset_db.json                |
 
 ### 1.2 Background Video Types (From ShortGPT Asset Database)
 
@@ -43,7 +43,7 @@ Analysis of 15+ vendored short-form video generators reveals distinct configurat
     "url": "https://www.youtube.com/watch?v=gBsJA8tCeyc"
   },
   "Minecraft jumping circuit": {
-    "type": "background video", 
+    "type": "background video",
     "url": "https://www.youtube.com/watch?v=Pt5_GSKIWQM"
   },
   "Ski gameplay": {
@@ -61,30 +61,30 @@ Analysis of 15+ vendored short-form video generators reveals distinct configurat
 // Hypothetical brainrot config based on extracted patterns
 const brainrotConfig = {
   pacing: {
-    sceneDurationMs: 2000,        // Very fast cuts
-    voiceRate: 1.25,              // Fast speech
-    paddingBackMs: 500,           // Quick endings
+    sceneDurationMs: 2000, // Very fast cuts
+    voiceRate: 1.25, // Fast speech
+    paddingBackMs: 500, // Quick endings
   },
   audio: {
-    musicMood: 'euphoric',        // High energy
-    musicVolume: 0.7,             // Louder than voice (0.7 vs 1.0)
+    musicMood: 'euphoric', // High energy
+    musicVolume: 0.7, // Louder than voice (0.7 vs 1.0)
     voiceStyle: 'energetic',
   },
   captions: {
     position: 'center',
-    fontSize: 130,                // Large (captacity default)
+    fontSize: 130, // Large (captacity default)
     fontFamily: 'Bangers-Regular.ttf',
-    fontColor: 'yellow',          // Bright colors
+    fontColor: 'yellow', // Bright colors
     highlightCurrentWord: true,
     wordHighlightColor: 'red',
     strokeWidth: 3,
     strokeColor: 'black',
-    textTransform: 'uppercase',   // ALL CAPS
+    textTransform: 'uppercase', // ALL CAPS
   },
   background: {
     type: 'gameplay',
     examples: ['subway_surfers', 'minecraft_parkour', 'satisfying_slime'],
-  }
+  },
 };
 ```
 
@@ -112,33 +112,33 @@ def add_captions(
 
 ### 2.1 Defining Characteristics
 
-| Feature | Educational | Source |
-|---------|-------------|--------|
-| Scene Duration | 5-8 seconds | MoneyPrinterTurbo default 5s |
-| Voice Rate | 0.9-1.0x | Slower for comprehension |
-| Music Volume | Low (0.1-0.2) | Subtle, non-distracting |
-| Caption Position | Bottom | Traditional subtitle placement |
-| Caption Font | Clean (Inter, Roboto) | Professional appearance |
-| Word Highlighting | Off | Less distraction |
-| Background Video | Stock footage, diagrams | Pexels/Pixabay integration |
+| Feature           | Educational             | Source                         |
+| ----------------- | ----------------------- | ------------------------------ |
+| Scene Duration    | 5-8 seconds             | MoneyPrinterTurbo default 5s   |
+| Voice Rate        | 0.9-1.0x                | Slower for comprehension       |
+| Music Volume      | Low (0.1-0.2)           | Subtle, non-distracting        |
+| Caption Position  | Bottom                  | Traditional subtitle placement |
+| Caption Font      | Clean (Inter, Roboto)   | Professional appearance        |
+| Word Highlighting | Off                     | Less distraction               |
+| Background Video  | Stock footage, diagrams | Pexels/Pixabay integration     |
 
 ### 2.2 Educational Configuration
 
 ```typescript
 const educationalConfig = {
   pacing: {
-    sceneDurationMs: 6000,        // Longer scenes for comprehension
-    voiceRate: 0.95,              // Slightly slower
-    paddingBackMs: 2000,          // Time to absorb info
+    sceneDurationMs: 6000, // Longer scenes for comprehension
+    voiceRate: 0.95, // Slightly slower
+    paddingBackMs: 2000, // Time to absorb info
   },
   audio: {
-    musicMood: 'contemplative',   // Thinking music
-    musicVolume: 0.2,             // Background only
+    musicMood: 'contemplative', // Thinking music
+    musicVolume: 0.2, // Background only
     voiceStyle: 'calm',
   },
   captions: {
     position: 'bottom',
-    fontSize: 60,                 // Smaller, less intrusive
+    fontSize: 60, // Smaller, less intrusive
     fontFamily: 'Inter',
     fontColor: '#FFFFFF',
     highlightCurrentWord: false,
@@ -148,8 +148,8 @@ const educationalConfig = {
   },
   background: {
     type: 'stock',
-    source: 'pexels',             // MoneyPrinterTurbo default
-  }
+    source: 'pexels', // MoneyPrinterTurbo default
+  },
 };
 ```
 
@@ -181,15 +181,15 @@ def combine_videos(
 
 ### 3.1 Defining Characteristics
 
-| Feature | Reddit/Story | Source |
-|---------|--------------|--------|
-| Scene Duration | 4-5 seconds | Match narration pacing |
-| Voice Rate | 1.0-1.1x | Conversational |
-| Music Volume | Medium (0.3-0.45) | Builds atmosphere |
-| Caption Position | Center | Emphasis |
-| Caption Font | Bold (LuckiestGuy) | Engagement |
-| Background Video | Gaming/satisfying | Split attention |
-| Reddit Image Overlay | Yes | ShortGPT reddit_short_engine |
+| Feature              | Reddit/Story       | Source                       |
+| -------------------- | ------------------ | ---------------------------- |
+| Scene Duration       | 4-5 seconds        | Match narration pacing       |
+| Voice Rate           | 1.0-1.1x           | Conversational               |
+| Music Volume         | Medium (0.3-0.45)  | Builds atmosphere            |
+| Caption Position     | Center             | Emphasis                     |
+| Caption Font         | Bold (LuckiestGuy) | Engagement                   |
+| Background Video     | Gaming/satisfying  | Split attention              |
+| Reddit Image Overlay | Yes                | ShortGPT reddit_short_engine |
 
 ### 3.2 Reddit Engine Pattern (ShortGPT)
 
@@ -198,7 +198,7 @@ def combine_videos(
 class RedditShortEngine(ContentShortEngine):
     def __init__(self, voiceModule, background_video_name, background_music_name, ...):
         super().__init__(short_type="reddit_shorts", ...)
-    
+
     def _generateScript(self):
         # Generate AskReddit-style story
         self._db_script, _ = self.__getRealisticStory(max_tries=1)
@@ -222,7 +222,7 @@ class RedditShortEngine(ContentShortEngine):
 system_prompt: |
   You are a YouTube shorts content creator who makes extremely good YouTube shorts 
   over answers from AskReddit questions.
-  
+
   1- The story must be between 120 and 140 words MAXIMUM.
   2- DO NOT end the story with a moral conclusion.
   3- Make sure that the story is very SPICY, very unusual, HIGHLY entertaining.
@@ -237,14 +237,14 @@ system_prompt: |
 
 ### 4.1 Defining Characteristics
 
-| Feature | Motivational/Quote | Source |
-|---------|-------------------|--------|
-| Scene Duration | 3-4 seconds per quote | Match reading pace |
-| Voice Rate | 0.85-0.95x | Dramatic pacing |
-| Music Volume | High (0.5-0.7) | Emotional impact |
-| Caption Position | Center | Focus |
-| Background Video | Abstract, nature | Atmospheric |
-| Text Animation | Fade in/out | Emphasis |
+| Feature          | Motivational/Quote    | Source             |
+| ---------------- | --------------------- | ------------------ |
+| Scene Duration   | 3-4 seconds per quote | Match reading pace |
+| Voice Rate       | 0.85-0.95x            | Dramatic pacing    |
+| Music Volume     | High (0.5-0.7)        | Emotional impact   |
+| Caption Position | Center                | Focus              |
+| Background Video | Abstract, nature      | Atmospheric        |
+| Text Animation   | Fade in/out           | Emphasis           |
 
 ### 4.2 Quote Channel Pattern (silent_autopost)
 
@@ -262,13 +262,13 @@ command = f'python {upload_video_script_path} --file={final_video_path} \
 
 ### 5.1 Aspect Ratios & Resolutions
 
-| Platform | Aspect Ratio | Resolution | Max Duration |
-|----------|--------------|------------|--------------|
-| TikTok | 9:16 | 1080×1920 | 10 min (was 60s) |
-| YouTube Shorts | 9:16 | 1080×1920 | 60 seconds |
-| Instagram Reels | 9:16 | 1080×1920 | 90 seconds |
-| Landscape (YouTube) | 16:9 | 1920×1080 | N/A |
-| Square (IG Feed) | 1:1 | 1080×1080 | 60 seconds |
+| Platform            | Aspect Ratio | Resolution | Max Duration     |
+| ------------------- | ------------ | ---------- | ---------------- |
+| TikTok              | 9:16         | 1080×1920  | 10 min (was 60s) |
+| YouTube Shorts      | 9:16         | 1080×1920  | 60 seconds       |
+| Instagram Reels     | 9:16         | 1080×1920  | 90 seconds       |
+| Landscape (YouTube) | 16:9         | 1920×1080  | N/A              |
+| Square (IG Feed)    | 1:1          | 1080×1080  | 60 seconds       |
 
 ### 5.2 Resolution Configuration (From Repos)
 
@@ -313,15 +313,15 @@ export function getOrientationConfig(orientation: OrientationEnum) {
 ```tsx
 // vendor/templates/template-tiktok-base/src/CaptionedVideo/Page.tsx
 const container: React.CSSProperties = {
-  justifyContent: "center",
-  alignItems: "center",
+  justifyContent: 'center',
+  alignItems: 'center',
   top: undefined,
-  bottom: 350,  // ← Bottom-positioned for TikTok
+  bottom: 350, // ← Bottom-positioned for TikTok
   height: 150,
 };
 
 const DESIRED_FONT_SIZE = 120;
-const HIGHLIGHT_COLOR = "#39E508";  // Green highlight
+const HIGHLIGHT_COLOR = '#39E508'; // Green highlight
 ```
 
 ---
@@ -330,14 +330,14 @@ const HIGHLIGHT_COLOR = "#39E508";  // Green highlight
 
 ### 6.1 Scene Duration by Content Type
 
-| Content Type | Scene Duration | Cuts/Minute | Voice Rate | Source |
-|--------------|---------------|-------------|------------|--------|
-| Brainrot/Meme | 1.5-2.5s | 24-40 | 1.2-1.4x | Implicit |
-| Story/Reddit | 3-5s | 12-20 | 1.0-1.1x | ShortGPT |
-| Facts | 3-4s | 15-20 | 1.1x | ShortGPT FactsEngine |
-| Educational | 5-8s | 7-12 | 0.9-1.0x | MoneyPrinterTurbo |
-| Motivational | 3-4s | 15-20 | 0.85-0.95x | Implicit |
-| Product Demo | 4-6s | 10-15 | 1.0x | Custom |
+| Content Type  | Scene Duration | Cuts/Minute | Voice Rate | Source               |
+| ------------- | -------------- | ----------- | ---------- | -------------------- |
+| Brainrot/Meme | 1.5-2.5s       | 24-40       | 1.2-1.4x   | Implicit             |
+| Story/Reddit  | 3-5s           | 12-20       | 1.0-1.1x   | ShortGPT             |
+| Facts         | 3-4s           | 15-20       | 1.1x       | ShortGPT FactsEngine |
+| Educational   | 5-8s           | 7-12        | 0.9-1.0x   | MoneyPrinterTurbo    |
+| Motivational  | 3-4s           | 15-20       | 0.85-0.95x | Implicit             |
+| Product Demo  | 4-6s           | 10-15       | 1.0x       | Custom               |
 
 ### 6.2 Video Clip Duration (MoneyPrinterTurbo)
 
@@ -357,7 +357,7 @@ export const renderConfig = z.object({
     .number()
     .optional()
     .describe(
-      "For how long the video should be playing after the speech is done, in milliseconds. 1500 is a good value."
+      'For how long the video should be playing after the speech is done, in milliseconds. 1500 is a good value.'
     ),
 });
 ```
@@ -371,18 +371,18 @@ export const renderConfig = z.object({
 ```typescript
 // vendor/short-video-maker-gyori/src/types/shorts.ts
 export enum MusicMoodEnum {
-  sad = "sad",
-  melancholic = "melancholic",
-  happy = "happy",
-  euphoric = "euphoric/high",    // ← Brainrot
-  excited = "excited",
-  chill = "chill",
-  uneasy = "uneasy",             // ← Story/thriller
-  angry = "angry",
-  dark = "dark",                 // ← Horror/true crime
-  hopeful = "hopeful",           // ← Motivational
-  contemplative = "contemplative", // ← Educational
-  funny = "funny/quirky",        // ← Meme
+  sad = 'sad',
+  melancholic = 'melancholic',
+  happy = 'happy',
+  euphoric = 'euphoric/high', // ← Brainrot
+  excited = 'excited',
+  chill = 'chill',
+  uneasy = 'uneasy', // ← Story/thriller
+  angry = 'angry',
+  dark = 'dark', // ← Horror/true crime
+  hopeful = 'hopeful', // ← Motivational
+  contemplative = 'contemplative', // ← Educational
+  funny = 'funny/quirky', // ← Meme
 }
 ```
 
@@ -394,23 +394,23 @@ private static musicList: Music[] = [
   // Brainrot / Euphoric
   { file: "Like It Loud - Dyalla.mp3", mood: MusicMoodEnum.euphoric },
   { file: "Delayed Baggage - Ryan Stasik.mp3", mood: MusicMoodEnum.euphoric },
-  
+
   // Story / Uneasy
   { file: "Phantom - Density & Time.mp3", mood: MusicMoodEnum.uneasy },
   { file: "Jetski - Telecasted.mp3", mood: MusicMoodEnum.uneasy },
-  
+
   // Educational / Contemplative
   { file: "Crystaline - Quincas Moreira.mp3", mood: MusicMoodEnum.contemplative },
   { file: "Final Soliloquy - Asher Fulero.mp3", mood: MusicMoodEnum.contemplative },
-  
+
   // Motivational / Hopeful
   { file: "Hopeful - Nat Keefe.mp3", mood: MusicMoodEnum.hopeful },
   { file: "Hopeful Freedom - Asher Fulero.mp3", mood: MusicMoodEnum.hopeful },
-  
+
   // Dark / Horror
   { file: "Honey, I Dismembered The Kids - Ezra Lipp.mp3", mood: MusicMoodEnum.dark },
   { file: "Night Hunt - Jimena Contreras.mp3", mood: MusicMoodEnum.dark },
-  
+
   // Funny / Meme
   { file: "Seagull - Telecasted.mp3", mood: MusicMoodEnum.funny },
   { file: "Baby Animals Playing - Joel Cummins.mp3", mood: MusicMoodEnum.funny },
@@ -423,10 +423,14 @@ private static musicList: Music[] = [
 // vendor/short-video-maker-gyori/src/components/utils.ts
 export function calculateVolume(level: MusicVolumeEnum): [number, boolean] {
   switch (level) {
-    case "muted": return [0, true];
-    case "low": return [0.2, false];      // Educational
-    case "medium": return [0.45, false];  // Story, balanced
-    case "high": return [0.7, false];     // Brainrot, meme, motivational
+    case 'muted':
+      return [0, true];
+    case 'low':
+      return [0.2, false]; // Educational
+    case 'medium':
+      return [0.45, false]; // Story, balanced
+    case 'high':
+      return [0.7, false]; // Brainrot, meme, motivational
   }
 }
 ```
@@ -453,21 +457,21 @@ EDGE_TTS_VOICENAME_MAPPING = {
 // vendor/short-video-maker-gyori/src/types/shorts.ts
 export enum VoiceEnum {
   // American Female
-  af_heart = "af_heart",
-  af_bella = "af_bella",
-  af_nova = "af_nova",
-  af_sky = "af_sky",
-  
+  af_heart = 'af_heart',
+  af_bella = 'af_bella',
+  af_nova = 'af_nova',
+  af_sky = 'af_sky',
+
   // American Male
-  am_adam = "am_adam",
-  am_michael = "am_michael",
-  am_onyx = "am_onyx",
-  
+  am_adam = 'am_adam',
+  am_michael = 'am_michael',
+  am_onyx = 'am_onyx',
+
   // British Female/Male
-  bf_emma = "bf_emma",
-  bf_alice = "bf_alice",
-  bm_george = "bm_george",
-  bm_daniel = "bm_daniel",
+  bf_emma = 'bf_emma',
+  bf_alice = 'bf_alice',
+  bm_george = 'bm_george',
+  bm_daniel = 'bm_daniel',
 }
 ```
 
@@ -486,8 +490,8 @@ const SubtitlePage: React.FC<{ page: TikTokPage }> = ({ page }) => {
   const enter = spring({
     frame,
     fps,
-    config: { damping: 200 },  // Spring animation
-    durationInFrames: 5,       // Quick entrance (5 frames)
+    config: { damping: 200 }, // Spring animation
+    durationInFrames: 5, // Quick entrance (5 frames)
   });
 
   return (
@@ -502,24 +506,24 @@ const SubtitlePage: React.FC<{ page: TikTokPage }> = ({ page }) => {
 
 ```tsx
 // vendor/templates/template-tiktok-base/src/CaptionedVideo/Page.tsx
-{page.tokens.map((t) => {
-  const active =
-    startRelativeToSequence <= timeInMs &&
-    endRelativeToSequence > timeInMs;
+{
+  page.tokens.map((t) => {
+    const active = startRelativeToSequence <= timeInMs && endRelativeToSequence > timeInMs;
 
-  return (
-    <span
-      key={t.fromMs}
-      style={{
-        display: "inline",
-        whiteSpace: "pre",
-        color: active ? HIGHLIGHT_COLOR : "white",  // "#39E508" = green
-      }}
-    >
-      {t.text}
-    </span>
-  );
-})}
+    return (
+      <span
+        key={t.fromMs}
+        style={{
+          display: 'inline',
+          whiteSpace: 'pre',
+          color: active ? HIGHLIGHT_COLOR : 'white', // "#39E508" = green
+        }}
+      >
+        {t.text}
+      </span>
+    );
+  });
+}
 ```
 
 ### 9.3 Active Word Background (short-video-maker-gyori)
@@ -527,17 +531,15 @@ const SubtitlePage: React.FC<{ page: TikTokPage }> = ({ page }) => {
 ```tsx
 // vendor/short-video-maker-gyori/src/components/videos/PortraitVideo.tsx
 const activeStyle = {
-  backgroundColor: captionBackgroundColor,  // e.g., "blue"
-  padding: "10px",
-  marginLeft: "-10px",
-  marginRight: "-10px",
-  borderRadius: "10px",
+  backgroundColor: captionBackgroundColor, // e.g., "blue"
+  padding: '10px',
+  marginLeft: '-10px',
+  marginRight: '-10px',
+  borderRadius: '10px',
 };
 
 // Applied to active word:
-<span style={{ fontWeight: "bold", ...(active ? activeStyle : {}) }}>
-  {text.text}
-</span>
+<span style={{ fontWeight: 'bold', ...(active ? activeStyle : {}) }}>{text.text}</span>;
 ```
 
 ---
@@ -549,6 +551,7 @@ const activeStyle = {
 **Finding:** No vendored repo has explicit split-screen (Subway Surfers + content) implementation.
 
 Split-screen would need to be implemented as:
+
 - CompositeVideoClip with two layers
 - Main content scaled to upper portion
 - Gameplay video scaled to lower portion
@@ -562,10 +565,10 @@ from moviepy.editor import VideoFileClip, CompositeVideoClip
 def create_split_screen(content_video, gameplay_video, output_path):
     content = VideoFileClip(content_video).resize((1080, 960))  # Top half
     gameplay = VideoFileClip(gameplay_video).resize((1080, 960))  # Bottom half
-    
+
     content = content.set_position(("center", 0))
     gameplay = gameplay.set_position(("center", 960))
-    
+
     final = CompositeVideoClip([content, gameplay], size=(1080, 1920))
     final.write_videofile(output_path)
 ```
@@ -598,7 +601,7 @@ system_prompt: >
   You are an expert content writer of a YouTube shorts channel. 
   You specialize in `facts` shorts.
   Your facts shorts are less than 50 seconds verbally (around 140 words maximum).
-  
+
   Only give the first `hook`, like "Weird facts you don't know."
   Then the facts.
   Keep it short, extremely interesting and original.
@@ -655,21 +658,21 @@ export interface ContentArchetype {
   id: string;
   name: string;
   targetDemographic: 'gen-z' | 'millennial' | 'general' | 'professional';
-  
+
   pacing: {
     sceneDurationMs: number;
     voiceRate: number;
     paddingBackMs: number;
     cutsPerMinute: number;
   };
-  
+
   audio: {
     musicMood: MusicMoodEnum;
     musicVolume: MusicVolumeEnum;
     voiceGender: 'male' | 'female';
     voiceStyle: 'energetic' | 'calm' | 'conversational' | 'dramatic';
   };
-  
+
   captions: {
     position: 'top' | 'center' | 'bottom';
     fontSize: number;
@@ -682,13 +685,13 @@ export interface ContentArchetype {
     textTransform: 'uppercase' | 'none';
     animationType: 'spring' | 'fade' | 'none';
   };
-  
+
   background: {
     type: 'gameplay' | 'stock' | 'abstract' | 'product-capture';
     source?: 'pexels' | 'pixabay' | 'local';
     examples: string[];
   };
-  
+
   script: {
     maxWords: number;
     tone: 'casual' | 'professional' | 'dramatic' | 'humorous';
@@ -706,20 +709,20 @@ const ARCHETYPES: ContentArchetype[] = [
     id: 'gen-z-brainrot',
     name: 'Gen Z Brainrot / Meme',
     targetDemographic: 'gen-z',
-    pacing: { 
-      sceneDurationMs: 2000, 
-      voiceRate: 1.25, 
+    pacing: {
+      sceneDurationMs: 2000,
+      voiceRate: 1.25,
       paddingBackMs: 500,
       cutsPerMinute: 30,
     },
-    audio: { 
-      musicMood: MusicMoodEnum.euphoric, 
-      musicVolume: MusicVolumeEnum.high, 
+    audio: {
+      musicMood: MusicMoodEnum.euphoric,
+      musicVolume: MusicVolumeEnum.high,
       voiceGender: 'female',
       voiceStyle: 'energetic',
     },
-    captions: { 
-      position: 'center', 
+    captions: {
+      position: 'center',
       fontSize: 130,
       fontFamily: 'Bangers-Regular.ttf',
       fontColor: 'yellow',
@@ -734,9 +737,9 @@ const ARCHETYPES: ContentArchetype[] = [
       type: 'gameplay',
       examples: ['subway_surfers', 'minecraft_parkour', 'satisfying_slime'],
     },
-    script: { 
-      maxWords: 100, 
-      tone: 'humorous', 
+    script: {
+      maxWords: 100,
+      tone: 'humorous',
       structure: 'hook-body-cta',
       hookDurationSeconds: 3,
     },
@@ -745,20 +748,20 @@ const ARCHETYPES: ContentArchetype[] = [
     id: 'educational',
     name: 'Educational / Explainer',
     targetDemographic: 'general',
-    pacing: { 
-      sceneDurationMs: 6000, 
-      voiceRate: 0.95, 
+    pacing: {
+      sceneDurationMs: 6000,
+      voiceRate: 0.95,
       paddingBackMs: 2000,
       cutsPerMinute: 10,
     },
-    audio: { 
-      musicMood: MusicMoodEnum.contemplative, 
+    audio: {
+      musicMood: MusicMoodEnum.contemplative,
       musicVolume: MusicVolumeEnum.low,
       voiceGender: 'male',
       voiceStyle: 'calm',
     },
-    captions: { 
-      position: 'bottom', 
+    captions: {
+      position: 'bottom',
       fontSize: 60,
       fontFamily: 'Inter',
       fontColor: '#FFFFFF',
@@ -774,9 +777,9 @@ const ARCHETYPES: ContentArchetype[] = [
       source: 'pexels',
       examples: ['nature', 'technology', 'abstract'],
     },
-    script: { 
-      maxWords: 150, 
-      tone: 'professional', 
+    script: {
+      maxWords: 150,
+      tone: 'professional',
       structure: 'listicle',
       hookDurationSeconds: 5,
     },
@@ -785,20 +788,20 @@ const ARCHETYPES: ContentArchetype[] = [
     id: 'reddit-story',
     name: 'Reddit Story / Narrative',
     targetDemographic: 'millennial',
-    pacing: { 
-      sceneDurationMs: 4000, 
-      voiceRate: 1.0, 
+    pacing: {
+      sceneDurationMs: 4000,
+      voiceRate: 1.0,
       paddingBackMs: 1500,
       cutsPerMinute: 15,
     },
-    audio: { 
-      musicMood: MusicMoodEnum.uneasy, 
+    audio: {
+      musicMood: MusicMoodEnum.uneasy,
       musicVolume: MusicVolumeEnum.medium,
       voiceGender: 'male',
       voiceStyle: 'conversational',
     },
-    captions: { 
-      position: 'center', 
+    captions: {
+      position: 'center',
       fontSize: 100,
       fontFamily: 'LuckiestGuy-Regular.ttf',
       fontColor: 'white',
@@ -813,9 +816,9 @@ const ARCHETYPES: ContentArchetype[] = [
       type: 'gameplay',
       examples: ['minecraft_parkour', 'satisfying_cooking', 'satisfying_cleaning'],
     },
-    script: { 
-      maxWords: 140, 
-      tone: 'casual', 
+    script: {
+      maxWords: 140,
+      tone: 'casual',
       structure: 'story',
       hookDurationSeconds: 3,
     },
@@ -824,20 +827,20 @@ const ARCHETYPES: ContentArchetype[] = [
     id: 'product-demo',
     name: 'Product Demo / Tech',
     targetDemographic: 'professional',
-    pacing: { 
-      sceneDurationMs: 5000, 
-      voiceRate: 1.0, 
+    pacing: {
+      sceneDurationMs: 5000,
+      voiceRate: 1.0,
       paddingBackMs: 1000,
       cutsPerMinute: 12,
     },
-    audio: { 
-      musicMood: MusicMoodEnum.chill, 
+    audio: {
+      musicMood: MusicMoodEnum.chill,
       musicVolume: MusicVolumeEnum.low,
       voiceGender: 'female',
       voiceStyle: 'calm',
     },
-    captions: { 
-      position: 'bottom', 
+    captions: {
+      position: 'bottom',
       fontSize: 70,
       fontFamily: 'Inter',
       fontColor: '#FFFFFF',
@@ -852,9 +855,9 @@ const ARCHETYPES: ContentArchetype[] = [
       type: 'product-capture',
       examples: ['screen_recording', 'ui_walkthrough'],
     },
-    script: { 
-      maxWords: 120, 
-      tone: 'professional', 
+    script: {
+      maxWords: 120,
+      tone: 'professional',
       structure: 'hook-body-cta',
       hookDurationSeconds: 3,
     },
@@ -866,17 +869,17 @@ const ARCHETYPES: ContentArchetype[] = [
 
 ## 13. Key Configuration Patterns Summary
 
-| Parameter | Brainrot | Educational | Story | Product |
-|-----------|----------|-------------|-------|---------|
-| `sceneDurationMs` | 2000 | 6000 | 4000 | 5000 |
-| `voiceRate` | 1.25 | 0.95 | 1.0 | 1.0 |
-| `musicMood` | euphoric | contemplative | uneasy | chill |
-| `musicVolume` | high (0.7) | low (0.2) | medium (0.45) | low (0.2) |
-| `captionPosition` | center | bottom | center | bottom |
-| `fontSize` | 130 | 60 | 100 | 70 |
-| `highlightWord` | true | false | true | false |
-| `backgroundType` | gameplay | stock | gameplay | product-capture |
-| `cutsPerMinute` | 30 | 10 | 15 | 12 |
+| Parameter         | Brainrot   | Educational   | Story         | Product         |
+| ----------------- | ---------- | ------------- | ------------- | --------------- |
+| `sceneDurationMs` | 2000       | 6000          | 4000          | 5000            |
+| `voiceRate`       | 1.25       | 0.95          | 1.0           | 1.0             |
+| `musicMood`       | euphoric   | contemplative | uneasy        | chill           |
+| `musicVolume`     | high (0.7) | low (0.2)     | medium (0.45) | low (0.2)       |
+| `captionPosition` | center     | bottom        | center        | bottom          |
+| `fontSize`        | 130        | 60            | 100           | 70              |
+| `highlightWord`   | true       | false         | true          | false           |
+| `backgroundType`  | gameplay   | stock         | gameplay      | product-capture |
+| `cutsPerMinute`   | 30         | 10            | 15            | 12              |
 
 ---
 
@@ -894,21 +897,21 @@ const ARCHETYPES: ContentArchetype[] = [
 
 ## 15. References
 
-| File | Pattern |
-|------|---------|
-| [shorts.ts](../vendor/short-video-maker-gyori/src/types/shorts.ts) | Music moods, voice enums, render config |
-| [music.ts](../vendor/short-video-maker-gyori/src/short-creator/music.ts) | Mood-based music library (30+ tracks) |
-| [captacity/__init__.py](../vendor/captacity/captacity/__init__.py) | Caption styling API with word highlighting |
+| File                                                                                           | Pattern                                             |
+| ---------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| [shorts.ts](../vendor/short-video-maker-gyori/src/types/shorts.ts)                             | Music moods, voice enums, render config             |
+| [music.ts](../vendor/short-video-maker-gyori/src/short-creator/music.ts)                       | Mood-based music library (30+ tracks)               |
+| [captacity/**init**.py](../vendor/captacity/captacity/__init__.py)                             | Caption styling API with word highlighting          |
 | [PortraitVideo.tsx](../vendor/short-video-maker-gyori/src/components/videos/PortraitVideo.tsx) | Remotion caption component with active word styling |
-| [Page.tsx](../vendor/templates/template-tiktok-base/src/CaptionedVideo/Page.tsx) | TikTok-style word highlighting |
-| [schema.py](../vendor/MoneyPrinterTurbo/app/models/schema.py) | VideoParams with pacing controls |
-| [video.py](../vendor/MoneyPrinterTurbo/app/services/video.py) | Video combination with clip duration |
-| [content_short_engine.py](../vendor/ShortGPT/shortGPT/engine/content_short_engine.py) | 12-step content pipeline |
-| [reddit_short_engine.py](../vendor/ShortGPT/shortGPT/engine/reddit_short_engine.py) | Reddit story generation |
-| [template_asset_db.json](../vendor/ShortGPT/.database/template_asset_db.json) | Gameplay video assets |
-| [languages.py](../vendor/ShortGPT/shortGPT/config/languages.py) | 70+ EdgeTTS voice mappings |
-| [config.example.toml](../vendor/MoneyPrinterTurbo/config.example.toml) | Full configuration example |
-| [index.js](../vendor/Viral-Faceless-Shorts-Generator/trendscraper/src/index.js) | Trending content + FFmpeg burn |
+| [Page.tsx](../vendor/templates/template-tiktok-base/src/CaptionedVideo/Page.tsx)               | TikTok-style word highlighting                      |
+| [schema.py](../vendor/MoneyPrinterTurbo/app/models/schema.py)                                  | VideoParams with pacing controls                    |
+| [video.py](../vendor/MoneyPrinterTurbo/app/services/video.py)                                  | Video combination with clip duration                |
+| [content_short_engine.py](../vendor/ShortGPT/shortGPT/engine/content_short_engine.py)          | 12-step content pipeline                            |
+| [reddit_short_engine.py](../vendor/ShortGPT/shortGPT/engine/reddit_short_engine.py)            | Reddit story generation                             |
+| [template_asset_db.json](../vendor/ShortGPT/.database/template_asset_db.json)                  | Gameplay video assets                               |
+| [languages.py](../vendor/ShortGPT/shortGPT/config/languages.py)                                | 70+ EdgeTTS voice mappings                          |
+| [config.example.toml](../vendor/MoneyPrinterTurbo/config.example.toml)                         | Full configuration example                          |
+| [index.js](../vendor/Viral-Faceless-Shorts-Generator/trendscraper/src/index.js)                | Trending content + FFmpeg burn                      |
 
 ---
 

@@ -74,6 +74,7 @@ speech_region = ""
 ```
 
 **Findings:**
+
 - Supports 12+ LLM providers with per-provider configuration
 - Uses sections for grouping related settings (`[app]`, `[whisper]`, `[azure]`)
 - Copies `config.example.toml` to `config.toml` on first run
@@ -91,9 +92,9 @@ speech_region = ""
 
 ```typescript
 // vendor/short-video-maker-gyori/src/config.ts (full file)
-import path from "path";
-import "dotenv/config";
-import os from "os";
+import path from 'path';
+import 'dotenv/config';
+import os from 'os';
 
 export class Config {
   private dataDirPath: string;
@@ -103,12 +104,11 @@ export class Config {
   public whisperVerbose: boolean;
   public port: number;
   public whisperModel: whisperModels = defaultWhisperModel;
-  public kokoroModelPrecision: kokoroModelPrecision = "fp32";
+  public kokoroModelPrecision: kokoroModelPrecision = 'fp32';
 
   constructor() {
     this.dataDirPath =
-      process.env.DATA_DIR_PATH ||
-      path.join(os.homedir(), ".ai-agents-az-video-generator");
+      process.env.DATA_DIR_PATH || path.join(os.homedir(), '.ai-agents-az-video-generator');
 
     this.pexelsApiKey = process.env.PEXELS_API_KEY as string;
     this.logLevel = (process.env.LOG_LEVEL || defaultLogLevel) as pino.Level;
@@ -122,7 +122,7 @@ export class Config {
   public ensureConfig() {
     if (!this.pexelsApiKey) {
       throw new Error(
-        "PEXELS_API_KEY environment variable is missing. Get your free API key: https://www.pexels.com/api/key/"
+        'PEXELS_API_KEY environment variable is missing. Get your free API key: https://www.pexels.com/api/key/'
       );
     }
   }
@@ -130,6 +130,7 @@ export class Config {
 ```
 
 **Findings:**
+
 - All secrets via environment variables (best practice)
 - `dotenv/config` auto-loads `.env` file
 - Type-safe with TypeScript types
@@ -138,6 +139,7 @@ export class Config {
 - Data directory defaults to `~/.ai-agents-az-video-generator`
 
 **Environment Variables Used:**
+
 - `DATA_DIR_PATH` - Storage location
 - `PEXELS_API_KEY` - Stock footage API
 - `LOG_LEVEL` - Logging verbosity
@@ -194,6 +196,7 @@ settings = Settings()
 ```
 
 **Findings:**
+
 - Type-safe with Pydantic validation
 - Automatic environment variable loading via `env_file = ".env"`
 - Environment variables override defaults (e.g., `PORT=8881` overrides `port: int = 8880`)
@@ -226,10 +229,12 @@ export const sceneSchema = z.object({
   duration: z.number().positive(),
   background: backgroundSchema.optional(),
   text: textSchema.optional(),
-  audio: z.object({
-    file: z.string().optional(),
-    volume: z.number().min(0).max(1).optional(),
-  }).optional(),
+  audio: z
+    .object({
+      file: z.string().optional(),
+      volume: z.number().min(0).max(1).optional(),
+    })
+    .optional(),
 });
 
 export const vidosyConfigSchema = z.object({
@@ -257,6 +262,7 @@ export async function loadConfig(configPath: string): Promise<VidosyConfig> {
 ```
 
 **Findings:**
+
 - Runtime validation with Zod schemas
 - TypeScript type inference via `z.infer<>`
 - Clear error messages for invalid config
@@ -291,6 +297,7 @@ def read_yaml_config(file_path: str) -> dict:
 ```
 
 **Findings:**
+
 - API keys from environment variables (dotenv)
 - Asset paths from YAML files
 - Supports GUI-based API key management (database storage)
@@ -300,13 +307,13 @@ def read_yaml_config(file_path: str) -> dict:
 
 ## 3. Pattern Comparison
 
-| Pattern | Type Safety | Secrets Handling | Multi-Provider | Complexity |
-|---------|-------------|------------------|----------------|------------|
-| **TOML (MoneyPrinterTurbo)** | None | In file (bad) | ★★★★★ | Medium |
-| **TypeScript Class + dotenv** | ★★★★★ | Env vars (good) | ★★☆☆☆ | Low |
-| **Pydantic BaseSettings** | ★★★★★ | Env vars (good) | ★★★☆☆ | Low |
-| **Zod + JSON** | ★★★★★ | N/A (video config) | N/A | Low |
-| **YAML + DB (ShortGPT)** | ★☆☆☆☆ | Mixed | ★★☆☆☆ | High |
+| Pattern                       | Type Safety | Secrets Handling   | Multi-Provider | Complexity |
+| ----------------------------- | ----------- | ------------------ | -------------- | ---------- |
+| **TOML (MoneyPrinterTurbo)**  | None        | In file (bad)      | ★★★★★          | Medium     |
+| **TypeScript Class + dotenv** | ★★★★★       | Env vars (good)    | ★★☆☆☆          | Low        |
+| **Pydantic BaseSettings**     | ★★★★★       | Env vars (good)    | ★★★☆☆          | Low        |
+| **Zod + JSON**                | ★★★★★       | N/A (video config) | N/A            | Low        |
+| **YAML + DB (ShortGPT)**      | ★☆☆☆☆       | Mixed              | ★★☆☆☆          | High       |
 
 ---
 
@@ -314,16 +321,16 @@ def read_yaml_config(file_path: str) -> dict:
 
 From analysis of all repos, these environment variable names are de facto standards:
 
-| Variable | Usage | Repos |
-|----------|-------|-------|
-| `OPENAI_API_KEY` | OpenAI LLM/embeddings | All |
-| `ANTHROPIC_API_KEY` | Anthropic LLM | MoneyPrinterTurbo |
-| `PEXELS_API_KEY` | Stock footage | MoneyPrinterTurbo, short-video-maker |
-| `PIXABAY_API_KEY` | Stock footage | MoneyPrinterTurbo |
-| `ELEVEN_LABS_API_KEY` | TTS | ShortGPT |
-| `PLAY_HT_API_KEY` | TTS | ShortGPT |
-| `LOG_LEVEL` | Logging | short-video-maker |
-| `PORT` | Server port | short-video-maker, kokoro-fastapi |
+| Variable              | Usage                 | Repos                                |
+| --------------------- | --------------------- | ------------------------------------ |
+| `OPENAI_API_KEY`      | OpenAI LLM/embeddings | All                                  |
+| `ANTHROPIC_API_KEY`   | Anthropic LLM         | MoneyPrinterTurbo                    |
+| `PEXELS_API_KEY`      | Stock footage         | MoneyPrinterTurbo, short-video-maker |
+| `PIXABAY_API_KEY`     | Stock footage         | MoneyPrinterTurbo                    |
+| `ELEVEN_LABS_API_KEY` | TTS                   | ShortGPT                             |
+| `PLAY_HT_API_KEY`     | TTS                   | ShortGPT                             |
+| `LOG_LEVEL`           | Logging               | short-video-maker                    |
+| `PORT`                | Server port           | short-video-maker, kokoro-fastapi    |
 
 ---
 
@@ -434,16 +441,16 @@ const videoConfigSchema = z.object({
 
 ## 8. References
 
-| Source | Path | Key Pattern |
-|--------|------|-------------|
-| MoneyPrinterTurbo config | `vendor/MoneyPrinterTurbo/app/config/config.py` | TOML + multi-provider |
-| MoneyPrinterTurbo example | `vendor/MoneyPrinterTurbo/config.example.toml` | 12+ LLM providers |
-| short-video-maker config | `vendor/short-video-maker-gyori/src/config.ts` | TypeScript + dotenv |
-| kokoro-fastapi settings | `vendor/audio/kokoro-fastapi/api/src/core/config.py` | Pydantic BaseSettings |
-| vidosy schema | `templates/vidosy/src/shared/zod-schema.ts` | Zod validation |
-| vidosy loader | `templates/vidosy/src/cli/utils/config-loader.ts` | JSON + Zod |
-| ShortGPT config | `vendor/ShortGPT/shortGPT/config/config.py` | YAML + dotenv |
+| Source                    | Path                                                 | Key Pattern           |
+| ------------------------- | ---------------------------------------------------- | --------------------- |
+| MoneyPrinterTurbo config  | `vendor/MoneyPrinterTurbo/app/config/config.py`      | TOML + multi-provider |
+| MoneyPrinterTurbo example | `vendor/MoneyPrinterTurbo/config.example.toml`       | 12+ LLM providers     |
+| short-video-maker config  | `vendor/short-video-maker-gyori/src/config.ts`       | TypeScript + dotenv   |
+| kokoro-fastapi settings   | `vendor/audio/kokoro-fastapi/api/src/core/config.py` | Pydantic BaseSettings |
+| vidosy schema             | `templates/vidosy/src/shared/zod-schema.ts`          | Zod validation        |
+| vidosy loader             | `templates/vidosy/src/cli/utils/config-loader.ts`    | JSON + Zod            |
+| ShortGPT config           | `vendor/ShortGPT/shortGPT/config/config.py`          | YAML + dotenv         |
 
 ---
 
-*Research completed: 2026-01-04*
+_Research completed: 2026-01-04_

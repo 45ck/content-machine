@@ -1,6 +1,6 @@
 /**
  * LLM Provider Interface
- * 
+ *
  * Defines the contract for all LLM providers (OpenAI, Anthropic, etc.)
  */
 
@@ -37,7 +37,7 @@ export interface LLMOptions {
 export interface LLMProvider {
   readonly name: string;
   readonly model: string;
-  
+
   /**
    * Send a chat completion request
    */

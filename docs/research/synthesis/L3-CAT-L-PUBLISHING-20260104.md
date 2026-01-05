@@ -15,12 +15,12 @@ Publishing systems automate video upload to social platforms. Key challenges: **
 
 ## Platform Overview
 
-| Platform | Official API | Unofficial Options | Rate Limits |
-|----------|--------------|-------------------|-------------|
-| **TikTok** | Content Posting API | Browser automation | 10/day |
-| **YouTube** | Data API v3 | None needed | Quota-based |
-| **Instagram** | Graph API (Business) | Browser automation | Complex |
-| **Twitter/X** | API v2 | None needed | Tier-based |
+| Platform      | Official API         | Unofficial Options | Rate Limits |
+| ------------- | -------------------- | ------------------ | ----------- |
+| **TikTok**    | Content Posting API  | Browser automation | 10/day      |
+| **YouTube**   | Data API v3          | None needed        | Quota-based |
+| **Instagram** | Graph API (Business) | Browser automation | Complex     |
+| **Twitter/X** | API v2               | None needed        | Tier-based  |
 
 ---
 
@@ -35,13 +35,10 @@ import { google } from 'googleapis';
 
 const youtube = google.youtube({
   version: 'v3',
-  auth: oauth2Client
+  auth: oauth2Client,
 });
 
-async function uploadToYouTube(
-  videoPath: string,
-  metadata: VideoMetadata
-): Promise<string> {
+async function uploadToYouTube(videoPath: string, metadata: VideoMetadata): Promise<string> {
   const response = await youtube.videos.insert({
     part: ['snippet', 'status'],
     requestBody: {
@@ -49,19 +46,19 @@ async function uploadToYouTube(
         title: metadata.title,
         description: metadata.description,
         tags: metadata.tags,
-        categoryId: '28'  // Science & Technology
+        categoryId: '28', // Science & Technology
       },
       status: {
-        privacyStatus: 'public',  // or 'private', 'unlisted'
+        privacyStatus: 'public', // or 'private', 'unlisted'
         selfDeclaredMadeForKids: false,
-        embeddable: true
-      }
+        embeddable: true,
+      },
     },
     media: {
-      body: fs.createReadStream(videoPath)
-    }
+      body: fs.createReadStream(videoPath),
+    },
   });
-  
+
   return response.data.id!;
 }
 
@@ -77,18 +74,18 @@ async function scheduleYouTube(
       snippet: {
         title: metadata.title,
         description: metadata.description,
-        tags: metadata.tags
+        tags: metadata.tags,
       },
       status: {
         privacyStatus: 'private',
-        publishAt: publishAt.toISOString()  // Auto-publish at this time
-      }
+        publishAt: publishAt.toISOString(), // Auto-publish at this time
+      },
     },
     media: {
-      body: fs.createReadStream(videoPath)
-    }
+      body: fs.createReadStream(videoPath),
+    },
   });
-  
+
   return response.data.id!;
 }
 ```
@@ -109,22 +106,22 @@ async function initTikTokUpload(accessToken: string): Promise<string> {
         privacy_level: 'PUBLIC_TO_EVERYONE',
         disable_duet: false,
         disable_comment: false,
-        disable_stitch: false
+        disable_stitch: false,
       },
       source_info: {
         source: 'FILE_UPLOAD',
         video_size: fileSize,
-        chunk_size: 10000000  // 10MB chunks
-      }
+        chunk_size: 10000000, // 10MB chunks
+      },
     },
     {
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json'
-      }
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
     }
   );
-  
+
   return response.data.data.publish_id;
 }
 
@@ -138,8 +135,8 @@ async function uploadChunk(
   await axios.put(uploadUrl, chunk, {
     headers: {
       'Content-Range': `bytes ${start}-${end}/${total}`,
-      'Content-Type': 'video/mp4'
-    }
+      'Content-Type': 'video/mp4',
+    },
   });
 }
 ```
@@ -181,24 +178,24 @@ async function uploadToTikTokBrowser(
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext();
   await context.addCookies(cookies);
-  
+
   const page = await context.newPage();
   await page.goto('https://www.tiktok.com/upload');
-  
+
   // Upload file
   const fileInput = await page.locator('input[type="file"]');
   await fileInput.setInputFiles(videoPath);
-  
+
   // Wait for processing
   await page.waitForSelector('[data-e2e="post-button"]', { timeout: 60000 });
-  
+
   // Add caption
   await page.locator('[data-e2e="caption-input"]').fill(caption);
-  
+
   // Post
   await page.click('[data-e2e="post-button"]');
   await page.waitForURL(/\/@/, { timeout: 120000 });
-  
+
   await browser.close();
 }
 ```
@@ -217,7 +214,7 @@ services:
   postiz:
     image: postiz/postiz:latest
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       DATABASE_URL: postgresql://user:pass@db:5432/postiz
       REDIS_URL: redis://redis:6379
@@ -228,7 +225,7 @@ services:
 import { PostizClient } from '@postiz/sdk';
 
 const postiz = new PostizClient({
-  apiKey: process.env.POSTIZ_API_KEY
+  apiKey: process.env.POSTIZ_API_KEY,
 });
 
 // Schedule post
@@ -236,7 +233,7 @@ await postiz.posts.create({
   content: 'Check out our new AI video! 🤖',
   platforms: ['tiktok', 'instagram', 'twitter'],
   scheduledAt: new Date('2026-01-15T10:00:00Z'),
-  media: [{ url: videoUrl, type: 'video' }]
+  media: [{ url: videoUrl, type: 'video' }],
 });
 ```
 
@@ -268,35 +265,39 @@ interface Publisher {
 
 class YouTubePublisher implements Publisher {
   async upload(video: VideoAsset, metadata: VideoMetadata): Promise<string> {
-    return await youtube.videos.insert({
-      part: ['snippet', 'status'],
-      requestBody: {
-        snippet: { title: metadata.title, description: metadata.description },
-        status: { privacyStatus: 'public' }
-      },
-      media: { body: fs.createReadStream(video.path) }
-    }).then(r => r.data.id!);
+    return await youtube.videos
+      .insert({
+        part: ['snippet', 'status'],
+        requestBody: {
+          snippet: { title: metadata.title, description: metadata.description },
+          status: { privacyStatus: 'public' },
+        },
+        media: { body: fs.createReadStream(video.path) },
+      })
+      .then((r) => r.data.id!);
   }
-  
+
   async schedule(video: VideoAsset, metadata: VideoMetadata, publishAt: Date): Promise<string> {
-    return await youtube.videos.insert({
-      part: ['snippet', 'status'],
-      requestBody: {
-        snippet: { title: metadata.title, description: metadata.description },
-        status: { privacyStatus: 'private', publishAt: publishAt.toISOString() }
-      },
-      media: { body: fs.createReadStream(video.path) }
-    }).then(r => r.data.id!);
+    return await youtube.videos
+      .insert({
+        part: ['snippet', 'status'],
+        requestBody: {
+          snippet: { title: metadata.title, description: metadata.description },
+          status: { privacyStatus: 'private', publishAt: publishAt.toISOString() },
+        },
+        media: { body: fs.createReadStream(video.path) },
+      })
+      .then((r) => r.data.id!);
   }
-  
+
   async getStatus(videoId: string): Promise<PublishStatus> {
     const response = await youtube.videos.list({
       part: ['status'],
-      id: [videoId]
+      id: [videoId],
     });
     return {
       status: response.data.items?.[0]?.status?.privacyStatus || 'unknown',
-      url: `https://youtube.com/watch?v=${videoId}`
+      url: `https://youtube.com/watch?v=${videoId}`,
     };
   }
 }
@@ -308,24 +309,26 @@ class TikTokPublisher implements Publisher {
 class PublishService {
   private publishers: Map<Platform, Publisher> = new Map([
     ['youtube', new YouTubePublisher()],
-    ['tiktok', new TikTokPublisher()]
+    ['tiktok', new TikTokPublisher()],
   ]);
-  
+
   async publish(
     video: VideoAsset,
     metadata: VideoMetadata,
     platforms: Platform[]
   ): Promise<Map<Platform, string>> {
     const results = new Map<Platform, string>();
-    
-    await Promise.all(platforms.map(async platform => {
-      const publisher = this.publishers.get(platform);
-      if (publisher) {
-        const id = await publisher.upload(video, metadata);
-        results.set(platform, id);
-      }
-    }));
-    
+
+    await Promise.all(
+      platforms.map(async (platform) => {
+        const publisher = this.publishers.get(platform);
+        if (publisher) {
+          const id = await publisher.upload(video, metadata);
+          results.set(platform, id);
+        }
+      })
+    );
+
     return results;
   }
 }
@@ -345,35 +348,38 @@ interface PlatformMetadata {
   hashtags: string[];
 }
 
-function formatForPlatform(
-  base: VideoMetadata,
-  platform: Platform
-): PlatformMetadata {
+function formatForPlatform(base: VideoMetadata, platform: Platform): PlatformMetadata {
   switch (platform) {
     case 'youtube':
       return {
-        title: base.title.slice(0, 100),  // Max 100 chars
-        description: `${base.description}\n\n${base.hashtags.map(h => `#${h}`).join(' ')}`,
-        tags: base.tags.slice(0, 500),    // Max 500 chars total
-        hashtags: []
+        title: base.title.slice(0, 100), // Max 100 chars
+        description: `${base.description}\n\n${base.hashtags.map((h) => `#${h}`).join(' ')}`,
+        tags: base.tags.slice(0, 500), // Max 500 chars total
+        hashtags: [],
       };
-    
+
     case 'tiktok':
       return {
-        title: `${base.title.slice(0, 100)} ${base.hashtags.slice(0, 5).map(h => `#${h}`).join(' ')}`,
-        description: '',  // TikTok uses caption only
+        title: `${base.title.slice(0, 100)} ${base.hashtags
+          .slice(0, 5)
+          .map((h) => `#${h}`)
+          .join(' ')}`,
+        description: '', // TikTok uses caption only
         tags: [],
-        hashtags: base.hashtags.slice(0, 5)
+        hashtags: base.hashtags.slice(0, 5),
       };
-    
+
     case 'instagram':
       return {
         title: '',
-        description: `${base.description}\n\n${base.hashtags.slice(0, 30).map(h => `#${h}`).join(' ')}`,
+        description: `${base.description}\n\n${base.hashtags
+          .slice(0, 30)
+          .map((h) => `#${h}`)
+          .join(' ')}`,
         tags: [],
-        hashtags: base.hashtags.slice(0, 30)
+        hashtags: base.hashtags.slice(0, 30),
       };
-    
+
     default:
       return base;
   }
@@ -390,22 +396,24 @@ async function generateHashtags(
 ): Promise<string[]> {
   const response = await openai.chat.completions.create({
     model: 'gpt-4o-mini',
-    messages: [{
-      role: 'user',
-      content: `Generate ${count} trending hashtags for a ${platform} video about: ${topic}
+    messages: [
+      {
+        role: 'user',
+        content: `Generate ${count} trending hashtags for a ${platform} video about: ${topic}
       
       Requirements:
       - Mix of popular and niche hashtags
       - Relevant to the topic
       - No # symbol, just the words
-      - One per line`
-    }]
+      - One per line`,
+      },
+    ],
   });
-  
-  return response.choices[0].message.content!
-    .split('\n')
-    .map(h => h.trim().replace('#', ''))
-    .filter(h => h.length > 0);
+
+  return response.choices[0].message
+    .content!.split('\n')
+    .map((h) => h.trim().replace('#', ''))
+    .filter((h) => h.length > 0);
 }
 ```
 
@@ -418,44 +426,44 @@ async function generateHashtags(
 ```typescript
 interface ScheduleSlot {
   platform: Platform;
-  dayOfWeek: number;  // 0-6
-  hour: number;       // 0-23
+  dayOfWeek: number; // 0-6
+  hour: number; // 0-23
   minute: number;
 }
 
 const OPTIMAL_SLOTS: ScheduleSlot[] = [
   // TikTok peaks
-  { platform: 'tiktok', dayOfWeek: 2, hour: 19, minute: 0 },  // Tuesday 7pm
-  { platform: 'tiktok', dayOfWeek: 4, hour: 12, minute: 0 },  // Thursday 12pm
-  
+  { platform: 'tiktok', dayOfWeek: 2, hour: 19, minute: 0 }, // Tuesday 7pm
+  { platform: 'tiktok', dayOfWeek: 4, hour: 12, minute: 0 }, // Thursday 12pm
+
   // YouTube peaks
   { platform: 'youtube', dayOfWeek: 5, hour: 15, minute: 0 }, // Friday 3pm
   { platform: 'youtube', dayOfWeek: 6, hour: 11, minute: 0 }, // Saturday 11am
-  
+
   // Instagram peaks
   { platform: 'instagram', dayOfWeek: 3, hour: 11, minute: 0 }, // Wednesday 11am
-  { platform: 'instagram', dayOfWeek: 0, hour: 10, minute: 0 }  // Sunday 10am
+  { platform: 'instagram', dayOfWeek: 0, hour: 10, minute: 0 }, // Sunday 10am
 ];
 
 function getNextSlot(platform: Platform, after: Date = new Date()): Date {
-  const slots = OPTIMAL_SLOTS.filter(s => s.platform === platform);
-  
+  const slots = OPTIMAL_SLOTS.filter((s) => s.platform === platform);
+
   for (let daysAhead = 0; daysAhead < 14; daysAhead++) {
     const checkDate = new Date(after);
     checkDate.setDate(checkDate.getDate() + daysAhead);
-    
+
     for (const slot of slots) {
       if (checkDate.getDay() === slot.dayOfWeek) {
         const slotTime = new Date(checkDate);
         slotTime.setHours(slot.hour, slot.minute, 0, 0);
-        
+
         if (slotTime > after) {
           return slotTime;
         }
       }
     }
   }
-  
+
   throw new Error('No slot found');
 }
 ```
@@ -472,22 +480,22 @@ interface VideoAnalytics {
   likes: number;
   comments: number;
   shares: number;
-  watchTime: number;  // seconds
+  watchTime: number; // seconds
 }
 
 async function getYouTubeAnalytics(videoId: string): Promise<VideoAnalytics> {
   const response = await youtube.videos.list({
     part: ['statistics'],
-    id: [videoId]
+    id: [videoId],
   });
-  
+
   const stats = response.data.items?.[0]?.statistics;
   return {
     views: parseInt(stats?.viewCount || '0'),
     likes: parseInt(stats?.likeCount || '0'),
     comments: parseInt(stats?.commentCount || '0'),
-    shares: 0,  // Not available via API
-    watchTime: 0  // Requires Analytics API
+    shares: 0, // Not available via API
+    watchTime: 0, // Requires Analytics API
   };
 }
 ```

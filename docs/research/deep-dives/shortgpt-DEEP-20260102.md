@@ -61,7 +61,7 @@ The `AbstractContentEngine` provides a step-based workflow pattern:
 class AbstractContentEngine:
     def __init__(self, short_id, short_type, language, voiceModule):
         self.stepDict = {}  # Override in subclass
-        
+
     def makeContent(self):
         """Execute all steps in order"""
         for step_num in self.stepDict:
@@ -90,6 +90,7 @@ self.stepDict = {
 ```
 
 This pattern enables:
+
 - Clear separation of concerns
 - Step resumption on failure
 - Progress tracking per step
@@ -107,7 +108,7 @@ class VoiceModule(ABC):
     def generate_voice(self, text: str, outputfile: str) -> str:
         """Generate audio file from text"""
         pass
-    
+
     @abstractmethod
     def get_remaining_characters(self) -> int:
         """Return remaining quota (for paid services)"""
@@ -120,10 +121,10 @@ class VoiceModule(ABC):
 class EdgeTTSVoiceModule(VoiceModule):
     def __init__(self, voiceName):
         self.voiceName = voiceName  # e.g., "en-US-GuyNeural"
-        
+
     def get_remaining_characters(self):
         return 999999999999  # FREE!
-        
+
     async def async_generate_voice(self, text, outputfile):
         communicate = edge_tts.Communicate(text, self.voiceName)
         with open(outputfile, "wb") as file:
@@ -160,21 +161,21 @@ EDGE_TTS_VOICENAME_MAPPING = {
 ```python
 def getImageQueryPairs(captions, n=15, maxTime=2):
     """Generate image search queries from captions"""
-    
+
     prompt = load_prompt('editing_generate_images.yaml')
     prompt = prompt.replace('<<CAPTIONS TIMED>>', f"{captions}")
     prompt = prompt.replace("<<NUMBER>>", f"{n}")
-    
+
     res = llm_completion(prompt)
     data = extractJsonFromString(res)
-    
+
     # Convert to timed pairs: [(time_range, query), ...]
     pairs = []
     for item in data["image_queries"]:
         time = item["timestamp"]
         query = item["query"]
         pairs.append(((time, end), query + " image"))
-    
+
     return pairs
 ```
 
@@ -183,13 +184,13 @@ def getImageQueryPairs(captions, n=15, maxTime=2):
 ```python
 def getVideoSearchQueriesTimed(captions_timed):
     """Generate video search queries from captions"""
-    
+
     prompt = load_prompt('editing_generate_videos.yaml')
     prompt = prompt.replace("<<TIMED_CAPTIONS>>", f"{captions_timed}")
-    
+
     res = llm_completion(prompt)
     data = extractJsonFromString(res)
-    
+
     # Returns: [[time_range, [query1, query2, query3]], ...]
     return formatted_queries
 ```
@@ -223,18 +224,18 @@ def _timeCaptions(self):
 ```python
 def _generateTempAudio(self):
     script = self._db_script
-    
+
     if self._db_language != Language.ENGLISH.value:
         # Translate script using LLM
         self._db_translated_script = gpt_translate.translateContent(
-            script, 
+            script,
             self._db_language
         )
         script = self._db_translated_script
-    
+
     # Generate audio in target language
     self._db_temp_audio_path = self.voiceModule.generate_voice(
-        script, 
+        script,
         self.dynamicAssetDir + "temp_audio_path.wav"
     )
 ```
@@ -248,7 +249,7 @@ class EditingEngine:
     def addEditingStep(self, step_type: EditingStep, params: dict):
         """Add an editing step to the pipeline"""
         self.steps.append((step_type, params))
-    
+
     def renderVideo(self, outputPath, logger=None):
         """Execute all editing steps and render"""
         # ... process each step
@@ -286,13 +287,13 @@ def _addYoutubeMetadata(self):
     self._db_yt_title, self._db_yt_description = gpt_yt.generate_title_description_dict(
         self._db_script
     )
-    
+
     # Save with timestamped filename
     date_str = now.strftime("%Y-%m-%d_%H-%M-%S")
     newFileName = f"videos/{date_str} - {sanitize(self._db_yt_title)}"
-    
+
     shutil.move(self._db_video_path, newFileName + ".mp4")
-    
+
     # Save metadata separately
     with open(newFileName + ".txt", "w") as f:
         f.write(f"---Youtube title---\n{self._db_yt_title}\n")
@@ -321,7 +322,7 @@ interface VoiceModule {
 
 class EdgeTTSVoice implements VoiceModule {
   constructor(private voiceName: string) {}
-  
+
   async generateVoice(text: string, outputFile: string): Promise<string> {
     // Use edge-tts npm package
     const { EdgeTTS } = await import('edge-tts');
@@ -329,7 +330,7 @@ class EdgeTTSVoice implements VoiceModule {
     await tts.synthesize(text, this.voiceName, outputFile);
     return outputFile;
   }
-  
+
   getRemainingCharacters(): number {
     return Number.MAX_SAFE_INTEGER; // FREE!
   }
@@ -337,12 +338,12 @@ class EdgeTTSVoice implements VoiceModule {
 
 // Voice mapping
 const EDGE_TTS_VOICES: Record<Language, string> = {
-  english: "en-US-GuyNeural",
-  spanish: "es-ES-AlvaroNeural",
-  french: "fr-FR-HenriNeural",
-  german: "de-DE-ConradNeural",
-  japanese: "ja-JP-KeitaNeural",
-  chinese: "zh-CN-YunxiNeural",
+  english: 'en-US-GuyNeural',
+  spanish: 'es-ES-AlvaroNeural',
+  french: 'fr-FR-HenriNeural',
+  german: 'de-DE-ConradNeural',
+  japanese: 'ja-JP-KeitaNeural',
+  chinese: 'zh-CN-YunxiNeural',
   // ... more languages
 };
 ```
@@ -384,9 +385,12 @@ export class ElevenLabsProvider implements TTSProvider {
 // Factory
 export function getTTSProvider(config: TTSConfig): TTSProvider {
   switch (config.provider) {
-    case 'edge': return new EdgeTTSProvider();
-    case 'kokoro': return new KokoroProvider();
-    case 'elevenlabs': return new ElevenLabsProvider(config.apiKey);
+    case 'edge':
+      return new EdgeTTSProvider();
+    case 'kokoro':
+      return new KokoroProvider();
+    case 'elevenlabs':
+      return new ElevenLabsProvider(config.apiKey);
   }
 }
 ```
@@ -398,7 +402,7 @@ export function getTTSProvider(config: TTSConfig): TTSProvider {
 abstract class ContentEngine {
   protected steps: Map<number, () => Promise<void>>;
   protected state: EngineState;
-  
+
   async run(): Promise<VideoOutput> {
     for (const [stepNum, stepFn] of this.steps) {
       this.state.currentStep = stepNum;

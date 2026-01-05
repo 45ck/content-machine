@@ -1,6 +1,6 @@
 /**
  * Archetype Prompts
- * 
+ *
  * Prompt templates for each content archetype.
  * Based on SYSTEM-DESIGN §6.3 GeneratedScriptSchema
  */
@@ -40,7 +40,7 @@ export function getPromptForArchetype(archetype: Archetype, context: PromptConte
     story: getStoryPrompt(context),
     'hot-take': getHotTakePrompt(context),
   };
-  
+
   return prompts[archetype];
 }
 

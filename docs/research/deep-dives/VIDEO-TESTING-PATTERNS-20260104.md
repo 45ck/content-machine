@@ -27,8 +27,8 @@ Remotion uses Vitest with Playwright for visual snapshot testing. Screenshots ar
 **File:** [vendor/render/remotion/packages/web-renderer/src/test/utils.ts](../../vendor/render/remotion/packages/web-renderer/src/test/utils.ts)
 
 ```typescript
-import {expect, onTestFinished} from 'vitest';
-import {page} from 'vitest/browser';
+import { expect, onTestFinished } from 'vitest';
+import { page } from 'vitest/browser';
 
 export const testImage = async ({
   blob,
@@ -72,8 +72,8 @@ export const testImage = async ({
 
 ```typescript
 import react from '@vitejs/plugin-react';
-import {playwright} from '@vitest/browser-playwright';
-import {defineConfig} from 'vitest/config';
+import { playwright } from '@vitest/browser-playwright';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
@@ -81,9 +81,9 @@ export default defineConfig({
       enabled: true,
       provider: playwright(),
       instances: [
-        { browser: 'chromium', viewport: {width: 1280, height: 720} },
-        { browser: 'firefox', viewport: {width: 1280, height: 720} },
-        { browser: 'webkit', viewport: {width: 1280, height: 720} },
+        { browser: 'chromium', viewport: { width: 1280, height: 720 } },
+        { browser: 'firefox', viewport: { width: 1280, height: 720 } },
+        { browser: 'webkit', viewport: { width: 1280, height: 720 } },
       ],
       headless: true,
       screenshotFailures: false,
@@ -110,17 +110,19 @@ __screenshots__/
 **File:** [vendor/render/remotion/packages/web-renderer/src/test/fixtures/background-color.tsx](../../vendor/render/remotion/packages/web-renderer/src/test/fixtures/background-color.tsx)
 
 ```tsx
-import {AbsoluteFill} from 'remotion';
+import { AbsoluteFill } from 'remotion';
 
 const Component: React.FC = () => {
   return (
-    <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center'}}>
-      <div style={{
-        backgroundColor: 'red',
-        width: 100,
-        height: 100,
-        borderRadius: 20,
-      }} />
+    <AbsoluteFill style={{ justifyContent: 'center', alignItems: 'center' }}>
+      <div
+        style={{
+          backgroundColor: 'red',
+          width: 100,
+          height: 100,
+          borderRadius: 20,
+        }}
+      />
     </AbsoluteFill>
   );
 };
@@ -140,13 +142,13 @@ export const backgroundColor = {
 **File:** [vendor/render/remotion/packages/web-renderer/src/test/background-color.test.tsx](../../vendor/render/remotion/packages/web-renderer/src/test/background-color.test.tsx)
 
 ```tsx
-import {test} from 'vitest';
-import {renderStillOnWeb} from '../render-still-on-web';
-import {backgroundColor} from './fixtures/background-color';
-import {testImage} from './utils';
+import { test } from 'vitest';
+import { renderStillOnWeb } from '../render-still-on-web';
+import { backgroundColor } from './fixtures/background-color';
+import { testImage } from './utils';
 
 test('should render background-color', async () => {
-  const {blob} = await renderStillOnWeb({
+  const { blob } = await renderStillOnWeb({
     licenseKey: 'free-license',
     composition: backgroundColor,
     frame: 0,
@@ -154,7 +156,7 @@ test('should render background-color', async () => {
     imageFormat: 'png',
   });
 
-  await testImage({blob, testId: 'background-color'});
+  await testImage({ blob, testId: 'background-color' });
 });
 ```
 
@@ -167,41 +169,45 @@ test('should render background-color', async () => {
 **File:** [vendor/render/remotion/packages/it-tests/src/rendering/rendering.test.ts](../../vendor/render/remotion/packages/it-tests/src/rendering/rendering.test.ts)
 
 ```typescript
-import {RenderInternals} from '@remotion/renderer';
-import {expect, test} from 'bun:test';
+import { RenderInternals } from '@remotion/renderer';
+import { expect, test } from 'bun:test';
 
-test('Should be able to render video with custom port', async () => {
-  // ... render video to outputPath ...
+test(
+  'Should be able to render video with custom port',
+  async () => {
+    // ... render video to outputPath ...
 
-  const info = await RenderInternals.callFf({
-    bin: 'ffprobe',
-    args: [outputPath],
-    indent: false,
-    logLevel: 'info',
-    binariesDirectory: null,
-    cancelSignal: undefined,
-  });
-  
-  const data = info.stderr;
-  
-  // Assert video codec
-  expect(data).toContain('Video: h264');
-  
-  // Assert pixel format
-  expect(data).toContain('yuv420p');
-  
-  // Assert resolution
-  expect(data).toContain('1080x1080');
-  
-  // Assert color space
-  expect(data).toContain('bt709');
-  
-  // Assert frame rate
-  expect(data).toContain('30 fps');
-  
-  // Assert audio codec
-  expect(data).toContain('Audio: aac');
-}, { timeout: 30000 });
+    const info = await RenderInternals.callFf({
+      bin: 'ffprobe',
+      args: [outputPath],
+      indent: false,
+      logLevel: 'info',
+      binariesDirectory: null,
+      cancelSignal: undefined,
+    });
+
+    const data = info.stderr;
+
+    // Assert video codec
+    expect(data).toContain('Video: h264');
+
+    // Assert pixel format
+    expect(data).toContain('yuv420p');
+
+    // Assert resolution
+    expect(data).toContain('1080x1080');
+
+    // Assert color space
+    expect(data).toContain('bt709');
+
+    // Assert frame rate
+    expect(data).toContain('30 fps');
+
+    // Assert audio codec
+    expect(data).toContain('Audio: aac');
+  },
+  { timeout: 30000 }
+);
 ```
 
 ### Remotion's getVideoMetadata API
@@ -209,8 +215,8 @@ test('Should be able to render video with custom port', async () => {
 **File:** [vendor/render/remotion/packages/it-tests/src/rendering/get-video-metadata.test.ts](../../vendor/render/remotion/packages/it-tests/src/rendering/get-video-metadata.test.ts)
 
 ```typescript
-import {VideoMetadata, getVideoMetadata} from '@remotion/renderer';
-import {expect, test} from 'bun:test';
+import { VideoMetadata, getVideoMetadata } from '@remotion/renderer';
+import { expect, test } from 'bun:test';
 
 test('Should return video metadata', async () => {
   const metadataResponse = await getVideoMetadata(exampleVideos.framer24fps, {
@@ -245,7 +251,7 @@ from moviepy.video.io.VideoFileClip import VideoFileClip
 def test_setup(util):
     """Test VideoFileClip setup."""
     filename = os.path.join(util.TMP_DIR, "test.mp4")
-    
+
     # Create test video
     video.write_videofile(filename, logger=None)
 
@@ -294,11 +300,11 @@ Computes PSNR between two video files:
 
 ```typescript
 import sharp from 'sharp';
-import {random} from 'remotion';
+import { random } from 'remotion';
 
 export const getMissedFramesforCodec = async (
   codec: 'mp4' | 'webm',
-  type: 'normal' | 'offthread' | 'codec',
+  type: 'normal' | 'offthread' | 'codec'
 ) => {
   const outputPath = await saveSequenceInTempDir(`video-testing-${codec}-${type}`);
   let missedFrames = 0;
@@ -342,9 +348,9 @@ function missedFrameChecker(expected, actual, missedFrames, frame, filename) {
   // Encoding can shift colors slightly - use threshold
   const highestDistance = Math.max(colorDistance.red, colorDistance.blue, colorDistance.green);
   const threshold = 35;
-  
+
   if (highestDistance > threshold) {
-    console.log(colorDistance, {threshold, frame, filename});
+    console.log(colorDistance, { threshold, frame, filename });
     return missedFrames + 1;
   }
   return missedFrames;
@@ -360,9 +366,9 @@ function missedFrameChecker(expected, actual, missedFrames, frame, filename) {
 **File:** [vendor/render/remotion/packages/captions/src/test/tiktok.test.ts](../../vendor/render/remotion/packages/captions/src/test/tiktok.test.ts)
 
 ```typescript
-import {expect, test} from 'bun:test';
-import type {Caption} from '../caption';
-import {createTikTokStyleCaptions} from '../create-tiktok-style-captions';
+import { expect, test } from 'bun:test';
+import type { Caption } from '../caption';
+import { createTikTokStyleCaptions } from '../create-tiktok-style-captions';
 
 const captions: Caption[] = [
   { text: 'Using', startMs: 40, endMs: 300, timestampMs: 200, confidence: 0.948 },
@@ -372,11 +378,11 @@ const captions: Caption[] = [
 ];
 
 test('Should create captions', () => {
-  const {pages: tikTokStyleCaptions} = createTikTokStyleCaptions({
+  const { pages: tikTokStyleCaptions } = createTikTokStyleCaptions({
     captions,
     combineTokensWithinMilliseconds: 500,
   });
-  
+
   expect(tikTokStyleCaptions).toEqual([
     {
       durationMs: 860,
@@ -405,9 +411,9 @@ test('Should create captions', () => {
 **File:** [vendor/render/remotion/packages/captions/src/test/srt.test.ts](../../vendor/render/remotion/packages/captions/src/test/srt.test.ts)
 
 ```typescript
-import {expect, test} from 'bun:test';
-import {parseSrt} from '../parse-srt';
-import {serializeSrt} from '../serialize-srt';
+import { expect, test } from 'bun:test';
+import { parseSrt } from '../parse-srt';
+import { serializeSrt } from '../serialize-srt';
 
 const input = `
 1
@@ -420,8 +426,8 @@ This is a demonstration of SRT subtitles.
 `.trim();
 
 test('Should create captions', () => {
-  const {captions} = parseSrt({input});
-  
+  const { captions } = parseSrt({ input });
+
   expect(captions).toEqual([
     {
       confidence: 1,
@@ -440,7 +446,7 @@ test('Should create captions', () => {
   ]);
 
   // Roundtrip test
-  const serialized = serializeSrt({lines: captions.map((c) => [c])});
+  const serialized = serializeSrt({ lines: captions.map((c) => [c]) });
   expect(serialized).toEqual(input);
 });
 ```
@@ -458,7 +464,7 @@ MEDIA_SUBTITLES_DATA = [
 
 def test_subtitles(util):
     subtitles = SubtitlesClip("media/subtitles.srt", make_textclip=generator)
-    
+
     # Validate parsed subtitle data matches expected
     assert subtitles.subtitles == MEDIA_SUBTITLES_DATA
 
@@ -475,20 +481,28 @@ def test_file_to_subtitles():
 **File:** [vendor/render/remotion/packages/it-tests/src/rendering/frame-accuracy.test.ts](../../vendor/render/remotion/packages/it-tests/src/rendering/frame-accuracy.test.ts)
 
 ```typescript
-import {expect, test} from 'bun:test';
-import {getMissedFramesforCodec} from './test-utils';
+import { expect, test } from 'bun:test';
+import { getMissedFramesforCodec } from './test-utils';
 
-test('should render correct frames from embedded videos - MP4 offthread', async () => {
-  // Uses deterministic colors per frame, validates each frame matches expected
-  const missedFrames = await getMissedFramesforCodec('mp4', 'offthread');
-  expect(missedFrames).toBe(0);  // Zero tolerance for offthread rendering
-}, { timeout: 30000 });
+test(
+  'should render correct frames from embedded videos - MP4 offthread',
+  async () => {
+    // Uses deterministic colors per frame, validates each frame matches expected
+    const missedFrames = await getMissedFramesforCodec('mp4', 'offthread');
+    expect(missedFrames).toBe(0); // Zero tolerance for offthread rendering
+  },
+  { timeout: 30000 }
+);
 
-test('should render correct frames from embedded videos - WebM onthread', async () => {
-  // Onthread has slightly less accuracy due to browser timing
-  const missedFrames = await getMissedFramesforCodec('webm', 'normal');
-  expect(missedFrames).toBeLessThanOrEqual(8);  // Allow small tolerance
-}, { timeout: 30000 });
+test(
+  'should render correct frames from embedded videos - WebM onthread',
+  async () => {
+    // Onthread has slightly less accuracy due to browser timing
+    const missedFrames = await getMissedFramesforCodec('webm', 'normal');
+    expect(missedFrames).toBeLessThanOrEqual(8); // Allow small tolerance
+  },
+  { timeout: 30000 }
+);
 ```
 
 ### Audio Codec Validation
@@ -502,14 +516,14 @@ test('Should be able to render a WAV audio file', async () => {
     bin: 'ffprobe',
     args: [out],
   });
-  
+
   const data = info.stderr;
-  expect(data).toContain('pcm_s16le');       // Audio codec
-  expect(data).toContain('2 channels');       // Stereo
-  expect(data).toContain('Kevin MacLeod');    // Metadata preserved
+  expect(data).toContain('pcm_s16le'); // Audio codec
+  expect(data).toContain('2 channels'); // Stereo
+  expect(data).toContain('Kevin MacLeod'); // Metadata preserved
   expect(data).toMatch(/bitrate: 15\d\d kb/); // Bitrate range
-  expect(data).toContain('Stream #0');        // Has one stream
-  expect(data).not.toContain('Stream #1');    // No extra streams
+  expect(data).toContain('Stream #0'); // Has one stream
+  expect(data).not.toContain('Stream #1'); // No extra streams
 });
 ```
 
@@ -550,7 +564,7 @@ export default createRule({
 ### Using Remotion's Seeded Random
 
 ```typescript
-import {random} from 'remotion';
+import { random } from 'remotion';
 
 // BAD: Non-deterministic, different each render
 const badValue = Math.random();
@@ -630,7 +644,7 @@ do_tiny_psnr(){
     psnr=$(tests/tiny_psnr "$1" "$2" $cmp_unit $cmp_shift 0)
     val=$(expr "$psnr" : ".*$3: *\([0-9.]*\)")
     val_cmp=$(compare $val $cmp_target $fuzz)
-    
+
     if [ "$val_cmp" != 0 ]; then
         echo "$psnr"
         echo "$3: |$val - $cmp_target| >= $fuzz"
@@ -655,13 +669,13 @@ oneoff(){
 
 ### Recommended Test Layers
 
-| Layer | Tool | Purpose |
-|-------|------|---------|
-| **Unit Tests** | Vitest/Bun | Caption parsing, timing calculations |
-| **Visual Regression** | Vitest + Playwright | Frame snapshot comparison |
-| **Metadata Validation** | ffprobe | Duration, resolution, codec assertions |
-| **Quality Metrics** | FFmpeg PSNR/SSIM | Objective quality scoring |
-| **Integration Tests** | Full pipeline | End-to-end video generation |
+| Layer                   | Tool                | Purpose                                |
+| ----------------------- | ------------------- | -------------------------------------- |
+| **Unit Tests**          | Vitest/Bun          | Caption parsing, timing calculations   |
+| **Visual Regression**   | Vitest + Playwright | Frame snapshot comparison              |
+| **Metadata Validation** | ffprobe             | Duration, resolution, codec assertions |
+| **Quality Metrics**     | FFmpeg PSNR/SSIM    | Objective quality scoring              |
+| **Integration Tests**   | Full pipeline       | End-to-end video generation            |
 
 ### Key Patterns to Implement
 

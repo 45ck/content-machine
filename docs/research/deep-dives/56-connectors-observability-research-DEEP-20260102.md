@@ -1,4 +1,5 @@
 # Deep Dive #56: Connectors, Observability & Research Infrastructure
+
 **Date:** 2026-01-02
 **Category:** Data Connectors, Observability, LLM Evaluation
 **Status:** Complete
@@ -11,14 +12,14 @@ This deep dive documents the comprehensive connector ecosystem for data intake (
 
 ### Key Findings
 
-| Category | Top Tools | Key Features |
-|----------|-----------|--------------|
-| **Reddit** | reddit-mcp-ts, PRAW, AsyncPRAW | MCP native, read/write, trending |
-| **YouTube** | yt-dlp, youtube-transcript-api | Download, transcripts, metadata |
-| **Hacker News** | hn-api-official, Algolia Search | Stories, comments, search |
-| **Web Research** | Firecrawl, Tavily | LLM-ready data, RAG context |
-| **Observability** | Langfuse, Promptfoo | Tracing, evaluation, red-teaming |
-| **Trends** | pytrends | Google Trends API |
+| Category          | Top Tools                       | Key Features                     |
+| ----------------- | ------------------------------- | -------------------------------- |
+| **Reddit**        | reddit-mcp-ts, PRAW, AsyncPRAW  | MCP native, read/write, trending |
+| **YouTube**       | yt-dlp, youtube-transcript-api  | Download, transcripts, metadata  |
+| **Hacker News**   | hn-api-official, Algolia Search | Stories, comments, search        |
+| **Web Research**  | Firecrawl, Tavily               | LLM-ready data, RAG context      |
+| **Observability** | Langfuse, Promptfoo             | Tracing, evaluation, red-teaming |
+| **Trends**        | pytrends                        | Google Trends API                |
 
 ---
 
@@ -36,28 +37,28 @@ Native MCP server for Reddit integration:
 
 **Read-only (Client Credentials):**
 
-| Tool | Description |
-|------|-------------|
-| `get_reddit_post(subreddit, post_id)` | Get specific post |
-| `get_top_posts(subreddit, time_filter, limit)` | Top posts from subreddit |
-| `get_user_info(username)` | User information |
-| `get_subreddit_info(subreddit_name)` | Subreddit details |
-| `get_trending_subreddits()` | Currently trending |
-| `search_reddit(query, subreddit?, sort?, time_filter?, limit?)` | Search posts |
-| `get_post_comments(post_id, subreddit, sort?, limit?)` | Post comments |
-| `get_user_posts(username, sort?, time_filter?, limit?)` | User's posts |
-| `get_user_comments(username, sort?, time_filter?, limit?)` | User's comments |
+| Tool                                                            | Description              |
+| --------------------------------------------------------------- | ------------------------ |
+| `get_reddit_post(subreddit, post_id)`                           | Get specific post        |
+| `get_top_posts(subreddit, time_filter, limit)`                  | Top posts from subreddit |
+| `get_user_info(username)`                                       | User information         |
+| `get_subreddit_info(subreddit_name)`                            | Subreddit details        |
+| `get_trending_subreddits()`                                     | Currently trending       |
+| `search_reddit(query, subreddit?, sort?, time_filter?, limit?)` | Search posts             |
+| `get_post_comments(post_id, subreddit, sort?, limit?)`          | Post comments            |
+| `get_user_posts(username, sort?, time_filter?, limit?)`         | User's posts             |
+| `get_user_comments(username, sort?, time_filter?, limit?)`      | User's comments          |
 
 **Write Tools (User Credentials):**
 
-| Tool | Description |
-|------|-------------|
-| `create_post(subreddit, title, content, is_self)` | Create new post |
-| `reply_to_post(post_id, content, subreddit?)` | Reply to post |
-| `edit_post(thing_id, new_text)` | Edit own post |
-| `edit_comment(thing_id, new_text)` | Edit own comment |
-| `delete_post(thing_id)` | Delete own post |
-| `delete_comment(thing_id)` | Delete own comment |
+| Tool                                              | Description        |
+| ------------------------------------------------- | ------------------ |
+| `create_post(subreddit, title, content, is_self)` | Create new post    |
+| `reply_to_post(post_id, content, subreddit?)`     | Reply to post      |
+| `edit_post(thing_id, new_text)`                   | Edit own post      |
+| `edit_comment(thing_id, new_text)`                | Edit own comment   |
+| `delete_post(thing_id)`                           | Delete own post    |
+| `delete_comment(thing_id)`                        | Delete own comment |
 
 #### MCP Configuration
 
@@ -110,22 +111,22 @@ For content-machine, use **reddit-mcp-ts** as the primary connector:
 ```typescript
 // MCP-native Reddit integration
 interface TrendRequest {
-    subreddits: string[];
-    timeFilter: 'hour' | 'day' | 'week' | 'month' | 'year' | 'all';
-    limit: number;
+  subreddits: string[];
+  timeFilter: 'hour' | 'day' | 'week' | 'month' | 'year' | 'all';
+  limit: number;
 }
 
 async function getTrendingContent(request: TrendRequest): Promise<RedditPost[]> {
-    const results = [];
-    for (const subreddit of request.subreddits) {
-        const posts = await mcpClient.call('get_top_posts', {
-            subreddit,
-            time_filter: request.timeFilter,
-            limit: request.limit
-        });
-        results.push(...posts);
-    }
-    return results.sort((a, b) => b.score - a.score);
+  const results = [];
+  for (const subreddit of request.subreddits) {
+    const posts = await mcpClient.call('get_top_posts', {
+      subreddit,
+      time_filter: request.timeFilter,
+      limit: request.limit,
+    });
+    results.push(...posts);
+  }
+  return results.sort((a, b) => b.score - a.score);
 }
 ```
 
@@ -143,14 +144,14 @@ The most powerful video downloader:
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| Multi-site | 1000+ supported sites |
+| Feature          | Description                    |
+| ---------------- | ------------------------------ |
+| Multi-site       | 1000+ supported sites          |
 | Format Selection | Best quality, specific formats |
-| Subtitles | Auto-download captions |
-| Metadata | Full video information |
-| SponsorBlock | Auto-skip sponsors |
-| Authentication | Cookie/netrc support |
+| Subtitles        | Auto-download captions         |
+| Metadata         | Full video information         |
+| SponsorBlock     | Auto-skip sponsors             |
+| Authentication   | Cookie/netrc support           |
 
 #### Usage Patterns
 
@@ -180,7 +181,7 @@ def download_video(url: str, output_path: str) -> dict:
         'writesubtitles': True,
         'subtitleslangs': ['en'],
     }
-    
+
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=True)
         return info
@@ -242,20 +243,18 @@ Official YouTube Data API v3 clients for metadata, comments, channels.
 
 ### Available Clients
 
-| Client | Language | Features |
-|--------|----------|----------|
-| hn-api-official | JavaScript | Firebase-based, realtime |
-| hn-api-rust | Rust | High performance |
-| hn-client | Python | Simple wrapper |
-| hn-search-algolia | JavaScript | Full-text search |
+| Client            | Language   | Features                 |
+| ----------------- | ---------- | ------------------------ |
+| hn-api-official   | JavaScript | Firebase-based, realtime |
+| hn-api-rust       | Rust       | High performance         |
+| hn-client         | Python     | Simple wrapper           |
+| hn-search-algolia | JavaScript | Full-text search         |
 
 ### Algolia Search Integration
 
 ```javascript
 // Full-text search via Algolia
-const response = await fetch(
-    `https://hn.algolia.com/api/v1/search?query=${query}&tags=story`
-);
+const response = await fetch(`https://hn.algolia.com/api/v1/search?query=${query}&tags=story`);
 const results = await response.json();
 
 // Results include:
@@ -268,14 +267,14 @@ const results = await response.json();
 
 ```javascript
 // Top stories
-const topStories = await fetch(
-    'https://hacker-news.firebaseio.com/v0/topstories.json'
-).then(r => r.json());
+const topStories = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json').then((r) =>
+  r.json()
+);
 
 // Story details
-const story = await fetch(
-    `https://hacker-news.firebaseio.com/v0/item/${id}.json`
-).then(r => r.json());
+const story = await fetch(`https://hacker-news.firebaseio.com/v0/item/${id}.json`).then((r) =>
+  r.json()
+);
 ```
 
 ---
@@ -291,13 +290,13 @@ Enterprise-grade web scraping for AI applications:
 
 #### Capabilities
 
-| Feature | Description |
-|---------|-------------|
-| **Scrape** | Single URL to markdown/structured data |
-| **Crawl** | Entire website crawling |
-| **Map** | Fast URL discovery |
-| **Search** | Web search with full content |
-| **Extract** | AI-powered structured extraction |
+| Feature     | Description                            |
+| ----------- | -------------------------------------- |
+| **Scrape**  | Single URL to markdown/structured data |
+| **Crawl**   | Entire website crawling                |
+| **Map**     | Fast URL discovery                     |
+| **Search**  | Web search with full content           |
+| **Extract** | AI-powered structured extraction       |
 
 #### Special Features
 
@@ -354,13 +353,13 @@ extracted = app.extract([
 
 #### Core Features
 
-| Feature | Description |
-|---------|-------------|
-| **Search** | Web search optimized for LLMs |
-| **Extract** | Content extraction from URLs |
-| **Crawl** | Website crawling |
-| **Map** | Site structure discovery |
-| **Research** | Deep research mode |
+| Feature      | Description                   |
+| ------------ | ----------------------------- |
+| **Search**   | Web search optimized for LLMs |
+| **Extract**  | Content extraction from URLs  |
+| **Crawl**    | Website crawling              |
+| **Map**      | Site structure discovery      |
+| **Research** | Deep research mode            |
 
 #### Usage Patterns
 
@@ -431,13 +430,13 @@ Comprehensive LLM observability:
 
 #### Core Features
 
-| Feature | Description |
-|---------|-------------|
-| **Tracing** | Full LLM call tracing with costs |
-| **Prompt Management** | Version control, A/B testing |
-| **Evaluations** | LLM-as-judge, user feedback |
-| **Datasets** | Test sets and benchmarks |
-| **Playground** | Interactive prompt testing |
+| Feature               | Description                      |
+| --------------------- | -------------------------------- |
+| **Tracing**           | Full LLM call tracing with costs |
+| **Prompt Management** | Version control, A/B testing     |
+| **Evaluations**       | LLM-as-judge, user feedback      |
+| **Datasets**          | Test sets and benchmarks         |
+| **Playground**        | Interactive prompt testing       |
 
 #### Integration
 
@@ -497,13 +496,13 @@ Developer-friendly LLM testing:
 
 #### Use Cases
 
-| Use Case | Description |
-|----------|-------------|
-| **Prompt Testing** | Compare prompt variations |
-| **Model Comparison** | Side-by-side model evaluation |
-| **Red Teaming** | Security vulnerability scanning |
-| **CI/CD Integration** | Automated quality gates |
-| **Code Scanning** | PR review for LLM issues |
+| Use Case              | Description                     |
+| --------------------- | ------------------------------- |
+| **Prompt Testing**    | Compare prompt variations       |
+| **Model Comparison**  | Side-by-side model evaluation   |
+| **Red Teaming**       | Security vulnerability scanning |
+| **CI/CD Integration** | Automated quality gates         |
+| **Code Scanning**     | PR review for LLM issues        |
 
 #### Quick Start
 
@@ -533,12 +532,12 @@ providers:
 
 tests:
   - vars:
-      topic: "AI trends"
+      topic: 'AI trends'
     assert:
       - type: contains
-        value: "artificial intelligence"
+        value: 'artificial intelligence'
       - type: llm-rubric
-        value: "Script is engaging and informative"
+        value: 'Script is engaging and informative'
       - type: cost
         threshold: 0.05
 ```
@@ -567,10 +566,10 @@ import { NodeSDK } from '@opentelemetry/sdk-node';
 import { LangfuseExporter } from 'langfuse-node';
 
 const sdk = new NodeSDK({
-    traceExporter: new LangfuseExporter({
-        publicKey: process.env.LANGFUSE_PUBLIC_KEY,
-        secretKey: process.env.LANGFUSE_SECRET_KEY,
-    }),
+  traceExporter: new LangfuseExporter({
+    publicKey: process.env.LANGFUSE_PUBLIC_KEY,
+    secretKey: process.env.LANGFUSE_SECRET_KEY,
+  }),
 });
 
 sdk.start();
@@ -618,61 +617,70 @@ import * as Sentry from '@sentry/node';
 
 // Initialize observability
 const langfuse = new Langfuse({
-    publicKey: process.env.LANGFUSE_PUBLIC_KEY,
-    secretKey: process.env.LANGFUSE_SECRET_KEY,
+  publicKey: process.env.LANGFUSE_PUBLIC_KEY,
+  secretKey: process.env.LANGFUSE_SECRET_KEY,
 });
 
 Sentry.init({
-    dsn: process.env.SENTRY_DSN,
-    tracesSampleRate: 1.0,
+  dsn: process.env.SENTRY_DSN,
+  tracesSampleRate: 1.0,
 });
 
 // Traced video generation
 async function generateVideo(topic: string): Promise<Video> {
-    const trace = langfuse.trace({
-        name: 'video-generation',
-        metadata: { topic }
-    });
-    
-    const transaction = Sentry.startTransaction({
-        name: 'generate-video',
-        op: 'video.generate'
-    });
-    
-    try {
-        // 1. Research trends
-        const trends = await trace.span({
-            name: 'trend-research',
-            op: 'research'
-        }, async () => {
-            return await researchTrends(topic);
-        });
-        
-        // 2. Generate script
-        const script = await trace.generation({
-            name: 'script-generation',
-            model: 'gpt-4',
-            input: { topic, trends }
-        }, async () => {
-            return await generateScript(topic, trends);
-        });
-        
-        // 3. Render video
-        const video = await trace.span({
-            name: 'video-render',
-            op: 'render'
-        }, async () => {
-            return await renderVideo(script);
-        });
-        
-        return video;
-    } catch (error) {
-        Sentry.captureException(error);
-        throw error;
-    } finally {
-        transaction.finish();
-        await langfuse.flush();
-    }
+  const trace = langfuse.trace({
+    name: 'video-generation',
+    metadata: { topic },
+  });
+
+  const transaction = Sentry.startTransaction({
+    name: 'generate-video',
+    op: 'video.generate',
+  });
+
+  try {
+    // 1. Research trends
+    const trends = await trace.span(
+      {
+        name: 'trend-research',
+        op: 'research',
+      },
+      async () => {
+        return await researchTrends(topic);
+      }
+    );
+
+    // 2. Generate script
+    const script = await trace.generation(
+      {
+        name: 'script-generation',
+        model: 'gpt-4',
+        input: { topic, trends },
+      },
+      async () => {
+        return await generateScript(topic, trends);
+      }
+    );
+
+    // 3. Render video
+    const video = await trace.span(
+      {
+        name: 'video-render',
+        op: 'render',
+      },
+      async () => {
+        return await renderVideo(script);
+      }
+    );
+
+    return video;
+  } catch (error) {
+    Sentry.captureException(error);
+    throw error;
+  } finally {
+    transaction.finish();
+    await langfuse.flush();
+  }
 }
 ```
 
@@ -682,48 +690,47 @@ async function generateVideo(topic: string): Promise<Video> {
 
 ### Content-Machine MCP Servers
 
-| Server | Purpose | Status |
-|--------|---------|--------|
-| reddit-mcp-ts | Reddit trends, posts | ✅ Vendored |
-| firecrawl-mcp | Web scraping | Available |
-| postgres-mcp | Database queries | ✅ Vendored |
-| qdrant-mcp | Semantic memory | ✅ Vendored |
-| gemini-image-mcp | Image generation | ✅ Vendored |
-| nanobanana-mcp | Gemini images | ✅ Vendored |
-| plainly-mcp | Cloud rendering | ✅ Vendored |
-| upstash-mcp | Redis operations | ✅ Vendored |
+| Server           | Purpose              | Status      |
+| ---------------- | -------------------- | ----------- |
+| reddit-mcp-ts    | Reddit trends, posts | ✅ Vendored |
+| firecrawl-mcp    | Web scraping         | Available   |
+| postgres-mcp     | Database queries     | ✅ Vendored |
+| qdrant-mcp       | Semantic memory      | ✅ Vendored |
+| gemini-image-mcp | Image generation     | ✅ Vendored |
+| nanobanana-mcp   | Gemini images        | ✅ Vendored |
+| plainly-mcp      | Cloud rendering      | ✅ Vendored |
+| upstash-mcp      | Redis operations     | ✅ Vendored |
 
 ### MCP Integration Pattern
 
 ```typescript
 // Unified MCP client for all connectors
 class ContentMachineMCP {
-    private servers: Map<string, MCPClient>;
-    
-    async initialize() {
-        this.servers.set('reddit', await connectMCP('reddit-mcp-ts'));
-        this.servers.set('database', await connectMCP('postgres-mcp'));
-        this.servers.set('memory', await connectMCP('qdrant-mcp'));
-        this.servers.set('image', await connectMCP('nanobanana-mcp'));
-    }
-    
-    async researchTrends(topic: string): Promise<Trends> {
-        const redditPosts = await this.servers.get('reddit').call(
-            'get_top_posts',
-            { subreddit: 'programming', time_filter: 'week', limit: 50 }
-        );
-        
-        // Store in semantic memory
-        await this.servers.get('memory').call('store', {
-            collection: 'trends',
-            documents: redditPosts.map(p => ({
-                text: p.title + ' ' + p.selftext,
-                metadata: { score: p.score, url: p.url }
-            }))
-        });
-        
-        return { posts: redditPosts };
-    }
+  private servers: Map<string, MCPClient>;
+
+  async initialize() {
+    this.servers.set('reddit', await connectMCP('reddit-mcp-ts'));
+    this.servers.set('database', await connectMCP('postgres-mcp'));
+    this.servers.set('memory', await connectMCP('qdrant-mcp'));
+    this.servers.set('image', await connectMCP('nanobanana-mcp'));
+  }
+
+  async researchTrends(topic: string): Promise<Trends> {
+    const redditPosts = await this.servers
+      .get('reddit')
+      .call('get_top_posts', { subreddit: 'programming', time_filter: 'week', limit: 50 });
+
+    // Store in semantic memory
+    await this.servers.get('memory').call('store', {
+      collection: 'trends',
+      documents: redditPosts.map((p) => ({
+        text: p.title + ' ' + p.selftext,
+        metadata: { score: p.score, url: p.url },
+      })),
+    });
+
+    return { posts: redditPosts };
+  }
 }
 ```
 
@@ -733,22 +740,22 @@ class ContentMachineMCP {
 
 ### 8.1 Trend Research Stack
 
-| Component | Tool | Reason |
-|-----------|------|--------|
-| Reddit | reddit-mcp-ts | MCP native, TypeScript |
-| YouTube | yt-dlp + transcript-api | Comprehensive, reliable |
-| Hacker News | Algolia Search | Fast full-text search |
-| Web Research | Tavily | RAG-optimized, fast |
-| Trends | pytrends | Google Trends access |
+| Component    | Tool                    | Reason                  |
+| ------------ | ----------------------- | ----------------------- |
+| Reddit       | reddit-mcp-ts           | MCP native, TypeScript  |
+| YouTube      | yt-dlp + transcript-api | Comprehensive, reliable |
+| Hacker News  | Algolia Search          | Fast full-text search   |
+| Web Research | Tavily                  | RAG-optimized, fast     |
+| Trends       | pytrends                | Google Trends access    |
 
 ### 8.2 Observability Stack
 
-| Component | Tool | Reason |
-|-----------|------|--------|
-| LLM Tracing | Langfuse | Open source, self-hosted |
-| LLM Evaluation | Promptfoo | Developer-friendly, CI/CD |
-| Error Tracking | Sentry | Industry standard |
-| Metrics | OpenTelemetry | Vendor-neutral |
+| Component      | Tool          | Reason                    |
+| -------------- | ------------- | ------------------------- |
+| LLM Tracing    | Langfuse      | Open source, self-hosted  |
+| LLM Evaluation | Promptfoo     | Developer-friendly, CI/CD |
+| Error Tracking | Sentry        | Industry standard         |
+| Metrics        | OpenTelemetry | Vendor-neutral            |
 
 ### 8.3 Implementation Priority
 
@@ -769,20 +776,21 @@ class ContentMachineMCP {
 
 ## Appendix A: Connector Comparison
 
-| Connector | Type | Auth | Rate Limits | Best For |
-|-----------|------|------|-------------|----------|
-| reddit-mcp-ts | MCP | OAuth | Yes | AI integration |
-| PRAW | Python | OAuth | Yes | Scripts |
-| yt-dlp | CLI/Python | Cookie | Fair use | Downloads |
-| youtube-transcript-api | Python | None | Moderate | Transcripts |
-| Firecrawl | API | API Key | Paid tiers | Enterprise |
-| Tavily | API | API Key | Paid tiers | RAG apps |
-| pytrends | Python | None | Rate limited | Trends |
+| Connector              | Type       | Auth    | Rate Limits  | Best For       |
+| ---------------------- | ---------- | ------- | ------------ | -------------- |
+| reddit-mcp-ts          | MCP        | OAuth   | Yes          | AI integration |
+| PRAW                   | Python     | OAuth   | Yes          | Scripts        |
+| yt-dlp                 | CLI/Python | Cookie  | Fair use     | Downloads      |
+| youtube-transcript-api | Python     | None    | Moderate     | Transcripts    |
+| Firecrawl              | API        | API Key | Paid tiers   | Enterprise     |
+| Tavily                 | API        | API Key | Paid tiers   | RAG apps       |
+| pytrends               | Python     | None    | Rate limited | Trends         |
 
 ---
 
 **Deep Dives Created:** 56 total
 **Next Steps:**
+
 1. Create master index of all deep dives
 2. Document remaining specialized repos
 3. Architecture decision records (ADRs)

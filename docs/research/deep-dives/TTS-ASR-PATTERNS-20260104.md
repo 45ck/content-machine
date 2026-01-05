@@ -2,7 +2,8 @@
 
 **Date:** 2026-01-04  
 **Status:** Research Complete  
-**Repos Analyzed:** 
+**Repos Analyzed:**
+
 - `vendor/audio/kokoro-fastapi`
 - `vendor/short-video-maker-gyori`
 - `vendor/ShortGPT`
@@ -26,14 +27,14 @@
 
 ## 1. TTS Engines Overview
 
-| Engine | Cost | Quality | Languages | Speed | Word Timestamps | Best For |
-|--------|------|---------|-----------|-------|-----------------|----------|
-| **Edge TTS** | Free | High | 300+ voices | Fast | ✅ Built-in | Production, multilingual |
-| **Kokoro** | Free | High | English only | Medium | ❌ Needs Whisper | Local/offline |
-| **OpenAI TTS** | Paid | Very High | Multi | Fast | ❌ Needs Whisper | Premium quality |
-| **Azure TTS v2** | Paid | Very High | Multi | Fast | ✅ Built-in | Enterprise |
-| **ElevenLabs** | Paid | Excellent | Multi | Medium | ❌ Needs Whisper | Voice cloning |
-| **Gemini TTS** | Paid | High | Multi | Fast | ❌ Needs Whisper | Google ecosystem |
+| Engine           | Cost | Quality   | Languages    | Speed  | Word Timestamps  | Best For                 |
+| ---------------- | ---- | --------- | ------------ | ------ | ---------------- | ------------------------ |
+| **Edge TTS**     | Free | High      | 300+ voices  | Fast   | ✅ Built-in      | Production, multilingual |
+| **Kokoro**       | Free | High      | English only | Medium | ❌ Needs Whisper | Local/offline            |
+| **OpenAI TTS**   | Paid | Very High | Multi        | Fast   | ❌ Needs Whisper | Premium quality          |
+| **Azure TTS v2** | Paid | Very High | Multi        | Fast   | ✅ Built-in      | Enterprise               |
+| **ElevenLabs**   | Paid | Excellent | Multi        | Medium | ❌ Needs Whisper | Voice cloning            |
+| **Gemini TTS**   | Paid | High      | Multi        | Fast   | ❌ Needs Whisper | Google ecosystem         |
 
 ---
 
@@ -72,10 +73,10 @@ from edge_tts import SubMaker
 async def azure_tts_v1(text: str, voice_name: str, voice_rate: float, voice_file: str) -> SubMaker:
     """Generate TTS with word timestamps using Edge TTS."""
     rate_str = convert_rate_to_percent(voice_rate)  # e.g., "+10%" or "-5%"
-    
+
     communicate = edge_tts.Communicate(text, voice_name, rate=rate_str)
     sub_maker = edge_tts.SubMaker()
-    
+
     with open(voice_file, "wb") as file:
         async for chunk in communicate.stream():
             if chunk["type"] == "audio":
@@ -86,7 +87,7 @@ async def azure_tts_v1(text: str, voice_name: str, voice_rate: float, voice_file
                     (chunk["offset"], chunk["duration"]),  # timing tuple
                     chunk["text"]                           # word text
                 )
-    
+
     return sub_maker
 
 def convert_rate_to_percent(rate: float) -> str:
@@ -131,24 +132,27 @@ Edge TTS provides 300+ voices. Key voice format: `{locale}-{Name}Neural`
 **File:** [vendor/short-video-maker-gyori/src/short-creator/libraries/Kokoro.ts](../../../vendor/short-video-maker-gyori/src/short-creator/libraries/Kokoro.ts)
 
 ```typescript
-import { KokoroTTS, TextSplitterStream } from "kokoro-js";
+import { KokoroTTS, TextSplitterStream } from 'kokoro-js';
 
 export class Kokoro {
   constructor(private tts: KokoroTTS) {}
 
-  async generate(text: string, voice: Voices): Promise<{
+  async generate(
+    text: string,
+    voice: Voices
+  ): Promise<{
     audio: ArrayBuffer;
     audioLength: number;
   }> {
     const splitter = new TextSplitterStream();
     const stream = this.tts.stream(splitter, { voice });
-    
+
     splitter.push(text);
     splitter.close();
 
     const audioBuffers: ArrayBuffer[] = [];
     let audioLength = 0;
-    
+
     for await (const audio of stream) {
       audioBuffers.push(audio.audio.toWav());
       audioLength += audio.audio.audio.length / audio.audio.sampling_rate;
@@ -160,10 +164,10 @@ export class Kokoro {
     };
   }
 
-  static async init(dtype: "fp32" | "fp16" | "q8" | "q4"): Promise<Kokoro> {
-    const tts = await KokoroTTS.from_pretrained("onnx-community/Kokoro-82M-v1.0-ONNX", {
+  static async init(dtype: 'fp32' | 'fp16' | 'q8' | 'q4'): Promise<Kokoro> {
+    const tts = await KokoroTTS.from_pretrained('onnx-community/Kokoro-82M-v1.0-ONNX', {
       dtype,
-      device: "cpu",  // Only CPU supported in Node.js
+      device: 'cpu', // Only CPU supported in Node.js
     });
     return new Kokoro(tts);
   }
@@ -186,9 +190,9 @@ class KokoroV1(BaseModelBackend):
     async def load_model(self, path: str) -> None:
         model_path = await paths.get_model_path(path)
         config_path = os.path.join(os.path.dirname(model_path), "config.json")
-        
+
         self._model = KModel(config=config_path, model=model_path).eval()
-        
+
         if self._device == "cuda":
             self._model = self._model.cuda()
         elif self._device == "mps":
@@ -205,7 +209,7 @@ class KokoroV1(BaseModelBackend):
         voice_name, voice_path = voice
         pipeline_lang_code = lang_code or voice_name[0].lower()
         pipeline = self._get_pipeline(pipeline_lang_code)
-        
+
         for result in pipeline(text, voice=voice_path, speed=speed, model=self._model):
             if result.audio is not None:
                 word_timestamps = None
@@ -229,14 +233,14 @@ class KokoroV1(BaseModelBackend):
 ```python
 async def _get_voices_path(self, voice: str) -> Tuple[str, str]:
     """Handle voice combination like 'af_jadzia+af_jessica' or 'voice(0.7)+voice2(0.3)'."""
-    
+
     # Parse combined voices: "voice1+voice2-voice3" or "voice1(0.6)+voice2(0.4)"
     split_voice = re.split(r"([-+])", voice)
-    
+
     if len(split_voice) == 1:
         path = await self._voice_manager.get_voice_path(voice)
         return voice, path
-    
+
     # Calculate total weight for normalization
     total_weight = 0
     for voice_index in range(0, len(split_voice), 2):
@@ -247,20 +251,20 @@ async def _get_voices_path(self, voice: str) -> Tuple[str, str]:
             voice_weight = 1
         total_weight += voice_weight
         split_voice[voice_index] = (voice_object.split("(")[0], voice_weight)
-    
+
     # Combine voice tensors
     path = await self._voice_manager.get_voice_path(split_voice[0][0])
     combined_tensor = await self._load_voice_from_path(path, split_voice[0][1] / total_weight)
-    
+
     for op_index in range(1, len(split_voice) - 1, 2):
         path = await self._voice_manager.get_voice_path(split_voice[op_index + 1][0])
         voice_tensor = await self._load_voice_from_path(path, split_voice[op_index + 1][1] / total_weight)
-        
+
         if split_voice[op_index] == "+":
             combined_tensor += voice_tensor
         else:
             combined_tensor -= voice_tensor
-    
+
     # Save combined voice
     combined_path = os.path.join(tempfile.gettempdir(), f"{voice}.pt")
     torch.save(combined_tensor, combined_path)
@@ -302,14 +306,14 @@ import azure.cognitiveservices.speech as speechsdk
 def azure_tts_v2(text: str, voice_name: str, voice_file: str) -> SubMaker:
     """Azure Cognitive Services TTS with word-level timestamps."""
     sub_maker = SubMaker()
-    
+
     def speech_synthesizer_word_boundary_cb(evt: speechsdk.SessionEventArgs):
         """Callback for word boundary events."""
         duration = _format_duration_to_offset(str(evt.duration))
         offset = _format_duration_to_offset(evt.audio_offset)
         sub_maker.subs.append(evt.text)
         sub_maker.offset.append((offset, offset + duration))
-    
+
     speech_config = speechsdk.SpeechConfig(
         subscription=config.azure.speech_key,
         region=config.azure.speech_region
@@ -322,11 +326,11 @@ def azure_tts_v2(text: str, voice_name: str, voice_file: str) -> SubMaker:
     speech_config.set_speech_synthesis_output_format(
         speechsdk.SpeechSynthesisOutputFormat.Audio48Khz192KBitRateMonoMp3
     )
-    
+
     audio_config = speechsdk.audio.AudioOutputConfig(filename=voice_file)
     synthesizer = speechsdk.SpeechSynthesizer(audio_config=audio_config, speech_config=speech_config)
     synthesizer.synthesis_word_boundary.connect(speech_synthesizer_word_boundary_cb)
-    
+
     result = synthesizer.speak_text_async(text).get()
     return sub_maker
 ```
@@ -342,9 +346,9 @@ from pydub import AudioSegment
 def gemini_tts(text: str, voice_name: str, voice_rate: float, voice_file: str) -> SubMaker:
     """Google Gemini TTS (requires API key)."""
     genai.configure(api_key=config.app.gemini_api_key)
-    
+
     model = genai.GenerativeModel("gemini-2.5-flash-preview-tts")
-    
+
     generation_config = {
         "response_modalities": ["AUDIO"],
         "speech_config": {
@@ -353,15 +357,15 @@ def gemini_tts(text: str, voice_name: str, voice_rate: float, voice_file: str) -
             }
         }
     }
-    
+
     response = model.generate_content(contents=text, generation_config=generation_config)
-    
+
     # Extract audio from response
     for part in response.candidates[0].content.parts:
         if hasattr(part, 'inline_data') and part.inline_data:
             audio_bytes = part.inline_data.data
             break
-    
+
     # Gemini returns Linear PCM, convert to MP3
     audio_segment = AudioSegment.from_file(
         io.BytesIO(audio_bytes),
@@ -371,7 +375,7 @@ def gemini_tts(text: str, voice_name: str, voice_rate: float, voice_file: str) -
         sample_width=2     # 16-bit
     )
     audio_segment.export(voice_file, format="mp3")
-    
+
     return sub_maker  # Note: No word timestamps from Gemini
 ```
 
@@ -384,11 +388,7 @@ def gemini_tts(text: str, voice_name: str, voice_rate: float, voice_file: str) -
 **File:** [vendor/short-video-maker-gyori/src/short-creator/libraries/Whisper.ts](../../../vendor/short-video-maker-gyori/src/short-creator/libraries/Whisper.ts)
 
 ```typescript
-import {
-  downloadWhisperModel,
-  installWhisperCpp,
-  transcribe,
-} from "@remotion/install-whisper-cpp";
+import { downloadWhisperModel, installWhisperCpp, transcribe } from '@remotion/install-whisper-cpp';
 
 export class Whisper {
   constructor(private config: Config) {}
@@ -399,12 +399,12 @@ export class Whisper {
       version: config.whisperVersion,
       printOutput: true,
     });
-    
+
     await downloadWhisperModel({
-      model: config.whisperModel,  // "base", "small", "medium", "large-v3"
-      folder: path.join(config.whisperInstallPath, "models"),
+      model: config.whisperModel, // "base", "small", "medium", "large-v3"
+      folder: path.join(config.whisperInstallPath, 'models'),
     });
-    
+
     return new Whisper(config);
   }
 
@@ -412,17 +412,17 @@ export class Whisper {
     const { transcription } = await transcribe({
       model: this.config.whisperModel,
       whisperPath: this.config.whisperInstallPath,
-      modelFolder: path.join(this.config.whisperInstallPath, "models"),
+      modelFolder: path.join(this.config.whisperInstallPath, 'models'),
       whisperCppVersion: this.config.whisperVersion,
       inputPath: audioPath,
-      tokenLevelTimestamps: true,  // KEY: Get word-level timing!
+      tokenLevelTimestamps: true, // KEY: Get word-level timing!
     });
 
     const captions: Caption[] = [];
     transcription.forEach((record) => {
       record.tokens.forEach((token) => {
-        if (token.text.startsWith("[_TT")) return;  // Skip timing tokens
-        
+        if (token.text.startsWith('[_TT')) return; // Skip timing tokens
+
         captions.push({
           text: token.text,
           startMs: record.offsets.from,
@@ -430,7 +430,7 @@ export class Whisper {
         });
       });
     });
-    
+
     return captions;
   }
 }
@@ -461,9 +461,9 @@ def create(audio_file, subtitle_file: str = ""):
         vad_filter=True,            # Voice Activity Detection
         vad_parameters=dict(min_silence_duration_ms=500),
     )
-    
+
     logger.info(f"Detected language: '{info.language}', probability: {info.language_probability:.2f}")
-    
+
     subtitles = []
     for segment in segments:
         if segment.words:
@@ -475,7 +475,7 @@ def create(audio_file, subtitle_file: str = ""):
                     "start_time": word.start,
                     "end_time": word.end
                 })
-    
+
     return subtitles
 ```
 
@@ -492,7 +492,7 @@ def audioToText(filename, model_size="base"):
     global WHISPER_MODEL
     if WHISPER_MODEL is None:
         WHISPER_MODEL = load_model(model_size)
-    
+
     gen = transcribe_timestamped(
         WHISPER_MODEL,
         filename,
@@ -603,27 +603,27 @@ The alignment uses CTC (Connectionist Temporal Classification) forced alignment:
 ```python
 def align(transcript, model, align_metadata, audio, device, ...):
     """Align phoneme recognition predictions to known transcription."""
-    
+
     for segment in transcript:
         # 1. Extract audio segment
         t1, t2 = segment["start"], segment["end"]
         waveform_segment = audio[:, int(t1 * SAMPLE_RATE):int(t2 * SAMPLE_RATE)]
-        
+
         # 2. Get emission probabilities from wav2vec2
         with torch.inference_mode():
             emissions = model(waveform_segment.to(device)).logits
             emissions = torch.log_softmax(emissions, dim=-1)
-        
+
         # 3. Build CTC trellis
         tokens = [model_dictionary.get(c, -1) for c in text_clean]
         trellis = get_trellis(emissions[0], tokens, blank_id=0)
-        
+
         # 4. Backtrack to find optimal path
         path = backtrack_beam(trellis, emissions[0], tokens, blank_id=0, beam_width=2)
-        
+
         # 5. Merge repeated characters into segments
         char_segments = merge_repeats(path, text_clean)
-        
+
         # 6. Convert to word-level timestamps
         # ...
 ```
@@ -663,15 +663,19 @@ async saveNormalizedAudio(audio: ArrayBuffer, outputPath: string): Promise<strin
 **File:** [vendor/short-video-maker-gyori/src/components/videos/PortraitVideo.tsx](../../../vendor/short-video-maker-gyori/src/components/videos/PortraitVideo.tsx)
 
 ```tsx
-import { Audio, OffthreadVideo, Sequence } from "remotion";
+import { Audio, OffthreadVideo, Sequence } from 'remotion';
 
 // Music volume levels
 function calculateVolume(level: MusicVolumeEnum): [number, boolean] {
   switch (level) {
-    case "muted": return [0, true];
-    case "low":   return [0.2, false];
-    case "medium": return [0.45, false];
-    case "high":  return [0.7, false];
+    case 'muted':
+      return [0, true];
+    case 'low':
+      return [0.2, false];
+    case 'medium':
+      return [0.45, false];
+    case 'high':
+      return [0.7, false];
   }
 }
 
@@ -689,7 +693,7 @@ return (
       volume={() => musicVolume}
       muted={musicMuted}
     />
-    
+
     {scenes.map((scene, i) => (
       <Sequence from={startFrame} durationInFrames={duration}>
         <OffthreadVideo src={video} muted />
@@ -715,12 +719,12 @@ from moviepy import (
 
 def generate_video(video_path, audio_path, subtitle_path, output_file, params):
     video_clip = VideoFileClip(video_path).without_audio()
-    
+
     # Voice audio with volume control
     audio_clip = AudioFileClip(audio_path).with_effects([
         afx.MultiplyVolume(params.voice_volume)
     ])
-    
+
     # Background music
     bgm_file = get_bgm_file(bgm_type=params.bgm_type, bgm_file=params.bgm_file)
     if bgm_file:
@@ -731,7 +735,7 @@ def generate_video(video_path, audio_path, subtitle_path, output_file, params):
         ])
         # Composite voice + music
         audio_clip = CompositeAudioClip([audio_clip, bgm_clip])
-    
+
     video_clip = video_clip.with_audio(audio_clip)
     video_clip.write_videofile(output_file, audio_codec="aac", fps=30)
 ```
@@ -746,14 +750,14 @@ import subprocess
 def speedUpAudio(tempAudioPath, outputFile, expected_duration=None):
     """Speed up audio to fit within time limit (e.g., 60s for Shorts)."""
     _, duration = get_asset_duration(tempAudioPath, False)
-    
+
     if expected_duration:
         tempo = duration / expected_duration
     elif duration > 57:  # Max 57s for safety margin
         tempo = duration / 57
     else:
         tempo = 1.0
-    
+
     subprocess.run([
         'ffmpeg', '-loglevel', 'error',
         '-i', tempAudioPath,
@@ -781,21 +785,21 @@ class AudioNormalizer:
         """Find indices of first and last non-silent samples."""
         # Convert dBFS threshold to amplitude
         amplitude_threshold = np.iinfo(audio_data.dtype).max * (10 ** (silence_threshold_db / 20))
-        
+
         # Find first non-silent sample
         non_silent_start = None
         for i in range(len(audio_data)):
             if abs(audio_data[i]) > amplitude_threshold:
                 non_silent_start = i
                 break
-        
+
         # Find last non-silent sample
         non_silent_end = None
         for i in range(len(audio_data) - 1, -1, -1):
             if abs(audio_data[i]) > amplitude_threshold:
                 non_silent_end = i
                 break
-        
+
         return (
             max(non_silent_start - self.samples_to_pad_start, 0),
             min(non_silent_end + samples_to_pad_end, len(audio_data))
@@ -861,19 +865,19 @@ class AudioNormalizer:
 ### 8.4 Key Code Patterns to Adopt
 
 1. **Edge TTS with SubMaker** - From MoneyPrinterTurbo
-2. **@remotion/install-whisper-cpp** - From short-video-maker-gyori  
+2. **@remotion/install-whisper-cpp** - From short-video-maker-gyori
 3. **Audio normalization (16kHz mono)** - From FFmpeg.ts
 4. **Music volume levels** - From utils.ts calculateVolume()
 5. **MoviePy afx effects** - From MoneyPrinterTurbo video.py
 
 ### 8.5 Voice Selection Guidelines
 
-| Content Type | Recommended Voices |
-|--------------|-------------------|
-| Tech demos | `en-US-BrianNeural`, `en-US-GuyNeural` (professional male) |
-| Tutorials | `en-US-JennyNeural`, `en-US-AriaNeural` (friendly female) |
-| Dramatic | `en-US-AndrewMultilingualNeural` (dynamic range) |
-| International | Use locale-specific voices (`ja-JP`, `de-DE`, etc.) |
+| Content Type  | Recommended Voices                                         |
+| ------------- | ---------------------------------------------------------- |
+| Tech demos    | `en-US-BrianNeural`, `en-US-GuyNeural` (professional male) |
+| Tutorials     | `en-US-JennyNeural`, `en-US-AriaNeural` (friendly female)  |
+| Dramatic      | `en-US-AndrewMultilingualNeural` (dynamic range)           |
+| International | Use locale-specific voices (`ja-JP`, `de-DE`, etc.)        |
 
 ---
 
@@ -884,6 +888,7 @@ See [vendor/MoneyPrinterTurbo/app/services/voice.py](../../../vendor/MoneyPrinte
 ---
 
 **Next Steps:**
+
 1. Create `src/audio/tts.ts` with Edge TTS + Kokoro integration
 2. Create `src/audio/transcribe.ts` with Whisper integration
 3. Create `src/audio/mixer.ts` for voice + music composition

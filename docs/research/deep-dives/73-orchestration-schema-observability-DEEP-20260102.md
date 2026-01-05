@@ -35,14 +35,14 @@ Temporal is a **durable execution platform** that executes application logic cal
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Durable Execution** | Workflows survive process crashes, restarts |
-| **Automatic Retries** | Failed operations retry with backoff |
-| **State Management** | Workflow state persisted automatically |
-| **Multi-language SDKs** | Go, Java, TypeScript, Python, .NET |
-| **Visibility** | Web UI for monitoring workflows |
-| **Scalable** | Handles millions of concurrent workflows |
+| Feature                 | Description                                 |
+| ----------------------- | ------------------------------------------- |
+| **Durable Execution**   | Workflows survive process crashes, restarts |
+| **Automatic Retries**   | Failed operations retry with backoff        |
+| **State Management**    | Workflow state persisted automatically      |
+| **Multi-language SDKs** | Go, Java, TypeScript, Python, .NET          |
+| **Visibility**          | Web UI for monitoring workflows             |
+| **Scalable**            | Handles millions of concurrent workflows    |
 
 #### Installation
 
@@ -68,34 +68,32 @@ const { generateScript, generateAudio, renderVideo } = proxyActivities({
 });
 
 // Define workflow
-export const videoGenerationWorkflow = defineWorkflow(
-  async (topic: string): Promise<string> => {
-    // Step 1: Generate script
-    const script = await generateScript(topic);
-    
-    // Step 2: Generate audio
-    const audioPath = await generateAudio(script);
-    
-    // Step 3: Render video
-    const videoPath = await renderVideo({
-      script,
-      audioPath,
-    });
-    
-    return videoPath;
-  }
-);
+export const videoGenerationWorkflow = defineWorkflow(async (topic: string): Promise<string> => {
+  // Step 1: Generate script
+  const script = await generateScript(topic);
+
+  // Step 2: Generate audio
+  const audioPath = await generateAudio(script);
+
+  // Step 3: Render video
+  const videoPath = await renderVideo({
+    script,
+    audioPath,
+  });
+
+  return videoPath;
+});
 ```
 
 #### When to Use Temporal
 
-| Use Case | Fit |
-|----------|-----|
-| Long-running workflows (hours/days) | ✅ Excellent |
-| Complex multi-step orchestration | ✅ Excellent |
-| Need durability guarantees | ✅ Excellent |
-| Simple job queues | ❌ Overkill |
-| Prototype/MVP | ❌ Complex setup |
+| Use Case                            | Fit              |
+| ----------------------------------- | ---------------- |
+| Long-running workflows (hours/days) | ✅ Excellent     |
+| Complex multi-step orchestration    | ✅ Excellent     |
+| Need durability guarantees          | ✅ Excellent     |
+| Simple job queues                   | ❌ Overkill      |
+| Prototype/MVP                       | ❌ Complex setup |
 
 ---
 
@@ -112,14 +110,14 @@ n8n is a **workflow automation platform** with 400+ integrations and native AI c
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Visual Editor** | Drag-and-drop workflow builder |
-| **400+ Integrations** | Pre-built connectors |
-| **Code When Needed** | JavaScript/Python support |
-| **AI-Native** | LangChain integration built-in |
-| **Self-Hostable** | Full control over data |
-| **Enterprise Ready** | SSO, permissions, air-gapped |
+| Feature               | Description                    |
+| --------------------- | ------------------------------ |
+| **Visual Editor**     | Drag-and-drop workflow builder |
+| **400+ Integrations** | Pre-built connectors           |
+| **Code When Needed**  | JavaScript/Python support      |
+| **AI-Native**         | LangChain integration built-in |
+| **Self-Hostable**     | Full control over data         |
+| **Enterprise Ready**  | SSO, permissions, air-gapped   |
 
 #### Installation
 
@@ -138,6 +136,7 @@ docker run -it --rm --name n8n \
 #### AI/LangChain Integration
 
 n8n has built-in nodes for:
+
 - Chat models (OpenAI, Anthropic, Ollama)
 - Vector stores (Qdrant, Pinecone, Weaviate)
 - Agents and chains
@@ -146,13 +145,13 @@ n8n has built-in nodes for:
 
 #### When to Use n8n
 
-| Use Case | Fit |
-|----------|-----|
-| Quick prototyping | ✅ Excellent |
+| Use Case                    | Fit          |
+| --------------------------- | ------------ |
+| Quick prototyping           | ✅ Excellent |
 | Integration-heavy workflows | ✅ Excellent |
-| Non-developer operators | ✅ Excellent |
-| Complex custom logic | ⚠️ Moderate |
-| High-throughput jobs | ❌ Not ideal |
+| Non-developer operators     | ✅ Excellent |
+| Complex custom logic        | ⚠️ Moderate  |
+| High-throughput jobs        | ❌ Not ideal |
 
 ---
 
@@ -170,14 +169,14 @@ Airflow is a platform to programmatically author, schedule, and monitor workflow
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **DAGs as Code** | Workflows defined in Python |
-| **Rich Scheduler** | Cron-like scheduling |
-| **Extensible** | Custom operators, hooks, sensors |
-| **Web UI** | Monitoring, logs, DAG visualization |
-| **Scalable** | Kubernetes, Celery executors |
-| **XCom** | Task-to-task data passing |
+| Feature            | Description                         |
+| ------------------ | ----------------------------------- |
+| **DAGs as Code**   | Workflows defined in Python         |
+| **Rich Scheduler** | Cron-like scheduling                |
+| **Extensible**     | Custom operators, hooks, sensors    |
+| **Web UI**         | Monitoring, logs, DAG visualization |
+| **Scalable**       | Kubernetes, Celery executors        |
+| **XCom**           | Task-to-task data passing           |
 
 #### Installation
 
@@ -211,30 +210,30 @@ with DAG(
     schedule_interval='@daily',
     catchup=False,
 ) as dag:
-    
+
     script_task = PythonOperator(
         task_id='generate_script',
         python_callable=generate_script,
         params={'topic': 'AI coding'},
     )
-    
+
     audio_task = PythonOperator(
         task_id='generate_audio',
         python_callable=generate_audio,
     )
-    
+
     script_task >> audio_task
 ```
 
 #### When to Use Airflow
 
-| Use Case | Fit |
-|----------|-----|
-| Scheduled batch jobs | ✅ Excellent |
-| Data pipelines | ✅ Excellent |
-| Python ecosystem | ✅ Excellent |
+| Use Case             | Fit                 |
+| -------------------- | ------------------- |
+| Scheduled batch jobs | ✅ Excellent        |
+| Data pipelines       | ✅ Excellent        |
+| Python ecosystem     | ✅ Excellent        |
 | Real-time processing | ❌ Not designed for |
-| Simple single jobs | ❌ Overkill |
+| Simple single jobs   | ❌ Overkill         |
 
 ---
 
@@ -257,17 +256,18 @@ A desktop GUI application for AI video generation with automated pipeline:
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **All-in-One GUI** | 3-step workflow interface |
+| Feature                 | Description                  |
+| ----------------------- | ---------------------------- |
+| **All-in-One GUI**      | 3-step workflow interface    |
 | **AI Prompt Generator** | Doubao model for inspiration |
-| **Preset Themes** | Beauty, Labubu, candy, magic |
-| **Real-time Preview** | In-app media playback |
-| **History Navigation** | Browse generated content |
+| **Preset Themes**       | Beauty, Labubu, candy, magic |
+| **Real-time Preview**   | In-app media playback        |
+| **History Navigation**  | Browse generated content     |
 
 #### Pattern: Chinese AI Services
 
 This repo uses Chinese AI platforms:
+
 - **LibLibAI** – Text-to-image with LoRA/Checkpoint
 - **Jimeng/即梦** (Volcano Engine) – Video/music generation
 - **Doubao/豆包** – Prompt generation
@@ -278,22 +278,22 @@ Relevant for international TTS/generation alternatives study.
 
 ### 1.5 Orchestration Comparison
 
-| Feature | Temporal | n8n | Airflow |
-|---------|----------|-----|---------|
-| **Paradigm** | Durable execution | Visual workflow | DAG scheduling |
-| **Language** | Multi-SDK | TypeScript | Python |
-| **Best For** | Long-running | Integrations | Batch jobs |
-| **Learning Curve** | Steep | Low | Moderate |
-| **Self-host** | Yes | Yes | Yes |
-| **License** | MIT | Fair-code | Apache 2.0 |
+| Feature            | Temporal          | n8n             | Airflow        |
+| ------------------ | ----------------- | --------------- | -------------- |
+| **Paradigm**       | Durable execution | Visual workflow | DAG scheduling |
+| **Language**       | Multi-SDK         | TypeScript      | Python         |
+| **Best For**       | Long-running      | Integrations    | Batch jobs     |
+| **Learning Curve** | Steep             | Low             | Moderate       |
+| **Self-host**      | Yes               | Yes             | Yes            |
+| **License**        | MIT               | Fair-code       | Apache 2.0     |
 
 #### Recommendation for content-machine
 
-| Layer | Tool | Rationale |
-|-------|------|-----------|
-| **Job Queue** | BullMQ | Simple, TypeScript-native, Redis |
-| **Visual Workflows** | n8n | Quick prototyping, AI support |
-| **Long-running** | Temporal | Future scale, durability |
+| Layer                | Tool     | Rationale                        |
+| -------------------- | -------- | -------------------------------- |
+| **Job Queue**        | BullMQ   | Simple, TypeScript-native, Redis |
+| **Visual Workflows** | n8n      | Quick prototyping, AI support    |
+| **Long-running**     | Temporal | Future scale, durability         |
 
 ---
 
@@ -313,14 +313,14 @@ Zod is a TypeScript-first schema validation library with static type inference. 
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Zero Dependencies** | Lightweight (2kb gzipped) |
-| **Type Inference** | Automatic TypeScript types |
-| **Composable** | Build complex schemas from simple ones |
-| **JSON Schema** | Convert to/from JSON Schema |
-| **Async Validation** | Refinements and transforms |
-| **Error Handling** | Detailed error messages |
+| Feature               | Description                            |
+| --------------------- | -------------------------------------- |
+| **Zero Dependencies** | Lightweight (2kb gzipped)              |
+| **Type Inference**    | Automatic TypeScript types             |
+| **Composable**        | Build complex schemas from simple ones |
+| **JSON Schema**       | Convert to/from JSON Schema            |
+| **Async Validation**  | Refinements and transforms             |
+| **Error Handling**    | Detailed error messages                |
 
 #### Basic Usage
 
@@ -332,10 +332,12 @@ const VideoConfig = z.object({
   topic: z.string().min(1).max(100),
   duration: z.number().min(15).max(180),
   style: z.enum(['educational', 'entertainment', 'promotional']),
-  voice: z.object({
-    language: z.string().default('en-US'),
-    speed: z.number().min(0.5).max(2).default(1),
-  }).optional(),
+  voice: z
+    .object({
+      language: z.string().default('en-US'),
+      speed: z.number().min(0.5).max(2).default(1),
+    })
+    .optional(),
 });
 
 // Infer TypeScript type
@@ -359,10 +361,12 @@ const openai = new OpenAI();
 
 const ScriptSchema = z.object({
   hook: z.string().describe('Opening hook (5-10 seconds)'),
-  body: z.array(z.object({
-    point: z.string(),
-    duration: z.number(),
-  })),
+  body: z.array(
+    z.object({
+      point: z.string(),
+      duration: z.number(),
+    })
+  ),
   cta: z.string().describe('Call to action'),
 });
 
@@ -395,14 +399,14 @@ Pydantic is the standard for data validation in Python using type hints. It's fa
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Type Hints** | Standard Python annotations |
-| **Fast** | Rust-powered core (pydantic-core) |
-| **IDE Support** | Autocomplete, type checking |
-| **JSON Schema** | Auto-generate from models |
-| **Validation** | Automatic coercion and errors |
-| **Serialization** | JSON, dict, and more |
+| Feature           | Description                       |
+| ----------------- | --------------------------------- |
+| **Type Hints**    | Standard Python annotations       |
+| **Fast**          | Rust-powered core (pydantic-core) |
+| **IDE Support**   | Autocomplete, type checking       |
+| **JSON Schema**   | Auto-generate from models         |
+| **Validation**    | Automatic coercion and errors     |
+| **Serialization** | JSON, dict, and more              |
 
 #### Basic Usage
 
@@ -430,6 +434,7 @@ print(config.model_dump_json())
 #### LLM Integration
 
 Pydantic is foundational for:
+
 - **LangChain** output parsers
 - **Instructor** structured extraction
 - **PydanticAI** agent framework
@@ -451,14 +456,14 @@ Instructor provides structured outputs from any LLM with automatic retries and v
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
+| Feature            | Description                       |
+| ------------------ | --------------------------------- |
 | **Multi-Provider** | OpenAI, Anthropic, Google, Ollama |
-| **Auto Retry** | Validation errors trigger retry |
-| **Type Safe** | Pydantic model outputs |
-| **Simple API** | One-line extraction |
-| **Streaming** | Partial object streaming |
-| **Async** | Full async support |
+| **Auto Retry**     | Validation errors trigger retry   |
+| **Type Safe**      | Pydantic model outputs            |
+| **Simple API**     | One-line extraction               |
+| **Streaming**      | Partial object streaming          |
+| **Async**          | Full async support                |
 
 #### Usage
 
@@ -519,13 +524,13 @@ Ajv (Another JSON Schema Validator) is the fastest JSON Schema validator for Jav
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Fastest** | 50% faster than competitors |
-| **Standards** | All JSON Schema drafts |
-| **JTD** | JSON Type Definition support |
+| Feature             | Description                  |
+| ------------------- | ---------------------------- |
+| **Fastest**         | 50% faster than competitors  |
+| **Standards**       | All JSON Schema drafts       |
+| **JTD**             | JSON Type Definition support |
 | **Code Generation** | Compile schemas to functions |
-| **Extensible** | Custom keywords, formats |
+| **Extensible**      | Custom keywords, formats     |
 
 #### Usage
 
@@ -553,21 +558,21 @@ if (!valid) console.log(validate.errors);
 
 ### 2.5 Schema Validation Comparison
 
-| Feature | Zod | Pydantic | Instructor | Ajv |
-|---------|-----|----------|------------|-----|
-| **Language** | TypeScript | Python | Python | JavaScript |
-| **Type Inference** | ✅ | ✅ | ✅ | ❌ |
-| **JSON Schema** | ✅ | ✅ | ✅ | ✅ Native |
-| **LLM Integration** | Via libs | Native | ✅ Native | ❌ |
-| **Best For** | TS APIs | Python APIs | LLM extraction | JSON validation |
+| Feature             | Zod        | Pydantic    | Instructor     | Ajv             |
+| ------------------- | ---------- | ----------- | -------------- | --------------- |
+| **Language**        | TypeScript | Python      | Python         | JavaScript      |
+| **Type Inference**  | ✅         | ✅          | ✅             | ❌              |
+| **JSON Schema**     | ✅         | ✅          | ✅             | ✅ Native       |
+| **LLM Integration** | Via libs   | Native      | ✅ Native      | ❌              |
+| **Best For**        | TS APIs    | Python APIs | LLM extraction | JSON validation |
 
 #### Recommendation for content-machine
 
-| Language | Tool | Use Case |
-|----------|------|----------|
-| **TypeScript** | Zod | API schemas, config validation |
-| **Python** | Pydantic + Instructor | LLM outputs, data models |
-| **Shared** | JSON Schema | Cross-language contracts |
+| Language       | Tool                  | Use Case                       |
+| -------------- | --------------------- | ------------------------------ |
+| **TypeScript** | Zod                   | API schemas, config validation |
+| **Python**     | Pydantic + Instructor | LLM outputs, data models       |
+| **Shared**     | JSON Schema           | Cross-language contracts       |
 
 ---
 
@@ -587,14 +592,14 @@ OpenTelemetry is the industry standard for collecting telemetry data (traces, me
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Vendor Neutral** | Export to any backend |
-| **Auto-instrumentation** | Automatic library tracing |
-| **Context Propagation** | Distributed tracing |
-| **Metrics** | Counters, histograms, gauges |
-| **Logs** | Structured logging |
-| **Semantic Conventions** | Standard attribute names |
+| Feature                  | Description                  |
+| ------------------------ | ---------------------------- |
+| **Vendor Neutral**       | Export to any backend        |
+| **Auto-instrumentation** | Automatic library tracing    |
+| **Context Propagation**  | Distributed tracing          |
+| **Metrics**              | Counters, histograms, gauges |
+| **Logs**                 | Structured logging           |
+| **Semantic Conventions** | Standard attribute names     |
 
 #### Installation
 
@@ -653,14 +658,14 @@ Sentry is a debugging platform for error tracking, performance monitoring, and s
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Error Tracking** | Automatic exception capture |
-| **Performance** | Transaction and span tracing |
-| **Session Replay** | Visual reproduction of bugs |
-| **Issue Grouping** | Smart duplicate detection |
-| **Alerting** | Configurable notifications |
-| **Releases** | Deploy tracking, suspect commits |
+| Feature            | Description                      |
+| ------------------ | -------------------------------- |
+| **Error Tracking** | Automatic exception capture      |
+| **Performance**    | Transaction and span tracing     |
+| **Session Replay** | Visual reproduction of bugs      |
+| **Issue Grouping** | Smart duplicate detection        |
+| **Alerting**       | Configurable notifications       |
+| **Releases**       | Deploy tracking, suspect commits |
 
 #### Installation
 
@@ -747,14 +752,14 @@ Celery is the industry-standard distributed task queue for Python, supporting Ra
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Distributed** | Scale across machines |
-| **Brokers** | RabbitMQ, Redis, SQS |
-| **Scheduling** | Celery Beat for cron jobs |
-| **Workflows** | Chains, groups, chords |
-| **Result Backend** | Store task results |
-| **Monitoring** | Flower web UI |
+| Feature            | Description               |
+| ------------------ | ------------------------- |
+| **Distributed**    | Scale across machines     |
+| **Brokers**        | RabbitMQ, Redis, SQS      |
+| **Scheduling**     | Celery Beat for cron jobs |
+| **Workflows**      | Chains, groups, chords    |
+| **Result Backend** | Store task results        |
+| **Monitoring**     | Flower web UI             |
 
 #### Setup
 
@@ -815,14 +820,14 @@ RQ is a simple Python library for queueing jobs, designed for simplicity over fe
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Simple** | Low barrier to entry |
-| **Redis-based** | Reliable, persistent |
-| **Priority Queues** | Multiple queue support |
-| **Scheduling** | Delayed job execution |
-| **Retries** | Configurable retry policies |
-| **Dashboard** | rq-dashboard for monitoring |
+| Feature             | Description                 |
+| ------------------- | --------------------------- |
+| **Simple**          | Low barrier to entry        |
+| **Redis-based**     | Reliable, persistent        |
+| **Priority Queues** | Multiple queue support      |
+| **Scheduling**      | Delayed job execution       |
+| **Retries**         | Configurable retry policies |
+| **Dashboard**       | rq-dashboard for monitoring |
 
 #### Usage
 
@@ -851,13 +856,13 @@ job = queue.enqueue_in(timedelta(minutes=10), process_later)
 
 ### 4.3 Job Queue Comparison
 
-| Feature | BullMQ | Celery | RQ |
-|---------|--------|--------|-----|
-| **Language** | TypeScript | Python | Python |
-| **Backend** | Redis | Redis/RabbitMQ | Redis |
-| **Complexity** | Moderate | High | Low |
-| **Workflows** | FlowProducer | Chains/Chords | Basic |
-| **Best For** | Node.js apps | Python at scale | Simple Python |
+| Feature        | BullMQ       | Celery          | RQ            |
+| -------------- | ------------ | --------------- | ------------- |
+| **Language**   | TypeScript   | Python          | Python        |
+| **Backend**    | Redis        | Redis/RabbitMQ  | Redis         |
+| **Complexity** | Moderate     | High            | Low           |
+| **Workflows**  | FlowProducer | Chains/Chords   | Basic         |
+| **Best For**   | Node.js apps | Python at scale | Simple Python |
 
 ---
 
@@ -874,12 +879,12 @@ MinIO is an S3-compatible object storage designed for AI/ML workloads.
 
 ### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **S3 Compatible** | Drop-in replacement |
+| Feature              | Description               |
+| -------------------- | ------------------------- |
+| **S3 Compatible**    | Drop-in replacement       |
 | **High Performance** | Optimized for large files |
-| **Self-hosted** | Full control |
-| **Kubernetes** | Native Helm charts |
+| **Self-hosted**      | Full control              |
+| **Kubernetes**       | Native Helm charts        |
 
 ### Usage
 
@@ -896,6 +901,7 @@ minio server /data
 ### For content-machine
 
 Ideal for:
+
 - Video file storage
 - Rendered asset cache
 - Backup/archive
@@ -951,12 +957,12 @@ Ideal for:
 
 ## 7. Document Metadata
 
-| Field | Value |
-|-------|-------|
-| **Document ID** | DD-073 |
-| **Created** | 2026-01-02 |
-| **Author** | Research Agent |
-| **Status** | Complete |
+| Field            | Value          |
+| ---------------- | -------------- |
+| **Document ID**  | DD-073         |
+| **Created**      | 2026-01-02     |
+| **Author**       | Research Agent |
+| **Status**       | Complete       |
 | **Dependencies** | DD-071, DD-072 |
 
 ---

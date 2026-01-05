@@ -11,11 +11,13 @@
 This document provides comprehensive analysis of AI agent frameworks and the full ecosystem of video generators in the vendor directory. These form the intelligence layer (agents) and reference implementations (generators) for content-machine.
 
 **Agent Framework Recommendation:**
+
 - **Primary:** Pydantic AI (type-safe, Pydantic-native, MCP support)
 - **Complex Workflows:** LangGraph (stateful, durable execution)
 - **Multi-Agent Teams:** CrewAI (role-based collaboration)
 
 **Key Generator Patterns Identified:**
+
 - Remotion + Captacity (short-video-maker-gyori) - **PRIMARY BLUEPRINT**
 - LLM script + DALL-E images + TTS (Shortrocity pattern)
 - Long-form → short clips extraction (FunClip + ShortReelX pattern)
@@ -32,6 +34,7 @@ This document provides comprehensive analysis of AI agent frameworks and the ful
 **Creator:** Pydantic team (validation layer of OpenAI SDK, Anthropic SDK, LangChain, etc.)
 
 **Key Features:**
+
 - **Type-safe:** Full IDE support, static type checking
 - **Model-agnostic:** OpenAI, Anthropic, Gemini, Groq, Ollama, etc.
 - **Pydantic validation:** Structured outputs with automatic retry
@@ -41,6 +44,7 @@ This document provides comprehensive analysis of AI agent frameworks and the ful
 - **Logfire integration:** OpenTelemetry observability
 
 **Basic Agent:**
+
 ```python
 from pydantic_ai import Agent
 
@@ -54,6 +58,7 @@ print(result.output)
 ```
 
 **Structured Output:**
+
 ```python
 from pydantic import BaseModel, Field
 from pydantic_ai import Agent
@@ -75,6 +80,7 @@ print(result.output.main_points)
 ```
 
 **Tools with Dependency Injection:**
+
 ```python
 from dataclasses import dataclass
 from pydantic_ai import Agent, RunContext
@@ -104,6 +110,7 @@ async def custom_instructions(ctx: RunContext[VideoContext]) -> str:
 ```
 
 **Content-Machine Integration:**
+
 - Primary agent framework for script generation
 - Type-safe video config generation
 - MCP integration for tool access
@@ -116,6 +123,7 @@ async def custom_instructions(ctx: RunContext[VideoContext]) -> str:
 **Creator:** LangChain (inspired by Pregel, Apache Beam)
 
 **Key Features:**
+
 - **Durable execution:** Persist through failures
 - **Human-in-the-loop:** Interrupt and modify state
 - **Comprehensive memory:** Short-term + long-term
@@ -123,6 +131,7 @@ async def custom_instructions(ctx: RunContext[VideoContext]) -> str:
 - **Production deployment:** Scalable infrastructure
 
 **Basic Workflow:**
+
 ```python
 from langgraph.graph import START, StateGraph
 from typing_extensions import TypedDict
@@ -160,6 +169,7 @@ result = app.invoke({"script": "", "audio_path": "", "video_path": ""})
 ```
 
 **Conditional Branching:**
+
 ```python
 from langgraph.graph import StateGraph, END
 
@@ -179,6 +189,7 @@ graph.add_conditional_edges(
 ```
 
 **Content-Machine Integration:**
+
 - Complex multi-step video generation pipelines
 - Human-in-the-loop review workflows
 - Stateful long-running processes
@@ -191,6 +202,7 @@ graph.add_conditional_edges(
 **Creator:** CrewAI Inc (independent of LangChain)
 
 **Key Features:**
+
 - **Role-based agents:** Define specialized roles
 - **Autonomous collaboration:** Agents delegate and collaborate
 - **Flows:** Event-driven production workflows
@@ -198,6 +210,7 @@ graph.add_conditional_edges(
 - **Enterprise-ready:** Control plane, observability
 
 **Multi-Agent Crew:**
+
 ```python
 from crewai import Agent, Task, Crew, Process
 
@@ -241,6 +254,7 @@ result = crew.kickoff()
 ```
 
 **CrewAI Flows:**
+
 ```python
 from crewai.flow import Flow, listen, start
 
@@ -249,12 +263,12 @@ class VideoFlow(Flow):
     def research_trends(self):
         # Research trending topics
         return {"topics": ["AI tools", "Coding tips"]}
-    
+
     @listen(research_trends)
     def generate_script(self, topics):
         # Generate script for top topic
         return {"script": "Script content..."}
-    
+
     @listen(generate_script)
     def render_video(self, script):
         # Render video
@@ -265,6 +279,7 @@ result = flow.kickoff()
 ```
 
 **Content-Machine Integration:**
+
 - Research + Script + Review multi-agent teams
 - Autonomous content ideation
 - Enterprise deployment support
@@ -278,13 +293,13 @@ result = flow.kickoff()
 
 After analyzing 25+ video generators, the following patterns emerge:
 
-| Pattern | Examples | Stack |
-|---------|----------|-------|
+| Pattern            | Examples                                  | Stack                      |
+| ------------------ | ----------------------------------------- | -------------------------- |
 | **Remotion-based** | short-video-maker-gyori, AI-short-creator | React + Remotion + Node.js |
-| **MoviePy-based** | Shortrocity, TikTokAIVideoGenerator | Python + MoviePy + FFmpeg |
-| **FFmpeg-based** | ShortFormGenerator, YASGU | Python + FFmpeg direct |
-| **Long-to-Short** | ShortReelX, FunClip | Whisper + LLM + FFmpeg |
-| **Face-tracking** | reels-clips-automator | OpenCV + GPT + FFmpeg |
+| **MoviePy-based**  | Shortrocity, TikTokAIVideoGenerator       | Python + MoviePy + FFmpeg  |
+| **FFmpeg-based**   | ShortFormGenerator, YASGU                 | Python + FFmpeg direct     |
+| **Long-to-Short**  | ShortReelX, FunClip                       | Whisper + LLM + FFmpeg     |
+| **Face-tracking**  | reels-clips-automator                     | OpenCV + GPT + FFmpeg      |
 
 ### 2.2 Shortrocity - LLM + DALL-E + TTS Pattern
 
@@ -293,6 +308,7 @@ After analyzing 25+ video generators, the following patterns emerge:
 **Purpose:** AI-generated shorts with generated backgrounds
 
 **Pipeline:**
+
 ```
 Source Content
      │
@@ -329,6 +345,7 @@ Source Content
 ```
 
 **Usage:**
+
 ```bash
 export OPENAI_API_KEY=YOUR_KEY
 export ELEVEN_API_KEY=YOUR_KEY
@@ -337,19 +354,20 @@ export ELEVEN_API_KEY=YOUR_KEY
 ```
 
 **Caption Settings:**
+
 ```json
 {
-    "font": "Bangers-Regular.ttf",
-    "font_size": 130,
-    "font_color": "yellow",
-    "stroke_width": 3,
-    "stroke_color": "black",
-    "highlight_current_word": true,
-    "word_highlight_color": "red",
-    "line_count": 2,
-    "padding": 50,
-    "shadow_strength": 1.0,
-    "shadow_blur": 0.1
+  "font": "Bangers-Regular.ttf",
+  "font_size": 130,
+  "font_color": "yellow",
+  "stroke_width": 3,
+  "stroke_color": "black",
+  "highlight_current_word": true,
+  "word_highlight_color": "red",
+  "line_count": 2,
+  "padding": 50,
+  "shadow_strength": 1.0,
+  "shadow_blur": 0.1
 }
 ```
 
@@ -360,6 +378,7 @@ export ELEVEN_API_KEY=YOUR_KEY
 **Purpose:** Complete vertical video generation
 
 **Workflow:**
+
 1. **Script Generation:** Llama3 via Groq Cloud
 2. **Image Prompts:** LLM generates prompts from script
 3. **Image Generation:** Together AI FLUX-1
@@ -419,6 +438,7 @@ final.write_videofile("output.mp4", fps=24)
 **Purpose:** Convert horizontal videos to vertical Reels
 
 **Key Features:**
+
 - YouTube download or local file
 - GPT identifies viral moments
 - Face tracking with OpenCV
@@ -426,6 +446,7 @@ final.write_videofile("output.mp4", fps=24)
 - Whisper ASR for subtitles
 
 **Viral Moment Detection:**
+
 ```python
 # Use GPT to analyze transcript and find viral moments
 def find_viral_moments(transcript: str) -> list[dict]:
@@ -440,6 +461,7 @@ def find_viral_moments(transcript: str) -> list[dict]:
 ```
 
 **Face Tracking:**
+
 ```python
 import cv2
 
@@ -471,6 +493,7 @@ def track_face(frame):
 | `POST /generate-hashtags` | AI hashtag generation |
 
 **Approach:**
+
 1. Download/upload video
 2. Generate captions with ASR
 3. Send captions to LLM for highlight identification
@@ -485,6 +508,7 @@ def track_face(frame):
 **Purpose:** Interview/documentary clip extraction
 
 **Key Files:**
+
 - `main.py` - Main orchestrator
 - `transcript_analysis.py` - Analyze for viral moments
 - `video_cutter.py` - FFmpeg cutting
@@ -492,6 +516,7 @@ def track_face(frame):
 - `caption/` - Remotion caption rendering
 
 **Hybrid Stack:**
+
 ```bash
 # Step 1: Install Remotion
 cd caption && npm install
@@ -514,6 +539,7 @@ python main.py
 **Purpose:** Production-grade clip generation
 
 **Features:**
+
 - GPU acceleration (WhisperX)
 - Local LLM (Ollama)
 - Text-to-image (Flux)
@@ -522,23 +548,24 @@ python main.py
 - CI/CD with GitHub Actions
 
 **Config-driven:**
+
 ```yaml
 # setup.yml
-project_name: "my_video"
-source_video: "input.mp4"
-output_folder: "outputs/"
+project_name: 'my_video'
+source_video: 'input.mp4'
+output_folder: 'outputs/'
 
 whisper:
-  model: "large-v2"
-  device: "cuda"
+  model: 'large-v2'
+  device: 'cuda'
 
 llm:
-  provider: "ollama"
-  model: "llama3"
+  provider: 'ollama'
+  model: 'llama3'
 
 image:
-  provider: "flux"
-  model: "schnell"
+  provider: 'flux'
+  model: 'schnell'
 ```
 
 ---
@@ -617,27 +644,27 @@ Input (Topic/Trend)
 
 ### 3.3 Recommended Stack
 
-| Layer | Component | Tool |
-|-------|-----------|------|
-| **Agent Framework** | Primary | Pydantic AI |
-| **Agent Framework** | Workflows | LangGraph |
-| **Trend Research** | Reddit | reddit-mcp-ts |
-| **Trend Research** | YouTube | youtube-transcript-api |
-| **Trend Research** | Google | pytrends |
-| **Web Research** | Search | Tavily |
-| **Web Research** | Crawling | Firecrawl |
-| **Script Generation** | LLM | Claude/GPT-4o via Pydantic AI |
-| **UI Capture** | Browser | Playwright + MCP |
-| **TTS** | Audio | Kokoro-FastAPI |
-| **Captions** | ASR | WhisperX |
-| **Rendering** | Video | Remotion + chuk-motion |
-| **Captions** | Templates | remotion-subtitles |
-| **Clipping** | Detection | PySceneDetect + FunClip |
-| **Publishing** | TikTok | TiktokAutoUploader |
-| **Observability** | Tracing | Langfuse |
-| **Observability** | Evals | Promptfoo |
-| **Queue** | Jobs | BullMQ |
-| **Orchestration** | Workflows | Temporal |
+| Layer                 | Component | Tool                          |
+| --------------------- | --------- | ----------------------------- |
+| **Agent Framework**   | Primary   | Pydantic AI                   |
+| **Agent Framework**   | Workflows | LangGraph                     |
+| **Trend Research**    | Reddit    | reddit-mcp-ts                 |
+| **Trend Research**    | YouTube   | youtube-transcript-api        |
+| **Trend Research**    | Google    | pytrends                      |
+| **Web Research**      | Search    | Tavily                        |
+| **Web Research**      | Crawling  | Firecrawl                     |
+| **Script Generation** | LLM       | Claude/GPT-4o via Pydantic AI |
+| **UI Capture**        | Browser   | Playwright + MCP              |
+| **TTS**               | Audio     | Kokoro-FastAPI                |
+| **Captions**          | ASR       | WhisperX                      |
+| **Rendering**         | Video     | Remotion + chuk-motion        |
+| **Captions**          | Templates | remotion-subtitles            |
+| **Clipping**          | Detection | PySceneDetect + FunClip       |
+| **Publishing**        | TikTok    | TiktokAutoUploader            |
+| **Observability**     | Tracing   | Langfuse                      |
+| **Observability**     | Evals     | Promptfoo                     |
+| **Queue**             | Jobs      | BullMQ                        |
+| **Orchestration**     | Workflows | Temporal                      |
 
 ---
 
@@ -733,31 +760,31 @@ async def generate_audio(state: VideoState) -> dict:
     """Generate TTS audio with Kokoro."""
     from openai import OpenAI
     client = OpenAI(base_url="http://localhost:8880/v1", api_key="not-needed")
-    
+
     with client.audio.speech.with_streaming_response.create(
         model="kokoro",
         voice="af_bella",
         input=state["script"]
     ) as response:
         response.stream_to_file("output/audio.mp3")
-    
+
     return {"audio_path": "output/audio.mp3"}
 
 async def generate_captions(state: VideoState) -> dict:
     """Transcribe audio with WhisperX."""
     import whisperx
-    
+
     model = whisperx.load_model("large-v2", "cuda")
     audio = whisperx.load_audio(state["audio_path"])
     result = model.transcribe(audio, batch_size=16)
-    
+
     # Align for word-level timestamps
     model_a, metadata = whisperx.load_align_model(
         language_code=result["language"],
         device="cuda"
     )
     result = whisperx.align(result["segments"], model_a, metadata, audio, "cuda")
-    
+
     # Save as SRT
     save_srt(result["segments"], "output/captions.srt")
     return {"caption_path": "output/captions.srt"}
@@ -765,7 +792,7 @@ async def generate_captions(state: VideoState) -> dict:
 async def render_video(state: VideoState) -> dict:
     """Render video with Remotion."""
     import subprocess
-    
+
     subprocess.run([
         "npx", "remotion", "render",
         "src/index.tsx", "ShortVideo",
@@ -776,7 +803,7 @@ async def render_video(state: VideoState) -> dict:
         }),
         "--output", "output/video.mp4"
     ])
-    
+
     return {"video_path": "output/video.mp4"}
 
 async def quality_check(state: VideoState) -> dict:

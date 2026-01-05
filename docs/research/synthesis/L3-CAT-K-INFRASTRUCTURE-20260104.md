@@ -15,13 +15,13 @@ Infrastructure components provide **storage**, **databases**, **vector search**,
 
 ## Component Overview
 
-| Component | Technology | Purpose |
-|-----------|------------|---------|
-| **Object Storage** | MinIO | Video/audio files |
-| **Vector DB** | Qdrant | Semantic search |
-| **Relational DB** | PostgreSQL | Metadata, jobs |
-| **Cache** | Redis | Job queue, caching |
-| **API** | FastAPI/Hono | Service endpoints |
+| Component          | Technology   | Purpose            |
+| ------------------ | ------------ | ------------------ |
+| **Object Storage** | MinIO        | Video/audio files  |
+| **Vector DB**      | Qdrant       | Semantic search    |
+| **Relational DB**  | PostgreSQL   | Metadata, jobs     |
+| **Cache**          | Redis        | Job queue, caching |
+| **API**            | FastAPI/Hono | Service endpoints  |
 
 ---
 
@@ -43,8 +43,8 @@ services:
     image: minio/minio:latest
     command: server /data --console-address ":9001"
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - '9000:9000'
+      - '9001:9001'
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
@@ -63,19 +63,21 @@ const s3 = new S3Client({
   region: 'us-east-1',
   credentials: {
     accessKeyId: 'minioadmin',
-    secretAccessKey: 'minioadmin'
+    secretAccessKey: 'minioadmin',
   },
-  forcePathStyle: true
+  forcePathStyle: true,
 });
 
 // Upload file
 async function uploadVideo(key: string, buffer: Buffer): Promise<string> {
-  await s3.send(new PutObjectCommand({
-    Bucket: 'videos',
-    Key: key,
-    Body: buffer,
-    ContentType: 'video/mp4'
-  }));
+  await s3.send(
+    new PutObjectCommand({
+      Bucket: 'videos',
+      Key: key,
+      Body: buffer,
+      ContentType: 'video/mp4',
+    })
+  );
   return key;
 }
 
@@ -92,8 +94,8 @@ async function uploadStream(key: string, stream: Readable): Promise<string> {
     params: {
       Bucket: 'videos',
       Key: key,
-      Body: stream
-    }
+      Body: stream,
+    },
   });
   await upload.done();
   return key;
@@ -151,8 +153,8 @@ services:
   qdrant:
     image: qdrant/qdrant:latest
     ports:
-      - "6333:6333"
-      - "6334:6334"
+      - '6333:6333'
+      - '6334:6334'
     volumes:
       - qdrant_data:/qdrant/storage
 ```
@@ -167,24 +169,26 @@ const qdrant = new QdrantClient({ url: 'http://localhost:6333' });
 // Create collection
 await qdrant.createCollection('scripts', {
   vectors: {
-    size: 1536,  // OpenAI embedding size
-    distance: 'Cosine'
-  }
+    size: 1536, // OpenAI embedding size
+    distance: 'Cosine',
+  },
 });
 
 // Upsert with metadata
 async function indexScript(script: Script, embedding: number[]): Promise<void> {
   await qdrant.upsert('scripts', {
     wait: true,
-    points: [{
-      id: script.id,
-      vector: embedding,
-      payload: {
-        title: script.title,
-        topic: script.topic,
-        created_at: script.createdAt.toISOString()
-      }
-    }]
+    points: [
+      {
+        id: script.id,
+        vector: embedding,
+        payload: {
+          title: script.title,
+          topic: script.topic,
+          created_at: script.createdAt.toISOString(),
+        },
+      },
+    ],
   });
 }
 
@@ -194,21 +198,23 @@ async function searchSimilar(
   topic?: string,
   limit: number = 5
 ): Promise<Script[]> {
-  const filter = topic ? {
-    must: [{ key: 'topic', match: { value: topic } }]
-  } : undefined;
-  
+  const filter = topic
+    ? {
+        must: [{ key: 'topic', match: { value: topic } }],
+      }
+    : undefined;
+
   const results = await qdrant.search('scripts', {
     vector: embedding,
     filter,
     limit,
-    with_payload: true
+    with_payload: true,
   });
-  
-  return results.map(r => ({
+
+  return results.map((r) => ({
     id: r.id as string,
     score: r.score,
-    ...r.payload
+    ...r.payload,
   }));
 }
 ```
@@ -322,7 +328,7 @@ export const projects = pgTable('projects', {
   status: text('status').default('draft'),
   config: jsonb('config'),
   createdAt: timestamp('created_at').defaultNow(),
-  updatedAt: timestamp('updated_at').defaultNow()
+  updatedAt: timestamp('updated_at').defaultNow(),
 });
 
 export const scenes = pgTable('scenes', {
@@ -332,20 +338,24 @@ export const scenes = pgTable('scenes', {
   text: text('text').notNull(),
   duration: real('duration'),
   visualPrompt: text('visual_prompt'),
-  audioPath: text('audio_path')
+  audioPath: text('audio_path'),
 });
 
 // Queries
 const db = drizzle(pool);
 
 // Create project
-const project = await db.insert(projects).values({
-  title: 'AI Trends 2026',
-  topic: 'artificial-intelligence'
-}).returning();
+const project = await db
+  .insert(projects)
+  .values({
+    title: 'AI Trends 2026',
+    topic: 'artificial-intelligence',
+  })
+  .returning();
 
 // Get with scenes
-const result = await db.select()
+const result = await db
+  .select()
   .from(projects)
   .leftJoin(scenes, eq(projects.id, scenes.projectId))
   .where(eq(projects.id, projectId));
@@ -362,25 +372,25 @@ Base = declarative_base()
 
 class Project(Base):
     __tablename__ = 'projects'
-    
+
     id = Column(UUID, primary_key=True, server_default='gen_random_uuid()')
     title = Column(String, nullable=False)
     topic = Column(String)
     status = Column(String, default='draft')
     config = Column(JSONB)
     created_at = Column(DateTime, server_default='now()')
-    
+
     scenes = relationship('Scene', back_populates='project')
 
 class Scene(Base):
     __tablename__ = 'scenes'
-    
+
     id = Column(UUID, primary_key=True, server_default='gen_random_uuid()')
     project_id = Column(UUID, ForeignKey('projects.id'))
     sequence = Column(Integer, nullable=False)
     text = Column(String, nullable=False)
     duration = Column(Float)
-    
+
     project = relationship('Project', back_populates='scenes')
 ```
 
@@ -396,7 +406,7 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       - redis_data:/data
 ```
@@ -409,16 +419,12 @@ import { Redis } from 'ioredis';
 const redis = new Redis();
 
 // Cache with TTL
-async function cached<T>(
-  key: string,
-  ttl: number,
-  fn: () => Promise<T>
-): Promise<T> {
+async function cached<T>(key: string, ttl: number, fn: () => Promise<T>): Promise<T> {
   const cached = await redis.get(key);
   if (cached) {
     return JSON.parse(cached);
   }
-  
+
   const result = await fn();
   await redis.setex(key, ttl, JSON.stringify(result));
   return result;
@@ -427,7 +433,7 @@ async function cached<T>(
 // Usage
 const trends = await cached(
   'trends:programming',
-  300,  // 5 minutes
+  300, // 5 minutes
   () => fetchTrends('programming')
 );
 ```
@@ -482,7 +488,7 @@ const app = new Hono();
 
 const createVideoSchema = z.object({
   topic: z.string(),
-  config: z.record(z.unknown()).optional()
+  config: z.record(z.unknown()).optional(),
 });
 
 app.post('/videos', zValidator('json', createVideoSchema), async (c) => {
@@ -520,12 +526,12 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - '5432:5432'
 
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       - redis_data:/data
 
@@ -538,13 +544,13 @@ services:
     volumes:
       - minio_data:/data
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - '9000:9000'
+      - '9001:9001'
 
   qdrant:
     image: qdrant/qdrant:latest
     ports:
-      - "6333:6333"
+      - '6333:6333'
     volumes:
       - qdrant_data:/qdrant/storage
 
@@ -567,24 +573,24 @@ export const config = {
     port: parseInt(process.env.PG_PORT || '5432'),
     database: process.env.PG_DATABASE || 'content_machine',
     user: process.env.PG_USER || 'content',
-    password: process.env.PG_PASSWORD || 'machine'
+    password: process.env.PG_PASSWORD || 'machine',
   },
-  
+
   redis: {
     host: process.env.REDIS_HOST || 'localhost',
-    port: parseInt(process.env.REDIS_PORT || '6379')
+    port: parseInt(process.env.REDIS_PORT || '6379'),
   },
-  
+
   minio: {
     endpoint: process.env.MINIO_ENDPOINT || 'localhost',
     port: parseInt(process.env.MINIO_PORT || '9000'),
     accessKey: process.env.MINIO_ACCESS_KEY || 'minioadmin',
-    secretKey: process.env.MINIO_SECRET_KEY || 'minioadmin'
+    secretKey: process.env.MINIO_SECRET_KEY || 'minioadmin',
   },
-  
+
   qdrant: {
-    url: process.env.QDRANT_URL || 'http://localhost:6333'
-  }
+    url: process.env.QDRANT_URL || 'http://localhost:6333',
+  },
 };
 ```
 

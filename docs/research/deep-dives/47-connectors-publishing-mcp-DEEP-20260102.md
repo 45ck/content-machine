@@ -2,7 +2,7 @@
 
 **Date:** 2026-01-02  
 **Category:** Integration Infrastructure  
-**Status:** Complete  
+**Status:** Complete
 
 ---
 
@@ -11,6 +11,7 @@
 This deep dive analyzes the vendored connector, publishing, and MCP server infrastructure. These components form the input/output backbone of any automated content pipeline—sourcing trending content and publishing finished videos.
 
 **Key Findings:**
+
 1. **Reddit MCP servers exist** and work without API keys (scraping-based)
 2. **TiktokAutoUploader** is production-ready, using requests not Selenium (3 seconds upload)
 3. **Mixpost** is a full social media management platform (Laravel-based)
@@ -24,11 +25,13 @@ This deep dive analyzes the vendored connector, publishing, and MCP server infra
 ### Reddit Connectors
 
 #### 1. reddit-mcp-buddy ⭐ (Champion)
+
 **Type:** MCP Server (TypeScript)  
 **License:** MIT  
-**API Keys:** Not required!  
+**API Keys:** Not required!
 
 **Features:**
+
 - Browse subreddits (hot, new, top, rising, controversial)
 - Search across Reddit
 - Get post details with full comment threads
@@ -36,11 +39,13 @@ This deep dive analyzes the vendored connector, publishing, and MCP server infra
 - Reddit terminology explanations
 
 **Rate Limits (Three-Tier):**
+
 - No auth: 10 requests/minute
 - OAuth: 60 requests/minute
 - Script app: 100 requests/minute
 
 **Installation:**
+
 ```json
 // claude_desktop_config.json
 {
@@ -54,6 +59,7 @@ This deep dive analyzes the vendored connector, publishing, and MCP server infra
 ```
 
 **Tools:**
+
 - `browse_subreddit` - Browse posts with sorting
 - `search_reddit` - Search with filters
 - `get_post_details` - Fetch post + comments
@@ -65,9 +71,10 @@ This deep dive analyzes the vendored connector, publishing, and MCP server infra
 ---
 
 #### 2. praw (Python Reddit API Wrapper)
+
 **Type:** Python Library  
 **License:** BSD-2-Clause  
-**Stars:** 3k+  
+**Stars:** 3k+
 
 **Official Reddit API wrapper.** Requires API credentials but provides full access.
 
@@ -87,8 +94,9 @@ for submission in reddit.subreddit("technology").hot(limit=10):
 ---
 
 #### 3. asyncpraw
+
 **Type:** Python Library (Async)  
-**License:** BSD-2-Clause  
+**License:** BSD-2-Clause
 
 Async version of PRAW for high-performance applications.
 
@@ -105,13 +113,15 @@ async for submission in reddit.subreddit("all").hot(limit=100):
 ### YouTube Connectors
 
 #### 1. yt-dlp ⭐ (Champion)
+
 **Type:** CLI + Python Library  
 **License:** Unlicense  
-**Sites Supported:** 1000+  
+**Sites Supported:** 1000+
 
 The definitive video/audio downloader. Fork of youtube-dl with active development.
 
 **Key Features:**
+
 - Download from 1000+ sites
 - Format selection (quality, codec)
 - Subtitle extraction
@@ -120,6 +130,7 @@ The definitive video/audio downloader. Fork of youtube-dl with active developmen
 - Live stream support
 
 **CLI Usage:**
+
 ```bash
 # Download best quality
 yt-dlp "https://youtube.com/watch?v=..."
@@ -135,6 +146,7 @@ yt-dlp -f "bestvideo[height<=1920]+bestaudio" "URL"
 ```
 
 **Python Embedding:**
+
 ```python
 import yt_dlp
 
@@ -151,8 +163,9 @@ with yt_dlp.YoutubeDL(ydl_opts) as ydl:
 ---
 
 #### 2. youtube-transcript-api ⭐
+
 **Type:** Python Library  
-**License:** MIT  
+**License:** MIT
 
 Extract transcripts/subtitles from YouTube videos without Selenium.
 
@@ -167,6 +180,7 @@ transcript = ytt_api.fetch("video_id")
 ```
 
 **Key Features:**
+
 - Auto-generated captions support
 - Multi-language support
 - Translation support
@@ -175,8 +189,9 @@ transcript = ytt_api.fetch("video_id")
 ---
 
 #### 3. google-api-python
+
 **Type:** Python Library  
-**License:** Apache-2.0  
+**License:** Apache-2.0
 
 Official Google API client for YouTube Data API v3.
 
@@ -199,6 +214,7 @@ response = request.execute()
 ### Web Scrapers/Connectors
 
 Located in `vendor/connectors/scrapers/` and `vendor/connectors/web/`:
+
 - General purpose web scraping utilities
 - Rate limiting helpers
 - Proxy rotation
@@ -208,13 +224,15 @@ Located in `vendor/connectors/scrapers/` and `vendor/connectors/web/`:
 ## Publishing Infrastructure
 
 ### 1. TiktokAutoUploader ⭐ (Champion for TikTok)
+
 **Language:** Python + Node.js  
 **License:** MIT  
-**Speed:** ~3 seconds per upload  
+**Speed:** ~3 seconds per upload
 
 **Key Innovation:** Uses requests, not Selenium!
 
 **Features:**
+
 - ✅ Super fast (requests-based)
 - ✅ Multiple account support
 - ✅ Schedule up to 10 days ahead
@@ -222,10 +240,12 @@ Located in `vendor/connectors/scrapers/` and `vendor/connectors/web/`:
 - ✅ Cookie-based authentication
 
 **Requirements:**
+
 - Node.js (for signature generation)
 - Python 3.x
 
 **CLI Usage:**
+
 ```bash
 # Login (saves cookies)
 python cli.py login -n my_account
@@ -238,6 +258,7 @@ python cli.py upload --user my_account -yt "https://youtube.com/shorts/..." -t "
 ```
 
 **Session ID Extraction:**
+
 1. Log into TikTok in browser
 2. Copy `sessionid` cookie value
 3. Use in configuration
@@ -245,11 +266,13 @@ python cli.py upload --user my_account -yt "https://youtube.com/shorts/..." -t "
 ---
 
 ### 2. Mixpost ⭐ (Full Platform)
+
 **Language:** PHP (Laravel)  
 **License:** MIT  
-**Type:** Self-hosted social media management  
+**Type:** Self-hosted social media management
 
 **Supported Platforms:**
+
 - Facebook
 - Instagram
 - Twitter/X
@@ -260,6 +283,7 @@ python cli.py upload --user my_account -yt "https://youtube.com/shorts/..." -t "
 - Mastodon
 
 **Features:**
+
 - Multi-account management
 - Content calendar
 - Post scheduling
@@ -271,6 +295,7 @@ python cli.py upload --user my_account -yt "https://youtube.com/shorts/..." -t "
 - Hashtag groups
 
 **Commercial Versions:**
+
 - **Lite:** Open source (MIT)
 - **Pro/Enterprise:** Paid, additional features
 
@@ -279,6 +304,7 @@ python cli.py upload --user my_account -yt "https://youtube.com/shorts/..." -t "
 ---
 
 ### 3. youtube-upload
+
 **Type:** CLI Tool  
 **For:** YouTube API uploads
 
@@ -287,12 +313,14 @@ Simple CLI for uploading videos to YouTube with metadata.
 ---
 
 ### 4. go-youtube-reddit-automation
+
 **Language:** Go  
 **Purpose:** Combined automation for Reddit → YouTube pipeline
 
 ---
 
 ### 5. rednote-instagram-auto-uploader
+
 **Purpose:** Instagram posting automation (RedNote integration)
 
 ---
@@ -300,13 +328,15 @@ Simple CLI for uploading videos to YouTube with metadata.
 ## MCP Server Infrastructure
 
 ### 1. FastMCP 2.0 ⭐ (Production Standard)
+
 **Language:** Python  
 **Creator:** Prefect  
-**Docs:** gofastmcp.com  
+**Docs:** gofastmcp.com
 
 The production-ready MCP server framework.
 
 **Features:**
+
 - Decorator-based tools/resources
 - Enterprise auth (Google, GitHub, Azure, Auth0, WorkOS)
 - OpenAPI/FastAPI generation
@@ -316,6 +346,7 @@ The production-ready MCP server framework.
 - Client libraries
 
 **Basic Server:**
+
 ```python
 from fastmcp import FastMCP
 
@@ -335,17 +366,20 @@ if __name__ == "__main__":
 ```
 
 **Run:**
+
 ```bash
 fastmcp run server.py
 ```
 
 **LLM Documentation:**
+
 - `llms.txt` - Sitemap for LLMs
 - `llms-full.txt` - Complete docs
 
 ---
 
 ### 2. mcp-python-sdk
+
 **Type:** Official MCP Python SDK  
 **Note:** FastMCP 1.0 was incorporated into this
 
@@ -354,6 +388,7 @@ Use FastMCP 2.0 for production; SDK for low-level access.
 ---
 
 ### 3. fastmcp-typescript
+
 **Language:** TypeScript  
 **Use Case:** TypeScript MCP servers
 
@@ -362,11 +397,13 @@ TypeScript equivalent of FastMCP for Node.js environments.
 ---
 
 ### 4. mcp-quickstart
+
 **Purpose:** Getting started templates
 
 ---
 
 ### 5. mcp-servers
+
 **Purpose:** Reference server implementations
 
 Collection of example MCP servers for various use cases.
@@ -376,18 +413,21 @@ Collection of example MCP servers for various use cases.
 ## MoneyPrinter Family Analysis
 
 ### MoneyPrinter (Original)
+
 **Creator:** FujiwaraChoki  
 **Stars:** 7.5k+  
-**License:** MIT  
+**License:** MIT
 
 Original viral repo for YouTube Shorts automation.
 
 **Stack:**
+
 - ImageMagick
 - TTS (various)
 - FFmpeg
 
 **Limitations:**
+
 - Selenium-based (slow)
 - Basic features
 - Less actively maintained
@@ -395,13 +435,15 @@ Original viral repo for YouTube Shorts automation.
 ---
 
 ### MoneyPrinterTurbo ⭐ (Best Fork)
+
 **Creator:** harry0703  
 **Stars:** 8k+  
-**License:** MIT  
+**License:** MIT
 
 Chinese fork with significant improvements.
 
 **Features:**
+
 - Web UI + API
 - MVC architecture
 - Multiple LLM support:
@@ -420,14 +462,17 @@ Chinese fork with significant improvements.
 - Google Colab notebook
 
 **Recommended LLMs (China-friendly):**
+
 - DeepSeek
 - Moonshot
 
 **Video Formats:**
+
 - Vertical: 9:16 (1080x1920)
 - Horizontal: 16:9 (1920x1080)
 
 **System Requirements:**
+
 - CPU: 4+ cores
 - RAM: 4GB+
 - GPU: Optional
@@ -435,18 +480,21 @@ Chinese fork with significant improvements.
 ---
 
 ### MoneyPrinterV2
+
 **Creator:** FujiwaraChoki  
-**License:** AGPL-3.0  
+**License:** AGPL-3.0
 
 Version 2 with expanded features.
 
 **Features:**
+
 - Twitter Bot with CRON scheduling
 - YouTube Shorts automation
 - Affiliate marketing (Amazon + Twitter)
 - Local business finder + cold outreach
 
 **Stack:**
+
 - CoquiTTS
 - gpt4free
 - Go (for email outreach)
@@ -470,12 +518,12 @@ const redditMCP = new RedditMCPBuddy({
 // YouTube Research
 const ytTranscript = new YouTubeTranscriptAPI();
 const ytDownloader = new YtDlp({
-  format: 'bestvideo[height<=1080]+bestaudio'
+  format: 'bestvideo[height<=1080]+bestaudio',
 });
 
 // Publishing
 const tiktokUploader = new TiktokAutoUploader({
-  accounts: ['account1', 'account2']
+  accounts: ['account1', 'account2'],
 });
 const mixpost = new MixpostClient({
   // For multi-platform publishing
@@ -484,14 +532,14 @@ const mixpost = new MixpostClient({
 
 ### Connector Priority
 
-| Use Case | Champion | Backup |
-|----------|----------|--------|
-| Reddit Trends | reddit-mcp-buddy | praw/asyncpraw |
-| YouTube Download | yt-dlp | pytube |
+| Use Case            | Champion               | Backup              |
+| ------------------- | ---------------------- | ------------------- |
+| Reddit Trends       | reddit-mcp-buddy       | praw/asyncpraw      |
+| YouTube Download    | yt-dlp                 | pytube              |
 | YouTube Transcripts | youtube-transcript-api | yt-dlp --write-subs |
-| TikTok Upload | TiktokAutoUploader | Manual |
-| Multi-Platform | Mixpost | Postiz |
-| MCP Development | FastMCP 2.0 | mcp-python-sdk |
+| TikTok Upload       | TiktokAutoUploader     | Manual              |
+| Multi-Platform      | Mixpost                | Postiz              |
+| MCP Development     | FastMCP 2.0            | mcp-python-sdk      |
 
 ### Publishing Strategy
 
@@ -509,21 +557,25 @@ graph LR
 ## Security Considerations
 
 ### API Key Management
+
 - Use environment variables
 - Never commit credentials
 - Rotate keys regularly
 
 ### Cookie-Based Auth (TikTok)
+
 - Session IDs expire
 - Implement refresh logic
 - Monitor for rate limits
 
 ### Reddit API
+
 - reddit-mcp-buddy scrapes (no ToS issues with MCP pattern)
 - PRAW requires registered app
 - Respect rate limits
 
 ### YouTube
+
 - YouTube Data API has quotas
 - yt-dlp doesn't require API key
 - Consider YouTube ToS for automation
@@ -533,16 +585,19 @@ graph LR
 ## Performance Benchmarks
 
 ### Upload Speed
+
 - **TiktokAutoUploader:** ~3 seconds
 - **Selenium-based:** 30-60 seconds
 - **Manual API:** 5-10 seconds
 
 ### Download Speed (yt-dlp)
+
 - Typically network-limited
 - Parallel segments supported
 - Resume on failure
 
 ### MCP Server Response
+
 - **FastMCP:** <100ms typical
 - Tool execution: varies by implementation
 
@@ -551,6 +606,7 @@ graph LR
 ## Code Patterns
 
 ### Reddit Trend Extraction
+
 ```python
 # Using reddit-mcp-buddy via MCP
 async def get_trending_tech():
@@ -566,6 +622,7 @@ async def get_trending_tech():
 ```
 
 ### Video Download Pattern
+
 ```python
 import yt_dlp
 
@@ -582,6 +639,7 @@ def download_background_video(url: str, output_dir: str):
 ```
 
 ### TikTok Upload Pattern
+
 ```python
 import subprocess
 
@@ -596,6 +654,7 @@ def upload_to_tiktok(video_path: str, title: str, account: str):
 ```
 
 ### FastMCP Tool Pattern
+
 ```python
 from fastmcp import FastMCP
 
@@ -642,4 +701,4 @@ async def reddit_trends(subreddit: str):
 
 **Document ID:** DD-047  
 **Last Updated:** 2026-01-02  
-**Author:** Research Agent  
+**Author:** Research Agent

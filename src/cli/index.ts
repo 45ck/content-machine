@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * content-machine CLI entry point
- * 
+ *
  * Command-line tool for generating short-form video content.
  */
 import { Command } from 'commander';

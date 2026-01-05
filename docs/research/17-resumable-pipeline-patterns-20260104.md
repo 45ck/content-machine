@@ -10,14 +10,14 @@
 
 Research across vendored repos reveals several proven patterns for building resumable pipelines:
 
-| Pattern | Best For | Complexity | Found In |
-|---------|----------|------------|----------|
-| **Content Hashing** | Asset deduplication | Low | MoneyPrinterTurbo |
-| **File-Based Checkpointing** | Stage outputs | Low | MoneyPrinterTurbo |
-| **State Machine** | Task tracking | Medium | MoneyPrinterTurbo |
-| **Job Deduplication** | Preventing duplicates | Medium | BullMQ |
-| **Activity Heartbeats** | Long-running tasks | Medium | Temporal |
-| **Queue Processing** | Sequential stages | Low | short-video-maker-gyori |
+| Pattern                      | Best For              | Complexity | Found In                |
+| ---------------------------- | --------------------- | ---------- | ----------------------- |
+| **Content Hashing**          | Asset deduplication   | Low        | MoneyPrinterTurbo       |
+| **File-Based Checkpointing** | Stage outputs         | Low        | MoneyPrinterTurbo       |
+| **State Machine**            | Task tracking         | Medium     | MoneyPrinterTurbo       |
+| **Job Deduplication**        | Preventing duplicates | Medium     | BullMQ                  |
+| **Activity Heartbeats**      | Long-running tasks    | Medium     | Temporal                |
+| **Queue Processing**         | Sequential stages     | Low        | short-video-maker-gyori |
 
 ---
 
@@ -44,7 +44,7 @@ def save_video(video_url: str, save_dir: str = "") -> str:
     if os.path.exists(video_path) and os.path.getsize(video_path) > 0:
         logger.info(f"video already exists: {video_path}")
         return video_path  # <-- Skip download, return cached
-    
+
     # ... download logic only runs if not cached
 ```
 
@@ -57,11 +57,13 @@ def md5(text):
 ```
 
 ### Key Insight
+
 - Use **content-addressable storage**: Hash the input (URL, text, config) to generate unique filename
 - **Check existence before work**: `if os.path.exists(video_path) and os.path.getsize(video_path) > 0`
 - **Size validation**: Empty files (failed downloads) are not considered valid
 
 ### TypeScript Implementation Pattern
+
 ```typescript
 import crypto from 'crypto';
 import fs from 'fs-extra';
@@ -80,12 +82,12 @@ async function getCachedOrCreate<T>(
 ): Promise<T> {
   const hash = contentHash(inputKey);
   const cachePath = path.join(cacheDir, `${hash}.json`);
-  
+
   if (await fs.pathExists(cachePath)) {
     const raw = await fs.readFile(cachePath, 'utf-8');
     return deserializer(raw);
   }
-  
+
   const result = await creator();
   await fs.outputFile(cachePath, serializer(result));
   return result;
@@ -114,22 +116,26 @@ def save_script_data(task_id, video_script, video_terms, params):
 ```
 
 ### Stage Output Files Structure
+
 ```
 storage/tasks/{task_id}/
 ├── script.json      # Stage 1 output: script + terms
-├── audio.mp3        # Stage 2 output: TTS audio  
+├── audio.mp3        # Stage 2 output: TTS audio
 ├── subtitle.srt     # Stage 3 output: subtitles
 ├── combined-1.mp4   # Stage 4 output: combined video
 └── final-1.mp4      # Stage 5 output: final render
 ```
 
 ### Key Insight
+
 Each stage writes to a **known file path**. Resume logic can:
+
 1. Check which files exist
 2. Skip stages that have completed outputs
 3. Resume from the last incomplete stage
 
 ### TypeScript Implementation Pattern
+
 ```typescript
 interface PipelineStage<TInput, TOutput> {
   name: string;
@@ -145,18 +151,18 @@ async function runStage<TInput, TOutput>(
   taskId: string
 ): Promise<TOutput> {
   const outputPath = stage.outputFile(taskId);
-  
+
   // Check for existing output
   if (await fs.pathExists(outputPath)) {
     const raw = await fs.readFile(outputPath, 'utf-8');
     console.log(`Stage ${stage.name}: Using cached output`);
     return stage.deserialize(raw);
   }
-  
+
   // Execute stage
   console.log(`Stage ${stage.name}: Executing...`);
   const output = await stage.execute(input, taskId);
-  
+
   // Persist output
   await fs.outputFile(outputPath, stage.serialize(output));
   return output;
@@ -216,25 +222,27 @@ class MemoryState(BaseState):
 ```python
 def start(task_id, params: VideoParams, stop_at: str = "video"):
     sm.state.update_task(task_id, state=const.TASK_STATE_PROCESSING, progress=5)
-    
+
     # 1. Generate script
     video_script = generate_script(task_id, params)
     sm.state.update_task(task_id, state=const.TASK_STATE_PROCESSING, progress=10)
-    
+
     if stop_at == "script":
-        sm.state.update_task(task_id, state=const.TASK_STATE_COMPLETE, progress=100, 
+        sm.state.update_task(task_id, state=const.TASK_STATE_COMPLETE, progress=100,
                             script=video_script)
         return {"script": video_script}
-    
+
     # ... more stages with progress updates
 ```
 
 ### Key Insight
+
 - **State + Progress**: Track both completion state AND percentage
 - **stop_at parameter**: Allows partial pipeline execution (useful for debugging)
 - **Kwargs for metadata**: Store stage outputs in state for inspection
 
 ### TypeScript Implementation Pattern
+
 ```typescript
 type TaskState = 'pending' | 'processing' | 'complete' | 'failed';
 
@@ -249,7 +257,7 @@ interface TaskProgress {
 
 class TaskStateManager {
   private tasks = new Map<string, TaskProgress>();
-  
+
   update(taskId: string, updates: Partial<TaskProgress>): void {
     const existing = this.tasks.get(taskId) ?? {
       taskId,
@@ -260,7 +268,7 @@ class TaskStateManager {
     };
     this.tasks.set(taskId, { ...existing, ...updates });
   }
-  
+
   get(taskId: string): TaskProgress | undefined {
     return this.tasks.get(taskId);
   }
@@ -286,12 +294,12 @@ export class ShortCreator {
   public status(id: string): VideoStatus {
     const videoPath = this.getVideoPath(id);
     if (this.queue.find((item) => item.id === id)) {
-      return "processing";
+      return 'processing';
     }
     if (fs.existsSync(videoPath)) {
-      return "ready";
+      return 'ready';
     }
-    return "failed";
+    return 'failed';
   }
 
   public addToQueue(sceneInput: SceneInput[], config: RenderConfig): string {
@@ -311,9 +319,9 @@ export class ShortCreator {
     try {
       await this.createShort(id, sceneInput, config);
     } catch (error) {
-      logger.error(error, "Error creating video");
+      logger.error(error, 'Error creating video');
     } finally {
-      this.queue.shift();  // Remove completed item
+      this.queue.shift(); // Remove completed item
       this.processQueue(); // Process next
     }
   }
@@ -321,9 +329,10 @@ export class ShortCreator {
 ```
 
 ### Key Insight
+
 - **Status derived from state**: `processing` if in queue, `ready` if file exists, else `failed`
 - **Sequential processing**: One item at a time, prevents resource conflicts
-- **Cleanup temp files after success**: 
+- **Cleanup temp files after success**:
   ```typescript
   for (const file of tempFiles) {
     fs.removeSync(file);
@@ -339,31 +348,30 @@ export class ShortCreator {
 **File:** [vendor/job-queue/bullmq/docs/gitbook/guide/jobs/deduplication.md](../../../vendor/job-queue/bullmq/docs/gitbook/guide/jobs/deduplication.md)
 
 #### Simple Mode (Until Job Completes)
+
 ```typescript
 // Job is deduplicated as long as it's not completed/failed
-await myQueue.add(
-  'render-video',
-  { videoId: 'abc123' },
-  { deduplication: { id: 'video-abc123' } }
-);
+await myQueue.add('render-video', { videoId: 'abc123' }, { deduplication: { id: 'video-abc123' } });
 ```
 
 #### Throttle Mode (TTL-Based)
+
 ```typescript
 // Job is deduplicated for 5 seconds after creation
 await myQueue.add(
   'render-video',
   { videoId: 'abc123' },
-  { 
-    deduplication: { 
-      id: 'video-abc123', 
-      ttl: 5000  // 5 seconds
-    } 
+  {
+    deduplication: {
+      id: 'video-abc123',
+      ttl: 5000, // 5 seconds
+    },
   }
 );
 ```
 
 #### Debounce Mode (Replace Previous)
+
 ```typescript
 // Latest job replaces previous, with delay reset
 await myQueue.add(
@@ -393,14 +401,15 @@ await queue.add(
     attempts: 3,
     backoff: {
       type: 'exponential',
-      delay: 1000,       // 1s, 2s, 4s
-      jitter: 0.5,       // Add randomness
+      delay: 1000, // 1s, 2s, 4s
+      jitter: 0.5, // Add randomness
     },
   }
 );
 ```
 
 ### Key Insight
+
 - **Deduplication ID**: Should represent the unique work unit (e.g., `video-${videoId}`)
 - **TTL for throttling**: Prevent duplicate submissions within time window
 - **Exponential backoff with jitter**: Prevents thundering herd on retries
@@ -416,7 +425,7 @@ await queue.add(
 ```go
 func (a *activities) GenerateReplicationTasks(ctx context.Context, request *generateReplicationTasksRequest) error {
     startIndex := 0
-    
+
     // Resume from heartbeat checkpoint
     if activity.HasHeartbeatDetails(ctx) {
         if err := activity.GetHeartbeatDetails(ctx, &startIndex); err == nil {
@@ -426,11 +435,11 @@ func (a *activities) GenerateReplicationTasks(ctx context.Context, request *gene
 
     for i := startIndex; i < len(request.Executions); i++ {
         we := request.Executions[i]
-        
+
         if err := a.generateWorkflowReplicationTask(ctx, rateLimiter, ...); err != nil {
             return err  // Activity will retry from last heartbeat
         }
-        
+
         activity.RecordHeartbeat(ctx, i)  // <-- Checkpoint progress
     }
 
@@ -439,11 +448,13 @@ func (a *activities) GenerateReplicationTasks(ctx context.Context, request *gene
 ```
 
 ### Key Insight
+
 - **Heartbeat = Checkpoint**: Save progress index during long loops
 - **Resume from checkpoint**: On retry, read last heartbeat to skip completed items
 - **Automatic on worker death**: Temporal detects missing heartbeats and reschedules
 
 ### TypeScript Implementation Pattern (for long-running tasks)
+
 ```typescript
 interface CheckpointData {
   lastProcessedIndex: number;
@@ -461,18 +472,18 @@ async function processWithCheckpoint<T>(
   if (await fs.pathExists(checkpointFile)) {
     checkpoint = JSON.parse(await fs.readFile(checkpointFile, 'utf-8'));
   }
-  
+
   // Resume from checkpoint
   for (let i = checkpoint.lastProcessedIndex + 1; i < items.length; i++) {
     await processor(items[i]);
-    
+
     // Checkpoint every N items
     if (i % checkpointInterval === 0) {
       checkpoint.lastProcessedIndex = i;
       await fs.writeFile(checkpointFile, JSON.stringify(checkpoint));
     }
   }
-  
+
   // Clean up checkpoint on completion
   await fs.remove(checkpointFile);
 }
@@ -483,9 +494,11 @@ async function processWithCheckpoint<T>(
 ## Pattern 7: Atomic File Writes (Temp + Rename)
 
 ### Why Atomic Writes Matter
+
 Direct writes can leave corrupted files if process crashes mid-write. The temp file + rename pattern ensures atomicity.
 
 ### Implementation Pattern
+
 ```typescript
 import fs from 'fs-extra';
 import path from 'path';
@@ -494,12 +507,12 @@ import { v4 as uuid } from 'uuid';
 async function atomicWriteFile(filePath: string, content: string): Promise<void> {
   const dir = path.dirname(filePath);
   const tempPath = path.join(dir, `.tmp-${uuid()}`);
-  
+
   try {
     await fs.outputFile(tempPath, content);
-    await fs.rename(tempPath, filePath);  // Atomic on most filesystems
+    await fs.rename(tempPath, filePath); // Atomic on most filesystems
   } catch (error) {
-    await fs.remove(tempPath).catch(() => {});  // Clean up on failure
+    await fs.remove(tempPath).catch(() => {}); // Clean up on failure
     throw error;
   }
 }
@@ -510,19 +523,20 @@ async function atomicWriteJson(filePath: string, data: unknown): Promise<void> {
 ```
 
 ### For Binary Files (Video/Audio)
+
 ```typescript
 async function downloadWithAtomicWrite(url: string, destPath: string): Promise<void> {
   const tempPath = `${destPath}.tmp`;
-  
+
   try {
     await downloadToFile(url, tempPath);
-    
+
     // Validate file before committing
     const stats = await fs.stat(tempPath);
     if (stats.size === 0) {
       throw new Error('Downloaded file is empty');
     }
-    
+
     await fs.rename(tempPath, destPath);
   } catch (error) {
     await fs.remove(tempPath).catch(() => {});
@@ -536,13 +550,15 @@ async function downloadWithAtomicWrite(url: string, destPath: string): Promise<v
 ## Pattern 8: Make-Style Dependency Tracking
 
 ### Concept
+
 Like GNU Make, track **inputs → outputs** relationships and skip stages where outputs are newer than inputs.
 
 ### Implementation Pattern
+
 ```typescript
 interface StageManifest {
   stage: string;
-  inputHashes: Record<string, string>;  // input file → hash
+  inputHashes: Record<string, string>; // input file → hash
   outputHashes: Record<string, string>; // output file → hash
   completedAt: string;
 }
@@ -553,30 +569,28 @@ async function shouldRunStage(
   outputs: string[]
 ): Promise<boolean> {
   // No manifest = never run
-  if (!await fs.pathExists(manifestPath)) {
+  if (!(await fs.pathExists(manifestPath))) {
     return true;
   }
-  
-  const manifest: StageManifest = JSON.parse(
-    await fs.readFile(manifestPath, 'utf-8')
-  );
-  
+
+  const manifest: StageManifest = JSON.parse(await fs.readFile(manifestPath, 'utf-8'));
+
   // Check if all outputs exist
   for (const output of outputs) {
-    if (!await fs.pathExists(output)) {
-      return true;  // Missing output, must run
+    if (!(await fs.pathExists(output))) {
+      return true; // Missing output, must run
     }
   }
-  
+
   // Check if any input changed
   for (const input of inputs) {
     const currentHash = await hashFile(input);
     if (manifest.inputHashes[input] !== currentHash) {
-      return true;  // Input changed, must run
+      return true; // Input changed, must run
     }
   }
-  
-  return false;  // All outputs exist and inputs unchanged
+
+  return false; // All outputs exist and inputs unchanged
 }
 
 async function hashFile(filePath: string): Promise<string> {
@@ -590,24 +604,25 @@ async function hashFile(filePath: string): Promise<string> {
 ## Recommended Architecture for content-machine
 
 ### Pipeline Stage Definition
+
 ```typescript
 interface PipelineStageConfig<TInput, TOutput> {
   name: string;
-  
+
   // File paths for this stage
   outputPath: (taskId: string) => string;
   manifestPath: (taskId: string) => string;
-  
+
   // Hash function for deduplication key
   inputHash: (input: TInput) => string;
-  
+
   // Execution
   execute: (input: TInput, ctx: StageContext) => Promise<TOutput>;
-  
+
   // Serialization
   serialize: (output: TOutput) => string;
   deserialize: (raw: string) => TOutput;
-  
+
   // Optional: Retry config
   retryConfig?: {
     maxAttempts: number;
@@ -626,6 +641,7 @@ interface StageContext {
 ```
 
 ### Pipeline Runner
+
 ```typescript
 class ResumablePipeline {
   async run<T>(
@@ -634,34 +650,32 @@ class ResumablePipeline {
     initialInput: T
   ): Promise<void> {
     let currentInput = initialInput;
-    
+
     for (const stage of stages) {
       const outputPath = stage.outputPath(taskId);
       const manifestPath = stage.manifestPath(taskId);
       const inputHash = stage.inputHash(currentInput);
-      
+
       // Check if stage already completed with same input
       if (await this.isStageComplete(manifestPath, inputHash, outputPath)) {
         logger.info(`Stage ${stage.name}: Using cached output`);
-        currentInput = stage.deserialize(
-          await fs.readFile(outputPath, 'utf-8')
-        );
+        currentInput = stage.deserialize(await fs.readFile(outputPath, 'utf-8'));
         continue;
       }
-      
+
       // Execute stage with retries
       const output = await this.executeWithRetry(stage, currentInput, taskId);
-      
+
       // Atomic write output
       await this.atomicWrite(outputPath, stage.serialize(output));
-      
+
       // Write manifest
       await this.writeManifest(manifestPath, {
         stage: stage.name,
         inputHash,
         completedAt: new Date().toISOString(),
       });
-      
+
       currentInput = output;
     }
   }
@@ -672,15 +686,15 @@ class ResumablePipeline {
 
 ## Summary: Pattern Selection Guide
 
-| Scenario | Recommended Pattern |
-|----------|---------------------|
-| **Asset downloads** | Content hashing + existence check |
-| **Multi-stage pipeline** | File-based checkpoints per stage |
-| **Long-running single task** | Periodic heartbeats/checkpoints |
-| **API endpoints** | Job deduplication (BullMQ) |
-| **Distributed workers** | Temporal workflows |
-| **File writes** | Atomic temp + rename |
-| **Complex dependencies** | Make-style manifest tracking |
+| Scenario                     | Recommended Pattern               |
+| ---------------------------- | --------------------------------- |
+| **Asset downloads**          | Content hashing + existence check |
+| **Multi-stage pipeline**     | File-based checkpoints per stage  |
+| **Long-running single task** | Periodic heartbeats/checkpoints   |
+| **API endpoints**            | Job deduplication (BullMQ)        |
+| **Distributed workers**      | Temporal workflows                |
+| **File writes**              | Atomic temp + rename              |
+| **Complex dependencies**     | Make-style manifest tracking      |
 
 ---
 

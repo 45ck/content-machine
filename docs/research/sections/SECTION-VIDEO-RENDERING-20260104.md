@@ -11,6 +11,7 @@
 This document investigates Remotion video rendering patterns across vendored repositories to inform content-machine's `cm render` command design.
 
 **Key Questions:**
+
 1. How are Remotion compositions structured?
 2. How are captions/subtitles rendered and styled?
 3. How is audio integrated with video?
@@ -21,11 +22,11 @@ This document investigates Remotion video rendering patterns across vendored rep
 
 ## 2. Vendor Evidence Summary
 
-| Repo | Composition Structure | Caption Style | Audio Handling |
-|------|----------------------|---------------|----------------|
-| short-video-maker-gyori | Scene-based Sequences | TikTok-style (stroke, uppercase) | Audio per scene + global music |
-| vidosy | Scene array with timing hooks | Text component per scene | Global + scene-specific audio |
-| template-tiktok-base | Official Remotion template | Standard captions | Audio overlay |
+| Repo                    | Composition Structure         | Caption Style                    | Audio Handling                 |
+| ----------------------- | ----------------------------- | -------------------------------- | ------------------------------ |
+| short-video-maker-gyori | Scene-based Sequences         | TikTok-style (stroke, uppercase) | Audio per scene + global music |
+| vidosy                  | Scene array with timing hooks | Text component per scene         | Global + scene-specific audio  |
+| template-tiktok-base    | Official Remotion template    | Standard captions                | Audio overlay                  |
 
 ---
 
@@ -82,6 +83,7 @@ export const RemotionRoot: React.FC = () => {
 ```
 
 **Pattern:**
+
 - **Multiple compositions** for orientation variants (portrait/landscape)
 - **`calculateMetadata`** for dynamic duration based on props
 - **Schema validation** via Zod (`shortVideoSchema`)
@@ -92,8 +94,8 @@ export const RemotionRoot: React.FC = () => {
 
 ```typescript
 // src/components/root/index.ts
-import { registerRoot } from "remotion";
-import { RemotionRoot } from "./Root";
+import { registerRoot } from 'remotion';
+import { RemotionRoot } from './Root';
 
 registerRoot(RemotionRoot);
 ```
@@ -116,7 +118,7 @@ import {
   useVideoConfig,
   Audio,
   OffthreadVideo,
-} from "remotion";
+} from 'remotion';
 
 export const PortraitVideo: React.FC<z.infer<typeof shortVideoSchema>> = ({
   scenes,
@@ -127,7 +129,7 @@ export const PortraitVideo: React.FC<z.infer<typeof shortVideoSchema>> = ({
   const { fps } = useVideoConfig();
 
   return (
-    <AbsoluteFill style={{ backgroundColor: "white" }}>
+    <AbsoluteFill style={{ backgroundColor: 'white' }}>
       <Audio
         loop
         src={music.url}
@@ -141,24 +143,22 @@ export const PortraitVideo: React.FC<z.infer<typeof shortVideoSchema>> = ({
         const { captions, audio, video } = scene;
 
         // Calculate cumulative start frame
-        const startFrame = scenes.slice(0, i).reduce((acc, curr) => {
-          return acc + curr.audio.duration;
-        }, 0) * fps;
-        
+        const startFrame =
+          scenes.slice(0, i).reduce((acc, curr) => {
+            return acc + curr.audio.duration;
+          }, 0) * fps;
+
         // Calculate end frame with optional padding
-        let durationInFrames = scenes.slice(0, i + 1).reduce((acc, curr) => {
-          return acc + curr.audio.duration;
-        }, 0) * fps;
+        let durationInFrames =
+          scenes.slice(0, i + 1).reduce((acc, curr) => {
+            return acc + curr.audio.duration;
+          }, 0) * fps;
         if (config.paddingBack && i === scenes.length - 1) {
           durationInFrames += (config.paddingBack / 1000) * fps;
         }
 
         return (
-          <Sequence
-            from={startFrame}
-            durationInFrames={durationInFrames}
-            key={`scene-${i}`}
-          >
+          <Sequence from={startFrame} durationInFrames={durationInFrames} key={`scene-${i}`}>
             <OffthreadVideo src={video} muted />
             <Audio src={audio.url} />
             {/* Caption rendering... */}
@@ -171,6 +171,7 @@ export const PortraitVideo: React.FC<z.infer<typeof shortVideoSchema>> = ({
 ```
 
 **Pattern:**
+
 - **Cumulative frame calculation**: Each scene starts after previous scenes' durations
 - **`OffthreadVideo`** for memory-efficient video playback
 - **Separate Audio components** for music and narration
@@ -183,16 +184,16 @@ export const PortraitVideo: React.FC<z.infer<typeof shortVideoSchema>> = ({
 // Caption styling
 <p
   style={{
-    fontSize: "6em",
-    fontFamily: fontFamily,  // Barlow Condensed
-    fontWeight: "black",
-    color: "white",
-    WebkitTextStroke: "2px black",
-    WebkitTextFillColor: "white",
-    textShadow: "0px 0px 10px black",
-    textAlign: "center",
-    width: "100%",
-    textTransform: "uppercase",
+    fontSize: '6em',
+    fontFamily: fontFamily, // Barlow Condensed
+    fontWeight: 'black',
+    color: 'white',
+    WebkitTextStroke: '2px black',
+    WebkitTextFillColor: 'white',
+    textShadow: '0px 0px 10px black',
+    textAlign: 'center',
+    width: '100%',
+    textTransform: 'uppercase',
   }}
 >
   {line.texts.map((text, l) => {
@@ -200,11 +201,11 @@ export const PortraitVideo: React.FC<z.infer<typeof shortVideoSchema>> = ({
     const active =
       frame >= startFrame + (text.startMs / 1000) * fps &&
       frame <= startFrame + (text.endMs / 1000) * fps;
-    
+
     return (
       <span
         style={{
-          fontWeight: "bold",
+          fontWeight: 'bold',
           ...(active ? activeStyle : {}),
         }}
         key={`text-${l}`}
@@ -217,6 +218,7 @@ export const PortraitVideo: React.FC<z.infer<typeof shortVideoSchema>> = ({
 ```
 
 **Pattern:**
+
 - **Outline stroke**: `WebkitTextStroke` for text visibility
 - **Shadow**: Drop shadow for depth
 - **Uppercase**: Common for TikTok captions
@@ -226,15 +228,15 @@ export const PortraitVideo: React.FC<z.infer<typeof shortVideoSchema>> = ({
 ### 4.3 Caption Position Styles
 
 ```tsx
-const captionPosition = config.captionPosition ?? "center";
+const captionPosition = config.captionPosition ?? 'center';
 let captionStyle = {};
-if (captionPosition === "top") {
+if (captionPosition === 'top') {
   captionStyle = { top: 100 };
 }
-if (captionPosition === "center") {
-  captionStyle = { top: "50%", transform: "translateY(-50%)" };
+if (captionPosition === 'center') {
+  captionStyle = { top: '50%', transform: 'translateY(-50%)' };
 }
-if (captionPosition === "bottom") {
+if (captionPosition === 'bottom') {
   captionStyle = { bottom: 100 };
 }
 ```
@@ -257,9 +259,9 @@ export function createCaptionPages({
   maxDistanceMs,
 }: {
   captions: Caption[];
-  lineMaxLength: number;   // e.g., 20 characters
-  lineCount: number;       // e.g., 1 line
-  maxDistanceMs: number;   // e.g., 1000ms gap triggers new page
+  lineMaxLength: number; // e.g., 20 characters
+  lineCount: number; // e.g., 1 line
+  maxDistanceMs: number; // e.g., 1000ms gap triggers new page
 }) {
   const pages = [];
   let currentPage: CaptionPage = { startMs: 0, endMs: 0, lines: [] };
@@ -279,9 +281,11 @@ export function createCaptionPages({
     }
 
     // New line if exceeds max length
-    const currentLineText = currentLine.texts.map((t) => t.text).join(" ");
-    if (currentLine.texts.length > 0 &&
-        currentLineText.length + 1 + caption.text.length > lineMaxLength) {
+    const currentLineText = currentLine.texts.map((t) => t.text).join(' ');
+    if (
+      currentLine.texts.length > 0 &&
+      currentLineText.length + 1 + caption.text.length > lineMaxLength
+    ) {
       currentPage.lines.push(currentLine);
       currentLine = { texts: [] };
 
@@ -309,6 +313,7 @@ export function createCaptionPages({
 ```
 
 **Pattern:**
+
 - **Page break on time gap**: >1000ms gap = new page
 - **Line break on length**: >20 chars = new line
 - **Page break on line count**: >1 line = new page
@@ -323,14 +328,14 @@ export function createCaptionPages({
 ### 6.1 Complete Rendering Flow
 
 ```typescript
-import { bundle } from "@remotion/bundler";
-import { renderMedia, selectComposition } from "@remotion/renderer";
-import { ensureBrowser } from "@remotion/renderer";
+import { bundle } from '@remotion/bundler';
+import { renderMedia, selectComposition } from '@remotion/renderer';
+import { ensureBrowser } from '@remotion/renderer';
 
 export class Remotion {
   constructor(
     private bundled: string,
-    private config: Config,
+    private config: Config
   ) {}
 
   static async init(config: Config): Promise<Remotion> {
@@ -339,26 +344,19 @@ export class Remotion {
 
     // Step 2: Bundle the Remotion project
     const bundled = await bundle({
-      entryPoint: path.join(
-        config.packageDirPath,
-        "src/components/root/index.ts",
-      ),
+      entryPoint: path.join(config.packageDirPath, 'src/components/root/index.ts'),
     });
 
     return new Remotion(bundled, config);
   }
 
-  async render(
-    data: z.infer<typeof shortVideoSchema>,
-    id: string,
-    orientation: OrientationEnum,
-  ) {
+  async render(data: z.infer<typeof shortVideoSchema>, id: string, orientation: OrientationEnum) {
     const { component } = getOrientationConfig(orientation);
 
     // Step 3: Select composition by ID
     const composition = await selectComposition({
       serveUrl: this.bundled,
-      id: component,  // "PortraitVideo" or "LandscapeVideo"
+      id: component, // "PortraitVideo" or "LandscapeVideo"
       inputProps: data,
     });
 
@@ -366,7 +364,7 @@ export class Remotion {
 
     // Step 4: Render to MP4
     await renderMedia({
-      codec: "h264",
+      codec: 'h264',
       composition,
       serveUrl: this.bundled,
       outputLocation,
@@ -382,6 +380,7 @@ export class Remotion {
 ```
 
 **Pattern:**
+
 1. **`ensureBrowser()`**: Ensure headless browser for rendering
 2. **`bundle()`**: Bundle React components into servable URL
 3. **`selectComposition()`**: Choose composition by ID with input props
@@ -391,13 +390,13 @@ export class Remotion {
 
 ```typescript
 await renderMedia({
-  codec: "h264",                          // H.264 for MP4
-  composition,                            // Selected composition
-  serveUrl: this.bundled,                 // Bundle URL
-  outputLocation,                         // Output path
-  inputProps: data,                       // Props for composition
-  concurrency: this.config.concurrency,   // Parallel rendering
-  offthreadVideoCacheSizeInBytes: 1024 * 1024 * 512,  // 512MB cache
+  codec: 'h264', // H.264 for MP4
+  composition, // Selected composition
+  serveUrl: this.bundled, // Bundle URL
+  outputLocation, // Output path
+  inputProps: data, // Props for composition
+  concurrency: this.config.concurrency, // Parallel rendering
+  offthreadVideoCacheSizeInBytes: 1024 * 1024 * 512, // 512MB cache
 });
 ```
 
@@ -418,7 +417,7 @@ import { VidosyConfig } from '../shared/zod-schema';
 export const VidosyComposition: React.FC = () => {
   // Get config from Remotion's inputProps
   const config = getInputProps().config as VidosyConfig;
-  
+
   const { sceneTimings } = useCalculation(config);
 
   return (
@@ -431,7 +430,7 @@ export const VidosyComposition: React.FC = () => {
           durationFrames={config.video.fps * config.video.duration}
         />
       )}
-      
+
       {/* Scenes */}
       {config.scenes.map((scene, index) => (
         <Sequence
@@ -455,6 +454,7 @@ export const VidosyComposition: React.FC = () => {
 ```
 
 **Pattern:**
+
 - **`getInputProps()`** for accessing render-time props
 - **Scene timing hook** for calculating frame positions
 - **Separate audio layers**: Global background + per-scene audio
@@ -477,11 +477,11 @@ export const shortVideoSchema = z.object({
         duration: z.number(),
       }),
       video: z.string(),
-    }),
+    })
   ),
   config: z.object({
     paddingBack: z.number().optional(),
-    captionPosition: z.enum(["top", "center", "bottom"]).optional(),
+    captionPosition: z.enum(['top', 'center', 'bottom']).optional(),
     captionBackgroundColor: z.string().optional(),
     durationMs: z.number(),
     musicVolume: z.nativeEnum(MusicVolumeEnum).optional(),
@@ -496,6 +496,7 @@ export const shortVideoSchema = z.object({
 ```
 
 **Pattern:**
+
 - **Scene array**: Ordered scenes with captions, audio, video
 - **Config object**: Rendering settings (position, padding, volume)
 - **Music object**: Background music with loop points
@@ -543,8 +544,8 @@ export const RemotionRoot: React.FC = () => (
 
 ```typescript
 // src/render/service.ts
-import { bundle } from "@remotion/bundler";
-import { renderMedia, selectComposition, ensureBrowser } from "@remotion/renderer";
+import { bundle } from '@remotion/bundler';
+import { renderMedia, selectComposition, ensureBrowser } from '@remotion/renderer';
 
 export class RenderService {
   private bundledUrl: string | null = null;
@@ -552,14 +553,12 @@ export class RenderService {
   async init() {
     await ensureBrowser();
     this.bundledUrl = await bundle({
-      entryPoint: path.resolve(__dirname, "remotion/index.ts"),
+      entryPoint: path.resolve(__dirname, 'remotion/index.ts'),
     });
   }
 
   async render(props: RenderProps, outputPath: string): Promise<void> {
-    const compositionId = props.orientation === 'portrait' 
-      ? 'VideoPortrait' 
-      : 'VideoLandscape';
+    const compositionId = props.orientation === 'portrait' ? 'VideoPortrait' : 'VideoLandscape';
 
     const composition = await selectComposition({
       serveUrl: this.bundledUrl!,
@@ -568,7 +567,7 @@ export class RenderService {
     });
 
     await renderMedia({
-      codec: "h264",
+      codec: 'h264',
       composition,
       serveUrl: this.bundledUrl!,
       outputLocation: outputPath,
@@ -608,12 +607,14 @@ export const RenderPropsSchema = z.object({
     captionBackgroundColor: z.string().default('blue'),
     paddingBackMs: z.number().nonnegative().default(1500),
   }),
-  music: z.object({
-    url: z.string().url(),
-    startSec: z.number().nonnegative(),
-    endSec: z.number().positive(),
-    volume: z.enum(['muted', 'low', 'medium', 'high']).default('medium'),
-  }).optional(),
+  music: z
+    .object({
+      url: z.string().url(),
+      startSec: z.number().nonnegative(),
+      endSec: z.number().positive(),
+      volume: z.enum(['muted', 'low', 'medium', 'high']).default('medium'),
+    })
+    .optional(),
   orientation: z.enum(['portrait', 'landscape']).default('portrait'),
 });
 
@@ -624,7 +625,7 @@ export type RenderProps = z.infer<typeof RenderPropsSchema>;
 
 ```tsx
 // src/render/remotion/components/Captions.tsx
-import { useCurrentFrame, useVideoConfig } from "remotion";
+import { useCurrentFrame, useVideoConfig } from 'remotion';
 
 interface CaptionsProps {
   captions: Caption[];
@@ -641,7 +642,7 @@ export const Captions: React.FC<CaptionsProps> = ({
 }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  
+
   const pages = createCaptionPages({
     captions,
     lineMaxLength: 20,
@@ -676,17 +677,17 @@ export const Captions: React.FC<CaptionsProps> = ({
 
 ## 10. Key Takeaways
 
-| Pattern | Source | Adoption Priority |
-|---------|--------|-------------------|
-| `registerRoot` + `Composition` structure | short-video-maker-gyori | **Must have** |
-| `calculateMetadata` for dynamic duration | short-video-maker-gyori | **Must have** |
-| Zod schema for props validation | short-video-maker-gyori, vidosy | **Must have** |
-| `OffthreadVideo` for memory efficiency | short-video-maker-gyori | **Must have** |
-| Word-level caption highlighting | short-video-maker-gyori | **Should have** |
-| Caption pagination algorithm | short-video-maker-gyori | **Should have** |
-| TikTok caption styling (stroke, shadow) | short-video-maker-gyori | **Should have** |
-| `bundle()` → `selectComposition()` → `renderMedia()` | short-video-maker-gyori | **Must have** |
-| Memory management (`offthreadVideoCacheSizeInBytes`) | short-video-maker-gyori | Nice to have |
+| Pattern                                              | Source                          | Adoption Priority |
+| ---------------------------------------------------- | ------------------------------- | ----------------- |
+| `registerRoot` + `Composition` structure             | short-video-maker-gyori         | **Must have**     |
+| `calculateMetadata` for dynamic duration             | short-video-maker-gyori         | **Must have**     |
+| Zod schema for props validation                      | short-video-maker-gyori, vidosy | **Must have**     |
+| `OffthreadVideo` for memory efficiency               | short-video-maker-gyori         | **Must have**     |
+| Word-level caption highlighting                      | short-video-maker-gyori         | **Should have**   |
+| Caption pagination algorithm                         | short-video-maker-gyori         | **Should have**   |
+| TikTok caption styling (stroke, shadow)              | short-video-maker-gyori         | **Should have**   |
+| `bundle()` → `selectComposition()` → `renderMedia()` | short-video-maker-gyori         | **Must have**     |
+| Memory management (`offthreadVideoCacheSizeInBytes`) | short-video-maker-gyori         | Nice to have      |
 
 ---
 

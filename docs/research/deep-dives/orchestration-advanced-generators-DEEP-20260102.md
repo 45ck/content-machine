@@ -49,7 +49,7 @@ from typing import Any, Dict
 
 class BackgroundVideoPlugin(ABC):
     """Abstract base class for background video plugins.
-    
+
     Plugins are self-contained and load their own configuration.
     """
 
@@ -59,7 +59,7 @@ class BackgroundVideoPlugin(ABC):
     @abstractmethod
     def get_media(self, data: Dict[str, Any]) -> Path:
         """Generate and return path to background video.
-        
+
         Args:
             data: ALL available pipeline data:
                 - search_term: Search query
@@ -67,7 +67,7 @@ class BackgroundVideoPlugin(ABC):
                 - title: Video title
                 - description: Video description
                 - categoryId: YouTube category
-                
+
         Returns:
             Path to processed background video file.
         """
@@ -99,24 +99,24 @@ class Orchestrator:
 
     def _process_task(self, data: Dict[str, str]) -> Path:
         """Generate video assets and assemble final output."""
-        
+
         # 1. Get background video from plugin
         media_path = self.plugin.get_media(data)
-        
+
         # 2. Generate audio from transcript
         transcript = data.get("transcript", "")
         audio_path = self.gemini.get_audio(transcript=transcript)
-        
+
         # 3. Create captions aligned to audio
         ass_path = self.caption.get_captions(audio_path=audio_path)
-        
+
         # 4. Assemble final video
         video_path = self.editor.assemble(
             ass_path=ass_path,
             audio_path=audio_path,
             media_path=media_path
         )
-        
+
         return video_path
 ```
 
@@ -158,22 +158,22 @@ class Editor:
 
 ```yaml
 # config/preset.yml
-NAME: "My Channel"
-PROMPT: "Topic or idea for the video"
+NAME: 'My Channel'
+PROMPT: 'Topic or idea for the video'
 UPLOAD: true
-DELAY: 2.5  # Hours between uploads
-WHISPER_MODEL: "small"  # tiny, base, small, medium, large-v3
-FONT: "Comic Sans MS"
-OAUTH_PATH: "secrets.json"
+DELAY: 2.5 # Hours between uploads
+WHISPER_MODEL: 'small' # tiny, base, small, medium, large-v3
+FONT: 'Comic Sans MS'
+OAUTH_PATH: 'secrets.json'
 ```
 
 ```yaml
 # config/prompt.yml
-GET_CONTENT: "Guidelines for generating transcript"
-GET_TITLE: "Guidelines for generating title"
-GET_SEARCH_TERM: "Search term for background video"
-GET_DESCRIPTION: "Guidelines for description"
-GET_CATEGORY_ID: "Guidelines for category ID"
+GET_CONTENT: 'Guidelines for generating transcript'
+GET_TITLE: 'Guidelines for generating title'
+GET_SEARCH_TERM: 'Search term for background video'
+GET_DESCRIPTION: 'Guidelines for description'
+GET_CATEGORY_ID: 'Guidelines for category ID'
 ```
 
 ### 1.7 Key Patterns for content-machine
@@ -219,15 +219,15 @@ AutoTube is a complete automation pipeline using n8n for workflow orchestration,
 
 ### 2.3 Service Components
 
-| Service | Port | Purpose |
-|---------|------|---------|
-| n8n | 5678 | Workflow orchestration |
-| Ollama | 11434 | LLaMA 3.1 for scripts |
-| OpenTTS | 5500 | Text-to-speech |
-| Python API | 5001 | Video creation + AI images |
-| PostgreSQL | 5432 | n8n database |
-| Redis | 6379 | Caching layer |
-| FileBrowser | 8080 | File management UI |
+| Service     | Port  | Purpose                    |
+| ----------- | ----- | -------------------------- |
+| n8n         | 5678  | Workflow orchestration     |
+| Ollama      | 11434 | LLaMA 3.1 for scripts      |
+| OpenTTS     | 5500  | Text-to-speech             |
+| Python API  | 5001  | Video creation + AI images |
+| PostgreSQL  | 5432  | n8n database               |
+| Redis       | 6379  | Caching layer              |
+| FileBrowser | 8080  | File management UI         |
 
 ### 2.4 Video Specifications
 
@@ -282,15 +282,15 @@ Length   Graph Agents  Descriptions    Voiceover
 
 ### 3.3 Technology Stack
 
-| Component | Technology |
-|-----------|------------|
-| UI | Streamlit |
-| Research | Tavily Search API |
-| LLM | Groq / OpenAI |
-| Images | TogetherAI (FLUX.schnell) |
-| TTS | F5-TTS |
-| Subtitles | Gentle (Docker) |
-| Video | FFmpeg |
+| Component | Technology                |
+| --------- | ------------------------- |
+| UI        | Streamlit                 |
+| Research  | Tavily Search API         |
+| LLM       | Groq / OpenAI             |
+| Images    | TogetherAI (FLUX.schnell) |
+| TTS       | F5-TTS                    |
+| Subtitles | Gentle (Docker)           |
+| Video     | FFmpeg                    |
 
 ### 3.4 Key Features
 
@@ -354,7 +354,7 @@ write_ass_file(segments)
 # Complex algorithm for sentence-aligned image switching
 def overlay_images(video, images, timestamps):
     """Impose images on video feed.
-    
+
     For every sentence spoken, switch to next image.
     Aligns with timestamp and detects sentence boundaries.
     """
@@ -363,9 +363,9 @@ def overlay_images(video, images, timestamps):
         if is_sentence_end(segment):
             current_image_idx = (current_image_idx + 1) % len(images)
         overlay_at_timestamp(
-            video, 
-            images[current_image_idx], 
-            segment.start, 
+            video,
+            images[current_image_idx],
+            segment.start,
             segment.end
         )
 ```
@@ -427,16 +427,15 @@ Features:
   - CI/CD integration
   - Code scanning for LLM security
 
-Quick Start:
-  npx promptfoo@latest init
+Quick Start: npx promptfoo@latest init
   npx promptfoo eval
 ```
 
 ```yaml
 # promptfoo.yaml
 prompts:
-  - "Write a script about {{topic}}"
-  
+  - 'Write a script about {{topic}}'
+
 providers:
   - openai:gpt-4
   - anthropic:claude-3
@@ -446,9 +445,9 @@ tests:
       topic: AI developer tools
     assert:
       - type: contains
-        value: "hook"
+        value: 'hook'
       - type: llm-rubric
-        value: "Script is engaging and under 60 seconds"
+        value: 'Script is engaging and under 60 seconds'
 ```
 
 ### 5.3 Observability for content-machine
@@ -465,23 +464,23 @@ const langfuse = new Langfuse({
 
 async function generateVideo(topic: string) {
   const trace = langfuse.trace({ name: 'video-generation' });
-  
+
   return await withTrace('Video Pipeline', async () => {
     // 1. Trend research
     const trendSpan = trace.span({ name: 'trend-research' });
     const trends = await researchTrends(topic);
     trendSpan.end({ output: trends });
-    
+
     // 2. Script generation
     const scriptSpan = trace.span({ name: 'script-generation' });
     const script = await generateScript(trends);
     scriptSpan.end({ output: script });
-    
+
     // 3. Video rendering
     const renderSpan = trace.span({ name: 'video-render' });
     const video = await renderVideo(script);
     renderSpan.end({ output: { path: video.path } });
-    
+
     return video;
   });
 }
@@ -560,10 +559,14 @@ const trendWorker = new Worker('trend-research', async (job) => {
   return trends;
 });
 
-const renderWorker = new Worker('video-render', async (job) => {
-  const video = await renderRemotionVideo(job.data);
-  return { path: video.outputPath };
-}, { concurrency: 2 }); // Limit concurrent renders
+const renderWorker = new Worker(
+  'video-render',
+  async (job) => {
+    const video = await renderRemotionVideo(job.data);
+    return { path: video.outputPath };
+  },
+  { concurrency: 2 }
+); // Limit concurrent renders
 ```
 
 ---
@@ -623,7 +626,7 @@ script = client.chat.completions.create(
 ### 7.4 Relationship to PydanticAI
 
 > **Use Instructor for fast extraction, reach for PydanticAI when you need agents.**
-> 
+>
 > - Instructor: Schema-first flows, simple, cheap
 > - PydanticAI: Agent runtime, tools, observability, production dashboards
 
@@ -698,29 +701,26 @@ class PipelineOrchestrator {
     await this.notifyAdmin('Quota exceeded, pausing pipeline');
   }
 
-  private async executeWithRetry<T>(
-    task: () => Promise<T>,
-    maxRetries: number = 3
-  ): Promise<T> {
+  private async executeWithRetry<T>(task: () => Promise<T>, maxRetries: number = 3): Promise<T> {
     let lastError: Error;
-    
+
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
         return await task();
       } catch (error) {
         lastError = error;
-        
+
         if (this.isQuotaError(error)) {
           await this.handleQuotaExceeded();
           throw error; // Don't retry quota errors
         }
-        
+
         if (attempt < maxRetries) {
           await this.delay(Math.pow(2, attempt) * 1000);
         }
       }
     }
-    
+
     throw lastError;
   }
 }
@@ -732,16 +732,16 @@ class PipelineOrchestrator {
 
 ### 9.1 Architecture Patterns to Adopt
 
-| Pattern | Source | Application |
-|---------|--------|-------------|
-| Plugin Architecture | Crank | Extensible background video sources |
-| YAML Configuration | Crank | Declarative pipeline settings |
-| n8n Workflows | AutoTube | Visual pipeline design (optional) |
-| Forced Alignment | OBrainRot | Precise caption synchronization |
-| Graph Agents | VideoGraphAI | Research-first content creation |
-| Job Flows | BullMQ | Pipeline stage coordination |
-| Tracing | Langfuse | LLM observability |
-| Eval | Promptfoo | Prompt quality assurance |
+| Pattern             | Source       | Application                         |
+| ------------------- | ------------ | ----------------------------------- |
+| Plugin Architecture | Crank        | Extensible background video sources |
+| YAML Configuration  | Crank        | Declarative pipeline settings       |
+| n8n Workflows       | AutoTube     | Visual pipeline design (optional)   |
+| Forced Alignment    | OBrainRot    | Precise caption synchronization     |
+| Graph Agents        | VideoGraphAI | Research-first content creation     |
+| Job Flows           | BullMQ       | Pipeline stage coordination         |
+| Tracing             | Langfuse     | LLM observability                   |
+| Eval                | Promptfoo    | Prompt quality assurance            |
 
 ### 9.2 Recommended Stack
 
@@ -791,6 +791,7 @@ Storage:
 ---
 
 **Next Steps:**
+
 1. Implement BullMQ job queue for pipeline stages
 2. Setup Langfuse tracing infrastructure
 3. Design plugin interface for background videos

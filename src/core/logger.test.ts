@@ -1,7 +1,7 @@
 /**
  * Logger tests
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { logger, createLogger, logTiming } from './logger';
 
 describe('Logger', () => {
@@ -18,14 +18,14 @@ describe('Logger', () => {
   describe('createLogger', () => {
     it('should create a child logger with context', () => {
       const childLogger = createLogger({ module: 'test', stage: 'script' });
-      
+
       expect(childLogger).toBeDefined();
       expect(typeof childLogger.info).toBe('function');
     });
 
     it('should include context in log output', () => {
       const childLogger = createLogger({ pipeline: 'audio' });
-      
+
       // Child logger should have bindings
       expect(childLogger.bindings()).toEqual({ pipeline: 'audio' });
     });
@@ -34,7 +34,7 @@ describe('Logger', () => {
   describe('logTiming', () => {
     it('should measure execution time of async function', async () => {
       const mockFn = vi.fn().mockImplementation(async () => {
-        await new Promise(resolve => setTimeout(resolve, 10));
+        await new Promise((resolve) => setTimeout(resolve, 10));
         return 'result';
       });
 

@@ -17,6 +17,10 @@ import {
   type VisualsOutput,
 } from './schema';
 
+// Test constants to avoid duplicate literals
+const TEST_SCENE_ID = 'scene-001';
+const TEST_SOURCE_PEXELS = 'stock-pexels';
+
 describe('MatchReasoningSchema', () => {
   it('should validate correct match reasoning', () => {
     const reasoning: MatchReasoning = {
@@ -24,7 +28,7 @@ describe('MatchReasoningSchema', () => {
       conceptsMatched: ['developer', 'coding', 'laptop'],
       moodAlignment: 'focused, professional',
     };
-    
+
     const result = MatchReasoningSchema.safeParse(reasoning);
     expect(result.success).toBe(true);
   });
@@ -33,7 +37,7 @@ describe('MatchReasoningSchema', () => {
     const reasoning = {
       reasoning: 'Best match found',
     };
-    
+
     const result = MatchReasoningSchema.safeParse(reasoning);
     expect(result.success).toBe(true);
   });
@@ -42,15 +46,15 @@ describe('MatchReasoningSchema', () => {
 describe('VisualAssetSchema', () => {
   it('should validate correct visual asset', () => {
     const asset: VisualAsset = {
-      sceneId: 'scene-001',
-      source: 'stock-pexels',
-      assetPath: 'assets/scene-001.mp4',
+      sceneId: TEST_SCENE_ID,
+      source: TEST_SOURCE_PEXELS,
+      assetPath: `assets/${TEST_SCENE_ID}.mp4`,
       duration: 5.0,
       matchReasoning: {
         reasoning: 'Found matching video',
       },
     };
-    
+
     const result = VisualAssetSchema.safeParse(asset);
     expect(result.success).toBe(true);
   });
@@ -62,22 +66,22 @@ describe('VisualAssetSchema', () => {
       assetPath: '#1a1a2e',
       duration: 3.0,
     };
-    
+
     const result = VisualAssetSchema.safeParse(asset);
     expect(result.success).toBe(true);
   });
 
   it('should allow optional trim settings', () => {
     const asset: VisualAsset = {
-      sceneId: 'scene-001',
-      source: 'stock-pexels',
-      assetPath: 'assets/scene-001.mp4',
+      sceneId: TEST_SCENE_ID,
+      source: TEST_SOURCE_PEXELS,
+      assetPath: `assets/${TEST_SCENE_ID}.mp4`,
       duration: 5.0,
       trimStart: 2.0,
       trimEnd: 7.0,
       trimReasoning: 'Best segment of the clip',
     };
-    
+
     const result = VisualAssetSchema.safeParse(asset);
     expect(result.success).toBe(true);
   });
@@ -97,7 +101,7 @@ describe('VideoClipSchema (legacy)', () => {
       sourceId: '12345',
       searchQuery: 'coding developer',
     };
-    
+
     const result = VideoClipSchema.safeParse(clip);
     expect(result.success).toBe(true);
   });
@@ -116,7 +120,7 @@ describe('VideoClipSchema (legacy)', () => {
       sourceId: '12345',
       searchQuery: 'coding developer',
     };
-    
+
     const result = VideoClipSchema.safeParse(clip);
     expect(result.success).toBe(true);
     if (result.success) {
@@ -129,11 +133,11 @@ describe('KeywordSchema', () => {
   it('should validate correct keyword', () => {
     const keyword: Keyword = {
       keyword: 'developer laptop',
-      sectionId: 'scene-001',
+      sectionId: TEST_SCENE_ID,
       startTime: 0,
       endTime: 5.0,
     };
-    
+
     const result = KeywordSchema.safeParse(keyword);
     expect(result.success).toBe(true);
   });
@@ -141,12 +145,12 @@ describe('KeywordSchema', () => {
   it('should allow optional visualHint', () => {
     const keyword: Keyword = {
       keyword: 'developer laptop',
-      sectionId: 'scene-001',
+      sectionId: TEST_SCENE_ID,
       startTime: 0,
       endTime: 5.0,
       visualHint: 'professional office environment',
     };
-    
+
     const result = KeywordSchema.safeParse(keyword);
     expect(result.success).toBe(true);
   });
@@ -158,9 +162,9 @@ describe('VisualsOutputSchema', () => {
       schemaVersion: VISUALS_SCHEMA_VERSION,
       scenes: [
         {
-          sceneId: 'scene-001',
-          source: 'stock-pexels',
-          assetPath: 'assets/scene-001.mp4',
+          sceneId: TEST_SCENE_ID,
+          source: TEST_SOURCE_PEXELS,
+          assetPath: `assets/${TEST_SCENE_ID}.mp4`,
           duration: 5.0,
           matchReasoning: {
             reasoning: 'Found matching video',
@@ -172,7 +176,7 @@ describe('VisualsOutputSchema', () => {
       fromStock: 1,
       fallbacks: 0,
     };
-    
+
     const result = VisualsOutputSchema.safeParse(output);
     expect(result.success).toBe(true);
   });
@@ -182,9 +186,9 @@ describe('VisualsOutputSchema', () => {
       schemaVersion: VISUALS_SCHEMA_VERSION,
       scenes: [
         {
-          sceneId: 'scene-001',
-          source: 'stock-pexels',
-          assetPath: 'assets/scene-001.mp4',
+          sceneId: TEST_SCENE_ID,
+          source: TEST_SOURCE_PEXELS,
+          assetPath: `assets/${TEST_SCENE_ID}.mp4`,
           duration: 5.0,
         },
       ],
@@ -195,14 +199,14 @@ describe('VisualsOutputSchema', () => {
       keywords: [
         {
           keyword: 'developer laptop',
-          sectionId: 'scene-001',
+          sectionId: TEST_SCENE_ID,
           startTime: 0,
           endTime: 5.0,
         },
       ],
       totalDuration: 5.0,
     };
-    
+
     const result = VisualsOutputSchema.safeParse(output);
     expect(result.success).toBe(true);
     if (result.success) {
@@ -216,9 +220,9 @@ describe('VisualsOutputSchema', () => {
       schemaVersion: VISUALS_SCHEMA_VERSION,
       scenes: [
         {
-          sceneId: 'scene-001',
-          source: 'stock-pexels',
-          assetPath: 'assets/scene-001.mp4',
+          sceneId: TEST_SCENE_ID,
+          source: TEST_SOURCE_PEXELS,
+          assetPath: `assets/${TEST_SCENE_ID}.mp4`,
           duration: 3.0,
         },
         {
@@ -233,7 +237,7 @@ describe('VisualsOutputSchema', () => {
       fromStock: 1,
       fallbacks: 1,
     };
-    
+
     const result = VisualsOutputSchema.safeParse(output);
     expect(result.success).toBe(true);
     if (result.success) {

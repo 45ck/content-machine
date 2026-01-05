@@ -16,12 +16,12 @@ Install with pip, run with one command.
 
 ## Key Features
 
-| Feature | Details |
-|---------|---------|
-| **Simplicity** | `auto_subtitle video.mp4 -o output/` |
-| **Models** | tiny, base, small, medium, large |
+| Feature         | Details                                      |
+| --------------- | -------------------------------------------- |
+| **Simplicity**  | `auto_subtitle video.mp4 -o output/`         |
+| **Models**      | tiny, base, small, medium, large             |
 | **Translation** | `--task translate` for non-English → English |
-| **Output** | Creates `subtitled/` folder with result |
+| **Output**      | Creates `subtitled/` folder with result      |
 
 ## Tech Stack
 
@@ -46,13 +46,16 @@ auto_subtitle /path/to/video.mp4 --task translate
 ## What We Can Reuse
 
 ### ✅ High Value
+
 - **Translation workflow** - Non-English → English captions
 - **Model selection** - Size/accuracy tradeoffs
 
 ### ⚠️ Medium Value
+
 - **CLI patterns** - Simple UX reference
 
 ### ❌ Not Needed
+
 - **Full implementation** - We use Remotion + Whisper.cpp
 
 ## How It Helps Us

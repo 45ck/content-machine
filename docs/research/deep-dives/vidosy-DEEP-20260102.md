@@ -68,11 +68,11 @@ Instead of imperative code, videos are defined declaratively:
 
 ### Video Settings
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `width` | number | Video width in pixels |
-| `height` | number | Video height in pixels |
-| `fps` | number | Frames per second |
+| Property   | Type   | Description               |
+| ---------- | ------ | ------------------------- |
+| `width`    | number | Video width in pixels     |
+| `height`   | number | Video height in pixels    |
+| `fps`      | number | Frames per second         |
 | `duration` | number | Total duration in seconds |
 
 ### Scene Configuration
@@ -80,16 +80,19 @@ Instead of imperative code, videos are defined declaratively:
 #### Background Types
 
 **Color:**
+
 ```json
 { "type": "color", "value": "#000000" }
 ```
 
 **Image:**
+
 ```json
 { "type": "image", "value": "path/to/image.png" }
 ```
 
 **Video:**
+
 ```json
 { "type": "video", "value": "path/to/video.mp4" }
 ```
@@ -102,7 +105,7 @@ Instead of imperative code, videos are defined declaratively:
     "content": "Your text here",
     "fontSize": 64,
     "color": "#ffffff",
-    "position": "center"  // top, center, bottom, left, right
+    "position": "center" // top, center, bottom, left, right
   }
 }
 ```
@@ -141,16 +144,16 @@ vidosy/
 ├── src/
 │   ├── cli/                 # Command-line interface
 │   │   ├── commands/        # render, preview commands
-│   │   └── utils/          
+│   │   └── utils/
 │   ├── remotion/            # Video composition engine
 │   │   ├── components/      # React components
-│   │   ├── hooks/          
-│   │   └── utils/          
+│   │   ├── hooks/
+│   │   └── utils/
 │   └── shared/             # Shared types
 │       ├── constants.ts
 │       └── zod-schema.ts   # Validation schemas
 ├── bin/                     # CLI executable
-└── examples/               
+└── examples/
 ```
 
 ### CLI Usage
@@ -169,10 +172,10 @@ vidosy render -o output.mp4 -q high
 ### Quality Presets
 
 | Quality | Resolution | FPS |
-|---------|------------|-----|
-| low | 1280x720 | 24 |
-| medium | 1920x1080 | 30 |
-| high | 1920x1080 | 60 |
+| ------- | ---------- | --- |
+| low     | 1280x720   | 24  |
+| medium  | 1920x1080  | 30  |
+| high    | 1920x1080  | 60  |
 
 ---
 
@@ -220,6 +223,7 @@ export const VidosyComposition: React.FC<Props> = ({ config }) => {
 ### 3. Scene Rendering
 
 Each scene is a React component:
+
 - Fade in/out animations
 - Background rendering (video/image/color)
 - Text overlay with positioning

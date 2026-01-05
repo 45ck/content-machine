@@ -54,8 +54,8 @@ const SceneSchemaV1 = z.object({
 
 // Extended schema (v2) - backwards compatible
 const SceneSchemaV2 = SceneSchemaV1.extend({
-  voiceId: z.string().optional(),  // NEW: optional for backwards compat
-  animation: z.enum(["fade", "slide"]).optional(),
+  voiceId: z.string().optional(), // NEW: optional for backwards compat
+  animation: z.enum(['fade', 'slide']).optional(),
 });
 
 // Merge multiple schemas
@@ -84,9 +84,11 @@ class CallToolResult(Result):
 **Zod equivalent:**
 
 ```typescript
-const ForwardCompatSchema = z.object({
-  requiredField: z.string(),
-}).passthrough();  // Preserves unknown keys
+const ForwardCompatSchema = z
+  .object({
+    requiredField: z.string(),
+  })
+  .passthrough(); // Preserves unknown keys
 ```
 
 ### 2.4 Field Deprecation Pattern
@@ -99,7 +101,7 @@ from typing_extensions import deprecated
 class SamplingMessage(BaseModel):
     role: Role
     content: TextContent | ImageContent
-    
+
     @deprecated("Use 'modelPreferences' instead")
     model_hints: list[str] | None = None
 ```
@@ -108,7 +110,7 @@ class SamplingMessage(BaseModel):
 
 ```typescript
 const MessageSchema = z.object({
-  role: z.enum(["user", "assistant"]),
+  role: z.enum(['user', 'assistant']),
   /** @deprecated Use `voicePreferences` instead */
   voice: z.string().optional(),
   voicePreferences: VoicePreferencesSchema.optional(),
@@ -125,7 +127,7 @@ Every JSON output includes a version field:
 
 ```typescript
 // src/common/schemas/version.ts
-export const SCHEMA_VERSION = "2026-01-04" as const;
+export const SCHEMA_VERSION = '2026-01-04' as const;
 
 export function withVersion<T extends z.ZodObject<any>>(schema: T) {
   return schema.extend({
@@ -134,10 +136,12 @@ export function withVersion<T extends z.ZodObject<any>>(schema: T) {
 }
 
 // Usage
-const ScriptSchema = withVersion(z.object({
-  scenes: z.array(SceneSchema).min(1),
-  reasoning: z.string(),
-}));
+const ScriptSchema = withVersion(
+  z.object({
+    scenes: z.array(SceneSchema).min(1),
+    reasoning: z.string(),
+  })
+);
 ```
 
 ### 3.2 Version Registry
@@ -145,14 +149,15 @@ const ScriptSchema = withVersion(z.object({
 ```typescript
 // src/common/schemas/registry.ts
 export const SCHEMA_VERSIONS = {
-  current: "2026-01-04",
-  supported: ["2026-01-04"],
+  current: '2026-01-04',
+  supported: ['2026-01-04'],
   deprecated: [] as string[],
 } as const;
 
 export function isVersionSupported(version: string): boolean {
-  return SCHEMA_VERSIONS.supported.includes(version) ||
-         SCHEMA_VERSIONS.deprecated.includes(version);
+  return (
+    SCHEMA_VERSIONS.supported.includes(version) || SCHEMA_VERSIONS.deprecated.includes(version)
+  );
 }
 ```
 
@@ -160,30 +165,38 @@ export function isVersionSupported(version: string): boolean {
 
 ```typescript
 // FLEXIBLE schema for LLM output (tolerant parsing)
-const LLMScriptOutputFlexible = z.object({
-  scenes: z.array(z.object({
-    text: z.string(),
-    duration: z.number().optional().default(5),
-  })).transform(scenes => scenes.filter(s => s.text.length > 0)),
-}).passthrough();  // Allow unknown fields
+const LLMScriptOutputFlexible = z
+  .object({
+    scenes: z
+      .array(
+        z.object({
+          text: z.string(),
+          duration: z.number().optional().default(5),
+        })
+      )
+      .transform((scenes) => scenes.filter((s) => s.text.length > 0)),
+  })
+  .passthrough(); // Allow unknown fields
 
 // STRICT schema for internal pipeline
 const ScriptOutputStrict = z.object({
   _schemaVersion: z.literal(SCHEMA_VERSION),
-  scenes: z.array(z.object({
-    text: z.string().min(1),
-    duration: z.number().positive(),
-    voiceId: z.string(),
-  })),
+  scenes: z.array(
+    z.object({
+      text: z.string().min(1),
+      duration: z.number().positive(),
+      voiceId: z.string(),
+    })
+  ),
 });
 
 // Migration function
 function migrateToStrict(flexible: z.infer<typeof LLMScriptOutputFlexible>) {
   return ScriptOutputStrict.parse({
     _schemaVersion: SCHEMA_VERSION,
-    scenes: flexible.scenes.map(s => ({
+    scenes: flexible.scenes.map((s) => ({
       ...s,
-      voiceId: s.voiceId ?? "default-voice",
+      voiceId: s.voiceId ?? 'default-voice',
       duration: s.duration ?? 5,
     })),
   });
@@ -201,11 +214,11 @@ interface SchemaMigration {
 
 const migrations: SchemaMigration[] = [
   {
-    fromVersion: "2026-01-04",
-    toVersion: "2026-02-01",
+    fromVersion: '2026-01-04',
+    toVersion: '2026-02-01',
     migrate: (data: any) => ({
       ...data,
-      _schemaVersion: "2026-02-01",
+      _schemaVersion: '2026-02-01',
       // Add new field with default
       audioSettings: data.audioSettings ?? { volume: 1.0 },
     }),
@@ -215,16 +228,16 @@ const migrations: SchemaMigration[] = [
 function migrateSchema(data: unknown, targetVersion: string): unknown {
   let current = data as any;
   let currentVersion = current._schemaVersion;
-  
+
   while (currentVersion !== targetVersion) {
-    const migration = migrations.find(m => m.fromVersion === currentVersion);
+    const migration = migrations.find((m) => m.fromVersion === currentVersion);
     if (!migration) {
       throw new Error(`No migration path from ${currentVersion} to ${targetVersion}`);
     }
     current = migration.migrate(current);
     currentVersion = migration.toVersion;
   }
-  
+
   return current;
 }
 ```
@@ -234,24 +247,26 @@ function migrateSchema(data: unknown, targetVersion: string): unknown {
 ```typescript
 async function loadScript(filePath: string): Promise<Script> {
   const raw = JSON.parse(await fs.readFile(filePath, 'utf-8'));
-  
+
   // Check version
-  const version = raw._schemaVersion ?? "legacy";
-  
-  if (version === "legacy") {
+  const version = raw._schemaVersion ?? 'legacy';
+
+  if (version === 'legacy') {
     console.warn(`Warning: ${filePath} has no schema version, assuming legacy format`);
     return migrateFromLegacy(raw);
   }
-  
+
   if (!isVersionSupported(version)) {
-    throw new Error(`Unsupported schema version: ${version}. Supported: ${SCHEMA_VERSIONS.supported.join(', ')}`);
+    throw new Error(
+      `Unsupported schema version: ${version}. Supported: ${SCHEMA_VERSIONS.supported.join(', ')}`
+    );
   }
-  
+
   if (version !== SCHEMA_VERSIONS.current) {
     console.log(`Migrating ${filePath} from ${version} to ${SCHEMA_VERSIONS.current}`);
     return migrateSchema(raw, SCHEMA_VERSIONS.current);
   }
-  
+
   return ScriptSchema.parse(raw);
 }
 ```
@@ -264,11 +279,13 @@ async function loadScript(filePath: string): Promise<Script> {
 
 ```typescript
 const ScriptSchemaV1 = z.object({
-  _schemaVersion: z.literal("2026-01-04"),
-  scenes: z.array(z.object({
-    text: z.string(),
-    visualDirection: z.string(),
-  })),
+  _schemaVersion: z.literal('2026-01-04'),
+  scenes: z.array(
+    z.object({
+      text: z.string(),
+      visualDirection: z.string(),
+    })
+  ),
 });
 ```
 
@@ -276,12 +293,14 @@ const ScriptSchemaV1 = z.object({
 
 ```typescript
 const ScriptSchemaV2 = ScriptSchemaV1.extend({
-  _schemaVersion: z.literal("2026-02-01"),
-  scenes: z.array(z.object({
-    text: z.string(),
-    visualDirection: z.string(),
-    animation: z.enum(["fade", "slide", "none"]).optional(),  // NEW
-  })),
+  _schemaVersion: z.literal('2026-02-01'),
+  scenes: z.array(
+    z.object({
+      text: z.string(),
+      visualDirection: z.string(),
+      animation: z.enum(['fade', 'slide', 'none']).optional(), // NEW
+    })
+  ),
 });
 
 // Migration: old files work without animation field
@@ -291,14 +310,16 @@ const ScriptSchemaV2 = ScriptSchemaV1.extend({
 
 ```typescript
 const ScriptSchemaV3 = z.object({
-  _schemaVersion: z.literal("2026-03-01"),
-  scenes: z.array(z.object({
-    text: z.string(),
-    visualDirection: z.string(),
-    animation: z.enum(["fade", "slide", "none"]).optional(),
-    /** @deprecated Use visualDirection instead */
-    imagePrompt: z.string().optional(),  // DEPRECATED
-  })),
+  _schemaVersion: z.literal('2026-03-01'),
+  scenes: z.array(
+    z.object({
+      text: z.string(),
+      visualDirection: z.string(),
+      animation: z.enum(['fade', 'slide', 'none']).optional(),
+      /** @deprecated Use visualDirection instead */
+      imagePrompt: z.string().optional(), // DEPRECATED
+    })
+  ),
 });
 
 // Migration: copy imagePrompt to visualDirection if visualDirection empty
@@ -308,14 +329,14 @@ const ScriptSchemaV3 = z.object({
 
 ## 5. Implementation Recommendations
 
-| Pattern | Priority | Rationale |
-|---------|----------|-----------|
-| Version field in all outputs | P0 | Foundation for migrations |
-| Date-based versioning | P0 | Clear, sortable, unambiguous |
-| Two-tier validation | P1 | LLM flexibility + type safety |
-| Migration system | P1 | Backwards compatibility |
-| `.passthrough()` for forward compat | P2 | Future-proofing |
-| Deprecation warnings | P2 | Smooth transitions |
+| Pattern                             | Priority | Rationale                     |
+| ----------------------------------- | -------- | ----------------------------- |
+| Version field in all outputs        | P0       | Foundation for migrations     |
+| Date-based versioning               | P0       | Clear, sortable, unambiguous  |
+| Two-tier validation                 | P1       | LLM flexibility + type safety |
+| Migration system                    | P1       | Backwards compatibility       |
+| `.passthrough()` for forward compat | P2       | Future-proofing               |
+| Deprecation warnings                | P2       | Smooth transitions            |
 
 ---
 

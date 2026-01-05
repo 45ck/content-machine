@@ -34,14 +34,14 @@ Qdrant is a **vector similarity search engine** purpose-built for neural network
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Filtering** | JSON payload filtering with any query conditions |
-| **Hybrid Search** | Sparse + dense vectors (BM25 + semantic) |
-| **Quantization** | Up to 97% RAM reduction |
-| **Distributed** | Horizontal scaling with sharding + replication |
-| **SIMD Acceleration** | x86-64 and ARM Neon optimization |
-| **Write-Ahead Logging** | Data persistence guarantee |
+| Feature                 | Description                                      |
+| ----------------------- | ------------------------------------------------ |
+| **Filtering**           | JSON payload filtering with any query conditions |
+| **Hybrid Search**       | Sparse + dense vectors (BM25 + semantic)         |
+| **Quantization**        | Up to 97% RAM reduction                          |
+| **Distributed**         | Horizontal scaling with sharding + replication   |
+| **SIMD Acceleration**   | x86-64 and ARM Neon optimization                 |
+| **Write-Ahead Logging** | Data persistence guarantee                       |
 
 #### Quick Start
 
@@ -65,12 +65,12 @@ client = QdrantClient("http://localhost:6333")
 
 #### Use Cases for content-machine
 
-| Use Case | Implementation |
-|----------|----------------|
-| **Content Memory** | Store generated video scripts for deduplication |
-| **Trend Memory** | Remember researched trends to avoid repetition |
-| **Product Knowledge** | RAG for product documentation |
-| **Similar Content** | Find similar previous videos |
+| Use Case              | Implementation                                  |
+| --------------------- | ----------------------------------------------- |
+| **Content Memory**    | Store generated video scripts for deduplication |
+| **Trend Memory**      | Remember researched trends to avoid repetition  |
+| **Product Knowledge** | RAG for product documentation                   |
+| **Similar Content**   | Find similar previous videos                    |
 
 #### MCP Integration
 
@@ -113,14 +113,14 @@ Weaviate is a **cloud-native vector database** that stores both objects and vect
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
+| Feature                    | Description                                  |
+| -------------------------- | -------------------------------------------- |
 | **Integrated Vectorizers** | OpenAI, Cohere, HuggingFace, Google built-in |
-| **Hybrid Search** | BM25 + vector in single API call |
-| **Built-in RAG** | Generative search without additional tooling |
-| **Reranking** | Built-in result reranking |
-| **Multi-tenancy** | Native tenant isolation |
-| **RBAC** | Role-based access control |
+| **Hybrid Search**          | BM25 + vector in single API call             |
+| **Built-in RAG**           | Generative search without additional tooling |
+| **Reranking**              | Built-in result reranking                    |
+| **Multi-tenancy**          | Native tenant isolation                      |
+| **RBAC**                   | Role-based access control                    |
 
 #### Quick Start
 
@@ -130,8 +130,8 @@ services:
   weaviate:
     image: cr.weaviate.io/semitechnologies/weaviate:1.32.2
     ports:
-      - "8080:8080"
-      - "50051:50051"
+      - '8080:8080'
+      - '50051:50051'
     environment:
       ENABLE_MODULES: text2vec-model2vec
       MODEL2VEC_INFERENCE_API: http://text2vec-model2vec:8080
@@ -166,30 +166,31 @@ results = articles.query.near_text(query="Search by meaning", limit=1)
 
 #### Framework Integrations
 
-| Framework | Integration |
-|-----------|-------------|
-| LangChain | `langchain-weaviate` |
+| Framework  | Integration                          |
+| ---------- | ------------------------------------ |
+| LangChain  | `langchain-weaviate`                 |
 | LlamaIndex | `llama-index-vector-stores-weaviate` |
-| Haystack | `weaviate-haystack` |
-| CrewAI | Built-in support |
-| DSPy | Direct integration |
-| N8n | Weaviate nodes |
+| Haystack   | `weaviate-haystack`                  |
+| CrewAI     | Built-in support                     |
+| DSPy       | Direct integration                   |
+| N8n        | Weaviate nodes                       |
 
 #### Comparison: Qdrant vs Weaviate
 
-| Feature | Qdrant | Weaviate |
-|---------|--------|----------|
-| **Language** | Rust | Go |
-| **Vectorization** | External | Built-in |
-| **RAG** | External | Built-in |
-| **Filtering** | JSON payloads | GraphQL + REST |
-| **Best For** | Performance-critical | Ease of use |
-| **Memory Efficiency** | Excellent | Good |
-| **MCP Support** | Yes (mcp-server-qdrant) | Community |
+| Feature               | Qdrant                  | Weaviate       |
+| --------------------- | ----------------------- | -------------- |
+| **Language**          | Rust                    | Go             |
+| **Vectorization**     | External                | Built-in       |
+| **RAG**               | External                | Built-in       |
+| **Filtering**         | JSON payloads           | GraphQL + REST |
+| **Best For**          | Performance-critical    | Ease of use    |
+| **Memory Efficiency** | Excellent               | Good           |
+| **MCP Support**       | Yes (mcp-server-qdrant) | Community      |
 
 #### Recommendation
 
 For content-machine:
+
 - **Primary:** Qdrant (performance, MCP support)
 - **Alternative:** Weaviate (built-in RAG, easier setup)
 
@@ -210,16 +211,16 @@ BullMQ is the **fastest, most reliable Redis-based distributed queue** for Node.
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
+| Feature                       | Description                     |
+| ----------------------------- | ------------------------------- |
 | **Parent/Child Dependencies** | Job workflows with dependencies |
-| **Flow Producer** | Complex job graphs |
-| **Priorities** | Job prioritization |
-| **Rate Limiting** | Control throughput |
-| **Delayed Jobs** | Schedule for future |
-| **Repeatable Jobs** | Cron-like scheduling |
-| **Sandboxed Workers** | Isolated execution |
-| **Events** | Global job events |
+| **Flow Producer**             | Complex job graphs              |
+| **Priorities**                | Job prioritization              |
+| **Rate Limiting**             | Control throughput              |
+| **Delayed Jobs**              | Schedule for future             |
+| **Repeatable Jobs**           | Cron-like scheduling            |
+| **Sandboxed Workers**         | Isolated execution              |
+| **Events**                    | Global job events               |
 
 #### Quick Start
 
@@ -230,9 +231,9 @@ import { Queue, Worker, QueueEvents, FlowProducer } from 'bullmq';
 const queue = new Queue('video-generation');
 
 // Add job
-await queue.add('render', { 
-  videoId: 'v123', 
-  config: { format: 'mp4' } 
+await queue.add('render', {
+  videoId: 'v123',
+  config: { format: 'mp4' },
 });
 
 // Process jobs
@@ -339,6 +340,7 @@ await videoFlow.add({
 #### Dashboard
 
 Official dashboard at [Taskforce.sh](https://taskforce.sh/):
+
 - Queue overview
 - Job inspection
 - Retry/promote jobs
@@ -347,6 +349,7 @@ Official dashboard at [Taskforce.sh](https://taskforce.sh/):
 #### Redis Alternatives
 
 BullMQ supports **Dragonfly** as a Redis drop-in replacement:
+
 - Multi-core utilization
 - Better memory efficiency
 - Faster data structures
@@ -386,14 +389,14 @@ auto_subtitle /path/to/video.mp4 --task translate
 
 #### Model Options
 
-| Model | Size | Quality | Speed |
-|-------|------|---------|-------|
-| `tiny` | 39M | Low | Fastest |
-| `tiny.en` | 39M | Low (English) | Fastest |
-| `base` | 74M | Medium | Fast |
-| `small` | 244M | Good | Medium |
-| `medium` | 769M | Better | Slow |
-| `large` | 1.5G | Best | Slowest |
+| Model     | Size | Quality       | Speed   |
+| --------- | ---- | ------------- | ------- |
+| `tiny`    | 39M  | Low           | Fastest |
+| `tiny.en` | 39M  | Low (English) | Fastest |
+| `base`    | 74M  | Medium        | Fast    |
+| `small`   | 244M | Good          | Medium  |
+| `medium`  | 769M | Better        | Slow    |
+| `large`   | 1.5G | Best          | Slowest |
 
 ### 3.2 auto-subtitle-generator
 
@@ -406,14 +409,14 @@ Generates **Instagram/TikTok-style subtitles** with word highlighting. GUI-based
 
 #### Features
 
-| Feature | Status |
-|---------|--------|
-| Configurable font | ✅ |
-| Configurable text size | ✅ |
-| Configurable font color | ✅ |
-| Y position of text | ✅ |
-| Word-level timestamps | 🚧 Planned |
-| Background color | 🚧 Planned |
+| Feature                 | Status     |
+| ----------------------- | ---------- |
+| Configurable font       | ✅         |
+| Configurable text size  | ✅         |
+| Configurable font color | ✅         |
+| Y position of text      | ✅         |
+| Word-level timestamps   | 🚧 Planned |
+| Background color        | 🚧 Planned |
 
 #### Stack
 
@@ -424,6 +427,7 @@ Generates **Instagram/TikTok-style subtitles** with word highlighting. GUI-based
 #### Future Enhancement
 
 Author notes investigating:
+
 - WhisperX
 - stable-ts
 - whisper-timestamped
@@ -458,14 +462,14 @@ Style: Default,Arial,80,&HFFFFFF,&H000000,&H000000,&H00000000,1,0,0,0,100,100,0,
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
 """
-    
+
     events = []
     for segment in segments:
         start = format_time(segment['start'])
         end = format_time(segment['end'])
         text = segment['text'].strip()
         events.append(f"Dialogue: 0,{start},{end},Default,,0,0,0,,{text}")
-    
+
     with open(output_path, 'w') as f:
         f.write(header)
         f.write('\n'.join(events))
@@ -490,6 +494,7 @@ ffmpeg.input('video.mp4').output(
 #### Overview
 
 An **AI-native video engine** that turns long-form content into short, viral-ready clips with:
+
 - Word-level transcription (WhisperX)
 - Speaker diarization (Pyannote)
 - Face/body-aware cropping
@@ -497,13 +502,13 @@ An **AI-native video engine** that turns long-form content into short, viral-rea
 
 #### Key Features
 
-| Feature | Implementation |
-|---------|----------------|
-| Transcription | WhisperX (word-level) |
-| Speaker ID | Pyannote.audio |
-| Scene Detection | PySceneDetect |
-| Video Processing | OpenCV + PyAV |
-| Output Formats | 9:16, 1:1, 16:9 |
+| Feature          | Implementation        |
+| ---------------- | --------------------- |
+| Transcription    | WhisperX (word-level) |
+| Speaker ID       | Pyannote.audio        |
+| Scene Detection  | PySceneDetect         |
+| Video Processing | OpenCV + PyAV         |
+| Output Formats   | 9:16, 1:1, 16:9       |
 
 #### Pipeline
 
@@ -539,13 +544,13 @@ crops = resize(
 
 #### Tech Stack
 
-| Module | Technology | Purpose |
-|--------|------------|---------|
-| Transcription | WhisperX | Word-level timestamps |
-| Diarization | Pyannote.audio | Speaker segmentation |
-| Video | OpenCV + PyAV | Frame processing |
-| Scene Detection | PySceneDetect | Shot boundaries |
-| ML Inference | PyTorch | Model execution |
+| Module          | Technology     | Purpose               |
+| --------------- | -------------- | --------------------- |
+| Transcription   | WhisperX       | Word-level timestamps |
+| Diarization     | Pyannote.audio | Speaker segmentation  |
+| Video           | OpenCV + PyAV  | Frame processing      |
+| Scene Detection | PySceneDetect  | Shot boundaries       |
+| ML Inference    | PyTorch        | Model execution       |
 
 ### 4.2 Auto-YouTube-Shorts-Maker
 
@@ -644,7 +649,7 @@ services:
   qdrant:
     image: qdrant/qdrant
     ports:
-      - "6333:6333"
+      - '6333:6333'
     volumes:
       - qdrant_storage:/qdrant/storage
 
@@ -652,7 +657,7 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       - redis_data:/data
 
@@ -666,7 +671,7 @@ services:
   bull-board:
     image: deadly0/bull-board
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
@@ -685,46 +690,53 @@ import { QdrantClient } from '@qdrant/js-client-rest';
 
 const qdrant = new QdrantClient({ url: 'http://localhost:6333' });
 
-const trendWorker = new Worker('trend-research', async (job: Job) => {
-  const { source } = job.data;
-  
-  // 1. Research trends
-  const trends = await researchTrends(source);
-  
-  // 2. Check for similar past content
-  const similar = await qdrant.search('content-history', {
-    vector: await embed(trends[0].title),
-    limit: 3,
-  });
-  
-  // 3. Filter out duplicates
-  const unique = trends.filter(t => !similar.some(s => 
-    s.score > 0.95 // Too similar to past content
-  ));
-  
-  // 4. Store for deduplication
-  await qdrant.upsert('content-history', {
-    points: unique.map((t, i) => ({
-      id: Date.now() + i,
-      vector: await embed(t.title),
-      payload: { title: t.title, date: new Date() },
-    })),
-  });
-  
-  return { trend: unique[0] };
-}, { connection: { host: 'localhost', port: 6379 } });
+const trendWorker = new Worker(
+  'trend-research',
+  async (job: Job) => {
+    const { source } = job.data;
+
+    // 1. Research trends
+    const trends = await researchTrends(source);
+
+    // 2. Check for similar past content
+    const similar = await qdrant.search('content-history', {
+      vector: await embed(trends[0].title),
+      limit: 3,
+    });
+
+    // 3. Filter out duplicates
+    const unique = trends.filter(
+      (t) =>
+        !similar.some(
+          (s) => s.score > 0.95 // Too similar to past content
+        )
+    );
+
+    // 4. Store for deduplication
+    await qdrant.upsert('content-history', {
+      points: unique.map((t, i) => ({
+        id: Date.now() + i,
+        vector: await embed(t.title),
+        payload: { title: t.title, date: new Date() },
+      })),
+    });
+
+    return { trend: unique[0] };
+  },
+  { connection: { host: 'localhost', port: 6379 } }
+);
 ```
 
 ---
 
 ## 6. Document Metadata
 
-| Field | Value |
-|-------|-------|
-| **Document ID** | DD-071 |
-| **Created** | 2026-01-02 |
-| **Author** | Research Agent |
-| **Status** | Complete |
+| Field            | Value                  |
+| ---------------- | ---------------------- |
+| **Document ID**  | DD-071                 |
+| **Created**      | 2026-01-02             |
+| **Author**       | Research Agent         |
+| **Status**       | Complete               |
 | **Dependencies** | DD-065, DD-067, DD-070 |
 
 ---

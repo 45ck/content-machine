@@ -12,12 +12,12 @@ Comprehensive analysis of video rendering options (Remotion, MoviePy, FFmpeg) an
 
 ### Rendering Comparison
 
-| Tool | Language | Type | Captions | Programmatic | Performance |
-|------|----------|------|----------|--------------|-------------|
-| **Remotion** | TypeScript | React-based | Excellent | ✅ | Medium |
-| **MoviePy** | Python | Compositing | Good | ✅ | Medium |
-| **FFmpeg** | C/CLI | Low-level | Basic | ⚠️ Complex | Excellent |
-| **OpenCV** | Python/C++ | Frame-by-frame | Manual | ⚠️ Complex | Fast |
+| Tool         | Language   | Type           | Captions  | Programmatic | Performance |
+| ------------ | ---------- | -------------- | --------- | ------------ | ----------- |
+| **Remotion** | TypeScript | React-based    | Excellent | ✅           | Medium      |
+| **MoviePy**  | Python     | Compositing    | Good      | ✅           | Medium      |
+| **FFmpeg**   | C/CLI      | Low-level      | Basic     | ⚠️ Complex   | Excellent   |
+| **OpenCV**   | Python/C++ | Frame-by-frame | Manual    | ⚠️ Complex   | Fast        |
 
 ### Recommendation
 
@@ -34,6 +34,7 @@ Comprehensive analysis of video rendering options (Remotion, MoviePy, FFmpeg) an
 React-based programmatic video creation. Write React components, render as video.
 
 **Key Benefits:**
+
 - TypeScript/React (matches our stack)
 - Component-based composition
 - Frame-perfect animation control
@@ -47,6 +48,7 @@ React-based programmatic video creation. Write React components, render as video
 **Repo:** `vendor/render/remotion-subtitles/`
 
 **17 Pre-built Caption Styles:**
+
 - `BounceCaption` - Bouncing animation
 - `TypewriterCaption` - Character-by-character reveal
 - `GlitchCaption` - Digital glitch effect
@@ -59,36 +61,40 @@ React-based programmatic video creation. Write React components, render as video
 - And more...
 
 **Usage:**
+
 ```tsx
-import { SubtitleSequence } from "remotion-subtitle";
-import { TypewriterCaption as Caption } from "remotion-subtitle";
+import { SubtitleSequence } from 'remotion-subtitle';
+import { TypewriterCaption as Caption } from 'remotion-subtitle';
 
 export const Subtitles = () => {
   const { fps } = useVideoConfig();
   const [sequences, setSequences] = useState([]);
   const [loaded, setLoaded] = useState(false);
-  
-  let subtitles = new SubtitleSequence("audio.srt");
-  
+
+  let subtitles = new SubtitleSequence('audio.srt');
+
   useEffect(() => {
     subtitles.ready().then(() => {
       setSequences(subtitles.getSequences(<Caption />, fps));
       setLoaded(true);
     });
   }, []);
-  
+
   return loaded && <>{sequences}</>;
 };
 ```
 
 **Custom Styling:**
+
 ```tsx
 subtitles.getSequences(
-  <Caption style={{ 
-    fontSize: "4rem", 
-    color: "#FFD700",
-    textShadow: "2px 2px 4px rgba(0,0,0,0.8)"
-  }} />
+  <Caption
+    style={{
+      fontSize: '4rem',
+      color: '#FFD700',
+      textShadow: '2px 2px 4px rgba(0,0,0,0.8)',
+    }}
+  />
 );
 ```
 
@@ -97,6 +103,7 @@ subtitles.getSequences(
 **Repo:** `vendor/render/remotion-templates/templates/`
 
 **15 Animation Templates:**
+
 - `animated-list.tsx` - List animations
 - `animated-text.tsx` - Text animations
 - `bounce-text.tsx` - Bouncing text
@@ -114,43 +121,54 @@ subtitles.getSequences(
 - `typewriter-subtitle.tsx` - Typewriter captions
 
 **Typewriter Example:**
+
 ```tsx
-import { interpolate, useCurrentFrame } from "remotion";
+import { interpolate, useCurrentFrame } from 'remotion';
 
 export default function TypewriterSubtitle() {
   const frame = useCurrentFrame();
-  const text = "I like typing...";
-  
+  const text = 'I like typing...';
+
   const visibleCharacters = Math.floor(
     interpolate(frame, [0, 45], [0, text.length], {
-      extrapolateRight: "clamp",
+      extrapolateRight: 'clamp',
     })
   );
 
   return (
-    <div style={{
-      position: "absolute",
-      top: "50%",
-      left: "50%",
-      transform: "translate(-50%, -50%)",
-      textAlign: "center",
-    }}>
-      {text.slice(0, visibleCharacters).split("").map((char, index) => (
-        <span key={index} style={{
-          fontFamily: "'Courier New', monospace",
-          fontSize: "3rem",
-          fontWeight: "bold",
-          color: "white",
-        }}>
-          {char === " " ? "\u00A0" : char}
-        </span>
-      ))}
+    <div
+      style={{
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        textAlign: 'center',
+      }}
+    >
+      {text
+        .slice(0, visibleCharacters)
+        .split('')
+        .map((char, index) => (
+          <span
+            key={index}
+            style={{
+              fontFamily: "'Courier New', monospace",
+              fontSize: '3rem',
+              fontWeight: 'bold',
+              color: 'white',
+            }}
+          >
+            {char === ' ' ? '\u00A0' : char}
+          </span>
+        ))}
       {/* Blinking cursor */}
-      <span style={{
-        fontSize: "3rem",
-        color: "#60a5fa",
-        opacity: frame % 15 < 7 ? 1 : 0,
-      }}>
+      <span
+        style={{
+          fontSize: '3rem',
+          color: '#60a5fa',
+          opacity: frame % 15 < 7 ? 1 : 0,
+        }}
+      >
         ▌
       </span>
     </div>
@@ -163,6 +181,7 @@ export default function TypewriterSubtitle() {
 **Repo:** `vendor/render/chuk-mcp-remotion/`
 
 **Full component library with MCP integration:**
+
 - Scene transitions
 - Text effects
 - Caption styles
@@ -180,6 +199,7 @@ export default function TypewriterSubtitle() {
 Python library for video editing using numpy arrays. Good for automation pipelines.
 
 **Key Features:**
+
 - Read/write all common formats
 - Cuts, concatenations, compositing
 - Text overlays
@@ -223,12 +243,12 @@ from moviepy import VideoFileClip, TextClip, CompositeVideoClip
 def create_word_captions(video_path: str, words: list, output_path: str):
     """
     Create video with word-level captions.
-    
+
     words: [{"word": "Hello", "start": 0.0, "end": 0.5}, ...]
     """
     video = VideoFileClip(video_path)
     width, height = video.size
-    
+
     text_clips = []
     for word_data in words:
         txt = (
@@ -245,7 +265,7 @@ def create_word_captions(video_path: str, words: list, output_path: str):
             .with_position(("center", height * 0.75))
         )
         text_clips.append(txt)
-    
+
     final = CompositeVideoClip([video] + text_clips)
     final.write_videofile(output_path, codec="libx264")
 
@@ -264,16 +284,16 @@ def crop_to_vertical(video_path: str, output_path: str):
     """Crop video to 9:16 vertical format."""
     video = VideoFileClip(video_path)
     width, height = video.size
-    
+
     # Calculate new dimensions
     new_width = int(height * 9 / 16)
-    
+
     # Center crop
     cropped = video.cropped(
         x_center=width / 2,
         width=new_width
     )
-    
+
     cropped.write_videofile(output_path)
 ```
 
@@ -296,31 +316,37 @@ The universal audio/video processing tool. Everything else uses it under the hoo
 ### Essential Operations
 
 **Trim Video:**
+
 ```bash
 ffmpeg -i input.mp4 -ss 00:00:10 -to 00:00:20 -c copy output.mp4
 ```
 
 **Convert to Vertical (9:16):**
+
 ```bash
 ffmpeg -i input.mp4 -vf "crop=ih*9/16:ih" output.mp4
 ```
 
 **Add Audio:**
+
 ```bash
 ffmpeg -i video.mp4 -i audio.mp3 -c:v copy -c:a aac -shortest output.mp4
 ```
 
 **Burn Subtitles:**
+
 ```bash
 ffmpeg -i input.mp4 -vf "subtitles=captions.srt" output.mp4
 ```
 
 **Extract Audio:**
+
 ```bash
 ffmpeg -i input.mp4 -vn -acodec mp3 output.mp3
 ```
 
 **Concatenate Videos:**
+
 ```bash
 # Create file list
 echo "file 'clip1.mp4'" > list.txt
@@ -330,6 +356,7 @@ ffmpeg -f concat -safe 0 -i list.txt -c copy output.mp4
 ```
 
 **Generate Thumbnail:**
+
 ```bash
 ffmpeg -i input.mp4 -ss 00:00:05 -vframes 1 thumbnail.jpg
 ```
@@ -337,8 +364,8 @@ ffmpeg -i input.mp4 -ss 00:00:05 -vframes 1 thumbnail.jpg
 ### FFmpeg in TypeScript
 
 ```typescript
-import { exec } from "child_process";
-import { promisify } from "util";
+import { exec } from 'child_process';
+import { promisify } from 'util';
 
 const execAsync = promisify(exec);
 
@@ -347,17 +374,17 @@ export class FFmpegProcessor {
     const cmd = `ffmpeg -i "${input}" -ss ${start} -to ${end} -c copy "${output}"`;
     await execAsync(cmd);
   }
-  
+
   async cropToVertical(input: string, output: string) {
     const cmd = `ffmpeg -i "${input}" -vf "crop=ih*9/16:ih" "${output}"`;
     await execAsync(cmd);
   }
-  
+
   async addAudio(video: string, audio: string, output: string) {
     const cmd = `ffmpeg -i "${video}" -i "${audio}" -c:v copy -c:a aac -shortest "${output}"`;
     await execAsync(cmd);
   }
-  
+
   async getDuration(input: string): Promise<number> {
     const cmd = `ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${input}"`;
     const { stdout } = await execAsync(cmd);
@@ -380,6 +407,7 @@ S3-compatible object storage. Can replace AWS S3 for local/self-hosted deploymen
 **Note:** Now in maintenance mode, but still functional.
 
 **Docker Deployment:**
+
 ```bash
 docker run -p 9000:9000 -p 9001:9001 \
   -e "MINIO_ROOT_USER=admin" \
@@ -388,25 +416,27 @@ docker run -p 9000:9000 -p 9001:9001 \
 ```
 
 **TypeScript Client:**
+
 ```typescript
-import { Client } from "minio";
+import { Client } from 'minio';
 
 const minioClient = new Client({
-  endPoint: "localhost",
+  endPoint: 'localhost',
   port: 9000,
   useSSL: false,
-  accessKey: "admin",
-  secretKey: "password",
+  accessKey: 'admin',
+  secretKey: 'password',
 });
 
 // Upload video
-await minioClient.fPutObject("videos", "output.mp4", "./output.mp4");
+await minioClient.fPutObject('videos', 'output.mp4', './output.mp4');
 
 // Generate presigned URL
-const url = await minioClient.presignedGetObject("videos", "output.mp4", 3600);
+const url = await minioClient.presignedGetObject('videos', 'output.mp4', 3600);
 ```
 
 **Use Cases:**
+
 - Video asset storage
 - Rendered video output
 - Background video library
@@ -420,36 +450,39 @@ const url = await minioClient.presignedGetObject("videos", "output.mp4", 3600);
 Vector similarity search engine. Store and search embeddings.
 
 **Use Cases for Video Generation:**
+
 - Semantic search for similar content
 - Find related Reddit posts
 - Match videos to topics
 - Content deduplication
 
 **Docker Deployment:**
+
 ```bash
 docker run -p 6333:6333 qdrant/qdrant
 ```
 
 **TypeScript Usage:**
-```typescript
-import { QdrantClient } from "@qdrant/js-client-rest";
 
-const client = new QdrantClient({ url: "http://localhost:6333" });
+```typescript
+import { QdrantClient } from '@qdrant/js-client-rest';
+
+const client = new QdrantClient({ url: 'http://localhost:6333' });
 
 // Create collection
-await client.createCollection("content", {
-  vectors: { size: 1536, distance: "Cosine" },
+await client.createCollection('content', {
+  vectors: { size: 1536, distance: 'Cosine' },
 });
 
 // Insert content with embeddings
-await client.upsert("content", {
+await client.upsert('content', {
   points: [
     {
-      id: "post-123",
+      id: 'post-123',
       vector: embeddings,
       payload: {
-        title: "AI productivity tools",
-        source: "reddit",
+        title: 'AI productivity tools',
+        source: 'reddit',
         score: 1500,
       },
     },
@@ -457,7 +490,7 @@ await client.upsert("content", {
 });
 
 // Semantic search
-const results = await client.search("content", {
+const results = await client.search('content', {
   vector: queryEmbedding,
   limit: 10,
 });
@@ -521,9 +554,9 @@ Processing Layer:
 
 ```typescript
 // src/render/VideoRenderService.ts
-import { bundle, renderMedia } from "@remotion/bundler";
-import { FFmpegProcessor } from "./FFmpegProcessor";
-import { MinIOClient } from "../storage/MinIOClient";
+import { bundle, renderMedia } from '@remotion/bundler';
+import { FFmpegProcessor } from './FFmpegProcessor';
+import { MinIOClient } from '../storage/MinIOClient';
 
 export interface RenderConfig {
   script: string;
@@ -536,20 +569,20 @@ export interface RenderConfig {
 export class VideoRenderService {
   constructor(
     private ffmpeg: FFmpegProcessor,
-    private storage: MinIOClient,
+    private storage: MinIOClient
   ) {}
-  
+
   async render(config: RenderConfig): Promise<RenderResult> {
     // 1. Bundle Remotion composition
     const bundled = await bundle({
-      entryPoint: "./src/compositions/ShortVideo.tsx",
+      entryPoint: './src/compositions/ShortVideo.tsx',
     });
-    
+
     // 2. Render video
     const outputPath = `/tmp/${crypto.randomUUID()}.mp4`;
     await renderMedia({
       composition: {
-        id: "ShortVideo",
+        id: 'ShortVideo',
         durationInFrames: config.durationFrames,
         fps: 30,
         width: 1080,
@@ -564,18 +597,18 @@ export class VideoRenderService {
         captionStyle: config.captionStyle,
       },
     });
-    
+
     // 3. Post-process with FFmpeg (optional)
     const finalPath = await this.ffmpeg.optimize(outputPath);
-    
+
     // 4. Upload to storage
     const storageUrl = await this.storage.upload(finalPath);
-    
+
     // 5. Generate thumbnail
     const thumbnailPath = `/tmp/${crypto.randomUUID()}.jpg`;
     await this.ffmpeg.generateThumbnail(finalPath, thumbnailPath, 2);
     const thumbnailUrl = await this.storage.upload(thumbnailPath);
-    
+
     return {
       videoUrl: storageUrl,
       thumbnailUrl,
@@ -613,18 +646,26 @@ ffmpeg -i input.mp4 -preset fast output.mp4
 
 ```typescript
 // Use BullMQ for job management
-const renderQueue = new Queue("video-render");
+const renderQueue = new Queue('video-render');
 
 // Add jobs
-await renderQueue.add("render", { config }, {
-  attempts: 3,
-  backoff: { type: "exponential", delay: 1000 },
-});
+await renderQueue.add(
+  'render',
+  { config },
+  {
+    attempts: 3,
+    backoff: { type: 'exponential', delay: 1000 },
+  }
+);
 
 // Process
-const worker = new Worker("video-render", async (job) => {
-  return await videoRenderService.render(job.data.config);
-}, { concurrency: 2 });
+const worker = new Worker(
+  'video-render',
+  async (job) => {
+    return await videoRenderService.render(job.data.config);
+  },
+  { concurrency: 2 }
+);
 ```
 
 ---

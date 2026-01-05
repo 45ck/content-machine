@@ -70,29 +70,35 @@ const s3Client = new S3Client({
 });
 
 // Upload rendered video
-await s3Client.send(new PutObjectCommand({
-  Bucket: 'videos',
-  Key: `renders/${videoId}/output.mp4`,
-  Body: videoBuffer,
-  ContentType: 'video/mp4',
-}));
+await s3Client.send(
+  new PutObjectCommand({
+    Bucket: 'videos',
+    Key: `renders/${videoId}/output.mp4`,
+    Body: videoBuffer,
+    ContentType: 'video/mp4',
+  })
+);
 
 // Get video URL for streaming
-const url = await getSignedUrl(s3Client, new GetObjectCommand({
-  Bucket: 'videos',
-  Key: `renders/${videoId}/output.mp4`,
-}), { expiresIn: 3600 });
+const url = await getSignedUrl(
+  s3Client,
+  new GetObjectCommand({
+    Bucket: 'videos',
+    Key: `renders/${videoId}/output.mp4`,
+  }),
+  { expiresIn: 3600 }
+);
 ```
 
 ### 1.5 Use Cases for content-machine
 
-| Storage Type | Bucket | Purpose |
-|-------------|--------|---------|
-| Raw Assets | `assets` | Product screenshots, background videos |
-| Renders | `renders` | Completed video outputs |
-| Audio | `audio` | TTS voiceovers, background music |
-| Thumbnails | `thumbnails` | Generated thumbnails |
-| Temp | `temp` | Work-in-progress files |
+| Storage Type | Bucket       | Purpose                                |
+| ------------ | ------------ | -------------------------------------- |
+| Raw Assets   | `assets`     | Product screenshots, background videos |
+| Renders      | `renders`    | Completed video outputs                |
+| Audio        | `audio`      | TTS voiceovers, background music       |
+| Thumbnails   | `thumbnails` | Generated thumbnails                   |
+| Temp         | `temp`       | Work-in-progress files                 |
 
 ---
 
@@ -179,12 +185,12 @@ results = client.search(
 
 ### 2.4 Use Cases for content-machine
 
-| Collection | Purpose | Payload Fields |
-|-----------|---------|----------------|
-| `trends` | Trending topics | source, score, timestamp, category |
-| `scripts` | Generated scripts | topic, hook, duration, engagement |
-| `videos` | Published videos | url, platform, views, likes |
-| `products` | Product knowledge | name, features, screenshots |
+| Collection | Purpose           | Payload Fields                     |
+| ---------- | ----------------- | ---------------------------------- |
+| `trends`   | Trending topics   | source, score, timestamp, category |
+| `scripts`  | Generated scripts | topic, hook, duration, engagement  |
+| `videos`   | Published videos  | url, platform, views, likes        |
+| `products` | Product knowledge | name, features, screenshots        |
 
 ---
 
@@ -226,37 +232,38 @@ Workers:
 // TypeScript SDK example
 import { proxyActivities, defineWorkflow } from '@temporalio/workflow';
 
-const { researchTrends, generateScript, captureUI, renderVideo, uploadVideo } = 
-  proxyActivities<typeof activities>({
-    startToCloseTimeout: '10 minutes',
-    retry: { maximumAttempts: 3 },
-  });
+const { researchTrends, generateScript, captureUI, renderVideo, uploadVideo } = proxyActivities<
+  typeof activities
+>({
+  startToCloseTimeout: '10 minutes',
+  retry: { maximumAttempts: 3 },
+});
 
 export const videoProductionWorkflow = defineWorkflow({
   async run(input: VideoRequest): Promise<VideoResult> {
     // Step 1: Research trends
     const trends = await researchTrends(input.topic);
-    
+
     // Step 2: Generate script
     const script = await generateScript({
       trends,
       duration: input.targetDuration,
       style: input.style,
     });
-    
+
     // Step 3: Capture product UI
     const captures = await captureUI({
       product: input.productUrl,
       script: script,
     });
-    
+
     // Step 4: Render video
     const video = await renderVideo({
       script,
       captures,
       style: input.videoStyle,
     });
-    
+
     // Step 5: Upload to platforms
     const uploads = await uploadVideo({
       videoPath: video.path,
@@ -267,7 +274,7 @@ export const videoProductionWorkflow = defineWorkflow({
         hashtags: script.hashtags,
       },
     });
-    
+
     return {
       videoId: video.id,
       uploads,
@@ -376,29 +383,30 @@ async function produceVideo(topic: string) {
       },
     ],
   });
-  
+
   return flow;
 }
 
 // Worker for rendering (limited concurrency)
-const renderWorker = new Worker('video-render', 
+const renderWorker = new Worker(
+  'video-render',
   async (job) => {
     const { script, captures, style } = job.data;
-    
+
     // Report progress
     await job.updateProgress(10);
-    
+
     // Render with Remotion
     const output = await renderRemotionVideo({
       composition: style.composition,
       inputProps: { script, captures },
       outputPath: `/tmp/${job.id}.mp4`,
     });
-    
+
     await job.updateProgress(100);
     return { path: output.path, duration: output.duration };
   },
-  { 
+  {
     connection,
     concurrency: 2, // Limit parallel renders
     limiter: { max: 10, duration: 60000 }, // Rate limit
@@ -408,14 +416,14 @@ const renderWorker = new Worker('video-render',
 
 ### 4.4 Queue vs Temporal Decision
 
-| Use Case | BullMQ | Temporal |
-|----------|--------|----------|
-| Short jobs (< 5 min) | ✅ Best | Overkill |
-| Long jobs (> 30 min) | Possible | ✅ Best |
-| Complex workflows | Limited | ✅ Best |
-| Simple fan-out | ✅ Best | Overkill |
-| Failure recovery | Good | ✅ Excellent |
-| Observability | Bull Board | ✅ Built-in UI |
+| Use Case             | BullMQ     | Temporal       |
+| -------------------- | ---------- | -------------- |
+| Short jobs (< 5 min) | ✅ Best    | Overkill       |
+| Long jobs (> 30 min) | Possible   | ✅ Best        |
+| Complex workflows    | Limited    | ✅ Best        |
+| Simple fan-out       | ✅ Best    | Overkill       |
+| Failure recovery     | Good       | ✅ Excellent   |
+| Observability        | Bull Board | ✅ Built-in UI |
 
 **Recommendation:** Use BullMQ for individual pipeline stages, Temporal for end-to-end workflow orchestration.
 
@@ -442,13 +450,13 @@ User Input → Prompt Generation → Text-to-Image → Image-to-Video → Text-t
 
 ### 5.3 Key Integrations
 
-| Stage | API Provider | Model |
-|-------|-------------|-------|
-| Prompt | Doubao (Volcengine) | LLM |
-| Image | LibLibAI | Various Checkpoints + LoRA |
-| Video | Jimeng I2V | Image-to-Video |
-| Music | Jimeng Music | Text-to-Music |
-| Merge | FFmpeg | Video processing |
+| Stage  | API Provider        | Model                      |
+| ------ | ------------------- | -------------------------- |
+| Prompt | Doubao (Volcengine) | LLM                        |
+| Image  | LibLibAI            | Various Checkpoints + LoRA |
+| Video  | Jimeng I2V          | Image-to-Video             |
+| Music  | Jimeng Music        | Text-to-Music              |
+| Merge  | FFmpeg              | Video processing           |
 
 ### 5.4 Patterns for content-machine
 
@@ -523,12 +531,12 @@ YASGU demonstrates comprehensive configuration for video generation.
 
 ### 7.3 Generator Options
 
-| Parameter | Options |
-|-----------|---------|
-| language | Multi-language (CoquiTTS) |
-| llm | GPT-4, Claude, Ollama, Gemini |
+| Parameter   | Options                              |
+| ----------- | ------------------------------------ |
+| language    | Multi-language (CoquiTTS)            |
+| llm         | GPT-4, Claude, Ollama, Gemini        |
 | image_model | DALL-E, Prodiamine, Stable Diffusion |
-| subject | Any topic description |
+| subject     | Any topic description                |
 
 ---
 
@@ -546,7 +554,7 @@ Demonstrates CI/CD-based video automation.
 
 ```yaml
 GitHub Actions Workflow:
-  trigger: "7:00 AM UTC daily"
+  trigger: '7:00 AM UTC daily'
   steps:
     - Generate curriculum via Gemini
     - Generate lesson content
@@ -562,16 +570,16 @@ GitHub Actions Workflow:
 def generate_curriculum(previous_titles=None):
     """Generate course curriculum using Gemini."""
     model = genai.GenerativeModel('gemini-1.5-flash')
-    
+
     prompt = f"""
     Generate a curriculum for 'AI for Developers'.
     Style: Assume beginner/non-technical viewer.
     Use simple analogies, relatable examples.
-    
+
     Return JSON with "lessons" array:
     - chapter, part, title, status, youtube_id
     """
-    
+
     response = model.generate_content(prompt)
     return json.loads(response.text)
 ```
@@ -623,14 +631,14 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       - redis-data:/data
 
   qdrant:
     image: qdrant/qdrant
     ports:
-      - "6333:6333"
+      - '6333:6333'
     volumes:
       - qdrant-data:/qdrant/storage
 
@@ -638,8 +646,8 @@ services:
     image: minio/minio
     command: server /data --console-address ":9001"
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - '9000:9000'
+      - '9001:9001'
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
@@ -653,14 +661,14 @@ services:
       POSTGRES_USER: contentmachine
       POSTGRES_PASSWORD: contentmachine
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
   temporal:
     image: temporalio/auto-setup:latest
     ports:
-      - "7233:7233"
+      - '7233:7233'
     environment:
       - DB=postgresql
       - DB_PORT=5432
@@ -680,14 +688,14 @@ volumes:
 
 ### 10.1 Infrastructure Stack
 
-| Component | Tool | Purpose |
-|-----------|------|---------|
-| Object Storage | MinIO | Video, audio, image files |
-| Vector DB | Qdrant | Semantic search, recommendations |
-| Metadata DB | PostgreSQL | Structured data, relationships |
-| Cache | Redis | Session, queue backend |
-| Job Queue | BullMQ | Pipeline stage jobs |
-| Workflow | Temporal | E2E video production |
+| Component      | Tool       | Purpose                          |
+| -------------- | ---------- | -------------------------------- |
+| Object Storage | MinIO      | Video, audio, image files        |
+| Vector DB      | Qdrant     | Semantic search, recommendations |
+| Metadata DB    | PostgreSQL | Structured data, relationships   |
+| Cache          | Redis      | Session, queue backend           |
+| Job Queue      | BullMQ     | Pipeline stage jobs              |
+| Workflow       | Temporal   | E2E video production             |
 
 ### 10.2 Deployment Strategy
 
@@ -722,6 +730,7 @@ Production:
 ---
 
 **Next Steps:**
+
 1. Set up Docker Compose development environment
 2. Configure MinIO buckets for video pipeline
 3. Create Qdrant collections for content and trends

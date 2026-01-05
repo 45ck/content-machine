@@ -19,6 +19,7 @@ Input → Script Generation → Audio/TTS → Visual Assembly → Caption/Render
 ```
 
 The differentiation comes from:
+
 1. **Input sources** (topic, URL, local file)
 2. **LLM providers** (OpenAI, Groq, Gemini, local)
 3. **TTS engines** (EdgeTTS, ElevenLabs, Coqui, Kokoro)
@@ -50,55 +51,55 @@ The differentiation comes from:
 
 These take a text topic and generate complete videos from scratch.
 
-| Generator | Language | LLM | TTS | Visuals | Unique Feature |
-|-----------|----------|-----|-----|---------|----------------|
-| **VideoGraphAI** | Python | Groq/Ollama | F5-TTS | TogetherAI FLUX | Graph agents, Tavily research |
-| **AI-Content-Studio** | Python | Gemini 2.5 | Gemini TTS | Vertex AI Imagen 3 | Full GUI, multi-speaker |
-| **AutoTube** | Python | Ollama LLaMA | OpenTTS | Pollinations.ai | n8n workflow orchestration |
-| **YASGU** | Python | GPT/Claude/Gemini | CoquiTTS | DALL-E/Prodia | Multi-LLM via g4f, Selenium upload |
-| **TikTokAIVideoGenerator** | Python | Groq Llama3 | Kokoro/EdgeTTS | TogetherAI FLUX-1 | Full Whisper captioning |
-| **Shortrocity** | Python | ChatGPT | ElevenLabs/OpenAI | DALL-E 3 | Captacity integration |
-| **Gemini-YT-Automation** | Python | Gemini | Not specified | AI images | GitHub Actions daily |
-| **youtube-auto-shorts** | Python | OpenAI/OpenRouter | EdgeTTS | Pexels | AssemblyAI captions |
-| **Auto-YT-Shorts-Maker** | Python | OpenAI | gTTS | Gameplay overlay | Simple MVP approach |
+| Generator                  | Language | LLM               | TTS               | Visuals            | Unique Feature                     |
+| -------------------------- | -------- | ----------------- | ----------------- | ------------------ | ---------------------------------- |
+| **VideoGraphAI**           | Python   | Groq/Ollama       | F5-TTS            | TogetherAI FLUX    | Graph agents, Tavily research      |
+| **AI-Content-Studio**      | Python   | Gemini 2.5        | Gemini TTS        | Vertex AI Imagen 3 | Full GUI, multi-speaker            |
+| **AutoTube**               | Python   | Ollama LLaMA      | OpenTTS           | Pollinations.ai    | n8n workflow orchestration         |
+| **YASGU**                  | Python   | GPT/Claude/Gemini | CoquiTTS          | DALL-E/Prodia      | Multi-LLM via g4f, Selenium upload |
+| **TikTokAIVideoGenerator** | Python   | Groq Llama3       | Kokoro/EdgeTTS    | TogetherAI FLUX-1  | Full Whisper captioning            |
+| **Shortrocity**            | Python   | ChatGPT           | ElevenLabs/OpenAI | DALL-E 3           | Captacity integration              |
+| **Gemini-YT-Automation**   | Python   | Gemini            | Not specified     | AI images          | GitHub Actions daily               |
+| **youtube-auto-shorts**    | Python   | OpenAI/OpenRouter | EdgeTTS           | Pexels             | AssemblyAI captions                |
+| **Auto-YT-Shorts-Maker**   | Python   | OpenAI            | gTTS              | Gameplay overlay   | Simple MVP approach                |
 
 ### Category 2: Long-to-Short Extractors
 
 These analyze long videos to extract engaging clips.
 
-| Generator | Language | Approach | Key Tech | Unique Feature |
-|-----------|----------|----------|----------|----------------|
-| **AI-Youtube-Shorts-Generator** | Python | GPT-4o highlight selection | Whisper, OpenCV | Face detection, smart crop |
-| **AI-Youtube-Shorts-Generator-fork** | Python | Gemini-Pro analysis | LangGraph, SQLite cache | Caching system |
-| **ShortReelX** | Node.js | Transcript extraction | FFmpeg, AI | REST API, hashtag gen |
-| **AI-short-creator** | Python | Multi-speaker analysis | Remotion, OpenAI | Best for interviews |
+| Generator                            | Language | Approach                   | Key Tech                | Unique Feature             |
+| ------------------------------------ | -------- | -------------------------- | ----------------------- | -------------------------- |
+| **AI-Youtube-Shorts-Generator**      | Python   | GPT-4o highlight selection | Whisper, OpenCV         | Face detection, smart crop |
+| **AI-Youtube-Shorts-Generator-fork** | Python   | Gemini-Pro analysis        | LangGraph, SQLite cache | Caching system             |
+| **ShortReelX**                       | Node.js  | Transcript extraction      | FFmpeg, AI              | REST API, hashtag gen      |
+| **AI-short-creator**                 | Python   | Multi-speaker analysis     | Remotion, OpenAI        | Best for interviews        |
 
 ### Category 3: Reddit/Social Scrapers
 
 These generate videos from social media content.
 
-| Generator | Source | TTS | Rendering | Unique Feature |
-|-----------|--------|-----|-----------|----------------|
-| **OBrainRot** | Reddit URL | Coqui xTTSv2 | FFmpeg | Wav2Vec2 forced alignment |
-| **ClipForge (shorts_maker)** | Reddit | WhisperX | MoviePy | uv packaging, Discord webhooks |
-| **YouTube-shorts-generator** | Reddit API | Google Wavenet | MoviePy | Full OAuth upload |
-| **tiktok-automatic-videos** | Reddit | Google Wavenet | Remotion.js | Emoji matching |
+| Generator                    | Source     | TTS            | Rendering   | Unique Feature                 |
+| ---------------------------- | ---------- | -------------- | ----------- | ------------------------------ |
+| **OBrainRot**                | Reddit URL | Coqui xTTSv2   | FFmpeg      | Wav2Vec2 forced alignment      |
+| **ClipForge (shorts_maker)** | Reddit     | WhisperX       | MoviePy     | uv packaging, Discord webhooks |
+| **YouTube-shorts-generator** | Reddit API | Google Wavenet | MoviePy     | Full OAuth upload              |
+| **tiktok-automatic-videos**  | Reddit     | Google Wavenet | Remotion.js | Emoji matching                 |
 
 ### Category 4: TikTok-Specific Tools
 
-| Generator | Function | Key Tech |
-|-----------|----------|----------|
-| **TikTok-Compilation-Generator** | Compilation creation | MySQL, FTP server, multi-program |
-| **ShortFormGenerator** | TikTok content assembly | Playwright, MoviePy |
+| Generator                        | Function                | Key Tech                         |
+| -------------------------------- | ----------------------- | -------------------------------- |
+| **TikTok-Compilation-Generator** | Compilation creation    | MySQL, FTP server, multi-program |
+| **ShortFormGenerator**           | TikTok content assembly | Playwright, MoviePy              |
 
 ### Category 5: Advanced/Enterprise Tools
 
-| Generator | Stack | Unique Feature |
-|-----------|-------|----------------|
-| **Crank** | uv + Gemini + Whisper | spaCy NLP, plugin system |
-| **Cassette** | Python terminal | UnrealSpeech + g4f free |
-| **Viral-Faceless** | Docker compose | Google Trends → Aeneas alignment |
-| **Faceless-short** | Gradio | Groq + Pexels timed captions |
+| Generator          | Stack                 | Unique Feature                   |
+| ------------------ | --------------------- | -------------------------------- |
+| **Crank**          | uv + Gemini + Whisper | spaCy NLP, plugin system         |
+| **Cassette**       | Python terminal       | UnrealSpeech + g4f free          |
+| **Viral-Faceless** | Docker compose        | Google Trends → Aeneas alignment |
+| **Faceless-short** | Gradio                | Groq + Pexels timed captions     |
 
 ---
 
@@ -125,14 +126,14 @@ Every generator follows this fundamental pattern:
 
 Based on documented processing times across generators:
 
-| Stage | Typical Duration | Bottleneck Factor |
-|-------|------------------|-------------------|
-| Script Generation | 2-5 seconds | LLM API latency |
-| Audio/TTS | 5-30 seconds | Varies by engine |
-| Visuals | 10-60 seconds | Image gen or download |
-| Caption Generation | 5-15 seconds | Whisper transcription |
-| Final Render | 30-120 seconds | FFmpeg encoding |
-| **Total** | **~1-5 minutes** | |
+| Stage              | Typical Duration | Bottleneck Factor     |
+| ------------------ | ---------------- | --------------------- |
+| Script Generation  | 2-5 seconds      | LLM API latency       |
+| Audio/TTS          | 5-30 seconds     | Varies by engine      |
+| Visuals            | 10-60 seconds    | Image gen or download |
+| Caption Generation | 5-15 seconds     | Whisper transcription |
+| Final Render       | 30-120 seconds   | FFmpeg encoding       |
+| **Total**          | **~1-5 minutes** |                       |
 
 ---
 
@@ -198,15 +199,15 @@ reddit_url = "https://reddit.com/r/AITA/comments/..."
 
 ### LLM Provider Comparison
 
-| Provider | Cost | Latency | Quality | Used By |
-|----------|------|---------|---------|---------|
-| **OpenAI GPT-4** | $$$ | Fast | Excellent | Shortrocity, Auto-YT |
-| **OpenAI GPT-4o-mini** | $ | Very Fast | Good | AI-YT-Shorts |
-| **Groq (Llama3/Mixtral)** | Free/$ | Ultra Fast | Good | VideoGraphAI, TikTokAI |
-| **Google Gemini** | Free/$ | Fast | Excellent | AI-Content-Studio, Crank |
-| **Anthropic Claude** | $$$ | Fast | Excellent | YASGU (via g4f) |
-| **Ollama (Local)** | Free | Varies | Model-dependent | AutoTube |
-| **g4f (Free proxy)** | Free | Slow | Varies | YASGU, Cassette |
+| Provider                  | Cost   | Latency    | Quality         | Used By                  |
+| ------------------------- | ------ | ---------- | --------------- | ------------------------ |
+| **OpenAI GPT-4**          | $$$    | Fast       | Excellent       | Shortrocity, Auto-YT     |
+| **OpenAI GPT-4o-mini**    | $      | Very Fast  | Good            | AI-YT-Shorts             |
+| **Groq (Llama3/Mixtral)** | Free/$ | Ultra Fast | Good            | VideoGraphAI, TikTokAI   |
+| **Google Gemini**         | Free/$ | Fast       | Excellent       | AI-Content-Studio, Crank |
+| **Anthropic Claude**      | $$$    | Fast       | Excellent       | YASGU (via g4f)          |
+| **Ollama (Local)**        | Free   | Varies     | Model-dependent | AutoTube                 |
+| **g4f (Free proxy)**      | Free   | Slow       | Varies          | YASGU, Cassette          |
 
 ### Script Structure Patterns
 
@@ -216,9 +217,9 @@ Most generators use this structured output format:
 {
   "hook": "Did you know that...",
   "content": [
-    {"text": "First key point...", "visual_prompt": "description"},
-    {"text": "Second point...", "visual_prompt": "description"},
-    {"text": "Third point...", "visual_prompt": "description"}
+    { "text": "First key point...", "visual_prompt": "description" },
+    { "text": "Second point...", "visual_prompt": "description" },
+    { "text": "Third point...", "visual_prompt": "description" }
   ],
   "cta": "Follow for more AI tips!",
   "title": "5 AI Tools You NEED in 2025",
@@ -230,6 +231,7 @@ Most generators use this structured output format:
 ### Prompt Engineering Patterns
 
 **VideoGraphAI's research-first approach:**
+
 ```
 You are a researcher. Given the topic "{topic}" and timeframe "{timeframe}",
 use Tavily search to find recent events and developments.
@@ -237,6 +239,7 @@ Compile findings into a 60-second video script with hook, 3 key points, and CTA.
 ```
 
 **AI-Content-Studio's multi-format approach:**
+
 ```
 Generate a {style} script for YouTube. Style options:
 - Podcast: Conversational, 2 speakers
@@ -251,30 +254,30 @@ Include speaker labels and timing cues.
 
 ### Free TTS Options
 
-| Engine | Languages | Voice Quality | Latency | Clone? | Used By |
-|--------|-----------|---------------|---------|--------|---------|
-| **EdgeTTS** | 30+ | Good | Fast | No | youtube-auto-shorts, ShortGPT |
-| **gTTS** | 50+ | Basic | Fast | No | Auto-YT-Shorts-Maker |
-| **Piper** | 10+ | Good | Fast | No | Local deployments |
+| Engine      | Languages | Voice Quality | Latency | Clone? | Used By                       |
+| ----------- | --------- | ------------- | ------- | ------ | ----------------------------- |
+| **EdgeTTS** | 30+       | Good          | Fast    | No     | youtube-auto-shorts, ShortGPT |
+| **gTTS**    | 50+       | Basic         | Fast    | No     | Auto-YT-Shorts-Maker          |
+| **Piper**   | 10+       | Good          | Fast    | No     | Local deployments             |
 
 ### Commercial/Advanced TTS
 
-| Engine | Cost | Quality | Clone? | Used By |
-|--------|------|---------|--------|---------|
-| **ElevenLabs** | $$$ | Excellent | Yes | Shortrocity |
-| **Google Wavenet** | $$ | Excellent | No | tiktok-automatic-videos |
-| **OpenAI TTS** | $$ | Excellent | No | Shortrocity (alt) |
-| **UnrealSpeech** | $ | Good | No | Cassette |
+| Engine             | Cost | Quality   | Clone? | Used By                 |
+| ------------------ | ---- | --------- | ------ | ----------------------- |
+| **ElevenLabs**     | $$$  | Excellent | Yes    | Shortrocity             |
+| **Google Wavenet** | $$   | Excellent | No     | tiktok-automatic-videos |
+| **OpenAI TTS**     | $$   | Excellent | No     | Shortrocity (alt)       |
+| **UnrealSpeech**   | $    | Good      | No     | Cassette                |
 
 ### Open-Source TTS
 
-| Engine | Quality | Clone? | GPU Required? | Used By |
-|--------|---------|--------|---------------|---------|
-| **F5-TTS** | Excellent | Yes | Yes | VideoGraphAI |
-| **Coqui TTS** | Excellent | Yes | Yes | YASGU, OBrainRot |
-| **Coqui xTTSv2** | Excellent | Yes | Yes | OBrainRot, Viral-Faceless |
-| **Kokoro** | Excellent | No | No | TikTokAIVideoGenerator |
-| **OpenTTS** | Good | No | No | AutoTube |
+| Engine           | Quality   | Clone? | GPU Required? | Used By                   |
+| ---------------- | --------- | ------ | ------------- | ------------------------- |
+| **F5-TTS**       | Excellent | Yes    | Yes           | VideoGraphAI              |
+| **Coqui TTS**    | Excellent | Yes    | Yes           | YASGU, OBrainRot          |
+| **Coqui xTTSv2** | Excellent | Yes    | Yes           | OBrainRot, Viral-Faceless |
+| **Kokoro**       | Excellent | No     | No            | TikTokAIVideoGenerator    |
+| **OpenTTS**      | Good      | No     | No            | AutoTube                  |
 
 ### Voice Cloning Workflow (F5-TTS)
 
@@ -302,16 +305,17 @@ tts.synthesize(script_text, output="voiceover.wav", **config)
 
 Most flexible but can be slow and expensive.
 
-| Service | Model | Cost/Image | Quality | Aspect Ratios |
-|---------|-------|------------|---------|---------------|
-| **TogetherAI** | FLUX-1.schnell | $0.003 | Excellent | Multiple |
-| **Pollinations.ai** | Multiple | Free | Good | Multiple |
-| **DALL-E 3** | DALL-E 3 | $0.04 | Excellent | 1024x1024, 1792x1024 |
-| **Vertex AI** | Imagen 3 | $0.02 | Excellent | Multiple |
-| **Prodia** | SD variants | Free | Good | Multiple |
-| **Lexica** | Lexica | Free | Good | Multiple |
+| Service             | Model          | Cost/Image | Quality   | Aspect Ratios        |
+| ------------------- | -------------- | ---------- | --------- | -------------------- |
+| **TogetherAI**      | FLUX-1.schnell | $0.003     | Excellent | Multiple             |
+| **Pollinations.ai** | Multiple       | Free       | Good      | Multiple             |
+| **DALL-E 3**        | DALL-E 3       | $0.04      | Excellent | 1024x1024, 1792x1024 |
+| **Vertex AI**       | Imagen 3       | $0.02      | Excellent | Multiple             |
+| **Prodia**          | SD variants    | Free       | Good      | Multiple             |
+| **Lexica**          | Lexica         | Free       | Good      | Multiple             |
 
 **Best Practice (VideoGraphAI):**
+
 ```python
 # Generate multiple images per video
 # Each matches a content segment
@@ -331,20 +335,21 @@ for prompt in image_prompts:
 
 Fastest and most reliable for b-roll.
 
-| Service | Cost | API Available | Quality |
-|---------|------|---------------|---------|
-| **Pexels** | Free | Yes | Good |
-| **Unsplash** | Free | Yes | Excellent (photos) |
-| **Pixabay** | Free | Yes | Good |
-| **Storyblocks** | $$$ | Yes | Excellent |
+| Service         | Cost | API Available | Quality            |
+| --------------- | ---- | ------------- | ------------------ |
+| **Pexels**      | Free | Yes           | Good               |
+| **Unsplash**    | Free | Yes           | Excellent (photos) |
+| **Pixabay**     | Free | Yes           | Good               |
+| **Storyblocks** | $$$  | Yes           | Excellent          |
 
 **Best Practice (youtube-auto-shorts):**
+
 ```python
 # Search for relevant clips based on script keywords
 def get_pexels_video(query: str) -> str:
     # LLM analyzes script to extract search terms
     search_terms = llm.extract_keywords(script)
-    
+
     videos = pexels_api.search_videos(
         query=search_terms[0],
         orientation="portrait",
@@ -358,18 +363,19 @@ def get_pexels_video(query: str) -> str:
 Simple but effective for many use cases.
 
 **AutoTube's Ken Burns Approach:**
+
 ```python
 # Apply zoom/pan effects to static images
 def apply_ken_burns(image, duration):
     start_zoom = 1.0
     end_zoom = 1.2
-    
+
     frames = []
     for t in range(int(duration * fps)):
         zoom = start_zoom + (end_zoom - start_zoom) * (t / (duration * fps))
         frame = zoom_image(image, zoom)
         frames.append(frame)
-    
+
     return frames
 ```
 
@@ -382,20 +388,20 @@ Critical for **product truthfulness** - our key differentiator.
 async def capture_product_demo(url: str, actions: list):
     browser = await playwright.chromium.launch()
     page = await browser.new_page(viewport={"width": 1080, "height": 1920})
-    
+
     await page.goto(url)
-    
+
     frames = []
     for action in actions:
         if action.type == "click":
             await page.click(action.selector)
         elif action.type == "type":
             await page.type(action.selector, action.text)
-        
+
         # Capture frame after action
         frame = await page.screenshot()
         frames.append(frame)
-    
+
     return frames
 ```
 
@@ -405,18 +411,19 @@ async def capture_product_demo(url: str, actions: list):
 
 ### Transcription Engines
 
-| Engine | Speed | Accuracy | Word-Level? | GPU Required? |
-|--------|-------|----------|-------------|---------------|
-| **Whisper (base)** | Fast | Good | Yes | Optional |
-| **Whisper (large-v3)** | Slow | Excellent | Yes | Recommended |
-| **WhisperX** | Fast | Excellent | Yes (aligned) | Yes |
-| **faster-whisper** | Very Fast | Excellent | Yes | Yes |
-| **AssemblyAI** | Fast | Excellent | Yes | No (API) |
-| **Gentle (Docker)** | Medium | Good | Yes (aligned) | No |
+| Engine                 | Speed     | Accuracy  | Word-Level?   | GPU Required? |
+| ---------------------- | --------- | --------- | ------------- | ------------- |
+| **Whisper (base)**     | Fast      | Good      | Yes           | Optional      |
+| **Whisper (large-v3)** | Slow      | Excellent | Yes           | Recommended   |
+| **WhisperX**           | Fast      | Excellent | Yes (aligned) | Yes           |
+| **faster-whisper**     | Very Fast | Excellent | Yes           | Yes           |
+| **AssemblyAI**         | Fast      | Excellent | Yes           | No (API)      |
+| **Gentle (Docker)**    | Medium    | Good      | Yes (aligned) | No            |
 
 ### Caption Styling Patterns
 
 **Shortrocity's JSON Config:**
+
 ```json
 {
   "font": "Bangers-Regular.ttf",
@@ -433,6 +440,7 @@ async def capture_product_demo(url: str, actions: list):
 ```
 
 **AI-Youtube-Shorts-Generator's Franklin Gothic:**
+
 ```python
 # Professional caption styling
 caption_style = {
@@ -454,14 +462,14 @@ from transformers import Wav2Vec2ForCTC
 def force_align(audio_path, transcript):
     # Load model
     model = Wav2Vec2ForCTC.from_pretrained("facebook/wav2vec2-large-960h")
-    
+
     # Get character-level emissions
     emissions = model(audio_features).logits
-    
+
     # Use Viterbi algorithm to align
     trellis = get_trellis(emissions, transcript)
     path = backtrack(trellis)
-    
+
     # Convert to word-level timestamps
     word_times = merge_characters_to_words(path, transcript)
     return word_times
@@ -481,13 +489,13 @@ from moviepy.editor import *
 def render_video(images, audio, captions):
     # Create clips from images
     clips = [ImageClip(img).set_duration(seg_duration) for img in images]
-    
+
     # Concatenate with crossfade
     video = concatenate_videoclips(clips, method="compose")
-    
+
     # Add audio
     video = video.set_audio(AudioFileClip(audio))
-    
+
     # Add captions
     for caption in captions:
         txt_clip = TextClip(
@@ -497,7 +505,7 @@ def render_video(images, audio, captions):
             stroke_color='black'
         ).set_start(caption.start).set_duration(caption.duration)
         video = CompositeVideoClip([video, txt_clip])
-    
+
     # Export
     video.write_videofile(
         "output.mp4",
@@ -534,12 +542,12 @@ export const ShortVideo: React.FC<{
 }> = ({script, captions}) => {
   const frame = useCurrentFrame();
   const {fps} = useVideoConfig();
-  
+
   return (
     <AbsoluteFill>
       <BackgroundVideo src={script.backgroundUrl} />
-      <CaptionOverlay 
-        captions={captions} 
+      <CaptionOverlay
+        captions={captions}
         currentTime={frame / fps}
       />
     </AbsoluteFill>
@@ -554,6 +562,7 @@ export const ShortVideo: React.FC<{
 ### YouTube Upload Patterns
 
 **OAuth-based (youtube-shorts-generator):**
+
 ```python
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -561,7 +570,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 def upload_to_youtube(video_path, title, description, tags):
     credentials = get_credentials()  # OAuth flow
     youtube = build('youtube', 'v3', credentials=credentials)
-    
+
     request = youtube.videos().insert(
         part="snippet,status",
         body={
@@ -590,14 +599,14 @@ from selenium import webdriver
 
 def upload_via_selenium(video_path, platform="youtube"):
     driver = webdriver.Firefox(profile_path)
-    
+
     # Navigate to upload page
     driver.get("https://studio.youtube.com/channel/upload")
-    
+
     # Upload file
     file_input = driver.find_element(By.CSS_SELECTOR, "input[type='file']")
     file_input.send_keys(video_path)
-    
+
     # Fill metadata and submit
     # ...
 ```
@@ -673,20 +682,21 @@ class ContentStudio(ctk.CTk):
 
 ### Full Stack Breakdown
 
-| Component | VideoGraphAI | AI-Content-Studio | AutoTube | YASGU |
-|-----------|--------------|-------------------|----------|-------|
-| **Language** | Python | Python | Python + Docker | Python |
-| **UI** | Streamlit | CustomTkinter | n8n Web | CLI |
-| **LLM** | Groq | Gemini | Ollama | g4f |
-| **TTS** | F5-TTS | Gemini TTS | OpenTTS | CoquiTTS |
-| **Visuals** | TogetherAI | Vertex AI | Pollinations | DALL-E |
-| **Captions** | Gentle | Whisper | Built-in | AssemblyAI |
-| **Render** | FFmpeg | FFmpeg | MoviePy | MoviePy |
-| **Upload** | Manual | YouTube API | YouTube API | Selenium |
+| Component    | VideoGraphAI | AI-Content-Studio | AutoTube        | YASGU      |
+| ------------ | ------------ | ----------------- | --------------- | ---------- |
+| **Language** | Python       | Python            | Python + Docker | Python     |
+| **UI**       | Streamlit    | CustomTkinter     | n8n Web         | CLI        |
+| **LLM**      | Groq         | Gemini            | Ollama          | g4f        |
+| **TTS**      | F5-TTS       | Gemini TTS        | OpenTTS         | CoquiTTS   |
+| **Visuals**  | TogetherAI   | Vertex AI         | Pollinations    | DALL-E     |
+| **Captions** | Gentle       | Whisper           | Built-in        | AssemblyAI |
+| **Render**   | FFmpeg       | FFmpeg            | MoviePy         | MoviePy    |
+| **Upload**   | Manual       | YouTube API       | YouTube API     | Selenium   |
 
 ### Dependency Patterns
 
 **Minimal (Cassette):**
+
 ```
 - g4f (free GPT)
 - UnrealSpeech
@@ -695,6 +705,7 @@ class ContentStudio(ctk.CTk):
 ```
 
 **Production (AI-Content-Studio):**
+
 ```
 - google-generativeai
 - google-cloud-aiplatform
@@ -714,11 +725,11 @@ class ContentStudio(ctk.CTk):
 
 ```typescript
 // Support multiple input types
-type VideoInput = 
-  | { type: "topic"; topic: string; research?: boolean }
-  | { type: "url"; url: string; extractHighlights?: boolean }
-  | { type: "product"; productId: string; demoScript: DemoAction[] }
-  | { type: "trend"; source: "reddit" | "hackernews" | "twitter" }
+type VideoInput =
+  | { type: 'topic'; topic: string; research?: boolean }
+  | { type: 'url'; url: string; extractHighlights?: boolean }
+  | { type: 'product'; productId: string; demoScript: DemoAction[] }
+  | { type: 'trend'; source: 'reddit' | 'hackernews' | 'twitter' };
 ```
 
 ### 2. LLM Strategy: Gemini Primary + Groq Fallback
@@ -732,9 +743,9 @@ type VideoInput =
 ```typescript
 // TTS provider hierarchy
 const ttsProviders = [
-  { name: "kokoro", quality: "excellent", cost: "free", local: true },
-  { name: "edge-tts", quality: "good", cost: "free", local: false },
-  { name: "coqui-xtts", quality: "excellent", cost: "free", local: true, gpu: true }
+  { name: 'kokoro', quality: 'excellent', cost: 'free', local: true },
+  { name: 'edge-tts', quality: 'good', cost: 'free', local: false },
+  { name: 'coqui-xtts', quality: 'excellent', cost: 'free', local: true, gpu: true },
 ];
 ```
 
@@ -743,9 +754,9 @@ const ttsProviders = [
 ```typescript
 // Visual content priority
 const visualStrategies = [
-  { priority: 1, type: "product-capture", when: "product demo" },
-  { priority: 2, type: "pexels-stock", when: "generic b-roll" },
-  { priority: 3, type: "ai-generated", when: "specific scenes" }
+  { priority: 1, type: 'product-capture', when: 'product demo' },
+  { priority: 2, type: 'pexels-stock', when: 'generic b-roll' },
+  { priority: 3, type: 'ai-generated', when: 'specific scenes' },
 ];
 ```
 
@@ -764,8 +775,8 @@ export const videoConfig = {
   durationInFrames: 1800, // 60 seconds
   width: 1080,
   height: 1920,
-  codec: "h264",
-  crf: 18
+  codec: 'h264',
+  crf: 18,
 };
 ```
 
@@ -828,12 +839,12 @@ Need: Daily automation → Use: Gemini-YT-Automation
 
 ### B. Cost Optimization Matrix
 
-| Tier | LLM | TTS | Visuals | Monthly Cost |
-|------|-----|-----|---------|--------------|
-| **Free** | g4f | EdgeTTS | Pexels | $0 |
-| **Budget** | Groq | EdgeTTS | Pexels | ~$5 |
-| **Standard** | Gemini | Kokoro | Pexels + AI | ~$20 |
-| **Premium** | GPT-4 | ElevenLabs | DALL-E 3 | ~$100+ |
+| Tier         | LLM    | TTS        | Visuals     | Monthly Cost |
+| ------------ | ------ | ---------- | ----------- | ------------ |
+| **Free**     | g4f    | EdgeTTS    | Pexels      | $0           |
+| **Budget**   | Groq   | EdgeTTS    | Pexels      | ~$5          |
+| **Standard** | Gemini | Kokoro     | Pexels + AI | ~$20         |
+| **Premium**  | GPT-4  | ElevenLabs | DALL-E 3    | ~$100+       |
 
 ### C. Implementation Priority
 
@@ -849,8 +860,9 @@ Need: Daily automation → Use: Gemini-YT-Automation
 ---
 
 **Document Status:** Complete
-**Related Documents:** 
+**Related Documents:**
+
 - DD-010: short-video-maker-gyori
-- DD-012: vidosy  
+- DD-012: vidosy
 - DD-008: ShortGPT
 - DD-062: MCP Ecosystem

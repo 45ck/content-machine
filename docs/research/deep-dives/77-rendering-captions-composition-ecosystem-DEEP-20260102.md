@@ -36,14 +36,14 @@ Mosaico is a **Python library for programmatic video compositions**. It provides
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **AI Script Generation** | LLM-powered scripts for videos |
-| **Media Asset Management** | Audio, images, text, subtitles |
-| **Positioning System** | Absolute, relative, region-based |
-| **Effects** | Pan, zoom, extensible effect system |
-| **TTS Integration** | ElevenLabs, other synthesizers |
-| **ML Framework Integration** | Haystack, LangChain |
+| Feature                      | Description                         |
+| ---------------------------- | ----------------------------------- |
+| **AI Script Generation**     | LLM-powered scripts for videos      |
+| **Media Asset Management**   | Audio, images, text, subtitles      |
+| **Positioning System**       | Absolute, relative, region-based    |
+| **Effects**                  | Pan, zoom, extensible effect system |
+| **TTS Integration**          | ElevenLabs, other synthesizers      |
+| **ML Framework Integration** | Haystack, LangChain                 |
 
 #### Installation
 
@@ -157,29 +157,29 @@ npm install remotion-subtitle
 #### Usage
 
 ```javascript
-import { SubtitleSequence } from "remotion-subtitle";
-import { TypewriterCaption as Caption } from "remotion-subtitle";
-import { useEffect, useState } from "react";
+import { SubtitleSequence } from 'remotion-subtitle';
+import { TypewriterCaption as Caption } from 'remotion-subtitle';
+import { useEffect, useState } from 'react';
 
 export const Subtitles = () => {
   const { fps } = useVideoConfig();
   let [Sequences, setSequences] = useState([]);
   const [loaded, setLoaded] = useState(false);
-  
-  let subtitles = new SubtitleSequence("audio.srt");
-  
+
+  let subtitles = new SubtitleSequence('audio.srt');
+
   useEffect(() => {
     subtitles.ready().then(() => {
       setSequences(subtitles.getSequences(<Caption />, fps));
       setLoaded(true);
     });
   }, []);
-  
+
   return (
     <>
       {loaded && (
         <>
-          <Audio src={staticFile("audio.mp3")} />
+          <Audio src={staticFile('audio.mp3')} />
           {Sequences}
         </>
       )}
@@ -190,42 +190,39 @@ export const Subtitles = () => {
 
 #### 17 Caption Templates
 
-| Template | Effect |
-|----------|--------|
-| **BounceCaption** | Bouncing animation |
-| **ColorfulCaption** | Color changing text |
-| **ExplosiveCaption** | Explosive reveal |
-| **FadeCaption** | Fade in/out |
-| **FireCaption** | Fire effect |
-| **GlitchCaption** | Glitch effect |
-| **GlowingCaption** | Glowing text |
-| **LightningCaption** | Lightning effect |
-| **NeonCaption** | Neon glow |
-| **RotatingCaption** | 3D rotation |
-| **ShakeCaption** | Shake animation |
-| **ThreeDishCaption** | 3D appearance |
-| **TiltShiftCaption** | Tilt-shift blur |
-| **TypewriterCaption** | Typewriter effect |
-| **WavingCaption** | Wave motion |
-| **ZoomCaption** | Zoom in/out |
+| Template              | Effect              |
+| --------------------- | ------------------- |
+| **BounceCaption**     | Bouncing animation  |
+| **ColorfulCaption**   | Color changing text |
+| **ExplosiveCaption**  | Explosive reveal    |
+| **FadeCaption**       | Fade in/out         |
+| **FireCaption**       | Fire effect         |
+| **GlitchCaption**     | Glitch effect       |
+| **GlowingCaption**    | Glowing text        |
+| **LightningCaption**  | Lightning effect    |
+| **NeonCaption**       | Neon glow           |
+| **RotatingCaption**   | 3D rotation         |
+| **ShakeCaption**      | Shake animation     |
+| **ThreeDishCaption**  | 3D appearance       |
+| **TiltShiftCaption**  | Tilt-shift blur     |
+| **TypewriterCaption** | Typewriter effect   |
+| **WavingCaption**     | Wave motion         |
+| **ZoomCaption**       | Zoom in/out         |
 
 #### Custom Styling
 
 ```javascript
-subtitles.getSequences(
-  <Caption style={{ fontSize: "24px", color: "white" }} />, 
-  fps
-);
+subtitles.getSequences(<Caption style={{ fontSize: '24px', color: 'white' }} />, fps);
 ```
 
 #### API
 
-| Method | Description |
-|--------|-------------|
-| `new SubtitleSequence(filepath)` | Initialize with SRT file |
-| `ready()` | Promise to load SRT file |
-| `getSequences(component, fps)` | Generate Remotion sequences |
-| `getArray(fps)` | Get parsed subtitle array |
+| Method                           | Description                 |
+| -------------------------------- | --------------------------- |
+| `new SubtitleSequence(filepath)` | Initialize with SRT file    |
+| `ready()`                        | Promise to load SRT file    |
+| `getSequences(component, fps)`   | Generate Remotion sequences |
+| `getArray(fps)`                  | Get parsed subtitle array   |
 
 ---
 
@@ -243,15 +240,15 @@ chuk-motion is an **MCP server** that brings Remotion video generation to AI ass
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **MCP Compatible** | Works with Claude and other AI assistants |
-| **Design System** | Complete token system (colors, typography, spacing, motion) |
-| **51 Components** | Charts, code, scenes, overlays, layouts, animations |
-| **7 Themes** | Tech, Finance, Education, Lifestyle, Gaming, Minimal, Business |
-| **Multi-Platform** | Safe margins for LinkedIn, TikTok, Instagram, YouTube |
-| **Track-Based Timeline** | Professional multi-track composition |
-| **1471 Tests** | 86% coverage |
+| Feature                  | Description                                                    |
+| ------------------------ | -------------------------------------------------------------- |
+| **MCP Compatible**       | Works with Claude and other AI assistants                      |
+| **Design System**        | Complete token system (colors, typography, spacing, motion)    |
+| **51 Components**        | Charts, code, scenes, overlays, layouts, animations            |
+| **7 Themes**             | Tech, Finance, Education, Lifestyle, Gaming, Minimal, Business |
+| **Multi-Platform**       | Safe margins for LinkedIn, TikTok, Instagram, YouTube          |
+| **Track-Based Timeline** | Professional multi-track composition                           |
+| **1471 Tests**           | 86% coverage                                                   |
 
 #### Design Token Categories
 
@@ -262,27 +259,27 @@ chuk-motion is an **MCP server** that brings Remotion video generation to AI ass
 
 #### Platform Safe Margins
 
-| Platform | Top | Bottom | Left | Right |
-|----------|-----|--------|------|-------|
-| **LinkedIn Feed** | 40px | 40px | 24px | 24px |
-| **Instagram Stories** | 100px | 120px | 24px | 24px |
-| **TikTok** | 100px | 180px | 24px | 80px |
-| **YouTube** | 20px | 20px | 20px | 20px |
+| Platform              | Top   | Bottom | Left | Right |
+| --------------------- | ----- | ------ | ---- | ----- |
+| **LinkedIn Feed**     | 40px  | 40px   | 24px | 24px  |
+| **Instagram Stories** | 100px | 120px  | 24px | 24px  |
+| **TikTok**            | 100px | 180px  | 24px | 80px  |
+| **YouTube**           | 20px  | 20px   | 20px | 20px  |
 
 #### Component Library (51 total)
 
-| Category | Components |
-|----------|------------|
-| **Charts (6)** | PieChart, BarChart, HorizontalBarChart, LineChart, AreaChart, DonutChart |
-| **Scenes (2)** | TitleScene, EndScreen |
-| **Overlays (3)** | LowerThird, TextOverlay, SubscribeButton |
-| **Code (3)** | CodeBlock, TypingCode, CodeDiff |
-| **Layouts (17)** | Grid, SplitScreen, PiP, Mosaic, and more |
-| **Animations (3)** | Counter, LayoutEntrance, PanelCascade |
+| Category                | Components                                                                 |
+| ----------------------- | -------------------------------------------------------------------------- |
+| **Charts (6)**          | PieChart, BarChart, HorizontalBarChart, LineChart, AreaChart, DonutChart   |
+| **Scenes (2)**          | TitleScene, EndScreen                                                      |
+| **Overlays (3)**        | LowerThird, TextOverlay, SubscribeButton                                   |
+| **Code (3)**            | CodeBlock, TypingCode, CodeDiff                                            |
+| **Layouts (17)**        | Grid, SplitScreen, PiP, Mosaic, and more                                   |
+| **Animations (3)**      | Counter, LayoutEntrance, PanelCascade                                      |
 | **Text Animations (6)** | TypewriterText, StaggerText, WavyText, TrueFocus, DecryptedText, FuzzyText |
-| **Demo Realism (4)** | BeforeAfterSlider, BrowserFrame, DeviceFrame, Terminal |
-| **Content (5)** | DemoBox, ImageContent, StylizedWebPage, VideoContent, WebPage |
-| **Transitions (2)** | LayoutTransition, PixelTransition |
+| **Demo Realism (4)**    | BeforeAfterSlider, BrowserFrame, DeviceFrame, Terminal                     |
+| **Content (5)**         | DemoBox, ImageContent, StylizedWebPage, VideoContent, WebPage              |
+| **Transitions (2)**     | LayoutTransition, PixelTransition                                          |
 
 #### MCP Server Usage
 
@@ -355,11 +352,11 @@ Minimal starter to render Remotion videos via Express server with Railway deploy
 
 #### API Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/renders` | POST | Start a render |
-| `/renders/:id` | GET | Status of a render |
-| `/renders/:id` | DELETE | Cancel a render |
+| Endpoint       | Method | Description        |
+| -------------- | ------ | ------------------ |
+| `/renders`     | POST   | Start a render     |
+| `/renders/:id` | GET    | Status of a render |
+| `/renders/:id` | DELETE | Cancel a render    |
 
 #### Example Request
 
@@ -390,30 +387,31 @@ curl -X POST https://<your-app>.railway.app/renders \
 #### Overview
 
 WhisperX provides **fast automatic speech recognition** (70x realtime with large-v2) with:
+
 - Word-level timestamps
 - Speaker diarization
 - VAD preprocessing
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **70x Realtime** | Batched inference with large-v2 |
-| **faster-whisper** | <8GB GPU memory for large-v2 |
-| **Word-level Timestamps** | wav2vec2 alignment |
-| **Speaker Diarization** | pyannote-audio |
-| **VAD Preprocessing** | Reduces hallucination |
-| **Multi-language** | Many languages supported |
+| Feature                   | Description                     |
+| ------------------------- | ------------------------------- |
+| **70x Realtime**          | Batched inference with large-v2 |
+| **faster-whisper**        | <8GB GPU memory for large-v2    |
+| **Word-level Timestamps** | wav2vec2 alignment              |
+| **Speaker Diarization**   | pyannote-audio                  |
+| **VAD Preprocessing**     | Reduces hallucination           |
+| **Multi-language**        | Many languages supported        |
 
 #### Technical Components
 
-| Component | Purpose |
-|-----------|---------|
-| **Whisper** | OpenAI's ASR model |
-| **Wav2Vec2** | Phoneme-based forced alignment |
-| **pyannote-audio** | Speaker diarization |
-| **Silero VAD** | Voice activity detection |
-| **faster-whisper** | CTranslate2 backend |
+| Component          | Purpose                        |
+| ------------------ | ------------------------------ |
+| **Whisper**        | OpenAI's ASR model             |
+| **Wav2Vec2**       | Phoneme-based forced alignment |
+| **pyannote-audio** | Speaker diarization            |
+| **Silero VAD**     | Voice activity detection       |
+| **faster-whisper** | CTranslate2 backend            |
 
 #### Installation
 
@@ -465,22 +463,22 @@ print(result["segments"])  # Before alignment
 
 # 2. Align whisper output (word-level timestamps)
 model_a, metadata = whisperx.load_align_model(
-    language_code=result["language"], 
+    language_code=result["language"],
     device=device
 )
 result = whisperx.align(
-    result["segments"], 
-    model_a, 
-    metadata, 
-    audio, 
-    device, 
+    result["segments"],
+    model_a,
+    metadata,
+    audio,
+    device,
     return_char_alignments=False
 )
 print(result["segments"])  # After alignment
 
 # 3. Speaker diarization
 diarize_model = DiarizationPipeline(
-    use_auth_token=YOUR_HF_TOKEN, 
+    use_auth_token=YOUR_HF_TOKEN,
     device=device
 )
 diarize_segments = diarize_model(audio)
@@ -518,16 +516,16 @@ JSON2Video is a **video editing API** for creating, editing, and customizing vid
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Watermarks** | Add overlays |
-| **Resize** | Change video dimensions |
-| **Slideshows** | Create from images |
-| **Soundtrack** | Add background music |
-| **Multi-language** | Automate localization |
-| **Voice-over** | TTS integration |
-| **Text Animations** | Built-in effects |
-| **HTML5+CSS** | Real web elements |
+| Feature             | Description             |
+| ------------------- | ----------------------- |
+| **Watermarks**      | Add overlays            |
+| **Resize**          | Change video dimensions |
+| **Slideshows**      | Create from images      |
+| **Soundtrack**      | Add background music    |
+| **Multi-language**  | Automate localization   |
+| **Voice-over**      | TTS integration         |
+| **Text Animations** | Built-in effects        |
+| **HTML5+CSS**       | Real web elements       |
 
 #### Installation
 
@@ -592,24 +590,24 @@ Octokit is the **all-batteries-included GitHub SDK** for browsers, Node.js, and 
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **REST API** | Full coverage of GitHub REST API |
-| **GraphQL** | Query GitHub's GraphQL API |
-| **GitHub Apps** | Authentication, webhooks, OAuth |
-| **Action Client** | Pre-authenticated for Actions |
-| **100% Tested** | Complete test coverage |
-| **TypeScript** | Full type declarations |
-| **Universal** | Browsers, Node.js, Deno |
+| Feature           | Description                      |
+| ----------------- | -------------------------------- |
+| **REST API**      | Full coverage of GitHub REST API |
+| **GraphQL**       | Query GitHub's GraphQL API       |
+| **GitHub Apps**   | Authentication, webhooks, OAuth  |
+| **Action Client** | Pre-authenticated for Actions    |
+| **100% Tested**   | Complete test coverage           |
+| **TypeScript**    | Full type declarations           |
+| **Universal**     | Browsers, Node.js, Deno          |
 
 #### Installation
 
 ```javascript
 // Node.js
-import { Octokit, App } from "octokit";
+import { Octokit, App } from 'octokit';
 
 // Browser/Deno
-import { Octokit, App } from "https://esm.sh/octokit";
+import { Octokit, App } from 'https://esm.sh/octokit';
 ```
 
 #### Basic Usage
@@ -618,22 +616,26 @@ import { Octokit, App } from "https://esm.sh/octokit";
 const octokit = new Octokit({ auth: `personal-access-token123` });
 
 // Get authenticated user
-const { data: { login } } = await octokit.rest.users.getAuthenticated();
-console.log("Hello, %s", login);
+const {
+  data: { login },
+} = await octokit.rest.users.getAuthenticated();
+console.log('Hello, %s', login);
 
 // Create an issue
 await octokit.rest.issues.create({
-    owner: "octocat",
-    repo: "hello-world",
-    title: "Hello, world!",
-    body: "I created this issue using Octokit!",
+  owner: 'octocat',
+  repo: 'hello-world',
+  title: 'Hello, world!',
+  body: 'I created this issue using Octokit!',
 });
 ```
 
 #### GraphQL
 
 ```javascript
-const { viewer: { login } } = await octokit.graphql(`{
+const {
+  viewer: { login },
+} = await octokit.graphql(`{
   viewer {
     login
   }
@@ -644,15 +646,15 @@ const { viewer: { login } } = await octokit.graphql(`{
 
 ```javascript
 const iterator = octokit.paginate.iterator(octokit.rest.issues.listForRepo, {
-    owner: "octocat",
-    repo: "hello-world",
-    per_page: 100,
+  owner: 'octocat',
+  repo: 'hello-world',
+  per_page: 100,
 });
 
 for await (const { data: issues } of iterator) {
-    for (const issue of issues) {
-        console.log("Issue #%d: %s", issue.number, issue.title);
-    }
+  for (const issue of issues) {
+    console.log('Issue #%d: %s', issue.number, issue.title);
+  }
 }
 ```
 
@@ -742,13 +744,13 @@ for await (const { data: issues } of iterator) {
 
 ### Recommended Stack
 
-| Component | Tool | Rationale |
-|-----------|------|-----------|
-| **ASR** | WhisperX | Word-level timestamps, diarization |
-| **Python Composition** | Mosaico | AI script generation, LangChain integration |
-| **MCP Rendering** | chuk-motion | AI-friendly, design system |
-| **Caption Templates** | remotion-subtitles | 17 animated styles |
-| **GitHub Automation** | Octokit | Repo management |
+| Component              | Tool               | Rationale                                   |
+| ---------------------- | ------------------ | ------------------------------------------- |
+| **ASR**                | WhisperX           | Word-level timestamps, diarization          |
+| **Python Composition** | Mosaico            | AI script generation, LangChain integration |
+| **MCP Rendering**      | chuk-motion        | AI-friendly, design system                  |
+| **Caption Templates**  | remotion-subtitles | 17 animated styles                          |
+| **GitHub Automation**  | Octokit            | Repo management                             |
 
 ### Integration Pattern
 
@@ -763,34 +765,34 @@ const audio = await tts.synthesize(script);
 
 // 3. Transcribe with timestamps (WhisperX)
 const captions = await whisperx.transcribe(audio, {
-    model: 'large-v2',
-    align: true,
-    diarize: false,
+  model: 'large-v2',
+  align: true,
+  diarize: false,
 });
 
 // 4. Render video (chuk-motion MCP)
 await mcp.call('remotion_create_project', {
-    name: 'video',
-    theme: 'tech',
+  name: 'video',
+  theme: 'tech',
 });
 
 await mcp.call('remotion_add_title_scene', {
-    text: script.title,
-    duration: '3s',
+  text: script.title,
+  duration: '3s',
 });
 
 // 5. Add captions
 for (const caption of captions.segments) {
-    await mcp.call('remotion_add_text_overlay', {
-        text: caption.text,
-        start: caption.start,
-        duration: caption.end - caption.start,
-    });
+  await mcp.call('remotion_add_text_overlay', {
+    text: caption.text,
+    start: caption.start,
+    duration: caption.end - caption.start,
+  });
 }
 
 // 6. Render to MP4
 await mcp.call('remotion_render', {
-    output: 'output.mp4',
+  output: 'output.mp4',
 });
 ```
 
@@ -811,8 +813,8 @@ whisperx audio.wav --model large-v2 --diarize --hf_token TOKEN
 ### remotion-subtitles
 
 ```javascript
-import { SubtitleSequence, TypewriterCaption } from "remotion-subtitle";
-const subs = new SubtitleSequence("audio.srt");
+import { SubtitleSequence, TypewriterCaption } from 'remotion-subtitle';
+const subs = new SubtitleSequence('audio.srt');
 await subs.ready();
 const sequences = subs.getSequences(<TypewriterCaption />, 30);
 ```
@@ -836,7 +838,7 @@ render_video(project, "output/")
 ### Octokit
 
 ```javascript
-import { Octokit } from "octokit";
+import { Octokit } from 'octokit';
 const octokit = new Octokit({ auth: TOKEN });
 await octokit.rest.repos.get({ owner, repo });
 ```
@@ -845,10 +847,10 @@ await octokit.rest.repos.get({ owner, repo });
 
 ## 9. Document Metadata
 
-| Field | Value |
-|-------|-------|
-| **Document ID** | DD-077 |
-| **Created** | 2026-01-02 |
-| **Author** | Research Agent |
-| **Status** | Complete |
+| Field            | Value                  |
+| ---------------- | ---------------------- |
+| **Document ID**  | DD-077                 |
+| **Created**      | 2026-01-02             |
+| **Author**       | Research Agent         |
+| **Status**       | Complete               |
 | **Dependencies** | DD-044, DD-053, DD-058 |

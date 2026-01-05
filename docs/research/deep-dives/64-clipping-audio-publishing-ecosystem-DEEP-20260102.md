@@ -34,13 +34,13 @@ This deep dive covers three critical pillars of the content-machine architecture
 
 ### Tool Comparison Matrix
 
-| Tool | Input | Detection Method | Output | Best For |
-|------|-------|------------------|--------|----------|
-| **FunClip** | Video/Audio | Paraformer ASR + LLM | Clips + SRT | Chinese/English, LLM clipping |
-| **ai-clips-maker** | Video | WhisperX + Pyannote | Vertical clips | Speaker-aware clipping |
-| **Clip-Anything** | Video URL | Multimodal AI | Highlights | Virality scoring |
-| **PySceneDetect** | Video | Visual analysis | Scene list | Technical scene detection |
-| **Video-AutoClip** | Stream | Peak detection | Highlights | Gaming/streaming |
+| Tool               | Input       | Detection Method     | Output         | Best For                      |
+| ------------------ | ----------- | -------------------- | -------------- | ----------------------------- |
+| **FunClip**        | Video/Audio | Paraformer ASR + LLM | Clips + SRT    | Chinese/English, LLM clipping |
+| **ai-clips-maker** | Video       | WhisperX + Pyannote  | Vertical clips | Speaker-aware clipping        |
+| **Clip-Anything**  | Video URL   | Multimodal AI        | Highlights     | Virality scoring              |
+| **PySceneDetect**  | Video       | Visual analysis      | Scene list     | Technical scene detection     |
+| **Video-AutoClip** | Stream      | Peak detection       | Highlights     | Gaming/streaming              |
 
 ### FunClip (Alibaba DAMO Academy)
 
@@ -65,12 +65,14 @@ python funclip/videoclipper.py --stage 2 \
 ```
 
 **Key Features:**
+
 - **Paraformer-Large ASR:** 13M+ downloads, best open-source Chinese model
 - **SeACo-Paraformer:** Hotword customization for domain-specific terms
 - **CAM++ Speaker Recognition:** Clip by speaker ID
 - **LLM Integration:** GPT/Claude/Gemini for intelligent clip selection
 
 **LLM Clipping Workflow:**
+
 ```
 1. ASR → Full transcript with timestamps
 2. LLM Inference → Prompt: "Find 3 most engaging 30-second segments"
@@ -134,6 +136,7 @@ prompt = "Find all moments where the speaker gets excited about AI"
 ```
 
 **Unique Value:**
+
 - **Multimodal Analysis:** Combines video, audio, and text signals
 - **Virality Scoring:** Each scene rated for engagement potential
 - **Prompt-Based:** Natural language clip requests
@@ -143,13 +146,13 @@ prompt = "Find all moments where the speaker gets excited about AI"
 
 Based on `awesome-free-opusclip-alternatives`:
 
-| Tool | Free Plan | Cost/Month | Watermark | Best For |
-|------|-----------|------------|-----------|----------|
-| **Reelify AI** | 90 Hours | $0 | No | Bulk/Agency |
-| **Vizard AI** | 120 Mins | $30 | Yes | Manual editing |
-| **OpusClip** | 60 Mins | $29 | Yes | Polish/captions |
-| **GetMunch** | 0 Mins | $49 | Yes | Trend analysis |
-| **2Short.ai** | 15 Mins | $9.90 | Yes | YouTube only |
+| Tool           | Free Plan | Cost/Month | Watermark | Best For        |
+| -------------- | --------- | ---------- | --------- | --------------- |
+| **Reelify AI** | 90 Hours  | $0         | No        | Bulk/Agency     |
+| **Vizard AI**  | 120 Mins  | $30        | Yes       | Manual editing  |
+| **OpusClip**   | 60 Mins   | $29        | Yes       | Polish/captions |
+| **GetMunch**   | 0 Mins    | $49        | Yes       | Trend analysis  |
+| **2Short.ai**  | 15 Mins   | $9.90      | Yes       | YouTube only    |
 
 **Key Insight:** Reelify AI offers 90 hours free vs industry standard 90 minutes by using "Sparse Indexing" AI models that cost 90% less to run.
 
@@ -197,6 +200,7 @@ for i, (gs, ps, audio) in enumerate(generator):
 | `z` | Mandarin Chinese |
 
 **Key Features:**
+
 - **82M Parameters:** Lightweight but high quality
 - **Apache Licensed:** Free for commercial use
 - **GPU Acceleration:** MPS support for Apple Silicon
@@ -211,7 +215,7 @@ from openai import OpenAI
 
 # OpenAI-compatible API
 client = OpenAI(
-    base_url="http://localhost:8880/v1", 
+    base_url="http://localhost:8880/v1",
     api_key="not-needed"
 )
 
@@ -225,6 +229,7 @@ with client.audio.speech.with_streaming_response.create(
 ```
 
 **Production Features:**
+
 - **OpenAI-Compatible API:** Drop-in replacement
 - **Multi-language:** English, Japanese, Chinese, Vietnamese
 - **Voice Mixing:** Weighted combinations (e.g., "af_bella(2)+af_heart(1)")
@@ -233,6 +238,7 @@ with client.audio.speech.with_streaming_response.create(
 - **Docker/Kubernetes Ready:** Helm charts included
 
 **Voice Combination Example:**
+
 ```python
 # Mix voices with weights (auto-normalized to 100%)
 voice = "af_bella(2)+af_heart(1)"  # 67%/33% mix
@@ -250,14 +256,14 @@ response = requests.post(
 
 ### TTS Engine Comparison
 
-| Engine | Quality | Languages | Cost | Local? | Voice Clone? |
-|--------|---------|-----------|------|--------|--------------|
-| **Kokoro** | ⭐⭐⭐⭐⭐ | 9 | Free | Yes | Custom voices |
-| **EdgeTTS** | ⭐⭐⭐⭐ | 30+ | Free | No | No |
-| **Coqui xTTSv2** | ⭐⭐⭐⭐⭐ | 16 | Free | Yes | Yes |
-| **F5-TTS** | ⭐⭐⭐⭐⭐ | EN/ZH | Free | Yes | Yes |
-| **ElevenLabs** | ⭐⭐⭐⭐⭐ | 29 | $$$ | No | Yes |
-| **OpenAI TTS** | ⭐⭐⭐⭐⭐ | Many | $$ | No | No |
+| Engine           | Quality    | Languages | Cost | Local? | Voice Clone?  |
+| ---------------- | ---------- | --------- | ---- | ------ | ------------- |
+| **Kokoro**       | ⭐⭐⭐⭐⭐ | 9         | Free | Yes    | Custom voices |
+| **EdgeTTS**      | ⭐⭐⭐⭐   | 30+       | Free | No     | No            |
+| **Coqui xTTSv2** | ⭐⭐⭐⭐⭐ | 16        | Free | Yes    | Yes           |
+| **F5-TTS**       | ⭐⭐⭐⭐⭐ | EN/ZH     | Free | Yes    | Yes           |
+| **ElevenLabs**   | ⭐⭐⭐⭐⭐ | 29        | $$$  | No     | Yes           |
+| **OpenAI TTS**   | ⭐⭐⭐⭐⭐ | Many      | $$   | No     | No            |
 
 ---
 
@@ -285,6 +291,7 @@ python cli.py upload --user my_saved_username \
 ```
 
 **Key Features:**
+
 - **No Selenium:** Uses direct requests (3 seconds vs minutes)
 - **Multi-Account:** Manage multiple TikTok accounts
 - **Scheduling:** Up to 10 days in advance
@@ -298,6 +305,7 @@ python cli.py upload --user my_saved_username \
 Comprehensive social media management in Laravel:
 
 **Features:**
+
 - **Multi-Platform:** Facebook, Instagram, Twitter, LinkedIn, Pinterest
 - **Scheduling:** Visual calendar for content planning
 - **Team Collaboration:** Workspaces, task assignment
@@ -306,6 +314,7 @@ Comprehensive social media management in Laravel:
 - **Post Templates:** Consistency across channels
 
 **Deployment:**
+
 ```bash
 # Laravel-based, self-hosted
 composer require inovector/mixpost
@@ -346,12 +355,12 @@ uploader.close()
 
 ### Publishing Platform Comparison
 
-| Platform | Tool | Method | Multi-Account | Scheduling |
-|----------|------|--------|---------------|------------|
-| **TikTok** | TiktokAutoUploader | Direct API | Yes | 10 days |
-| **YouTube** | PillarGG | OAuth | Yes | Yes |
-| **All** | Mixpost | Official APIs | Yes | Unlimited |
-| **TikTok** | Selenium-based | Browser | Limited | Limited |
+| Platform    | Tool               | Method        | Multi-Account | Scheduling |
+| ----------- | ------------------ | ------------- | ------------- | ---------- |
+| **TikTok**  | TiktokAutoUploader | Direct API    | Yes           | 10 days    |
+| **YouTube** | PillarGG           | OAuth         | Yes           | Yes        |
+| **All**     | Mixpost            | Official APIs | Yes           | Unlimited  |
+| **TikTok**  | Selenium-based     | Browser       | Limited       | Limited    |
 
 ---
 
@@ -383,24 +392,24 @@ uploader.close()
 ```typescript
 // content-machine MCP integration
 const clipMcp = new McpClient({
-  serverPath: "./mcp-servers/funclip-server",
-  tools: ["transcribe", "find_clips", "export_clip"]
+  serverPath: './mcp-servers/funclip-server',
+  tools: ['transcribe', 'find_clips', 'export_clip'],
 });
 
 const audioMcp = new McpClient({
-  serverPath: "./mcp-servers/kokoro-server", 
-  tools: ["synthesize", "list_voices", "mix_voices"]
+  serverPath: './mcp-servers/kokoro-server',
+  tools: ['synthesize', 'list_voices', 'mix_voices'],
 });
 
 const publishMcp = new McpClient({
-  serverPath: "./mcp-servers/publish-server",
-  tools: ["upload_tiktok", "upload_youtube", "schedule"]
+  serverPath: './mcp-servers/publish-server',
+  tools: ['upload_tiktok', 'upload_youtube', 'schedule'],
 });
 
 // Agent orchestration
 const agent = new LangGraphAgent({
   tools: [clipMcp, audioMcp, publishMcp],
-  planner: "gemini-2.5-flash"
+  planner: 'gemini-2.5-flash',
 });
 ```
 
@@ -409,27 +418,27 @@ const agent = new LangGraphAgent({
 ```typescript
 // Kokoro-FastAPI as TTS service
 const kokoroClient = {
-  baseUrl: "http://localhost:8880/v1",
-  
+  baseUrl: 'http://localhost:8880/v1',
+
   async synthesize(text: string, voice: string): Promise<Buffer> {
     const response = await fetch(`${this.baseUrl}/audio/speech`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: "kokoro",
+        model: 'kokoro',
         input: text,
         voice: voice,
-        response_format: "mp3"
-      })
+        response_format: 'mp3',
+      }),
     });
     return Buffer.from(await response.arrayBuffer());
   },
-  
+
   async getVoices(): Promise<string[]> {
     const response = await fetch(`${this.baseUrl}/audio/voices`);
     const data = await response.json();
     return data.voices;
-  }
+  },
 };
 ```
 
@@ -440,11 +449,13 @@ const kokoroClient = {
 ### 1. Clipping Strategy
 
 **Primary:** FunClip for ASR + LLM-based clipping
+
 - Best Chinese ASR (relevant for global content)
 - LLM integration for intelligent selection
 - Gradio UI for review workflow
 
 **Secondary:** ai-clips-maker for speaker-aware clipping
+
 - WhisperX for word-level timestamps
 - Pyannote for speaker diarization
 - Vertical crop automation
@@ -452,38 +463,42 @@ const kokoroClient = {
 ### 2. TTS Strategy
 
 **Tier 1 (Production):** Kokoro-FastAPI
+
 - OpenAI-compatible API
 - Voice mixing capabilities
 - Word-level timestamps for captions
 - Docker deployment ready
 
 **Tier 2 (Fallback):** EdgeTTS
+
 - Zero cost, no local GPU
 - 30+ languages
 - Microsoft infrastructure reliability
 
 **Configuration:**
+
 ```typescript
 const ttsConfig = {
   primary: {
-    type: "kokoro",
-    endpoint: "http://kokoro:8880/v1",
-    defaultVoice: "af_heart",
-    fallbackVoice: "af_bella"
+    type: 'kokoro',
+    endpoint: 'http://kokoro:8880/v1',
+    defaultVoice: 'af_heart',
+    fallbackVoice: 'af_bella',
   },
   fallback: {
-    type: "edge-tts",
-    voice: "en-US-ChristopherNeural"
-  }
+    type: 'edge-tts',
+    voice: 'en-US-ChristopherNeural',
+  },
 };
 ```
 
 ### 3. Publishing Strategy
 
 **Multi-Platform Architecture:**
+
 ```typescript
 interface PublishTarget {
-  platform: "tiktok" | "youtube" | "instagram";
+  platform: 'tiktok' | 'youtube' | 'instagram';
   credentials: Credentials;
   schedule?: Date;
   metadata: {
@@ -496,16 +511,18 @@ interface PublishTarget {
 
 class PublishOrchestrator {
   async publish(video: Video, targets: PublishTarget[]): Promise<PublishResult[]> {
-    return Promise.all(targets.map(target => {
-      switch(target.platform) {
-        case "tiktok":
-          return this.tiktokUploader.upload(video, target);
-        case "youtube":
-          return this.youtubeUploader.upload(video, target);
-        case "instagram":
-          return this.instagramUploader.upload(video, target);
-      }
-    }));
+    return Promise.all(
+      targets.map((target) => {
+        switch (target.platform) {
+          case 'tiktok':
+            return this.tiktokUploader.upload(video, target);
+          case 'youtube':
+            return this.youtubeUploader.upload(video, target);
+          case 'instagram':
+            return this.instagramUploader.upload(video, target);
+        }
+      })
+    );
   }
 }
 ```
@@ -592,6 +609,7 @@ The clipping, audio, and publishing ecosystem provides:
 3. **Publishing:** TiktokAutoUploader + YouTube API + Mixpost cover all platforms
 
 For content-machine, the recommended stack:
+
 - **Clipping:** FunClip (LLM mode) for intelligent extraction
 - **TTS:** Kokoro-FastAPI with voice mixing
 - **Captions:** WhisperX with word-level timestamps
@@ -603,6 +621,7 @@ This combination provides enterprise-grade capabilities with zero recurring cost
 
 **Document Status:** Complete
 **Related Documents:**
+
 - DD-055: Audio TTS Captions Publishing
 - DD-063: End-to-End Generators Mega Synthesis
 - DD-044: Rendering Captions Audio

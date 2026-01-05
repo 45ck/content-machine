@@ -25,6 +25,7 @@ All three repos use **keyword-based search** against stock footage APIs (primari
 **Endpoint:** `https://api.pexels.com/videos/search`
 
 #### ShortGPT Implementation
+
 **File:** [vendor/ShortGPT/shortGPT/api_utils/pexels_api.py](../../../vendor/ShortGPT/shortGPT/api_utils/pexels_api.py)
 
 ```python
@@ -43,6 +44,7 @@ def search_videos(query_string, orientation_landscape=True):
 ```
 
 #### MoneyPrinterTurbo Implementation
+
 **File:** [vendor/MoneyPrinterTurbo/app/services/material.py](../../../vendor/MoneyPrinterTurbo/app/services/material.py)
 
 ```python
@@ -53,7 +55,7 @@ def search_videos_pexels(
 ) -> List[MaterialInfo]:
     params = {"query": search_term, "per_page": 20, "orientation": video_orientation}
     query_url = f"https://api.pexels.com/videos/search?{urlencode(params)}"
-    
+
     # Filter by duration and resolution
     for v in videos:
         duration = v["duration"]
@@ -66,6 +68,7 @@ def search_videos_pexels(
 ```
 
 #### short-video-maker-gyori Implementation (TypeScript)
+
 **File:** [vendor/short-video-maker-gyori/src/short-creator/libraries/Pexels.ts](../../../vendor/short-video-maker-gyori/src/short-creator/libraries/Pexels.ts)
 
 ```typescript
@@ -74,21 +77,21 @@ private async _findVideo(searchTerm: string, minDurationSeconds: number, ...): P
       `https://api.pexels.com/videos/search?orientation=${orientation}&size=medium&per_page=80&query=${encodeURIComponent(searchTerm)}`,
       { headers: { "Authorization": this.API_KEY } }
     );
-    
+
     // Filter: duration >= minDuration + 3s buffer
     // Filter: exact resolution match (1080x1920 for portrait)
     const filteredVideos = videos.filter(video => {
         if (duration >= minDurationSeconds + durationBufferSeconds) {
             for (const file of video.video_files) {
-                if (file.quality === "hd" && 
-                    file.width === requiredVideoWidth && 
+                if (file.quality === "hd" &&
+                    file.width === requiredVideoWidth &&
                     file.height === requiredVideoHeight) {
                     return true;
                 }
             }
         }
     });
-    
+
     // Random selection from filtered results
     return filteredVideos[Math.floor(Math.random() * filteredVideos.length)];
 }
@@ -130,7 +133,7 @@ def getVideoSearchQueriesTimed(captions_timed):
     chat, system = gpt_utils.load_local_yaml_prompt('prompt_templates/editing_generate_videos.yaml')
     prompt = chat.replace("<<TIMED_CAPTIONS>>", f"{captions_timed}")
     res = gpt_utils.llm_completion(chat_prompt=prompt, system=system)
-    
+
     # Parse JSON response
     for segment in data["video_segments"]:
         time_range = segment["time_range"]
@@ -152,12 +155,8 @@ def getVideoSearchQueriesTimed(captions_timed):
 
 # Output format:
 {
-    "video_segments": [
-        {
-            "time_range": [0.0, 4.324],
-            "queries": ["coffee steam", "hot drink", "morning breakfast"]
-        }
-    ]
+  'video_segments':
+    [{ 'time_range': [0.0, 4.324], 'queries': ['coffee steam', 'hot drink', 'morning breakfast'] }],
 }
 ```
 
@@ -200,11 +199,11 @@ Generate {amount} search terms for stock videos, depending on the subject of a v
 
 ```typescript
 export const sceneInput = z.object({
-  text: z.string().describe("Text to be spoken in the video"),
+  text: z.string().describe('Text to be spoken in the video'),
   searchTerms: z
     .array(z.string())
     .describe(
-      "Search term for video, 1 word, and at least 2-3 search terms should be provided for each scene."
+      'Search term for video, 1 word, and at least 2-3 search terms should be provided for each scene.'
     ),
 });
 ```
@@ -217,13 +216,14 @@ export const sceneInput = z.object({
 
 ### Finding: **All repos use keyword-based search only**
 
-| Repo | Matching Type | Embedding Used? |
-|------|---------------|-----------------|
-| ShortGPT | Keyword (LLM-generated) | ❌ No |
-| MoneyPrinterTurbo | Keyword (LLM-generated) | ❌ No |
-| short-video-maker-gyori | Keyword (user-provided) | ❌ No |
+| Repo                    | Matching Type           | Embedding Used? |
+| ----------------------- | ----------------------- | --------------- |
+| ShortGPT                | Keyword (LLM-generated) | ❌ No           |
+| MoneyPrinterTurbo       | Keyword (LLM-generated) | ❌ No           |
+| short-video-maker-gyori | Keyword (user-provided) | ❌ No           |
 
 **Why no semantic search?**
+
 1. Pexels/Pixabay APIs only support keyword search
 2. Building a local video embedding database would require:
    - Pre-downloading all stock footage
@@ -250,6 +250,7 @@ Script → LLM → Keywords → Pexels API → Results
 ### 4.1 Duration Matching
 
 #### ShortGPT
+
 **File:** [vendor/ShortGPT/shortGPT/api_utils/pexels_api.py#L31](../../../vendor/ShortGPT/shortGPT/api_utils/pexels_api.py)
 
 ```python
@@ -258,29 +259,31 @@ sorted_videos = sorted(filtered_videos, key=lambda x: abs(15-int(x['duration']))
 ```
 
 #### MoneyPrinterTurbo
+
 **File:** [vendor/MoneyPrinterTurbo/app/services/material.py#L67-L72](../../../vendor/MoneyPrinterTurbo/app/services/material.py)
 
 ```python
 # Filter: video must be >= minimum_duration
 if duration < minimum_duration:
     continue
-    
+
 # Later: accumulate clips until total >= audio_duration
 if total_duration > audio_duration:
     break
 ```
 
 #### short-video-maker-gyori
+
 **File:** [vendor/short-video-maker-gyori/src/short-creator/libraries/Pexels.ts#L83-L87](../../../vendor/short-video-maker-gyori/src/short-creator/libraries/Pexels.ts)
 
 ```typescript
-const durationBufferSeconds = 3;  // Add 3s buffer
+const durationBufferSeconds = 3; // Add 3s buffer
 
 // Filter: duration must be >= required + buffer
 if (duration >= minDurationSeconds + durationBufferSeconds) {
-    // Also adjusts for FPS conversion: fps < 25 → duration * (fps / 25)
-    const fps = video.video_files[0].fps;
-    const duration = fps < 25 ? video.duration * (fps / 25) : video.duration;
+  // Also adjusts for FPS conversion: fps < 25 → duration * (fps / 25)
+  const fps = video.video_files[0].fps;
+  const duration = fps < 25 ? video.duration * (fps / 25) : video.duration;
 }
 ```
 
@@ -289,9 +292,9 @@ if (duration >= minDurationSeconds + durationBufferSeconds) {
 All repos filter by **exact resolution match**:
 
 | Orientation | Resolution | Aspect Ratio |
-|-------------|------------|--------------|
-| Portrait | 1080×1920 | 9:16 |
-| Landscape | 1920×1080 | 16:9 |
+| ----------- | ---------- | ------------ |
+| Portrait    | 1080×1920  | 9:16         |
+| Landscape   | 1920×1080  | 16:9         |
 
 ```python
 # ShortGPT
@@ -303,7 +306,8 @@ else:
 
 ```typescript
 // short-video-maker-gyori
-const { width: requiredVideoWidth, height: requiredVideoHeight } = getOrientationConfig(orientation);
+const { width: requiredVideoWidth, height: requiredVideoHeight } =
+  getOrientationConfig(orientation);
 // Filters to exact match: file.width === requiredVideoWidth && file.height === requiredVideoHeight
 ```
 
@@ -323,10 +327,10 @@ for (t1, t2), search_terms in timed_video_searches:
 ```typescript
 // short-video-maker-gyori
 const video = await this.pexelsApi.findVideo(
-    scene.searchTerms,
-    audioLength,
-    excludeVideoIds,  // Track and exclude used IDs
-    orientation,
+  scene.searchTerms,
+  audioLength,
+  excludeVideoIds, // Track and exclude used IDs
+  orientation
 );
 excludeVideoIds.push(video.id);
 ```
@@ -343,22 +347,22 @@ excludeVideoIds.push(video.id);
 def save_video(video_url: str, save_dir: str = "") -> str:
     if not save_dir:
         save_dir = utils.storage_dir("cache_videos")  # Default cache location
-    
+
     # Generate deterministic filename from URL hash
     url_without_query = video_url.split("?")[0]
     url_hash = utils.md5(url_without_query)
     video_id = f"vid-{url_hash}"
     video_path = f"{save_dir}/{video_id}.mp4"
-    
+
     # Skip if already cached
     if os.path.exists(video_path) and os.path.getsize(video_path) > 0:
         logger.info(f"video already exists: {video_path}")
         return video_path
-    
+
     # Download to cache
     with open(video_path, "wb") as f:
         f.write(requests.get(video_url, ...).content)
-    
+
     # Validate downloaded video
     clip = VideoFileClip(video_path)
     if clip.duration > 0 and clip.fps > 0:
@@ -366,6 +370,7 @@ def save_video(video_url: str, save_dir: str = "") -> str:
 ```
 
 **Configuration:**
+
 ```toml
 # config.example.toml
 material_directory = ""        # Default: ./storage/cache_videos
@@ -380,7 +385,7 @@ material_directory = "/path"   # Custom shared cache
 ```typescript
 // Environment-based cache size limit
 if (process.env.VIDEO_CACHE_SIZE_IN_BYTES) {
-    this.videoCacheSizeInBytes = parseInt(process.env.VIDEO_CACHE_SIZE_IN_BYTES);
+  this.videoCacheSizeInBytes = parseInt(process.env.VIDEO_CACHE_SIZE_IN_BYTES);
 }
 // Default in Docker: 2GB (2097152000 bytes)
 ```
@@ -392,14 +397,14 @@ if (process.env.VIDEO_CACHE_SIZE_IN_BYTES) {
 const tempVideoPath = path.join(this.config.tempDirPath, tempVideoFileName);
 
 await new Promise<void>((resolve, reject) => {
-    const fileStream = fs.createWriteStream(tempVideoPath);
-    https.get(video.url, (response) => {
-        response.pipe(fileStream);
-        fileStream.on("finish", () => {
-            fileStream.close();
-            resolve();
-        });
+  const fileStream = fs.createWriteStream(tempVideoPath);
+  https.get(video.url, (response) => {
+    response.pipe(fileStream);
+    fileStream.on('finish', () => {
+      fileStream.close();
+      resolve();
     });
+  });
 });
 ```
 
@@ -428,7 +433,7 @@ async findVideo(searchTerms: string[], ...): Promise<Video> {
     // Shuffle both user terms and joker terms
     const shuffledJokerTerms = jokerTerms.sort(() => Math.random() - 0.5);
     const shuffledSearchTerms = searchTerms.sort(() => Math.random() - 0.5);
-    
+
     // Try user terms first, then fallback to jokers
     for (const searchTerm of [...shuffledSearchTerms, ...shuffledJokerTerms]) {
         try {
@@ -468,7 +473,7 @@ def download_videos(task_id, search_terms: List[str], ...):
         for item in video_items:
             if item.url not in valid_video_urls:
                 valid_video_items.append(item)
-    
+
     # Randomly shuffle if configured
     if video_contact_mode.value == VideoConcatMode.random.value:
         random.shuffle(valid_video_items)
@@ -561,16 +566,16 @@ def download_videos(task_id, search_terms: List[str], ...):
 
 ## 8. File Reference Index
 
-| Pattern | ShortGPT | MoneyPrinterTurbo | short-video-maker-gyori |
-|---------|----------|-------------------|-------------------------|
-| **Pexels API** | [pexels_api.py](../../../vendor/ShortGPT/shortGPT/api_utils/pexels_api.py) | [material.py#L35-79](../../../vendor/MoneyPrinterTurbo/app/services/material.py) | [Pexels.ts](../../../vendor/short-video-maker-gyori/src/short-creator/libraries/Pexels.ts) |
-| **Term Generation** | [gpt_editing.py](../../../vendor/ShortGPT/shortGPT/gpt/gpt_editing.py) | [llm.py#L405-466](../../../vendor/MoneyPrinterTurbo/app/services/llm.py) | N/A (user-provided) |
-| **Prompt Template** | [editing_generate_videos.yaml](../../../vendor/ShortGPT/shortGPT/prompt_templates/editing_generate_videos.yaml) | Inline in llm.py | N/A |
-| **Video Download** | N/A (URL streaming) | [material.py#L131-170](../../../vendor/MoneyPrinterTurbo/app/services/material.py) | [ShortCreator.ts#L148-169](../../../vendor/short-video-maker-gyori/src/short-creator/ShortCreator.ts) |
-| **Fallback/Joker** | content_video_engine.py | N/A | [Pexels.ts#L6](../../../vendor/short-video-maker-gyori/src/short-creator/libraries/Pexels.ts) |
-| **Duration Logic** | pexels_api.py#L31 | material.py#L67-72 | Pexels.ts#L83-87 |
-| **Aspect Ratio** | pexels_api.py#L28-33 | material.py#L74-78 | Pexels.ts#L64-67 |
+| Pattern             | ShortGPT                                                                                                        | MoneyPrinterTurbo                                                                  | short-video-maker-gyori                                                                               |
+| ------------------- | --------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| **Pexels API**      | [pexels_api.py](../../../vendor/ShortGPT/shortGPT/api_utils/pexels_api.py)                                      | [material.py#L35-79](../../../vendor/MoneyPrinterTurbo/app/services/material.py)   | [Pexels.ts](../../../vendor/short-video-maker-gyori/src/short-creator/libraries/Pexels.ts)            |
+| **Term Generation** | [gpt_editing.py](../../../vendor/ShortGPT/shortGPT/gpt/gpt_editing.py)                                          | [llm.py#L405-466](../../../vendor/MoneyPrinterTurbo/app/services/llm.py)           | N/A (user-provided)                                                                                   |
+| **Prompt Template** | [editing_generate_videos.yaml](../../../vendor/ShortGPT/shortGPT/prompt_templates/editing_generate_videos.yaml) | Inline in llm.py                                                                   | N/A                                                                                                   |
+| **Video Download**  | N/A (URL streaming)                                                                                             | [material.py#L131-170](../../../vendor/MoneyPrinterTurbo/app/services/material.py) | [ShortCreator.ts#L148-169](../../../vendor/short-video-maker-gyori/src/short-creator/ShortCreator.ts) |
+| **Fallback/Joker**  | content_video_engine.py                                                                                         | N/A                                                                                | [Pexels.ts#L6](../../../vendor/short-video-maker-gyori/src/short-creator/libraries/Pexels.ts)         |
+| **Duration Logic**  | pexels_api.py#L31                                                                                               | material.py#L67-72                                                                 | Pexels.ts#L83-87                                                                                      |
+| **Aspect Ratio**    | pexels_api.py#L28-33                                                                                            | material.py#L74-78                                                                 | Pexels.ts#L64-67                                                                                      |
 
 ---
 
-*Research compiled from vendor submodules. See individual files for full implementation details.*
+_Research compiled from vendor submodules. See individual files for full implementation details._

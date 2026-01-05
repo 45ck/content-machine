@@ -15,13 +15,13 @@ Orchestration systems coordinate multi-step video generation workflows. Key requ
 
 ## Tool Comparison
 
-| Tool | Type | Language | Complexity | Best For |
-|------|------|----------|------------|----------|
-| **BullMQ** | Queue | TypeScript | Low | Simple jobs |
-| **RQ** | Queue | Python | Low | Python jobs |
-| **Temporal** | Workflow | Multi | High | Complex flows |
-| **n8n** | Visual | TypeScript | Low | No-code |
-| **Airflow** | DAG | Python | Medium | Data pipelines |
+| Tool         | Type     | Language   | Complexity | Best For       |
+| ------------ | -------- | ---------- | ---------- | -------------- |
+| **BullMQ**   | Queue    | TypeScript | Low        | Simple jobs    |
+| **RQ**       | Queue    | Python     | Low        | Python jobs    |
+| **Temporal** | Workflow | Multi      | High       | Complex flows  |
+| **n8n**      | Visual   | TypeScript | Low        | No-code        |
+| **Airflow**  | DAG      | Python     | Medium     | Data pipelines |
 
 ---
 
@@ -53,31 +53,39 @@ const connection = new IORedis();
 const videoQueue = new Queue('video-generation', { connection });
 
 // Add job
-await videoQueue.add('render', {
-  scenes: [{ text: 'Hello world', searchTerms: ['technology'] }],
-  config: { music: 'chill', voice: 'af_heart' }
-}, {
-  priority: 1,          // Lower = higher priority
-  attempts: 3,          // Retry count
-  backoff: {
-    type: 'exponential',
-    delay: 1000
+await videoQueue.add(
+  'render',
+  {
+    scenes: [{ text: 'Hello world', searchTerms: ['technology'] }],
+    config: { music: 'chill', voice: 'af_heart' },
+  },
+  {
+    priority: 1, // Lower = higher priority
+    attempts: 3, // Retry count
+    backoff: {
+      type: 'exponential',
+      delay: 1000,
+    },
   }
-});
+);
 
 // Process jobs
-const worker = new Worker('video-generation', async (job) => {
-  console.log(`Processing ${job.id}: ${job.name}`);
-  
-  // Update progress
-  await job.updateProgress(10);
-  
-  // Do work
-  const videoPath = await renderVideo(job.data);
-  
-  await job.updateProgress(100);
-  return { videoPath };
-}, { connection });
+const worker = new Worker(
+  'video-generation',
+  async (job) => {
+    console.log(`Processing ${job.id}: ${job.name}`);
+
+    // Update progress
+    await job.updateProgress(10);
+
+    // Do work
+    const videoPath = await renderVideo(job.data);
+
+    await job.updateProgress(100);
+    return { videoPath };
+  },
+  { connection }
+);
 
 // Handle completion
 worker.on('completed', (job, result) => {
@@ -101,21 +109,27 @@ await flowProducer.add({
   name: 'publish',
   queueName: 'publish',
   data: { platforms: ['tiktok', 'youtube'] },
-  children: [{
-    name: 'render',
-    queueName: 'render',
-    data: { config: videoConfig },
-    children: [{
-      name: 'audio',
-      queueName: 'audio',
-      data: { scenes: scenes },
-      children: [{
-        name: 'script',
-        queueName: 'script',
-        data: { topic: 'AI trends' }
-      }]
-    }]
-  }]
+  children: [
+    {
+      name: 'render',
+      queueName: 'render',
+      data: { config: videoConfig },
+      children: [
+        {
+          name: 'audio',
+          queueName: 'audio',
+          data: { scenes: scenes },
+          children: [
+            {
+              name: 'script',
+              queueName: 'script',
+              data: { topic: 'AI trends' },
+            },
+          ],
+        },
+      ],
+    },
+  ],
 });
 
 // Jobs execute in dependency order:
@@ -135,9 +149,9 @@ createBullBoard({
     new BullMQAdapter(scriptQueue),
     new BullMQAdapter(audioQueue),
     new BullMQAdapter(renderQueue),
-    new BullMQAdapter(publishQueue)
+    new BullMQAdapter(publishQueue),
   ],
-  serverAdapter
+  serverAdapter,
 });
 
 app.use('/admin/queues', serverAdapter.getRouter());
@@ -175,7 +189,7 @@ def render_video(scenes: list, config: dict) -> str:
     return video_path
 
 # Enqueue job
-job = q.enqueue(render_video, scenes, config, 
+job = q.enqueue(render_video, scenes, config,
     job_timeout=600,  # 10 minutes
     result_ttl=86400  # Keep result 24 hours
 )
@@ -248,21 +262,21 @@ class VideoProductionWorkflow:
             topic,
             start_to_close_timeout=timedelta(minutes=5)
         )
-        
+
         # Step 2: Audio
         audio = await workflow.execute_activity(
             generate_audio,
             script,
             start_to_close_timeout=timedelta(minutes=10)
         )
-        
+
         # Step 3: Render
         video = await workflow.execute_activity(
             render_video,
             audio,
             start_to_close_timeout=timedelta(minutes=30)
         )
-        
+
         return video
 ```
 
@@ -273,23 +287,23 @@ class VideoProductionWorkflow:
 class ReviewableVideoWorkflow:
     def __init__(self):
         self.approved = False
-    
+
     @workflow.signal
     async def approve(self):
         self.approved = True
-    
+
     @workflow.signal
     async def reject(self, feedback: str):
         self.rejection_feedback = feedback
-    
+
     @workflow.run
     async def run(self, topic: str) -> str:
         # Generate video
         video = await self.generate_video(topic)
-        
+
         # Wait for human approval
         await workflow.wait_condition(lambda: self.approved)
-        
+
         # Publish after approval
         return await self.publish(video)
 ```
@@ -366,7 +380,7 @@ class ReviewableVideoWorkflow:
 // Single queue, process sequentially
 await videoQueue.add('full-pipeline', {
   topic: 'AI trends',
-  config: videoConfig
+  config: videoConfig,
 });
 
 worker.process(async (job) => {
@@ -383,14 +397,11 @@ worker.process(async (job) => {
 // Parallel asset preparation
 const [audio, backgrounds] = await Promise.all([
   audioQueue.add('tts', { script }),
-  assetQueue.add('fetch-backgrounds', { searchTerms })
+  assetQueue.add('fetch-backgrounds', { searchTerms }),
 ]);
 
 // Wait for both
-await Promise.all([
-  audio.finished(),
-  backgrounds.finished()
-]);
+await Promise.all([audio.finished(), backgrounds.finished()]);
 
 // Then render
 await renderQueue.add('render', { audioPath, backgroundPaths });
@@ -403,7 +414,7 @@ await renderQueue.add('render', { audioPath, backgroundPaths });
 audioWorker.on('completed', async (job, result) => {
   // Automatically trigger next step
   await renderQueue.add('render', {
-    audioPath: result.audioPath
+    audioPath: result.audioPath,
   });
 });
 
@@ -411,7 +422,7 @@ renderWorker.on('completed', async (job, result) => {
   // Notify completion
   await notifyService.send({
     event: 'video-ready',
-    videoPath: result.videoPath
+    videoPath: result.videoPath,
   });
 });
 ```
@@ -436,7 +447,7 @@ for (let i = 0; i < numWorkers; i++) {
 ```typescript
 // High priority for premium users
 await videoQueue.add('render', data, {
-  priority: isPremium ? 1 : 10
+  priority: isPremium ? 1 : 10,
 });
 ```
 
@@ -446,11 +457,11 @@ await videoQueue.add('render', data, {
 // Limit concurrent jobs
 const worker = new Worker('render', renderJob, {
   connection,
-  concurrency: 2,  // Max 2 concurrent
+  concurrency: 2, // Max 2 concurrent
   limiter: {
-    max: 10,       // Max 10 per
-    duration: 60000 // minute
-  }
+    max: 10, // Max 10 per
+    duration: 60000, // minute
+  },
 });
 ```
 
@@ -484,33 +495,39 @@ import { Queue, Worker, FlowProducer } from 'bullmq';
 
 export class VideoQueueService {
   private flow: FlowProducer;
-  
+
   constructor(redis: IORedis) {
     this.flow = new FlowProducer({ connection: redis });
   }
-  
+
   async createVideo(topic: string, config: VideoConfig): Promise<string> {
     const job = await this.flow.add({
       name: 'publish',
       queueName: 'publish',
-      children: [{
-        name: 'render',
-        queueName: 'render',
-        children: [{
-          name: 'audio',
-          queueName: 'audio',
-          children: [{
-            name: 'script',
-            queueName: 'script',
-            data: { topic, config }
-          }]
-        }]
-      }]
+      children: [
+        {
+          name: 'render',
+          queueName: 'render',
+          children: [
+            {
+              name: 'audio',
+              queueName: 'audio',
+              children: [
+                {
+                  name: 'script',
+                  queueName: 'script',
+                  data: { topic, config },
+                },
+              ],
+            },
+          ],
+        },
+      ],
     });
-    
+
     return job.job.id;
   }
-  
+
   async getStatus(jobId: string): Promise<JobStatus> {
     // Implementation
   }

@@ -55,6 +55,7 @@ Please note that you must use English for generating video search terms; Chinese
 ```
 
 **Key Design Decisions:**
+
 - Forces **1-3 words per term** (Pexels works best with short queries)
 - Requires **English only** - handles internationalization by translating at LLM level
 - Returns **JSON array** - structured output for parsing
@@ -117,6 +118,7 @@ chat_prompt: |
 ```
 
 **Key Design Decisions:**
+
 - **1-2 words only** - even stricter than MoneyPrinterTurbo
 - **3 alternatives per segment** - built-in fallback strategy
 - **Concrete, visual terms** - explicitly avoids abstract concepts
@@ -141,11 +143,11 @@ def get_search_terms(video_subject: str, amount: int, script: str, ai_model: str
 
     Each search term should consist of 1-3 words,
     always add the main subject of the video.
-    
+
     YOU MUST ONLY RETURN THE JSON-ARRAY OF STRINGS.
-    YOU MUST NOT RETURN ANYTHING ELSE. 
+    YOU MUST NOT RETURN ANYTHING ELSE.
     YOU MUST NOT RETURN THE SCRIPT.
-    
+
     The search terms must be related to the subject of the video.
     Here is an example of a JSON-Array of strings:
     ["search term 1", "search term 2", "search term 3"]
@@ -166,7 +168,7 @@ def get_search_terms(video_subject: str, amount: int, script: str, ai_model: str
 ```yaml
 # vendor/viralfactory/src/engines/Pipelines/prompts/long_form.yaml (imager section)
 
-Your goal is to create assets for the video. For this, you will be able to 
+Your goal is to create assets for the video. For this, you will be able to
 choose between AI generated assets, and stock assets.
 
 Here is when to USE stock assets:
@@ -242,16 +244,17 @@ async findVideo(
 // vendor/short-video-maker-gyori/src/types/shorts.ts
 
 export const sceneInput = z.object({
-  text: z.string().describe("Text to be spoken in the video"),
+  text: z.string().describe('Text to be spoken in the video'),
   searchTerms: z
     .array(z.string())
     .describe(
-      "Search term for video, 1 word, and at least 2-3 search terms should be provided for each scene.",
+      'Search term for video, 1 word, and at least 2-3 search terms should be provided for each scene.'
     ),
 });
 ```
 
 **Fallback Strategy:**
+
 1. Shuffle user-provided `searchTerms`
 2. Try each term in random order
 3. If all fail, try `jokerTerms` (nature, globe, space, ocean)
@@ -270,7 +273,7 @@ def _generateVideoUrls(self):
     timed_video_searches = self._db_timed_video_searches
     timed_video_urls = []
     used_links = []
-    
+
     for (t1, t2), search_terms in timed_video_searches:
         url = ""
         # Try queries in REVERSE order (most specific first? or LLM ordering preference)
@@ -283,6 +286,7 @@ def _generateVideoUrls(self):
 ```
 
 **Key Design:**
+
 - Tries **3 alternative queries** per segment
 - Iterates in **reverse order** (last query first - unclear why)
 - Tracks **used videos** to avoid duplicates
@@ -335,7 +339,7 @@ def search_videos(query_string, orientation_landscape=True):
 // vendor/short-video-maker-gyori/src/short-creator/libraries/Pexels.ts
 
 const response = await fetch(
-  `https://api.pexels.com/videos/search?orientation=${orientation}&size=medium&per_page=80&query=${encodeURIComponent(searchTerm)}`,
+  `https://api.pexels.com/videos/search?orientation=${orientation}&size=medium&per_page=80&query=${encodeURIComponent(searchTerm)}`
   // ...
 );
 ```
@@ -344,12 +348,12 @@ const response = await fetch(
 
 **No explicit handling** - all repos rely on LLM prompts to enforce 1-3 word limits:
 
-| Repo | Prompt Constraint | Actual Enforcement |
-|------|-------------------|-------------------|
-| MoneyPrinterTurbo | "1-3 words" | None (trusts LLM) |
-| ShortGPT | "1-2 words" | None (trusts LLM) |
-| viralfactory | "1-2 words MAXIMUM" | None (trusts LLM) |
-| short-video-maker-gyori | "1 word" in schema | None (schema doc only) |
+| Repo                    | Prompt Constraint   | Actual Enforcement     |
+| ----------------------- | ------------------- | ---------------------- |
+| MoneyPrinterTurbo       | "1-3 words"         | None (trusts LLM)      |
+| ShortGPT                | "1-2 words"         | None (trusts LLM)      |
+| viralfactory            | "1-2 words MAXIMUM" | None (trusts LLM)      |
+| short-video-maker-gyori | "1 word" in schema  | None (schema doc only) |
 
 **Pexels actual limit:** Not documented, but testing shows queries >5 words often return empty results.
 
@@ -361,13 +365,13 @@ const response = await fetch(
 
 **YES** - This is the **dominant pattern**:
 
-| Repo | LLM Generation | Method |
-|------|---------------|--------|
-| MoneyPrinterTurbo | ✅ Yes | `generate_terms()` function |
-| ShortGPT | ✅ Yes | `getVideoSearchQueriesTimed()` |
-| MoneyPrinter | ✅ Yes | `get_search_terms()` |
-| viralfactory | ✅ Yes | Inline in pipeline prompt |
-| short-video-maker-gyori | ❌ No | Expects pre-defined input |
+| Repo                    | LLM Generation | Method                         |
+| ----------------------- | -------------- | ------------------------------ |
+| MoneyPrinterTurbo       | ✅ Yes         | `generate_terms()` function    |
+| ShortGPT                | ✅ Yes         | `getVideoSearchQueriesTimed()` |
+| MoneyPrinter            | ✅ Yes         | `get_search_terms()`           |
+| viralfactory            | ✅ Yes         | Inline in pipeline prompt      |
+| short-video-maker-gyori | ❌ No          | Expects pre-defined input      |
 
 ### 2. How do they handle Pexels query length limits?
 
@@ -377,7 +381,7 @@ const response = await fetch(
 # ShortGPT prompt
 "Each query must be 1-2 words"
 
-# MoneyPrinterTurbo prompt  
+# MoneyPrinterTurbo prompt
 "Each search term should consist of 1-3 words"
 
 # viralfactory prompt
@@ -390,17 +394,17 @@ const response = await fetch(
 
 **Fallback strategies vary:**
 
-| Repo | Fallback Strategy |
-|------|------------------|
+| Repo                    | Fallback Strategy                                         |
+| ----------------------- | --------------------------------------------------------- |
 | short-video-maker-gyori | `jokerTerms` array: ["nature", "globe", "space", "ocean"] |
-| ShortGPT | Try next of 3 alternative queries (reverse order) |
-| Faceless-short | Try next of 3 alternative queries (normal order) |
-| MoneyPrinterTurbo | None - returns empty list, caller handles |
+| ShortGPT                | Try next of 3 alternative queries (reverse order)         |
+| Faceless-short          | Try next of 3 alternative queries (normal order)          |
+| MoneyPrinterTurbo       | None - returns empty list, caller handles                 |
 
 **short-video-maker-gyori's joker terms** is the only "generic fallback" pattern found:
 
 ```typescript
-const jokerTerms: string[] = ["nature", "globe", "space", "ocean"];
+const jokerTerms: string[] = ['nature', 'globe', 'space', 'ocean'];
 ```
 
 ---
@@ -424,15 +428,15 @@ Based on this research, here's a proposed keyword translation pipeline:
 
 ```typescript
 interface VisualDescription {
-  text: string;           // "A developer typing code on a laptop in a coffee shop"
-  context: string;        // Scene context from script
-  duration: number;       // How long the clip needs to be
+  text: string; // "A developer typing code on a laptop in a coffee shop"
+  context: string; // Scene context from script
+  duration: number; // How long the clip needs to be
 }
 
 interface StockQuery {
-  terms: string[];        // ["coding laptop", "developer typing", "coffee shop work"]
-  fallbacks: string[];    // ["technology", "workspace", "computer"]
-  priority: number;       // 1 = most relevant
+  terms: string[]; // ["coding laptop", "developer typing", "coffee shop work"]
+  fallbacks: string[]; // ["technology", "workspace", "computer"]
+  priority: number; // 1 = most relevant
 }
 
 async function translateToKeywords(description: VisualDescription): Promise<StockQuery> {
@@ -443,14 +447,14 @@ async function translateToKeywords(description: VisualDescription): Promise<Stoc
              Output: JSON array of strings.`,
     maxTokens: 100,
   });
-  
+
   // Step 2: Category fallbacks (new pattern)
   const category = await classifyVisualCategory(description.text);
   const categoryFallbacks = CATEGORY_FALLBACKS[category]; // e.g., "technology" → ["computer", "office", "screen"]
-  
+
   // Step 3: Static joker fallbacks (from short-video-maker-gyori)
-  const jokerFallbacks = ["nature", "abstract", "motion", "technology"];
-  
+  const jokerFallbacks = ['nature', 'abstract', 'motion', 'technology'];
+
   return {
     terms: llmTerms,
     fallbacks: [...categoryFallbacks, ...jokerFallbacks],
@@ -463,16 +467,16 @@ async function translateToKeywords(description: VisualDescription): Promise<Stoc
 
 ## File References
 
-| Pattern | File Path | Lines |
-|---------|-----------|-------|
-| LLM term generation | [vendor/MoneyPrinterTurbo/app/services/llm.py](../../../vendor/MoneyPrinterTurbo/app/services/llm.py) | 395-466 |
-| Video search prompt template | [vendor/ShortGPT/shortGPT/prompt_templates/editing_generate_videos.yaml](../../../vendor/ShortGPT/shortGPT/prompt_templates/editing_generate_videos.yaml) | Full file |
-| Timed query generation | [vendor/ShortGPT/shortGPT/gpt/gpt_editing.py](../../../vendor/ShortGPT/shortGPT/gpt/gpt_editing.py) | 51-92 |
-| Joker fallback terms | [vendor/short-video-maker-gyori/src/short-creator/libraries/Pexels.ts](../../../vendor/short-video-maker-gyori/src/short-creator/libraries/Pexels.ts) | 6, 137-180 |
-| Multi-query fallback | [vendor/ShortGPT/shortGPT/engine/content_video_engine.py](../../../vendor/ShortGPT/shortGPT/engine/content_video_engine.py) | 84-96 |
-| Pexels API wrapper | [vendor/ShortGPT/shortGPT/api_utils/pexels_api.py](../../../vendor/ShortGPT/shortGPT/api_utils/pexels_api.py) | Full file |
-| Stock/AI hybrid prompts | [vendor/viralfactory/src/engines/Pipelines/prompts/long_form.yaml](../../../vendor/viralfactory/src/engines/Pipelines/prompts/long_form.yaml) | 140-175 |
-| Schema definition | [vendor/short-video-maker-gyori/src/types/shorts.ts](../../../vendor/short-video-maker-gyori/src/types/shorts.ts) | 35-40 |
+| Pattern                      | File Path                                                                                                                                                 | Lines      |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| LLM term generation          | [vendor/MoneyPrinterTurbo/app/services/llm.py](../../../vendor/MoneyPrinterTurbo/app/services/llm.py)                                                     | 395-466    |
+| Video search prompt template | [vendor/ShortGPT/shortGPT/prompt_templates/editing_generate_videos.yaml](../../../vendor/ShortGPT/shortGPT/prompt_templates/editing_generate_videos.yaml) | Full file  |
+| Timed query generation       | [vendor/ShortGPT/shortGPT/gpt/gpt_editing.py](../../../vendor/ShortGPT/shortGPT/gpt/gpt_editing.py)                                                       | 51-92      |
+| Joker fallback terms         | [vendor/short-video-maker-gyori/src/short-creator/libraries/Pexels.ts](../../../vendor/short-video-maker-gyori/src/short-creator/libraries/Pexels.ts)     | 6, 137-180 |
+| Multi-query fallback         | [vendor/ShortGPT/shortGPT/engine/content_video_engine.py](../../../vendor/ShortGPT/shortGPT/engine/content_video_engine.py)                               | 84-96      |
+| Pexels API wrapper           | [vendor/ShortGPT/shortGPT/api_utils/pexels_api.py](../../../vendor/ShortGPT/shortGPT/api_utils/pexels_api.py)                                             | Full file  |
+| Stock/AI hybrid prompts      | [vendor/viralfactory/src/engines/Pipelines/prompts/long_form.yaml](../../../vendor/viralfactory/src/engines/Pipelines/prompts/long_form.yaml)             | 140-175    |
+| Schema definition            | [vendor/short-video-maker-gyori/src/types/shorts.ts](../../../vendor/short-video-maker-gyori/src/types/shorts.ts)                                         | 35-40      |
 
 ---
 
@@ -486,6 +490,7 @@ The vendored repos consistently use **LLM prompting** as the primary method for 
 4. **No runtime validation** of query length
 
 For content-machine, we should adopt this pattern with added improvements:
+
 - Category-based fallback hierarchies
 - Query length validation before API call
 - Success rate tracking per query term

@@ -27,7 +27,7 @@ This research examines patterns for reliably getting structured JSON output from
 
 ```typescript
 function getResponseFormat(
-  outputType: SerializedOutputType,
+  outputType: SerializedOutputType
 ): ResponseFormatText | ResponseFormatJSONSchema | ResponseFormatJSONObject {
   if (outputType === 'text') {
     return { type: 'text' };
@@ -38,7 +38,7 @@ function getResponseFormat(
       type: 'json_schema',
       json_schema: {
         name: outputType.name,
-        strict: outputType.strict,  // ← Key: strict mode for reliable output
+        strict: outputType.strict, // ← Key: strict mode for reliable output
         schema: outputType.schema,
       },
     };
@@ -103,21 +103,21 @@ tool_use_block_param = BetaToolUseBlockParam(
 **File:** [vendor/short-video-maker-gyori/src/types/shorts.ts](../../../vendor/short-video-maker-gyori/src/types/shorts.ts#L1-L40)
 
 ```typescript
-import z from "zod";
+import z from 'zod';
 
 export const sceneInput = z.object({
-  text: z.string().describe("Text to be spoken in the video"),
+  text: z.string().describe('Text to be spoken in the video'),
   searchTerms: z
     .array(z.string())
     .describe(
-      "Search term for video, 1 word, and at least 2-3 search terms should be provided for each scene."
+      'Search term for video, 1 word, and at least 2-3 search terms should be provided for each scene.'
     ),
 });
 export type SceneInput = z.infer<typeof sceneInput>;
 
 export const createShortInput = z.object({
-  scenes: z.array(sceneInput).describe("Each scene to be created"),
-  config: renderConfig.describe("Configuration for rendering the video"),
+  scenes: z.array(sceneInput).describe('Each scene to be created'),
+  config: renderConfig.describe('Configuration for rendering the video'),
 });
 export type CreateShortInput = z.infer<typeof createShortInput>;
 ```
@@ -125,28 +125,30 @@ export type CreateShortInput = z.infer<typeof createShortInput>;
 **File:** [vendor/short-video-maker-gyori/src/server/validator.ts](../../../vendor/short-video-maker-gyori/src/server/validator.ts#L1-L27)
 
 ```typescript
-import { createShortInput, CreateShortInput } from "../types/shorts";
-import { ZodError } from "zod";
+import { createShortInput, CreateShortInput } from '../types/shorts';
+import { ZodError } from 'zod';
 
 export function validateCreateShortInput(input: object): CreateShortInput {
   const validated = createShortInput.safeParse(input);
-  
+
   if (validated.success) {
     return validated.data;
   }
 
   // Process the validation errors
   const errorResult = formatZodError(validated.error);
-  throw new Error(JSON.stringify({
-    message: errorResult.message,
-    missingFields: errorResult.missingFields,
-  }));
+  throw new Error(
+    JSON.stringify({
+      message: errorResult.message,
+      missingFields: errorResult.missingFields,
+    })
+  );
 }
 
 function formatZodError(error: ZodError): ValidationErrorResult {
   const missingFields: Record<string, string> = {};
   error.errors.forEach((err) => {
-    const path = err.path.join(".");
+    const path = err.path.join('.');
     missingFields[path] = err.message;
   });
   return { message, missingFields };
@@ -169,7 +171,7 @@ const schema: SerializedOutputType = {
       foo: { type: 'string' },
     },
     required: ['foo'],
-    additionalProperties: false,  // ← Required for strict mode
+    additionalProperties: false, // ← Required for strict mode
   },
 };
 ```
@@ -198,14 +200,14 @@ def generate_terms(video_subject: str, video_script: str, amount: int = 5) -> Li
 ## Output Example:
 ["search term 1", "search term 2", "search term 3"]
 """
-    
+
     search_terms = []
     response = ""
     for i in range(_max_retries):
         try:
             response = _generate_response(prompt)
             search_terms = json.loads(response)
-            
+
             # Validate type after parsing
             if not isinstance(search_terms, list) or not all(
                 isinstance(term, str) for term in search_terms
@@ -226,11 +228,12 @@ def generate_terms(video_subject: str, video_script: str, amount: int = 5) -> Li
 
         if search_terms and len(search_terms) > 0:
             break
-            
+
     return search_terms
 ```
 
 **Key Patterns:**
+
 1. **Max retries** - Loop up to N times on failure
 2. **Type validation** - Check parsed result matches expected type
 3. **Regex fallback** - Extract JSON from messy response using `r"\[.*]"` pattern
@@ -254,7 +257,7 @@ def extract_biggest_json(string):
 ```python
 def extractJsonFromString(text):
     """Extract JSON from LLM response by finding { } boundaries."""
-    start = text.find('{') 
+    start = text.find('{')
     end = text.rfind('}') + 1
     if start == -1 or end == 0:
         raise Exception("Error: No JSON object found in response")
@@ -265,25 +268,25 @@ def extractJsonFromString(text):
 def getVideoSearchQueriesTimed(captions_timed):
     """Retry loop with JSON extraction."""
     err = ""
-    
+
     for _ in range(4):  # 4 retries
         try:
             res = gpt_utils.llm_completion(chat_prompt=prompt, system=system)
             data = extractJsonFromString(res)
-            
+
             # Validate structure
             formatted_queries = []
             for segment in data["video_segments"]:
                 # ... process ...
-            
+
             if not formatted_queries:
                 raise ValueError("Generated segments don't cover full video duration")
-                
+
             return formatted_queries
         except Exception as e:
             err = str(e)
             print(f"Error generating video search queries {err}")
-    
+
     raise Exception(f"Failed to generate video search queries {err}")
 ```
 
@@ -298,18 +301,18 @@ def getVideoSearchQueriesTimed(captions_timed):
 ```python
 class ModelRetry(Exception):
     """Exception to raise when a tool function should be retried.
-    
-    The agent will return the message to the model and ask it to try calling 
+
+    The agent will return the message to the model and ask it to try calling
     the function/tool again.
     """
     message: str
-    
+
     def __init__(self, message: str):
         self.message = message
         super().__init__(message)
 ```
 
-**File:** [vendor/agents/pydantic-ai/pydantic_ai_slim/pydantic_ai/_output.py](../../../vendor/agents/pydantic-ai/pydantic_ai_slim/pydantic_ai/_output.py#L514-L545)
+**File:** [vendor/agents/pydantic-ai/pydantic_ai_slim/pydantic_ai/\_output.py](../../../vendor/agents/pydantic-ai/pydantic_ai_slim/pydantic_ai/_output.py#L514-L545)
 
 ```python
 async def process(
@@ -325,7 +328,7 @@ async def process(
         data = _utils.strip_markdown_fences(data)
 
     try:
-        output = self.validate(data, allow_partial=allow_partial, 
+        output = self.validate(data, allow_partial=allow_partial,
                                validation_context=run_context.validation_context)
     except ValidationError as e:
         if wrap_validation_errors:
@@ -350,13 +353,13 @@ def validate(self, data: str | dict[str, Any] | None, ...) -> dict[str, Any]:
 
 ### pydantic-ai: Output Validators
 
-**File:** [vendor/agents/pydantic-ai/pydantic_ai_slim/pydantic_ai/_output.py](../../../vendor/agents/pydantic-ai/pydantic_ai_slim/pydantic_ai/_output.py#L170-L210)
+**File:** [vendor/agents/pydantic-ai/pydantic_ai_slim/pydantic_ai/\_output.py](../../../vendor/agents/pydantic-ai/pydantic_ai_slim/pydantic_ai/_output.py#L170-L210)
 
 ```python
 @dataclass
 class OutputValidator(Generic[AgentDepsT, OutputDataT_inv]):
     function: OutputValidatorFunc[AgentDepsT, OutputDataT_inv]
-    
+
     async def validate(
         self,
         result: T,
@@ -380,7 +383,7 @@ class OutputValidator(Generic[AgentDepsT, OutputDataT_inv]):
                 raise ToolRetryError(m) from r
             else:
                 raise r
-        
+
         return result_data
 ```
 
@@ -394,7 +397,7 @@ class OutputValidator(Generic[AgentDepsT, OutputDataT_inv]):
 
 ```typescript
 export function getResponseFormat(
-  outputType: SerializedOutputType,
+  outputType: SerializedOutputType
 ): LanguageModelV2CallOptions['responseFormat'] {
   if (outputType === 'text') {
     return { type: 'text' };
@@ -439,6 +442,7 @@ prompt = f"""
 ```
 
 **Best Practices from Prompts:**
+
 1. **Explicit constraints** - "you must only return the json-array"
 2. **Output example** - Show exact format expected
 3. **Type specification** - "json-array of strings"
@@ -479,7 +483,7 @@ def prepare_request(self, model_settings, model_request_parameters):
     if model_request_parameters.output_mode == 'auto':
         output_mode = 'native' if self.profile.supports_json_schema_output else 'prompted'
         model_request_parameters = replace(model_request_parameters, output_mode=output_mode)
-    
+
     # Anthropic requires strict=True for native output
     if model_request_parameters.output_mode == 'native':
         if model_request_parameters.output_object.strict is False:
@@ -487,14 +491,15 @@ def prepare_request(self, model_settings, model_request_parameters):
                 'Setting `strict=False` on `output_type=NativeOutput(...)` is not allowed for Anthropic models.'
             )
         model_request_parameters = replace(
-            model_request_parameters, 
+            model_request_parameters,
             output_object=replace(model_request_parameters.output_object, strict=True)
         )
-    
+
     return super().prepare_request(model_settings, model_request_parameters)
 ```
 
 **Key Pattern:** Use `ModelProfile` to check provider capabilities and select appropriate output mode:
+
 - `supports_json_schema_output` → Native structured output
 - Otherwise → Prompted output (schema in prompt) or Tool output
 
@@ -529,28 +534,28 @@ async function getStructuredOutput<T>(
   maxRetries = 3
 ): Promise<T> {
   let lastError: Error | null = null;
-  
+
   for (let i = 0; i < maxRetries; i++) {
     try {
       const response = await llm.complete(prompt);
-      
+
       // Try native parsing first
       const parsed = schema.safeParse(JSON.parse(response));
       if (parsed.success) return parsed.data;
-      
+
       // Fallback: Extract JSON from response
       const jsonMatch = response.match(/\{[\s\S]*\}/);
       if (jsonMatch) {
         const extracted = schema.safeParse(JSON.parse(jsonMatch[0]));
         if (extracted.success) return extracted.data;
       }
-      
+
       lastError = new Error(`Validation failed: ${parsed.error}`);
     } catch (e) {
       lastError = e as Error;
     }
   }
-  
+
   throw lastError;
 }
 ```
@@ -560,15 +565,15 @@ async function getStructuredOutput<T>(
 ```typescript
 // Define schemas with descriptions for better LLM understanding
 const SceneSchema = z.object({
-  text: z.string().describe("Voiceover text for this scene"),
-  duration: z.number().describe("Duration in seconds (5-30)"),
-  searchTerms: z.array(z.string()).describe("1-3 word search terms for B-roll"),
+  text: z.string().describe('Voiceover text for this scene'),
+  duration: z.number().describe('Duration in seconds (5-30)'),
+  searchTerms: z.array(z.string()).describe('1-3 word search terms for B-roll'),
 });
 
 const VideoScriptSchema = z.object({
-  title: z.string().describe("Catchy title under 60 chars"),
+  title: z.string().describe('Catchy title under 60 chars'),
   scenes: z.array(SceneSchema).min(1).max(10),
-  hook: z.string().describe("Opening hook to grab attention"),
+  hook: z.string().describe('Opening hook to grab attention'),
 });
 ```
 
@@ -590,11 +595,11 @@ IMPORTANT: Return ONLY the JSON object, no markdown fences or explanation.
 
 ## Summary Table
 
-| Provider | Method | Strict Mode | Retry Strategy |
-|----------|--------|-------------|----------------|
-| OpenAI | `response_format: { type: "json_schema" }` | ✅ `strict: true` | Validation → Retry |
-| Anthropic | `tool_use` blocks | ✅ Always strict | `is_error: true` in tool result |
-| Other | Prompted + Validation | N/A | Regex extraction → Retry |
+| Provider  | Method                                     | Strict Mode       | Retry Strategy                  |
+| --------- | ------------------------------------------ | ----------------- | ------------------------------- |
+| OpenAI    | `response_format: { type: "json_schema" }` | ✅ `strict: true` | Validation → Retry              |
+| Anthropic | `tool_use` blocks                          | ✅ Always strict  | `is_error: true` in tool result |
+| Other     | Prompted + Validation                      | N/A               | Regex extraction → Retry        |
 
 ---
 
@@ -603,6 +608,6 @@ IMPORTANT: Return ONLY the JSON object, no markdown fences or explanation.
 - [vendor/MoneyPrinterTurbo/app/services/llm.py](../../../vendor/MoneyPrinterTurbo/app/services/llm.py) - Multi-provider LLM with retry
 - [vendor/ShortGPT/shortGPT/gpt/gpt_editing.py](../../../vendor/ShortGPT/shortGPT/gpt/gpt_editing.py) - JSON extraction patterns
 - [vendor/openai-agents-js/packages/agents-openai/src/openaiChatCompletionsModel.ts](../../../vendor/openai-agents-js/packages/agents-openai/src/openaiChatCompletionsModel.ts) - OpenAI JSON schema
-- [vendor/agents/pydantic-ai/pydantic_ai_slim/pydantic_ai/_output.py](../../../vendor/agents/pydantic-ai/pydantic_ai_slim/pydantic_ai/_output.py) - Pydantic validation
+- [vendor/agents/pydantic-ai/pydantic_ai_slim/pydantic_ai/\_output.py](../../../vendor/agents/pydantic-ai/pydantic_ai_slim/pydantic_ai/_output.py) - Pydantic validation
 - [vendor/agents/pydantic-ai/pydantic_ai_slim/pydantic_ai/models/anthropic.py](../../../vendor/agents/pydantic-ai/pydantic_ai_slim/pydantic_ai/models/anthropic.py) - Anthropic tool_use
 - [vendor/short-video-maker-gyori/src/types/shorts.ts](../../../vendor/short-video-maker-gyori/src/types/shorts.ts) - Zod schema patterns

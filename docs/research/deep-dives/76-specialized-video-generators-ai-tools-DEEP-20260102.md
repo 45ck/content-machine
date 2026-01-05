@@ -37,17 +37,17 @@ Cassette is a **terminal-based** Python program that creates 30-second explanato
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **GPT-3.5-turbo** | Transcript generation |
-| **UnrealSpeech API** | Voiceover generation (free tier) |
-| **FFmpeg + MoviePy** | Video editing |
-| **Custom Fonts** | Multiple font options |
-| **Background Music** | Multiple music tracks |
-| **Voice Selection** | Multiple TTS voices |
-| **Subtitle Styles** | Word or sentence timestamps |
-| **Background Gameplay** | Video backdrop options |
-| **Character Images** | Visual character overlays |
+| Feature                 | Description                      |
+| ----------------------- | -------------------------------- |
+| **GPT-3.5-turbo**       | Transcript generation            |
+| **UnrealSpeech API**    | Voiceover generation (free tier) |
+| **FFmpeg + MoviePy**    | Video editing                    |
+| **Custom Fonts**        | Multiple font options            |
+| **Background Music**    | Multiple music tracks            |
+| **Voice Selection**     | Multiple TTS voices              |
+| **Subtitle Styles**     | Word or sentence timestamps      |
+| **Background Gameplay** | Video backdrop options           |
+| **Character Images**    | Visual character overlays        |
 
 #### Installation
 
@@ -55,7 +55,7 @@ Cassette is a **terminal-based** Python program that creates 30-second explanato
 # Linux
 sudo apt-get install -y python3-dev libasound2-dev ffmpeg
 pip install -r requirements.txt
-mkdir ~/.local/share/fonts 
+mkdir ~/.local/share/fonts
 cp fonts/* ~/.local/share/fonts/ && fc-cache -f -v
 
 # Windows
@@ -104,34 +104,34 @@ Crank generates **complete YouTube Shorts** from a single topic, including video
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Gemini API** | Script/title/description generation |
-| **Whisper** | Caption generation (tiny to large-v3) |
-| **spaCy** | Natural language processing |
-| **YouTube Upload** | Direct publishing via OAuth |
-| **Plugin System** | Custom background video plugins |
-| **YAML Config** | Configurable prompts and behavior |
+| Feature            | Description                           |
+| ------------------ | ------------------------------------- |
+| **Gemini API**     | Script/title/description generation   |
+| **Whisper**        | Caption generation (tiny to large-v3) |
+| **spaCy**          | Natural language processing           |
+| **YouTube Upload** | Direct publishing via OAuth           |
+| **Plugin System**  | Custom background video plugins       |
+| **YAML Config**    | Configurable prompts and behavior     |
 
 #### Configuration
 
 ```yaml
 # config/preset.yml
 NAME: MyChannel
-PROMPT: "Topic or idea for the video"
+PROMPT: 'Topic or idea for the video'
 UPLOAD: true
-DELAY: 2.5  # hours between uploads
+DELAY: 2.5 # hours between uploads
 WHISPER_MODEL: small
-FONT: "Comic Sans MS"
+FONT: 'Comic Sans MS'
 ```
 
 ```yaml
 # config/prompt.yml
-GET_CONTENT: "Guidelines for transcript generation"
-GET_TITLE: "Guidelines for title generation"
-GET_SEARCH_TERM: "YouTube search term for background"
-GET_DESCRIPTION: "Description generation guidelines"
-GET_CATEGORY_ID: "Category assignment guidelines"
+GET_CONTENT: 'Guidelines for transcript generation'
+GET_TITLE: 'Guidelines for title generation'
+GET_SEARCH_TERM: 'YouTube search term for background'
+GET_DESCRIPTION: 'Description generation guidelines'
+GET_CATEGORY_ID: 'Category assignment guidelines'
 ```
 
 #### Installation
@@ -172,15 +172,15 @@ OBrainRot converts Reddit URLs into "brain rot" style TikTok videos. Features se
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Reddit Scraping** | Collects title and story from URL |
+| Feature              | Description                              |
+| -------------------- | ---------------------------------------- |
+| **Reddit Scraping**  | Collects title and story from URL        |
 | **Thread Selection** | VADER + Llama 3.3 70b sentiment analysis |
-| **Coqui xTTSv2** | Lightweight, portable TTS |
-| **Wav2Vec2** | Forced alignment for subtitles |
-| **Image Overlays** | Character images per sentence |
-| **Web UI** | Flask-based interface |
-| **Docker** | Containerized deployment |
+| **Coqui xTTSv2**     | Lightweight, portable TTS                |
+| **Wav2Vec2**         | Forced alignment for subtitles           |
+| **Image Overlays**   | Character images per sentence            |
+| **Web UI**           | Flask-based interface                    |
+| **Docker**           | Containerized deployment                 |
 
 #### Custom Assets
 
@@ -251,15 +251,15 @@ VideoGraphAI is an **AI-powered YouTube Shorts automation tool** using **graph-b
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Graph Agents** | Multi-step AI research |
-| **Tavily Search** | Real-time web research |
-| **Groq LLM** | Script generation |
-| **TogetherAI** | FLUX.schnell image generation |
-| **F5-TTS** | Professional voiceovers |
-| **Gentle** | Synchronized captions (Docker) |
-| **Streamlit UI** | User-friendly interface |
+| Feature           | Description                    |
+| ----------------- | ------------------------------ |
+| **Graph Agents**  | Multi-step AI research         |
+| **Tavily Search** | Real-time web research         |
+| **Groq LLM**      | Script generation              |
+| **TogetherAI**    | FLUX.schnell image generation  |
+| **F5-TTS**        | Professional voiceovers        |
+| **Gentle**        | Synchronized captions (Docker) |
+| **Streamlit UI**  | User-friendly interface        |
 
 #### Workflow
 
@@ -324,16 +324,16 @@ Clip-Anything uses **multimodal AI** to clip moments from videos using visual, a
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Frame Analysis** | Evaluates every frame |
-| **Multimodal Cues** | Visual, audio, sentiment |
-| **Object Detection** | Objects, scenes, actions |
-| **Sound Recognition** | Audio events |
-| **Emotion Detection** | Sentiment analysis |
-| **Text Detection** | OCR in frames |
-| **Virality Scoring** | Each scene rated |
-| **Prompt Clipping** | Natural language prompts |
+| Feature               | Description              |
+| --------------------- | ------------------------ |
+| **Frame Analysis**    | Evaluates every frame    |
+| **Multimodal Cues**   | Visual, audio, sentiment |
+| **Object Detection**  | Objects, scenes, actions |
+| **Sound Recognition** | Audio events             |
+| **Emotion Detection** | Sentiment analysis       |
+| **Text Detection**    | OCR in frames            |
+| **Virality Scoring**  | Each scene rated         |
+| **Prompt Clipping**   | Natural language prompts |
 
 #### Use Cases
 
@@ -367,31 +367,31 @@ AI-Content-Studio is an **all-in-one application** for the entire YouTube video 
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Deep Research** | Google Search grounding |
-| **News Integration** | NewsAPI headlines |
-| **Fact-Checking** | AI accuracy review |
-| **Multi-Style Scripts** | Podcast, documentary, story |
-| **Multi-Speaker TTS** | Google TTS (host/guest) |
-| **Background Music** | Auto-mixing |
+| Feature                 | Description                      |
+| ----------------------- | -------------------------------- |
+| **Deep Research**       | Google Search grounding          |
+| **News Integration**    | NewsAPI headlines                |
+| **Fact-Checking**       | AI accuracy review               |
+| **Multi-Style Scripts** | Podcast, documentary, story      |
+| **Multi-Speaker TTS**   | Google TTS (host/guest)          |
+| **Background Music**    | Auto-mixing                      |
 | **AI Video Generation** | Vertex AI (Imagen 2) + WaveSpeed |
-| **Thumbnails** | AI character + text overlay |
-| **Whisper Captions** | Styled .ass subtitles |
-| **SEO Metadata** | Titles, descriptions, tags |
-| **Chapter Timestamps** | Script-based |
-| **Direct Upload** | YouTube + Facebook |
+| **Thumbnails**          | AI character + text overlay      |
+| **Whisper Captions**    | Styled .ass subtitles            |
+| **SEO Metadata**        | Titles, descriptions, tags       |
+| **Chapter Timestamps**  | Script-based                     |
+| **Direct Upload**       | YouTube + Facebook               |
 
 #### Technology Stack
 
-| Layer | Technology |
-|-------|------------|
-| **Text/Research** | Google Gemini (gemini-2.5-flash) |
-| **TTS** | Google Gemini TTS |
-| **Images** | Vertex AI (Imagen 3) |
-| **Video** | Vertex AI (Imagen 2) + WaveSpeed AI |
-| **Captions** | OpenAI Whisper |
-| **GUI** | CustomTkinter |
+| Layer             | Technology                          |
+| ----------------- | ----------------------------------- |
+| **Text/Research** | Google Gemini (gemini-2.5-flash)    |
+| **TTS**           | Google Gemini TTS                   |
+| **Images**        | Vertex AI (Imagen 3)                |
+| **Video**         | Vertex AI (Imagen 2) + WaveSpeed AI |
+| **Captions**      | OpenAI Whisper                      |
+| **GUI**           | CustomTkinter                       |
 
 #### Installation
 
@@ -446,13 +446,13 @@ Automated YouTube content pipeline with **daily GitHub Actions workflow** at 7:0
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Gemini** | Script generation |
-| **Long + Short** | Multiple video formats |
-| **Thumbnails** | Auto-generated |
-| **Metadata** | Auto-generated |
-| **GitHub Actions** | Daily automation |
+| Feature            | Description            |
+| ------------------ | ---------------------- |
+| **Gemini**         | Script generation      |
+| **Long + Short**   | Multiple video formats |
+| **Thumbnails**     | Auto-generated         |
+| **Metadata**       | Auto-generated         |
+| **GitHub Actions** | Daily automation       |
 
 #### Project Structure
 
@@ -512,13 +512,13 @@ Faceless Video Generator creates engaging videos from any topic using AI script 
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Groq LLM** | Script generation |
-| **TTS** | Audio narration |
+| Feature            | Description       |
+| ------------------ | ----------------- |
+| **Groq LLM**       | Script generation |
+| **TTS**            | Audio narration   |
 | **Timed Captions** | Aligned subtitles |
-| **Pexels API** | Background videos |
-| **Gradio** | Web interface |
+| **Pexels API**     | Background videos |
+| **Gradio**         | Web interface     |
 
 #### Installation
 
@@ -546,37 +546,37 @@ python app.py
 
 ### 8.1 Generator Feature Matrix
 
-| Tool | UI | LLM | TTS | Images | Captions | Upload |
-|------|-----|-----|-----|--------|----------|--------|
-| **Cassette** | Terminal | GPT-3.5 | UnrealSpeech | ✅ | ✅ | ❌ |
-| **Crank** | CLI | Gemini | Whisper | ❌ | ✅ | ✅ YouTube |
-| **OBrainRot** | Web/CLI | Llama 3.3 | Coqui xTTS | ✅ | ✅ | ❌ |
-| **VideoGraphAI** | Streamlit | Groq | F5-TTS | TogetherAI | ✅ | ❌ |
-| **AI-Content-Studio** | CustomTkinter | Gemini | Google TTS | Vertex AI | ✅ | ✅ YouTube/FB |
-| **Gemini Automation** | None | Gemini | - | ✅ | - | ✅ YouTube |
-| **Faceless** | Gradio | Groq | TTS | Pexels | ✅ | ❌ |
+| Tool                  | UI            | LLM       | TTS          | Images     | Captions | Upload        |
+| --------------------- | ------------- | --------- | ------------ | ---------- | -------- | ------------- |
+| **Cassette**          | Terminal      | GPT-3.5   | UnrealSpeech | ✅         | ✅       | ❌            |
+| **Crank**             | CLI           | Gemini    | Whisper      | ❌         | ✅       | ✅ YouTube    |
+| **OBrainRot**         | Web/CLI       | Llama 3.3 | Coqui xTTS   | ✅         | ✅       | ❌            |
+| **VideoGraphAI**      | Streamlit     | Groq      | F5-TTS       | TogetherAI | ✅       | ❌            |
+| **AI-Content-Studio** | CustomTkinter | Gemini    | Google TTS   | Vertex AI  | ✅       | ✅ YouTube/FB |
+| **Gemini Automation** | None          | Gemini    | -            | ✅         | -        | ✅ YouTube    |
+| **Faceless**          | Gradio        | Groq      | TTS          | Pexels     | ✅       | ❌            |
 
 ### 8.2 Technology Stack Comparison
 
-| Tool | Research | Video Source | Caption Method |
-|------|----------|--------------|----------------|
-| **Cassette** | None | Background gameplay | Word/sentence timing |
-| **Crank** | YouTube search | YouTube scrape | Whisper |
-| **OBrainRot** | Reddit | Stock video | Wav2Vec2 forced alignment |
-| **VideoGraphAI** | Tavily Search | TogetherAI FLUX | Gentle server |
-| **AI-Content-Studio** | Google + NewsAPI | Vertex AI Imagen | Whisper .ass |
-| **Faceless** | None | Pexels API | Built-in |
+| Tool                  | Research         | Video Source        | Caption Method            |
+| --------------------- | ---------------- | ------------------- | ------------------------- |
+| **Cassette**          | None             | Background gameplay | Word/sentence timing      |
+| **Crank**             | YouTube search   | YouTube scrape      | Whisper                   |
+| **OBrainRot**         | Reddit           | Stock video         | Wav2Vec2 forced alignment |
+| **VideoGraphAI**      | Tavily Search    | TogetherAI FLUX     | Gentle server             |
+| **AI-Content-Studio** | Google + NewsAPI | Vertex AI Imagen    | Whisper .ass              |
+| **Faceless**          | None             | Pexels API          | Built-in                  |
 
 ### 8.3 Best For
 
-| Use Case | Best Tool |
-|----------|-----------|
-| **Quick brain rot** | Cassette |
-| **YouTube automation** | Crank, AI-Content-Studio |
-| **Reddit stories** | OBrainRot |
+| Use Case                   | Best Tool                       |
+| -------------------------- | ------------------------------- |
+| **Quick brain rot**        | Cassette                        |
+| **YouTube automation**     | Crank, AI-Content-Studio        |
+| **Reddit stories**         | OBrainRot                       |
 | **Research-based content** | VideoGraphAI, AI-Content-Studio |
-| **Simple faceless** | Faceless Video Generator |
-| **Production-grade** | AI-Content-Studio |
+| **Simple faceless**        | Faceless Video Generator        |
+| **Production-grade**       | AI-Content-Studio               |
 
 ---
 
@@ -630,14 +630,14 @@ All generators share a similar pipeline:
 
 These tools inform the content-machine architecture:
 
-| Component | Borrowed From |
-|-----------|---------------|
-| **Graph Agents** | VideoGraphAI |
-| **Forced Alignment** | OBrainRot (Wav2Vec2) |
-| **Config System** | Crank (YAML) |
-| **GUI Pattern** | AI-Content-Studio (CustomTkinter) |
-| **GitHub Actions** | Gemini Automation |
-| **Multi-style Scripts** | AI-Content-Studio |
+| Component               | Borrowed From                     |
+| ----------------------- | --------------------------------- |
+| **Graph Agents**        | VideoGraphAI                      |
+| **Forced Alignment**    | OBrainRot (Wav2Vec2)              |
+| **Config System**       | Crank (YAML)                      |
+| **GUI Pattern**         | AI-Content-Studio (CustomTkinter) |
+| **GitHub Actions**      | Gemini Automation                 |
+| **Multi-style Scripts** | AI-Content-Studio                 |
 
 ---
 
@@ -688,10 +688,10 @@ python app.py
 
 ## 11. Document Metadata
 
-| Field | Value |
-|-------|-------|
-| **Document ID** | DD-076 |
-| **Created** | 2026-01-02 |
-| **Author** | Research Agent |
-| **Status** | Complete |
+| Field            | Value          |
+| ---------------- | -------------- |
+| **Document ID**  | DD-076         |
+| **Created**      | 2026-01-02     |
+| **Author**       | Research Agent |
+| **Status**       | Complete       |
 | **Dependencies** | DD-063, DD-070 |

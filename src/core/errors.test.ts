@@ -18,7 +18,7 @@ import {
 describe('CMError', () => {
   it('should create base error with code and message', () => {
     const error = new CMError('TEST_ERROR', 'Test message');
-    
+
     expect(error.code).toBe('TEST_ERROR');
     expect(error.message).toBe('Test message');
     expect(error.name).toBe('CMError');
@@ -27,14 +27,14 @@ describe('CMError', () => {
 
   it('should include context when provided', () => {
     const error = new CMError('TEST_ERROR', 'Test message', { foo: 'bar' });
-    
+
     expect(error.context).toEqual({ foo: 'bar' });
   });
 
   it('should wrap cause error', () => {
     const cause = new Error('Original error');
     const error = new CMError('TEST_ERROR', 'Wrapped', undefined, cause);
-    
+
     expect(error.cause).toBe(cause);
   });
 });
@@ -42,7 +42,7 @@ describe('CMError', () => {
 describe('ConfigError', () => {
   it('should create config error with CONFIG_ERROR code', () => {
     const error = new ConfigError('Missing API key');
-    
+
     expect(error.code).toBe('CONFIG_ERROR');
     expect(error.message).toBe('Missing API key');
     expect(error.name).toBe('ConfigError');
@@ -52,7 +52,7 @@ describe('ConfigError', () => {
 describe('APIError', () => {
   it('should include provider and status', () => {
     const error = new APIError('Rate limited', { provider: 'openai', status: 429 });
-    
+
     expect(error.code).toBe('API_ERROR');
     expect(error.provider).toBe('openai');
     expect(error.status).toBe(429);
@@ -61,7 +61,7 @@ describe('APIError', () => {
 
   it('should work without status', () => {
     const error = new APIError('Network error', { provider: 'pexels' });
-    
+
     expect(error.status).toBeUndefined();
   });
 });
@@ -69,7 +69,7 @@ describe('APIError', () => {
 describe('RateLimitError', () => {
   it('should include provider and retry after', () => {
     const error = new RateLimitError('openai', 60);
-    
+
     expect(error.code).toBe('RATE_LIMIT');
     expect(error.provider).toBe('openai');
     expect(error.retryAfter).toBe(60);
@@ -81,7 +81,7 @@ describe('RateLimitError', () => {
 describe('SchemaError', () => {
   it('should include validation message', () => {
     const error = new SchemaError('Validation failed: scenes Required, title Too short');
-    
+
     expect(error.code).toBe('SCHEMA_ERROR');
     expect(error.message).toContain('scenes');
     expect(error.message).toContain('title');
@@ -90,8 +90,11 @@ describe('SchemaError', () => {
 
 describe('NotFoundError', () => {
   it('should include resource type and identifier', () => {
-    const error = new NotFoundError('file not found: /path/to/file.json', { resource: 'file', identifier: '/path/to/file.json' });
-    
+    const error = new NotFoundError('file not found: /path/to/file.json', {
+      resource: 'file',
+      identifier: '/path/to/file.json',
+    });
+
     expect(error.code).toBe('NOT_FOUND');
     expect(error.resource).toBe('file');
     expect(error.identifier).toBe('/path/to/file.json');
@@ -101,7 +104,7 @@ describe('NotFoundError', () => {
 describe('RenderError', () => {
   it('should create render-specific error', () => {
     const error = new RenderError('Frame 100 failed', { frame: 100 });
-    
+
     expect(error.code).toBe('RENDER_ERROR');
     expect(error.context).toEqual({ frame: 100 });
   });
@@ -127,17 +130,27 @@ describe('isRetryable', () => {
   });
 
   it('should return true for 429 API errors', () => {
-    expect(isRetryable(new APIError('Rate limited', { provider: 'openai', status: 429 }))).toBe(true);
+    expect(isRetryable(new APIError('Rate limited', { provider: 'openai', status: 429 }))).toBe(
+      true
+    );
   });
 
   it('should return true for 5xx API errors', () => {
-    expect(isRetryable(new APIError('Server error', { provider: 'openai', status: 500 }))).toBe(true);
-    expect(isRetryable(new APIError('Server error', { provider: 'openai', status: 503 }))).toBe(true);
+    expect(isRetryable(new APIError('Server error', { provider: 'openai', status: 500 }))).toBe(
+      true
+    );
+    expect(isRetryable(new APIError('Server error', { provider: 'openai', status: 503 }))).toBe(
+      true
+    );
   });
 
   it('should return false for 4xx errors (except 429)', () => {
-    expect(isRetryable(new APIError('Bad request', { provider: 'openai', status: 400 }))).toBe(false);
-    expect(isRetryable(new APIError('Unauthorized', { provider: 'openai', status: 401 }))).toBe(false);
+    expect(isRetryable(new APIError('Bad request', { provider: 'openai', status: 400 }))).toBe(
+      false
+    );
+    expect(isRetryable(new APIError('Unauthorized', { provider: 'openai', status: 401 }))).toBe(
+      false
+    );
   });
 
   it('should return false for config errors', () => {

@@ -29,29 +29,29 @@ from captacity import add_captions
 add_captions(
     video_file="input.mp4",
     output_file="output.mp4",
-    
+
     # Typography
     font="Bangers-Regular.ttf",
     font_size=130,
     font_color="yellow",
-    
+
     # Stroke
     stroke_width=3,
     stroke_color="black",
-    
+
     # Word highlighting
     highlight_current_word=True,
     word_highlight_color="red",
-    
+
     # Layout
     line_count=2,
     padding=50,
     position=("center", "center"),
-    
+
     # Shadow
     shadow_strength=1.0,
     shadow_blur=0.1,
-    
+
     # Transcription
     use_local_whisper="auto",  # or True/False
     initial_prompt=None,
@@ -71,18 +71,18 @@ def calculate_lines(text, font, font_size, stroke_width, frame_width):
     lines = []
     line = ""
     words = text.split()
-    
+
     for word in words:
         test_line = line + word + " "
         text_width = get_text_size(test_line, font, font_size)[0]
-        
+
         if text_width < frame_width:
             line = test_line
         else:
             # Line is full, start new line
             lines.append({"text": line.strip(), "height": line_height})
             line = word + " "
-    
+
     return {"lines": lines, "height": total_height}
 ```
 
@@ -106,14 +106,14 @@ def parse(segments, fit_function, allow_partial_sentences=False):
     """Parse Whisper segments into caption groups"""
     captions = []
     caption = {"start": None, "end": 0, "words": [], "text": ""}
-    
+
     for segment in segments:
         for word in segment["words"]:
             if caption["start"] is None:
                 caption["start"] = word["start"]
-            
+
             test_text = caption["text"] + word["word"]
-            
+
             # Check if adding word still fits
             if fit_function(test_text):
                 caption["words"].append(word)
@@ -126,7 +126,7 @@ def parse(segments, fit_function, allow_partial_sentences=False):
                     "words": [word],
                     "text": word["word"]
                 }
-    
+
     return captions
 ```
 
@@ -136,13 +136,13 @@ def parse(segments, fit_function, allow_partial_sentences=False):
 # For each caption, create multiple clips - one per word highlight state
 for caption in captions:
     captions_to_draw = []
-    
+
     if highlight_current_word:
         for i, word in enumerate(caption["words"]):
             # Each word gets its own time window
             start = word["start"]
             end = caption["words"][i+1]["start"] if i+1 < len(caption["words"]) else word["end"]
-            
+
             captions_to_draw.append({
                 "text": caption["text"],  # Full caption text
                 "start": start,
@@ -287,19 +287,21 @@ export const Caption: React.FC<CaptionProps> = ({
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const currentTime = frame / fps;
-  
+
   // Find currently speaking word
   const currentWordIndex = words.findIndex(
     (word) => currentTime >= word.start && currentTime < word.end
   );
-  
+
   return (
-    <div style={{
-      display: 'flex',
-      flexWrap: 'wrap',
-      justifyContent: 'center',
-      gap: '0.5em',
-    }}>
+    <div
+      style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        gap: '0.5em',
+      }}
+    >
       {words.map((word, index) => (
         <span
           key={index}
@@ -335,10 +337,10 @@ export function breakIntoLines(
   const lines: Line[] = [];
   let currentLine: Word[] = [];
   let currentWidth = 0;
-  
+
   for (const word of words) {
     const wordWidth = measureText(word.text);
-    
+
     if (currentWidth + wordWidth <= maxWidth) {
       currentLine.push(word);
       currentWidth += wordWidth;
@@ -350,11 +352,11 @@ export function breakIntoLines(
       currentWidth = wordWidth;
     }
   }
-  
+
   if (currentLine.length > 0) {
     lines.push({ words: currentLine, width: currentWidth });
   }
-  
+
   return lines;
 }
 ```
@@ -374,20 +376,20 @@ export const CaptionGroup: React.FC<CaptionGroupProps> = ({ captions, style }) =
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const currentTime = frame / fps;
-  
+
   // Find current caption
-  const currentCaption = captions.find(
-    (cap) => currentTime >= cap.start && currentTime < cap.end
-  );
-  
+  const currentCaption = captions.find((cap) => currentTime >= cap.start && currentTime < cap.end);
+
   if (!currentCaption) return null;
-  
+
   return (
-    <AbsoluteFill style={{
-      justifyContent: 'flex-end',
-      alignItems: 'center',
-      paddingBottom: style.safeMargin.bottom + 20,
-    }}>
+    <AbsoluteFill
+      style={{
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        paddingBottom: style.safeMargin.bottom + 20,
+      }}
+    >
       <Caption
         words={currentCaption.words}
         highlightColor={style.highlightColor}
@@ -412,22 +414,24 @@ import { z } from 'zod';
 export const CaptionStyleSchema = z.object({
   font: z.string().default('Bangers'),
   fontSize: z.number().default(72),
-  
+
   defaultColor: z.string().default('#FFFFFF'),
   highlightColor: z.string().default('#FFD700'),
-  
+
   strokeWidth: z.number().default(3),
   strokeColor: z.string().default('#000000'),
-  
+
   maxLines: z.number().default(2),
   lineHeight: z.number().default(1.2),
-  
-  shadow: z.object({
-    enabled: z.boolean().default(true),
-    blur: z.number().default(8),
-    color: z.string().default('rgba(0,0,0,0.8)'),
-  }).default({}),
-  
+
+  shadow: z
+    .object({
+      enabled: z.boolean().default(true),
+      blur: z.number().default(8),
+      color: z.string().default('rgba(0,0,0,0.8)'),
+    })
+    .default({}),
+
   position: z.enum(['top', 'center', 'bottom']).default('bottom'),
   padding: z.number().default(50),
 });
@@ -470,6 +474,7 @@ export const CaptionSchema = z.object({
 ### WhisperX Enhancement
 
 captacity uses basic Whisper. We should use **WhisperX** for:
+
 - More accurate word-level timestamps
 - wav2vec2 phoneme alignment
 - Speaker diarization (future)
@@ -477,6 +482,7 @@ captacity uses basic Whisper. We should use **WhisperX** for:
 ### Remotion Integration
 
 The patterns translate well to Remotion:
+
 - `useCurrentFrame()` for time tracking
 - CSS-based text styling (shadows, strokes)
 - Component composition for captions

@@ -18,14 +18,14 @@ Official Remotion template for creating **TikTok-style vertical videos** with:
 
 ## Key Features
 
-| Feature | Details |
-|---------|---------|
-| **Framework** | Remotion (React video) |
-| **Captions** | Whisper.cpp integration via `@remotion/install-whisper-cpp` |
-| **Subtitles** | Word-by-word with animations |
-| **Language Support** | Non-English via model configuration |
-| **Dev Mode** | `npm run dev` with hot reload |
-| **Render** | `npx remotion render` to MP4 |
+| Feature              | Details                                                     |
+| -------------------- | ----------------------------------------------------------- |
+| **Framework**        | Remotion (React video)                                      |
+| **Captions**         | Whisper.cpp integration via `@remotion/install-whisper-cpp` |
+| **Subtitles**        | Word-by-word with animations                                |
+| **Language Support** | Non-English via model configuration                         |
+| **Dev Mode**         | `npm run dev` with hot reload                               |
+| **Render**           | `npx remotion render` to MP4                                |
 
 ## Tech Stack
 
@@ -37,6 +37,7 @@ Official Remotion template for creating **TikTok-style vertical videos** with:
 ## What We Can Reuse
 
 ### ✅ High Value
+
 - **Complete video template** - Starting point for our videos
 - **Whisper.cpp integration** - Caption generation (`node sub.mjs`)
 - **Caption animations** - Word-by-word highlighting
@@ -44,9 +45,11 @@ Official Remotion template for creating **TikTok-style vertical videos** with:
 - **Remotion patterns** - How to structure video compositions
 
 ### ⚠️ Medium Value
+
 - **Caption presets** - Different styling options
 
 ### ❌ Not Needed
+
 - Nothing - this is core to our implementation
 
 ## How It Helps Us

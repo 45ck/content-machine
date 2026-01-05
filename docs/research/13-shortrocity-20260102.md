@@ -11,6 +11,7 @@
 ## What It Does
 
 Makes AI-generated short videos with:
+
 - ChatGPT script generation
 - ElevenLabs or OpenAI TTS narration
 - DALL-E 3 background images
@@ -20,13 +21,13 @@ Built on top of the same author's **captacity** library.
 
 ## Key Features
 
-| Feature | Details |
-|---------|---------|
-| **Script** | ChatGPT generated |
-| **TTS** | ElevenLabs or OpenAI |
-| **Images** | DALL-E 3 generated backgrounds |
+| Feature      | Details                          |
+| ------------ | -------------------------------- |
+| **Script**   | ChatGPT generated                |
+| **TTS**      | ElevenLabs or OpenAI             |
+| **Images**   | DALL-E 3 generated backgrounds   |
 | **Captions** | Captacity with word highlighting |
-| **Styling** | JSON settings file |
+| **Styling**  | JSON settings file               |
 
 ## Tech Stack
 
@@ -40,31 +41,34 @@ Built on top of the same author's **captacity** library.
 
 ```json
 {
-    "font": "Bangers-Regular.ttf",
-    "font_size": 130,
-    "font_color": "yellow",
-    "stroke_width": 3,
-    "stroke_color": "black",
-    "highlight_current_word": true,
-    "word_highlight_color": "red",
-    "line_count": 2,
-    "padding": 50,
-    "shadow_strength": 1.0,
-    "shadow_blur": 0.1
+  "font": "Bangers-Regular.ttf",
+  "font_size": 130,
+  "font_color": "yellow",
+  "stroke_width": 3,
+  "stroke_color": "black",
+  "highlight_current_word": true,
+  "word_highlight_color": "red",
+  "line_count": 2,
+  "padding": 50,
+  "shadow_strength": 1.0,
+  "shadow_blur": 0.1
 }
 ```
 
 ## What We Can Reuse
 
 ### ✅ High Value
+
 - **DALL-E image generation** - AI-generated backgrounds
 - **Caption styling config** - JSON-based settings
 - **Word highlighting** - Karaoke-style captions
 
 ### ⚠️ Medium Value
+
 - **Source content → video flow** - Simple pipeline
 
 ### ❌ Not Needed
+
 - **Python implementation** - We use TypeScript/Remotion
 
 ## How It Helps Us

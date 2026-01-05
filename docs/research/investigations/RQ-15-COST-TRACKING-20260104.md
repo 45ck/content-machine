@@ -10,12 +10,14 @@
 ## 1. Problem Statement
 
 Video generation involves multiple paid services:
+
 - LLM calls (OpenAI, Anthropic)
 - TTS generation (optional paid services)
 - Stock asset APIs (Pexels, Unsplash)
 - Compute (local or cloud)
 
 Cost visibility enables:
+
 - Budget management
 - Cost optimization
 - Usage-based pricing (if applicable)
@@ -33,7 +35,7 @@ Langfuse provides automatic cost tracking for LLM calls:
 
 ```typescript
 // Langfuse trace with cost tracking
-import { Langfuse } from "langfuse";
+import { Langfuse } from 'langfuse';
 
 const langfuse = new Langfuse({
   publicKey: process.env.LANGFUSE_PUBLIC_KEY,
@@ -42,14 +44,14 @@ const langfuse = new Langfuse({
 
 // Create trace for video generation
 const trace = langfuse.trace({
-  name: "video-generation",
-  metadata: { videoId: "vid-123" },
+  name: 'video-generation',
+  metadata: { videoId: 'vid-123' },
 });
 
 // Generation automatically tracks tokens
 const generation = trace.generation({
-  name: "script-generation",
-  model: "gpt-4o-mini",
+  name: 'script-generation',
+  model: 'gpt-4o-mini',
   input: prompt,
   output: response,
   usage: {
@@ -80,14 +82,14 @@ def estimate_cost(prompt_tokens: int, completion_tokens: int, model: str) -> flo
         "gpt-4-turbo": {"input": 10.00, "output": 30.00},
         "claude-3-5-sonnet": {"input": 3.00, "output": 15.00},
     }
-    
+
     if model not in PRICING:
         return 0.0
-    
+
     rates = PRICING[model]
     input_cost = (prompt_tokens / 1_000_000) * rates["input"]
     output_cost = (completion_tokens / 1_000_000) * rates["output"]
-    
+
     return input_cost + output_cost
 ```
 
@@ -97,29 +99,29 @@ def estimate_cost(prompt_tokens: int, completion_tokens: int, model: str) -> flo
 
 ```typescript
 // Track costs in job metadata
-const videoQueue = new Queue("video-generation");
+const videoQueue = new Queue('video-generation');
 
-await videoQueue.add("generate", videoSpec, {
+await videoQueue.add('generate', videoSpec, {
   jobId: `video-${videoId}`,
   meta: {
-    budgetLimit: 1.00,  // $1 max per video
+    budgetLimit: 1.0, // $1 max per video
     currentCost: 0,
   },
 });
 
 // Job processor updates cost
-const worker = new Worker("video-generation", async (job) => {
+const worker = new Worker('video-generation', async (job) => {
   const costTracker = new CostTracker(job);
-  
+
   // Track LLM cost
   const scriptResult = await generateScript(job.data);
-  costTracker.addCost("llm", scriptResult.cost);
-  
+  costTracker.addCost('llm', scriptResult.cost);
+
   // Check budget
   if (costTracker.total > job.meta.budgetLimit) {
     throw new BudgetExceededError(costTracker.total, job.meta.budgetLimit);
   }
-  
+
   // Continue pipeline...
 });
 ```
@@ -130,35 +132,35 @@ const worker = new Worker("video-generation", async (job) => {
 
 ### 3.1 LLM Costs
 
-| Model | Input ($/1M tokens) | Output ($/1M tokens) | Typical Video Cost |
-|-------|---------------------|----------------------|-------------------|
-| gpt-4o-mini | $0.15 | $0.60 | $0.001-0.005 |
-| gpt-4o | $5.00 | $15.00 | $0.02-0.10 |
-| claude-3-5-sonnet | $3.00 | $15.00 | $0.01-0.05 |
+| Model             | Input ($/1M tokens) | Output ($/1M tokens) | Typical Video Cost |
+| ----------------- | ------------------- | -------------------- | ------------------ |
+| gpt-4o-mini       | $0.15               | $0.60                | $0.001-0.005       |
+| gpt-4o            | $5.00               | $15.00               | $0.02-0.10         |
+| claude-3-5-sonnet | $3.00               | $15.00               | $0.01-0.05         |
 
 ### 3.2 TTS Costs
 
-| Service | Pricing | Typical Video Cost |
-|---------|---------|-------------------|
-| Edge TTS | Free | $0.00 |
-| OpenAI TTS | $15/1M chars | $0.02-0.05 |
-| ElevenLabs | $0.30/1K chars | $0.10-0.50 |
+| Service    | Pricing        | Typical Video Cost |
+| ---------- | -------------- | ------------------ |
+| Edge TTS   | Free           | $0.00              |
+| OpenAI TTS | $15/1M chars   | $0.02-0.05         |
+| ElevenLabs | $0.30/1K chars | $0.10-0.50         |
 
 ### 3.3 Asset API Costs
 
-| Service | Pricing | Typical Video Cost |
-|---------|---------|-------------------|
-| Pexels | Free | $0.00 |
-| Unsplash | Free | $0.00 |
-| Shutterstock | $0.22-2.00/asset | $0.50-5.00 |
+| Service      | Pricing          | Typical Video Cost |
+| ------------ | ---------------- | ------------------ |
+| Pexels       | Free             | $0.00              |
+| Unsplash     | Free             | $0.00              |
+| Shutterstock | $0.22-2.00/asset | $0.50-5.00         |
 
 ### 3.4 Compute Costs
 
-| Environment | Pricing | Typical Video Cost |
-|-------------|---------|-------------------|
-| Local | $0 (electricity) | ~$0.01 |
-| AWS Lambda | $0.0000166/GB-s | $0.05-0.20 |
-| Remotion Cloud | Variable | $0.10-0.50 |
+| Environment    | Pricing          | Typical Video Cost |
+| -------------- | ---------------- | ------------------ |
+| Local          | $0 (electricity) | ~$0.01             |
+| AWS Lambda     | $0.0000166/GB-s  | $0.05-0.20         |
+| Remotion Cloud | Variable         | $0.10-0.50         |
 
 ---
 
@@ -179,11 +181,11 @@ interface CostEntry {
 export class CostTracker {
   private entries: CostEntry[] = [];
   private budgetLimit?: number;
-  
+
   constructor(options?: { budgetLimit?: number }) {
     this.budgetLimit = options?.budgetLimit;
   }
-  
+
   addCost(
     category: string,
     service: string,
@@ -197,23 +199,26 @@ export class CostTracker {
       metadata,
       timestamp: new Date(),
     });
-    
+
     if (this.budgetLimit && this.total > this.budgetLimit) {
       throw new BudgetExceededError(this.total, this.budgetLimit);
     }
   }
-  
+
   get total(): number {
     return this.entries.reduce((sum, e) => sum + e.amount, 0);
   }
-  
+
   byCategory(): Record<string, number> {
-    return this.entries.reduce((acc, e) => {
-      acc[e.category] = (acc[e.category] ?? 0) + e.amount;
-      return acc;
-    }, {} as Record<string, number>);
+    return this.entries.reduce(
+      (acc, e) => {
+        acc[e.category] = (acc[e.category] ?? 0) + e.amount;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
   }
-  
+
   toJSON(): object {
     return {
       total: this.total,
@@ -229,11 +234,11 @@ export class CostTracker {
 ```typescript
 // src/llm/cost.ts
 const MODEL_PRICING: Record<string, { input: number; output: number }> = {
-  "gpt-4o-mini": { input: 0.15, output: 0.60 },
-  "gpt-4o": { input: 5.00, output: 15.00 },
-  "gpt-4-turbo": { input: 10.00, output: 30.00 },
-  "claude-3-5-sonnet-20241022": { input: 3.00, output: 15.00 },
-  "claude-3-haiku-20240307": { input: 0.25, output: 1.25 },
+  'gpt-4o-mini': { input: 0.15, output: 0.6 },
+  'gpt-4o': { input: 5.0, output: 15.0 },
+  'gpt-4-turbo': { input: 10.0, output: 30.0 },
+  'claude-3-5-sonnet-20241022': { input: 3.0, output: 15.0 },
+  'claude-3-haiku-20240307': { input: 0.25, output: 1.25 },
 };
 
 export function calculateLLMCost(
@@ -242,15 +247,15 @@ export function calculateLLMCost(
   completionTokens: number
 ): number {
   const pricing = MODEL_PRICING[model];
-  
+
   if (!pricing) {
     console.warn(`Unknown model pricing: ${model}`);
     return 0;
   }
-  
+
   const inputCost = (promptTokens / 1_000_000) * pricing.input;
   const outputCost = (completionTokens / 1_000_000) * pricing.output;
-  
+
   return inputCost + outputCost;
 }
 ```
@@ -259,11 +264,11 @@ export function calculateLLMCost(
 
 ```typescript
 // src/pipeline/generate.ts
-import { CostTracker } from "../common/cost-tracker";
+import { CostTracker } from '../common/cost-tracker';
 
 interface GenerationResult {
   videoPath: string;
-  costs: ReturnType<CostTracker["toJSON"]>;
+  costs: ReturnType<CostTracker['toJSON']>;
 }
 
 export async function generateVideo(
@@ -271,26 +276,26 @@ export async function generateVideo(
   options?: { budgetLimit?: number }
 ): Promise<GenerationResult> {
   const costs = new CostTracker({ budgetLimit: options?.budgetLimit });
-  
+
   // Script generation
   const scriptResult = await generateScript(spec.topic);
-  costs.addCost("llm", "openai", scriptResult.cost, {
+  costs.addCost('llm', 'openai', scriptResult.cost, {
     model: scriptResult.model,
     tokens: scriptResult.totalTokens,
   });
-  
+
   // Audio generation
   const audioResult = await generateAudio(scriptResult.script);
-  costs.addCost("tts", audioResult.service, audioResult.cost, {
+  costs.addCost('tts', audioResult.service, audioResult.cost, {
     characters: audioResult.characterCount,
   });
-  
+
   // Visual assets
   const visualsResult = await gatherVisuals(scriptResult.scenes);
-  costs.addCost("assets", "pexels", 0, {
+  costs.addCost('assets', 'pexels', 0, {
     assetCount: visualsResult.assets.length,
   });
-  
+
   // Rendering
   const renderStart = Date.now();
   const videoPath = await renderVideo({
@@ -299,15 +304,15 @@ export async function generateVideo(
     visuals: visualsResult,
   });
   const renderDurationMs = Date.now() - renderStart;
-  
+
   // Estimate compute cost (if cloud)
   const computeCost = estimateComputeCost(renderDurationMs);
   if (computeCost > 0) {
-    costs.addCost("compute", "render", computeCost, {
+    costs.addCost('compute', 'render', computeCost, {
       durationMs: renderDurationMs,
     });
   }
-  
+
   return {
     videoPath,
     costs: costs.toJSON(),
@@ -319,17 +324,17 @@ export async function generateVideo(
 
 ```typescript
 // CLI output example
-function printCostReport(costs: ReturnType<CostTracker["toJSON"]>): void {
-  console.log("\n📊 Cost Summary");
-  console.log("─".repeat(40));
-  
+function printCostReport(costs: ReturnType<CostTracker['toJSON']>): void {
+  console.log('\n📊 Cost Summary');
+  console.log('─'.repeat(40));
+
   for (const [category, amount] of Object.entries(costs.byCategory)) {
     console.log(`  ${category.padEnd(15)} $${amount.toFixed(4)}`);
   }
-  
-  console.log("─".repeat(40));
-  console.log(`  ${"TOTAL".padEnd(15)} $${costs.total.toFixed(4)}`);
-  console.log("");
+
+  console.log('─'.repeat(40));
+  console.log(`  ${'TOTAL'.padEnd(15)} $${costs.total.toFixed(4)}`);
+  console.log('');
 }
 ```
 
@@ -354,32 +359,30 @@ Example output:
 
 ```typescript
 // src/observability/langfuse.ts
-import { Langfuse } from "langfuse";
+import { Langfuse } from 'langfuse';
 
 const langfuse = new Langfuse();
 
-export async function traceVideoGeneration(
-  spec: VideoSpec
-): Promise<GenerationResult> {
+export async function traceVideoGeneration(spec: VideoSpec): Promise<GenerationResult> {
   const trace = langfuse.trace({
-    name: "video-generation",
+    name: 'video-generation',
     input: spec,
     metadata: {
       topic: spec.topic,
       duration: spec.duration,
     },
   });
-  
+
   const costs = new CostTracker();
-  
+
   // Script generation span
-  const scriptSpan = trace.span({ name: "script-generation" });
+  const scriptSpan = trace.span({ name: 'script-generation' });
   const scriptResult = await generateScript(spec.topic);
   scriptSpan.end({ output: scriptResult });
-  
+
   // LLM generation with automatic cost tracking
   trace.generation({
-    name: "llm-call",
+    name: 'llm-call',
     model: scriptResult.model,
     input: scriptResult.prompt,
     output: scriptResult.script,
@@ -388,16 +391,16 @@ export async function traceVideoGeneration(
       completionTokens: scriptResult.completionTokens,
     },
   });
-  
+
   // ... rest of pipeline
-  
+
   trace.update({
     output: { videoPath },
     metadata: { costs: costs.toJSON() },
   });
-  
+
   await langfuse.flush();
-  
+
   return { videoPath, costs: costs.toJSON() };
 }
 ```
@@ -413,15 +416,15 @@ export async function traceVideoGeneration(
 export const config = {
   costs: {
     // Maximum cost per video
-    budgetPerVideo: 0.50,
-    
+    budgetPerVideo: 0.5,
+
     // Maximum daily spend
-    dailyBudget: 10.00,
-    
+    dailyBudget: 10.0,
+
     // Alert thresholds
     alerts: {
-      videoThreshold: 0.30,  // Alert if single video > $0.30
-      dailyThreshold: 8.00,  // Alert at 80% of daily budget
+      videoThreshold: 0.3, // Alert if single video > $0.30
+      dailyThreshold: 8.0, // Alert at 80% of daily budget
     },
   },
 };
@@ -431,7 +434,7 @@ export const config = {
 
 ```typescript
 // src/common/budget-manager.ts
-import { readFile, writeFile } from "fs/promises";
+import { readFile, writeFile } from 'fs/promises';
 
 interface DailySpend {
   date: string;
@@ -440,39 +443,39 @@ interface DailySpend {
 }
 
 export class BudgetManager {
-  private spendFile = "./data/daily-spend.json";
-  
+  private spendFile = './data/daily-spend.json';
+
   async getTodaySpend(): Promise<number> {
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date().toISOString().split('T')[0];
     const data = await this.loadSpendData();
     return data.date === today ? data.total : 0;
   }
-  
+
   async recordCost(videoId: string, cost: number): Promise<void> {
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date().toISOString().split('T')[0];
     const data = await this.loadSpendData();
-    
+
     if (data.date !== today) {
       data.date = today;
       data.total = 0;
       data.entries = [];
     }
-    
+
     data.total += cost;
     data.entries.push({
       videoId,
       cost,
       timestamp: new Date().toISOString(),
     });
-    
+
     await this.saveSpendData(data);
-    
+
     // Check alerts
     if (data.total > config.costs.alerts.dailyThreshold) {
       this.alertDailyBudget(data.total);
     }
   }
-  
+
   private alertDailyBudget(total: number): void {
     console.warn(`⚠️  Daily budget alert: $${total.toFixed(2)} spent today`);
     // Could also send webhook, email, etc.
@@ -484,14 +487,14 @@ export class BudgetManager {
 
 ## 7. Implementation Recommendations
 
-| Component | Priority | Location |
-|-----------|----------|----------|
-| CostTracker class | P1 | src/common/cost-tracker.ts |
-| LLM cost calculator | P1 | src/llm/cost.ts |
-| CLI cost report | P1 | src/cli/report.ts |
-| Langfuse integration | P2 | src/observability/langfuse.ts |
-| Budget management | P2 | src/common/budget-manager.ts |
-| Daily spend tracking | P3 | src/common/daily-spend.ts |
+| Component            | Priority | Location                      |
+| -------------------- | -------- | ----------------------------- |
+| CostTracker class    | P1       | src/common/cost-tracker.ts    |
+| LLM cost calculator  | P1       | src/llm/cost.ts               |
+| CLI cost report      | P1       | src/cli/report.ts             |
+| Langfuse integration | P2       | src/observability/langfuse.ts |
+| Budget management    | P2       | src/common/budget-manager.ts  |
+| Daily spend tracking | P3       | src/common/daily-spend.ts     |
 
 ---
 

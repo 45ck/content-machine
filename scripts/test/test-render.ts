@@ -53,7 +53,7 @@ const mockVisuals: VisualsOutput = {
 
 async function testRender() {
   console.log('Testing Remotion render with fallback colors...\n');
-  
+
   // First test mock mode
   console.log('Testing mock render...');
   const mockResult = await renderVideo({
@@ -64,15 +64,15 @@ async function testRender() {
     orientation: 'portrait',
     mock: true,
   });
-  
+
   console.log('Mock render result:');
   console.log(`  Output: ${mockResult.outputPath}`);
   console.log(`  Duration: ${mockResult.duration}s`);
   console.log(`  Size: ${mockResult.fileSize} bytes`);
   console.log(`  Resolution: ${mockResult.width}x${mockResult.height}`);
-  
+
   console.log('\n✅ Mock render complete!');
-  
+
   // Now try real render (will fail without audio file)
   console.log('\nTesting real Remotion render...');
   try {
@@ -83,7 +83,7 @@ async function testRender() {
       outputPath: './test-render-real.mp4',
       orientation: 'portrait',
     });
-    
+
     console.log('Real render result:');
     console.log(`  Output: ${result.outputPath}`);
     console.log(`  Duration: ${result.duration}s`);

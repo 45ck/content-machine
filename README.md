@@ -16,6 +16,7 @@ Daily Pipeline:  1A → 1B → 2 → 3 → 4 → 5 → 6 → 7
 ```
 
 **Key features:**
+
 - 🤖 AI-powered content planning and script generation (GPT-4o)
 - 🎥 Automated video rendering with Remotion
 - 📸 Product UI capture with Playwright
@@ -26,16 +27,16 @@ Daily Pipeline:  1A → 1B → 2 → 3 → 4 → 5 → 6 → 7
 
 ## Architecture
 
-| Step | Type | What it does |
-|------|------|--------------|
-| 1A - Trend Ingest | ⚙️ Deterministic | Fetch Reddit/trends, deduplicate |
-| 1B - Planner | 🤖 Agent | GPT-4o selects topic + hook + CTA |
-| 2 - Script | 🤖 Agent | GPT-4o writes scene-by-scene script |
-| 3 - Assets | ⚙️ Deterministic | TTS, Playwright capture, Pexels B-roll |
-| 4 - Render | ⚙️ Deterministic | Remotion composition + captions |
-| 5 - Review | 👤 Human | Approve/reject/edit before export |
-| 6 - Export | ⚙️ Deterministic | ZIP package with upload checklist |
-| 7 - Analytics | 🤖 Agent | Analyze performance, suggest improvements |
+| Step              | Type             | What it does                              |
+| ----------------- | ---------------- | ----------------------------------------- |
+| 1A - Trend Ingest | ⚙️ Deterministic | Fetch Reddit/trends, deduplicate          |
+| 1B - Planner      | 🤖 Agent         | GPT-4o selects topic + hook + CTA         |
+| 2 - Script        | 🤖 Agent         | GPT-4o writes scene-by-scene script       |
+| 3 - Assets        | ⚙️ Deterministic | TTS, Playwright capture, Pexels B-roll    |
+| 4 - Render        | ⚙️ Deterministic | Remotion composition + captions           |
+| 5 - Review        | 👤 Human         | Approve/reject/edit before export         |
+| 6 - Export        | ⚙️ Deterministic | ZIP package with upload checklist         |
+| 7 - Analytics     | 🤖 Agent         | Analyze performance, suggest improvements |
 
 ## Quick Start
 
@@ -102,6 +103,7 @@ output/
 ```
 
 **Why?** TikTok/Instagram APIs require business verification and audit. Export-first means:
+
 - Works immediately (no API approvals needed)
 - Human reviews before publish
 - Can customize per-platform before upload
@@ -147,6 +149,7 @@ MIT - See [LICENSE](LICENSE)
 Built for [Vibecord](https://vibecord.dev) / [Vibeforge](https://vibeforge.dev).
 
 Inspired by:
+
 - [Remotion](https://remotion.dev) - React video framework
 - [short-video-maker](https://github.com/gyuha/short-video-maker) - Reference patterns
 - [open-deep-research](https://github.com/langchain-ai/open_deep_research) - Research agent patterns

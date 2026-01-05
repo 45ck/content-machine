@@ -20,15 +20,15 @@ This document analyzes 15+ end-to-end short video generation repositories to ext
 
 ## 2. Repository Analysis Matrix
 
-| Repository | Language | Architecture | TTS | Caption | Video Source | Unique Pattern |
-|------------|----------|--------------|-----|---------|--------------|----------------|
-| **short-video-maker-gyori** | TypeScript | Monolith + REST | Kokoro | Whisper | Pexels | MCP + Remotion |
-| **Viral-Faceless-Shorts** | Node + Python | Docker Microservices | Coqui | Aeneas | Local files | Google Trends |
-| **shortrocity** | Python | Simple script | ElevenLabs/OpenAI | Captacity | DALL-E | GPT-4 narrative |
-| **Auto-YT-Shorts** | Python | Modular | External | MoviePy | AI-generated | Topic CLI |
-| **AI-short-creator** | Python | Pipeline chain | External | External | YouTube clips | ViralGPT scoring |
-| **shorts_maker** | Python | Class-based | TikTok TTS | WhisperX | Reddit posts | Reddit integration |
-| **ShortReelX** | Node.js | REST API | External | FFmpeg | User uploads | AI segment detection |
+| Repository                  | Language      | Architecture         | TTS               | Caption   | Video Source  | Unique Pattern       |
+| --------------------------- | ------------- | -------------------- | ----------------- | --------- | ------------- | -------------------- |
+| **short-video-maker-gyori** | TypeScript    | Monolith + REST      | Kokoro            | Whisper   | Pexels        | MCP + Remotion       |
+| **Viral-Faceless-Shorts**   | Node + Python | Docker Microservices | Coqui             | Aeneas    | Local files   | Google Trends        |
+| **shortrocity**             | Python        | Simple script        | ElevenLabs/OpenAI | Captacity | DALL-E        | GPT-4 narrative      |
+| **Auto-YT-Shorts**          | Python        | Modular              | External          | MoviePy   | AI-generated  | Topic CLI            |
+| **AI-short-creator**        | Python        | Pipeline chain       | External          | External  | YouTube clips | ViralGPT scoring     |
+| **shorts_maker**            | Python        | Class-based          | TikTok TTS        | WhisperX  | Reddit posts  | Reddit integration   |
+| **ShortReelX**              | Node.js       | REST API             | External          | FFmpeg    | User uploads  | AI segment detection |
 
 ---
 
@@ -58,20 +58,20 @@ This document analyzes 15+ end-to-end short video generation repositories to ext
 for (const scene of inputScenes) {
   // 1. TTS Generation
   const audio = await this.kokoro.generate(scene.text, config.voice);
-  
+
   // 2. Audio normalization
   await this.ffmpeg.saveNormalizedAudio(audioStream, tempWavPath);
-  
+
   // 3. Caption generation via Whisper
   const captions = await this.whisper.CreateCaption(tempWavPath);
-  
+
   // 4. Video asset fetch (duration-matched)
   const video = await this.pexelsApi.findVideo(
-    scene.searchTerms, 
-    audioLength,  // Match video to audio duration
-    excludeVideoIds  // Avoid duplicates
+    scene.searchTerms,
+    audioLength, // Match video to audio duration
+    excludeVideoIds // Avoid duplicates
   );
-  
+
   scenes.push({ captions, video, audio });
 }
 
@@ -80,6 +80,7 @@ await this.remotion.render({ music, scenes, config }, videoId);
 ```
 
 **Key Patterns:**
+
 - Queue-based processing with cuid() IDs
 - Duration-matched video asset selection
 - Video ID exclusion to prevent duplicates
@@ -91,20 +92,20 @@ await this.remotion.render({ music, scenes, config }, videoId);
 
 ```yaml
 services:
-  trendscraper:   # Node.js + Puppeteer
+  trendscraper: # Node.js + Puppeteer
     - Scrapes Google Trends via Puppeteer
     - Generates scripts via Gemini API
     - Burns subtitles with FFmpeg
-    
-  coqui:          # Coqui TTS
+
+  coqui: # Coqui TTS
     - Text-to-speech conversion
     - Speaker ID configuration
-    
-  speechalign:    # Python + Aeneas
+
+  speechalign: # Python + Aeneas
     - Forced alignment for subtitle timing
     - Smart text splitting (~6 words per line)
-    
-  nginx:          # Reverse proxy
+
+  nginx: # Reverse proxy
     - One-click web interface
     - Routes API calls
 ```
@@ -119,9 +120,7 @@ await page.goto(`https://trends.google.com/trending?geo=${geo}&hours=${hours}`);
 
 // Wait for table and download CSV
 await page.waitForSelector("tr[role='row']");
-await page.evaluate(() => 
-  document.querySelector('li[data-action="csv"]').click()
-);
+await page.evaluate(() => document.querySelector('li[data-action="csv"]').click());
 
 // Parse CSV to JSON
 const trends = await csv().fromFile(downloadedFile);
@@ -238,12 +237,12 @@ messages = [
 # video_cutter.py
 for segment in viral_segments:
     subclip = video_clip.subclip(
-        segment['start_time'], 
+        segment['start_time'],
         segment['end_time']
     )
     subclip.write_videofile(
-        f"video_{i}.mp4", 
-        codec='libx264', 
+        f"video_{i}.mp4",
+        codec='libx264',
         audio_codec='aac'
     )
 ```
@@ -261,7 +260,7 @@ class ShortsMaker:
             client_secret=self.cfg["client_secret"],
             user_agent=self.cfg["user_agent"]
         )
-        
+
         if url:
             submission = reddit.submission(url=url)
         else:
@@ -269,7 +268,7 @@ class ShortsMaker:
             for submission in subreddit.hot():
                 if self.is_unique_submission(submission):
                     break
-        
+
         # Save to cache
         with open(record_file, "w") as f:
             f.write(submission.title + ".\n")
@@ -309,7 +308,7 @@ def smart_split(text):
         for chunk in splits:
             new_splits.extend(split_with_separator(chunk, sep))
         splits = new_splits
-    
+
     # Further split large chunks
     final_chunks = []
     for s in splits:
@@ -431,17 +430,17 @@ audio.stream_to_file(output_file)
 // Render via bundled composition
 const composition = await selectComposition({
   serveUrl: bundledPath,
-  id: "ShortVideo",
-  inputProps: { scenes, music, config }
+  id: 'ShortVideo',
+  inputProps: { scenes, music, config },
 });
 
 await renderMedia({
-  codec: "h264",
+  codec: 'h264',
   composition,
   serveUrl: bundledPath,
   outputLocation: `${id}.mp4`,
-  concurrency: 2,  // Limit for Docker memory
-  offthreadVideoCacheSizeInBytes: cacheSize
+  concurrency: 2, // Limit for Docker memory
+  offthreadVideoCacheSizeInBytes: cacheSize,
 });
 ```
 
@@ -456,10 +455,10 @@ for i, (audio_path, image_path) in enumerate(pairs):
     img = ImageClip(image_path).resized(height=1920)
     img = img.with_background_color(size=(1080, 1920), color=(0, 0, 0))
     img = img.with_audio(audio).with_duration(audio.duration)
-    
+
     subtitle = TextClip(text=f"Caption {i}", font_size=60, color="white")
     subtitle = subtitle.with_duration(audio.duration).with_position(("center", "bottom"))
-    
+
     clip = CompositeVideoClip([img, subtitle], size=(1080, 1920))
     clips.append(clip)
 
@@ -493,15 +492,15 @@ out = cv2.VideoWriter(temp_video, fourcc, 30, (1080, 1920))
 for i in range(image_count):
     image1 = cv2.imread(f"image_{i+1}.webp")
     image1 = resize_image(image1, 1080, 1920)
-    
+
     duration = get_audio_duration(f"narration_{i+1}.mp3")
-    
+
     # Write frames for duration
     for _ in range(int(duration * 30)):
         frame = np.zeros((1920, 1080, 3), dtype=np.uint8)
         frame[:image1.shape[0], :] = image1
         out.write(frame)
-    
+
     # Cross-fade transition
     for alpha in np.linspace(0, 1, 30):
         blended = cv2.addWeighted(image1, 1-alpha, image2, alpha, 0)
@@ -530,7 +529,7 @@ async findVideo(
       orientation,
       size: 'medium'
     });
-    
+
     for (const video of results.videos) {
       if (
         video.duration >= minDuration &&
@@ -553,8 +552,8 @@ async findVideo(
 
 ```javascript
 // Viral-Faceless pattern - Random from /videos folder
-const allFiles = fs.readdirSync("/mnt/videos");
-const defaultVideos = allFiles.filter(f => f.startsWith("default_"));
+const allFiles = fs.readdirSync('/mnt/videos');
+const defaultVideos = allFiles.filter((f) => f.startsWith('default_'));
 const video = defaultVideos[Math.floor(Math.random() * defaultVideos.length)];
 
 // Calculate random start offset to match audio duration
@@ -577,7 +576,7 @@ def create_image(description: str, output_path: str):
         size="1024x1792",  # Vertical for shorts
         quality="standard"
     )
-    
+
     image_url = response.data[0].url
     # Download and save
 ```
@@ -595,15 +594,13 @@ await page.goto(url);
 await page.waitForSelector("tr[role='row']");
 
 // Download CSV export
-await page.evaluate(() => 
-  document.querySelector('li[data-action="csv"]').click()
-);
+await page.evaluate(() => document.querySelector('li[data-action="csv"]').click());
 
 // Parse to structured format
-const trends = csv.parse(file).map(row => ({
-  trend: row["Trends"],
-  volume: row["Search volume"],
-  breakdown: row["Trend breakdown"]
+const trends = csv.parse(file).map((row) => ({
+  trend: row['Trends'],
+  volume: row['Search volume'],
+  breakdown: row['Trend breakdown'],
 }));
 ```
 
@@ -638,7 +635,7 @@ private queue: { sceneInput, config, id }[] = [];
 public addToQueue(scenes, config): string {
   const id = cuid();
   this.queue.push({ sceneInput: scenes, config, id });
-  
+
   if (this.queue.length === 1) {
     this.processQueue();  // Start processing
   }
@@ -647,7 +644,7 @@ public addToQueue(scenes, config): string {
 
 private async processQueue(): Promise<void> {
   if (this.queue.length === 0) return;
-  
+
   const { sceneInput, config, id } = this.queue[0];
   try {
     await this.createShort(id, sceneInput, config);
@@ -681,8 +678,8 @@ await flow.add({
   queueName: 'render',
   children: [
     { name: 'generate-tts', queueName: 'audio' },
-    { name: 'generate-captions', queueName: 'captions' }
-  ]
+    { name: 'generate-captions', queueName: 'captions' },
+  ],
 });
 ```
 
@@ -720,13 +717,13 @@ await flow.add({
 ```typescript
 // Scene input from planning agent
 interface SceneInput {
-  text: string;  // Narration text
-  searchTerms: string[];  // Video asset search terms
+  text: string; // Narration text
+  searchTerms: string[]; // Video asset search terms
 }
 
 // Render configuration
 interface RenderConfig {
-  paddingBack?: number;  // Extra time at end (ms)
+  paddingBack?: number; // Extra time at end (ms)
   music?: MusicMoodEnum;
   captionPosition?: CaptionPositionEnum;
   captionBackgroundColor?: string;

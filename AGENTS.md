@@ -20,6 +20,7 @@ cm generate "Redis vs PostgreSQL for caching" --archetype versus --output video.
 ```
 
 Or run each stage independently:
+
 ```bash
 cm script --topic "Redis vs PostgreSQL"       # → script.json
 cm audio --input script.json                  # → audio.wav + timestamps.json
@@ -54,12 +55,12 @@ cm render --input visuals.json                # → video.mp4
 
 ### Pipeline Stages
 
-| Stage | Input | Output | Key Tech |
-|-------|-------|--------|----------|
-| **cm script** | Topic string | `script.json` | LLM (OpenAI/Anthropic) |
-| **cm audio** | Script JSON | `audio.wav` + `timestamps.json` | kokoro-js (TTS) + whisper.cpp (ASR) |
-| **cm visuals** | Timestamps JSON | `visuals.json` | Pexels API, LLM keyword extraction |
-| **cm render** | All artifacts | `video.mp4` | Remotion (React-based rendering) |
+| Stage          | Input           | Output                          | Key Tech                            |
+| -------------- | --------------- | ------------------------------- | ----------------------------------- |
+| **cm script**  | Topic string    | `script.json`                   | LLM (OpenAI/Anthropic)              |
+| **cm audio**   | Script JSON     | `audio.wav` + `timestamps.json` | kokoro-js (TTS) + whisper.cpp (ASR) |
+| **cm visuals** | Timestamps JSON | `visuals.json`                  | Pexels API, LLM keyword extraction  |
+| **cm render**  | All artifacts   | `video.mp4`                     | Remotion (React-based rendering)    |
 
 ---
 
@@ -67,16 +68,17 @@ cm render --input visuals.json                # → video.mp4
 
 Six pre-built content patterns optimized for short-form engagement:
 
-| Archetype | Structure | Best For |
-|-----------|-----------|----------|
+| Archetype    | Structure                         | Best For                     |
+| ------------ | --------------------------------- | ---------------------------- |
 | **listicle** | "5 things..." with numbered items | Tips, facts, recommendations |
-| **versus** | "X vs Y" comparison | Tool comparisons, decisions |
-| **howto** | Step-by-step instructions | Tutorials, quick wins |
-| **myth** | "Myth: X / Reality: Y" | Debunking misconceptions |
-| **story** | Narrative arc with hook | Case studies, journeys |
-| **hot-take** | Provocative opinion | Engagement bait, discussions |
+| **versus**   | "X vs Y" comparison               | Tool comparisons, decisions  |
+| **howto**    | Step-by-step instructions         | Tutorials, quick wins        |
+| **myth**     | "Myth: X / Reality: Y"            | Debunking misconceptions     |
+| **story**    | Narrative arc with hook           | Case studies, journeys       |
+| **hot-take** | Provocative opinion               | Engagement bait, discussions |
 
 Usage:
+
 ```bash
 cm generate "5 JavaScript tips" --archetype listicle
 cm generate "Docker vs Kubernetes" --archetype versus
@@ -86,17 +88,17 @@ cm generate "Docker vs Kubernetes" --archetype versus
 
 ## 🔧 Tech Stack (Final Decisions)
 
-| Category | Technology | Rationale |
-|----------|------------|-----------|
-| **Language** | TypeScript | Type safety, ecosystem, Remotion compatibility |
-| **CLI Framework** | Commander.js | Proven in vidosy, simple, declarative |
-| **LLM Provider** | OpenAI / Anthropic | Structured outputs, reliable |
-| **TTS Engine** | kokoro-js | Local, free, high quality |
-| **ASR Engine** | @remotion/whisper-cpp | Word-level timestamps, Remotion integration |
-| **Stock Footage** | Pexels API | Free, good quality, orientation filtering |
-| **Video Rendering** | Remotion | React-based, programmatic, captions support |
-| **Schema Validation** | Zod | Runtime validation, TypeScript inference |
-| **Configuration** | dotenv + TOML | Secrets in env, settings in config |
+| Category              | Technology            | Rationale                                      |
+| --------------------- | --------------------- | ---------------------------------------------- |
+| **Language**          | TypeScript            | Type safety, ecosystem, Remotion compatibility |
+| **CLI Framework**     | Commander.js          | Proven in vidosy, simple, declarative          |
+| **LLM Provider**      | OpenAI / Anthropic    | Structured outputs, reliable                   |
+| **TTS Engine**        | kokoro-js             | Local, free, high quality                      |
+| **ASR Engine**        | @remotion/whisper-cpp | Word-level timestamps, Remotion integration    |
+| **Stock Footage**     | Pexels API            | Free, good quality, orientation filtering      |
+| **Video Rendering**   | Remotion              | React-based, programmatic, captions support    |
+| **Schema Validation** | Zod                   | Runtime validation, TypeScript inference       |
+| **Configuration**     | dotenv + TOML         | Secrets in env, settings in config             |
 
 **Documentation Date Convention:** All docs use `YYYYMMDD` suffix (e.g., `feature-caption-system-20260102.md`)
 
@@ -147,15 +149,15 @@ content-machine/
 
 ## 📋 Command Reference
 
-| Command | Description | Primary Output |
-|---------|-------------|----------------|
-| `cm generate` | Full pipeline: topic → video | `video.mp4` |
-| `cm script` | Generate script from topic | `script.json` |
-| `cm audio` | Generate voiceover + timestamps | `audio.wav`, `timestamps.json` |
-| `cm visuals` | Find matching stock footage | `visuals.json` |
-| `cm render` | Render final video | `video.mp4` |
-| `cm init` | Interactive setup wizard | `.content-machine.toml` |
-| `cm help` | Show help for all commands | — |
+| Command       | Description                     | Primary Output                 |
+| ------------- | ------------------------------- | ------------------------------ |
+| `cm generate` | Full pipeline: topic → video    | `video.mp4`                    |
+| `cm script`   | Generate script from topic      | `script.json`                  |
+| `cm audio`    | Generate voiceover + timestamps | `audio.wav`, `timestamps.json` |
+| `cm visuals`  | Find matching stock footage     | `visuals.json`                 |
+| `cm render`   | Render final video              | `video.mp4`                    |
+| `cm init`     | Interactive setup wizard        | `.content-machine.toml`        |
+| `cm help`     | Show help for all commands      | —                              |
 
 ### Common Options
 
@@ -174,12 +176,14 @@ content-machine/
 ## 🔧 Vendored Repos (139 total)
 
 **Blueprint Repos (Primary Reference):**
+
 - **short-video-maker-gyori** ⭐ – TypeScript + Remotion + MCP (ARCHITECTURE PATTERN)
 - **vidosy** ⭐ – JSON config → video (CLI PATTERN)
 - **MoneyPrinterTurbo** – Multi-provider LLM, search term generation
 - **ShortGPT** – EdgeTTS (30+ languages), YAML prompts
 
 **Core Technologies:**
+
 - **Remotion** – React-based video rendering
 - **kokoro-js** – Local TTS engine
 - **@remotion/install-whisper-cpp** – ASR with word timestamps
@@ -192,24 +196,28 @@ content-machine/
 ## 🚀 Development Roadmap
 
 ### Week 1-2: Foundation (Current Phase)
+
 - [ ] TypeScript project setup (tsconfig, ESLint, Vitest)
 - [ ] Core infrastructure (config, logger, errors)
 - [ ] Zod schemas for all pipeline stages
 - [ ] LLM provider abstraction
 
 ### Week 3-4: Pipeline Stages
+
 - [ ] `cm script` with OpenAI structured outputs
 - [ ] `cm audio` with kokoro-js + whisper.cpp
 - [ ] `cm visuals` with Pexels API
 - [ ] `cm render` with Remotion
 
 ### Week 5-6: Integration & Polish
+
 - [ ] `cm generate` full pipeline
 - [ ] `cm init` setup wizard
 - [ ] Error handling + recovery
 - [ ] Documentation + examples
 
 ### Post-MVP (v1.5+)
+
 - Background music integration
 - Multiple TTS engines (EdgeTTS, ElevenLabs)
 - Semantic footage matching (embeddings)
@@ -220,29 +228,31 @@ content-machine/
 
 ## 🧪 Testing & Validation Strategy
 
-| Type | Coverage | Tool | Scope |
-|------|----------|------|-------|
-| **Unit** | 70% | Vitest | Schema validation, utilities |
-| **Integration** | 20% | Vitest + MSW | LLM calls, API responses |
-| **E2E** | 10% | Vitest | Full pipeline, video output |
-| **LLM Evals** | Per stage | promptfoo | Quality scoring, regression |
+| Type            | Coverage  | Tool         | Scope                        |
+| --------------- | --------- | ------------ | ---------------------------- |
+| **Unit**        | 70%       | Vitest       | Schema validation, utilities |
+| **Integration** | 20%       | Vitest + MSW | LLM calls, API responses     |
+| **E2E**         | 10%       | Vitest       | Full pipeline, video output  |
+| **LLM Evals**   | Per stage | promptfoo    | Quality scoring, regression  |
 
 ### V&V Framework (4-Layer Approach)
 
-| Layer | Type | Example |
-|-------|------|---------|
-| 1 | Schema Validation | Zod safeParse for JSON structure |
-| 2 | Programmatic Checks | Word count, scene count, duration |
-| 3 | LLM-as-Judge | Hook quality, TikTok voice, visual relevance |
-| 4 | Human Review | Random sample QA |
+| Layer | Type                | Example                                      |
+| ----- | ------------------- | -------------------------------------------- |
+| 1     | Schema Validation   | Zod safeParse for JSON structure             |
+| 2     | Programmatic Checks | Word count, scene count, duration            |
+| 3     | LLM-as-Judge        | Hook quality, TikTok voice, visual relevance |
+| 4     | Human Review        | Random sample QA                             |
 
 **Key Evaluation Metrics:**
+
 - Script hook score: ≥0.85
 - Archetype adherence: ≥0.90
 - Visual relevance: ≥0.80
 - Video PSNR: ≥35 dB
 
 **Documentation:**
+
 - [RQ-24: LLM Evaluation](docs/research/investigations/RQ-24-LLM-EVALUATION-QUALITY-ASSURANCE-20260105.md)
 - [V&V Framework Guide](docs/guides/VV-FRAMEWORK-20260105.md)
 - [evals/](evals/) — promptfoo configurations
@@ -262,21 +272,21 @@ export class FakeLLMProvider implements LLMProvider {
 
 ## 📚 Key Documentation
 
-| Document | Purpose |
-|----------|---------|
-| [SYSTEM-DESIGN-20260104.md](docs/architecture/SYSTEM-DESIGN-20260104.md) | **Authoritative specification** (3,300 lines) |
-| [IMPL-PHASE-0-FOUNDATION](docs/architecture/IMPL-PHASE-0-FOUNDATION-20260105.md) | Phase 0: Project setup, core infrastructure |
-| [IMPL-PHASE-1-SCRIPT](docs/architecture/IMPL-PHASE-1-SCRIPT-20260105.md) | Phase 1: Script generation pipeline |
-| [IMPL-PHASE-2-AUDIO](docs/architecture/IMPL-PHASE-2-AUDIO-20260105.md) | Phase 2: TTS and ASR integration |
-| [IMPL-PHASE-3-VISUALS](docs/architecture/IMPL-PHASE-3-VISUALS-20260105.md) | Phase 3: Stock footage matching |
-| [IMPL-PHASE-4-RENDER](docs/architecture/IMPL-PHASE-4-RENDER-20260105.md) | Phase 4: Remotion video rendering |
-| [IMPL-PHASE-5-INTEGRATION](docs/architecture/IMPL-PHASE-5-INTEGRATION-20260105.md) | Phase 5: Pipeline integration, polish |
-| [RQ-24: LLM Evaluation](docs/research/investigations/RQ-24-LLM-EVALUATION-QUALITY-ASSURANCE-20260105.md) | LLM-as-judge, promptfoo patterns |
-| [V&V Framework](docs/guides/VV-FRAMEWORK-20260105.md) | Validation & verification guide |
-| [00-SUMMARY-20260102.md](docs/research/00-SUMMARY-20260102.md) | Research overview |
-| [investigations/](docs/research/investigations/) | 24 investigation documents (RQ-01 to RQ-24) |
-| [deep-dives/](docs/research/deep-dives/) | 13 deep-dive analyses |
-| [sections/](docs/research/sections/) | 7 section-specific research docs |
+| Document                                                                                                 | Purpose                                       |
+| -------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
+| [SYSTEM-DESIGN-20260104.md](docs/architecture/SYSTEM-DESIGN-20260104.md)                                 | **Authoritative specification** (3,300 lines) |
+| [IMPL-PHASE-0-FOUNDATION](docs/architecture/IMPL-PHASE-0-FOUNDATION-20260105.md)                         | Phase 0: Project setup, core infrastructure   |
+| [IMPL-PHASE-1-SCRIPT](docs/architecture/IMPL-PHASE-1-SCRIPT-20260105.md)                                 | Phase 1: Script generation pipeline           |
+| [IMPL-PHASE-2-AUDIO](docs/architecture/IMPL-PHASE-2-AUDIO-20260105.md)                                   | Phase 2: TTS and ASR integration              |
+| [IMPL-PHASE-3-VISUALS](docs/architecture/IMPL-PHASE-3-VISUALS-20260105.md)                               | Phase 3: Stock footage matching               |
+| [IMPL-PHASE-4-RENDER](docs/architecture/IMPL-PHASE-4-RENDER-20260105.md)                                 | Phase 4: Remotion video rendering             |
+| [IMPL-PHASE-5-INTEGRATION](docs/architecture/IMPL-PHASE-5-INTEGRATION-20260105.md)                       | Phase 5: Pipeline integration, polish         |
+| [RQ-24: LLM Evaluation](docs/research/investigations/RQ-24-LLM-EVALUATION-QUALITY-ASSURANCE-20260105.md) | LLM-as-judge, promptfoo patterns              |
+| [V&V Framework](docs/guides/VV-FRAMEWORK-20260105.md)                                                    | Validation & verification guide               |
+| [00-SUMMARY-20260102.md](docs/research/00-SUMMARY-20260102.md)                                           | Research overview                             |
+| [investigations/](docs/research/investigations/)                                                         | 24 investigation documents (RQ-01 to RQ-24)   |
+| [deep-dives/](docs/research/deep-dives/)                                                                 | 13 deep-dive analyses                         |
+| [sections/](docs/research/sections/)                                                                     | 7 section-specific research docs              |
 
 ---
 
@@ -317,6 +327,7 @@ asr_engine = "whisper"
 **Date Convention:** ALL documentation files MUST include `YYYYMMDD` suffix.
 
 **Examples:**
+
 - ✅ `feature-caption-system-20260102.md`
 - ✅ `investigation-tts-latency-20260120.md`
 - ❌ `feature-caption-system.md` (NO DATE)
@@ -330,6 +341,7 @@ asr_engine = "whisper"
 **Location:** `tasks/`
 
 **Structure:**
+
 ```
 tasks/
 ├── todo/               # Ready to start
@@ -342,11 +354,13 @@ tasks/
 **Task Naming:** `TASK-NNN-type-short-description-YYYYMMDD.md`
 
 **Examples:**
+
 - `TASK-001-feature-mcp-reddit-connector-20260102.md`
 - `TASK-002-bug-whisper-timestamp-20260115.md`
 - `TASK-003-research-remotion-patterns-20260110.md`
 
 **Mandatory Phases (Every Task):**
+
 1. **Documentation Planning** – What docs does this require?
 2. **Testing Considerations** – What needs testing? Edge cases?
 3. **Testing Plan** – Specific test cases BEFORE implementation
@@ -354,6 +368,7 @@ tasks/
 5. **Verification (V&V)** – Complete checklist, CI passed, deployed
 
 **TDD Workflow (Non-Negotiable):**
+
 ```
 🔴 RED     → Write failing test that defines expected behavior
 🟢 GREEN   → Write minimal code to pass the test
@@ -361,6 +376,7 @@ tasks/
 ```
 
 **Completion Criteria (ALL Required):**
+
 - [ ] All acceptance criteria met
 - [ ] Testing Plan fully executed (all tests passing)
 - [ ] All required documentation created and linked
@@ -375,26 +391,31 @@ tasks/
 ## Architecture Principles
 
 ### 1. CLI-First Design
+
 - **Commands are composable** (pipe stages together)
 - Each stage produces JSON artifacts
 - No web UI required for MVP
 
 ### 2. LLM-First Reasoning
+
 - Avoid keyword matching / regex heuristics
 - Use structured outputs (Zod schemas)
 - Implement evals for non-deterministic behavior
 
 ### 3. Dependency Injection
+
 - All providers via constructor injection
 - Static factories for production: `AudioPipeline.create(config)`
 - Test factories for testing: `AudioPipeline.createForTest(fakes)`
 
 ### 4. Configuration-Driven
+
 - Video specs as JSON/TOML
 - Template system for style variants
 - Environment-based feature flags
 
 ### 5. Observability
+
 - Structured logging (pino)
 - Cost tracking per LLM call
 - Progress callbacks for long operations
@@ -417,14 +438,17 @@ tasks/
 ## Security & Licensing
 
 ### API Keys
+
 - Never commit secrets (`.env` in `.gitignore`)
 - Support multiple API keys for rotation
 - Validate presence at startup
 
 ### Remotion Licensing
+
 **CRITICAL:** Remotion requires company license for commercial use. Review before commercial deployment.
 
 ### Content Safety
+
 - Validate all LLM outputs against schemas
 - Rate limiting on API calls
 
@@ -433,12 +457,14 @@ tasks/
 ## Contributing
 
 ### Before Starting Work
+
 1. Check `tasks/todo/` for prioritized work
 2. Move task to `in_progress/` (max 3 concurrent)
 3. Read [SYSTEM-DESIGN-20260104.md](docs/architecture/SYSTEM-DESIGN-20260104.md)
 4. Write failing tests first (TDD)
 
 ### Pull Request Checklist
+
 - [ ] All tests pass (`pnpm test`)
 - [ ] TypeScript compiles (`pnpm type-check`)
 - [ ] Documentation updated (with date suffix)
@@ -449,6 +475,7 @@ tasks/
 ## Resources
 
 ### Research Reports
+
 - `docs/research/00-SUMMARY.md` – Master summary, architecture
 - `docs/research/10-short-video-maker-gyori.md` – Blueprint repo (TypeScript + MCP)
 - `docs/research/12-vidosy.md` – JSON config → video pattern
@@ -456,12 +483,14 @@ tasks/
 - `docs/research/16-BATCH2-SUMMARY.md` – All 76 infrastructure repos
 
 ### External Links
+
 - Remotion Docs: https://www.remotion.dev/docs/
 - MCP Specification: https://modelcontextprotocol.io/
 - LangChain Docs: https://python.langchain.com/docs/
 - Playwright Docs: https://playwright.dev/
 
 ### Free Resources
+
 - **TTS:** EdgeTTS (30+ languages), Kokoro (English), Piper
 - **Stock Footage:** Pexels API, Unsplash API
 - **ASR:** OpenAI Whisper (local, no API costs)
@@ -480,21 +509,21 @@ tasks/
 
 ## Glossary
 
-| Term | Definition |
-|------|------------|
-| **MCP** | Model Context Protocol (how LLMs call tools/APIs) |
-| **Remotion** | React-based programmatic video rendering |
-| **TTS** | Text-to-Speech |
-| **ASR** | Automatic Speech Recognition (transcription) |
-| **EdgeTTS** | Microsoft Edge's free TTS API (30+ languages) |
-| **Kokoro** | Open-weight local TTS (English only) |
-| **Playwright** | Browser automation for UI capture |
-| **LangGraph** | Agent orchestration framework (LangChain) |
-| **Vidosy Pattern** | JSON config → video generation |
-| **Product Truthful** | Videos show real product UI, not stock footage |
-| **Shorts** | TikTok/Reels/YouTube Shorts (vertical video < 60s) |
-| **Archetype** | Pre-built content structure (listicle, versus, etc.) |
-| **Pipeline Stage** | One of: script, audio, visuals, render |
+| Term                 | Definition                                           |
+| -------------------- | ---------------------------------------------------- |
+| **MCP**              | Model Context Protocol (how LLMs call tools/APIs)    |
+| **Remotion**         | React-based programmatic video rendering             |
+| **TTS**              | Text-to-Speech                                       |
+| **ASR**              | Automatic Speech Recognition (transcription)         |
+| **EdgeTTS**          | Microsoft Edge's free TTS API (30+ languages)        |
+| **Kokoro**           | Open-weight local TTS (English only)                 |
+| **Playwright**       | Browser automation for UI capture                    |
+| **LangGraph**        | Agent orchestration framework (LangChain)            |
+| **Vidosy Pattern**   | JSON config → video generation                       |
+| **Product Truthful** | Videos show real product UI, not stock footage       |
+| **Shorts**           | TikTok/Reels/YouTube Shorts (vertical video < 60s)   |
+| **Archetype**        | Pre-built content structure (listicle, versus, etc.) |
+| **Pipeline Stage**   | One of: script, audio, visuals, render               |
 
 ---
 

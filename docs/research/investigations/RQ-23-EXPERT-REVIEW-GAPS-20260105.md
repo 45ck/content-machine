@@ -12,11 +12,11 @@
 
 Expert code review of short-video-maker-gyori, MoneyPrinterTurbo, and openai-agents-js revealed **10 critical implementation patterns** that are present in production systems but missing from our system design.
 
-| Priority | Count | Summary |
-|----------|-------|---------|
-| **P0** | 2 | Constructor injection, test stubs |
-| **P1** | 7 | Multi-key rotation, fallbacks, validation, signals, lifecycle |
-| **P2** | 1 | Reasoning model settings |
+| Priority | Count | Summary                                                       |
+| -------- | ----- | ------------------------------------------------------------- |
+| **P0**   | 2     | Constructor injection, test stubs                             |
+| **P1**   | 7     | Multi-key rotation, fallbacks, validation, signals, lifecycle |
+| **P2**   | 1     | Reasoning model settings                                      |
 
 ---
 
@@ -33,19 +33,25 @@ Expert code review of short-video-maker-gyori, MoneyPrinterTurbo, and openai-age
 ```typescript
 // vendor/short-video-maker-gyori/src/short-creator/libraries/Kokoro.ts
 export class Kokoro {
-  constructor(private tts: KokoroTTS) {}  // Pure DI
+  constructor(private tts: KokoroTTS) {} // Pure DI
 
   static async init(dtype: kokoroModelPrecision): Promise<Kokoro> {
     const tts = await KokoroTTS.from_pretrained(KOKORO_MODEL, { dtype });
-    return new Kokoro(tts);  // Factory method for real instantiation
+    return new Kokoro(tts); // Factory method for real instantiation
   }
 }
 
 // vendor/short-video-maker-gyori/src/index.ts
 const kokoro = await Kokoro.init(config.kokoroModelPrecision);
 const shortCreator = new ShortCreator(
-  config, remotion, kokoro, whisper, ffmpeg, pexelsApi, musicManager
-);  // ALL deps injected via constructor
+  config,
+  remotion,
+  kokoro,
+  whisper,
+  ffmpeg,
+  pexelsApi,
+  musicManager
+); // ALL deps injected via constructor
 ```
 
 **Resolution:** Add to §18 Extensibility Architecture:
@@ -118,14 +124,14 @@ setDefaultModelProvider(new FakeModelProvider());
 export class FakeLLMProvider implements LLMProvider {
   readonly name = 'fake';
   readonly supportedFeatures = ['json-mode'];
-  
+
   private responses: LLMResponse[] = [];
   private calls: LLMMessage[][] = [];
-  
+
   queueResponse(response: LLMResponse): void {
     this.responses.push(response);
   }
-  
+
   queueJsonResponse<T>(data: T): void {
     this.responses.push({
       content: JSON.stringify(data),
@@ -134,7 +140,7 @@ export class FakeLLMProvider implements LLMProvider {
       finishReason: 'stop',
     });
   }
-  
+
   async chat(messages: LLMMessage[]): Promise<LLMResponse> {
     this.calls.push(messages);
     const response = this.responses.shift();
@@ -143,7 +149,7 @@ export class FakeLLMProvider implements LLMProvider {
     }
     return response;
   }
-  
+
   getCalls(): LLMMessage[][] {
     return this.calls;
   }
@@ -154,7 +160,7 @@ export class FakeTTSProvider implements TTSProvider {
   readonly name = 'fake';
   readonly supportedVoices = [{ id: 'fake', name: 'Fake Voice' }];
   readonly supportedLanguages = ['en'];
-  
+
   async synthesize(text: string): Promise<TTSResult> {
     // Return a minimal valid MP3 buffer (silent 1-second audio)
     return {
@@ -186,7 +192,7 @@ def get_api_key(cfg_key: str):
     api_keys = config.app.get(cfg_key)
     if isinstance(api_keys, str):
         return api_keys  # Single key
-    
+
     global requested_count
     requested_count += 1
     return api_keys[requested_count % len(api_keys)]  # Round-robin
@@ -196,17 +202,14 @@ def get_api_key(cfg_key: str):
 
 ```typescript
 // Config supports single key or array
-const ApiKeyConfigSchema = z.union([
-  z.string(),
-  z.array(z.string()).min(1),
-]);
+const ApiKeyConfigSchema = z.union([z.string(), z.array(z.string()).min(1)]);
 
 // Key rotation helper
 class ApiKeyRotator {
   private index = 0;
-  
+
   constructor(private keys: string[]) {}
-  
+
   next(): string {
     const key = this.keys[this.index % this.keys.length];
     this.index++;
@@ -216,7 +219,7 @@ class ApiKeyRotator {
 
 // Usage in config
 interface Config {
-  pexelsApiKeys: string | string[];  // Can be array for rate limit multiplication
+  pexelsApiKeys: string | string[]; // Can be array for rate limit multiplication
 }
 ```
 
@@ -257,16 +260,16 @@ const JOKER_TERMS = ['nature', 'abstract', 'sky', 'ocean', 'city', 'texture'];
 async function findFootage(visualDirection: string): Promise<StockResult> {
   const llmKeywords = await extractKeywords(visualDirection);
   const shuffledJokers = shuffle(JOKER_TERMS);
-  
+
   const searchOrder = [...llmKeywords, ...shuffledJokers];
-  
+
   for (const term of searchOrder) {
     const results = await stockProvider.search(term);
     if (results.length > 0) {
       return results[0];
     }
   }
-  
+
   // Ultimate fallback: solid color
   return { source: 'fallback-color', color: '#1a1a1a' };
 }
@@ -313,27 +316,29 @@ interface VideoMetadata {
 async function validateVideo(path: string): Promise<VideoMetadata | null> {
   try {
     const { stdout } = await execa('ffprobe', [
-      '-v', 'quiet',
-      '-print_format', 'json',
+      '-v',
+      'quiet',
+      '-print_format',
+      'json',
       '-show_format',
       '-show_streams',
       path,
     ]);
-    
+
     const data = JSON.parse(stdout);
-    const videoStream = data.streams.find(s => s.codec_type === 'video');
-    
+    const videoStream = data.streams.find((s) => s.codec_type === 'video');
+
     if (!videoStream || parseFloat(data.format.duration) <= 0) {
-      await fs.unlink(path);  // Delete invalid file
+      await fs.unlink(path); // Delete invalid file
       return null;
     }
-    
+
     return {
       duration: parseFloat(data.format.duration),
-      fps: eval(videoStream.r_frame_rate),  // "30/1" → 30
+      fps: eval(videoStream.r_frame_rate), // "30/1" → 30
       width: videoStream.width,
       height: videoStream.height,
-      hasAudio: data.streams.some(s => s.codec_type === 'audio'),
+      hasAudio: data.streams.some((s) => s.codec_type === 'audio'),
     };
   } catch {
     await fs.unlink(path).catch(() => {});
@@ -371,8 +376,8 @@ def azure_tts_v1(text, voice_name, voice_rate, voice_file):
 ```typescript
 interface TTSProviderConfig {
   provider: string;
-  retries: number;        // Retry within this provider
-  retryDelayMs: number;   // Base delay between retries
+  retries: number; // Retry within this provider
+  retryDelayMs: number; // Base delay between retries
 }
 
 async function synthesizeWithRetry(
@@ -394,7 +399,7 @@ async function synthesizeWithRetry(
       }
     }
   }
-  return null;  // Trigger fallback to next provider
+  return null; // Trigger fallback to next provider
 }
 ```
 
@@ -431,18 +436,18 @@ for await (const event of model.getStreamedResponse({ signal: options.signal }))
 // src/core/pipeline.ts
 export class Pipeline {
   private abortController = new AbortController();
-  
+
   constructor() {
     process.on('SIGINT', () => {
       console.log('\n⚠️  Cancelling pipeline...');
       this.abortController.abort();
     });
   }
-  
+
   get signal(): AbortSignal {
     return this.abortController.signal;
   }
-  
+
   async run(stages: PipelineStage[]): Promise<void> {
     for (const stage of stages) {
       if (this.signal.aborted) {
@@ -507,28 +512,30 @@ interface UsageEntry {
 
 export class CostTracker {
   private entries: UsageEntry[] = [];
-  
+
   // Pricing table ($ per 1M tokens)
   private static PRICING: Record<string, { input: number; output: number }> = {
-    'gpt-4o': { input: 2.50, output: 10.00 },
-    'gpt-4o-mini': { input: 0.15, output: 0.60 },
-    'claude-3-5-sonnet': { input: 3.00, output: 15.00 },
+    'gpt-4o': { input: 2.5, output: 10.0 },
+    'gpt-4o-mini': { input: 0.15, output: 0.6 },
+    'claude-3-5-sonnet': { input: 3.0, output: 15.0 },
     'text-embedding-3-small': { input: 0.02, output: 0 },
   };
-  
+
   add(entry: UsageEntry): void {
     this.entries.push(entry);
   }
-  
+
   getTotalCost(): number {
     return this.entries.reduce((sum, entry) => {
       const pricing = CostTracker.PRICING[entry.model] ?? { input: 0, output: 0 };
-      return sum + 
-        (entry.inputTokens / 1_000_000 * pricing.input) +
-        (entry.outputTokens / 1_000_000 * pricing.output);
+      return (
+        sum +
+        (entry.inputTokens / 1_000_000) * pricing.input +
+        (entry.outputTokens / 1_000_000) * pricing.output
+      );
     }, 0);
   }
-  
+
   getSummary(): string {
     const total = this.getTotalCost();
     const byService = this.getByService();
@@ -573,7 +580,7 @@ export interface PipelineEvents {
     archetype: string;
     startedAt: Date;
   };
-  
+
   'pipeline:end': {
     projectId: string;
     duration: number;
@@ -581,50 +588,50 @@ export interface PipelineEvents {
     outputPath?: string;
     error?: Error;
   };
-  
+
   'stage:start': {
     stage: 'script' | 'audio' | 'visuals' | 'render';
     input: unknown;
     startedAt: Date;
   };
-  
+
   'stage:end': {
     stage: 'script' | 'audio' | 'visuals' | 'render';
     output: unknown;
     duration: number;
   };
-  
+
   'llm:request': {
     model: string;
     messages: LLMMessage[];
     temperature: number;
   };
-  
+
   'llm:response': {
     model: string;
     content: string;
     usage: { inputTokens: number; outputTokens: number };
     latencyMs: number;
   };
-  
+
   'tts:start': {
     engine: string;
     textLength: number;
   };
-  
+
   'tts:complete': {
     engine: string;
     durationSeconds: number;
     audioBytesSize: number;
   };
-  
+
   'render:progress': {
-    progress: number;  // 0-100
+    progress: number; // 0-100
     framesCurrent: number;
     framesTotal: number;
     eta?: number;
   };
-  
+
   'cost:incurred': {
     service: string;
     model: string;
@@ -635,15 +642,9 @@ export interface PipelineEvents {
 
 // Type-safe emitter
 export class TypedEventEmitter {
-  on<K extends keyof PipelineEvents>(
-    event: K,
-    handler: (payload: PipelineEvents[K]) => void
-  ): void;
-  
-  emit<K extends keyof PipelineEvents>(
-    event: K,
-    payload: PipelineEvents[K]
-  ): void;
+  on<K extends keyof PipelineEvents>(event: K, handler: (payload: PipelineEvents[K]) => void): void;
+
+  emit<K extends keyof PipelineEvents>(event: K, payload: PipelineEvents[K]): void;
 }
 ```
 
@@ -678,13 +679,13 @@ interface LLMConfigExtended {
   model: string;
   temperature?: number;
   maxTokens?: number;
-  
+
   // Reasoning models (o1, o3)
   reasoning?: {
     effort?: 'low' | 'medium' | 'high';
     budgetTokens?: number;
   };
-  
+
   // Prompt caching (Anthropic, OpenAI)
   promptCaching?: 'ephemeral' | '24h' | 'disabled';
 }
@@ -694,18 +695,18 @@ interface LLMConfigExtended {
 
 ## 5. Summary: Implementation Checklist
 
-| Gap ID | Description | Priority | Status |
-|--------|-------------|----------|--------|
-| GAP-23.1 | Constructor injection pattern | P0 | ⬜ Add to §18 |
-| GAP-23.2 | Test stub infrastructure | P0 | ⬜ Create src/test/stubs/ |
-| GAP-23.3 | Multi-key API rotation | P1 | ⬜ Update config schema |
-| GAP-23.4 | Joker term fallback | P1 | ⬜ Add to cm visuals |
-| GAP-23.5 | Video validation after download | P1 | ⬜ Add FFprobe helper |
-| GAP-23.6 | Retry-within-provider TTS | P1 | ⬜ Add retry config |
-| GAP-23.7 | AbortSignal propagation | P1 | ⬜ Add to Pipeline class |
-| GAP-23.8 | Usage accumulator class | P1 | ⬜ Create CostTracker |
-| GAP-23.9 | Typed lifecycle hooks | P1 | ⬜ Define PipelineEvents |
-| GAP-23.10 | Reasoning model settings | P2 | ⬜ Post-MVP |
+| Gap ID    | Description                     | Priority | Status                    |
+| --------- | ------------------------------- | -------- | ------------------------- |
+| GAP-23.1  | Constructor injection pattern   | P0       | ⬜ Add to §18             |
+| GAP-23.2  | Test stub infrastructure        | P0       | ⬜ Create src/test/stubs/ |
+| GAP-23.3  | Multi-key API rotation          | P1       | ⬜ Update config schema   |
+| GAP-23.4  | Joker term fallback             | P1       | ⬜ Add to cm visuals      |
+| GAP-23.5  | Video validation after download | P1       | ⬜ Add FFprobe helper     |
+| GAP-23.6  | Retry-within-provider TTS       | P1       | ⬜ Add retry config       |
+| GAP-23.7  | AbortSignal propagation         | P1       | ⬜ Add to Pipeline class  |
+| GAP-23.8  | Usage accumulator class         | P1       | ⬜ Create CostTracker     |
+| GAP-23.9  | Typed lifecycle hooks           | P1       | ⬜ Define PipelineEvents  |
+| GAP-23.10 | Reasoning model settings        | P2       | ⬜ Post-MVP               |
 
 ---
 

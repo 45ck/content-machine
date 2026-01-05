@@ -11,6 +11,7 @@
 This document investigates schema and validation patterns across vendored repositories to inform content-machine's data schema architecture.
 
 **Key Questions:**
+
 1. What schema libraries do video generation tools use (Pydantic, Zod, TypeBox)?
 2. How do they handle LLM structured output parsing?
 3. What fallback strategies exist when LLM returns malformed JSON?
@@ -21,13 +22,13 @@ This document investigates schema and validation patterns across vendored reposi
 
 ## 2. Vendor Evidence Summary
 
-| Repo | Schema Library | LLM Output Validation | Rigidity Level |
-|------|---------------|----------------------|----------------|
-| MoneyPrinterTurbo | Pydantic BaseModel | Regex extraction | Medium |
-| short-video-maker-gyori | Zod | safeParse + error formatting | High |
-| vidosy | Zod | Schema validation on config | High |
-| openai-agents-js | Zod + zodResponseFormat | API structured outputs | Very High |
-| ShortGPT | None (ad-hoc) | Regex + try/except | Low |
+| Repo                    | Schema Library          | LLM Output Validation        | Rigidity Level |
+| ----------------------- | ----------------------- | ---------------------------- | -------------- |
+| MoneyPrinterTurbo       | Pydantic BaseModel      | Regex extraction             | Medium         |
+| short-video-maker-gyori | Zod                     | safeParse + error formatting | High           |
+| vidosy                  | Zod                     | Schema validation on config  | High           |
+| openai-agents-js        | Zod + zodResponseFormat | API structured outputs       | Very High      |
+| ShortGPT                | None (ad-hoc)           | Regex + try/except           | Low            |
 
 ---
 
@@ -77,7 +78,7 @@ class VideoParams(BaseModel):
     video_clip_duration: Optional[int] = 5
     video_count: Optional[int] = 1
     video_materials: Optional[List[MaterialInfo]] = None
-    
+
     voice_name: Optional[str] = ""
     voice_volume: Optional[float] = 1.0
     voice_rate: Optional[float] = 1.0
@@ -91,7 +92,8 @@ class VideoParams(BaseModel):
     stroke_width: float = 1.5
 ```
 
-**Pattern:** 
+**Pattern:**
+
 - Heavy use of `Optional` with defaults
 - Nested dataclasses for complex types (`MaterialInfo`)
 - Union types (`str | list`) for flexible inputs
@@ -133,11 +135,11 @@ class TaskResponse(BaseResponse):
 
 ```typescript
 export const sceneInput = z.object({
-  text: z.string().describe("Text to be spoken in the video"),
+  text: z.string().describe('Text to be spoken in the video'),
   searchTerms: z
     .array(z.string())
     .describe(
-      "Search term for video, 1 word, and at least 2-3 search terms should be provided for each scene. Make sure to match the overall context with the word - regardless what the video search result would be.",
+      'Search term for video, 1 word, and at least 2-3 search terms should be provided for each scene. Make sure to match the overall context with the word - regardless what the video search result would be.'
     ),
 });
 export type SceneInput = z.infer<typeof sceneInput>;
@@ -149,40 +151,40 @@ export type SceneInput = z.infer<typeof sceneInput>;
 
 ```typescript
 export enum MusicMoodEnum {
-  sad = "sad",
-  melancholic = "melancholic",
-  happy = "happy",
-  euphoric = "euphoric/high",
-  excited = "excited",
-  chill = "chill",
-  uneasy = "uneasy",
-  angry = "angry",
-  dark = "dark",
-  hopeful = "hopeful",
-  contemplative = "contemplative",
-  funny = "funny/quirky",
+  sad = 'sad',
+  melancholic = 'melancholic',
+  happy = 'happy',
+  euphoric = 'euphoric/high',
+  excited = 'excited',
+  chill = 'chill',
+  uneasy = 'uneasy',
+  angry = 'angry',
+  dark = 'dark',
+  hopeful = 'hopeful',
+  contemplative = 'contemplative',
+  funny = 'funny/quirky',
 }
 
 export enum VoiceEnum {
-  af_heart = "af_heart",
-  af_alloy = "af_alloy",
+  af_heart = 'af_heart',
+  af_alloy = 'af_alloy',
   // ... 28 voice options
-  bm_fable = "bm_fable",
+  bm_fable = 'bm_fable',
 }
 
 export const renderConfig = z.object({
   music: z
     .nativeEnum(MusicMoodEnum)
     .optional()
-    .describe("Music tag to be used to find the right music for the video"),
+    .describe('Music tag to be used to find the right music for the video'),
   voice: z
     .nativeEnum(VoiceEnum)
     .optional()
-    .describe("Voice to be used for the speech, default is af_heart"),
+    .describe('Voice to be used for the speech, default is af_heart'),
   orientation: z
     .nativeEnum(OrientationEnum)
     .optional()
-    .describe("Orientation of the video, default is portrait"),
+    .describe('Orientation of the video, default is portrait'),
 });
 ```
 
@@ -192,8 +194,8 @@ export const renderConfig = z.object({
 
 ```typescript
 export const createShortInput = z.object({
-  scenes: z.array(sceneInput).describe("Each scene to be created"),
-  config: renderConfig.describe("Configuration for rendering the video"),
+  scenes: z.array(sceneInput).describe('Each scene to be created'),
+  config: renderConfig.describe('Configuration for rendering the video'),
 });
 export type CreateShortInput = z.infer<typeof createShortInput>;
 ```
@@ -207,7 +209,7 @@ export type CreateShortInput = z.infer<typeof createShortInput>;
 ```typescript
 export function validateCreateShortInput(input: object): CreateShortInput {
   const validated = createShortInput.safeParse(input);
-  logger.info({ validated }, "Validated input");
+  logger.info({ validated }, 'Validated input');
 
   if (validated.success) {
     return validated.data;
@@ -220,7 +222,7 @@ export function validateCreateShortInput(input: object): CreateShortInput {
     JSON.stringify({
       message: errorResult.message,
       missingFields: errorResult.missingFields,
-    }),
+    })
   );
 }
 
@@ -228,19 +230,20 @@ function formatZodError(error: ZodError): ValidationErrorResult {
   const missingFields: Record<string, string> = {};
 
   error.errors.forEach((err) => {
-    const path = err.path.join(".");
+    const path = err.path.join('.');
     missingFields[path] = err.message;
   });
 
   const errorPaths = Object.keys(missingFields);
   let message = `Validation failed for ${errorPaths.length} field(s): `;
-  message += errorPaths.join(", ");
+  message += errorPaths.join(', ');
 
   return { message, missingFields };
 }
 ```
 
 **Pattern:**
+
 1. Use `safeParse()` instead of `parse()` - never throws
 2. Check `validated.success` before accessing `.data`
 3. Format errors into structured response for debugging
@@ -264,7 +267,10 @@ export const backgroundSchema = z.object({
 export const textSchema = z.object({
   content: z.string(),
   fontSize: z.number().min(12).max(200).optional(),
-  color: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+  color: z
+    .string()
+    .regex(/^#[0-9A-Fa-f]{6}$/)
+    .optional(),
   position: z.enum(['top', 'center', 'bottom', 'left', 'right']).optional(),
 });
 
@@ -274,11 +280,13 @@ export const sceneSchema = z.object({
   duration: z.number().positive(),
   background: backgroundSchema.optional(),
   text: textSchema.optional(),
-  audio: z.object({
-    file: z.string().optional(),
-    volume: z.number().min(0).max(1).optional(),
-    startTime: z.number().min(0).optional(),
-  }).optional(),
+  audio: z
+    .object({
+      file: z.string().optional(),
+      volume: z.number().min(0).max(1).optional(),
+      startTime: z.number().min(0).optional(),
+    })
+    .optional(),
 });
 
 // Root schema
@@ -359,9 +367,7 @@ export const InputImage = SharedBase.extend({
   image: z
     .string()
     .or(z.object({ id: z.string().describe('OpenAI file ID') }))
-    .describe(
-      'Either base64 encoded image data, a data URL, or an object with a file ID.',
-    )
+    .describe('Either base64 encoded image data, a data URL, or an object with a file ID.')
     .optional(),
   detail: z.string().optional(),
 });
@@ -379,6 +385,7 @@ export const InputFile = SharedBase.extend({
 ```
 
 **Pattern:**
+
 - Use `.extend()` for schema inheritance
 - Use `z.literal()` for discriminated unions
 - Use `.or()` for union types with distinct shapes
@@ -409,7 +416,7 @@ def extract_biggest_json(string):
 
 ```python
 def extractJsonFromString(text):
-    start = text.find('{') 
+    start = text.find('{')
     end = text.rfind('}') + 1
     if start == -1 or end == 0:
         raise Exception("Error: No JSON object found in response")
@@ -429,7 +436,7 @@ def getVideoSearchQueriesTimed(captions_timed):
             data = extractJsonFromString(res)
             # Process data...
             return formatted_queries
-            
+
         except json.JSONDecodeError:
             print("Error: Invalid JSON response from LLM")
             return []
@@ -441,7 +448,8 @@ def getVideoSearchQueriesTimed(captions_timed):
             return []
 ```
 
-**Pattern:** 
+**Pattern:**
+
 - Retry loop for LLM flakiness
 - Catch specific exceptions (JSONDecodeError, KeyError)
 - Return empty list on failure (graceful degradation)
@@ -455,6 +463,7 @@ def getVideoSearchQueriesTimed(captions_timed):
 **Recommendation:** Use **Zod** as the primary schema library.
 
 **Rationale:**
+
 1. TypeScript-native with excellent type inference
 2. `.describe()` method enables LLM guidance in schema
 3. `safeParse()` pattern never throws, enables graceful error handling
@@ -475,6 +484,7 @@ def getVideoSearchQueriesTimed(captions_timed):
 ```
 
 **Inter-stage contracts:**
+
 - Each command outputs JSON matching its output schema
 - Next command validates input against its input schema
 - Mismatch = clear error with field-level diagnostics
@@ -484,17 +494,23 @@ def getVideoSearchQueriesTimed(captions_timed):
 ```typescript
 // Two-tier validation: flexible input → strict internal
 const LLMScriptOutputFlexible = z.object({
-  scenes: z.array(z.object({
-    voiceover: z.string(),
-    searchTerms: z.array(z.string()).optional(),
-  })).describe("Array of scene objects with voiceover text"),
+  scenes: z
+    .array(
+      z.object({
+        voiceover: z.string(),
+        searchTerms: z.array(z.string()).optional(),
+      })
+    )
+    .describe('Array of scene objects with voiceover text'),
 });
 
 const ScriptOutputStrict = z.object({
-  scenes: z.array(z.object({
-    voiceover: z.string().min(10).max(500),
-    searchTerms: z.array(z.string().min(1)).min(1).max(5),
-  })),
+  scenes: z.array(
+    z.object({
+      voiceover: z.string().min(10).max(500),
+      searchTerms: z.array(z.string().min(1)).min(1).max(5),
+    })
+  ),
 });
 
 // In script generation:
@@ -517,9 +533,15 @@ function extractBiggestJson(text: string): object | null {
   const jsonRegex = /\{[^{}]*(?:\{[^{}]*\}[^{}]*)*\}/g;
   const matches = text.match(jsonRegex);
   if (!matches) return null;
-  
+
   return matches
-    .map(m => { try { return JSON.parse(m); } catch { return null; }})
+    .map((m) => {
+      try {
+        return JSON.parse(m);
+      } catch {
+        return null;
+      }
+    })
     .filter(Boolean)
     .sort((a, b) => JSON.stringify(b).length - JSON.stringify(a).length)[0];
 }
@@ -536,12 +558,12 @@ interface ValidationErrorResult {
 
 function formatZodError(error: ZodError): ValidationErrorResult {
   const missingFields: Record<string, string> = {};
-  
+
   error.errors.forEach((err) => {
-    const path = err.path.join(".");
+    const path = err.path.join('.');
     missingFields[path] = err.message;
   });
-  
+
   return {
     message: `Validation failed for ${Object.keys(missingFields).length} field(s)`,
     missingFields,
@@ -553,16 +575,16 @@ function formatZodError(error: ZodError): ValidationErrorResult {
 
 ## 9. Key Takeaways
 
-| Pattern | Source | Adoption Priority |
-|---------|--------|-------------------|
-| `z.infer<typeof schema>` type inference | vidosy, short-video-maker-gyori | **Must have** |
-| `.describe()` for LLM guidance | openai-agents-js, short-video-maker-gyori | **Must have** |
-| `safeParse()` never-throws pattern | short-video-maker-gyori | **Must have** |
-| `z.nativeEnum()` for TypeScript enums | short-video-maker-gyori | **Should have** |
-| Hierarchical schema composition | vidosy | **Should have** |
-| Regex JSON extraction fallback | ShortGPT | **Should have** |
-| Retry loop for LLM flakiness | ShortGPT | **Should have** |
-| `json_schema_extra` for API docs | MoneyPrinterTurbo | Nice to have |
+| Pattern                                 | Source                                    | Adoption Priority |
+| --------------------------------------- | ----------------------------------------- | ----------------- |
+| `z.infer<typeof schema>` type inference | vidosy, short-video-maker-gyori           | **Must have**     |
+| `.describe()` for LLM guidance          | openai-agents-js, short-video-maker-gyori | **Must have**     |
+| `safeParse()` never-throws pattern      | short-video-maker-gyori                   | **Must have**     |
+| `z.nativeEnum()` for TypeScript enums   | short-video-maker-gyori                   | **Should have**   |
+| Hierarchical schema composition         | vidosy                                    | **Should have**   |
+| Regex JSON extraction fallback          | ShortGPT                                  | **Should have**   |
+| Retry loop for LLM flakiness            | ShortGPT                                  | **Should have**   |
+| `json_schema_extra` for API docs        | MoneyPrinterTurbo                         | Nice to have      |
 
 ---
 
@@ -579,9 +601,8 @@ function formatZodError(error: ZodError): ValidationErrorResult {
 ## 11. Next Steps
 
 1. Define `ScriptSchema` for `cm script` command output
-2. Define `AudioSchema` for `cm audio` command output  
+2. Define `AudioSchema` for `cm audio` command output
 3. Define `VisualsSchema` for `cm visuals` command output
 4. Define `RenderSchema` for `cm render` command input
 5. Implement `validateWithFallback()` utility combining safeParse + regex extraction
 6. Create schema test suite with valid/invalid examples
-

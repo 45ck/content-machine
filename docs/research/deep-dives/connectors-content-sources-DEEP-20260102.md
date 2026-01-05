@@ -12,12 +12,12 @@ Comprehensive analysis of all vendored connectors for content acquisition (Reddi
 
 ### Content Source Matrix
 
-| Source | Official API | MCP Server | TypeScript | Rate Limits | Best For |
-|--------|-------------|------------|------------|-------------|----------|
-| Reddit | ✅ PRAW/asyncpraw | ✅ reddit-mcp-ts | ✅ | 60 req/min | Trends, stories, discussions |
-| YouTube | ✅ Google API | ❌ | ✅ | Quota-based | Transcripts, video analysis |
-| HackerNews | ✅ Firebase | ❌ | ✅ | None | Tech trends, startups |
-| Google Trends | ⚠️ Unofficial | ❌ | ❌ | Fragile | Search trends |
+| Source        | Official API      | MCP Server       | TypeScript | Rate Limits | Best For                     |
+| ------------- | ----------------- | ---------------- | ---------- | ----------- | ---------------------------- |
+| Reddit        | ✅ PRAW/asyncpraw | ✅ reddit-mcp-ts | ✅         | 60 req/min  | Trends, stories, discussions |
+| YouTube       | ✅ Google API     | ❌               | ✅         | Quota-based | Transcripts, video analysis  |
+| HackerNews    | ✅ Firebase       | ❌               | ✅         | None        | Tech trends, startups        |
+| Google Trends | ⚠️ Unofficial     | ❌               | ❌         | Fragile     | Search trends                |
 
 ### Recommendation
 
@@ -35,12 +35,14 @@ Comprehensive analysis of all vendored connectors for content acquisition (Reddi
 **Repo:** `vendor/connectors/reddit/praw/`
 
 **Pros:**
+
 - Official, well-maintained
 - Rate limiting handled automatically
 - Full Reddit API coverage
 - BSD License
 
 **Basic Usage:**
+
 ```python
 import praw
 
@@ -60,6 +62,7 @@ for submission in reddit.subreddit("all").search("AI tools", time_filter="week",
 ```
 
 **Content Extraction Pattern:**
+
 ```python
 def get_viral_posts(subreddit: str, min_score: int = 1000) -> list:
     """Get viral posts suitable for short video content."""
@@ -83,6 +86,7 @@ def get_viral_posts(subreddit: str, min_score: int = 1000) -> list:
 **Repo:** `vendor/connectors/reddit/reddit-mcp-ts/`
 
 **Pros:**
+
 - Native MCP integration
 - TypeScript
 - Docker-ready
@@ -90,6 +94,7 @@ def get_viral_posts(subreddit: str, min_score: int = 1000) -> list:
 - HTTP transport option
 
 **MCP Tools Available:**
+
 ```
 Read-only (Client Credentials):
 - get_reddit_post(subreddit, post_id)
@@ -106,6 +111,7 @@ Write (User Credentials Required):
 ```
 
 **MCP Configuration:**
+
 ```json
 {
   "mcpServers": {
@@ -122,33 +128,35 @@ Write (User Credentials Required):
 ```
 
 **HTTP Endpoint (FastMCP):**
+
 ```typescript
 // Client usage
-const response = await fetch("http://localhost:3000/mcp", {
-  method: "POST",
+const response = await fetch('http://localhost:3000/mcp', {
+  method: 'POST',
   headers: {
-    "Content-Type": "application/json",
-    "Authorization": "Bearer YOUR_TOKEN"
+    'Content-Type': 'application/json',
+    Authorization: 'Bearer YOUR_TOKEN',
   },
   body: JSON.stringify({
-    jsonrpc: "2.0",
+    jsonrpc: '2.0',
     id: 1,
-    method: "tools/call",
+    method: 'tools/call',
     params: {
-      name: "get_top_posts",
+      name: 'get_top_posts',
       arguments: {
-        subreddit: "technology",
-        time_filter: "week",
-        limit: 10
-      }
-    }
-  })
+        subreddit: 'technology',
+        time_filter: 'week',
+        limit: 10,
+      },
+    },
+  }),
 });
 ```
 
 ### Recommendation: Reddit
 
 **For MVP:** Use Reddit MCP TypeScript server
+
 - Native MCP integration
 - TypeScript (matches our stack)
 - Docker deployment ready
@@ -165,6 +173,7 @@ const response = await fetch("http://localhost:3000/mcp", {
 **Purpose:** Extract transcripts from YouTube videos without browser automation
 
 **Basic Usage:**
+
 ```python
 from youtube_transcript_api import YouTubeTranscriptApi
 
@@ -183,6 +192,7 @@ srt_output = formatter.format_transcript(transcript)
 ```
 
 **List Available Languages:**
+
 ```python
 transcript_list = ytt_api.list("video_id")
 
@@ -198,12 +208,14 @@ print(translated.fetch())
 ```
 
 **Formatters Available:**
+
 - `JSONFormatter` - JSON output
 - `SRTFormatter` - SubRip format
 - `WebVTTFormatter` - Web Video Text Tracks
 - `TextFormatter` - Plain text
 
 **IP Ban Workaround:**
+
 ```python
 from youtube_transcript_api.proxies import WebshareProxyConfig
 
@@ -222,12 +234,14 @@ ytt_api = YouTubeTranscriptApi(
 **Purpose:** Download videos, extract metadata, get subtitles
 
 **Key Features:**
+
 - Download any video/audio format
 - Extract auto-generated captions
 - Get video metadata
 - Supports 1000+ sites
 
 **Usage Pattern:**
+
 ```bash
 # Download audio only
 yt-dlp -x --audio-format mp3 "VIDEO_URL"
@@ -242,11 +256,13 @@ yt-dlp --dump-json "VIDEO_URL"
 ### Recommendation: YouTube
 
 **For Transcript Extraction:** Use youtube-transcript-api (Python)
+
 - No download needed
 - Direct transcript access
 - Multiple format outputs
 
 **For Video/Audio Download:** Use yt-dlp
+
 - Industry standard
 - Reliable
 - Multi-site support
@@ -260,6 +276,7 @@ yt-dlp --dump-json "VIDEO_URL"
 **API Type:** Firebase REST (real-time capable)
 
 **Endpoints:**
+
 ```
 Base: https://hacker-news.firebaseio.com/v0/
 
@@ -283,12 +300,13 @@ Real-time:
 ```
 
 **TypeScript Client:**
+
 ```typescript
-const HN_BASE = "https://hacker-news.firebaseio.com/v0";
+const HN_BASE = 'https://hacker-news.firebaseio.com/v0';
 
 interface HNItem {
   id: number;
-  type: "story" | "comment" | "job" | "poll" | "pollopt";
+  type: 'story' | 'comment' | 'job' | 'poll' | 'pollopt';
   by: string;
   time: number;
   text?: string;
@@ -302,27 +320,29 @@ interface HNItem {
 async function getTopStories(limit = 30): Promise<HNItem[]> {
   const res = await fetch(`${HN_BASE}/topstories.json`);
   const ids: number[] = await res.json();
-  
+
   const stories = await Promise.all(
     ids.slice(0, limit).map(async (id) => {
       const itemRes = await fetch(`${HN_BASE}/item/${id}.json`);
       return itemRes.json();
     })
   );
-  
+
   return stories;
 }
 
 async function getTechTrends(): Promise<HNItem[]> {
   const stories = await getTopStories(100);
-  
+
   // Filter for tech/AI content
-  return stories.filter(story => {
-    const text = (story.title || "").toLowerCase();
-    return text.includes("ai") || 
-           text.includes("gpt") || 
-           text.includes("llm") ||
-           text.includes("startup");
+  return stories.filter((story) => {
+    const text = (story.title || '').toLowerCase();
+    return (
+      text.includes('ai') ||
+      text.includes('gpt') ||
+      text.includes('llm') ||
+      text.includes('startup')
+    );
   });
 }
 ```
@@ -332,6 +352,7 @@ async function getTechTrends(): Promise<HNItem[]> {
 ### Recommendation: HackerNews
 
 **Direct REST API** - No library needed
+
 - Simple Firebase REST
 - Real-time updates via `/updates.json`
 - No authentication required
@@ -346,6 +367,7 @@ async function getTechTrends(): Promise<HNItem[]> {
 **Warning:** Unofficial API, may break
 
 **Basic Usage:**
+
 ```python
 from pytrends.request import TrendReq
 
@@ -367,6 +389,7 @@ trending = pytrends.trending_searches(pn='united_states')
 ### Recommendation: Google Trends
 
 **Use with caution** - Unofficial, fragile
+
 - Good for trend discovery
 - Combine with Reddit/HN for validation
 - Have fallback plan
@@ -380,12 +403,14 @@ trending = pytrends.trending_searches(pn='united_states')
 **Repo:** `vendor/audio/kokoro/`
 
 **What is Kokoro?**
+
 - 82M parameter open-weight TTS model
 - Apache 2.0 License (free commercial use!)
 - Quality comparable to larger models
 - Multi-language support
 
 **Languages Supported:**
+
 - 🇺🇸 American English ('a')
 - 🇬🇧 British English ('b')
 - 🇪🇸 Spanish ('e')
@@ -397,6 +422,7 @@ trending = pytrends.trending_searches(pn='united_states')
 - 🇨🇳 Mandarin Chinese ('z')
 
 **Basic Usage:**
+
 ```python
 from kokoro import KPipeline
 import soundfile as sf
@@ -411,6 +437,7 @@ for i, (gs, ps, audio) in enumerate(generator):
 ```
 
 **Custom Phoneme Support:**
+
 ```python
 # Use IPA for precise pronunciation
 text = '[Kokoro](/kˈOkəɹO/) is amazing.'
@@ -421,6 +448,7 @@ text = '[Kokoro](/kˈOkəɹO/) is amazing.'
 **Repo:** `vendor/audio/kokoro-fastapi/`
 
 **Why Use This?**
+
 - OpenAI-compatible API endpoint!
 - Docker-ready (GPU + CPU)
 - Streaming support
@@ -429,6 +457,7 @@ text = '[Kokoro](/kˈOkəɹO/) is amazing.'
 - Web UI included
 
 **OpenAI-Compatible Endpoint:**
+
 ```python
 from openai import OpenAI
 
@@ -447,6 +476,7 @@ with client.audio.speech.with_streaming_response.create(
 ```
 
 **Voice Mixing:**
+
 ```python
 # Combine voices with weights
 response = requests.post(
@@ -460,6 +490,7 @@ response = requests.post(
 ```
 
 **Word-Level Timestamps (Critical for Captions!):**
+
 ```python
 response = requests.post(
     "http://localhost:8880/dev/captioned_speech",
@@ -478,6 +509,7 @@ timestamps = data["timestamps"]  # Word-level timing!
 ```
 
 **Docker Deployment:**
+
 ```bash
 # GPU (CUDA)
 docker run --gpus all -p 8880:8880 ghcr.io/remsky/kokoro-fastapi-gpu:latest
@@ -487,6 +519,7 @@ docker run -p 8880:8880 ghcr.io/remsky/kokoro-fastapi-cpu:latest
 ```
 
 **Performance:**
+
 - GPU: 35x-100x realtime speed
 - CPU: Usable on M1/M2/M3 Macs
 - First token latency: ~300ms (GPU), ~3500ms (CPU)
@@ -494,6 +527,7 @@ docker run -p 8880:8880 ghcr.io/remsky/kokoro-fastapi-cpu:latest
 ### Recommendation: TTS
 
 **Use Kokoro-FastAPI for production:**
+
 1. OpenAI-compatible API (easy to swap)
 2. Word-level timestamps (essential for captions)
 3. Docker-ready
@@ -511,12 +545,14 @@ docker run -p 8880:8880 ghcr.io/remsky/kokoro-fastapi-cpu:latest
 **Repo:** `vendor/agents/langgraph/`
 
 **What is LangGraph?**
+
 - Low-level orchestration for stateful agents
 - Built on Pregel/Apache Beam concepts
 - Durable execution (survives failures)
 - Human-in-the-loop support
 
 **Key Benefits:**
+
 1. **Durable Execution** - Resume from failures
 2. **Human-in-the-Loop** - Pause for approval
 3. **Persistent Memory** - Short-term + long-term
@@ -524,6 +560,7 @@ docker run -p 8880:8880 ghcr.io/remsky/kokoro-fastapi-cpu:latest
 5. **Production-Ready** - Scalable deployment
 
 **Basic Graph:**
+
 ```python
 from langgraph.graph import START, StateGraph
 from typing_extensions import TypedDict
@@ -556,6 +593,7 @@ result = app.invoke({"text": "..."})
 **Repo:** `vendor/agents/pydantic-ai/`
 
 **What is Pydantic-AI?**
+
 - Agent framework from Pydantic team
 - Type-safe (like FastAPI for agents)
 - Model-agnostic
@@ -563,6 +601,7 @@ result = app.invoke({"text": "..."})
 - MCP integration built-in
 
 **Key Benefits:**
+
 1. **Type Safety** - Compile-time error catching
 2. **Model-Agnostic** - Any LLM provider
 3. **Structured Outputs** - Pydantic validation
@@ -570,6 +609,7 @@ result = app.invoke({"text": "..."})
 5. **MCP/A2A Support** - Native integrations
 
 **Basic Agent:**
+
 ```python
 from pydantic_ai import Agent
 from pydantic import BaseModel
@@ -591,6 +631,7 @@ print(result.output)  # Validated VideoScript!
 ```
 
 **With Tools:**
+
 ```python
 @agent.tool
 async def get_trending_topics(ctx: RunContext) -> list[str]:
@@ -602,6 +643,7 @@ async def get_trending_topics(ctx: RunContext) -> list[str]:
 ### Recommendation: Agent Frameworks
 
 **For MVP:**
+
 - **Pydantic-AI** for simple agent workflows (type-safe, structured outputs)
 - **LangGraph** when we need:
   - Complex multi-step workflows
@@ -646,8 +688,8 @@ export interface ContentConnector {
 // src/connectors/mcp-registry.ts
 export const mcpServers = {
   reddit: {
-    command: "npx",
-    args: ["reddit-mcp-server"],
+    command: 'npx',
+    args: ['reddit-mcp-server'],
     env: {
       REDDIT_CLIENT_ID: process.env.REDDIT_CLIENT_ID,
       REDDIT_CLIENT_SECRET: process.env.REDDIT_CLIENT_SECRET,
@@ -661,13 +703,13 @@ export class UnifiedContentConnector {
   private reddit: MCPClient;
   private youtube: YouTubeTranscriptClient;
   private hn: HackerNewsClient;
-  
+
   async getAllTrending(): Promise<TrendingContent[]> {
     const [reddit, hn] = await Promise.all([
-      this.reddit.call("get_trending_subreddits", {}),
+      this.reddit.call('get_trending_subreddits', {}),
       this.hn.getTopStories(50),
     ]);
-    
+
     return [...reddit, ...hn].sort((a, b) => b.score - a.score);
   }
 }
@@ -678,26 +720,26 @@ export class UnifiedContentConnector {
 ```typescript
 // src/audio/tts.ts
 export class TTSEngine {
-  private baseUrl = "http://localhost:8880/v1";
-  
-  async synthesize(text: string, voice = "af_heart"): Promise<TTSResult> {
+  private baseUrl = 'http://localhost:8880/v1';
+
+  async synthesize(text: string, voice = 'af_heart'): Promise<TTSResult> {
     const response = await fetch(`${this.baseUrl}/dev/captioned_speech`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model: "kokoro",
+        model: 'kokoro',
         input: text,
         voice,
-        response_format: "mp3",
+        response_format: 'mp3',
         stream: false,
       }),
     });
-    
+
     const data = await response.json();
-    
+
     return {
-      audioBuffer: Buffer.from(data.audio, "base64"),
-      timestamps: data.timestamps,  // Word-level timing!
+      audioBuffer: Buffer.from(data.audio, 'base64'),
+      timestamps: data.timestamps, // Word-level timing!
     };
   }
 }
@@ -707,14 +749,14 @@ export class TTSEngine {
 
 ## What We Have
 
-| Component | Status | Best Option |
-|-----------|--------|-------------|
-| Reddit | ✅ Ready | reddit-mcp-ts |
-| YouTube Transcript | ✅ Ready | youtube-transcript-api |
-| HackerNews | ✅ Ready | Direct Firebase REST |
-| Google Trends | ⚠️ Fragile | pytrends (with fallback) |
-| TTS | ✅ Ready | Kokoro-FastAPI |
-| Agent Framework | ✅ Ready | Pydantic-AI + LangGraph |
+| Component          | Status     | Best Option              |
+| ------------------ | ---------- | ------------------------ |
+| Reddit             | ✅ Ready   | reddit-mcp-ts            |
+| YouTube Transcript | ✅ Ready   | youtube-transcript-api   |
+| HackerNews         | ✅ Ready   | Direct Firebase REST     |
+| Google Trends      | ⚠️ Fragile | pytrends (with fallback) |
+| TTS                | ✅ Ready   | Kokoro-FastAPI           |
+| Agent Framework    | ✅ Ready   | Pydantic-AI + LangGraph  |
 
 ---
 

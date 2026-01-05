@@ -1,6 +1,6 @@
 /**
  * Test Stubs Index
- * 
+ *
  * Re-exports all test stubs for easy importing.
  */
 export { FakeLLMProvider } from './fake-llm';

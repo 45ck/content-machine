@@ -32,6 +32,7 @@ ASR Total Duration: 3.2 seconds  // Drift!
 ```
 
 **Key Issues:**
+
 - ASR may find fewer/more words than TTS input
 - Word boundaries from ASR don't sum to actual audio duration
 - Punctuation timing is undefined (ASR ignores it)
@@ -142,9 +143,9 @@ When TTS doesn't provide word-level timestamps (e.g., SiliconFlow API), estimate
 ```python
 def siliconflow_tts(text, model, voice, voice_rate, voice_file, voice_volume=1.0):
     """TTS without word-level timing - estimate from character count"""
-    
+
     # ... audio generation ...
-    
+
     # Get actual audio duration from file
     audio_clip = AudioFileClip(voice_file)
     audio_duration = audio_clip.duration
@@ -199,36 +200,36 @@ def align(
     """
     Align phoneme recognition predictions to known transcription.
     """
-    
+
     # For each segment from ASR...
     for sdx, segment in enumerate(transcript):
         t1 = segment["start"]
         t2 = segment["end"]
         text = segment["text"]
-        
+
         # Extract audio for this segment
         f1 = int(t1 * SAMPLE_RATE)
         f2 = int(t2 * SAMPLE_RATE)
         waveform_segment = audio[:, f1:f2]
-        
+
         # Run wav2vec2 to get emission probabilities
         with torch.inference_mode():
             emissions = model(waveform_segment.to(device))
             emissions = torch.log_softmax(emissions, dim=-1)
-        
+
         # Build trellis for alignment
         trellis = get_trellis(emissions[0], tokens, blank_id)
-        
+
         # Backtrack to find optimal alignment path
         path = backtrack_beam(trellis, emissions[0], tokens, blank_id, beam_width=2)
-        
+
         # Merge repeated characters into words
         char_segments = merge_repeats(path, text_clean)
-        
+
         # Calculate ratio for timestamp conversion
         duration = t2 - t1
         ratio = duration * waveform_segment.size(0) / (trellis.size(0) - 1)
-        
+
         # Assign precise timestamps to each character
         for cdx, char in enumerate(text):
             if cdx in segment_data[sdx]["clean_cdx"]:
@@ -264,11 +265,11 @@ aligned_subsegments = pd.DataFrame(aligned_subsegments)
 
 # Interpolate missing start/end times
 aligned_subsegments["start"] = interpolate_nans(
-    aligned_subsegments["start"], 
+    aligned_subsegments["start"],
     method=interpolate_method  # "nearest" by default
 )
 aligned_subsegments["end"] = interpolate_nans(
-    aligned_subsegments["end"], 
+    aligned_subsegments["end"],
     method=interpolate_method
 )
 ```
@@ -299,8 +300,8 @@ async CreateCaption(audioPath: string): Promise<Caption[]> {
         record.tokens.forEach((token) => {
             // Skip special tokens
             if (token.text.startsWith("[_TT")) return;
-            
-            // MERGE: If token doesn't start with space and previous 
+
+            // MERGE: If token doesn't start with space and previous
             // token didn't end with space, merge them
             if (
                 captions.length > 0 &&
@@ -312,7 +313,7 @@ async CreateCaption(audioPath: string): Promise<Caption[]> {
                 captions[captions.length - 1].endMs = record.offsets.to;
                 return;
             }
-            
+
             captions.push({
                 text: token.text,
                 startMs: record.offsets.from,
@@ -369,7 +370,7 @@ for segment in segments:
 
 ```python
 PUNCTUATIONS = [
-    ".", "。", "!", "！", "?", "？", 
+    ".", "。", "!", "！", "?", "？",
     ",", "，", ":", "：", ";", "；",
     "、", "…", "—", "–"
 ]
@@ -396,7 +397,7 @@ async def _do() -> SubMaker:
             elif chunk["type"] == "WordBoundary":
                 # Edge-TTS provides offset and duration in 100ns units
                 sub_maker.create_sub(
-                    (chunk["offset"], chunk["duration"]), 
+                    (chunk["offset"], chunk["duration"]),
                     chunk["text"]
                 )
     return sub_maker
@@ -444,10 +445,10 @@ Use Voice Activity Detection to segment audio before ASR:
 def transcribe(self, audio, batch_size=None, ...):
     # Pre-process with VAD
     vad_segments = self.vad_model({
-        "waveform": waveform, 
+        "waveform": waveform,
         "sample_rate": SAMPLE_RATE
     })
-    
+
     # Merge small segments into larger chunks
     vad_segments = merge_chunks(
         vad_segments,
@@ -455,7 +456,7 @@ def transcribe(self, audio, batch_size=None, ...):
         onset=self._vad_params["vad_onset"],   # 0.500
         offset=self._vad_params["vad_offset"], # 0.363
     )
-    
+
     # Transcribe each VAD segment
     for idx, out in enumerate(self.__call__(data(audio, vad_segments), ...)):
         segments.append({
@@ -466,6 +467,7 @@ def transcribe(self, audio, batch_size=None, ...):
 ```
 
 **Key Insight:** VAD provides accurate speech/silence boundaries. This helps with:
+
 - Detecting gaps between sentences
 - Reducing hallucinations during silence
 - Providing coarse timing before fine alignment
@@ -479,6 +481,7 @@ def transcribe(self, audio, batch_size=None, ...):
 **Cause:** ASR may merge words (e.g., "can't" → "cant") or miss quiet words.
 
 **MoneyPrinterTurbo Solution:**
+
 ```python
 # Extra script lines not matched by ASR
 while script_index < len(script_lines):
@@ -506,6 +509,7 @@ while script_index < len(script_lines):
 **Cause:** ASR may split contractions or hallucinate during silence.
 
 **WhisperX Solution (VAD filtering):**
+
 ```python
 # Use VAD to filter out silence before ASR
 vad_parameters=dict(min_silence_duration_ms=500)
@@ -515,15 +519,15 @@ vad_parameters=dict(min_silence_duration_ms=500)
 
 ## Summary: Drift Handling Strategies
 
-| Strategy | When to Use | Accuracy | Complexity |
-|----------|-------------|----------|------------|
-| **TTS WordBoundary events** | Edge-TTS, Azure TTS | Highest | Low |
-| **Forced phoneme alignment** | Post-ASR correction | High | High |
-| **Text similarity matching** | Match ASR to known script | Medium | Medium |
-| **Character-ratio estimation** | No word boundaries available | Low | Low |
-| **Token merging** | Token-level ASR output | Medium | Low |
-| **NaN interpolation** | Fill alignment gaps | Medium | Low |
-| **VAD pre-segmentation** | Reduce hallucinations | N/A | Medium |
+| Strategy                       | When to Use                  | Accuracy | Complexity |
+| ------------------------------ | ---------------------------- | -------- | ---------- |
+| **TTS WordBoundary events**    | Edge-TTS, Azure TTS          | Highest  | Low        |
+| **Forced phoneme alignment**   | Post-ASR correction          | High     | High       |
+| **Text similarity matching**   | Match ASR to known script    | Medium   | Medium     |
+| **Character-ratio estimation** | No word boundaries available | Low      | Low        |
+| **Token merging**              | Token-level ASR output       | Medium   | Low        |
+| **NaN interpolation**          | Fill alignment gaps          | Medium   | Low        |
+| **VAD pre-segmentation**       | Reduce hallucinations        | N/A      | Medium     |
 
 ---
 

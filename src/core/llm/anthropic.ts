@@ -21,14 +21,14 @@ export class AnthropicProvider implements LLMProvider {
   async chat(messages: LLMMessage[], options?: LLMOptions): Promise<LLMResponse> {
     try {
       // Extract system message if present
-      const systemMessage = messages.find(m => m.role === 'system');
-      const chatMessages = messages.filter(m => m.role !== 'system');
+      const systemMessage = messages.find((m) => m.role === 'system');
+      const chatMessages = messages.filter((m) => m.role !== 'system');
 
       const response = await this.client.messages.create({
         model: this.model,
         max_tokens: options?.maxTokens ?? 4096,
         system: systemMessage?.content,
-        messages: chatMessages.map(m => ({
+        messages: chatMessages.map((m) => ({
           role: m.role as 'user' | 'assistant',
           content: m.content,
         })),
@@ -37,7 +37,7 @@ export class AnthropicProvider implements LLMProvider {
       });
 
       // Extract text content
-      const textBlock = response.content.find(block => block.type === 'text');
+      const textBlock = response.content.find((block) => block.type === 'text');
       const content = textBlock?.type === 'text' ? textBlock.text : '';
 
       return {
@@ -55,11 +55,7 @@ export class AnthropicProvider implements LLMProvider {
       }
 
       if (error instanceof Anthropic.APIError) {
-        throw new APIError(
-          error.message,
-          { provider: 'anthropic', status: error.status },
-          error
-        );
+        throw new APIError(error.message, { provider: 'anthropic', status: error.status }, error);
       }
 
       throw error;

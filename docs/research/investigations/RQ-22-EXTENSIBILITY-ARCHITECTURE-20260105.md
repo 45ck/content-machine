@@ -34,9 +34,12 @@ The architecture must support **extension without core modification**.
 // ❌ BAD: Switch statement requires core changes
 function getTTS(provider: string) {
   switch (provider) {
-    case 'kokoro': return new Kokoro();
-    case 'elevenlabs': return new ElevenLabs(); // Must modify core
-    default: throw new Error('Unknown provider');
+    case 'kokoro':
+      return new Kokoro();
+    case 'elevenlabs':
+      return new ElevenLabs(); // Must modify core
+    default:
+      throw new Error('Unknown provider');
   }
 }
 
@@ -78,11 +81,21 @@ interface VideoProvider {
 }
 
 // ✅ GOOD: Focused interfaces
-interface LLMProvider { chat(): Promise<ChatResponse>; }
-interface TTSProvider { synthesize(): Promise<AudioResult>; }
-interface ASRProvider { transcribe(): Promise<TranscriptResult>; }
-interface StockProvider { search(): Promise<FootageResult[]>; }
-interface RenderProvider { render(): Promise<VideoResult>; }
+interface LLMProvider {
+  chat(): Promise<ChatResponse>;
+}
+interface TTSProvider {
+  synthesize(): Promise<AudioResult>;
+}
+interface ASRProvider {
+  transcribe(): Promise<TranscriptResult>;
+}
+interface StockProvider {
+  search(): Promise<FootageResult[]>;
+}
+interface RenderProvider {
+  render(): Promise<VideoResult>;
+}
 ```
 
 ---
@@ -95,9 +108,9 @@ interface RenderProvider { render(): Promise<VideoResult>; }
 export interface LLMProvider {
   readonly name: string;
   readonly supportedFeatures: LLMFeature[];
-  
+
   chat(messages: ChatMessage[], options?: ChatOptions): Promise<ChatResponse>;
-  
+
   // Optional capabilities
   embed?(texts: string[]): Promise<EmbeddingResult>;
   streamChat?(messages: ChatMessage[], options?: ChatOptions): AsyncIterable<ChatChunk>;
@@ -113,18 +126,13 @@ export interface ChatOptions {
 
 export interface ChatResponse {
   content: string;
-  usage: { promptTokens: number; completionTokens: number; };
+  usage: { promptTokens: number; completionTokens: number };
   model: string;
   finishReason: 'stop' | 'length' | 'tool_calls';
   cost?: number;
 }
 
-export type LLMFeature = 
-  | 'json-mode' 
-  | 'tool-calling' 
-  | 'vision' 
-  | 'streaming' 
-  | 'embeddings';
+export type LLMFeature = 'json-mode' | 'tool-calling' | 'vision' | 'streaming' | 'embeddings';
 ```
 
 ### 3.2 TTS Provider Interface
@@ -134,18 +142,18 @@ export interface TTSProvider {
   readonly name: string;
   readonly supportedVoices: Voice[];
   readonly supportedLanguages: string[];
-  
+
   synthesize(text: string, options: TTSOptions): Promise<TTSResult>;
-  
+
   // Optional: Get timestamps during synthesis (Edge TTS)
   synthesizeWithTimestamps?(text: string, options: TTSOptions): Promise<TTSResultWithTimestamps>;
 }
 
 export interface TTSOptions {
   voice: string;
-  rate?: number;      // 0.5-2.0
-  pitch?: number;     // -50 to +50
-  volume?: number;    // 0-1
+  rate?: number; // 0.5-2.0
+  pitch?: number; // -50 to +50
+  volume?: number; // 0-1
 }
 
 export interface TTSResult {
@@ -166,7 +174,7 @@ export interface ASRProvider {
   readonly name: string;
   readonly supportedLanguages: string[];
   readonly supportsWordTimestamps: boolean;
-  
+
   transcribe(audio: Buffer | string, options?: ASROptions): Promise<ASRResult>;
 }
 
@@ -199,7 +207,7 @@ export interface StockFootageProvider {
   readonly name: string;
   readonly requiresApiKey: boolean;
   readonly supportedMediaTypes: ('video' | 'image')[];
-  
+
   search(query: string, options?: SearchOptions): Promise<StockResult[]>;
   download(asset: StockResult, destination: string): Promise<string>;
 }
@@ -230,12 +238,12 @@ export interface StockResult {
 export interface RenderProvider {
   readonly name: string;
   readonly supportedFormats: VideoFormat[];
-  
+
   render(composition: CompositionSpec, options?: RenderOptions): Promise<RenderResult>;
-  
+
   // Optional: Progress reporting
   renderWithProgress?(
-    composition: CompositionSpec, 
+    composition: CompositionSpec,
     options?: RenderOptions,
     onProgress?: (progress: RenderProgress) => void
   ): Promise<RenderResult>;
@@ -265,32 +273,30 @@ export interface RenderResult {
 export class ProviderRegistry<T> {
   private providers = new Map<string, () => T>();
   private instances = new Map<string, T>();
-  
+
   register(name: string, factory: () => T): void {
     if (this.providers.has(name)) {
       throw new Error(`Provider "${name}" already registered`);
     }
     this.providers.set(name, factory);
   }
-  
+
   get(name: string): T {
     // Lazy instantiation with caching
     if (!this.instances.has(name)) {
       const factory = this.providers.get(name);
       if (!factory) {
-        throw new Error(
-          `Provider "${name}" not found. Available: ${this.list().join(', ')}`
-        );
+        throw new Error(`Provider "${name}" not found. Available: ${this.list().join(', ')}`);
       }
       this.instances.set(name, factory());
     }
     return this.instances.get(name)!;
   }
-  
+
   list(): string[] {
     return Array.from(this.providers.keys());
   }
-  
+
   has(name: string): boolean {
     return this.providers.has(name);
   }
@@ -333,7 +339,7 @@ class MyCustomTTS implements TTSProvider {
   readonly name = 'my-tts';
   readonly supportedVoices = [{ id: 'custom-1', name: 'Custom Voice' }];
   readonly supportedLanguages = ['en'];
-  
+
   async synthesize(text: string, options: TTSOptions): Promise<TTSResult> {
     // Custom implementation
   }
@@ -353,9 +359,9 @@ ttsProviders.register('my-tts', () => new MyCustomTTS());
 export interface PipelineStage<TInput, TOutput> {
   readonly name: string;
   readonly version: string;
-  
+
   execute(input: TInput, context: PipelineContext): Promise<TOutput>;
-  
+
   // Optional hooks
   beforeExecute?(input: TInput, context: PipelineContext): Promise<TInput>;
   afterExecute?(output: TOutput, context: PipelineContext): Promise<TOutput>;
@@ -378,37 +384,31 @@ export interface PipelineContext {
 export class PipelineBuilder {
   private stages: PipelineStage<any, any>[] = [];
   private hooks: PipelineHooks = {};
-  
+
   addStage<TIn, TOut>(stage: PipelineStage<TIn, TOut>): this {
     this.stages.push(stage);
     return this;
   }
-  
-  insertBefore<TIn, TOut>(
-    existingName: string, 
-    stage: PipelineStage<TIn, TOut>
-  ): this {
-    const index = this.stages.findIndex(s => s.name === existingName);
+
+  insertBefore<TIn, TOut>(existingName: string, stage: PipelineStage<TIn, TOut>): this {
+    const index = this.stages.findIndex((s) => s.name === existingName);
     if (index === -1) throw new Error(`Stage ${existingName} not found`);
     this.stages.splice(index, 0, stage);
     return this;
   }
-  
-  insertAfter<TIn, TOut>(
-    existingName: string, 
-    stage: PipelineStage<TIn, TOut>
-  ): this {
-    const index = this.stages.findIndex(s => s.name === existingName);
+
+  insertAfter<TIn, TOut>(existingName: string, stage: PipelineStage<TIn, TOut>): this {
+    const index = this.stages.findIndex((s) => s.name === existingName);
     if (index === -1) throw new Error(`Stage ${existingName} not found`);
     this.stages.splice(index + 1, 0, stage);
     return this;
   }
-  
+
   removeStage(name: string): this {
-    this.stages = this.stages.filter(s => s.name !== name);
+    this.stages = this.stages.filter((s) => s.name !== name);
     return this;
   }
-  
+
   build(): Pipeline {
     return new Pipeline(this.stages, this.hooks);
   }
@@ -424,12 +424,12 @@ const defaultPipeline = new PipelineBuilder()
 
 // Extended pipeline with research
 const researchPipeline = new PipelineBuilder()
-  .addStage(new ResearchStage())  // Custom stage
+  .addStage(new ResearchStage()) // Custom stage
   .addStage(new ScriptStage())
   .addStage(new AudioStage())
   .addStage(new VisualsStage())
   .addStage(new RenderStage())
-  .addStage(new PublishStage())   // Custom stage
+  .addStage(new PublishStage()) // Custom stage
   .build();
 ```
 
@@ -490,7 +490,7 @@ archetypeRegistry.register('gaming-review', () => ({
 
 ```typescript
 export function extendArchetype(
-  baseId: string, 
+  baseId: string,
   overrides: DeepPartial<ContentArchetype>
 ): ContentArchetype {
   const base = archetypeRegistry.get(baseId);
@@ -504,7 +504,7 @@ const myBrainrot = extendArchetype('brainrot', {
     textColor: '#00FF00',
   },
   audio: {
-    voiceRate: 1.5,  // Even faster
+    voiceRate: 1.5, // Even faster
   },
 });
 
@@ -517,19 +517,17 @@ archetypeRegistry.register('my-brainrot', () => myBrainrot);
 // Auto-load from ~/.cm/archetypes/
 async function loadUserArchetypes(): Promise<void> {
   const archetypeDir = path.join(os.homedir(), '.cm', 'archetypes');
-  
-  if (!await fs.exists(archetypeDir)) return;
-  
+
+  if (!(await fs.exists(archetypeDir))) return;
+
   const files = await fs.readdir(archetypeDir);
-  
+
   for (const file of files) {
     if (!file.endsWith('.json') && !file.endsWith('.yaml')) continue;
-    
+
     const content = await fs.readFile(path.join(archetypeDir, file), 'utf-8');
-    const archetype = file.endsWith('.yaml') 
-      ? yaml.parse(content) 
-      : JSON.parse(content);
-    
+    const archetype = file.endsWith('.yaml') ? yaml.parse(content) : JSON.parse(content);
+
     // Handle inheritance
     if (archetype.extends) {
       const extended = extendArchetype(archetype.extends, archetype);
@@ -552,10 +550,10 @@ export interface Plugin {
   readonly name: string;
   readonly version: string;
   readonly description?: string;
-  
+
   // Called when plugin is loaded
   activate(context: PluginContext): Promise<void>;
-  
+
   // Called when plugin is unloaded
   deactivate?(): Promise<void>;
 }
@@ -567,13 +565,13 @@ export interface PluginContext {
   asrProviders: ProviderRegistry<ASRProvider>;
   stockProviders: ProviderRegistry<StockFootageProvider>;
   archetypeRegistry: ProviderRegistry<ContentArchetype>;
-  
+
   // Pipeline extension
   pipelineBuilder: PipelineBuilder;
-  
+
   // Configuration
   config: Config;
-  
+
   // Utilities
   logger: Logger;
 }
@@ -584,37 +582,40 @@ export interface PluginContext {
 ```typescript
 export class PluginLoader {
   private plugins = new Map<string, Plugin>();
-  
+
   async loadFromDirectory(dir: string): Promise<void> {
     const files = await fs.readdir(dir);
-    
+
     for (const file of files) {
       if (!file.endsWith('.js') && !file.endsWith('.ts')) continue;
-      
+
       const modulePath = path.join(dir, file);
       const module = await import(modulePath);
-      
+
       if (module.default && this.isPlugin(module.default)) {
         await this.load(module.default);
       }
     }
   }
-  
+
   async load(plugin: Plugin): Promise<void> {
     if (this.plugins.has(plugin.name)) {
       throw new Error(`Plugin "${plugin.name}" already loaded`);
     }
-    
+
     await plugin.activate(this.createContext());
     this.plugins.set(plugin.name, plugin);
-    
+
     console.log(`Loaded plugin: ${plugin.name} v${plugin.version}`);
   }
-  
+
   private isPlugin(obj: unknown): obj is Plugin {
     return (
-      typeof obj === 'object' && obj !== null &&
-      'name' in obj && 'version' in obj && 'activate' in obj
+      typeof obj === 'object' &&
+      obj !== null &&
+      'name' in obj &&
+      'version' in obj &&
+      'activate' in obj
     );
   }
 }
@@ -635,7 +636,7 @@ const plugin: Plugin = {
   name: 'elevenlabs-tts',
   version: '1.0.0',
   description: 'Adds ElevenLabs TTS support',
-  
+
   async activate(ctx) {
     ctx.ttsProviders.register('elevenlabs', () => new ElevenLabsTTS());
     ctx.logger.info('ElevenLabs TTS provider registered');
@@ -688,22 +689,19 @@ events.on('cost:incurred', (event) => {
 ### 8.2 Middleware Pattern
 
 ```typescript
-export type Middleware<T> = (
-  input: T, 
-  next: () => Promise<T>
-) => Promise<T>;
+export type Middleware<T> = (input: T, next: () => Promise<T>) => Promise<T>;
 
 export class MiddlewareChain<T> {
   private middlewares: Middleware<T>[] = [];
-  
+
   use(middleware: Middleware<T>): this {
     this.middlewares.push(middleware);
     return this;
   }
-  
+
   async execute(input: T, finalHandler: (input: T) => Promise<T>): Promise<T> {
     let index = 0;
-    
+
     const next = async (): Promise<T> => {
       if (index < this.middlewares.length) {
         const middleware = this.middlewares[index++];
@@ -711,7 +709,7 @@ export class MiddlewareChain<T> {
       }
       return finalHandler(input);
     };
-    
+
     return next();
   }
 }
@@ -747,7 +745,7 @@ export const ConfigSchema = BaseConfigSchema.extend({
 
 // Type-safe extension
 export type Config = z.infer<typeof ConfigSchema> & {
-  [key: string]: unknown;  // Allow plugin-specific keys
+  [key: string]: unknown; // Allow plugin-specific keys
 };
 ```
 
@@ -757,10 +755,10 @@ export type Config = z.infer<typeof ConfigSchema> & {
 export function loadConfig(): Config {
   // Priority: CLI args > env vars > user config > defaults
   const defaults = loadDefaults();
-  const userConfig = loadUserConfig();  // ~/.cmrc.json
-  const envConfig = loadEnvConfig();    // CM_* env vars
-  const cliConfig = loadCliConfig();    // --config flag
-  
+  const userConfig = loadUserConfig(); // ~/.cmrc.json
+  const envConfig = loadEnvConfig(); // CM_* env vars
+  const cliConfig = loadCliConfig(); // --config flag
+
   return deepMerge(defaults, userConfig, envConfig, cliConfig);
 }
 ```
@@ -773,8 +771,8 @@ export function loadConfig(): Config {
 
 ```typescript
 export interface VersionedProvider {
-  readonly apiVersion: string;  // "1.0", "2.0"
-  
+  readonly apiVersion: string; // "1.0", "2.0"
+
   // Feature detection
   supports(feature: string): boolean;
 }
@@ -800,26 +798,24 @@ export interface SchemaMigration {
 
 export class SchemaMigrator {
   private migrations: SchemaMigration[] = [];
-  
+
   register(migration: SchemaMigration): void {
     this.migrations.push(migration);
   }
-  
+
   migrate(data: { schemaVersion: string }, targetVersion: string): unknown {
     let current = data;
     let currentVersion = data.schemaVersion;
-    
+
     while (currentVersion !== targetVersion) {
-      const migration = this.migrations.find(
-        m => m.fromVersion === currentVersion
-      );
+      const migration = this.migrations.find((m) => m.fromVersion === currentVersion);
       if (!migration) {
         throw new Error(`No migration from ${currentVersion}`);
       }
       current = migration.migrate(current);
       currentVersion = migration.toVersion;
     }
-    
+
     return current;
   }
 }
@@ -832,11 +828,11 @@ export const featureFlags = {
   // Experimental features
   'experimental:split-screen': false,
   'experimental:meme-audio': false,
-  
+
   // Gradual rollout
   'beta:offline-mode': false,
   'beta:batch-processing': false,
-  
+
   // Provider-specific
   'provider:ollama': true,
   'provider:elevenlabs': false,
@@ -856,19 +852,19 @@ export function isFeatureEnabled(flag: keyof typeof featureFlags): boolean {
 
 ## 11. Summary: Extension Points
 
-| Extension Point | Mechanism | User Action |
-|-----------------|-----------|-------------|
-| **LLM Providers** | `llmProviders.register()` | Implement `LLMProvider` interface |
-| **TTS Providers** | `ttsProviders.register()` | Implement `TTSProvider` interface |
-| **ASR Providers** | `asrProviders.register()` | Implement `ASRProvider` interface |
-| **Stock Providers** | `stockProviders.register()` | Implement `StockFootageProvider` interface |
-| **Content Archetypes** | `archetypeRegistry.register()` | JSON/YAML file or `extendArchetype()` |
-| **Pipeline Stages** | `pipelineBuilder.insertAfter()` | Implement `PipelineStage` interface |
-| **Hooks** | `pipeline.withHooks()` | Provide hook functions |
-| **Plugins** | `~/.cm/plugins/` directory | Export `Plugin` object |
-| **Events** | `events.on()` | Subscribe to typed events |
-| **Middleware** | `middleware.use()` | Implement middleware function |
-| **Config** | `~/.cmrc.json` | Add provider/archetype configs |
+| Extension Point        | Mechanism                       | User Action                                |
+| ---------------------- | ------------------------------- | ------------------------------------------ |
+| **LLM Providers**      | `llmProviders.register()`       | Implement `LLMProvider` interface          |
+| **TTS Providers**      | `ttsProviders.register()`       | Implement `TTSProvider` interface          |
+| **ASR Providers**      | `asrProviders.register()`       | Implement `ASRProvider` interface          |
+| **Stock Providers**    | `stockProviders.register()`     | Implement `StockFootageProvider` interface |
+| **Content Archetypes** | `archetypeRegistry.register()`  | JSON/YAML file or `extendArchetype()`      |
+| **Pipeline Stages**    | `pipelineBuilder.insertAfter()` | Implement `PipelineStage` interface        |
+| **Hooks**              | `pipeline.withHooks()`          | Provide hook functions                     |
+| **Plugins**            | `~/.cm/plugins/` directory      | Export `Plugin` object                     |
+| **Events**             | `events.on()`                   | Subscribe to typed events                  |
+| **Middleware**         | `middleware.use()`              | Implement middleware function              |
+| **Config**             | `~/.cmrc.json`                  | Add provider/archetype configs             |
 
 ---
 

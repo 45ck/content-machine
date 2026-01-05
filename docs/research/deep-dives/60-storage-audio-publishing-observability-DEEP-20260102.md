@@ -1,8 +1,9 @@
 # Deep Dive #60: Storage, Audio/TTS, Publishing & Observability Infrastructure
+
 **Date:** 2026-01-02  
 **Category:** Infrastructure, Distribution  
 **Status:** Complete  
-**Priority:** High - Production Infrastructure Layer  
+**Priority:** High - Production Infrastructure Layer
 
 ---
 
@@ -11,6 +12,7 @@
 This deep dive documents the storage (vector databases, object storage), audio/TTS, publishing/distribution, and observability infrastructure in content-machine's vendored repositories. These components form the production infrastructure layer of the video generation pipeline.
 
 **Key Findings:**
+
 1. **Kokoro + Kokoro-FastAPI** provides production-ready, Apache-licensed TTS with 82M parameters
 2. **Qdrant + Weaviate** provide enterprise-grade vector search for content recommendations
 3. **TiktokAutoUploader + youtube-upload** enable automated multi-platform publishing
@@ -27,17 +29,19 @@ This deep dive documents the storage (vector databases, object storage), audio/T
 **Language:** Python  
 **License:** Apache 2.0  
 **Parameters:** 82 million  
-**Stars:** 16k+  
+**Stars:** 16k+
 
 **Core Concept:** Lightweight, high-quality TTS that can run anywhere - from production to personal projects.
 
 **Key Features:**
+
 - 🎯 82M parameters (small but high quality)
 - 🌍 Multi-language: English (US/UK), Spanish, French, Hindi, Italian, Japanese, Portuguese, Chinese
 - ⚡ Fast inference
 - 🆓 Apache-licensed weights
 
 **Basic Usage:**
+
 ```python
 from kokoro import KPipeline
 import soundfile as sf
@@ -55,6 +59,7 @@ for i, (graphemes, phonemes, audio) in enumerate(generator):
 ```
 
 **Voice Options:**
+
 - `af_heart` - Female American English
 - Multiple voices available per language
 
@@ -72,6 +77,7 @@ for i, (graphemes, phonemes, audio) in enumerate(generator):
 | `z` | Mandarin Chinese |
 
 **content-machine Relevance:**
+
 - Primary TTS engine for video narration
 - Apache license allows commercial use
 - Small enough for local deployment
@@ -84,11 +90,12 @@ for i, (graphemes, phonemes, audio) in enumerate(generator):
 **Location:** `vendor/audio/kokoro-fastapi`  
 **Language:** Python  
 **License:** Apache 2.0  
-**Framework:** FastAPI + Docker  
+**Framework:** FastAPI + Docker
 
 **Core Concept:** Production-ready REST API for Kokoro TTS with OpenAI-compatible endpoints.
 
 **Key Features:**
+
 - 🚀 35x-100x realtime speed (GPU)
 - 🔊 OpenAI-compatible `/v1/audio/speech` endpoint
 - 🎚️ Voice mixing with weighted combinations
@@ -97,6 +104,7 @@ for i, (graphemes, phonemes, audio) in enumerate(generator):
 - 🐳 Docker-ready (CPU + GPU)
 
 **Quick Start:**
+
 ```bash
 # GPU version
 docker run --gpus all -p 8880:8880 ghcr.io/remsky/kokoro-fastapi-gpu:latest
@@ -106,6 +114,7 @@ docker run -p 8880:8880 ghcr.io/remsky/kokoro-fastapi-cpu:latest
 ```
 
 **OpenAI-Compatible Usage:**
+
 ```python
 from openai import OpenAI
 
@@ -124,6 +133,7 @@ with client.audio.speech.with_streaming_response.create(
 ```
 
 **Voice Mixing:**
+
 ```python
 # Equal mix (50/50)
 voice = "af_bella+af_sky"
@@ -133,6 +143,7 @@ voice = "af_bella(2)+af_sky(1)"
 ```
 
 **Captioned Speech (Word Timestamps):**
+
 ```python
 import requests
 import json
@@ -161,6 +172,7 @@ timestamps = result["timestamps"]  # Word-level timestamps
 | Memory | ~2GB VRAM | ~1GB RAM |
 
 **content-machine Relevance:**
+
 - Production TTS API for video pipeline
 - Word-level timestamps for animated captions
 - OpenAI-compatible = easy integration
@@ -175,22 +187,25 @@ timestamps = result["timestamps"]  # Word-level timestamps
 **Location:** `vendor/storage/qdrant`  
 **Language:** Rust  
 **License:** Apache 2.0  
-**Stars:** 23k+  
+**Stars:** 23k+
 
 **Core Concept:** Production-ready vector similarity search with extended filtering.
 
 **Key Features:**
+
 - ⚡ Fast: Sub-millisecond searches over billions of vectors
 - 🔍 Extended filtering: JSON payloads with complex queries
 - 🔄 Horizontal scaling: Sharding + replication
 - 🛡️ Production-ready: High availability, cloud-native
 
 **Quick Start:**
+
 ```bash
 docker run -p 6333:6333 qdrant/qdrant
 ```
 
 **Python Client:**
+
 ```python
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct
@@ -237,6 +252,7 @@ results = client.search(
 ```
 
 **Use Cases for content-machine:**
+
 - Find similar trending topics
 - Content recommendation
 - Duplicate detection
@@ -249,29 +265,32 @@ results = client.search(
 **Location:** `vendor/storage/weaviate`  
 **Language:** Go  
 **License:** BSD-3  
-**Stars:** 14k+  
+**Stars:** 14k+
 
 **Core Concept:** Cloud-native vector database with integrated ML models and RAG support.
 
 **Key Features:**
+
 - 🤖 Integrated vectorizers (OpenAI, Cohere, HuggingFace)
 - 🔍 Hybrid search (vector + keyword BM25)
 - 🧠 Built-in RAG and reranking
 - 📊 Multi-tenancy, RBAC, horizontal scaling
 
 **Quick Start:**
+
 ```yaml
 # docker-compose.yml
 services:
   weaviate:
     image: cr.weaviate.io/semitechnologies/weaviate:1.32.2
     ports:
-      - "8080:8080"
+      - '8080:8080'
     environment:
       ENABLE_MODULES: text2vec-openai
 ```
 
 **Python Client:**
+
 ```python
 import weaviate
 from weaviate.classes.config import Configure, DataType, Property
@@ -305,6 +324,7 @@ results = scripts.query.near_text(
 ```
 
 **Hybrid Search:**
+
 ```python
 # Combine semantic + keyword search
 results = scripts.query.hybrid(
@@ -315,6 +335,7 @@ results = scripts.query.hybrid(
 ```
 
 **content-machine Relevance:**
+
 - Content discovery and recommendation
 - Script similarity matching
 - Trend clustering
@@ -327,24 +348,27 @@ results = scripts.query.hybrid(
 **Location:** `vendor/storage/minio`  
 **Language:** Go  
 **License:** AGPL-3.0  
-**Stars:** 50k+  
+**Stars:** 50k+
 
 **Core Concept:** S3-compatible high-performance object storage.
 
 **⚠️ Status:** Maintenance mode - source-only distribution.
 
 **Key Features:**
+
 - 📦 S3-compatible API
 - ⚡ High performance
 - 🔒 Erasure coding for data protection
 
 **Quick Start:**
+
 ```bash
 go install github.com/minio/minio@latest
 minio server /data
 ```
 
 **content-machine Relevance:**
+
 - Video asset storage
 - Generated content storage
 - S3-compatible backup
@@ -360,17 +384,19 @@ minio server /data
 **Location:** `vendor/publish/TiktokAutoUploader`  
 **Language:** Python  
 **License:** MIT  
-**Method:** Direct API (not Selenium)  
+**Method:** Direct API (not Selenium)
 
 **Core Concept:** Fast, reliable TikTok video upload using direct API calls.
 
 **Key Features:**
+
 - ⚡ Upload in ~3 seconds (not Selenium!)
 - 📅 Schedule up to 10 days ahead
 - 👥 Multiple account support
 - 🎬 YouTube Shorts to TikTok
 
 **Installation:**
+
 ```bash
 git clone https://github.com/makiisthenes/TiktokAutoUploader.git
 cd TiktokAutoUploader
@@ -380,6 +406,7 @@ npm i
 ```
 
 **Usage:**
+
 ```bash
 # Login (saves cookies)
 python cli.py login -n my_account
@@ -392,6 +419,7 @@ python cli.py upload --user my_account -yt "https://youtube.com/shorts/xxx" -t "
 ```
 
 **content-machine Integration:**
+
 ```python
 import subprocess
 
@@ -403,7 +431,7 @@ def upload_to_tiktok(video_path: str, title: str, user: str = "main"):
         "-v", video_path,
         "-t", title
     ], capture_output=True, text=True)
-    
+
     if result.returncode == 0:
         return {"success": True}
     return {"success": False, "error": result.stderr}
@@ -418,22 +446,25 @@ def upload_to_tiktok(video_path: str, title: str, user: str = "main"):
 **Location:** `vendor/publish/youtube-upload`  
 **Language:** Python  
 **License:** MIT  
-**Method:** Official YouTube Data API v3  
+**Method:** Official YouTube Data API v3
 
 **Core Concept:** Upload YouTube videos via official API with OAuth authentication.
 
 **Installation:**
+
 ```bash
 pip install pillar-youtube-upload
 ```
 
 **Setup:**
+
 1. Create project in Google Cloud Console
 2. Enable YouTube Data API v3
 3. Create OAuth 2.0 credentials
 4. Download `client_secret.json`
 
 **Usage:**
+
 ```python
 from youtube_upload.client import YoutubeUploader
 
@@ -463,6 +494,7 @@ uploader.close()
 ```
 
 **content-machine Relevance:**
+
 - Official API = reliable
 - YouTube Shorts support
 - Scheduled publishing
@@ -475,11 +507,12 @@ uploader.close()
 **Location:** `vendor/publish/mixpost`  
 **Language:** PHP (Laravel)  
 **License:** MIT  
-**Type:** Self-hosted platform  
+**Type:** Self-hosted platform
 
 **Core Concept:** Comprehensive social media management platform for scheduling and analytics.
 
 **Key Features:**
+
 - 📅 Content scheduling
 - 📊 Analytics across platforms
 - 👥 Team collaboration
@@ -489,6 +522,7 @@ uploader.close()
 **Use Case:** Review dashboard / social media ops tool.
 
 **content-machine Relevance:**
+
 - Pattern reference for review dashboard
 - Scheduling system architecture
 - Multi-platform publishing patterns
@@ -497,11 +531,11 @@ uploader.close()
 
 ### 3.4 Other Publishing Tools
 
-| Tool | Platform | Method |
-|------|----------|--------|
+| Tool                              | Platform        | Method                  |
+| --------------------------------- | --------------- | ----------------------- |
 | `rednote-instagram-auto-uploader` | Instagram Reels | Instagrapi (unofficial) |
-| `go-youtube-reddit-automation` | YouTube | End-to-end pipeline |
-| `my-youtube-automation` | YouTube | Custom scripts |
+| `go-youtube-reddit-automation`    | YouTube         | End-to-end pipeline     |
+| `my-youtube-automation`           | YouTube         | Custom scripts          |
 
 ---
 
@@ -512,11 +546,12 @@ uploader.close()
 **Location:** `vendor/observability/langfuse`  
 **Language:** TypeScript  
 **License:** MIT  
-**Stars:** 16k+  
+**Stars:** 16k+
 
 **Core Concept:** Open-source LLM engineering platform for tracing, evaluation, and prompt management.
 
 **Key Features:**
+
 - 📊 **Tracing:** Full observability for LLM calls
 - 🧪 **Evaluations:** LLM-as-judge, user feedback, custom evals
 - 📝 **Prompt Management:** Version control, collaborative editing
@@ -525,6 +560,7 @@ uploader.close()
 - 🔌 **Integrations:** LangChain, LlamaIndex, OpenAI, Anthropic
 
 **Quick Start:**
+
 ```bash
 git clone https://github.com/langfuse/langfuse.git
 cd langfuse
@@ -532,6 +568,7 @@ docker compose up
 ```
 
 **Python Integration:**
+
 ```python
 from langfuse import observe
 from langfuse.openai import openai  # Drop-in replacement
@@ -556,6 +593,7 @@ def create_video(topic: str):
 ```
 
 **Evaluation Integration:**
+
 ```python
 from langfuse import Langfuse
 
@@ -578,6 +616,7 @@ dataset.add_item(
 ```
 
 **content-machine Relevance:**
+
 - Full tracing for video generation pipeline
 - Script quality evaluation
 - Prompt version control
@@ -590,11 +629,12 @@ dataset.add_item(
 **Location:** `vendor/observability/promptfoo`  
 **Language:** TypeScript  
 **License:** MIT  
-**Stars:** 8k+  
+**Stars:** 8k+
 
 **Core Concept:** Developer-friendly tool for testing LLM applications and security scanning.
 
 **Key Features:**
+
 - 🧪 **Automated evaluations:** Test prompts systematically
 - 🔐 **Red teaming:** Vulnerability scanning
 - 🔀 **Model comparison:** Side-by-side testing
@@ -602,37 +642,40 @@ dataset.add_item(
 - 💻 **100% local:** Prompts never leave your machine
 
 **Quick Start:**
+
 ```bash
 npx promptfoo@latest init
 npx promptfoo eval
 ```
 
 **Configuration (promptfooconfig.yaml):**
+
 ```yaml
 providers:
   - openai:gpt-4o
   - anthropic:claude-sonnet-4-0
 
 prompts:
-  - "Create a 60-second video script about {{topic}}"
-  - "Write an engaging TikTok script for: {{topic}}"
+  - 'Create a 60-second video script about {{topic}}'
+  - 'Write an engaging TikTok script for: {{topic}}'
 
 tests:
   - vars:
-      topic: "AI coding tools"
+      topic: 'AI coding tools'
     assert:
       - type: contains
-        value: "hook"
+        value: 'hook'
       - type: llm-rubric
-        value: "The script should have a clear call to action"
+        value: 'The script should have a clear call to action'
   - vars:
-      topic: "Python tips"
+      topic: 'Python tips'
     assert:
       - type: javascript
         value: output.length < 500
 ```
 
 **Red Teaming:**
+
 ```yaml
 # Security vulnerability scanning
 redteam:
@@ -646,6 +689,7 @@ redteam:
 ```
 
 **content-machine Relevance:**
+
 - Test script generation prompts
 - Compare different LLM providers
 - Red team content generation
@@ -658,17 +702,19 @@ redteam:
 **Location:** `vendor/job-queue/celery`  
 **Language:** Python  
 **License:** BSD-3  
-**Stars:** 25k+  
+**Stars:** 25k+
 
 **Core Concept:** Production-ready distributed task queue for asynchronous processing.
 
 **Key Features:**
+
 - 📨 **Message Brokers:** RabbitMQ, Redis, SQS
 - ⚡ **Fast:** Millions of tasks/minute
 - 🔄 **Flexible:** Custom serializers, compression
 - 📊 **Result Stores:** Redis, SQLAlchemy, Cassandra
 
 **Basic Usage:**
+
 ```python
 from celery import Celery
 
@@ -688,6 +734,7 @@ def generate_script(topic: str):
 ```
 
 **Chaining Tasks:**
+
 ```python
 from celery import chain
 
@@ -701,6 +748,7 @@ result = pipeline.apply_async()
 ```
 
 **content-machine Relevance:**
+
 - Video rendering queue
 - LLM call management
 - Asset processing pipeline
@@ -713,17 +761,19 @@ result = pipeline.apply_async()
 **Location:** `vendor/job-queue/rq`  
 **Language:** Python  
 **License:** MIT  
-**Stars:** 10k+  
+**Stars:** 10k+
 
 **Core Concept:** Lightweight Redis-based job queue with minimal configuration.
 
 **Key Features:**
+
 - 🪶 **Simple:** Minimal setup
 - ⏰ **Scheduling:** Built-in cron and interval jobs
 - 🔁 **Retry:** Configurable retry policies
 - 📊 **Dashboard:** rq-dashboard for monitoring
 
 **Basic Usage:**
+
 ```python
 from redis import Redis
 from rq import Queue
@@ -739,6 +789,7 @@ print(job.get_status())
 ```
 
 **Scheduling:**
+
 ```python
 from datetime import datetime, timedelta
 from rq import Queue
@@ -753,11 +804,13 @@ queue.enqueue_in(timedelta(minutes=30), send_notification, user_id="456")
 ```
 
 **Worker:**
+
 ```bash
 rq worker --with-scheduler
 ```
 
 **content-machine Relevance:**
+
 - Lighter alternative to Celery
 - Good for simpler pipelines
 - Built-in scheduling for publishing
@@ -777,7 +830,7 @@ queue = Queue(connection=Redis())
 def publish_video(video_path: str, platforms: list[str], metadata: dict):
     """Publish video to multiple platforms."""
     results = {}
-    
+
     for platform in platforms:
         if platform == "tiktok":
             job = queue.enqueue(upload_tiktok, video_path, metadata["title"])
@@ -785,9 +838,9 @@ def publish_video(video_path: str, platforms: list[str], metadata: dict):
             job = queue.enqueue(upload_youtube, video_path, metadata)
         elif platform == "instagram":
             job = queue.enqueue(upload_instagram, video_path, metadata)
-        
+
         results[platform] = job.id
-    
+
     return results
 
 async def upload_tiktok(video_path: str, title: str):
@@ -803,7 +856,7 @@ async def upload_tiktok(video_path: str, title: str):
 async def upload_youtube(video_path: str, metadata: dict):
     """Upload to YouTube via official API."""
     from youtube_upload.client import YoutubeUploader
-    
+
     uploader = YoutubeUploader()
     uploader.authenticate(oauth_path="oauth.json")
     uploader.upload(video_path, metadata)
@@ -819,19 +872,19 @@ from langfuse.openai import openai
 @observe()
 def video_pipeline(topic: str) -> dict:
     """Full pipeline with LangFuse tracing."""
-    
+
     # 1. Script generation (traced)
     script = generate_script(topic)
-    
+
     # 2. TTS (traced)
     audio_path = generate_audio(script)
-    
+
     # 3. Caption generation
     captions = generate_captions(audio_path)
-    
+
     # 4. Render
     video_path = render_video(script, audio_path, captions)
-    
+
     return {
         "video": video_path,
         "script": script,
@@ -861,20 +914,20 @@ openai_client = openai.OpenAI()
 
 def find_similar_content(query: str, limit: int = 10) -> list[dict]:
     """Find similar content using semantic search."""
-    
+
     # Generate query embedding
     embedding = openai_client.embeddings.create(
         model="text-embedding-3-small",
         input=query
     ).data[0].embedding
-    
+
     # Search
     results = qdrant.search(
         collection_name="video_content",
         query_vector=embedding,
         limit=limit
     )
-    
+
     return [
         {
             "id": hit.id,
@@ -886,11 +939,11 @@ def find_similar_content(query: str, limit: int = 10) -> list[dict]:
 
 def recommend_topics(recent_videos: list[str]) -> list[str]:
     """Recommend topics based on recent successful videos."""
-    
+
     # Get embeddings for recent videos
     embeddings = [get_embedding(v) for v in recent_videos]
     avg_embedding = sum(embeddings) / len(embeddings)
-    
+
     # Find similar but unexplored topics
     results = qdrant.search(
         collection_name="trending_topics",
@@ -902,7 +955,7 @@ def recommend_topics(recent_videos: list[str]) -> list[str]:
         },
         limit=5
     )
-    
+
     return [r.payload["topic"] for r in results]
 ```
 
@@ -912,37 +965,37 @@ def recommend_topics(recent_videos: list[str]) -> list[str]:
 
 ### TTS Recommendations
 
-| Use Case | Tool | Reasoning |
-|----------|------|-----------|
+| Use Case           | Tool           | Reasoning                          |
+| ------------------ | -------------- | ---------------------------------- |
 | **Production API** | Kokoro-FastAPI | OpenAI-compatible, word timestamps |
-| **Local Dev** | Kokoro | Direct Python, simple |
-| **Multi-language** | Kokoro | 8+ languages, Apache licensed |
+| **Local Dev**      | Kokoro         | Direct Python, simple              |
+| **Multi-language** | Kokoro         | 8+ languages, Apache licensed      |
 
 ### Storage Recommendations
 
-| Use Case | Tool | Reasoning |
-|----------|------|-----------|
-| **Vector Search** | Qdrant | Fast, extended filtering, production-ready |
-| **Hybrid Search** | Weaviate | Vector + BM25, integrated ML |
-| **Object Storage** | S3/R2/B2 | Production alternatives to MinIO |
+| Use Case           | Tool     | Reasoning                                  |
+| ------------------ | -------- | ------------------------------------------ |
+| **Vector Search**  | Qdrant   | Fast, extended filtering, production-ready |
+| **Hybrid Search**  | Weaviate | Vector + BM25, integrated ML               |
+| **Object Storage** | S3/R2/B2 | Production alternatives to MinIO           |
 
 ### Publishing Recommendations
 
-| Platform | Tool | Method |
-|----------|------|--------|
-| **TikTok** | TiktokAutoUploader | Direct API (fast) |
-| **YouTube** | youtube-upload | Official API (reliable) |
-| **Instagram** | instagrapi | Unofficial (risky) |
-| **Multi-platform** | Mixpost | Self-hosted scheduling |
+| Platform           | Tool               | Method                  |
+| ------------------ | ------------------ | ----------------------- |
+| **TikTok**         | TiktokAutoUploader | Direct API (fast)       |
+| **YouTube**        | youtube-upload     | Official API (reliable) |
+| **Instagram**      | instagrapi         | Unofficial (risky)      |
+| **Multi-platform** | Mixpost            | Self-hosted scheduling  |
 
 ### Observability Recommendations
 
-| Use Case | Tool | Reasoning |
-|----------|------|-----------|
-| **LLM Tracing** | LangFuse | Open source, comprehensive |
-| **Prompt Testing** | promptfoo | Local, red teaming |
-| **Job Queue (Python)** | RQ | Simple, Redis-based |
-| **Job Queue (Scale)** | Celery | Production-proven |
+| Use Case               | Tool      | Reasoning                  |
+| ---------------------- | --------- | -------------------------- |
+| **LLM Tracing**        | LangFuse  | Open source, comprehensive |
+| **Prompt Testing**     | promptfoo | Local, red teaming         |
+| **Job Queue (Python)** | RQ        | Simple, Redis-based        |
+| **Job Queue (Scale)**  | Celery    | Production-proven          |
 
 ### Key Integration Patterns
 

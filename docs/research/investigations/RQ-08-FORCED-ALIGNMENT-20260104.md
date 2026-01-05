@@ -17,12 +17,12 @@ When Edge TTS timestamps aren't sufficient (long texts, ASR validation), we need
 
 ### 2.1 Approaches Found in Vendored Repos
 
-| Approach | Location | Algorithm | Speed |
-|----------|----------|-----------|-------|
-| **WhisperX** | vendor/captions/whisperX | wav2vec2 CTC alignment | 70x realtime |
+| Approach                | Location                       | Algorithm                | Speed           |
+| ----------------------- | ------------------------------ | ------------------------ | --------------- |
+| **WhisperX**            | vendor/captions/whisperX       | wav2vec2 CTC alignment   | 70x realtime    |
 | **whisper-timestamped** | Used by viralfactory, ShortGPT | DTW on attention weights | ~5-10x realtime |
-| **whisper.cpp** | vendor/captions/whisper.cpp | Token-level timestamps | ~10x realtime |
-| **Aeneas** | Various references | MFCC + DTW | ~1x realtime |
+| **whisper.cpp**         | vendor/captions/whisper.cpp    | Token-level timestamps   | ~10x realtime   |
+| **Aeneas**              | Various references             | MFCC + DTW               | ~1x realtime    |
 
 ### 2.2 WhisperX: Character-Level CTC Alignment
 
@@ -42,6 +42,7 @@ char_segments_arr.append({
 ```
 
 **Key features:**
+
 - Uses **beam search backtracking** for robustness
 - Provides **per-word confidence scores** (0.0-1.0)
 - Supports **35+ languages** via HuggingFace wav2vec2 models
@@ -55,7 +56,7 @@ if len(clean_char) == 0:
     logger.warning(f'Failed to align: no characters found')
     # Falls back to original Whisper timestamps
 
-# 2. Segment exceeds audio duration  
+# 2. Segment exceeds audio duration
 if t1 >= MAX_DURATION:
     logger.warning(f'Failed to align: start time > audio duration')
 
@@ -70,7 +71,7 @@ if path is None:
 ```python
 # Fill NaN timestamps using nearest-neighbor interpolation
 aligned_subsegments["start"] = interpolate_nans(
-    aligned_subsegments["start"], 
+    aligned_subsegments["start"],
     method="nearest"  # Options: nearest, linear, ffill, bfill
 )
 ```
@@ -99,16 +100,16 @@ struct whisper_token_data {
 **Source:** [vendor/short-video-maker-gyori/src/short-creator/libraries/Whisper.ts](../../../vendor/short-video-maker-gyori/src/short-creator/libraries/Whisper.ts)
 
 ```typescript
-import { installWhisperCpp, transcribe } from "@remotion/install-whisper-cpp";
+import { installWhisperCpp, transcribe } from '@remotion/install-whisper-cpp';
 
 // Token merging: combine tokens without leading spaces
 function mergeTokensIntoWords(tokens: WhisperToken[]): Word[] {
   const words: Word[] = [];
-  let currentWord = "";
+  let currentWord = '';
   let startTime = 0;
-  
+
   for (const token of tokens) {
-    if (token.text.startsWith(" ") && currentWord) {
+    if (token.text.startsWith(' ') && currentWord) {
       // Space indicates new word
       words.push({ text: currentWord.trim(), start: startTime, end: token.t0 });
       currentWord = token.text;
@@ -117,7 +118,7 @@ function mergeTokensIntoWords(tokens: WhisperToken[]): Word[] {
       currentWord += token.text;
     }
   }
-  
+
   return words;
 }
 ```
@@ -126,20 +127,20 @@ function mergeTokensIntoWords(tokens: WhisperToken[]): Word[] {
 
 ## 3. Performance Comparison
 
-| Approach | Speed | GPU Memory | Accuracy | Best For |
-|----------|-------|------------|----------|----------|
-| **WhisperX** | 70x realtime | <8GB (large-v2) | Excellent | Production, accuracy |
-| **whisper.cpp** | ~10x realtime | CPU-only | Good | Edge deployment |
-| **whisper-timestamped** | ~5-10x realtime | Moderate | Good | Simple integration |
-| **Aeneas** | ~1x realtime | N/A | Fair | Legacy systems |
+| Approach                | Speed           | GPU Memory      | Accuracy  | Best For             |
+| ----------------------- | --------------- | --------------- | --------- | -------------------- |
+| **WhisperX**            | 70x realtime    | <8GB (large-v2) | Excellent | Production, accuracy |
+| **whisper.cpp**         | ~10x realtime   | CPU-only        | Good      | Edge deployment      |
+| **whisper-timestamped** | ~5-10x realtime | Moderate        | Good      | Simple integration   |
+| **Aeneas**              | ~1x realtime    | N/A             | Fair      | Legacy systems       |
 
 ### Processing Time Examples
 
 | Audio Duration | WhisperX | whisper.cpp | whisper-timestamped |
-|---------------|----------|-------------|---------------------|
-| 30 seconds | ~0.4s | ~3s | ~3-6s |
-| 60 seconds | ~0.9s | ~6s | ~6-12s |
-| 5 minutes | ~4.3s | ~30s | ~30-60s |
+| -------------- | -------- | ----------- | ------------------- |
+| 30 seconds     | ~0.4s    | ~3s         | ~3-6s               |
+| 60 seconds     | ~0.9s    | ~6s         | ~6-12s              |
+| 5 minutes      | ~4.3s    | ~30s        | ~30-60s             |
 
 ---
 
@@ -200,15 +201,15 @@ interface AlignmentResult {
 async function alignWithWhisperX(
   audioPath: string,
   transcript: string,
-  language: string = "en"
+  language: string = 'en'
 ): Promise<AlignmentResult> {
   const result = await runPython('whisperx_align.py', {
     audio: audioPath,
     transcript,
     language,
-    model: "large-v2",
+    model: 'large-v2',
   });
-  
+
   return result;
 }
 ```
@@ -226,19 +227,19 @@ import sys
 
 def align(audio_path: str, transcript: str, language: str = "en") -> dict:
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    
+
     # Load audio
     audio = whisperx.load_audio(audio_path)
-    
+
     # Load alignment model
     model_a, metadata = whisperx.load_align_model(
         language_code=language,
         device=device
     )
-    
+
     # Create segments from transcript
     segments = [{"text": transcript, "start": 0.0, "end": len(audio) / 16000}]
-    
+
     # Align
     result = whisperx.align(
         segments,
@@ -248,7 +249,7 @@ def align(audio_path: str, transcript: str, language: str = "en") -> dict:
         device,
         return_char_alignments=False,
     )
-    
+
     return result
 
 if __name__ == "__main__":
@@ -260,27 +261,27 @@ if __name__ == "__main__":
 ### 5.3 Fallback: whisper.cpp (via Remotion)
 
 ```typescript
-import { transcribe } from "@remotion/install-whisper-cpp";
+import { transcribe } from '@remotion/install-whisper-cpp';
 
-async function alignWithWhisperCpp(
-  audioPath: string
-): Promise<AlignmentResult> {
+async function alignWithWhisperCpp(audioPath: string): Promise<AlignmentResult> {
   const result = await transcribe({
     inputPath: audioPath,
-    model: "medium.en",
+    model: 'medium.en',
     tokenLevelTimestamps: true,
   });
-  
+
   // Merge tokens into words
   const words = mergeTokensIntoWords(result.tokens);
-  
+
   return {
-    segments: [{
-      start: 0,
-      end: result.duration,
-      text: result.text,
-      words,
-    }],
+    segments: [
+      {
+        start: 0,
+        end: result.duration,
+        text: result.text,
+        words,
+      },
+    ],
   };
 }
 ```
@@ -296,35 +297,40 @@ async function getWordTimestamps(
   // Option 1: Use Edge TTS timestamps if available and audio is short
   if (edgeTTSTimestamps && edgeTTSTimestamps.length > 0) {
     const audioDuration = await getAudioDuration(audioPath);
-    
+
     // Validate: last word should end near audio duration
     const lastWord = edgeTTSTimestamps[edgeTTSTimestamps.length - 1];
     const drift = Math.abs(audioDuration - lastWord.endMs / 1000);
-    
-    if (drift < 0.5) {  // Less than 500ms drift
-      return edgeTTSTimestamps;  // Edge TTS is accurate enough
+
+    if (drift < 0.5) {
+      // Less than 500ms drift
+      return edgeTTSTimestamps; // Edge TTS is accurate enough
     }
   }
-  
+
   // Option 2: Use WhisperX for alignment
   try {
     const aligned = await alignWithWhisperX(audioPath, transcript);
-    return aligned.segments.flatMap(s => s.words.map(w => ({
-      word: w.word,
-      startMs: w.start * 1000,
-      endMs: w.end * 1000,
-    })));
+    return aligned.segments.flatMap((s) =>
+      s.words.map((w) => ({
+        word: w.word,
+        startMs: w.start * 1000,
+        endMs: w.end * 1000,
+      }))
+    );
   } catch (error) {
     logger.warn('WhisperX failed, falling back to whisper.cpp', { error });
   }
-  
+
   // Option 3: Fallback to whisper.cpp
   const result = await alignWithWhisperCpp(audioPath);
-  return result.segments.flatMap(s => s.words.map(w => ({
-    word: w.word,
-    startMs: w.start * 1000,
-    endMs: w.end * 1000,
-  })));
+  return result.segments.flatMap((s) =>
+    s.words.map((w) => ({
+      word: w.word,
+      startMs: w.start * 1000,
+      endMs: w.end * 1000,
+    }))
+  );
 }
 ```
 
@@ -332,12 +338,12 @@ async function getWordTimestamps(
 
 ## 6. Implementation Recommendations
 
-| Decision | Recommendation | Rationale |
-|----------|----------------|-----------|
-| Primary method | Edge TTS built-in | No extra processing needed |
-| Validation method | WhisperX | Best accuracy |
-| Fallback | whisper.cpp via Remotion | Already in dependency tree |
-| Threshold for validation | >4KB text OR >500ms drift | Balance accuracy vs speed |
+| Decision                 | Recommendation            | Rationale                  |
+| ------------------------ | ------------------------- | -------------------------- |
+| Primary method           | Edge TTS built-in         | No extra processing needed |
+| Validation method        | WhisperX                  | Best accuracy              |
+| Fallback                 | whisper.cpp via Remotion  | Already in dependency tree |
+| Threshold for validation | >4KB text OR >500ms drift | Balance accuracy vs speed  |
 
 ---
 

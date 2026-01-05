@@ -14,14 +14,14 @@
 
 This research establishes a comprehensive Validation & Verification (V&V) framework for content-machine's 4-stage pipeline. Each stage has distinct evaluation needs:
 
-| Stage | Output Type | Evaluation Method |
-|-------|-------------|-------------------|
-| **cm script** | JSON (LLM-generated) | LLM-as-judge, promptfoo assertions |
-| **cm audio** | WAV + timestamps | Word-level alignment accuracy, audio quality metrics |
-| **cm visuals** | JSON (footage matches) | Relevance scoring, visual-text alignment |
-| **cm render** | MP4 video | Frame comparison, PSNR/SSIM/VMAF (covered in RQ-13) |
+| Stage          | Output Type            | Evaluation Method                                    |
+| -------------- | ---------------------- | ---------------------------------------------------- |
+| **cm script**  | JSON (LLM-generated)   | LLM-as-judge, promptfoo assertions                   |
+| **cm audio**   | WAV + timestamps       | Word-level alignment accuracy, audio quality metrics |
+| **cm visuals** | JSON (footage matches) | Relevance scoring, visual-text alignment             |
+| **cm render**  | MP4 video              | Frame comparison, PSNR/SSIM/VMAF (covered in RQ-13)  |
 
-**Key Insight:** LLM outputs are non-deterministic. We cannot assert exact outputs. Instead, we evaluate *qualities* using model-graded evaluation with scoring rubrics.
+**Key Insight:** LLM outputs are non-deterministic. We cannot assert exact outputs. Instead, we evaluate _qualities_ using model-graded evaluation with scoring rubrics.
 
 ---
 
@@ -30,11 +30,13 @@ This research establishes a comprehensive Validation & Verification (V&V) framew
 ### 1.1 Why Traditional Testing Fails
 
 Traditional testing uses exact assertions:
+
 ```typescript
 expect(result).toEqual(expectedValue);
 ```
 
 LLM outputs are probabilistic. The same prompt can produce different valid outputs:
+
 - "5 JavaScript Tips" → "1. Use const..." OR "Tip #1: Arrow functions..."
 - Both are valid; neither is "correct" in an absolute sense
 
@@ -42,12 +44,12 @@ LLM outputs are probabilistic. The same prompt can produce different valid outpu
 
 Instead of asserting exact outputs, we evaluate qualities:
 
-| Quality | Evaluator | Pass Criteria |
-|---------|-----------|---------------|
-| Has hook within 3 seconds | LLM-as-judge | Yes/No |
-| Scene count | Programmatic | 3-8 scenes |
-| TikTok style language | LLM-as-judge | Score ≥0.8 |
-| Factual accuracy | LLM-as-judge | No contradictions |
+| Quality                   | Evaluator    | Pass Criteria     |
+| ------------------------- | ------------ | ----------------- |
+| Has hook within 3 seconds | LLM-as-judge | Yes/No            |
+| Scene count               | Programmatic | 3-8 scenes        |
+| TikTok style language     | LLM-as-judge | Score ≥0.8        |
+| Factual accuracy          | LLM-as-judge | No contradictions |
 
 ---
 
@@ -82,17 +84,19 @@ From `vendor/research/gpt-researcher/evals/simple_evals/simpleqa_eval.py`:
 
 ```python
 GRADER_TEMPLATE = """
-Your job is to look at a question, a gold target, and a predicted answer, 
+Your job is to look at a question, a gold target, and a predicted answer,
 and then assign a grade of either ["CORRECT", "INCORRECT", "NOT_ATTEMPTED"].
 
 First, I will give examples of each grade, and then you will grade a new example.
 
 The following are examples of CORRECT predicted answers.
 ```
+
 Question: What are the names of Barack Obama's children?
 Gold target: Malia Obama and Sasha Obama
 Predicted answer 1: sasha and malia obama
 Predicted answer 2: Barack Obama has two daughters...
+
 ```
 
 These predicted answers are all CORRECT because:
@@ -250,6 +254,7 @@ tests:
 ```
 
 **Key Metrics:**
+
 - `answer-relevance` — Does the answer address the question?
 - `context-recall` — Does the answer cover important context?
 - `context-faithfulness` — Does the answer stay true to context?
@@ -264,15 +269,15 @@ tests:
 
 **Qualities to Evaluate:**
 
-| Quality | Type | Criteria |
-|---------|------|----------|
-| Hook strength | LLM-rubric | Opens with attention-grabbing statement within first 10 words |
-| Archetype adherence | LLM-rubric | Follows {archetype} structure pattern correctly |
-| Scene count | Programmatic | Between 3-8 scenes |
-| Word count | Programmatic | 100-250 words for 30-60s video |
-| Visual directions | LLM-rubric | Each scene has filmable visual description |
-| TikTok voice | LLM-rubric | Casual, direct, no corporate speak |
-| Factual grounding | Factuality | Claims match provided research context |
+| Quality             | Type         | Criteria                                                      |
+| ------------------- | ------------ | ------------------------------------------------------------- |
+| Hook strength       | LLM-rubric   | Opens with attention-grabbing statement within first 10 words |
+| Archetype adherence | LLM-rubric   | Follows {archetype} structure pattern correctly               |
+| Scene count         | Programmatic | Between 3-8 scenes                                            |
+| Word count          | Programmatic | 100-250 words for 30-60s video                                |
+| Visual directions   | LLM-rubric   | Each scene has filmable visual description                    |
+| TikTok voice        | LLM-rubric   | Casual, direct, no corporate speak                            |
+| Factual grounding   | Factuality   | Claims match provided research context                        |
 
 **Promptfoo Configuration:**
 
@@ -298,7 +303,7 @@ defaultTest:
         const script = JSON.parse(output);
         const wordCount = script.scenes.reduce((acc, s) => acc + s.narration.split(' ').length, 0);
         return wordCount >= 100 && wordCount <= 250;
-    
+
     # LLM-graded checks
     - type: llm-rubric
       value: The script opens with an attention-grabbing hook in the first 10 words
@@ -309,37 +314,37 @@ defaultTest:
 
 tests:
   - vars:
-      topic: "5 JavaScript tips every developer should know"
-      archetype: "listicle"
+      topic: '5 JavaScript tips every developer should know'
+      archetype: 'listicle'
   - vars:
-      topic: "Redis vs PostgreSQL for caching"
-      archetype: "versus"
+      topic: 'Redis vs PostgreSQL for caching'
+      archetype: 'versus'
   - vars:
-      topic: "How I learned React in 2 weeks"
-      archetype: "story"
+      topic: 'How I learned React in 2 weeks'
+      archetype: 'story'
 ```
 
 ### 6.2 Stage 2: cm audio Evaluation
 
 **Qualities to Evaluate:**
 
-| Quality | Type | Criteria |
-|---------|------|----------|
-| Word alignment accuracy | Programmatic | 95%+ words correctly timestamped |
-| Audio duration match | Programmatic | Within 5% of expected duration |
-| Silence gaps | Programmatic | No gaps >500ms (unless intentional) |
-| Sample rate | Programmatic | Exactly 44100 Hz |
-| TTS clarity | External tool | Mozilla DeepSpeech WER <10% |
+| Quality                 | Type          | Criteria                            |
+| ----------------------- | ------------- | ----------------------------------- |
+| Word alignment accuracy | Programmatic  | 95%+ words correctly timestamped    |
+| Audio duration match    | Programmatic  | Within 5% of expected duration      |
+| Silence gaps            | Programmatic  | No gaps >500ms (unless intentional) |
+| Sample rate             | Programmatic  | Exactly 44100 Hz                    |
+| TTS clarity             | External tool | Mozilla DeepSpeech WER <10%         |
 
 **Evaluation Code:**
 
 ```typescript
 // src/audio/evaluators.ts
 interface AudioEvalResult {
-  wordAlignmentAccuracy: number;  // 0-1
-  durationDeltaPercent: number;   // absolute deviation
-  maxSilenceGap: number;          // milliseconds
-  wer: number;                    // word error rate from ASR re-transcription
+  wordAlignmentAccuracy: number; // 0-1
+  durationDeltaPercent: number; // absolute deviation
+  maxSilenceGap: number; // milliseconds
+  wer: number; // word error rate from ASR re-transcription
 }
 
 async function evaluateAudioOutput(
@@ -349,21 +354,21 @@ async function evaluateAudioOutput(
 ): Promise<AudioEvalResult> {
   // Re-transcribe with Whisper to verify alignment
   const verification = await whisper.transcribe(audioPath);
-  
+
   // Calculate word error rate
   const wer = calculateWER(expectedTranscript, verification.text);
-  
+
   // Check alignment accuracy
   const alignmentScore = compareTimestamps(timestamps, verification.words);
-  
+
   // Detect silence gaps
   const gaps = detectSilenceGaps(audioPath);
-  
+
   return {
     wordAlignmentAccuracy: alignmentScore,
     durationDeltaPercent: Math.abs(expectedDuration - actualDuration) / expectedDuration,
     maxSilenceGap: Math.max(...gaps),
-    wer
+    wer,
   };
 }
 ```
@@ -372,13 +377,13 @@ async function evaluateAudioOutput(
 
 **Qualities to Evaluate:**
 
-| Quality | Type | Criteria |
-|---------|------|----------|
-| Keyword relevance | LLM-rubric | Search terms match scene content |
-| Footage availability | Programmatic | All scenes have valid Pexels URLs |
-| Orientation correct | Programmatic | All clips are portrait (1080x1920) |
-| Duration coverage | Programmatic | Total footage ≥ audio duration |
-| Visual variety | LLM-rubric | No duplicate clips across scenes |
+| Quality              | Type         | Criteria                           |
+| -------------------- | ------------ | ---------------------------------- |
+| Keyword relevance    | LLM-rubric   | Search terms match scene content   |
+| Footage availability | Programmatic | All scenes have valid Pexels URLs  |
+| Orientation correct  | Programmatic | All clips are portrait (1080x1920) |
+| Duration coverage    | Programmatic | Total footage ≥ audio duration     |
+| Visual variety       | LLM-rubric   | No duplicate clips across scenes   |
 
 **Promptfoo Configuration:**
 
@@ -388,8 +393,8 @@ description: Evaluate visual matching quality
 
 tests:
   - vars:
-      scene_narration: "Redis stores everything in memory, making it incredibly fast"
-      search_terms: ["redis database", "fast server", "memory chip"]
+      scene_narration: 'Redis stores everything in memory, making it incredibly fast'
+      search_terms: ['redis database', 'fast server', 'memory chip']
     assert:
       - type: llm-rubric
         value: |
@@ -404,21 +409,21 @@ tests:
 
 Video quality metrics are covered in **RQ-13: Video Quality Metrics**. Key thresholds:
 
-| Metric | Good | Acceptable | Poor |
-|--------|------|------------|------|
-| PSNR | >35 dB | 30-35 dB | <30 dB |
-| SSIM | >0.95 | 0.90-0.95 | <0.90 |
-| VMAF | >80 | 70-80 | <70 |
+| Metric | Good   | Acceptable | Poor   |
+| ------ | ------ | ---------- | ------ |
+| PSNR   | >35 dB | 30-35 dB   | <30 dB |
+| SSIM   | >0.95  | 0.90-0.95  | <0.90  |
+| VMAF   | >80    | 70-80      | <70    |
 
 **Additional Render Evaluations:**
 
-| Quality | Type | Criteria |
-|---------|------|----------|
-| Caption sync | Programmatic | Caption appears within 50ms of word audio |
-| Resolution correct | Programmatic | Exactly 1080x1920 |
-| Frame rate | Programmatic | Exactly 30 fps |
-| Audio sync | Programmatic | A/V drift <100ms |
-| No black frames | FFmpeg | No frames with avg brightness <5 |
+| Quality            | Type         | Criteria                                  |
+| ------------------ | ------------ | ----------------------------------------- |
+| Caption sync       | Programmatic | Caption appears within 50ms of word audio |
+| Resolution correct | Programmatic | Exactly 1080x1920                         |
+| Frame rate         | Programmatic | Exactly 30 fps                            |
+| Audio sync         | Programmatic | A/V drift <100ms                          |
+| No black frames    | FFmpeg       | No frames with avg brightness <5          |
 
 ---
 
@@ -481,20 +486,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Run script evals
         run: npx promptfoo eval -c evals/configs/cm-script.yaml --no-cache -o results.json
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      
+
       - name: Check pass rate
         run: |
           PASS_RATE=$(jq '.results.stats.successes / .results.stats.total' results.json)
@@ -517,7 +522,7 @@ import { Langfuse } from 'langfuse';
 
 const langfuse = new Langfuse({
   publicKey: process.env.LANGFUSE_PUBLIC_KEY,
-  secretKey: process.env.LANGFUSE_SECRET_KEY
+  secretKey: process.env.LANGFUSE_SECRET_KEY,
 });
 
 // Trace script generation
@@ -527,27 +532,28 @@ const generation = trace.generation({
   name: 'generate-script',
   model: 'gpt-4o',
   input: { topic, archetype },
-  metadata: { version: '1.0' }
+  metadata: { version: '1.0' },
 });
 
 const result = await llm.generate(prompt);
 
 generation.end({
   output: result,
-  usage: { promptTokens: 500, completionTokens: 200 }
+  usage: { promptTokens: 500, completionTokens: 200 },
 });
 
 // Score the output
 trace.score({
   name: 'hook-quality',
   value: 0.9,
-  comment: 'Strong opening hook'
+  comment: 'Strong opening hook',
 });
 ```
 
 ### 8.2 Dashboard Metrics
 
 Langfuse provides:
+
 - **Token usage tracking** — Cost per generation
 - **Latency monitoring** — P50/P95 response times
 - **Quality scores over time** — Track improvement
@@ -570,14 +576,14 @@ describe('Script Generation Regression', () => {
   it('should match golden output structure for listicle', async () => {
     const result = await generateScript({
       topic: '5 JavaScript tips',
-      archetype: 'listicle'
+      archetype: 'listicle',
     });
-    
+
     // Don't compare exact text, compare structure
     expect(result.scenes.length).toBeGreaterThanOrEqual(5);
     expect(result.scenes[0]).toHaveProperty('narration');
     expect(result.scenes[0]).toHaveProperty('visualDirection');
-    
+
     // Use LLM judge for content quality
     const hookScore = await evaluateWithLLM(
       result.scenes[0].narration,
@@ -595,10 +601,13 @@ From **RQ-10: Video Output Testing**:
 ```typescript
 // Extract frames at key moments
 await execa('ffmpeg', [
-  '-i', 'output.mp4',
-  '-vf', 'select=eq(n,0)+eq(n,30)+eq(n,60)',  // Frames 0, 30, 60
-  '-vsync', 'vfr',
-  'frame%d.png'
+  '-i',
+  'output.mp4',
+  '-vf',
+  'select=eq(n,0)+eq(n,30)+eq(n,60)', // Frames 0, 30, 60
+  '-vsync',
+  'vfr',
+  'frame%d.png',
 ]);
 
 // Compare against baseline
@@ -612,15 +621,15 @@ expect(ssim).toBeGreaterThan(0.95);
 
 ### 10.1 Tracked Metrics
 
-| Metric | Target | Alert Threshold |
-|--------|--------|-----------------|
-| Script hook score (avg) | ≥0.85 | <0.75 |
-| Script archetype adherence | ≥0.90 | <0.80 |
-| Visual relevance score | ≥0.80 | <0.70 |
-| Word alignment accuracy | ≥0.95 | <0.90 |
-| Video PSNR | ≥35 dB | <30 dB |
-| Pipeline success rate | ≥95% | <90% |
-| Average cost per video | <$0.50 | >$1.00 |
+| Metric                     | Target | Alert Threshold |
+| -------------------------- | ------ | --------------- |
+| Script hook score (avg)    | ≥0.85  | <0.75           |
+| Script archetype adherence | ≥0.90  | <0.80           |
+| Visual relevance score     | ≥0.80  | <0.70           |
+| Word alignment accuracy    | ≥0.95  | <0.90           |
+| Video PSNR                 | ≥35 dB | <30 dB          |
+| Pipeline success rate      | ≥95%   | <90%            |
+| Average cost per video     | <$0.50 | >$1.00          |
 
 ### 10.2 Quality Gates
 
@@ -644,13 +653,13 @@ Before merging prompt changes:
 
 ### 11.2 Tooling Stack
 
-| Purpose | Tool | Rationale |
-|---------|------|-----------|
-| LLM eval framework | promptfoo | Already vendored, comprehensive assertions |
-| Observability | Langfuse | Cost tracking, score history |
-| Video quality | FFmpeg (PSNR/SSIM/VMAF) | Industry standard, free |
-| Test runner | Vitest | TypeScript-native, fast |
-| CI integration | GitHub Actions | Standard, promptfoo support |
+| Purpose            | Tool                    | Rationale                                  |
+| ------------------ | ----------------------- | ------------------------------------------ |
+| LLM eval framework | promptfoo               | Already vendored, comprehensive assertions |
+| Observability      | Langfuse                | Cost tracking, score history               |
+| Video quality      | FFmpeg (PSNR/SSIM/VMAF) | Industry standard, free                    |
+| Test runner        | Vitest                  | TypeScript-native, fast                    |
+| CI integration     | GitHub Actions          | Standard, promptfoo support                |
 
 ### 11.3 Cost Management
 
@@ -676,6 +685,7 @@ Content-machine requires a layered V&V approach:
 **Critical Success Factor:** Define clear rubrics for each quality dimension. Ambiguous criteria lead to inconsistent grades.
 
 **Next Steps:**
+
 1. Create `evals/` directory structure
 2. Write promptfoo configs for cm script
 3. Add Langfuse integration to LLM provider

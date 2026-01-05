@@ -35,14 +35,14 @@ Playwright is **the best browser automation framework** for capturing product-tr
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Cross-browser** | Chromium, Firefox, WebKit |
-| **Cross-platform** | Linux, macOS, Windows |
-| **Auto-wait** | No flaky tests |
-| **Tracing** | Capture execution screenshots/videos |
-| **Codegen** | Record actions, generate code |
-| **Network Interception** | Mock APIs, modify requests |
+| Feature                  | Description                          |
+| ------------------------ | ------------------------------------ |
+| **Cross-browser**        | Chromium, Firefox, WebKit            |
+| **Cross-platform**       | Linux, macOS, Windows                |
+| **Auto-wait**            | No flaky tests                       |
+| **Tracing**              | Capture execution screenshots/videos |
+| **Codegen**              | Record actions, generate code        |
+| **Network Interception** | Mock APIs, modify requests           |
 
 #### Code Patterns
 
@@ -102,12 +102,10 @@ await browser.close();
 ```typescript
 test('Demo with Mock Data', async ({ page }) => {
   // Intercept API calls with demo data
-  await page.route('**/api/users', route => {
+  await page.route('**/api/users', (route) => {
     route.fulfill({
       status: 200,
-      body: JSON.stringify([
-        { id: 1, name: 'Demo User', avatar: '...' }
-      ]),
+      body: JSON.stringify([{ id: 1, name: 'Demo User', avatar: '...' }]),
     });
   });
 
@@ -133,13 +131,13 @@ async def capture_screenshot(url: str, selector: str = None) -> str:
         browser = await p.chromium.launch()
         page = await browser.new_page()
         await page.goto(url)
-        
+
         if selector:
             element = await page.wait_for_selector(selector)
             await element.screenshot(path='capture.png')
         else:
             await page.screenshot(path='capture.png')
-        
+
         await browser.close()
         return 'capture.png'
 
@@ -154,7 +152,7 @@ async def record_demo(url: str, actions: list, output_path: str) -> str:
         )
         page = await context.new_page()
         await page.goto(url)
-        
+
         for action in actions:
             if action['type'] == 'click':
                 await page.click(action['selector'])
@@ -162,7 +160,7 @@ async def record_demo(url: str, actions: list, output_path: str) -> str:
                 await page.fill(action['selector'], action['text'])
             elif action['type'] == 'wait':
                 await page.wait_for_timeout(action['ms'])
-        
+
         await context.close()
         await browser.close()
         return output_path
@@ -191,10 +189,10 @@ The Qdrant MCP server provides **semantic memory capabilities** for LLM agents u
 
 #### Tools Provided
 
-| Tool | Description |
-|------|-------------|
-| `qdrant-store` | Store information with embeddings |
-| `qdrant-find` | Retrieve relevant information by query |
+| Tool           | Description                            |
+| -------------- | -------------------------------------- |
+| `qdrant-store` | Store information with embeddings      |
+| `qdrant-find`  | Retrieve relevant information by query |
 
 #### Configuration
 
@@ -241,12 +239,12 @@ Plainly MCP server enables LLM clients to **generate videos using Plainly's clou
 
 #### Tools Provided
 
-| Tool | Description |
-|------|-------------|
-| `list_renderable_items` | List available templates |
-| `get_renderable_items_details` | Get template parameters |
-| `render_item` | Submit render job |
-| `check_render_status` | Check render progress |
+| Tool                           | Description              |
+| ------------------------------ | ------------------------ |
+| `list_renderable_items`        | List available templates |
+| `get_renderable_items_details` | Get template parameters  |
+| `render_item`                  | Submit render job        |
+| `check_render_status`          | Check render progress    |
 
 #### Use Case
 
@@ -273,16 +271,17 @@ Alternative to Remotion for cloud-based video rendering. Plainly handles infrast
 
 #### Variants Available
 
-| Server | Focus |
-|--------|-------|
-| `Nano-Banana-MCP` | Core image generation |
-| `gemini-nanobanana-mcp` | Gemini integration |
+| Server                  | Focus                 |
+| ----------------------- | --------------------- |
+| `Nano-Banana-MCP`       | Core image generation |
+| `gemini-nanobanana-mcp` | Gemini integration    |
 | `nanobanana-mcp-server` | Server implementation |
-| `nanobanana-cli` | CLI interface |
+| `nanobanana-cli`        | CLI interface         |
 
 #### Use Case for content-machine
 
 Generate AI images for video assets:
+
 - Thumbnail generation
 - Background images
 - Character images for demos
@@ -326,13 +325,13 @@ Generate AI images for video assets:
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Visual Analysis** | Object, scene, action detection |
-| **Audio Analysis** | Sound, speech detection |
-| **Sentiment Analysis** | Emotion detection |
-| **Virality Scoring** | Rate scenes for engagement |
-| **Prompt-based** | Natural language clip selection |
+| Feature                | Description                     |
+| ---------------------- | ------------------------------- |
+| **Visual Analysis**    | Object, scene, action detection |
+| **Audio Analysis**     | Sound, speech detection         |
+| **Sentiment Analysis** | Emotion detection               |
+| **Virality Scoring**   | Rate scenes for engagement      |
+| **Prompt-based**       | Natural language clip selection |
 
 #### API Integration
 
@@ -378,15 +377,15 @@ clips = vadoo.create_clips(
 
 #### Tech Stack
 
-| Component | Tool |
-|-----------|------|
-| **Research** | Tavily Search API |
-| **LLM** | Groq (LLaMA) / OpenAI |
-| **Images** | TogetherAI (FLUX.schnell) |
-| **TTS** | F5-TTS |
-| **Subtitles** | Gentle |
-| **Video** | FFmpeg |
-| **UI** | Streamlit |
+| Component     | Tool                      |
+| ------------- | ------------------------- |
+| **Research**  | Tavily Search API         |
+| **LLM**       | Groq (LLaMA) / OpenAI     |
+| **Images**    | TogetherAI (FLUX.schnell) |
+| **TTS**       | F5-TTS                    |
+| **Subtitles** | Gentle                    |
+| **Video**     | FFmpeg                    |
+| **UI**        | Streamlit                 |
 
 #### Code Pattern
 
@@ -422,23 +421,23 @@ VideoGraphAI demonstrates a **research-first approach** – every video starts w
 
 #### Features
 
-| Feature | Description |
-|---------|-------------|
-| **Terminal UI** | No GUI required |
-| **GPT-3.5** | Transcript generation |
-| **UnrealSpeech** | Free TTS API |
-| **Custom Fonts** | Multiple style options |
-| **Background Options** | Gameplay, colors |
-| **Subtitle Styles** | Word or sentence timestamps |
+| Feature                | Description                 |
+| ---------------------- | --------------------------- |
+| **Terminal UI**        | No GUI required             |
+| **GPT-3.5**            | Transcript generation       |
+| **UnrealSpeech**       | Free TTS API                |
+| **Custom Fonts**       | Multiple style options      |
+| **Background Options** | Gameplay, colors            |
+| **Subtitle Styles**    | Word or sentence timestamps |
 
 #### Tech Stack
 
-| Component | Tool |
-|-----------|------|
+| Component      | Tool                    |
+| -------------- | ----------------------- |
 | **Transcript** | GPT-3.5-turbo (via g4f) |
-| **TTS** | UnrealSpeech API |
-| **Video** | FFmpeg + MoviePy |
-| **Audio Viz** | seewav module |
+| **TTS**        | UnrealSpeech API        |
+| **Video**      | FFmpeg + MoviePy        |
+| **Audio Viz**  | seewav module           |
 
 #### Use Case
 
@@ -491,10 +490,10 @@ Uses **wav2vec2 forced alignment** for precise subtitle synchronization:
 
 #### Custom Assets
 
-| Asset Type | Location |
-|------------|----------|
-| Image Overlays | `assets/[folder_name]/` (512x512) |
-| Audio Samples | `assets/` directory |
+| Asset Type            | Location                          |
+| --------------------- | --------------------------------- |
+| Image Overlays        | `assets/[folder_name]/` (512x512) |
+| Audio Samples         | `assets/` directory               |
 | Pre-loaded Characters | trump, spongebob, lebron, griffin |
 
 #### Docker Deployment
@@ -524,23 +523,23 @@ Topic → Research → Script → Media → Voice → Subtitles → Video → Up
 #### Configuration (`config/preset.yml`)
 
 ```yaml
-NAME: "My Channel"
-PROMPT: "Create a video about..."
+NAME: 'My Channel'
+PROMPT: 'Create a video about...'
 UPLOAD: true
-DELAY: 2.5  # Hours before upload
-WHISPER_MODEL: "small"
-FONT: "Comic Sans MS"
+DELAY: 2.5 # Hours before upload
+WHISPER_MODEL: 'small'
+FONT: 'Comic Sans MS'
 ```
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Gemini API** | Content generation |
-| **Whisper** | Speech-to-text for subtitles |
-| **YouTube Upload** | OAuth 2.0 integration |
-| **Scheduling** | Delay uploads by hours |
-| **Plugin System** | Custom background video sources |
+| Feature            | Description                     |
+| ------------------ | ------------------------------- |
+| **Gemini API**     | Content generation              |
+| **Whisper**        | Speech-to-text for subtitles    |
+| **YouTube Upload** | OAuth 2.0 integration           |
+| **Scheduling**     | Delay uploads by hours          |
+| **Plugin System**  | Custom background video sources |
 
 #### Use Case
 
@@ -550,23 +549,23 @@ End-to-end automation including **direct YouTube upload** – the most complete 
 
 ## 4. Generator Comparison Matrix
 
-| Generator | Tech Stack | TTS | ASR | Auto-Upload | License |
-|-----------|-----------|-----|-----|-------------|---------|
-| **Clip-Anything** | Python | N/A | Multi-modal | No | MIT |
-| **VideoGraphAI** | Python + Streamlit | F5-TTS | Gentle | No | MIT |
-| **Cassette** | Python (terminal) | UnrealSpeech | N/A | No | MIT |
-| **OBrainRot** | Python + Docker | Coqui xTTS | wav2vec2 | No | MIT |
-| **Crank** | Python + UV | Whisper | Whisper | YouTube | Custom |
+| Generator         | Tech Stack         | TTS          | ASR         | Auto-Upload | License |
+| ----------------- | ------------------ | ------------ | ----------- | ----------- | ------- |
+| **Clip-Anything** | Python             | N/A          | Multi-modal | No          | MIT     |
+| **VideoGraphAI**  | Python + Streamlit | F5-TTS       | Gentle      | No          | MIT     |
+| **Cassette**      | Python (terminal)  | UnrealSpeech | N/A         | No          | MIT     |
+| **OBrainRot**     | Python + Docker    | Coqui xTTS   | wav2vec2    | No          | MIT     |
+| **Crank**         | Python + UV        | Whisper      | Whisper     | YouTube     | Custom  |
 
 ### Best Use Cases
 
-| Generator | Best For |
-|-----------|----------|
+| Generator         | Best For                               |
+| ----------------- | -------------------------------------- |
 | **Clip-Anything** | Extracting highlights from long videos |
-| **VideoGraphAI** | Research-based news/topic videos |
-| **Cassette** | Quick experimental content |
-| **OBrainRot** | Reddit story videos |
-| **Crank** | Fully automated YouTube channel |
+| **VideoGraphAI**  | Research-based news/topic videos       |
+| **Cassette**      | Quick experimental content             |
+| **OBrainRot**     | Reddit story videos                    |
+| **Crank**         | Fully automated YouTube channel        |
 
 ---
 
@@ -574,29 +573,29 @@ End-to-end automation including **direct YouTube upload** – the most complete 
 
 ### Capture Layer
 
-| Task | Tool | Approach |
-|------|------|----------|
-| Product demos | Playwright | Record interactions |
-| Mobile demos | Playwright + devices | Emulated capture |
-| API demos | Playwright + interception | Mock data |
+| Task          | Tool                      | Approach            |
+| ------------- | ------------------------- | ------------------- |
+| Product demos | Playwright                | Record interactions |
+| Mobile demos  | Playwright + devices      | Emulated capture    |
+| API demos     | Playwright + interception | Mock data           |
 
 ### Memory Layer
 
-| Task | Tool |
-|------|------|
-| Content memory | Qdrant MCP |
-| Trend history | Qdrant MCP |
+| Task            | Tool                |
+| --------------- | ------------------- |
+| Content memory  | Qdrant MCP          |
+| Trend history   | Qdrant MCP          |
 | RAG for scripts | Qdrant + LlamaIndex |
 
 ### Generation Layer
 
-| Content Type | Recommended Tool |
-|--------------|------------------|
-| Product demos | content-machine (custom) |
-| Topic explainers | VideoGraphAI pattern |
-| Reddit stories | OBrainRot pattern |
-| Long-to-short clips | Clip-Anything / FunClip |
-| Full automation | Crank pattern |
+| Content Type        | Recommended Tool         |
+| ------------------- | ------------------------ |
+| Product demos       | content-machine (custom) |
+| Topic explainers    | VideoGraphAI pattern     |
+| Reddit stories      | OBrainRot pattern        |
+| Long-to-short clips | Clip-Anything / FunClip  |
+| Full automation     | Crank pattern            |
 
 ### Complete Pipeline
 
@@ -675,13 +674,13 @@ End-to-end automation including **direct YouTube upload** – the most complete 
 
 ## 7. Document Metadata
 
-| Field | Value |
-|-------|-------|
-| **Document ID** | DD-069 |
-| **Created** | 2026-01-02 |
-| **Last Updated** | 2026-01-02 |
-| **Author** | Research Agent |
-| **Status** | Complete |
+| Field            | Value          |
+| ---------------- | -------------- |
+| **Document ID**  | DD-069         |
+| **Created**      | 2026-01-02     |
+| **Last Updated** | 2026-01-02     |
+| **Author**       | Research Agent |
+| **Status**       | Complete       |
 | **Dependencies** | DD-067, DD-068 |
 
 ---
@@ -699,7 +698,7 @@ await page.screenshot({ path: 'screenshot.png' });
 
 ```typescript
 const context = await browser.newContext({
-  recordVideo: { dir: './videos/' }
+  recordVideo: { dir: './videos/' },
 });
 ```
 

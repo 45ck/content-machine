@@ -1,4 +1,5 @@
 # Deep Dive: Render, MCP, Orchestration & Infrastructure
+
 > **Document ID:** `render-mcp-orchestration-infrastructure-DEEP-20260102`
 > **Date:** 2026-01-02
 > **Category:** Research Deep Dive
@@ -31,13 +32,13 @@ This document covers the complete infrastructure layer for the content-machine v
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Design Token System** | Colors, typography, spacing, motion tokens |
-| **51 Video Components** | Charts, scenes, overlays, layouts, animations |
-| **7 Built-in Themes** | Tech, Finance, Education, Lifestyle, Gaming, Minimal, Business |
-| **Track-Based Timeline** | Professional multi-track composition |
-| **Platform Safe Margins** | LinkedIn, TikTok, Instagram, YouTube pre-configured |
+| Feature                   | Description                                                    |
+| ------------------------- | -------------------------------------------------------------- |
+| **Design Token System**   | Colors, typography, spacing, motion tokens                     |
+| **51 Video Components**   | Charts, scenes, overlays, layouts, animations                  |
+| **7 Built-in Themes**     | Tech, Finance, Education, Lifestyle, Gaming, Minimal, Business |
+| **Track-Based Timeline**  | Professional multi-track composition                           |
+| **Platform Safe Margins** | LinkedIn, TikTok, Instagram, YouTube pre-configured            |
 
 #### Component Library (51 Components)
 
@@ -56,12 +57,12 @@ Content (5)       : DemoBox, ImageContent, WebPage, VideoContent, StylizedWebPag
 
 #### Platform Safe Margins (Critical for Shorts)
 
-| Platform | Top | Bottom | Left | Right | Notes |
-|----------|-----|--------|------|-------|-------|
-| **TikTok** | 100px | 180px | 24px | 80px | Side buttons on right |
-| **Instagram Stories** | 100px | 120px | 24px | 24px | UI overlays top/bottom |
-| **YouTube Shorts** | 20px | 20px | 20px | 20px | Standard margins |
-| **LinkedIn Feed** | 40px | 40px | 24px | 24px | Recommended safe zone |
+| Platform              | Top   | Bottom | Left | Right | Notes                  |
+| --------------------- | ----- | ------ | ---- | ----- | ---------------------- |
+| **TikTok**            | 100px | 180px  | 24px | 80px  | Side buttons on right  |
+| **Instagram Stories** | 100px | 120px  | 24px | 24px  | UI overlays top/bottom |
+| **YouTube Shorts**    | 20px  | 20px   | 20px | 20px  | Standard margins       |
+| **LinkedIn Feed**     | 40px  | 40px   | 24px | 24px  | Recommended safe zone  |
 
 #### MCP Tools API
 
@@ -152,45 +153,45 @@ remotion_add_typing_code(
 
 #### 17 Pre-built Caption Templates
 
-| Template | Style | Use Case |
-|----------|-------|----------|
+| Template          | Style              | Use Case                |
+| ----------------- | ------------------ | ----------------------- |
 | TypewriterCaption | Classic typewriter | Tutorials, explanations |
-| BounceCaption | Bouncy entrance | Fun, energetic content |
-| GlitchCaption | Digital glitch | Tech, gaming |
-| NeonCaption | Neon glow | Night themes, club |
-| FireCaption | Fire effect | Intense, action |
-| ColorfulCaption | Multi-color | Creative, artistic |
-| FadeCaption | Smooth fade | Professional, calm |
-| ZoomCaption | Scale animation | Emphasis |
-| ShakeCaption | Screen shake | Impact, surprise |
-| WavingCaption | Wave motion | Friendly, casual |
-| ExplosiveCaption | Explosive entrance | High energy |
-| GlowingCaption | Soft glow | Elegant, premium |
-| LightningCaption | Lightning flash | Speed, power |
-| RotatingCaption | 3D rotation | Dynamic |
-| ThreeDishCaption | 3D perspective | Modern |
-| TiltShiftCaption | Tilt-shift blur | Cinematic |
+| BounceCaption     | Bouncy entrance    | Fun, energetic content  |
+| GlitchCaption     | Digital glitch     | Tech, gaming            |
+| NeonCaption       | Neon glow          | Night themes, club      |
+| FireCaption       | Fire effect        | Intense, action         |
+| ColorfulCaption   | Multi-color        | Creative, artistic      |
+| FadeCaption       | Smooth fade        | Professional, calm      |
+| ZoomCaption       | Scale animation    | Emphasis                |
+| ShakeCaption      | Screen shake       | Impact, surprise        |
+| WavingCaption     | Wave motion        | Friendly, casual        |
+| ExplosiveCaption  | Explosive entrance | High energy             |
+| GlowingCaption    | Soft glow          | Elegant, premium        |
+| LightningCaption  | Lightning flash    | Speed, power            |
+| RotatingCaption   | 3D rotation        | Dynamic                 |
+| ThreeDishCaption  | 3D perspective     | Modern                  |
+| TiltShiftCaption  | Tilt-shift blur    | Cinematic               |
 
 #### Usage Pattern
 
 ```javascript
-import { SubtitleSequence } from "remotion-subtitle";
-import { TypewriterCaption as Caption } from "remotion-subtitle";
+import { SubtitleSequence } from 'remotion-subtitle';
+import { TypewriterCaption as Caption } from 'remotion-subtitle';
 
 export const Subtitles = () => {
   const { fps } = useVideoConfig();
   const [sequences, setSequences] = useState([]);
   const [loaded, setLoaded] = useState(false);
-  
-  let subtitles = new SubtitleSequence("audio.srt");
-  
+
+  let subtitles = new SubtitleSequence('audio.srt');
+
   useEffect(() => {
     subtitles.ready().then(() => {
       setSequences(subtitles.getSequences(<Caption />, fps));
       setLoaded(true);
     });
   }, []);
-  
+
   return loaded && <>{sequences}</>;
 };
 ```
@@ -199,7 +200,7 @@ export const Subtitles = () => {
 
 ```javascript
 // Apply custom styles
-subtitles.getSequences(<Caption style={{ fontSize: "24px", color: "#FF0000" }} />);
+subtitles.getSequences(<Caption style={{ fontSize: '24px', color: '#FF0000' }} />);
 
 // Get raw array for custom processing
 const subtitleArray = subtitles.getArray(fps);
@@ -220,14 +221,14 @@ const subtitleArray = subtitles.getArray(fps);
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **AI Script Generation** | Built-in NewsVideoScriptGenerator |
-| **Rich Media Management** | Audio, images, text, subtitles |
-| **Flexible Positioning** | Absolute, relative, region-based |
-| **Built-in Effects** | Pan, zoom, extensible system |
-| **TTS Integration** | ElevenLabs, AssemblyAI transcription |
-| **Framework Integration** | Haystack, LangChain support |
+| Feature                   | Description                          |
+| ------------------------- | ------------------------------------ |
+| **AI Script Generation**  | Built-in NewsVideoScriptGenerator    |
+| **Rich Media Management** | Audio, images, text, subtitles       |
+| **Flexible Positioning**  | Absolute, relative, region-based     |
+| **Built-in Effects**      | Pan, zoom, extensible system         |
+| **TTS Integration**       | ElevenLabs, AssemblyAI transcription |
+| **Framework Integration** | Haystack, LangChain support          |
 
 #### Quick Start
 
@@ -308,7 +309,7 @@ Ready-to-use Remotion composition templates.
 #### Integration Pattern
 
 ```tsx
-import { DynamicVideoTemplate } from "./templates/DynamicVideoTemplate";
+import { DynamicVideoTemplate } from './templates/DynamicVideoTemplate';
 
 <Composition
   id="DynamicVideo"
@@ -317,7 +318,7 @@ import { DynamicVideoTemplate } from "./templates/DynamicVideoTemplate";
   fps={30}
   width={1920}
   height={1080}
-/>
+/>;
 ```
 
 ---
@@ -335,14 +336,14 @@ import { DynamicVideoTemplate } from "./templates/DynamicVideoTemplate";
 
 #### Core Features
 
-| Feature | Description |
-|---------|-------------|
-| **Tools** | Expose Python functions to LLMs |
-| **Resources** | Expose read-only data (like GET endpoints) |
-| **Prompts** | Reusable message templates |
-| **Context** | Access session, logging, sampling, progress |
+| Feature             | Description                                                  |
+| ------------------- | ------------------------------------------------------------ |
+| **Tools**           | Expose Python functions to LLMs                              |
+| **Resources**       | Expose read-only data (like GET endpoints)                   |
+| **Prompts**         | Reusable message templates                                   |
+| **Context**         | Access session, logging, sampling, progress                  |
 | **Enterprise Auth** | Google, GitHub, Azure, Auth0, WorkOS, Discord, JWT, API Keys |
-| **Clients** | Connect to any MCP server programmatically |
+| **Clients**         | Connect to any MCP server programmatically                   |
 
 #### Basic Server
 
@@ -379,16 +380,16 @@ mcp = FastMCP("My Server")
 async def process_data(uri: str, ctx: Context):
     # Log to client
     await ctx.info(f"Processing {uri}...")
-    
+
     # Read a resource
     data = await ctx.read_resource(uri)
-    
+
     # Request LLM sampling from client
     summary = await ctx.sample(f"Summarize: {data.content[:500]}")
-    
+
     # Report progress
     await ctx.report_progress(50, 100)
-    
+
     return summary.text
 ```
 
@@ -414,11 +415,11 @@ async def main():
     async with Client("my_server.py") as client:
         tools = await client.list_tools()
         result = await client.call_tool("add", {"a": 5, "b": 3})
-    
+
     # Connect via SSE
     async with Client("http://localhost:8000/sse") as client:
         pass
-    
+
     # Connect in-memory (for testing)
     async with Client(mcp) as client:
         pass
@@ -454,29 +455,29 @@ async with client:
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Standard Schema** | Works with Zod, ArkType, Valibot |
-| **HTTP Streaming** | Efficient alternative to SSE |
-| **Stateless Mode** | Perfect for serverless |
-| **Session Management** | Full session tracking |
-| **Media Content** | Image/audio content blocks |
-| **Health Checks** | `/ready` endpoint |
+| Feature                | Description                      |
+| ---------------------- | -------------------------------- |
+| **Standard Schema**    | Works with Zod, ArkType, Valibot |
+| **HTTP Streaming**     | Efficient alternative to SSE     |
+| **Stateless Mode**     | Perfect for serverless           |
+| **Session Management** | Full session tracking            |
+| **Media Content**      | Image/audio content blocks       |
+| **Health Checks**      | `/ready` endpoint                |
 
 #### Basic Server
 
 ```typescript
-import { FastMCP } from "fastmcp";
-import { z } from "zod";
+import { FastMCP } from 'fastmcp';
+import { z } from 'zod';
 
 const server = new FastMCP({
-  name: "My Server",
-  version: "1.0.0",
+  name: 'My Server',
+  version: '1.0.0',
 });
 
 server.addTool({
-  name: "add",
-  description: "Add two numbers",
+  name: 'add',
+  description: 'Add two numbers',
   parameters: z.object({
     a: z.number(),
     b: z.number(),
@@ -487,7 +488,7 @@ server.addTool({
 });
 
 server.start({
-  transportType: "stdio",
+  transportType: 'stdio',
 });
 ```
 
@@ -495,10 +496,10 @@ server.start({
 
 ```typescript
 server.start({
-  transportType: "httpStream",
+  transportType: 'httpStream',
   httpStream: {
     port: 8080,
-    stateless: true,  // For serverless
+    stateless: true, // For serverless
   },
 });
 ```
@@ -507,10 +508,10 @@ server.start({
 
 ```typescript
 server.addTool({
-  name: "admin-tool",
-  description: "An admin-only tool",
-  canAccess: (auth) => auth?.role === "admin",
-  execute: async () => "Welcome, admin!",
+  name: 'admin-tool',
+  description: 'An admin-only tool',
+  canAccess: (auth) => auth?.role === 'admin',
+  execute: async () => 'Welcome, admin!',
 });
 ```
 
@@ -588,6 +589,7 @@ def query_db(ctx: Context) -> str:
 #### What It Does
 
 Temporal executes **Workflows** in a resilient manner that automatically handles:
+
 - Intermittent failures
 - Retry failed operations
 - Long-running processes
@@ -606,11 +608,11 @@ open http://localhost:8233
 
 #### Use Cases for content-machine
 
-| Workflow | Description |
-|----------|-------------|
+| Workflow         | Description                               |
+| ---------------- | ----------------------------------------- |
 | Video Generation | Multi-step: capture → transcribe → render |
-| Content Pipeline | Trend research → script → TTS → assembly |
-| Publishing | Upload → verify → cross-post |
+| Content Pipeline | Trend research → script → TTS → assembly  |
+| Publishing       | Upload → verify → cross-post              |
 
 **Integration Priority:** MEDIUM - Consider for production durable workflows.
 
@@ -623,12 +625,12 @@ open http://localhost:8233
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **400+ Integrations** | Pre-built connectors |
-| **AI-Native** | LangChain workflows with your data |
-| **Code When Needed** | JavaScript/Python, npm packages |
-| **Self-Host** | Full control over data |
+| Feature               | Description                        |
+| --------------------- | ---------------------------------- |
+| **400+ Integrations** | Pre-built connectors               |
+| **AI-Native**         | LangChain workflows with your data |
+| **Code When Needed**  | JavaScript/Python, npm packages    |
+| **Self-Host**         | Full control over data             |
 
 #### Quick Start
 
@@ -657,16 +659,16 @@ docker run -it --rm -p 5678:5678 docker.n8n.io/n8nio/n8n
 
 ### Why BullMQ
 
-| Feature | BullMQ | Others |
-|---------|--------|--------|
-| Parent/Child Dependencies | ✅ | ❌ |
-| Priorities | ✅ | Partial |
-| Rate Limiting | ✅ | Partial |
-| Delayed Jobs | ✅ | ✅ |
-| Repeatable Jobs | ✅ | ✅ |
-| Sandboxed Workers | ✅ | ❌ |
-| Global Events | ✅ | ✅ |
-| Persistence | ✅ | ✅ |
+| Feature                   | BullMQ | Others  |
+| ------------------------- | ------ | ------- |
+| Parent/Child Dependencies | ✅     | ❌      |
+| Priorities                | ✅     | Partial |
+| Rate Limiting             | ✅     | Partial |
+| Delayed Jobs              | ✅     | ✅      |
+| Repeatable Jobs           | ✅     | ✅      |
+| Sandboxed Workers         | ✅     | ❌      |
+| Global Events             | ✅     | ✅      |
+| Persistence               | ✅     | ✅      |
 
 ### Basic Usage
 
@@ -741,19 +743,25 @@ const pipeline = await flow.add({
   name: 'publish',
   queueName: 'publish',
   data: { platforms: ['tiktok', 'youtube'] },
-  children: [{
-    name: 'render',
-    queueName: 'render',
-    children: [{
-      name: 'transcribe',
-      queueName: 'transcribe',
-      children: [{
-        name: 'capture',
-        queueName: 'capture',
-        data: { url: 'https://demo.app.com/feature' }
-      }]
-    }]
-  }]
+  children: [
+    {
+      name: 'render',
+      queueName: 'render',
+      children: [
+        {
+          name: 'transcribe',
+          queueName: 'transcribe',
+          children: [
+            {
+              name: 'capture',
+              queueName: 'capture',
+              data: { url: 'https://demo.app.com/feature' },
+            },
+          ],
+        },
+      ],
+    },
+  ],
 });
 ```
 
@@ -771,14 +779,14 @@ const pipeline = await flow.add({
 
 #### Core Features
 
-| Feature | Description |
-|---------|-------------|
-| **Tracing** | Track LLM calls, retrieval, agent actions |
-| **Prompt Management** | Version control, collaborative iteration |
-| **Evaluations** | LLM-as-judge, user feedback, manual labeling |
-| **Datasets** | Test sets and benchmarks |
-| **Playground** | Test prompts and configurations |
-| **Comprehensive API** | Python, JS/TS SDKs |
+| Feature               | Description                                  |
+| --------------------- | -------------------------------------------- |
+| **Tracing**           | Track LLM calls, retrieval, agent actions    |
+| **Prompt Management** | Version control, collaborative iteration     |
+| **Evaluations**       | LLM-as-judge, user feedback, manual labeling |
+| **Datasets**          | Test sets and benchmarks                     |
+| **Playground**        | Test prompts and configurations              |
+| **Comprehensive API** | Python, JS/TS SDKs                           |
 
 #### Self-Host (Docker Compose)
 
@@ -790,14 +798,14 @@ docker compose up
 
 #### Integrations
 
-| Integration | Languages | Description |
-|-------------|-----------|-------------|
-| **SDK** | Python, JS/TS | Manual instrumentation |
-| **OpenAI** | Python, JS/TS | Drop-in replacement |
-| **LangChain** | Python, JS/TS | Callback handler |
-| **LlamaIndex** | Python | Callback system |
-| **LiteLLM** | Python, JS/TS | 100+ LLMs |
-| **Vercel AI SDK** | JS/TS | React, Next.js |
+| Integration       | Languages     | Description            |
+| ----------------- | ------------- | ---------------------- |
+| **SDK**           | Python, JS/TS | Manual instrumentation |
+| **OpenAI**        | Python, JS/TS | Drop-in replacement    |
+| **LangChain**     | Python, JS/TS | Callback handler       |
+| **LlamaIndex**    | Python        | Callback system        |
+| **LiteLLM**       | Python, JS/TS | 100+ LLMs              |
+| **Vercel AI SDK** | JS/TS         | React, Next.js         |
 
 #### Usage Example
 
@@ -857,20 +865,20 @@ npx promptfoo eval
 ```yaml
 # promptfooconfig.yaml
 prompts:
-  - "Generate a video script about {{topic}}"
-  
+  - 'Generate a video script about {{topic}}'
+
 providers:
   - openai:gpt-4
   - anthropic:claude-sonnet-4-0
-  
+
 tests:
   - vars:
-      topic: "AI coding tools"
+      topic: 'AI coding tools'
     assert:
       - type: contains
-        value: "productivity"
+        value: 'productivity'
       - type: llm-rubric
-        value: "Is engaging and hook-focused"
+        value: 'Is engaging and hook-focused'
 ```
 
 **Integration Priority:** HIGH - Essential for prompt quality assurance.
@@ -886,6 +894,7 @@ tests:
 **License:** MIT
 
 #### v2.0 Breaking Changes Note
+
 MoviePy recently upgraded to v2.0 with major changes.
 
 #### Basic Usage
@@ -925,11 +934,11 @@ final.write_videofile("result.mp4")
 
 #### Detection Methods
 
-| Detector | Use Case |
-|----------|----------|
-| ContentDetector | Fast cuts, content changes |
-| AdaptiveDetector | Fast camera movement (two-pass) |
-| ThresholdDetector | Fade out/in events |
+| Detector          | Use Case                        |
+| ----------------- | ------------------------------- |
+| ContentDetector   | Fast cuts, content changes      |
+| AdaptiveDetector  | Fast camera movement (two-pass) |
+| ThresholdDetector | Fade out/in events              |
 
 #### Usage
 
@@ -958,13 +967,13 @@ split_video_ffmpeg('my_video.mp4', scene_list)
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **FunASR Paraformer** | Industrial-grade Chinese ASR (13M+ downloads) |
-| **Speaker Diarization** | CAM++ model for speaker identification |
-| **LLM Smart Clipping** | GPT/Qwen integration for intelligent clipping |
-| **Hotword Customization** | Enhance recognition for specific terms |
-| **English Support** | Whisper integration |
+| Feature                   | Description                                   |
+| ------------------------- | --------------------------------------------- |
+| **FunASR Paraformer**     | Industrial-grade Chinese ASR (13M+ downloads) |
+| **Speaker Diarization**   | CAM++ model for speaker identification        |
+| **LLM Smart Clipping**    | GPT/Qwen integration for intelligent clipping |
+| **Hotword Customization** | Enhance recognition for specific terms        |
+| **English Support**       | Whisper integration                           |
 
 #### Usage
 
@@ -1053,7 +1062,7 @@ python funclip/videoclipper.py --stage 2 --file video.mp4 --dest_text "target te
 1. Trend Research
    └── MCP Server (Python) → Tavily/Firecrawl/Reddit
 
-2. Content Planning  
+2. Content Planning
    └── Pydantic AI Agent → Script Generation
        └── Langfuse Tracing
 
@@ -1077,41 +1086,41 @@ python funclip/videoclipper.py --stage 2 --file video.mp4 --dest_text "target te
 
 ### Decision 1: MCP Framework Selection
 
-| Option | Pros | Cons | Recommendation |
-|--------|------|------|----------------|
-| FastMCP Python | Rich features, enterprise auth, standard | Python-only | ✅ Primary for agents |
-| FastMCP TypeScript | Zod schemas, HTTP streaming, serverless | Less mature | ✅ For Remotion integration |
-| Official SDK | Minimal, stable | Less features | Fallback only |
+| Option             | Pros                                     | Cons          | Recommendation              |
+| ------------------ | ---------------------------------------- | ------------- | --------------------------- |
+| FastMCP Python     | Rich features, enterprise auth, standard | Python-only   | ✅ Primary for agents       |
+| FastMCP TypeScript | Zod schemas, HTTP streaming, serverless  | Less mature   | ✅ For Remotion integration |
+| Official SDK       | Minimal, stable                          | Less features | Fallback only               |
 
 **Decision:** Use FastMCP Python for agent tools, FastMCP TypeScript for Remotion MCP.
 
 ### Decision 2: Render Engine
 
-| Option | Pros | Cons | Recommendation |
-|--------|------|------|----------------|
-| chuk-motion | MCP-ready, 51 components, design tokens | Python→TypeScript bridge | ✅ Primary |
-| Mosaico | Python-native, AI script gen | Less component library | Alternative |
-| Raw Remotion | Maximum flexibility | More boilerplate | When needed |
+| Option       | Pros                                    | Cons                     | Recommendation |
+| ------------ | --------------------------------------- | ------------------------ | -------------- |
+| chuk-motion  | MCP-ready, 51 components, design tokens | Python→TypeScript bridge | ✅ Primary     |
+| Mosaico      | Python-native, AI script gen            | Less component library   | Alternative    |
+| Raw Remotion | Maximum flexibility                     | More boilerplate         | When needed    |
 
 **Decision:** Use chuk-motion as primary, with remotion-subtitles for captions.
 
 ### Decision 3: Job Queue
 
-| Option | Pros | Cons | Recommendation |
-|--------|------|------|----------------|
-| BullMQ | Parent/child, TypeScript, Dragonfly support | Requires Redis | ✅ Primary |
-| Celery | Python-native, mature | Complex setup | If Python-only |
-| RQ | Simple | Limited features | Not recommended |
+| Option | Pros                                        | Cons             | Recommendation  |
+| ------ | ------------------------------------------- | ---------------- | --------------- |
+| BullMQ | Parent/child, TypeScript, Dragonfly support | Requires Redis   | ✅ Primary      |
+| Celery | Python-native, mature                       | Complex setup    | If Python-only  |
+| RQ     | Simple                                      | Limited features | Not recommended |
 
 **Decision:** Use BullMQ with parent/child flows for video pipeline.
 
 ### Decision 4: Observability
 
-| Option | Pros | Cons | Recommendation |
-|--------|------|------|----------------|
-| Langfuse | Self-host, comprehensive, MIT | Setup required | ✅ Primary |
-| Promptfoo | Eval-focused, CI/CD ready | Less tracing | ✅ For evals |
-| LangSmith | LangChain-native | Closed source | Alternative |
+| Option    | Pros                          | Cons           | Recommendation |
+| --------- | ----------------------------- | -------------- | -------------- |
+| Langfuse  | Self-host, comprehensive, MIT | Setup required | ✅ Primary     |
+| Promptfoo | Eval-focused, CI/CD ready     | Less tracing   | ✅ For evals   |
+| LangSmith | LangChain-native              | Closed source  | Alternative    |
 
 **Decision:** Langfuse for tracing, Promptfoo for evaluations.
 
@@ -1137,18 +1146,18 @@ python funclip/videoclipper.py --stage 2 --file video.mp4 --dest_text "target te
 
 ## 10. References
 
-| Resource | URL |
-|----------|-----|
-| chuk-motion | github.com/chrishayuk/chuk-motion |
-| FastMCP Python | gofastmcp.com |
-| FastMCP TypeScript | github.com/punkpeye/fastmcp |
-| BullMQ Docs | docs.bullmq.io |
-| Langfuse Docs | langfuse.com/docs |
-| Promptfoo Docs | promptfoo.dev/docs |
-| Remotion Docs | remotion.dev/docs |
-| MoviePy v2 | zulko.github.io/moviepy |
-| PySceneDetect | scenedetect.com |
+| Resource           | URL                               |
+| ------------------ | --------------------------------- |
+| chuk-motion        | github.com/chrishayuk/chuk-motion |
+| FastMCP Python     | gofastmcp.com                     |
+| FastMCP TypeScript | github.com/punkpeye/fastmcp       |
+| BullMQ Docs        | docs.bullmq.io                    |
+| Langfuse Docs      | langfuse.com/docs                 |
+| Promptfoo Docs     | promptfoo.dev/docs                |
+| Remotion Docs      | remotion.dev/docs                 |
+| MoviePy v2         | zulko.github.io/moviepy           |
+| PySceneDetect      | scenedetect.com                   |
 
 ---
 
-*Document generated as part of content-machine research initiative. Last updated: 2026-01-02*
+_Document generated as part of content-machine research initiative. Last updated: 2026-01-02_

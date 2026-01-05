@@ -15,27 +15,33 @@ This research documents how to measure video quality programmatically using patt
 ## 1. Quality Metrics Overview
 
 ### 1.1 VMAF (Video Multimethod Assessment Fusion)
+
 **Best for:** Perceptual quality assessment, streaming quality validation  
 **Range:** 0-100 (higher is better)  
 **Thresholds:**
+
 - **90+** = Excellent (indistinguishable from reference)
 - **80-90** = Good (high quality)
 - **70-80** = Fair (acceptable for most use cases)
 - **<70** = Poor (noticeable artifacts)
 
 ### 1.2 SSIM (Structural Similarity Index)
+
 **Best for:** Structural distortion detection  
 **Range:** 0-1 (higher is better)  
 **Thresholds:**
+
 - **>0.98** = Excellent
 - **0.95-0.98** = Good
 - **0.90-0.95** = Fair
 - **<0.90** = Poor
 
 ### 1.3 PSNR (Peak Signal-to-Noise Ratio)
+
 **Best for:** Quick quality checks, codec comparison  
 **Range:** 0-∞ dB (higher is better)  
 **Thresholds:**
+
 - **>40 dB** = Excellent (nearly lossless)
 - **35-40 dB** = Good
 - **30-35 dB** = Fair
@@ -150,11 +156,13 @@ return (float)(2*fs1*fs2 + ssim_c1) * (float)(2*covar + ssim_c2)
 ```
 
 **Usage:**
+
 ```bash
 tiny_ssim <file1.yuv> <file2.yuv> <width>x<height> [<seek>]
 ```
 
 **Output:**
+
 ```
 PSNR Y:%.3f U:%.3f V:%.3f All:%.3f | SSIM Y:%.5f U:%.5f V:%.5f All:%.5f
 ```
@@ -177,12 +185,12 @@ tiny_psnr <file1> <file2> [<elem size>|u8|s16|f32|f64 [<shift> [<skip bytes>]]]
 
 ```typescript
 // Default CRF values by codec
-const defaultCrfMap: {[key in Codec]: number | null} = {
-  h264: 18,       // High quality default
-  h265: 23,       // HEVC default
-  vp8: 9,         // WebM/VP8
-  vp9: 28,        // WebM/VP9
-  prores: null,   // ProRes doesn't use CRF
+const defaultCrfMap: { [key in Codec]: number | null } = {
+  h264: 18, // High quality default
+  h265: 23, // HEVC default
+  vp8: 9, // WebM/VP8
+  vp9: 28, // WebM/VP9
+  prores: null, // ProRes doesn't use CRF
   gif: null,
   'h264-mkv': 18,
   'h264-ts': 18,
@@ -192,12 +200,12 @@ const defaultCrfMap: {[key in Codec]: number | null} = {
 };
 
 // Valid CRF ranges by codec
-const crfRanges: {[key in Codec]: [number, number]} = {
-  h264: [1, 51],    // Lower = better quality, higher file size
+const crfRanges: { [key in Codec]: [number, number] } = {
+  h264: [1, 51], // Lower = better quality, higher file size
   h265: [0, 51],
   vp8: [4, 63],
   vp9: [0, 63],
-  prores: [0, 0],   // Not applicable
+  prores: [0, 0], // Not applicable
   gif: [0, 0],
   'h264-mkv': [1, 51],
   'h264-ts': [1, 51],
@@ -206,6 +214,7 @@ const crfRanges: {[key in Codec]: [number, number]} = {
 ```
 
 **Quality Guidelines for H.264:**
+
 - **CRF 18**: Visually lossless (Remotion default)
 - **CRF 23**: Good quality, smaller files
 - **CRF 28**: Acceptable quality, much smaller
@@ -216,7 +225,7 @@ const crfRanges: {[key in Codec]: [number, number]} = {
 **Source:** [vendor/render/remotion/packages/renderer/src/jpeg-quality.ts](vendor/render/remotion/packages/renderer/src/jpeg-quality.ts)
 
 ```typescript
-export const DEFAULT_JPEG_QUALITY = 80;  // Range: 0-100
+export const DEFAULT_JPEG_QUALITY = 80; // Range: 0-100
 
 export const validateJpegQuality = (q: unknown) => {
   if (typeof q !== 'undefined' && typeof q !== 'number') {
@@ -274,14 +283,14 @@ if width < 480 or height < 480:
 
 ### 5.2 Pexels Quality Tiers
 
-**Source:** [vendor/short-video-maker-gyori/__mocks__/pexels-response.json](vendor/short-video-maker-gyori/__mocks__/pexels-response.json)
+**Source:** [vendor/short-video-maker-gyori/**mocks**/pexels-response.json](vendor/short-video-maker-gyori/__mocks__/pexels-response.json)
 
 ```json
 {
   "video_files": [
     { "quality": "uhd", "width": 3840, "height": 2160 },
-    { "quality": "hd",  "width": 1920, "height": 1080 },
-    { "quality": "sd",  "width": 1280, "height": 720 }
+    { "quality": "hd", "width": 1920, "height": 1080 },
+    { "quality": "sd", "width": 1280, "height": 720 }
   ]
 }
 ```
@@ -332,6 +341,7 @@ In terms of quality: 'rawvideo' = 'png' > 'mpeg4' > 'libx264'
 ### 7.1 VMAF Performance
 
 From FFmpeg documentation:
+
 - **n_threads**: Use multiple threads for faster processing
 - **n_subsample**: Skip frames (e.g., `n_subsample=5` = every 5th frame)
 - **GPU acceleration**: Available via `libvmaf_cuda`
@@ -349,11 +359,11 @@ ffmpeg -i dist.mp4 -i ref.mp4 -lavfi "libvmaf=n_threads=4:n_subsample=5" -f null
 
 ### 7.3 Encoding Presets vs Quality
 
-| Preset | Speed | File Size | Quality |
-|--------|-------|-----------|---------|
-| ultrafast | Fastest | Largest | Lower |
-| medium | Balanced | Medium | Good |
-| veryslow | Slowest | Smallest | Best |
+| Preset    | Speed    | File Size | Quality |
+| --------- | -------- | --------- | ------- |
+| ultrafast | Fastest  | Largest   | Lower   |
+| medium    | Balanced | Medium    | Good    |
+| veryslow  | Slowest  | Smallest  | Best    |
 
 ---
 
@@ -365,39 +375,39 @@ ffmpeg -i dist.mp4 -i ref.mp4 -lavfi "libvmaf=n_threads=4:n_subsample=5" -f null
 const QUALITY_THRESHOLDS = {
   // Video encoding
   crf: {
-    h264: 18,      // Remotion default - high quality
-    minimum: 23,   // Acceptable for social media
-    maximum: 28,   // Smallest acceptable
+    h264: 18, // Remotion default - high quality
+    minimum: 23, // Acceptable for social media
+    maximum: 28, // Smallest acceptable
   },
-  
+
   // Resolution
   resolution: {
-    minimum: { width: 480, height: 480 },    // MoneyPrinterTurbo
+    minimum: { width: 480, height: 480 }, // MoneyPrinterTurbo
     recommended: { width: 1080, height: 1920 }, // Portrait HD
   },
-  
+
   // Quality metrics (if comparing to reference)
   vmaf: {
     excellent: 90,
     good: 80,
     acceptable: 70,
   },
-  
+
   ssim: {
     excellent: 0.98,
     good: 0.95,
-    acceptable: 0.90,
+    acceptable: 0.9,
   },
-  
+
   psnr: {
-    excellent: 40,  // dB
+    excellent: 40, // dB
     good: 35,
     acceptable: 30,
   },
-  
+
   // Image quality (stills, thumbnails)
   jpeg: {
-    default: 80,   // Remotion default
+    default: 80, // Remotion default
     minimum: 60,
     highQuality: 95,
   },
@@ -415,12 +425,12 @@ function validateVideoQuality(params: {
   codec: 'h264' | 'h265' | 'vp9';
 }): { valid: boolean; warnings: string[] } {
   const warnings: string[] = [];
-  
+
   // Resolution check (MoneyPrinterTurbo pattern)
   if (params.width < 480 || params.height < 480) {
     warnings.push(`Low resolution: ${params.width}x${params.height}, minimum 480x480`);
   }
-  
+
   // CRF validation (Remotion pattern)
   if (params.crf !== undefined) {
     const ranges = { h264: [1, 51], h265: [0, 51], vp9: [0, 63] };
@@ -432,7 +442,7 @@ function validateVideoQuality(params: {
       warnings.push(`CRF ${params.crf} may produce visible quality loss`);
     }
   }
-  
+
   return { valid: warnings.length === 0, warnings };
 }
 ```
@@ -476,13 +486,13 @@ function validateVideoQuality(params: {
 
 ### 9.2 When to Use Each Metric
 
-| Use Case | Recommended Metric | Why |
-|----------|-------------------|-----|
-| Pre-upload validation | SSIM (fast) | Quick structural check |
-| A/B codec testing | VMAF | Perceptual accuracy |
-| Regression testing | PSNR | Fast, deterministic |
-| Thumbnail quality | JPEG quality score | Simple 0-100 range |
-| Production monitoring | VMAF (sampled) | Industry standard |
+| Use Case              | Recommended Metric | Why                    |
+| --------------------- | ------------------ | ---------------------- |
+| Pre-upload validation | SSIM (fast)        | Quick structural check |
+| A/B codec testing     | VMAF               | Perceptual accuracy    |
+| Regression testing    | PSNR               | Fast, deterministic    |
+| Thumbnail quality     | JPEG quality score | Simple 0-100 range     |
+| Production monitoring | VMAF (sampled)     | Industry standard      |
 
 ### 9.3 Node.js/TypeScript Integration
 
@@ -500,21 +510,27 @@ function measureQuality(
   referencePath: string,
   metrics: ('vmaf' | 'ssim' | 'psnr')[] = ['ssim']
 ): QualityResult {
-  const filters = metrics.map(m => {
-    switch (m) {
-      case 'vmaf': return 'libvmaf=log_fmt=json:log_path=/tmp/vmaf.json';
-      case 'ssim': return 'ssim=f=/tmp/ssim.log';
-      case 'psnr': return 'psnr=f=/tmp/psnr.log';
-    }
-  }).join(';');
+  const filters = metrics
+    .map((m) => {
+      switch (m) {
+        case 'vmaf':
+          return 'libvmaf=log_fmt=json:log_path=/tmp/vmaf.json';
+        case 'ssim':
+          return 'ssim=f=/tmp/ssim.log';
+        case 'psnr':
+          return 'psnr=f=/tmp/psnr.log';
+      }
+    })
+    .join(';');
 
-  execSync(
-    `ffmpeg -i "${distortedPath}" -i "${referencePath}" -lavfi "${filters}" -f null -`,
-    { stdio: 'pipe' }
-  );
+  execSync(`ffmpeg -i "${distortedPath}" -i "${referencePath}" -lavfi "${filters}" -f null -`, {
+    stdio: 'pipe',
+  });
 
   // Parse output files...
-  return { /* parsed results */ };
+  return {
+    /* parsed results */
+  };
 }
 ```
 
@@ -538,4 +554,3 @@ function measureQuality(
 - Remotion CRF: [vendor/render/remotion/packages/renderer/src/crf.ts](vendor/render/remotion/packages/renderer/src/crf.ts)
 - Netflix VMAF: https://github.com/Netflix/vmaf
 - SSIM Paper: Wang et al., IEEE TIP 2004
-

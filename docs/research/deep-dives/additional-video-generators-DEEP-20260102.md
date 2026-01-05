@@ -55,12 +55,12 @@ Customization:
 
 ### 1.4 Relevance to content-machine
 
-| Pattern | Adoption |
-|---------|----------|
-| Terminal workflow | Reference only |
-| UnrealSpeech TTS | Alternative TTS option |
-| seewav audio viz | Music visualization for B-roll |
-| Custom font support | Caption styling |
+| Pattern             | Adoption                       |
+| ------------------- | ------------------------------ |
+| Terminal workflow   | Reference only                 |
+| UnrealSpeech TTS    | Alternative TTS option         |
+| seewav audio viz    | Music visualization for B-roll |
+| Custom font support | Caption styling                |
 
 ---
 
@@ -78,19 +78,19 @@ An AI-native engine for turning long-form content into short, viral-ready clips.
 ### 2.2 Pipeline Architecture
 
 ```
-Audio Extraction → WhisperX Transcription → Pyannote Diarization → 
+Audio Extraction → WhisperX Transcription → Pyannote Diarization →
 Scene Detection → Speaker Cropping → Clip Export
 ```
 
 ### 2.3 Tech Stack
 
-| Module | Technology | Purpose |
-|--------|------------|---------|
-| Transcription | WhisperX | Word-level speech-to-text |
-| Diarization | Pyannote.audio | Speaker segmentation |
-| Video Processing | OpenCV, PyAV | Frame control |
-| Scene Detection | PySceneDetect | Shot boundaries |
-| ML Inference | PyTorch | Model execution |
+| Module           | Technology     | Purpose                   |
+| ---------------- | -------------- | ------------------------- |
+| Transcription    | WhisperX       | Word-level speech-to-text |
+| Diarization      | Pyannote.audio | Speaker segmentation      |
+| Video Processing | OpenCV, PyAV   | Frame control             |
+| Scene Detection  | PySceneDetect  | Shot boundaries           |
+| ML Inference     | PyTorch        | Model execution           |
 
 ### 2.4 Usage Pattern
 
@@ -115,12 +115,12 @@ crops = resize(
 
 ### 2.5 Relevance to content-machine
 
-| Pattern | Adoption |
-|---------|----------|
-| WhisperX + Pyannote | ✅ Recommended |
-| Speaker-aware cropping | ✅ For interviews/demos |
-| Scene detection | ✅ For clipping automation |
-| 9:16 / 1:1 / 16:9 outputs | ✅ Multi-platform support |
+| Pattern                   | Adoption                   |
+| ------------------------- | -------------------------- |
+| WhisperX + Pyannote       | ✅ Recommended             |
+| Speaker-aware cropping    | ✅ For interviews/demos    |
+| Scene detection           | ✅ For clipping automation |
+| 9:16 / 1:1 / 16:9 outputs | ✅ Multi-platform support  |
 
 ---
 
@@ -186,13 +186,13 @@ Video: Vertex AI (Imagen 2), WaveSpeed AI
 
 ### 3.5 Relevance to content-machine
 
-| Pattern | Adoption |
-|---------|----------|
-| News integration | ✅ Trend research |
-| Multi-speaker TTS | ✅ Podcast-style content |
-| Auto-captioning | ✅ Whisper-based |
-| Direct YouTube upload | ✅ Distribution |
-| Chapter timestamps | ✅ Long-form support |
+| Pattern               | Adoption                 |
+| --------------------- | ------------------------ |
+| News integration      | ✅ Trend research        |
+| Multi-speaker TTS     | ✅ Podcast-style content |
+| Auto-captioning       | ✅ Whisper-based         |
+| Direct YouTube upload | ✅ Distribution          |
+| Chapter timestamps    | ✅ Long-form support     |
 
 ---
 
@@ -210,7 +210,7 @@ Creates "faceless" videos (no presenter) from any topic input.
 ### 4.2 Pipeline
 
 ```
-Topic Input → Script Generation (GROQ) → TTS Audio → 
+Topic Input → Script Generation (GROQ) → TTS Audio →
 Timed Captions → Pexels Background Search → Video Rendering
 ```
 
@@ -231,12 +231,12 @@ PEXELS_API_KEY=your_pexels_api_key
 
 ### 4.5 Relevance to content-machine
 
-| Pattern | Adoption |
-|---------|----------|
-| GROQ for fast inference | ✅ Alternative to OpenAI |
-| Pexels integration | ✅ Free stock video |
-| Timed captions | ✅ Standard approach |
-| Gradio UI | Reference for review dashboard |
+| Pattern                 | Adoption                       |
+| ----------------------- | ------------------------------ |
+| GROQ for fast inference | ✅ Alternative to OpenAI       |
+| Pexels integration      | ✅ Free stock video            |
+| Timed captions          | ✅ Standard approach           |
+| Gradio UI               | Reference for review dashboard |
 
 ---
 
@@ -271,13 +271,13 @@ Fully automated TikTok videos from r/AITA stories. Over 100 videos generated and
 
 ### 5.4 Relevance to content-machine
 
-| Pattern | Adoption |
-|---------|----------|
-| Reddit integration | ✅ Content source |
-| Gender-based voice | ✅ Voice personalization |
-| Phrase tokenization | ✅ Caption chunking |
-| Emoji integration | Consider for engagement |
-| Remotion rendering | ✅ Primary renderer |
+| Pattern             | Adoption                 |
+| ------------------- | ------------------------ |
+| Reddit integration  | ✅ Content source        |
+| Gender-based voice  | ✅ Voice personalization |
+| Phrase tokenization | ✅ Caption chunking      |
+| Emoji integration   | Consider for engagement  |
+| Remotion rendering  | ✅ Primary renderer      |
 
 ---
 
@@ -336,13 +336,13 @@ print(result["parsed"].thumbnail_description)
 
 ### 6.5 Relevance to content-machine
 
-| Pattern | Adoption |
-|---------|----------|
-| uv package manager | ✅ Already using |
-| Docker deployment | ✅ Production ready |
-| LLM metadata agent | ✅ SEO automation |
+| Pattern               | Adoption                |
+| --------------------- | ----------------------- |
+| uv package manager    | ✅ Already using        |
+| Docker deployment     | ✅ Production ready     |
+| LLM metadata agent    | ✅ SEO automation       |
 | Discord notifications | Consider for monitoring |
-| Ollama integration | ✅ Local LLM option |
+| Ollama integration    | ✅ Local LLM option     |
 
 ---
 
@@ -376,11 +376,11 @@ Assembles short-form videos (1080x1920, <60s) from TikTok content.
 
 ### 7.4 Relevance to content-machine
 
-| Pattern | Adoption |
-|---------|----------|
-| Batch processing | ✅ Scale requirement |
-| Topic-based search | ✅ Trend integration |
-| Video splitting | ✅ Long-to-short |
+| Pattern              | Adoption                |
+| -------------------- | ----------------------- |
+| Batch processing     | ✅ Scale requirement    |
+| Topic-based search   | ✅ Trend integration    |
+| Video splitting      | ✅ Long-to-short        |
 | Continuous operation | Consider for automation |
 
 ---
@@ -432,12 +432,12 @@ Applies enhancement filters (brightness, contrast, sharpening)
 
 ### 8.5 Relevance to content-machine
 
-| Pattern | Adoption |
-|---------|----------|
-| LLM moment selection | ✅ Intelligent clipping |
-| Timestamp-based cropping | ✅ Standard approach |
-| Thumbnail enhancement | Consider for optimization |
-| API architecture | Reference for review system |
+| Pattern                  | Adoption                    |
+| ------------------------ | --------------------------- |
+| LLM moment selection     | ✅ Intelligent clipping     |
+| Timestamp-based cropping | ✅ Standard approach        |
+| Thumbnail enhancement    | Consider for optimization   |
+| API architecture         | Reference for review system |
 
 ---
 
@@ -454,7 +454,7 @@ Works best for videos with multiple speakers and topics (interviews, documentari
 ### 9.2 Pipeline
 
 ```
-Long Video → Find Engaging Parts → Add Captions → 
+Long Video → Find Engaging Parts → Add Captions →
 Add Transitions → Export Social-Ready Clips
 ```
 
@@ -466,11 +466,11 @@ Add Transitions → Export Social-Ready Clips
 
 ### 9.4 Relevance to content-machine
 
-| Pattern | Adoption |
-|---------|----------|
+| Pattern                | Adoption             |
+| ---------------------- | -------------------- |
 | Multi-speaker handling | ✅ Interview content |
-| Caption + transition | Standard approach |
-| Remotion rendering | ✅ Primary renderer |
+| Caption + transition   | Standard approach    |
+| Remotion rendering     | ✅ Primary renderer  |
 
 ---
 
@@ -496,21 +496,21 @@ Chinese financial video generator with complete data-to-video pipeline.
 
 ### 10.3 API Providers
 
-| Stage | Provider | Model |
-|-------|----------|-------|
-| Script | SiliconFlow | DeepSeek-R1 |
-| Voice | Volcengine TTS | S_DNgMQKiB1 |
-| Images | ByteDance ARK | doubao-seedream-3-0-t2i |
-| Processing | FFmpeg | - |
+| Stage      | Provider       | Model                   |
+| ---------- | -------------- | ----------------------- |
+| Script     | SiliconFlow    | DeepSeek-R1             |
+| Voice      | Volcengine TTS | S_DNgMQKiB1             |
+| Images     | ByteDance ARK  | doubao-seedream-3-0-t2i |
+| Processing | FFmpeg         | -                       |
 
 ### 10.4 Relevance to content-machine
 
-| Pattern | Adoption |
-|---------|----------|
+| Pattern                | Adoption                    |
+| ---------------------- | --------------------------- |
 | Data crawling → script | ✅ Product-truthful content |
-| Chinese API ecosystem | Reference for i18n |
-| DeepSeek-R1 reasoning | Alternative LLM |
-| Modular architecture | ✅ Good separation |
+| Chinese API ecosystem  | Reference for i18n          |
+| DeepSeek-R1 reasoning  | Alternative LLM             |
+| Modular architecture   | ✅ Good separation          |
 
 ---
 
@@ -560,12 +560,12 @@ POST /api/v1/notify/:renderID
 
 ### 11.4 Relevance to content-machine
 
-| Pattern | Adoption |
-|---------|----------|
-| Template system | ✅ Vidosy pattern |
-| Placeholder-based | ✅ JSON config |
-| Render job tracking | ✅ Async processing |
-| Webhook callbacks | ✅ Integration pattern |
+| Pattern             | Adoption               |
+| ------------------- | ---------------------- |
+| Template system     | ✅ Vidosy pattern      |
+| Placeholder-based   | ✅ JSON config         |
+| Render job tracking | ✅ Async processing    |
+| Webhook callbacks   | ✅ Integration pattern |
 
 ---
 
@@ -574,33 +574,33 @@ POST /api/v1/notify/:renderID
 ### 12.1 Common Pipeline
 
 ```
-Content Source → Script Generation → TTS → 
+Content Source → Script Generation → TTS →
 Captions → Background → Assembly → Export
 ```
 
 ### 12.2 Differentiators
 
-| Generator | Unique Feature |
-|-----------|----------------|
-| Cassette | Terminal-only workflow |
-| ai-clips-maker | Speaker-aware cropping |
-| AI-Content-Studio | Full YouTube automation |
-| ClipForge | LLM agent for metadata |
-| ShortReelX | LLM moment selection |
-| FinanceVision | Domain-specific (finance) |
-| video-automation-php | Template API pattern |
+| Generator            | Unique Feature            |
+| -------------------- | ------------------------- |
+| Cassette             | Terminal-only workflow    |
+| ai-clips-maker       | Speaker-aware cropping    |
+| AI-Content-Studio    | Full YouTube automation   |
+| ClipForge            | LLM agent for metadata    |
+| ShortReelX           | LLM moment selection      |
+| FinanceVision        | Domain-specific (finance) |
+| video-automation-php | Template API pattern      |
 
 ### 12.3 Technology Adoption
 
-| Technology | Frequency | Adoption |
-|------------|-----------|----------|
-| FFmpeg | Universal | ✅ Required |
-| Whisper | High | ✅ Recommended |
-| Remotion | Medium | ✅ Primary renderer |
-| OpenAI/Gemini | High | ✅ Script generation |
-| Pexels API | Medium | ✅ Stock video |
-| Docker | Medium | ✅ Deployment |
-| uv | Low | ✅ Package management |
+| Technology    | Frequency | Adoption              |
+| ------------- | --------- | --------------------- |
+| FFmpeg        | Universal | ✅ Required           |
+| Whisper       | High      | ✅ Recommended        |
+| Remotion      | Medium    | ✅ Primary renderer   |
+| OpenAI/Gemini | High      | ✅ Script generation  |
+| Pexels API    | Medium    | ✅ Stock video        |
+| Docker        | Medium    | ✅ Deployment         |
+| uv            | Low       | ✅ Package management |
 
 ---
 
@@ -615,7 +615,7 @@ class VideoGenerator {
   async transcribeWithSpeakers(video: string) {
     return await whisperX.transcribe(video, { diarization: true });
   }
-  
+
   // From ClipForge
   async generateMetadata(script: string) {
     return await ollama.invoke({
@@ -624,7 +624,7 @@ class VideoGenerator {
       schema: MetadataSchema,
     });
   }
-  
+
   // From ShortReelX
   async findViralMoments(transcript: Transcript) {
     return await llm.analyze({
@@ -656,23 +656,24 @@ interface MediaPlaceholder {
 
 ## 14. References
 
-| Repository | Primary Use |
-|------------|-------------|
-| Cassette | Terminal workflow, UnrealSpeech |
-| ai-clips-maker | Speaker diarization, cropping |
-| AI-Content-Studio | Full YouTube pipeline |
-| Faceless-short | GROQ + Pexels pattern |
-| tiktok-automatic-videos | Reddit + Remotion |
-| ClipForge | LLM metadata, production-ready |
-| ShortFormGenerator | Batch processing |
-| ShortReelX | LLM moment selection |
-| AI-short-creator | Interview clipping |
-| FinanceVision | Domain-specific pipeline |
-| video-automation-php | Template API |
+| Repository              | Primary Use                     |
+| ----------------------- | ------------------------------- |
+| Cassette                | Terminal workflow, UnrealSpeech |
+| ai-clips-maker          | Speaker diarization, cropping   |
+| AI-Content-Studio       | Full YouTube pipeline           |
+| Faceless-short          | GROQ + Pexels pattern           |
+| tiktok-automatic-videos | Reddit + Remotion               |
+| ClipForge               | LLM metadata, production-ready  |
+| ShortFormGenerator      | Batch processing                |
+| ShortReelX              | LLM moment selection            |
+| AI-short-creator        | Interview clipping              |
+| FinanceVision           | Domain-specific pipeline        |
+| video-automation-php    | Template API                    |
 
 ---
 
 **Next Steps:**
+
 1. Integrate ai-clips-maker speaker diarization
 2. Adopt ClipForge LLM metadata pattern
 3. Implement ShortReelX moment selection

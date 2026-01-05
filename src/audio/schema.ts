@@ -1,6 +1,6 @@
 /**
  * Audio Schemas
- * 
+ *
  * Zod schemas for audio generation output validation.
  * Based on SYSTEM-DESIGN §6.4 TimestampsSchema
  */
@@ -57,7 +57,7 @@ export const TimestampsOutputSchema = z.object({
   totalDuration: z.number().positive(),
   ttsEngine: z.string().describe('TTS engine used (e.g., kokoro, edge-tts)'),
   asrEngine: z.string().describe('ASR engine used (e.g., whisper-cpp)'),
-  
+
   // Legacy fields for backward compatibility
   segments: z.array(TranscriptSegmentSchema).optional().describe('@deprecated Use scenes'),
   words: z.array(WordTimestampSchema).optional().describe('@deprecated Use allWords'),

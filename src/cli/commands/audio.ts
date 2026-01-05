@@ -1,6 +1,6 @@
 /**
  * Audio command - Generate voiceover and timestamps
- * 
+ *
  * Usage: cm audio --input script.json --output audio.wav
  */
 import { Command } from 'commander';
@@ -18,35 +18,37 @@ export const audioCommand = new Command('audio')
   .option('--voice <voice>', 'TTS voice to use', 'af_heart')
   .action(async (options) => {
     const spinner = ora('Generating audio...').start();
-    
+
     try {
       // Read input script
       const script = await readInputFile<ScriptOutput>(options.input);
-      
+
       logger.info({ input: options.input, voice: options.voice }, 'Starting audio generation');
-      
+
       const result = await generateAudio({
         script,
         voice: options.voice,
         outputPath: options.output,
         timestampsPath: options.timestamps,
       });
-      
+
       spinner.succeed('Audio generated successfully');
-      
-      logger.info({ 
-        audioPath: result.audioPath, 
-        timestampsPath: result.timestampsPath,
-        duration: result.duration 
-      }, 'Audio saved');
-      
+
+      logger.info(
+        {
+          audioPath: result.audioPath,
+          timestampsPath: result.timestampsPath,
+          duration: result.duration,
+        },
+        'Audio saved'
+      );
+
       // Show summary
       console.log(`\n🎙️ Audio Generated`);
       console.log(`   Duration: ${result.duration.toFixed(1)}s`);
       console.log(`   Words: ${result.wordCount}`);
       console.log(`   Audio: ${result.audioPath}`);
       console.log(`   Timestamps: ${result.timestampsPath}\n`);
-      
     } catch (error) {
       spinner.fail('Audio generation failed');
       handleCommandError(error);

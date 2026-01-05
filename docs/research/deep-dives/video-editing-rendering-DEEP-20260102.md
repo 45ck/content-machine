@@ -11,6 +11,7 @@
 This document explores the video editing and rendering layer - the tools that transform scripts, audio, and assets into finished videos. We found several groundbreaking approaches:
 
 **Key Discoveries:**
+
 1. **chuk-motion** - Complete Remotion MCP server with 51 components and design token system
 2. **CapCut Mate** - FastAPI service for programmatic CapCut/剪映 draft creation
 3. **JianYing Protocol Service** - Full CapCut protocol implementation with track/segment APIs
@@ -47,30 +48,35 @@ chuk-motion/
 
 Critical for avoiding UI overlay cropping:
 
-| Platform | Top | Bottom | Left | Right |
-|----------|-----|--------|------|-------|
-| **TikTok** | 100px | 180px | 24px | 80px |
-| **Instagram Stories** | 100px | 120px | 24px | 24px |
-| **LinkedIn Feed** | 40px | 40px | 24px | 24px |
-| **YouTube** | 20px | 20px | 20px | 20px |
+| Platform              | Top   | Bottom | Left | Right |
+| --------------------- | ----- | ------ | ---- | ----- |
+| **TikTok**            | 100px | 180px  | 24px | 80px  |
+| **Instagram Stories** | 100px | 120px  | 24px | 24px  |
+| **LinkedIn Feed**     | 40px  | 40px   | 24px | 24px  |
+| **YouTube**           | 20px  | 20px   | 20px | 20px  |
 
 ### 1.3 Component Library (51 Components)
 
 **Charts (6):**
+
 - PieChart, BarChart, HorizontalBarChart, LineChart, AreaChart, DonutChart
 
 **Text Animations (6):**
+
 - TypewriterText, StaggerText, WavyText, TrueFocus, DecryptedText, FuzzyText
 
 **Layouts (17):**
+
 - Grid, SplitScreen, PiP, Mosaic, AsymmetricLayout, DialogueFrame, HUDStyle, etc.
 
 **Code Display (3):**
+
 - CodeBlock (syntax highlighting)
 - TypingCode (character-by-character animation)
 - CodeDiff (side-by-side comparison)
 
 **Demo Realism (4):**
+
 - BrowserFrame, DeviceFrame, Terminal, BeforeAfterSlider
 
 ### 1.4 MCP Tool Usage
@@ -114,6 +120,7 @@ remotion_add_typing_code(
 ### 1.5 Time String Format
 
 All duration parameters support flexible formats:
+
 ```python
 duration="2s"       # 2 seconds
 duration="500ms"    # 500 milliseconds
@@ -137,8 +144,9 @@ remotion_add_background(..., track="background")
 ```
 
 **Default Tracks:**
+
 - `main` (layer 0) - Primary content, auto-stacks with 0.5s gap
-- `overlay` (layer 10) - Text overlays, UI elements  
+- `overlay` (layer 10) - Text overlays, UI elements
 - `background` (layer -10) - Background media
 
 ---
@@ -159,6 +167,7 @@ remotion_add_background(..., track="background")
 ### 2.2 API Endpoints
 
 **Draft Management:**
+
 ```bash
 POST /openapi/capcut-mate/v1/create_draft
 POST /openapi/capcut-mate/v1/save_draft
@@ -166,6 +175,7 @@ GET  /openapi/capcut-mate/v1/get_draft?draft_id=...
 ```
 
 **Adding Materials:**
+
 ```bash
 POST /add_videos      # Batch add videos
 POST /add_images      # Batch add images
@@ -178,6 +188,7 @@ POST /add_masks       # Shape masks
 ```
 
 **Rendering:**
+
 ```bash
 POST /gen_video          # Submit cloud render
 GET  /gen_video_status   # Check render progress
@@ -227,6 +238,7 @@ requests.post(f"{BASE_URL}/openapi/capcut-mate/v1/gen_video", json={
 ### 2.4 Coze Plugin Integration
 
 Can be deployed as a Coze (扣子) plugin for AI agent access:
+
 1. Import `openapi.yaml` to Coze platform
 2. Configure API endpoint
 3. Enable plugin in workflows
@@ -267,6 +279,7 @@ JIANYING_TRACK_TYPES = [
 ### 3.3 API Structure
 
 **Task Management:**
+
 ```bash
 POST /tasks              # Create new project
 GET  /tasks/{id}         # Get project info
@@ -274,6 +287,7 @@ POST /export             # Export to OSS
 ```
 
 **Track Management:**
+
 ```bash
 POST   /tracks           # Create track
 DELETE /tracks           # Delete track
@@ -281,6 +295,7 @@ GET    /tasks/{id}/tracks
 ```
 
 **Segment (Clip) Management:**
+
 ```bash
 POST /segments/media          # Add video/image/audio
 POST /segments/text           # Add text
@@ -310,6 +325,7 @@ class AdjustInfo:
 ### 3.5 Complex Text Features
 
 Supports advanced text styles:
+
 - 花字 (Fancy text effects)
 - 气泡 (Bubble text)
 - 入场动画 (Entry animations)
@@ -355,6 +371,7 @@ ffmp("crop video to center square")
 ### 4.4 LLM Integration
 
 Uses fine-tuned LLaMA2 model:
+
 - [FFMPerative LLaMA2 checkpoint](https://huggingface.co/remyxai/ffmperative-7b)
 - [Sample FFMPerative Dataset](https://huggingface.co/datasets/remyxai/ffmperative-sample)
 
@@ -367,6 +384,7 @@ Uses fine-tuned LLaMA2 model:
 ### 5.1 Available Templates
 
 From the templates directory, we have access to various Remotion templates for:
+
 - Caption styling
 - Audiograms
 - TikTok-specific layouts
@@ -390,12 +408,12 @@ npm run build  # Render to MP4
 
 ### 6.1 Rendering Approaches
 
-| Approach | Tool | Pros | Cons |
-|----------|------|------|------|
-| **Remotion** | chuk-motion | React-based, highly customizable, type-safe | Requires Node.js |
-| **CapCut API** | CapCut Mate | Pro-level effects, cloud render | Vendor lock-in |
-| **FFmpeg Direct** | FFMPerative | Universal, fast | Complex commands |
-| **MoviePy** | Various | Python native | Slower, memory heavy |
+| Approach          | Tool        | Pros                                        | Cons                 |
+| ----------------- | ----------- | ------------------------------------------- | -------------------- |
+| **Remotion**      | chuk-motion | React-based, highly customizable, type-safe | Requires Node.js     |
+| **CapCut API**    | CapCut Mate | Pro-level effects, cloud render             | Vendor lock-in       |
+| **FFmpeg Direct** | FFMPerative | Universal, fast                             | Complex commands     |
+| **MoviePy**       | Various     | Python native                               | Slower, memory heavy |
 
 ### 6.2 Recommended Stack for content-machine
 
@@ -403,11 +421,11 @@ npm run build  # Render to MP4
 rendering:
   primary: Remotion (via chuk-motion MCP)
   secondary: FFmpeg (via FFMPerative for quick edits)
-  
+
 caption-styling:
   use: Remotion text components from chuk-motion
   fallback: ASS subtitles via FFmpeg
-  
+
 effects:
   standard: chuk-motion 51 components
   advanced: Consider CapCut Mate for complex effects
@@ -500,11 +518,11 @@ mcp-servers:
     tool: chuk-motion
     purpose: Primary video rendering
     components: 51 built-in
-    
+
   ffmpeg:
     tool: FFMPerative
     purpose: Quick edits, format conversion
-    
+
   capcut:
     tool: CapCut Mate (optional)
     purpose: Advanced effects if needed
@@ -527,18 +545,21 @@ Script + Audio + Visuals
 ### 8.3 Component Selection for Shorts
 
 **For Product Demos:**
+
 - `DeviceFrame` - Show product in device mockup
 - `BrowserFrame` - Web app demos
 - `TypingCode` - Code demonstrations
 - `BeforeAfterSlider` - Feature comparisons
 
 **For Educational Content:**
+
 - `PieChart`, `BarChart` - Data visualization
 - `TypewriterText` - Key points
 - `TitleScene` - Section headers
 - `Timeline` - Process explanation
 
 **For Engagement:**
+
 - `SubscribeButton` - CTAs
 - `LowerThird` - Speaker identification
 - `EndScreen` - YouTube end cards
@@ -549,10 +570,12 @@ Script + Audio + Visuals
 ## 9. Risk Assessment
 
 ### High Value, Low Risk
+
 - **chuk-motion** - Well-maintained, comprehensive tests (1471 passing)
 - **FFMPerative** - Stable, uses proven FFmpeg
 
 ### Medium Value, Medium Risk
+
 - **CapCut Mate** - Depends on CapCut's undocumented API
 - **JianYing Protocol** - Chinese documentation, vendor-specific
 
@@ -569,19 +592,21 @@ Script + Audio + Visuals
 
 The video rendering layer offers multiple approaches:
 
-| Tool | Use Case | MCP? | Production Ready? |
-|------|----------|------|-------------------|
-| **chuk-motion** | Full video composition | ✅ Yes | ✅ 1471 tests |
-| **CapCut Mate** | Pro-level effects | ❌ API only | ⚠️ Vendor API |
-| **JianYing Protocol** | Track/segment editing | ❌ API only | ✅ Documented |
-| **FFMPerative** | Quick edits, LLM integration | ❌ CLI | ✅ Stable |
+| Tool                  | Use Case                     | MCP?        | Production Ready? |
+| --------------------- | ---------------------------- | ----------- | ----------------- |
+| **chuk-motion**       | Full video composition       | ✅ Yes      | ✅ 1471 tests     |
+| **CapCut Mate**       | Pro-level effects            | ❌ API only | ⚠️ Vendor API     |
+| **JianYing Protocol** | Track/segment editing        | ❌ API only | ✅ Documented     |
+| **FFMPerative**       | Quick edits, LLM integration | ❌ CLI      | ✅ Stable         |
 
 **Recommended Primary Stack:**
+
 ```
 chuk-motion MCP + Remotion + FFMPerative fallback
 ```
 
 **Key Advantages:**
+
 - 51 ready-to-use components
 - Platform-specific safe margins (TikTok, Instagram, YouTube)
 - Design token system for consistent branding
@@ -591,6 +616,7 @@ chuk-motion MCP + Remotion + FFMPerative fallback
 ---
 
 **Next Steps:**
+
 1. Set up chuk-motion MCP server locally
 2. Create test video with product demo components
 3. Evaluate rendering quality vs CapCut

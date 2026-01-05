@@ -39,11 +39,12 @@ Source Material → LLM Script → TTS → AI Images → Video Composition → C
 ### Key Patterns
 
 **LLM Script Generation:**
+
 ```python
-system_prompt = """You are a YouTube short narration generator. 
+system_prompt = """You are a YouTube short narration generator.
 You generate 30 seconds to 1 minute of narration.
 
-Respond with a pair of an image description in square brackets 
+Respond with a pair of an image description in square brackets
 and a narration below it:
 
 [Description of a background image]
@@ -65,6 +66,7 @@ response = client.chat.completions.create(
 ```
 
 **Parsing Script:**
+
 ```python
 def parse(narration):
     data = []
@@ -82,6 +84,7 @@ def parse(narration):
 ```
 
 **Multi-TTS Support:**
+
 ```python
 narration_api = "elevenlabs"  # or "openai"
 
@@ -102,26 +105,27 @@ else:
 ```
 
 **Video Composition with Crossfade:**
+
 ```python
 def create(narrations, output_dir, output_filename, caption_settings):
     # 1080x1920 vertical video
     width, height = 1080, 1920
     frame_rate = 30
     fade_time = 1000  # ms
-    
+
     out = cv2.VideoWriter(temp_video, fourcc, frame_rate, (width, height))
-    
+
     for i in range(image_count):
         image1 = cv2.imread(f"image_{i+1}.webp")
         image2 = cv2.imread(f"image_{i+2}.webp")
-        
+
         # Duration based on narration audio
         duration = get_audio_duration(f"narration_{i+1}.mp3")
-        
+
         # Static frames
         for _ in range(int(duration/1000*30)):
             out.write(create_frame(image1))
-        
+
         # Crossfade transition
         for alpha in np.linspace(0, 1, int(fade_time/1000*30)):
             blended = cv2.addWeighted(image1, 1-alpha, image2, alpha, 0)
@@ -129,20 +133,21 @@ def create(narrations, output_dir, output_filename, caption_settings):
 ```
 
 **Caption Integration (using captacity):**
+
 ```python
 def create_segments(narrations, output_dir):
     segments = []
     offset = 0
-    
+
     for i, narration in enumerate(narrations):
         audio_file = f"narration_{i+1}.mp3"
-        
+
         # Transcribe with Whisper, using narration as prompt for accuracy
         t_segments = captacity.transcriber.transcribe_locally(
             audio_file=audio_file,
             prompt=narration,  # Helps Whisper accuracy
         )
-        
+
         # Offset timestamps for multi-segment video
         for segment in t_segments:
             segment["start"] += offset
@@ -150,10 +155,10 @@ def create_segments(narrations, output_dir):
             for word in segment["words"]:
                 word["start"] += offset
                 word["end"] += offset
-        
+
         segments.extend(t_segments)
         offset += get_audio_duration(audio_file) / 1000
-    
+
     return segments
 
 # Apply captions to video
@@ -181,6 +186,7 @@ Background Video → Reddit Post → Text Extraction → TTS → Screenshots →
 ### Key Patterns
 
 **Config-Driven Pipeline:**
+
 ```python
 config = configparser.ConfigParser()
 config.read('config.ini')
@@ -197,6 +203,7 @@ delete_assets()
 ```
 
 **Text Cleaning:**
+
 ```python
 def clean_strings(text):
     # Remove markdown, special chars, URLs
@@ -221,6 +228,7 @@ Download Video → Extract Transcript → LLM Analyze → Cut Clips → Add Capt
 ### Key Patterns
 
 **LLM Viral Moment Detection:**
+
 ```python
 response_obj = [
     {
@@ -232,7 +240,7 @@ response_obj = [
     # ... more segments
 ]
 
-prompt = f"""This is a transcript of a video/podcast. 
+prompt = f"""This is a transcript of a video/podcast.
 Please identify the most viral sections from this part of the video.
 Make sure they are more than 30 seconds in duration.
 Make sure you provide extremely accurate timestamps.
@@ -256,46 +264,42 @@ viral_segments = json.loads(response.choices[0]['message']['content'])
 ```
 
 **Remotion Caption Component:**
+
 ```tsx
 // Subtitles.tsx
 import parseSRT from 'parse-srt';
 import { useCurrentFrame, useVideoConfig } from 'remotion';
 
 const useWindowedFrameSubs = (src: string, options) => {
-    const { fps } = useVideoConfig();
-    const parsed = useMemo(() => parseSRT(src), [src]);
-    
-    return useMemo(() => {
-        return parsed
-            .map((item) => ({
-                item,
-                start: Math.floor(item.start * fps),
-                end: Math.floor(item.end * fps),
-            }))
-            .filter(({ start }) => start >= windowStart && start <= windowEnd)
-            .map(({ item, start, end }) => ({ ...item, start, end }));
-    }, [fps, parsed, windowStart, windowEnd]);
+  const { fps } = useVideoConfig();
+  const parsed = useMemo(() => parseSRT(src), [src]);
+
+  return useMemo(() => {
+    return parsed
+      .map((item) => ({
+        item,
+        start: Math.floor(item.start * fps),
+        end: Math.floor(item.end * fps),
+      }))
+      .filter(({ start }) => start >= windowStart && start <= windowEnd)
+      .map(({ item, start, end }) => ({ ...item, start, end }));
+  }, [fps, parsed, windowStart, windowEnd]);
 };
 
-export const PaginatedSubtitles = ({
-    subtitles,
-    startFrame,
-    endFrame,
-    linesPerPage,
-}) => {
-    const frame = useCurrentFrame();
-    const subs = useWindowedFrameSubs(subtitles, { windowStart: startFrame, windowEnd: endFrame });
-    
-    // Only show current and following sentences
-    const currentSentences = subs.filter(word => word.start < frame);
-    
-    return (
-        <div>
-            {currentSentences.map((item) => (
-                <Word key={item.id} frame={frame} item={item} />
-            ))}
-        </div>
-    );
+export const PaginatedSubtitles = ({ subtitles, startFrame, endFrame, linesPerPage }) => {
+  const frame = useCurrentFrame();
+  const subs = useWindowedFrameSubs(subtitles, { windowStart: startFrame, windowEnd: endFrame });
+
+  // Only show current and following sentences
+  const currentSentences = subs.filter((word) => word.start < frame);
+
+  return (
+    <div>
+      {currentSentences.map((item) => (
+        <Word key={item.id} frame={frame} item={item} />
+      ))}
+    </div>
+  );
 };
 ```
 
@@ -309,6 +313,7 @@ export const PaginatedSubtitles = ({
 ### Key Patterns
 
 **Modular Class Design:**
+
 ```python
 class ShortsMaker:
     """Content acquisition and audio generation"""
@@ -326,6 +331,7 @@ class MoviepyCreateVideo:
 ```
 
 **Text Abbreviation Handling:**
+
 ```python
 ABBREVIATION_TUPLES = [
     ("AITA", "Am I the asshole ", " "),
@@ -343,6 +349,7 @@ def abbreviation_replacer(text, abbreviation, replacement, padding=""):
 ```
 
 **Word-Level Caption Clips:**
+
 ```python
 def create_text_clips(self):
     for word in self.word_transcript:
@@ -368,23 +375,24 @@ def create_text_clips(self):
 ```
 
 **9:16 Crop Pattern:**
+
 ```python
 def prepare_background_video(self):
     width, height = self.bg_video.size
-    
+
     # Random segment selection
     random_start = random.uniform(20, self.bg_video.duration - audio_duration - 20)
     self.bg_video = self.bg_video.subclipped(random_start, random_end)
-    
+
     # Crop to 9:16 aspect ratio
     self.bg_video = self.bg_video.cropped(
-        x_center=width/2, 
+        x_center=width/2,
         width=int(height * 9/16) & -2  # Ensure even width
     )
-    
+
     # Add fade effects
     self.bg_video = self.bg_video.with_effects([
-        vfx.FadeIn(self.fade_time), 
+        vfx.FadeIn(self.fade_time),
         vfx.FadeOut(self.fade_time)
     ])
 ```
@@ -396,6 +404,7 @@ def prepare_background_video(self):
 ### 1. Pipeline Structure
 
 All repos follow this pattern:
+
 ```
 Input Content
     ↓
@@ -417,6 +426,7 @@ Export
 ### 2. Word-Level Timing
 
 Critical for good captions:
+
 ```python
 # All repos rely on word-level timestamps
 word_timings = [
@@ -429,6 +439,7 @@ word_timings = [
 ### 3. Vertical Video Format
 
 All target 9:16 (1080x1920):
+
 ```python
 width, height = 1080, 1920  # Standard vertical video
 frame_rate = 30
@@ -437,6 +448,7 @@ frame_rate = 30
 ### 4. Multi-Engine TTS
 
 Support multiple providers:
+
 ```python
 TTS_ENGINES = {
     "elevenlabs": ElevenLabsTTS,
@@ -449,6 +461,7 @@ TTS_ENGINES = {
 ### 5. LLM for Content Intelligence
 
 All use LLM for:
+
 - Script generation
 - Viral moment detection
 - Image description generation
@@ -493,22 +506,22 @@ export class ShortVideoPipeline {
     private scriptGenerator: ScriptGenerator,
     private ttsEngine: TTSEngine,
     private transcriber: Transcriber,
-    private renderer: VideoRenderer,
+    private renderer: VideoRenderer
   ) {}
-  
+
   async generate(config: PipelineConfig): Promise<PipelineResult> {
     // Step 1: Generate script
     const script = await this.scriptGenerator.generate(config.contentSource);
-    
+
     // Step 2: Generate TTS audio
     const audioPath = await this.ttsEngine.synthesize(script.narration);
-    
+
     // Step 3: Transcribe for word-level timing
     const segments = await this.transcriber.transcribe(audioPath, script.narration);
-    
+
     // Step 4: Generate visual assets
     const visuals = await this.generateVisuals(script.imageDescriptions);
-    
+
     // Step 5: Render video with Remotion
     const videoPath = await this.renderer.render({
       audio: audioPath,
@@ -516,7 +529,7 @@ export class ShortVideoPipeline {
       visuals,
       captionStyle: config.captionStyle,
     });
-    
+
     return {
       videoPath,
       metadata: {

@@ -9,6 +9,7 @@
 ## Executive Summary
 
 Analysis of clipping tools reveals two major approaches:
+
 1. **Text-based clipping (FunClip)** - Clip by transcript/content
 2. **Visual-based scene detection (pyscenedetect)** - Clip by visual changes
 
@@ -43,35 +44,35 @@ Video → ASR → Transcript with timestamps → Select text → Extract matchin
 class VideoClipper:
     def __init__(self, funasr_model):
         self.funasr_model = funasr_model  # FunASR model
-    
+
     def video_recog(self, video_filename, sd_switch='no', hotwords=""):
         """Extract audio, run ASR, return transcript with timestamps"""
         video = mpy.VideoFileClip(video_filename)
         video.audio.write_audiofile(audio_file)
         wav = librosa.load(audio_file, sr=16000)[0]
-        
+
         rec_result = self.funasr_model.generate(
             wav,
             return_spk_res=(sd_switch == 'Yes'),  # Speaker diarization
             sentence_timestamp=True,
             hotword=hotwords,  # Custom vocabulary
         )
-        
+
         return res_text, res_srt, state
-    
+
     def video_clip(self, dest_text, start_ost, end_ost, state):
         """Clip video by matching text to transcript"""
         # Find timestamp ranges for matching text
         for _dest_text in dest_text.split('#'):
             ts = proc(recog_res_raw, timestamp, _dest_text)
             all_ts.extend(ts)
-        
+
         # Extract video segments
         for _ts in all_ts:
             start, end = _ts[0] / 16000, _ts[1] / 16000
             video_clip = video.subclip(start, end)
             concate_clip.append(video_clip)
-        
+
         # Concatenate clips
         final = concatenate_videoclips(concate_clip)
         return final
@@ -134,12 +135,12 @@ split_video_ffmpeg('video.mp4', scene_list)
 
 ### Detection Algorithms
 
-| Algorithm | Use Case | Speed |
-|-----------|----------|-------|
-| `ContentDetector` | Fast cuts, hard transitions | Fast |
-| `AdaptiveDetector` | Camera movement, gradual changes | Medium |
-| `ThresholdDetector` | Fades, black screens | Fast |
-| `HistogramDetector` | Color histogram changes | Medium |
+| Algorithm           | Use Case                         | Speed  |
+| ------------------- | -------------------------------- | ------ |
+| `ContentDetector`   | Fast cuts, hard transitions      | Fast   |
+| `AdaptiveDetector`  | Camera movement, gradual changes | Medium |
+| `ThresholdDetector` | Fades, black screens             | Fast   |
+| `HistogramDetector` | Color histogram changes          | Medium |
 
 ### API Usage
 
@@ -153,16 +154,16 @@ def split_video_into_scenes(video_path, threshold=27.0):
     scene_manager = SceneManager()
     scene_manager.add_detector(ContentDetector(threshold=threshold))
     scene_manager.detect_scenes(video, show_progress=True)
-    
+
     scene_list = scene_manager.get_scene_list()
-    
+
     # Each scene is (start_timecode, end_timecode)
     for i, scene in enumerate(scene_list):
         print(f'Scene {i+1}: {scene[0].get_timecode()} - {scene[1].get_timecode()}')
-    
+
     # Optional: split into separate files
     split_video_ffmpeg(video_path, scene_list, show_progress=True)
-    
+
     return scene_list
 ```
 
@@ -240,6 +241,7 @@ create_video(output_path="output.mp4")
 ### Key Patterns
 
 **Text processing for TTS:**
+
 ```python
 ABBREVIATION_TUPLES = [
     ("AITA", "Am I the asshole ", " "),
@@ -255,6 +257,7 @@ def abbreviation_replacer(text, abbreviation, replacement, padding=""):
 ```
 
 **Video composition:**
+
 ```python
 # Random background video segment
 random_start = random.uniform(20, bg_video.duration - audio_clip.duration - 20)
@@ -290,19 +293,19 @@ export interface ClipRequest {
 
 export interface TextClipOptions {
   transcript: TranscriptSegment[];
-  targetText: string[];  // Text to find and clip
+  targetText: string[]; // Text to find and clip
   offsetMs?: { start: number; end: number };
 }
 
 export interface SceneClipOptions {
-  threshold: number;  // 0-100, lower = more sensitive
-  minSceneLength: number;  // Minimum scene duration in seconds
+  threshold: number; // 0-100, lower = more sensitive
+  minSceneLength: number; // Minimum scene duration in seconds
   detector: 'content' | 'adaptive' | 'threshold';
 }
 
 export interface LLMClipOptions {
   transcript: TranscriptSegment[];
-  prompt: string;  // e.g., "Find the most engaging moments"
+  prompt: string; // e.g., "Find the most engaging moments"
   maxClips: number;
 }
 
@@ -312,10 +315,10 @@ export interface ClipResult {
 }
 
 export interface VideoClip {
-  startTime: number;  // seconds
+  startTime: number; // seconds
   endTime: number;
-  text?: string;  // Associated transcript
-  score?: number;  // Relevance/virality score
+  text?: string; // Associated transcript
+  score?: number; // Relevance/virality score
 }
 ```
 
@@ -325,14 +328,14 @@ export interface VideoClip {
 // src/clipping/textClipper.ts
 export class TextClipper {
   constructor(private ffmpeg: FFmpegWrapper) {}
-  
+
   async clip(videoPath: string, options: TextClipOptions): Promise<ClipResult> {
     const clips: VideoClip[] = [];
-    
+
     for (const targetText of options.targetText) {
       // Find matching segments in transcript
       const matches = this.findTextMatches(options.transcript, targetText);
-      
+
       for (const match of matches) {
         clips.push({
           startTime: match.start + (options.offsetMs?.start || 0) / 1000,
@@ -341,25 +344,23 @@ export class TextClipper {
         });
       }
     }
-    
+
     // Extract clips using FFmpeg
     const outputPaths = await Promise.all(
-      clips.map((clip, i) => 
+      clips.map((clip, i) =>
         this.ffmpeg.extractClip(videoPath, clip.startTime, clip.endTime, `clip_${i}.mp4`)
       )
     );
-    
+
     return { clips, metadata: { outputPaths } };
   }
-  
+
   private findTextMatches(
-    transcript: TranscriptSegment[], 
+    transcript: TranscriptSegment[],
     targetText: string
   ): TranscriptSegment[] {
     const normalized = targetText.toLowerCase();
-    return transcript.filter(seg => 
-      seg.text.toLowerCase().includes(normalized)
-    );
+    return transcript.filter((seg) => seg.text.toLowerCase().includes(normalized));
   }
 }
 ```
@@ -372,12 +373,14 @@ import { generateObject } from 'ai';
 import { z } from 'zod';
 
 const ClipSelectionSchema = z.object({
-  clips: z.array(z.object({
-    startTime: z.number().describe('Start time in seconds'),
-    endTime: z.number().describe('End time in seconds'),
-    reason: z.string().describe('Why this clip is engaging'),
-    viralityScore: z.number().min(0).max(100),
-  })),
+  clips: z.array(
+    z.object({
+      startTime: z.number().describe('Start time in seconds'),
+      endTime: z.number().describe('End time in seconds'),
+      reason: z.string().describe('Why this clip is engaging'),
+      viralityScore: z.number().min(0).max(100),
+    })
+  ),
 });
 
 export class LLMClipper {
@@ -385,11 +388,11 @@ export class LLMClipper {
     private model: LanguageModel,
     private ffmpeg: FFmpegWrapper
   ) {}
-  
+
   async clip(videoPath: string, options: LLMClipOptions): Promise<ClipResult> {
     // Format transcript as SRT-like text
     const transcriptText = this.formatTranscript(options.transcript);
-    
+
     // Ask LLM to select clips
     const { object } = await generateObject({
       model: this.model,
@@ -405,24 +408,27 @@ Select up to ${options.maxClips} clips that best match the request.
 Each clip should be 15-60 seconds long.
 Prioritize engaging, complete thoughts or demonstrations.`,
     });
-    
+
     // Extract selected clips
-    const clips = object.clips.map(c => ({
+    const clips = object.clips.map((c) => ({
       startTime: c.startTime,
       endTime: c.endTime,
       text: this.getTranscriptSlice(options.transcript, c.startTime, c.endTime),
       score: c.viralityScore,
     }));
-    
+
     return { clips, metadata: { llmReasoning: object.clips } };
   }
-  
+
   private formatTranscript(transcript: TranscriptSegment[]): string {
-    return transcript.map((seg, i) => 
-      `${i}\n${this.formatTime(seg.start)} --> ${this.formatTime(seg.end)}\n${seg.text}\n`
-    ).join('\n');
+    return transcript
+      .map(
+        (seg, i) =>
+          `${i}\n${this.formatTime(seg.start)} --> ${this.formatTime(seg.end)}\n${seg.text}\n`
+      )
+      .join('\n');
   }
-  
+
   private formatTime(seconds: number): string {
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
@@ -453,22 +459,20 @@ scenes = detect('${videoPath}', detector_map['${options.detector}'])
 output = [{'start': s[0].get_seconds(), 'end': s[1].get_seconds()} for s in scenes]
 print(json.dumps(output))
     `);
-    
+
     const scenes = JSON.parse(result);
-    
+
     // Filter by minimum scene length
-    return scenes.filter(s => 
-      (s.end - s.start) >= options.minSceneLength
-    );
+    return scenes.filter((s) => s.end - s.start >= options.minSceneLength);
   }
-  
+
   private async runPython(script: string): Promise<string> {
     const { spawn } = await import('child_process');
     return new Promise((resolve, reject) => {
       const proc = spawn('python', ['-c', script]);
       let output = '';
-      proc.stdout.on('data', data => output += data);
-      proc.on('close', code => code === 0 ? resolve(output) : reject(output));
+      proc.stdout.on('data', (data) => (output += data));
+      proc.on('close', (code) => (code === 0 ? resolve(output) : reject(output)));
     });
   }
 }
@@ -506,7 +510,7 @@ export class ClippingService {
     private sceneDetector: SceneDetector,
     private llmClipper: LLMClipper
   ) {}
-  
+
   async findBestClips(
     videoPath: string,
     transcript: TranscriptSegment[],
@@ -518,23 +522,23 @@ export class ClippingService {
       minSceneLength: 3,
       detector: 'content',
     });
-    
+
     // 2. LLM selects best content segments
     const { clips } = await this.llmClipper.clip(videoPath, {
       transcript,
       prompt,
       maxClips: 5,
     });
-    
+
     // 3. Snap to scene boundaries for clean cuts
-    return clips.map(clip => this.snapToSceneBoundary(clip, scenes));
+    return clips.map((clip) => this.snapToSceneBoundary(clip, scenes));
   }
-  
+
   private snapToSceneBoundary(clip: VideoClip, scenes: VideoClip[]): VideoClip {
     // Find nearest scene boundary for start/end
     const snapStart = this.findNearestBoundary(clip.startTime, scenes, 'start');
     const snapEnd = this.findNearestBoundary(clip.endTime, scenes, 'end');
-    
+
     return { ...clip, startTime: snapStart, endTime: snapEnd };
   }
 }

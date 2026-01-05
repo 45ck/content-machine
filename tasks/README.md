@@ -24,12 +24,14 @@ tasks/
 **Format:** `TASK-NNN-type-short-description-YYYYMMDD.md`
 
 **Examples:**
+
 - `TASK-001-feature-mcp-reddit-connector-20260102.md`
 - `TASK-002-bug-whisper-timestamp-drift-20260115.md`
 - `TASK-003-research-remotion-composition-patterns-20260110.md`
 - `TASK-004-refactor-video-pipeline-20260120.md`
 
 **Task Types:**
+
 - `feature` – New functionality
 - `bug` – Bug fix
 - `research` – Investigation/spike
@@ -75,6 +77,7 @@ tasks/
 ```
 
 **Rules:**
+
 - Tests MUST be written BEFORE implementation code
 - Bug fixes MUST have a failing test that reproduces the bug
 - Features MUST have tests for each acceptance criterion
@@ -103,24 +106,24 @@ A task is **NOT complete** until:
 
 ## Mandatory Phases (Every Task)
 
-| Phase | What to Do | Output |
-|-------|------------|--------|
-| **1. Documentation Planning** | Determine what docs this task requires | List in task file |
-| **2. Testing Considerations** | Analyze what needs testing, edge cases, risks | Section in task file |
-| **3. Testing Plan** | Define specific test cases BEFORE implementation | Section in task file |
-| **4. Implementation** | TDD: Write failing tests → Implement → Verify | Code + Tests |
-| **5. Verification (V&V)** | Complete checklist, CI/CD, production check | All boxes checked |
+| Phase                         | What to Do                                       | Output               |
+| ----------------------------- | ------------------------------------------------ | -------------------- |
+| **1. Documentation Planning** | Determine what docs this task requires           | List in task file    |
+| **2. Testing Considerations** | Analyze what needs testing, edge cases, risks    | Section in task file |
+| **3. Testing Plan**           | Define specific test cases BEFORE implementation | Section in task file |
+| **4. Implementation**         | TDD: Write failing tests → Implement → Verify    | Code + Tests         |
+| **5. Verification (V&V)**     | Complete checklist, CI/CD, production check      | All boxes checked    |
 
 ---
 
 ## Documentation Requirements by Task Type
 
-| Task Type | Pre-Work | Deliverable | Post-Work |
-|-----------|----------|-------------|-----------|
-| **Bug** | Investigation (if complex) | Bug Report (`docs/bugs/`) | Postmortem (if critical) |
-| **Feature** | ADR (if architectural) | Feature Spec (`docs/features/`) + Tests | Guide (`docs/guides/`) |
-| **Research** | — | Investigation Doc (`docs/investigations/`) | ADR, Follow-up Tasks |
-| **Refactor** | Investigation (if risky) | ADR (`docs/architecture/`) | — |
+| Task Type    | Pre-Work                   | Deliverable                                | Post-Work                |
+| ------------ | -------------------------- | ------------------------------------------ | ------------------------ |
+| **Bug**      | Investigation (if complex) | Bug Report (`docs/bugs/`)                  | Postmortem (if critical) |
+| **Feature**  | ADR (if architectural)     | Feature Spec (`docs/features/`) + Tests    | Guide (`docs/guides/`)   |
+| **Research** | —                          | Investigation Doc (`docs/investigations/`) | ADR, Follow-up Tasks     |
+| **Refactor** | Investigation (if risky)   | ADR (`docs/architecture/`)                 | —                        |
 
 **All docs MUST include YYYYMMDD suffix!**
 
@@ -130,11 +133,11 @@ A task is **NOT complete** until:
 
 ### Available Templates
 
-| Template | Use For | Location |
-|----------|---------|----------|
-| `TASK.template.md` | General tasks | `tasks/templates/` |
-| `TASK-BUG.template.md` | Bug fixes | `tasks/templates/` |
-| `TASK-FEATURE.template.md` | New features | `tasks/templates/` |
+| Template                    | Use For        | Location           |
+| --------------------------- | -------------- | ------------------ |
+| `TASK.template.md`          | General tasks  | `tasks/templates/` |
+| `TASK-BUG.template.md`      | Bug fixes      | `tasks/templates/` |
+| `TASK-FEATURE.template.md`  | New features   | `tasks/templates/` |
 | `TASK-RESEARCH.template.md` | Investigations | `tasks/templates/` |
 
 ### Task File Sections
@@ -155,18 +158,19 @@ Every task file should have:
 
 ## Priority Levels
 
-| Priority | Meaning | SLA |
-|----------|---------|-----|
-| **P0** | Critical outage, data loss | Start immediately |
-| **P1** | Major feature broken | Within 1 day |
-| **P2** | Minor bug, enhancement | Within 1 week |
-| **P3** | Nice-to-have | Backlog |
+| Priority | Meaning                    | SLA               |
+| -------- | -------------------------- | ----------------- |
+| **P0**   | Critical outage, data loss | Start immediately |
+| **P1**   | Major feature broken       | Within 1 day      |
+| **P2**   | Minor bug, enhancement     | Within 1 week     |
+| **P3**   | Nice-to-have               | Backlog           |
 
 ---
 
 ## Estimating
 
 **T-shirt sizes:**
+
 - **XS:** < 2 hours
 - **S:** 2-4 hours
 - **M:** 4-8 hours (1 day)
@@ -183,14 +187,16 @@ If a task is blocked:
 
 1. Move to `blocked/`
 2. Add blocker info to task file:
+
    ```markdown
    ## Blocker
-   
+
    **What's blocking:** Waiting for X API access
    **Who can unblock:** John Doe
    **Expected resolution:** 2026-01-10
    **Workaround:** None
    ```
+
 3. Create follow-up reminder task for unblock date
 
 ---
@@ -218,6 +224,7 @@ Use **Given/When/Then** format:
 ### Testing First (TDD)
 
 **Before writing implementation:**
+
 1. Write the test that validates the fix/feature
 2. Run the test (it should fail)
 3. Implement the fix/feature
@@ -225,6 +232,7 @@ Use **Given/When/Then** format:
 5. Refactor if needed (test still passes)
 
 **This ensures:**
+
 - Tests actually test something
 - No regression later
 - Clear specification of expected behavior
@@ -266,17 +274,20 @@ Implement MCP server that connects to Reddit API for trend research. Server shou
 ## Testing Plan
 
 ### Unit Tests
+
 - [ ] Test subreddit validation
 - [ ] Test comment sorting logic
 - [ ] Test rate limit handling
 - [ ] Test error handling
 
 ### Integration Tests
+
 - [ ] Test Reddit API connection (mocked)
 - [ ] Test MCP protocol compliance
 - [ ] Test timeout handling
 
 ### E2E Tests
+
 - [ ] Test full workflow: fetch trending → extract comments → return structured data
 
 ## Verification Checklist

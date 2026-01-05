@@ -40,11 +40,11 @@ class OpenAIEmbeddingModelType(str, Enum):
 
 #### Model Dimensions & Costs
 
-| Model | Dimensions | Price per 1M tokens | Use Case |
-|-------|-----------|-------------------|----------|
-| `text-embedding-ada-002` | 1536 | $0.10 | Legacy, good balance |
-| `text-embedding-3-small` | 512-1536 (configurable) | $0.02 | Cost-effective |
-| `text-embedding-3-large` | 256-3072 (configurable) | $0.13 | Highest quality |
+| Model                    | Dimensions              | Price per 1M tokens | Use Case             |
+| ------------------------ | ----------------------- | ------------------- | -------------------- |
+| `text-embedding-ada-002` | 1536                    | $0.10               | Legacy, good balance |
+| `text-embedding-3-small` | 512-1536 (configurable) | $0.02               | Cost-effective       |
+| `text-embedding-3-large` | 256-3072 (configurable) | $0.13               | Highest quality      |
 
 **Key Feature:** V3 models support **configurable dimensions** via the `dimensions` parameter:
 
@@ -71,10 +71,10 @@ DEFAULT_CLIP_MODEL = "ViT-B/32"
 class ClipEmbedding(MultiModalEmbedding):
     """
     CLIP embedding models for encoding text and image for Multi-Modal purpose.
-    
+
     Requires `clip` package: pip install git+https://github.com/openai/CLIP.git
     """
-    
+
     def _get_text_embeddings(self, texts: List[str]) -> List[Embedding]:
         results = []
         for text in texts:
@@ -96,23 +96,25 @@ class ClipEmbedding(MultiModalEmbedding):
 
 #### CLIP Model Variants
 
-| Model | Dimension | Speed | Quality |
-|-------|-----------|-------|---------|
-| `ViT-B/32` | 512 | Fast | Good |
-| `ViT-B/16` | 512 | Medium | Better |
-| `ViT-L/14` | 768 | Slow | Best |
-| `ViT-L/14@336px` | 768 | Slowest | Highest resolution |
+| Model            | Dimension | Speed   | Quality            |
+| ---------------- | --------- | ------- | ------------------ |
+| `ViT-B/32`       | 512       | Fast    | Good               |
+| `ViT-B/16`       | 512       | Medium  | Better             |
+| `ViT-L/14`       | 768       | Slow    | Best               |
+| `ViT-L/14@336px` | 768       | Slowest | Highest resolution |
 
 **⚠️ CRITICAL: CLIP for Text-to-Text?**
 
 > **No.** CLIP is designed for **cross-modal** matching (text↔image). The text encoder is optimized for matching with image embeddings, NOT for semantic similarity between texts. For text-to-text matching, use dedicated text embedding models.
 
 **When to use CLIP:**
+
 - Match script text → stock footage frames
 - Match image descriptions → uploaded images
 - Visual similarity search
 
 **When NOT to use CLIP:**
+
 - Script → script similarity
 - Caption → caption deduplication
 - Trend text matching
@@ -150,7 +152,7 @@ def get_video_embedding(
     Get embedding for a video file.
     Only supported with voyage-multimodal-3.5 model.
     Requires voyageai>=0.3.6 for video support.
-    
+
     Args:
         video_path: Path to the video file (max 20MB).
     """
@@ -198,13 +200,13 @@ MAX_EMBED_BATCH_SIZE = 96
 
 #### Embedding Types (Quantization)
 
-| Type | Storage | Quality | Use Case |
-|------|---------|---------|----------|
-| `float` | 4 bytes/dim | Full | Default, highest quality |
-| `int8` | 1 byte/dim | ~99% | 4x storage reduction |
-| `uint8` | 1 byte/dim | ~99% | Unsigned variant |
-| `binary` | 1 bit/dim | ~95% | 32x compression, fast hamming |
-| `ubinary` | 1 bit/dim | ~95% | Unsigned binary |
+| Type      | Storage     | Quality | Use Case                      |
+| --------- | ----------- | ------- | ----------------------------- |
+| `float`   | 4 bytes/dim | Full    | Default, highest quality      |
+| `int8`    | 1 byte/dim  | ~99%    | 4x storage reduction          |
+| `uint8`   | 1 byte/dim  | ~99%    | Unsigned variant              |
+| `binary`  | 1 bit/dim   | ~95%    | 32x compression, fast hamming |
+| `ubinary` | 1 bit/dim   | ~95%    | Unsigned binary               |
 
 ---
 
@@ -224,12 +226,12 @@ MAX_EMBED_BATCH_SIZE = 96
 
 **Recommendation by embedding type:**
 
-| Embedding Model | Recommended Distance |
-|-----------------|---------------------|
-| OpenAI | Cosine |
-| CLIP | Cosine |
-| VoyageAI | Cosine |
-| Cohere (normalized) | Dot |
+| Embedding Model     | Recommended Distance |
+| ------------------- | -------------------- |
+| OpenAI              | Cosine               |
+| CLIP                | Cosine               |
+| VoyageAI            | Cosine               |
+| Cohere (normalized) | Dot                  |
 
 ### 2.2 Similarity Threshold Configuration
 
@@ -250,12 +252,12 @@ def test_search_with_threshold(collection_name):
 
 **Typical thresholds by use case:**
 
-| Use Case | Threshold | Notes |
-|----------|-----------|-------|
-| Exact match | 0.95+ | Near-duplicate detection |
-| High similarity | 0.85-0.95 | Same topic/intent |
-| Related content | 0.70-0.85 | Semantically related |
-| Loose match | 0.50-0.70 | Might be relevant |
+| Use Case        | Threshold | Notes                    |
+| --------------- | --------- | ------------------------ |
+| Exact match     | 0.95+     | Near-duplicate detection |
+| High similarity | 0.85-0.95 | Same topic/intent        |
+| Related content | 0.70-0.85 | Semantically related     |
+| Loose match     | 0.50-0.70 | Might be relevant        |
 
 ---
 
@@ -365,18 +367,18 @@ from llama_index.core.ingestion import IngestionCache
 
 def test_cache():
     cache = IngestionCache()
-    
+
     # Create hash for content
     hash = "some_hash_value"
     new_nodes = [TextNode(text="This is a test node")]
-    
+
     # Store embeddings
     cache.put(hash, new_nodes)
-    
+
     # Retrieve from cache
     cache_hit = cache.get(hash)
     assert cache_hit is not None
-    
+
     # Clear cache
     cache.clear()
 ```
@@ -397,7 +399,7 @@ interface EmbeddingCache {
   // Content hash → embedding mapping
   get(contentHash: string): Promise<number[] | null>;
   set(contentHash: string, embedding: number[], ttl?: number): Promise<void>;
-  
+
   // Batch operations
   getMany(hashes: string[]): Promise<Map<string, number[]>>;
   setMany(entries: Map<string, number[]>): Promise<void>;
@@ -413,16 +415,17 @@ function hashContent(content: string): string {
 
 ## 5. Dimension Size Tradeoffs
 
-| Dimensions | Storage/Vector | Search Speed | Quality | Use Case |
-|------------|---------------|--------------|---------|----------|
-| 256 | 1 KB | Fastest | Good | High-volume, cost-sensitive |
-| 512 | 2 KB | Fast | Better | Default CLIP |
-| 768 | 3 KB | Medium | Good | CLIP ViT-L |
-| 1024 | 4 KB | Medium | Better | Balanced |
-| 1536 | 6 KB | Slower | High | OpenAI ada-002 |
-| 3072 | 12 KB | Slowest | Highest | OpenAI 3-large |
+| Dimensions | Storage/Vector | Search Speed | Quality | Use Case                    |
+| ---------- | -------------- | ------------ | ------- | --------------------------- |
+| 256        | 1 KB           | Fastest      | Good    | High-volume, cost-sensitive |
+| 512        | 2 KB           | Fast         | Better  | Default CLIP                |
+| 768        | 3 KB           | Medium       | Good    | CLIP ViT-L                  |
+| 1024       | 4 KB           | Medium       | Better  | Balanced                    |
+| 1536       | 6 KB           | Slower       | High    | OpenAI ada-002              |
+| 3072       | 12 KB          | Slowest      | Highest | OpenAI 3-large              |
 
 **Recommendation for content-machine:**
+
 - **Script text matching:** `text-embedding-3-small` at 512-1024 dimensions
 - **Visual matching:** CLIP `ViT-B/32` (512d) or VoyageAI multimodal
 - **Video matching:** VoyageAI `voyage-multimodal-3.5`
@@ -433,32 +436,32 @@ function hashContent(content: string): string {
 
 ### 6.1 Text-to-Text (Script similarity, trend matching)
 
-| Model | Dimensions | Cost | Quality | Latency |
-|-------|-----------|------|---------|---------|
-| OpenAI 3-small | 512-1536 | $0.02/1M | Good | Low |
-| OpenAI 3-large | 256-3072 | $0.13/1M | Best | Medium |
-| VoyageAI 3.5 | Varies | ~$0.05/1M | Excellent | Low |
-| Cohere v3 | 1024 | ~$0.10/1M | Good | Low |
+| Model          | Dimensions | Cost      | Quality   | Latency |
+| -------------- | ---------- | --------- | --------- | ------- |
+| OpenAI 3-small | 512-1536   | $0.02/1M  | Good      | Low     |
+| OpenAI 3-large | 256-3072   | $0.13/1M  | Best      | Medium  |
+| VoyageAI 3.5   | Varies     | ~$0.05/1M | Excellent | Low     |
+| Cohere v3      | 1024       | ~$0.10/1M | Good      | Low     |
 
 **Winner:** OpenAI `text-embedding-3-small` for cost, VoyageAI `voyage-3.5` for quality
 
 ### 6.2 Text-to-Image (Script → stock footage)
 
-| Model | Dimensions | Multimodal | Cost |
-|-------|-----------|------------|------|
-| CLIP ViT-B/32 | 512 | ✅ | Free (local) |
-| CLIP ViT-L/14 | 768 | ✅ | Free (local) |
-| VoyageAI multimodal-3 | Varies | ✅ | API cost |
-| Cohere embed-v4.0 | 1024 | ✅ | API cost |
+| Model                 | Dimensions | Multimodal | Cost         |
+| --------------------- | ---------- | ---------- | ------------ |
+| CLIP ViT-B/32         | 512        | ✅         | Free (local) |
+| CLIP ViT-L/14         | 768        | ✅         | Free (local) |
+| VoyageAI multimodal-3 | Varies     | ✅         | API cost     |
+| Cohere embed-v4.0     | 1024       | ✅         | API cost     |
 
 **Winner:** CLIP for local processing, VoyageAI for API-based
 
 ### 6.3 Video Embeddings (Unique capability)
 
-| Model | Video Support | Max Size | Notes |
-|-------|--------------|----------|-------|
-| VoyageAI multimodal-3.5 | ✅ | 20MB | Only production option |
-| CLIP (frame sampling) | ❌ (manual) | N/A | Requires frame extraction |
+| Model                   | Video Support | Max Size | Notes                     |
+| ----------------------- | ------------- | -------- | ------------------------- |
+| VoyageAI multimodal-3.5 | ✅            | 20MB     | Only production option    |
+| CLIP (frame sampling)   | ❌ (manual)   | N/A      | Requires frame extraction |
 
 **Winner:** VoyageAI `voyage-multimodal-3.5` (only option)
 
@@ -472,22 +475,22 @@ function hashContent(content: string): string {
 const embeddingConfig = {
   // Text similarity (scripts, trends)
   text: {
-    model: "text-embedding-3-small",
-    dimensions: 1024,  // Balance of quality/cost
-    provider: "openai"
+    model: 'text-embedding-3-small',
+    dimensions: 1024, // Balance of quality/cost
+    provider: 'openai',
   },
-  
+
   // Visual matching (script → footage)
   multimodal: {
-    model: "voyage-multimodal-3",  // or CLIP for local
-    provider: "voyageai"
+    model: 'voyage-multimodal-3', // or CLIP for local
+    provider: 'voyageai',
   },
-  
+
   // Video matching (when needed)
   video: {
-    model: "voyage-multimodal-3.5",
-    provider: "voyageai"
-  }
+    model: 'voyage-multimodal-3.5',
+    provider: 'voyageai',
+  },
 };
 ```
 
@@ -500,12 +503,7 @@ const retryConfig = {
   minWaitSeconds: 4,
   maxWaitSeconds: 20,
   exponentialBackoff: true,
-  retryOn: [
-    "RateLimitError",
-    "APIConnectionError", 
-    "APITimeoutError",
-    "InternalServerError"
-  ]
+  retryOn: ['RateLimitError', 'APIConnectionError', 'APITimeoutError', 'InternalServerError'],
 };
 ```
 
@@ -514,10 +512,10 @@ const retryConfig = {
 ```typescript
 // Redis or SQLite-based cache
 const cacheConfig = {
-  backend: "redis",  // or "sqlite" for local dev
-  ttl: 86400 * 30,   // 30 days for embeddings
-  keyPrefix: "embed:",
-  hashFunction: "sha256"
+  backend: 'redis', // or "sqlite" for local dev
+  ttl: 86400 * 30, // 30 days for embeddings
+  keyPrefix: 'embed:',
+  hashFunction: 'sha256',
 };
 ```
 
@@ -525,10 +523,10 @@ const cacheConfig = {
 
 ```typescript
 const thresholds = {
-  exactMatch: 0.95,      // Duplicate detection
-  highSimilarity: 0.85,  // Very related content
-  goodMatch: 0.75,       // Default for footage matching
-  looseMatch: 0.60       // Fallback threshold
+  exactMatch: 0.95, // Duplicate detection
+  highSimilarity: 0.85, // Very related content
+  goodMatch: 0.75, // Default for footage matching
+  looseMatch: 0.6, // Fallback threshold
 };
 ```
 

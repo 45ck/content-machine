@@ -26,12 +26,12 @@ Model Context Protocol (MCP) enables LLMs to call external tools. Our research a
 
 ### Core Concepts
 
-| Concept | Description |
-|---------|-------------|
-| **Tools** | Functions the LLM can call |
-| **Resources** | Data the LLM can read |
-| **Prompts** | Pre-defined prompt templates |
-| **Sampling** | LLM can request completions |
+| Concept       | Description                  |
+| ------------- | ---------------------------- |
+| **Tools**     | Functions the LLM can call   |
+| **Resources** | Data the LLM can read        |
+| **Prompts**   | Pre-defined prompt templates |
+| **Sampling**  | LLM can request completions  |
 
 ---
 
@@ -84,24 +84,28 @@ import { FastMCP, tool, resource } from 'fastmcp';
 
 const mcp = new FastMCP('content-machine');
 
-mcp.addTool(tool({
-  name: 'render_video',
-  description: 'Render video from configuration',
-  parameters: z.object({
-    config: VideoConfigSchema,
-  }),
-  execute: async ({ config }) => {
-    return await renderService.render(config);
-  }
-}));
+mcp.addTool(
+  tool({
+    name: 'render_video',
+    description: 'Render video from configuration',
+    parameters: z.object({
+      config: VideoConfigSchema,
+    }),
+    execute: async ({ config }) => {
+      return await renderService.render(config);
+    },
+  })
+);
 
-mcp.addResource(resource({
-  uri: 'videos://recent',
-  name: 'Recent Videos',
-  load: async () => {
-    return await videoService.getRecent(10);
-  }
-}));
+mcp.addResource(
+  resource({
+    uri: 'videos://recent',
+    name: 'Recent Videos',
+    load: async () => {
+      return await videoService.getRecent(10);
+    },
+  })
+);
 
 mcp.listen(3000);
 ```
@@ -112,35 +116,35 @@ mcp.listen(3000);
 
 ### Content Sources
 
-| Server | Purpose | Auth |
-|--------|---------|------|
-| **reddit-mcp-buddy** | Reddit browsing | No API key |
-| **reddit-mcp-ts** | Reddit TypeScript | API key |
-| **youtube-transcript-api** | YouTube transcripts | No key |
-| **mcp-hackernews** | Hacker News | No key |
+| Server                     | Purpose             | Auth       |
+| -------------------------- | ------------------- | ---------- |
+| **reddit-mcp-buddy**       | Reddit browsing     | No API key |
+| **reddit-mcp-ts**          | Reddit TypeScript   | API key    |
+| **youtube-transcript-api** | YouTube transcripts | No key     |
+| **mcp-hackernews**         | Hacker News         | No key     |
 
 ### Databases
 
-| Server | Database |
-|--------|----------|
-| **postgres-mcp** | PostgreSQL |
-| **qdrant-mcp-server** | Qdrant vector DB |
-| **upstash-mcp-server** | Redis/Kafka |
+| Server                 | Database         |
+| ---------------------- | ---------------- |
+| **postgres-mcp**       | PostgreSQL       |
+| **qdrant-mcp-server**  | Qdrant vector DB |
+| **upstash-mcp-server** | Redis/Kafka      |
 
 ### Video & Rendering
 
-| Server | Purpose |
-|--------|---------|
-| **chuk-mcp-remotion** | Remotion video composition |
-| **plainly-mcp** | Programmatic video rendering |
+| Server                | Purpose                      |
+| --------------------- | ---------------------------- |
+| **chuk-mcp-remotion** | Remotion video composition   |
+| **plainly-mcp**       | Programmatic video rendering |
 
 ### Utilities
 
-| Server | Purpose |
-|--------|---------|
-| **genai-toolbox** | Multi-DB agent toolkit |
-| **firecrawl-mcp** | Web crawling |
-| **browserbase-mcp** | Browser automation |
+| Server              | Purpose                |
+| ------------------- | ---------------------- |
+| **genai-toolbox**   | Multi-DB agent toolkit |
+| **firecrawl-mcp**   | Web crawling           |
+| **browserbase-mcp** | Browser automation     |
 
 ---
 
@@ -335,7 +339,7 @@ from mcp import Client
 async with Client("http://localhost:8000") as client:
     # List available tools
     tools = await client.list_tools()
-    
+
     # Call a tool
     result = await client.call_tool("create_video", {
         "config": {
@@ -343,7 +347,7 @@ async with Client("http://localhost:8000") as client:
             "scenes": [{"text": "Hello world", "duration": 5}]
         }
     })
-    
+
     # Read a resource
     templates = await client.read_resource("templates://list")
 ```
@@ -385,14 +389,14 @@ servers:
       - search_trends
       - browse_reddit
       - get_transcripts
-    
+
   render:
     url: http://localhost:8002
     tools:
       - create_video
       - add_scene
       - render_project
-      
+
   publish:
     url: http://localhost:8003
     tools:

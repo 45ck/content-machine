@@ -31,32 +31,32 @@ The OpenAI Agents SDK is a **lightweight yet powerful framework** for building m
 
 ### 1.2 Core Concepts
 
-| Concept | Description |
-|---------|-------------|
-| **Agents** | LLMs configured with instructions, tools, guardrails, and handoffs |
-| **Handoffs** | Specialized tool calls for transferring control between agents |
-| **Guardrails** | Configurable safety checks for input/output validation |
-| **Tracing** | Built-in tracking of agent runs for debugging and optimization |
+| Concept        | Description                                                        |
+| -------------- | ------------------------------------------------------------------ |
+| **Agents**     | LLMs configured with instructions, tools, guardrails, and handoffs |
+| **Handoffs**   | Specialized tool calls for transferring control between agents     |
+| **Guardrails** | Configurable safety checks for input/output validation             |
+| **Tracing**    | Built-in tracking of agent runs for debugging and optimization     |
 
 ### 1.3 Supported Features
 
-| Feature | Status |
-|---------|--------|
-| Multi-Agent Workflows | ✅ |
-| Tool Integration | ✅ |
-| Handoffs | ✅ |
-| Structured Outputs | ✅ |
-| Streaming Responses | ✅ |
-| Tracing & Debugging | ✅ |
-| Guardrails | ✅ |
-| Parallelization | ✅ |
-| Human-in-the-Loop | ✅ |
-| Realtime Voice Agents | ✅ |
-| **Local MCP Server Support** | ✅ |
-| Browser Package | ✅ |
-| Non-OpenAI Models (Vercel AI SDK) | ✅ |
-| Long-running Functions | 🔜 Future |
-| Voice Pipeline | 🔜 Future |
+| Feature                           | Status    |
+| --------------------------------- | --------- |
+| Multi-Agent Workflows             | ✅        |
+| Tool Integration                  | ✅        |
+| Handoffs                          | ✅        |
+| Structured Outputs                | ✅        |
+| Streaming Responses               | ✅        |
+| Tracing & Debugging               | ✅        |
+| Guardrails                        | ✅        |
+| Parallelization                   | ✅        |
+| Human-in-the-Loop                 | ✅        |
+| Realtime Voice Agents             | ✅        |
+| **Local MCP Server Support**      | ✅        |
+| Browser Package                   | ✅        |
+| Non-OpenAI Models (Vercel AI SDK) | ✅        |
+| Long-running Functions            | 🔜 Future |
+| Voice Pipeline                    | 🔜 Future |
 
 ### 1.4 Installation
 
@@ -74,10 +74,7 @@ const agent = new Agent({
   instructions: 'You are a helpful assistant',
 });
 
-const result = await run(
-  agent,
-  'Write a haiku about recursion in programming.',
-);
+const result = await run(agent, 'Write a haiku about recursion in programming.');
 console.log(result.finalOutput);
 ```
 
@@ -156,7 +153,7 @@ const agent = new RealtimeAgent({
 });
 
 // Browser: Get ephemeral key from backend
-const { apiKey } = await fetch('/path/to/ephemeral/key').then(r => r.json());
+const { apiKey } = await fetch('/path/to/ephemeral/key').then((r) => r.json());
 
 // Auto-configures audio I/O
 const session = new RealtimeSession(agent);
@@ -196,11 +193,11 @@ Control iterations with `maxTurns` parameter.
 
 ### 1.11 Use Cases for content-machine
 
-| Use Case | Implementation |
-|----------|----------------|
+| Use Case         | Implementation                          |
+| ---------------- | --------------------------------------- |
 | Content Planning | Multi-agent workflow for trend → script |
-| Review Workflow | Human-in-the-loop for video approval |
-| Voice Narration | Realtime voice for preview |
+| Review Workflow  | Human-in-the-loop for video approval    |
+| Voice Narration  | Realtime voice for preview              |
 | Tool Integration | MCP servers for Reddit, capture, render |
 
 ---
@@ -218,14 +215,14 @@ Langfuse is an **open source LLM engineering platform** for developing, monitori
 
 ### 2.2 Core Features
 
-| Feature | Description |
-|---------|-------------|
+| Feature               | Description                                           |
+| --------------------- | ----------------------------------------------------- |
 | **LLM Observability** | Trace LLM calls, retrieval, embeddings, agent actions |
-| **Prompt Management** | Version control, central management, iteration |
-| **Evaluations** | LLM-as-judge, user feedback, manual labeling |
-| **Datasets** | Test sets and benchmarks |
-| **LLM Playground** | Test prompts directly |
-| **Comprehensive API** | Build custom LLMOps workflows |
+| **Prompt Management** | Version control, central management, iteration        |
+| **Evaluations**       | LLM-as-judge, user feedback, manual labeling          |
+| **Datasets**          | Test sets and benchmarks                              |
+| **LLM Playground**    | Test prompts directly                                 |
+| **Comprehensive API** | Build custom LLMOps workflows                         |
 
 ### 2.3 Deployment Options
 
@@ -254,16 +251,16 @@ Available for AWS, Azure, GCP.
 
 ### 2.4 Integrations
 
-| Integration | Languages | Description |
-|-------------|-----------|-------------|
-| **SDK** | Python, JS/TS | Manual instrumentation |
-| **OpenAI** | Python, JS/TS | Drop-in replacement |
-| **LangChain** | Python, JS/TS | Callback handler |
-| **LlamaIndex** | Python | Callback system |
-| **Haystack** | Python | Content tracing |
-| **LiteLLM** | Python, JS/TS | 100+ LLMs support |
-| **Vercel AI SDK** | JS/TS | React/Next.js/Vue |
-| **Mastra** | JS/TS | Agent frameworks |
+| Integration       | Languages     | Description            |
+| ----------------- | ------------- | ---------------------- |
+| **SDK**           | Python, JS/TS | Manual instrumentation |
+| **OpenAI**        | Python, JS/TS | Drop-in replacement    |
+| **LangChain**     | Python, JS/TS | Callback handler       |
+| **LlamaIndex**    | Python        | Callback system        |
+| **Haystack**      | Python        | Content tracing        |
+| **LiteLLM**       | Python, JS/TS | 100+ LLMs support      |
+| **Vercel AI SDK** | JS/TS         | React/Next.js/Vue      |
+| **Mastra**        | JS/TS         | Agent frameworks       |
 
 ### 2.5 Python SDK Usage
 
@@ -372,13 +369,13 @@ response = openai.chat.completions.create(
 
 ### 2.9 Use Cases for content-machine
 
-| Use Case | Implementation |
-|----------|----------------|
+| Use Case                 | Implementation                       |
+| ------------------------ | ------------------------------------ |
 | **Trace Video Pipeline** | Track each step from trend → publish |
-| **Prompt Versioning** | Manage script generation prompts |
-| **Quality Evaluation** | LLM-as-judge for video quality |
-| **Cost Tracking** | Monitor LLM token usage |
-| **Debug Issues** | Trace failed generations |
+| **Prompt Versioning**    | Manage script generation prompts     |
+| **Quality Evaluation**   | LLM-as-judge for video quality       |
+| **Cost Tracking**        | Monitor LLM token usage              |
+| **Debug Issues**         | Trace failed generations             |
 
 ---
 
@@ -394,14 +391,14 @@ Promptfoo is a **developer-friendly local tool** for testing LLM applications. I
 
 ### 3.2 Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Prompt Evals** | Test prompts with automated evaluations |
-| **Red Teaming** | Vulnerability scanning for LLM apps |
-| **Model Comparison** | Side-by-side comparison |
-| **CI/CD Integration** | Automated checks in pipelines |
-| **Code Scanning** | PR reviews for LLM security |
-| **Team Sharing** | Share results with team |
+| Feature               | Description                             |
+| --------------------- | --------------------------------------- |
+| **Prompt Evals**      | Test prompts with automated evaluations |
+| **Red Teaming**       | Vulnerability scanning for LLM apps     |
+| **Model Comparison**  | Side-by-side comparison                 |
+| **CI/CD Integration** | Automated checks in pipelines           |
+| **Code Scanning**     | PR reviews for LLM security             |
+| **Team Sharing**      | Share results with team                 |
 
 ### 3.3 Quick Start
 
@@ -417,8 +414,8 @@ npx promptfoo eval
 
 ```yaml
 prompts:
-  - "Generate a {{duration}}-second video script about {{topic}}"
-  - "Create an engaging short-form video script. Topic: {{topic}}, Length: {{duration}}s"
+  - 'Generate a {{duration}}-second video script about {{topic}}'
+  - 'Create an engaging short-form video script. Topic: {{topic}}, Length: {{duration}}s'
 
 providers:
   - openai:gpt-4o
@@ -427,38 +424,38 @@ providers:
 
 tests:
   - vars:
-      topic: "AI news"
+      topic: 'AI news'
       duration: 60
     assert:
       - type: contains
-        value: "AI"
+        value: 'AI'
       - type: llm-rubric
-        value: "The script is engaging and informative"
+        value: 'The script is engaging and informative'
       - type: javascript
         value: output.length > 200
-  
+
   - vars:
-      topic: "Climate change"
+      topic: 'Climate change'
       duration: 30
     assert:
       - type: llm-rubric
-        value: "The script is accurate and not misleading"
+        value: 'The script is accurate and not misleading'
 ```
 
 ### 3.5 Assertion Types
 
-| Type | Description |
-|------|-------------|
-| `contains` | Output contains substring |
-| `not-contains` | Output doesn't contain |
-| `equals` | Exact match |
-| `llm-rubric` | LLM judges output quality |
-| `javascript` | Custom JS assertion |
-| `python` | Custom Python assertion |
-| `regex` | Regular expression match |
-| `is-json` | Valid JSON output |
-| `cost` | Token cost threshold |
-| `latency` | Response time threshold |
+| Type           | Description               |
+| -------------- | ------------------------- |
+| `contains`     | Output contains substring |
+| `not-contains` | Output doesn't contain    |
+| `equals`       | Exact match               |
+| `llm-rubric`   | LLM judges output quality |
+| `javascript`   | Custom JS assertion       |
+| `python`       | Custom Python assertion   |
+| `regex`        | Regular expression match  |
+| `is-json`      | Valid JSON output         |
+| `cost`         | Token cost threshold      |
+| `latency`      | Response time threshold   |
 
 ### 3.6 Red Teaming
 
@@ -469,14 +466,14 @@ npx promptfoo redteam run
 
 #### Red Team Attack Types
 
-| Attack | Description |
-|--------|-------------|
+| Attack           | Description                       |
+| ---------------- | --------------------------------- |
 | Prompt Injection | Attempts to override instructions |
-| Jailbreaking | Bypass safety restrictions |
-| Data Extraction | Extract training data |
-| Harmful Content | Generate harmful outputs |
-| PII Leakage | Expose personal information |
-| Bias Detection | Detect demographic biases |
+| Jailbreaking     | Bypass safety restrictions        |
+| Data Extraction  | Extract training data             |
+| Harmful Content  | Generate harmful outputs          |
+| PII Leakage      | Expose personal information       |
+| Bias Detection   | Detect demographic biases         |
 
 ### 3.7 Model Comparison
 
@@ -485,11 +482,11 @@ providers:
   - id: openai:gpt-4o
     config:
       temperature: 0.7
-  
+
   - id: openai:gpt-4o-mini
     config:
       temperature: 0.7
-  
+
   - id: anthropic:claude-3-opus
     config:
       max_tokens: 1000
@@ -510,10 +507,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Install promptfoo
         run: npm install -g promptfoo
-      
+
       - name: Run evaluations
         run: promptfoo eval --exit-code
         env:
@@ -544,13 +541,13 @@ console.log(results.stats);
 
 ### 3.10 Use Cases for content-machine
 
-| Use Case | Implementation |
-|----------|----------------|
-| **Prompt Testing** | Evaluate script generation prompts |
-| **Model Selection** | Compare Groq, OpenAI, Anthropic |
-| **Quality Gates** | Block deployments with poor quality |
-| **Security Scanning** | Red team content generation |
-| **Regression Testing** | Catch prompt regressions in CI |
+| Use Case               | Implementation                      |
+| ---------------------- | ----------------------------------- |
+| **Prompt Testing**     | Evaluate script generation prompts  |
+| **Model Selection**    | Compare Groq, OpenAI, Anthropic     |
+| **Quality Gates**      | Block deployments with poor quality |
+| **Security Scanning**  | Red team content generation         |
+| **Regression Testing** | Catch prompt regressions in CI      |
 
 ---
 
@@ -626,14 +623,14 @@ const contentAgent = new Agent({
 
 // Run agent with tracing
 async function generateVideo(topic: string) {
-  const trace = langfuse.trace({ 
+  const trace = langfuse.trace({
     name: 'video-generation',
-    metadata: { topic }
+    metadata: { topic },
   });
-  
+
   try {
     const result = await run(contentAgent, `Create a video about ${topic}`);
-    
+
     trace.score({ name: 'success', value: 1 });
     return result.finalOutput;
   } catch (error) {
@@ -658,9 +655,9 @@ providers:
       model: gpt-4o
 
 tests:
-  - description: "Video script generation"
+  - description: 'Video script generation'
     vars:
-      topic: "AI coding assistants"
+      topic: 'AI coding assistants'
     assert:
       - type: llm-rubric
         value: |
@@ -670,48 +667,48 @@ tests:
           - Be appropriate length (30-60 seconds)
           - Include a call to action
         threshold: 0.8
-      
+
       - type: javascript
         value: |
           const wordCount = output.split(' ').length;
           return wordCount >= 80 && wordCount <= 200;
-      
+
       - type: not-contains
-        value: "I cannot"  # No refusals
+        value: 'I cannot' # No refusals
 ```
 
 ---
 
 ## 5. Comparison Matrix
 
-| Feature | OpenAI Agents SDK | LangGraph | LangChain |
-|---------|-------------------|-----------|-----------|
-| **Language** | TypeScript | Python | Python + JS |
-| **Multi-agent** | ✅ Built-in | ✅ Built-in | ✅ Via tools |
-| **Handoffs** | ✅ Native | ✅ Via edges | ❌ Manual |
-| **Voice** | ✅ Realtime | ❌ | ❌ |
-| **MCP** | ✅ Native | ❌ | ❌ |
-| **Tracing** | ✅ Built-in | Via Langfuse | Via Langfuse |
-| **Guardrails** | ✅ Built-in | ✅ Via nodes | ✅ Via tools |
+| Feature         | OpenAI Agents SDK | LangGraph    | LangChain    |
+| --------------- | ----------------- | ------------ | ------------ |
+| **Language**    | TypeScript        | Python       | Python + JS  |
+| **Multi-agent** | ✅ Built-in       | ✅ Built-in  | ✅ Via tools |
+| **Handoffs**    | ✅ Native         | ✅ Via edges | ❌ Manual    |
+| **Voice**       | ✅ Realtime       | ❌           | ❌           |
+| **MCP**         | ✅ Native         | ❌           | ❌           |
+| **Tracing**     | ✅ Built-in       | Via Langfuse | Via Langfuse |
+| **Guardrails**  | ✅ Built-in       | ✅ Via nodes | ✅ Via tools |
 
-| Feature | Langfuse | LangSmith | Arize |
-|---------|----------|-----------|-------|
-| **Open Source** | ✅ MIT | ❌ | ❌ |
-| **Self-Host** | ✅ Easy | ❌ | ❌ |
-| **Prompt Mgmt** | ✅ | ✅ | ❌ |
-| **Evals** | ✅ | ✅ | ✅ |
-| **Cost Tracking** | ✅ | ✅ | ✅ |
+| Feature           | Langfuse | LangSmith | Arize |
+| ----------------- | -------- | --------- | ----- |
+| **Open Source**   | ✅ MIT   | ❌        | ❌    |
+| **Self-Host**     | ✅ Easy  | ❌        | ❌    |
+| **Prompt Mgmt**   | ✅       | ✅        | ❌    |
+| **Evals**         | ✅       | ✅        | ✅    |
+| **Cost Tracking** | ✅       | ✅        | ✅    |
 
 ---
 
 ## 6. Document Metadata
 
-| Field | Value |
-|-------|-------|
-| **Document ID** | DD-072 |
-| **Created** | 2026-01-02 |
-| **Author** | Research Agent |
-| **Status** | Complete |
+| Field            | Value          |
+| ---------------- | -------------- |
+| **Document ID**  | DD-072         |
+| **Created**      | 2026-01-02     |
+| **Author**       | Research Agent |
+| **Status**       | Complete       |
 | **Dependencies** | DD-066, DD-067 |
 
 ---

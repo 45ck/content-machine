@@ -87,7 +87,7 @@ elif llm_provider == "ollama":
 # Unified OpenAI-compatible call
 client = OpenAI(api_key=api_key, base_url=base_url)
 response = client.chat.completions.create(
-    model=model_name, 
+    model=model_name,
     messages=[{"role": "user", "content": prompt}]
 )
 ```
@@ -174,12 +174,12 @@ def parse_search_terms(response):
         return search_terms
     except:
         pass
-    
+
     # Extract JSON array from response
     match = re.search(r"\[.*]", response)
     if match:
         return json.loads(match.group())
-    
+
     return []
 ```
 
@@ -192,20 +192,20 @@ def parse_search_terms(response):
 ```python
 @router.post("/videos", response_model=TaskResponse)
 def create_video(
-    background_tasks: BackgroundTasks, 
-    request: Request, 
+    background_tasks: BackgroundTasks,
+    request: Request,
     body: TaskVideoRequest
 ):
     task_id = utils.get_uuid()
-    
+
     # Add to task queue
     task_manager.add_task(
-        tm.start, 
-        task_id=task_id, 
-        params=body, 
+        tm.start,
+        task_id=task_id,
+        params=body,
         stop_at="video"
     )
-    
+
     return {"task_id": task_id}
 
 @router.get("/tasks/{task_id}", response_model=TaskQueryResponse)
@@ -227,7 +227,7 @@ task_manager = InMemoryTaskManager(max_concurrent_tasks=5)
 
 # Redis (production)
 task_manager = RedisTaskManager(
-    max_concurrent_tasks=5, 
+    max_concurrent_tasks=5,
     redis_url="redis://:password@localhost:6379/0"
 )
 ```
@@ -251,18 +251,18 @@ def combine_videos(
     # Load audio for duration reference
     audio_clip = AudioFileClip(audio_file)
     audio_duration = audio_clip.duration
-    
+
     # Break videos into clips
     for video_path in video_paths:
         clip = VideoFileClip(video_path)
         # Split into max_clip_duration segments
         while start_time < clip_duration:
             subclipped_items.append(SubClippedVideoClip(...))
-    
+
     # Shuffle if random mode
     if video_concat_mode == VideoConcatMode.random:
         random.shuffle(subclipped_items)
-    
+
     # Apply transitions
     for clip in subclipped_items:
         if transition_mode == VideoTransitionMode.fade_in:
@@ -296,15 +296,15 @@ clip = CompositeVideoClip([background, clip_resized])
 def create_text_clip(subtitle_item):
     phrase = subtitle_item[1]
     max_width = video_width * 0.9
-    
+
     # Wrap text to fit
     wrapped_txt, txt_height = wrap_text(
-        phrase, 
-        max_width=max_width, 
-        font=font_path, 
+        phrase,
+        max_width=max_width,
+        font=font_path,
         fontsize=params.font_size
     )
-    
+
     _clip = TextClip(
         text=wrapped_txt,
         font=font_path,
@@ -314,15 +314,15 @@ def create_text_clip(subtitle_item):
         stroke_color=params.stroke_color,
         stroke_width=params.stroke_width,
     )
-    
+
     # Set timing
     _clip = _clip.with_start(subtitle_item[0][0])
     _clip = _clip.with_end(subtitle_item[0][1])
-    
+
     # Position
     if params.subtitle_position == "bottom":
         _clip = _clip.with_position(("center", video_height * 0.95 - _clip.h))
-    
+
     return _clip
 ```
 
@@ -346,12 +346,12 @@ export class OpenAIProvider implements LLMProvider {
     private modelName: string = 'gpt-4',
     private baseUrl: string = 'https://api.openai.com/v1'
   ) {}
-  
+
   async complete(prompt: string): Promise<string> {
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
+        Authorization: `Bearer ${this.apiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -386,7 +386,7 @@ export async function generateScript(
   options: ScriptOptions = {}
 ): Promise<string> {
   const { language = 'en', paragraphs = 1 } = options;
-  
+
   const prompt = `
 # Role: Video Script Generator
 
@@ -419,7 +419,7 @@ ${language ? `- language: ${language}` : ''}
       console.warn(`Attempt ${i + 1} failed:`, e);
     }
   }
-  
+
   return script;
 }
 
@@ -512,17 +512,17 @@ function parseSearchTerms(response: string): string[] {
 // src/planner/index.ts
 export class ContentPlanner {
   constructor(private llm: LLMProvider) {}
-  
+
   async plan(subject: string): Promise<ContentPlan> {
     // 1. Generate script (MoneyPrinterTurbo pattern)
     const script = await generateScript(this.llm, subject);
-    
+
     // 2. Generate search terms (MoneyPrinterTurbo pattern)
     const searchTerms = await generateSearchTerms(this.llm, subject, script);
-    
+
     // 3. Source assets (Pexels API)
     const assets = await sourceAssets(searchTerms);
-    
+
     return { script, assets };
   }
 }

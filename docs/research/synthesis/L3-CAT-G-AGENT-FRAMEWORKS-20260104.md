@@ -15,13 +15,13 @@ Agent frameworks enable LLM-powered orchestration of video generation pipelines.
 
 ## Framework Comparison
 
-| Framework | Language | Tools | State | Streaming | Best For |
-|-----------|----------|-------|-------|-----------|----------|
-| **OpenAI Agents SDK** | TypeScript | Yes | Session | Yes | Simple agents |
-| **Pydantic AI** | Python | Yes | Context | Yes | Type-safe Python |
-| **LangGraph** | Python/TS | Yes | Graph | Yes | Complex workflows |
-| **CrewAI** | Python | Yes | Memory | Yes | Multi-agent |
-| **LlamaIndex** | Python | Yes | Context | Yes | RAG focus |
+| Framework             | Language   | Tools | State   | Streaming | Best For          |
+| --------------------- | ---------- | ----- | ------- | --------- | ----------------- |
+| **OpenAI Agents SDK** | TypeScript | Yes   | Session | Yes       | Simple agents     |
+| **Pydantic AI**       | Python     | Yes   | Context | Yes       | Type-safe Python  |
+| **LangGraph**         | Python/TS  | Yes   | Graph   | Yes       | Complex workflows |
+| **CrewAI**            | Python     | Yes   | Memory  | Yes       | Multi-agent       |
+| **LlamaIndex**        | Python     | Yes   | Context | Yes       | RAG focus         |
 
 ---
 
@@ -53,12 +53,12 @@ const searchTrends = tool({
   description: 'Search for trending topics',
   parameters: z.object({
     topic: z.string(),
-    platform: z.enum(['reddit', 'hackernews', 'twitter'])
+    platform: z.enum(['reddit', 'hackernews', 'twitter']),
   }),
   execute: async ({ topic, platform }) => {
     // Implementation
     return await trendService.search(topic, platform);
-  }
+  },
 });
 
 const generateScript = tool({
@@ -67,11 +67,11 @@ const generateScript = tool({
   parameters: z.object({
     topic: z.string(),
     length: z.number(),
-    style: z.enum(['educational', 'entertaining', 'promotional'])
+    style: z.enum(['educational', 'entertaining', 'promotional']),
   }),
   execute: async ({ topic, length, style }) => {
     return await scriptService.generate(topic, length, style);
-  }
+  },
 });
 
 // Create agent
@@ -80,7 +80,7 @@ const agent = new Agent({
   model: 'gpt-4o',
   instructions: `You are a content planning agent for short-form video.
     Research trending topics, then generate engaging scripts.`,
-  tools: [searchTrends, generateScript]
+  tools: [searchTrends, generateScript],
 });
 
 // Run agent
@@ -95,13 +95,13 @@ import { Agent, handoff } from '@openai/agents';
 const researcher = new Agent({
   name: 'researcher',
   instructions: 'Research topics and gather information',
-  tools: [searchWeb, browsePage]
+  tools: [searchWeb, browsePage],
 });
 
 const writer = new Agent({
   name: 'writer',
   instructions: 'Write engaging video scripts',
-  tools: [generateScript, refineScript]
+  tools: [generateScript, refineScript],
 });
 
 const producer = new Agent({
@@ -111,8 +111,8 @@ const producer = new Agent({
     handoff({ agent: researcher, condition: 'needs research' }),
     handoff({ agent: writer, condition: 'needs script' }),
     renderVideo,
-    publishVideo
-  ]
+    publishVideo,
+  ],
 });
 
 // Producer delegates to specialists
@@ -433,7 +433,7 @@ const tracer = new LangfuseTracer();
 const agent = withTracing(
   new Agent({
     name: 'content-planner',
-    tools: [searchTrends, generateScript]
+    tools: [searchTrends, generateScript],
   }),
   tracer
 );
@@ -457,10 +457,10 @@ const orchestrator = new Agent({
     mcpTool('research', 'http://localhost:8001'),
     mcpTool('tts', 'http://localhost:8002'),
     mcpTool('render', 'http://localhost:8003'),
-    
+
     // Native TypeScript tools
-    tool('publish', publishVideo)
-  ]
+    tool('publish', publishVideo),
+  ],
 });
 ```
 

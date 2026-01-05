@@ -60,7 +60,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 
 # OAuth flow
 flow = InstalledAppFlow.from_client_config(
-    credentials, 
+    credentials,
     scopes=["https://www.googleapis.com/auth/youtube.upload"]
 )
 user_credentials = flow.run_local_server()
@@ -78,6 +78,7 @@ youtube_uploading.upload(oauth_credentials, {
 ### Instagram
 
 **No Official Upload API** - Must use:
+
 1. Browser automation (Playwright/Selenium)
 2. Third-party services (unofficial APIs)
 
@@ -94,14 +95,14 @@ class BaseUploadEngine(BaseEngine):
     name: str
     description: str
     num_options: int
-    
+
     @classmethod
     @abstractmethod
     def get_options(cls): ...
-    
+
     @abstractmethod
     def upload(self, title: str, description: str, path: str): ...
-    
+
     @classmethod
     def get_settings(cls): ...
 ```
@@ -112,22 +113,22 @@ class BaseUploadEngine(BaseEngine):
 class TikTokUploadEngine(BaseUploadEngine):
     name = "TikTokUpload"
     description = "Upload to TikTok"
-    
+
     def __init__(self, options):
         self.hashtags = options[0]
-    
+
     def upload(self, title: str, description: str, path: str):
         cookies = self.get_setting(type="cookies")["cookies"]
-        
+
         # Extract hashtags from title/description
         hashtags = self.hashtags.strip().split(" ")
         for word in title.split():
             if word.startswith("#"):
                 hashtags.append(word)
-        
+
         # Compose final description
         final_description = f"{title} {description} {' '.join(hashtags)}"
-        
+
         upload_video(
             filename=path,
             description=final_description,
@@ -142,7 +143,7 @@ class TikTokUploadEngine(BaseUploadEngine):
 class YouTubeUploadEngine(BaseUploadEngine):
     name = "YouTube"
     description = "Upload videos to YouTube"
-    
+
     def __init__(self, options):
         self.oauth_name = options[0]
         self.hashtags = options[1]
@@ -150,7 +151,7 @@ class YouTubeUploadEngine(BaseUploadEngine):
         self.credentials = self.retrieve_setting(type="youtube_client_secrets")[
             self.oauth["client_secret"]
         ]
-    
+
     def upload(self, title: str, description: str, path: str):
         options = {
             "file": path,
@@ -159,7 +160,7 @@ class YouTubeUploadEngine(BaseUploadEngine):
             "privacyStatus": "private",
             "category": 28,
         }
-        
+
         try:
             youtube_uploading.upload(self.oauth["credentials"], options)
         except Exception:
@@ -180,11 +181,11 @@ def store_setting(cls, *, identifier: str, data: dict):
     with SessionLocal() as db:
         setting = db.execute(
             select(Setting).filter(
-                Setting.provider == cls.name, 
+                Setting.provider == cls.name,
                 Setting.type == identifier
             )
         ).scalar()
-        
+
         if setting:
             setting.data = data
         else:
@@ -196,11 +197,11 @@ def retrieve_setting(cls, *, identifier: str) -> dict | None:
     with SessionLocal() as db:
         result = db.execute(
             select(Setting).filter(
-                Setting.provider == cls.name, 
+                Setting.provider == cls.name,
                 Setting.type == identifier
             )
         ).scalar()
-        
+
         return result.data if result else None
 ```
 
@@ -209,15 +210,15 @@ def retrieve_setting(cls, *, identifier: str) -> dict | None:
 ```python
 def __oauth(cls, credentials):
     flow = InstalledAppFlow.from_client_config(
-        credentials, 
+        credentials,
         scopes=["https://www.googleapis.com/auth/youtube.upload"]
     )
-    
+
     user_credentials = flow.run_local_server(
         success_message="Authenticated! You can close this window.",
         authorization_prompt_message="Please authorize this app.",
     )
-    
+
     return orjson.loads(user_credentials.to_json())
 ```
 
@@ -261,7 +262,7 @@ import { OAuth2Client } from 'google-auth-library';
 export class YouTubeUploader implements UploadEngine {
   name = 'YouTube';
   private oauth2Client: OAuth2Client;
-  
+
   constructor(credentials: YouTubeCredentials) {
     this.oauth2Client = new google.auth.OAuth2(
       credentials.clientId,
@@ -270,10 +271,10 @@ export class YouTubeUploader implements UploadEngine {
     );
     this.oauth2Client.setCredentials(credentials.tokens);
   }
-  
+
   async upload(content: UploadContent): Promise<UploadResult> {
     const youtube = google.youtube({ version: 'v3', auth: this.oauth2Client });
-    
+
     const response = await youtube.videos.insert({
       part: ['snippet', 'status'],
       requestBody: {
@@ -292,19 +293,18 @@ export class YouTubeUploader implements UploadEngine {
         body: fs.createReadStream(content.filePath),
       },
     });
-    
+
     return {
       success: true,
       url: `https://youtube.com/watch?v=${response.data.id}`,
       platformId: response.data.id,
     };
   }
-  
+
   private formatDescription(content: UploadContent): string {
-    const hashtags = content.hashtags?.map(h => 
-      h.startsWith('#') ? h : `#${h}`
-    ).join(' ') || '';
-    
+    const hashtags =
+      content.hashtags?.map((h) => (h.startsWith('#') ? h : `#${h}`)).join(' ') || '';
+
     return `${content.description}\n\n${hashtags}`;
   }
 }
@@ -318,21 +318,25 @@ export class YouTubeUploader implements UploadEngine {
 
 export class TikTokUploader implements UploadEngine {
   name = 'TikTok';
-  
+
   constructor(private cookies: string) {}
-  
+
   async upload(content: UploadContent): Promise<UploadResult> {
     // Use tiktok-uploader npm package or call Python subprocess
     const { spawn } = await import('child_process');
-    
+
     return new Promise((resolve, reject) => {
       const proc = spawn('python', [
-        '-m', 'tiktok_uploader.upload',
-        '--video', content.filePath,
-        '--description', this.formatDescription(content),
-        '--cookies', this.cookies,
+        '-m',
+        'tiktok_uploader.upload',
+        '--video',
+        content.filePath,
+        '--description',
+        this.formatDescription(content),
+        '--cookies',
+        this.cookies,
       ]);
-      
+
       proc.on('close', (code) => {
         if (code === 0) {
           resolve({ success: true });
@@ -342,12 +346,11 @@ export class TikTokUploader implements UploadEngine {
       });
     });
   }
-  
+
   private formatDescription(content: UploadContent): string {
-    const hashtags = content.hashtags?.map(h => 
-      h.startsWith('#') ? h : `#${h}`
-    ).join(' ') || '#fyp #foryou';
-    
+    const hashtags =
+      content.hashtags?.map((h) => (h.startsWith('#') ? h : `#${h}`)).join(' ') || '#fyp #foryou';
+
     return `${content.title} ${content.description} ${hashtags}`;
   }
 }
@@ -358,10 +361,12 @@ export class TikTokUploader implements UploadEngine {
 ## Scheduling Considerations
 
 ### TikTok Scheduling
+
 - Official: Up to 10 days in advance (via web interface)
 - Unofficial: Depends on implementation
 
 ### YouTube Scheduling
+
 - Official API: Full scheduling support
 - Can set `publishAt` timestamp
 
@@ -383,11 +388,11 @@ const response = await youtube.videos.insert({
 
 ### Platform Risks
 
-| Platform | Risk Level | Notes |
-|----------|------------|-------|
-| YouTube | LOW | Official API, well-documented |
-| TikTok | HIGH | No official API, cookie-based can lead to bans |
-| Instagram | HIGH | No official API, ToS violations likely |
+| Platform  | Risk Level | Notes                                          |
+| --------- | ---------- | ---------------------------------------------- |
+| YouTube   | LOW        | Official API, well-documented                  |
+| TikTok    | HIGH       | No official API, cookie-based can lead to bans |
+| Instagram | HIGH       | No official API, ToS violations likely         |
 
 ### Recommendations
 
@@ -432,7 +437,7 @@ export class PublishScheduler {
     private engines: Map<Platform, UploadEngine>,
     private db: Database
   ) {}
-  
+
   async scheduleForReview(video: GeneratedVideo): Promise<void> {
     await this.db.insert('review_queue', {
       videoId: video.id,
@@ -441,11 +446,11 @@ export class PublishScheduler {
       scheduledTime: video.publishTime,
     });
   }
-  
+
   async approveAndSchedule(reviewId: string): Promise<void> {
     const review = await this.db.get('review_queue', reviewId);
     review.status = 'approved';
-    
+
     for (const platform of review.platforms) {
       await this.db.insert('publish_queue', {
         reviewId,
@@ -455,17 +460,17 @@ export class PublishScheduler {
       });
     }
   }
-  
+
   async processQueue(): Promise<void> {
     const due = await this.db.query('publish_queue', {
       status: 'scheduled',
       scheduledTime: { $lte: new Date() },
     });
-    
+
     for (const item of due) {
       const engine = this.engines.get(item.platform);
       const result = await engine.upload(item.content);
-      
+
       item.status = result.success ? 'published' : 'failed';
       item.result = result;
     }

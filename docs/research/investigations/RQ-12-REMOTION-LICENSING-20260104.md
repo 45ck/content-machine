@@ -10,6 +10,7 @@
 ## 1. Problem Statement
 
 Remotion is the core rendering engine. Understanding licensing is critical for:
+
 - content-machine project licensing (MIT)
 - Users deploying content-machine commercially
 - Documentation requirements
@@ -24,18 +25,19 @@ Remotion is the core rendering engine. Understanding licensing is critical for:
 
 Remotion uses a **dual license** model:
 
-| Use Case | License | Cost |
-|----------|---------|------|
-| Individuals | Free | $0 |
-| Companies ≤3 employees | Free | $0 |
-| Non-profits | Free | $0 |
-| Educational | Free | $0 |
-| Evaluation | Free (unlimited time) | $0 |
-| Companies >3 employees | Company License | $100+/month |
+| Use Case               | License               | Cost        |
+| ---------------------- | --------------------- | ----------- |
+| Individuals            | Free                  | $0          |
+| Companies ≤3 employees | Free                  | $0          |
+| Non-profits            | Free                  | $0          |
+| Educational            | Free                  | $0          |
+| Evaluation             | Free (unlimited time) | $0          |
+| Companies >3 employees | Company License       | $100+/month |
 
 ### 2.2 Free License Terms
 
 **Explicitly Free:**
+
 - Individual developers (personal projects)
 - Companies with **3 or fewer employees** (total, not developers)
 - Registered non-profit organizations
@@ -47,10 +49,12 @@ Remotion uses a **dual license** model:
 ### 2.3 Company License Triggers
 
 **You need a Company License if:**
+
 - Your company has **more than 3 employees** AND
 - You use Remotion in production
 
 **NOT triggered by:**
+
 - Revenue amount
 - Number of renders
 - Cloud vs local deployment
@@ -60,12 +64,12 @@ Remotion uses a **dual license** model:
 
 **Source:** [remotion.dev/pricing](https://remotion.dev/pricing)
 
-| Tier | Employees | Price |
-|------|-----------|-------|
-| Starter | 4-10 | $100/month |
-| Growth | 11-50 | $200/month |
-| Scale | 51-100 | $300/month |
-| Enterprise | 100+ | Custom |
+| Tier       | Employees | Price      |
+| ---------- | --------- | ---------- |
+| Starter    | 4-10      | $100/month |
+| Growth     | 11-50     | $200/month |
+| Scale      | 51-100    | $300/month |
+| Enterprise | 100+      | Custom     |
 
 **Note:** Pricing is per company, not per project or per seat.
 
@@ -100,12 +104,14 @@ for obtaining appropriate Remotion licensing based on their situation.
 ### 3.1 What Remotion Checks
 
 **Remotion does NOT have:**
+
 - License key verification in code
 - Phone-home licensing checks
 - Render count limitations
 - Time-bombed evaluation
 
 **Remotion relies on:**
+
 - Honor system
 - License agreement acceptance
 - Legal compliance
@@ -114,7 +120,7 @@ for obtaining appropriate Remotion licensing based on their situation.
 
 Remotion source code is fully available on GitHub. This is intentional:
 
-> "We believe in transparency. The code is open for inspection, 
+> "We believe in transparency. The code is open for inspection,
 > but commercial use requires proper licensing."
 
 ---
@@ -123,12 +129,12 @@ Remotion source code is fully available on GitHub. This is intentional:
 
 If Remotion licensing is a concern, alternatives exist:
 
-| Alternative | License | Quality | Effort |
-|-------------|---------|---------|--------|
-| FFmpeg direct | LGPL/GPL | Lower | High |
-| MoviePy | MIT | Medium | Medium |
-| Editly | MIT | Medium | Medium |
-| Puppeteer + FFmpeg | Apache/LGPL | Lower | High |
+| Alternative        | License     | Quality | Effort |
+| ------------------ | ----------- | ------- | ------ |
+| FFmpeg direct      | LGPL/GPL    | Lower   | High   |
+| MoviePy            | MIT         | Medium  | Medium |
+| Editly             | MIT         | Medium  | Medium |
+| Puppeteer + FFmpeg | Apache/LGPL | Lower   | High   |
 
 **Recommendation:** Remotion's quality and ecosystem justify the licensing cost for companies >3 employees.
 
@@ -144,10 +150,11 @@ If Remotion licensing is a concern, alternatives exist:
 content-machine uses [Remotion](https://remotion.dev) for video rendering.
 
 **Remotion Licensing:**
+
 - Free for individuals and companies ≤3 employees
 - Companies with >3 employees require a [Remotion Company License](https://remotion.dev/license)
 
-content-machine (MIT) does not include Remotion licensing. Ensure you have 
+content-machine (MIT) does not include Remotion licensing. Ensure you have
 appropriate Remotion licensing for your use case.
 ```
 
@@ -170,7 +177,7 @@ const REMOTION_LICENSE_NOTICE = `
 `;
 
 export function showLicenseNotice(): void {
-  if (process.env.REMOTION_LICENSE_ACKNOWLEDGED !== "true") {
+  if (process.env.REMOTION_LICENSE_ACKNOWLEDGED !== 'true') {
     console.log(REMOTION_LICENSE_NOTICE);
   }
 }
@@ -189,10 +196,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Check dependencies
         run: npx license-checker --summary
-        
+
       - name: Verify Remotion awareness
         run: |
           if ! grep -q "Remotion" README.md; then
@@ -229,12 +236,12 @@ jobs:
 
 ## 7. Implementation Recommendations
 
-| Action | Priority | Location |
-|--------|----------|----------|
-| Add README notice | P0 | README.md |
-| Add license check to CLI | P1 | src/cli/index.ts |
-| Document in installation guide | P1 | docs/guides/installation.md |
-| Add to CONTRIBUTING.md | P2 | CONTRIBUTING.md |
+| Action                         | Priority | Location                    |
+| ------------------------------ | -------- | --------------------------- |
+| Add README notice              | P0       | README.md                   |
+| Add license check to CLI       | P1       | src/cli/index.ts            |
+| Document in installation guide | P1       | docs/guides/installation.md |
+| Add to CONTRIBUTING.md         | P2       | CONTRIBUTING.md             |
 
 ---
 

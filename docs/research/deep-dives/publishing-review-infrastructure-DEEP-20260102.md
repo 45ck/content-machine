@@ -12,6 +12,7 @@
 This document analyzes the **publishing tools** (6 repos) and **review UI frameworks** (3 repos) vendored in content-machine. These components handle the final stages of the video pipeline: uploading to platforms (TikTok, YouTube, Instagram) and providing internal review/approval workflows.
 
 **Key Findings:**
+
 1. **TiktokAutoUploader** is the most production-ready TikTok uploader (requests-based, not Selenium)
 2. **pillar-youtube-upload** provides clean Python API for YouTube uploads with S3 streaming
 3. **Mixpost** offers full social media management but is PHP/Laravel (not TypeScript)
@@ -30,6 +31,7 @@ This document analyzes the **publishing tools** (6 repos) and **review UI framew
 **Last Active:** December 2024 (actively maintained)
 
 **Architecture:**
+
 ```
 TiktokAutoUploader/
 ├── cli.py                    # Command-line interface
@@ -43,6 +45,7 @@ TiktokAutoUploader/
 ```
 
 **Key Features:**
+
 - ✅ **Requests-based** (not Selenium) - fast uploads in ~3 seconds
 - ✅ **Multi-account support** via cookie storage
 - ✅ **Schedule uploads** up to 10 days in advance
@@ -51,6 +54,7 @@ TiktokAutoUploader/
 - ⚠️ **Login requires browser** (Selenium for initial auth only)
 
 **Core Upload Flow:**
+
 ```python
 from tiktok_uploader import login, upload_video
 
@@ -71,12 +75,14 @@ upload_video(
 ```
 
 **Technical Details:**
+
 - Uses AWS SigV4 authentication for TikTok's video storage
 - Generates X-Bogus signature via Node.js subprocess
 - Chunks video uploads (5MB chunks) with CRC32 verification
 - Handles TikTok datacenter assignment (useast2a, etc.)
 
 **Signature Generation Pattern:**
+
 ```python
 # Calls Node.js for TikTok signature
 js_path = os.path.join(os.getcwd(), "tiktok_uploader", "tiktok-signature", "browser.js")
@@ -86,6 +92,7 @@ tt_output = json.loads(signatures)["data"]
 ```
 
 **Risk Assessment:**
+
 - 🔴 **HIGH ToS RISK** - Unofficial API, may break anytime
 - 🟡 Requires Node.js for signature generation
 - 🟢 No Selenium for actual uploads (fast)
@@ -100,6 +107,7 @@ tt_output = json.loads(signatures)["data"]
 **Package:** `pillar-youtube-upload`
 
 **Architecture:**
+
 ```
 youtube_upload/
 ├── client.py          # YoutubeUploader class
@@ -108,6 +116,7 @@ youtube_upload/
 ```
 
 **Key Features:**
+
 - ✅ **Official YouTube Data API v3** - legitimate, stable
 - ✅ **S3 streaming** - upload directly from cloud storage
 - ✅ **Resumable uploads** - handles large files
@@ -115,6 +124,7 @@ youtube_upload/
 - ✅ **OAuth2 authentication** - proper Google auth
 
 **Usage Pattern:**
+
 ```python
 from youtube_upload.client import YoutubeUploader
 
@@ -149,6 +159,7 @@ uploader.close()
 ```
 
 **Authentication Flow:**
+
 1. Create OAuth credentials in Google Cloud Console
 2. Enable YouTube Data API v3
 3. Download `client_secrets.json`
@@ -156,6 +167,7 @@ uploader.close()
 5. Tokens saved to `oauth.json` for reuse
 
 **Risk Assessment:**
+
 - 🟢 **LOW RISK** - Official API, Google-supported
 - 🟡 Requires Google Cloud project setup
 - 🟡 API quotas (10,000 units/day default)
@@ -171,11 +183,13 @@ uploader.close()
 **Purpose:** Downloads videos from RedNote (Xiaohongshu) and uploads to Instagram Reels.
 
 **Key Dependencies:**
+
 - `instagrapi>=1.17.0` - Instagram private API
 - `moviepy==1.0.3` - Video processing
 - `ffmpeg` - Format conversion
 
 **Configuration:**
+
 ```env
 INSTAGRAM_USERNAME=your_username
 INSTAGRAM_PASSWORD=your_password
@@ -185,6 +199,7 @@ CHECK_INTERVAL=3600
 ```
 
 **Risk Assessment:**
+
 - 🔴 **HIGH RISK** - Both RedNote and Instagram unofficial APIs
 - 🟡 IP detection issues with RedNote
 - 🟡 Instagram account ban risk
@@ -202,12 +217,14 @@ CHECK_INTERVAL=3600
 **Purpose:** Full end-to-end Reddit-to-YouTube automation.
 
 **Features:**
+
 - Extract Reddit posts
 - Generate TTS voiceover
 - Create video with images/footage
 - Upload to YouTube and Instagram
 
 **Stack:**
+
 - FFmpeg for video/audio
 - PostgreSQL for tracking posts
 - youtubedr (Go YouTube library)
@@ -227,6 +244,7 @@ CHECK_INTERVAL=3600
 **Purpose:** Full social media management platform.
 
 **Features:**
+
 - Multi-platform posting (Facebook, Twitter, Instagram, LinkedIn, Pinterest, TikTok, YouTube)
 - Scheduling and queue management
 - Team collaboration and workspaces
@@ -235,6 +253,7 @@ CHECK_INTERVAL=3600
 - Post templates
 
 **Limitations for content-machine:**
+
 - ❌ PHP/Laravel - not TypeScript
 - ❌ Heavy framework (not embeddable)
 - 🟡 Commercial Pro version for full features
@@ -254,17 +273,18 @@ CHECK_INTERVAL=3600
 
 **Why react-admin is the best choice:**
 
-| Criterion | react-admin | Appsmith | Budibase |
-|-----------|-------------|----------|----------|
-| Language | TypeScript ✅ | Java/Node | Node.js |
-| Architecture | Library ✅ | Full platform | Full platform |
-| Embedding | Easy ✅ | Difficult | Difficult |
-| Customization | Complete ✅ | Limited | Limited |
-| Bundle Size | Small ✅ | Large | Large |
-| Learning Curve | Moderate | Low | Low |
-| Self-host | N/A (client-side) | Required | Required |
+| Criterion      | react-admin       | Appsmith      | Budibase      |
+| -------------- | ----------------- | ------------- | ------------- |
+| Language       | TypeScript ✅     | Java/Node     | Node.js       |
+| Architecture   | Library ✅        | Full platform | Full platform |
+| Embedding      | Easy ✅           | Difficult     | Difficult     |
+| Customization  | Complete ✅       | Limited       | Limited       |
+| Bundle Size    | Small ✅          | Large         | Large         |
+| Learning Curve | Moderate          | Low           | Low           |
+| Self-host      | N/A (client-side) | Required      | Required      |
 
 **Key Features:**
+
 - 45+ data provider adapters (REST, GraphQL, Firebase, etc.)
 - Complete CRUD operations
 - Authentication & authorization
@@ -275,27 +295,45 @@ CHECK_INTERVAL=3600
 - Undo support
 
 **Example Review Dashboard:**
+
 ```tsx
 // ReviewDashboard.tsx
-import { Admin, Resource, List, DataTable, Edit, SimpleForm, 
-         TextInput, SelectInput, DateField, EditButton } from 'react-admin';
+import {
+  Admin,
+  Resource,
+  List,
+  DataTable,
+  Edit,
+  SimpleForm,
+  TextInput,
+  SelectInput,
+  DateField,
+  EditButton,
+} from 'react-admin';
 import { dataProvider } from './dataProvider';
 
 const VideoList = () => (
-  <List filters={[
-    <SelectInput source="status" choices={[
-      { id: 'pending', name: 'Pending Review' },
-      { id: 'approved', name: 'Approved' },
-      { id: 'rejected', name: 'Rejected' },
-    ]} />,
-  ]}>
+  <List
+    filters={[
+      <SelectInput
+        source="status"
+        choices={[
+          { id: 'pending', name: 'Pending Review' },
+          { id: 'approved', name: 'Approved' },
+          { id: 'rejected', name: 'Rejected' },
+        ]}
+      />,
+    ]}
+  >
     <DataTable>
       <DataTable.Col source="id" />
       <DataTable.Col source="title" />
       <DataTable.Col source="status" />
       <DataTable.Col source="created_at" field={DateField} />
       <DataTable.Col source="platform" />
-      <DataTable.Col><EditButton /></DataTable.Col>
+      <DataTable.Col>
+        <EditButton />
+      </DataTable.Col>
     </DataTable>
   </List>
 );
@@ -305,16 +343,22 @@ const VideoEdit = () => (
     <SimpleForm>
       <TextInput source="title" />
       <TextInput source="description" multiline />
-      <SelectInput source="status" choices={[
-        { id: 'pending', name: 'Pending Review' },
-        { id: 'approved', name: 'Approved' },
-        { id: 'rejected', name: 'Rejected' },
-      ]} />
-      <SelectInput source="platform" choices={[
-        { id: 'tiktok', name: 'TikTok' },
-        { id: 'youtube', name: 'YouTube Shorts' },
-        { id: 'instagram', name: 'Instagram Reels' },
-      ]} />
+      <SelectInput
+        source="status"
+        choices={[
+          { id: 'pending', name: 'Pending Review' },
+          { id: 'approved', name: 'Approved' },
+          { id: 'rejected', name: 'Rejected' },
+        ]}
+      />
+      <SelectInput
+        source="platform"
+        choices={[
+          { id: 'tiktok', name: 'TikTok' },
+          { id: 'youtube', name: 'YouTube Shorts' },
+          { id: 'instagram', name: 'Instagram Reels' },
+        ]}
+      />
     </SimpleForm>
   </Edit>
 );
@@ -329,6 +373,7 @@ export const ReviewApp = () => (
 ```
 
 **Data Provider Pattern:**
+
 ```typescript
 // dataProvider.ts
 import { DataProvider } from 'react-admin';
@@ -379,6 +424,7 @@ export const dataProvider: DataProvider = {
 **Purpose:** Low-code platform for internal tools.
 
 **Features:**
+
 - Drag-and-drop UI builder
 - 45+ database/API connectors
 - JavaScript for logic
@@ -386,6 +432,7 @@ export const dataProvider: DataProvider = {
 - Self-hosted or cloud
 
 **Architecture:**
+
 ```
 appsmith/
 ├── app/
@@ -397,9 +444,11 @@ appsmith/
 ```
 
 **New Feature - Appsmith Agents:**
+
 > "An agentic AI platform that integrates the latest AI models with private and proprietary data at scale."
 
 **Limitations:**
+
 - ❌ Heavy infrastructure (Java + MongoDB + Redis)
 - ❌ Requires self-hosting or cloud
 - 🟡 Less flexible than code-first approach
@@ -415,6 +464,7 @@ appsmith/
 **Purpose:** Open-source low-code platform.
 
 **Features:**
+
 - Form builder
 - Database builder (CouchDB based)
 - Automation workflows
@@ -422,6 +472,7 @@ appsmith/
 - Role-based access
 
 **Architecture:**
+
 ```
 budibase/
 ├── packages/
@@ -434,12 +485,14 @@ budibase/
 ```
 
 **Data Sources:**
+
 - PostgreSQL, MySQL, MariaDB
 - MongoDB, CouchDB
 - Airtable, DynamoDB, S3
 - REST APIs, GraphQL
 
 **Limitations:**
+
 - ❌ CouchDB requirement
 - ❌ GPL license for server (copyleft)
 - 🟡 Svelte-based (not React)
@@ -492,7 +545,7 @@ const uploadQueue = new Queue<UploadJob>('uploads', { connection: redisConnectio
 
 uploadQueue.process(async (job) => {
   const { platform, videoPath, title, description, tags, scheduleTime } = job.data;
-  
+
   switch (platform) {
     case 'tiktok':
       return await uploadToTikTok(videoPath, title, scheduleTime);
@@ -503,37 +556,48 @@ uploadQueue.process(async (job) => {
   }
 });
 
-async function uploadToTikTok(videoPath: string, title: string, scheduleTime?: number): Promise<void> {
+async function uploadToTikTok(
+  videoPath: string,
+  title: string,
+  scheduleTime?: number
+): Promise<void> {
   // Call Python script
   const result = await new Promise((resolve, reject) => {
     const python = spawn('python', [
       'scripts/tiktok_upload.py',
-      '--video', videoPath,
-      '--title', title,
-      ...(scheduleTime ? ['--schedule', String(scheduleTime)] : [])
+      '--video',
+      videoPath,
+      '--title',
+      title,
+      ...(scheduleTime ? ['--schedule', String(scheduleTime)] : []),
     ]);
-    
+
     let output = '';
-    python.stdout.on('data', (data) => output += data);
+    python.stdout.on('data', (data) => (output += data));
     python.stderr.on('data', (data) => console.error(data.toString()));
     python.on('close', (code) => {
       code === 0 ? resolve(output) : reject(new Error(`Exit code ${code}`));
     });
   });
-  
+
   return JSON.parse(result);
 }
 
 async function uploadToYouTube(videoPath: string, options: YouTubeOptions): Promise<void> {
   const python = spawn('python', [
     'scripts/youtube_upload.py',
-    '--video', videoPath,
-    '--title', options.title,
-    '--description', options.description,
-    '--tags', options.tags.join(','),
-    '--privacy', options.privacyStatus || 'private'
+    '--video',
+    videoPath,
+    '--title',
+    options.title,
+    '--description',
+    options.description,
+    '--tags',
+    options.tags.join(','),
+    '--privacy',
+    options.privacyStatus || 'private',
   ]);
-  
+
   // ... handle output
 }
 ```
@@ -550,18 +614,18 @@ export const VideoReviewSchema = z.object({
   description: z.string().max(2200),
   videoPath: z.string(),
   thumbnailPath: z.string().optional(),
-  
+
   status: z.enum(['draft', 'pending', 'approved', 'rejected', 'published']),
   platform: z.enum(['tiktok', 'youtube', 'instagram']),
-  
+
   reviewNotes: z.string().optional(),
   reviewedBy: z.string().uuid().optional(),
   reviewedAt: z.date().optional(),
-  
+
   scheduledFor: z.date().optional(),
   publishedAt: z.date().optional(),
   publishedUrl: z.string().url().optional(),
-  
+
   createdAt: z.date(),
   updatedAt: z.date(),
 });
@@ -586,25 +650,25 @@ model Video {
   description String?
   videoPath   String
   thumbnailPath String?
-  
+
   status      VideoStatus @default(DRAFT)
   platform    Platform
-  
+
   reviewNotes String?
   reviewedBy  User?    @relation("ReviewedBy", fields: [reviewerId], references: [id])
   reviewerId  String?
   reviewedAt  DateTime?
-  
+
   scheduledFor DateTime?
   publishedAt  DateTime?
   publishedUrl String?
-  
+
   createdBy   User     @relation("CreatedBy", fields: [creatorId], references: [id])
   creatorId   String
-  
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   uploads     Upload[]
 }
 
@@ -614,16 +678,16 @@ model Upload {
   videoId   String
   platform  Platform
   status    UploadStatus @default(PENDING)
-  
+
   externalId  String?   // Platform-specific video ID
   externalUrl String?   // Platform URL
-  
+
   error       String?
   attempts    Int       @default(0)
-  
+
   scheduledFor DateTime?
   uploadedAt   DateTime?
-  
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -659,19 +723,19 @@ enum Platform {
 
 ### 4.1 Immediate Adoption
 
-| Tool | Use Case | Priority |
-|------|----------|----------|
-| **react-admin** | Review dashboard UI | HIGH |
-| **pillar-youtube-upload** | YouTube publishing | HIGH |
-| **TiktokAutoUploader** | TikTok publishing (study) | MEDIUM |
+| Tool                      | Use Case                  | Priority |
+| ------------------------- | ------------------------- | -------- |
+| **react-admin**           | Review dashboard UI       | HIGH     |
+| **pillar-youtube-upload** | YouTube publishing        | HIGH     |
+| **TiktokAutoUploader**    | TikTok publishing (study) | MEDIUM   |
 
 ### 4.2 Study for Patterns
 
-| Tool | Pattern to Extract |
-|------|-------------------|
-| Mixpost | Scheduling queue, multi-platform abstraction |
-| go-youtube-reddit-automation | Full pipeline orchestration |
-| rednote-instagram-auto-uploader | Instagram API patterns |
+| Tool                            | Pattern to Extract                           |
+| ------------------------------- | -------------------------------------------- |
+| Mixpost                         | Scheduling queue, multi-platform abstraction |
+| go-youtube-reddit-automation    | Full pipeline orchestration                  |
+| rednote-instagram-auto-uploader | Instagram API patterns                       |
 
 ### 4.3 Integration Priorities
 
@@ -687,11 +751,11 @@ enum Platform {
 
 ### 5.1 Platform API Risks
 
-| Platform | API Type | Risk Level | Mitigation |
-|----------|----------|------------|------------|
-| YouTube | Official | LOW | Follow quota limits |
-| TikTok | Unofficial | HIGH | Monitor for breaks, proxy rotation |
-| Instagram | Unofficial | HIGH | Rate limiting, 2FA handling |
+| Platform  | API Type   | Risk Level | Mitigation                         |
+| --------- | ---------- | ---------- | ---------------------------------- |
+| YouTube   | Official   | LOW        | Follow quota limits                |
+| TikTok    | Unofficial | HIGH       | Monitor for breaks, proxy rotation |
+| Instagram | Unofficial | HIGH       | Rate limiting, 2FA handling        |
 
 ### 5.2 Account Safety
 
@@ -703,7 +767,7 @@ const rateLimits = {
     minIntervalMinutes: 30,
   },
   youtube: {
-    uploadsPerDay: 6,  // API quota consideration
+    uploadsPerDay: 6, // API quota consideration
     minIntervalMinutes: 15,
   },
   instagram: {

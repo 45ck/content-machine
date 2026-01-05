@@ -10,11 +10,13 @@
 ## 1. Problem Statement
 
 The original system design focused on "product demos" — a narrow use case. To serve:
+
 - **Gen Z (16-25):** Brainrot, meme-style, fast-paced chaos
 - **Broader demographics:** Educational, story-driven, motivational
 - **Multiple platforms:** TikTok, YouTube Shorts, Instagram Reels
 
 We need a **content archetype system** that configures:
+
 - Pacing (scene duration, cuts per minute)
 - Audio (music mood, voice rate, volume levels)
 - Captions (font, size, position, animation)
@@ -27,12 +29,12 @@ We need a **content archetype system** that configures:
 
 ### 2.1 Existing Differentiation Patterns
 
-| Repo | Pattern | Limitation |
-|------|---------|------------|
-| MoneyPrinterTurbo | 25+ flat config params | No archetype grouping |
-| ShortGPT | Engine class inheritance | Hardcoded per engine |
-| short-video-maker-gyori | Zod enum configs | Mood only, not full archetype |
-| vidosy | JSON scene config | Per-scene, not per-video |
+| Repo                    | Pattern                  | Limitation                    |
+| ----------------------- | ------------------------ | ----------------------------- |
+| MoneyPrinterTurbo       | 25+ flat config params   | No archetype grouping         |
+| ShortGPT                | Engine class inheritance | Hardcoded per engine          |
+| short-video-maker-gyori | Zod enum configs         | Mood only, not full archetype |
+| vidosy                  | JSON scene config        | Per-scene, not per-video      |
 
 **Key Finding:** No vendored repo has explicit archetype presets. Differentiation happens through manual configuration composition.
 
@@ -66,13 +68,19 @@ voice_rate = 1.0  # 0.8-1.4 range
 
 ```typescript
 // short-video-maker-gyori - 12 mood categories
-type MusicMood = 
-  | 'sad' | 'melancholic'     // Story drama
-  | 'happy' | 'euphoric'      // Brainrot energy
-  | 'excited' | 'chill'       // Meme vibes
-  | 'uneasy' | 'angry'        // Story tension
-  | 'dark' | 'hopeful'        // Motivational
-  | 'contemplative' | 'funny'; // Educational, comedy
+type MusicMood =
+  | 'sad'
+  | 'melancholic' // Story drama
+  | 'happy'
+  | 'euphoric' // Brainrot energy
+  | 'excited'
+  | 'chill' // Meme vibes
+  | 'uneasy'
+  | 'angry' // Story tension
+  | 'dark'
+  | 'hopeful' // Motivational
+  | 'contemplative'
+  | 'funny'; // Educational, comedy
 ```
 
 ### 2.5 Music Volume Levels
@@ -81,31 +89,31 @@ type MusicMood =
 // short-video-maker-gyori
 enum MusicVolumeEnum {
   off = 0,
-  low = 0.2,      // Educational (voice priority)
-  medium = 0.45,  // Story (balanced)
-  high = 0.7,     // Brainrot (music-forward)
+  low = 0.2, // Educational (voice priority)
+  medium = 0.45, // Story (balanced)
+  high = 0.7, // Brainrot (music-forward)
 }
 ```
 
 ### 2.6 Caption Styling Patterns
 
-| Archetype | Font | Size | Position | Highlight | Colors |
-|-----------|------|------|----------|-----------|--------|
-| **Brainrot** | Bangers, BarlowCondensed | 130px | center | Yes | Yellow text, red highlight |
-| **Meme** | Impact, LuckiestGuy | 100px | center | Optional | White text, black stroke |
-| **Educational** | Inter, Roboto | 60px | bottom | No | White text, subtle shadow |
-| **Story** | LuckiestGuy | 100px | center | Yes | White text, blue highlight |
-| **Product** | SF Pro, Inter | 48px | bottom | No | Brand colors |
+| Archetype       | Font                     | Size  | Position | Highlight | Colors                     |
+| --------------- | ------------------------ | ----- | -------- | --------- | -------------------------- |
+| **Brainrot**    | Bangers, BarlowCondensed | 130px | center   | Yes       | Yellow text, red highlight |
+| **Meme**        | Impact, LuckiestGuy      | 100px | center   | Optional  | White text, black stroke   |
+| **Educational** | Inter, Roboto            | 60px  | bottom   | No        | White text, subtle shadow  |
+| **Story**       | LuckiestGuy              | 100px | center   | Yes       | White text, blue highlight |
+| **Product**     | SF Pro, Inter            | 48px  | bottom   | No        | Brand colors               |
 
 ### 2.7 Background Video Types
 
-| Archetype | Primary Source | Examples |
-|-----------|----------------|----------|
-| **Brainrot** | Gameplay footage | Minecraft parkour, Subway Surfers, car racing |
-| **Meme** | Reaction clips, stock | Shocked face, nodding, ironic clips |
-| **Educational** | Stock footage | Pexels/Pixabay matching topic |
-| **Story** | Abstract/moody | Dark streets, rain, cinematic b-roll |
-| **Product** | Screen capture | Actual product UI |
+| Archetype       | Primary Source        | Examples                                      |
+| --------------- | --------------------- | --------------------------------------------- |
+| **Brainrot**    | Gameplay footage      | Minecraft parkour, Subway Surfers, car racing |
+| **Meme**        | Reaction clips, stock | Shocked face, nodding, ironic clips           |
+| **Educational** | Stock footage         | Pexels/Pixabay matching topic                 |
+| **Story**       | Abstract/moody        | Dark streets, rain, cinematic b-roll          |
+| **Product**     | Screen capture        | Actual product UI                             |
 
 ---
 
@@ -134,9 +142,18 @@ const AudioConfigSchema = z.object({
   voiceRate: z.number().min(0.5).max(2.0),
   voicePitch: z.number().optional(),
   musicMood: z.enum([
-    'happy', 'euphoric', 'excited', 'chill', 'funny',
-    'sad', 'melancholic', 'uneasy', 'dark', 'angry',
-    'hopeful', 'contemplative',
+    'happy',
+    'euphoric',
+    'excited',
+    'chill',
+    'funny',
+    'sad',
+    'melancholic',
+    'uneasy',
+    'dark',
+    'angry',
+    'hopeful',
+    'contemplative',
   ]),
   musicVolume: z.enum(['off', 'low', 'medium', 'high']),
   musicVolumeValue: z.number().min(0).max(1).optional(),
@@ -159,25 +176,19 @@ const CaptionConfigSchema = z.object({
 
 const VisualConfigSchema = z.object({
   backgroundType: z.enum([
-    'stock-footage',      // Pexels/Pixabay semantic match
-    'gameplay',           // Minecraft, Subway Surfers, etc.
-    'screen-capture',     // Product demos
-    'split-screen',       // Content + gameplay
-    'abstract',           // Gradients, particles
-    'user-footage',       // User-provided clips
+    'stock-footage', // Pexels/Pixabay semantic match
+    'gameplay', // Minecraft, Subway Surfers, etc.
+    'screen-capture', // Product demos
+    'split-screen', // Content + gameplay
+    'abstract', // Gradients, particles
+    'user-footage', // User-provided clips
   ]),
-  gameplayStyle: z.enum([
-    'minecraft-parkour',
-    'subway-surfers',
-    'car-racing',
-    'ski-runner',
-    'satisfying-asmr',
-  ]).optional(),
+  gameplayStyle: z
+    .enum(['minecraft-parkour', 'subway-surfers', 'car-racing', 'ski-runner', 'satisfying-asmr'])
+    .optional(),
   splitScreenRatio: z.number().min(0.3).max(0.7).optional(),
   useEffects: z.boolean(),
-  effectTypes: z.array(z.enum([
-    'zoom', 'shake', 'glitch', 'flash', 'emoji-overlay',
-  ])).optional(),
+  effectTypes: z.array(z.enum(['zoom', 'shake', 'glitch', 'flash', 'emoji-overlay'])).optional(),
   colorGrading: z.enum(['none', 'vibrant', 'muted', 'dark', 'retro']).optional(),
 });
 
@@ -187,16 +198,22 @@ const ScriptConfigSchema = z.object({
     max: z.number(),
   }),
   tone: z.enum([
-    'casual', 'energetic', 'serious', 'humorous', 'dramatic',
-    'informative', 'conversational', 'provocative',
+    'casual',
+    'energetic',
+    'serious',
+    'humorous',
+    'dramatic',
+    'informative',
+    'conversational',
+    'provocative',
   ]),
   structure: z.enum([
-    'hook-body-cta',      // Standard
-    'question-answer',    // Educational
-    'story-arc',          // Narrative
-    'listicle',           // "5 things..."
-    'hot-take',           // Opinion/commentary
-    'meme-format',        // Setup-punchline
+    'hook-body-cta', // Standard
+    'question-answer', // Educational
+    'story-arc', // Narrative
+    'listicle', // "5 things..."
+    'hot-take', // Opinion/commentary
+    'meme-format', // Setup-punchline
   ]),
   language: z.enum(['formal', 'informal', 'slang', 'gen-z']).optional(),
   useHook: z.boolean(),
@@ -218,10 +235,12 @@ export const ContentArchetypeSchema = z.object({
   id: z.string(),
   name: z.string(),
   description: z.string(),
-  targetDemographic: z.object({
-    ageRange: z.object({ min: z.number(), max: z.number() }).optional(),
-    interests: z.array(z.string()).optional(),
-  }).optional(),
+  targetDemographic: z
+    .object({
+      ageRange: z.object({ min: z.number(), max: z.number() }).optional(),
+      interests: z.array(z.string()).optional(),
+    })
+    .optional(),
   pacing: PacingConfigSchema,
   audio: AudioConfigSchema,
   captions: CaptionConfigSchema,
@@ -602,7 +621,7 @@ cm script research.json --archetype custom --config ./my-archetype.json
 // User can extend preset archetypes
 const myArchetype = extendArchetype('gen-z-brainrot', {
   captions: {
-    fontFamily: 'Comic Sans MS',  // Override specific fields
+    fontFamily: 'Comic Sans MS', // Override specific fields
   },
 });
 ```
@@ -619,10 +638,12 @@ version: 1.0.0
 ---
 
 # System
-You are a Gen Z content creator making viral TikToks. 
+
+You are a Gen Z content creator making viral TikToks.
 Use slang, be chaotic, be unhinged but relatable.
 
 # Rules
+
 - HOOK in first 2 seconds (question or shocking statement)
 - SHORT sentences (3-5 words max)
 - Use filler words like "bro", "literally", "lowkey"
@@ -631,6 +652,7 @@ Use slang, be chaotic, be unhinged but relatable.
 - Target: 80-120 words total
 
 # Topic
+
 {{topic}}
 ```
 
@@ -643,7 +665,7 @@ The `cm visuals` command should adjust matching based on archetype:
 const footageSources: Record<string, FootageSource[]> = {
   'gen-z-brainrot': ['gameplay-library', 'user-footage'],
   'meme-comedy': ['reaction-clips', 'stock-footage', 'user-footage'],
-  'educational': ['pexels', 'pixabay', 'user-footage'],
+  educational: ['pexels', 'pixabay', 'user-footage'],
   'reddit-story': ['abstract-loops', 'moody-stock', 'user-footage'],
   'product-demo': ['screen-capture', 'user-footage'],
 };
@@ -657,21 +679,21 @@ For brainrot content, split-screen with gameplay is essential:
 
 ```typescript
 // Remotion composition for split-screen
-const SplitScreenComposition = ({ 
-  mainContent, 
-  gameplayFootage, 
-  ratio 
+const SplitScreenComposition = ({
+  mainContent,
+  gameplayFootage,
+  ratio
 }: SplitScreenProps) => {
   const topHeight = VIDEO_HEIGHT * ratio;
   const bottomHeight = VIDEO_HEIGHT * (1 - ratio);
-  
+
   return (
     <AbsoluteFill>
       {/* Main content (top) */}
       <AbsoluteFill style={{ height: topHeight }}>
         <OffthreadVideo src={mainContent} />
       </AbsoluteFill>
-      
+
       {/* Gameplay (bottom) */}
       <AbsoluteFill style={{ top: topHeight, height: bottomHeight }}>
         <OffthreadVideo src={gameplayFootage} />
@@ -702,6 +724,7 @@ assets/gameplay/
 ```
 
 **Acquisition strategy:**
+
 1. Users provide their own gameplay clips (recommended)
 2. Creative Commons gameplay from YouTube (with attribution)
 3. Community-contributed clips (future)

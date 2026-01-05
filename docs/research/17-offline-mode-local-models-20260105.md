@@ -12,12 +12,12 @@ This document analyzes the **minimum viable offline stack** for content-machine 
 
 ### Key Findings
 
-| Component | Cloud Option | Local Replacement | Storage | Notes |
-|-----------|--------------|-------------------|---------|-------|
-| **LLM** | OpenAI/Claude | Ollama | 4-20GB | Model-dependent |
-| **TTS** | EdgeTTS | Kokoro | ~300MB | 82M params, high quality |
-| **ASR** | Whisper API | whisper.cpp | 1-10GB | Model-dependent |
-| **Embeddings** | OpenAI | sentence-transformers | ~100MB | all-MiniLM-L6-v2 |
+| Component      | Cloud Option  | Local Replacement     | Storage | Notes                    |
+| -------------- | ------------- | --------------------- | ------- | ------------------------ |
+| **LLM**        | OpenAI/Claude | Ollama                | 4-20GB  | Model-dependent          |
+| **TTS**        | EdgeTTS       | Kokoro                | ~300MB  | 82M params, high quality |
+| **ASR**        | Whisper API   | whisper.cpp           | 1-10GB  | Model-dependent          |
+| **Embeddings** | OpenAI        | sentence-transformers | ~100MB  | all-MiniLM-L6-v2         |
 
 **Total Estimated Storage:** 6-32GB (depending on model sizes)
 
@@ -56,12 +56,12 @@ This document analyzes the **minimum viable offline stack** for content-machine 
 
 ### 1.2 Component Matrix
 
-| Component | Local Solution | Vendor Path | Quality | Speed |
-|-----------|---------------|-------------|---------|-------|
-| LLM | Ollama + llama3.1:8b | `vendor/agents/langchain/libs/partners/ollama` | Good | Medium |
-| TTS | Kokoro-FastAPI | `vendor/audio/kokoro-fastapi` | High | 35-100x realtime |
-| ASR | @remotion/install-whisper-cpp | `vendor/captions/whisper` | Excellent | Fast |
-| Embeddings | fastembed (ONNX) | `vendor/agents/llama-index/.../fastembed` | Good | Fast |
+| Component  | Local Solution                | Vendor Path                                    | Quality   | Speed            |
+| ---------- | ----------------------------- | ---------------------------------------------- | --------- | ---------------- |
+| LLM        | Ollama + llama3.1:8b          | `vendor/agents/langchain/libs/partners/ollama` | Good      | Medium           |
+| TTS        | Kokoro-FastAPI                | `vendor/audio/kokoro-fastapi`                  | High      | 35-100x realtime |
+| ASR        | @remotion/install-whisper-cpp | `vendor/captions/whisper`                      | Excellent | Fast             |
+| Embeddings | fastembed (ONNX)              | `vendor/agents/llama-index/.../fastembed`      | Good      | Fast             |
 
 ---
 
@@ -207,12 +207,12 @@ print(f"Dimensions: {len(embedding)}")  # 384
 
 ### 3.3 Embedding Model Comparison
 
-| Model | Size | Dimensions | Speed | Quality | Use Case |
-|-------|------|------------|-------|---------|----------|
-| `all-MiniLM-L6-v2` | 90MB | 384 | Fast | Good | General semantic search |
-| `BAAI/bge-small-en-v1.5` | 130MB | 384 | Fast | Better | RAG applications |
-| `BAAI/bge-base-en-v1.5` | 440MB | 768 | Medium | Best | Production RAG |
-| `nomic-embed-text` (Ollama) | 270MB | 768 | Medium | Good | Ollama ecosystem |
+| Model                       | Size  | Dimensions | Speed  | Quality | Use Case                |
+| --------------------------- | ----- | ---------- | ------ | ------- | ----------------------- |
+| `all-MiniLM-L6-v2`          | 90MB  | 384        | Fast   | Good    | General semantic search |
+| `BAAI/bge-small-en-v1.5`    | 130MB | 384        | Fast   | Better  | RAG applications        |
+| `BAAI/bge-base-en-v1.5`     | 440MB | 768        | Medium | Best    | Production RAG          |
+| `nomic-embed-text` (Ollama) | 270MB | 768        | Medium | Good    | Ollama ecosystem        |
 
 ### 3.4 TypeScript: transformers.js for Browser/Node
 
@@ -226,7 +226,7 @@ import { pipeline } from '@xenova/transformers';
 const embedder = await pipeline(
   'feature-extraction',
   'Xenova/all-MiniLM-L6-v2',
-  { quantized: true }  // Use quantized model (~23MB)
+  { quantized: true } // Use quantized model (~23MB)
 );
 
 // Generate embeddings
@@ -236,7 +236,7 @@ const result = await embedder('Python coding productivity tips', {
 });
 
 const embedding = Array.from(result.data);
-console.log(`Dimensions: ${embedding.length}`);  // 384
+console.log(`Dimensions: ${embedding.length}`); // 384
 ```
 
 ---
@@ -290,20 +290,20 @@ for i, result in enumerate(generator):
 ```typescript
 // npm install kokoro-js
 
-import { KokoroTTS, TextSplitterStream } from "kokoro-js";
+import { KokoroTTS, TextSplitterStream } from 'kokoro-js';
 
 class KokoroService {
   private tts: KokoroTTS;
 
   static async init(): Promise<KokoroService> {
-    const tts = await KokoroTTS.from_pretrained("onnx-community/Kokoro-82M-v1.0-ONNX", {
-      dtype: "fp32",  // or "q8", "q4" for smaller size
-      device: "cpu",  // Node.js only supports CPU
+    const tts = await KokoroTTS.from_pretrained('onnx-community/Kokoro-82M-v1.0-ONNX', {
+      dtype: 'fp32', // or "q8", "q4" for smaller size
+      device: 'cpu', // Node.js only supports CPU
     });
     return new KokoroService(tts);
   }
 
-  async generate(text: string, voice: string = "af_heart"): Promise<ArrayBuffer> {
+  async generate(text: string, voice: string = 'af_heart'): Promise<ArrayBuffer> {
     const splitter = new TextSplitterStream();
     const stream = this.tts.stream(splitter, { voice });
 
@@ -369,15 +369,15 @@ with client.audio.speech.with_streaming_response.create(
 
 **Note:** Piper is not currently vendored, but is referenced in research.
 
-| Feature | Kokoro | Piper |
-|---------|--------|-------|
-| Model Size | 82M params (~300MB) | Variable (15-100MB per voice) |
-| Languages | 9 (en, es, fr, hi, it, ja, pt, zh) | 30+ |
-| Quality | Excellent | Good |
-| Speed | 35-100x realtime | Fast |
-| License | Apache-2.0 | MIT |
-| Voice Mixing | ✅ Yes | ❌ No |
-| Word Timestamps | ✅ Yes | ❌ No |
+| Feature         | Kokoro                             | Piper                         |
+| --------------- | ---------------------------------- | ----------------------------- |
+| Model Size      | 82M params (~300MB)                | Variable (15-100MB per voice) |
+| Languages       | 9 (en, es, fr, hi, it, ja, pt, zh) | 30+                           |
+| Quality         | Excellent                          | Good                          |
+| Speed           | 35-100x realtime                   | Fast                          |
+| License         | Apache-2.0                         | MIT                           |
+| Voice Mixing    | ✅ Yes                             | ❌ No                         |
+| Word Timestamps | ✅ Yes                             | ❌ No                         |
 
 **Recommendation:** Use **Kokoro** for English content (higher quality, voice mixing, timestamps). Consider Piper for broader language support.
 
@@ -390,24 +390,20 @@ with client.audio.speech.with_streaming_response.create(
 **Source:** [short-video-maker-gyori/src/short-creator/libraries/Whisper.ts](../../../vendor/short-video-maker-gyori/src/short-creator/libraries/Whisper.ts)
 
 ```typescript
-import {
-  downloadWhisperModel,
-  installWhisperCpp,
-  transcribe,
-} from "@remotion/install-whisper-cpp";
-import path from "path";
+import { downloadWhisperModel, installWhisperCpp, transcribe } from '@remotion/install-whisper-cpp';
+import path from 'path';
 
 // One-time setup
 async function setupWhisper(installPath: string) {
   await installWhisperCpp({
     to: installPath,
-    version: "1.5.5",
+    version: '1.5.5',
     printOutput: true,
   });
 
   await downloadWhisperModel({
-    model: "medium.en",  // English-only, good quality
-    folder: path.join(installPath, "models"),
+    model: 'medium.en', // English-only, good quality
+    folder: path.join(installPath, 'models'),
     printOutput: true,
   });
 }
@@ -415,17 +411,17 @@ async function setupWhisper(installPath: string) {
 // Transcribe audio
 async function transcribeAudio(audioPath: string): Promise<Caption[]> {
   const { transcription } = await transcribe({
-    model: "medium.en",
-    whisperPath: "./whisper",
-    modelFolder: "./whisper/models",
+    model: 'medium.en',
+    whisperPath: './whisper',
+    modelFolder: './whisper/models',
     inputPath: audioPath,
-    tokenLevelTimestamps: true,  // Word-level timing
+    tokenLevelTimestamps: true, // Word-level timing
   });
 
-  return transcription.flatMap(record =>
+  return transcription.flatMap((record) =>
     record.tokens
-      .filter(token => !token.text.startsWith("[_TT"))
-      .map(token => ({
+      .filter((token) => !token.text.startsWith('[_TT'))
+      .map((token) => ({
         text: token.text,
         startMs: record.offsets.from,
         endMs: record.offsets.to,
@@ -460,14 +456,14 @@ for segment in result["segments"]:
 
 ### 5.3 Whisper Model Sizes
 
-| Model | Parameters | VRAM | English WER | Speed |
-|-------|------------|------|-------------|-------|
-| tiny | 39M | ~1GB | 7.6% | 10x |
-| base | 74M | ~1GB | 5.8% | 7x |
-| small | 244M | ~2GB | 4.3% | 4x |
-| medium | 769M | ~5GB | 3.3% | 2x |
-| large-v3 | 1.55B | ~10GB | 2.5% | 1x |
-| turbo | 809M | ~6GB | 2.9% | 8x |
+| Model    | Parameters | VRAM  | English WER | Speed |
+| -------- | ---------- | ----- | ----------- | ----- |
+| tiny     | 39M        | ~1GB  | 7.6%        | 10x   |
+| base     | 74M        | ~1GB  | 5.8%        | 7x    |
+| small    | 244M       | ~2GB  | 4.3%        | 4x    |
+| medium   | 769M       | ~5GB  | 3.3%        | 2x    |
+| large-v3 | 1.55B      | ~10GB | 2.5%        | 1x    |
+| turbo    | 809M       | ~6GB  | 2.9%        | 8x    |
 
 **Recommendation:** Use `turbo` for transcription (fast + accurate). Use `medium.en` for English-only with limited VRAM.
 
@@ -477,33 +473,33 @@ for segment in result["segments"]:
 
 ### 6.1 Minimum Offline Stack
 
-| Component | Model | Size | Notes |
-|-----------|-------|------|-------|
-| **Ollama LLM** | llama3.1:8b | 4.7GB | Good general purpose |
-| **Kokoro TTS** | Kokoro-82M | ~300MB | Auto-downloads from HF |
-| **Whisper ASR** | turbo | ~1.5GB | Fast + accurate |
-| **Embeddings** | all-MiniLM-L6-v2 | ~90MB | For semantic search |
-| **Total** | - | **~6.6GB** | Minimum viable |
+| Component       | Model            | Size       | Notes                  |
+| --------------- | ---------------- | ---------- | ---------------------- |
+| **Ollama LLM**  | llama3.1:8b      | 4.7GB      | Good general purpose   |
+| **Kokoro TTS**  | Kokoro-82M       | ~300MB     | Auto-downloads from HF |
+| **Whisper ASR** | turbo            | ~1.5GB     | Fast + accurate        |
+| **Embeddings**  | all-MiniLM-L6-v2 | ~90MB      | For semantic search    |
+| **Total**       | -                | **~6.6GB** | Minimum viable         |
 
 ### 6.2 Production Offline Stack
 
-| Component | Model | Size | Notes |
-|-----------|-------|------|-------|
-| **Ollama LLM** | llama3.1:70b-q4 | 40GB | High quality |
-| **Kokoro TTS** | Kokoro-82M | ~300MB | Same |
-| **Whisper ASR** | large-v3 | ~6GB | Best accuracy |
-| **Embeddings** | bge-base-en-v1.5 | ~440MB | Better retrieval |
-| **Total** | - | **~47GB** | Production quality |
+| Component       | Model            | Size      | Notes              |
+| --------------- | ---------------- | --------- | ------------------ |
+| **Ollama LLM**  | llama3.1:70b-q4  | 40GB      | High quality       |
+| **Kokoro TTS**  | Kokoro-82M       | ~300MB    | Same               |
+| **Whisper ASR** | large-v3         | ~6GB      | Best accuracy      |
+| **Embeddings**  | bge-base-en-v1.5 | ~440MB    | Better retrieval   |
+| **Total**       | -                | **~47GB** | Production quality |
 
 ### 6.3 Minimal Footprint (Edge/Embedded)
 
-| Component | Model | Size | Notes |
-|-----------|-------|------|-------|
-| **Ollama LLM** | phi3:mini | 2.3GB | Small but capable |
-| **Kokoro TTS** | Kokoro-82M (q4) | ~80MB | Quantized |
-| **Whisper ASR** | tiny.en | ~150MB | English only |
-| **Embeddings** | all-MiniLM-L6-v2 (q8) | ~23MB | Quantized |
-| **Total** | - | **~2.5GB** | Edge deployment |
+| Component       | Model                 | Size       | Notes             |
+| --------------- | --------------------- | ---------- | ----------------- |
+| **Ollama LLM**  | phi3:mini             | 2.3GB      | Small but capable |
+| **Kokoro TTS**  | Kokoro-82M (q4)       | ~80MB      | Quantized         |
+| **Whisper ASR** | tiny.en               | ~150MB     | English only      |
+| **Embeddings**  | all-MiniLM-L6-v2 (q8) | ~23MB      | Quantized         |
+| **Total**       | -                     | **~2.5GB** | Edge deployment   |
 
 ---
 
@@ -512,16 +508,19 @@ for segment in result["segments"]:
 ### 7.1 Phased Approach
 
 **Phase 1 (MVP):** Cloud-first with graceful degradation
+
 - Use EdgeTTS (free, 30+ languages)
 - Use OpenAI/Claude for LLM
 - Prepare abstraction layer for swap
 
 **Phase 2 (Offline Ready):**
+
 - Add Ollama support with model detection
 - Add Kokoro-FastAPI as TTS option
 - Add local Whisper transcription
 
 **Phase 3 (Full Offline):**
+
 - Implement offline mode toggle
 - Bundle minimal models
 - Add model download management
@@ -540,14 +539,14 @@ class OllamaProvider implements LLMProvider {
   private model: string;
 
   constructor(config: { baseUrl?: string; model?: string }) {
-    this.baseUrl = config.baseUrl || "http://localhost:11434";
-    this.model = config.model || "llama3.1:8b";
+    this.baseUrl = config.baseUrl || 'http://localhost:11434';
+    this.model = config.model || 'llama3.1:8b';
   }
 
   async generate(prompt: string, options: LLMOptions): Promise<string> {
     const response = await fetch(`${this.baseUrl}/api/generate`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: this.model,
         prompt,
@@ -568,8 +567,8 @@ class OpenAIProvider implements LLMProvider {
 }
 
 // Factory
-function createLLMProvider(mode: "offline" | "cloud"): LLMProvider {
-  if (mode === "offline") {
+function createLLMProvider(mode: 'offline' | 'cloud'): LLMProvider {
+  if (mode === 'offline') {
     return new OllamaProvider({});
   }
   return new OpenAIProvider({});
@@ -589,7 +588,7 @@ async function checkOfflineReadiness(): Promise<OfflineStatus> {
 
   // Check Ollama
   try {
-    const response = await fetch("http://localhost:11434/api/tags");
+    const response = await fetch('http://localhost:11434/api/tags');
     if (response.ok) {
       const data = await response.json();
       status.ollama = data.models?.length > 0;
@@ -598,15 +597,15 @@ async function checkOfflineReadiness(): Promise<OfflineStatus> {
 
   // Check Kokoro
   try {
-    const response = await fetch("http://localhost:8880/v1/audio/voices");
+    const response = await fetch('http://localhost:8880/v1/audio/voices');
     status.kokoro = response.ok;
   } catch {}
 
   // Check Whisper (file-based check)
-  status.whisper = fs.existsSync("./whisper/main");
+  status.whisper = fs.existsSync('./whisper/main');
 
   // Check embeddings (model files)
-  status.embeddings = fs.existsSync("./models/embeddings");
+  status.embeddings = fs.existsSync('./models/embeddings');
 
   return status;
 }
@@ -618,14 +617,14 @@ async function checkOfflineReadiness(): Promise<OfflineStatus> {
 
 ### Vendored Repositories
 
-| Component | Path | License |
-|-----------|------|---------|
-| Kokoro | `vendor/audio/kokoro/` | Apache-2.0 |
-| Kokoro-FastAPI | `vendor/audio/kokoro-fastapi/` | Apache-2.0 |
-| Whisper | `vendor/captions/whisper/` | MIT |
-| LangChain Ollama | `vendor/agents/langchain/libs/partners/ollama/` | MIT |
-| LlamaIndex Fastembed | `vendor/agents/llama-index/.../embeddings/fastembed/` | MIT |
-| short-video-maker-gyori | `vendor/short-video-maker-gyori/` | MIT |
+| Component               | Path                                                  | License    |
+| ----------------------- | ----------------------------------------------------- | ---------- |
+| Kokoro                  | `vendor/audio/kokoro/`                                | Apache-2.0 |
+| Kokoro-FastAPI          | `vendor/audio/kokoro-fastapi/`                        | Apache-2.0 |
+| Whisper                 | `vendor/captions/whisper/`                            | MIT        |
+| LangChain Ollama        | `vendor/agents/langchain/libs/partners/ollama/`       | MIT        |
+| LlamaIndex Fastembed    | `vendor/agents/llama-index/.../embeddings/fastembed/` | MIT        |
+| short-video-maker-gyori | `vendor/short-video-maker-gyori/`                     | MIT        |
 
 ### External Resources
 

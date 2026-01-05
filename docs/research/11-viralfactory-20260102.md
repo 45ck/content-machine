@@ -16,15 +16,15 @@ Handles: scripts, TTS, assets, video/audio backgrounds, and auto-upload to TikTo
 
 ## Key Features
 
-| Feature | Details |
-|---------|---------|
+| Feature               | Details                       |
+| --------------------- | ----------------------------- |
 | **Modular Pipelines** | Custom content creation flows |
-| **Script Generation** | AI-powered |
-| **TTS** | 🐸TTS (Coqui) - open source |
-| **Asset Retrieval** | Video/audio backgrounds |
-| **Captions** | Whisper-timestamped |
-| **Auto Upload** | TikTok + YouTube |
-| **UI** | Gradio web interface |
+| **Script Generation** | AI-powered                    |
+| **TTS**               | 🐸TTS (Coqui) - open source   |
+| **Asset Retrieval**   | Video/audio backgrounds       |
+| **Captions**          | Whisper-timestamped           |
+| **Auto Upload**       | TikTok + YouTube              |
+| **UI**                | Gradio web interface          |
 
 ## Tech Stack
 
@@ -38,6 +38,7 @@ Handles: scripts, TTS, assets, video/audio backgrounds, and auto-upload to TikTo
 ## Requirements
 
 ⚠️ Heavy requirements:
+
 - NVIDIA GPU with 10GB+ VRAM
 - 20GB+ free disk
 - CUDA 11.8
@@ -47,15 +48,18 @@ Handles: scripts, TTS, assets, video/audio backgrounds, and auto-upload to TikTo
 ## What We Can Reuse
 
 ### ✅ High Value
+
 - **Coqui TTS patterns** - Open source TTS alternative
 - **Auto-upload to TikTok/YouTube** - Distribution automation
 - **Pipeline modularity** - Engine composition patterns
 - **whisper-timestamped** - Word-level timing
 
 ### ⚠️ Medium Value
+
 - **Gradio patterns** - UI reference (if we add web UI)
 
 ### ❌ Not Needed
+
 - **GPU requirements** - We want CPU-friendly
 - **Full pipeline** - Different architecture
 

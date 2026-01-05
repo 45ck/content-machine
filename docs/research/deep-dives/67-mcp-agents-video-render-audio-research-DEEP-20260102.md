@@ -38,13 +38,13 @@ The **Model Context Protocol (MCP)** is a standardized way to provide context an
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Tools** | Decorated functions that LLMs can call |
-| **Resources** | Read-only data endpoints (like GET) |
-| **Prompts** | Reusable templates for LLM interactions |
-| **Enterprise Auth** | Google, GitHub, Azure, Auth0, WorkOS |
-| **Deployment Tools** | FastMCP Cloud, self-hosted |
+| Feature              | Description                             |
+| -------------------- | --------------------------------------- |
+| **Tools**            | Decorated functions that LLMs can call  |
+| **Resources**        | Read-only data endpoints (like GET)     |
+| **Prompts**          | Reusable templates for LLM interactions |
+| **Enterprise Auth**  | Google, GitHub, Azure, Auth0, WorkOS    |
+| **Deployment Tools** | FastMCP Cloud, self-hosted              |
 
 #### Code Pattern
 
@@ -86,28 +86,28 @@ FastMCP 1.0 was incorporated into the official SDK. FastMCP 2.0 extends far beyo
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **51 Features** | Sessions, auth, streaming, stateless mode |
-| **HTTP Streaming** | Modern alternative to SSE |
-| **Stateless Mode** | Perfect for serverless (Lambda, Vercel) |
-| **CLI Tools** | Testing and debugging utilities |
-| **Standard Schema** | Works with Zod, Yup, etc. |
+| Feature             | Description                               |
+| ------------------- | ----------------------------------------- |
+| **51 Features**     | Sessions, auth, streaming, stateless mode |
+| **HTTP Streaming**  | Modern alternative to SSE                 |
+| **Stateless Mode**  | Perfect for serverless (Lambda, Vercel)   |
+| **CLI Tools**       | Testing and debugging utilities           |
+| **Standard Schema** | Works with Zod, Yup, etc.                 |
 
 #### Code Pattern
 
 ```typescript
-import { FastMCP } from "fastmcp";
-import { z } from "zod";
+import { FastMCP } from 'fastmcp';
+import { z } from 'zod';
 
 const server = new FastMCP({
-  name: "ContentMachine",
-  version: "1.0.0",
+  name: 'ContentMachine',
+  version: '1.0.0',
 });
 
 server.addTool({
-  name: "capture_ui",
-  description: "Capture product UI screenshots",
+  name: 'capture_ui',
+  description: 'Capture product UI screenshots',
   parameters: z.object({
     url: z.string().url(),
     selector: z.string().optional(),
@@ -117,7 +117,7 @@ server.addTool({
   },
 });
 
-server.start({ transportType: "httpStream", httpStream: { port: 8080 } });
+server.start({ transportType: 'httpStream', httpStream: { port: 8080 } });
 ```
 
 #### When to Use
@@ -133,6 +133,7 @@ server.start({ transportType: "httpStream", httpStream: { port: 8080 } });
 **License:** MIT
 
 Core SDK features:
+
 - STDIO, SSE, and Streamable HTTP transports
 - Full MCP specification implementation
 - Tools, Resources, Prompts, Completions, Elicitation
@@ -175,13 +176,13 @@ LangGraph is a **low-level orchestration framework** for building stateful, long
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **StateGraph** | Nodes + edges define workflow |
-| **Durable Execution** | Persists through failures |
-| **Human-in-the-Loop** | Inspect/modify state at any point |
-| **Memory** | Short-term + long-term persistent |
-| **LangSmith Integration** | Tracing and debugging |
+| Feature                   | Description                       |
+| ------------------------- | --------------------------------- |
+| **StateGraph**            | Nodes + edges define workflow     |
+| **Durable Execution**     | Persists through failures         |
+| **Human-in-the-Loop**     | Inspect/modify state at any point |
+| **Memory**                | Short-term + long-term persistent |
+| **LangSmith Integration** | Tracing and debugging             |
 
 #### Code Pattern
 
@@ -249,13 +250,13 @@ LangChain is the **high-level framework** for building LLM applications. LangGra
 
 #### Core Components
 
-| Component | Purpose |
-|-----------|---------|
-| **Models** | LLM interfaces (OpenAI, Anthropic, etc.) |
-| **Chains** | Sequences of operations |
-| **Agents** | LLMs that can use tools |
-| **Retrievers** | Vector stores, RAG |
-| **Memory** | Conversation history |
+| Component      | Purpose                                  |
+| -------------- | ---------------------------------------- |
+| **Models**     | LLM interfaces (OpenAI, Anthropic, etc.) |
+| **Chains**     | Sequences of operations                  |
+| **Agents**     | LLMs that can use tools                  |
+| **Retrievers** | Vector stores, RAG                       |
+| **Memory**     | Conversation history                     |
 
 #### Code Pattern
 
@@ -284,12 +285,12 @@ LlamaIndex is a **data framework** for LLM applications, focusing on connecting 
 
 #### Core Features
 
-| Feature | Description |
-|---------|-------------|
-| **Data Connectors** | 300+ integrations (LlamaHub) |
-| **Indices** | VectorStoreIndex, KnowledgeGraph, etc. |
-| **Query Interface** | Retrieval-augmented generation |
-| **Agents** | Tool-using agents |
+| Feature             | Description                            |
+| ------------------- | -------------------------------------- |
+| **Data Connectors** | 300+ integrations (LlamaHub)           |
+| **Indices**         | VectorStoreIndex, KnowledgeGraph, etc. |
+| **Query Interface** | Retrieval-augmented generation         |
+| **Agents**          | Tool-using agents                      |
 
 #### Code Pattern
 
@@ -318,15 +319,16 @@ response = query_engine.query("What are the key features of our product?")
 
 ### Agent Framework Comparison
 
-| Framework | Best For | Complexity | Integration |
-|-----------|----------|------------|-------------|
-| **LangGraph** | Workflows, durability | High | LangChain |
-| **LangChain** | LLM apps, chains | Medium | Extensive |
-| **LlamaIndex** | RAG, data | Medium | Data sources |
-| **PydanticAI** | Type-safe agents | Low | MCP |
-| **CrewAI** | Multi-agent | High | LangChain |
+| Framework      | Best For              | Complexity | Integration  |
+| -------------- | --------------------- | ---------- | ------------ |
+| **LangGraph**  | Workflows, durability | High       | LangChain    |
+| **LangChain**  | LLM apps, chains      | Medium     | Extensive    |
+| **LlamaIndex** | RAG, data             | Medium     | Data sources |
+| **PydanticAI** | Type-safe agents      | Low        | MCP          |
+| **CrewAI**     | Multi-agent           | High       | LangChain    |
 
 **Recommendation for content-machine:**
+
 - **LangGraph** for content planning pipeline (orchestration)
 - **LlamaIndex** for product knowledge base (RAG)
 - **PydanticAI** for type-safe individual agents
@@ -348,13 +350,13 @@ FFMPerative is a **chat-to-video-editing** tool powered by LLMs. Natural languag
 
 #### Features
 
-| Feature | Description |
-|---------|-------------|
-| **Natural Language** | "Resize video to 1080p" |
-| **LLM-Powered** | Uses fine-tuned LLaMA2 |
-| **FFmpeg Backend** | Reliable video processing |
-| **Compose Mode** | Multi-clip editing |
-| **Subtitles** | SRT merging |
+| Feature              | Description               |
+| -------------------- | ------------------------- |
+| **Natural Language** | "Resize video to 1080p"   |
+| **LLM-Powered**      | Uses fine-tuned LLaMA2    |
+| **FFmpeg Backend**   | Reliable video processing |
+| **Compose Mode**     | Multi-clip editing        |
+| **Subtitles**        | SRT merging               |
 
 #### Code Pattern
 
@@ -391,13 +393,13 @@ MoviePy is a **Python library for video editing**: cuts, concatenations, title i
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
+| Feature         | Description             |
+| --------------- | ----------------------- |
 | **Pure Python** | NumPy arrays for frames |
-| **Effects** | Pan, zoom, fade, etc. |
-| **Text** | TextClip for overlays |
-| **Audio** | Audio clip manipulation |
-| **GIF Support** | Read/write GIFs |
+| **Effects**     | Pan, zoom, fade, etc.   |
+| **Text**        | TextClip for overlays   |
+| **Audio**       | Audio clip manipulation |
+| **GIF Support** | Read/write GIFs         |
 
 #### Code Pattern
 
@@ -430,13 +432,13 @@ MoviePy v2.0 introduced major breaking changes. Always check documentation for m
 
 #### Comparison: MoviePy vs Remotion
 
-| Aspect | MoviePy | Remotion |
-|--------|---------|----------|
-| **Language** | Python | TypeScript/React |
-| **Paradigm** | Imperative | Declarative |
-| **Speed** | Slower (Python) | Faster (native) |
-| **Flexibility** | Very flexible | React components |
-| **Best For** | Quick edits | Production videos |
+| Aspect          | MoviePy         | Remotion          |
+| --------------- | --------------- | ----------------- |
+| **Language**    | Python          | TypeScript/React  |
+| **Paradigm**    | Imperative      | Declarative       |
+| **Speed**       | Slower (Python) | Faster (native)   |
+| **Flexibility** | Very flexible   | React components  |
+| **Best For**    | Quick edits     | Production videos |
 
 ### 3.3 FFmpeg (Core)
 
@@ -447,13 +449,13 @@ FFmpeg is the **foundation** for all video processing. Both MoviePy and Remotion
 
 #### Libraries
 
-| Library | Purpose |
-|---------|---------|
-| **libavcodec** | Encoding/decoding |
-| **libavformat** | Containers (mp4, webm) |
-| **libavfilter** | Filters and effects |
-| **libswresample** | Audio resampling |
-| **libswscale** | Color/scaling |
+| Library           | Purpose                |
+| ----------------- | ---------------------- |
+| **libavcodec**    | Encoding/decoding      |
+| **libavformat**   | Containers (mp4, webm) |
+| **libavfilter**   | Filters and effects    |
+| **libswresample** | Audio resampling       |
+| **libswscale**    | Color/scaling          |
 
 **Recommendation:** Use FFmpeg directly only for complex operations not covered by higher-level tools.
 
@@ -474,12 +476,12 @@ Remotion enables **creating videos programmatically using React**. Videos are Re
 
 #### Why React for Video?
 
-| Benefit | Description |
-|---------|-------------|
-| **Web Technologies** | CSS, Canvas, SVG, WebGL |
-| **Programming** | Variables, functions, APIs, algorithms |
-| **React** | Components, composition, ecosystem |
-| **TypeScript** | Type safety, IDE support |
+| Benefit              | Description                            |
+| -------------------- | -------------------------------------- |
+| **Web Technologies** | CSS, Canvas, SVG, WebGL                |
+| **Programming**      | Variables, functions, APIs, algorithms |
+| **React**            | Components, composition, ecosystem     |
+| **TypeScript**       | Type safety, IDE support               |
 
 #### Famous Examples
 
@@ -490,18 +492,16 @@ Remotion enables **creating videos programmatically using React**. Videos are Re
 #### Code Pattern
 
 ```tsx
-import { AbsoluteFill, Sequence, useCurrentFrame } from "remotion";
+import { AbsoluteFill, Sequence, useCurrentFrame } from 'remotion';
 
 export const ProductDemo: React.FC = () => {
   const frame = useCurrentFrame();
   const opacity = Math.min(1, frame / 30);
 
   return (
-    <AbsoluteFill style={{ backgroundColor: "black" }}>
+    <AbsoluteFill style={{ backgroundColor: 'black' }}>
       <Sequence from={0} durationInFrames={60}>
-        <h1 style={{ opacity, color: "white" }}>
-          Welcome to Our Product
-        </h1>
+        <h1 style={{ opacity, color: 'white' }}>Welcome to Our Product</h1>
       </Sequence>
       <Sequence from={60} durationInFrames={90}>
         <ProductFeatureDemo />
@@ -514,6 +514,7 @@ export const ProductDemo: React.FC = () => {
 #### ⚠️ License Warning
 
 **CRITICAL:** Remotion has a special company license. Read the LICENSE.md before commercial use:
+
 - Free for individuals and open-source
 - Company license required for some commercial use cases
 - Review at https://remotion.dev/license
@@ -531,14 +532,14 @@ Mosaico is a **Python library for programmatic video compositions** with AI-powe
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **AI Script Generation** | LLM-powered video scripts |
-| **Asset Management** | Audio, images, text, subtitles |
-| **Positioning System** | Absolute, relative, region-based |
-| **Effects** | Pan, zoom, extensible |
-| **TTS Integration** | ElevenLabs, etc. |
-| **LangChain/Haystack** | ML framework integration |
+| Feature                  | Description                      |
+| ------------------------ | -------------------------------- |
+| **AI Script Generation** | LLM-powered video scripts        |
+| **Asset Management**     | Audio, images, text, subtitles   |
+| **Positioning System**   | Absolute, relative, region-based |
+| **Effects**              | Pan, zoom, extensible            |
+| **TTS Integration**      | ElevenLabs, etc.                 |
+| **LangChain/Haystack**   | ML framework integration         |
 
 #### Code Pattern
 
@@ -579,13 +580,13 @@ render_video(project, "output/")
 
 #### Mosaico vs Remotion
 
-| Aspect | Mosaico | Remotion |
-|--------|---------|----------|
-| **Language** | Python | TypeScript |
-| **AI Integration** | Built-in | External |
-| **TTS** | Integrated | External |
-| **Flexibility** | Higher-level | Lower-level |
-| **Best For** | News/narration | Product demos |
+| Aspect             | Mosaico        | Remotion      |
+| ------------------ | -------------- | ------------- |
+| **Language**       | Python         | TypeScript    |
+| **AI Integration** | Built-in       | External      |
+| **TTS**            | Integrated     | External      |
+| **Flexibility**    | Higher-level   | Lower-level   |
+| **Best For**       | News/narration | Product demos |
 
 ### 4.3 chuk-motion (MCP + Remotion)
 
@@ -600,35 +601,35 @@ chuk-motion is an **MCP server that enables AI to generate Remotion videos** wit
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **51 Video Components** | Charts, scenes, layouts, animations |
-| **7 Built-in Themes** | Tech, Finance, Education, etc. |
-| **Design Tokens** | Colors, typography, spacing, motion |
+| Feature                   | Description                          |
+| ------------------------- | ------------------------------------ |
+| **51 Video Components**   | Charts, scenes, layouts, animations  |
+| **7 Built-in Themes**     | Tech, Finance, Education, etc.       |
+| **Design Tokens**         | Colors, typography, spacing, motion  |
 | **Platform Safe Margins** | LinkedIn, TikTok, Instagram, YouTube |
-| **Track-Based Timeline** | Professional multi-track composition |
+| **Track-Based Timeline**  | Professional multi-track composition |
 
 #### Platform Safe Margins
 
-| Platform | Top | Bottom | Left | Right |
-|----------|-----|--------|------|-------|
-| **LinkedIn** | 40px | 40px | 24px | 24px |
-| **Instagram Stories** | 100px | 120px | 24px | 24px |
-| **TikTok** | 100px | 180px | 24px | 80px |
-| **YouTube** | 20px | 20px | 20px | 20px |
+| Platform              | Top   | Bottom | Left | Right |
+| --------------------- | ----- | ------ | ---- | ----- |
+| **LinkedIn**          | 40px  | 40px   | 24px | 24px  |
+| **Instagram Stories** | 100px | 120px  | 24px | 24px  |
+| **TikTok**            | 100px | 180px  | 24px | 80px  |
+| **YouTube**           | 20px  | 20px   | 20px | 20px  |
 
 #### Component Library (51 total)
 
-| Category | Components |
-|----------|------------|
-| **Charts** | Pie, Bar, Line, Area, Donut, HorizontalBar |
-| **Scenes** | TitleScene, EndScreen |
-| **Overlays** | LowerThird, TextOverlay, SubscribeButton |
-| **Code** | CodeBlock, TypingCode, CodeDiff |
-| **Layouts** | 17 professional layouts |
-| **Animations** | Counter, LayoutEntrance, PanelCascade |
+| Category            | Components                                             |
+| ------------------- | ------------------------------------------------------ |
+| **Charts**          | Pie, Bar, Line, Area, Donut, HorizontalBar             |
+| **Scenes**          | TitleScene, EndScreen                                  |
+| **Overlays**        | LowerThird, TextOverlay, SubscribeButton               |
+| **Code**            | CodeBlock, TypingCode, CodeDiff                        |
+| **Layouts**         | 17 professional layouts                                |
+| **Animations**      | Counter, LayoutEntrance, PanelCascade                  |
 | **Text Animations** | Typewriter, Stagger, Wavy, TrueFocus, Decrypted, Fuzzy |
-| **Demo Realism** | BeforeAfterSlider, BrowserFrame, DeviceFrame, Terminal |
+| **Demo Realism**    | BeforeAfterSlider, BrowserFrame, DeviceFrame, Terminal |
 
 #### MCP Server Usage
 
@@ -667,13 +668,13 @@ Kokoro is an **open-weight TTS model** with only 82M parameters that delivers qu
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **82M Parameters** | Lightweight, fast |
-| **Apache License** | Fully open weights |
+| Feature            | Description                                                             |
+| ------------------ | ----------------------------------------------------------------------- |
+| **82M Parameters** | Lightweight, fast                                                       |
+| **Apache License** | Fully open weights                                                      |
 | **Multi-language** | English, Japanese, Chinese, Spanish, French, Italian, Portuguese, Hindi |
-| **High Quality** | Comparable to larger models |
-| **Cost-Efficient** | Local inference |
+| **High Quality**   | Comparable to larger models                                             |
+| **Cost-Efficient** | Local inference                                                         |
 
 #### Code Pattern
 
@@ -685,7 +686,7 @@ import soundfile as sf
 pipeline = KPipeline(lang_code='a')  # 'a' = American English
 
 text = """
-Welcome to our product demo. Today we're showing you 
+Welcome to our product demo. Today we're showing you
 the fastest way to generate videos with AI.
 """
 
@@ -715,13 +716,13 @@ Dockerized FastAPI wrapper for Kokoro with **OpenAI-compatible API**.
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **OpenAI Compatible** | Drop-in replacement |
-| **Docker** | GPU and CPU images |
-| **Voice Mixing** | Weighted combinations |
-| **Timestamps** | Per-word captions |
-| **Multi-format** | mp3, wav, opus, flac |
+| Feature               | Description           |
+| --------------------- | --------------------- |
+| **OpenAI Compatible** | Drop-in replacement   |
+| **Docker**            | GPU and CPU images    |
+| **Voice Mixing**      | Weighted combinations |
+| **Timestamps**        | Per-word captions     |
+| **Multi-format**      | mp3, wav, opus, flac  |
 
 #### OpenAI-Compatible Usage
 
@@ -766,13 +767,13 @@ WhisperX provides **fast ASR with word-level timestamps** and speaker diarizatio
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **70x Realtime** | Batched inference |
-| **Word-Level Timestamps** | wav2vec2 alignment |
-| **Speaker Diarization** | pyannote-audio |
-| **VAD** | Reduces hallucination |
-| **<8GB GPU** | Efficient memory |
+| Feature                   | Description           |
+| ------------------------- | --------------------- |
+| **70x Realtime**          | Batched inference     |
+| **Word-Level Timestamps** | wav2vec2 alignment    |
+| **Speaker Diarization**   | pyannote-audio        |
+| **VAD**                   | Reduces hallucination |
+| **<8GB GPU**              | Efficient memory      |
 
 #### Code Pattern
 
@@ -815,13 +816,13 @@ print(result["segments"])
 
 #### WhisperX vs Whisper
 
-| Aspect | Whisper | WhisperX |
-|--------|---------|----------|
-| **Speed** | 1x realtime | 70x realtime |
-| **Timestamps** | Utterance-level | Word-level |
-| **Diarization** | No | Yes |
-| **VAD** | No | Yes |
-| **Memory** | Higher | <8GB |
+| Aspect          | Whisper         | WhisperX     |
+| --------------- | --------------- | ------------ |
+| **Speed**       | 1x realtime     | 70x realtime |
+| **Timestamps**  | Utterance-level | Word-level   |
+| **Diarization** | No              | Yes          |
+| **VAD**         | No              | Yes          |
+| **Memory**      | Higher          | <8GB         |
 
 **Recommendation:** Use WhisperX for all caption generation – it provides word-level timestamps essential for animated captions.
 
@@ -855,12 +856,12 @@ GPT-Researcher is an **open deep research agent** that produces detailed, factua
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **20+ Sources** | Aggregates diverse sources |
-| **2000+ Words** | Detailed reports |
-| **Citations** | Source tracking |
-| **MCP Support** | Hybrid web + MCP research |
+| Feature           | Description                |
+| ----------------- | -------------------------- |
+| **20+ Sources**   | Aggregates diverse sources |
+| **2000+ Words**   | Detailed reports           |
+| **Citations**     | Source tracking            |
+| **MCP Support**   | Hybrid web + MCP research  |
 | **Deep Research** | Recursive tree exploration |
 
 #### Code Pattern
@@ -904,14 +905,14 @@ Open Deep Research is a **LangGraph-based research agent** that performs recursi
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Tree Exploration** | Configurable depth/breadth |
-| **LangGraph Native** | Built on LangGraph |
-| **MCP Compatible** | Search tools integration |
-| **~5 min/research** | Reasonable speed |
-| **~$0.40/research** | Cost-efficient with o3-mini |
-| **0.4943 RACE Score** | Top 6 on leaderboard |
+| Feature               | Description                 |
+| --------------------- | --------------------------- |
+| **Tree Exploration**  | Configurable depth/breadth  |
+| **LangGraph Native**  | Built on LangGraph          |
+| **MCP Compatible**    | Search tools integration    |
+| **~5 min/research**   | Reasonable speed            |
+| **~$0.40/research**   | Cost-efficient with o3-mini |
+| **0.4943 RACE Score** | Top 6 on leaderboard        |
 
 #### Configuration
 
@@ -926,12 +927,12 @@ uvx --from "langgraph-cli[inmem]" langgraph dev
 
 #### Model Configuration
 
-| Task | Default Model |
-|------|---------------|
-| **Summarization** | gpt-4.1-mini |
-| **Research** | gpt-4.1 |
-| **Compression** | gpt-4.1 |
-| **Final Report** | gpt-4.1 |
+| Task              | Default Model |
+| ----------------- | ------------- |
+| **Summarization** | gpt-4.1-mini  |
+| **Research**      | gpt-4.1       |
+| **Compression**   | gpt-4.1       |
+| **Final Report**  | gpt-4.1       |
 
 #### Use Case for content-machine
 
@@ -975,16 +976,16 @@ Open Deep Research can provide the **research backbone** for trend analysis and 
 
 ### Technology Stack Summary
 
-| Layer | Primary Tool | Alternative |
-|-------|--------------|-------------|
-| **MCP Framework** | FastMCP (Py + TS) | Official SDK |
-| **Orchestration** | LangGraph | Temporal |
-| **Knowledge** | LlamaIndex | - |
-| **TTS** | Kokoro-FastAPI | ElevenLabs |
-| **ASR/Captions** | WhisperX | Whisper |
-| **Video Render** | chuk-motion + Remotion | Mosaico |
-| **Video Processing** | FFMPerative | MoviePy |
-| **Research** | GPT-Researcher | Open Deep Research |
+| Layer                | Primary Tool           | Alternative        |
+| -------------------- | ---------------------- | ------------------ |
+| **MCP Framework**    | FastMCP (Py + TS)      | Official SDK       |
+| **Orchestration**    | LangGraph              | Temporal           |
+| **Knowledge**        | LlamaIndex             | -                  |
+| **TTS**              | Kokoro-FastAPI         | ElevenLabs         |
+| **ASR/Captions**     | WhisperX               | Whisper            |
+| **Video Render**     | chuk-motion + Remotion | Mosaico            |
+| **Video Processing** | FFMPerative            | MoviePy            |
+| **Research**         | GPT-Researcher         | Open Deep Research |
 
 ---
 
@@ -1000,25 +1001,25 @@ Open Deep Research can provide the **research backbone** for trend analysis and 
 
 ### Architecture Decisions
 
-| Decision | Recommendation | Rationale |
-|----------|----------------|-----------|
-| **MCP Framework** | FastMCP 2.0 | Production-ready, enterprise auth |
-| **Agent Orchestration** | LangGraph | Durable execution, human-in-loop |
-| **TTS** | Kokoro-FastAPI | OpenAI-compatible, voice mixing |
-| **ASR** | WhisperX | 70x speed, word-level timestamps |
-| **Render** | chuk-motion | MCP + Remotion + design system |
-| **Research** | GPT-Researcher | Multi-source, MCP support |
+| Decision                | Recommendation | Rationale                         |
+| ----------------------- | -------------- | --------------------------------- |
+| **MCP Framework**       | FastMCP 2.0    | Production-ready, enterprise auth |
+| **Agent Orchestration** | LangGraph      | Durable execution, human-in-loop  |
+| **TTS**                 | Kokoro-FastAPI | OpenAI-compatible, voice mixing   |
+| **ASR**                 | WhisperX       | 70x speed, word-level timestamps  |
+| **Render**              | chuk-motion    | MCP + Remotion + design system    |
+| **Research**            | GPT-Researcher | Multi-source, MCP support         |
 
 ### Docker Compose Starter
 
 ```yaml
-version: "3.8"
+version: '3.8'
 
 services:
   kokoro-tts:
     image: ghcr.io/remsky/kokoro-fastapi-gpu:latest
     ports:
-      - "8880:8880"
+      - '8880:8880'
     deploy:
       resources:
         reservations:
@@ -1030,7 +1031,7 @@ services:
   mcp-server:
     build: ./mcp
     ports:
-      - "8000:8000"
+      - '8000:8000'
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
 
@@ -1041,7 +1042,7 @@ services:
       - ./remotion:/app
     command: npx remotion studio
     ports:
-      - "3000:3000"
+      - '3000:3000'
 ```
 
 ---
@@ -1065,8 +1066,8 @@ def my_tool(param: str) -> str:
 
 ```typescript
 server.addTool({
-  name: "my_tool",
-  description: "Tool description for LLM",
+  name: 'my_tool',
+  description: 'Tool description for LLM',
   parameters: z.object({ param: z.string() }),
   execute: async (args) => result,
 });
@@ -1105,13 +1106,13 @@ result = whisperx.align(result["segments"], model_a, metadata, audio, "cuda")
 
 ## Document Metadata
 
-| Field | Value |
-|-------|-------|
-| **Document ID** | DD-067 |
-| **Created** | 2026-01-02 |
-| **Last Updated** | 2026-01-02 |
-| **Author** | Research Agent |
-| **Status** | Complete |
+| Field            | Value          |
+| ---------------- | -------------- |
+| **Document ID**  | DD-067         |
+| **Created**      | 2026-01-02     |
+| **Last Updated** | 2026-01-02     |
+| **Author**       | Research Agent |
+| **Status**       | Complete       |
 | **Dependencies** | DD-065, DD-066 |
 
 ---

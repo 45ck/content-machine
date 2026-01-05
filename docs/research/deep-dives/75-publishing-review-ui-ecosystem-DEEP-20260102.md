@@ -34,13 +34,13 @@ TiktokAutoUploader is the **fastest TikTok uploader** using requests (not Seleni
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Fast** | Request-based, not Selenium |
-| **Robust** | Doesn't break with site changes |
+| Feature           | Description                     |
+| ----------------- | ------------------------------- |
+| **Fast**          | Request-based, not Selenium     |
+| **Robust**        | Doesn't break with site changes |
 | **Multi-account** | Handle multiple TikTok accounts |
-| **Scheduling** | Schedule up to 10 days ahead |
-| **Video Sources** | Local files or YouTube shorts |
+| **Scheduling**    | Schedule up to 10 days ahead    |
+| **Video Sources** | Local files or YouTube shorts   |
 
 #### Prerequisites
 
@@ -102,15 +102,15 @@ Mixpost is a **social media management platform** for scheduling, publishing, an
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Multi-platform** | TikTok, Instagram, Twitter, LinkedIn, FB |
-| **Scheduling** | Queue and calendar management |
-| **Team Collaboration** | Workspaces, permissions, tasks |
-| **Analytics** | Platform-specific metrics |
-| **Media Library** | Image, GIF, video management |
-| **Templates** | Reusable post templates |
-| **Hashtag Groups** | Strategic hashtag organization |
+| Feature                | Description                              |
+| ---------------------- | ---------------------------------------- |
+| **Multi-platform**     | TikTok, Instagram, Twitter, LinkedIn, FB |
+| **Scheduling**         | Queue and calendar management            |
+| **Team Collaboration** | Workspaces, permissions, tasks           |
+| **Analytics**          | Platform-specific metrics                |
+| **Media Library**      | Image, GIF, video management             |
+| **Templates**          | Reusable post templates                  |
+| **Hashtag Groups**     | Strategic hashtag organization           |
 
 #### Installation
 
@@ -201,15 +201,15 @@ uploader.upload(
 
 ### 1.4 Publishing Platform Comparison
 
-| Feature | TiktokAutoUploader | Mixpost | youtube-upload |
-|---------|-------------------|---------|----------------|
-| **Platform** | TikTok | Multi-platform | YouTube |
-| **Language** | Python | PHP | Python |
-| **Method** | Requests (unofficial) | Official APIs | Official API |
-| **Scheduling** | ✅ 10 days | ✅ Unlimited | ✅ API-based |
-| **Multi-account** | ✅ | ✅ | ✅ |
-| **Analytics** | ❌ | ✅ | ❌ |
-| **Best For** | TikTok automation | Social management | YouTube uploads |
+| Feature           | TiktokAutoUploader    | Mixpost           | youtube-upload  |
+| ----------------- | --------------------- | ----------------- | --------------- |
+| **Platform**      | TikTok                | Multi-platform    | YouTube         |
+| **Language**      | Python                | PHP               | Python          |
+| **Method**        | Requests (unofficial) | Official APIs     | Official API    |
+| **Scheduling**    | ✅ 10 days            | ✅ Unlimited      | ✅ API-based    |
+| **Multi-account** | ✅                    | ✅                | ✅              |
+| **Analytics**     | ❌                    | ✅                | ❌              |
+| **Best For**      | TikTok automation     | Social management | YouTube uploads |
 
 ---
 
@@ -229,15 +229,15 @@ Appsmith is an **open-source low-code platform** for building custom application
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Low-code** | Drag-and-drop UI builder |
-| **45+ Data Sources** | REST, GraphQL, databases |
-| **Pre-built Widgets** | Tables, forms, charts |
-| **JavaScript** | Custom logic support |
-| **Git Sync** | Version control |
-| **Self-hosted** | Full control over data |
-| **AI Agents** | New agentic AI platform |
+| Feature               | Description              |
+| --------------------- | ------------------------ |
+| **Low-code**          | Drag-and-drop UI builder |
+| **45+ Data Sources**  | REST, GraphQL, databases |
+| **Pre-built Widgets** | Tables, forms, charts    |
+| **JavaScript**        | Custom logic support     |
+| **Git Sync**          | Version control          |
+| **Self-hosted**       | Full control over data   |
+| **AI Agents**         | New agentic AI platform  |
 
 #### Installation
 
@@ -255,27 +255,27 @@ docker run -d --name appsmith \
 ```javascript
 // Appsmith JS Object for video review
 export default {
-    async fetchPendingVideos() {
-        return await Api1.run({
-            status: 'pending_review'
-        });
-    },
-    
-    async approveVideo(videoId) {
-        return await Api2.run({
-            id: videoId,
-            status: 'approved'
-        });
-    },
-    
-    async rejectVideo(videoId, reason) {
-        return await Api3.run({
-            id: videoId,
-            status: 'rejected',
-            reason: reason
-        });
-    }
-}
+  async fetchPendingVideos() {
+    return await Api1.run({
+      status: 'pending_review',
+    });
+  },
+
+  async approveVideo(videoId) {
+    return await Api2.run({
+      id: videoId,
+      status: 'approved',
+    });
+  },
+
+  async rejectVideo(videoId, reason) {
+    return await Api3.run({
+      id: videoId,
+      status: 'rejected',
+      reason: reason,
+    });
+  },
+};
 ```
 
 ---
@@ -294,14 +294,14 @@ Budibase is an **open-source low-code platform** for building forms, portals, an
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Responsive Apps** | Single-page applications |
-| **Data Sources** | PostgreSQL, MySQL, MongoDB, REST |
-| **Pre-built Components** | Forms, tables, charts |
-| **Automation** | Webhook-triggered workflows |
-| **Self-hosted** | Docker, Kubernetes |
-| **Open Source** | GPL v3 |
+| Feature                  | Description                      |
+| ------------------------ | -------------------------------- |
+| **Responsive Apps**      | Single-page applications         |
+| **Data Sources**         | PostgreSQL, MySQL, MongoDB, REST |
+| **Pre-built Components** | Forms, tables, charts            |
+| **Automation**           | Webhook-triggered workflows      |
+| **Self-hosted**          | Docker, Kubernetes               |
+| **Open Source**          | GPL v3                           |
 
 #### Installation
 
@@ -322,13 +322,13 @@ steps:
   - type: create_row
     table: pending_videos
     row:
-      video_url: "{{ trigger.body.url }}"
-      status: "pending"
-      
+      video_url: '{{ trigger.body.url }}'
+      status: 'pending'
+
   - type: send_email
-    to: "reviewer@company.com"
-    subject: "New video pending review"
-    body: "Video {{ trigger.body.title }} is ready for review"
+    to: 'reviewer@company.com'
+    subject: 'New video pending review'
+    body: 'Video {{ trigger.body.title }} is ready for review'
 ```
 
 ---
@@ -347,14 +347,14 @@ React-Admin is a **frontend framework** for building admin applications on top o
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Backend Agnostic** | 45+ data adapters |
+| Feature              | Description                      |
+| -------------------- | -------------------------------- |
+| **Backend Agnostic** | 45+ data adapters                |
 | **Complete Toolkit** | Auth, routing, forms, validation |
-| **Material UI** | Beautiful, accessible design |
-| **TypeScript** | Full type safety |
-| **Customizable** | Replace any component |
-| **Performant** | Optimistic rendering |
+| **Material UI**      | Beautiful, accessible design     |
+| **TypeScript**       | Full type safety                 |
+| **Customizable**     | Replace any component            |
+| **Performant**       | Optimistic rendering             |
 
 #### Installation
 
@@ -368,44 +368,57 @@ yarn add react-admin
 
 ```tsx
 import * as React from 'react';
-import { Admin, Resource, List, DataTable, Edit, SimpleForm, TextInput, SelectInput, useRecordContext } from 'react-admin';
+import {
+  Admin,
+  Resource,
+  List,
+  DataTable,
+  Edit,
+  SimpleForm,
+  TextInput,
+  SelectInput,
+  useRecordContext,
+} from 'react-admin';
 import restProvider from 'ra-data-simple-rest';
 
 // Video list
 const VideoList = () => (
-    <List filters={[<SelectInput source="status" choices={['pending', 'approved', 'rejected']} />]}>
-        <DataTable>
-            <DataTable.Col source="id" />
-            <DataTable.Col source="title" />
-            <DataTable.Col source="topic" />
-            <DataTable.Col source="status" />
-            <DataTable.Col source="created_at" />
-        </DataTable>
-    </List>
+  <List filters={[<SelectInput source="status" choices={['pending', 'approved', 'rejected']} />]}>
+    <DataTable>
+      <DataTable.Col source="id" />
+      <DataTable.Col source="title" />
+      <DataTable.Col source="topic" />
+      <DataTable.Col source="status" />
+      <DataTable.Col source="created_at" />
+    </DataTable>
+  </List>
 );
 
 // Video edit (review)
 const VideoEdit = () => (
-    <Edit>
-        <SimpleForm>
-            <TextInput disabled source="id" />
-            <TextInput disabled source="title" />
-            <TextInput disabled source="topic" />
-            <SelectInput source="status" choices={[
-                { id: 'pending', name: 'Pending' },
-                { id: 'approved', name: 'Approved' },
-                { id: 'rejected', name: 'Rejected' },
-            ]} />
-            <TextInput multiline source="review_notes" />
-        </SimpleForm>
-    </Edit>
+  <Edit>
+    <SimpleForm>
+      <TextInput disabled source="id" />
+      <TextInput disabled source="title" />
+      <TextInput disabled source="topic" />
+      <SelectInput
+        source="status"
+        choices={[
+          { id: 'pending', name: 'Pending' },
+          { id: 'approved', name: 'Approved' },
+          { id: 'rejected', name: 'Rejected' },
+        ]}
+      />
+      <TextInput multiline source="review_notes" />
+    </SimpleForm>
+  </Edit>
 );
 
 // Admin app
 const App = () => (
-    <Admin dataProvider={restProvider('http://localhost:3000/api')}>
-        <Resource name="videos" list={VideoList} edit={VideoEdit} />
-    </Admin>
+  <Admin dataProvider={restProvider('http://localhost:3000/api')}>
+    <Resource name="videos" list={VideoList} edit={VideoEdit} />
+  </Admin>
 );
 
 export default App;
@@ -415,15 +428,15 @@ export default App;
 
 ### 2.4 Review UI Comparison
 
-| Feature | Appsmith | Budibase | React-Admin |
-|---------|----------|----------|-------------|
-| **Type** | Low-code | Low-code | Code-first |
-| **Language** | JS | JS | TypeScript/React |
-| **Learning Curve** | Low | Low | Moderate |
-| **Customization** | Moderate | Moderate | High |
-| **Self-host** | ✅ | ✅ | ✅ (frontend) |
-| **Best For** | Quick dashboards | Approval apps | Custom admin |
-| **AI Support** | ✅ Agents | ❌ | ❌ |
+| Feature            | Appsmith         | Budibase      | React-Admin      |
+| ------------------ | ---------------- | ------------- | ---------------- |
+| **Type**           | Low-code         | Low-code      | Code-first       |
+| **Language**       | JS               | JS            | TypeScript/React |
+| **Learning Curve** | Low              | Low           | Moderate         |
+| **Customization**  | Moderate         | Moderate      | High             |
+| **Self-host**      | ✅               | ✅            | ✅ (frontend)    |
+| **Best For**       | Quick dashboards | Approval apps | Custom admin     |
+| **AI Support**     | ✅ Agents        | ❌            | ❌               |
 
 ---
 
@@ -514,7 +527,7 @@ interface ReviewAction {
 interface PublishRequest {
   platforms: ('tiktok' | 'youtube' | 'instagram')[];
   scheduledFor?: Date;
-  captions?: Record<string, string>;  // language -> caption
+  captions?: Record<string, string>; // language -> caption
 }
 ```
 
@@ -522,84 +535,96 @@ interface PublishRequest {
 
 ```tsx
 // src/VideoReviewDashboard.tsx
-import { Admin, Resource, List, Edit, Show, 
-         DataTable, SimpleForm, TextInput, SelectInput,
-         useRecordContext, Button, useUpdate } from 'react-admin';
+import {
+  Admin,
+  Resource,
+  List,
+  Edit,
+  Show,
+  DataTable,
+  SimpleForm,
+  TextInput,
+  SelectInput,
+  useRecordContext,
+  Button,
+  useUpdate,
+} from 'react-admin';
 
 // Custom approve button
 const ApproveButton = () => {
-    const record = useRecordContext();
-    const [update] = useUpdate();
-    
-    return (
-        <Button
-            label="Approve"
-            onClick={() => update('videos', { 
-                id: record.id, 
-                data: { status: 'approved' } 
-            })}
-        />
-    );
+  const record = useRecordContext();
+  const [update] = useUpdate();
+
+  return (
+    <Button
+      label="Approve"
+      onClick={() =>
+        update('videos', {
+          id: record.id,
+          data: { status: 'approved' },
+        })
+      }
+    />
+  );
 };
 
 // Custom reject button
 const RejectButton = () => {
-    const record = useRecordContext();
-    const [update] = useUpdate();
-    
-    return (
-        <Button
-            label="Reject"
-            onClick={() => update('videos', { 
-                id: record.id, 
-                data: { status: 'rejected' } 
-            })}
-        />
-    );
+  const record = useRecordContext();
+  const [update] = useUpdate();
+
+  return (
+    <Button
+      label="Reject"
+      onClick={() =>
+        update('videos', {
+          id: record.id,
+          data: { status: 'rejected' },
+        })
+      }
+    />
+  );
 };
 
 // Video preview component
 const VideoPreview = () => {
-    const record = useRecordContext();
-    return (
-        <video 
-            src={record.videoUrl} 
-            controls 
-            style={{ maxWidth: '100%' }}
-        />
-    );
+  const record = useRecordContext();
+  return <video src={record.videoUrl} controls style={{ maxWidth: '100%' }} />;
 };
 
 // Main review list
 const PendingReviewList = () => (
-    <List filter={{ status: 'pending' }}>
-        <DataTable>
-            <DataTable.Col source="title" />
-            <DataTable.Col source="topic" />
-            <DataTable.Col source="duration" />
-            <DataTable.Col source="createdAt" />
-            <DataTable.Col>
-                <ApproveButton />
-                <RejectButton />
-            </DataTable.Col>
-        </DataTable>
-    </List>
+  <List filter={{ status: 'pending' }}>
+    <DataTable>
+      <DataTable.Col source="title" />
+      <DataTable.Col source="topic" />
+      <DataTable.Col source="duration" />
+      <DataTable.Col source="createdAt" />
+      <DataTable.Col>
+        <ApproveButton />
+        <RejectButton />
+      </DataTable.Col>
+    </DataTable>
+  </List>
 );
 
 // Video review detail
 const VideoReview = () => (
-    <Show>
-        <VideoPreview />
-        <SimpleForm>
-            <TextInput source="title" disabled />
-            <TextInput source="script" multiline disabled />
-            <SelectInput source="status" choices={[
-                { id: 'approved', name: 'Approved' },
-                { id: 'rejected', name: 'Rejected' },
-            ]} />
-            <TextInput source="reviewNotes" multiline />
-        </SimpleForm>
-    </Show>
+  <Show>
+    <VideoPreview />
+    <SimpleForm>
+      <TextInput source="title" disabled />
+      <TextInput source="script" multiline disabled />
+      <SelectInput
+        source="status"
+        choices={[
+          { id: 'approved', name: 'Approved' },
+          { id: 'rejected', name: 'Rejected' },
+        ]}
+      />
+      <TextInput source="reviewNotes" multiline />
+    </SimpleForm>
+  </Show>
 );
 ```
 
@@ -624,10 +649,8 @@ interface PublishJob {
 const publishQueue = new Queue('publishing');
 
 export async function schedulePublish(job: PublishJob) {
-  const delay = job.scheduledFor 
-    ? job.scheduledFor.getTime() - Date.now() 
-    : 0;
-    
+  const delay = job.scheduledFor ? job.scheduledFor.getTime() - Date.now() : 0;
+
   await publishQueue.add('publish', job, {
     delay,
     attempts: 3,
@@ -643,28 +666,32 @@ import { Worker } from 'bullmq';
 
 const worker = new Worker('publishing', async (job) => {
   const { platforms, videoPath, title, description, tags } = job.data;
-  
+
   const results = [];
-  
+
   if (platforms.includes('tiktok')) {
     const tiktok = new TiktokUploader();
-    results.push(await tiktok.upload({
-      videoPath,
-      title: `${title} #viral #fyp`,
-    }));
+    results.push(
+      await tiktok.upload({
+        videoPath,
+        title: `${title} #viral #fyp`,
+      })
+    );
   }
-  
+
   if (platforms.includes('youtube')) {
     const youtube = new YoutubeUploader();
-    results.push(await youtube.upload({
-      videoPath,
-      title,
-      description,
-      tags,
-      categoryId: '28',  // Science & Tech
-    }));
+    results.push(
+      await youtube.upload({
+        videoPath,
+        title,
+        description,
+        tags,
+        categoryId: '28', // Science & Tech
+      })
+    );
   }
-  
+
   return results;
 });
 ```
@@ -673,12 +700,12 @@ const worker = new Worker('publishing', async (job) => {
 
 ## 4. Document Metadata
 
-| Field | Value |
-|-------|-------|
-| **Document ID** | DD-075 |
-| **Created** | 2026-01-02 |
-| **Author** | Research Agent |
-| **Status** | Complete |
+| Field            | Value          |
+| ---------------- | -------------- |
+| **Document ID**  | DD-075         |
+| **Created**      | 2026-01-02     |
+| **Author**       | Research Agent |
+| **Status**       | Complete       |
 | **Dependencies** | DD-068, DD-073 |
 
 ---
@@ -697,14 +724,14 @@ const worker = new Worker('publishing', async (job) => {
 
 ## 6. Recommendations for content-machine
 
-| Component | Tool | Rationale |
-|-----------|------|-----------|
-| **TikTok Upload** | TiktokAutoUploader | Fast, reliable |
-| **YouTube Upload** | youtube-upload | Official API |
-| **Multi-platform** | Mixpost | Comprehensive |
-| **Review UI** | React-Admin | Custom, type-safe |
-| **Quick Prototype** | Appsmith | Low-code |
-| **Queue** | BullMQ | TypeScript native |
+| Component           | Tool               | Rationale         |
+| ------------------- | ------------------ | ----------------- |
+| **TikTok Upload**   | TiktokAutoUploader | Fast, reliable    |
+| **YouTube Upload**  | youtube-upload     | Official API      |
+| **Multi-platform**  | Mixpost            | Comprehensive     |
+| **Review UI**       | React-Admin        | Custom, type-safe |
+| **Quick Prototype** | Appsmith           | Low-code          |
+| **Queue**           | BullMQ             | TypeScript native |
 
 ---
 

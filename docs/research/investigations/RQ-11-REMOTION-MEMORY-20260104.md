@@ -10,6 +10,7 @@
 ## 1. Problem Statement
 
 Remotion spawns Chromium instances for rendering. Memory consumption affects:
+
 - Container sizing for Docker/Kubernetes
 - Concurrency limits
 - Long render stability (memory leaks)
@@ -26,11 +27,11 @@ Remotion spawns Chromium instances for rendering. Memory consumption affects:
 ```typescript
 function getActualConcurrency(concurrency: number | null): number {
   const cpuCount = os.cpus().length;
-  
+
   if (concurrency !== null) {
     return concurrency;
   }
-  
+
   // Default: half of CPUs, minimum 1, maximum 8
   return Math.min(8, Math.max(1, Math.floor(cpuCount / 2)));
 }
@@ -40,12 +41,12 @@ function getActualConcurrency(concurrency: number | null): number {
 
 **From Remotion documentation and community guidance:**
 
-| Configuration | Minimum RAM | Recommended RAM |
-|---------------|-------------|-----------------|
-| Single-threaded | 2GB | 4GB |
-| Concurrency 2 | 3-4GB | 6GB |
-| Concurrency 4 | 6GB | 8GB |
-| Concurrency 8 | 10GB | 16GB |
+| Configuration   | Minimum RAM | Recommended RAM |
+| --------------- | ----------- | --------------- |
+| Single-threaded | 2GB         | 4GB             |
+| Concurrency 2   | 3-4GB       | 6GB             |
+| Concurrency 4   | 6GB         | 8GB             |
+| Concurrency 8   | 10GB        | 16GB            |
 
 **Per-browser overhead:** ~500MB-1GB per Chromium instance.
 
@@ -75,12 +76,13 @@ services:
 // Control video frame cache size
 const renderMedia = await RenderMedia({
   composition: comp,
-  outputLocation: "output.mp4",
+  outputLocation: 'output.mp4',
   offthreadVideoCacheSizeInBytes: 1024 * 1024 * 512, // 512MB cache
 });
 ```
 
 **Memory impact:**
+
 - Default cache: Unlimited (can grow to gigabytes)
 - Recommended: Set explicit limit (256MB-1GB depending on RAM)
 - Trade-off: Smaller cache = more re-decoding = slower
@@ -94,7 +96,7 @@ const renderMedia = await RenderMedia({
 // For long renders (>100 scenes), split into chunks
 
 const options = {
-  gl: "angle",  // Required on Windows for GPU acceleration
+  gl: 'angle', // Required on Windows for GPU acceleration
   // Memory grows over time with angle
 };
 
@@ -103,15 +105,15 @@ async function renderLongVideo(scenes: Scene[]): Promise<string[]> {
   const CHUNK_SIZE = 20; // Scenes per render
   const chunks = chunkArray(scenes, CHUNK_SIZE);
   const outputs: string[] = [];
-  
+
   for (const chunk of chunks) {
     const output = await renderChunk(chunk);
     outputs.push(output);
-    
+
     // Force garbage collection between chunks
     if (global.gc) global.gc();
   }
-  
+
   // Concatenate chunks
   return concatenateVideos(outputs);
 }
@@ -123,11 +125,11 @@ async function renderLongVideo(scenes: Scene[]): Promise<string[]> {
 
 Remotion Lambda defaults:
 
-| Metric | Default | Recommended |
-|--------|---------|-------------|
-| Memory | 2048MB | 3008MB+ |
-| Timeout | 120s | 900s (max) |
-| Ephemeral storage | 512MB | 10GB (for long videos) |
+| Metric            | Default | Recommended            |
+| ----------------- | ------- | ---------------------- |
+| Memory            | 2048MB  | 3008MB+                |
+| Timeout           | 120s    | 900s (max)             |
+| Ephemeral storage | 512MB   | 10GB (for long videos) |
 
 ---
 
@@ -139,7 +141,7 @@ Remotion Lambda defaults:
 // For memory-constrained environments
 const renderMedia = await RenderMedia({
   composition: comp,
-  outputLocation: "output.mp4",
+  outputLocation: 'output.mp4',
   concurrency: 1, // Sequential rendering
 });
 ```
@@ -153,13 +155,13 @@ const totalFrames = composition.durationInFrames;
 
 for (let start = 0; start < totalFrames; start += BATCH_SIZE) {
   const end = Math.min(start + BATCH_SIZE, totalFrames);
-  
+
   await renderFrames({
     composition,
     outputDir: `./frames-${start}`,
     frameRange: [start, end - 1],
   });
-  
+
   // Process frames immediately to free memory
   await encodeFrameBatch(`./frames-${start}`);
   await fs.rm(`./frames-${start}`, { recursive: true });
@@ -172,20 +174,22 @@ for (let start = 0; start < totalFrames; start += BATCH_SIZE) {
 // Explicit cleanup after render
 async function renderWithCleanup(options: RenderOptions): Promise<string> {
   let browser: Browser | null = null;
-  
+
   try {
     const result = await renderMedia({
       ...options,
-      onBrowserOpened: (b) => { browser = b; },
+      onBrowserOpened: (b) => {
+        browser = b;
+      },
     });
-    
+
     return result;
   } finally {
     // Force browser cleanup
     if (browser) {
       await browser.close();
     }
-    
+
     // Suggest GC
     if (global.gc) {
       global.gc();
@@ -204,7 +208,7 @@ async function renderWithCleanup(options: RenderOptions): Promise<string> {
 const devConfig = {
   concurrency: 2,
   offthreadVideoCacheSizeInBytes: 256 * 1024 * 1024, // 256MB
-  gl: "swangle", // Software rendering, slower but stable
+  gl: 'swangle', // Software rendering, slower but stable
 };
 ```
 
@@ -236,11 +240,11 @@ spec:
     - name: renderer
       resources:
         requests:
-          memory: "4Gi"
-          cpu: "2"
+          memory: '4Gi'
+          cpu: '2'
         limits:
-          memory: "8Gi"
-          cpu: "4"
+          memory: '8Gi'
+          cpu: '4'
 ```
 
 ---
@@ -250,7 +254,7 @@ spec:
 ### 5.1 Runtime Monitoring
 
 ```typescript
-import { performance } from "perf_hooks";
+import { performance } from 'perf_hooks';
 
 interface MemoryMetrics {
   heapUsedMB: number;
@@ -272,13 +276,13 @@ function getMemoryMetrics(): MemoryMetrics {
 async function renderWithMemoryTracking(options: RenderOptions): Promise<void> {
   const beforeMemory = getMemoryMetrics();
   const startTime = performance.now();
-  
+
   await renderMedia(options);
-  
+
   const afterMemory = getMemoryMetrics();
   const duration = performance.now() - startTime;
-  
-  logger.info("Render complete", {
+
+  logger.info('Render complete', {
     durationMs: duration,
     memoryDelta: {
       heapMB: afterMemory.heapUsedMB - beforeMemory.heapUsedMB,
@@ -295,13 +299,13 @@ const MEMORY_THRESHOLD_MB = 6 * 1024; // 6GB
 
 setInterval(() => {
   const metrics = getMemoryMetrics();
-  
+
   if (metrics.rssMB > MEMORY_THRESHOLD_MB) {
-    logger.warn("Memory threshold exceeded", {
+    logger.warn('Memory threshold exceeded', {
       currentMB: metrics.rssMB,
       thresholdMB: MEMORY_THRESHOLD_MB,
     });
-    
+
     // Optional: Force GC
     if (global.gc) global.gc();
   }
@@ -312,12 +316,12 @@ setInterval(() => {
 
 ## 6. Implementation Recommendations
 
-| Scenario | Concurrency | Memory | Cache |
-|----------|-------------|--------|-------|
-| Local dev | 1-2 | 4GB | 256MB |
-| CI testing | 2 | 4GB | 256MB |
-| Production (8-core) | 4 | 8GB | 512MB |
-| Lambda | 1 | 3GB | 128MB |
+| Scenario            | Concurrency | Memory | Cache |
+| ------------------- | ----------- | ------ | ----- |
+| Local dev           | 1-2         | 4GB    | 256MB |
+| CI testing          | 2           | 4GB    | 256MB |
+| Production (8-core) | 4           | 8GB    | 512MB |
+| Lambda              | 1           | 3GB    | 128MB |
 
 ---
 

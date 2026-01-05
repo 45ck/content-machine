@@ -46,19 +46,20 @@ Implement maintainability-focused code quality gates optimized for open-source c
 
 ### Threshold Summary
 
-| Metric | Ideal | Warn | Fail | Tool |
-|--------|-------|------|------|------|
-| Cyclomatic Complexity | ≤10 | 11-15 | >15 | ESLint `complexity` |
-| Cognitive Complexity | ≤8 | 9-15 | >15 | `sonarjs/cognitive-complexity` |
-| Nesting Depth | ≤3 | 4 | ≥5 | ESLint `max-depth` |
-| LOC per Function | ≤50 | 51-80 | >100 | ESLint `max-lines-per-function` |
-| Line Coverage | ≥80% | 60-79% | <60% | Vitest coverage |
-| Branch Coverage | ≥70% | 50-69% | <50% | Vitest coverage |
-| Code Duplication | <3% | 3-5% | >5% | jscpd |
+| Metric                | Ideal | Warn   | Fail | Tool                            |
+| --------------------- | ----- | ------ | ---- | ------------------------------- |
+| Cyclomatic Complexity | ≤10   | 11-15  | >15  | ESLint `complexity`             |
+| Cognitive Complexity  | ≤8    | 9-15   | >15  | `sonarjs/cognitive-complexity`  |
+| Nesting Depth         | ≤3    | 4      | ≥5   | ESLint `max-depth`              |
+| LOC per Function      | ≤50   | 51-80  | >100 | ESLint `max-lines-per-function` |
+| Line Coverage         | ≥80%  | 60-79% | <60% | Vitest coverage                 |
+| Branch Coverage       | ≥70%  | 50-69% | <50% | Vitest coverage                 |
+| Code Duplication      | <3%   | 3-5%   | >5%  | jscpd                           |
 
 ### Exclusion Strategy (OSS-Critical)
 
 All quality tools MUST exclude:
+
 - `vendor/**` — 139+ vendored repos
 - `templates/**` — Remotion templates
 - `connectors/**` — MCP connectors
@@ -68,6 +69,7 @@ All quality tools MUST exclude:
 - `**/*.d.ts` — Type declarations
 
 Test files (`**/*.test.ts`, `tests/**`) excluded from:
+
 - Complexity rules (tests often have long setup)
 - Duplication detection (test fixtures repeat)
 - NOT excluded from coverage (tests must run)
@@ -79,6 +81,7 @@ Test files (`**/*.test.ts`, `tests/**`) excluded from:
 ### Step 1: Install Dependencies
 
 **Command:**
+
 ```bash
 pnpm add -D @eslint/js globals @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint-plugin-sonarjs prettier jscpd
 ```
@@ -101,12 +104,14 @@ pnpm add -D @eslint/js globals @typescript-eslint/parser @typescript-eslint/esli
 **File:** `eslint.config.js`
 
 **Key Decisions:**
+
 - **No type-aware linting** — Omit `parserOptions.project` to avoid contributor friction and CI slowdown. TypeScript correctness enforced by `pnpm typecheck`.
 - **Fail on maintainability gates** — `complexity`, `cognitive-complexity`, `max-depth`
 - **Warn on style gates** — `max-lines-per-function`, `max-params`, `no-duplicate-string`
 - **Relax rules for tests** — Tests often have long setup, repeated fixtures
 
 **Configuration:**
+
 ```javascript
 import js from '@eslint/js';
 import globals from 'globals';
@@ -195,12 +200,14 @@ export default [
 **File:** `vitest.config.ts`
 
 **Key Decisions:**
+
 - **Explicit include/exclude** — Ensures coverage scope matches source code only
 - **Overall thresholds only** — No `perFile` initially (blocks PRs on legacy modules)
 - **No autoUpdate** — Ratcheting is a deliberate maintainer action, not automated
 - **Commented glob thresholds** — Ready to enable for `src/core/**` when coverage improves
 
 **Configuration:**
+
 ```typescript
 import { defineConfig } from 'vitest/config';
 
@@ -268,11 +275,13 @@ export default defineConfig({
 **File:** `.jscpd.json`
 
 **Key Decisions:**
+
 - **5% threshold** — Tighten to 3% when codebase stabilizes
 - **70 minTokens** — Avoids false positives on short snippets
 - **Exclude tests** — Test fixtures legitimately repeat setup code
 
 **Configuration:**
+
 ```json
 {
   "threshold": 5,
@@ -302,6 +311,7 @@ export default defineConfig({
 **File:** `.prettierrc`
 
 **Configuration:**
+
 ```json
 {
   "semi": true,
@@ -448,12 +458,14 @@ jobs:
 Instead, please email security concerns to: [your-email@example.com]
 
 Include:
+
 - Description of the vulnerability
 - Steps to reproduce
 - Potential impact
 - Suggested fix (if any)
 
 You will receive a response within 48 hours. If the issue is confirmed, we will:
+
 1. Work on a fix privately
 2. Release a patch
 3. Credit you in the release notes (unless you prefer anonymity)
@@ -480,18 +492,18 @@ community a harassment-free experience for everyone.
 
 Examples of behavior that contributes to a positive environment:
 
-* Using welcoming and inclusive language
-* Being respectful of differing viewpoints
-* Gracefully accepting constructive criticism
-* Focusing on what is best for the community
-* Showing empathy towards other community members
+- Using welcoming and inclusive language
+- Being respectful of differing viewpoints
+- Gracefully accepting constructive criticism
+- Focusing on what is best for the community
+- Showing empathy towards other community members
 
 Examples of unacceptable behavior:
 
-* Trolling, insulting/derogatory comments, and personal attacks
-* Public or private harassment
-* Publishing others' private information without permission
-* Other conduct which could reasonably be considered inappropriate
+- Trolling, insulting/derogatory comments, and personal attacks
+- Public or private harassment
+- Publishing others' private information without permission
+- Other conduct which could reasonably be considered inappropriate
 
 ## Enforcement
 
@@ -556,7 +568,7 @@ This Code of Conduct is adapted from the [Contributor Covenant](https://www.cont
 ```yaml
 name: Bug Report
 description: Report a bug or unexpected behavior
-labels: ["bug", "triage"]
+labels: ['bug', 'triage']
 body:
   - type: markdown
     attributes:
@@ -628,7 +640,7 @@ body:
 ```yaml
 name: Feature Request
 description: Suggest a new feature or enhancement
-labels: ["enhancement", "triage"]
+labels: ['enhancement', 'triage']
 body:
   - type: markdown
     attributes:
@@ -688,7 +700,7 @@ body:
 
 Add new section after "Getting Started":
 
-```markdown
+````markdown
 ## Local Quality Checks
 
 Before opening a PR, run all quality checks locally:
@@ -704,35 +716,42 @@ pnpm format:check   # Prettier formatting
 pnpm test:coverage  # Tests with coverage thresholds
 pnpm dup:check      # Code duplication detection
 ```
+````
 
 ### Quality Gate Thresholds
 
-| Check | Threshold | Action on Failure |
-|-------|-----------|-------------------|
+| Check                 | Threshold        | Action on Failure               |
+| --------------------- | ---------------- | ------------------------------- |
 | Cyclomatic complexity | ≤15 per function | Refactor into smaller functions |
-| Cognitive complexity | ≤15 per function | Simplify logic flow |
-| Nesting depth | ≤5 levels | Extract nested blocks |
-| Line coverage | ≥60% | Add tests for uncovered code |
-| Branch coverage | ≥50% | Add tests for edge cases |
-| Code duplication | ≤5% | Extract shared utilities |
+| Cognitive complexity  | ≤15 per function | Simplify logic flow             |
+| Nesting depth         | ≤5 levels        | Extract nested blocks           |
+| Line coverage         | ≥60%             | Add tests for uncovered code    |
+| Branch coverage       | ≥50%             | Add tests for edge cases        |
+| Code duplication      | ≤5%              | Extract shared utilities        |
 
 ### Fixing Common Issues
 
 **Complexity too high:**
+
 ```typescript
 // ❌ High complexity
 function processData(data) {
   if (data.type === 'A') {
-    if (data.subtype === 'A1') { /* ... */ }
-    else if (data.subtype === 'A2') { /* ... */ }
-  } else if (data.type === 'B') { /* ... */ }
+    if (data.subtype === 'A1') {
+      /* ... */
+    } else if (data.subtype === 'A2') {
+      /* ... */
+    }
+  } else if (data.type === 'B') {
+    /* ... */
+  }
 }
 
 // ✅ Lower complexity
 const processors = {
   'A-A1': processA1,
   'A-A2': processA2,
-  'B': processB,
+  B: processB,
 };
 function processData(data) {
   const key = data.subtype ? `${data.type}-${data.subtype}` : data.type;
@@ -741,10 +760,12 @@ function processData(data) {
 ```
 
 **Coverage too low:**
+
 - Add unit tests for new functions
 - Test error paths and edge cases
 - Use `pnpm test:coverage` to identify uncovered lines
-```
+
+````
 
 Update "Before Creating PR" checklist:
 
@@ -760,7 +781,7 @@ Update "Before Creating PR" checklist:
 - [ ] Task moved to `done/`
 - [ ] Documentation updated (with `YYYYMMDD` date suffix)
 - [ ] No hardcoded secrets
-```
+````
 
 ---
 
@@ -768,12 +789,12 @@ Update "Before Creating PR" checklist:
 
 Document this in CONTRIBUTING.md for transparency:
 
-| Milestone | Coverage | Action |
-|-----------|----------|--------|
-| **Now** | Any | Overall thresholds: 60/60/60/50 |
-| **≥70%** | 70%+ overall | Enable `src/core/**` glob threshold (70/70/70/55) |
-| **≥75%** | 75%+ overall | Switch to negative thresholds (freeze uncovered counts) |
-| **Quarterly** | — | Review and tighten warn-level rules |
+| Milestone     | Coverage     | Action                                                  |
+| ------------- | ------------ | ------------------------------------------------------- |
+| **Now**       | Any          | Overall thresholds: 60/60/60/50                         |
+| **≥70%**      | 70%+ overall | Enable `src/core/**` glob threshold (70/70/70/55)       |
+| **≥75%**      | 75%+ overall | Switch to negative thresholds (freeze uncovered counts) |
+| **Quarterly** | —            | Review and tighten warn-level rules                     |
 
 ### Switching to Negative Thresholds
 
@@ -813,21 +834,21 @@ After implementation, verify:
 
 ## Files Created/Modified Summary
 
-| File | Action | Purpose |
-|------|--------|---------|
-| `eslint.config.js` | Create | ESLint v9 flat config with complexity gates |
-| `.jscpd.json` | Create | Duplication detection config |
-| `.prettierrc` | Create | Code formatting rules |
-| `.prettierignore` | Create | Formatting exclusions |
-| `.github/workflows/ci.yml` | Create | CI pipeline |
-| `SECURITY.md` | Create | Vulnerability reporting |
-| `CODE_OF_CONDUCT.md` | Create | Community standards |
-| `.github/pull_request_template.md` | Create | PR checklist |
-| `.github/ISSUE_TEMPLATE/bug.yml` | Create | Bug report form |
-| `.github/ISSUE_TEMPLATE/feature.yml` | Create | Feature request form |
-| `vitest.config.ts` | Modify | Add coverage thresholds |
-| `package.json` | Modify | Add quality scripts |
-| `CONTRIBUTING.md` | Modify | Add quality checks section |
+| File                                 | Action | Purpose                                     |
+| ------------------------------------ | ------ | ------------------------------------------- |
+| `eslint.config.js`                   | Create | ESLint v9 flat config with complexity gates |
+| `.jscpd.json`                        | Create | Duplication detection config                |
+| `.prettierrc`                        | Create | Code formatting rules                       |
+| `.prettierignore`                    | Create | Formatting exclusions                       |
+| `.github/workflows/ci.yml`           | Create | CI pipeline                                 |
+| `SECURITY.md`                        | Create | Vulnerability reporting                     |
+| `CODE_OF_CONDUCT.md`                 | Create | Community standards                         |
+| `.github/pull_request_template.md`   | Create | PR checklist                                |
+| `.github/ISSUE_TEMPLATE/bug.yml`     | Create | Bug report form                             |
+| `.github/ISSUE_TEMPLATE/feature.yml` | Create | Feature request form                        |
+| `vitest.config.ts`                   | Modify | Add coverage thresholds                     |
+| `package.json`                       | Modify | Add quality scripts                         |
+| `CONTRIBUTING.md`                    | Modify | Add quality checks section                  |
 
 ---
 

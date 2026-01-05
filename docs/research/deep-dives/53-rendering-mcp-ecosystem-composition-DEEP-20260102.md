@@ -28,14 +28,14 @@ Python library for programmatically creating and managing video compositions. Hi
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **AI Script Generation** | Generate video scripts with AI |
-| **Rich Asset Management** | Audio, images, text, subtitles |
-| **Flexible Positioning** | Absolute, relative, region-based |
-| **Built-in Effects** | Pan, zoom, extensible system |
-| **TTS Integration** | Text-to-speech synthesis |
-| **Framework Integration** | Haystack, LangChain |
+| Feature                   | Description                      |
+| ------------------------- | -------------------------------- |
+| **AI Script Generation**  | Generate video scripts with AI   |
+| **Rich Asset Management** | Audio, images, text, subtitles   |
+| **Flexible Positioning**  | Absolute, relative, region-based |
+| **Built-in Effects**      | Pan, zoom, extensible system     |
+| **TTS Integration**       | Text-to-speech synthesis         |
+| **Framework Integration** | Haystack, LangChain              |
 
 #### Installation
 
@@ -170,7 +170,7 @@ Collection of free, ready-to-use Remotion templates for video effects and animat
 4. Integrate with `<Composition />`
 
 ```tsx
-import { DynamicVideoTemplate } from "./templates/DynamicVideoTemplate";
+import { DynamicVideoTemplate } from './templates/DynamicVideoTemplate';
 
 <Composition
   id="DynamicVideo"
@@ -179,7 +179,7 @@ import { DynamicVideoTemplate } from "./templates/DynamicVideoTemplate";
   fps={30}
   width={1920}
   height={1080}
-/>
+/>;
 ```
 
 ---
@@ -196,11 +196,11 @@ Minimal starter for rendering Remotion videos via Express server. Deploy on Rail
 
 #### API Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/renders` | POST | Start a render |
-| `/renders/:id` | GET | Check render status |
-| `/renders/:id` | DELETE | Cancel render |
+| Endpoint       | Method | Description         |
+| -------------- | ------ | ------------------- |
+| `/renders`     | POST   | Start a render      |
+| `/renders/:id` | GET    | Check render status |
+| `/renders/:id` | DELETE | Cancel render       |
 
 #### Example Request
 
@@ -238,21 +238,21 @@ MCP server that provides semantic memory layer on top of Qdrant vector database.
 
 #### Tools Exposed
 
-| Tool | Description | Inputs |
-|------|-------------|--------|
-| `qdrant-store` | Store information in Qdrant | `information`, `metadata`, `collection_name` |
-| `qdrant-find` | Retrieve relevant information | `query`, `collection_name` |
+| Tool           | Description                   | Inputs                                       |
+| -------------- | ----------------------------- | -------------------------------------------- |
+| `qdrant-store` | Store information in Qdrant   | `information`, `metadata`, `collection_name` |
+| `qdrant-find`  | Retrieve relevant information | `query`, `collection_name`                   |
 
 #### Configuration
 
-| Variable | Description |
-|----------|-------------|
-| `QDRANT_URL` | Remote Qdrant server URL |
-| `QDRANT_API_KEY` | API key |
-| `COLLECTION_NAME` | Default collection |
-| `QDRANT_LOCAL_PATH` | Local database path |
-| `EMBEDDING_PROVIDER` | Currently "fastembed" |
-| `EMBEDDING_MODEL` | Default: all-MiniLM-L6-v2 |
+| Variable             | Description               |
+| -------------------- | ------------------------- |
+| `QDRANT_URL`         | Remote Qdrant server URL  |
+| `QDRANT_API_KEY`     | API key                   |
+| `COLLECTION_NAME`    | Default collection        |
+| `QDRANT_LOCAL_PATH`  | Local database path       |
+| `EMBEDDING_PROVIDER` | Currently "fastembed"     |
+| `EMBEDDING_MODEL`    | Default: all-MiniLM-L6-v2 |
 
 #### Usage
 
@@ -283,12 +283,12 @@ MCP server for LLM clients to interact with Plainly video rendering APIs.
 
 #### Tools Exposed
 
-| Tool | Description |
-|------|-------------|
-| `list_renderable_items` | Get all designs/projects |
+| Tool                           | Description                         |
+| ------------------------------ | ----------------------------------- |
+| `list_renderable_items`        | Get all designs/projects            |
 | `get_renderable_items_details` | Get params, previews, aspect ratios |
-| `render_item` | Submit render with parameters |
-| `check_render_status` | Check progress, get preview links |
+| `render_item`                  | Submit render with parameters       |
+| `check_render_status`          | Check progress, get preview links   |
 
 #### Configuration
 
@@ -316,7 +316,8 @@ MCP server for LLM clients to interact with Plainly video rendering APIs.
 
 ### 2.3 PostgreSQL MCP Servers
 
-**Repositories:** 
+**Repositories:**
+
 - `vendor/mcp-servers/postgres-mcp`
 - `vendor/mcp-servers/postgres-mcp-server`
 
@@ -441,12 +442,12 @@ Transforms long videos into YouTube Shorts/Instagram Reels. AI-powered clip extr
 
 #### API Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/upload` | POST | Upload video, get transcript |
-| `/generate-shorts` | POST | Generate N shorts from video |
-| `/getexcitingthumbnails` | POST | AI-enhanced thumbnails |
-| `/hashtags` | POST | Generate hashtags |
+| Endpoint                 | Method | Description                  |
+| ------------------------ | ------ | ---------------------------- |
+| `/upload`                | POST   | Upload video, get transcript |
+| `/generate-shorts`       | POST   | Generate N shorts from video |
+| `/getexcitingthumbnails` | POST   | AI-enhanced thumbnails       |
+| `/hashtags`              | POST   | Generate hashtags            |
 
 #### Features
 
@@ -469,17 +470,17 @@ Create short videos for YouTube, Instagram, VK with a GUI workflow.
 
 #### Workflow Buttons
 
-| Button | Function |
-|--------|----------|
-| Save All | Save images, text, voices to folders |
-| Cut Images | Crop to 1:1 format |
-| Correct Images | Match all to first image |
-| Add Borders | Black borders for 9:16 |
-| Add Text to Images | Overlay text |
-| Combine Img And Sound | Merge image + voice |
-| Combine Videos | Concatenate clips |
-| Add Music to Video | Add background music |
-| Delete All | Clean all folders |
+| Button                | Function                             |
+| --------------------- | ------------------------------------ |
+| Save All              | Save images, text, voices to folders |
+| Cut Images            | Crop to 1:1 format                   |
+| Correct Images        | Match all to first image             |
+| Add Borders           | Black borders for 9:16               |
+| Add Text to Images    | Overlay text                         |
+| Combine Img And Sound | Merge image + voice                  |
+| Combine Videos        | Concatenate clips                    |
+| Add Music to Video    | Add background music                 |
+| Delete All            | Clean all folders                    |
 
 ---
 
@@ -487,28 +488,28 @@ Create short videos for YouTube, Instagram, VK with a GUI workflow.
 
 ### Rendering Libraries
 
-| Tool | Language | Cloud/Local | AI Integration | Best For |
-|------|----------|-------------|----------------|----------|
-| Mosaico | Python | Local | ✅ LangChain, Haystack | Python pipelines |
-| JSON2Video | PHP | Cloud | ❌ No | E-commerce |
-| Remotion | TypeScript | Local/Cloud | ✅ Via props | React developers |
-| Plainly | Node.js (MCP) | Cloud | ✅ MCP | Template rendering |
+| Tool       | Language      | Cloud/Local | AI Integration         | Best For           |
+| ---------- | ------------- | ----------- | ---------------------- | ------------------ |
+| Mosaico    | Python        | Local       | ✅ LangChain, Haystack | Python pipelines   |
+| JSON2Video | PHP           | Cloud       | ❌ No                  | E-commerce         |
+| Remotion   | TypeScript    | Local/Cloud | ✅ Via props           | React developers   |
+| Plainly    | Node.js (MCP) | Cloud       | ✅ MCP                 | Template rendering |
 
 ### MCP Servers
 
-| Server | Purpose | Key Tools |
-|--------|---------|-----------|
-| qdrant-mcp | Vector memory | store, find |
-| plainly-mcp | Video rendering | render_item, check_status |
-| postgres-mcp | Data storage | SQL queries |
+| Server       | Purpose         | Key Tools                 |
+| ------------ | --------------- | ------------------------- |
+| qdrant-mcp   | Vector memory   | store, find               |
+| plainly-mcp  | Video rendering | render_item, check_status |
+| postgres-mcp | Data storage    | SQL queries               |
 
 ### Video Platforms
 
-| Tool | Interface | Auto-Upload | Modular |
-|------|-----------|-------------|---------|
-| ViralFactory | Gradio Web | ✅ Yes | ✅ Engines |
-| ShortReelX | REST API | ❌ No | ❌ No |
-| Short-Video-Creator | GUI | ❌ No | ❌ No |
+| Tool                | Interface  | Auto-Upload | Modular    |
+| ------------------- | ---------- | ----------- | ---------- |
+| ViralFactory        | Gradio Web | ✅ Yes      | ✅ Engines |
+| ShortReelX          | REST API   | ❌ No       | ❌ No      |
+| Short-Video-Creator | GUI        | ❌ No       | ❌ No      |
 
 ---
 
@@ -589,7 +590,7 @@ class LangChainScriptGenerator(ScriptGenerator):
             api_key=api_key
         )
         self.topic = topic
-    
+
     def generate(self) -> list[dict]:
         prompt = f"Write a 60-second video script about {self.topic}"
         response = self.llm.invoke(prompt)
@@ -617,9 +618,9 @@ async function storeTrendResearch(trend: string, analysis: string) {
     metadata: {
       type: 'trend_research',
       trend: trend,
-      date: new Date().toISOString()
+      date: new Date().toISOString(),
     },
-    collection_name: 'trends'
+    collection_name: 'trends',
   });
 }
 
@@ -627,7 +628,7 @@ async function storeTrendResearch(trend: string, analysis: string) {
 async function findSimilarTrends(query: string) {
   return await qdrant.callTool('qdrant-find', {
     query: query,
-    collection_name: 'trends'
+    collection_name: 'trends',
   });
 }
 ```
@@ -644,13 +645,13 @@ const app = express();
 
 app.post('/renders', async (req, res) => {
   const { props, compositionId } = req.body;
-  
+
   const bundleLocation = await bundle({
     entryPoint: './remotion/index.ts',
   });
-  
+
   const outputLocation = `/tmp/${Date.now()}.mp4`;
-  
+
   await renderMedia({
     composition: compositionId,
     serveUrl: bundleLocation,
@@ -658,7 +659,7 @@ app.post('/renders', async (req, res) => {
     outputLocation,
     inputProps: props,
   });
-  
+
   res.json({ outputLocation });
 });
 ```
@@ -686,7 +687,7 @@ class TTSEngine(Engine):
 class Pipeline:
     def __init__(self, engines: list[Engine]):
         self.engines = engines
-    
+
     def run(self, input_data: dict) -> dict:
         result = input_data
         for engine in self.engines:
@@ -708,21 +709,25 @@ pipeline.run({'topic': 'AI news today'})
 ## Appendix A: Integration Roadmap
 
 ### Phase 1: Core Rendering
+
 - Setup Remotion with remotion-subtitles
 - Integrate chuk-mcp-remotion
 - Deploy on Railway or Render
 
 ### Phase 2: MCP Memory Layer
+
 - Deploy qdrant-mcp-server
 - Implement content pattern storage
 - Build trend research cache
 
 ### Phase 3: Python Integration
+
 - Evaluate Mosaico for Python agents
 - LangChain/Pydantic AI integration
 - Alternative rendering path
 
 ### Phase 4: Cloud Rendering
+
 - Evaluate Plainly for template library
 - JSON2Video for batch variants
 - Cost comparison analysis
@@ -739,6 +744,7 @@ This deep dive documents:
 4. **ShortReelX:** LLM-based timestamp extraction pattern
 
 **Key Decisions:**
+
 - Dual-track rendering (Remotion primary, Mosaico secondary)
 - Qdrant MCP for content pattern memory
 - Study ViralFactory's engine architecture for modularity
@@ -746,4 +752,4 @@ This deep dive documents:
 
 ---
 
-*Document created as part of content-machine deep research initiative*
+_Document created as part of content-machine deep research initiative_

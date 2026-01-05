@@ -12,17 +12,17 @@ This deep dive covers **23 vendored repositories** across video processing (10),
 
 **Key Findings:**
 
-| Category | Champion Tool | Why |
-|----------|--------------|-----|
-| **Video Processing** | MoviePy 2.0 | Python ecosystem, numpy arrays, easy compositing |
-| **Low-Level Video** | PyAV | Direct FFmpeg binding, precise control |
-| **Scene Detection** | PySceneDetect | BSD-3, ContentDetector + AdaptiveDetector |
-| **Smart Clipping** | FunClip ⭐ | Alibaba's FunASR + LLM analysis + speaker diarization |
-| **Highlight Detection** | AI-Highlight-Clip | Whisper + LLM scoring + auto-titles |
-| **LLM Video Editing** | FFMPerative | Natural language → FFmpeg commands |
-| **Browser Capture** | Playwright | Microsoft's cross-browser automation |
-| **Screen Recording** | puppeteer-screen-recorder | Native DevTools protocol, no overhead |
-| **CapCut Automation** | CapCut Mate | RESTful API for 剪映 drafts |
+| Category                | Champion Tool             | Why                                                   |
+| ----------------------- | ------------------------- | ----------------------------------------------------- |
+| **Video Processing**    | MoviePy 2.0               | Python ecosystem, numpy arrays, easy compositing      |
+| **Low-Level Video**     | PyAV                      | Direct FFmpeg binding, precise control                |
+| **Scene Detection**     | PySceneDetect             | BSD-3, ContentDetector + AdaptiveDetector             |
+| **Smart Clipping**      | FunClip ⭐                | Alibaba's FunASR + LLM analysis + speaker diarization |
+| **Highlight Detection** | AI-Highlight-Clip         | Whisper + LLM scoring + auto-titles                   |
+| **LLM Video Editing**   | FFMPerative               | Natural language → FFmpeg commands                    |
+| **Browser Capture**     | Playwright                | Microsoft's cross-browser automation                  |
+| **Screen Recording**    | puppeteer-screen-recorder | Native DevTools protocol, no overhead                 |
+| **CapCut Automation**   | CapCut Mate               | RESTful API for 剪映 drafts                           |
 
 **Critical Insight:** FunClip from Alibaba DAMO Academy is the standout tool - it combines Paraformer ASR (industrial-grade), speaker diarization, and LLM-based intelligent clipping in one package.
 
@@ -40,6 +40,7 @@ This deep dive covers **23 vendored repositories** across video processing (10),
 MoviePy is a Python library for video editing: cuts, concatenations, compositing, text overlays, and custom effects. All media is converted to numpy arrays for pixel-level access.
 
 **Key Features:**
+
 - v2.0 major rewrite with breaking changes
 - Read/write all common formats + GIF
 - Numpy array access for every pixel
@@ -47,6 +48,7 @@ MoviePy is a Python library for video editing: cuts, concatenations, compositing
 - Text overlays with custom fonts
 
 **Usage Pattern:**
+
 ```python
 from moviepy import VideoFileClip, TextClip, CompositeVideoClip
 
@@ -71,6 +73,7 @@ final_video.write_videofile("result.mp4")
 ```
 
 **Trade-offs:**
+
 - ✅ Easy to use, Pythonic API
 - ✅ Numpy integration for custom effects
 - ⚠️ Slower than direct FFmpeg due to data import/export
@@ -90,12 +93,14 @@ final_video.write_videofile("result.mp4")
 PyAV is a Pythonic binding for FFmpeg libraries, providing direct access to containers, streams, packets, codecs, and frames.
 
 **Key Features:**
+
 - Direct FFmpeg access (no subprocess)
 - Frame-level control
 - Numpy/Pillow integration
 - Binary wheels for easy install
 
 **Usage Pattern:**
+
 ```python
 import av
 
@@ -107,7 +112,7 @@ for frame in container.decode(video=0):
     # frame is numpy-compatible
     img = frame.to_ndarray(format='rgb24')
     # Process frame...
-    
+
 # Write output
 output = av.open('output.mp4', 'w')
 stream = output.add_stream('h264', rate=30)
@@ -115,6 +120,7 @@ stream = output.add_stream('h264', rate=30)
 ```
 
 **Trade-offs:**
+
 - ✅ Full FFmpeg power in Python
 - ✅ No subprocess overhead
 - ⚠️ Complex - requires understanding FFmpeg internals
@@ -132,6 +138,7 @@ stream = output.add_stream('h264', rate=30)
 The foundational multimedia processing toolkit. All other video tools ultimately use FFmpeg.
 
 **Libraries:**
+
 - `libavcodec` - Codec implementations
 - `libavformat` - Container formats, I/O
 - `libavfilter` - Filter graph
@@ -151,12 +158,14 @@ The foundational multimedia processing toolkit. All other video tools ultimately
 Natural language → FFmpeg commands. Use chat to compose video edits.
 
 **Key Features:**
+
 - LLM-powered command generation
 - Speed/resize/crop/flip/reverse
 - Speech-to-text captions
 - Python API + CLI
 
 **Usage Pattern:**
+
 ```bash
 # CLI
 ffmperative do --prompt "merge subtitles 'captions.srt' with video 'video.mp4' calling it 'video_caps.mp4'"
@@ -172,6 +181,7 @@ ffmp("sample the 5th frame from '/path/to/video.mp4'")
 ```
 
 **Resources:**
+
 - ffmperative-7b: Fine-tuned LLaMA2 checkpoint
 - Sample dataset on HuggingFace
 
@@ -189,6 +199,7 @@ ffmp("sample the 5th frame from '/path/to/video.mp4'")
 RESTful API for programmatically creating/editing CapCut (剪映) draft projects. Enables automation of CapCut workflows.
 
 **Key Features:**
+
 - Full draft management (create, save, export)
 - All track types: video, audio, text, stickers, effects, filters
 - Complex text with 花字 (fancy text) and bubbles
@@ -197,6 +208,7 @@ RESTful API for programmatically creating/editing CapCut (剪映) draft projects
 - Coze plugin integration
 
 **API Endpoints:**
+
 ```
 POST /create_draft          - Create new project
 POST /add_videos            - Add video clips
@@ -209,11 +221,12 @@ GET  /gen_video_status      - Check render progress
 ```
 
 **Usage Pattern:**
+
 ```python
 import requests
 
 # Create draft
-response = requests.post("http://localhost:30000/openapi/capcut-mate/v1/create_draft", 
+response = requests.post("http://localhost:30000/openapi/capcut-mate/v1/create_draft",
     json={"width": 1080, "height": 1920})
 draft_id = response.json()["draft_id"]
 
@@ -239,6 +252,7 @@ requests.post("http://localhost:30000/openapi/capcut-mate/v1/add_videos",
 Low-level HTTP API for 剪映 (JianYing/CapCut) draft protocol. More granular control than CapCut Mate.
 
 **Key Features:**
+
 - Track-level operations (video, audio, text, sticker, effect, filter)
 - Segment management with precise timing
 - Transform/keyframe control
@@ -248,6 +262,7 @@ Low-level HTTP API for 剪映 (JianYing/CapCut) draft protocol. More granular co
 - OSS integration for media
 
 **Architecture:**
+
 ```
 ┌─────────────────────────────────────┐
 │     HTTP API Layer (FastAPI)        │
@@ -283,6 +298,7 @@ Low-level HTTP API for 剪映 (JianYing/CapCut) draft protocol. More granular co
 Fully open-source, locally deployed automated video clipping tool. Uses Alibaba's industrial-grade ASR models + LLM for intelligent clipping.
 
 **Key Features:**
+
 - **Paraformer-Large ASR**: Best open-source Chinese ASR (13M+ downloads)
 - **SeACo-Paraformer**: Hotword customization for entities/names
 - **CAM++ Speaker Recognition**: Clip by speaker ID (e.g., "spk0", "spk0#spk3")
@@ -291,6 +307,7 @@ Fully open-source, locally deployed automated video clipping tool. Uses Alibaba'
 - **Automatic SRT**: Full video + target segment subtitles
 
 **LLM Clipping Flow:**
+
 1. ASR recognition generates SRT
 2. Select LLM model + configure API key
 3. Click "LLM Inference" - combines prompts with SRT
@@ -298,6 +315,7 @@ Fully open-source, locally deployed automated video clipping tool. Uses Alibaba'
 5. Generate clips
 
 **Usage Pattern:**
+
 ```bash
 # Launch Gradio UI
 python funclip/launch.py
@@ -322,6 +340,7 @@ python funclip/videoclipper.py --stage 2 \
 ```
 
 **Dependencies:**
+
 - FunASR for Paraformer models
 - FFmpeg + ImageMagick for subtitle embedding
 - LLM API (Qwen/GPT) for smart clipping
@@ -340,6 +359,7 @@ python funclip/videoclipper.py --stage 2 \
 Video scene cut detection and analysis tool. Identifies scene boundaries for automatic splitting.
 
 **Key Features:**
+
 - ContentDetector: Fast cut detection
 - AdaptiveDetector: Handles camera movement better
 - ThresholdDetector: Fade in/out detection
@@ -347,6 +367,7 @@ Video scene cut detection and analysis tool. Identifies scene boundaries for aut
 - CLI + Python API
 
 **Usage Pattern:**
+
 ```python
 from scenedetect import detect, ContentDetector, split_video_ffmpeg
 
@@ -382,6 +403,7 @@ scenedetect -i video.mp4 time -s 10s  # Skip first 10s
 Desktop app that automatically finds and clips highlight moments from long videos using Whisper + LLM analysis.
 
 **Key Features:**
+
 - OpenAI Whisper for transcription
 - LLM scoring for "highlight potential"
 - Automatic viral title generation
@@ -391,6 +413,7 @@ Desktop app that automatically finds and clips highlight moments from long video
 - Cross-platform GUI (PyQt5)
 
 **Workflow:**
+
 1. Whisper transcription → timestamped subtitles
 2. LLM analyzes each segment for "highlight index"
 3. Smart filtering: TOP N by score, keyword density, overlap
@@ -398,6 +421,7 @@ Desktop app that automatically finds and clips highlight moments from long video
 5. Clip with embedded subtitles
 
 **Configuration:**
+
 - 通义千问 (DashScope) API Key required
 - Configurable: segment count, target duration, highlight keywords
 
@@ -415,11 +439,13 @@ Desktop app that automatically finds and clips highlight moments from long video
 Automatically clips highlights from YouTube channels or live Twitch/Kick streams, generates subtitles, and uploads to YouTube.
 
 **Architecture:**
+
 - Backend: FastAPI + Celery workers
 - Frontend: React dashboard
 - Infrastructure: Docker Compose + Redis
 
 **Features:**
+
 - Live stream monitoring (Twitch/Kick)
 - YouTube channel monitoring
 - Automatic subtitle generation
@@ -473,6 +499,7 @@ Automatic stream highlight detection with smart video cutting. Node.js based wit
 Framework for web testing and automation. Supports Chromium, Firefox, and WebKit with a single API.
 
 **Key Features:**
+
 - Cross-browser: Chromium 144, Firefox 145, WebKit 26
 - Cross-platform: Windows, macOS, Linux
 - Auto-wait: No artificial timeouts needed
@@ -483,6 +510,7 @@ Framework for web testing and automation. Supports Chromium, Firefox, and WebKit
 - Trace viewer: Debug with screenshots/DOM snapshots
 
 **Usage Pattern:**
+
 ```typescript
 import { test, devices } from '@playwright/test';
 
@@ -501,7 +529,7 @@ test.use({
 
 // Network interception
 test('Intercept requests', async ({ page }) => {
-  await page.route('**', route => {
+  await page.route('**', (route) => {
     console.log(route.request().url());
     route.continue();
   });
@@ -522,6 +550,7 @@ test('Intercept requests', async ({ page }) => {
 Puppeteer plugin that uses native Chrome DevTools Protocol for video frame capture. No external dependencies for screen capture.
 
 **Key Features:**
+
 - Native CDP (no third-party plugins)
 - Follow new tabs automatically
 - Configurable FPS (up to 60)
@@ -531,11 +560,12 @@ Puppeteer plugin that uses native Chrome DevTools Protocol for video frame captu
 - No window object dependency
 
 **Configuration:**
+
 ```javascript
 const Config = {
   followNewTab: true,
   fps: 25,
-  ffmpeg_Path: null,  // Auto-install
+  ffmpeg_Path: null, // Auto-install
   videoFrame: { width: 1024, height: 768 },
   videoCrf: 18,
   videoCodec: 'libx264',
@@ -543,11 +573,12 @@ const Config = {
   videoBitrate: 1000,
   autopad: { color: 'black' },
   aspectRatio: '4:3',
-  recordDurationLimit: 120  // seconds
+  recordDurationLimit: 120, // seconds
 };
 ```
 
 **Usage Pattern:**
+
 ```javascript
 const puppeteer = require('puppeteer');
 const { PuppeteerScreenRecorder } = require('puppeteer-screen-recorder');
@@ -556,17 +587,18 @@ const { PuppeteerScreenRecorder } = require('puppeteer-screen-recorder');
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
   const recorder = new PuppeteerScreenRecorder(page);
-  
+
   await recorder.start('./output/demo.mp4');
   await page.goto('https://example.com');
   await page.goto('https://test.com');
   await recorder.stop();
-  
+
   await browser.close();
 })();
 ```
 
 **Limitations:**
+
 - No audio recording (video only)
 - No GIF support (image format)
 
@@ -641,7 +673,7 @@ class ProductVideoClipper:
     def __init__(self, llm_api_key: str):
         self.clipper = VideoClipper()
         self.llm_api_key = llm_api_key
-    
+
     async def process_product_demo(
         self,
         video_path: str,
@@ -654,13 +686,13 @@ class ProductVideoClipper:
             language='en',
             hotwords=product_keywords
         )
-        
+
         # Step 2: LLM analysis for highlight detection
         highlights = await self.analyze_with_llm(
             transcription,
             prompt=f"Find segments that demonstrate key features: {product_keywords}"
         )
-        
+
         # Step 3: Generate clips
         clips = []
         for highlight in highlights:
@@ -671,7 +703,7 @@ class ProductVideoClipper:
                 output=f"{output_dir}/{highlight.title}.mp4"
             )
             clips.append(clip)
-        
+
         return clips
 ```
 
@@ -689,27 +721,27 @@ class ProductVideoClipper:
 
 ### 5.2 Playwright vs Puppeteer
 
-| Feature | Playwright | Puppeteer |
-|---------|------------|-----------|
-| Multi-browser | ✅ Chromium/Firefox/WebKit | ❌ Chrome only |
-| Auto-wait | ✅ Built-in | ❌ Manual |
-| Trace viewer | ✅ Excellent | ⚠️ Basic |
-| Multi-language | ✅ TS/Python/.NET/Java | ⚠️ JS/TS only |
-| Video recording | ✅ Built-in | ⚠️ Requires plugin |
-| Microsoft support | ✅ Active | ⚠️ Google maintained |
+| Feature           | Playwright                 | Puppeteer            |
+| ----------------- | -------------------------- | -------------------- |
+| Multi-browser     | ✅ Chromium/Firefox/WebKit | ❌ Chrome only       |
+| Auto-wait         | ✅ Built-in                | ❌ Manual            |
+| Trace viewer      | ✅ Excellent               | ⚠️ Basic             |
+| Multi-language    | ✅ TS/Python/.NET/Java     | ⚠️ JS/TS only        |
+| Video recording   | ✅ Built-in                | ⚠️ Requires plugin   |
+| Microsoft support | ✅ Active                  | ⚠️ Google maintained |
 
 **Verdict:** Use Playwright for new projects
 
 ### 5.3 MoviePy vs PyAV
 
-| Use Case | Tool |
-|----------|------|
-| Quick prototyping | MoviePy |
-| Text overlays | MoviePy |
-| Custom effects | MoviePy (numpy) |
-| Maximum performance | PyAV |
-| Streaming processing | PyAV |
-| Frame-level control | PyAV |
+| Use Case             | Tool            |
+| -------------------- | --------------- |
+| Quick prototyping    | MoviePy         |
+| Text overlays        | MoviePy         |
+| Custom effects       | MoviePy (numpy) |
+| Maximum performance  | PyAV            |
+| Streaming processing | PyAV            |
+| Frame-level control  | PyAV            |
 
 ---
 
@@ -731,4 +763,4 @@ class ProductVideoClipper:
 
 ---
 
-*Document generated during deep research session. Last updated: 2026-01-02*
+_Document generated during deep research session. Last updated: 2026-01-02_

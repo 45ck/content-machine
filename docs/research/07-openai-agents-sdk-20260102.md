@@ -15,18 +15,18 @@ Lightweight but powerful - supports tools, handoffs, guardrails, tracing, and MC
 
 ## Key Features
 
-| Feature | Details |
-|---------|---------|
-| **Multi-Agent** | Multiple agents with handoffs |
-| **Tools** | Function calling with Zod schemas |
-| **Guardrails** | Input/output validation |
-| **Tracing** | Built-in debugging UI |
-| **Streaming** | Real-time responses |
-| **Parallelization** | Concurrent agent/tool execution |
-| **Human-in-the-Loop** | Approval workflows |
-| **MCP Support** | Local MCP server integration |
-| **Realtime Voice** | WebRTC/WebSocket voice agents |
-| **Model Agnostic** | Vercel AI SDK adapter for non-OpenAI |
+| Feature               | Details                              |
+| --------------------- | ------------------------------------ |
+| **Multi-Agent**       | Multiple agents with handoffs        |
+| **Tools**             | Function calling with Zod schemas    |
+| **Guardrails**        | Input/output validation              |
+| **Tracing**           | Built-in debugging UI                |
+| **Streaming**         | Real-time responses                  |
+| **Parallelization**   | Concurrent agent/tool execution      |
+| **Human-in-the-Loop** | Approval workflows                   |
+| **MCP Support**       | Local MCP server integration         |
+| **Realtime Voice**    | WebRTC/WebSocket voice agents        |
+| **Model Agnostic**    | Vercel AI SDK adapter for non-OpenAI |
 
 ## Tech Stack
 
@@ -45,6 +45,7 @@ Lightweight but powerful - supports tools, handoffs, guardrails, tracing, and MC
 ## What We Can Reuse
 
 ### ✅ High Value
+
 - **Agent framework** - Our AI orchestration layer
 - **Tool patterns** - Define content machine tools as agent functions
 - **MCP integration** - Connect MCP Reddit, future MCP tools
@@ -52,10 +53,12 @@ Lightweight but powerful - supports tools, handoffs, guardrails, tracing, and MC
 - **Structured outputs** - Zod schema validation
 
 ### ⚠️ Medium Value
+
 - **Multi-agent** - Could split research/script/render agents
 - **Tracing** - Debug complex content flows
 
 ### ❌ Not Needed
+
 - **Realtime voice** - Not for content generation
 - **Browser package** - Server-side for us
 
@@ -86,9 +89,9 @@ const researchTool = tool({
 const generateScriptTool = tool({
   name: 'generate_script',
   description: 'Generate video script from topic',
-  parameters: z.object({ 
+  parameters: z.object({
     topic: z.string(),
-    style: z.enum(['educational', 'viral', 'story'])
+    style: z.enum(['educational', 'viral', 'story']),
   }),
   execute: async ({ topic, style }) => {
     // Call LLM for script

@@ -9,6 +9,7 @@
 ## Executive Summary
 
 For **1080p@30fps rendering**, Remotion requires:
+
 - **Minimum RAM:** 3GB free memory (Docker recommendation)
 - **Recommended RAM:** 4GB+ for stable operation
 - **Cache settings:** 2GB `offthreadVideoCacheSizeInBytes` (2,097,152,000 bytes)
@@ -21,6 +22,7 @@ For **1080p@30fps rendering**, Remotion requires:
 ### 1.1 Browser Heap / Concurrency
 
 **Concurrency Definition** (from Remotion docs):
+
 > "Concurrency refers to how many browser tabs are opened in parallel during a render. Each Chrome tab renders web content and then screenshots it."
 
 **Default Concurrency Calculation** ([get-concurrency.ts](../../../vendor/render/remotion/packages/renderer/src/get-concurrency.ts)):
@@ -42,6 +44,7 @@ export const resolveConcurrency = (userPreference: number | string | null) => {
 ### 1.2 Video Cache Size
 
 **Default Cache Behavior** (from [cache.mdx](../../../vendor/render/remotion/packages/docs/docs/media/cache.mdx)):
+
 > "By default, the cache may grow to up to 50% of the available system memory. A minimum of 500MB and a maximum of 20GB is enforced."
 
 **Production Docker Config** ([main.Dockerfile](../../../vendor/short-video-maker-gyori/main.Dockerfile)):
@@ -60,20 +63,22 @@ ENV VIDEO_CACHE_SIZE_IN_BYTES=2097152000
 ### 2.1 OffthreadVideo Mechanics
 
 From [offthreadvideo.mdx](../../../vendor/render/remotion/packages/docs/docs/offthreadvideo.mdx):
+
 > "This component imports and displays a video... during rendering, extracts the exact frame from the video and displays it in an `<Img>` tag. This extraction process happens outside the browser using FFmpeg."
 
 **Memory Implications:**
+
 - Frame extraction happens **outside browser** (via Rust compositor)
 - Frames cached as images, not video buffers
 - Cache controlled via `offthreadVideoCacheSizeInBytes`
 
 ### 2.2 Memory Parameters
 
-| Parameter | Type | Description |
-|-----------|------|-------------|
-| `offthreadVideoCacheSizeInBytes` | `number \| null` | Cache for `<OffthreadVideo>` frames |
-| `mediaCacheSizeInBytes` | `number \| null` | Cache for `@remotion/media` components |
-| `offthreadVideoThreads` | `number \| null` | Worker threads for frame extraction |
+| Parameter                        | Type             | Description                            |
+| -------------------------------- | ---------------- | -------------------------------------- |
+| `offthreadVideoCacheSizeInBytes` | `number \| null` | Cache for `<OffthreadVideo>` frames    |
+| `mediaCacheSizeInBytes`          | `number \| null` | Cache for `@remotion/media` components |
+| `offthreadVideoThreads`          | `number \| null` | Worker threads for frame extraction    |
 
 **Code Reference** ([render-defaults.ts](../../../vendor/render/remotion/packages/studio-shared/src/render-defaults.ts)):
 
@@ -90,6 +95,7 @@ export type RenderDefaults = {
 ### 2.3 Transparent Video Impact
 
 From OffthreadVideo docs:
+
 - **`transparent: false` (default):** Frames extracted as BMP (faster)
 - **`transparent: true`:** Frames extracted as PNG (slower, more memory)
 
@@ -100,6 +106,7 @@ From OffthreadVideo docs:
 ### 3.1 Resolution Configurations Found
 
 **Portrait Mode (1080x1920)** - short-video-maker-gyori:
+
 ```tsx
 <Composition
   id="PortraitVideo"
@@ -111,6 +118,7 @@ From OffthreadVideo docs:
 ```
 
 **Landscape Mode (1920x1080)** - short-video-maker-gyori:
+
 ```tsx
 <Composition
   id="LandscapeVideo"
@@ -124,6 +132,7 @@ From OffthreadVideo docs:
 ### 3.2 Memory Formula (Estimated)
 
 For a single uncompressed frame buffer:
+
 ```
 Frame Memory = Width × Height × Bytes per Pixel
 
@@ -132,6 +141,7 @@ Frame Memory = Width × Height × Bytes per Pixel
 ```
 
 With concurrency and caching:
+
 ```
 Working Memory ≈ (Frames in cache) × (Frame size) × (Concurrency) + (Browser overhead)
 ```
@@ -139,8 +149,10 @@ Working Memory ≈ (Frames in cache) × (Frame size) × (Concurrency) + (Browser
 ### 3.3 vidosy Performance Metrics
 
 From [CHANGELOG.md](../../../templates/vidosy/CHANGELOG.md):
+
 ```markdown
 #### Rendering Performance
+
 - **Simple Video**: ~2-5 minutes for 15-second video
 - **Complex Video**: ~5-15 minutes for 30-second video
 - **Memory Usage**: 2-8GB RAM during rendering
@@ -156,7 +168,7 @@ The Rust compositor handles frame extraction ([filter-asset-types.ts](../../../v
 
 ```typescript
 export const filterAssetTypes = ({
-  frameBuffer,  // Buffer | null - raw frame data
+  frameBuffer, // Buffer | null - raw frame data
   // ...
 }) => {
   if (frameBuffer === null) {
@@ -175,7 +187,7 @@ FFmpeg encoding uses configurable buffers ([crf.ts](../../../vendor/render/remot
 
 ```typescript
 const bufSizeArray = encodingBufferSize
-  ? ['-bufsize', encodingBufferSize]  // e.g., '10M'
+  ? ['-bufsize', encodingBufferSize] // e.g., '10M'
   : [];
 ```
 
@@ -188,6 +200,7 @@ const bufSizeArray = encodingBufferSize
 From [gpu.mdx](../../../vendor/render/remotion/packages/docs/docs/gpu.mdx):
 
 **GPU-accelerated:**
+
 - WebGL (Three.js, Skia, P5.js, Mapbox)
 - `box-shadow`, `text-shadow`
 - `linear-gradient()`, `radial-gradient()`
@@ -196,6 +209,7 @@ From [gpu.mdx](../../../vendor/render/remotion/packages/docs/docs/gpu.mdx):
 - 2D Canvas operations
 
 **NOT GPU-accelerated:**
+
 - `<Html5Video>`
 - `<OffthreadVideo>`
 - Canvas pixel manipulation
@@ -205,15 +219,16 @@ From [gpu.mdx](../../../vendor/render/remotion/packages/docs/docs/gpu.mdx):
 
 From [open-gl.mdx](../../../vendor/render/remotion/packages/docs/docs/open-gl.mdx):
 
-| Renderer | Use Case | Memory Notes |
-|----------|----------|--------------|
-| `null` | Default (Chrome decides) | Standard |
-| `angle` | Desktop with GPU | ⚠️ Memory leaks known |
-| `swangle` | Lambda/no GPU | Software rendering |
-| `angle-egl` | Linux cloud GPU | Recommended for cloud |
-| `vulkan` | Modern GPU | Better performance |
+| Renderer    | Use Case                 | Memory Notes          |
+| ----------- | ------------------------ | --------------------- |
+| `null`      | Default (Chrome decides) | Standard              |
+| `angle`     | Desktop with GPU         | ⚠️ Memory leaks known |
+| `swangle`   | Lambda/no GPU            | Software rendering    |
+| `angle-egl` | Linux cloud GPU          | Recommended for cloud |
+| `vulkan`    | Modern GPU               | Better performance    |
 
 **Critical Warning:**
+
 > "⚠️ Memory leaks are a known problem with `angle`. We recommend to split up long renders into multiple parts when rendering large videos."
 
 ### 5.3 Hardware Acceleration Settings
@@ -233,8 +248,10 @@ hardwareAcceleration: 'prefer-software',  // CPU encoding
 ### 6.1 Minimum Requirements
 
 From [README.md](../../../vendor/short-video-maker-gyori/README.md):
+
 ```markdown
 ## General Requirements
+
 - ≥ 3 gb free RAM, my recommendation is 4gb RAM
 - ≥ 2 vCPU
 - ≥ 5gb disc space
@@ -244,12 +261,12 @@ From [README.md](../../../vendor/short-video-maker-gyori/README.md):
 
 ### 6.2 Recommended Configuration
 
-| Scenario | RAM | Concurrency | Cache Size |
-|----------|-----|-------------|------------|
-| Minimal (Docker) | 3-4GB | 1 | 2GB |
-| Standard | 4-8GB | 2-4 | 4GB |
-| Production | 8GB+ | 4-8 | 8GB |
-| Heavy workloads | 16GB+ | 8+ | 10-20GB |
+| Scenario         | RAM   | Concurrency | Cache Size |
+| ---------------- | ----- | ----------- | ---------- |
+| Minimal (Docker) | 3-4GB | 1           | 2GB        |
+| Standard         | 4-8GB | 2-4         | 4GB        |
+| Production       | 8GB+  | 4-8         | 8GB        |
+| Heavy workloads  | 16GB+ | 8+          | 10-20GB    |
 
 ### 6.3 Docker Configuration (Production-Ready)
 
@@ -266,6 +283,7 @@ ENV VIDEO_CACHE_SIZE_IN_BYTES=2097152000  # 2GB
 ### 7.1 Memory Scaling
 
 Each concurrent Chrome tab adds:
+
 - ~100-300MB base Chrome overhead
 - Frame buffer memory (8MB per 1080p frame)
 - JavaScript heap for React rendering
@@ -280,6 +298,7 @@ From documentation and code analysis:
 3. **Dynamic cache management:** Remotion halves cache when memory low
 
 From [sigkill.mdx](../../../vendor/render/remotion/packages/docs/docs/troubleshooting/sigkill.mdx):
+
 > "If Remotion realizes that the system is short on memory, it will halfen the cache size and free up memory."
 
 ---
@@ -298,6 +317,7 @@ FFmpeg quit with code null (SIGKILL)
 From Remotion troubleshooting docs:
 
 1. **Lower cache size:**
+
    ```typescript
    renderMedia({
      offthreadVideoCacheSizeInBytes: 1024 * 1024 * 500, // 500MB
@@ -306,6 +326,7 @@ From Remotion troubleshooting docs:
    ```
 
 2. **Lower concurrency:**
+
    ```typescript
    renderMedia({
      concurrency: 1,
@@ -320,6 +341,7 @@ From Remotion troubleshooting docs:
 ### 8.3 short-video-maker-gyori Pattern
 
 All Docker images use consistent OOM prevention:
+
 ```dockerfile
 # CONCURRENCY=1 to overcome OOM errors coming from Remotion with limited resources
 # VIDEO_CACHE_SIZE_IN_BYTES=2097152000 (2gb) to overcome OOM errors
@@ -335,7 +357,7 @@ From [Remotion.ts](../../../vendor/short-video-maker-gyori/src/short-creator/lib
 
 ```typescript
 await renderMedia({
-  codec: "h264",
+  codec: 'h264',
   composition,
   serveUrl: this.bundled,
   outputLocation,
@@ -374,10 +396,10 @@ constructor() {
 
 ### 9.3 Environment Variables
 
-| Variable | Description | Recommended |
-|----------|-------------|-------------|
-| `CONCURRENCY` | Chrome tabs in parallel | `1` for limited RAM |
-| `VIDEO_CACHE_SIZE_IN_BYTES` | OffthreadVideo cache | `2097152000` (2GB) |
+| Variable                    | Description             | Recommended         |
+| --------------------------- | ----------------------- | ------------------- |
+| `CONCURRENCY`               | Chrome tabs in parallel | `1` for limited RAM |
+| `VIDEO_CACHE_SIZE_IN_BYTES` | OffthreadVideo cache    | `2097152000` (2GB)  |
 
 ---
 
@@ -386,20 +408,20 @@ constructor() {
 ### 10.1 vidosy Benchmarks
 
 | Video Type | Duration | Render Time | Memory |
-|------------|----------|-------------|--------|
-| Simple | 15s | 2-5 min | 2-4GB |
-| Complex | 30s | 5-15 min | 4-8GB |
+| ---------- | -------- | ----------- | ------ |
+| Simple     | 15s      | 2-5 min     | 2-4GB  |
+| Complex    | 30s      | 5-15 min    | 4-8GB  |
 
 ### 10.2 Estimated Memory Breakdown (1080p)
 
-| Component | Memory Usage |
-|-----------|--------------|
-| Chrome base | 100-300MB |
-| Per frame buffer | ~8MB |
-| React/JS heap | 50-200MB |
-| Video cache (configured) | 2GB |
-| FFmpeg encoding | 100-500MB |
-| **Total per tab** | **~2.5-3GB** |
+| Component                | Memory Usage |
+| ------------------------ | ------------ |
+| Chrome base              | 100-300MB    |
+| Per frame buffer         | ~8MB         |
+| React/JS heap            | 50-200MB     |
+| Video cache (configured) | 2GB          |
+| FFmpeg encoding          | 100-500MB    |
+| **Total per tab**        | **~2.5-3GB** |
 
 ---
 
@@ -408,14 +430,16 @@ constructor() {
 ### For content-machine Implementation
 
 1. **Default Configuration:**
+
    ```typescript
    const RENDER_CONFIG = {
-     concurrency: 1,  // Safe default
-     offthreadVideoCacheSizeInBytes: 2 * 1024 * 1024 * 1024,  // 2GB
+     concurrency: 1, // Safe default
+     offthreadVideoCacheSizeInBytes: 2 * 1024 * 1024 * 1024, // 2GB
    };
    ```
 
 2. **Dynamic Scaling:**
+
    ```typescript
    function getOptimalConcurrency(availableMemoryGB: number): number {
      if (availableMemoryGB < 4) return 1;

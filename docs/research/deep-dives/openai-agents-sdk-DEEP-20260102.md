@@ -44,32 +44,32 @@ import { z } from 'zod';
 
 const agent = new Agent({
   name: 'ContentPlanner',
-  
+
   // System prompt
   instructions: `You are a content planning assistant. 
     Help users plan short-form video content.`,
-  
+
   // Optional: Dynamic instructions
   instructions: async (runContext, agent) => {
     const trends = await fetchTrends();
     return `You are a content planner. Current trends: ${trends}`;
   },
-  
+
   // Human-readable description (for handoffs)
   handoffDescription: 'Plans video content based on trends',
-  
+
   // Model configuration
   model: 'gpt-4.1',
   modelSettings: {
     temperature: 0.7,
   },
-  
+
   // Tools the agent can use
   tools: [searchTrendsTool, generateScriptTool],
-  
+
   // Sub-agents for delegation
   handoffs: [scriptWriterAgent, researchAgent],
-  
+
   // Output type (Zod schema or 'text')
   outputType: z.object({
     topic: z.string(),
@@ -94,7 +94,7 @@ const searchTrendsTool = tool({
     limit: z.number().default(10),
   }),
   strict: true,
-  
+
   execute: async (args, context) => {
     const trends = await trendService.search(args);
     return JSON.stringify(trends);
@@ -144,12 +144,12 @@ const customHandoff: Handoff = {
   name: 'to_script_writer',
   description: 'Hand off to script writer for detailed script',
   agent: scriptWriterAgent,
-  
+
   // Transform input before handoff
   inputTransform: async (input, context) => {
     return `Write a script for: ${input}`;
   },
-  
+
   // Check if handoff is available
   isEnabled: async ({ runContext, agent }) => {
     return runContext.context.hasScriptWriterAccess;
@@ -292,24 +292,24 @@ await trendServer.cleanup();
 ```typescript
 const agent = new Agent({
   name: 'MyAgent',
-  
+
   // Option 1: Run LLM again after tools (default)
   toolUseBehavior: 'run_llm_again',
-  
+
   // Option 2: Stop on first tool
   toolUseBehavior: 'stop_on_first_tool',
-  
+
   // Option 3: Stop on specific tools
   toolUseBehavior: {
     stopAtToolNames: ['generate_video', 'publish'],
   },
-  
+
   // Option 4: Custom function
   toolUseBehavior: async (context, toolResults) => {
-    if (toolResults.some(r => r.name === 'final_answer')) {
+    if (toolResults.some((r) => r.name === 'final_answer')) {
       return {
         isFinalOutput: true,
-        finalOutput: toolResults.find(r => r.name === 'final_answer').output,
+        finalOutput: toolResults.find((r) => r.name === 'final_answer').output,
       };
     }
     return { isFinalOutput: false };
@@ -326,15 +326,15 @@ const agent = new Agent({
 const researchTool = researchAgent.asTool({
   toolName: 'research',
   toolDescription: 'Research a topic in depth',
-  
+
   // Custom output extraction
   customOutputExtractor: async (result) => {
     return result.finalOutput.summary;
   },
-  
+
   // Approval requirement
   needsApproval: true,
-  
+
   // Stream events from nested run
   onStream: (event) => {
     console.log('Nested agent event:', event);
@@ -357,27 +357,27 @@ class ContentAgent extends Agent {
   async onAgentStart(context) {
     console.log('Agent starting...');
   }
-  
+
   // After each LLM call
   async onModelResponse(response, context) {
     console.log('Model responded');
   }
-  
+
   // Before tool execution
   async onToolStart(toolName, args, context) {
     console.log(`Calling ${toolName}...`);
   }
-  
+
   // After tool execution
   async onToolEnd(toolName, result, context) {
     console.log(`${toolName} returned:`, result);
   }
-  
+
   // On handoff
   async onHandoff(targetAgent, context) {
     console.log(`Handing off to ${targetAgent.name}`);
   }
-  
+
   // On completion
   async onAgentEnd(result, context) {
     console.log('Agent completed');
@@ -434,12 +434,14 @@ const assetAgent = new Agent({
   handoffDescription: 'Plans visual assets for video',
   tools: [searchPexelsTool, searchUnsplashTool],
   outputType: z.object({
-    scenes: z.array(z.object({
-      startTime: z.number(),
-      endTime: z.number(),
-      description: z.string(),
-      assetUrl: z.string(),
-    })),
+    scenes: z.array(
+      z.object({
+        startTime: z.number(),
+        endTime: z.number(),
+        description: z.string(),
+        assetUrl: z.string(),
+      })
+    ),
   }),
 });
 
@@ -454,10 +456,12 @@ const orchestratorAgent = new Agent({
   outputType: z.object({
     topic: z.string(),
     script: z.string(),
-    assets: z.array(z.object({
-      time: z.number(),
-      url: z.string(),
-    })),
+    assets: z.array(
+      z.object({
+        time: z.number(),
+        url: z.string(),
+      })
+    ),
     metadata: z.object({
       title: z.string(),
       description: z.string(),
@@ -469,7 +473,7 @@ const orchestratorAgent = new Agent({
 // Run the pipeline
 export async function createContent(request: ContentRequest) {
   const runner = new Runner();
-  
+
   const result = await runner.run(orchestratorAgent, request.prompt, {
     context: {
       platform: request.platform,
@@ -478,14 +482,14 @@ export async function createContent(request: ContentRequest) {
     },
     stream: true,
   });
-  
+
   // Handle streaming events
   for await (const event of result) {
     if (event.type === 'handoff') {
       console.log(`Phase: ${event.targetAgent}`);
     }
   }
-  
+
   return result.completed.finalOutput;
 }
 ```
@@ -502,23 +506,20 @@ export async function createAgentWithMCP() {
     name: 'TrendResearch',
     url: 'http://localhost:8081/mcp',
   });
-  
+
   const videoServer = new MCPServer({
     name: 'VideoGeneration',
     url: 'http://localhost:8082/mcp',
   });
-  
-  await Promise.all([
-    trendServer.connect(),
-    videoServer.connect(),
-  ]);
-  
+
+  await Promise.all([trendServer.connect(), videoServer.connect()]);
+
   const agent = new Agent({
     name: 'ContentMachine',
     instructions: 'Create short-form video content.',
     mcpServers: [trendServer, videoServer],
   });
-  
+
   return {
     agent,
     cleanup: async () => {
@@ -552,14 +553,14 @@ export async function createAgentWithMCP() {
 
 ## Comparison: OpenAI Agents vs LangGraph
 
-| Feature | OpenAI Agents SDK | LangGraph |
-|---------|------------------|-----------|
-| Language | TypeScript | Python |
-| MCP Support | Native | Via integration |
-| Handoffs | Built-in | Manual |
-| Guardrails | Built-in | Custom |
-| Streaming | Native | Native |
-| Ecosystem | OpenAI | LangChain |
+| Feature     | OpenAI Agents SDK | LangGraph       |
+| ----------- | ----------------- | --------------- |
+| Language    | TypeScript        | Python          |
+| MCP Support | Native            | Via integration |
+| Handoffs    | Built-in          | Manual          |
+| Guardrails  | Built-in          | Custom          |
+| Streaming   | Native            | Native          |
+| Ecosystem   | OpenAI            | LangChain       |
 
 ---
 

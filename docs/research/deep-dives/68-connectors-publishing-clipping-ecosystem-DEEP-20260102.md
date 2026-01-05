@@ -68,11 +68,11 @@ async def get_trends():
 
 #### Reddit MCP Servers (3 implementations)
 
-| Server | Language | Notes |
-|--------|----------|-------|
-| `reddit-mcp-buddy` | Python | Buddy-style interaction |
-| `reddit-mcp-geli` | Python | Extended features |
-| `reddit-mcp-ts` | TypeScript | Native TS implementation |
+| Server             | Language   | Notes                    |
+| ------------------ | ---------- | ------------------------ |
+| `reddit-mcp-buddy` | Python     | Buddy-style interaction  |
+| `reddit-mcp-geli`  | Python     | Extended features        |
+| `reddit-mcp-ts`    | TypeScript | Native TS implementation |
 
 **MCP Server Pattern:**
 
@@ -108,13 +108,13 @@ yt-dlp is the most powerful video/audio downloader, supporting **thousands of si
 
 ##### Key Features
 
-| Feature | Description |
-|---------|-------------|
+| Feature                | Description                      |
+| ---------------------- | -------------------------------- |
 | **Thousands of sites** | YouTube, TikTok, Instagram, etc. |
-| **Format selection** | Choose quality, codec |
-| **Subtitles** | Download captions |
-| **Metadata** | Extract video info |
-| **SponsorBlock** | Skip sponsor segments |
+| **Format selection**   | Choose quality, codec            |
+| **Subtitles**          | Download captions                |
+| **Metadata**           | Extract video info               |
+| **SponsorBlock**       | Skip sponsor segments            |
 
 ##### Code Pattern
 
@@ -129,7 +129,7 @@ def download_video(url: str, output_path: str):
         'writeautomaticsub': True,
         'subtitlesformat': 'srt',
     }
-    
+
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         ydl.download([url])
 
@@ -162,10 +162,10 @@ for entry in transcript:
 
 #### Google API Clients
 
-| Repository | Language | Purpose |
-|------------|----------|---------|
-| `google-api-nodejs` | Node.js | YouTube Data API v3 |
-| `google-api-python` | Python | YouTube Data API v3 |
+| Repository          | Language | Purpose             |
+| ------------------- | -------- | ------------------- |
+| `google-api-nodejs` | Node.js  | YouTube Data API v3 |
+| `google-api-python` | Python   | YouTube Data API v3 |
 
 **YouTube Data API Pattern:**
 
@@ -197,14 +197,14 @@ pytrends is an unofficial API for Google Trends, enabling automated trend resear
 
 #### Key Methods
 
-| Method | Description |
-|--------|-------------|
-| `interest_over_time()` | Historical search interest |
-| `interest_by_region()` | Geographic distribution |
-| `related_topics()` | Related topics |
-| `related_queries()` | Related search queries |
-| `trending_searches()` | Daily trending searches |
-| `realtime_search_trends()` | Real-time trends |
+| Method                     | Description                |
+| -------------------------- | -------------------------- |
+| `interest_over_time()`     | Historical search interest |
+| `interest_by_region()`     | Geographic distribution    |
+| `related_topics()`         | Related topics             |
+| `related_queries()`        | Related search queries     |
+| `trending_searches()`      | Daily trending searches    |
+| `realtime_search_trends()` | Real-time trends           |
 
 #### Code Pattern
 
@@ -247,7 +247,7 @@ async def get_trending_topics_google(geo: str = "US") -> list:
     trending = pytrends.trending_searches(pn='united_states')
     return trending.head(20).tolist()
 
-@mcp.tool  
+@mcp.tool
 async def compare_keywords(keywords: list, timeframe: str = "today 3-m") -> dict:
     """Compare search interest for multiple keywords."""
     pytrends = TrendReq(hl='en-US', tz=360)
@@ -305,13 +305,13 @@ Publishing tools handle the **output layer** – automatically uploading generat
 
 #### Features
 
-| Feature | Description |
-|---------|-------------|
-| **Fast Upload** | 3 seconds via API, not browser automation |
-| **Multi-Account** | Handle multiple TikTok accounts |
-| **Scheduling** | Schedule up to 10 days ahead |
-| **YouTube Import** | Upload directly from YouTube Shorts links |
-| **Cookie Management** | Persistent session handling |
+| Feature               | Description                               |
+| --------------------- | ----------------------------------------- |
+| **Fast Upload**       | 3 seconds via API, not browser automation |
+| **Multi-Account**     | Handle multiple TikTok accounts           |
+| **Scheduling**        | Schedule up to 10 days ahead              |
+| **YouTube Import**    | Upload directly from YouTube Shorts links |
+| **Cookie Management** | Persistent session handling               |
 
 #### Prerequisites
 
@@ -366,14 +366,14 @@ Mixpost is a **robust social media management platform** for scheduling and publ
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Multi-Platform** | Twitter, Facebook, Instagram, LinkedIn, etc. |
-| **Scheduling** | Visual calendar management |
-| **Team Collaboration** | Workspaces, permissions |
-| **Analytics** | Per-platform performance metrics |
-| **Post Templates** | Reusable content templates |
-| **Queue Management** | Natural posting schedule |
+| Feature                | Description                                  |
+| ---------------------- | -------------------------------------------- |
+| **Multi-Platform**     | Twitter, Facebook, Instagram, LinkedIn, etc. |
+| **Scheduling**         | Visual calendar management                   |
+| **Team Collaboration** | Workspaces, permissions                      |
+| **Analytics**          | Per-platform performance metrics             |
+| **Post Templates**     | Reusable content templates                   |
+| **Queue Management**   | Natural posting schedule                     |
 
 #### Architecture
 
@@ -398,22 +398,22 @@ For content-machine (TypeScript/Python stack), Mixpost can be:
 
 #### Mixpost Pro Features (Paid)
 
-| Feature | Lite | Pro |
-|---------|------|-----|
-| Multi-account | ✅ | ✅ |
-| Scheduling | ✅ | ✅ |
-| Team workspaces | ❌ | ✅ |
-| Analytics | Basic | Advanced |
-| White-labeling | ❌ | ✅ |
+| Feature         | Lite  | Pro      |
+| --------------- | ----- | -------- |
+| Multi-account   | ✅    | ✅       |
+| Scheduling      | ✅    | ✅       |
+| Team workspaces | ❌    | ✅       |
+| Analytics       | Basic | Advanced |
+| White-labeling  | ❌    | ✅       |
 
 ### 2.3 Other Publishing Tools
 
-| Tool | Purpose | Status |
-|------|---------|--------|
-| `youtube-upload` | YouTube video upload | Reference |
+| Tool                              | Purpose              | Status     |
+| --------------------------------- | -------------------- | ---------- |
+| `youtube-upload`                  | YouTube video upload | Reference  |
 | `rednote-instagram-auto-uploader` | Instagram automation | Unofficial |
-| `my-youtube-automation` | YouTube workflow | Reference |
-| `go-youtube-reddit-automation` | Go-based automation | Reference |
+| `my-youtube-automation`           | YouTube workflow     | Reference  |
+| `go-youtube-reddit-automation`    | Go-based automation  | Reference  |
 
 ### Publishing Architecture
 
@@ -464,14 +464,14 @@ FunClip is an **LLM-powered video clipping tool** that uses Alibaba's Paraformer
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Paraformer ASR** | Industrial-grade Chinese + English recognition |
-| **LLM Clipping** | GPT/Qwen-based intelligent clip selection |
-| **Speaker Diarization** | CAM++ speaker recognition |
-| **Hotword Support** | Customize entity recognition |
-| **Subtitle Generation** | Full SRT output |
-| **Multi-language** | Chinese, English |
+| Feature                 | Description                                    |
+| ----------------------- | ---------------------------------------------- |
+| **Paraformer ASR**      | Industrial-grade Chinese + English recognition |
+| **LLM Clipping**        | GPT/Qwen-based intelligent clip selection      |
+| **Speaker Diarization** | CAM++ speaker recognition                      |
+| **Hotword Support**     | Customize entity recognition                   |
+| **Subtitle Generation** | Full SRT output                                |
+| **Multi-language**      | Chinese, English                               |
 
 #### Architecture
 
@@ -550,10 +550,10 @@ async def analyze_video_for_clips(
     """Use LLM to identify best clips in a video."""
     # 1. Run ASR
     transcript = await run_paraformer(video_path)
-    
+
     # 2. LLM analysis
     clips = await analyze_with_llm(transcript, prompt)
-    
+
     return clips
 
 @mcp.tool
@@ -580,11 +580,11 @@ PySceneDetect detects scene changes in videos, useful for automatic segmentation
 
 #### Detection Algorithms
 
-| Algorithm | Description | Use Case |
-|-----------|-------------|----------|
-| **ContentDetector** | Color/brightness changes | General purpose |
-| **ThresholdDetector** | Fade in/out detection | Presentations |
-| **AdaptiveDetector** | Adaptive thresholding | Varied content |
+| Algorithm             | Description              | Use Case        |
+| --------------------- | ------------------------ | --------------- |
+| **ContentDetector**   | Color/brightness changes | General purpose |
+| **ThresholdDetector** | Fade in/out detection    | Presentations   |
+| **AdaptiveDetector**  | Adaptive thresholding    | Varied content  |
 
 #### Code Pattern
 
@@ -604,12 +604,12 @@ split_video_ffmpeg('video.mp4', scene_list)
 
 ### 3.3 Other Clipping Tools
 
-| Tool | Description | Stars |
-|------|-------------|-------|
-| `ai-highlight-clip` | AI-powered highlight detection | ~500 |
-| `autoclipper` | Automatic clip generation | ~200 |
-| `Video-AutoClip` | Auto-clipping pipeline | ~100 |
-| `awesome-free-opusclip-alternatives` | OpusClip alternatives list | Reference |
+| Tool                                 | Description                    | Stars     |
+| ------------------------------------ | ------------------------------ | --------- |
+| `ai-highlight-clip`                  | AI-powered highlight detection | ~500      |
+| `autoclipper`                        | Automatic clip generation      | ~200      |
+| `Video-AutoClip`                     | Auto-clipping pipeline         | ~100      |
+| `awesome-free-opusclip-alternatives` | OpusClip alternatives list     | Reference |
 
 ### Clipping Pipeline Architecture
 
@@ -656,28 +656,28 @@ split_video_ffmpeg('video.mp4', scene_list)
 
 ### Data Collection Layer
 
-| Source | Tool | MCP Server |
-|--------|------|------------|
-| Reddit | PRAW + AsyncPRAW | `reddit-trends-mcp` |
-| YouTube | yt-dlp + Data API | `youtube-trends-mcp` |
-| Google Trends | pytrends | `google-trends-mcp` |
+| Source        | Tool              | MCP Server           |
+| ------------- | ----------------- | -------------------- |
+| Reddit        | PRAW + AsyncPRAW  | `reddit-trends-mcp`  |
+| YouTube       | yt-dlp + Data API | `youtube-trends-mcp` |
+| Google Trends | pytrends          | `google-trends-mcp`  |
 
 ### Content Processing Layer
 
-| Task | Tool | Integration |
-|------|------|-------------|
-| Scene Detection | PySceneDetect | Python library |
-| ASR | WhisperX / Paraformer | MCP tool |
-| LLM Clipping | FunClip | MCP tool |
-| Caption Generation | WhisperX | MCP tool |
+| Task               | Tool                  | Integration    |
+| ------------------ | --------------------- | -------------- |
+| Scene Detection    | PySceneDetect         | Python library |
+| ASR                | WhisperX / Paraformer | MCP tool       |
+| LLM Clipping       | FunClip               | MCP tool       |
+| Caption Generation | WhisperX              | MCP tool       |
 
 ### Publishing Layer
 
-| Platform | Tool | Integration |
-|----------|------|-------------|
-| TikTok | TiktokAutoUploader | MCP tool (with risks) |
-| YouTube | YouTube Data API | Official API |
-| Multi-platform | Mixpost | Self-hosted service |
+| Platform       | Tool               | Integration           |
+| -------------- | ------------------ | --------------------- |
+| TikTok         | TiktokAutoUploader | MCP tool (with risks) |
+| YouTube        | YouTube Data API   | Official API          |
+| Multi-platform | Mixpost            | Self-hosted service   |
 
 ### Complete MCP Server Example
 
@@ -748,13 +748,13 @@ if __name__ == "__main__":
 
 ### Legal & ToS Risks
 
-| Tool | Risk Level | Concern |
-|------|------------|---------|
-| PRAW | Low | Official API with rate limits |
-| yt-dlp | Medium | May violate YouTube ToS |
-| pytrends | Medium | Unofficial, may break |
-| TiktokAutoUploader | High | Violates TikTok ToS |
-| Mixpost | Low | Self-hosted, uses official APIs |
+| Tool               | Risk Level | Concern                         |
+| ------------------ | ---------- | ------------------------------- |
+| PRAW               | Low        | Official API with rate limits   |
+| yt-dlp             | Medium     | May violate YouTube ToS         |
+| pytrends           | Medium     | Unofficial, may break           |
+| TiktokAutoUploader | High       | Violates TikTok ToS             |
+| Mixpost            | Low        | Self-hosted, uses official APIs |
 
 ### Mitigation Strategies
 
@@ -768,14 +768,14 @@ if __name__ == "__main__":
 
 ## 6. Document Metadata
 
-| Field | Value |
-|-------|-------|
-| **Document ID** | DD-068 |
-| **Created** | 2026-01-02 |
-| **Last Updated** | 2026-01-02 |
-| **Author** | Research Agent |
-| **Status** | Complete |
-| **Dependencies** | DD-067 |
+| Field            | Value          |
+| ---------------- | -------------- |
+| **Document ID**  | DD-068         |
+| **Created**      | 2026-01-02     |
+| **Last Updated** | 2026-01-02     |
+| **Author**       | Research Agent |
+| **Status**       | Complete       |
+| **Dependencies** | DD-067         |
 
 ---
 

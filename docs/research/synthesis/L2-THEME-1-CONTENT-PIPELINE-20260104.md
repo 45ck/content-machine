@@ -33,12 +33,12 @@ Every video generator follows a 5-stage pipeline:
 
 ### Sources Ranked by Quality
 
-| Source | Content Type | Automation | Quality |
-|--------|--------------|------------|---------|
-| **Reddit** | Stories, discussions | High | ★★★★☆ |
-| **Hacker News** | Tech news | High | ★★★★★ |
-| **YouTube Transcripts** | Video research | High | ★★★★☆ |
-| **Manual Topics** | Curated ideas | Low | ★★★★★ |
+| Source                  | Content Type         | Automation | Quality |
+| ----------------------- | -------------------- | ---------- | ------- |
+| **Reddit**              | Stories, discussions | High       | ★★★★☆   |
+| **Hacker News**         | Tech news            | High       | ★★★★★   |
+| **YouTube Transcripts** | Video research       | High       | ★★★★☆   |
+| **Manual Topics**       | Curated ideas        | Low        | ★★★★★   |
 
 ### Implementation Pattern
 
@@ -51,27 +51,25 @@ interface TrendSource {
 
 class TrendAggregator {
   constructor(private sources: TrendSource[]) {}
-  
+
   async discover(topic?: string): Promise<TrendItem[]> {
     // Parallel fetch from all sources
-    const results = await Promise.all(
-      this.sources.map(s => s.fetch(topic))
-    );
-    
+    const results = await Promise.all(this.sources.map((s) => s.fetch(topic)));
+
     // Flatten and deduplicate
     const all = results.flat();
     const unique = this.deduplicate(all);
-    
+
     // Score and rank
     return unique
-      .map(item => ({
+      .map((item) => ({
         ...item,
-        score: this.calculateScore(item)
+        score: this.calculateScore(item),
       }))
       .sort((a, b) => b.score - a.score)
       .slice(0, 20);
   }
-  
+
   private calculateScore(item: TrendItem): number {
     // Engagement + recency + uniqueness
     const engagement = Math.log10(item.upvotes + 1) * 0.4;
@@ -102,7 +100,7 @@ async def research_topic(topic: str) -> dict:
     reddit = await reddit_client.search(topic)
     youtube = await youtube_client.search(topic)
     web = await tavily_client.search(topic)
-    
+
     return {
         "reddit_discussions": reddit[:5],
         "youtube_videos": youtube[:5],
@@ -167,7 +165,7 @@ const SceneSchema = z.object({
   text: z.string().describe('Voiceover text for this scene'),
   duration: z.number().min(2).max(15),
   visual: z.string().describe('Visual description or search terms'),
-  searchTerms: z.array(z.string()).optional()
+  searchTerms: z.array(z.string()).optional(),
 });
 
 const ScriptSchema = z.object({
@@ -175,7 +173,7 @@ const ScriptSchema = z.object({
   hook: z.string().max(50),
   scenes: z.array(SceneSchema).min(3).max(10),
   cta: z.string().max(100),
-  totalDuration: z.number()
+  totalDuration: z.number(),
 });
 
 async function generateScript(topic: string, research: Research): Promise<Script> {
@@ -183,11 +181,11 @@ async function generateScript(topic: string, research: Research): Promise<Script
     model: 'gpt-4o',
     messages: [
       { role: 'system', content: SCRIPT_SYSTEM_PROMPT },
-      { role: 'user', content: SCRIPT_USER_PROMPT(topic, research) }
+      { role: 'user', content: SCRIPT_USER_PROMPT(topic, research) },
     ],
-    response_format: { type: 'json_object' }
+    response_format: { type: 'json_object' },
   });
-  
+
   const parsed = JSON.parse(response.choices[0].message.content!);
   return ScriptSchema.parse(parsed);
 }
@@ -206,42 +204,41 @@ class ContentPipeline {
     private researchService: ResearchService,
     private scriptService: ScriptService
   ) {}
-  
+
   async createContent(params: ContentParams): Promise<Script> {
     // Step 1: Discover trends
     const trends = await this.trendService.discover(params.topic);
-    
+
     // Step 2: Select best trend
     const selected = await this.selectTrend(trends, params);
-    
+
     // Step 3: Deep research
     const research = await this.researchService.research(selected.title);
-    
+
     // Step 4: Generate script
     const script = await this.scriptService.generate(selected.title, research);
-    
+
     // Step 5: Validate
     await this.validate(script);
-    
+
     return script;
   }
-  
-  private async selectTrend(
-    trends: TrendItem[],
-    params: ContentParams
-  ): Promise<TrendItem> {
+
+  private async selectTrend(trends: TrendItem[], params: ContentParams): Promise<TrendItem> {
     // Use LLM to select best trend for our audience
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
-      messages: [{
-        role: 'user',
-        content: `Select the best trend for a ${params.audience} video:
+      messages: [
+        {
+          role: 'user',
+          content: `Select the best trend for a ${params.audience} video:
         ${JSON.stringify(trends.slice(0, 10))}
         
-        Return the index (0-9) of the best trend.`
-      }]
+        Return the index (0-9) of the best trend.`,
+        },
+      ],
     });
-    
+
     const index = parseInt(response.choices[0].message.content!);
     return trends[index];
   }
@@ -269,29 +266,29 @@ interface VideoConfig {
 async function createVideo(topic: string): Promise<string> {
   // Research phase
   const research = await mcp.call('research/discover_trends', { topic });
-  
+
   // Script phase
   const script = await mcp.call('script/generate', {
     topic,
     research,
-    length: 60
+    length: 60,
   });
-  
+
   // Audio phase
   const audio = await mcp.call('tts/generate', {
-    script: script.scenes.map(s => s.text).join(' '),
-    voice: 'af_heart'
+    script: script.scenes.map((s) => s.text).join(' '),
+    voice: 'af_heart',
   });
-  
+
   // Render phase
   const video = await mcp.call('render/create', {
     config: {
       scenes: script.scenes,
       audioPath: audio.path,
-      template: 'modern-captions'
-    }
+      template: 'modern-captions',
+    },
   });
-  
+
   return video.path;
 }
 ```

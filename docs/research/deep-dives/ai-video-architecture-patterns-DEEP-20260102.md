@@ -12,12 +12,12 @@ Analysis of advanced AI-driven video generation patterns across multiple repos. 
 
 ### Pattern Categories
 
-| Pattern | Example Repo | Key Innovation |
-|---------|-------------|----------------|
-| **Multimodal Clipping** | Clip-Anything | Prompt-based video segment extraction |
-| **Agent Graph Pipeline** | VideoGraphAI | LangGraph-style agent orchestration |
-| **LLM-Guided Editing** | FunClip | LLM selects viral moments from transcript |
-| **Research-to-Video** | VideoGraphAI | Web research → script → video |
+| Pattern                  | Example Repo  | Key Innovation                            |
+| ------------------------ | ------------- | ----------------------------------------- |
+| **Multimodal Clipping**  | Clip-Anything | Prompt-based video segment extraction     |
+| **Agent Graph Pipeline** | VideoGraphAI  | LangGraph-style agent orchestration       |
+| **LLM-Guided Editing**   | FunClip       | LLM selects viral moments from transcript |
+| **Research-to-Video**    | VideoGraphAI  | Web research → script → video             |
 
 ### Recommendation
 
@@ -51,13 +51,13 @@ Output Clips
 # Step 1: Transcribe video with timestamps
 def transcribe_video(video_path, model_name="base"):
     model = whisper.load_model(model_name)
-    
+
     # Extract audio
     audio_path = "temp_audio.wav"
     os.system(f"ffmpeg -i {video_path} -ar 16000 -ac 1 -f mp3 {audio_path}")
-    
+
     result = model.transcribe(audio_path)
-    
+
     transcription = []
     for segment in result['segments']:
         transcription.append({
@@ -65,14 +65,14 @@ def transcribe_video(video_path, model_name="base"):
             'end': segment['end'],
             'text': segment['text'].strip()
         })
-    
+
     return transcription
 ```
 
 ```python
 # Step 2: LLM identifies relevant segments
 def get_relevant_segments(transcript, user_query):
-    prompt = f"""You are an expert video editor. Given a transcript with segments, 
+    prompt = f"""You are an expert video editor. Given a transcript with segments,
 identify all conversations related to the user query.
 
 Guidelines:
@@ -98,7 +98,7 @@ User query:
             "messages": [{"role": "system", "content": prompt}],
         }
     )
-    
+
     data = response.json()["choices"][0]["message"]["content"]
     conversations = ast.literal_eval(data)["conversations"]
     return conversations
@@ -109,7 +109,7 @@ User query:
 def edit_video(original_video_path, segments, output_path, fade_duration=0.5):
     video = VideoFileClip(original_video_path)
     clips = []
-    
+
     for seg in segments:
         clip = (
             video.subclip(seg['start'], seg['end'])
@@ -117,7 +117,7 @@ def edit_video(original_video_path, segments, output_path, fade_duration=0.5):
             .fadeout(fade_duration)
         )
         clips.append(clip)
-    
+
     if clips:
         final_clip = concatenate_videoclips(clips, method="compose")
         final_clip.write_videofile(output_path, codec="libx264", audio_codec="aac")
@@ -214,6 +214,7 @@ class Graph:
 ### Key Agent Implementations
 
 **Research Agent (Web Search):**
+
 ```python
 class RecentEventsResearchAgent(Agent):
     def __init__(self):
@@ -223,25 +224,26 @@ class RecentEventsResearchAgent(Agent):
     async def execute(self, input_data: Dict) -> Any:
         topic = input_data['topic']
         time_frame = input_data['time_frame']
-        
+
         search_query = f"{topic} events in the {time_frame}"
         search_results = await self.web_search_tool.use(search_query)
-        
+
         # LLM summarizes results
         prompt = f"""Analyze and summarize the most engaging {topic} events...
         Search Results: {json.dumps(search_results[:10])}"""
-        
+
         response = await self.llm.complete(prompt)
         return response
 ```
 
 **Script Generation Agent:**
+
 ```python
 class VideoScriptGenerationAgent(Agent):
     async def execute(self, input_data: Dict) -> Any:
         research = input_data.get('research', '')
         video_length = input_data.get('video_length', 180)
-        
+
         prompt = f"""Craft a {video_length}-second script for a vertical video:
 
 {research}
@@ -252,11 +254,12 @@ Include:
 3. Strong call-to-action conclusion
 
 Format with clear timestamps."""
-        
+
         return await self.llm.complete(prompt)
 ```
 
 **Image Generation Agent:**
+
 ```python
 class ImageGenerationAgent(Agent):
     def __init__(self):
@@ -270,7 +273,7 @@ class ImageGenerationAgent(Agent):
         for scene in scenes:
             prompt = f"""Create a hyper-realistic scene: {scene['visual']}
             Focus on: {scene['image_keyword']}"""
-            
+
             response = self.client.images.generate(
                 prompt=prompt,
                 model=self.model,
@@ -279,13 +282,13 @@ class ImageGenerationAgent(Agent):
                 n=1,
                 response_format="b64_json"
             )
-            
+
             # Save image
             image_data = base64.b64decode(response.data[0].b64_json)
             with tempfile.NamedTemporaryFile(delete=False, suffix='.png') as f:
                 f.write(image_data)
                 results.append({'image_path': f.name})
-        
+
         return results
 ```
 
@@ -296,25 +299,25 @@ def parse_scenes(self, response: str) -> List[Dict]:
     """Parse LLM storyboard output into structured scenes."""
     scenes = []
     current_scene = {}
-    
+
     for line in response.split('\n'):
         line = line.strip()
-        
+
         # Detect scene number
         if line.startswith(tuple(f"{i}." for i in range(1, 51))):
             if current_scene:
                 scenes.append(self.validate_scene(current_scene))
             current_scene = {'number': int(line.split('.')[0])}
-        
+
         # Extract key-value pairs
         elif ':' in line:
             key, value = line.split(':', 1)
             current_scene[key.strip().lower()] = value.strip()
-    
+
     # Don't forget last scene
     if current_scene:
         scenes.append(self.validate_scene(current_scene))
-    
+
     return scenes
 ```
 
@@ -346,26 +349,26 @@ Style: Default,Verdana,13,&H00FFFFFF,...
 [Events]
 Format: Layer, Start, End, Style, Name, ..., Text
 """)
-        
+
         words = alignment.get('words', [])
         i = 0
         while i < len(words):
             if words[i].get('start') is None:
                 i += 1
                 continue
-            
+
             # Group 2 words per subtitle
             text_words = []
             for j in range(2):
                 if i + j < len(words):
                     text_words.append(words[i + j].get('word', ''))
-            
+
             start = format_ass_time(words[i]['start'])
             end = format_ass_time(words[i + len(text_words) - 1].get('end'))
-            
+
             # First word highlighted, second word white
             dialogue_text = f"{{\\c&H0080FF&}}{text_words[0]} {{\\c&HFFFFFF&}}{text_words[1] if len(text_words) > 1 else ''}"
-            
+
             f.write(f"Dialogue: 0,{start},{end},Default,,0,0,0,,{dialogue_text}\n")
             i += len(text_words)
 ```
@@ -376,26 +379,26 @@ Format: Layer, Start, End, Style, Name, ..., Text
 def compile_youtube_short(scenes: List[Dict], audio_file: str) -> str:
     temp_dir = tempfile.mkdtemp()
     scene_files = []
-    
+
     # Process each scene
     for i, scene in enumerate(scenes):
         duration = scene.get('adjusted_duration', 3.0)
-        
+
         if 'image_path' in scene:
             # Create video from image with zoom effect
             processed = apply_zoom_effect(scene['image_path'], duration, temp_dir, i)
         else:
             # Fallback colored scene
             processed = create_fallback_scene(temp_dir, i, duration, scene.get('text', ''))
-        
+
         scene_files.append(processed)
-    
+
     # Create concat file
     concat_file = os.path.join(temp_dir, 'concat.txt')
     with open(concat_file, 'w') as f:
         for file in scene_files:
             f.write(f"file '{file}'\n")
-    
+
     # FFmpeg final assembly
     output_path = "youtube_short.mp4"
     subprocess.run([
@@ -406,13 +409,13 @@ def compile_youtube_short(scenes: List[Dict], audio_file: str) -> str:
         '-c:v', 'libx264', '-c:a', 'aac', '-shortest',
         output_path
     ])
-    
+
     return output_path
 
 def apply_zoom_effect(image_path: str, duration: float, temp_dir: str, i: int) -> str:
     """Apply Ken Burns zoom effect to image."""
     output = os.path.join(temp_dir, f"scene_{i}.mp4")
-    
+
     subprocess.run([
         'ffmpeg', '-y',
         '-loop', '1', '-i', image_path,
@@ -421,7 +424,7 @@ def apply_zoom_effect(image_path: str, duration: float, temp_dir: str, i: int) -
         '-c:v', 'libx264', '-pix_fmt', 'yuv420p',
         output
     ])
-    
+
     return output
 ```
 
@@ -442,7 +445,7 @@ def main():
     topic = st.text_input("Enter the topic:")
     time_frame = st.text_input("Time frame (e.g., 'past week'):")
     video_length = st.number_input("Video length in seconds:")
-    
+
     # Optional user script
     user_script = st.text_area("Your own script (optional):")
 
@@ -457,7 +460,7 @@ def display_results(results):
     for agent_name, result in results.items():
         with st.expander(f"{agent_name}"):
             st.write(result)
-    
+
     if "Output Video Path" in results:
         st.video(results["Output Video Path"])
 ```
@@ -506,7 +509,7 @@ interface ResearchOutput {
 
 export class ResearchAgent extends Agent<ResearchInput, ResearchOutput> {
   name = 'ResearchAgent';
-  
+
   async execute(input: ResearchInput): Promise<AgentResult<ResearchOutput>> {
     // Use MCP to search
     const searchResults = await this.mcpClient.call('search_reddit', {
@@ -514,21 +517,23 @@ export class ResearchAgent extends Agent<ResearchInput, ResearchOutput> {
       time_filter: input.timeFrame,
       limit: 20,
     });
-    
+
     // LLM summarizes
     const summary = await this.llm.complete({
       model: 'claude-sonnet-4-0',
-      messages: [{
-        role: 'user',
-        content: `Summarize these results for a video script:\n${JSON.stringify(searchResults)}`,
-      }],
+      messages: [
+        {
+          role: 'user',
+          content: `Summarize these results for a video script:\n${JSON.stringify(searchResults)}`,
+        },
+      ],
     });
-    
+
     return {
       success: true,
       data: {
         summary: summary.content,
-        sources: searchResults.map(r => r.url),
+        sources: searchResults.map((r) => r.url),
       },
     };
   }
@@ -574,6 +579,7 @@ export const videoWorkflow = graph.compile();
 ### 1. Agent Specialization
 
 Each agent does ONE thing well:
+
 - ResearchAgent → Web search
 - ScriptAgent → Script generation
 - ImageAgent → Image generation
@@ -594,6 +600,7 @@ except Exception as e:
 ### 3. Scene Validation
 
 Always validate scene data before rendering:
+
 ```python
 def validate_scene(scene: Dict, scene_number: int) -> Dict:
     required_keys = ['visual', 'text', 'video_keyword', 'image_keyword']
@@ -607,6 +614,7 @@ def validate_scene(scene: Dict, scene_number: int) -> Dict:
 ### 4. Duration Adjustment
 
 Scale scene durations to match audio:
+
 ```python
 total_audio = sum(scene['audio_duration'] for scene in scenes)
 total_video = sum(scene['duration'] for scene in scenes)
@@ -619,6 +627,7 @@ for scene in scenes:
 ### 5. Fallback Scenes
 
 Always have a fallback for failed media generation:
+
 ```python
 if 'image_path' not in scene:
     scene['image_path'] = create_colored_background(

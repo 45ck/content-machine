@@ -2,7 +2,7 @@
 
 **Date:** 2026-01-02  
 **Category:** Architecture Decision  
-**Status:** Complete  
+**Status:** Complete
 
 ---
 
@@ -11,6 +11,7 @@
 This document synthesizes findings from 49 deep dives and 139+ vendored repositories to provide definitive architecture recommendations for content-machine. It represents the culmination of comprehensive research into short-form video generation.
 
 **Final Stack Decisions:**
+
 1. **Blueprint:** short-video-maker-gyori (TypeScript + Remotion + MCP + REST)
 2. **Configuration Pattern:** Vidosy (JSON → Video)
 3. **Agent Framework:** Pydantic AI (Python) + OpenAI Agents SDK (TypeScript)
@@ -32,16 +33,16 @@ This document synthesizes findings from 49 deep dives and 139+ vendored reposito
 
 ### Why This is Our Blueprint
 
-| Criteria | short-video-maker-gyori | Alternatives |
-|----------|-------------------------|--------------|
-| **Language** | TypeScript ✅ | Python (most others) |
-| **Rendering** | Remotion ✅ | MoviePy, FFmpeg |
-| **API** | MCP + REST ✅ | REST only |
-| **TTS** | Kokoro (local) ✅ | API-dependent |
-| **ASR** | Whisper.cpp (local) ✅ | API-dependent |
-| **Docker** | Production-ready ✅ | Often missing |
-| **Architecture** | Clean separation ✅ | Often monolithic |
-| **Memory** | 3GB RAM minimum ✅ | Often higher |
+| Criteria         | short-video-maker-gyori | Alternatives         |
+| ---------------- | ----------------------- | -------------------- |
+| **Language**     | TypeScript ✅           | Python (most others) |
+| **Rendering**    | Remotion ✅             | MoviePy, FFmpeg      |
+| **API**          | MCP + REST ✅           | REST only            |
+| **TTS**          | Kokoro (local) ✅       | API-dependent        |
+| **ASR**          | Whisper.cpp (local) ✅  | API-dependent        |
+| **Docker**       | Production-ready ✅     | Often missing        |
+| **Architecture** | Clean separation ✅     | Often monolithic     |
+| **Memory**       | 3GB RAM minimum ✅      | Often higher         |
 
 ### Core Architecture
 
@@ -75,6 +76,7 @@ Text Input → TTS (Kokoro) → ASR (Whisper) → Captions
 ### API Design (To Adopt)
 
 **REST Endpoint:**
+
 ```bash
 POST /api/short-video
 {
@@ -95,6 +97,7 @@ POST /api/short-video
 ```
 
 **MCP Tools:**
+
 - `create-short-video` - Creates video with auto-configuration
 - `get-video-status` - Check render progress
 
@@ -107,6 +110,7 @@ POST /api/short-video
 Vidosy represents the ideal configuration-driven approach.
 
 **Core Schema:**
+
 ```typescript
 interface VidosyConfig {
   video: VideoConfig;
@@ -132,6 +136,7 @@ interface SceneConfig {
 ```
 
 **Example Configuration:**
+
 ```json
 {
   "video": {
@@ -172,60 +177,60 @@ interface SceneConfig {
 
 ### Tier 1: Core Pipeline
 
-| Component | Tool | Why |
-|-----------|------|-----|
-| **Rendering** | Remotion | React-based, programmable, production-ready |
-| **Captions** | remotion-subtitles | 17 animated styles, SRT parsing |
-| **TTS** | Kokoro-FastAPI | Apache license, OpenAI-compatible API |
-| **ASR** | WhisperX | 70x realtime, word-level timestamps |
-| **Capture** | Playwright | Cross-browser, Microsoft-backed |
-| **MCP Bridge** | chuk-mcp-remotion | 51 components, platform-aware |
+| Component      | Tool               | Why                                         |
+| -------------- | ------------------ | ------------------------------------------- |
+| **Rendering**  | Remotion           | React-based, programmable, production-ready |
+| **Captions**   | remotion-subtitles | 17 animated styles, SRT parsing             |
+| **TTS**        | Kokoro-FastAPI     | Apache license, OpenAI-compatible API       |
+| **ASR**        | WhisperX           | 70x realtime, word-level timestamps         |
+| **Capture**    | Playwright         | Cross-browser, Microsoft-backed             |
+| **MCP Bridge** | chuk-mcp-remotion  | 51 components, platform-aware               |
 
 ### Tier 2: Intelligence Layer
 
-| Component | Tool | Why |
-|-----------|------|-----|
-| **Python Agents** | Pydantic AI | FastAPI ergonomics, type-safe |
-| **TypeScript Agents** | OpenAI Agents SDK | Native TypeScript, simple |
-| **MCP Server** | FastMCP 2.0 | Enterprise auth, production-ready |
-| **Structured Output** | Instructor | LLM → Pydantic models |
-| **Research** | GPT Researcher | Autonomous research agent |
-| **Web Search** | Tavily | AI-optimized search |
-| **Web Crawl** | Firecrawl | URL → clean markdown |
+| Component             | Tool              | Why                               |
+| --------------------- | ----------------- | --------------------------------- |
+| **Python Agents**     | Pydantic AI       | FastAPI ergonomics, type-safe     |
+| **TypeScript Agents** | OpenAI Agents SDK | Native TypeScript, simple         |
+| **MCP Server**        | FastMCP 2.0       | Enterprise auth, production-ready |
+| **Structured Output** | Instructor        | LLM → Pydantic models             |
+| **Research**          | GPT Researcher    | Autonomous research agent         |
+| **Web Search**        | Tavily            | AI-optimized search               |
+| **Web Crawl**         | Firecrawl         | URL → clean markdown              |
 
 ### Tier 3: Infrastructure
 
-| Component | Tool | Why |
-|-----------|------|-----|
-| **Queue (TS)** | BullMQ | Redis-based, TypeScript-native |
-| **Queue (Python)** | RQ | Simple, Redis-based |
-| **Object Storage** | MinIO | S3-compatible, self-hosted |
-| **Vector DB** | Qdrant | Rust, fast, production-ready |
-| **Database** | PostgreSQL | Reliable, well-supported |
-| **Orchestration** | Temporal | Durable execution, resilience |
-| **Visual Workflows** | n8n | 400+ integrations, no-code |
+| Component            | Tool       | Why                            |
+| -------------------- | ---------- | ------------------------------ |
+| **Queue (TS)**       | BullMQ     | Redis-based, TypeScript-native |
+| **Queue (Python)**   | RQ         | Simple, Redis-based            |
+| **Object Storage**   | MinIO      | S3-compatible, self-hosted     |
+| **Vector DB**        | Qdrant     | Rust, fast, production-ready   |
+| **Database**         | PostgreSQL | Reliable, well-supported       |
+| **Orchestration**    | Temporal   | Durable execution, resilience  |
+| **Visual Workflows** | n8n        | 400+ integrations, no-code     |
 
 ### Tier 4: Observability & Quality
 
-| Component | Tool | Why |
-|-----------|------|-----|
-| **LLM Tracing** | Langfuse | MIT, self-hostable |
-| **Prompt Eval** | Promptfoo | Systematic testing |
-| **Error Tracking** | Sentry | Industry standard |
-| **Metrics** | OpenTelemetry | Cross-service tracing |
+| Component          | Tool          | Why                   |
+| ------------------ | ------------- | --------------------- |
+| **LLM Tracing**    | Langfuse      | MIT, self-hostable    |
+| **Prompt Eval**    | Promptfoo     | Systematic testing    |
+| **Error Tracking** | Sentry        | Industry standard     |
+| **Metrics**        | OpenTelemetry | Cross-service tracing |
 
 ### Tier 5: Content & Publishing
 
-| Component | Tool | Why |
-|-----------|------|-----|
-| **Clipping** | FunClip | LLM-based, Alibaba quality |
-| **Scene Detection** | PySceneDetect | Accurate, battle-tested |
-| **Video Download** | yt-dlp | 1000+ sites supported |
-| **Reddit** | reddit-mcp-buddy | MCP-native, no API key needed |
-| **YouTube** | youtube-transcript-api | Transcripts without browser |
-| **TikTok Upload** | TiktokAutoUploader | 3-second uploads |
-| **Multi-Platform** | Mixpost | Laravel, social management |
-| **Trends** | PyTrends | Google Trends unofficial API |
+| Component           | Tool                   | Why                           |
+| ------------------- | ---------------------- | ----------------------------- |
+| **Clipping**        | FunClip                | LLM-based, Alibaba quality    |
+| **Scene Detection** | PySceneDetect          | Accurate, battle-tested       |
+| **Video Download**  | yt-dlp                 | 1000+ sites supported         |
+| **Reddit**          | reddit-mcp-buddy       | MCP-native, no API key needed |
+| **YouTube**         | youtube-transcript-api | Transcripts without browser   |
+| **TikTok Upload**   | TiktokAutoUploader     | 3-second uploads              |
+| **Multi-Platform**  | Mixpost                | Laravel, social management    |
+| **Trends**          | PyTrends               | Google Trends unofficial API  |
 
 ---
 
@@ -361,18 +366,20 @@ export const SceneSchema = z.object({
   id: z.string().uuid(),
   type: z.enum(['narration', 'demo', 'transition']),
   duration: z.number().min(1).max(60),
-  
-  narration: z.object({
-    text: z.string(),
-    voice: z.string().default('af_heart'),
-  }).optional(),
-  
+
+  narration: z
+    .object({
+      text: z.string(),
+      voice: z.string().default('af_heart'),
+    })
+    .optional(),
+
   visuals: z.object({
     type: z.enum(['capture', 'stock', 'generated']),
     source: z.string(),
     searchTerms: z.array(z.string()).optional(),
   }),
-  
+
   captions: z.object({
     enabled: z.boolean().default(true),
     style: z.enum(['bounce', 'typewriter', 'fade']).default('bounce'),
@@ -429,16 +436,16 @@ import { bundle, renderMedia } from '@remotion/bundler';
 async function renderVideo(config: VideoConfig): Promise<string> {
   // 1. Generate audio
   const audioPath = await generateTTS(config);
-  
+
   // 2. Transcribe for captions
   const transcript = await transcribeWhisperX(audioPath);
-  
+
   // 3. Fetch background videos
   const backgrounds = await fetchBackgrounds(config);
-  
+
   // 4. Render with Remotion
   const bundled = await bundle('./src/render/index.ts');
-  
+
   await renderMedia({
     composition: 'ShortVideo',
     serveUrl: bundled,
@@ -451,7 +458,7 @@ async function renderVideo(config: VideoConfig): Promise<string> {
       audioPath,
     },
   });
-  
+
   return `output/${config.id}.mp4`;
 }
 ```
@@ -462,28 +469,32 @@ async function renderVideo(config: VideoConfig): Promise<string> {
 // publish-flow.ts
 async function publishVideo(videoPath: string, config: PublishConfig) {
   const results = [];
-  
+
   if (config.platforms.includes('tiktok')) {
-    results.push(await tiktokUploader.upload({
-      video: videoPath,
-      title: config.title,
-      account: config.tiktokAccount,
-    }));
+    results.push(
+      await tiktokUploader.upload({
+        video: videoPath,
+        title: config.title,
+        account: config.tiktokAccount,
+      })
+    );
   }
-  
+
   if (config.platforms.includes('youtube')) {
-    results.push(await youtubeAPI.upload({
-      video: videoPath,
-      title: config.title,
-      description: config.description,
-      tags: config.tags,
-      visibility: 'public',
-    }));
+    results.push(
+      await youtubeAPI.upload({
+        video: videoPath,
+        title: config.title,
+        description: config.description,
+        tags: config.tags,
+        visibility: 'public',
+      })
+    );
   }
-  
+
   // Log to Mixpost for analytics
   await mixpost.logPublication(results);
-  
+
   return results;
 }
 ```
@@ -494,23 +505,24 @@ async function publishVideo(videoPath: string, config: PublishConfig) {
 
 For budget-conscious deployments:
 
-| Component | Free Option | Notes |
-|-----------|-------------|-------|
-| LLM | Groq API (free tier) | Or Gemini free tier |
-| TTS | Kokoro (self-hosted) | Apache license |
-| ASR | WhisperX (local) | Open source |
-| Images | Pexels API | Free, attribution |
-| Search | DuckDuckGo | Via Tavily lite |
-| Render | Remotion | Open source core |
-| Queue | Redis (self-hosted) | Open source |
-| Storage | MinIO (self-hosted) | Open source |
-| Observability | Self-hosted Langfuse | MIT license |
+| Component     | Free Option          | Notes               |
+| ------------- | -------------------- | ------------------- |
+| LLM           | Groq API (free tier) | Or Gemini free tier |
+| TTS           | Kokoro (self-hosted) | Apache license      |
+| ASR           | WhisperX (local)     | Open source         |
+| Images        | Pexels API           | Free, attribution   |
+| Search        | DuckDuckGo           | Via Tavily lite     |
+| Render        | Remotion             | Open source core    |
+| Queue         | Redis (self-hosted)  | Open source         |
+| Storage       | MinIO (self-hosted)  | Open source         |
+| Observability | Self-hosted Langfuse | MIT license         |
 
 ---
 
 ## Implementation Priority
 
 ### Phase 1: Foundation (Week 1-2)
+
 1. ✅ Setup TypeScript project structure
 2. ✅ Implement core schemas (Zod)
 3. ✅ Setup BullMQ queue
@@ -519,6 +531,7 @@ For budget-conscious deployments:
 6. ✅ Integrate WhisperX ASR
 
 ### Phase 2: Intelligence (Week 3-4)
+
 1. Setup FastMCP server
 2. Implement content planning agent
 3. Integrate Tavily/Firecrawl for research
@@ -526,12 +539,14 @@ For budget-conscious deployments:
 5. Configure Langfuse observability
 
 ### Phase 3: Capture & Templates (Week 5-6)
+
 1. Playwright capture workflows
 2. Caption style templates
 3. Video templates (product demo, explainer)
 4. remotion-subtitles integration
 
 ### Phase 4: Review & Publish (Week 7-8)
+
 1. Appsmith review dashboard
 2. TiktokAutoUploader integration
 3. YouTube API integration
@@ -541,19 +556,20 @@ For budget-conscious deployments:
 
 ## Success Metrics
 
-| Metric | Target | Tool |
-|--------|--------|------|
-| Video Render Time | < 2 minutes | Langfuse |
-| Caption Accuracy | > 95% WER | WhisperX eval |
-| LLM Script Quality | > 4/5 rating | Promptfoo |
-| Publishing Success | > 99% | Sentry |
-| Cost per Video | < $0.10 | Custom tracking |
+| Metric             | Target       | Tool            |
+| ------------------ | ------------ | --------------- |
+| Video Render Time  | < 2 minutes  | Langfuse        |
+| Caption Accuracy   | > 95% WER    | WhisperX eval   |
+| LLM Script Quality | > 4/5 rating | Promptfoo       |
+| Publishing Success | > 99%        | Sentry          |
+| Cost per Video     | < $0.10      | Custom tracking |
 
 ---
 
 ## Licensing Considerations
 
 ### Safe to Use (MIT/Apache/BSD)
+
 - Remotion (with license for commercial)
 - WhisperX
 - Kokoro
@@ -565,11 +581,13 @@ For budget-conscious deployments:
 - Playwright
 
 ### Requires Attention
+
 - **Remotion:** Special company license for some use cases
 - **yt-dlp:** Check ToS for target sites
 - **TiktokAutoUploader:** Unofficial API, may break
 
 ### Study Only (High Risk)
+
 - snscrape (ToS violation)
 - instaloader (ToS violation)
 
@@ -586,6 +604,7 @@ After analyzing 139+ repositories across 49 deep dives, the recommended architec
 5. **Distribution:** TiktokAutoUploader + YouTube API
 
 This stack provides:
+
 - ✅ Fully open-source capability
 - ✅ Local processing (no API costs for TTS/ASR)
 - ✅ Production-ready architecture

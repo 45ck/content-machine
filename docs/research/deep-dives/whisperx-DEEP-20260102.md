@@ -66,22 +66,22 @@ print(result["segments"])  # Before alignment
 
 # 2. Align with wav2vec2
 model_a, metadata = whisperx.load_align_model(
-    language_code=result["language"], 
+    language_code=result["language"],
     device=device
 )
 result = whisperx.align(
-    result["segments"], 
-    model_a, 
-    metadata, 
-    audio, 
-    device, 
+    result["segments"],
+    model_a,
+    metadata,
+    audio,
+    device,
     return_char_alignments=False
 )
 print(result["segments"])  # After alignment - now with word timestamps!
 
 # 3. Optional: Speaker diarization
 diarize_model = whisperx.DiarizationPipeline(
-    use_auth_token=YOUR_HF_TOKEN, 
+    use_auth_token=YOUR_HF_TOKEN,
     device=device
 )
 diarize_segments = diarize_model(audio)
@@ -117,13 +117,13 @@ print(result["segments"])  # Now with speaker IDs
       "end": 5.0,
       "text": " Welcome to our video about content creation",
       "words": [
-        {"word": "Welcome", "start": 0.08, "end": 0.52, "score": 0.95},
-        {"word": "to", "start": 0.52, "end": 0.64, "score": 0.98},
-        {"word": "our", "start": 0.64, "end": 0.80, "score": 0.92},
-        {"word": "video", "start": 0.80, "end": 1.24, "score": 0.96},
-        {"word": "about", "start": 1.24, "end": 1.56, "score": 0.94},
-        {"word": "content", "start": 1.56, "end": 2.04, "score": 0.91},
-        {"word": "creation", "start": 2.04, "end": 2.72, "score": 0.93}
+        { "word": "Welcome", "start": 0.08, "end": 0.52, "score": 0.95 },
+        { "word": "to", "start": 0.52, "end": 0.64, "score": 0.98 },
+        { "word": "our", "start": 0.64, "end": 0.8, "score": 0.92 },
+        { "word": "video", "start": 0.8, "end": 1.24, "score": 0.96 },
+        { "word": "about", "start": 1.24, "end": 1.56, "score": 0.94 },
+        { "word": "content", "start": 1.56, "end": 2.04, "score": 0.91 },
+        { "word": "creation", "start": 2.04, "end": 2.72, "score": 0.93 }
       ]
     }
   ]
@@ -141,7 +141,7 @@ print(result["segments"])  # Now with speaker IDs
       "text": " Welcome to our video",
       "speaker": "SPEAKER_00",
       "words": [
-        {"word": "Welcome", "start": 0.08, "end": 0.52, "speaker": "SPEAKER_00"},
+        { "word": "Welcome", "start": 0.08, "end": 0.52, "speaker": "SPEAKER_00" }
         // ...
       ]
     }
@@ -182,7 +182,7 @@ WhisperX automatically selects language-specific wav2vec2 models:
 ### Built-in Languages (via torchaudio)
 
 - English (`en`)
-- French (`fr`) 
+- French (`fr`)
 - German (`de`)
 - Spanish (`es`)
 - Italian (`it`)
@@ -233,17 +233,22 @@ export async function transcribeWithWhisperX(
 ): Promise<WhisperXResult> {
   const args = [
     audioPath,
-    '--model', options.model || 'base',
-    '--device', options.device || 'cuda',
-    '--compute_type', options.computeType || 'float16',
-    '--output_format', 'json',
-    '--output_dir', '/tmp/whisperx',
+    '--model',
+    options.model || 'base',
+    '--device',
+    options.device || 'cuda',
+    '--compute_type',
+    options.computeType || 'float16',
+    '--output_format',
+    'json',
+    '--output_dir',
+    '/tmp/whisperx',
   ];
-  
+
   if (options.language) args.push('--language', options.language);
   if (options.diarize) args.push('--diarize');
   if (options.batchSize) args.push('--batch_size', options.batchSize.toString());
-  
+
   return new Promise((resolve, reject) => {
     const proc = spawn('whisperx', args);
     // Handle output...
@@ -299,20 +304,20 @@ async def transcribe(audio: UploadFile, language: str = "en"):
     # Save uploaded file
     with tempfile.NamedTemporaryFile(suffix=".wav") as f:
         f.write(await audio.read())
-        
+
         # Transcribe
         audio_data = whisperx.load_audio(f.name)
         result = model.transcribe(audio_data)
-        
+
         # Align
         result = whisperx.align(
-            result["segments"], 
-            align_model, 
-            metadata, 
-            audio_data, 
+            result["segments"],
+            align_model,
+            metadata,
+            audio_data,
             "cuda"
         )
-        
+
         return result
 ```
 
@@ -320,14 +325,14 @@ async def transcribe(audio: UploadFile, language: str = "en"):
 
 ## Comparison: Whisper vs WhisperX
 
-| Feature | OpenAI Whisper | WhisperX |
-|---------|---------------|----------|
-| Speed | 1x realtime | 70x realtime |
-| Timestamps | Segment-level | **Word-level** |
-| Accuracy | Good | **Better (alignment)** |
-| Hallucinations | Some | **Reduced (VAD)** |
-| Speaker ID | No | **Yes (optional)** |
-| GPU Memory | High | **Lower** (int8 support) |
+| Feature        | OpenAI Whisper | WhisperX                 |
+| -------------- | -------------- | ------------------------ |
+| Speed          | 1x realtime    | 70x realtime             |
+| Timestamps     | Segment-level  | **Word-level**           |
+| Accuracy       | Good           | **Better (alignment)**   |
+| Hallucinations | Some           | **Reduced (VAD)**        |
+| Speaker ID     | No             | **Yes (optional)**       |
+| GPU Memory     | High           | **Lower** (int8 support) |
 
 ---
 
@@ -348,12 +353,12 @@ whisperx audio.wav --compute_type int8
 
 ### Speed vs Quality
 
-| Setting | Speed | Quality | GPU Memory |
-|---------|-------|---------|------------|
-| `large-v2, float16, batch_size=16` | 70x | Best | ~8GB |
-| `base, float16, batch_size=8` | 100x+ | Good | ~2GB |
-| `base, int8, batch_size=4` | 80x | Good | ~1GB |
-| `tiny, int8, batch_size=4` | 120x+ | Acceptable | ~512MB |
+| Setting                            | Speed | Quality    | GPU Memory |
+| ---------------------------------- | ----- | ---------- | ---------- |
+| `large-v2, float16, batch_size=16` | 70x   | Best       | ~8GB       |
+| `base, float16, batch_size=8`      | 100x+ | Good       | ~2GB       |
+| `base, int8, batch_size=4`         | 80x   | Good       | ~1GB       |
+| `tiny, int8, batch_size=4`         | 120x+ | Acceptable | ~512MB     |
 
 ---
 
@@ -365,16 +370,13 @@ import { transcribeWithWhisperX } from './whisperx';
 import { parseIntoCaptions } from './parser';
 import { CaptionStyle } from '../schemas/caption';
 
-export async function generateCaptions(
-  audioPath: string,
-  style: CaptionStyle
-): Promise<Caption[]> {
+export async function generateCaptions(audioPath: string, style: CaptionStyle): Promise<Caption[]> {
   // 1. Get word-level transcription
   const transcript = await transcribeWithWhisperX(audioPath, {
     model: 'base',
     language: 'en',
   });
-  
+
   // 2. Group words into displayable captions
   const captions = parseIntoCaptions(transcript.segments, {
     maxLines: style.maxLines,
@@ -382,7 +384,7 @@ export async function generateCaptions(
     font: style.font,
     fontSize: style.fontSize,
   });
-  
+
   return captions;
 }
 ```

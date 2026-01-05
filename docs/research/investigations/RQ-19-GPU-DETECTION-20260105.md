@@ -10,6 +10,7 @@
 ## 1. Problem Statement
 
 WhisperX and Remotion can use GPU acceleration. We need to:
+
 - Detect GPU availability from Node.js
 - Choose the right device (CUDA/Metal/CPU)
 - Fall back gracefully when GPU unavailable
@@ -26,14 +27,12 @@ WhisperX and Remotion can use GPU acceleration. We need to:
 Remotion detects GPU capabilities by querying Chrome's GPU page:
 
 ```typescript
-export const getChromiumGpuInformation = async ({
-  browserExecutable,
-}) => {
+export const getChromiumGpuInformation = async ({ browserExecutable }) => {
   const { page, cleanup } = await getBrowserPage({ browserExecutable });
-  
+
   // Navigate to chrome://gpu
   await page.goto({ url: 'chrome://gpu', timeout: 12000 });
-  
+
   // Parse GPU feature status
   const value = await page.evaluate(() => {
     const statuses = [];
@@ -41,16 +40,16 @@ export const getChromiumGpuInformation = async ({
       .querySelector('info-view')
       ?.shadowRoot?.querySelector('ul')
       ?.querySelectorAll('li');
-    
+
     items?.forEach((item) => {
       const feature = item.querySelector('span')?.textContent;
       const status = item.querySelector('span:nth-child(2)')?.textContent;
       statuses.push({ feature, status });
     });
-    
+
     return statuses;
   });
-  
+
   await cleanup();
   return value;
 };
@@ -61,23 +60,19 @@ export const getChromiumGpuInformation = async ({
 **Source:** [vendor/remotion/packages/renderer](../../../vendor/remotion/packages/renderer)
 
 ```typescript
-export const getCodecName = ({
-  codec,
-  hardwareAcceleration,
-}) => {
-  const preferHardware = 
-    hardwareAcceleration === 'required' || 
-    hardwareAcceleration === 'if-possible';
+export const getCodecName = ({ codec, hardwareAcceleration }) => {
+  const preferHardware =
+    hardwareAcceleration === 'required' || hardwareAcceleration === 'if-possible';
 
   if (codec === 'h264') {
     // macOS: VideoToolbox (Apple Silicon & Intel)
     if (preferHardware && process.platform === 'darwin') {
       return { encoderName: 'h264_videotoolbox', hardwareAccelerated: true };
     }
-    
+
     // Linux/Windows with NVIDIA: NVENC
     // (Would need nvidia-smi check here)
-    
+
     // Fallback: CPU
     return { encoderName: 'libx264', hardwareAccelerated: false };
   }
@@ -99,7 +94,7 @@ def load_model(
     # GPU: float16, CPU: int8 for speed
     if device == "cpu":
         compute_type = "int8"
-    
+
     return WhisperModel(
         whisper_arch,
         device=device,
@@ -132,7 +127,7 @@ import si from 'systeminformation';
 interface GpuInfo {
   vendor: 'nvidia' | 'amd' | 'apple' | 'intel' | 'unknown';
   model: string;
-  vram: number;  // MB
+  vram: number; // MB
   capabilities: {
     cuda: boolean;
     rocm: boolean;
@@ -144,16 +139,16 @@ interface GpuInfo {
 async function detectGpu(): Promise<GpuInfo[]> {
   const graphics = await si.graphics();
   const platform = process.platform;
-  
+
   return graphics.controllers.map((controller) => {
     const vendorLower = (controller.vendor ?? '').toLowerCase();
-    
+
     let vendor: GpuInfo['vendor'] = 'unknown';
     if (vendorLower.includes('nvidia')) vendor = 'nvidia';
     else if (vendorLower.includes('amd') || vendorLower.includes('radeon')) vendor = 'amd';
     else if (vendorLower.includes('apple')) vendor = 'apple';
     else if (vendorLower.includes('intel')) vendor = 'intel';
-    
+
     return {
       vendor,
       model: controller.model ?? 'Unknown',
@@ -177,7 +172,7 @@ import { execSync } from 'child_process';
 interface NvidiaGpuInfo {
   available: boolean;
   name?: string;
-  memory?: number;  // MB
+  memory?: number; // MB
   driver?: string;
 }
 
@@ -187,9 +182,9 @@ function checkNvidiaGpu(): NvidiaGpuInfo {
       'nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader',
       { encoding: 'utf-8', timeout: 5000 }
     );
-    
+
     const [name, memory, driver] = output.trim().split(', ');
-    
+
     return {
       available: true,
       name,
@@ -209,21 +204,21 @@ type WhisperDevice = 'cuda' | 'mps' | 'cpu';
 
 async function selectWhisperDevice(): Promise<WhisperDevice> {
   const gpus = await detectGpu();
-  
+
   // Prefer NVIDIA CUDA
-  if (gpus.some(g => g.capabilities.cuda)) {
+  if (gpus.some((g) => g.capabilities.cuda)) {
     // Verify CUDA is actually working
     const nvidia = checkNvidiaGpu();
     if (nvidia.available) {
       return 'cuda';
     }
   }
-  
+
   // Apple Silicon Metal Performance Shaders
-  if (gpus.some(g => g.capabilities.metal && g.vendor === 'apple')) {
+  if (gpus.some((g) => g.capabilities.metal && g.vendor === 'apple')) {
     return 'mps';
   }
-  
+
   // Fallback to CPU
   return 'cpu';
 }
@@ -243,12 +238,10 @@ interface RemotionHardwareConfig {
 
 async function selectRemotionConfig(): Promise<RemotionHardwareConfig> {
   const gpus = await detectGpu();
-  const hasDiscreteGpu = gpus.some(g => 
-    g.vendor === 'nvidia' || g.vendor === 'amd'
-  );
-  
+  const hasDiscreteGpu = gpus.some((g) => g.vendor === 'nvidia' || g.vendor === 'amd');
+
   const platform = process.platform;
-  
+
   if (platform === 'win32') {
     // Windows: angle with GPU, swangle without
     return {
@@ -257,7 +250,7 @@ async function selectRemotionConfig(): Promise<RemotionHardwareConfig> {
       concurrency: hasDiscreteGpu ? 4 : 2,
     };
   }
-  
+
   if (platform === 'darwin') {
     // macOS: always has Metal, use angle
     return {
@@ -266,7 +259,7 @@ async function selectRemotionConfig(): Promise<RemotionHardwareConfig> {
       concurrency: 4,
     };
   }
-  
+
   // Linux
   if (hasDiscreteGpu) {
     return {
@@ -275,7 +268,7 @@ async function selectRemotionConfig(): Promise<RemotionHardwareConfig> {
       concurrency: 4,
     };
   }
-  
+
   return {
     gl: 'swiftshader',
     hardwareAcceleration: 'disabled',
@@ -292,11 +285,11 @@ type ComputeType = 'float16' | 'int8' | 'float32';
 function selectComputeType(device: WhisperDevice): ComputeType {
   switch (device) {
     case 'cuda':
-      return 'float16';  // Fast on NVIDIA
+      return 'float16'; // Fast on NVIDIA
     case 'mps':
-      return 'float16';  // Supported on Apple Silicon
+      return 'float16'; // Supported on Apple Silicon
     case 'cpu':
-      return 'int8';     // Fastest on CPU
+      return 'int8'; // Fastest on CPU
     default:
       return 'int8';
   }
@@ -314,27 +307,27 @@ async function getHardwareCapabilities(): Promise<{
   const gpus = await detectGpu();
   const whisperDevice = await selectWhisperDevice();
   const remotionConfig = await selectRemotionConfig();
-  
+
   // Build summary
   const lines: string[] = [];
   lines.push('Hardware Capabilities:');
-  
+
   for (const gpu of gpus) {
     lines.push(`  GPU: ${gpu.model} (${gpu.vendor})`);
     lines.push(`    VRAM: ${gpu.vram}MB`);
     lines.push(`    CUDA: ${gpu.capabilities.cuda ? '✓' : '✗'}`);
     lines.push(`    Metal: ${gpu.capabilities.metal ? '✓' : '✗'}`);
   }
-  
+
   if (gpus.length === 0) {
     lines.push('  No discrete GPU detected');
   }
-  
+
   lines.push('');
   lines.push(`WhisperX Device: ${whisperDevice}`);
   lines.push(`Remotion GL: ${remotionConfig.gl}`);
   lines.push(`Concurrency: ${remotionConfig.concurrency}`);
-  
+
   return {
     summary: lines.join('\n'),
     whisperDevice,
@@ -351,11 +344,11 @@ async function getHardwareCapabilities(): Promise<{
 // cm info command
 async function showSystemInfo(): Promise<void> {
   const hw = await getHardwareCapabilities();
-  
+
   console.log(hw.summary);
   console.log('');
   console.log('Performance Expectations:');
-  
+
   if (hw.whisperDevice === 'cuda') {
     console.log('  Audio processing: Fast (GPU accelerated)');
   } else if (hw.whisperDevice === 'mps') {
@@ -363,7 +356,7 @@ async function showSystemInfo(): Promise<void> {
   } else {
     console.log('  Audio processing: Slow (CPU only)');
   }
-  
+
   if (hw.remotionConfig.hardwareAcceleration !== 'disabled') {
     console.log('  Video rendering: Fast (GPU accelerated)');
   } else {
@@ -403,13 +396,13 @@ const transcription = await executeWithFallback(
 
 ## 6. Implementation Recommendations
 
-| Decision | Recommendation | Rationale |
-|----------|----------------|-----------|
-| Primary detection | systeminformation | Cross-platform, no native deps |
-| NVIDIA verification | nvidia-smi | Confirms CUDA works |
-| Apple Silicon | Assume Metal works | All M-series support it |
-| Fallback | Always available | Never fail due to GPU issues |
-| Report to user | `cm info` command | Transparency |
+| Decision            | Recommendation     | Rationale                      |
+| ------------------- | ------------------ | ------------------------------ |
+| Primary detection   | systeminformation  | Cross-platform, no native deps |
+| NVIDIA verification | nvidia-smi         | Confirms CUDA works            |
+| Apple Silicon       | Assume Metal works | All M-series support it        |
+| Fallback            | Always available   | Never fail due to GPU issues   |
+| Report to user      | `cm info` command  | Transparency                   |
 
 ---
 

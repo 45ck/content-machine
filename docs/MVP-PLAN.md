@@ -12,16 +12,16 @@ You run a command → Review output → Tweak if needed → Run next command
 
 ## CLI Commands (MVP)
 
-| Command | What it does | Output |
-|---------|--------------|--------|
-| `cm research` | Deep research on trends/topics | `research/YYYY-MM-DD.json` |
-| `cm plan <topic>` | Generate content plan | `plans/<slug>.json` |
-| `cm script <plan>` | Write scene-by-scene script | `scripts/<slug>.json` |
-| `cm tts <script>` | Generate voiceover audio | `assets/<slug>/voiceover.mp3` |
-| `cm footage <script>` | Download stock footage | `assets/<slug>/*.mp4` |
-| `cm captions <audio>` | Generate word-level captions | `assets/<slug>/captions.json` |
-| `cm render <assets-dir>` | Compose video with Remotion | `output/<slug>/video.mp4` |
-| `cm export <video>` | Package with checklist | `output/<slug>.zip` |
+| Command                  | What it does                   | Output                        |
+| ------------------------ | ------------------------------ | ----------------------------- |
+| `cm research`            | Deep research on trends/topics | `research/YYYY-MM-DD.json`    |
+| `cm plan <topic>`        | Generate content plan          | `plans/<slug>.json`           |
+| `cm script <plan>`       | Write scene-by-scene script    | `scripts/<slug>.json`         |
+| `cm tts <script>`        | Generate voiceover audio       | `assets/<slug>/voiceover.mp3` |
+| `cm footage <script>`    | Download stock footage         | `assets/<slug>/*.mp4`         |
+| `cm captions <audio>`    | Generate word-level captions   | `assets/<slug>/captions.json` |
+| `cm render <assets-dir>` | Compose video with Remotion    | `output/<slug>/video.mp4`     |
+| `cm export <video>`      | Package with checklist         | `output/<slug>.zip`           |
 
 ## Workflow Example
 
@@ -93,16 +93,16 @@ content-machine/
 
 ## Vendored Repos
 
-| Repo | Why |
-|------|-----|
-| `harry0703/MoneyPrinterTurbo` | Complete pipeline, Pexels/Pixabay, Azure TTS |
-| `remotion-dev/remotion` | Video composition, template-tiktok for captions |
-| `gyuha/short-video-maker` | Kokoro TTS patterns, Pexels usage |
+| Repo                          | Why                                             |
+| ----------------------------- | ----------------------------------------------- |
+| `harry0703/MoneyPrinterTurbo` | Complete pipeline, Pexels/Pixabay, Azure TTS    |
+| `remotion-dev/remotion`       | Video composition, template-tiktok for captions |
+| `gyuha/short-video-maker`     | Kokoro TTS patterns, Pexels usage               |
 
 ## What We're NOT Building (MVP)
 
 - ❌ Automatic orchestration
-- ❌ Database / queue management  
+- ❌ Database / queue management
 - ❌ Review queue UI
 - ❌ Auto-publish to platforms
 - ❌ Analytics collection
@@ -130,13 +130,13 @@ content-machine/
 
 ## Cost Estimates (per video)
 
-| Step | Cost |
-|------|------|
-| Research | ~$0.02 (GPT-4o) |
-| Plan | ~$0.01 |
-| Script | ~$0.02 |
-| TTS | $0 (Kokoro local) or ~$0.05 (API) |
-| Footage | $0 (Pexels free) |
-| Captions | $0 (local Whisper) |
-| Render | $0 (local Remotion) |
-| **Total** | **~$0.05-0.10 per video** |
+| Step      | Cost                              |
+| --------- | --------------------------------- |
+| Research  | ~$0.02 (GPT-4o)                   |
+| Plan      | ~$0.01                            |
+| Script    | ~$0.02                            |
+| TTS       | $0 (Kokoro local) or ~$0.05 (API) |
+| Footage   | $0 (Pexels free)                  |
+| Captions  | $0 (local Whisper)                |
+| Render    | $0 (local Remotion)               |
+| **Total** | **~$0.05-0.10 per video**         |

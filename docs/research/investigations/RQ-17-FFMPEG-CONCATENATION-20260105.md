@@ -10,6 +10,7 @@
 ## 1. Problem Statement
 
 When splitting long renders to avoid Remotion memory leaks (RQ-11), we need to concatenate chunks without:
+
 - Audio pops/clicks at boundaries
 - Frame timing drift
 - Re-encoding quality loss
@@ -21,11 +22,11 @@ When splitting long renders to avoid Remotion memory leaks (RQ-11), we need to c
 
 ### 2.1 Three Concatenation Methods
 
-| Method | Use Case | Re-encode? | Speed |
-|--------|----------|------------|-------|
-| **Concat demuxer** | Same codec/resolution/fps | No | ⚡ Fast |
-| **Concat protocol** | MPEG-TS only | No | ⚡ Fast |
-| **Concat filter** | Different formats | Yes | 🐢 Slow |
+| Method              | Use Case                  | Re-encode? | Speed   |
+| ------------------- | ------------------------- | ---------- | ------- |
+| **Concat demuxer**  | Same codec/resolution/fps | No         | ⚡ Fast |
+| **Concat protocol** | MPEG-TS only              | No         | ⚡ Fast |
+| **Concat filter**   | Different formats         | Yes        | 🐢 Slow |
 
 ### 2.2 Concat Demuxer (Recommended)
 
@@ -44,6 +45,7 @@ ffmpeg -f concat -safe 0 -i concat.txt -c copy output.mp4
 ```
 
 **Requirement:** All clips must have:
+
 - Same codec (h264)
 - Same resolution (1080x1920)
 - Same frame rate (30fps)
@@ -80,7 +82,7 @@ AAC frames are 1024 samples. At 48kHz, that's ~21.33ms per frame.
 
 ```typescript
 // Remotion calculates cuts in microseconds to align with AAC frames
-const AAC_FRAME_DURATION_US = (1024 / 48000) * 1_000_000;  // ~21333 microseconds
+const AAC_FRAME_DURATION_US = (1024 / 48000) * 1_000_000; // ~21333 microseconds
 
 function alignToAacFrame(microseconds: number): number {
   return Math.round(microseconds / AAC_FRAME_DURATION_US) * AAC_FRAME_DURATION_US;
@@ -115,20 +117,30 @@ async function normalizeClip(
   }
 ): Promise<void> {
   const { width, height, fps, sampleRate } = params;
-  
+
   await execa('ffmpeg', [
-    '-i', inputPath,
+    '-i',
+    inputPath,
     // Video normalization
-    '-vf', `scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2,fps=${fps}`,
-    '-pix_fmt', 'yuv420p',
-    '-c:v', 'libx264',
-    '-preset', 'fast',
-    '-crf', '18',
+    '-vf',
+    `scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2,fps=${fps}`,
+    '-pix_fmt',
+    'yuv420p',
+    '-c:v',
+    'libx264',
+    '-preset',
+    'fast',
+    '-crf',
+    '18',
     // Audio normalization
-    '-ar', String(sampleRate),
-    '-ac', '2',
-    '-c:a', 'aac',
-    '-b:a', '192k',
+    '-ar',
+    String(sampleRate),
+    '-ac',
+    '2',
+    '-c:a',
+    'aac',
+    '-b:a',
+    '192k',
     // Output
     outputPath,
   ]);
@@ -166,11 +178,11 @@ interface RenderChunk {
 
 async function renderInChunks(
   composition: Composition,
-  chunkSize: number = 300,  // ~10 seconds at 30fps
+  chunkSize: number = 300 // ~10 seconds at 30fps
 ): Promise<string[]> {
   const totalFrames = composition.durationInFrames;
   const chunks: RenderChunk[] = [];
-  
+
   for (let start = 0; start < totalFrames; start += chunkSize) {
     const end = Math.min(start + chunkSize, totalFrames);
     chunks.push({
@@ -179,7 +191,7 @@ async function renderInChunks(
       outputPath: `./temp/chunk-${String(chunks.length).padStart(3, '0')}.mp4`,
     });
   }
-  
+
   // Render each chunk
   for (const chunk of chunks) {
     await renderMedia({
@@ -190,12 +202,12 @@ async function renderInChunks(
       crf: 18,
       audioBitrate: '192k',
     });
-    
+
     // Force GC between chunks to avoid memory leaks
     if (global.gc) global.gc();
   }
-  
-  return chunks.map(c => c.outputPath);
+
+  return chunks.map((c) => c.outputPath);
 }
 ```
 
@@ -215,15 +227,15 @@ async function concatenateChunks(
   }
 ): Promise<void> {
   const { addMicroFades = true, regenerateTimestamps = true } = options ?? {};
-  
+
   let pathsToConcat = chunkPaths;
-  
+
   // Step 1: Add micro-fades if requested
   if (addMicroFades) {
     pathsToConcat = await Promise.all(
       chunkPaths.map(async (path, i) => {
         const fadedPath = path.replace('.mp4', '-faded.mp4');
-        
+
         // First chunk: fade out only
         // Last chunk: fade in only
         // Middle chunks: both
@@ -235,42 +247,47 @@ async function concatenateChunks(
         } else {
           fadeFilter = 'afade=t=in:d=0.02,afade=t=out:st=-0.02:d=0.02';
         }
-        
+
         await execa('ffmpeg', [
-          '-i', path,
-          '-af', fadeFilter,
-          '-c:v', 'copy',  // Don't re-encode video
+          '-i',
+          path,
+          '-af',
+          fadeFilter,
+          '-c:v',
+          'copy', // Don't re-encode video
           fadedPath,
         ]);
-        
+
         return fadedPath;
       })
     );
   }
-  
+
   // Step 2: Create concat file list
   const concatFilePath = join(dirname(outputPath), 'concat.txt');
-  const concatContent = pathsToConcat
-    .map(p => `file '${p.replace(/\\/g, '/')}'`)
-    .join('\n');
+  const concatContent = pathsToConcat.map((p) => `file '${p.replace(/\\/g, '/')}'`).join('\n');
   await writeFile(concatFilePath, concatContent);
-  
+
   // Step 3: Concatenate
   const ffmpegArgs = [
     ...(regenerateTimestamps ? ['-fflags', '+genpts'] : []),
-    '-f', 'concat',
-    '-safe', '0',
-    '-i', concatFilePath,
-    '-c', 'copy',
+    '-f',
+    'concat',
+    '-safe',
+    '0',
+    '-i',
+    concatFilePath,
+    '-c',
+    'copy',
     outputPath,
   ];
-  
+
   await execa('ffmpeg', ffmpegArgs);
-  
+
   // Step 4: Cleanup
   await unlink(concatFilePath);
   if (addMicroFades) {
-    await Promise.all(pathsToConcat.map(p => unlink(p)));
+    await Promise.all(pathsToConcat.map((p) => unlink(p)));
   }
 }
 ```
@@ -283,22 +300,21 @@ async function validateConcatenation(
   outputPath: string
 ): Promise<{ valid: boolean; issues: string[] }> {
   const issues: string[] = [];
-  
+
   // Check durations match
-  const chunkDurations = await Promise.all(
-    chunkPaths.map(p => getVideoDuration(p))
-  );
+  const chunkDurations = await Promise.all(chunkPaths.map((p) => getVideoDuration(p)));
   const expectedDuration = chunkDurations.reduce((a, b) => a + b, 0);
   const actualDuration = await getVideoDuration(outputPath);
-  
+
   const durationDrift = Math.abs(actualDuration - expectedDuration);
-  if (durationDrift > 0.1) {  // More than 100ms drift
+  if (durationDrift > 0.1) {
+    // More than 100ms drift
     issues.push(`Duration drift: expected ${expectedDuration}s, got ${actualDuration}s`);
   }
-  
+
   // Check for audio discontinuities (would require audio analysis)
   // This is a placeholder for more sophisticated validation
-  
+
   return {
     valid: issues.length === 0,
     issues,
@@ -310,11 +326,11 @@ async function validateConcatenation(
 
 ## 5. Trade-offs
 
-| Approach | Quality | Speed | Complexity |
-|----------|---------|-------|------------|
-| No fades (pure copy) | May have pops | ⚡ Fastest | Simple |
-| Micro-fades | Good | Fast | Medium |
-| Crossfades | Best | 🐢 Slow (re-encode) | Complex |
+| Approach             | Quality       | Speed               | Complexity |
+| -------------------- | ------------- | ------------------- | ---------- |
+| No fades (pure copy) | May have pops | ⚡ Fastest          | Simple     |
+| Micro-fades          | Good          | Fast                | Medium     |
+| Crossfades           | Best          | 🐢 Slow (re-encode) | Complex    |
 
 **Recommendation:** Use micro-fades (20ms) as default. They're imperceptible and prevent most pops without re-encoding video.
 
@@ -322,13 +338,13 @@ async function validateConcatenation(
 
 ## 6. Implementation Recommendations
 
-| Decision | Recommendation | Rationale |
-|----------|----------------|-----------|
-| Concatenation method | Concat demuxer | No re-encoding |
-| Audio handling | 20ms micro-fades | Prevents pops, imperceptible |
-| Timestamp handling | `-fflags +genpts` | Prevents discontinuities |
-| Pre-normalization | Required | Ensures compatible parameters |
-| Chunk size | 300 frames (~10s) | Balances memory vs overhead |
+| Decision             | Recommendation    | Rationale                     |
+| -------------------- | ----------------- | ----------------------------- |
+| Concatenation method | Concat demuxer    | No re-encoding                |
+| Audio handling       | 20ms micro-fades  | Prevents pops, imperceptible  |
+| Timestamp handling   | `-fflags +genpts` | Prevents discontinuities      |
+| Pre-normalization    | Required          | Ensures compatible parameters |
+| Chunk size           | 300 frames (~10s) | Balances memory vs overhead   |
 
 ---
 

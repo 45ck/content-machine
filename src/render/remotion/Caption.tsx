@@ -1,6 +1,6 @@
 /**
  * Caption Component
- * 
+ *
  * TikTok-style word-by-word captions with highlighting.
  */
 import React from 'react';
@@ -27,16 +27,9 @@ const DEFAULT_STYLE: CaptionStyle = {
   animation: 'pop',
 };
 
-export const Caption: React.FC<CaptionProps> = ({
-  words,
-  currentTime,
-  style = DEFAULT_STYLE,
-}) => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  
+export const Caption: React.FC<CaptionProps> = ({ words, currentTime, style = DEFAULT_STYLE }) => {
   if (words.length === 0) return null;
-  
+
   // Position styling
   const positionStyle: React.CSSProperties = {
     display: 'flex',
@@ -65,21 +58,21 @@ export const Caption: React.FC<CaptionProps> = ({
       transform: 'translateX(-50%)',
     }),
   };
-  
+
   return (
     <div style={positionStyle}>
-      {words.map((word, index) => {
+      {words.map((word, _index) => {
         const isActive = currentTime >= word.start && currentTime < word.end;
         const isPast = currentTime >= word.end;
-        
+
         return (
           <Word
-            key={`${word.word}-${index}`}
+            key={`${word.word}-${_index}`}
             word={word.word}
             isActive={isActive}
             isPast={isPast}
             style={style}
-            index={index}
+            index={_index}
           />
         );
       })}
@@ -95,14 +88,14 @@ interface WordProps {
   index: number;
 }
 
-const Word: React.FC<WordProps> = ({ word, isActive, isPast, style, index }) => {
+const Word: React.FC<WordProps> = ({ word, isActive, isPast, style, index: _index }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  
+
   // Animation based on style
   let scale = 1;
   let opacity = isPast ? 0.7 : 1;
-  
+
   if (isActive) {
     if (style.animation === 'pop') {
       scale = interpolate(
@@ -123,9 +116,9 @@ const Word: React.FC<WordProps> = ({ word, isActive, isPast, style, index }) => 
       scale = 1 + 0.2 * progress;
     }
   }
-  
+
   const textColor = isActive ? style.highlightColor : style.color;
-  
+
   const wordStyle: React.CSSProperties = {
     fontFamily: style.fontFamily,
     fontSize: style.fontSize,
@@ -143,6 +136,6 @@ const Word: React.FC<WordProps> = ({ word, isActive, isPast, style, index }) => 
     display: 'inline-block',
     whiteSpace: 'nowrap',
   };
-  
+
   return <span style={wordStyle}>{word}</span>;
 };

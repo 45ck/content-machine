@@ -44,8 +44,8 @@ defaultTest:
 tests:
   # Technology/coding scenes
   - vars:
-      narration: "Redis stores everything in memory, making it blazingly fast"
-      visual_direction: "Show server room or computer hardware"
+      narration: 'Redis stores everything in memory, making it blazingly fast'
+      visual_direction: 'Show server room or computer hardware'
     assert:
       - type: javascript
         value: |
@@ -72,8 +72,8 @@ tests:
 
   # Coding/development scenes
   - vars:
-      narration: "First, you need to understand how closures work in JavaScript"
-      visual_direction: "Show code on screen, developer typing"
+      narration: 'First, you need to understand how closures work in JavaScript'
+      visual_direction: 'Show code on screen, developer typing'
     assert:
       - type: javascript
         value: |
@@ -95,8 +95,8 @@ tests:
 
   # Comparison scenes
   - vars:
-      narration: "PostgreSQL is better when you need complex queries and transactions"
-      visual_direction: "Show database visualization or data flow"
+      narration: 'PostgreSQL is better when you need complex queries and transactions'
+      visual_direction: 'Show database visualization or data flow'
     assert:
       - type: llm-rubric
         value: |
@@ -108,8 +108,8 @@ tests:
 
   # Story/emotional scenes
   - vars:
-      narration: "I was stuck for weeks, nothing was working, and I almost gave up"
-      visual_direction: "Show frustrated developer, stressed person at computer"
+      narration: 'I was stuck for weeks, nothing was working, and I almost gave up'
+      visual_direction: 'Show frustrated developer, stressed person at computer'
     assert:
       - type: llm-rubric
         value: |
@@ -123,8 +123,8 @@ tests:
 
   # Success/celebration scenes
   - vars:
-      narration: "And then it finally clicked! I built my first app and it worked!"
-      visual_direction: "Show celebration, success moment"
+      narration: 'And then it finally clicked! I built my first app and it worked!'
+      visual_direction: 'Show celebration, success moment'
     assert:
       - type: llm-rubric
         value: |
@@ -139,7 +139,7 @@ tests:
   # Generic/abstract topics (challenging case)
   - vars:
       narration: "Clean code isn't just about making it work, it's about making it maintainable"
-      visual_direction: "Show organized code, clean workspace"
+      visual_direction: 'Show organized code, clean workspace'
     assert:
       - type: llm-rubric
         value: |

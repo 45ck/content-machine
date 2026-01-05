@@ -11,6 +11,7 @@
 This document investigates TTS (Text-to-Speech) and ASR (Automatic Speech Recognition) patterns across vendored repositories to inform content-machine's `cm audio` command design.
 
 **Key Questions:**
+
 1. Which TTS engines are used and how?
 2. How is word-level timestamp alignment achieved?
 3. How does Whisper integrate for transcription?
@@ -23,21 +24,21 @@ This document investigates TTS (Text-to-Speech) and ASR (Automatic Speech Recogn
 
 ### TTS Engines
 
-| Engine | Repo | Cost | Word Timestamps | Quality |
-|--------|------|------|-----------------|---------|
-| **Edge TTS** | MoneyPrinterTurbo, ShortGPT | Free | ✅ Built-in via SubMaker | Good |
-| **Kokoro** | short-video-maker-gyori | Free (local) | ❌ Requires Whisper | Excellent |
-| **OpenAI TTS** | MoneyPrinterTurbo | Paid | ❌ Requires Whisper | Excellent |
-| **ElevenLabs** | ShortGPT | Paid | ❌ Requires Whisper | Excellent |
-| **Azure TTS v2** | MoneyPrinterTurbo | Paid | ✅ Word boundary events | Excellent |
+| Engine           | Repo                        | Cost         | Word Timestamps          | Quality   |
+| ---------------- | --------------------------- | ------------ | ------------------------ | --------- |
+| **Edge TTS**     | MoneyPrinterTurbo, ShortGPT | Free         | ✅ Built-in via SubMaker | Good      |
+| **Kokoro**       | short-video-maker-gyori     | Free (local) | ❌ Requires Whisper      | Excellent |
+| **OpenAI TTS**   | MoneyPrinterTurbo           | Paid         | ❌ Requires Whisper      | Excellent |
+| **ElevenLabs**   | ShortGPT                    | Paid         | ❌ Requires Whisper      | Excellent |
+| **Azure TTS v2** | MoneyPrinterTurbo           | Paid         | ✅ Word boundary events  | Excellent |
 
 ### ASR Engines
 
-| Engine | Repo | Implementation | Word Timestamps |
-|--------|------|----------------|-----------------|
-| **Whisper.cpp** | short-video-maker-gyori | @remotion/install-whisper-cpp | ✅ tokenLevelTimestamps |
-| **faster-whisper** | MoneyPrinterTurbo | Python library | ✅ word_timestamps=True |
-| **whisper-timestamped** | ShortGPT | Python library | ✅ Native |
+| Engine                  | Repo                    | Implementation                | Word Timestamps         |
+| ----------------------- | ----------------------- | ----------------------------- | ----------------------- |
+| **Whisper.cpp**         | short-video-maker-gyori | @remotion/install-whisper-cpp | ✅ tokenLevelTimestamps |
+| **faster-whisper**      | MoneyPrinterTurbo       | Python library                | ✅ word_timestamps=True |
+| **whisper-timestamped** | ShortGPT                | Python library                | ✅ Native               |
 
 ---
 
@@ -54,20 +55,21 @@ import edge_tts
 async def _do() -> SubMaker:
     communicate = edge_tts.Communicate(text, voice_name, rate=rate_str)
     sub_maker = edge_tts.SubMaker()
-    
+
     with open(voice_file, "wb") as file:
         async for chunk in communicate.stream():
             if chunk["type"] == "audio":
                 file.write(chunk["data"])
             elif chunk["type"] == "WordBoundary":
                 sub_maker.create_sub(
-                    (chunk["offset"], chunk["duration"]), 
+                    (chunk["offset"], chunk["duration"]),
                     chunk["text"]
                 )
     return sub_maker
 ```
 
 **Pattern:**
+
 - Stream chunks from Edge TTS
 - `audio` chunks → write to file
 - `WordBoundary` chunks → create subtitle entries with precise timing
@@ -79,7 +81,7 @@ async def _do() -> SubMaker:
 ```python
 def convert_rate_to_percent(voice_rate: float) -> str:
     """Convert voice rate float to Edge TTS percent string.
-    
+
     Edge TTS expects rate as percentage: "-50%", "+0%", "+100%"
     """
     if voice_rate == 1.0:
@@ -120,9 +122,9 @@ class EdgeTTSVoiceModule(VoiceModule):
         try:
             with ThreadPoolExecutor() as executor:
                 loop.run_in_executor(
-                    executor, 
-                    run_async_func, 
-                    loop, 
+                    executor,
+                    run_async_func,
+                    loop,
                     self.async_generate_voice(text, outputfile)
                 )
         finally:
@@ -139,6 +141,7 @@ class EdgeTTSVoiceModule(VoiceModule):
 ```
 
 **Pattern:**
+
 - Abstract `VoiceModule` base class for all TTS engines
 - `generate_voice(text, outputfile)` as standard interface
 - Async wrapper for Edge TTS streaming
@@ -153,14 +156,14 @@ class EdgeTTSVoiceModule(VoiceModule):
 ### 5.1 Kokoro TypeScript Integration
 
 ```typescript
-import { KokoroTTS, TextSplitterStream } from "kokoro-js";
+import { KokoroTTS, TextSplitterStream } from 'kokoro-js';
 
 export class Kokoro {
   constructor(private tts: KokoroTTS) {}
 
   async generate(
     text: string,
-    voice: Voices,
+    voice: Voices
   ): Promise<{
     audio: ArrayBuffer;
     audioLength: number;
@@ -189,7 +192,7 @@ export class Kokoro {
   static async init(dtype: kokoroModelPrecision): Promise<Kokoro> {
     const tts = await KokoroTTS.from_pretrained(KOKORO_MODEL, {
       dtype,
-      device: "cpu", // only "cpu" is supported in node
+      device: 'cpu', // only "cpu" is supported in node
     });
     return new Kokoro(tts);
   }
@@ -197,6 +200,7 @@ export class Kokoro {
 ```
 
 **Pattern:**
+
 - Local inference via ONNX model
 - Text splitting for long inputs
 - Streaming output concatenation
@@ -236,11 +240,7 @@ static concatWavBuffers(buffers: ArrayBuffer[]): ArrayBuffer {
 ### 6.1 @remotion/install-whisper-cpp Integration
 
 ```typescript
-import {
-  downloadWhisperModel,
-  installWhisperCpp,
-  transcribe,
-} from "@remotion/install-whisper-cpp";
+import { downloadWhisperModel, installWhisperCpp, transcribe } from '@remotion/install-whisper-cpp';
 
 export class Whisper {
   constructor(private config: Config) {}
@@ -252,10 +252,10 @@ export class Whisper {
         version: config.whisperVersion,
         printOutput: true,
       });
-      
+
       await downloadWhisperModel({
         model: config.whisperModel,
-        folder: path.join(config.whisperInstallPath, "models"),
+        folder: path.join(config.whisperInstallPath, 'models'),
         printOutput: config.whisperVerbose,
       });
     }
@@ -266,10 +266,10 @@ export class Whisper {
     const { transcription } = await transcribe({
       model: this.config.whisperModel,
       whisperPath: this.config.whisperInstallPath,
-      modelFolder: path.join(this.config.whisperInstallPath, "models"),
+      modelFolder: path.join(this.config.whisperInstallPath, 'models'),
       whisperCppVersion: this.config.whisperVersion,
       inputPath: audioPath,
-      tokenLevelTimestamps: true,  // Key: word-level timestamps
+      tokenLevelTimestamps: true, // Key: word-level timestamps
       printOutput: this.config.whisperVerbose,
     });
 
@@ -277,8 +277,8 @@ export class Whisper {
     const captions: Caption[] = [];
     transcription.forEach((record) => {
       record.tokens.forEach((token) => {
-        if (token.text.startsWith("[_TT")) return;  // Skip special tokens
-        
+        if (token.text.startsWith('[_TT')) return; // Skip special tokens
+
         captions.push({
           text: token.text,
           startMs: record.offsets.from,
@@ -286,13 +286,14 @@ export class Whisper {
         });
       });
     });
-    
+
     return captions;
   }
 }
 ```
 
 **Pattern:**
+
 - Auto-install Whisper.cpp binary at runtime
 - Auto-download model on first use
 - `tokenLevelTimestamps: true` for word-level timing
@@ -303,18 +304,18 @@ export class Whisper {
 
 ```typescript
 export type whisperModels =
-  | "tiny"
-  | "tiny.en"
-  | "base"
-  | "base.en"
-  | "small"
-  | "small.en"
-  | "medium"
-  | "medium.en"
-  | "large-v1"
-  | "large-v2"
-  | "large-v3"
-  | "large-v3-turbo";
+  | 'tiny'
+  | 'tiny.en'
+  | 'base'
+  | 'base.en'
+  | 'small'
+  | 'small.en'
+  | 'medium'
+  | 'medium.en'
+  | 'large-v1'
+  | 'large-v2'
+  | 'large-v3'
+  | 'large-v3-turbo';
 ```
 
 **Pattern:** TypeScript enum for model selection. Default is `medium.en` for English content.
@@ -329,10 +330,10 @@ export type whisperModels =
 
 ```typescript
 export enum MusicVolumeEnum {
-  muted = "muted",    // 0
-  low = "low",        // ~0.2
-  medium = "medium",  // ~0.45
-  high = "high",      // ~0.7
+  muted = 'muted', // 0
+  low = 'low', // ~0.2
+  medium = 'medium', // ~0.45
+  high = 'high', // ~0.7
 }
 ```
 
@@ -344,9 +345,9 @@ export enum MusicVolumeEnum {
 <Audio
   src={staticFile(musicSrc)}
   volume={(frame) => {
-    const fadeInFrames = fps * 0.5;  // 0.5 second fade in
-    const fadeOutFrames = fps * 2;   // 2 second fade out
-    
+    const fadeInFrames = fps * 0.5; // 0.5 second fade in
+    const fadeOutFrames = fps * 2; // 2 second fade out
+
     if (frame < fadeInFrames) {
       return (frame / fadeInFrames) * musicVolume;
     }
@@ -375,12 +376,7 @@ export enum MusicVolumeEnum {
 // src/audio/tts.ts
 import { z } from 'zod';
 
-export const TTSEngineSchema = z.enum([
-  'edge-tts',
-  'kokoro',
-  'openai',
-  'elevenlabs',
-]);
+export const TTSEngineSchema = z.enum(['edge-tts', 'kokoro', 'openai', 'elevenlabs']);
 
 export type TTSEngine = z.infer<typeof TTSEngineSchema>;
 
@@ -461,9 +457,9 @@ export async function generateWithEdgeTTS(
 ): Promise<AudioOutput> {
   // Use edge-tts CLI or edge-tts npm package
   // Extract SubMaker data for word timestamps
-  
+
   const words = await extractTimestampsFromSubMaker(subMaker);
-  
+
   return {
     audioPath: config.outputPath,
     durationMs: calculateDuration(words),
@@ -488,10 +484,10 @@ export async function transcribeForTimestamps(
     tokenLevelTimestamps: true,
   });
 
-  return transcription.flatMap(record =>
+  return transcription.flatMap((record) =>
     record.tokens
-      .filter(t => !t.text.startsWith('[_TT'))
-      .map(token => ({
+      .filter((t) => !t.text.startsWith('[_TT'))
+      .map((token) => ({
         text: token.text.trim(),
         startMs: record.offsets.from,
         endMs: record.offsets.to,
@@ -513,9 +509,9 @@ export const WordTimestampSchema = z.object({
 });
 
 export const AudioOutputSchema = z.object({
-  audioPath: z.string().describe("Path to generated audio file"),
-  durationMs: z.number().positive().describe("Total audio duration in milliseconds"),
-  words: z.array(WordTimestampSchema).describe("Word-level timestamps for captions"),
+  audioPath: z.string().describe('Path to generated audio file'),
+  durationMs: z.number().positive().describe('Total audio duration in milliseconds'),
+  words: z.array(WordTimestampSchema).describe('Word-level timestamps for captions'),
 });
 
 export type AudioOutput = z.infer<typeof AudioOutputSchema>;
@@ -525,25 +521,27 @@ export type AudioOutput = z.infer<typeof AudioOutputSchema>;
 
 ## 9. Key Takeaways
 
-| Pattern | Source | Adoption Priority |
-|---------|--------|-------------------|
-| Edge TTS with SubMaker timestamps | MoneyPrinterTurbo | **Must have** |
-| @remotion/install-whisper-cpp | short-video-maker-gyori | **Must have** |
-| VoiceModule abstraction class | ShortGPT | **Should have** |
-| Kokoro local TTS | short-video-maker-gyori | **Should have** |
-| WAV buffer concatenation | short-video-maker-gyori | Nice to have |
-| Frame-based volume functions | Remotion patterns | Nice to have |
+| Pattern                           | Source                  | Adoption Priority |
+| --------------------------------- | ----------------------- | ----------------- |
+| Edge TTS with SubMaker timestamps | MoneyPrinterTurbo       | **Must have**     |
+| @remotion/install-whisper-cpp     | short-video-maker-gyori | **Must have**     |
+| VoiceModule abstraction class     | ShortGPT                | **Should have**   |
+| Kokoro local TTS                  | short-video-maker-gyori | **Should have**   |
+| WAV buffer concatenation          | short-video-maker-gyori | Nice to have      |
+| Frame-based volume functions      | Remotion patterns       | Nice to have      |
 
 ---
 
 ## 10. Critical Insight: Edge TTS vs Whisper
 
 **Edge TTS provides built-in word timestamps via SubMaker.** This eliminates the need for Whisper transcription when using Edge TTS, making it:
+
 - Faster (no transcription step)
 - More accurate (ground truth from TTS engine)
 - Simpler (fewer dependencies)
 
 **Use Whisper only when:**
+
 - Using TTS engines without native timestamps (Kokoro, OpenAI, ElevenLabs)
 - Processing pre-existing audio files
 - Custom audio sources

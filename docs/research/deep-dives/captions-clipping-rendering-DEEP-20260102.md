@@ -11,6 +11,7 @@
 This document provides comprehensive analysis of caption generation, video clipping, and rendering infrastructure found in the vendor directory. These are critical components for the content-machine pipeline that transforms raw audio/video into polished short-form content.
 
 **Key Findings:**
+
 - **Captions:** WhisperX (70x realtime, word-level, speaker diarization) > Captacity (styled overlays) > auto-subtitle
 - **Clipping:** FunClip (LLM-powered) + PySceneDetect (scene detection) for intelligent segmentation
 - **Rendering:** Remotion (React) + chuk-motion (51 MCP components) + remotion-subtitles (17 templates)
@@ -26,6 +27,7 @@ This document provides comprehensive analysis of caption generation, video clipp
 **Performance:** 70x realtime with large-v2
 
 **Architecture:**
+
 ```
 Audio Input
     │
@@ -40,6 +42,7 @@ Audio Input
 ```
 
 **Key Features:**
+
 - **Batched inference:** 70x realtime transcription
 - **faster-whisper backend:** <8GB GPU memory for large-v2
 - **Word-level timestamps:** Via wav2vec2 alignment
@@ -47,11 +50,13 @@ Audio Input
 - **VAD preprocessing:** Reduces hallucinations
 
 **Installation:**
+
 ```bash
 pip install whisperx
 ```
 
 **Python Usage:**
+
 ```python
 import whisperx
 
@@ -66,14 +71,14 @@ result = model.transcribe(audio, batch_size=batch_size)
 
 # 2. Align for word-level timestamps
 model_a, metadata = whisperx.load_align_model(
-    language_code=result["language"], 
+    language_code=result["language"],
     device=device
 )
 result = whisperx.align(
-    result["segments"], 
-    model_a, 
-    metadata, 
-    audio, 
+    result["segments"],
+    model_a,
+    metadata,
+    audio,
     device
 )
 
@@ -88,6 +93,7 @@ print(result["segments"])
 ```
 
 **Output Format:**
+
 ```json
 {
   "segments": [
@@ -97,8 +103,8 @@ print(result["segments"])
       "text": "Hello world",
       "speaker": "SPEAKER_00",
       "words": [
-        {"word": "Hello", "start": 0.0, "end": 0.5},
-        {"word": "world", "start": 0.6, "end": 1.0}
+        { "word": "Hello", "start": 0.0, "end": 0.5 },
+        { "word": "world", "start": 0.6, "end": 1.0 }
       ]
     }
   ]
@@ -106,6 +112,7 @@ print(result["segments"])
 ```
 
 **Content-Machine Integration:**
+
 - Primary ASR for all video transcription
 - Word-level timestamps for precise caption sync
 - Speaker diarization for multi-speaker content
@@ -118,6 +125,7 @@ print(result["segments"])
 **License:** MIT | Install: `pip install captacity`
 
 **Quick Start:**
+
 ```bash
 # CLI usage
 captacity my_short.mp4 my_short_with_captions.mp4
@@ -158,6 +166,7 @@ captacity.add_captions(
 | `padding` | 50 | Edge padding |
 
 **Whisper Configuration:**
+
 ```python
 # Force local Whisper
 captacity.add_captions(
@@ -171,6 +180,7 @@ pip install captacity[local_whisper]
 ```
 
 **Content-Machine Integration:**
+
 - Quick caption overlay for prototyping
 - Customizable styling (font, color, stroke)
 - Word highlighting for emphasis
@@ -182,12 +192,14 @@ pip install captacity[local_whisper]
 **Purpose:** Automatically generate and overlay subtitles using ffmpeg + Whisper
 
 **Installation:**
+
 ```bash
 pip install git+https://github.com/m1guelpf/auto-subtitle.git
 # Requires ffmpeg
 ```
 
 **Usage:**
+
 ```bash
 # Basic usage (small model, English)
 auto_subtitle /path/to/video.mp4 -o subtitled/
@@ -200,6 +212,7 @@ auto_subtitle /path/to/video.mp4 --task translate
 ```
 
 **Available Models:**
+
 - `tiny`, `tiny.en`
 - `base`, `base.en`
 - `small`, `small.en` (default)
@@ -207,6 +220,7 @@ auto_subtitle /path/to/video.mp4 --task translate
 - `large`
 
 **Content-Machine Integration:**
+
 - Simplest CLI for quick subtitle generation
 - Translation support built-in
 - FFmpeg-based overlay
@@ -222,12 +236,14 @@ auto_subtitle /path/to/video.mp4 --task translate
 **Purpose:** Open-source, accurate, LLM-enhanced video clipping
 
 **Key Features:**
+
 - **FunASR Paraformer:** Industrial-grade Chinese/English ASR
 - **Hotword customization:** SeACo-Paraformer for entity recognition
 - **Speaker diarization:** CAM++ model for speaker-based clipping
 - **LLM clipping:** GPT/Qwen integration for smart clip selection
 
 **Architecture:**
+
 ```
 Video Input
     │
@@ -248,6 +264,7 @@ Video Input
 ```
 
 **Installation:**
+
 ```bash
 git clone https://github.com/alibaba-damo-academy/FunClip.git
 cd FunClip
@@ -258,6 +275,7 @@ apt-get install ffmpeg imagemagick
 ```
 
 **Gradio Service:**
+
 ```bash
 python funclip/launch.py
 # -l en for English
@@ -265,6 +283,7 @@ python funclip/launch.py
 ```
 
 **Command Line Usage:**
+
 ```bash
 # Step 1: Recognize
 python funclip/videoclipper.py --stage 1 \
@@ -282,6 +301,7 @@ python funclip/videoclipper.py --stage 2 \
 ```
 
 **LLM Clipping Workflow:**
+
 1. Run ASR recognition
 2. Select LLM model (Qwen/GPT)
 3. Click "LLM Inference" → combines prompts with SRT
@@ -289,6 +309,7 @@ python funclip/videoclipper.py --stage 2 \
 5. Customize prompts for specific clip types
 
 **Content-Machine Integration:**
+
 - Industrial-grade Chinese/English ASR
 - LLM-powered clip selection
 - Speaker-based clipping for podcasts
@@ -308,12 +329,14 @@ python funclip/videoclipper.py --stage 2 \
 | `ThresholdDetector` | Fade in/out transitions |
 
 **Installation:**
+
 ```bash
 pip install scenedetect[opencv] --upgrade
 # Requires ffmpeg/mkvmerge for splitting
 ```
 
 **CLI Usage:**
+
 ```bash
 # Split video on fast cuts
 scenedetect -i video.mp4 split-video
@@ -326,6 +349,7 @@ scenedetect -i video.mp4 time -s 10s
 ```
 
 **Python API:**
+
 ```python
 from scenedetect import detect, ContentDetector, split_video_ffmpeg
 
@@ -341,6 +365,7 @@ split_video_ffmpeg('video.mp4', scene_list)
 ```
 
 **Advanced Configuration:**
+
 ```python
 from scenedetect import open_video, SceneManager
 from scenedetect.detectors import ContentDetector
@@ -353,6 +378,7 @@ scene_list = scene_manager.get_scene_list()
 ```
 
 **Content-Machine Integration:**
+
 - Pre-process long videos for segmentation
 - Identify natural break points
 - Combine with FunClip for intelligent clipping
@@ -369,11 +395,13 @@ scene_list = scene_manager.get_scene_list()
 **License:** Custom (check for commercial use)
 
 **Core Concept:**
+
 - Video = React components rendered over time
 - Each frame = React render at specific time
 - Composition = Video definition (dimensions, FPS, duration)
 
 **Project Structure:**
+
 ```
 my-video/
 ├── src/
@@ -386,6 +414,7 @@ my-video/
 ```
 
 **Basic Composition:**
+
 ```tsx
 import { Composition } from 'remotion';
 import { MyVideo } from './MyVideo';
@@ -395,23 +424,24 @@ export const RemotionRoot = () => {
     <Composition
       id="MyVideo"
       component={MyVideo}
-      durationInFrames={900}  // 30 seconds at 30fps
+      durationInFrames={900} // 30 seconds at 30fps
       fps={30}
       width={1080}
-      height={1920}  // 9:16 vertical
+      height={1920} // 9:16 vertical
     />
   );
 };
 ```
 
 **Sequence Component:**
+
 ```tsx
 import { useCurrentFrame, useVideoConfig, Sequence } from 'remotion';
 
 export const MyVideo = () => {
   const frame = useCurrentFrame();
   const { fps, width, height } = useVideoConfig();
-  
+
   return (
     <>
       <Sequence from={0} durationInFrames={90}>
@@ -429,6 +459,7 @@ export const MyVideo = () => {
 ```
 
 **Rendering:**
+
 ```bash
 # Preview
 npx remotion preview
@@ -447,36 +478,38 @@ npx remotion lambda render
 **License:** MIT
 
 **Installation:**
+
 ```bash
 npm install remotion-subtitle
 ```
 
 **Basic Usage:**
+
 ```tsx
-import { SubtitleSequence } from "remotion-subtitle";
-import { TypewriterCaption as Caption } from "remotion-subtitle";
-import { useEffect, useState } from "react";
-import { useVideoConfig, Audio, staticFile } from "remotion";
+import { SubtitleSequence } from 'remotion-subtitle';
+import { TypewriterCaption as Caption } from 'remotion-subtitle';
+import { useEffect, useState } from 'react';
+import { useVideoConfig, Audio, staticFile } from 'remotion';
 
 export const Subtitles = () => {
   const { fps } = useVideoConfig();
   const [sequences, setSequences] = useState([]);
   const [loaded, setLoaded] = useState(false);
-  
-  const subtitles = new SubtitleSequence("audio.srt");
-  
+
+  const subtitles = new SubtitleSequence('audio.srt');
+
   useEffect(() => {
     subtitles.ready().then(() => {
       setSequences(subtitles.getSequences(<Caption />, fps));
       setLoaded(true);
     });
   }, []);
-  
+
   return (
     <>
       {loaded && (
         <>
-          <Audio src={staticFile("audio.mp3")} />
+          <Audio src={staticFile('audio.mp3')} />
           {sequences}
         </>
       )}
@@ -487,33 +520,36 @@ export const Subtitles = () => {
 
 **Available Caption Templates (17):**
 
-| Template | Effect |
-|----------|--------|
-| `BounceCaption` | Bouncing entrance |
-| `ColorfulCaption` | Rainbow color shift |
-| `ExplosiveCaption` | Explosive entrance |
-| `FadeCaption` | Fade in/out |
-| `FireCaption` | Fire effect |
-| `GlitchCaption` | Digital glitch |
-| `GlowingCaption` | Neon glow |
-| `LightningCaption` | Lightning effect |
-| `NeonCaption` | Neon sign |
-| `RotatingCaption` | 3D rotation |
-| `ShakeCaption` | Shake effect |
-| `ThreeDishCaption` | 3D depth |
-| `TiltShiftCaption` | Tilt-shift blur |
-| `TypewriterCaption` | Typing effect |
-| `WavingCaption` | Wave motion |
-| `ZoomCaption` | Zoom in/out |
+| Template            | Effect              |
+| ------------------- | ------------------- |
+| `BounceCaption`     | Bouncing entrance   |
+| `ColorfulCaption`   | Rainbow color shift |
+| `ExplosiveCaption`  | Explosive entrance  |
+| `FadeCaption`       | Fade in/out         |
+| `FireCaption`       | Fire effect         |
+| `GlitchCaption`     | Digital glitch      |
+| `GlowingCaption`    | Neon glow           |
+| `LightningCaption`  | Lightning effect    |
+| `NeonCaption`       | Neon sign           |
+| `RotatingCaption`   | 3D rotation         |
+| `ShakeCaption`      | Shake effect        |
+| `ThreeDishCaption`  | 3D depth            |
+| `TiltShiftCaption`  | Tilt-shift blur     |
+| `TypewriterCaption` | Typing effect       |
+| `WavingCaption`     | Wave motion         |
+| `ZoomCaption`       | Zoom in/out         |
 
 **Custom Styling:**
+
 ```tsx
 subtitles.getSequences(
-  <Caption style={{ 
-    fontSize: "24px",
-    color: "white",
-    textShadow: "2px 2px 4px black"
-  }} />,
+  <Caption
+    style={{
+      fontSize: '24px',
+      color: 'white',
+      textShadow: '2px 2px 4px black',
+    }}
+  />,
   fps
 );
 ```
@@ -526,12 +562,12 @@ subtitles.getSequences(
 
 **Design Token System:**
 
-| Category | Purpose | Examples |
-|----------|---------|----------|
-| **Colors** | 7 theme palettes | tech, finance, education, lifestyle, gaming, minimal, business |
-| **Typography** | Font scales | 720p, 1080p, 4K optimized |
-| **Spacing** | Platform margins | LinkedIn, TikTok, Instagram, YouTube |
-| **Motion** | Animations | Spring configs, easing curves, durations |
+| Category       | Purpose          | Examples                                                       |
+| -------------- | ---------------- | -------------------------------------------------------------- |
+| **Colors**     | 7 theme palettes | tech, finance, education, lifestyle, gaming, minimal, business |
+| **Typography** | Font scales      | 720p, 1080p, 4K optimized                                      |
+| **Spacing**    | Platform margins | LinkedIn, TikTok, Instagram, YouTube                           |
+| **Motion**     | Animations       | Spring configs, easing curves, durations                       |
 
 **Platform Safe Margins:**
 | Platform | Top | Bottom | Left | Right |
@@ -564,6 +600,7 @@ subtitles.getSequences(
 **Transitions (2):** LayoutTransition, PixelTransition
 
 **MCP Server Usage:**
+
 ```bash
 # STDIO mode (for Claude Desktop)
 python -m chuk_motion.server stdio
@@ -573,6 +610,7 @@ python -m chuk_motion.server http --port 8000
 ```
 
 **Project Creation:**
+
 ```python
 # Via MCP tools
 remotion_create_project(
@@ -585,6 +623,7 @@ remotion_create_project(
 ```
 
 **Content-Machine Integration:**
+
 - MCP server for AI-controlled video generation
 - Design tokens for consistent styling
 - Platform-aware safe margins
@@ -679,28 +718,28 @@ Content Specification (JSON)
 
 ### 5.1 Caption Stack
 
-| Component | Role | Priority |
-|-----------|------|----------|
-| **WhisperX** | Primary ASR | Critical |
-| **remotion-subtitles** | Caption templates | High |
-| **Captacity** | Quick prototyping | Medium |
-| **auto-subtitle** | CLI fallback | Low |
+| Component              | Role              | Priority |
+| ---------------------- | ----------------- | -------- |
+| **WhisperX**           | Primary ASR       | Critical |
+| **remotion-subtitles** | Caption templates | High     |
+| **Captacity**          | Quick prototyping | Medium   |
+| **auto-subtitle**      | CLI fallback      | Low      |
 
 ### 5.2 Clipping Stack
 
-| Component | Role | Priority |
-|-----------|------|----------|
-| **FunClip** | LLM-powered clipping | High |
-| **PySceneDetect** | Scene segmentation | High |
-| **ai-clips-maker** | Speaker-aware crops | Medium |
+| Component          | Role                 | Priority |
+| ------------------ | -------------------- | -------- |
+| **FunClip**        | LLM-powered clipping | High     |
+| **PySceneDetect**  | Scene segmentation   | High     |
+| **ai-clips-maker** | Speaker-aware crops  | Medium   |
 
 ### 5.3 Rendering Stack
 
-| Component | Role | Priority |
-|-----------|------|----------|
-| **Remotion** | Video rendering engine | Critical |
-| **chuk-motion** | MCP components | High |
-| **remotion-subtitles** | Caption animations | High |
+| Component              | Role                   | Priority |
+| ---------------------- | ---------------------- | -------- |
+| **Remotion**           | Video rendering engine | Critical |
+| **chuk-motion**        | MCP components         | High     |
+| **remotion-subtitles** | Caption animations     | High     |
 
 ---
 
@@ -715,19 +754,19 @@ from pathlib import Path
 def generate_captions(audio_path: str, output_srt: str):
     """Generate word-level SRT from audio."""
     device = "cuda"
-    
+
     # Load and transcribe
     model = whisperx.load_model("large-v2", device, compute_type="float16")
     audio = whisperx.load_audio(audio_path)
     result = model.transcribe(audio, batch_size=16)
-    
+
     # Align for word-level timestamps
     model_a, metadata = whisperx.load_align_model(
         language_code=result["language"],
         device=device
     )
     result = whisperx.align(result["segments"], model_a, metadata, audio, device)
-    
+
     # Generate SRT
     srt_content = []
     for i, seg in enumerate(result["segments"]):
@@ -735,7 +774,7 @@ def generate_captions(audio_path: str, output_srt: str):
         end = format_timestamp(seg["end"])
         text = seg["text"].strip()
         srt_content.append(f"{i+1}\n{start} --> {end}\n{text}\n")
-    
+
     Path(output_srt).write_text("\n".join(srt_content))
     return result
 
@@ -756,25 +795,25 @@ import subprocess
 
 def process_long_video(video_path: str, output_dir: str):
     """Detect scenes and prepare for clipping."""
-    
+
     # 1. Detect scene changes
     scenes = detect(video_path, ContentDetector(threshold=27.0))
-    
+
     print(f"Found {len(scenes)} scenes:")
     for i, scene in enumerate(scenes):
         duration = scene[1].get_seconds() - scene[0].get_seconds()
         print(f"  Scene {i+1}: {scene[0].get_timecode()} - {scene[1].get_timecode()} ({duration:.1f}s)")
-    
+
     # 2. Filter for short-form candidates (15-60s)
     candidates = [
         scene for scene in scenes
         if 15 <= (scene[1].get_seconds() - scene[0].get_seconds()) <= 60
     ]
-    
+
     # 3. Split video at scene boundaries
     if candidates:
         split_video_ffmpeg(video_path, candidates, output_dir=output_dir)
-    
+
     return candidates
 ```
 
@@ -792,36 +831,32 @@ interface VideoProps {
   srtFile: string;
 }
 
-export const ShortVideo: React.FC<VideoProps> = ({
-  topic,
-  script,
-  audioFile,
-  srtFile,
-}) => {
+export const ShortVideo: React.FC<VideoProps> = ({ topic, script, audioFile, srtFile }) => {
   const { fps } = useVideoConfig();
   const [subtitles, setSubtitles] = useState([]);
-  
+
   useEffect(() => {
     const subs = new SubtitleSequence(srtFile);
     subs.ready().then(() => {
       setSubtitles(subs.getSequences(<TypewriterCaption />, fps));
     });
   }, [srtFile, fps]);
-  
+
   return (
     <AbsoluteFill style={{ backgroundColor: '#000' }}>
       {/* Background */}
       <Sequence from={0}>
-        <Img src={staticFile('background.jpg')} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <Img
+          src={staticFile('background.jpg')}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
       </Sequence>
-      
+
       {/* Audio */}
       <Audio src={staticFile(audioFile)} />
-      
+
       {/* Captions */}
-      <AbsoluteFill style={{ justifyContent: 'flex-end', padding: 50 }}>
-        {subtitles}
-      </AbsoluteFill>
+      <AbsoluteFill style={{ justifyContent: 'flex-end', padding: 50 }}>{subtitles}</AbsoluteFill>
     </AbsoluteFill>
   );
 };

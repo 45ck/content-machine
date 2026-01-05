@@ -15,14 +15,14 @@ TTS (Text-to-Speech) converts scripts to voiceovers. Key requirements: **natural
 
 ## TTS Engine Comparison
 
-| Engine | Cost | Languages | Quality | Clone? | Local? |
-|--------|------|-----------|---------|--------|--------|
-| **Kokoro** | Free | English | Excellent | No | Yes |
-| **EdgeTTS** | Free | 30+ | Good | No | No |
-| **F5-TTS** | Free | Multi | Excellent | Yes | Yes |
-| **Coqui xTTS** | Free | Multi | Excellent | Yes | Yes |
-| **ElevenLabs** | $$$ | Multi | Excellent | Yes | No |
-| **OpenAI TTS** | $$ | Multi | Excellent | No | No |
+| Engine         | Cost | Languages | Quality   | Clone? | Local? |
+| -------------- | ---- | --------- | --------- | ------ | ------ |
+| **Kokoro**     | Free | English   | Excellent | No     | Yes    |
+| **EdgeTTS**    | Free | 30+       | Good      | No     | No     |
+| **F5-TTS**     | Free | Multi     | Excellent | Yes    | Yes    |
+| **Coqui xTTS** | Free | Multi     | Excellent | Yes    | Yes    |
+| **ElevenLabs** | $$$  | Multi     | Excellent | Yes    | No     |
+| **OpenAI TTS** | $$   | Multi     | Excellent | No     | No     |
 
 ---
 
@@ -88,24 +88,24 @@ response.stream_to_file("output.mp3")
 
 ### Available Voices
 
-| Voice ID | Description |
-|----------|-------------|
-| `af_heart` | American Female (warm) |
-| `af_alloy` | American Female (neutral) |
-| `af_bella` | American Female (expressive) |
-| `af_jessica` | American Female (professional) |
-| `af_nova` | American Female (energetic) |
-| `af_sky` | American Female (youthful) |
-| `am_adam` | American Male (deep) |
-| `am_echo` | American Male (clear) |
-| `am_eric` | American Male (friendly) |
-| `am_liam` | American Male (casual) |
-| `am_michael` | American Male (authoritative) |
-| `am_onyx` | American Male (warm) |
-| `bf_emma` | British Female |
-| `bf_isabella` | British Female |
-| `bm_george` | British Male |
-| `bm_lewis` | British Male |
+| Voice ID      | Description                    |
+| ------------- | ------------------------------ |
+| `af_heart`    | American Female (warm)         |
+| `af_alloy`    | American Female (neutral)      |
+| `af_bella`    | American Female (expressive)   |
+| `af_jessica`  | American Female (professional) |
+| `af_nova`     | American Female (energetic)    |
+| `af_sky`      | American Female (youthful)     |
+| `am_adam`     | American Male (deep)           |
+| `am_echo`     | American Male (clear)          |
+| `am_eric`     | American Male (friendly)       |
+| `am_liam`     | American Male (casual)         |
+| `am_michael`  | American Male (authoritative)  |
+| `am_onyx`     | American Male (warm)           |
+| `bf_emma`     | British Female                 |
+| `bf_isabella` | British Female                 |
+| `bm_george`   | British Male                   |
+| `bm_lewis`    | British Male                   |
 
 ---
 
@@ -145,18 +145,18 @@ asyncio.run(generate_speech(
 
 ### Voice List by Language
 
-| Language | Voices |
-|----------|--------|
+| Language     | Voices                                                     |
+| ------------ | ---------------------------------------------------------- |
 | English (US) | `en-US-GuyNeural`, `en-US-JennyNeural`, `en-US-AriaNeural` |
-| English (UK) | `en-GB-RyanNeural`, `en-GB-SoniaNeural` |
-| Spanish | `es-ES-AlvaroNeural`, `es-MX-DaliaNeural` |
-| French | `fr-FR-DeniseNeural`, `fr-FR-HenriNeural` |
-| German | `de-DE-ConradNeural`, `de-DE-KatjaNeural` |
-| Japanese | `ja-JP-NanamiNeural`, `ja-JP-KeitaNeural` |
-| Chinese | `zh-CN-XiaoxiaoNeural`, `zh-CN-YunxiNeural` |
-| Korean | `ko-KR-SunHiNeural`, `ko-KR-InJoonNeural` |
-| Portuguese | `pt-BR-FranciscaNeural`, `pt-PT-DuarteNeural` |
-| Italian | `it-IT-ElsaNeural`, `it-IT-DiegoNeural` |
+| English (UK) | `en-GB-RyanNeural`, `en-GB-SoniaNeural`                    |
+| Spanish      | `es-ES-AlvaroNeural`, `es-MX-DaliaNeural`                  |
+| French       | `fr-FR-DeniseNeural`, `fr-FR-HenriNeural`                  |
+| German       | `de-DE-ConradNeural`, `de-DE-KatjaNeural`                  |
+| Japanese     | `ja-JP-NanamiNeural`, `ja-JP-KeitaNeural`                  |
+| Chinese      | `zh-CN-XiaoxiaoNeural`, `zh-CN-YunxiNeural`                |
+| Korean       | `ko-KR-SunHiNeural`, `ko-KR-InJoonNeural`                  |
+| Portuguese   | `pt-BR-FranciscaNeural`, `pt-PT-DuarteNeural`              |
+| Italian      | `it-IT-ElsaNeural`, `it-IT-DiegoNeural`                    |
 
 ---
 
@@ -182,6 +182,7 @@ audio = tts.synthesize(
 ```
 
 ### Requirements
+
 - 5-8 second reference audio
 - Transcription of reference
 - GPU recommended
@@ -208,11 +209,13 @@ tts.tts_to_file(
 ```
 
 ### Pros
+
 - Multi-language cloning
 - Open source
 - Good quality
 
 ### Cons
+
 - GPU required
 - Slower than Kokoro
 
@@ -320,12 +323,12 @@ await communicate.save("output.mp3")
 
 ### SSML Elements
 
-| Element | Purpose |
-|---------|---------|
-| `<break>` | Pause |
-| `<prosody>` | Rate, pitch, volume |
-| `<emphasis>` | Stress words |
-| `<say-as>` | Interpret as date, number, etc. |
+| Element      | Purpose                         |
+| ------------ | ------------------------------- |
+| `<break>`    | Pause                           |
+| `<prosody>`  | Rate, pitch, volume             |
+| `<emphasis>` | Stress words                    |
+| `<say-as>`   | Interpret as date, number, etc. |
 
 ---
 
@@ -344,13 +347,13 @@ interface TTSService {
 class HybridTTSService implements TTSService {
   private kokoro: KokoroClient;
   private edge: EdgeTTSClient;
-  
+
   async generate(text: string, voice: string): Promise<Buffer> {
     // Kokoro for English
     if (voice.startsWith('af_') || voice.startsWith('am_')) {
       return this.kokoro.generate(text, voice);
     }
-    
+
     // EdgeTTS for other languages
     return this.edge.generate(text, voice);
   }
@@ -363,9 +366,9 @@ class HybridTTSService implements TTSService {
 // POST /api/tts
 app.post('/api/tts', async (req, res) => {
   const { text, voice, format } = req.body;
-  
+
   const audio = await ttsService.generate(text, voice);
-  
+
   res.set('Content-Type', `audio/${format || 'mp3'}`);
   res.send(audio);
 });
@@ -376,15 +379,15 @@ app.post('/api/tts', async (req, res) => {
 ```typescript
 async function generateAudioForScenes(scenes: Scene[]): Promise<string> {
   const segments: Buffer[] = [];
-  
+
   for (const scene of scenes) {
     const audio = await ttsService.generate(scene.text, scene.voice);
     segments.push(audio);
   }
-  
+
   // Concatenate with pauses
   const final = concatenateAudio(segments, { pauseMs: 300 });
-  
+
   // Save and return path
   const outputPath = `audio/${Date.now()}.mp3`;
   await fs.writeFile(outputPath, final);
@@ -396,14 +399,14 @@ async function generateAudioForScenes(scenes: Scene[]): Promise<string> {
 
 ## Cost Comparison
 
-| Option | Cost/1M chars | Quality | Languages |
-|--------|---------------|---------|-----------|
-| **Kokoro** | $0 | Excellent | English |
-| **EdgeTTS** | $0 | Good | 30+ |
-| **F5-TTS** | $0 (GPU) | Excellent | Multi |
-| **Coqui** | $0 (GPU) | Excellent | Multi |
-| **OpenAI** | $15 | Excellent | Multi |
-| **ElevenLabs** | $30 | Excellent | Multi |
+| Option         | Cost/1M chars | Quality   | Languages |
+| -------------- | ------------- | --------- | --------- |
+| **Kokoro**     | $0            | Excellent | English   |
+| **EdgeTTS**    | $0            | Good      | 30+       |
+| **F5-TTS**     | $0 (GPU)      | Excellent | Multi     |
+| **Coqui**      | $0 (GPU)      | Excellent | Multi     |
+| **OpenAI**     | $15           | Excellent | Multi     |
+| **ElevenLabs** | $30           | Excellent | Multi     |
 
 ---
 

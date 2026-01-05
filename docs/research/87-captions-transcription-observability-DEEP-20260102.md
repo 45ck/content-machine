@@ -37,16 +37,17 @@ Audio Input → Log-Mel Spectrogram → Transformer Encoder → Transformer Deco
 
 **Available Models:**
 
-| Size | Parameters | VRAM | Speed | Use Case |
-|------|------------|------|-------|----------|
-| tiny | 39M | ~1GB | 10x | Quick prototyping |
-| base | 74M | ~1GB | 7x | Development |
-| small | 244M | ~2GB | 4x | Good balance |
-| medium | 769M | ~5GB | 2x | High accuracy |
-| large | 1550M | ~10GB | 1x | Production |
-| **turbo** | 809M | ~6GB | **8x** | **Production (optimized)** |
+| Size      | Parameters | VRAM  | Speed  | Use Case                   |
+| --------- | ---------- | ----- | ------ | -------------------------- |
+| tiny      | 39M        | ~1GB  | 10x    | Quick prototyping          |
+| base      | 74M        | ~1GB  | 7x     | Development                |
+| small     | 244M       | ~2GB  | 4x     | Good balance               |
+| medium    | 769M       | ~5GB  | 2x     | High accuracy              |
+| large     | 1550M      | ~10GB | 1x     | Production                 |
+| **turbo** | 809M       | ~6GB  | **8x** | **Production (optimized)** |
 
 **Key Features:**
+
 - Multilingual support (99+ languages)
 - Speech translation (non-English → English)
 - Language identification
@@ -94,6 +95,7 @@ result = whisper.decode(model, mel, options)
 ```
 
 **Limitations:**
+
 - Segment-level timestamps only (not word-level)
 - No speaker diarization
 - Sequential processing (not batched)
@@ -147,14 +149,14 @@ result = model.transcribe(audio, batch_size=16)
 
 # 3. Align for word-level timestamps
 model_a, metadata = whisperx.load_align_model(
-    language_code=result["language"], 
+    language_code=result["language"],
     device=device
 )
 result = whisperx.align(
-    result["segments"], 
-    model_a, 
-    metadata, 
-    audio, 
+    result["segments"],
+    model_a,
+    metadata,
+    audio,
     device,
     return_char_alignments=False
 )
@@ -188,15 +190,16 @@ result = whisperx.assign_word_speakers(diarize_segments, result)
 
 **Performance Benchmarks:**
 
-| Feature | Standard Whisper | WhisperX |
-|---------|-----------------|----------|
-| Batched inference | No | Yes (16-32 samples) |
-| Speed (vs realtime) | 1-5x | **70x** |
-| Timestamp granularity | Segment | **Word** |
-| Speaker diarization | No | **Yes** |
-| Memory efficiency | Moderate | High (int8 support) |
+| Feature               | Standard Whisper | WhisperX            |
+| --------------------- | ---------------- | ------------------- |
+| Batched inference     | No               | Yes (16-32 samples) |
+| Speed (vs realtime)   | 1-5x             | **70x**             |
+| Timestamp granularity | Segment          | **Word**            |
+| Speaker diarization   | No               | **Yes**             |
+| Memory efficiency     | Moderate         | High (int8 support) |
 
 **Critical for Content-Machine:**
+
 - Word-level timestamps enable precise caption animation
 - Speaker diarization enables multi-person video support
 - 70x speedup enables real-time processing
@@ -213,6 +216,7 @@ result = whisperx.assign_word_speakers(diarize_segments, result)
 Simple GUI application for creating Instagram/TikTok/Reels style subtitles. Uses moviepy for video editing and Whisper for transcription.
 
 **Features:**
+
 - Word-by-word highlighting
 - Customizable colors
 - Automatic timestamp reuse
@@ -233,6 +237,7 @@ End-user tool for quick subtitle generation without programming.
 Desktop application for video subtitle generation with highlighting and color customization.
 
 **Features:**
+
 - Word-by-word highlighting
 - Customizable subtitle colors
 - Timestamp reuse
@@ -254,14 +259,14 @@ Langfuse is a battle-tested LLM observability platform used by applications serv
 
 **Core Features:**
 
-| Feature | Description |
-|---------|-------------|
-| **Tracing** | Instrument app to track LLM calls, retrieval, embedding, agent actions |
-| **Prompt Management** | Version control, collaborative editing, caching |
-| **Evaluations** | LLM-as-judge, user feedback, manual labeling, custom pipelines |
-| **Datasets** | Test sets, benchmarks, pre-deployment testing |
-| **Playground** | Test prompts/model configs interactively |
-| **API** | OpenAPI spec, Python/JS SDKs |
+| Feature               | Description                                                            |
+| --------------------- | ---------------------------------------------------------------------- |
+| **Tracing**           | Instrument app to track LLM calls, retrieval, embedding, agent actions |
+| **Prompt Management** | Version control, collaborative editing, caching                        |
+| **Evaluations**       | LLM-as-judge, user feedback, manual labeling, custom pipelines         |
+| **Datasets**          | Test sets, benchmarks, pre-deployment testing                          |
+| **Playground**        | Test prompts/model configs interactively                               |
+| **API**               | OpenAPI spec, Python/JS SDKs                                           |
 
 **Deployment Options:**
 
@@ -277,14 +282,14 @@ docker compose up
 
 **Integration Methods:**
 
-| Integration | Language | Method |
-|-------------|----------|--------|
-| SDK | Python, JS/TS | Manual instrumentation |
-| OpenAI | Python, JS/TS | Drop-in replacement |
-| LangChain | Python, JS/TS | Callback handler |
-| LlamaIndex | Python | Callback system |
-| Vercel AI SDK | JS/TS | Built-in support |
-| LiteLLM | Python, JS/TS | Proxy support |
+| Integration   | Language      | Method                 |
+| ------------- | ------------- | ---------------------- |
+| SDK           | Python, JS/TS | Manual instrumentation |
+| OpenAI        | Python, JS/TS | Drop-in replacement    |
+| LangChain     | Python, JS/TS | Callback handler       |
+| LlamaIndex    | Python        | Callback system        |
+| Vercel AI SDK | JS/TS         | Built-in support       |
+| LiteLLM       | Python, JS/TS | Proxy support          |
 
 **Python SDK Usage:**
 
@@ -353,13 +358,14 @@ def evaluate_script(script: str):
     return openai.chat.completions.create(
         model="gpt-4o",
         messages=[{
-            "role": "user", 
+            "role": "user",
             "content": f"Rate this script 1-10 for engagement:\n\n{script}"
         }]
     ).choices[0].message.content
 ```
 
 **Integration with Content-Machine:**
+
 - Trace all LLM calls (script generation, trend analysis)
 - Version control prompts for different video styles
 - Evaluate script quality automatically
@@ -379,13 +385,13 @@ Promptfoo is a developer-friendly CLI tool for testing LLM applications. It supp
 
 **Key Features:**
 
-| Feature | Description |
-|---------|-------------|
-| **Evals** | Test prompts with automated assertions |
-| **Red Teaming** | Vulnerability scanning for LLM apps |
+| Feature              | Description                              |
+| -------------------- | ---------------------------------------- |
+| **Evals**            | Test prompts with automated assertions   |
+| **Red Teaming**      | Vulnerability scanning for LLM apps      |
 | **Model Comparison** | Side-by-side testing of different models |
-| **CI/CD** | Integration with GitHub Actions, etc. |
-| **Code Scanning** | PR reviews for LLM security issues |
+| **CI/CD**            | Integration with GitHub Actions, etc.    |
+| **Code Scanning**    | PR reviews for LLM security issues       |
 
 **Quick Start:**
 
@@ -405,20 +411,20 @@ npx promptfoo view
 ```yaml
 # promptfooconfig.yaml
 prompts:
-  - "Write a video script about {{topic}}"
-  
+  - 'Write a video script about {{topic}}'
+
 providers:
   - openai:gpt-4o
   - anthropic:claude-3-sonnet
 
 tests:
   - vars:
-      topic: "content-machine tutorial"
+      topic: 'content-machine tutorial'
     assert:
       - type: contains
-        value: "video"
+        value: 'video'
       - type: llm-rubric
-        value: "The script is engaging and under 60 seconds"
+        value: 'The script is engaging and under 60 seconds'
 ```
 
 **Red Teaming:**
@@ -477,11 +483,11 @@ OpenTelemetry is the industry-standard framework for collecting telemetry data (
 
 **Supported Signals:**
 
-| Signal | Status |
-|--------|--------|
-| Tracing | Stable |
-| Metrics | Stable |
-| Logs | Development |
+| Signal  | Status      |
+| ------- | ----------- |
+| Tracing | Stable      |
+| Metrics | Stable      |
+| Logs    | Development |
 
 **Installation:**
 
@@ -506,13 +512,14 @@ const sdk = new opentelemetry.NodeSDK({
     [ATTR_SERVICE_NAME]: 'content-machine',
   }),
   traceExporter: new ConsoleSpanExporter(),
-  instrumentations: [getNodeAutoInstrumentations()]
+  instrumentations: [getNodeAutoInstrumentations()],
 });
 
 sdk.start();
 
 process.on('SIGTERM', () => {
-  sdk.shutdown()
+  sdk
+    .shutdown()
     .then(() => console.log('Tracing terminated'))
     .finally(() => process.exit(0));
 });
@@ -526,14 +533,15 @@ node -r ./tracing.js app.js
 
 **Runtime Support:**
 
-| Platform | Supported |
-|----------|-----------|
-| Node.js 22 | ✅ |
-| Node.js 20 | ✅ |
-| Node.js 18 | ✅ |
-| Browsers | Experimental |
+| Platform   | Supported    |
+| ---------- | ------------ |
+| Node.js 22 | ✅           |
+| Node.js 20 | ✅           |
+| Node.js 18 | ✅           |
+| Browsers   | Experimental |
 
 **Use in Content-Machine:**
+
 - Trace video rendering pipeline
 - Monitor capture service latency
 - Track queue processing metrics
@@ -551,6 +559,7 @@ node -r ./tracing.js app.js
 Sentry is a debugging platform that helps detect, trace, and fix issues. It provides error tracking, performance monitoring, session replays, and more.
 
 **Key Features:**
+
 - Issue detection & grouping
 - Stack traces with source context
 - AI-powered issue analysis (Seer)
@@ -561,26 +570,26 @@ Sentry is a debugging platform that helps detect, trace, and fix issues. It prov
 
 **SDK Support:**
 
-| Language | SDK |
-|----------|-----|
-| JavaScript | sentry-javascript |
-| Python | sentry-python |
-| Go | sentry-go |
-| Rust | sentry-rust |
-| Ruby | sentry-ruby |
-| PHP | sentry-php |
-| C# | sentry-dotnet |
-| Java/Kotlin | sentry-java |
-| Swift | sentry-cocoa |
+| Language     | SDK                 |
+| ------------ | ------------------- |
+| JavaScript   | sentry-javascript   |
+| Python       | sentry-python       |
+| Go           | sentry-go           |
+| Rust         | sentry-rust         |
+| Ruby         | sentry-ruby         |
+| PHP          | sentry-php          |
+| C#           | sentry-dotnet       |
+| Java/Kotlin  | sentry-java         |
+| Swift        | sentry-cocoa        |
 | React Native | sentry-react-native |
 
 **JavaScript Setup:**
 
 ```javascript
-import * as Sentry from "@sentry/node";
+import * as Sentry from '@sentry/node';
 
 Sentry.init({
-  dsn: "https://your-dsn@sentry.io/project",
+  dsn: 'https://your-dsn@sentry.io/project',
   tracesSampleRate: 1.0,
 });
 
@@ -594,6 +603,7 @@ try {
 ```
 
 **Use in Content-Machine:**
+
 - Capture rendering errors with context
 - Monitor production pipeline health
 - Track performance regressions
@@ -605,22 +615,22 @@ try {
 
 ### Caption/Transcription Layer
 
-| Use Case | Primary Tool | Fallback |
-|----------|--------------|----------|
-| **Fast transcription** | WhisperX (70x speed) | faster-whisper |
-| **Word-level timestamps** | WhisperX (wav2vec2) | Whisper + post-process |
-| **Speaker diarization** | WhisperX (pyannote) | pyannote standalone |
-| **Translation** | Whisper medium/large | DeepL API |
+| Use Case                  | Primary Tool         | Fallback               |
+| ------------------------- | -------------------- | ---------------------- |
+| **Fast transcription**    | WhisperX (70x speed) | faster-whisper         |
+| **Word-level timestamps** | WhisperX (wav2vec2)  | Whisper + post-process |
+| **Speaker diarization**   | WhisperX (pyannote)  | pyannote standalone    |
+| **Translation**           | Whisper medium/large | DeepL API              |
 
 ### Observability Layer
 
-| Use Case | Primary Tool | Fallback |
-|----------|--------------|----------|
-| **LLM Tracing** | Langfuse | OpenTelemetry |
-| **Prompt Testing** | Promptfoo | Langfuse evals |
-| **Error Tracking** | Sentry | Langfuse + logging |
-| **Distributed Tracing** | OpenTelemetry | Sentry performance |
-| **LLM Security** | Promptfoo red team | Manual testing |
+| Use Case                | Primary Tool       | Fallback           |
+| ----------------------- | ------------------ | ------------------ |
+| **LLM Tracing**         | Langfuse           | OpenTelemetry      |
+| **Prompt Testing**      | Promptfoo          | Langfuse evals     |
+| **Error Tracking**      | Sentry             | Langfuse + logging |
+| **Distributed Tracing** | OpenTelemetry      | Sentry performance |
+| **LLM Security**        | Promptfoo red team | Manual testing     |
 
 ---
 
@@ -697,15 +707,15 @@ class CaptionPipeline:
     ):
         self.device = device
         self.enable_diarization = enable_diarization
-        
+
         # Load transcription model
         self.model = whisperx.load_model(
             model_size, device, compute_type=compute_type
         )
-        
+
         # Load alignment model (lazy loaded per language)
         self.align_models = {}
-        
+
         # Load diarization model if enabled
         if enable_diarization and hf_token:
             self.diarize_model = whisperx.DiarizationPipeline(
@@ -713,32 +723,32 @@ class CaptionPipeline:
             )
         else:
             self.diarize_model = None
-    
+
     def transcribe(self, audio_path: str, batch_size: int = 16) -> List[CaptionSegment]:
         # Load audio
         audio = whisperx.load_audio(audio_path)
-        
+
         # Step 1: Transcribe
         result = self.model.transcribe(audio, batch_size=batch_size)
         language = result["language"]
-        
+
         # Step 2: Align for word-level timestamps
         if language not in self.align_models:
             model_a, metadata = whisperx.load_align_model(
                 language_code=language, device=self.device
             )
             self.align_models[language] = (model_a, metadata)
-        
+
         model_a, metadata = self.align_models[language]
         result = whisperx.align(
             result["segments"], model_a, metadata, audio, self.device
         )
-        
+
         # Step 3: Diarize if enabled
         if self.diarize_model:
             diarize_segments = self.diarize_model(audio)
             result = whisperx.assign_word_speakers(diarize_segments, result)
-        
+
         # Convert to dataclass format
         segments = []
         for seg in result["segments"]:
@@ -759,7 +769,7 @@ class CaptionPipeline:
                 words=words,
                 speaker=seg.get("speaker")
             ))
-        
+
         return segments
 ```
 
@@ -767,13 +777,13 @@ class CaptionPipeline:
 
 ```typescript
 // observability.ts
-import { Langfuse, observeOpenAI } from "langfuse";
-import OpenAI from "openai";
+import { Langfuse, observeOpenAI } from 'langfuse';
+import OpenAI from 'openai';
 
 const langfuse = new Langfuse({
   publicKey: process.env.LANGFUSE_PUBLIC_KEY!,
   secretKey: process.env.LANGFUSE_SECRET_KEY!,
-  baseUrl: process.env.LANGFUSE_HOST
+  baseUrl: process.env.LANGFUSE_HOST,
 });
 
 // Wrap OpenAI for automatic tracing
@@ -781,45 +791,44 @@ const openai = observeOpenAI(new OpenAI(), { client: langfuse });
 
 export async function generateScript(topic: string, style: string): Promise<string> {
   const trace = langfuse.trace({
-    name: "generate_script",
-    metadata: { topic, style }
+    name: 'generate_script',
+    metadata: { topic, style },
   });
-  
+
   try {
     // Get versioned prompt
-    const prompt = await langfuse.getPrompt("video_script");
-    
+    const prompt = await langfuse.getPrompt('video_script');
+
     const generation = trace.generation({
-      name: "script_generation",
-      model: "gpt-4o",
-      input: { topic, style }
+      name: 'script_generation',
+      model: 'gpt-4o',
+      input: { topic, style },
     });
-    
+
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: 'gpt-4o',
       messages: [
-        { role: "system", content: prompt.prompt },
-        { role: "user", content: `Topic: ${topic}\nStyle: ${style}` }
-      ]
+        { role: 'system', content: prompt.prompt },
+        { role: 'user', content: `Topic: ${topic}\nStyle: ${style}` },
+      ],
     });
-    
+
     const script = response.choices[0].message.content!;
-    
+
     generation.end({
       output: script,
       usage: {
         promptTokens: response.usage?.prompt_tokens,
-        completionTokens: response.usage?.completion_tokens
-      }
+        completionTokens: response.usage?.completion_tokens,
+      },
     });
-    
+
     trace.update({ output: script });
     return script;
-    
   } catch (error) {
-    trace.update({ 
-      statusMessage: error instanceof Error ? error.message : "Unknown error",
-      level: "ERROR"
+    trace.update({
+      statusMessage: error instanceof Error ? error.message : 'Unknown error',
+      level: 'ERROR',
     });
     throw error;
   } finally {
@@ -836,13 +845,13 @@ description: Content-Machine Script Evaluation
 
 prompts:
   - id: video_script_v1
-    label: "Basic Script"
+    label: 'Basic Script'
     raw: |
       Write a 30-second video script about {{topic}}.
       Style: {{style}}
-      
-  - id: video_script_v2  
-    label: "Enhanced Script"
+
+  - id: video_script_v2
+    label: 'Enhanced Script'
     raw: |
       Create an engaging 30-second video script about {{topic}}.
       Style: {{style}}
@@ -858,28 +867,28 @@ providers:
 
 tests:
   - vars:
-      topic: "VS Code extensions"
-      style: "educational"
+      topic: 'VS Code extensions'
+      style: 'educational'
     assert:
       - type: contains-any
-        value: ["extension", "VS Code", "Visual Studio"]
+        value: ['extension', 'VS Code', 'Visual Studio']
       - type: llm-rubric
-        value: "Script has a clear hook in the first sentence"
+        value: 'Script has a clear hook in the first sentence'
       - type: llm-rubric
-        value: "Script is under 150 words for 30-second delivery"
+        value: 'Script is under 150 words for 30-second delivery'
       - type: javascript
         value: output.length < 800
-        
+
   - vars:
-      topic: "GitHub Copilot"  
-      style: "promotional"
+      topic: 'GitHub Copilot'
+      style: 'promotional'
     assert:
       - type: contains
-        value: "Copilot"
+        value: 'Copilot'
       - type: llm-rubric
-        value: "Script highlights key benefits"
+        value: 'Script highlights key benefits'
       - type: not-contains
-        value: ["competitor", "alternative"]
+        value: ['competitor', 'alternative']
 
 # Red team tests
 redteam:
@@ -896,23 +905,27 @@ redteam:
 ## Key Insights
 
 ### 1. WhisperX is Essential for Caption Quality
+
 - Standard Whisper only provides segment-level timestamps
 - Word-level alignment via wav2vec2 enables smooth caption animation
 - 70x speedup makes real-time processing feasible
 - Speaker diarization enables multi-person video support
 
 ### 2. Langfuse vs OpenTelemetry
+
 - **Langfuse**: Purpose-built for LLM apps (prompt management, evals, cost tracking)
 - **OpenTelemetry**: General-purpose (HTTP traces, metrics, vendor-neutral)
 - **Recommendation**: Use Langfuse for LLM-specific observability, OpenTelemetry for infrastructure
 
 ### 3. Promptfoo for CI/CD LLM Testing
+
 - Red teaming catches prompt injection vulnerabilities
 - Automated evals prevent quality regressions
 - Model comparison helps choose cost-effective options
 - Integrates with Langfuse for combined testing + production monitoring
 
 ### 4. Error Tracking is Critical
+
 - Video pipelines have many failure points (API limits, rendering errors, encoding issues)
 - Sentry provides context-rich error reports
 - AI-assisted debugging accelerates resolution

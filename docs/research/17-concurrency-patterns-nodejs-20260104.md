@@ -2,7 +2,7 @@
 
 **Date:** 2026-01-04  
 **Type:** Research Report  
-**Status:** Complete  
+**Status:** Complete
 
 ## Executive Summary
 
@@ -91,7 +91,7 @@ for (const dir of dirs) {
   promises.push(
     p(() => {
       return $`bun publish --tolerate-republish`.cwd(packagePath);
-    }),
+    })
   );
 }
 
@@ -99,6 +99,7 @@ await Promise.all(promises);
 ```
 
 **Key Points:**
+
 - Wraps each async operation with the limiter
 - Still uses `Promise.all` for final resolution
 - Limits concurrent execution to N operations
@@ -112,7 +113,7 @@ await Promise.all(promises);
 **File:** [vendor/render/remotion/packages/renderer/src/pool.ts](../../vendor/render/remotion/packages/renderer/src/pool.ts)
 
 ```typescript
-import type {Page} from './browser/BrowserPage';
+import type { Page } from './browser/BrowserPage';
 
 export class Pool {
   resources: Page[];
@@ -151,6 +152,7 @@ export class Pool {
 ```
 
 **Usage Pattern:**
+
 ```typescript
 // Initialize pool with N browser pages
 const pool = new Pool(puppeteerPages);
@@ -165,6 +167,7 @@ try {
 ```
 
 **Key Points:**
+
 - Pre-allocate resources (browser tabs are expensive to create)
 - Acquire blocks if no resources available
 - Always release in finally block
@@ -206,12 +209,12 @@ export class ShortCreator {
       return;
     }
     const { sceneInput, config, id } = this.queue[0];
-    
+
     try {
       await this.createShort(id, sceneInput, config);
-      logger.debug({ id }, "Video created successfully");
+      logger.debug({ id }, 'Video created successfully');
     } catch (error: unknown) {
-      logger.error(error, "Error creating video");
+      logger.error(error, 'Error creating video');
     } finally {
       this.queue.shift(); // Remove processed item
       this.processQueue(); // Process next
@@ -221,6 +224,7 @@ export class ShortCreator {
 ```
 
 **Key Points:**
+
 - Sequential processing (one video at a time)
 - Non-blocking `addToQueue` returns immediately with ID
 - Client polls for status
@@ -280,6 +284,7 @@ class TaskManager:
 ```
 
 **TypeScript Equivalent:**
+
 ```typescript
 class TaskManager {
   private maxConcurrent: number;
@@ -294,7 +299,7 @@ class TaskManager {
     if (this.currentTasks < this.maxConcurrent) {
       return this.executeTask(fn);
     }
-    
+
     // Queue the task
     return new Promise((resolve, reject) => {
       this.queue.push(async () => {
@@ -402,7 +407,7 @@ export const startCompositor = <T extends keyof CompositorCommand>({
   binariesDirectory = null,
 }: CompositorOptions): Compositor => {
   const bin = getExecutablePath({ type: 'compositor', ... });
-  
+
   const child = spawn(bin, [JSON.stringify(fullCommand)], {
     cwd: path.dirname(bin),
   });
@@ -430,24 +435,25 @@ export const startCompositor = <T extends keyof CompositorCommand>({
     ) => {
       return new Promise<Uint8Array>((resolve, reject) => {
         const nonce = makeNonce();
-        
+
         child.stdin.write(JSON.stringify({ nonce, payload: { type: command, params }}) + '\n');
-        
+
         // Store resolver to be called when response arrives
         waiters.set(nonce, { resolve, reject });
       });
     },
-    
+
     finishCommands: () => new Promise((resolve, reject) => {
       child.stdin.write('EOF\n', (e) => e ? reject(e) : resolve());
     }),
-    
+
     pid: child.pid ?? null,
   };
 };
 ```
 
 **Key Points:**
+
 - Use nonce-based request/response correlation
 - Keep subprocess alive for multiple commands
 - Clean up waiters on process exit
@@ -487,8 +493,10 @@ export const renderPartitions = ({
         // Find partition with most remaining work
         let longestPartitionIndex = -1;
         for (let i = 0; i < partitions.length; i++) {
-          if (longestPartitionIndex === -1 || 
-              partitions[i].length > partitions[longestPartitionIndex].length) {
+          if (
+            longestPartitionIndex === -1 ||
+            partitions[i].length > partitions[longestPartitionIndex].length
+          ) {
             longestPartitionIndex = i;
           }
         }
@@ -506,6 +514,7 @@ export const renderPartitions = ({
 ```
 
 **Key Points:**
+
 - Divide work upfront by concurrency level
 - Work stealing for load balancing
 - Prevents idle workers while others have large backlogs
@@ -519,7 +528,7 @@ export const renderPartitions = ({
 **File:** [vendor/render/remotion/packages/renderer/src/get-concurrency.ts](../../vendor/render/remotion/packages/renderer/src/get-concurrency.ts)
 
 ```typescript
-import {getCpuCount} from './get-cpu-count';
+import { getCpuCount } from './get-cpu-count';
 
 export const resolveConcurrency = (userPreference: number | string | null) => {
   const maxCpus = getCpuCount();
@@ -541,6 +550,7 @@ export const resolveConcurrency = (userPreference: number | string | null) => {
 ```
 
 **Key Points:**
+
 - Sensible defaults (half CPUs, capped at 8)
 - Support percentage-based configuration
 - Validate against system limits
@@ -618,11 +628,12 @@ await Promise.all(
       poolPromise,
       // ... other options
     });
-  }),
+  })
 );
 ```
 
 **Key Points:**
+
 - `Promise.all` creates all promises immediately
 - Pool internally manages actual concurrency
 - Each render task acquires from pool, releases when done
@@ -636,8 +647,8 @@ await Promise.all(
 **File:** [vendor/short-video-maker-gyori/src/short-creator/libraries/FFmpeg.ts](../../vendor/short-video-maker-gyori/src/short-creator/libraries/FFmpeg.ts)
 
 ```typescript
-import ffmpeg from "fluent-ffmpeg";
-import { Readable } from "node:stream";
+import ffmpeg from 'fluent-ffmpeg';
+import { Readable } from 'node:stream';
 
 export class FFMpeg {
   async saveNormalizedAudio(audio: ArrayBuffer, outputPath: string): Promise<string> {
@@ -648,16 +659,16 @@ export class FFMpeg {
     return new Promise((resolve, reject) => {
       ffmpeg()
         .input(inputStream)
-        .audioCodec("pcm_s16le")
+        .audioCodec('pcm_s16le')
         .audioChannels(1)
         .audioFrequency(16000)
-        .toFormat("wav")
-        .on("end", () => {
-          logger.debug("Audio normalization complete");
+        .toFormat('wav')
+        .on('end', () => {
+          logger.debug('Audio normalization complete');
           resolve(outputPath);
         })
-        .on("error", (error: unknown) => {
-          logger.error(error, "Error normalizing audio:");
+        .on('error', (error: unknown) => {
+          logger.error(error, 'Error normalizing audio:');
           reject(error);
         })
         .save(outputPath);
@@ -668,22 +679,22 @@ export class FFMpeg {
     const inputStream = new Readable();
     inputStream.push(Buffer.from(audio));
     inputStream.push(null);
-    
+
     return new Promise((resolve, reject) => {
       const chunks: Buffer[] = [];
 
       ffmpeg()
         .input(inputStream)
-        .audioCodec("libmp3lame")
-        .toFormat("mp3")
-        .on("error", reject)
+        .audioCodec('libmp3lame')
+        .toFormat('mp3')
+        .on('error', reject)
         .pipe()
-        .on("data", (data: Buffer) => chunks.push(data))
-        .on("end", () => {
+        .on('data', (data: Buffer) => chunks.push(data))
+        .on('end', () => {
           const buffer = Buffer.concat(chunks);
-          resolve(`data:audio/mp3;base64,${buffer.toString("base64")}`);
+          resolve(`data:audio/mp3;base64,${buffer.toString('base64')}`);
         })
-        .on("error", reject);
+        .on('error', reject);
     });
   }
 }
@@ -721,11 +732,12 @@ def subprocess_call(cmd, logger="bar"):
 
     if proc.returncode:
         raise IOError(err.decode("utf8"))
-    
+
     del proc  # Explicit cleanup
 ```
 
 **TypeScript Equivalent:**
+
 ```typescript
 import { spawn, SpawnOptions } from 'child_process';
 
@@ -733,7 +745,7 @@ function crossPlatformSpawnOptions(options: SpawnOptions = {}): SpawnOptions {
   if (process.platform === 'win32') {
     return {
       ...options,
-      windowsHide: true,  // Node.js equivalent
+      windowsHide: true, // Node.js equivalent
     };
   }
   return options;
@@ -745,28 +757,32 @@ function crossPlatformSpawnOptions(options: SpawnOptions = {}): SpawnOptions {
 ## Summary: Recommended Patterns for content-machine
 
 ### For API Calls (Pexels, Reddit, etc.)
+
 Use **p-limit** pattern:
+
 ```typescript
 import pLimit from 'p-limit';
 const limit = pLimit(5); // 5 concurrent API calls
 
-const results = await Promise.all(
-  urls.map(url => limit(() => fetch(url)))
-);
+const results = await Promise.all(urls.map((url) => limit(() => fetch(url))));
 ```
 
 ### For Video Rendering (Remotion)
+
 Use **concurrency config** passed to renderMedia:
+
 ```typescript
 await renderMedia({
   composition,
-  codec: "h264",
+  codec: 'h264',
   concurrency: config.concurrency ?? Math.min(8, os.cpus().length / 2),
 });
 ```
 
 ### For Sequential Video Queue
+
 Use **queue pattern** from short-video-maker-gyori:
+
 ```typescript
 class VideoQueue {
   private queue: VideoJob[] = [];
@@ -795,7 +811,9 @@ class VideoQueue {
 ```
 
 ### For Child Processes (FFmpeg, Whisper)
+
 Use **execa** for Promise-based execution with cancellation:
+
 ```typescript
 import execa from 'execa';
 
@@ -805,6 +823,7 @@ await task;
 ```
 
 ### For Browser Tab Pool
+
 Use **Pool pattern** from Remotion when managing expensive resources.
 
 ---

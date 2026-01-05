@@ -11,6 +11,7 @@
 This document analyzes the complete data connector and ingestion infrastructure in the vendor directory. These components enable content-machine to gather trends, content, and media from external sources for video generation.
 
 **Stack Recommendation:**
+
 - **Reddit:** reddit-mcp-ts (TypeScript MCP server, full CRUD)
 - **YouTube:** youtube-transcript-api (transcripts) + yt-dlp (downloads)
 - **Trends:** pytrends (Google Trends API)
@@ -30,28 +31,30 @@ This document analyzes the complete data connector and ingestion infrastructure 
 
 **Available Tools:**
 
-| Tool | Authentication | Description |
-|------|----------------|-------------|
-| `get_reddit_post` | Client | Get specific Reddit post |
-| `get_top_posts` | Client | Get top posts from subreddit |
-| `get_user_info` | Client | Get user information |
-| `get_subreddit_info` | Client | Get subreddit details |
-| `get_trending_subreddits` | Client | Get trending subreddits |
-| `search_reddit` | Client | Search posts with filters |
-| `get_post_comments` | Client | Get post comments |
-| `get_user_posts` | Client | Get user's posts |
-| `get_user_comments` | Client | Get user's comments |
-| `create_post` | User | Create new post |
-| `reply_to_post` | User | Reply to post |
-| `edit_post` | User | Edit own post |
-| `delete_post` | User | Delete own post |
+| Tool                      | Authentication | Description                  |
+| ------------------------- | -------------- | ---------------------------- |
+| `get_reddit_post`         | Client         | Get specific Reddit post     |
+| `get_top_posts`           | Client         | Get top posts from subreddit |
+| `get_user_info`           | Client         | Get user information         |
+| `get_subreddit_info`      | Client         | Get subreddit details        |
+| `get_trending_subreddits` | Client         | Get trending subreddits      |
+| `search_reddit`           | Client         | Search posts with filters    |
+| `get_post_comments`       | Client         | Get post comments            |
+| `get_user_posts`          | Client         | Get user's posts             |
+| `get_user_comments`       | Client         | Get user's comments          |
+| `create_post`             | User           | Create new post              |
+| `reply_to_post`           | User           | Reply to post                |
+| `edit_post`               | User           | Edit own post                |
+| `delete_post`             | User           | Delete own post              |
 
 **Installation:**
+
 ```bash
 npx -y @smithery/cli install reddit-mcp-server --client claude
 ```
 
 **Claude Desktop Config:**
+
 ```json
 {
   "mcpServers": {
@@ -70,11 +73,13 @@ npx -y @smithery/cli install reddit-mcp-server --client claude
 ```
 
 **HTTP Mode (FastMCP):**
+
 ```bash
 PORT=8080 node dist/index.js
 ```
 
 **Content-Machine Integration:**
+
 - Primary connector for Reddit trend research
 - MCP-native for AI agent integration
 - TypeScript for consistency with render pipeline
@@ -82,13 +87,15 @@ PORT=8080 node dist/index.js
 
 ### 1.2 PRAW / AsyncPRAW
 
-**Repositories:** 
+**Repositories:**
+
 - `vendor/connectors/reddit/praw/`
 - `vendor/connectors/reddit/asyncpraw/`
 
 **Purpose:** Official Python Reddit API wrappers
 
 **Basic Usage:**
+
 ```python
 import praw
 
@@ -105,6 +112,7 @@ for post in subreddit.top(limit=10, time_filter="day"):
 ```
 
 **AsyncPRAW:**
+
 ```python
 import asyncpraw
 
@@ -120,6 +128,7 @@ async def get_posts():
 ```
 
 **Content-Machine Integration:**
+
 - Python alternative for backend services
 - AsyncPRAW for high-concurrency trend scraping
 - Full Reddit API coverage
@@ -135,11 +144,13 @@ async def get_posts():
 **License:** MIT
 
 **Installation:**
+
 ```bash
 pip install youtube-transcript-api
 ```
 
 **Basic Usage:**
+
 ```python
 from youtube_transcript_api import YouTubeTranscriptApi
 
@@ -158,6 +169,7 @@ raw_data = transcript.to_raw_data()
 ```
 
 **Multi-Language Support:**
+
 ```python
 # Specify language preference (fallback order)
 transcript = ytt_api.fetch("video_id", languages=['de', 'en'])
@@ -172,6 +184,7 @@ german = transcript_list.find_transcript(['de'])
 ```
 
 **Translation:**
+
 ```python
 # Translate to English
 transcript_list = ytt_api.list("video_id")
@@ -180,6 +193,7 @@ translated = transcript.translate('en')
 ```
 
 **Content-Machine Integration:**
+
 - Source transcripts for research
 - Study competitor video scripts
 - No Selenium required (API-based)
@@ -191,12 +205,14 @@ translated = transcript.translate('en')
 **License:** Unlicense
 
 **Installation:**
+
 ```bash
 pip install yt-dlp
 # Or download binary
 ```
 
 **Basic Usage:**
+
 ```bash
 # Download video
 yt-dlp "https://youtube.com/watch?v=VIDEO_ID"
@@ -212,6 +228,7 @@ yt-dlp --write-auto-subs --sub-lang en "URL"
 ```
 
 **Python API:**
+
 ```python
 import yt_dlp
 
@@ -225,7 +242,7 @@ def download_audio(url: str, output_path: str):
         }],
         'outtmpl': output_path,
     }
-    
+
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url, download=True)
         return info
@@ -242,6 +259,7 @@ def get_video_info(url: str):
 ```
 
 **Content-Machine Integration:**
+
 - Download reference videos for study
 - Extract audio for voiceover analysis
 - Get subtitles for caption styling research
@@ -258,17 +276,19 @@ def get_video_info(url: str):
 **License:** MIT
 
 **Installation:**
+
 ```bash
 pip install pytrends
 ```
 
 **Basic Usage:**
+
 ```python
 from pytrends.request import TrendReq
 
 # Initialize (with proxy support)
 pytrends = TrendReq(
-    hl='en-US', 
+    hl='en-US',
     tz=360,
     timeout=(10, 25),
     retries=2,
@@ -286,6 +306,7 @@ pytrends.build_payload(
 ```
 
 **Interest Over Time:**
+
 ```python
 # Get interest over time
 df = pytrends.interest_over_time()
@@ -298,6 +319,7 @@ print(df.head())
 ```
 
 **Related Queries:**
+
 ```python
 # Get related queries
 related = pytrends.related_queries()
@@ -310,6 +332,7 @@ related = pytrends.related_queries()
 ```
 
 **Trending Searches:**
+
 ```python
 # Daily trending searches
 trending = pytrends.trending_searches(pn='united_states')
@@ -320,6 +343,7 @@ realtime = pytrends.realtime_trending_searches(pn='US')
 ```
 
 **Content-Machine Integration:**
+
 - Discover trending topics for content
 - Analyze keyword popularity over time
 - Find rising topics before saturation
@@ -336,6 +360,7 @@ realtime = pytrends.realtime_trending_searches(pn='US')
 **License:** AGPL-3.0 (self-hosted) / Proprietary (hosted)
 
 **Features:**
+
 - Scrape pages to clean markdown
 - Crawl entire websites
 - Map site structure
@@ -343,6 +368,7 @@ realtime = pytrends.realtime_trending_searches(pn='US')
 - Handle anti-bot, JS rendering
 
 **API Usage:**
+
 ```python
 from firecrawl import Firecrawl
 
@@ -365,6 +391,7 @@ print(map_result['links'])  # All discovered URLs
 ```
 
 **LLM Extraction:**
+
 ```python
 # Extract structured data with schema
 result = fc.scrape(
@@ -384,6 +411,7 @@ print(result['extract'])  # Structured JSON
 ```
 
 **Content-Machine Integration:**
+
 - Research product documentation
 - Gather content for script generation
 - LLM-ready markdown output
@@ -396,11 +424,13 @@ print(result['extract'])  # Structured JSON
 **License:** MIT (wrapper)
 
 **Installation:**
+
 ```bash
 pip install tavily-python
 ```
 
 **Basic Search:**
+
 ```python
 from tavily import TavilyClient
 
@@ -413,6 +443,7 @@ for result in response['results']:
 ```
 
 **RAG Context Generation:**
+
 ```python
 # Get context for RAG (single string)
 context = client.get_search_context(
@@ -428,6 +459,7 @@ print(answer)  # Direct answer string
 ```
 
 **Content Extraction:**
+
 ```python
 # Extract content from URLs
 response = client.extract(
@@ -444,6 +476,7 @@ for result in response['results']:
 ```
 
 **Research API:**
+
 ```python
 # Deep research (multi-step)
 research = client.research(
@@ -454,6 +487,7 @@ print(research['report'])
 ```
 
 **Content-Machine Integration:**
+
 - Search for product information
 - Generate research context for scripts
 - Q&A for fact-checking
@@ -470,12 +504,14 @@ print(research['report'])
 **License:** Apache-2.0
 
 **Installation:**
+
 ```bash
 pip install playwright
 playwright install
 ```
 
 **Basic Screenshot:**
+
 ```python
 from playwright.sync_api import sync_playwright
 
@@ -484,13 +520,14 @@ with sync_playwright() as p:
     page = browser.new_page(
         viewport={'width': 1080, 'height': 1920}  # Vertical
     )
-    
+
     page.goto("https://example.com")
     page.screenshot(path="screenshot.png")
     browser.close()
 ```
 
 **Video Recording:**
+
 ```python
 from playwright.sync_api import sync_playwright
 
@@ -500,19 +537,20 @@ with sync_playwright() as p:
         record_video_dir="videos/",
         record_video_size={'width': 1080, 'height': 1920}
     )
-    
+
     page = context.new_page()
     page.goto("https://example.com")
-    
+
     # Interact with product
     page.click("#feature-button")
     page.wait_for_timeout(2000)
-    
+
     context.close()  # Saves video
     browser.close()
 ```
 
 **Async API:**
+
 ```python
 import asyncio
 from playwright.async_api import async_playwright
@@ -521,11 +559,11 @@ async def capture_product_demo():
     async with async_playwright() as p:
         browser = await p.chromium.launch()
         page = await browser.new_page()
-        
+
         await page.goto("https://product.example.com")
         await page.click("[data-action='demo']")
         await page.wait_for_selector(".demo-complete")
-        
+
         await page.screenshot(path="demo.png")
         await browser.close()
 
@@ -533,6 +571,7 @@ asyncio.run(capture_product_demo())
 ```
 
 **Content-Machine Integration:**
+
 - Record product UI for truthful videos
 - Capture interactions frame-by-frame
 - MCP integration (playwright-mcp)
@@ -549,6 +588,7 @@ asyncio.run(capture_product_demo())
 **License:** MIT
 
 **Features:**
+
 - OpenAI Speech endpoint compatible
 - Multi-language (English, Japanese, Chinese)
 - Voice mixing with weights
@@ -556,6 +596,7 @@ asyncio.run(capture_product_demo())
 - GPU or CPU inference
 
 **Docker Quick Start:**
+
 ```bash
 # CPU
 docker run -p 8880:8880 ghcr.io/remsky/kokoro-fastapi-cpu:latest
@@ -565,6 +606,7 @@ docker run --gpus all -p 8880:8880 ghcr.io/remsky/kokoro-fastapi-gpu:latest
 ```
 
 **OpenAI-Compatible Usage:**
+
 ```python
 from openai import OpenAI
 
@@ -583,6 +625,7 @@ with client.audio.speech.with_streaming_response.create(
 ```
 
 **Voice Mixing:**
+
 ```python
 import requests
 
@@ -604,6 +647,7 @@ response = requests.post(
 ```
 
 **Timestamps for Captions:**
+
 ```python
 # Get word-level timestamps
 response = requests.post(
@@ -625,6 +669,7 @@ data = response.json()
 ```
 
 **Content-Machine Integration:**
+
 - Primary TTS for voiceover generation
 - OpenAI-compatible API
 - Voice mixing for unique narration
@@ -642,11 +687,13 @@ data = response.json()
 **License:** MIT
 
 **Installation:**
+
 ```bash
 pip install moviepy
 ```
 
 **Basic Editing:**
+
 ```python
 from moviepy import VideoFileClip, TextClip, CompositeVideoClip
 
@@ -677,11 +724,13 @@ final.write_videofile("output.mp4")
 **License:** MIT
 
 **Installation:**
+
 ```bash
 pip install ffmperative
 ```
 
 **Usage:**
+
 ```bash
 # CLI
 ffmperative do --prompt "merge subtitles 'captions.srt' with video 'video.mp4' calling it 'video_caps.mp4'"
@@ -691,6 +740,7 @@ ffmperative compose --clips /path/to/clips --output /path/to/output.mp4 --prompt
 ```
 
 **Python:**
+
 ```python
 from ffmperative import ffmp
 
@@ -701,6 +751,7 @@ ffmp("add closed captions from 'subs.srt' to 'video.mp4'")
 ```
 
 **Content-Machine Integration:**
+
 - LLM-powered video operations
 - Natural language editing commands
 - Automatic clip composition
@@ -713,6 +764,7 @@ ffmp("add closed captions from 'subs.srt' to 'video.mp4'")
 **Language:** Chinese (primarily)
 
 **Features:**
+
 - Create drafts programmatically
 - Add videos, audio, images, stickers
 - Add captions with styling
@@ -720,6 +772,7 @@ ffmp("add closed captions from 'subs.srt' to 'video.mp4'")
 - Cloud rendering export
 
 **Docker:**
+
 ```bash
 docker pull gogoshine/capcut-mate:latest
 docker run -p 30000:30000 gogoshine/capcut-mate:latest
@@ -737,6 +790,7 @@ docker run -p 30000:30000 gogoshine/capcut-mate:latest
 | `/save_draft` | Save project |
 
 **Content-Machine Integration:**
+
 - Alternative to Remotion for CapCut users
 - Full draft automation
 - Cloud rendering integration
@@ -824,16 +878,16 @@ docker run -p 30000:30000 gogoshine/capcut-mate:latest
 
 ### 9.1 Primary Stack
 
-| Category | Tool | Reason |
-|----------|------|--------|
-| **Reddit** | reddit-mcp-ts | MCP-native, TypeScript, full CRUD |
-| **YouTube** | youtube-transcript-api + yt-dlp | No browser needed, comprehensive |
-| **Trends** | pytrends | Google Trends coverage |
-| **Web Research** | Tavily | AI-powered, RAG-ready |
-| **Web Crawling** | Firecrawl | LLM-ready markdown |
-| **UI Capture** | Playwright | Cross-browser, MCP integration |
-| **TTS** | Kokoro-FastAPI | OpenAI-compatible, voice mixing |
-| **Video Processing** | MoviePy + FFmpeg | Python-native, powerful |
+| Category             | Tool                            | Reason                            |
+| -------------------- | ------------------------------- | --------------------------------- |
+| **Reddit**           | reddit-mcp-ts                   | MCP-native, TypeScript, full CRUD |
+| **YouTube**          | youtube-transcript-api + yt-dlp | No browser needed, comprehensive  |
+| **Trends**           | pytrends                        | Google Trends coverage            |
+| **Web Research**     | Tavily                          | AI-powered, RAG-ready             |
+| **Web Crawling**     | Firecrawl                       | LLM-ready markdown                |
+| **UI Capture**       | Playwright                      | Cross-browser, MCP integration    |
+| **TTS**              | Kokoro-FastAPI                  | OpenAI-compatible, voice mixing   |
+| **Video Processing** | MoviePy + FFmpeg                | Python-native, powerful           |
 
 ### 9.2 MCP Integration Points
 
@@ -872,24 +926,24 @@ class TrendResearcher:
     def __init__(self, tavily_key: str):
         self.pytrends = TrendReq(hl='en-US', tz=360)
         self.tavily = TavilyClient(api_key=tavily_key)
-    
+
     def get_trending_topics(self, geo: str = 'US') -> List[str]:
         """Get daily trending searches."""
         df = self.pytrends.trending_searches(pn='united_states')
         return df[0].tolist()[:20]
-    
+
     def analyze_topic(self, topic: str) -> Dict:
         """Deep analyze a topic."""
         # Google Trends data
         self.pytrends.build_payload([topic], timeframe='today 3-m')
         interest = self.pytrends.interest_over_time()
         related = self.pytrends.related_queries()
-        
+
         # Tavily research
         context = self.tavily.get_search_context(
             query=f"What is {topic}? Why is it trending?"
         )
-        
+
         return {
             'topic': topic,
             'trend_score': interest[topic].mean() if not interest.empty else 0,
@@ -914,17 +968,17 @@ class ContentCollector:
     def __init__(self, firecrawl_key: str):
         self.ytt = YouTubeTranscriptApi()
         self.firecrawl = Firecrawl(api_key=firecrawl_key)
-    
+
     def get_youtube_transcript(self, video_id: str) -> str:
         """Get YouTube video transcript."""
         transcript = self.ytt.fetch(video_id)
         return " ".join([s.text for s in transcript])
-    
+
     def crawl_documentation(self, url: str) -> str:
         """Crawl product documentation."""
         result = self.firecrawl.scrape(url)
         return result.get('markdown', '')
-    
+
     def download_reference_video(self, url: str, output: str):
         """Download reference video for analysis."""
         ydl_opts = {
@@ -951,7 +1005,7 @@ class VoiceGenerator:
     def __init__(self, base_url: str = "http://localhost:8880"):
         self.client = OpenAI(base_url=f"{base_url}/v1", api_key="not-needed")
         self.base_url = base_url
-    
+
     def generate_speech(self, text: str, voice: str = "af_bella", output: str = "output.mp3"):
         """Generate speech audio."""
         with self.client.audio.speech.with_streaming_response.create(
@@ -961,7 +1015,7 @@ class VoiceGenerator:
         ) as response:
             response.stream_to_file(output)
         return output
-    
+
     def generate_with_timestamps(self, text: str, voice: str = "af_bella"):
         """Generate speech with word timestamps for captions."""
         response = requests.post(

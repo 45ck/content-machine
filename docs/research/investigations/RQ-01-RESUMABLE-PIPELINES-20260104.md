@@ -12,6 +12,7 @@
 The content-machine pipeline has no mechanism to resume from failure. If `cm visuals` crashes after downloading 8 of 10 clips, the entire stage must restart. Video rendering takes 3+ minutes—crashes waste significant time and resources.
 
 **Requirements:**
+
 - Resume from last successful operation after crash
 - Skip completed work on re-run (idempotency)
 - Atomic writes to prevent corrupted state
@@ -81,17 +82,17 @@ BullMQ provides three deduplication modes:
 ```typescript
 // Mode 1: Simple - dedupe until job completes/fails
 await queue.add('render', data, {
-  deduplication: { id: `video-${projectId}` }
+  deduplication: { id: `video-${projectId}` },
 });
 
 // Mode 2: Throttle - TTL-based window
 await queue.add('render', data, {
-  deduplication: { id: `video-${projectId}`, ttl: 5000 }
+  deduplication: { id: `video-${projectId}`, ttl: 5000 },
 });
 
 // Mode 3: Debounce - replace previous, extend TTL
 await queue.add('render', data, {
-  deduplication: { id: `video-${projectId}`, ttl: 5000, debounce: true }
+  deduplication: { id: `video-${projectId}`, ttl: 5000, debounce: true },
 });
 ```
 
@@ -104,13 +105,13 @@ Temporal activities record heartbeats with progress indices:
 ```go
 func ProcessItems(ctx context.Context, items []Item) error {
     startIndex := 0
-    
+
     // Resume from last checkpoint
     if activity.HasHeartbeatDetails(ctx) {
         activity.GetHeartbeatDetails(ctx, &startIndex)
         startIndex++  // Resume from next item
     }
-    
+
     for i := startIndex; i < len(items); i++ {
         process(items[i])
         activity.RecordHeartbeat(ctx, i)  // Checkpoint progress
@@ -137,16 +138,16 @@ function getAssetPath(url: string, assetsDir: string): string {
 
 async function downloadIfMissing(url: string, assetsDir: string): Promise<string> {
   const assetPath = getAssetPath(url, assetsDir);
-  
+
   try {
     const stat = await fs.stat(assetPath);
     if (stat.size > 0) {
-      return assetPath;  // Already downloaded
+      return assetPath; // Already downloaded
     }
   } catch {
     // File doesn't exist, proceed with download
   }
-  
+
   await downloadToPath(url, assetPath);
   return assetPath;
 }
@@ -161,16 +162,18 @@ import os from 'os';
 
 async function atomicWriteJson(filePath: string, data: unknown): Promise<void> {
   const tempPath = path.join(os.tmpdir(), `cm-${Date.now()}-${Math.random().toString(36)}`);
-  
+
   try {
     // Write to temp file
     await fs.writeFile(tempPath, JSON.stringify(data, null, 2));
-    
+
     // Atomic rename (same filesystem)
     await fs.rename(tempPath, filePath);
   } finally {
     // Cleanup temp file if rename failed
-    try { await fs.unlink(tempPath); } catch {}
+    try {
+      await fs.unlink(tempPath);
+    } catch {}
   }
 }
 ```
@@ -181,7 +184,7 @@ async function atomicWriteJson(filePath: string, data: unknown): Promise<void> {
 interface StageCheckpoint {
   stage: string;
   completedAt: string;
-  inputHash: string;  // Hash of input file content
+  inputHash: string; // Hash of input file content
   outputFiles: string[];
 }
 
@@ -191,30 +194,28 @@ async function isStageComplete(
   inputPath: string
 ): Promise<boolean> {
   const checkpointPath = path.join(projectDir, '.cm-checkpoints', `${stage}.json`);
-  
+
   try {
-    const checkpoint: StageCheckpoint = JSON.parse(
-      await fs.readFile(checkpointPath, 'utf-8')
-    );
-    
+    const checkpoint: StageCheckpoint = JSON.parse(await fs.readFile(checkpointPath, 'utf-8'));
+
     // Verify input hasn't changed
     const currentInputHash = await hashFile(inputPath);
     if (checkpoint.inputHash !== currentInputHash) {
-      return false;  // Input changed, must re-run
+      return false; // Input changed, must re-run
     }
-    
+
     // Verify all outputs exist
     for (const output of checkpoint.outputFiles) {
       try {
         await fs.access(output);
       } catch {
-        return false;  // Output missing, must re-run
+        return false; // Output missing, must re-run
       }
     }
-    
+
     return true;
   } catch {
-    return false;  // No checkpoint, must run
+    return false; // No checkpoint, must run
   }
 }
 ```
@@ -233,20 +234,20 @@ interface ProgressState {
 class ProgressTracker {
   private statePath: string;
   private state: ProgressState;
-  
+
   constructor(projectDir: string, stage: string) {
     this.statePath = path.join(projectDir, '.cm-progress', `${stage}.json`);
   }
-  
+
   async resume(): Promise<number> {
     try {
       this.state = JSON.parse(await fs.readFile(this.statePath, 'utf-8'));
-      return this.state.completed;  // Resume from here
+      return this.state.completed; // Resume from here
     } catch {
-      return 0;  // Start from beginning
+      return 0; // Start from beginning
     }
   }
-  
+
   async checkpoint(completed: number, lastItem: string): Promise<void> {
     this.state = {
       ...this.state,
@@ -263,14 +264,14 @@ class ProgressTracker {
 
 ## 4. Implementation Recommendations
 
-| Pattern | Priority | Rationale |
-|---------|----------|-----------|
-| Atomic file writes | P0 | Prevents corrupted JSON on crash |
-| Content-addressable assets | P0 | Natural idempotency for downloads |
-| Stage checkpoints | P0 | Skip completed stages on re-run |
-| Input hash validation | P1 | Detect when re-run is needed |
-| Progress tracking | P1 | Resume mid-stage after crash |
-| BullMQ deduplication | P2 | Only needed for batch processing |
+| Pattern                    | Priority | Rationale                         |
+| -------------------------- | -------- | --------------------------------- |
+| Atomic file writes         | P0       | Prevents corrupted JSON on crash  |
+| Content-addressable assets | P0       | Natural idempotency for downloads |
+| Stage checkpoints          | P0       | Skip completed stages on re-run   |
+| Input hash validation      | P1       | Detect when re-run is needed      |
+| Progress tracking          | P1       | Resume mid-stage after crash      |
+| BullMQ deduplication       | P2       | Only needed for batch processing  |
 
 ---
 

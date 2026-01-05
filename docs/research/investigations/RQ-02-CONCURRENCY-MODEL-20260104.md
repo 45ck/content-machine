@@ -10,6 +10,7 @@
 ## 1. Problem Statement
 
 The system design assumes sequential execution but doesn't address parallelism opportunities or thread safety. Missed opportunities include:
+
 - Embedding multiple visual directions in parallel
 - Downloading stock footage concurrently
 - Rendering scenes in parallel (Remotion supports this)
@@ -26,20 +27,16 @@ The system design assumes sequential execution but doesn't address parallelism o
 Remotion implements a custom p-limit for controlling concurrent operations:
 
 ```typescript
-const limit = pLimit(4);  // Max 4 concurrent operations
+const limit = pLimit(4); // Max 4 concurrent operations
 
-const results = await Promise.all(
-  items.map(item => limit(() => processItem(item)))
-);
+const results = await Promise.all(items.map((item) => limit(() => processItem(item))));
 ```
 
 **Usage in Remotion:** [vendor/render/remotion/packages/cli/src/publish.ts](../../../vendor/render/remotion/packages/cli/src/publish.ts)
 
 ```typescript
-const limit = pLimit(4);  // 4 concurrent npm publishes
-await Promise.all(
-  packages.map(pkg => limit(() => publishPackage(pkg)))
-);
+const limit = pLimit(4); // 4 concurrent npm publishes
+await Promise.all(packages.map((pkg) => limit(() => publishPackage(pkg))));
 ```
 
 ### 2.2 Resource Pool Pattern (Browser Tabs)
@@ -52,14 +49,14 @@ Remotion uses a Pool class for expensive resources like browser pages:
 class Pool<T> {
   private available: T[] = [];
   private waiters: ((resource: T) => void)[] = [];
-  
+
   async acquire(): Promise<T> {
     if (this.available.length > 0) {
       return this.available.pop()!;
     }
-    return new Promise(resolve => this.waiters.push(resolve));
+    return new Promise((resolve) => this.waiters.push(resolve));
   }
-  
+
   release(resource: T): void {
     const waiter = this.waiters.shift();
     if (waiter) {
@@ -81,19 +78,19 @@ short-video-maker-gyori uses a simple queue with sequential processing:
 class ShortCreatorService {
   private queue: Job[] = [];
   private processing: boolean = false;
-  
+
   async addJob(job: Job): Promise<void> {
     this.queue.push(job);
     if (!this.processing) {
       this.processQueue();
     }
   }
-  
+
   private async processQueue(): Promise<void> {
     this.processing = true;
     while (this.queue.length > 0) {
       const job = this.queue.shift()!;
-      await this.processJob(job);  // One at a time
+      await this.processJob(job); // One at a time
     }
     this.processing = false;
   }
@@ -129,17 +126,17 @@ function stealWork(idleWorker: number): number | null {
 ```typescript
 export function getActualConcurrency(concurrency: number | string | null): number {
   const maxCpus = os.cpus().length;
-  
+
   if (concurrency === null) {
     // Default: half of CPUs, min 1, max 8
     return Math.round(Math.min(8, Math.max(1, maxCpus / 2)));
   }
-  
+
   if (typeof concurrency === 'string' && concurrency.endsWith('%')) {
     const percentage = parseInt(concurrency) / 100;
     return Math.round(maxCpus * percentage);
   }
-  
+
   return concurrency;
 }
 ```
@@ -156,13 +153,13 @@ class TaskManager:
         self.lock = threading.Lock()
         self.max_workers = max_workers
         self.active_workers = 0
-    
+
     def submit(self, task: Callable) -> Future:
         with self.lock:
             while self.active_workers >= self.max_workers:
                 self.lock.wait()
             self.active_workers += 1
-        
+
         # Run task...
 ```
 
@@ -176,25 +173,21 @@ class TaskManager:
 import pLimit from 'p-limit';
 
 // Limit concurrent API calls to prevent rate limiting
-const embedLimit = pLimit(5);   // 5 concurrent embeddings
-const stockLimit = pLimit(3);   // 3 concurrent stock API calls
+const embedLimit = pLimit(5); // 5 concurrent embeddings
+const stockLimit = pLimit(3); // 3 concurrent stock API calls
 const downloadLimit = pLimit(4); // 4 concurrent downloads
 
 async function processScenes(scenes: Scene[]): Promise<VisualPlan> {
   // Embed all visual directions in parallel (limited)
   const embeddings = await Promise.all(
-    scenes.map(scene => embedLimit(() => 
-      embedText(scene.visualDirection)
-    ))
+    scenes.map((scene) => embedLimit(() => embedText(scene.visualDirection)))
   );
-  
+
   // Download footage in parallel (limited)
   const assets = await Promise.all(
-    scenes.map((scene, i) => downloadLimit(() =>
-      downloadFootage(scene, embeddings[i])
-    ))
+    scenes.map((scene, i) => downloadLimit(() => downloadFootage(scene, embeddings[i])))
   );
-  
+
   return { scenes: assets };
 }
 ```
@@ -206,15 +199,17 @@ class BrowserPool {
   private browser: Browser;
   private pages: Page[] = [];
   private available: Page[] = [];
-  
+
   async initialize(concurrency: number): Promise<void> {
     this.browser = await puppeteer.launch();
     this.pages = await Promise.all(
-      Array(concurrency).fill(null).map(() => this.browser.newPage())
+      Array(concurrency)
+        .fill(null)
+        .map(() => this.browser.newPage())
     );
     this.available = [...this.pages];
   }
-  
+
   async withPage<T>(fn: (page: Page) => Promise<T>): Promise<T> {
     const page = await this.acquire();
     try {
@@ -230,10 +225,10 @@ class BrowserPool {
 
 ```typescript
 interface ConcurrencyConfig {
-  embeddings: number;    // Concurrent embedding API calls
-  downloads: number;     // Concurrent file downloads
-  stockApi: number;      // Concurrent stock API requests
-  rendering: number;     // Remotion concurrency
+  embeddings: number; // Concurrent embedding API calls
+  downloads: number; // Concurrent file downloads
+  stockApi: number; // Concurrent stock API requests
+  rendering: number; // Remotion concurrency
 }
 
 function getDefaultConcurrency(): ConcurrencyConfig {
@@ -262,9 +257,7 @@ const pexelsLimiter = new Bottleneck({
 });
 
 async function searchPexels(query: string): Promise<Video[]> {
-  return pexelsLimiter.schedule(() => 
-    pexelsClient.search({ query })
-  );
+  return pexelsLimiter.schedule(() => pexelsClient.search({ query }));
 }
 ```
 
@@ -277,21 +270,21 @@ async function searchPexels(query: string): Promise<Video[]> {
 ```typescript
 async function cmVisuals(scriptPath: string): Promise<void> {
   const script = await loadScript(scriptPath);
-  
+
   // Phase 1: Embed all visual directions in parallel
   const embeddings = await Promise.all(
-    script.scenes.map(scene => embedLimit(() =>
-      provider.embed([scene.visualDirection])
-    ))
+    script.scenes.map((scene) => embedLimit(() => provider.embed([scene.visualDirection])))
   );
-  
+
   // Phase 2: Search and download in parallel
   const assets = await Promise.all(
-    script.scenes.map((scene, i) => downloadLimit(async () => {
-      const candidates = await searchFootage(embeddings[i]);
-      const selected = await selectWithLLM(scene, candidates);
-      return downloadAsset(selected);
-    }))
+    script.scenes.map((scene, i) =>
+      downloadLimit(async () => {
+        const candidates = await searchFootage(embeddings[i]);
+        const selected = await selectWithLLM(scene, candidates);
+        return downloadAsset(selected);
+      })
+    )
   );
 }
 ```
@@ -306,7 +299,7 @@ await renderMedia({
   serveUrl: bundled,
   codec: 'h264',
   outputLocation: 'output.mp4',
-  concurrency: config.rendering,  // Remotion manages internally
+  concurrency: config.rendering, // Remotion manages internally
 });
 ```
 
@@ -329,13 +322,13 @@ const timestamps = await transcribeWithTimestamps(audio);
 
 ## 5. Implementation Recommendations
 
-| Pattern | Priority | Use Case |
-|---------|----------|----------|
-| p-limit | P0 | API rate limiting |
-| Promise.all with limits | P0 | Parallel downloads |
-| Bottleneck | P1 | Complex rate limit rules |
-| Resource Pool | P2 | Browser pages (if needed) |
-| Work stealing | P3 | Only for long-running renders |
+| Pattern                 | Priority | Use Case                      |
+| ----------------------- | -------- | ----------------------------- |
+| p-limit                 | P0       | API rate limiting             |
+| Promise.all with limits | P0       | Parallel downloads            |
+| Bottleneck              | P1       | Complex rate limit rules      |
+| Resource Pool           | P2       | Browser pages (if needed)     |
+| Work stealing           | P3       | Only for long-running renders |
 
 ---
 

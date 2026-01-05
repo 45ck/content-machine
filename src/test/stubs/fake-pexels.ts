@@ -8,14 +8,14 @@ export class FakePexelsProvider {
   private calls: PexelsSearchOptions[] = [];
   private shouldError = false;
   private errorMessage = '';
-  
+
   /**
    * Queue videos for the next search
    */
   queueVideos(videos: PexelsVideo[]): void {
     this.responses.push(videos);
   }
-  
+
   /**
    * Queue a default video response
    */
@@ -34,7 +34,7 @@ export class FakePexelsProvider {
     }
     this.responses.push(videos);
   }
-  
+
   /**
    * Queue an error for the next call
    */
@@ -42,55 +42,57 @@ export class FakePexelsProvider {
     this.shouldError = true;
     this.errorMessage = message;
   }
-  
+
   /**
    * Search for videos (mock implementation)
    */
   async search(options: PexelsSearchOptions): Promise<PexelsVideo[]> {
     this.calls.push(options);
-    
+
     if (this.shouldError) {
       this.shouldError = false;
       throw new Error(this.errorMessage);
     }
-    
+
     if (this.responses.length === 0) {
       // Default response
-      return [{
-        id: 12345,
-        url: 'https://videos.pexels.com/video-files/default.mp4',
-        thumbnailUrl: 'https://images.pexels.com/photos/default.jpg',
-        duration: 15,
-        width: 1080,
-        height: 1920,
-        user: 'DefaultUser',
-      }];
+      return [
+        {
+          id: 12345,
+          url: 'https://videos.pexels.com/video-files/default.mp4',
+          thumbnailUrl: 'https://images.pexels.com/photos/default.jpg',
+          duration: 15,
+          width: 1080,
+          height: 1920,
+          user: 'DefaultUser',
+        },
+      ];
     }
-    
+
     return this.responses.shift()!;
   }
-  
+
   /**
    * Get all recorded calls
    */
   getCalls(): PexelsSearchOptions[] {
     return [...this.calls];
   }
-  
+
   /**
    * Get the last call
    */
   getLastCall(): PexelsSearchOptions | undefined {
     return this.calls[this.calls.length - 1];
   }
-  
+
   /**
    * Get all search queries
    */
   getQueries(): string[] {
-    return this.calls.map(c => c.query);
+    return this.calls.map((c) => c.query);
   }
-  
+
   /**
    * Reset the provider
    */

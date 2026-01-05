@@ -56,11 +56,11 @@ def __parse_metadata(self, data: bytes) -> TTSChunk:
 
 **Critical:** Edge TTS uses **100-nanosecond ticks** (like .NET's TimeSpan.Ticks).
 
-| Unit | Conversion |
-|------|------------|
-| 1 second | 10,000,000 ticks |
-| 1 millisecond | 10,000 ticks |
-| 1 microsecond | 10 ticks |
+| Unit          | Conversion       |
+| ------------- | ---------------- |
+| 1 second      | 10,000,000 ticks |
+| 1 millisecond | 10,000 ticks     |
+| 1 microsecond | 10 ticks         |
 
 **Conversion to milliseconds:**
 
@@ -87,7 +87,7 @@ class Subtitle:
 class SubMaker:
     def __init__(self):
         self.cues: list[Subtitle] = []
-    
+
     def feed(self, msg: TTSChunk) -> None:
         """Feed a WordBoundary event to accumulate subtitles."""
         self.cues.append(
@@ -111,14 +111,14 @@ async def azure_tts_v1(text: str, voice_name: str, voice_rate: float, voice_file
     rate_str = f"{voice_rate:+.0%}"  # e.g., "+10%" or "-5%"
     communicate = edge_tts.Communicate(text, voice_name, rate=rate_str)
     sub_maker = edge_tts.SubMaker()
-    
+
     with open(voice_file, "wb") as file:
         async for chunk in communicate.stream():
             if chunk["type"] == "audio":
                 file.write(chunk["data"])
             elif chunk["type"] == "WordBoundary":
                 sub_maker.feed(chunk)  # Capture timestamps
-    
+
     return sub_maker  # Contains all word timings
 ```
 
@@ -133,29 +133,29 @@ from edge_tts.submaker import mktimestamp
 
 def create_subtitle(sub_maker: SubMaker, text: str, subtitle_file: str):
     """Generate SRT file by matching SubMaker words to script lines."""
-    
+
     def formatter(idx: int, start_time: float, end_time: float, sub_text: str) -> str:
         start_t = mktimestamp(start_time).replace(".", ",")  # SRT uses comma
         end_t = mktimestamp(end_time).replace(".", ",")
         return f"{idx}\n{start_t} --> {end_t}\n{sub_text}\n"
-    
+
     # Split script by punctuation
     script_lines = split_by_punctuation(text)
-    
+
     # Match SubMaker words to script lines
     srt_entries = []
     word_index = 0
-    
+
     for line in script_lines:
         line_start = sub_maker.cues[word_index].start
-        
+
         # Find end of this line in SubMaker
         words_in_line = count_words(line)
         line_end = sub_maker.cues[word_index + words_in_line - 1].end
-        
+
         srt_entries.append(formatter(len(srt_entries) + 1, line_start, line_end, line))
         word_index += words_in_line
-    
+
     with open(subtitle_file, "w") as f:
         f.write("\n".join(srt_entries))
 ```
@@ -173,7 +173,7 @@ class Communicate:
             "offset_compensation": 0,
             "last_duration_offset": 0,
         }
-    
+
     async def stream(self):
         for chunk in split_text(self.text, max_bytes=4096):
             async for msg in self._stream_chunk(chunk):
@@ -181,7 +181,7 @@ class Communicate:
                     # Apply compensation
                     msg["offset"] += self.state["offset_compensation"]
                 yield msg
-            
+
             # After chunk completes, update compensation
             self.state["offset_compensation"] = self.state["last_duration_offset"]
             self.state["offset_compensation"] += 8_750_000  # ~875ms padding
@@ -232,7 +232,7 @@ interface EdgeTTSResult {
 async function generateWithTimestamps(
   text: string,
   voice: string,
-  rate: string = "+0%"
+  rate: string = '+0%'
 ): Promise<EdgeTTSResult> {
   // Option 1: Call Python edge-tts via subprocess
   const result = await runPython('edge_tts_wrapper.py', {
@@ -240,7 +240,7 @@ async function generateWithTimestamps(
     voice,
     rate,
   });
-  
+
   return {
     audioBuffer: await fs.readFile(result.audioPath),
     wordTimings: result.timings.map((t: any) => ({
@@ -267,18 +267,18 @@ import edge_tts
 async def main(text: str, voice: str, rate: str, output_path: str) -> dict:
     communicate = edge_tts.Communicate(text, voice, rate=rate)
     sub_maker = edge_tts.SubMaker()
-    
+
     audio_data = bytearray()
-    
+
     async for chunk in communicate.stream():
         if chunk["type"] == "audio":
             audio_data.extend(chunk["data"])
         elif chunk["type"] == "WordBoundary":
             sub_maker.feed(chunk)
-    
+
     with open(output_path, "wb") as f:
         f.write(audio_data)
-    
+
     return {
         "audioPath": output_path,
         "timings": [
@@ -309,21 +309,18 @@ interface SceneTimestamps {
   words: WordTiming[];
 }
 
-function alignScenesWithTimings(
-  scenes: Scene[],
-  wordTimings: WordTiming[]
-): SceneTimestamps[] {
+function alignScenesWithTimings(scenes: Scene[], wordTimings: WordTiming[]): SceneTimestamps[] {
   const result: SceneTimestamps[] = [];
   let wordIndex = 0;
-  
+
   for (const scene of scenes) {
     const sceneWords = scene.text.split(/\s+/).length;
     const sceneTimings = wordTimings.slice(wordIndex, wordIndex + sceneWords);
-    
+
     if (sceneTimings.length === 0) {
       throw new Error(`No timings found for scene: ${scene.id}`);
     }
-    
+
     result.push({
       sceneId: scene.id,
       text: scene.text,
@@ -331,10 +328,10 @@ function alignScenesWithTimings(
       endMs: sceneTimings[sceneTimings.length - 1].endMs,
       words: sceneTimings,
     });
-    
+
     wordIndex += sceneWords;
   }
-  
+
   return result;
 }
 ```
@@ -343,23 +340,23 @@ function alignScenesWithTimings(
 
 ## 5. Accuracy Considerations
 
-| Factor | Impact | Mitigation |
-|--------|--------|------------|
-| Chunk boundary padding | 875ms estimated gap | Use ASR validation for long texts |
-| Speech rate changes | Timestamps adjust | Use consistent rate parameter |
-| Multi-byte characters | Potential misalignment | edge-tts handles UTF-8 |
-| Long text (>4KB) | Multiple SSML requests | Offset compensation applied |
+| Factor                 | Impact                 | Mitigation                        |
+| ---------------------- | ---------------------- | --------------------------------- |
+| Chunk boundary padding | 875ms estimated gap    | Use ASR validation for long texts |
+| Speech rate changes    | Timestamps adjust      | Use consistent rate parameter     |
+| Multi-byte characters  | Potential misalignment | edge-tts handles UTF-8            |
+| Long text (>4KB)       | Multiple SSML requests | Offset compensation applied       |
 
 ---
 
 ## 6. Implementation Recommendations
 
-| Decision | Recommendation | Rationale |
-|----------|----------------|-----------|
-| Use Edge TTS timestamps | Yes | Built-in, no ASR needed |
-| Fallback to ASR | Only for long texts | Validate offset compensation |
-| Python wrapper | Required | edge-tts is Python-only |
-| Scene alignment | By word count | Simple, matches script |
+| Decision                | Recommendation      | Rationale                    |
+| ----------------------- | ------------------- | ---------------------------- |
+| Use Edge TTS timestamps | Yes                 | Built-in, no ASR needed      |
+| Fallback to ASR         | Only for long texts | Validate offset compensation |
+| Python wrapper          | Required            | edge-tts is Python-only      |
+| Scene alignment         | By word count       | Simple, matches script       |
 
 ---
 

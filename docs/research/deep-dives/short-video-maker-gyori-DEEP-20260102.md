@@ -14,6 +14,7 @@
 ### Why This Matters
 
 This is **exactly** the stack we're targeting:
+
 - ✅ TypeScript
 - ✅ Remotion for video composition
 - ✅ MCP Server for AI agent integration
@@ -51,6 +52,7 @@ User/Agent → MCP/REST API → ShortCreator → Pipeline → Rendered Video
 #### 1. Server Layer (`src/server/`)
 
 **server.ts** - Express server with dual-protocol support:
+
 - `/api/*` - REST endpoints
 - `/mcp/*` - MCP Server (SSE transport)
 - Static file serving for Web UI
@@ -59,8 +61,8 @@ User/Agent → MCP/REST API → ShortCreator → Pipeline → Rendered Video
 // Dual-protocol pattern
 const apiRouter = new APIRouter(config, shortCreator);
 const mcpRouter = new MCPRouter(shortCreator);
-this.app.use("/api", apiRouter.router);
-this.app.use("/mcp", mcpRouter.router);
+this.app.use('/api', apiRouter.router);
+this.app.use('/mcp', mcpRouter.router);
 ```
 
 #### 2. MCP Integration (`src/server/routers/mcp.ts`)
@@ -69,16 +71,16 @@ Uses `@modelcontextprotocol/sdk` with SSE transport:
 
 ```typescript
 this.mcpServer.tool(
-  "create-short-video",
-  "Create a short video from a list of scenes",
+  'create-short-video',
+  'Create a short video from a list of scenes',
   {
     scenes: z.array(sceneInput),
     config: renderConfig,
   },
   async ({ scenes, config }) => {
     const videoId = await this.shortCreator.addToQueue(scenes, config);
-    return { content: [{ type: "text", text: videoId }] };
-  },
+    return { content: [{ type: 'text', text: videoId }] };
+  }
 );
 ```
 
@@ -91,7 +93,7 @@ The orchestration layer:
 ```typescript
 class ShortCreator {
   private queue: { sceneInput: SceneInput[]; config: RenderConfig; id: string }[] = [];
-  
+
   // Queue-based processing
   public addToQueue(sceneInput: SceneInput[], config: RenderConfig): string {
     const id = cuid();
@@ -109,6 +111,7 @@ class ShortCreator {
 #### 4. Pipeline Steps
 
 For each scene:
+
 1. **TTS** (Kokoro) → Generate audio from text
 2. **Normalize** (FFmpeg) → Normalize audio
 3. **Transcribe** (Whisper) → Generate word-level captions
@@ -121,7 +124,12 @@ for (const scene of inputScenes) {
   const audio = await this.kokoro.generate(scene.text, config.voice);
   await this.ffmpeg.saveNormalizedAudio(audioStream, tempWavPath);
   const captions = await this.whisper.CreateCaption(tempWavPath);
-  const video = await this.pexelsApi.findVideo(scene.searchTerms, audioLength, excludeVideoIds, orientation);
+  const video = await this.pexelsApi.findVideo(
+    scene.searchTerms,
+    audioLength,
+    excludeVideoIds,
+    orientation
+  );
   // ... download and add to scenes array
 }
 ```
@@ -134,10 +142,10 @@ for (const scene of inputScenes) {
 
 ```typescript
 const sceneInput = z.object({
-  text: z.string().describe("Text to be spoken in the video"),
-  searchTerms: z.array(z.string()).describe(
-    "Search term for video, 1 word, and at least 2-3 search terms should be provided"
-  ),
+  text: z.string().describe('Text to be spoken in the video'),
+  searchTerms: z
+    .array(z.string())
+    .describe('Search term for video, 1 word, and at least 2-3 search terms should be provided'),
 });
 ```
 
@@ -169,7 +177,7 @@ async generate(text: string, voice: Voices): Promise<{ audio: ArrayBuffer; audio
   const stream = this.tts.stream(splitter, { voice });
   splitter.push(text);
   splitter.close();
-  
+
   const output = [];
   for await (const audio of stream) {
     output.push(audio);
@@ -225,21 +233,21 @@ async render(data: z.infer<typeof shortVideoSchema>, id: string, orientation: Or
 
 ### Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `PEXELS_API_KEY` | Pexels API key | Required |
-| `KOKORO_MODEL_PRECISION` | Model size (`fp32`, `q4`, etc) | Varies by Docker image |
-| `WHISPER_MODEL` | Whisper model size | `medium.en` |
-| `CONCURRENCY` | Remotion parallel tabs | 1 |
-| `VIDEO_CACHE_SIZE_IN_BYTES` | Video cache size | 2GB |
+| Variable                    | Description                    | Default                |
+| --------------------------- | ------------------------------ | ---------------------- |
+| `PEXELS_API_KEY`            | Pexels API key                 | Required               |
+| `KOKORO_MODEL_PRECISION`    | Model size (`fp32`, `q4`, etc) | Varies by Docker image |
+| `WHISPER_MODEL`             | Whisper model size             | `medium.en`            |
+| `CONCURRENCY`               | Remotion parallel tabs         | 1                      |
+| `VIDEO_CACHE_SIZE_IN_BYTES` | Video cache size               | 2GB                    |
 
 ### Docker Variants
 
-| Image | Whisper | Kokoro | Use Case |
-|-------|---------|--------|----------|
-| `latest-tiny` | tiny.en | q4 | Low memory (3GB) |
-| `latest` | base.en | fp32 | Standard |
-| `latest-cuda` | medium.en | fp32 | GPU acceleration |
+| Image         | Whisper   | Kokoro | Use Case         |
+| ------------- | --------- | ------ | ---------------- |
+| `latest-tiny` | tiny.en   | q4     | Low memory (3GB) |
+| `latest`      | base.en   | fp32   | Standard         |
+| `latest-cuda` | medium.en | fp32   | GPU acceleration |
 
 ---
 
@@ -247,22 +255,22 @@ async render(data: z.infer<typeof shortVideoSchema>, id: string, orientation: Or
 
 ### REST Endpoints
 
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/api/short-video` | POST | Create new video |
-| `/api/short-video/{id}/status` | GET | Check status |
-| `/api/short-video/{id}` | GET | Download video |
-| `/api/short-videos` | GET | List all videos |
-| `/api/short-video/{id}` | DELETE | Delete video |
-| `/api/voices` | GET | List available voices |
-| `/api/music-tags` | GET | List music moods |
+| Endpoint                       | Method | Description           |
+| ------------------------------ | ------ | --------------------- |
+| `/api/short-video`             | POST   | Create new video      |
+| `/api/short-video/{id}/status` | GET    | Check status          |
+| `/api/short-video/{id}`        | GET    | Download video        |
+| `/api/short-videos`            | GET    | List all videos       |
+| `/api/short-video/{id}`        | DELETE | Delete video          |
+| `/api/voices`                  | GET    | List available voices |
+| `/api/music-tags`              | GET    | List music moods      |
 
 ### MCP Tools
 
-| Tool | Description |
-|------|-------------|
+| Tool                 | Description              |
+| -------------------- | ------------------------ |
 | `create-short-video` | Create video from scenes |
-| `get-video-status` | Check video status |
+| `get-video-status`   | Check video status       |
 
 ---
 

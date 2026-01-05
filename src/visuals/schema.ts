@@ -1,6 +1,6 @@
 /**
  * Visuals Schemas
- * 
+ *
  * Zod schemas for visual matching output validation.
  * Based on SYSTEM-DESIGN §6.5 VisualPlanSchema
  */
@@ -16,10 +16,14 @@ export const MatchReasoningSchema = z.object({
   reasoning: z.string().describe('LLM explanation for selection'),
   conceptsMatched: z.array(z.string()).optional(),
   moodAlignment: z.string().optional(),
-  alternatives: z.array(z.object({
-    path: z.string(),
-    whyNotChosen: z.string(),
-  })).optional(),
+  alternatives: z
+    .array(
+      z.object({
+        path: z.string(),
+        whyNotChosen: z.string(),
+      })
+    )
+    .optional(),
 });
 
 export type MatchReasoning = z.infer<typeof MatchReasoningSchema>;
@@ -89,7 +93,7 @@ export const VisualsOutputSchema = z.object({
   embeddingModel: z.string().optional(),
   reasoningModel: z.string().optional(),
   provider: z.string().optional().describe('@deprecated Use source in scenes'),
-  
+
   // Legacy fields for backward compatibility
   clips: z.array(VideoClipSchema).optional().describe('@deprecated Use scenes'),
   keywords: z.array(KeywordSchema).optional(),

@@ -16,14 +16,14 @@
 
 ## Key Features
 
-| Feature | Details |
-|---------|---------|
-| **Prompt-based** | Natural language to find clips |
-| **Multimodal** | Visual + audio + sentiment analysis |
-| **Virality Scoring** | Rates potential engagement |
-| **Frame Analysis** | Objects, scenes, actions, emotions, text |
-| **Custom Clipping** | Tailored to your needs |
-| **API Available** | Vadoo.tv integration |
+| Feature              | Details                                  |
+| -------------------- | ---------------------------------------- |
+| **Prompt-based**     | Natural language to find clips           |
+| **Multimodal**       | Visual + audio + sentiment analysis      |
+| **Virality Scoring** | Rates potential engagement               |
+| **Frame Analysis**   | Objects, scenes, actions, emotions, text |
+| **Custom Clipping**  | Tailored to your needs                   |
+| **API Available**    | Vadoo.tv integration                     |
 
 ## Tech Stack
 
@@ -34,14 +34,17 @@
 ## What We Can Reuse
 
 ### ✅ High Value
+
 - **Prompt-based clip selection** - AI finds engaging moments
 - **Virality scoring** - Predict engagement potential
 - **Multimodal analysis** - Not just audio, but visual cues
 
 ### ⚠️ Medium Value
+
 - **Sentiment analysis** - Emotional content detection
 
 ### ❌ Not Needed
+
 - **Full implementation** - Different use case (repurposing vs generating)
 
 ## How It Helps Us

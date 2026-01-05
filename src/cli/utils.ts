@@ -1,6 +1,6 @@
 /**
  * CLI Utilities
- * 
+ *
  * Shared helpers for CLI commands.
  */
 import { readFile, writeFile, mkdir } from 'fs/promises';
@@ -35,7 +35,7 @@ export async function readInputFile<T = unknown>(path: string): Promise<T> {
 export async function writeOutputFile(path: string, data: unknown): Promise<void> {
   // Ensure directory exists
   await mkdir(dirname(path), { recursive: true });
-  
+
   // Write JSON with pretty formatting
   const content = JSON.stringify(data, null, 2);
   await writeFile(path, content, 'utf-8');
@@ -48,7 +48,7 @@ export function handleCommandError(error: unknown): never {
   if (isCMError(error)) {
     // Known error with context
     console.error(chalk.red(`\n❌ ${error.message}\n`));
-    
+
     if (error.context) {
       console.error(chalk.gray('Context:'));
       for (const [key, value] of Object.entries(error.context)) {
@@ -56,23 +56,23 @@ export function handleCommandError(error: unknown): never {
       }
       console.error('');
     }
-    
+
     if (isRetryable(error)) {
       console.error(chalk.yellow('💡 This error may be temporary. Try again in a few moments.\n'));
     }
-    
+
     logger.error({ error, code: error.code }, 'Command failed');
     process.exit(1);
   }
-  
+
   // Unknown error
   const message = error instanceof Error ? error.message : String(error);
   console.error(chalk.red(`\n❌ Unexpected error: ${message}\n`));
-  
+
   if (error instanceof Error && error.stack) {
     logger.error({ stack: error.stack }, 'Unexpected error');
   }
-  
+
   process.exit(1);
 }
 

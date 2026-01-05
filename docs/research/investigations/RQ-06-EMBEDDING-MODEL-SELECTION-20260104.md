@@ -10,6 +10,7 @@
 ## 1. Problem Statement
 
 The system uses embeddings for semantic matching between visual directions and footage descriptions. We need to select:
+
 - Which embedding provider/model to use
 - Dimension size tradeoffs
 - Multimodal vs text-only embeddings
@@ -21,13 +22,13 @@ The system uses embeddings for semantic matching between visual directions and f
 
 ### 2.1 Models Found in Vendored Repos
 
-| Provider | Model | Dimensions | Multimodal | Cost |
-|----------|-------|-----------|------------|------|
-| **OpenAI** | text-embedding-3-small | 512-1536 (configurable) | ❌ | $0.02/1M tokens |
-| **OpenAI** | text-embedding-3-large | 256-3072 (configurable) | ❌ | $0.13/1M tokens |
-| **CLIP** | ViT-B/32 | 512 | ✅ | Free (local) |
-| **VoyageAI** | voyage-multimodal-3.5 | configurable | ✅ | ~$0.05/1M tokens |
-| **Cohere** | embed-v3 | 1024+ | ✅ | Variable |
+| Provider     | Model                  | Dimensions              | Multimodal | Cost             |
+| ------------ | ---------------------- | ----------------------- | ---------- | ---------------- |
+| **OpenAI**   | text-embedding-3-small | 512-1536 (configurable) | ❌         | $0.02/1M tokens  |
+| **OpenAI**   | text-embedding-3-large | 256-3072 (configurable) | ❌         | $0.13/1M tokens  |
+| **CLIP**     | ViT-B/32               | 512                     | ✅         | Free (local)     |
+| **VoyageAI** | voyage-multimodal-3.5  | configurable            | ✅         | ~$0.05/1M tokens |
+| **Cohere**   | embed-v3               | 1024+                   | ✅         | Variable         |
 
 ### 2.2 Does CLIP Work for Text-to-Text?
 
@@ -81,11 +82,11 @@ cache = IngestionCache()
 
 def get_embedding(text: str) -> list[float]:
     content_hash = hash_text(text)
-    
+
     cached = cache.get(content_hash)
     if cached:
         return cached
-    
+
     embedding = embed_model.embed(text)
     cache.put(content_hash, embedding)
     return embedding
@@ -97,22 +98,22 @@ def get_embedding(text: str) -> list[float]:
 
 ### 3.1 Use Case Requirements
 
-| Requirement | Importance | Notes |
-|-------------|------------|-------|
-| Text-to-text matching | Critical | Visual direction → footage description |
-| Low latency | High | Multiple embeddings per video |
-| Cost efficiency | High | ~10 embeddings per video |
-| Multilingual | Medium | Future support |
-| Local option | Low | Cloud-first MVP |
+| Requirement           | Importance | Notes                                  |
+| --------------------- | ---------- | -------------------------------------- |
+| Text-to-text matching | Critical   | Visual direction → footage description |
+| Low latency           | High       | Multiple embeddings per video          |
+| Cost efficiency       | High       | ~10 embeddings per video               |
+| Multilingual          | Medium     | Future support                         |
+| Local option          | Low        | Cloud-first MVP                        |
 
 ### 3.2 Model Comparison
 
-| Model | Quality | Speed | Cost/Video | Recommendation |
-|-------|---------|-------|------------|----------------|
-| **text-embedding-3-small** | Good | Fast | ~$0.0001 | ✅ Default |
-| text-embedding-3-large | Excellent | Medium | ~$0.0006 | Use for quality tier |
-| voyage-multimodal-3.5 | Excellent | Medium | ~$0.0003 | If image support needed |
-| Local SBERT | Good | Slow | Free | Offline mode only |
+| Model                      | Quality   | Speed  | Cost/Video | Recommendation          |
+| -------------------------- | --------- | ------ | ---------- | ----------------------- |
+| **text-embedding-3-small** | Good      | Fast   | ~$0.0001   | ✅ Default              |
+| text-embedding-3-large     | Excellent | Medium | ~$0.0006   | Use for quality tier    |
+| voyage-multimodal-3.5      | Excellent | Medium | ~$0.0003   | If image support needed |
+| Local SBERT                | Good      | Slow   | Free       | Offline mode only       |
 
 ### 3.3 Dimension Tradeoffs
 
@@ -124,17 +125,17 @@ OpenAI embedding models support configurable dimensions:
 
 // Lower dimensions = faster search, slightly lower quality
 const embedding = await openai.embeddings.create({
-  model: "text-embedding-3-small",
+  model: 'text-embedding-3-small',
   input: text,
-  dimensions: 512,  // Reduce for faster similarity search
+  dimensions: 512, // Reduce for faster similarity search
 });
 ```
 
-| Dimensions | Storage | Search Speed | Quality |
-|------------|---------|--------------|---------|
-| 512 | 2KB | Fastest | ~95% of max |
-| 1024 | 4KB | Fast | ~98% of max |
-| 1536 | 6KB | Standard | 100% |
+| Dimensions | Storage | Search Speed | Quality     |
+| ---------- | ------- | ------------ | ----------- |
+| 512        | 2KB     | Fastest      | ~95% of max |
+| 1024       | 4KB     | Fast         | ~98% of max |
+| 1536       | 6KB     | Standard     | 100%        |
 
 ---
 
@@ -163,8 +164,8 @@ import pLimit from 'p-limit';
 class EmbeddingClient {
   private client: OpenAI;
   private cache: Map<string, number[]>;
-  private limit = pLimit(5);  // Max 5 concurrent requests
-  
+  private limit = pLimit(5); // Max 5 concurrent requests
+
   async embed(texts: string[]): Promise<number[][]> {
     // Check cache first
     const uncached: { index: number; text: string }[] = [];
@@ -175,32 +176,30 @@ class EmbeddingClient {
       uncached.push({ index: i, text });
       return null;
     });
-    
+
     // Batch embed uncached texts
     if (uncached.length > 0) {
-      const embeddings = await this.batchEmbed(uncached.map(u => u.text));
+      const embeddings = await this.batchEmbed(uncached.map((u) => u.text));
       uncached.forEach((u, i) => {
         const hash = this.hashText(u.text);
         this.cache.set(hash, embeddings[i]);
         results[u.index] = embeddings[i];
       });
     }
-    
+
     return results as number[][];
   }
-  
+
   private async batchEmbed(texts: string[]): Promise<number[][]> {
     const batches = chunk(texts, this.config.batchSize);
-    
+
     const results = await Promise.all(
-      batches.map(batch => this.limit(() =>
-        this.embedWithRetry(batch)
-      ))
+      batches.map((batch) => this.limit(() => this.embedWithRetry(batch)))
     );
-    
+
     return results.flat();
   }
-  
+
   @retry({ maxAttempts: 3, backoff: 'exponential' })
   private async embedWithRetry(texts: string[]): Promise<number[][]> {
     const response = await this.client.embeddings.create({
@@ -208,8 +207,8 @@ class EmbeddingClient {
       input: texts,
       dimensions: this.config.dimensions,
     });
-    
-    return response.data.map(d => d.embedding);
+
+    return response.data.map((d) => d.embedding);
   }
 }
 ```
@@ -221,13 +220,13 @@ function cosineSimilarity(a: number[], b: number[]): number {
   let dotProduct = 0;
   let normA = 0;
   let normB = 0;
-  
+
   for (let i = 0; i < a.length; i++) {
     dotProduct += a[i] * b[i];
     normA += a[i] * a[i];
     normB += b[i] * b[i];
   }
-  
+
   return dotProduct / (Math.sqrt(normA) * Math.sqrt(normB));
 }
 
@@ -238,11 +237,11 @@ function findTopK(
   minThreshold = 0.65
 ): { id: string; similarity: number }[] {
   return candidates
-    .map(c => ({
+    .map((c) => ({
       id: c.id,
       similarity: cosineSimilarity(query, c.embedding),
     }))
-    .filter(c => c.similarity >= minThreshold)
+    .filter((c) => c.similarity >= minThreshold)
     .sort((a, b) => b.similarity - a.similarity)
     .slice(0, k);
 }
@@ -252,17 +251,13 @@ function findTopK(
 
 ```typescript
 // Handle model changes that affect dimensions
-async function reembedIfNeeded(
-  projectDir: string,
-  currentConfig: EmbeddingConfig
-): Promise<void> {
+async function reembedIfNeeded(projectDir: string, currentConfig: EmbeddingConfig): Promise<void> {
   const metaPath = path.join(projectDir, '.cm-meta', 'embeddings.json');
-  
+
   try {
     const meta = JSON.parse(await fs.readFile(metaPath, 'utf-8'));
-    
-    if (meta.model !== currentConfig.model || 
-        meta.dimensions !== currentConfig.dimensions) {
+
+    if (meta.model !== currentConfig.model || meta.dimensions !== currentConfig.dimensions) {
       console.warn('Embedding model changed. Re-embedding footage...');
       await reembedFootage(projectDir, currentConfig);
     }
@@ -276,14 +271,14 @@ async function reembedIfNeeded(
 
 ## 5. Implementation Recommendations
 
-| Decision | Recommendation | Rationale |
-|----------|----------------|-----------|
-| Default model | text-embedding-3-small | Best cost/quality ratio |
-| Default dimensions | 1024 | Good balance |
-| Caching | In-memory + file | Avoid repeat API calls |
-| Batch size | 100 | OpenAI limit |
-| Concurrency | 5 parallel | Stay under rate limits |
-| Min threshold | 0.65 | Filter irrelevant matches |
+| Decision           | Recommendation         | Rationale                 |
+| ------------------ | ---------------------- | ------------------------- |
+| Default model      | text-embedding-3-small | Best cost/quality ratio   |
+| Default dimensions | 1024                   | Good balance              |
+| Caching            | In-memory + file       | Avoid repeat API calls    |
+| Batch size         | 100                    | OpenAI limit              |
+| Concurrency        | 5 parallel             | Stay under rate limits    |
+| Min threshold      | 0.65                   | Filter irrelevant matches |
 
 ---
 

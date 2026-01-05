@@ -18,14 +18,14 @@ Remotion template for creating **"audiograms"** - video clips from podcasts or a
 
 ## Key Features
 
-| Feature | Details |
-|---------|---------|
-| **Framework** | Remotion (React video) |
-| **Audio Visualization** | Waveform display |
-| **Captions** | SRT or JSON format, Whisper.cpp generation |
-| **Long Audio** | `useWindowedAudioData()` for performance |
-| **Dev Mode** | `npx remotion studio` |
-| **Render** | `npx remotion render` |
+| Feature                 | Details                                    |
+| ----------------------- | ------------------------------------------ |
+| **Framework**           | Remotion (React video)                     |
+| **Audio Visualization** | Waveform display                           |
+| **Captions**            | SRT or JSON format, Whisper.cpp generation |
+| **Long Audio**          | `useWindowedAudioData()` for performance   |
+| **Dev Mode**            | `npx remotion studio`                      |
+| **Render**              | `npx remotion render`                      |
 
 ## Tech Stack
 
@@ -37,17 +37,20 @@ Remotion template for creating **"audiograms"** - video clips from podcasts or a
 ## Caption Generation
 
 Built-in transcription script:
+
 ```bash
 bun transcribe.ts
 # or: npx tsx transcribe.ts
 ```
 
 Features:
+
 - Audio file path input
 - Speech start time (skip intros/jingles)
 - Outputs `captions.json` in correct format
 
 Alternative sources:
+
 - OpenAI Whisper API via `@remotion/openai-whisper`
 - Descript
 - Otter.ai, Scriptme.io
@@ -55,15 +58,18 @@ Alternative sources:
 ## What We Can Reuse
 
 ### ✅ High Value
+
 - **Transcription script** - `transcribe.ts` for caption generation
 - **Caption format** - `@remotion/captions` JSON structure
 - **Windowed audio** - Performance optimization for long audio
 
 ### ⚠️ Medium Value
+
 - **Waveform visualization** - If we want audio visualizations
 - **Template structure** - Alternative composition patterns
 
 ### ❌ Not Needed
+
 - **Podcast focus** - We're doing short-form, not podcast clips
 - **Cover image** - Different visual style
 

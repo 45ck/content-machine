@@ -16,27 +16,28 @@ This research analyzes CLI architecture patterns from vendored repos and popular
 
 ### 1.1 Popular Frameworks
 
-| Framework | Stars | Type | Complexity | Best For |
-|-----------|-------|------|------------|----------|
-| **Commander.js** | 27.8k | Declarative | Simple | Standard CLI apps |
-| **Yargs** | 11.4k | Declarative | Medium | Complex argument parsing |
-| **oclif** | 9k+ | Full framework | High | Enterprise CLIs with plugins |
-| **Ink** | 33.7k | React-based | High | Interactive terminal UIs |
-| **@clack/prompts** | - | Interactive | Low | Beautiful prompts/wizards |
+| Framework          | Stars | Type           | Complexity | Best For                     |
+| ------------------ | ----- | -------------- | ---------- | ---------------------------- |
+| **Commander.js**   | 27.8k | Declarative    | Simple     | Standard CLI apps            |
+| **Yargs**          | 11.4k | Declarative    | Medium     | Complex argument parsing     |
+| **oclif**          | 9k+   | Full framework | High       | Enterprise CLIs with plugins |
+| **Ink**            | 33.7k | React-based    | High       | Interactive terminal UIs     |
+| **@clack/prompts** | -     | Interactive    | Low        | Beautiful prompts/wizards    |
 
 ### 1.2 Vendored Repo Analysis
 
-| Repo | CLI Framework | Notes |
-|------|---------------|-------|
-| **vidosy** | Commander.js | Simple, clean pattern for video rendering |
-| **short-video-maker-gyori** | No CLI (REST/MCP) | Uses Express server instead |
-| **budibase/cli** | Commander.js | Enterprise pattern with Command wrapper class |
-| **n8n/node-cli** | oclif | Heavy framework for extensible node development |
-| **remotion/cli** | minimist | Low-level parsing, custom everything |
+| Repo                        | CLI Framework     | Notes                                           |
+| --------------------------- | ----------------- | ----------------------------------------------- |
+| **vidosy**                  | Commander.js      | Simple, clean pattern for video rendering       |
+| **short-video-maker-gyori** | No CLI (REST/MCP) | Uses Express server instead                     |
+| **budibase/cli**            | Commander.js      | Enterprise pattern with Command wrapper class   |
+| **n8n/node-cli**            | oclif             | Heavy framework for extensible node development |
+| **remotion/cli**            | minimist          | Low-level parsing, custom everything            |
 
 ### 1.3 Framework Code Examples
 
 #### Commander.js (vidosy pattern)
+
 **File:** [templates/vidosy/src/cli/index.ts](templates/vidosy/src/cli/index.ts)
 
 ```typescript
@@ -47,10 +48,7 @@ import { logger } from './utils/logger';
 
 const program = new Command();
 
-program
-  .name('vidosy')
-  .description('A video generation tool using Remotion')
-  .version('1.0.0');
+program.name('vidosy').description('A video generation tool using Remotion').version('1.0.0');
 
 program
   .command('render')
@@ -71,6 +69,7 @@ program.parse(process.argv);
 ```
 
 #### oclif (n8n pattern)
+
 **File:** [vendor/orchestration/n8n/packages/@n8n/node-cli/src/commands/build.ts](vendor/orchestration/n8n/packages/@n8n/node-cli/src/commands/build.ts)
 
 ```typescript
@@ -106,6 +105,7 @@ export default class Build extends Command {
 ```
 
 #### Command Wrapper Pattern (budibase)
+
 **File:** [vendor/review-ui/budibase/packages/cli/src/structures/Command.ts](vendor/review-ui/budibase/packages/cli/src/structures/Command.ts)
 
 ```typescript
@@ -145,6 +145,7 @@ export class Command {
 ### 1.4 Recommendation: Commander.js
 
 **Reasons:**
+
 1. **Simplicity** - Declarative API, easy to learn
 2. **TypeScript support** - `@commander-js/extra-typings` for type inference
 3. **vidosy pattern** - Already proven in video generation context
@@ -152,6 +153,7 @@ export class Command {
 5. **No runtime deps** - Pure JS, minimal bundle size
 
 **When to use oclif instead:**
+
 - Plugin system needed
 - Multiple standalone executables
 - Very complex command hierarchy
@@ -163,12 +165,14 @@ export class Command {
 ### 2.1 Command Chaining Patterns
 
 #### Pattern 1: Subcommand-based (vidosy)
+
 ```bash
 vidosy render config.json --output video.mp4
 vidosy preview config.json
 ```
 
 #### Pattern 2: Action Handler with Stages (remotion)
+
 ```typescript
 // Single command, multiple internal stages
 await bundleOnCliOrTakeServeUrl();
@@ -186,10 +190,10 @@ export const renderVideoFlow = async ({
 }) => {
   // Stage 1: Bundle
   const { urlOrBundle, cleanup } = await bundleOnCliOrTakeServeUrl({...});
-  
+
   // Stage 2: Get composition
   const { compositionId, config } = await getCompositionWithDimensionOverride({...});
-  
+
   // Stage 3: Render
   await RenderInternals.internalRenderMedia({...});
 };
@@ -198,6 +202,7 @@ export const renderVideoFlow = async ({
 ### 2.2 JSON Input/Output for Composability
 
 #### vidosy Config Schema
+
 **File:** [templates/vidosy/src/shared/zod-schema.ts](templates/vidosy/src/shared/zod-schema.ts)
 
 ```typescript
@@ -208,10 +213,12 @@ export const sceneSchema = z.object({
   duration: z.number().positive(),
   background: backgroundSchema.optional(),
   text: textSchema.optional(),
-  audio: z.object({
-    file: z.string().optional(),
-    volume: z.number().min(0).max(1).optional(),
-  }).optional(),
+  audio: z
+    .object({
+      file: z.string().optional(),
+      volume: z.number().min(0).max(1).optional(),
+    })
+    .optional(),
 });
 
 export const vidosyConfigSchema = z.object({
@@ -223,12 +230,13 @@ export const vidosyConfigSchema = z.object({
 ```
 
 #### Config Loading Pattern
+
 **File:** [templates/vidosy/src/cli/utils/config-loader.ts](templates/vidosy/src/cli/utils/config-loader.ts)
 
 ```typescript
 export async function loadConfig(configPath: string): Promise<VidosyConfig> {
   const resolvedPath = path.resolve(configPath);
-  
+
   if (!fs.existsSync(resolvedPath)) {
     throw new Error(`Configuration file not found: ${resolvedPath}`);
   }
@@ -269,21 +277,21 @@ cm generate --topic "VS Code extensions" --product myproduct --output video.mp4
 **File:** [vendor/short-video-maker-gyori/src/config.ts](vendor/short-video-maker-gyori/src/config.ts)
 
 ```typescript
-import "dotenv/config";  // Auto-loads .env file
+import 'dotenv/config'; // Auto-loads .env file
 
 export class Config {
   public pexelsApiKey: string;
   public logLevel: pino.Level;
   public port: number;
   public whisperModel: whisperModels;
-  
+
   constructor() {
     // Environment variables with defaults
     this.pexelsApiKey = process.env.PEXELS_API_KEY as string;
     this.logLevel = (process.env.LOG_LEVEL || 'info') as pino.Level;
     this.port = process.env.PORT ? parseInt(process.env.PORT) : 3123;
-    this.whisperModel = process.env.WHISPER_MODEL as whisperModels || 'medium.en';
-    
+    this.whisperModel = (process.env.WHISPER_MODEL as whisperModels) || 'medium.en';
+
     // Docker-specific settings
     this.runningInDocker = process.env.DOCKER === 'true';
   }
@@ -299,6 +307,7 @@ export class Config {
 ### 3.2 Configuration Precedence
 
 **Recommended order (highest to lowest priority):**
+
 1. CLI arguments (`--port 8080`)
 2. Environment variables (`PORT=8080`)
 3. Config file (`.content-machine.json`)
@@ -316,13 +325,13 @@ const configSchema = z.object({
 
 export function loadConfig(cliOptions: Record<string, unknown>) {
   config(); // Load .env
-  
+
   const merged = {
     port: cliOptions.port ?? process.env.PORT,
     logLevel: cliOptions.logLevel ?? process.env.LOG_LEVEL,
     pexelsApiKey: process.env.PEXELS_API_KEY,
   };
-  
+
   return configSchema.parse(merged);
 }
 ```
@@ -354,7 +363,7 @@ const result = await explorer.search();
 **File:** [vendor/short-video-maker-gyori/src/config.ts](vendor/short-video-maker-gyori/src/config.ts)
 
 ```typescript
-import pino from "pino";
+import pino from 'pino';
 
 export const logger = pino({
   level: process.env.LOG_LEVEL || 'info',
@@ -369,9 +378,9 @@ export const logger = pino({
 });
 
 // Usage
-logger.info("Starting server");
-logger.debug({ port: 3000 }, "Server configuration");
-logger.error(error, "Failed to render video");
+logger.info('Starting server');
+logger.debug({ port: 3000 }, 'Server configuration');
+logger.error(error, 'Failed to render video');
 ```
 
 ### 4.2 CLI-Friendly Logging (chalk + icons)
@@ -424,7 +433,7 @@ export const logger = new Logger();
 **File:** [vendor/review-ui/budibase/packages/cli/src/utils.ts](vendor/review-ui/budibase/packages/cli/src/utils.ts)
 
 ```typescript
-const progress = require("cli-progress");
+const progress = require('cli-progress');
 
 export function progressBar(total: number) {
   const bar = new progress.SingleBar({}, progress.Presets.shades_classic);
@@ -434,7 +443,7 @@ export function progressBar(total: number) {
 
 // Usage
 const bar = progressBar(100);
-bar.update(50);  // 50% complete
+bar.update(50); // 50% complete
 bar.stop();
 ```
 
@@ -453,14 +462,12 @@ export const createOverwriteableCliOutput = (options: {
     return { update: () => false };
   }
 
-  const diff = new AnsiDiff();  // Tracks terminal output changes
+  const diff = new AnsiDiff(); // Tracks terminal output changes
 
   return {
     update: (up: string, newline: boolean): boolean => {
       // Updates in place without scrolling
-      return process.stdout.write(
-        diff.update(up + (newline ? '\n' : ''))
-      );
+      return process.stdout.write(diff.update(up + (newline ? '\n' : '')));
     },
   };
 };
@@ -478,7 +485,7 @@ export default class New extends Command {
     intro(await createIntro());
 
     const nodeName = args.name ?? (await nodeNamePrompt());
-    
+
     if (await folderExists(destination)) {
       const shouldOverwrite = await confirm({
         message: `./${nodeName} already exists, overwrite?`,
@@ -609,17 +616,17 @@ export function registerRenderCommand(program: Command): void {
     .option('-q, --quality <level>', 'Video quality', 'high')
     .action(async (configPath, options) => {
       const spinner = ora('Loading configuration...').start();
-      
+
       try {
         const opts = renderOptionsSchema.parse({ config: configPath, ...options });
         spinner.text = 'Rendering video...';
-        
+
         await renderVideo(opts, {
           onProgress: (progress) => {
             spinner.text = `Rendering: ${progress.percent}%`;
           },
         });
-        
+
         spinner.succeed(`Video rendered: ${opts.output}`);
       } catch (error) {
         spinner.fail('Render failed');
@@ -640,9 +647,11 @@ import chalk from 'chalk';
 // Structured logger for machine-readable output
 export const structuredLogger = pino({
   level: process.env.LOG_LEVEL || 'info',
-  transport: process.env.JSON_LOGS ? undefined : {
-    target: 'pino-pretty',
-  },
+  transport: process.env.JSON_LOGS
+    ? undefined
+    : {
+        target: 'pino-pretty',
+      },
 });
 
 // CLI logger for human-readable output
@@ -651,7 +660,7 @@ export const cli = {
   success: (msg: string) => console.log(chalk.green('✓'), msg),
   warn: (msg: string) => console.log(chalk.yellow('⚠'), msg),
   error: (msg: string) => console.error(chalk.red('✗'), msg),
-  step: (num: number, total: number, msg: string) => 
+  step: (num: number, total: number, msg: string) =>
     console.log(chalk.dim(`[${num}/${total}]`), msg),
 };
 ```
@@ -661,6 +670,7 @@ export const cli = {
 ## 6. Dependencies Recommendation
 
 ### Core CLI
+
 ```json
 {
   "dependencies": {
@@ -671,6 +681,7 @@ export const cli = {
 ```
 
 ### Logging & Progress
+
 ```json
 {
   "dependencies": {
@@ -682,6 +693,7 @@ export const cli = {
 ```
 
 ### Optional (for interactive CLIs)
+
 ```json
 {
   "dependencies": {
@@ -692,6 +704,7 @@ export const cli = {
 ```
 
 ### Optional (for React-based CLIs)
+
 ```json
 {
   "dependencies": {

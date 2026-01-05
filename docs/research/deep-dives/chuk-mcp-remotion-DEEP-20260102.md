@@ -14,6 +14,7 @@
 ### Why This Matters
 
 This is a **major discovery** - it solves the MCP + Remotion integration problem with:
+
 - ✅ 51 production-ready video components
 - ✅ MCP tools for AI agent integration
 - ✅ Design token system (colors, typography, spacing, motion)
@@ -39,38 +40,47 @@ AI Agent → MCP Server → ProjectManager → Component Builder → Remotion �
 ### Component Library (51 Total)
 
 #### Charts (6 components)
+
 - PieChart, BarChart, HorizontalBarChart
 - LineChart, AreaChart, DonutChart
 
 #### Scenes (2 components)
+
 - TitleScene (4 variants, 5 animations)
 - EndScreen (4 variants)
 
 #### Overlays (3 components)
+
 - LowerThird, TextOverlay, SubscribeButton
 
 #### Code Display (3 components)
+
 - CodeBlock, TypingCode, CodeDiff
 
 #### Layouts (17 components)
+
 - AsymmetricLayout, Container, DialogueFrame
 - Grid, Mosaic, PiP, SplitScreen
 - ThreeByThreeGrid, Timeline, Vertical
 - And more...
 
 #### Text Animations (6 components)
+
 - TypewriterText, StaggerText, WavyText
 - TrueFocus, DecryptedText, FuzzyText
 
 #### Demo Realism (4 components)
+
 - BeforeAfterSlider, BrowserFrame
 - DeviceFrame, Terminal
 
 #### Content (5 components)
+
 - DemoBox, ImageContent, StylizedWebPage
 - VideoContent, WebPage
 
 #### Transitions (2 components)
+
 - LayoutTransition, PixelTransition
 
 ---
@@ -80,27 +90,31 @@ AI Agent → MCP Server → ProjectManager → Component Builder → Remotion �
 ### Four Token Categories
 
 #### 1. Colors (`tokens/colors.py`)
+
 - 7 theme palettes optimized for video
 - Dark/light mode support
 - Semantic colors (success, warning, error)
 
 #### 2. Typography (`tokens/typography.py`)
+
 - Font scales for 720p, 1080p, 4K
 - Primary and code font stacks
 - Video-optimized readability
 
 #### 3. Spacing (`tokens/spacing.py`)
+
 - 10-step spacing scale (4px - 120px)
 - **Platform safe margins** (critical!)
 
-| Platform | Top | Bottom | Left | Right |
-|----------|-----|--------|------|-------|
-| LinkedIn Feed | 40px | 40px | 24px | 24px |
-| Instagram Stories | 100px | 120px | 24px | 24px |
-| TikTok | 100px | 180px | 24px | 80px |
-| YouTube | 20px | 20px | 20px | 20px |
+| Platform          | Top   | Bottom | Left | Right |
+| ----------------- | ----- | ------ | ---- | ----- |
+| LinkedIn Feed     | 40px  | 40px   | 24px | 24px  |
+| Instagram Stories | 100px | 120px  | 24px | 24px  |
+| TikTok            | 100px | 180px  | 24px | 80px  |
+| YouTube           | 20px  | 20px   | 20px | 20px  |
 
 #### 4. Motion (`tokens/motion.py`)
+
 - Spring configurations
 - Easing curves (ease-out, ease-in-out, bounce)
 - Duration presets
@@ -111,26 +125,28 @@ AI Agent → MCP Server → ProjectManager → Component Builder → Remotion �
 
 7 built-in themes optimized for video:
 
-| Theme | Primary Color | Use Case |
-|-------|---------------|----------|
-| Tech | Blue (#0066FF) | Tech reviews, coding tutorials |
-| Finance | Green (#00C853) | Stock analysis, investing |
-| Education | Purple (#7C4DFF) | Educational content |
-| Gaming | Neon Green (#00E676) | Gaming, esports |
-| Minimal | Grayscale | Professional, documentaries |
-| Lifestyle | Pink (#FF6B9D) | Vlogs, wellness |
-| Business | Navy (#1565C0) | Corporate, B2B |
+| Theme     | Primary Color        | Use Case                       |
+| --------- | -------------------- | ------------------------------ |
+| Tech      | Blue (#0066FF)       | Tech reviews, coding tutorials |
+| Finance   | Green (#00C853)      | Stock analysis, investing      |
+| Education | Purple (#7C4DFF)     | Educational content            |
+| Gaming    | Neon Green (#00E676) | Gaming, esports                |
+| Minimal   | Grayscale            | Professional, documentaries    |
+| Lifestyle | Pink (#FF6B9D)       | Vlogs, wellness                |
+| Business  | Navy (#1565C0)       | Corporate, B2B                 |
 
 ---
 
 ## MCP Tools
 
 ### Project Management
+
 - `remotion_create_project(name, theme, fps, width, height)`
 - `remotion_get_project_info()`
 - `remotion_list_projects()`
 
 ### Component Tools (50+)
+
 ```python
 # Charts
 remotion_add_pie_chart(data, title, duration, track, gap_before)
@@ -150,12 +166,14 @@ remotion_add_split_screen(left, right, variant, duration)
 ```
 
 ### Discovery Tools
+
 - `remotion_list_components(category)`
 - `remotion_search_components(query)`
 - `remotion_get_component_schema(name)`
 - `remotion_list_themes()`
 
 ### Token Tools
+
 - `remotion_list_color_tokens()`
 - `remotion_list_typography_tokens()`
 - `remotion_list_motion_tokens()`
@@ -180,6 +198,7 @@ remotion_add_background(..., track="background")
 ```
 
 **Default Tracks:**
+
 - `main` (layer 0) - Primary content
 - `overlay` (layer 10) - Text overlays, UI elements
 - `background` (layer -10) - Background media
@@ -251,14 +270,17 @@ chuk-motion/
 Since this is Python and we're TypeScript-focused:
 
 **Option 1: Run as MCP Server**
+
 - Keep chuk-motion as a Python MCP server
 - Call from our TypeScript codebase via MCP
 
 **Option 2: Port Patterns**
+
 - Port design tokens to TypeScript
 - Implement similar component architecture in Remotion
 
 **Option 3: Hybrid**
+
 - Use chuk-motion for component generation
 - Use short-video-maker-gyori for pipeline orchestration
 
@@ -266,20 +288,21 @@ Since this is Python and we're TypeScript-focused:
 
 ## Comparison with short-video-maker-gyori
 
-| Feature | short-video-maker-gyori | chuk-motion |
-|---------|------------------------|-------------|
-| Language | TypeScript | Python |
-| Components | Basic scenes | 51 components |
-| Design System | None | Full token system |
-| Themes | None | 7 themes |
-| Platform margins | None | 7 platforms |
-| MCP Tools | 2 tools | 50+ tools |
-| Timeline | Scene-based | Track-based |
-| TTS | Kokoro | None |
-| Captions | Whisper | None |
-| Stock footage | Pexels | None |
+| Feature          | short-video-maker-gyori | chuk-motion       |
+| ---------------- | ----------------------- | ----------------- |
+| Language         | TypeScript              | Python            |
+| Components       | Basic scenes            | 51 components     |
+| Design System    | None                    | Full token system |
+| Themes           | None                    | 7 themes          |
+| Platform margins | None                    | 7 platforms       |
+| MCP Tools        | 2 tools                 | 50+ tools         |
+| Timeline         | Scene-based             | Track-based       |
+| TTS              | Kokoro                  | None              |
+| Captions         | Whisper                 | None              |
+| Stock footage    | Pexels                  | None              |
 
 **Insight:** These are complementary, not competing:
+
 - **short-video-maker-gyori** = Pipeline + TTS + Captions + Footage
 - **chuk-motion** = Components + Design System + Composition
 
@@ -290,6 +313,7 @@ Since this is Python and we're TypeScript-focused:
 ### 1. Component Schema Pattern
 
 Each component has:
+
 - Zod-like schema for props
 - Theme integration
 - Animation presets

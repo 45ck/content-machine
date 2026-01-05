@@ -1,4 +1,5 @@
 # Deep Dive #85: Clipping & Publishing Ecosystem
+
 **Date:** 2026-01-02
 **Category:** Clipping & Distribution
 **Priority:** HIGH - Content Pipeline Automation
@@ -51,14 +52,14 @@ FunClip Pipeline:
 
 ### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Paraformer-Large** | Best open-source Chinese ASR, 13M+ downloads |
-| **Hotword Customization** | Boost recognition of specific terms, names |
-| **Speaker Diarization** | CAM++ model for speaker ID (clip by speaker) |
-| **LLM Integration** | Qwen/GPT for intelligent highlight detection |
-| **Multi-language** | Chinese + English support (`-l en`) |
-| **Gradio UI** | Local web interface or Modelscope/HuggingFace |
+| Feature                   | Description                                   |
+| ------------------------- | --------------------------------------------- |
+| **Paraformer-Large**      | Best open-source Chinese ASR, 13M+ downloads  |
+| **Hotword Customization** | Boost recognition of specific terms, names    |
+| **Speaker Diarization**   | CAM++ model for speaker ID (clip by speaker)  |
+| **LLM Integration**       | Qwen/GPT for intelligent highlight detection  |
+| **Multi-language**        | Chinese + English support (`-l en`)           |
+| **Gradio UI**             | Local web interface or Modelscope/HuggingFace |
 
 ### Usage Patterns
 
@@ -72,7 +73,7 @@ python funclip/videoclipper.py --stage 1 \
     --file video.mp4 \
     --output_dir ./output
 
-# CLI: Clipping step  
+# CLI: Clipping step
 python funclip/videoclipper.py --stage 2 \
     --file video.mp4 \
     --output_dir ./output \
@@ -179,11 +180,11 @@ split_video_ffmpeg('video.mp4', scene_list)
 
 ### Detection Algorithms
 
-| Detector | Use Case | Notes |
-|----------|----------|-------|
-| **ContentDetector** | Fast cuts | Frame-by-frame comparison |
-| **AdaptiveDetector** | Camera movement | Two-pass, handles motion |
-| **ThresholdDetector** | Fade in/out | Luminance-based |
+| Detector              | Use Case        | Notes                     |
+| --------------------- | --------------- | ------------------------- |
+| **ContentDetector**   | Fast cuts       | Frame-by-frame comparison |
+| **AdaptiveDetector**  | Camera movement | Two-pass, handles motion  |
+| **ThresholdDetector** | Fade in/out     | Luminance-based           |
 
 ### CLI Usage
 
@@ -329,13 +330,13 @@ python cli.py show -v
 
 ### Features
 
-| Feature | Status |
-|---------|--------|
-| Request-based (no Selenium) | ✅ |
-| Multi-account support | ✅ |
-| Schedule 10 days ahead | ✅ |
-| YouTube Shorts sourcing | ✅ |
-| Upload speed | ~3 seconds |
+| Feature                     | Status     |
+| --------------------------- | ---------- |
+| Request-based (no Selenium) | ✅         |
+| Multi-account support       | ✅         |
+| Schedule 10 days ahead      | ✅         |
+| YouTube Shorts sourcing     | ✅         |
+| Upload speed                | ~3 seconds |
 
 ---
 
@@ -464,12 +465,12 @@ python main.py --interval 1800    # Check every 30 minutes
 
 ## 9. Clipping Strategy Matrix
 
-| Tool | Method | Speed | Quality | LLM Integration |
-|------|--------|-------|---------|-----------------|
-| **FunClip** | ASR + LLM | Medium | High | ✅ Qwen/GPT |
-| **AI Highlight Clip** | Whisper + LLM | Slow | High | ✅ Tongyi |
-| **PySceneDetect** | Visual analysis | Fast | Basic | ❌ |
-| **AutoClipper** | Cloud async | Fast | Medium | ✅ OpenAI |
+| Tool                  | Method          | Speed  | Quality | LLM Integration |
+| --------------------- | --------------- | ------ | ------- | --------------- |
+| **FunClip**           | ASR + LLM       | Medium | High    | ✅ Qwen/GPT     |
+| **AI Highlight Clip** | Whisper + LLM   | Slow   | High    | ✅ Tongyi       |
+| **PySceneDetect**     | Visual analysis | Fast   | Basic   | ❌              |
+| **AutoClipper**       | Cloud async     | Fast   | Medium  | ✅ OpenAI       |
 
 ### Recommended Strategy
 
@@ -508,12 +509,12 @@ content-machine Clipping Pipeline:
 
 ## 10. Publishing Strategy Matrix
 
-| Platform | Tool | Method | Scheduling | Multi-Account |
-|----------|------|--------|------------|---------------|
-| **TikTok** | TiktokAutoUploader | Requests | 10 days | ✅ |
-| **YouTube** | youtube-upload | OAuth API | ❌ | ✅ |
-| **Instagram** | rednote-uploader | instagrapi | ❌ | ❌ |
-| **Multi-Platform** | Mixpost | OAuth | ✅ Calendar | ✅ Teams |
+| Platform           | Tool               | Method     | Scheduling  | Multi-Account |
+| ------------------ | ------------------ | ---------- | ----------- | ------------- |
+| **TikTok**         | TiktokAutoUploader | Requests   | 10 days     | ✅            |
+| **YouTube**        | youtube-upload     | OAuth API  | ❌          | ✅            |
+| **Instagram**      | rednote-uploader   | instagrapi | ❌          | ❌            |
+| **Multi-Platform** | Mixpost            | OAuth      | ✅ Calendar | ✅ Teams      |
 
 ### Recommended Architecture
 
@@ -567,16 +568,16 @@ content-machine Publishing Router:
 
 ## 12. Cross-Reference Matrix
 
-| Tool | Clipping | Publishing | LLM | Cloud | Open Source |
-|------|----------|------------|-----|-------|-------------|
-| FunClip | ✅ ASR+LLM | ❌ | ✅ Qwen/GPT | ❌ | ✅ Alibaba |
-| AI Highlight Clip | ✅ Whisper | ❌ | ✅ Tongyi | ❌ | ✅ MIT |
-| PySceneDetect | ✅ Visual | ❌ | ❌ | ❌ | ✅ BSD-3 |
-| AutoClipper | ✅ | ✅ YouTube | ✅ | ✅ GCP | ✅ |
-| TiktokAutoUploader | ❌ | ✅ TikTok | ❌ | ❌ | ✅ |
-| youtube-upload | ❌ | ✅ YouTube | ❌ | ❌ | ✅ |
-| rednote-uploader | ❌ | ✅ Instagram | ❌ | ❌ | ✅ MIT |
-| Mixpost | ❌ | ✅ Multi | ❌ | Self-host | ✅ MIT |
+| Tool               | Clipping   | Publishing   | LLM         | Cloud     | Open Source |
+| ------------------ | ---------- | ------------ | ----------- | --------- | ----------- |
+| FunClip            | ✅ ASR+LLM | ❌           | ✅ Qwen/GPT | ❌        | ✅ Alibaba  |
+| AI Highlight Clip  | ✅ Whisper | ❌           | ✅ Tongyi   | ❌        | ✅ MIT      |
+| PySceneDetect      | ✅ Visual  | ❌           | ❌          | ❌        | ✅ BSD-3    |
+| AutoClipper        | ✅         | ✅ YouTube   | ✅          | ✅ GCP    | ✅          |
+| TiktokAutoUploader | ❌         | ✅ TikTok    | ❌          | ❌        | ✅          |
+| youtube-upload     | ❌         | ✅ YouTube   | ❌          | ❌        | ✅          |
+| rednote-uploader   | ❌         | ✅ Instagram | ❌          | ❌        | ✅ MIT      |
+| Mixpost            | ❌         | ✅ Multi     | ❌          | Self-host | ✅ MIT      |
 
 ---
 
@@ -584,24 +585,25 @@ content-machine Publishing Router:
 
 ### Video Requirements
 
-| Platform | Max Duration | Aspect Ratio | Max Size |
-|----------|--------------|--------------|----------|
-| TikTok | 10 min | 9:16 (vertical) | 287.6 MB |
-| YouTube Shorts | 60 seconds | 9:16 (vertical) | 500 MB |
-| Instagram Reels | 90 seconds | 9:16 (vertical) | 4 GB |
-| LinkedIn | 10 min | 9:16, 1:1, 16:9 | 5 GB |
+| Platform        | Max Duration | Aspect Ratio    | Max Size |
+| --------------- | ------------ | --------------- | -------- |
+| TikTok          | 10 min       | 9:16 (vertical) | 287.6 MB |
+| YouTube Shorts  | 60 seconds   | 9:16 (vertical) | 500 MB   |
+| Instagram Reels | 90 seconds   | 9:16 (vertical) | 4 GB     |
+| LinkedIn        | 10 min       | 9:16, 1:1, 16:9 | 5 GB     |
 
 ### Optimal Posting Times (General)
 
-| Platform | Best Times (US) |
-|----------|-----------------|
-| TikTok | 7-9 AM, 12-3 PM, 7-9 PM |
-| YouTube | 2-4 PM (Thu-Sat) |
-| Instagram | 11 AM - 1 PM, 7-9 PM |
+| Platform  | Best Times (US)         |
+| --------- | ----------------------- |
+| TikTok    | 7-9 AM, 12-3 PM, 7-9 PM |
+| YouTube   | 2-4 PM (Thu-Sat)        |
+| Instagram | 11 AM - 1 PM, 7-9 PM    |
 
 ---
 
 **Related Deep Dives:**
+
 - DD-084: Video Composition & Rendering Infrastructure
 - DD-045: Video Processing, Clipping & Capture
 - DD-055: Audio/TTS, Captions & Publishing

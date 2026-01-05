@@ -4,7 +4,7 @@
 **Duration:** Week 1  
 **Status:** Not Started  
 **Document ID:** IMPL-PHASE-0-FOUNDATION-20260105  
-**Prerequisites:** None  
+**Prerequisites:** None
 
 ---
 
@@ -74,16 +74,16 @@ content-machine/
 
 ### 2.2 Component Matrix
 
-| Component | File | Interface | Test Coverage |
-|-----------|------|-----------|---------------|
-| Config | `src/core/config.ts` | `Config`, `loadConfig()` | 100% |
-| Logger | `src/core/logger.ts` | `logger`, `createLogger()` | 90% |
-| Errors | `src/core/errors.ts` | `CMError`, error classes | 100% |
-| LLM Provider | `src/core/llm/provider.ts` | `LLMProvider` interface | 100% |
-| OpenAI | `src/core/llm/openai.ts` | `OpenAIProvider` | 80% (mocked) |
-| Factory | `src/core/llm/factory.ts` | `createLLMProvider()` | 100% |
-| Schemas | `src/schemas/*.ts` | Zod schemas | 100% |
-| CLI | `src/cli/index.ts` | Commander setup | 80% |
+| Component    | File                       | Interface                  | Test Coverage |
+| ------------ | -------------------------- | -------------------------- | ------------- |
+| Config       | `src/core/config.ts`       | `Config`, `loadConfig()`   | 100%          |
+| Logger       | `src/core/logger.ts`       | `logger`, `createLogger()` | 90%           |
+| Errors       | `src/core/errors.ts`       | `CMError`, error classes   | 100%          |
+| LLM Provider | `src/core/llm/provider.ts` | `LLMProvider` interface    | 100%          |
+| OpenAI       | `src/core/llm/openai.ts`   | `OpenAIProvider`           | 80% (mocked)  |
+| Factory      | `src/core/llm/factory.ts`  | `createLLMProvider()`      | 100%          |
+| Schemas      | `src/schemas/*.ts`         | Zod schemas                | 100%          |
+| CLI          | `src/cli/index.ts`         | Commander setup            | 80%           |
 
 ---
 
@@ -168,24 +168,32 @@ import { homedir } from 'os';
 import { join } from 'path';
 
 const ConfigSchema = z.object({
-  llm: z.object({
-    provider: z.enum(['openai', 'anthropic']).default('openai'),
-    model: z.string().default('gpt-4o'),
-    temperature: z.number().min(0).max(2).default(0.7),
-  }).default({}),
-  tts: z.object({
-    engine: z.enum(['kokoro', 'edge', 'elevenlabs']).default('kokoro'),
-    voice: z.string().default('af_heart'),
-  }).default({}),
-  output: z.object({
-    resolution: z.enum(['1080x1920', '720x1280']).default('1080x1920'),
-    fps: z.number().default(30),
-    format: z.enum(['mp4', 'webm']).default('mp4'),
-  }).default({}),
-  defaults: z.object({
-    archetype: z.string().default('listicle'),
-    orientation: z.enum(['portrait', 'landscape', 'square']).default('portrait'),
-  }).default({}),
+  llm: z
+    .object({
+      provider: z.enum(['openai', 'anthropic']).default('openai'),
+      model: z.string().default('gpt-4o'),
+      temperature: z.number().min(0).max(2).default(0.7),
+    })
+    .default({}),
+  tts: z
+    .object({
+      engine: z.enum(['kokoro', 'edge', 'elevenlabs']).default('kokoro'),
+      voice: z.string().default('af_heart'),
+    })
+    .default({}),
+  output: z
+    .object({
+      resolution: z.enum(['1080x1920', '720x1280']).default('1080x1920'),
+      fps: z.number().default(30),
+      format: z.enum(['mp4', 'webm']).default('mp4'),
+    })
+    .default({}),
+  defaults: z
+    .object({
+      archetype: z.string().default('listicle'),
+      orientation: z.enum(['portrait', 'landscape', 'square']).default('portrait'),
+    })
+    .default({}),
 });
 
 export type Config = z.infer<typeof ConfigSchema>;
@@ -193,11 +201,11 @@ export type Config = z.infer<typeof ConfigSchema>;
 export function loadConfig(): Config {
   // Load .env first
   loadDotenv();
-  
+
   // Load ~/.cmrc.json if exists
   const rcPath = join(homedir(), '.cmrc.json');
   let fileConfig = {};
-  
+
   if (existsSync(rcPath)) {
     try {
       fileConfig = JSON.parse(readFileSync(rcPath, 'utf-8'));
@@ -205,7 +213,7 @@ export function loadConfig(): Config {
       // Invalid JSON, use defaults
     }
   }
-  
+
   // Validate and return
   return ConfigSchema.parse(fileConfig);
 }
@@ -216,7 +224,7 @@ export function getApiKey(provider: 'openai' | 'anthropic' | 'pexels'): string {
     anthropic: 'ANTHROPIC_API_KEY',
     pexels: 'PEXELS_API_KEY',
   };
-  
+
   const key = process.env[keyMap[provider]];
   if (!key) {
     throw new ConfigError(`Missing ${keyMap[provider]} environment variable`);
@@ -235,8 +243,11 @@ export abstract class CMError extends Error {
   abstract readonly code: string;
   abstract readonly category: 'config' | 'api' | 'validation' | 'io' | 'render';
   abstract readonly retryable: boolean;
-  
-  constructor(message: string, public readonly cause?: Error) {
+
+  constructor(
+    message: string,
+    public readonly cause?: Error
+  ) {
     super(message);
     this.name = this.constructor.name;
   }
@@ -254,7 +265,7 @@ export class APIError extends CMError {
   readonly code = 'E_API';
   readonly category = 'api' as const;
   readonly retryable = true;
-  
+
   constructor(
     message: string,
     public readonly provider: string,
@@ -269,7 +280,7 @@ export class APIError extends CMError {
 export class RateLimitError extends APIError {
   readonly code = 'E_RATE_LIMIT';
   readonly retryable = true;
-  
+
   constructor(
     provider: string,
     public readonly retryAfter?: number,
@@ -284,8 +295,11 @@ export class ValidationError extends CMError {
   readonly code = 'E_VALIDATION';
   readonly category = 'validation' as const;
   readonly retryable = false;
-  
-  constructor(message: string, public readonly field?: string) {
+
+  constructor(
+    message: string,
+    public readonly field?: string
+  ) {
     super(message);
   }
 }
@@ -293,9 +307,9 @@ export class ValidationError extends CMError {
 // Schema validation errors
 export class SchemaError extends ValidationError {
   readonly code = 'E_SCHEMA';
-  
+
   constructor(public readonly issues: z.ZodIssue[]) {
-    super(`Schema validation failed: ${issues.map(i => i.message).join(', ')}`);
+    super(`Schema validation failed: ${issues.map((i) => i.message).join(', ')}`);
   }
 }
 
@@ -304,8 +318,12 @@ export class IOError extends CMError {
   readonly code = 'E_IO';
   readonly category = 'io' as const;
   readonly retryable = false;
-  
-  constructor(message: string, public readonly path?: string, cause?: Error) {
+
+  constructor(
+    message: string,
+    public readonly path?: string,
+    cause?: Error
+  ) {
     super(message, cause);
   }
 }
@@ -349,14 +367,10 @@ export interface ChatResponse {
 
 export interface LLMProvider {
   readonly name: string;
-  
+
   chat(messages: ChatMessage[], options?: ChatOptions): Promise<ChatResponse>;
-  
-  chatJson<T>(
-    messages: ChatMessage[],
-    schema: z.ZodSchema<T>,
-    options?: ChatOptions
-  ): Promise<T>;
+
+  chatJson<T>(messages: ChatMessage[], schema: z.ZodSchema<T>, options?: ChatOptions): Promise<T>;
 }
 ```
 
@@ -374,14 +388,14 @@ export class OpenAIProvider implements LLMProvider {
   readonly name = 'openai';
   private client: OpenAI;
   private model: string;
-  
+
   constructor(model: string = 'gpt-4o') {
     this.model = model;
     this.client = new OpenAI({
       apiKey: getApiKey('openai'),
     });
   }
-  
+
   async chat(messages: ChatMessage[], options?: ChatOptions): Promise<ChatResponse> {
     try {
       const response = await this.client.chat.completions.create({
@@ -391,7 +405,7 @@ export class OpenAIProvider implements LLMProvider {
         max_tokens: options?.maxTokens,
         response_format: options?.jsonMode ? { type: 'json_object' } : undefined,
       });
-      
+
       return {
         content: response.choices[0].message.content ?? '',
         usage: {
@@ -403,32 +417,27 @@ export class OpenAIProvider implements LLMProvider {
       };
     } catch (error) {
       if (error instanceof OpenAI.APIError) {
-        throw new APIError(
-          error.message,
-          'openai',
-          error.status,
-          error
-        );
+        throw new APIError(error.message, 'openai', error.status, error);
       }
       throw error;
     }
   }
-  
+
   async chatJson<T>(
     messages: ChatMessage[],
     schema: z.ZodSchema<T>,
     options?: ChatOptions
   ): Promise<T> {
     const response = await this.chat(messages, { ...options, jsonMode: true });
-    
+
     try {
       const parsed = JSON.parse(response.content);
       const result = schema.safeParse(parsed);
-      
+
       if (!result.success) {
         throw new SchemaError(result.error.issues);
       }
-      
+
       return result.data;
     } catch (error) {
       if (error instanceof SchemaError) throw error;
@@ -456,35 +465,35 @@ export class FakeLLMProvider implements LLMProvider {
   readonly name = 'fake';
   private queue: QueuedResponse[] = [];
   private calls: ChatMessage[][] = [];
-  
+
   queueResponse(content: string, usage?: Partial<ChatResponse['usage']>): void {
     this.queue.push({ content, usage });
   }
-  
+
   queueJsonResponse<T>(data: T): void {
     this.queue.push({ content: JSON.stringify(data) });
   }
-  
+
   getCalls(): ChatMessage[][] {
     return this.calls;
   }
-  
+
   getLastCall(): ChatMessage[] | undefined {
     return this.calls[this.calls.length - 1];
   }
-  
+
   clearCalls(): void {
     this.calls = [];
   }
-  
+
   async chat(messages: ChatMessage[], _options?: ChatOptions): Promise<ChatResponse> {
     this.calls.push(messages);
-    
+
     const response = this.queue.shift();
     if (!response) {
       throw new Error('FakeLLMProvider: No response queued');
     }
-    
+
     return {
       content: response.content,
       usage: {
@@ -495,7 +504,7 @@ export class FakeLLMProvider implements LLMProvider {
       model: 'fake-model',
     };
   }
-  
+
   async chatJson<T>(
     messages: ChatMessage[],
     schema: z.ZodSchema<T>,
@@ -519,12 +528,12 @@ import { version } from '../../package.json';
 
 export function createCLI(): Command {
   const program = new Command();
-  
+
   program
     .name('cm')
     .description('content-machine: AI-powered short-form video generator')
     .version(version);
-  
+
   // Placeholder commands (implemented in later phases)
   program
     .command('generate <topic>')
@@ -534,7 +543,7 @@ export function createCLI(): Command {
     .action(async (topic, options) => {
       console.log('cm generate not yet implemented');
     });
-  
+
   program
     .command('script <topic>')
     .description('Generate a video script')
@@ -543,7 +552,7 @@ export function createCLI(): Command {
     .action(async (topic, options) => {
       console.log('cm script not yet implemented');
     });
-  
+
   program
     .command('audio')
     .description('Generate voiceover from script')
@@ -552,7 +561,7 @@ export function createCLI(): Command {
     .action(async (options) => {
       console.log('cm audio not yet implemented');
     });
-  
+
   program
     .command('visuals')
     .description('Find matching stock footage')
@@ -561,7 +570,7 @@ export function createCLI(): Command {
     .action(async (options) => {
       console.log('cm visuals not yet implemented');
     });
-  
+
   program
     .command('render')
     .description('Render final video')
@@ -570,7 +579,7 @@ export function createCLI(): Command {
     .action(async (options) => {
       console.log('cm render not yet implemented');
     });
-  
+
   return program;
 }
 
@@ -600,14 +609,14 @@ describe('loadConfig', () => {
     expect(config.llm.provider).toBe('openai');
     expect(config.tts.engine).toBe('kokoro');
   });
-  
+
   it('should merge file config with defaults', () => {
     // Mock fs.readFileSync to return custom config
     vi.mock('fs', () => ({
       existsSync: () => true,
       readFileSync: () => JSON.stringify({ llm: { model: 'gpt-4o-mini' } }),
     }));
-    
+
     const config = loadConfig();
     expect(config.llm.model).toBe('gpt-4o-mini');
     expect(config.tts.engine).toBe('kokoro'); // Still default
@@ -619,7 +628,7 @@ describe('getApiKey', () => {
     process.env.OPENAI_API_KEY = 'sk-test';
     expect(getApiKey('openai')).toBe('sk-test');
   });
-  
+
   it('should throw ConfigError when key missing', () => {
     delete process.env.OPENAI_API_KEY;
     expect(() => getApiKey('openai')).toThrow(ConfigError);
@@ -646,11 +655,11 @@ describe('ScriptOutputSchema', () => {
       ],
       metadata: { archetype: 'listicle', estimatedDuration: 45 },
     };
-    
+
     const result = ScriptOutputSchema.safeParse(script);
     expect(result.success).toBe(true);
   });
-  
+
   it('should reject script with less than 3 scenes', () => {
     const script = {
       title: 'Test',
@@ -658,7 +667,7 @@ describe('ScriptOutputSchema', () => {
       scenes: [{ id: 1, narration: 'One', visualDirection: 'Show' }],
       metadata: { archetype: 'listicle', estimatedDuration: 10 },
     };
-    
+
     const result = ScriptOutputSchema.safeParse(script);
     expect(result.success).toBe(false);
   });
@@ -678,13 +687,13 @@ describe('Error Taxonomy', () => {
     expect(error.retryable).toBe(true);
     expect(error.category).toBe('api');
   });
-  
+
   it('RateLimitError should include retry-after', () => {
     const error = new RateLimitError('openai', 60);
     expect(error.retryAfter).toBe(60);
     expect(error.code).toBe('E_RATE_LIMIT');
   });
-  
+
   it('SchemaError should include Zod issues', () => {
     const issues = [{ code: 'custom', path: ['field'], message: 'Invalid' }];
     const error = new SchemaError(issues as any);
@@ -698,23 +707,27 @@ describe('Error Taxonomy', () => {
 ## 5. Validation Checklist
 
 ### 5.1 Layer 1: Schema Validation
+
 - [ ] All Zod schemas compile without errors
 - [ ] Schema tests cover valid and invalid cases
 - [ ] z.infer types are exported
 
 ### 5.2 Layer 2: Programmatic Checks
+
 - [ ] `npm run build` succeeds
 - [ ] `npm test` passes with >90% coverage on core modules
 - [ ] `npm run type-check` has no errors
 - [ ] `npm run lint` passes
 
 ### 5.3 Layer 3: Integration
+
 - [ ] `cm --help` outputs command list
 - [ ] `cm --version` outputs version
 - [ ] `cm script --help` shows options
 - [ ] Configuration loads from ~/.cmrc.json
 
 ### 5.4 Documentation
+
 - [ ] README.md has installation instructions
 - [ ] .env.example has all required variables
 - [ ] CONTRIBUTING.md explains development setup
@@ -723,13 +736,13 @@ describe('Error Taxonomy', () => {
 
 ## 6. Research References
 
-| Topic | Document |
-|-------|----------|
-| Configuration patterns | [SECTION-CONFIG-SYSTEMS-20260104.md](../research/sections/SECTION-CONFIG-SYSTEMS-20260104.md) |
-| Schema validation | [SECTION-SCHEMAS-VALIDATION-20260104.md](../research/sections/SECTION-SCHEMAS-VALIDATION-20260104.md) |
-| Error taxonomy | [RQ-14-ERROR-TAXONOMY-20260104.md](../research/investigations/RQ-14-ERROR-TAXONOMY-20260104.md) |
-| CLI architecture | [SECTION-CLI-ARCHITECTURE-20260104.md](../research/sections/SECTION-CLI-ARCHITECTURE-20260104.md) |
-| LLM providers | [L3-CAT-G-AGENT-FRAMEWORKS-20260104.md](../research/synthesis/L3-CAT-G-AGENT-FRAMEWORKS-20260104.md) |
+| Topic                  | Document                                                                                              |
+| ---------------------- | ----------------------------------------------------------------------------------------------------- |
+| Configuration patterns | [SECTION-CONFIG-SYSTEMS-20260104.md](../research/sections/SECTION-CONFIG-SYSTEMS-20260104.md)         |
+| Schema validation      | [SECTION-SCHEMAS-VALIDATION-20260104.md](../research/sections/SECTION-SCHEMAS-VALIDATION-20260104.md) |
+| Error taxonomy         | [RQ-14-ERROR-TAXONOMY-20260104.md](../research/investigations/RQ-14-ERROR-TAXONOMY-20260104.md)       |
+| CLI architecture       | [SECTION-CLI-ARCHITECTURE-20260104.md](../research/sections/SECTION-CLI-ARCHITECTURE-20260104.md)     |
+| LLM providers          | [L3-CAT-G-AGENT-FRAMEWORKS-20260104.md](../research/synthesis/L3-CAT-G-AGENT-FRAMEWORKS-20260104.md)  |
 
 ---
 

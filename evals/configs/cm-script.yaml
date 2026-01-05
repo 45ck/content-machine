@@ -61,8 +61,8 @@ defaultTest:
 tests:
   # Listicle archetype
   - vars:
-      topic: "5 JavaScript tips every developer should know"
-      archetype: "listicle"
+      topic: '5 JavaScript tips every developer should know'
+      archetype: 'listicle'
     assert:
       # Layer 1: Schema validation
       - type: javascript
@@ -126,8 +126,8 @@ tests:
 
   # Versus archetype
   - vars:
-      topic: "Redis vs PostgreSQL for caching"
-      archetype: "versus"
+      topic: 'Redis vs PostgreSQL for caching'
+      archetype: 'versus'
     assert:
       - type: javascript
         value: |
@@ -162,8 +162,8 @@ tests:
 
   # Story archetype
   - vars:
-      topic: "How I learned React in 2 weeks"
-      archetype: "story"
+      topic: 'How I learned React in 2 weeks'
+      archetype: 'story'
     assert:
       - type: javascript
         value: |
@@ -189,8 +189,8 @@ tests:
 
   # Hot-take archetype
   - vars:
-      topic: "TypeScript is overrated"
-      archetype: "hot-take"
+      topic: 'TypeScript is overrated'
+      archetype: 'hot-take'
     assert:
       - type: javascript
         value: |
@@ -216,8 +216,8 @@ tests:
 
   # Howto archetype
   - vars:
-      topic: "How to deploy a Node.js app in 5 minutes"
-      archetype: "howto"
+      topic: 'How to deploy a Node.js app in 5 minutes'
+      archetype: 'howto'
     assert:
       - type: javascript
         value: |
@@ -243,8 +243,8 @@ tests:
 
   # Myth archetype
   - vars:
-      topic: "You need a CS degree to be a developer"
-      archetype: "myth"
+      topic: 'You need a CS degree to be a developer'
+      archetype: 'myth'
     assert:
       - type: javascript
         value: |

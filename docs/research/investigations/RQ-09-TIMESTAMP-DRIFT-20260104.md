@@ -10,6 +10,7 @@
 ## 1. Problem Statement
 
 Timestamp drift occurs when:
+
 - ASR finds fewer/more words than TTS input
 - TTS timing doesn't match expected duration
 - Punctuation affects word boundaries
@@ -35,19 +36,19 @@ def similarity(a: str, b: str) -> float:
 def match_subtitle_to_script(asr_segments: list, script_lines: list) -> list:
     """Match ASR segments to original script lines."""
     SIMILARITY_THRESHOLD = 0.8
-    
+
     matched = []
     script_index = 0
     accumulated_text = ""
-    
+
     for segment in asr_segments:
         accumulated_text += " " + segment["text"]
         accumulated_text = accumulated_text.strip()
-        
+
         if script_index < len(script_lines):
             target_line = script_lines[script_index]
             sim = similarity(accumulated_text, target_line)
-            
+
             if sim >= SIMILARITY_THRESHOLD:
                 matched.append({
                     "text": target_line,  # Use original text
@@ -56,7 +57,7 @@ def match_subtitle_to_script(asr_segments: list, script_lines: list) -> list:
                 })
                 accumulated_text = ""
                 script_index += 1
-    
+
     return matched
 ```
 
@@ -91,7 +92,7 @@ def filter_speech_segments(audio, vad_model):
 def interpolate_nans(timestamps: np.ndarray, method: str = "nearest") -> np.ndarray:
     """Fill missing timestamps using interpolation."""
     valid_mask = ~np.isnan(timestamps)
-    
+
     if method == "nearest":
         # Forward fill, then backward fill
         timestamps = pd.Series(timestamps).ffill().bfill().values
@@ -102,7 +103,7 @@ def interpolate_nans(timestamps: np.ndarray, method: str = "nearest") -> np.ndar
             np.where(valid_mask)[0],
             timestamps[valid_mask]
         )
-    
+
     return timestamps
 ```
 
@@ -118,10 +119,10 @@ def estimate_word_timings(text: str, start_time: float, end_time: float) -> list
     words = text.split()
     total_chars = sum(len(w) for w in words)
     duration = end_time - start_time
-    
+
     timings = []
     current_time = start_time
-    
+
     for word in words:
         word_duration = (len(word) / total_chars) * duration
         timings.append({
@@ -130,7 +131,7 @@ def estimate_word_timings(text: str, start_time: float, end_time: float) -> list
             "end": current_time + word_duration,
         })
         current_time += word_duration
-    
+
     return timings
 ```
 
@@ -145,16 +146,16 @@ def split_by_punctuation(text: str) -> list[str]:
     """Split text at punctuation marks for subtitle grouping."""
     segments = []
     current = ""
-    
+
     for char in text:
         current += char
         if char in PUNCTUATION_MARKS:
             segments.append(current.strip())
             current = ""
-    
+
     if current.strip():
         segments.append(current.strip())
-    
+
     return segments
 
 def normalize_for_matching(text: str) -> str:
@@ -169,10 +170,10 @@ def normalize_for_matching(text: str) -> str:
 ```typescript
 function mergeTokensIntoWords(tokens: Token[]): Word[] {
   const words: Word[] = [];
-  
+
   for (const token of tokens) {
     // Tokens without leading space are continuations
-    if (!token.text.startsWith(" ") && words.length > 0) {
+    if (!token.text.startsWith(' ') && words.length > 0) {
       const lastWord = words[words.length - 1];
       lastWord.text += token.text;
       lastWord.end = token.t1;
@@ -184,7 +185,7 @@ function mergeTokensIntoWords(tokens: Token[]): Word[] {
       });
     }
   }
-  
+
   return words;
 }
 ```
@@ -200,18 +201,15 @@ function mergeTokensIntoWords(tokens: Token[]): Word[] {
 **Solution:** Use original script text with interpolated timing.
 
 ```typescript
-function handleMissingWords(
-  expectedWords: string[],
-  asrWords: Word[]
-): Word[] {
+function handleMissingWords(expectedWords: string[], asrWords: Word[]): Word[] {
   if (asrWords.length >= expectedWords.length) {
     return asrWords;
   }
-  
+
   // Distribute missing words proportionally
   const totalDuration = asrWords[asrWords.length - 1].end - asrWords[0].start;
   const durationPerWord = totalDuration / expectedWords.length;
-  
+
   return expectedWords.map((word, i) => ({
     word,
     start: asrWords[0].start + i * durationPerWord,
@@ -227,18 +225,15 @@ function handleMissingWords(
 **Solution:** Filter to match expected words using Levenshtein.
 
 ```typescript
-function filterExtraWords(
-  expectedWords: string[],
-  asrWords: Word[]
-): Word[] {
+function filterExtraWords(expectedWords: string[], asrWords: Word[]): Word[] {
   const result: Word[] = [];
   let asrIndex = 0;
-  
+
   for (const expected of expectedWords) {
     // Find best match in remaining ASR words
     let bestMatch = -1;
     let bestSim = 0;
-    
+
     for (let i = asrIndex; i < Math.min(asrIndex + 3, asrWords.length); i++) {
       const sim = similarity(expected, asrWords[i].word);
       if (sim > bestSim) {
@@ -246,17 +241,17 @@ function filterExtraWords(
         bestMatch = i;
       }
     }
-    
+
     if (bestMatch >= 0 && bestSim > 0.6) {
       result.push({
-        word: expected,  // Use original text
+        word: expected, // Use original text
         start: asrWords[bestMatch].start,
         end: asrWords[bestMatch].end,
       });
       asrIndex = bestMatch + 1;
     }
   }
-  
+
   return result;
 }
 ```
@@ -271,11 +266,11 @@ function filterExtraWords(
 function validateDuration(
   expectedDurationMs: number,
   actualDurationMs: number,
-  tolerance: number = 0.1  // 10%
+  tolerance: number = 0.1 // 10%
 ): { valid: boolean; driftMs: number } {
   const driftMs = actualDurationMs - expectedDurationMs;
   const driftRatio = Math.abs(driftMs) / expectedDurationMs;
-  
+
   if (driftRatio > tolerance) {
     logger.warn('Audio duration drift detected', {
       expected: expectedDurationMs,
@@ -284,7 +279,7 @@ function validateDuration(
       driftPercent: (driftRatio * 100).toFixed(1),
     });
   }
-  
+
   return {
     valid: driftRatio <= tolerance,
     driftMs,
@@ -308,24 +303,24 @@ interface AlignmentOptions {
 
 function alignWords(options: AlignmentOptions): Word[] {
   const { expectedWords, asrWords, audioDurationMs, tolerancePct = 10 } = options;
-  
+
   // Step 1: Validate word counts
   const countDiff = Math.abs(expectedWords.length - asrWords.length);
   const diffRatio = countDiff / expectedWords.length;
-  
+
   if (diffRatio > 0.2) {
     logger.warn('Significant word count mismatch', {
       expected: expectedWords.length,
       found: asrWords.length,
     });
   }
-  
+
   // Step 2: Match words using Levenshtein
   const matched = matchWordsByContent(expectedWords, asrWords);
-  
+
   // Step 3: Fill gaps with interpolation
   const filled = interpolateMissingTimings(matched, audioDurationMs);
-  
+
   // Step 4: Normalize to use original text
   return filled.map((w, i) => ({
     word: expectedWords[i] ?? w.word,
@@ -345,19 +340,18 @@ function alignSceneBoundaries(
 ): SceneTimestamp[] {
   const result: SceneTimestamp[] = [];
   let wordIndex = 0;
-  
+
   for (const scene of scenes) {
     const sceneWordCount = scene.text.split(/\s+/).length;
     const sceneWords = words.slice(wordIndex, wordIndex + sceneWordCount);
-    
+
     if (sceneWords.length === 0) {
       // Estimate based on remaining duration
-      const remainingDuration = audioDurationMs - (result.length > 0 
-        ? result[result.length - 1].endMs 
-        : 0);
+      const remainingDuration =
+        audioDurationMs - (result.length > 0 ? result[result.length - 1].endMs : 0);
       const remainingScenes = scenes.length - result.length;
       const estimatedDuration = remainingDuration / remainingScenes;
-      
+
       const lastEnd = result.length > 0 ? result[result.length - 1].endMs : 0;
       result.push({
         sceneId: scene.id,
@@ -375,10 +369,10 @@ function alignSceneBoundaries(
         estimated: false,
       });
     }
-    
+
     wordIndex += sceneWordCount;
   }
-  
+
   return result;
 }
 ```
@@ -387,24 +381,24 @@ function alignSceneBoundaries(
 
 ## 5. Quality Metrics
 
-| Metric | Target | Measurement |
-|--------|--------|-------------|
-| Word count match | >90% | (matched words / expected words) |
-| Timing accuracy | <100ms | Average difference from reference |
-| Duration drift | <10% | (actual - expected) / expected |
-| Interpolation rate | <20% | Words with estimated timing |
+| Metric             | Target | Measurement                       |
+| ------------------ | ------ | --------------------------------- |
+| Word count match   | >90%   | (matched words / expected words)  |
+| Timing accuracy    | <100ms | Average difference from reference |
+| Duration drift     | <10%   | (actual - expected) / expected    |
+| Interpolation rate | <20%   | Words with estimated timing       |
 
 ---
 
 ## 6. Implementation Recommendations
 
-| Pattern | Priority | Rationale |
-|---------|----------|-----------|
-| Levenshtein matching | P0 | Handle ASR variations |
-| Proportional interpolation | P0 | Fill missing words |
-| Duration validation | P1 | Detect TTS issues |
-| Scene boundary adjustment | P1 | Accurate scene timing |
-| Quality metrics logging | P2 | Monitor alignment quality |
+| Pattern                    | Priority | Rationale                 |
+| -------------------------- | -------- | ------------------------- |
+| Levenshtein matching       | P0       | Handle ASR variations     |
+| Proportional interpolation | P0       | Fill missing words        |
+| Duration validation        | P1       | Detect TTS issues         |
+| Scene boundary adjustment  | P1       | Accurate scene timing     |
+| Quality metrics logging    | P2       | Monitor alignment quality |
 
 ---
 

@@ -1,8 +1,9 @@
 # Deep Dive #59: Research Agents, Schema Validation & Caption Infrastructure
+
 **Date:** 2026-01-02  
 **Category:** Research, Validation, ASR/Captions  
 **Status:** Complete  
-**Priority:** High - Intelligence & Data Quality Layer  
+**Priority:** High - Intelligence & Data Quality Layer
 
 ---
 
@@ -11,6 +12,7 @@
 This deep dive documents the research agent frameworks, schema validation libraries, and caption/ASR infrastructure in content-machine's vendored repositories. These components form the intelligence and data quality layer of the video generation pipeline.
 
 **Key Findings:**
+
 1. **GPT Researcher + Open Deep Research** provide production-ready research agents
 2. **Instructor** enables reliable structured outputs from any LLM
 3. **WhisperX** provides 70x realtime ASR with word-level timestamps
@@ -26,11 +28,12 @@ This deep dive documents the research agent frameworks, schema validation librar
 **Location:** `vendor/research/gpt-researcher`  
 **Language:** Python  
 **License:** MIT  
-**Stars:** 16k+  
+**Stars:** 16k+
 
 **Core Concept:** Autonomous research agent that produces detailed, factual, unbiased reports with citations.
 
 **Architecture:**
+
 ```
 Research Query
       ↓
@@ -48,6 +51,7 @@ Final Research Report (2000+ words)
 ```
 
 **Key Features:**
+
 - 📝 Reports > 2,000 words with citations
 - 🌐 20+ sources aggregated
 - 🖼️ Smart image scraping
@@ -56,12 +60,14 @@ Final Research Report (2000+ words)
 - 🔍 JavaScript-enabled scraping
 
 **Why GPT Researcher?**
+
 - Manual research takes weeks
 - LLMs hallucinate on current events
 - Token limits prevent long reports
 - Limited sources = bias
 
 **Integration Pattern:**
+
 ```python
 from gpt_researcher import GPTResearcher
 
@@ -72,14 +78,14 @@ async def research_trend(topic: str) -> dict:
         report_type="research_report",
         source_urls=[]  # Auto-search
     )
-    
+
     # Conduct research (5-10 minutes)
     report = await researcher.conduct_research()
-    
+
     # Get structured data
     sources = researcher.get_source_urls()
     context = researcher.get_research_context()
-    
+
     return {
         "report": report,
         "sources": sources,
@@ -88,6 +94,7 @@ async def research_trend(topic: str) -> dict:
 ```
 
 **content-machine Relevance:**
+
 - Research phase of content pipeline
 - Fact-checking for product-truthful videos
 - Source gathering for citations in video descriptions
@@ -100,11 +107,12 @@ async def research_trend(topic: str) -> dict:
 **Location:** `vendor/research/open-deep-research`  
 **Language:** Python  
 **License:** MIT  
-**Creator:** LangChain  
+**Creator:** LangChain
 
 **Core Concept:** Configurable deep research agent with model/search provider flexibility.
 
 **Architecture:**
+
 ```
 Research Query
       ↓
@@ -120,12 +128,14 @@ Final Report Model (gpt-4.1)
 ```
 
 **Key Differentiators:**
+
 - **Multi-Model:** Different models for different stages
 - **MCP Compatible:** Native MCP server support
 - **Benchmarked:** #6 on Deep Research Bench
 - **LangGraph Studio:** Visual debugging
 
 **Configuration:**
+
 ```python
 # .env configuration
 SUMMARIZATION_MODEL=openai:gpt-4.1-mini
@@ -136,6 +146,7 @@ SEARCH_API=tavily  # or mcp, openai_websearch, anthropic_websearch
 ```
 
 **LangGraph Integration:**
+
 ```python
 from open_deep_research import create_research_graph
 
@@ -151,6 +162,7 @@ report = result["final_report"]
 ```
 
 **content-machine Relevance:**
+
 - LangGraph-native research integration
 - Configurable model selection
 - MCP server compatibility
@@ -165,17 +177,19 @@ report = result["final_report"]
 **Location:** `vendor/schema/instructor`  
 **Language:** Python  
 **License:** MIT  
-**Stars:** 8k+  
+**Stars:** 8k+
 
 **Core Concept:** Get reliable JSON from any LLM using Pydantic validation.
 
 **Key Benefits:**
+
 - **No JSON parsing:** Automatic extraction
 - **Type safety:** Pydantic models
 - **Automatic retries:** Validation errors trigger re-prompts
 - **Multi-provider:** OpenAI, Anthropic, Gemini, Mistral, etc.
 
 **Basic Pattern:**
+
 ```python
 import instructor
 from pydantic import BaseModel, Field
@@ -202,6 +216,7 @@ print(script.hook)   # "Stop writing slow Python code..."
 ```
 
 **Advanced Pattern - Iterable Outputs:**
+
 ```python
 from instructor import Iterable
 
@@ -221,6 +236,7 @@ for scene in client.chat.completions.create(
 ```
 
 **Retry Pattern:**
+
 ```python
 from instructor import Maybe
 
@@ -243,6 +259,7 @@ else:
 ```
 
 **content-machine Relevance:**
+
 - Script generation with guaranteed structure
 - Scene breakdown with validation
 - Review outputs with approval flags
@@ -255,17 +272,19 @@ else:
 **Location:** `vendor/schema/zod`  
 **Language:** TypeScript  
 **License:** MIT  
-**Stars:** 35k+  
+**Stars:** 35k+
 
 **Core Concept:** TypeScript-first schema validation with static type inference.
 
 **Key Features:**
+
 - Zero dependencies
 - Works in Node.js and browsers
 - Static type inference from schemas
 - Composable and chainable
 
 **Video Pipeline Schemas:**
+
 ```typescript
 import { z } from 'zod';
 
@@ -276,11 +295,15 @@ const SceneSchema = z.object({
   duration_ms: z.number().int().min(1000).max(60000),
   visual_type: z.enum(['capture', 'stock', 'text', 'animation']),
   audio_type: z.enum(['narration', 'music', 'sfx', 'silent']),
-  captions: z.array(z.object({
-    text: z.string(),
-    start_ms: z.number(),
-    end_ms: z.number(),
-  })).optional(),
+  captions: z
+    .array(
+      z.object({
+        text: z.string(),
+        start_ms: z.number(),
+        end_ms: z.number(),
+      })
+    )
+    .optional(),
 });
 
 // Video project schema
@@ -303,8 +326,8 @@ type Scene = z.infer<typeof SceneSchema>;
 type VideoProject = z.infer<typeof VideoProjectSchema>;
 
 // Validation
-const project = VideoProjectSchema.parse(rawData);  // Throws on invalid
-const result = VideoProjectSchema.safeParse(rawData);  // Returns result object
+const project = VideoProjectSchema.parse(rawData); // Throws on invalid
+const result = VideoProjectSchema.safeParse(rawData); // Returns result object
 if (result.success) {
   console.log(result.data);
 } else {
@@ -313,6 +336,7 @@ if (result.success) {
 ```
 
 **Integration with OpenAI Agents SDK:**
+
 ```typescript
 import { z } from 'zod';
 import { Agent, tool } from '@openai/agents';
@@ -332,6 +356,7 @@ const scriptTool = tool({
 ```
 
 **content-machine Relevance:**
+
 - TypeScript-native schema definitions
 - MCP tool parameter validation
 - Video project configuration validation
@@ -344,17 +369,19 @@ const scriptTool = tool({
 **Location:** `vendor/schema/pydantic`  
 **Language:** Python  
 **License:** MIT  
-**Stars:** 22k+  
+**Stars:** 22k+
 
 **Core Concept:** Data validation using Python type hints.
 
 **Key Features:**
+
 - Type coercion
 - Detailed validation errors
 - JSON Schema generation
 - Dataclass compatibility
 
 **Video Pipeline Models:**
+
 ```python
 from pydantic import BaseModel, Field, field_validator
 from typing import Literal
@@ -365,7 +392,7 @@ class Caption(BaseModel):
     text: str
     start_ms: int = Field(ge=0)
     end_ms: int = Field(ge=0)
-    
+
     @field_validator('end_ms')
     def end_after_start(cls, v, values):
         if 'start_ms' in values.data and v <= values.data['start_ms']:
@@ -388,7 +415,7 @@ class VideoProject(BaseModel):
     fps: Literal[30, 60] = 30
     scenes: list[Scene] = Field(min_length=1)
     created_at: datetime = Field(default_factory=datetime.utcnow)
-    
+
     model_config = {
         'json_schema_extra': {
             'examples': [
@@ -403,6 +430,7 @@ class VideoProject(BaseModel):
 ```
 
 **JSON Schema Export:**
+
 ```python
 # Generate JSON Schema for MCP/API documentation
 schema = VideoProject.model_json_schema()
@@ -418,11 +446,12 @@ print(json.dumps(schema, indent=2))
 **Location:** `vendor/captions/whisperx`  
 **Language:** Python  
 **License:** BSD  
-**Stars:** 13k+  
+**Stars:** 13k+
 
 **Core Concept:** 70x realtime transcription with word-level timestamps and speaker diarization.
 
 **Architecture:**
+
 ```
 Audio Input
       ↓
@@ -438,6 +467,7 @@ Word-Level Timestamps + Speaker IDs
 ```
 
 **Key Features:**
+
 - ⚡ 70x realtime with large-v2
 - 🪶 <8GB GPU memory
 - 🎯 Word-level timestamps
@@ -445,6 +475,7 @@ Word-Level Timestamps + Speaker IDs
 - 🗣️ VAD preprocessing (reduces hallucination)
 
 **Basic Usage:**
+
 ```python
 import whisperx
 
@@ -479,6 +510,7 @@ for segment in aligned["segments"]:
 ```
 
 **Speaker Diarization:**
+
 ```python
 # Load diarization model (requires HuggingFace token)
 diarize_model = whisperx.DiarizationPipeline(
@@ -498,6 +530,7 @@ for segment in result["segments"]:
 ```
 
 **content-machine Relevance:**
+
 - Primary ASR for video captioning
 - Word-level timestamps for animated captions
 - Speaker diarization for interview content
@@ -509,7 +542,7 @@ for segment in result["segments"]:
 
 **Location:** `vendor/captions/whisper`  
 **Language:** Python  
-**License:** MIT  
+**License:** MIT
 
 **Core Concept:** Original OpenAI Whisper model for robust speech recognition.
 
@@ -523,6 +556,7 @@ for segment in result["segments"]:
 | large-v2 | 1550M | ~10GB | 1x |
 
 **Basic Usage:**
+
 ```python
 import whisper
 
@@ -535,6 +569,7 @@ for segment in result["segments"]:
 ```
 
 **content-machine Relevance:**
+
 - Fallback when WhisperX unavailable
 - Simpler API for quick prototyping
 - Multi-language support (99 languages)
@@ -545,11 +580,12 @@ for segment in result["segments"]:
 
 **Location:** `vendor/captions/auto-subtitle-generator`  
 **Language:** Python  
-**License:** MIT  
+**License:** MIT
 
 **Core Concept:** Generate styled subtitles for short-form video (TikTok/Reels format).
 
 **Features:**
+
 - GUI interface
 - Font customization (size, color, style)
 - Y-position control
@@ -557,6 +593,7 @@ for segment in result["segments"]:
 - MoviePy-based rendering
 
 **Usage Pattern:**
+
 ```python
 # GUI-based workflow
 # 1. Load video
@@ -568,6 +605,7 @@ for segment in result["segments"]:
 ```
 
 **content-machine Relevance:**
+
 - Reference for styled subtitle rendering
 - GUI patterns for preview
 - MoviePy integration example
@@ -599,6 +637,7 @@ Force alignment synchronizes orthographic transcriptions (text) with audio recor
 ```
 
 **Integration with Remotion:**
+
 ```typescript
 // Use word-level timestamps for animated captions
 import { Word } from '@remotion/captions';
@@ -612,7 +651,7 @@ const words: Word[] = whisperxOutput.words.map(w => ({
 // Render with word highlighting
 <Captions words={words} currentTime={frame / fps * 1000}>
   {(word, isHighlighted) => (
-    <span style={{ 
+    <span style={{
       color: isHighlighted ? 'yellow' : 'white',
       fontWeight: isHighlighted ? 'bold' : 'normal'
     }}>
@@ -643,7 +682,7 @@ async def research_to_script(topic: str) -> VideoScript:
     # 1. Deep research
     researcher = GPTResearcher(query=topic)
     research = await researcher.conduct_research()
-    
+
     # 2. Structured script generation
     client = instructor.from_provider("anthropic/claude-sonnet")
     script = client.chat.completions.create(
@@ -653,7 +692,7 @@ async def research_to_script(topic: str) -> VideoScript:
             {"role": "user", "content": f"Research: {research}\n\nCreate script."}
         ]
     )
-    
+
     return script
 ```
 
@@ -667,7 +706,7 @@ async def audio_to_captions(audio_path: str) -> list[dict]:
     model = whisperx.load_model("large-v2", "cuda")
     audio = whisperx.load_audio(audio_path)
     result = model.transcribe(audio, batch_size=16)
-    
+
     # 2. Align for word-level timestamps
     model_a, metadata = whisperx.load_align_model(
         language_code=result["language"],
@@ -677,7 +716,7 @@ async def audio_to_captions(audio_path: str) -> list[dict]:
         result["segments"],
         model_a, metadata, audio, "cuda"
     )
-    
+
     # 3. Format for Remotion
     words = []
     for segment in aligned["segments"]:
@@ -687,7 +726,7 @@ async def audio_to_captions(audio_path: str) -> list[dict]:
                 "start": int(word["start"] * 1000),
                 "end": int(word["end"] * 1000),
             })
-    
+
     return words
 ```
 
@@ -702,26 +741,26 @@ async function createVideo(topic: string): Promise<VideoProject> {
   const research = await fetch('/api/research', {
     method: 'POST',
     body: JSON.stringify({ topic }),
-  }).then(r => r.json());
-  
+  }).then((r) => r.json());
+
   // 2. Generate script (Instructor via API)
   const script = await fetch('/api/script', {
     method: 'POST',
     body: JSON.stringify({ research }),
-  }).then(r => r.json());
-  
+  }).then((r) => r.json());
+
   // 3. Generate audio (Kokoro TTS)
   const audio = await fetch('/api/tts', {
     method: 'POST',
     body: JSON.stringify({ script }),
-  }).then(r => r.json());
-  
+  }).then((r) => r.json());
+
   // 4. Generate captions (WhisperX)
   const captions = await fetch('/api/captions', {
     method: 'POST',
     body: JSON.stringify({ audioPath: audio.path }),
-  }).then(r => r.json());
-  
+  }).then((r) => r.json());
+
   // 5. Validate and return
   const project = VideoProjectSchema.parse({
     title: script.title,
@@ -735,7 +774,7 @@ async function createVideo(topic: string): Promise<VideoProject> {
       captions: filterCaptions(captions, i),
     })),
   });
-  
+
   return project;
 }
 ```
@@ -746,27 +785,27 @@ async function createVideo(topic: string): Promise<VideoProject> {
 
 ### Research Agent Recommendations
 
-| Use Case | Tool | Reasoning |
-|----------|------|-----------|
-| **Deep Research** | GPT Researcher | Proven, 20+ sources, citations |
-| **LangGraph Integration** | Open Deep Research | Native LangGraph, MCP support |
-| **Quick Lookup** | Tavily directly | Simple API for focused queries |
+| Use Case                  | Tool               | Reasoning                      |
+| ------------------------- | ------------------ | ------------------------------ |
+| **Deep Research**         | GPT Researcher     | Proven, 20+ sources, citations |
+| **LangGraph Integration** | Open Deep Research | Native LangGraph, MCP support  |
+| **Quick Lookup**          | Tavily directly    | Simple API for focused queries |
 
 ### Schema Validation Recommendations
 
-| Language | Tool | Use Case |
-|----------|------|----------|
-| **TypeScript** | Zod | MCP tools, API validation |
-| **Python** | Pydantic | Data models, LLM outputs |
-| **LLM Outputs** | Instructor | Structured extraction |
+| Language        | Tool       | Use Case                  |
+| --------------- | ---------- | ------------------------- |
+| **TypeScript**  | Zod        | MCP tools, API validation |
+| **Python**      | Pydantic   | Data models, LLM outputs  |
+| **LLM Outputs** | Instructor | Structured extraction     |
 
 ### Caption/ASR Recommendations
 
-| Use Case | Tool | Reasoning |
-|----------|------|-----------|
-| **Production** | WhisperX | 70x realtime, word timestamps |
-| **Simple Tasks** | Whisper | Easy API, good enough |
-| **Interviews** | WhisperX + Diarization | Speaker identification |
+| Use Case         | Tool                   | Reasoning                     |
+| ---------------- | ---------------------- | ----------------------------- |
+| **Production**   | WhisperX               | 70x realtime, word timestamps |
+| **Simple Tasks** | Whisper                | Easy API, good enough         |
+| **Interviews**   | WhisperX + Diarization | Speaker identification        |
 
 ### Key Integration Patterns
 

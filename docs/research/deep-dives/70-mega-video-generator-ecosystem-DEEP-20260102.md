@@ -18,36 +18,36 @@ This document provides a **complete synthesis of 30+ video generator repositorie
 
 ### 1.1 By Source Content
 
-| Category | Generators | Description |
-|----------|------------|-------------|
-| **Reddit-to-Video** | RedditShortVideoMaker, OBrainRot, shorts_maker | Scrape Reddit stories, generate narrated videos |
-| **Topic-to-Video** | Crank, Faceless-short, TikTokAIVideoGenerator | Enter topic, AI generates complete video |
-| **Trend-to-Video** | Viral-Faceless-Shorts-Generator, VideoGraphAI | Google Trends → video |
-| **Long-to-Short** | Clip-Anything, ShortReelX, reels-clips-automator | Extract highlights from long videos |
-| **TikTok Compilation** | TikTok-Compilation-Video-Generator, ShortFormGenerator | Download TikToks, create compilations |
-| **Template-Based** | AI-reels, Cassette, shortrocity | Fill templates with AI content |
-| **Scheduled/Auto** | silent_autopost, gemini-youtube-automation | Automated daily posting |
+| Category               | Generators                                             | Description                                     |
+| ---------------------- | ------------------------------------------------------ | ----------------------------------------------- |
+| **Reddit-to-Video**    | RedditShortVideoMaker, OBrainRot, shorts_maker         | Scrape Reddit stories, generate narrated videos |
+| **Topic-to-Video**     | Crank, Faceless-short, TikTokAIVideoGenerator          | Enter topic, AI generates complete video        |
+| **Trend-to-Video**     | Viral-Faceless-Shorts-Generator, VideoGraphAI          | Google Trends → video                           |
+| **Long-to-Short**      | Clip-Anything, ShortReelX, reels-clips-automator       | Extract highlights from long videos             |
+| **TikTok Compilation** | TikTok-Compilation-Video-Generator, ShortFormGenerator | Download TikToks, create compilations           |
+| **Template-Based**     | AI-reels, Cassette, shortrocity                        | Fill templates with AI content                  |
+| **Scheduled/Auto**     | silent_autopost, gemini-youtube-automation             | Automated daily posting                         |
 
 ### 1.2 By Technical Approach
 
-| Approach | Generators | Key Tech |
-|----------|------------|----------|
-| **Gradio UI** | viralfactory, Faceless-short | Web interface, Gradio |
-| **Streamlit UI** | VideoGraphAI | Streamlit web app |
-| **PyQt UI** | automated-short-generator | Desktop GUI |
-| **Node.js Web** | ShortReelX | Express.js API |
-| **Terminal/CLI** | Cassette, Crank, shortrocity | Command line |
-| **Dockerized** | OBrainRot, Viral-Faceless-Shorts-Generator | Container-based |
-| **GitHub Actions** | gemini-youtube-automation | CI/CD automation |
+| Approach           | Generators                                 | Key Tech              |
+| ------------------ | ------------------------------------------ | --------------------- |
+| **Gradio UI**      | viralfactory, Faceless-short               | Web interface, Gradio |
+| **Streamlit UI**   | VideoGraphAI                               | Streamlit web app     |
+| **PyQt UI**        | automated-short-generator                  | Desktop GUI           |
+| **Node.js Web**    | ShortReelX                                 | Express.js API        |
+| **Terminal/CLI**   | Cassette, Crank, shortrocity               | Command line          |
+| **Dockerized**     | OBrainRot, Viral-Faceless-Shorts-Generator | Container-based       |
+| **GitHub Actions** | gemini-youtube-automation                  | CI/CD automation      |
 
 ### 1.3 By Target Platform
 
-| Platform | Generators |
-|----------|------------|
-| **YouTube Shorts** | All generators support |
-| **TikTok** | viralfactory, TikTok-Compilation-Video-Generator |
-| **Instagram Reels** | reels-clips-automator, viralfactory |
-| **Cross-platform** | AutoShortsAI, AI-Content-Studio |
+| Platform            | Generators                                       |
+| ------------------- | ------------------------------------------------ |
+| **YouTube Shorts**  | All generators support                           |
+| **TikTok**          | viralfactory, TikTok-Compilation-Video-Generator |
+| **Instagram Reels** | reels-clips-automator, viralfactory              |
+| **Cross-platform**  | AutoShortsAI, AI-Content-Studio                  |
 
 ---
 
@@ -63,14 +63,14 @@ This document provides a **complete synthesis of 30+ video generator repositorie
 
 ##### Key Files
 
-| File | Purpose |
-|------|---------|
-| `main.py` | Entry point |
-| `post.py` | Reddit scraping |
-| `screenshots.py` | Playwright screenshots |
-| `text_to_speech.py` | TTS generation |
-| `create_video.py` | Video assembly |
-| `background_video.py` | Background handling |
+| File                  | Purpose                |
+| --------------------- | ---------------------- |
+| `main.py`             | Entry point            |
+| `post.py`             | Reddit scraping        |
+| `screenshots.py`      | Playwright screenshots |
+| `text_to_speech.py`   | TTS generation         |
+| `create_video.py`     | Video assembly         |
+| `background_video.py` | Background handling    |
 
 ##### Pattern: Screenshot-Based Stories
 
@@ -105,6 +105,7 @@ Uses wav2vec2 forced alignment for **precise subtitle synchronization**:
 ##### Character Packs
 
 Includes pre-loaded character voices:
+
 - Trump
 - SpongeBob
 - LeBron
@@ -124,14 +125,14 @@ Includes pre-loaded character voices:
 
 ##### Key Features
 
-| Feature | Implementation |
-|---------|----------------|
-| Reddit Integration | PRAW API |
-| TTS | Configurable |
-| Subtitles | WhisperX transcription |
-| Video | MoviePy composition |
-| LLM | Ollama local models |
-| Images | FLUX.schnell |
+| Feature            | Implementation         |
+| ------------------ | ---------------------- |
+| Reddit Integration | PRAW API               |
+| TTS                | Configurable           |
+| Subtitles          | WhisperX transcription |
+| Video              | MoviePy composition    |
+| LLM                | Ollama local models    |
+| Images             | FLUX.schnell           |
 
 ##### Modern Stack
 
@@ -168,12 +169,12 @@ Topic → Gemini Script → Media → Voice → Subtitles → Video → YouTube 
 ##### Configuration (`preset.yml`)
 
 ```yaml
-NAME: "My Channel"
-PROMPT: "Create a video about..."
+NAME: 'My Channel'
+PROMPT: 'Create a video about...'
 UPLOAD: true
-DELAY: 2.5  # Hours before upload
-WHISPER_MODEL: "small"
-FONT: "Comic Sans MS"
+DELAY: 2.5 # Hours before upload
+WHISPER_MODEL: 'small'
+FONT: 'Comic Sans MS'
 ```
 
 ##### Auto-Upload
@@ -222,13 +223,13 @@ Topic → Groq Script → EdgeTTS Audio → Captions → Pexels Video → Final
 
 Combines best tools from each category:
 
-| Component | Tool |
-|-----------|------|
-| Script | Groq (LLaMA3) |
-| Images | TogetherAI FLUX.1 |
-| TTS | Kokoro (fallback: EdgeTTS) |
-| Captions | Whisper |
-| Video | MoviePy |
+| Component | Tool                       |
+| --------- | -------------------------- |
+| Script    | Groq (LLaMA3)              |
+| Images    | TogetherAI FLUX.1          |
+| TTS       | Kokoro (fallback: EdgeTTS) |
+| Captions  | Whisper                    |
+| Video     | MoviePy                    |
 
 ##### Output Structure
 
@@ -347,12 +348,12 @@ POST /hashtags        → Generate hashtags
 
 AI-powered content assistant features:
 
-| Feature | Tech |
-|---------|------|
-| Face tracking | OpenCV |
-| Viral detection | GPT models |
-| Subtitles | Whisper |
-| GPU support | CUDA optional |
+| Feature         | Tech          |
+| --------------- | ------------- |
+| Face tracking   | OpenCV        |
+| Viral detection | GPT models    |
+| Subtitles       | Whisper       |
+| GPU support     | CUDA optional |
 
 ##### Best For
 
@@ -460,28 +461,28 @@ Video Generator Program
 
 ##### Premium API Stack
 
-| Component | API |
-|-----------|-----|
-| Script | ChatGPT |
-| TTS | ElevenLabs (or OpenAI TTS) |
-| Images | DALL-E 3 |
-| Captions | Whisper + Captacity |
+| Component | API                        |
+| --------- | -------------------------- |
+| Script    | ChatGPT                    |
+| TTS       | ElevenLabs (or OpenAI TTS) |
+| Images    | DALL-E 3                   |
+| Captions  | Whisper + Captacity        |
 
 ##### Caption Styling
 
 ```json
 {
-    "font": "Bangers-Regular.ttf",
-    "font_size": 130,
-    "font_color": "yellow",
-    "stroke_width": 3,
-    "stroke_color": "black",
-    "highlight_current_word": true,
-    "word_highlight_color": "red",
-    "line_count": 2,
-    "padding": 50,
-    "shadow_strength": 1.0,
-    "shadow_blur": 0.1
+  "font": "Bangers-Regular.ttf",
+  "font_size": 130,
+  "font_color": "yellow",
+  "stroke_width": 3,
+  "stroke_color": "black",
+  "highlight_current_word": true,
+  "word_highlight_color": "red",
+  "line_count": 2,
+  "padding": 50,
+  "shadow_strength": 1.0,
+  "shadow_blur": 0.1
 }
 ```
 
@@ -576,18 +577,18 @@ Default times: 11:00 AM, 13:00 PM, 18:00 PM, 20:00 PM
 
 ##### Complete Feature Set
 
-| Feature | Implementation |
-|---------|----------------|
-| Research | Google Search grounding |
-| News | NewsAPI integration |
-| Script | Gemini 2.5 |
-| TTS | Google TTS |
-| Images | Vertex AI Imagen 3 |
-| Video | Vertex AI Imagen 2, WaveSpeed AI |
-| Captions | Whisper + .ass |
-| Thumbnails | FFmpeg text overlay |
-| SEO | Auto-generated metadata |
-| Upload | YouTube + Facebook |
+| Feature    | Implementation                   |
+| ---------- | -------------------------------- |
+| Research   | Google Search grounding          |
+| News       | NewsAPI integration              |
+| Script     | Gemini 2.5                       |
+| TTS        | Google TTS                       |
+| Images     | Vertex AI Imagen 3               |
+| Video      | Vertex AI Imagen 2, WaveSpeed AI |
+| Captions   | Whisper + .ass                   |
+| Thumbnails | FFmpeg text overlay              |
+| SEO        | Auto-generated metadata          |
+| Upload     | YouTube + Facebook               |
 
 ##### Content Styles
 
@@ -636,50 +637,50 @@ Custom pipelines for different content types:
 
 ### 3.1 TTS Solutions Used
 
-| Generator | TTS | Notes |
-|-----------|-----|-------|
-| shortrocity | ElevenLabs / OpenAI | Premium quality |
-| TikTokAIVideoGenerator | Kokoro → EdgeTTS | Fallback pattern |
-| OBrainRot | Coqui xTTS v2 | Open source |
-| Viral-Faceless-Shorts-Generator | Coqui TTS | Docker container |
-| VideoGraphAI | F5-TTS | Open source |
-| Cassette | UnrealSpeech | Free tier |
-| AI-Content-Studio | Google TTS | Gemini integration |
-| Faceless-short | EdgeTTS | Free |
+| Generator                       | TTS                 | Notes              |
+| ------------------------------- | ------------------- | ------------------ |
+| shortrocity                     | ElevenLabs / OpenAI | Premium quality    |
+| TikTokAIVideoGenerator          | Kokoro → EdgeTTS    | Fallback pattern   |
+| OBrainRot                       | Coqui xTTS v2       | Open source        |
+| Viral-Faceless-Shorts-Generator | Coqui TTS           | Docker container   |
+| VideoGraphAI                    | F5-TTS              | Open source        |
+| Cassette                        | UnrealSpeech        | Free tier          |
+| AI-Content-Studio               | Google TTS          | Gemini integration |
+| Faceless-short                  | EdgeTTS             | Free               |
 
 ### 3.2 Caption/ASR Solutions
 
-| Generator | ASR | Alignment |
-|-----------|-----|-----------|
-| shorts_maker | WhisperX | Built-in |
-| AI-Youtube-Shorts-Generator | Whisper | GPT segmentation |
-| OBrainRot | N/A | wav2vec2 forced |
-| Viral-Faceless-Shorts-Generator | N/A | Aeneas |
-| shortrocity | Whisper | Captacity |
-| VideoGraphAI | Whisper | Gentle |
-| AI-Content-Studio | Whisper | .ass output |
+| Generator                       | ASR      | Alignment        |
+| ------------------------------- | -------- | ---------------- |
+| shorts_maker                    | WhisperX | Built-in         |
+| AI-Youtube-Shorts-Generator     | Whisper  | GPT segmentation |
+| OBrainRot                       | N/A      | wav2vec2 forced  |
+| Viral-Faceless-Shorts-Generator | N/A      | Aeneas           |
+| shortrocity                     | Whisper  | Captacity        |
+| VideoGraphAI                    | Whisper  | Gentle           |
+| AI-Content-Studio               | Whisper  | .ass output      |
 
 ### 3.3 Video Composition
 
-| Generator | Library | Notes |
-|-----------|---------|-------|
-| Most generators | MoviePy | Python standard |
-| Crank | FFmpeg | Direct CLI |
-| ShortReelX | FFmpeg | Node.js |
-| AI-Youtube-Shorts-Generator | MoviePy + FFmpeg | Combined |
-| TikTok-Compilation-Video-Generator | FFmpeg | Server-based |
+| Generator                          | Library          | Notes           |
+| ---------------------------------- | ---------------- | --------------- |
+| Most generators                    | MoviePy          | Python standard |
+| Crank                              | FFmpeg           | Direct CLI      |
+| ShortReelX                         | FFmpeg           | Node.js         |
+| AI-Youtube-Shorts-Generator        | MoviePy + FFmpeg | Combined        |
+| TikTok-Compilation-Video-Generator | FFmpeg           | Server-based    |
 
 ### 3.4 LLM Providers
 
-| Generator | Provider | Model |
-|-----------|----------|-------|
-| Crank | Google | Gemini |
-| VideoGraphAI | Groq | LLaMA |
-| TikTokAIVideoGenerator | Groq | LLaMA3 |
-| Faceless-short | Groq | LLaMA |
-| shortrocity | OpenAI | GPT-4 |
-| AI-Content-Studio | Google | Gemini 2.5 |
-| Cassette | g4f | GPT-3.5 (free) |
+| Generator              | Provider | Model          |
+| ---------------------- | -------- | -------------- |
+| Crank                  | Google   | Gemini         |
+| VideoGraphAI           | Groq     | LLaMA          |
+| TikTokAIVideoGenerator | Groq     | LLaMA3         |
+| Faceless-short         | Groq     | LLaMA          |
+| shortrocity            | OpenAI   | GPT-4          |
+| AI-Content-Studio      | Google   | Gemini 2.5     |
+| Cassette               | g4f      | GPT-3.5 (free) |
 
 ---
 
@@ -693,7 +694,7 @@ Custom pipelines for different content types:
 # OBrainRot approach
 # Uses wav2vec2 for frame-wise alignment
 
-# Viral-Faceless approach  
+# Viral-Faceless approach
 # Uses Aeneas for forced alignment
 ```
 
@@ -737,10 +738,10 @@ except:
 
 ```yaml
 services:
-  trendscraper:  # Puppeteer + Gemini
-  coqui:         # TTS
-  speechalign:   # Aeneas
-  nginx:         # Web UI
+  trendscraper: # Puppeteer + Gemini
+  coqui: # TTS
+  speechalign: # Aeneas
+  nginx: # Web UI
 ```
 
 ---
@@ -749,25 +750,25 @@ services:
 
 ### 5.1 Architecture Patterns to Adopt
 
-| Pattern | From | Apply To |
-|---------|------|----------|
-| Forced alignment | OBrainRot | Caption pipeline |
-| Research-first | VideoGraphAI | Content planning |
-| Docker microservices | Viral-Faceless | Deployment |
-| Fallback TTS | TikTokAIVideoGenerator | Audio pipeline |
-| Smart cropping | AI-Youtube-Shorts-Generator | Capture pipeline |
+| Pattern              | From                        | Apply To         |
+| -------------------- | --------------------------- | ---------------- |
+| Forced alignment     | OBrainRot                   | Caption pipeline |
+| Research-first       | VideoGraphAI                | Content planning |
+| Docker microservices | Viral-Faceless              | Deployment       |
+| Fallback TTS         | TikTokAIVideoGenerator      | Audio pipeline   |
+| Smart cropping       | AI-Youtube-Shorts-Generator | Capture pipeline |
 
 ### 5.2 Technology Choices
 
-| Component | Recommendation | Source |
-|-----------|----------------|--------|
-| TTS Primary | Kokoro | TikTokAIVideoGenerator |
-| TTS Fallback | EdgeTTS | Multiple |
-| ASR | WhisperX | shorts_maker |
-| Alignment | wav2vec2 | OBrainRot |
-| LLM | Groq (LLaMA) | VideoGraphAI |
-| Video | MoviePy + FFmpeg | Standard |
-| Research | Tavily | VideoGraphAI |
+| Component    | Recommendation   | Source                 |
+| ------------ | ---------------- | ---------------------- |
+| TTS Primary  | Kokoro           | TikTokAIVideoGenerator |
+| TTS Fallback | EdgeTTS          | Multiple               |
+| ASR          | WhisperX         | shorts_maker           |
+| Alignment    | wav2vec2         | OBrainRot              |
+| LLM          | Groq (LLaMA)     | VideoGraphAI           |
+| Video        | MoviePy + FFmpeg | Standard               |
+| Research     | Tavily           | VideoGraphAI           |
 
 ### 5.3 UI Approach
 
@@ -795,44 +796,44 @@ docker-compose.yml
 
 ## 6. Complete Generator List
 
-| # | Generator | Category | Stars | License |
-|---|-----------|----------|-------|---------|
-| 1 | RedditShortVideoMaker | Reddit-to-Video | - | MIT |
-| 2 | OBrainRot | Reddit-to-Video | ~300 | MIT |
-| 3 | shorts_maker (ClipForge) | Reddit-to-Video | - | GPL-3.0 |
-| 4 | Crank | Topic-to-Video | ~500 | Custom |
-| 5 | Faceless-short | Topic-to-Video | - | - |
-| 6 | TikTokAIVideoGenerator | Topic-to-Video | - | CC0 |
-| 7 | Viral-Faceless-Shorts-Generator | Trend-to-Video | - | - |
-| 8 | VideoGraphAI | Trend-to-Video | ~200 | MIT |
-| 9 | ShortReelX | Long-to-Short | - | - |
-| 10 | reels-clips-automator | Long-to-Short | - | MIT |
-| 11 | AI-Youtube-Shorts-Generator | Long-to-Short | - | MIT |
-| 12 | TikTok-Compilation-Video-Generator | Compilation | - | MIT |
-| 13 | ShortFormGenerator | Compilation | - | - |
-| 14 | shortrocity | Template | - | - |
-| 15 | Cassette | Template | ~200 | MIT |
-| 16 | silent_autopost | Auto-Post | - | MIT |
-| 17 | gemini-youtube-automation | Auto-Post | - | MIT |
-| 18 | AI-Content-Studio | Full Studio | - | MIT |
-| 19 | viralfactory | Full Studio | - | AGPL-3.0 |
-| 20 | youtube-shorts-reddit-scraper | Reddit | - | - |
-| 21 | automated-short-generator | Topic | - | - |
-| 22 | AutoShortsAI | SaaS | - | - |
-| 23 | AI-reels | Template | - | - |
-| 24 | VideoShortsCreator-Gemini | Topic | - | MIT |
-| 25 | Clip-Anything | Long-to-Short | 1k+ | MIT |
+| #   | Generator                          | Category        | Stars | License  |
+| --- | ---------------------------------- | --------------- | ----- | -------- |
+| 1   | RedditShortVideoMaker              | Reddit-to-Video | -     | MIT      |
+| 2   | OBrainRot                          | Reddit-to-Video | ~300  | MIT      |
+| 3   | shorts_maker (ClipForge)           | Reddit-to-Video | -     | GPL-3.0  |
+| 4   | Crank                              | Topic-to-Video  | ~500  | Custom   |
+| 5   | Faceless-short                     | Topic-to-Video  | -     | -        |
+| 6   | TikTokAIVideoGenerator             | Topic-to-Video  | -     | CC0      |
+| 7   | Viral-Faceless-Shorts-Generator    | Trend-to-Video  | -     | -        |
+| 8   | VideoGraphAI                       | Trend-to-Video  | ~200  | MIT      |
+| 9   | ShortReelX                         | Long-to-Short   | -     | -        |
+| 10  | reels-clips-automator              | Long-to-Short   | -     | MIT      |
+| 11  | AI-Youtube-Shorts-Generator        | Long-to-Short   | -     | MIT      |
+| 12  | TikTok-Compilation-Video-Generator | Compilation     | -     | MIT      |
+| 13  | ShortFormGenerator                 | Compilation     | -     | -        |
+| 14  | shortrocity                        | Template        | -     | -        |
+| 15  | Cassette                           | Template        | ~200  | MIT      |
+| 16  | silent_autopost                    | Auto-Post       | -     | MIT      |
+| 17  | gemini-youtube-automation          | Auto-Post       | -     | MIT      |
+| 18  | AI-Content-Studio                  | Full Studio     | -     | MIT      |
+| 19  | viralfactory                       | Full Studio     | -     | AGPL-3.0 |
+| 20  | youtube-shorts-reddit-scraper      | Reddit          | -     | -        |
+| 21  | automated-short-generator          | Topic           | -     | -        |
+| 22  | AutoShortsAI                       | SaaS            | -     | -        |
+| 23  | AI-reels                           | Template        | -     | -        |
+| 24  | VideoShortsCreator-Gemini          | Topic           | -     | MIT      |
+| 25  | Clip-Anything                      | Long-to-Short   | 1k+   | MIT      |
 
 ---
 
 ## 7. Document Metadata
 
-| Field | Value |
-|-------|-------|
-| **Document ID** | DD-070 |
-| **Created** | 2026-01-02 |
-| **Author** | Research Agent |
-| **Status** | Complete |
+| Field            | Value                          |
+| ---------------- | ------------------------------ |
+| **Document ID**  | DD-070                         |
+| **Created**      | 2026-01-02                     |
+| **Author**       | Research Agent                 |
+| **Status**       | Complete                       |
 | **Dependencies** | DD-069, DD-068, DD-067, DD-063 |
 
 ---

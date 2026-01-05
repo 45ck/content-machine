@@ -1,6 +1,6 @@
 /**
  * Configuration System for content-machine
- * 
+ *
  * Loads configuration from:
  * 1. Environment variables (secrets)
  * 2. .content-machine.toml (project settings)
@@ -15,14 +15,7 @@ import { ConfigError } from './errors.js';
 // Schema Definitions
 // ============================================================================
 
-export const ArchetypeEnum = z.enum([
-  'listicle',
-  'versus',
-  'howto',
-  'myth',
-  'story',
-  'hot-take',
-]);
+export const ArchetypeEnum = z.enum(['listicle', 'versus', 'howto', 'myth', 'story', 'hot-take']);
 
 export const OrientationEnum = z.enum(['portrait', 'landscape', 'square']);
 
@@ -87,7 +80,7 @@ export function getApiKey(key: string): string {
   if (!value) {
     throw new ConfigError(
       `Required environment variable ${key} is not set. ` +
-      `Add it to your .env file or set it in your environment.`,
+        `Add it to your .env file or set it in your environment.`,
       { key }
     );
   }
@@ -106,11 +99,7 @@ export function getOptionalApiKey(key: string): string | undefined {
 // Configuration Loading
 // ============================================================================
 
-const CONFIG_FILENAMES = [
-  '.content-machine.toml',
-  'content-machine.toml',
-  '.cmrc.json',
-];
+const CONFIG_FILENAMES = ['.content-machine.toml', 'content-machine.toml', '.cmrc.json'];
 
 let cachedConfig: Config | null = null;
 
@@ -128,52 +117,50 @@ function findConfigFile(): string | null {
 }
 
 /**
+ * Parse a TOML value string into its typed value
+ */
+function parseTomlValue(rawValue: string): unknown {
+  if (rawValue === 'true') return true;
+  if (rawValue === 'false') return false;
+  if (/^-?\d+$/.test(rawValue)) return parseInt(rawValue, 10);
+  if (/^-?\d+\.\d+$/.test(rawValue)) return parseFloat(rawValue);
+  if (rawValue.startsWith('"') && rawValue.endsWith('"')) {
+    return rawValue.slice(1, -1);
+  }
+  return rawValue;
+}
+
+/**
  * Parse TOML config file (simplified parser for our use case)
  */
 function parseToml(content: string): Record<string, unknown> {
   const result: Record<string, unknown> = {};
   let currentSection: Record<string, unknown> = result;
-  let currentSectionName = '';
 
-  const lines = content.split('\n');
-  for (const line of lines) {
+  for (const line of content.split('\n')) {
     const trimmed = line.trim();
-    
+
     // Skip comments and empty lines
     if (!trimmed || trimmed.startsWith('#')) continue;
-    
+
     // Section header
     const sectionMatch = trimmed.match(/^\[(\w+)\]$/);
     if (sectionMatch) {
-      currentSectionName = sectionMatch[1];
-      result[currentSectionName] = result[currentSectionName] || {};
-      currentSection = result[currentSectionName] as Record<string, unknown>;
+      const sectionName = sectionMatch[1];
+      result[sectionName] = result[sectionName] || {};
+      currentSection = result[sectionName] as Record<string, unknown>;
       continue;
     }
-    
+
     // Key-value pair
     const kvMatch = trimmed.match(/^(\w+)\s*=\s*(.+)$/);
     if (kvMatch) {
       const [, key, rawValue] = kvMatch;
-      let value: unknown;
-      
-      // Parse value
-      if (rawValue === 'true') value = true;
-      else if (rawValue === 'false') value = false;
-      else if (/^-?\d+$/.test(rawValue)) value = parseInt(rawValue, 10);
-      else if (/^-?\d+\.\d+$/.test(rawValue)) value = parseFloat(rawValue);
-      else if (rawValue.startsWith('"') && rawValue.endsWith('"')) {
-        value = rawValue.slice(1, -1);
-      } else {
-        value = rawValue;
-      }
-      
-      // Convert snake_case to camelCase
       const camelKey = key.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
-      currentSection[camelKey] = value;
+      currentSection[camelKey] = parseTomlValue(rawValue);
     }
   }
-  
+
   return result;
 }
 
@@ -184,9 +171,9 @@ export function loadConfig(configPath?: string): Config {
   if (cachedConfig && !configPath) {
     return cachedConfig;
   }
-  
+
   let fileConfig: Record<string, unknown> = {};
-  
+
   // Try to load config file
   const path = configPath ?? findConfigFile();
   if (path && existsSync(path)) {
@@ -198,22 +185,19 @@ export function loadConfig(configPath?: string): Config {
         fileConfig = parseToml(content);
       }
     } catch (error) {
-      throw new ConfigError(
-        `Failed to parse config file: ${path}`,
-        { path, error: String(error) }
-      );
+      throw new ConfigError(`Failed to parse config file: ${path}`, { path, error: String(error) });
     }
   }
-  
+
   // Parse and validate with defaults
   const result = ConfigSchema.safeParse(fileConfig);
   if (!result.success) {
     throw new ConfigError(
-      `Invalid configuration: ${result.error.issues.map(i => i.message).join(', ')}`,
+      `Invalid configuration: ${result.error.issues.map((i) => i.message).join(', ')}`,
       { issues: result.error.issues }
     );
   }
-  
+
   cachedConfig = result.data;
   return result.data;
 }

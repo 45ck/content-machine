@@ -41,11 +41,12 @@ def align(
 **Key Implementation Details:**
 
 1. **Trellis Construction** (Dynamic Programming):
+
 ```python
 def get_trellis(emission, tokens, blank_id=0):
     num_frame = emission.size(0)
     num_tokens = len(tokens)
-    
+
     trellis = torch.zeros((num_frame, num_tokens))
     trellis[1:, 0] = torch.cumsum(emission[1:, blank_id], 0)
     trellis[0, 1:] = -float("inf")
@@ -60,10 +61,11 @@ def get_trellis(emission, tokens, blank_id=0):
 ```
 
 2. **Beam Search Backtracking** (Robustness):
+
 ```python
 def backtrack_beam(trellis, emission, tokens, blank_id=0, beam_width=5):
     """Standard CTC beam search backtracking implementation.
-    
+
     Returns:
         List[Point]: the best path
     """
@@ -71,6 +73,7 @@ def backtrack_beam(trellis, emission, tokens, blank_id=0, beam_width=5):
 ```
 
 3. **Wildcard Handling** for OOV characters:
+
 ```python
 def get_wildcard_emission(frame_emission, tokens, blank_id):
     """Handles tokens not in alignment model dictionary"""
@@ -83,6 +86,7 @@ def get_wildcard_emission(frame_emission, tokens, blank_id):
 ```
 
 **Language Support:**
+
 ```python
 DEFAULT_ALIGN_MODELS_TORCH = {
     "en": "WAV2VEC2_ASR_BASE_960H",
@@ -121,13 +125,14 @@ def align_audio_text():
 ```
 
 **Text Pre-processing:**
+
 ```python
 def smart_split(text):
     """Splits text into ~6 word segments for better alignment"""
     # Step 1: split by major separators
     for sep in [". ", ", ", "; ", ": "]:
         # Split and preserve separator
-    
+
     # Step 2: split large chunks into ~6 word segments
     def split_chunk(chunk, avg_words=6):
         if len(words) <= avg_words:
@@ -136,6 +141,7 @@ def smart_split(text):
 ```
 
 **Limitations:**
+
 - Requires Docker container
 - Slower than WhisperX for long content
 - Limited to supported Aeneas languages
@@ -157,7 +163,7 @@ def transcribe(self, path: str, fast: bool = False, words=False):
     audio = wt.load_audio(path)
     model = wt.load_model("large-v3" if not fast else "base", device=device)
     result = wt.transcribe(model=model, audio=audio, vad=avoid_hallucinations)
-    
+
     if words:
         results = [word for chunk in result["segments"] for word in chunk["words"]]
         for result in results:
@@ -166,6 +172,7 @@ def transcribe(self, path: str, fast: bool = False, words=False):
 ```
 
 **Dependencies (from pdm.lock):**
+
 ```
 name = "dtw-python"
 summary = "A comprehensive implementation of dynamic time warping (DTW) algorithms."
@@ -187,7 +194,7 @@ async CreateCaption(audioPath: string): Promise<Caption[]> {
       tokenLevelTimestamps: true,  // Key setting
       // ...
     });
-    
+
     // Token merging logic for word-level output
     transcription.forEach((record) => {
       record.tokens.forEach((token) => {
@@ -195,7 +202,7 @@ async CreateCaption(audioPath: string): Promise<Caption[]> {
           return;  // Skip timing tokens
         }
         // Merge tokens without spaces
-        if (captions.length > 0 && !token.text.startsWith(" ") 
+        if (captions.length > 0 && !token.text.startsWith(" ")
             && !captions[captions.length - 1].text.endsWith(" ")) {
           captions[captions.length - 1].text += record.text;
           captions[captions.length - 1].endMs = record.offsets.to;
@@ -217,14 +224,15 @@ async CreateCaption(audioPath: string): Promise<Caption[]> {
 
 ### 2.1 WhisperX Performance
 
-| Metric | Value | Source |
-|--------|-------|--------|
-| **Realtime Factor** | 70x (large-v2) | README |
-| **GPU Memory** | <8GB (large-v2, beam_size=5) | README |
-| **WER Impact** | No degradation with VAD | Paper |
-| **Competition** | 1st place Ego4d challenge | eval.ai |
+| Metric              | Value                        | Source  |
+| ------------------- | ---------------------------- | ------- |
+| **Realtime Factor** | 70x (large-v2)               | README  |
+| **GPU Memory**      | <8GB (large-v2, beam_size=5) | README  |
+| **WER Impact**      | No degradation with VAD      | Paper   |
+| **Competition**     | 1st place Ego4d challenge    | eval.ai |
 
 **Accuracy Notes:**
+
 - Word timestamps derived from wav2vec2 frame alignment
 - Confidence scores provided per-word (0.0-1.0)
 - Character-level alignment available via `return_char_alignments=True`
@@ -259,26 +267,27 @@ if path is None:
 ```
 
 **Interpolation for Missing Timestamps:**
+
 ```python
 # Handles NaN timestamps via interpolation
 aligned_subsegments["start"] = interpolate_nans(
-    aligned_subsegments["start"], 
+    aligned_subsegments["start"],
     method=interpolate_method  # Default: "nearest"
 )
 aligned_subsegments["end"] = interpolate_nans(
-    aligned_subsegments["end"], 
+    aligned_subsegments["end"],
     method=interpolate_method
 )
 ```
 
 ### 2.3 Comparative Processing Times
 
-| Approach | Relative Speed | Notes |
-|----------|----------------|-------|
-| WhisperX (GPU) | **Fastest** | 70x realtime, batched |
-| whisper.cpp | Fast | CPU-optimized, single-file |
-| whisper-timestamped | Medium | DTW overhead |
-| Aeneas | Slow | External process, MFCC |
+| Approach            | Relative Speed | Notes                      |
+| ------------------- | -------------- | -------------------------- |
+| WhisperX (GPU)      | **Fastest**    | 70x realtime, batched      |
+| whisper.cpp         | Fast           | CPU-optimized, single-file |
+| whisper-timestamped | Medium         | DTW overhead               |
+| Aeneas              | Slow           | External process, MFCC     |
 
 ---
 
@@ -342,11 +351,11 @@ caption = {
 ```python
 # Enable character alignments
 result = whisperx.align(
-    result["segments"], 
-    model_a, 
-    metadata, 
-    audio, 
-    device, 
+    result["segments"],
+    model_a,
+    metadata,
+    audio,
+    device,
     return_char_alignments=True  # <-- Key parameter
 )
 
@@ -362,11 +371,11 @@ result = whisperx.align(
 
 ### 4.2 Use Cases
 
-| Level | Use Case | Accuracy |
-|-------|----------|----------|
-| **Word** | Standard captions, highlighting | High |
+| Level         | Use Case                           | Accuracy  |
+| ------------- | ---------------------------------- | --------- |
+| **Word**      | Standard captions, highlighting    | High      |
 | **Character** | Karaoke-style, character animation | Very High |
-| **Segment** | Basic subtitles | Medium |
+| **Segment**   | Basic subtitles                    | Medium    |
 
 ---
 
@@ -375,11 +384,13 @@ result = whisperx.align(
 **Status:** Not directly vendored, but Aeneas provides similar functionality.
 
 **MFA Approach (Reference):**
+
 1. Acoustic model + pronunciation dictionary
 2. HMM-based alignment
 3. Phoneme-to-audio mapping
 
 **Aeneas Equivalent:**
+
 ```python
 # task_language=eng: Uses English acoustic model
 # alignment_type=word: Word-level boundaries
@@ -406,14 +417,14 @@ result = model.transcribe(audio, batch_size=16)
 
 # 2. Align (wav2vec2-based)
 model_a, metadata = whisperx.load_align_model(
-    language_code=result["language"], 
+    language_code=result["language"],
     device=device
 )
 result = whisperx.align(
-    result["segments"], 
-    model_a, 
-    metadata, 
-    audio, 
+    result["segments"],
+    model_a,
+    metadata,
+    audio,
     device,
     return_char_alignments=False  # Set True for karaoke
 )
@@ -429,10 +440,10 @@ torch.cuda.empty_cache()
 ```typescript
 // From short-video-maker-gyori
 const { transcription } = await transcribe({
-    model: "small.en",
-    whisperPath: whisperInstallPath,
-    tokenLevelTimestamps: true,
-    inputPath: audioPath,
+  model: 'small.en',
+  whisperPath: whisperInstallPath,
+  tokenLevelTimestamps: true,
+  inputPath: audioPath,
 });
 ```
 
@@ -499,13 +510,13 @@ waveform_segment = audio[:, f1:f2]
 
 ## 9. Key Findings Summary
 
-| Question | Answer |
-|----------|--------|
-| **WhisperX word timestamp accuracy?** | High (wav2vec2 frame-level alignment with confidence scores) |
-| **Alignment failure handling?** | Graceful fallback to original timestamps with logging |
-| **Processing time?** | WhisperX: 70x realtime (GPU), whisper.cpp: ~10x realtime (CPU) |
-| **Best for TTS sync?** | WhisperX for accuracy, whisper.cpp for edge deployment |
-| **Character-level available?** | Yes, via `return_char_alignments=True` in WhisperX |
+| Question                              | Answer                                                         |
+| ------------------------------------- | -------------------------------------------------------------- |
+| **WhisperX word timestamp accuracy?** | High (wav2vec2 frame-level alignment with confidence scores)   |
+| **Alignment failure handling?**       | Graceful fallback to original timestamps with logging          |
+| **Processing time?**                  | WhisperX: 70x realtime (GPU), whisper.cpp: ~10x realtime (CPU) |
+| **Best for TTS sync?**                | WhisperX for accuracy, whisper.cpp for edge deployment         |
+| **Character-level available?**        | Yes, via `return_char_alignments=True` in WhisperX             |
 
 ---
 

@@ -28,7 +28,7 @@ The simplest pattern - switch providers via config without changing code:
 # MoneyPrinterTurbo approach: provider selection via config string
 def _generate_response(prompt: str) -> str:
     llm_provider = config.app.get("llm_provider", "openai")
-    
+
     if llm_provider == "moonshot":
         api_key = config.app.get("moonshot_api_key")
         model_name = config.app.get("moonshot_model_name")
@@ -55,11 +55,11 @@ LangChain defines abstract base classes that all providers must implement:
 # langchain_core/language_models/base.py
 class BaseLanguageModel(RunnableSerializable[LanguageModelInput, LanguageModelOutputVar], ABC):
     """Abstract base class for interfacing with language models."""
-    
+
     cache: BaseCache | bool | None = Field(default=None, exclude=True)
     verbose: bool = Field(default_factory=_get_verbosity, exclude=True)
     callbacks: Callbacks = Field(default=None, exclude=True)
-    
+
     @abstractmethod
     def generate_prompt(
         self,
@@ -69,7 +69,7 @@ class BaseLanguageModel(RunnableSerializable[LanguageModelInput, LanguageModelOu
         **kwargs: Any,
     ) -> LLMResult:
         """Pass prompts to the model and return generations."""
-        
+
     @abstractmethod
     async def agenerate_prompt(
         self,
@@ -134,7 +134,7 @@ class BaseTool(RunnableSerializable[str | dict | ToolCall, Any]):
     return_direct: bool = False
     handle_tool_error: bool | str | Callable[[ToolException], str] | None = False
     response_format: Literal["content", "content_and_artifact"] = "content"
-    
+
     @abstractmethod
     def _run(self, *args: Any, **kwargs: Any) -> Any:
         """Use the tool. Override in subclass."""
@@ -179,7 +179,7 @@ export function tool<TParameters, Context, Result>(
 ): FunctionTool<Context, TParameters, Result> {
   const name = options.name ?? toFunctionToolName(options.execute.name);
   const { parser, schema: parameters } = getSchemaAndParserFromInputType(options.parameters, name);
-  
+
   async function invoke(runContext: RunContext<Context>, input: string): Promise<Result> {
     const [error, parsed] = await safeExecute(() => parser(input));
     if (error !== null) {
@@ -187,7 +187,7 @@ export function tool<TParameters, Context, Result>(
     }
     return options.execute(parsed, runContext);
   }
-  
+
   return { type: 'function', name, description: options.description, parameters, invoke, ... };
 }
 ```
@@ -203,11 +203,11 @@ export abstract class DirectoryLoader {
   nodeTypes: INodeTypeData = {};
   credentialTypes: ICredentialTypeData = {};
   known: KnownNodesAndCredentials = { nodes: {}, credentials: {} };
-  
+
   loadNodeFromFile(filePath: string, packageVersion?: string) {
     const tempNode = this.loadClass<INodeType | IVersionedNodeType>(filePath);
     this.addCodex(tempNode, filePath);
-    
+
     const nodeType = tempNode.description.name;
     this.known.nodes[nodeType] = {
       className: tempNode.constructor.name,
@@ -216,7 +216,7 @@ export abstract class DirectoryLoader {
     this.nodeTypes[nodeType] = { type: tempNode, sourcePath: filePath };
     this.loadedNodes.push({ name: nodeType, version: nodeVersion });
   }
-  
+
   private loadClass<T>(sourcePath: string) {
     const filePath = this.resolvePath(sourcePath);
     const [className] = path.parse(sourcePath).name.split('.');
@@ -226,14 +226,15 @@ export abstract class DirectoryLoader {
 ```
 
 **n8n package.json structure for auto-discovery:**
+
 ```typescript
 export namespace n8n {
   export interface PackageJson {
     name: string;
     version: string;
     n8n?: {
-      credentials?: string[];  // paths to credential files
-      nodes?: string[];        // paths to node files
+      credentials?: string[]; // paths to credential files
+      nodes?: string[]; // paths to node files
     };
   }
 }
@@ -270,16 +271,16 @@ export class ShortCreator {
 // Library wrapper with static init factory
 export class Kokoro {
   constructor(private tts: KokoroTTS) {}
-  
+
   static async init(dtype: kokoroModelPrecision): Promise<Kokoro> {
     const tts = await KokoroTTS.from_pretrained(KOKORO_MODEL, { dtype, device: "cpu" });
     return new Kokoro(tts);
   }
-  
+
   async generate(text: string, voice: Voices): Promise<{ audio: ArrayBuffer; audioLength: number }> {
     // Implementation
   }
-  
+
   listAvailableVoices(): Voices[] {
     return Object.values(VoiceEnum) as Voices[];
   }
@@ -287,6 +288,7 @@ export class Kokoro {
 ```
 
 **Benefits:**
+
 - Each provider can be easily swapped
 - Testing with mocks is straightforward
 - Clear separation of concerns
@@ -303,31 +305,31 @@ Composable callback mixins for different concerns:
 # langchain_core/callbacks/base.py
 class LLMManagerMixin:
     """Mixin for LLM callbacks."""
-    
+
     def on_llm_new_token(self, token: str, *, chunk=None, run_id: UUID, **kwargs):
         """Run on new output token. Only available when streaming is enabled."""
-        
+
     def on_llm_end(self, response: LLMResult, *, run_id: UUID, **kwargs):
         """Run when LLM ends running."""
-        
+
     def on_llm_error(self, error: BaseException, *, run_id: UUID, **kwargs):
         """Run when LLM errors."""
 
 class ChainManagerMixin:
     """Mixin for chain callbacks."""
-    
+
     def on_chain_end(self, outputs: dict[str, Any], *, run_id: UUID, **kwargs):
         """Run when chain ends running."""
-        
+
     def on_agent_action(self, action: AgentAction, *, run_id: UUID, **kwargs):
         """Run on agent action."""
 
 class ToolManagerMixin:
     """Mixin for tool callbacks."""
-    
+
     def on_tool_end(self, output: Any, *, run_id: UUID, **kwargs):
         """Run when tool ends."""
-        
+
     def on_tool_error(self, error: BaseException, *, run_id: UUID, **kwargs):
         """Run when tool errors."""
 
@@ -348,30 +350,49 @@ Type-safe lifecycle events:
 ```typescript
 // Strongly typed event definitions
 export type AgentHookEvents<TContext, TOutput> = {
-  agent_start: [context: RunContext<TContext>, agent: Agent<TContext, TOutput>, turnInput?: AgentInputItem[]];
+  agent_start: [
+    context: RunContext<TContext>,
+    agent: Agent<TContext, TOutput>,
+    turnInput?: AgentInputItem[],
+  ];
   agent_end: [context: RunContext<TContext>, output: string];
   agent_handoff: [context: RunContext<TContext>, nextAgent: Agent<any, any>];
-  agent_tool_start: [context: RunContext<TContext>, tool: Tool<any>, details: { toolCall: ToolCallItem }];
-  agent_tool_end: [context: RunContext<TContext>, tool: Tool<any>, result: string, details: { toolCall: ToolCallItem }];
+  agent_tool_start: [
+    context: RunContext<TContext>,
+    tool: Tool<any>,
+    details: { toolCall: ToolCallItem },
+  ];
+  agent_tool_end: [
+    context: RunContext<TContext>,
+    tool: Tool<any>,
+    result: string,
+    details: { toolCall: ToolCallItem },
+  ];
 };
 
 // Event emitter delegate pattern
-export abstract class EventEmitterDelegate<EventTypes extends EventEmitterEvents> 
-  implements EventEmitter<EventTypes> {
+export abstract class EventEmitterDelegate<
+  EventTypes extends EventEmitterEvents,
+> implements EventEmitter<EventTypes> {
   protected abstract eventEmitter: EventEmitter<EventTypes>;
 
-  on<K extends keyof EventTypes>(type: K, listener: (...args: EventTypes[K]) => void): EventEmitter<EventTypes> {
+  on<K extends keyof EventTypes>(
+    type: K,
+    listener: (...args: EventTypes[K]) => void
+  ): EventEmitter<EventTypes> {
     this.eventEmitter.on(type, listener);
     return this.eventEmitter;
   }
-  
+
   emit<K extends keyof EventTypes>(type: K, ...args: EventTypes[K]): boolean {
     return this.eventEmitter.emit(type, ...args);
   }
 }
 
 // Agent hooks inherit from delegate
-export class AgentHooks<TContext, TOutput> extends EventEmitterDelegate<AgentHookEvents<TContext, TOutput>> {
+export class AgentHooks<TContext, TOutput> extends EventEmitterDelegate<
+  AgentHookEvents<TContext, TOutput>
+> {
   protected eventEmitter = new RuntimeEventEmitter<AgentHookEvents<TContext, TOutput>>();
 }
 ```
@@ -385,12 +406,18 @@ export class AgentHooks<TContext, TOutput> extends EventEmitterDelegate<AgentHoo
 ```typescript
 // shorts.ts - Type-safe enums and config
 export enum MusicMoodEnum {
-  sad = "sad", melancholic = "melancholic", happy = "happy",
-  euphoric = "euphoric/high", excited = "excited", chill = "chill",
+  sad = 'sad',
+  melancholic = 'melancholic',
+  happy = 'happy',
+  euphoric = 'euphoric/high',
+  excited = 'excited',
+  chill = 'chill',
 }
 
 export enum CaptionPositionEnum {
-  top = "top", center = "center", bottom = "bottom",
+  top = 'top',
+  center = 'center',
+  bottom = 'bottom',
 }
 
 export const renderConfig = z.object({
@@ -405,8 +432,8 @@ export const renderConfig = z.object({
 export type RenderConfig = z.infer<typeof renderConfig>;
 
 export const sceneInput = z.object({
-  text: z.string().describe("Text to be spoken in the video"),
-  searchTerms: z.array(z.string()).describe("Search terms for video"),
+  text: z.string().describe('Text to be spoken in the video'),
+  searchTerms: z.array(z.string()).describe('Search terms for video'),
 });
 export type SceneInput = z.infer<typeof sceneInput>;
 ```
@@ -508,7 +535,7 @@ export const llmProviders = new ProviderRegistry<LLMProvider>();
 
 ```typescript
 // src/common/pipeline/hooks.ts
-export type PipelineStage = 
+export type PipelineStage =
   | 'trend_research'
   | 'content_planning'
   | 'script_generation'
@@ -535,8 +562,13 @@ export class PipelineHookManager {
     this.hooks.sort((a, b) => (b.priority ?? 0) - (a.priority ?? 0));
   }
 
-  async emit(stage: PipelineStage, phase: HookPhase, context: PipelineContext, data: unknown): Promise<void> {
-    const relevantHooks = this.hooks.filter(h => h.stage === stage && h.phase === phase);
+  async emit(
+    stage: PipelineStage,
+    phase: HookPhase,
+    context: PipelineContext,
+    data: unknown
+  ): Promise<void> {
+    const relevantHooks = this.hooks.filter((h) => h.stage === stage && h.phase === phase);
     for (const hook of relevantHooks) {
       await hook.handler(context, data);
     }
@@ -555,7 +587,7 @@ export interface ContentArchetype {
   readonly promptTemplate: string;
   readonly defaultConfig: Partial<RenderConfig>;
   readonly requiredCapabilities: string[];
-  
+
   validateInput(input: unknown): ValidationResult;
   generateScenes(input: unknown, context: PipelineContext): Promise<SceneInput[]>;
 }
@@ -587,16 +619,16 @@ export class ArchetypeRegistry {
 
 ## 7. Key Takeaways
 
-| Pattern | When to Use | Example Source |
-|---------|-------------|----------------|
-| Config-driven switch | Quick prototypes, few providers | MoneyPrinterTurbo |
-| Abstract base class | Type-safe, many providers | LangChain |
-| Interface + factory | TypeScript, clean DI | openai-agents-js |
-| Constructor injection | Testable services | short-video-maker-gyori |
-| Mixin callbacks | Composable event handling | LangChain |
-| Typed event emitter | Type-safe hooks | openai-agents-js |
-| Package-based registry | Plugin discovery | n8n |
-| Zod schemas | Type-safe config | short-video-maker-gyori |
+| Pattern                | When to Use                     | Example Source          |
+| ---------------------- | ------------------------------- | ----------------------- |
+| Config-driven switch   | Quick prototypes, few providers | MoneyPrinterTurbo       |
+| Abstract base class    | Type-safe, many providers       | LangChain               |
+| Interface + factory    | TypeScript, clean DI            | openai-agents-js        |
+| Constructor injection  | Testable services               | short-video-maker-gyori |
+| Mixin callbacks        | Composable event handling       | LangChain               |
+| Typed event emitter    | Type-safe hooks                 | openai-agents-js        |
+| Package-based registry | Plugin discovery                | n8n                     |
+| Zod schemas            | Type-safe config                | short-video-maker-gyori |
 
 ---
 

@@ -25,11 +25,11 @@ This deep dive analyzes the foundational infrastructure stack for content-machin
 
 ### 1.1 Storage Tool Comparison
 
-| Tool | Type | Language | License | Key Feature |
-|------|------|----------|---------|-------------|
-| **MinIO** | Object Storage | Go | AGPL-3.0 | S3-compatible |
-| **Qdrant** | Vector Database | Rust | Apache-2.0 | High performance |
-| **Weaviate** | Vector Database | Go | BSD-3 | Integrated RAG |
+| Tool         | Type            | Language | License    | Key Feature      |
+| ------------ | --------------- | -------- | ---------- | ---------------- |
+| **MinIO**    | Object Storage  | Go       | AGPL-3.0   | S3-compatible    |
+| **Qdrant**   | Vector Database | Rust     | Apache-2.0 | High performance |
+| **Weaviate** | Vector Database | Go       | BSD-3      | Integrated RAG   |
 
 ### 1.2 MinIO (Object Storage) ⭐ RECOMMENDED
 
@@ -38,12 +38,14 @@ This deep dive analyzes the foundational infrastructure stack for content-machin
 **Status:** Maintenance mode (new features via AIStor commercial)
 
 #### Why MinIO for content-machine:
+
 - **S3-compatible** - Use AWS SDK everywhere
 - **Self-hosted** - Full data control
 - **High performance** - Optimized for AI/ML workloads
 - **Simple deployment** - Single binary
 
 #### Use Cases in content-machine:
+
 - Store video assets (raw footage, rendered videos)
 - Store audio files (TTS output, voiceovers)
 - Store images (thumbnails, frames)
@@ -65,25 +67,27 @@ minio server /data
 #### SDK Integration:
 
 ```typescript
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 
 const s3 = new S3Client({
-  endpoint: "http://localhost:9000",
-  region: "us-east-1",
+  endpoint: 'http://localhost:9000',
+  region: 'us-east-1',
   credentials: {
-    accessKeyId: "minioadmin",
-    secretAccessKey: "minioadmin",
+    accessKeyId: 'minioadmin',
+    secretAccessKey: 'minioadmin',
   },
   forcePathStyle: true,
 });
 
 // Upload rendered video
-await s3.send(new PutObjectCommand({
-  Bucket: "videos",
-  Key: "output/video-123.mp4",
-  Body: videoBuffer,
-  ContentType: "video/mp4",
-}));
+await s3.send(
+  new PutObjectCommand({
+    Bucket: 'videos',
+    Key: 'output/video-123.mp4',
+    Body: videoBuffer,
+    ContentType: 'video/mp4',
+  })
+);
 ```
 
 ### 1.3 Qdrant (Vector Database) ⭐ RECOMMENDED
@@ -93,12 +97,14 @@ await s3.send(new PutObjectCommand({
 **Language:** Rust (fast and reliable)
 
 #### Why Qdrant for content-machine:
+
 - **High performance** - Written in Rust
 - **Rich filtering** - JSON payloads with complex queries
 - **Hybrid search** - Dense + sparse vectors
 - **Easy deployment** - Docker ready
 
 #### Use Cases in content-machine:
+
 - Semantic search over video scripts
 - Find similar content for trend analysis
 - Store embeddings for RAG
@@ -160,26 +166,29 @@ results = client.search(
 **Stars:** 17k+
 
 #### Why Consider Weaviate:
+
 - **Integrated vectorization** - Built-in embedding models
 - **Native RAG** - Generative search built-in
 - **Hybrid search** - Vector + keyword (BM25)
 - **Multi-tenancy** - Built for SaaS
 
 #### Key Difference from Qdrant:
+
 - Weaviate has **integrated embedding models** (OpenAI, Cohere, HuggingFace)
 - Qdrant requires **external embedding generation**
 
 #### When to Use Which:
+
 - **Qdrant:** When you generate embeddings externally (more control)
 - **Weaviate:** When you want integrated vectorization (simpler)
 
 ### 1.5 Storage Recommendation
 
-| Use Case | Tool | Reason |
-|----------|------|--------|
-| Video/Audio/Image files | **MinIO** | S3-compatible, high throughput |
-| Script embeddings | **Qdrant** | Fast, Rust, simple |
-| RAG with integrated embedding | **Weaviate** | Built-in models |
+| Use Case                      | Tool         | Reason                         |
+| ----------------------------- | ------------ | ------------------------------ |
+| Video/Audio/Image files       | **MinIO**    | S3-compatible, high throughput |
+| Script embeddings             | **Qdrant**   | Fast, Rust, simple             |
+| RAG with integrated embedding | **Weaviate** | Built-in models                |
 
 ---
 
@@ -187,11 +196,11 @@ results = client.search(
 
 ### 2.1 Queue Tool Comparison
 
-| Tool | Language | Backend | Stars | Key Feature |
-|------|----------|---------|-------|-------------|
-| **BullMQ** | TypeScript | Redis | 6k+ | Parent/child jobs |
-| **Celery** | Python | Redis/RabbitMQ | 24k+ | Python ecosystem |
-| **RQ** | Python | Redis | 10k+ | Simple, lightweight |
+| Tool       | Language   | Backend        | Stars | Key Feature         |
+| ---------- | ---------- | -------------- | ----- | ------------------- |
+| **BullMQ** | TypeScript | Redis          | 6k+   | Parent/child jobs   |
+| **Celery** | Python     | Redis/RabbitMQ | 24k+  | Python ecosystem    |
+| **RQ**     | Python     | Redis          | 10k+  | Simple, lightweight |
 
 ### 2.2 BullMQ (Node.js) ⭐ RECOMMENDED
 
@@ -200,12 +209,14 @@ results = client.search(
 **Tagline:** "Fastest, most reliable Redis-based queue for Node"
 
 #### Why BullMQ for content-machine:
+
 - **TypeScript-first** - Matches our stack
 - **Parent/child jobs** - Complex workflows
 - **Rate limiting** - API throttling
 - **Reliable** - Atomic Lua operations
 
 #### Use Cases in content-machine:
+
 - Video rendering queue
 - TTS generation jobs
 - Upload processing
@@ -265,6 +276,7 @@ await flow.add({
 **Tagline:** "Simple job queues for Python"
 
 #### Why RQ for Python services:
+
 - **Simple** - Low barrier to entry
 - **Python-native** - No overhead
 - **Scheduling** - Built-in cron support (v2.5+)
@@ -295,11 +307,11 @@ queue.enqueue(cleanup_temp_files, repeat=Repeat(times=3, interval=30))
 
 ### 2.4 Queue Recommendation
 
-| Use Case | Tool | Reason |
-|----------|------|--------|
+| Use Case            | Tool       | Reason                    |
+| ------------------- | ---------- | ------------------------- |
 | TypeScript services | **BullMQ** | Native, complex workflows |
-| Python services | **RQ** | Simple, lightweight |
-| Enterprise scale | **Celery** | Mature, distributed |
+| Python services     | **RQ**     | Simple, lightweight       |
+| Enterprise scale    | **Celery** | Mature, distributed       |
 
 ---
 
@@ -307,10 +319,10 @@ queue.enqueue(cleanup_temp_files, repeat=Repeat(times=3, interval=30))
 
 ### 3.1 Orchestration Tool Comparison
 
-| Tool | Type | Language | License | Key Feature |
-|------|------|----------|---------|-------------|
-| **Temporal** | Durable Execution | Go | MIT | Workflow resilience |
-| **n8n** | Visual Automation | TypeScript | Fair-code | No-code + code |
+| Tool         | Type              | Language   | License   | Key Feature         |
+| ------------ | ----------------- | ---------- | --------- | ------------------- |
+| **Temporal** | Durable Execution | Go         | MIT       | Workflow resilience |
+| **n8n**      | Visual Automation | TypeScript | Fair-code | No-code + code      |
 
 ### 3.2 Temporal (Durable Workflows) ⭐ RECOMMENDED
 
@@ -319,12 +331,14 @@ queue.enqueue(cleanup_temp_files, repeat=Repeat(times=3, interval=30))
 **Origin:** Fork of Uber's Cadence
 
 #### Why Temporal for content-machine:
+
 - **Durable execution** - Auto-retry failures
 - **State persistence** - Resume after crashes
 - **Long-running workflows** - Hours to days
 - **Multi-language SDKs** - Go, Java, TypeScript, Python
 
 #### Use Cases in content-machine:
+
 - Video generation pipeline orchestration
 - Multi-step content creation workflows
 - Scheduled content publication
@@ -336,32 +350,32 @@ queue.enqueue(cleanup_temp_files, repeat=Repeat(times=3, interval=30))
 // Workflow definition
 import { proxyActivities } from '@temporalio/workflow';
 
-const { captureProduct, generateScript, generateTTS, renderVideo, uploadVideo } = 
+const { captureProduct, generateScript, generateTTS, renderVideo, uploadVideo } =
   proxyActivities<VideoActivities>({
     startToCloseTimeout: '10 minutes',
-    retry: { maximumAttempts: 3 }
+    retry: { maximumAttempts: 3 },
   });
 
 export async function createVideoWorkflow(input: VideoInput): Promise<VideoResult> {
   // Step 1: Capture product UI
   const capture = await captureProduct(input.productUrl);
-  
+
   // Step 2: Generate script
   const script = await generateScript(capture, input.topic);
-  
+
   // Step 3: Generate TTS
   const audio = await generateTTS(script.text);
-  
+
   // Step 4: Render video
   const video = await renderVideo({
     scenes: capture.scenes,
     audio: audio.path,
-    captions: script.captions
+    captions: script.captions,
   });
-  
+
   // Step 5: Upload to platforms
   const uploads = await uploadVideo(video, input.platforms);
-  
+
   return { videoId: video.id, uploads };
 }
 ```
@@ -385,12 +399,14 @@ temporal server start-dev
 **Stars:** 50k+
 
 #### Why n8n for content-machine:
+
 - **Visual workflows** - Non-developers can create
 - **400+ integrations** - Connect anything
 - **AI-native** - LangChain built-in
 - **Self-hostable** - Full control
 
 #### Use Cases in content-machine:
+
 - Connect external services
 - Monitor and alert
 - Quick prototypes
@@ -408,12 +424,12 @@ npx n8n
 
 ### 3.4 Orchestration Recommendation
 
-| Use Case | Tool | Reason |
-|----------|------|--------|
+| Use Case                  | Tool         | Reason                     |
+| ------------------------- | ------------ | -------------------------- |
 | Video generation pipeline | **Temporal** | Durable, complex workflows |
-| External integrations | **n8n** | Visual, 400+ connectors |
-| Simple automation | **n8n** | Low-code |
-| Production workflows | **Temporal** | Resilient, scalable |
+| External integrations     | **n8n**      | Visual, 400+ connectors    |
+| Simple automation         | **n8n**      | Low-code                   |
+| Production workflows      | **Temporal** | Resilient, scalable        |
 
 ---
 
@@ -421,11 +437,11 @@ npx n8n
 
 ### 4.1 Publishing Tool Comparison
 
-| Tool | Platform | Method | Risk |
-|------|----------|--------|------|
-| **TiktokAutoUploader** | TikTok | Requests (fast) | Medium |
-| **youtube-upload** | YouTube | Official API | Low |
-| **mixpost** | Multi-platform | Official APIs | Low |
+| Tool                   | Platform       | Method          | Risk   |
+| ---------------------- | -------------- | --------------- | ------ |
+| **TiktokAutoUploader** | TikTok         | Requests (fast) | Medium |
+| **youtube-upload**     | YouTube        | Official API    | Low    |
+| **mixpost**            | Multi-platform | Official APIs   | Low    |
 
 ### 4.2 TiktokAutoUploader ⭐ RECOMMENDED for TikTok
 
@@ -434,6 +450,7 @@ npx n8n
 **Status:** Working as of Dec 2024
 
 #### Key Features:
+
 - **Fast** - Requests-based (not Selenium)
 - **3 seconds** - Per upload
 - **Multi-account** - Handle multiple logins
@@ -453,6 +470,7 @@ python cli.py upload --user my_account -yt "https://youtube.com/shorts/xxx" -t "
 ```
 
 #### ⚠️ Risk Considerations:
+
 - Unofficial API (may break)
 - ToS risk (account suspension possible)
 - No official support
@@ -489,12 +507,12 @@ await youtube.videos.insert({
 
 ### 4.4 Publishing Recommendation
 
-| Platform | Tool | Risk Level | Notes |
-|----------|------|------------|-------|
-| TikTok | **TiktokAutoUploader** | Medium | Fast, unofficial |
-| YouTube | **Official API** | Low | Stable, quotas |
-| Instagram | **Official API / MCP** | Low | Graph API |
-| Multi-platform | **Mixpost/Postiz** | Low | Scheduling UI |
+| Platform       | Tool                   | Risk Level | Notes            |
+| -------------- | ---------------------- | ---------- | ---------------- |
+| TikTok         | **TiktokAutoUploader** | Medium     | Fast, unofficial |
+| YouTube        | **Official API**       | Low        | Stable, quotas   |
+| Instagram      | **Official API / MCP** | Low        | Graph API        |
+| Multi-platform | **Mixpost/Postiz**     | Low        | Scheduling UI    |
 
 ---
 
@@ -506,11 +524,13 @@ await youtube.videos.insert({
 **License:** MIT
 
 #### Why Octokit:
+
 - **Official** - GitHub's own SDK
 - **Complete** - REST + GraphQL + Webhooks + OAuth
 - **Universal** - Browser, Node, Deno
 
 #### Use Cases in content-machine:
+
 - Fetch trending repos
 - Monitor GitHub activity
 - CI/CD integration
@@ -519,14 +539,14 @@ await youtube.videos.insert({
 #### Code Pattern:
 
 ```typescript
-import { Octokit } from "octokit";
+import { Octokit } from 'octokit';
 
 const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
 
 // REST API
 const { data } = await octokit.rest.repos.get({
-  owner: "microsoft",
-  repo: "vscode",
+  owner: 'microsoft',
+  repo: 'vscode',
 });
 
 // GraphQL API
@@ -540,10 +560,11 @@ const { viewer } = await octokit.graphql(`{
 }`);
 
 // Pagination
-const issues = await octokit.paginate(
-  octokit.rest.issues.listForRepo,
-  { owner: "octokit", repo: "octokit.js", per_page: 100 }
-);
+const issues = await octokit.paginate(octokit.rest.issues.listForRepo, {
+  owner: 'octokit',
+  repo: 'octokit.js',
+  per_page: 100,
+});
 ```
 
 ---
@@ -629,17 +650,17 @@ const issues = await octokit.paginate(
 
 ### 7.1 Recommended Stack
 
-| Category | Tool | Priority | Notes |
-|----------|------|----------|-------|
-| Object Storage | **MinIO** | P0 | S3-compatible |
-| Vector Storage | **Qdrant** | P0 | Fast, Rust |
-| Queue (TypeScript) | **BullMQ** | P0 | Parent/child jobs |
-| Queue (Python) | **RQ** | P1 | Simple |
-| Orchestration | **Temporal** | P0 | Durable workflows |
-| Visual Automation | **n8n** | P2 | Quick integrations |
-| TikTok Upload | **TiktokAutoUploader** | P1 | Fast, risky |
-| YouTube Upload | **Official API** | P0 | Stable |
-| GitHub Integration | **Octokit** | P2 | Trend research |
+| Category           | Tool                   | Priority | Notes              |
+| ------------------ | ---------------------- | -------- | ------------------ |
+| Object Storage     | **MinIO**              | P0       | S3-compatible      |
+| Vector Storage     | **Qdrant**             | P0       | Fast, Rust         |
+| Queue (TypeScript) | **BullMQ**             | P0       | Parent/child jobs  |
+| Queue (Python)     | **RQ**                 | P1       | Simple             |
+| Orchestration      | **Temporal**           | P0       | Durable workflows  |
+| Visual Automation  | **n8n**                | P2       | Quick integrations |
+| TikTok Upload      | **TiktokAutoUploader** | P1       | Fast, risky        |
+| YouTube Upload     | **Official API**       | P0       | Stable             |
+| GitHub Integration | **Octokit**            | P2       | Trend research     |
 
 ### 7.2 Deployment Order
 
@@ -673,8 +694,8 @@ services:
     image: minio/minio
     command: server /data --console-address ":9001"
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - '9000:9000'
+      - '9001:9001'
     volumes:
       - minio_data:/data
     environment:
@@ -684,21 +705,21 @@ services:
   qdrant:
     image: qdrant/qdrant
     ports:
-      - "6333:6333"
+      - '6333:6333'
     volumes:
       - qdrant_data:/qdrant/storage
 
   redis:
     image: redis:alpine
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       - redis_data:/data
 
   temporal:
     image: temporalio/auto-setup:latest
     ports:
-      - "7233:7233"
+      - '7233:7233'
     environment:
       - DB=postgresql
       - POSTGRES_SEEDS=postgres
@@ -706,7 +727,7 @@ services:
   temporal-ui:
     image: temporalio/ui:latest
     ports:
-      - "8233:8080"
+      - '8233:8080'
     environment:
       - TEMPORAL_ADDRESS=temporal:7233
 
@@ -721,31 +742,36 @@ volumes:
 ## References
 
 ### Storage
+
 - MinIO Docs: https://min.io/docs
 - Qdrant Docs: https://qdrant.tech/documentation/
 - Weaviate Docs: https://docs.weaviate.io/
 
 ### Queues
+
 - BullMQ Docs: https://docs.bullmq.io/
 - RQ Docs: https://python-rq.org/
 
 ### Orchestration
+
 - Temporal Docs: https://docs.temporal.io/
 - n8n Docs: https://docs.n8n.io/
 
 ### Publishing
+
 - TikTok: https://github.com/makiisthenes/TiktokAutoUploader
 - YouTube API: https://developers.google.com/youtube/v3
 
 ### GitHub
+
 - Octokit: https://github.com/octokit/octokit.js
 
 ---
 
 **Document Status:** Complete
 **Next Steps:**
+
 1. Deploy MinIO + Qdrant + Redis (Docker Compose)
 2. Setup BullMQ queues for render pipeline
 3. Implement Temporal workflow for video generation
 4. Integrate TiktokAutoUploader for publishing
-

@@ -23,12 +23,12 @@ This deep dive analyzes three critical infrastructure categories for content-mac
 
 ### 1.1 Tool Comparison Matrix
 
-| Tool | Language | Purpose | Stars | Key Feature |
-|------|----------|---------|-------|-------------|
-| **Zod** | TypeScript | Runtime validation + static types | 35k+ | Type inference |
-| **Pydantic** | Python | Data validation via type hints | 20k+ | Python ecosystem |
-| **Instructor** | Python | LLM structured outputs | 10k+ | Multi-provider |
-| **AJV** | JavaScript | JSON Schema validation | 14k+ | Fastest validator |
+| Tool           | Language   | Purpose                           | Stars | Key Feature       |
+| -------------- | ---------- | --------------------------------- | ----- | ----------------- |
+| **Zod**        | TypeScript | Runtime validation + static types | 35k+  | Type inference    |
+| **Pydantic**   | Python     | Data validation via type hints    | 20k+  | Python ecosystem  |
+| **Instructor** | Python     | LLM structured outputs            | 10k+  | Multi-provider    |
+| **AJV**        | JavaScript | JSON Schema validation            | 14k+  | Fastest validator |
 
 ### 1.2 Zod (TypeScript - RECOMMENDED)
 
@@ -37,6 +37,7 @@ This deep dive analyzes three critical infrastructure categories for content-mac
 **Bundle Size:** 2kb core (gzipped)
 
 #### Why Zod for content-machine:
+
 - **Zero dependencies** - critical for production bundle size
 - **Type inference** - schema → TypeScript types automatically
 - **Immutable API** - functional programming patterns
@@ -45,25 +46,29 @@ This deep dive analyzes three critical infrastructure categories for content-mac
 #### Code Pattern:
 
 ```typescript
-import * as z from "zod";
+import * as z from 'zod';
 
 // Video content schema for content-machine
 const VideoContentSchema = z.object({
   title: z.string().max(100),
   duration: z.number().min(3).max(60), // 3-60 seconds
-  platform: z.enum(["tiktok", "reels", "shorts"]),
-  aspectRatio: z.literal("9:16"),
-  captions: z.array(z.object({
-    text: z.string(),
-    startMs: z.number(),
-    endMs: z.number(),
-  })),
+  platform: z.enum(['tiktok', 'reels', 'shorts']),
+  aspectRatio: z.literal('9:16'),
+  captions: z.array(
+    z.object({
+      text: z.string(),
+      startMs: z.number(),
+      endMs: z.number(),
+    })
+  ),
   audioUrl: z.string().url(),
-  scenes: z.array(z.object({
-    type: z.enum(["capture", "stock", "text"]),
-    durationMs: z.number(),
-    assetPath: z.string(),
-  })),
+  scenes: z.array(
+    z.object({
+      type: z.enum(['capture', 'stock', 'text']),
+      durationMs: z.number(),
+      assetPath: z.string(),
+    })
+  ),
 });
 
 // Extract type from schema
@@ -89,6 +94,7 @@ if (result.success) {
 **Version:** V2 (ground-up rewrite, much faster)
 
 #### Why Pydantic for content-machine:
+
 - **Python ecosystem** - works with FastAPI, LangChain, etc.
 - **Type hints** - native Python 3.9+ typing
 - **V2 rewrite** - significantly faster with Rust core
@@ -105,7 +111,7 @@ class CaptionSegment(BaseModel):
     text: str
     start_ms: int = Field(ge=0)
     end_ms: int = Field(ge=0)
-    
+
 class VideoContent(BaseModel):
     title: str = Field(max_length=100)
     duration: int = Field(ge=3, le=60)  # 3-60 seconds
@@ -138,9 +144,11 @@ except ValidationError as e:
 **Tagline:** "Get reliable JSON from any LLM"
 
 #### Critical Insight:
+
 > "Use Instructor for fast extraction, reach for PydanticAI when you need agents"
 
 #### Why Instructor for content-machine:
+
 - **Multi-provider** - OpenAI, Anthropic, Google, Ollama
 - **Pydantic integration** - schema validation built-in
 - **Retry logic** - handles LLM parsing failures
@@ -194,6 +202,7 @@ for seg in script.segments:
 **Claim:** "50% faster than the second place"
 
 #### Why AJV for content-machine:
+
 - **JSON Schema standard** - interop with external tools
 - **Fastest validator** - code generation for V8 optimization
 - **OpenAPI support** - discriminator, nullable keywords
@@ -202,31 +211,31 @@ for seg in script.segments:
 #### Code Pattern:
 
 ```javascript
-import Ajv from "ajv";
+import Ajv from 'ajv';
 
 const ajv = new Ajv({ allErrors: true });
 
 const videoContentSchema = {
-  type: "object",
+  type: 'object',
   properties: {
-    title: { type: "string", maxLength: 100 },
-    duration: { type: "integer", minimum: 3, maximum: 60 },
-    platform: { enum: ["tiktok", "reels", "shorts"] },
-    aspectRatio: { const: "9:16" },
+    title: { type: 'string', maxLength: 100 },
+    duration: { type: 'integer', minimum: 3, maximum: 60 },
+    platform: { enum: ['tiktok', 'reels', 'shorts'] },
+    aspectRatio: { const: '9:16' },
     captions: {
-      type: "array",
+      type: 'array',
       items: {
-        type: "object",
+        type: 'object',
         properties: {
-          text: { type: "string" },
-          startMs: { type: "integer", minimum: 0 },
-          endMs: { type: "integer", minimum: 0 }
+          text: { type: 'string' },
+          startMs: { type: 'integer', minimum: 0 },
+          endMs: { type: 'integer', minimum: 0 },
         },
-        required: ["text", "startMs", "endMs"]
-      }
-    }
+        required: ['text', 'startMs', 'endMs'],
+      },
+    },
   },
-  required: ["title", "duration", "platform"]
+  required: ['title', 'duration', 'platform'],
 };
 
 const validate = ajv.compile(videoContentSchema);
@@ -240,13 +249,13 @@ if (!valid) {
 
 ### 1.6 Schema Validation Recommendations
 
-| Use Case | Recommended Tool | Reason |
-|----------|------------------|--------|
-| TypeScript runtime validation | **Zod** | Type inference, zero deps |
-| Python data models | **Pydantic** | Python ecosystem, V2 speed |
-| LLM structured outputs | **Instructor** | Multi-provider, retry logic |
-| JSON Schema compliance | **AJV** | Fastest, standards-compliant |
-| Cross-language schemas | **JSON Schema + AJV** | Interop between TS/Python |
+| Use Case                      | Recommended Tool      | Reason                       |
+| ----------------------------- | --------------------- | ---------------------------- |
+| TypeScript runtime validation | **Zod**               | Type inference, zero deps    |
+| Python data models            | **Pydantic**          | Python ecosystem, V2 speed   |
+| LLM structured outputs        | **Instructor**        | Multi-provider, retry logic  |
+| JSON Schema compliance        | **AJV**               | Fastest, standards-compliant |
+| Cross-language schemas        | **JSON Schema + AJV** | Interop between TS/Python    |
 
 ---
 
@@ -254,11 +263,11 @@ if (!valid) {
 
 ### 2.1 Research Agent Comparison
 
-| Agent | Framework | RACE Score | Cost | Key Feature |
-|-------|-----------|------------|------|-------------|
-| **GPT Researcher** | Custom + LangGraph | N/A | ~$0.4/report | Plan-and-Solve + RAG |
-| **Open Deep Research** | LangGraph | 0.4344 (#6) | Variable | MCP compatible |
-| **Nano Banana** | Image generation | N/A | N/A | Gemini 2.5 Flash Image |
+| Agent                  | Framework          | RACE Score  | Cost         | Key Feature            |
+| ---------------------- | ------------------ | ----------- | ------------ | ---------------------- |
+| **GPT Researcher**     | Custom + LangGraph | N/A         | ~$0.4/report | Plan-and-Solve + RAG   |
+| **Open Deep Research** | LangGraph          | 0.4344 (#6) | Variable     | MCP compatible         |
+| **Nano Banana**        | Image generation   | N/A         | N/A          | Gemini 2.5 Flash Image |
 
 ### 2.2 GPT Researcher
 
@@ -268,6 +277,7 @@ if (!valid) {
 **Cost:** ~$0.4/research with o3-mini
 
 #### Why GPT Researcher for content-machine:
+
 - **Deep research** - comprehensive multi-source analysis
 - **Multi-agent** - LangGraph orchestration
 - **MCP integration** - pluggable data sources
@@ -332,6 +342,7 @@ await researcher.export_to_markdown("research_output.md")
 **MCP Support:** Yes
 
 #### Why Open Deep Research for content-machine:
+
 - **LangGraph-based** - matches our agent architecture
 - **Leaderboard performance** - top 10 on benchmarks
 - **Configurable models** - summarization, research, compression
@@ -352,12 +363,14 @@ await researcher.export_to_markdown("research_output.md")
 ### 2.4 Nano Banana Resources (Gemini Image Generation)
 
 **Repositories:**
+
 - `vendor/research/awesome-nano-banana/` - Prompt collection
 - `vendor/research/awesome-nano-banana-samurai/` - Resources hub
 - `vendor/research/awesome-nanobanana-pro/` - Advanced prompts
 - `vendor/research/nano-banana-hackathon-kit/` - Google hackathon kit
 
 #### What is Nano Banana?
+
 Gemini 2.5 Flash Image (codename "Nano Banana") is Google's revolutionary AI image model:
 
 - **Context-aware editing** - understands lighting, physics, relationships
@@ -367,6 +380,7 @@ Gemini 2.5 Flash Image (codename "Nano Banana") is Google's revolutionary AI ima
 - **Collaborative creation** - "inspiration communication" vs "master-servant"
 
 #### Relevance to content-machine:
+
 - **Thumbnail generation** - viral cover images for videos
 - **Product visualization** - virtual try-ons, product shots
 - **Creative assets** - 3D chibi characters, infographics
@@ -376,20 +390,20 @@ Gemini 2.5 Flash Image (codename "Nano Banana") is Google's revolutionary AI ima
 
 ```text
 # Professional Headshot from Selfie
-"A professional, high-resolution profile photo, maintaining the 
-exact facial structure, identity, and key features of the person 
-in the input image. Shot from a high angle with bright and airy 
-soft, diffused studio lighting... Captured on an 85mm f/1.8 lens 
+"A professional, high-resolution profile photo, maintaining the
+exact facial structure, identity, and key features of the person
+in the input image. Shot from a high angle with bright and airy
+soft, diffused studio lighting... Captured on an 85mm f/1.8 lens
 with a shallow depth of field..."
 
 # Viral Video Thumbnail
 "Design a viral video thumbnail using the person from Image 1.
 Face Consistency: Keep the person's facial features exactly the same.
-Expression: excited and surprised. Action: Pose the person on the 
+Expression: excited and surprised. Action: Pose the person on the
 left side, pointing their finger towards the right side..."
 
 # 3D Brand Store
-"3D chibi-style miniature concept store of {Brand Name}, creatively 
+"3D chibi-style miniature concept store of {Brand Name}, creatively
 designed with an exterior inspired by the brand's most iconic product..."
 ```
 
@@ -399,12 +413,12 @@ designed with an exterior inspired by the brand's most iconic product..."
 
 ### 3.1 Observability Tool Comparison
 
-| Tool | Focus | Language | License | Key Feature |
-|------|-------|----------|---------|-------------|
-| **Langfuse** | LLM observability | TS/Python | MIT | Prompt management |
-| **Promptfoo** | LLM testing/red team | Node.js | MIT | Security scanning |
-| **OpenTelemetry** | General tracing | Multiple | Apache-2.0 | Industry standard |
-| **Sentry** | Error tracking | Multiple | BSL | Production debugging |
+| Tool              | Focus                | Language  | License    | Key Feature          |
+| ----------------- | -------------------- | --------- | ---------- | -------------------- |
+| **Langfuse**      | LLM observability    | TS/Python | MIT        | Prompt management    |
+| **Promptfoo**     | LLM testing/red team | Node.js   | MIT        | Security scanning    |
+| **OpenTelemetry** | General tracing      | Multiple  | Apache-2.0 | Industry standard    |
+| **Sentry**        | Error tracking       | Multiple  | BSL        | Production debugging |
 
 ### 3.2 Langfuse (LLM Engineering Platform) ⭐ RECOMMENDED
 
@@ -414,6 +428,7 @@ designed with an exterior inspired by the brand's most iconic product..."
 **Status:** YC W23, production battle-tested
 
 #### Why Langfuse for content-machine:
+
 - **LLM-specific** - built for AI application monitoring
 - **Prompt management** - version control for prompts
 - **Evaluations** - LLM-as-judge, user feedback, manual labeling
@@ -474,6 +489,7 @@ LANGFUSE_BASE_URL="https://cloud.langfuse.com"
 **Focus:** Security + Quality Testing
 
 #### Why Promptfoo for content-machine:
+
 - **Red teaming** - vulnerability scanning for LLM apps
 - **Eval framework** - systematic prompt testing
 - **CI/CD integration** - automated checks in pipeline
@@ -508,17 +524,17 @@ providers:
   - anthropic:claude-3-opus-20240229
 
 prompts:
-  - "Write a {{duration}}-second video script about {{topic}}"
+  - 'Write a {{duration}}-second video script about {{topic}}'
 
 tests:
   - vars:
       duration: 30
-      topic: "VS Code extensions"
+      topic: 'VS Code extensions'
     assert:
       - type: contains
-        value: "hook"
+        value: 'hook'
       - type: llm-rubric
-        value: "Script should be engaging and concise"
+        value: 'Script should be engaging and concise'
 ```
 
 ### 3.4 Observability Stack Recommendation
@@ -545,6 +561,7 @@ tests:
 ```
 
 **Recommendation:**
+
 - **Langfuse** for LLM tracing, prompt management, evaluations
 - **Promptfoo** for pre-deployment testing and red teaming
 - **Sentry** for production error tracking
@@ -558,31 +575,31 @@ tests:
 
 ```typescript
 // Zod + Instructor pattern for TypeScript
-import * as z from "zod";
-import Instructor from "@instructor-ai/instructor";
-import OpenAI from "openai";
+import * as z from 'zod';
+import Instructor from '@instructor-ai/instructor';
+import OpenAI from 'openai';
 
 const VideoScriptSchema = z.object({
   title: z.string(),
   hook: z.string(),
-  segments: z.array(z.object({
-    text: z.string(),
-    visualHint: z.string(),
-  })),
+  segments: z.array(
+    z.object({
+      text: z.string(),
+      visualHint: z.string(),
+    })
+  ),
   cta: z.string(),
 });
 
 const client = Instructor({
   client: new OpenAI(),
-  mode: "TOOLS",
+  mode: 'TOOLS',
 });
 
 const script = await client.chat.completions.create({
-  model: "gpt-4o",
-  response_model: { schema: VideoScriptSchema, name: "VideoScript" },
-  messages: [
-    { role: "user", content: "Write a TikTok script about AI tools" }
-  ],
+  model: 'gpt-4o',
+  response_model: { schema: VideoScriptSchema, name: 'VideoScript' },
+  messages: [{ role: 'user', content: 'Write a TikTok script about AI tools' }],
 });
 ```
 
@@ -600,10 +617,10 @@ async def research_trends(topic: str) -> dict:
         query=f"Current viral trends in {topic} for TikTok/Reels",
         report_type="research_report"
     )
-    
+
     await researcher.conduct_research()
     report = await researcher.write_report()
-    
+
     return {
         "report": report,
         "sources": researcher.get_source_urls(),
@@ -627,15 +644,15 @@ def content_generation_pipeline(topic: str):
     try:
         # Research phase (traced by Langfuse)
         trends = research_trends(topic)
-        
+
         # Script generation (traced by Langfuse)
         script = generate_script(trends)
-        
+
         # Validation (Pydantic)
         validated_script = VideoScript.model_validate(script)
-        
+
         return validated_script
-        
+
     except Exception as e:
         # Error captured by Sentry
         sentry_sdk.capture_exception(e)
@@ -648,13 +665,13 @@ def content_generation_pipeline(topic: str):
 
 ### 5.1 Immediate Adoption
 
-| Category | Tool | Priority | Reason |
-|----------|------|----------|--------|
-| TypeScript Schema | **Zod** | P0 | Core data validation |
-| Python Schema | **Pydantic** | P0 | Python ecosystem |
-| LLM Outputs | **Instructor** | P0 | Structured generation |
-| LLM Tracing | **Langfuse** | P1 | Prompt management, evals |
-| LLM Testing | **Promptfoo** | P1 | Security, quality gates |
+| Category          | Tool           | Priority | Reason                   |
+| ----------------- | -------------- | -------- | ------------------------ |
+| TypeScript Schema | **Zod**        | P0       | Core data validation     |
+| Python Schema     | **Pydantic**   | P0       | Python ecosystem         |
+| LLM Outputs       | **Instructor** | P0       | Structured generation    |
+| LLM Tracing       | **Langfuse**   | P1       | Prompt management, evals |
+| LLM Testing       | **Promptfoo**  | P1       | Security, quality gates  |
 
 ### 5.2 Integration Priorities
 
@@ -706,17 +723,20 @@ def content_generation_pipeline(topic: str):
 ## References
 
 ### Schema Validation
+
 - Zod Docs: https://zod.dev/
 - Pydantic Docs: https://docs.pydantic.dev/
 - Instructor Docs: https://python.useinstructor.com/
 - AJV Docs: https://ajv.js.org/
 
 ### Research Agents
+
 - GPT Researcher: https://gptr.dev/
 - Open Deep Research: https://github.com/langchain-ai/open-deep-research
 - Nano Banana (Gemini 2.5 Flash): https://ai.google.dev/gemini-api/docs/image-generation
 
 ### Observability
+
 - Langfuse: https://langfuse.com/
 - Promptfoo: https://www.promptfoo.dev/
 - OpenTelemetry: https://opentelemetry.io/
@@ -725,9 +745,9 @@ def content_generation_pipeline(topic: str):
 ---
 
 **Document Status:** Complete
-**Next Steps:** 
+**Next Steps:**
+
 1. Define Zod/Pydantic schemas for VideoContent, Scene, Caption
 2. Deploy Langfuse (self-hosted)
 3. Integrate Promptfoo in CI/CD
 4. Evaluate GPT Researcher for trend intake
-

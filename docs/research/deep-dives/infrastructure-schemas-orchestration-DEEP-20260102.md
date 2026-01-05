@@ -11,6 +11,7 @@
 This document provides comprehensive analysis of infrastructure components critical for content-machine: schema validation libraries, orchestration platforms, observability tools, publishing pipelines, vector databases, and job queues. These components form the backbone of a production-ready video automation system.
 
 **Key Findings:**
+
 - **Schema Validation:** Instructor (Python) + Zod (TypeScript) provide LLM-native structured outputs
 - **Orchestration:** n8n (no-code) vs Temporal (durable execution) - recommend Temporal for complex workflows
 - **Observability:** Langfuse (LLM tracing) + Promptfoo (evals) - essential for production AI apps
@@ -29,6 +30,7 @@ This document provides comprehensive analysis of infrastructure components criti
 **Stars:** 10K+ | Downloads: 3M+ monthly
 
 **Core Pattern:**
+
 ```python
 import instructor
 from pydantic import BaseModel
@@ -49,6 +51,7 @@ print(user)  # User(name='John', age=25)
 ```
 
 **Key Features:**
+
 - **Provider Agnostic:** OpenAI, Anthropic, Google, Ollama, Groq, Azure
 - **Automatic Retries:** Failed validations retry with error context
 - **Streaming Support:** Partial objects via `Partial[Model]`
@@ -56,6 +59,7 @@ print(user)  # User(name='John', age=25)
 - **Multi-language:** Python, TypeScript, Ruby, Go, Elixir, Rust
 
 **Provider Setup Examples:**
+
 ```python
 # OpenAI
 client = instructor.from_provider("openai/gpt-4o")
@@ -71,6 +75,7 @@ client = instructor.from_provider("openai/gpt-4o", api_key="sk-...")
 ```
 
 **Streaming Partial Objects:**
+
 ```python
 from instructor import Partial
 
@@ -86,6 +91,7 @@ for partial_user in client.chat.completions.create(
 ```
 
 **Content-Machine Integration:**
+
 - Use for script generation structured outputs
 - Define `VideoScript`, `Scene`, `Caption` models
 - Automatic validation of LLM-generated content plans
@@ -97,6 +103,7 @@ for partial_user in client.chat.completions.create(
 **Purpose:** TypeScript-first schema validation with static type inference
 
 **Core Pattern:**
+
 ```typescript
 import { z } from 'zod';
 
@@ -120,6 +127,7 @@ const safeResult = VideoConfig.safeParse(userInput); // returns { success, data/
 ```
 
 **Integration with OpenAI Agents SDK:**
+
 ```typescript
 import { tool } from '@openai/agents';
 import { z } from 'zod';
@@ -138,6 +146,7 @@ const createVideoTool = tool({
 ```
 
 **Content-Machine Integration:**
+
 - Define API request/response schemas
 - MCP tool parameter validation
 - Configuration file validation
@@ -155,12 +164,14 @@ const createVideoTool = tool({
 
 **Core Concept:**
 Temporal executes "Workflows" - units of application logic that automatically handle:
+
 - Intermittent failures
 - Retries with backoff
 - Long-running processes (hours/days)
 - State persistence across restarts
 
 **Architecture:**
+
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    Temporal Cluster                         │
@@ -185,6 +196,7 @@ Temporal executes "Workflows" - units of application logic that automatically ha
 ```
 
 **Quick Start:**
+
 ```bash
 # Install CLI
 brew install temporal
@@ -197,6 +209,7 @@ open http://localhost:8233
 ```
 
 **TypeScript Workflow Example:**
+
 ```typescript
 import { proxyActivities, defineWorkflow } from '@temporalio/workflow';
 
@@ -218,6 +231,7 @@ export const videoCreationWorkflow = defineWorkflow({
 ```
 
 **Content-Machine Use Cases:**
+
 - End-to-end video pipeline orchestration
 - Retry failed renders automatically
 - Long-running batch processing
@@ -231,12 +245,14 @@ export const videoCreationWorkflow = defineWorkflow({
 **License:** Fair-code (Sustainable Use License)
 
 **Key Features:**
+
 - **Code When Needed:** JavaScript/Python inline execution
 - **AI-Native:** Built-in LangChain integration
 - **400+ Integrations:** Pre-built nodes for APIs
 - **Self-Hostable:** Full control over data
 
 **Quick Start:**
+
 ```bash
 # NPX (instant)
 npx n8n
@@ -249,12 +265,14 @@ docker run -it --rm --name n8n -p 5678:5678 \
 ```
 
 **Video Automation Pattern (AutoTube):**
+
 ```
-Topic Input → Ollama Script → AI Images → OpenTTS Voice → 
+Topic Input → Ollama Script → AI Images → OpenTTS Voice →
 FFmpeg Render → YouTube Upload
 ```
 
 **Content-Machine Use Cases:**
+
 - Rapid prototyping of workflows
 - Integration with external APIs
 - Scheduling and triggers
@@ -262,15 +280,15 @@ FFmpeg Render → YouTube Upload
 
 **Temporal vs n8n Comparison:**
 
-| Feature | Temporal | n8n |
-|---------|----------|-----|
-| Learning Curve | Higher (code-first) | Lower (visual) |
-| Reliability | Enterprise-grade | Good |
-| Scalability | Horizontal | Limited |
-| Complex Logic | Excellent | Moderate |
-| Integration Count | SDK-based | 400+ pre-built |
-| Debugging | Replay/Trace | Visual flow |
-| Best For | Production pipelines | Prototyping, simple flows |
+| Feature           | Temporal             | n8n                       |
+| ----------------- | -------------------- | ------------------------- |
+| Learning Curve    | Higher (code-first)  | Lower (visual)            |
+| Reliability       | Enterprise-grade     | Good                      |
+| Scalability       | Horizontal           | Limited                   |
+| Complex Logic     | Excellent            | Moderate                  |
+| Integration Count | SDK-based            | 400+ pre-built            |
+| Debugging         | Replay/Trace         | Visual flow               |
+| Best For          | Production pipelines | Prototyping, simple flows |
 
 **Recommendation:** Use n8n for prototyping and simple integrations, Temporal for production video pipelines.
 
@@ -285,6 +303,7 @@ FFmpeg Render → YouTube Upload
 **License:** MIT | Stars: 16K+
 
 **Core Features:**
+
 - **Tracing:** Track LLM calls, retrieval, embeddings, agent actions
 - **Prompt Management:** Version control, A/B testing
 - **Evaluations:** LLM-as-judge, user feedback, custom pipelines
@@ -292,6 +311,7 @@ FFmpeg Render → YouTube Upload
 - **Playground:** Prompt iteration with production context
 
 **Quick Start:**
+
 ```bash
 # Self-host with Docker
 git clone https://github.com/langfuse/langfuse.git
@@ -300,6 +320,7 @@ docker compose up
 ```
 
 **Python Integration:**
+
 ```python
 from langfuse import observe
 from langfuse.openai import openai  # Drop-in replacement
@@ -330,6 +351,7 @@ main()  # Automatically traced
 | Vercel AI SDK | JS/TS | Native support |
 
 **Content-Machine Integration:**
+
 - Trace entire video generation pipeline
 - Track prompt iterations and their results
 - Collect user feedback on generated videos
@@ -343,6 +365,7 @@ main()  # Automatically traced
 **Stars:** 8K+ | License: MIT
 
 **Core Features:**
+
 - **Automated Evals:** Test prompts against datasets
 - **Model Comparison:** Side-by-side OpenAI, Anthropic, etc.
 - **Red Teaming:** Security vulnerability scanning
@@ -350,6 +373,7 @@ main()  # Automatically traced
 - **Code Scanning:** PR review for LLM issues
 
 **Quick Start:**
+
 ```bash
 # Install and initialize
 npx promptfoo@latest init
@@ -359,10 +383,11 @@ npx promptfoo eval
 ```
 
 **Configuration Example:**
+
 ```yaml
 # promptfooconfig.yaml
 prompts:
-  - "Generate a script about {{topic}} for {{platform}}"
+  - 'Generate a script about {{topic}} for {{platform}}'
 
 providers:
   - openai:gpt-4o
@@ -370,16 +395,17 @@ providers:
 
 tests:
   - vars:
-      topic: "AI tools"
-      platform: "TikTok"
+      topic: 'AI tools'
+      platform: 'TikTok'
     assert:
       - type: contains
-        value: "AI"
+        value: 'AI'
       - type: llm-rubric
-        value: "Script is engaging and under 60 seconds"
+        value: 'Script is engaging and under 60 seconds'
 ```
 
 **Red Teaming Example:**
+
 ```bash
 # Generate security report
 npx promptfoo redteam init
@@ -387,6 +413,7 @@ npx promptfoo redteam run
 ```
 
 **Content-Machine Integration:**
+
 - Eval script generation quality
 - Compare different LLM providers
 - Test prompt variations
@@ -405,6 +432,7 @@ npx promptfoo redteam run
 **Key Advantage:** Uses TikTok's internal API, not browser automation.
 
 **Installation:**
+
 ```bash
 git clone https://github.com/makiisthenes/TiktokAutoUploader.git
 pip install -r requirements.txt
@@ -413,6 +441,7 @@ npm i
 ```
 
 **Usage:**
+
 ```bash
 # Login (saves cookies locally)
 python cli.py login -n my_account
@@ -425,12 +454,14 @@ python cli.py upload --user my_account -yt "https://youtube.com/shorts/xxx" -t "
 ```
 
 **Features:**
+
 - Multiple account management
 - Schedule up to 10 days ahead
 - YouTube Shorts URL sourcing
 - Cookie-based authentication
 
 **Content-Machine Integration:**
+
 - Final stage of video pipeline
 - Multi-account distribution
 - Scheduled publishing
@@ -442,6 +473,7 @@ python cli.py upload --user my_account -yt "https://youtube.com/shorts/xxx" -t "
 **License:** MIT | Framework: Laravel (PHP)
 
 **Key Features:**
+
 - **Multi-Platform:** YouTube, TikTok, Instagram, Twitter, Facebook
 - **Scheduling:** Queue and calendar management
 - **Analytics:** Platform-specific insights
@@ -450,6 +482,7 @@ python cli.py upload --user my_account -yt "https://youtube.com/shorts/xxx" -t "
 - **Media Library:** Asset management
 
 **Architecture:**
+
 ```
 Mixpost Platform
 ├── Social Accounts (OAuth connections)
@@ -461,6 +494,7 @@ Mixpost Platform
 ```
 
 **Content-Machine Integration:**
+
 - Backend for review/approval workflow
 - Multi-platform distribution
 - Scheduling interface
@@ -475,12 +509,14 @@ Mixpost Platform
 **License:** Apache 2.0 | Language: Rust
 
 **Why Qdrant:**
+
 - **Performance:** Written in Rust for speed
 - **Production-Ready:** Horizontal scaling, HA
 - **Filtering:** Rich payload filtering with vectors
 - **Hybrid Search:** Dense + sparse vectors
 
 **Quick Start:**
+
 ```bash
 # Docker
 docker run -p 6333:6333 qdrant/qdrant
@@ -490,6 +526,7 @@ pip install qdrant-client
 ```
 
 **Python Usage:**
+
 ```python
 from qdrant_client import QdrantClient
 from qdrant_client.models import Distance, VectorParams, PointStruct
@@ -525,6 +562,7 @@ results = client.search(
 ```
 
 **Content-Machine Use Cases:**
+
 - Store video embeddings for similarity search
 - Find related content for recommendations
 - Semantic search across video library
@@ -532,6 +570,7 @@ results = client.search(
 - RAG for content planning agent
 
 **Integrations:**
+
 - LangChain, LlamaIndex, Haystack
 - OpenAI ChatGPT retrieval plugin
 - Microsoft Semantic Kernel
@@ -545,6 +584,7 @@ results = client.search(
 **License:** MIT | Used by: Microsoft, Langfuse, Vendure
 
 **Key Features:**
+
 - **Redis-Based:** Atomic operations, persistence
 - **Distributed:** Horizontal scaling
 - **Rate Limiting:** Built-in rate limiter
@@ -553,11 +593,13 @@ results = client.search(
 - **Events:** Real-time job status updates
 
 **Installation:**
+
 ```bash
 npm install bullmq
 ```
 
 **Basic Usage:**
+
 ```typescript
 import { Queue, Worker } from 'bullmq';
 
@@ -573,11 +615,15 @@ await videoQueue.add('render', {
 });
 
 // Process jobs
-const worker = new Worker('video-rendering', async (job) => {
-  console.log(`Processing ${job.id}`);
-  const result = await renderVideo(job.data.config);
-  return result;
-}, { connection: { host: 'localhost', port: 6379 } });
+const worker = new Worker(
+  'video-rendering',
+  async (job) => {
+    console.log(`Processing ${job.id}`);
+    const result = await renderVideo(job.data.config);
+    return result;
+  },
+  { connection: { host: 'localhost', port: 6379 } }
+);
 
 // Events
 worker.on('completed', (job, result) => {
@@ -586,6 +632,7 @@ worker.on('completed', (job, result) => {
 ```
 
 **Flow Pattern (Parent-Child):**
+
 ```typescript
 import { FlowProducer } from 'bullmq';
 
@@ -611,6 +658,7 @@ await flowProducer.add({
 ```
 
 **Content-Machine Integration:**
+
 - Async video rendering queue
 - Parallel script/audio generation
 - Rate-limited API calls
@@ -625,12 +673,14 @@ await flowProducer.add({
 ### 7.1 Pattern: Full Automation Stack
 
 **AutoTube (n8n + Ollama + OpenTTS + MoviePy):**
+
 ```
-Topic → Ollama LLM → AI Images (Pollinations) → 
+Topic → Ollama LLM → AI Images (Pollinations) →
 OpenTTS Voice → Ken Burns Zoom → YouTube Upload
 ```
 
 **Key Components:**
+
 - n8n for orchestration
 - Ollama (LLaMA 3.1) for scripts
 - Pollinations.ai/Z-Image for images
@@ -641,6 +691,7 @@ OpenTTS Voice → Ken Burns Zoom → YouTube Upload
 ### 7.2 Pattern: Faceless Video Generation
 
 **Faceless-short (Gradio + Groq + Pexels):**
+
 ```python
 # Simplified pipeline
 script = generate_script(topic)           # Groq API
@@ -653,6 +704,7 @@ video = render_video(audio, captions, background)
 ### 7.3 Pattern: Viral Factory Engines
 
 **ViralFactory (Gradio + CoquiTTS + MoviePy):**
+
 ```
 Engines System:
 ├── LLM Engine (script generation)
@@ -663,6 +715,7 @@ Engines System:
 ```
 
 **Modular Architecture:**
+
 - Each engine is swappable
 - Custom pipelines via config
 - Supports multiple output platforms
@@ -670,6 +723,7 @@ Engines System:
 ### 7.4 Pattern: GitHub Actions Automation
 
 **Gemini YouTube Automation:**
+
 ```yaml
 # .github/workflows/main.yml
 # Runs daily at 7:00 AM UTC
@@ -678,6 +732,7 @@ schedule:
 ```
 
 **Daily Pipeline:**
+
 1. Generate lesson scripts (Gemini)
 2. Produce long-form + shorts
 3. Auto-upload with metadata
@@ -735,10 +790,10 @@ const videoQueue = new Queue<VideoConfig>('video-gen');
 const worker = new Worker<VideoConfig>('video-gen', async (job) => {
   // Validate input
   const config = VideoConfigSchema.parse(job.data);
-  
+
   // Process with Langfuse tracing
   const { observeAsync } = require('langfuse');
-  
+
   return await observeAsync('video-pipeline', async () => {
     const script = await generateScript(config.topic);
     const audio = await synthesizeVoice(script, config.voice);

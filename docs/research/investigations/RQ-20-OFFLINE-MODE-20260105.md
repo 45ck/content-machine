@@ -10,6 +10,7 @@
 ## 1. Problem Statement
 
 Some users may need to operate without network access:
+
 - Air-gapped environments
 - Privacy requirements
 - Cost sensitivity
@@ -23,21 +24,21 @@ We need to identify which components can run locally.
 
 ### 2.1 Minimum Viable Offline Stack (~6.6GB)
 
-| Component | Online | Offline Alternative | Storage |
-|-----------|--------|---------------------|---------|
-| **LLM** | OpenAI/Anthropic | Ollama + llama3.1:8b | 4.7GB |
-| **TTS** | Edge TTS | Kokoro-82M | ~300MB |
-| **ASR** | WhisperX (cloud) | whisper.cpp (local) | ~1.5GB |
-| **Embeddings** | OpenAI | all-MiniLM-L6-v2 | ~90MB |
-| **Stock Footage** | Pexels | User-provided only | N/A |
+| Component         | Online           | Offline Alternative  | Storage |
+| ----------------- | ---------------- | -------------------- | ------- |
+| **LLM**           | OpenAI/Anthropic | Ollama + llama3.1:8b | 4.7GB   |
+| **TTS**           | Edge TTS         | Kokoro-82M           | ~300MB  |
+| **ASR**           | WhisperX (cloud) | whisper.cpp (local)  | ~1.5GB  |
+| **Embeddings**    | OpenAI           | all-MiniLM-L6-v2     | ~90MB   |
+| **Stock Footage** | Pexels           | User-provided only   | N/A     |
 
 ### 2.2 Storage Profiles
 
-| Profile | LLM | TTS | ASR | Embeddings | **Total** |
-|---------|-----|-----|-----|------------|-----------|
-| **Edge** | phi3:mini (2.3GB) | Kokoro q4 (80MB) | tiny.en (150MB) | MiniLM q8 (23MB) | **~2.5GB** |
-| **Standard** | llama3.1:8b (4.7GB) | Kokoro (300MB) | medium.en (1.5GB) | MiniLM (90MB) | **~6.6GB** |
-| **Quality** | llama3.1:70b-q4 (40GB) | Kokoro (300MB) | large-v3 (6GB) | bge-base (440MB) | **~47GB** |
+| Profile      | LLM                    | TTS              | ASR               | Embeddings       | **Total**  |
+| ------------ | ---------------------- | ---------------- | ----------------- | ---------------- | ---------- |
+| **Edge**     | phi3:mini (2.3GB)      | Kokoro q4 (80MB) | tiny.en (150MB)   | MiniLM q8 (23MB) | **~2.5GB** |
+| **Standard** | llama3.1:8b (4.7GB)    | Kokoro (300MB)   | medium.en (1.5GB) | MiniLM (90MB)    | **~6.6GB** |
+| **Quality**  | llama3.1:70b-q4 (40GB) | Kokoro (300MB)   | large-v3 (6GB)    | bge-base (440MB) | **~47GB**  |
 
 ---
 
@@ -78,22 +79,23 @@ ollama pull deepseek-r1:8b    # Reasoning model
 **Source:** [vendor/audio/kokoro](../../../vendor/audio/kokoro)
 
 ```typescript
-import { KokoroTTS } from "kokoro-js";
+import { KokoroTTS } from 'kokoro-js';
 
 const tts = await KokoroTTS.from_pretrained(
-  "onnx-community/Kokoro-82M-v1.0-ONNX",
-  { dtype: "q8" }  // Quantized for smaller size
+  'onnx-community/Kokoro-82M-v1.0-ONNX',
+  { dtype: 'q8' } // Quantized for smaller size
 );
 
 const audio = await tts.generate(text, {
-  voice: "af_heart",
+  voice: 'af_heart',
   speed: 1.0,
 });
 
-await audio.save("output.wav");
+await audio.save('output.wav');
 ```
 
 **Features:**
+
 - 9 languages supported
 - Voice mixing (blend multiple voices)
 - Timestamps available (for captions)
@@ -104,26 +106,26 @@ await audio.save("output.wav");
 **Source:** [vendor/remotion/packages/install-whisper-cpp](../../../vendor/remotion/packages/install-whisper-cpp)
 
 ```typescript
-import { installWhisperCpp, transcribe } from "@remotion/install-whisper-cpp";
+import { installWhisperCpp, transcribe } from '@remotion/install-whisper-cpp';
 
 // One-time installation
 await installWhisperCpp({
-  to: "./whisper",
-  version: "1.7.4",
+  to: './whisper',
+  version: '1.7.4',
 });
 
 // Download model
 await downloadWhisperModel({
-  model: "medium.en",  // Options: tiny, base, small, medium, large
-  destination: "./whisper/models",
+  model: 'medium.en', // Options: tiny, base, small, medium, large
+  destination: './whisper/models',
 });
 
 // Transcribe
 const result = await transcribe({
   inputPath: audioPath,
-  model: "medium.en",
+  model: 'medium.en',
   tokenLevelTimestamps: true,
-  whisperPath: "./whisper",
+  whisperPath: './whisper',
 });
 ```
 
@@ -134,10 +136,7 @@ const result = await transcribe({
 ```typescript
 import { pipeline } from '@xenova/transformers';
 
-const embedder = await pipeline(
-  'feature-extraction',
-  'Xenova/all-MiniLM-L6-v2'
-);
+const embedder = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2');
 
 async function embed(texts: string[]): Promise<number[][]> {
   const results = await Promise.all(
@@ -292,7 +291,7 @@ async function setupOffline(): Promise<void> {
     console.log('  Then install model: ollama pull llama3.1:8b');
   } else {
     console.log('  ✓ Ollama running');
-    
+
     // Check model
     const modelAvailable = await checkOllamaModel('llama3.1:8b');
     if (!modelAvailable) {
@@ -332,25 +331,25 @@ async function setupOffline(): Promise<void> {
 
 ## 5. Limitations of Offline Mode
 
-| Feature | Online | Offline |
-|---------|--------|---------|
-| Script quality | GPT-4o level | LLaMA 8B level (good, not great) |
-| TTS languages | 30+ (Edge TTS) | 9 (Kokoro) |
-| ASR speed | 70x realtime (WhisperX) | 10x realtime (whisper.cpp) |
-| Stock footage | ✓ (Pexels) | ❌ (user-provided only) |
-| Embedding quality | text-embedding-3 | MiniLM (slightly lower) |
+| Feature           | Online                  | Offline                          |
+| ----------------- | ----------------------- | -------------------------------- |
+| Script quality    | GPT-4o level            | LLaMA 8B level (good, not great) |
+| TTS languages     | 30+ (Edge TTS)          | 9 (Kokoro)                       |
+| ASR speed         | 70x realtime (WhisperX) | 10x realtime (whisper.cpp)       |
+| Stock footage     | ✓ (Pexels)              | ❌ (user-provided only)          |
+| Embedding quality | text-embedding-3        | MiniLM (slightly lower)          |
 
 ---
 
 ## 6. Implementation Recommendations
 
-| Decision | Recommendation | Rationale |
-|----------|----------------|-----------|
-| Offline by default | No | Most users have internet |
-| Setup command | `cm setup --offline` | One-time download |
-| Profile switching | `--profile offline` | Easy toggle |
-| Stock footage | Require user-provided | No free offline alternative |
-| Model storage | `~/.cm/models/` | Shared across projects |
+| Decision           | Recommendation        | Rationale                   |
+| ------------------ | --------------------- | --------------------------- |
+| Offline by default | No                    | Most users have internet    |
+| Setup command      | `cm setup --offline`  | One-time download           |
+| Profile switching  | `--profile offline`   | Easy toggle                 |
+| Stock footage      | Require user-provided | No free offline alternative |
+| Model storage      | `~/.cm/models/`       | Shared across projects      |
 
 ---
 

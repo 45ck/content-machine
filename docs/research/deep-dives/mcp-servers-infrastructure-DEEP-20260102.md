@@ -11,6 +11,7 @@
 This document provides comprehensive analysis of the MCP (Model Context Protocol) servers available in the vendor directory. These servers enable AI assistants to interact with external services, databases, and APIs through a standardized protocol.
 
 **Key MCP Servers for content-machine:**
+
 - **qdrant-mcp-server:** Semantic memory/RAG for content research
 - **postgres-mcp-server:** Database persistence for video metadata
 - **plainly-mcp-server:** Video rendering API integration
@@ -28,10 +29,10 @@ This document provides comprehensive analysis of the MCP (Model Context Protocol
 
 ### Tools
 
-| Tool | Purpose | Parameters |
-|------|---------|------------|
+| Tool           | Purpose           | Parameters                                   |
+| -------------- | ----------------- | -------------------------------------------- |
 | `qdrant-store` | Store information | `information`, `metadata`, `collection_name` |
-| `qdrant-find` | Semantic search | `query`, `collection_name` |
+| `qdrant-find`  | Semantic search   | `query`, `collection_name`                   |
 
 ### Configuration
 
@@ -170,12 +171,12 @@ npx @ahmedmustahid/postgres-mcp-server --port 3000 --verbose
 
 ### Tools
 
-| Tool | Purpose |
-|------|---------|
-| `list_renderable_items` | List available designs and projects |
+| Tool                           | Purpose                                                  |
+| ------------------------------ | -------------------------------------------------------- |
+| `list_renderable_items`        | List available designs and projects                      |
 | `get_renderable_items_details` | Get design details (parameters, previews, aspect ratios) |
-| `render_item` | Submit render with parameters |
-| `check_render_status` | Check render status, get preview links |
+| `render_item`                  | Submit render with parameters                            |
+| `check_render_status`          | Check render status, get preview links                   |
 
 ### Installation
 
@@ -273,6 +274,7 @@ npx -y github:brunoqgalvao/gemini-image-mcp-server
 ### Example Commands
 
 Natural language operations:
+
 - "Create a new Redis database in us-east-1"
 - "List my databases"
 - "List keys starting with 'video:' in content-db"
@@ -300,8 +302,10 @@ npx @upstash/mcp-server@latest --transport http --port 3000 \
       "args": [
         "-y",
         "@upstash/mcp-server@latest",
-        "--email", "YOUR_EMAIL",
-        "--api-key", "YOUR_API_KEY"
+        "--email",
+        "YOUR_EMAIL",
+        "--api-key",
+        "YOUR_API_KEY"
       ]
     }
   }
@@ -321,11 +325,11 @@ npx @upstash/mcp-server@latest --transport http --port 3000 \
 
 ### 6.1 Transport Modes
 
-| Transport | Use Case | Configuration |
-|-----------|----------|---------------|
-| **stdio** | Local MCP clients | Default, no network |
-| **SSE** | Remote clients | Port-based, web-friendly |
-| **Streamable HTTP** | Modern web apps | Port-based, latest spec |
+| Transport           | Use Case          | Configuration            |
+| ------------------- | ----------------- | ------------------------ |
+| **stdio**           | Local MCP clients | Default, no network      |
+| **SSE**             | Remote clients    | Port-based, web-friendly |
+| **Streamable HTTP** | Modern web apps   | Port-based, latest spec  |
 
 ### 6.2 FastMCP Environment Variables
 
@@ -478,11 +482,11 @@ async def use_qdrant():
             "COLLECTION_NAME": "trends"
         }
     )
-    
+
     async with stdio_client(server) as (read, write):
         async with ClientSession(read, write) as session:
             await session.initialize()
-            
+
             # Store information
             result = await session.call_tool(
                 "qdrant-store",
@@ -491,7 +495,7 @@ async def use_qdrant():
                     "metadata": {"source": "product_hunt", "date": "2026-01-02"}
                 }
             )
-            
+
             # Search
             results = await session.call_tool(
                 "qdrant-find",
@@ -506,14 +510,14 @@ async def use_qdrant():
 
 ### 9.1 Priority Order
 
-| Priority | Server | Purpose |
-|----------|--------|---------|
-| **Critical** | reddit-mcp-ts | Trend research |
-| **Critical** | qdrant-mcp-server | Semantic memory |
-| **High** | postgres-mcp-server | Metadata storage |
-| **High** | gemini-image-mcp-server | Image generation |
-| **Medium** | upstash-mcp-server | Caching layer |
-| **Medium** | plainly-mcp-server | Alternative rendering |
+| Priority     | Server                  | Purpose               |
+| ------------ | ----------------------- | --------------------- |
+| **Critical** | reddit-mcp-ts           | Trend research        |
+| **Critical** | qdrant-mcp-server       | Semantic memory       |
+| **High**     | postgres-mcp-server     | Metadata storage      |
+| **High**     | gemini-image-mcp-server | Image generation      |
+| **Medium**   | upstash-mcp-server      | Caching layer         |
+| **Medium**   | plainly-mcp-server      | Alternative rendering |
 
 ### 9.2 Deployment Topology
 

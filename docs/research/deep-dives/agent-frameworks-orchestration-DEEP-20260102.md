@@ -21,17 +21,17 @@ This document analyzes agent frameworks for orchestrating content-machine's mult
 
 ## 2. Framework Comparison Matrix
 
-| Feature | Pydantic AI | CrewAI | LangGraph | LlamaIndex |
-|---------|-------------|--------|-----------|------------|
-| **Primary Use** | Type-safe agents | Multi-agent crews | Workflow graphs | RAG & retrieval |
-| **Language** | Python | Python | Python/JS | Python/TS |
-| **State Management** | RunContext | Shared memory | Checkpointed | Document stores |
-| **Multi-Agent** | No (single) | Yes (crews) | Yes (nodes) | No (single) |
-| **MCP Support** | Built-in | Via tools | Via tools | Via tools |
-| **Human-in-Loop** | Yes | Yes | Yes | Limited |
-| **Type Safety** | Excellent | Good | Good | Good |
-| **Observability** | Logfire | Control Plane | LangSmith | Various |
-| **License** | MIT | MIT | MIT | MIT |
+| Feature              | Pydantic AI      | CrewAI            | LangGraph       | LlamaIndex      |
+| -------------------- | ---------------- | ----------------- | --------------- | --------------- |
+| **Primary Use**      | Type-safe agents | Multi-agent crews | Workflow graphs | RAG & retrieval |
+| **Language**         | Python           | Python            | Python/JS       | Python/TS       |
+| **State Management** | RunContext       | Shared memory     | Checkpointed    | Document stores |
+| **Multi-Agent**      | No (single)      | Yes (crews)       | Yes (nodes)     | No (single)     |
+| **MCP Support**      | Built-in         | Via tools         | Via tools       | Via tools       |
+| **Human-in-Loop**    | Yes              | Yes               | Yes             | Limited         |
+| **Type Safety**      | Excellent        | Good              | Good            | Good            |
+| **Observability**    | Logfire          | Control Plane     | LangSmith       | Various         |
+| **License**          | MIT              | MIT               | MIT             | MIT             |
 
 ---
 
@@ -75,11 +75,13 @@ async def get_trending_topics(ctx: RunContext[ContentDeps]) -> list[str]:
 ### 3.3 Content-Machine Applicability
 
 **Best For:**
+
 - Script generation agent (structured scene outputs)
 - Metadata extraction (typed video config)
 - Trend analysis (structured topic data)
 
 **Pattern:**
+
 ```python
 # For each video generation step, use Pydantic AI for structured output
 class VideoConfig(BaseModel):
@@ -113,7 +115,7 @@ researcher = Agent(
 )
 
 scriptwriter = Agent(
-    role="Script Writer", 
+    role="Script Writer",
     goal="Create engaging 30-60 second video scripts",
     backstory="Master of concise, punchy storytelling"
 )
@@ -159,7 +161,7 @@ class VideoProductionFlow(Flow[VideoState]):
         result = research_crew.kickoff(inputs={"niche": "tech"})
         self.state.topic = result.best_topic
         return result
-    
+
     @listen(research_topics)
     def generate_script(self, research_result):
         # Use another crew for script generation
@@ -169,18 +171,18 @@ class VideoProductionFlow(Flow[VideoState]):
         })
         self.state.script = script_result.script
         return script_result
-    
+
     @router(generate_script)
     def route_by_complexity(self):
         if len(self.state.script.split()) > 200:
             return "complex_render"
         return "simple_render"
-    
+
     @listen("complex_render")
     def render_complex(self):
         # Multi-scene rendering
         pass
-    
+
     @listen(or_("simple_render", "fallback"))
     def render_simple(self):
         # Single-scene rendering
@@ -263,7 +265,7 @@ def review_node(state: VideoState) -> dict:
         "script": state["script"],
         "message": "Please review script before rendering"
     })
-    
+
     if decision["approved"]:
         return {"script": decision.get("edited_script", state["script"])}
     else:
@@ -375,6 +377,7 @@ async def get_product_features(ctx: RunContext[ContentDeps], query: str) -> str:
 ### 7.2 Implementation Strategy
 
 **Phase 1: Core Pipeline (LangGraph)**
+
 ```python
 # Main orchestration with checkpointing
 from langgraph.graph import StateGraph
@@ -397,6 +400,7 @@ pipeline = graph.compile(checkpointer=checkpointer)
 ```
 
 **Phase 2: Individual Agents (Pydantic AI)**
+
 ```python
 # Type-safe script generation
 from pydantic_ai import Agent
@@ -414,6 +418,7 @@ async def query_product_docs(ctx: RunContext[ScriptDeps], query: str) -> str:
 ```
 
 **Phase 3: Product Knowledge (LlamaIndex)**
+
 ```python
 # RAG for product-truthful content
 from llama_index.core import VectorStoreIndex
@@ -429,16 +434,16 @@ product_index = VectorStoreIndex.from_vector_store(vector_store)
 
 ### 8.1 Vector Databases (Qdrant vs Weaviate)
 
-| Feature | Qdrant | Weaviate |
-|---------|--------|----------|
-| **Language** | Rust | Go |
-| **Speed** | Faster at scale | Fast |
-| **Hybrid Search** | Yes | Yes (BM25+vector) |
-| **Filtering** | Advanced payload filters | GraphQL filters |
-| **Integrations** | LangChain, LlamaIndex | Same + native RAG |
-| **Self-Hosted** | Docker, Kubernetes | Same |
-| **Cloud** | Qdrant Cloud | Weaviate Cloud |
-| **License** | Apache 2.0 | BSD 3-Clause |
+| Feature           | Qdrant                   | Weaviate          |
+| ----------------- | ------------------------ | ----------------- |
+| **Language**      | Rust                     | Go                |
+| **Speed**         | Faster at scale          | Fast              |
+| **Hybrid Search** | Yes                      | Yes (BM25+vector) |
+| **Filtering**     | Advanced payload filters | GraphQL filters   |
+| **Integrations**  | LangChain, LlamaIndex    | Same + native RAG |
+| **Self-Hosted**   | Docker, Kubernetes       | Same              |
+| **Cloud**         | Qdrant Cloud             | Weaviate Cloud    |
+| **License**       | Apache 2.0               | BSD 3-Clause      |
 
 **Recommendation:** Qdrant for performance, Weaviate for built-in RAG features.
 
@@ -489,16 +494,16 @@ public addToQueue(sceneInput: SceneInput[], config: RenderConfig): string {
 for (const scene of inputScenes) {
   // 1. TTS Generation (Kokoro)
   const audio = await this.kokoro.generate(scene.text, config.voice);
-  
+
   // 2. Audio normalization (FFmpeg)
   await this.ffmpeg.saveNormalizedAudio(audioStream, tempWavPath);
-  
+
   // 3. Caption generation (Whisper)
   const captions = await this.whisper.CreateCaption(tempWavPath);
-  
+
   // 4. Video asset fetch (Pexels)
   const video = await this.pexelsApi.findVideo(scene.searchTerms, audioLength);
-  
+
   scenes.push({ captions, video, audio });
 }
 
@@ -512,18 +517,18 @@ Docker-based microservice pattern:
 
 ```yaml
 services:
-  trendscraper:  # Node.js - Puppeteer + Gemini
+  trendscraper: # Node.js - Puppeteer + Gemini
     - Scrapes Google Trends
     - Generates scripts via Gemini API
     - Burns subtitles with FFmpeg
-    
-  coqui:  # Coqui TTS container
+
+  coqui: # Coqui TTS container
     - Text-to-speech conversion
-    
-  speechalign:  # Python + Aeneas
+
+  speechalign: # Python + Aeneas
     - Forced alignment for subtitle timing
-    
-  nginx:  # Web interface
+
+  nginx: # Web interface
     - One-click generation UI
 ```
 
@@ -554,16 +559,16 @@ video.create(narrations, basedir, output_file, caption_settings)
 
 ### 10.1 Recommended Stack
 
-| Layer | Technology | Justification |
-|-------|------------|---------------|
-| **Orchestration** | LangGraph | Durable, checkpointed, human-in-loop |
-| **Agents** | Pydantic AI | Type-safe structured outputs |
-| **Knowledge** | LlamaIndex + Qdrant | Product-truthful RAG |
-| **TTS** | Kokoro-FastAPI | Fast, local, OpenAI-compatible |
-| **ASR** | WhisperX | Word-level timestamps, diarization |
-| **Rendering** | Remotion | React-based, programmable |
-| **Queue** | BullMQ | Redis-based, parent-child jobs |
-| **Storage** | MinIO + PostgreSQL | S3-compatible + relational |
+| Layer             | Technology          | Justification                        |
+| ----------------- | ------------------- | ------------------------------------ |
+| **Orchestration** | LangGraph           | Durable, checkpointed, human-in-loop |
+| **Agents**        | Pydantic AI         | Type-safe structured outputs         |
+| **Knowledge**     | LlamaIndex + Qdrant | Product-truthful RAG                 |
+| **TTS**           | Kokoro-FastAPI      | Fast, local, OpenAI-compatible       |
+| **ASR**           | WhisperX            | Word-level timestamps, diarization   |
+| **Rendering**     | Remotion            | React-based, programmable            |
+| **Queue**         | BullMQ              | Redis-based, parent-child jobs       |
+| **Storage**       | MinIO + PostgreSQL  | S3-compatible + relational           |
 
 ### 10.2 Content-Machine Pipeline
 

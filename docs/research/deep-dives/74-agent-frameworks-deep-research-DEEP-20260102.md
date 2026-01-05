@@ -32,24 +32,24 @@ CrewAI is a **lean, lightning-fast Python framework** for multi-agent automation
 
 ### 1.2 Core Concepts
 
-| Concept | Description |
-|---------|-------------|
-| **Crews** | Teams of AI agents with autonomous collaboration |
-| **Flows** | Event-driven workflows with granular control |
-| **Agents** | Role-based AI entities with goals and expertise |
-| **Tasks** | Units of work assigned to agents |
-| **Tools** | External capabilities for agents |
-| **Delegation** | Agents can delegate tasks to each other |
+| Concept        | Description                                      |
+| -------------- | ------------------------------------------------ |
+| **Crews**      | Teams of AI agents with autonomous collaboration |
+| **Flows**      | Event-driven workflows with granular control     |
+| **Agents**     | Role-based AI entities with goals and expertise  |
+| **Tasks**      | Units of work assigned to agents                 |
+| **Tools**      | External capabilities for agents                 |
+| **Delegation** | Agents can delegate tasks to each other          |
 
 ### 1.3 Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Standalone** | No LangChain dependency |
-| **High Performance** | Optimized for speed |
-| **Low-level Control** | Customize prompts, execution logic |
-| **Enterprise Ready** | Control plane, tracing, observability |
-| **100k+ Developers** | Large certified community |
+| Feature               | Description                           |
+| --------------------- | ------------------------------------- |
+| **Standalone**        | No LangChain dependency               |
+| **High Performance**  | Optimized for speed                   |
+| **Low-level Control** | Customize prompts, execution logic    |
+| **Enterprise Ready**  | Control plane, tracing, observability |
+| **100k+ Developers**  | Large certified community             |
 
 ### 1.4 Installation
 
@@ -114,19 +114,19 @@ print(result)
 from crewai.flow.flow import Flow, listen, start
 
 class VideoGenerationFlow(Flow):
-    
+
     @start()
     def research_trends(self):
         # First step: research
         topics = self.call_llm('Find trending AI topics')
         return topics
-    
+
     @listen(research_trends)
     def generate_script(self, topics):
         # Second step: script
         script = self.call_llm(f'Write script about {topics[0]}')
         return script
-    
+
     @listen(generate_script)
     def generate_audio(self, script):
         # Third step: audio
@@ -144,12 +144,12 @@ from crewai import Crew
 from crewai.flow.flow import Flow, listen, start
 
 class ProductionFlow(Flow):
-    
+
     @start()
     def research_phase(self):
         # Use a Crew for research
         return research_crew.kickoff()
-    
+
     @listen(research_phase)
     def production_phase(self, research_result):
         # Use another Crew for production
@@ -173,13 +173,13 @@ LangGraph is a **low-level orchestration framework** for building, managing, and
 
 ### 2.2 Core Benefits
 
-| Benefit | Description |
-|---------|-------------|
-| **Durable Execution** | Survives failures, resumes automatically |
-| **Human-in-the-Loop** | Inspect/modify state at any point |
-| **Comprehensive Memory** | Short and long-term memory |
-| **LangSmith Debugging** | Trace visualization, metrics |
-| **Production Deployment** | Scalable infrastructure |
+| Benefit                   | Description                              |
+| ------------------------- | ---------------------------------------- |
+| **Durable Execution**     | Survives failures, resumes automatically |
+| **Human-in-the-Loop**     | Inspect/modify state at any point        |
+| **Comprehensive Memory**  | Short and long-term memory               |
+| **LangSmith Debugging**   | Trace visualization, metrics             |
+| **Production Deployment** | Scalable infrastructure                  |
 
 ### 2.3 Installation
 
@@ -281,16 +281,16 @@ PydanticAI is a Python agent framework that brings the **FastAPI feeling** to Ge
 
 ### 3.2 Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Built by Pydantic** | The validation layer for OpenAI, Anthropic, etc. |
-| **Model-agnostic** | 100+ model/provider combinations |
-| **Seamless Observability** | Logfire integration |
-| **Fully Type-safe** | IDE support, static checking |
-| **Powerful Evals** | Built-in evaluation framework |
-| **MCP Support** | Model Context Protocol integration |
-| **A2A** | Agent-to-Agent interoperability |
-| **Durable Execution** | Survives failures, restarts |
+| Feature                    | Description                                      |
+| -------------------------- | ------------------------------------------------ |
+| **Built by Pydantic**      | The validation layer for OpenAI, Anthropic, etc. |
+| **Model-agnostic**         | 100+ model/provider combinations                 |
+| **Seamless Observability** | Logfire integration                              |
+| **Fully Type-safe**        | IDE support, static checking                     |
+| **Powerful Evals**         | Built-in evaluation framework                    |
+| **MCP Support**            | Model Context Protocol integration               |
+| **A2A**                    | Agent-to-Agent interoperability                  |
+| **Durable Execution**      | Survives failures, restarts                      |
 
 ### 3.3 Installation
 
@@ -395,13 +395,13 @@ LlamaIndex is a **data framework** for building LLM applications. It provides da
 
 ### 4.2 Core Concepts
 
-| Concept | Description |
-|---------|-------------|
-| **Data Connectors** | Ingest from APIs, PDFs, SQL, etc. |
-| **Indices** | Structure data for LLM consumption |
-| **Retrievers** | Query data efficiently |
-| **Query Engines** | LLM-powered question answering |
-| **Agents** | Autonomous tool-using LLM systems |
+| Concept             | Description                        |
+| ------------------- | ---------------------------------- |
+| **Data Connectors** | Ingest from APIs, PDFs, SQL, etc.  |
+| **Indices**         | Structure data for LLM consumption |
+| **Retrievers**      | Query data efficiently             |
+| **Query Engines**   | LLM-powered question answering     |
+| **Agents**          | Autonomous tool-using LLM systems  |
 
 ### 4.3 Installation
 
@@ -476,14 +476,14 @@ GPT Researcher is an **open deep research agent** that produces detailed, factua
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Plan-and-Solve** | Planner + execution agents |
-| **20+ Sources** | Aggregates multiple web sources |
-| **2000+ Words** | Long-form detailed reports |
-| **PDF/Word Export** | Multiple output formats |
-| **MCP Support** | Connect to custom data sources |
-| **Image Scraping** | Smart filtering for reports |
+| Feature             | Description                     |
+| ------------------- | ------------------------------- |
+| **Plan-and-Solve**  | Planner + execution agents      |
+| **20+ Sources**     | Aggregates multiple web sources |
+| **2000+ Words**     | Long-form detailed reports      |
+| **PDF/Word Export** | Multiple output formats         |
+| **MCP Support**     | Connect to custom data sources  |
+| **Image Scraping**  | Smart filtering for reports     |
 
 #### Architecture
 
@@ -544,13 +544,13 @@ A configurable, fully open source deep research agent built on LangGraph. Works 
 
 #### Key Features
 
-| Feature | Description |
-|---------|-------------|
-| **Multi-Model** | GPT-4, Claude, Gemini, local models |
-| **Multi-Search** | Tavily, native search, MCP |
-| **LangGraph** | State machine architecture |
-| **Studio UI** | Visual debugging |
-| **Evaluation** | Deep Research Bench compatible |
+| Feature          | Description                         |
+| ---------------- | ----------------------------------- |
+| **Multi-Model**  | GPT-4, Claude, Gemini, local models |
+| **Multi-Search** | Tavily, native search, MCP          |
+| **LangGraph**    | State machine architecture          |
+| **Studio UI**    | Visual debugging                    |
+| **Evaluation**   | Deep Research Bench compatible      |
 
 #### Architecture
 
@@ -589,37 +589,37 @@ search_api = 'tavily'  # or perplexity, exa, etc.
 
 ### 6.1 Feature Matrix
 
-| Feature | CrewAI | LangGraph | PydanticAI | LlamaIndex |
-|---------|--------|-----------|------------|------------|
-| **Paradigm** | Role-based crews | State graphs | Type-safe agents | Data-centric |
-| **Multi-Agent** | ✅ Native | ✅ Via nodes | ✅ Via A2A | ✅ Via tools |
-| **Durable Execution** | ❌ | ✅ | ✅ | ❌ |
-| **Human-in-Loop** | ✅ | ✅ Native | ✅ Native | ✅ |
-| **MCP Support** | ✅ | ❌ | ✅ Native | ❌ |
-| **Type Safety** | ⚠️ | ⚠️ | ✅ Excellent | ⚠️ |
-| **RAG Built-in** | ❌ | ❌ | ❌ | ✅ Native |
-| **Observability** | Control Plane | LangSmith | Logfire | LlamaCloud |
-| **Learning Curve** | Low | Moderate | Low | Moderate |
+| Feature               | CrewAI           | LangGraph    | PydanticAI       | LlamaIndex   |
+| --------------------- | ---------------- | ------------ | ---------------- | ------------ |
+| **Paradigm**          | Role-based crews | State graphs | Type-safe agents | Data-centric |
+| **Multi-Agent**       | ✅ Native        | ✅ Via nodes | ✅ Via A2A       | ✅ Via tools |
+| **Durable Execution** | ❌               | ✅           | ✅               | ❌           |
+| **Human-in-Loop**     | ✅               | ✅ Native    | ✅ Native        | ✅           |
+| **MCP Support**       | ✅               | ❌           | ✅ Native        | ❌           |
+| **Type Safety**       | ⚠️               | ⚠️           | ✅ Excellent     | ⚠️           |
+| **RAG Built-in**      | ❌               | ❌           | ❌               | ✅ Native    |
+| **Observability**     | Control Plane    | LangSmith    | Logfire          | LlamaCloud   |
+| **Learning Curve**    | Low              | Moderate     | Low              | Moderate     |
 
 ### 6.2 Use Case Fit
 
-| Use Case | Best Framework |
-|----------|----------------|
-| Multi-agent collaboration | CrewAI |
-| Complex state machines | LangGraph |
-| Type-safe production | PydanticAI |
-| RAG applications | LlamaIndex |
-| Long-running workflows | LangGraph, PydanticAI |
-| Quick prototyping | CrewAI, PydanticAI |
+| Use Case                  | Best Framework        |
+| ------------------------- | --------------------- |
+| Multi-agent collaboration | CrewAI                |
+| Complex state machines    | LangGraph             |
+| Type-safe production      | PydanticAI            |
+| RAG applications          | LlamaIndex            |
+| Long-running workflows    | LangGraph, PydanticAI |
+| Quick prototyping         | CrewAI, PydanticAI    |
 
 ### 6.3 Recommendation for content-machine
 
-| Layer | Framework | Rationale |
-|-------|-----------|-----------|
-| **Content Planning** | CrewAI | Multi-agent for research + scripting |
-| **Pipeline Control** | LangGraph | Durable execution, state management |
-| **Structured Outputs** | PydanticAI/Instructor | Type-safe LLM extraction |
-| **Trend Research** | LlamaIndex + GPT Researcher | RAG + deep research |
+| Layer                  | Framework                   | Rationale                            |
+| ---------------------- | --------------------------- | ------------------------------------ |
+| **Content Planning**   | CrewAI                      | Multi-agent for research + scripting |
+| **Pipeline Control**   | LangGraph                   | Durable execution, state management  |
+| **Structured Outputs** | PydanticAI/Instructor       | Type-safe LLM extraction             |
+| **Trend Research**     | LlamaIndex + GPT Researcher | RAG + deep research                  |
 
 ---
 
@@ -715,12 +715,12 @@ graph.add_node('review', human_review_node)
 
 ## 8. Document Metadata
 
-| Field | Value |
-|-------|-------|
-| **Document ID** | DD-074 |
-| **Created** | 2026-01-02 |
-| **Author** | Research Agent |
-| **Status** | Complete |
+| Field            | Value          |
+| ---------------- | -------------- |
+| **Document ID**  | DD-074         |
+| **Created**      | 2026-01-02     |
+| **Author**       | Research Agent |
+| **Status**       | Complete       |
 | **Dependencies** | DD-072, DD-073 |
 
 ---

@@ -41,30 +41,30 @@ Generate {amount} search terms for stock videos related to: {topic}
 Topic: "person working from home"
 Output: ["home office", "laptop typing", "remote work", "coffee desk", "video call"]
 """
-    
+
     response = llm.complete(prompt)
     return json.loads(response)
 ```
 
 ### 2.2 Word Length Constraints in Prompts
 
-| Repo | Constraint | Source |
-|------|------------|--------|
-| MoneyPrinterTurbo | "1-3 words" | llm.py |
-| ShortGPT | "1-2 words" | YAML prompts |
-| viralfactory | "one to two MAXIMUM words" | Inline prompt |
+| Repo              | Constraint                 | Source        |
+| ----------------- | -------------------------- | ------------- |
+| MoneyPrinterTurbo | "1-3 words"                | llm.py        |
+| ShortGPT          | "1-2 words"                | YAML prompts  |
+| viralfactory      | "one to two MAXIMUM words" | Inline prompt |
 
 ### 2.3 Joker/Fallback Terms (short-video-maker-gyori)
 
 **Source:** [vendor/short-video-maker-gyori/src/short-creator/libraries/Pexels.ts](../../../vendor/short-video-maker-gyori/src/short-creator/libraries/Pexels.ts)
 
 ```typescript
-const jokerTerms: string[] = ["nature", "globe", "space", "ocean"];
+const jokerTerms: string[] = ['nature', 'globe', 'space', 'ocean'];
 
 async function searchVideo(searchTerms: string[]): Promise<Video | null> {
   const shuffledSearchTerms = shuffleArray([...searchTerms]);
   const shuffledJokerTerms = shuffleArray([...jokerTerms]);
-  
+
   // Try user terms first, then fallback to joker terms
   for (const searchTerm of [...shuffledSearchTerms, ...shuffledJokerTerms]) {
     const result = await pexelsClient.search({ query: searchTerm });
@@ -72,7 +72,7 @@ async function searchVideo(searchTerms: string[]): Promise<Video | null> {
       return pickBestVideo(result.videos);
     }
   }
-  
+
   return null;
 }
 ```
@@ -86,7 +86,7 @@ ShortGPT generates 3 alternative queries per segment:
 ```yaml
 response_format:
   - name: searchQueries
-    description: "3 alternative stock video search queries for this scene"
+    description: '3 alternative stock video search queries for this scene'
     type: array
     items:
       type: string
@@ -146,32 +146,31 @@ async function searchWithFallbacks(
   scene: Scene,
   keywords: KeywordResult
 ): Promise<StockVideo | null> {
-  
   // Level 1: Primary keyword
   let result = await searchPexels(keywords.primary);
   if (result) return result;
-  
+
   // Level 2: Alternative keywords
   for (const alt of keywords.alternatives) {
     result = await searchPexels(alt);
     if (result) return result;
   }
-  
+
   // Level 3: Simplified single-word queries
   const singleWords = keywords.primary.split(' ');
   for (const word of singleWords) {
     result = await searchPexels(word);
     if (result) return result;
   }
-  
+
   // Level 4: Joker terms based on mood
   const jokerTerms = getJokerTermsForMood(scene.mood);
   for (const joker of jokerTerms) {
     result = await searchPexels(joker);
     if (result) return result;
   }
-  
-  return null;  // Will use gradient fallback
+
+  return null; // Will use gradient fallback
 }
 ```
 
@@ -179,12 +178,12 @@ async function searchWithFallbacks(
 
 ```typescript
 const MOOD_JOKER_TERMS: Record<string, string[]> = {
-  happy: ["celebration", "sunshine", "nature", "friends"],
-  sad: ["rain", "clouds", "alone", "sunset"],
-  excited: ["fireworks", "crowd", "sports", "action"],
-  calm: ["ocean", "forest", "mountains", "sky"],
-  tense: ["storm", "city night", "shadows", "clock"],
-  neutral: ["nature", "globe", "space", "abstract"],
+  happy: ['celebration', 'sunshine', 'nature', 'friends'],
+  sad: ['rain', 'clouds', 'alone', 'sunset'],
+  excited: ['fireworks', 'crowd', 'sports', 'action'],
+  calm: ['ocean', 'forest', 'mountains', 'sky'],
+  tense: ['storm', 'city night', 'shadows', 'clock'],
+  neutral: ['nature', 'globe', 'space', 'abstract'],
 };
 
 function getJokerTermsForMood(mood: string | undefined): string[] {
@@ -198,23 +197,23 @@ function getJokerTermsForMood(mood: string | undefined): string[] {
 const PEXELS_CONSTRAINTS = {
   maxQueryLength: 80,
   maxResultsPerPage: 80,
-  language: 'en',  // API primarily English
+  language: 'en', // API primarily English
 };
 
 function sanitizeQuery(query: string): string {
   // Remove special characters
   let sanitized = query.replace(/[^\w\s]/g, ' ');
-  
+
   // Collapse whitespace
   sanitized = sanitized.replace(/\s+/g, ' ').trim();
-  
+
   // Truncate to max length
   if (sanitized.length > PEXELS_CONSTRAINTS.maxQueryLength) {
     sanitized = sanitized.slice(0, PEXELS_CONSTRAINTS.maxQueryLength);
     // Don't cut mid-word
     sanitized = sanitized.replace(/\s\w*$/, '');
   }
-  
+
   return sanitized;
 }
 ```
@@ -227,33 +226,32 @@ async function findBestFootage(
   userFootage: EmbeddedFootage[],
   stockEnabled: boolean
 ): Promise<FootageMatch> {
-  
   // Step 1: Embed visual direction
   const queryEmbedding = await embed(scene.visualDirection);
-  
+
   // Step 2: Search user footage by embedding similarity
   const userMatches = userFootage
-    .map(f => ({
+    .map((f) => ({
       footage: f,
       similarity: cosineSimilarity(queryEmbedding, f.embedding),
     }))
-    .filter(m => m.similarity > 0.7)
+    .filter((m) => m.similarity > 0.7)
     .sort((a, b) => b.similarity - a.similarity);
-  
+
   if (userMatches.length > 0) {
     return { source: 'user', ...userMatches[0] };
   }
-  
+
   // Step 3: Generate keywords for stock API
   if (stockEnabled) {
     const keywords = await generateKeywords(scene);
     const stockVideo = await searchWithFallbacks(scene, keywords);
-    
+
     if (stockVideo) {
       return { source: 'stock', footage: stockVideo };
     }
   }
-  
+
   // Step 4: Fallback
   return { source: 'fallback', type: 'gradient', mood: scene.mood };
 }
@@ -273,38 +271,32 @@ interface KeywordStats {
   wasUsed: boolean;
 }
 
-async function trackKeywordSuccess(
-  projectDir: string,
-  stats: KeywordStats[]
-): Promise<void> {
+async function trackKeywordSuccess(projectDir: string, stats: KeywordStats[]): Promise<void> {
   // Log for future prompt improvement
-  await appendToLog(
-    path.join(projectDir, '.cm-analytics', 'keyword-stats.jsonl'),
-    stats
-  );
+  await appendToLog(path.join(projectDir, '.cm-analytics', 'keyword-stats.jsonl'), stats);
 }
 ```
 
 ### 4.2 Translation Quality Metrics
 
-| Metric | Target | Measurement |
-|--------|--------|-------------|
-| Primary hit rate | >60% | Primary keyword returns usable video |
-| Any hit rate | >90% | At least one query succeeds |
-| Joker rate | <20% | Fallback to generic terms |
-| Semantic relevance | >0.7 | Embedding similarity of selected video |
+| Metric             | Target | Measurement                            |
+| ------------------ | ------ | -------------------------------------- |
+| Primary hit rate   | >60%   | Primary keyword returns usable video   |
+| Any hit rate       | >90%   | At least one query succeeds            |
+| Joker rate         | <20%   | Fallback to generic terms              |
+| Semantic relevance | >0.7   | Embedding similarity of selected video |
 
 ---
 
 ## 5. Implementation Recommendations
 
-| Pattern | Priority | Rationale |
-|---------|----------|-----------|
-| LLM keyword generation | P0 | Core translation mechanism |
-| Cascading search | P0 | Handle API failures gracefully |
-| Query sanitization | P0 | Respect API limits |
-| Mood-based jokers | P1 | Better fallbacks than random |
-| Success tracking | P2 | Improve prompts over time |
+| Pattern                | Priority | Rationale                      |
+| ---------------------- | -------- | ------------------------------ |
+| LLM keyword generation | P0       | Core translation mechanism     |
+| Cascading search       | P0       | Handle API failures gracefully |
+| Query sanitization     | P0       | Respect API limits             |
+| Mood-based jokers      | P1       | Better fallbacks than random   |
+| Success tracking       | P2       | Improve prompts over time      |
 
 ---
 

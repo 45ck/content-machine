@@ -47,12 +47,12 @@ The **Video Production** theme covers how scripts become videos: **rendering**, 
 
 ### Technology Selection
 
-| Technology | Quality | Speed | Cost | Languages |
-|------------|---------|-------|------|-----------|
-| **Kokoro** | ★★★★★ | Fast | Free | EN only |
-| **EdgeTTS** | ★★★★☆ | Fast | Free | 30+ |
-| **ElevenLabs** | ★★★★★ | Medium | $$$ | Multi |
-| **OpenAI TTS** | ★★★★★ | Medium | $$ | Multi |
+| Technology     | Quality | Speed  | Cost | Languages |
+| -------------- | ------- | ------ | ---- | --------- |
+| **Kokoro**     | ★★★★★   | Fast   | Free | EN only   |
+| **EdgeTTS**    | ★★★★☆   | Fast   | Free | 30+       |
+| **ElevenLabs** | ★★★★★   | Medium | $$$  | Multi     |
+| **OpenAI TTS** | ★★★★★   | Medium | $$   | Multi     |
 
 ### Primary: Kokoro-FastAPI
 
@@ -80,14 +80,14 @@ import edge_tts
 
 async def generate_audio(text: str, language: str = "en") -> bytes:
     voice = VOICE_MAP.get(language, "en-US-AriaNeural")
-    
+
     communicate = edge_tts.Communicate(text, voice)
     audio_data = b""
-    
+
     async for chunk in communicate.stream():
         if chunk["type"] == "audio":
             audio_data += chunk["data"]
-    
+
     return audio_data
 
 VOICE_MAP = {
@@ -106,11 +106,11 @@ VOICE_MAP = {
 
 ### Technology Selection
 
-| Technology | Speed | Accuracy | Word-Level | Diarization |
-|------------|-------|----------|------------|-------------|
-| **WhisperX** | 70x RT | ★★★★★ | ✅ | ✅ |
-| **faster-whisper** | 4x RT | ★★★★★ | ✅ | ❌ |
-| **Whisper.cpp** | 2x RT | ★★★★☆ | ✅ | ❌ |
+| Technology         | Speed  | Accuracy | Word-Level | Diarization |
+| ------------------ | ------ | -------- | ---------- | ----------- |
+| **WhisperX**       | 70x RT | ★★★★★    | ✅         | ✅          |
+| **faster-whisper** | 4x RT  | ★★★★★    | ✅         | ❌          |
+| **Whisper.cpp**    | 2x RT  | ★★★★☆    | ✅         | ❌          |
 
 ### Primary: WhisperX
 
@@ -120,15 +120,15 @@ import whisperx
 def transcribe_with_timestamps(audio_path: str) -> list[dict]:
     # Load model
     model = whisperx.load_model("large-v3", device="cuda", compute_type="float16")
-    
+
     # Transcribe
     audio = whisperx.load_audio(audio_path)
     result = model.transcribe(audio, batch_size=16)
-    
+
     # Align for word-level timestamps
     model_a, metadata = whisperx.load_align_model(language_code="en", device="cuda")
     result = whisperx.align(result["segments"], model_a, metadata, audio, device="cuda")
-    
+
     # Return word-level data
     words = []
     for segment in result["segments"]:
@@ -139,7 +139,7 @@ def transcribe_with_timestamps(audio_path: str) -> list[dict]:
                 "end": word["end"],
                 "confidence": word.get("score", 1.0)
             })
-    
+
     return words
 ```
 
@@ -158,7 +158,7 @@ const CAPTION_PRESETS = {
     strokeColor: 'black',
     backgroundColor: 'transparent',
     highlightColor: '#00FF00',
-    position: 'center'
+    position: 'center',
   },
   'youtube-shorts': {
     fontSize: 60,
@@ -168,17 +168,17 @@ const CAPTION_PRESETS = {
     strokeWidth: 4,
     strokeColor: 'black',
     backgroundColor: 'rgba(0,0,0,0.5)',
-    position: 'bottom'
+    position: 'bottom',
   },
-  'minimal': {
+  minimal: {
     fontSize: 48,
     fontFamily: 'SF Pro',
     fontWeight: 500,
     color: 'white',
     strokeWidth: 0,
     backgroundColor: 'transparent',
-    position: 'bottom'
-  }
+    position: 'bottom',
+  },
 };
 ```
 
@@ -188,12 +188,12 @@ const CAPTION_PRESETS = {
 
 ### Technology Selection
 
-| Technology | Type | Language | Flexibility | Performance |
-|------------|------|----------|-------------|-------------|
-| **Remotion** | React | TypeScript | ★★★★★ | ★★★★☆ |
-| **MoviePy** | Script | Python | ★★★☆☆ | ★★★☆☆ |
-| **FFmpeg** | CLI | Any | ★★★★★ | ★★★★★ |
-| **Mosaico** | React | TypeScript | ★★★★☆ | ★★★★☆ |
+| Technology   | Type   | Language   | Flexibility | Performance |
+| ------------ | ------ | ---------- | ----------- | ----------- |
+| **Remotion** | React  | TypeScript | ★★★★★       | ★★★★☆       |
+| **MoviePy**  | Script | Python     | ★★★☆☆       | ★★★☆☆       |
+| **FFmpeg**   | CLI    | Any        | ★★★★★       | ★★★★★       |
+| **Mosaico**  | React  | TypeScript | ★★★★☆       | ★★★★☆       |
 
 ### Primary: Remotion
 
@@ -240,25 +240,25 @@ export const ShortVideo: React.FC<ShortVideoProps> = ({
   words
 }) => {
   let currentFrame = 0;
-  
+
   return (
     <AbsoluteFill style={{ backgroundColor: 'black' }}>
       {/* Audio track */}
       <Audio src={audioPath} />
-      
+
       {/* Scene backgrounds */}
       {scenes.map((scene, i) => {
         const startFrame = currentFrame;
         const duration = Math.round(scene.duration * 30);
         currentFrame += duration;
-        
+
         return (
           <Sequence key={i} from={startFrame} durationInFrames={duration}>
             <SceneBackground scene={scene} />
           </Sequence>
         );
       })}
-      
+
       {/* Captions overlay */}
       <Captions
         words={words}
@@ -316,21 +316,20 @@ interface AssetService {
 
 class PexelsService implements AssetService {
   async search(query: string): Promise<Asset[]> {
-    const response = await fetch(
-      `https://api.pexels.com/videos/search?query=${query}&per_page=5`,
-      { headers: { Authorization: process.env.PEXELS_API_KEY! } }
-    );
+    const response = await fetch(`https://api.pexels.com/videos/search?query=${query}&per_page=5`, {
+      headers: { Authorization: process.env.PEXELS_API_KEY! },
+    });
     const data = await response.json();
-    
-    return data.videos.map(v => ({
+
+    return data.videos.map((v) => ({
       id: v.id,
       url: v.video_files[0].link,
       thumbnail: v.image,
       duration: v.duration,
-      type: 'video'
+      type: 'video',
     }));
   }
-  
+
   async download(asset: Asset): Promise<string> {
     const response = await fetch(asset.url);
     const buffer = await response.arrayBuffer();
@@ -349,7 +348,7 @@ from scenedetect import detect, ContentDetector
 def detect_scenes(video_path: str) -> list[tuple[float, float]]:
     """Detect scene boundaries in a video."""
     scene_list = detect(video_path, ContentDetector(threshold=27.0))
-    
+
     return [
         (scene[0].get_seconds(), scene[1].get_seconds())
         for scene in scene_list
@@ -367,16 +366,16 @@ def detect_scenes(video_path: str) -> list[tuple[float, float]]:
 async function render_video(config: VideoConfig): Promise<RenderResult> {
   // 1. Prepare assets
   const assets = await assetService.prepareAssets(config.scenes);
-  
+
   // 2. Generate audio
   const audioPath = await ttsService.generate(
     config.scenes.map(s => s.text).join(' '),
     config.voice
   );
-  
+
   // 3. Get word timestamps
   const words = await whisperService.transcribe(audioPath);
-  
+
   // 4. Render with Remotion
   const outputPath = await remotionService.render({
     composition: 'ShortVideo',
@@ -388,10 +387,10 @@ async function render_video(config: VideoConfig): Promise<RenderResult> {
     },
     outputPath: `output/${config.id}.mp4`
   });
-  
+
   // 5. Upload to storage
   const storageKey = await storage.upload(outputPath);
-  
+
   return {
     videoPath: outputPath,
     storageKey,
@@ -410,25 +409,25 @@ async function renderWithRemotions(config: RenderConfig): Promise<string> {
   // Bundle the composition
   const bundled = await bundle({
     entryPoint: './src/index.ts',
-    webpackOverride: (config) => config
+    webpackOverride: (config) => config,
   });
-  
+
   // Select composition
   const composition = await selectComposition({
     serveUrl: bundled,
     id: config.composition,
-    inputProps: config.props
+    inputProps: config.props,
   });
-  
+
   // Render
   await renderMedia({
     composition,
     serveUrl: bundled,
     codec: 'h264',
     outputLocation: config.outputPath,
-    inputProps: config.props
+    inputProps: config.props,
   });
-  
+
   return config.outputPath;
 }
 ```
@@ -451,43 +450,43 @@ const qualityChecks: QualityCheck[] = [
     check: async (video) => {
       const duration = await getVideoDuration(video.path);
       return duration >= 15 && duration <= 60;
-    }
+    },
   },
   {
     name: 'resolution',
     check: async (video) => {
       const { width, height } = await getVideoResolution(video.path);
-      return width === 1080 && height === 1920;  // 9:16
-    }
+      return width === 1080 && height === 1920; // 9:16
+    },
   },
   {
     name: 'audio-levels',
     check: async (video) => {
       const levels = await analyzeAudioLevels(video.path);
-      return levels.peak > -6 && levels.peak < -1;  // -6dB to -1dB
-    }
+      return levels.peak > -6 && levels.peak < -1; // -6dB to -1dB
+    },
   },
   {
     name: 'captions-visible',
     check: async (video) => {
       // Sample frames and check caption visibility
       const frames = await extractFrames(video.path, [5, 15, 30, 45]);
-      return frames.every(f => detectCaptions(f));
-    }
-  }
+      return frames.every((f) => detectCaptions(f));
+    },
+  },
 ];
 
 async function validateVideo(video: VideoFile): Promise<ValidationResult> {
   const results = await Promise.all(
-    qualityChecks.map(async check => ({
+    qualityChecks.map(async (check) => ({
       name: check.name,
-      passed: await check.check(video)
+      passed: await check.check(video),
     }))
   );
-  
+
   return {
-    passed: results.every(r => r.passed),
-    checks: results
+    passed: results.every((r) => r.passed),
+    checks: results,
   };
 }
 ```
