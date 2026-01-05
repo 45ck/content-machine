@@ -9,13 +9,13 @@
  * 5. Render video (real Remotion)
  */
 import 'dotenv/config';
-import { mkdir, writeFile, rm } from 'fs/promises';
+import { mkdir } from 'fs/promises';
 import { join } from 'path';
-import { generateAudio, type GenerateAudioOptions } from '../../src/audio/pipeline';
+import { generateAudio } from '../../src/audio/pipeline';
 import { searchPexels } from '../../src/visuals/providers/pexels';
 import { renderVideo, type RenderVideoOptions } from '../../src/render/service';
-import type { ScriptOutput, Scene } from '../../src/script/schema';
-import type { TimestampsOutput, SceneTimestamp } from '../../src/audio/schema';
+import type { ScriptOutput } from '../../src/script/schema';
+import type { TimestampsOutput } from '../../src/audio/schema';
 import type { VisualsOutput, VisualAsset, Keyword } from '../../src/visuals/schema';
 
 const OUTPUT_DIR = './test-e2e-output';

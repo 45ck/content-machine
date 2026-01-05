@@ -20,11 +20,25 @@ import {
   RENDER_SCHEMA_VERSION,
 } from './schema';
 import { join, dirname, resolve, basename } from 'path';
-import { fileURLToPath } from 'url';
 
-// ESM equivalent of __dirname
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// Get the directory containing this file for Remotion bundling
+// Works in both ESM and CJS contexts
+function getCurrentDir(): string {
+  // Try ESM first
+  try {
+    // @ts-expect-error - import.meta only available in ESM
+    if (import.meta?.url) {
+      const { fileURLToPath } = require('url');
+      return dirname(fileURLToPath(import.meta.url));
+    }
+  } catch {
+    // Fall through to CJS
+  }
+  // CJS fallback
+  return __dirname;
+}
+
+const RENDER_DIR = getCurrentDir();
 
 export type { RenderOutput, RenderProps } from './schema';
 
@@ -81,7 +95,7 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
     log.debug('Bundling Remotion composition');
 
     const bundleLocation = await bundle({
-      entryPoint: join(__dirname, 'remotion/index.ts'),
+      entryPoint: join(RENDER_DIR, 'remotion/index.ts'),
       onProgress: (progress) => {
         log.debug({ progress: Math.round(progress * 100) }, 'Bundling progress');
       },
