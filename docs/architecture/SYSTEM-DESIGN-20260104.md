@@ -1,11 +1,12 @@
 # content-machine: System Design Document
 
-**Version:** 8.0  
+**Version:** 8.1  
 **Date:** 2026-01-05  
 **Status:** Ready for Implementation  
 **Authors:** content-machine team  
 **Critical Evaluation Iterations:** 6 (Converged)  
-**Research Questions Resolved:** 23  
+**Research Questions Resolved:** 24  
+**Implementation Phases:** 6 (Phase 0-5 documented)  
 **Target Demographics:** Gen Z (16-25), Millennials, Gen X — All content styles supported  
 **Extension Points:** 12 modular extension mechanisms for future scope expansion
 
@@ -32,8 +33,8 @@
 - [§9. Performance Expectations](#9-performance-expectations) — Timing, costs, outputs
 
 ### Part III: Quality & Implementation
-- [§10. Testing Strategy](#10-testing-strategy) — Test pyramid, LLM evals
-- [§11. Implementation Plan](#11-implementation-plan) — Development order
+- [§10. Testing Strategy](#10-testing-strategy) — Test pyramid, V&V framework, LLM evals
+- [§11. Implementation Plan](#11-implementation-plan) — Development phases, detailed execution
 - [§12. Security Considerations](#12-security-considerations) — API keys, content safety
 - [§13. References](#13-references) — Research documents
 
@@ -45,7 +46,8 @@
 
 ### Part V: Extensibility & Appendices
 - [§18. Extensibility Architecture](#18-extensibility-architecture) — 12 extension points
-- [§19. Appendix: Investigation Documents](#19-appendix-investigation-documents-index) — RQ-01 to RQ-23
+- [§19. Appendix: Investigation Documents](#19-appendix-investigation-documents-index) — RQ-01 to RQ-24
+- [§20. Appendix: Implementation Phase Documents](#20-appendix-implementation-phase-documents) — Phase 0-5 guides
 
 ---
 
@@ -1573,37 +1575,199 @@ tests/fixtures/
 
 ## 11. Implementation Plan
 
-### 11.1 Development Order
+This section provides a comprehensive implementation roadmap. Each phase has a dedicated implementation guide document with detailed specifications, code patterns, and validation criteria.
 
-Build the core pipeline first using TDD with mocked inputs:
+### 11.1 Phase Overview
 
-| Phase | Duration | Deliverables |
-|-------|----------|--------------|
-| 1 | Weeks 1-2 | cm script: schemas, prompts, LLM abstraction, evals |
-| 2 | Weeks 3-4 | cm audio: TTS integration, WhisperX, timestamp alignment |
-| 3 | Weeks 5-6 | cm visuals: embedding pipeline, reasoning, stock APIs |
-| 4 | Weeks 7-8 | cm render: Remotion composition, templates, encoding |
-| 5 | Weeks 9-10 | Integration: cm generate wrapper, error handling, docs |
+| Phase | Duration | Focus | Implementation Guide |
+|-------|----------|-------|---------------------|
+| **0** | Week 1 | Foundation & Infrastructure | [IMPL-PHASE-0-FOUNDATION-20260105.md](IMPL-PHASE-0-FOUNDATION-20260105.md) |
+| **1** | Weeks 2-3 | cm script: Script Generation | [IMPL-PHASE-1-SCRIPT-20260105.md](IMPL-PHASE-1-SCRIPT-20260105.md) |
+| **2** | Weeks 4-5 | cm audio: TTS & Timestamps | [IMPL-PHASE-2-AUDIO-20260105.md](IMPL-PHASE-2-AUDIO-20260105.md) |
+| **3** | Weeks 6-7 | cm visuals: Footage Matching | [IMPL-PHASE-3-VISUALS-20260105.md](IMPL-PHASE-3-VISUALS-20260105.md) |
+| **4** | Weeks 8-9 | cm render: Video Rendering | [IMPL-PHASE-4-RENDER-20260105.md](IMPL-PHASE-4-RENDER-20260105.md) |
+| **5** | Week 10 | Integration & Polish | [IMPL-PHASE-5-INTEGRATION-20260105.md](IMPL-PHASE-5-INTEGRATION-20260105.md) |
 
-### 11.2 Infrastructure (Week 1)
+### 11.2 Phase 0: Foundation & Infrastructure (Week 1)
 
-Before command implementation, establish core infrastructure:
+**Goal:** Establish core infrastructure that all pipeline stages depend on.
 
-- LLM provider abstraction
-- Embedding provider abstraction
-- Prompt template loader
-- Configuration system
-- Project directory utilities
-- Zod schemas
+**Deliverables:**
 
-### 11.3 Post-MVP
+| Component | Files | V&V Criteria |
+|-----------|-------|--------------|
+| Project structure | `src/`, `tests/`, `evals/` | Vitest runs, TypeScript compiles |
+| Configuration system | `src/core/config.ts` | Loads `.env`, `~/.cmrc.json` |
+| LLM provider abstraction | `src/core/llm/` | OpenAI + Anthropic work |
+| Zod schemas | `src/schemas/` | All schemas validate |
+| Logger | `src/core/logger.ts` | pino structured output |
+| Error taxonomy | `src/core/errors.ts` | Typed errors with codes |
+| Test stubs | `src/test/stubs/` | FakeLLMProvider works |
+
+**Research References:**
+- [SECTION-CONFIG-SYSTEMS-20260104.md](../research/sections/SECTION-CONFIG-SYSTEMS-20260104.md)
+- [SECTION-SCHEMAS-VALIDATION-20260104.md](../research/sections/SECTION-SCHEMAS-VALIDATION-20260104.md)
+- [RQ-14-ERROR-TAXONOMY-20260104.md](../research/investigations/RQ-14-ERROR-TAXONOMY-20260104.md)
+
+**Validation:**
+- [ ] `npm run build` succeeds
+- [ ] `npm test` passes with 100% coverage on core modules
+- [ ] `cm --help` outputs version and commands
+
+### 11.3 Phase 1: cm script — Script Generation (Weeks 2-3)
+
+**Goal:** Generate archetype-specific video scripts from topics.
+
+**Deliverables:**
+
+| Component | Files | V&V Criteria |
+|-----------|-------|--------------|
+| Script generator | `src/script/generator.ts` | Generates valid JSON |
+| Prompt templates | `src/script/prompts/` | YAML templates per archetype |
+| 6 archetypes | `src/script/archetypes/` | listicle, versus, howto, myth, story, hot-take |
+| Schema | `src/script/schema.ts` | ScriptOutput validates |
+| CLI command | `src/cli/commands/script.ts` | `cm script` works |
+
+**Research References:**
+- [SECTION-SCRIPT-GENERATION-20260104.md](../research/sections/SECTION-SCRIPT-GENERATION-20260104.md)
+- [RQ-04-STRUCTURED-LLM-OUTPUT-20260104.md](../research/investigations/RQ-04-STRUCTURED-LLM-OUTPUT-20260104.md)
+- [RQ-21-CONTENT-ARCHETYPES-20260105.md](../research/investigations/RQ-21-CONTENT-ARCHETYPES-20260105.md)
+
+**Validation (Layer 1-3):**
+- [ ] Zod schema validates all outputs (Layer 1)
+- [ ] Scene count 3-8, word count 100-250 (Layer 2)
+- [ ] Hook score ≥0.85, archetype adherence ≥0.90 (Layer 3 via promptfoo)
+- [ ] `npx promptfoo eval -c evals/configs/cm-script.yaml` passes ≥80%
+
+### 11.4 Phase 2: cm audio — TTS & Timestamps (Weeks 4-5)
+
+**Goal:** Generate voiceover audio with word-level timestamps.
+
+**Deliverables:**
+
+| Component | Files | V&V Criteria |
+|-----------|-------|--------------|
+| TTS provider (Kokoro) | `src/audio/tts/kokoro.ts` | Generates WAV |
+| ASR provider (Whisper) | `src/audio/asr/whisper.ts` | Word timestamps |
+| Timestamp alignment | `src/audio/alignment.ts` | <50ms drift |
+| Schema | `src/audio/schema.ts` | AudioOutput validates |
+| CLI command | `src/cli/commands/audio.ts` | `cm audio` works |
+
+**Research References:**
+- [SECTION-AUDIO-PIPELINE-20260104.md](../research/sections/SECTION-AUDIO-PIPELINE-20260104.md)
+- [RQ-07-EDGE-TTS-TIMESTAMPS-20260104.md](../research/investigations/RQ-07-EDGE-TTS-TIMESTAMPS-20260104.md)
+- [RQ-08-FORCED-ALIGNMENT-20260104.md](../research/investigations/RQ-08-FORCED-ALIGNMENT-20260104.md)
+- [RQ-09-TIMESTAMP-DRIFT-20260104.md](../research/investigations/RQ-09-TIMESTAMP-DRIFT-20260104.md)
+
+**Validation:**
+- [ ] WAV output at 44100 Hz
+- [ ] Word alignment accuracy ≥95%
+- [ ] No silence gaps >500ms
+- [ ] ASR re-transcription WER <10%
+
+### 11.5 Phase 3: cm visuals — Footage Matching (Weeks 6-7)
+
+**Goal:** Find and download stock footage matching scene content.
+
+**Deliverables:**
+
+| Component | Files | V&V Criteria |
+|-----------|-------|--------------|
+| Pexels provider | `src/visuals/providers/pexels.ts` | Returns videos |
+| Keyword extractor | `src/visuals/keywords.ts` | LLM-based extraction |
+| Footage matcher | `src/visuals/matcher.ts` | Best match selection |
+| Download manager | `src/visuals/download.ts` | Caches locally |
+| Schema | `src/visuals/schema.ts` | VisualsOutput validates |
+| CLI command | `src/cli/commands/visuals.ts` | `cm visuals` works |
+
+**Research References:**
+- [SECTION-VISUAL-MATCHING-20260104.md](../research/sections/SECTION-VISUAL-MATCHING-20260104.md)
+- [RQ-05-VISUAL-TO-KEYWORD-20260104.md](../research/investigations/RQ-05-VISUAL-TO-KEYWORD-20260104.md)
+- [RQ-06-EMBEDDING-MODEL-SELECTION-20260104.md](../research/investigations/RQ-06-EMBEDDING-MODEL-SELECTION-20260104.md)
+
+**Validation:**
+- [ ] All scenes have footage URLs
+- [ ] All clips are portrait orientation (1080x1920)
+- [ ] Visual relevance score ≥0.80 (promptfoo)
+- [ ] No duplicate clips across scenes
+
+### 11.6 Phase 4: cm render — Video Rendering (Weeks 8-9)
+
+**Goal:** Render final video with captions using Remotion.
+
+**Deliverables:**
+
+| Component | Files | V&V Criteria |
+|-----------|-------|--------------|
+| Remotion composition | `src/render/remotion/` | React components |
+| Caption component | `src/render/remotion/Caption.tsx` | Word-level animation |
+| Video assembly | `src/render/service.ts` | Clips + audio + captions |
+| Encoder | `src/render/encoder.ts` | H.264 output |
+| Schema | `src/render/schema.ts` | RenderProps validates |
+| CLI command | `src/cli/commands/render.ts` | `cm render` works |
+
+**Research References:**
+- [SECTION-VIDEO-RENDERING-20260104.md](../research/sections/SECTION-VIDEO-RENDERING-20260104.md)
+- [RQ-10-VIDEO-OUTPUT-TESTING-20260104.md](../research/investigations/RQ-10-VIDEO-OUTPUT-TESTING-20260104.md)
+- [RQ-11-REMOTION-MEMORY-20260104.md](../research/investigations/RQ-11-REMOTION-MEMORY-20260104.md)
+- [RQ-13-VIDEO-QUALITY-METRICS-20260104.md](../research/investigations/RQ-13-VIDEO-QUALITY-METRICS-20260104.md)
+
+**Validation:**
+- [ ] Output resolution 1080x1920
+- [ ] Frame rate 30 fps
+- [ ] PSNR ≥35 dB (vs reference render)
+- [ ] Caption sync within 50ms of word audio
+- [ ] No black frames
+
+### 11.7 Phase 5: Integration & Polish (Week 10)
+
+**Goal:** Integrate all stages into `cm generate` and polish UX.
+
+**Deliverables:**
+
+| Component | Files | V&V Criteria |
+|-----------|-------|--------------|
+| Pipeline orchestrator | `src/core/pipeline.ts` | Chains stages |
+| cm generate | `src/cli/commands/generate.ts` | One-command flow |
+| Error recovery | `src/core/recovery.ts` | Retries, fallbacks |
+| Progress UI | `src/cli/ui/progress.ts` | ora spinners, ETA |
+| Documentation | `docs/`, `README.md` | Complete guides |
+
+**Research References:**
+- [RQ-01-RESUMABLE-PIPELINES-20260104.md](../research/investigations/RQ-01-RESUMABLE-PIPELINES-20260104.md)
+- [RQ-02-CONCURRENCY-MODEL-20260104.md](../research/investigations/RQ-02-CONCURRENCY-MODEL-20260104.md)
+- [RQ-14-ERROR-TAXONOMY-20260104.md](../research/investigations/RQ-14-ERROR-TAXONOMY-20260104.md)
+
+**Validation:**
+- [ ] `cm generate "topic"` produces video.mp4
+- [ ] Pipeline completes in <5 minutes
+- [ ] Error messages are actionable
+- [ ] All 6 archetypes work E2E
+
+### 11.8 Validation & Verification Matrix
+
+Every phase follows the 4-layer V&V approach from [RQ-24](../research/investigations/RQ-24-LLM-EVALUATION-QUALITY-ASSURANCE-20260105.md):
+
+| Layer | What | Tool | When |
+|-------|------|------|------|
+| **1. Schema** | JSON structure valid | Zod safeParse | Every output |
+| **2. Programmatic** | Metrics in range | Vitest assertions | Every test run |
+| **3. LLM-as-Judge** | Quality scores | promptfoo | PR reviews |
+| **4. Human Review** | Sample QA | Manual | Release gates |
+
+**Detailed V&V Guide:** [VV-FRAMEWORK-20260105.md](../guides/VV-FRAMEWORK-20260105.md)
+
+### 11.9 Post-MVP Roadmap
 
 After core pipeline is stable:
 
-- cm research: Web search, Reddit scraping, product capture
-- cm publish: YouTube/TikTok/Instagram upload APIs
-- Queue-based architecture for batch processing
-- Web interface for non-technical users
+| Version | Features |
+|---------|----------|
+| v1.1 | `cm research`: Web search, Reddit scraping |
+| v1.2 | `cm publish`: YouTube/TikTok upload APIs |
+| v1.5 | Background music, transitions, B-roll mixing |
+| v2.0 | Queue-based batch processing, web UI |
+| v3.0 | Multi-language TTS, browser capture for product demos |
 
 ---
 
@@ -3116,13 +3280,49 @@ export function isFeatureEnabled(flag: keyof typeof featureFlags): boolean {
 |----|-------|------|
 | RQ-23 | Expert Review Critical Gaps | [RQ-23-EXPERT-REVIEW-GAPS-20260105.md](../research/investigations/RQ-23-EXPERT-REVIEW-GAPS-20260105.md) |
 
+### 19.6 Iteration 6 (RQ-24 — Validation & Verification)
+
+| ID | Title | File |
+|----|-------|------|
+| RQ-24 | LLM Evaluation & Quality Assurance | [RQ-24-LLM-EVALUATION-QUALITY-ASSURANCE-20260105.md](../research/investigations/RQ-24-LLM-EVALUATION-QUALITY-ASSURANCE-20260105.md) |
+
 ---
 
-*Document version: 8.0 — AWS-Style Narrative Spec*  
+## 20. Appendix: Implementation Phase Documents
+
+Detailed implementation guides for each development phase. These documents provide:
+- Step-by-step implementation instructions
+- Code patterns to follow (from vendored repos)
+- File-by-file deliverables
+- Test cases to write first (TDD)
+- Validation checklists
+
+| Phase | Document | Focus |
+|-------|----------|-------|
+| 0 | [IMPL-PHASE-0-FOUNDATION-20260105.md](IMPL-PHASE-0-FOUNDATION-20260105.md) | Project setup, core infrastructure |
+| 1 | [IMPL-PHASE-1-SCRIPT-20260105.md](IMPL-PHASE-1-SCRIPT-20260105.md) | Script generation pipeline |
+| 2 | [IMPL-PHASE-2-AUDIO-20260105.md](IMPL-PHASE-2-AUDIO-20260105.md) | TTS and ASR integration |
+| 3 | [IMPL-PHASE-3-VISUALS-20260105.md](IMPL-PHASE-3-VISUALS-20260105.md) | Stock footage matching |
+| 4 | [IMPL-PHASE-4-RENDER-20260105.md](IMPL-PHASE-4-RENDER-20260105.md) | Remotion video rendering |
+| 5 | [IMPL-PHASE-5-INTEGRATION-20260105.md](IMPL-PHASE-5-INTEGRATION-20260105.md) | Pipeline integration, polish |
+
+### 20.1 V&V Documentation
+
+| Document | Purpose |
+|----------|---------|
+| [VV-FRAMEWORK-20260105.md](../guides/VV-FRAMEWORK-20260105.md) | 4-layer validation approach |
+| [evals/README.md](../../evals/README.md) | Promptfoo evaluation suite |
+| [evals/configs/cm-script.yaml](../../evals/configs/cm-script.yaml) | Script generation evals |
+| [evals/configs/cm-visuals.yaml](../../evals/configs/cm-visuals.yaml) | Visual matching evals |
+
+---
+
+*Document version: 8.1 — Implementation Ready*  
 *Last updated: 2026-01-05*  
 *Critical evaluation iterations: 6 (converged)*  
-*Research questions resolved: 23/23*  
-*Content archetypes: 6 (brainrot, meme, educational, story, product, motivational)*  
+*Research questions resolved: 24/24*  
+*Implementation phases: 6 (Phase 0-5)*  
+*Content archetypes: 6 (listicle, versus, howto, myth, story, hot-take)*  
 *Extension points: 12 (providers, archetypes, stages, hooks, plugins, events, middleware)*  
 *CLI commands: 7 (generate, script, audio, visuals, render, init, help)*  
 *Based on: 139 vendored repositories, 86 deep-dive documents, 12 category syntheses, 4 theme syntheses, 7 section research documents, 23 investigation documents*

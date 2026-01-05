@@ -264,7 +264,13 @@ export class FakeLLMProvider implements LLMProvider {
 
 | Document | Purpose |
 |----------|---------|
-| [SYSTEM-DESIGN-20260104.md](docs/architecture/SYSTEM-DESIGN-20260104.md) | **Authoritative specification** (3,100 lines) |
+| [SYSTEM-DESIGN-20260104.md](docs/architecture/SYSTEM-DESIGN-20260104.md) | **Authoritative specification** (3,300 lines) |
+| [IMPL-PHASE-0-FOUNDATION](docs/architecture/IMPL-PHASE-0-FOUNDATION-20260105.md) | Phase 0: Project setup, core infrastructure |
+| [IMPL-PHASE-1-SCRIPT](docs/architecture/IMPL-PHASE-1-SCRIPT-20260105.md) | Phase 1: Script generation pipeline |
+| [IMPL-PHASE-2-AUDIO](docs/architecture/IMPL-PHASE-2-AUDIO-20260105.md) | Phase 2: TTS and ASR integration |
+| [IMPL-PHASE-3-VISUALS](docs/architecture/IMPL-PHASE-3-VISUALS-20260105.md) | Phase 3: Stock footage matching |
+| [IMPL-PHASE-4-RENDER](docs/architecture/IMPL-PHASE-4-RENDER-20260105.md) | Phase 4: Remotion video rendering |
+| [IMPL-PHASE-5-INTEGRATION](docs/architecture/IMPL-PHASE-5-INTEGRATION-20260105.md) | Phase 5: Pipeline integration, polish |
 | [RQ-24: LLM Evaluation](docs/research/investigations/RQ-24-LLM-EVALUATION-QUALITY-ASSURANCE-20260105.md) | LLM-as-judge, promptfoo patterns |
 | [V&V Framework](docs/guides/VV-FRAMEWORK-20260105.md) | Validation & verification guide |
 | [00-SUMMARY-20260102.md](docs/research/00-SUMMARY-20260102.md) | Research overview |
@@ -493,5 +499,6 @@ tasks/
 ---
 
 **Last Updated:** 2026-01-05  
-**System Design Version:** 8.0  
+**System Design Version:** 8.1  
+**Implementation Phases:** 6 (Phase 0-5 fully documented)  
 **Status:** Ready for Implementation
