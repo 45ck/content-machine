@@ -2,6 +2,7 @@
  * Archetype Prompts
  * 
  * Prompt templates for each content archetype.
+ * Based on SYSTEM-DESIGN §6.3 GeneratedScriptSchema
  */
 import { Archetype } from '../../core/config';
 
@@ -10,6 +11,22 @@ export interface PromptContext {
   targetWordCount: number;
   targetDuration: number;
 }
+
+// Common JSON output format for all archetypes
+const JSON_OUTPUT_FORMAT = `
+Respond with this exact JSON structure:
+{
+  "scenes": [
+    {"text": "Scene 1 spoken text", "visualDirection": "what to show visually", "mood": "emotional tone"},
+    {"text": "Scene 2 spoken text", "visualDirection": "visual description", "mood": "tone"},
+    ...
+  ],
+  "reasoning": "Explain your creative choices: why this structure, hook strategy, pacing decisions",
+  "title": "Video title (optional)",
+  "hook": "First sentence that grabs attention (optional)",
+  "cta": "Call to action (optional)",
+  "hashtags": ["#tag1", "#tag2"]
+}`;
 
 /**
  * Get the prompt for a specific archetype
@@ -39,26 +56,12 @@ REQUIREMENTS:
 - Each point should be concise and actionable
 - End with a call-to-action (follow, like, comment)
 - Use conversational, TikTok-style language
-- Include visual hints for each section
 
 STRUCTURE:
-1. Hook (attention-grabbing opening)
-2. Brief intro (optional, set context)
-3. Points (numbered, each with visual hint)
-4. Conclusion/CTA
-
-Respond with this exact JSON structure:
-{
-  "title": "Video title",
-  "hook": "Opening hook text (first thing said)",
-  "sections": [
-    {"type": "hook", "text": "Hook text", "visualHint": "what to show"},
-    {"type": "point", "text": "Point 1 text", "visualHint": "visual description"},
-    {"type": "point", "text": "Point 2 text", "visualHint": "visual description"},
-    ...
-  ],
-  "cta": "Call to action text"
-}`;
+1. Scene 1: Hook (attention-grabbing opening)
+2. Scene 2-5: Points (numbered, each with visual direction)
+3. Final Scene: Conclusion/CTA
+${JSON_OUTPUT_FORMAT}`;
 }
 
 function getVersusPrompt(context: PromptContext): string {
@@ -72,26 +75,12 @@ REQUIREMENTS:
 - Compare 3-4 key aspects fairly
 - Give a clear recommendation at the end
 - Use conversational, TikTok-style language
-- Include visual hints for each section
 
 STRUCTURE:
-1. Hook (present the choice/dilemma)
-2. Comparison points (alternate or grouped)
-3. Verdict/recommendation
-4. CTA
-
-Respond with this exact JSON structure:
-{
-  "title": "Video title",
-  "hook": "Opening hook presenting the comparison",
-  "sections": [
-    {"type": "hook", "text": "Hook text", "visualHint": "split screen or VS graphic"},
-    {"type": "point", "text": "Comparison point 1", "visualHint": "visual description"},
-    {"type": "point", "text": "Comparison point 2", "visualHint": "visual description"},
-    {"type": "conclusion", "text": "Verdict text", "visualHint": "winner highlight"}
-  ],
-  "cta": "Call to action text"
-}`;
+1. Scene 1: Hook (present the choice/dilemma)
+2. Scene 2-4: Comparison points
+3. Scene 5: Verdict/recommendation
+${JSON_OUTPUT_FORMAT}`;
 }
 
 function getHowToPrompt(context: PromptContext): string {
@@ -105,26 +94,12 @@ REQUIREMENTS:
 - Break into 3-5 clear steps
 - Each step should be actionable and specific
 - Use conversational, TikTok-style language
-- Include visual hints for each step
 
 STRUCTURE:
-1. Hook (show result or problem)
-2. Steps (numbered, clear instructions)
-3. Quick recap or result
-4. CTA
-
-Respond with this exact JSON structure:
-{
-  "title": "Video title",
-  "hook": "Opening hook showing result or problem",
-  "sections": [
-    {"type": "hook", "text": "Hook text", "visualHint": "end result or problem visual"},
-    {"type": "point", "text": "Step 1", "visualHint": "step demonstration"},
-    {"type": "point", "text": "Step 2", "visualHint": "step demonstration"},
-    {"type": "conclusion", "text": "Result recap", "visualHint": "final result"}
-  ],
-  "cta": "Call to action text"
-}`;
+1. Scene 1: Hook (show result or problem)
+2. Scene 2-5: Steps (numbered, clear instructions)
+3. Final Scene: Quick recap or result
+${JSON_OUTPUT_FORMAT}`;
 }
 
 function getMythPrompt(context: PromptContext): string {
@@ -141,23 +116,10 @@ REQUIREMENTS:
 - Use conversational, TikTok-style language
 
 STRUCTURE:
-1. Hook (state the common misconception)
-2. Myth/Reality pairs
-3. Key takeaway
-4. CTA
-
-Respond with this exact JSON structure:
-{
-  "title": "Video title",
-  "hook": "Opening hook stating misconception",
-  "sections": [
-    {"type": "hook", "text": "Hook text", "visualHint": "myth visual"},
-    {"type": "point", "text": "Myth 1... Reality: ...", "visualHint": "contrast visual"},
-    {"type": "point", "text": "Myth 2... Reality: ...", "visualHint": "contrast visual"},
-    {"type": "conclusion", "text": "Key takeaway", "visualHint": "truth reveal"}
-  ],
-  "cta": "Call to action text"
-}`;
+1. Scene 1: Hook (state the common misconception)
+2. Scene 2-4: Myth/Reality pairs
+3. Final Scene: Key takeaway
+${JSON_OUTPUT_FORMAT}`;
 }
 
 function getStoryPrompt(context: PromptContext): string {
@@ -174,24 +136,11 @@ REQUIREMENTS:
 - Use conversational, TikTok-style language
 
 STRUCTURE:
-1. Hook (create intrigue)
-2. Setup (introduce situation)
-3. Conflict/Challenge
-4. Resolution/Lesson
-5. CTA
-
-Respond with this exact JSON structure:
-{
-  "title": "Video title",
-  "hook": "Opening hook creating intrigue",
-  "sections": [
-    {"type": "hook", "text": "Hook text", "visualHint": "intriguing visual"},
-    {"type": "intro", "text": "Setup/context", "visualHint": "scene setting"},
-    {"type": "point", "text": "The challenge/conflict", "visualHint": "tension visual"},
-    {"type": "conclusion", "text": "Resolution and lesson", "visualHint": "resolution visual"}
-  ],
-  "cta": "Call to action text"
-}`;
+1. Scene 1: Hook (create intrigue)
+2. Scene 2: Setup (introduce situation)
+3. Scene 3: Conflict/Challenge
+4. Scene 4: Resolution/Lesson
+${JSON_OUTPUT_FORMAT}`;
 }
 
 function getHotTakePrompt(context: PromptContext): string {
@@ -209,23 +158,9 @@ REQUIREMENTS:
 - Be bold but not offensive
 
 STRUCTURE:
-1. Hook (bold statement)
-2. Supporting arguments
-3. Brief counterpoint acknowledgment
-4. Strong conclusion
-5. CTA (invite debate)
-
-Respond with this exact JSON structure:
-{
-  "title": "Video title",
-  "hook": "Bold opening statement",
-  "sections": [
-    {"type": "hook", "text": "Hook text", "visualHint": "attention-grabbing visual"},
-    {"type": "point", "text": "Argument 1", "visualHint": "supporting visual"},
-    {"type": "point", "text": "Argument 2", "visualHint": "supporting visual"},
-    {"type": "transition", "text": "Counterpoint acknowledgment", "visualHint": "contrast"},
-    {"type": "conclusion", "text": "Strong final stance", "visualHint": "confident visual"}
-  ],
-  "cta": "Call to action inviting comments/debate"
-}`;
+1. Scene 1: Hook (bold statement)
+2. Scene 2-3: Supporting arguments
+3. Scene 4: Brief counterpoint acknowledgment
+4. Scene 5: Strong conclusion
+${JSON_OUTPUT_FORMAT}`;
 }

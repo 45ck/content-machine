@@ -61,7 +61,7 @@ export default [
         'warn',
         { max: 80, skipBlankLines: true, skipComments: true, IIFEs: true },
       ],
-      'sonarjs/no-duplicate-string': ['warn', 5],
+      'sonarjs/no-duplicate-string': ['warn', { threshold: 5 }],
       'sonarjs/no-identical-functions': 'warn',
     },
   },
