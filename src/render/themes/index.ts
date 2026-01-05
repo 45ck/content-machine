@@ -43,6 +43,33 @@ const BUILTIN_THEMES: Record<string, Theme> = {
     caption: 'boldPop',
     platform: 'reels',
   },
+  'tiktok-native': {
+    name: 'TikTok Native',
+    description: 'Authentic TikTok brand aesthetic',
+    palette: 'tikTokNative',
+    typography: { hook: 'hookBold', caption: 'captionImpact' },
+    animation: 'pop',
+    caption: 'tikTokNative',
+    platform: 'tiktok',
+  },
+  'code-tutorial': {
+    name: 'Code Tutorial',
+    description: 'Technical content with typewriter effect',
+    palette: 'boldTech',
+    typography: { hook: 'hookBold', caption: 'code' },
+    animation: 'typewriter',
+    caption: 'typewriterCode',
+    platform: 'universal',
+  },
+  'dramatic-slide': {
+    name: 'Dramatic Slide',
+    description: 'Impactful entrance animations for hooks',
+    palette: 'futurePop',
+    typography: { hook: 'hookBold', caption: 'captionImpact' },
+    animation: 'slideUp',
+    caption: 'slideImpact',
+    platform: 'reels',
+  },
 };
 
 /** Theme registry interface */

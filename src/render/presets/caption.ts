@@ -58,6 +58,58 @@ export const CAPTION_PRESETS = Object.freeze({
     strokeWidth: 3,
     position: 'center' as const,
   } as CaptionPreset),
+
+  /** TikTok native - platform brand colors */
+  tikTokNative: Object.freeze({
+    typography: TYPOGRAPHY_PRESETS.captionImpact,
+    colors: Object.freeze({
+      text: PALETTES.tikTokNative.text,
+      highlight: PALETTES.tikTokNative.highlight,
+      stroke: PALETTES.tikTokNative.stroke,
+    }),
+    animation: 'pop' as const,
+    strokeWidth: 3,
+    position: 'center' as const,
+  } as CaptionPreset),
+
+  /** Fade subtle - elegant transition */
+  fadeSubtle: Object.freeze({
+    typography: TYPOGRAPHY_PRESETS.captionClean,
+    colors: Object.freeze({
+      text: PALETTES.cleanMinimal.text,
+      highlight: PALETTES.cleanMinimal.highlight,
+      stroke: PALETTES.cleanMinimal.stroke,
+    }),
+    animation: 'fade' as const,
+    strokeWidth: 1,
+    position: 'bottom' as const,
+  } as CaptionPreset),
+
+  /** Slide impact - dramatic entrance */
+  slideImpact: Object.freeze({
+    typography: TYPOGRAPHY_PRESETS.hookBold,
+    colors: Object.freeze({
+      text: PALETTES.boldTech.text,
+      highlight: PALETTES.boldTech.highlight,
+      stroke: PALETTES.boldTech.stroke,
+    }),
+    animation: 'slideUp' as const,
+    strokeWidth: 4,
+    position: 'center' as const,
+  } as CaptionPreset),
+
+  /** Typewriter code - technical content */
+  typewriterCode: Object.freeze({
+    typography: TYPOGRAPHY_PRESETS.code,
+    colors: Object.freeze({
+      text: PALETTES.boldTech.text,
+      highlight: PALETTES.boldTech.highlight,
+      stroke: 'transparent',
+    }),
+    animation: 'typewriter' as const,
+    strokeWidth: 0,
+    position: 'bottom' as const,
+  } as CaptionPreset),
 } as const);
 
 export type CaptionPresetName = keyof typeof CAPTION_PRESETS;

@@ -100,8 +100,105 @@ describe('CAPTION_PRESETS', () => {
     });
   });
 
+  describe('tikTokNative', () => {
+    it('should exist', () => {
+      expect(CAPTION_PRESETS.tikTokNative).toBeDefined();
+    });
+
+    it('should use captionImpact typography', () => {
+      expect(CAPTION_PRESETS.tikTokNative.typography).toEqual(TYPOGRAPHY_PRESETS.captionImpact);
+    });
+
+    it('should use pop animation', () => {
+      expect(CAPTION_PRESETS.tikTokNative.animation).toBe('pop');
+    });
+
+    it('should use tikTokNative palette colors', () => {
+      expect(CAPTION_PRESETS.tikTokNative.colors.text).toBe(PALETTES.tikTokNative.text);
+      expect(CAPTION_PRESETS.tikTokNative.colors.highlight).toBe(PALETTES.tikTokNative.highlight);
+    });
+
+    it('should be center positioned', () => {
+      expect(CAPTION_PRESETS.tikTokNative.position).toBe('center');
+    });
+  });
+
+  describe('fadeSubtle', () => {
+    it('should exist', () => {
+      expect(CAPTION_PRESETS.fadeSubtle).toBeDefined();
+    });
+
+    it('should use captionClean typography', () => {
+      expect(CAPTION_PRESETS.fadeSubtle.typography).toEqual(TYPOGRAPHY_PRESETS.captionClean);
+    });
+
+    it('should use fade animation', () => {
+      expect(CAPTION_PRESETS.fadeSubtle.animation).toBe('fade');
+    });
+
+    it('should be bottom positioned', () => {
+      expect(CAPTION_PRESETS.fadeSubtle.position).toBe('bottom');
+    });
+
+    it('should have thin strokeWidth of 1', () => {
+      expect(CAPTION_PRESETS.fadeSubtle.strokeWidth).toBe(1);
+    });
+  });
+
+  describe('slideImpact', () => {
+    it('should exist', () => {
+      expect(CAPTION_PRESETS.slideImpact).toBeDefined();
+    });
+
+    it('should use hookBold typography for impact', () => {
+      expect(CAPTION_PRESETS.slideImpact.typography).toEqual(TYPOGRAPHY_PRESETS.hookBold);
+    });
+
+    it('should use slideUp animation', () => {
+      expect(CAPTION_PRESETS.slideImpact.animation).toBe('slideUp');
+    });
+
+    it('should be center positioned', () => {
+      expect(CAPTION_PRESETS.slideImpact.position).toBe('center');
+    });
+
+    it('should have heavy strokeWidth of 4', () => {
+      expect(CAPTION_PRESETS.slideImpact.strokeWidth).toBe(4);
+    });
+  });
+
+  describe('typewriterCode', () => {
+    it('should exist', () => {
+      expect(CAPTION_PRESETS.typewriterCode).toBeDefined();
+    });
+
+    it('should use code typography', () => {
+      expect(CAPTION_PRESETS.typewriterCode.typography).toEqual(TYPOGRAPHY_PRESETS.code);
+    });
+
+    it('should use typewriter animation', () => {
+      expect(CAPTION_PRESETS.typewriterCode.animation).toBe('typewriter');
+    });
+
+    it('should be bottom positioned', () => {
+      expect(CAPTION_PRESETS.typewriterCode.position).toBe('bottom');
+    });
+
+    it('should have no stroke (0)', () => {
+      expect(CAPTION_PRESETS.typewriterCode.strokeWidth).toBe(0);
+    });
+  });
+
   it('should have correct type coverage', () => {
-    const names: CaptionPresetName[] = ['boldPop', 'cleanKaraoke', 'warmBounce'];
+    const names: CaptionPresetName[] = [
+      'boldPop',
+      'cleanKaraoke',
+      'warmBounce',
+      'tikTokNative',
+      'fadeSubtle',
+      'slideImpact',
+      'typewriterCode',
+    ];
     names.forEach((name) => {
       expect(CAPTION_PRESETS[name]).toBeDefined();
     });

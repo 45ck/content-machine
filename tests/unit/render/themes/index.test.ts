@@ -175,6 +175,11 @@ describe('defaultThemeRegistry', () => {
     expect(themes).toContain('clean-minimal');
     expect(themes).toContain('earthy-warm');
     expect(themes).toContain('future-pop');
+    expect(themes).toContain('tiktok-native');
+    expect(themes).toContain('code-tutorial');
+    expect(themes).toContain('dramatic-slide');
+    // Verify we have exactly 7 built-in themes
+    expect(themes.length).toBe(7);
   });
 
   it('should return valid themes for all archetypes', () => {
@@ -206,5 +211,56 @@ describe('Theme interface compliance', () => {
     const theme = defaultThemeRegistry.get('bold-tech');
     // description is optional, can be undefined or string
     expect(theme!.description === undefined || typeof theme!.description === 'string').toBe(true);
+  });
+});
+
+describe('New themes with new caption presets', () => {
+  describe('tiktok-native theme', () => {
+    it('should use tikTokNative caption preset', () => {
+      const theme = defaultThemeRegistry.get('tiktok-native');
+      expect(theme).toBeDefined();
+      expect(theme!.caption).toBe('tikTokNative');
+    });
+
+    it('should use tikTokNative palette', () => {
+      const theme = defaultThemeRegistry.get('tiktok-native');
+      expect(theme!.palette).toBe('tikTokNative');
+    });
+
+    it('should be optimized for tiktok platform', () => {
+      const theme = defaultThemeRegistry.get('tiktok-native');
+      expect(theme!.platform).toBe('tiktok');
+    });
+  });
+
+  describe('code-tutorial theme', () => {
+    it('should use typewriterCode caption preset', () => {
+      const theme = defaultThemeRegistry.get('code-tutorial');
+      expect(theme).toBeDefined();
+      expect(theme!.caption).toBe('typewriterCode');
+    });
+
+    it('should use typewriter animation', () => {
+      const theme = defaultThemeRegistry.get('code-tutorial');
+      expect(theme!.animation).toBe('typewriter');
+    });
+
+    it('should use code typography for captions', () => {
+      const theme = defaultThemeRegistry.get('code-tutorial');
+      expect(theme!.typography.caption).toBe('code');
+    });
+  });
+
+  describe('dramatic-slide theme', () => {
+    it('should use slideImpact caption preset', () => {
+      const theme = defaultThemeRegistry.get('dramatic-slide');
+      expect(theme).toBeDefined();
+      expect(theme!.caption).toBe('slideImpact');
+    });
+
+    it('should use slideUp animation', () => {
+      const theme = defaultThemeRegistry.get('dramatic-slide');
+      expect(theme!.animation).toBe('slideUp');
+    });
   });
 });
