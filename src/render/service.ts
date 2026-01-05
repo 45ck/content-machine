@@ -26,10 +26,10 @@ import { join, dirname, resolve, basename } from 'path';
 function getCurrentDir(): string {
   // Try ESM first
   try {
-    // @ts-expect-error - import.meta only available in ESM
-    if (import.meta?.url) {
+    const meta = (import.meta as unknown as { url?: string })?.url;
+    if (meta) {
       const { fileURLToPath } = require('url');
-      return dirname(fileURLToPath(import.meta.url));
+      return dirname(fileURLToPath(meta));
     }
   } catch {
     // Fall through to CJS
@@ -62,6 +62,121 @@ const DIMENSIONS: Record<Orientation, { width: number; height: number }> = {
   square: { width: 1080, height: 1080 },
 };
 
+interface BundleResult {
+  bundleLocation: string;
+  audioFilename: string;
+}
+
+/**
+ * Bundle Remotion composition and copy audio to bundle
+ */
+async function bundleComposition(
+  audioPath: string,
+  log: ReturnType<typeof createLogger>
+): Promise<BundleResult> {
+  log.debug('Bundling Remotion composition');
+
+  const bundleLocation = await bundle({
+    entryPoint: join(RENDER_DIR, 'remotion/index.ts'),
+    onProgress: (progress) => {
+      log.debug({ progress: Math.round(progress * 100) }, 'Bundling progress');
+    },
+  });
+
+  log.debug({ bundleLocation }, 'Bundle complete');
+
+  // Copy audio file to bundle's public folder
+  const audioFilename = basename(audioPath);
+  const bundlePublicDir = join(bundleLocation, 'public');
+  const bundleAudioPath = join(bundlePublicDir, audioFilename);
+
+  await mkdir(bundlePublicDir, { recursive: true });
+  await copyFile(resolve(audioPath), bundleAudioPath);
+  log.debug({ audioFilename, bundleAudioPath }, 'Audio copied to bundle');
+
+  return { bundleLocation, audioFilename };
+}
+
+/**
+ * Build render props with caption styling
+ */
+function buildRenderProps(
+  options: RenderVideoOptions,
+  dimensions: { width: number; height: number },
+  fps: number,
+  audioFilename: string
+): RenderProps {
+  return {
+    schemaVersion: RENDER_SCHEMA_VERSION,
+    scenes: options.visuals.scenes,
+    words: options.timestamps.allWords,
+    audioPath: audioFilename,
+    duration: options.timestamps.totalDuration,
+    width: dimensions.width,
+    height: dimensions.height,
+    fps,
+    archetype: options.archetype,
+    captionStyle: {
+      fontFamily: 'Inter',
+      fontSize: 48,
+      fontWeight: 'bold',
+      color: '#FFFFFF',
+      highlightColor: '#FFE135',
+      highlightCurrentWord: true,
+      strokeColor: '#000000',
+      strokeWidth: 3,
+      position: 'center',
+      animation: 'pop',
+      ...options.captionStyle,
+    },
+  };
+}
+
+/** Options for executeRender helper */
+interface ExecuteRenderOptions {
+  bundleLocation: string;
+  renderProps: RenderProps;
+  outputPath: string;
+  dimensions: { width: number; height: number };
+  fps: number;
+  totalDuration: number;
+  log: ReturnType<typeof createLogger>;
+}
+
+/**
+ * Execute Remotion render
+ */
+async function executeRender(opts: ExecuteRenderOptions): Promise<void> {
+  const { bundleLocation, renderProps, outputPath, dimensions, fps, totalDuration, log } = opts;
+  log.debug('Selecting composition');
+
+  const composition = await selectComposition({
+    serveUrl: bundleLocation,
+    id: 'ShortVideo',
+    inputProps: renderProps,
+  });
+
+  const durationInFrames = Math.ceil(totalDuration * fps);
+  log.info({ durationInFrames }, 'Rendering video');
+
+  await renderMedia({
+    composition: {
+      ...composition,
+      durationInFrames,
+      width: dimensions.width,
+      height: dimensions.height,
+      fps,
+    },
+    serveUrl: bundleLocation,
+    codec: 'h264',
+    outputLocation: outputPath,
+    inputProps: renderProps,
+    onProgress: ({ progress }) => {
+      log.debug({ progress: Math.round(progress * 100) }, 'Render progress');
+    },
+  });
+}
+
 /**
  * Render final video with Remotion
  */
@@ -71,108 +186,36 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
   const fps = options.fps ?? 30;
   const dimensions = DIMENSIONS[options.orientation];
   const totalDuration = options.timestamps.totalDuration;
-  const allWords = options.timestamps.allWords;
-  const sceneCount = options.visuals.scenes.length;
 
   log.info(
     {
       orientation: options.orientation,
       fps,
       duration: totalDuration,
-      sceneCount,
+      sceneCount: options.visuals.scenes.length,
       mock: options.mock,
     },
     'Starting video render'
   );
 
-  // Mock mode for testing
   if (options.mock) {
     return generateMockRender(options, dimensions, fps, totalDuration);
   }
 
   try {
-    // Step 1: Bundle the Remotion composition
-    log.debug('Bundling Remotion composition');
-
-    const bundleLocation = await bundle({
-      entryPoint: join(RENDER_DIR, 'remotion/index.ts'),
-      onProgress: (progress) => {
-        log.debug({ progress: Math.round(progress * 100) }, 'Bundling progress');
-      },
-    });
-
-    log.debug({ bundleLocation }, 'Bundle complete');
-
-    // Step 2: Copy audio file to bundle's public folder
-    const audioFilename = basename(options.audioPath);
-    const bundlePublicDir = join(bundleLocation, 'public');
-    const bundleAudioPath = join(bundlePublicDir, audioFilename);
-
-    await mkdir(bundlePublicDir, { recursive: true });
-    await copyFile(resolve(options.audioPath), bundleAudioPath);
-    log.debug({ audioFilename, bundleAudioPath }, 'Audio copied to bundle');
-
-    // Step 3: Prepare render props (use relative path for staticFile)
-    const renderProps: RenderProps = {
-      schemaVersion: RENDER_SCHEMA_VERSION,
-      scenes: options.visuals.scenes,
-      words: allWords,
-      audioPath: audioFilename, // Relative path for staticFile()
-      duration: totalDuration,
-      width: dimensions.width,
-      height: dimensions.height,
+    const { bundleLocation, audioFilename } = await bundleComposition(options.audioPath, log);
+    const renderProps = buildRenderProps(options, dimensions, fps, audioFilename);
+    await executeRender({
+      bundleLocation,
+      renderProps,
+      outputPath: options.outputPath,
+      dimensions,
       fps,
-      archetype: options.archetype,
-      captionStyle: {
-        fontFamily: 'Inter',
-        fontSize: 48,
-        fontWeight: 'bold',
-        color: '#FFFFFF',
-        highlightColor: '#FFE135',
-        highlightCurrentWord: true,
-        strokeColor: '#000000',
-        strokeWidth: 3,
-        position: 'center',
-        animation: 'pop',
-        ...options.captionStyle,
-      },
-    };
-
-    // Step 4: Get composition
-    log.debug('Selecting composition');
-
-    const composition = await selectComposition({
-      serveUrl: bundleLocation,
-      id: 'ShortVideo',
-      inputProps: renderProps,
+      totalDuration,
+      log,
     });
 
-    // Override with our calculated values
-    const durationInFrames = Math.ceil(totalDuration * fps);
-
-    // Step 5: Render
-    log.info({ durationInFrames }, 'Rendering video');
-
-    await renderMedia({
-      composition: {
-        ...composition,
-        durationInFrames,
-        width: dimensions.width,
-        height: dimensions.height,
-        fps,
-      },
-      serveUrl: bundleLocation,
-      codec: 'h264',
-      outputLocation: options.outputPath,
-      inputProps: renderProps,
-      onProgress: ({ progress }) => {
-        log.debug({ progress: Math.round(progress * 100) }, 'Render progress');
-      },
-    });
-
-    // Step 6: Get file info
     const stats = await stat(options.outputPath);
-
     const output: RenderOutput = {
       schemaVersion: RENDER_SCHEMA_VERSION,
       outputPath: options.outputPath,
@@ -185,17 +228,8 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
       archetype: options.archetype,
     };
 
-    // Validate output
     const validated = RenderOutputSchema.parse(output);
-
-    log.info(
-      {
-        duration: validated.duration,
-        fileSize: validated.fileSize,
-      },
-      'Video render complete'
-    );
-
+    log.info({ duration: validated.duration, fileSize: validated.fileSize }, 'Video render complete');
     return validated;
   } catch (error) {
     log.error({ error }, 'Video render failed');
@@ -238,8 +272,4 @@ async function generateMockRender(
       duration: output.duration,
       fileSize: output.fileSize,
     },
-    'Mock video render complete'
-  );
-
-  return RenderOutputSchema.parse(output);
-}
+    'Mock video rende

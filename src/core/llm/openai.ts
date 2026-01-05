@@ -5,6 +5,7 @@ import OpenAI from 'openai';
 import type { LLMProvider, LLMMessage, LLMOptions, LLMResponse } from './provider.js';
 import { APIError, RateLimitError } from '../errors.js';
 import { getApiKey } from '../config.js';
+import { withRetry } from '../retry.js';
 
 /**
  * Build OpenAI request parameters from messages and options
@@ -42,6 +43,7 @@ function parseResponse(response: OpenAI.ChatCompletion): LLMResponse {
       totalTokens: usage?.total_tokens ?? 0,
     },
     finishReason: choice?.finish_reason ?? undefined,
+    model: response.model,
   };
 }
 
@@ -64,21 +66,31 @@ export class OpenAIProvider implements LLMProvider {
   readonly name = 'openai';
   readonly model: string;
   private client: OpenAI;
+  private maxRetries: number;
 
-  constructor(model: string = 'gpt-4o', apiKey?: string) {
+  constructor(model: string = 'gpt-4o', apiKey?: string, maxRetries: number = 2) {
     this.model = model;
+    this.maxRetries = maxRetries;
     this.client = new OpenAI({
       apiKey: apiKey ?? getApiKey('OPENAI_API_KEY'),
     });
   }
 
   async chat(messages: LLMMessage[], options?: LLMOptions): Promise<LLMResponse> {
-    try {
-      const params = buildRequestParams(this.model, messages, options);
-      const response = await this.client.chat.completions.create(params);
-      return parseResponse(response);
-    } catch (error: unknown) {
-      handleError(error);
-    }
+    return withRetry(
+      async () => {
+        try {
+          const params = buildRequestParams(this.model, messages, options);
+          const response = await this.client.chat.completions.create(params);
+          return parseResponse(response);
+        } catch (error: unknown) {
+          handleError(error);
+        }
+      },
+      {
+        maxRetries: this.maxRetries,
+        context: { provider: 'openai', model: this.model },
+      }
+    );
   }
 }

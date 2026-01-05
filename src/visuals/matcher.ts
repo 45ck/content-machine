@@ -30,6 +30,98 @@ export interface MatchVisualsOptions {
   mock?: boolean;
 }
 
+interface VideoMatchResult {
+  asset: VisualAsset;
+  fromStock: boolean;
+  isFallback: boolean;
+}
+
+/**
+ * Match a single keyword to video footage
+ */
+async function matchKeywordToVideo(
+  keyword: Keyword,
+  provider: 'pexels' | 'pixabay',
+  orientation: 'portrait' | 'landscape' | 'square',
+  log: ReturnType<typeof createLogger>
+): Promise<VideoMatchResult> {
+  const source = provider === 'pexels' ? 'stock-pexels' : 'stock-pixabay';
+  const duration = keyword.endTime - keyword.startTime;
+
+  try {
+    const video = await findVideoForKeyword(keyword, provider, orientation);
+    return {
+      asset: {
+        sceneId: keyword.sectionId,
+        source,
+        assetPath: video.url,
+        duration,
+        matchReasoning: {
+          reasoning: `Found video matching keyword "${keyword.keyword}"`,
+          conceptsMatched: [keyword.keyword],
+        },
+      },
+      fromStock: true,
+      isFallback: false,
+    };
+  } catch (error) {
+    log.warn({ keyword: keyword.keyword, error }, 'Failed to find video, using fallback');
+    return tryFallbackVideo(keyword, provider, orientation, duration, source, log);
+  }
+}
+
+/** Valid asset source types */
+type AssetSource = 'user-footage' | 'stock-pexels' | 'stock-pixabay' | 'fallback-color' | 'mock';
+
+/**
+ * Try fallback video search
+ */
+async function tryFallbackVideo(
+  keyword: Keyword,
+  provider: 'pexels' | 'pixabay',
+  orientation: 'portrait' | 'landscape' | 'square',
+  duration: number,
+  source: AssetSource,
+  log: ReturnType<typeof createLogger>
+): Promise<VideoMatchResult> {
+  try {
+    const fallbackVideo = await findVideoForKeyword(
+      { ...keyword, keyword: 'abstract motion background' },
+      provider,
+      orientation
+    );
+    return {
+      asset: {
+        sceneId: keyword.sectionId,
+        source,
+        assetPath: fallbackVideo.url,
+        duration,
+        matchReasoning: {
+          reasoning: `Fallback to abstract background - original query "${keyword.keyword}" failed`,
+          conceptsMatched: ['abstract', 'motion', 'background'],
+        },
+      },
+      fromStock: true,
+      isFallback: true,
+    };
+  } catch {
+    log.error({ keyword: keyword.keyword }, 'Fallback also failed');
+    return {
+      asset: {
+        sceneId: keyword.sectionId,
+        source: 'fallback-color',
+        assetPath: '#1a1a2e',
+        duration,
+        matchReasoning: {
+          reasoning: `No video found for "${keyword.keyword}", using solid color fallback`,
+        },
+      },
+      fromStock: false,
+      isFallback: true,
+    };
+  }
+}
+
 /**
  * Match stock footage to script scenes
  */
@@ -39,90 +131,28 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
   const provider = options.provider ?? 'pexels';
   const orientation = options.orientation ?? 'portrait';
 
-  const sceneCount = options.timestamps.scenes?.length ?? 0;
-
   log.info(
-    {
-      sceneCount,
-      duration: options.timestamps.totalDuration,
-      mock: options.mock,
-    },
+    { sceneCount: options.timestamps.scenes?.length ?? 0, duration: options.timestamps.totalDuration, mock: options.mock },
     'Starting visual matching'
   );
 
-  // Mock mode for testing
   if (options.mock) {
     return generateMockVisuals(options);
   }
 
-  // Step 1: Extract keywords from scenes
   const scenes = options.timestamps.scenes ?? [];
   const keywords = await extractKeywords(scenes, config);
-
   log.info({ keywordCount: keywords.length }, 'Keywords extracted');
 
-  // Step 2: Search for videos for each keyword
   const visualAssets: VisualAsset[] = [];
   let fallbacks = 0;
   let fromStock = 0;
 
   for (const keyword of keywords) {
-    try {
-      const video = await findVideoForKeyword(keyword, provider, orientation);
-
-      visualAssets.push({
-        sceneId: keyword.sectionId,
-        source: provider === 'pexels' ? 'stock-pexels' : 'stock-pixabay',
-        assetPath: video.url, // Will be downloaded later
-        duration: keyword.endTime - keyword.startTime,
-        matchReasoning: {
-          reasoning: `Found video matching keyword "${keyword.keyword}"`,
-          conceptsMatched: [keyword.keyword],
-        },
-      });
-
-      fromStock++;
-    } catch (error) {
-      log.warn({ keyword: keyword.keyword, error }, 'Failed to find video, using fallback');
-
-      // Try fallback search with simpler query
-      try {
-        const fallbackVideo = await findVideoForKeyword(
-          { ...keyword, keyword: 'abstract motion background' },
-          provider,
-          orientation
-        );
-
-        visualAssets.push({
-          sceneId: keyword.sectionId,
-          source: provider === 'pexels' ? 'stock-pexels' : 'stock-pixabay',
-          assetPath: fallbackVideo.url,
-          duration: keyword.endTime - keyword.startTime,
-          matchReasoning: {
-            reasoning: `Fallback to abstract background - original query "${keyword.keyword}" failed`,
-            conceptsMatched: ['abstract', 'motion', 'background'],
-          },
-        });
-
-        fallbacks++;
-        fromStock++;
-      } catch {
-        log.error({ keyword: keyword.keyword }, 'Fallback also failed');
-
-        // Use color fallback
-        visualAssets.push({
-          sceneId: keyword.sectionId,
-          source: 'fallback-color',
-          assetPath: '#1a1a2e', // Dark blue background
-          duration: keyword.endTime - keyword.startTime,
-          matchReasoning: {
-            reasoning: `No video found for "${keyword.keyword}", using solid color fallback`,
-          },
-        });
-
-        fallbacks++;
-      }
-    }
+    const result = await matchKeywordToVideo(keyword, provider, orientation, log);
+    visualAssets.push(result.asset);
+    if (result.fromStock) fromStock++;
+    if (result.isFallback) fallbacks++;
   }
 
   const output: VisualsOutput = {
@@ -136,17 +166,8 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
     totalDuration: options.timestamps.totalDuration,
   };
 
-  // Validate output
   const validated = VisualsOutputSchema.parse(output);
-
-  log.info(
-    {
-      assetCount: validated.scenes.length,
-      fallbacks: validated.fallbacks,
-    },
-    'Visual matching complete'
-  );
-
+  log.info({ assetCount: validated.scenes.length, fallbacks: validated.fallbacks }, 'Visual matching complete');
   return validated;
 }
 
