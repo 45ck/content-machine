@@ -4,7 +4,7 @@
  * Coordinates video rendering with Remotion.
  * Based on SYSTEM-DESIGN §7.4 cm render command.
  */
-import { stat } from 'fs/promises';
+import { stat, writeFile } from 'fs/promises';
 import { bundle } from '@remotion/bundler';
 import { renderMedia, selectComposition } from '@remotion/renderer';
 import { VisualsOutput } from '../visuals/schema';
@@ -32,6 +32,8 @@ export interface RenderVideoOptions {
   fps?: number;
   captionStyle?: Partial<CaptionStyle>;
   archetype?: string;
+  /** Use mock mode for testing without real rendering */
+  mock?: boolean;
 }
 
 // Video dimensions by orientation
@@ -58,7 +60,13 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
     fps, 
     duration: totalDuration,
     sceneCount,
+    mock: options.mock,
   }, 'Starting video render');
+  
+  // Mock mode for testing
+  if (options.mock) {
+    return generateMockRender(options, dimensions, fps, totalDuration);
+  }
   
   try {
     // Step 1: Bundle the Remotion composition
@@ -163,4 +171,39 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
       { outputPath: options.outputPath }
     );
   }
+}
+
+/**
+ * Generate mock render output for testing
+ */
+async function generateMockRender(
+  options: RenderVideoOptions,
+  dimensions: { width: number; height: number },
+  fps: number,
+  totalDuration: number
+): Promise<RenderOutput> {
+  const log = createLogger({ module: 'render', mock: true });
+  
+  // Create a small mock video file (just a placeholder)
+  const mockVideoBuffer = Buffer.alloc(4096);
+  await writeFile(options.outputPath, mockVideoBuffer);
+  
+  const output: RenderOutput = {
+    schemaVersion: RENDER_SCHEMA_VERSION,
+    outputPath: options.outputPath,
+    duration: totalDuration,
+    width: dimensions.width,
+    height: dimensions.height,
+    fps,
+    fileSize: mockVideoBuffer.length,
+    codec: 'h264',
+    archetype: options.archetype,
+  };
+  
+  log.info({ 
+    duration: output.duration, 
+    fileSize: output.fileSize 
+  }, 'Mock video render complete');
+  
+  return RenderOutputSchema.parse(output);
 }

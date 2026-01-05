@@ -26,6 +26,8 @@ export interface MatchVisualsOptions {
   timestamps: TimestampsOutput;
   provider?: 'pexels' | 'pixabay';
   orientation?: 'portrait' | 'landscape' | 'square';
+  /** Use mock mode for testing without real API calls */
+  mock?: boolean;
 }
 
 /**
@@ -41,8 +43,14 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
   
   log.info({ 
     sceneCount,
-    duration: options.timestamps.totalDuration 
+    duration: options.timestamps.totalDuration,
+    mock: options.mock,
   }, 'Starting visual matching');
+  
+  // Mock mode for testing
+  if (options.mock) {
+    return generateMockVisuals(options);
+  }
   
   // Step 1: Extract keywords from scenes
   const scenes = options.timestamps.scenes ?? [];
@@ -250,4 +258,48 @@ async function findVideoForKeyword(
   
   // Add other providers here
   throw new APIError(`Unsupported provider: ${provider}`);
+}
+
+/**
+ * Generate mock visuals for testing
+ */
+function generateMockVisuals(options: MatchVisualsOptions): VisualsOutput {
+  const log = createLogger({ module: 'visuals', mock: true });
+  
+  const scenes = options.timestamps.scenes ?? [];
+  
+  const visualAssets: VisualAsset[] = scenes.map((scene, index) => ({
+    sceneId: scene.sceneId,
+    source: 'mock',
+    assetPath: `https://mock.pexels.com/video/${index + 1}.mp4`,
+    duration: scene.audioEnd - scene.audioStart,
+    matchReasoning: {
+      reasoning: `Mock video for scene ${scene.sceneId}`,
+      conceptsMatched: ['mock', 'test'],
+    },
+  }));
+  
+  const keywords: Keyword[] = scenes.map((scene, index) => ({
+    keyword: `mock keyword ${index + 1}`,
+    sectionId: scene.sceneId,
+    startTime: scene.audioStart,
+    endTime: scene.audioEnd,
+  }));
+  
+  const output: VisualsOutput = {
+    schemaVersion: VISUALS_SCHEMA_VERSION,
+    scenes: visualAssets,
+    totalAssets: visualAssets.length,
+    fromUserFootage: 0,
+    fromStock: visualAssets.length,
+    fallbacks: 0,
+    keywords,
+    totalDuration: options.timestamps.totalDuration,
+  };
+  
+  log.info({ 
+    assetCount: output.scenes.length, 
+  }, 'Mock visual matching complete');
+  
+  return VisualsOutputSchema.parse(output);
 }

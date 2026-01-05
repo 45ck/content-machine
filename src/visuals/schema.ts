@@ -29,7 +29,7 @@ export type MatchReasoning = z.infer<typeof MatchReasoningSchema>;
  */
 export const VisualAssetSchema = z.object({
   sceneId: z.string(),
-  source: z.enum(['user-footage', 'stock-pexels', 'stock-pixabay', 'fallback-color']),
+  source: z.enum(['user-footage', 'stock-pexels', 'stock-pixabay', 'fallback-color', 'mock']),
   assetPath: z.string(),
   embeddingSimilarity: z.number().min(0).max(1).optional(),
   llmConfidence: z.number().min(0).max(1).optional(),

@@ -11,6 +11,7 @@ import { renderVideo, RenderOutput } from '../render/service';
 import { Archetype, Orientation } from './config';
 import { logger, createLogger, logTiming } from './logger';
 import { PipelineError } from './errors';
+import { LLMProvider } from './llm';
 import { rm } from 'fs/promises';
 import { join, dirname } from 'path';
 
@@ -26,6 +27,10 @@ export interface PipelineOptions {
   keepArtifacts?: boolean;
   workDir?: string;
   onProgress?: (stage: PipelineStage, message: string) => void;
+  // Dependency injection for testing
+  llmProvider?: LLMProvider;
+  /** Use mock mode for testing without real API calls */
+  mock?: boolean;
 }
 
 export interface PipelineResult {
@@ -73,6 +78,7 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
         topic: options.topic,
         archetype: options.archetype,
         targetDuration: options.targetDuration,
+        llmProvider: options.llmProvider,
       });
     }, log);
     
@@ -92,6 +98,7 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
         voice: options.voice,
         outputPath: artifacts.audio,
         timestampsPath: artifacts.timestamps,
+        mock: options.mock,
       });
     }, log);
     
@@ -109,6 +116,7 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
       return matchVisuals({
         timestamps: audio.timestamps,
         provider: 'pexels',
+        mock: options.mock,
       });
     }, log);
     
@@ -126,6 +134,7 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
         outputPath: options.outputPath,
         orientation: options.orientation,
         fps: 30,
+        mock: options.mock,
       });
     }, log);
     

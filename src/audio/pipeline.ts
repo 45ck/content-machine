@@ -26,6 +26,8 @@ export interface GenerateAudioOptions {
   voice: string;
   outputPath: string;
   timestampsPath: string;
+  /** Use mock audio generation for testing */
+  mock?: boolean;
 }
 
 /**
@@ -34,7 +36,12 @@ export interface GenerateAudioOptions {
 export async function generateAudio(options: GenerateAudioOptions): Promise<AudioOutput> {
   const log = createLogger({ module: 'audio', voice: options.voice });
   
-  log.info({ sceneCount: options.script.scenes.length }, 'Starting audio generation');
+  log.info({ sceneCount: options.script.scenes.length, mock: options.mock }, 'Starting audio generation');
+  
+  // Mock mode for testing without real TTS/ASR
+  if (options.mock) {
+    return generateMockAudio(options);
+  }
   
   // Combine all script text for TTS
   const fullText = buildFullText(options.script);
@@ -90,6 +97,92 @@ export async function generateAudio(options: GenerateAudioOptions): Promise<Audi
   }, 'Audio generation complete');
   
   return validated;
+}
+
+/**
+ * Generate mock audio output for testing
+ */
+async function generateMockAudio(options: GenerateAudioOptions): Promise<AudioOutput> {
+  const log = createLogger({ module: 'audio', mock: true });
+  
+  // Create mock word timestamps from script text
+  const words: WordTimestamp[] = [];
+  let currentTime = 0;
+  const wordDuration = 0.3; // ~200 WPM
+  
+  for (const scene of options.script.scenes) {
+    const sceneWords = scene.text.split(/\s+/).filter(Boolean);
+    for (const word of sceneWords) {
+      words.push({
+        word,
+        start: currentTime,
+        end: currentTime + wordDuration,
+        confidence: 0.95,
+      });
+      currentTime += wordDuration;
+    }
+  }
+  
+  // Build mock scene timestamps
+  const scenes: SceneTimestamp[] = [];
+  let wordIndex = 0;
+  
+  for (const scene of options.script.scenes) {
+    const sceneWordCount = scene.text.split(/\s+/).filter(Boolean).length;
+    const sceneWords = words.slice(wordIndex, wordIndex + sceneWordCount);
+    
+    if (sceneWords.length > 0) {
+      scenes.push({
+        sceneId: scene.id,
+        audioStart: sceneWords[0].start,
+        audioEnd: sceneWords[sceneWords.length - 1].end,
+        words: sceneWords,
+      });
+    }
+    
+    wordIndex += sceneWordCount;
+  }
+  
+  const totalDuration = currentTime;
+  
+  const timestamps: TimestampsOutput = {
+    schemaVersion: AUDIO_SCHEMA_VERSION,
+    scenes,
+    allWords: words,
+    totalDuration,
+    ttsEngine: 'mock',
+    asrEngine: 'mock',
+  };
+  
+  // Save mock timestamps
+  await writeFile(
+    options.timestampsPath,
+    JSON.stringify(timestamps, null, 2),
+    'utf-8'
+  );
+  
+  // Create a small mock audio file (just a placeholder)
+  const mockAudioBuffer = Buffer.alloc(1024);
+  await writeFile(options.outputPath, mockAudioBuffer);
+  
+  const output: AudioOutput = {
+    schemaVersion: AUDIO_SCHEMA_VERSION,
+    audioPath: options.outputPath,
+    timestampsPath: options.timestampsPath,
+    timestamps,
+    duration: totalDuration,
+    wordCount: words.length,
+    voice: options.voice,
+    sampleRate: 22050,
+    ttsCost: 0,
+  };
+  
+  log.info({ 
+    duration: output.duration, 
+    wordCount: output.wordCount 
+  }, 'Mock audio generation complete');
+  
+  return AudioOutputSchema.parse(output);
 }
 
 /**
