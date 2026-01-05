@@ -1,9 +1,10 @@
 /**
  * Visual Matcher
  * 
- * Matches script sections to stock footage using keywords and LLM extraction.
+ * Matches script scenes to stock footage using keywords and LLM extraction.
+ * Based on SYSTEM-DESIGN §7.3 cm visuals command.
  */
-import { TimestampsOutput, TranscriptSegment } from '../audio/schema';
+import { TimestampsOutput, SceneTimestamp } from '../audio/schema';
 import { createLLMProvider } from '../core/llm';
 import { loadConfig, getApiKey } from '../core/config';
 import { createLogger } from '../core/logger';
@@ -11,12 +12,15 @@ import { APIError, NotFoundError } from '../core/errors';
 import { 
   VisualsOutput, 
   VisualsOutputSchema,
-  VideoClip,
-  Keyword 
+  VisualAsset,
+  Keyword,
+  VISUALS_SCHEMA_VERSION,
 } from './schema';
 import { searchPexels, PexelsVideo } from './providers/pexels';
 
-export type { VisualsOutput, VideoClip } from './schema';
+export type { VisualsOutput, VisualAsset } from './schema';
+// Re-export deprecated type for backward compatibility
+export type { VideoClip } from './schema';
 
 export interface MatchVisualsOptions {
   timestamps: TimestampsOutput;
@@ -25,7 +29,7 @@ export interface MatchVisualsOptions {
 }
 
 /**
- * Match stock footage to script segments
+ * Match stock footage to script scenes
  */
 export async function matchVisuals(options: MatchVisualsOptions): Promise<VisualsOutput> {
   const log = createLogger({ module: 'visuals', provider: options.provider ?? 'pexels' });
@@ -33,38 +37,40 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
   const provider = options.provider ?? 'pexels';
   const orientation = options.orientation ?? 'portrait';
   
+  const sceneCount = options.timestamps.scenes?.length ?? 0;
+  
   log.info({ 
-    segmentCount: options.timestamps.segments.length, 
-    duration: options.timestamps.duration 
+    sceneCount,
+    duration: options.timestamps.totalDuration 
   }, 'Starting visual matching');
   
-  // Step 1: Extract keywords from segments
-  const keywords = await extractKeywords(options.timestamps.segments, config);
+  // Step 1: Extract keywords from scenes
+  const scenes = options.timestamps.scenes ?? [];
+  const keywords = await extractKeywords(scenes, config);
   
   log.info({ keywordCount: keywords.length }, 'Keywords extracted');
   
   // Step 2: Search for videos for each keyword
-  const clips: VideoClip[] = [];
-  let fallbacksUsed = 0;
+  const visualAssets: VisualAsset[] = [];
+  let fallbacks = 0;
+  let fromStock = 0;
   
   for (const keyword of keywords) {
     try {
       const video = await findVideoForKeyword(keyword, provider, orientation);
       
-      clips.push({
-        id: `clip-${clips.length}`,
-        url: video.url,
-        thumbnailUrl: video.thumbnailUrl,
+      visualAssets.push({
+        sceneId: keyword.sectionId,
+        source: provider === 'pexels' ? 'stock-pexels' : 'stock-pixabay',
+        assetPath: video.url, // Will be downloaded later
         duration: keyword.endTime - keyword.startTime,
-        width: video.width,
-        height: video.height,
-        startTime: keyword.startTime,
-        endTime: keyword.endTime,
-        source: provider,
-        sourceId: video.id,
-        searchQuery: keyword.keyword,
-        sectionId: keyword.sectionId,
+        matchReasoning: {
+          reasoning: `Found video matching keyword "${keyword.keyword}"`,
+          conceptsMatched: [keyword.keyword],
+        },
       });
+      
+      fromStock++;
       
     } catch (error) {
       log.warn({ keyword: keyword.keyword, error }, 'Failed to find video, using fallback');
@@ -77,84 +83,99 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
           orientation
         );
         
-        clips.push({
-          id: `clip-${clips.length}`,
-          url: fallbackVideo.url,
-          thumbnailUrl: fallbackVideo.thumbnailUrl,
+        visualAssets.push({
+          sceneId: keyword.sectionId,
+          source: provider === 'pexels' ? 'stock-pexels' : 'stock-pixabay',
+          assetPath: fallbackVideo.url,
           duration: keyword.endTime - keyword.startTime,
-          width: fallbackVideo.width,
-          height: fallbackVideo.height,
-          startTime: keyword.startTime,
-          endTime: keyword.endTime,
-          source: provider,
-          sourceId: fallbackVideo.id,
-          searchQuery: 'abstract motion background (fallback)',
-          sectionId: keyword.sectionId,
+          matchReasoning: {
+            reasoning: `Fallback to abstract background - original query "${keyword.keyword}" failed`,
+            conceptsMatched: ['abstract', 'motion', 'background'],
+          },
         });
         
-        fallbacksUsed++;
+        fallbacks++;
+        fromStock++;
         
       } catch {
         log.error({ keyword: keyword.keyword }, 'Fallback also failed');
-        throw new NotFoundError(`No video found for: ${keyword.keyword}`);
+        
+        // Use color fallback
+        visualAssets.push({
+          sceneId: keyword.sectionId,
+          source: 'fallback-color',
+          assetPath: '#1a1a2e', // Dark blue background
+          duration: keyword.endTime - keyword.startTime,
+          matchReasoning: {
+            reasoning: `No video found for "${keyword.keyword}", using solid color fallback`,
+          },
+        });
+        
+        fallbacks++;
       }
     }
   }
   
-  // Sort clips by start time
-  clips.sort((a, b) => a.startTime - b.startTime);
-  
   const output: VisualsOutput = {
-    clips,
+    schemaVersion: VISUALS_SCHEMA_VERSION,
+    scenes: visualAssets,
+    totalAssets: visualAssets.length,
+    fromUserFootage: 0,
+    fromStock,
+    fallbacks,
     keywords,
-    totalDuration: options.timestamps.duration,
-    provider,
-    fallbacksUsed,
+    totalDuration: options.timestamps.totalDuration,
   };
   
   // Validate output
   const validated = VisualsOutputSchema.parse(output);
   
   log.info({ 
-    clipCount: validated.clips.length, 
-    fallbacksUsed: validated.fallbacksUsed 
+    assetCount: validated.scenes.length, 
+    fallbacks: validated.fallbacks 
   }, 'Visual matching complete');
   
   return validated;
 }
 
 /**
- * Extract keywords from segments using LLM
+ * Extract keywords from scene timestamps using LLM
  */
 async function extractKeywords(
-  segments: TranscriptSegment[],
+  scenes: SceneTimestamp[],
   config: Awaited<ReturnType<typeof loadConfig>>
 ): Promise<Keyword[]> {
   const log = createLogger({ module: 'keywords' });
   
+  if (scenes.length === 0) {
+    log.warn('No scenes to extract keywords from');
+    return [];
+  }
+  
   const llm = createLLMProvider(config.llm.provider, config.llm.model);
   
-  const segmentTexts = segments.map((s, i) => 
-    `[${i}] (${s.start.toFixed(1)}s - ${s.end.toFixed(1)}s): ${s.text}`
-  ).join('\n');
+  const sceneTexts = scenes.map((s, i) => {
+    const text = s.words.map(w => w.word).join(' ');
+    return `[${i}] (${s.audioStart.toFixed(1)}s - ${s.audioEnd.toFixed(1)}s): ${text}`;
+  }).join('\n');
   
   const response = await llm.chat([
     {
       role: 'system',
-      content: `You are a visual search keyword expert. Extract 1-3 word search queries that would find relevant stock footage for each video segment. Focus on visual concepts, not abstract ideas. Prefer concrete, filmable subjects.
+      content: `You are a visual search keyword expert. Extract 1-3 word search queries that would find relevant stock footage for each video scene. Focus on visual concepts, not abstract ideas. Prefer concrete, filmable subjects.
 
 Examples of GOOD keywords: "office laptop", "coffee shop", "running fitness", "city traffic"
 Examples of BAD keywords: "productivity", "happiness", "success", "concept"`,
     },
     {
       role: 'user',
-      content: `Extract video search keywords for each segment:
+      content: `Extract video search keywords for each scene:
 
-${segmentTexts}
+${sceneTexts}
 
 Respond with JSON array:
 [
-  {"segmentIndex": 0, "keyword": "search query"},
+  {"sceneIndex": 0, "keyword": "search query"},
   ...
 ]`,
     },
@@ -165,7 +186,7 @@ Respond with JSON array:
   });
   
   interface KeywordResponse {
-    segmentIndex: number;
+    sceneIndex: number;
     keyword: string;
   }
   
@@ -179,12 +200,12 @@ Respond with JSON array:
   
   // Map to our Keyword format
   return keywordResponses.map(kr => {
-    const segment = segments[kr.segmentIndex];
+    const scene = scenes[kr.sceneIndex];
     return {
       keyword: kr.keyword,
-      sectionId: segment.id,
-      startTime: segment.start,
-      endTime: segment.end,
+      sectionId: scene.sceneId,
+      startTime: scene.audioStart,
+      endTime: scene.audioEnd,
     };
   });
 }

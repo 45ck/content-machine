@@ -2,78 +2,43 @@
 
 ## Description
 
-<!-- Provide a clear description of what this PR does -->
+<!-- What does this PR do? Why is it needed? -->
 
-## Related Task
+## Related Issue
 
-<!-- Link to the task file in tasks/ directory -->
-Closes [TASK-NNN-type-description-YYYYMMDD.md](../tasks/done/TASK-NNN-type-description-YYYYMMDD.md)
+<!-- Link to issue: Fixes #123 or Closes #456 -->
 
 ## Type of Change
 
-<!-- Check all that apply -->
-
-- [ ] Bug fix (non-breaking change which fixes an issue)
-- [ ] New feature (non-breaking change which adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
+- [ ] Bug fix (non-breaking change fixing an issue)
+- [ ] New feature (non-breaking change adding functionality)
+- [ ] Breaking change (fix or feature causing existing functionality to change)
 - [ ] Documentation update
-- [ ] Refactor (no functional changes)
-- [ ] Performance improvement
-- [ ] Test improvements
+- [ ] Refactoring (no functional changes)
 
-## Testing
+## Checklist
 
-<!-- Describe the tests you ran -->
+### Before Submitting
 
-- [ ] Unit tests added/updated
-- [ ] Integration tests added/updated
-- [ ] E2E tests added/updated (if applicable)
-- [ ] Manual testing completed
-- [ ] All tests pass (`npm test`)
+- [ ] I have read [CONTRIBUTING.md](../CONTRIBUTING.md)
+- [ ] My code follows the project's style guidelines
+- [ ] I have run `npm run quality` locally and all checks pass
 
-**Test Coverage:**
-- Current coverage: __%
-- After this PR: __%
+### Testing
 
-## Documentation
+- [ ] I have added tests that prove my fix/feature works
+- [ ] New and existing tests pass locally (`npm test`)
+- [ ] Coverage thresholds are met (`npm run test:coverage`)
 
-<!-- Check all that apply -->
+### Documentation
 
-- [ ] AGENTS.md updated (if needed)
-- [ ] docs/ updated with YYYYMMDD date suffix
-- [ ] README updated (if needed)
-- [ ] Task file moved to `tasks/done/`
-- [ ] Code comments added for complex logic
-- [ ] API documentation updated (if applicable)
-
-## Verification Checklist
-
-<!-- ALL items must be checked before merging -->
-
-- [ ] All acceptance criteria met (from task file)
-- [ ] Tests pass locally (`npm test`)
-- [ ] TypeScript compiles (`npm run typecheck`)
-- [ ] Linting clean (`npm run lint`)
-- [ ] No merge conflicts
-- [ ] Branch up to date with main
-- [ ] No hardcoded secrets or API keys
-- [ ] Error handling implemented
-- [ ] Logging added (structured logs, no console.log)
-- [ ] Performance considered (if relevant)
-- [ ] Security reviewed (if relevant)
+- [ ] I have updated relevant documentation
+- [ ] Documentation follows the `YYYYMMDD` date convention
 
 ## Screenshots (if applicable)
 
-<!-- Add screenshots or videos for UI changes -->
+<!-- Add screenshots for UI changes -->
 
-## Additional Context
+## Additional Notes
 
-<!-- Any other context or notes for reviewers -->
-
----
-
-**Reviewer Notes:**
-- [ ] Code reviewed
-- [ ] Tests reviewed
-- [ ] Documentation reviewed
-- [ ] Verified in local environment
+<!-- Any additional context or notes for reviewers -->

@@ -65,6 +65,73 @@ This project follows a code of conduct. By participating, you agree to:
 
 ---
 
+## Local Quality Checks
+
+Before opening a PR, run all quality checks locally:
+
+```bash
+# Run all checks at once
+npm run quality
+
+# Or run individually:
+npm run typecheck      # TypeScript compilation
+npm run lint           # ESLint (complexity, depth gates)
+npm run format:check   # Prettier formatting
+npm run test:coverage  # Tests with coverage thresholds
+npm run dup:check      # Code duplication detection
+```
+
+### Quality Gate Thresholds
+
+| Check | Threshold | Action on Failure |
+|-------|-----------|-------------------|
+| Cyclomatic complexity | ≤15 per function | Refactor into smaller functions |
+| Cognitive complexity | ≤15 per function | Simplify logic flow |
+| Nesting depth | ≤5 levels | Extract nested blocks |
+| Line coverage | ≥60% | Add tests for uncovered code |
+| Branch coverage | ≥50% | Add tests for edge cases |
+| Code duplication | ≤5% | Extract shared utilities |
+
+### Fixing Common Issues
+
+**Complexity too high:**
+```typescript
+// ❌ High complexity
+function processData(data) {
+  if (data.type === 'A') {
+    if (data.subtype === 'A1') { /* ... */ }
+    else if (data.subtype === 'A2') { /* ... */ }
+  } else if (data.type === 'B') { /* ... */ }
+}
+
+// ✅ Lower complexity
+const processors = {
+  'A-A1': processA1,
+  'A-A2': processA2,
+  'B': processB,
+};
+function processData(data) {
+  const key = data.subtype ? `${data.type}-${data.subtype}` : data.type;
+  return processors[key]?.(data);
+}
+```
+
+**Coverage too low:**
+- Add unit tests for new functions
+- Test error paths and edge cases
+- Use `npm run test:coverage` to identify uncovered lines
+
+### Coverage Ratchet Schedule
+
+| Milestone | Coverage | Action |
+|-----------|----------|--------|
+| **Now** | Any | Overall thresholds: 60/60/60/50 |
+| **≥70%** | 70%+ overall | Enable `src/core/**` glob threshold (70/70/70/55) |
+| **≥75%** | 75%+ overall | Switch to negative thresholds (freeze uncovered counts) |
+| **Quarterly** | — | Review and tighten warn-level rules |
+
+---
+
 ## Development Workflow
 
 ### Task-Based Development
@@ -108,6 +175,9 @@ This project follows a code of conduct. By participating, you agree to:
 - [ ] All tests pass (`npm test`)
 - [ ] TypeScript compiles (`npm run typecheck`)
 - [ ] Linting clean (`npm run lint`)
+- [ ] Formatting clean (`npm run format:check`)
+- [ ] Coverage thresholds met (`npm run test:coverage`)
+- [ ] No new duplication (`npm run dup:check`)
 - [ ] Task moved to `done/`
 - [ ] Documentation updated (with `YYYYMMDD` date suffix)
 - [ ] No hardcoded secrets

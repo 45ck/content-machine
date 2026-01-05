@@ -2,6 +2,7 @@
  * Audio Pipeline
  * 
  * Coordinates TTS generation and ASR transcription for word-level timestamps.
+ * Based on SYSTEM-DESIGN §7.2 cm audio command.
  */
 import { writeFile } from 'fs/promises';
 import { ScriptOutput } from '../script/generator';
@@ -12,7 +13,8 @@ import {
   AudioOutputSchema,
   TimestampsOutput,
   WordTimestamp,
-  TranscriptSegment 
+  SceneTimestamp,
+  AUDIO_SCHEMA_VERSION,
 } from './schema';
 import { synthesizeSpeech, TTSResult } from './tts';
 import { transcribeAudio, ASRResult } from './asr';
@@ -32,7 +34,7 @@ export interface GenerateAudioOptions {
 export async function generateAudio(options: GenerateAudioOptions): Promise<AudioOutput> {
   const log = createLogger({ module: 'audio', voice: options.voice });
   
-  log.info({ sectionCount: options.script.sections.length }, 'Starting audio generation');
+  log.info({ sceneCount: options.script.scenes.length }, 'Starting audio generation');
   
   // Combine all script text for TTS
   const fullText = buildFullText(options.script);
@@ -68,6 +70,7 @@ export async function generateAudio(options: GenerateAudioOptions): Promise<Audi
   );
   
   const output: AudioOutput = {
+    schemaVersion: AUDIO_SCHEMA_VERSION,
     audioPath: options.outputPath,
     timestampsPath: options.timestampsPath,
     timestamps,
@@ -95,17 +98,17 @@ export async function generateAudio(options: GenerateAudioOptions): Promise<Audi
 function buildFullText(script: ScriptOutput): string {
   const parts: string[] = [];
   
-  // Add hook
-  parts.push(script.hook);
-  
-  // Add each section
-  for (const section of script.sections) {
-    // Skip hook section if already added
-    if (section.type === 'hook') continue;
-    parts.push(section.text);
+  // Add hook if present
+  if (script.hook) {
+    parts.push(script.hook);
   }
   
-  // Add CTA
+  // Add each scene's text
+  for (const scene of script.scenes) {
+    parts.push(scene.text);
+  }
+  
+  // Add CTA if present
   if (script.cta) {
     parts.push(script.cta);
   }
@@ -114,50 +117,40 @@ function buildFullText(script: ScriptOutput): string {
 }
 
 /**
- * Build timestamps output from ASR result
+ * Build timestamps output from ASR result aligned to scenes
  */
 function buildTimestamps(asr: ASRResult, script: ScriptOutput): TimestampsOutput {
-  // Build segments by grouping words
-  const segments: TranscriptSegment[] = [];
-  let currentSegment: WordTimestamp[] = [];
-  let segmentStart = 0;
-  let segmentId = 0;
+  // Build scene-level timestamps
+  const scenes: SceneTimestamp[] = [];
+  let wordIndex = 0;
   
-  for (const word of asr.words) {
-    if (currentSegment.length === 0) {
-      segmentStart = word.start;
+  for (const scene of script.scenes) {
+    const sceneWords: WordTimestamp[] = [];
+    const targetWordCount = scene.text.split(/\s+/).filter(Boolean).length;
+    
+    // Collect words for this scene (approximate by word count)
+    const startIndex = wordIndex;
+    while (wordIndex < asr.words.length && sceneWords.length < targetWordCount) {
+      sceneWords.push(asr.words[wordIndex]);
+      wordIndex++;
     }
     
-    currentSegment.push(word);
-    
-    // End segment on sentence-ending punctuation
-    if (word.word.match(/[.!?]$/)) {
-      segments.push({
-        id: `segment-${segmentId++}`,
-        text: currentSegment.map(w => w.word).join(' '),
-        start: segmentStart,
-        end: word.end,
-        words: currentSegment,
+    if (sceneWords.length > 0) {
+      scenes.push({
+        sceneId: scene.id,
+        audioStart: sceneWords[0].start,
+        audioEnd: sceneWords[sceneWords.length - 1].end,
+        words: sceneWords,
       });
-      currentSegment = [];
     }
-  }
-  
-  // Add remaining words as final segment
-  if (currentSegment.length > 0) {
-    segments.push({
-      id: `segment-${segmentId}`,
-      text: currentSegment.map(w => w.word).join(' '),
-      start: segmentStart,
-      end: currentSegment[currentSegment.length - 1].end,
-      words: currentSegment,
-    });
   }
   
   return {
-    segments,
-    words: asr.words,
-    duration: asr.duration,
-    wordCount: asr.words.length,
+    schemaVersion: AUDIO_SCHEMA_VERSION,
+    scenes,
+    allWords: asr.words,
+    totalDuration: asr.duration,
+    ttsEngine: 'kokoro',
+    asrEngine: 'whisper-cpp',
   };
 }

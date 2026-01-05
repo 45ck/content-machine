@@ -1,0 +1,9 @@
+node_modules/
+dist/
+coverage/
+vendor/
+templates/
+connectors/
+*.d.ts
+pnpm-lock.yaml
+package-lock.json

@@ -20,6 +20,7 @@ const DEFAULT_STYLE: CaptionStyle = {
   fontWeight: 'bold',
   color: '#FFFFFF',
   highlightColor: '#FFE135',
+  highlightCurrentWord: true,
   strokeColor: '#000000',
   strokeWidth: 3,
   position: 'center',

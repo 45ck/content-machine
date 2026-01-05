@@ -2,6 +2,7 @@
  * Short Video Composition
  * 
  * Main Remotion composition for short-form videos.
+ * Based on SYSTEM-DESIGN §7.4 render composition layers.
  */
 import React from 'react';
 import { Composition, AbsoluteFill, Audio, Video, Sequence, useCurrentFrame, useVideoConfig, staticFile } from 'remotion';
@@ -12,6 +13,7 @@ import { Caption } from './Caption';
  * Main video component
  */
 export const ShortVideo: React.FC<RenderProps> = ({
+  scenes,
   clips,
   words,
   audioPath,
@@ -22,12 +24,8 @@ export const ShortVideo: React.FC<RenderProps> = ({
   const { fps } = useVideoConfig();
   const currentTime = frame / fps;
   
-  // Find current clip
-  const currentClipIndex = clips.findIndex(
-    clip => currentTime >= clip.startTime && currentTime < clip.endTime
-  );
-  
-  const currentClip = clips[currentClipIndex] ?? clips[clips.length - 1];
+  // Use scenes (new) or clips (legacy)
+  const videoAssets = scenes ?? [];
   
   // Find current word for highlighting
   const currentWordIndex = words.findIndex(
@@ -39,8 +37,44 @@ export const ShortVideo: React.FC<RenderProps> = ({
   
   return (
     <AbsoluteFill style={{ backgroundColor: '#000' }}>
-      {/* Background video clips */}
-      {clips.map((clip, index) => {
+      {/* Background video/color for each scene */}
+      {videoAssets.map((asset, index) => {
+        // Calculate timing from scene
+        const sceneStartTime = index === 0 ? 0 : 
+          videoAssets.slice(0, index).reduce((acc, s) => acc + s.duration, 0);
+        const clipStartFrame = Math.floor(sceneStartTime * fps);
+        const clipDurationFrames = Math.floor(asset.duration * fps);
+        
+        return (
+          <Sequence
+            key={asset.sceneId}
+            from={clipStartFrame}
+            durationInFrames={clipDurationFrames}
+          >
+            <AbsoluteFill>
+              {asset.source === 'fallback-color' ? (
+                <div style={{ 
+                  width: '100%', 
+                  height: '100%', 
+                  backgroundColor: asset.assetPath 
+                }} />
+              ) : (
+                <Video
+                  src={asset.assetPath}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                  }}
+                />
+              )}
+            </AbsoluteFill>
+          </Sequence>
+        );
+      })}
+      
+      {/* Legacy clips support */}
+      {clips?.map((clip, index) => {
         const clipStartFrame = Math.floor(clip.startTime * fps);
         const clipDurationFrames = Math.floor((clip.endTime - clip.startTime) * fps);
         

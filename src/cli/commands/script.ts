@@ -2,6 +2,7 @@
  * Script command - Generate script from topic
  * 
  * Usage: cm script --topic "Redis vs PostgreSQL" --archetype versus
+ * Based on SYSTEM-DESIGN §7.1 cm script command.
  */
 import { Command } from 'commander';
 import { generateScript } from '../../script/generator';
@@ -39,10 +40,10 @@ export const scriptCommand = new Command('script')
       logger.info({ output: options.output }, 'Script saved');
       
       // Show summary
-      console.log(`\n📝 Script: ${script.title}`);
+      console.log(`\n📝 Script: ${script.title ?? options.topic}`);
       console.log(`   Archetype: ${archetype}`);
-      console.log(`   Sections: ${script.sections.length}`);
-      console.log(`   Word count: ${script.metadata.wordCount}`);
+      console.log(`   Scenes: ${script.scenes.length}`);
+      console.log(`   Word count: ${script.meta?.wordCount ?? 'N/A'}`);
       console.log(`   Output: ${options.output}\n`);
       
     } catch (error) {

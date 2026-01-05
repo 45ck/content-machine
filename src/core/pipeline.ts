@@ -76,8 +76,8 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
       });
     }, log);
     
-    if (script.metadata.llmCost) {
-      costs.llm += script.metadata.llmCost;
+    if (script.meta?.llmCost) {
+      costs.llm += script.meta.llmCost;
     }
     
     options.onProgress?.('script', 'Script generated');

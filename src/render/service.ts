@@ -2,6 +2,7 @@
  * Render Service
  * 
  * Coordinates video rendering with Remotion.
+ * Based on SYSTEM-DESIGN §7.4 cm render command.
  */
 import { stat } from 'fs/promises';
 import { bundle } from '@remotion/bundler';
@@ -11,7 +12,13 @@ import { TimestampsOutput } from '../audio/schema';
 import { Orientation } from '../core/config';
 import { createLogger } from '../core/logger';
 import { RenderError } from '../core/errors';
-import { RenderOutput, RenderOutputSchema, RenderProps, CaptionStyle } from './schema';
+import { 
+  RenderOutput, 
+  RenderOutputSchema, 
+  RenderProps, 
+  CaptionStyle,
+  RENDER_SCHEMA_VERSION,
+} from './schema';
 import { join, dirname } from 'path';
 
 export type { RenderOutput, RenderProps } from './schema';
@@ -24,6 +31,7 @@ export interface RenderVideoOptions {
   orientation: Orientation;
   fps?: number;
   captionStyle?: Partial<CaptionStyle>;
+  archetype?: string;
 }
 
 // Video dimensions by orientation
@@ -41,12 +49,15 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
   
   const fps = options.fps ?? 30;
   const dimensions = DIMENSIONS[options.orientation];
+  const totalDuration = options.timestamps.totalDuration;
+  const allWords = options.timestamps.allWords;
+  const sceneCount = options.visuals.scenes.length;
   
   log.info({ 
     orientation: options.orientation, 
     fps, 
-    duration: options.timestamps.duration,
-    clipCount: options.visuals.clips.length 
+    duration: totalDuration,
+    sceneCount,
   }, 'Starting video render');
   
   try {
@@ -64,19 +75,22 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
     
     // Step 2: Prepare render props
     const renderProps: RenderProps = {
-      clips: options.visuals.clips,
-      words: options.timestamps.words,
+      schemaVersion: RENDER_SCHEMA_VERSION,
+      scenes: options.visuals.scenes,
+      words: allWords,
       audioPath: options.audioPath,
-      duration: options.timestamps.duration,
+      duration: totalDuration,
       width: dimensions.width,
       height: dimensions.height,
       fps,
+      archetype: options.archetype,
       captionStyle: {
         fontFamily: 'Inter',
         fontSize: 48,
         fontWeight: 'bold',
         color: '#FFFFFF',
         highlightColor: '#FFE135',
+        highlightCurrentWord: true,
         strokeColor: '#000000',
         strokeWidth: 3,
         position: 'center',
@@ -95,7 +109,7 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
     });
     
     // Override with our calculated values
-    const durationInFrames = Math.ceil(options.timestamps.duration * fps);
+    const durationInFrames = Math.ceil(totalDuration * fps);
     
     // Step 4: Render
     log.info({ durationInFrames }, 'Rendering video');
@@ -121,13 +135,15 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
     const stats = await stat(options.outputPath);
     
     const output: RenderOutput = {
+      schemaVersion: RENDER_SCHEMA_VERSION,
       outputPath: options.outputPath,
-      duration: options.timestamps.duration,
+      duration: totalDuration,
       width: dimensions.width,
       height: dimensions.height,
       fps,
       fileSize: stats.size,
       codec: 'h264',
+      archetype: options.archetype,
     };
     
     // Validate output

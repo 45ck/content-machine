@@ -2,6 +2,7 @@
  * Script Generator
  * 
  * Generates video scripts using LLM with archetype-specific prompts.
+ * Based on SYSTEM-DESIGN §7.1 cm script command.
  */
 import { createLLMProvider, LLMProvider } from '../core/llm';
 import { loadConfig, Archetype } from '../core/config';
@@ -11,11 +12,14 @@ import {
   ScriptOutput, 
   ScriptOutputSchema, 
   LLMScriptResponseSchema,
-  ScriptSection 
+  Scene,
+  SCRIPT_SCHEMA_VERSION,
 } from './schema';
 import { getPromptForArchetype } from './prompts';
 
-export type { ScriptOutput, ScriptSection } from './schema';
+export type { ScriptOutput, Scene } from './schema';
+// Re-export deprecated type for backward compatibility
+export type { ScriptSection } from './schema';
 
 export interface GenerateScriptOptions {
   topic: string;
@@ -82,32 +86,34 @@ export async function generateScript(options: GenerateScriptOptions): Promise<Sc
     );
   }
   
-  // Transform to full ScriptOutput
-  const sections: ScriptSection[] = llmResponse.sections.map((section, index) => ({
-    id: `section-${index}`,
-    type: section.type,
-    text: section.text,
-    visualHint: section.visualHint,
-    order: index,
+  // Transform to full ScriptOutput with scenes
+  const scenes: Scene[] = llmResponse.scenes.map((scene, index) => ({
+    id: `scene-${String(index + 1).padStart(3, '0')}`,
+    text: scene.text,
+    visualDirection: scene.visualDirection,
+    mood: scene.mood,
   }));
   
   // Calculate word count
-  const allText = [llmResponse.hook, ...sections.map(s => s.text), llmResponse.cta].filter(Boolean).join(' ');
+  const allText = [llmResponse.hook, ...scenes.map(s => s.text), llmResponse.cta].filter(Boolean).join(' ');
   const wordCount = allText.split(/\s+/).filter(Boolean).length;
   const estimatedDuration = wordCount / 2.5; // ~150 WPM
   
   const output: ScriptOutput = {
+    schemaVersion: SCRIPT_SCHEMA_VERSION,
+    scenes,
+    reasoning: llmResponse.reasoning,
     title: llmResponse.title,
     hook: llmResponse.hook,
-    sections,
     cta: llmResponse.cta,
-    metadata: {
+    hashtags: llmResponse.hashtags,
+    meta: {
       wordCount,
       estimatedDuration,
       archetype: options.archetype,
       topic: options.topic,
       generatedAt: new Date().toISOString(),
-      llmModel: response.model,
+      model: response.model,
       llmCost: calculateCost(response.usage?.totalTokens ?? 0, response.model ?? 'gpt-4o'),
     },
   };
@@ -125,7 +131,7 @@ export async function generateScript(options: GenerateScriptOptions): Promise<Sc
   log.info({ 
     wordCount, 
     estimatedDuration, 
-    sectionCount: sections.length 
+    sceneCount: scenes.length 
   }, 'Script generated successfully');
   
   return validated.data;

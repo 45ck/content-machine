@@ -2,6 +2,7 @@
  * Visuals command - Find matching stock footage
  * 
  * Usage: cm visuals --input timestamps.json --output visuals.json
+ * Based on SYSTEM-DESIGN §7.3 cm visuals command.
  */
 import { Command } from 'commander';
 import { matchVisuals } from '../../visuals/matcher';
@@ -11,7 +12,7 @@ import type { AudioOutput } from '../../audio/schema';
 import ora from 'ora';
 
 export const visualsCommand = new Command('visuals')
-  .description('Find matching stock footage for script sections')
+  .description('Find matching stock footage for script scenes')
   .requiredOption('-i, --input <path>', 'Input timestamps JSON file')
   .option('-o, --output <path>', 'Output visuals file path', 'visuals.json')
   .option('--provider <provider>', 'Stock footage provider', 'pexels')
@@ -38,9 +39,10 @@ export const visualsCommand = new Command('visuals')
       
       // Show summary
       console.log(`\n🎬 Visuals Matched`);
-      console.log(`   Clips: ${visuals.clips.length}`);
-      console.log(`   Total duration: ${visuals.totalDuration.toFixed(1)}s`);
-      console.log(`   Provider: ${options.provider}`);
+      console.log(`   Scenes: ${visuals.scenes.length}`);
+      console.log(`   Total duration: ${visuals.totalDuration?.toFixed(1) ?? 'N/A'}s`);
+      console.log(`   From stock: ${visuals.fromStock}`);
+      console.log(`   Fallbacks: ${visuals.fallbacks}`);
       console.log(`   Output: ${options.output}\n`);
       
     } catch (error) {
