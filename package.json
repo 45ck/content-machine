@@ -7,7 +7,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "cm": "./dist/cli/index.js"
+    "cm": "./dist/cli/index.cjs"
   },
   "exports": {
     ".": {
@@ -16,7 +16,8 @@
     }
   },
   "scripts": {
-    "build": "tsc",
+    "build": "esbuild src/cli/index.ts --bundle --platform=node --format=cjs --outfile=dist/cli/index.cjs --external:@remotion/* --external:remotion --external:react --external:react-dom --external:pino --external:pino-pretty --external:kokoro-js",
+    "build:types": "tsc --emitDeclarationOnly",
     "dev": "tsx watch src/cli/index.ts",
     "cm": "tsx src/cli/index.ts",
     "test": "vitest",
@@ -65,6 +66,7 @@
     "@typescript-eslint/eslint-plugin": "^8.51.0",
     "@typescript-eslint/parser": "^8.51.0",
     "@vitest/coverage-v8": "^2.0.0",
+    "esbuild": "^0.27.2",
     "eslint": "^9.0.0",
     "eslint-plugin-sonarjs": "^3.0.5",
     "globals": "^17.0.0",
