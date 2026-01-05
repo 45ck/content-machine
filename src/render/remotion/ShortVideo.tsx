@@ -13,6 +13,7 @@ import {
   Sequence,
   useCurrentFrame,
   useVideoConfig,
+  staticFile,
 } from 'remotion';
 import { RenderProps } from '../schema';
 import { Caption } from './Caption';
@@ -102,8 +103,8 @@ export const ShortVideo: React.FC<RenderProps> = ({
         <Caption words={captionWords} currentTime={currentTime} style={captionStyle} />
       </AbsoluteFill>
 
-      {/* Audio track - use absolute path or file:// URL */}
-      <Audio src={audioPath.startsWith('file://') ? audioPath : `file://${audioPath.replace(/\\/g, '/')}`} />
+      {/* Audio track - uses staticFile with relative path */}
+      <Audio src={staticFile(audioPath)} />
     </AbsoluteFill>
   );
 };
@@ -148,4 +149,18 @@ export const ShortVideoComposition: React.FC = () => {
         component={ShortVideo as React.FC}
         durationInFrames={30 * 60} // 60 seconds max
         fps={30}
-       
+        width={1080}
+        height={1920}
+        defaultProps={{
+          clips: [],
+          words: [],
+          audioPath: '',
+          duration: 60,
+          width: 1080,
+          height: 1920,
+          fps: 30,
+        }}
+      />
+    </>
+  );
+};

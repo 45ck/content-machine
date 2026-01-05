@@ -64,7 +64,7 @@ const mockScript: ScriptOutput = {
 
 async function main() {
   console.log('🚀 Starting End-to-End Pipeline Test\n');
-  console.log('=' .repeat(50));
+  console.log('='.repeat(50));
 
   // Create output directory
   await mkdir(OUTPUT_DIR, { recursive: true });
@@ -125,9 +125,9 @@ async function main() {
     console.log(`   File size: ${(renderResult.fileSize / 1024 / 1024).toFixed(2)} MB`);
 
     // Summary
-    console.log('\n' + '=' .repeat(50));
+    console.log('\n' + '='.repeat(50));
     console.log('✅ END-TO-END PIPELINE COMPLETE!');
-    console.log('=' .repeat(50));
+    console.log('='.repeat(50));
     console.log(`\nOutput files in ${OUTPUT_DIR}:`);
     console.log(`  - audio.wav (TTS audio)`);
     console.log(`  - final-video.mp4 (rendered video)`);
@@ -211,4 +211,10 @@ async function matchVisualsDirectly(
     totalAssets: visualAssets.length,
     fromUserFootage: 0,
     fromStock: visualAssets.length - fallbacks,
-    
+    fallbacks,
+    keywords,
+    totalDuration: timestamps.totalDuration,
+  };
+}
+
+main();

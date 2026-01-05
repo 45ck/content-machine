@@ -4,7 +4,7 @@
  * Coordinates video rendering with Remotion.
  * Based on SYSTEM-DESIGN §7.4 cm render command.
  */
-import { stat, writeFile } from 'fs/promises';
+import { stat, writeFile, copyFile, mkdir } from 'fs/promises';
 import { bundle } from '@remotion/bundler';
 import { renderMedia, selectComposition } from '@remotion/renderer';
 import { VisualsOutput } from '../visuals/schema';
@@ -19,7 +19,7 @@ import {
   CaptionStyle,
   RENDER_SCHEMA_VERSION,
 } from './schema';
-import { join, dirname } from 'path';
+import { join, dirname, resolve, basename } from 'path';
 import { fileURLToPath } from 'url';
 
 // ESM equivalent of __dirname
@@ -89,12 +89,21 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
 
     log.debug({ bundleLocation }, 'Bundle complete');
 
-    // Step 2: Prepare render props
+    // Step 2: Copy audio file to bundle's public folder
+    const audioFilename = basename(options.audioPath);
+    const bundlePublicDir = join(bundleLocation, 'public');
+    const bundleAudioPath = join(bundlePublicDir, audioFilename);
+
+    await mkdir(bundlePublicDir, { recursive: true });
+    await copyFile(resolve(options.audioPath), bundleAudioPath);
+    log.debug({ audioFilename, bundleAudioPath }, 'Audio copied to bundle');
+
+    // Step 3: Prepare render props (use relative path for staticFile)
     const renderProps: RenderProps = {
       schemaVersion: RENDER_SCHEMA_VERSION,
       scenes: options.visuals.scenes,
       words: allWords,
-      audioPath: options.audioPath,
+      audioPath: audioFilename, // Relative path for staticFile()
       duration: totalDuration,
       width: dimensions.width,
       height: dimensions.height,
@@ -115,7 +124,7 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
       },
     };
 
-    // Step 3: Get composition
+    // Step 4: Get composition
     log.debug('Selecting composition');
 
     const composition = await selectComposition({
@@ -127,7 +136,7 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
     // Override with our calculated values
     const durationInFrames = Math.ceil(totalDuration * fps);
 
-    // Step 4: Render
+    // Step 5: Render
     log.info({ durationInFrames }, 'Rendering video');
 
     await renderMedia({
@@ -147,7 +156,7 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
       },
     });
 
-    // Step 5: Get file info
+    // Step 6: Get file info
     const stats = await stat(options.outputPath);
 
     const output: RenderOutput = {
