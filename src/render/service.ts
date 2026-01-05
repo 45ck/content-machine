@@ -1,6 +1,6 @@
 /**
  * Render Service
- * 
+ *
  * Coordinates video rendering with Remotion.
  * Based on SYSTEM-DESIGN §7.4 cm render command.
  */
@@ -12,14 +12,19 @@ import { TimestampsOutput } from '../audio/schema';
 import { Orientation } from '../core/config';
 import { createLogger } from '../core/logger';
 import { RenderError } from '../core/errors';
-import { 
-  RenderOutput, 
-  RenderOutputSchema, 
-  RenderProps, 
+import {
+  RenderOutput,
+  RenderOutputSchema,
+  RenderProps,
   CaptionStyle,
   RENDER_SCHEMA_VERSION,
 } from './schema';
 import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+// ESM equivalent of __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 export type { RenderOutput, RenderProps } from './schema';
 
@@ -48,39 +53,42 @@ const DIMENSIONS: Record<Orientation, { width: number; height: number }> = {
  */
 export async function renderVideo(options: RenderVideoOptions): Promise<RenderOutput> {
   const log = createLogger({ module: 'render', outputPath: options.outputPath });
-  
+
   const fps = options.fps ?? 30;
   const dimensions = DIMENSIONS[options.orientation];
   const totalDuration = options.timestamps.totalDuration;
   const allWords = options.timestamps.allWords;
   const sceneCount = options.visuals.scenes.length;
-  
-  log.info({ 
-    orientation: options.orientation, 
-    fps, 
-    duration: totalDuration,
-    sceneCount,
-    mock: options.mock,
-  }, 'Starting video render');
-  
+
+  log.info(
+    {
+      orientation: options.orientation,
+      fps,
+      duration: totalDuration,
+      sceneCount,
+      mock: options.mock,
+    },
+    'Starting video render'
+  );
+
   // Mock mode for testing
   if (options.mock) {
     return generateMockRender(options, dimensions, fps, totalDuration);
   }
-  
+
   try {
     // Step 1: Bundle the Remotion composition
     log.debug('Bundling Remotion composition');
-    
+
     const bundleLocation = await bundle({
       entryPoint: join(__dirname, 'remotion/index.ts'),
       onProgress: (progress) => {
         log.debug({ progress: Math.round(progress * 100) }, 'Bundling progress');
       },
     });
-    
+
     log.debug({ bundleLocation }, 'Bundle complete');
-    
+
     // Step 2: Prepare render props
     const renderProps: RenderProps = {
       schemaVersion: RENDER_SCHEMA_VERSION,
@@ -106,22 +114,22 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
         ...options.captionStyle,
       },
     };
-    
+
     // Step 3: Get composition
     log.debug('Selecting composition');
-    
+
     const composition = await selectComposition({
       serveUrl: bundleLocation,
       id: 'ShortVideo',
       inputProps: renderProps,
     });
-    
+
     // Override with our calculated values
     const durationInFrames = Math.ceil(totalDuration * fps);
-    
+
     // Step 4: Render
     log.info({ durationInFrames }, 'Rendering video');
-    
+
     await renderMedia({
       composition: {
         ...composition,
@@ -138,10 +146,10 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
         log.debug({ progress: Math.round(progress * 100) }, 'Render progress');
       },
     });
-    
+
     // Step 5: Get file info
     const stats = await stat(options.outputPath);
-    
+
     const output: RenderOutput = {
       schemaVersion: RENDER_SCHEMA_VERSION,
       outputPath: options.outputPath,
@@ -153,17 +161,19 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
       codec: 'h264',
       archetype: options.archetype,
     };
-    
+
     // Validate output
     const validated = RenderOutputSchema.parse(output);
-    
-    log.info({ 
-      duration: validated.duration, 
-      fileSize: validated.fileSize 
-    }, 'Video render complete');
-    
+
+    log.info(
+      {
+        duration: validated.duration,
+        fileSize: validated.fileSize,
+      },
+      'Video render complete'
+    );
+
     return validated;
-    
   } catch (error) {
     log.error({ error }, 'Video render failed');
     throw new RenderError(
@@ -183,11 +193,11 @@ async function generateMockRender(
   totalDuration: number
 ): Promise<RenderOutput> {
   const log = createLogger({ module: 'render', mock: true });
-  
+
   // Create a small mock video file (just a placeholder)
   const mockVideoBuffer = Buffer.alloc(4096);
   await writeFile(options.outputPath, mockVideoBuffer);
-  
+
   const output: RenderOutput = {
     schemaVersion: RENDER_SCHEMA_VERSION,
     outputPath: options.outputPath,
@@ -199,11 +209,14 @@ async function generateMockRender(
     codec: 'h264',
     archetype: options.archetype,
   };
-  
-  log.info({ 
-    duration: output.duration, 
-    fileSize: output.fileSize 
-  }, 'Mock video render complete');
-  
+
+  log.info(
+    {
+      duration: output.duration,
+      fileSize: output.fileSize,
+    },
+    'Mock video render complete'
+  );
+
   return RenderOutputSchema.parse(output);
 }
