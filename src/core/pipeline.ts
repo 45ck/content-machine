@@ -14,6 +14,8 @@ import { PipelineError } from './errors';
 import { LLMProvider } from './llm';
 import { rm } from 'fs/promises';
 import { join, dirname } from 'path';
+import type { ResearchOutput } from '../research/schema';
+import { z } from 'zod';
 
 export type PipelineStage = 'script' | 'audio' | 'visuals' | 'render';
 

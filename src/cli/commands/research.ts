@@ -4,23 +4,21 @@
  * Usage: cm research --query "AI programming trends" --sources hackernews,reddit
  */
 import { Command } from 'commander';
-import ora from 'ora';
 import { logger } from '../../core/logger';
 import { ResearchSourceEnum } from '../../research/schema';
 import type { ResearchSource } from '../../research/schema';
 import { createResearchOrchestrator } from '../../research/orchestrator';
 import type { OrchestratorResult } from '../../research/orchestrator';
 import { FakeLLMProvider } from '../../test/stubs/fake-llm';
-import { OpenAIProvider } from '../../core/llm/openai';
 import { handleCommandError, writeOutputFile } from '../utils';
-import { HashEmbeddingProvider } from '../../core/embeddings/hash-embedder';
-import { buildResearchEvidenceIndex } from '../../research/indexer';
+import { createSpinner } from '../progress';
+import { getCliRuntime } from '../runtime';
+import { buildJsonEnvelope, writeJsonEnvelope } from '../output';
 
 interface ResearchOptions {
   query: string;
   sources: string;
   output: string;
-  index: string;
   limit: string;
   timeRange: 'hour' | 'day' | 'week' | 'month' | 'year' | 'all';
   angles: boolean;
@@ -78,7 +76,7 @@ function displaySummary(
   if (result.output.suggestedAngles && result.output.suggestedAngles.length > 0) {
     console.log(`   Content angles: ${result.output.suggestedAngles.length}`);
     for (const angle of result.output.suggestedAngles) {
-      console.log(`      • ${angle.archetype}: "${angle.hook}"`);
+      console.log(`      - ${angle.archetype}: "${angle.hook}"`);
     }
   }
 
@@ -95,18 +93,11 @@ function displaySummary(
 async function executeResearch(
   options: ResearchOptions,
   validSources: ResearchSource[]
-): Promise<void> {
-  const spinner = ora('Researching topic...').start();
+): Promise<OrchestratorResult> {
+  const spinner = createSpinner('Researching topic...').start();
 
-  // Create LLM provider for angle generation
-  let llmProvider;
-  if (options.angles) {
-    if (options.mock) {
-      llmProvider = createMockLLMProvider(options.query);
-    } else if (process.env.OPENAI_API_KEY) {
-      llmProvider = new OpenAIProvider('gpt-4o-mini', process.env.OPENAI_API_KEY);
-    }
-  }
+  const llmProvider =
+    options.angles && options.mock ? createMockLLMProvider(options.query) : undefined;
 
   const orchestrator = createResearchOrchestrator(
     {
@@ -129,17 +120,7 @@ async function executeResearch(
 
   spinner.succeed(`Research complete (${result.timingMs.total}ms)`);
 
-  await writeOutputFile(options.output, result.output);
-  logger.info({ output: options.output }, 'Research saved');
-
-  if (options.index) {
-    const embedder = new HashEmbeddingProvider();
-    const index = await buildResearchEvidenceIndex(result.output.evidence, embedder);
-    await writeOutputFile(options.index, index);
-    logger.info({ output: options.index }, 'Research index saved');
-  }
-
-  displaySummary(options.query, result, options.output, options.mock);
+  return result;
 }
 
 export const researchCommand = new Command('research')
@@ -147,11 +128,10 @@ export const researchCommand = new Command('research')
   .requiredOption('-q, --query <query>', 'Search query')
   .option(
     '-s, --sources <sources>',
-    'Comma-separated sources (hackernews,reddit,web,tavily)',
+    'Comma-separated sources (hackernews,reddit,web)',
     'hackernews,reddit'
   )
   .option('-o, --output <path>', 'Output file path', 'research.json')
-  .option('--index <path>', 'Optional: write a local retrieval index JSON', '')
   .option('-l, --limit <number>', 'Results per source', '10')
   .option('-t, --time-range <range>', 'Time range (hour,day,week,month,year,all)', 'week')
   .option('--no-angles', 'Skip content angle generation')
@@ -160,7 +140,8 @@ export const researchCommand = new Command('research')
   .option('--dry-run', 'Preview without making API calls')
   .option('--mock', 'Use mock LLM for angle generation')
   .action(async (options: ResearchOptions) => {
-    const spinner = ora('Validating sources...').start();
+    const runtime = getCliRuntime();
+    const spinner = createSpinner('Validating sources...').start();
 
     try {
       const validSources = parseSources(options.sources);
@@ -171,6 +152,27 @@ export const researchCommand = new Command('research')
 
       if (options.dryRun) {
         spinner.stop();
+        if (runtime.json) {
+          writeJsonEnvelope(
+            buildJsonEnvelope({
+              command: 'research',
+              args: {
+                query: options.query,
+                sources: validSources,
+                limit: options.limit,
+                timeRange: options.timeRange,
+                angles: options.angles,
+                maxAngles: options.maxAngles,
+                output: options.output,
+                dryRun: true,
+              },
+              outputs: { dryRun: true },
+              timingsMs: Date.now() - runtime.startTime,
+            })
+          );
+          return;
+        }
+
         console.log('\nDry-run mode - no API calls made\n');
         console.log(`   Query: ${options.query}`);
         console.log(`   Sources: ${validSources.join(', ')}`);
@@ -184,7 +186,38 @@ export const researchCommand = new Command('research')
 
       spinner.stop();
       logger.info({ query: options.query, sources: validSources }, 'Starting research');
-      await executeResearch(options, validSources);
+      const result = await executeResearch(options, validSources);
+
+      await writeOutputFile(options.output, result.output);
+      logger.info({ output: options.output }, 'Research saved');
+
+      if (runtime.json) {
+        writeJsonEnvelope(
+          buildJsonEnvelope({
+            command: 'research',
+            args: {
+              query: options.query,
+              sources: validSources,
+              limit: options.limit,
+              timeRange: options.timeRange,
+              angles: options.angles,
+              maxAngles: options.maxAngles,
+              output: options.output,
+              sequential: options.sequential,
+            },
+            outputs: {
+              researchPath: options.output,
+              sources: result.output.sources,
+              totalResults: result.output.totalResults,
+              angles: result.output.suggestedAngles?.length ?? 0,
+            },
+            timingsMs: Date.now() - runtime.startTime,
+          })
+        );
+        return;
+      }
+
+      displaySummary(options.query, result, options.output, options.mock);
     } catch (error) {
       spinner.fail('Research failed');
       handleCommandError(error);

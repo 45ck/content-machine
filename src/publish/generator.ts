@@ -47,7 +47,7 @@ function defaultChecklist(): PublishOutput['checklist'] {
   ];
 }
 
-function deterministicPublish(options: GeneratePublishOptions): PublishOutput {
+export function generatePublishDeterministic(options: GeneratePublishOptions): PublishOutput {
   const title = options.script.title ?? options.packaging?.selected.title ?? 'Untitled';
   const coverText = options.packaging?.selected.coverText;
   const hashtags = options.script.hashtags ?? [];
@@ -82,23 +82,12 @@ function parseLLMResponse(
   }
 }
 
-export async function generatePublish(options: GeneratePublishOptions): Promise<PublishOutput> {
+async function generatePublishWithLLM(options: GeneratePublishOptions): Promise<PublishOutput> {
   const log = createLogger({ module: 'publish' });
   const config = await loadConfig();
-  const mode = options.mode ?? 'deterministic';
-
-  const base = deterministicPublish(options);
-  if (mode === 'deterministic') {
-    const validated = PublishOutputSchema.safeParse(base);
-    if (!validated.success) {
-      throw new SchemaError('Deterministic publish output failed validation', {
-        issues: validated.error.errors,
-      });
-    }
-    return validated.data;
-  }
-
   const llm = options.llmProvider ?? createLLMProvider(config.llm.provider, config.llm.model);
+
+  const base = generatePublishDeterministic(options);
   const title = base.title;
   const hook = options.script.hook ?? options.script.scenes[0]?.text ?? '';
   const platform = options.platform ?? 'tiktok';
@@ -157,5 +146,19 @@ Return JSON only in this shape:
     });
   }
 
+  return validated.data;
+}
+
+export async function generatePublish(options: GeneratePublishOptions): Promise<PublishOutput> {
+  const mode = options.mode ?? 'deterministic';
+  if (mode === 'llm') return generatePublishWithLLM(options);
+
+  const base = generatePublishDeterministic(options);
+  const validated = PublishOutputSchema.safeParse(base);
+  if (!validated.success) {
+    throw new SchemaError('Deterministic publish output failed validation', {
+      issues: validated.error.errors,
+    });
+  }
   return validated.data;
 }

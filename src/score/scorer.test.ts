@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { scoreScript } from './scorer';
 import type { ScriptOutput } from '../script/schema';
 import type { PackageOutput } from '../package/schema';
+import type { ScriptMetadata } from '../script/schema';
 
 function baseScript(partial?: Partial<ScriptOutput>): ScriptOutput {
   const base: ScriptOutput = {
@@ -22,13 +23,14 @@ function baseScript(partial?: Partial<ScriptOutput>): ScriptOutput {
       estimatedDuration: 12,
     },
   };
-  const meta: NonNullable<ScriptOutput['meta']> = {
-    ...base.meta,
+
+  const meta: ScriptMetadata = {
+    ...base.meta!,
     ...(partial?.meta ?? {}),
-  } as NonNullable<ScriptOutput['meta']>;
-  meta.archetype = meta.archetype ?? base.meta!.archetype;
-  meta.topic = meta.topic ?? base.meta!.topic;
-  meta.generatedAt = meta.generatedAt ?? base.meta!.generatedAt;
+    archetype: partial?.meta?.archetype ?? base.meta!.archetype,
+    topic: partial?.meta?.topic ?? base.meta!.topic,
+    generatedAt: partial?.meta?.generatedAt ?? base.meta!.generatedAt,
+  };
   return {
     ...base,
     ...partial,

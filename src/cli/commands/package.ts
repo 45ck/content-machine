@@ -4,12 +4,14 @@
  * Usage: cm package "Redis vs PostgreSQL for caching" --platform tiktok --output packaging.json
  */
 import { Command } from 'commander';
-import ora from 'ora';
 import { generatePackage } from '../../package/generator';
 import { PlatformEnum } from '../../package/schema';
 import { logger } from '../../core/logger';
 import { FakeLLMProvider } from '../../test/stubs/fake-llm';
 import { handleCommandError, writeOutputFile } from '../utils';
+import { createSpinner } from '../progress';
+import { getCliRuntime } from '../runtime';
+import { buildJsonEnvelope, writeJsonEnvelope } from '../output';
 
 export const packageCommand = new Command('package')
   .description('Generate title/cover packaging variants for a topic')
@@ -20,7 +22,8 @@ export const packageCommand = new Command('package')
   .option('--dry-run', 'Preview without calling LLM')
   .option('--mock', 'Use mock LLM provider (for testing)')
   .action(async (topic: string, options) => {
-    const spinner = ora('Generating packaging...').start();
+    const spinner = createSpinner('Generating packaging...').start();
+    const runtime = getCliRuntime();
 
     try {
       const platform = PlatformEnum.parse(options.platform);
@@ -29,6 +32,18 @@ export const packageCommand = new Command('package')
 
       if (options.dryRun) {
         spinner.stop();
+        if (runtime.json) {
+          writeJsonEnvelope(
+            buildJsonEnvelope({
+              command: 'package',
+              args: { topic, platform, variants, output: options.output, dryRun: true },
+              outputs: { dryRun: true },
+              timingsMs: Date.now() - runtime.startTime,
+            })
+          );
+          return;
+        }
+
         console.log('\nDry-run mode - no LLM call made\n');
         console.log(`   Topic: ${topic}`);
         console.log(`   Platform: ${platform}`);
@@ -91,13 +106,35 @@ export const packageCommand = new Command('package')
 
       await writeOutputFile(options.output, result);
 
+      if (runtime.json) {
+        writeJsonEnvelope(
+          buildJsonEnvelope({
+            command: 'package',
+            args: {
+              topic,
+              platform,
+              variants,
+              output: options.output,
+              mock: Boolean(options.mock),
+            },
+            outputs: {
+              packagingPath: options.output,
+              selectedTitle: result.selected.title,
+              variants: result.variants.length,
+            },
+            timingsMs: Date.now() - runtime.startTime,
+          })
+        );
+        return;
+      }
+
       console.log(`\nPackaging for: ${result.topic}`);
       console.log(`   Platform: ${result.platform}`);
       console.log(`   Variants: ${result.variants.length}`);
       console.log(`   Selected: ${result.selected.title}`);
       console.log(`   Output: ${options.output}`);
       if (options.mock) {
-        console.log(`   Mock mode - packaging is for testing only`);
+        console.log('   Mock mode - packaging is for testing only');
       }
       console.log('');
     } catch (error) {

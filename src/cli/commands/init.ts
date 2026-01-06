@@ -7,13 +7,18 @@ import { Command } from 'commander';
 import { writeFile } from 'fs/promises';
 import { join } from 'path';
 import inquirer from 'inquirer';
-import chalk from 'chalk';
+import { getCliRuntime } from '../runtime';
+import { buildJsonEnvelope, writeJsonEnvelope } from '../output';
 
 export const initCommand = new Command('init')
   .description('Interactive setup wizard')
   .option('-y, --yes', 'Use defaults without prompting', false)
   .action(async (options) => {
-    console.log(chalk.bold('\n🎬 content-machine setup\n'));
+    const runtime = getCliRuntime();
+
+    if (!runtime.json) {
+      console.log('\ncontent-machine setup\n');
+    }
 
     let config: Record<string, unknown>;
 
@@ -92,15 +97,28 @@ export const initCommand = new Command('init')
 
     await writeFile(configPath, tomlContent, 'utf-8');
 
-    console.log(chalk.green('\n✅ Configuration saved to .content-machine.toml\n'));
+    if (runtime.json) {
+      writeJsonEnvelope(
+        buildJsonEnvelope({
+          command: 'init',
+          args: { yes: Boolean(options.yes) },
+          outputs: { configPath },
+          timingsMs: Date.now() - runtime.startTime,
+        })
+      );
+      return;
+    }
+
+    console.log('\nConfiguration saved to .content-machine.toml\n');
 
     // Show environment variable hints
-    console.log(chalk.yellow("📝 Don't forget to set your API keys:\n"));
-    console.log(chalk.gray('   export OPENAI_API_KEY=sk-...'));
-    console.log(chalk.gray('   export PEXELS_API_KEY=...'));
-    console.log(chalk.gray('   # Or add them to a .env file\n'));
+    console.log("Don't forget to set your API keys:\n");
+    console.log('   PowerShell (session): $env:OPENAI_API_KEY="sk-..."');
+    console.log('   PowerShell (persist): setx OPENAI_API_KEY "sk-..."');
+    console.log('   bash: export OPENAI_API_KEY="sk-..."');
+    console.log('   # Or add them to a .env file\n');
 
-    console.log(chalk.blue('🚀 Ready! Run: cm generate "Your topic here"\n'));
+    console.log('Ready! Run: cm generate "Your topic here"\n');
   });
 
 function getDefaultConfig(): Record<string, unknown> {

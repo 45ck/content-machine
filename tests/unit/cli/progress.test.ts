@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { createSpinner } from '../../../src/cli/progress';
 import { resetCliRuntime, setCliRuntime } from '../../../src/cli/runtime';
 
@@ -9,17 +9,16 @@ describe('cli progress', () => {
 
     const writes: string[] = [];
     const original = process.stderr.write;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (process.stderr.write as any) = (chunk: string) => {
+    process.stderr.write = ((chunk: string) => {
       writes.push(chunk);
       return true;
-    };
+    }) as typeof process.stderr.write;
 
     const spinner = createSpinner('Working...');
     spinner.start();
     spinner.succeed('Done');
 
-    (process.stderr.write as any) = original;
+    process.stderr.write = original;
 
     expect(writes.length).toBe(0);
   });
@@ -30,17 +29,16 @@ describe('cli progress', () => {
 
     const writes: string[] = [];
     const original = process.stderr.write;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (process.stderr.write as any) = (chunk: string) => {
+    process.stderr.write = ((chunk: string) => {
       writes.push(chunk);
       return true;
-    };
+    }) as typeof process.stderr.write;
 
     const spinner = createSpinner('Working...');
     spinner.start();
     spinner.succeed('Done');
 
-    (process.stderr.write as any) = original;
+    process.stderr.write = original;
 
     const joined = writes.join('');
     expect(joined).toContain('INFO: Working...');

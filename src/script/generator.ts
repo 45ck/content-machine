@@ -16,6 +16,8 @@ import {
   SCRIPT_SCHEMA_VERSION,
 } from './schema';
 import { getPromptForArchetype } from './prompts';
+import { buildResearchContext, extractSourceUrls } from './research-context';
+import type { ResearchOutput } from '../research/schema';
 
 export type { ScriptOutput, Scene } from './schema';
 // Re-export deprecated type for backward compatibility
@@ -31,6 +33,8 @@ export interface GenerateScriptOptions {
     coverText: string;
     onScreenHook: string;
   };
+  /** Research output to inject evidence into script */
+  research?: ResearchOutput;
 }
 
 /**
@@ -74,6 +78,19 @@ function buildScriptOutput(
   const estimatedDuration = wordCount / 2.5;
   const title = options.packaging?.title ?? llmResponse.title;
 
+  // Build extra field with research metadata if available
+  const extra: Record<string, unknown> = {};
+  if (options.packaging) {
+    extra.virality = { packaging: options.packaging };
+  }
+  if (options.research && options.research.evidence.length > 0) {
+    extra.research = {
+      sources: extractSourceUrls(options.research),
+      evidenceCount: options.research.evidence.length,
+      query: options.research.query,
+    };
+  }
+
   return {
     schemaVersion: SCRIPT_SCHEMA_VERSION,
     scenes,
@@ -91,13 +108,7 @@ function buildScriptOutput(
       model: responseModel,
       llmCost: calculateCost(totalTokens ?? 0, responseModel ?? 'gpt-4o'),
     },
-    extra: options.packaging
-      ? {
-          virality: {
-            packaging: options.packaging,
-          },
-        }
-      : undefined,
+    extra: Object.keys(extra).length > 0 ? extra : undefined,
   };
 }
 
@@ -129,12 +140,21 @@ export async function generateScript(options: GenerateScriptOptions): Promise<Sc
 
   log.info({ archetype: options.archetype, targetDuration, targetWordCount }, 'Generating script');
 
-  const prompt = getPromptForArchetype(options.archetype, {
+  let prompt = getPromptForArchetype(options.archetype, {
     topic: options.topic,
     targetWordCount,
     targetDuration,
     packaging: options.packaging,
   });
+
+  // Inject research context if available
+  if (options.research && options.research.evidence.length > 0) {
+    const researchContext = buildResearchContext(options.research);
+    if (researchContext) {
+      prompt = `${researchContext}\n\n---\n\n${prompt}`;
+      log.info({ evidenceCount: options.research.evidence.length }, 'Injected research context');
+    }
+  }
 
   const response = await llm.chat(
     [
