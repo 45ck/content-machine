@@ -16,8 +16,6 @@ import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope } from '../output';
 import type { SpinnerLike } from '../progress';
-import { ResearchOutputSchema } from '../../research/schema';
-import type { ResearchOutput } from '../../research/schema';
 
 interface PackagingInput {
   title: string;

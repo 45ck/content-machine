@@ -9,116 +9,121 @@ import { join } from 'path';
 import inquirer from 'inquirer';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope } from '../output';
+import { handleCommandError } from '../utils';
+
+interface InitOptions {
+  yes?: boolean;
+}
+
+async function promptConfig(): Promise<Record<string, unknown>> {
+  const { llmProvider } = await inquirer.prompt<{ llmProvider: string }>({
+    type: 'list',
+    name: 'llmProvider',
+    message: 'Which LLM provider would you like to use?',
+    choices: ['openai', 'anthropic'],
+    default: 'openai',
+  });
+
+  const { llmModel } = await inquirer.prompt<{ llmModel: string }>({
+    type: 'input',
+    name: 'llmModel',
+    message: 'Which model would you like to use?',
+    default: llmProvider === 'openai' ? 'gpt-4o' : 'claude-3-5-sonnet-20241022',
+  });
+
+  const { archetype } = await inquirer.prompt<{ archetype: string }>({
+    type: 'list',
+    name: 'archetype',
+    message: 'Default content archetype?',
+    choices: ['listicle', 'versus', 'howto', 'myth', 'story', 'hot-take'],
+    default: 'listicle',
+  });
+
+  const { orientation } = await inquirer.prompt<{ orientation: string }>({
+    type: 'list',
+    name: 'orientation',
+    message: 'Default video orientation?',
+    choices: ['portrait', 'landscape', 'square'],
+    default: 'portrait',
+  });
+
+  const { voice } = await inquirer.prompt<{ voice: string }>({
+    type: 'input',
+    name: 'voice',
+    message: 'Default TTS voice?',
+    default: 'af_heart',
+  });
+
+  return {
+    defaults: {
+      archetype,
+      orientation,
+      voice,
+    },
+    llm: {
+      provider: llmProvider,
+      model: llmModel,
+      temperature: 0.7,
+    },
+    audio: {
+      tts_engine: 'kokoro',
+      asr_engine: 'whisper',
+    },
+    visuals: {
+      provider: 'pexels',
+      fallback_provider: 'pixabay',
+    },
+    render: {
+      fps: 30,
+      codec: 'h264',
+    },
+  };
+}
+
+async function writeConfigFile(config: Record<string, unknown>): Promise<string> {
+  const configPath = join(process.cwd(), '.content-machine.toml');
+  const tomlContent = generateToml(config);
+  await writeFile(configPath, tomlContent, 'utf-8');
+  return configPath;
+}
+
+function printHints(): void {
+  console.log("\nDon't forget to set your API keys:\n");
+  console.log('   PowerShell (session): $env:OPENAI_API_KEY="sk-..."');
+  console.log('   PowerShell (persist): setx OPENAI_API_KEY "sk-..."');
+  console.log('   bash: export OPENAI_API_KEY="sk-..."');
+  console.log('   # Or add them to a .env file\n');
+  console.log('Ready! Run: cm generate "Your topic here"\n');
+}
 
 export const initCommand = new Command('init')
   .description('Interactive setup wizard')
   .option('-y, --yes', 'Use defaults without prompting', false)
-  .action(async (options) => {
+  .action(async (options: InitOptions) => {
     const runtime = getCliRuntime();
+    if (!runtime.json) console.log('\ncontent-machine setup\n');
 
-    if (!runtime.json) {
-      console.log('\ncontent-machine setup\n');
+    try {
+      const config = options.yes ? getDefaultConfig() : await promptConfig();
+      const configPath = await writeConfigFile(config);
+
+      if (runtime.json) {
+        writeJsonEnvelope(
+          buildJsonEnvelope({
+            command: 'init',
+            args: { yes: Boolean(options.yes) },
+            outputs: { configPath },
+            timingsMs: Date.now() - runtime.startTime,
+          })
+        );
+        return;
+      }
+
+      console.log('\nConfiguration saved to .content-machine.toml\n');
+      printHints();
+    } catch (error) {
+      handleCommandError(error);
     }
-
-    let config: Record<string, unknown>;
-
-    if (options.yes) {
-      // Use defaults
-      config = getDefaultConfig();
-    } else {
-      // Interactive prompts - use sequential prompts for type safety
-      const { llmProvider } = await inquirer.prompt<{ llmProvider: string }>({
-        type: 'list',
-        name: 'llmProvider',
-        message: 'Which LLM provider would you like to use?',
-        choices: ['openai', 'anthropic'],
-        default: 'openai',
-      });
-
-      const { llmModel } = await inquirer.prompt<{ llmModel: string }>({
-        type: 'input',
-        name: 'llmModel',
-        message: 'Which model would you like to use?',
-        default: llmProvider === 'openai' ? 'gpt-4o' : 'claude-3-5-sonnet-20241022',
-      });
-
-      const { archetype } = await inquirer.prompt<{ archetype: string }>({
-        type: 'list',
-        name: 'archetype',
-        message: 'Default content archetype?',
-        choices: ['listicle', 'versus', 'howto', 'myth', 'story', 'hot-take'],
-        default: 'listicle',
-      });
-
-      const { orientation } = await inquirer.prompt<{ orientation: string }>({
-        type: 'list',
-        name: 'orientation',
-        message: 'Default video orientation?',
-        choices: ['portrait', 'landscape', 'square'],
-        default: 'portrait',
-      });
-
-      const { voice } = await inquirer.prompt<{ voice: string }>({
-        type: 'input',
-        name: 'voice',
-        message: 'Default TTS voice?',
-        default: 'af_heart',
-      });
-
-      config = {
-        defaults: {
-          archetype,
-          orientation,
-          voice,
-        },
-        llm: {
-          provider: llmProvider,
-          model: llmModel,
-          temperature: 0.7,
-        },
-        audio: {
-          tts_engine: 'kokoro',
-          asr_engine: 'whisper',
-        },
-        visuals: {
-          provider: 'pexels',
-          fallback_provider: 'pixabay',
-        },
-        render: {
-          fps: 30,
-          codec: 'h264',
-        },
-      };
-    }
-
-    // Write config file
-    const configPath = join(process.cwd(), '.content-machine.toml');
-    const tomlContent = generateToml(config);
-
-    await writeFile(configPath, tomlContent, 'utf-8');
-
-    if (runtime.json) {
-      writeJsonEnvelope(
-        buildJsonEnvelope({
-          command: 'init',
-          args: { yes: Boolean(options.yes) },
-          outputs: { configPath },
-          timingsMs: Date.now() - runtime.startTime,
-        })
-      );
-      return;
-    }
-
-    console.log('\nConfiguration saved to .content-machine.toml\n');
-
-    // Show environment variable hints
-    console.log("Don't forget to set your API keys:\n");
-    console.log('   PowerShell (session): $env:OPENAI_API_KEY="sk-..."');
-    console.log('   PowerShell (persist): setx OPENAI_API_KEY "sk-..."');
-    console.log('   bash: export OPENAI_API_KEY="sk-..."');
-    console.log('   # Or add them to a .env file\n');
-
-    console.log('Ready! Run: cm generate "Your topic here"\n');
   });
 
 function getDefaultConfig(): Record<string, unknown> {
