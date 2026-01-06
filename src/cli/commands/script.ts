@@ -5,7 +5,6 @@
  * Based on SYSTEM-DESIGN §7.1 cm script command.
  */
 import { Command } from 'commander';
-import ora from 'ora';
 import { ArchetypeEnum } from '../../core/config';
 import { SchemaError } from '../../core/errors';
 import { logger } from '../../core/logger';
@@ -13,6 +12,9 @@ import { PackageOutputSchema } from '../../package/schema';
 import { generateScript } from '../../script/generator';
 import { FakeLLMProvider } from '../../test/stubs/fake-llm';
 import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
+import { createSpinner } from '../progress';
+import { getCliRuntime } from '../runtime';
+import { buildJsonEnvelope, writeJsonEnvelope } from '../output';
 
 interface PackagingInput {
   title: string;
@@ -84,13 +86,33 @@ export const scriptCommand = new Command('script')
   .option('--dry-run', 'Preview without calling LLM')
   .option('--mock', 'Use mock LLM provider (for testing)')
   .action(async (options) => {
-    const spinner = ora('Generating script...').start();
+    const spinner = createSpinner('Generating script...').start();
+    const runtime = getCliRuntime();
 
     try {
       const archetype = ArchetypeEnum.parse(options.archetype);
 
       if (options.dryRun) {
         spinner.stop();
+        if (runtime.json) {
+          writeJsonEnvelope(
+            buildJsonEnvelope({
+              command: 'script',
+              args: {
+                topic: options.topic,
+                archetype,
+                durationSeconds: options.duration,
+                output: options.output,
+                package: options.package ?? null,
+                dryRun: true,
+              },
+              outputs: { dryRun: true },
+              timingsMs: Date.now() - runtime.startTime,
+            })
+          );
+          return;
+        }
+
         console.log('\nDry-run mode - no LLM call made\n');
         console.log(`   Topic: ${options.topic}`);
         console.log(`   Archetype: ${archetype}`);
@@ -125,6 +147,30 @@ export const scriptCommand = new Command('script')
 
       await writeOutputFile(options.output, script);
       logger.info({ output: options.output }, 'Script saved');
+
+      if (runtime.json) {
+        writeJsonEnvelope(
+          buildJsonEnvelope({
+            command: 'script',
+            args: {
+              topic: options.topic,
+              archetype,
+              durationSeconds: options.duration,
+              output: options.output,
+              package: options.package ?? null,
+              mock: Boolean(options.mock),
+            },
+            outputs: {
+              scriptPath: options.output,
+              title: script.title ?? options.topic,
+              scenes: script.scenes.length,
+              wordCount: script.meta?.wordCount ?? null,
+            },
+            timingsMs: Date.now() - runtime.startTime,
+          })
+        );
+        return;
+      }
 
       console.log(`\nScript: ${script.title ?? options.topic}`);
       console.log(`   Archetype: ${archetype}`);
