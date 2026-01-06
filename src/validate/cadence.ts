@@ -102,7 +102,10 @@ export async function runCadenceGate(
   options?: { maxMedianCutIntervalSeconds?: number; threshold?: number }
 ): Promise<CadenceGateResult> {
   const maxMedian = options?.maxMedianCutIntervalSeconds ?? 3;
-  const cutTimes = await detectSceneCutsWithFfmpeg({ videoPath: info.path, threshold: options?.threshold });
+  const cutTimes = await detectSceneCutsWithFfmpeg({
+    videoPath: info.path,
+    threshold: options?.threshold,
+  });
   const evaluation = evaluateCadence({
     durationSeconds: info.durationSeconds,
     cutTimesSeconds: cutTimes,

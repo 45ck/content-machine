@@ -24,4 +24,3 @@ describe('parsePythonVideoInfo', () => {
     expect(info.audioCodec).toBe('aac');
   });
 });
-

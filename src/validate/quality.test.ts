@@ -33,4 +33,3 @@ describe('runVisualQualityGate (BRISQUE)', () => {
     expect(gate.fix).toBe('reduce-compression');
   });
 });
-

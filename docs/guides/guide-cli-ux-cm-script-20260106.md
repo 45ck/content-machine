@@ -19,7 +19,7 @@ References: `docs/guides/guide-cli-ux-standards-20260106.md`.
 - Spinner: "Generating script...".
 - Required: `--topic`.
 - Options: `--archetype`, `--duration`, `--package` (from `cm package`), `--mock`, `--dry-run`.
-- `--dry-run` prints parameters and a rough "target words" estimate (duration * 2.5).
+- `--dry-run` prints parameters and a rough "target words" estimate (duration \* 2.5).
 - Writes `script.json` (default name) and prints a short summary (title, archetype, scenes, word count).
 
 ## UX gaps (what breaks trust or flow)

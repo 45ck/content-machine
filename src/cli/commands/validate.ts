@@ -19,6 +19,9 @@ export const validateCommand = new Command('validate')
   .option('--probe-engine <engine>', 'Probe engine (ffprobe|python)', 'ffprobe')
   .option('--ffprobe <path>', 'ffprobe executable path', 'ffprobe')
   .option('--python <path>', 'python executable path (for --probe-engine python)', 'python')
+  .option('--cadence', 'Enable cadence gate (scene cut frequency) via ffmpeg', false)
+  .option('--cadence-max-median <seconds>', 'Max median cut interval in seconds', '3')
+  .option('--cadence-threshold <n>', 'ffmpeg scene change threshold', '0.3')
   .option('--quality', 'Enable visual quality gate (BRISQUE) via Python', false)
   .option('--quality-sample-rate <n>', 'Analyze every Nth frame (BRISQUE)', '30')
   .option('-o, --output <path>', 'Output report file path', 'validate.json')
@@ -43,6 +46,13 @@ export const validateCommand = new Command('validate')
           ffprobePath: String(options.ffprobe),
           pythonPath: String(options.python),
         },
+        cadence: options.cadence
+          ? {
+              enabled: true,
+              maxMedianCutIntervalSeconds: Number.parseFloat(String(options.cadenceMaxMedian)),
+              threshold: Number.parseFloat(String(options.cadenceThreshold)),
+            }
+          : { enabled: false },
         quality: options.quality
           ? {
               enabled: true,

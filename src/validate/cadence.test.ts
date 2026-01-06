@@ -22,4 +22,3 @@ describe('evaluateCadence', () => {
     expect(result.medianCutIntervalSeconds).toBeGreaterThan(3);
   });
 });
-
