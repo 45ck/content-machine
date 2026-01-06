@@ -56,4 +56,3 @@ export const retrieveCommand = new Command('retrieve')
       handleCommandError(error);
     }
   });
-

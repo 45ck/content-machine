@@ -11,4 +11,3 @@ describe('parseSceneDetectJson', () => {
     expect(parsed.cutTimesSeconds).toEqual([0.5, 1.25, 2.5]);
   });
 });
-

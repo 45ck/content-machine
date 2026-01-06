@@ -45,4 +45,3 @@ export class HashEmbeddingProvider implements EmbeddingProvider {
     return l2Normalize(vec);
   }
 }
-

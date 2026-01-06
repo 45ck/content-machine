@@ -49,4 +49,3 @@ export async function detectSceneCutsWithPySceneDetect(params: {
 
   return parseSceneDetectJson(data).cutTimesSeconds;
 }
-

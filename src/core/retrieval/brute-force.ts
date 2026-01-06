@@ -51,4 +51,3 @@ export class BruteForceVectorIndex<Metadata> {
     return scored.slice(0, topK);
   }
 }
-

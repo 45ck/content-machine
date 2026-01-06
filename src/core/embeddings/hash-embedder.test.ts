@@ -16,4 +16,3 @@ describe('HashEmbeddingProvider', () => {
     expect(norm).toBeCloseTo(1, 6);
   });
 });
-
