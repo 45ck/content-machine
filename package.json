@@ -1,99 +1,88 @@
 {
-  "name": "content-machine",
-  "version": "0.1.0",
-  "description": "CLI-first automated short-form video generator for TikTok, Reels, and Shorts",
-  "license": "MIT",
-  "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "bin": {
-    "cm": "./dist/cli/index.cjs"
-  },
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+  "schemaVersion": "1.0.0",
+  "topic": "Test topic",
+  "platform": "tiktok",
+  "variants": [
+    {
+      "title": "Stop doing Test topic like this",
+      "coverText": "Test topic",
+      "onScreenHook": "You're doing it wrong",
+      "angle": "Provocative correction hook",
+      "score": 1,
+      "scoreBreakdown": {
+        "title": 1,
+        "coverText": 1,
+        "onScreenHook": 1
+      }
+    },
+    {
+      "title": "Test topic: the simple rule that saves you hours",
+      "coverText": "The simple rule",
+      "onScreenHook": "Try this today",
+      "angle": "Benefit-first",
+      "score": 1,
+      "scoreBreakdown": {
+        "title": 1,
+        "coverText": 1,
+        "onScreenHook": 1
+      }
+    },
+    {
+      "title": "Most people misunderstand Test topic",
+      "coverText": "Most people miss",
+      "onScreenHook": "Here's why",
+      "angle": "Curiosity gap",
+      "score": 0.9428571428571428,
+      "scoreBreakdown": {
+        "title": 0.9285714285714286,
+        "coverText": 1,
+        "onScreenHook": 0.9
+      }
+    },
+    {
+      "title": "Test topic in 60 seconds",
+      "coverText": "In 60 seconds",
+      "onScreenHook": "Watch this",
+      "angle": "Speed promise",
+      "score": 0.9428571428571428,
+      "scoreBreakdown": {
+        "title": 0.9285714285714286,
+        "coverText": 1,
+        "onScreenHook": 0.9
+      }
+    },
+    {
+      "title": "The Test topic mistake costing you performance",
+      "coverText": "Costly mistake",
+      "onScreenHook": "Fix this now",
+      "angle": "Pain point",
+      "score": 1,
+      "scoreBreakdown": {
+        "title": 1,
+        "coverText": 1,
+        "onScreenHook": 1
+      }
+    }
+  ],
+  "selectedIndex": 0,
+  "selected": {
+    "title": "Stop doing Test topic like this",
+    "coverText": "Test topic",
+    "onScreenHook": "You're doing it wrong",
+    "angle": "Provocative correction hook",
+    "score": 1,
+    "scoreBreakdown": {
+      "title": 1,
+      "coverText": 1,
+      "onScreenHook": 1
     }
   },
-  "scripts": {
-    "build": "esbuild src/cli/index.ts --bundle --platform=node --format=cjs --outfile=dist/cli/index.cjs --external:@remotion/* --external:remotion --external:react --external:react-dom --external:pino --external:pino-pretty --external:kokoro-js",
-    "build:types": "tsc --emitDeclarationOnly",
-    "dev": "tsx watch src/cli/index.ts",
-    "cm": "tsx src/cli/index.ts",
-    "test": "vitest",
-    "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier . --write",
-    "format:check": "prettier . --check",
-    "typecheck": "tsc --noEmit",
-    "dup:check": "jscpd --config .jscpd.json --exitCode 1",
-    "quality": "npm run typecheck && npm run lint && npm run format:check && npm run test:coverage && npm run dup:check",
-    "eval": "npx promptfoo eval",
-    "eval:script": "npx promptfoo eval -c evals/configs/cm-script.yaml"
+  "meta": {
+    "generatedAt": "2026-01-06T07:30:20.787Z",
+    "promptVersion": "package-v1",
+    "llmCost": 0.0007499999999999999
   },
-  "dependencies": {
-    "@anthropic-ai/sdk": "^0.30.0",
-    "@remotion/bundler": "^4.0.0",
-    "@remotion/cli": "^4.0.0",
-    "@remotion/install-whisper-cpp": "^4.0.399",
-    "@remotion/player": "^4.0.0",
-    "@remotion/renderer": "^4.0.0",
-    "chalk": "^5.3.0",
-    "commander": "^12.0.0",
-    "dotenv": "^16.4.0",
-    "inquirer": "^10.0.0",
-    "kokoro-js": "^1.2.1",
-    "mustache": "^4.2.0",
-    "openai": "^4.77.0",
-    "ora": "^8.0.0",
-    "pexels": "^1.4.0",
-    "pino": "^9.0.0",
-    "pino-pretty": "^11.0.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "remotion": "^4.0.0",
-    "yaml": "^2.4.0",
-    "zod": "^3.23.0"
-  },
-  "devDependencies": {
-    "@eslint/js": "^9.39.2",
-    "@types/inquirer": "^9.0.0",
-    "@types/mustache": "^4.2.0",
-    "@types/node": "^22.0.0",
-    "@types/react": "^18.2.0",
-    "@typescript-eslint/eslint-plugin": "^8.51.0",
-    "@typescript-eslint/parser": "^8.51.0",
-    "@vitest/coverage-v8": "^2.0.0",
-    "esbuild": "^0.27.2",
-    "eslint": "^9.0.0",
-    "eslint-plugin-sonarjs": "^3.0.5",
-    "globals": "^17.0.0",
-    "jscpd": "^4.0.5",
-    "msw": "^2.0.0",
-    "prettier": "^3.7.4",
-    "promptfoo": "^0.90.0",
-    "tsx": "^4.19.0",
-    "typescript": "^5.7.0",
-    "vitest": "^2.0.0"
-  },
-  "engines": {
-    "node": ">=20"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/45ck/content-machine.git"
-  },
-  "keywords": [
-    "video-generation",
-    "short-form",
-    "tiktok",
-    "reels",
-    "shorts",
-    "remotion",
-    "automation",
-    "content-creation",
-    "cli"
-  ]
+  "extra": {
+    "reasoning": "Mock packaging for testing."
+  }
 }
