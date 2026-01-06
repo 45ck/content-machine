@@ -512,3 +512,9 @@
 [submodule "vendor/mcp/Create-MCP"]
 	path = vendor/mcp/Create-MCP
 	url = https://github.com/AnnieBabs/Create-MCP
+[submodule "vendor/connectors/web/trafilatura"]
+	path = vendor/connectors/web/trafilatura
+	url = https://github.com/adbar/trafilatura.git
+[submodule "vendor/connectors/web/scrapegraph-ai"]
+	path = vendor/connectors/web/scrapegraph-ai
+	url = https://github.com/ScrapeGraphAI/Scrapegraph-ai.git
