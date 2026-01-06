@@ -102,8 +102,11 @@ export const generateCommand = new Command('generate')
         console.log(chalk.yellow('⚠️  Mock mode - using fake providers\n'));
       }
 
-      // Stage 1: Script
+      // Stage spinners
       const scriptSpinner = ora('Stage 1/4: Generating script...').start();
+      let audioSpinner: ReturnType<typeof ora> | null = null;
+      let visualsSpinner: ReturnType<typeof ora> | null = null;
+      let renderSpinner: ReturnType<typeof ora> | null = null;
 
       const result = await runPipeline({
         topic,
@@ -115,18 +118,26 @@ export const generateCommand = new Command('generate')
         keepArtifacts: options.keepArtifacts,
         llmProvider,
         mock: options.mock,
-        onProgress: (stage, _message) => {
+        onProgress: (stage, message) => {
+          // Only act on completion messages
+          if (!message.includes('generated') && !message.includes('matched') && !message.includes('rendered')) {
+            return;
+          }
+          
           if (stage === 'script') {
             scriptSpinner.succeed('Stage 1/4: Script generated');
+            audioSpinner = ora('Stage 2/4: Generating audio...').start();
           }
-          if (stage === 'audio') {
-            ora('Stage 2/4: Generating audio...').succeed('Stage 2/4: Audio generated');
+          if (stage === 'audio' && audioSpinner) {
+            audioSpinner.succeed('Stage 2/4: Audio generated');
+            visualsSpinner = ora('Stage 3/4: Matching visuals...').start();
           }
-          if (stage === 'visuals') {
-            ora('Stage 3/4: Matching visuals...').succeed('Stage 3/4: Visuals matched');
+          if (stage === 'visuals' && visualsSpinner) {
+            visualsSpinner.succeed('Stage 3/4: Visuals matched');
+            renderSpinner = ora('Stage 4/4: Rendering video...').start();
           }
-          if (stage === 'render') {
-            ora('Stage 4/4: Rendering video...').succeed('Stage 4/4: Video rendered');
+          if (stage === 'render' && renderSpinner) {
+            renderSpinner.succeed('Stage 4/4: Video rendered');
           }
         },
       });
