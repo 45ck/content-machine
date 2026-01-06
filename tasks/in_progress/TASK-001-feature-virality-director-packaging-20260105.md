@@ -28,10 +28,10 @@
 
 ## Acceptance Criteria
 
-- [ ] Given a topic, when I run `cm package "<topic>" --mock`, then it writes a valid `package.json` with `schemaVersion`, `topic`, `platform`, `variants[]`, and `selected`.
+- [ ] Given a topic, when I run `cm package "<topic>" --mock`, then it writes a valid `packaging.json` with `schemaVersion`, `topic`, `platform`, `variants[]`, and `selected`.
 - [ ] Given a topic, when I run `cm package "<topic>" --mock`, then it writes a valid packaging artifact JSON (default `packaging.json`) with `schemaVersion`, `topic`, `platform`, `variants[]`, and `selected`.
-- [ ] Given a `package.json`, when I run `cm script --topic "<topic>" --package package.json --mock`, then the generated `script.json` includes the selected package in `script.extra.virality.packaging`.
-- [ ] Given an invalid `package.json` (missing required fields), when I run `cm script --package`, then it fails with a user-friendly schema error.
+- [ ] Given a `packaging.json`, when I run `cm script --topic "<topic>" --package packaging.json --mock`, then the generated `script.json` includes the selected package in `script.extra.virality.packaging`.
+- [ ] Given an invalid `packaging.json` (missing required fields), when I run `cm script --package`, then it fails with a user-friendly schema error.
 - [ ] Unit tests cover schema validation, selection logic, and error handling (invalid JSON / invalid schema).
 
 ---
@@ -82,10 +82,10 @@
 
 ### Integration / CLI Smoke (local)
 
-- [ ] `npm run cm -- package "Test topic" --mock --output .cache/package.json`
-- [ ] `npm run cm -- script --topic "Test topic" --mock --package .cache/package.json --output .cache/script.json`
-  - Alternative (Windows direct): `.\node_modules\.bin\tsx.cmd src\cli\index.ts package "Test topic" --mock --output .cache\package.json`
-  - Alternative (Windows direct): `.\node_modules\.bin\tsx.cmd src\cli\index.ts script --topic "Test topic" --mock --package .cache\package.json --output .cache\script.json`
+- [ ] `npm run cm -- package "Test topic" --mock --output .cache/packaging.json`
+- [ ] `npm run cm -- script --topic "Test topic" --mock --package .cache/packaging.json --output .cache/script.json`
+  - Alternative (Windows direct): `.\node_modules\.bin\tsx.cmd src\cli\index.ts package "Test topic" --mock --output .cache\packaging.json`
+  - Alternative (Windows direct): `.\node_modules\.bin\tsx.cmd src\cli\index.ts script --topic "Test topic" --mock --package .cache\packaging.json --output .cache\script.json`
 
 ---
 
@@ -101,7 +101,7 @@
 **Data Flow:**
 
 ```
-topic → cm package → package.json → cm script --package → script.json
+topic → cm package → packaging.json → cm script --package → script.json
 ```
 
 ---
@@ -110,7 +110,7 @@ topic → cm package → package.json → cm script --package → script.json
 
 ### Phase 1: Foundation
 
-- [ ] Define Zod schemas for `package.json`
+- [ ] Define Zod schemas for `packaging.json`
 - [ ] Write failing tests for schema + generator selection
 
 ### Phase 2: Integration
