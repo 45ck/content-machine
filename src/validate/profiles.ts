@@ -9,6 +9,7 @@ export interface ValidateProfile {
   container: 'mp4';
   videoCodec: 'h264';
   audioCodec: 'aac';
+  brisqueMax?: number;
 }
 
 export const VALIDATE_PROFILES: Record<ValidateProfileId, ValidateProfile> = {
@@ -21,6 +22,7 @@ export const VALIDATE_PROFILES: Record<ValidateProfileId, ValidateProfile> = {
     container: 'mp4',
     videoCodec: 'h264',
     audioCodec: 'aac',
+    brisqueMax: 40,
   },
   landscape: {
     id: 'landscape',
@@ -31,6 +33,7 @@ export const VALIDATE_PROFILES: Record<ValidateProfileId, ValidateProfile> = {
     container: 'mp4',
     videoCodec: 'h264',
     audioCodec: 'aac',
+    brisqueMax: 35,
   },
 };
 

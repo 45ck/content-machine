@@ -54,10 +54,24 @@ export const FormatGateResultSchema = GateBaseSchema.extend({
 
 export type FormatGateResult = z.infer<typeof FormatGateResultSchema>;
 
+export const VisualQualityGateResultSchema = GateBaseSchema.extend({
+  gateId: z.literal('visual-quality'),
+  details: z.object({
+    brisqueMax: z.number().positive(),
+    mean: z.number().nonnegative(),
+    min: z.number().nonnegative(),
+    max: z.number().nonnegative(),
+    framesAnalyzed: z.number().int().positive(),
+  }),
+});
+
+export type VisualQualityGateResult = z.infer<typeof VisualQualityGateResultSchema>;
+
 export const GateResultSchema = z.discriminatedUnion('gateId', [
   ResolutionGateResultSchema,
   DurationGateResultSchema,
   FormatGateResultSchema,
+  VisualQualityGateResultSchema,
 ]);
 
 export type GateResult = z.infer<typeof GateResultSchema>;
