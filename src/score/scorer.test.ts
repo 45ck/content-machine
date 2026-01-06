@@ -22,10 +22,17 @@ function baseScript(partial?: Partial<ScriptOutput>): ScriptOutput {
       estimatedDuration: 12,
     },
   };
+  const meta: NonNullable<ScriptOutput['meta']> = {
+    ...base.meta,
+    ...(partial?.meta ?? {}),
+  } as NonNullable<ScriptOutput['meta']>;
+  meta.archetype = meta.archetype ?? base.meta!.archetype;
+  meta.topic = meta.topic ?? base.meta!.topic;
+  meta.generatedAt = meta.generatedAt ?? base.meta!.generatedAt;
   return {
     ...base,
     ...partial,
-    meta: { ...base.meta, ...partial?.meta },
+    meta,
   };
 }
 

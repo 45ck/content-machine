@@ -8,7 +8,9 @@ import { generateAudio } from '../../audio/pipeline';
 import { logger } from '../../core/logger';
 import { handleCommandError, readInputFile } from '../utils';
 import type { ScriptOutput } from '../../script/schema';
-import ora from 'ora';
+import { createSpinner } from '../progress';
+import { getCliRuntime } from '../runtime';
+import { buildJsonEnvelope, writeJsonEnvelope } from '../output';
 
 export const audioCommand = new Command('audio')
   .description('Generate voiceover audio with word-level timestamps')
@@ -17,7 +19,8 @@ export const audioCommand = new Command('audio')
   .option('--timestamps <path>', 'Output timestamps file path', 'timestamps.json')
   .option('--voice <voice>', 'TTS voice to use', 'af_heart')
   .action(async (options) => {
-    const spinner = ora('Generating audio...').start();
+    const spinner = createSpinner('Generating audio...').start();
+    const runtime = getCliRuntime();
 
     try {
       // Read input script
@@ -43,8 +46,30 @@ export const audioCommand = new Command('audio')
         'Audio saved'
       );
 
+      if (runtime.json) {
+        writeJsonEnvelope(
+          buildJsonEnvelope({
+            command: 'audio',
+            args: {
+              input: options.input,
+              output: options.output,
+              timestamps: options.timestamps,
+              voice: options.voice,
+            },
+            outputs: {
+              audioPath: result.audioPath,
+              timestampsPath: result.timestampsPath,
+              durationSeconds: result.duration,
+              wordCount: result.wordCount,
+            },
+            timingsMs: Date.now() - runtime.startTime,
+          })
+        );
+        return;
+      }
+
       // Show summary
-      console.log(`\n🎙️ Audio Generated`);
+      console.log('\nAudio Generated');
       console.log(`   Duration: ${result.duration.toFixed(1)}s`);
       console.log(`   Words: ${result.wordCount}`);
       console.log(`   Audio: ${result.audioPath}`);

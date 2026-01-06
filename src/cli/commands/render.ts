@@ -9,7 +9,9 @@ import { logger } from '../../core/logger';
 import { handleCommandError, readInputFile } from '../utils';
 import type { VisualsOutput } from '../../visuals/schema';
 import type { AudioOutput } from '../../audio/schema';
-import ora from 'ora';
+import { createSpinner } from '../progress';
+import { getCliRuntime } from '../runtime';
+import { buildJsonEnvelope, writeJsonEnvelope } from '../output';
 
 export const renderCommand = new Command('render')
   .description('Render final video with Remotion')
@@ -20,7 +22,8 @@ export const renderCommand = new Command('render')
   .option('--orientation <type>', 'Video orientation', 'portrait')
   .option('--fps <fps>', 'Frames per second', '30')
   .action(async (options) => {
-    const spinner = ora('Rendering video...').start();
+    const spinner = createSpinner('Rendering video...').start();
+    const runtime = getCliRuntime();
 
     try {
       // Read input files
@@ -56,8 +59,34 @@ export const renderCommand = new Command('render')
         'Video saved'
       );
 
+      if (runtime.json) {
+        writeJsonEnvelope(
+          buildJsonEnvelope({
+            command: 'render',
+            args: {
+              input: options.input,
+              audio: options.audio,
+              timestamps: options.timestamps,
+              output: options.output,
+              orientation: options.orientation,
+              fps: options.fps,
+            },
+            outputs: {
+              videoPath: result.outputPath,
+              durationSeconds: result.duration,
+              width: result.width,
+              height: result.height,
+              fps: result.fps,
+              fileSizeBytes: result.fileSize,
+            },
+            timingsMs: Date.now() - runtime.startTime,
+          })
+        );
+        return;
+      }
+
       // Show summary
-      console.log(`\n🎬 Video Rendered`);
+      console.log('\nVideo Rendered');
       console.log(`   Duration: ${result.duration.toFixed(1)}s`);
       console.log(`   Resolution: ${result.width}x${result.height}`);
       console.log(`   Size: ${(result.fileSize / 1024 / 1024).toFixed(1)} MB`);
