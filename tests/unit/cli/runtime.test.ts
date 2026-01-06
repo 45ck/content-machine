@@ -1,5 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
-import { getCliRuntime, getElapsedMs, resetCliRuntime, setCliRuntime } from '../../../src/cli/runtime';
+import {
+  getCliRuntime,
+  getElapsedMs,
+  resetCliRuntime,
+  setCliRuntime,
+} from '../../../src/cli/runtime';
 
 describe('cli runtime', () => {
   it('stores and updates runtime options', () => {

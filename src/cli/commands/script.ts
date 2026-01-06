@@ -16,6 +16,8 @@ import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope } from '../output';
 import type { SpinnerLike } from '../progress';
+import { ResearchOutputSchema } from '../../research/schema';
+import type { ResearchOutput } from '../../research/schema';
 
 interface PackagingInput {
   title: string;
@@ -82,9 +84,25 @@ interface ScriptCommandOptions {
   archetype: string;
   output: string;
   package?: string;
+  research?: string;
   duration: string;
   dryRun?: boolean;
   mock?: boolean;
+}
+
+async function loadResearch(path?: string): Promise<ResearchOutput | undefined> {
+  if (!path) return undefined;
+
+  const raw = await readInputFile(path);
+  const parsed = ResearchOutputSchema.safeParse(raw);
+  if (!parsed.success) {
+    throw new SchemaError('Invalid research file', {
+      path,
+      issues: parsed.error.issues,
+    });
+  }
+
+  return parsed.data;
 }
 
 function writeDryRunOutput(params: {
@@ -188,6 +206,11 @@ async function runScript(options: ScriptCommandOptions, spinner: SpinnerLike): P
   }
 
   const packaging = await loadPackaging(options.package);
+  const research = await loadResearch(options.research);
+
+  if (research) {
+    logger.info({ evidenceCount: research.evidence.length }, 'Loaded research evidence');
+  }
 
   const script = await generateScript({
     topic: options.topic,
@@ -195,6 +218,7 @@ async function runScript(options: ScriptCommandOptions, spinner: SpinnerLike): P
     targetDuration: parseInt(options.duration, 10),
     llmProvider,
     packaging,
+    research,
   });
 
   await writeOutputFile(options.output, script);
@@ -215,6 +239,7 @@ export const scriptCommand = new Command('script')
   .option('-a, --archetype <type>', 'Content archetype', 'listicle')
   .option('-o, --output <path>', 'Output file path', 'script.json')
   .option('--package <path>', 'Packaging JSON file (from cm package)')
+  .option('--research <path>', 'Research JSON file (from cm research)')
   .option('--duration <seconds>', 'Target duration in seconds', '45')
   .option('--dry-run', 'Preview without calling LLM')
   .option('--mock', 'Use mock LLM provider (for testing)')
@@ -225,4 +250,5 @@ export const scriptCommand = new Command('script')
     } catch (error) {
       spinner.fail('Script generation failed');
       handleCommandError(error);
-    
+    }
+  });

@@ -56,6 +56,11 @@ export function formatCliErrorLines(info: CliErrorInfo): string[] {
 }
 
 export function getExitCodeForError(info: CliErrorInfo): number {
-  const usageCodes = new Set(['INVALID_ARGUMENT', 'SCHEMA_ERROR', 'FILE_NOT_FOUND', 'INVALID_JSON']);
+  const usageCodes = new Set([
+    'INVALID_ARGUMENT',
+    'SCHEMA_ERROR',
+    'FILE_NOT_FOUND',
+    'INVALID_JSON',
+  ]);
   return usageCodes.has(info.code) ? 2 : 1;
 }
