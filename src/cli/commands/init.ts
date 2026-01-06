@@ -9,15 +9,6 @@ import { join } from 'path';
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 
-// Type definition for setup answers (kept for documentation, may be used in future)
-interface _SetupAnswers {
-  llmProvider: string;
-  llmModel: string;
-  archetype: string;
-  orientation: string;
-  voice: string;
-}
-
 export const initCommand = new Command('init')
   .description('Interactive setup wizard')
   .option('-y, --yes', 'Use defaults without prompting', false)

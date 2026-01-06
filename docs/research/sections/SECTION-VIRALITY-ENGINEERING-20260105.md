@@ -193,3 +193,10 @@ These fit best as **manual checklist output** inside `publish.json` plus a compa
 - V&V framework: `docs/guides/VV-FRAMEWORK-20260105.md`
 - LLM eval patterns: `docs/research/investigations/RQ-24-LLM-EVALUATION-QUALITY-ASSURANCE-20260105.md`
 - Structured output reliability: `docs/research/investigations/RQ-04-STRUCTURED-LLM-OUTPUT-20260104.md`
+
+## Engagement Prediction Integration (2026-01-06)
+
+- `docs/research/investigations/RQ-26-ENGAGEMENT-PREDICTION-REPO-INTEGRATION-20260106.md`
+- `docs/research/sections/SECTION-ENGAGEMENT-PREDICTION-20260106.md`
+- `docs/research/88-engagement-prediction-integration-DEEP-20260106.md`
+- `docs/research/virality-prediction/00-INDEX-20260106.md`

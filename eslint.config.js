@@ -46,7 +46,7 @@ export default [
 
       // TypeScript rules
       '@typescript-eslint/no-unused-vars': [
-        'warn',
+        'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
 
@@ -55,14 +55,14 @@ export default [
       'sonarjs/cognitive-complexity': ['error', 15],
       'max-depth': ['error', 5],
 
-      // === MAINTAINABILITY NUDGES (WARN) ===
-      'max-params': ['warn', 6],
+      // === MAINTAINABILITY GATES (STRICT) ===
+      'max-params': ['error', 6],
       'max-lines-per-function': [
-        'warn',
+        'error',
         { max: 80, skipBlankLines: true, skipComments: true, IIFEs: true },
       ],
-      'sonarjs/no-duplicate-string': ['warn', { threshold: 5 }],
-      'sonarjs/no-identical-functions': 'warn',
+      'sonarjs/no-duplicate-string': ['error', { threshold: 5 }],
+      'sonarjs/no-identical-functions': 'error',
     },
   },
 

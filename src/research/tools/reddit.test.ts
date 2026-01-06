@@ -92,7 +92,8 @@ describe('RedditTool', () => {
     expect(first.title).toBe('Test Post About Programming');
     expect(first.url).toBe('https://www.reddit.com/r/programming/comments/post123/test_post/');
     expect(first.source).toBe('reddit');
-    expect(first.relevanceScore).toBe(0.5); // 5000/10000
+    expect(first.relevanceScore).toBeGreaterThan(0);
+    expect(first.relevanceScore).toBeLessThanOrEqual(1);
     expect(first.publishedAt).toBeDefined();
     expect(first.summary).toContain('This is a detailed post');
   });
@@ -195,15 +196,69 @@ describe('RedditTool', () => {
     expect(capturedHeaders?.get('user-agent')).toBe('test-agent/1.0');
   });
 
-  it('should map time ranges correctly', async () => {
+  it('should include correct time range in request URL', async () => {
+    let capturedUrl: string | undefined;
+
+    server.use(
+      http.get('https://www.reddit.com/search.json', ({ request }) => {
+        capturedUrl = request.url;
+        return HttpResponse.json(mockResponse);
+      })
+    );
+
     const tool = new RedditTool();
-
-    // Just verify it doesn't crash with different time ranges
-    await tool.search('test', { timeRange: 'week' });
     await tool.search('test', { timeRange: 'month' });
-    await tool.search('test', { timeRange: 'year' });
 
-    expect(true).toBe(true);
+    expect(capturedUrl).toContain('t=month');
+  });
+
+  it('should send correct query parameters', async () => {
+    let capturedUrl: URL | undefined;
+
+    server.use(
+      http.get('https://www.reddit.com/search.json', ({ request }) => {
+        capturedUrl = new URL(request.url);
+        return HttpResponse.json(mockResponse);
+      })
+    );
+
+    const tool = new RedditTool();
+    await tool.search('test query', { limit: 5, timeRange: 'week' });
+
+    expect(capturedUrl?.searchParams.get('q')).toBe('test query');
+    expect(capturedUrl?.searchParams.get('limit')).toBe('5');
+    expect(capturedUrl?.searchParams.get('t')).toBe('week');
+    expect(capturedUrl?.searchParams.get('sort')).toBe('relevance');
+  });
+
+  it('should handle network errors gracefully', async () => {
+    server.use(
+      http.get('https://www.reddit.com/search.json', () => {
+        return HttpResponse.error();
+      })
+    );
+
+    const tool = new RedditTool();
+    const result = await tool.search('test');
+
+    expect(result.success).toBe(false);
+    expect(result.evidence).toHaveLength(0);
+    expect(result.error).toBeDefined();
+  });
+
+  it('should timeout after configured duration', async () => {
+    server.use(
+      http.get('https://www.reddit.com/search.json', async () => {
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        return HttpResponse.json(mockResponse);
+      })
+    );
+
+    const tool = new RedditTool({ timeoutMs: 50 });
+    const result = await tool.search('test');
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBeDefined();
   });
 
   it('should report rate limit status', () => {

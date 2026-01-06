@@ -581,3 +581,12 @@
 [submodule "vendor/research/virality-prediction/MultiPop"]
 	path = vendor/research/virality-prediction/MultiPop
 	url = https://github.com/dxlabskku/MultiPop.git
+[submodule "vendor/research/virality-prediction/tiktok-engagement-analysis"]
+	path = vendor/research/virality-prediction/tiktok-engagement-analysis
+	url = https://github.com/YassinAnalytics/tiktok-engagement-analysis.git
+[submodule "vendor/research/virality-prediction/Forecasting-TikTok-Trend-Engagement-Using-ML"]
+	path = vendor/research/virality-prediction/Forecasting-TikTok-Trend-Engagement-Using-ML
+	url = https://github.com/VBradCulbertson/Forecasting-TikTok-Trend-Engagement-Using-ML.git
+[submodule "vendor/research/virality-prediction/TikTok-Virality-Predictor"]
+	path = vendor/research/virality-prediction/TikTok-Virality-Predictor
+	url = https://github.com/juanls1/TikTok-Virality-Predictor.git

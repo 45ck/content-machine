@@ -1,7 +1,7 @@
 /**
  * Web Search Tool (Brave) - Unit Tests
  */
-import { describe, it, expect, beforeAll, afterAll, afterEach, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import { WebSearchTool } from './web-search';
