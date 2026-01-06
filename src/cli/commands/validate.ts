@@ -12,7 +12,56 @@ import { CMError } from '../../core/errors';
 import { PiqBrisqueAnalyzer } from '../../validate/quality';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope } from '../output';
+import type { ValidateOptions } from '../../validate/validate';
+
+interface ValidateCommandOptions {
+  profile: string;
+  probeEngine: string;
+  ffprobe: string;
+  python: string;
+  cadence?: boolean;
+  cadenceMaxMedian: string;
+  cadenceThreshold: string;
+  quality?: boolean;
+  qualitySampleRate: string;
+  output: string;
+  json?: boolean;
+}
+
+function parseProfile(profile: string): ValidateProfileId {
+  if (!isValidateProfileId(profile)) {
+    throw new CMError('INVALID_ARGUMENT', `Unknown profile: ${profile}`, {
+      allowed: ['portrait', 'landscape'],
+      fix: 'Use --profile portrait or --profile landscape',
+    });
+  }
+  return profile;
+}
+
+function buildValidateOptions(profile: ValidateProfileId, options: ValidateCommandOptions): ValidateOptions {
+  return {
+    profile,
+    probe: {
+      engine: String(options.probeEngine) === 'python' ? 'python' : 'ffprobe',
+      ffprobePath: String(options.ffprobe),
+      pythonPath: String(options.python),
+    },
+    cadence: options.cadence
+      ? {
+          enabled: true,
+          maxMedianCutIntervalSeconds: Number.parseFloat(String(options.cadenceMaxMedian)),
+          threshold: Number.parseFloat(String(options.cadenceThreshold)),
+        }
+      : { enabled: false },
+    quality: options.quality
+      ? {
+          enabled: true,
+          sampleRate: Number.parseInt(String(options.qualitySampleRate), 10),
+          analyzer: new PiqBrisqueAnalyzer({ pythonPath: String(options.python) }),
+        }
+      : { enabled: false },
+  };
+}
 
 export const validateCommand = new Command('validate')
   .description('Validate a rendered video against platform requirements')
@@ -28,69 +77,26 @@ export const validateCommand = new Command('validate')
   .option('--quality-sample-rate <n>', 'Analyze every Nth frame (BRISQUE)', '30')
   .option('-o, --output <path>', 'Output report file path', 'validate.json')
   .option('--json', 'Print the full report JSON to stdout', false)
-  .action(async (videoPath: string, options) => {
-    const spinner = createSpinner('Validating video...').start();
+  .action(async (videoPath: string, options: ValidateCommandOptions) => {
     const runtime = getCliRuntime();
     const jsonMode = runtime.json || Boolean(options.json);
+    const spinner = createSpinner('Validating video...').start();
 
     try {
-      if (!isValidateProfileId(options.profile)) {
-        throw new CMError('INVALID_ARGUMENT', `Unknown profile: ${options.profile}`, {
-          allowed: ['portrait', 'landscape'],
-          fix: 'Use --profile portrait or --profile landscape',
-        });
+      const profile = parseProfile(options.profile);
+      const validateOptions = buildValidateOptions(profile, options);
+
+      if (!jsonMode) {
+        logger.info({ videoPath, profile }, 'Starting video validation');
       }
-      const profile: ValidateProfileId = options.profile;
 
-      logger.info({ videoPath, profile }, 'Starting video validation');
-
-      const report = await validateVideoPath(videoPath, {
-        profile,
-        probe: {
-          engine: String(options.probeEngine) === 'python' ? 'python' : 'ffprobe',
-          ffprobePath: String(options.ffprobe),
-          pythonPath: String(options.python),
-        },
-        cadence: options.cadence
-          ? {
-              enabled: true,
-              maxMedianCutIntervalSeconds: Number.parseFloat(String(options.cadenceMaxMedian)),
-              threshold: Number.parseFloat(String(options.cadenceThreshold)),
-            }
-          : { enabled: false },
-        quality: options.quality
-          ? {
-              enabled: true,
-              sampleRate: Number.parseInt(String(options.qualitySampleRate), 10),
-              analyzer: new PiqBrisqueAnalyzer({ pythonPath: String(options.python) }),
-            }
-          : { enabled: false },
-      });
-
+      const report = await validateVideoPath(videoPath, validateOptions);
       await writeOutputFile(options.output, report);
 
       if (jsonMode) {
-        const failingGates = report.gates.filter((gate) => !gate.passed).map((gate) => gate.gateId);
-        writeJsonEnvelope(
-          buildJsonEnvelope({
-            command: 'validate',
-            args: {
-              videoPath,
-              profile,
-              output: options.output,
-              probeEngine: options.probeEngine,
-              cadence: Boolean(options.cadence),
-              quality: Boolean(options.quality),
-            },
-            outputs: {
-              reportPath: options.output,
-              passed: report.passed,
-              failingGates,
-            },
-            timingsMs: Date.now() - runtime.startTime,
-          })
-        );
-        return;
+        spinner.stop();
+        console.log(JSON.stringify(report, null, 2));
+        process.exit(report.passed ? 0 : 1);
       }
 
       if (report.passed) {

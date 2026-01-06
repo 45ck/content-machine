@@ -73,6 +73,7 @@ async function loadPackaging(path?: string): Promise<PackagingInput | undefined>
     throw new SchemaError('Invalid packaging file', {
       path,
       issues: parsed.error.issues,
+      fix: 'Generate packaging via `cm package "<topic>" -o packaging.json` and pass --package packaging.json',
     });
   }
 
@@ -99,6 +100,7 @@ async function loadResearch(path?: string): Promise<ResearchOutput | undefined> 
     throw new SchemaError('Invalid research file', {
       path,
       issues: parsed.error.issues,
+      fix: 'Generate research via `cm research -q "<topic>" -o research.json` and pass --research research.json',
     });
   }
 
@@ -122,6 +124,7 @@ function writeDryRunOutput(params: {
           durationSeconds: options.duration,
           output: options.output,
           package: options.package ?? null,
+          research: options.research ?? null,
           dryRun: true,
         },
         outputs: { dryRun: true },
@@ -159,6 +162,7 @@ function writeSuccessJsonOutput(params: {
         durationSeconds: options.duration,
         output: options.output,
         package: options.package ?? null,
+        research: options.research ?? null,
         mock: Boolean(options.mock),
       },
       outputs: {

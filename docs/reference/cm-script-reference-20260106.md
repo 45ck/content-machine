@@ -18,6 +18,7 @@ cm script [options]
 - `-a, --archetype <type>`: `listicle|versus|howto|myth|story|hot-take` (default: `listicle`)
 - `-o, --output <path>`: output JSON path (default: `script.json`)
 - `--package <path>`: packaging JSON from `cm package`
+- `--research <path>`: research JSON from `cm research`
 - `--duration <seconds>`: target duration seconds (default: `45`)
 - `--dry-run`: preview without calling the LLM
 - `--mock`: use a fake LLM provider (testing)

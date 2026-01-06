@@ -1,0 +1,47 @@
+{
+  "query": "TypeScript best practices 2025",
+  "evidence": [
+    {
+      "title": "TypeScript Best Practices 2025: Elevate Your Code Quality",
+      "url": "https://dev.to/sovannaro/typescript-best-practices-2025-elevate-your-code-quality-1gh3",
+      "source": "tavily",
+      "relevanceScore": 0.9555894,
+      "summary": "### 1.1 **Use Explicit Types**. Let TypeScript infer types when possible, but be explicit when necessary. ### 2.2 **Use Type Aliases for Complex Types**. type ID = number | string; type UserRole = \" admin \" | \" user \" | \" guest \";. Define your own utility types for specific use cases. ### 5.1 **Use ..."
+    },
+    {
+      "title": "Best Practices for Using TypeScript in 2025 - Medium",
+      "url": "https://medium.com/@nikhithsomasani/best-practices-for-using-typescript-in-2025-a-guide-for-experienced-developers-4fca1cfdf052",
+      "source": "tavily",
+      "relevanceScore": 0.95132804,
+      "summary": "They allow you to enforce specific patterns and improve type safety for string operations. Use template literal types to define URL patterns, event names, or dynamic keys with predictable formats. Use `satisfies` for Type Assertions ✅. const user = { name: 'Alice', age: 25,} satisfies { name: string..."
+    },
+    {
+      "title": "TypeScript Best Practices in 2025 - DEV Community",
+      "url": "https://dev.to/mitu_mariam/typescript-best-practices-in-2025-57hb",
+      "source": "tavily",
+      "relevanceScore": 0.942002,
+      "summary": "const numberList =[1, 2, 3];// TypeScript infers the type 'number[]'. * **Use `const` for Immutable Values**: For constants, TypeScript can infer their types and narrow down possibilities, leading to more efficient code. const user ={name: ' Mitu ', age: 30};// TypeScript infers the type as { name: ..."
+    }
+  ],
+  "suggestedAngles": [
+    {
+      "angle": "Top insights about \"TypeScript best practices 2025\"",
+      "hook": "You need to see this",
+      "archetype": "listicle",
+      "targetEmotion": "curiosity",
+      "confidence": 0.85
+    },
+    {
+      "angle": "Common misconceptions about \"TypeScript best practices 2025\"",
+      "hook": "Everyone gets this wrong",
+      "archetype": "myth",
+      "targetEmotion": "surprise",
+      "confidence": 0.8
+    }
+  ],
+  "searchedAt": "2026-01-06T23:47:42.863Z",
+  "sources": [
+    "tavily"
+  ],
+  "totalResults": 3
+}
