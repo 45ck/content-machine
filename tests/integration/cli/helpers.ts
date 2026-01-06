@@ -1,5 +1,6 @@
 import { spawn } from 'child_process';
-import { join } from 'path';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 
 export interface CliRunResult {
   code: number;
@@ -8,7 +9,9 @@ export interface CliRunResult {
 }
 
 export async function runCli(args: string[], env?: NodeJS.ProcessEnv): Promise<CliRunResult> {
-  const tsxCli = join(process.cwd(), 'node_modules', 'tsx', 'dist', 'cli.mjs');
+  const helperDir = dirname(fileURLToPath(import.meta.url));
+  const repoRoot = join(helperDir, '..', '..', '..');
+  const tsxCli = join(repoRoot, 'node_modules', 'tsx', 'dist', 'cli.mjs');
 
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, [tsxCli, 'src/cli/index.ts', ...args], {
@@ -17,8 +20,8 @@ export async function runCli(args: string[], env?: NodeJS.ProcessEnv): Promise<C
         NODE_ENV: 'test',
         ...env,
       },
+      cwd: repoRoot,
       stdio: ['ignore', 'pipe', 'pipe'],
-      shell: process.platform === 'win32',
     });
 
     let stdout = '';

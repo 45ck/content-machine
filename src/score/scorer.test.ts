@@ -73,7 +73,7 @@ describe('scoreScript', () => {
 
   it('flags rage bait as an error', () => {
     const result = scoreScript({
-      script: baseScript({ hook: "Everyone is wrong about caching, you're an idiot" }),
+      script: baseScript({ hook: "Everyone is wrong about caching, you\u2019re an idiot" }),
       scriptPath: 'script.json',
     });
 

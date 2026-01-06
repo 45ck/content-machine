@@ -59,7 +59,11 @@ program.hook('preAction', (_thisCommand, actionCommand) => {
     command: actionCommand.name(),
   });
 
-  if (opts.verbose) {
+  // In JSON mode, stdout must remain machine-readable (no logs/spinners).
+  // pino-pretty logs to stdout by default, so silence logging for the duration of the command.
+  if (opts.json) {
+    logger.level = 'silent';
+  } else if (opts.verbose) {
     logger.level = 'debug';
   }
 });

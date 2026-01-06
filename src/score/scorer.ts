@@ -19,15 +19,19 @@ function scoreRange(value: number, min: number, max: number): number {
 }
 
 const RAGE_BAIT_PATTERNS: RegExp[] = [
-  /\byou('|’)?re an idiot\b/i,
-  /\byou(’|'| a)?re (an )?idiot\b/i,
+  /\byou(?:'re| are) an idiot\b/i,
   /\b(stupid|dumb|moron)\b/i,
   /\beveryone (is|are) wrong\b/i,
   /\bthis will (make|change) you (hate|rage)\b/i,
 ];
 
+function normalizeText(text: string): string {
+  return text.replace(/[\u2018\u2019\u201B\u2032]/g, "'");
+}
+
 function containsRageBait(text: string): boolean {
-  return RAGE_BAIT_PATTERNS.some((re) => re.test(text));
+  const normalized = normalizeText(text);
+  return RAGE_BAIT_PATTERNS.some((re) => re.test(normalized));
 }
 
 export interface ScoreInputs {
@@ -50,14 +54,15 @@ interface DerivedScriptStats {
 function deriveScriptStats(inputs: ScoreInputs): DerivedScriptStats {
   const title = inputs.script.title ?? '';
   const hook = inputs.script.hook ?? inputs.script.scenes[0]?.text ?? '';
-  const allText = [title, hook, ...inputs.script.scenes.map((s) => s.text), inputs.script.cta ?? '']
+  const spokenText = [hook, ...inputs.script.scenes.map((s) => s.text), inputs.script.cta ?? '']
     .filter(Boolean)
     .join(' ');
+  const allText = [title, spokenText].filter(Boolean).join(' ');
 
   const titleWords = countWords(title);
   const hookWords = countWords(hook);
   const sceneCount = inputs.script.scenes.length;
-  const wordCount = countWords(allText);
+  const wordCount = countWords(spokenText);
   const estimatedDuration = inputs.script.meta?.estimatedDuration ?? wordCount / 2.5;
 
   return { title, hook, allText, titleWords, hookWords, sceneCount, estimatedDuration };
