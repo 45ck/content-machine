@@ -71,4 +71,3 @@ export const scoreCommand = new Command('score')
       handleCommandError(error);
     }
   });
-

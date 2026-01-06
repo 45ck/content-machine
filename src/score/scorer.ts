@@ -19,6 +19,7 @@ function scoreRange(value: number, min: number, max: number): number {
 }
 
 const RAGE_BAIT_PATTERNS: RegExp[] = [
+  /\byou('|’)?re an idiot\b/i,
   /\byou(’|'| a)?re (an )?idiot\b/i,
   /\b(stupid|dumb|moron)\b/i,
   /\beveryone (is|are) wrong\b/i,
@@ -140,4 +141,3 @@ export function scoreScript(inputs: ScoreInputs): ScoreOutput {
 
   return validated.data;
 }
-

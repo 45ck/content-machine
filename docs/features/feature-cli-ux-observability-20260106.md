@@ -30,7 +30,7 @@ As a CLI user, I want `cm` to clearly communicate status and progress and to fai
 
 ### Output streams
 
-- stdout: *result only* (path or one JSON object in `--json` mode)
+- stdout: _result only_ (path or one JSON object in `--json` mode)
 - stderr: progress UI, logs, warnings, human summaries
 
 ### Exit codes

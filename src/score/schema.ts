@@ -35,4 +35,3 @@ export const ScoreOutputSchema = z.object({
 });
 
 export type ScoreOutput = z.infer<typeof ScoreOutputSchema>;
-

@@ -76,7 +76,9 @@ function parseLLMResponse(
     return LLMPublishResponseSchema.parse(JSON.parse(content));
   } catch (error) {
     log.error({ error, content }, 'Failed to parse LLM publish response');
-    throw new SchemaError('LLM returned invalid publish format', { content: content.slice(0, 500) });
+    throw new SchemaError('LLM returned invalid publish format', {
+      content: content.slice(0, 500),
+    });
   }
 }
 
@@ -157,4 +159,3 @@ Return JSON only in this shape:
 
   return validated.data;
 }
-

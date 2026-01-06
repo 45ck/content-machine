@@ -4,7 +4,7 @@ import type { ScriptOutput } from '../script/schema';
 import type { PackageOutput } from '../package/schema';
 
 function baseScript(partial?: Partial<ScriptOutput>): ScriptOutput {
-  return {
+  const base: ScriptOutput = {
     schemaVersion: '1.0.0',
     scenes: [
       { id: 'scene-001', text: 'Hook line here', visualDirection: 'show text' },
@@ -21,6 +21,11 @@ function baseScript(partial?: Partial<ScriptOutput>): ScriptOutput {
       wordCount: 30,
       estimatedDuration: 12,
     },
+  };
+  return {
+    ...base,
+    ...partial,
+    meta: { ...base.meta, ...partial?.meta },
   };
 }
 
@@ -67,4 +72,3 @@ describe('scoreScript', () => {
     expect(result.passed).toBe(false);
   });
 });
-

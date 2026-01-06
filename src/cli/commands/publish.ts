@@ -48,7 +48,9 @@ export const publishCommand = new Command('publish')
             fake.queueJsonResponse({
               description: `Description for ${script.title ?? 'video'}`,
               hashtags: script.hashtags ?? ['#shorts'],
-              checklist: [{ id: 'render-quality', label: 'Video passes validation', required: true }],
+              checklist: [
+                { id: 'render-quality', label: 'Video passes validation', required: true },
+              ],
             });
             return fake;
           })()
@@ -79,4 +81,3 @@ export const publishCommand = new Command('publish')
       handleCommandError(error);
     }
   });
-

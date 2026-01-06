@@ -29,9 +29,9 @@ References:
 
 For each deliverable, follow:
 
-1) RED: add failing tests (unit + integration) that assert the terminal contract  
-2) GREEN: minimal implementation to pass  
-3) REFACTOR: dedupe helpers and ensure consistency across commands
+1. RED: add failing tests (unit + integration) that assert the terminal contract
+2. GREEN: minimal implementation to pass
+3. REFACTOR: dedupe helpers and ensure consistency across commands
 
 ### Shared test harness
 

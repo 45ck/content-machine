@@ -51,9 +51,13 @@ describe('generatePublish', () => {
       usage: { promptTokens: 1, completionTokens: 1, totalTokens: 2 },
     });
 
-    const out = await generatePublish({ script, mode: 'llm', llmProvider: llm, platform: 'tiktok' });
+    const out = await generatePublish({
+      script,
+      mode: 'llm',
+      llmProvider: llm,
+      platform: 'tiktok',
+    });
     expect(out.description).toBe('Short description');
     expect(out.hashtags).toEqual(['#redis']);
   });
 });
-

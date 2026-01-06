@@ -5,9 +5,11 @@
  */
 import { readFile, writeFile, mkdir } from 'fs/promises';
 import { dirname } from 'path';
-import chalk from 'chalk';
-import { isCMError, isRetryable } from '../core/errors';
+import { CMError, isCMError } from '../core/errors';
 import { logger } from '../core/logger';
+import { getCliRuntime } from './runtime';
+import { formatCliErrorLines, getCliErrorInfo, getExitCodeForError } from './format';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from './output';
 
 /**
  * Read and parse a JSON input file
@@ -18,12 +20,16 @@ export async function readInputFile<T = unknown>(path: string): Promise<T> {
     return JSON.parse(content) as T;
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-      console.error(chalk.red(`\n❌ File not found: ${path}\n`));
-      process.exit(1);
+      throw new CMError('FILE_NOT_FOUND', `File not found: ${path}`, {
+        path,
+        fix: `Check the path or re-run the producing command to create ${path}`,
+      });
     }
     if (error instanceof SyntaxError) {
-      console.error(chalk.red(`\n❌ Invalid JSON in file: ${path}\n`));
-      process.exit(1);
+      throw new CMError('INVALID_JSON', `Invalid JSON in file: ${path}`, {
+        path,
+        fix: 'Ensure the file contains valid JSON.',
+      });
     }
     throw error;
   }
@@ -45,35 +51,37 @@ export async function writeOutputFile(path: string, data: unknown): Promise<void
  * Handle command errors with user-friendly output
  */
 export function handleCommandError(error: unknown): never {
-  if (isCMError(error)) {
-    // Known error with context
-    console.error(chalk.red(`\n❌ ${error.message}\n`));
+  const runtime = getCliRuntime();
+  const info = getCliErrorInfo(error);
+  const exitCode = getExitCodeForError(info);
 
-    if (error.context) {
-      console.error(chalk.gray('Context:'));
-      for (const [key, value] of Object.entries(error.context)) {
-        console.error(chalk.gray(`  ${key}: ${JSON.stringify(value)}`));
-      }
-      console.error('');
-    }
-
-    if (isRetryable(error)) {
-      console.error(chalk.yellow('💡 This error may be temporary. Try again in a few moments.\n'));
-    }
-
-    logger.error({ error, code: error.code }, 'Command failed');
-    process.exit(1);
+  if (runtime.json) {
+    const envelope = buildJsonEnvelope({
+      command: runtime.command ?? 'unknown',
+      timingsMs: Date.now() - runtime.startTime,
+      errors: [
+        {
+          code: info.code,
+          message: info.message,
+          context: info.context,
+        },
+      ],
+    });
+    writeJsonEnvelope(envelope);
+    process.exit(exitCode);
   }
 
-  // Unknown error
-  const message = error instanceof Error ? error.message : String(error);
-  console.error(chalk.red(`\n❌ Unexpected error: ${message}\n`));
+  for (const line of formatCliErrorLines(info)) {
+    writeStderrLine(line);
+  }
 
-  if (error instanceof Error && error.stack) {
+  if (isCMError(error)) {
+    logger.error({ error, code: error.code }, 'Command failed');
+  } else if (error instanceof Error && error.stack) {
     logger.error({ stack: error.stack }, 'Unexpected error');
   }
 
-  process.exit(1);
+  process.exit(exitCode);
 }
 
 /**
@@ -96,7 +104,4 @@ export function formatFileSize(bytes: number): string {
     return `${bytes} B`;
   }
   if (bytes < 1024 * 1024) {
-    return `${(bytes / 1024).toFixed(1)} KB`;
-  }
-  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
-}
+    return `${(bytes / 1024).toFixed(1)} 

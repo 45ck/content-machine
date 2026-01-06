@@ -16,6 +16,8 @@ import { initCommand } from './commands/init';
 import { packageCommand } from './commands/package';
 import { researchCommand } from './commands/research';
 import { validateCommand } from './commands/validate';
+import { setCliRuntime } from './runtime';
+import { logger } from '../core/logger';
 import { retrieveCommand } from './commands/retrieve';
 import { scoreCommand } from './commands/score';
 import { publishCommand } from './commands/publish';
@@ -42,6 +44,25 @@ program.addCommand(scoreCommand);
 program.addCommand(publishCommand);
 program.addCommand(generateCommand);
 program.addCommand(initCommand);
+
+program.hook('preAction', (_thisCommand, actionCommand) => {
+  const opts =
+    typeof actionCommand.optsWithGlobals === 'function'
+      ? actionCommand.optsWithGlobals()
+      : actionCommand.opts();
+
+  setCliRuntime({
+    json: Boolean(opts.json),
+    verbose: Boolean(opts.verbose),
+    isTty: Boolean(process.stderr.isTTY),
+    startTime: Date.now(),
+    command: actionCommand.name(),
+  });
+
+  if (opts.verbose) {
+    logger.level = 'debug';
+  }
+});
 
 // Parse arguments
 program.parse();
