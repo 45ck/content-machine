@@ -9,6 +9,8 @@ import { ArchetypeEnum } from '../../core/config';
 import { SchemaError } from '../../core/errors';
 import { logger } from '../../core/logger';
 import { PackageOutputSchema } from '../../package/schema';
+import { ResearchOutputSchema } from '../../research/schema';
+import type { ResearchOutput } from '../../research/schema';
 import { generateScript } from '../../script/generator';
 import { FakeLLMProvider } from '../../test/stubs/fake-llm';
 import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
