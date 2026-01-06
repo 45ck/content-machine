@@ -47,3 +47,10 @@ References: `docs/guides/guide-cli-ux-standards-20260106.md`.
 ERROR: Missing timestamps file: out/timestamps.json
 Fix: run `cm audio -i out/script.json --timestamps out/timestamps.json` (or pass --timestamps <path>)
 ```
+
+## UX acceptance criteria
+
+- Preflights required files and schema shapes before bundling Remotion.
+- Shows bundling and rendering percent progress in TTY mode.
+- Invalid `--orientation` / `--fps` fails fast with exit code 2 and actionable help.
+- Success output includes output path, duration, dimensions, and file size.

@@ -48,3 +48,9 @@ Output: out/packaging.json
 Selected: "Stop doing Redis caching like this"
 Next: cm script --topic "Redis caching" --package out/packaging.json
 ```
+
+## UX acceptance criteria
+
+- Success output includes a concrete next command that applies the packaging to `cm script`.
+- Output JSON includes a stable `selected` variant and preserves all variants.
+- `--dry-run` performs no LLM calls and writes no files.

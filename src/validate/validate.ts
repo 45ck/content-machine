@@ -19,6 +19,8 @@ export interface ValidateOptions {
     enabled: boolean;
     maxMedianCutIntervalSeconds?: number;
     threshold?: number;
+    engine?: 'ffmpeg' | 'pyscenedetect';
+    pythonPath?: string;
   };
   quality?: {
     enabled: boolean;
@@ -81,6 +83,8 @@ export async function validateVideoPath(
       await runCadenceGate(info, {
         maxMedianCutIntervalSeconds: options.cadence.maxMedianCutIntervalSeconds,
         threshold: options.cadence.threshold,
+        engine: options.cadence.engine,
+        pythonPath: options.cadence.pythonPath ?? options.probe?.pythonPath,
       })
     );
   }

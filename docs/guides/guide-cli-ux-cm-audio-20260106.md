@@ -50,3 +50,9 @@ Duration: 42.3s
 Outputs: out/audio.wav, out/timestamps.json
 Next: cm visuals -i out/timestamps.json -o out/visuals.json
 ```
+
+## UX acceptance criteria
+
+- Invalid/mismatched `--input` JSON fails fast with exit code 2 and a schema-oriented message.
+- Progress indicates which sub-step is running (TTS/ASR/align), and failures name the sub-step.
+- Success output prints both artifact paths and duration.

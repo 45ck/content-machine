@@ -18,16 +18,16 @@ export { AnthropicProvider } from './core/llm/anthropic';
 
 // Script generation
 export { generateScript } from './script/generator';
-export type { ScriptOutput } from './script/schema';
-export { ScriptOutputSchema, ScriptSectionSchema, ContentArchetypeEnum } from './script/schema';
+export type { ScriptOutput, ScriptSection, Scene, ScriptMetadata } from './script/schema';
+export { ScriptOutputSchema, ScriptSectionSchema, SceneSchema } from './script/schema';
 
 // Audio pipeline
 export type { AudioOutput, WordTimestamp } from './audio/schema';
 export { AudioOutputSchema, WordTimestampSchema } from './audio/schema';
 
 // Visuals/footage matching
-export type { VisualsOutput } from './visuals/schema';
-export { VisualsOutputSchema, StockClipSchema } from './visuals/schema';
+export type { VisualsOutput, VideoClip, VisualAsset } from './visuals/schema';
+export { VisualsOutputSchema, VideoClipSchema, VisualAssetSchema } from './visuals/schema';
 
 // Render pipeline
 export type { RenderProps, RenderOutput } from './render/schema';
@@ -43,7 +43,8 @@ export { CAPTION_PRESETS } from './render/presets/caption';
 export * from './render/tokens';
 
 // Style system - themes
-export { createTheme, getTheme, listThemes } from './render/themes';
+export { createThemeRegistry, defaultThemeRegistry } from './render/themes';
+export type { Theme, ThemeRegistry } from './render/themes';
 
 // Research pipeline
 export { ResearchOrchestrator, createResearchOrchestrator } from './research/orchestrator';

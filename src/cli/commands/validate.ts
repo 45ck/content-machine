@@ -7,7 +7,6 @@ import { Command } from 'commander';
 import ora from 'ora';
 import { handleCommandError, writeOutputFile } from '../utils';
 import { validateVideoPath } from '../../validate/validate';
-import { logger } from '../../core/logger';
 import { isValidateProfileId, type ValidateProfileId } from '../../validate/profiles';
 import { CMError } from '../../core/errors';
 import { PiqBrisqueAnalyzer } from '../../validate/quality';
@@ -20,14 +19,15 @@ export const validateCommand = new Command('validate')
   .option('--ffprobe <path>', 'ffprobe executable path', 'ffprobe')
   .option('--python <path>', 'python executable path (for --probe-engine python)', 'python')
   .option('--cadence', 'Enable cadence gate (scene cut frequency) via ffmpeg', false)
+  .option('--cadence-engine <engine>', 'Cadence engine (ffmpeg|pyscenedetect)', 'ffmpeg')
   .option('--cadence-max-median <seconds>', 'Max median cut interval in seconds', '3')
   .option('--cadence-threshold <n>', 'ffmpeg scene change threshold', '0.3')
   .option('--quality', 'Enable visual quality gate (BRISQUE) via Python', false)
   .option('--quality-sample-rate <n>', 'Analyze every Nth frame (BRISQUE)', '30')
   .option('-o, --output <path>', 'Output report file path', 'validate.json')
-  .option('--json', 'Print the full report JSON to stdout', false)
-  .action(async (videoPath: string, options) => {
-    const spinner = ora('Validating video...').start();
+  .action(async (videoPath: string, options, command: Command) => {
+    const jsonMode = Boolean(command.optsWithGlobals().json);
+    const spinner = jsonMode ? null : ora('Validating video...').start();
 
     try {
       if (!isValidateProfileId(options.profile)) {
@@ -36,8 +36,6 @@ export const validateCommand = new Command('validate')
         });
       }
       const profile: ValidateProfileId = options.profile;
-
-      logger.info({ videoPath, profile }, 'Starting video validation');
 
       const report = await validateVideoPath(videoPath, {
         profile,
@@ -51,6 +49,7 @@ export const validateCommand = new Command('validate')
               enabled: true,
               maxMedianCutIntervalSeconds: Number.parseFloat(String(options.cadenceMaxMedian)),
               threshold: Number.parseFloat(String(options.cadenceThreshold)),
+              engine: String(options.cadenceEngine) as 'ffmpeg' | 'pyscenedetect',
             }
           : { enabled: false },
         quality: options.quality
@@ -64,16 +63,15 @@ export const validateCommand = new Command('validate')
 
       await writeOutputFile(options.output, report);
 
-      if (options.json) {
-        spinner.stop();
+      if (jsonMode) {
         console.log(JSON.stringify(report, null, 2));
         return;
       }
 
       if (report.passed) {
-        spinner.succeed('Validation passed');
+        spinner?.succeed('Validation passed');
       } else {
-        spinner.fail('Validation failed');
+        spinner?.fail('Validation failed');
       }
 
       console.log(`\nVideo: ${report.videoPath}`);
@@ -94,7 +92,7 @@ export const validateCommand = new Command('validate')
         process.exit(1);
       }
     } catch (error) {
-      spinner.fail('Validation failed');
+      spinner?.fail('Validation failed');
       handleCommandError(error);
     }
   });

@@ -76,3 +76,11 @@ stdout (when `--json`):
 ```
 {"schemaVersion":1,"command":"generate","outputs":{"video":"out/video.mp4","script":"out/script.json", ...}}
 ```
+
+## UX acceptance criteria
+
+- Prints `Artifacts: <dir>` early (TTY mode) and prints all produced artifact paths on success.
+- `--keep-artifacts` results in `script.json`, `audio.wav`, `timestamps.json`, `visuals.json`, and the final MP4 being present in the artifacts directory.
+- Progress does not rely on substring parsing; stage transitions come from structured stage events.
+- `--dry-run` performs no network calls and writes no files.
+- `--json` prints exactly one JSON object to stdout and no spinners.

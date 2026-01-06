@@ -33,3 +33,6 @@ out/
 
 # Cache files
 .cache/
+
+# Generated docs
+docs/api/

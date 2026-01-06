@@ -51,3 +51,9 @@ Scenes: 5
 Output: out/visuals.json
 Next: cm render -i out/visuals.json --audio out/audio.wav --timestamps out/timestamps.json -o out/video.mp4
 ```
+
+## UX acceptance criteria
+
+- Passing `script.json` as `--input` yields a clear, early error that points to `timestamps.json` from `cm audio`.
+- Invalid `--provider` fails fast with exit code 2 and lists allowed providers.
+- Missing provider credentials (e.g., `PEXELS_API_KEY`) yields a clear "Fix:" line.

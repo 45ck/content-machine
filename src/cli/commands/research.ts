@@ -11,12 +11,16 @@ import type { ResearchSource } from '../../research/schema';
 import { createResearchOrchestrator } from '../../research/orchestrator';
 import type { OrchestratorResult } from '../../research/orchestrator';
 import { FakeLLMProvider } from '../../test/stubs/fake-llm';
+import { OpenAIProvider } from '../../core/llm/openai';
 import { handleCommandError, writeOutputFile } from '../utils';
+import { HashEmbeddingProvider } from '../../core/embeddings/hash-embedder';
+import { buildResearchEvidenceIndex } from '../../research/indexer';
 
 interface ResearchOptions {
   query: string;
   sources: string;
   output: string;
+  index: string;
   limit: string;
   timeRange: 'hour' | 'day' | 'week' | 'month' | 'year' | 'all';
   angles: boolean;
@@ -94,8 +98,15 @@ async function executeResearch(
 ): Promise<void> {
   const spinner = ora('Researching topic...').start();
 
-  const llmProvider =
-    options.angles && options.mock ? createMockLLMProvider(options.query) : undefined;
+  // Create LLM provider for angle generation
+  let llmProvider;
+  if (options.angles) {
+    if (options.mock) {
+      llmProvider = createMockLLMProvider(options.query);
+    } else if (process.env.OPENAI_API_KEY) {
+      llmProvider = new OpenAIProvider('gpt-4o-mini', process.env.OPENAI_API_KEY);
+    }
+  }
 
   const orchestrator = createResearchOrchestrator(
     {
@@ -121,6 +132,13 @@ async function executeResearch(
   await writeOutputFile(options.output, result.output);
   logger.info({ output: options.output }, 'Research saved');
 
+  if (options.index) {
+    const embedder = new HashEmbeddingProvider();
+    const index = await buildResearchEvidenceIndex(result.output.evidence, embedder);
+    await writeOutputFile(options.index, index);
+    logger.info({ output: options.index }, 'Research index saved');
+  }
+
   displaySummary(options.query, result, options.output, options.mock);
 }
 
@@ -133,6 +151,7 @@ export const researchCommand = new Command('research')
     'hackernews,reddit'
   )
   .option('-o, --output <path>', 'Output file path', 'research.json')
+  .option('--index <path>', 'Optional: write a local retrieval index JSON', '')
   .option('-l, --limit <number>', 'Results per source', '10')
   .option('-t, --time-range <range>', 'Time range (hour,day,week,month,year,all)', 'week')
   .option('--no-angles', 'Skip content angle generation')

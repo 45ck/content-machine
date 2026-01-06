@@ -16,6 +16,7 @@ import { initCommand } from './commands/init';
 import { packageCommand } from './commands/package';
 import { researchCommand } from './commands/research';
 import { validateCommand } from './commands/validate';
+import { retrieveCommand } from './commands/retrieve';
 
 const program = new Command();
 
@@ -33,6 +34,7 @@ program.addCommand(visualsCommand);
 program.addCommand(renderCommand);
 program.addCommand(packageCommand);
 program.addCommand(researchCommand);
+program.addCommand(retrieveCommand);
 program.addCommand(validateCommand);
 program.addCommand(generateCommand);
 program.addCommand(initCommand);

@@ -3,6 +3,7 @@ import { promisify } from 'node:util';
 import type { CadenceGateResult } from './schema';
 import { CMError } from '../core/errors';
 import type { VideoInfo } from './video-info';
+import { detectSceneCutsWithPySceneDetect } from './scene-detect';
 
 const execFileAsync = promisify(execFile);
 
@@ -97,13 +98,26 @@ export async function detectSceneCutsWithFfmpeg(params: {
 
 export async function runCadenceGate(
   info: VideoInfo,
-  options?: { maxMedianCutIntervalSeconds?: number; threshold?: number }
+  options?: {
+    maxMedianCutIntervalSeconds?: number;
+    threshold?: number;
+    engine?: 'ffmpeg' | 'pyscenedetect';
+    pythonPath?: string;
+  }
 ): Promise<CadenceGateResult> {
   const maxMedian = options?.maxMedianCutIntervalSeconds ?? 3;
-  const cutTimes = await detectSceneCutsWithFfmpeg({
-    videoPath: info.path,
-    threshold: options?.threshold,
-  });
+  const engine = options?.engine ?? 'ffmpeg';
+  const cutTimes =
+    engine === 'pyscenedetect'
+      ? await detectSceneCutsWithPySceneDetect({
+          videoPath: info.path,
+          pythonPath: options?.pythonPath,
+          threshold: options?.threshold,
+        })
+      : await detectSceneCutsWithFfmpeg({
+          videoPath: info.path,
+          threshold: options?.threshold,
+        });
   const evaluation = evaluateCadence({
     durationSeconds: info.durationSeconds,
     cutTimesSeconds: cutTimes,

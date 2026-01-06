@@ -51,3 +51,9 @@ Next:
   1) Create .env with OPENAI_API_KEY and (optional) PEXELS_API_KEY
   2) Run: cm generate "Your topic"
 ```
+
+## UX acceptance criteria
+
+- Produces a complete, valid `.content-machine.toml` (round-trips through the config loader).
+- If the config file exists, does not overwrite silently; offers a safe choice (overwrite/keep/new path).
+- Prints OS-appropriate env var instructions (PowerShell + bash) and recommends `.env`.

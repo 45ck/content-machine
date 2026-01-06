@@ -48,3 +48,10 @@ References: `docs/guides/guide-cli-ux-standards-20260106.md`.
 ERROR: Invalid --duration "abc"
 Fix: pass an integer number of seconds, e.g. --duration 45
 ```
+
+## UX acceptance criteria
+
+- Invalid `--duration` fails fast with exit code 2 and an actionable "Fix:" line.
+- `--package` schema failures include a concrete recovery command (`cm package ...`).
+- Success output includes the resolved output path and scene count.
+- `--dry-run` performs no LLM calls and writes no files.

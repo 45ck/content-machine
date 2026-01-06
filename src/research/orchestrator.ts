@@ -313,7 +313,9 @@ Generate ${this.config.maxAngles} content angles as a JSON array.`;
     // Parse and validate response
     try {
       const parsed = JSON.parse(response.content);
-      const angles = Array.isArray(parsed) ? parsed : parsed.angles ?? [];
+      const angles = Array.isArray(parsed) 
+        ? parsed 
+        : parsed.angles ?? parsed.contentAngles ?? parsed.content_angles ?? [];
 
       // Validate each angle
       const validAngles: ContentAngle[] = [];

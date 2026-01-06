@@ -48,3 +48,9 @@ Sources: hackernews (10 results, 920ms), reddit (10 results, 1300ms)
 Angles: 3
 Output: out/research.json
 ```
+
+## UX acceptance criteria
+
+- Invalid sources are not silently dropped; the CLI either fails fast (exit 2) or prints an explicit "ignored sources" list.
+- Human output includes per-source timing and result counts.
+- `--dry-run` performs no network calls and writes no files.

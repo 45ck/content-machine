@@ -54,3 +54,10 @@ FAILED: resolution (expected 1080x1920, got 720x1280)
 Fix: re-render with --orientation portrait (or change render width/height in config)
 Report: out/validate.json
 ```
+
+## UX acceptance criteria
+
+- Always prints a compact gate summary (pass/fail) in human mode.
+- On failure, prints each failing gate with a specific "Fix:" line and exits 1.
+- In `--json` mode, prints exactly one JSON object to stdout with no spinners.
+- If `--cadence` is enabled and ffmpeg is missing, fails with a clear dependency message and fix.

@@ -130,6 +130,14 @@ Help text should answer, in this order:
 3. What files will I get and where?
 4. Examples for the common path and the "debug" path.
 
+## Review checklist
+
+- Can a creator answer: what is happening now, what files will I get, where are they, and what do I do next?
+- Can an engineer run it in CI reliably (no spinners in `--json`, stable stdout, meaningful exit codes)?
+- Are invalid flags rejected early with actionable fixes (before expensive work)?
+- Are outputs and schemas versioned and stable enough to automate?
+- Does it work in PowerShell and non-UTF terminals without broken glyphs?
+
 ## Known current constraints (as of 2026-01-06)
 
 - Some CLI output contains non-ASCII glyphs that can render as mojibake on Windows terminals. Prefer ASCII defaults or add an explicit ASCII fallback mode.

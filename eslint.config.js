@@ -14,6 +14,7 @@ export default [
       '**/vendor/**',
       '**/templates/**',
       '**/connectors/**',
+      '**/docs/api/**',
       '**/*.d.ts',
     ],
   },
