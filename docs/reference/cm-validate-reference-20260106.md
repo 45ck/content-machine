@@ -19,6 +19,9 @@ cm validate [options] <videoPath>
 - `--probe-engine <engine>`: `ffprobe|python` (default: `ffprobe`)
 - `--ffprobe <path>`: ffprobe executable path (default: `ffprobe`)
 - `--python <path>`: python executable path (used for `--probe-engine python` and quality) (default: `python`)
+- `--cadence`: enable cadence gate (scene cut frequency) via ffmpeg (default: false)
+- `--cadence-max-median <seconds>`: max median cut interval in seconds (default: `3`)
+- `--cadence-threshold <n>`: ffmpeg scene change threshold (default: `0.3`)
 - `--quality`: enable visual quality gate (BRISQUE) via Python (default: false)
 - `--quality-sample-rate <n>`: analyze every Nth frame (BRISQUE) (default: `30`)
 - `-o, --output <path>`: output report file path (default: `validate.json`)
@@ -39,6 +42,7 @@ cm validate [options] <videoPath>
 ```bash
 cm validate out/video.mp4 --profile portrait -o out/validate.json
 cm validate out/video.mp4 --json
+cm validate out/video.mp4 --cadence --cadence-max-median 3 --cadence-threshold 0.3
 cm validate out/video.mp4 --quality --python python --quality-sample-rate 30
 ```
 

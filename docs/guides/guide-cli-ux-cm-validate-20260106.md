@@ -24,6 +24,7 @@ References: `docs/guides/guide-cli-ux-standards-20260106.md`.
   - `--profile <portrait|landscape>`
   - `--probe-engine <ffprobe|python>`
   - `--ffprobe <path>`, `--python <path>`
+  - `--cadence`, `--cadence-max-median <seconds>`, `--cadence-threshold <n>`
   - `--quality` and `--quality-sample-rate <n>`
 
 ## UX gaps
@@ -38,7 +39,7 @@ References: `docs/guides/guide-cli-ux-standards-20260106.md`.
 
 - Always print a compact gate summary (pass/fail) in human mode, then print failures with fixes.
 - Make `--json` consistent with the root option (single meaning across commands).
-- Validate dependencies early (ffprobe/python path) and fail with a clear "Fix:" line.
+- Validate dependencies early (ffprobe/python path, and ffmpeg if cadence is enabled) and fail with a clear "Fix:" line.
 
 ### P1
 
