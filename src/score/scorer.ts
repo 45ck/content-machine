@@ -37,6 +37,51 @@ export interface ScoreInputs {
   packagePath?: string;
 }
 
+interface DerivedScriptStats {
+  title: string;
+  hook: string;
+  allText: string;
+  titleWords: number;
+  hookWords: number;
+  sceneCount: number;
+  estimatedDuration: number;
+}
+
+function deriveScriptStats(inputs: ScoreInputs): DerivedScriptStats {
+  const title = inputs.script.title ?? '';
+  const hook = inputs.script.hook ?? inputs.script.scenes[0]?.text ?? '';
+  const allText = [title, hook, ...inputs.script.scenes.map((s) => s.text), inputs.script.cta ?? '']
+    .filter(Boolean)
+    .join(' ');
+
+  const titleWords = countWords(title);
+  const hookWords = countWords(hook);
+  const sceneCount = inputs.script.scenes.length;
+  const wordCount = countWords(allText);
+  const estimatedDuration = inputs.script.meta?.estimatedDuration ?? wordCount / 2.5;
+
+  return { title, hook, allText, titleWords, hookWords, sceneCount, estimatedDuration };
+}
+
+function buildChecksFromStats(
+  stats: DerivedScriptStats,
+  packaging?: PackageOutput
+): { checks: ScoreCheck[]; hasRageBait: boolean } {
+  const checks: ScoreCheck[] = [checkTitlePresent(stats.title)];
+
+  if (packaging) {
+    checks.push(checkTitleMatchesPackaging(stats.title, packaging));
+  }
+
+  const rageCheck = checkNoRageBait(stats.allText);
+  checks.push(rageCheck);
+  checks.push(checkHookWordCount(stats.hookWords));
+  checks.push(checkSceneCount(stats.sceneCount));
+  checks.push(checkEstimatedDuration(stats.estimatedDuration));
+
+  return { checks, hasRageBait: !rageCheck.passed };
+}
+
 function checkTitlePresent(title: string): ScoreCheck {
   const present = Boolean(title.trim());
   return {
@@ -129,38 +174,15 @@ function scoreOverall(dimensions: Record<string, number>): number {
 }
 
 export function scoreScript(inputs: ScoreInputs): ScoreOutput {
-  const title = inputs.script.title ?? '';
-  const hook = inputs.script.hook ?? inputs.script.scenes[0]?.text ?? '';
-  const allText = [title, hook, ...inputs.script.scenes.map((s) => s.text), inputs.script.cta ?? '']
-    .filter(Boolean)
-    .join(' ');
-
-  const checks: ScoreCheck[] = [];
-
-  const titleWords = countWords(title);
-  const hookWords = countWords(hook);
-  const sceneCount = inputs.script.scenes.length;
-  const wordCount = countWords(allText);
-  const estimatedDuration = inputs.script.meta?.estimatedDuration ?? wordCount / 2.5;
-
-  checks.push(checkTitlePresent(title));
-
-  if (inputs.packaging) {
-    checks.push(checkTitleMatchesPackaging(title, inputs.packaging));
-  }
-
-  const rageCheck = checkNoRageBait(allText);
-  checks.push(rageCheck);
-  checks.push(checkHookWordCount(hookWords));
-  checks.push(checkSceneCount(sceneCount));
-  checks.push(checkEstimatedDuration(estimatedDuration));
+  const stats = deriveScriptStats(inputs);
+  const { checks, hasRageBait } = buildChecksFromStats(stats, inputs.packaging);
 
   const dimensions = scoreDimensions({
-    titleWords,
-    hookWords,
-    sceneCount,
-    estimatedDuration,
-    hasRageBait: !rageCheck.passed,
+    titleWords: stats.titleWords,
+    hookWords: stats.hookWords,
+    sceneCount: stats.sceneCount,
+    estimatedDuration: stats.estimatedDuration,
+    hasRageBait,
   });
 
   const overall = scoreOverall(dimensions);

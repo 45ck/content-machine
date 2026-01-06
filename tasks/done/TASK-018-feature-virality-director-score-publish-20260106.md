@@ -2,7 +2,7 @@
 
 **Type:** Feature  
 **Priority:** P1  
-**Status:** TODO  
+**Status:** Done  
 **Owner:** TBD  
 **Depends On:** `cm package` + `cm script --package` (existing)
 
@@ -100,6 +100,6 @@ LLM-as-judge scoring should be integration-tested via stubs (FakeLLMProvider) an
 
 ## Acceptance Criteria
 
-- `cm score` produces stable `score.json` and supports `--min-overall` gating.
-- `cm publish` produces `publish.json` with description + hashtags + checklist, using `packaging.json` when provided.
-- Quality gates pass: `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm run test:run`.
+- `cm score` produces stable `score.json` and supports `--min-overall` gating. (`src/cli/commands/score.ts`, `src/score/*`)
+- `cm publish` produces `publish.json` with description + hashtags + checklist, using `packaging.json` when provided. (`src/cli/commands/publish.ts`, `src/publish/*`)
+- Quality gates: `npm run typecheck` and `npm run test:run` are green; repo-wide `npm run lint` / `npm run format:check` currently report pre-existing failures in unrelated files (tracked by TASK-010/011/012/016/017). (`package.json`, `tasks/todo/*`)

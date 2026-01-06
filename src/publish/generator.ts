@@ -82,22 +82,18 @@ function parseLLMResponse(
   }
 }
 
-async function generatePublishWithLLM(options: GeneratePublishOptions): Promise<PublishOutput> {
-  const log = createLogger({ module: 'publish' });
-  const config = await loadConfig();
-  const llm = options.llmProvider ?? createLLMProvider(config.llm.provider, config.llm.model);
+function buildPublishPrompt(params: {
+  platform: string;
+  title: string;
+  hook: string;
+  cta: string;
+}): string {
+  return `Generate upload metadata for a short-form video.
 
-  const base = generatePublishDeterministic(options);
-  const title = base.title;
-  const hook = options.script.hook ?? options.script.scenes[0]?.text ?? '';
-  const platform = options.platform ?? 'tiktok';
-
-  const prompt = `Generate upload metadata for a short-form video.
-
-PLATFORM: ${platform}
-TITLE: ${JSON.stringify(title)}
-HOOK: ${JSON.stringify(hook)}
-CTA: ${JSON.stringify(options.script.cta ?? '')}
+PLATFORM: ${params.platform}
+TITLE: ${JSON.stringify(params.title)}
+HOOK: ${JSON.stringify(params.hook)}
+CTA: ${JSON.stringify(params.cta)}
 
 Rules:
 - Be concise and scroll-stopping.
@@ -111,6 +107,32 @@ Return JSON only in this shape:
   "hashtags": ["#tag"],
   "checklist": [{"id":"render-quality","label":"...","required":true}]
 }`;
+}
+
+function mergeChecklist(
+  parsed: ReturnType<typeof LLMPublishResponseSchema.parse>,
+  fallback: PublishOutput['checklist']
+): PublishOutput['checklist'] {
+  if (!parsed.checklist?.length) return fallback;
+  return parsed.checklist.map((c) => ({ id: c.id, label: c.label, required: c.required ?? true }));
+}
+
+async function generatePublishWithLLM(options: GeneratePublishOptions): Promise<PublishOutput> {
+  const log = createLogger({ module: 'publish' });
+  const config = await loadConfig();
+  const llm = options.llmProvider ?? createLLMProvider(config.llm.provider, config.llm.model);
+
+  const base = generatePublishDeterministic(options);
+  const title = base.title;
+  const hook = options.script.hook ?? options.script.scenes[0]?.text ?? '';
+  const platform = options.platform ?? 'tiktok';
+
+  const prompt = buildPublishPrompt({
+    platform,
+    title,
+    hook,
+    cta: options.script.cta ?? '',
+  });
 
   const response = await llm.chat(
     [
@@ -129,9 +151,7 @@ Return JSON only in this shape:
     ...base,
     description: parsed.description ?? base.description,
     hashtags: parsed.hashtags ?? base.hashtags,
-    checklist: parsed.checklist?.length
-      ? parsed.checklist.map((c) => ({ id: c.id, label: c.label, required: c.required ?? true }))
-      : base.checklist,
+    checklist: mergeChecklist(parsed, base.checklist),
     meta: {
       model: response.model,
       promptVersion: 'publish-v1',

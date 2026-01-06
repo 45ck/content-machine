@@ -8,7 +8,7 @@ import type { PipelineResult } from '../../core/pipeline';
 import { runPipeline } from '../../core/pipeline';
 import { logger } from '../../core/logger';
 import { ArchetypeEnum, OrientationEnum } from '../../core/config';
-import { handleCommandError } from '../utils';
+import { handleCommandError, readInputFile } from '../utils';
 import { FakeLLMProvider } from '../../test/stubs/fake-llm';
 import type { SpinnerLike } from '../progress';
 import { createSpinner } from '../progress';
@@ -16,6 +16,10 @@ import chalk from 'chalk';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope } from '../output';
 import { dirname } from 'path';
+import { ResearchOutputSchema } from '../../research/schema';
+import type { ResearchOutput } from '../../research/schema';
+import { createResearchOrchestrator } from '../../research/orchestrator';
+import { OpenAIProvider } from '../../core/llm/openai';
 
 interface GenerateOptions {
   archetype: string;
@@ -26,6 +30,7 @@ interface GenerateOptions {
   keepArtifacts: boolean;
   mock: boolean;
   dryRun: boolean;
+  research?: string | boolean;
 }
 
 interface SpinnerState {
@@ -92,7 +97,11 @@ function showDryRunSummary(
   console.log(`   Duration: ${options.duration}s`);
   console.log(`   Output: ${options.output}`);
   console.log(`   Keep artifacts: ${options.keepArtifacts}`);
+  console.log(`   Research: ${options.research ? 'enabled' : 'disabled'}`);
   console.log('\n   Pipeline stages:');
+  if (options.research) {
+    console.log('   0. Research -> research.json');
+  }
   console.log('   1. Script -> script.json');
   console.log('   2. Audio -> audio.wav + timestamps.json');
   console.log('   3. Visuals -> visuals.json');
@@ -137,6 +146,51 @@ function showSuccessSummary(result: PipelineResult): void {
   }
 }
 
+/**
+ * Load research from file or run new research
+ */
+async function loadOrRunResearch(
+  researchOption: string | boolean | undefined,
+  topic: string,
+  mock: boolean
+): Promise<ResearchOutput | undefined> {
+  if (!researchOption) return undefined;
+
+  // If it's a file path, load from file
+  if (typeof researchOption === 'string') {
+    const raw = await readInputFile(researchOption);
+    const parsed = ResearchOutputSchema.safeParse(raw);
+    if (!parsed.success) {
+      throw new Error(`Invalid research file: ${parsed.error.message}`);
+    }
+    return parsed.data;
+  }
+
+  // If it's true (boolean flag), run research automatically
+  const spinner = createSpinner('Stage 0/4: Researching topic...').start();
+
+  const llmProvider = mock
+    ? undefined
+    : process.env.OPENAI_API_KEY
+      ? new OpenAIProvider('gpt-4o-mini', process.env.OPENAI_API_KEY)
+      : undefined;
+
+  const orchestrator = createResearchOrchestrator(
+    {
+      sources: ['hackernews', 'reddit', 'tavily'],
+      limitPerSource: 5,
+      generateAngles: true,
+      maxAngles: 3,
+    },
+    llmProvider
+  );
+
+  const result = await orchestrator.research(topic);
+  spinner.succeed('Stage 0/4: Research complete');
+
+  return result.output;
+}
+
 export const generateCommand = new Command('generate')
   .description('Generate a complete video from a topic')
   .argument('<topic>', 'Topic for the video')
@@ -146,6 +200,7 @@ export const generateCommand = new Command('generate')
   .option('--voice <voice>', 'TTS voice to use', 'af_heart')
   .option('--duration <seconds>', 'Target duration in seconds', '45')
   .option('--keep-artifacts', 'Keep intermediate files', false)
+  .option('--research [path]', 'Use research (true = auto-run, or path to research.json)')
   .option('--mock', 'Use mock providers (for testing)')
   .option('--dry-run', 'Preview configuration without execution')
   .action(async (topic: string, options: GenerateOptions) => {
@@ -191,6 +246,14 @@ export const generateCommand = new Command('generate')
 
       logger.info({ topic, archetype, orientation }, 'Starting full pipeline');
 
+      // Load or run research if requested
+      const research = await loadOrRunResearch(options.research, topic, options.mock ?? false);
+      if (research && !runtime.json) {
+        console.log(
+          chalk.gray(`   Research: ${research.totalResults} evidence items from ${research.sources.join(', ')}\n`)
+        );
+      }
+
       const llmProvider = options.mock ? createMockLLMProvider(topic) : undefined;
       if (options.mock && !runtime.json) {
         console.log(chalk.yellow('Mock mode - using fake providers\n'));
@@ -213,6 +276,7 @@ export const generateCommand = new Command('generate')
         keepArtifacts: options.keepArtifacts,
         llmProvider,
         mock: options.mock,
+        research,
         onProgress: createProgressHandler(spinners),
       });
 

@@ -19,7 +19,7 @@ cm init [options]
 ## Global options
 
 - `-v, --verbose`: enable verbose logging
-- `--json`: intended for machine-readable output (not implemented for this command yet)
+- `--json`: print a schema-versioned JSON envelope to stdout
 
 ## Exit codes
 

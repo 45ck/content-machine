@@ -15,6 +15,7 @@ import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope } from '../output';
+import type { SpinnerLike } from '../progress';
 
 interface PackagingInput {
   title: string;
@@ -76,6 +77,138 @@ async function loadPackaging(path?: string): Promise<PackagingInput | undefined>
   return parsed.data.selected;
 }
 
+interface ScriptCommandOptions {
+  topic: string;
+  archetype: string;
+  output: string;
+  package?: string;
+  duration: string;
+  dryRun?: boolean;
+  mock?: boolean;
+}
+
+function writeDryRunOutput(params: {
+  options: ScriptCommandOptions;
+  archetype: string;
+  runtime: ReturnType<typeof getCliRuntime>;
+}): void {
+  const { options, archetype, runtime } = params;
+
+  if (runtime.json) {
+    writeJsonEnvelope(
+      buildJsonEnvelope({
+        command: 'script',
+        args: {
+          topic: options.topic,
+          archetype,
+          durationSeconds: options.duration,
+          output: options.output,
+          package: options.package ?? null,
+          dryRun: true,
+        },
+        outputs: { dryRun: true },
+        timingsMs: Date.now() - runtime.startTime,
+      })
+    );
+    return;
+  }
+
+  console.log('\nDry-run mode - no LLM call made\n');
+  console.log(`   Topic: ${options.topic}`);
+  console.log(`   Archetype: ${archetype}`);
+  console.log(`   Duration: ${options.duration}s`);
+  console.log(`   Output: ${options.output}`);
+  if (options.package) console.log(`   Package: ${options.package}`);
+  console.log(
+    `\nPrompt would use ~${Math.round(parseInt(options.duration, 10) * 2.5)} target words\n`
+  );
+}
+
+function writeSuccessJsonOutput(params: {
+  options: ScriptCommandOptions;
+  archetype: string;
+  runtime: ReturnType<typeof getCliRuntime>;
+  script: Awaited<ReturnType<typeof generateScript>>;
+}): void {
+  const { options, archetype, runtime, script } = params;
+
+  writeJsonEnvelope(
+    buildJsonEnvelope({
+      command: 'script',
+      args: {
+        topic: options.topic,
+        archetype,
+        durationSeconds: options.duration,
+        output: options.output,
+        package: options.package ?? null,
+        mock: Boolean(options.mock),
+      },
+      outputs: {
+        scriptPath: options.output,
+        title: script.title ?? options.topic,
+        scenes: script.scenes.length,
+        wordCount: script.meta?.wordCount ?? null,
+      },
+      timingsMs: Date.now() - runtime.startTime,
+    })
+  );
+}
+
+function writeSuccessTextOutput(params: {
+  options: ScriptCommandOptions;
+  archetype: string;
+  script: Awaited<ReturnType<typeof generateScript>>;
+}): void {
+  const { options, archetype, script } = params;
+
+  console.log(`\nScript: ${script.title ?? options.topic}`);
+  console.log(`   Archetype: ${archetype}`);
+  console.log(`   Scenes: ${script.scenes.length}`);
+  console.log(`   Word count: ${script.meta?.wordCount ?? 'N/A'}`);
+  console.log(`   Output: ${options.output}`);
+  if (options.mock) console.log('   Mock mode - script is for testing only');
+  console.log('');
+}
+
+async function runScript(options: ScriptCommandOptions, spinner: SpinnerLike): Promise<void> {
+  const runtime = getCliRuntime();
+  const archetype = ArchetypeEnum.parse(options.archetype);
+
+  if (options.dryRun) {
+    spinner.stop();
+    writeDryRunOutput({ options, archetype, runtime });
+    return;
+  }
+
+  logger.info({ topic: options.topic, archetype }, 'Starting script generation');
+
+  const llmProvider = options.mock ? createMockLLMProvider(options.topic) : undefined;
+  if (options.mock) {
+    spinner.text = 'Generating script (mock mode)...';
+  }
+
+  const packaging = await loadPackaging(options.package);
+
+  const script = await generateScript({
+    topic: options.topic,
+    archetype,
+    targetDuration: parseInt(options.duration, 10),
+    llmProvider,
+    packaging,
+  });
+
+  await writeOutputFile(options.output, script);
+  logger.info({ output: options.output }, 'Script saved');
+  spinner.succeed('Script generated successfully');
+
+  if (runtime.json) {
+    writeSuccessJsonOutput({ options, archetype, runtime, script });
+    return;
+  }
+
+  writeSuccessTextOutput({ options, archetype, script });
+}
+
 export const scriptCommand = new Command('script')
   .description('Generate a script from a topic')
   .requiredOption('-t, --topic <topic>', 'Topic for the video')
@@ -85,102 +218,11 @@ export const scriptCommand = new Command('script')
   .option('--duration <seconds>', 'Target duration in seconds', '45')
   .option('--dry-run', 'Preview without calling LLM')
   .option('--mock', 'Use mock LLM provider (for testing)')
-  .action(async (options) => {
+  .action(async (options: ScriptCommandOptions) => {
     const spinner = createSpinner('Generating script...').start();
-    const runtime = getCliRuntime();
-
     try {
-      const archetype = ArchetypeEnum.parse(options.archetype);
-
-      if (options.dryRun) {
-        spinner.stop();
-        if (runtime.json) {
-          writeJsonEnvelope(
-            buildJsonEnvelope({
-              command: 'script',
-              args: {
-                topic: options.topic,
-                archetype,
-                durationSeconds: options.duration,
-                output: options.output,
-                package: options.package ?? null,
-                dryRun: true,
-              },
-              outputs: { dryRun: true },
-              timingsMs: Date.now() - runtime.startTime,
-            })
-          );
-          return;
-        }
-
-        console.log('\nDry-run mode - no LLM call made\n');
-        console.log(`   Topic: ${options.topic}`);
-        console.log(`   Archetype: ${archetype}`);
-        console.log(`   Duration: ${options.duration}s`);
-        console.log(`   Output: ${options.output}`);
-        if (options.package) console.log(`   Package: ${options.package}`);
-        console.log(
-          `\nPrompt would use ~${Math.round(parseInt(options.duration, 10) * 2.5)} target words\n`
-        );
-        return;
-      }
-
-      logger.info({ topic: options.topic, archetype }, 'Starting script generation');
-
-      let llmProvider;
-      if (options.mock) {
-        spinner.text = 'Generating script (mock mode)...';
-        llmProvider = createMockLLMProvider(options.topic);
-      }
-
-      const packaging = await loadPackaging(options.package);
-
-      const script = await generateScript({
-        topic: options.topic,
-        archetype,
-        targetDuration: parseInt(options.duration, 10),
-        llmProvider,
-        packaging,
-      });
-
-      spinner.succeed('Script generated successfully');
-
-      await writeOutputFile(options.output, script);
-      logger.info({ output: options.output }, 'Script saved');
-
-      if (runtime.json) {
-        writeJsonEnvelope(
-          buildJsonEnvelope({
-            command: 'script',
-            args: {
-              topic: options.topic,
-              archetype,
-              durationSeconds: options.duration,
-              output: options.output,
-              package: options.package ?? null,
-              mock: Boolean(options.mock),
-            },
-            outputs: {
-              scriptPath: options.output,
-              title: script.title ?? options.topic,
-              scenes: script.scenes.length,
-              wordCount: script.meta?.wordCount ?? null,
-            },
-            timingsMs: Date.now() - runtime.startTime,
-          })
-        );
-        return;
-      }
-
-      console.log(`\nScript: ${script.title ?? options.topic}`);
-      console.log(`   Archetype: ${archetype}`);
-      console.log(`   Scenes: ${script.scenes.length}`);
-      console.log(`   Word count: ${script.meta?.wordCount ?? 'N/A'}`);
-      console.log(`   Output: ${options.output}`);
-      if (options.mock) console.log('   Mock mode - script is for testing only');
-      console.log('');
+      await runScript(options, spinner);
     } catch (error) {
       spinner.fail('Script generation failed');
       handleCommandError(error);
-    }
-  });
+    

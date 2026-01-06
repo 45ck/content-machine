@@ -33,7 +33,23 @@ export interface PipelineOptions {
   llmProvider?: LLMProvider;
   /** Use mock mode for testing without real API calls */
   mock?: boolean;
+  /** Research output to inject evidence into script generation */
+  research?: ResearchOutput;
 }
+
+/**
+ * Zod schema for pipeline config validation
+ */
+export const PipelineConfigSchema = z.object({
+  topic: z.string().min(1),
+  archetype: z.string(),
+  orientation: z.string(),
+  voice: z.string(),
+  targetDuration: z.number().positive(),
+  outputPath: z.string(),
+  keepArtifacts: z.boolean().optional(),
+  research: z.any().optional(), // ResearchOutput is validated separately
+});
 
 export interface PipelineResult {
   script: ScriptOutput;
@@ -84,6 +100,7 @@ async function executeScriptStage(
         archetype: options.archetype,
         targetDuration: options.targetDuration,
         llmProvider: options.llmProvider,
+        research: options.research,
       });
     },
     log

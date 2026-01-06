@@ -30,7 +30,7 @@ cm render [options]
 ## Global options
 
 - `-v, --verbose`: enable verbose logging
-- `--json`: intended for machine-readable output (not consistently implemented across commands yet)
+- `--json`: print a schema-versioned JSON envelope to stdout
 
 ## Exit codes
 

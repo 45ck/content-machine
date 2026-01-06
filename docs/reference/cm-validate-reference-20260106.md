@@ -26,12 +26,12 @@ cm validate [options] <videoPath>
 - `--quality`: enable visual quality gate (BRISQUE) via Python (default: false)
 - `--quality-sample-rate <n>`: analyze every Nth frame (BRISQUE) (default: `30`)
 - `-o, --output <path>`: output report file path (default: `validate.json`)
-- `--json`: print the full report JSON to stdout (default: false)
+- `--json`: print a schema-versioned JSON envelope to stdout (default: false)
 
 ## Global options
 
 - `-v, --verbose`: enable verbose logging
-- `--json`: root option exists but this command also defines `--json` (see UX doc for alignment recommendation)
+- `--json`: print a schema-versioned JSON envelope to stdout
 
 ## Exit codes
 
