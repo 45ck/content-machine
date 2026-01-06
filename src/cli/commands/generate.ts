@@ -14,8 +14,7 @@ import type { Ora } from 'ora';
 import ora from 'ora';
 import chalk from 'chalk';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-interface GenerateOptions extends Record<string, any> {
+interface GenerateOptions {
   archetype: string;
   output: string;
   orientation: string;
@@ -35,11 +34,31 @@ interface SpinnerState {
 
 function createMockScenes(topic: string) {
   return [
-    { text: `Here's the thing about ${topic}...`, visualDirection: 'Speaker on camera', mood: 'engaging' },
-    { text: 'First, you need to know this key point.', visualDirection: 'B-roll of related topic', mood: 'informative' },
-    { text: 'Second, this is what most people get wrong.', visualDirection: 'Text overlay with key stat', mood: 'surprising' },
-    { text: "And finally, here's what you should actually do.", visualDirection: 'Action shot', mood: 'empowering' },
-    { text: 'Follow for more tips like this!', visualDirection: 'End card with social handles', mood: 'friendly' },
+    {
+      text: `Here's the thing about ${topic}...`,
+      visualDirection: 'Speaker on camera',
+      mood: 'engaging',
+    },
+    {
+      text: 'First, you need to know this key point.',
+      visualDirection: 'B-roll of related topic',
+      mood: 'informative',
+    },
+    {
+      text: 'Second, this is what most people get wrong.',
+      visualDirection: 'Text overlay with key stat',
+      mood: 'surprising',
+    },
+    {
+      text: "And finally, here's what you should actually do.",
+      visualDirection: 'Action shot',
+      mood: 'empowering',
+    },
+    {
+      text: 'Follow for more tips like this!',
+      visualDirection: 'End card with social handles',
+      mood: 'friendly',
+    },
   ];
 }
 
@@ -56,7 +75,12 @@ function createMockLLMProvider(topic: string): FakeLLMProvider {
   return provider;
 }
 
-function showDryRunSummary(topic: string, options: GenerateOptions, archetype: string, orientation: string): void {
+function showDryRunSummary(
+  topic: string,
+  options: GenerateOptions,
+  archetype: string,
+  orientation: string
+): void {
   console.log(chalk.yellow('🔍 Dry-run mode - no execution\n'));
   console.log(`   Topic: ${topic}`);
   console.log(`   Archetype: ${archetype}`);
@@ -74,7 +98,8 @@ function showDryRunSummary(topic: string, options: GenerateOptions, archetype: s
 
 function createProgressHandler(spinners: SpinnerState) {
   return (stage: string, message: string): void => {
-    const isComplete = message.includes('generated') || message.includes('matched') || message.includes('rendered');
+    const isComplete =
+      message.includes('generated') || message.includes('matched') || message.includes('rendered');
     if (!isComplete) return;
 
     if (stage === 'script') {

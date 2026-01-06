@@ -83,6 +83,8 @@
 
 - [ ] `npm run cm -- package "Test topic" --mock --output .cache/package.json`
 - [ ] `npm run cm -- script --topic "Test topic" --mock --package .cache/package.json --output .cache/script.json`
+  - Alternative (Windows direct): `.\node_modules\.bin\tsx.cmd src\cli\index.ts package "Test topic" --mock --output .cache\package.json`
+  - Alternative (Windows direct): `.\node_modules\.bin\tsx.cmd src\cli\index.ts script --topic "Test topic" --mock --package .cache\package.json --output .cache\script.json`
 
 ---
 
