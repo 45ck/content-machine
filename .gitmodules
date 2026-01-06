@@ -533,3 +533,51 @@
 [submodule "vendor/engagement-prediction/snapugc"]
 	path = vendor/engagement-prediction/snapugc
 	url = https://github.com/dasongli1/SnapUGC_Engagement.git
+[submodule "vendor/research/virality-prediction/HMMVED"]
+	path = vendor/research/virality-prediction/HMMVED
+	url = https://github.com/JennyXieJi/HMMVED.git
+[submodule "vendor/research/virality-prediction/TIML"]
+	path = vendor/research/virality-prediction/TIML
+	url = https://github.com/RolyPo1y/TIML.git
+[submodule "vendor/research/virality-prediction/LMM-EVQA"]
+	path = vendor/research/virality-prediction/LMM-EVQA
+	url = https://github.com/sunwei925/LMM-EVQA.git
+[submodule "vendor/research/virality-prediction/skapp"]
+	path = vendor/research/virality-prediction/skapp
+	url = https://github.com/Xovee/skapp.git
+[submodule "vendor/research/virality-prediction/RAGTrans"]
+	path = vendor/research/virality-prediction/RAGTrans
+	url = https://github.com/CZ-TAO12/RAGTrans.git
+[submodule "vendor/research/virality-prediction/short-video-influence"]
+	path = vendor/research/virality-prediction/short-video-influence
+	url = https://github.com/LivXue/short-video-influence.git
+[submodule "vendor/research/virality-prediction/KuaiRand"]
+	path = vendor/research/virality-prediction/KuaiRand
+	url = https://github.com/chongminggao/KuaiRand.git
+[submodule "vendor/research/virality-prediction/KuaiRec"]
+	path = vendor/research/virality-prediction/KuaiRec
+	url = https://github.com/chongminggao/KuaiRec.git
+[submodule "vendor/research/virality-prediction/DeepHawkes"]
+	path = vendor/research/virality-prediction/DeepHawkes
+	url = https://github.com/CaoQi92/DeepHawkes.git
+[submodule "vendor/research/virality-prediction/CoupledGNN"]
+	path = vendor/research/virality-prediction/CoupledGNN
+	url = https://github.com/CaoQi92/CoupledGNN.git
+[submodule "vendor/research/virality-prediction/PREP"]
+	path = vendor/research/virality-prediction/PREP
+	url = https://github.com/CaoQi92/PREP.git
+[submodule "vendor/research/virality-prediction/SMPChallenge"]
+	path = vendor/research/virality-prediction/SMPChallenge
+	url = https://github.com/social-media-prediction/SMPChallenge.git
+[submodule "vendor/research/virality-prediction/DTCN_IJCAI"]
+	path = vendor/research/virality-prediction/DTCN_IJCAI
+	url = https://github.com/csbobby/DTCN_IJCAI.git
+[submodule "vendor/research/virality-prediction/TPIC2017"]
+	path = vendor/research/virality-prediction/TPIC2017
+	url = https://github.com/social-media-prediction/TPIC2017.git
+[submodule "vendor/research/virality-prediction/PPCL"]
+	path = vendor/research/virality-prediction/PPCL
+	url = https://github.com/Daisy-zzz/PPCL.git
+[submodule "vendor/research/virality-prediction/MultiPop"]
+	path = vendor/research/virality-prediction/MultiPop
+	url = https://github.com/dxlabskku/MultiPop.git
