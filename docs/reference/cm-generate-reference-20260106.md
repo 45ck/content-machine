@@ -24,6 +24,7 @@ cm generate [options] <topic>
 - `--orientation <type>`: `portrait|landscape|square` (default: `portrait`)
 - `--voice <voice>`: TTS voice id (default: `af_heart`)
 - `--duration <seconds>`: target duration seconds (default: `45`)
+- `--research [path]`: enable research before script (see Research Integration below)
 - `--keep-artifacts`: keep intermediate files (default: false)
 - `--mock`: use mock providers (testing)
 - `--dry-run`: preview configuration without execution
@@ -38,21 +39,57 @@ cm generate [options] <topic>
 - `0`: success
 - `1`: failure
 
+## Research Integration
+
+The `--research` option enables evidence-based script generation:
+
+**Flag only (auto-run research):**
+```bash
+cm generate "Redis caching" --research
+# Automatically runs: cm research -q "Redis caching" before script generation
+```
+
+**With file path (load existing):**
+```bash
+cm generate "Redis caching" --research research.json
+# Loads research from file and injects into script prompt
+```
+
+When research is enabled:
+1. Research evidence is formatted into a prompt context (max 2500 chars, top 10 items)
+2. Context is prepended to the script generation prompt
+3. Source URLs are tracked in the script metadata (`extra.research`)
+
 ## Examples
 
 ```bash
+# Basic usage
 cm generate "Redis vs PostgreSQL" --archetype versus --output out/video.mp4
+
+# Dry run (preview without execution)
 cm generate "5 JavaScript tips" --dry-run
+
+# With mock providers (testing)
 cm generate "Docker vs Kubernetes" --mock --keep-artifacts
+
+# With auto-research (runs research before script)
+cm generate "TypeScript best practices" --research --output out/video.mp4
+
+# With existing research file
+cm research -q "TypeScript best practices" -o research.json
+cm generate "TypeScript best practices" --research research.json --output out/video.mp4
 ```
 
 ## Notes
 
 - Intermediate artifacts are placed in `dirname(--output)` by default.
 - As of 2026-01-06, `--keep-artifacts` does not guarantee `script.json` and `visuals.json` are written during `generate`.
+- When `--research` is used with a path, the file must be valid `ResearchOutput` JSON from `cm research`.
 
 ## See also
 
 - `docs/guides/guide-cli-ux-cm-generate-20260106.md`
 - `docs/reference/cm-script-reference-20260106.md`
+- `docs/reference/cm-research-reference-20260106.md`
 - `docs/reference/cm-validate-reference-20260106.md`
+- `docs/features/feature-research-script-integration-20260107.md`

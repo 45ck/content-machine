@@ -8,7 +8,8 @@ import ora from 'ora';
 import { readFile } from 'node:fs/promises';
 import { handleCommandError } from '../utils';
 import { HashEmbeddingProvider } from '../../core/embeddings/hash-embedder';
-import { queryResearchEvidenceIndex, type ResearchIndexFile } from '../../research/indexer';
+import { queryResearchEvidenceIndex, parseResearchIndexFile } from '../../research/indexer';
+import { CMError } from '../../core/errors';
 
 interface RetrieveOptions {
   index: string;
@@ -27,14 +28,20 @@ export const retrieveCommand = new Command('retrieve')
     const spinner = ora('Searching index...').start();
     try {
       const raw = await readFile(options.index, 'utf8');
-      const index = JSON.parse(raw) as ResearchIndexFile;
+      const index = parseResearchIndexFile(JSON.parse(raw) as unknown);
+      const k = Number.parseInt(options.k, 10);
+      if (!Number.isFinite(k) || k <= 0) {
+        throw new CMError('INVALID_ARGUMENT', `Invalid -k value: ${options.k}`, {
+          fix: 'Use a positive integer for -k',
+        });
+      }
 
-      const embedder = new HashEmbeddingProvider();
+      const embedder = new HashEmbeddingProvider({ dimensions: index.dimensions });
       const results = await queryResearchEvidenceIndex({
         index,
         embedder,
         query: options.query,
-        k: Number.parseInt(options.k, 10),
+        k,
       });
 
       spinner.stop();
