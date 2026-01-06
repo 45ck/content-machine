@@ -17,6 +17,8 @@ import { packageCommand } from './commands/package';
 import { researchCommand } from './commands/research';
 import { validateCommand } from './commands/validate';
 import { retrieveCommand } from './commands/retrieve';
+import { scoreCommand } from './commands/score';
+import { publishCommand } from './commands/publish';
 
 const program = new Command();
 
@@ -36,6 +38,8 @@ program.addCommand(packageCommand);
 program.addCommand(researchCommand);
 program.addCommand(retrieveCommand);
 program.addCommand(validateCommand);
+program.addCommand(scoreCommand);
+program.addCommand(publishCommand);
 program.addCommand(generateCommand);
 program.addCommand(initCommand);
 

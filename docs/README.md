@@ -166,6 +166,7 @@ Located in `guides/`, task-oriented how-to documentation:
 - [ ] Create Remotion Template
 - [ ] Deploy to Production
 - [ ] Debug Video Rendering Issues
+- [ ] CLI UX V&V + TDD Playbook (see `guides/guide-cli-ux-vv-tdd-plan-20260106.md`)
 
 ---
 
@@ -221,7 +222,11 @@ Located in `features/`, feature specifications:
 ### Planned Features
 
 - [ ] MCP Reddit Connector
-- [ ] Virality Director (Packaging + Publish Metadata) — [feature-virality-director-20260105.md](features/feature-virality-director-20260105.md)
+- [ ] Virality Director (Packaging + Publish Metadata) – [feature-virality-director-20260105.md](features/feature-virality-director-20260105.md)
+- [ ] CLI UX Observability – `features/feature-cli-ux-observability-20260106.md`
+- [ ] CLI Progress Events – `features/feature-cli-progress-events-20260106.md`
+- [ ] CLI JSON Contract – `features/feature-cli-json-contract-20260106.md`
+- [ ] LLM Streaming UX – `features/feature-llm-streaming-cli-20260106.md`
 - [ ] Content Planning Agent
 - [ ] Playwright Capture Pipeline
 - [ ] Script Generation + TTS
