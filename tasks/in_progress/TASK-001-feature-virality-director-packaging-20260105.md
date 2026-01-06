@@ -29,6 +29,7 @@
 ## Acceptance Criteria
 
 - [ ] Given a topic, when I run `cm package "<topic>" --mock`, then it writes a valid `package.json` with `schemaVersion`, `topic`, `platform`, `variants[]`, and `selected`.
+- [ ] Given a topic, when I run `cm package "<topic>" --mock`, then it writes a valid packaging artifact JSON (default `packaging.json`) with `schemaVersion`, `topic`, `platform`, `variants[]`, and `selected`.
 - [ ] Given a `package.json`, when I run `cm script --topic "<topic>" --package package.json --mock`, then the generated `script.json` includes the selected package in `script.extra.virality.packaging`.
 - [ ] Given an invalid `package.json` (missing required fields), when I run `cm script --package`, then it fails with a user-friendly schema error.
 - [ ] Unit tests cover schema validation, selection logic, and error handling (invalid JSON / invalid schema).

@@ -16,7 +16,7 @@ export const packageCommand = new Command('package')
   .argument('<topic>', 'Topic for the video')
   .option('--platform <platform>', 'Target platform (tiktok, reels, shorts)', 'tiktok')
   .option('--variants <count>', 'Number of variants to generate', '5')
-  .option('-o, --output <path>', 'Output file path', 'package.json')
+  .option('-o, --output <path>', 'Output file path', 'packaging.json')
   .option('--dry-run', 'Preview without calling LLM')
   .option('--mock', 'Use mock LLM provider (for testing)')
   .action(async (topic: string, options) => {
