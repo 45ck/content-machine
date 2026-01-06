@@ -40,6 +40,149 @@ interface SpinnerState {
   render: SpinnerLike | null;
 }
 
+function printHeader(
+  topic: string,
+  options: GenerateOptions,
+  runtime: ReturnType<typeof getCliRuntime>
+): void {
+  if (runtime.json) return;
+
+  console.log(chalk.bold('\ncontent-machine\n'));
+  console.log(chalk.gray(`Topic: ${topic}`));
+  console.log(chalk.gray(`Archetype: ${options.archetype}`));
+  console.log(chalk.gray(`Output: ${options.output}\n`));
+}
+
+function writeDryRunJson(params: {
+  topic: string;
+  archetype: string;
+  orientation: string;
+  options: GenerateOptions;
+  runtime: ReturnType<typeof getCliRuntime>;
+  artifactsDir: string;
+}): void {
+  const { topic, archetype, orientation, options, runtime, artifactsDir } = params;
+
+  writeJsonEnvelope(
+    buildJsonEnvelope({
+      command: 'generate',
+      args: {
+        topic,
+        archetype,
+        orientation,
+        voice: options.voice,
+        durationSeconds: options.duration,
+        output: options.output,
+        keepArtifacts: options.keepArtifacts,
+        dryRun: true,
+      },
+      outputs: { dryRun: true, artifactsDir },
+      timingsMs: Date.now() - runtime.startTime,
+    })
+  );
+}
+
+function writeSuccessJson(params: {
+  topic: string;
+  archetype: string;
+  orientation: string;
+  options: GenerateOptions;
+  runtime: ReturnType<typeof getCliRuntime>;
+  artifactsDir: string;
+  result: PipelineResult;
+}): void {
+  const { topic, archetype, orientation, options, runtime, artifactsDir, result } = params;
+
+  writeJsonEnvelope(
+    buildJsonEnvelope({
+      command: 'generate',
+      args: {
+        topic,
+        archetype,
+        orientation,
+        voice: options.voice,
+        durationSeconds: options.duration,
+        output: options.output,
+        keepArtifacts: options.keepArtifacts,
+        mock: options.mock,
+      },
+      outputs: {
+        videoPath: result.outputPath,
+        durationSeconds: result.duration,
+        width: result.width,
+        height: result.height,
+        fileSizeBytes: result.fileSize,
+        artifactsDir,
+        costs: result.costs ?? null,
+      },
+      timingsMs: Date.now() - runtime.startTime,
+    })
+  );
+}
+
+async function runGenerate(topic: string, options: GenerateOptions): Promise<void> {
+  const runtime = getCliRuntime();
+  const artifactsDir = dirname(options.output);
+
+  printHeader(topic, options, runtime);
+
+  const archetype = ArchetypeEnum.parse(options.archetype);
+  const orientation = OrientationEnum.parse(options.orientation);
+
+  if (options.dryRun) {
+    if (runtime.json) {
+      writeDryRunJson({ topic, archetype, orientation, options, runtime, artifactsDir });
+      return;
+    }
+    showDryRunSummary(topic, options, archetype, orientation);
+    return;
+  }
+
+  logger.info({ topic, archetype, orientation }, 'Starting full pipeline');
+
+  const research = await loadOrRunResearch(options.research, topic, options.mock ?? false);
+  if (research && !runtime.json) {
+    console.log(
+      chalk.gray(
+        `   Research: ${research.totalResults} evidence items from ${research.sources.join(', ')}\n`
+      )
+    );
+  }
+
+  const llmProvider = options.mock ? createMockLLMProvider(topic) : undefined;
+  if (options.mock && !runtime.json) {
+    console.log(chalk.yellow('Mock mode - using fake providers\n'));
+  }
+
+  const spinners: SpinnerState = {
+    script: createSpinner('Stage 1/4: Generating script...').start(),
+    audio: null,
+    visuals: null,
+    render: null,
+  };
+
+  const result = await runPipeline({
+    topic,
+    archetype,
+    orientation,
+    voice: options.voice,
+    targetDuration: parseInt(options.duration, 10),
+    outputPath: options.output,
+    keepArtifacts: options.keepArtifacts,
+    llmProvider,
+    mock: options.mock,
+    research,
+    onProgress: createProgressHandler(spinners),
+  });
+
+  if (runtime.json) {
+    writeSuccessJson({ topic, archetype, orientation, options, runtime, artifactsDir, result });
+    return;
+  }
+
+  showSuccessSummary(result);
+}
+
 function createMockScenes(topic: string) {
   return [
     {
@@ -204,112 +347,8 @@ export const generateCommand = new Command('generate')
   .option('--mock', 'Use mock providers (for testing)')
   .option('--dry-run', 'Preview configuration without execution')
   .action(async (topic: string, options: GenerateOptions) => {
-    const runtime = getCliRuntime();
-    const artifactsDir = dirname(options.output);
-
-    if (!runtime.json) {
-      console.log(chalk.bold('\ncontent-machine\n'));
-      console.log(chalk.gray(`Topic: ${topic}`));
-      console.log(chalk.gray(`Archetype: ${options.archetype}`));
-      console.log(chalk.gray(`Output: ${options.output}\n`));
-    }
-
     try {
-      const archetype = ArchetypeEnum.parse(options.archetype);
-      const orientation = OrientationEnum.parse(options.orientation);
-
-      if (options.dryRun) {
-        if (runtime.json) {
-          writeJsonEnvelope(
-            buildJsonEnvelope({
-              command: 'generate',
-              args: {
-                topic,
-                archetype,
-                orientation,
-                voice: options.voice,
-                durationSeconds: options.duration,
-                output: options.output,
-                keepArtifacts: options.keepArtifacts,
-                dryRun: true,
-              },
-              outputs: { dryRun: true, artifactsDir },
-              timingsMs: Date.now() - runtime.startTime,
-            })
-          );
-          return;
-        }
-
-        showDryRunSummary(topic, options, archetype, orientation);
-        return;
-      }
-
-      logger.info({ topic, archetype, orientation }, 'Starting full pipeline');
-
-      // Load or run research if requested
-      const research = await loadOrRunResearch(options.research, topic, options.mock ?? false);
-      if (research && !runtime.json) {
-        console.log(
-          chalk.gray(`   Research: ${research.totalResults} evidence items from ${research.sources.join(', ')}\n`)
-        );
-      }
-
-      const llmProvider = options.mock ? createMockLLMProvider(topic) : undefined;
-      if (options.mock && !runtime.json) {
-        console.log(chalk.yellow('Mock mode - using fake providers\n'));
-      }
-
-      const spinners: SpinnerState = {
-        script: createSpinner('Stage 1/4: Generating script...').start(),
-        audio: null,
-        visuals: null,
-        render: null,
-      };
-
-      const result = await runPipeline({
-        topic,
-        archetype,
-        orientation,
-        voice: options.voice,
-        targetDuration: parseInt(options.duration, 10),
-        outputPath: options.output,
-        keepArtifacts: options.keepArtifacts,
-        llmProvider,
-        mock: options.mock,
-        research,
-        onProgress: createProgressHandler(spinners),
-      });
-
-      if (runtime.json) {
-        writeJsonEnvelope(
-          buildJsonEnvelope({
-            command: 'generate',
-            args: {
-              topic,
-              archetype,
-              orientation,
-              voice: options.voice,
-              durationSeconds: options.duration,
-              output: options.output,
-              keepArtifacts: options.keepArtifacts,
-              mock: options.mock,
-            },
-            outputs: {
-              videoPath: result.outputPath,
-              durationSeconds: result.duration,
-              width: result.width,
-              height: result.height,
-              fileSizeBytes: result.fileSize,
-              artifactsDir,
-              costs: result.costs ?? null,
-            },
-            timingsMs: Date.now() - runtime.startTime,
-          })
-        );
-        return;
-      }
-
-      showSuccessSummary(result);
+      await runGenerate(topic, options);
     } catch (error) {
       handleCommandError(error);
     }

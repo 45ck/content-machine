@@ -38,7 +38,10 @@ function parseProfile(profile: string): ValidateProfileId {
   return profile;
 }
 
-function buildValidateOptions(profile: ValidateProfileId, options: ValidateCommandOptions): ValidateOptions {
+function buildValidateOptions(
+  profile: ValidateProfileId,
+  options: ValidateCommandOptions
+): ValidateOptions {
   return {
     profile,
     probe: {

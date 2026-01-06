@@ -54,14 +54,16 @@ export function buildResearchContext(research: ResearchOutput): string {
  * Format a single evidence item
  */
 function formatEvidence(evidence: Evidence): string {
-  const parts = [`- **${evidence.title}** (${evidence.source}, relevance: ${(evidence.relevanceScore * 100).toFixed(0)}%)`];
-  
+  const parts = [
+    `- **${evidence.title}** (${evidence.source}, relevance: ${(evidence.relevanceScore * 100).toFixed(0)}%)`,
+  ];
+
   if (evidence.summary) {
     parts.push(`  ${evidence.summary}`);
   }
-  
+
   parts.push(`  Source: ${evidence.url}`);
-  
+
   return parts.join('\n');
 }
 

@@ -3,7 +3,7 @@
  *
  * TDD: Tests for the --research flag on generate command.
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import type { ResearchOutput } from '../../../src/research/schema';
 
 const mockResearchOutput: ResearchOutput = {
@@ -48,34 +48,6 @@ describe('cm generate --research integration', () => {
 
       const result = PipelineConfigSchema.safeParse(config);
       expect(result.success).toBe(true);
-    });
-
-    it('should pass research to script generation stage', async () => {
-      // This tests that the pipeline correctly passes research to script stage
-      const { runPipeline } = await import('../../../src/core/pipeline');
-      const { FakeLLMProvider } = await import('../../../src/test/stubs/fake-llm');
-
-      const fakeLLM = new FakeLLMProvider();
-      fakeLLM.queueJsonResponse({
-        scenes: [
-          {
-            text: 'Python leads AI development.',
-            visualDirection: 'Code animation',
-            mood: 'informative',
-          },
-        ],
-        reasoning: 'Based on research evidence about Python.',
-        title: 'AI Programming Trends',
-        hook: 'AI is changing everything...',
-        cta: 'Follow for more!',
-      });
-
-      // The pipeline should pass research to script generator
-      // and the script generator should include it in the prompt
-      const calls = fakeLLM.getCalls();
-      
-      // Since we're testing the integration, we verify the schema accepts it
-      expect(true).toBe(true); // Placeholder - full integration test would mock the pipeline
     });
   });
 

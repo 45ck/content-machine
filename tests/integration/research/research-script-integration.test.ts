@@ -3,9 +3,8 @@
  *
  * TDD: Tests for injecting research evidence into script generation.
  */
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import type { ResearchOutput, Evidence, ContentAngle } from '../../../src/research/schema';
-import type { ScriptOutput } from '../../../src/script/schema';
 
 // Mock data
 const mockEvidence: Evidence[] = [
@@ -62,9 +61,7 @@ const mockResearchOutput: ResearchOutput = {
 describe('Research → Script Integration', () => {
   describe('buildResearchContext', () => {
     it('should format evidence into a prompt-friendly context', async () => {
-      const { buildResearchContext } = await import(
-        '../../../src/script/research-context'
-      );
+      const { buildResearchContext } = await import('../../../src/script/research-context');
 
       const context = buildResearchContext(mockResearchOutput);
 
@@ -81,9 +78,7 @@ describe('Research → Script Integration', () => {
     });
 
     it('should prioritize high-relevance evidence', async () => {
-      const { buildResearchContext } = await import(
-        '../../../src/script/research-context'
-      );
+      const { buildResearchContext } = await import('../../../src/script/research-context');
 
       const context = buildResearchContext(mockResearchOutput);
       const lines = context.split('\n');
@@ -95,9 +90,7 @@ describe('Research → Script Integration', () => {
     });
 
     it('should include suggested angles when available', async () => {
-      const { buildResearchContext } = await import(
-        '../../../src/script/research-context'
-      );
+      const { buildResearchContext } = await import('../../../src/script/research-context');
 
       const context = buildResearchContext(mockResearchOutput);
 
@@ -106,9 +99,7 @@ describe('Research → Script Integration', () => {
     });
 
     it('should handle empty research gracefully', async () => {
-      const { buildResearchContext } = await import(
-        '../../../src/script/research-context'
-      );
+      const { buildResearchContext } = await import('../../../src/script/research-context');
 
       const emptyResearch: ResearchOutput = {
         query: 'test',
@@ -123,9 +114,7 @@ describe('Research → Script Integration', () => {
     });
 
     it('should limit context length to avoid token overflow', async () => {
-      const { buildResearchContext } = await import(
-        '../../../src/script/research-context'
-      );
+      const { buildResearchContext } = await import('../../../src/script/research-context');
 
       // Create research with many evidence items
       const largeResearch: ResearchOutput = {
