@@ -3,7 +3,7 @@
  */
 import { z } from 'zod';
 
-export const ResearchSourceEnum = z.enum(['hackernews', 'reddit', 'web', 'youtube', 'twitter']);
+export const ResearchSourceEnum = z.enum(['hackernews', 'reddit', 'web', 'tavily', 'youtube', 'twitter']);
 export type ResearchSource = z.infer<typeof ResearchSourceEnum>;
 
 export const EvidenceSchema = z.object({

@@ -10,11 +10,17 @@ import { validateVideoPath } from '../../validate/validate';
 import { logger } from '../../core/logger';
 import { isValidateProfileId, type ValidateProfileId } from '../../validate/profiles';
 import { CMError } from '../../core/errors';
+import { PiqBrisqueAnalyzer } from '../../validate/quality';
 
 export const validateCommand = new Command('validate')
   .description('Validate a rendered video against platform requirements')
   .argument('<videoPath>', 'Path to the rendered video (e.g., video.mp4)')
   .option('--profile <profile>', 'Validation profile (portrait|landscape)', 'portrait')
+  .option('--probe-engine <engine>', 'Probe engine (ffprobe|python)', 'ffprobe')
+  .option('--ffprobe <path>', 'ffprobe executable path', 'ffprobe')
+  .option('--python <path>', 'python executable path (for --probe-engine python)', 'python')
+  .option('--quality', 'Enable visual quality gate (BRISQUE) via Python', false)
+  .option('--quality-sample-rate <n>', 'Analyze every Nth frame (BRISQUE)', '30')
   .option('-o, --output <path>', 'Output report file path', 'validate.json')
   .option('--json', 'Print the full report JSON to stdout', false)
   .action(async (videoPath: string, options) => {
@@ -30,7 +36,21 @@ export const validateCommand = new Command('validate')
 
       logger.info({ videoPath, profile }, 'Starting video validation');
 
-      const report = await validateVideoPath(videoPath, { profile });
+      const report = await validateVideoPath(videoPath, {
+        profile,
+        probe: {
+          engine: String(options.probeEngine) === 'python' ? 'python' : 'ffprobe',
+          ffprobePath: String(options.ffprobe),
+          pythonPath: String(options.python),
+        },
+        quality: options.quality
+          ? {
+              enabled: true,
+              sampleRate: Number.parseInt(String(options.qualitySampleRate), 10),
+              analyzer: new PiqBrisqueAnalyzer({ pythonPath: String(options.python) }),
+            }
+          : { enabled: false },
+      });
 
       await writeOutputFile(options.output, report);
 

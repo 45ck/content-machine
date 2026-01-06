@@ -18,20 +18,9 @@ export function runVisualQualityGate(
   profile: ValidateProfile
 ): VisualQualityGateResult {
   if (profile.brisqueMax === undefined) {
-    return {
-      gateId: 'visual-quality',
-      passed: true,
-      severity: 'warning',
-      fix: 'configure-brisque-threshold',
-      message: 'BRISQUE threshold is not configured for this profile',
-      details: {
-        brisqueMax: 0,
-        mean: summary.brisque.mean,
-        min: summary.brisque.min,
-        max: summary.brisque.max,
-        framesAnalyzed: summary.framesAnalyzed,
-      },
-    };
+    throw new CMError('VALIDATION_ERROR', 'BRISQUE threshold is not configured for this profile', {
+      profile: profile.id,
+    });
   }
 
   const passed = summary.brisque.mean < profile.brisqueMax;
@@ -116,7 +105,7 @@ function runPythonJson(params: {
             stdout: stdout.trim() || undefined,
           })
         );
-      } catch (_error) {
+      } catch {
         reject(
           new CMError('VALIDATION_ERROR', 'Python script did not return valid JSON', {
             pythonPath,
@@ -174,7 +163,10 @@ export class PiqBrisqueAnalyzer implements VideoQualityAnalyzer {
     this.timeoutMs = options?.timeoutMs ?? 120_000;
   }
 
-  async analyze(videoPath: string, options?: { sampleRate?: number }): Promise<VideoQualitySummary> {
+  async analyze(
+    videoPath: string,
+    options?: { sampleRate?: number }
+  ): Promise<VideoQualitySummary> {
     const sampleRate = options?.sampleRate ?? 30;
     const data = await runPythonJson({
       pythonPath: this.pythonPath,
@@ -185,4 +177,3 @@ export class PiqBrisqueAnalyzer implements VideoQualityAnalyzer {
     return parseQualityJson(data);
   }
 }
-

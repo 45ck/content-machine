@@ -31,7 +31,8 @@
     "dup:check": "jscpd --config .jscpd.json --exitCode 1",
     "quality": "npm run typecheck && npm run lint && npm run format:check && npm run test:coverage && npm run dup:check",
     "eval": "npx promptfoo eval",
-    "eval:script": "npx promptfoo eval -c evals/configs/cm-script.yaml"
+    "eval:script": "npx promptfoo eval -c evals/configs/cm-script.yaml",
+    "prepare": "husky"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.0",
@@ -40,6 +41,7 @@
     "@remotion/install-whisper-cpp": "^4.0.399",
     "@remotion/player": "^4.0.0",
     "@remotion/renderer": "^4.0.0",
+    "@tavily/core": "^0.6.4",
     "chalk": "^5.3.0",
     "commander": "^12.0.0",
     "dotenv": "^16.4.0",
@@ -70,7 +72,9 @@
     "eslint": "^9.0.0",
     "eslint-plugin-sonarjs": "^3.0.5",
     "globals": "^17.0.0",
+    "husky": "^9.1.7",
     "jscpd": "^4.0.5",
+    "lint-staged": "^16.2.7",
     "msw": "^2.0.0",
     "prettier": "^3.7.4",
     "promptfoo": "^0.90.0",
@@ -95,5 +99,14 @@
     "automation",
     "content-creation",
     "cli"
-  ]
+  ],
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  }
 }

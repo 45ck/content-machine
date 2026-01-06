@@ -146,6 +146,19 @@ Located in `guides/`, task-oriented how-to documentation:
 
 **Format:** `guide-[topic]-YYYYMMDD.md`
 
+### CLI UX guides
+
+- `guides/guide-cli-ux-standards-20260106.md`
+- `guides/guide-cli-ux-cm-generate-20260106.md`
+- `guides/guide-cli-ux-cm-script-20260106.md`
+- `guides/guide-cli-ux-cm-audio-20260106.md`
+- `guides/guide-cli-ux-cm-visuals-20260106.md`
+- `guides/guide-cli-ux-cm-render-20260106.md`
+- `guides/guide-cli-ux-cm-init-20260106.md`
+- `guides/guide-cli-ux-cm-package-20260106.md`
+- `guides/guide-cli-ux-cm-research-20260106.md`
+- `guides/guide-cli-ux-cm-validate-20260106.md`
+
 ### Planned Guides
 
 - [ ] Setup Development Environment
@@ -161,6 +174,18 @@ Located in `guides/`, task-oriented how-to documentation:
 Located in `reference/`, information-oriented technical docs:
 
 **Format:** `[name]-reference-YYYYMMDD.md`
+
+### CLI command references
+
+- `reference/cm-generate-reference-20260106.md`
+- `reference/cm-script-reference-20260106.md`
+- `reference/cm-audio-reference-20260106.md`
+- `reference/cm-visuals-reference-20260106.md`
+- `reference/cm-render-reference-20260106.md`
+- `reference/cm-init-reference-20260106.md`
+- `reference/cm-package-reference-20260106.md`
+- `reference/cm-research-reference-20260106.md`
+- `reference/cm-validate-reference-20260106.md`
 
 ### Planned References
 

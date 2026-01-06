@@ -6,6 +6,7 @@ import type { ResearchTool, ToolConfig } from './types';
 import { HackerNewsTool } from './hackernews';
 import { RedditTool } from './reddit';
 import { WebSearchTool } from './web-search';
+import { TavilySearchTool } from './tavily';
 
 // Re-export types
 export type { ResearchTool, ToolConfig, SearchToolOptions, SearchToolResult, RateLimitStatus } from './types';
@@ -14,6 +15,7 @@ export type { ResearchTool, ToolConfig, SearchToolOptions, SearchToolResult, Rat
 export { HackerNewsTool } from './hackernews';
 export { RedditTool } from './reddit';
 export { WebSearchTool } from './web-search';
+export { TavilySearchTool } from './tavily';
 
 // Singleton instances for reuse
 const toolInstances = new Map<ResearchSource, ResearchTool>();
@@ -47,6 +49,8 @@ export function createTool(source: ResearchSource, config?: ToolConfig): Researc
       return new RedditTool(config);
     case 'web':
       return new WebSearchTool(config);
+    case 'tavily':
+      return new TavilySearchTool(config);
     case 'youtube':
     case 'twitter':
       // Not implemented yet
@@ -60,7 +64,7 @@ export function createTool(source: ResearchSource, config?: ToolConfig): Researc
  * Get all available tools that can be used.
  */
 export function getAvailableTools(config?: ToolConfig): ResearchTool[] {
-  const sources: ResearchSource[] = ['hackernews', 'reddit', 'web'];
+  const sources: ResearchSource[] = ['hackernews', 'reddit', 'web', 'tavily'];
   return sources
     .map((source) => createTool(source, config))
     .filter((tool): tool is ResearchTool => tool !== null && tool.isAvailable());

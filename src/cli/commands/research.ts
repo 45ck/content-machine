@@ -8,7 +8,8 @@ import ora from 'ora';
 import { logger } from '../../core/logger';
 import { ResearchSourceEnum } from '../../research/schema';
 import type { ResearchSource } from '../../research/schema';
-import { createResearchOrchestrator, OrchestratorResult } from '../../research/orchestrator';
+import { createResearchOrchestrator } from '../../research/orchestrator';
+import type { OrchestratorResult } from '../../research/orchestrator';
 import { FakeLLMProvider } from '../../test/stubs/fake-llm';
 import { handleCommandError, writeOutputFile } from '../utils';
 
@@ -128,7 +129,7 @@ export const researchCommand = new Command('research')
   .requiredOption('-q, --query <query>', 'Search query')
   .option(
     '-s, --sources <sources>',
-    'Comma-separated sources (hackernews,reddit,web)',
+    'Comma-separated sources (hackernews,reddit,web,tavily)',
     'hackernews,reddit'
   )
   .option('-o, --output <path>', 'Output file path', 'research.json')

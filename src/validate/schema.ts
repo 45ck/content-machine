@@ -67,11 +67,23 @@ export const VisualQualityGateResultSchema = GateBaseSchema.extend({
 
 export type VisualQualityGateResult = z.infer<typeof VisualQualityGateResultSchema>;
 
+export const CadenceGateResultSchema = GateBaseSchema.extend({
+  gateId: z.literal('cadence'),
+  details: z.object({
+    cutCount: z.number().int().nonnegative(),
+    medianCutIntervalSeconds: z.number().nonnegative(),
+    maxMedianCutIntervalSeconds: z.number().positive(),
+  }),
+});
+
+export type CadenceGateResult = z.infer<typeof CadenceGateResultSchema>;
+
 export const GateResultSchema = z.discriminatedUnion('gateId', [
   ResolutionGateResultSchema,
   DurationGateResultSchema,
   FormatGateResultSchema,
   VisualQualityGateResultSchema,
+  CadenceGateResultSchema,
 ]);
 
 export type GateResult = z.infer<typeof GateResultSchema>;

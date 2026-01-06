@@ -103,3 +103,12 @@ export interface BraveSearchResponse {
     results: BraveWebResult[];
   };
 }
+
+// Tavily API types
+export interface TavilySearchResult {
+  title: string;
+  url: string;
+  content: string;
+  score: number;
+  publishedDate?: string;
+}
