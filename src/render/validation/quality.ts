@@ -58,19 +58,15 @@ function runPythonJson(params: {
           return;
         }
         reject(
-          new CMError(
-            'VALIDATION_ERROR',
-            `Python script failed with code ${code ?? 'unknown'}`,
-            {
-              pythonPath,
-              scriptPath: params.scriptPath,
-              code,
-              stderr: stderr.trim() || undefined,
-              stdout: stdout.trim() || undefined,
-            }
-          )
+          new CMError('VALIDATION_ERROR', `Python script failed with code ${code ?? 'unknown'}`, {
+            pythonPath,
+            scriptPath: params.scriptPath,
+            code,
+            stderr: stderr.trim() || undefined,
+            stdout: stdout.trim() || undefined,
+          })
         );
-      } catch (error) {
+      } catch {
         reject(
           new CMError('VALIDATION_ERROR', 'Python script did not return valid JSON', {
             pythonPath,
@@ -128,7 +124,10 @@ export class PiqBrisqueAnalyzer implements VideoQualityAnalyzer {
     this.timeoutMs = options?.timeoutMs ?? 120_000;
   }
 
-  async analyze(videoPath: string, options?: { sampleRate?: number }): Promise<VideoQualitySummary> {
+  async analyze(
+    videoPath: string,
+    options?: { sampleRate?: number }
+  ): Promise<VideoQualitySummary> {
     const sampleRate = options?.sampleRate ?? 30;
     const data = await runPythonJson({
       pythonPath: this.pythonPath,
@@ -139,4 +138,3 @@ export class PiqBrisqueAnalyzer implements VideoQualityAnalyzer {
     return parseQualityJson(data);
   }
 }
-
