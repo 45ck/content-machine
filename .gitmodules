@@ -521,3 +521,15 @@
 [submodule "vendor/research/virality-prediction/SMTPD"]
 	path = vendor/research/virality-prediction/SMTPD
 	url = https://github.com/zhuwei321/SMTPD.git
+[submodule "vendor/engagement-prediction/amps"]
+	path = vendor/engagement-prediction/amps
+	url = https://github.com/dxlabskku/AMPS_short-form-popularity.git
+[submodule "vendor/engagement-prediction/mmra"]
+	path = vendor/engagement-prediction/mmra
+	url = https://github.com/ICDM-UESTC/MMRA.git
+[submodule "vendor/engagement-prediction/mmved"]
+	path = vendor/engagement-prediction/mmved
+	url = https://github.com/yaochenzhu/MMVED.git
+[submodule "vendor/engagement-prediction/snapugc"]
+	path = vendor/engagement-prediction/snapugc
+	url = https://github.com/dasongli1/SnapUGC_Engagement.git
