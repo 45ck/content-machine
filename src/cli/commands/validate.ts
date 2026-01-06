@@ -20,6 +20,7 @@ interface ValidateCommandOptions {
   ffprobe: string;
   python: string;
   cadence?: boolean;
+  cadenceEngine?: string;
   cadenceMaxMedian: string;
   cadenceThreshold: string;
   quality?: boolean;
@@ -38,10 +39,32 @@ function parseProfile(profile: string): ValidateProfileId {
   return profile;
 }
 
+function parseCadenceEngine(engine?: string): 'ffmpeg' | 'pyscenedetect' {
+  if (!engine || engine === 'ffmpeg') return 'ffmpeg';
+  if (engine === 'pyscenedetect') return 'pyscenedetect';
+  throw new CMError('INVALID_ARGUMENT', `Unknown cadence engine: ${engine}`, {
+    allowed: ['ffmpeg', 'pyscenedetect'],
+    fix: 'Use --cadence-engine ffmpeg or --cadence-engine pyscenedetect',
+  });
+}
+
+function normalizeCadenceThreshold(engine: 'ffmpeg' | 'pyscenedetect', raw: number): number {
+  if (!Number.isFinite(raw)) {
+    throw new CMError('INVALID_ARGUMENT', 'Invalid cadence threshold value', {
+      fix: 'Use a numeric --cadence-threshold value',
+    });
+  }
+  if (engine === 'pyscenedetect' && raw <= 1) {
+    return raw * 100;
+  }
+  return raw;
+}
+
 function buildValidateOptions(
   profile: ValidateProfileId,
   options: ValidateCommandOptions
 ): ValidateOptions {
+  const cadenceEngine = parseCadenceEngine(options.cadenceEngine);
   return {
     profile,
     probe: {
@@ -52,8 +75,12 @@ function buildValidateOptions(
     cadence: options.cadence
       ? {
           enabled: true,
+          engine: cadenceEngine,
           maxMedianCutIntervalSeconds: Number.parseFloat(String(options.cadenceMaxMedian)),
-          threshold: Number.parseFloat(String(options.cadenceThreshold)),
+          threshold: normalizeCadenceThreshold(
+            cadenceEngine,
+            Number.parseFloat(String(options.cadenceThreshold))
+          ),
         }
       : { enabled: false },
     quality: options.quality
@@ -74,8 +101,13 @@ export const validateCommand = new Command('validate')
   .option('--ffprobe <path>', 'ffprobe executable path', 'ffprobe')
   .option('--python <path>', 'python executable path (for --probe-engine python)', 'python')
   .option('--cadence', 'Enable cadence gate (scene cut frequency) via ffmpeg', false)
+  .option('--cadence-engine <engine>', 'Cadence engine (ffmpeg|pyscenedetect)', 'ffmpeg')
   .option('--cadence-max-median <seconds>', 'Max median cut interval in seconds', '3')
-  .option('--cadence-threshold <n>', 'ffmpeg scene change threshold', '0.3')
+  .option(
+    '--cadence-threshold <n>',
+    'Scene change threshold (ffmpeg ~0-1, pyscenedetect ~0-100)',
+    '0.3'
+  )
   .option('--quality', 'Enable visual quality gate (BRISQUE) via Python', false)
   .option('--quality-sample-rate <n>', 'Analyze every Nth frame (BRISQUE)', '30')
   .option('-o, --output <path>', 'Output report file path', 'validate.json')

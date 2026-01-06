@@ -22,7 +22,7 @@ cm validate [options] <videoPath>
 - `--cadence`: enable cadence gate (scene cut frequency) via ffmpeg (default: false)
 - `--cadence-engine <engine>`: cadence engine `ffmpeg|pyscenedetect` (default: `ffmpeg`)
 - `--cadence-max-median <seconds>`: max median cut interval in seconds (default: `3`)
-- `--cadence-threshold <n>`: ffmpeg scene change threshold (default: `0.3`)
+- `--cadence-threshold <n>`: scene change threshold (ffmpeg ~0-1, pyscenedetect ~0-100) (default: `0.3`)
 - `--quality`: enable visual quality gate (BRISQUE) via Python (default: false)
 - `--quality-sample-rate <n>`: analyze every Nth frame (BRISQUE) (default: `30`)
 - `-o, --output <path>`: output report file path (default: `validate.json`)
