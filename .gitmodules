@@ -518,3 +518,6 @@
 [submodule "vendor/connectors/web/scrapegraph-ai"]
 	path = vendor/connectors/web/scrapegraph-ai
 	url = https://github.com/ScrapeGraphAI/Scrapegraph-ai.git
+[submodule "vendor/research/virality-prediction/SMTPD"]
+	path = vendor/research/virality-prediction/SMTPD
+	url = https://github.com/zhuwei321/SMTPD.git
