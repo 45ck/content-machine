@@ -27,7 +27,7 @@ References: `docs/guides/guide-cli-ux-standards-20260106.md`.
 
 ## What users will expect (and where we miss)
 
-- Expectation: "keep artifacts" means *all* intermediate artifacts exist and their paths are printed.
+- Expectation: "keep artifacts" means _all_ intermediate artifacts exist and their paths are printed.
   - Reality: only audio and timestamps are guaranteed.
 - Expectation: progress feels trustworthy and not "magic".
   - Reality: stage transitions depend on message substring matching.
