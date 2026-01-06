@@ -11,16 +11,17 @@ Progressively increase test coverage thresholds from current baseline to product
 
 ## Current State
 
-| Metric | Current Threshold | Current Actual | Target |
-|--------|-------------------|----------------|--------|
-| Lines | 18% | ~29% | 70% |
-| Functions | 55% | ~64% | 80% |
-| Statements | 18% | ~29% | 70% |
-| Branches | 50% | ~72% | 70% |
+| Metric     | Current Threshold | Current Actual | Target |
+| ---------- | ----------------- | -------------- | ------ |
+| Lines      | 18%               | ~29%           | 70%    |
+| Functions  | 55%               | ~64%           | 80%    |
+| Statements | 18%               | ~29%           | 70%    |
+| Branches   | 50%               | ~72%           | 70%    |
 
 ## Acceptance Criteria
 
 ### Phase 1 (This Task)
+
 - [ ] Raise thresholds to match current actuals (ratchet up)
 - [ ] Lines: 18% → 25%
 - [ ] Functions: 55% → 60%
@@ -28,6 +29,7 @@ Progressively increase test coverage thresholds from current baseline to product
 - [ ] Branches: 50% → 65%
 
 ### Phase 2 (Future Task)
+
 - [ ] Add tests for uncovered CLI commands
 - [ ] Add tests for core/pipeline.ts
 - [ ] Add tests for LLM providers

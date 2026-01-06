@@ -1,7 +1,7 @@
 /**
  * Package command - Generate packaging variants from a topic
  *
- * Usage: cm package "Redis vs PostgreSQL for caching" --platform tiktok --output package.json
+ * Usage: cm package "Redis vs PostgreSQL for caching" --platform tiktok --output packaging.json
  */
 import { Command } from 'commander';
 import ora from 'ora';

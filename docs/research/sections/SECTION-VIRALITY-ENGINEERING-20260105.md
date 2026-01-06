@@ -35,12 +35,12 @@ Most SOP tactics are implementable **without changing the 4-stage pipeline shape
 
 | SOP area                                         | What it means                                    | Best fit in content-machine                                                         | Output artifact                  |
 | ------------------------------------------------ | ------------------------------------------------ | ----------------------------------------------------------------------------------- | -------------------------------- |
-| Ideation + packaging (title/thumbnail)           | “If you can’t package it, scrap it” quality gate | New Stage 0: `cm package` (or inside `cm script` as sub-step)                       | `package.json`                   |
+| Ideation + packaging (title/thumbnail)           | “If you can’t package it, scrap it” quality gate | New Stage 0: `cm package` (or inside `cm script` as sub-step)                       | `packaging.json`                 |
 | Hook (pattern interrupt, muted autoplay)         | Visual/text hook must work silently              | `cm script` (generate hook plan), `cm render` (hook overlay layer)                  | `script.json` + render props     |
 | Hold (Hook–Hold–Payoff, problem→solution rhythm) | Structure + pacing, micro-value, open loops      | `cm script` prompt templates + schema                                               | `script.json`                    |
 | Editing pace + pattern interrupts                | Visual changes ~2–3s, mid-video interrupts       | `cm script` (beat plan), `cm visuals` (more granular assets), `cm render` (effects) | `visuals.json` + render template |
 | Captions (Hormozi-style)                         | Word-level captions, highlights, emphasis        | `cm audio` timestamps + `cm render` caption styling                                 | `timestamps.json` + render props |
-| A/B testing                                      | Generate variants; track which wins              | `cm package` + V&V evals; store `promptVersion`/variant IDs                         | `package.json` + `score.json`    |
+| A/B testing                                      | Generate variants; track which wins              | `cm package` + V&V evals; store `promptVersion`/variant IDs                         | `packaging.json` + `score.json`  |
 | Comment engineering                              | Ask an organic question; prompt discussion       | `cm script` CTA + `cm publish` description                                          | `script.json` + `publish.json`   |
 | Publish checklist                                | Description/hashtags/cover text/SEO              | New post-stage: `cm publish`                                                        | `publish.json`                   |
 
@@ -50,7 +50,7 @@ Most SOP tactics are implementable **without changing the 4-stage pipeline shape
 
 These artifacts integrate SOP steps while preserving the existing “stage outputs JSON artifacts” pattern:
 
-- `package.json` (new): packaging variants and selected package.
+- `packaging.json` (new): packaging variants and selected package.
 - `script.json` (extend): include packaging reference + retention plan.
 - `publish.json` (new): upload metadata + checklist.
 - `score.json` (optional new): rubric scores (hook, retention, packaging) to support A/B and QA.
@@ -168,7 +168,7 @@ Recommended “where to add” locations:
 - Pipeline stages (optional new stage): `src/core/pipeline.ts`
   - Add `package` stage before `script`, or keep it inside `script`.
 - CLI commands:
-  - Add `src/cli/commands/package.ts` (new) → emits `package.json`
+  - Add `src/cli/commands/package.ts` (new) → emits `packaging.json`
   - Add `src/cli/commands/publish.ts` (new) → emits `publish.json`
   - Add `src/cli/commands/score.ts` (optional) → emits `score.json` and exits non-zero on failure
 

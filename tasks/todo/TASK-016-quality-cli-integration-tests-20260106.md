@@ -40,9 +40,7 @@ export async function runCLI(args: string): Promise<{
   exitCode: number;
 }> {
   try {
-    const { stdout, stderr } = await execAsync(
-      `npx tsx src/cli/index.ts ${args}`
-    );
+    const { stdout, stderr } = await execAsync(`npx tsx src/cli/index.ts ${args}`);
     return { stdout, stderr, exitCode: 0 };
   } catch (error: any) {
     return {

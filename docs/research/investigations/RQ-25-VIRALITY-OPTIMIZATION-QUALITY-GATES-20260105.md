@@ -145,7 +145,7 @@ Soft flags (risk profile dependent):
 
 ### 5.2 As a standalone command: `cm score`
 
-- Input: `script.json` (and optionally `package.json`)
+- Input: `script.json` (and optionally `packaging.json`)
 - Output: `score.json`
 - Flags:
   - `--min-overall 0.80`

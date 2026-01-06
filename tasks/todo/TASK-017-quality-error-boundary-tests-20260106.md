@@ -26,6 +26,7 @@ Add comprehensive error handling tests for all pipeline stages and edge cases.
 ## Test Scenarios to Add
 
 ### LLM Provider
+
 - [ ] Rate limit (429) handling and retry
 - [ ] Invalid JSON response
 - [ ] Empty response
@@ -33,12 +34,14 @@ Add comprehensive error handling tests for all pipeline stages and edge cases.
 - [ ] Authentication error (401)
 
 ### Pipeline
+
 - [ ] Script stage failure → graceful exit
 - [ ] Audio stage failure → cleanup artifacts
 - [ ] Visuals stage failure → fallback to placeholder
 - [ ] Render stage failure → preserve intermediate files
 
 ### Input Validation
+
 - [ ] Empty topic
 - [ ] Very long topic (>1000 chars)
 - [ ] Special characters in topic

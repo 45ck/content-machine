@@ -20,7 +20,7 @@ This is implemented as **new CLI commands** and optional pipeline gating, withou
 
 ## 2. Goals
 
-- Provide packaging artifacts (`package.json`) that can be A/B tested.
+- Provide packaging artifacts (`packaging.json`) that can be A/B tested.
 - Improve script quality (hook clarity, pacing, retention) via structured outputs.
 - Emit upload-ready metadata (`publish.json`) and a checklist.
 - Add a scoring system (`score.json`) that can gate `cm generate`.
@@ -42,19 +42,19 @@ This is implemented as **new CLI commands** and optional pipeline gating, withou
 Generate packaging variants from a topic:
 
 ```bash
-cm package "Redis vs PostgreSQL for caching" --platform tiktok --output package.json
+cm package "Redis vs PostgreSQL for caching" --platform tiktok --output packaging.json
 ```
 
 Outputs:
 
-- `package.json`: title variants, cover/thumbnail text, hook text overlays, selected/default choice.
+- `packaging.json`: title variants, cover/thumbnail text, hook text overlays, selected/default choice.
 
 ### 4.2 `cm script` (extended)
 
 Accept a package file (optional):
 
 ```bash
-cm script --topic "..." --archetype versus --package package.json --output script.json
+cm script --topic "..." --archetype versus --package packaging.json --output script.json
 ```
 
 Behavior:
@@ -140,7 +140,7 @@ All components follow existing patterns:
 
 ## 8. Acceptance Criteria
 
-- `cm package` produces valid `package.json` with 5+ title variants and cover text.
+- `cm package` produces valid `packaging.json` with 5+ title variants and cover text.
 - `cm script --package` incorporates selected title/hook into `script.json`.
 - `cm publish` produces a structured description + hashtags + checklist.
 - `cm score` outputs a stable `score.json` and supports threshold gating.

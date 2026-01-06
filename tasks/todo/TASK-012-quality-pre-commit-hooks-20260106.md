@@ -26,21 +26,25 @@ Add pre-commit hooks using Husky and lint-staged to prevent bad commits from ent
 ## Implementation
 
 1. Install dependencies:
+
    ```bash
    npm install -D husky lint-staged
    ```
 
 2. Initialize Husky:
+
    ```bash
    npx husky init
    ```
 
 3. Create `.husky/pre-commit`:
+
    ```bash
    npx lint-staged
    ```
 
 4. Create `.husky/pre-push`:
+
    ```bash
    npm run test:run
    ```

@@ -5,14 +5,14 @@
  * Based on SYSTEM-DESIGN §7.1 cm script command.
  */
 import { Command } from 'commander';
-import { generateScript } from '../../script/generator';
-import { logger } from '../../core/logger';
+import ora from 'ora';
 import { ArchetypeEnum } from '../../core/config';
 import { SchemaError } from '../../core/errors';
+import { logger } from '../../core/logger';
 import { PackageOutputSchema } from '../../package/schema';
-import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
+import { generateScript } from '../../script/generator';
 import { FakeLLMProvider } from '../../test/stubs/fake-llm';
-import ora from 'ora';
+import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
 
 interface PackagingInput {
   title: string;
@@ -65,7 +65,7 @@ async function loadPackaging(path?: string): Promise<PackagingInput | undefined>
   const raw = await readInputFile(path);
   const parsed = PackageOutputSchema.safeParse(raw);
   if (!parsed.success) {
-    throw new SchemaError('Invalid package file', {
+    throw new SchemaError('Invalid packaging file', {
       path,
       issues: parsed.error.issues,
     });
@@ -87,20 +87,16 @@ export const scriptCommand = new Command('script')
     const spinner = ora('Generating script...').start();
 
     try {
-      // Validate archetype
       const archetype = ArchetypeEnum.parse(options.archetype);
 
-      // Dry-run: just show what would happen
       if (options.dryRun) {
         spinner.stop();
-        console.log('\n🔍 Dry-run mode - no LLM call made\n');
+        console.log('\nDry-run mode - no LLM call made\n');
         console.log(`   Topic: ${options.topic}`);
         console.log(`   Archetype: ${archetype}`);
         console.log(`   Duration: ${options.duration}s`);
         console.log(`   Output: ${options.output}`);
-        if (options.package) {
-          console.log(`   Package: ${options.package}`);
-        }
+        if (options.package) console.log(`   Package: ${options.package}`);
         console.log(
           `\nPrompt would use ~${Math.round(parseInt(options.duration, 10) * 2.5)} target words\n`
         );
@@ -109,7 +105,6 @@ export const scriptCommand = new Command('script')
 
       logger.info({ topic: options.topic, archetype }, 'Starting script generation');
 
-      // Create mock provider if --mock flag is set
       let llmProvider;
       if (options.mock) {
         spinner.text = 'Generating script (mock mode)...';
@@ -128,20 +123,15 @@ export const scriptCommand = new Command('script')
 
       spinner.succeed('Script generated successfully');
 
-      // Write output
       await writeOutputFile(options.output, script);
-
       logger.info({ output: options.output }, 'Script saved');
 
-      // Show summary
-      console.log(`\n📝 Script: ${script.title ?? options.topic}`);
+      console.log(`\nScript: ${script.title ?? options.topic}`);
       console.log(`   Archetype: ${archetype}`);
       console.log(`   Scenes: ${script.scenes.length}`);
       console.log(`   Word count: ${script.meta?.wordCount ?? 'N/A'}`);
       console.log(`   Output: ${options.output}`);
-      if (options.mock) {
-        console.log(`   ⚠️  Mock mode - script is for testing only`);
-      }
+      if (options.mock) console.log('   Mock mode - script is for testing only');
       console.log('');
     } catch (error) {
       spinner.fail('Script generation failed');

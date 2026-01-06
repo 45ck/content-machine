@@ -121,7 +121,7 @@ PLATFORM: ${platform}
 
 Rules:
 - Titles must be instantly understood while scrolling (simple words, no puns).
-- Cover/thumbnail text must be 2–6 words and readable on a phone.
+- Cover/thumbnail text must be 2-6 words and readable on a phone.
 - Include on-screen hook text that works with muted autoplay.
 - Avoid misinformation, harassment, or rage-bait framing.
 
@@ -130,7 +130,7 @@ Respond with JSON only in this exact shape:
   "variants": [
     {
       "title": "Title text",
-      "coverText": "Cover text (2–6 words)",
+      "coverText": "Cover text (2-6 words)",
       "onScreenHook": "On-screen hook text (muted autoplay)",
       "angle": "Optional: why this is clickable"
     }
