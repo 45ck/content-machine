@@ -1,12 +1,16 @@
 # cm-package reference (20260106)
 
-Generate “packaging” variants (title/cover/hook) for a topic.
+Generate "packaging" variants (title/cover/hook) for a topic.
 
 ## Synopsis
 
 ```bash
 cm package [options] <topic>
 ```
+
+## Outputs
+
+- Packaging JSON written to `--output` (default `packaging.json`) and includes a `selected` variant
 
 ## Options
 
@@ -16,9 +20,15 @@ cm package [options] <topic>
 - `--dry-run`: preview without calling the LLM
 - `--mock`: use a fake LLM provider (testing)
 
-## Output
+## Global options
 
-- Packaging JSON written to `--output` (includes a `selected` variant)
+- `-v, --verbose`: enable verbose logging
+- `--json`: intended for machine-readable output (not consistently implemented across commands yet)
+
+## Exit codes
+
+- `0`: success
+- `1`: failure
 
 ## Examples
 
@@ -26,3 +36,8 @@ cm package [options] <topic>
 cm package "Docker vs Kubernetes" --platform tiktok --variants 5 -o out/packaging.json
 cm package "Redis vs PostgreSQL" --dry-run
 ```
+
+## See also
+
+- `docs/guides/guide-cli-ux-cm-package-20260106.md`
+- `docs/reference/cm-script-reference-20260106.md`

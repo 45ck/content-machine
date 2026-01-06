@@ -1,6 +1,5 @@
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import type { ValidateProfile } from './profiles';
 import type { CadenceGateResult } from './schema';
 import { CMError } from '../core/errors';
 import type { VideoInfo } from './video-info';
@@ -98,7 +97,6 @@ export async function detectSceneCutsWithFfmpeg(params: {
 
 export async function runCadenceGate(
   info: VideoInfo,
-  profile: ValidateProfile,
   options?: { maxMedianCutIntervalSeconds?: number; threshold?: number }
 ): Promise<CadenceGateResult> {
   const maxMedian = options?.maxMedianCutIntervalSeconds ?? 3;

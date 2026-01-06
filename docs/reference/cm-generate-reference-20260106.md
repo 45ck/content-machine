@@ -1,6 +1,6 @@
 # cm-generate reference (20260106)
 
-Generate a full short-form video from a topic (script → audio → visuals → render).
+Generate a full short-form video from a topic (script -> audio -> visuals -> render).
 
 ## Synopsis
 
@@ -8,30 +8,51 @@ Generate a full short-form video from a topic (script → audio → visuals → 
 cm generate [options] <topic>
 ```
 
+## Inputs
+
+- `topic`: a short description of what the video is about
+
+## Outputs
+
+- Final MP4 at `--output` (default `video.mp4`)
+- Intermediate artifacts may be created in the output directory (see Notes)
+
 ## Options
 
-- `-a, --archetype <type>`: `listicle|versus|howto|myth|story|hot-take` (default: `listicle`)
-- `-o, --output <path>`: output video path (default: `video.mp4`)
+- `-a, --archetype <type>`: content archetype (default: `listicle`)
+- `-o, --output <path>`: output MP4 path (default: `video.mp4`)
 - `--orientation <type>`: `portrait|landscape|square` (default: `portrait`)
 - `--voice <voice>`: TTS voice id (default: `af_heart`)
-- `--duration <seconds>`: target duration (default: `45`)
-- `--keep-artifacts`: keep intermediate files (see Notes)
-- `--mock`: run with mock providers (testing)
-- `--dry-run`: print configuration without executing
+- `--duration <seconds>`: target duration seconds (default: `45`)
+- `--keep-artifacts`: keep intermediate files (default: false)
+- `--mock`: use mock providers (testing)
+- `--dry-run`: preview configuration without execution
 
-## Output
+## Global options
 
-- Video file at `--output`
+- `-v, --verbose`: enable verbose logging
+- `--json`: intended for machine-readable output (not consistently implemented across commands yet)
+
+## Exit codes
+
+- `0`: success
+- `1`: failure
 
 ## Examples
 
 ```bash
 cm generate "Redis vs PostgreSQL" --archetype versus --output out/video.mp4
-cm generate "5 JS tips" --dry-run
+cm generate "5 JavaScript tips" --dry-run
 cm generate "Docker vs Kubernetes" --mock --keep-artifacts
 ```
 
 ## Notes
 
-- Root options `--verbose` and `--json` exist, but are not yet consistently applied to this command’s output.
-- `--keep-artifacts` currently does not guarantee `script.json`/`visuals.json` are written during `generate` (implementation detail as of 2026-01-06).
+- Intermediate artifacts are placed in `dirname(--output)` by default.
+- As of 2026-01-06, `--keep-artifacts` does not guarantee `script.json` and `visuals.json` are written during `generate`.
+
+## See also
+
+- `docs/guides/guide-cli-ux-cm-generate-20260106.md`
+- `docs/reference/cm-script-reference-20260106.md`
+- `docs/reference/cm-validate-reference-20260106.md`

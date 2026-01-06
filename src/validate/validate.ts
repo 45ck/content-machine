@@ -78,7 +78,7 @@ export async function validateVideoPath(
 
   if (options.cadence?.enabled) {
     gates.push(
-      await runCadenceGate(info, profile, {
+      await runCadenceGate(info, {
         maxMedianCutIntervalSeconds: options.cadence.maxMedianCutIntervalSeconds,
         threshold: options.cadence.threshold,
       })

@@ -8,21 +8,37 @@ Match visuals (e.g., stock footage) to scenes using the timestamps output.
 cm visuals [options]
 ```
 
-## Required
+## Inputs
 
-- `-i, --input <path>`: timestamps JSON (from `cm audio`)
+- `--input`: timestamps JSON from `cm audio`
+
+## Outputs
+
+- Visuals JSON written to `--output` (default `visuals.json`)
 
 ## Options
 
-- `-o, --output <path>`: output visuals JSON (default: `visuals.json`)
-- `--provider <provider>`: provider id (default: `pexels`)
+- `-i, --input <path>`: input timestamps JSON file (required)
+- `-o, --output <path>`: output visuals file path (default: `visuals.json`)
+- `--provider <provider>`: stock footage provider id (default: `pexels`)
 
-## Output
+## Global options
 
-- Visuals JSON written to `--output`
+- `-v, --verbose`: enable verbose logging
+- `--json`: intended for machine-readable output (not consistently implemented across commands yet)
+
+## Exit codes
+
+- `0`: success
+- `1`: failure
 
 ## Examples
 
 ```bash
-cm visuals -i timestamps.json -o out/visuals.json --provider pexels
+cm visuals -i out/timestamps.json -o out/visuals.json --provider pexels
 ```
+
+## See also
+
+- `docs/guides/guide-cli-ux-cm-visuals-20260106.md`
+- `docs/reference/cm-render-reference-20260106.md`

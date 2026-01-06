@@ -8,25 +8,43 @@ Render the final MP4 using Remotion from visuals + timestamps + audio.
 cm render [options]
 ```
 
-## Required
+## Inputs
 
-- `-i, --input <path>`: visuals JSON (from `cm visuals`)
-- `--audio <path>`: audio WAV (from `cm audio`)
+- `--input`: visuals JSON from `cm visuals`
+- `--audio`: audio WAV from `cm audio`
+- `--timestamps`: timestamps JSON from `cm audio` (default `timestamps.json`)
+
+## Outputs
+
+- Video MP4 at `--output` (default `video.mp4`)
 
 ## Options
 
-- `--timestamps <path>`: timestamps JSON path (default: `timestamps.json`)
-- `-o, --output <path>`: output video path (default: `video.mp4`)
+- `-i, --input <path>`: input visuals JSON file (required)
+- `--audio <path>`: audio file path (required)
+- `--timestamps <path>`: timestamps JSON file (default: `timestamps.json`)
+- `-o, --output <path>`: output video file path (default: `video.mp4`)
 - `--orientation <type>`: `portrait|landscape|square` (default: `portrait`)
 - `--fps <fps>`: frames per second (default: `30`)
 
-## Output
+## Global options
 
-- Video MP4 written to `--output`
+- `-v, --verbose`: enable verbose logging
+- `--json`: intended for machine-readable output (not consistently implemented across commands yet)
+
+## Exit codes
+
+- `0`: success
+- `1`: failure
 
 ## Examples
 
 ```bash
-cm render -i visuals.json --audio audio.wav --timestamps timestamps.json -o out/video.mp4
-cm render -i out/visuals.json --audio out/audio.wav --orientation portrait --fps 30
+cm render -i out/visuals.json --audio out/audio.wav --timestamps out/timestamps.json -o out/video.mp4
+cm render -i visuals.json --audio audio.wav --orientation portrait --fps 30
 ```
+
+## See also
+
+- `docs/guides/guide-cli-ux-cm-render-20260106.md`
+- `docs/reference/cm-validate-reference-20260106.md`

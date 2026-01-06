@@ -8,25 +8,32 @@ Research a topic across multiple sources and optionally generate content angles.
 cm research [options]
 ```
 
-## Required
+## Outputs
 
-- `-q, --query <query>`: search query
+- Research JSON written to `--output` (default `research.json`)
 
 ## Options
 
-- `-s, --sources <sources>`: comma-separated list (default: `hackernews,reddit`)
+- `-q, --query <query>`: search query (required)
+- `-s, --sources <sources>`: comma-separated sources `hackernews,reddit,web` (default: `hackernews,reddit`)
 - `-o, --output <path>`: output JSON path (default: `research.json`)
-- `-l, --limit <number>`: per-source limit (default: `10`)
+- `-l, --limit <number>`: results per source (default: `10`)
 - `-t, --time-range <range>`: `hour|day|week|month|year|all` (default: `week`)
 - `--no-angles`: skip angle generation
-- `--max-angles <number>`: max angles (default: `3`)
-- `--sequential`: run sources sequentially
-- `--dry-run`: preview without API calls
-- `--mock`: use fake LLM for angle generation
+- `--max-angles <number>`: maximum angles to generate (default: `3`)
+- `--sequential`: run searches sequentially (default is parallel)
+- `--dry-run`: preview without making API calls
+- `--mock`: use mock LLM for angle generation
 
-## Output
+## Global options
 
-- Research JSON written to `--output`
+- `-v, --verbose`: enable verbose logging
+- `--json`: intended for machine-readable output (not consistently implemented across commands yet)
+
+## Exit codes
+
+- `0`: success
+- `1`: failure
 
 ## Examples
 
@@ -34,3 +41,7 @@ cm research [options]
 cm research -q "AI programming trends" -s hackernews,reddit -l 10 -t week -o out/research.json
 cm research -q "Redis caching" --no-angles --dry-run
 ```
+
+## See also
+
+- `docs/guides/guide-cli-ux-cm-research-20260106.md`

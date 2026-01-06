@@ -8,13 +8,23 @@ Interactive setup wizard that writes `.content-machine.toml` into the current di
 cm init [options]
 ```
 
+## Outputs
+
+- `.content-machine.toml` created in the current working directory
+
 ## Options
 
-- `-y, --yes`: accept defaults without prompting
+- `-y, --yes`: use defaults without prompting (default: false)
 
-## Output
+## Global options
 
-- `.content-machine.toml` created/overwritten in `pwd`
+- `-v, --verbose`: enable verbose logging
+- `--json`: intended for machine-readable output (not implemented for this command yet)
+
+## Exit codes
+
+- `0`: success
+- `1`: failure
 
 ## Examples
 
@@ -22,3 +32,7 @@ cm init [options]
 cm init
 cm init --yes
 ```
+
+## See also
+
+- `docs/guides/guide-cli-ux-cm-init-20260106.md`
