@@ -1,20 +1,50 @@
 # guide-cli-ux-cm-package-20260106
 
-UX review for `cm package` (topic → `packaging.json`). References `docs/guides/guide-cli-ux-standards-20260106.md`.
+UX review for `cm package` (topic -> `packaging.json`). Packaging is "creative leverage": it helps users get a stronger hook/title/cover without rewriting the whole script.
 
-## Current UX (observed)
+References: `docs/guides/guide-cli-ux-standards-20260106.md`.
 
-- Uses an `ora` spinner (“Generating packaging…”).
-- Validates `--platform` via `PlatformEnum`, normalizes `--variants`, supports `--dry-run` and `--mock`.
+## Who is the user here?
+
+- Creator-operator: wants better hooks, titles, and cover text that match the platform.
+- Researcher/ideation: wants variants to choose from and test.
+- Engineer-operator: wants a stable artifact with a chosen "selected" variant.
+
+## Job to be done
+
+"Generate multiple packaging options and pick one I can apply to `cm script`."
+
+## Current behavior (as implemented today)
+
+- Spinner: "Generating packaging...".
+- Validates `--platform` and normalizes `--variants`.
+- Supports `--dry-run` and `--mock`.
 - Writes `packaging.json` and prints a short summary including the selected variant.
 
-## UX gaps / risks
+## UX gaps
 
-- No “how to apply this” guidance (e.g., `cm script --package packaging.json`).
-- No `--json` output mode for the selected packaging (stdout is human summary only).
+- The command does not explicitly teach users how to apply the output to the next step.
+- There is no `--json` mode to print the selected packaging to stdout for scripting.
+- Selection is opaque: users cannot control which variant becomes "selected" (index/strategy).
 
-## Improvements (proposed)
+## Recommendations
 
-- After success, print the next command: `cm script --topic "<topic>" --package <output>`.
-- Add `--select <index|strategy>` to control which variant becomes “selected”.
-- Add `--json` output with `{outputPath,platform,variants,selected}` and a stable schema version.
+### P0
+
+- After success, print the exact next command:
+  - `cm script --topic "<topic>" --package <output>`
+- In `--verbose`, print the selected variant fields so creators can judge quickly.
+
+### P1
+
+- Add `--select <index|strategy>` to control `selected` (e.g., `--select 3` or `--select "highest-confidence"`).
+- Add `--json` output with `{outputPath, platform, variants, selected}` (schema versioned).
+
+## Ideal success output (ASCII sketch)
+
+```
+Packaging generated
+Output: out/packaging.json
+Selected: "Stop doing Redis caching like this"
+Next: cm script --topic "Redis caching" --package out/packaging.json
+```

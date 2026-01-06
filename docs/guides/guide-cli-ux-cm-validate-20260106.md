@@ -1,22 +1,55 @@
 # guide-cli-ux-cm-validate-20260106
 
-UX review for `cm validate` (video → validation report). References `docs/guides/guide-cli-ux-standards-20260106.md`.
+UX review for `cm validate` (video -> validation report). This is the "trust anchor" command for shipping: it should be boring, precise, and CI-friendly.
 
-## Current UX (observed)
+References: `docs/guides/guide-cli-ux-standards-20260106.md`.
 
-- Uses a spinner (“Validating video…”), writes a JSON report to `--output` (default `validate.json`).
-- `--json` prints the full report JSON to stdout (and stops the spinner).
-- On failure, prints failing gates + “Fix:” and exits `1`.
+## Who is the user here?
 
-## UX gaps / risks
+- Creator-operator: wants to avoid upload failures and platform rejections.
+- Engineer-operator: wants a gate that can run in CI with stable exit codes and JSON output.
+- Contributor/debugger: wants actionable fixes when a gate fails.
 
-- CLI defines its own `--json` flag, while the root command also defines `--json` (potential confusion/merging).
-- No “summary table” for all gates (pass/fail list); it only prints failures.
-- No `--strict`/`--warn-only` mode; some users want non-blocking warnings.
+## Job to be done
 
-## Improvements (proposed)
+"Tell me if this video is valid for the target profile, and if not, tell me exactly what to change."
 
-- Unify `--json` behavior with the root option (single flag, consistent meaning across commands).
-- Always print a compact gate summary, then failures with fixes; keep details in JSON.
-- Add `--warn-only` (exit `0` but mark failures) and `--fail-fast` (stop on first failing gate).
-- Print “next step” suggestions: re-render with `--orientation`, adjust codec/fps, etc.
+## Current behavior (as implemented today)
+
+- Spinner: "Validating video...".
+- Writes a report JSON file (default `validate.json`).
+- `--json` prints the full report JSON to stdout.
+- On failure, prints failing gates with a "Fix:" line and exits with code 1.
+- Supports:
+  - `--profile <portrait|landscape>`
+  - `--probe-engine <ffprobe|python>`
+  - `--ffprobe <path>`, `--python <path>`
+  - `--quality` and `--quality-sample-rate <n>`
+
+## UX gaps
+
+- `--json` behavior exists for this command, but is not aligned with the root `--json` option (consistency issue).
+- The default human output emphasizes only failures; users benefit from a compact pass/fail list (all gates) for confidence.
+- There is no "warn-only" mode for non-blocking workflows.
+
+## Recommendations
+
+### P0
+
+- Always print a compact gate summary (pass/fail) in human mode, then print failures with fixes.
+- Make `--json` consistent with the root option (single meaning across commands).
+- Validate dependencies early (ffprobe/python path) and fail with a clear "Fix:" line.
+
+### P1
+
+- Add `--warn-only` (exit 0 but include failures in the report) and `--fail-fast` (stop on first failing gate).
+- Print "next steps" that map directly to `cm render` flags when possible (orientation, fps).
+
+## Ideal failure output (ASCII sketch)
+
+```
+Validation failed (profile=portrait)
+FAILED: resolution (expected 1080x1920, got 720x1280)
+Fix: re-render with --orientation portrait (or change render width/height in config)
+Report: out/validate.json
+```
