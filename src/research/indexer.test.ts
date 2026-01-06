@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { HashEmbeddingProvider } from '../core/embeddings/hash-embedder';
-import { buildResearchEvidenceIndex, queryResearchEvidenceIndex } from './indexer';
+import {
+  buildResearchEvidenceIndex,
+  parseResearchIndexFile,
+  queryResearchEvidenceIndex,
+} from './indexer';
 import type { Evidence } from './schema';
 
 describe('research indexer', () => {
@@ -27,5 +31,26 @@ describe('research indexer', () => {
     const results = await queryResearchEvidenceIndex({ index, embedder, query: 'redis cache', k: 1 });
     expect(results[0].evidence.title).toContain('Redis');
   });
-});
 
+  it('rejects indexes with mismatched embedding dimensions', () => {
+    expect(() =>
+      parseResearchIndexFile({
+        schemaVersion: '1.0.0',
+        dimensions: 4,
+        createdAt: new Date().toISOString(),
+        items: [
+          {
+            id: 'evidence:0',
+            embedding: [0.1, 0.2],
+            evidence: {
+              title: 'Bad',
+              url: 'https://example.com',
+              source: 'web',
+              relevanceScore: 0.5,
+            },
+          },
+        ],
+      })
+    ).toThrow();
+  });
+});
