@@ -30,3 +30,6 @@ coverage/
 # Remotion
 .remotion/
 out/
+
+# Cache files
+.cache/
