@@ -1,5 +1,5 @@
 /**
- * Generate command - Full pipeline: topic → video
+ * Generate command - Full pipeline: topic -> video
  *
  * Usage: cm generate "Redis vs PostgreSQL" --archetype versus --output video.mp4
  */
@@ -10,9 +10,12 @@ import { logger } from '../../core/logger';
 import { ArchetypeEnum, OrientationEnum } from '../../core/config';
 import { handleCommandError } from '../utils';
 import { FakeLLMProvider } from '../../test/stubs/fake-llm';
-import type { Ora } from 'ora';
-import ora from 'ora';
+import type { SpinnerLike } from '../progress';
+import { createSpinner } from '../progress';
 import chalk from 'chalk';
+import { getCliRuntime } from '../runtime';
+import { buildJsonEnvelope, writeJsonEnvelope } from '../output';
+import { dirname } from 'path';
 
 interface GenerateOptions {
   archetype: string;
@@ -26,10 +29,10 @@ interface GenerateOptions {
 }
 
 interface SpinnerState {
-  script: Ora;
-  audio: Ora | null;
-  visuals: Ora | null;
-  render: Ora | null;
+  script: SpinnerLike;
+  audio: SpinnerLike | null;
+  visuals: SpinnerLike | null;
+  render: SpinnerLike | null;
 }
 
 function createMockScenes(topic: string) {
@@ -81,7 +84,7 @@ function showDryRunSummary(
   archetype: string,
   orientation: string
 ): void {
-  console.log(chalk.yellow('🔍 Dry-run mode - no execution\n'));
+  console.log('Dry-run mode - no execution\n');
   console.log(`   Topic: ${topic}`);
   console.log(`   Archetype: ${archetype}`);
   console.log(`   Orientation: ${orientation}`);
@@ -89,11 +92,11 @@ function showDryRunSummary(
   console.log(`   Duration: ${options.duration}s`);
   console.log(`   Output: ${options.output}`);
   console.log(`   Keep artifacts: ${options.keepArtifacts}`);
-  console.log(`\n   Pipeline stages:`);
-  console.log(`   1. Script → script.json`);
-  console.log(`   2. Audio → audio.wav + timestamps.json`);
-  console.log(`   3. Visuals → visuals.json`);
-  console.log(`   4. Render → ${options.output}\n`);
+  console.log('\n   Pipeline stages:');
+  console.log('   1. Script -> script.json');
+  console.log('   2. Audio -> audio.wav + timestamps.json');
+  console.log('   3. Visuals -> visuals.json');
+  console.log(`   4. Render -> ${options.output}\n`);
 }
 
 function createProgressHandler(spinners: SpinnerState) {
@@ -104,15 +107,15 @@ function createProgressHandler(spinners: SpinnerState) {
 
     if (stage === 'script') {
       spinners.script.succeed('Stage 1/4: Script generated');
-      spinners.audio = ora('Stage 2/4: Generating audio...').start();
+      spinners.audio = createSpinner('Stage 2/4: Generating audio...').start();
     }
     if (stage === 'audio' && spinners.audio) {
       spinners.audio.succeed('Stage 2/4: Audio generated');
-      spinners.visuals = ora('Stage 3/4: Matching visuals...').start();
+      spinners.visuals = createSpinner('Stage 3/4: Matching visuals...').start();
     }
     if (stage === 'visuals' && spinners.visuals) {
       spinners.visuals.succeed('Stage 3/4: Visuals matched');
-      spinners.render = ora('Stage 4/4: Rendering video...').start();
+      spinners.render = createSpinner('Stage 4/4: Rendering video...').start();
     }
     if (stage === 'render' && spinners.render) {
       spinners.render.succeed('Stage 4/4: Video rendered');
@@ -121,14 +124,14 @@ function createProgressHandler(spinners: SpinnerState) {
 }
 
 function showSuccessSummary(result: PipelineResult): void {
-  console.log(chalk.green.bold('\n✅ Video generated successfully!\n'));
-  console.log(`   📝 Title: ${result.script.title}`);
-  console.log(`   ⏱️  Duration: ${result.duration.toFixed(1)}s`);
-  console.log(`   📐 Resolution: ${result.width}x${result.height}`);
-  console.log(`   💾 Size: ${(result.fileSize / 1024 / 1024).toFixed(1)} MB`);
-  console.log(`   📁 Output: ${chalk.cyan(result.outputPath)}\n`);
+  console.log(chalk.green.bold('\nVideo generated successfully!\n'));
+  console.log(`   Title: ${result.script.title}`);
+  console.log(`   Duration: ${result.duration.toFixed(1)}s`);
+  console.log(`   Resolution: ${result.width}x${result.height}`);
+  console.log(`   Size: ${(result.fileSize / 1024 / 1024).toFixed(1)} MB`);
+  console.log(`   Output: ${chalk.cyan(result.outputPath)}\n`);
   if (result.costs) {
-    console.log(chalk.gray(`   💰 API Costs: $${result.costs.total.toFixed(4)}`));
+    console.log(chalk.gray(`   API Costs: $${result.costs.total.toFixed(4)}`));
     console.log(chalk.gray(`      - LLM: $${result.costs.llm.toFixed(4)}`));
     console.log(chalk.gray(`      - TTS: $${result.costs.tts.toFixed(4)}\n`));
   }
@@ -146,16 +149,42 @@ export const generateCommand = new Command('generate')
   .option('--mock', 'Use mock providers (for testing)')
   .option('--dry-run', 'Preview configuration without execution')
   .action(async (topic: string, options: GenerateOptions) => {
-    console.log(chalk.bold('\n🎬 content-machine\n'));
-    console.log(chalk.gray(`Topic: ${topic}`));
-    console.log(chalk.gray(`Archetype: ${options.archetype}`));
-    console.log(chalk.gray(`Output: ${options.output}\n`));
+    const runtime = getCliRuntime();
+    const artifactsDir = dirname(options.output);
+
+    if (!runtime.json) {
+      console.log(chalk.bold('\ncontent-machine\n'));
+      console.log(chalk.gray(`Topic: ${topic}`));
+      console.log(chalk.gray(`Archetype: ${options.archetype}`));
+      console.log(chalk.gray(`Output: ${options.output}\n`));
+    }
 
     try {
       const archetype = ArchetypeEnum.parse(options.archetype);
       const orientation = OrientationEnum.parse(options.orientation);
 
       if (options.dryRun) {
+        if (runtime.json) {
+          writeJsonEnvelope(
+            buildJsonEnvelope({
+              command: 'generate',
+              args: {
+                topic,
+                archetype,
+                orientation,
+                voice: options.voice,
+                durationSeconds: options.duration,
+                output: options.output,
+                keepArtifacts: options.keepArtifacts,
+                dryRun: true,
+              },
+              outputs: { dryRun: true, artifactsDir },
+              timingsMs: Date.now() - runtime.startTime,
+            })
+          );
+          return;
+        }
+
         showDryRunSummary(topic, options, archetype, orientation);
         return;
       }
@@ -163,10 +192,12 @@ export const generateCommand = new Command('generate')
       logger.info({ topic, archetype, orientation }, 'Starting full pipeline');
 
       const llmProvider = options.mock ? createMockLLMProvider(topic) : undefined;
-      if (options.mock) console.log(chalk.yellow('⚠️  Mock mode - using fake providers\n'));
+      if (options.mock && !runtime.json) {
+        console.log(chalk.yellow('Mock mode - using fake providers\n'));
+      }
 
       const spinners: SpinnerState = {
-        script: ora('Stage 1/4: Generating script...').start(),
+        script: createSpinner('Stage 1/4: Generating script...').start(),
         audio: null,
         visuals: null,
         render: null,
@@ -184,6 +215,35 @@ export const generateCommand = new Command('generate')
         mock: options.mock,
         onProgress: createProgressHandler(spinners),
       });
+
+      if (runtime.json) {
+        writeJsonEnvelope(
+          buildJsonEnvelope({
+            command: 'generate',
+            args: {
+              topic,
+              archetype,
+              orientation,
+              voice: options.voice,
+              durationSeconds: options.duration,
+              output: options.output,
+              keepArtifacts: options.keepArtifacts,
+              mock: options.mock,
+            },
+            outputs: {
+              videoPath: result.outputPath,
+              durationSeconds: result.duration,
+              width: result.width,
+              height: result.height,
+              fileSizeBytes: result.fileSize,
+              artifactsDir,
+              costs: result.costs ?? null,
+            },
+            timingsMs: Date.now() - runtime.startTime,
+          })
+        );
+        return;
+      }
 
       showSuccessSummary(result);
     } catch (error) {

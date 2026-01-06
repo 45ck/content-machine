@@ -17,19 +17,21 @@ class NullSpinner implements SpinnerLike {
     this.text = text;
   }
 
-  start(text?: string): SpinnerLike {
+  private setText(text?: string): void {
     if (text) this.text = text;
+  }
+
+  start(text?: string): SpinnerLike {
+    this.setText(text);
     return this;
   }
 
   succeed(text?: string): SpinnerLike {
-    if (text) this.text = text;
-    return this;
+    return this.start(text);
   }
 
   fail(text?: string): SpinnerLike {
-    if (text) this.text = text;
-    return this;
+    return this.start(text);
   }
 
   stop(): SpinnerLike {
@@ -44,22 +46,22 @@ class LineSpinner implements SpinnerLike {
     this.text = text;
   }
 
-  start(text?: string): SpinnerLike {
+  private write(level: 'INFO' | 'ERROR', text?: string): SpinnerLike {
     if (text) this.text = text;
-    writeStderrLine(`INFO: ${this.text}`);
+    writeStderrLine(`${level}: ${this.text}`);
     return this;
+  }
+
+  start(text?: string): SpinnerLike {
+    return this.write('INFO', text);
   }
 
   succeed(text?: string): SpinnerLike {
-    if (text) this.text = text;
-    writeStderrLine(`INFO: ${this.text}`);
-    return this;
+    return this.start(text);
   }
 
   fail(text?: string): SpinnerLike {
-    if (text) this.text = text;
-    writeStderrLine(`ERROR: ${this.text}`);
-    return this;
+    return this.write('ERROR', text);
   }
 
   stop(): SpinnerLike {

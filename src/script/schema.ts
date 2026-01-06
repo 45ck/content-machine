@@ -18,6 +18,7 @@ export const SceneSchema = z.object({
   visualDirection: z.string().describe('Direction for visual matching'),
   duration: z.number().positive().optional().describe('Estimated duration in seconds'),
   mood: z.string().optional().describe('Emotional mood of the scene'),
+  sources: z.array(z.string().url()).optional().describe('Evidence URLs cited in this scene'),
   extra: z.record(z.unknown()).optional().describe('Freeform LLM extension data'),
 });
 
