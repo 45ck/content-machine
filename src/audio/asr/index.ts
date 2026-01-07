@@ -138,11 +138,12 @@ async function resampleFor16kHz(
  * Check if a word is a Whisper special token that should be filtered out.
  * These include:
  * - [_BEG_] - begin token
- * - [_TT_xxx] - timing tokens
+ * - [_TT_xxx] - timing tokens from kokoro TTS
  * - [_xxx_] - any special tokens in brackets
  * - Standalone punctuation (single character punctuation)
+ * - Very low confidence tokens (likely hallucinations)
  */
-function isWhisperArtifact(word: string): boolean {
+function isWhisperArtifact(word: string, confidence?: number): boolean {
   const trimmed = word.trim();
 
   // Empty or whitespace only
@@ -151,18 +152,25 @@ function isWhisperArtifact(word: string): boolean {
   // Whisper special tokens in brackets like [_BEG_], [_TT_123]
   if (/^\[.*\]$/.test(trimmed)) return true;
 
+  // Kokoro TTS timing markers that might not be caught by bracket pattern
+  if (/^\[?_TT_\d+\]?$/.test(trimmed)) return true;
+
   // Standalone punctuation (single punctuation character)
-  if (/^[.,!?;:'"()-]$/.test(trimmed)) return true;
+  if (/^[.,!?;:'"()\-–—]+$/.test(trimmed)) return true;
 
   // Very short non-alphabetic tokens (likely artifacts)
   if (trimmed.length === 1 && !/[a-zA-Z0-9]/.test(trimmed)) return true;
+
+  // Very low confidence tokens are likely hallucinations
+  // Threshold: 0.15 (below this, the model is very unsure)
+  if (confidence !== undefined && confidence < 0.15) return true;
 
   return false;
 }
 
 /**
  * Extract word timestamps from whisper transcription segments.
- * Filters out Whisper special tokens and artifacts.
+ * Filters out Whisper special tokens, TTS artifacts, and low-confidence words.
  * @internal
  */
 function extractWordsFromSegments(segments: WhisperSegment[]): {
@@ -176,13 +184,15 @@ function extractWordsFromSegments(segments: WhisperSegment[]): {
     if (segment.tokens) {
       for (const token of segment.tokens) {
         const text = token.text.trim();
-        // Filter out Whisper artifacts and special tokens
-        if (text && !isWhisperArtifact(text)) {
+        const confidence = token.p ?? 0.9;
+
+        // Filter out Whisper artifacts, TTS markers, and low-confidence words
+        if (text && !isWhisperArtifact(text, confidence)) {
           words.push({
             word: text,
             start: token.offsets.from / 1000,
             end: token.offsets.to / 1000,
-            confidence: token.p ?? 0.9, // Default confidence if not provided
+            confidence,
           });
           duration = Math.max(duration, token.offsets.to / 1000);
         }

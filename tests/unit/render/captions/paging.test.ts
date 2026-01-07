@@ -12,6 +12,7 @@ import {
   createCaptionPages,
   toTimedWords,
   sanitizeTimedWords,
+  sanitizeTimedWordsWithConfidence,
   isDisplayableWord,
   isTtsMarker,
   isAsrArtifact,
@@ -546,6 +547,45 @@ describe('TTS marker filtering (CRITICAL)', () => {
 
       const sanitized = sanitizeTimedWords(words);
       expect(sanitized).toHaveLength(0);
+    });
+  });
+
+  describe('sanitizeTimedWordsWithConfidence', () => {
+    it('filters low-confidence words', () => {
+      const words = [
+        { text: 'hello', startMs: 0, endMs: 200, confidence: 0.95 },
+        { text: 'world', startMs: 200, endMs: 400, confidence: 0.05 }, // Very low
+        { text: 'test', startMs: 400, endMs: 600, confidence: 0.8 },
+      ];
+
+      const sanitized = sanitizeTimedWordsWithConfidence(words, 0.1);
+
+      expect(sanitized).toHaveLength(2);
+      expect(sanitized[0].text).toBe('hello');
+      expect(sanitized[1].text).toBe('test');
+    });
+
+    it('keeps words without confidence scores', () => {
+      const words = [
+        { text: 'hello', startMs: 0, endMs: 200 }, // No confidence
+        { text: 'world', startMs: 200, endMs: 400, confidence: 0.9 },
+      ];
+
+      const sanitized = sanitizeTimedWordsWithConfidence(words);
+
+      expect(sanitized).toHaveLength(2);
+    });
+
+    it('uses default minConfidence of 0.1', () => {
+      const words = [
+        { text: 'good', startMs: 0, endMs: 200, confidence: 0.11 },
+        { text: 'bad', startMs: 200, endMs: 400, confidence: 0.09 },
+      ];
+
+      const sanitized = sanitizeTimedWordsWithConfidence(words);
+
+      expect(sanitized).toHaveLength(1);
+      expect(sanitized[0].text).toBe('good');
     });
   });
 });

@@ -14,22 +14,26 @@ import { CaptionLayout } from './config';
 /**
  * Pattern for TTS internal markers that should be filtered out.
  * - [_TT_###] - kokoro TTS phoneme/timing markers
+ * - [_BEG_], [_END_] - Whisper special tokens
  * - Other potential TTS artifacts
  */
-const TTS_MARKER_PATTERN = /^\[_TT_\d+\]$/;
+const TTS_MARKER_PATTERN = /^\[_?[A-Z]+_?\d*\]$/;
 
 /**
  * Pattern for ASR artifacts that shouldn't be displayed
  * - Standalone punctuation (e.g., "?" or "." as a separate word)
  * - Single dashes not part of a word
+ * - Multiple punctuation marks
  */
-const ASR_ARTIFACT_PATTERN = /^[.?!,;:\-–—]+$/;
+const ASR_ARTIFACT_PATTERN = /^[.?!,;:\-–—…'"()]+$/;
 
 /**
  * Check if a word is a TTS internal marker that should be filtered
  */
 export function isTtsMarker(word: string): boolean {
-  return TTS_MARKER_PATTERN.test(word.trim());
+  const trimmed = word.trim();
+  // Match patterns like [_TT_140], [_BEG_], etc.
+  return TTS_MARKER_PATTERN.test(trimmed) || /^\[_TT_\d+\]$/.test(trimmed);
 }
 
 /**
@@ -57,6 +61,23 @@ export function isDisplayableWord(word: string): boolean {
  */
 export function sanitizeTimedWords(words: TimedWord[]): TimedWord[] {
   return words.filter((w) => isDisplayableWord(w.text));
+}
+
+/**
+ * Sanitize words with confidence-based filtering.
+ * Use this when you have access to confidence scores.
+ * @param minConfidence Minimum confidence threshold (default: 0.1)
+ */
+export function sanitizeTimedWordsWithConfidence(
+  words: Array<TimedWord & { confidence?: number }>,
+  minConfidence = 0.1
+): TimedWord[] {
+  return words.filter((w) => {
+    if (!isDisplayableWord(w.text)) return false;
+    // If confidence is available and below threshold, filter out
+    if (w.confidence !== undefined && w.confidence < minConfidence) return false;
+    return true;
+  });
 }
 
 /**

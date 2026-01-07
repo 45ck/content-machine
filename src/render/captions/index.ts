@@ -63,6 +63,7 @@ export {
   createCaptionPages,
   toTimedWords,
   sanitizeTimedWords,
+  sanitizeTimedWordsWithConfidence,
   isDisplayableWord,
   isTtsMarker,
   isAsrArtifact,
