@@ -532,3 +532,64 @@ export function postProcessASRWordsWithStats(
 
   return { words: result, stats };
 }
+
+/**
+ * Restore punctuation to ASR words by aligning with original script
+ *
+ * Whisper often strips punctuation. This function aligns ASR words with
+ * the original script text to restore punctuation marks.
+ *
+ * @param words - ASR word timestamps (without punctuation)
+ * @param scriptText - Original script text with punctuation
+ * @returns Words with punctuation restored
+ */
+export function restorePunctuation(
+  words: WordTimestamp[],
+  scriptText: string
+): WordTimestamp[] {
+  if (!scriptText || words.length === 0) return words;
+
+  // Tokenize script into words, preserving punctuation attached to words
+  const scriptWords = scriptText.split(/\s+/).filter(Boolean);
+
+  // Create a normalized lookup map: lowercase word -> original word with punctuation
+  const punctuationMap = new Map<string, string>();
+
+  for (const scriptWord of scriptWords) {
+    // Extract the base word (remove leading/trailing punctuation for matching)
+    const baseWord = scriptWord.replace(/^[^\w]*/, '').replace(/[^\w]*$/, '').toLowerCase();
+
+    // Store the original word with punctuation
+    if (baseWord && !punctuationMap.has(baseWord)) {
+      punctuationMap.set(baseWord, scriptWord);
+    }
+  }
+
+  // Apply punctuation to ASR words
+  return words.map((word) => {
+    const baseWord = word.word.toLowerCase().replace(/[^\w']/g, '');
+    const punctuatedWord = punctuationMap.get(baseWord);
+
+    if (punctuatedWord) {
+      // Extract trailing punctuation from script word
+      const trailingPunct = punctuatedWord.match(/[.!?,;:]+$/)?.[0] || '';
+
+      // If the script word has trailing punctuation, add it to the ASR word
+      if (trailingPunct && !word.word.match(/[.!?,;:]+$/)) {
+        return {
+          ...word,
+          word: word.word + trailingPunct,
+        };
+      }
+    }
+
+    return word;
+  });
+}
+
+/**
+ * Extract text from scenes for punctuation restoration
+ */
+export function extractSceneText(scenes: Array<{ text: string }>): string {
+  return scenes.map((s) => s.text).join(' ');
+}

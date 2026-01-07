@@ -18,6 +18,7 @@ import {
 import { synthesizeSpeech } from './tts';
 import { transcribeAudio, ASRResult } from './asr';
 import { reconcileToScript as reconcileAsrToScript } from './asr/reconcile';
+import { restorePunctuation } from './asr/post-processor';
 
 export type { AudioOutput, TimestampsOutput, WordTimestamp } from './schema';
 
@@ -107,6 +108,7 @@ function appendRemainingWords(
 /**
  * Build scene timestamps from words and scene text structure.
  * Assigns words to scenes proportionally based on word count.
+ * Also restores punctuation from original script text.
  *
  * @internal Shared between mock and real audio generation
  */
@@ -119,12 +121,18 @@ export function buildSceneTimestamps(
   let wordIndex = 0;
   const duration = resolveTotalDuration(totalDuration, words);
 
+  // Combine all section texts for punctuation restoration
+  const fullScriptText = sections.map((s) => s.text).join(' ');
+
+  // Restore punctuation to all words before assigning to scenes
+  const punctuatedWords = restorePunctuation(words, fullScriptText);
+
   for (const section of sections) {
     const targetWordCount = section.text.split(/\s+/).filter(Boolean).length;
     const sceneWords: WordTimestamp[] = [];
 
-    while (wordIndex < words.length && sceneWords.length < targetWordCount) {
-      sceneWords.push(words[wordIndex]);
+    while (wordIndex < punctuatedWords.length && sceneWords.length < targetWordCount) {
+      sceneWords.push(punctuatedWords[wordIndex]);
       wordIndex++;
     }
 
@@ -138,7 +146,7 @@ export function buildSceneTimestamps(
     }
   }
 
-  appendRemainingWords(result, sections, words, wordIndex);
+  appendRemainingWords(result, sections, punctuatedWords, wordIndex);
 
   if (result.length > 0) {
     const lastScene = result[result.length - 1];
