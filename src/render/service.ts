@@ -7,7 +7,7 @@
 import { stat, writeFile, copyFile, mkdir } from 'fs/promises';
 import { bundle } from '@remotion/bundler';
 import { renderMedia, selectComposition } from '@remotion/renderer';
-import { VisualsOutput } from '../visuals/schema';
+import { VisualsOutput, VisualsOutputInput } from '../visuals/schema';
 import { TimestampsOutput } from '../audio/schema';
 import { Orientation } from '../core/config';
 import { createLogger } from '../core/logger';
@@ -15,12 +15,12 @@ import { RenderError } from '../core/errors';
 import {
   RenderOutput,
   RenderOutputSchema,
-  RenderProps,
+  RenderPropsInput,
   CaptionStyle,
-  CaptionConfig,
   RENDER_SCHEMA_VERSION,
 } from './schema';
 import { getCaptionPreset, CaptionPresetName } from './captions/presets';
+import type { CaptionConfig, CaptionConfigInput } from './captions/config';
 import { join, dirname, resolve, basename } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -41,16 +41,19 @@ const RENDER_DIR = getCurrentDir();
 export type { RenderOutput, RenderProps } from './schema';
 
 export interface RenderVideoOptions {
-  visuals: VisualsOutput;
+  /** Visuals output - accepts input or output type (defaults applied during rendering) */
+  visuals: VisualsOutput | VisualsOutputInput;
   timestamps: TimestampsOutput;
   audioPath: string;
   outputPath: string;
   orientation: Orientation;
   fps?: number;
+  /** Remotion composition id (defaults to "ShortVideo") */
+  compositionId?: string;
   /** @deprecated Use captionConfig or captionPreset instead */
   captionStyle?: Partial<CaptionStyle>;
-  /** New comprehensive caption configuration */
-  captionConfig?: Partial<CaptionConfig>;
+  /** New comprehensive caption configuration (accepts partial input, defaults applied) */
+  captionConfig?: CaptionConfigInput;
   /** Use a preset caption style (tiktok, youtube, reels, bold, minimal, neon) */
   captionPreset?: CaptionPresetName;
   archetype?: string;
@@ -61,6 +64,21 @@ export interface RenderVideoOptions {
    * Progress is reported as 0..1 when available.
    */
   onProgress?: (event: RenderProgressEvent) => void;
+  /**
+   * Caption grouping window in milliseconds.
+   * Controls how many words are grouped into a single caption "page".
+   * Default: 800
+   */
+  captionGroupMs?: number;
+  /**
+   * Caption display mode: page (default), single (one word at a time), buildup (accumulate per sentence)
+   */
+  captionMode?: 'page' | 'single' | 'buildup';
+  /**
+   * Words per caption page/group.
+   * Default: 8 (for larger sentences)
+   */
+  wordsPerPage?: number;
 }
 
 export type RenderProgressPhase = 'bundle' | 'select-composition' | 'render-media' | 'mock';
@@ -125,17 +143,45 @@ function resolveCaptionConfig(options: RenderVideoOptions): CaptionConfig {
   const presetName = options.captionPreset ?? 'tiktok';
   const preset = getCaptionPreset(presetName);
 
+  // Build layout with captionGroupMs and wordsPerPage overrides if provided
+  const layoutOverride: Partial<CaptionConfig['layout']> = {};
+  if (options.captionGroupMs) {
+    layoutOverride.maxGapMs = options.captionGroupMs;
+  }
+  if (options.wordsPerPage) {
+    layoutOverride.maxWordsPerPage = options.wordsPerPage;
+  }
+
+  // Build top-level overrides
+  const topLevelOverride: Partial<CaptionConfig> = {};
+  if (options.captionMode) {
+    topLevelOverride.displayMode = options.captionMode;
+  }
+  if (options.wordsPerPage) {
+    topLevelOverride.wordsPerPage = options.wordsPerPage;
+  }
+
   // If captionConfig is provided, merge it with the preset
   if (options.captionConfig) {
     return {
       ...preset,
+      ...topLevelOverride,
       ...options.captionConfig,
       // Deep merge nested objects
       pillStyle: { ...preset.pillStyle, ...options.captionConfig.pillStyle },
       stroke: { ...preset.stroke, ...options.captionConfig.stroke },
       shadow: { ...preset.shadow, ...options.captionConfig.shadow },
-      layout: { ...preset.layout, ...options.captionConfig.layout },
+      layout: { ...preset.layout, ...options.captionConfig.layout, ...layoutOverride },
       positionOffset: { ...preset.positionOffset, ...options.captionConfig.positionOffset },
+    };
+  }
+
+  // Apply overrides to preset
+  if (Object.keys(layoutOverride).length > 0 || Object.keys(topLevelOverride).length > 0) {
+    return {
+      ...preset,
+      ...topLevelOverride,
+      layout: { ...preset.layout, ...layoutOverride },
     };
   }
 
@@ -143,14 +189,15 @@ function resolveCaptionConfig(options: RenderVideoOptions): CaptionConfig {
 }
 
 /**
- * Build render props with caption styling
+ * Build render props with caption styling.
+ * Returns RenderPropsInput since we accept VisualsOutputInput (defaults applied during Zod parsing).
  */
 function buildRenderProps(
   options: RenderVideoOptions,
   dimensions: { width: number; height: number },
   fps: number,
   audioFilename: string
-): RenderProps {
+): RenderPropsInput {
   const captionConfig = resolveCaptionConfig(options);
 
   return {
@@ -184,11 +231,12 @@ function buildRenderProps(
 /** Options for executeRender helper */
 interface ExecuteRenderOptions {
   bundleLocation: string;
-  renderProps: RenderProps;
+  renderProps: RenderPropsInput;
   outputPath: string;
   dimensions: { width: number; height: number };
   fps: number;
   totalDuration: number;
+  compositionId: string;
   log: ReturnType<typeof createLogger>;
   onProgress?: (event: RenderProgressEvent) => void;
 }
@@ -204,6 +252,7 @@ async function executeRender(opts: ExecuteRenderOptions): Promise<void> {
     dimensions,
     fps,
     totalDuration,
+    compositionId,
     log,
     onProgress,
   } = opts;
@@ -212,7 +261,7 @@ async function executeRender(opts: ExecuteRenderOptions): Promise<void> {
 
   const composition = await selectComposition({
     serveUrl: bundleLocation,
-    id: 'ShortVideo',
+    id: compositionId,
     inputProps: renderProps,
   });
 
@@ -257,6 +306,7 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
   const fps = options.fps ?? 30;
   const dimensions = DIMENSIONS[options.orientation];
   const totalDuration = options.timestamps.totalDuration;
+  const compositionId = options.compositionId ?? 'ShortVideo';
 
   await mkdir(dirname(options.outputPath), { recursive: true });
 
@@ -267,6 +317,7 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
       duration: totalDuration,
       sceneCount: options.visuals.scenes.length,
       mock: options.mock,
+      compositionId,
     },
     'Starting video render'
   );
@@ -290,6 +341,7 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
       dimensions,
       fps,
       totalDuration,
+      compositionId,
       log,
       onProgress: safeProgress,
     });

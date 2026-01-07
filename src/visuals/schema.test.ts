@@ -10,11 +10,11 @@ import {
   KeywordSchema,
   VisualsOutputSchema,
   VISUALS_SCHEMA_VERSION,
-  type VisualAsset,
+  type VisualAssetInput,
   type MatchReasoning,
   type VideoClip,
   type Keyword,
-  type VisualsOutput,
+  type VisualsOutputInput,
 } from './schema';
 
 // Test constants to avoid duplicate literals
@@ -45,7 +45,7 @@ describe('MatchReasoningSchema', () => {
 
 describe('VisualAssetSchema', () => {
   it('should validate correct visual asset', () => {
-    const asset: VisualAsset = {
+    const asset: VisualAssetInput = {
       sceneId: TEST_SCENE_ID,
       source: TEST_SOURCE_PEXELS,
       assetPath: `assets/${TEST_SCENE_ID}.mp4`,
@@ -60,7 +60,7 @@ describe('VisualAssetSchema', () => {
   });
 
   it('should validate fallback-color source', () => {
-    const asset: VisualAsset = {
+    const asset: VisualAssetInput = {
       sceneId: 'scene-002',
       source: 'fallback-color',
       assetPath: '#1a1a2e',
@@ -72,7 +72,7 @@ describe('VisualAssetSchema', () => {
   });
 
   it('should allow optional trim settings', () => {
-    const asset: VisualAsset = {
+    const asset: VisualAssetInput = {
       sceneId: TEST_SCENE_ID,
       source: TEST_SOURCE_PEXELS,
       assetPath: `assets/${TEST_SCENE_ID}.mp4`,
@@ -158,7 +158,7 @@ describe('KeywordSchema', () => {
 
 describe('VisualsOutputSchema', () => {
   it('should validate correct visuals output (new schema)', () => {
-    const output: VisualsOutput = {
+    const output: VisualsOutputInput = {
       schemaVersion: VISUALS_SCHEMA_VERSION,
       scenes: [
         {
@@ -182,7 +182,7 @@ describe('VisualsOutputSchema', () => {
   });
 
   it('should include keywords and totalDuration', () => {
-    const output: VisualsOutput = {
+    const output: VisualsOutputInput = {
       schemaVersion: VISUALS_SCHEMA_VERSION,
       scenes: [
         {
@@ -216,7 +216,7 @@ describe('VisualsOutputSchema', () => {
   });
 
   it('should allow mixed sources', () => {
-    const output: VisualsOutput = {
+    const output: VisualsOutputInput = {
       schemaVersion: VISUALS_SCHEMA_VERSION,
       scenes: [
         {

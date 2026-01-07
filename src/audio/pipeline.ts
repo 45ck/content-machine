@@ -17,6 +17,7 @@ import {
 } from './schema';
 import { synthesizeSpeech } from './tts';
 import { transcribeAudio, ASRResult } from './asr';
+import { reconcileToScript as reconcileAsrToScript } from './asr/reconcile';
 
 export type { AudioOutput, TimestampsOutput, WordTimestamp } from './schema';
 
@@ -151,6 +152,17 @@ export interface GenerateAudioOptions {
    * Used in "audio-first" pipeline mode for guaranteed sync accuracy.
    */
   requireWhisper?: boolean;
+  /**
+   * Whisper model size for ASR transcription.
+   * Larger models are more accurate but slower.
+   * Default: 'base'
+   */
+  whisperModel?: 'tiny' | 'base' | 'small' | 'medium';
+  /**
+   * Reconcile ASR output to match original script text.
+   * Improves caption readability by using original punctuation/casing.
+   */
+  reconcile?: boolean;
 }
 
 /**
@@ -185,9 +197,13 @@ export async function generateAudio(options: GenerateAudioOptions): Promise<Audi
   log.info({ duration: ttsResult.duration }, 'TTS audio generated');
 
   // Step 2: Transcribe for word-level timestamps
-  log.info({ requireWhisper: options.requireWhisper }, 'Transcribing audio for timestamps');
+  log.info(
+    { requireWhisper: options.requireWhisper, whisperModel: options.whisperModel },
+    'Transcribing audio for timestamps'
+  );
   const asrResult = await transcribeAudio({
     audioPath: options.outputPath,
+    model: options.whisperModel,
     originalText: fullText,
     audioDuration: ttsResult.duration,
     requireWhisper: options.requireWhisper,
@@ -198,8 +214,16 @@ export async function generateAudio(options: GenerateAudioOptions): Promise<Audi
     'Transcription complete'
   );
 
+  // Step 2b: Reconcile ASR to script text if enabled
+  let finalWords = asrResult.words;
+  if (options.reconcile && asrResult.engine !== 'estimated') {
+    log.info('Reconciling ASR output to script text');
+    finalWords = reconcileAsrToScript(asrResult.words, fullText);
+    log.info({ reconciledWords: finalWords.length }, 'Reconciliation complete');
+  }
+
   // Step 3: Build timestamps output
-  const timestamps = buildTimestamps(asrResult, options.script);
+  const timestamps = buildTimestamps({ ...asrResult, words: finalWords }, options.script);
 
   // Save timestamps
   await writeFile(options.timestampsPath, JSON.stringify(timestamps, null, 2), 'utf-8');

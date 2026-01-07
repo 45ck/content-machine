@@ -6,7 +6,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { mkdirSync, rmSync } from 'fs';
 import { join } from 'path';
 import { renderVideo } from './service';
-import { VISUALS_SCHEMA_VERSION, type VisualsOutput } from '../visuals/schema';
+import { VISUALS_SCHEMA_VERSION, type VisualsOutputInput } from '../visuals/schema';
 import { AUDIO_SCHEMA_VERSION, type TimestampsOutput } from '../audio/schema';
 
 describe('renderVideo() progress reporting', () => {
@@ -15,7 +15,7 @@ describe('renderVideo() progress reporting', () => {
     rmSync(outDir, { recursive: true, force: true });
     mkdirSync(outDir, { recursive: true });
 
-    const visuals: VisualsOutput = {
+    const visuals: VisualsOutputInput = {
       schemaVersion: VISUALS_SCHEMA_VERSION,
       scenes: [
         {

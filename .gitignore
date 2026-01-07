@@ -42,6 +42,7 @@ out/
 
 # Cache files
 .cache/
+*.traineddata
 
 # Generated docs
 docs/api/

@@ -10,6 +10,8 @@ import { matchVisuals, VisualsProgressEvent } from '../visuals/matcher';
 import type { VisualsOutput } from '../visuals/matcher';
 import { renderVideo, RenderProgressEvent } from '../render/service';
 import type { RenderOutput } from '../render/service';
+import type { CaptionConfig } from '../render/schema';
+import type { CaptionPresetName } from '../render/captions/presets';
 import { Archetype, Orientation } from './config';
 import { createLogger, logTiming, Logger } from './logger';
 import { PipelineError } from './errors';
@@ -30,6 +32,25 @@ export interface PipelineOptions {
   voice: string;
   targetDuration: number;
   outputPath: string;
+  /**
+   * Frames per second for rendering.
+   * Default: 30
+   */
+  fps?: number;
+  /**
+   * Remotion composition id (defaults to "ShortVideo").
+   * Intended to be set via video templates.
+   */
+  compositionId?: string;
+  /**
+   * Caption preset name (tiktok, youtube, reels, bold, minimal, neon).
+   * Priority: captionConfig > captionPreset > default (tiktok).
+   */
+  captionPreset?: CaptionPresetName;
+  /**
+   * Partial caption configuration overrides. Typically sourced from templates.
+   */
+  captionConfig?: Partial<CaptionConfig>;
   keepArtifacts?: boolean;
   workDir?: string;
   onProgress?: (stage: PipelineStage, message: string) => void;
@@ -50,6 +71,32 @@ export interface PipelineOptions {
    * - 'audio-first': Requires Whisper ASR for ground-truth timestamps, fails if unavailable
    */
   pipelineMode?: 'standard' | 'audio-first';
+  /**
+   * Whisper model size for ASR transcription.
+   * Larger models are more accurate but slower.
+   * Default: 'base'
+   */
+  whisperModel?: 'tiny' | 'base' | 'small' | 'medium';
+  /**
+   * Caption grouping window in milliseconds.
+   * Controls how many words are grouped into a single caption "page".
+   * Default: 800
+   */
+  captionGroupMs?: number;
+  /**
+   * Reconcile ASR output to match original script text.
+   * Improves caption readability by using original punctuation/casing.
+   */
+  reconcile?: boolean;
+  /**
+   * Caption display mode: page (default), single (one word at a time), buildup (accumulate per sentence)
+   */
+  captionMode?: 'page' | 'single' | 'buildup';
+  /**
+   * Words per caption page/group.
+   * Default: 8 (for larger sentences)
+   */
+  wordsPerPage?: number;
 }
 
 /**
@@ -157,7 +204,11 @@ async function executeAudioStage(
   costs: PipelineCosts
 ): Promise<AudioOutput> {
   log.info(
-    { pipelineMode: options.pipelineMode ?? 'standard' },
+    {
+      pipelineMode: options.pipelineMode ?? 'standard',
+      whisperModel: options.whisperModel,
+      reconcile: options.reconcile,
+    },
     'Starting Stage 2: Audio generation'
   );
   options.onProgress?.('audio', 'Generating audio...');
@@ -172,6 +223,8 @@ async function executeAudioStage(
         timestampsPath: artifacts.timestamps,
         mock: options.mock,
         requireWhisper: options.pipelineMode === 'audio-first',
+        whisperModel: options.whisperModel,
+        reconcile: options.reconcile,
       });
     },
     log
@@ -225,7 +278,17 @@ async function executeRenderStage(
   log: Logger,
   onProgress?: (event: RenderProgressEvent) => void
 ): Promise<RenderOutput> {
-  log.info('Starting Stage 4: Video rendering');
+  log.info(
+    {
+      fps: options.fps ?? 30,
+      compositionId: options.compositionId,
+      captionPreset: options.captionPreset,
+      captionGroupMs: options.captionGroupMs,
+      captionMode: options.captionMode,
+      wordsPerPage: options.wordsPerPage,
+    },
+    'Starting Stage 4: Video rendering'
+  );
   options.onProgress?.('render', 'Rendering video...');
 
   const render = await logTiming(
@@ -237,9 +300,16 @@ async function executeRenderStage(
         audioPath: artifacts.audio,
         outputPath: options.outputPath,
         orientation: options.orientation,
-        fps: 30,
+        fps: options.fps ?? 30,
         mock: options.mock,
         onProgress,
+        compositionId: options.compositionId,
+        captionPreset: options.captionPreset,
+        captionConfig: options.captionConfig,
+        archetype: options.archetype,
+        captionGroupMs: options.captionGroupMs,
+        captionMode: options.captionMode,
+        wordsPerPage: options.wordsPerPage,
       });
     },
     log

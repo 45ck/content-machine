@@ -29,6 +29,7 @@ export { Caption, type CaptionProps } from './Caption';
 export {
   CaptionConfigSchema,
   type CaptionConfig,
+  type CaptionDisplayMode,
   type HighlightMode,
   type CaptionPosition,
   type PageAnimation,

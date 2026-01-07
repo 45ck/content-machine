@@ -1,7 +1,7 @@
 # Feature: Video Templates ("render templates")
 
 **Date:** 2026-01-07  
-**Status:** Partially Implemented (render MVP)  
+**Status:** Implemented (render + generate MVP)  
 **Owners:** content-machine core
 
 ---
@@ -44,6 +44,7 @@ This is complementary to **content archetypes** (listicle/versus/howto/etc). Arc
 Implemented:
 
 - `cm render --template <id|path>` loads a template (built-in id or file/dir path).
+- `cm generate --template <id|path>` loads a template and threads defaults through the pipeline into render.
 - Template defaults apply only when the corresponding CLI option was not explicitly set.
 - Renderer supports selecting a Remotion composition via `compositionId` (defaults to `ShortVideo`).
 - Built-in templates shipped:
@@ -52,7 +53,6 @@ Implemented:
 
 Not yet implemented:
 
-- `cm generate --template <id|path>`
 - Template `assets` and `params` consumed by compositions
 - Additional compositions (split-screen gameplay, audiogram)
 
@@ -86,7 +86,7 @@ These map directly to patterns found in `vendor/` and `templates/` research.
 
 Add to:
 
-- `cm generate --template <id|path>`
+- `cm generate --template <id|path>` (implemented)
 - `cm render --template <id|path>` (implemented)
 
 Behavior:

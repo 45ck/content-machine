@@ -79,11 +79,11 @@ We may add an optional **trusted plugin mode** later (explicit opt-in) for loadi
 Initial slice (implemented):
 
 - `cm render --template <id|path>` loads a template and applies defaults safely.
+- `cm generate --template <id|path>` loads a template and threads defaults through the pipeline into render.
 - Renderer accepts `compositionId` with a fallback to `ShortVideo`.
 
 Next steps:
 
-- Thread templates through `cm generate` and the pipeline.
 - Introduce typed `template.params` and `template.assets` consumed by built-in compositions.
 - Add template management commands (`cm templates list|validate|install`).
 

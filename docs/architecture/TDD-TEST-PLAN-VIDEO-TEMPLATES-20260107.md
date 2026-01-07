@@ -93,6 +93,8 @@ Target:
 
 ### Milestone 1: `cm generate --template`
 
+**Status:** Implemented (see `tests/integration/cli/generate-template.test.ts`).
+
 #### 🔴 RED — tests
 
 1. `cm generate --template <path> --mock --json` includes:

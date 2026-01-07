@@ -13,7 +13,7 @@ import { NotFoundError } from '../core/errors.js';
 import {
   VisualsOutput,
   VisualsOutputSchema,
-  VisualAsset,
+  VisualAssetInput,
   Keyword,
   VISUALS_SCHEMA_VERSION,
 } from './schema.js';
@@ -40,7 +40,7 @@ export interface VisualsProgressEvent {
 }
 
 interface VideoMatchResult {
-  asset: VisualAsset;
+  asset: VisualAssetInput;
   fromStock: boolean;
   isFallback: boolean;
 }
@@ -171,9 +171,9 @@ function generateMockVisuals(options: MatchVisualsOptions): VisualsOutput {
   const scenes = options.timestamps.scenes ?? [];
   const keywords = generateMockKeywords(scenes);
 
-  const visualAssets: VisualAsset[] = scenes.map((scene, index) => ({
+  const visualAssets: VisualAssetInput[] = scenes.map((scene, index) => ({
     sceneId: scene.sceneId,
-    source: 'mock',
+    source: 'mock' as const,
     assetPath: `https://mock.pexels.com/video/${index + 1}.mp4`,
     duration: scene.audioEnd - scene.audioStart,
     matchReasoning: {
@@ -240,7 +240,7 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
   });
 
   // Match each keyword to video
-  const visualAssets: VisualAsset[] = [];
+  const visualAssets: VisualAssetInput[] = [];
   let fallbacks = 0;
   let fromStock = 0;
 
@@ -262,7 +262,7 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
     });
   }
 
-  const output: VisualsOutput = {
+  const output = {
     schemaVersion: VISUALS_SCHEMA_VERSION,
     scenes: visualAssets,
     totalAssets: visualAssets.length,

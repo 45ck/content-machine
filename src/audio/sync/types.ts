@@ -76,6 +76,8 @@ export interface TimestampsResult {
 export interface SyncStrategyOptions {
   /** Require whisper for ASR (fail if unavailable) */
   requireWhisper?: boolean;
+  /** Audio duration in seconds (used for estimation fallback) */
+  audioDuration?: number;
   /** Reconcile timestamps to match script exactly */
   reconcile?: boolean;
   /** Minimum similarity threshold for reconciliation (0-1) */

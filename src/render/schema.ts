@@ -60,6 +60,8 @@ export const RenderPropsSchema = z.object({
 export type VideoScene = z.infer<typeof VisualAssetSchema>;
 export type VideoClip = z.infer<typeof VideoClipSchema>;
 export type RenderProps = z.infer<typeof RenderPropsSchema>;
+/** Input type for RenderProps (before Zod transforms apply defaults) */
+export type RenderPropsInput = z.input<typeof RenderPropsSchema>;
 
 /**
  * Render output

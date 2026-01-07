@@ -23,6 +23,7 @@ Recommended engineering path:
 Implemented today:
 
 - `cm render --template <id|path>` resolves a template by id/path and applies defaults safely
+- `cm generate --template <id|path>` resolves a template and threads defaults into the pipeline render stage
 - Template defaults currently influence:
   - `orientation`, `fps`, `captionPreset`, `captionConfig` (partial)
   - `compositionId` for Remotion composition selection (default remains `ShortVideo`)
@@ -30,7 +31,6 @@ Implemented today:
 
 Not implemented yet:
 
-- `cm generate --template`
 - `assets` and `params` consumption by compositions
 - multiple compositions (only `ShortVideo` exists today)
 
@@ -249,7 +249,7 @@ This avoids exploding the CLI surface with one-off flags for every template para
 - `compositionId` support in renderer
 - Unit + integration tests
 
-### Milestone 1: `cm generate --template`
+### Milestone 1 (done): `cm generate --template`
 
 - Add `--template` to `cm generate`
 - Resolve template at the start of generate and pass into pipeline

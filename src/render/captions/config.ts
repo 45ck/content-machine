@@ -46,6 +46,16 @@ export const PageAnimationSchema = z.enum([
 export type PageAnimation = z.infer<typeof PageAnimationSchema>;
 
 /**
+ * Caption display mode - controls how words appear on screen
+ */
+export const CaptionDisplayModeSchema = z.enum([
+  'page', // Default: show N words at a time, highlight current (TikTok style)
+  'single', // Show only ONE word at a time, replaces on each word
+  'buildup', // Words accumulate per sentence, then clear for next sentence
+]);
+export type CaptionDisplayMode = z.infer<typeof CaptionDisplayModeSchema>;
+
+/**
  * Background pill configuration (for 'background' highlight mode)
  */
 export const PillStyleSchema = z.object({
@@ -132,6 +142,12 @@ export const CaptionConfigSchema = z.object({
   /** Schema version for migrations */
   version: z.string().default('1.0.0'),
 
+  // === DISPLAY MODE ===
+  /** How words are displayed: page (default), single (one word only), buildup (accumulate per sentence) */
+  displayMode: CaptionDisplayModeSchema.default('page'),
+  /** Words per page/group - controls how many words appear together (default: 8 for larger sentences) */
+  wordsPerPage: z.number().int().positive().default(8),
+
   // === TYPOGRAPHY ===
   /** Font family (use web-safe or load custom) */
   fontFamily: z.string().default('Inter'),
@@ -192,6 +208,18 @@ export const CaptionConfigSchema = z.object({
 });
 
 export type CaptionConfig = z.infer<typeof CaptionConfigSchema>;
+/** Input type for CaptionConfig (before Zod transforms apply defaults) */
+export type CaptionConfigInput = z.input<typeof CaptionConfigSchema>;
+/** Input type for PillStyle (before Zod transforms apply defaults) */
+export type PillStyleInput = z.input<typeof PillStyleSchema>;
+/** Input type for StrokeStyle (before Zod transforms apply defaults) */
+export type StrokeStyleInput = z.input<typeof StrokeStyleSchema>;
+/** Input type for CaptionLayout (before Zod transforms apply defaults) */
+export type CaptionLayoutInput = z.input<typeof CaptionLayoutSchema>;
+/** Input type for TextShadow (before Zod transforms apply defaults) */
+export type TextShadowInput = z.input<typeof TextShadowSchema>;
+/** Input type for PositionOffset (before Zod transforms apply defaults) */
+export type PositionOffsetInput = z.input<typeof PositionOffsetSchema>;
 
 /**
  * Parse and validate caption config with defaults
@@ -203,6 +231,6 @@ export function parseCaptionConfig(input: unknown): CaptionConfig {
 /**
  * Merge partial config with defaults
  */
-export function mergeCaptionConfig(partial: Partial<CaptionConfig>): CaptionConfig {
+export function mergeCaptionConfig(partial: CaptionConfigInput): CaptionConfig {
   return CaptionConfigSchema.parse(partial);
 }

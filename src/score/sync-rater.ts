@@ -225,7 +225,9 @@ async function runOCR(framesDir: string, fps: number): Promise<OCRFrame[]> {
   log.info({ frameCount: files.length }, 'Running OCR on frames');
 
   const results: OCRFrame[] = [];
-  const worker = await Tesseract.createWorker('eng');
+  const cachePath = join(process.cwd(), '.cache', 'tesseract');
+  mkdirSync(cachePath, { recursive: true });
+  const worker = await Tesseract.createWorker('eng', undefined, { cachePath });
 
   for (let i = 0; i < files.length; i++) {
     const file = files[i];

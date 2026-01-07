@@ -9,7 +9,7 @@ import {
   RenderOutputSchema,
   RENDER_SCHEMA_VERSION,
   type CaptionStyle,
-  type RenderProps,
+  type RenderPropsInput,
   type RenderOutput,
 } from './schema';
 
@@ -80,7 +80,7 @@ describe('CaptionStyleSchema', () => {
 
 describe('RenderPropsSchema', () => {
   it('should validate correct render props with scenes', () => {
-    const props: RenderProps = {
+    const props: RenderPropsInput = {
       schemaVersion: RENDER_SCHEMA_VERSION,
       scenes: [
         {
@@ -106,7 +106,7 @@ describe('RenderPropsSchema', () => {
   });
 
   it('should validate render props with clips (legacy)', () => {
-    const props: RenderProps = {
+    const props: RenderPropsInput = {
       schemaVersion: RENDER_SCHEMA_VERSION,
       clips: [
         {
@@ -138,7 +138,7 @@ describe('RenderPropsSchema', () => {
   });
 
   it('should allow optional captionStyle and archetype', () => {
-    const props: RenderProps = {
+    const props: RenderPropsInput = {
       schemaVersion: RENDER_SCHEMA_VERSION,
       scenes: [],
       words: [],

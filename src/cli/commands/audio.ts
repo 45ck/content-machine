@@ -18,6 +18,15 @@ export const audioCommand = new Command('audio')
   .option('--timestamps <path>', 'Output timestamps file path', 'timestamps.json')
   .option('--voice <voice>', 'TTS voice to use', 'af_heart')
   .option('--mock', 'Use mock TTS/ASR (for testing)', false)
+  // Sync strategy options
+  .option(
+    '--sync-strategy <strategy>',
+    'Sync strategy: standard (whisper optional), audio-first (whisper required)',
+    'standard'
+  )
+  .option('--reconcile', 'Reconcile ASR output to match original script text', false)
+  .option('--require-whisper', 'Require whisper ASR (fail if unavailable)', false)
+  .option('--whisper-model <model>', 'Whisper model size: tiny, base, small, medium', 'base')
   .action(async (options) => {
     const spinner = createSpinner('Generating audio...').start();
     const runtime = getCliRuntime();
@@ -29,12 +38,19 @@ export const audioCommand = new Command('audio')
       logger.info({ input: options.input, voice: options.voice }, 'Starting audio generation');
 
       const { generateAudio } = await import('../../audio/pipeline');
+
+      // Determine require-whisper from strategy or explicit flag
+      const requireWhisper = options.requireWhisper || options.syncStrategy === 'audio-first';
+
       const result = await generateAudio({
         script,
         voice: options.voice,
         outputPath: options.output,
         timestampsPath: options.timestamps,
         mock: Boolean(options.mock),
+        requireWhisper,
+        whisperModel: options.whisperModel as 'tiny' | 'base' | 'small' | 'medium',
+        reconcile: Boolean(options.reconcile),
       });
 
       spinner.succeed('Audio generated successfully');
@@ -58,6 +74,10 @@ export const audioCommand = new Command('audio')
               timestamps: options.timestamps,
               voice: options.voice,
               mock: Boolean(options.mock),
+              syncStrategy: options.syncStrategy,
+              reconcile: Boolean(options.reconcile),
+              requireWhisper,
+              whisperModel: options.whisperModel,
             },
             outputs: {
               audioPath: result.audioPath,

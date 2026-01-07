@@ -3,11 +3,56 @@
  *
  * Zod schemas for visual matching output validation.
  * Based on SYSTEM-DESIGN §6.5 VisualPlanSchema
+ *
+ * Extended in v1.1 to support AI-generated images and motion strategies.
+ * See ADR-002-VISUAL-PROVIDER-SYSTEM-20260107.md
  */
 import { z } from 'zod';
 
 /** Current schema version for migrations */
-export const VISUALS_SCHEMA_VERSION = '1.0.0';
+export const VISUALS_SCHEMA_VERSION = '1.1.0';
+
+/**
+ * All valid visual sources.
+ *
+ * Video sources (no motion needed):
+ * - stock-pexels, stock-pixabay, user-footage
+ *
+ * Image sources (require motion strategy):
+ * - generated-nanobanana, generated-dalle, stock-unsplash
+ *
+ * Fallbacks:
+ * - fallback-color, mock
+ */
+export const VisualSourceEnum = z.enum([
+  // Video sources (no motion needed)
+  'stock-pexels',
+  'stock-pixabay',
+  'user-footage',
+
+  // Image sources (require motion strategy)
+  'generated-nanobanana',
+  'generated-dalle',
+  'stock-unsplash',
+
+  // Fallbacks
+  'fallback-color',
+  'mock',
+]);
+
+export type VisualSource = z.infer<typeof VisualSourceEnum>;
+
+/**
+ * Motion strategy for animating static images.
+ *
+ * - none: No motion (pass-through for videos)
+ * - kenburns: FFmpeg zoom/pan effect (free)
+ * - depthflow: 2.5D parallax animation (free)
+ * - veo: Google Veo image-to-video (~$0.50/clip)
+ */
+export const MotionStrategyEnum = z.enum(['none', 'kenburns', 'depthflow', 'veo']);
+
+export type MotionStrategyType = z.infer<typeof MotionStrategyEnum>;
 
 /**
  * Match reasoning metadata (SYSTEM-DESIGN §6.5 MatchReasoningSchema)
@@ -30,22 +75,63 @@ export type MatchReasoning = z.infer<typeof MatchReasoningSchema>;
 
 /**
  * A visual asset (matches SYSTEM-DESIGN §6.5 VisualAssetSchema)
+ *
+ * Extended in v1.1 to support:
+ * - AI-generated images (generated-nanobanana, generated-dalle)
+ * - Motion strategies for static images
+ * - Generation metadata (prompt, model, cost)
  */
-export const VisualAssetSchema = z.object({
+const VisualAssetBaseSchema = z.object({
   sceneId: z.string(),
-  source: z.enum(['user-footage', 'stock-pexels', 'stock-pixabay', 'fallback-color', 'mock']),
+  source: VisualSourceEnum,
   assetPath: z.string(),
+  duration: z.number().positive(),
+
+  // Asset type discriminator (v1.1) - optional for backward compatibility
+  assetType: z.enum(['video', 'image']).optional(),
+
+  // Motion strategy for images (v1.1)
+  motionStrategy: MotionStrategyEnum.optional(),
+  motionApplied: z.boolean().optional(),
+
+  // AI generation metadata (v1.1)
+  generationPrompt: z.string().optional(),
+  generationModel: z.string().optional(),
+  generationCost: z.number().nonnegative().optional(),
+
+  // Matching metadata
   embeddingSimilarity: z.number().min(0).max(1).optional(),
   llmConfidence: z.number().min(0).max(1).optional(),
   matchReasoning: MatchReasoningSchema.optional(),
   visualCue: z.string().optional(),
-  duration: z.number().positive(),
+
+  // Trimming
   trimStart: z.number().nonnegative().optional(),
   trimEnd: z.number().positive().optional(),
   trimReasoning: z.string().optional(),
 });
 
-export type VisualAsset = z.infer<typeof VisualAssetSchema>;
+/**
+ * VisualAssetSchema with defaults applied during parsing.
+ * Use VisualAssetInput for creating objects, VisualAsset for parsed objects.
+ */
+export const VisualAssetSchema = VisualAssetBaseSchema.transform((asset) => ({
+  ...asset,
+  // Apply defaults for backward compatibility
+  assetType: asset.assetType ?? ('video' as const),
+  motionApplied: asset.motionApplied ?? false,
+}));
+
+/**
+ * Input type for creating VisualAsset objects (before parsing).
+ * assetType and motionApplied are optional.
+ */
+export type VisualAssetInput = z.input<typeof VisualAssetSchema>;
+
+/**
+ * Output type after parsing VisualAsset (with defaults applied).
+ */
+export type VisualAsset = z.output<typeof VisualAssetSchema>;
 
 /**
  * @deprecated Use VisualAssetSchema instead - kept for backward compatibility
@@ -82,14 +168,25 @@ export type Keyword = z.infer<typeof KeywordSchema>;
 
 /**
  * Full visuals output (matches SYSTEM-DESIGN §6.5 VisualPlanSchema)
+ *
+ * Extended in v1.1 to support:
+ * - fromGenerated count for AI-generated assets
+ * - totalGenerationCost for cost tracking
+ * - motionStrategy at output level
  */
-export const VisualsOutputSchema = z.object({
+const VisualsOutputBaseSchema = z.object({
   schemaVersion: z.string().default(VISUALS_SCHEMA_VERSION),
   scenes: z.array(VisualAssetSchema).describe('Per-scene visual assets'),
   totalAssets: z.number().int().nonnegative(),
   fromUserFootage: z.number().int().nonnegative(),
   fromStock: z.number().int().nonnegative(),
   fallbacks: z.number().int().nonnegative(),
+
+  // AI generation tracking (v1.1) - optional for backward compatibility
+  fromGenerated: z.number().int().nonnegative().optional(),
+  totalGenerationCost: z.number().nonnegative().optional(),
+  motionStrategy: MotionStrategyEnum.optional(),
+
   embeddingModel: z.string().optional(),
   reasoningModel: z.string().optional(),
   provider: z.string().optional().describe('@deprecated Use source in scenes'),
@@ -101,4 +198,21 @@ export const VisualsOutputSchema = z.object({
   fallbacksUsed: z.number().int().nonnegative().optional().describe('@deprecated Use fallbacks'),
 });
 
-export type VisualsOutput = z.infer<typeof VisualsOutputSchema>;
+/**
+ * VisualsOutputSchema with defaults applied during parsing.
+ */
+export const VisualsOutputSchema = VisualsOutputBaseSchema.transform((output) => ({
+  ...output,
+  // Apply defaults for backward compatibility
+  fromGenerated: output.fromGenerated ?? 0,
+}));
+
+/**
+ * Input type for creating VisualsOutput objects (before parsing).
+ */
+export type VisualsOutputInput = z.input<typeof VisualsOutputSchema>;
+
+/**
+ * Output type after parsing VisualsOutput (with defaults applied).
+ */
+export type VisualsOutput = z.output<typeof VisualsOutputSchema>;

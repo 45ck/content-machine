@@ -36,6 +36,24 @@ function extractScriptText(script: ScriptOutput): string {
   return script.scenes.map((scene) => scene.text).join(' ');
 }
 
+function countWords(text: string): number {
+  return text.split(/\s+/).filter(Boolean).length;
+}
+
+function createEmptyScriptResult(startTime: number): TimestampsResult {
+  return {
+    source: 'estimation',
+    words: [],
+    confidence: 1.0,
+    metadata: {
+      processingTimeMs: Date.now() - startTime,
+      reconciled: false,
+      scriptWordCount: 0,
+      originalWordCount: 0,
+    },
+  };
+}
+
 /**
  * Calculate confidence based on source and word coverage
  */
@@ -86,24 +104,13 @@ export class StandardSyncStrategy implements SyncStrategy {
 
     // Extract text from script
     const scriptText = extractScriptText(script);
-    const scriptWords = scriptText.split(/\s+/).filter(Boolean);
-    const scriptWordCount = scriptWords.length;
+    const scriptWordCount = countWords(scriptText);
 
     log.debug({ audioPath, scriptWordCount }, 'Starting standard sync strategy');
 
     // Handle empty script
     if (scriptWordCount === 0) {
-      return {
-        source: 'estimation',
-        words: [],
-        confidence: 1.0,
-        metadata: {
-          processingTimeMs: Date.now() - startTime,
-          reconciled: false,
-          scriptWordCount: 0,
-          originalWordCount: 0,
-        },
-      };
+      return createEmptyScriptResult(startTime);
     }
 
     try {
