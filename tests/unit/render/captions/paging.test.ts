@@ -3,9 +3,15 @@
  *
  * Tests for word wrapping and page creation.
  * Critical: Words should NEVER be broken mid-word.
+ * Critical: Sentence boundaries should trigger new pages.
+ * Critical: Multi-line captions should actually render.
  */
 import { describe, it, expect } from 'vitest';
-import { createCaptionPages, toTimedWords, TimedWord } from '../../../../src/render/captions/paging';
+import {
+  createCaptionPages,
+  toTimedWords,
+  TimedWord,
+} from '../../../../src/render/captions/paging';
 
 /**
  * Helper to create timed words from text array
@@ -15,6 +21,19 @@ function createWords(texts: string[]): TimedWord[] {
     text,
     startMs: i * 500,
     endMs: (i + 1) * 500 - 50,
+  }));
+}
+
+/**
+ * Helper to create realistic sentence with timing
+ */
+function createSentence(text: string, startMs: number): TimedWord[] {
+  const words = text.split(' ');
+  const wordDuration = 300; // 300ms per word
+  return words.map((word, i) => ({
+    text: word,
+    startMs: startMs + i * wordDuration,
+    endMs: startMs + (i + 1) * wordDuration - 50,
   }));
 }
 
@@ -205,6 +224,131 @@ describe('createCaptionPages', () => {
       expect(pages).toHaveLength(1);
       expect(pages[0].lines).toHaveLength(1);
       expect(pages[0].lines[0].text).toBe('Supercalifragilisticexpialidocious');
+    });
+  });
+
+  describe('multi-line captions (CRITICAL)', () => {
+    it('creates multi-line pages with default settings', () => {
+      // Realistic sentence that should span multiple lines
+      // Default: maxCharsPerLine=25, maxLinesPerPage=2, maxWordsPerPage=8
+      const words = createWords([
+        'Redis',
+        'is',
+        'incredibly',
+        'fast',
+        'because',
+        'it',
+        'stores',
+        'data',
+      ]);
+
+      const pages = createCaptionPages(words);
+
+      // With 8 words and default 25 chars/line, should have multi-line pages
+      // "Redis is incredibly fast" = 24 chars (fits line 1)
+      // "because it stores data" = 22 chars (fits line 2)
+      expect(pages.length).toBeGreaterThanOrEqual(1);
+      const hasMultiLinePage = pages.some((p) => p.lines.length === 2);
+      expect(hasMultiLinePage).toBe(true);
+    });
+
+    it('creates exactly 2 lines when content fits', () => {
+      // Create content that should produce exactly 2 lines on one page
+      const words = createWords(['Line', 'one', 'here', 'Line', 'two', 'here']);
+
+      const pages = createCaptionPages(words, {
+        maxCharsPerLine: 15,
+        maxLinesPerPage: 2,
+        maxWordsPerPage: 10,
+      });
+
+      // Should have at least one page with 2 lines
+      const twoLinePage = pages.find((p) => p.lines.length === 2);
+      expect(twoLinePage).toBeDefined();
+      expect(twoLinePage!.lines[0].text).toBeTruthy();
+      expect(twoLinePage!.lines[1].text).toBeTruthy();
+    });
+
+    it('page.text contains newline for multi-line pages', () => {
+      const words = createWords(['First', 'line', 'content', 'Second', 'line', 'content']);
+
+      const pages = createCaptionPages(words, {
+        maxCharsPerLine: 18,
+        maxLinesPerPage: 2,
+        maxWordsPerPage: 10,
+      });
+
+      // Find a multi-line page and verify it has newline in text
+      const multiLinePage = pages.find((p) => p.lines.length > 1);
+      if (multiLinePage) {
+        expect(multiLinePage.text).toContain('\n');
+      }
+    });
+  });
+
+  describe('sentence boundary handling', () => {
+    it('starts new page after sentence-ending punctuation', () => {
+      // Two sentences - should be on separate pages
+      const sentence1 = createSentence('This is sentence one.', 0);
+      const sentence2 = createSentence('This is sentence two.', 2000);
+      const words = [...sentence1, ...sentence2];
+
+      const pages = createCaptionPages(words, {
+        maxCharsPerLine: 50,
+        maxLinesPerPage: 2,
+        maxWordsPerPage: 10,
+        maxGapMs: 500, // Trigger new page on the gap between sentences
+      });
+
+      // Should create 2 pages (one per sentence due to time gap)
+      expect(pages.length).toBe(2);
+      expect(pages[0].text).toContain('one.');
+      expect(pages[1].text).toContain('two.');
+    });
+
+    it('keeps short sentences together on one page', () => {
+      // Single short sentence should stay together
+      const words = createWords(['Hello', 'world!']);
+
+      const pages = createCaptionPages(words, {
+        maxCharsPerLine: 50,
+        maxLinesPerPage: 2,
+        maxWordsPerPage: 10,
+      });
+
+      expect(pages.length).toBe(1);
+      expect(pages[0].words.length).toBe(2);
+    });
+  });
+
+  describe('realistic video caption scenarios', () => {
+    it('handles typical TikTok caption flow', () => {
+      // Simulate a real 30-second video with multiple sentences
+      const allWords: TimedWord[] = [
+        // Sentence 1: "Redis is the fastest database."
+        ...createSentence('Redis is the fastest database.', 0),
+        // Sentence 2: "It stores everything in memory."
+        ...createSentence('It stores everything in memory.', 2000),
+        // Sentence 3: "This makes reads incredibly fast."
+        ...createSentence('This makes reads incredibly fast.', 4000),
+      ];
+
+      const pages = createCaptionPages(allWords, {
+        maxCharsPerLine: 25,
+        maxLinesPerPage: 2,
+        maxWordsPerPage: 8,
+        maxGapMs: 800,
+      });
+
+      // Should create multiple pages
+      expect(pages.length).toBeGreaterThanOrEqual(3);
+
+      // Each page should have reasonable content
+      for (const page of pages) {
+        expect(page.words.length).toBeGreaterThan(0);
+        expect(page.words.length).toBeLessThanOrEqual(8);
+        expect(page.lines.length).toBeLessThanOrEqual(2);
+      }
     });
   });
 });

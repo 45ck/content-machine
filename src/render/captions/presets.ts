@@ -11,6 +11,7 @@ import { CaptionConfig, CaptionConfigSchema } from './config';
  *
  * The classic TikTok look: bold uppercase text with blue pill highlight.
  * High readability, proven engagement.
+ * Now with 2-line support for better sentence flow.
  */
 export const PRESET_TIKTOK: CaptionConfig = CaptionConfigSchema.parse({
   fontFamily: 'Inter',
@@ -39,17 +40,17 @@ export const PRESET_TIKTOK: CaptionConfig = CaptionConfigSchema.parse({
     blur: 10,
   },
   layout: {
-    maxCharsPerLine: 18,
-    maxLinesPerPage: 1,
-    maxGapMs: 1000,
-    maxWordsPerPage: 4,
+    maxCharsPerLine: 25,
+    maxLinesPerPage: 2,
+    maxGapMs: 800,
+    maxWordsPerPage: 8,
   },
   position: 'bottom',
   positionOffset: {
     edgeDistance: 20,
     horizontalPadding: 40,
   },
-  pageAnimation: 'pop',
+  pageAnimation: 'none',
   animationDuration: 150,
 });
 
@@ -58,6 +59,7 @@ export const PRESET_TIKTOK: CaptionConfig = CaptionConfigSchema.parse({
  *
  * Clean, modern look with color-only highlight (no pill).
  * Good for educational/informative content.
+ * 2-line support for smooth sentence flow.
  */
 export const PRESET_YOUTUBE_SHORTS: CaptionConfig = CaptionConfigSchema.parse({
   fontFamily: 'Inter',
@@ -83,7 +85,7 @@ export const PRESET_YOUTUBE_SHORTS: CaptionConfig = CaptionConfigSchema.parse({
     maxCharsPerLine: 25,
     maxLinesPerPage: 2,
     maxGapMs: 800,
-    maxWordsPerPage: 6,
+    maxWordsPerPage: 8,
   },
   position: 'center',
   positionOffset: {
@@ -99,6 +101,7 @@ export const PRESET_YOUTUBE_SHORTS: CaptionConfig = CaptionConfigSchema.parse({
  *
  * Trendy, vibrant with gradient-friendly colors.
  * Pink/coral highlight for lifestyle content.
+ * Now with 2-line support for better sentence flow.
  */
 export const PRESET_REELS: CaptionConfig = CaptionConfigSchema.parse({
   fontFamily: 'Inter',
@@ -127,10 +130,10 @@ export const PRESET_REELS: CaptionConfig = CaptionConfigSchema.parse({
     blur: 8,
   },
   layout: {
-    maxCharsPerLine: 16,
-    maxLinesPerPage: 1,
-    maxGapMs: 1200,
-    maxWordsPerPage: 3,
+    maxCharsPerLine: 22,
+    maxLinesPerPage: 2,
+    maxGapMs: 800,
+    maxWordsPerPage: 6,
   },
   position: 'bottom',
   positionOffset: {
@@ -229,6 +232,7 @@ export const PRESET_MINIMAL: CaptionConfig = CaptionConfigSchema.parse({
  *
  * Vibrant, attention-grabbing with glow effect.
  * Great for entertainment/gaming content.
+ * Now with 2-line support for better sentence flow.
  */
 export const PRESET_NEON: CaptionConfig = CaptionConfigSchema.parse({
   fontFamily: 'Inter',
@@ -251,10 +255,10 @@ export const PRESET_NEON: CaptionConfig = CaptionConfigSchema.parse({
     blur: 20,
   },
   layout: {
-    maxCharsPerLine: 18,
-    maxLinesPerPage: 1,
-    maxGapMs: 1000,
-    maxWordsPerPage: 4,
+    maxCharsPerLine: 25,
+    maxLinesPerPage: 2,
+    maxGapMs: 800,
+    maxWordsPerPage: 8,
   },
   position: 'center',
   positionOffset: {
