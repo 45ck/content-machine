@@ -70,3 +70,13 @@ export {
   type EngagementIssue,
   type EngagementIssueType,
 } from './engagement-quality';
+
+// Audio quality metrics
+export {
+  analyzeAudioQuality,
+  formatAudioReport,
+  AUDIO_THRESHOLDS,
+  type AudioQualityReport,
+  type AudioIssue,
+  type AudioIssueType,
+} from './audio-quality';
