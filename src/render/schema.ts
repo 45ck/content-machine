@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { VideoClipSchema, VisualAssetSchema } from '../visuals/schema';
 import { WordTimestampSchema } from '../audio/schema';
 import { ANIMATION_TYPES } from './presets/animation';
+import { CaptionConfigSchema, type CaptionConfig } from './captions/config';
 
 /** Current schema version for migrations */
 export const RENDER_SCHEMA_VERSION = '1.0.0';
@@ -15,6 +16,8 @@ export const RENDER_SCHEMA_VERSION = '1.0.0';
 /**
  * Caption style configuration (matches SYSTEM-DESIGN archetype caption settings)
  * Animation types imported from presets/animation.ts (Single Source of Truth)
+ *
+ * @deprecated Use CaptionConfig from captions/config.ts instead
  */
 export const CaptionStyleSchema = z.object({
   fontFamily: z.string().default('Inter'),
@@ -31,6 +34,9 @@ export const CaptionStyleSchema = z.object({
 
 export type CaptionStyle = z.infer<typeof CaptionStyleSchema>;
 
+// Re-export the new caption config for convenience
+export { CaptionConfigSchema, type CaptionConfig };
+
 /**
  * Render input props
  */
@@ -44,7 +50,10 @@ export const RenderPropsSchema = z.object({
   width: z.number().int().positive(),
   height: z.number().int().positive(),
   fps: z.number().int().positive().default(30),
+  /** @deprecated Use captionConfig instead */
   captionStyle: CaptionStyleSchema.optional(),
+  /** New comprehensive caption configuration */
+  captionConfig: CaptionConfigSchema.optional(),
   archetype: z.string().optional().describe('Content archetype for style defaults'),
 });
 

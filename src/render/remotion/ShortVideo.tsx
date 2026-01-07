@@ -11,12 +11,11 @@ import {
   Audio,
   Video,
   Sequence,
-  useCurrentFrame,
   useVideoConfig,
   staticFile,
 } from 'remotion';
 import { RenderProps } from '../schema';
-import { Caption } from './Caption';
+import { Caption } from '../captions';
 
 /**
  * Main video component
@@ -27,11 +26,9 @@ export const ShortVideo: React.FC<RenderProps> = ({
   words,
   audioPath,
   duration: _duration, // May be used for duration validation in future
-  captionStyle,
+  captionConfig,
 }) => {
-  const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const currentTime = frame / fps;
 
   // Use scenes (new) or clips (legacy)
   const videoAssets = scenes ?? [];
@@ -95,9 +92,9 @@ export const ShortVideo: React.FC<RenderProps> = ({
         );
       })}
 
-      {/* Captions overlay - TikTok-style paged captions */}
+      {/* Captions overlay - TikTok-style paged captions with full config support */}
       <AbsoluteFill>
-        <Caption words={words} currentTime={currentTime} style={captionStyle} />
+        <Caption words={words} config={captionConfig} />
       </AbsoluteFill>
 
       {/* Audio track - uses staticFile with relative path */}

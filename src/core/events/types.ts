@@ -70,6 +70,7 @@ export interface StageProgressEvent extends BasePipelineEvent {
   stage: 'script' | 'audio' | 'visuals' | 'render';
   stageIndex: number;
   totalStages: number;
+  phase?: string;
   progress: number; // 0-1
   message?: string;
 }

@@ -17,8 +17,10 @@ import {
   RenderOutputSchema,
   RenderProps,
   CaptionStyle,
+  CaptionConfig,
   RENDER_SCHEMA_VERSION,
 } from './schema';
+import { getCaptionPreset, CaptionPresetName } from './captions/presets';
 import { join, dirname, resolve, basename } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -45,10 +47,28 @@ export interface RenderVideoOptions {
   outputPath: string;
   orientation: Orientation;
   fps?: number;
+  /** @deprecated Use captionConfig or captionPreset instead */
   captionStyle?: Partial<CaptionStyle>;
+  /** New comprehensive caption configuration */
+  captionConfig?: Partial<CaptionConfig>;
+  /** Use a preset caption style (tiktok, youtube, reels, bold, minimal, neon) */
+  captionPreset?: CaptionPresetName;
   archetype?: string;
   /** Use mock mode for testing without real rendering */
   mock?: boolean;
+  /**
+   * Optional progress callback for CLI UX (phase + percent).
+   * Progress is reported as 0..1 when available.
+   */
+  onProgress?: (event: RenderProgressEvent) => void;
+}
+
+export type RenderProgressPhase = 'bundle' | 'select-composition' | 'render-media' | 'mock';
+
+export interface RenderProgressEvent {
+  phase: RenderProgressPhase;
+  progress?: number; // 0..1
+  message?: string;
 }
 
 // Video dimensions by orientation
@@ -68,7 +88,8 @@ interface BundleResult {
  */
 async function bundleComposition(
   audioPath: string,
-  log: ReturnType<typeof createLogger>
+  log: ReturnType<typeof createLogger>,
+  onProgress?: (event: RenderProgressEvent) => void
 ): Promise<BundleResult> {
   log.debug('Bundling Remotion composition');
 
@@ -76,10 +97,12 @@ async function bundleComposition(
     entryPoint: join(RENDER_DIR, 'remotion/index.ts'),
     onProgress: (progress) => {
       log.debug({ progress: Math.round(progress * 100) }, 'Bundling progress');
+      onProgress?.({ phase: 'bundle', progress, message: 'Bundling' });
     },
   });
 
   log.debug({ bundleLocation }, 'Bundle complete');
+  onProgress?.({ phase: 'bundle', progress: 1, message: 'Bundle complete' });
 
   // Copy audio file to bundle's public folder
   const audioFilename = basename(audioPath);
@@ -94,6 +117,32 @@ async function bundleComposition(
 }
 
 /**
+ * Resolve caption configuration from options
+ * Priority: captionConfig > captionPreset > default (tiktok)
+ */
+function resolveCaptionConfig(options: RenderVideoOptions): CaptionConfig {
+  // Start with a preset (default to tiktok)
+  const presetName = options.captionPreset ?? 'tiktok';
+  const preset = getCaptionPreset(presetName);
+
+  // If captionConfig is provided, merge it with the preset
+  if (options.captionConfig) {
+    return {
+      ...preset,
+      ...options.captionConfig,
+      // Deep merge nested objects
+      pillStyle: { ...preset.pillStyle, ...options.captionConfig.pillStyle },
+      stroke: { ...preset.stroke, ...options.captionConfig.stroke },
+      shadow: { ...preset.shadow, ...options.captionConfig.shadow },
+      layout: { ...preset.layout, ...options.captionConfig.layout },
+      positionOffset: { ...preset.positionOffset, ...options.captionConfig.positionOffset },
+    };
+  }
+
+  return preset;
+}
+
+/**
  * Build render props with caption styling
  */
 function buildRenderProps(
@@ -102,6 +151,8 @@ function buildRenderProps(
   fps: number,
   audioFilename: string
 ): RenderProps {
+  const captionConfig = resolveCaptionConfig(options);
+
   return {
     schemaVersion: RENDER_SCHEMA_VERSION,
     scenes: options.visuals.scenes,
@@ -112,6 +163,8 @@ function buildRenderProps(
     height: dimensions.height,
     fps,
     archetype: options.archetype,
+    captionConfig,
+    // Keep legacy captionStyle for backwards compatibility
     captionStyle: {
       fontFamily: 'Inter',
       fontSize: 80,
@@ -137,20 +190,33 @@ interface ExecuteRenderOptions {
   fps: number;
   totalDuration: number;
   log: ReturnType<typeof createLogger>;
+  onProgress?: (event: RenderProgressEvent) => void;
 }
 
 /**
  * Execute Remotion render
  */
 async function executeRender(opts: ExecuteRenderOptions): Promise<void> {
-  const { bundleLocation, renderProps, outputPath, dimensions, fps, totalDuration, log } = opts;
+  const {
+    bundleLocation,
+    renderProps,
+    outputPath,
+    dimensions,
+    fps,
+    totalDuration,
+    log,
+    onProgress,
+  } = opts;
   log.debug('Selecting composition');
+  onProgress?.({ phase: 'select-composition', progress: 0, message: 'Selecting composition' });
 
   const composition = await selectComposition({
     serveUrl: bundleLocation,
     id: 'ShortVideo',
     inputProps: renderProps,
   });
+
+  onProgress?.({ phase: 'select-composition', progress: 1, message: 'Composition selected' });
 
   const durationInFrames = Math.ceil(totalDuration * fps);
   log.info({ durationInFrames }, 'Rendering video');
@@ -169,6 +235,7 @@ async function executeRender(opts: ExecuteRenderOptions): Promise<void> {
     inputProps: renderProps,
     onProgress: ({ progress }) => {
       log.debug({ progress: Math.round(progress * 100) }, 'Render progress');
+      onProgress?.({ phase: 'render-media', progress, message: 'Rendering' });
     },
   });
 }
@@ -179,9 +246,19 @@ async function executeRender(opts: ExecuteRenderOptions): Promise<void> {
 export async function renderVideo(options: RenderVideoOptions): Promise<RenderOutput> {
   const log = createLogger({ module: 'render', outputPath: options.outputPath });
 
+  const safeProgress = (event: RenderProgressEvent): void => {
+    try {
+      options.onProgress?.(event);
+    } catch (error) {
+      log.debug({ error }, 'Render progress callback failed');
+    }
+  };
+
   const fps = options.fps ?? 30;
   const dimensions = DIMENSIONS[options.orientation];
   const totalDuration = options.timestamps.totalDuration;
+
+  await mkdir(dirname(options.outputPath), { recursive: true });
 
   log.info(
     {
@@ -195,11 +272,16 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
   );
 
   if (options.mock) {
+    safeProgress({ phase: 'mock', progress: 1, message: 'Mock render complete' });
     return generateMockRender(options, dimensions, fps, totalDuration);
   }
 
   try {
-    const { bundleLocation, audioFilename } = await bundleComposition(options.audioPath, log);
+    const { bundleLocation, audioFilename } = await bundleComposition(
+      options.audioPath,
+      log,
+      safeProgress
+    );
     const renderProps = buildRenderProps(options, dimensions, fps, audioFilename);
     await executeRender({
       bundleLocation,
@@ -209,6 +291,7 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
       fps,
       totalDuration,
       log,
+      onProgress: safeProgress,
     });
 
     const stats = await stat(options.outputPath);

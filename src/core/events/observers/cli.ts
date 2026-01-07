@@ -17,6 +17,8 @@ export class CliProgressObserver implements PipelineObserver {
   private spinnerInterval?: ReturnType<typeof setInterval>;
   private spinnerFrames = ['|', '/', '-', '\\'];
   private spinnerIndex = 0;
+  private lastNonTtyBucket: number | null = null;
+  private lastNonTtyPhase: string | undefined;
 
   constructor(stream?: OutputStream) {
     this.stream = stream ?? process.stderr;
@@ -76,6 +78,8 @@ export class CliProgressObserver implements PipelineObserver {
   private onStageStarted(event: PipelineEvent & { type: 'stage:started' }): void {
     const progress = `[${event.stageIndex + 1}/${event.totalStages}]`;
     this.writeLine(`${progress} Starting ${event.stage}...`);
+    this.lastNonTtyBucket = null;
+    this.lastNonTtyPhase = undefined;
     if (this.stream.isTTY) {
       this.startSpinner();
     }
@@ -97,14 +101,33 @@ export class CliProgressObserver implements PipelineObserver {
   private onStageProgress(event: PipelineEvent & { type: 'stage:progress' }): void {
     const percent = Math.round(event.progress * 100);
     const progress = `[${event.stageIndex + 1}/${event.totalStages}]`;
-    const message = event.message ? ` ${event.message}` : '';
+    const details: string[] = [];
+    if (event.phase) details.push(event.phase);
+    if (event.message) details.push(event.message);
+    const message = details.length > 0 ? ` ${details.join(' - ')}` : '';
 
     if (this.stream.isTTY) {
+      // Prefer deterministic progress over spinner frames.
+      this.stopSpinner();
       // Overwrite line in TTY mode
       this.stream.write(`\r${progress} ${event.stage}: ${percent}%${message}    `);
     } else {
-      // Print new line in non-TTY mode
-      this.writeLine(`${progress} ${event.stage}: ${percent}%${message}`);
+      const bucket = Math.floor(percent / 10) * 10;
+      const phase = event.phase;
+
+      // Print coarse updates only (avoid log spam), but always print 100%.
+      if (percent === 100 || this.lastNonTtyBucket === null) {
+        this.lastNonTtyBucket = bucket;
+        this.lastNonTtyPhase = phase;
+        this.writeLine(`${progress} ${event.stage}: ${percent}%${message}`);
+        return;
+      }
+
+      if (bucket !== this.lastNonTtyBucket || phase !== this.lastNonTtyPhase) {
+        this.lastNonTtyBucket = bucket;
+        this.lastNonTtyPhase = phase;
+        this.writeLine(`${progress} ${event.stage}: ${percent}%${message}`);
+      }
     }
   }
 

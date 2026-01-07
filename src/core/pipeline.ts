@@ -6,12 +6,16 @@
  */
 import { generateScript, ScriptOutput } from '../script/generator';
 import { generateAudio, AudioOutput } from '../audio/pipeline';
-import { matchVisuals, VisualsOutput } from '../visuals/matcher';
-import { renderVideo, RenderOutput } from '../render/service';
+import { matchVisuals, VisualsProgressEvent } from '../visuals/matcher';
+import type { VisualsOutput } from '../visuals/matcher';
+import { renderVideo, RenderProgressEvent } from '../render/service';
+import type { RenderOutput } from '../render/service';
 import { Archetype, Orientation } from './config';
 import { createLogger, logTiming, Logger } from './logger';
 import { PipelineError } from './errors';
 import { LLMProvider } from './llm';
+import type { PipelineEvent, PipelineEventEmitter } from './events';
+import { randomUUID } from 'crypto';
 import { mkdir, rm, writeFile } from 'fs/promises';
 import { join, dirname } from 'path';
 import type { ResearchOutput } from '../research/schema';
@@ -29,6 +33,11 @@ export interface PipelineOptions {
   keepArtifacts?: boolean;
   workDir?: string;
   onProgress?: (stage: PipelineStage, message: string) => void;
+  /**
+   * Optional pipeline event emitter (Observer pattern).
+   * Emits lifecycle + progress events for observability and CLI UX.
+   */
+  eventEmitter?: PipelineEventEmitter;
   // Dependency injection for testing
   llmProvider?: LLMProvider;
   /** Use mock mode for testing without real API calls */
@@ -79,6 +88,18 @@ interface PipelineCosts {
   llm: number;
   tts: number;
   total: number;
+}
+
+function emitPipelineEvent(emitter: PipelineEventEmitter | undefined, event: PipelineEvent): void {
+  emitter?.emit(event);
+}
+
+function createPipelineId(): string {
+  try {
+    return randomUUID();
+  } catch {
+    return `pipeline-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  }
 }
 
 async function writeArtifactJson(path: string, data: unknown): Promise<void> {
@@ -160,7 +181,8 @@ async function executeAudioStage(
 async function executeVisualsStage(
   options: PipelineOptions,
   audio: AudioOutput,
-  log: Logger
+  log: Logger,
+  onProgress?: (event: VisualsProgressEvent) => void
 ): Promise<VisualsOutput> {
   log.info('Starting Stage 3: Visual matching');
   options.onProgress?.('visuals', 'Matching visuals...');
@@ -172,6 +194,7 @@ async function executeVisualsStage(
         timestamps: audio.timestamps,
         provider: 'pexels',
         mock: options.mock,
+        onProgress,
       });
     },
     log
@@ -189,7 +212,8 @@ async function executeRenderStage(
   visuals: VisualsOutput,
   audio: AudioOutput,
   artifacts: PipelineArtifacts,
-  log: Logger
+  log: Logger,
+  onProgress?: (event: RenderProgressEvent) => void
 ): Promise<RenderOutput> {
   log.info('Starting Stage 4: Video rendering');
   options.onProgress?.('render', 'Rendering video...');
@@ -205,6 +229,7 @@ async function executeRenderStage(
         orientation: options.orientation,
         fps: 30,
         mock: options.mock,
+        onProgress,
       });
     },
     log
@@ -228,10 +253,16 @@ async function cleanupArtifacts(artifacts: PipelineArtifacts, outputPath?: strin
 /**
  * Run the full video generation pipeline
  */
+// eslint-disable-next-line max-lines-per-function, complexity, sonarjs/cognitive-complexity
 export async function runPipeline(options: PipelineOptions): Promise<PipelineResult> {
   const log = createLogger({ pipeline: 'main', topic: options.topic });
+  const pipelineId = createPipelineId();
+  const emitter = options.eventEmitter;
+  const pipelineStart = Date.now();
   const workDir = options.workDir ?? dirname(options.outputPath);
   const costs: PipelineCosts = { llm: 0, tts: 0, total: 0 };
+  const totalStages = 4;
+  let currentStage: { stage: PipelineStage; stageIndex: number } | null = null;
 
   const artifacts: PipelineArtifacts = {
     script: join(workDir, 'script.json'),
@@ -241,16 +272,161 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
   };
 
   try {
+    await mkdir(workDir, { recursive: true });
+    await mkdir(dirname(options.outputPath), { recursive: true });
+
+    emitPipelineEvent(emitter, {
+      type: 'pipeline:started',
+      timestamp: Date.now(),
+      pipelineId,
+      topic: options.topic,
+      archetype: options.archetype,
+    });
+
+    currentStage = { stage: 'script', stageIndex: 0 };
+    emitPipelineEvent(emitter, {
+      type: 'stage:started',
+      timestamp: Date.now(),
+      pipelineId,
+      stage: currentStage.stage,
+      stageIndex: currentStage.stageIndex,
+      totalStages,
+    });
+    const scriptStart = Date.now();
     const script = await executeScriptStage(options, log, costs);
+    emitPipelineEvent(emitter, {
+      type: 'stage:completed',
+      timestamp: Date.now(),
+      pipelineId,
+      stage: currentStage.stage,
+      stageIndex: currentStage.stageIndex,
+      totalStages,
+      durationMs: Date.now() - scriptStart,
+      cost: script.meta?.llmCost ? { estimatedCost: script.meta.llmCost } : undefined,
+    });
     if (options.keepArtifacts) {
       await writeArtifactJson(artifacts.script, script);
     }
+
+    currentStage = { stage: 'audio', stageIndex: 1 };
+    emitPipelineEvent(emitter, {
+      type: 'stage:started',
+      timestamp: Date.now(),
+      pipelineId,
+      stage: currentStage.stage,
+      stageIndex: currentStage.stageIndex,
+      totalStages,
+    });
+    const audioStart = Date.now();
     const audio = await executeAudioStage(options, script, artifacts, log, costs);
-    const visuals = await executeVisualsStage(options, audio, log);
+    emitPipelineEvent(emitter, {
+      type: 'stage:completed',
+      timestamp: Date.now(),
+      pipelineId,
+      stage: currentStage.stage,
+      stageIndex: currentStage.stageIndex,
+      totalStages,
+      durationMs: Date.now() - audioStart,
+      cost: audio.ttsCost ? { estimatedCost: audio.ttsCost } : undefined,
+    });
+
+    currentStage = { stage: 'visuals', stageIndex: 2 };
+    emitPipelineEvent(emitter, {
+      type: 'stage:started',
+      timestamp: Date.now(),
+      pipelineId,
+      stage: currentStage.stage,
+      stageIndex: currentStage.stageIndex,
+      totalStages,
+    });
+
+    const visualsStage = currentStage.stage;
+    const visualsStageIndex = currentStage.stageIndex;
+
+    const emitVisualsProgress = (event: VisualsProgressEvent): void => {
+      emitPipelineEvent(emitter, {
+        type: 'stage:progress',
+        timestamp: Date.now(),
+        pipelineId,
+        stage: visualsStage,
+        stageIndex: visualsStageIndex,
+        totalStages,
+        phase: event.phase,
+        progress: Math.min(1, Math.max(0, event.progress)),
+        message: event.message,
+      });
+    };
+
+    const visualsStart = Date.now();
+    const visuals = await executeVisualsStage(options, audio, log, emitVisualsProgress);
+    emitPipelineEvent(emitter, {
+      type: 'stage:completed',
+      timestamp: Date.now(),
+      pipelineId,
+      stage: visualsStage,
+      stageIndex: visualsStageIndex,
+      totalStages,
+      durationMs: Date.now() - visualsStart,
+    });
     if (options.keepArtifacts) {
       await writeArtifactJson(artifacts.visuals, visuals);
     }
-    const render = await executeRenderStage(options, visuals, audio, artifacts, log);
+
+    currentStage = { stage: 'render', stageIndex: 3 };
+    emitPipelineEvent(emitter, {
+      type: 'stage:started',
+      timestamp: Date.now(),
+      pipelineId,
+      stage: currentStage.stage,
+      stageIndex: currentStage.stageIndex,
+      totalStages,
+    });
+
+    const renderStage = currentStage.stage;
+    const renderStageIndex = currentStage.stageIndex;
+
+    const emitRenderProgress = (event: RenderProgressEvent): void => {
+      const progress = Math.min(1, Math.max(0, event.progress ?? 0));
+      const overall =
+        event.phase === 'bundle'
+          ? progress * 0.2
+          : event.phase === 'select-composition'
+            ? 0.2 + progress * 0.05
+            : event.phase === 'render-media'
+              ? 0.25 + progress * 0.75
+              : progress;
+
+      emitPipelineEvent(emitter, {
+        type: 'stage:progress',
+        timestamp: Date.now(),
+        pipelineId,
+        stage: renderStage,
+        stageIndex: renderStageIndex,
+        totalStages,
+        phase: event.phase,
+        progress: Math.min(1, Math.max(0, overall)),
+        message: event.message,
+      });
+    };
+
+    const renderStart = Date.now();
+    const render = await executeRenderStage(
+      options,
+      visuals,
+      audio,
+      artifacts,
+      log,
+      emitRenderProgress
+    );
+    emitPipelineEvent(emitter, {
+      type: 'stage:completed',
+      timestamp: Date.now(),
+      pipelineId,
+      stage: renderStage,
+      stageIndex: renderStageIndex,
+      totalStages,
+      durationMs: Date.now() - renderStart,
+    });
 
     costs.total = costs.llm + costs.tts;
 
@@ -263,6 +439,14 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
       { duration: render.duration, fileSize: render.fileSize, costs: costs.total },
       'Pipeline completed successfully'
     );
+
+    emitPipelineEvent(emitter, {
+      type: 'pipeline:completed',
+      timestamp: Date.now(),
+      pipelineId,
+      durationMs: Date.now() - pipelineStart,
+      outputPath: render.outputPath,
+    });
 
     return {
       script,
@@ -278,6 +462,25 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
     };
   } catch (error) {
     log.error({ error }, 'Pipeline failed');
+
+    if (currentStage) {
+      emitPipelineEvent(emitter, {
+        type: 'stage:failed',
+        timestamp: Date.now(),
+        pipelineId,
+        stage: currentStage.stage,
+        stageIndex: currentStage.stageIndex,
+        totalStages,
+        error: error instanceof Error ? error : new Error(String(error)),
+      });
+    }
+    emitPipelineEvent(emitter, {
+      type: 'pipeline:failed',
+      timestamp: Date.now(),
+      pipelineId,
+      error: error instanceof Error ? error : new Error(String(error)),
+      stage: currentStage?.stage,
+    });
 
     if (!options.keepArtifacts) {
       await cleanupArtifacts(artifacts, options.outputPath);
