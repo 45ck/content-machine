@@ -21,6 +21,31 @@ References: `docs/guides/guide-cli-ux-standards-20260106.md`.
 - Prints a short summary: sources searched, evidence count, suggested angles (if enabled), errors, output path, and total time.
 - Supports `--dry-run`, `--mock` (for angle generation), `--no-angles`, `--max-angles`, and `--time-range`.
 
+## Downstream integration (2026-01-07)
+
+Research output can be used by downstream commands for evidence-based content:
+
+### cm script
+
+```bash
+cm research -q "Redis caching" -o research.json
+cm script --topic "Redis caching" --research research.json
+```
+
+Research evidence is injected into the script generation prompt, making content more credible and fact-based.
+
+### cm generate
+
+```bash
+# Auto-run research
+cm generate "Redis caching" --research
+
+# Use existing research
+cm generate "Redis caching" --research research.json
+```
+
+See [feature-research-script-integration-20260107.md](../features/feature-research-script-integration-20260107.md) for full details.
+
 ## UX gaps
 
 - Silent invalid sources breaks trust (user thinks a source ran when it did not).
@@ -47,6 +72,8 @@ Research: "AI programming trends"
 Sources: hackernews (10 results, 920ms), reddit (10 results, 1300ms)
 Angles: 3
 Output: out/research.json
+
+Next: cm script --topic "AI programming trends" --research out/research.json
 ```
 
 ## UX acceptance criteria
@@ -54,3 +81,10 @@ Output: out/research.json
 - Invalid sources are not silently dropped; the CLI either fails fast (exit 2) or prints an explicit "ignored sources" list.
 - Human output includes per-source timing and result counts.
 - `--dry-run` performs no network calls and writes no files.
+- Success output includes a "Next:" hint for using research with `cm script`.
+
+## See also
+
+- `docs/reference/cm-research-reference-20260106.md`
+- `docs/reference/cm-script-reference-20260106.md`
+- `docs/features/feature-research-script-integration-20260107.md`

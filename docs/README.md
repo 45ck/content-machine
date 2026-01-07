@@ -219,14 +219,21 @@ Located in `features/`, feature specifications:
 
 **Format:** `feature-[name]-YYYYMMDD.md`
 
+### Implemented Features
+
+- [Research → Script Integration](features/feature-research-script-integration-20260107.md) – Evidence-based script generation with source tracking
+
+### CLI UX Features
+
+- [CLI UX Observability](features/feature-cli-ux-observability-20260106.md)
+- [CLI Progress Events](features/feature-cli-progress-events-20260106.md)
+- [CLI JSON Contract](features/feature-cli-json-contract-20260106.md)
+- [LLM Streaming UX](features/feature-llm-streaming-cli-20260106.md)
+- [Virality Director](features/feature-virality-director-20260105.md) – Packaging + Publish Metadata
+
 ### Planned Features
 
 - [ ] MCP Reddit Connector
-- [ ] Virality Director (Packaging + Publish Metadata) – [feature-virality-director-20260105.md](features/feature-virality-director-20260105.md)
-- [ ] CLI UX Observability – `features/feature-cli-ux-observability-20260106.md`
-- [ ] CLI Progress Events – `features/feature-cli-progress-events-20260106.md`
-- [ ] CLI JSON Contract – `features/feature-cli-json-contract-20260106.md`
-- [ ] LLM Streaming UX – `features/feature-llm-streaming-cli-20260106.md`
 - [ ] Content Planning Agent
 - [ ] Playwright Capture Pipeline
 - [ ] Script Generation + TTS
