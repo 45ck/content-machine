@@ -11,7 +11,7 @@ import { FakeLLMProvider } from '../../test/stubs/fake-llm';
 import { handleCommandError, writeOutputFile } from '../utils';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope } from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
 
 interface PackageCommandOptions {
   platform: string;
@@ -67,11 +67,11 @@ function createMockPackagingProvider(topic: string): FakeLLMProvider {
 }
 
 function writeDryRun(topic: string, platform: string, variants: number, output: string): void {
-  console.log('\nDry-run mode - no LLM call made\n');
-  console.log(`   Topic: ${topic}`);
-  console.log(`   Platform: ${platform}`);
-  console.log(`   Variants: ${variants}`);
-  console.log(`   Output: ${output}\n`);
+  writeStderrLine('Dry-run mode - no LLM call made');
+  writeStderrLine(`   Topic: ${topic}`);
+  writeStderrLine(`   Platform: ${platform}`);
+  writeStderrLine(`   Variants: ${variants}`);
+  writeStderrLine(`   Output: ${output}`);
 }
 
 async function runPackage(topic: string, options: PackageCommandOptions): Promise<void> {
@@ -138,13 +138,14 @@ async function runPackage(topic: string, options: PackageCommandOptions): Promis
       return;
     }
 
-    console.log(`\nPackaging for: ${result.topic}`);
-    console.log(`   Platform: ${result.platform}`);
-    console.log(`   Variants: ${result.variants.length}`);
-    console.log(`   Selected: ${result.selected.title}`);
-    console.log(`   Output: ${options.output}`);
-    if (options.mock) console.log('   Mock mode - packaging is for testing only');
-    console.log('');
+    writeStderrLine(`Packaging: ${result.selected.title}`);
+    writeStderrLine(`   Topic: ${result.topic}`);
+    writeStderrLine(`   Platform: ${result.platform}`);
+    writeStderrLine(`   Variants: ${result.variants.length}`);
+    if (options.mock) writeStderrLine('   Mock mode - packaging is for testing only');
+
+    // Human-mode stdout should be reserved for the primary artifact path.
+    process.stdout.write(`${options.output}\n`);
   } catch (error) {
     spinner.fail('Packaging generation failed');
     handleCommandError(error);

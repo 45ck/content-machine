@@ -34,6 +34,7 @@ cm script --topic "Redis caching" --research research.json -o script.json
 ```
 
 The script output includes:
+
 - Evidence-informed content (LLM sees research context)
 - Source tracking in `extra.research.sources`
 - Evidence count in `extra.research.evidenceCount`

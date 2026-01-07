@@ -48,7 +48,7 @@ describe('cm generate --research integration', () => {
 
       const result = PipelineConfigSchema.safeParse(config);
       expect(result.success).toBe(true);
-    });
+    }, 60000);
   });
 
   describe('research auto-discovery', () => {

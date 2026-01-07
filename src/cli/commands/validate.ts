@@ -13,6 +13,7 @@ import { PiqBrisqueAnalyzer } from '../../validate/quality';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import type { ValidateOptions } from '../../validate/validate';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
 
 interface ValidateCommandOptions {
   profile: string;
@@ -26,7 +27,7 @@ interface ValidateCommandOptions {
   quality?: boolean;
   qualitySampleRate: string;
   output: string;
-  json?: boolean;
+  reportJson?: boolean;
 }
 
 function parseProfile(profile: string): ValidateProfileId {
@@ -111,26 +112,53 @@ export const validateCommand = new Command('validate')
   .option('--quality', 'Enable visual quality gate (BRISQUE) via Python', false)
   .option('--quality-sample-rate <n>', 'Analyze every Nth frame (BRISQUE)', '30')
   .option('-o, --output <path>', 'Output report file path', 'validate.json')
-  .option('--json', 'Print the full report JSON to stdout', false)
+  .option('--report-json', 'Print the full report JSON to stdout (not envelope)', false)
   .action(async (videoPath: string, options: ValidateCommandOptions) => {
     const runtime = getCliRuntime();
-    const jsonMode = runtime.json || Boolean(options.json);
+    const envelopeJsonMode = runtime.json;
+    const reportJsonMode = Boolean(options.reportJson);
     const spinner = createSpinner('Validating video...').start();
 
     try {
       const profile = parseProfile(options.profile);
       const validateOptions = buildValidateOptions(profile, options);
 
-      if (!jsonMode) {
+      if (!envelopeJsonMode && !reportJsonMode) {
         logger.info({ videoPath, profile }, 'Starting video validation');
       }
 
       const report = await validateVideoPath(videoPath, validateOptions);
       await writeOutputFile(options.output, report);
 
-      if (jsonMode) {
+      if (envelopeJsonMode) {
         spinner.stop();
-        console.log(JSON.stringify(report, null, 2));
+        writeJsonEnvelope(
+          buildJsonEnvelope({
+            command: 'validate',
+            args: {
+              videoPath,
+              profile,
+              probeEngine: String(options.probeEngine),
+              cadence: Boolean(options.cadence),
+              cadenceEngine: String(options.cadenceEngine),
+              quality: Boolean(options.quality),
+              output: options.output,
+            },
+            outputs: {
+              reportPath: options.output,
+              passed: report.passed,
+              failedGates: report.gates.filter((g) => !g.passed).map((g) => g.gateId),
+              summary: report.summary,
+            },
+            timingsMs: Date.now() - runtime.startTime,
+          })
+        );
+        process.exit(report.passed ? 0 : 1);
+      }
+
+      if (reportJsonMode) {
+        spinner.stop();
+        process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
         process.exit(report.passed ? 0 : 1);
       }
 
@@ -140,23 +168,25 @@ export const validateCommand = new Command('validate')
         spinner.fail('Validation failed');
       }
 
-      console.log(`\nVideo: ${report.videoPath}`);
-      console.log(`   Profile: ${report.profile}`);
-      console.log(
+      writeStderrLine(`Video: ${report.videoPath}`);
+      writeStderrLine(`   Profile: ${report.profile}`);
+      writeStderrLine(
         `   Summary: ${report.summary.width}x${report.summary.height} ${report.summary.durationSeconds.toFixed(
           1
         )}s ${report.summary.container}/${report.summary.videoCodec}/${report.summary.audioCodec}`
       );
-      console.log(`   Report: ${options.output}\n`);
+      writeStderrLine(`   Report: ${options.output}`);
 
       if (!report.passed) {
         for (const gate of report.gates.filter((gate) => !gate.passed)) {
-          console.log(`- ${gate.gateId}: ${gate.message}`);
-          console.log(`  Fix: ${gate.fix}`);
+          writeStderrLine(`- ${gate.gateId}: ${gate.message}`);
+          writeStderrLine(`  Fix: ${gate.fix}`);
         }
-        console.log('');
-        process.exit(1);
       }
+
+      // Human-mode stdout should be reserved for the primary artifact path.
+      process.stdout.write(`${options.output}\n`);
+      process.exit(report.passed ? 0 : 1);
     } catch (error) {
       spinner.fail('Validation failed');
       handleCommandError(error);

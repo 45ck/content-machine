@@ -8,7 +8,7 @@ import { writeFile } from 'fs/promises';
 import { join } from 'path';
 import inquirer from 'inquirer';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope } from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
 import { handleCommandError } from '../utils';
 
 interface InitOptions {
@@ -88,12 +88,12 @@ async function writeConfigFile(config: Record<string, unknown>): Promise<string>
 }
 
 function printHints(): void {
-  console.log("\nDon't forget to set your API keys:\n");
-  console.log('   PowerShell (session): $env:OPENAI_API_KEY="sk-..."');
-  console.log('   PowerShell (persist): setx OPENAI_API_KEY "sk-..."');
-  console.log('   bash: export OPENAI_API_KEY="sk-..."');
-  console.log('   # Or add them to a .env file\n');
-  console.log('Ready! Run: cm generate "Your topic here"\n');
+  writeStderrLine("Don't forget to set your API keys:");
+  writeStderrLine('   PowerShell (session): $env:OPENAI_API_KEY="sk-..."');
+  writeStderrLine('   PowerShell (persist): setx OPENAI_API_KEY "sk-..."');
+  writeStderrLine('   bash: export OPENAI_API_KEY="sk-..."');
+  writeStderrLine('   # Or add them to a .env file');
+  writeStderrLine('Ready! Run: cm generate "Your topic here"');
 }
 
 export const initCommand = new Command('init')
@@ -101,7 +101,7 @@ export const initCommand = new Command('init')
   .option('-y, --yes', 'Use defaults without prompting', false)
   .action(async (options: InitOptions) => {
     const runtime = getCliRuntime();
-    if (!runtime.json) console.log('\ncontent-machine setup\n');
+    if (!runtime.json) writeStderrLine('content-machine setup');
 
     try {
       const config = options.yes ? getDefaultConfig() : await promptConfig();
@@ -119,8 +119,11 @@ export const initCommand = new Command('init')
         return;
       }
 
-      console.log('\nConfiguration saved to .content-machine.toml\n');
+      writeStderrLine('Configuration saved to .content-machine.toml');
       printHints();
+
+      // Human-mode stdout should be reserved for the primary artifact path.
+      process.stdout.write(`${configPath}\n`);
     } catch (error) {
       handleCommandError(error);
     }

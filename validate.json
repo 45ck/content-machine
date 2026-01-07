@@ -1,0 +1,62 @@
+{
+  "schemaVersion": "1.0.0",
+  "videoPath": "test-coffee.mp4",
+  "profile": "portrait",
+  "passed": false,
+  "summary": {
+    "width": 1080,
+    "height": 1920,
+    "durationSeconds": 26.112,
+    "container": "mp4",
+    "videoCodec": "h264",
+    "audioCodec": "aac"
+  },
+  "gates": [
+    {
+      "gateId": "resolution",
+      "passed": true,
+      "severity": "error",
+      "fix": "adjust-render-resolution",
+      "message": "Resolution OK (1080x1920)",
+      "details": {
+        "expectedWidth": 1080,
+        "expectedHeight": 1920,
+        "actualWidth": 1080,
+        "actualHeight": 1920
+      }
+    },
+    {
+      "gateId": "duration",
+      "passed": false,
+      "severity": "error",
+      "fix": "adjust-content-length",
+      "message": "Duration 26.1s is below minimum 30s",
+      "details": {
+        "minSeconds": 30,
+        "maxSeconds": 60,
+        "actualSeconds": 26.112
+      }
+    },
+    {
+      "gateId": "format",
+      "passed": true,
+      "severity": "error",
+      "fix": "adjust-render-format",
+      "message": "Format OK (mp4/h264/aac)",
+      "details": {
+        "expected": {
+          "container": "mp4",
+          "videoCodec": "h264",
+          "audioCodec": "aac"
+        },
+        "actual": {
+          "container": "mp4",
+          "videoCodec": "h264",
+          "audioCodec": "aac"
+        }
+      }
+    }
+  ],
+  "createdAt": "2026-01-07T00:31:47.799Z",
+  "runtimeMs": 95
+}

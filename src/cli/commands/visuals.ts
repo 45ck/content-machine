@@ -8,29 +8,33 @@ import { Command } from 'commander';
 import { matchVisuals } from '../../visuals/matcher';
 import { logger } from '../../core/logger';
 import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
-import type { AudioOutput } from '../../audio/schema';
+import type { TimestampsOutput } from '../../audio/schema';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope } from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
 
 export const visualsCommand = new Command('visuals')
   .description('Find matching stock footage for script scenes')
   .requiredOption('-i, --input <path>', 'Input timestamps JSON file')
   .option('-o, --output <path>', 'Output visuals file path', 'visuals.json')
   .option('--provider <provider>', 'Stock footage provider', 'pexels')
+  .option('--orientation <type>', 'Footage orientation', 'portrait')
+  .option('--mock', 'Use mock visuals (for testing)', false)
   .action(async (options) => {
     const spinner = createSpinner('Finding matching visuals...').start();
     const runtime = getCliRuntime();
 
     try {
       // Read input timestamps
-      const audioOutput = await readInputFile<AudioOutput>(options.input);
+      const timestamps = await readInputFile<TimestampsOutput>(options.input);
 
       logger.info({ input: options.input, provider: options.provider }, 'Starting visual matching');
 
       const visuals = await matchVisuals({
-        timestamps: audioOutput.timestamps,
+        timestamps,
         provider: options.provider,
+        orientation: options.orientation,
+        mock: Boolean(options.mock),
       });
 
       spinner.succeed('Visuals matched successfully');
@@ -48,6 +52,8 @@ export const visualsCommand = new Command('visuals')
               input: options.input,
               output: options.output,
               provider: options.provider,
+              orientation: options.orientation,
+              mock: Boolean(options.mock),
             },
             outputs: {
               visualsPath: options.output,
@@ -62,13 +68,14 @@ export const visualsCommand = new Command('visuals')
         return;
       }
 
-      // Show summary
-      console.log('\nVisuals Matched');
-      console.log(`   Scenes: ${visuals.scenes.length}`);
-      console.log(`   Total duration: ${visuals.totalDuration?.toFixed(1) ?? 'N/A'}s`);
-      console.log(`   From stock: ${visuals.fromStock}`);
-      console.log(`   Fallbacks: ${visuals.fallbacks}`);
-      console.log(`   Output: ${options.output}\n`);
+      writeStderrLine(`Visuals: ${visuals.scenes.length} scenes`);
+      writeStderrLine(`   Total duration: ${visuals.totalDuration?.toFixed(1) ?? 'N/A'}s`);
+      writeStderrLine(`   From stock: ${visuals.fromStock}`);
+      writeStderrLine(`   Fallbacks: ${visuals.fallbacks}`);
+      if (options.mock) writeStderrLine('   Mock mode - visuals are placeholders');
+
+      // Human-mode stdout should be reserved for the primary artifact path.
+      process.stdout.write(`${options.output}\n`);
     } catch (error) {
       spinner.fail('Visual matching failed');
       handleCommandError(error);

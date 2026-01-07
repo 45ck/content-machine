@@ -12,7 +12,7 @@ import { Archetype, Orientation } from './config';
 import { createLogger, logTiming, Logger } from './logger';
 import { PipelineError } from './errors';
 import { LLMProvider } from './llm';
-import { rm } from 'fs/promises';
+import { mkdir, rm, writeFile } from 'fs/promises';
 import { join, dirname } from 'path';
 import type { ResearchOutput } from '../research/schema';
 import { z } from 'zod';
@@ -79,6 +79,11 @@ interface PipelineCosts {
   llm: number;
   tts: number;
   total: number;
+}
+
+async function writeArtifactJson(path: string, data: unknown): Promise<void> {
+  await mkdir(dirname(path), { recursive: true });
+  await writeFile(path, `${JSON.stringify(data, null, 2)}\n`, 'utf-8');
 }
 
 /**
@@ -237,8 +242,14 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
 
   try {
     const script = await executeScriptStage(options, log, costs);
+    if (options.keepArtifacts) {
+      await writeArtifactJson(artifacts.script, script);
+    }
     const audio = await executeAudioStage(options, script, artifacts, log, costs);
     const visuals = await executeVisualsStage(options, audio, log);
+    if (options.keepArtifacts) {
+      await writeArtifactJson(artifacts.visuals, visuals);
+    }
     const render = await executeRenderStage(options, visuals, audio, artifacts, log);
 
     costs.total = costs.llm + costs.tts;

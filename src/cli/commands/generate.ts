@@ -14,7 +14,7 @@ import type { SpinnerLike } from '../progress';
 import { createSpinner } from '../progress';
 import chalk from 'chalk';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope } from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
 import { dirname } from 'path';
 import { ResearchOutputSchema } from '../../research/schema';
 import type { ResearchOutput } from '../../research/schema';
@@ -47,10 +47,10 @@ function printHeader(
 ): void {
   if (runtime.json) return;
 
-  console.log(chalk.bold('\ncontent-machine\n'));
-  console.log(chalk.gray(`Topic: ${topic}`));
-  console.log(chalk.gray(`Archetype: ${options.archetype}`));
-  console.log(chalk.gray(`Output: ${options.output}\n`));
+  writeStderrLine(chalk.bold('content-machine'));
+  writeStderrLine(chalk.gray(`Topic: ${topic}`));
+  writeStderrLine(chalk.gray(`Archetype: ${options.archetype}`));
+  writeStderrLine(chalk.gray(`Output: ${options.output}`));
 }
 
 function writeDryRunJson(params: {
@@ -80,6 +80,7 @@ function writeDryRunJson(params: {
       timingsMs: Date.now() - runtime.startTime,
     })
   );
+  process.exit(0);
 }
 
 function writeSuccessJson(params: {
@@ -118,6 +119,7 @@ function writeSuccessJson(params: {
       timingsMs: Date.now() - runtime.startTime,
     })
   );
+  process.exit(0);
 }
 
 async function runGenerate(topic: string, options: GenerateOptions): Promise<void> {
@@ -142,16 +144,16 @@ async function runGenerate(topic: string, options: GenerateOptions): Promise<voi
 
   const research = await loadOrRunResearch(options.research, topic, options.mock ?? false);
   if (research && !runtime.json) {
-    console.log(
+    writeStderrLine(
       chalk.gray(
-        `   Research: ${research.totalResults} evidence items from ${research.sources.join(', ')}\n`
+        `Research: ${research.totalResults} evidence items from ${research.sources.join(', ')}`
       )
     );
   }
 
   const llmProvider = options.mock ? createMockLLMProvider(topic) : undefined;
   if (options.mock && !runtime.json) {
-    console.log(chalk.yellow('Mock mode - using fake providers\n'));
+    writeStderrLine(chalk.yellow('Mock mode - using fake providers'));
   }
 
   const spinners: SpinnerState = {
@@ -232,61 +234,62 @@ function showDryRunSummary(
   archetype: string,
   orientation: string
 ): void {
-  console.log('Dry-run mode - no execution\n');
-  console.log(`   Topic: ${topic}`);
-  console.log(`   Archetype: ${archetype}`);
-  console.log(`   Orientation: ${orientation}`);
-  console.log(`   Voice: ${options.voice}`);
-  console.log(`   Duration: ${options.duration}s`);
-  console.log(`   Output: ${options.output}`);
-  console.log(`   Keep artifacts: ${options.keepArtifacts}`);
-  console.log(`   Research: ${options.research ? 'enabled' : 'disabled'}`);
-  console.log('\n   Pipeline stages:');
+  writeStderrLine('Dry-run mode - no execution');
+  writeStderrLine(`   Topic: ${topic}`);
+  writeStderrLine(`   Archetype: ${archetype}`);
+  writeStderrLine(`   Orientation: ${orientation}`);
+  writeStderrLine(`   Voice: ${options.voice}`);
+  writeStderrLine(`   Duration: ${options.duration}s`);
+  writeStderrLine(`   Output: ${options.output}`);
+  writeStderrLine(`   Keep artifacts: ${options.keepArtifacts}`);
+  writeStderrLine(`   Research: ${options.research ? 'enabled' : 'disabled'}`);
+  writeStderrLine('   Pipeline stages:');
   if (options.research) {
-    console.log('   0. Research -> research.json');
+    writeStderrLine('   0. Research -> research.json');
   }
-  console.log('   1. Script -> script.json');
-  console.log('   2. Audio -> audio.wav + timestamps.json');
-  console.log('   3. Visuals -> visuals.json');
-  console.log(`   4. Render -> ${options.output}\n`);
+  writeStderrLine('   1. Script -> script.json');
+  writeStderrLine('   2. Audio -> audio.wav + timestamps.json');
+  writeStderrLine('   3. Visuals -> visuals.json');
+  writeStderrLine(`   4. Render -> ${options.output}`);
 }
 
 function createProgressHandler(spinners: SpinnerState) {
   return (stage: string, message: string): void => {
-    const isComplete =
-      message.includes('generated') || message.includes('matched') || message.includes('rendered');
-    if (!isComplete) return;
-
-    if (stage === 'script') {
+    if (stage === 'script' && message === 'Script generated') {
       spinners.script.succeed('Stage 1/4: Script generated');
       spinners.audio = createSpinner('Stage 2/4: Generating audio...').start();
+      return;
     }
-    if (stage === 'audio' && spinners.audio) {
+    if (stage === 'audio' && spinners.audio && message === 'Audio generated') {
       spinners.audio.succeed('Stage 2/4: Audio generated');
       spinners.visuals = createSpinner('Stage 3/4: Matching visuals...').start();
+      return;
     }
-    if (stage === 'visuals' && spinners.visuals) {
+    if (stage === 'visuals' && spinners.visuals && message === 'Visuals matched') {
       spinners.visuals.succeed('Stage 3/4: Visuals matched');
       spinners.render = createSpinner('Stage 4/4: Rendering video...').start();
+      return;
     }
-    if (stage === 'render' && spinners.render) {
+    if (stage === 'render' && spinners.render && message === 'Video rendered') {
       spinners.render.succeed('Stage 4/4: Video rendered');
     }
   };
 }
 
 function showSuccessSummary(result: PipelineResult): void {
-  console.log(chalk.green.bold('\nVideo generated successfully!\n'));
-  console.log(`   Title: ${result.script.title}`);
-  console.log(`   Duration: ${result.duration.toFixed(1)}s`);
-  console.log(`   Resolution: ${result.width}x${result.height}`);
-  console.log(`   Size: ${(result.fileSize / 1024 / 1024).toFixed(1)} MB`);
-  console.log(`   Output: ${chalk.cyan(result.outputPath)}\n`);
+  writeStderrLine(chalk.green.bold('Video generated successfully!'));
+  writeStderrLine(`   Title: ${result.script.title}`);
+  writeStderrLine(`   Duration: ${result.duration.toFixed(1)}s`);
+  writeStderrLine(`   Resolution: ${result.width}x${result.height}`);
+  writeStderrLine(`   Size: ${(result.fileSize / 1024 / 1024).toFixed(1)} MB`);
   if (result.costs) {
-    console.log(chalk.gray(`   API Costs: $${result.costs.total.toFixed(4)}`));
-    console.log(chalk.gray(`      - LLM: $${result.costs.llm.toFixed(4)}`));
-    console.log(chalk.gray(`      - TTS: $${result.costs.tts.toFixed(4)}\n`));
+    writeStderrLine(chalk.gray(`   API Costs: $${result.costs.total.toFixed(4)}`));
+    writeStderrLine(chalk.gray(`      - LLM: $${result.costs.llm.toFixed(4)}`));
+    writeStderrLine(chalk.gray(`      - TTS: $${result.costs.tts.toFixed(4)}`));
   }
+
+  // Human-mode stdout should be reserved for the primary artifact path.
+  process.stdout.write(`${result.outputPath}\n`);
 }
 
 /**

@@ -44,18 +44,21 @@ cm generate [options] <topic>
 The `--research` option enables evidence-based script generation:
 
 **Flag only (auto-run research):**
+
 ```bash
 cm generate "Redis caching" --research
 # Automatically runs: cm research -q "Redis caching" before script generation
 ```
 
 **With file path (load existing):**
+
 ```bash
 cm generate "Redis caching" --research research.json
 # Loads research from file and injects into script prompt
 ```
 
 When research is enabled:
+
 1. Research evidence is formatted into a prompt context (max 2500 chars, top 10 items)
 2. Context is prepended to the script generation prompt
 3. Source URLs are tracked in the script metadata (`extra.research`)

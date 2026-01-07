@@ -5,8 +5,7 @@
  */
 import { Command } from 'commander';
 import ora from 'ora';
-import { readFile } from 'node:fs/promises';
-import { handleCommandError } from '../utils';
+import { handleCommandError, readInputFile } from '../utils';
 import { HashEmbeddingProvider } from '../../core/embeddings/hash-embedder';
 import { queryResearchEvidenceIndex, parseResearchIndexFile } from '../../research/indexer';
 import { CMError } from '../../core/errors';
@@ -27,8 +26,8 @@ export const retrieveCommand = new Command('retrieve')
   .action(async (options: RetrieveOptions) => {
     const spinner = ora('Searching index...').start();
     try {
-      const raw = await readFile(options.index, 'utf8');
-      const index = parseResearchIndexFile(JSON.parse(raw) as unknown);
+      const raw = await readInputFile(options.index);
+      const index = parseResearchIndexFile(raw);
       const k = Number.parseInt(options.k, 10);
       if (!Number.isFinite(k) || k <= 0) {
         throw new CMError('INVALID_ARGUMENT', `Invalid -k value: ${options.k}`, {

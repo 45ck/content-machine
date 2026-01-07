@@ -8,10 +8,10 @@ import { renderVideo } from '../../render/service';
 import { logger } from '../../core/logger';
 import { handleCommandError, readInputFile } from '../utils';
 import type { VisualsOutput } from '../../visuals/schema';
-import type { AudioOutput } from '../../audio/schema';
+import type { TimestampsOutput } from '../../audio/schema';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope } from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
 
 export const renderCommand = new Command('render')
   .description('Render final video with Remotion')
@@ -21,6 +21,7 @@ export const renderCommand = new Command('render')
   .option('-o, --output <path>', 'Output video file path', 'video.mp4')
   .option('--orientation <type>', 'Video orientation', 'portrait')
   .option('--fps <fps>', 'Frames per second', '30')
+  .option('--mock', 'Use mock renderer (for testing)', false)
   .action(async (options) => {
     const spinner = createSpinner('Rendering video...').start();
     const runtime = getCliRuntime();
@@ -28,7 +29,7 @@ export const renderCommand = new Command('render')
     try {
       // Read input files
       const visuals = await readInputFile<VisualsOutput>(options.input);
-      const audioOutput = await readInputFile<AudioOutput>(options.timestamps);
+      const timestamps = await readInputFile<TimestampsOutput>(options.timestamps);
 
       logger.info(
         {
@@ -41,11 +42,12 @@ export const renderCommand = new Command('render')
 
       const result = await renderVideo({
         visuals,
-        timestamps: audioOutput.timestamps,
+        timestamps,
         audioPath: options.audio,
         outputPath: options.output,
         orientation: options.orientation,
         fps: parseInt(options.fps, 10),
+        mock: Boolean(options.mock),
       });
 
       spinner.succeed('Video rendered successfully');
@@ -70,6 +72,7 @@ export const renderCommand = new Command('render')
               output: options.output,
               orientation: options.orientation,
               fps: options.fps,
+              mock: Boolean(options.mock),
             },
             outputs: {
               videoPath: result.outputPath,
@@ -85,12 +88,13 @@ export const renderCommand = new Command('render')
         return;
       }
 
-      // Show summary
-      console.log('\nVideo Rendered');
-      console.log(`   Duration: ${result.duration.toFixed(1)}s`);
-      console.log(`   Resolution: ${result.width}x${result.height}`);
-      console.log(`   Size: ${(result.fileSize / 1024 / 1024).toFixed(1)} MB`);
-      console.log(`   Output: ${result.outputPath}\n`);
+      writeStderrLine(
+        `Video: ${result.duration.toFixed(1)}s, ${result.width}x${result.height}, ${(result.fileSize / 1024 / 1024).toFixed(1)} MB`
+      );
+      if (options.mock) writeStderrLine('   Mock mode - video is a placeholder file');
+
+      // Human-mode stdout should be reserved for the primary artifact path.
+      process.stdout.write(`${result.outputPath}\n`);
     } catch (error) {
       spinner.fail('Video render failed');
       handleCommandError(error);

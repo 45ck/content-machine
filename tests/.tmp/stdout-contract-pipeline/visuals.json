@@ -1,0 +1,107 @@
+{
+  "schemaVersion": "1.0.0",
+  "scenes": [
+    {
+      "sceneId": "scene-001",
+      "source": "mock",
+      "assetPath": "https://mock.pexels.com/video/1.mp4",
+      "matchReasoning": {
+        "reasoning": "Mock video for scene scene-001",
+        "conceptsMatched": [
+          "mock",
+          "test"
+        ]
+      },
+      "duration": 1.5
+    },
+    {
+      "sceneId": "scene-002",
+      "source": "mock",
+      "assetPath": "https://mock.pexels.com/video/2.mp4",
+      "matchReasoning": {
+        "reasoning": "Mock video for scene scene-002",
+        "conceptsMatched": [
+          "mock",
+          "test"
+        ]
+      },
+      "duration": 2.399999999999999
+    },
+    {
+      "sceneId": "scene-003",
+      "source": "mock",
+      "assetPath": "https://mock.pexels.com/video/3.mp4",
+      "matchReasoning": {
+        "reasoning": "Mock video for scene scene-003",
+        "conceptsMatched": [
+          "mock",
+          "test"
+        ]
+      },
+      "duration": 2.399999999999999
+    },
+    {
+      "sceneId": "scene-004",
+      "source": "mock",
+      "assetPath": "https://mock.pexels.com/video/4.mp4",
+      "matchReasoning": {
+        "reasoning": "Mock video for scene scene-004",
+        "conceptsMatched": [
+          "mock",
+          "test"
+        ]
+      },
+      "duration": 2.4000000000000012
+    },
+    {
+      "sceneId": "scene-005",
+      "source": "mock",
+      "assetPath": "https://mock.pexels.com/video/5.mp4",
+      "matchReasoning": {
+        "reasoning": "Mock video for scene scene-005",
+        "conceptsMatched": [
+          "mock",
+          "test"
+        ]
+      },
+      "duration": 1.8000000000000043
+    }
+  ],
+  "totalAssets": 5,
+  "fromUserFootage": 0,
+  "fromStock": 5,
+  "fallbacks": 0,
+  "keywords": [
+    {
+      "keyword": "mock keyword 1",
+      "sectionId": "scene-001",
+      "startTime": 0,
+      "endTime": 1.5
+    },
+    {
+      "keyword": "mock keyword 2",
+      "sectionId": "scene-002",
+      "startTime": 1.5,
+      "endTime": 3.899999999999999
+    },
+    {
+      "keyword": "mock keyword 3",
+      "sectionId": "scene-003",
+      "startTime": 3.899999999999999,
+      "endTime": 6.299999999999998
+    },
+    {
+      "keyword": "mock keyword 4",
+      "sectionId": "scene-004",
+      "startTime": 6.299999999999998,
+      "endTime": 8.7
+    },
+    {
+      "keyword": "mock keyword 5",
+      "sectionId": "scene-005",
+      "startTime": 8.7,
+      "endTime": 10.500000000000004
+    }
+  ],
+  "totalDuration": 10.500000000000004
+}

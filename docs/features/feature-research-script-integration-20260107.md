@@ -63,6 +63,7 @@ const sources = extractSourceUrls(research);
 
 ```markdown
 ## Research Evidence
+
 Use these verified facts in your script:
 
 - **TypeScript 5.0 Features** (dev.to, relevance: 95%)
@@ -70,6 +71,7 @@ Use these verified facts in your script:
   Source: https://dev.to/article-url
 
 ## Suggested Content Angles
+
 - listicle: "5 TypeScript tricks you're not using" (hook: "Stop writing JavaScript...")
 ```
 
@@ -140,10 +142,10 @@ When using `cm generate --research`:
 
 ### Context Limits
 
-| Constant | Value | Purpose |
-|----------|-------|---------|
-| `MAX_CONTEXT_LENGTH` | 2500 | Maximum characters in research context |
-| `MAX_EVIDENCE_ITEMS` | 10 | Maximum evidence items to include |
+| Constant             | Value | Purpose                                |
+| -------------------- | ----- | -------------------------------------- |
+| `MAX_CONTEXT_LENGTH` | 2500  | Maximum characters in research context |
+| `MAX_EVIDENCE_ITEMS` | 10    | Maximum evidence items to include      |
 
 ### Relevance Sorting
 
@@ -208,7 +210,6 @@ cm script --topic "TypeScript best practices 2025" --research research-demo.json
 
 ## Changelog
 
-| Date | Change |
-|------|--------|
+| Date       | Change                                          |
+| ---------- | ----------------------------------------------- |
 | 2026-01-07 | Initial implementation - Plans 1, 2, 4 complete |
-

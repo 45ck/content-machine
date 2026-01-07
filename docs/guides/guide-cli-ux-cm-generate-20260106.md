@@ -38,6 +38,7 @@ cm generate "Redis caching" --research research.json --output video.mp4
 ```
 
 When research is enabled:
+
 - Research evidence is formatted and injected into the script generation prompt
 - Source URLs are tracked in the script metadata
 - The script is more credible and fact-based

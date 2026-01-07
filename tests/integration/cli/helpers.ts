@@ -8,7 +8,11 @@ export interface CliRunResult {
   stderr: string;
 }
 
-export async function runCli(args: string[], env?: NodeJS.ProcessEnv): Promise<CliRunResult> {
+export async function runCli(
+  args: string[],
+  env?: NodeJS.ProcessEnv,
+  timeoutMs = 15000
+): Promise<CliRunResult> {
   const helperDir = dirname(fileURLToPath(import.meta.url));
   const repoRoot = join(helperDir, '..', '..', '..');
   const tsxCli = join(repoRoot, 'node_modules', 'tsx', 'dist', 'cli.mjs');
@@ -26,6 +30,12 @@ export async function runCli(args: string[], env?: NodeJS.ProcessEnv): Promise<C
 
     let stdout = '';
     let stderr = '';
+    let killed = false;
+
+    const timer = setTimeout(() => {
+      killed = true;
+      child.kill('SIGTERM');
+    }, timeoutMs);
 
     child.stdout.on('data', (chunk) => {
       stdout += chunk.toString();
@@ -34,13 +44,21 @@ export async function runCli(args: string[], env?: NodeJS.ProcessEnv): Promise<C
       stderr += chunk.toString();
     });
 
-    child.on('error', (error) => reject(error));
+    child.on('error', (error) => {
+      clearTimeout(timer);
+      reject(error);
+    });
     child.on('close', (code) => {
-      resolve({
-        code: typeof code === 'number' ? code : 1,
-        stdout,
-        stderr,
-      });
+      clearTimeout(timer);
+      if (killed) {
+        resolve({ code: 124, stdout, stderr: stderr + '\nProcess timed out' });
+      } else {
+        resolve({
+          code: typeof code === 'number' ? code : 1,
+          stdout,
+          stderr,
+        });
+      }
     });
   });
 }

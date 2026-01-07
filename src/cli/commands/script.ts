@@ -16,7 +16,7 @@ import { FakeLLMProvider } from '../../test/stubs/fake-llm';
 import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope } from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
 import type { SpinnerLike } from '../progress';
 
 interface PackagingInput {
@@ -131,18 +131,21 @@ function writeDryRunOutput(params: {
         timingsMs: Date.now() - runtime.startTime,
       })
     );
+    process.exit(0);
     return;
   }
 
-  console.log('\nDry-run mode - no LLM call made\n');
-  console.log(`   Topic: ${options.topic}`);
-  console.log(`   Archetype: ${archetype}`);
-  console.log(`   Duration: ${options.duration}s`);
-  console.log(`   Output: ${options.output}`);
-  if (options.package) console.log(`   Package: ${options.package}`);
-  console.log(
-    `\nPrompt would use ~${Math.round(parseInt(options.duration, 10) * 2.5)} target words\n`
+  writeStderrLine('Dry-run mode - no LLM call made');
+  writeStderrLine(`   Topic: ${options.topic}`);
+  writeStderrLine(`   Archetype: ${archetype}`);
+  writeStderrLine(`   Duration: ${options.duration}s`);
+  writeStderrLine(`   Output: ${options.output}`);
+  if (options.package) writeStderrLine(`   Package: ${options.package}`);
+  if (options.research) writeStderrLine(`   Research: ${options.research}`);
+  writeStderrLine(
+    `Prompt would use ~${Math.round(parseInt(options.duration, 10) * 2.5)} target words`
   );
+  process.exit(0);
 }
 
 function writeSuccessJsonOutput(params: {
@@ -174,6 +177,7 @@ function writeSuccessJsonOutput(params: {
       timingsMs: Date.now() - runtime.startTime,
     })
   );
+  process.exit(0);
 }
 
 function writeSuccessTextOutput(params: {
@@ -183,13 +187,16 @@ function writeSuccessTextOutput(params: {
 }): void {
   const { options, archetype, script } = params;
 
-  console.log(`\nScript: ${script.title ?? options.topic}`);
-  console.log(`   Archetype: ${archetype}`);
-  console.log(`   Scenes: ${script.scenes.length}`);
-  console.log(`   Word count: ${script.meta?.wordCount ?? 'N/A'}`);
-  console.log(`   Output: ${options.output}`);
-  if (options.mock) console.log('   Mock mode - script is for testing only');
-  console.log('');
+  writeStderrLine(`Script: ${script.title ?? options.topic}`);
+  writeStderrLine(`   Archetype: ${archetype}`);
+  writeStderrLine(`   Scenes: ${script.scenes.length}`);
+  writeStderrLine(`   Word count: ${script.meta?.wordCount ?? 'N/A'}`);
+  writeStderrLine(`   Output: ${options.output}`);
+  if (options.mock) writeStderrLine('   Mock mode - script is for testing only');
+
+  // Human-mode stdout should be reserved for the primary artifact path.
+  process.stdout.write(`${options.output}\n`);
+  process.exit(0);
 }
 
 async function runScript(options: ScriptCommandOptions, spinner: SpinnerLike): Promise<void> {

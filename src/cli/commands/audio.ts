@@ -10,7 +10,7 @@ import { handleCommandError, readInputFile } from '../utils';
 import type { ScriptOutput } from '../../script/schema';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope } from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
 
 export const audioCommand = new Command('audio')
   .description('Generate voiceover audio with word-level timestamps')
@@ -18,6 +18,7 @@ export const audioCommand = new Command('audio')
   .option('-o, --output <path>', 'Output audio file path', 'audio.wav')
   .option('--timestamps <path>', 'Output timestamps file path', 'timestamps.json')
   .option('--voice <voice>', 'TTS voice to use', 'af_heart')
+  .option('--mock', 'Use mock TTS/ASR (for testing)', false)
   .action(async (options) => {
     const spinner = createSpinner('Generating audio...').start();
     const runtime = getCliRuntime();
@@ -33,6 +34,7 @@ export const audioCommand = new Command('audio')
         voice: options.voice,
         outputPath: options.output,
         timestampsPath: options.timestamps,
+        mock: Boolean(options.mock),
       });
 
       spinner.succeed('Audio generated successfully');
@@ -55,6 +57,7 @@ export const audioCommand = new Command('audio')
               output: options.output,
               timestamps: options.timestamps,
               voice: options.voice,
+              mock: Boolean(options.mock),
             },
             outputs: {
               audioPath: result.audioPath,
@@ -68,12 +71,13 @@ export const audioCommand = new Command('audio')
         return;
       }
 
-      // Show summary
-      console.log('\nAudio Generated');
-      console.log(`   Duration: ${result.duration.toFixed(1)}s`);
-      console.log(`   Words: ${result.wordCount}`);
-      console.log(`   Audio: ${result.audioPath}`);
-      console.log(`   Timestamps: ${result.timestampsPath}\n`);
+      writeStderrLine(`Audio: ${result.duration.toFixed(1)}s, ${result.wordCount} words`);
+      writeStderrLine(`   Audio: ${result.audioPath}`);
+      writeStderrLine(`   Timestamps: ${result.timestampsPath}`);
+      if (options.mock) writeStderrLine('   Mock mode - audio/timestamps are placeholders');
+
+      // Human-mode stdout should be reserved for the primary artifact path.
+      process.stdout.write(`${result.audioPath}\n`);
     } catch (error) {
       spinner.fail('Audio generation failed');
       handleCommandError(error);

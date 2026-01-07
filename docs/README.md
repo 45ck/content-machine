@@ -158,6 +158,11 @@ Located in `guides/`, task-oriented how-to documentation:
 - `guides/guide-cli-ux-cm-package-20260106.md`
 - `guides/guide-cli-ux-cm-research-20260106.md`
 - `guides/guide-cli-ux-cm-validate-20260106.md`
+- `guides/guide-cli-stdout-stderr-contract-20260107.md`
+- `guides/guide-cli-json-envelope-20260107.md`
+- `guides/guide-cli-progress-events-20260107.md`
+- `guides/guide-cli-errors-and-fix-lines-20260107.md`
+- `guides/guide-cli-tdd-vv-execution-20260107.md`
 
 ### Planned Guides
 

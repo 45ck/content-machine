@@ -3,6 +3,7 @@ dist/
 coverage/
 .cache/
 test-e2e-output/
+tests/.tmp/
 vendor/
 templates/
 connectors/

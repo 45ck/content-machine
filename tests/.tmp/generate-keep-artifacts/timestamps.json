@@ -1,0 +1,465 @@
+{
+  "schemaVersion": "1.0.0",
+  "scenes": [
+    {
+      "sceneId": "scene-001",
+      "audioStart": 0,
+      "audioEnd": 1.5,
+      "words": [
+        {
+          "word": "Here's",
+          "start": 0,
+          "end": 0.3,
+          "confidence": 0.95
+        },
+        {
+          "word": "the",
+          "start": 0.3,
+          "end": 0.6,
+          "confidence": 0.95
+        },
+        {
+          "word": "thing",
+          "start": 0.6,
+          "end": 0.8999999999999999,
+          "confidence": 0.95
+        },
+        {
+          "word": "about",
+          "start": 0.8999999999999999,
+          "end": 1.2,
+          "confidence": 0.95
+        },
+        {
+          "word": "Redis...",
+          "start": 1.2,
+          "end": 1.5,
+          "confidence": 0.95
+        }
+      ]
+    },
+    {
+      "sceneId": "scene-002",
+      "audioStart": 1.5,
+      "audioEnd": 3.899999999999999,
+      "words": [
+        {
+          "word": "First,",
+          "start": 1.5,
+          "end": 1.8,
+          "confidence": 0.95
+        },
+        {
+          "word": "you",
+          "start": 1.8,
+          "end": 2.1,
+          "confidence": 0.95
+        },
+        {
+          "word": "need",
+          "start": 2.1,
+          "end": 2.4,
+          "confidence": 0.95
+        },
+        {
+          "word": "to",
+          "start": 2.4,
+          "end": 2.6999999999999997,
+          "confidence": 0.95
+        },
+        {
+          "word": "know",
+          "start": 2.6999999999999997,
+          "end": 2.9999999999999996,
+          "confidence": 0.95
+        },
+        {
+          "word": "this",
+          "start": 2.9999999999999996,
+          "end": 3.2999999999999994,
+          "confidence": 0.95
+        },
+        {
+          "word": "key",
+          "start": 3.2999999999999994,
+          "end": 3.599999999999999,
+          "confidence": 0.95
+        },
+        {
+          "word": "point.",
+          "start": 3.599999999999999,
+          "end": 3.899999999999999,
+          "confidence": 0.95
+        }
+      ]
+    },
+    {
+      "sceneId": "scene-003",
+      "audioStart": 3.899999999999999,
+      "audioEnd": 6.299999999999998,
+      "words": [
+        {
+          "word": "Second,",
+          "start": 3.899999999999999,
+          "end": 4.199999999999999,
+          "confidence": 0.95
+        },
+        {
+          "word": "this",
+          "start": 4.199999999999999,
+          "end": 4.499999999999999,
+          "confidence": 0.95
+        },
+        {
+          "word": "is",
+          "start": 4.499999999999999,
+          "end": 4.799999999999999,
+          "confidence": 0.95
+        },
+        {
+          "word": "what",
+          "start": 4.799999999999999,
+          "end": 5.099999999999999,
+          "confidence": 0.95
+        },
+        {
+          "word": "most",
+          "start": 5.099999999999999,
+          "end": 5.399999999999999,
+          "confidence": 0.95
+        },
+        {
+          "word": "people",
+          "start": 5.399999999999999,
+          "end": 5.699999999999998,
+          "confidence": 0.95
+        },
+        {
+          "word": "get",
+          "start": 5.699999999999998,
+          "end": 5.999999999999998,
+          "confidence": 0.95
+        },
+        {
+          "word": "wrong.",
+          "start": 5.999999999999998,
+          "end": 6.299999999999998,
+          "confidence": 0.95
+        }
+      ]
+    },
+    {
+      "sceneId": "scene-004",
+      "audioStart": 6.299999999999998,
+      "audioEnd": 8.7,
+      "words": [
+        {
+          "word": "And",
+          "start": 6.299999999999998,
+          "end": 6.599999999999998,
+          "confidence": 0.95
+        },
+        {
+          "word": "finally,",
+          "start": 6.599999999999998,
+          "end": 6.899999999999998,
+          "confidence": 0.95
+        },
+        {
+          "word": "here's",
+          "start": 6.899999999999998,
+          "end": 7.1999999999999975,
+          "confidence": 0.95
+        },
+        {
+          "word": "what",
+          "start": 7.1999999999999975,
+          "end": 7.499999999999997,
+          "confidence": 0.95
+        },
+        {
+          "word": "you",
+          "start": 7.499999999999997,
+          "end": 7.799999999999997,
+          "confidence": 0.95
+        },
+        {
+          "word": "should",
+          "start": 7.799999999999997,
+          "end": 8.099999999999998,
+          "confidence": 0.95
+        },
+        {
+          "word": "actually",
+          "start": 8.099999999999998,
+          "end": 8.399999999999999,
+          "confidence": 0.95
+        },
+        {
+          "word": "do.",
+          "start": 8.399999999999999,
+          "end": 8.7,
+          "confidence": 0.95
+        }
+      ]
+    },
+    {
+      "sceneId": "scene-005",
+      "audioStart": 8.7,
+      "audioEnd": 10.500000000000004,
+      "words": [
+        {
+          "word": "Follow",
+          "start": 8.7,
+          "end": 9,
+          "confidence": 0.95
+        },
+        {
+          "word": "for",
+          "start": 9,
+          "end": 9.3,
+          "confidence": 0.95
+        },
+        {
+          "word": "more",
+          "start": 9.3,
+          "end": 9.600000000000001,
+          "confidence": 0.95
+        },
+        {
+          "word": "tips",
+          "start": 9.600000000000001,
+          "end": 9.900000000000002,
+          "confidence": 0.95
+        },
+        {
+          "word": "like",
+          "start": 9.900000000000002,
+          "end": 10.200000000000003,
+          "confidence": 0.95
+        },
+        {
+          "word": "this!",
+          "start": 10.200000000000003,
+          "end": 10.500000000000004,
+          "confidence": 0.95
+        }
+      ]
+    }
+  ],
+  "allWords": [
+    {
+      "word": "Here's",
+      "start": 0,
+      "end": 0.3,
+      "confidence": 0.95
+    },
+    {
+      "word": "the",
+      "start": 0.3,
+      "end": 0.6,
+      "confidence": 0.95
+    },
+    {
+      "word": "thing",
+      "start": 0.6,
+      "end": 0.8999999999999999,
+      "confidence": 0.95
+    },
+    {
+      "word": "about",
+      "start": 0.8999999999999999,
+      "end": 1.2,
+      "confidence": 0.95
+    },
+    {
+      "word": "Redis...",
+      "start": 1.2,
+      "end": 1.5,
+      "confidence": 0.95
+    },
+    {
+      "word": "First,",
+      "start": 1.5,
+      "end": 1.8,
+      "confidence": 0.95
+    },
+    {
+      "word": "you",
+      "start": 1.8,
+      "end": 2.1,
+      "confidence": 0.95
+    },
+    {
+      "word": "need",
+      "start": 2.1,
+      "end": 2.4,
+      "confidence": 0.95
+    },
+    {
+      "word": "to",
+      "start": 2.4,
+      "end": 2.6999999999999997,
+      "confidence": 0.95
+    },
+    {
+      "word": "know",
+      "start": 2.6999999999999997,
+      "end": 2.9999999999999996,
+      "confidence": 0.95
+    },
+    {
+      "word": "this",
+      "start": 2.9999999999999996,
+      "end": 3.2999999999999994,
+      "confidence": 0.95
+    },
+    {
+      "word": "key",
+      "start": 3.2999999999999994,
+      "end": 3.599999999999999,
+      "confidence": 0.95
+    },
+    {
+      "word": "point.",
+      "start": 3.599999999999999,
+      "end": 3.899999999999999,
+      "confidence": 0.95
+    },
+    {
+      "word": "Second,",
+      "start": 3.899999999999999,
+      "end": 4.199999999999999,
+      "confidence": 0.95
+    },
+    {
+      "word": "this",
+      "start": 4.199999999999999,
+      "end": 4.499999999999999,
+      "confidence": 0.95
+    },
+    {
+      "word": "is",
+      "start": 4.499999999999999,
+      "end": 4.799999999999999,
+      "confidence": 0.95
+    },
+    {
+      "word": "what",
+      "start": 4.799999999999999,
+      "end": 5.099999999999999,
+      "confidence": 0.95
+    },
+    {
+      "word": "most",
+      "start": 5.099999999999999,
+      "end": 5.399999999999999,
+      "confidence": 0.95
+    },
+    {
+      "word": "people",
+      "start": 5.399999999999999,
+      "end": 5.699999999999998,
+      "confidence": 0.95
+    },
+    {
+      "word": "get",
+      "start": 5.699999999999998,
+      "end": 5.999999999999998,
+      "confidence": 0.95
+    },
+    {
+      "word": "wrong.",
+      "start": 5.999999999999998,
+      "end": 6.299999999999998,
+      "confidence": 0.95
+    },
+    {
+      "word": "And",
+      "start": 6.299999999999998,
+      "end": 6.599999999999998,
+      "confidence": 0.95
+    },
+    {
+      "word": "finally,",
+      "start": 6.599999999999998,
+      "end": 6.899999999999998,
+      "confidence": 0.95
+    },
+    {
+      "word": "here's",
+      "start": 6.899999999999998,
+      "end": 7.1999999999999975,
+      "confidence": 0.95
+    },
+    {
+      "word": "what",
+      "start": 7.1999999999999975,
+      "end": 7.499999999999997,
+      "confidence": 0.95
+    },
+    {
+      "word": "you",
+      "start": 7.499999999999997,
+      "end": 7.799999999999997,
+      "confidence": 0.95
+    },
+    {
+      "word": "should",
+      "start": 7.799999999999997,
+      "end": 8.099999999999998,
+      "confidence": 0.95
+    },
+    {
+      "word": "actually",
+      "start": 8.099999999999998,
+      "end": 8.399999999999999,
+      "confidence": 0.95
+    },
+    {
+      "word": "do.",
+      "start": 8.399999999999999,
+      "end": 8.7,
+      "confidence": 0.95
+    },
+    {
+      "word": "Follow",
+      "start": 8.7,
+      "end": 9,
+      "confidence": 0.95
+    },
+    {
+      "word": "for",
+      "start": 9,
+      "end": 9.3,
+      "confidence": 0.95
+    },
+    {
+      "word": "more",
+      "start": 9.3,
+      "end": 9.600000000000001,
+      "confidence": 0.95
+    },
+    {
+      "word": "tips",
+      "start": 9.600000000000001,
+      "end": 9.900000000000002,
+      "confidence": 0.95
+    },
+    {
+      "word": "like",
+      "start": 9.900000000000002,
+      "end": 10.200000000000003,
+      "confidence": 0.95
+    },
+    {
+      "word": "this!",
+      "start": 10.200000000000003,
+      "end": 10.500000000000004,
+      "confidence": 0.95
+    }
+  ],
+  "totalDuration": 10.500000000000004,
+  "ttsEngine": "mock",
+  "asrEngine": "mock"
+}

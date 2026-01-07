@@ -80,5 +80,5 @@ export function createSpinner(text: string): SpinnerLike {
     return new LineSpinner(text);
   }
 
-  return ora({ text, isEnabled: true });
+  return ora({ text, isEnabled: true, stream: process.stderr });
 }

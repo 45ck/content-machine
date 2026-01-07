@@ -13,7 +13,7 @@ import { FakeLLMProvider } from '../../test/stubs/fake-llm';
 import { handleCommandError, writeOutputFile } from '../utils';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope } from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
 
 interface ResearchOptions {
   query: string;
@@ -69,25 +69,24 @@ function displaySummary(
   output: string,
   mock: boolean
 ): void {
-  console.log(`\nResearch: "${query}"`);
-  console.log(`   Sources searched: ${result.output.sources.join(', ')}`);
-  console.log(`   Evidence found: ${result.output.totalResults}`);
+  writeStderrLine(`Research: "${query}"`);
+  writeStderrLine(`   Sources searched: ${result.output.sources.join(', ')}`);
+  writeStderrLine(`   Evidence found: ${result.output.totalResults}`);
 
   if (result.output.suggestedAngles && result.output.suggestedAngles.length > 0) {
-    console.log(`   Content angles: ${result.output.suggestedAngles.length}`);
+    writeStderrLine(`   Content angles: ${result.output.suggestedAngles.length}`);
     for (const angle of result.output.suggestedAngles) {
-      console.log(`      - ${angle.archetype}: "${angle.hook}"`);
+      writeStderrLine(`      - ${angle.archetype}: "${angle.hook}"`);
     }
   }
 
   if (result.errors.length > 0) {
-    console.log(`   Errors: ${result.errors.length} source(s) failed`);
+    writeStderrLine(`   Errors: ${result.errors.length} source(s) failed`);
   }
 
-  console.log(`   Output: ${output}`);
-  console.log(`   Time: ${result.timingMs.total}ms`);
-  if (mock) console.log('   Mock mode - angles are for testing only');
-  console.log('');
+  writeStderrLine(`   Output: ${output}`);
+  writeStderrLine(`   Time: ${result.timingMs.total}ms`);
+  if (mock) writeStderrLine('   Mock mode - angles are for testing only');
 }
 
 async function executeResearch(
@@ -173,14 +172,13 @@ export const researchCommand = new Command('research')
           return;
         }
 
-        console.log('\nDry-run mode - no API calls made\n');
-        console.log(`   Query: ${options.query}`);
-        console.log(`   Sources: ${validSources.join(', ')}`);
-        console.log(`   Limit per source: ${options.limit}`);
-        console.log(`   Time range: ${options.timeRange}`);
-        console.log(`   Generate angles: ${options.angles}`);
-        console.log(`   Output: ${options.output}`);
-        console.log('');
+        writeStderrLine('Dry-run mode - no API calls made');
+        writeStderrLine(`   Query: ${options.query}`);
+        writeStderrLine(`   Sources: ${validSources.join(', ')}`);
+        writeStderrLine(`   Limit per source: ${options.limit}`);
+        writeStderrLine(`   Time range: ${options.timeRange}`);
+        writeStderrLine(`   Generate angles: ${options.angles}`);
+        writeStderrLine(`   Output: ${options.output}`);
         return;
       }
 
@@ -218,6 +216,9 @@ export const researchCommand = new Command('research')
       }
 
       displaySummary(options.query, result, options.output, options.mock);
+
+      // Human-mode stdout should be reserved for the primary artifact path.
+      process.stdout.write(`${options.output}\n`);
     } catch (error) {
       spinner.fail('Research failed');
       handleCommandError(error);
