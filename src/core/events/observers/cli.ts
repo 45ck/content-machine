@@ -17,6 +17,8 @@ export class CliProgressObserver implements PipelineObserver {
   private spinnerInterval?: ReturnType<typeof setInterval>;
   private spinnerFrames = ['|', '/', '-', '\\'];
   private spinnerIndex = 0;
+  private activeStageLabel: string | null = null;
+  private hasInlineOutput = false;
   private lastNonTtyBucket: number | null = null;
   private lastNonTtyPhase: string | undefined;
 
@@ -78,6 +80,7 @@ export class CliProgressObserver implements PipelineObserver {
   private onStageStarted(event: PipelineEvent & { type: 'stage:started' }): void {
     const progress = `[${event.stageIndex + 1}/${event.totalStages}]`;
     this.writeLine(`${progress} Starting ${event.stage}...`);
+    this.activeStageLabel = `${progress} ${event.stage}`;
     this.lastNonTtyBucket = null;
     this.lastNonTtyPhase = undefined;
     if (this.stream.isTTY) {
@@ -90,12 +93,14 @@ export class CliProgressObserver implements PipelineObserver {
     const progress = `[${event.stageIndex + 1}/${event.totalStages}]`;
     const seconds = (event.durationMs / 1000).toFixed(1);
     this.writeLine(`${progress} ${event.stage} completed (${seconds}s)`);
+    this.activeStageLabel = null;
   }
 
   private onStageFailed(event: PipelineEvent & { type: 'stage:failed' }): void {
     this.stopSpinner();
     const progress = `[${event.stageIndex + 1}/${event.totalStages}]`;
     this.writeLine(`${progress} ${event.stage} failed: ${event.error.message}`);
+    this.activeStageLabel = null;
   }
 
   private onStageProgress(event: PipelineEvent & { type: 'stage:progress' }): void {
@@ -108,9 +113,9 @@ export class CliProgressObserver implements PipelineObserver {
 
     if (this.stream.isTTY) {
       // Prefer deterministic progress over spinner frames.
-      this.stopSpinner();
+      this.stopSpinner(false);
       // Overwrite line in TTY mode
-      this.stream.write(`\r${progress} ${event.stage}: ${percent}%${message}    `);
+      this.writeInline(`\r${progress} ${event.stage}: ${percent}%${message}    `);
     } else {
       const bucket = Math.floor(percent / 10) * 10;
       const phase = event.phase;
@@ -132,24 +137,43 @@ export class CliProgressObserver implements PipelineObserver {
   }
 
   private writeLine(text: string): void {
+    this.clearInlineLine();
     this.stream.write(text + '\n');
+  }
+
+  private writeInline(text: string): void {
+    this.stream.write(text);
+    this.hasInlineOutput = true;
+  }
+
+  private clearInlineLine(): void {
+    if (!this.stream.isTTY) return;
+    if (!this.hasInlineOutput) return;
+
+    const columns = (this.stream as any).columns;
+    const width = typeof columns === 'number' && columns > 0 ? columns : 80;
+
+    this.stream.write('\r' + ' '.repeat(width) + '\r');
+    this.hasInlineOutput = false;
   }
 
   private startSpinner(): void {
     if (this.spinnerInterval) return;
     this.spinnerInterval = setInterval(() => {
       this.spinnerIndex = (this.spinnerIndex + 1) % this.spinnerFrames.length;
-      this.stream.write(`\r  ${this.spinnerFrames[this.spinnerIndex]} `);
+      const label = this.activeStageLabel ? `${this.activeStageLabel} ` : '';
+      this.writeInline(`\r${label}${this.spinnerFrames[this.spinnerIndex]} `);
     }, 100);
   }
 
-  private stopSpinner(): void {
+  private stopSpinner(clearLine: boolean = true): void {
     if (this.spinnerInterval) {
       clearInterval(this.spinnerInterval);
       this.spinnerInterval = undefined;
-      if (this.stream.isTTY) {
-        this.stream.write('\r    \r'); // Clear spinner
-      }
+    }
+
+    if (clearLine) {
+      this.clearInlineLine();
     }
   }
 }

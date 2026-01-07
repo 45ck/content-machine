@@ -4,7 +4,6 @@
  * Usage: cm audio --input script.json --output audio.wav
  */
 import { Command } from 'commander';
-import { generateAudio } from '../../audio/pipeline';
 import { logger } from '../../core/logger';
 import { handleCommandError, readInputFile } from '../utils';
 import type { ScriptOutput } from '../../script/schema';
@@ -29,6 +28,7 @@ export const audioCommand = new Command('audio')
 
       logger.info({ input: options.input, voice: options.voice }, 'Starting audio generation');
 
+      const { generateAudio } = await import('../../audio/pipeline');
       const result = await generateAudio({
         script,
         voice: options.voice,

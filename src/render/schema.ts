@@ -57,6 +57,8 @@ export const RenderPropsSchema = z.object({
   archetype: z.string().optional().describe('Content archetype for style defaults'),
 });
 
+export type VideoScene = z.infer<typeof VisualAssetSchema>;
+export type VideoClip = z.infer<typeof VideoClipSchema>;
 export type RenderProps = z.infer<typeof RenderPropsSchema>;
 
 /**

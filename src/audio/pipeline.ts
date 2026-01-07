@@ -5,7 +5,7 @@
  * Based on SYSTEM-DESIGN §7.2 cm audio command.
  */
 import { writeFile } from 'fs/promises';
-import { ScriptOutput } from '../script/generator';
+import type { ScriptOutput } from '../script/generator';
 import { createLogger } from '../core/logger';
 import {
   AudioOutput,
@@ -19,6 +19,128 @@ import { synthesizeSpeech } from './tts';
 import { transcribeAudio, ASRResult } from './asr';
 
 export type { AudioOutput, TimestampsOutput, WordTimestamp } from './schema';
+
+export interface SpokenSection {
+  id: string;
+  text: string;
+}
+
+function normalizeSpokenText(text: string): string {
+  return text.replace(/\s+/g, ' ').trim();
+}
+
+function resolveTotalDuration(
+  totalDuration: number | undefined,
+  words: WordTimestamp[]
+): number {
+  if (typeof totalDuration === 'number' && Number.isFinite(totalDuration)) {
+    return totalDuration;
+  }
+  if (words.length === 0) {
+    return 0;
+  }
+  return words[words.length - 1].end;
+}
+
+export function buildAlignmentSections(script: ScriptOutput): SpokenSection[] {
+  const sections: SpokenSection[] = [];
+  const scenes = script.scenes;
+
+  const firstSceneText = scenes.length > 0 ? normalizeSpokenText(scenes[0].text) : '';
+  const lastSceneText =
+    scenes.length > 0 ? normalizeSpokenText(scenes[scenes.length - 1].text) : '';
+
+  const hookText = script.hook ? normalizeSpokenText(script.hook) : '';
+  if (hookText && hookText !== firstSceneText) {
+    sections.push({ id: 'hook', text: script.hook! });
+  }
+
+  sections.push(...scenes.map((scene) => ({ id: scene.id, text: scene.text })));
+
+  const ctaText = script.cta ? normalizeSpokenText(script.cta) : '';
+  if (ctaText && ctaText !== lastSceneText) {
+    sections.push({ id: 'cta', text: script.cta! });
+  }
+
+  return sections;
+}
+
+/**
+ * Append remaining ASR words to the last scene or create a fallback scene.
+ * Ensures we never drop trailing words (prevents audio continuing after visuals).
+ * @internal
+ */
+function appendRemainingWords(
+  result: SceneTimestamp[],
+  sections: SpokenSection[],
+  words: WordTimestamp[],
+  wordIndex: number
+): void {
+  if (wordIndex >= words.length) return;
+
+  const remaining = words.slice(wordIndex);
+
+  if (result.length > 0) {
+    const lastScene = result[result.length - 1];
+    lastScene.words.push(...remaining);
+    lastScene.audioEnd = remaining[remaining.length - 1].end;
+    return;
+  }
+
+  // Defensive fallback: if no scene got words, attach everything to the first section
+  if (sections.length > 0) {
+    result.push({
+      sceneId: sections[0].id,
+      audioStart: words[0].start,
+      audioEnd: words[words.length - 1].end,
+      words: [...words],
+    });
+  }
+}
+
+/**
+ * Build scene timestamps from words and scene text structure.
+ * Assigns words to scenes proportionally based on word count.
+ *
+ * @internal Shared between mock and real audio generation
+ */
+export function buildSceneTimestamps(
+  words: WordTimestamp[],
+  sections: SpokenSection[],
+  totalDuration?: number
+): SceneTimestamp[] {
+  const result: SceneTimestamp[] = [];
+  let wordIndex = 0;
+  const duration = resolveTotalDuration(totalDuration, words);
+
+  for (const section of sections) {
+    const targetWordCount = section.text.split(/\s+/).filter(Boolean).length;
+    const sceneWords: WordTimestamp[] = [];
+
+    while (wordIndex < words.length && sceneWords.length < targetWordCount) {
+      sceneWords.push(words[wordIndex]);
+      wordIndex++;
+    }
+
+    if (sceneWords.length > 0) {
+      result.push({
+        sceneId: section.id,
+        audioStart: sceneWords[0].start,
+        audioEnd: sceneWords[sceneWords.length - 1].end,
+        words: sceneWords,
+      });
+    }
+  }
+
+  appendRemainingWords(result, sections, words, wordIndex);
+
+  if (result.length > 0) {
+    const lastScene = result[result.length - 1];
+    lastScene.audioEnd = Math.max(lastScene.audioEnd, duration);
+  }
+
+  return result;
+}
 
 export interface GenerateAudioOptions {
   script: ScriptOutput;
@@ -111,14 +233,15 @@ export async function generateAudio(options: GenerateAudioOptions): Promise<Audi
 async function generateMockAudio(options: GenerateAudioOptions): Promise<AudioOutput> {
   const log = createLogger({ module: 'audio', mock: true });
 
-  // Create mock word timestamps from script text
+  // Create mock word timestamps from the same alignment sections as real TTS (hook/scenes/cta)
+  const sections = buildAlignmentSections(options.script);
   const words: WordTimestamp[] = [];
   let currentTime = 0;
   const wordDuration = 0.3; // ~200 WPM
 
-  for (const scene of options.script.scenes) {
-    const sceneWords = scene.text.split(/\s+/).filter(Boolean);
-    for (const word of sceneWords) {
+  for (const section of sections) {
+    const sectionWords = section.text.split(/\s+/).filter(Boolean);
+    for (const word of sectionWords) {
       words.push({
         word,
         start: currentTime,
@@ -129,31 +252,12 @@ async function generateMockAudio(options: GenerateAudioOptions): Promise<AudioOu
     }
   }
 
-  // Build mock scene timestamps
-  const scenes: SceneTimestamp[] = [];
-  let wordIndex = 0;
-
-  for (const scene of options.script.scenes) {
-    const sceneWordCount = scene.text.split(/\s+/).filter(Boolean).length;
-    const sceneWords = words.slice(wordIndex, wordIndex + sceneWordCount);
-
-    if (sceneWords.length > 0) {
-      scenes.push({
-        sceneId: scene.id,
-        audioStart: sceneWords[0].start,
-        audioEnd: sceneWords[sceneWords.length - 1].end,
-        words: sceneWords,
-      });
-    }
-
-    wordIndex += sceneWordCount;
-  }
-
   const totalDuration = currentTime;
+  const sceneTimestamps = buildSceneTimestamps(words, sections, totalDuration);
 
   const timestamps: TimestampsOutput = {
     schemaVersion: AUDIO_SCHEMA_VERSION,
-    scenes,
+    scenes: sceneTimestamps,
     allWords: words,
     totalDuration,
     ttsEngine: 'mock',
@@ -194,53 +298,18 @@ async function generateMockAudio(options: GenerateAudioOptions): Promise<AudioOu
  * Build full text from script for TTS
  */
 function buildFullText(script: ScriptOutput): string {
-  const parts: string[] = [];
-
-  // Add hook if present
-  if (script.hook) {
-    parts.push(script.hook);
-  }
-
-  // Add each scene's text
-  for (const scene of script.scenes) {
-    parts.push(scene.text);
-  }
-
-  // Add CTA if present
-  if (script.cta) {
-    parts.push(script.cta);
-  }
-
-  return parts.join(' ');
+  return buildAlignmentSections(script)
+    .map((section) => section.text)
+    .join(' ');
 }
 
 /**
  * Build timestamps output from ASR result aligned to scenes
  */
 function buildTimestamps(asr: ASRResult, script: ScriptOutput): TimestampsOutput {
-  // Build scene-level timestamps
-  const scenes: SceneTimestamp[] = [];
-  let wordIndex = 0;
-
-  for (const scene of script.scenes) {
-    const sceneWords: WordTimestamp[] = [];
-    const targetWordCount = scene.text.split(/\s+/).filter(Boolean).length;
-
-    // Collect words for this scene (approximate by word count)
-    while (wordIndex < asr.words.length && sceneWords.length < targetWordCount) {
-      sceneWords.push(asr.words[wordIndex]);
-      wordIndex++;
-    }
-
-    if (sceneWords.length > 0) {
-      scenes.push({
-        sceneId: scene.id,
-        audioStart: sceneWords[0].start,
-        audioEnd: sceneWords[sceneWords.length - 1].end,
-        words: sceneWords,
-      });
-    }
-  }
+  // Align scenes to the same sections used for TTS (hook/scenes/cta) to prevent drift.
+  const sections = buildAlignmentSections(script);
+  const scenes = buildSceneTimestamps(asr.words, sections, asr.duration);
 
   return {
     schemaVersion: AUDIO_SCHEMA_VERSION,

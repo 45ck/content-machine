@@ -24,11 +24,11 @@ export class RedditTool extends BaseResearchTool<RedditSearchResponse, RedditPos
     this.rateLimitStatus = { isLimited: false, remaining: 100 };
   }
 
-  protected override getDefaultMaxScore(): number {
+  protected getDefaultMaxScore(): number {
     return MAX_SCORE_DEFAULT;
   }
 
-  protected override buildUrl(query: string, limit: number, options: SearchToolOptions): string {
+  protected buildUrl(query: string, limit: number, options: SearchToolOptions): string {
     const params = new URLSearchParams({
       q: query,
       limit: String(limit),
@@ -43,17 +43,17 @@ export class RedditTool extends BaseResearchTool<RedditSearchResponse, RedditPos
     return `${baseUrl}?${params}`;
   }
 
-  protected override buildHeaders(): Record<string, string> {
+  protected buildHeaders(): Record<string, string> {
     return {
       'User-Agent': this.config.userAgent ?? 'content-machine/1.0',
     };
   }
 
-  protected override extractHits(response: RedditSearchResponse): RedditPost[] {
+  protected extractHits(response: RedditSearchResponse): RedditPost[] {
     return response.data.children.map((child) => child.data);
   }
 
-  protected override toEvidence(post: RedditPost): Evidence {
+  protected toEvidence(post: RedditPost): Evidence {
     const maxScore = this.config.maxScoreNormalization ?? MAX_SCORE_DEFAULT;
     const excerpt = post.selftext
       ? post.selftext.slice(0, 200) + (post.selftext.length > 200 ? '...' : '')

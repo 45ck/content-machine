@@ -1,36 +1,33 @@
 /**
  * Logger for content-machine
  *
- * Uses pino for structured logging with pretty output in development.
+ * Uses pino for structured logging.
+ *
+ * Design constraints:
+ * - Always write to stderr (stdout reserved for primary artifacts / JSON envelopes).
+ * - Avoid worker-thread transports (can delay process exit under load).
+ * - Work in both ESM (tsx/dev) and bundled CJS (dist/cli/index.cjs).
  */
 import pino from 'pino';
-import { createRequire } from 'module';
+import pretty from 'pino-pretty';
 
 export type Logger = pino.Logger;
 
 const isTest = process.env.NODE_ENV === 'test' || process.env.VITEST;
+const isDev = process.env.NODE_ENV !== 'production';
 
 // Determine log level
-const level = process.env.LOG_LEVEL ?? (isTest ? 'silent' : 'warn');
-
-const require = createRequire(import.meta.url);
+const level = process.env.LOG_LEVEL ?? (isTest ? 'silent' : isDev ? 'debug' : 'info');
 
 function createLogStream(): pino.DestinationStream {
   const shouldPretty = !isTest && Boolean(process.stderr.isTTY);
   if (shouldPretty) {
-    const loaded = require('pino-pretty') as unknown;
-    const prettyFactory =
-      typeof loaded === 'function'
-        ? (loaded as (options: Record<string, unknown>) => pino.DestinationStream)
-        : ((loaded as { default?: unknown }).default as (
-            options: Record<string, unknown>
-          ) => pino.DestinationStream);
-
-    return prettyFactory({
+    return pretty({
       colorize: true,
       translateTime: 'HH:MM:ss',
       ignore: 'pid,hostname',
       destination: 2,
+      sync: true,
     });
   }
 

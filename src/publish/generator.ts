@@ -4,7 +4,7 @@
  * Generates platform metadata + a QA checklist for upload.
  * Default mode is deterministic; LLM mode is opt-in.
  */
-import { createLLMProvider, type LLMProvider } from '../core/llm';
+import { createLLMProvider, type LLMProvider, calculateLLMCost } from '../core/llm';
 import { loadConfig } from '../core/config';
 import { createLogger } from '../core/logger';
 import { SchemaError } from '../core/errors';
@@ -23,18 +23,6 @@ export interface GeneratePublishOptions {
   packaging?: PackageOutput;
   mode?: 'deterministic' | 'llm';
   llmProvider?: LLMProvider;
-}
-
-function calculateCost(tokens: number, model: string): number {
-  const costs: Record<string, number> = {
-    'gpt-4o': 5,
-    'gpt-4o-mini': 0.15,
-    'gpt-3.5-turbo': 0.5,
-    'claude-3-5-sonnet-20241022': 3,
-    'claude-3-haiku-20240307': 0.25,
-  };
-  const costPer1M = costs[model] ?? 5;
-  return (tokens / 1_000_000) * costPer1M;
 }
 
 function defaultChecklist(): PublishOutput['checklist'] {
@@ -155,7 +143,7 @@ async function generatePublishWithLLM(options: GeneratePublishOptions): Promise<
     meta: {
       model: response.model,
       promptVersion: 'publish-v1',
-      llmCost: calculateCost(response.usage?.totalTokens ?? 0, response.model ?? llm.model),
+      llmCost: calculateLLMCost(response.usage?.totalTokens ?? 0, response.model ?? llm.model),
     },
   };
 

@@ -15,6 +15,7 @@ import { useCurrentFrame, useVideoConfig, spring, Sequence, interpolate } from '
 import { CaptionConfig, CaptionConfigSchema } from './config';
 import { createCaptionPages, toTimedWords, CaptionPage, TimedWord } from './paging';
 import { PRESET_TIKTOK } from './presets';
+import { isWordActive } from './timing';
 
 /**
  * Props for the Caption component
@@ -79,7 +80,10 @@ interface CaptionPageViewProps {
 const CaptionPageView: React.FC<CaptionPageViewProps> = ({ page, config }) => {
   const frame = useCurrentFrame();
   const { fps, height } = useVideoConfig();
-  const currentTimeMs = (frame / fps) * 1000;
+
+  // CRITICAL: Convert frame to sequence-relative time in ms
+  // frame is relative to Sequence start (resets to 0 for each page)
+  const sequenceTimeMs = (frame / fps) * 1000;
 
   // Entrance animation
   const enterProgress = useEnterAnimation(frame, fps, config);
@@ -97,7 +101,11 @@ const CaptionPageView: React.FC<CaptionPageViewProps> = ({ page, config }) => {
                 key={`${word.startMs}-${wordIndex}`}
                 word={word}
                 config={config}
-                isActive={currentTimeMs >= word.startMs && currentTimeMs < word.endMs}
+                isActive={isWordActive(
+                  { startMs: word.startMs, endMs: word.endMs },
+                  page.startMs,
+                  sequenceTimeMs
+                )}
               />
             ))}
           </div>

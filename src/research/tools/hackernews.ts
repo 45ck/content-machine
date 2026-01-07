@@ -1,90 +1,77 @@
 /**
  * HackerNews Research Tool - Algolia API
+ *
+ * Uses Template Method pattern via BaseResearchTool.
  */
 import type { Evidence } from '../schema';
 import type {
-  ResearchTool,
   SearchToolOptions,
-  SearchToolResult,
-  RateLimitStatus,
   ToolConfig,
   AlgoliaHit,
   AlgoliaSearchResponse,
 } from './types';
+import { BaseResearchTool } from './base-tool';
 
 const ALGOLIA_BASE = 'https://hn.algolia.com/api/v1';
 const HN_ITEM_BASE = 'https://news.ycombinator.com/item';
 const MAX_POINTS_DEFAULT = 500;
 
-export class HackerNewsTool implements ResearchTool {
+export class HackerNewsTool extends BaseResearchTool<AlgoliaSearchResponse, AlgoliaHit> {
   readonly source = 'hackernews' as const;
   readonly name = 'HackerNews';
-  private config: ToolConfig;
-  private rateLimitStatus: RateLimitStatus = { isLimited: false, remaining: 1000 };
 
   constructor(config: ToolConfig = {}) {
-    this.config = {
-      timeoutMs: config.timeoutMs ?? 10000,
-      userAgent: config.userAgent ?? 'content-machine/1.0',
-      maxScoreNormalization: config.maxScoreNormalization ?? MAX_POINTS_DEFAULT,
+    super(config);
+    this.rateLimitStatus = { isLimited: false, remaining: 1000 };
+  }
+
+  protected override getDefaultMaxScore(): number {
+    return MAX_POINTS_DEFAULT;
+  }
+
+  protected override buildUrl(query: string, limit: number, options: SearchToolOptions): string {
+    const params = new URLSearchParams({
+      query,
+      hitsPerPage: String(limit),
+      tags: 'story',
+    });
+
+    if (options.timeRange) {
+      const timestamp = this.getTimestampForRange(options.timeRange);
+      if (timestamp) {
+        params.set('numericFilters', `created_at_i>${timestamp}`);
+      }
+    }
+
+    return `${ALGOLIA_BASE}/search?${params}`;
+  }
+
+  protected override buildHeaders(): Record<string, string> {
+    return {
+      'User-Agent': this.config.userAgent ?? 'content-machine/1.0',
     };
   }
 
-  isAvailable(): boolean {
-    return true;
+  protected override extractHits(response: AlgoliaSearchResponse): AlgoliaHit[] {
+    return response.hits;
   }
 
-  getRateLimitStatus(): RateLimitStatus {
-    return this.rateLimitStatus;
+  protected override getTotalCount(response: AlgoliaSearchResponse): number {
+    return response.nbHits;
   }
 
-  async search(query: string, options: SearchToolOptions = {}): Promise<SearchToolResult> {
-    const startTime = Date.now();
-    const limit = options.limit ?? 10;
+  protected override toEvidence(hit: AlgoliaHit): Evidence {
+    const maxPoints = this.config.maxScoreNormalization ?? MAX_POINTS_DEFAULT;
+    const url = hit.url ?? `${HN_ITEM_BASE}?id=${hit.objectID}`;
 
-    try {
-      const params = new URLSearchParams({
-        query,
-        hitsPerPage: String(limit),
-        tags: 'story',
-      });
-
-      if (options.timeRange) {
-        const timestamp = this.getTimestampForRange(options.timeRange);
-        if (timestamp) {
-          params.set('numericFilters', `created_at_i>${timestamp}`);
-        }
-      }
-
-      const response = await fetch(`${ALGOLIA_BASE}/search?${params}`, {
-        headers: {
-          'User-Agent': this.config.userAgent ?? 'content-machine/1.0',
-        },
-        signal: AbortSignal.timeout(this.config.timeoutMs ?? 10000),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HackerNews API error: ${response.status} ${response.statusText}`);
-      }
-
-      const data: AlgoliaSearchResponse = await response.json();
-      const evidence = data.hits.map((hit) => this.toEvidence(hit));
-
-      return {
-        success: true,
-        evidence,
-        totalFound: data.nbHits,
-        searchTimeMs: Date.now() - startTime,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        evidence: [],
-        totalFound: 0,
-        searchTimeMs: Date.now() - startTime,
-        error: error instanceof Error ? error.message : String(error),
-      };
-    }
+    return {
+      title: hit.title,
+      url,
+      source: 'hackernews',
+      relevanceScore: Math.min((hit.points ?? 0) / maxPoints, 1.0),
+      publishedAt: hit.created_at,
+      summary: `${hit.points ?? 0} points, ${hit.num_comments ?? 0} comments by ${hit.author ?? 'unknown'}`,
+    };
   }
 
   private getTimestampForRange(timeRange: string): number | null {
@@ -97,19 +84,5 @@ export class HackerNewsTool implements ResearchTool {
       year: now - 31536000,
     };
     return ranges[timeRange] ?? null;
-  }
-
-  private toEvidence(hit: AlgoliaHit): Evidence {
-    const maxPoints = this.config.maxScoreNormalization ?? MAX_POINTS_DEFAULT;
-    const url = hit.url ?? `${HN_ITEM_BASE}?id=${hit.objectID}`;
-
-    return {
-      title: hit.title,
-      url,
-      source: 'hackernews',
-      relevanceScore: Math.min((hit.points ?? 0) / maxPoints, 1.0),
-      publishedAt: hit.created_at,
-      summary: `${hit.points ?? 0} points, ${hit.num_comments ?? 0} comments by ${hit.author ?? 'unknown'}`,
-    };
   }
 }

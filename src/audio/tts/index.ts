@@ -31,8 +31,11 @@ export interface TTSResult {
   cost: number; // Always 0 for local TTS
 }
 
-// Cache the TTS model
-let cachedTTS: any = null;
+// Cache the TTS model - use import type for proper typing
+type KokoroTTSInstance = Awaited<
+  ReturnType<(typeof import('kokoro-js'))['KokoroTTS']['from_pretrained']>
+>;
+let cachedTTS: KokoroTTSInstance | null = null;
 
 /**
  * Synthesize speech from text using kokoro-js

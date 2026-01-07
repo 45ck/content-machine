@@ -11,6 +11,9 @@ import { TavilySearchTool } from './tavily';
 // Re-export types
 export type { ResearchTool, ToolConfig, SearchToolOptions, SearchToolResult, RateLimitStatus } from './types';
 
+// Re-export base class for extension
+export { BaseResearchTool } from './base-tool';
+
 // Re-export tool classes
 export { HackerNewsTool } from './hackernews';
 export { RedditTool } from './reddit';

@@ -265,7 +265,7 @@ export class RetryLLMProvider implements LLMProvider {
     // Cap at max delay
     delay = Math.min(delay, this.maxDelayMs);
 
-    // Add jitter if enabled (±25%)
+    // Add jitter if enabled (+/- 25%)
     if (this.jitter) {
       const jitterRange = delay * 0.25;
       delay += (Math.random() - 0.5) * 2 * jitterRange;

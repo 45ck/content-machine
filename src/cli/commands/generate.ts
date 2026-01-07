@@ -5,16 +5,16 @@
  */
 import { Command } from 'commander';
 import type { PipelineResult } from '../../core/pipeline';
-import { runPipeline } from '../../core/pipeline';
 import { logger } from '../../core/logger';
 import { ArchetypeEnum, OrientationEnum } from '../../core/config';
 import { handleCommandError, readInputFile } from '../utils';
 import { FakeLLMProvider } from '../../test/stubs/fake-llm';
+import { createMockScriptResponse } from '../../test/fixtures/mock-scenes.js';
 import { createSpinner } from '../progress';
 import chalk from 'chalk';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
-import { dirname } from 'path';
+import { dirname, join } from 'path';
 import { ResearchOutputSchema } from '../../research/schema';
 import type { ResearchOutput } from '../../research/schema';
 import { createResearchOrchestrator } from '../../research/orchestrator';
@@ -163,6 +163,7 @@ async function runGenerate(topic: string, options: GenerateOptions): Promise<voi
     });
   }
 
+  const { runPipeline } = await import('../../core/pipeline');
   let result: PipelineResult;
   try {
     result = await runPipeline({
@@ -187,49 +188,12 @@ async function runGenerate(topic: string, options: GenerateOptions): Promise<voi
     return;
   }
 
-  showSuccessSummary(result);
-}
-
-function createMockScenes(topic: string) {
-  return [
-    {
-      text: `Here's the thing about ${topic}...`,
-      visualDirection: 'Speaker on camera',
-      mood: 'engaging',
-    },
-    {
-      text: 'First, you need to know this key point.',
-      visualDirection: 'B-roll of related topic',
-      mood: 'informative',
-    },
-    {
-      text: 'Second, this is what most people get wrong.',
-      visualDirection: 'Text overlay with key stat',
-      mood: 'surprising',
-    },
-    {
-      text: "And finally, here's what you should actually do.",
-      visualDirection: 'Action shot',
-      mood: 'empowering',
-    },
-    {
-      text: 'Follow for more tips like this!',
-      visualDirection: 'End card with social handles',
-      mood: 'friendly',
-    },
-  ];
+  showSuccessSummary(result, options, artifactsDir);
 }
 
 function createMockLLMProvider(topic: string): FakeLLMProvider {
   const provider = new FakeLLMProvider();
-  provider.queueJsonResponse({
-    scenes: createMockScenes(topic),
-    reasoning: 'Mock script generated for testing.',
-    title: `Mock: ${topic}`,
-    hook: `Here's the thing about ${topic}...`,
-    cta: 'Follow for more tips like this!',
-    hashtags: ['#mock', '#test'],
-  });
+  provider.queueJsonResponse(createMockScriptResponse(topic));
   return provider;
 }
 
@@ -258,7 +222,11 @@ function showDryRunSummary(
   writeStderrLine(`   4. Render -> ${options.output}`);
 }
 
-function showSuccessSummary(result: PipelineResult): void {
+function showSuccessSummary(
+  result: PipelineResult,
+  options: GenerateOptions,
+  artifactsDir: string
+): void {
   writeStderrLine(chalk.green.bold('Video generated successfully!'));
   writeStderrLine(`   Title: ${result.script.title}`);
   writeStderrLine(`   Duration: ${result.duration.toFixed(1)}s`);
@@ -269,6 +237,17 @@ function showSuccessSummary(result: PipelineResult): void {
     writeStderrLine(chalk.gray(`      - LLM: $${result.costs.llm.toFixed(4)}`));
     writeStderrLine(chalk.gray(`      - TTS: $${result.costs.tts.toFixed(4)}`));
   }
+
+  if (options.keepArtifacts) {
+    writeStderrLine(chalk.gray('Artifacts:'));
+    writeStderrLine(chalk.gray(`   Script: ${join(artifactsDir, 'script.json')}`));
+    writeStderrLine(chalk.gray(`   Audio: ${join(artifactsDir, 'audio.wav')}`));
+    writeStderrLine(chalk.gray(`   Timestamps: ${join(artifactsDir, 'timestamps.json')}`));
+    writeStderrLine(chalk.gray(`   Visuals: ${join(artifactsDir, 'visuals.json')}`));
+  }
+
+  const profile = options.orientation === 'landscape' ? 'landscape' : 'portrait';
+  writeStderrLine(chalk.gray(`Next: cm validate ${result.outputPath} --profile ${profile}`));
 
   // Human-mode stdout should be reserved for the primary artifact path.
   process.stdout.write(`${result.outputPath}\n`);

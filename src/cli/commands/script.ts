@@ -13,6 +13,7 @@ import { ResearchOutputSchema } from '../../research/schema';
 import type { ResearchOutput } from '../../research/schema';
 import { generateScript } from '../../script/generator';
 import { FakeLLMProvider } from '../../test/stubs/fake-llm';
+import { createMockScriptResponse } from '../../test/fixtures/mock-scenes.js';
 import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
@@ -27,40 +28,7 @@ interface PackagingInput {
 
 function createMockLLMProvider(topic: string): FakeLLMProvider {
   const provider = new FakeLLMProvider();
-  provider.queueJsonResponse({
-    scenes: [
-      {
-        text: `Here's the thing about ${topic}...`,
-        visualDirection: 'Speaker on camera',
-        mood: 'engaging',
-      },
-      {
-        text: 'First, you need to know this key point.',
-        visualDirection: 'B-roll of related topic',
-        mood: 'informative',
-      },
-      {
-        text: 'Second, this is what most people get wrong.',
-        visualDirection: 'Text overlay with key stat',
-        mood: 'surprising',
-      },
-      {
-        text: "And finally, here's what you should actually do.",
-        visualDirection: 'Action shot',
-        mood: 'empowering',
-      },
-      {
-        text: 'Follow for more tips like this!',
-        visualDirection: 'End card with social handles',
-        mood: 'friendly',
-      },
-    ],
-    reasoning: 'Mock script generated for testing. Real LLM would provide creative reasoning.',
-    title: `Mock: ${topic}`,
-    hook: `Here's the thing about ${topic}...`,
-    cta: 'Follow for more tips like this!',
-    hashtags: ['#mock', '#test'],
-  });
+  provider.queueJsonResponse(createMockScriptResponse(topic));
   return provider;
 }
 

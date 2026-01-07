@@ -1,8 +1,12 @@
+import path from 'path';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx'],
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
   },
   esbuild: {
     target: 'node20',
@@ -15,7 +19,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
-      // Explicit scope — ensures thresholds are meaningful
+      // Explicit scope ensures thresholds are meaningful
       include: ['src/**/*.ts'],
       exclude: [
         '**/*.test.ts',
@@ -33,7 +37,7 @@ export default defineConfig({
         functions: 55,
         statements: 18,
         branches: 50,
-        // NOTE: perFile: true deferred until coverage ≥70%
+        // NOTE: perFile: true deferred until coverage ~70%
 
         // Glob-specific thresholds (enable when ready):
         // 'src/core/**': {

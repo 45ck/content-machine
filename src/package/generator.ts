@@ -3,7 +3,7 @@
  *
  * Generates packaging variants (title + cover text + muted hook text).
  */
-import { createLLMProvider, LLMProvider } from '../core/llm';
+import { createLLMProvider, LLMProvider, calculateLLMCost } from '../core/llm';
 import { loadConfig } from '../core/config';
 import { createLogger } from '../core/logger';
 import { SchemaError } from '../core/errors';
@@ -92,18 +92,6 @@ function parseLLMResponse(
   }
 }
 
-function calculateCost(tokens: number, model: string): number {
-  const costs: Record<string, number> = {
-    'gpt-4o': 5,
-    'gpt-4o-mini': 0.15,
-    'gpt-3.5-turbo': 0.5,
-    'claude-3-5-sonnet-20241022': 3,
-    'claude-3-haiku-20240307': 0.25,
-  };
-  const costPer1M = costs[model] ?? 5;
-  return (tokens / 1_000_000) * costPer1M;
-}
-
 export async function generatePackage(options: GeneratePackageOptions): Promise<PackageOutput> {
   const log = createLogger({ module: 'package', topic: options.topic });
   const config = await loadConfig();
@@ -171,7 +159,7 @@ Respond with JSON only in this exact shape:
       generatedAt: new Date().toISOString(),
       model: response.model,
       promptVersion: 'package-v1',
-      llmCost: calculateCost(response.usage?.totalTokens ?? 0, response.model ?? llm.model),
+      llmCost: calculateLLMCost(response.usage?.totalTokens ?? 0, response.model ?? llm.model),
     },
     extra: llmResponse.reasoning ? { reasoning: llmResponse.reasoning } : undefined,
   };

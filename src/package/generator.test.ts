@@ -22,9 +22,13 @@ vi.mock('../core/config', async () => {
 });
 
 // Mock the LLM factory to prevent loading OpenAI when llmProvider is omitted
-vi.mock('../core/llm', () => ({
-  createLLMProvider: vi.fn(),
-}));
+vi.mock('../core/llm', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../core/llm')>();
+  return {
+    createLLMProvider: vi.fn(),
+    calculateLLMCost: actual.calculateLLMCost,
+  };
+});
 
 import { generatePackage } from './generator';
 

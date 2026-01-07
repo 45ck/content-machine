@@ -29,3 +29,4 @@ export function createLLMProvider(
 export { OpenAIProvider } from './openai.js';
 export { AnthropicProvider } from './anthropic.js';
 export type { LLMProvider, LLMMessage, LLMOptions, LLMResponse } from './provider.js';
+export { calculateLLMCost, getModelCost, hasKnownPricing } from './costs.js';

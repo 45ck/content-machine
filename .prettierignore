@@ -1,6 +1,7 @@
 node_modules/
 dist/
 coverage/
+report/
 .cache/
 test-e2e-output/
 tests/.tmp/

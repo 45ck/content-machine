@@ -4,7 +4,7 @@
  * Generates video scripts using LLM with archetype-specific prompts.
  * Based on SYSTEM-DESIGN §7.1 cm script command.
  */
-import { createLLMProvider, LLMProvider } from '../core/llm';
+import { createLLMProvider, LLMProvider, calculateLLMCost } from '../core/llm';
 import { loadConfig, Archetype } from '../core/config';
 import { SchemaError } from '../core/errors';
 import { createLogger } from '../core/logger';
@@ -106,25 +106,10 @@ function buildScriptOutput(
       topic: options.topic,
       generatedAt: new Date().toISOString(),
       model: responseModel,
-      llmCost: calculateCost(totalTokens ?? 0, responseModel ?? 'gpt-4o'),
+      llmCost: calculateLLMCost(totalTokens ?? 0, responseModel ?? 'gpt-4o'),
     },
     extra: Object.keys(extra).length > 0 ? extra : undefined,
   };
-}
-
-/**
- * Calculate approximate LLM cost
- */
-function calculateCost(tokens: number, model: string): number {
-  const costs: Record<string, number> = {
-    'gpt-4o': 5,
-    'gpt-4o-mini': 0.15,
-    'gpt-3.5-turbo': 0.5,
-    'claude-3-5-sonnet-20241022': 3,
-    'claude-3-haiku-20240307': 0.25,
-  };
-  const costPer1M = costs[model] ?? 5;
-  return (tokens / 1_000_000) * costPer1M;
 }
 
 /**
