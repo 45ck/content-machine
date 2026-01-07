@@ -2,15 +2,15 @@
  * Decorator Pattern Tests
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
   LoggingLLMProvider,
   CachingLLMProvider,
   InMemoryLLMCache,
   RetryLLMProvider,
-} from '../../../../src/core/providers/decorators';
-import { FakeLLMProvider } from '../../../../src/test/stubs/fake-llm';
-import { RateLimitError } from '../../../../src/core/errors';
+} from '../../../../src/core/providers/decorators.js';
+import { FakeLLMProvider } from '../../../../src/test/stubs/fake-llm.js';
+import { RateLimitError } from '../../../../src/core/errors.js';
 import pino from 'pino';
 
 describe('LoggingLLMProvider', () => {
@@ -188,13 +188,19 @@ describe('RetryLLMProvider', () => {
     inner.queueError(new RateLimitError('Rate limited', 0));
     inner.queueError(new RateLimitError('Rate limited', 0));
 
-    const resultPromise = retry.chat([{ role: 'user', content: 'Hi' }]);
+    // Capture the promise and its rejection
+    let caughtError: Error | undefined;
+    const resultPromise = retry.chat([{ role: 'user', content: 'Hi' }]).catch((err) => {
+      caughtError = err;
+    });
 
     // Advance timer to trigger all retries
-    await vi.advanceTimersByTimeAsync(1000);
+    await vi.runAllTimersAsync();
 
-    await expect(resultPromise).rejects.toThrow('Rate limited');
+    await resultPromise;
 
+    expect(caughtError).toBeDefined();
+    expect(caughtError?.message).toContain('Rate limited');
     expect(inner.getCalls()).toHaveLength(3);
   });
 
@@ -215,6 +221,29 @@ describe('RetryLLMProvider', () => {
 
     const result = await resultPromise;
     expect(result.content).toBe('Success');
+  });
+
+  it('should call onRetry callback when retrying', async () => {
+    const onRetry = vi.fn();
+    const retryWithCallback = new RetryLLMProvider(inner, {
+      maxAttempts: 3,
+      initialDelayMs: 100,
+      maxDelayMs: 500,
+      jitter: false,
+      onRetry,
+    });
+
+    inner.queueError(new RateLimitError('Rate limited', 0));
+    inner.queueResponse({ content: 'Success', usage: defaultUsage });
+
+    const resultPromise = retryWithCallback.chat([{ role: 'user', content: 'Hi' }]);
+
+    await vi.advanceTimersByTimeAsync(200);
+
+    await resultPromise;
+
+    expect(onRetry).toHaveBeenCalledTimes(1);
+    expect(onRetry).toHaveBeenCalledWith(1, expect.any(Error), 100);
   });
 });
 

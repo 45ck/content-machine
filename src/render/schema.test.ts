@@ -39,13 +39,13 @@ describe('CaptionStyleSchema', () => {
     expect(result.success).toBe(true);
     if (result.success) {
       expect(result.data.fontFamily).toBe('Inter');
-      expect(result.data.fontSize).toBe(48);
+      expect(result.data.fontSize).toBe(80);
       expect(result.data.fontWeight).toBe('bold');
       expect(result.data.color).toBe('#FFFFFF');
       expect(result.data.highlightColor).toBe('#FFE135');
       expect(result.data.highlightCurrentWord).toBe(true);
-      expect(result.data.strokeWidth).toBe(3);
-      expect(result.data.position).toBe('center');
+      expect(result.data.strokeWidth).toBe(4);
+      expect(result.data.position).toBe('bottom');
       expect(result.data.animation).toBe('pop');
     }
   });

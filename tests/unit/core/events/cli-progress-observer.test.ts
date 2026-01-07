@@ -3,8 +3,8 @@
  */
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { PipelineEvent } from '../../../../src/core/events';
-import { CliProgressObserver } from '../../../../src/core/events';
+import type { PipelineEvent } from '../../../../src/core/events/index.js';
+import { CliProgressObserver } from '../../../../src/core/events/index.js';
 
 function createEvent(
   type: PipelineEvent['type'],

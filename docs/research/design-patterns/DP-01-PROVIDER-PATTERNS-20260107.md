@@ -3,7 +3,7 @@
 **Document ID:** DP-01-PROVIDER-PATTERNS-20260107  
 **Category:** Design Patterns Research  
 **Status:** Complete  
-**Created:** 2026-01-07  
+**Created:** 2026-01-07
 
 ---
 
@@ -12,6 +12,7 @@
 This document analyzes the current provider implementations in content-machine (LLM, TTS, ASR, Stock) and recommends Gang of Four design patterns to unify, extend, and test them effectively.
 
 **Key Findings:**
+
 1. `LLMProvider` is a well-implemented **Strategy Pattern** that should be the model for all providers
 2. TTS/ASR/Stock providers lack formal interfaces, making testing and swapping difficult
 3. **Abstract Factory Pattern** is needed to create provider families for production vs testing
@@ -35,11 +36,13 @@ export interface LLMProvider {
 ```
 
 **Concrete Implementations:**
+
 - `OpenAIProvider` → Real API calls
-- `AnthropicProvider` → Real API calls  
+- `AnthropicProvider` → Real API calls
 - `FakeLLMProvider` → Test double with response queue
 
 **Strengths:**
+
 - Clear interface contract with typed inputs/outputs
 - Test double allows queueing specific responses
 - Call history tracking for verification
@@ -62,12 +65,14 @@ let cachedTTS: any = null;
 ```
 
 **Issues:**
+
 1. **No interface** - Direct function call, not injectable
 2. **Informal caching** - Module-level variable, hard to clear in tests
 3. **No strategy switching** - Only Kokoro, can't swap to EdgeTTS/ElevenLabs
 4. **Test double is incomplete** - `FakeTTSProvider` exists but isn't used through DI
 
 **Required Improvements:**
+
 - Define `TTSProvider` interface matching `LLMProvider` pattern
 - Move `FakeTTSProvider` to implement the interface
 - Add provider configuration to allow runtime switching
@@ -89,11 +94,13 @@ if (!whisper) {
 ```
 
 **Issues:**
+
 1. **No interface** - Same as TTS
 2. **Fallback logic embedded** - Should be separate strategy
 3. **Whisper loading is fragile** - Dynamic import with module-level caching
 
 **Required Improvements:**
+
 - Define `ASRProvider` interface
 - Create `WhisperASRProvider`, `EstimatedASRProvider` as strategies
 - Use Chain of Responsibility for fallback
@@ -113,6 +120,7 @@ let cachedClient: ReturnType<typeof createClient> | null = null;
 ```
 
 **Issues:**
+
 1. **No `StockProvider` interface** - Can't easily add Pixabay, Unsplash
 2. **Matching logic in matcher.ts** is tightly coupled to Pexels
 3. **`FakePexelsProvider` exists** but isn't used through interface
@@ -149,6 +157,7 @@ export interface StockProvider {
 ```
 
 **Benefits:**
+
 1. **Testability** - Inject fakes via constructor
 2. **Flexibility** - Switch providers at runtime
 3. **Consistency** - All providers follow same pattern as LLM
@@ -197,10 +206,18 @@ export class MockProviderFactory implements ProviderFactory {
   readonly asr = new FakeASRProvider();
   readonly stock = new FakeStockProvider();
 
-  createLLMProvider(): LLMProvider { return this.llm; }
-  createTTSProvider(): TTSProvider { return this.tts; }
-  createASRProvider(): ASRProvider { return this.asr; }
-  createStockProvider(): StockProvider { return this.stock; }
+  createLLMProvider(): LLMProvider {
+    return this.llm;
+  }
+  createTTSProvider(): TTSProvider {
+    return this.tts;
+  }
+  createASRProvider(): ASRProvider {
+    return this.asr;
+  }
+  createStockProvider(): StockProvider {
+    return this.stock;
+  }
 }
 ```
 
@@ -241,13 +258,16 @@ export class LoggingLLMProvider implements LLMProvider {
   async chat(messages: LLMMessage[], options?: LLMOptions): Promise<LLMResponse> {
     this.log.debug({ messageCount: messages.length, model: this.model }, 'LLM request');
     const start = Date.now();
-    
+
     try {
       const response = await this.inner.chat(messages, options);
-      this.log.info({
-        durationMs: Date.now() - start,
-        tokens: response.usage.totalTokens
-      }, 'LLM response');
+      this.log.info(
+        {
+          durationMs: Date.now() - start,
+          tokens: response.usage.totalTokens,
+        },
+        'LLM response'
+      );
       return response;
     } catch (error) {
       this.log.error({ error, durationMs: Date.now() - start }, 'LLM error');
@@ -258,11 +278,7 @@ export class LoggingLLMProvider implements LLMProvider {
 
 // Composable decorators
 const provider = new LoggingLLMProvider(
-  new RetryLLMProvider(
-    new CachingLLMProvider(
-      new OpenAIProvider('gpt-4o')
-    )
-  ),
+  new RetryLLMProvider(new CachingLLMProvider(new OpenAIProvider('gpt-4o'))),
   logger
 );
 ```
@@ -355,7 +371,7 @@ try {
   whisperModule = await import('@remotion/install-whisper-cpp');
 } catch {
   whisperInstallFailed = true;
-  return null;  // Caller doesn't know WHY it failed
+  return null; // Caller doesn't know WHY it failed
 }
 ```
 
@@ -395,8 +411,8 @@ export class WhisperASRProvider implements ASRProvider {
 
 // ==================== Base Types ====================
 export interface ProviderUsage {
-  cost: number;  // In USD
-  units?: number;  // Provider-specific (tokens, characters, seconds)
+  cost: number; // In USD
+  units?: number; // Provider-specific (tokens, characters, seconds)
 }
 
 // ==================== TTS ====================
@@ -409,7 +425,7 @@ export interface TTSOptions {
 
 export interface TTSResult {
   audioPath: string;
-  duration: number;  // Seconds
+  duration: number; // Seconds
   sampleRate: number;
   usage: ProviderUsage;
 }
@@ -425,7 +441,7 @@ export interface ASROptions {
   audioPath: string;
   model?: string;
   language?: string;
-  originalText?: string;  // For fallback estimation
+  originalText?: string; // For fallback estimation
 }
 
 export interface ASRWord {
@@ -479,22 +495,26 @@ export interface StockProvider {
 ## 5. Migration Path
 
 ### Phase 1: Define Interfaces (Non-Breaking)
+
 1. Create `src/core/providers/types.ts` with all interfaces
 2. Create `src/core/providers/factory.ts` with `ProviderFactory` interface
 3. Update existing fakes to implement new interfaces
 
 ### Phase 2: Refactor Existing Providers (Low Risk)
+
 1. Wrap existing functions in class implementing interface
 2. Deprecate direct function exports (keep for backward compat)
 3. Add interface exports to package
 
 ### Phase 3: Add Decorator Infrastructure (Medium Risk)
+
 1. Create decorator base classes for each provider type
 2. Add logging decorator
 3. Add retry decorator
 4. Add caching decorator for LLM/Stock
 
 ### Phase 4: Integrate with Pipeline (High Impact)
+
 1. Update `runPipeline()` to accept `ProviderFactory`
 2. Add `mock` option that uses `MockProviderFactory`
 3. Remove hardcoded provider creation
@@ -510,10 +530,7 @@ Every provider interface should have contract tests that any implementation must
 ```typescript
 // tests/contracts/tts-provider.contract.ts
 
-export function runTTSProviderContractTests(
-  createProvider: () => TTSProvider,
-  name: string
-): void {
+export function runTTSProviderContractTests(createProvider: () => TTSProvider, name: string): void {
   describe(`TTSProvider contract: ${name}`, () => {
     let provider: TTSProvider;
 
@@ -554,15 +571,15 @@ export function runTTSProviderContractTests(
 
 ## 7. Appendix: Pattern Cross-Reference
 
-| Pattern | GoF Category | Current Use | Recommended Action |
-|---------|-------------|-------------|-------------------|
-| Strategy | Behavioral | LLMProvider ✅ | Extend to TTS, ASR, Stock |
-| Factory Method | Creational | createLLMProvider() ✅ | Extend to all providers |
-| Abstract Factory | Creational | None | Add ProviderFactory |
-| Decorator | Structural | None | Add Logging, Caching, Retry |
-| Adapter | Structural | Implicit in Pexels | Make explicit |
-| Singleton | Creational | Module cache (anti-pattern) | Replace with instance cache |
-| Facade | Structural | None | Consider for ContentMachine API |
+| Pattern          | GoF Category | Current Use                 | Recommended Action              |
+| ---------------- | ------------ | --------------------------- | ------------------------------- |
+| Strategy         | Behavioral   | LLMProvider ✅              | Extend to TTS, ASR, Stock       |
+| Factory Method   | Creational   | createLLMProvider() ✅      | Extend to all providers         |
+| Abstract Factory | Creational   | None                        | Add ProviderFactory             |
+| Decorator        | Structural   | None                        | Add Logging, Caching, Retry     |
+| Adapter          | Structural   | Implicit in Pexels          | Make explicit                   |
+| Singleton        | Creational   | Module cache (anti-pattern) | Replace with instance cache     |
+| Facade           | Structural   | None                        | Consider for ContentMachine API |
 
 ---
 
@@ -576,7 +593,7 @@ export function runTTSProviderContractTests(
 ---
 
 **Next Steps:**
+
 1. Review with team
 2. Create implementation tickets for each phase
 3. Start with Phase 1 (interface definitions) as foundation
-

@@ -67,7 +67,17 @@ describe('CLI stdout/stderr contract (aux commands)', () => {
     );
 
     const retrieveResult = await runCli(
-      ['retrieve', '--index', indexPath, '--query', 'redis cache', '--k', '1', '--output', retrievePath],
+      [
+        'retrieve',
+        '--index',
+        indexPath,
+        '--query',
+        'redis cache',
+        '--k',
+        '1',
+        '--output',
+        retrievePath,
+      ],
       undefined,
       120000
     );
@@ -76,4 +86,3 @@ describe('CLI stdout/stderr contract (aux commands)', () => {
     expect(retrieveResult.stderr).toContain('Query:');
   }, 240_000);
 });
-

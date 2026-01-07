@@ -1,18 +1,23 @@
 /**
  * Caption Component
  *
- * TikTok-style word-by-word captions with highlighting.
- * Uses research-backed animation values from the style system.
+ * TikTok-style PAGED captions with word-by-word highlighting.
+ * The phrase stays STATIC on screen while the highlight moves across words.
+ * When phrase ends, it snaps to the next phrase.
  *
- * Source: docs/research/deep-dives/SHORT-FORM-VIDEO-TEMPLATES-TRENDS-20260105.md
+ * This matches how real TikTok/Reels captions work - like karaoke!
+ *
+ * Source: remotion-dev/template-tiktok, @remotion/captions
  */
-import React from 'react';
-import { useCurrentFrame, useVideoConfig, interpolate, spring } from 'remotion';
+import React, { useMemo } from 'react';
+import { useCurrentFrame, useVideoConfig, spring, Sequence } from 'remotion';
+import { createTikTokStyleCaptions, Caption as RemotionCaption } from '@remotion/captions';
 import { CaptionStyle } from '../schema';
 import { WordTimestamp } from '../../audio/schema';
 import { SPRING_CONFIGS } from '../tokens/easing';
-import { TIMING_MS, msToFrames } from '../tokens/timing';
-import { ANIMATION_PRESETS } from '../presets/animation';
+
+/** How many milliseconds of words to group into a single "page" */
+const COMBINE_WORDS_WITHIN_MS = 800;
 
 interface CaptionProps {
   words: WordTimestamp[];
@@ -22,129 +27,173 @@ interface CaptionProps {
 
 const DEFAULT_STYLE: CaptionStyle = {
   fontFamily: 'Inter',
-  fontSize: 48,
+  fontSize: 100, // Larger for better readability
   fontWeight: 'bold',
   color: '#FFFFFF',
-  highlightColor: '#FFE135',
+  highlightColor: '#00FF00',
   highlightCurrentWord: true,
   strokeColor: '#000000',
-  strokeWidth: 3,
+  strokeWidth: 5,
   position: 'center',
   animation: 'pop',
 };
 
-export const Caption: React.FC<CaptionProps> = ({ words, currentTime, style = DEFAULT_STYLE }) => {
-  if (words.length === 0) return null;
+/**
+ * Convert our WordTimestamp[] to Remotion Caption[] format
+ */
+function toRemotionCaptions(words: WordTimestamp[]): RemotionCaption[] {
+  return words.map((w) => ({
+    text: w.word + ' ',
+    startMs: w.start * 1000,
+    endMs: w.end * 1000,
+    confidence: 1,
+    timestampMs: w.start * 1000,
+  }));
+}
 
-  // Position styling
+/**
+ * Paged Captions Container
+ * Creates TikTok-style pages and renders them as Sequences
+ */
+export const Caption: React.FC<CaptionProps> = ({ words, style = DEFAULT_STYLE }) => {
+  const { fps } = useVideoConfig();
+
+  // Convert to Remotion format and create TikTok-style pages
+  const pages = useMemo(() => {
+    if (words.length === 0) return [];
+
+    const remotionCaptions = toRemotionCaptions(words);
+    const { pages: tikTokPages } = createTikTokStyleCaptions({
+      captions: remotionCaptions,
+      combineTokensWithinMilliseconds: COMBINE_WORDS_WITHIN_MS,
+    });
+
+    return tikTokPages;
+  }, [words]);
+
+  if (pages.length === 0) return null;
+
+  return (
+    <>
+      {pages.map((page, index) => {
+        const nextPage = pages[index + 1] ?? null;
+        const startFrame = Math.floor((page.startMs / 1000) * fps);
+        const endFrame = nextPage
+          ? Math.floor((nextPage.startMs / 1000) * fps)
+          : Math.floor(
+              ((page.tokens[page.tokens.length - 1]?.toMs ?? page.startMs + 2000) / 1000) * fps
+            );
+        const durationInFrames = Math.max(1, endFrame - startFrame);
+
+        return (
+          <Sequence key={index} from={startFrame} durationInFrames={durationInFrames}>
+            <CaptionPage page={page} style={style} />
+          </Sequence>
+        );
+      })}
+    </>
+  );
+};
+
+/**
+ * Single Caption Page - shows all words in the phrase with highlight moving through
+ */
+interface CaptionPageProps {
+  page: {
+    text: string;
+    startMs: number;
+    tokens: Array<{
+      text: string;
+      fromMs: number;
+      toMs: number;
+    }>;
+  };
+  style: CaptionStyle;
+}
+
+const CaptionPage: React.FC<CaptionPageProps> = ({ page, style }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
+  // Current time in ms relative to video start
+  const currentTimeMs = (frame / fps) * 1000;
+
+  // Page entrance animation
+  const enterProgress = spring({
+    frame,
+    fps,
+    config: SPRING_CONFIGS.snappy,
+    durationInFrames: 8,
+  });
+
+  // Position styling based on style.position
   const positionStyle: React.CSSProperties = {
+    position: 'absolute',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    left: 0,
+    right: 0,
+    padding: '20px 40px',
+    ...(style.position === 'bottom' && {
+      bottom: '20%',
+    }),
+    ...(style.position === 'center' && {
+      top: '50%',
+      transform: `translateY(-50%) scale(${0.8 + 0.2 * enterProgress})`,
+    }),
+    ...(style.position === 'top' && {
+      top: '15%',
+    }),
+  };
+
+  // Apply entrance animation (scale + translateY)
+  const containerStyle: React.CSSProperties = {
     display: 'flex',
     flexWrap: 'wrap',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: '8px',
-    padding: '20px 40px',
+    gap: '12px',
     maxWidth: '90%',
-    ...(style.position === 'bottom' && {
-      position: 'absolute',
-      bottom: '15%',
-      left: '50%',
-      transform: 'translateX(-50%)',
-    }),
-    ...(style.position === 'center' && {
-      position: 'absolute',
-      top: '50%',
-      left: '50%',
-      transform: 'translate(-50%, -50%)',
-    }),
-    ...(style.position === 'top' && {
-      position: 'absolute',
-      top: '15%',
-      left: '50%',
-      transform: 'translateX(-50%)',
-    }),
+    transform:
+      style.position !== 'center'
+        ? `scale(${0.8 + 0.2 * enterProgress}) translateY(${(1 - enterProgress) * 30}px)`
+        : undefined,
+    opacity: enterProgress,
   };
 
   return (
     <div style={positionStyle}>
-      {words.map((word, _index) => {
-        const isActive = currentTime >= word.start && currentTime < word.end;
-        const isPast = currentTime >= word.end;
+      <div style={containerStyle}>
+        {page.tokens.map((token, tokenIndex) => {
+          // Is this word currently being spoken?
+          const isActive = currentTimeMs >= token.fromMs && currentTimeMs < token.toMs;
 
-        return (
-          <Word
-            key={`${word.word}-${_index}`}
-            word={word.word}
-            isActive={isActive}
-            isPast={isPast}
-            style={style}
-            index={_index}
-          />
-        );
-      })}
+          return (
+            <WordSpan
+              key={`${token.fromMs}-${tokenIndex}`}
+              text={token.text}
+              isActive={isActive}
+              style={style}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 };
 
-interface WordProps {
-  word: string;
+/**
+ * Single Word - handles highlight color only (no sliding, no repositioning)
+ */
+interface WordSpanProps {
+  text: string;
   isActive: boolean;
-  isPast: boolean;
   style: CaptionStyle;
-  index: number;
 }
 
-const Word: React.FC<WordProps> = ({ word, isActive, isPast, style, index: _index }) => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-
-  // Get animation preset for scale values
-  const popPreset = ANIMATION_PRESETS.pop;
-  const bouncePreset = ANIMATION_PRESETS.bounce;
-
-  // Calculate frame duration from research-backed timing (100ms = ~3 frames at 30fps)
-  const popFrameDuration = msToFrames(TIMING_MS.wordPop, fps);
-
-  // Animation based on style
-  let scale = 1;
-  let opacity = isPast ? 0.7 : 1;
-
-  if (isActive) {
-    if (style.animation === 'pop') {
-      // Research-backed: 70-130ms pop with scale 1→1.15
-      // Using punchyPop easing (cubic-bezier(0.34, 1.56, 0.64, 1))
-      const animFrame = frame % popFrameDuration;
-      const midPoint = Math.floor(popFrameDuration / 2);
-      scale = interpolate(
-        animFrame,
-        [0, midPoint, popFrameDuration],
-        [1, popPreset.scale?.to ?? 1.15, 1],
-        { extrapolateLeft: 'clamp', extrapolateRight: 'clamp' }
-      );
-    } else if (style.animation === 'bounce') {
-      // Research-backed: Spring-based bounce with overshoot
-      // Using bouncy spring config from tokens
-      const progress = spring({
-        frame: frame % msToFrames(TIMING_MS.wordPop, fps),
-        fps,
-        config: SPRING_CONFIGS.bouncy,
-      });
-      scale = 1 + ((bouncePreset.scale?.to ?? 1.2) - 1) * progress;
-    } else if (style.animation === 'fade') {
-      // Fade animation from presets
-      const fadePreset = ANIMATION_PRESETS.fade;
-      const fadeFrames = msToFrames(fadePreset.duration, fps);
-      opacity = interpolate(frame % fadeFrames, [0, fadeFrames], [0.5, 1], {
-        extrapolateLeft: 'clamp',
-        extrapolateRight: 'clamp',
-      });
-    }
-  }
-
+const WordSpan: React.FC<WordSpanProps> = ({ text, isActive, style }) => {
   const textColor = isActive ? style.highlightColor : style.color;
-
-  // Research-backed: Use highlightTransition timing (100ms)
-  const transitionDuration = `${TIMING_MS.highlightTransition}ms`;
 
   const wordStyle: React.CSSProperties = {
     fontFamily: style.fontFamily,
@@ -157,12 +206,10 @@ const Word: React.FC<WordProps> = ({ word, isActive, isPast, style, index: _inde
       -${style.strokeWidth}px ${style.strokeWidth}px 0 ${style.strokeColor},
       ${style.strokeWidth}px ${style.strokeWidth}px 0 ${style.strokeColor}
     `,
-    transform: `scale(${scale})`,
-    opacity,
-    transition: `color ${transitionDuration} ease-out`,
     display: 'inline-block',
-    whiteSpace: 'nowrap',
+    whiteSpace: 'pre',
+    transition: 'color 50ms ease-out',
   };
 
-  return <span style={wordStyle}>{word}</span>;
+  return <span style={wordStyle}>{text}</span>;
 };

@@ -49,9 +49,13 @@ export const scoreCommand = new Command('score')
 
       const minOverall = Number.parseFloat(options.minOverall);
       if (!Number.isFinite(minOverall) || minOverall < 0 || minOverall > 1) {
-        throw new CMError('INVALID_ARGUMENT', `Invalid --min-overall value: ${options.minOverall}`, {
-          fix: 'Use a number between 0 and 1 for --min-overall',
-        });
+        throw new CMError(
+          'INVALID_ARGUMENT',
+          `Invalid --min-overall value: ${options.minOverall}`,
+          {
+            fix: 'Use a number between 0 and 1 for --min-overall',
+          }
+        );
       }
 
       const passedThreshold = score.passed && score.overall >= minOverall;

@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { CostTrackerObserver, PipelineEvent } from '../../../../src/core/events';
+import { CostTrackerObserver, PipelineEvent } from '../../../../src/core/events/index.js';
 
 function createStageCompletedEvent(
   stage: 'script' | 'audio' | 'visuals' | 'render',

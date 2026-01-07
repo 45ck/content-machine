@@ -114,14 +114,14 @@ function buildRenderProps(
     archetype: options.archetype,
     captionStyle: {
       fontFamily: 'Inter',
-      fontSize: 48,
+      fontSize: 80,
       fontWeight: 'bold',
       color: '#FFFFFF',
       highlightColor: '#FFE135',
       highlightCurrentWord: true,
       strokeColor: '#000000',
-      strokeWidth: 3,
-      position: 'center',
+      strokeWidth: 4,
+      position: 'bottom',
       animation: 'pop',
       ...options.captionStyle,
     },
@@ -150,7 +150,6 @@ async function executeRender(opts: ExecuteRenderOptions): Promise<void> {
     serveUrl: bundleLocation,
     id: 'ShortVideo',
     inputProps: renderProps,
-    timeoutInMilliseconds: 60000, // 60 seconds for composition selection
   });
 
   const durationInFrames = Math.ceil(totalDuration * fps);
@@ -168,10 +167,6 @@ async function executeRender(opts: ExecuteRenderOptions): Promise<void> {
     codec: 'h264',
     outputLocation: outputPath,
     inputProps: renderProps,
-    timeoutInMilliseconds: 120000, // 2 minutes per frame for complex video rendering
-    chromiumOptions: {
-      enableMultiProcessOnLinux: true,
-    },
     onProgress: ({ progress }) => {
       log.debug({ progress: Math.round(progress * 100) }, 'Render progress');
     },
@@ -273,4 +268,11 @@ async function generateMockRender(
 
   log.info(
     {
-      duration
+      duration: output.duration,
+      fileSize: output.fileSize,
+    },
+    'Mock video render complete'
+  );
+
+  return RenderOutputSchema.parse(output);
+}

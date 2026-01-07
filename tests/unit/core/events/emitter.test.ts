@@ -5,7 +5,11 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { PipelineEventEmitter, PipelineObserver, PipelineEvent } from '../../../../src/core/events';
+import {
+  PipelineEventEmitter,
+  PipelineObserver,
+  PipelineEvent,
+} from '../../../../src/core/events/index.js';
 
 function createMockEvent(type: string, overrides = {}): PipelineEvent {
   return {

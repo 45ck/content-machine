@@ -18,14 +18,14 @@ export const RENDER_SCHEMA_VERSION = '1.0.0';
  */
 export const CaptionStyleSchema = z.object({
   fontFamily: z.string().default('Inter'),
-  fontSize: z.number().int().positive().default(48),
+  fontSize: z.number().int().positive().default(80),
   fontWeight: z.enum(['normal', 'bold', '900']).default('bold'),
   color: z.string().default('#FFFFFF'),
   highlightColor: z.string().default('#FFE135'),
   highlightCurrentWord: z.boolean().default(true),
   strokeColor: z.string().default('#000000'),
-  strokeWidth: z.number().int().nonnegative().default(3),
-  position: z.enum(['bottom', 'center', 'top']).default('center'),
+  strokeWidth: z.number().int().nonnegative().default(4),
+  position: z.enum(['bottom', 'center', 'top']).default('bottom'),
   animation: z.enum(ANIMATION_TYPES).default('pop'),
 });
 

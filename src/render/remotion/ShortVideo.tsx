@@ -36,9 +36,6 @@ export const ShortVideo: React.FC<RenderProps> = ({
   // Use scenes (new) or clips (legacy)
   const videoAssets = scenes ?? [];
 
-  // Get nearby words for caption display (show phrase context)
-  const captionWords = getVisibleWords(words, currentTime, 5);
-
   return (
     <AbsoluteFill style={{ backgroundColor: '#000' }}>
       {/* Background video/color for each scene */}
@@ -98,9 +95,9 @@ export const ShortVideo: React.FC<RenderProps> = ({
         );
       })}
 
-      {/* Captions overlay */}
+      {/* Captions overlay - TikTok-style paged captions */}
       <AbsoluteFill>
-        <Caption words={captionWords} currentTime={currentTime} style={captionStyle} />
+        <Caption words={words} currentTime={currentTime} style={captionStyle} />
       </AbsoluteFill>
 
       {/* Audio track - uses staticFile with relative path */}
@@ -108,35 +105,6 @@ export const ShortVideo: React.FC<RenderProps> = ({
     </AbsoluteFill>
   );
 };
-
-/**
- * Get words visible at current time (for phrase display)
- */
-function getVisibleWords(
-  words: RenderProps['words'],
-  currentTime: number,
-  windowSize: number
-): RenderProps['words'] {
-  // Find current word index
-  const currentIndex = words.findIndex(
-    (word) => currentTime >= word.start && currentTime < word.end
-  );
-
-  if (currentIndex === -1) {
-    // Between words, find the previous word
-    const prevIndex = words.findIndex((word) => word.end > currentTime) - 1;
-    if (prevIndex < 0) return words.slice(0, windowSize);
-
-    const start = Math.max(0, prevIndex - Math.floor(windowSize / 2));
-    const end = Math.min(words.length, start + windowSize);
-    return words.slice(start, end);
-  }
-
-  // Show words around current
-  const start = Math.max(0, currentIndex - Math.floor(windowSize / 2));
-  const end = Math.min(words.length, start + windowSize);
-  return words.slice(start, end);
-}
 
 /**
  * Composition registration
