@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "1.0.0",
+  "topic": "Redis caching",
+  "platform": "tiktok",
+  "variants": [
+    {
+      "title": "Stop doing Redis caching like this",
+      "coverText": "Redis caching",
+      "onScreenHook": "You're doing it wrong",
+      "angle": "Provocative correction hook",
+      "score": 1,
+      "scoreBreakdown": {
+        "title": 1,
+        "coverText": 1,
+        "onScreenHook": 1
+      }
+    },
+    {
+      "title": "Redis caching: the simple rule that saves you hours",
+      "coverText": "The simple rule",
+      "onScreenHook": "Try this today",
+      "angle": "Benefit-first",
+      "score": 1,
+      "scoreBreakdown": {
+        "title": 1,
+        "coverText": 1,
+        "onScreenHook": 1
+      }
+    },
+    {
+      "title": "Most people misunderstand Redis caching",
+      "coverText": "Most people miss",
+      "onScreenHook": "Here's why",
+      "angle": "Curiosity gap",
+      "score": 0.9428571428571428,
+      "scoreBreakdown": {
+        "title": 0.9285714285714286,
+        "coverText": 1,
+        "onScreenHook": 0.9
+      }
+    },
+    {
+      "title": "Redis caching in 60 seconds",
+      "coverText": "In 60 seconds",
+      "onScreenHook": "Watch this",
+      "angle": "Speed promise",
+      "score": 0.9428571428571428,
+      "scoreBreakdown": {
+        "title": 0.9285714285714286,
+        "coverText": 1,
+        "onScreenHook": 0.9
+      }
+    },
+    {
+      "title": "The Redis caching mistake costing you performance",
+      "coverText": "Costly mistake",
+      "onScreenHook": "Fix this now",
+      "angle": "Pain point",
+      "score": 1,
+      "scoreBreakdown": {
+        "title": 1,
+        "coverText": 1,
+        "onScreenHook": 1
+      }
+    }
+  ],
+  "selectedIndex": 0,
+  "selected": {
+    "title": "Stop doing Redis caching like this",
+    "coverText": "Redis caching",
+    "onScreenHook": "You're doing it wrong",
+    "angle": "Provocative correction hook",
+    "score": 1,
+    "scoreBreakdown": {
+      "title": 1,
+      "coverText": 1,
+      "onScreenHook": 1
+    }
+  },
+  "meta": {
+    "generatedAt": "2026-01-07T01:54:39.906Z",
+    "promptVersion": "package-v1",
+    "llmCost": 0.0007499999999999999
+  },
+  "extra": {
+    "reasoning": "Mock packaging for testing."
+  }
+}
