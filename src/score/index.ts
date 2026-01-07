@@ -60,3 +60,13 @@ export {
   type ScenePacingMetrics,
   type PacingIssue,
 } from './pacing-quality';
+
+// Engagement quality metrics
+export {
+  analyzeEngagementQuality,
+  formatEngagementReport,
+  ENGAGEMENT_THRESHOLDS,
+  type EngagementQualityReport,
+  type EngagementIssue,
+  type EngagementIssueType,
+} from './engagement-quality';
