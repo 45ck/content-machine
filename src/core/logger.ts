@@ -4,34 +4,41 @@
  * Uses pino for structured logging with pretty output in development.
  */
 import pino from 'pino';
+import { createRequire } from 'module';
 
 export type Logger = pino.Logger;
 
-const isDev = process.env.NODE_ENV !== 'production';
 const isTest = process.env.NODE_ENV === 'test' || process.env.VITEST;
 
 // Determine log level
-const level = process.env.LOG_LEVEL ?? (isTest ? 'silent' : isDev ? 'debug' : 'info');
+const level = process.env.LOG_LEVEL ?? (isTest ? 'silent' : 'warn');
 
-// Create logger instance
-export const logger = pino(
-  {
-    level,
-    transport:
-      isDev && !isTest
-        ? {
-            target: 'pino-pretty',
-            options: {
-              colorize: true,
-              translateTime: 'HH:MM:ss',
-              ignore: 'pid,hostname',
-              destination: 2,
-            },
-          }
-        : undefined,
-  },
-  pino.destination(2)
-);
+const require = createRequire(import.meta.url);
+
+function createLogStream(): pino.DestinationStream {
+  const shouldPretty = !isTest && Boolean(process.stderr.isTTY);
+  if (shouldPretty) {
+    const loaded = require('pino-pretty') as unknown;
+    const prettyFactory =
+      typeof loaded === 'function'
+        ? (loaded as (options: Record<string, unknown>) => pino.DestinationStream)
+        : ((loaded as { default?: unknown }).default as (
+            options: Record<string, unknown>
+          ) => pino.DestinationStream);
+
+    return prettyFactory({
+      colorize: true,
+      translateTime: 'HH:MM:ss',
+      ignore: 'pid,hostname',
+      destination: 2,
+    });
+  }
+
+  return pino.destination({ dest: 2, sync: true });
+}
+
+// Create logger instance (stderr-only; safe for process.exit)
+export const logger = pino({ level }, createLogStream());
 
 /**
  * Create a child logger with context

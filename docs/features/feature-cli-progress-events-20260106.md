@@ -2,6 +2,13 @@
 
 Add structured progress events to the pipeline and commands, and render them consistently in the terminal. This removes brittle string parsing and enables honest progress (including LLM streaming).
 
+## Status (2026-01-07)
+
+- Pipeline emits lifecycle events via `eventEmitter` (`src/core/pipeline.ts` + `src/core/events/*`).
+- `cm generate` renders stage events (no substring parsing).
+- `cm visuals` and `cm render` surface phase + percent progress via `onProgress` callbacks.
+- Remaining: audio sub-phases (`tts/asr/align`), LLM streaming, and cancellation UX (130).
+
 ## User Story
 
 As a user running long commands (rendering, audio generation, research), I want to see real progress and what step is running, so I can trust the tool and decide whether to wait or cancel.
@@ -15,15 +22,14 @@ As a user running long commands (rendering, audio generation, research), I want 
 
 ## Progress Model
 
-Define a small event schema:
+Define a small event schema (canonical implementation):
 
-- `commandId`: stable id for the run
-- `stage`: `script|audio|visuals|render|validate|research|package|init`
-- `phase`: free-form but consistent labels per stage (e.g., `tts`, `asr`, `bundle`, `render`)
-- `message`: short human text
-- `percent`: optional `0..100`
-- `artifacts`: optional list of `{kind, path}`
-- `timingMs`: optional
+- `pipelineId`: stable id for the run
+- `type`: `pipeline:*` or `stage:*` (encodes status)
+- `stage`: `script|audio|visuals|render`
+- `phase`: optional stable sub-step label (e.g., `bundle`, `render-media`, `provider:search`)
+- `progress`: optional `0..1` (UI percent is `Math.round(progress * 100)`)
+- `message`: optional short human text
 
 ## Terminal Rendering Rules
 

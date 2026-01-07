@@ -10,7 +10,6 @@ import { logger } from '../../core/logger';
 import { ArchetypeEnum, OrientationEnum } from '../../core/config';
 import { handleCommandError, readInputFile } from '../utils';
 import { FakeLLMProvider } from '../../test/stubs/fake-llm';
-import type { SpinnerLike } from '../progress';
 import { createSpinner } from '../progress';
 import chalk from 'chalk';
 import { getCliRuntime } from '../runtime';
@@ -21,6 +20,7 @@ import type { ResearchOutput } from '../../research/schema';
 import { createResearchOrchestrator } from '../../research/orchestrator';
 import { OpenAIProvider } from '../../core/llm/openai';
 import { SchemaError } from '../../core/errors';
+import { CliProgressObserver, PipelineEventEmitter, type PipelineEvent } from '../../core/events';
 
 interface GenerateOptions {
   archetype: string;
@@ -34,13 +34,6 @@ interface GenerateOptions {
   research?: string | boolean;
 }
 
-interface SpinnerState {
-  script: SpinnerLike;
-  audio: SpinnerLike | null;
-  visuals: SpinnerLike | null;
-  render: SpinnerLike | null;
-}
-
 function printHeader(
   topic: string,
   options: GenerateOptions,
@@ -52,6 +45,7 @@ function printHeader(
   writeStderrLine(chalk.gray(`Topic: ${topic}`));
   writeStderrLine(chalk.gray(`Archetype: ${options.archetype}`));
   writeStderrLine(chalk.gray(`Output: ${options.output}`));
+  writeStderrLine(chalk.gray(`Artifacts: ${dirname(options.output)}`));
 }
 
 function writeDryRunJson(params: {
@@ -123,6 +117,7 @@ function writeSuccessJson(params: {
   process.exit(0);
 }
 
+// eslint-disable-next-line complexity -- orchestrates multiple stages, refactor pending
 async function runGenerate(topic: string, options: GenerateOptions): Promise<void> {
   const runtime = getCliRuntime();
   const artifactsDir = dirname(options.output);
@@ -157,26 +152,35 @@ async function runGenerate(topic: string, options: GenerateOptions): Promise<voi
     writeStderrLine(chalk.yellow('Mock mode - using fake providers'));
   }
 
-  const spinners: SpinnerState = {
-    script: createSpinner('Stage 1/4: Generating script...').start(),
-    audio: null,
-    visuals: null,
-    render: null,
-  };
+  const eventEmitter = runtime.json ? undefined : new PipelineEventEmitter();
+  const stageObserver = eventEmitter ? new CliProgressObserver(process.stderr) : null;
 
-  const result = await runPipeline({
-    topic,
-    archetype,
-    orientation,
-    voice: options.voice,
-    targetDuration: parseInt(options.duration, 10),
-    outputPath: options.output,
-    keepArtifacts: options.keepArtifacts,
-    llmProvider,
-    mock: options.mock,
-    research,
-    onProgress: createProgressHandler(spinners),
-  });
+  if (eventEmitter && stageObserver) {
+    eventEmitter.subscribe({
+      onEvent: (event: PipelineEvent) => {
+        if (event.type.startsWith('stage:')) stageObserver.onEvent(event);
+      },
+    });
+  }
+
+  let result: PipelineResult;
+  try {
+    result = await runPipeline({
+      topic,
+      archetype,
+      orientation,
+      voice: options.voice,
+      targetDuration: parseInt(options.duration, 10),
+      outputPath: options.output,
+      keepArtifacts: options.keepArtifacts,
+      llmProvider,
+      mock: options.mock,
+      research,
+      eventEmitter: eventEmitter ?? undefined,
+    });
+  } finally {
+    stageObserver?.dispose();
+  }
 
   if (runtime.json) {
     writeSuccessJson({ topic, archetype, orientation, options, runtime, artifactsDir, result });
@@ -254,29 +258,6 @@ function showDryRunSummary(
   writeStderrLine(`   4. Render -> ${options.output}`);
 }
 
-function createProgressHandler(spinners: SpinnerState) {
-  return (stage: string, message: string): void => {
-    if (stage === 'script' && message === 'Script generated') {
-      spinners.script.succeed('Stage 1/4: Script generated');
-      spinners.audio = createSpinner('Stage 2/4: Generating audio...').start();
-      return;
-    }
-    if (stage === 'audio' && spinners.audio && message === 'Audio generated') {
-      spinners.audio.succeed('Stage 2/4: Audio generated');
-      spinners.visuals = createSpinner('Stage 3/4: Matching visuals...').start();
-      return;
-    }
-    if (stage === 'visuals' && spinners.visuals && message === 'Visuals matched') {
-      spinners.visuals.succeed('Stage 3/4: Visuals matched');
-      spinners.render = createSpinner('Stage 4/4: Rendering video...').start();
-      return;
-    }
-    if (stage === 'render' && spinners.render && message === 'Video rendered') {
-      spinners.render.succeed('Stage 4/4: Video rendered');
-    }
-  };
-}
-
 function showSuccessSummary(result: PipelineResult): void {
   writeStderrLine(chalk.green.bold('Video generated successfully!'));
   writeStderrLine(`   Title: ${result.script.title}`);
@@ -336,10 +317,14 @@ async function loadOrRunResearch(
     llmProvider
   );
 
-  const result = await orchestrator.research(topic);
-  spinner.succeed('Stage 0/4: Research complete');
-
-  return result.output;
+  try {
+    const result = await orchestrator.research(topic);
+    spinner.succeed('Stage 0/4: Research complete');
+    return result.output;
+  } catch (error) {
+    spinner.fail('Stage 0/4: Research failed');
+    throw error;
+  }
 }
 
 export const generateCommand = new Command('generate')

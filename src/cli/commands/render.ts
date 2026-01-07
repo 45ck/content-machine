@@ -5,6 +5,7 @@
  */
 import { Command } from 'commander';
 import { renderVideo } from '../../render/service';
+import type { RenderProgressEvent } from '../../render/service';
 import { logger } from '../../core/logger';
 import { handleCommandError, readInputFile } from '../utils';
 import type { VisualsOutput } from '../../visuals/schema';
@@ -22,6 +23,7 @@ export const renderCommand = new Command('render')
   .option('--orientation <type>', 'Video orientation', 'portrait')
   .option('--fps <fps>', 'Frames per second', '30')
   .option('--mock', 'Use mock renderer (for testing)', false)
+  // eslint-disable-next-line max-lines-per-function -- render logic is cohesive, refactor pending
   .action(async (options) => {
     const spinner = createSpinner('Rendering video...').start();
     const runtime = getCliRuntime();
@@ -40,6 +42,40 @@ export const renderCommand = new Command('render')
         'Starting video render'
       );
 
+      let lastBucket = -1;
+      let lastPhase: string | undefined;
+      const onProgress = (event: RenderProgressEvent): void => {
+        if (runtime.json) return;
+
+        const phase = event.phase;
+        const phaseProgress = Math.min(1, Math.max(0, event.progress ?? 0));
+        const overall =
+          phase === 'bundle'
+            ? phaseProgress * 0.2
+            : phase === 'select-composition'
+              ? 0.2 + phaseProgress * 0.05
+              : phase === 'render-media'
+                ? 0.25 + phaseProgress * 0.75
+                : phaseProgress;
+        const percent = Math.round(overall * 100);
+
+        if (runtime.isTty) {
+          const parts = ['Rendering video...', `${percent}%`, phase];
+          if (event.message) parts.push(event.message);
+          spinner.text = parts.filter(Boolean).join(' - ');
+          return;
+        }
+
+        const bucket = Math.floor(percent / 10) * 10;
+        if (bucket === lastBucket && phase === lastPhase) return;
+        lastBucket = bucket;
+        lastPhase = phase;
+
+        const parts = [`Render progress: ${percent}%`, phase];
+        if (event.message) parts.push(event.message);
+        writeStderrLine(parts.filter(Boolean).join(' - '));
+      };
+
       const result = await renderVideo({
         visuals,
         timestamps,
@@ -48,6 +84,7 @@ export const renderCommand = new Command('render')
         orientation: options.orientation,
         fps: parseInt(options.fps, 10),
         mock: Boolean(options.mock),
+        onProgress,
       });
 
       spinner.succeed('Video rendered successfully');

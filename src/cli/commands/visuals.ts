@@ -6,6 +6,7 @@
  */
 import { Command } from 'commander';
 import { matchVisuals } from '../../visuals/matcher';
+import type { VisualsProgressEvent } from '../../visuals/matcher';
 import { logger } from '../../core/logger';
 import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
 import type { TimestampsOutput } from '../../audio/schema';
@@ -30,11 +31,40 @@ export const visualsCommand = new Command('visuals')
 
       logger.info({ input: options.input, provider: options.provider }, 'Starting visual matching');
 
+      let lastBucket = -1;
+      let lastPhase: string | undefined;
+      const onProgress = (event: VisualsProgressEvent): void => {
+        if (runtime.json) return;
+
+        const percent = Math.round(event.progress * 100);
+        const phase = event.phase;
+        const message = event.message;
+
+        if (runtime.isTty) {
+          const parts = ['Finding matching visuals...', `${percent}%`];
+          if (phase) parts.push(phase);
+          if (message) parts.push(message);
+          spinner.text = parts.join(' - ');
+          return;
+        }
+
+        const bucket = Math.floor(percent / 10) * 10;
+        if (bucket === lastBucket && phase === lastPhase) return;
+        lastBucket = bucket;
+        lastPhase = phase;
+
+        const parts = [`Visuals progress: ${percent}%`];
+        if (phase) parts.push(phase);
+        if (message) parts.push(message);
+        writeStderrLine(parts.join(' - '));
+      };
+
       const visuals = await matchVisuals({
         timestamps,
         provider: options.provider,
         orientation: options.orientation,
         mock: Boolean(options.mock),
+        onProgress,
       });
 
       spinner.succeed('Visuals matched successfully');

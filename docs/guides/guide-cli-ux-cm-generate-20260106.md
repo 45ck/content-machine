@@ -16,14 +16,14 @@ References: `docs/guides/guide-cli-ux-standards-20260106.md`.
 
 ## Current behavior (as implemented today)
 
-- Prints a short header (topic/archetype/output), then uses sequential `ora` spinners: "Stage 1/4 ... Stage 4/4 ...".
+- Prints a short header (topic/archetype/output/artifacts), then renders stage progress from structured pipeline events (no substring parsing).
 - `--dry-run` prints planned configuration + a stage list.
 - `--mock` uses a fake LLM provider and runs downstream stages in mock mode.
 - Uses `runPipeline()` which defaults the work directory to `dirname(--output)`.
 - Writes these files during a real run:
   - `audio.wav` and `timestamps.json` into the work directory
   - the final MP4 at `--output`
-- `--keep-artifacts` prevents cleanup of intermediate files, but (as of 2026-01-06) does not guarantee `script.json` and `visuals.json` are written because those are not currently persisted during `generate`.
+- `--keep-artifacts` prevents cleanup and guarantees `script.json`, `audio.wav`, `timestamps.json`, and `visuals.json` next to the output.
 - **Research integration (2026-01-07):** `--research [path]` enables evidence-based script generation. If path is provided, loads research from file. If flag only, auto-runs `cm research` before script stage.
 
 ## Research-enhanced workflow
@@ -46,24 +46,24 @@ When research is enabled:
 ## What users will expect (and where we miss)
 
 - Expectation: "keep artifacts" means _all_ intermediate artifacts exist and their paths are printed.
-  - Reality: only audio and timestamps are guaranteed.
+  - Reality: artifacts are guaranteed when `--keep-artifacts`, but paths are not printed per-stage yet.
 - Expectation: progress feels trustworthy and not "magic".
-  - Reality: stage transitions depend on message substring matching.
+  - Reality: stage transitions come from structured stage events; visuals/render include percent progress with phases.
 - Expectation: it works in scripts.
-  - Reality: root `--json` exists but `generate` does not provide a single machine-readable result object.
+  - Reality: `--json` emits a single schema-versioned envelope to stdout and keeps stderr quiet.
 
 ## Recommendations
 
 ### P0 (make the experience trustworthy)
 
-- Make `--keep-artifacts` actually write `script.json` and `visuals.json` and print all artifact paths on success.
-- Emit structured progress events from `runPipeline()` (stage + phase + percent) instead of parsing strings.
-- Print an explicit "Artifacts directory: <path>" line early so users can find outputs mid-run.
+- Make `--keep-artifacts` print artifact paths on success (in addition to writing them).
+- Emit structured progress events from `runPipeline()` (stage + phase + percent) instead of parsing strings. (Implemented)
+- Print an explicit "Artifacts: <dir>" line early so users can find outputs mid-run. (Implemented)
 - Add a clear next step on success: `cm validate <output>` (and optionally `cm render` re-run guidance).
 
 ### P1 (make it scriptable and debuggable)
 
-- Implement `--json` output for the final result (schema versioned), including artifact paths, duration, dimensions, costs, and timings.
+- Implement `--json` output for the final result (schema versioned), including artifact paths, duration, dimensions, costs, and timings. (Implemented)
 - Add `--workdir <dir>` (or `--artifacts-dir <dir>`) to decouple artifacts from `--output` location.
 - Ensure `--verbose` increases detail consistently (and does not change stable stdout contracts).
 

@@ -19,27 +19,27 @@ References: `docs/guides/guide-cli-ux-standards-20260106.md`.
 - Spinner: "Rendering video...".
 - Requires `--input` (visuals JSON) and `--audio`; reads `--timestamps` (default `timestamps.json`).
 - Passes `--orientation` and `--fps` into `renderVideo()`.
-- `renderVideo()` has measurable progress (bundling and rendering percent), but the CLI only shows a single spinner; detailed progress is currently only in logs.
+- `renderVideo()` exposes bundling/rendering progress; the CLI surfaces this in TTY mode by updating spinner text with phase + percent, and in non-TTY mode prints coarse progress lines to stderr.
 - Prints a summary with duration, resolution, size, and output path.
 
 ## UX gaps (where users lose confidence)
 
-- Long-running feel: without percent, bundle/render feels "stuck".
+- Long-running feel: bundling vs rendering should be clearly distinguished (phase labels must stay stable).
 - Input clarity: users can easily point to mismatched `visuals.json` and `timestamps.json` without immediate validation.
-- Machine output: no stable `--json` output for render results (path, size, dimensions, timings).
+- Machine output: ensure `--json` stays a single envelope on stdout and stderr stays quiet.
 
 ## Recommendations
 
 ### P0
 
-- Surface bundling and rendering percent progress in TTY mode; disable spinners/percent in `--json` mode.
+- Surface bundling and rendering percent progress in TTY mode; disable spinners/percent in `--json` mode. (Implemented)
 - Validate input JSON shapes and required files early (before starting Remotion bundle).
 - Validate `--orientation` and `--fps` at the CLI boundary; return exit code 2 on invalid args.
 
 ### P1
 
 - Add `--dry-run` to print resolved dimensions, fps, and which inputs will be read.
-- Add `--json` output with `{outputPath, durationSeconds, width, height, fps, fileSizeBytes}` plus timings.
+- Add `--json` output with `{outputPath, durationSeconds, width, height, fps, fileSizeBytes}` plus timings. (Implemented)
 
 ## Ideal failure output (ASCII sketch)
 

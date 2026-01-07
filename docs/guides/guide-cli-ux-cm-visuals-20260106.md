@@ -17,8 +17,9 @@ References: `docs/guides/guide-cli-ux-standards-20260106.md`.
 ## Current behavior (as implemented today)
 
 - Spinner: "Finding matching visuals...".
-- Reads the timestamps JSON (expects an audio output shape with `.timestamps`).
+- Reads `timestamps.json` (the `TimestampsOutput` produced by `cm audio`).
 - Calls `matchVisuals()` and writes `visuals.json`.
+- In TTY mode, updates spinner text with phase + percent; in non-TTY mode prints coarse progress lines to stderr.
 - Prints a summary: number of scenes, total duration, number from stock, number of fallbacks.
 
 ## UX gaps (what causes confusion)
