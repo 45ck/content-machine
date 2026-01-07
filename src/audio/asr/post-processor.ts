@@ -42,6 +42,14 @@ const DEFAULT_OPTIONS: Required<PostProcessorOptions> = {
  * Value: array of [suffix, complete word] pairs
  */
 const SPLIT_WORD_PATTERNS: Map<string, Array<[string, string]>> = new Map([
+  // Interjections
+  ['U', [['gh', 'Ugh']]],
+  ['u', [['gh', 'ugh']]],
+  ['A', [['h', 'Ah'], ['w', 'Aw']]],
+  ['a', [['h', 'ah'], ['w', 'aw']]],
+  ['O', [['h', 'Oh'], ['k', 'Ok'], ['kay', 'Okay']]],
+  ['o', [['h', 'oh'], ['k', 'ok'], ['kay', 'okay']]],
+  // Str- words
   [
     'Str',
     [
@@ -49,6 +57,7 @@ const SPLIT_WORD_PATTERNS: Map<string, Array<[string, string]>> = new Map([
       ['ong', 'Strong'],
       ['eet', 'Street'],
       ['ategic', 'Strategic'],
+      ['ess', 'Stress'],
     ],
   ],
   [
@@ -58,8 +67,10 @@ const SPLIT_WORD_PATTERNS: Map<string, Array<[string, string]>> = new Map([
       ['ong', 'strong'],
       ['eet', 'street'],
       ['ategic', 'strategic'],
+      ['ess', 'stress'],
     ],
   ],
+  // Hyd- words
   [
     'hyd',
     [
@@ -76,12 +87,14 @@ const SPLIT_WORD_PATTERNS: Map<string, Array<[string, string]>> = new Map([
       ['ration', 'Hydration'],
     ],
   ],
+  // Pro- words
   [
     'pro',
     [
       ['duct', 'product'],
       ['gram', 'program'],
       ['cess', 'process'],
+      ['ductivity', 'productivity'],
     ],
   ],
   [
@@ -90,8 +103,10 @@ const SPLIT_WORD_PATTERNS: Map<string, Array<[string, string]>> = new Map([
       ['duct', 'Product'],
       ['gram', 'Program'],
       ['cess', 'Process'],
+      ['ductivity', 'Productivity'],
     ],
   ],
+  // Con- words
   [
     'con',
     [
@@ -108,6 +123,26 @@ const SPLIT_WORD_PATTERNS: Map<string, Array<[string, string]>> = new Map([
       ['sider', 'Consider'],
     ],
   ],
+  // At + risk pattern (common TTS artifact)
+  ['at', [['risk', 'at risk']]],
+  ['At', [['risk', 'At risk']]],
+  // Optimal split: Opt + imal
+  ['Opt', [['imal', 'Optimal']]],
+  ['opt', [['imal', 'optimal']]],
+  // Melatonin split: mel + aton + in
+  ['mel', [['atonin', 'melatonin']]],
+  ['Mel', [['atonin', 'Melatonin']]],
+  // Common -ing splits
+  ['Mess', [['es', 'Messes']]],
+  ['mess', [['es', 'messes']]],
+  // Ch- words (common splits)
+  ['ch', [['ug', 'chug']]],
+  ['Ch', [['ug', 'Chug']]],
+  // R- words (common splits)
+  ['r', [['isk', 'risk']]],
+  ['R', [['isk', 'Risk']]],
+  // At + risk (should stay as two words, but with proper timing)
+  // Already handled above
 ]);
 
 /**
@@ -130,7 +165,8 @@ export function postProcessASRWords(
 
   let result = [...words];
 
-  // Step 1: Merge split words
+  // Step 1: Merge split words FIRST (before filtering)
+  // This allows patterns like r+isk→risk to match
   if (opts.mergeWords) {
     result = mergeSplitWords(result);
   }
@@ -140,17 +176,55 @@ export function postProcessASRWords(
     result = mergeSplitContractions(result);
   }
 
-  // Step 3: Fix overlapping timestamps
+  // Step 3: Merge repeated single characters (like "z" "z" "z" → "zzz")
+  result = mergeRepeatedCharacters(result);
+
+  // Step 4: Filter ASR artifacts AFTER merging (so patterns have a chance)
+  result = filterASRArtifacts(result);
+
+  // Step 5: Fix overlapping timestamps
   if (opts.fixOverlaps) {
     result = fixOverlappingTimestamps(result);
   }
 
-  // Step 4: Extend very short durations
+  // Step 6: Extend very short durations
   if (opts.minDurationMs > 0) {
     result = extendShortDurations(result, opts.minDurationMs);
   }
 
   return result;
+}
+
+/**
+ * Valid single-letter words in English
+ */
+const VALID_SINGLE_LETTERS = new Set(['a', 'A', 'i', 'I', 'o', 'O']);
+
+/**
+ * Filter out ASR artifacts - single letters that aren't valid words
+ */
+function filterASRArtifacts(words: WordTimestamp[]): WordTimestamp[] {
+  return words.filter((word) => {
+    const text = word.word.trim();
+    
+    // Keep valid single letters
+    if (text.length === 1 && /^[a-zA-Z]$/.test(text)) {
+      return VALID_SINGLE_LETTERS.has(text);
+    }
+    
+    // Keep two-letter words only if they're valid
+    if (text.length === 2 && /^[a-zA-Z]+$/.test(text)) {
+      const validTwoLetter = new Set([
+        'an', 'as', 'at', 'be', 'by', 'do', 'go', 'he', 'if', 'in', 
+        'is', 'it', 'me', 'my', 'no', 'of', 'on', 'or', 'so', 'to', 
+        'up', 'us', 'we', 'am', 'ok', 'oh', 'ah', 'aw', 'uh'
+      ]);
+      return validTwoLetter.has(text.toLowerCase());
+    }
+    
+    // Keep everything else
+    return true;
+  });
 }
 
 /**
@@ -237,6 +311,56 @@ function mergeSplitContractions(words: WordTimestamp[]): WordTimestamp[] {
         confidence: Math.min(current.confidence ?? 1, next.confidence ?? 1),
       });
       i += 2; // Skip both words
+    } else {
+      result.push(current);
+      i++;
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Merge repeated single characters like "z" "z" "z" → "zzz"
+ * Common in onomatopoeia like sleeping sounds, hesitations, etc.
+ */
+function mergeRepeatedCharacters(words: WordTimestamp[]): WordTimestamp[] {
+  if (words.length < 2) return words;
+
+  const result: WordTimestamp[] = [];
+  let i = 0;
+
+  while (i < words.length) {
+    const current = words[i];
+
+    // Check if this is a single character that repeats
+    if (current.word.length === 1 && /^[a-zA-Z]$/.test(current.word)) {
+      let j = i + 1;
+      let merged = current.word;
+      let endTime = current.end;
+      let minConfidence = current.confidence ?? 1;
+
+      // Collect consecutive same characters
+      while (j < words.length && words[j].word.toLowerCase() === current.word.toLowerCase()) {
+        merged += words[j].word;
+        endTime = words[j].end;
+        minConfidence = Math.min(minConfidence, words[j].confidence ?? 1);
+        j++;
+      }
+
+      // Only merge if we found multiple (3+ makes it worth it)
+      if (j - i >= 2) {
+        result.push({
+          word: merged,
+          start: current.start,
+          end: endTime,
+          confidence: minConfidence,
+        });
+        i = j; // Skip all merged characters
+      } else {
+        result.push(current);
+        i++;
+      }
     } else {
       result.push(current);
       i++;
