@@ -79,6 +79,10 @@ export interface RenderVideoOptions {
    * Default: 8 (for larger sentences)
    */
   wordsPerPage?: number;
+  /**
+   * Caption animation: none (default), fade, slideUp, slideDown, pop, bounce
+   */
+  captionAnimation?: 'none' | 'fade' | 'slideUp' | 'slideDown' | 'pop' | 'bounce';
 }
 
 export type RenderProgressPhase = 'bundle' | 'select-composition' | 'render-media' | 'mock';
@@ -159,6 +163,9 @@ function resolveCaptionConfig(options: RenderVideoOptions): CaptionConfig {
   }
   if (options.wordsPerPage) {
     topLevelOverride.wordsPerPage = options.wordsPerPage;
+  }
+  if (options.captionAnimation) {
+    topLevelOverride.pageAnimation = options.captionAnimation;
   }
 
   // If captionConfig is provided, merge it with the preset

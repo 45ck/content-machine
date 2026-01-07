@@ -108,6 +108,8 @@ interface GenerateOptions {
   captionMode?: 'page' | 'single' | 'buildup';
   /** Words per caption page/group (default: 8) */
   wordsPerPage?: string;
+  /** Caption animation: none (default), fade, slideUp, slideDown, pop, bounce */
+  captionAnimation?: 'none' | 'fade' | 'slideUp' | 'slideDown' | 'pop' | 'bounce';
 }
 
 function printHeader(
@@ -376,6 +378,7 @@ async function runGeneratePipeline(params: {
       wordsPerPage: params.options.wordsPerPage
         ? parseInt(params.options.wordsPerPage, 10)
         : undefined,
+      captionAnimation: params.options.captionAnimation,
     });
   } finally {
     dispose();
@@ -575,6 +578,9 @@ function showDryRunSummary(
   if (options.wordsPerPage) {
     writeStderrLine(`   Words Per Page: ${options.wordsPerPage}`);
   }
+  if (options.captionAnimation) {
+    writeStderrLine(`   Caption Animation: ${options.captionAnimation}`);
+  }
   writeStderrLine('   Pipeline stages:');
   if (options.research) {
     writeStderrLine('   0. Research -> research.json');
@@ -710,6 +716,10 @@ export const generateCommand = new Command('generate')
   .option(
     '--words-per-page <count>',
     'Words per caption page/group (default: 8 for larger sentences)'
+  )
+  .option(
+    '--caption-animation <animation>',
+    'Caption animation: none (default), fade, slideUp, slideDown, pop, bounce'
   )
   // Sync quality options
   .option(

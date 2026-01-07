@@ -135,7 +135,34 @@ async function resampleFor16kHz(
 }
 
 /**
+ * Check if a word is a Whisper special token that should be filtered out.
+ * These include:
+ * - [_BEG_] - begin token
+ * - [_TT_xxx] - timing tokens
+ * - [_xxx_] - any special tokens in brackets
+ * - Standalone punctuation (single character punctuation)
+ */
+function isWhisperArtifact(word: string): boolean {
+  const trimmed = word.trim();
+
+  // Empty or whitespace only
+  if (!trimmed) return true;
+
+  // Whisper special tokens in brackets like [_BEG_], [_TT_123]
+  if (/^\[.*\]$/.test(trimmed)) return true;
+
+  // Standalone punctuation (single punctuation character)
+  if (/^[.,!?;:'"()-]$/.test(trimmed)) return true;
+
+  // Very short non-alphabetic tokens (likely artifacts)
+  if (trimmed.length === 1 && !/[a-zA-Z0-9]/.test(trimmed)) return true;
+
+  return false;
+}
+
+/**
  * Extract word timestamps from whisper transcription segments.
+ * Filters out Whisper special tokens and artifacts.
  * @internal
  */
 function extractWordsFromSegments(segments: WhisperSegment[]): {
@@ -148,9 +175,11 @@ function extractWordsFromSegments(segments: WhisperSegment[]): {
   for (const segment of segments) {
     if (segment.tokens) {
       for (const token of segment.tokens) {
-        if (token.text.trim()) {
+        const text = token.text.trim();
+        // Filter out Whisper artifacts and special tokens
+        if (text && !isWhisperArtifact(text)) {
           words.push({
-            word: token.text.trim(),
+            word: text,
             start: token.offsets.from / 1000,
             end: token.offsets.to / 1000,
             confidence: token.p ?? 0.9, // Default confidence if not provided

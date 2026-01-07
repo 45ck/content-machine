@@ -97,6 +97,10 @@ export interface PipelineOptions {
    * Default: 8 (for larger sentences)
    */
   wordsPerPage?: number;
+  /**
+   * Caption animation: none (default), fade, slideUp, slideDown, pop, bounce
+   */
+  captionAnimation?: 'none' | 'fade' | 'slideUp' | 'slideDown' | 'pop' | 'bounce';
 }
 
 /**
@@ -286,6 +290,7 @@ async function executeRenderStage(
       captionGroupMs: options.captionGroupMs,
       captionMode: options.captionMode,
       wordsPerPage: options.wordsPerPage,
+      captionAnimation: options.captionAnimation,
     },
     'Starting Stage 4: Video rendering'
   );
@@ -310,6 +315,7 @@ async function executeRenderStage(
         captionGroupMs: options.captionGroupMs,
         captionMode: options.captionMode,
         wordsPerPage: options.wordsPerPage,
+        captionAnimation: options.captionAnimation,
       });
     },
     log

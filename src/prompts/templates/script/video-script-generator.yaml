@@ -1,0 +1,128 @@
+# Video Script Generator
+#
+# Adapted from: MoneyPrinterTurbo
+# Source: https://github.com/harry0703/MoneyPrinterTurbo
+# License: MIT
+# Original: app/services/llm.py → generate_script()
+# Adapted: 2026-01-07
+
+id: script/video-script-generator
+name: Video Script Generator
+description: >
+  Generates engaging video scripts from a topic. Produces raw narration text
+  without formatting, titles, or speaker indicators. Designed for short-form
+  vertical video content (TikTok, Reels, Shorts).
+category: script
+provider: any
+outputFormat: text
+version: "1.0.0"
+tags:
+  - script
+  - narration
+  - tiktok
+  - shorts
+  - video
+estimatedTokens: 300
+recommendedTemperature: 0.7
+
+source:
+  repository: MoneyPrinterTurbo
+  url: https://github.com/harry0703/MoneyPrinterTurbo
+  license: MIT
+  originalPath: app/services/llm.py
+  adaptedDate: "2026-01-07"
+  modifications: >
+    Converted to YAML template format. Added archetype context variable.
+    Improved constraints for content-machine integration.
+
+variables:
+  - name: topic
+    description: The main subject or topic of the video
+    required: true
+    type: string
+    example: "5 JavaScript tips for beginners"
+  - name: paragraphs
+    description: Number of paragraphs to generate
+    required: false
+    type: number
+    default: 1
+    example: 3
+  - name: language
+    description: Language for the script (e.g., "en", "es", "zh-CN")
+    required: false
+    type: string
+    default: "en"
+    example: "en"
+  - name: archetype
+    description: Content archetype (listicle, versus, howto, myth, story, hot-take)
+    required: false
+    type: string
+    example: "listicle"
+
+systemPrompt: |
+  You are an expert short-form video script writer. You create scripts that are:
+  - Engaging from the first word (strong hooks)
+  - Concise and punchy (no filler words)
+  - Written for spoken delivery (natural rhythm)
+  - Optimized for 30-60 second videos
+
+template: |
+  # Role: Video Script Generator
+
+  ## Goals:
+  Generate a script for a video, depending on the subject of the video.
+
+  ## Constraints:
+  1. The script is to be returned as a string with the specified number of paragraphs.
+  2. Do not under any circumstance reference this prompt in your response.
+  3. Get straight to the point - don't start with unnecessary things like "welcome to this video".
+  4. You must not include any type of markdown or formatting in the script, never use a title.
+  5. Only return the raw content of the script.
+  6. Do not include "voiceover", "narrator" or similar indicators of what should be spoken.
+  7. You must not mention the prompt, or anything about the script itself.
+  8. Never talk about the amount of paragraphs or lines - just write the script.
+  9. Respond in the same language as the video subject.
+  10. Start with a hook that grabs attention in the first 3 seconds.
+
+  {{#if archetype}}
+  ## Content Style: {{archetype}}
+  {{#if (eq archetype "listicle")}}
+  Structure as a numbered list with a hook, clear items, and a call-to-action.
+  {{/if}}
+  {{#if (eq archetype "versus")}}
+  Present a balanced comparison with a clear winner or recommendation.
+  {{/if}}
+  {{#if (eq archetype "howto")}}
+  Give step-by-step instructions that are easy to follow.
+  {{/if}}
+  {{#if (eq archetype "myth")}}
+  Start with the myth, then reveal the reality with evidence.
+  {{/if}}
+  {{#if (eq archetype "story")}}
+  Use narrative structure: setup, conflict, resolution.
+  {{/if}}
+  {{#if (eq archetype "hot-take")}}
+  Lead with a provocative opinion, then back it up with reasoning.
+  {{/if}}
+  {{/if}}
+
+  # Input:
+  - Video subject: {{topic}}
+  - Number of paragraphs: {{paragraphs}}
+  {{#if language}}- Language: {{language}}{{/if}}
+
+examples:
+  - input:
+      topic: "Why Redis beats PostgreSQL for caching"
+      paragraphs: 2
+      archetype: "versus"
+    output: |
+      Stop using PostgreSQL for caching. Here's why Redis wins every time.
+
+      PostgreSQL stores data on disk. Redis keeps everything in memory.
+      That's the difference between milliseconds and microseconds.
+      Your users feel that. A 100ms delay costs you 7% conversion.
+      Redis gives you sub-millisecond reads. PostgreSQL can't compete.
+      Plus Redis has built-in expiration. Set it and forget it.
+      Use PostgreSQL for what it's good at - persistent data.
+      Use Redis for speed. Your users will thank you.

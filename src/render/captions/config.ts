@@ -200,7 +200,7 @@ export const CaptionConfigSchema = z.object({
 
   // === ANIMATION ===
   /** Page entrance animation */
-  pageAnimation: PageAnimationSchema.default('pop'),
+  pageAnimation: PageAnimationSchema.default('none'),
   /** Animation duration in ms */
   animationDuration: z.number().int().positive().default(200),
   /** Word transition duration in ms */
