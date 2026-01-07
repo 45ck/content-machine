@@ -33,6 +33,7 @@ Thumbs.db
 # Test
 coverage/
 .vitest/
+tests/.tmp/
 
 # Remotion
 .remotion/
