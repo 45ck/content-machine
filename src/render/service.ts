@@ -150,6 +150,7 @@ async function executeRender(opts: ExecuteRenderOptions): Promise<void> {
     serveUrl: bundleLocation,
     id: 'ShortVideo',
     inputProps: renderProps,
+    timeoutInMilliseconds: 60000, // 60 seconds for composition selection
   });
 
   const durationInFrames = Math.ceil(totalDuration * fps);
@@ -167,6 +168,10 @@ async function executeRender(opts: ExecuteRenderOptions): Promise<void> {
     codec: 'h264',
     outputLocation: outputPath,
     inputProps: renderProps,
+    timeoutInMilliseconds: 120000, // 2 minutes per frame for complex video rendering
+    chromiumOptions: {
+      enableMultiProcessOnLinux: true,
+    },
     onProgress: ({ progress }) => {
       log.debug({ progress: Math.round(progress * 100) }, 'Render progress');
     },
@@ -268,11 +273,4 @@ async function generateMockRender(
 
   log.info(
     {
-      duration: output.duration,
-      fileSize: output.fileSize,
-    },
-    'Mock video render complete'
-  );
-
-  return RenderOutputSchema.parse(output);
-}
+      duration

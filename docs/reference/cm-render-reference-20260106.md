@@ -26,6 +26,7 @@ cm render [options]
 - `-o, --output <path>`: output video file path (default: `video.mp4`)
 - `--orientation <type>`: `portrait|landscape|square` (default: `portrait`)
 - `--fps <fps>`: frames per second (default: `30`)
+- `--mock`: use mock renderer (writes a placeholder MP4)
 
 ## Global options
 
@@ -36,6 +37,7 @@ cm render [options]
 
 - `0`: success
 - `1`: failure
+- `2`: invalid arguments / missing files / invalid JSON
 
 ## Examples
 

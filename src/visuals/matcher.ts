@@ -199,6 +199,14 @@ function parseKeywordResponse(
     return parsed.keywords;
   } else if (parsed && Array.isArray(parsed.scenes)) {
     return parsed.scenes;
+  } else if (parsed && Array.isArray(parsed.result)) {
+    // Handle { "result": [...] } format
+    log.debug('LLM returned result-wrapped array');
+    return parsed.result;
+  } else if (parsed && Array.isArray(parsed.data)) {
+    // Handle { "data": [...] } format
+    log.debug('LLM returned data-wrapped array');
+    return parsed.data;
   } else if (
     parsed &&
     typeof parsed === 'object' &&

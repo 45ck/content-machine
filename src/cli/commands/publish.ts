@@ -4,13 +4,14 @@
  * Usage: cm publish --input script.json --output publish.json
  */
 import { Command } from 'commander';
-import ora from 'ora';
-import { readFile } from 'node:fs/promises';
-import { handleCommandError, writeOutputFile } from '../utils';
+import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
 import { ScriptOutputSchema } from '../../script/schema';
 import { PackageOutputSchema, PlatformEnum } from '../../package/schema';
 import { generatePublish } from '../../publish/generator';
 import { FakeLLMProvider } from '../../test/stubs/fake-llm';
+import { createSpinner } from '../progress';
+import { getCliRuntime } from '../runtime';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
 
 interface PublishOptions {
   input: string;
@@ -19,7 +20,6 @@ interface PublishOptions {
   output: string;
   llm: boolean;
   mock: boolean;
-  json: boolean;
 }
 
 export const publishCommand = new Command('publish')
@@ -30,16 +30,16 @@ export const publishCommand = new Command('publish')
   .option('-o, --output <path>', 'Output publish.json path', 'publish.json')
   .option('--llm', 'Use LLM to generate description/hashtags/checklist (requires API key)', false)
   .option('--mock', 'Mock LLM output (for tests/dev)', false)
-  .option('--json', 'Print publish.json to stdout', false)
   .action(async (options: PublishOptions) => {
-    const spinner = ora('Generating publish metadata...').start();
+    const runtime = getCliRuntime();
+    const spinner = createSpinner('Generating publish metadata...').start();
     try {
-      const rawScript = JSON.parse(await readFile(options.input, 'utf8')) as unknown;
+      const rawScript = await readInputFile(options.input);
       const script = ScriptOutputSchema.parse(rawScript);
 
       const platform = PlatformEnum.parse(options.platform);
       const packaging = options.package
-        ? PackageOutputSchema.parse(JSON.parse(await readFile(options.package, 'utf8')) as unknown)
+        ? PackageOutputSchema.parse(await readInputFile(options.package))
         : undefined;
 
       const llmProvider = options.mock
@@ -65,17 +65,39 @@ export const publishCommand = new Command('publish')
       });
 
       await writeOutputFile(options.output, out);
-      spinner.stop();
+      spinner.succeed('Publish metadata generated');
 
-      if (options.json) {
-        console.log(JSON.stringify(out, null, 2));
+      if (runtime.json) {
+        writeJsonEnvelope(
+          buildJsonEnvelope({
+            command: 'publish',
+            args: {
+              input: options.input,
+              package: options.package ?? null,
+              platform,
+              output: options.output,
+              mode: options.llm || options.mock ? 'llm' : 'deterministic',
+              mock: Boolean(options.mock),
+            },
+            outputs: {
+              publishPath: options.output,
+              title: out.title,
+              hashtags: out.hashtags.length,
+              checklist: out.checklist.length,
+            },
+            timingsMs: Date.now() - runtime.startTime,
+          })
+        );
         return;
       }
 
-      console.log(`\nPublish metadata generated (${platform})`);
-      console.log(`Title: ${out.title}`);
-      console.log(`Hashtags: ${out.hashtags.slice(0, 8).join(' ')}`);
-      console.log(`Output: ${options.output}\n`);
+      writeStderrLine(`Publish: ${platform}`);
+      writeStderrLine(`   Title: ${out.title}`);
+      writeStderrLine(`   Hashtags: ${out.hashtags.slice(0, 8).join(' ')}`);
+      if (options.mock) writeStderrLine('   Mock mode - LLM output is for testing only');
+
+      // Human-mode stdout should be reserved for the primary artifact path.
+      process.stdout.write(`${options.output}\n`);
     } catch (error) {
       spinner.fail('Publish failed');
       handleCommandError(error);

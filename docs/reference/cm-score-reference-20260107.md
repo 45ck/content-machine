@@ -19,7 +19,17 @@ cm score [options]
 - `--package <path>`: optional `packaging.json` path (enables alignment checks)
 - `-o, --output <path>`: output `score.json` path (default: `score.json`)
 - `--min-overall <n>`: fail if overall score is below threshold (default: `0`)
-- `--json`: print the full `score.json` to stdout (default: false)
+
+## Global options
+
+- `-v, --verbose`: enable verbose logging
+- `--json`: print a schema-versioned JSON envelope to stdout
+
+## Exit codes
+
+- `0`: score passed threshold
+- `1`: score failed threshold
+- `2`: invalid arguments / missing files / invalid JSON
 
 ## Examples
 

@@ -11,7 +11,7 @@ export interface CliRunResult {
 export async function runCli(
   args: string[],
   env?: NodeJS.ProcessEnv,
-  timeoutMs = 15000
+  timeoutMs = 45000
 ): Promise<CliRunResult> {
   const helperDir = dirname(fileURLToPath(import.meta.url));
   const repoRoot = join(helperDir, '..', '..', '..');

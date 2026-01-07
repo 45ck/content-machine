@@ -68,7 +68,7 @@ export const audioCommand = new Command('audio')
             timingsMs: Date.now() - runtime.startTime,
           })
         );
-        return;
+        process.exit(0);
       }
 
       writeStderrLine(`Audio: ${result.duration.toFixed(1)}s, ${result.wordCount} words`);
@@ -78,6 +78,7 @@ export const audioCommand = new Command('audio')
 
       // Human-mode stdout should be reserved for the primary artifact path.
       process.stdout.write(`${result.audioPath}\n`);
+      process.exit(0);
     } catch (error) {
       spinner.fail('Audio generation failed');
       handleCommandError(error);

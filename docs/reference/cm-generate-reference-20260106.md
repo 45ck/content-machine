@@ -86,7 +86,7 @@ cm generate "TypeScript best practices" --research research.json --output out/vi
 ## Notes
 
 - Intermediate artifacts are placed in `dirname(--output)` by default.
-- As of 2026-01-06, `--keep-artifacts` does not guarantee `script.json` and `visuals.json` are written during `generate`.
+- `--keep-artifacts` keeps `script.json`, `audio.wav`, `timestamps.json`, and `visuals.json` alongside the final output.
 - When `--research` is used with a path, the file must be valid `ResearchOutput` JSON from `cm research`.
 
 ## See also

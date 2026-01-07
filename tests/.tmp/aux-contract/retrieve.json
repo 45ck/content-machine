@@ -1,0 +1,15 @@
+{
+  "query": "redis cache",
+  "results": [
+    {
+      "score": 0.7778174628521626,
+      "evidence": {
+        "title": "Redis caching tips",
+        "url": "https://example.com/redis",
+        "source": "web",
+        "relevanceScore": 0.9,
+        "summary": "Short summary"
+      }
+    }
+  ]
+}

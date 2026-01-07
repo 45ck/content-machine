@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "1.0.0",
+  "dimensions": 8,
+  "items": [
+    {
+      "id": "evidence:0",
+      "embedding": [
+        0.1,
+        0.2,
+        0.3,
+        0.4,
+        0.5,
+        0.6,
+        0.7,
+        0.8
+      ],
+      "evidence": {
+        "title": "Redis caching tips",
+        "url": "https://example.com/redis",
+        "source": "web",
+        "relevanceScore": 0.9,
+        "summary": "Short summary"
+      }
+    }
+  ],
+  "createdAt": "2026-01-07T00:51:07.602Z"
+}

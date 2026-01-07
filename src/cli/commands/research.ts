@@ -14,6 +14,7 @@ import { handleCommandError, writeOutputFile } from '../utils';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
+import { CMError } from '../../core/errors';
 
 interface ResearchOptions {
   query: string;
@@ -146,7 +147,10 @@ export const researchCommand = new Command('research')
       const validSources = parseSources(options.sources);
 
       if (validSources.length === 0) {
-        throw new Error('No valid sources specified');
+        throw new CMError('INVALID_ARGUMENT', 'No valid sources specified', {
+          allowed: ResearchSourceEnum.options,
+          fix: 'Use --sources hackernews,reddit,web (comma-separated)',
+        });
       }
 
       if (options.dryRun) {

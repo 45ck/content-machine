@@ -25,4 +25,11 @@ describe('CLI stdout/stderr contract (human mode)', () => {
     expect(result.stdout.trim()).toBe(outPath);
     expect(result.stderr).toContain('Script:');
   }, 90_000);
+
+  it('cm generate --dry-run prints to stderr and keeps stdout empty', async () => {
+    const result = await runCli(['generate', 'Redis', '--dry-run'], undefined, 120000);
+    expect(result.code).toBe(0);
+    expect(result.stdout.trim()).toBe('');
+    expect(result.stderr).toContain('Dry-run mode');
+  }, 90_000);
 });

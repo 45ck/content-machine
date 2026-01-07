@@ -20,7 +20,17 @@ cm publish [options]
 - `-o, --output <path>`: output `publish.json` path (default: `publish.json`)
 - `--llm`: generate description/hashtags/checklist via LLM (requires API key) (default: false)
 - `--mock`: mock LLM output (for tests/dev) (default: false)
-- `--json`: print the full `publish.json` to stdout (default: false)
+
+## Global options
+
+- `-v, --verbose`: enable verbose logging
+- `--json`: print a schema-versioned JSON envelope to stdout
+
+## Exit codes
+
+- `0`: success
+- `1`: failure
+- `2`: invalid arguments / missing files / invalid JSON
 
 ## Examples
 

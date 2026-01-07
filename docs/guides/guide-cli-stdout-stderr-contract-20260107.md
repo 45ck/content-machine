@@ -36,16 +36,20 @@ For every command:
    - `visuals`: `visuals.json`
    - `render`: `video.mp4`
    - `generate`: `video.mp4`
-   - `validate`: `validate.json` (and exit code indicates pass/fail)
-   - `package`: `packaging.json`
-   - `research`: `research.json`
-   - `init`: `.content-machine.toml`
+
+- `validate`: `validate.json` (and exit code indicates pass/fail)
+  - `package`: `packaging.json`
+  - `research`: `research.json`
+  - `init`: `.content-machine.toml`
+
 2. In human mode:
    - print progress + summary to stderr
    - print only the primary output path to stdout
 3. In `--json` mode:
    - stdout prints exactly one JSON envelope
    - stderr is quiet or minimal (no spinners)
+
+For commands that also support a raw report mode (e.g. `cm validate --report-json`), raw JSON output is an explicit opt-in and is not the same as the global `--json` envelope.
 
 ## Validation (V&V)
 

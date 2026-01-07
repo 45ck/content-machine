@@ -21,6 +21,8 @@ cm visuals [options]
 - `-i, --input <path>`: input timestamps JSON file (required)
 - `-o, --output <path>`: output visuals file path (default: `visuals.json`)
 - `--provider <provider>`: stock footage provider id (default: `pexels`)
+- `--orientation <type>`: `portrait|landscape|square` (default: `portrait`)
+- `--mock`: use mock visuals (no API calls)
 
 ## Global options
 
@@ -31,6 +33,7 @@ cm visuals [options]
 
 - `0`: success
 - `1`: failure
+- `2`: invalid arguments / missing files / invalid JSON
 
 ## Examples
 

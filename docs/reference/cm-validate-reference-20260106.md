@@ -26,7 +26,7 @@ cm validate [options] <videoPath>
 - `--quality`: enable visual quality gate (BRISQUE) via Python (default: false)
 - `--quality-sample-rate <n>`: analyze every Nth frame (BRISQUE) (default: `30`)
 - `-o, --output <path>`: output report file path (default: `validate.json`)
-- `--json`: print a schema-versioned JSON envelope to stdout (default: false)
+- `--report-json`: print the full report JSON to stdout (not envelope) (default: false)
 
 ## Global options
 
@@ -37,12 +37,13 @@ cm validate [options] <videoPath>
 
 - `0`: validation passed
 - `1`: validation failed or command error
+- `2`: invalid arguments / missing files / invalid JSON
 
 ## Examples
 
 ```bash
 cm validate out/video.mp4 --profile portrait -o out/validate.json
-cm validate out/video.mp4 --json
+cm validate out/video.mp4 --report-json
 cm validate out/video.mp4 --cadence --cadence-engine ffmpeg --cadence-max-median 3 --cadence-threshold 0.3
 cm validate out/video.mp4 --cadence --cadence-engine pyscenedetect --python python
 cm validate out/video.mp4 --quality --python python --quality-sample-rate 30

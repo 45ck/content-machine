@@ -23,6 +23,7 @@ cm audio [options]
 - `-o, --output <path>`: output audio file path (default: `audio.wav`)
 - `--timestamps <path>`: output timestamps file path (default: `timestamps.json`)
 - `--voice <voice>`: TTS voice id (default: `af_heart`)
+- `--mock`: use mock TTS/ASR (writes placeholder audio/timestamps)
 
 ## Global options
 
@@ -33,6 +34,7 @@ cm audio [options]
 
 - `0`: success
 - `1`: failure
+- `2`: invalid arguments / missing files / invalid JSON
 
 ## Examples
 

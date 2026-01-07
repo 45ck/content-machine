@@ -14,20 +14,24 @@ const isTest = process.env.NODE_ENV === 'test' || process.env.VITEST;
 const level = process.env.LOG_LEVEL ?? (isTest ? 'silent' : isDev ? 'debug' : 'info');
 
 // Create logger instance
-export const logger = pino({
-  level,
-  transport:
-    isDev && !isTest
-      ? {
-          target: 'pino-pretty',
-          options: {
-            colorize: true,
-            translateTime: 'HH:MM:ss',
-            ignore: 'pid,hostname',
-          },
-        }
-      : undefined,
-});
+export const logger = pino(
+  {
+    level,
+    transport:
+      isDev && !isTest
+        ? {
+            target: 'pino-pretty',
+            options: {
+              colorize: true,
+              translateTime: 'HH:MM:ss',
+              ignore: 'pid,hostname',
+              destination: 2,
+            },
+          }
+        : undefined,
+  },
+  pino.destination(2)
+);
 
 /**
  * Create a child logger with context

@@ -20,6 +20,7 @@ import { ResearchOutputSchema } from '../../research/schema';
 import type { ResearchOutput } from '../../research/schema';
 import { createResearchOrchestrator } from '../../research/orchestrator';
 import { OpenAIProvider } from '../../core/llm/openai';
+import { SchemaError } from '../../core/errors';
 
 interface GenerateOptions {
   archetype: string;
@@ -307,7 +308,11 @@ async function loadOrRunResearch(
     const raw = await readInputFile(researchOption);
     const parsed = ResearchOutputSchema.safeParse(raw);
     if (!parsed.success) {
-      throw new Error(`Invalid research file: ${parsed.error.message}`);
+      throw new SchemaError('Invalid research file', {
+        path: researchOption,
+        issues: parsed.error.issues,
+        fix: 'Generate research via `cm research -q "<topic>" -o research.json` and pass --research research.json',
+      });
     }
     return parsed.data;
   }

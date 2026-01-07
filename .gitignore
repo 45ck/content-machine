@@ -8,6 +8,13 @@ output/
 *.mp4
 *.mp3
 *.wav
+script.json
+timestamps.json
+visuals.json
+research.json
+publish.json
+score.json
+validate.json
 
 # Logs
 *.log

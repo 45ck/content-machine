@@ -9,6 +9,16 @@ templates/
 connectors/
 docs/research/virality-prediction/
 src/research/
+
+# Common CLI artifact outputs (generated files)
+script.json
+timestamps.json
+visuals.json
+packaging.json
+research.json
+score.json
+publish.json
+validate.json
 *.d.ts
 pnpm-lock.yaml
 package-lock.json

@@ -4,17 +4,19 @@
  * Usage: cm retrieve --index research.index.json --query "redis cache"
  */
 import { Command } from 'commander';
-import ora from 'ora';
-import { handleCommandError, readInputFile } from '../utils';
+import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
 import { HashEmbeddingProvider } from '../../core/embeddings/hash-embedder';
 import { queryResearchEvidenceIndex, parseResearchIndexFile } from '../../research/indexer';
 import { CMError } from '../../core/errors';
+import { createSpinner } from '../progress';
+import { getCliRuntime } from '../runtime';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
 
 interface RetrieveOptions {
   index: string;
   query: string;
   k: string;
-  json: boolean;
+  output: string;
 }
 
 export const retrieveCommand = new Command('retrieve')
@@ -22,9 +24,10 @@ export const retrieveCommand = new Command('retrieve')
   .requiredOption('--index <path>', 'Path to a retrieval index JSON file')
   .requiredOption('-q, --query <query>', 'Query string')
   .option('-k, --k <number>', 'Top-k results', '5')
-  .option('--json', 'Print results as JSON', false)
+  .option('-o, --output <path>', 'Output results JSON file', 'retrieve.json')
   .action(async (options: RetrieveOptions) => {
-    const spinner = ora('Searching index...').start();
+    const runtime = getCliRuntime();
+    const spinner = createSpinner('Searching index...').start();
     try {
       const raw = await readInputFile(options.index);
       const index = parseResearchIndexFile(raw);
@@ -43,20 +46,40 @@ export const retrieveCommand = new Command('retrieve')
         k,
       });
 
-      spinner.stop();
+      const output = { query: options.query, results };
+      await writeOutputFile(options.output, output);
+      spinner.succeed(`Search complete (${results.length} results)`);
 
-      if (options.json) {
-        console.log(JSON.stringify({ query: options.query, results }, null, 2));
+      if (runtime.json) {
+        writeJsonEnvelope(
+          buildJsonEnvelope({
+            command: 'retrieve',
+            args: {
+              index: options.index,
+              query: options.query,
+              k,
+              output: options.output,
+            },
+            outputs: {
+              resultsPath: options.output,
+              results: results.length,
+              topScore: results[0]?.score ?? null,
+            },
+            timingsMs: Date.now() - runtime.startTime,
+          })
+        );
         return;
       }
 
-      console.log(`\nQuery: "${options.query}"`);
-      console.log(`Results: ${results.length}\n`);
-      for (const r of results) {
-        console.log(`- (${r.score.toFixed(3)}) ${r.evidence.title}`);
-        console.log(`  ${r.evidence.url}`);
+      writeStderrLine(`Query: "${options.query}"`);
+      writeStderrLine(`Results: ${results.length}`);
+      for (const r of results.slice(0, 5)) {
+        writeStderrLine(`- (${r.score.toFixed(3)}) ${r.evidence.title}`);
+        writeStderrLine(`  ${r.evidence.url}`);
       }
-      console.log('');
+
+      // Human-mode stdout should be reserved for the primary artifact path.
+      process.stdout.write(`${options.output}\n`);
     } catch (error) {
       spinner.fail('Search failed');
       handleCommandError(error);

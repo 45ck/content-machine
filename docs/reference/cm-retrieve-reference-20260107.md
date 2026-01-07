@@ -13,13 +13,24 @@ cm retrieve [options]
 - `--index <path>`: path to a retrieval index JSON file (required)
 - `-q, --query <query>`: query string (required)
 - `-k, --k <number>`: top-k results (default: `5`)
-- `--json`: print results as JSON (default: false)
+- `-o, --output <path>`: output results JSON file (default: `retrieve.json`)
+
+## Global options
+
+- `-v, --verbose`: enable verbose logging
+- `--json`: print a schema-versioned JSON envelope to stdout
+
+## Exit codes
+
+- `0`: success
+- `1`: failure
+- `2`: invalid arguments / missing files / invalid JSON
 
 ## Examples
 
 ```bash
 cm retrieve --index out/research.index.json --query "redis cache" -k 5
-cm retrieve --index out/research.index.json --query "postgres caching" --json
+cm retrieve --index out/research.index.json --query "postgres caching" --output out/retrieve.json
 ```
 
 ## See also
