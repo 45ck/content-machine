@@ -1,8 +1,23 @@
 import type { PipelineResult } from '../../core/pipeline';
-import type { SyncRatingOutput } from '../../score/sync-schema';
+import type { SyncRatingOutput, SyncRatingLabel } from '../../score/sync-schema';
 
 export type PipelineMode = 'standard' | 'audio-first';
 export type WhisperModel = 'tiny' | 'base' | 'small' | 'medium';
+
+/**
+ * Summary of sync quality rating for CLI output
+ */
+export interface SyncQualitySummary {
+  reportPath: string;
+  rating: number;
+  ratingLabel: SyncRatingLabel;
+  passed: boolean;
+  meanDriftMs: number;
+  maxDriftMs: number;
+  matchRatio: number;
+  errorCount: number;
+  attempts: number;
+}
 
 export interface SyncAttemptSettings {
   pipelineMode: PipelineMode;

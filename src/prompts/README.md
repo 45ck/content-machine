@@ -131,12 +131,12 @@ Render stage uses Remotion (no prompts needed).
 
 ### Current Integration
 
-| Component              | Prompt Source             | Status      |
-| ---------------------- | ------------------------- | ----------- |
-| Script Generator       | `src/script/prompts/`     | ✅ Active   |
-| Keyword Extractor      | `src/visuals/keywords.ts` | ✅ Active   |
-| Stock Footage Search   | Pexels API (no prompts)   | ✅ Active   |
-| AI Image Generation    | `src/prompts/` library    | 🔄 Planned  |
+| Component            | Prompt Source             | Status     |
+| -------------------- | ------------------------- | ---------- |
+| Script Generator     | `src/script/prompts/`     | ✅ Active  |
+| Keyword Extractor    | `src/visuals/keywords.ts` | ✅ Active  |
+| Stock Footage Search | Pexels API (no prompts)   | ✅ Active  |
+| AI Image Generation  | `src/prompts/` library    | 🔄 Planned |
 
 ### Planned Integration
 
@@ -154,10 +154,10 @@ class NanoBananaProvider implements VisualProvider {
       provider: 'gemini',
       limit: 3,
     });
-    
+
     // 2. Select best template (by relevance score)
     const template = results[0]?.template ?? getPrompt(NANO_BANANA_PROMPTS.CINEMATIC_SCENE);
-    
+
     // 3. Render with scene-specific variables
     const prompt = renderPrompt(template, {
       scene_description: scene.visualDirection,
@@ -165,7 +165,7 @@ class NanoBananaProvider implements VisualProvider {
       lighting: this.inferLighting(scene),
       aspect_ratio: '9:16',
     });
-    
+
     // 4. Call Gemini Imagen API
     return await this.geminiClient.generateImage(prompt.user);
   }
@@ -180,10 +180,10 @@ class NanoBananaProvider implements VisualProvider {
 
 Prompts for generating video scripts from topics.
 
-| Template                 | Source            | Use Case               |
-| ------------------------ | ----------------- | ---------------------- |
-| `video-script-generator` | MoneyPrinterTurbo | General video scripts  |
-| `facts-generator`        | ShortGPT          | Facts/trivia shorts    |
+| Template                 | Source            | Use Case              |
+| ------------------------ | ----------------- | --------------------- |
+| `video-script-generator` | MoneyPrinterTurbo | General video scripts |
+| `facts-generator`        | ShortGPT          | Facts/trivia shorts   |
 
 ### Visual Search (`visuals/`)
 
@@ -198,13 +198,13 @@ Prompts for generating stock footage search terms.
 
 Prompts for generating images with Gemini/DALL-E/Nano Banana.
 
-| Template              | Source          | Use Case                        |
-| --------------------- | --------------- | ------------------------------- |
-| `cinematic-scene`     | content-machine | Cinematic B-roll style          |
-| `tech-visualization`  | content-machine | Abstract tech concepts          |
-| `comparison-split`    | content-machine | Side-by-side "X vs Y" visuals   |
-| `person-action`       | content-machine | Lifestyle/person doing action   |
-| `abstract-concept`    | content-machine | Concept-to-metaphor visualization |
+| Template             | Source          | Use Case                          |
+| -------------------- | --------------- | --------------------------------- |
+| `cinematic-scene`    | content-machine | Cinematic B-roll style            |
+| `tech-visualization` | content-machine | Abstract tech concepts            |
+| `comparison-split`   | content-machine | Side-by-side "X vs Y" visuals     |
+| `person-action`      | content-machine | Lifestyle/person doing action     |
+| `abstract-concept`   | content-machine | Concept-to-metaphor visualization |
 
 ---
 
@@ -213,13 +213,13 @@ Prompts for generating images with Gemini/DALL-E/Nano Banana.
 ### Quick Start
 
 ```typescript
-import { 
-  getPrompt, 
-  searchPrompts, 
+import {
+  getPrompt,
+  searchPrompts,
   renderPrompt,
   PromptRegistry,
   PROMPT_IDS,
-  NANO_BANANA_PROMPTS 
+  NANO_BANANA_PROMPTS,
 } from './prompts';
 ```
 
@@ -263,9 +263,9 @@ const rendered = renderPrompt(template, {
   aspect_ratio: '9:16',
 });
 
-console.log(rendered.user);    // The rendered prompt string
-console.log(rendered.system);  // Optional system prompt
-console.log(rendered.meta);    // { templateId, templateVersion, renderedAt, variables }
+console.log(rendered.user); // The rendered prompt string
+console.log(rendered.system); // Optional system prompt
+console.log(rendered.meta); // { templateId, templateVersion, renderedAt, variables }
 ```
 
 ### List All Prompts
@@ -296,9 +296,7 @@ const customTemplate: PromptTemplate = {
   outputFormat: 'json',
   version: '1.0.0',
   template: 'Generate a script about {{topic}}',
-  variables: [
-    { name: 'topic', description: 'The topic', required: true }
-  ],
+  variables: [{ name: 'topic', description: 'The topic', required: true }],
   tags: ['custom', 'script'],
 };
 
@@ -323,7 +321,7 @@ async function selectPromptForScene(scene: Scene): Promise<RenderedPrompt> {
 
   // Step 2: Score and select best template
   let template: PromptTemplate;
-  
+
   if (results.length > 0 && results[0].score > 0.6) {
     // High-confidence match
     template = results[0].template;
@@ -367,22 +365,22 @@ Each template includes metadata to help agents make decisions:
 ```yaml
 # Example template metadata
 id: image-generation/cinematic-scene
-category: image-generation       # What stage of pipeline
-provider: gemini                 # Which AI to use
-outputFormat: text               # Expected output format
+category: image-generation # What stage of pipeline
+provider: gemini # Which AI to use
+outputFormat: text # Expected output format
 tags:
-  - nano-banana                  # For filtering
-  - cinematic                    # Visual style
-  - b-roll                       # Use case
+  - nano-banana # For filtering
+  - cinematic # Visual style
+  - b-roll # Use case
 variables:
   - name: scene_description
     required: true
   - name: mood
     required: false
     default: professional
-examples:                        # Help agents understand output
-  - input: { scene_description: "coffee shop" }
-    output: "Cozy coffee shop interior..."
+examples: # Help agents understand output
+  - input: { scene_description: 'coffee shop' }
+    output: 'Cozy coffee shop interior...'
 ```
 
 ---
@@ -433,8 +431,8 @@ tags:
   - nano-banana
   - custom
 examples:
-  - input: { subject: "a cat" }
-    output: "Generate an image of a cat in photorealistic style..."
+  - input: { subject: 'a cat' }
+    output: 'Generate an image of a cat in photorealistic style...'
 ```
 
 2. The registry automatically loads all YAML files on startup.
@@ -465,6 +463,7 @@ template: |
 ```
 
 Supported features:
+
 - `{{variable}}` - Simple substitution
 - `{{#if variable}}...{{/if}}` - Conditional blocks
 - Default values in variable definitions

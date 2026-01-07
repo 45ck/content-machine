@@ -444,6 +444,25 @@ function writeRenderHumanSummary(params: {
   process.stdout.write(`${params.result.outputPath}\n`);
 }
 
+function logRenderStart(
+  options: Record<string, unknown>,
+  resolvedTemplate: Awaited<ReturnType<typeof resolveVideoTemplate>> | undefined
+): void {
+  logger.info(
+    {
+      input: options.input,
+      audio: options.audio,
+      output: options.output,
+      captionPreset: options.captionPreset,
+      template: resolvedTemplate?.template.id,
+      templateSource: resolvedTemplate ? formatTemplateSource(resolvedTemplate) : undefined,
+      validateTimestamps: options.validateTimestamps,
+      extendVisuals: options.extendVisuals,
+    },
+    'Starting video render'
+  );
+}
+
 async function runRenderCommand(
   options: Record<string, unknown>,
   command: Command,
@@ -460,19 +479,7 @@ async function runRenderCommand(
     timestamps: String(options.timestamps),
   });
 
-  logger.info(
-    {
-      input: options.input,
-      audio: options.audio,
-      output: options.output,
-      captionPreset: options.captionPreset,
-      template: resolvedTemplate?.template.id,
-      templateSource: resolvedTemplate ? formatTemplateSource(resolvedTemplate) : undefined,
-      validateTimestamps: options.validateTimestamps,
-      extendVisuals: options.extendVisuals,
-    },
-    'Starting video render'
-  );
+  logRenderStart(options, resolvedTemplate);
 
   const timestamps = processTimestamps(
     loadedTimestamps,

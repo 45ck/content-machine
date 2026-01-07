@@ -20,6 +20,12 @@ const MODEL_COSTS: Record<string, number> = {
   'claude-3-sonnet-20240229': 3,
   'claude-3-haiku-20240307': 0.25,
   'claude-3-opus-20240229': 15,
+  // Google Gemini
+  'gemini-1.5-flash': 0.075, // $0.075 per 1M input tokens
+  'gemini-1.5-flash-8b': 0.0375,
+  'gemini-1.5-pro': 1.25,
+  'gemini-2.0-flash': 0.1,
+  'gemini-pro': 0.5,
 };
 
 /**

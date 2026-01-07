@@ -117,21 +117,20 @@ Add `cm rate` as optional step in `cm generate`:
 
 ```bash
 # Full pipeline with quality gate
-cm generate "Redis vs PostgreSQL" --sync-quality-check --min-rating 75
+cm generate "Redis vs PostgreSQL" --sync-quality-check --min-sync-rating 75
 ```
 
 #### 2. Auto-Retry on Failure
 
 ```bash
 # Retry with different strategy if rating fails
-cm generate "Redis vs PostgreSQL" --auto-retry-sync --max-retries 2
+cm generate "Redis vs PostgreSQL" --sync-quality-check --auto-retry-sync --min-sync-rating 85
 ```
 
 Strategy escalation order:
 
 1. `standard` (default)
-2. `audio-first` (if standard < threshold)
-3. `forced-align` (if audio-first < threshold)
+2. `audio-first` + `reconcile` (one retry; if standard < threshold)
 
 #### 3. Rating-Based Learning (Future)
 

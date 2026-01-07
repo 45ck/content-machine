@@ -9,8 +9,16 @@ import {
 
 function stubPipelineResult(outputPath: string): PipelineResult {
   return {
-    script: { schemaVersion: '1.0.0', reasoning: 'stub', scenes: [] } as unknown as PipelineResult['script'],
-    audio: { schemaVersion: '1.0.0', audioPath: 'audio.wav', timestamps: { scenes: [], allWords: [], totalDuration: 0 } } as unknown as PipelineResult['audio'],
+    script: {
+      schemaVersion: '1.0.0',
+      reasoning: 'stub',
+      scenes: [],
+    } as unknown as PipelineResult['script'],
+    audio: {
+      schemaVersion: '1.0.0',
+      audioPath: 'audio.wav',
+      timestamps: { scenes: [], allWords: [], totalDuration: 0 },
+    } as unknown as PipelineResult['audio'],
     visuals: {
       schemaVersion: '1.1.0',
       scenes: [],
@@ -73,7 +81,11 @@ function stubRating(passed: boolean): SyncRatingOutput {
 }
 
 describe('runGenerateWithSyncQualityGate', () => {
-  const initial: SyncAttemptSettings = { pipelineMode: 'standard', reconcile: false, whisperModel: 'base' };
+  const initial: SyncAttemptSettings = {
+    pipelineMode: 'standard',
+    reconcile: false,
+    whisperModel: 'base',
+  };
 
   it('runs once and does not rate when disabled', async () => {
     const runAttempt = vi.fn(async () => stubPipelineResult('video-1.mp4'));
@@ -131,7 +143,9 @@ describe('runGenerateWithSyncQualityGate', () => {
   });
 
   it('retries once with audio-first when auto-retry enabled and first attempt fails', async () => {
-    const runAttempt = vi.fn(async (_settings: SyncAttemptSettings) => stubPipelineResult('video.mp4'));
+    const runAttempt = vi.fn(async (_settings: SyncAttemptSettings) =>
+      stubPipelineResult('video.mp4')
+    );
     const rate = vi.fn(async () => stubRating(false));
 
     const config: SyncQualityGateConfig = { enabled: true, autoRetry: true, maxRetries: 1 };
@@ -143,8 +157,14 @@ describe('runGenerateWithSyncQualityGate', () => {
     });
 
     expect(runAttempt).toHaveBeenCalledTimes(2);
-    expect(runAttempt).toHaveBeenNthCalledWith(1, expect.objectContaining({ pipelineMode: 'standard' }));
-    expect(runAttempt).toHaveBeenNthCalledWith(2, expect.objectContaining({ pipelineMode: 'audio-first' }));
+    expect(runAttempt).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ pipelineMode: 'standard' })
+    );
+    expect(runAttempt).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ pipelineMode: 'audio-first' })
+    );
     expect(rate).toHaveBeenCalledTimes(2);
     expect(result.attempts).toBe(2);
     expect(result.finalSettings.pipelineMode).toBe('audio-first');
@@ -152,7 +172,9 @@ describe('runGenerateWithSyncQualityGate', () => {
   });
 
   it('stops retrying when a retry passes', async () => {
-    const runAttempt = vi.fn(async (_settings: SyncAttemptSettings) => stubPipelineResult('video.mp4'));
+    const runAttempt = vi.fn(async (_settings: SyncAttemptSettings) =>
+      stubPipelineResult('video.mp4')
+    );
     const rate = vi.fn(async () => stubRating(true));
     rate.mockResolvedValueOnce(stubRating(false));
 
@@ -170,4 +192,3 @@ describe('runGenerateWithSyncQualityGate', () => {
     expect(result.rating?.passed).toBe(true);
   });
 });
-

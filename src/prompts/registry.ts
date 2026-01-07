@@ -41,7 +41,9 @@ class PromptRegistryImpl {
 
     for (const category of categories) {
       const categoryDir = join(templatesDir, category);
-      const files = readdirSync(categoryDir).filter((f) => f.endsWith('.yaml') || f.endsWith('.yml'));
+      const files = readdirSync(categoryDir).filter(
+        (f) => f.endsWith('.yaml') || f.endsWith('.yml')
+      );
 
       for (const file of files) {
         try {
@@ -249,14 +251,20 @@ export function getPrompt(id: string): PromptTemplate | undefined {
 /**
  * Search prompts by keyword or criteria
  */
-export function searchPrompts(query: string, options: Omit<PromptSearchOptions, 'query'> = {}): PromptSearchResult[] {
+export function searchPrompts(
+  query: string,
+  options: Omit<PromptSearchOptions, 'query'> = {}
+): PromptSearchResult[] {
   return PromptRegistry.search({ ...options, query });
 }
 
 /**
  * Render a prompt template with variables
  */
-export function renderPrompt(template: PromptTemplate, variables: Record<string, unknown>): RenderedPrompt {
+export function renderPrompt(
+  template: PromptTemplate,
+  variables: Record<string, unknown>
+): RenderedPrompt {
   let rendered = template.template;
 
   // Simple variable substitution ({{variable}})
@@ -277,10 +285,13 @@ export function renderPrompt(template: PromptTemplate, variables: Record<string,
   rendered = rendered.replace(/\{\{[^}]+\}\}/g, '');
 
   // Handle simple conditionals ({{#if var}}...{{/if}})
-  rendered = rendered.replace(/\{\{#if\s+(\w+)\}\}([\s\S]*?)\{\{\/if\}\}/g, (_, varName, content) => {
-    const value = variables[varName];
-    return value ? content : '';
-  });
+  rendered = rendered.replace(
+    /\{\{#if\s+(\w+)\}\}([\s\S]*?)\{\{\/if\}\}/g,
+    (_, varName, content) => {
+      const value = variables[varName];
+      return value ? content : '';
+    }
+  );
 
   return {
     system: template.systemPrompt,

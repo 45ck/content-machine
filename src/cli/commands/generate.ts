@@ -12,7 +12,7 @@ import {
   type Archetype,
   type Orientation,
 } from '../../core/config';
-import { handleCommandError, readInputFile } from '../utils';
+import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
 import { FakeLLMProvider } from '../../test/stubs/fake-llm';
 import { createMockScriptResponse } from '../../test/fixtures/mock-scenes.js';
 import { createSpinner } from '../progress';
@@ -24,11 +24,17 @@ import { ResearchOutputSchema } from '../../research/schema';
 import type { ResearchOutput } from '../../research/schema';
 import { createResearchOrchestrator } from '../../research/orchestrator';
 import { OpenAIProvider } from '../../core/llm/openai';
-import { SchemaError } from '../../core/errors';
+import { CMError, SchemaError } from '../../core/errors';
 import { CliProgressObserver, PipelineEventEmitter, type PipelineEvent } from '../../core/events';
 import { formatTemplateSource, resolveVideoTemplate } from '../../render/templates';
 import type { CaptionConfig } from '../../render/schema';
 import type { CaptionPresetName } from '../../render/captions/presets';
+import type { SyncRatingOutput } from '../../score/sync-schema';
+import {
+  runGenerateWithSyncQualityGate,
+  type SyncAttemptSettings,
+  type SyncQualitySummary,
+} from './generate-quality';
 
 /**
  * Sync quality presets for different quality/speed tradeoffs
@@ -178,6 +184,95 @@ function writeDryRunJson(params: {
   process.exit(0);
 }
 
+function parseOptionalInt(value: string | undefined): number | null {
+  if (!value) return null;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function buildGenerateSuccessJsonArgs(params: {
+  topic: string;
+  archetype: string;
+  orientation: string;
+  options: GenerateOptions;
+  templateSpec: string | null;
+  resolvedTemplateId: string | null;
+}): Record<string, unknown> {
+  const { topic, archetype, orientation, options, templateSpec, resolvedTemplateId } = params;
+
+  return {
+    topic,
+    archetype,
+    orientation,
+    template: templateSpec,
+    resolvedTemplateId,
+    fps: options.fps,
+    captionPreset: options.captionPreset,
+    voice: options.voice,
+    durationSeconds: options.duration,
+    output: options.output,
+    keepArtifacts: options.keepArtifacts,
+    mock: options.mock,
+    pipeline: options.pipeline,
+    whisperModel: options.whisperModel ?? null,
+    reconcile: Boolean(options.reconcile),
+    syncPreset: options.syncPreset,
+    syncQualityCheck: Boolean(options.syncQualityCheck),
+    minSyncRating: parseOptionalInt(options.minSyncRating),
+    autoRetrySync: Boolean(options.autoRetrySync),
+  };
+}
+
+function buildGenerateSuccessJsonSyncOutputs(
+  sync: SyncQualitySummary | null | undefined
+): Record<string, unknown> {
+  if (!sync) {
+    return {
+      syncReportPath: null,
+      syncRating: null,
+      syncRatingLabel: null,
+      syncPassed: null,
+      syncMeanDriftMs: null,
+      syncMaxDriftMs: null,
+      syncMatchRatio: null,
+      syncErrorCount: null,
+      syncAttempts: null,
+    };
+  }
+
+  return {
+    syncReportPath: sync.reportPath,
+    syncRating: sync.rating,
+    syncRatingLabel: sync.ratingLabel,
+    syncPassed: sync.passed,
+    syncMeanDriftMs: sync.meanDriftMs,
+    syncMaxDriftMs: sync.maxDriftMs,
+    syncMatchRatio: sync.matchRatio,
+    syncErrorCount: sync.errorCount,
+    syncAttempts: sync.attempts,
+  };
+}
+
+function buildGenerateSuccessJsonOutputs(params: {
+  result: PipelineResult;
+  artifactsDir: string;
+  sync: SyncQualitySummary | null | undefined;
+}): Record<string, unknown> {
+  const { result, artifactsDir, sync } = params;
+
+  return {
+    videoPath: result.outputPath,
+    durationSeconds: result.duration,
+    width: result.width,
+    height: result.height,
+    fps: result.render.fps,
+    fileSizeBytes: result.fileSize,
+    artifactsDir,
+    costs: result.costs ?? null,
+    ...buildGenerateSuccessJsonSyncOutputs(sync),
+  };
+}
+
 function writeSuccessJson(params: {
   topic: string;
   archetype: string;
@@ -208,46 +303,15 @@ function writeSuccessJson(params: {
   writeJsonEnvelope(
     buildJsonEnvelope({
       command: 'generate',
-      args: {
+      args: buildGenerateSuccessJsonArgs({
         topic,
         archetype,
         orientation,
-        template: templateSpec,
+        options,
+        templateSpec,
         resolvedTemplateId,
-        fps: options.fps ?? '30',
-        captionPreset: options.captionPreset ?? 'tiktok',
-        voice: options.voice,
-        durationSeconds: options.duration,
-        output: options.output,
-        keepArtifacts: options.keepArtifacts,
-        mock: options.mock,
-        pipeline: options.pipeline ?? 'standard',
-        whisperModel: options.whisperModel ?? null,
-        reconcile: Boolean(options.reconcile),
-        syncPreset: options.syncPreset ?? 'standard',
-        syncQualityCheck: Boolean(options.syncQualityCheck),
-        minSyncRating: options.minSyncRating ? Number.parseInt(options.minSyncRating, 10) : null,
-        autoRetrySync: Boolean(options.autoRetrySync),
-      },
-      outputs: {
-        videoPath: result.outputPath,
-        durationSeconds: result.duration,
-        width: result.width,
-        height: result.height,
-        fps: result.render.fps,
-        fileSizeBytes: result.fileSize,
-        artifactsDir,
-        costs: result.costs ?? null,
-        syncReportPath: sync?.reportPath ?? null,
-        syncRating: sync?.rating ?? null,
-        syncRatingLabel: sync?.ratingLabel ?? null,
-        syncPassed: sync?.passed ?? null,
-        syncMeanDriftMs: sync?.meanDriftMs ?? null,
-        syncMaxDriftMs: sync?.maxDriftMs ?? null,
-        syncMatchRatio: sync?.matchRatio ?? null,
-        syncErrorCount: sync?.errorCount ?? null,
-        syncAttempts: sync?.attempts ?? null,
-      },
+      }),
+      outputs: buildGenerateSuccessJsonOutputs({ result, artifactsDir, sync }),
       timingsMs: Date.now() - runtime.startTime,
     })
   );
@@ -402,9 +466,7 @@ async function runGeneratePipeline(params: {
       wordsPerPage: params.options.wordsPerPage
         ? parseInt(params.options.wordsPerPage, 10)
         : undefined,
-      maxLinesPerPage: params.options.maxLines
-        ? parseInt(params.options.maxLines, 10)
-        : undefined,
+      maxLinesPerPage: params.options.maxLines ? parseInt(params.options.maxLines, 10) : undefined,
       maxCharsPerLine: params.options.charsPerLine
         ? parseInt(params.options.charsPerLine, 10)
         : undefined,
@@ -491,23 +553,20 @@ function buildSyncQualitySummary(
   };
 }
 
-async function runPipelineWithOptionalSyncQualityGate(params: {
-  topic: string;
-  archetype: Archetype;
-  orientation: Orientation;
-  options: GenerateOptions;
-  resolvedTemplate: Awaited<ReturnType<typeof resolveVideoTemplate>> | undefined;
-  templateDefaults: Record<string, unknown> | undefined;
-  research: ResearchOutput | undefined;
-  llmProvider: FakeLLMProvider | undefined;
-  runtime: ReturnType<typeof getCliRuntime>;
+type GeneratePipelineWithQualityGateParams = Parameters<typeof runGeneratePipeline>[0] & {
   artifactsDir: string;
-}): Promise<{
+};
+
+interface GeneratePipelineWithQualityGateResult {
   result: PipelineResult;
   finalOptions: GenerateOptions;
   sync: SyncQualitySummary | null;
   exitCode: number;
-}> {
+}
+
+async function runPipelineWithOptionalSyncQualityGate(
+  params: GeneratePipelineWithQualityGateParams
+): Promise<GeneratePipelineWithQualityGateResult> {
   if (!params.options.syncQualityCheck) {
     const result = await runGeneratePipeline(params);
     return { result, finalOptions: params.options, sync: null, exitCode: 0 };
@@ -520,10 +579,11 @@ async function runPipelineWithOptionalSyncQualityGate(params: {
     whisperModel: params.options.whisperModel ?? 'base',
   };
 
+  const autoRetry = Boolean(params.options.autoRetrySync);
   const config = {
     enabled: true,
-    autoRetry: Boolean(params.options.autoRetrySync),
-    maxRetries: Boolean(params.options.autoRetrySync) ? 1 : 0,
+    autoRetry,
+    maxRetries: autoRetry ? 1 : 0,
   };
 
   const { rateSyncQuality } = await import('../../score/sync-rater');
@@ -535,7 +595,11 @@ async function runPipelineWithOptionalSyncQualityGate(params: {
       reconcile: settings.reconcile,
       whisperModel: settings.whisperModel,
     };
-    return runGeneratePipeline({ ...params, options: attemptOptions });
+
+    const llmProvider = params.options.mock
+      ? createMockLLMProvider(params.topic)
+      : params.llmProvider;
+    return runGeneratePipeline({ ...params, options: attemptOptions, llmProvider });
   };
 
   const rate = (videoPath: string): Promise<SyncRatingOutput> => {
@@ -561,17 +625,19 @@ async function runPipelineWithOptionalSyncQualityGate(params: {
 
   const rating = outcome.rating;
   if (!rating) {
-    return { result: outcome.pipelineResult, finalOptions: params.options, sync: null, exitCode: 0 };
+    return {
+      result: outcome.pipelineResult,
+      finalOptions: params.options,
+      sync: null,
+      exitCode: 0,
+    };
   }
 
-  const reportPath = join(params.artifactsDir, 'sync-report.json');
-  await writeOutputFile(reportPath, rating);
-
-  for (let i = 0; i < outcome.attemptHistory.length; i++) {
-    const attempt = outcome.attemptHistory[i];
-    if (!attempt.rating) continue;
-    await writeOutputFile(join(params.artifactsDir, `sync-report-attempt${i + 1}.json`), attempt.rating);
-  }
+  const reportPath = await writeSyncQualityReportFiles(
+    params.artifactsDir,
+    rating,
+    outcome.attemptHistory
+  );
 
   const sync = buildSyncQualitySummary(reportPath, rating, outcome.attempts);
   const exitCode = sync.passed ? 0 : 1;
@@ -584,6 +650,23 @@ async function runPipelineWithOptionalSyncQualityGate(params: {
   };
 
   return { result: outcome.pipelineResult, finalOptions, sync, exitCode };
+}
+
+async function writeSyncQualityReportFiles(
+  artifactsDir: string,
+  rating: SyncRatingOutput,
+  attemptHistory: Array<{ rating?: SyncRatingOutput }>
+): Promise<string> {
+  const reportPath = join(artifactsDir, 'sync-report.json');
+  await writeOutputFile(reportPath, rating);
+
+  for (let i = 0; i < attemptHistory.length; i++) {
+    const attempt = attemptHistory[i];
+    if (!attempt.rating) continue;
+    await writeOutputFile(join(artifactsDir, `sync-report-attempt${i + 1}.json`), attempt.rating);
+  }
+
+  return reportPath;
 }
 
 function finalizeGenerateOutput(params: {
@@ -673,7 +756,7 @@ async function runGenerate(
 
   const llmProvider = createGenerateLlmProvider(topic, options, runtime);
 
-  const result = await runGeneratePipeline({
+  const { result, finalOptions, sync, exitCode } = await runPipelineWithOptionalSyncQualityGate({
     topic,
     archetype,
     orientation,
@@ -683,18 +766,21 @@ async function runGenerate(
     research,
     llmProvider,
     runtime,
+    artifactsDir,
   });
 
   finalizeGenerateOutput({
     topic,
     archetype,
     orientation,
-    options,
+    options: finalOptions,
     templateSpec,
     resolvedTemplateId,
     runtime,
     artifactsDir,
     result,
+    sync,
+    exitCode,
   });
 }
 
@@ -761,9 +847,14 @@ function showDryRunSummary(
 function showSuccessSummary(
   result: PipelineResult,
   options: GenerateOptions,
-  artifactsDir: string
+  artifactsDir: string,
+  sync: SyncQualitySummary | null
 ): void {
-  writeStderrLine(chalk.green.bold('Video generated successfully!'));
+  const headline =
+    sync && !sync.passed
+      ? chalk.red.bold('Video generated (sync quality FAILED)')
+      : chalk.green.bold('Video generated successfully!');
+  writeStderrLine(headline);
   writeStderrLine(`   Title: ${result.script.title}`);
   writeStderrLine(`   Duration: ${result.duration.toFixed(1)}s`);
   writeStderrLine(`   Resolution: ${result.width}x${result.height}`);
@@ -772,6 +863,16 @@ function showSuccessSummary(
     writeStderrLine(chalk.gray(`   API Costs: $${result.costs.total.toFixed(4)}`));
     writeStderrLine(chalk.gray(`      - LLM: $${result.costs.llm.toFixed(4)}`));
     writeStderrLine(chalk.gray(`      - TTS: $${result.costs.tts.toFixed(4)}`));
+  }
+
+  if (sync) {
+    const status = sync.passed ? chalk.green('PASSED') : chalk.red('FAILED');
+    writeStderrLine(
+      chalk.gray(
+        `   Sync rating: ${sync.rating}/100 (${sync.ratingLabel}) - ${status} (attempts: ${sync.attempts})`
+      )
+    );
+    writeStderrLine(chalk.gray(`   Sync report: ${sync.reportPath}`));
   }
 
   if (options.keepArtifacts) {
@@ -802,4 +903,113 @@ async function loadOrRunResearch(
   // If it's a file path, load from file
   if (typeof researchOption === 'string') {
     const raw = await readInputFile(researchOption);
-   
+    const parsed = ResearchOutputSchema.safeParse(raw);
+    if (!parsed.success) {
+      throw new SchemaError('Invalid research file', {
+        path: researchOption,
+        issues: parsed.error.issues,
+        fix: 'Generate research via `cm research -q "<topic>" -o research.json` and pass --research research.json',
+      });
+    }
+    return parsed.data;
+  }
+
+  // If it's true (boolean flag), run research automatically
+  const spinner = createSpinner('Stage 0/4: Researching topic...').start();
+
+  const llmProvider = mock
+    ? undefined
+    : process.env.OPENAI_API_KEY
+      ? new OpenAIProvider('gpt-4o-mini', process.env.OPENAI_API_KEY)
+      : undefined;
+
+  const orchestrator = createResearchOrchestrator(
+    {
+      sources: ['hackernews', 'reddit', 'tavily'],
+      limitPerSource: 5,
+      generateAngles: true,
+      maxAngles: 3,
+    },
+    llmProvider
+  );
+
+  try {
+    const result = await orchestrator.research(topic);
+    spinner.succeed('Stage 0/4: Research complete');
+    return result.output;
+  } catch (error) {
+    spinner.fail('Stage 0/4: Research failed');
+    throw error;
+  }
+}
+
+export const generateCommand = new Command('generate')
+  .description('Generate a complete video from a topic')
+  .argument('<topic>', 'Topic for the video')
+  .option('-a, --archetype <type>', 'Content archetype', 'listicle')
+  .option('--template <idOrPath>', 'Video template id or path to template.json')
+  .option('-o, --output <path>', 'Output video file path', 'video.mp4')
+  .option('--orientation <type>', 'Video orientation', 'portrait')
+  .option('--fps <fps>', 'Frames per second', '30')
+  .option(
+    '--caption-preset <preset>',
+    'Caption style preset (tiktok, youtube, reels, bold, minimal, neon)',
+    'tiktok'
+  )
+  .option('--voice <voice>', 'TTS voice to use', 'af_heart')
+  .option('--duration <seconds>', 'Target duration in seconds', '45')
+  .option('--keep-artifacts', 'Keep intermediate files', false)
+  .option('--research [path]', 'Use research (true = auto-run, or path to research.json)')
+  .option(
+    '--pipeline <mode>',
+    'Pipeline mode: standard (default) or audio-first (requires Whisper)',
+    'standard'
+  )
+  .option(
+    '--whisper-model <model>',
+    'Whisper model size: tiny, base (default), small, medium (larger = more accurate but slower)'
+  )
+  .option(
+    '--caption-group-ms <ms>',
+    'Caption grouping window in milliseconds (default: 800, larger = fewer page transitions)'
+  )
+  .option('--reconcile', 'Reconcile ASR output to match original script text for cleaner captions')
+  // Caption display options
+  .option(
+    '--caption-mode <mode>',
+    'Caption display mode: page (default), single (one word at a time), buildup (accumulate per sentence)'
+  )
+  .option(
+    '--words-per-page <count>',
+    'Words per caption page/group (default: 8 for larger sentences)'
+  )
+  .option(
+    '--max-lines <count>',
+    'Maximum lines per caption page (default: 2 for multi-line captions)'
+  )
+  .option(
+    '--chars-per-line <count>',
+    'Maximum characters per line before wrapping (default: 25, words never break mid-word)'
+  )
+  .option(
+    '--caption-animation <animation>',
+    'Caption animation: none (default), fade, slideUp, slideDown, pop, bounce'
+  )
+  // Sync quality options
+  .option(
+    '--sync-preset <preset>',
+    'Sync quality preset: fast, standard, quality, maximum',
+    'standard'
+  )
+  .option('--sync-quality-check', 'Run sync quality rating after render')
+  .option('--min-sync-rating <rating>', 'Minimum acceptable sync rating (0-100)', '75')
+  .option('--auto-retry-sync', 'Auto-retry with better strategy if rating fails')
+  .option('--mock', 'Use mock providers (for testing)')
+  .option('--dry-run', 'Preview configuration without execution')
+  .action(async (topic: string, options: GenerateOptions, command: Command) => {
+    try {
+      await runGenerate(topic, options, command);
+    } catch (error) {
+      handleCommandError(error);
+    }
+  });

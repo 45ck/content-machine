@@ -19,7 +19,7 @@ export const ArchetypeEnum = z.enum(['listicle', 'versus', 'howto', 'myth', 'sto
 
 export const OrientationEnum = z.enum(['portrait', 'landscape', 'square']);
 
-const LLMProviderEnum = z.enum(['openai', 'anthropic']);
+const LLMProviderEnum = z.enum(['openai', 'anthropic', 'gemini']);
 
 const DefaultsSchema = z.object({
   archetype: ArchetypeEnum.default('listicle'),
