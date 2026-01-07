@@ -590,3 +590,66 @@
 [submodule "vendor/research/virality-prediction/TikTok-Virality-Predictor"]
 	path = vendor/research/virality-prediction/TikTok-Virality-Predictor
 	url = https://github.com/juanls1/TikTok-Virality-Predictor.git
+[submodule "vendor/prompt-libraries/awesome-nanobanana-pro"]
+	path = vendor/prompt-libraries/awesome-nanobanana-pro
+	url = https://github.com/ZeroLu/awesome-nanobanana-pro.git
+[submodule "vendor/prompt-libraries/awesome-nano-banana-pro-prompts"]
+	path = vendor/prompt-libraries/awesome-nano-banana-pro-prompts
+	url = https://github.com/YouMind-OpenLab/awesome-nano-banana-pro-prompts.git
+[submodule "vendor/prompt-libraries/awesome-nano-banana-pro-prompts-and-examples"]
+	path = vendor/prompt-libraries/awesome-nano-banana-pro-prompts-and-examples
+	url = https://github.com/ZizheRuan/awesome-nano-banana-pro-prompts-and-examples.git
+[submodule "vendor/prompt-libraries/Awesome-Nano-Banana-images"]
+	path = vendor/prompt-libraries/Awesome-Nano-Banana-images
+	url = https://github.com/PicoTrex/Awesome-Nano-Banana-images.git
+[submodule "vendor/prompt-libraries/awesome-nano-banana-jimmylv"]
+	path = vendor/prompt-libraries/awesome-nano-banana-jimmylv
+	url = https://github.com/JimmyLv/awesome-nano-banana.git
+[submodule "vendor/prompt-libraries/awesome-nano-banana-supermaker"]
+	path = vendor/prompt-libraries/awesome-nano-banana-supermaker
+	url = https://github.com/Super-Maker-AI/awesome-nano-banana.git
+[submodule "vendor/prompt-libraries/nanoBananaPrompts"]
+	path = vendor/prompt-libraries/nanoBananaPrompts
+	url = https://github.com/GarvitOfficial/nanoBananaPrompts.git
+[submodule "vendor/prompt-libraries/awesome-gemini-ai"]
+	path = vendor/prompt-libraries/awesome-gemini-ai
+	url = https://github.com/ZeroLu/awesome-gemini-ai.git
+[submodule "vendor/gemini/cookbook"]
+	path = vendor/gemini/cookbook
+	url = https://github.com/google-gemini/cookbook.git
+[submodule "vendor/gemini/veo-nanobanana-quickstart"]
+	path = vendor/gemini/veo-nanobanana-quickstart
+	url = https://github.com/google-gemini/veo-3-nano-banana-gemini-api-quickstart.git
+[submodule "vendor/gemini/GeminiGenerator"]
+	path = vendor/gemini/GeminiGenerator
+	url = https://github.com/2b3pro/GeminiGenerator.git
+[submodule "vendor/video-effects/kburns-slideshow"]
+	path = vendor/video-effects/kburns-slideshow
+	url = https://github.com/Trekky12/kburns-slideshow.git
+[submodule "vendor/video-effects/ffmpeg_video_generation"]
+	path = vendor/video-effects/ffmpeg_video_generation
+	url = https://github.com/MiichelleZhou/ffmpeg_video_generation.git
+[submodule "vendor/video-effects/ffmpeg-cheatsheet"]
+	path = vendor/video-effects/ffmpeg-cheatsheet
+	url = https://github.com/rendi-api/ffmpeg-cheatsheet.git
+[submodule "vendor/video-effects/DepthFlow"]
+	path = vendor/video-effects/DepthFlow
+	url = https://github.com/BrokenSource/DepthFlow.git
+[submodule "vendor/video-effects/ComfyUI-Depthflow-Nodes"]
+	path = vendor/video-effects/ComfyUI-Depthflow-Nodes
+	url = https://github.com/akatz-ai/ComfyUI-Depthflow-Nodes.git
+[submodule "vendor/frame-interpolation/FILM"]
+	path = vendor/frame-interpolation/FILM
+	url = https://github.com/google-research/frame-interpolation.git
+[submodule "vendor/frame-interpolation/RIFE"]
+	path = vendor/frame-interpolation/RIFE
+	url = https://github.com/hzwer/ECCV2022-RIFE.git
+[submodule "vendor/awesome-lists/awesome-image-to-video"]
+	path = vendor/awesome-lists/awesome-image-to-video
+	url = https://github.com/wqooops/awesome-image-to-video.git
+[submodule "vendor/awesome-lists/awesome-video-generation"]
+	path = vendor/awesome-lists/awesome-video-generation
+	url = https://github.com/AlonzoLeeeooo/awesome-video-generation.git
+[submodule "vendor/awesome-lists/Awesome-Video-Diffusion"]
+	path = vendor/awesome-lists/Awesome-Video-Diffusion
+	url = https://github.com/showlab/Awesome-Video-Diffusion.git
