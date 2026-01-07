@@ -48,8 +48,16 @@ export function buildAlignmentSections(script: ScriptOutput): SpokenSection[] {
   const lastSceneText =
     scenes.length > 0 ? normalizeSpokenText(scenes[scenes.length - 1].text) : '';
 
+  // Check if hook is already included in first scene to prevent duplication
+  // The LLM often returns a hook field AND includes the hook in scene 1
   const hookText = script.hook ? normalizeSpokenText(script.hook) : '';
-  if (hookText && hookText !== firstSceneText) {
+  const hookAlreadyInScene1 =
+    hookText &&
+    (hookText === firstSceneText ||
+      firstSceneText.startsWith(hookText) ||
+      firstSceneText.includes(hookText));
+
+  if (hookText && !hookAlreadyInScene1) {
     sections.push({ id: 'hook', text: script.hook! });
   }
 

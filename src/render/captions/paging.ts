@@ -63,6 +63,17 @@ const DEFAULT_LAYOUT: CaptionLayout = {
 };
 
 /**
+ * Check if a word ends with sentence-ending punctuation
+ * This triggers a new caption page after the sentence
+ */
+function endsWithSentencePunctuation(word: string): boolean {
+  const trimmed = word.trim();
+  // Check for sentence-ending punctuation: . ! ?
+  // But not abbreviations like "U.S." or ellipsis "..."
+  return /[.!?]$/.test(trimmed) && !/\.\.\.$/.test(trimmed);
+}
+
+/**
  * Calculate the character count for a line of words
  * Includes spaces between words
  */
@@ -168,18 +179,21 @@ export function createCaptionPages(
     // Check if we've hit max words per page
     const exceedsWordLimit = currentPageWords.length >= config.maxWordsPerPage;
 
-    // Force new page on time gap or word limit
-    if (hasTimeGap || exceedsWordLimit) {
+    // Check if previous word ended a sentence (triggers new page)
+    // Only trigger if we have at least minWordsPerPage on current page
+    const prevEndedSentence =
+      prevWord &&
+      endsWithSentencePunctuation(prevWord.text) &&
+      currentPageWords.length >= (config.minWordsPerPage ?? 1);
+
+    // Force new page on time gap, word limit, or sentence boundary
+    if (hasTimeGap || exceedsWordLimit || prevEndedSentence) {
       finalizeCurrentPage();
       currentPageStartMs = word.startMs;
     }
 
     // Check if adding this word would exceed line character limit
-    const exceedsLineLimit = wouldExceedLineLimit(
-      currentLineWords,
-      word,
-      config.maxCharsPerLine
-    );
+    const exceedsLineLimit = wouldExceedLineLimit(currentLineWords, word, config.maxCharsPerLine);
 
     if (exceedsLineLimit) {
       // Finalize current line

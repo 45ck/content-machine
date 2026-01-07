@@ -306,6 +306,53 @@ describe('createCaptionPages', () => {
       expect(pages[1].text).toContain('two.');
     });
 
+    it('starts new page after period even without time gap', () => {
+      // Two sentences spoken continuously - should still split on period
+      const words = createWords(['This', 'is', 'one.', 'This', 'is', 'two.']);
+
+      const pages = createCaptionPages(words, {
+        maxCharsPerLine: 100,
+        maxLinesPerPage: 5,
+        maxWordsPerPage: 20,
+        maxGapMs: 10000, // High gap so time gap doesn't trigger
+      });
+
+      // Should create 2 pages (one per sentence due to punctuation)
+      expect(pages.length).toBe(2);
+      expect(pages[0].text).toContain('one.');
+      expect(pages[1].text).toContain('two.');
+    });
+
+    it('starts new page after exclamation mark', () => {
+      const words = createWords(['Wow!', 'That', 'is', 'amazing.']);
+
+      const pages = createCaptionPages(words, {
+        maxCharsPerLine: 100,
+        maxLinesPerPage: 5,
+        maxWordsPerPage: 20,
+      });
+
+      // Should split after "Wow!"
+      expect(pages.length).toBe(2);
+      expect(pages[0].text).toBe('Wow!');
+      expect(pages[1].text).toContain('amazing');
+    });
+
+    it('starts new page after question mark', () => {
+      const words = createWords(['Ready?', 'Here', 'we', 'go!']);
+
+      const pages = createCaptionPages(words, {
+        maxCharsPerLine: 100,
+        maxLinesPerPage: 5,
+        maxWordsPerPage: 20,
+      });
+
+      // Should split after "Ready?"
+      expect(pages.length).toBe(2);
+      expect(pages[0].text).toBe('Ready?');
+      expect(pages[1].text).toContain('go!');
+    });
+
     it('keeps short sentences together on one page', () => {
       // Single short sentence should stay together
       const words = createWords(['Hello', 'world!']);
@@ -318,6 +365,22 @@ describe('createCaptionPages', () => {
 
       expect(pages.length).toBe(1);
       expect(pages[0].words.length).toBe(2);
+    });
+
+    it('does not split on ellipsis', () => {
+      // Ellipsis should not trigger new page
+      const words = createWords(['Wait...', 'something', 'is', 'happening!']);
+
+      const pages = createCaptionPages(words, {
+        maxCharsPerLine: 100,
+        maxLinesPerPage: 5,
+        maxWordsPerPage: 20,
+      });
+
+      // Ellipsis should NOT trigger split, only the final ! should
+      expect(pages.length).toBe(1);
+      expect(pages[0].text).toContain('Wait...');
+      expect(pages[0].text).toContain('happening!');
     });
   });
 
