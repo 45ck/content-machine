@@ -50,6 +50,9 @@ export {
   PRESET_BOLD_IMPACT,
   PRESET_MINIMAL,
   PRESET_NEON,
+  PRESET_CAPCUT_BOLD,
+  PRESET_HORMOZI,
+  PRESET_KARAOKE,
   type CaptionPresetName,
   getCaptionPreset,
   getCaptionPresetWithOverrides,
@@ -63,3 +66,17 @@ export {
   type CaptionLine,
   type CaptionPage,
 } from './paging';
+
+// Chunking utilities (TikTok-native)
+export {
+  createCaptionChunks,
+  detectEmphasis,
+  layoutToChunkingConfig,
+  chunkToPage,
+  type ChunkedWord,
+  type CaptionChunk,
+  type ChunkingConfig,
+} from './chunking';
+
+// Emphasis types
+export { type EmphasisType, type EmphasisStyle } from './config';

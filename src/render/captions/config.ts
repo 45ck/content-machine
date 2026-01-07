@@ -105,6 +105,37 @@ export const TextShadowSchema = z.object({
 export type TextShadow = z.infer<typeof TextShadowSchema>;
 
 /**
+ * Emphasis type - what makes a word emphasized
+ */
+export const EmphasisTypeSchema = z.enum([
+  'number', // "5", "100%", "$50"
+  'power', // "never", "always", "best", "worst"
+  'negation', // "don't", "can't", "won't", "no"
+  'pause', // Last word before a significant pause
+  'punctuation', // Word before ! or ?
+]);
+export type EmphasisType = z.infer<typeof EmphasisTypeSchema>;
+
+/**
+ * Emphasis style configuration
+ */
+export const EmphasisStyleSchema = z.object({
+  /** Enable emphasis detection */
+  enabled: z.boolean().default(true),
+  /** Scale factor for emphasized words (1.0 = no scale) */
+  scale: z.number().min(1).max(2).default(1.15),
+  /** Different color for emphasized words (null = use highlight color) */
+  color: z.string().nullable().default(null),
+  /** Stronger stroke for emphasis */
+  strokeMultiplier: z.number().min(1).max(3).default(1.5),
+  /** Pop animation on emphasis */
+  animatePop: z.boolean().default(true),
+  /** Types of emphasis to detect */
+  detectTypes: z.array(EmphasisTypeSchema).default(['number', 'power', 'negation', 'pause']),
+});
+export type EmphasisStyle = z.infer<typeof EmphasisStyleSchema>;
+
+/**
  * Layout configuration - controls how words are grouped into pages
  *
  * IMPORTANT: Words are NEVER broken mid-word. Full words only.
@@ -121,6 +152,12 @@ export const CaptionLayoutSchema = z.object({
   minWordsPerPage: z.number().int().positive().default(1),
   /** Maximum words per page (fallback if char limit not hit) */
   maxWordsPerPage: z.number().int().positive().default(8),
+  /** Maximum characters per second for readability (TikTok native: ~15 CPS) */
+  maxCharsPerSecond: z.number().positive().default(15),
+  /** Minimum on-screen time in ms (prevents flashing chunks) */
+  minOnScreenMs: z.number().int().positive().default(350),
+  /** Minimum gap between chunks in ms (breathing room) */
+  chunkGapMs: z.number().int().nonnegative().default(50),
 });
 export type CaptionLayout = z.infer<typeof CaptionLayoutSchema>;
 
@@ -191,6 +228,10 @@ export const CaptionConfigSchema = z.object({
   /** Text shadow configuration */
   shadow: TextShadowSchema.default({}),
 
+  // === EMPHASIS ===
+  /** Emphasis styling for power words, numbers, etc. */
+  emphasis: EmphasisStyleSchema.default({}),
+
   // === LAYOUT ===
   /** How words are grouped into pages/lines */
   layout: CaptionLayoutSchema.default({}),
@@ -221,6 +262,8 @@ export type StrokeStyleInput = z.input<typeof StrokeStyleSchema>;
 export type CaptionLayoutInput = z.input<typeof CaptionLayoutSchema>;
 /** Input type for TextShadow (before Zod transforms apply defaults) */
 export type TextShadowInput = z.input<typeof TextShadowSchema>;
+/** Input type for EmphasisStyle (before Zod transforms apply defaults) */
+export type EmphasisStyleInput = z.input<typeof EmphasisStyleSchema>;
 /** Input type for PositionOffset (before Zod transforms apply defaults) */
 export type PositionOffsetInput = z.input<typeof PositionOffsetSchema>;
 

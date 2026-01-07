@@ -60,6 +60,9 @@ const DEFAULT_LAYOUT: CaptionLayout = {
   maxGapMs: 1000,
   minWordsPerPage: 1,
   maxWordsPerPage: 8,
+  maxCharsPerSecond: 15,
+  minOnScreenMs: 350,
+  chunkGapMs: 50,
 };
 
 /**

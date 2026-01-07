@@ -125,12 +125,26 @@ describe('Caption Presets Multi-Line Support', () => {
       }
     });
 
-    it('all presets have maxGapMs >= 500', () => {
+    it('traditional presets have maxGapMs >= 500', () => {
+      // Short-form presets (capcut, hormozi, karaoke) intentionally use faster pacing
+      const shortFormPresets = ['capcut', 'hormozi', 'karaoke'];
       for (const [name, preset] of Object.entries(CAPTION_STYLE_PRESETS)) {
+        if (shortFormPresets.includes(name)) continue;
         expect(
           preset.layout.maxGapMs,
           `${name} should have maxGapMs >= 500`
         ).toBeGreaterThanOrEqual(500);
+      }
+    });
+
+    it('short-form presets have faster pacing (maxGapMs >= 300)', () => {
+      const shortFormPresets = ['capcut', 'hormozi', 'karaoke'];
+      for (const [name, preset] of Object.entries(CAPTION_STYLE_PRESETS)) {
+        if (!shortFormPresets.includes(name)) continue;
+        expect(
+          preset.layout.maxGapMs,
+          `${name} should have maxGapMs >= 300 for fast pacing`
+        ).toBeGreaterThanOrEqual(300);
       }
     });
   });

@@ -196,6 +196,7 @@ function resolveCaptionConfig(options: RenderVideoOptions): CaptionConfig {
       shadow: { ...preset.shadow, ...options.captionConfig.shadow },
       layout: { ...preset.layout, ...options.captionConfig.layout, ...layoutOverride },
       positionOffset: { ...preset.positionOffset, ...options.captionConfig.positionOffset },
+      emphasis: { ...preset.emphasis, ...options.captionConfig.emphasis },
     };
   }
 

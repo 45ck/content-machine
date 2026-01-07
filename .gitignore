@@ -2,6 +2,7 @@ node_modules/
 dist/
 .env
 .env.local
+.content-machine.toml
 
 # Output
 output/

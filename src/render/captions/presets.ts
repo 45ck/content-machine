@@ -3,6 +3,8 @@
  *
  * These are complete, tested styles that work well for short-form content.
  * Users can use these as-is or as a starting point for customization.
+ *
+ * NEW: CapCut-native presets use smaller chunks (3-4 words) with emphasis
  */
 import { CaptionConfig, CaptionConfigSchema } from './config';
 
@@ -270,6 +272,181 @@ export const PRESET_NEON: CaptionConfig = CaptionConfigSchema.parse({
 });
 
 /**
+ * CapCut Bold Style
+ *
+ * Native CapCut look: bold, tight chunks, kinetic feel.
+ * Small word groups (3-4 words) for rapid reading.
+ * Emphasis on power words with scale animation.
+ */
+export const PRESET_CAPCUT_BOLD: CaptionConfig = CaptionConfigSchema.parse({
+  fontFamily: 'Inter',
+  fontSize: 80,
+  fontWeight: 'black',
+  textTransform: 'uppercase',
+  textColor: '#FFFFFF',
+  highlightColor: '#FFFFFF',
+  highlightMode: 'background',
+  pillStyle: {
+    color: '#FF0050',
+    borderRadius: 6,
+    paddingX: 16,
+    paddingY: 10,
+  },
+  stroke: {
+    color: '#000000',
+    width: 4,
+    useWebkitStroke: true,
+  },
+  shadow: {
+    enabled: true,
+    color: 'rgba(0,0,0,0.8)',
+    offsetX: 0,
+    offsetY: 4,
+    blur: 0,
+  },
+  emphasis: {
+    enabled: true,
+    scale: 1.2,
+    color: '#FFE600',
+    strokeMultiplier: 1.5,
+    animatePop: true,
+    detectTypes: ['number', 'power', 'negation', 'pause'],
+  },
+  layout: {
+    maxCharsPerLine: 20,
+    maxLinesPerPage: 1,
+    maxGapMs: 500,
+    minWordsPerPage: 2,
+    maxWordsPerPage: 4,
+    maxCharsPerSecond: 12,
+    minOnScreenMs: 400,
+    chunkGapMs: 60,
+  },
+  position: 'bottom',
+  positionOffset: {
+    edgeDistance: 30,
+    horizontalPadding: 40,
+  },
+  pageAnimation: 'pop',
+  animationDuration: 180,
+});
+
+/**
+ * Hormozi Style
+ *
+ * Alex Hormozi-inspired captions: high impact, centered,
+ * one powerful phrase at a time. Maximum emphasis on numbers
+ * and power words.
+ */
+export const PRESET_HORMOZI: CaptionConfig = CaptionConfigSchema.parse({
+  fontFamily: 'Inter',
+  fontSize: 88,
+  fontWeight: 'black',
+  textTransform: 'uppercase',
+  textColor: '#FFFFFF',
+  highlightColor: '#FFE600',
+  highlightMode: 'color',
+  stroke: {
+    color: '#000000',
+    width: 5,
+    useWebkitStroke: true,
+  },
+  shadow: {
+    enabled: true,
+    color: 'rgba(0,0,0,0.9)',
+    offsetX: 0,
+    offsetY: 5,
+    blur: 0,
+  },
+  emphasis: {
+    enabled: true,
+    scale: 1.25,
+    color: '#00FF00',
+    strokeMultiplier: 1.8,
+    animatePop: true,
+    detectTypes: ['number', 'power', 'negation'],
+  },
+  layout: {
+    maxCharsPerLine: 15,
+    maxLinesPerPage: 1,
+    maxGapMs: 400,
+    minWordsPerPage: 1,
+    maxWordsPerPage: 3,
+    maxCharsPerSecond: 10,
+    minOnScreenMs: 450,
+    chunkGapMs: 80,
+  },
+  position: 'center',
+  positionOffset: {
+    edgeDistance: 0,
+    horizontalPadding: 60,
+  },
+  pageAnimation: 'bounce',
+  animationDuration: 220,
+});
+
+/**
+ * Karaoke Pill Style
+ *
+ * Word-by-word highlighting like karaoke apps.
+ * Each word gets its moment with a smooth color transition.
+ */
+export const PRESET_KARAOKE: CaptionConfig = CaptionConfigSchema.parse({
+  fontFamily: 'Inter',
+  fontSize: 68,
+  fontWeight: 'bold',
+  textTransform: 'none',
+  textColor: 'rgba(255,255,255,0.6)',
+  highlightColor: '#FFFFFF',
+  highlightMode: 'background',
+  inactiveOpacity: 0.6,
+  pillStyle: {
+    color: '#6C5CE7',
+    borderRadius: 8,
+    paddingX: 12,
+    paddingY: 6,
+  },
+  stroke: {
+    color: '#000000',
+    width: 2,
+    useWebkitStroke: true,
+  },
+  shadow: {
+    enabled: true,
+    color: 'rgba(0,0,0,0.5)',
+    offsetX: 0,
+    offsetY: 2,
+    blur: 8,
+  },
+  emphasis: {
+    enabled: false,
+    scale: 1.0,
+    color: null,
+    strokeMultiplier: 1.0,
+    animatePop: false,
+    detectTypes: [],
+  },
+  layout: {
+    maxCharsPerLine: 28,
+    maxLinesPerPage: 2,
+    maxGapMs: 1000,
+    minWordsPerPage: 3,
+    maxWordsPerPage: 8,
+    maxCharsPerSecond: 18,
+    minOnScreenMs: 300,
+    chunkGapMs: 30,
+  },
+  position: 'bottom',
+  positionOffset: {
+    edgeDistance: 18,
+    horizontalPadding: 50,
+  },
+  pageAnimation: 'fade',
+  animationDuration: 150,
+  wordTransitionMs: 80,
+});
+
+/**
  * All available presets
  */
 export const CAPTION_STYLE_PRESETS = {
@@ -279,6 +456,9 @@ export const CAPTION_STYLE_PRESETS = {
   bold: PRESET_BOLD_IMPACT,
   minimal: PRESET_MINIMAL,
   neon: PRESET_NEON,
+  capcut: PRESET_CAPCUT_BOLD,
+  hormozi: PRESET_HORMOZI,
+  karaoke: PRESET_KARAOKE,
 } as const;
 
 export type CaptionPresetName = keyof typeof CAPTION_STYLE_PRESETS;
@@ -312,5 +492,6 @@ export function getCaptionPresetWithOverrides(
     shadow: { ...preset.shadow, ...overrides.shadow },
     layout: { ...preset.layout, ...overrides.layout },
     positionOffset: { ...preset.positionOffset, ...overrides.positionOffset },
+    emphasis: { ...preset.emphasis, ...overrides.emphasis },
   });
 }
