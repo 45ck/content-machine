@@ -29,10 +29,7 @@ function normalizeSpokenText(text: string): string {
   return text.replace(/\s+/g, ' ').trim();
 }
 
-function resolveTotalDuration(
-  totalDuration: number | undefined,
-  words: WordTimestamp[]
-): number {
+function resolveTotalDuration(totalDuration: number | undefined, words: WordTimestamp[]): number {
   if (typeof totalDuration === 'number' && Number.isFinite(totalDuration)) {
     return totalDuration;
   }

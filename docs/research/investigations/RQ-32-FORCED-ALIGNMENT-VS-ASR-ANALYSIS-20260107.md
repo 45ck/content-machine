@@ -10,6 +10,7 @@
 ## 1. Problem Statement
 
 When TTS engines don't provide native timestamps, we must choose between:
+
 1. **ASR-based timing** - Transcribe audio, extract word timestamps
 2. **Forced alignment** - Align known text to audio
 
@@ -26,10 +27,12 @@ Audio (unknown content) → ASR Model → Recognized text + timestamps
 ```
 
 **ASR must solve TWO problems:**
+
 1. What words are spoken? (recognition)
 2. When are they spoken? (timing)
 
 **Error sources:**
+
 - Misrecognition ("gonna" → "going to")
 - Hallucinations (model invents words)
 - Missed words (fast speech, mumbling)
@@ -41,6 +44,7 @@ Audio + Known text → Alignment Model → Timestamps for known words
 ```
 
 **Forced alignment solves ONE problem:**
+
 1. When are the known words spoken? (timing only)
 
 **Advantage:** No recognition errors—we already know the text.
@@ -62,7 +66,7 @@ def generate_subtitle(audio_file, script_text, provider="edge"):
     else:
         # Fallback: Whisper ASR
         timestamps = whisper_transcribe(audio_file)
-    
+
     # CRITICAL: Reconcile ASR output to script
     aligned = match_to_script(timestamps, script_text)
     return aligned
@@ -72,10 +76,10 @@ def match_to_script(asr_words, script):
     script_sentences = split_by_punctuation(script)
     matched = []
     accumulated = ""
-    
+
     for word in asr_words:
         accumulated += word.text
-        
+
         for sentence in script_sentences:
             if similarity(accumulated, sentence) > 0.8:
                 matched.append({
@@ -85,7 +89,7 @@ def match_to_script(asr_words, script):
                 })
                 accumulated = ""
                 break
-    
+
     return matched
 ```
 
@@ -102,7 +106,7 @@ def getCaptionsWithTime(whisper_analysis, maxCaptionSize=15):
     all_words = []
     for segment in whisper_analysis['segments']:
         all_words.extend(segment['words'])
-    
+
     # Group words into caption chunks
     chunks = []
     current = []
@@ -115,7 +119,7 @@ def getCaptionsWithTime(whisper_analysis, maxCaptionSize=15):
                 "text": " ".join(w["word"] for w in current)  # ASR text!
             })
             current = []
-    
+
     return chunks
 ```
 
@@ -132,11 +136,11 @@ def align(segments, align_model, audio):
     for segment in segments:
         text = segment["text"]
         audio_segment = crop_audio(audio, segment["start"], segment["end"])
-        
+
         # Character-level alignment
         char_probs = align_model(audio_segment)
         char_segments = forced_align(char_probs, text)
-        
+
         # Aggregate to word level
         word_segments = []
         for word in text.split():
@@ -147,9 +151,9 @@ def align(segments, align_model, audio):
                 "end": word_chars[-1]["end"],
                 "score": mean(c["score"] for c in word_chars)
             })
-        
+
         segment["words"] = word_segments
-    
+
     return segments
 ```
 
@@ -167,15 +171,15 @@ from aeneas.task import Task
 def align_audio_text(audio_path, text_path, output_path):
     """Forced alignment with Aeneas."""
     config = "task_language=eng|os_task_file_format=json|is_text_type=plain"
-    
+
     task = Task(config_string=config)
     task.audio_file_path_absolute = audio_path
     task.text_file_path_absolute = text_path
     task.sync_map_file_path_absolute = output_path
-    
+
     ExecuteTask(task).execute()
     task.output_sync_map_file()
-    
+
     return task.sync_map  # List of (start, end, text) tuples
 ```
 
@@ -184,11 +188,11 @@ def align_audio_text(audio_path, text_path, output_path):
 ```json
 {
   "fragments": [
-    {"begin": "0.000", "end": "0.520", "id": "f001", "lines": ["Hello"]},
-    {"begin": "0.520", "end": "0.980", "id": "f002", "lines": ["world"]},
-    {"begin": "0.980", "end": "1.640", "id": "f003", "lines": ["how"]},
-    {"begin": "1.640", "end": "2.100", "id": "f004", "lines": ["are"]},
-    {"begin": "2.100", "end": "2.500", "id": "f005", "lines": ["you"]}
+    { "begin": "0.000", "end": "0.520", "id": "f001", "lines": ["Hello"] },
+    { "begin": "0.520", "end": "0.980", "id": "f002", "lines": ["world"] },
+    { "begin": "0.980", "end": "1.640", "id": "f003", "lines": ["how"] },
+    { "begin": "1.640", "end": "2.100", "id": "f004", "lines": ["are"] },
+    { "begin": "2.100", "end": "2.500", "id": "f005", "lines": ["you"] }
   ]
 }
 ```
@@ -199,22 +203,22 @@ def align_audio_text(audio_path, text_path, output_path):
 
 ### 4.1 ASR Algorithms
 
-| Algorithm | Accuracy | Speed | GPU Required | Notes |
-|-----------|----------|-------|--------------|-------|
-| whisper.cpp | Good | 10x RT | No | Best for CPU deployment |
-| faster-whisper | Good | 70x RT | Optional | Quantized, efficient |
-| WhisperX | Excellent | 70x RT | Recommended | Includes forced alignment |
-| whisper-timestamped | Good | 5x RT | Yes | DTW attention alignment |
+| Algorithm           | Accuracy  | Speed  | GPU Required | Notes                     |
+| ------------------- | --------- | ------ | ------------ | ------------------------- |
+| whisper.cpp         | Good      | 10x RT | No           | Best for CPU deployment   |
+| faster-whisper      | Good      | 70x RT | Optional     | Quantized, efficient      |
+| WhisperX            | Excellent | 70x RT | Recommended  | Includes forced alignment |
+| whisper-timestamped | Good      | 5x RT  | Yes          | DTW attention alignment   |
 
 ### 4.2 Forced Alignment Algorithms
 
-| Algorithm | Accuracy | Speed | Requirements | Notes |
-|-----------|----------|-------|--------------|-------|
-| WhisperX wav2vec2 | Excellent | 70x RT | HuggingFace models | Character-level |
-| Aeneas | Good | ~1x RT | espeak, ffmpeg | Sentence-level default |
-| Montreal Forced Aligner | Excellent | ~1x RT | Kaldi, dictionaries | Research-grade |
-| Gentle | Good | ~1x RT | Docker | Tolerant of mismatch |
-| PyTorch forced_align | Excellent | ~5x RT | torchaudio | Built-in CTC alignment |
+| Algorithm               | Accuracy  | Speed  | Requirements        | Notes                  |
+| ----------------------- | --------- | ------ | ------------------- | ---------------------- |
+| WhisperX wav2vec2       | Excellent | 70x RT | HuggingFace models  | Character-level        |
+| Aeneas                  | Good      | ~1x RT | espeak, ffmpeg      | Sentence-level default |
+| Montreal Forced Aligner | Excellent | ~1x RT | Kaldi, dictionaries | Research-grade         |
+| Gentle                  | Good      | ~1x RT | Docker              | Tolerant of mismatch   |
+| PyTorch forced_align    | Excellent | ~5x RT | torchaudio          | Built-in CTC alignment |
 
 ### 4.3 Decision Matrix
 
@@ -250,20 +254,20 @@ def align_audio_text(audio_path, text_path, output_path):
 
 - **Audio:** 20 TTS-generated samples (kokoro-js), 10-60 seconds each
 - **Ground truth:** Manual word-level annotation
-- **Metrics:** 
+- **Metrics:**
   - Word boundary MAE (Mean Absolute Error)
   - Word detection rate (correctly identified words)
   - Timing precision P90 (90th percentile error)
 
 ### 5.2 Results
 
-| Method | MAE (ms) | Detection | P90 (ms) | Notes |
-|--------|----------|-----------|----------|-------|
-| **WhisperX align** | 28 | 100% | 52 | Best overall |
-| **Aeneas word** | 45 | 100% | 85 | Good, no GPU |
-| **whisper.cpp** | 58 | 97% | 110 | Some misrecognition |
-| **faster-whisper** | 52 | 98% | 95 | Good balance |
-| **Character estimate** | 185 | 100% | 320 | Poor timing |
+| Method                 | MAE (ms) | Detection | P90 (ms) | Notes               |
+| ---------------------- | -------- | --------- | -------- | ------------------- |
+| **WhisperX align**     | 28       | 100%      | 52       | Best overall        |
+| **Aeneas word**        | 45       | 100%      | 85       | Good, no GPU        |
+| **whisper.cpp**        | 58       | 97%       | 110      | Some misrecognition |
+| **faster-whisper**     | 52       | 98%       | 95       | Good balance        |
+| **Character estimate** | 185      | 100%      | 320      | Poor timing         |
 
 ### 5.3 Analysis
 
@@ -286,30 +290,27 @@ import { reconcileToScript } from './reconciliation';
 async function getTimestamps(audio: Buffer, script: string): Promise<WordTiming[]> {
   // 1. Run ASR
   const asrWords = await whisperTranscribe(audio);
-  
+
   // 2. Reconcile to original script
   const reconciledWords = reconcileToScript(asrWords, script);
-  
+
   // 3. Validate
   validateTimestamps(reconciledWords, getAudioDuration(audio));
-  
+
   return reconciledWords;
 }
 
-function reconcileToScript(
-  asrWords: ASRWord[], 
-  script: string
-): WordTiming[] {
+function reconcileToScript(asrWords: ASRWord[], script: string): WordTiming[] {
   const scriptWords = script.split(/\s+/);
   const result: WordTiming[] = [];
-  
+
   let asrIndex = 0;
-  
+
   for (const scriptWord of scriptWords) {
     // Find matching ASR word using similarity
     let bestMatch = -1;
     let bestScore = 0;
-    
+
     for (let i = asrIndex; i < Math.min(asrIndex + 5, asrWords.length); i++) {
       const score = similarity(normalize(scriptWord), normalize(asrWords[i].text));
       if (score > bestScore) {
@@ -317,13 +318,13 @@ function reconcileToScript(
         bestMatch = i;
       }
     }
-    
+
     if (bestMatch >= 0 && bestScore > 0.6) {
       result.push({
-        word: scriptWord,  // Use SCRIPT word
+        word: scriptWord, // Use SCRIPT word
         start: asrWords[bestMatch].start,
         end: asrWords[bestMatch].end,
-        confidence: bestScore
+        confidence: bestScore,
       });
       asrIndex = bestMatch + 1;
     } else {
@@ -333,11 +334,11 @@ function reconcileToScript(
         word: scriptWord,
         start: prevEnd,
         end: prevEnd + estimateWordDuration(scriptWord),
-        confidence: 0.5
+        confidence: 0.5,
       });
     }
   }
-  
+
   return result;
 }
 ```
@@ -352,14 +353,11 @@ import { promisify } from 'util';
 
 const execAsync = promisify(exec);
 
-async function forcedAlign(
-  audioPath: string, 
-  script: string
-): Promise<WordTiming[]> {
+async function forcedAlign(audioPath: string, script: string): Promise<WordTiming[]> {
   // Write script to temp file (one word per line for word-level)
   const scriptPath = await writeScriptFile(script);
   const outputPath = getTempPath('sync.json');
-  
+
   // Run Aeneas
   await execAsync(`
     python -m aeneas.tools.execute_task \
@@ -368,15 +366,15 @@ async function forcedAlign(
       "task_language=eng|os_task_file_format=json|is_text_type=plain" \
       "${outputPath}"
   `);
-  
+
   // Parse output
   const syncMap = JSON.parse(await readFile(outputPath, 'utf-8'));
-  
+
   return syncMap.fragments.map((f: any) => ({
     word: f.lines[0],
     start: parseFloat(f.begin),
     end: parseFloat(f.end),
-    confidence: 1.0  // Forced alignment doesn't provide confidence
+    confidence: 1.0, // Forced alignment doesn't provide confidence
   }));
 }
 
@@ -397,19 +395,19 @@ import whisperx
 
 def hybrid_align(audio_path: str, known_script: str = None) -> list:
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    
+
     # Step 1: ASR for initial transcript
     model = whisperx.load_model("large-v2", device)
     audio = whisperx.load_audio(audio_path)
     result = model.transcribe(audio, batch_size=16)
-    
+
     # Step 2: Optional script reconciliation
     if known_script:
         result["segments"] = reconcile_segments(
-            result["segments"], 
+            result["segments"],
             known_script
         )
-    
+
     # Step 3: Forced alignment for precise timing
     align_model, metadata = whisperx.load_align_model("en", device)
     result = whisperx.align(
@@ -419,7 +417,7 @@ def hybrid_align(audio_path: str, known_script: str = None) -> list:
         audio,
         device
     )
-    
+
     # Extract word-level timing
     words = []
     for segment in result["segments"]:
@@ -430,7 +428,7 @@ def hybrid_align(audio_path: str, known_script: str = None) -> list:
                 "end": word["end"],
                 "score": word.get("score", 1.0)
             })
-    
+
     return words
 ```
 
@@ -440,45 +438,42 @@ def hybrid_align(audio_path: str, known_script: str = None) -> list:
 
 ### 7.1 ASR Failure Modes
 
-| Failure | Cause | Solution |
-|---------|-------|----------|
-| Hallucination | Silence interpreted as speech | VAD preprocessing |
-| Misrecognition | Unusual words, accents | Script reconciliation |
-| Missing words | Fast speech, overlapping | Lower confidence threshold |
-| Wrong language | Multilingual content | Specify language explicitly |
+| Failure        | Cause                         | Solution                    |
+| -------------- | ----------------------------- | --------------------------- |
+| Hallucination  | Silence interpreted as speech | VAD preprocessing           |
+| Misrecognition | Unusual words, accents        | Script reconciliation       |
+| Missing words  | Fast speech, overlapping      | Lower confidence threshold  |
+| Wrong language | Multilingual content          | Specify language explicitly |
 
 ### 7.2 Forced Alignment Failure Modes
 
-| Failure | Cause | Solution |
-|---------|-------|----------|
-| Segment too long | >30s audio segment | Chunk by VAD |
-| Missing audio | TTS silence at start | Offset detection |
-| Text mismatch | Script differs from spoken | Validate TTS output |
-| Out of vocabulary | Rare words | Use phonetic fallback |
+| Failure           | Cause                      | Solution              |
+| ----------------- | -------------------------- | --------------------- |
+| Segment too long  | >30s audio segment         | Chunk by VAD          |
+| Missing audio     | TTS silence at start       | Offset detection      |
+| Text mismatch     | Script differs from spoken | Validate TTS output   |
+| Out of vocabulary | Rare words                 | Use phonetic fallback |
 
 ### 7.3 Handling Failures
 
 ```typescript
-async function robustTimestampExtraction(
-  audio: Buffer,
-  script: string
-): Promise<WordTiming[]> {
+async function robustTimestampExtraction(audio: Buffer, script: string): Promise<WordTiming[]> {
   try {
     // Try primary method: whisper.cpp + reconciliation
     const asrWords = await whisperTranscribe(audio);
     const reconciled = reconcileToScript(asrWords, script);
-    
+
     // Validate quality
     const validation = validateTimestamps(reconciled, getAudioDuration(audio));
     if (validation.valid) {
       return reconciled;
     }
-    
+
     console.warn('Primary method had issues:', validation.issues);
   } catch (error) {
     console.error('Primary method failed:', error);
   }
-  
+
   try {
     // Fallback: forced alignment with Aeneas
     console.log('Falling back to Aeneas forced alignment');
@@ -486,7 +481,7 @@ async function robustTimestampExtraction(
   } catch (error) {
     console.error('Aeneas failed:', error);
   }
-  
+
   // Last resort: character-proportional estimation
   console.warn('Using character estimation (low quality)');
   return estimateTimestamps(script, getAudioDuration(audio));
@@ -504,6 +499,7 @@ kokoro-js → whisper.cpp → timestamps.json
 ```
 
 **Issues identified:**
+
 - No script reconciliation (ASR text displayed, not script)
 - Estimation fallback has bugs (fixed in RQ-28)
 - No forced alignment option
@@ -515,6 +511,7 @@ kokoro-js → whisper.cpp → reconcile to script → validate → repair
 ```
 
 **Implementation priority:**
+
 1. ✅ Validation (implemented in validator.ts)
 2. 🔲 Script reconciliation (add Levenshtein matching)
 3. 🔲 Aeneas fallback (for low-confidence results)
@@ -541,22 +538,22 @@ enabled = true                   # NEW: enable forced alignment
 
 ### 9.1 Processing Time (30s audio)
 
-| Method | Time | GPU | Notes |
-|--------|------|-----|-------|
-| whisper.cpp (medium) | 3.0s | No | Fast, CPU-only |
-| faster-whisper | 0.4s | Yes | Fastest with GPU |
-| WhisperX | 0.8s | Yes | Includes alignment |
-| Aeneas | 35s | No | Slow but accurate |
-| Estimation | 0.01s | No | Instant, low quality |
+| Method               | Time  | GPU | Notes                |
+| -------------------- | ----- | --- | -------------------- |
+| whisper.cpp (medium) | 3.0s  | No  | Fast, CPU-only       |
+| faster-whisper       | 0.4s  | Yes | Fastest with GPU     |
+| WhisperX             | 0.8s  | Yes | Includes alignment   |
+| Aeneas               | 35s   | No  | Slow but accurate    |
+| Estimation           | 0.01s | No  | Instant, low quality |
 
 ### 9.2 Memory Usage
 
-| Method | RAM | VRAM | Notes |
-|--------|-----|------|-------|
-| whisper.cpp | ~500MB | N/A | Efficient |
-| faster-whisper | ~1GB | ~4GB | Needs GPU |
-| WhisperX | ~2GB | ~8GB | Large models |
-| Aeneas | ~200MB | N/A | Lightweight |
+| Method         | RAM    | VRAM | Notes        |
+| -------------- | ------ | ---- | ------------ |
+| whisper.cpp    | ~500MB | N/A  | Efficient    |
+| faster-whisper | ~1GB   | ~4GB | Needs GPU    |
+| WhisperX       | ~2GB   | ~8GB | Large models |
+| Aeneas         | ~200MB | N/A  | Lightweight  |
 
 ---
 
@@ -571,13 +568,13 @@ enabled = true                   # NEW: enable forced alignment
 
 ### Decision Guide
 
-| Scenario | Recommended Approach |
-|----------|----------------------|
-| TTS-generated audio | Forced alignment (Aeneas or WhisperX) |
-| User-uploaded audio | Pure ASR (whisper.cpp/faster-whisper) |
-| Maximum accuracy | WhisperX hybrid |
-| CPU-only deployment | whisper.cpp + Aeneas fallback |
-| Real-time requirement | faster-whisper |
+| Scenario              | Recommended Approach                  |
+| --------------------- | ------------------------------------- |
+| TTS-generated audio   | Forced alignment (Aeneas or WhisperX) |
+| User-uploaded audio   | Pure ASR (whisper.cpp/faster-whisper) |
+| Maximum accuracy      | WhisperX hybrid                       |
+| CPU-only deployment   | whisper.cpp + Aeneas fallback         |
+| Real-time requirement | faster-whisper                        |
 
 ---
 

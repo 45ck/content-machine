@@ -25,6 +25,7 @@ Topic → Script → [Audio Generation] → [Estimated Timestamps] → Video + C
 ```
 
 **Issues:**
+
 1. kokoro-js doesn't provide word-level timestamps
 2. Estimation algorithm can produce corrupted data (end < start)
 3. Whisper ASR may fail silently, falling back to bad estimates
@@ -40,6 +41,7 @@ Topic → Script → Audio Generation → ASR Transcription → Video + Captions
 ```
 
 **Benefits:**
+
 1. Timestamps come from the actual audio (ground truth)
 2. ASR confidence scores indicate accuracy
 3. No estimation bugs possible
@@ -115,10 +117,10 @@ Topic → Script → Audio Generation → ASR Transcription → Video + Captions
 // src/core/config.ts
 export interface PipelineConfig {
   mode: 'script-first' | 'audio-first';
-  
+
   // Audio-first specific options
   audioFirst?: {
-    requireWhisper: boolean;     // Fail if whisper unavailable
+    requireWhisper: boolean; // Fail if whisper unavailable
     whisperModel: 'tiny' | 'base' | 'small' | 'medium';
     validateTimestamps: boolean; // Run validation on ASR output
   };
@@ -181,16 +183,18 @@ export async function transcribeAudio(
   options: ASROptions & { strict?: boolean }
 ): Promise<ASRResult> {
   const whisper = await getWhisper();
-  
+
   if (!whisper) {
     if (options.strict) {
-      throw new CMError('ASR_UNAVAILABLE', 
-        'Audio-first mode requires whisper.cpp but it is not installed');
+      throw new CMError(
+        'ASR_UNAVAILABLE',
+        'Audio-first mode requires whisper.cpp but it is not installed'
+      );
     }
     // Fall back to estimation (script-first mode)
     return estimateTimestamps(options.originalText!, options.audioDuration!);
   }
-  
+
   return transcribeWithWhisper(options);
 }
 ```
@@ -217,11 +221,11 @@ cm generate "5 JavaScript tips" --whisper-model medium
 
 ### 4.2 New CLI Options
 
-| Option | Default | Description |
-|--------|---------|-------------|
-| `--pipeline <mode>` | `audio-first` | Pipeline mode (audio-first, script-first) |
-| `--whisper-model <m>` | `base` | Whisper model for audio-first mode |
-| `--require-whisper` | `true` | Fail if whisper unavailable |
+| Option                | Default       | Description                               |
+| --------------------- | ------------- | ----------------------------------------- |
+| `--pipeline <mode>`   | `audio-first` | Pipeline mode (audio-first, script-first) |
+| `--whisper-model <m>` | `base`        | Whisper model for audio-first mode        |
+| `--require-whisper`   | `true`        | Fail if whisper unavailable               |
 
 ### 4.3 Audio Stage Subcommands
 
@@ -281,27 +285,27 @@ if (pipelineMode === 'audio-first' && !whisperAvailable) {
 
 ```typescript
 interface ASRQualityGate {
-  minWordConfidence: number;   // 0.7 default
+  minWordConfidence: number; // 0.7 default
   minOverallConfidence: number; // 0.8 default
-  maxWordGapMs: number;        // 500 default
+  maxWordGapMs: number; // 500 default
 }
 
 function validateASRQuality(result: ASRResult, gate: ASRQualityGate): boolean {
-  const lowConfidenceWords = result.words.filter(w => w.confidence < gate.minWordConfidence);
-  
+  const lowConfidenceWords = result.words.filter((w) => w.confidence < gate.minWordConfidence);
+
   if (lowConfidenceWords.length > result.words.length * 0.1) {
     log.warn('More than 10% of words have low confidence');
     return false;
   }
-  
+
   // Check for suspicious gaps (may indicate missed words)
   for (let i = 1; i < result.words.length; i++) {
     const gap = result.words[i].start - result.words[i - 1].end;
     if (gap * 1000 > gate.maxWordGapMs) {
-      log.warn(`Suspicious gap of ${gap}s between words ${i-1} and ${i}`);
+      log.warn(`Suspicious gap of ${gap}s between words ${i - 1} and ${i}`);
     }
   }
-  
+
   return true;
 }
 ```
@@ -333,25 +337,25 @@ function validateASRQuality(result: ASRResult, gate: ASRQualityGate): boolean {
 
 ### 8.1 Whisper Model Comparison
 
-| Model | Speed | Accuracy | VRAM | Use Case |
-|-------|-------|----------|------|----------|
-| tiny | 32x realtime | 75% | 1GB | Quick tests |
-| base | 16x realtime | 85% | 2GB | Default |
-| small | 6x realtime | 92% | 4GB | Production |
-| medium | 2x realtime | 96% | 8GB | High quality |
+| Model  | Speed        | Accuracy | VRAM | Use Case     |
+| ------ | ------------ | -------- | ---- | ------------ |
+| tiny   | 32x realtime | 75%      | 1GB  | Quick tests  |
+| base   | 16x realtime | 85%      | 2GB  | Default      |
+| small  | 6x realtime  | 92%      | 4GB  | Production   |
+| medium | 2x realtime  | 96%      | 8GB  | High quality |
 
 ### 8.2 Expected Timing
 
 For a 30-second video:
 
-| Stage | Script-First | Audio-First |
-|-------|-------------|-------------|
-| Script | 2s | 2s |
-| TTS | 5s | 5s |
-| ASR | 0s (skip) | 10s (base model) |
-| Visuals | 8s | 8s |
-| Render | 45s | 45s |
-| **Total** | **60s** | **70s** |
+| Stage     | Script-First | Audio-First      |
+| --------- | ------------ | ---------------- |
+| Script    | 2s           | 2s               |
+| TTS       | 5s           | 5s               |
+| ASR       | 0s (skip)    | 10s (base model) |
+| Visuals   | 8s           | 8s               |
+| Render    | 45s          | 45s              |
+| **Total** | **60s**      | **70s**          |
 
 **Trade-off:** +10s for guaranteed sync quality
 
@@ -368,18 +372,20 @@ describe('Audio-First Pipeline', () => {
       mode: 'audio-first',
       input: { topic: 'Test topic' },
     });
-    
+
     expect(result.timestamps.engine).toBe('whisper-cpp');
     expect(result.timestamps.words).toHaveLength(expectedWordCount);
   });
-  
+
   it('should fail if whisper unavailable in strict mode', async () => {
     mockWhisperUnavailable();
-    
-    await expect(runPipeline({
-      mode: 'audio-first',
-      requireWhisper: true,
-    })).rejects.toThrow('WHISPER_REQUIRED');
+
+    await expect(
+      runPipeline({
+        mode: 'audio-first',
+        requireWhisper: true,
+      })
+    ).rejects.toThrow('WHISPER_REQUIRED');
   });
 });
 ```
@@ -391,10 +397,10 @@ describe('Sync Quality Comparison', () => {
   it('audio-first should have better sync than script-first', async () => {
     const scriptFirstVideo = await generateVideo({ mode: 'script-first' });
     const audioFirstVideo = await generateVideo({ mode: 'audio-first' });
-    
+
     const scriptFirstRating = await rateSync(scriptFirstVideo);
     const audioFirstRating = await rateSync(audioFirstVideo);
-    
+
     expect(audioFirstRating.rating).toBeGreaterThan(scriptFirstRating.rating);
   });
 });

@@ -30,6 +30,7 @@ By comparing these two independent sources, we can objectively measure sync drif
 ### North Star Goal
 
 A single **Sync Rating** (0-100) that indicates:
+
 - **100:** Perfect sync (< 50ms drift)
 - **80-99:** Good sync (50-150ms drift, acceptable)
 - **60-79:** Fair sync (150-300ms drift, noticeable)
@@ -88,8 +89,9 @@ A single **Sync Rating** (0-100) that indicates:
 
 ```typescript
 interface FrameExtractionOptions {
-  fps: number;        // Frames per second to extract (1-5 recommended)
-  captionRegion?: {   // Optional crop to caption area
+  fps: number; // Frames per second to extract (1-5 recommended)
+  captionRegion?: {
+    // Optional crop to caption area
     x: number;
     y: number;
     width: number;
@@ -105,25 +107,26 @@ interface FrameExtractionOptions {
 ### 3.2 Caption Region Detection
 
 For TikTok-style videos, captions are typically:
+
 - **Position:** Bottom 15-25% of frame
 - **Width:** Full width or centered
 - **Style:** Large text, high contrast background
 
 ```typescript
 const TIKTOK_CAPTION_REGION = {
-  portrait: { y: 0.75, height: 0.20 }, // Bottom 20% starting at 75%
-  landscape: { y: 0.80, height: 0.15 },
+  portrait: { y: 0.75, height: 0.2 }, // Bottom 20% starting at 75%
+  landscape: { y: 0.8, height: 0.15 },
 };
 ```
 
 ### 3.3 OCR Engine Options
 
-| Engine | Speed | Accuracy | Language Support | License |
-|--------|-------|----------|------------------|---------|
-| Tesseract | Fast | Good | 100+ languages | Apache 2.0 |
-| EasyOCR | Slow | Better | 80+ languages | Apache 2.0 |
-| PaddleOCR | Medium | Best | 80+ languages | Apache 2.0 |
-| Google Vision | Fast | Excellent | 200+ | Commercial |
+| Engine        | Speed  | Accuracy  | Language Support | License    |
+| ------------- | ------ | --------- | ---------------- | ---------- |
+| Tesseract     | Fast   | Good      | 100+ languages   | Apache 2.0 |
+| EasyOCR       | Slow   | Better    | 80+ languages    | Apache 2.0 |
+| PaddleOCR     | Medium | Best      | 80+ languages    | Apache 2.0 |
+| Google Vision | Fast   | Excellent | 200+             | Commercial |
 
 **Recommendation:** Start with Tesseract (via `tesseract.js` or native), fallback to EasyOCR for accuracy.
 
@@ -132,18 +135,18 @@ const TIKTOK_CAPTION_REGION = {
 ```typescript
 interface OCRFrame {
   frameNumber: number;
-  timestamp: number;      // Seconds
-  rawText: string;        // Direct OCR output
+  timestamp: number; // Seconds
+  rawText: string; // Direct OCR output
   normalizedText: string; // Cleaned, uppercase
-  confidence: number;     // 0-1
+  confidence: number; // 0-1
 }
 
 interface OCRTimeline {
   frames: OCRFrame[];
   wordTransitions: Array<{
     word: string;
-    appearAt: number;     // First frame where word appears
-    disappearAt: number;  // Last frame where word visible
+    appearAt: number; // First frame where word appears
+    disappearAt: number; // Last frame where word visible
   }>;
 }
 ```
@@ -180,8 +183,8 @@ const asrResult = await transcribeAudio({
 interface ASRTimeline {
   words: Array<{
     word: string;
-    start: number;  // Seconds
-    end: number;    // Seconds
+    start: number; // Seconds
+    end: number; // Seconds
     confidence: number;
   }>;
   totalDuration: number;
@@ -198,9 +201,9 @@ interface ASRTimeline {
 interface WordMatch {
   ocrWord: string;
   asrWord: string;
-  ocrTimestamp: number;   // When word appeared on screen
-  asrTimestamp: number;   // When word was spoken
-  driftMs: number;        // Difference in milliseconds
+  ocrTimestamp: number; // When word appeared on screen
+  asrTimestamp: number; // When word was spoken
+  driftMs: number; // Difference in milliseconds
   matchQuality: 'exact' | 'fuzzy' | 'phonetic';
 }
 
@@ -219,21 +222,21 @@ interface DriftAnalysis {
   matches: WordMatch[];
   meanDriftMs: number;
   maxDriftMs: number;
-  p95DriftMs: number;      // 95th percentile
+  p95DriftMs: number; // 95th percentile
   standardDeviation: number;
-  outlierCount: number;    // Drifts > 500ms
+  outlierCount: number; // Drifts > 500ms
 }
 
 function calculateDrift(matches: WordMatch[]): DriftAnalysis {
-  const drifts = matches.map(m => Math.abs(m.driftMs));
-  
+  const drifts = matches.map((m) => Math.abs(m.driftMs));
+
   return {
     matches,
     meanDriftMs: mean(drifts),
     maxDriftMs: Math.max(...drifts),
     p95DriftMs: percentile(drifts, 95),
     standardDeviation: std(drifts),
-    outlierCount: drifts.filter(d => d > 500).length,
+    outlierCount: drifts.filter((d) => d > 500).length,
   };
 }
 ```
@@ -244,26 +247,26 @@ function calculateDrift(matches: WordMatch[]): DriftAnalysis {
 function calculateSyncRating(analysis: DriftAnalysis): number {
   // Base score from mean drift
   let score = 100;
-  
+
   // Deduct for mean drift
   if (analysis.meanDriftMs > 50) {
     score -= Math.min(40, (analysis.meanDriftMs - 50) / 10);
   }
-  
+
   // Deduct for max drift
   if (analysis.maxDriftMs > 200) {
     score -= Math.min(30, (analysis.maxDriftMs - 200) / 20);
   }
-  
+
   // Deduct for outliers
   const outlierRatio = analysis.outlierCount / analysis.matches.length;
   score -= Math.min(20, outlierRatio * 100);
-  
+
   // Deduct for high variance
   if (analysis.standardDeviation > 100) {
     score -= Math.min(10, (analysis.standardDeviation - 100) / 20);
   }
-  
+
   return Math.max(0, Math.round(score));
 }
 ```
@@ -279,12 +282,12 @@ import { z } from 'zod';
 export const SyncRatingSchema = z.object({
   schemaVersion: z.string().default('1.0.0'),
   videoPath: z.string(),
-  
+
   // Overall rating
   rating: z.number().int().min(0).max(100),
   ratingLabel: z.enum(['excellent', 'good', 'fair', 'poor', 'broken']),
   passed: z.boolean(),
-  
+
   // Detailed metrics
   metrics: z.object({
     meanDriftMs: z.number(),
@@ -296,21 +299,25 @@ export const SyncRatingSchema = z.object({
     totalAsrWords: z.number(),
     matchRatio: z.number(),
   }),
-  
+
   // Individual word comparisons
-  wordMatches: z.array(z.object({
-    word: z.string(),
-    ocrTimestamp: z.number(),
-    asrTimestamp: z.number(),
-    driftMs: z.number(),
-  })),
-  
+  wordMatches: z.array(
+    z.object({
+      word: z.string(),
+      ocrTimestamp: z.number(),
+      asrTimestamp: z.number(),
+      driftMs: z.number(),
+    })
+  ),
+
   // Drift over time (for visualization)
-  driftTimeline: z.array(z.object({
-    timestamp: z.number(),
-    driftMs: z.number(),
-  })),
-  
+  driftTimeline: z.array(
+    z.object({
+      timestamp: z.number(),
+      driftMs: z.number(),
+    })
+  ),
+
   // Analysis metadata
   analysis: z.object({
     ocrEngine: z.string(),
@@ -318,7 +325,7 @@ export const SyncRatingSchema = z.object({
     framesAnalyzed: z.number(),
     analysisTimeMs: z.number(),
   }),
-  
+
   createdAt: z.string().datetime(),
 });
 
@@ -345,38 +352,42 @@ cm rate video.mp4 --ocr tesseract --asr whisper-small
 
 ### CLI Options
 
-| Option | Default | Description |
-|--------|---------|-------------|
-| `--ocr <engine>` | `tesseract` | OCR engine (tesseract, easyocr) |
-| `--asr <model>` | `base` | Whisper model size |
-| `--fps <n>` | `2` | Frames per second to analyze |
-| `--min-rating <n>` | `60` | Minimum passing rating |
-| `--caption-region` | `auto` | Caption region detection mode |
-| `--output <path>` | stdout | Output JSON report path |
+| Option             | Default     | Description                     |
+| ------------------ | ----------- | ------------------------------- |
+| `--ocr <engine>`   | `tesseract` | OCR engine (tesseract, easyocr) |
+| `--asr <model>`    | `base`      | Whisper model size              |
+| `--fps <n>`        | `2`         | Frames per second to analyze    |
+| `--min-rating <n>` | `60`        | Minimum passing rating          |
+| `--caption-region` | `auto`      | Caption region detection mode   |
+| `--output <path>`  | stdout      | Output JSON report path         |
 
 ---
 
 ## 8. Implementation Plan
 
 ### Phase 1: OCR Pipeline (2-3 hours)
+
 1. Frame extraction with FFmpeg
 2. Tesseract.js integration
 3. Caption region detection
 4. Word transition tracking
 
 ### Phase 2: Comparison Algorithm (2-3 hours)
+
 1. Word normalization
 2. Sequence alignment (fuzzy matching)
 3. Drift calculation
 4. Rating formula
 
 ### Phase 3: CLI Integration (1-2 hours)
+
 1. `cm rate` command
 2. JSON output format
 3. Pass/fail thresholds
 4. Integration with `cm validate`
 
 ### Phase 4: Testing & Calibration (2-3 hours)
+
 1. Test with known-good videos
 2. Test with intentionally broken sync
 3. Calibrate rating thresholds
@@ -390,9 +401,9 @@ cm rate video.mp4 --ocr tesseract --asr whisper-small
 
 ```json
 {
-  "tesseract.js": "^5.0.0",    // OCR engine (pure JS)
-  "fluent-ffmpeg": "^2.1.2",   // Frame extraction
-  "fuzzball": "^2.1.2"         // Fuzzy string matching
+  "tesseract.js": "^5.0.0", // OCR engine (pure JS)
+  "fluent-ffmpeg": "^2.1.2", // Frame extraction
+  "fuzzball": "^2.1.2" // Fuzzy string matching
 }
 ```
 
@@ -405,12 +416,12 @@ cm rate video.mp4 --ocr tesseract --asr whisper-small
 
 ## 10. Success Criteria
 
-| Metric | Target |
-|--------|--------|
-| Rating accuracy | ±10 points of human assessment |
-| Analysis time | < 30 seconds for 60s video |
+| Metric              | Target                          |
+| ------------------- | ------------------------------- |
+| Rating accuracy     | ±10 points of human assessment  |
+| Analysis time       | < 30 seconds for 60s video      |
 | False positive rate | < 5% (marking good sync as bad) |
-| False negative rate | < 10% (missing bad sync) |
+| False negative rate | < 10% (missing bad sync)        |
 
 ---
 
