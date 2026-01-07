@@ -4,7 +4,7 @@
  * Usage: cm render --input visuals.json --audio audio.wav --output video.mp4
  *
  * Caption Styling:
- *   --caption-preset <preset>  Use preset style (tiktok, youtube, reels, bold, minimal, neon)
+ *   --caption-preset <preset>  Use preset style (tiktok, youtube, reels, bold, minimal, neon, capcut, hormozi, karaoke)
  *   --caption-font-size <px>   Override font size
  *   --caption-position <pos>   Caption position (top, center, bottom)
  *   --caption-highlight <mode> Highlight mode (background, color, glow, underline, scale)
@@ -562,7 +562,7 @@ export const renderCommand = new Command('render')
   // Caption preset
   .option(
     '--caption-preset <preset>',
-    'Caption style preset (tiktok, youtube, reels, bold, minimal, neon)',
+    'Caption style preset (tiktok, youtube, reels, bold, minimal, neon, capcut, hormozi, karaoke)',
     'tiktok'
   )
   // Caption typography

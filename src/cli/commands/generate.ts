@@ -953,7 +953,7 @@ export const generateCommand = new Command('generate')
   .option('--fps <fps>', 'Frames per second', '30')
   .option(
     '--caption-preset <preset>',
-    'Caption style preset (tiktok, youtube, reels, bold, minimal, neon)',
+    'Caption style preset (tiktok, youtube, reels, bold, minimal, neon, capcut, hormozi, karaoke)',
     'tiktok'
   )
   .option('--voice <voice>', 'TTS voice to use', 'af_heart')
