@@ -9,11 +9,19 @@ import { createLogger } from '../../core/logger';
 import { APIError } from '../../core/errors';
 import { WordTimestamp } from '../schema';
 import { validateWordTimings, repairWordTimings, TimestampValidationError } from './validator';
+import { postProcessASRWordsWithStats } from './post-processor';
 import type { Language, WhisperModel } from '@remotion/install-whisper-cpp';
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
+
+// Re-export post-processor for direct use
+export {
+  postProcessASRWordsWithStats,
+  type PostProcessorOptions,
+  type PostProcessorStats,
+} from './post-processor';
 
 const execAsync = promisify(exec);
 
@@ -323,7 +331,7 @@ async function transcribeWithWhisper(
     });
 
     // Extract word timestamps using helper
-    const { words, duration } = extractWordsFromSegments(result.transcription);
+    const { words: rawWords, duration } = extractWordsFromSegments(result.transcription);
 
     const fullText = result.transcription
       .map((s) => s.text)
@@ -331,12 +339,26 @@ async function transcribeWithWhisper(
       .trim();
 
     log.info(
-      { wordCount: words.length, duration, engine: 'whisper-cpp' },
+      { wordCount: rawWords.length, duration, engine: 'whisper-cpp' },
       'Transcription complete'
     );
 
+    // Post-process to fix common Whisper issues (split words, contractions, overlaps)
+    const { words: processedWords, stats } = postProcessASRWordsWithStats(rawWords);
+    log.info(
+      {
+        mergedWords: stats.mergedWords,
+        mergedContractions: stats.mergedContractions,
+        fixedOverlaps: stats.fixedOverlaps,
+        extendedDurations: stats.extendedDurations,
+        originalCount: stats.originalCount,
+        finalCount: stats.finalCount,
+      },
+      'Post-processed ASR words'
+    );
+
     // Validate and optionally repair timestamps
-    const validatedWords = validateOrRepairTimestamps(words, duration, log);
+    const validatedWords = validateOrRepairTimestamps(processedWords, duration, log);
 
     return {
       words: validatedWords,

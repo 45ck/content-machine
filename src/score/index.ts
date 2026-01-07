@@ -31,3 +31,12 @@ export {
   SyncRatingOptionsSchema,
   SyncThresholdsSchema,
 } from './sync-schema';
+
+// Caption quality metrics
+export {
+  analyzeCaptionQuality,
+  formatQualityReport,
+  QUALITY_THRESHOLDS,
+  type CaptionQualityReport,
+  type CaptionIssue,
+} from './caption-quality';
