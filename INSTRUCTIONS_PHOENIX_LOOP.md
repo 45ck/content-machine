@@ -13,9 +13,15 @@
 |------|------|-------|--------|-------|-------------|
 | #1 | 2026-01-07 | Timing | 82.8% | 99.2% | Split words (r+isk→risk), filter order, duration threshold |
 | #2 | 2026-01-07 | Timing | 99.2% | 99.4% | Low confidence in merged words (boost to 80% min) |
+| #3 | 2026-01-07 | Aesthetics | 38.6% | 81.3% | Punctuation restoration, natural page boundaries |
+| #4 | 2026-01-07 | Aesthetics | N/A | 91.7% | Added scene pacing metrics (WPM consistency) |
 
-**Current Score: 99.4%**
-**Current Layer: Layer 1 (TIMING) - COMPLETE ✅**
+**Current Scores:**
+- Caption Quality: 99.4% ✅
+- Paging Quality: 81.3% ✅
+- Pacing Quality: 91.7% ✅
+
+**Current Layer: Layer 3 (AESTHETICS) - COMPLETE ✅ → Advancing to Layer 4 (ENGAGEMENT)**
 
 ---
 

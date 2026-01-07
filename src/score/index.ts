@@ -40,3 +40,23 @@ export {
   type CaptionQualityReport,
   type CaptionIssue,
 } from './caption-quality';
+
+// Paging quality metrics
+export {
+  analyzePagingQuality,
+  formatPagingReport,
+  PAGING_THRESHOLDS,
+  type PagingQualityReport,
+  type PageMetrics,
+  type PagingIssue,
+} from './paging-quality';
+
+// Pacing quality metrics
+export {
+  analyzePacingQuality,
+  formatPacingReport,
+  PACING_THRESHOLDS,
+  type PacingQualityReport,
+  type ScenePacingMetrics,
+  type PacingIssue,
+} from './pacing-quality';
