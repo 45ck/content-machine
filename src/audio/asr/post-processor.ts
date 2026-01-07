@@ -246,12 +246,14 @@ function mergeSplitWords(words: WordTimestamp[]): WordTimestamp[] {
       if (patterns) {
         const match = patterns.find(([suffix]) => next.word.toLowerCase() === suffix.toLowerCase());
         if (match) {
-          // Merge the words
+          // Merge the words - use AVERAGE confidence for known patterns
+          // (pattern match implies high certainty, so boost confidence)
+          const avgConfidence = ((current.confidence ?? 1) + (next.confidence ?? 1)) / 2;
           result.push({
             word: match[1], // Complete word with proper casing
             start: current.start,
             end: next.end,
-            confidence: Math.min(current.confidence ?? 1, next.confidence ?? 1),
+            confidence: Math.max(avgConfidence, 0.8), // Boost to at least 80% for known patterns
           });
           i += 2; // Skip both words
           continue;
