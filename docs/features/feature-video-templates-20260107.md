@@ -1,7 +1,7 @@
 # Feature: Video Templates ("render templates")
 
 **Date:** 2026-01-07  
-**Status:** Draft  
+**Status:** Partially Implemented (render MVP)  
 **Owners:** content-machine core
 
 ---
@@ -39,6 +39,25 @@ This is complementary to **content archetypes** (listicle/versus/howto/etc). Arc
 
 ---
 
+## Current Implementation (as of 2026-01-07)
+
+Implemented:
+
+- `cm render --template <id|path>` loads a template (built-in id or file/dir path).
+- Template defaults apply only when the corresponding CLI option was not explicitly set.
+- Renderer supports selecting a Remotion composition via `compositionId` (defaults to `ShortVideo`).
+- Built-in templates shipped:
+  - `tiktok-captions`
+  - `brainrot-split-gameplay` (caption defaults only; split-screen layout is still TBD)
+
+Not yet implemented:
+
+- `cm generate --template <id|path>`
+- Template `assets` and `params` consumed by compositions
+- Additional compositions (split-screen gameplay, audiogram)
+
+---
+
 ## Template Catalog (Initial Targets)
 
 These map directly to patterns found in `vendor/` and `templates/` research.
@@ -68,7 +87,7 @@ These map directly to patterns found in `vendor/` and `templates/` research.
 Add to:
 
 - `cm generate --template <id|path>`
-- `cm render --template <id|path>`
+- `cm render --template <id|path>` (implemented)
 
 Behavior:
 
@@ -182,6 +201,9 @@ It allows:
 
 ## Related
 
+- `docs/architecture/adr-003-data-first-video-templates-20260107.md`
+- `docs/architecture/IMPL-VIDEO-TEMPLATES-20260107.md`
+- `docs/architecture/TDD-TEST-PLAN-VIDEO-TEMPLATES-20260107.md`
 - `docs/guides/guide-video-templates-20260107.md`
 - `docs/reference/video-templates-reference-20260107.md`
 - `docs/research/04-template-tiktok-20260102.md`

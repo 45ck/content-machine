@@ -103,15 +103,18 @@ Located in `architecture/`:
 
 ### Current Documents
 
-| Document                                                            | Purpose                                                   |
-| ------------------------------------------------------------------- | --------------------------------------------------------- |
-| [SYSTEM-DESIGN-20260104.md](architecture/SYSTEM-DESIGN-20260104.md) | **AWS-style narrative spec** (authoritative, 3,100 lines) |
+| Document                                                                                                      | Purpose                                                   |
+| ------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| [SYSTEM-DESIGN-20260104.md](architecture/SYSTEM-DESIGN-20260104.md)                                           | **AWS-style narrative spec** (authoritative, 3,100 lines) |
+| [adr-003-data-first-video-templates-20260107.md](architecture/adr-003-data-first-video-templates-20260107.md) | Decision: data-first video templates (safe extensibility) |
+| [IMPL-VIDEO-TEMPLATES-20260107.md](architecture/IMPL-VIDEO-TEMPLATES-20260107.md)                             | Implementation plan: expand templates into platform       |
+| [TDD-TEST-PLAN-VIDEO-TEMPLATES-20260107.md](architecture/TDD-TEST-PLAN-VIDEO-TEMPLATES-20260107.md)           | TDD plan: template system milestones + regression suite   |
 
 ### Planned ADRs
 
 - [ ] ADR-001: LLM provider selection
 - [ ] ADR-002: TTS engine selection (Kokoro vs EdgeTTS)
-- [ ] ADR-003: Stock footage provider strategy
+- [ ] ADR-004: Stock footage provider strategy
 
 ---
 

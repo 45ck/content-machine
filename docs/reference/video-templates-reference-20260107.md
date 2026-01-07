@@ -89,6 +89,9 @@ Rules:
 
 ## Related
 
+- `docs/architecture/adr-003-data-first-video-templates-20260107.md`
+- `docs/architecture/IMPL-VIDEO-TEMPLATES-20260107.md`
+- `docs/architecture/TDD-TEST-PLAN-VIDEO-TEMPLATES-20260107.md`
 - `docs/features/feature-video-templates-20260107.md`
 - `docs/guides/guide-video-templates-20260107.md`
 - `docs/architecture/IMPL-RENDER-STYLE-SYSTEM-V2-20260105.md`

@@ -108,6 +108,9 @@ cm templates list
 
 ## Related
 
+- `docs/architecture/adr-003-data-first-video-templates-20260107.md`
+- `docs/architecture/IMPL-VIDEO-TEMPLATES-20260107.md`
+- `docs/architecture/TDD-TEST-PLAN-VIDEO-TEMPLATES-20260107.md`
 - `docs/features/feature-video-templates-20260107.md`
 - `docs/reference/video-templates-reference-20260107.md`
 - `docs/architecture/SYSTEM-DESIGN-20260104.md`

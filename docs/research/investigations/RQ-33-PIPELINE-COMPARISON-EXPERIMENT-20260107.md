@@ -1,4 +1,4 @@
-# RQ-33: Audio-First vs Script-First Pipeline Comparison
+﻿# RQ-33: Audio-First vs Standard Pipeline Comparison
 
 **Date:** 2026-01-07  
 **Status:** Research Complete  
@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-This investigation defines an experimental framework for comparing the audio-first and script-first pipeline approaches. It establishes methodology, test cases, evaluation criteria, and expected outcomes to determine which approach produces better synchronization quality.
+This investigation defines an experimental framework for comparing the audio-first and standard pipeline approaches. It establishes methodology, test cases, evaluation criteria, and expected outcomes to determine which approach produces better synchronization quality.
 
 ---
 
@@ -17,19 +17,19 @@ This investigation defines an experimental framework for comparing the audio-fir
 
 ### 1.1 Primary Hypothesis
 
-**H1:** Audio-first pipeline produces videos with significantly better caption synchronization than script-first pipeline.
+**H1:** Audio-first pipeline produces videos with significantly better caption synchronization than the standard pipeline.
 
 **Expected Outcome:**
 
 - Audio-first videos: 85+ sync rating (excellent/good)
-- Script-first videos: 60-75 sync rating (fair/good)
+- Standard videos: 60-75 sync rating (fair/good)
 - Difference: 15-25 point improvement
 
 ### 1.2 Secondary Hypotheses
 
 **H2:** Audio-first has lower variance in sync quality across different scripts.
 
-**H3:** Script-first is more likely to produce catastrophic failures (< 40 rating).
+**H3:** Standard pipeline is more likely to produce catastrophic failures (< 40 rating).
 
 **H4:** Audio-first requires ~20% more processing time due to mandatory Whisper step.
 
@@ -41,7 +41,7 @@ This investigation defines an experimental framework for comparing the audio-fir
 
 | Variable Type   | Variable        | Description                       |
 | --------------- | --------------- | --------------------------------- |
-| **Independent** | Pipeline mode   | audio-first vs script-first       |
+| **Independent** | Pipeline mode   | audio-first vs standard           |
 | **Dependent**   | Sync rating     | 0-100 score from RQ-29 system     |
 | **Dependent**   | Mean drift      | Average caption-audio offset (ms) |
 | **Dependent**   | Max drift       | Maximum caption-audio offset (ms) |
@@ -83,19 +83,19 @@ for topic in topics:
   cm script --topic "$topic" --archetype $archetype --output "scripts/$id.json"
 ```
 
-All scripts are generated once and reused for both pipelines.
+Scripts are ideally generated once and reused for both pipelines. (Note: `cm generate` currently takes a `<topic>`; truly script-controlled comparisons require running stage-by-stage or adding a generate-from-script flag.)
 
 ### 3.2 Phase 2: Video Generation
 
 ```bash
-# Generate with script-first (control)
-for script in scripts/*.json:
-  cm generate --pipeline script-first --input "$script" \
-    --output "videos/script-first/$id.mp4"
+# Generate with standard pipeline (control)
+for topic in topics:
+  cm generate --pipeline standard "$topic" --keep-artifacts \
+    --output "videos/standard/$id.mp4"
 
-# Generate with audio-first (treatment)
-for script in scripts/*.json:
-  cm generate --pipeline audio-first --input "$script" \
+# Generate with audio-first pipeline (treatment; Whisper required)
+for topic in topics:
+  cm generate --pipeline audio-first "$topic" --keep-artifacts \
     --output "videos/audio-first/$id.mp4"
 ```
 
@@ -104,22 +104,22 @@ for script in scripts/*.json:
 ```bash
 # Rate all videos
 for video in videos/**/*.mp4:
-  cm rate "$video" --output "ratings/$video.json"
+  cm rate --input "$video" --output "ratings/$video.json"
 ```
 
 ### 3.4 Phase 4: Analysis
 
 ```typescript
 // Compare results
-const scriptFirstRatings = loadRatings('ratings/script-first/*.json');
+const standardRatings = loadRatings('ratings/standard/*.json');
 const audioFirstRatings = loadRatings('ratings/audio-first/*.json');
 
 const comparison = {
-  scriptFirst: {
-    mean: mean(scriptFirstRatings),
-    stdDev: std(scriptFirstRatings),
-    min: min(scriptFirstRatings),
-    max: max(scriptFirstRatings),
+  standard: {
+    mean: mean(standardRatings),
+    stdDev: std(standardRatings),
+    min: min(standardRatings),
+    max: max(standardRatings),
   },
   audioFirst: {
     mean: mean(audioFirstRatings),
@@ -127,8 +127,8 @@ const comparison = {
     min: min(audioFirstRatings),
     max: max(audioFirstRatings),
   },
-  improvement: mean(audioFirstRatings) - mean(scriptFirstRatings),
-  pValue: tTest(scriptFirstRatings, audioFirstRatings),
+  improvement: mean(audioFirstRatings) - mean(standardRatings),
+  pValue: tTest(standardRatings, audioFirstRatings),
 };
 ```
 
@@ -138,11 +138,11 @@ const comparison = {
 
 ### 4.1 Primary Metrics
 
-| Metric       | Definition                  | Target                              |
-| ------------ | --------------------------- | ----------------------------------- |
-| Sync Rating  | Overall sync score (0-100)  | Audio-first > Script-first          |
-| Mean Drift   | Average caption offset (ms) | Audio-first < Script-first          |
-| Failure Rate | % videos with rating < 40   | Audio-first = 0%, Script-first > 0% |
+| Metric       | Definition                  | Target                          |
+| ------------ | --------------------------- | ------------------------------- |
+| Sync Rating  | Overall sync score (0-100)  | Audio-first > standard          |
+| Mean Drift   | Average caption offset (ms) | Audio-first < standard          |
+| Failure Rate | % videos with rating < 40   | Audio-first = 0%, standard > 0% |
 
 ### 4.2 Secondary Metrics
 
@@ -173,7 +173,7 @@ const comparison = {
 │                                                                             │
 │  Sync Rating Distribution (predicted)                                       │
 │                                                                             │
-│  Script-First:  [▓▓▓▓▓▓▓▓░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░]                │
+│  Standard:  [▓▓▓▓▓▓▓▓░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░]                │
 │                 40    50    60    70    80    90   100                      │
 │                 Mean: ~68, StdDev: ~15                                      │
 │                                                                             │
@@ -188,13 +188,13 @@ const comparison = {
 
 ### 5.2 Edge Cases
 
-| Scenario              | Script-First | Audio-First | Notes                   |
-| --------------------- | ------------ | ----------- | ----------------------- |
-| Short script (< 20s)  | 70-80        | 85-95       | Less room for drift     |
-| Long script (> 50s)   | 50-70        | 80-90       | Drift accumulates in SF |
-| Many short words      | 55-65        | 75-85       | Estimation struggles    |
-| Few long words        | 75-85        | 90-95       | Both perform well       |
-| Complex pronunciation | 60-70        | 80-90       | Whisper handles better  |
+| Scenario              | Standard | Audio-First | Notes                         |
+| --------------------- | -------- | ----------- | ----------------------------- |
+| Short script (< 20s)  | 70-80    | 85-95       | Less room for drift           |
+| Long script (> 50s)   | 50-70    | 80-90       | Drift accumulates in baseline |
+| Many short words      | 55-65    | 75-85       | Estimation struggles          |
+| Few long words        | 75-85    | 90-95       | Both perform well             |
+| Complex pronunciation | 60-70    | 80-90       | Whisper handles better        |
 
 ---
 
@@ -230,7 +230,7 @@ import { generateVideo, rateVideo } from '../src';
 interface ExperimentResult {
   testId: string;
   script: string;
-  scriptFirst: {
+  standard: {
     videoPath: string;
     rating: number;
     processingTimeMs: number;
@@ -253,12 +253,12 @@ async function runExperiment(): Promise<ExperimentResult[]> {
     // Generate script (once)
     const script = await generateScript(test.topic, test.archetype);
 
-    // Generate with script-first
+    // Generate with standard
     const sfStart = Date.now();
     const sfVideo = await generateVideo({
       script,
-      pipeline: 'script-first',
-      output: `output/sf-${test.id}.mp4`,
+      pipeline: 'standard',
+      output: `output/standard-${test.id}.mp4`,
     });
     const sfTime = Date.now() - sfStart;
 
@@ -278,7 +278,7 @@ async function runExperiment(): Promise<ExperimentResult[]> {
     results.push({
       testId: test.id,
       script: test.topic,
-      scriptFirst: {
+      standard: {
         videoPath: sfVideo,
         rating: sfRating.rating,
         processingTimeMs: sfTime,
@@ -305,13 +305,13 @@ import { loadResults } from './utils';
 import { tTest, mean, std, min, max } from 'simple-statistics';
 
 function analyzeResults(results: ExperimentResult[]): ExperimentAnalysis {
-  const sfRatings = results.map((r) => r.scriptFirst.rating);
+  const sfRatings = results.map((r) => r.standard.rating);
   const afRatings = results.map((r) => r.audioFirst.rating);
-  const sfTimes = results.map((r) => r.scriptFirst.processingTimeMs);
+  const sfTimes = results.map((r) => r.standard.processingTimeMs);
   const afTimes = results.map((r) => r.audioFirst.processingTimeMs);
 
   const comparison = {
-    scriptFirst: {
+    standard: {
       ratingMean: mean(sfRatings),
       ratingStd: std(sfRatings),
       ratingMin: min(sfRatings),
@@ -349,18 +349,18 @@ function analyzeResults(results: ExperimentResult[]): ExperimentAnalysis {
 
 **Date:** YYYY-MM-DD
 **Experiment ID:** EXP-001
-**Total Tests:** 10 scripts × 2 pipelines = 20 videos
+**Total Tests:** 10 scripts x 2 pipelines = 20 videos
 
 ## Summary
 
-| Metric       | Script-First | Audio-First | Δ      |
-| ------------ | ------------ | ----------- | ------ |
-| Mean Rating  | 68.3         | 85.7        | +17.4  |
-| Std Dev      | 14.2         | 7.8         | -6.4   |
-| Min Rating   | 42           | 71          | +29    |
-| Max Rating   | 89           | 97          | +8     |
-| Failure Rate | 10%          | 0%          | -10%   |
-| Avg Time (s) | 62.4         | 74.8        | +19.9% |
+| Metric       | Standard | Audio-First | Δ      |
+| ------------ | -------- | ----------- | ------ |
+| Mean Rating  | 68.3     | 85.7        | +17.4  |
+| Std Dev      | 14.2     | 7.8         | -6.4   |
+| Min Rating   | 42       | 71          | +29    |
+| Max Rating   | 89       | 97          | +8     |
+| Failure Rate | 10%      | 0%          | -10%   |
+| Avg Time (s) | 62.4     | 74.8        | +19.9% |
 
 ## Statistical Analysis
 
@@ -383,8 +383,8 @@ The ~20% time overhead is justified by:
 
 ### 9.1 Pre-Experiment
 
-- [ ] Implement `--pipeline` flag in `cm generate`
-- [ ] Implement `cm rate` command (RQ-29)
+- [x] Implement `--pipeline` flag in `cm generate`
+- [x] Implement `cm rate` command (RQ-29)
 - [ ] Verify Whisper installation works
 - [ ] Create 10 test scripts
 - [ ] Create automation scripts
@@ -422,7 +422,7 @@ The ~20% time overhead is justified by:
 
 The experiment is successful if:
 
-1. **H1 confirmed:** Audio-first mean rating > script-first mean rating by ≥ 10 points
+1. **H1 confirmed:** Audio-first mean rating > standard mean rating by ≥ 10 points
 2. **Statistical significance:** p-value < 0.05
 3. **Zero failures:** Audio-first has 0 videos with rating < 40
 4. **Acceptable overhead:** Time increase < 30%
