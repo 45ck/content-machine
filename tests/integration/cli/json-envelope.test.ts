@@ -53,4 +53,26 @@ describe('CLI --json envelope contract', () => {
     expect(parsed.errors[0].code).toBe('FILE_NOT_FOUND');
     expect(parsed.errors[0].context.fix).toContain('re-run');
   }, 90_000);
+
+  it('cm rate --mock --json emits a single JSON object', async () => {
+    const tmpDir = join(process.cwd(), 'tests', '.tmp', 'rate-json');
+    mkdirSync(tmpDir, { recursive: true });
+
+    const videoPath = join(tmpDir, 'video.mp4');
+    const outPath = join(tmpDir, 'rate.json');
+    writeFileSync(videoPath, 'mock video', 'utf-8');
+
+    const result = await runCli(
+      ['rate', '--input', videoPath, '--output', outPath, '--mock', '--min-rating', '0', '--json'],
+      undefined,
+      60000
+    );
+    expect(result.code).toBe(0);
+    const parsed = assertPureJson(result.stdout) as any;
+    expect(parsed.schemaVersion).toBe(1);
+    expect(parsed.command).toBe('rate');
+    expect(parsed.errors).toEqual([]);
+    expect(parsed.outputs.reportPath).toBe(outPath);
+    expect(typeof parsed.outputs.rating).toBe('number');
+  }, 90_000);
 });

@@ -125,4 +125,366 @@ describe('Config', () => {
       expect(result.success).toBe(false);
     });
   });
+
+  // ==========================================================================
+  // TASK-018: SyncConfigSchema Tests (TDD - RED PHASE)
+  // ==========================================================================
+  describe('SyncConfigSchema', () => {
+    describe('defaults', () => {
+      it('should apply default strategy as "standard"', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.parse({});
+
+        expect(result.strategy).toBe('standard');
+      });
+
+      it('should apply default requireWhisper as false', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.parse({});
+
+        expect(result.requireWhisper).toBe(false);
+      });
+
+      it('should apply default asrModel as "base"', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.parse({});
+
+        expect(result.asrModel).toBe('base');
+      });
+
+      it('should apply default reconcileToScript as false', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.parse({});
+
+        expect(result.reconcileToScript).toBe(false);
+      });
+
+      it('should apply default driftCorrection as "none"', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.parse({});
+
+        expect(result.driftCorrection).toBe('none');
+      });
+
+      it('should apply all defaults for empty object', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.parse({});
+
+        expect(result).toEqual({
+          strategy: 'standard',
+          requireWhisper: false,
+          asrModel: 'base',
+          reconcileToScript: false,
+          minSimilarity: 0.7,
+          driftCorrection: 'none',
+          maxDriftMs: 80,
+          validateTimestamps: true,
+          autoRepair: true,
+          qualityCheck: false,
+          minRating: 75,
+          autoRetry: false,
+          maxRetries: 2,
+        });
+      });
+    });
+
+    describe('strategy validation', () => {
+      it('should accept "standard" strategy', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.safeParse({ strategy: 'standard' });
+
+        expect(result.success).toBe(true);
+      });
+
+      it('should accept "audio-first" strategy', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.safeParse({ strategy: 'audio-first' });
+
+        expect(result.success).toBe(true);
+      });
+
+      it('should accept "forced-align" strategy', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.safeParse({ strategy: 'forced-align' });
+
+        expect(result.success).toBe(true);
+      });
+
+      it('should accept "hybrid" strategy', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.safeParse({ strategy: 'hybrid' });
+
+        expect(result.success).toBe(true);
+      });
+
+      it('should reject invalid strategy value', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.safeParse({ strategy: 'invalid' });
+
+        expect(result.success).toBe(false);
+      });
+    });
+
+    describe('driftCorrection validation', () => {
+      it('should accept "none" drift correction', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.safeParse({ driftCorrection: 'none' });
+
+        expect(result.success).toBe(true);
+      });
+
+      it('should accept "detect" drift correction', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.safeParse({ driftCorrection: 'detect' });
+
+        expect(result.success).toBe(true);
+      });
+
+      it('should accept "auto" drift correction', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.safeParse({ driftCorrection: 'auto' });
+
+        expect(result.success).toBe(true);
+      });
+
+      it('should reject invalid drift correction value', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.safeParse({ driftCorrection: 'invalid' });
+
+        expect(result.success).toBe(false);
+      });
+    });
+
+    describe('numeric constraints', () => {
+      it('should accept minSimilarity at lower bound (0)', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.safeParse({ minSimilarity: 0 });
+
+        expect(result.success).toBe(true);
+      });
+
+      it('should accept minSimilarity at upper bound (1)', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.safeParse({ minSimilarity: 1 });
+
+        expect(result.success).toBe(true);
+      });
+
+      it('should reject minSimilarity below 0', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.safeParse({ minSimilarity: -0.1 });
+
+        expect(result.success).toBe(false);
+      });
+
+      it('should reject minSimilarity above 1', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.safeParse({ minSimilarity: 1.5 });
+
+        expect(result.success).toBe(false);
+      });
+
+      it('should accept minRating at lower bound (0)', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.safeParse({ minRating: 0 });
+
+        expect(result.success).toBe(true);
+      });
+
+      it('should accept minRating at upper bound (100)', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.safeParse({ minRating: 100 });
+
+        expect(result.success).toBe(true);
+      });
+
+      it('should reject minRating below 0', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.safeParse({ minRating: -1 });
+
+        expect(result.success).toBe(false);
+      });
+
+      it('should reject minRating above 100', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.safeParse({ minRating: 101 });
+
+        expect(result.success).toBe(false);
+      });
+
+      it('should accept positive maxDriftMs', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.safeParse({ maxDriftMs: 150 });
+
+        expect(result.success).toBe(true);
+      });
+
+      it('should accept positive maxRetries', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.safeParse({ maxRetries: 5 });
+
+        expect(result.success).toBe(true);
+      });
+    });
+
+    describe('partial config merging', () => {
+      it('should merge partial config with defaults', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.parse({
+          strategy: 'audio-first',
+          reconcileToScript: true,
+        });
+
+        expect(result.strategy).toBe('audio-first');
+        expect(result.reconcileToScript).toBe(true);
+        expect(result.driftCorrection).toBe('none'); // default preserved
+        expect(result.requireWhisper).toBe(false); // default preserved
+      });
+
+      it('should allow overriding multiple fields', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.parse({
+          strategy: 'forced-align',
+          requireWhisper: true,
+          reconcileToScript: true,
+          driftCorrection: 'auto',
+          minRating: 90,
+        });
+
+        expect(result.strategy).toBe('forced-align');
+        expect(result.requireWhisper).toBe(true);
+        expect(result.reconcileToScript).toBe(true);
+        expect(result.driftCorrection).toBe('auto');
+        expect(result.minRating).toBe(90);
+      });
+    });
+
+    describe('boolean fields', () => {
+      it('should accept true for requireWhisper', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.parse({ requireWhisper: true });
+
+        expect(result.requireWhisper).toBe(true);
+      });
+
+      it('should accept true for validateTimestamps', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.parse({ validateTimestamps: true });
+
+        expect(result.validateTimestamps).toBe(true);
+      });
+
+      it('should accept false for autoRepair', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.parse({ autoRepair: false });
+
+        expect(result.autoRepair).toBe(false);
+      });
+
+      it('should accept true for qualityCheck', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.parse({ qualityCheck: true });
+
+        expect(result.qualityCheck).toBe(true);
+      });
+
+      it('should accept true for autoRetry', async () => {
+        const { SyncConfigSchema } = await import('./config');
+
+        const result = SyncConfigSchema.parse({ autoRetry: true });
+
+        expect(result.autoRetry).toBe(true);
+      });
+    });
+  });
+
+  describe('ConfigSchema with sync section', () => {
+    it('should include sync config with defaults when not provided', async () => {
+      const { ConfigSchema } = await import('./config');
+
+      const result = ConfigSchema.parse({});
+
+      expect(result.sync).toBeDefined();
+      expect(result.sync.strategy).toBe('standard');
+    });
+
+    it('should accept config with sync section', async () => {
+      const { ConfigSchema } = await import('./config');
+
+      const config = {
+        sync: {
+          strategy: 'audio-first',
+          reconcileToScript: true,
+        },
+      };
+
+      const result = ConfigSchema.parse(config);
+
+      expect(result.sync.strategy).toBe('audio-first');
+      expect(result.sync.reconcileToScript).toBe(true);
+    });
+
+    it('should merge sync with other config sections', async () => {
+      const { ConfigSchema } = await import('./config');
+
+      const config = {
+        defaults: {
+          archetype: 'versus',
+        },
+        sync: {
+          strategy: 'forced-align',
+          minRating: 85,
+        },
+      };
+
+      const result = ConfigSchema.parse(config);
+
+      expect(result.defaults.archetype).toBe('versus');
+      expect(result.sync.strategy).toBe('forced-align');
+      expect(result.sync.minRating).toBe(85);
+    });
+  });
+
+  describe('SyncConfig type export', () => {
+    it('should export SyncConfig type', async () => {
+      const configModule = await import('./config');
+
+      // TypeScript compile-time check - if SyncConfig is exported, this works
+      type TestSyncConfig = typeof configModule.SyncConfigSchema;
+      const schema: TestSyncConfig = configModule.SyncConfigSchema;
+
+      expect(schema).toBeDefined();
+    });
+  });
 });

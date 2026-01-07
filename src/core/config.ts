@@ -54,18 +54,134 @@ const RenderConfigSchema = z.object({
   crf: z.number().int().min(0).max(51).default(23),
 });
 
+// ============================================================================
+// Sync Configuration Schema (TASK-018)
+// ============================================================================
+
+/**
+ * Sync strategy determines how word-level timestamps are generated.
+ *
+ * - `standard`: Uses whisper when available, falls back to estimation
+ * - `audio-first`: Requires whisper, no fallback (higher accuracy)
+ * - `forced-align`: Uses phoneme-level alignment (highest accuracy)
+ * - `hybrid`: Combines multiple approaches (future)
+ */
+const SyncStrategyEnum = z.enum(['standard', 'audio-first', 'forced-align', 'hybrid']);
+
+/**
+ * Drift correction mode for timestamp adjustment.
+ *
+ * - `none`: No drift detection or correction
+ * - `detect`: Analyze drift, log warnings, no correction
+ * - `auto`: Detect and automatically correct drift
+ */
+const DriftCorrectionEnum = z.enum(['none', 'detect', 'auto']);
+
+/**
+ * Configuration for audio-video synchronization.
+ *
+ * Controls how word-level timestamps are generated and validated,
+ * enabling high-quality caption synchronization.
+ */
+export const SyncConfigSchema = z.object({
+  /**
+   * Sync strategy for timestamp extraction.
+   * @default "standard"
+   */
+  strategy: SyncStrategyEnum.default('standard'),
+
+  /**
+   * Require whisper.cpp - fail if unavailable instead of falling back.
+   * @default false
+   */
+  requireWhisper: z.boolean().default(false),
+
+  /**
+   * ASR model size for whisper.cpp.
+   * Larger models are more accurate but slower.
+   * @default "base"
+   */
+  asrModel: z.enum(['tiny', 'base', 'small', 'medium', 'large']).default('base'),
+
+  /**
+   * Reconcile ASR transcription to original script text.
+   * Fixes issues like "10x" being transcribed as "tenex".
+   * @default false
+   */
+  reconcileToScript: z.boolean().default(false),
+
+  /**
+   * Minimum Levenshtein similarity for word matching during reconciliation.
+   * @default 0.7
+   */
+  minSimilarity: z.number().min(0).max(1).default(0.7),
+
+  /**
+   * Drift correction mode.
+   * @default "none"
+   */
+  driftCorrection: DriftCorrectionEnum.default('none'),
+
+  /**
+   * Maximum acceptable drift in milliseconds before warning/correction.
+   * @default 80
+   */
+  maxDriftMs: z.number().positive().default(80),
+
+  /**
+   * Validate timestamps before render.
+   * @default true
+   */
+  validateTimestamps: z.boolean().default(true),
+
+  /**
+   * Automatically repair invalid timestamps.
+   * @default true
+   */
+  autoRepair: z.boolean().default(true),
+
+  /**
+   * Run sync quality check after render (cm rate).
+   * @default false
+   */
+  qualityCheck: z.boolean().default(false),
+
+  /**
+   * Minimum acceptable sync rating (0-100).
+   * Only used when qualityCheck is enabled.
+   * @default 75
+   */
+  minRating: z.number().min(0).max(100).default(75),
+
+  /**
+   * Retry with better strategy if sync rating fails.
+   * @default false
+   */
+  autoRetry: z.boolean().default(false),
+
+  /**
+   * Maximum retry attempts for sync quality.
+   * @default 2
+   */
+  maxRetries: z.number().int().nonnegative().default(2),
+});
+
 export const ConfigSchema = z.object({
   defaults: DefaultsSchema.default({}),
   llm: LLMConfigSchema.default({}),
   audio: AudioConfigSchema.default({}),
   visuals: VisualsConfigSchema.default({}),
   render: RenderConfigSchema.default({}),
+  sync: SyncConfigSchema.default({}),
 });
 
 export type Config = z.infer<typeof ConfigSchema>;
 export type Archetype = z.infer<typeof ArchetypeEnum>;
 export type Orientation = z.infer<typeof OrientationEnum>;
 export type LLMProviderType = z.infer<typeof LLMProviderEnum>;
+export type SyncConfig = z.infer<typeof SyncConfigSchema>;
+export type SyncStrategy = z.infer<typeof SyncStrategyEnum>;
+export type DriftCorrection = z.infer<typeof DriftCorrectionEnum>;
 
 // ============================================================================
 // API Key Management

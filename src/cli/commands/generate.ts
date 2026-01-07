@@ -32,6 +32,7 @@ interface GenerateOptions {
   mock: boolean;
   dryRun: boolean;
   research?: string | boolean;
+  pipeline?: 'standard' | 'audio-first';
 }
 
 function printHeader(
@@ -178,6 +179,7 @@ async function runGenerate(topic: string, options: GenerateOptions): Promise<voi
       mock: options.mock,
       research,
       eventEmitter: eventEmitter ?? undefined,
+      pipelineMode: options.pipeline ?? 'standard',
     });
   } finally {
     stageObserver?.dispose();
@@ -212,12 +214,17 @@ function showDryRunSummary(
   writeStderrLine(`   Output: ${options.output}`);
   writeStderrLine(`   Keep artifacts: ${options.keepArtifacts}`);
   writeStderrLine(`   Research: ${options.research ? 'enabled' : 'disabled'}`);
+  writeStderrLine(
+    `   Pipeline: ${options.pipeline ?? 'standard'}${options.pipeline === 'audio-first' ? ' (requires Whisper)' : ''}`
+  );
   writeStderrLine('   Pipeline stages:');
   if (options.research) {
     writeStderrLine('   0. Research -> research.json');
   }
   writeStderrLine('   1. Script -> script.json');
-  writeStderrLine('   2. Audio -> audio.wav + timestamps.json');
+  writeStderrLine(
+    `   2. Audio -> audio.wav + timestamps.json${options.pipeline === 'audio-first' ? ' (Whisper ASR required)' : ''}`
+  );
   writeStderrLine('   3. Visuals -> visuals.json');
   writeStderrLine(`   4. Render -> ${options.output}`);
 }
@@ -316,6 +323,11 @@ export const generateCommand = new Command('generate')
   .option('--duration <seconds>', 'Target duration in seconds', '45')
   .option('--keep-artifacts', 'Keep intermediate files', false)
   .option('--research [path]', 'Use research (true = auto-run, or path to research.json)')
+  .option(
+    '--pipeline <mode>',
+    'Pipeline mode: standard (default) or audio-first (requires Whisper)',
+    'standard'
+  )
   .option('--mock', 'Use mock providers (for testing)')
   .option('--dry-run', 'Preview configuration without execution')
   .action(async (topic: string, options: GenerateOptions) => {

@@ -146,6 +146,11 @@ export interface GenerateAudioOptions {
   timestampsPath: string;
   /** Use mock audio generation for testing */
   mock?: boolean;
+  /**
+   * Require Whisper ASR for timestamps (no fallback to estimation).
+   * Used in "audio-first" pipeline mode for guaranteed sync accuracy.
+   */
+  requireWhisper?: boolean;
 }
 
 /**
@@ -180,11 +185,12 @@ export async function generateAudio(options: GenerateAudioOptions): Promise<Audi
   log.info({ duration: ttsResult.duration }, 'TTS audio generated');
 
   // Step 2: Transcribe for word-level timestamps
-  log.info('Transcribing audio for timestamps');
+  log.info({ requireWhisper: options.requireWhisper }, 'Transcribing audio for timestamps');
   const asrResult = await transcribeAudio({
     audioPath: options.outputPath,
     originalText: fullText,
     audioDuration: ttsResult.duration,
+    requireWhisper: options.requireWhisper,
   });
 
   log.info(

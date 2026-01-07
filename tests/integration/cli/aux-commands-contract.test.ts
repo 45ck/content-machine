@@ -4,7 +4,7 @@ import { mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 describe('CLI stdout/stderr contract (aux commands)', () => {
-  it('score/publish/retrieve keep stdout parseable', async () => {
+  it('score/publish/retrieve/rate keep stdout parseable', async () => {
     const outDir = join(process.cwd(), 'tests', '.tmp', 'aux-contract');
     mkdirSync(outDir, { recursive: true });
 
@@ -13,6 +13,8 @@ describe('CLI stdout/stderr contract (aux commands)', () => {
     const publishPath = join(outDir, 'publish.json');
     const indexPath = join(outDir, 'research.index.json');
     const retrievePath = join(outDir, 'retrieve.json');
+    const videoPath = join(outDir, 'video.mp4');
+    const ratePath = join(outDir, 'rate.json');
 
     const scriptResult = await runCli(
       ['script', '--topic', 'Redis', '--mock', '-o', scriptPath],
@@ -84,5 +86,15 @@ describe('CLI stdout/stderr contract (aux commands)', () => {
     expect(retrieveResult.code).toBe(0);
     expect(retrieveResult.stdout.trim()).toBe(retrievePath);
     expect(retrieveResult.stderr).toContain('Query:');
+
+    writeFileSync(videoPath, 'mock video', 'utf-8');
+    const rateResult = await runCli(
+      ['rate', '--input', videoPath, '--mock', '--output', ratePath, '--min-rating', '0'],
+      undefined,
+      120000
+    );
+    expect(rateResult.code).toBe(0);
+    expect(rateResult.stdout.trim()).toBe(ratePath);
+    expect(rateResult.stderr).toContain('SYNC RATING REPORT');
   }, 240_000);
 });

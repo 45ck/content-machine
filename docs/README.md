@@ -164,11 +164,15 @@ Located in `guides/`, task-oriented how-to documentation:
 - `guides/guide-cli-errors-and-fix-lines-20260107.md`
 - `guides/guide-cli-tdd-vv-execution-20260107.md`
 
+### Rendering & templates guides
+
+- `guides/guide-video-templates-20260107.md`
+
 ### Planned Guides
 
 - [ ] Setup Development Environment
 - [ ] Add New MCP Connector
-- [ ] Create Remotion Template
+- [ ] Create Remotion Template (see `guides/guide-video-templates-20260107.md`)
 - [ ] Deploy to Production
 - [ ] Debug Video Rendering Issues
 - [ ] CLI UX V&V + TDD Playbook (see `guides/guide-cli-ux-vv-tdd-plan-20260106.md`)
@@ -192,6 +196,10 @@ Located in `reference/`, information-oriented technical docs:
 - `reference/cm-package-reference-20260106.md`
 - `reference/cm-research-reference-20260106.md`
 - `reference/cm-validate-reference-20260106.md`
+
+### Rendering references
+
+- `reference/video-templates-reference-20260107.md`
 
 ### Planned References
 
@@ -240,6 +248,7 @@ Located in `features/`, feature specifications:
 
 - [ ] MCP Reddit Connector
 - [ ] Content Planning Agent
+- [ ] [Video Templates (render templates)](features/feature-video-templates-20260107.md)
 - [ ] Playwright Capture Pipeline
 - [ ] Script Generation + TTS
 - [ ] Remotion Rendering

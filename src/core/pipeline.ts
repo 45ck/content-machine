@@ -44,6 +44,12 @@ export interface PipelineOptions {
   mock?: boolean;
   /** Research output to inject evidence into script generation */
   research?: ResearchOutput;
+  /**
+   * Pipeline mode for timestamp generation:
+   * - 'standard' (default): Uses Whisper ASR with estimation fallback
+   * - 'audio-first': Requires Whisper ASR for ground-truth timestamps, fails if unavailable
+   */
+  pipelineMode?: 'standard' | 'audio-first';
 }
 
 /**
@@ -150,7 +156,10 @@ async function executeAudioStage(
   log: Logger,
   costs: PipelineCosts
 ): Promise<AudioOutput> {
-  log.info('Starting Stage 2: Audio generation');
+  log.info(
+    { pipelineMode: options.pipelineMode ?? 'standard' },
+    'Starting Stage 2: Audio generation'
+  );
   options.onProgress?.('audio', 'Generating audio...');
 
   const audio = await logTiming(
@@ -162,6 +171,7 @@ async function executeAudioStage(
         outputPath: artifacts.audio,
         timestampsPath: artifacts.timestamps,
         mock: options.mock,
+        requireWhisper: options.pipelineMode === 'audio-first',
       });
     },
     log

@@ -21,6 +21,7 @@ import { logger } from '../core/logger';
 import { retrieveCommand } from './commands/retrieve';
 import { scoreCommand } from './commands/score';
 import { publishCommand } from './commands/publish';
+import { rateCommand } from './commands/rate';
 
 const program = new Command();
 
@@ -41,6 +42,7 @@ program.addCommand(researchCommand);
 program.addCommand(retrieveCommand);
 program.addCommand(validateCommand);
 program.addCommand(scoreCommand);
+program.addCommand(rateCommand);
 program.addCommand(publishCommand);
 program.addCommand(generateCommand);
 program.addCommand(initCommand);

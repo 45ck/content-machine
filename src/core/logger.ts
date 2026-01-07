@@ -14,10 +14,9 @@ import pretty from 'pino-pretty';
 export type Logger = pino.Logger;
 
 const isTest = process.env.NODE_ENV === 'test' || process.env.VITEST;
-const isDev = process.env.NODE_ENV !== 'production';
 
 // Determine log level
-const level = process.env.LOG_LEVEL ?? (isTest ? 'silent' : isDev ? 'debug' : 'info');
+const level = process.env.LOG_LEVEL ?? (isTest ? 'silent' : 'info');
 
 function createLogStream(): pino.DestinationStream {
   const shouldPretty = !isTest && Boolean(process.stderr.isTTY);
