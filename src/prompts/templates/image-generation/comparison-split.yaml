@@ -1,0 +1,131 @@
+# Comparison Split Screen
+#
+# Original: content-machine
+# License: MIT
+# Created: 2026-01-07
+# Purpose: Generate side-by-side comparison images for "versus" content
+
+id: image-generation/comparison-split
+name: Comparison Split Screen
+description: >
+  Generates prompts for split-screen comparison images.
+  Perfect for "X vs Y" style content where you need to show two contrasting options.
+  Creates visually balanced, clear comparisons.
+category: image-generation
+provider: gemini
+outputFormat: text
+version: "1.0.0"
+tags:
+  - image-generation
+  - comparison
+  - versus
+  - split-screen
+  - nano-banana
+estimatedTokens: 150
+recommendedTemperature: 0.6
+
+variables:
+  - name: leftSide
+    description: What to show on the left side
+    required: true
+    type: string
+    example: "old outdated technology"
+  - name: rightSide
+    description: What to show on the right side
+    required: true
+    type: string
+    example: "modern sleek technology"
+  - name: leftColor
+    description: Color theme for left side
+    required: false
+    type: string
+    default: "red/warm"
+    example: "red warning colors"
+  - name: rightColor
+    description: Color theme for right side
+    required: false
+    type: string
+    default: "green/cool"
+    example: "green success colors"
+  - name: divider
+    description: Style of the divider between sides
+    required: false
+    type: string
+    default: "sharp diagonal"
+    example: "lightning bolt"
+
+defaultOptions:
+  style: photorealistic
+  aspectRatio: "9:16"
+  lighting: studio
+  colorPalette: vibrant
+
+template: |
+  Split screen comparison image, divided {{divider}} in the middle.
+
+  LEFT SIDE: {{leftSide}}
+  - Color palette: {{leftColor}} tones
+  - Mood: Representing the inferior/old option
+
+  RIGHT SIDE: {{rightSide}}
+  - Color palette: {{rightColor}} tones
+  - Mood: Representing the superior/new option
+
+  Style: Clean, modern, professional comparison visual
+  Both sides should be equally detailed and high quality
+  Clear visual distinction between the two options
+  9:16 vertical aspect ratio for social media
+
+  No text, no labels, no watermarks.
+  Ultra high resolution, professional quality.
+
+examples:
+  - input:
+      leftSide: "cluttered chaotic desk with papers"
+      rightSide: "minimal organized desk with laptop"
+      leftColor: "dull grey and brown"
+      rightColor: "clean white and blue"
+      divider: "sharp vertical line"
+    output: |
+      Split screen comparison image, divided sharp vertical line in the middle.
+
+      LEFT SIDE: cluttered chaotic desk with papers
+      - Color palette: dull grey and brown tones
+      - Mood: Representing the inferior/old option
+
+      RIGHT SIDE: minimal organized desk with laptop
+      - Color palette: clean white and blue tones
+      - Mood: Representing the superior/new option
+
+      Style: Clean, modern, professional comparison visual
+      Both sides should be equally detailed and high quality
+      Clear visual distinction between the two options
+      9:16 vertical aspect ratio for social media
+
+      No text, no labels, no watermarks.
+      Ultra high resolution, professional quality.
+
+  - input:
+      leftSide: "slow loading spinner on old computer"
+      rightSide: "instant results on modern device"
+      leftColor: "frustrating red"
+      rightColor: "satisfying green"
+      divider: "lightning bolt diagonal"
+    output: |
+      Split screen comparison image, divided lightning bolt diagonal in the middle.
+
+      LEFT SIDE: slow loading spinner on old computer
+      - Color palette: frustrating red tones
+      - Mood: Representing the inferior/old option
+
+      RIGHT SIDE: instant results on modern device
+      - Color palette: satisfying green tones
+      - Mood: Representing the superior/new option
+
+      Style: Clean, modern, professional comparison visual
+      Both sides should be equally detailed and high quality
+      Clear visual distinction between the two options
+      9:16 vertical aspect ratio for social media
+
+      No text, no labels, no watermarks.
+      Ultra high resolution, professional quality.

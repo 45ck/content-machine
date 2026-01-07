@@ -80,6 +80,16 @@ export interface RenderVideoOptions {
    */
   wordsPerPage?: number;
   /**
+   * Maximum lines per caption page.
+   * Default: 2 (for multi-line captions)
+   */
+  maxLinesPerPage?: number;
+  /**
+   * Maximum characters per line before wrapping.
+   * Default: 25 (words never break mid-word)
+   */
+  maxCharsPerLine?: number;
+  /**
    * Caption animation: none (default), fade, slideUp, slideDown, pop, bounce
    */
   captionAnimation?: 'none' | 'fade' | 'slideUp' | 'slideDown' | 'pop' | 'bounce';
@@ -147,13 +157,19 @@ function resolveCaptionConfig(options: RenderVideoOptions): CaptionConfig {
   const presetName = options.captionPreset ?? 'tiktok';
   const preset = getCaptionPreset(presetName);
 
-  // Build layout with captionGroupMs and wordsPerPage overrides if provided
+  // Build layout with captionGroupMs, wordsPerPage, and line options overrides
   const layoutOverride: Partial<CaptionConfig['layout']> = {};
   if (options.captionGroupMs) {
     layoutOverride.maxGapMs = options.captionGroupMs;
   }
   if (options.wordsPerPage) {
     layoutOverride.maxWordsPerPage = options.wordsPerPage;
+  }
+  if (options.maxLinesPerPage) {
+    layoutOverride.maxLinesPerPage = options.maxLinesPerPage;
+  }
+  if (options.maxCharsPerLine) {
+    layoutOverride.maxCharsPerLine = options.maxCharsPerLine;
   }
 
   // Build top-level overrides

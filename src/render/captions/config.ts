@@ -106,18 +106,21 @@ export type TextShadow = z.infer<typeof TextShadowSchema>;
 
 /**
  * Layout configuration - controls how words are grouped into pages
+ *
+ * IMPORTANT: Words are NEVER broken mid-word. Full words only.
+ * Lines wrap at word boundaries when maxCharsPerLine is exceeded.
  */
 export const CaptionLayoutSchema = z.object({
-  /** Maximum characters per line (controls line breaks) */
-  maxCharsPerLine: z.number().int().positive().default(20),
-  /** Maximum lines per page (1 = one line at a time, 2 = two lines) */
-  maxLinesPerPage: z.number().int().positive().default(1),
+  /** Maximum characters per line before wrapping to next line (default: 25) */
+  maxCharsPerLine: z.number().int().positive().default(25),
+  /** Maximum lines per page (1 = single line, 2+ = multi-line captions) */
+  maxLinesPerPage: z.number().int().positive().default(2),
   /** Maximum time gap (ms) before forcing a new page */
   maxGapMs: z.number().int().nonnegative().default(1000),
   /** Minimum words per page */
   minWordsPerPage: z.number().int().positive().default(1),
   /** Maximum words per page (fallback if char limit not hit) */
-  maxWordsPerPage: z.number().int().positive().default(6),
+  maxWordsPerPage: z.number().int().positive().default(8),
 });
 export type CaptionLayout = z.infer<typeof CaptionLayoutSchema>;
 

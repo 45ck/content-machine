@@ -1,0 +1,131 @@
+# Cinematic Scene Generator
+#
+# Original: content-machine
+# License: MIT
+# Created: 2026-01-07
+# Purpose: Generate cinematic B-roll style images with Nano Banana / Gemini
+
+id: image-generation/cinematic-scene
+name: Cinematic Scene Generator
+description: >
+  Generates prompts for cinematic, film-quality images suitable for video B-roll.
+  Optimized for Gemini Imagen 3 via Nano Banana Pro.
+  Creates visually striking scenes with professional cinematography aesthetics.
+category: image-generation
+provider: gemini
+outputFormat: text
+version: "1.0.0"
+tags:
+  - image-generation
+  - cinematic
+  - b-roll
+  - nano-banana
+  - gemini
+  - film
+estimatedTokens: 150
+recommendedTemperature: 0.7
+
+variables:
+  - name: subject
+    description: The main subject to depict
+    required: true
+    type: string
+    example: "developer working late at night"
+  - name: mood
+    description: Emotional mood/atmosphere of the scene
+    required: false
+    type: string
+    default: "focused"
+    example: "dramatic"
+  - name: lighting
+    description: Lighting style
+    required: false
+    type: string
+    default: "natural"
+    example: "dramatic side lighting"
+  - name: colorGrade
+    description: Color grading style
+    required: false
+    type: string
+    default: "cinematic"
+    example: "teal and orange"
+  - name: aspectRatio
+    description: Aspect ratio for the image
+    required: false
+    type: string
+    default: "9:16"
+    example: "16:9"
+
+# Default Nano Banana options
+defaultOptions:
+  style: cinematic
+  aspectRatio: "9:16"
+  lighting: dramatic
+  cameraAngle: eye-level
+  colorPalette: muted
+
+# Quality presets
+qualityPresets:
+  tiktok:
+    aspectRatio: "9:16"
+    style: cinematic
+    lighting: dramatic
+  youtube:
+    aspectRatio: "16:9"
+    style: photorealistic
+    lighting: natural
+  thumbnail:
+    aspectRatio: "16:9"
+    style: cinematic
+    lighting: studio
+    colorPalette: vibrant
+
+template: |
+  Cinematic photograph of {{subject}}.
+
+  Style: Cinematic film still, professional cinematography, shallow depth of field
+  Mood: {{mood}}
+  Lighting: {{lighting}}, volumetric light rays
+  Color: {{colorGrade}} color grading
+  Camera: Shot on Arri Alexa, anamorphic lens flare
+  Aspect: {{aspectRatio}} vertical format for social media
+
+  Ultra high resolution, photorealistic, 8K quality.
+  No text, no watermarks, no logos.
+
+examples:
+  - input:
+      subject: "server room with glowing blue lights"
+      mood: "mysterious"
+      lighting: "neon blue ambient"
+      colorGrade: "cyberpunk"
+    output: |
+      Cinematic photograph of server room with glowing blue lights.
+
+      Style: Cinematic film still, professional cinematography, shallow depth of field
+      Mood: mysterious
+      Lighting: neon blue ambient, volumetric light rays
+      Color: cyberpunk color grading
+      Camera: Shot on Arri Alexa, anamorphic lens flare
+      Aspect: 9:16 vertical format for social media
+
+      Ultra high resolution, photorealistic, 8K quality.
+      No text, no watermarks, no logos.
+
+  - input:
+      subject: "entrepreneur working in a modern coffee shop"
+      mood: "focused and determined"
+      lighting: "warm natural window light"
+      colorGrade: "warm tones"
+    output: |
+      Cinematic photograph of entrepreneur working in a modern coffee shop.
+
+      Style: Cinematic film still, professional cinematography, shallow depth of field
+      Mood: focused and determined
+      Lighting: warm natural window light, volumetric light rays
+      Color: warm tones color grading
+      Camera: Shot on Arri Alexa, anamorphic lens flare
+      Aspect: 9:16 vertical format for social media
+
+      Ultra high resolution, photorealistic, 8K quality.
+      No text, no watermarks, no logos.

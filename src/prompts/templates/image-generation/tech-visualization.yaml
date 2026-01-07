@@ -1,0 +1,105 @@
+# Tech Visualization Generator
+#
+# Original: content-machine
+# License: MIT
+# Created: 2026-01-07
+# Purpose: Generate abstract tech/data visualizations for B-roll
+
+id: image-generation/tech-visualization
+name: Tech Visualization Generator
+description: >
+  Generates prompts for abstract technology and data visualizations.
+  Perfect for tech explainer videos, coding tutorials, and software content.
+  Creates modern, clean visual representations of abstract tech concepts.
+category: image-generation
+provider: gemini
+outputFormat: text
+version: "1.0.0"
+tags:
+  - image-generation
+  - tech
+  - data
+  - abstract
+  - visualization
+  - coding
+  - nano-banana
+estimatedTokens: 150
+recommendedTemperature: 0.8
+
+variables:
+  - name: concept
+    description: The technology concept to visualize
+    required: true
+    type: string
+    example: "data flowing through a neural network"
+  - name: style
+    description: Visual style for the visualization
+    required: false
+    type: string
+    default: "modern minimalist"
+    example: "futuristic holographic"
+  - name: primaryColor
+    description: Primary color accent
+    required: false
+    type: string
+    default: "electric blue"
+    example: "neon green"
+  - name: background
+    description: Background style
+    required: false
+    type: string
+    default: "dark gradient"
+    example: "pure black"
+
+defaultOptions:
+  style: abstract
+  aspectRatio: "9:16"
+  lighting: neon
+  colorPalette: cool
+
+template: |
+  Abstract visualization of {{concept}}.
+
+  Style: {{style}}, clean lines, geometric shapes
+  Colors: {{primaryColor}} accents on {{background}} background
+  Elements: Glowing particles, data streams, connected nodes
+  Aesthetic: Modern tech company visual language, premium feel
+
+  No text, no UI elements, no logos.
+  Ultra high resolution, 8K, raytraced lighting effects.
+  Aspect ratio: 9:16 vertical for social media.
+
+examples:
+  - input:
+      concept: "database queries flowing between servers"
+      style: "isometric 3D"
+      primaryColor: "cyan"
+      background: "dark navy gradient"
+    output: |
+      Abstract visualization of database queries flowing between servers.
+
+      Style: isometric 3D, clean lines, geometric shapes
+      Colors: cyan accents on dark navy gradient background
+      Elements: Glowing particles, data streams, connected nodes
+      Aesthetic: Modern tech company visual language, premium feel
+
+      No text, no UI elements, no logos.
+      Ultra high resolution, 8K, raytraced lighting effects.
+      Aspect ratio: 9:16 vertical for social media.
+
+  - input:
+      concept: "machine learning model training"
+      style: "neural network diagram"
+      primaryColor: "purple and blue"
+      background: "dark space-like"
+    output: |
+      Abstract visualization of machine learning model training.
+
+      Style: neural network diagram, clean lines, geometric shapes
+      Colors: purple and blue accents on dark space-like background
+      Elements: Glowing particles, data streams, connected nodes
+      Aesthetic: Modern tech company visual language, premium feel
+
+      No text, no UI elements, no logos.
+      Ultra high resolution, 8K, raytraced lighting effects.
+      Aspect ratio: 9:16 vertical for social media.

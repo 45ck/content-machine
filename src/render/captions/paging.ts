@@ -5,6 +5,9 @@
  * Based on gyoridavid/short-video-maker createCaptionPages pattern.
  *
  * This is the KEY to TikTok-style captions: showing only a few words at a time.
+ *
+ * IMPORTANT: This module NEVER breaks words mid-word. Full words only.
+ * Contractions (don't, it's) and hyphenated words are kept together.
  */
 import { CaptionLayout } from './config';
 
@@ -52,18 +55,51 @@ export interface CaptionPage {
  * Default layout configuration
  */
 const DEFAULT_LAYOUT: CaptionLayout = {
-  maxCharsPerLine: 20,
-  maxLinesPerPage: 1,
+  maxCharsPerLine: 25,
+  maxLinesPerPage: 2,
   maxGapMs: 1000,
   minWordsPerPage: 1,
-  maxWordsPerPage: 6,
+  maxWordsPerPage: 8,
 };
+
+/**
+ * Calculate the character count for a line of words
+ * Includes spaces between words
+ */
+function calculateLineCharCount(words: TimedWord[]): number {
+  if (words.length === 0) return 0;
+  // Sum of all word lengths + spaces between words
+  return words.reduce((sum, w) => sum + w.text.trim().length, 0) + (words.length - 1);
+}
+
+/**
+ * Check if adding a word would exceed the line character limit
+ * NEVER breaks words mid-word - returns false if word would fit, true if it wouldn't
+ */
+function wouldExceedLineLimit(
+  currentLineWords: TimedWord[],
+  newWord: TimedWord,
+  maxChars: number
+): boolean {
+  const currentCount = calculateLineCharCount(currentLineWords);
+  const wordLength = newWord.text.trim().length;
+  const spaceNeeded = currentLineWords.length > 0 ? 1 : 0;
+  const totalAfterAdd = currentCount + spaceNeeded + wordLength;
+
+  // If line is empty, always allow the word (even if it exceeds limit)
+  // This prevents infinite loops on very long words
+  if (currentLineWords.length === 0) {
+    return false;
+  }
+
+  return totalAfterAdd > maxChars;
+}
 
 /**
  * Create caption pages from timed words
  *
  * This groups words into pages based on:
- * 1. Character limit per line
+ * 1. Character limit per line (NEVER breaks words mid-word)
  * 2. Maximum lines per page
  * 3. Time gaps between words
  * 4. Word count limits
@@ -72,7 +108,6 @@ const DEFAULT_LAYOUT: CaptionLayout = {
  * @param layout - Layout configuration
  * @returns Array of caption pages
  */
-// eslint-disable-next-line complexity, sonarjs/cognitive-complexity
 export function createCaptionPages(
   words: TimedWord[],
   layout: Partial<CaptionLayout> = {}
@@ -82,95 +117,88 @@ export function createCaptionPages(
 
   if (words.length === 0) return pages;
 
-  let currentPage: {
-    lines: CaptionLine[];
-    words: TimedWord[];
-    startMs: number;
-    endMs: number;
-  } = {
-    lines: [],
-    words: [],
-    startMs: words[0].startMs,
-    endMs: words[0].endMs,
-  };
+  // Current page being built
+  let currentPageLines: CaptionLine[] = [];
+  let currentPageWords: TimedWord[] = [];
+  let currentPageStartMs = words[0].startMs;
 
-  let currentLine: {
-    words: TimedWord[];
-    charCount: number;
-  } = {
-    words: [],
-    charCount: 0,
-  };
+  // Current line being built
+  let currentLineWords: TimedWord[] = [];
+
+  /**
+   * Finalize the current line and add it to the page
+   */
+  function finalizeCurrentLine(): void {
+    if (currentLineWords.length === 0) return;
+
+    currentPageLines.push(finalizeLine(currentLineWords));
+    currentLineWords = [];
+  }
+
+  /**
+   * Finalize the current page and start a new one
+   */
+  function finalizeCurrentPage(): void {
+    // First finalize any pending line
+    finalizeCurrentLine();
+
+    if (currentPageWords.length === 0) return;
+
+    pages.push({
+      lines: currentPageLines,
+      words: currentPageWords,
+      text: currentPageLines.map((l) => l.text).join('\n'),
+      startMs: currentPageStartMs,
+      endMs: currentPageWords[currentPageWords.length - 1].endMs,
+      index: pages.length,
+    });
+
+    // Reset for new page
+    currentPageLines = [];
+    currentPageWords = [];
+  }
 
   for (let i = 0; i < words.length; i++) {
     const word = words[i];
-    const wordText = word.text.trim();
-    const wordCharCount = wordText.length;
     const prevWord = i > 0 ? words[i - 1] : null;
 
-    // Check if we need a new page due to time gap
+    // Check for time gap - forces new page
     const hasTimeGap = prevWord && word.startMs - prevWord.endMs > config.maxGapMs;
 
-    // Check if adding this word would exceed line character limit
-    const lineWithWord =
-      currentLine.charCount + (currentLine.words.length > 0 ? 1 : 0) + wordCharCount;
-    const exceedsLineLimit = lineWithWord > config.maxCharsPerLine && currentLine.words.length > 0;
-
     // Check if we've hit max words per page
-    const exceedsWordLimit = currentPage.words.length >= config.maxWordsPerPage;
+    const exceedsWordLimit = currentPageWords.length >= config.maxWordsPerPage;
 
-    // Determine if we need to finalize current line
-    if (exceedsLineLimit || hasTimeGap || exceedsWordLimit) {
-      // Finalize current line if it has words
-      if (currentLine.words.length > 0) {
-        const line = finalizeLine(currentLine.words);
-        currentPage.lines.push(line);
-        currentPage.endMs = line.endMs;
+    // Force new page on time gap or word limit
+    if (hasTimeGap || exceedsWordLimit) {
+      finalizeCurrentPage();
+      currentPageStartMs = word.startMs;
+    }
+
+    // Check if adding this word would exceed line character limit
+    const exceedsLineLimit = wouldExceedLineLimit(
+      currentLineWords,
+      word,
+      config.maxCharsPerLine
+    );
+
+    if (exceedsLineLimit) {
+      // Finalize current line
+      finalizeCurrentLine();
+
+      // Check if page is now full (max lines reached)
+      if (currentPageLines.length >= config.maxLinesPerPage) {
+        finalizeCurrentPage();
+        currentPageStartMs = word.startMs;
       }
-
-      // Check if page is full (max lines reached) or has time gap or word limit
-      const pageIsFull = currentPage.lines.length >= config.maxLinesPerPage;
-
-      if (pageIsFull || hasTimeGap || exceedsWordLimit) {
-        // Finalize current page if it has content
-        if (currentPage.words.length > 0) {
-          pages.push(finalizePage(currentPage, pages.length));
-        }
-
-        // Start new page
-        currentPage = {
-          lines: [],
-          words: [],
-          startMs: word.startMs,
-          endMs: word.endMs,
-        };
-      }
-
-      // Start new line
-      currentLine = {
-        words: [],
-        charCount: 0,
-      };
     }
 
     // Add word to current line and page
-    currentLine.words.push(word);
-    currentLine.charCount += (currentLine.words.length > 1 ? 1 : 0) + wordCharCount;
-    currentPage.words.push(word);
-    currentPage.endMs = word.endMs;
-  }
-
-  // Finalize last line
-  if (currentLine.words.length > 0) {
-    const line = finalizeLine(currentLine.words);
-    currentPage.lines.push(line);
-    currentPage.endMs = line.endMs;
+    currentLineWords.push(word);
+    currentPageWords.push(word);
   }
 
   // Finalize last page
-  if (currentPage.words.length > 0) {
-    pages.push(finalizePage(currentPage, pages.length));
-  }
+  finalizeCurrentPage();
 
   return pages;
 }
@@ -184,23 +212,6 @@ function finalizeLine(words: TimedWord[]): CaptionLine {
     text: words.map((w) => w.text.trim()).join(' '),
     startMs: words[0].startMs,
     endMs: words[words.length - 1].endMs,
-  };
-}
-
-/**
- * Finalize a page from its accumulated data
- */
-function finalizePage(
-  page: { lines: CaptionLine[]; words: TimedWord[]; startMs: number; endMs: number },
-  index: number
-): CaptionPage {
-  return {
-    lines: page.lines,
-    words: page.words,
-    text: page.lines.map((l) => l.text).join('\n'),
-    startMs: page.startMs,
-    endMs: page.endMs,
-    index,
   };
 }
 

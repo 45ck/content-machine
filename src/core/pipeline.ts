@@ -98,6 +98,16 @@ export interface PipelineOptions {
    */
   wordsPerPage?: number;
   /**
+   * Maximum lines per caption page.
+   * Default: 2 (for multi-line captions)
+   */
+  maxLinesPerPage?: number;
+  /**
+   * Maximum characters per line before wrapping.
+   * Default: 25 (words never break mid-word)
+   */
+  maxCharsPerLine?: number;
+  /**
    * Caption animation: none (default), fade, slideUp, slideDown, pop, bounce
    */
   captionAnimation?: 'none' | 'fade' | 'slideUp' | 'slideDown' | 'pop' | 'bounce';
@@ -290,6 +300,8 @@ async function executeRenderStage(
       captionGroupMs: options.captionGroupMs,
       captionMode: options.captionMode,
       wordsPerPage: options.wordsPerPage,
+      maxLinesPerPage: options.maxLinesPerPage,
+      maxCharsPerLine: options.maxCharsPerLine,
       captionAnimation: options.captionAnimation,
     },
     'Starting Stage 4: Video rendering'
@@ -315,6 +327,8 @@ async function executeRenderStage(
         captionGroupMs: options.captionGroupMs,
         captionMode: options.captionMode,
         wordsPerPage: options.wordsPerPage,
+        maxLinesPerPage: options.maxLinesPerPage,
+        maxCharsPerLine: options.maxCharsPerLine,
         captionAnimation: options.captionAnimation,
       });
     },

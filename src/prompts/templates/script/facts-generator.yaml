@@ -1,0 +1,123 @@
+# Facts Generator
+#
+# Adapted from: ShortGPT
+# Source: https://github.com/RayVentura/ShortGPT
+# License: MIT
+# Original: shortGPT/prompt_templates/facts_generator.yaml
+# Adapted: 2026-01-07
+
+id: script/facts-generator
+name: Facts Generator
+description: >
+  Generates engaging "facts" style content for YouTube Shorts.
+  Creates captivating, original facts with a strong hook.
+  Optimized for 50 seconds or less (around 140 words).
+category: script
+provider: any
+outputFormat: text
+version: "1.0.0"
+tags:
+  - script
+  - facts
+  - trivia
+  - shorts
+  - educational
+  - viral
+estimatedTokens: 400
+recommendedTemperature: 0.8
+
+source:
+  repository: ShortGPT
+  url: https://github.com/RayVentura/ShortGPT
+  license: MIT
+  originalPath: shortGPT/prompt_templates/facts_generator.yaml
+  adaptedDate: "2026-01-07"
+  modifications: >
+    Converted to content-machine template format.
+    Added variable definitions.
+
+variables:
+  - name: factsType
+    description: The type/category of facts to generate
+    required: true
+    type: string
+    example: "Weird facts"
+  - name: count
+    description: Number of facts to include (3-7 recommended)
+    required: false
+    type: number
+    default: 5
+    example: 5
+
+systemPrompt: |
+  You are an expert content writer of a YouTube shorts channel. You specialize in `facts` shorts.
+  Your facts shorts are less than 50 seconds verbally (around 140 words maximum). They are extremely captivating, and original.
+  The user will ask you a type of facts short and you will produce it.
+
+  For examples, when the user Asks:
+  `Weird facts`
+
+  You produce the following content script:
+
+  ---
+  Weird facts you don't know.
+  A swarm of 20,000 bees followed a car for two days because their queen was stuck inside.
+  Crocodiles cannot stick their tongue out because it's attached to the roof of their mouths.
+
+  If you tickle a rat day after day, it will start laughing whenever it sees you.
+
+  In 2013, police in the Maldives arrested a coconut for loitering near a polling station for the presidential election.
+  Locals feared the coconut may have been imbued with a black magic spell to influence the election.
+
+  A Chinese farmer who always wanted to own his own plane built a full scale,
+  non-working replica of an Airbus A320 out of 50 tons of steel. It took him and his friends over two years and cost over $400,000.
+
+  When invited by a lady to spend a night with her, Benjamin Franklin asked to postpone until winter when nights were longer.
+  ---
+
+  You are now tasked to produce the greatest short script depending on the user's request type of 'facts'.
+  Only give the first `hook`, like "Weird facts you don't know." in the example. Then the facts.
+  Keep it short, extremely interesting and original.
+
+template: |
+  Generate a facts short about: {{factsType}}
+
+  {{#if count}}Include approximately {{count}} facts.{{/if}}
+
+  Remember:
+  - Start with a hook that relates to the facts type
+  - Each fact should be surprising and memorable
+  - Keep the total under 140 words
+  - Facts should flow naturally when read aloud
+  - End with the most surprising fact
+
+examples:
+  - input:
+      factsType: "Tech facts"
+      count: 5
+    output: |
+      Tech facts that will blow your mind.
+
+      The first computer virus was created in 1986 by two brothers in Pakistan. They put their names and phone number in the code so people could call them for removal.
+
+      Nintendo was founded in 1889 as a playing card company, over 100 years before the Game Boy.
+
+      The QWERTY keyboard was designed to slow down typing to prevent typewriter jams. We're still using it 150 years later.
+
+      There are more possible iterations of a game of chess than atoms in the observable universe.
+
+      The first webcam was invented to monitor a coffee pot. Students at Cambridge were tired of walking to an empty pot.
+
+  - input:
+      factsType: "Animal facts"
+      count: 4
+    output: |
+      Animal facts that sound fake but aren't.
+
+      Cows have best friends and get stressed when they're separated.
+
+      Octopuses have three hearts and blue blood. Two hearts pump blood to the gills, one pumps it to the body.
+
+      A group of flamingos is called a "flamboyance" and they can only eat with their heads upside down.
+
+      Honey never spoils. Archaeologists found 3000-year-old honey in Egyptian tombs that was still perfectly edible.

@@ -1,0 +1,136 @@
+# Abstract Concept Visualizer
+#
+# Original: content-machine
+# License: MIT
+# Created: 2026-01-07
+# Purpose: Generate abstract visual metaphors for concepts
+
+id: image-generation/abstract-concept
+name: Abstract Concept Visualizer
+description: >
+  Generates prompts for visualizing abstract concepts as striking images.
+  Converts intangible ideas (speed, growth, success) into compelling visuals.
+  Uses metaphorical imagery that viewers immediately understand.
+category: image-generation
+provider: gemini
+outputFormat: text
+version: "1.0.0"
+tags:
+  - image-generation
+  - abstract
+  - metaphor
+  - concept
+  - nano-banana
+estimatedTokens: 150
+recommendedTemperature: 0.9
+
+variables:
+  - name: concept
+    description: The abstract concept to visualize
+    required: true
+    type: string
+    example: "speed and performance"
+  - name: metaphor
+    description: Visual metaphor to use
+    required: false
+    type: string
+    default: ""
+    example: "rocket launching"
+  - name: mood
+    description: Emotional tone of the image
+    required: false
+    type: string
+    default: "powerful and inspiring"
+    example: "calm and serene"
+  - name: style
+    description: Visual style
+    required: false
+    type: string
+    default: "dramatic cinematic"
+    example: "minimalist clean"
+
+defaultOptions:
+  style: abstract
+  aspectRatio: "9:16"
+  lighting: dramatic
+  colorPalette: vibrant
+
+# Common concept-to-metaphor mappings for agents
+conceptMappings:
+  speed: ["rocket launch", "cheetah running", "light trails", "blurred motion"]
+  growth: ["seedling sprouting", "ascending staircase", "rising graph", "tree growing"]
+  success: ["mountain summit", "trophy", "sunrise", "finish line"]
+  failure: ["broken chain", "falling dominos", "storm clouds", "cracked foundation"]
+  innovation: ["lightbulb moment", "gears turning", "puzzle completing", "breakthrough"]
+  connection: ["network nodes", "handshake", "bridges", "linked chains"]
+  security: ["shield", "fortress", "lock", "vault door"]
+  time: ["hourglass", "clock gears", "seasons changing", "sunrise to sunset"]
+
+template: |
+  Abstract visualization representing the concept of "{{concept}}".
+
+  {{#if metaphor}}
+  Visual metaphor: {{metaphor}}
+  {{else}}
+  Create a striking visual metaphor that instantly communicates this concept.
+  {{/if}}
+
+  Mood: {{mood}}
+  Style: {{style}}, artistic, evocative
+
+  The image should be:
+  - Immediately understandable without explanation
+  - Visually striking and memorable
+  - Clean and uncluttered
+  - Suitable for professional content
+
+  9:16 vertical aspect ratio for social media.
+  No text, no watermarks, no logos.
+  Ultra high resolution, artistic quality.
+
+examples:
+  - input:
+      concept: "speed and performance"
+      metaphor: "light trails on a highway at night"
+      mood: "dynamic and energetic"
+      style: "long exposure photography"
+    output: |
+      Abstract visualization representing the concept of "speed and performance".
+
+      Visual metaphor: light trails on a highway at night
+
+      Mood: dynamic and energetic
+      Style: long exposure photography, artistic, evocative
+
+      The image should be:
+      - Immediately understandable without explanation
+      - Visually striking and memorable
+      - Clean and uncluttered
+      - Suitable for professional content
+
+      9:16 vertical aspect ratio for social media.
+      No text, no watermarks, no logos.
+      Ultra high resolution, artistic quality.
+
+  - input:
+      concept: "data security"
+      metaphor: "digital fortress with glowing shields"
+      mood: "protective and powerful"
+      style: "futuristic 3D render"
+    output: |
+      Abstract visualization representing the concept of "data security".
+
+      Visual metaphor: digital fortress with glowing shields
+
+      Mood: protective and powerful
+      Style: futuristic 3D render, artistic, evocative
+
+      The image should be:
+      - Immediately understandable without explanation
+      - Visually striking and memorable
+      - Clean and uncluttered
+      - Suitable for professional content
+
+      9:16 vertical aspect ratio for social media.
+      No text, no watermarks, no logos.
+      Ultra high resolution, artistic quality.

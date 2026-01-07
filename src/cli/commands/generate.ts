@@ -108,6 +108,10 @@ interface GenerateOptions {
   captionMode?: 'page' | 'single' | 'buildup';
   /** Words per caption page/group (default: 8) */
   wordsPerPage?: string;
+  /** Maximum lines per caption page (default: 2) */
+  maxLines?: string;
+  /** Maximum characters per line (default: 25) */
+  charsPerLine?: string;
   /** Caption animation: none (default), fade, slideUp, slideDown, pop, bounce */
   captionAnimation?: 'none' | 'fade' | 'slideUp' | 'slideDown' | 'pop' | 'bounce';
 }
@@ -184,6 +188,8 @@ function writeSuccessJson(params: {
   runtime: ReturnType<typeof getCliRuntime>;
   artifactsDir: string;
   result: PipelineResult;
+  sync?: SyncQualitySummary | null;
+  exitCode?: number;
 }): void {
   const {
     topic,
@@ -195,6 +201,8 @@ function writeSuccessJson(params: {
     runtime,
     artifactsDir,
     result,
+    sync,
+    exitCode = 0,
   } = params;
 
   writeJsonEnvelope(
@@ -213,6 +221,13 @@ function writeSuccessJson(params: {
         output: options.output,
         keepArtifacts: options.keepArtifacts,
         mock: options.mock,
+        pipeline: options.pipeline ?? 'standard',
+        whisperModel: options.whisperModel ?? null,
+        reconcile: Boolean(options.reconcile),
+        syncPreset: options.syncPreset ?? 'standard',
+        syncQualityCheck: Boolean(options.syncQualityCheck),
+        minSyncRating: options.minSyncRating ? Number.parseInt(options.minSyncRating, 10) : null,
+        autoRetrySync: Boolean(options.autoRetrySync),
       },
       outputs: {
         videoPath: result.outputPath,
@@ -223,11 +238,20 @@ function writeSuccessJson(params: {
         fileSizeBytes: result.fileSize,
         artifactsDir,
         costs: result.costs ?? null,
+        syncReportPath: sync?.reportPath ?? null,
+        syncRating: sync?.rating ?? null,
+        syncRatingLabel: sync?.ratingLabel ?? null,
+        syncPassed: sync?.passed ?? null,
+        syncMeanDriftMs: sync?.meanDriftMs ?? null,
+        syncMaxDriftMs: sync?.maxDriftMs ?? null,
+        syncMatchRatio: sync?.matchRatio ?? null,
+        syncErrorCount: sync?.errorCount ?? null,
+        syncAttempts: sync?.attempts ?? null,
       },
       timingsMs: Date.now() - runtime.startTime,
     })
   );
-  process.exit(0);
+  process.exit(exitCode);
 }
 
 function applyDefaultOption(
@@ -378,6 +402,12 @@ async function runGeneratePipeline(params: {
       wordsPerPage: params.options.wordsPerPage
         ? parseInt(params.options.wordsPerPage, 10)
         : undefined,
+      maxLinesPerPage: params.options.maxLines
+        ? parseInt(params.options.maxLines, 10)
+        : undefined,
+      maxCharsPerLine: params.options.charsPerLine
+        ? parseInt(params.options.charsPerLine, 10)
+        : undefined,
       captionAnimation: params.options.captionAnimation,
     });
   } finally {
@@ -432,6 +462,130 @@ function createGenerateLlmProvider(
   return createMockLLMProvider(topic);
 }
 
+function parseMinSyncRating(options: GenerateOptions): number {
+  const raw = options.minSyncRating ?? '75';
+  const minRating = Number.parseInt(raw, 10);
+  if (!Number.isFinite(minRating) || minRating < 0 || minRating > 100) {
+    throw new CMError('INVALID_ARGUMENT', `Invalid --min-sync-rating value: ${raw}`, {
+      fix: 'Use a number between 0 and 100 for --min-sync-rating',
+    });
+  }
+  return minRating;
+}
+
+function buildSyncQualitySummary(
+  reportPath: string,
+  rating: SyncRatingOutput,
+  attempts: number
+): SyncQualitySummary {
+  return {
+    reportPath,
+    rating: rating.rating,
+    ratingLabel: rating.ratingLabel,
+    passed: rating.passed,
+    meanDriftMs: rating.metrics.meanDriftMs,
+    maxDriftMs: rating.metrics.maxDriftMs,
+    matchRatio: rating.metrics.matchRatio,
+    errorCount: rating.errors.length,
+    attempts,
+  };
+}
+
+async function runPipelineWithOptionalSyncQualityGate(params: {
+  topic: string;
+  archetype: Archetype;
+  orientation: Orientation;
+  options: GenerateOptions;
+  resolvedTemplate: Awaited<ReturnType<typeof resolveVideoTemplate>> | undefined;
+  templateDefaults: Record<string, unknown> | undefined;
+  research: ResearchOutput | undefined;
+  llmProvider: FakeLLMProvider | undefined;
+  runtime: ReturnType<typeof getCliRuntime>;
+  artifactsDir: string;
+}): Promise<{
+  result: PipelineResult;
+  finalOptions: GenerateOptions;
+  sync: SyncQualitySummary | null;
+  exitCode: number;
+}> {
+  if (!params.options.syncQualityCheck) {
+    const result = await runGeneratePipeline(params);
+    return { result, finalOptions: params.options, sync: null, exitCode: 0 };
+  }
+
+  const minRating = parseMinSyncRating(params.options);
+  const initialSettings: SyncAttemptSettings = {
+    pipelineMode: params.options.pipeline ?? 'standard',
+    reconcile: Boolean(params.options.reconcile),
+    whisperModel: params.options.whisperModel ?? 'base',
+  };
+
+  const config = {
+    enabled: true,
+    autoRetry: Boolean(params.options.autoRetrySync),
+    maxRetries: Boolean(params.options.autoRetrySync) ? 1 : 0,
+  };
+
+  const { rateSyncQuality } = await import('../../score/sync-rater');
+
+  const runAttempt = async (settings: SyncAttemptSettings): Promise<PipelineResult> => {
+    const attemptOptions: GenerateOptions = {
+      ...params.options,
+      pipeline: settings.pipelineMode,
+      reconcile: settings.reconcile,
+      whisperModel: settings.whisperModel,
+    };
+    return runGeneratePipeline({ ...params, options: attemptOptions });
+  };
+
+  const rate = (videoPath: string): Promise<SyncRatingOutput> => {
+    return rateSyncQuality(videoPath, {
+      fps: 2,
+      thresholds: {
+        minRating,
+        maxMeanDriftMs: 180,
+        maxMaxDriftMs: 500,
+        minMatchRatio: 0.7,
+      },
+      asrModel: params.options.whisperModel ?? 'base',
+      mock: params.options.mock,
+    });
+  };
+
+  const outcome = await runGenerateWithSyncQualityGate({
+    initialSettings,
+    config,
+    runAttempt,
+    rate,
+  });
+
+  const rating = outcome.rating;
+  if (!rating) {
+    return { result: outcome.pipelineResult, finalOptions: params.options, sync: null, exitCode: 0 };
+  }
+
+  const reportPath = join(params.artifactsDir, 'sync-report.json');
+  await writeOutputFile(reportPath, rating);
+
+  for (let i = 0; i < outcome.attemptHistory.length; i++) {
+    const attempt = outcome.attemptHistory[i];
+    if (!attempt.rating) continue;
+    await writeOutputFile(join(params.artifactsDir, `sync-report-attempt${i + 1}.json`), attempt.rating);
+  }
+
+  const sync = buildSyncQualitySummary(reportPath, rating, outcome.attempts);
+  const exitCode = sync.passed ? 0 : 1;
+
+  const finalOptions: GenerateOptions = {
+    ...params.options,
+    pipeline: outcome.finalSettings.pipelineMode,
+    reconcile: outcome.finalSettings.reconcile,
+    whisperModel: outcome.finalSettings.whisperModel,
+  };
+
+  return { result: outcome.pipelineResult, finalOptions, sync, exitCode };
+}
+
 function finalizeGenerateOutput(params: {
   topic: string;
   archetype: string;
@@ -442,6 +596,8 @@ function finalizeGenerateOutput(params: {
   runtime: ReturnType<typeof getCliRuntime>;
   artifactsDir: string;
   result: PipelineResult;
+  sync: SyncQualitySummary | null;
+  exitCode: number;
 }): void {
   if (params.runtime.json) {
     writeSuccessJson({
@@ -454,11 +610,14 @@ function finalizeGenerateOutput(params: {
       runtime: params.runtime,
       artifactsDir: params.artifactsDir,
       result: params.result,
+      sync: params.sync,
+      exitCode: params.exitCode,
     });
     return;
   }
 
-  showSuccessSummary(params.result, params.options, params.artifactsDir);
+  showSuccessSummary(params.result, params.options, params.artifactsDir, params.sync);
+  if (params.exitCode !== 0) process.exit(params.exitCode);
 }
 
 async function runGenerate(
@@ -578,6 +737,12 @@ function showDryRunSummary(
   if (options.wordsPerPage) {
     writeStderrLine(`   Words Per Page: ${options.wordsPerPage}`);
   }
+  if (options.maxLines) {
+    writeStderrLine(`   Max Lines: ${options.maxLines}`);
+  }
+  if (options.charsPerLine) {
+    writeStderrLine(`   Chars Per Line: ${options.charsPerLine}`);
+  }
   if (options.captionAnimation) {
     writeStderrLine(`   Caption Animation: ${options.captionAnimation}`);
   }
@@ -637,105 +802,4 @@ async function loadOrRunResearch(
   // If it's a file path, load from file
   if (typeof researchOption === 'string') {
     const raw = await readInputFile(researchOption);
-    const parsed = ResearchOutputSchema.safeParse(raw);
-    if (!parsed.success) {
-      throw new SchemaError('Invalid research file', {
-        path: researchOption,
-        issues: parsed.error.issues,
-        fix: 'Generate research via `cm research -q "<topic>" -o research.json` and pass --research research.json',
-      });
-    }
-    return parsed.data;
-  }
-
-  // If it's true (boolean flag), run research automatically
-  const spinner = createSpinner('Stage 0/4: Researching topic...').start();
-
-  const llmProvider = mock
-    ? undefined
-    : process.env.OPENAI_API_KEY
-      ? new OpenAIProvider('gpt-4o-mini', process.env.OPENAI_API_KEY)
-      : undefined;
-
-  const orchestrator = createResearchOrchestrator(
-    {
-      sources: ['hackernews', 'reddit', 'tavily'],
-      limitPerSource: 5,
-      generateAngles: true,
-      maxAngles: 3,
-    },
-    llmProvider
-  );
-
-  try {
-    const result = await orchestrator.research(topic);
-    spinner.succeed('Stage 0/4: Research complete');
-    return result.output;
-  } catch (error) {
-    spinner.fail('Stage 0/4: Research failed');
-    throw error;
-  }
-}
-
-export const generateCommand = new Command('generate')
-  .description('Generate a complete video from a topic')
-  .argument('<topic>', 'Topic for the video')
-  .option('-a, --archetype <type>', 'Content archetype', 'listicle')
-  .option('--template <idOrPath>', 'Video template id or path to template.json')
-  .option('-o, --output <path>', 'Output video file path', 'video.mp4')
-  .option('--orientation <type>', 'Video orientation', 'portrait')
-  .option('--fps <fps>', 'Frames per second', '30')
-  .option(
-    '--caption-preset <preset>',
-    'Caption style preset (tiktok, youtube, reels, bold, minimal, neon)',
-    'tiktok'
-  )
-  .option('--voice <voice>', 'TTS voice to use', 'af_heart')
-  .option('--duration <seconds>', 'Target duration in seconds', '45')
-  .option('--keep-artifacts', 'Keep intermediate files', false)
-  .option('--research [path]', 'Use research (true = auto-run, or path to research.json)')
-  .option(
-    '--pipeline <mode>',
-    'Pipeline mode: standard (default) or audio-first (requires Whisper)',
-    'standard'
-  )
-  .option(
-    '--whisper-model <model>',
-    'Whisper model size: tiny, base (default), small, medium (larger = more accurate but slower)'
-  )
-  .option(
-    '--caption-group-ms <ms>',
-    'Caption grouping window in milliseconds (default: 800, larger = fewer page transitions)'
-  )
-  .option('--reconcile', 'Reconcile ASR output to match original script text for cleaner captions')
-  // Caption display options
-  .option(
-    '--caption-mode <mode>',
-    'Caption display mode: page (default), single (one word at a time), buildup (accumulate per sentence)'
-  )
-  .option(
-    '--words-per-page <count>',
-    'Words per caption page/group (default: 8 for larger sentences)'
-  )
-  .option(
-    '--caption-animation <animation>',
-    'Caption animation: none (default), fade, slideUp, slideDown, pop, bounce'
-  )
-  // Sync quality options
-  .option(
-    '--sync-preset <preset>',
-    'Sync quality preset: fast, standard, quality, maximum',
-    'standard'
-  )
-  .option('--sync-quality-check', 'Run sync quality rating after render')
-  .option('--min-sync-rating <rating>', 'Minimum acceptable sync rating (0-100)', '75')
-  .option('--auto-retry-sync', 'Auto-retry with better strategy if rating fails')
-  .option('--mock', 'Use mock providers (for testing)')
-  .option('--dry-run', 'Preview configuration without execution')
-  .action(async (topic: string, options: GenerateOptions, command: Command) => {
-    try {
-      await runGenerate(topic, options, command);
-    } catch (error) {
-      handleCommandError(error);
-    }
-  });
+   

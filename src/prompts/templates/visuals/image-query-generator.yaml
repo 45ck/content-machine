@@ -1,0 +1,112 @@
+# Image Query Generator
+#
+# Adapted from: ShortGPT
+# Source: https://github.com/RayVentura/ShortGPT
+# License: MIT
+# Original: shortGPT/prompt_templates/editing_generate_images.yaml
+# Adapted: 2026-01-07
+
+id: visuals/image-query-generator
+name: Timed Image Query Generator
+description: >
+  Generates precisely-timed image search queries based on video transcript.
+  Creates 1-2 word queries that match specific moments in the narration.
+  Designed for illustrating spoken content with relevant stock images.
+category: visuals
+provider: any
+outputFormat: json
+version: "1.0.0"
+tags:
+  - visuals
+  - images
+  - timed
+  - captions
+  - b-roll
+  - stock-images
+estimatedTokens: 500
+recommendedTemperature: 0.6
+
+source:
+  repository: ShortGPT
+  url: https://github.com/RayVentura/ShortGPT
+  license: MIT
+  originalPath: shortGPT/prompt_templates/editing_generate_images.yaml
+  adaptedDate: "2026-01-07"
+  modifications: >
+    Minor formatting adjustments.
+    Added variable definitions for content-machine integration.
+
+variables:
+  - name: captions
+    description: >
+      Timed captions array. Each item is [[startTime, endTime], "word or phrase"].
+      Example: [[[0.0, 0.5], "Hello"], [[0.5, 1.0], "world"]]
+    required: true
+    type: array
+    example: "[[[0.0, 2.5], 'Stop using PostgreSQL'], [[2.5, 5.0], 'for caching']]"
+  - name: count
+    description: Maximum number of image queries to generate
+    required: false
+    type: number
+    default: 15
+    example: 10
+
+systemPrompt: |
+  You are an AI specialized in generating precise image search queries for video editing.
+  You must output ONLY valid JSON in the specified format, with no additional text.
+
+template: |
+  You are a shorts video editor. Your audience is people from 18 to 40 years old.
+  Your style of editing is pretty simple - you take the transcript of your short
+  and put a very simple google image to illustrate the narrated sentences.
+
+  Each google image is searched with a short query of two words maximum.
+  So let's say someone is talking about being sad, you would query "sad person"
+  and show that image around that sentence.
+
+  I will give you a transcript which contains which words are shown on screen,
+  and the timestamps where they appear. Understand the transcript, time images
+  at timestamps, and write me the query for each image.
+
+  For the image queries you have two choices:
+  1. Concrete objects: 'cash', 'old table', 'laptop desk'
+  2. People in situations: 'sad person', 'happy family', 'thinking man'
+
+  Generate a maximum of {{count}} image queries equally distributed in the video.
+
+  ## Rules:
+  - Avoid depicting shocking, nude, or crude images (video will get demonetized)
+  - Queries should represent objects and persons useful for understanding emotions
+  - Queries should describe OBJECTS or PERSONS, not abstract concepts
+  - NEVER use abstract nouns in queries
+  - ALWAYS use real objects or persons
+  - Choose more objects than people
+  - Use 'person' instead of generic terms that could bring horror movie results
+
+  ## Output Format:
+  {
+    "image_queries": [
+      {"timestamp": 1.0, "query": "happy person"},
+      {"timestamp": 3.2, "query": "red car"}
+    ]
+  }
+
+  ## Transcript:
+  {{captions}}
+
+  Generate exactly {{count}} evenly distributed image queries.
+  Output ONLY the JSON response, no additional text.
+
+examples:
+  - input:
+      captions: "[[[0.0, 2.0], 'Stop using PostgreSQL for caching'], [[2.0, 4.0], 'Redis is 10x faster']]"
+      count: 4
+    output: |
+      {
+        "image_queries": [
+          {"timestamp": 0.5, "query": "database server"},
+          {"timestamp": 2.0, "query": "slow loading"},
+          {"timestamp": 3.0, "query": "fast computer"},
+          {"timestamp": 4.0, "query": "happy developer"}
+        ]
+      }

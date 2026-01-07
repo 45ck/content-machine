@@ -1,0 +1,123 @@
+# Person Action Scene
+#
+# Original: content-machine
+# License: MIT
+# Created: 2026-01-07
+# Purpose: Generate images of people performing actions for video B-roll
+
+id: image-generation/person-action
+name: Person Action Scene
+description: >
+  Generates prompts for images of people performing specific actions.
+  Creates diverse, authentic-looking human subjects in various scenarios.
+  Designed for B-roll showing human elements in videos.
+category: image-generation
+provider: gemini
+outputFormat: text
+version: "1.0.0"
+tags:
+  - image-generation
+  - people
+  - action
+  - lifestyle
+  - nano-banana
+estimatedTokens: 150
+recommendedTemperature: 0.7
+
+variables:
+  - name: action
+    description: The action the person is performing
+    required: true
+    type: string
+    example: "typing on laptop with focused expression"
+  - name: setting
+    description: The environment/location
+    required: false
+    type: string
+    default: "modern indoor space"
+    example: "cozy home office"
+  - name: demographic
+    description: Description of the person (keep diverse and inclusive)
+    required: false
+    type: string
+    default: "professional adult"
+    example: "young professional woman"
+  - name: emotion
+    description: The emotion/expression to convey
+    required: false
+    type: string
+    default: "focused"
+    example: "excited and happy"
+  - name: framing
+    description: Camera framing
+    required: false
+    type: string
+    default: "medium shot"
+    example: "close-up on hands"
+
+defaultOptions:
+  style: photorealistic
+  aspectRatio: "9:16"
+  lighting: natural
+  cameraAngle: eye-level
+
+template: |
+  Professional photograph of {{demographic}} {{action}}.
+
+  Setting: {{setting}}
+  Expression: {{emotion}}
+  Framing: {{framing}}, professional photography
+  Style: Authentic lifestyle photography, not stock-photo feeling
+  Lighting: Natural, flattering light
+
+  The person should look genuine and relatable, not posed.
+  High-end commercial photography quality.
+  9:16 vertical aspect ratio for social media.
+
+  No text, no watermarks, no logos.
+  Photorealistic, 8K resolution.
+
+examples:
+  - input:
+      action: "having an 'aha' moment while coding"
+      setting: "modern startup office"
+      demographic: "software developer"
+      emotion: "excited realization"
+      framing: "medium shot from slight angle"
+    output: |
+      Professional photograph of software developer having an 'aha' moment while coding.
+
+      Setting: modern startup office
+      Expression: excited realization
+      Framing: medium shot from slight angle, professional photography
+      Style: Authentic lifestyle photography, not stock-photo feeling
+      Lighting: Natural, flattering light
+
+      The person should look genuine and relatable, not posed.
+      High-end commercial photography quality.
+      9:16 vertical aspect ratio for social media.
+
+      No text, no watermarks, no logos.
+      Photorealistic, 8K resolution.
+
+  - input:
+      action: "frustrated looking at slow loading screen"
+      setting: "home office"
+      demographic: "remote worker"
+      emotion: "mild frustration"
+      framing: "over-the-shoulder shot showing screen"
+    output: |
+      Professional photograph of remote worker frustrated looking at slow loading screen.
+
+      Setting: home office
+      Expression: mild frustration
+      Framing: over-the-shoulder shot showing screen, professional photography
+      Style: Authentic lifestyle photography, not stock-photo feeling
+      Lighting: Natural, flattering light
+
+      The person should look genuine and relatable, not posed.
+      High-end commercial photography quality.
+      9:16 vertical aspect ratio for social media.
+
+      No text, no watermarks, no logos.
+      Photorealistic, 8K resolution.
