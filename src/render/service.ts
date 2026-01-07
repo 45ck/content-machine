@@ -23,6 +23,7 @@ import { getCaptionPreset, CaptionPresetName } from './captions/presets';
 import type { CaptionConfig, CaptionConfigInput } from './captions/config';
 import { join, dirname, resolve, basename } from 'path';
 import { fileURLToPath } from 'url';
+import { isDisplayableWord } from './captions/paging';
 
 // Get the directory containing this file for Remotion bundling
 // In ESM, we use import.meta.url; __dirname is injected by esbuild for CJS
@@ -224,10 +225,13 @@ function buildRenderProps(
 ): RenderPropsInput {
   const captionConfig = resolveCaptionConfig(options);
 
+  // Sanitize words: filter out TTS markers like [_TT_###] and standalone punctuation
+  const sanitizedWords = options.timestamps.allWords.filter((w) => isDisplayableWord(w.word));
+
   return {
     schemaVersion: RENDER_SCHEMA_VERSION,
     scenes: options.visuals.scenes,
-    words: options.timestamps.allWords,
+    words: sanitizedWords,
     audioPath: audioFilename,
     duration: options.timestamps.totalDuration,
     width: dimensions.width,

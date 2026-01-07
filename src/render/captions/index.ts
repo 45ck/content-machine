@@ -62,6 +62,10 @@ export {
 export {
   createCaptionPages,
   toTimedWords,
+  sanitizeTimedWords,
+  isDisplayableWord,
+  isTtsMarker,
+  isAsrArtifact,
   type TimedWord,
   type CaptionLine,
   type CaptionPage,

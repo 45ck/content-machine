@@ -5,11 +5,16 @@
  * Critical: Words should NEVER be broken mid-word.
  * Critical: Sentence boundaries should trigger new pages.
  * Critical: Multi-line captions should actually render.
+ * Critical: TTS markers should be filtered out.
  */
 import { describe, it, expect } from 'vitest';
 import {
   createCaptionPages,
   toTimedWords,
+  sanitizeTimedWords,
+  isDisplayableWord,
+  isTtsMarker,
+  isAsrArtifact,
   TimedWord,
 } from '../../../../src/render/captions/paging';
 
@@ -412,6 +417,135 @@ describe('createCaptionPages', () => {
         expect(page.words.length).toBeLessThanOrEqual(8);
         expect(page.lines.length).toBeLessThanOrEqual(2);
       }
+    });
+  });
+});
+
+describe('TTS marker filtering (CRITICAL)', () => {
+  describe('isTtsMarker', () => {
+    it('detects kokoro TTS markers like [_TT_###]', () => {
+      expect(isTtsMarker('[_TT_140]')).toBe(true);
+      expect(isTtsMarker('[_TT_255]')).toBe(true);
+      expect(isTtsMarker('[_TT_1290]')).toBe(true);
+      expect(isTtsMarker('[_TT_0]')).toBe(true);
+    });
+
+    it('does not flag normal words as TTS markers', () => {
+      expect(isTtsMarker('hello')).toBe(false);
+      expect(isTtsMarker('TT')).toBe(false);
+      expect(isTtsMarker('[word]')).toBe(false);
+      expect(isTtsMarker('_TT_140')).toBe(false); // Missing brackets
+    });
+  });
+
+  describe('isAsrArtifact', () => {
+    it('detects standalone punctuation as artifacts', () => {
+      expect(isAsrArtifact('.')).toBe(true);
+      expect(isAsrArtifact('?')).toBe(true);
+      expect(isAsrArtifact('!')).toBe(true);
+      expect(isAsrArtifact('-')).toBe(true);
+      expect(isAsrArtifact('–')).toBe(true);
+      expect(isAsrArtifact('...')).toBe(true);
+    });
+
+    it('does not flag words with punctuation as artifacts', () => {
+      expect(isAsrArtifact('hello!')).toBe(false);
+      expect(isAsrArtifact('day?')).toBe(false);
+      expect(isAsrArtifact('high-performance')).toBe(false);
+    });
+  });
+
+  describe('isDisplayableWord', () => {
+    it('filters TTS markers', () => {
+      expect(isDisplayableWord('[_TT_140]')).toBe(false);
+    });
+
+    it('filters standalone punctuation', () => {
+      expect(isDisplayableWord('?')).toBe(false);
+      expect(isDisplayableWord('.')).toBe(false);
+    });
+
+    it('filters empty and whitespace-only words', () => {
+      expect(isDisplayableWord('')).toBe(false);
+      expect(isDisplayableWord('   ')).toBe(false);
+    });
+
+    it('allows normal words', () => {
+      expect(isDisplayableWord('hello')).toBe(true);
+      expect(isDisplayableWord('world!')).toBe(true);
+      expect(isDisplayableWord("don't")).toBe(true);
+    });
+  });
+
+  describe('sanitizeTimedWords', () => {
+    it('removes TTS markers from word list', () => {
+      const words: TimedWord[] = [
+        { text: 'Wanna', startMs: 0, endMs: 200 },
+        { text: '[_TT_140]', startMs: 200, endMs: 400 },
+        { text: 'know', startMs: 400, endMs: 600 },
+      ];
+
+      const sanitized = sanitizeTimedWords(words);
+
+      expect(sanitized).toHaveLength(2);
+      expect(sanitized[0].text).toBe('Wanna');
+      expect(sanitized[1].text).toBe('know');
+    });
+
+    it('removes standalone punctuation from word list', () => {
+      const words: TimedWord[] = [
+        { text: 'day?', startMs: 0, endMs: 200 },
+        { text: '?', startMs: 200, endMs: 300 },
+        { text: 'It', startMs: 400, endMs: 600 },
+      ];
+
+      const sanitized = sanitizeTimedWords(words);
+
+      expect(sanitized).toHaveLength(2);
+      expect(sanitized[0].text).toBe('day?');
+      expect(sanitized[1].text).toBe('It');
+    });
+
+    it('handles real-world kokoro+whisper output', () => {
+      // This is from actual timestamps.json output
+      const words: TimedWord[] = [
+        { text: 'bed!', startMs: 0, endMs: 194 },
+        { text: 'Wanna', startMs: 220, endMs: 414 },
+        { text: 'know', startMs: 330, endMs: 550 },
+        { text: 'the', startMs: 550, endMs: 720 },
+        { text: 'secret', startMs: 720, endMs: 1060 },
+        { text: 'sauce', startMs: 1060, endMs: 1300 },
+        { text: 'to', startMs: 1340, endMs: 1450 },
+        { text: 'crushing', startMs: 1450, endMs: 1900 },
+        { text: 'your', startMs: 1900, endMs: 2120 },
+        { text: 'day?', startMs: 2120, endMs: 2340 },
+        { text: '?', startMs: 2340, endMs: 2430 },
+        { text: '[_TT_140]', startMs: 2800, endMs: 2994 },
+        { text: 'Wanna', startMs: 2870, endMs: 3000 },
+      ];
+
+      const sanitized = sanitizeTimedWords(words);
+
+      // Should remove [_TT_140] and standalone ?
+      const markerPresent = sanitized.some((w) => w.text.includes('[_TT_'));
+      const standalonePunctuationPresent = sanitized.some((w) => w.text === '?');
+
+      expect(markerPresent).toBe(false);
+      expect(standalonePunctuationPresent).toBe(false);
+
+      // Should keep words with punctuation attached
+      const hasDayQuestion = sanitized.some((w) => w.text === 'day?');
+      expect(hasDayQuestion).toBe(true);
+    });
+
+    it('returns empty array for all-markers input', () => {
+      const words: TimedWord[] = [
+        { text: '[_TT_100]', startMs: 0, endMs: 200 },
+        { text: '.', startMs: 200, endMs: 300 },
+      ];
+
+      const sanitized = sanitizeTimedWords(words);
+      expect(sanitized).toHaveLength(0);
     });
   });
 });

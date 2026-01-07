@@ -12,6 +12,54 @@
 import { CaptionLayout } from './config';
 
 /**
+ * Pattern for TTS internal markers that should be filtered out.
+ * - [_TT_###] - kokoro TTS phoneme/timing markers
+ * - Other potential TTS artifacts
+ */
+const TTS_MARKER_PATTERN = /^\[_TT_\d+\]$/;
+
+/**
+ * Pattern for ASR artifacts that shouldn't be displayed
+ * - Standalone punctuation (e.g., "?" or "." as a separate word)
+ * - Single dashes not part of a word
+ */
+const ASR_ARTIFACT_PATTERN = /^[.?!,;:\-–—]+$/;
+
+/**
+ * Check if a word is a TTS internal marker that should be filtered
+ */
+export function isTtsMarker(word: string): boolean {
+  return TTS_MARKER_PATTERN.test(word.trim());
+}
+
+/**
+ * Check if a word is an ASR artifact (standalone punctuation)
+ */
+export function isAsrArtifact(word: string): boolean {
+  return ASR_ARTIFACT_PATTERN.test(word.trim());
+}
+
+/**
+ * Check if a word should be displayed in captions
+ * Filters out TTS markers, ASR artifacts, and empty words
+ */
+export function isDisplayableWord(word: string): boolean {
+  const trimmed = word.trim();
+  if (!trimmed) return false;
+  if (isTtsMarker(trimmed)) return false;
+  if (isAsrArtifact(trimmed)) return false;
+  return true;
+}
+
+/**
+ * Sanitize a list of timed words, removing TTS markers and ASR artifacts.
+ * This should be called before paging to ensure clean caption output.
+ */
+export function sanitizeTimedWords(words: TimedWord[]): TimedWord[] {
+  return words.filter((w) => isDisplayableWord(w.text));
+}
+
+/**
  * Word with timing information
  */
 export interface TimedWord {
