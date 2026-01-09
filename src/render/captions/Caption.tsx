@@ -1,7 +1,7 @@
 /**
  * Caption Component
  *
- * TikTok-style captions with full configuration support.
+ * CapCut-style captions with full configuration support.
  * Uses character-based paging for optimal readability.
  *
  * Features:
@@ -15,7 +15,7 @@ import React, { useMemo } from 'react';
 import { useCurrentFrame, useVideoConfig, spring, Sequence, interpolate } from 'remotion';
 import { CaptionConfig, CaptionConfigSchema, CaptionDisplayMode } from './config';
 import { createCaptionPages, toTimedWords, CaptionPage, TimedWord } from './paging';
-import { PRESET_TIKTOK } from './presets';
+import { PRESET_CAPCUT_BOLD } from './presets';
 import { isWordActive } from './timing';
 
 /**
@@ -24,7 +24,7 @@ import { isWordActive } from './timing';
 export interface CaptionProps {
   /** Word timestamps from ASR */
   words: Array<{ word: string; start: number; end: number }>;
-  /** Caption configuration (uses TikTok preset if not provided) */
+  /** Caption configuration (uses CapCut preset if not provided) */
   config?: Partial<CaptionConfig>;
 }
 
@@ -41,7 +41,7 @@ export const Caption: React.FC<CaptionProps> = ({ words, config: configInput }) 
 
   // Merge config with defaults
   const config = useMemo(() => {
-    return CaptionConfigSchema.parse({ ...PRESET_TIKTOK, ...configInput });
+    return CaptionConfigSchema.parse({ ...PRESET_CAPCUT_BOLD, ...configInput });
   }, [configInput]);
 
   const displayMode: CaptionDisplayMode = config.displayMode ?? 'page';

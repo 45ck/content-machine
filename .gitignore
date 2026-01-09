@@ -31,6 +31,11 @@ Thumbs.db
 *.swp
 *.swo
 
+# AI / local agent tooling
+.claude/
+CLAUDE.md
+scripts/run-vitest.mjs
+
 # Test
 coverage/
 .vitest/

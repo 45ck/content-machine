@@ -315,6 +315,62 @@ function finalizeChunk(
   };
 }
 
+interface ChunkingState {
+  chunks: CaptionChunk[];
+  currentWords: ChunkedWord[];
+  currentCharCount: number;
+}
+
+function processTimedWord(params: {
+  state: ChunkingState;
+  word: { word: string; startMs: number; endMs: number };
+  prevWord?: { word: string; startMs: number; endMs: number };
+  nextWord?: { word: string; startMs: number; endMs: number };
+  wordIndex: number;
+  totalWords: number;
+  cfg: ChunkingConfig;
+}): void {
+  const { state, word, prevWord, nextWord, wordIndex, totalWords, cfg } = params;
+  const wordLength = word.word.trim().length;
+
+  const chunkedWord = createChunkedWord(word, nextWord, cfg);
+  const newCharCount = state.currentCharCount + (state.currentWords.length > 0 ? 1 : 0) + wordLength;
+  const chunkDurationMs =
+    state.currentWords.length > 0
+      ? word.endMs - state.currentWords[0].startMs
+      : word.endMs - word.startMs;
+  const wouldCps = (newCharCount / Math.max(chunkDurationMs, 1)) * 1000;
+
+  const gapFromPrevWord = prevWord ? word.startMs - prevWord.endMs : 0;
+  const breakDecision = shouldBreakChunk({
+    wordIndex,
+    totalWords,
+    currentWordsCount: state.currentWords.length,
+    cfg,
+    wouldCPS: wouldCps,
+    prevChunkWord: state.currentWords[state.currentWords.length - 1],
+    gapFromPrevWord,
+  });
+
+  const preventOrphan = shouldPreventOrphan(
+    breakDecision,
+    wordIndex,
+    totalWords,
+    state.currentWords.length,
+    cfg.maxWordsPerChunk
+  );
+
+  if (breakDecision.shouldBreak && !preventOrphan) {
+    const chunk = finalizeChunk(state.currentWords, state.currentCharCount, state.chunks.length);
+    if (chunk) state.chunks.push(chunk);
+    state.currentWords = [];
+    state.currentCharCount = 0;
+  }
+
+  state.currentWords.push(chunkedWord);
+  state.currentCharCount = state.currentWords.length > 1 ? newCharCount : wordLength;
+}
+
 /**
  * Create caption chunks from timed words
  *
@@ -331,62 +387,25 @@ export function createCaptionChunks(
   const cfg = { ...DEFAULT_CHUNKING_CONFIG, ...config };
   if (words.length === 0) return [];
 
-  const chunks: CaptionChunk[] = [];
-  let currentWords: ChunkedWord[] = [];
-  let currentCharCount = 0;
+  const state: ChunkingState = { chunks: [], currentWords: [], currentCharCount: 0 };
 
   for (let i = 0; i < words.length; i++) {
-    const word = words[i];
-    const prevWord = i > 0 ? words[i - 1] : undefined;
-    const nextWord = words[i + 1];
-    const wordLength = word.word.trim().length;
-
-    // Create chunked word with emphasis detection
-    const chunkedWord = createChunkedWord(word, nextWord, cfg);
-
-    // Calculate CPS if we add this word
-    const newCharCount = currentCharCount + (currentWords.length > 0 ? 1 : 0) + wordLength;
-    const chunkDurationMs =
-      currentWords.length > 0 ? word.endMs - currentWords[0].startMs : word.endMs - word.startMs;
-    const wouldCPS = (newCharCount / Math.max(chunkDurationMs, 1)) * 1000;
-
-    // Check if we should break
-    const gapFromPrevWord = prevWord ? word.startMs - prevWord.endMs : 0;
-    const breakDecision = shouldBreakChunk({
+    processTimedWord({
+      state,
+      word: words[i],
+      prevWord: i > 0 ? words[i - 1] : undefined,
+      nextWord: words[i + 1],
       wordIndex: i,
       totalWords: words.length,
-      currentWordsCount: currentWords.length,
       cfg,
-      wouldCPS,
-      prevChunkWord: currentWords[currentWords.length - 1],
-      gapFromPrevWord,
     });
-
-    // Orphan prevention
-    const preventOrphan = shouldPreventOrphan(
-      breakDecision,
-      i,
-      words.length,
-      currentWords.length,
-      cfg.maxWordsPerChunk
-    );
-
-    if (breakDecision.shouldBreak && !preventOrphan) {
-      const chunk = finalizeChunk(currentWords, currentCharCount, chunks.length);
-      if (chunk) chunks.push(chunk);
-      currentWords = [];
-      currentCharCount = 0;
-    }
-
-    currentWords.push(chunkedWord);
-    currentCharCount = currentWords.length > 1 ? newCharCount : wordLength;
   }
 
   // Finalize last chunk
-  const lastChunk = finalizeChunk(currentWords, currentCharCount, chunks.length);
-  if (lastChunk) chunks.push(lastChunk);
+  const lastChunk = finalizeChunk(state.currentWords, state.currentCharCount, state.chunks.length);
+  if (lastChunk) state.chunks.push(lastChunk);
 
-  return enforceMinOnScreenTime(chunks, cfg.minOnScreenMs);
+  return enforceMinOnScreenTime(state.chunks, cfg.minOnScreenMs);
 }
 
 /**

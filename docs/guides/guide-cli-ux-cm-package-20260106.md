@@ -20,11 +20,11 @@ References: `docs/guides/guide-cli-ux-standards-20260106.md`.
 - Validates `--platform` and normalizes `--variants`.
 - Supports `--dry-run` and `--mock`.
 - Writes `packaging.json` and prints a short summary including the selected variant.
+- Supports `--json` mode with a versioned JSON envelope (stdout-only machine output).
+- Prints a concrete next command to apply packaging to `cm script`.
 
 ## UX gaps
 
-- The command does not explicitly teach users how to apply the output to the next step.
-- There is no `--json` mode to print the selected packaging to stdout for scripting.
 - Selection is opaque: users cannot control which variant becomes "selected" (index/strategy).
 
 ## Recommendations
@@ -38,7 +38,7 @@ References: `docs/guides/guide-cli-ux-standards-20260106.md`.
 ### P1
 
 - Add `--select <index|strategy>` to control `selected` (e.g., `--select 3` or `--select "highest-confidence"`).
-- Add `--json` output with `{outputPath, platform, variants, selected}` (schema versioned).
+- Expand `--json` envelope outputs to include `{platform, selected, selectedIndex}` (schema versioned).
 
 ## Ideal success output (ASCII sketch)
 

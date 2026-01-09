@@ -21,8 +21,8 @@ export const audioCommand = new Command('audio')
   // Sync strategy options
   .option(
     '--sync-strategy <strategy>',
-    'Sync strategy: standard (whisper optional), audio-first (whisper required)',
-    'standard'
+    'Sync strategy: audio-first (whisper required), standard (whisper optional)',
+    'audio-first'
   )
   .option('--reconcile', 'Reconcile ASR output to match original script text', false)
   .option('--require-whisper', 'Require whisper ASR (fail if unavailable)', false)

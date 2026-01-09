@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Render command - Render final video with Remotion
  *
  * Usage: cm render --input visuals.json --audio audio.wav --output video.mp4
@@ -18,6 +18,7 @@
 import { Command } from 'commander';
 import type { RenderProgressEvent } from '../../render/service';
 import { logger } from '../../core/logger';
+import { CMError } from '../../core/errors';
 import { handleCommandError, readInputFile } from '../utils';
 import type {
   VisualsOutput,
@@ -48,6 +49,17 @@ import {
 } from '../../audio/asr/validator';
 import { ensureVisualCoverage, type VisualScene } from '../../visuals/duration';
 import { resolveVideoTemplate, formatTemplateSource } from '../../render/templates';
+
+type ChromeMode = 'headless-shell' | 'chrome-for-testing';
+
+function parseChromeMode(value: unknown): ChromeMode | undefined {
+  if (value == null) return undefined;
+  const raw = String(value);
+  if (raw === 'headless-shell' || raw === 'chrome-for-testing') return raw;
+  throw new CMError('INVALID_ARGUMENT', `Invalid --chrome-mode value: ${raw}`, {
+    fix: 'Use one of: headless-shell, chrome-for-testing',
+  });
+}
 
 /**
  * Parse caption CLI options into CaptionConfig partial
@@ -414,6 +426,8 @@ function writeRenderJsonEnvelope(params: {
         orientation: params.options.orientation,
         fps: params.options.fps,
         mock: Boolean(params.options.mock),
+        browserExecutable: params.options.browserExecutable ?? null,
+        chromeMode: params.options.chromeMode ?? null,
         captionPreset: params.options.captionPreset,
         validateTimestamps: params.options.validateTimestamps,
         extendVisuals: params.options.extendVisuals,
@@ -507,6 +521,19 @@ async function runRenderCommand(
 
   const archetype = templateDefaults?.archetype as string | undefined;
   const compositionId = resolvedTemplate?.template.compositionId;
+  const gameplayRequired =
+    templateGameplay?.required ?? Boolean(templateGameplay?.library || templateGameplay?.clip);
+
+  if (
+    compositionId === 'SplitScreenGameplay' &&
+    gameplayRequired &&
+    !visuals.gameplayClip &&
+    !options.mock
+  ) {
+    throw new CMError('MISSING_GAMEPLAY', 'Split-screen templates require gameplay footage', {
+      fix: 'Run `cm visuals --gameplay <path>` to populate gameplayClip in visuals.json',
+    });
+  }
   const onProgress = createOnProgress(runtime, spinner);
 
   const { renderVideo } = await import('../../render/service');
@@ -518,11 +545,14 @@ async function runRenderCommand(
     orientation: String(options.orientation) as 'portrait' | 'landscape' | 'square',
     fps: Number.parseInt(String(options.fps), 10),
     mock: Boolean(options.mock),
+    browserExecutable: options.browserExecutable ? String(options.browserExecutable) : null,
+    chromeMode: parseChromeMode(options.chromeMode),
     captionPreset: options.captionPreset as CaptionPresetName,
     captionConfig,
     onProgress,
     archetype,
     compositionId,
+    splitScreenRatio: templateParams.splitScreenRatio,
   });
 
   spinner.succeed('Video rendered successfully');
@@ -563,7 +593,7 @@ export const renderCommand = new Command('render')
   .option(
     '--caption-preset <preset>',
     'Caption style preset (tiktok, youtube, reels, bold, minimal, neon, capcut, hormozi, karaoke)',
-    'tiktok'
+    'capcut'
   )
   // Caption typography
   .option('--caption-font-size <px>', 'Font size in pixels')
@@ -595,6 +625,12 @@ export const renderCommand = new Command('render')
   .option('--extend-visuals', 'Auto-extend visuals to match audio duration', true)
   .option('--no-extend-visuals', 'Keep visuals as-is (may cause black frames)')
   .option('--fallback-color <hex>', 'Background color for extended scenes', '#1a1a1a')
+  .option('--browser-executable <path>', 'Chromium/Chrome executable path for rendering')
+  .option(
+    '--chrome-mode <mode>',
+    'Chrome mode (headless-shell, chrome-for-testing)',
+    'chrome-for-testing'
+  )
   .action(async (options, command: Command) => {
     const spinner = createSpinner('Rendering video...').start();
     const runtime = getCliRuntime();
@@ -606,3 +642,4 @@ export const renderCommand = new Command('render')
       handleCommandError(error);
     }
   });
+

@@ -464,9 +464,9 @@ export const CAPTION_STYLE_PRESETS = {
 export type CaptionPresetName = keyof typeof CAPTION_STYLE_PRESETS;
 
 /**
- * Default caption config (TikTok style)
+ * Default caption config (CapCut style)
  */
-export const DEFAULT_CAPTION_CONFIG: CaptionConfig = PRESET_TIKTOK;
+export const DEFAULT_CAPTION_CONFIG: CaptionConfig = PRESET_CAPCUT_BOLD;
 
 /**
  * Get a preset by name

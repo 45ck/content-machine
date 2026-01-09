@@ -11,6 +11,7 @@ import { join, resolve } from 'path';
 import { homedir } from 'os';
 import { NotFoundError, SchemaError } from '../../core/errors';
 import { VideoTemplateSchema, type VideoTemplate } from './schema';
+export { getTemplateGameplaySlot, getTemplateParams } from './slots';
 
 export type { VideoTemplate } from './schema';
 
@@ -39,15 +40,19 @@ const BUILTIN_TEMPLATES: Record<string, VideoTemplate> = {
   'brainrot-split-gameplay': VideoTemplateSchema.parse({
     id: 'brainrot-split-gameplay',
     name: 'Brainrot Split Screen (Gameplay)',
-    description: 'Split-screen gameplay background (layout support TBD)',
-    compositionId: 'ShortVideo',
+    description: 'Split-screen gameplay background (top content, bottom gameplay)',
+    compositionId: 'SplitScreenGameplay',
     defaults: {
       orientation: 'portrait',
       fps: 30,
       captionPreset: 'tiktok',
       captionConfig: {
         fontSize: 80,
-        position: 'center',
+        position: 'top',
+        positionOffset: {
+          edgeDistance: 8,
+          horizontalPadding: 90,
+        },
       },
     },
     params: { splitScreenRatio: 0.55 },

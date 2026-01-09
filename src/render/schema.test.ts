@@ -170,6 +170,30 @@ describe('RenderPropsSchema', () => {
     }
   });
 
+  it('should allow gameplay clip and split screen params', () => {
+    const props: RenderPropsInput = {
+      schemaVersion: RENDER_SCHEMA_VERSION,
+      scenes: [],
+      words: [],
+      audioPath: '/path/to/audio.wav',
+      duration: 30.0,
+      width: 1080,
+      height: 1920,
+      fps: 30,
+      gameplayClip: {
+        path: '/assets/gameplay/clip-001.mp4',
+        duration: 15,
+        width: 1080,
+        height: 1920,
+        style: 'subway-surfers',
+      },
+      splitScreenRatio: 0.55,
+    };
+
+    const result = RenderPropsSchema.safeParse(props);
+    expect(result.success).toBe(true);
+  });
+
   it('should reject zero duration', () => {
     const props = {
       schemaVersion: RENDER_SCHEMA_VERSION,

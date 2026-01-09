@@ -43,8 +43,8 @@ export interface PipelineOptions {
    */
   compositionId?: string;
   /**
-   * Caption preset name (tiktok, youtube, reels, bold, minimal, neon).
-   * Priority: captionConfig > captionPreset > default (tiktok).
+   * Caption preset name (tiktok, youtube, reels, bold, minimal, neon, capcut, hormozi, karaoke).
+   * Priority: captionConfig > captionPreset > default (capcut).
    */
   captionPreset?: CaptionPresetName;
   /**

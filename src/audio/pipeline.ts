@@ -27,8 +27,12 @@ export interface SpokenSection {
   text: string;
 }
 
+function sanitizeForTts(text: string): string {
+  return text.replace(/[`*_]/g, '');
+}
+
 function normalizeSpokenText(text: string): string {
-  return text.replace(/\s+/g, ' ').trim();
+  return sanitizeForTts(text).replace(/\s+/g, ' ').trim();
 }
 
 function resolveTotalDuration(totalDuration: number | undefined, words: WordTimestamp[]): number {
@@ -342,7 +346,7 @@ async function generateMockAudio(options: GenerateAudioOptions): Promise<AudioOu
  */
 function buildFullText(script: ScriptOutput): string {
   return buildAlignmentSections(script)
-    .map((section) => section.text)
+    .map((section) => normalizeSpokenText(section.text))
     .join(' ');
 }
 

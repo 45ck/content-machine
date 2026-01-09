@@ -8,7 +8,7 @@
  * - Scene boundary problems
  */
 
-import type { TimestampsResult, SceneTimestamps } from '../audio/schema';
+import type { SceneTimestamp, TimestampsOutput } from '../audio/schema';
 
 /**
  * Pacing quality report
@@ -83,13 +83,26 @@ export const PACING_THRESHOLDS = {
 /**
  * Analyze pacing quality from timestamps
  */
-export function analyzePacingQuality(timestamps: TimestampsResult): PacingQualityReport {
+export function analyzePacingQuality(timestamps: TimestampsOutput): PacingQualityReport {
   const issues: PacingIssue[] = [];
   const sceneMetrics: ScenePacingMetrics[] = [];
 
+  const scenes: SceneTimestamp[] =
+    timestamps.scenes ??
+    (timestamps.allWords.length > 0
+      ? [
+          {
+            sceneId: 'scene-001',
+            audioStart: timestamps.allWords[0].start,
+            audioEnd: timestamps.allWords[timestamps.allWords.length - 1].end,
+            words: timestamps.allWords,
+          },
+        ]
+      : []);
+
   // Analyze each scene
-  for (const scene of timestamps.scenes) {
-    const metrics = analyzeScenePacing(scene, issues);
+  for (const [sceneIndex, scene] of scenes.entries()) {
+    const metrics = analyzeScenePacing(scene, sceneIndex, sceneIndex === scenes.length - 1, issues);
     sceneMetrics.push(metrics);
   }
 
@@ -141,92 +154,93 @@ export function analyzePacingQuality(timestamps: TimestampsResult): PacingQualit
 /**
  * Analyze pacing for a single scene
  */
-function analyzeScenePacing(scene: SceneTimestamps, issues: PacingIssue[]): ScenePacingMetrics {
+function analyzeScenePacing(
+  scene: SceneTimestamp,
+  sceneIndex: number,
+  isLastScene: boolean,
+  issues: PacingIssue[]
+): ScenePacingMetrics {
   const words = scene.words;
   if (words.length === 0) {
-    return {
-      sceneIndex: scene.sceneIndex,
-      wordCount: 0,
-      durationSeconds: 0,
-      wpm: 0,
-      status: 'normal',
-    };
+    return { sceneIndex, wordCount: 0, durationSeconds: 0, wpm: 0, status: 'normal' };
   }
 
   const firstWord = words[0];
   const lastWord = words[words.length - 1];
   const durationSeconds = lastWord.end - firstWord.start;
 
-  // Handle very short scenes (likely CTA)
   if (durationSeconds < PACING_THRESHOLDS.minSceneDurationMs / 1000) {
     return {
-      sceneIndex: scene.sceneIndex,
+      sceneIndex,
       wordCount: words.length,
       durationSeconds,
       wpm: 0,
-      status: 'normal', // Skip analysis for very short scenes
+      status: 'normal',
     };
   }
 
   const wpm = (words.length / durationSeconds) * 60;
+  const roundedWpm = Math.round(wpm);
 
-  // Determine status
-  let status: ScenePacingMetrics['status'] = 'normal';
-  const isCta = scene.sceneIndex === -1 || words.length <= 5; // Assume CTA if very short
-
-  if (isCta) {
-    // CTA scenes have relaxed thresholds
-    if (wpm > PACING_THRESHOLDS.ctaMaxWpm) {
-      status = 'abnormal';
-      issues.push({
-        type: 'abnormal-cta',
-        sceneIndex: scene.sceneIndex,
-        wpm: Math.round(wpm),
-        detail: `CTA too fast: ${Math.round(wpm)} WPM (max: ${PACING_THRESHOLDS.ctaMaxWpm})`,
-        severity: 'warning',
-      });
-    }
-  } else {
-    // Regular scenes
-    if (wpm > PACING_THRESHOLDS.absoluteMaxWpm) {
-      status = 'abnormal';
-      issues.push({
-        type: 'too-fast',
-        sceneIndex: scene.sceneIndex,
-        wpm: Math.round(wpm),
-        detail: `Scene ${scene.sceneIndex} too fast: ${Math.round(wpm)} WPM (max: ${PACING_THRESHOLDS.absoluteMaxWpm})`,
-        severity: 'error',
-      });
-    } else if (wpm > PACING_THRESHOLDS.maxWpm) {
-      status = 'fast';
-      issues.push({
-        type: 'too-fast',
-        sceneIndex: scene.sceneIndex,
-        wpm: Math.round(wpm),
-        detail: `Scene ${scene.sceneIndex} fast: ${Math.round(wpm)} WPM (target: ${PACING_THRESHOLDS.maxWpm})`,
-        severity: 'warning',
-      });
-    } else if (wpm < PACING_THRESHOLDS.absoluteMinWpm) {
-      status = 'abnormal';
-      issues.push({
-        type: 'too-slow',
-        sceneIndex: scene.sceneIndex,
-        wpm: Math.round(wpm),
-        detail: `Scene ${scene.sceneIndex} too slow: ${Math.round(wpm)} WPM (min: ${PACING_THRESHOLDS.absoluteMinWpm})`,
-        severity: 'error',
-      });
-    } else if (wpm < PACING_THRESHOLDS.minWpm) {
-      status = 'slow';
-    }
-  }
+  const isCta = isLastScene || words.length <= 5;
+  const status = isCta
+    ? evaluateCtaPacing(roundedWpm, sceneIndex, issues)
+    : evaluateScenePacing(roundedWpm, sceneIndex, issues);
 
   return {
-    sceneIndex: scene.sceneIndex,
+    sceneIndex,
     wordCount: words.length,
     durationSeconds,
-    wpm: Math.round(wpm),
+    wpm: roundedWpm,
     status,
   };
+}
+
+function evaluateCtaPacing(wpm: number, sceneIndex: number, issues: PacingIssue[]): ScenePacingMetrics['status'] {
+  if (wpm <= PACING_THRESHOLDS.ctaMaxWpm) return 'normal';
+  issues.push({
+    type: 'abnormal-cta',
+    sceneIndex,
+    wpm,
+    detail: `CTA too fast: ${wpm} WPM (max: ${PACING_THRESHOLDS.ctaMaxWpm})`,
+    severity: 'warning',
+  });
+  return 'abnormal';
+}
+
+function evaluateScenePacing(wpm: number, sceneIndex: number, issues: PacingIssue[]): ScenePacingMetrics['status'] {
+  if (wpm > PACING_THRESHOLDS.absoluteMaxWpm) {
+    issues.push({
+      type: 'too-fast',
+      sceneIndex,
+      wpm,
+      detail: `Scene ${sceneIndex} too fast: ${wpm} WPM (max: ${PACING_THRESHOLDS.absoluteMaxWpm})`,
+      severity: 'error',
+    });
+    return 'abnormal';
+  }
+  if (wpm > PACING_THRESHOLDS.maxWpm) {
+    issues.push({
+      type: 'too-fast',
+      sceneIndex,
+      wpm,
+      detail: `Scene ${sceneIndex} fast: ${wpm} WPM (target: ${PACING_THRESHOLDS.maxWpm})`,
+      severity: 'warning',
+    });
+    return 'fast';
+  }
+  if (wpm < PACING_THRESHOLDS.absoluteMinWpm) {
+    issues.push({
+      type: 'too-slow',
+      sceneIndex,
+      wpm,
+      detail: `Scene ${sceneIndex} too slow: ${wpm} WPM (min: ${PACING_THRESHOLDS.absoluteMinWpm})`,
+      severity: 'error',
+    });
+    return 'abnormal';
+  }
+  if (wpm < PACING_THRESHOLDS.minWpm) return 'slow';
+  return 'normal';
 }
 
 /**

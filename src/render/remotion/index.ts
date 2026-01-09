@@ -4,6 +4,6 @@
  * Registers compositions for video rendering.
  */
 import { registerRoot } from 'remotion';
-import { ShortVideoComposition } from './ShortVideo';
+import { RemotionRoot } from './root';
 
-registerRoot(ShortVideoComposition);
+registerRoot(RemotionRoot);

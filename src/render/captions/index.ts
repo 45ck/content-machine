@@ -7,7 +7,7 @@
  * ```tsx
  * import { Caption, CAPTION_STYLE_PRESETS, getCaptionPreset } from './captions';
  *
- * // Use default TikTok style
+ * // Use default CapCut style
  * <Caption words={words} />
  *
  * // Use a preset

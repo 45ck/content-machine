@@ -5,13 +5,14 @@
  * Based on SYSTEM-DESIGN §7.4 cm render command.
  */
 import { stat, writeFile, copyFile, mkdir } from 'fs/promises';
+import { existsSync } from 'fs';
 import { bundle } from '@remotion/bundler';
 import { renderMedia, selectComposition } from '@remotion/renderer';
 import { VisualsOutput, VisualsOutputInput } from '../visuals/schema';
 import { TimestampsOutput } from '../audio/schema';
 import { Orientation } from '../core/config';
 import { createLogger } from '../core/logger';
-import { RenderError } from '../core/errors';
+import { CMError, RenderError } from '../core/errors';
 import {
   RenderOutput,
   RenderOutputSchema,
@@ -39,6 +40,26 @@ function getCurrentDir(): string {
 
 const RENDER_DIR = getCurrentDir();
 
+function resolveRemotionEntryPoint(): string {
+  const envOverride = process.env.CM_REMOTION_ENTRY;
+  if (envOverride && existsSync(envOverride)) {
+    return envOverride;
+  }
+
+  const candidates = [
+    join(process.cwd(), 'src', 'render', 'remotion', 'index.ts'),
+    join(process.cwd(), 'dist', 'render', 'remotion', 'index.js'),
+    join(RENDER_DIR, 'remotion', 'index.ts'),
+    join(RENDER_DIR, 'remotion', 'index.js'),
+  ];
+
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) return candidate;
+  }
+
+  return join(RENDER_DIR, 'remotion', 'index.ts');
+}
+
 export type { RenderOutput, RenderProps } from './schema';
 
 export interface RenderVideoOptions {
@@ -51,11 +72,13 @@ export interface RenderVideoOptions {
   fps?: number;
   /** Remotion composition id (defaults to "ShortVideo") */
   compositionId?: string;
+  /** Split-screen ratio (top height / total height), used by split-screen templates */
+  splitScreenRatio?: number;
   /** @deprecated Use captionConfig or captionPreset instead */
   captionStyle?: Partial<CaptionStyle>;
   /** New comprehensive caption configuration (accepts partial input, defaults applied) */
   captionConfig?: CaptionConfigInput;
-  /** Use a preset caption style (tiktok, youtube, reels, bold, minimal, neon) */
+  /** Use a preset caption style (tiktok, youtube, reels, bold, minimal, neon, capcut, hormozi, karaoke) */
   captionPreset?: CaptionPresetName;
   archetype?: string;
   /** Use mock mode for testing without real rendering */
@@ -94,6 +117,10 @@ export interface RenderVideoOptions {
    * Caption animation: none (default), fade, slideUp, slideDown, pop, bounce
    */
   captionAnimation?: 'none' | 'fade' | 'slideUp' | 'slideDown' | 'pop' | 'bounce';
+  /** Optional browser executable path for Remotion (useful if bundled Chromium fails) */
+  browserExecutable?: string | null;
+  /** Chrome mode for Remotion browser launch */
+  chromeMode?: 'headless-shell' | 'chrome-for-testing';
 }
 
 export type RenderProgressPhase = 'bundle' | 'select-composition' | 'render-media' | 'mock';
@@ -127,7 +154,7 @@ async function bundleComposition(
   log.debug('Bundling Remotion composition');
 
   const bundleLocation = await bundle({
-    entryPoint: join(RENDER_DIR, 'remotion/index.ts'),
+    entryPoint: resolveRemotionEntryPoint(),
     onProgress: (progress) => {
       log.debug({ progress: Math.round(progress * 100) }, 'Bundling progress');
       onProgress?.({ phase: 'bundle', progress, message: 'Bundling' });
@@ -151,11 +178,11 @@ async function bundleComposition(
 
 /**
  * Resolve caption configuration from options
- * Priority: captionConfig > captionPreset > default (tiktok)
+ * Priority: captionConfig > captionPreset > default (capcut)
  */
 function resolveCaptionConfig(options: RenderVideoOptions): CaptionConfig {
-  // Start with a preset (default to tiktok)
-  const presetName = options.captionPreset ?? 'tiktok';
+  // Start with a preset (default to capcut)
+  const presetName = options.captionPreset ?? 'capcut';
   const preset = getCaptionPreset(presetName);
 
   // Build layout with captionGroupMs, wordsPerPage, and line options overrides
@@ -213,6 +240,21 @@ function resolveCaptionConfig(options: RenderVideoOptions): CaptionConfig {
   return preset;
 }
 
+function normalizeSplitScreenRatio(value?: number): number | undefined {
+  if (value === undefined || value === null) return undefined;
+  if (!Number.isFinite(value)) {
+    throw new CMError('INVALID_ARGUMENT', `Invalid splitScreenRatio: ${value}`, {
+      fix: 'Provide a number between 0.3 and 0.7 for split-screen templates',
+    });
+  }
+  if (value < 0.3 || value > 0.7) {
+    throw new CMError('INVALID_ARGUMENT', `splitScreenRatio out of bounds: ${value}`, {
+      fix: 'Use a splitScreenRatio between 0.3 and 0.7',
+    });
+  }
+  return value;
+}
+
 /**
  * Build render props with caption styling.
  * Returns RenderPropsInput since we accept VisualsOutputInput (defaults applied during Zod parsing).
@@ -224,6 +266,7 @@ function buildRenderProps(
   audioFilename: string
 ): RenderPropsInput {
   const captionConfig = resolveCaptionConfig(options);
+  const splitScreenRatio = normalizeSplitScreenRatio(options.splitScreenRatio);
 
   // Sanitize words: filter out TTS markers like [_TT_###] and standalone punctuation
   const sanitizedWords = options.timestamps.allWords.filter((w) => isDisplayableWord(w.word));
@@ -238,6 +281,8 @@ function buildRenderProps(
     height: dimensions.height,
     fps,
     archetype: options.archetype,
+    gameplayClip: options.visuals.gameplayClip,
+    splitScreenRatio,
     captionConfig,
     // Keep legacy captionStyle for backwards compatibility
     captionStyle: {
@@ -267,6 +312,8 @@ interface ExecuteRenderOptions {
   compositionId: string;
   log: ReturnType<typeof createLogger>;
   onProgress?: (event: RenderProgressEvent) => void;
+  browserExecutable?: string | null;
+  chromeMode?: 'headless-shell' | 'chrome-for-testing';
 }
 
 /**
@@ -291,6 +338,8 @@ async function executeRender(opts: ExecuteRenderOptions): Promise<void> {
     serveUrl: bundleLocation,
     id: compositionId,
     inputProps: renderProps,
+    browserExecutable: opts.browserExecutable ?? null,
+    chromeMode: opts.chromeMode,
   });
 
   onProgress?.({ phase: 'select-composition', progress: 1, message: 'Composition selected' });
@@ -310,6 +359,8 @@ async function executeRender(opts: ExecuteRenderOptions): Promise<void> {
     codec: 'h264',
     outputLocation: outputPath,
     inputProps: renderProps,
+    browserExecutable: opts.browserExecutable ?? null,
+    chromeMode: opts.chromeMode,
     onProgress: ({ progress }) => {
       log.debug({ progress: Math.round(progress * 100) }, 'Render progress');
       onProgress?.({ phase: 'render-media', progress, message: 'Rendering' });
@@ -335,6 +386,8 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
   const dimensions = DIMENSIONS[options.orientation];
   const totalDuration = options.timestamps.totalDuration;
   const compositionId = options.compositionId ?? 'ShortVideo';
+  const chromeMode =
+    options.chromeMode ?? (options.browserExecutable ? 'chrome-for-testing' : undefined);
 
   await mkdir(dirname(options.outputPath), { recursive: true });
 
@@ -372,6 +425,8 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
       compositionId,
       log,
       onProgress: safeProgress,
+      browserExecutable: options.browserExecutable ?? null,
+      chromeMode,
     });
 
     const stats = await stat(options.outputPath);

@@ -167,6 +167,20 @@ export const KeywordSchema = z.object({
 export type Keyword = z.infer<typeof KeywordSchema>;
 
 /**
+ * Gameplay clip metadata (for split-screen templates).
+ */
+export const GameplayClipSchema = z.object({
+  path: z.string(),
+  duration: z.number().positive(),
+  width: z.number().int().positive().optional(),
+  height: z.number().int().positive().optional(),
+  style: z.string().optional(),
+});
+
+export type GameplayClip = z.infer<typeof GameplayClipSchema>;
+
+
+/**
  * Full visuals output (matches SYSTEM-DESIGN §6.5 VisualPlanSchema)
  *
  * Extended in v1.1 to support:
@@ -186,6 +200,7 @@ const VisualsOutputBaseSchema = z.object({
   fromGenerated: z.number().int().nonnegative().optional(),
   totalGenerationCost: z.number().nonnegative().optional(),
   motionStrategy: MotionStrategyEnum.optional(),
+  gameplayClip: GameplayClipSchema.optional(),
 
   embeddingModel: z.string().optional(),
   reasoningModel: z.string().optional(),

@@ -181,6 +181,34 @@ describe('VisualsOutputSchema', () => {
     expect(result.success).toBe(true);
   });
 
+  it('should allow optional gameplay clip', () => {
+    const output: VisualsOutputInput = {
+      schemaVersion: VISUALS_SCHEMA_VERSION,
+      scenes: [
+        {
+          sceneId: TEST_SCENE_ID,
+          source: TEST_SOURCE_PEXELS,
+          assetPath: `assets/${TEST_SCENE_ID}.mp4`,
+          duration: 5.0,
+        },
+      ],
+      totalAssets: 1,
+      fromUserFootage: 0,
+      fromStock: 1,
+      fallbacks: 0,
+      gameplayClip: {
+        path: 'assets/gameplay/clip-001.mp4',
+        duration: 12,
+        width: 1080,
+        height: 1920,
+        style: 'subway-surfers',
+      },
+    };
+
+    const result = VisualsOutputSchema.safeParse(output);
+    expect(result.success).toBe(true);
+  });
+
   it('should include keywords and totalDuration', () => {
     const output: VisualsOutputInput = {
       schemaVersion: VISUALS_SCHEMA_VERSION,

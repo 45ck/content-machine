@@ -14,7 +14,7 @@
  */
 
 import type { ScriptOutput } from '../script/schema';
-import type { TimestampsOutput, TimestampWord } from '../audio/schema';
+import type { SceneTimestamp, TimestampsOutput } from '../audio/schema';
 
 // ============================================================================
 // Types
@@ -100,6 +100,163 @@ export const ENGAGEMENT_THRESHOLDS = {
 // Analysis Functions
 // ============================================================================
 
+type TimestampWord = SceneTimestamp['words'][number];
+
+function normalizeScenes(timestamps: TimestampsOutput): SceneTimestamp[] {
+  if (timestamps.scenes && timestamps.scenes.length > 0) return timestamps.scenes;
+  if (timestamps.allWords.length === 0) return [];
+
+  return [
+    {
+      sceneId: 'scene-001',
+      audioStart: timestamps.allWords[0].start,
+      audioEnd: timestamps.allWords[timestamps.allWords.length - 1].end,
+      words: timestamps.allWords,
+    },
+  ];
+}
+
+function summarizeWords(words: TimestampWord[]): { totalDuration: number } {
+  if (words.length === 0) return { totalDuration: 0 };
+  return { totalDuration: words[words.length - 1].end - words[0].start };
+}
+
+function extractHookText(script: ScriptOutput): string {
+  return script.hook || script.scenes[0]?.text.split('.')[0] || '';
+}
+
+function extractCtaText(script: ScriptOutput): string {
+  return script.cta || script.scenes[script.scenes.length - 1]?.text || '';
+}
+
+function scoreHookTiming(hookStartTime: number, issues: EngagementIssue[]): number {
+  if (hookStartTime <= ENGAGEMENT_THRESHOLDS.hookMaxStartTime) return 100;
+
+  const score = Math.max(0, 100 - (hookStartTime - ENGAGEMENT_THRESHOLDS.hookMaxStartTime) * 20);
+  issues.push({
+    type: 'late-hook',
+    severity: hookStartTime > 5 ? 'critical' : 'warning',
+    message: `Hook starts at ${hookStartTime.toFixed(2)}s (target: <${ENGAGEMENT_THRESHOLDS.hookMaxStartTime}s)`,
+  });
+  return score;
+}
+
+function scoreHookEngagement(hookText: string, issues: EngagementIssue[]): number {
+  const matches = ENGAGEMENT_THRESHOLDS.hookPatterns.filter((p) => p.test(hookText)).length;
+
+  let score = Math.min(100, 50 + matches * 25);
+  const hookWordCount = hookText.split(/\s+/).filter(Boolean).length;
+  if (hookWordCount <= 6) score = Math.min(100, score + 10);
+  if (hookWordCount <= 4) score = Math.min(100, score + 10);
+
+  if (score < ENGAGEMENT_THRESHOLDS.minHookEngagement) {
+    issues.push({
+      type: 'weak-hook',
+      severity: 'warning',
+      message: `Hook engagement score: ${score}% (needs questions/pain points)`,
+    });
+  }
+
+  return score;
+}
+
+function scoreCtaPresence(ctaText: string, issues: EngagementIssue[]): number {
+  const matches = ENGAGEMENT_THRESHOLDS.ctaPatterns.filter((p) => p.test(ctaText)).length;
+  if (matches > 0) return Math.min(100, 50 + matches * 25);
+
+  issues.push({
+    type: 'missing-cta',
+    severity: 'warning',
+    message: 'No clear CTA detected (follow/subscribe/link patterns)',
+  });
+  return 0;
+}
+
+function scoreCtaTiming(
+  ctaStartTime: number,
+  totalDuration: number,
+  issues: EngagementIssue[]
+): number {
+  const positionRatio = totalDuration > 0 ? ctaStartTime / totalDuration : 0;
+  if (positionRatio >= 1 - ENGAGEMENT_THRESHOLDS.ctaFinalPercentage) return 100;
+
+  const score = Math.max(0, positionRatio * 100);
+  if (positionRatio < 0.7) {
+    issues.push({
+      type: 'early-cta',
+      severity: 'warning',
+      message: `CTA at ${(positionRatio * 100).toFixed(0)}% of video (should be final 15%)`,
+    });
+  }
+  return score;
+}
+
+function scoreListStructure(
+  script: ScriptOutput,
+  archetype: string,
+  issues: EngagementIssue[]
+): { listStructureScore: number; numberedItems: number } {
+  if (archetype !== 'listicle') return { listStructureScore: 100, numberedItems: 0 };
+
+  let numberedItems = 0;
+  for (const scene of script.scenes) {
+    if (ENGAGEMENT_THRESHOLDS.numberPatterns.some((p) => p.test(scene.text))) numberedItems++;
+  }
+
+  const expectedItems = Math.max(3, script.scenes.length - 2);
+  const score = Math.min(100, (numberedItems / expectedItems) * 100);
+
+  if (numberedItems === 0) {
+    issues.push({
+      type: 'missing-numbers',
+      severity: 'critical',
+      message: 'Listicle has no numbered items detected',
+    });
+  } else if (numberedItems < 3) {
+    issues.push({
+      type: 'missing-numbers',
+      severity: 'warning',
+      message: `Only ${numberedItems} numbered items detected (expected 3+)`,
+    });
+  }
+
+  return { listStructureScore: score, numberedItems };
+}
+
+function scoreSceneProgression(scenes: SceneTimestamp[], issues: EngagementIssue[]): number {
+  let score = 100;
+  const sceneCount = scenes.length;
+
+  if (sceneCount < 3) {
+    score = 60;
+    issues.push({
+      type: 'poor-progression',
+      severity: 'warning',
+      message: `Only ${sceneCount} scenes (target: 3-8 for shorts)`,
+    });
+  } else if (sceneCount > 10) {
+    score = 80;
+    issues.push({
+      type: 'poor-progression',
+      severity: 'warning',
+      message: `${sceneCount} scenes may feel rushed (target: 3-8)`,
+    });
+  }
+
+  const sceneDurations = scenes.map((s) => {
+    if (s.words.length === 0) return 0;
+    return s.words[s.words.length - 1].end - s.words[0].start;
+  });
+
+  if (sceneDurations.length > 0) {
+    const avg = sceneDurations.reduce((a, b) => a + b, 0) / sceneDurations.length;
+    const maxDeviation = Math.max(...sceneDurations.map((d) => Math.abs(d - avg)));
+    if (avg > 0 && maxDeviation > avg * 2) score = Math.max(60, score - 20);
+  }
+
+  return score;
+}
+
 /**
  * Analyze engagement quality of video content
  */
@@ -109,19 +266,18 @@ export function analyzeEngagementQuality(
 ): EngagementQualityReport {
   const issues: EngagementIssue[] = [];
 
-  // Get basic info
-  const firstScene = timestamps.scenes[0];
-  const lastScene = timestamps.scenes[timestamps.scenes.length - 1];
-  const allWords = timestamps.scenes.flatMap((s) => s.words);
+  const scenes = normalizeScenes(timestamps);
 
-  const totalDuration =
-    allWords.length > 0
-      ? allWords[allWords.length - 1].end - allWords[0].start
-      : 0;
+  // Get basic info
+  const firstScene = scenes[0];
+  const lastScene = scenes[scenes.length - 1];
+  const allWords = scenes.flatMap((s) => s.words);
+
+  const { totalDuration } = summarizeWords(allWords);
 
   // Extract hook and CTA from script
-  const hookText = script.hook || script.scenes[0]?.text.split('.')[0] || '';
-  const ctaText = script.cta || script.scenes[script.scenes.length - 1]?.text || '';
+  const hookText = extractHookText(script);
+  const ctaText = extractCtaText(script);
   const archetype = script.meta?.archetype || 'unknown';
 
   // Find hook timing (when first words appear)
@@ -130,143 +286,18 @@ export function analyzeEngagementQuality(
   // Find CTA timing (when last scene starts)
   const ctaStartTime = lastScene?.words[0]?.start || 0;
 
-  // ========== METRIC 1: Hook Timing ==========
-  let hookTimingScore = 100;
-  if (hookStartTime > ENGAGEMENT_THRESHOLDS.hookMaxStartTime) {
-    hookTimingScore = Math.max(
-      0,
-      100 - (hookStartTime - ENGAGEMENT_THRESHOLDS.hookMaxStartTime) * 20
-    );
-    issues.push({
-      type: 'late-hook',
-      severity: hookStartTime > 5 ? 'critical' : 'warning',
-      message: `Hook starts at ${hookStartTime.toFixed(2)}s (target: <${ENGAGEMENT_THRESHOLDS.hookMaxStartTime}s)`,
-    });
-  }
+  const hookTimingScore = scoreHookTiming(hookStartTime, issues);
 
-  // ========== METRIC 2: Hook Engagement ==========
-  let hookEngagementScore = 50; // Base score
-  const hookPatternMatches = ENGAGEMENT_THRESHOLDS.hookPatterns.filter((p) =>
-    p.test(hookText)
-  ).length;
+  const hookEngagementScore = scoreHookEngagement(hookText, issues);
 
-  hookEngagementScore = Math.min(100, 50 + hookPatternMatches * 25);
+  const ctaPresenceScore = scoreCtaPresence(ctaText, issues);
 
-  // Bonus for short, punchy hooks
-  const hookWordCount = hookText.split(/\s+/).length;
-  if (hookWordCount <= 6) hookEngagementScore = Math.min(100, hookEngagementScore + 10);
-  if (hookWordCount <= 4) hookEngagementScore = Math.min(100, hookEngagementScore + 10);
+  const ctaTimingScore = scoreCtaTiming(ctaStartTime, totalDuration, issues);
 
-  if (hookEngagementScore < ENGAGEMENT_THRESHOLDS.minHookEngagement) {
-    issues.push({
-      type: 'weak-hook',
-      severity: 'warning',
-      message: `Hook engagement score: ${hookEngagementScore}% (needs questions/pain points)`,
-    });
-  }
+  const { listStructureScore, numberedItems } = scoreListStructure(script, archetype, issues);
 
-  // ========== METRIC 3: CTA Presence ==========
-  let ctaPresenceScore = 0;
-  const ctaPatternMatches = ENGAGEMENT_THRESHOLDS.ctaPatterns.filter((p) =>
-    p.test(ctaText)
-  ).length;
-
-  if (ctaPatternMatches > 0) {
-    ctaPresenceScore = Math.min(100, 50 + ctaPatternMatches * 25);
-  } else {
-    issues.push({
-      type: 'missing-cta',
-      severity: 'warning',
-      message: 'No clear CTA detected (follow/subscribe/link patterns)',
-    });
-  }
-
-  // ========== METRIC 4: CTA Timing ==========
-  let ctaTimingScore = 100;
-  const ctaPositionRatio = totalDuration > 0 ? ctaStartTime / totalDuration : 0;
-
-  if (ctaPositionRatio < 1 - ENGAGEMENT_THRESHOLDS.ctaFinalPercentage) {
-    // CTA is not in final 15%
-    ctaTimingScore = Math.max(0, ctaPositionRatio * 100);
-    if (ctaPositionRatio < 0.7) {
-      issues.push({
-        type: 'early-cta',
-        severity: 'warning',
-        message: `CTA at ${(ctaPositionRatio * 100).toFixed(0)}% of video (should be final 15%)`,
-      });
-    }
-  }
-
-  // ========== METRIC 5: List Structure (for listicles) ==========
-  let listStructureScore = 100; // Default 100 for non-listicles
-  let numberedItems = 0;
-
-  if (archetype === 'listicle') {
-    // Count scenes with number patterns
-    for (const scene of script.scenes) {
-      const hasNumber = ENGAGEMENT_THRESHOLDS.numberPatterns.some((p) =>
-        p.test(scene.text)
-      );
-      if (hasNumber) numberedItems++;
-    }
-
-    // Expect at least 3 numbered items for a listicle
-    const expectedItems = Math.max(3, script.scenes.length - 2); // Exclude intro/outro
-    listStructureScore = Math.min(100, (numberedItems / expectedItems) * 100);
-
-    if (numberedItems === 0) {
-      issues.push({
-        type: 'missing-numbers',
-        severity: 'critical',
-        message: 'Listicle has no numbered items detected',
-      });
-    } else if (numberedItems < 3) {
-      issues.push({
-        type: 'missing-numbers',
-        severity: 'warning',
-        message: `Only ${numberedItems} numbered items detected (expected 3+)`,
-      });
-    }
-  }
-
-  // ========== METRIC 6: Scene Progression ==========
-  let sceneProgressionScore = 100;
-  const sceneCount = timestamps.scenes.length;
-
-  // Check for reasonable scene count (3-8 for shorts)
-  if (sceneCount < 3) {
-    sceneProgressionScore = 60;
-    issues.push({
-      type: 'poor-progression',
-      severity: 'warning',
-      message: `Only ${sceneCount} scenes (target: 3-8 for shorts)`,
-    });
-  } else if (sceneCount > 10) {
-    sceneProgressionScore = 80;
-    issues.push({
-      type: 'poor-progression',
-      severity: 'warning',
-      message: `${sceneCount} scenes may feel rushed (target: 3-8)`,
-    });
-  }
-
-  // Check scene duration variance
-  const sceneDurations = timestamps.scenes.map((s) => {
-    const words = s.words;
-    if (words.length === 0) return 0;
-    return words[words.length - 1].end - words[0].start;
-  });
-
-  const avgDuration =
-    sceneDurations.reduce((a, b) => a + b, 0) / sceneDurations.length;
-  const maxDeviation = Math.max(
-    ...sceneDurations.map((d) => Math.abs(d - avgDuration))
-  );
-
-  // Large deviation indicates poor balance
-  if (maxDeviation > avgDuration * 2) {
-    sceneProgressionScore = Math.max(60, sceneProgressionScore - 20);
-  }
+  const sceneProgressionScore = scoreSceneProgression(scenes, issues);
+  const sceneCount = scenes.length;
 
   // ========== CALCULATE OVERALL SCORE ==========
   const weights = {

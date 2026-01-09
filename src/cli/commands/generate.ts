@@ -56,9 +56,9 @@ export const SYNC_PRESETS: Record<string, SyncPresetConfig> = {
     minSyncRating: 0,
     autoRetrySync: false,
   },
-  /** Standard: standard pipeline with basic quality check */
+  /** Standard: audio-first pipeline (whisper required), no quality check */
   standard: {
-    pipeline: 'standard',
+    pipeline: 'audio-first',
     reconcile: false,
     syncQualityCheck: false,
     minSyncRating: 60,
@@ -498,7 +498,7 @@ function getLogFps(options: GenerateOptions): number {
 }
 
 function getCaptionPreset(options: GenerateOptions): string {
-  return options.captionPreset ?? 'tiktok';
+  return options.captionPreset ?? 'capcut';
 }
 
 function reportResearchSummary(
@@ -954,7 +954,7 @@ export const generateCommand = new Command('generate')
   .option(
     '--caption-preset <preset>',
     'Caption style preset (tiktok, youtube, reels, bold, minimal, neon, capcut, hormozi, karaoke)',
-    'tiktok'
+    'capcut'
   )
   .option('--voice <voice>', 'TTS voice to use', 'af_heart')
   .option('--duration <seconds>', 'Target duration in seconds', '45')
@@ -962,8 +962,8 @@ export const generateCommand = new Command('generate')
   .option('--research [path]', 'Use research (true = auto-run, or path to research.json)')
   .option(
     '--pipeline <mode>',
-    'Pipeline mode: standard (default) or audio-first (requires Whisper)',
-    'standard'
+    'Pipeline mode: audio-first (default, requires Whisper) or standard',
+    'audio-first'
   )
   .option(
     '--whisper-model <model>',

@@ -5,7 +5,7 @@
  * Based on SYSTEM-DESIGN §7.4 render command
  */
 import { z } from 'zod';
-import { VideoClipSchema, VisualAssetSchema } from '../visuals/schema';
+import { GameplayClipSchema, VideoClipSchema, VisualAssetSchema } from '../visuals/schema';
 import { WordTimestampSchema } from '../audio/schema';
 import { ANIMATION_TYPES } from './presets/animation';
 import { CaptionConfigSchema, type CaptionConfig } from './captions/config';
@@ -44,12 +44,14 @@ export const RenderPropsSchema = z.object({
   schemaVersion: z.string().default(RENDER_SCHEMA_VERSION),
   scenes: z.array(VisualAssetSchema).optional().describe('Per-scene visual assets'),
   clips: z.array(VideoClipSchema).optional().describe('@deprecated Use scenes'),
+  gameplayClip: GameplayClipSchema.optional(),
   words: z.array(WordTimestampSchema),
   audioPath: z.string(),
   duration: z.number().positive(),
   width: z.number().int().positive(),
   height: z.number().int().positive(),
   fps: z.number().int().positive().default(30),
+  splitScreenRatio: z.number().min(0.3).max(0.7).optional(),
   /** @deprecated Use captionConfig instead */
   captionStyle: CaptionStyleSchema.optional(),
   /** New comprehensive caption configuration */

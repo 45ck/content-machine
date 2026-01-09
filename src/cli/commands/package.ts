@@ -143,6 +143,9 @@ async function runPackage(topic: string, options: PackageCommandOptions): Promis
     writeStderrLine(`   Platform: ${result.platform}`);
     writeStderrLine(`   Variants: ${result.variants.length}`);
     if (options.mock) writeStderrLine('   Mock mode - packaging is for testing only');
+    writeStderrLine(
+      `Next: cm script --topic "${topic}" --package ${options.output}${options.mock ? ' --mock' : ''}`
+    );
 
     // Human-mode stdout should be reserved for the primary artifact path.
     process.stdout.write(`${options.output}\n`);

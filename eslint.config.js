@@ -21,6 +21,7 @@ export default [
       '**/connectors/**',
       '**/docs/api/**',
       '**/*.d.ts',
+      'scripts/run-vitest.mjs',
     ],
   },
 

@@ -19,6 +19,7 @@ import {
 } from './schema.js';
 import { extractKeywords, generateMockKeywords } from './keywords.js';
 import { createVideoProvider, type VideoProvider, type ProviderName } from './providers/index.js';
+import { selectGameplayClip } from './gameplay.js';
 
 export type { VisualsOutput, VisualAsset } from './schema.js';
 export type { VideoClip } from './schema.js'; // Deprecated re-export
@@ -28,6 +29,12 @@ export interface MatchVisualsOptions {
   provider?: ProviderName;
   orientation?: 'portrait' | 'landscape' | 'square';
   mock?: boolean;
+  gameplay?: {
+    library?: string;
+    style?: string;
+    clip?: string;
+    required?: boolean;
+  };
   onProgress?: (event: VisualsProgressEvent) => void;
 }
 
@@ -204,12 +211,24 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
   const log = createLogger({ module: 'visuals', provider: providerName });
   const orientation = options.orientation ?? 'portrait';
   const emit = createProgressEmitter(options.onProgress, log);
+  const gameplay = options.gameplay;
+
+  const gameplayClip = gameplay
+    ? await selectGameplayClip({
+        library: gameplay.library,
+        style: gameplay.style,
+        clip: gameplay.clip,
+        targetDuration: options.timestamps.totalDuration,
+        strict: Boolean(gameplay.required),
+      })
+    : null;
 
   log.info(
     {
       sceneCount: options.timestamps.scenes?.length ?? 0,
       duration: options.timestamps.totalDuration,
       mock: options.mock,
+      gameplay: gameplayClip ? { path: gameplayClip.path, style: gameplayClip.style } : null,
     },
     'Starting visual matching'
   );
@@ -221,7 +240,11 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
       { assetCount: options.timestamps.scenes?.length ?? 0 },
       'Mock visual matching complete'
     );
-    return generateMockVisuals(options);
+    const output = generateMockVisuals(options);
+    if (gameplayClip) {
+      output.gameplayClip = gameplayClip;
+    }
+    return output;
   }
 
   // Create the video provider (Strategy pattern)
@@ -271,6 +294,7 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
     fallbacks,
     keywords,
     totalDuration: options.timestamps.totalDuration,
+    ...(gameplayClip ? { gameplayClip } : {}),
   };
 
   const validated = VisualsOutputSchema.parse(output);

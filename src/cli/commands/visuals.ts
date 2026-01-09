@@ -20,8 +20,11 @@ export const visualsCommand = new Command('visuals')
   .option('-o, --output <path>', 'Output visuals file path', 'visuals.json')
   .option('--provider <provider>', 'Stock footage provider', 'pexels')
   .option('--orientation <type>', 'Footage orientation', 'portrait')
+  .option('--gameplay <path>', 'Gameplay library directory or clip file path')
+  .option('--gameplay-style <name>', 'Gameplay subfolder name (e.g., subway-surfers)')
+  .option('--gameplay-strict', 'Fail if gameplay clip is missing')
   .option('--mock', 'Use mock visuals (for testing)', false)
-  .action(async (options) => {
+  .action(async (options, command: Command) => {
     const spinner = createSpinner('Finding matching visuals...').start();
     const runtime = getCliRuntime();
 
@@ -59,11 +62,22 @@ export const visualsCommand = new Command('visuals')
         writeStderrLine(parts.join(' - '));
       };
 
+      const gameplaySpecified = Boolean(options.gameplay);
+      const strictSource = command.getOptionValueSource('gameplayStrict');
+      const gameplayStrict = strictSource === 'default' ? gameplaySpecified : options.gameplayStrict;
+
       const visuals = await matchVisuals({
         timestamps,
         provider: options.provider,
         orientation: options.orientation,
         mock: Boolean(options.mock),
+        gameplay: gameplaySpecified
+          ? {
+              library: options.gameplay,
+              style: options.gameplayStyle,
+              required: Boolean(gameplayStrict),
+            }
+          : undefined,
         onProgress,
       });
 
@@ -84,6 +98,9 @@ export const visualsCommand = new Command('visuals')
               provider: options.provider,
               orientation: options.orientation,
               mock: Boolean(options.mock),
+              gameplay: options.gameplay ?? null,
+              gameplayStyle: options.gameplayStyle ?? null,
+              gameplayStrict: Boolean(gameplayStrict),
             },
             outputs: {
               visualsPath: options.output,
@@ -91,6 +108,7 @@ export const visualsCommand = new Command('visuals')
               totalDurationSeconds: visuals.totalDuration ?? null,
               fromStock: visuals.fromStock,
               fallbacks: visuals.fallbacks,
+              gameplayClip: visuals.gameplayClip?.path ?? null,
             },
             timingsMs: Date.now() - runtime.startTime,
           })
@@ -102,6 +120,9 @@ export const visualsCommand = new Command('visuals')
       writeStderrLine(`   Total duration: ${visuals.totalDuration?.toFixed(1) ?? 'N/A'}s`);
       writeStderrLine(`   From stock: ${visuals.fromStock}`);
       writeStderrLine(`   Fallbacks: ${visuals.fallbacks}`);
+      if (visuals.gameplayClip) {
+        writeStderrLine(`   Gameplay: ${visuals.gameplayClip.path}`);
+      }
       if (options.mock) writeStderrLine('   Mock mode - visuals are placeholders');
 
       // Human-mode stdout should be reserved for the primary artifact path.

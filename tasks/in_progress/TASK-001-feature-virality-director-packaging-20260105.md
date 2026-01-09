@@ -1,4 +1,4 @@
-# TASK-001-feature: Virality Director (cm package + cm script --package)
+﻿# TASK-001-feature: Virality Director (cm package + cm script --package)
 
 **Type:** Feature  
 **Priority:** P1  
@@ -17,26 +17,26 @@
 
 > As a content-machine user,  
 > I want to generate packaging variants for a topic and reuse the selected package in `cm script`,  
-> so that scripts are aligned to a strong “title/cover promise” from the start.
+> so that scripts are aligned to a strong title/cover promise from the start.
 
 **Value Proposition:**
 
-- Packaging is the “ceiling setter” for short-form performance; forcing it early improves consistency.
+- Packaging is the ceiling-setter for short-form performance; forcing it early improves consistency.
 - Enables lightweight A/B iteration without changing the 4-stage pipeline.
 
 ---
 
 ## Acceptance Criteria
 
-- [ ] Given a topic, when I run `cm package "<topic>" --mock`, then it writes a valid `packaging.json` with `schemaVersion`, `topic`, `platform`, `variants[]`, and `selected`.
-- [ ] Given a topic, when I run `cm package "<topic>" --mock`, then it writes a valid packaging artifact JSON (default `packaging.json`) with `schemaVersion`, `topic`, `platform`, `variants[]`, and `selected`.
-- [ ] Given a `packaging.json`, when I run `cm script --topic "<topic>" --package packaging.json --mock`, then the generated `script.json` includes the selected package in `script.extra.virality.packaging`.
-- [ ] Given an invalid `packaging.json` (missing required fields), when I run `cm script --package`, then it fails with a user-friendly schema error.
-- [ ] Unit tests cover schema validation, selection logic, and error handling (invalid JSON / invalid schema).
+- [x] Given a topic, when I run `cm package "<topic>" --mock`, then it writes a valid `packaging.json` with `schemaVersion`, `topic`, `platform`, `variants[]`, and `selected`.
+- [x] Given a topic, when I run `cm package "<topic>" --mock`, then it writes a valid packaging artifact JSON (default `packaging.json`) with `schemaVersion`, `topic`, `platform`, `variants[]`, and `selected`. (Duplicate of the previous line; kept for traceability.)
+- [x] Given a `packaging.json`, when I run `cm script --topic "<topic>" --package packaging.json --mock`, then the generated `script.json` includes the selected package in `script.extra.virality.packaging`.
+- [x] Given an invalid `packaging.json` (missing required fields), when I run `cm script --package`, then it fails with a user-friendly schema error.
+- [x] Unit tests cover schema validation, selection logic, and error handling (invalid JSON / invalid schema).
 
 ---
 
-## ✅ Required Documentation
+## Required Documentation
 
 **Pre-Work (read these first):**
 
@@ -51,7 +51,7 @@
 
 ---
 
-## 🧪 Testing Considerations
+## Testing Considerations
 
 **Happy Path:**
 
@@ -71,21 +71,27 @@
 
 ---
 
-## 🔴 Testing Plan (TDD)
+## Testing Plan (TDD)
 
 ### Unit Tests
 
-- [ ] `PackageOutputSchema` validates a correct output.
-- [ ] Generator selects the best variant by deterministic heuristics (length rules).
-- [ ] Generator throws `SchemaError` on invalid LLM JSON.
+- [x] `PackageOutputSchema` validates a correct output.
+- [x] Generator selects the best variant by deterministic heuristics (length rules).
+- [x] Generator throws `SchemaError` on invalid LLM JSON.
 - [ ] `cm script` integration preserves legacy behavior when `--package` is absent.
 
 ### Integration / CLI Smoke (local)
 
 - [ ] `npm run cm -- package "Test topic" --mock --output .cache/packaging.json`
 - [ ] `npm run cm -- script --topic "Test topic" --mock --package .cache/packaging.json --output .cache/script.json`
-  - Alternative (Windows direct): `.\node_modules\.bin\tsx.cmd src\cli\index.ts package "Test topic" --mock --output .cache\packaging.json`
-  - Alternative (Windows direct): `.\node_modules\.bin\tsx.cmd src\cli\index.ts script --topic "Test topic" --mock --package .cache\packaging.json --output .cache\script.json`
+  - Alternative (Windows direct): `\.\node_modules\.bin\tsx.cmd src\cli\index.ts package "Test topic" --mock --output .cache\packaging.json`
+  - Alternative (Windows direct): `\.\node_modules\.bin\tsx.cmd src\cli\index.ts script --topic "Test topic" --mock --package .cache\packaging.json --output .cache\script.json`
+
+### Automated Integration Tests
+
+- [x] Integration tests cover `cm package --mock` writing a valid artifact.
+- [x] Integration tests cover `cm script --package` injecting `script.extra.virality.packaging`.
+- [x] Integration tests cover invalid `--package` returning a JSON `SCHEMA_ERROR`.
 
 ---
 
@@ -94,14 +100,14 @@
 **Components Involved:**
 
 - `src/package/` — Packaging schema + generator
-- `src/cli/commands/package.ts` — New CLI command
-- `src/cli/commands/script.ts` — Add `--package` option
+- `src/cli/commands/package.ts` — CLI command
+- `src/cli/commands/script.ts` — `--package` option
 - `src/script/` — Prompt context + output `extra.virality.packaging`
 
 **Data Flow:**
 
 ```
-topic → cm package → packaging.json → cm script --package → script.json
+topic -> cm package -> packaging.json -> cm script --package -> script.json
 ```
 
 ---
@@ -110,29 +116,32 @@ topic → cm package → packaging.json → cm script --package → script.json
 
 ### Phase 1: Foundation
 
-- [ ] Define Zod schemas for `packaging.json`
-- [ ] Write failing tests for schema + generator selection
+- [x] Define Zod schemas for `packaging.json`
+- [x] Write failing tests for schema + generator selection
 
 ### Phase 2: Integration
 
-- [ ] Implement generator using existing `LLMProvider`
-- [ ] Add `cm package` command and mock mode
-- [ ] Add `--package` support to `cm script`
+- [x] Implement generator using existing `LLMProvider`
+- [x] Add `cm package` command and mock mode
+- [x] Add `--package` support to `cm script`
 
 ### Phase 3: Polish
 
-- [ ] Error messages and logging
+- [x] Error messages and logging
 - [ ] Update docs/README counts/links if needed
 
 ---
 
-## ✅ Verification Checklist
+## Verification Checklist
 
 - [ ] All acceptance criteria met
 - [ ] All tests pass (`npm run test:run`)
-- [ ] TypeScript compiles (`npm run typecheck`)
+- [x] TypeScript compiles (`npm run typecheck`)
 - [ ] Linting clean (`npm run lint`)
 - [ ] Manual smoke commands run successfully
+
+Notes:
+- In some sandboxed environments, running Vitest may fail with `spawn EPERM` due to esbuild worker restrictions. Run tests locally to confirm.
 
 ---
 

@@ -12,7 +12,7 @@
  * - wordBoundaryAccuracy: Words align with expected boundaries
  */
 
-import type { TimestampsOutput, TimestampWord, TimestampScene } from '../audio/schema';
+import type { SceneTimestamp, TimestampsOutput } from '../audio/schema';
 
 // ============================================================================
 // Types
@@ -94,6 +94,197 @@ export const AUDIO_THRESHOLDS = {
 // Analysis Functions
 // ============================================================================
 
+type TimestampWord = SceneTimestamp['words'][number];
+
+function normalizeScenes(timestamps: TimestampsOutput): SceneTimestamp[] {
+  if (timestamps.scenes && timestamps.scenes.length > 0) return timestamps.scenes;
+  if (timestamps.allWords.length === 0) return [];
+
+  return [
+    {
+      sceneId: 'scene-001',
+      audioStart: timestamps.allWords[0].start,
+      audioEnd: timestamps.allWords[timestamps.allWords.length - 1].end,
+      words: timestamps.allWords,
+    },
+  ];
+}
+
+function summarizeWords(words: TimestampWord[]): { totalDuration: number } {
+  if (words.length === 0) return { totalDuration: 0 };
+  return { totalDuration: words[words.length - 1].end - words[0].start };
+}
+
+function analyzeSilenceGaps(words: TimestampWord[], issues: AudioIssue[]): {
+  silenceGapsScore: number;
+  avgGapMs: number;
+  maxGapMs: number;
+} {
+  const gapsMs: number[] = [];
+  let unnaturalGaps = 0;
+
+  for (let i = 1; i < words.length; i++) {
+    const gapMs = (words[i].start - words[i - 1].end) * 1000;
+    gapsMs.push(gapMs);
+
+    if (gapMs > AUDIO_THRESHOLDS.unnaturalGapMs) {
+      unnaturalGaps++;
+      issues.push({
+        type: 'silence-gap',
+        severity: gapMs > AUDIO_THRESHOLDS.extremeGapMs ? 'critical' : 'warning',
+        message: `Unnatural gap of ${gapMs.toFixed(0)}ms after "${words[i - 1].word}"`,
+        timestamp: words[i - 1].end,
+        wordContext: `${words[i - 1].word} [...] ${words[i].word}`,
+      });
+    }
+  }
+
+  const avgGapMs = gapsMs.length > 0 ? gapsMs.reduce((a, b) => a + b, 0) / gapsMs.length : 0;
+  const maxGapMs = gapsMs.length > 0 ? Math.max(...gapsMs) : 0;
+  const silenceGapsScore = Math.max(0, 100 - unnaturalGaps * 10);
+
+  return { silenceGapsScore, avgGapMs, maxGapMs };
+}
+
+function analyzeOverlaps(words: TimestampWord[], issues: AudioIssue[]): {
+  overlapFreeScore: number;
+  overlapsFound: number;
+} {
+  let overlapsFound = 0;
+
+  for (let i = 1; i < words.length; i++) {
+    const overlapMs = (words[i - 1].end - words[i].start) * 1000;
+    if (overlapMs <= AUDIO_THRESHOLDS.maxOverlapMs) continue;
+
+    overlapsFound++;
+    issues.push({
+      type: 'word-overlap',
+      severity: 'critical',
+      message: `Word overlap of ${overlapMs.toFixed(0)}ms: "${words[i - 1].word}" overlaps "${words[i].word}"`,
+      timestamp: words[i].start,
+      wordContext: `${words[i - 1].word} <overlap> ${words[i].word}`,
+    });
+  }
+
+  const overlapFreeScore = overlapsFound === 0 ? 100 : Math.max(0, 100 - overlapsFound * 20);
+  return { overlapFreeScore, overlapsFound };
+}
+
+function analyzePaceConsistency(scenes: SceneTimestamp[], issues: AudioIssue[]): number {
+  const scenePaces: number[] = [];
+
+  for (const scene of scenes) {
+    if (scene.words.length === 0) continue;
+
+    const durationSeconds = scene.words[scene.words.length - 1].end - scene.words[0].start;
+    if (durationSeconds <= 0.5) continue;
+
+    const wpm = (scene.words.length / durationSeconds) * 60;
+    scenePaces.push(wpm);
+
+    if (wpm > AUDIO_THRESHOLDS.maxWpm) {
+      issues.push({
+        type: 'rushed-speech',
+        severity: 'warning',
+        message: `Scene "${scene.sceneId}" is rushed at ${wpm.toFixed(0)} WPM`,
+        timestamp: scene.words[0].start,
+      });
+    } else if (wpm < AUDIO_THRESHOLDS.minWpm) {
+      issues.push({
+        type: 'pace-spike',
+        severity: 'warning',
+        message: `Scene "${scene.sceneId}" is too slow at ${wpm.toFixed(0)} WPM`,
+        timestamp: scene.words[0].start,
+      });
+    }
+  }
+
+  const avgPace = scenePaces.length > 0 ? scenePaces.reduce((a, b) => a + b, 0) / scenePaces.length : 0;
+  const paceStdDev =
+    scenePaces.length > 1
+      ? Math.sqrt(scenePaces.reduce((sum, p) => sum + Math.pow(p - avgPace, 2), 0) / scenePaces.length)
+      : 0;
+
+  const paceCv = avgPace > 0 ? paceStdDev / avgPace : 0;
+  if (paceCv <= AUDIO_THRESHOLDS.paceVarianceThreshold) return 100;
+  return Math.max(0, 100 - (paceCv - AUDIO_THRESHOLDS.paceVarianceThreshold) * 200);
+}
+
+function analyzeBreathingRoom(words: TimestampWord[], issues: AudioIssue[]): {
+  breathingRoomScore: number;
+  expectedPauses: number;
+  pausesFound: number;
+} {
+  let expectedPauses = 0;
+  let pausesFound = 0;
+
+  for (let i = 0; i < words.length - 1; i++) {
+    const current = words[i];
+    if (!AUDIO_THRESHOLDS.pauseRequiredAfter.test(current.word)) continue;
+
+    expectedPauses++;
+    const gapMs = (words[i + 1].start - current.end) * 1000;
+    if (gapMs >= AUDIO_THRESHOLDS.minPauseMs) {
+      pausesFound++;
+      continue;
+    }
+
+    issues.push({
+      type: 'missing-pause',
+      severity: 'warning',
+      message: `Missing pause after "${current.word}" (${gapMs.toFixed(0)}ms, expected >=${AUDIO_THRESHOLDS.minPauseMs}ms)`,
+      timestamp: current.end,
+    });
+  }
+
+  const breathingRoomScore = expectedPauses > 0 ? Math.round((pausesFound / expectedPauses) * 100) : 100;
+  return { breathingRoomScore, expectedPauses, pausesFound };
+}
+
+function analyzeTransitions(scenes: SceneTimestamp[], issues: AudioIssue[]): {
+  transitionSmoothnessScore: number;
+  sceneTransitions: number;
+  abruptTransitions: number;
+} {
+  let sceneTransitions = 0;
+  let abruptTransitions = 0;
+
+  for (let i = 1; i < scenes.length; i++) {
+    const prevScene = scenes[i - 1];
+    const currScene = scenes[i];
+
+    if (prevScene.words.length === 0 || currScene.words.length === 0) continue;
+
+    const gapMs = (currScene.words[0].start - prevScene.words[prevScene.words.length - 1].end) * 1000;
+    sceneTransitions++;
+
+    if (gapMs < AUDIO_THRESHOLDS.minSceneGapMs) {
+      abruptTransitions++;
+      issues.push({
+        type: 'abrupt-transition',
+        severity: 'warning',
+        message: `Abrupt transition between scenes (${gapMs.toFixed(0)}ms gap)`,
+        timestamp: currScene.words[0].start,
+      });
+      continue;
+    }
+
+    if (gapMs > AUDIO_THRESHOLDS.maxSceneGapMs) {
+      issues.push({
+        type: 'silence-gap',
+        severity: 'warning',
+        message: `Long gap between scenes (${gapMs.toFixed(0)}ms)`,
+        timestamp: currScene.words[0].start,
+      });
+    }
+  }
+
+  const transitionSmoothnessScore =
+    sceneTransitions > 0 ? Math.round(((sceneTransitions - abruptTransitions) / sceneTransitions) * 100) : 100;
+
+  return { transitionSmoothnessScore, sceneTransitions, abruptTransitions };
+}
+
 /**
  * Analyze audio quality from timestamps
  */
@@ -101,7 +292,10 @@ export function analyzeAudioQuality(
   timestamps: TimestampsOutput
 ): AudioQualityReport {
   const issues: AudioIssue[] = [];
-  const allWords = timestamps.scenes.flatMap((s) => s.words);
+
+  const scenes = normalizeScenes(timestamps);
+  const allWords = scenes.flatMap((s) => s.words);
+  const { totalDuration } = summarizeWords(allWords);
 
   if (allWords.length === 0) {
     return {
@@ -134,170 +328,11 @@ export function analyzeAudioQuality(
     };
   }
 
-  const totalDuration = allWords[allWords.length - 1].end - allWords[0].start;
-
-  // ========== METRIC 1: Silence Gaps ==========
-  const gaps: number[] = [];
-  let unnaturalGaps = 0;
-
-  for (let i = 1; i < allWords.length; i++) {
-    const gap = (allWords[i].start - allWords[i - 1].end) * 1000; // Convert to ms
-    gaps.push(gap);
-
-    if (gap > AUDIO_THRESHOLDS.unnaturalGapMs) {
-      unnaturalGaps++;
-      const severity =
-        gap > AUDIO_THRESHOLDS.extremeGapMs ? 'critical' : 'warning';
-      issues.push({
-        type: 'silence-gap',
-        severity,
-        message: `Unnatural gap of ${gap.toFixed(0)}ms after "${allWords[i - 1].word}"`,
-        timestamp: allWords[i - 1].end,
-        wordContext: `${allWords[i - 1].word} [...] ${allWords[i].word}`,
-      });
-    }
-  }
-
-  const avgGapMs =
-    gaps.length > 0 ? gaps.reduce((a, b) => a + b, 0) / gaps.length : 0;
-  const maxGapMs = gaps.length > 0 ? Math.max(...gaps) : 0;
-
-  // Score: 100 if no unnatural gaps, decrease by 10 per gap
-  const silenceGapsScore = Math.max(0, 100 - unnaturalGaps * 10);
-
-  // ========== METRIC 2: Overlap Detection ==========
-  let overlapsFound = 0;
-
-  for (let i = 1; i < allWords.length; i++) {
-    const overlap = (allWords[i - 1].end - allWords[i].start) * 1000;
-    if (overlap > AUDIO_THRESHOLDS.maxOverlapMs) {
-      overlapsFound++;
-      issues.push({
-        type: 'word-overlap',
-        severity: 'critical',
-        message: `Word overlap of ${overlap.toFixed(0)}ms: "${allWords[i - 1].word}" overlaps "${allWords[i].word}"`,
-        timestamp: allWords[i].start,
-        wordContext: `${allWords[i - 1].word} <overlap> ${allWords[i].word}`,
-      });
-    }
-  }
-
-  const overlapFreeScore = overlapsFound === 0 ? 100 : Math.max(0, 100 - overlapsFound * 20);
-
-  // ========== METRIC 3: Pace Consistency ==========
-  const scenePaces: number[] = [];
-
-  for (const scene of timestamps.scenes) {
-    if (scene.words.length === 0) continue;
-    const sceneDuration =
-      scene.words[scene.words.length - 1].end - scene.words[0].start;
-    if (sceneDuration > 0.5) {
-      // Only count scenes with >0.5s
-      const wpm = (scene.words.length / sceneDuration) * 60;
-      scenePaces.push(wpm);
-
-      if (wpm > AUDIO_THRESHOLDS.maxWpm) {
-        issues.push({
-          type: 'rushed-speech',
-          severity: 'warning',
-          message: `Scene "${scene.sceneId}" is rushed at ${wpm.toFixed(0)} WPM`,
-          timestamp: scene.words[0].start,
-        });
-      } else if (wpm < AUDIO_THRESHOLDS.minWpm) {
-        issues.push({
-          type: 'pace-spike',
-          severity: 'warning',
-          message: `Scene "${scene.sceneId}" is too slow at ${wpm.toFixed(0)} WPM`,
-          timestamp: scene.words[0].start,
-        });
-      }
-    }
-  }
-
-  // Calculate coefficient of variation for pace
-  const avgPace =
-    scenePaces.length > 0
-      ? scenePaces.reduce((a, b) => a + b, 0) / scenePaces.length
-      : 0;
-  const paceStdDev =
-    scenePaces.length > 1
-      ? Math.sqrt(
-          scenePaces.reduce((sum, p) => sum + Math.pow(p - avgPace, 2), 0) /
-            scenePaces.length
-        )
-      : 0;
-  const paceCV = avgPace > 0 ? paceStdDev / avgPace : 0;
-
-  const paceConsistencyScore =
-    paceCV <= AUDIO_THRESHOLDS.paceVarianceThreshold
-      ? 100
-      : Math.max(0, 100 - (paceCV - AUDIO_THRESHOLDS.paceVarianceThreshold) * 200);
-
-  // ========== METRIC 4: Breathing Room (pauses at punctuation) ==========
-  let expectedPauses = 0;
-  let pausesFound = 0;
-
-  for (let i = 0; i < allWords.length - 1; i++) {
-    const word = allWords[i];
-    if (AUDIO_THRESHOLDS.pauseRequiredAfter.test(word.word)) {
-      expectedPauses++;
-      const gapMs = (allWords[i + 1].start - word.end) * 1000;
-      if (gapMs >= AUDIO_THRESHOLDS.minPauseMs) {
-        pausesFound++;
-      } else {
-        issues.push({
-          type: 'missing-pause',
-          severity: 'warning',
-          message: `Missing pause after "${word.word}" (${gapMs.toFixed(0)}ms, expected >=${AUDIO_THRESHOLDS.minPauseMs}ms)`,
-          timestamp: word.end,
-        });
-      }
-    }
-  }
-
-  const breathingRoomScore =
-    expectedPauses > 0
-      ? Math.round((pausesFound / expectedPauses) * 100)
-      : 100; // No punctuation = assume OK
-
-  // ========== METRIC 5: Scene Transition Smoothness ==========
-  let sceneTransitions = 0;
-  let abruptTransitions = 0;
-
-  for (let i = 1; i < timestamps.scenes.length; i++) {
-    const prevScene = timestamps.scenes[i - 1];
-    const currScene = timestamps.scenes[i];
-
-    if (prevScene.words.length === 0 || currScene.words.length === 0) continue;
-
-    const gapMs =
-      (currScene.words[0].start -
-        prevScene.words[prevScene.words.length - 1].end) *
-      1000;
-    sceneTransitions++;
-
-    if (gapMs < AUDIO_THRESHOLDS.minSceneGapMs) {
-      abruptTransitions++;
-      issues.push({
-        type: 'abrupt-transition',
-        severity: 'warning',
-        message: `Abrupt transition between scenes (${gapMs.toFixed(0)}ms gap)`,
-        timestamp: currScene.words[0].start,
-      });
-    } else if (gapMs > AUDIO_THRESHOLDS.maxSceneGapMs) {
-      issues.push({
-        type: 'silence-gap',
-        severity: 'warning',
-        message: `Long gap between scenes (${gapMs.toFixed(0)}ms)`,
-        timestamp: currScene.words[0].start,
-      });
-    }
-  }
-
-  const transitionSmoothnessScore =
-    sceneTransitions > 0
-      ? Math.round(((sceneTransitions - abruptTransitions) / sceneTransitions) * 100)
-      : 100;
+  const { silenceGapsScore, avgGapMs, maxGapMs } = analyzeSilenceGaps(allWords, issues);
+  const { overlapFreeScore, overlapsFound } = analyzeOverlaps(allWords, issues);
+  const paceConsistencyScore = analyzePaceConsistency(scenes, issues);
+  const { breathingRoomScore, expectedPauses, pausesFound } = analyzeBreathingRoom(allWords, issues);
+  const { transitionSmoothnessScore, sceneTransitions, abruptTransitions } = analyzeTransitions(scenes, issues);
 
   // ========== CALCULATE OVERALL SCORE ==========
   const weights = {
