@@ -89,6 +89,7 @@ export async function searchPexels(options: PexelsSearchOptions): Promise<Pexels
 
 /**
  * Get the best quality video URL for the orientation
+ * Prefers HD (720-1080p) to avoid huge UHD files that crash the renderer
  */
 function getBestVideoUrl(video: Video): string {
   const files = video.video_files;
@@ -96,15 +97,23 @@ function getBestVideoUrl(video: Video): string {
   // Sort by quality (height) descending
   const sorted = [...files].sort((a, b) => (b.height ?? 0) - (a.height ?? 0));
 
-  // Find HD quality (720p or 1080p)
+  // First preference: HD quality (720p or 1080p) - optimal for rendering
   const hd = sorted.find(
     (f) => f.height && f.height >= 720 && f.height <= 1080 && f.quality === 'hd'
   );
+  if (hd) return hd.link;
 
-  // Fall back to highest quality
-  const best = hd ?? sorted[0];
+  // Second preference: Any file 1920p or less (avoid 4K/UHD)
+  const reasonable = sorted.find((f) => f.height && f.height <= 1920);
+  if (reasonable) return reasonable.link;
 
-  return best.link;
+  // Third preference: SD quality
+  const sd = sorted.find((f) => f.quality === 'sd');
+  if (sd) return sd.link;
+
+  // Last resort: smallest available (to avoid memory issues)
+  const smallest = [...files].sort((a, b) => (a.height ?? 0) - (b.height ?? 0))[0];
+  return smallest?.link ?? sorted[0].link;
 }
 
 /**
