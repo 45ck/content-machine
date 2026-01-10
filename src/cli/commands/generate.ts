@@ -20,6 +20,7 @@ import { createSpinner } from '../progress';
 import chalk from 'chalk';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
+import { formatKeyValueRows, writeSummaryCard } from '../ui';
 import { dirname, join } from 'path';
 import { existsSync } from 'fs';
 import { ResearchOutputSchema } from '../../research/schema';
@@ -124,6 +125,24 @@ interface GenerateOptions {
   captionMode?: 'page' | 'single' | 'buildup' | 'chunk';
   /** Words per caption page/group (default: 8) */
   wordsPerPage?: string;
+  /** Max words per caption page/group (alias of wordsPerPage) */
+  captionMaxWords?: string;
+  /** Minimum words per caption page/group */
+  captionMinWords?: string;
+  /** Target words per chunk (chunk mode) */
+  captionTargetWords?: string;
+  /** Max words per minute for caption pacing */
+  captionMaxWpm?: string;
+  /** Max characters per second for caption pacing */
+  captionMaxCps?: string;
+  /** Minimum on-screen time for captions (ms) */
+  captionMinOnScreenMs?: string;
+  /** Minimum on-screen time for short captions (ms) */
+  captionMinOnScreenMsShort?: string;
+  /** Drop filler words from captions */
+  captionDropFillers?: boolean;
+  /** Comma-separated filler words/phrases to drop */
+  captionFillerWords?: string;
   /** Maximum lines per caption page (default: 2) */
   maxLines?: string;
   /** Maximum characters per line (default: 25) */
@@ -198,6 +217,17 @@ function writeDryRunJson(params: {
         resolvedTemplateId,
         fps: options.fps ?? '30',
         captionPreset: options.captionPreset ?? 'tiktok',
+        captionMode: options.captionMode ?? null,
+        wordsPerPage: parseOptionalInt(options.wordsPerPage ?? options.captionMaxWords),
+        captionMaxWords: parseOptionalInt(options.captionMaxWords),
+        captionMinWords: parseOptionalInt(options.captionMinWords),
+        captionTargetWords: parseOptionalInt(options.captionTargetWords),
+        captionMaxWpm: parseOptionalNumber(options.captionMaxWpm),
+        captionMaxCps: parseOptionalNumber(options.captionMaxCps),
+        captionMinOnScreenMs: parseOptionalInt(options.captionMinOnScreenMs),
+        captionMinOnScreenMsShort: parseOptionalInt(options.captionMinOnScreenMsShort),
+        captionDropFillers: options.captionDropFillers ?? null,
+        captionFillerWords: parseWordList(options.captionFillerWords) ?? null,
         voice: options.voice,
         durationSeconds: options.duration,
         output: options.output,
@@ -473,6 +503,21 @@ function parseOptionalInt(value: string | undefined): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function parseOptionalNumber(value: string | undefined): number | null {
+  if (!value) return null;
+  const parsed = Number.parseFloat(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function parseWordList(value: string | undefined): string[] | undefined {
+  if (!value) return undefined;
+  const items = value
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+  return items.length > 0 ? items : [];
+}
+
 function buildGenerateSuccessJsonArgs(params: {
   topic: string;
   archetype: string;
@@ -494,6 +539,17 @@ function buildGenerateSuccessJsonArgs(params: {
     gameplayStrict: Boolean(options.gameplayStrict),
     fps: options.fps,
     captionPreset: options.captionPreset,
+    captionMode: options.captionMode ?? null,
+    wordsPerPage: parseOptionalInt(options.wordsPerPage ?? options.captionMaxWords),
+    captionMaxWords: parseOptionalInt(options.captionMaxWords),
+    captionMinWords: parseOptionalInt(options.captionMinWords),
+    captionTargetWords: parseOptionalInt(options.captionTargetWords),
+    captionMaxWpm: parseOptionalNumber(options.captionMaxWpm),
+    captionMaxCps: parseOptionalNumber(options.captionMaxCps),
+    captionMinOnScreenMs: parseOptionalInt(options.captionMinOnScreenMs),
+    captionMinOnScreenMsShort: parseOptionalInt(options.captionMinOnScreenMsShort),
+    captionDropFillers: options.captionDropFillers ?? null,
+    captionFillerWords: parseWordList(options.captionFillerWords) ?? null,
     voice: options.voice,
     durationSeconds: options.duration,
     output: options.output,
@@ -736,6 +792,14 @@ async function runGeneratePipeline(params: {
 
   try {
     const { runPipeline } = await import('../../core/pipeline');
+    const wordsPerPage =
+      params.options.wordsPerPage ?? params.options.captionMaxWords ?? undefined;
+    const captionFillerWords = parseWordList(params.options.captionFillerWords);
+    const captionDropFillers =
+      params.options.captionDropFillers || (captionFillerWords && captionFillerWords.length > 0)
+        ? true
+        : undefined;
+
     return await runPipeline({
       topic: params.topic,
       archetype: params.archetype as
@@ -765,9 +829,16 @@ async function runGeneratePipeline(params: {
         : undefined,
       reconcile: params.options.reconcile,
       captionMode: params.options.captionMode,
-      wordsPerPage: params.options.wordsPerPage
-        ? parseInt(params.options.wordsPerPage, 10)
-        : undefined,
+      wordsPerPage: wordsPerPage ? parseInt(wordsPerPage, 10) : undefined,
+      captionMinWords: parseOptionalInt(params.options.captionMinWords) ?? undefined,
+      captionTargetWords: parseOptionalInt(params.options.captionTargetWords) ?? undefined,
+      captionMaxWpm: parseOptionalNumber(params.options.captionMaxWpm) ?? undefined,
+      captionMaxCps: parseOptionalNumber(params.options.captionMaxCps) ?? undefined,
+      captionMinOnScreenMs: parseOptionalInt(params.options.captionMinOnScreenMs) ?? undefined,
+      captionMinOnScreenMsShort:
+        parseOptionalInt(params.options.captionMinOnScreenMsShort) ?? undefined,
+      captionDropFillers,
+      captionFillerWords,
       maxLinesPerPage: params.options.maxLines ? parseInt(params.options.maxLines, 10) : undefined,
       maxCharsPerLine: params.options.charsPerLine
         ? parseInt(params.options.charsPerLine, 10)
@@ -997,7 +1068,7 @@ async function writeSyncQualityReportFiles(
   return reportPath;
 }
 
-function finalizeGenerateOutput(params: {
+async function finalizeGenerateOutput(params: {
   topic: string;
   archetype: string;
   orientation: string;
@@ -1009,7 +1080,7 @@ function finalizeGenerateOutput(params: {
   result: PipelineResult;
   sync: SyncQualitySummary | null;
   exitCode: number;
-}): void {
+}): Promise<void> {
   if (params.runtime.json) {
     writeSuccessJson({
       topic: params.topic,
@@ -1027,7 +1098,7 @@ function finalizeGenerateOutput(params: {
     return;
   }
 
-  showSuccessSummary(params.result, params.options, params.artifactsDir, params.sync);
+  await showSuccessSummary(params.result, params.options, params.artifactsDir, params.sync);
   if (params.exitCode !== 0) process.exit(params.exitCode);
 }
 
@@ -1163,7 +1234,7 @@ async function runGenerate(
     artifactsDir,
   });
 
-  finalizeGenerateOutput({
+  await finalizeGenerateOutput({
     topic,
     archetype,
     orientation,
@@ -1216,7 +1287,31 @@ function showDryRunSummary(
   }
   const wordsPerPage = options.wordsPerPage ?? options.captionMaxWords;
   if (wordsPerPage) {
-    writeStderrLine(`   Words Per Page: ${wordsPerPage}`);
+    writeStderrLine(`   Caption Max Words: ${wordsPerPage}`);
+  }
+  if (options.captionMinWords) {
+    writeStderrLine(`   Caption Min Words: ${options.captionMinWords}`);
+  }
+  if (options.captionTargetWords) {
+    writeStderrLine(`   Caption Target Words: ${options.captionTargetWords}`);
+  }
+  if (options.captionMaxWpm) {
+    writeStderrLine(`   Caption Max WPM: ${options.captionMaxWpm}`);
+  }
+  if (options.captionMaxCps) {
+    writeStderrLine(`   Caption Max CPS: ${options.captionMaxCps}`);
+  }
+  if (options.captionMinOnScreenMs) {
+    writeStderrLine(`   Caption Min On-Screen: ${options.captionMinOnScreenMs}ms`);
+  }
+  if (options.captionMinOnScreenMsShort) {
+    writeStderrLine(`   Caption Min On-Screen (Short): ${options.captionMinOnScreenMsShort}ms`);
+  }
+  if (options.captionDropFillers) {
+    writeStderrLine('   Caption Cleanup: drop fillers');
+  }
+  if (options.captionFillerWords) {
+    writeStderrLine(`   Caption Filler Words: ${options.captionFillerWords}`);
   }
   if (options.maxLines) {
     writeStderrLine(`   Max Lines: ${options.maxLines}`);
@@ -1254,50 +1349,65 @@ function showDryRunSummary(
   writeStderrLine(`   4. Render -> ${options.output}`);
 }
 
-function showSuccessSummary(
+async function showSuccessSummary(
   result: PipelineResult,
   options: GenerateOptions,
   artifactsDir: string,
   sync: SyncQualitySummary | null
-): void {
-  const headline =
-    sync && !sync.passed
-      ? chalk.red.bold('Video generated (sync quality FAILED)')
-      : chalk.green.bold('Video generated successfully!');
-  writeStderrLine(headline);
-  writeStderrLine(`   Title: ${result.script.title}`);
-  writeStderrLine(`   Duration: ${result.duration.toFixed(1)}s`);
-  writeStderrLine(`   Resolution: ${result.width}x${result.height}`);
-  writeStderrLine(`   Size: ${(result.fileSize / 1024 / 1024).toFixed(1)} MB`);
-  if (result.costs) {
-    writeStderrLine(chalk.gray(`   API Costs: $${result.costs.total.toFixed(4)}`));
-    writeStderrLine(chalk.gray(`      - LLM: $${result.costs.llm.toFixed(4)}`));
-    writeStderrLine(chalk.gray(`      - TTS: $${result.costs.tts.toFixed(4)}`));
-  }
+): Promise<void> {
+  const title = sync && !sync.passed ? 'Video generated (sync failed)' : 'Video generated';
+  const rows: Array<[string, string]> = [
+    ['Title', result.script.title ?? options.topic],
+    ['Duration', `${result.duration.toFixed(1)}s`],
+    ['Resolution', `${result.width}x${result.height}`],
+    ['Size', `${(result.fileSize / 1024 / 1024).toFixed(1)} MB`],
+    ['Output', result.outputPath],
+  ];
   if (result.visuals.gameplayClip) {
-    writeStderrLine(chalk.gray(`   Gameplay: ${result.visuals.gameplayClip.path}`));
+    rows.push(['Gameplay', result.visuals.gameplayClip.path]);
+  }
+  const lines = formatKeyValueRows(rows);
+
+  if (result.costs) {
+    lines.push(
+      '',
+      'Costs',
+      ...formatKeyValueRows([
+        ['Total', `$${result.costs.total.toFixed(4)}`],
+        ['LLM', `$${result.costs.llm.toFixed(4)}`],
+        ['TTS', `$${result.costs.tts.toFixed(4)}`],
+      ])
+    );
   }
 
   if (sync) {
-    const status = sync.passed ? chalk.green('PASSED') : chalk.red('FAILED');
-    writeStderrLine(
-      chalk.gray(
-        `   Sync rating: ${sync.rating}/100 (${sync.ratingLabel}) - ${status} (attempts: ${sync.attempts})`
-      )
+    const status = sync.passed ? 'PASSED' : 'FAILED';
+    lines.push(
+      '',
+      `Sync rating: ${sync.rating}/100 (${sync.ratingLabel}) - ${status} (attempts: ${sync.attempts})`,
+      `Sync report: ${sync.reportPath}`
     );
-    writeStderrLine(chalk.gray(`   Sync report: ${sync.reportPath}`));
   }
 
   if (options.keepArtifacts) {
-    writeStderrLine(chalk.gray('Artifacts:'));
-    writeStderrLine(chalk.gray(`   Script: ${join(artifactsDir, 'script.json')}`));
-    writeStderrLine(chalk.gray(`   Audio: ${join(artifactsDir, 'audio.wav')}`));
-    writeStderrLine(chalk.gray(`   Timestamps: ${join(artifactsDir, 'timestamps.json')}`));
-    writeStderrLine(chalk.gray(`   Visuals: ${join(artifactsDir, 'visuals.json')}`));
+    lines.push(
+      '',
+      'Artifacts',
+      ...formatKeyValueRows([
+        ['Script', join(artifactsDir, 'script.json')],
+        ['Audio', join(artifactsDir, 'audio.wav')],
+        ['Timestamps', join(artifactsDir, 'timestamps.json')],
+        ['Visuals', join(artifactsDir, 'visuals.json')],
+      ])
+    );
   }
 
   const profile = options.orientation === 'landscape' ? 'landscape' : 'portrait';
-  writeStderrLine(chalk.gray(`Next: cm validate ${result.outputPath} --profile ${profile}`));
+  await writeSummaryCard({
+    title,
+    lines,
+    footerLines: [`Next: cm validate ${result.outputPath} --profile ${profile}`],
+  });
 
   // Human-mode stdout should be reserved for the primary artifact path.
   process.stdout.write(`${result.outputPath}\n`);

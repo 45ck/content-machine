@@ -7,14 +7,16 @@ import { Command } from 'commander';
 import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope } from '../output';
 import { CMError } from '../../core/errors';
 import type { TimestampsOutput } from '../../audio/schema';
 import {
   CaptionConfigSchema,
   CaptionDisplayModeSchema,
+  type CaptionConfig,
   type CaptionDisplayMode,
 } from '../../render/captions/config';
+import { formatKeyValueRows, writeSummaryCard } from '../ui';
 import {
   CAPTION_STYLE_PRESETS,
   getCaptionPreset,
@@ -27,7 +29,37 @@ interface CaptionsOptions {
   output: string;
   captionPreset: string;
   captionMode?: string;
+  captionMaxWords?: string;
+  captionMinWords?: string;
+  captionTargetWords?: string;
+  captionMaxWpm?: string;
+  captionMaxCps?: string;
+  captionMinOnScreenMs?: string;
+  captionMinOnScreenMsShort?: string;
+  captionDropFillers?: boolean;
+  captionFillerWords?: string;
   summary?: boolean;
+}
+
+function parseOptionalInt(value: string | undefined): number | undefined {
+  if (!value) return undefined;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function parseOptionalNumber(value: string | undefined): number | undefined {
+  if (!value) return undefined;
+  const parsed = Number.parseFloat(value);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function parseWordList(value: string | undefined): string[] | undefined {
+  if (!value) return undefined;
+  const items = value
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+  return items.length > 0 ? items : [];
 }
 
 export const captionsCommand = new Command('captions')
@@ -40,6 +72,15 @@ export const captionsCommand = new Command('captions')
     'capcut'
   )
   .option('--caption-mode <mode>', 'Caption display mode (page, single, buildup, chunk)')
+  .option('--caption-max-words <count>', 'Max words per chunk/page')
+  .option('--caption-min-words <count>', 'Min words per chunk/page')
+  .option('--caption-target-words <count>', 'Target words per chunk (chunk mode)')
+  .option('--caption-max-wpm <value>', 'Max words per minute for caption pacing')
+  .option('--caption-max-cps <value>', 'Max characters per second for caption pacing')
+  .option('--caption-min-on-screen-ms <ms>', 'Minimum on-screen time for captions (ms)')
+  .option('--caption-min-on-screen-short-ms <ms>', 'Minimum on-screen time for short captions (ms)')
+  .option('--caption-drop-fillers', 'Drop filler words from captions')
+  .option('--caption-filler-words <list>', 'Comma-separated filler words/phrases to drop')
   .option('--summary', 'Print a compact summary only', false)
   .action(async (options: CaptionsOptions) => {
     const runtime = getCliRuntime();
@@ -67,9 +108,42 @@ export const captionsCommand = new Command('captions')
       }
 
       const preset = getCaptionPreset(presetName as CaptionPresetName);
+      const layoutOverride: Partial<CaptionConfig['layout']> = {};
+
+      const maxWords = parseOptionalInt(options.captionMaxWords);
+      if (maxWords !== undefined) layoutOverride.maxWordsPerPage = maxWords;
+      const minWords = parseOptionalInt(options.captionMinWords);
+      if (minWords !== undefined) layoutOverride.minWordsPerPage = minWords;
+      const targetWords = parseOptionalInt(options.captionTargetWords);
+      if (targetWords !== undefined) layoutOverride.targetWordsPerChunk = targetWords;
+      const maxWpm = parseOptionalNumber(options.captionMaxWpm);
+      if (maxWpm !== undefined) layoutOverride.maxWordsPerMinute = maxWpm;
+      const maxCps = parseOptionalNumber(options.captionMaxCps);
+      if (maxCps !== undefined) layoutOverride.maxCharsPerSecond = maxCps;
+      const minOnScreenMs = parseOptionalInt(options.captionMinOnScreenMs);
+      if (minOnScreenMs !== undefined) layoutOverride.minOnScreenMs = minOnScreenMs;
+      const minOnScreenMsShort = parseOptionalInt(options.captionMinOnScreenMsShort);
+      if (minOnScreenMsShort !== undefined) {
+        layoutOverride.minOnScreenMsShort = minOnScreenMsShort;
+      }
+
+      const fillerWords = parseWordList(options.captionFillerWords);
+      const dropFillers = Boolean(options.captionDropFillers || (fillerWords && fillerWords.length > 0));
+
       const captionConfig = CaptionConfigSchema.parse({
         ...preset,
         ...(captionMode ? { displayMode: captionMode } : {}),
+        ...(Object.keys(layoutOverride).length > 0
+          ? { layout: { ...preset.layout, ...layoutOverride } }
+          : {}),
+        ...(dropFillers
+          ? {
+              cleanup: {
+                dropFillers: true,
+                fillerWords: fillerWords ?? [],
+              },
+            }
+          : {}),
       });
 
       const report = analyzeCaptionChunks(timestamps.allWords, captionConfig);
@@ -86,6 +160,15 @@ export const captionsCommand = new Command('captions')
               output: options.output,
               captionPreset: presetName,
               captionMode: captionMode ?? null,
+              captionMaxWords: parseOptionalInt(options.captionMaxWords) ?? null,
+              captionMinWords: parseOptionalInt(options.captionMinWords) ?? null,
+              captionTargetWords: parseOptionalInt(options.captionTargetWords) ?? null,
+              captionMaxWpm: parseOptionalNumber(options.captionMaxWpm) ?? null,
+              captionMaxCps: parseOptionalNumber(options.captionMaxCps) ?? null,
+              captionMinOnScreenMs: parseOptionalInt(options.captionMinOnScreenMs) ?? null,
+              captionMinOnScreenMsShort: parseOptionalInt(options.captionMinOnScreenMsShort) ?? null,
+              captionDropFillers: dropFillers,
+              captionFillerWords: fillerWords ?? null,
               summary: Boolean(options.summary),
             },
             outputs: {
@@ -102,25 +185,32 @@ export const captionsCommand = new Command('captions')
         );
         process.exit(report.fastChunkCount === 0 ? 0 : 1);
       }
-
-      writeStderrLine(
-        `Chunks: ${report.totalChunks} | avg ${(report.avgDurationMs / 1000).toFixed(2)}s | min ${(report.minDurationMs / 1000).toFixed(2)}s | max ${(report.maxDurationMs / 1000).toFixed(2)}s`
-      );
-      writeStderrLine(
-        `Fast chunks: ${report.fastChunkCount} | max CPS ${report.maxCps.toFixed(1)} | max WPM ${report.maxWpm.toFixed(0)}`
-      );
+      const lines = formatKeyValueRows([
+        ['Chunks', String(report.totalChunks)],
+        ['Avg duration', `${(report.avgDurationMs / 1000).toFixed(2)}s`],
+        ['Min duration', `${(report.minDurationMs / 1000).toFixed(2)}s`],
+        ['Max duration', `${(report.maxDurationMs / 1000).toFixed(2)}s`],
+        ['Fast chunks', String(report.fastChunkCount)],
+        ['Max CPS', report.maxCps.toFixed(1)],
+        ['Max WPM', report.maxWpm.toFixed(0)],
+        ['Report', options.output],
+      ]);
 
       if (!options.summary && report.fastChunkCount > 0) {
-        writeStderrLine('Fast chunks (first 5):');
         const fastChunks = report.chunks.filter((chunk) => !chunk.meetsMinDuration).slice(0, 5);
+        lines.push('', 'Fast chunks (first 5):');
         for (const chunk of fastChunks) {
-          writeStderrLine(
-            `  - [${chunk.index}] ${(chunk.durationMs / 1000).toFixed(2)}s < ${(chunk.requiredMinMs / 1000).toFixed(2)}s: ${chunk.text}`
+          lines.push(
+            `- [${chunk.index}] ${(chunk.durationMs / 1000).toFixed(2)}s < ${(chunk.requiredMinMs / 1000).toFixed(2)}s: ${chunk.text}`
           );
         }
       }
 
-      writeStderrLine(`Report written to: ${options.output}`);
+      await writeSummaryCard({
+        title: 'Caption diagnostics',
+        lines,
+        footerLines: [`Next: cm render --timestamps ${options.timestamps}`],
+      });
       process.stdout.write(`${options.output}\n`);
       process.exit(report.fastChunkCount === 0 ? 0 : 1);
     } catch (error) {

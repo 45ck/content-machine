@@ -9,8 +9,9 @@ import { handleCommandError, readInputFile } from '../utils';
 import { ScriptOutputSchema } from '../../script/schema';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope } from '../output';
 import { CMError, SchemaError } from '../../core/errors';
+import { formatKeyValueRows, writeSummaryCard } from '../ui';
 
 export const audioCommand = new Command('audio')
   .description('Generate voiceover audio with word-level timestamps')
@@ -114,13 +115,20 @@ export const audioCommand = new Command('audio')
         process.exit(0);
       }
 
-      writeStderrLine(`Audio: ${result.duration.toFixed(1)}s, ${result.wordCount} words`);
-      writeStderrLine(`   Audio: ${result.audioPath}`);
-      writeStderrLine(`   Timestamps: ${result.timestampsPath}`);
-      if (options.mock) writeStderrLine('   Mock mode - audio/timestamps are placeholders');
-      writeStderrLine(
+      const lines = formatKeyValueRows([
+        ['Duration', `${result.duration.toFixed(1)}s`],
+        ['Words', String(result.wordCount)],
+        ['Voice', options.voice],
+        ['Speed', String(ttsSpeed)],
+        ['Audio', result.audioPath],
+        ['Timestamps', result.timestampsPath],
+      ]);
+      const footerLines = [];
+      if (options.mock) footerLines.push('Mock mode - audio/timestamps are placeholders');
+      footerLines.push(
         `Next: cm visuals --input ${result.timestampsPath} --output visuals.json${options.mock ? ' --mock' : ''}`
       );
+      await writeSummaryCard({ title: 'Audio ready', lines, footerLines });
 
       // Human-mode stdout should be reserved for the primary artifact path.
       process.stdout.write(`${result.audioPath}\n`);

@@ -33,6 +33,7 @@ import { TimestampsOutputSchema } from '../../audio/schema';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
+import { formatKeyValueRows, writeSummaryCard } from '../ui';
 import type { CaptionPresetName } from '../../render/captions/presets';
 import type {
   CaptionConfig,
@@ -514,6 +515,15 @@ function writeRenderJsonEnvelope(params: {
         chromeMode: params.options.chromeMode ?? null,
         captionPreset: params.options.captionPreset,
         captionMode: params.options.captionMode ?? null,
+        captionMaxWords: params.options.captionMaxWords ?? null,
+        captionMinWords: params.options.captionMinWords ?? null,
+        captionTargetWords: params.options.captionTargetWords ?? null,
+        captionMaxWpm: params.options.captionMaxWpm ?? null,
+        captionMaxCps: params.options.captionMaxCps ?? null,
+        captionMinOnScreenMs: params.options.captionMinOnScreenMs ?? null,
+        captionMinOnScreenMsShort: params.options.captionMinOnScreenMsShort ?? null,
+        captionDropFillers: params.options.captionDropFillers ?? null,
+        captionFillerWords: params.options.captionFillerWords ?? null,
         validateTimestamps: params.options.validateTimestamps,
         extendVisuals: params.options.extendVisuals,
       },
@@ -530,16 +540,26 @@ function writeRenderJsonEnvelope(params: {
   );
 }
 
-function writeRenderHumanSummary(params: {
+async function writeRenderHumanSummary(params: {
   result: Awaited<ReturnType<(typeof import('../../render/service'))['renderVideo']>>;
   mock: boolean;
   profile: 'portrait' | 'landscape';
-}): void {
-  writeStderrLine(
-    `Video: ${params.result.duration.toFixed(1)}s, ${params.result.width}x${params.result.height}, ${(params.result.fileSize / 1024 / 1024).toFixed(1)} MB`
-  );
-  if (params.mock) writeStderrLine('   Mock mode - video is a placeholder file');
-  writeStderrLine(`Next: cm validate ${params.result.outputPath} --profile ${params.profile}`);
+  templateId?: string | null;
+}): Promise<void> {
+  const rows: Array<[string, string]> = [
+    ['Duration', `${params.result.duration.toFixed(1)}s`],
+    ['Resolution', `${params.result.width}x${params.result.height}`],
+    ['Size', `${(params.result.fileSize / 1024 / 1024).toFixed(1)} MB`],
+    ['Output', params.result.outputPath],
+  ];
+  if (params.templateId) {
+    rows.push(['Template', params.templateId]);
+  }
+  const lines = formatKeyValueRows(rows);
+  const footerLines = [];
+  if (params.mock) footerLines.push('Mock mode - video is a placeholder file');
+  footerLines.push(`Next: cm validate ${params.result.outputPath} --profile ${params.profile}`);
+  await writeSummaryCard({ title: 'Render complete', lines, footerLines });
 
   // Human-mode stdout should be reserved for the primary artifact path.
   process.stdout.write(`${params.result.outputPath}\n`);
@@ -698,7 +718,12 @@ async function runRenderCommand(
   }
 
   const profile = options.orientation === 'landscape' ? 'landscape' : 'portrait';
-  writeRenderHumanSummary({ result, mock: Boolean(options.mock), profile });
+  await writeRenderHumanSummary({
+    result,
+    mock: Boolean(options.mock),
+    profile,
+    templateId: resolvedTemplate?.template.id ?? null,
+  });
 }
 
 export const renderCommand = new Command('render')

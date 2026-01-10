@@ -19,6 +19,7 @@ import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
 import type { SpinnerLike } from '../progress';
+import { formatKeyValueRows, writeSummaryCard } from '../ui';
 
 interface PackagingInput {
   title: string;
@@ -147,20 +148,24 @@ function writeSuccessJsonOutput(params: {
   process.exit(0);
 }
 
-function writeSuccessTextOutput(params: {
+async function writeSuccessTextOutput(params: {
   options: ScriptCommandOptions;
   archetype: string;
   script: Awaited<ReturnType<typeof generateScript>>;
-}): void {
+}): Promise<void> {
   const { options, archetype, script } = params;
 
-  writeStderrLine(`Script: ${script.title ?? options.topic}`);
-  writeStderrLine(`   Archetype: ${archetype}`);
-  writeStderrLine(`   Scenes: ${script.scenes.length}`);
-  writeStderrLine(`   Word count: ${script.meta?.wordCount ?? 'N/A'}`);
-  writeStderrLine(`   Output: ${options.output}`);
-  if (options.mock) writeStderrLine('   Mock mode - script is for testing only');
-  writeStderrLine(`Next: cm audio --input ${options.output}`);
+  const lines = formatKeyValueRows([
+    ['Title', script.title ?? options.topic],
+    ['Archetype', archetype],
+    ['Scenes', String(script.scenes.length)],
+    ['Word count', script.meta?.wordCount ? String(script.meta.wordCount) : 'N/A'],
+    ['Output', options.output],
+  ]);
+  const footerLines = [];
+  if (options.mock) footerLines.push('Mock mode - script is for testing only');
+  footerLines.push(`Next: cm audio --input ${options.output}${options.mock ? ' --mock' : ''}`);
+  await writeSummaryCard({ title: 'Script ready', lines, footerLines });
 
   // Human-mode stdout should be reserved for the primary artifact path.
   process.stdout.write(`${options.output}\n`);
@@ -215,7 +220,7 @@ async function runScript(options: ScriptCommandOptions, spinner: SpinnerLike): P
     return;
   }
 
-  writeSuccessTextOutput({ options, archetype, script });
+  await writeSuccessTextOutput({ options, archetype, script });
 }
 
 export const scriptCommand = new Command('script')

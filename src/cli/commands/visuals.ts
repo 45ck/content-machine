@@ -14,6 +14,7 @@ import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
 import { SchemaError } from '../../core/errors';
+import { formatKeyValueRows, writeSummaryCard } from '../ui';
 
 export const visualsCommand = new Command('visuals')
   .description('Find matching stock footage for script scenes')
@@ -131,17 +132,24 @@ export const visualsCommand = new Command('visuals')
         return;
       }
 
-      writeStderrLine(`Visuals: ${visuals.scenes.length} scenes`);
-      writeStderrLine(`   Total duration: ${visuals.totalDuration?.toFixed(1) ?? 'N/A'}s`);
-      writeStderrLine(`   From stock: ${visuals.fromStock}`);
-      writeStderrLine(`   Fallbacks: ${visuals.fallbacks}`);
+      const rows: Array<[string, string]> = [
+        ['Scenes', String(visuals.scenes.length)],
+        ['Duration', visuals.totalDuration ? `${visuals.totalDuration.toFixed(1)}s` : 'N/A'],
+        ['Provider', options.provider],
+        ['From stock', String(visuals.fromStock)],
+        ['Fallbacks', String(visuals.fallbacks)],
+        ['Output', options.output],
+      ];
       if (visuals.gameplayClip) {
-        writeStderrLine(`   Gameplay: ${visuals.gameplayClip.path}`);
+        rows.push(['Gameplay', visuals.gameplayClip.path]);
       }
-      if (options.mock) writeStderrLine('   Mock mode - visuals are placeholders');
-      writeStderrLine(
+      const lines = formatKeyValueRows(rows);
+      const footerLines = [];
+      if (options.mock) footerLines.push('Mock mode - visuals are placeholders');
+      footerLines.push(
         `Next: cm render --input ${options.output} --audio audio.wav --timestamps ${options.input} --output video.mp4${options.mock ? ' --mock' : ''}`
       );
+      await writeSummaryCard({ title: 'Visuals ready', lines, footerLines });
 
       // Human-mode stdout should be reserved for the primary artifact path.
       process.stdout.write(`${options.output}\n`);

@@ -9,7 +9,7 @@
  * IMPORTANT: This module NEVER breaks words mid-word. Full words only.
  * Contractions (don't, it's) and hyphenated words are kept together.
  */
-import { CaptionLayout } from './config';
+import { CaptionLayout, type CaptionCleanup } from './config';
 
 /**
  * Pattern for TTS internal markers that should be filtered out.
@@ -19,19 +19,69 @@ import { CaptionLayout } from './config';
  */
 const TTS_MARKER_PATTERN = /^\[_?[A-Z]+_?\d*\]$/;
 
-const DEFAULT_FILLER_WORDS = new Set([
+const DEFAULT_FILLER_WORDS = [
   'um',
   'uh',
   'erm',
-  'er',
-  'ah',
   'hmm',
   'mm',
-  'uhm',
-]);
+  'uhh',
+  'umm',
+  'er',
+  'ah',
+  'eh',
+  'like',
+  'basically',
+  'actually',
+  'literally',
+  'just',
+];
 
-function normalizeWordToken(word: string): string {
-  return word.trim().toLowerCase().replace(/^[^a-z0-9']+|[^a-z0-9']+$/gi, '');
+const DEFAULT_FILLER_PHRASES = [
+  ['you', 'know'],
+  ['i', 'mean'],
+  ['kind', 'of'],
+  ['sort', 'of'],
+];
+
+function normalizeCaptionToken(word: string): string {
+  return word.toLowerCase().replace(/[^a-z0-9']/g, '').trim();
+}
+
+function buildFillerConfig(cleanup?: CaptionCleanup): {
+  wordSet: Set<string>;
+  phrases: string[][];
+} | null {
+  if (!cleanup?.dropFillers) return null;
+
+  const customList = cleanup.fillerWords?.map((entry) => entry.trim()).filter(Boolean) ?? [];
+  const words: string[] = [];
+  const phrases: string[][] = [];
+
+  if (customList.length > 0) {
+    for (const entry of customList) {
+      if (!entry) continue;
+      if (/\s+/.test(entry)) {
+        const tokens = entry
+          .split(/\s+/)
+          .map((token) => normalizeCaptionToken(token))
+          .filter(Boolean);
+        if (tokens.length > 0) phrases.push(tokens);
+      } else {
+        words.push(entry);
+      }
+    }
+  } else {
+    words.push(...DEFAULT_FILLER_WORDS);
+    phrases.push(...DEFAULT_FILLER_PHRASES);
+  }
+
+  return {
+    wordSet: new Set(words.map((word) => normalizeCaptionToken(word)).filter(Boolean)),
+    phrases: phrases
+      .map((phrase) => phrase.map((token) => normalizeCaptionToken(token)).filter(Boolean))
+      .filter((phrase) => phrase.length > 0),
+  };
 }
 
 /**
@@ -72,24 +122,56 @@ export function isDisplayableWord(word: string): boolean {
 
 export function filterCaptionWords<T extends { word: string }>(
   words: T[],
-  options?: { dropFillers?: boolean; fillerWords?: string[] }
+  cleanup?: CaptionCleanup
 ): T[] {
-  const dropFillers = Boolean(options?.dropFillers);
-  const customFillers = (options?.fillerWords ?? [])
-    .map((word) => normalizeWordToken(word))
-    .filter(Boolean);
-  const fillerSet =
-    dropFillers && customFillers.length > 0
-      ? new Set([...DEFAULT_FILLER_WORDS, ...customFillers])
-      : DEFAULT_FILLER_WORDS;
+  const fillerConfig = buildFillerConfig(cleanup);
+  const result: T[] = [];
 
-  return words.filter((word) => {
-    if (!isDisplayableWord(word.word)) return false;
-    if (!dropFillers) return true;
-    const token = normalizeWordToken(word.word);
-    if (!token) return false;
-    return !fillerSet.has(token);
-  });
+  for (let i = 0; i < words.length; i++) {
+    const token = words[i];
+    if (!token || typeof token.word !== 'string') continue;
+    if (!isDisplayableWord(token.word)) continue;
+
+    if (fillerConfig) {
+      let matchedPhrase = false;
+      for (const phrase of fillerConfig.phrases) {
+        if (phrase.length === 0 || i + phrase.length > words.length) continue;
+
+        let matches = true;
+        for (let j = 0; j < phrase.length; j++) {
+          const nextToken = words[i + j];
+          if (!nextToken || typeof nextToken.word !== 'string') {
+            matches = false;
+            break;
+          }
+          if (!isDisplayableWord(nextToken.word)) {
+            matches = false;
+            break;
+          }
+          const normalized = normalizeCaptionToken(nextToken.word);
+          if (normalized !== phrase[j]) {
+            matches = false;
+            break;
+          }
+        }
+
+        if (matches) {
+          matchedPhrase = true;
+          i += phrase.length - 1;
+          break;
+        }
+      }
+
+      if (matchedPhrase) continue;
+
+      const normalized = normalizeCaptionToken(token.word);
+      if (normalized && fillerConfig.wordSet.has(normalized)) continue;
+    }
+
+    result.push(token);
+  }
+
+  return result;
 }
 
 /**
