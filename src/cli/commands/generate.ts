@@ -26,7 +26,12 @@ import { createResearchOrchestrator } from '../../research/orchestrator';
 import { OpenAIProvider } from '../../core/llm/openai';
 import { CMError, SchemaError } from '../../core/errors';
 import { CliProgressObserver, PipelineEventEmitter, type PipelineEvent } from '../../core/events';
-import { formatTemplateSource, resolveVideoTemplate } from '../../render/templates';
+import {
+  formatTemplateSource,
+  resolveVideoTemplate,
+  getTemplateGameplaySlot,
+  getTemplateParams,
+} from '../../render/templates';
 import type { CaptionConfig } from '../../render/schema';
 import type { CaptionPresetName } from '../../render/captions/presets';
 import type { SyncRatingOutput } from '../../score/sync-schema';
@@ -120,6 +125,12 @@ interface GenerateOptions {
   charsPerLine?: string;
   /** Caption animation: none (default), fade, slideUp, slideDown, pop, bounce */
   captionAnimation?: 'none' | 'fade' | 'slideUp' | 'slideDown' | 'pop' | 'bounce';
+  /** Gameplay library directory or clip file path */
+  gameplay?: string;
+  /** Gameplay subfolder name */
+  gameplayStyle?: string;
+  /** Fail if gameplay clip is missing */
+  gameplayStrict?: boolean;
 }
 
 function printHeader(
@@ -134,6 +145,9 @@ function printHeader(
   writeStderrLine(chalk.gray(`Archetype: ${options.archetype}`));
   if (options.template) {
     writeStderrLine(chalk.gray(`Template: ${options.template}`));
+  }
+  if (options.gameplay) {
+    writeStderrLine(chalk.gray(`Gameplay: ${options.gameplay}`));
   }
   writeStderrLine(chalk.gray(`Output: ${options.output}`));
   writeStderrLine(chalk.gray(`Artifacts: ${dirname(options.output)}`));
@@ -175,6 +189,9 @@ function writeDryRunJson(params: {
         durationSeconds: options.duration,
         output: options.output,
         keepArtifacts: options.keepArtifacts,
+        gameplay: options.gameplay ?? null,
+        gameplayStyle: options.gameplayStyle ?? null,
+        gameplayStrict: Boolean(options.gameplayStrict),
         dryRun: true,
       },
       outputs: { dryRun: true, artifactsDir },
@@ -206,6 +223,9 @@ function buildGenerateSuccessJsonArgs(params: {
     orientation,
     template: templateSpec,
     resolvedTemplateId,
+    gameplay: options.gameplay ?? null,
+    gameplayStyle: options.gameplayStyle ?? null,
+    gameplayStrict: Boolean(options.gameplayStrict),
     fps: options.fps,
     captionPreset: options.captionPreset,
     voice: options.voice,
@@ -269,6 +289,7 @@ function buildGenerateSuccessJsonOutputs(params: {
     fileSizeBytes: result.fileSize,
     artifactsDir,
     costs: result.costs ?? null,
+    gameplayClip: result.visuals.gameplayClip?.path ?? null,
     ...buildGenerateSuccessJsonSyncOutputs(sync),
   };
 }
@@ -348,13 +369,22 @@ async function resolveTemplateAndApplyDefaults(
 ): Promise<{
   resolvedTemplate: Awaited<ReturnType<typeof resolveVideoTemplate>> | undefined;
   templateDefaults: Record<string, unknown> | undefined;
+  templateParams: ReturnType<typeof getTemplateParams>;
+  templateGameplay: ReturnType<typeof getTemplateGameplaySlot>;
 }> {
   if (!options.template) {
-    return { resolvedTemplate: undefined, templateDefaults: undefined };
+    return {
+      resolvedTemplate: undefined,
+      templateDefaults: undefined,
+      templateParams: {},
+      templateGameplay: null,
+    };
   }
 
   const resolvedTemplate = await resolveVideoTemplate(options.template);
   const templateDefaults = (resolvedTemplate.template.defaults ?? {}) as Record<string, unknown>;
+  const templateParams = getTemplateParams(resolvedTemplate.template);
+  const templateGameplay = getTemplateGameplaySlot(resolvedTemplate.template);
 
   const record = options as unknown as Record<string, unknown>;
   applyDefaultOption(record, command, 'archetype', templateDefaults.archetype);
@@ -367,7 +397,7 @@ async function resolveTemplateAndApplyDefaults(
   );
   applyDefaultOption(record, command, 'captionPreset', templateDefaults.captionPreset);
 
-  return { resolvedTemplate, templateDefaults };
+  return { resolvedTemplate, templateDefaults, templateParams, templateGameplay };
 }
 
 function handleDryRun(params: {
@@ -426,6 +456,8 @@ async function runGeneratePipeline(params: {
   options: GenerateOptions;
   resolvedTemplate: Awaited<ReturnType<typeof resolveVideoTemplate>> | undefined;
   templateDefaults: Record<string, unknown> | undefined;
+  templateParams: ReturnType<typeof getTemplateParams>;
+  gameplay?: { library?: string; style?: string; required?: boolean };
   research: ResearchOutput | undefined;
   llmProvider: FakeLLMProvider | undefined;
   runtime: ReturnType<typeof getCliRuntime>;
@@ -471,6 +503,8 @@ async function runGeneratePipeline(params: {
         ? parseInt(params.options.charsPerLine, 10)
         : undefined,
       captionAnimation: params.options.captionAnimation,
+      gameplay: params.gameplay,
+      splitScreenRatio: params.templateParams.splitScreenRatio,
     });
   } finally {
     dispose();
@@ -712,12 +746,18 @@ async function runGenerate(
   const artifactsDir = dirname(options.output);
 
   applySyncPresetDefaults(options, command);
-  const { resolvedTemplate, templateDefaults } = await resolveTemplateAndApplyDefaults(
-    options,
-    command
-  );
+  const { resolvedTemplate, templateDefaults, templateParams, templateGameplay } =
+    await resolveTemplateAndApplyDefaults(options, command);
   const templateSpec = toNullableString(options.template);
   const resolvedTemplateId = resolveTemplateId(resolvedTemplate);
+
+  const templateGameplayPath = templateGameplay?.clip ?? templateGameplay?.library;
+  if (!options.gameplay && templateGameplayPath) {
+    options.gameplay = templateGameplayPath;
+  }
+  if (!options.gameplayStyle && templateGameplay?.style) {
+    options.gameplayStyle = templateGameplay.style;
+  }
 
   printHeader(topic, options, runtime);
 
@@ -756,6 +796,32 @@ async function runGenerate(
 
   const llmProvider = createGenerateLlmProvider(topic, options, runtime);
 
+  const gameplaySpecified = Boolean(options.gameplay);
+  const gameplayStyleSpecified = Boolean(options.gameplayStyle);
+  const gameplayStrictSource = command.getOptionValueSource('gameplayStrict');
+  const gameplayStrict =
+    gameplayStrictSource === 'default' ? undefined : Boolean(options.gameplayStrict);
+  const templateRequired =
+    templateGameplay?.required ?? Boolean(templateGameplay?.library || templateGameplay?.clip);
+
+  const templateClip = !options.gameplay ? templateGameplay?.clip : undefined;
+  const templateLibrary = !options.gameplay ? templateGameplay?.library : undefined;
+  const gameplayRequested =
+    gameplaySpecified || gameplayStyleSpecified || Boolean(gameplayStrict) || templateRequired;
+
+  const gameplay = gameplayRequested
+    ? {
+        clip: templateClip,
+        library: options.gameplay ?? templateLibrary,
+        style: options.gameplayStyle ?? templateGameplay?.style,
+        required: gameplayStrict ?? (gameplaySpecified ? true : templateRequired),
+      }
+    : undefined;
+
+  if (gameplay) {
+    options.gameplayStrict = gameplay.required;
+  }
+
   const { result, finalOptions, sync, exitCode } = await runPipelineWithOptionalSyncQualityGate({
     topic,
     archetype,
@@ -763,6 +829,8 @@ async function runGenerate(
     options,
     resolvedTemplate,
     templateDefaults,
+    templateParams,
+    gameplay,
     research,
     llmProvider,
     runtime,
@@ -832,6 +900,15 @@ function showDryRunSummary(
   if (options.captionAnimation) {
     writeStderrLine(`   Caption Animation: ${options.captionAnimation}`);
   }
+  if (options.gameplay) {
+    writeStderrLine(`   Gameplay: ${options.gameplay}`);
+  }
+  if (options.gameplayStyle) {
+    writeStderrLine(`   Gameplay Style: ${options.gameplayStyle}`);
+  }
+  if (options.gameplayStrict) {
+    writeStderrLine('   Gameplay Strict: enabled');
+  }
   writeStderrLine('   Pipeline stages:');
   if (options.research) {
     writeStderrLine('   0. Research -> research.json');
@@ -863,6 +940,9 @@ function showSuccessSummary(
     writeStderrLine(chalk.gray(`   API Costs: $${result.costs.total.toFixed(4)}`));
     writeStderrLine(chalk.gray(`      - LLM: $${result.costs.llm.toFixed(4)}`));
     writeStderrLine(chalk.gray(`      - TTS: $${result.costs.tts.toFixed(4)}`));
+  }
+  if (result.visuals.gameplayClip) {
+    writeStderrLine(chalk.gray(`   Gameplay: ${result.visuals.gameplayClip.path}`));
   }
 
   if (sync) {
@@ -995,6 +1075,9 @@ export const generateCommand = new Command('generate')
     '--caption-animation <animation>',
     'Caption animation: none (default), fade, slideUp, slideDown, pop, bounce'
   )
+  .option('--gameplay <path>', 'Gameplay library directory or clip file path')
+  .option('--gameplay-style <name>', 'Gameplay subfolder name (e.g., subway-surfers)')
+  .option('--gameplay-strict', 'Fail if gameplay clip is missing')
   // Sync quality options
   .option(
     '--sync-preset <preset>',

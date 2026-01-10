@@ -48,7 +48,12 @@ import {
   type WordTiming,
 } from '../../audio/asr/validator';
 import { ensureVisualCoverage, type VisualScene } from '../../visuals/duration';
-import { resolveVideoTemplate, formatTemplateSource } from '../../render/templates';
+import {
+  resolveVideoTemplate,
+  formatTemplateSource,
+  getTemplateGameplaySlot,
+  getTemplateParams,
+} from '../../render/templates';
 
 type ChromeMode = 'headless-shell' | 'chrome-for-testing';
 
@@ -329,13 +334,22 @@ async function resolveTemplateAndApplyDefaults(
 ): Promise<{
   resolvedTemplate: Awaited<ReturnType<typeof resolveVideoTemplate>> | undefined;
   templateDefaults: Record<string, unknown> | undefined;
+  templateParams: ReturnType<typeof getTemplateParams>;
+  templateGameplay: ReturnType<typeof getTemplateGameplaySlot>;
 }> {
   if (!options.template) {
-    return { resolvedTemplate: undefined, templateDefaults: undefined };
+    return {
+      resolvedTemplate: undefined,
+      templateDefaults: undefined,
+      templateParams: {},
+      templateGameplay: null,
+    };
   }
 
   const resolvedTemplate = await resolveVideoTemplate(String(options.template));
   const templateDefaults = (resolvedTemplate.template.defaults ?? {}) as Record<string, unknown>;
+  const templateParams = getTemplateParams(resolvedTemplate.template);
+  const templateGameplay = getTemplateGameplaySlot(resolvedTemplate.template);
 
   applyTemplateDefault(
     options,
@@ -356,7 +370,7 @@ async function resolveTemplateAndApplyDefaults(
     templateDefaults.captionPreset as string | undefined
   );
 
-  return { resolvedTemplate, templateDefaults };
+  return { resolvedTemplate, templateDefaults, templateParams, templateGameplay };
 }
 
 async function readRenderInputs(options: { input: string; timestamps: string }): Promise<{
@@ -483,10 +497,8 @@ async function runRenderCommand(
   runtime: RenderRuntime,
   spinner: RenderSpinner
 ) {
-  const { resolvedTemplate, templateDefaults } = await resolveTemplateAndApplyDefaults(
-    options,
-    command
-  );
+  const { resolvedTemplate, templateDefaults, templateParams, templateGameplay } =
+    await resolveTemplateAndApplyDefaults(options, command);
 
   const { visuals: loadedVisuals, timestamps: loadedTimestamps } = await readRenderInputs({
     input: String(options.input),

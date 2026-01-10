@@ -3,8 +3,9 @@
  */
 import { cp, mkdtemp, mkdir, readdir, readFile, rm, stat, writeFile } from 'fs/promises';
 import { existsSync } from 'fs';
-import { join, resolve, extname } from 'path';
+import { dirname, join, resolve, extname } from 'path';
 import { tmpdir } from 'os';
+import AdmZip from 'adm-zip';
 import { VideoTemplateSchema } from './schema';
 import { CMError, NotFoundError, SchemaError } from '../../core/errors';
 
@@ -24,7 +25,6 @@ function isZip(path: string): boolean {
 }
 
 async function extractZipToTemp(zipPath: string): Promise<string> {
-  const { default: AdmZip } = await import('adm-zip');
   const zip = new AdmZip(zipPath);
   const tempDir = await mkdtemp(join(tmpdir(), 'cm-template-'));
 
@@ -45,8 +45,7 @@ async function extractZipToTemp(zipPath: string): Promise<string> {
       });
     }
 
-    const dir = destPath.slice(0, destPath.lastIndexOf('/'));
-    await mkdir(dir, { recursive: true });
+    await mkdir(dirname(destPath), { recursive: true });
     await writeFile(destPath, entry.getData());
   }
 
@@ -149,6 +148,7 @@ export async function installTemplatePack(
   try {
     const { template } = await loadTemplateFromDir(templateRoot);
     const installPath = join(destDir, template.id);
+    await mkdir(destDir, { recursive: true });
 
     if (existsSync(installPath)) {
       if (!options.force) {

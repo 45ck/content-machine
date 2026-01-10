@@ -22,6 +22,7 @@ import { retrieveCommand } from './commands/retrieve';
 import { scoreCommand } from './commands/score';
 import { publishCommand } from './commands/publish';
 import { rateCommand } from './commands/rate';
+import { templatesCommand } from './commands/templates';
 
 const program = new Command();
 
@@ -44,6 +45,7 @@ program.addCommand(validateCommand);
 program.addCommand(scoreCommand);
 program.addCommand(rateCommand);
 program.addCommand(publishCommand);
+program.addCommand(templatesCommand);
 program.addCommand(generateCommand);
 program.addCommand(initCommand);
 

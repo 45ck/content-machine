@@ -16,7 +16,7 @@ import {
 } from 'remotion';
 import type { RenderProps } from '../schema';
 import { Caption } from '../captions';
-import { buildSequences, buildVisualTimeline, SceneBackground } from './visuals';
+import { buildSequences, buildVisualTimeline, LegacyClip, SceneBackground } from './visuals';
 
 function clampRatio(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
@@ -27,6 +27,7 @@ function clampRatio(value: number, min: number, max: number): number {
  */
 export const SplitScreenGameplay: React.FC<RenderProps> = ({
   scenes,
+  clips,
   words,
   audioPath,
   duration: totalDuration,
@@ -34,7 +35,7 @@ export const SplitScreenGameplay: React.FC<RenderProps> = ({
   gameplayClip,
   splitScreenRatio,
 }) => {
-  const { fps, width, height } = useVideoConfig();
+  const { fps, height } = useVideoConfig();
   const ratio = clampRatio(splitScreenRatio ?? 0.55, 0.3, 0.7);
   const topHeight = Math.round(height * ratio);
   const bottomHeight = height - topHeight;
@@ -61,6 +62,13 @@ export const SplitScreenGameplay: React.FC<RenderProps> = ({
           />
         </Sequence>
       ))}
+      {clips?.length ? (
+        <AbsoluteFill style={{ height: topHeight, overflow: 'hidden' }}>
+          {clips.map((clip) => (
+            <LegacyClip key={clip.id} clip={clip} fps={fps} />
+          ))}
+        </AbsoluteFill>
+      ) : null}
 
       <AbsoluteFill style={{ top: topHeight, height: bottomHeight }}>
         {gameplayClip?.path ? (

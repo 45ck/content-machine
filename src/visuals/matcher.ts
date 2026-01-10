@@ -219,7 +219,7 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
         style: gameplay.style,
         clip: gameplay.clip,
         targetDuration: options.timestamps.totalDuration,
-        strict: Boolean(gameplay.required),
+        strict: Boolean(gameplay.required) && !options.mock,
       })
     : null;
 
@@ -241,10 +241,10 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
       'Mock visual matching complete'
     );
     const output = generateMockVisuals(options);
-    if (gameplayClip) {
-      output.gameplayClip = gameplayClip;
-    }
-    return output;
+    return VisualsOutputSchema.parse({
+      ...output,
+      ...(gameplayClip ? { gameplayClip } : {}),
+    });
   }
 
   // Create the video provider (Strategy pattern)

@@ -63,19 +63,24 @@ export const visualsCommand = new Command('visuals')
       };
 
       const gameplaySpecified = Boolean(options.gameplay);
+      const gameplayStyleSpecified = Boolean(options.gameplayStyle);
       const strictSource = command.getOptionValueSource('gameplayStrict');
-      const gameplayStrict = strictSource === 'default' ? gameplaySpecified : options.gameplayStrict;
+      const gameplayStrict =
+        strictSource === 'default' ? undefined : Boolean(options.gameplayStrict);
+      const gameplayRequested =
+        gameplaySpecified || gameplayStyleSpecified || Boolean(gameplayStrict);
+      const gameplayRequired = gameplayStrict ?? gameplayRequested;
 
       const visuals = await matchVisuals({
         timestamps,
         provider: options.provider,
         orientation: options.orientation,
         mock: Boolean(options.mock),
-        gameplay: gameplaySpecified
+        gameplay: gameplayRequested
           ? {
               library: options.gameplay,
               style: options.gameplayStyle,
-              required: Boolean(gameplayStrict),
+              required: gameplayRequired,
             }
           : undefined,
         onProgress,
@@ -100,7 +105,7 @@ export const visualsCommand = new Command('visuals')
               mock: Boolean(options.mock),
               gameplay: options.gameplay ?? null,
               gameplayStyle: options.gameplayStyle ?? null,
-              gameplayStrict: Boolean(gameplayStrict),
+              gameplayStrict: Boolean(gameplayRequired),
             },
             outputs: {
               visualsPath: options.output,

@@ -6,6 +6,7 @@ import { mkdtemp, mkdir, rm, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { tmpdir } from 'os';
 import { installTemplatePack } from './installer';
+import AdmZip from 'adm-zip';
 
 let tempRoot = '';
 
@@ -59,7 +60,6 @@ describe('installTemplatePack', () => {
     const zipPath = join(tempRoot, 'template.zip');
     const destDir = join(tempRoot, 'dest');
 
-    const { default: AdmZip } = await import('adm-zip');
     const zip = new AdmZip();
     zip.addLocalFolder(sourceDir, 'zip-template');
     zip.writeZip(zipPath);

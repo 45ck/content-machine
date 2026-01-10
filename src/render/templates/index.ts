@@ -42,6 +42,11 @@ const BUILTIN_TEMPLATES: Record<string, VideoTemplate> = {
     name: 'Brainrot Split Screen (Gameplay)',
     description: 'Split-screen gameplay background (top content, bottom gameplay)',
     compositionId: 'SplitScreenGameplay',
+    assets: {
+      gameplay: {
+        required: true,
+      },
+    },
     defaults: {
       orientation: 'portrait',
       fps: 30,

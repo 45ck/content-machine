@@ -33,6 +33,15 @@ export interface PipelineOptions {
   targetDuration: number;
   outputPath: string;
   /**
+   * Optional gameplay footage selection for split-screen templates.
+   */
+  gameplay?: {
+    library?: string;
+    style?: string;
+    clip?: string;
+    required?: boolean;
+  };
+  /**
    * Frames per second for rendering.
    * Default: 30
    */
@@ -42,6 +51,10 @@ export interface PipelineOptions {
    * Intended to be set via video templates.
    */
   compositionId?: string;
+  /**
+   * Split-screen ratio for templates that need it (top height / total height).
+   */
+  splitScreenRatio?: number;
   /**
    * Caption preset name (tiktok, youtube, reels, bold, minimal, neon, capcut, hormozi, karaoke).
    * Priority: captionConfig > captionPreset > default (capcut).
@@ -125,6 +138,8 @@ export const PipelineConfigSchema = z.object({
   outputPath: z.string(),
   keepArtifacts: z.boolean().optional(),
   research: z.any().optional(), // ResearchOutput is validated separately
+  gameplay: z.any().optional(),
+  splitScreenRatio: z.number().optional(),
 });
 
 export interface PipelineResult {
@@ -271,6 +286,7 @@ async function executeVisualsStage(
         timestamps: audio.timestamps,
         provider: 'pexels',
         mock: options.mock,
+        gameplay: options.gameplay,
         onProgress,
       });
     },
@@ -321,6 +337,7 @@ async function executeRenderStage(
         mock: options.mock,
         onProgress,
         compositionId: options.compositionId,
+        splitScreenRatio: options.splitScreenRatio,
         captionPreset: options.captionPreset,
         captionConfig: options.captionConfig,
         archetype: options.archetype,
