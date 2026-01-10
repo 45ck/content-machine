@@ -239,7 +239,7 @@ const SingleWordView: React.FC<SingleWordViewProps> = ({ word, config }) => {
   const wordStyle: React.CSSProperties = {
     fontFamily: config.fontFamily,
     fontSize: config.fontSize * 1.2, // Bigger for single word impact
-    fontWeight: config.fontWeight === 'black' ? 900 : config.fontWeight === 'bold' ? 700 : 400,
+    fontWeight: resolveFontWeight(config.fontWeight),
     color: config.highlightColor, // Always highlighted since it's the current word
     letterSpacing: `${config.letterSpacing}em`,
     transform: `scale(${0.5 + 0.5 * enterProgress})`,
@@ -394,7 +394,7 @@ const BuildupSentenceView: React.FC<BuildupSentenceViewProps> = ({
     flexWrap: 'wrap',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: '12px',
+    gap: `${config.wordSpacing}em`,
     maxWidth: '90%',
     opacity: enterProgress,
   };
@@ -454,7 +454,7 @@ const BuildupWordView: React.FC<BuildupWordViewProps> = ({ word, isActive, confi
   const wordStyle: React.CSSProperties = {
     fontFamily: config.fontFamily,
     fontSize: config.fontSize,
-    fontWeight: config.fontWeight === 'black' ? 900 : config.fontWeight === 'bold' ? 700 : 400,
+    fontWeight: resolveFontWeight(config.fontWeight),
     color: textColor,
     letterSpacing: `${config.letterSpacing}em`,
     display: 'inline-block',
@@ -722,7 +722,7 @@ function getLineStyle(config: CaptionConfig): React.CSSProperties {
     flexWrap: 'wrap',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: '8px',
+    gap: `${config.wordSpacing}em`,
     lineHeight: config.lineHeight,
   };
 }
@@ -732,6 +732,13 @@ function getWordWrapperStyle(): React.CSSProperties {
     display: 'inline-flex',
     alignItems: 'center',
   };
+}
+
+function resolveFontWeight(weight: CaptionConfig['fontWeight']): number {
+  if (typeof weight === 'number') return weight;
+  if (weight === 'black') return 900;
+  if (weight === 'bold') return 700;
+  return 400;
 }
 
 function getWordStyle(config: CaptionConfig, isActive: boolean): React.CSSProperties {
@@ -752,7 +759,7 @@ function getWordStyle(config: CaptionConfig, isActive: boolean): React.CSSProper
   const baseStyle: React.CSSProperties = {
     fontFamily: config.fontFamily,
     fontSize: config.fontSize,
-    fontWeight: config.fontWeight === 'black' ? 900 : config.fontWeight === 'bold' ? 700 : 400,
+    fontWeight: resolveFontWeight(config.fontWeight),
     color: textColor,
     letterSpacing: `${config.letterSpacing}em`,
     opacity,

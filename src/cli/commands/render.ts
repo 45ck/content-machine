@@ -17,9 +17,11 @@
  *   --fallback-color <hex>     Background color for extended scenes
  */
 import { Command } from 'commander';
+import { dirname } from 'path';
 import type { RenderProgressEvent } from '../../render/service';
 import { logger } from '../../core/logger';
 import { CMError, SchemaError } from '../../core/errors';
+import { loadConfig } from '../../core/config';
 import { handleCommandError, readInputFile } from '../utils';
 import type {
   VisualsOutput,
@@ -30,6 +32,7 @@ import type {
 import type { TimestampsOutput } from '../../audio/schema';
 import { VisualsOutputSchema } from '../../visuals/schema';
 import { TimestampsOutputSchema } from '../../audio/schema';
+import { AudioMixOutputSchema, type AudioMixOutput } from '../../audio/mix/schema';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
@@ -58,6 +61,7 @@ import {
   getTemplateGameplaySlot,
   getTemplateParams,
 } from '../../render/templates';
+import { resolveHookFromCli } from '../hooks';
 
 type ChromeMode = 'headless-shell' | 'chrome-for-testing';
 type LayoutPosition = 'top' | 'bottom' | 'full';
@@ -84,6 +88,18 @@ function parseOptionalNumber(value: unknown): number | undefined {
   return Number.isFinite(parsed) ? parsed : undefined;
 }
 
+function parseFontWeight(value: unknown): number | 'normal' | 'bold' | 'black' {
+  const raw = String(value).trim().toLowerCase();
+  if (raw === 'normal' || raw === 'bold' || raw === 'black') {
+    return raw as 'normal' | 'bold' | 'black';
+  }
+  const numeric = Number.parseInt(raw, 10);
+  if (Number.isFinite(numeric)) return numeric;
+  throw new CMError('INVALID_ARGUMENT', `Invalid --caption-font-weight value: ${raw}`, {
+    fix: 'Use normal, bold, black, or a numeric weight (100-900)',
+  });
+}
+
 function parseWordList(value: unknown): string[] | undefined {
   if (value == null) return undefined;
   const items = String(value)
@@ -107,6 +123,12 @@ function parseCaptionOptions(options: Record<string, unknown>): CaptionConfigInp
   let layout: CaptionLayoutInput = {};
 
   const parsers: Array<(value: unknown) => void> = [
+    (value) => {
+      config.fontFamily = String(value);
+    },
+    (value) => {
+      config.fontWeight = parseFontWeight(value);
+    },
     (value) => {
       config.fontSize = Number.parseInt(String(value), 10);
     },
@@ -144,6 +166,8 @@ function parseCaptionOptions(options: Record<string, unknown>): CaptionConfigInp
   ];
 
   const keys: Array<keyof typeof options> = [
+    'captionFontFamily',
+    'captionFontWeight',
     'captionFontSize',
     'captionStrokeWidth',
     'captionPosition',
@@ -357,6 +381,32 @@ function applyTemplateDefault(
   options[optionName] = value;
 }
 
+function applyConfigDefault(
+  options: Record<string, unknown>,
+  command: Command,
+  optionName: string,
+  value: unknown
+): void {
+  if (value === undefined) return;
+  if (command.getOptionValueSource(optionName) !== 'default') return;
+  options[optionName] = value;
+}
+
+function applyCaptionDefaultsFromConfig(
+  options: Record<string, unknown>,
+  command: Command
+): { fonts: Array<{ family: string; src: string; weight?: number | string; style?: string }> } {
+  const config = loadConfig();
+  const captions = config.captions;
+  const defaultFamily =
+    captions.fonts.length > 0 ? captions.fonts[0].family : captions.fontFamily;
+  applyConfigDefault(options, command, 'captionFontFamily', defaultFamily);
+  applyConfigDefault(options, command, 'captionFontWeight', captions.fontWeight);
+  applyConfigDefault(options, command, 'captionFontFile', captions.fontFile);
+
+  return { fonts: captions.fonts };
+}
+
 async function resolveTemplateAndApplyDefaults(
   options: Record<string, unknown>,
   command: Command
@@ -423,14 +473,21 @@ function parseSplitLayoutPreset(
   });
 }
 
-async function readRenderInputs(options: { input: string; timestamps: string }): Promise<{
+async function readRenderInputs(options: {
+  input: string;
+  timestamps: string;
+  audioMix?: string;
+}): Promise<{
   visuals: VisualsOutput;
   timestamps: TimestampsOutput;
+  audioMix?: AudioMixOutput;
 }> {
-  const [rawVisuals, rawTimestamps] = await Promise.all([
-    readInputFile(options.input),
-    readInputFile(options.timestamps),
-  ]);
+  const inputFiles = [readInputFile(options.input), readInputFile(options.timestamps)];
+  if (options.audioMix) {
+    inputFiles.push(readInputFile(options.audioMix));
+  }
+
+  const [rawVisuals, rawTimestamps, rawAudioMix] = await Promise.all(inputFiles);
 
   const parsedVisuals = VisualsOutputSchema.safeParse(rawVisuals);
   if (!parsedVisuals.success) {
@@ -450,7 +507,20 @@ async function readRenderInputs(options: { input: string; timestamps: string }):
     });
   }
 
-  return { visuals: parsedVisuals.data, timestamps: parsedTimestamps.data };
+  let audioMix: AudioMixOutput | undefined;
+  if (options.audioMix) {
+    const parsedMix = AudioMixOutputSchema.safeParse(rawAudioMix);
+    if (!parsedMix.success) {
+      throw new SchemaError('Invalid audio mix file', {
+        path: options.audioMix,
+        issues: parsedMix.error.issues,
+        fix: `Generate a mix plan via \`cm audio --input script.json --audio-mix ${options.audioMix}\` (or pass a valid audio.mix.json).`,
+      });
+    }
+    audioMix = parsedMix.data;
+  }
+
+  return { visuals: parsedVisuals.data, timestamps: parsedTimestamps.data, audioMix };
 }
 
 function createOnProgress(runtime: RenderRuntime, spinner: RenderSpinner) {
@@ -505,11 +575,19 @@ function writeRenderJsonEnvelope(params: {
         input: params.options.input,
         audio: params.options.audio,
         timestamps: params.options.timestamps,
+        audioMix: params.options.audioMix ?? null,
         output: params.options.output,
         template: params.options.template ?? null,
         resolvedTemplateId: params.resolvedTemplateId,
         orientation: params.options.orientation,
         fps: params.options.fps,
+        hook: params.options.hook ?? null,
+        hookLibrary: params.options.hookLibrary ?? null,
+        hooksDir: params.options.hooksDir ?? null,
+        hookDuration: params.options.hookDuration ?? null,
+        hookTrim: params.options.hookTrim ?? null,
+        hookAudio: params.options.hookAudio ?? null,
+        hookFit: params.options.hookFit ?? null,
         mock: Boolean(params.options.mock),
         browserExecutable: params.options.browserExecutable ?? null,
         chromeMode: params.options.chromeMode ?? null,
@@ -545,15 +623,19 @@ async function writeRenderHumanSummary(params: {
   mock: boolean;
   profile: 'portrait' | 'landscape';
   templateId?: string | null;
+  audioMixPath?: string | null;
 }): Promise<void> {
   const rows: Array<[string, string]> = [
     ['Duration', `${params.result.duration.toFixed(1)}s`],
     ['Resolution', `${params.result.width}x${params.result.height}`],
     ['Size', `${(params.result.fileSize / 1024 / 1024).toFixed(1)} MB`],
-    ['Output', params.result.outputPath],
+    ['Video', params.result.outputPath],
   ];
   if (params.templateId) {
     rows.push(['Template', params.templateId]);
+  }
+  if (params.audioMixPath) {
+    rows.push(['Audio mix', params.audioMixPath]);
   }
   const lines = formatKeyValueRows(rows);
   const footerLines = [];
@@ -573,9 +655,11 @@ function logRenderStart(
     {
       input: options.input,
       audio: options.audio,
+      audioMix: options.audioMix ?? null,
       output: options.output,
       captionPreset: options.captionPreset,
       captionMode: options.captionMode,
+      hook: options.hook ?? null,
       template: resolvedTemplate?.template.id,
       templateSource: resolvedTemplate ? formatTemplateSource(resolvedTemplate) : undefined,
       validateTimestamps: options.validateTimestamps,
@@ -591,13 +675,17 @@ async function runRenderCommand(
   runtime: RenderRuntime,
   spinner: RenderSpinner
 ) {
+  const configDefaults = applyCaptionDefaultsFromConfig(options, command);
   const { resolvedTemplate, templateDefaults, templateParams, templateGameplay } =
     await resolveTemplateAndApplyDefaults(options, command);
 
-  const { visuals: loadedVisuals, timestamps: loadedTimestamps } = await readRenderInputs({
+  const audioMixPath = options.audioMix ? String(options.audioMix) : undefined;
+  const { visuals: loadedVisuals, timestamps: loadedTimestamps, audioMix } = await readRenderInputs({
     input: String(options.input),
     timestamps: String(options.timestamps),
+    audioMix: audioMixPath,
   });
+  const audioMixBaseDir = audioMixPath ? dirname(audioMixPath) : undefined;
 
   logRenderStart(options, resolvedTemplate);
 
@@ -631,10 +719,22 @@ async function runRenderCommand(
   const captionMaxCps = parseOptionalNumber(options.captionMaxCps);
   const captionMinOnScreenMs = parseOptionalInt(options.captionMinOnScreenMs);
   const captionMinOnScreenMsShort = parseOptionalInt(options.captionMinOnScreenMsShort);
+  const captionFontFamily = options.captionFontFamily
+    ? String(options.captionFontFamily)
+    : undefined;
+  const captionFontWeight =
+    options.captionFontWeight !== undefined
+      ? parseFontWeight(options.captionFontWeight)
+      : undefined;
+  const captionFontFile = options.captionFontFile ? String(options.captionFontFile) : undefined;
   const captionFillerWords = parseWordList(options.captionFillerWords);
   const captionDropFillersSource = command.getOptionValueSource('captionDropFillers');
   const captionDropFillers =
     captionDropFillersSource === 'default' ? undefined : Boolean(options.captionDropFillers);
+  const hook = await resolveHookFromCli(options);
+  if (!options.hook && hook) {
+    options.hook = hook.id ?? hook.path;
+  }
 
   const archetype = templateDefaults?.archetype as string | undefined;
   const compositionId = resolvedTemplate?.template.compositionId;
@@ -669,6 +769,8 @@ async function runRenderCommand(
     visuals,
     timestamps,
     audioPath: String(options.audio),
+    audioMix,
+    audioMixBaseDir,
     outputPath: String(options.output),
     orientation: String(options.orientation) as 'portrait' | 'landscape' | 'square',
     fps: Number.parseInt(String(options.fps), 10),
@@ -685,6 +787,10 @@ async function runRenderCommand(
     captionMaxCps: captionMaxCps ?? undefined,
     captionMinOnScreenMs: captionMinOnScreenMs ?? undefined,
     captionMinOnScreenMsShort: captionMinOnScreenMsShort ?? undefined,
+    captionFontFamily,
+    captionFontWeight,
+    captionFontFile,
+    fonts: configDefaults.fonts.length > 0 ? configDefaults.fonts : undefined,
     captionDropFillers,
     captionFillerWords,
     onProgress,
@@ -694,6 +800,7 @@ async function runRenderCommand(
     gameplayPosition: layout.gameplayPosition,
     contentPosition: layout.contentPosition,
     downloadAssets: options.downloadAssets !== false,
+    hook: hook ?? undefined,
   });
 
   spinner.succeed('Video rendered successfully');
@@ -723,6 +830,7 @@ async function runRenderCommand(
     mock: Boolean(options.mock),
     profile,
     templateId: resolvedTemplate?.template.id ?? null,
+    audioMixPath: options.audioMix ? String(options.audioMix) : null,
   });
 }
 
@@ -730,6 +838,7 @@ export const renderCommand = new Command('render')
   .description('Render final video with Remotion')
   .requiredOption('-i, --input <path>', 'Input visuals JSON file')
   .requiredOption('--audio <path>', 'Audio file path')
+  .option('--audio-mix <path>', 'Audio mix plan JSON file')
   .option('--timestamps <path>', 'Timestamps JSON file', 'timestamps.json')
   .option('-o, --output <path>', 'Output video file path', 'video.mp4')
   .option('--template <idOrPath>', 'Video template id or path to template.json')
@@ -744,6 +853,9 @@ export const renderCommand = new Command('render')
   )
   .option('--caption-mode <mode>', 'Caption display mode (page, single, buildup, chunk)')
   // Caption typography
+  .option('--caption-font-family <name>', 'Caption font family (e.g., Inter)')
+  .option('--caption-font-weight <weight>', 'Caption font weight (normal, bold, black, 100-900)')
+  .option('--caption-font-file <path>', 'Caption font file to bundle (ttf/otf/woff/woff2)')
   .option('--caption-font-size <px>', 'Font size in pixels')
   .option('--caption-color <hex>', 'Text color (hex)')
   .option('--caption-transform <mode>', 'Text transform (none, uppercase, lowercase, capitalize)')
@@ -788,6 +900,13 @@ export const renderCommand = new Command('render')
   )
   .option('--gameplay-position <pos>', 'Gameplay position (top, bottom, full)')
   .option('--content-position <pos>', 'Content position (top, bottom, full)')
+  .option('--hook <idOrPath>', 'Hook intro clip id, path, or URL')
+  .option('--hook-library <name>', 'Hook library id (defaults to config)')
+  .option('--hooks-dir <path>', 'Root directory for hook libraries')
+  .option('--hook-duration <seconds>', 'Hook duration when ffprobe is unavailable')
+  .option('--hook-trim <seconds>', 'Trim hook to N seconds (optional)')
+  .option('--hook-audio <mode>', 'Hook audio mode (mute, keep)')
+  .option('--hook-fit <mode>', 'Hook fit mode (cover, contain)')
   .option('--download-assets', 'Download remote visual assets into the render bundle', true)
   .option('--no-download-assets', 'Do not download remote assets (stream URLs directly)')
   .option('--browser-executable <path>', 'Chromium/Chrome executable path for rendering')

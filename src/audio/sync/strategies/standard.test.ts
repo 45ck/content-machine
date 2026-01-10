@@ -11,6 +11,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import type { ScriptOutput } from '../../../script/schema';
 
+const mockTranscribeAudio = vi.fn();
+
+vi.mock('../../asr', () => ({
+  transcribeAudio: mockTranscribeAudio,
+}));
+
 /**
  * Creates a minimal valid ScriptOutput for testing
  */
@@ -30,6 +36,12 @@ describe('StandardSyncStrategy', () => {
   beforeEach(() => {
     vi.resetModules();
     vi.clearAllMocks();
+    mockTranscribeAudio.mockResolvedValue({
+      words: [{ word: 'hello', start: 0, end: 0.5, confidence: 0.9 }],
+      duration: 0.5,
+      text: 'hello',
+      engine: 'estimated',
+    });
   });
 
   afterEach(() => {
@@ -88,15 +100,12 @@ describe('StandardSyncStrategy', () => {
     it('should set source to "estimation" when using fallback', async () => {
       const { StandardSyncStrategy } = await import('./standard');
 
-      // Mock ASR to simulate whisper unavailable
-      vi.doMock('../../asr', () => ({
-        transcribeAudio: vi.fn().mockResolvedValue({
-          words: [{ word: 'hello', start: 0, end: 0.5, confidence: 0.8 }],
-          duration: 0.5,
-          text: 'hello',
-          engine: 'estimated',
-        }),
-      }));
+      mockTranscribeAudio.mockResolvedValueOnce({
+        words: [{ word: 'hello', start: 0, end: 0.5, confidence: 0.8 }],
+        duration: 0.5,
+        text: 'hello',
+        engine: 'estimated',
+      });
 
       const strategy = new StandardSyncStrategy();
       const script = createMockScript([{ id: '1', text: 'hello' }]);
@@ -109,29 +118,27 @@ describe('StandardSyncStrategy', () => {
     });
 
     it('should set source to "whisper" when using ASR', async () => {
-      // This test verifies the source mapping logic.
-      // Since we can't easily mock whisper availability in unit tests,
-      // we verify that when ASR engine reports 'whisper-cpp', source is 'whisper'.
-      // This is implicitly tested when whisper IS available.
-      // For CI environments without whisper, we skip this test.
       const { StandardSyncStrategy } = await import('./standard');
 
       const strategy = new StandardSyncStrategy();
       const script = createMockScript([{ id: '1', text: 'hello world' }]);
 
-      // Try with a real audio file if available - this will use whisper if installed
-      // Otherwise, we accept that estimation is used
+      mockTranscribeAudio.mockResolvedValueOnce({
+        words: [
+          { word: 'hello', start: 0, end: 0.3, confidence: 0.95 },
+          { word: 'world', start: 0.3, end: 0.6, confidence: 0.95 },
+        ],
+        duration: 0.6,
+        text: 'hello world',
+        engine: 'whisper-cpp',
+      });
+
       const result = await strategy.generateTimestamps('test.wav', script, {
         audioDuration: 0.5,
       });
 
-      // Verify source is one of the valid types
-      expect(['whisper', 'estimation']).toContain(result.source);
-
-      // If whisper was used, verify the mapping worked
-      if (result.source === 'whisper') {
-        expect(result.confidence).toBeGreaterThanOrEqual(0.9);
-      }
+      expect(result.source).toBe('whisper');
+      expect(result.confidence).toBeGreaterThanOrEqual(0.9);
     });
   });
 
@@ -156,17 +163,12 @@ describe('StandardSyncStrategy', () => {
     it('should merge constructor options with method options', async () => {
       const { StandardSyncStrategy } = await import('./standard');
 
-      // Mock to capture options passed to ASR
-      const mockTranscribe = vi.fn().mockResolvedValue({
+      mockTranscribeAudio.mockResolvedValueOnce({
         words: [],
         duration: 1.0,
         text: '',
         engine: 'estimated',
       });
-
-      vi.doMock('../../asr', () => ({
-        transcribeAudio: mockTranscribe,
-      }));
 
       const strategy = new StandardSyncStrategy({ asrModel: 'small' });
       const script = createMockScript();
@@ -176,8 +178,15 @@ describe('StandardSyncStrategy', () => {
         audioDuration: 1.0,
       });
 
-      // Both constructor and method options should be used
-      expect(strategy).toBeDefined();
+      expect(mockTranscribeAudio).toHaveBeenCalledWith(
+        expect.objectContaining({
+          audioPath: 'test.wav',
+          model: 'small',
+          requireWhisper: false,
+          originalText: expect.any(String),
+          audioDuration: 1.0,
+        })
+      );
     });
   });
 
@@ -191,6 +200,16 @@ describe('StandardSyncStrategy', () => {
         { id: '2', text: 'Second scene.' },
         { id: '3', text: 'Third scene.' },
       ]);
+
+      mockTranscribeAudio.mockResolvedValueOnce({
+        words: [
+          { word: 'First', start: 0, end: 0.3, confidence: 0.9 },
+          { word: 'scene', start: 0.3, end: 0.6, confidence: 0.9 },
+        ],
+        duration: 0.6,
+        text: 'First scene',
+        engine: 'estimated',
+      });
 
       const result = await strategy.generateTimestamps('test.wav', script, {
         audioDuration: 3.0,
@@ -228,6 +247,8 @@ describe('StandardSyncStrategy', () => {
       const strategy = new StandardSyncStrategy({ requireWhisper: true });
       const script = createMockScript();
 
+      mockTranscribeAudio.mockRejectedValueOnce(new Error('whisper failed'));
+
       // Non-existent audio file should cause error
       await expect(strategy.generateTimestamps('nonexistent.wav', script)).rejects.toThrow(CMError);
     });
@@ -237,6 +258,8 @@ describe('StandardSyncStrategy', () => {
 
       const strategy = new StandardSyncStrategy({ requireWhisper: false });
       const script = createMockScript();
+
+      mockTranscribeAudio.mockRejectedValueOnce(new Error('whisper failed'));
 
       // With audioDuration provided, should fall back to estimation
       const result = await strategy.generateTimestamps('test.wav', script, {

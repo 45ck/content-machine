@@ -5,6 +5,7 @@
  * Based on SYSTEM-DESIGN §6.4 TimestampsSchema
  */
 import { z } from 'zod';
+import { AudioMixOutputSchema } from './mix/schema';
 
 /** Current schema version for migrations */
 export const AUDIO_SCHEMA_VERSION = '1.0.0';
@@ -42,7 +43,7 @@ export const TranscriptSegmentSchema = z.object({
   start: z.number().nonnegative(),
   end: z.number().nonnegative(),
   words: z.array(WordTimestampSchema),
-  sectionId: z.string().optional().describe('Reference to script section'),
+  sectionId: z.string().optional().describe('Reference to script scene (legacy field name)'),
 });
 
 export type TranscriptSegment = z.infer<typeof TranscriptSegmentSchema>;
@@ -80,6 +81,8 @@ export const AudioOutputSchema = z.object({
   voice: z.string(),
   sampleRate: z.number().int().positive(),
   ttsCost: z.number().nonnegative().optional(),
+  audioMixPath: z.string().optional(),
+  audioMix: AudioMixOutputSchema.optional(),
 });
 
 export type AudioOutput = z.infer<typeof AudioOutputSchema>;

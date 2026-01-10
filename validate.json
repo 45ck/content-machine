@@ -1,12 +1,12 @@
 {
   "schemaVersion": "1.0.0",
-  "videoPath": "output/demo-subway-pexels/video.mp4",
+  "videoPath": "output/hook-default-spacing-30s.mp4",
   "profile": "portrait",
-  "passed": false,
+  "passed": true,
   "summary": {
     "width": 1080,
     "height": 1920,
-    "durationSeconds": 27.050667,
+    "durationSeconds": 30.722,
     "container": "mp4",
     "videoCodec": "h264",
     "audioCodec": "aac"
@@ -27,14 +27,14 @@
     },
     {
       "gateId": "duration",
-      "passed": false,
+      "passed": true,
       "severity": "error",
       "fix": "adjust-content-length",
-      "message": "Duration 27.1s is below minimum 30s",
+      "message": "Duration OK (30.7s)",
       "details": {
         "minSeconds": 30,
         "maxSeconds": 60,
-        "actualSeconds": 27.050667
+        "actualSeconds": 30.722
       }
     },
     {
@@ -57,6 +57,6 @@
       }
     }
   ],
-  "createdAt": "2026-01-10T04:31:44.736Z",
-  "runtimeMs": 245
+  "createdAt": "2026-01-10T09:06:11.808Z",
+  "runtimeMs": 68
 }

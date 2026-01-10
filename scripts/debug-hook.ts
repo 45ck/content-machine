@@ -1,7 +1,7 @@
 /**
  * Debug script to trace the hook duplication issue
  */
-import { buildAlignmentSections } from '../src/audio/pipeline';
+import { buildAlignmentUnits } from '../src/audio/pipeline';
 import type { ScriptOutput } from '../src/script/schema';
 
 // Load the actual script from the demo
@@ -16,7 +16,7 @@ const script: ScriptOutput = {
     },
     {
       id: "scene-002",
-      text: "1. Start with a win—like making your bed! It sets the tone for a productive day.",
+      text: "1. Start with a win - like making your bed! It sets the tone for a productive day.",
       visualDirection: "Show someone making their bed with a satisfied smile",
       mood: "Cheerful and encouraging"
     },
@@ -83,18 +83,18 @@ const ctaAlreadyInLastScene = ctaText && (ctaText === lastSceneText);
 console.log('ctaAlreadyInLastScene:', ctaAlreadyInLastScene);
 console.log('');
 
-console.log('=== Calling buildAlignmentSections ===\n');
-const sections = buildAlignmentSections(script);
+console.log('=== Calling buildAlignmentUnits ===\n');
+const units = buildAlignmentUnits(script);
 
-console.log(`Generated ${sections.length} sections:\n`);
-sections.forEach((section, i) => {
-  console.log(`${i + 1}. [${section.id}]`);
-  console.log(`   "${section.text}"`);
+console.log(`Generated ${units.length} units:\n`);
+units.forEach((unit, i) => {
+  console.log(`${i + 1}. [${unit.id}]`);
+  console.log(`   "${unit.text}"`);
   console.log('');
 });
 
 console.log('=== Full text that will be sent to TTS ===');
-const fullText = sections.map(s => s.text).join(' ');
+const fullText = units.map((unit) => unit.text).join(' ');
 console.log(fullText);
 console.log('');
 console.log('Word count:', fullText.split(/\s+/).filter(Boolean).length);

@@ -15,6 +15,7 @@ import { createTikTokStyleCaptions, Caption as RemotionCaption } from '@remotion
 import { CaptionStyle } from '../schema';
 import { WordTimestamp } from '../../audio/schema';
 import { SPRING_CONFIGS } from '../tokens/easing';
+import { FONT_STACKS } from '../tokens/font';
 import type { CaptionDisplayMode } from '../captions/config';
 
 /** Default: How many milliseconds of words to group into a single "page" */
@@ -36,7 +37,7 @@ interface CaptionProps {
 }
 
 const DEFAULT_STYLE: CaptionStyle = {
-  fontFamily: 'Inter',
+  fontFamily: FONT_STACKS.body,
   fontSize: 100, // Larger for better readability
   fontWeight: 'bold',
   color: '#FFFFFF',

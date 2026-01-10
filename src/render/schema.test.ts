@@ -12,6 +12,7 @@ import {
   type RenderPropsInput,
   type RenderOutput,
 } from './schema';
+import { FONT_STACKS } from './tokens/font';
 
 describe('CaptionStyleSchema', () => {
   it('should validate correct caption style', () => {
@@ -38,7 +39,7 @@ describe('CaptionStyleSchema', () => {
     const result = CaptionStyleSchema.safeParse(style);
     expect(result.success).toBe(true);
     if (result.success) {
-      expect(result.data.fontFamily).toBe('Inter');
+      expect(result.data.fontFamily).toBe(FONT_STACKS.body);
       expect(result.data.fontSize).toBe(80);
       expect(result.data.fontWeight).toBe('bold');
       expect(result.data.color).toBe('#FFFFFF');
@@ -190,6 +191,30 @@ describe('RenderPropsSchema', () => {
       splitScreenRatio: 0.55,
       gameplayPosition: 'bottom',
       contentPosition: 'top',
+    };
+
+    const result = RenderPropsSchema.safeParse(props);
+    expect(result.success).toBe(true);
+  });
+
+  it('should allow an optional hook clip', () => {
+    const props: RenderPropsInput = {
+      schemaVersion: RENDER_SCHEMA_VERSION,
+      scenes: [],
+      words: [],
+      audioPath: '/path/to/audio.wav',
+      duration: 5.5,
+      width: 1080,
+      height: 1920,
+      fps: 30,
+      hook: {
+        path: 'hooks/no-crunch.mp4',
+        duration: 1.2,
+        mute: true,
+        fit: 'cover',
+        source: 'library',
+        id: 'no-crunch',
+      },
     };
 
     const result = RenderPropsSchema.safeParse(props);

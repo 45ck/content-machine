@@ -25,6 +25,10 @@ export { ScriptOutputSchema, ScriptSectionSchema, SceneSchema } from './script/s
 export type { AudioOutput, WordTimestamp } from './audio/schema';
 export { AudioOutputSchema, WordTimestampSchema } from './audio/schema';
 
+// Importers
+export { generateTimestamps } from './importers/timestamps';
+export { importVisualsFromClips } from './importers/visuals';
+
 // Visuals/footage matching
 export type { VisualsOutput, VideoClip, VisualAsset } from './visuals/schema';
 export { VisualsOutputSchema, VideoClipSchema, VisualAssetSchema } from './visuals/schema';
@@ -56,6 +60,9 @@ export { HackerNewsTool } from './research/tools/hackernews';
 export { RedditTool } from './research/tools/reddit';
 export { WebSearchTool } from './research/tools/web-search';
 export type { ResearchTool, SearchToolOptions, SearchToolResult } from './research/tools/types';
+
+// Workflows
+export type { WorkflowDefinition, WorkflowCommand, WorkflowStage, WorkflowInputs } from './workflows/schema';
 
 // Test stubs (for testing consumers)
 export { FakeLLMProvider } from './test/stubs/fake-llm';

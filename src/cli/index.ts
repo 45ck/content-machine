@@ -7,25 +7,68 @@
 import 'dotenv/config';
 import { Command } from 'commander';
 import { version } from '../../package.json';
-import { scriptCommand } from './commands/script';
-import { audioCommand } from './commands/audio';
-import { visualsCommand } from './commands/visuals';
-import { renderCommand } from './commands/render';
-import { generateCommand } from './commands/generate';
-import { initCommand } from './commands/init';
-import { packageCommand } from './commands/package';
-import { researchCommand } from './commands/research';
-import { validateCommand } from './commands/validate';
 import { setCliRuntime } from './runtime';
 import { logger } from '../core/logger';
-import { retrieveCommand } from './commands/retrieve';
-import { scoreCommand } from './commands/score';
-import { publishCommand } from './commands/publish';
-import { rateCommand } from './commands/rate';
-import { templatesCommand } from './commands/templates';
-import { captionsCommand } from './commands/captions';
 
 const program = new Command();
+
+type CommandLoader = () => Promise<Command>;
+
+const COMMAND_LOADERS: Array<[string, CommandLoader]> = [
+  ['script', async () => (await import('./commands/script')).scriptCommand],
+  ['audio', async () => (await import('./commands/audio')).audioCommand],
+  ['visuals', async () => (await import('./commands/visuals')).visualsCommand],
+  ['render', async () => (await import('./commands/render')).renderCommand],
+  ['package', async () => (await import('./commands/package')).packageCommand],
+  ['research', async () => (await import('./commands/research')).researchCommand],
+  ['retrieve', async () => (await import('./commands/retrieve')).retrieveCommand],
+  ['validate', async () => (await import('./commands/validate')).validateCommand],
+  ['score', async () => (await import('./commands/score')).scoreCommand],
+  ['rate', async () => (await import('./commands/rate')).rateCommand],
+  ['captions', async () => (await import('./commands/captions')).captionsCommand],
+  ['publish', async () => (await import('./commands/publish')).publishCommand],
+  ['templates', async () => (await import('./commands/templates')).templatesCommand],
+  ['timestamps', async () => (await import('./commands/timestamps')).timestampsCommand],
+  ['import', async () => (await import('./commands/import')).importCommand],
+  ['workflows', async () => (await import('./commands/workflows')).workflowsCommand],
+  ['generate', async () => (await import('./commands/generate')).generateCommand],
+  ['init', async () => (await import('./commands/init')).initCommand],
+];
+
+const COMMAND_MAP = new Map(COMMAND_LOADERS);
+
+function findRequestedCommand(args: string[]): string | null {
+  for (const arg of args) {
+    if (arg === '--') break;
+    if (arg.startsWith('-')) continue;
+    return arg;
+  }
+  return null;
+}
+
+async function loadAllCommands(): Promise<void> {
+  for (const [, loader] of COMMAND_LOADERS) {
+    program.addCommand(await loader());
+  }
+}
+
+async function loadCommandsForArgs(args: string[]): Promise<void> {
+  const requested = findRequestedCommand(args);
+  const wantsHelp = args.includes('--help') || args.includes('-h');
+
+  if (!requested || requested === 'help' || wantsHelp) {
+    await loadAllCommands();
+    return;
+  }
+
+  const loader = COMMAND_MAP.get(requested);
+  if (loader) {
+    program.addCommand(await loader());
+    return;
+  }
+
+  await loadAllCommands();
+}
 
 program
   .name('cm')
@@ -33,23 +76,6 @@ program
   .version(version)
   .option('-v, --verbose', 'Enable verbose logging')
   .option('--json', 'Output results as JSON');
-
-// Add subcommands
-program.addCommand(scriptCommand);
-program.addCommand(audioCommand);
-program.addCommand(visualsCommand);
-program.addCommand(renderCommand);
-program.addCommand(packageCommand);
-program.addCommand(researchCommand);
-program.addCommand(retrieveCommand);
-program.addCommand(validateCommand);
-program.addCommand(scoreCommand);
-program.addCommand(rateCommand);
-program.addCommand(captionsCommand);
-program.addCommand(publishCommand);
-program.addCommand(templatesCommand);
-program.addCommand(generateCommand);
-program.addCommand(initCommand);
 
 program.hook('preAction', (_thisCommand, actionCommand) => {
   const opts =
@@ -74,5 +100,12 @@ program.hook('preAction', (_thisCommand, actionCommand) => {
   }
 });
 
-// Parse arguments
-program.parse();
+async function main(): Promise<void> {
+  await loadCommandsForArgs(process.argv.slice(2));
+  program.parse(process.argv);
+}
+
+main().catch((error) => {
+  logger.error({ error }, 'CLI failed to start');
+  process.exit(1);
+});

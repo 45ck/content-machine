@@ -181,6 +181,9 @@ content-machine/
 --archetype <type>     # Content archetype (listicle, versus, etc.)
 --voice <voice>        # TTS voice selection
 --orientation <type>   # portrait (default), landscape, square
+--caption-font-family <name>  # Caption font family (e.g., Inter)
+--caption-font-weight <weight> # Caption font weight (normal, bold, 100-900)
+--caption-font-file <path>     # Caption font file to bundle (ttf/otf/woff/woff2)
 --verbose, -v          # Enable debug logging
 --json                 # Output as JSON (for scripting)
 --dry-run              # Preview without execution
@@ -333,6 +336,11 @@ temperature = 0.7
 [audio]
 tts_engine = "kokoro"
 asr_engine = "whisper"
+
+[captions]
+font_family = "Inter"
+font_weight = 700
+font_file = "assets/fonts/Inter/Inter-Bold.woff2"
 ```
 
 ---

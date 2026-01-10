@@ -180,6 +180,7 @@ Before committing documentation:
 - [ ] Filename includes YYYYMMDD date
 - [ ] Used appropriate template
 - [ ] All sections filled (no [placeholders])
+- [ ] Terminology matches docs/guides/guide-ubiquitous-language-20260110.md
 - [ ] Code examples tested and work
 - [ ] Cross-references added
 - [ ] Spelling/grammar checked

@@ -7,6 +7,7 @@
  * NEW: CapCut-native presets use smaller chunks (3-4 words) with emphasis
  */
 import { CaptionConfig, CaptionConfigSchema } from './config';
+import { FONT_STACKS } from '../tokens/font';
 
 /**
  * TikTok Native Style
@@ -16,7 +17,7 @@ import { CaptionConfig, CaptionConfigSchema } from './config';
  * Now with 2-line support for better sentence flow.
  */
 export const PRESET_TIKTOK: CaptionConfig = CaptionConfigSchema.parse({
-  fontFamily: 'Inter',
+  fontFamily: FONT_STACKS.body,
   fontSize: 72,
   fontWeight: 'bold',
   textTransform: 'uppercase',
@@ -68,7 +69,7 @@ export const PRESET_TIKTOK: CaptionConfig = CaptionConfigSchema.parse({
  * 2-line support for smooth sentence flow.
  */
 export const PRESET_YOUTUBE_SHORTS: CaptionConfig = CaptionConfigSchema.parse({
-  fontFamily: 'Inter',
+  fontFamily: FONT_STACKS.body,
   fontSize: 64,
   fontWeight: 'bold',
   textTransform: 'none',
@@ -114,7 +115,7 @@ export const PRESET_YOUTUBE_SHORTS: CaptionConfig = CaptionConfigSchema.parse({
  * Now with 2-line support for better sentence flow.
  */
 export const PRESET_REELS: CaptionConfig = CaptionConfigSchema.parse({
-  fontFamily: 'Inter',
+  fontFamily: FONT_STACKS.body,
   fontSize: 68,
   fontWeight: 'bold',
   textTransform: 'uppercase',
@@ -165,7 +166,7 @@ export const PRESET_REELS: CaptionConfig = CaptionConfigSchema.parse({
  * Great for hooks and key moments.
  */
 export const PRESET_BOLD_IMPACT: CaptionConfig = CaptionConfigSchema.parse({
-  fontFamily: 'Inter',
+  fontFamily: FONT_STACKS.body,
   fontSize: 96,
   fontWeight: 'black',
   textTransform: 'uppercase',
@@ -206,7 +207,7 @@ export const PRESET_BOLD_IMPACT: CaptionConfig = CaptionConfigSchema.parse({
  * Good for business/corporate content.
  */
 export const PRESET_MINIMAL: CaptionConfig = CaptionConfigSchema.parse({
-  fontFamily: 'Inter',
+  fontFamily: FONT_STACKS.body,
   fontSize: 56,
   fontWeight: 'normal',
   textTransform: 'none',
@@ -249,7 +250,7 @@ export const PRESET_MINIMAL: CaptionConfig = CaptionConfigSchema.parse({
  * Now with 2-line support for better sentence flow.
  */
 export const PRESET_NEON: CaptionConfig = CaptionConfigSchema.parse({
-  fontFamily: 'Inter',
+  fontFamily: FONT_STACKS.body,
   fontSize: 72,
   fontWeight: 'bold',
   textTransform: 'uppercase',
@@ -292,7 +293,7 @@ export const PRESET_NEON: CaptionConfig = CaptionConfigSchema.parse({
  */
 export const PRESET_CAPCUT_BOLD: CaptionConfig = CaptionConfigSchema.parse({
   displayMode: 'chunk',
-  fontFamily: 'Inter',
+  fontFamily: FONT_STACKS.body,
   fontSize: 80,
   fontWeight: 'black',
   textTransform: 'uppercase',
@@ -360,7 +361,7 @@ export const PRESET_CAPCUT_BOLD: CaptionConfig = CaptionConfigSchema.parse({
  * and power words.
  */
 export const PRESET_HORMOZI: CaptionConfig = CaptionConfigSchema.parse({
-  fontFamily: 'Inter',
+  fontFamily: FONT_STACKS.body,
   fontSize: 88,
   fontWeight: 'black',
   textTransform: 'uppercase',
@@ -413,7 +414,7 @@ export const PRESET_HORMOZI: CaptionConfig = CaptionConfigSchema.parse({
  * Each word gets its moment with a smooth color transition.
  */
 export const PRESET_KARAOKE: CaptionConfig = CaptionConfigSchema.parse({
-  fontFamily: 'Inter',
+  fontFamily: FONT_STACKS.body,
   fontSize: 68,
   fontWeight: 'bold',
   textTransform: 'none',

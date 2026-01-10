@@ -3,26 +3,25 @@
 # Adapted from: MoneyPrinterTurbo
 # Source: https://github.com/harry0703/MoneyPrinterTurbo
 # License: MIT
-# Original: app/services/llm.py → generate_script()
-# Adapted: 2026-01-07
+# Original: app/services/llm.py generate_script()
+# Adapted: 2026-01-10
 
 id: script/video-script-generator
 name: Video Script Generator
 description: >
-  Generates engaging video scripts from a topic. Produces raw narration text
-  without formatting, titles, or speaker indicators. Designed for short-form
-  vertical video content (TikTok, Reels, Shorts).
+  Generates structured JSON scripts for short-form vertical video. Designed for
+  TikTok, Reels, and Shorts with TTS-friendly pacing.
 category: script
 provider: any
-outputFormat: text
-version: "1.0.0"
+outputFormat: json
+version: "2.0.0"
 tags:
   - script
   - narration
   - tiktok
   - shorts
   - video
-estimatedTokens: 300
+estimatedTokens: 450
 recommendedTemperature: 0.7
 
 source:
@@ -30,10 +29,10 @@ source:
   url: https://github.com/harry0703/MoneyPrinterTurbo
   license: MIT
   originalPath: app/services/llm.py
-  adaptedDate: "2026-01-07"
+  adaptedDate: "2026-01-10"
   modifications: >
-    Converted to YAML template format. Added archetype context variable.
-    Improved constraints for content-machine integration.
+    Converted to JSON output format. Added TTS pacing rules, hook dedupe guard,
+    and archetype-specific guidance aligned with content-machine schema.
 
 variables:
   - name: topic
@@ -41,88 +40,145 @@ variables:
     required: true
     type: string
     example: "5 JavaScript tips for beginners"
-  - name: paragraphs
-    description: Number of paragraphs to generate
+  - name: archetype
+    description: Content archetype (listicle, versus, howto, myth, story, hot-take)
+    required: false
+    type: string
+    example: "listicle"
+  - name: targetDuration
+    description: Target duration in seconds
     required: false
     type: number
-    default: 1
-    example: 3
+    default: 45
+    example: 45
+  - name: targetWordCount
+    description: Target total word count for spoken text
+    required: false
+    type: number
+    default: 120
+    example: 120
   - name: language
     description: Language for the script (e.g., "en", "es", "zh-CN")
     required: false
     type: string
     default: "en"
     example: "en"
-  - name: archetype
-    description: Content archetype (listicle, versus, howto, myth, story, hot-take)
-    required: false
-    type: string
-    example: "listicle"
 
 systemPrompt: |
-  You are an expert short-form video script writer. You create scripts that are:
+  You are an expert short-form video scriptwriter. You create scripts that are:
   - Engaging from the first word (strong hooks)
   - Concise and punchy (no filler words)
   - Written for spoken delivery (natural rhythm)
   - Optimized for 30-60 second videos
+  - Returned as valid JSON
 
 template: |
   # Role: Video Script Generator
 
   ## Goals:
-  Generate a script for a video, depending on the subject of the video.
+  Generate a short-form video script about the topic.
 
   ## Constraints:
-  1. The script is to be returned as a string with the specified number of paragraphs.
-  2. Do not under any circumstance reference this prompt in your response.
-  3. Get straight to the point - don't start with unnecessary things like "welcome to this video".
-  4. You must not include any type of markdown or formatting in the script, never use a title.
-  5. Only return the raw content of the script.
-  6. Do not include "voiceover", "narrator" or similar indicators of what should be spoken.
-  7. You must not mention the prompt, or anything about the script itself.
-  8. Never talk about the amount of paragraphs or lines - just write the script.
-  9. Respond in the same language as the video subject.
-  10. Start with a hook that grabs attention in the first 3 seconds.
+  1. Respond with JSON only. No markdown, no code fences, no commentary.
+  2. Spoken text fields (hook, scenes[].text, cta) must be plain text: no emojis, no markdown, no hashtags.
+  3. Hook must be ONE sentence and must NOT be repeated in scene 1.
+  4. Scene 1 must continue after the hook with NEW information (no restating or paraphrasing the hook).
+  5. Do not copy the hook sentence into any scene text.
+  6. Hook must be a statement (no question mark).
+  7. Always include hook and cta fields in the JSON.
+  8. Each scene text must be at least 20 words.
+  9. Write for spoken delivery at 120-180 WPM.
+  10. Target length: ~{{targetWordCount}} words (~{{targetDuration}} seconds).
+  11. Total spoken word count must be between ~0.8x and ~1.25x of targetWordCount.
+  12. Use short sentences (<=15 words) and one idea per sentence.
+  13. Each scene should be 2 sentences and ~22-30 words (minimum 20 words per scene).
+  14. Use contractions and second person ("you", "you'll").
+  15. Use punctuation for timing (commas = micro-pause, periods = full beat).
+  16. Normalize text for speech: expand numbers, acronyms, URLs, emails, file paths, and units.
+  17. Avoid openers like "In this video" or "Today we're going to".
+  18. Double-check total word count before responding.
 
   {{#if archetype}}
   ## Content Style: {{archetype}}
   {{#if (eq archetype "listicle")}}
-  Structure as a numbered list with a hook, clear items, and a call-to-action.
+  Structure as a numbered list with a hook, 4-5 clear items, and a call-to-action.
+  Each item should be two sentences: the tip plus a quick payoff or why.
   {{/if}}
   {{#if (eq archetype "versus")}}
-  Present a balanced comparison with a clear winner or recommendation.
+  Present a balanced comparison with a clear recommendation at the end.
+  The hook must be provocative; avoid neutral phrasing like "Choosing between X and Y".
   {{/if}}
   {{#if (eq archetype "howto")}}
-  Give step-by-step instructions that are easy to follow.
+  Give 4-5 clear steps that are easy to follow.
+  Each step should be two sentences: the action plus a quick result/why.
   {{/if}}
   {{#if (eq archetype "myth")}}
   Start with the myth, then reveal the reality with evidence.
+  Use explicit "Myth: X" and "Reality: Y" phrasing in scene text.
+  The hook should be a provocative tease, not a "Myth:" line.
   {{/if}}
   {{#if (eq archetype "story")}}
   Use narrative structure: setup, conflict, resolution.
+  The hook should be a teaser line that is not repeated in scene 1.
   {{/if}}
   {{#if (eq archetype "hot-take")}}
   Lead with a provocative opinion, then back it up with reasoning.
+  The hook should be a bold statement, not a question.
   {{/if}}
   {{/if}}
 
   # Input:
-  - Video subject: {{topic}}
-  - Number of paragraphs: {{paragraphs}}
+  - Topic: {{topic}}
+  - Target duration: {{targetDuration}} seconds
+  - Target word count: {{targetWordCount}}
   {{#if language}}- Language: {{language}}{{/if}}
+
+  Respond with this JSON structure:
+  {
+    "scenes": [
+      {"text": "Scene 1 spoken text", "visualDirection": "what to show visually", "mood": "emotional tone"},
+      {"text": "Scene 2 spoken text", "visualDirection": "visual description", "mood": "tone"}
+    ],
+    "reasoning": "Explain your creative choices: hook, pacing, structure",
+    "title": "Video title (optional)",
+    "hook": "First sentence that grabs attention (optional)",
+    "cta": "Call to action (optional)",
+    "hashtags": ["#tag1", "#tag2"]
+  }
 
 examples:
   - input:
       topic: "Why Redis beats PostgreSQL for caching"
-      paragraphs: 2
       archetype: "versus"
+      targetDuration: 45
+      targetWordCount: 120
     output: |
-      Stop using PostgreSQL for caching. Here's why Redis wins every time.
-
-      PostgreSQL stores data on disk. Redis keeps everything in memory.
-      That's the difference between milliseconds and microseconds.
-      Your users feel that. A 100ms delay costs you 7% conversion.
-      Redis gives you sub-millisecond reads. PostgreSQL can't compete.
-      Plus Redis has built-in expiration. Set it and forget it.
-      Use PostgreSQL for what it's good at - persistent data.
-      Use Redis for speed. Your users will thank you.
+      {
+        "scenes": [
+          {
+            "text": "Here is why Redis wins for caching: it keeps hot data in memory for instant reads. That speed makes your app feel snappy under load.",
+            "visualDirection": "Split screen of Redis logo vs PostgreSQL logo",
+            "mood": "bold"
+          },
+          {
+            "text": "PostgreSQL stores data on disk and shines at complex queries and durability. Redis lives in RAM, so it answers reads in microseconds for hot data.",
+            "visualDirection": "Disk drive vs glowing RAM sticks",
+            "mood": "informative"
+          },
+          {
+            "text": "Redis is simple to set up and scales fast for real-time leaderboards or live chat. PostgreSQL is better when you need joins, constraints, and strong consistency.",
+            "visualDirection": "Speedometer jumping from slow to fast",
+            "mood": "energetic"
+          },
+          {
+            "text": "Use Redis for pure caching and bursty traffic spikes. Use PostgreSQL when your cache needs complex rules or a single system of record.",
+            "visualDirection": "Checkmarks under each logo with labels",
+            "mood": "decisive"
+          }
+        ],
+        "reasoning": "Hook sets a clear stance, then contrasts disk vs memory to justify the recommendation.",
+        "title": "Redis vs PostgreSQL for caching",
+        "hook": "Stop using PostgreSQL for caching.",
+        "cta": "Follow for more fast database tips.",
+        "hashtags": ["#redis", "#postgres", "#databases"]
+      }

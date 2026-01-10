@@ -5,160 +5,29 @@
  * Based on SYSTEM-DESIGN §7.2 cm audio command.
  */
 import { writeFile } from 'fs/promises';
-import type { ScriptOutput } from '../script/generator';
+import type { ScriptOutput } from '../script/schema';
 import { createLogger } from '../core/logger';
 import {
   AudioOutput,
   AudioOutputSchema,
   TimestampsOutput,
   WordTimestamp,
-  SceneTimestamp,
   AUDIO_SCHEMA_VERSION,
 } from './schema';
 import { synthesizeSpeech } from './tts';
 import { transcribeAudio, ASRResult } from './asr';
 import { reconcileToScript as reconcileAsrToScript } from './asr/reconcile';
-import { restorePunctuation } from './asr/post-processor';
+import {
+  buildAlignmentUnits,
+  buildSceneTimestamps,
+  normalizeSpokenText,
+} from './alignment';
+import { buildAudioMixPlan, hasAudioMixSources, type AudioMixPlanOptions } from './mix/planner';
+import type { AudioMixOutput } from './mix/schema';
+
+export { buildAlignmentUnits, buildSceneTimestamps } from './alignment';
 
 export type { AudioOutput, TimestampsOutput, WordTimestamp } from './schema';
-
-export interface SpokenSection {
-  id: string;
-  text: string;
-}
-
-function sanitizeForTts(text: string): string {
-  return text.replace(/[`*_]/g, '');
-}
-
-function normalizeSpokenText(text: string): string {
-  return sanitizeForTts(text).replace(/\s+/g, ' ').trim();
-}
-
-function resolveTotalDuration(totalDuration: number | undefined, words: WordTimestamp[]): number {
-  if (typeof totalDuration === 'number' && Number.isFinite(totalDuration)) {
-    return totalDuration;
-  }
-  if (words.length === 0) {
-    return 0;
-  }
-  return words[words.length - 1].end;
-}
-
-export function buildAlignmentSections(script: ScriptOutput): SpokenSection[] {
-  const sections: SpokenSection[] = [];
-  const scenes = script.scenes;
-
-  const firstSceneText = scenes.length > 0 ? normalizeSpokenText(scenes[0].text) : '';
-  const lastSceneText =
-    scenes.length > 0 ? normalizeSpokenText(scenes[scenes.length - 1].text) : '';
-
-  // Check if hook is already included in first scene to prevent duplication
-  // The LLM often returns a hook field AND includes the hook in scene 1
-  const hookText = script.hook ? normalizeSpokenText(script.hook) : '';
-  const hookAlreadyInScene1 =
-    hookText &&
-    (hookText === firstSceneText ||
-      firstSceneText.startsWith(hookText) ||
-      firstSceneText.includes(hookText));
-
-  if (hookText && !hookAlreadyInScene1) {
-    sections.push({ id: 'hook', text: script.hook! });
-  }
-
-  sections.push(...scenes.map((scene) => ({ id: scene.id, text: scene.text })));
-
-  const ctaText = script.cta ? normalizeSpokenText(script.cta) : '';
-  if (ctaText && ctaText !== lastSceneText) {
-    sections.push({ id: 'cta', text: script.cta! });
-  }
-
-  return sections;
-}
-
-/**
- * Append remaining ASR words to the last scene or create a fallback scene.
- * Ensures we never drop trailing words (prevents audio continuing after visuals).
- * @internal
- */
-function appendRemainingWords(
-  result: SceneTimestamp[],
-  sections: SpokenSection[],
-  words: WordTimestamp[],
-  wordIndex: number
-): void {
-  if (wordIndex >= words.length) return;
-
-  const remaining = words.slice(wordIndex);
-
-  if (result.length > 0) {
-    const lastScene = result[result.length - 1];
-    lastScene.words.push(...remaining);
-    lastScene.audioEnd = remaining[remaining.length - 1].end;
-    return;
-  }
-
-  // Defensive fallback: if no scene got words, attach everything to the first section
-  if (sections.length > 0) {
-    result.push({
-      sceneId: sections[0].id,
-      audioStart: words[0].start,
-      audioEnd: words[words.length - 1].end,
-      words: [...words],
-    });
-  }
-}
-
-/**
- * Build scene timestamps from words and scene text structure.
- * Assigns words to scenes proportionally based on word count.
- * Also restores punctuation from original script text.
- *
- * @internal Shared between mock and real audio generation
- */
-export function buildSceneTimestamps(
-  words: WordTimestamp[],
-  sections: SpokenSection[],
-  totalDuration?: number
-): SceneTimestamp[] {
-  const result: SceneTimestamp[] = [];
-  let wordIndex = 0;
-  const duration = resolveTotalDuration(totalDuration, words);
-
-  // Combine all section texts for punctuation restoration
-  const fullScriptText = sections.map((s) => s.text).join(' ');
-
-  // Restore punctuation to all words before assigning to scenes
-  const punctuatedWords = restorePunctuation(words, fullScriptText);
-
-  for (const section of sections) {
-    const targetWordCount = section.text.split(/\s+/).filter(Boolean).length;
-    const sceneWords: WordTimestamp[] = [];
-
-    while (wordIndex < punctuatedWords.length && sceneWords.length < targetWordCount) {
-      sceneWords.push(punctuatedWords[wordIndex]);
-      wordIndex++;
-    }
-
-    if (sceneWords.length > 0) {
-      result.push({
-        sceneId: section.id,
-        audioStart: sceneWords[0].start,
-        audioEnd: sceneWords[sceneWords.length - 1].end,
-        words: sceneWords,
-      });
-    }
-  }
-
-  appendRemainingWords(result, sections, punctuatedWords, wordIndex);
-
-  if (result.length > 0) {
-    const lastScene = result[result.length - 1];
-    lastScene.audioEnd = Math.max(lastScene.audioEnd, duration);
-  }
-
-  return result;
-}
 
 export interface GenerateAudioOptions {
   script: ScriptOutput;
@@ -184,6 +53,15 @@ export interface GenerateAudioOptions {
    * Improves caption readability by using original punctuation/casing.
    */
   reconcile?: boolean;
+  /**
+   * Optional audio mix plan generation.
+   * When provided, writes audio.mix.json alongside the voice track.
+   */
+  audioMix?: {
+    outputPath: string;
+    options: AudioMixPlanOptions;
+    emitEmpty?: boolean;
+  };
 }
 
 /**
@@ -250,6 +128,13 @@ export async function generateAudio(options: GenerateAudioOptions): Promise<Audi
   // Save timestamps
   await writeFile(options.timestampsPath, JSON.stringify(timestamps, null, 2), 'utf-8');
 
+  const mixResult = await maybeWriteAudioMix({
+    script: options.script,
+    timestamps,
+    voicePath: options.outputPath,
+    request: options.audioMix,
+  });
+
   const output: AudioOutput = {
     schemaVersion: AUDIO_SCHEMA_VERSION,
     audioPath: options.outputPath,
@@ -260,6 +145,8 @@ export async function generateAudio(options: GenerateAudioOptions): Promise<Audi
     voice: options.voice,
     sampleRate: ttsResult.sampleRate,
     ttsCost: ttsResult.cost,
+    audioMixPath: mixResult.audioMixPath,
+    audioMix: mixResult.audioMix,
   };
 
   // Validate output
@@ -282,15 +169,15 @@ export async function generateAudio(options: GenerateAudioOptions): Promise<Audi
 async function generateMockAudio(options: GenerateAudioOptions): Promise<AudioOutput> {
   const log = createLogger({ module: 'audio', mock: true });
 
-  // Create mock word timestamps from the same alignment sections as real TTS (hook/scenes/cta)
-  const sections = buildAlignmentSections(options.script);
+  // Create mock word timestamps from the same alignment units as real TTS (hook/scenes/cta)
+  const units = buildAlignmentUnits(options.script);
   const words: WordTimestamp[] = [];
   let currentTime = 0;
   const wordDuration = 0.3; // ~200 WPM
 
-  for (const section of sections) {
-    const sectionWords = section.text.split(/\s+/).filter(Boolean);
-    for (const word of sectionWords) {
+  for (const unit of units) {
+    const unitWords = unit.text.split(/\s+/).filter(Boolean);
+    for (const word of unitWords) {
       words.push({
         word,
         start: currentTime,
@@ -302,7 +189,7 @@ async function generateMockAudio(options: GenerateAudioOptions): Promise<AudioOu
   }
 
   const totalDuration = currentTime;
-  const sceneTimestamps = buildSceneTimestamps(words, sections, totalDuration);
+  const sceneTimestamps = buildSceneTimestamps(words, units, totalDuration);
 
   const timestamps: TimestampsOutput = {
     schemaVersion: AUDIO_SCHEMA_VERSION,
@@ -320,6 +207,13 @@ async function generateMockAudio(options: GenerateAudioOptions): Promise<AudioOu
   const mockAudioBuffer = Buffer.alloc(1024);
   await writeFile(options.outputPath, mockAudioBuffer);
 
+  const mixResult = await maybeWriteAudioMix({
+    script: options.script,
+    timestamps,
+    voicePath: options.outputPath,
+    request: options.audioMix,
+  });
+
   const output: AudioOutput = {
     schemaVersion: AUDIO_SCHEMA_VERSION,
     audioPath: options.outputPath,
@@ -330,6 +224,8 @@ async function generateMockAudio(options: GenerateAudioOptions): Promise<AudioOu
     voice: options.voice,
     sampleRate: 22050,
     ttsCost: 0,
+    audioMixPath: mixResult.audioMixPath,
+    audioMix: mixResult.audioMix,
   };
 
   log.info(
@@ -347,18 +243,50 @@ async function generateMockAudio(options: GenerateAudioOptions): Promise<AudioOu
  * Build full text from script for TTS
  */
 function buildFullText(script: ScriptOutput): string {
-  return buildAlignmentSections(script)
-    .map((section) => normalizeSpokenText(section.text))
+  return buildAlignmentUnits(script)
+    .map((unit) => normalizeSpokenText(unit.text))
     .join(' ');
+}
+
+async function maybeWriteAudioMix(params: {
+  script: ScriptOutput;
+  timestamps: TimestampsOutput;
+  voicePath: string;
+  request?: {
+    outputPath: string;
+    options: AudioMixPlanOptions;
+    emitEmpty?: boolean;
+  };
+}): Promise<{ audioMix?: AudioMixOutput; audioMixPath?: string }> {
+  if (!params.request) return {};
+
+  const hasSources = hasAudioMixSources(params.request.options);
+  if (!hasSources && !params.request.emitEmpty) {
+    return {};
+  }
+
+  const mixPlan = buildAudioMixPlan({
+    script: params.script,
+    timestamps: params.timestamps,
+    voicePath: params.voicePath,
+    options: params.request.options,
+  });
+
+  await writeFile(params.request.outputPath, JSON.stringify(mixPlan, null, 2), 'utf-8');
+
+  return {
+    audioMix: mixPlan,
+    audioMixPath: params.request.outputPath,
+  };
 }
 
 /**
  * Build timestamps output from ASR result aligned to scenes
  */
 function buildTimestamps(asr: ASRResult, script: ScriptOutput): TimestampsOutput {
-  // Align scenes to the same sections used for TTS (hook/scenes/cta) to prevent drift.
-  const sections = buildAlignmentSections(script);
-  const scenes = buildSceneTimestamps(asr.words, sections, asr.duration);
+  // Align scenes to the same units used for TTS (hook/scenes/cta) to prevent drift.
+  const units = buildAlignmentUnits(script);
+  const scenes = buildSceneTimestamps(asr.words, units, asr.duration);
 
   return {
     schemaVersion: AUDIO_SCHEMA_VERSION,

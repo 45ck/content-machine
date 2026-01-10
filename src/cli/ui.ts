@@ -28,7 +28,10 @@ async function loadBoxen(): Promise<BoxenModule | null> {
 
 export function formatKeyValueRows(rows: Array<[string, string]>): string[] {
   const width = rows.reduce((max, [key]) => Math.max(max, key.length), 0);
-  return rows.map(([key, value]) => `${key.padEnd(width)} : ${value}`);
+  return rows.map(([key, value]) => {
+    const padding = Math.max(1, width - key.length + 1);
+    return `${key}:${' '.repeat(padding)}${value}`;
+  });
 }
 
 export async function writeSummaryCard(params: {

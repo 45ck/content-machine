@@ -13,34 +13,79 @@ description: content-machine script generation quality evaluation
 # The prompt template to test (using Nunjucks syntax)
 prompts:
   - |
-    You are a viral short-form video scriptwriter. Generate a script for a {{ archetype }} video about:
+    You are an expert short-form video scriptwriter. You write engaging scripts for TikTok, Reels, and YouTube Shorts.
 
-    Topic: {{ topic }}
+    Create a short-form video script about: "{{ topic }}"
 
-    Requirements:
-    - 3-8 scenes
-    - 30-60 seconds total (100-250 words)
-    - TikTok-style casual language
-    - Each scene needs a visual direction (what to show)
-    - Start with an attention-grabbing hook
+    FORMAT: {{ archetype }}
+
+    REQUIREMENTS:
+    - Start with a compelling hook that creates curiosity (first 2-3 seconds).
+    - 3-7 scenes, each with spoken text, visual direction, and mood.
+    - End with a concise call-to-action.
+    - Use conversational, TikTok-style language.
+
+    TTS WRITING RULES:
+    - Write for spoken delivery at 120-180 WPM.
+    - Target length: ~110-140 words (~45 seconds).
+    - Total spoken word count must be between 90-150 words.
+    - Use short sentences (<=15 words) and one idea per sentence.
+    - Each scene should be 2 sentences and ~22-30 words (minimum 20 words per scene).
+    - Use contractions and second person ("you", "you'll").
+    - Use punctuation for timing (commas = micro-pause, periods = full beat).
+    - Normalize text for speech: expand numbers, acronyms, URLs, emails, file paths, and units.
+    - Avoid openers like "In this video" or "Today we're going to".
+    - Hook must be a single sentence and must not be repeated in scene 1.
+    - Scene 1 must continue after the hook with NEW information (no restating or paraphrasing the hook).
+    - Each scene text must be at least 20 words.
+    - Double-check total word count before responding.
+    - Hook must be a statement (no question mark).
+    - Do not copy the hook sentence into any scene text.
+
+    {% if archetype == "listicle" %}
+    Structure as a numbered list with a hook, 4-5 clear items, and a call-to-action.
+    Each item should be two sentences: the tip plus a quick payoff or why.
+    Prefix each point with an explicit number label (e.g., "Tip 1:", "2)", "Number 3:").
+    {% endif %}
+    {% if archetype == "versus" %}
+    Present a balanced comparison with a clear recommendation at the end.
+    The hook must be provocative; avoid neutral phrasing like "Choosing between X and Y".
+    The hook should be a bold statement, not a question.
+    {% endif %}
+    {% if archetype == "howto" %}
+    Give 4-5 clear steps that are easy to follow.
+    Each step should be two sentences: the action plus a quick result/why.
+    {% endif %}
+    {% if archetype == "myth" %}
+    Start with the myth, then reveal the reality with evidence.
+    Use explicit "Myth: X" and "Reality: Y" phrasing in scene text.
+    The hook should be a provocative tease, not a "Myth:" line.
+    {% endif %}
+    {% if archetype == "story" %}
+    Use narrative structure: setup, conflict, resolution.
+    The hook should be a teaser line that is not repeated in scene 1.
+    {% endif %}
+    {% if archetype == "hot-take" %}
+    Lead with a provocative opinion, then back it up with reasoning.
+    {% endif %}
+
+    OUTPUT RULES:
+    - Respond with JSON only. No markdown or code fences.
+    - Spoken text fields (hook, scenes[].text, cta) must be plain text: no emojis, no markdown, no hashtags.
+    - Hashtags only go in the hashtags array.
+    - Each scene text must be at least 20 words.
+    - Hook must be a statement (no question mark).
 
     Output as JSON:
     {
+      "scenes": [
+        {"text": "...", "visualDirection": "...", "mood": "..."}
+      ],
+      "reasoning": "...",
       "title": "...",
       "hook": "...",
-      "scenes": [
-        {
-          "id": 1,
-          "narration": "...",
-          "visualDirection": "...",
-          "durationHint": "short|medium|long"
-        }
-      ],
-      "callToAction": "...",
-      "metadata": {
-        "archetype": "{{ archetype }}",
-        "estimatedDuration": 45
-      }
+      "cta": "...",
+      "hashtags": ["#tag1", "#tag2"]
     }
 
 # LLM providers to test against
@@ -56,6 +101,91 @@ defaultTest:
   options:
     # Use a cheaper model for grading (LLM-as-judge)
     provider: openai:gpt-4o-mini
+  assert:
+    # Layer 1: Schema validation
+    - type: javascript
+      value: |
+        try {
+          const script = JSON.parse(output);
+          return (
+            Array.isArray(script.scenes) &&
+            script.scenes.length >= 3 &&
+            script.scenes.length <= 7
+          );
+        } catch { return false; }
+      weight: 2
+
+    # Layer 2: Programmatic quality checks
+    - type: javascript
+      value: |
+        try {
+          const script = JSON.parse(output);
+          const countWords = (text) =>
+            text ? text.trim().split(/\s+/).filter(Boolean).length : 0;
+          const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]
+            .filter(Boolean);
+          const wordCount = spoken.reduce((acc, text) => acc + countWords(text), 0);
+          return wordCount >= 90 && wordCount <= 150;
+        } catch { return false; }
+      weight: 1
+
+    - type: javascript
+      value: |
+        try {
+          const script = JSON.parse(output);
+          return (script.scenes || []).every((scene) =>
+            typeof scene.visualDirection === 'string' && scene.visualDirection.trim().length > 5
+          );
+        } catch { return false; }
+      weight: 1
+
+    - type: javascript
+      value: |
+        try {
+          const script = JSON.parse(output);
+          const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]
+            .filter(Boolean)
+            .join(' ');
+          const hasEmoji = /\p{Extended_Pictographic}/u.test(spoken);
+          const hasMarkdown = /[`*_]/.test(spoken) || /\[(.+?)\]\((.+?)\)/.test(spoken);
+          const hasHashtag = /(^|\s)#\w+/.test(spoken);
+          return !hasEmoji && !hasMarkdown && !hasHashtag;
+        } catch { return false; }
+      weight: 2
+
+    - type: javascript
+      value: |
+        try {
+          const script = JSON.parse(output);
+          const normalize = (text) =>
+            (text || '')
+              .toLowerCase()
+              .replace(/[^\p{L}\p{N}\s]/gu, '')
+              .replace(/\s+/g, ' ')
+              .trim();
+          const hook = normalize(script.hook);
+          const scene1 = normalize(script.scenes?.[0]?.text);
+          if (!hook || !scene1) return true;
+          if (scene1.startsWith(hook) || scene1.includes(hook)) return false;
+          const hookWords = hook.split(' ');
+          const sceneWords = scene1.split(' ');
+          if (hookWords.length >= 4 && sceneWords.length >= 4) {
+            const prefixLen = Math.min(6, hookWords.length, sceneWords.length);
+            const hookPrefix = hookWords.slice(0, prefixLen).join(' ');
+            const scenePrefix = sceneWords.slice(0, prefixLen).join(' ');
+            if (hookPrefix === scenePrefix) return false;
+          }
+          return true;
+        } catch { return false; }
+      weight: 2
+
+    - type: javascript
+      value: |
+        try {
+          const script = JSON.parse(output);
+          return typeof script.reasoning === 'string' && script.reasoning.trim().length > 10;
+        } catch { return false; }
+      weight: 1
 
 # Test cases with various topics and archetypes
 tests:
@@ -64,33 +194,6 @@ tests:
       topic: '5 JavaScript tips every developer should know'
       archetype: 'listicle'
     assert:
-      # Layer 1: Schema validation
-      - type: javascript
-        value: |
-          try {
-            const script = JSON.parse(output);
-            return script.scenes && Array.isArray(script.scenes) && script.scenes.length >= 3 && script.scenes.length <= 8;
-          } catch { return false; }
-        weight: 2
-
-      # Layer 2: Programmatic quality checks
-      - type: javascript
-        value: |
-          try {
-            const script = JSON.parse(output);
-            const wordCount = script.scenes.reduce((acc, s) => acc + s.narration.split(/\s+/).length, 0);
-            return wordCount >= 100 && wordCount <= 250;
-          } catch { return false; }
-        weight: 1
-
-      - type: javascript
-        value: |
-          try {
-            const script = JSON.parse(output);
-            return script.scenes.every(s => s.visualDirection && s.visualDirection.length > 5);
-          } catch { return false; }
-        weight: 1
-
       # Layer 3: LLM-graded quality checks
       - type: llm-rubric
         value: |
@@ -129,14 +232,6 @@ tests:
       topic: 'Redis vs PostgreSQL for caching'
       archetype: 'versus'
     assert:
-      - type: javascript
-        value: |
-          try {
-            const script = JSON.parse(output);
-            return script.scenes && Array.isArray(script.scenes) && script.scenes.length >= 3;
-          } catch { return false; }
-        weight: 2
-
       - type: llm-rubric
         value: |
           The script opens with an attention-grabbing hook.
@@ -165,14 +260,6 @@ tests:
       topic: 'How I learned React in 2 weeks'
       archetype: 'story'
     assert:
-      - type: javascript
-        value: |
-          try {
-            const script = JSON.parse(output);
-            return script.scenes && Array.isArray(script.scenes) && script.scenes.length >= 3;
-          } catch { return false; }
-        weight: 2
-
       - type: llm-rubric
         value: |
           The script has a narrative arc: setup, challenge, resolution.
@@ -192,14 +279,6 @@ tests:
       topic: 'TypeScript is overrated'
       archetype: 'hot-take'
     assert:
-      - type: javascript
-        value: |
-          try {
-            const script = JSON.parse(output);
-            return script.scenes && Array.isArray(script.scenes) && script.scenes.length >= 3;
-          } catch { return false; }
-        weight: 2
-
       - type: llm-rubric
         value: |
           The script opens with a bold, controversial statement that will spark debate.
@@ -219,14 +298,6 @@ tests:
       topic: 'How to deploy a Node.js app in 5 minutes'
       archetype: 'howto'
     assert:
-      - type: javascript
-        value: |
-          try {
-            const script = JSON.parse(output);
-            return script.scenes && Array.isArray(script.scenes) && script.scenes.length >= 3;
-          } catch { return false; }
-        weight: 2
-
       - type: llm-rubric
         value: |
           The script has clear, sequential steps that are easy to follow.
@@ -246,14 +317,6 @@ tests:
       topic: 'You need a CS degree to be a developer'
       archetype: 'myth'
     assert:
-      - type: javascript
-        value: |
-          try {
-            const script = JSON.parse(output);
-            return script.scenes && Array.isArray(script.scenes) && script.scenes.length >= 3;
-          } catch { return false; }
-        weight: 2
-
       - type: llm-rubric
         value: |
           The script clearly states the myth, then definitively debunks it.

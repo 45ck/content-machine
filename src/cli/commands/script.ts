@@ -160,7 +160,7 @@ async function writeSuccessTextOutput(params: {
     ['Archetype', archetype],
     ['Scenes', String(script.scenes.length)],
     ['Word count', script.meta?.wordCount ? String(script.meta.wordCount) : 'N/A'],
-    ['Output', options.output],
+    ['Script', options.output],
   ]);
   const footerLines = [];
   if (options.mock) footerLines.push('Mock mode - script is for testing only');

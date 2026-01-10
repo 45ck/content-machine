@@ -7,8 +7,8 @@
 
 import { describe, expect, it } from 'vitest';
 import type { WordTimestamp } from '../../../src/audio/schema';
-import type { SpokenSection } from '../../../src/audio/pipeline';
-import { buildSceneTimestamps } from '../../../src/audio/pipeline';
+import type { SpokenUnit } from '../../../src/audio/alignment';
+import { buildSceneTimestamps } from '../../../src/audio/alignment';
 
 describe('buildSceneTimestamps', () => {
   it('appends remaining words to the last scene', () => {
@@ -20,12 +20,12 @@ describe('buildSceneTimestamps', () => {
       { word: 'five', start: 2.0, end: 2.5, confidence: 0.9 }, // leftover
     ];
 
-    const sections: SpokenSection[] = [
+    const units: SpokenUnit[] = [
       { id: 'scene-1', text: 'one two' },
       { id: 'scene-2', text: 'three four' },
     ];
 
-    const result = buildSceneTimestamps(words, sections, 2.5);
+    const result = buildSceneTimestamps(words, units, 2.5);
 
     expect(result.length).toBe(2);
     expect(result[1].words.map((w) => w.word)).toEqual(['three', 'four', 'five']);

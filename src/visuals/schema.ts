@@ -148,7 +148,7 @@ export const VideoClipSchema = z.object({
   source: z.enum(['pexels', 'pixabay', 'local']),
   sourceId: z.string(),
   searchQuery: z.string().describe('Query used to find this clip'),
-  sectionId: z.string().optional().describe('Reference to script section'),
+  sectionId: z.string().optional().describe('Reference to script scene (legacy field name)'),
 });
 
 export type VideoClip = z.infer<typeof VideoClipSchema>;
@@ -158,7 +158,7 @@ export type VideoClip = z.infer<typeof VideoClipSchema>;
  */
 export const KeywordSchema = z.object({
   keyword: z.string(),
-  sectionId: z.string(),
+  sectionId: z.string().describe('Reference to script scene (legacy field name)'),
   startTime: z.number().nonnegative(),
   endTime: z.number().positive(),
   visualHint: z.string().optional(),

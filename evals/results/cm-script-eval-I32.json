@@ -1,0 +1,1768 @@
+{
+  "evalId": "eval-I32-2026-01-10T08:50:52",
+  "results": {
+    "version": 3,
+    "timestamp": "2026-01-10T08:50:52.588Z",
+    "prompts": [
+      {
+        "raw": "You are an expert short-form video scriptwriter. You write engaging scripts for TikTok, Reels, and YouTube Shorts.\n\nCreate a short-form video script about: \"{{ topic }}\"\n\nFORMAT: {{ archetype }}\n\nREQUIREMENTS:\n- Start with a compelling hook that creates curiosity (first 2-3 seconds).\n- 3-7 scenes, each with spoken text, visual direction, and mood.\n- End with a concise call-to-action.\n- Use conversational, TikTok-style language.\n\nTTS WRITING RULES:\n- Write for spoken delivery at 120-180 WPM.\n- Target length: ~110-140 words (~45 seconds).\n- Total spoken word count must be between 90-150 words.\n- Use short sentences (<=15 words) and one idea per sentence.\n- Each scene should be 2 sentences and ~22-30 words (minimum 20 words per scene).\n- Use contractions and second person (\"you\", \"you'll\").\n- Use punctuation for timing (commas = micro-pause, periods = full beat).\n- Normalize text for speech: expand numbers, acronyms, URLs, emails, file paths, and units.\n- Avoid openers like \"In this video\" or \"Today we're going to\".\n- Hook must be a single sentence and must not be repeated in scene 1.\n- Scene 1 must continue after the hook with NEW information (no restating or paraphrasing the hook).\n\n{% if archetype == \"listicle\" %}\nStructure as a numbered list with a hook, clear items, and a call-to-action.\nPrefix each point with an explicit number label (e.g., \"Tip 1:\", \"2)\", \"Number 3:\").\n{% endif %}\n{% if archetype == \"versus\" %}\nPresent a balanced comparison with a clear recommendation at the end.\nThe hook should be a bold statement, not a question.\n{% endif %}\n{% if archetype == \"howto\" %}\nGive step-by-step instructions that are easy to follow.\n{% endif %}\n{% if archetype == \"myth\" %}\nStart with the myth, then reveal the reality with evidence.\nUse explicit \"Myth: X\" and \"Reality: Y\" phrasing in scene text.\n{% endif %}\n{% if archetype == \"story\" %}\nUse narrative structure: setup, conflict, resolution.\n{% endif %}\n{% if archetype == \"hot-take\" %}\nLead with a provocative opinion, then back it up with reasoning.\n{% endif %}\n\nOUTPUT RULES:\n- Respond with JSON only. No markdown or code fences.\n- Spoken text fields (hook, scenes[].text, cta) must be plain text: no emojis, no markdown, no hashtags.\n- Hashtags only go in the hashtags array.\n\nOutput as JSON:\n{\n  \"scenes\": [\n    {\"text\": \"...\", \"visualDirection\": \"...\", \"mood\": \"...\"}\n  ],\n  \"reasoning\": \"...\",\n  \"title\": \"...\",\n  \"hook\": \"...\",\n  \"cta\": \"...\",\n  \"hashtags\": [\"#tag1\", \"#tag2\"]\n}\n",
+        "label": "You are an expert short-form video scriptwriter. You write engaging scripts for TikTok, Reels, and YouTube Shorts.\n\nCreate a short-form video script about: \"{{ topic }}\"\n\nFORMAT: {{ archetype }}\n\nREQUIREMENTS:\n- Start with a compelling hook that creates curiosity (first 2-3 seconds).\n- 3-7 scenes, each with spoken text, visual direction, and mood.\n- End with a concise call-to-action.\n- Use conversational, TikTok-style language.\n\nTTS WRITING RULES:\n- Write for spoken delivery at 120-180 WPM.\n- Target length: ~110-140 words (~45 seconds).\n- Total spoken word count must be between 90-150 words.\n- Use short sentences (<=15 words) and one idea per sentence.\n- Each scene should be 2 sentences and ~22-30 words (minimum 20 words per scene).\n- Use contractions and second person (\"you\", \"you'll\").\n- Use punctuation for timing (commas = micro-pause, periods = full beat).\n- Normalize text for speech: expand numbers, acronyms, URLs, emails, file paths, and units.\n- Avoid openers like \"In this video\" or \"Today we're going to\".\n- Hook must be a single sentence and must not be repeated in scene 1.\n- Scene 1 must continue after the hook with NEW information (no restating or paraphrasing the hook).\n\n{% if archetype == \"listicle\" %}\nStructure as a numbered list with a hook, clear items, and a call-to-action.\nPrefix each point with an explicit number label (e.g., \"Tip 1:\", \"2)\", \"Number 3:\").\n{% endif %}\n{% if archetype == \"versus\" %}\nPresent a balanced comparison with a clear recommendation at the end.\nThe hook should be a bold statement, not a question.\n{% endif %}\n{% if archetype == \"howto\" %}\nGive step-by-step instructions that are easy to follow.\n{% endif %}\n{% if archetype == \"myth\" %}\nStart with the myth, then reveal the reality with evidence.\nUse explicit \"Myth: X\" and \"Reality: Y\" phrasing in scene text.\n{% endif %}\n{% if archetype == \"story\" %}\nUse narrative structure: setup, conflict, resolution.\n{% endif %}\n{% if archetype == \"hot-take\" %}\nLead with a provocative opinion, then back it up with reasoning.\n{% endif %}\n\nOUTPUT RULES:\n- Respond with JSON only. No markdown or code fences.\n- Spoken text fields (hook, scenes[].text, cta) must be plain text: no emojis, no markdown, no hashtags.\n- Hashtags only go in the hashtags array.\n\nOutput as JSON:\n{\n  \"scenes\": [\n    {\"text\": \"...\", \"visualDirection\": \"...\", \"mood\": \"...\"}\n  ],\n  \"reasoning\": \"...\",\n  \"title\": \"...\",\n  \"hook\": \"...\",\n  \"cta\": \"...\",\n  \"hashtags\": [\"#tag1\", \"#tag2\"]\n}\n",
+        "id": "93a92bce8f5089bd2ea47f2715a3ee7e3797656cd5f74ac6fdb10f937f89a874",
+        "provider": "openai:gpt-4o",
+        "metrics": {
+          "score": 5.754029304029305,
+          "testPassCount": 3,
+          "testFailCount": 3,
+          "testErrorCount": 0,
+          "assertPassCount": 48,
+          "assertFailCount": 3,
+          "totalLatencyMs": 37644,
+          "tokenUsage": {
+            "prompt": 2724,
+            "completion": 2391,
+            "cached": 0,
+            "total": 5115,
+            "numRequests": 6,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0
+            },
+            "assertions": {
+              "total": 8636,
+              "prompt": 7937,
+              "completion": 699,
+              "cached": 0,
+              "numRequests": 0,
+              "completionDetails": {
+                "reasoning": 0,
+                "acceptedPrediction": 0,
+                "rejectedPrediction": 0
+              }
+            }
+          },
+          "namedScores": {},
+          "namedScoresCount": {},
+          "cost": 0.03072
+        }
+      }
+    ],
+    "results": [
+      {
+        "cost": 0.005390000000000001,
+        "gradingResult": {
+          "pass": true,
+          "score": 0.9857142857142858,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 2456,
+            "prompt": 2259,
+            "completion": 197,
+            "cached": 0,
+            "numRequests": 4
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  return (\n    Array.isArray(script.scenes) &&\n    script.scenes.length >= 3 &&\n    script.scenes.length <= 7\n  );\n} catch { return false; }\n",
+                "weight": 2
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  const countWords = (text) =>\n    text ? text.trim().split(/\\s+/).filter(Boolean).length : 0;\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean);\n  const wordCount = spoken.reduce((acc, text) => acc + countWords(text), 0);\n  return wordCount >= 80 && wordCount <= 200;\n} catch { return false; }\n",
+                "weight": 1
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  return (script.scenes || []).every((scene) =>\n    typeof scene.visualDirection === 'string' && scene.visualDirection.trim().length > 5\n  );\n} catch { return false; }\n",
+                "weight": 1
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean)\n    .join(' ');\n  const hasEmoji = /\\p{Extended_Pictographic}/u.test(spoken);\n  const hasMarkdown = /[`*_]/.test(spoken) || /\\[(.+?)\\]\\((.+?)\\)/.test(spoken);\n  const hasHashtag = /(^|\\s)#\\w+/.test(spoken);\n  return !hasEmoji && !hasMarkdown && !hasHashtag;\n} catch { return false; }\n",
+                "weight": 2
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  const normalize = (text) =>\n    (text || '')\n      .toLowerCase()\n      .replace(/[^\\p{L}\\p{N}\\s]/gu, '')\n      .replace(/\\s+/g, ' ')\n      .trim();\n  const hook = normalize(script.hook);\n  const scene1 = normalize(script.scenes?.[0]?.text);\n  if (!hook || !scene1) return true;\n  if (scene1.startsWith(hook) || scene1.includes(hook)) return false;\n  const hookWords = hook.split(' ');\n  const sceneWords = scene1.split(' ');\n  if (hookWords.length >= 4 && sceneWords.length >= 4) {\n    const prefixLen = Math.min(6, hookWords.length, sceneWords.length);\n    const hookPrefix = hookWords.slice(0, prefixLen).join(' ');\n    const scenePrefix = sceneWords.slice(0, prefixLen).join(' ');\n    if (hookPrefix === scenePrefix) return false;\n  }\n  return true;\n} catch { return false; }\n",
+                "weight": 2
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  return typeof script.reasoning === 'string' && script.reasoning.trim().length > 10;\n} catch { return false; }\n",
+                "weight": 1
+              }
+            },
+            {
+              "assertion": {
+                "type": "llm-rubric",
+                "value": "The script opens with an attention-grabbing hook that would stop a TikTok user from scrolling.\nThe first sentence should be surprising, controversial, or promise immediate value.\nScore 0 if it's a generic introduction like \"In this video...\" or \"Today we'll cover...\".\n",
+                "threshold": 0.7,
+                "weight": 2
+              },
+              "pass": true,
+              "score": 1,
+              "reason": "The hook 'Want to write cleaner, more efficient JavaScript?' grabs attention by promising immediate value to the viewers, making it more engaging than a generic introduction.",
+              "tokensUsed": {
+                "total": 619,
+                "prompt": 574,
+                "completion": 45,
+                "cached": 0,
+                "numRequests": 1,
+                "completionDetails": {
+                  "reasoning": 0,
+                  "acceptedPrediction": 0,
+                  "rejectedPrediction": 0
+                }
+              },
+              "metadata": {
+                "renderedGradingPrompt": "[{\"role\":\"system\",\"content\":\"You are grading output according to a user-specified rubric. If the statement in the rubric is true, then the output passes the test. You respond with a JSON object with this structure: {reason: string, pass: boolean, score: number}\\n\\nExamples:\\n\\n<Output>Hello world</Output>\\n<Rubric>Content contains a greeting</Rubric>\\n{\\\"reason\\\": \\\"the content contains the word 'Hello'\\\", \\\"pass\\\": true, \\\"score\\\": 1.0}\\n\\n<Output>Avast ye swabs, repel the invaders!</Output>\\n<Rubric>Does not speak like a pirate</Rubric>\\n{\\\"reason\\\": \\\"'avast ye' is a common pirate term\\\", \\\"pass\\\": false, \\\"score\\\": 0.0}\"},{\"role\":\"user\",\"content\":\"<Output>\\n{\\\"scenes\\\":[{\\\"text\\\":\\\"Tip 1: Use 'const' and 'let' instead of 'var' for cleaner code. 'Const' is for constants, 'let' for variables.\\\",\\\"visualDirection\\\":\\\"Show code examples of 'const', 'let', and 'var'. Highlight key differences.\\\",\\\"mood\\\":\\\"Informative and clear.\\\"},{\\\"text\\\":\\\"Tip 2: Master arrow functions. They're concise and automatically bind 'this'. Great for callbacks.\\\",\\\"visualDirection\\\":\\\"Display side-by-side comparison of traditional and arrow functions.\\\",\\\"mood\\\":\\\"Energetic and engaging.\\\"},{\\\"text\\\":\\\"Tip 3: Use template literals for string concatenation. Easy to read and write.\\\",\\\"visualDirection\\\":\\\"Show a code snippet using backticks and embedded expressions.\\\",\\\"mood\\\":\\\"Simple and straightforward.\\\"},{\\\"text\\\":\\\"Tip 4: Destructure objects and arrays. Access elements without extra lines of code.\\\",\\\"visualDirection\\\":\\\"Break down the destructuring syntax with animated object and array elements.\\\",\\\"mood\\\":\\\"Efficient and modern.\\\"},{\\\"text\\\":\\\"Tip 5: Use 'async' and 'await' for handling asynchronous code. Makes promises easier to work with.\\\",\\\"visualDirection\\\":\\\"Demonstrate 'async' and 'await' in action with loading animations.\\\",\\\"mood\\\":\\\"Helpful and practical.\\\"}],\\\"reasoning\\\":\\\"The script provides concise, actionable tips for JavaScript developers, focusing on modern practices. The structure is clear and easy to follow, making it perfect for short-form video content.\\\",\\\"title\\\":\\\"5 JavaScript Tips Every Developer Should Know\\\",\\\"hook\\\":\\\"Want to write cleaner, more efficient JavaScript?\\\",\\\"cta\\\":\\\"Follow for more coding tips!\\\",\\\"hashtags\\\":[\\\"#JavaScript\\\",\\\"#CodingTips\\\",\\\"#WebDevelopment\\\"]}\\n</Output>\\n<Rubric>\\nThe script opens with an attention-grabbing hook that would stop a TikTok user from scrolling.\\nThe first sentence should be surprising, controversial, or promise immediate value.\\nScore 0 if it's a generic introduction like \\\"In this video...\\\" or \\\"Today we'll cover...\\\".\\n\\n</Rubric>\"}]"
+              }
+            },
+            {
+              "assertion": {
+                "type": "llm-rubric",
+                "value": "The language is casual, conversational, and suitable for TikTok/Reels/Shorts.\nNo corporate jargon, no formal academic language, no \"as a developer\" phrases.\nShould sound like a friend giving advice, not a textbook.\n",
+                "threshold": 0.8,
+                "weight": 1
+              },
+              "pass": true,
+              "score": 0.8,
+              "reason": "The output uses casual phrases like 'Tip 1' and 'Want to write cleaner, more efficient JavaScript?', which make it conversational. However, some parts like 'Great for callbacks' and 'makes promises easier to work with' could be seen as slightly technical.",
+              "tokensUsed": {
+                "total": 638,
+                "prompt": 567,
+                "completion": 71,
+                "cached": 0,
+                "numRequests": 1,
+                "completionDetails": {
+                  "reasoning": 0,
+                  "acceptedPrediction": 0,
+                  "rejectedPrediction": 0
+                }
+              },
+              "metadata": {
+                "renderedGradingPrompt": "[{\"role\":\"system\",\"content\":\"You are grading output according to a user-specified rubric. If the statement in the rubric is true, then the output passes the test. You respond with a JSON object with this structure: {reason: string, pass: boolean, score: number}\\n\\nExamples:\\n\\n<Output>Hello world</Output>\\n<Rubric>Content contains a greeting</Rubric>\\n{\\\"reason\\\": \\\"the content contains the word 'Hello'\\\", \\\"pass\\\": true, \\\"score\\\": 1.0}\\n\\n<Output>Avast ye swabs, repel the invaders!</Output>\\n<Rubric>Does not speak like a pirate</Rubric>\\n{\\\"reason\\\": \\\"'avast ye' is a common pirate term\\\", \\\"pass\\\": false, \\\"score\\\": 0.0}\"},{\"role\":\"user\",\"content\":\"<Output>\\n{\\\"scenes\\\":[{\\\"text\\\":\\\"Tip 1: Use 'const' and 'let' instead of 'var' for cleaner code. 'Const' is for constants, 'let' for variables.\\\",\\\"visualDirection\\\":\\\"Show code examples of 'const', 'let', and 'var'. Highlight key differences.\\\",\\\"mood\\\":\\\"Informative and clear.\\\"},{\\\"text\\\":\\\"Tip 2: Master arrow functions. They're concise and automatically bind 'this'. Great for callbacks.\\\",\\\"visualDirection\\\":\\\"Display side-by-side comparison of traditional and arrow functions.\\\",\\\"mood\\\":\\\"Energetic and engaging.\\\"},{\\\"text\\\":\\\"Tip 3: Use template literals for string concatenation. Easy to read and write.\\\",\\\"visualDirection\\\":\\\"Show a code snippet using backticks and embedded expressions.\\\",\\\"mood\\\":\\\"Simple and straightforward.\\\"},{\\\"text\\\":\\\"Tip 4: Destructure objects and arrays. Access elements without extra lines of code.\\\",\\\"visualDirection\\\":\\\"Break down the destructuring syntax with animated object and array elements.\\\",\\\"mood\\\":\\\"Efficient and modern.\\\"},{\\\"text\\\":\\\"Tip 5: Use 'async' and 'await' for handling asynchronous code. Makes promises easier to work with.\\\",\\\"visualDirection\\\":\\\"Demonstrate 'async' and 'await' in action with loading animations.\\\",\\\"mood\\\":\\\"Helpful and practical.\\\"}],\\\"reasoning\\\":\\\"The script provides concise, actionable tips for JavaScript developers, focusing on modern practices. The structure is clear and easy to follow, making it perfect for short-form video content.\\\",\\\"title\\\":\\\"5 JavaScript Tips Every Developer Should Know\\\",\\\"hook\\\":\\\"Want to write cleaner, more efficient JavaScript?\\\",\\\"cta\\\":\\\"Follow for more coding tips!\\\",\\\"hashtags\\\":[\\\"#JavaScript\\\",\\\"#CodingTips\\\",\\\"#WebDevelopment\\\"]}\\n</Output>\\n<Rubric>\\nThe language is casual, conversational, and suitable for TikTok/Reels/Shorts.\\nNo corporate jargon, no formal academic language, no \\\"as a developer\\\" phrases.\\nShould sound like a friend giving advice, not a textbook.\\n\\n</Rubric>\"}]"
+              }
+            },
+            {
+              "assertion": {
+                "type": "llm-rubric",
+                "value": "Each scene has a specific, filmable visual description.\nVisual directions should describe what the viewer will SEE on screen.\nAvoid abstract concepts that cannot be filmed (like \"efficiency\" or \"code quality\").\n",
+                "threshold": 0.8,
+                "weight": 1
+              },
+              "pass": true,
+              "score": 1,
+              "reason": "Each scene contains a clear and specific visual description that includes what will be shown on screen, avoiding abstract concepts.",
+              "tokensUsed": {
+                "total": 600,
+                "prompt": 561,
+                "completion": 39,
+                "cached": 0,
+                "numRequests": 1,
+                "completionDetails": {
+                  "reasoning": 0,
+                  "acceptedPrediction": 0,
+                  "rejectedPrediction": 0
+                }
+              },
+              "metadata": {
+                "renderedGradingPrompt": "[{\"role\":\"system\",\"content\":\"You are grading output according to a user-specified rubric. If the statement in the rubric is true, then the output passes the test. You respond with a JSON object with this structure: {reason: string, pass: boolean, score: number}\\n\\nExamples:\\n\\n<Output>Hello world</Output>\\n<Rubric>Content contains a greeting</Rubric>\\n{\\\"reason\\\": \\\"the content contains the word 'Hello'\\\", \\\"pass\\\": true, \\\"score\\\": 1.0}\\n\\n<Output>Avast ye swabs, repel the invaders!</Output>\\n<Rubric>Does not speak like a pirate</Rubric>\\n{\\\"reason\\\": \\\"'avast ye' is a common pirate term\\\", \\\"pass\\\": false, \\\"score\\\": 0.0}\"},{\"role\":\"user\",\"content\":\"<Output>\\n{\\\"scenes\\\":[{\\\"text\\\":\\\"Tip 1: Use 'const' and 'let' instead of 'var' for cleaner code. 'Const' is for constants, 'let' for variables.\\\",\\\"visualDirection\\\":\\\"Show code examples of 'const', 'let', and 'var'. Highlight key differences.\\\",\\\"mood\\\":\\\"Informative and clear.\\\"},{\\\"text\\\":\\\"Tip 2: Master arrow functions. They're concise and automatically bind 'this'. Great for callbacks.\\\",\\\"visualDirection\\\":\\\"Display side-by-side comparison of traditional and arrow functions.\\\",\\\"mood\\\":\\\"Energetic and engaging.\\\"},{\\\"text\\\":\\\"Tip 3: Use template literals for string concatenation. Easy to read and write.\\\",\\\"visualDirection\\\":\\\"Show a code snippet using backticks and embedded expressions.\\\",\\\"mood\\\":\\\"Simple and straightforward.\\\"},{\\\"text\\\":\\\"Tip 4: Destructure objects and arrays. Access elements without extra lines of code.\\\",\\\"visualDirection\\\":\\\"Break down the destructuring syntax with animated object and array elements.\\\",\\\"mood\\\":\\\"Efficient and modern.\\\"},{\\\"text\\\":\\\"Tip 5: Use 'async' and 'await' for handling asynchronous code. Makes promises easier to work with.\\\",\\\"visualDirection\\\":\\\"Demonstrate 'async' and 'await' in action with loading animations.\\\",\\\"mood\\\":\\\"Helpful and practical.\\\"}],\\\"reasoning\\\":\\\"The script provides concise, actionable tips for JavaScript developers, focusing on modern practices. The structure is clear and easy to follow, making it perfect for short-form video content.\\\",\\\"title\\\":\\\"5 JavaScript Tips Every Developer Should Know\\\",\\\"hook\\\":\\\"Want to write cleaner, more efficient JavaScript?\\\",\\\"cta\\\":\\\"Follow for more coding tips!\\\",\\\"hashtags\\\":[\\\"#JavaScript\\\",\\\"#CodingTips\\\",\\\"#WebDevelopment\\\"]}\\n</Output>\\n<Rubric>\\nEach scene has a specific, filmable visual description.\\nVisual directions should describe what the viewer will SEE on screen.\\nAvoid abstract concepts that cannot be filmed (like \\\"efficiency\\\" or \\\"code quality\\\").\\n\\n</Rubric>\"}]"
+              }
+            },
+            {
+              "assertion": {
+                "type": "llm-rubric",
+                "value": "For a listicle archetype, the script should have a clear numbered structure.\nEach tip should be distinct and actionable.\nThe list should feel complete, not like it was cut off.\n",
+                "threshold": 0.8,
+                "weight": 1
+              },
+              "pass": true,
+              "score": 1,
+              "reason": "The output has a clear numbered structure with five distinct and actionable tips, and it provides a comprehensive list without feeling cut off.",
+              "tokensUsed": {
+                "total": 599,
+                "prompt": 557,
+                "completion": 42,
+                "cached": 0,
+                "numRequests": 1,
+                "completionDetails": {
+                  "reasoning": 0,
+                  "acceptedPrediction": 0,
+                  "rejectedPrediction": 0
+                }
+              },
+              "metadata": {
+                "renderedGradingPrompt": "[{\"role\":\"system\",\"content\":\"You are grading output according to a user-specified rubric. If the statement in the rubric is true, then the output passes the test. You respond with a JSON object with this structure: {reason: string, pass: boolean, score: number}\\n\\nExamples:\\n\\n<Output>Hello world</Output>\\n<Rubric>Content contains a greeting</Rubric>\\n{\\\"reason\\\": \\\"the content contains the word 'Hello'\\\", \\\"pass\\\": true, \\\"score\\\": 1.0}\\n\\n<Output>Avast ye swabs, repel the invaders!</Output>\\n<Rubric>Does not speak like a pirate</Rubric>\\n{\\\"reason\\\": \\\"'avast ye' is a common pirate term\\\", \\\"pass\\\": false, \\\"score\\\": 0.0}\"},{\"role\":\"user\",\"content\":\"<Output>\\n{\\\"scenes\\\":[{\\\"text\\\":\\\"Tip 1: Use 'const' and 'let' instead of 'var' for cleaner code. 'Const' is for constants, 'let' for variables.\\\",\\\"visualDirection\\\":\\\"Show code examples of 'const', 'let', and 'var'. Highlight key differences.\\\",\\\"mood\\\":\\\"Informative and clear.\\\"},{\\\"text\\\":\\\"Tip 2: Master arrow functions. They're concise and automatically bind 'this'. Great for callbacks.\\\",\\\"visualDirection\\\":\\\"Display side-by-side comparison of traditional and arrow functions.\\\",\\\"mood\\\":\\\"Energetic and engaging.\\\"},{\\\"text\\\":\\\"Tip 3: Use template literals for string concatenation. Easy to read and write.\\\",\\\"visualDirection\\\":\\\"Show a code snippet using backticks and embedded expressions.\\\",\\\"mood\\\":\\\"Simple and straightforward.\\\"},{\\\"text\\\":\\\"Tip 4: Destructure objects and arrays. Access elements without extra lines of code.\\\",\\\"visualDirection\\\":\\\"Break down the destructuring syntax with animated object and array elements.\\\",\\\"mood\\\":\\\"Efficient and modern.\\\"},{\\\"text\\\":\\\"Tip 5: Use 'async' and 'await' for handling asynchronous code. Makes promises easier to work with.\\\",\\\"visualDirection\\\":\\\"Demonstrate 'async' and 'await' in action with loading animations.\\\",\\\"mood\\\":\\\"Helpful and practical.\\\"}],\\\"reasoning\\\":\\\"The script provides concise, actionable tips for JavaScript developers, focusing on modern practices. The structure is clear and easy to follow, making it perfect for short-form video content.\\\",\\\"title\\\":\\\"5 JavaScript Tips Every Developer Should Know\\\",\\\"hook\\\":\\\"Want to write cleaner, more efficient JavaScript?\\\",\\\"cta\\\":\\\"Follow for more coding tips!\\\",\\\"hashtags\\\":[\\\"#JavaScript\\\",\\\"#CodingTips\\\",\\\"#WebDevelopment\\\"]}\\n</Output>\\n<Rubric>\\nFor a listicle archetype, the script should have a clear numbered structure.\\nEach tip should be distinct and actionable.\\nThe list should feel complete, not like it was cut off.\\n\\n</Rubric>\"}]"
+              }
+            }
+          ]
+        },
+        "id": "d406c51f-bd5f-472f-ad0a-d06bf21dc9fc",
+        "latencyMs": 6501,
+        "namedScores": {},
+        "prompt": {
+          "raw": "You are an expert short-form video scriptwriter. You write engaging scripts for TikTok, Reels, and YouTube Shorts.\n\nCreate a short-form video script about: \"5 JavaScript tips every developer should know\"\n\nFORMAT: listicle\n\nREQUIREMENTS:\n- Start with a compelling hook that creates curiosity (first 2-3 seconds).\n- 3-7 scenes, each with spoken text, visual direction, and mood.\n- End with a concise call-to-action.\n- Use conversational, TikTok-style language.\n\nTTS WRITING RULES:\n- Write for spoken delivery at 120-180 WPM.\n- Target length: ~110-140 words (~45 seconds).\n- Total spoken word count must be between 90-150 words.\n- Use short sentences (<=15 words) and one idea per sentence.\n- Each scene should be 2 sentences and ~22-30 words (minimum 20 words per scene).\n- Use contractions and second person (\"you\", \"you'll\").\n- Use punctuation for timing (commas = micro-pause, periods = full beat).\n- Normalize text for speech: expand numbers, acronyms, URLs, emails, file paths, and units.\n- Avoid openers like \"In this video\" or \"Today we're going to\".\n- Hook must be a single sentence and must not be repeated in scene 1.\n- Scene 1 must continue after the hook with NEW information (no restating or paraphrasing the hook).\n\n\nStructure as a numbered list with a hook, clear items, and a call-to-action.\nPrefix each point with an explicit number label (e.g., \"Tip 1:\", \"2)\", \"Number 3:\").\n\n\n\n\n\n\n\nOUTPUT RULES:\n- Respond with JSON only. No markdown or code fences.\n- Spoken text fields (hook, scenes[].text, cta) must be plain text: no emojis, no markdown, no hashtags.\n- Hashtags only go in the hashtags array.\n\nOutput as JSON:\n{\n  \"scenes\": [\n    {\"text\": \"...\", \"visualDirection\": \"...\", \"mood\": \"...\"}\n  ],\n  \"reasoning\": \"...\",\n  \"title\": \"...\",\n  \"hook\": \"...\",\n  \"cta\": \"...\",\n  \"hashtags\": [\"#tag1\", \"#tag2\"]\n}\n",
+          "label": "You are an expert short-form video scriptwriter. You write engaging scripts for TikTok, Reels, and YouTube Shorts.\n\nCreate a short-form video script about: \"{{ topic }}\"\n\nFORMAT: {{ archetype }}\n\nREQUIREMENTS:\n- Start with a compelling hook that creates curiosity (first 2-3 seconds).\n- 3-7 scenes, each with spoken text, visual direction, and mood.\n- End with a concise call-to-action.\n- Use conversational, TikTok-style language.\n\nTTS WRITING RULES:\n- Write for spoken delivery at 120-180 WPM.\n- Target length: ~110-140 words (~45 seconds).\n- Total spoken word count must be between 90-150 words.\n- Use short sentences (<=15 words) and one idea per sentence.\n- Each scene should be 2 sentences and ~22-30 words (minimum 20 words per scene).\n- Use contractions and second person (\"you\", \"you'll\").\n- Use punctuation for timing (commas = micro-pause, periods = full beat).\n- Normalize text for speech: expand numbers, acronyms, URLs, emails, file paths, and units.\n- Avoid openers like \"In this video\" or \"Today we're going to\".\n- Hook must be a single sentence and must not be repeated in scene 1.\n- Scene 1 must continue after the hook with NEW information (no restating or paraphrasing the hook).\n\n{% if archetype == \"listicle\" %}\nStructure as a numbered list with a hook, clear items, and a call-to-action.\nPrefix each point with an explicit number label (e.g., \"Tip 1:\", \"2)\", \"Number 3:\").\n{% endif %}\n{% if archetype == \"versus\" %}\nPresent a balanced comparison with a clear recommendation at the end.\nThe hook should be a bold statement, not a question.\n{% endif %}\n{% if archetype == \"howto\" %}\nGive step-by-step instructions that are easy to follow.\n{% endif %}\n{% if archetype == \"myth\" %}\nStart with the myth, then reveal the reality with evidence.\nUse explicit \"Myth: X\" and \"Reality: Y\" phrasing in scene text.\n{% endif %}\n{% if archetype == \"story\" %}\nUse narrative structure: setup, conflict, resolution.\n{% endif %}\n{% if archetype == \"hot-take\" %}\nLead with a provocative opinion, then back it up with reasoning.\n{% endif %}\n\nOUTPUT RULES:\n- Respond with JSON only. No markdown or code fences.\n- Spoken text fields (hook, scenes[].text, cta) must be plain text: no emojis, no markdown, no hashtags.\n- Hashtags only go in the hashtags array.\n\nOutput as JSON:\n{\n  \"scenes\": [\n    {\"text\": \"...\", \"visualDirection\": \"...\", \"mood\": \"...\"}\n  ],\n  \"reasoning\": \"...\",\n  \"title\": \"...\",\n  \"hook\": \"...\",\n  \"cta\": \"...\",\n  \"hashtags\": [\"#tag1\", \"#tag2\"]\n}\n"
+        },
+        "promptId": "93a92bce8f5089bd2ea47f2715a3ee7e3797656cd5f74ac6fdb10f937f89a874",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:gpt-4o",
+          "label": ""
+        },
+        "response": {
+          "output": "{\n  \"scenes\": [\n    {\n      \"text\": \"Tip 1: Use 'const' and 'let' instead of 'var' for cleaner code. 'Const' is for constants, 'let' for variables.\",\n      \"visualDirection\": \"Show code examples of 'const', 'let', and 'var'. Highlight key differences.\",\n      \"mood\": \"Informative and clear.\"\n    },\n    {\n      \"text\": \"Tip 2: Master arrow functions. They're concise and automatically bind 'this'. Great for callbacks.\",\n      \"visualDirection\": \"Display side-by-side comparison of traditional and arrow functions.\",\n      \"mood\": \"Energetic and engaging.\"\n    },\n    {\n      \"text\": \"Tip 3: Use template literals for string concatenation. Easy to read and write.\",\n      \"visualDirection\": \"Show a code snippet using backticks and embedded expressions.\",\n      \"mood\": \"Simple and straightforward.\"\n    },\n    {\n      \"text\": \"Tip 4: Destructure objects and arrays. Access elements without extra lines of code.\",\n      \"visualDirection\": \"Break down the destructuring syntax with animated object and array elements.\",\n      \"mood\": \"Efficient and modern.\"\n    },\n    {\n      \"text\": \"Tip 5: Use 'async' and 'await' for handling asynchronous code. Makes promises easier to work with.\",\n      \"visualDirection\": \"Demonstrate 'async' and 'await' in action with loading animations.\",\n      \"mood\": \"Helpful and practical.\"\n    }\n  ],\n  \"reasoning\": \"The script provides concise, actionable tips for JavaScript developers, focusing on modern practices. The structure is clear and easy to follow, making it perfect for short-form video content.\",\n  \"title\": \"5 JavaScript Tips Every Developer Should Know\",\n  \"hook\": \"Want to write cleaner, more efficient JavaScript?\",\n  \"cta\": \"Follow for more coding tips!\",\n  \"hashtags\": [\"#JavaScript\", \"#CodingTips\", \"#WebDevelopment\"]\n}",
+          "tokenUsage": {
+            "total": 896,
+            "prompt": 476,
+            "completion": 420,
+            "numRequests": 1,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0
+            }
+          },
+          "cached": false,
+          "latencyMs": 6501,
+          "finishReason": "stop",
+          "cost": 0.005390000000000001,
+          "guardrails": {
+            "flagged": false
+          }
+        },
+        "score": 0.9857142857142858,
+        "success": true,
+        "testCase": {
+          "vars": {
+            "topic": "5 JavaScript tips every developer should know",
+            "archetype": "listicle"
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  return (\n    Array.isArray(script.scenes) &&\n    script.scenes.length >= 3 &&\n    script.scenes.length <= 7\n  );\n} catch { return false; }\n",
+              "weight": 2
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  const countWords = (text) =>\n    text ? text.trim().split(/\\s+/).filter(Boolean).length : 0;\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean);\n  const wordCount = spoken.reduce((acc, text) => acc + countWords(text), 0);\n  return wordCount >= 80 && wordCount <= 200;\n} catch { return false; }\n",
+              "weight": 1
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  return (script.scenes || []).every((scene) =>\n    typeof scene.visualDirection === 'string' && scene.visualDirection.trim().length > 5\n  );\n} catch { return false; }\n",
+              "weight": 1
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean)\n    .join(' ');\n  const hasEmoji = /\\p{Extended_Pictographic}/u.test(spoken);\n  const hasMarkdown = /[`*_]/.test(spoken) || /\\[(.+?)\\]\\((.+?)\\)/.test(spoken);\n  const hasHashtag = /(^|\\s)#\\w+/.test(spoken);\n  return !hasEmoji && !hasMarkdown && !hasHashtag;\n} catch { return false; }\n",
+              "weight": 2
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  const normalize = (text) =>\n    (text || '')\n      .toLowerCase()\n      .replace(/[^\\p{L}\\p{N}\\s]/gu, '')\n      .replace(/\\s+/g, ' ')\n      .trim();\n  const hook = normalize(script.hook);\n  const scene1 = normalize(script.scenes?.[0]?.text);\n  if (!hook || !scene1) return true;\n  if (scene1.startsWith(hook) || scene1.includes(hook)) return false;\n  const hookWords = hook.split(' ');\n  const sceneWords = scene1.split(' ');\n  if (hookWords.length >= 4 && sceneWords.length >= 4) {\n    const prefixLen = Math.min(6, hookWords.length, sceneWords.length);\n    const hookPrefix = hookWords.slice(0, prefixLen).join(' ');\n    const scenePrefix = sceneWords.slice(0, prefixLen).join(' ');\n    if (hookPrefix === scenePrefix) return false;\n  }\n  return true;\n} catch { return false; }\n",
+              "weight": 2
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  return typeof script.reasoning === 'string' && script.reasoning.trim().length > 10;\n} catch { return false; }\n",
+              "weight": 1
+            },
+            {
+              "type": "llm-rubric",
+              "value": "The script opens with an attention-grabbing hook that would stop a TikTok user from scrolling.\nThe first sentence should be surprising, controversial, or promise immediate value.\nScore 0 if it's a generic introduction like \"In this video...\" or \"Today we'll cover...\".\n",
+              "threshold": 0.7,
+              "weight": 2
+            },
+            {
+              "type": "llm-rubric",
+              "value": "The language is casual, conversational, and suitable for TikTok/Reels/Shorts.\nNo corporate jargon, no formal academic language, no \"as a developer\" phrases.\nShould sound like a friend giving advice, not a textbook.\n",
+              "threshold": 0.8,
+              "weight": 1
+            },
+            {
+              "type": "llm-rubric",
+              "value": "Each scene has a specific, filmable visual description.\nVisual directions should describe what the viewer will SEE on screen.\nAvoid abstract concepts that cannot be filmed (like \"efficiency\" or \"code quality\").\n",
+              "threshold": 0.8,
+              "weight": 1
+            },
+            {
+              "type": "llm-rubric",
+              "value": "For a listicle archetype, the script should have a clear numbered structure.\nEach tip should be distinct and actionable.\nThe list should feel complete, not like it was cut off.\n",
+              "threshold": 0.8,
+              "weight": 1
+            }
+          ],
+          "options": {
+            "provider": "openai:gpt-4o-mini"
+          },
+          "metadata": {}
+        },
+        "testIdx": 0,
+        "vars": {
+          "topic": "5 JavaScript tips every developer should know",
+          "archetype": "listicle"
+        },
+        "metadata": {
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 0
+      },
+      {
+        "cost": 0.004985,
+        "error": "Custom function returned false\ntry {\n  const script = JSON.parse(output);\n  const countWords = (text) =>\n    text ? text.trim().split(/\\s+/).filter(Boolean).length : 0;\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean);\n  const wordCount = spoken.reduce((acc, text) => acc + countWords(text), 0);\n  return wordCount >= 80 && wordCount <= 200;\n} catch { return false; }",
+        "gradingResult": {
+          "pass": false,
+          "score": 0.9285714285714286,
+          "reason": "Custom function returned false\ntry {\n  const script = JSON.parse(output);\n  const countWords = (text) =>\n    text ? text.trim().split(/\\s+/).filter(Boolean).length : 0;\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean);\n  const wordCount = spoken.reduce((acc, text) => acc + countWords(text), 0);\n  return wordCount >= 80 && wordCount <= 200;\n} catch { return false; }",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 1660,
+            "prompt": 1532,
+            "completion": 128,
+            "cached": 0,
+            "numRequests": 3
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  return (\n    Array.isArray(script.scenes) &&\n    script.scenes.length >= 3 &&\n    script.scenes.length <= 7\n  );\n} catch { return false; }\n",
+                "weight": 2
+              }
+            },
+            {
+              "pass": false,
+              "score": 0,
+              "reason": "Custom function returned false\ntry {\n  const script = JSON.parse(output);\n  const countWords = (text) =>\n    text ? text.trim().split(/\\s+/).filter(Boolean).length : 0;\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean);\n  const wordCount = spoken.reduce((acc, text) => acc + countWords(text), 0);\n  return wordCount >= 80 && wordCount <= 200;\n} catch { return false; }",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  const countWords = (text) =>\n    text ? text.trim().split(/\\s+/).filter(Boolean).length : 0;\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean);\n  const wordCount = spoken.reduce((acc, text) => acc + countWords(text), 0);\n  return wordCount >= 80 && wordCount <= 200;\n} catch { return false; }\n",
+                "weight": 1
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  return (script.scenes || []).every((scene) =>\n    typeof scene.visualDirection === 'string' && scene.visualDirection.trim().length > 5\n  );\n} catch { return false; }\n",
+                "weight": 1
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean)\n    .join(' ');\n  const hasEmoji = /\\p{Extended_Pictographic}/u.test(spoken);\n  const hasMarkdown = /[`*_]/.test(spoken) || /\\[(.+?)\\]\\((.+?)\\)/.test(spoken);\n  const hasHashtag = /(^|\\s)#\\w+/.test(spoken);\n  return !hasEmoji && !hasMarkdown && !hasHashtag;\n} catch { return false; }\n",
+                "weight": 2
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  const normalize = (text) =>\n    (text || '')\n      .toLowerCase()\n      .replace(/[^\\p{L}\\p{N}\\s]/gu, '')\n      .replace(/\\s+/g, ' ')\n      .trim();\n  const hook = normalize(script.hook);\n  const scene1 = normalize(script.scenes?.[0]?.text);\n  if (!hook || !scene1) return true;\n  if (scene1.startsWith(hook) || scene1.includes(hook)) return false;\n  const hookWords = hook.split(' ');\n  const sceneWords = scene1.split(' ');\n  if (hookWords.length >= 4 && sceneWords.length >= 4) {\n    const prefixLen = Math.min(6, hookWords.length, sceneWords.length);\n    const hookPrefix = hookWords.slice(0, prefixLen).join(' ');\n    const scenePrefix = sceneWords.slice(0, prefixLen).join(' ');\n    if (hookPrefix === scenePrefix) return false;\n  }\n  return true;\n} catch { return false; }\n",
+                "weight": 2
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  return typeof script.reasoning === 'string' && script.reasoning.trim().length > 10;\n} catch { return false; }\n",
+                "weight": 1
+              }
+            },
+            {
+              "assertion": {
+                "type": "llm-rubric",
+                "value": "The script opens with an attention-grabbing hook.\nFor a versus video, this might be a provocative statement like \"You're using the wrong database\"\nor a relatable problem statement.\n",
+                "threshold": 0.7,
+                "weight": 2
+              },
+              "pass": true,
+              "score": 1,
+              "reason": "The hook 'Redis blazes, PostgreSQL amazes!' is catchy and attention-grabbing, suitable for introducing a versus video.",
+              "tokensUsed": {
+                "total": 557,
+                "prompt": 514,
+                "completion": 43,
+                "cached": 0,
+                "numRequests": 1,
+                "completionDetails": {
+                  "reasoning": 0,
+                  "acceptedPrediction": 0,
+                  "rejectedPrediction": 0
+                }
+              },
+              "metadata": {
+                "renderedGradingPrompt": "[{\"role\":\"system\",\"content\":\"You are grading output according to a user-specified rubric. If the statement in the rubric is true, then the output passes the test. You respond with a JSON object with this structure: {reason: string, pass: boolean, score: number}\\n\\nExamples:\\n\\n<Output>Hello world</Output>\\n<Rubric>Content contains a greeting</Rubric>\\n{\\\"reason\\\": \\\"the content contains the word 'Hello'\\\", \\\"pass\\\": true, \\\"score\\\": 1.0}\\n\\n<Output>Avast ye swabs, repel the invaders!</Output>\\n<Rubric>Does not speak like a pirate</Rubric>\\n{\\\"reason\\\": \\\"'avast ye' is a common pirate term\\\", \\\"pass\\\": false, \\\"score\\\": 0.0}\"},{\"role\":\"user\",\"content\":\"<Output>\\n{\\\"scenes\\\":[{\\\"text\\\":\\\"Redis flies when speed's your game. It's an in-memory store, perfect for quick lookups.\\\",\\\"visualDirection\\\":\\\"Fast-paced animations of data moving quickly between servers.\\\",\\\"mood\\\":\\\"Energetic and upbeat\\\"},{\\\"text\\\":\\\"PostgreSQL's not just for databases. It can cache too, with persistence benefits.\\\",\\\"visualDirection\\\":\\\"Switch to PostgreSQL logo with data being securely stored.\\\",\\\"mood\\\":\\\"Calm and informative\\\"},{\\\"text\\\":\\\"Need simple, lightning-fast caching? Redis is your go-to.\\\",\\\"visualDirection\\\":\\\"Highlight Redis logo with a lightning bolt symbol.\\\",\\\"mood\\\":\\\"Exciting and dynamic\\\"},{\\\"text\\\":\\\"Complex queries or need data integrity? PostgreSQL's got your back.\\\",\\\"visualDirection\\\":\\\"Show PostgreSQL handling complex data queries smoothly.\\\",\\\"mood\\\":\\\"Confident and reassuring\\\"},{\\\"text\\\":\\\"For pure speed, choose Redis. For flexibility, PostgreSQL is king.\\\",\\\"visualDirection\\\":\\\"Split screen showing Redis on left, PostgreSQL on right.\\\",\\\"mood\\\":\\\"Balanced and insightful\\\"}],\\\"reasoning\\\":\\\"Redis and PostgreSQL serve different caching needs. Redis excels in speed due to in-memory storage, making it ideal for quick access. PostgreSQL offers more complex query handling and data integrity, making it suitable for persistent and complex caching tasks.\\\",\\\"title\\\":\\\"Redis vs PostgreSQL for Caching\\\",\\\"hook\\\":\\\"Redis blazes, PostgreSQL amazes!\\\",\\\"cta\\\":\\\"Which one fits your needs? Comment below!\\\",\\\"hashtags\\\":[\\\"#Redis\\\",\\\"#PostgreSQL\\\",\\\"#Caching\\\",\\\"#TechTalk\\\"]}\\n</Output>\\n<Rubric>\\nThe script opens with an attention-grabbing hook.\\nFor a versus video, this might be a provocative statement like \\\"You're using the wrong database\\\"\\nor a relatable problem statement.\\n\\n</Rubric>\"}]"
+              }
+            },
+            {
+              "assertion": {
+                "type": "llm-rubric",
+                "value": "For a versus archetype, the script should clearly compare both options.\nIt should present pros and cons of each, not just favor one.\nThe comparison should be fair and technically accurate.\n",
+                "threshold": 0.8,
+                "weight": 2
+              },
+              "pass": true,
+              "score": 1,
+              "reason": "The output presents a clear comparison between Redis and PostgreSQL, outlining each option's strengths and weaknesses fairly and technically accurately.",
+              "tokensUsed": {
+                "total": 557,
+                "prompt": 516,
+                "completion": 41,
+                "cached": 0,
+                "numRequests": 1,
+                "completionDetails": {
+                  "reasoning": 0,
+                  "acceptedPrediction": 0,
+                  "rejectedPrediction": 0
+                }
+              },
+              "metadata": {
+                "renderedGradingPrompt": "[{\"role\":\"system\",\"content\":\"You are grading output according to a user-specified rubric. If the statement in the rubric is true, then the output passes the test. You respond with a JSON object with this structure: {reason: string, pass: boolean, score: number}\\n\\nExamples:\\n\\n<Output>Hello world</Output>\\n<Rubric>Content contains a greeting</Rubric>\\n{\\\"reason\\\": \\\"the content contains the word 'Hello'\\\", \\\"pass\\\": true, \\\"score\\\": 1.0}\\n\\n<Output>Avast ye swabs, repel the invaders!</Output>\\n<Rubric>Does not speak like a pirate</Rubric>\\n{\\\"reason\\\": \\\"'avast ye' is a common pirate term\\\", \\\"pass\\\": false, \\\"score\\\": 0.0}\"},{\"role\":\"user\",\"content\":\"<Output>\\n{\\\"scenes\\\":[{\\\"text\\\":\\\"Redis flies when speed's your game. It's an in-memory store, perfect for quick lookups.\\\",\\\"visualDirection\\\":\\\"Fast-paced animations of data moving quickly between servers.\\\",\\\"mood\\\":\\\"Energetic and upbeat\\\"},{\\\"text\\\":\\\"PostgreSQL's not just for databases. It can cache too, with persistence benefits.\\\",\\\"visualDirection\\\":\\\"Switch to PostgreSQL logo with data being securely stored.\\\",\\\"mood\\\":\\\"Calm and informative\\\"},{\\\"text\\\":\\\"Need simple, lightning-fast caching? Redis is your go-to.\\\",\\\"visualDirection\\\":\\\"Highlight Redis logo with a lightning bolt symbol.\\\",\\\"mood\\\":\\\"Exciting and dynamic\\\"},{\\\"text\\\":\\\"Complex queries or need data integrity? PostgreSQL's got your back.\\\",\\\"visualDirection\\\":\\\"Show PostgreSQL handling complex data queries smoothly.\\\",\\\"mood\\\":\\\"Confident and reassuring\\\"},{\\\"text\\\":\\\"For pure speed, choose Redis. For flexibility, PostgreSQL is king.\\\",\\\"visualDirection\\\":\\\"Split screen showing Redis on left, PostgreSQL on right.\\\",\\\"mood\\\":\\\"Balanced and insightful\\\"}],\\\"reasoning\\\":\\\"Redis and PostgreSQL serve different caching needs. Redis excels in speed due to in-memory storage, making it ideal for quick access. PostgreSQL offers more complex query handling and data integrity, making it suitable for persistent and complex caching tasks.\\\",\\\"title\\\":\\\"Redis vs PostgreSQL for Caching\\\",\\\"hook\\\":\\\"Redis blazes, PostgreSQL amazes!\\\",\\\"cta\\\":\\\"Which one fits your needs? Comment below!\\\",\\\"hashtags\\\":[\\\"#Redis\\\",\\\"#PostgreSQL\\\",\\\"#Caching\\\",\\\"#TechTalk\\\"]}\\n</Output>\\n<Rubric>\\nFor a versus archetype, the script should clearly compare both options.\\nIt should present pros and cons of each, not just favor one.\\nThe comparison should be fair and technically accurate.\\n\\n</Rubric>\"}]"
+              }
+            },
+            {
+              "assertion": {
+                "type": "llm-rubric",
+                "value": "The script provides a clear recommendation or decision framework at the end.\nViewers should know when to use each option.\n",
+                "threshold": 0.7,
+                "weight": 1
+              },
+              "pass": true,
+              "score": 1,
+              "reason": "The script concludes with a balanced comparison of Redis and PostgreSQL, highlighting their respective strengths and suggesting when to use each option based on speed and flexibility needs.",
+              "tokensUsed": {
+                "total": 546,
+                "prompt": 502,
+                "completion": 44,
+                "cached": 0,
+                "numRequests": 1,
+                "completionDetails": {
+                  "reasoning": 0,
+                  "acceptedPrediction": 0,
+                  "rejectedPrediction": 0
+                }
+              },
+              "metadata": {
+                "renderedGradingPrompt": "[{\"role\":\"system\",\"content\":\"You are grading output according to a user-specified rubric. If the statement in the rubric is true, then the output passes the test. You respond with a JSON object with this structure: {reason: string, pass: boolean, score: number}\\n\\nExamples:\\n\\n<Output>Hello world</Output>\\n<Rubric>Content contains a greeting</Rubric>\\n{\\\"reason\\\": \\\"the content contains the word 'Hello'\\\", \\\"pass\\\": true, \\\"score\\\": 1.0}\\n\\n<Output>Avast ye swabs, repel the invaders!</Output>\\n<Rubric>Does not speak like a pirate</Rubric>\\n{\\\"reason\\\": \\\"'avast ye' is a common pirate term\\\", \\\"pass\\\": false, \\\"score\\\": 0.0}\"},{\"role\":\"user\",\"content\":\"<Output>\\n{\\\"scenes\\\":[{\\\"text\\\":\\\"Redis flies when speed's your game. It's an in-memory store, perfect for quick lookups.\\\",\\\"visualDirection\\\":\\\"Fast-paced animations of data moving quickly between servers.\\\",\\\"mood\\\":\\\"Energetic and upbeat\\\"},{\\\"text\\\":\\\"PostgreSQL's not just for databases. It can cache too, with persistence benefits.\\\",\\\"visualDirection\\\":\\\"Switch to PostgreSQL logo with data being securely stored.\\\",\\\"mood\\\":\\\"Calm and informative\\\"},{\\\"text\\\":\\\"Need simple, lightning-fast caching? Redis is your go-to.\\\",\\\"visualDirection\\\":\\\"Highlight Redis logo with a lightning bolt symbol.\\\",\\\"mood\\\":\\\"Exciting and dynamic\\\"},{\\\"text\\\":\\\"Complex queries or need data integrity? PostgreSQL's got your back.\\\",\\\"visualDirection\\\":\\\"Show PostgreSQL handling complex data queries smoothly.\\\",\\\"mood\\\":\\\"Confident and reassuring\\\"},{\\\"text\\\":\\\"For pure speed, choose Redis. For flexibility, PostgreSQL is king.\\\",\\\"visualDirection\\\":\\\"Split screen showing Redis on left, PostgreSQL on right.\\\",\\\"mood\\\":\\\"Balanced and insightful\\\"}],\\\"reasoning\\\":\\\"Redis and PostgreSQL serve different caching needs. Redis excels in speed due to in-memory storage, making it ideal for quick access. PostgreSQL offers more complex query handling and data integrity, making it suitable for persistent and complex caching tasks.\\\",\\\"title\\\":\\\"Redis vs PostgreSQL for Caching\\\",\\\"hook\\\":\\\"Redis blazes, PostgreSQL amazes!\\\",\\\"cta\\\":\\\"Which one fits your needs? Comment below!\\\",\\\"hashtags\\\":[\\\"#Redis\\\",\\\"#PostgreSQL\\\",\\\"#Caching\\\",\\\"#TechTalk\\\"]}\\n</Output>\\n<Rubric>\\nThe script provides a clear recommendation or decision framework at the end.\\nViewers should know when to use each option.\\n\\n</Rubric>\"}]"
+              }
+            }
+          ]
+        },
+        "id": "6d58fec2-5e59-4429-bd36-172ed1ab113d",
+        "latencyMs": 6129,
+        "namedScores": {},
+        "prompt": {
+          "raw": "You are an expert short-form video scriptwriter. You write engaging scripts for TikTok, Reels, and YouTube Shorts.\n\nCreate a short-form video script about: \"Redis vs PostgreSQL for caching\"\n\nFORMAT: versus\n\nREQUIREMENTS:\n- Start with a compelling hook that creates curiosity (first 2-3 seconds).\n- 3-7 scenes, each with spoken text, visual direction, and mood.\n- End with a concise call-to-action.\n- Use conversational, TikTok-style language.\n\nTTS WRITING RULES:\n- Write for spoken delivery at 120-180 WPM.\n- Target length: ~110-140 words (~45 seconds).\n- Total spoken word count must be between 90-150 words.\n- Use short sentences (<=15 words) and one idea per sentence.\n- Each scene should be 2 sentences and ~22-30 words (minimum 20 words per scene).\n- Use contractions and second person (\"you\", \"you'll\").\n- Use punctuation for timing (commas = micro-pause, periods = full beat).\n- Normalize text for speech: expand numbers, acronyms, URLs, emails, file paths, and units.\n- Avoid openers like \"In this video\" or \"Today we're going to\".\n- Hook must be a single sentence and must not be repeated in scene 1.\n- Scene 1 must continue after the hook with NEW information (no restating or paraphrasing the hook).\n\n\n\nPresent a balanced comparison with a clear recommendation at the end.\nThe hook should be a bold statement, not a question.\n\n\n\n\n\n\nOUTPUT RULES:\n- Respond with JSON only. No markdown or code fences.\n- Spoken text fields (hook, scenes[].text, cta) must be plain text: no emojis, no markdown, no hashtags.\n- Hashtags only go in the hashtags array.\n\nOutput as JSON:\n{\n  \"scenes\": [\n    {\"text\": \"...\", \"visualDirection\": \"...\", \"mood\": \"...\"}\n  ],\n  \"reasoning\": \"...\",\n  \"title\": \"...\",\n  \"hook\": \"...\",\n  \"cta\": \"...\",\n  \"hashtags\": [\"#tag1\", \"#tag2\"]\n}\n",
+          "label": "You are an expert short-form video scriptwriter. You write engaging scripts for TikTok, Reels, and YouTube Shorts.\n\nCreate a short-form video script about: \"{{ topic }}\"\n\nFORMAT: {{ archetype }}\n\nREQUIREMENTS:\n- Start with a compelling hook that creates curiosity (first 2-3 seconds).\n- 3-7 scenes, each with spoken text, visual direction, and mood.\n- End with a concise call-to-action.\n- Use conversational, TikTok-style language.\n\nTTS WRITING RULES:\n- Write for spoken delivery at 120-180 WPM.\n- Target length: ~110-140 words (~45 seconds).\n- Total spoken word count must be between 90-150 words.\n- Use short sentences (<=15 words) and one idea per sentence.\n- Each scene should be 2 sentences and ~22-30 words (minimum 20 words per scene).\n- Use contractions and second person (\"you\", \"you'll\").\n- Use punctuation for timing (commas = micro-pause, periods = full beat).\n- Normalize text for speech: expand numbers, acronyms, URLs, emails, file paths, and units.\n- Avoid openers like \"In this video\" or \"Today we're going to\".\n- Hook must be a single sentence and must not be repeated in scene 1.\n- Scene 1 must continue after the hook with NEW information (no restating or paraphrasing the hook).\n\n{% if archetype == \"listicle\" %}\nStructure as a numbered list with a hook, clear items, and a call-to-action.\nPrefix each point with an explicit number label (e.g., \"Tip 1:\", \"2)\", \"Number 3:\").\n{% endif %}\n{% if archetype == \"versus\" %}\nPresent a balanced comparison with a clear recommendation at the end.\nThe hook should be a bold statement, not a question.\n{% endif %}\n{% if archetype == \"howto\" %}\nGive step-by-step instructions that are easy to follow.\n{% endif %}\n{% if archetype == \"myth\" %}\nStart with the myth, then reveal the reality with evidence.\nUse explicit \"Myth: X\" and \"Reality: Y\" phrasing in scene text.\n{% endif %}\n{% if archetype == \"story\" %}\nUse narrative structure: setup, conflict, resolution.\n{% endif %}\n{% if archetype == \"hot-take\" %}\nLead with a provocative opinion, then back it up with reasoning.\n{% endif %}\n\nOUTPUT RULES:\n- Respond with JSON only. No markdown or code fences.\n- Spoken text fields (hook, scenes[].text, cta) must be plain text: no emojis, no markdown, no hashtags.\n- Hashtags only go in the hashtags array.\n\nOutput as JSON:\n{\n  \"scenes\": [\n    {\"text\": \"...\", \"visualDirection\": \"...\", \"mood\": \"...\"}\n  ],\n  \"reasoning\": \"...\",\n  \"title\": \"...\",\n  \"hook\": \"...\",\n  \"cta\": \"...\",\n  \"hashtags\": [\"#tag1\", \"#tag2\"]\n}\n"
+        },
+        "promptId": "93a92bce8f5089bd2ea47f2715a3ee7e3797656cd5f74ac6fdb10f937f89a874",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:gpt-4o",
+          "label": ""
+        },
+        "response": {
+          "output": "{\n  \"scenes\": [\n    {\n      \"text\": \"Redis flies when speed's your game. It's an in-memory store, perfect for quick lookups.\",\n      \"visualDirection\": \"Fast-paced animations of data moving quickly between servers.\",\n      \"mood\": \"Energetic and upbeat\"\n    },\n    {\n      \"text\": \"PostgreSQL's not just for databases. It can cache too, with persistence benefits.\",\n      \"visualDirection\": \"Switch to PostgreSQL logo with data being securely stored.\",\n      \"mood\": \"Calm and informative\"\n    },\n    {\n      \"text\": \"Need simple, lightning-fast caching? Redis is your go-to.\",\n      \"visualDirection\": \"Highlight Redis logo with a lightning bolt symbol.\",\n      \"mood\": \"Exciting and dynamic\"\n    },\n    {\n      \"text\": \"Complex queries or need data integrity? PostgreSQL's got your back.\",\n      \"visualDirection\": \"Show PostgreSQL handling complex data queries smoothly.\",\n      \"mood\": \"Confident and reassuring\"\n    },\n    {\n      \"text\": \"For pure speed, choose Redis. For flexibility, PostgreSQL is king.\",\n      \"visualDirection\": \"Split screen showing Redis on left, PostgreSQL on right.\",\n      \"mood\": \"Balanced and insightful\"\n    }\n  ],\n  \"reasoning\": \"Redis and PostgreSQL serve different caching needs. Redis excels in speed due to in-memory storage, making it ideal for quick access. PostgreSQL offers more complex query handling and data integrity, making it suitable for persistent and complex caching tasks.\",\n  \"title\": \"Redis vs PostgreSQL for Caching\",\n  \"hook\": \"Redis blazes, PostgreSQL amazes!\",\n  \"cta\": \"Which one fits your needs? Comment below!\",\n  \"hashtags\": [\"#Redis\", \"#PostgreSQL\", \"#Caching\", \"#TechTalk\"]\n}",
+          "tokenUsage": {
+            "total": 839,
+            "prompt": 454,
+            "completion": 385,
+            "numRequests": 1,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0
+            }
+          },
+          "cached": false,
+          "latencyMs": 6129,
+          "finishReason": "stop",
+          "cost": 0.004985,
+          "guardrails": {
+            "flagged": false
+          }
+        },
+        "score": 0.9285714285714286,
+        "success": false,
+        "testCase": {
+          "vars": {
+            "topic": "Redis vs PostgreSQL for caching",
+            "archetype": "versus"
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  return (\n    Array.isArray(script.scenes) &&\n    script.scenes.length >= 3 &&\n    script.scenes.length <= 7\n  );\n} catch { return false; }\n",
+              "weight": 2
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  const countWords = (text) =>\n    text ? text.trim().split(/\\s+/).filter(Boolean).length : 0;\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean);\n  const wordCount = spoken.reduce((acc, text) => acc + countWords(text), 0);\n  return wordCount >= 80 && wordCount <= 200;\n} catch { return false; }\n",
+              "weight": 1
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  return (script.scenes || []).every((scene) =>\n    typeof scene.visualDirection === 'string' && scene.visualDirection.trim().length > 5\n  );\n} catch { return false; }\n",
+              "weight": 1
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean)\n    .join(' ');\n  const hasEmoji = /\\p{Extended_Pictographic}/u.test(spoken);\n  const hasMarkdown = /[`*_]/.test(spoken) || /\\[(.+?)\\]\\((.+?)\\)/.test(spoken);\n  const hasHashtag = /(^|\\s)#\\w+/.test(spoken);\n  return !hasEmoji && !hasMarkdown && !hasHashtag;\n} catch { return false; }\n",
+              "weight": 2
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  const normalize = (text) =>\n    (text || '')\n      .toLowerCase()\n      .replace(/[^\\p{L}\\p{N}\\s]/gu, '')\n      .replace(/\\s+/g, ' ')\n      .trim();\n  const hook = normalize(script.hook);\n  const scene1 = normalize(script.scenes?.[0]?.text);\n  if (!hook || !scene1) return true;\n  if (scene1.startsWith(hook) || scene1.includes(hook)) return false;\n  const hookWords = hook.split(' ');\n  const sceneWords = scene1.split(' ');\n  if (hookWords.length >= 4 && sceneWords.length >= 4) {\n    const prefixLen = Math.min(6, hookWords.length, sceneWords.length);\n    const hookPrefix = hookWords.slice(0, prefixLen).join(' ');\n    const scenePrefix = sceneWords.slice(0, prefixLen).join(' ');\n    if (hookPrefix === scenePrefix) return false;\n  }\n  return true;\n} catch { return false; }\n",
+              "weight": 2
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  return typeof script.reasoning === 'string' && script.reasoning.trim().length > 10;\n} catch { return false; }\n",
+              "weight": 1
+            },
+            {
+              "type": "llm-rubric",
+              "value": "The script opens with an attention-grabbing hook.\nFor a versus video, this might be a provocative statement like \"You're using the wrong database\"\nor a relatable problem statement.\n",
+              "threshold": 0.7,
+              "weight": 2
+            },
+            {
+              "type": "llm-rubric",
+              "value": "For a versus archetype, the script should clearly compare both options.\nIt should present pros and cons of each, not just favor one.\nThe comparison should be fair and technically accurate.\n",
+              "threshold": 0.8,
+              "weight": 2
+            },
+            {
+              "type": "llm-rubric",
+              "value": "The script provides a clear recommendation or decision framework at the end.\nViewers should know when to use each option.\n",
+              "threshold": 0.7,
+              "weight": 1
+            }
+          ],
+          "options": {
+            "provider": "openai:gpt-4o-mini"
+          },
+          "metadata": {}
+        },
+        "testIdx": 1,
+        "vars": {
+          "topic": "Redis vs PostgreSQL for caching",
+          "archetype": "versus"
+        },
+        "metadata": {
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 1
+      },
+      {
+        "cost": 0.0054625,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 1196,
+            "prompt": 1107,
+            "completion": 89,
+            "cached": 0,
+            "numRequests": 2
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  return (\n    Array.isArray(script.scenes) &&\n    script.scenes.length >= 3 &&\n    script.scenes.length <= 7\n  );\n} catch { return false; }\n",
+                "weight": 2
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  const countWords = (text) =>\n    text ? text.trim().split(/\\s+/).filter(Boolean).length : 0;\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean);\n  const wordCount = spoken.reduce((acc, text) => acc + countWords(text), 0);\n  return wordCount >= 80 && wordCount <= 200;\n} catch { return false; }\n",
+                "weight": 1
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  return (script.scenes || []).every((scene) =>\n    typeof scene.visualDirection === 'string' && scene.visualDirection.trim().length > 5\n  );\n} catch { return false; }\n",
+                "weight": 1
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean)\n    .join(' ');\n  const hasEmoji = /\\p{Extended_Pictographic}/u.test(spoken);\n  const hasMarkdown = /[`*_]/.test(spoken) || /\\[(.+?)\\]\\((.+?)\\)/.test(spoken);\n  const hasHashtag = /(^|\\s)#\\w+/.test(spoken);\n  return !hasEmoji && !hasMarkdown && !hasHashtag;\n} catch { return false; }\n",
+                "weight": 2
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  const normalize = (text) =>\n    (text || '')\n      .toLowerCase()\n      .replace(/[^\\p{L}\\p{N}\\s]/gu, '')\n      .replace(/\\s+/g, ' ')\n      .trim();\n  const hook = normalize(script.hook);\n  const scene1 = normalize(script.scenes?.[0]?.text);\n  if (!hook || !scene1) return true;\n  if (scene1.startsWith(hook) || scene1.includes(hook)) return false;\n  const hookWords = hook.split(' ');\n  const sceneWords = scene1.split(' ');\n  if (hookWords.length >= 4 && sceneWords.length >= 4) {\n    const prefixLen = Math.min(6, hookWords.length, sceneWords.length);\n    const hookPrefix = hookWords.slice(0, prefixLen).join(' ');\n    const scenePrefix = sceneWords.slice(0, prefixLen).join(' ');\n    if (hookPrefix === scenePrefix) return false;\n  }\n  return true;\n} catch { return false; }\n",
+                "weight": 2
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  return typeof script.reasoning === 'string' && script.reasoning.trim().length > 10;\n} catch { return false; }\n",
+                "weight": 1
+              }
+            },
+            {
+              "assertion": {
+                "type": "llm-rubric",
+                "value": "The script has a narrative arc: setup, challenge, resolution.\nIt should feel like a personal story, not a tutorial.\n",
+                "threshold": 0.8,
+                "weight": 2
+              },
+              "pass": true,
+              "score": 1,
+              "reason": "The script follows a classic narrative arc with a clear setup, conflict, and resolution, reflecting a personal journey through learning React rather than merely providing a tutorial.",
+              "tokensUsed": {
+                "total": 604,
+                "prompt": 556,
+                "completion": 48,
+                "cached": 0,
+                "numRequests": 1,
+                "completionDetails": {
+                  "reasoning": 0,
+                  "acceptedPrediction": 0,
+                  "rejectedPrediction": 0
+                }
+              },
+              "metadata": {
+                "renderedGradingPrompt": "[{\"role\":\"system\",\"content\":\"You are grading output according to a user-specified rubric. If the statement in the rubric is true, then the output passes the test. You respond with a JSON object with this structure: {reason: string, pass: boolean, score: number}\\n\\nExamples:\\n\\n<Output>Hello world</Output>\\n<Rubric>Content contains a greeting</Rubric>\\n{\\\"reason\\\": \\\"the content contains the word 'Hello'\\\", \\\"pass\\\": true, \\\"score\\\": 1.0}\\n\\n<Output>Avast ye swabs, repel the invaders!</Output>\\n<Rubric>Does not speak like a pirate</Rubric>\\n{\\\"reason\\\": \\\"'avast ye' is a common pirate term\\\", \\\"pass\\\": false, \\\"score\\\": 0.0}\"},{\"role\":\"user\",\"content\":\"<Output>\\n{\\\"scenes\\\":[{\\\"text\\\":\\\"Day one: I had no idea where to start with React. I was overwhelmed by all the tutorials out there.\\\",\\\"visualDirection\\\":\\\"Show a cluttered desk with scattered notes and open tabs on a laptop screen.\\\",\\\"mood\\\":\\\"Confused and overwhelmed\\\"},{\\\"text\\\":\\\"By day three, I found an awesome course that explained React in simple terms. I binged it like a Netflix series.\\\",\\\"visualDirection\\\":\\\"Display a cozy setup with a laptop, earbuds, and a steaming cup of coffee.\\\",\\\"mood\\\":\\\"Focused and determined\\\"},{\\\"text\\\":\\\"Halfway through, I hit a wall. The concepts were getting tough, and I was losing steam.\\\",\\\"visualDirection\\\":\\\"Show a tired face with a hand on the forehead, a frustrated look.\\\",\\\"mood\\\":\\\"Frustrated and exhausted\\\"},{\\\"text\\\":\\\"I took a step back and started building small projects. Everything began to click!\\\",\\\"visualDirection\\\":\\\"Show snippets of simple React projects like a to-do list app.\\\",\\\"mood\\\":\\\"Excited and motivated\\\"},{\\\"text\\\":\\\"By week two, I was more confident. I could create a basic app from scratch! It felt amazing.\\\",\\\"visualDirection\\\":\\\"Display a self-satisfied look with a completed project on the screen.\\\",\\\"mood\\\":\\\"Proud and accomplished\\\"}],\\\"reasoning\\\":\\\"The script follows a classic narrative arc with a clear setup, conflict, and resolution, making it relatable and engaging. The use of contrasting moods helps emphasize the journey from confusion to confidence.\\\",\\\"title\\\":\\\"Master React in Just 2 Weeks!\\\",\\\"hook\\\":\\\"I learned React in only two weeks, and here's how I did it.\\\",\\\"cta\\\":\\\"If I can do it, so can you! Start learning React today.\\\",\\\"hashtags\\\":[\\\"#ReactJS\\\",\\\"#CodingJourney\\\",\\\"#LearnToCode\\\"]}\\n</Output>\\n<Rubric>\\nThe script has a narrative arc: setup, challenge, resolution.\\nIt should feel like a personal story, not a tutorial.\\n\\n</Rubric>\"}]"
+              }
+            },
+            {
+              "assertion": {
+                "type": "llm-rubric",
+                "value": "The language uses first-person perspective and includes emotional elements.\nThe viewer should feel connected to the storyteller.\n",
+                "threshold": 0.7,
+                "weight": 1
+              },
+              "pass": true,
+              "score": 1,
+              "reason": "The output is written in the first-person perspective, detailing the storyteller's emotions and experiences throughout their journey of learning React.",
+              "tokensUsed": {
+                "total": 592,
+                "prompt": 551,
+                "completion": 41,
+                "cached": 0,
+                "numRequests": 1,
+                "completionDetails": {
+                  "reasoning": 0,
+                  "acceptedPrediction": 0,
+                  "rejectedPrediction": 0
+                }
+              },
+              "metadata": {
+                "renderedGradingPrompt": "[{\"role\":\"system\",\"content\":\"You are grading output according to a user-specified rubric. If the statement in the rubric is true, then the output passes the test. You respond with a JSON object with this structure: {reason: string, pass: boolean, score: number}\\n\\nExamples:\\n\\n<Output>Hello world</Output>\\n<Rubric>Content contains a greeting</Rubric>\\n{\\\"reason\\\": \\\"the content contains the word 'Hello'\\\", \\\"pass\\\": true, \\\"score\\\": 1.0}\\n\\n<Output>Avast ye swabs, repel the invaders!</Output>\\n<Rubric>Does not speak like a pirate</Rubric>\\n{\\\"reason\\\": \\\"'avast ye' is a common pirate term\\\", \\\"pass\\\": false, \\\"score\\\": 0.0}\"},{\"role\":\"user\",\"content\":\"<Output>\\n{\\\"scenes\\\":[{\\\"text\\\":\\\"Day one: I had no idea where to start with React. I was overwhelmed by all the tutorials out there.\\\",\\\"visualDirection\\\":\\\"Show a cluttered desk with scattered notes and open tabs on a laptop screen.\\\",\\\"mood\\\":\\\"Confused and overwhelmed\\\"},{\\\"text\\\":\\\"By day three, I found an awesome course that explained React in simple terms. I binged it like a Netflix series.\\\",\\\"visualDirection\\\":\\\"Display a cozy setup with a laptop, earbuds, and a steaming cup of coffee.\\\",\\\"mood\\\":\\\"Focused and determined\\\"},{\\\"text\\\":\\\"Halfway through, I hit a wall. The concepts were getting tough, and I was losing steam.\\\",\\\"visualDirection\\\":\\\"Show a tired face with a hand on the forehead, a frustrated look.\\\",\\\"mood\\\":\\\"Frustrated and exhausted\\\"},{\\\"text\\\":\\\"I took a step back and started building small projects. Everything began to click!\\\",\\\"visualDirection\\\":\\\"Show snippets of simple React projects like a to-do list app.\\\",\\\"mood\\\":\\\"Excited and motivated\\\"},{\\\"text\\\":\\\"By week two, I was more confident. I could create a basic app from scratch! It felt amazing.\\\",\\\"visualDirection\\\":\\\"Display a self-satisfied look with a completed project on the screen.\\\",\\\"mood\\\":\\\"Proud and accomplished\\\"}],\\\"reasoning\\\":\\\"The script follows a classic narrative arc with a clear setup, conflict, and resolution, making it relatable and engaging. The use of contrasting moods helps emphasize the journey from confusion to confidence.\\\",\\\"title\\\":\\\"Master React in Just 2 Weeks!\\\",\\\"hook\\\":\\\"I learned React in only two weeks, and here's how I did it.\\\",\\\"cta\\\":\\\"If I can do it, so can you! Start learning React today.\\\",\\\"hashtags\\\":[\\\"#ReactJS\\\",\\\"#CodingJourney\\\",\\\"#LearnToCode\\\"]}\\n</Output>\\n<Rubric>\\nThe language uses first-person perspective and includes emotional elements.\\nThe viewer should feel connected to the storyteller.\\n\\n</Rubric>\"}]"
+              }
+            }
+          ]
+        },
+        "id": "30912a4b-7886-4e60-af38-d48585b34c20",
+        "latencyMs": 6657,
+        "namedScores": {},
+        "prompt": {
+          "raw": "You are an expert short-form video scriptwriter. You write engaging scripts for TikTok, Reels, and YouTube Shorts.\n\nCreate a short-form video script about: \"How I learned React in 2 weeks\"\n\nFORMAT: story\n\nREQUIREMENTS:\n- Start with a compelling hook that creates curiosity (first 2-3 seconds).\n- 3-7 scenes, each with spoken text, visual direction, and mood.\n- End with a concise call-to-action.\n- Use conversational, TikTok-style language.\n\nTTS WRITING RULES:\n- Write for spoken delivery at 120-180 WPM.\n- Target length: ~110-140 words (~45 seconds).\n- Total spoken word count must be between 90-150 words.\n- Use short sentences (<=15 words) and one idea per sentence.\n- Each scene should be 2 sentences and ~22-30 words (minimum 20 words per scene).\n- Use contractions and second person (\"you\", \"you'll\").\n- Use punctuation for timing (commas = micro-pause, periods = full beat).\n- Normalize text for speech: expand numbers, acronyms, URLs, emails, file paths, and units.\n- Avoid openers like \"In this video\" or \"Today we're going to\".\n- Hook must be a single sentence and must not be repeated in scene 1.\n- Scene 1 must continue after the hook with NEW information (no restating or paraphrasing the hook).\n\n\n\n\n\n\nUse narrative structure: setup, conflict, resolution.\n\n\n\nOUTPUT RULES:\n- Respond with JSON only. No markdown or code fences.\n- Spoken text fields (hook, scenes[].text, cta) must be plain text: no emojis, no markdown, no hashtags.\n- Hashtags only go in the hashtags array.\n\nOutput as JSON:\n{\n  \"scenes\": [\n    {\"text\": \"...\", \"visualDirection\": \"...\", \"mood\": \"...\"}\n  ],\n  \"reasoning\": \"...\",\n  \"title\": \"...\",\n  \"hook\": \"...\",\n  \"cta\": \"...\",\n  \"hashtags\": [\"#tag1\", \"#tag2\"]\n}\n",
+          "label": "You are an expert short-form video scriptwriter. You write engaging scripts for TikTok, Reels, and YouTube Shorts.\n\nCreate a short-form video script about: \"{{ topic }}\"\n\nFORMAT: {{ archetype }}\n\nREQUIREMENTS:\n- Start with a compelling hook that creates curiosity (first 2-3 seconds).\n- 3-7 scenes, each with spoken text, visual direction, and mood.\n- End with a concise call-to-action.\n- Use conversational, TikTok-style language.\n\nTTS WRITING RULES:\n- Write for spoken delivery at 120-180 WPM.\n- Target length: ~110-140 words (~45 seconds).\n- Total spoken word count must be between 90-150 words.\n- Use short sentences (<=15 words) and one idea per sentence.\n- Each scene should be 2 sentences and ~22-30 words (minimum 20 words per scene).\n- Use contractions and second person (\"you\", \"you'll\").\n- Use punctuation for timing (commas = micro-pause, periods = full beat).\n- Normalize text for speech: expand numbers, acronyms, URLs, emails, file paths, and units.\n- Avoid openers like \"In this video\" or \"Today we're going to\".\n- Hook must be a single sentence and must not be repeated in scene 1.\n- Scene 1 must continue after the hook with NEW information (no restating or paraphrasing the hook).\n\n{% if archetype == \"listicle\" %}\nStructure as a numbered list with a hook, clear items, and a call-to-action.\nPrefix each point with an explicit number label (e.g., \"Tip 1:\", \"2)\", \"Number 3:\").\n{% endif %}\n{% if archetype == \"versus\" %}\nPresent a balanced comparison with a clear recommendation at the end.\nThe hook should be a bold statement, not a question.\n{% endif %}\n{% if archetype == \"howto\" %}\nGive step-by-step instructions that are easy to follow.\n{% endif %}\n{% if archetype == \"myth\" %}\nStart with the myth, then reveal the reality with evidence.\nUse explicit \"Myth: X\" and \"Reality: Y\" phrasing in scene text.\n{% endif %}\n{% if archetype == \"story\" %}\nUse narrative structure: setup, conflict, resolution.\n{% endif %}\n{% if archetype == \"hot-take\" %}\nLead with a provocative opinion, then back it up with reasoning.\n{% endif %}\n\nOUTPUT RULES:\n- Respond with JSON only. No markdown or code fences.\n- Spoken text fields (hook, scenes[].text, cta) must be plain text: no emojis, no markdown, no hashtags.\n- Hashtags only go in the hashtags array.\n\nOutput as JSON:\n{\n  \"scenes\": [\n    {\"text\": \"...\", \"visualDirection\": \"...\", \"mood\": \"...\"}\n  ],\n  \"reasoning\": \"...\",\n  \"title\": \"...\",\n  \"hook\": \"...\",\n  \"cta\": \"...\",\n  \"hashtags\": [\"#tag1\", \"#tag2\"]\n}\n"
+        },
+        "promptId": "93a92bce8f5089bd2ea47f2715a3ee7e3797656cd5f74ac6fdb10f937f89a874",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:gpt-4o",
+          "label": ""
+        },
+        "response": {
+          "output": "{\n  \"scenes\": [\n    {\n      \"text\": \"Day one: I had no idea where to start with React. I was overwhelmed by all the tutorials out there.\",\n      \"visualDirection\": \"Show a cluttered desk with scattered notes and open tabs on a laptop screen.\",\n      \"mood\": \"Confused and overwhelmed\"\n    },\n    {\n      \"text\": \"By day three, I found an awesome course that explained React in simple terms. I binged it like a Netflix series.\",\n      \"visualDirection\": \"Display a cozy setup with a laptop, earbuds, and a steaming cup of coffee.\",\n      \"mood\": \"Focused and determined\"\n    },\n    {\n      \"text\": \"Halfway through, I hit a wall. The concepts were getting tough, and I was losing steam.\",\n      \"visualDirection\": \"Show a tired face with a hand on the forehead, a frustrated look.\",\n      \"mood\": \"Frustrated and exhausted\"\n    },\n    {\n      \"text\": \"I took a step back and started building small projects. Everything began to click!\",\n      \"visualDirection\": \"Show snippets of simple React projects like a to-do list app.\",\n      \"mood\": \"Excited and motivated\"\n    },\n    {\n      \"text\": \"By week two, I was more confident. I could create a basic app from scratch! It felt amazing.\",\n      \"visualDirection\": \"Display a self-satisfied look with a completed project on the screen.\",\n      \"mood\": \"Proud and accomplished\"\n    }\n  ],\n  \"reasoning\": \"The script follows a classic narrative arc with a clear setup, conflict, and resolution, making it relatable and engaging. The use of contrasting moods helps emphasize the journey from confusion to confidence.\",\n  \"title\": \"Master React in Just 2 Weeks!\",\n  \"hook\": \"I learned React in only two weeks, and here's how I did it.\",\n  \"cta\": \"If I can do it, so can you! Start learning React today.\",\n  \"hashtags\": [\"#ReactJS\", \"#CodingJourney\", \"#LearnToCode\"]\n}",
+          "tokenUsage": {
+            "total": 877,
+            "prompt": 441,
+            "completion": 436,
+            "numRequests": 1,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0
+            }
+          },
+          "cached": false,
+          "latencyMs": 6657,
+          "finishReason": "stop",
+          "cost": 0.0054625,
+          "guardrails": {
+            "flagged": false
+          }
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "vars": {
+            "topic": "How I learned React in 2 weeks",
+            "archetype": "story"
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  return (\n    Array.isArray(script.scenes) &&\n    script.scenes.length >= 3 &&\n    script.scenes.length <= 7\n  );\n} catch { return false; }\n",
+              "weight": 2
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  const countWords = (text) =>\n    text ? text.trim().split(/\\s+/).filter(Boolean).length : 0;\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean);\n  const wordCount = spoken.reduce((acc, text) => acc + countWords(text), 0);\n  return wordCount >= 80 && wordCount <= 200;\n} catch { return false; }\n",
+              "weight": 1
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  return (script.scenes || []).every((scene) =>\n    typeof scene.visualDirection === 'string' && scene.visualDirection.trim().length > 5\n  );\n} catch { return false; }\n",
+              "weight": 1
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean)\n    .join(' ');\n  const hasEmoji = /\\p{Extended_Pictographic}/u.test(spoken);\n  const hasMarkdown = /[`*_]/.test(spoken) || /\\[(.+?)\\]\\((.+?)\\)/.test(spoken);\n  const hasHashtag = /(^|\\s)#\\w+/.test(spoken);\n  return !hasEmoji && !hasMarkdown && !hasHashtag;\n} catch { return false; }\n",
+              "weight": 2
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  const normalize = (text) =>\n    (text || '')\n      .toLowerCase()\n      .replace(/[^\\p{L}\\p{N}\\s]/gu, '')\n      .replace(/\\s+/g, ' ')\n      .trim();\n  const hook = normalize(script.hook);\n  const scene1 = normalize(script.scenes?.[0]?.text);\n  if (!hook || !scene1) return true;\n  if (scene1.startsWith(hook) || scene1.includes(hook)) return false;\n  const hookWords = hook.split(' ');\n  const sceneWords = scene1.split(' ');\n  if (hookWords.length >= 4 && sceneWords.length >= 4) {\n    const prefixLen = Math.min(6, hookWords.length, sceneWords.length);\n    const hookPrefix = hookWords.slice(0, prefixLen).join(' ');\n    const scenePrefix = sceneWords.slice(0, prefixLen).join(' ');\n    if (hookPrefix === scenePrefix) return false;\n  }\n  return true;\n} catch { return false; }\n",
+              "weight": 2
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  return typeof script.reasoning === 'string' && script.reasoning.trim().length > 10;\n} catch { return false; }\n",
+              "weight": 1
+            },
+            {
+              "type": "llm-rubric",
+              "value": "The script has a narrative arc: setup, challenge, resolution.\nIt should feel like a personal story, not a tutorial.\n",
+              "threshold": 0.8,
+              "weight": 2
+            },
+            {
+              "type": "llm-rubric",
+              "value": "The language uses first-person perspective and includes emotional elements.\nThe viewer should feel connected to the storyteller.\n",
+              "threshold": 0.7,
+              "weight": 1
+            }
+          ],
+          "options": {
+            "provider": "openai:gpt-4o-mini"
+          },
+          "metadata": {}
+        },
+        "testIdx": 2,
+        "vars": {
+          "topic": "How I learned React in 2 weeks",
+          "archetype": "story"
+        },
+        "metadata": {
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 0
+      },
+      {
+        "cost": 0.004727500000000001,
+        "error": "Custom function returned false\ntry {\n  const script = JSON.parse(output);\n  const countWords = (text) =>\n    text ? text.trim().split(/\\s+/).filter(Boolean).length : 0;\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean);\n  const wordCount = spoken.reduce((acc, text) => acc + countWords(text), 0);\n  return wordCount >= 80 && wordCount <= 200;\n} catch { return false; }",
+        "gradingResult": {
+          "pass": false,
+          "score": 0.9230769230769231,
+          "reason": "Custom function returned false\ntry {\n  const script = JSON.parse(output);\n  const countWords = (text) =>\n    text ? text.trim().split(/\\s+/).filter(Boolean).length : 0;\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean);\n  const wordCount = spoken.reduce((acc, text) => acc + countWords(text), 0);\n  return wordCount >= 80 && wordCount <= 200;\n} catch { return false; }",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 1065,
+            "prompt": 973,
+            "completion": 92,
+            "cached": 0,
+            "numRequests": 2
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  return (\n    Array.isArray(script.scenes) &&\n    script.scenes.length >= 3 &&\n    script.scenes.length <= 7\n  );\n} catch { return false; }\n",
+                "weight": 2
+              }
+            },
+            {
+              "pass": false,
+              "score": 0,
+              "reason": "Custom function returned false\ntry {\n  const script = JSON.parse(output);\n  const countWords = (text) =>\n    text ? text.trim().split(/\\s+/).filter(Boolean).length : 0;\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean);\n  const wordCount = spoken.reduce((acc, text) => acc + countWords(text), 0);\n  return wordCount >= 80 && wordCount <= 200;\n} catch { return false; }",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  const countWords = (text) =>\n    text ? text.trim().split(/\\s+/).filter(Boolean).length : 0;\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean);\n  const wordCount = spoken.reduce((acc, text) => acc + countWords(text), 0);\n  return wordCount >= 80 && wordCount <= 200;\n} catch { return false; }\n",
+                "weight": 1
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  return (script.scenes || []).every((scene) =>\n    typeof scene.visualDirection === 'string' && scene.visualDirection.trim().length > 5\n  );\n} catch { return false; }\n",
+                "weight": 1
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean)\n    .join(' ');\n  const hasEmoji = /\\p{Extended_Pictographic}/u.test(spoken);\n  const hasMarkdown = /[`*_]/.test(spoken) || /\\[(.+?)\\]\\((.+?)\\)/.test(spoken);\n  const hasHashtag = /(^|\\s)#\\w+/.test(spoken);\n  return !hasEmoji && !hasMarkdown && !hasHashtag;\n} catch { return false; }\n",
+                "weight": 2
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  const normalize = (text) =>\n    (text || '')\n      .toLowerCase()\n      .replace(/[^\\p{L}\\p{N}\\s]/gu, '')\n      .replace(/\\s+/g, ' ')\n      .trim();\n  const hook = normalize(script.hook);\n  const scene1 = normalize(script.scenes?.[0]?.text);\n  if (!hook || !scene1) return true;\n  if (scene1.startsWith(hook) || scene1.includes(hook)) return false;\n  const hookWords = hook.split(' ');\n  const sceneWords = scene1.split(' ');\n  if (hookWords.length >= 4 && sceneWords.length >= 4) {\n    const prefixLen = Math.min(6, hookWords.length, sceneWords.length);\n    const hookPrefix = hookWords.slice(0, prefixLen).join(' ');\n    const scenePrefix = sceneWords.slice(0, prefixLen).join(' ');\n    if (hookPrefix === scenePrefix) return false;\n  }\n  return true;\n} catch { return false; }\n",
+                "weight": 2
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  return typeof script.reasoning === 'string' && script.reasoning.trim().length > 10;\n} catch { return false; }\n",
+                "weight": 1
+              }
+            },
+            {
+              "assertion": {
+                "type": "llm-rubric",
+                "value": "The script opens with a bold, controversial statement that will spark debate.\nIt should immediately make viewers want to comment (agree or disagree).\n",
+                "threshold": 0.8,
+                "weight": 2
+              },
+              "pass": true,
+              "score": 1,
+              "reason": "The script opens with the statement 'TypeScript is overrated!', which is a bold and controversial claim that invites viewers to engage.",
+              "tokensUsed": {
+                "total": 529,
+                "prompt": 486,
+                "completion": 43,
+                "cached": 0,
+                "numRequests": 1,
+                "completionDetails": {
+                  "reasoning": 0,
+                  "acceptedPrediction": 0,
+                  "rejectedPrediction": 0
+                }
+              },
+              "metadata": {
+                "renderedGradingPrompt": "[{\"role\":\"system\",\"content\":\"You are grading output according to a user-specified rubric. If the statement in the rubric is true, then the output passes the test. You respond with a JSON object with this structure: {reason: string, pass: boolean, score: number}\\n\\nExamples:\\n\\n<Output>Hello world</Output>\\n<Rubric>Content contains a greeting</Rubric>\\n{\\\"reason\\\": \\\"the content contains the word 'Hello'\\\", \\\"pass\\\": true, \\\"score\\\": 1.0}\\n\\n<Output>Avast ye swabs, repel the invaders!</Output>\\n<Rubric>Does not speak like a pirate</Rubric>\\n{\\\"reason\\\": \\\"'avast ye' is a common pirate term\\\", \\\"pass\\\": false, \\\"score\\\": 0.0}\"},{\"role\":\"user\",\"content\":\"<Output>\\n{\\\"scenes\\\":[{\\\"text\\\":\\\"TypeScript? It can feel like a strict teacher, always checking your work.\\\",\\\"visualDirection\\\":\\\"Close-up of a frustrated developer with TypeScript error messages on screen.\\\",\\\"mood\\\":\\\"Frustrated yet playful\\\"},{\\\"text\\\":\\\"Sure, it catches errors early, but it can slow down your creativity.\\\",\\\"visualDirection\\\":\\\"Developer holding head in hands, surrounded by piles of code.\\\",\\\"mood\\\":\\\"Constrained\\\"},{\\\"text\\\":\\\"Some talk about its benefits, but vanilla JavaScript offers more freedom.\\\",\\\"visualDirection\\\":\\\"Switch to a carefree developer coding seamlessly.\\\",\\\"mood\\\":\\\"Liberated\\\"},{\\\"text\\\":\\\"And guess what? Many projects work just fine without it.\\\",\\\"visualDirection\\\":\\\"Showcases popular apps or websites.\\\",\\\"mood\\\":\\\"Confident\\\"},{\\\"text\\\":\\\"So, is it time to rethink if you really need TypeScript?\\\",\\\"visualDirection\\\":\\\"Zoom out to a thoughtful developer contemplating.\\\",\\\"mood\\\":\\\"Reflective\\\"}],\\\"reasoning\\\":\\\"TypeScript is often praised for catching errors early and providing better tooling, but it also imposes strict rules that can stifle creativity and slow down development. Many successful projects thrive without it, proving that its necessity is often overstated.\\\",\\\"title\\\":\\\"Is TypeScript Overrated?\\\",\\\"hook\\\":\\\"TypeScript is overrated!\\\",\\\"cta\\\":\\\"What do you think? Share your thoughts in the comments!\\\",\\\"hashtags\\\":[\\\"#TypeScript\\\",\\\"#CodingDebate\\\",\\\"#Programming\\\"]}\\n</Output>\\n<Rubric>\\nThe script opens with a bold, controversial statement that will spark debate.\\nIt should immediately make viewers want to comment (agree or disagree).\\n\\n</Rubric>\"}]"
+              }
+            },
+            {
+              "assertion": {
+                "type": "llm-rubric",
+                "value": "Despite being a hot take, the script provides actual reasoning and evidence.\nIt's not just rage bait; there should be substance behind the opinion.\n",
+                "threshold": 0.7,
+                "weight": 2
+              },
+              "pass": true,
+              "score": 1,
+              "reason": "The output presents a structured argument regarding TypeScript, discussing its pros and cons with specific examples and reasoning, without resorting to mere emotional language or rage bait.",
+              "tokensUsed": {
+                "total": 536,
+                "prompt": 487,
+                "completion": 49,
+                "cached": 0,
+                "numRequests": 1,
+                "completionDetails": {
+                  "reasoning": 0,
+                  "acceptedPrediction": 0,
+                  "rejectedPrediction": 0
+                }
+              },
+              "metadata": {
+                "renderedGradingPrompt": "[{\"role\":\"system\",\"content\":\"You are grading output according to a user-specified rubric. If the statement in the rubric is true, then the output passes the test. You respond with a JSON object with this structure: {reason: string, pass: boolean, score: number}\\n\\nExamples:\\n\\n<Output>Hello world</Output>\\n<Rubric>Content contains a greeting</Rubric>\\n{\\\"reason\\\": \\\"the content contains the word 'Hello'\\\", \\\"pass\\\": true, \\\"score\\\": 1.0}\\n\\n<Output>Avast ye swabs, repel the invaders!</Output>\\n<Rubric>Does not speak like a pirate</Rubric>\\n{\\\"reason\\\": \\\"'avast ye' is a common pirate term\\\", \\\"pass\\\": false, \\\"score\\\": 0.0}\"},{\"role\":\"user\",\"content\":\"<Output>\\n{\\\"scenes\\\":[{\\\"text\\\":\\\"TypeScript? It can feel like a strict teacher, always checking your work.\\\",\\\"visualDirection\\\":\\\"Close-up of a frustrated developer with TypeScript error messages on screen.\\\",\\\"mood\\\":\\\"Frustrated yet playful\\\"},{\\\"text\\\":\\\"Sure, it catches errors early, but it can slow down your creativity.\\\",\\\"visualDirection\\\":\\\"Developer holding head in hands, surrounded by piles of code.\\\",\\\"mood\\\":\\\"Constrained\\\"},{\\\"text\\\":\\\"Some talk about its benefits, but vanilla JavaScript offers more freedom.\\\",\\\"visualDirection\\\":\\\"Switch to a carefree developer coding seamlessly.\\\",\\\"mood\\\":\\\"Liberated\\\"},{\\\"text\\\":\\\"And guess what? Many projects work just fine without it.\\\",\\\"visualDirection\\\":\\\"Showcases popular apps or websites.\\\",\\\"mood\\\":\\\"Confident\\\"},{\\\"text\\\":\\\"So, is it time to rethink if you really need TypeScript?\\\",\\\"visualDirection\\\":\\\"Zoom out to a thoughtful developer contemplating.\\\",\\\"mood\\\":\\\"Reflective\\\"}],\\\"reasoning\\\":\\\"TypeScript is often praised for catching errors early and providing better tooling, but it also imposes strict rules that can stifle creativity and slow down development. Many successful projects thrive without it, proving that its necessity is often overstated.\\\",\\\"title\\\":\\\"Is TypeScript Overrated?\\\",\\\"hook\\\":\\\"TypeScript is overrated!\\\",\\\"cta\\\":\\\"What do you think? Share your thoughts in the comments!\\\",\\\"hashtags\\\":[\\\"#TypeScript\\\",\\\"#CodingDebate\\\",\\\"#Programming\\\"]}\\n</Output>\\n<Rubric>\\nDespite being a hot take, the script provides actual reasoning and evidence.\\nIt's not just rage bait; there should be substance behind the opinion.\\n\\n</Rubric>\"}]"
+              }
+            }
+          ]
+        },
+        "id": "1308ee20-20c0-4612-92e9-0c1a62a893e1",
+        "latencyMs": 6514,
+        "namedScores": {},
+        "prompt": {
+          "raw": "You are an expert short-form video scriptwriter. You write engaging scripts for TikTok, Reels, and YouTube Shorts.\n\nCreate a short-form video script about: \"TypeScript is overrated\"\n\nFORMAT: hot-take\n\nREQUIREMENTS:\n- Start with a compelling hook that creates curiosity (first 2-3 seconds).\n- 3-7 scenes, each with spoken text, visual direction, and mood.\n- End with a concise call-to-action.\n- Use conversational, TikTok-style language.\n\nTTS WRITING RULES:\n- Write for spoken delivery at 120-180 WPM.\n- Target length: ~110-140 words (~45 seconds).\n- Total spoken word count must be between 90-150 words.\n- Use short sentences (<=15 words) and one idea per sentence.\n- Each scene should be 2 sentences and ~22-30 words (minimum 20 words per scene).\n- Use contractions and second person (\"you\", \"you'll\").\n- Use punctuation for timing (commas = micro-pause, periods = full beat).\n- Normalize text for speech: expand numbers, acronyms, URLs, emails, file paths, and units.\n- Avoid openers like \"In this video\" or \"Today we're going to\".\n- Hook must be a single sentence and must not be repeated in scene 1.\n- Scene 1 must continue after the hook with NEW information (no restating or paraphrasing the hook).\n\n\n\n\n\n\n\nLead with a provocative opinion, then back it up with reasoning.\n\n\nOUTPUT RULES:\n- Respond with JSON only. No markdown or code fences.\n- Spoken text fields (hook, scenes[].text, cta) must be plain text: no emojis, no markdown, no hashtags.\n- Hashtags only go in the hashtags array.\n\nOutput as JSON:\n{\n  \"scenes\": [\n    {\"text\": \"...\", \"visualDirection\": \"...\", \"mood\": \"...\"}\n  ],\n  \"reasoning\": \"...\",\n  \"title\": \"...\",\n  \"hook\": \"...\",\n  \"cta\": \"...\",\n  \"hashtags\": [\"#tag1\", \"#tag2\"]\n}\n",
+          "label": "You are an expert short-form video scriptwriter. You write engaging scripts for TikTok, Reels, and YouTube Shorts.\n\nCreate a short-form video script about: \"{{ topic }}\"\n\nFORMAT: {{ archetype }}\n\nREQUIREMENTS:\n- Start with a compelling hook that creates curiosity (first 2-3 seconds).\n- 3-7 scenes, each with spoken text, visual direction, and mood.\n- End with a concise call-to-action.\n- Use conversational, TikTok-style language.\n\nTTS WRITING RULES:\n- Write for spoken delivery at 120-180 WPM.\n- Target length: ~110-140 words (~45 seconds).\n- Total spoken word count must be between 90-150 words.\n- Use short sentences (<=15 words) and one idea per sentence.\n- Each scene should be 2 sentences and ~22-30 words (minimum 20 words per scene).\n- Use contractions and second person (\"you\", \"you'll\").\n- Use punctuation for timing (commas = micro-pause, periods = full beat).\n- Normalize text for speech: expand numbers, acronyms, URLs, emails, file paths, and units.\n- Avoid openers like \"In this video\" or \"Today we're going to\".\n- Hook must be a single sentence and must not be repeated in scene 1.\n- Scene 1 must continue after the hook with NEW information (no restating or paraphrasing the hook).\n\n{% if archetype == \"listicle\" %}\nStructure as a numbered list with a hook, clear items, and a call-to-action.\nPrefix each point with an explicit number label (e.g., \"Tip 1:\", \"2)\", \"Number 3:\").\n{% endif %}\n{% if archetype == \"versus\" %}\nPresent a balanced comparison with a clear recommendation at the end.\nThe hook should be a bold statement, not a question.\n{% endif %}\n{% if archetype == \"howto\" %}\nGive step-by-step instructions that are easy to follow.\n{% endif %}\n{% if archetype == \"myth\" %}\nStart with the myth, then reveal the reality with evidence.\nUse explicit \"Myth: X\" and \"Reality: Y\" phrasing in scene text.\n{% endif %}\n{% if archetype == \"story\" %}\nUse narrative structure: setup, conflict, resolution.\n{% endif %}\n{% if archetype == \"hot-take\" %}\nLead with a provocative opinion, then back it up with reasoning.\n{% endif %}\n\nOUTPUT RULES:\n- Respond with JSON only. No markdown or code fences.\n- Spoken text fields (hook, scenes[].text, cta) must be plain text: no emojis, no markdown, no hashtags.\n- Hashtags only go in the hashtags array.\n\nOutput as JSON:\n{\n  \"scenes\": [\n    {\"text\": \"...\", \"visualDirection\": \"...\", \"mood\": \"...\"}\n  ],\n  \"reasoning\": \"...\",\n  \"title\": \"...\",\n  \"hook\": \"...\",\n  \"cta\": \"...\",\n  \"hashtags\": [\"#tag1\", \"#tag2\"]\n}\n"
+        },
+        "promptId": "93a92bce8f5089bd2ea47f2715a3ee7e3797656cd5f74ac6fdb10f937f89a874",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:gpt-4o",
+          "label": ""
+        },
+        "response": {
+          "output": "{\n  \"scenes\": [\n    {\n      \"text\": \"TypeScript? It can feel like a strict teacher, always checking your work.\",\n      \"visualDirection\": \"Close-up of a frustrated developer with TypeScript error messages on screen.\",\n      \"mood\": \"Frustrated yet playful\"\n    },\n    {\n      \"text\": \"Sure, it catches errors early, but it can slow down your creativity.\",\n      \"visualDirection\": \"Developer holding head in hands, surrounded by piles of code.\",\n      \"mood\": \"Constrained\"\n    },\n    {\n      \"text\": \"Some talk about its benefits, but vanilla JavaScript offers more freedom.\",\n      \"visualDirection\": \"Switch to a carefree developer coding seamlessly.\",\n      \"mood\": \"Liberated\"\n    },\n    {\n      \"text\": \"And guess what? Many projects work just fine without it.\",\n      \"visualDirection\": \"Showcases popular apps or websites.\",\n      \"mood\": \"Confident\"\n    },\n    {\n      \"text\": \"So, is it time to rethink if you really need TypeScript?\",\n      \"visualDirection\": \"Zoom out to a thoughtful developer contemplating.\",\n      \"mood\": \"Reflective\"\n    }\n  ],\n  \"reasoning\": \"TypeScript is often praised for catching errors early and providing better tooling, but it also imposes strict rules that can stifle creativity and slow down development. Many successful projects thrive without it, proving that its necessity is often overstated.\",\n  \"title\": \"Is TypeScript Overrated?\",\n  \"hook\": \"TypeScript is overrated!\",\n  \"cta\": \"What do you think? Share your thoughts in the comments!\",\n  \"hashtags\": [\"#TypeScript\", \"#CodingDebate\", \"#Programming\"]\n}",
+          "tokenUsage": {
+            "total": 805,
+            "prompt": 443,
+            "completion": 362,
+            "numRequests": 1,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0
+            }
+          },
+          "cached": false,
+          "latencyMs": 6514,
+          "finishReason": "stop",
+          "cost": 0.004727500000000001,
+          "guardrails": {
+            "flagged": false
+          }
+        },
+        "score": 0.9230769230769231,
+        "success": false,
+        "testCase": {
+          "vars": {
+            "topic": "TypeScript is overrated",
+            "archetype": "hot-take"
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  return (\n    Array.isArray(script.scenes) &&\n    script.scenes.length >= 3 &&\n    script.scenes.length <= 7\n  );\n} catch { return false; }\n",
+              "weight": 2
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  const countWords = (text) =>\n    text ? text.trim().split(/\\s+/).filter(Boolean).length : 0;\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean);\n  const wordCount = spoken.reduce((acc, text) => acc + countWords(text), 0);\n  return wordCount >= 80 && wordCount <= 200;\n} catch { return false; }\n",
+              "weight": 1
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  return (script.scenes || []).every((scene) =>\n    typeof scene.visualDirection === 'string' && scene.visualDirection.trim().length > 5\n  );\n} catch { return false; }\n",
+              "weight": 1
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean)\n    .join(' ');\n  const hasEmoji = /\\p{Extended_Pictographic}/u.test(spoken);\n  const hasMarkdown = /[`*_]/.test(spoken) || /\\[(.+?)\\]\\((.+?)\\)/.test(spoken);\n  const hasHashtag = /(^|\\s)#\\w+/.test(spoken);\n  return !hasEmoji && !hasMarkdown && !hasHashtag;\n} catch { return false; }\n",
+              "weight": 2
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  const normalize = (text) =>\n    (text || '')\n      .toLowerCase()\n      .replace(/[^\\p{L}\\p{N}\\s]/gu, '')\n      .replace(/\\s+/g, ' ')\n      .trim();\n  const hook = normalize(script.hook);\n  const scene1 = normalize(script.scenes?.[0]?.text);\n  if (!hook || !scene1) return true;\n  if (scene1.startsWith(hook) || scene1.includes(hook)) return false;\n  const hookWords = hook.split(' ');\n  const sceneWords = scene1.split(' ');\n  if (hookWords.length >= 4 && sceneWords.length >= 4) {\n    const prefixLen = Math.min(6, hookWords.length, sceneWords.length);\n    const hookPrefix = hookWords.slice(0, prefixLen).join(' ');\n    const scenePrefix = sceneWords.slice(0, prefixLen).join(' ');\n    if (hookPrefix === scenePrefix) return false;\n  }\n  return true;\n} catch { return false; }\n",
+              "weight": 2
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  return typeof script.reasoning === 'string' && script.reasoning.trim().length > 10;\n} catch { return false; }\n",
+              "weight": 1
+            },
+            {
+              "type": "llm-rubric",
+              "value": "The script opens with a bold, controversial statement that will spark debate.\nIt should immediately make viewers want to comment (agree or disagree).\n",
+              "threshold": 0.8,
+              "weight": 2
+            },
+            {
+              "type": "llm-rubric",
+              "value": "Despite being a hot take, the script provides actual reasoning and evidence.\nIt's not just rage bait; there should be substance behind the opinion.\n",
+              "threshold": 0.7,
+              "weight": 2
+            }
+          ],
+          "options": {
+            "provider": "openai:gpt-4o-mini"
+          },
+          "metadata": {}
+        },
+        "testIdx": 3,
+        "vars": {
+          "topic": "TypeScript is overrated",
+          "archetype": "hot-take"
+        },
+        "metadata": {
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 1
+      },
+      {
+        "cost": 0.005315,
+        "gradingResult": {
+          "pass": true,
+          "score": 1,
+          "reason": "All assertions passed",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 1170,
+            "prompt": 1086,
+            "completion": 84,
+            "cached": 0,
+            "numRequests": 2
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  return (\n    Array.isArray(script.scenes) &&\n    script.scenes.length >= 3 &&\n    script.scenes.length <= 7\n  );\n} catch { return false; }\n",
+                "weight": 2
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  const countWords = (text) =>\n    text ? text.trim().split(/\\s+/).filter(Boolean).length : 0;\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean);\n  const wordCount = spoken.reduce((acc, text) => acc + countWords(text), 0);\n  return wordCount >= 80 && wordCount <= 200;\n} catch { return false; }\n",
+                "weight": 1
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  return (script.scenes || []).every((scene) =>\n    typeof scene.visualDirection === 'string' && scene.visualDirection.trim().length > 5\n  );\n} catch { return false; }\n",
+                "weight": 1
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean)\n    .join(' ');\n  const hasEmoji = /\\p{Extended_Pictographic}/u.test(spoken);\n  const hasMarkdown = /[`*_]/.test(spoken) || /\\[(.+?)\\]\\((.+?)\\)/.test(spoken);\n  const hasHashtag = /(^|\\s)#\\w+/.test(spoken);\n  return !hasEmoji && !hasMarkdown && !hasHashtag;\n} catch { return false; }\n",
+                "weight": 2
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  const normalize = (text) =>\n    (text || '')\n      .toLowerCase()\n      .replace(/[^\\p{L}\\p{N}\\s]/gu, '')\n      .replace(/\\s+/g, ' ')\n      .trim();\n  const hook = normalize(script.hook);\n  const scene1 = normalize(script.scenes?.[0]?.text);\n  if (!hook || !scene1) return true;\n  if (scene1.startsWith(hook) || scene1.includes(hook)) return false;\n  const hookWords = hook.split(' ');\n  const sceneWords = scene1.split(' ');\n  if (hookWords.length >= 4 && sceneWords.length >= 4) {\n    const prefixLen = Math.min(6, hookWords.length, sceneWords.length);\n    const hookPrefix = hookWords.slice(0, prefixLen).join(' ');\n    const scenePrefix = sceneWords.slice(0, prefixLen).join(' ');\n    if (hookPrefix === scenePrefix) return false;\n  }\n  return true;\n} catch { return false; }\n",
+                "weight": 2
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  return typeof script.reasoning === 'string' && script.reasoning.trim().length > 10;\n} catch { return false; }\n",
+                "weight": 1
+              }
+            },
+            {
+              "assertion": {
+                "type": "llm-rubric",
+                "value": "The script has clear, sequential steps that are easy to follow.\nEach step should be actionable and specific.\n",
+                "threshold": 0.8,
+                "weight": 2
+              },
+              "pass": true,
+              "score": 1,
+              "reason": "Each scene outlines a specific step in the process of deploying a Node.js app, making it easy to follow and actionable.",
+              "tokensUsed": {
+                "total": 581,
+                "prompt": 540,
+                "completion": 41,
+                "cached": 0,
+                "numRequests": 1,
+                "completionDetails": {
+                  "reasoning": 0,
+                  "acceptedPrediction": 0,
+                  "rejectedPrediction": 0
+                }
+              },
+              "metadata": {
+                "renderedGradingPrompt": "[{\"role\":\"system\",\"content\":\"You are grading output according to a user-specified rubric. If the statement in the rubric is true, then the output passes the test. You respond with a JSON object with this structure: {reason: string, pass: boolean, score: number}\\n\\nExamples:\\n\\n<Output>Hello world</Output>\\n<Rubric>Content contains a greeting</Rubric>\\n{\\\"reason\\\": \\\"the content contains the word 'Hello'\\\", \\\"pass\\\": true, \\\"score\\\": 1.0}\\n\\n<Output>Avast ye swabs, repel the invaders!</Output>\\n<Rubric>Does not speak like a pirate</Rubric>\\n{\\\"reason\\\": \\\"'avast ye' is a common pirate term\\\", \\\"pass\\\": false, \\\"score\\\": 0.0}\"},{\"role\":\"user\",\"content\":\"<Output>\\n{\\\"scenes\\\":[{\\\"text\\\":\\\"Let's get your Node.js app live, fast. First, make sure you've got Node.js and Git installed. Easy, right?\\\",\\\"visualDirection\\\":\\\"Show Node.js and Git logos on screen, then a quick checkmark animation.\\\",\\\"mood\\\":\\\"Energetic and encouraging\\\"},{\\\"text\\\":\\\"Initialize a Git repo in your project folder, then push it to GitHub. It's like sending your code to the cloud.\\\",\\\"visualDirection\\\":\\\"Screen recording of terminal commands for Git initialization and pushing to GitHub.\\\",\\\"mood\\\":\\\"Confident and straightforward\\\"},{\\\"text\\\":\\\"Head to Heroku, create a new app, and link your GitHub repo. It's just a few clicks!\\\",\\\"visualDirection\\\":\\\"Screen recording of Heroku dashboard with mouse clicks.\\\",\\\"mood\\\":\\\"Optimistic and smooth\\\"},{\\\"text\\\":\\\"Set your environment variables in Heroku. Don't forget to configure your start script too.\\\",\\\"visualDirection\\\":\\\"Close-up on Heroku settings, typing environment variables and start script in package.json.\\\",\\\"mood\\\":\\\"Focus and clarity\\\"},{\\\"text\\\":\\\"Finally, deploy your app with a single button. Watch it go live in seconds!\\\",\\\"visualDirection\\\":\\\"Heroku deploy button being clicked, followed by a success message.\\\",\\\"mood\\\":\\\"Exciting and triumphant\\\"}],\\\"reasoning\\\":\\\"The script provides a quick and clear guide to deploy a Node.js app using familiar tools. Each scene offers a simple step, reducing complexity and maintaining engagement.\\\",\\\"title\\\":\\\"Deploy a Node.js App in 5 Minutes!\\\",\\\"hook\\\":\\\"Want to deploy your Node.js app in just five minutes?\\\",\\\"cta\\\":\\\"Try it now and get your app online today!\\\",\\\"hashtags\\\":[\\\"#NodeJS\\\",\\\"#WebDevelopment\\\",\\\"#Heroku\\\"]}\\n</Output>\\n<Rubric>\\nThe script has clear, sequential steps that are easy to follow.\\nEach step should be actionable and specific.\\n\\n</Rubric>\"}]"
+              }
+            },
+            {
+              "assertion": {
+                "type": "llm-rubric",
+                "value": "The visual directions show what the viewer should be doing at each step.\nThis could include screen recordings, terminal commands, or UI interactions.\n",
+                "threshold": 0.8,
+                "weight": 1
+              },
+              "pass": true,
+              "score": 1,
+              "reason": "The visual directions include screen recordings and descriptions of actions like terminal commands and mouse clicks, indicating clear guidance on what the viewer should do at each step.",
+              "tokensUsed": {
+                "total": 589,
+                "prompt": 546,
+                "completion": 43,
+                "cached": 0,
+                "numRequests": 1,
+                "completionDetails": {
+                  "reasoning": 0,
+                  "acceptedPrediction": 0,
+                  "rejectedPrediction": 0
+                }
+              },
+              "metadata": {
+                "renderedGradingPrompt": "[{\"role\":\"system\",\"content\":\"You are grading output according to a user-specified rubric. If the statement in the rubric is true, then the output passes the test. You respond with a JSON object with this structure: {reason: string, pass: boolean, score: number}\\n\\nExamples:\\n\\n<Output>Hello world</Output>\\n<Rubric>Content contains a greeting</Rubric>\\n{\\\"reason\\\": \\\"the content contains the word 'Hello'\\\", \\\"pass\\\": true, \\\"score\\\": 1.0}\\n\\n<Output>Avast ye swabs, repel the invaders!</Output>\\n<Rubric>Does not speak like a pirate</Rubric>\\n{\\\"reason\\\": \\\"'avast ye' is a common pirate term\\\", \\\"pass\\\": false, \\\"score\\\": 0.0}\"},{\"role\":\"user\",\"content\":\"<Output>\\n{\\\"scenes\\\":[{\\\"text\\\":\\\"Let's get your Node.js app live, fast. First, make sure you've got Node.js and Git installed. Easy, right?\\\",\\\"visualDirection\\\":\\\"Show Node.js and Git logos on screen, then a quick checkmark animation.\\\",\\\"mood\\\":\\\"Energetic and encouraging\\\"},{\\\"text\\\":\\\"Initialize a Git repo in your project folder, then push it to GitHub. It's like sending your code to the cloud.\\\",\\\"visualDirection\\\":\\\"Screen recording of terminal commands for Git initialization and pushing to GitHub.\\\",\\\"mood\\\":\\\"Confident and straightforward\\\"},{\\\"text\\\":\\\"Head to Heroku, create a new app, and link your GitHub repo. It's just a few clicks!\\\",\\\"visualDirection\\\":\\\"Screen recording of Heroku dashboard with mouse clicks.\\\",\\\"mood\\\":\\\"Optimistic and smooth\\\"},{\\\"text\\\":\\\"Set your environment variables in Heroku. Don't forget to configure your start script too.\\\",\\\"visualDirection\\\":\\\"Close-up on Heroku settings, typing environment variables and start script in package.json.\\\",\\\"mood\\\":\\\"Focus and clarity\\\"},{\\\"text\\\":\\\"Finally, deploy your app with a single button. Watch it go live in seconds!\\\",\\\"visualDirection\\\":\\\"Heroku deploy button being clicked, followed by a success message.\\\",\\\"mood\\\":\\\"Exciting and triumphant\\\"}],\\\"reasoning\\\":\\\"The script provides a quick and clear guide to deploy a Node.js app using familiar tools. Each scene offers a simple step, reducing complexity and maintaining engagement.\\\",\\\"title\\\":\\\"Deploy a Node.js App in 5 Minutes!\\\",\\\"hook\\\":\\\"Want to deploy your Node.js app in just five minutes?\\\",\\\"cta\\\":\\\"Try it now and get your app online today!\\\",\\\"hashtags\\\":[\\\"#NodeJS\\\",\\\"#WebDevelopment\\\",\\\"#Heroku\\\"]}\\n</Output>\\n<Rubric>\\nThe visual directions show what the viewer should be doing at each step.\\nThis could include screen recordings, terminal commands, or UI interactions.\\n\\n</Rubric>\"}]"
+              }
+            }
+          ]
+        },
+        "id": "455cad19-3e57-4a72-8e6c-b48500d5e551",
+        "latencyMs": 5225,
+        "namedScores": {},
+        "prompt": {
+          "raw": "You are an expert short-form video scriptwriter. You write engaging scripts for TikTok, Reels, and YouTube Shorts.\n\nCreate a short-form video script about: \"How to deploy a Node.js app in 5 minutes\"\n\nFORMAT: howto\n\nREQUIREMENTS:\n- Start with a compelling hook that creates curiosity (first 2-3 seconds).\n- 3-7 scenes, each with spoken text, visual direction, and mood.\n- End with a concise call-to-action.\n- Use conversational, TikTok-style language.\n\nTTS WRITING RULES:\n- Write for spoken delivery at 120-180 WPM.\n- Target length: ~110-140 words (~45 seconds).\n- Total spoken word count must be between 90-150 words.\n- Use short sentences (<=15 words) and one idea per sentence.\n- Each scene should be 2 sentences and ~22-30 words (minimum 20 words per scene).\n- Use contractions and second person (\"you\", \"you'll\").\n- Use punctuation for timing (commas = micro-pause, periods = full beat).\n- Normalize text for speech: expand numbers, acronyms, URLs, emails, file paths, and units.\n- Avoid openers like \"In this video\" or \"Today we're going to\".\n- Hook must be a single sentence and must not be repeated in scene 1.\n- Scene 1 must continue after the hook with NEW information (no restating or paraphrasing the hook).\n\n\n\n\nGive step-by-step instructions that are easy to follow.\n\n\n\n\n\nOUTPUT RULES:\n- Respond with JSON only. No markdown or code fences.\n- Spoken text fields (hook, scenes[].text, cta) must be plain text: no emojis, no markdown, no hashtags.\n- Hashtags only go in the hashtags array.\n\nOutput as JSON:\n{\n  \"scenes\": [\n    {\"text\": \"...\", \"visualDirection\": \"...\", \"mood\": \"...\"}\n  ],\n  \"reasoning\": \"...\",\n  \"title\": \"...\",\n  \"hook\": \"...\",\n  \"cta\": \"...\",\n  \"hashtags\": [\"#tag1\", \"#tag2\"]\n}\n",
+          "label": "You are an expert short-form video scriptwriter. You write engaging scripts for TikTok, Reels, and YouTube Shorts.\n\nCreate a short-form video script about: \"{{ topic }}\"\n\nFORMAT: {{ archetype }}\n\nREQUIREMENTS:\n- Start with a compelling hook that creates curiosity (first 2-3 seconds).\n- 3-7 scenes, each with spoken text, visual direction, and mood.\n- End with a concise call-to-action.\n- Use conversational, TikTok-style language.\n\nTTS WRITING RULES:\n- Write for spoken delivery at 120-180 WPM.\n- Target length: ~110-140 words (~45 seconds).\n- Total spoken word count must be between 90-150 words.\n- Use short sentences (<=15 words) and one idea per sentence.\n- Each scene should be 2 sentences and ~22-30 words (minimum 20 words per scene).\n- Use contractions and second person (\"you\", \"you'll\").\n- Use punctuation for timing (commas = micro-pause, periods = full beat).\n- Normalize text for speech: expand numbers, acronyms, URLs, emails, file paths, and units.\n- Avoid openers like \"In this video\" or \"Today we're going to\".\n- Hook must be a single sentence and must not be repeated in scene 1.\n- Scene 1 must continue after the hook with NEW information (no restating or paraphrasing the hook).\n\n{% if archetype == \"listicle\" %}\nStructure as a numbered list with a hook, clear items, and a call-to-action.\nPrefix each point with an explicit number label (e.g., \"Tip 1:\", \"2)\", \"Number 3:\").\n{% endif %}\n{% if archetype == \"versus\" %}\nPresent a balanced comparison with a clear recommendation at the end.\nThe hook should be a bold statement, not a question.\n{% endif %}\n{% if archetype == \"howto\" %}\nGive step-by-step instructions that are easy to follow.\n{% endif %}\n{% if archetype == \"myth\" %}\nStart with the myth, then reveal the reality with evidence.\nUse explicit \"Myth: X\" and \"Reality: Y\" phrasing in scene text.\n{% endif %}\n{% if archetype == \"story\" %}\nUse narrative structure: setup, conflict, resolution.\n{% endif %}\n{% if archetype == \"hot-take\" %}\nLead with a provocative opinion, then back it up with reasoning.\n{% endif %}\n\nOUTPUT RULES:\n- Respond with JSON only. No markdown or code fences.\n- Spoken text fields (hook, scenes[].text, cta) must be plain text: no emojis, no markdown, no hashtags.\n- Hashtags only go in the hashtags array.\n\nOutput as JSON:\n{\n  \"scenes\": [\n    {\"text\": \"...\", \"visualDirection\": \"...\", \"mood\": \"...\"}\n  ],\n  \"reasoning\": \"...\",\n  \"title\": \"...\",\n  \"hook\": \"...\",\n  \"cta\": \"...\",\n  \"hashtags\": [\"#tag1\", \"#tag2\"]\n}\n"
+        },
+        "promptId": "93a92bce8f5089bd2ea47f2715a3ee7e3797656cd5f74ac6fdb10f937f89a874",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:gpt-4o",
+          "label": ""
+        },
+        "response": {
+          "output": "{\n  \"scenes\": [\n    {\n      \"text\": \"Let's get your Node.js app live, fast. First, make sure you've got Node.js and Git installed. Easy, right?\",\n      \"visualDirection\": \"Show Node.js and Git logos on screen, then a quick checkmark animation.\",\n      \"mood\": \"Energetic and encouraging\"\n    },\n    {\n      \"text\": \"Initialize a Git repo in your project folder, then push it to GitHub. It's like sending your code to the cloud.\",\n      \"visualDirection\": \"Screen recording of terminal commands for Git initialization and pushing to GitHub.\",\n      \"mood\": \"Confident and straightforward\"\n    },\n    {\n      \"text\": \"Head to Heroku, create a new app, and link your GitHub repo. It's just a few clicks!\",\n      \"visualDirection\": \"Screen recording of Heroku dashboard with mouse clicks.\",\n      \"mood\": \"Optimistic and smooth\"\n    },\n    {\n      \"text\": \"Set your environment variables in Heroku. Don't forget to configure your start script too.\",\n      \"visualDirection\": \"Close-up on Heroku settings, typing environment variables and start script in package.json.\",\n      \"mood\": \"Focus and clarity\"\n    },\n    {\n      \"text\": \"Finally, deploy your app with a single button. Watch it go live in seconds!\",\n      \"visualDirection\": \"Heroku deploy button being clicked, followed by a success message.\",\n      \"mood\": \"Exciting and triumphant\"\n    }\n  ],\n  \"reasoning\": \"The script provides a quick and clear guide to deploy a Node.js app using familiar tools. Each scene offers a simple step, reducing complexity and maintaining engagement.\",\n  \"title\": \"Deploy a Node.js App in 5 Minutes!\",\n  \"hook\": \"Want to deploy your Node.js app in just five minutes?\",\n  \"cta\": \"Try it now and get your app online today!\",\n  \"hashtags\": [\"#NodeJS\", \"#WebDevelopment\", \"#Heroku\"]\n}",
+          "tokenUsage": {
+            "total": 866,
+            "prompt": 446,
+            "completion": 420,
+            "numRequests": 1,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0
+            }
+          },
+          "cached": false,
+          "latencyMs": 5225,
+          "finishReason": "stop",
+          "cost": 0.005315,
+          "guardrails": {
+            "flagged": false
+          }
+        },
+        "score": 1,
+        "success": true,
+        "testCase": {
+          "vars": {
+            "topic": "How to deploy a Node.js app in 5 minutes",
+            "archetype": "howto"
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  return (\n    Array.isArray(script.scenes) &&\n    script.scenes.length >= 3 &&\n    script.scenes.length <= 7\n  );\n} catch { return false; }\n",
+              "weight": 2
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  const countWords = (text) =>\n    text ? text.trim().split(/\\s+/).filter(Boolean).length : 0;\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean);\n  const wordCount = spoken.reduce((acc, text) => acc + countWords(text), 0);\n  return wordCount >= 80 && wordCount <= 200;\n} catch { return false; }\n",
+              "weight": 1
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  return (script.scenes || []).every((scene) =>\n    typeof scene.visualDirection === 'string' && scene.visualDirection.trim().length > 5\n  );\n} catch { return false; }\n",
+              "weight": 1
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean)\n    .join(' ');\n  const hasEmoji = /\\p{Extended_Pictographic}/u.test(spoken);\n  const hasMarkdown = /[`*_]/.test(spoken) || /\\[(.+?)\\]\\((.+?)\\)/.test(spoken);\n  const hasHashtag = /(^|\\s)#\\w+/.test(spoken);\n  return !hasEmoji && !hasMarkdown && !hasHashtag;\n} catch { return false; }\n",
+              "weight": 2
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  const normalize = (text) =>\n    (text || '')\n      .toLowerCase()\n      .replace(/[^\\p{L}\\p{N}\\s]/gu, '')\n      .replace(/\\s+/g, ' ')\n      .trim();\n  const hook = normalize(script.hook);\n  const scene1 = normalize(script.scenes?.[0]?.text);\n  if (!hook || !scene1) return true;\n  if (scene1.startsWith(hook) || scene1.includes(hook)) return false;\n  const hookWords = hook.split(' ');\n  const sceneWords = scene1.split(' ');\n  if (hookWords.length >= 4 && sceneWords.length >= 4) {\n    const prefixLen = Math.min(6, hookWords.length, sceneWords.length);\n    const hookPrefix = hookWords.slice(0, prefixLen).join(' ');\n    const scenePrefix = sceneWords.slice(0, prefixLen).join(' ');\n    if (hookPrefix === scenePrefix) return false;\n  }\n  return true;\n} catch { return false; }\n",
+              "weight": 2
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  return typeof script.reasoning === 'string' && script.reasoning.trim().length > 10;\n} catch { return false; }\n",
+              "weight": 1
+            },
+            {
+              "type": "llm-rubric",
+              "value": "The script has clear, sequential steps that are easy to follow.\nEach step should be actionable and specific.\n",
+              "threshold": 0.8,
+              "weight": 2
+            },
+            {
+              "type": "llm-rubric",
+              "value": "The visual directions show what the viewer should be doing at each step.\nThis could include screen recordings, terminal commands, or UI interactions.\n",
+              "threshold": 0.8,
+              "weight": 1
+            }
+          ],
+          "options": {
+            "provider": "openai:gpt-4o-mini"
+          },
+          "metadata": {}
+        },
+        "testIdx": 4,
+        "vars": {
+          "topic": "How to deploy a Node.js app in 5 minutes",
+          "archetype": "howto"
+        },
+        "metadata": {
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 0
+      },
+      {
+        "cost": 0.0048400000000000006,
+        "error": "Custom function returned false\ntry {\n  const script = JSON.parse(output);\n  const countWords = (text) =>\n    text ? text.trim().split(/\\s+/).filter(Boolean).length : 0;\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean);\n  const wordCount = spoken.reduce((acc, text) => acc + countWords(text), 0);\n  return wordCount >= 80 && wordCount <= 200;\n} catch { return false; }",
+        "gradingResult": {
+          "pass": false,
+          "score": 0.9166666666666666,
+          "reason": "Custom function returned false\ntry {\n  const script = JSON.parse(output);\n  const countWords = (text) =>\n    text ? text.trim().split(/\\s+/).filter(Boolean).length : 0;\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean);\n  const wordCount = spoken.reduce((acc, text) => acc + countWords(text), 0);\n  return wordCount >= 80 && wordCount <= 200;\n} catch { return false; }",
+          "namedScores": {},
+          "tokensUsed": {
+            "total": 1089,
+            "prompt": 980,
+            "completion": 109,
+            "cached": 0,
+            "numRequests": 2
+          },
+          "componentResults": [
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  return (\n    Array.isArray(script.scenes) &&\n    script.scenes.length >= 3 &&\n    script.scenes.length <= 7\n  );\n} catch { return false; }\n",
+                "weight": 2
+              }
+            },
+            {
+              "pass": false,
+              "score": 0,
+              "reason": "Custom function returned false\ntry {\n  const script = JSON.parse(output);\n  const countWords = (text) =>\n    text ? text.trim().split(/\\s+/).filter(Boolean).length : 0;\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean);\n  const wordCount = spoken.reduce((acc, text) => acc + countWords(text), 0);\n  return wordCount >= 80 && wordCount <= 200;\n} catch { return false; }",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  const countWords = (text) =>\n    text ? text.trim().split(/\\s+/).filter(Boolean).length : 0;\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean);\n  const wordCount = spoken.reduce((acc, text) => acc + countWords(text), 0);\n  return wordCount >= 80 && wordCount <= 200;\n} catch { return false; }\n",
+                "weight": 1
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  return (script.scenes || []).every((scene) =>\n    typeof scene.visualDirection === 'string' && scene.visualDirection.trim().length > 5\n  );\n} catch { return false; }\n",
+                "weight": 1
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean)\n    .join(' ');\n  const hasEmoji = /\\p{Extended_Pictographic}/u.test(spoken);\n  const hasMarkdown = /[`*_]/.test(spoken) || /\\[(.+?)\\]\\((.+?)\\)/.test(spoken);\n  const hasHashtag = /(^|\\s)#\\w+/.test(spoken);\n  return !hasEmoji && !hasMarkdown && !hasHashtag;\n} catch { return false; }\n",
+                "weight": 2
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  const normalize = (text) =>\n    (text || '')\n      .toLowerCase()\n      .replace(/[^\\p{L}\\p{N}\\s]/gu, '')\n      .replace(/\\s+/g, ' ')\n      .trim();\n  const hook = normalize(script.hook);\n  const scene1 = normalize(script.scenes?.[0]?.text);\n  if (!hook || !scene1) return true;\n  if (scene1.startsWith(hook) || scene1.includes(hook)) return false;\n  const hookWords = hook.split(' ');\n  const sceneWords = scene1.split(' ');\n  if (hookWords.length >= 4 && sceneWords.length >= 4) {\n    const prefixLen = Math.min(6, hookWords.length, sceneWords.length);\n    const hookPrefix = hookWords.slice(0, prefixLen).join(' ');\n    const scenePrefix = sceneWords.slice(0, prefixLen).join(' ');\n    if (hookPrefix === scenePrefix) return false;\n  }\n  return true;\n} catch { return false; }\n",
+                "weight": 2
+              }
+            },
+            {
+              "pass": true,
+              "score": 1,
+              "reason": "Assertion passed",
+              "assertion": {
+                "type": "javascript",
+                "value": "try {\n  const script = JSON.parse(output);\n  return typeof script.reasoning === 'string' && script.reasoning.trim().length > 10;\n} catch { return false; }\n",
+                "weight": 1
+              }
+            },
+            {
+              "assertion": {
+                "type": "llm-rubric",
+                "value": "The script clearly states the myth, then definitively debunks it.\nThe structure should be \"Myth: X / Reality: Y\" or similar.\n",
+                "threshold": 0.8,
+                "weight": 2
+              },
+              "pass": true,
+              "score": 1,
+              "reason": "The content clearly states the myth and provides a definitive reality that counters it, following the structure 'Myth: X / Reality: Y'.",
+              "tokensUsed": {
+                "total": 540,
+                "prompt": 494,
+                "completion": 46,
+                "cached": 0,
+                "numRequests": 1,
+                "completionDetails": {
+                  "reasoning": 0,
+                  "acceptedPrediction": 0,
+                  "rejectedPrediction": 0
+                }
+              },
+              "metadata": {
+                "renderedGradingPrompt": "[{\"role\":\"system\",\"content\":\"You are grading output according to a user-specified rubric. If the statement in the rubric is true, then the output passes the test. You respond with a JSON object with this structure: {reason: string, pass: boolean, score: number}\\n\\nExamples:\\n\\n<Output>Hello world</Output>\\n<Rubric>Content contains a greeting</Rubric>\\n{\\\"reason\\\": \\\"the content contains the word 'Hello'\\\", \\\"pass\\\": true, \\\"score\\\": 1.0}\\n\\n<Output>Avast ye swabs, repel the invaders!</Output>\\n<Rubric>Does not speak like a pirate</Rubric>\\n{\\\"reason\\\": \\\"'avast ye' is a common pirate term\\\", \\\"pass\\\": false, \\\"score\\\": 0.0}\"},{\"role\":\"user\",\"content\":\"<Output>\\n{\\\"scenes\\\":[{\\\"text\\\":\\\"Myth: You need a computer science degree to be a developer.\\\",\\\"visualDirection\\\":\\\"Text overlay on a confused person scratching their head in front of a computer.\\\",\\\"mood\\\":\\\"Curious\\\"},{\\\"text\\\":\\\"Reality: Many successful developers are self-taught or come from bootcamps.\\\",\\\"visualDirection\\\":\\\"Clips of people coding in cafes and at home, smiling.\\\",\\\"mood\\\":\\\"Empowering\\\"},{\\\"text\\\":\\\"Companies like Google and Apple hire based on skills, not degrees.\\\",\\\"visualDirection\\\":\\\"Logos of tech companies with a checkmark overlay.\\\",\\\"mood\\\":\\\"Encouraging\\\"},{\\\"text\\\":\\\"Online resources make learning coding accessible to everyone, anywhere.\\\",\\\"visualDirection\\\":\\\"Quick clips of online platforms, tutorials, and coding forums.\\\",\\\"mood\\\":\\\"Motivational\\\"},{\\\"text\\\":\\\"Focus on building projects and a portfolio to showcase your abilities.\\\",\\\"visualDirection\\\":\\\"Fast-forwarded clip of someone building a project on a laptop.\\\",\\\"mood\\\":\\\"Inspirational\\\"}],\\\"reasoning\\\":\\\"The video aims to debunk the myth that a computer science degree is necessary to become a developer by showing evidence that skills and self-learning are equally valuable.\\\",\\\"title\\\":\\\"Do You Really Need a CS Degree to Code?\\\",\\\"hook\\\":\\\"Think you need a computer science degree to code? Think again!\\\",\\\"cta\\\":\\\"Start coding today! Dive into resources and build your future.\\\",\\\"hashtags\\\":[\\\"#CodingMyth\\\",\\\"#SelfTaught\\\",\\\"#DeveloperLife\\\"]}\\n</Output>\\n<Rubric>\\nThe script clearly states the myth, then definitively debunks it.\\nThe structure should be \\\"Myth: X / Reality: Y\\\" or similar.\\n\\n</Rubric>\"}]"
+              }
+            },
+            {
+              "assertion": {
+                "type": "llm-rubric",
+                "value": "The debunking includes evidence, examples, or statistics.\nIt's not just opinion; there should be factual backing.\n",
+                "threshold": 0.7,
+                "weight": 1
+              },
+              "pass": true,
+              "score": 1,
+              "reason": "The output provides examples of how many successful developers are self-taught or come from bootcamps, as well as mentioning companies like Google and Apple that hire based on skills, which serves as evidence to support the claims being made.",
+              "tokensUsed": {
+                "total": 549,
+                "prompt": 486,
+                "completion": 63,
+                "cached": 0,
+                "numRequests": 1,
+                "completionDetails": {
+                  "reasoning": 0,
+                  "acceptedPrediction": 0,
+                  "rejectedPrediction": 0
+                }
+              },
+              "metadata": {
+                "renderedGradingPrompt": "[{\"role\":\"system\",\"content\":\"You are grading output according to a user-specified rubric. If the statement in the rubric is true, then the output passes the test. You respond with a JSON object with this structure: {reason: string, pass: boolean, score: number}\\n\\nExamples:\\n\\n<Output>Hello world</Output>\\n<Rubric>Content contains a greeting</Rubric>\\n{\\\"reason\\\": \\\"the content contains the word 'Hello'\\\", \\\"pass\\\": true, \\\"score\\\": 1.0}\\n\\n<Output>Avast ye swabs, repel the invaders!</Output>\\n<Rubric>Does not speak like a pirate</Rubric>\\n{\\\"reason\\\": \\\"'avast ye' is a common pirate term\\\", \\\"pass\\\": false, \\\"score\\\": 0.0}\"},{\"role\":\"user\",\"content\":\"<Output>\\n{\\\"scenes\\\":[{\\\"text\\\":\\\"Myth: You need a computer science degree to be a developer.\\\",\\\"visualDirection\\\":\\\"Text overlay on a confused person scratching their head in front of a computer.\\\",\\\"mood\\\":\\\"Curious\\\"},{\\\"text\\\":\\\"Reality: Many successful developers are self-taught or come from bootcamps.\\\",\\\"visualDirection\\\":\\\"Clips of people coding in cafes and at home, smiling.\\\",\\\"mood\\\":\\\"Empowering\\\"},{\\\"text\\\":\\\"Companies like Google and Apple hire based on skills, not degrees.\\\",\\\"visualDirection\\\":\\\"Logos of tech companies with a checkmark overlay.\\\",\\\"mood\\\":\\\"Encouraging\\\"},{\\\"text\\\":\\\"Online resources make learning coding accessible to everyone, anywhere.\\\",\\\"visualDirection\\\":\\\"Quick clips of online platforms, tutorials, and coding forums.\\\",\\\"mood\\\":\\\"Motivational\\\"},{\\\"text\\\":\\\"Focus on building projects and a portfolio to showcase your abilities.\\\",\\\"visualDirection\\\":\\\"Fast-forwarded clip of someone building a project on a laptop.\\\",\\\"mood\\\":\\\"Inspirational\\\"}],\\\"reasoning\\\":\\\"The video aims to debunk the myth that a computer science degree is necessary to become a developer by showing evidence that skills and self-learning are equally valuable.\\\",\\\"title\\\":\\\"Do You Really Need a CS Degree to Code?\\\",\\\"hook\\\":\\\"Think you need a computer science degree to code? Think again!\\\",\\\"cta\\\":\\\"Start coding today! Dive into resources and build your future.\\\",\\\"hashtags\\\":[\\\"#CodingMyth\\\",\\\"#SelfTaught\\\",\\\"#DeveloperLife\\\"]}\\n</Output>\\n<Rubric>\\nThe debunking includes evidence, examples, or statistics.\\nIt's not just opinion; there should be factual backing.\\n\\n</Rubric>\"}]"
+              }
+            }
+          ]
+        },
+        "id": "f473dabd-5f69-4e05-b60b-8631fbada040",
+        "latencyMs": 6618,
+        "namedScores": {},
+        "prompt": {
+          "raw": "You are an expert short-form video scriptwriter. You write engaging scripts for TikTok, Reels, and YouTube Shorts.\n\nCreate a short-form video script about: \"You need a CS degree to be a developer\"\n\nFORMAT: myth\n\nREQUIREMENTS:\n- Start with a compelling hook that creates curiosity (first 2-3 seconds).\n- 3-7 scenes, each with spoken text, visual direction, and mood.\n- End with a concise call-to-action.\n- Use conversational, TikTok-style language.\n\nTTS WRITING RULES:\n- Write for spoken delivery at 120-180 WPM.\n- Target length: ~110-140 words (~45 seconds).\n- Total spoken word count must be between 90-150 words.\n- Use short sentences (<=15 words) and one idea per sentence.\n- Each scene should be 2 sentences and ~22-30 words (minimum 20 words per scene).\n- Use contractions and second person (\"you\", \"you'll\").\n- Use punctuation for timing (commas = micro-pause, periods = full beat).\n- Normalize text for speech: expand numbers, acronyms, URLs, emails, file paths, and units.\n- Avoid openers like \"In this video\" or \"Today we're going to\".\n- Hook must be a single sentence and must not be repeated in scene 1.\n- Scene 1 must continue after the hook with NEW information (no restating or paraphrasing the hook).\n\n\n\n\n\nStart with the myth, then reveal the reality with evidence.\nUse explicit \"Myth: X\" and \"Reality: Y\" phrasing in scene text.\n\n\n\n\nOUTPUT RULES:\n- Respond with JSON only. No markdown or code fences.\n- Spoken text fields (hook, scenes[].text, cta) must be plain text: no emojis, no markdown, no hashtags.\n- Hashtags only go in the hashtags array.\n\nOutput as JSON:\n{\n  \"scenes\": [\n    {\"text\": \"...\", \"visualDirection\": \"...\", \"mood\": \"...\"}\n  ],\n  \"reasoning\": \"...\",\n  \"title\": \"...\",\n  \"hook\": \"...\",\n  \"cta\": \"...\",\n  \"hashtags\": [\"#tag1\", \"#tag2\"]\n}\n",
+          "label": "You are an expert short-form video scriptwriter. You write engaging scripts for TikTok, Reels, and YouTube Shorts.\n\nCreate a short-form video script about: \"{{ topic }}\"\n\nFORMAT: {{ archetype }}\n\nREQUIREMENTS:\n- Start with a compelling hook that creates curiosity (first 2-3 seconds).\n- 3-7 scenes, each with spoken text, visual direction, and mood.\n- End with a concise call-to-action.\n- Use conversational, TikTok-style language.\n\nTTS WRITING RULES:\n- Write for spoken delivery at 120-180 WPM.\n- Target length: ~110-140 words (~45 seconds).\n- Total spoken word count must be between 90-150 words.\n- Use short sentences (<=15 words) and one idea per sentence.\n- Each scene should be 2 sentences and ~22-30 words (minimum 20 words per scene).\n- Use contractions and second person (\"you\", \"you'll\").\n- Use punctuation for timing (commas = micro-pause, periods = full beat).\n- Normalize text for speech: expand numbers, acronyms, URLs, emails, file paths, and units.\n- Avoid openers like \"In this video\" or \"Today we're going to\".\n- Hook must be a single sentence and must not be repeated in scene 1.\n- Scene 1 must continue after the hook with NEW information (no restating or paraphrasing the hook).\n\n{% if archetype == \"listicle\" %}\nStructure as a numbered list with a hook, clear items, and a call-to-action.\nPrefix each point with an explicit number label (e.g., \"Tip 1:\", \"2)\", \"Number 3:\").\n{% endif %}\n{% if archetype == \"versus\" %}\nPresent a balanced comparison with a clear recommendation at the end.\nThe hook should be a bold statement, not a question.\n{% endif %}\n{% if archetype == \"howto\" %}\nGive step-by-step instructions that are easy to follow.\n{% endif %}\n{% if archetype == \"myth\" %}\nStart with the myth, then reveal the reality with evidence.\nUse explicit \"Myth: X\" and \"Reality: Y\" phrasing in scene text.\n{% endif %}\n{% if archetype == \"story\" %}\nUse narrative structure: setup, conflict, resolution.\n{% endif %}\n{% if archetype == \"hot-take\" %}\nLead with a provocative opinion, then back it up with reasoning.\n{% endif %}\n\nOUTPUT RULES:\n- Respond with JSON only. No markdown or code fences.\n- Spoken text fields (hook, scenes[].text, cta) must be plain text: no emojis, no markdown, no hashtags.\n- Hashtags only go in the hashtags array.\n\nOutput as JSON:\n{\n  \"scenes\": [\n    {\"text\": \"...\", \"visualDirection\": \"...\", \"mood\": \"...\"}\n  ],\n  \"reasoning\": \"...\",\n  \"title\": \"...\",\n  \"hook\": \"...\",\n  \"cta\": \"...\",\n  \"hashtags\": [\"#tag1\", \"#tag2\"]\n}\n"
+        },
+        "promptId": "93a92bce8f5089bd2ea47f2715a3ee7e3797656cd5f74ac6fdb10f937f89a874",
+        "promptIdx": 0,
+        "provider": {
+          "id": "openai:gpt-4o",
+          "label": ""
+        },
+        "response": {
+          "output": "{\n  \"scenes\": [\n    {\n      \"text\": \"Myth: You need a computer science degree to be a developer.\",\n      \"visualDirection\": \"Text overlay on a confused person scratching their head in front of a computer.\",\n      \"mood\": \"Curious\"\n    },\n    {\n      \"text\": \"Reality: Many successful developers are self-taught or come from bootcamps.\",\n      \"visualDirection\": \"Clips of people coding in cafes and at home, smiling.\",\n      \"mood\": \"Empowering\"\n    },\n    {\n      \"text\": \"Companies like Google and Apple hire based on skills, not degrees.\",\n      \"visualDirection\": \"Logos of tech companies with a checkmark overlay.\",\n      \"mood\": \"Encouraging\"\n    },\n    {\n      \"text\": \"Online resources make learning coding accessible to everyone, anywhere.\",\n      \"visualDirection\": \"Quick clips of online platforms, tutorials, and coding forums.\",\n      \"mood\": \"Motivational\"\n    },\n    {\n      \"text\": \"Focus on building projects and a portfolio to showcase your abilities.\",\n      \"visualDirection\": \"Fast-forwarded clip of someone building a project on a laptop.\",\n      \"mood\": \"Inspirational\"\n    }\n  ],\n  \"reasoning\": \"The video aims to debunk the myth that a computer science degree is necessary to become a developer by showing evidence that skills and self-learning are equally valuable.\",\n  \"title\": \"Do You Really Need a CS Degree to Code?\",\n  \"hook\": \"Think you need a computer science degree to code? Think again!\",\n  \"cta\": \"Start coding today! Dive into resources and build your future.\",\n  \"hashtags\": [\"#CodingMyth\", \"#SelfTaught\", \"#DeveloperLife\"]\n}",
+          "tokenUsage": {
+            "total": 832,
+            "prompt": 464,
+            "completion": 368,
+            "numRequests": 1,
+            "completionDetails": {
+              "reasoning": 0,
+              "acceptedPrediction": 0,
+              "rejectedPrediction": 0
+            }
+          },
+          "cached": false,
+          "latencyMs": 6618,
+          "finishReason": "stop",
+          "cost": 0.0048400000000000006,
+          "guardrails": {
+            "flagged": false
+          }
+        },
+        "score": 0.9166666666666666,
+        "success": false,
+        "testCase": {
+          "vars": {
+            "topic": "You need a CS degree to be a developer",
+            "archetype": "myth"
+          },
+          "assert": [
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  return (\n    Array.isArray(script.scenes) &&\n    script.scenes.length >= 3 &&\n    script.scenes.length <= 7\n  );\n} catch { return false; }\n",
+              "weight": 2
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  const countWords = (text) =>\n    text ? text.trim().split(/\\s+/).filter(Boolean).length : 0;\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean);\n  const wordCount = spoken.reduce((acc, text) => acc + countWords(text), 0);\n  return wordCount >= 80 && wordCount <= 200;\n} catch { return false; }\n",
+              "weight": 1
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  return (script.scenes || []).every((scene) =>\n    typeof scene.visualDirection === 'string' && scene.visualDirection.trim().length > 5\n  );\n} catch { return false; }\n",
+              "weight": 1
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean)\n    .join(' ');\n  const hasEmoji = /\\p{Extended_Pictographic}/u.test(spoken);\n  const hasMarkdown = /[`*_]/.test(spoken) || /\\[(.+?)\\]\\((.+?)\\)/.test(spoken);\n  const hasHashtag = /(^|\\s)#\\w+/.test(spoken);\n  return !hasEmoji && !hasMarkdown && !hasHashtag;\n} catch { return false; }\n",
+              "weight": 2
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  const normalize = (text) =>\n    (text || '')\n      .toLowerCase()\n      .replace(/[^\\p{L}\\p{N}\\s]/gu, '')\n      .replace(/\\s+/g, ' ')\n      .trim();\n  const hook = normalize(script.hook);\n  const scene1 = normalize(script.scenes?.[0]?.text);\n  if (!hook || !scene1) return true;\n  if (scene1.startsWith(hook) || scene1.includes(hook)) return false;\n  const hookWords = hook.split(' ');\n  const sceneWords = scene1.split(' ');\n  if (hookWords.length >= 4 && sceneWords.length >= 4) {\n    const prefixLen = Math.min(6, hookWords.length, sceneWords.length);\n    const hookPrefix = hookWords.slice(0, prefixLen).join(' ');\n    const scenePrefix = sceneWords.slice(0, prefixLen).join(' ');\n    if (hookPrefix === scenePrefix) return false;\n  }\n  return true;\n} catch { return false; }\n",
+              "weight": 2
+            },
+            {
+              "type": "javascript",
+              "value": "try {\n  const script = JSON.parse(output);\n  return typeof script.reasoning === 'string' && script.reasoning.trim().length > 10;\n} catch { return false; }\n",
+              "weight": 1
+            },
+            {
+              "type": "llm-rubric",
+              "value": "The script clearly states the myth, then definitively debunks it.\nThe structure should be \"Myth: X / Reality: Y\" or similar.\n",
+              "threshold": 0.8,
+              "weight": 2
+            },
+            {
+              "type": "llm-rubric",
+              "value": "The debunking includes evidence, examples, or statistics.\nIt's not just opinion; there should be factual backing.\n",
+              "threshold": 0.7,
+              "weight": 1
+            }
+          ],
+          "options": {
+            "provider": "openai:gpt-4o-mini"
+          },
+          "metadata": {}
+        },
+        "testIdx": 5,
+        "vars": {
+          "topic": "You need a CS degree to be a developer",
+          "archetype": "myth"
+        },
+        "metadata": {
+          "_promptfooFileMetadata": {}
+        },
+        "failureReason": 1
+      }
+    ],
+    "stats": {
+      "successes": 3,
+      "failures": 3,
+      "errors": 0,
+      "tokenUsage": {
+        "prompt": 2724,
+        "completion": 2391,
+        "cached": 0,
+        "total": 5115,
+        "numRequests": 6,
+        "completionDetails": {
+          "reasoning": 0,
+          "acceptedPrediction": 0,
+          "rejectedPrediction": 0
+        },
+        "assertions": {
+          "total": 8636,
+          "prompt": 7937,
+          "completion": 699,
+          "cached": 0,
+          "numRequests": 0,
+          "completionDetails": {
+            "reasoning": 0,
+            "acceptedPrediction": 0,
+            "rejectedPrediction": 0
+          }
+        }
+      },
+      "durationMs": 67628
+    }
+  },
+  "config": {
+    "tags": {},
+    "description": "content-machine script generation quality evaluation",
+    "prompts": [
+      "You are an expert short-form video scriptwriter. You write engaging scripts for TikTok, Reels, and YouTube Shorts.\n\nCreate a short-form video script about: \"{{ topic }}\"\n\nFORMAT: {{ archetype }}\n\nREQUIREMENTS:\n- Start with a compelling hook that creates curiosity (first 2-3 seconds).\n- 3-7 scenes, each with spoken text, visual direction, and mood.\n- End with a concise call-to-action.\n- Use conversational, TikTok-style language.\n\nTTS WRITING RULES:\n- Write for spoken delivery at 120-180 WPM.\n- Target length: ~110-140 words (~45 seconds).\n- Total spoken word count must be between 90-150 words.\n- Use short sentences (<=15 words) and one idea per sentence.\n- Each scene should be 2 sentences and ~22-30 words (minimum 20 words per scene).\n- Use contractions and second person (\"you\", \"you'll\").\n- Use punctuation for timing (commas = micro-pause, periods = full beat).\n- Normalize text for speech: expand numbers, acronyms, URLs, emails, file paths, and units.\n- Avoid openers like \"In this video\" or \"Today we're going to\".\n- Hook must be a single sentence and must not be repeated in scene 1.\n- Scene 1 must continue after the hook with NEW information (no restating or paraphrasing the hook).\n\n{% if archetype == \"listicle\" %}\nStructure as a numbered list with a hook, clear items, and a call-to-action.\nPrefix each point with an explicit number label (e.g., \"Tip 1:\", \"2)\", \"Number 3:\").\n{% endif %}\n{% if archetype == \"versus\" %}\nPresent a balanced comparison with a clear recommendation at the end.\nThe hook should be a bold statement, not a question.\n{% endif %}\n{% if archetype == \"howto\" %}\nGive step-by-step instructions that are easy to follow.\n{% endif %}\n{% if archetype == \"myth\" %}\nStart with the myth, then reveal the reality with evidence.\nUse explicit \"Myth: X\" and \"Reality: Y\" phrasing in scene text.\n{% endif %}\n{% if archetype == \"story\" %}\nUse narrative structure: setup, conflict, resolution.\n{% endif %}\n{% if archetype == \"hot-take\" %}\nLead with a provocative opinion, then back it up with reasoning.\n{% endif %}\n\nOUTPUT RULES:\n- Respond with JSON only. No markdown or code fences.\n- Spoken text fields (hook, scenes[].text, cta) must be plain text: no emojis, no markdown, no hashtags.\n- Hashtags only go in the hashtags array.\n\nOutput as JSON:\n{\n  \"scenes\": [\n    {\"text\": \"...\", \"visualDirection\": \"...\", \"mood\": \"...\"}\n  ],\n  \"reasoning\": \"...\",\n  \"title\": \"...\",\n  \"hook\": \"...\",\n  \"cta\": \"...\",\n  \"hashtags\": [\"#tag1\", \"#tag2\"]\n}\n"
+    ],
+    "providers": [
+      {
+        "id": "openai:gpt-4o",
+        "config": {
+          "temperature": 0.7,
+          "response_format": {
+            "type": "json_object"
+          }
+        }
+      }
+    ],
+    "tests": [
+      {
+        "vars": {
+          "topic": "5 JavaScript tips every developer should know",
+          "archetype": "listicle"
+        },
+        "assert": [
+          {
+            "type": "llm-rubric",
+            "value": "The script opens with an attention-grabbing hook that would stop a TikTok user from scrolling.\nThe first sentence should be surprising, controversial, or promise immediate value.\nScore 0 if it's a generic introduction like \"In this video...\" or \"Today we'll cover...\".\n",
+            "threshold": 0.7,
+            "weight": 2
+          },
+          {
+            "type": "llm-rubric",
+            "value": "The language is casual, conversational, and suitable for TikTok/Reels/Shorts.\nNo corporate jargon, no formal academic language, no \"as a developer\" phrases.\nShould sound like a friend giving advice, not a textbook.\n",
+            "threshold": 0.8,
+            "weight": 1
+          },
+          {
+            "type": "llm-rubric",
+            "value": "Each scene has a specific, filmable visual description.\nVisual directions should describe what the viewer will SEE on screen.\nAvoid abstract concepts that cannot be filmed (like \"efficiency\" or \"code quality\").\n",
+            "threshold": 0.8,
+            "weight": 1
+          },
+          {
+            "type": "llm-rubric",
+            "value": "For a listicle archetype, the script should have a clear numbered structure.\nEach tip should be distinct and actionable.\nThe list should feel complete, not like it was cut off.\n",
+            "threshold": 0.8,
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "vars": {
+          "topic": "Redis vs PostgreSQL for caching",
+          "archetype": "versus"
+        },
+        "assert": [
+          {
+            "type": "llm-rubric",
+            "value": "The script opens with an attention-grabbing hook.\nFor a versus video, this might be a provocative statement like \"You're using the wrong database\"\nor a relatable problem statement.\n",
+            "threshold": 0.7,
+            "weight": 2
+          },
+          {
+            "type": "llm-rubric",
+            "value": "For a versus archetype, the script should clearly compare both options.\nIt should present pros and cons of each, not just favor one.\nThe comparison should be fair and technically accurate.\n",
+            "threshold": 0.8,
+            "weight": 2
+          },
+          {
+            "type": "llm-rubric",
+            "value": "The script provides a clear recommendation or decision framework at the end.\nViewers should know when to use each option.\n",
+            "threshold": 0.7,
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "vars": {
+          "topic": "How I learned React in 2 weeks",
+          "archetype": "story"
+        },
+        "assert": [
+          {
+            "type": "llm-rubric",
+            "value": "The script has a narrative arc: setup, challenge, resolution.\nIt should feel like a personal story, not a tutorial.\n",
+            "threshold": 0.8,
+            "weight": 2
+          },
+          {
+            "type": "llm-rubric",
+            "value": "The language uses first-person perspective and includes emotional elements.\nThe viewer should feel connected to the storyteller.\n",
+            "threshold": 0.7,
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "vars": {
+          "topic": "TypeScript is overrated",
+          "archetype": "hot-take"
+        },
+        "assert": [
+          {
+            "type": "llm-rubric",
+            "value": "The script opens with a bold, controversial statement that will spark debate.\nIt should immediately make viewers want to comment (agree or disagree).\n",
+            "threshold": 0.8,
+            "weight": 2
+          },
+          {
+            "type": "llm-rubric",
+            "value": "Despite being a hot take, the script provides actual reasoning and evidence.\nIt's not just rage bait; there should be substance behind the opinion.\n",
+            "threshold": 0.7,
+            "weight": 2
+          }
+        ]
+      },
+      {
+        "vars": {
+          "topic": "How to deploy a Node.js app in 5 minutes",
+          "archetype": "howto"
+        },
+        "assert": [
+          {
+            "type": "llm-rubric",
+            "value": "The script has clear, sequential steps that are easy to follow.\nEach step should be actionable and specific.\n",
+            "threshold": 0.8,
+            "weight": 2
+          },
+          {
+            "type": "llm-rubric",
+            "value": "The visual directions show what the viewer should be doing at each step.\nThis could include screen recordings, terminal commands, or UI interactions.\n",
+            "threshold": 0.8,
+            "weight": 1
+          }
+        ]
+      },
+      {
+        "vars": {
+          "topic": "You need a CS degree to be a developer",
+          "archetype": "myth"
+        },
+        "assert": [
+          {
+            "type": "llm-rubric",
+            "value": "The script clearly states the myth, then definitively debunks it.\nThe structure should be \"Myth: X / Reality: Y\" or similar.\n",
+            "threshold": 0.8,
+            "weight": 2
+          },
+          {
+            "type": "llm-rubric",
+            "value": "The debunking includes evidence, examples, or statistics.\nIt's not just opinion; there should be factual backing.\n",
+            "threshold": 0.7,
+            "weight": 1
+          }
+        ]
+      }
+    ],
+    "scenarios": [],
+    "env": {},
+    "defaultTest": {
+      "options": {
+        "provider": "openai:gpt-4o-mini"
+      },
+      "assert": [
+        {
+          "type": "javascript",
+          "value": "try {\n  const script = JSON.parse(output);\n  return (\n    Array.isArray(script.scenes) &&\n    script.scenes.length >= 3 &&\n    script.scenes.length <= 7\n  );\n} catch { return false; }\n",
+          "weight": 2
+        },
+        {
+          "type": "javascript",
+          "value": "try {\n  const script = JSON.parse(output);\n  const countWords = (text) =>\n    text ? text.trim().split(/\\s+/).filter(Boolean).length : 0;\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean);\n  const wordCount = spoken.reduce((acc, text) => acc + countWords(text), 0);\n  return wordCount >= 80 && wordCount <= 200;\n} catch { return false; }\n",
+          "weight": 1
+        },
+        {
+          "type": "javascript",
+          "value": "try {\n  const script = JSON.parse(output);\n  return (script.scenes || []).every((scene) =>\n    typeof scene.visualDirection === 'string' && scene.visualDirection.trim().length > 5\n  );\n} catch { return false; }\n",
+          "weight": 1
+        },
+        {
+          "type": "javascript",
+          "value": "try {\n  const script = JSON.parse(output);\n  const spoken = [script.hook, ...(script.scenes || []).map((s) => s.text), script.cta]\n    .filter(Boolean)\n    .join(' ');\n  const hasEmoji = /\\p{Extended_Pictographic}/u.test(spoken);\n  const hasMarkdown = /[`*_]/.test(spoken) || /\\[(.+?)\\]\\((.+?)\\)/.test(spoken);\n  const hasHashtag = /(^|\\s)#\\w+/.test(spoken);\n  return !hasEmoji && !hasMarkdown && !hasHashtag;\n} catch { return false; }\n",
+          "weight": 2
+        },
+        {
+          "type": "javascript",
+          "value": "try {\n  const script = JSON.parse(output);\n  const normalize = (text) =>\n    (text || '')\n      .toLowerCase()\n      .replace(/[^\\p{L}\\p{N}\\s]/gu, '')\n      .replace(/\\s+/g, ' ')\n      .trim();\n  const hook = normalize(script.hook);\n  const scene1 = normalize(script.scenes?.[0]?.text);\n  if (!hook || !scene1) return true;\n  if (scene1.startsWith(hook) || scene1.includes(hook)) return false;\n  const hookWords = hook.split(' ');\n  const sceneWords = scene1.split(' ');\n  if (hookWords.length >= 4 && sceneWords.length >= 4) {\n    const prefixLen = Math.min(6, hookWords.length, sceneWords.length);\n    const hookPrefix = hookWords.slice(0, prefixLen).join(' ');\n    const scenePrefix = sceneWords.slice(0, prefixLen).join(' ');\n    if (hookPrefix === scenePrefix) return false;\n  }\n  return true;\n} catch { return false; }\n",
+          "weight": 2
+        },
+        {
+          "type": "javascript",
+          "value": "try {\n  const script = JSON.parse(output);\n  return typeof script.reasoning === 'string' && script.reasoning.trim().length > 10;\n} catch { return false; }\n",
+          "weight": 1
+        }
+      ],
+      "vars": {},
+      "metadata": {}
+    },
+    "outputPath": [],
+    "extensions": [],
+    "metadata": {},
+    "evaluateOptions": {}
+  },
+  "shareableUrl": null,
+  "metadata": {
+    "promptfooVersion": "0.120.11",
+    "nodeVersion": "v22.16.0",
+    "platform": "win32",
+    "arch": "x64",
+    "exportedAt": "2026-01-10T08:52:13.938Z",
+    "evaluationCreatedAt": "2026-01-10T08:50:52.588Z"
+  }
+}

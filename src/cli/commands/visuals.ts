@@ -138,7 +138,7 @@ export const visualsCommand = new Command('visuals')
         ['Provider', options.provider],
         ['From stock', String(visuals.fromStock)],
         ['Fallbacks', String(visuals.fallbacks)],
-        ['Output', options.output],
+        ['Visuals', options.output],
       ];
       if (visuals.gameplayClip) {
         rows.push(['Gameplay', visuals.gameplayClip.path]);

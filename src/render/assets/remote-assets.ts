@@ -73,10 +73,12 @@ export async function downloadRemoteAssetsToCache(
   const { cacheRoot, onProgress, log } = options;
   const succeededUrls = new Set<string>();
   const extraAssets: BundleAssetCopy[] = [];
-  const total = plan.assets.length;
+  const remoteAssets = plan.assets.filter((asset) => asset.sourceUrl);
+  const total = remoteAssets.length;
 
-  for (let index = 0; index < plan.assets.length; index++) {
-    const asset = plan.assets[index];
+  for (let index = 0; index < remoteAssets.length; index++) {
+    const asset = remoteAssets[index];
+    const sourceUrl = asset.sourceUrl as string;
     const cachePath = join(cacheRoot, asset.bundlePath);
 
     const completed = index;
@@ -87,16 +89,16 @@ export async function downloadRemoteAssetsToCache(
 
     try {
       if (!(await isOkFile(cachePath))) {
-        log?.info({ url: asset.sourceUrl, cachePath }, 'Downloading remote asset');
-        await downloadToFile(asset.sourceUrl, cachePath);
+        log?.info({ url: sourceUrl, cachePath }, 'Downloading remote asset');
+        await downloadToFile(sourceUrl, cachePath);
       } else {
-        log?.debug({ url: asset.sourceUrl, cachePath }, 'Using cached remote asset');
+        log?.debug({ url: sourceUrl, cachePath }, 'Using cached remote asset');
       }
 
-      succeededUrls.add(asset.sourceUrl);
+      succeededUrls.add(sourceUrl);
       extraAssets.push({ sourcePath: cachePath, destPath: asset.bundlePath });
     } catch (error) {
-      log?.warn({ url: asset.sourceUrl, error }, 'Failed to download remote asset, falling back');
+      log?.warn({ url: sourceUrl, error }, 'Failed to download remote asset, falling back');
       // Keep the original URL in visuals (caller should only rewrite succeeded items).
     }
   }

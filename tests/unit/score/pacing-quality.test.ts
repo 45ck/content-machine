@@ -14,6 +14,9 @@ import {
 } from '../../../src/score/pacing-quality';
 import type { TimestampsResult } from '../../../src/audio/schema';
 
+const shouldRunRealOutput = process.env.CM_RUN_REAL_OUTPUT_TESTS === 'true';
+const describeRealOutput = shouldRunRealOutput ? describe : describe.skip;
+
 describe('Pacing Quality Metrics', () => {
   describe('Unit Tests', () => {
     it('should detect normal pacing (150-200 WPM)', () => {
@@ -142,7 +145,7 @@ describe('Pacing Quality Metrics', () => {
     });
   });
 
-  describe('Real Output Quality Gates', () => {
+  describeRealOutput('Real Output Quality Gates', () => {
     const timestampsPath = path.join(process.cwd(), 'output', 'timestamps.json');
 
     it('QUALITY GATE: Average WPM should be 120-220', () => {

@@ -1,4 +1,4 @@
-# Content Machine 🎬
+﻿# Content Machine
 
 Automated short-form video generation pipeline for TikTok, Reels, and Shorts.
 
@@ -6,37 +6,33 @@ Automated short-form video generation pipeline for TikTok, Reels, and Shorts.
 
 ## What is this?
 
-Content Machine is a hybrid pipeline that combines deterministic automation with AI agents to generate short-form video content:
+Content Machine is a CLI-first pipeline that transforms a topic into a short-form video in four stages:
 
 ```
-Daily Pipeline:  1A → 1B → 2 → 3 → 4 → 5 → 6 → 7
-                 ↓    ↓    ↓   ↓   ↓   ↓   ↓   ↓
-              Ingest Plan Script Asset Render Review Export Analytics
-              (auto) (AI) (AI) (auto) (auto) (human) (auto) (AI)
+topic -> script.json -> audio.wav + timestamps.json -> visuals.json -> video.mp4
 ```
+
+Run the full pipeline with `cm generate` or run each stage independently.
 
 **Key features:**
 
-- 🤖 AI-powered content planning and script generation (GPT-4o)
-- 🎥 Automated video rendering with Remotion
-- 📸 Product UI capture with Playwright
-- 🎙️ Text-to-speech with Kokoro
-- 📝 Auto-generated captions with Whisper
-- 👤 Human review gate before export
-- 📊 Post-publish analytics and learning
+- LLM script generation into scene-based `script.json`
+- Local TTS via kokoro-js with word-level timestamps from whisper.cpp
+- Visual matching to scenes with stock footage providers (Pexels/Pixabay)
+- Remotion rendering with word-highlighted captions
+- CLI-first, stage-by-stage artifacts for iteration and CI
+- Custom asset imports and workflow definitions for marketing pipelines
 
-## Architecture
+## Pipeline
 
-| Step              | Type             | What it does                              |
-| ----------------- | ---------------- | ----------------------------------------- |
-| 1A - Trend Ingest | ⚙️ Deterministic | Fetch Reddit/trends, deduplicate          |
-| 1B - Planner      | 🤖 Agent         | GPT-4o selects topic + hook + CTA         |
-| 2 - Script        | 🤖 Agent         | GPT-4o writes scene-by-scene script       |
-| 3 - Assets        | ⚙️ Deterministic | TTS, Playwright capture, Pexels B-roll    |
-| 4 - Render        | ⚙️ Deterministic | Remotion composition + captions           |
-| 5 - Review        | 👤 Human         | Approve/reject/edit before export         |
-| 6 - Export        | ⚙️ Deterministic | ZIP package with upload checklist         |
-| 7 - Analytics     | 🤖 Agent         | Analyze performance, suggest improvements |
+| Stage   | Command      | Input                                   | Output                          |
+| ------- | ------------ | --------------------------------------- | ------------------------------- |
+| script  | `cm script`  | topic string                            | `script.json`                   |
+| audio   | `cm audio`   | `script.json`                           | `audio.wav`, `timestamps.json`  |
+| visuals | `cm visuals` | `timestamps.json`                       | `visuals.json`                  |
+| render  | `cm render`  | `visuals.json` + `audio.wav` + `timestamps.json` | `video.mp4`             |
+
+`cm generate` runs the full pipeline in order.
 
 ## Quick Start
 
@@ -52,11 +48,8 @@ npm install
 cp .env.example .env
 # Add your OPENAI_API_KEY
 
-# Run daily pipeline (interactive)
-npm run cli daily
-
-# Run weekly research
-npm run cli weekly
+# Run the full pipeline in dev mode
+npm run cm -- generate "Redis vs PostgreSQL for caching" --archetype versus --output output/video.mp4 --keep-artifacts
 ```
 
 ## Recommended Video Pipeline (Default)
@@ -70,6 +63,32 @@ node --input-type=module -e "import('@remotion/install-whisper-cpp').then(async 
 
 # Generate a short video with best-sync defaults
 cm generate "Redis vs PostgreSQL for caching" --archetype versus --output output/video.mp4 --keep-artifacts
+```
+
+## Custom Assets and Workflows
+
+Bring your own audio + clips and still use cm captions/rendering:
+
+```bash
+# 1) Generate timestamps from existing audio
+cm timestamps --audio assets/voiceover.wav --output output/timestamps.json
+
+# 2) Build visuals.json from local footage
+cm import visuals --timestamps output/timestamps.json --clips assets/clips --output output/visuals.json
+
+# 3) Render with your assets
+cm generate "Launch teaser" \
+  --audio assets/voiceover.wav \
+  --timestamps output/timestamps.json \
+  --visuals output/visuals.json \
+  --output output/video.mp4
+```
+
+For repeatable pipelines, define a workflow in `./.cm/workflows/<id>/workflow.json`:
+
+```bash
+cm workflows list
+cm generate "Product recap" --workflow acme-custom --workflow-allow-exec --output output/video.mp4
 ```
 
 ## Split-Screen Gameplay + Pexels (Brainrot Template)
@@ -88,7 +107,7 @@ cp /path/to/subway.mp4 ~/.cm/assets/gameplay/subway-surfers/
 
 # 2) Generate script + audio + timestamps
 cm script --topic "Redis vs PostgreSQL for caching" -o output/script.json
-cm audio --input output/script.json --output output/audio.wav --timestamps output/timestamps.json
+cm audio --input output/script.json --output output/audio.wav --timestamps output/timestamps.json --tts-speed 1.2
 
 # 3) Match Pexels visuals + gameplay
 cm visuals --input output/timestamps.json --provider pexels --orientation portrait \
@@ -119,10 +138,10 @@ This repo vendors several open-source projects for video generation:
 
 ```
 vendor/
-├── remotion/              # React-based video composition
-├── short-video-maker/     # Reference patterns for Pexels + Kokoro
-├── open-deep-research/    # Deep research agent patterns
-└── ...
+  remotion/              # React-based video composition
+  short-video-maker/     # Reference patterns for Pexels + Kokoro
+  open-deep-research/    # Deep research agent patterns
+  ...
 ```
 
 See [VENDORING.md](VENDORING.md) for details.
@@ -139,21 +158,59 @@ REDDIT_CLIENT_ID=...       # For trend fetching
 REDDIT_CLIENT_SECRET=...
 ```
 
+## Caption Fonts
+
+Default captions use an Inter-first stack with Montserrat fallback. A small Inter font pack
+ships in `assets/fonts/Inter` for consistent rendering.
+
+CLI overrides:
+```bash
+cm render --caption-font-family "Inter" \
+  --caption-font-weight 700 \
+  --caption-font-file "assets/fonts/Inter/Inter-Bold.woff2" \
+  --input visuals.json --timestamps timestamps.json --audio audio.wav
+```
+
+Config defaults (`.content-machine.toml`):
+```toml
+[captions]
+font_family = "Inter"
+font_weight = 700
+font_file = "assets/fonts/Inter/Inter-Bold.woff2"
+```
+
+JSON config supports multiple fonts:
+```json
+{
+  "captions": {
+    "fontFamily": "Inter",
+    "fontWeight": 700,
+    "fonts": [
+      {
+        "family": "Inter",
+        "src": "assets/fonts/Inter/Inter-Bold.woff2",
+        "weight": 700
+      }
+    ]
+  }
+}
+```
+
 ## Export-First Design
 
 Content Machine does **not** auto-publish to platforms. Instead, it generates a ZIP package:
 
 ```
 output/
-└── 2026-01-01-discord-bot-tutorial/
-    ├── video.mp4
-    ├── cover.jpg
-    ├── metadata.json
-    ├── upload-checklist.md    # Platform-specific instructions
-    └── platform-hints/
-        ├── tiktok.md
-        ├── reels.md
-        └── shorts.md
+  2026-01-01-discord-bot-tutorial/
+    video.mp4
+    cover.jpg
+    metadata.json
+    upload-checklist.md    # Platform-specific instructions
+    platform-hints/
+      tiktok.md
+      reels.md
+      shorts.md
 ```
 
 **Why?** TikTok/Instagram APIs require business verification and audit. Export-first means:
@@ -166,27 +223,27 @@ output/
 
 ```
 src/
-├── cli.ts                 # Command-line interface
-├── index.ts               # Main exports
-├── types/                 # Zod schemas
-├── pipeline/              # Orchestrator + state machine
-├── steps/                 # Individual pipeline steps
-│   ├── 1a-trend-ingest.ts
-│   ├── 1b-planner.ts
-│   ├── 2-script-generation.ts
-│   ├── 3-asset-capture.ts
-│   ├── 4-video-render.ts
-│   ├── 5-human-review.ts
-│   ├── 6-export-package.ts
-│   └── 7-analytics.ts
-├── jobs/                  # Scheduled jobs
-│   └── weekly-research.ts
-└── remotion/              # Video templates
+  cli/        # Commander.js entry points
+  script/     # Script generation pipeline
+  audio/      # TTS + ASR pipeline
+  visuals/    # Footage matching
+  render/     # Remotion integration
+  core/       # Shared infrastructure
+  prompts/    # Prompt templates
+  hooks/      # Hook selection helpers
+  package/    # Packaging outputs
+  publish/    # Publish/export helpers
+  research/   # Research command logic
+  score/      # Scoring pipeline
+  validate/   # Validation pipeline
+  types/      # Shared types
+  test/       # Test stubs/support
+  index.ts    # Package exports
 ```
 
 ## Roadmap
 
-- [ ] Core pipeline (Steps 1-7)
+- [ ] Core CLI pipeline (script/audio/visuals/render)
 - [ ] Remotion templates
 - [ ] Playwright capture scenarios
 - [ ] Review queue UI

@@ -24,6 +24,7 @@ References: `docs/guides/guide-cli-ux-standards-20260106.md`.
   - `audio.wav` and `timestamps.json` into the work directory
   - the final MP4 at `--output`
 - `--keep-artifacts` prevents cleanup and guarantees `script.json`, `audio.wav`, `timestamps.json`, and `visuals.json` next to the output.
+- External artifacts are supported via `--script/--audio/--timestamps/--visuals`, and can be sourced from workflows.
 - **Research integration (2026-01-07):** `--research [path]` enables evidence-based script generation. If path is provided, loads research from file. If flag only, auto-runs `cm research` before script stage.
 
 ## Research-enhanced workflow

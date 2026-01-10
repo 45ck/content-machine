@@ -17,6 +17,7 @@ import {
 } from './schema';
 import { getPromptForArchetype } from './prompts';
 import { buildResearchContext, extractSourceUrls } from './research-context';
+import { sanitizeSpokenText } from './sanitize';
 import type { ResearchOutput } from '../research/schema';
 
 export type { ScriptOutput, Scene } from './schema';
@@ -66,12 +67,15 @@ function buildScriptOutput(
 ): ScriptOutput {
   const scenes: Scene[] = llmResponse.scenes.map((scene, index) => ({
     id: `scene-${String(index + 1).padStart(3, '0')}`,
-    text: scene.text,
+    text: sanitizeSpokenText(scene.text) ?? '',
     visualDirection: scene.visualDirection,
     mood: scene.mood,
   }));
 
-  const allText = [llmResponse.hook, ...scenes.map((s) => s.text), llmResponse.cta]
+  const hook = sanitizeSpokenText(llmResponse.hook);
+  const cta = sanitizeSpokenText(llmResponse.cta);
+
+  const allText = [hook, ...scenes.map((s) => s.text), cta]
     .filter(Boolean)
     .join(' ');
   const wordCount = allText.split(/\s+/).filter(Boolean).length;
@@ -96,8 +100,8 @@ function buildScriptOutput(
     scenes,
     reasoning: llmResponse.reasoning,
     title,
-    hook: llmResponse.hook,
-    cta: llmResponse.cta,
+    hook,
+    cta,
     hashtags: llmResponse.hashtags,
     meta: {
       wordCount,

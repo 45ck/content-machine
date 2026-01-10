@@ -7,6 +7,7 @@
  * All caption appearance, layout, and behavior is controlled here.
  */
 import { z } from 'zod';
+import { FONT_STACKS } from '../tokens/font';
 
 /**
  * Highlight mode - how the active word is emphasized
@@ -221,7 +222,7 @@ export const CaptionConfigSchema = z.object({
 
   // === TYPOGRAPHY ===
   /** Font family (use web-safe or load custom) */
-  fontFamily: z.string().default('Inter'),
+  fontFamily: z.string().default(FONT_STACKS.body),
   /** Font size in pixels */
   fontSize: z.number().int().positive().default(72),
   /** Font weight */
@@ -230,6 +231,8 @@ export const CaptionConfigSchema = z.object({
     .default('bold'),
   /** Letter spacing (em units) */
   letterSpacing: z.number().default(0),
+  /** Space between words (em units, scales with font size) */
+  wordSpacing: z.number().nonnegative().default(0.12),
   /** Line height multiplier */
   lineHeight: z.number().positive().default(1.2),
   /** Text transform */

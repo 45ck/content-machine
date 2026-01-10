@@ -1,4 +1,4 @@
-# BUG-002: Hook Text Duplication in Audio
+﻿# BUG-002: Hook Text Duplication in Audio
 
 **Date:** 2026-06-06  
 **Status:** FIXED (prior commit 7020b15)  
@@ -10,7 +10,7 @@
 ## Problem Statement
 
 The hook text was being spoken twice in generated audio:
-1. First as the explicit "hook" section
+1. First as the explicit "hook" unit
 2. Second as part of "scene 1" content (which often repeats the hook)
 
 **Example Output:**
@@ -30,10 +30,10 @@ Scripts follow an archetype pattern where:
 - **Hook:** Opening attention-grabber (e.g., "These 5 morning habits will change your life")
 - **Scene 1:** Often begins with the same or similar text for narrative flow
 
-When the audio pipeline assembled sections naively:
+When the audio pipeline assembled alignment units naively:
 ```typescript
 // BUGGY: Naive assembly
-sections = [
+units = [
   { text: script.hook },           // "5 morning habits..."
   { text: script.scenes[0].text }, // "5 morning habits..." (repeated!)
   { text: script.scenes[1].text },
@@ -52,48 +52,34 @@ The LLM naturally includes the hook in scene 1 because:
 
 ## Fix Implementation
 
-**Location:** `src/audio/pipeline.ts` - `buildAlignmentSections()`
+**Location:** `src/audio/alignment.ts` - `buildAlignmentUnits()`
 
 ```typescript
-export function buildAlignmentSections(script: ScriptOutput): AlignmentSection[] {
-  const sections: AlignmentSection[] = [];
-  
-  // Check if hook is already included in first scene
-  const firstSceneText = script.scenes[0]?.narration || '';
-  const hookText = script.hook || '';
-  
-  // Only add hook as separate section if NOT duplicated in scene 1
+export function buildAlignmentUnits(script: ScriptOutput): SpokenUnit[] {
+  const units: SpokenUnit[] = [];
+
+  const hookText = script.hook ?? '';
+  const firstSceneText = script.scenes[0]?.text ?? '';
+
+  // Only add hook as separate unit if NOT duplicated in scene 1
   if (hookText && !firstSceneText.toLowerCase().includes(hookText.toLowerCase())) {
-    sections.push({
-      type: 'hook',
-      text: hookText,
-      order: 0,
-    });
+    units.push({ id: 'hook', text: hookText });
   }
-  
+
   // Add scenes
-  script.scenes.forEach((scene, index) => {
-    sections.push({
-      type: 'scene',
-      text: scene.narration,
-      order: index + 1,
-      sceneIndex: index,
-    });
+  script.scenes.forEach((scene) => {
+    units.push({ id: scene.id, text: scene.text });
   });
-  
-  // Similar deduplication for CTA...
-  const lastSceneText = script.scenes[script.scenes.length - 1]?.narration || '';
-  const ctaText = script.cta || '';
-  
+
+  // Similar deduplication for CTA
+  const lastSceneText = script.scenes[script.scenes.length - 1]?.text ?? '';
+  const ctaText = script.cta ?? '';
+
   if (ctaText && !lastSceneText.toLowerCase().includes(ctaText.toLowerCase())) {
-    sections.push({
-      type: 'cta',
-      text: ctaText,
-      order: script.scenes.length + 1,
-    });
+    units.push({ id: 'cta', text: ctaText });
   }
-  
-  return sections;
+
+  return units;
 }
 ```
 
@@ -101,48 +87,48 @@ export function buildAlignmentSections(script: ScriptOutput): AlignmentSection[]
 
 | Condition | Action |
 |-----------|--------|
-| `scene1.includes(hook)` | Skip separate hook section |
-| `!scene1.includes(hook)` | Add hook as separate section |
-| `lastScene.includes(cta)` | Skip separate CTA section |
-| `!lastScene.includes(cta)` | Add CTA as separate section |
+| `scene1.includes(hook)` | Skip separate hook unit |
+| `!scene1.includes(hook)` | Add hook as separate unit |
+| `lastScene.includes(cta)` | Skip separate CTA unit |
+| `!lastScene.includes(cta)` | Add CTA unit |
 
 ---
 
 ## Test Coverage
 
-**Unit Tests (`tests/unit/audio/pipeline.test.ts`):**
+**Unit Tests (`tests/unit/audio/alignment-units.test.ts`):**
 
 ```typescript
-describe('buildAlignmentSections', () => {
+describe('buildAlignmentUnits', () => {
   it('deduplicates hook when included in scene 1', () => {
     const script = {
       hook: '5 morning habits',
       scenes: [
-        { narration: '5 morning habits will change your life' },
-        { narration: 'First, wake up early' },
+        { id: 'scene-001', text: '5 morning habits will change your life' },
+        { id: 'scene-002', text: 'First, wake up early' },
       ],
       cta: 'Follow for more',
     };
-    
-    const sections = buildAlignmentSections(script);
-    
-    // Hook should NOT be separate section
-    expect(sections.filter(s => s.type === 'hook')).toHaveLength(0);
-    expect(sections.filter(s => s.type === 'scene')).toHaveLength(2);
+
+    const units = buildAlignmentUnits(script);
+
+    // Hook should NOT be separate unit
+    expect(units.filter((unit) => unit.id === 'hook')).toHaveLength(0);
+    expect(units.filter((unit) => unit.id.startsWith('scene-'))).toHaveLength(2);
   });
-  
+
   it('includes hook when NOT in scene 1', () => {
     const script = {
       hook: 'Wait for it...',
       scenes: [
-        { narration: 'Here are 5 tips' },
+        { id: 'scene-001', text: 'Here are 5 tips' },
       ],
     };
-    
-    const sections = buildAlignmentSections(script);
-    
-    // Hook SHOULD be separate section
-    expect(sections.filter(s => s.type === 'hook')).toHaveLength(1);
+
+    const units = buildAlignmentUnits(script);
+
+    // Hook SHOULD be separate unit
+    expect(units.filter((unit) => unit.id === 'hook')).toHaveLength(1);
   });
 });
 ```
@@ -197,15 +183,15 @@ The code is correct; the demo files are stale artifacts from before the fix.
 
 ## Lessons Learned
 
-1. **Content-Aware Assembly:** Don't naively concatenate script sections
+1. **Content-Aware Assembly:** Don't naively concatenate alignment units
 2. **LLM Output Patterns:** Expect natural repetition in generated content
-3. **Bidirectional Deduplication:** Apply to both hook→scene1 AND lastScene→CTA
+3. **Bidirectional Deduplication:** Apply to both hook/scene1 AND lastScene/CTA
 4. **Case-Insensitive Matching:** Natural language varies in capitalization
 
 ---
 
 ## Related Files
 
-- [src/audio/pipeline.ts](../../src/audio/pipeline.ts) - Section assembly logic
+- [src/audio/alignment.ts](../../src/audio/alignment.ts) - Alignment unit assembly logic
 - [src/script/generator.ts](../../src/script/generator.ts) - Script generation
-- [tests/unit/audio/pipeline.test.ts](../../tests/unit/audio/pipeline.test.ts) - Tests
+- [tests/unit/audio/alignment-units.test.ts](../../tests/unit/audio/alignment-units.test.ts) - Tests

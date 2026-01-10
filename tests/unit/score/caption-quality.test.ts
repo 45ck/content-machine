@@ -18,6 +18,9 @@ import {
 } from '../../../src/score/caption-quality';
 import type { WordTimestamp } from '../../../src/audio/schema';
 
+const shouldRunRealOutput = process.env.CM_RUN_REAL_OUTPUT_TESTS === 'true';
+const describeRealOutput = shouldRunRealOutput ? describe : describe.skip;
+
 /**
  * Load real timestamps from output directory
  * Supports both flat format (data.words) and scene-based format (data.scenes[].words)
@@ -133,7 +136,7 @@ describe('Caption Quality Metrics', () => {
     });
   });
 
-  describe('Real Output Quality Gates', () => {
+  describeRealOutput('Real Output Quality Gates', () => {
     let realWords: WordTimestamp[] | null;
     let report: CaptionQualityReport | null;
 

@@ -16,7 +16,7 @@ export const FONT_STACKS = Object.freeze({
    * Body - Clean readable sans-serif
    * Source: Research §2 "Montserrat for body"
    */
-  body: '"Montserrat", "Inter", "Helvetica Neue", sans-serif',
+  body: '"Inter", "Montserrat", "Helvetica Neue", sans-serif',
 
   /**
    * System - Native platform fonts

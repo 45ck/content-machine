@@ -10,26 +10,32 @@ import { bundle } from '@remotion/bundler';
 import { renderMedia, selectComposition } from '@remotion/renderer';
 import { VisualsOutput, VisualsOutputInput } from '../visuals/schema';
 import { TimestampsOutput } from '../audio/schema';
+import type { AudioMixOutput } from '../audio/mix/schema';
 import { Orientation } from '../core/config';
 import { createLogger } from '../core/logger';
 import { CMError, RenderError } from '../core/errors';
+import { probeVideoWithFfprobe } from '../validate/ffprobe';
 import {
   RenderOutput,
   RenderOutputSchema,
   RenderPropsInput,
   CaptionStyle,
   RENDER_SCHEMA_VERSION,
+  HookClipInput,
+  type FontSource,
 } from './schema';
 import { getCaptionPreset, CaptionPresetName } from './captions/presets';
 import type { CaptionConfig, CaptionConfigInput } from './captions/config';
 import { join, dirname, resolve, basename } from 'path';
 import { fileURLToPath } from 'url';
 import { filterCaptionWords } from './captions/paging';
+import { FONT_STACKS } from './tokens/font';
 import {
   applyVisualAssetBundlePlan,
   buildVisualAssetBundlePlan,
 } from './assets/visual-asset-bundler';
 import { downloadRemoteAssetsToCache } from './assets/remote-assets';
+import { prepareAudioMixForRender, type BundleAsset } from './audio-mix';
 
 // Get the directory containing this file for Remotion bundling
 // In ESM, we use import.meta.url; __dirname is injected by esbuild for CJS
@@ -72,6 +78,9 @@ export interface RenderVideoOptions {
   visuals: VisualsOutput | VisualsOutputInput;
   timestamps: TimestampsOutput;
   audioPath: string;
+  audioMix?: AudioMixOutput;
+  /** Base dir for resolving audio mix asset paths */
+  audioMixBaseDir?: string;
   outputPath: string;
   orientation: Orientation;
   fps?: number;
@@ -82,6 +91,8 @@ export interface RenderVideoOptions {
   /** Split-screen layout positions */
   gameplayPosition?: 'top' | 'bottom' | 'full';
   contentPosition?: 'top' | 'bottom' | 'full';
+  /** Optional hook clip to prepend before main content */
+  hook?: HookClipInput;
   /**
    * Download remote visual assets (e.g. Pexels URLs) into the Remotion bundle for
    * more reliable rendering.
@@ -132,6 +143,14 @@ export interface RenderVideoOptions {
    * Caption animation: none (default), fade, slideUp, slideDown, pop, bounce
    */
   captionAnimation?: 'none' | 'fade' | 'slideUp' | 'slideDown' | 'pop' | 'bounce';
+  /** Caption font family override */
+  captionFontFamily?: string;
+  /** Caption font weight override */
+  captionFontWeight?: number | 'normal' | 'bold' | 'black';
+  /** Caption font style for custom font loading */
+  captionFontStyle?: 'normal' | 'italic' | 'oblique';
+  /** Caption font file path to bundle (ttf/otf/woff/woff2) */
+  captionFontFile?: string;
   /** Drop filler words from captions */
   captionDropFillers?: boolean;
   /** Custom filler list (comma-separated via CLI) */
@@ -152,6 +171,8 @@ export interface RenderVideoOptions {
   browserExecutable?: string | null;
   /** Chrome mode for Remotion browser launch */
   chromeMode?: 'headless-shell' | 'chrome-for-testing';
+  /** Custom font sources for Remotion */
+  fonts?: FontSource[];
 }
 
 export type RenderProgressPhase =
@@ -174,14 +195,11 @@ const DIMENSIONS: Record<Orientation, { width: number; height: number }> = {
   square: { width: 1080, height: 1080 },
 };
 
+const MIN_LOCAL_VIDEO_BYTES = 8 * 1024;
+
 interface BundleResult {
   bundleLocation: string;
   audioFilename: string;
-}
-
-interface BundleAsset {
-  sourcePath: string;
-  destPath: string;
 }
 
 function isRemoteUrl(path: string): boolean {
@@ -197,9 +215,158 @@ function isLocalFile(path: string): boolean {
   }
 }
 
+function deriveFontFamilyFromPath(path: string): string {
+  const base = basename(path);
+  const withoutExt = base.replace(/\.[^/.]+$/, '');
+  const normalized = withoutExt.replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim();
+  return normalized || 'Custom Font';
+}
+
+export function resolveCaptionFontAssets(options: RenderVideoOptions): {
+  fontSources: FontSource[];
+  fontAssets: BundleAsset[];
+  captionFontFamily?: string;
+} {
+  const fontSources: FontSource[] = [];
+  const fontAssets: BundleAsset[] = [];
+
+  const normalizeFontSource = (font: FontSource): FontSource => {
+    if (isRemoteUrl(font.src) || font.src.startsWith('data:')) {
+      return font;
+    }
+
+    const resolvedPath = isLocalFile(font.src) ? font.src : resolve(font.src);
+    if (isLocalFile(resolvedPath)) {
+      const destPath = `fonts/${basename(resolvedPath)}`;
+      fontAssets.push({ sourcePath: resolvedPath, destPath });
+      return { ...font, src: destPath };
+    }
+
+    return font;
+  };
+
+  if (options.fonts && options.fonts.length > 0) {
+    for (const font of options.fonts) {
+      fontSources.push(normalizeFontSource(font));
+    }
+  }
+
+  if (!options.captionFontFile) {
+    return {
+      fontSources,
+      fontAssets,
+      captionFontFamily: options.captionFontFamily,
+    };
+  }
+
+  if (!isLocalFile(options.captionFontFile)) {
+    throw new CMError('FILE_NOT_FOUND', 'Caption font file not found', {
+      fix: 'Provide a local path to a .ttf, .otf, .woff, or .woff2 file',
+    });
+  }
+
+  const captionFontFamily =
+    options.captionFontFamily ?? deriveFontFamilyFromPath(options.captionFontFile);
+  const destPath = `fonts/${basename(options.captionFontFile)}`;
+  fontAssets.push({ sourcePath: options.captionFontFile, destPath });
+  fontSources.push({
+    family: captionFontFamily,
+    src: destPath,
+    weight: options.captionFontWeight,
+    style: options.captionFontStyle,
+  });
+
+  return {
+    fontSources,
+    fontAssets,
+    captionFontFamily,
+  };
+}
+
 function resolveAssetCacheRoot(): string {
   const env = process.env.CM_ASSET_CACHE_DIR;
   return env ? resolve(env) : join(process.cwd(), '.cache', 'content-machine', 'assets');
+}
+
+type LocalVideoAsset = {
+  path: string;
+  label: 'visual' | 'gameplay' | 'hook';
+};
+
+async function validateLocalVideoAsset(
+  asset: LocalVideoAsset,
+  log: ReturnType<typeof createLogger>
+): Promise<void> {
+  const resolvedPath = resolve(asset.path);
+  let stats;
+  try {
+    stats = await stat(resolvedPath);
+  } catch (error) {
+    throw new CMError(
+      'FILE_NOT_FOUND',
+      `Local ${asset.label} clip not found: ${resolvedPath}`,
+      {
+        path: resolvedPath,
+        fix: 'Ensure the clip path points to an existing local file',
+      },
+      error instanceof Error ? error : undefined
+    );
+  }
+
+  if (!stats.isFile()) {
+    throw new CMError('INVALID_MEDIA', `Local ${asset.label} clip is not a file: ${resolvedPath}`, {
+      path: resolvedPath,
+      fix: 'Provide a file path (not a directory) for the clip',
+    });
+  }
+
+  if (stats.size < MIN_LOCAL_VIDEO_BYTES) {
+    throw new CMError(
+      'INVALID_MEDIA',
+      `Local ${asset.label} clip is too small to be a valid video: ${resolvedPath}`,
+      {
+        path: resolvedPath,
+        sizeBytes: stats.size,
+        fix: 'Use a real video file (not a placeholder) or transcode with ffmpeg',
+      }
+    );
+  }
+
+  try {
+    await probeVideoWithFfprobe(resolvedPath);
+  } catch (error) {
+    if (error instanceof CMError && error.code === 'DEPENDENCY_MISSING') {
+      log.warn({ path: resolvedPath }, 'ffprobe missing; skipping local video validation');
+      return;
+    }
+    if (error instanceof CMError) {
+      throw new CMError(
+        'INVALID_MEDIA',
+        `Local ${asset.label} clip is not a playable video: ${resolvedPath}`,
+        {
+          path: resolvedPath,
+          fix: 'Transcode to H.264 (yuv420p) or replace with a valid video file',
+        },
+        error
+      );
+    }
+    throw error;
+  }
+}
+
+async function validateLocalVideoAssets(
+  assets: LocalVideoAsset[],
+  log: ReturnType<typeof createLogger>
+): Promise<void> {
+  if (assets.length === 0) return;
+  const seen = new Set<string>();
+
+  for (const asset of assets) {
+    const resolvedPath = resolve(asset.path);
+    if (seen.has(resolvedPath)) continue;
+    seen.add(resolvedPath);
+    await validateLocalVideoAsset({ ...asset, path: resolvedPath }, log);
+  }
 }
 
 /**
@@ -290,6 +457,12 @@ function resolveCaptionConfig(options: RenderVideoOptions): CaptionConfig {
   if (options.captionMode) {
     topLevelOverride.displayMode = options.captionMode;
   }
+  if (options.captionFontFamily) {
+    topLevelOverride.fontFamily = options.captionFontFamily;
+  }
+  if (options.captionFontWeight !== undefined) {
+    topLevelOverride.fontWeight = options.captionFontWeight;
+  }
   if (options.wordsPerPage) {
     topLevelOverride.wordsPerPage = options.wordsPerPage;
   }
@@ -372,7 +545,8 @@ function buildRenderProps(
   options: RenderVideoOptions,
   dimensions: { width: number; height: number },
   fps: number,
-  audioFilename: string
+  audioFilename: string,
+  totalDuration: number
 ): RenderPropsInput {
   const captionConfig = resolveCaptionConfig(options);
   const splitScreenRatio = normalizeSplitScreenRatio(options.splitScreenRatio);
@@ -385,7 +559,8 @@ function buildRenderProps(
     scenes: options.visuals.scenes,
     words: sanitizedWords,
     audioPath: audioFilename,
-    duration: options.timestamps.totalDuration,
+    audioMix: options.audioMix,
+    duration: totalDuration,
     width: dimensions.width,
     height: dimensions.height,
     fps,
@@ -394,10 +569,12 @@ function buildRenderProps(
     splitScreenRatio,
     gameplayPosition: options.gameplayPosition,
     contentPosition: options.contentPosition,
+    fonts: options.fonts,
+    hook: options.hook,
     captionConfig,
     // Keep legacy captionStyle for backwards compatibility
     captionStyle: {
-      fontFamily: 'Inter',
+      fontFamily: FONT_STACKS.body,
       fontSize: 80,
       fontWeight: 'bold',
       color: '#FFFFFF',
@@ -504,7 +681,8 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
 
   const fps = options.fps ?? 30;
   const dimensions = DIMENSIONS[options.orientation];
-  const totalDuration = options.timestamps.totalDuration;
+  const hookDuration = options.hook?.duration ?? 0;
+  const totalDuration = options.timestamps.totalDuration + hookDuration;
   const compositionId = options.compositionId ?? 'ShortVideo';
   const chromeMode =
     options.chromeMode ?? (options.browserExecutable ? 'chrome-for-testing' : undefined);
@@ -517,6 +695,7 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
       fps,
       duration: totalDuration,
       sceneCount: options.visuals.scenes.length,
+      hook: options.hook?.id ?? options.hook?.path ?? null,
       mock: options.mock,
       compositionId,
     },
@@ -532,17 +711,35 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
     const downloadAssets = options.downloadAssets !== false;
     const assetCacheRoot = resolveAssetCacheRoot();
 
-    const visualPlan = downloadAssets
-      ? buildVisualAssetBundlePlan(options.visuals as VisualsOutputInput)
-      : { assets: [] };
+    const visualPlan = buildVisualAssetBundlePlan(options.visuals as VisualsOutputInput);
+    const remotePlan = {
+      assets: visualPlan.assets.filter((asset) => asset.sourceUrl),
+    };
+    const localPlan = {
+      assets: visualPlan.assets.filter((asset) => asset.sourcePath),
+    };
+
+    const localValidationAssets: LocalVideoAsset[] = localPlan.assets
+      .filter((asset) => asset.sourcePath)
+      .map((asset) => ({ path: asset.sourcePath as string, label: 'visual' }));
+    const gameplayClipInput = options.visuals.gameplayClip;
+    if (gameplayClipInput && isLocalFile(gameplayClipInput.path)) {
+      localValidationAssets.push({ path: gameplayClipInput.path, label: 'gameplay' });
+    }
+    const hookClipInput = options.hook;
+    if (hookClipInput && isLocalFile(hookClipInput.path)) {
+      localValidationAssets.push({ path: hookClipInput.path, label: 'hook' });
+    }
+    await validateLocalVideoAssets(localValidationAssets, log);
 
     let stockExtraAssets: BundleAsset[] = [];
+    let localExtraAssets: BundleAsset[] = [];
     let visualsWithBundledAssets: VisualsOutput | VisualsOutputInput = options.visuals;
 
-    if (downloadAssets && visualPlan.assets.length) {
+    if (downloadAssets && remotePlan.assets.length) {
       safeProgress({ phase: 'prepare-assets', progress: 0, message: 'Preparing visual assets' });
 
-      const { extraAssets, succeededUrls } = await downloadRemoteAssetsToCache(visualPlan, {
+      const { extraAssets, succeededUrls } = await downloadRemoteAssetsToCache(remotePlan, {
         cacheRoot: assetCacheRoot,
         log,
         onProgress: ({ progress, message }) =>
@@ -550,7 +747,9 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
       });
 
       const succeededPlan = {
-        assets: visualPlan.assets.filter((asset) => succeededUrls.has(asset.sourceUrl)),
+        assets: remotePlan.assets.filter(
+          (asset) => asset.sourceUrl && succeededUrls.has(asset.sourceUrl)
+        ),
       };
 
       visualsWithBundledAssets = applyVisualAssetBundlePlan(
@@ -562,6 +761,31 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
       safeProgress({ phase: 'prepare-assets', progress: 1, message: 'No visual assets to download' });
     }
 
+    if (localPlan.assets.length) {
+      const seenDest = new Set<string>();
+      const resolvedLocalAssets = localPlan.assets.filter((asset) => {
+        if (!asset.sourcePath) return false;
+        const resolvedPath = resolve(asset.sourcePath);
+        if (!existsSync(resolvedPath)) {
+          throw new CMError('FILE_NOT_FOUND', 'Local visual asset not found', {
+            path: resolvedPath,
+            fix: 'Ensure visuals.json assetPath points to an existing local file',
+          });
+        }
+        if (seenDest.has(asset.bundlePath)) return false;
+        seenDest.add(asset.bundlePath);
+        localExtraAssets.push({ sourcePath: resolvedPath, destPath: asset.bundlePath });
+        return true;
+      });
+
+      if (resolvedLocalAssets.length > 0) {
+        visualsWithBundledAssets = applyVisualAssetBundlePlan(
+          visualsWithBundledAssets as VisualsOutputInput,
+          { assets: resolvedLocalAssets }
+        );
+      }
+    }
+
     const gameplayClip = visualsWithBundledAssets.gameplayClip;
     const gameplayPublicPath =
       gameplayClip && isLocalFile(gameplayClip.path) ? `gameplay/${basename(gameplayClip.path)}` : null;
@@ -569,7 +793,30 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
       gameplayPublicPath && gameplayClip
         ? [{ sourcePath: gameplayClip.path, destPath: gameplayPublicPath }]
         : [];
-    const extraAssets = [...stockExtraAssets, ...gameplayAssets];
+    const hookClip = options.hook;
+    const hookPublicPath =
+      hookClip && isLocalFile(hookClip.path) ? `hooks/${basename(hookClip.path)}` : null;
+    const hookAssets =
+      hookPublicPath && hookClip ? [{ sourcePath: hookClip.path, destPath: hookPublicPath }] : [];
+    const { fontAssets, fontSources, captionFontFamily } = resolveCaptionFontAssets(options);
+    const mixResult = options.audioMix
+      ? prepareAudioMixForRender({
+          mix: options.audioMix,
+          audioPath: options.audioPath,
+          mixBaseDir: options.audioMixBaseDir,
+        })
+      : null;
+    if (mixResult?.warnings.length) {
+      log.warn({ warnings: mixResult.warnings }, 'Audio mix warnings');
+    }
+    const extraAssets = [
+      ...stockExtraAssets,
+      ...localExtraAssets,
+      ...gameplayAssets,
+      ...hookAssets,
+      ...fontAssets,
+      ...(mixResult?.assets ?? []),
+    ];
 
     const { bundleLocation, audioFilename } = await bundleComposition(
       options.audioPath,
@@ -584,11 +831,24 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
             gameplayClip: { ...gameplayClip, path: gameplayPublicPath },
           }
         : visualsWithBundledAssets;
+    const hookForRender =
+      hookPublicPath && hookClip ? { ...hookClip, path: hookPublicPath } : hookClip;
+    const audioMixForRender = mixResult
+      ? { ...mixResult.mix, voicePath: audioFilename }
+      : undefined;
     const renderProps = buildRenderProps(
-      { ...options, visuals: visualsForRender },
+      {
+        ...options,
+        visuals: visualsForRender,
+        hook: hookForRender,
+        fonts: fontSources,
+        captionFontFamily,
+        audioMix: audioMixForRender,
+      },
       dimensions,
       fps,
-      audioFilename
+      audioFilename,
+      totalDuration
     );
     await executeRender({
       bundleLocation,
@@ -625,9 +885,13 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
     return validated;
   } catch (error) {
     log.error({ error }, 'Video render failed');
+    if (error instanceof CMError) {
+      throw error;
+    }
     throw new RenderError(
       `Video render failed: ${error instanceof Error ? error.message : String(error)}`,
-      { outputPath: options.outputPath }
+      { outputPath: options.outputPath },
+      error instanceof Error ? error : undefined
     );
   }
 }

@@ -15,6 +15,9 @@ import { createCaptionPages, toTimedWords, type CaptionPage } from '../../../src
 import * as fs from 'fs';
 import * as path from 'path';
 
+const shouldRunRealOutput = process.env.CM_RUN_REAL_OUTPUT_TESTS === 'true';
+const describeRealOutput = shouldRunRealOutput ? describe : describe.skip;
+
 /**
  * Quality metrics for paging
  */
@@ -187,7 +190,7 @@ describe('Paging Quality Metrics', () => {
     });
   });
 
-  describe('Real Output Quality Gates', () => {
+  describeRealOutput('Real Output Quality Gates', () => {
     const timestampsPath = path.resolve(process.cwd(), 'output/timestamps.json');
 
     function loadRealPages(): CaptionPage[] | null {

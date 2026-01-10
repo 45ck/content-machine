@@ -5,10 +5,12 @@
  * Based on SYSTEM-DESIGN §7.4 render composition layers.
  */
 import React, { useMemo } from 'react';
-import { Composition, AbsoluteFill, Audio, Sequence, useVideoConfig, staticFile } from 'remotion';
+import { Composition, AbsoluteFill, Sequence, useVideoConfig } from 'remotion';
 import type { RenderProps } from '../schema';
 import { Caption } from '../captions';
-import { buildSequences, buildVisualTimeline, LegacyClip, SceneBackground } from './visuals';
+import { buildSequences, buildVisualTimeline, HookClip, LegacyClip, SceneBackground } from './visuals';
+import { FontLoader } from './FontLoader';
+import { AudioLayers } from './AudioLayers';
 
 /**
  * Main video component
@@ -18,12 +20,19 @@ export const ShortVideo: React.FC<RenderProps> = ({
   clips,
   words,
   audioPath,
+  audioMix,
   duration: totalDuration,
   captionConfig,
+  hook,
+  fonts,
 }) => {
   const { fps } = useVideoConfig();
   const videoAssets = scenes ?? [];
-  const durationMs = Math.max(0, Math.round(totalDuration * 1000));
+  const hookDuration = hook?.duration ?? 0;
+  const contentDuration = Math.max(0, totalDuration - hookDuration);
+  const durationMs = Math.max(0, Math.round(contentDuration * 1000));
+  const hookFrames = Math.max(0, Math.ceil(hookDuration * fps));
+  const contentFrames = Math.max(1, Math.ceil(contentDuration * fps));
 
   const visualTimeline = useMemo(
     () => buildVisualTimeline(videoAssets, durationMs),
@@ -31,27 +40,36 @@ export const ShortVideo: React.FC<RenderProps> = ({
   );
 
   const visualSequences = useMemo(
-    () => buildSequences(visualTimeline, totalDuration, fps),
-    [visualTimeline, totalDuration, fps]
+    () => buildSequences(visualTimeline, contentDuration, fps),
+    [visualTimeline, contentDuration, fps]
   );
 
   return (
     <AbsoluteFill style={{ backgroundColor: '#000' }}>
-      {visualSequences.map(({ fromFrame, durationInFrames, scene }, index) => (
-        <Sequence key={`scene-${index}`} from={fromFrame} durationInFrames={durationInFrames}>
-          <SceneBackground scene={scene} />
+      <FontLoader fonts={fonts} />
+      {hook && hookFrames > 0 ? (
+        <Sequence from={0} durationInFrames={hookFrames}>
+          <HookClip hook={hook} />
         </Sequence>
-      ))}
+      ) : null}
 
-      {clips?.map((clip) => (
-        <LegacyClip key={clip.id} clip={clip} fps={fps} />
-      ))}
+      <Sequence from={hookFrames} durationInFrames={contentFrames}>
+        {visualSequences.map(({ fromFrame, durationInFrames, scene }, index) => (
+          <Sequence key={`scene-${index}`} from={fromFrame} durationInFrames={durationInFrames}>
+            <SceneBackground scene={scene} />
+          </Sequence>
+        ))}
 
-      <AbsoluteFill>
-        <Caption words={words} config={captionConfig} />
-      </AbsoluteFill>
+        {clips?.map((clip) => (
+          <LegacyClip key={clip.id} clip={clip} fps={fps} />
+        ))}
 
-      <Audio src={staticFile(audioPath)} />
+        <AbsoluteFill>
+          <Caption words={words} config={captionConfig} />
+        </AbsoluteFill>
+
+        <AudioLayers audioPath={audioPath} mix={audioMix} />
+      </Sequence>
     </AbsoluteFill>
   );
 };
@@ -73,6 +91,7 @@ export const ShortVideoComposition: React.FC = () => {
           clips: [],
           words: [],
           audioPath: '',
+          audioMix: undefined,
           duration: 60,
           width: 1080,
           height: 1920,

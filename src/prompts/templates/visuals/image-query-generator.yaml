@@ -9,7 +9,7 @@
 id: visuals/image-query-generator
 name: Timed Image Query Generator
 description: >
-  Generates precisely-timed image search queries based on video transcript.
+  Generates precisely-timed image search queries based on timed captions.
   Creates 1-2 word queries that match specific moments in the narration.
   Designed for illustrating spoken content with relevant stock images.
 category: visuals
@@ -57,16 +57,16 @@ systemPrompt: |
 
 template: |
   You are a shorts video editor. Your audience is people from 18 to 40 years old.
-  Your style of editing is pretty simple - you take the transcript of your short
+  Your style of editing is pretty simple - you take the captions from your short
   and put a very simple google image to illustrate the narrated sentences.
 
   Each google image is searched with a short query of two words maximum.
   So let's say someone is talking about being sad, you would query "sad person"
   and show that image around that sentence.
 
-  I will give you a transcript which contains which words are shown on screen,
-  and the timestamps where they appear. Understand the transcript, time images
-  at timestamps, and write me the query for each image.
+  I will give you timed captions that contain which words are shown on screen
+  and the timestamps where they appear. Use the captions to time images at
+  timestamps, and write me the query for each image.
 
   For the image queries you have two choices:
   1. Concrete objects: 'cash', 'old table', 'laptop desk'
@@ -91,7 +91,7 @@ template: |
     ]
   }
 
-  ## Transcript:
+  ## Captions:
   {{captions}}
 
   Generate exactly {{count}} evenly distributed image queries.

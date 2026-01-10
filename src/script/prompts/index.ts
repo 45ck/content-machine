@@ -17,12 +17,25 @@ export interface PromptContext {
   };
 }
 
+const OUTPUT_RULES = `
+OUTPUT RULES:
+- Respond with JSON only. No markdown, no code fences, no commentary.
+- Spoken text fields (hook, scenes[].text, cta) must be plain text: no emojis, no markdown, no hashtags, no bullet formatting.
+- Hook must be ONE sentence and must NOT be repeated in scene 1.
+- Scene 1 must continue after the hook with NEW information (no restating or paraphrasing the hook).
+- Do not copy the hook sentence into any scene text.
+- Always include hook and cta fields in the JSON.
+- Each scene text must be at least 20 words.
+- Hook must be a statement (no question mark).
+`;
+
 // Common JSON output format for all archetypes
 const JSON_OUTPUT_FORMAT = `
+${OUTPUT_RULES}
 Respond with this exact JSON structure:
 {
   "scenes": [
-    {"text": "Scene 1 spoken text", "visualDirection": "what to show visually", "mood": "emotional tone"},
+    {"text": "Scene 1 spoken text (continues after the hook)", "visualDirection": "what to show visually", "mood": "emotional tone"},
     {"text": "Scene 2 spoken text", "visualDirection": "visual description", "mood": "tone"},
     ...
   ],
@@ -58,6 +71,29 @@ PACKAGING (must follow):
 - Cover text (mobile-readable): "${context.packaging.coverText}"
 - Muted autoplay on-screen hook text: "${context.packaging.onScreenHook}"
 - Make the first spoken line align with the on-screen hook (same promise, same topic)
+- Do not repeat the on-screen hook inside scene 1 if it matches the spoken hook
+- No emojis or markdown in packaging or spoken text
+`;
+}
+
+function ttsWritingGuidelines(context: PromptContext): string {
+  const minWordCount = Math.max(60, Math.round(context.targetWordCount * 0.8));
+  const maxWordCount = Math.max(minWordCount + 20, Math.round(context.targetWordCount * 1.25));
+  return `
+TTS WRITING RULES:
+- Write for spoken delivery at 120-180 WPM.
+- Target length: ~${context.targetWordCount} words (~${context.targetDuration} seconds).
+- Total spoken word count must be between ${minWordCount}-${maxWordCount}. If below, add another sentence to each scene and expand the CTA. If above, trim.
+- Use short sentences (<=15 words) and one idea per sentence.
+- Each scene should be 2 sentences and ~22-30 words (minimum 20 words per scene).
+- Use contractions and second person ("you", "you'll").
+- Use punctuation for timing (commas = micro-pause, periods = full beat).
+- Normalize text for speech: expand numbers, acronyms, URLs, emails, file paths, and units into words.
+- Avoid emojis, markdown, hashtags, and bullet formatting in spoken text.
+- Avoid openers like "In this video" or "Today we're going to".
+- Hook is a single sentence and must not be repeated in scene 1.
+- Double-check total word count before responding.
+- CHECKLIST (must pass before responding): total words in range, every scene >= 20 words, hook is a statement.
 `;
 }
 
@@ -67,18 +103,20 @@ function getListiclePrompt(context: PromptContext): string {
 FORMAT: Listicle (numbered list of tips/facts/items)
 
 REQUIREMENTS:
-- Target length: ~${context.targetWordCount} words (~${context.targetDuration} seconds when spoken)
 - Start with a compelling hook that creates curiosity (first 3 seconds are critical)
-- Include 3-5 numbered points
-- Each point should be concise and actionable
+- Include 4-5 numbered points
+- Each point should be two sentences: the tip plus a quick payoff or why
+- Prefix each point with an explicit number label (e.g., "Tip 1:", "2)", "Number 3:").
 - End with a call-to-action (follow, like, comment)
 - Use conversational, TikTok-style language
+${ttsWritingGuidelines(context)}
 ${packagingBlock(context)}
 
 STRUCTURE:
-1. Scene 1: Hook (attention-grabbing opening)
-2. Scene 2-5: Points (numbered, each with visual direction)
-3. Final Scene: Conclusion/CTA
+1. Hook field: One sentence hook (separate from scenes)
+2. Scene 1: Immediate payoff after the hook (no hook repetition)
+3. Scene 2-6: Points (4-5 numbered items, each with visual direction)
+4. Final Scene: Conclusion/CTA
 ${JSON_OUTPUT_FORMAT}`;
 }
 
@@ -88,17 +126,21 @@ function getVersusPrompt(context: PromptContext): string {
 FORMAT: Versus/Comparison (X vs Y analysis)
 
 REQUIREMENTS:
-- Target length: ~${context.targetWordCount} words (~${context.targetDuration} seconds when spoken)
-- Start with a hook that presents the dilemma
+- Start with a hook that presents the dilemma (provocative or contrarian).
+- Example hook tones: "Stop using X for Y", "You're using the wrong tool", "Most people get this wrong".
+- The hook should be a bold statement, not a question.
+- Avoid neutral hooks like "Choosing between X and Y" or "X vs Y".
 - Compare 3-4 key aspects fairly
 - Give a clear recommendation at the end
 - Use conversational, TikTok-style language
+${ttsWritingGuidelines(context)}
 ${packagingBlock(context)}
 
 STRUCTURE:
-1. Scene 1: Hook (present the choice/dilemma)
-2. Scene 2-4: Comparison points
-3. Scene 5: Verdict/recommendation
+1. Hook field: One sentence hook (separate from scenes)
+2. Scene 1: Immediate payoff after the hook (state the stakes)
+3. Scene 2-4: Comparison points
+4. Scene 5: Verdict/recommendation
 ${JSON_OUTPUT_FORMAT}`;
 }
 
@@ -108,17 +150,18 @@ function getHowToPrompt(context: PromptContext): string {
 FORMAT: How-To/Tutorial (step-by-step guide)
 
 REQUIREMENTS:
-- Target length: ~${context.targetWordCount} words (~${context.targetDuration} seconds when spoken)
 - Start with a hook showing the end result or problem
-- Break into 3-5 clear steps
-- Each step should be actionable and specific
+- Break into 4-5 clear steps
+- Each step should be two sentences: the action plus a quick result/why
 - Use conversational, TikTok-style language
+${ttsWritingGuidelines(context)}
 ${packagingBlock(context)}
 
 STRUCTURE:
-1. Scene 1: Hook (show result or problem)
-2. Scene 2-5: Steps (numbered, clear instructions)
-3. Final Scene: Quick recap or result
+1. Hook field: One sentence hook (separate from scenes)
+2. Scene 1: Immediate payoff after the hook (show result or problem)
+3. Scene 2-6: Steps (4-5 numbered, clear instructions)
+4. Final Scene: Quick recap or result
 ${JSON_OUTPUT_FORMAT}`;
 }
 
@@ -128,18 +171,20 @@ function getMythPrompt(context: PromptContext): string {
 FORMAT: Myth-Busting (Myth vs Reality)
 
 REQUIREMENTS:
-- Target length: ~${context.targetWordCount} words (~${context.targetDuration} seconds when spoken)
 - Start with a provocative hook stating the common belief
 - Present 2-3 myths and their realities
-- Use "You probably think X, but actually Y" pattern
+- Use explicit "Myth: X" and "Reality: Y" phrasing in scene text
+- Hook should be a provocative tease (NOT "Myth: ..."); reserve Myth/Reality phrasing for scene text.
 - End with the key takeaway
 - Use conversational, TikTok-style language
+${ttsWritingGuidelines(context)}
 ${packagingBlock(context)}
 
 STRUCTURE:
-1. Scene 1: Hook (state the common misconception)
-2. Scene 2-4: Myth/Reality pairs
-3. Final Scene: Key takeaway
+1. Hook field: One sentence hook (separate from scenes)
+2. Scene 1: Immediate payoff after the hook (state the misconception)
+3. Scene 2-4: Myth/Reality pairs
+4. Final Scene: Key takeaway
 ${JSON_OUTPUT_FORMAT}`;
 }
 
@@ -149,19 +194,20 @@ function getStoryPrompt(context: PromptContext): string {
 FORMAT: Story/Narrative (engaging story arc)
 
 REQUIREMENTS:
-- Target length: ~${context.targetWordCount} words (~${context.targetDuration} seconds when spoken)
 - Start with a hook that creates intrigue
-- Follow: Setup → Conflict → Resolution structure
+- Follow: Setup -> Conflict -> Resolution structure
 - Make it relatable and emotional
 - End with a lesson or insight
+- Hook should be a teaser line that is not repeated in scene 1.
 - Use conversational, TikTok-style language
+${ttsWritingGuidelines(context)}
 ${packagingBlock(context)}
 
 STRUCTURE:
-1. Scene 1: Hook (create intrigue)
-2. Scene 2: Setup (introduce situation)
-3. Scene 3: Conflict/Challenge
-4. Scene 4: Resolution/Lesson
+1. Hook field: One sentence hook (separate from scenes)
+2. Scene 1: Setup (continues after the hook)
+3. Scene 2: Conflict/Challenge
+4. Scene 3: Resolution/Lesson
 ${JSON_OUTPUT_FORMAT}`;
 }
 
@@ -171,19 +217,21 @@ function getHotTakePrompt(context: PromptContext): string {
 FORMAT: Hot Take/Opinion (provocative viewpoint)
 
 REQUIREMENTS:
-- Target length: ~${context.targetWordCount} words (~${context.targetDuration} seconds when spoken)
 - Start with a controversial or surprising statement
+- The hook should be a bold statement, not a question
 - Back up with 2-3 strong arguments
 - Acknowledge the other side briefly
 - End confidently with your stance
 - Use conversational, TikTok-style language
 - Be bold but not offensive
+${ttsWritingGuidelines(context)}
 ${packagingBlock(context)}
 
 STRUCTURE:
-1. Scene 1: Hook (bold statement)
-2. Scene 2-3: Supporting arguments
-3. Scene 4: Brief counterpoint acknowledgment
-4. Scene 5: Strong conclusion
+1. Hook field: One sentence hook (separate from scenes)
+2. Scene 1: Immediate payoff after the hook (first supporting point)
+3. Scene 2-3: Supporting arguments
+4. Scene 4: Brief counterpoint acknowledgment
+5. Scene 5: Strong conclusion
 ${JSON_OUTPUT_FORMAT}`;
 }

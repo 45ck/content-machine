@@ -274,29 +274,19 @@ interface BreakContext {
  * Determine if we should break before adding the current word
  */
 function shouldBreakChunk(ctx: BreakContext): { shouldBreak: boolean; reason: string } {
-  const maxWordsSoft = ctx.cfg.maxWordsPerChunk + ctx.cfg.minWordsPerChunk;
-
   // 1. Hard max words reached
-  if (ctx.currentWordsCount >= maxWordsSoft) {
-    return { shouldBreak: true, reason: 'max-words-hard' };
-  }
-
-  // 2. Max words reached (allow extending if duration is too short)
   if (ctx.currentWordsCount >= ctx.cfg.maxWordsPerChunk) {
-    if (ctx.currentDurationMs < ctx.currentMinDurationMs) {
-      return { shouldBreak: false, reason: 'extend-duration' };
-    }
     return { shouldBreak: true, reason: 'max-words' };
   }
 
-  // 3. Pause gap (natural break)
+  // 2. Pause gap (natural break)
   if (ctx.currentWordsCount > 0 && ctx.gapFromPrevWord >= ctx.cfg.pauseGapMs) {
     return { shouldBreak: true, reason: 'pause-gap' };
   }
 
   const meetsMinDuration = ctx.currentDurationMs >= ctx.currentMinDurationMs;
 
-  // 4. CPS would exceed limit (but respect min words)
+  // 3. CPS would exceed limit (but respect min words)
   // Note: WPM is enforced via min-on-screen-time (not via splitting) to avoid over-fragmenting.
   // Allow a small overshoot to avoid breaking natural 2-3 word phrases.
   // We still enforce readability via min-on-screen-time after chunking.
@@ -305,17 +295,17 @@ function shouldBreakChunk(ctx: BreakContext): { shouldBreak: boolean; reason: st
     return { shouldBreak: true, reason: 'pace-limit' };
   }
 
-  // 5. Sentence boundary (but respect min words)
+  // 4. Sentence boundary (but respect min words)
   if (ctx.currentWordsCount >= ctx.cfg.minWordsPerChunk && ctx.prevEndsSentence) {
     return { shouldBreak: true, reason: 'sentence-end' };
   }
 
-  // 6. Start new chunk at discourse pivot words
+  // 5. Start new chunk at discourse pivot words
   if (meetsMinDuration && ctx.currentIsPivot && ctx.currentWordsCount >= ctx.cfg.minWordsPerChunk) {
     return { shouldBreak: true, reason: 'pivot' };
   }
 
-  // 7. Allow short punch chunks on strong punctuation.
+  // 6. Allow short punch chunks on strong punctuation.
   // Emphasis alone should not force breaks (it can be styling-only).
   const shortPunchOk =
     ctx.currentWordsCount <= ctx.cfg.shortChunkMaxWords && ctx.prevEndsStrongPunctuation;
@@ -323,7 +313,7 @@ function shouldBreakChunk(ctx: BreakContext): { shouldBreak: boolean; reason: st
     return { shouldBreak: true, reason: 'punch' };
   }
 
-  // 8. Soft break near target length when hints are present
+  // 7. Soft break near target length when hints are present
   const softPauseGap = ctx.cfg.pauseGapMs * 0.6;
   const hasHint =
     ctx.prevEndsStrongPunctuation ||
@@ -436,9 +426,39 @@ function mergeChunks(left: CaptionChunk, right: CaptionChunk): CaptionChunk {
   };
 }
 
+function shouldMergeChunks(
+  left: CaptionChunk,
+  right: CaptionChunk,
+  cfg: ChunkingConfig
+): boolean {
+  const gapMs = right.startMs - left.endMs;
+  if (gapMs >= cfg.pauseGapMs) {
+    return false;
+  }
+
+  const lastWord = left.words[left.words.length - 1];
+  if (lastWord && (endsWithSentencePunctuation(lastWord.text) || endsWithStrongPunctuation(lastWord.text))) {
+    return false;
+  }
+
+  const combinedWords = [...left.words, ...right.words];
+  if (combinedWords.length > cfg.maxWordsPerChunk) {
+    return false;
+  }
+
+  const combinedCharCount = calculateCharCount(combinedWords);
+  const combinedDurationMs = right.endMs - left.startMs;
+  const combinedCps = (combinedCharCount / Math.max(combinedDurationMs, 1)) * 1000;
+  const cpsBreakThreshold = cfg.maxCharsPerSecond * 1.25;
+  if (combinedCps > cpsBreakThreshold) {
+    return false;
+  }
+
+  return true;
+}
+
 function mergeShortChunks(chunks: CaptionChunk[], cfg: ChunkingConfig): CaptionChunk[] {
   if (chunks.length < 2) return chunks;
-  const maxWordsSoft = cfg.maxWordsPerChunk + cfg.minWordsPerChunk;
   const merged: CaptionChunk[] = [];
 
   for (let i = 0; i < chunks.length; i++) {
@@ -448,15 +468,11 @@ function mergeShortChunks(chunks: CaptionChunk[], cfg: ChunkingConfig): CaptionC
 
     while (duration < minMs && i + 1 < chunks.length) {
       const next = chunks[i + 1];
-      const combined = mergeChunks(current, next);
-      const canGrow =
-        combined.words.length <= maxWordsSoft || current.words.length <= cfg.shortChunkMaxWords;
-
-      if (!canGrow) {
+      if (!shouldMergeChunks(current, next, cfg)) {
         break;
       }
 
-      current = combined;
+      current = mergeChunks(current, next);
       duration = current.endMs - current.startMs;
       minMs = getRequiredMinDurationMs(current.words.length, current.charCount, cfg);
       i++;
@@ -464,9 +480,8 @@ function mergeShortChunks(chunks: CaptionChunk[], cfg: ChunkingConfig): CaptionC
 
     if (duration < minMs && merged.length > 0) {
       const previous = merged.pop() as CaptionChunk;
-      const combined = mergeChunks(previous, current);
-      if (combined.words.length <= maxWordsSoft || current.words.length <= cfg.shortChunkMaxWords) {
-        merged.push(combined);
+      if (shouldMergeChunks(previous, current, cfg)) {
+        merged.push(mergeChunks(previous, current));
         continue;
       }
       merged.push(previous);

@@ -6,11 +6,12 @@
 
 ## Quick Links
 
-- [AGENTS.md](../AGENTS.md) — Project overview, north star, commands
-- [SYSTEM-DESIGN-20260104.md](architecture/SYSTEM-DESIGN-20260104.md) — **Authoritative spec** (3,100 lines)
-- [VENDORING.md](../VENDORING.md) — Vendored repo policy
-- [Tasks](../tasks/README.md) — Task management system
-- [Templates](templates/README.md) — Documentation templates
+- [AGENTS.md](../AGENTS.md) - Project overview, north star, commands
+- [SYSTEM-DESIGN-20260104.md](architecture/SYSTEM-DESIGN-20260104.md) - Authoritative spec (3,100 lines)
+- [Ubiquitous Language Guide](guides/guide-ubiquitous-language-20260110.md) - Canonical terminology
+- [VENDORING.md](../VENDORING.md) - Vendored repo policy
+- [Tasks](../tasks/README.md) - Task management system
+- [Templates](templates/README.md) - Documentation templates
 
 ---
 
@@ -18,24 +19,24 @@
 
 ```
 docs/
-├── architecture/       # SYSTEM-DESIGN, ADRs
-├── research/
-│   ├── investigations/ # 25 research investigations (RQ-01 to RQ-25)
-│   ├── deep-dives/     # 13 deep-dive analyses
-│   ├── sections/       # 8 section-specific research docs
-│   └── synthesis/      # Cross-cutting patterns
-├── features/          # Feature specifications
-├── bugs/              # Bug reports
-├── guides/            # How-to guides
-├── reference/         # API documentation
-├── tutorials/         # Step-by-step tutorials
-├── postmortems/       # Incident postmortems
-└── templates/         # Documentation templates
+  architecture/       # SYSTEM-DESIGN, ADRs
+  research/
+    investigations/   # 25 research investigations (RQ-01 to RQ-25)
+    deep-dives/       # 13 deep-dive analyses
+    sections/         # 8 section-specific research docs
+    synthesis/        # Cross-cutting patterns
+  features/           # Feature specifications
+  bugs/               # Bug reports
+  guides/             # How-to guides
+  reference/          # API documentation
+  tutorials/          # Step-by-step tutorials
+  postmortems/        # Incident postmortems
+  templates/          # Documentation templates
 ```
 
 ---
 
-## 📚 Key Documents
+## Key Documents
 
 | Document                                                            | Purpose                                   | Lines   |
 | ------------------------------------------------------------------- | ----------------------------------------- | ------- |
@@ -57,7 +58,7 @@ Located in `research/`, these document findings from 139 vendored repos:
 | ----------------------------------------------------------------------------- | -------------------------------------- | ---------- |
 | [00-SUMMARY](research/00-SUMMARY-20260102.md)                                 | Master summary + architecture          | 2026-01-02 |
 | [10-short-video-maker-gyori](research/10-short-video-maker-gyori-20260102.md) | Blueprint repo (TypeScript + Remotion) | 2026-01-02 |
-| [12-vidosy](research/12-vidosy-20260102.md)                                   | JSON config → video pattern            | 2026-01-02 |
+| [12-vidosy](research/12-vidosy-20260102.md)                                   | JSON config -> video pattern            | 2026-01-02 |
 | [01-moneyprinter-turbo](research/01-moneyprinter-turbo-20260102.md)           | Multi-provider LLM                     | 2026-01-02 |
 | [08-shortgpt](research/08-shortgpt-20260102.md)                               | EdgeTTS (30+ languages)                | 2026-01-02 |
 | [16-BATCH2-SUMMARY](research/16-BATCH2-SUMMARY-20260102.md)                   | Infrastructure repos summary           | 2026-01-02 |
@@ -170,6 +171,7 @@ Located in `guides/`, task-oriented how-to documentation:
 ### Rendering & templates guides
 
 - `guides/guide-video-templates-20260107.md`
+- `guides/guide-audio-options-20260110.md`
 
 ### Planned Guides
 
@@ -237,7 +239,7 @@ Located in `features/`, feature specifications:
 
 ### Implemented Features
 
-- [Research → Script Integration](features/feature-research-script-integration-20260107.md) – Evidence-based script generation with source tracking
+- [Research -> Script Integration](features/feature-research-script-integration-20260107.md) - Evidence-based script generation with source tracking
 
 ### CLI UX Features
 
@@ -245,13 +247,14 @@ Located in `features/`, feature specifications:
 - [CLI Progress Events](features/feature-cli-progress-events-20260106.md)
 - [CLI JSON Contract](features/feature-cli-json-contract-20260106.md)
 - [LLM Streaming UX](features/feature-llm-streaming-cli-20260106.md)
-- [Virality Director](features/feature-virality-director-20260105.md) – Packaging + Publish Metadata
+- [Virality Director](features/feature-virality-director-20260105.md) - Packaging + Publish Metadata
 
 ### Planned Features
 
 - [ ] MCP Reddit Connector
 - [ ] Content Planning Agent
 - [ ] [Video Templates (render templates)](features/feature-video-templates-20260107.md)
+- [ ] [Audio Options + Mix Integration](features/feature-audio-options-mix-integration-20260110.md)
 - [ ] Playwright Capture Pipeline
 - [ ] Script Generation + TTS
 - [ ] Remotion Rendering
@@ -283,16 +286,16 @@ Located in `postmortems/`, incident reports:
 
 ---
 
-## Diátaxis Framework
+## Diataxis Framework
 
-All docs follow [Diátaxis](https://diataxis.fr/):
+All docs follow [Diataxis](https://diataxis.fr/):
 
 | Type            | Purpose         | Example                    |
 | --------------- | --------------- | -------------------------- |
 | **Tutorial**    | Learning        | "Your first video"         |
 | **Guide**       | Problem-solving | "How to add MCP connector" |
 | **Reference**   | Information     | "API documentation"        |
-| **Explanation** | Understanding   | "Why Remotion over X?"     |
+| **Explanation** | Understanding   | "Why Remotion over X->"     |
 
 ---
 
@@ -300,13 +303,13 @@ All docs follow [Diátaxis](https://diataxis.fr/):
 
 ### Date Suffix (MANDATORY)
 
-✅ **Correct:**
+**Correct:**
 
 - `feature-caption-system-20260102.md`
 - `adr-001-use-remotion-20260102.md`
 - `guide-setup-dev-20260102.md`
 
-❌ **Wrong:**
+**Wrong:**
 
 - `feature-caption-system.md` (NO DATE)
 - `adr-001-use-remotion.md` (NO DATE)

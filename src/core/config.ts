@@ -10,6 +10,7 @@ import { z } from 'zod';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { ConfigError } from './errors.js';
+import { FONT_STACKS } from '../render/tokens/font';
 
 // ============================================================================
 // Schema Definitions
@@ -40,6 +41,40 @@ const AudioConfigSchema = z.object({
   asrModel: z.enum(['tiny', 'base', 'small', 'medium', 'large']).default('base'),
 });
 
+const AudioMixPresetEnum = z.enum(['clean', 'punchy', 'cinematic', 'viral']);
+
+const AudioMixConfigSchema = z.object({
+  preset: AudioMixPresetEnum.default('clean'),
+  lufsTarget: z.number().default(-16),
+});
+
+const MusicConfigSchema = z.object({
+  default: z.string().optional(),
+  volumeDb: z.number().default(-18),
+  duckDb: z.number().default(-8),
+  loop: z.boolean().default(true),
+  fadeInMs: z.number().int().nonnegative().default(400),
+  fadeOutMs: z.number().int().nonnegative().default(600),
+});
+
+const SfxPlacementEnum = z.enum(['hook', 'scene', 'list-item', 'cta']);
+
+const SfxConfigSchema = z.object({
+  pack: z.string().optional(),
+  volumeDb: z.number().default(-12),
+  placement: SfxPlacementEnum.default('scene'),
+  minGapMs: z.number().int().nonnegative().default(800),
+  durationSeconds: z.number().positive().default(0.4),
+});
+
+const AmbienceConfigSchema = z.object({
+  default: z.string().optional(),
+  volumeDb: z.number().default(-26),
+  loop: z.boolean().default(true),
+  fadeInMs: z.number().int().nonnegative().default(200),
+  fadeOutMs: z.number().int().nonnegative().default(400),
+});
+
 const VisualsConfigSchema = z.object({
   provider: z.enum(['pexels', 'pixabay']).default('pexels'),
   cacheEnabled: z.boolean().default(true),
@@ -52,6 +87,40 @@ const RenderConfigSchema = z.object({
   fps: z.number().int().min(24).max(60).default(30),
   codec: z.enum(['h264', 'h265', 'vp9']).default('h264'),
   crf: z.number().int().min(0).max(51).default(23),
+});
+
+const FontWeightSchema = z.union([
+  z.number().int().min(100).max(900),
+  z.enum(['normal', 'bold', 'black']),
+]);
+
+const FontStyleSchema = z.enum(['normal', 'italic', 'oblique']);
+
+const CaptionFontSchema = z.object({
+  family: z.string(),
+  src: z.string(),
+  weight: FontWeightSchema.optional(),
+  style: FontStyleSchema.optional(),
+});
+
+const CaptionsConfigSchema = z.object({
+  fontFamily: z.string().default(FONT_STACKS.body),
+  fontWeight: FontWeightSchema.default('bold'),
+  fontFile: z.string().optional(),
+  fonts: z.array(CaptionFontSchema).default([]),
+});
+
+const HookAudioModeEnum = z.enum(['mute', 'keep']);
+const HookFitEnum = z.enum(['cover', 'contain']);
+
+const HooksConfigSchema = z.object({
+  library: z.string().default('transitionalhooks'),
+  dir: z.string().default('~/.cm/assets/hooks'),
+  audio: HookAudioModeEnum.default('keep'),
+  fit: HookFitEnum.default('cover'),
+  maxDuration: z.number().positive().default(3),
+  trimDuration: z.number().positive().optional(),
+  defaultHook: z.string().default('no-crunch'),
 });
 
 // ============================================================================
@@ -170,8 +239,14 @@ export const ConfigSchema = z.object({
   defaults: DefaultsSchema.default({}),
   llm: LLMConfigSchema.default({}),
   audio: AudioConfigSchema.default({}),
+  audioMix: AudioMixConfigSchema.default({}),
+  music: MusicConfigSchema.default({}),
+  sfx: SfxConfigSchema.default({}),
+  ambience: AmbienceConfigSchema.default({}),
   visuals: VisualsConfigSchema.default({}),
   render: RenderConfigSchema.default({}),
+  captions: CaptionsConfigSchema.default({}),
+  hooks: HooksConfigSchema.default({}),
   sync: SyncConfigSchema.default({}),
 });
 
@@ -182,6 +257,13 @@ export type LLMProviderType = z.infer<typeof LLMProviderEnum>;
 export type SyncConfig = z.infer<typeof SyncConfigSchema>;
 export type SyncStrategy = z.infer<typeof SyncStrategyEnum>;
 export type DriftCorrection = z.infer<typeof DriftCorrectionEnum>;
+export type HooksConfig = z.infer<typeof HooksConfigSchema>;
+export type CaptionsConfig = z.infer<typeof CaptionsConfigSchema>;
+export type CaptionFontConfig = z.infer<typeof CaptionFontSchema>;
+export type AudioMixConfig = z.infer<typeof AudioMixConfigSchema>;
+export type MusicConfig = z.infer<typeof MusicConfigSchema>;
+export type SfxConfig = z.infer<typeof SfxConfigSchema>;
+export type AmbienceConfig = z.infer<typeof AmbienceConfigSchema>;
 
 // ============================================================================
 // API Key Management

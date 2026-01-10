@@ -1,11 +1,11 @@
 /**
- * Alignment Sections Tests
+ * Alignment Units Tests
  *
- * Tests for buildAlignmentSections which converts script to spoken sections.
+ * Tests for buildAlignmentUnits which converts script to spoken units.
  * Critical: Hook should NOT be duplicated if scene 1 already contains it.
  */
 import { describe, it, expect } from 'vitest';
-import { buildAlignmentSections } from '../../../src/audio/pipeline';
+import { buildAlignmentUnits } from '../../../src/audio/alignment';
 import type { ScriptOutput } from '../../../src/script/schema';
 
 function createMockScript(overrides: Partial<ScriptOutput> = {}): ScriptOutput {
@@ -20,7 +20,7 @@ function createMockScript(overrides: Partial<ScriptOutput> = {}): ScriptOutput {
   };
 }
 
-describe('buildAlignmentSections', () => {
+describe('buildAlignmentUnits', () => {
   describe('hook deduplication', () => {
     it('does NOT add hook when hook exactly matches scene 1', () => {
       const script = createMockScript({
@@ -28,11 +28,11 @@ describe('buildAlignmentSections', () => {
         scenes: [{ id: 'scene-001', text: 'First scene text', visualDirection: 'test' }],
       });
 
-      const sections = buildAlignmentSections(script);
+      const units = buildAlignmentUnits(script);
 
       // Should only have the scene, not a separate hook
-      expect(sections.length).toBe(1);
-      expect(sections[0].id).toBe('scene-001');
+      expect(units.length).toBe(1);
+      expect(units[0].id).toBe('scene-001');
     });
 
     it('does NOT add hook when scene 1 starts with hook text', () => {
@@ -48,12 +48,31 @@ describe('buildAlignmentSections', () => {
         ],
       });
 
-      const sections = buildAlignmentSections(script);
+      const units = buildAlignmentUnits(script);
 
       // Should only have the scene, not a separate hook
-      expect(sections.length).toBe(1);
-      expect(sections[0].id).toBe('scene-001');
-      expect(sections[0].text).toContain('Here are 5 tips');
+      expect(units.length).toBe(1);
+      expect(units[0].id).toBe('scene-001');
+      expect(units[0].text).toContain('Here are 5 tips');
+    });
+
+    it('does NOT add hook when scene 1 matches hook with punctuation/case changes', () => {
+      const script = createMockScript({
+        hook: 'Stop scrolling right now',
+        scenes: [
+          {
+            id: 'scene-001',
+            text: 'STOP scrolling right now! Here is the fast answer.',
+            visualDirection: 'test',
+          },
+        ],
+      });
+
+      const units = buildAlignmentUnits(script);
+
+      expect(units.length).toBe(1);
+      expect(units[0].id).toBe('scene-001');
+      expect(units[0].text).toContain('Here is the fast answer');
     });
 
     it('does NOT add hook when scene 1 contains hook text', () => {
@@ -68,14 +87,14 @@ describe('buildAlignmentSections', () => {
         ],
       });
 
-      const sections = buildAlignmentSections(script);
+      const units = buildAlignmentUnits(script);
 
       // Should only have the scene, not a separate hook
-      expect(sections.length).toBe(1);
-      expect(sections[0].id).toBe('scene-001');
+      expect(units.length).toBe(1);
+      expect(units[0].id).toBe('scene-001');
     });
 
-    it('adds hook as separate section when NOT in scene 1', () => {
+    it('adds hook as separate unit when NOT in scene 1', () => {
       const script = createMockScript({
         hook: 'This is a completely different hook',
         scenes: [
@@ -83,13 +102,13 @@ describe('buildAlignmentSections', () => {
         ],
       });
 
-      const sections = buildAlignmentSections(script);
+      const units = buildAlignmentUnits(script);
 
       // Should have both hook and scene
-      expect(sections.length).toBe(2);
-      expect(sections[0].id).toBe('hook');
-      expect(sections[0].text).toBe('This is a completely different hook');
-      expect(sections[1].id).toBe('scene-001');
+      expect(units.length).toBe(2);
+      expect(units[0].id).toBe('hook');
+      expect(units[0].text).toBe('This is a completely different hook');
+      expect(units[1].id).toBe('scene-001');
     });
 
     it('skips hook when hook is empty', () => {
@@ -98,10 +117,10 @@ describe('buildAlignmentSections', () => {
         scenes: [{ id: 'scene-001', text: 'Scene text', visualDirection: 'test' }],
       });
 
-      const sections = buildAlignmentSections(script);
+      const units = buildAlignmentUnits(script);
 
-      expect(sections.length).toBe(1);
-      expect(sections[0].id).toBe('scene-001');
+      expect(units.length).toBe(1);
+      expect(units[0].id).toBe('scene-001');
     });
 
     it('skips hook when hook is undefined', () => {
@@ -110,10 +129,10 @@ describe('buildAlignmentSections', () => {
         scenes: [{ id: 'scene-001', text: 'Scene text', visualDirection: 'test' }],
       });
 
-      const sections = buildAlignmentSections(script);
+      const units = buildAlignmentUnits(script);
 
-      expect(sections.length).toBe(1);
-      expect(sections[0].id).toBe('scene-001');
+      expect(units.length).toBe(1);
+      expect(units[0].id).toBe('scene-001');
     });
   });
 
@@ -127,12 +146,12 @@ describe('buildAlignmentSections', () => {
         cta: 'Follow for more tips!',
       });
 
-      const sections = buildAlignmentSections(script);
+      const units = buildAlignmentUnits(script);
 
       // Should only have scenes, not a separate CTA
-      expect(sections.length).toBe(2);
-      expect(sections[0].id).toBe('scene-001');
-      expect(sections[1].id).toBe('scene-002');
+      expect(units.length).toBe(2);
+      expect(units[0].id).toBe('scene-001');
+      expect(units[1].id).toBe('scene-002');
     });
 
     it('adds cta when NOT in last scene', () => {
@@ -144,11 +163,11 @@ describe('buildAlignmentSections', () => {
         cta: 'Different call to action!',
       });
 
-      const sections = buildAlignmentSections(script);
+      const units = buildAlignmentUnits(script);
 
-      expect(sections.length).toBe(3);
-      expect(sections[2].id).toBe('cta');
-      expect(sections[2].text).toBe('Different call to action!');
+      expect(units.length).toBe(3);
+      expect(units[2].id).toBe('cta');
+      expect(units[2].text).toBe('Different call to action!');
     });
   });
 
@@ -163,13 +182,13 @@ describe('buildAlignmentSections', () => {
         cta: 'Unique CTA text',
       });
 
-      const sections = buildAlignmentSections(script);
+      const units = buildAlignmentUnits(script);
 
-      expect(sections.length).toBe(4);
-      expect(sections[0].id).toBe('hook');
-      expect(sections[1].id).toBe('scene-001');
-      expect(sections[2].id).toBe('scene-002');
-      expect(sections[3].id).toBe('cta');
+      expect(units.length).toBe(4);
+      expect(units[0].id).toBe('hook');
+      expect(units[1].id).toBe('scene-001');
+      expect(units[2].id).toBe('scene-002');
+      expect(units[3].id).toBe('cta');
     });
 
     it('normalizes whitespace when comparing texts', () => {
@@ -178,11 +197,11 @@ describe('buildAlignmentSections', () => {
         scenes: [{ id: 'scene-001', text: 'Hook with extra spaces', visualDirection: 'test' }],
       });
 
-      const sections = buildAlignmentSections(script);
+      const units = buildAlignmentUnits(script);
 
       // After normalization, texts should match, so no separate hook
-      expect(sections.length).toBe(1);
-      expect(sections[0].id).toBe('scene-001');
+      expect(units.length).toBe(1);
+      expect(units[0].id).toBe('scene-001');
     });
   });
 });

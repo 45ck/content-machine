@@ -2,6 +2,20 @@
  * @file Unit tests for PexelsProvider
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+
+vi.mock('../../../../src/visuals/providers/pexels.js', () => ({
+  searchPexels: vi.fn(async () => [
+    {
+      id: 1,
+      url: 'https://example.com/video.mp4',
+      thumbnailUrl: 'https://example.com/thumb.jpg',
+      width: 1080,
+      height: 1920,
+      duration: 2,
+    },
+  ]),
+}));
+
 import { PexelsProvider } from '../../../../src/visuals/providers/pexels-provider.js';
 
 describe('PexelsProvider', () => {

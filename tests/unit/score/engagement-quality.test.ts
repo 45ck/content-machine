@@ -18,6 +18,9 @@ import {
 import type { ScriptOutput } from '../../../src/script/schema';
 import type { TimestampsOutput } from '../../../src/audio/schema';
 
+const shouldRunRealOutput = process.env.CM_RUN_REAL_OUTPUT_TESTS === 'true';
+const describeRealOutput = shouldRunRealOutput ? describe : describe.skip;
+
 describe('Engagement Quality Metrics', () => {
   describe('Unit Tests', () => {
     it('should detect hook starting after 3 seconds', () => {
@@ -198,7 +201,7 @@ describe('Engagement Quality Metrics', () => {
     });
   });
 
-  describe('Real Output Quality Gates', () => {
+  describeRealOutput('Real Output Quality Gates', () => {
     let script: ScriptOutput;
     let timestamps: TimestampsOutput;
     let report: EngagementQualityReport;

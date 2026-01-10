@@ -4,6 +4,7 @@
 import React from 'react';
 import { AbsoluteFill, Sequence, Video, staticFile } from 'remotion';
 import type { VisualAsset, VideoClip } from '../../visuals/schema';
+import type { HookClip } from '../schema';
 import { ensureVisualCoverage, type VisualScene } from '../../visuals/duration';
 
 function resolveMediaSrc(path: string): string {
@@ -94,6 +95,21 @@ export const SceneBackground: React.FC<SceneBackgroundProps> = ({
         style={{ width: '100%', height: '100%', objectFit: 'cover', ...videoStyle }}
       />
     )}
+  </AbsoluteFill>
+);
+
+export interface HookClipProps {
+  hook: HookClip;
+  containerStyle?: React.CSSProperties;
+}
+
+export const HookClip: React.FC<HookClipProps> = ({ hook, containerStyle }) => (
+  <AbsoluteFill style={containerStyle}>
+    <Video
+      src={resolveMediaSrc(hook.path)}
+      muted={hook.mute ?? false}
+      style={{ width: '100%', height: '100%', objectFit: hook.fit ?? 'cover' }}
+    />
   </AbsoluteFill>
 );
 

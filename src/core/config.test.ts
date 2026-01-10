@@ -3,11 +3,12 @@
  * TDD: Write tests FIRST, then implement
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { existsSync, mkdirSync, rmSync } from 'fs';
+import { existsSync, mkdirSync, rmSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 // Mock environment before importing
 const originalEnv = process.env;
+const originalCwd = process.cwd();
 
 describe('Config', () => {
   const testDir = join(process.cwd(), '.test-config');
@@ -22,6 +23,7 @@ describe('Config', () => {
 
   afterEach(() => {
     process.env = originalEnv;
+    process.chdir(originalCwd);
     if (existsSync(testDir)) {
       rmSync(testDir, { recursive: true, force: true });
     }
@@ -59,7 +61,9 @@ describe('Config', () => {
 
   describe('loadConfig', () => {
     it('should return default config when no config file exists', async () => {
-      const { loadConfig } = await import('./config');
+      process.chdir(testDir);
+      const { loadConfig, clearConfigCache } = await import('./config');
+      clearConfigCache();
       const config = loadConfig();
 
       expect(config).toBeDefined();
@@ -69,12 +73,54 @@ describe('Config', () => {
     });
 
     it('should merge config file with defaults', async () => {
+      process.chdir(testDir);
       // This would need an actual config file test
-      const { loadConfig } = await import('./config');
+      const { loadConfig, clearConfigCache } = await import('./config');
+      clearConfigCache();
       const config = loadConfig();
 
       expect(config.llm).toBeDefined();
       expect(config.llm.provider).toBeDefined();
+    });
+
+    it('should load caption font settings from JSON config', async () => {
+      const configPath = join(testDir, '.cmrc.json');
+      writeFileSync(
+        configPath,
+        JSON.stringify(
+          {
+            captions: {
+              fontFamily: 'Montserrat',
+              fontWeight: 700,
+              fontFile: 'assets/fonts/Montserrat-Bold.woff2',
+              fonts: [
+                {
+                  family: 'Montserrat',
+                  src: 'assets/fonts/Montserrat-Bold.woff2',
+                  weight: 700,
+                  style: 'normal',
+                },
+              ],
+            },
+          },
+          null,
+          2
+        ),
+        'utf-8'
+      );
+
+      process.chdir(testDir);
+
+      const { loadConfig, clearConfigCache } = await import('./config');
+      clearConfigCache();
+      const config = loadConfig();
+
+      expect(config.captions).toBeDefined();
+      expect(config.captions.fontFamily).toBe('Montserrat');
+      expect(config.captions.fontWeight).toBe(700);
+      expect(config.captions.fontFile).toBe('assets/fonts/Montserrat-Bold.woff2');
+      expect(config.captions.fonts).toHaveLength(1);
+      expect(config.captions.fonts[0].family).toBe('Montserrat');
     });
   });
 
@@ -106,6 +152,18 @@ describe('Config', () => {
           height: 1920,
           fps: 30,
         },
+        captions: {
+          fontFamily: 'Roboto',
+          fontWeight: 700,
+          fontFile: 'assets/fonts/Roboto-Bold.woff2',
+          fonts: [
+            {
+              family: 'Roboto',
+              src: 'assets/fonts/Roboto-Bold.woff2',
+              weight: 700,
+            },
+          ],
+        },
       };
 
       const result = ConfigSchema.safeParse(validConfig);
@@ -123,6 +181,15 @@ describe('Config', () => {
 
       const result = ConfigSchema.safeParse(invalidConfig);
       expect(result.success).toBe(false);
+    });
+
+    it('should apply caption font defaults', async () => {
+      const { ConfigSchema } = await import('./config');
+
+      const result = ConfigSchema.parse({});
+
+      expect(result.captions).toBeDefined();
+      expect(result.captions.fontFamily).toBeDefined();
     });
   });
 
@@ -437,6 +504,28 @@ describe('Config', () => {
 
       expect(result.sync).toBeDefined();
       expect(result.sync.strategy).toBe('standard');
+    });
+
+    it('should include hooks config with defaults when not provided', async () => {
+      const { ConfigSchema } = await import('./config');
+
+      const result = ConfigSchema.parse({});
+
+      expect(result.hooks).toBeDefined();
+      expect(result.hooks.library).toBe('transitionalhooks');
+      expect(result.hooks.audio).toBe('keep');
+      expect(result.hooks.defaultHook).toBe('no-crunch');
+    });
+
+    it('should include audio mix defaults when not provided', async () => {
+      const { ConfigSchema } = await import('./config');
+
+      const result = ConfigSchema.parse({});
+
+      expect(result.audioMix.preset).toBe('clean');
+      expect(result.music.volumeDb).toBe(-18);
+      expect(result.sfx.placement).toBe('scene');
+      expect(result.ambience.volumeDb).toBe(-26);
     });
 
     it('should accept config with sync section', async () => {

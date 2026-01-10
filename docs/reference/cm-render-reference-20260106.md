@@ -13,6 +13,7 @@ cm render [options]
 - `--input`: visuals JSON from `cm visuals`
 - `--audio`: audio WAV from `cm audio`
 - `--timestamps`: timestamps JSON from `cm audio` (default `timestamps.json`)
+- `--audio-mix`: optional mix plan from `cm audio`
 
 ## Outputs
 
@@ -22,11 +23,14 @@ cm render [options]
 
 - `-i, --input <path>`: input visuals JSON file (required)
 - `--audio <path>`: audio file path (required)
+- `--audio-mix <path>`: audio mix plan JSON file (optional)
 - `--timestamps <path>`: timestamps JSON file (default: `timestamps.json`)
 - `-o, --output <path>`: output video file path (default: `video.mp4`)
 - `--orientation <type>`: `portrait|landscape|square` (default: `portrait`)
 - `--fps <fps>`: frames per second (default: `30`)
 - `--mock`: use mock renderer (writes a placeholder MP4)
+- `--download-assets`: download remote visuals into the bundle (default: true)
+- `--no-download-assets`: stream remote visuals directly (no download)
 
 ## Global options
 
@@ -44,9 +48,17 @@ cm render [options]
 ```bash
 cm render -i out/visuals.json --audio out/audio.wav --timestamps out/timestamps.json -o out/video.mp4
 cm render -i visuals.json --audio audio.wav --orientation portrait --fps 30
+cm render -i visuals.json --audio audio.wav --audio-mix audio.mix.json --timestamps timestamps.json -o video.mp4
 ```
+
+## Notes
+
+- Local visuals with `source: "user-footage"` are copied into the render bundle for reliable playback.
+- Use `--download-assets` (default) to cache remote stock footage inside the bundle.
+- Local clips are validated before render (file size + optional ffprobe); install ffprobe for deeper checks and clearer errors.
 
 ## See also
 
 - `docs/guides/guide-cli-ux-cm-render-20260106.md`
+- `docs/guides/guide-audio-options-20260110.md`
 - `docs/reference/cm-validate-reference-20260106.md`

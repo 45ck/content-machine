@@ -2,26 +2,34 @@
  * Pipeline Orchestration
  *
  * Coordinates the full video generation pipeline:
- * topic → script → audio → visuals → render → video
+ * topic -> script -> audio -> visuals -> render -> video
  */
-import { generateScript, ScriptOutput } from '../script/generator';
-import { generateAudio, AudioOutput } from '../audio/pipeline';
-import { matchVisuals, VisualsProgressEvent } from '../visuals/matcher';
-import type { VisualsOutput } from '../visuals/matcher';
-import { renderVideo, RenderProgressEvent } from '../render/service';
-import type { RenderOutput } from '../render/service';
-import type { CaptionConfig } from '../render/schema';
-import type { CaptionPresetName } from '../render/captions/presets';
-import { Archetype, Orientation } from './config';
-import { createLogger, logTiming, Logger } from './logger';
-import { PipelineError } from './errors';
-import { LLMProvider } from './llm';
-import type { PipelineEvent, PipelineEventEmitter } from './events';
+import { mkdir, writeFile, copyFile, rm } from 'fs/promises';
+import { dirname, join, resolve } from 'path';
+import { performance } from 'perf_hooks';
 import { randomUUID } from 'crypto';
-import { mkdir, rm, writeFile } from 'fs/promises';
-import { join, dirname } from 'path';
-import type { ResearchOutput } from '../research/schema';
 import { z } from 'zod';
+import type { LLMProvider } from './llm/provider';
+import type { ScriptOutput } from '../script/schema';
+import type { AudioOutput } from '../audio/schema';
+import type { VisualsOutput } from '../visuals/schema';
+import type { RenderOutput } from '../render/schema';
+import type { CaptionPresetName } from '../render/captions/presets';
+import type { CaptionConfig } from '../render/captions/config';
+import type { FontSource } from '../render/schema';
+import type { HookClip } from '../hooks/schema';
+import { ResearchOutputSchema, type ResearchOutput } from '../research/schema';
+import type { PipelineEventEmitter } from './events';
+import type { AudioMixPlanOptions } from '../audio/mix/planner';
+import { createLogger, logTiming } from './logger';
+import { PipelineError } from './errors';
+import {
+  ArchetypeEnum,
+  OrientationEnum,
+  loadConfig,
+  type Archetype,
+  type Orientation,
+} from './config';
 
 export type PipelineStage = 'script' | 'audio' | 'visuals' | 'render';
 
@@ -32,143 +40,73 @@ export interface PipelineOptions {
   voice: string;
   targetDuration: number;
   outputPath: string;
-  /**
-   * Optional gameplay footage selection for split-screen templates.
-   */
-  gameplay?: {
-    library?: string;
-    style?: string;
-    clip?: string;
-    required?: boolean;
-  };
-  /**
-   * Frames per second for rendering.
-   * Default: 30
-   */
-  fps?: number;
-  /**
-   * Remotion composition id (defaults to "ShortVideo").
-   * Intended to be set via video templates.
-   */
-  compositionId?: string;
-  /**
-   * Split-screen ratio for templates that need it (top height / total height).
-   */
-  splitScreenRatio?: number;
-  /**
-   * Split-screen layout positions.
-   */
-  gameplayPosition?: 'top' | 'bottom' | 'full';
-  contentPosition?: 'top' | 'bottom' | 'full';
-  /**
-   * Download remote visual assets (e.g. stock footage URLs) into the Remotion
-   * bundle for more reliable rendering.
-   *
-   * Default: true (best-effort; falls back to remote URL on failure).
-   */
-  downloadAssets?: boolean;
-  /**
-   * Caption preset name (tiktok, youtube, reels, bold, minimal, neon, capcut, hormozi, karaoke).
-   * Priority: captionConfig > captionPreset > default (capcut).
-   */
-  captionPreset?: CaptionPresetName;
-  /**
-   * Partial caption configuration overrides. Typically sourced from templates.
-   */
-  captionConfig?: Partial<CaptionConfig>;
   keepArtifacts?: boolean;
   workDir?: string;
   onProgress?: (stage: PipelineStage, message: string) => void;
-  /**
-   * Optional pipeline event emitter (Observer pattern).
-   * Emits lifecycle + progress events for observability and CLI UX.
-   */
-  eventEmitter?: PipelineEventEmitter;
-  // Dependency injection for testing
   llmProvider?: LLMProvider;
   /** Use mock mode for testing without real API calls */
   mock?: boolean;
-  /** Research output to inject evidence into script generation */
-  research?: ResearchOutput;
-  /**
-   * Pipeline mode for timestamp generation:
-   * - 'standard' (default): Uses Whisper ASR with estimation fallback
-   * - 'audio-first': Requires Whisper ASR for ground-truth timestamps, fails if unavailable
-   */
+  /** Pipeline mode: standard (whisper optional) or audio-first (whisper required) */
   pipelineMode?: 'standard' | 'audio-first';
-  /**
-   * Whisper model size for ASR transcription.
-   * Larger models are more accurate but slower.
-   * Default: 'base'
-   */
+  /** Whisper model size */
   whisperModel?: 'tiny' | 'base' | 'small' | 'medium';
-  /**
-   * Caption grouping window in milliseconds.
-   * Controls how many words are grouped into a single caption "page".
-   * Default: 800
-   */
-  captionGroupMs?: number;
-  /**
-   * Reconcile ASR output to match original script text.
-   * Improves caption readability by using original punctuation/casing.
-   */
+  /** Reconcile ASR output to script text */
   reconcile?: boolean;
-  /**
-   * Caption display mode: page (default), single (one word at a time), buildup (accumulate per sentence), chunk (CapCut-style)
-   */
+  /** Optional research output to inject into script stage */
+  research?: ResearchOutput;
+  /** Optional event emitter for pipeline progress */
+  eventEmitter?: PipelineEventEmitter;
+  /** Optional audio mix plan generation */
+  audioMix?: {
+    outputPath: string;
+    options: AudioMixPlanOptions;
+    emitEmpty?: boolean;
+  };
+  /** Render options */
+  fps?: number;
+  compositionId?: string;
+  captionPreset?: CaptionPresetName;
+  captionConfig?: Partial<CaptionConfig>;
+  captionGroupMs?: number;
   captionMode?: 'page' | 'single' | 'buildup' | 'chunk';
-  /**
-   * Words per caption page/group.
-   * Default: 8 (for larger sentences)
-   */
   wordsPerPage?: number;
-  /**
-   * Maximum lines per caption page.
-   * Default: 2 (for multi-line captions)
-   */
-  maxLinesPerPage?: number;
-  /**
-   * Maximum characters per line before wrapping.
-   * Default: 25 (words never break mid-word)
-   */
-  maxCharsPerLine?: number;
-  /**
-   * Caption animation: none (default), fade, slideUp, slideDown, pop, bounce
-   */
-  captionAnimation?: 'none' | 'fade' | 'slideUp' | 'slideDown' | 'pop' | 'bounce';
-  /** Drop filler words from captions */
-  captionDropFillers?: boolean;
-  /** Custom filler list for caption cleanup */
-  captionFillerWords?: string[];
-  /** Max words per minute for caption pacing */
-  captionMaxWpm?: number;
-  /** Max characters per second for caption pacing */
-  captionMaxCps?: number;
-  /** Minimum on-screen time for captions in ms */
-  captionMinOnScreenMs?: number;
-  /** Minimum on-screen time for short captions in ms */
-  captionMinOnScreenMsShort?: number;
-  /** Target words per chunk (chunk mode) */
-  captionTargetWords?: number;
-  /** Minimum words per chunk/page */
   captionMinWords?: number;
+  captionTargetWords?: number;
+  captionMaxWpm?: number;
+  captionMaxCps?: number;
+  captionMinOnScreenMs?: number;
+  captionMinOnScreenMsShort?: number;
+  captionDropFillers?: boolean;
+  captionFillerWords?: string[];
+  captionAnimation?: 'none' | 'fade' | 'slideUp' | 'slideDown' | 'pop' | 'bounce';
+  captionFontFamily?: string;
+  captionFontWeight?: number | 'normal' | 'bold' | 'black';
+  captionFontFile?: string;
+  captionFonts?: FontSource[];
+  maxLinesPerPage?: number;
+  maxCharsPerLine?: number;
+  /** Visuals + layout options */
+  gameplay?: { library?: string; style?: string; required?: boolean };
+  splitScreenRatio?: number;
+  gameplayPosition?: 'top' | 'bottom' | 'full';
+  contentPosition?: 'top' | 'bottom' | 'full';
+  downloadAssets?: boolean;
+  hook?: HookClip;
+  /** External artifacts */
+  scriptInput?: ScriptOutput;
+  audioInput?: AudioOutput;
+  visualsInput?: VisualsOutput;
 }
 
-/**
- * Zod schema for pipeline config validation
- */
 export const PipelineConfigSchema = z.object({
   topic: z.string().min(1),
-  archetype: z.string(),
-  orientation: z.string(),
-  voice: z.string(),
+  archetype: ArchetypeEnum,
+  orientation: OrientationEnum,
+  voice: z.string().min(1),
   targetDuration: z.number().positive(),
-  outputPath: z.string(),
-  keepArtifacts: z.boolean().optional(),
-  research: z.any().optional(), // ResearchOutput is validated separately
-  gameplay: z.any().optional(),
-  splitScreenRatio: z.number().optional(),
-});
+  outputPath: z.string().min(1),
+  research: ResearchOutputSchema.optional(),
+}).passthrough();
 
 export interface PipelineResult {
   script: ScriptOutput;
@@ -187,424 +125,545 @@ export interface PipelineResult {
   };
 }
 
-interface PipelineArtifacts {
-  script: string;
-  audio: string;
-  timestamps: string;
-  visuals: string;
+interface StageCost {
+  estimatedCost?: number;
+  inputTokens?: number;
+  outputTokens?: number;
 }
 
-interface PipelineCosts {
-  llm: number;
-  tts: number;
-  total: number;
-}
+const STAGES: PipelineStage[] = ['script', 'audio', 'visuals', 'render'];
 
-function emitPipelineEvent(emitter: PipelineEventEmitter | undefined, event: PipelineEvent): void {
-  emitter?.emit(event);
-}
-
-function createPipelineId(): string {
-  try {
-    return randomUUID();
-  } catch {
-    return `pipeline-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+function normalizeWhisperModel(
+  model: string | undefined
+): 'tiny' | 'base' | 'small' | 'medium' {
+  switch (model) {
+    case 'tiny':
+    case 'base':
+    case 'small':
+    case 'medium':
+      return model;
+    default:
+      return 'base';
   }
 }
 
-async function writeArtifactJson(path: string, data: unknown): Promise<void> {
+function clampProgress(value: number): number {
+  if (!Number.isFinite(value)) return 0;
+  return Math.min(1, Math.max(0, value));
+}
+
+async function writeJson(path: string, data: unknown): Promise<void> {
   await mkdir(dirname(path), { recursive: true });
-  await writeFile(path, `${JSON.stringify(data, null, 2)}\n`, 'utf-8');
+  const content = JSON.stringify(data, null, 2);
+  await writeFile(path, content, 'utf-8');
 }
 
-/**
- * Execute Stage 1: Script generation
- */
-async function executeScriptStage(
-  options: PipelineOptions,
-  log: Logger,
-  costs: PipelineCosts
-): Promise<ScriptOutput> {
-  log.info('Starting Stage 1: Script generation');
-  options.onProgress?.('script', 'Generating script...');
-
-  const script = await logTiming(
-    'script-generation',
-    async () => {
-      return generateScript({
-        topic: options.topic,
-        archetype: options.archetype,
-        targetDuration: options.targetDuration,
-        llmProvider: options.llmProvider,
-        research: options.research,
-      });
-    },
-    log
-  );
-
-  if (script.meta?.llmCost) {
-    costs.llm += script.meta.llmCost;
-  }
-
-  options.onProgress?.('script', 'Script generated');
-  return script;
+async function copyFileSafe(sourcePath: string, destPath: string): Promise<boolean> {
+  const resolvedSource = resolve(sourcePath);
+  const resolvedDest = resolve(destPath);
+  if (resolvedSource === resolvedDest) return false;
+  await mkdir(dirname(resolvedDest), { recursive: true });
+  await copyFile(resolvedSource, resolvedDest);
+  return true;
 }
 
-/**
- * Execute Stage 2: Audio generation
- */
-async function executeAudioStage(
-  options: PipelineOptions,
-  script: ScriptOutput,
-  artifacts: PipelineArtifacts,
-  log: Logger,
-  costs: PipelineCosts
-): Promise<AudioOutput> {
-  log.info(
-    {
-      pipelineMode: options.pipelineMode ?? 'standard',
-      whisperModel: options.whisperModel,
-      reconcile: options.reconcile,
-    },
-    'Starting Stage 2: Audio generation'
-  );
-  options.onProgress?.('audio', 'Generating audio...');
-
-  const audio = await logTiming(
-    'audio-generation',
-    async () => {
-      return generateAudio({
-        script,
-        voice: options.voice,
-        outputPath: artifacts.audio,
-        timestampsPath: artifacts.timestamps,
-        mock: options.mock,
-        requireWhisper: options.pipelineMode === 'audio-first',
-        whisperModel: options.whisperModel,
-        reconcile: options.reconcile,
-      });
-    },
-    log
-  );
-
-  if (audio.ttsCost) {
-    costs.tts += audio.ttsCost;
-  }
-
-  options.onProgress?.('audio', 'Audio generated');
-  return audio;
+function emitStageProgress(params: {
+  emitter: PipelineEventEmitter | undefined;
+  pipelineId: string;
+  stage: PipelineStage;
+  stageIndex: number;
+  totalStages: number;
+  phase?: string;
+  progress: number;
+  message?: string;
+}): void {
+  const { emitter } = params;
+  if (!emitter) return;
+  emitter.emit({
+    type: 'stage:progress',
+    timestamp: Date.now(),
+    pipelineId: params.pipelineId,
+    stage: params.stage,
+    stageIndex: params.stageIndex,
+    totalStages: params.totalStages,
+    phase: params.phase,
+    progress: clampProgress(params.progress),
+    message: params.message,
+  });
 }
 
-/**
- * Execute Stage 3: Visual matching
- */
-async function executeVisualsStage(
-  options: PipelineOptions,
-  audio: AudioOutput,
-  log: Logger,
-  onProgress?: (event: VisualsProgressEvent) => void
-): Promise<VisualsOutput> {
-  log.info('Starting Stage 3: Visual matching');
-  options.onProgress?.('visuals', 'Matching visuals...');
-
-  const visuals = await logTiming(
-    'visual-matching',
-    async () => {
-      return matchVisuals({
-        timestamps: audio.timestamps,
-        provider: 'pexels',
-        mock: options.mock,
-        gameplay: options.gameplay,
-        onProgress,
-      });
-    },
-    log
-  );
-
-  options.onProgress?.('visuals', 'Visuals matched');
-  return visuals;
-}
-
-/**
- * Execute Stage 4: Video rendering
- */
-async function executeRenderStage(
-  options: PipelineOptions,
-  visuals: VisualsOutput,
-  audio: AudioOutput,
-  artifacts: PipelineArtifacts,
-  log: Logger,
-  onProgress?: (event: RenderProgressEvent) => void
-): Promise<RenderOutput> {
-  log.info(
-    {
-      fps: options.fps ?? 30,
-      compositionId: options.compositionId,
-      captionPreset: options.captionPreset,
-      captionGroupMs: options.captionGroupMs,
-      captionMode: options.captionMode,
-      wordsPerPage: options.wordsPerPage,
-      maxLinesPerPage: options.maxLinesPerPage,
-      maxCharsPerLine: options.maxCharsPerLine,
-      captionAnimation: options.captionAnimation,
-    },
-    'Starting Stage 4: Video rendering'
-  );
-  options.onProgress?.('render', 'Rendering video...');
-
-  const render = await logTiming(
-    'video-rendering',
-    async () => {
-      return renderVideo({
-        visuals,
-        timestamps: audio.timestamps,
-        audioPath: artifacts.audio,
-        outputPath: options.outputPath,
-        orientation: options.orientation,
-        fps: options.fps ?? 30,
-        mock: options.mock,
-        onProgress,
-        compositionId: options.compositionId,
-        splitScreenRatio: options.splitScreenRatio,
-        gameplayPosition: options.gameplayPosition,
-        contentPosition: options.contentPosition,
-        downloadAssets: options.downloadAssets,
-        captionPreset: options.captionPreset,
-        captionConfig: options.captionConfig,
-        archetype: options.archetype,
-        captionGroupMs: options.captionGroupMs,
-        captionMode: options.captionMode,
-        wordsPerPage: options.wordsPerPage,
-        maxLinesPerPage: options.maxLinesPerPage,
-        maxCharsPerLine: options.maxCharsPerLine,
-        captionAnimation: options.captionAnimation,
-        captionDropFillers: options.captionDropFillers,
-        captionFillerWords: options.captionFillerWords,
-        captionMaxWpm: options.captionMaxWpm,
-        captionMaxCps: options.captionMaxCps,
-        captionMinOnScreenMs: options.captionMinOnScreenMs,
-        captionMinOnScreenMsShort: options.captionMinOnScreenMsShort,
-        captionTargetWords: options.captionTargetWords,
-        captionMinWords: options.captionMinWords,
-      });
-    },
-    log
-  );
-
-  options.onProgress?.('render', 'Video rendered');
-  return render;
-}
-
-/**
- * Clean up pipeline artifacts
- */
-async function cleanupArtifacts(artifacts: PipelineArtifacts, outputPath?: string): Promise<void> {
-  const paths = [artifacts.script, artifacts.audio, artifacts.timestamps, artifacts.visuals];
-  if (outputPath) {
-    paths.push(outputPath);
-  }
-  await Promise.all(paths.map((p) => rm(p, { force: true }))).catch(() => {});
+function wrapStageError(stage: PipelineStage, error: unknown): PipelineError {
+  if (error instanceof PipelineError) return error;
+  const message = error instanceof Error ? error.message : String(error);
+  return new PipelineError(stage, `${stage} stage failed: ${message}`, error instanceof Error ? error : undefined);
 }
 
 /**
  * Run the full video generation pipeline
  */
-// eslint-disable-next-line max-lines-per-function, complexity, sonarjs/cognitive-complexity
 export async function runPipeline(options: PipelineOptions): Promise<PipelineResult> {
   const log = createLogger({ pipeline: 'main', topic: options.topic });
-  const pipelineId = createPipelineId();
-  const emitter = options.eventEmitter;
-  const pipelineStart = Date.now();
+  const config = loadConfig();
   const workDir = options.workDir ?? dirname(options.outputPath);
-  const costs: PipelineCosts = { llm: 0, tts: 0, total: 0 };
-  const totalStages = 4;
-  let currentStage: { stage: PipelineStage; stageIndex: number } | null = null;
+  const pipelineId = randomUUID();
+  const totalStages = STAGES.length;
+  const startTime = performance.now();
+  const eventEmitter = options.eventEmitter;
 
-  const artifacts: PipelineArtifacts = {
+  const pipelineMode = options.pipelineMode ?? config.sync.strategy ?? 'standard';
+  const requireWhisper = pipelineMode === 'audio-first' || config.sync.requireWhisper;
+  const whisperModel = normalizeWhisperModel(options.whisperModel ?? config.sync.asrModel);
+  const reconcile = options.reconcile ?? config.sync.reconcileToScript;
+
+  const captionDefaults = config.captions;
+  const defaultCaptionFamily =
+    captionDefaults.fonts.length > 0 ? captionDefaults.fonts[0].family : captionDefaults.fontFamily;
+
+  const artifacts = {
     script: join(workDir, 'script.json'),
     audio: join(workDir, 'audio.wav'),
     timestamps: join(workDir, 'timestamps.json'),
+    audioMix: join(workDir, 'audio.mix.json'),
     visuals: join(workDir, 'visuals.json'),
   };
 
-  try {
-    await mkdir(workDir, { recursive: true });
-    await mkdir(dirname(options.outputPath), { recursive: true });
+  const generatedPaths = new Set<string>();
+  const costs = { llm: 0, tts: 0, total: 0 };
+  let renderAttempted = false;
 
-    emitPipelineEvent(emitter, {
+  await mkdir(workDir, { recursive: true });
+
+  if (eventEmitter) {
+    eventEmitter.emit({
       type: 'pipeline:started',
       timestamp: Date.now(),
       pipelineId,
       topic: options.topic,
       archetype: options.archetype,
     });
+  }
 
-    currentStage = { stage: 'script', stageIndex: 0 };
-    emitPipelineEvent(emitter, {
-      type: 'stage:started',
-      timestamp: Date.now(),
-      pipelineId,
-      stage: currentStage.stage,
-      stageIndex: currentStage.stageIndex,
-      totalStages,
-    });
-    const scriptStart = Date.now();
-    const script = await executeScriptStage(options, log, costs);
-    emitPipelineEvent(emitter, {
-      type: 'stage:completed',
-      timestamp: Date.now(),
-      pipelineId,
-      stage: currentStage.stage,
-      stageIndex: currentStage.stageIndex,
-      totalStages,
-      durationMs: Date.now() - scriptStart,
-      cost: script.meta?.llmCost ? { estimatedCost: script.meta.llmCost } : undefined,
-    });
-    if (options.keepArtifacts) {
-      await writeArtifactJson(artifacts.script, script);
-    }
-
-    currentStage = { stage: 'audio', stageIndex: 1 };
-    emitPipelineEvent(emitter, {
-      type: 'stage:started',
-      timestamp: Date.now(),
-      pipelineId,
-      stage: currentStage.stage,
-      stageIndex: currentStage.stageIndex,
-      totalStages,
-    });
-    const audioStart = Date.now();
-    const audio = await executeAudioStage(options, script, artifacts, log, costs);
-    emitPipelineEvent(emitter, {
-      type: 'stage:completed',
-      timestamp: Date.now(),
-      pipelineId,
-      stage: currentStage.stage,
-      stageIndex: currentStage.stageIndex,
-      totalStages,
-      durationMs: Date.now() - audioStart,
-      cost: audio.ttsCost ? { estimatedCost: audio.ttsCost } : undefined,
-    });
-
-    currentStage = { stage: 'visuals', stageIndex: 2 };
-    emitPipelineEvent(emitter, {
-      type: 'stage:started',
-      timestamp: Date.now(),
-      pipelineId,
-      stage: currentStage.stage,
-      stageIndex: currentStage.stageIndex,
-      totalStages,
-    });
-
-    const visualsStage = currentStage.stage;
-    const visualsStageIndex = currentStage.stageIndex;
-
-    const emitVisualsProgress = (event: VisualsProgressEvent): void => {
-      emitPipelineEvent(emitter, {
-        type: 'stage:progress',
+  try {
+    // Stage 1: Script generation
+    const script = await (async () => {
+      const stage = 'script' as const;
+      const stageIndex = STAGES.indexOf(stage);
+      eventEmitter?.emit({
+        type: 'stage:started',
         timestamp: Date.now(),
         pipelineId,
-        stage: visualsStage,
-        stageIndex: visualsStageIndex,
+        stage,
+        stageIndex,
         totalStages,
-        phase: event.phase,
-        progress: Math.min(1, Math.max(0, event.progress)),
-        message: event.message,
       });
-    };
 
-    const visualsStart = Date.now();
-    const visuals = await executeVisualsStage(options, audio, log, emitVisualsProgress);
-    emitPipelineEvent(emitter, {
-      type: 'stage:completed',
-      timestamp: Date.now(),
-      pipelineId,
-      stage: visualsStage,
-      stageIndex: visualsStageIndex,
-      totalStages,
-      durationMs: Date.now() - visualsStart,
-    });
-    if (options.keepArtifacts) {
-      await writeArtifactJson(artifacts.visuals, visuals);
+      const stageStart = performance.now();
+      try {
+        options.onProgress?.(stage, 'Generating script...');
+
+        if (options.scriptInput) {
+          if (options.keepArtifacts) {
+            await writeJson(artifacts.script, options.scriptInput);
+          }
+          options.onProgress?.(stage, 'Script ready');
+          const durationMs = Math.round(performance.now() - stageStart);
+          eventEmitter?.emit({
+            type: 'stage:completed',
+            timestamp: Date.now(),
+            pipelineId,
+            stage,
+            stageIndex,
+            totalStages,
+            durationMs,
+            cost: { estimatedCost: options.scriptInput.meta?.llmCost },
+          });
+          return options.scriptInput;
+        }
+
+        const { generateScript } = await import('../script/generator');
+        log.info('Starting Stage 1: Script generation');
+        const result = await logTiming(
+          'script-generation',
+          () =>
+            generateScript({
+              topic: options.topic,
+              archetype: options.archetype,
+              targetDuration: options.targetDuration,
+              llmProvider: options.llmProvider,
+              research: options.research,
+            }),
+          log
+        );
+
+        if (options.keepArtifacts) {
+          await writeJson(artifacts.script, result);
+        }
+
+        options.onProgress?.(stage, 'Script generated');
+        const durationMs = Math.round(performance.now() - stageStart);
+        eventEmitter?.emit({
+          type: 'stage:completed',
+          timestamp: Date.now(),
+          pipelineId,
+          stage,
+          stageIndex,
+          totalStages,
+          durationMs,
+          cost: { estimatedCost: result.meta?.llmCost },
+        });
+        return result;
+      } catch (error) {
+        const wrapped = wrapStageError(stage, error);
+        eventEmitter?.emit({
+          type: 'stage:failed',
+          timestamp: Date.now(),
+          pipelineId,
+          stage,
+          stageIndex,
+          totalStages,
+          error: wrapped,
+        });
+        throw wrapped;
+      }
+    })();
+
+    if (script.meta?.llmCost) {
+      costs.llm += script.meta.llmCost;
     }
 
-    currentStage = { stage: 'render', stageIndex: 3 };
-    emitPipelineEvent(emitter, {
-      type: 'stage:started',
-      timestamp: Date.now(),
-      pipelineId,
-      stage: currentStage.stage,
-      stageIndex: currentStage.stageIndex,
-      totalStages,
-    });
-
-    const renderStage = currentStage.stage;
-    const renderStageIndex = currentStage.stageIndex;
-
-    const emitRenderProgress = (event: RenderProgressEvent): void => {
-      const progress = Math.min(1, Math.max(0, event.progress ?? 0));
-      const overall =
-        event.phase === 'prepare-assets'
-          ? progress * 0.1
-          : event.phase === 'bundle'
-            ? 0.1 + progress * 0.2
-            : event.phase === 'select-composition'
-              ? 0.3 + progress * 0.05
-              : event.phase === 'render-media'
-                ? 0.35 + progress * 0.65
-                : progress;
-
-      emitPipelineEvent(emitter, {
-        type: 'stage:progress',
+    // Stage 2: Audio generation
+    const audio = await (async () => {
+      const stage = 'audio' as const;
+      const stageIndex = STAGES.indexOf(stage);
+      eventEmitter?.emit({
+        type: 'stage:started',
         timestamp: Date.now(),
         pipelineId,
-        stage: renderStage,
-        stageIndex: renderStageIndex,
+        stage,
+        stageIndex,
         totalStages,
-        phase: event.phase,
-        progress: Math.min(1, Math.max(0, overall)),
-        message: event.message,
       });
-    };
 
-    const renderStart = Date.now();
-    const render = await executeRenderStage(
-      options,
-      visuals,
-      audio,
-      artifacts,
-      log,
-      emitRenderProgress
-    );
-    emitPipelineEvent(emitter, {
-      type: 'stage:completed',
-      timestamp: Date.now(),
-      pipelineId,
-      stage: renderStage,
-      stageIndex: renderStageIndex,
-      totalStages,
-      durationMs: Date.now() - renderStart,
-    });
+      const stageStart = performance.now();
+      try {
+        options.onProgress?.(stage, 'Generating audio...');
+
+        if (options.audioInput) {
+          let audioResult = options.audioInput;
+          if (options.keepArtifacts) {
+            await copyFileSafe(audioResult.audioPath, artifacts.audio);
+            await writeJson(artifacts.timestamps, audioResult.timestamps);
+            if (audioResult.audioMixPath) {
+              await copyFileSafe(audioResult.audioMixPath, artifacts.audioMix);
+            }
+            audioResult = {
+              ...audioResult,
+              audioPath: artifacts.audio,
+              timestampsPath: artifacts.timestamps,
+              audioMixPath: audioResult.audioMixPath ? artifacts.audioMix : undefined,
+            };
+          }
+
+          options.onProgress?.(stage, 'Audio ready');
+          const durationMs = Math.round(performance.now() - stageStart);
+          eventEmitter?.emit({
+            type: 'stage:completed',
+            timestamp: Date.now(),
+            pipelineId,
+            stage,
+            stageIndex,
+            totalStages,
+            durationMs,
+            cost: { estimatedCost: audioResult.ttsCost },
+          });
+          return audioResult;
+        }
+
+        const { generateAudio } = await import('../audio/pipeline');
+        log.info('Starting Stage 2: Audio generation');
+        const audioMixRequest = options.audioMix
+          ? {
+              ...options.audioMix,
+              outputPath: options.audioMix.outputPath ?? artifacts.audioMix,
+            }
+          : undefined;
+        const result = await logTiming(
+          'audio-generation',
+          () =>
+            generateAudio({
+              script,
+              voice: options.voice,
+              outputPath: artifacts.audio,
+              timestampsPath: artifacts.timestamps,
+              mock: options.mock,
+              requireWhisper,
+              whisperModel,
+              reconcile,
+              audioMix: audioMixRequest,
+            }),
+          log
+        );
+
+        generatedPaths.add(result.audioPath);
+        generatedPaths.add(result.timestampsPath);
+        if (result.audioMixPath) {
+          generatedPaths.add(result.audioMixPath);
+        }
+
+        options.onProgress?.(stage, 'Audio generated');
+        const durationMs = Math.round(performance.now() - stageStart);
+        eventEmitter?.emit({
+          type: 'stage:completed',
+          timestamp: Date.now(),
+          pipelineId,
+          stage,
+          stageIndex,
+          totalStages,
+          durationMs,
+          cost: { estimatedCost: result.ttsCost },
+        });
+        return result;
+      } catch (error) {
+        const wrapped = wrapStageError(stage, error);
+        eventEmitter?.emit({
+          type: 'stage:failed',
+          timestamp: Date.now(),
+          pipelineId,
+          stage,
+          stageIndex,
+          totalStages,
+          error: wrapped,
+        });
+        throw wrapped;
+      }
+    })();
+
+    if (audio.ttsCost) {
+      costs.tts += audio.ttsCost;
+    }
+
+    // Stage 3: Visual matching
+    const visuals = await (async () => {
+      const stage = 'visuals' as const;
+      const stageIndex = STAGES.indexOf(stage);
+      eventEmitter?.emit({
+        type: 'stage:started',
+        timestamp: Date.now(),
+        pipelineId,
+        stage,
+        stageIndex,
+        totalStages,
+      });
+
+      const stageStart = performance.now();
+      try {
+        options.onProgress?.(stage, 'Matching visuals...');
+
+        if (options.visualsInput) {
+          if (options.keepArtifacts) {
+            await writeJson(artifacts.visuals, options.visualsInput);
+          }
+
+          options.onProgress?.(stage, 'Visuals ready');
+          const durationMs = Math.round(performance.now() - stageStart);
+          eventEmitter?.emit({
+            type: 'stage:completed',
+            timestamp: Date.now(),
+            pipelineId,
+            stage,
+            stageIndex,
+            totalStages,
+            durationMs,
+          });
+          return options.visualsInput;
+        }
+
+        const { matchVisuals } = await import('../visuals/matcher');
+        log.info('Starting Stage 3: Visual matching');
+        const result = await logTiming(
+          'visual-matching',
+          () =>
+            matchVisuals({
+              timestamps: audio.timestamps,
+              provider: config.visuals.provider,
+              orientation: options.orientation,
+              mock: options.mock,
+              gameplay: options.gameplay,
+              onProgress: (event) =>
+                emitStageProgress({
+                  emitter: eventEmitter,
+                  pipelineId,
+                  stage,
+                  stageIndex,
+                  totalStages,
+                  phase: event.phase,
+                  progress: event.progress,
+                  message: event.message,
+                }),
+            }),
+          log
+        );
+
+        if (options.keepArtifacts) {
+          await writeJson(artifacts.visuals, result);
+        }
+
+        options.onProgress?.(stage, 'Visuals matched');
+        const durationMs = Math.round(performance.now() - stageStart);
+        eventEmitter?.emit({
+          type: 'stage:completed',
+          timestamp: Date.now(),
+          pipelineId,
+          stage,
+          stageIndex,
+          totalStages,
+          durationMs,
+        });
+        return result;
+      } catch (error) {
+        const wrapped = wrapStageError(stage, error);
+        eventEmitter?.emit({
+          type: 'stage:failed',
+          timestamp: Date.now(),
+          pipelineId,
+          stage,
+          stageIndex,
+          totalStages,
+          error: wrapped,
+        });
+        throw wrapped;
+      }
+    })();
+
+    // Stage 4: Render
+    const render = await (async () => {
+      const stage = 'render' as const;
+      const stageIndex = STAGES.indexOf(stage);
+      eventEmitter?.emit({
+        type: 'stage:started',
+        timestamp: Date.now(),
+        pipelineId,
+        stage,
+        stageIndex,
+        totalStages,
+      });
+
+      const stageStart = performance.now();
+      try {
+        options.onProgress?.(stage, 'Rendering video...');
+        renderAttempted = true;
+
+        const { renderVideo } = await import('../render/service');
+        log.info('Starting Stage 4: Video rendering');
+        const result = await logTiming(
+          'video-rendering',
+          () =>
+            renderVideo({
+              visuals,
+              timestamps: audio.timestamps,
+              audioPath: audio.audioPath,
+              audioMix: audio.audioMix,
+              audioMixBaseDir: audio.audioMixPath ? dirname(audio.audioMixPath) : undefined,
+              outputPath: options.outputPath,
+              orientation: options.orientation,
+              fps: options.fps ?? config.render.fps,
+              mock: options.mock,
+              compositionId: options.compositionId,
+              captionPreset: options.captionPreset,
+              captionConfig: options.captionConfig,
+              captionGroupMs: options.captionGroupMs,
+              captionMode: options.captionMode,
+              wordsPerPage: options.wordsPerPage,
+              captionMinWords: options.captionMinWords,
+              captionTargetWords: options.captionTargetWords,
+              captionMaxWpm: options.captionMaxWpm,
+              captionMaxCps: options.captionMaxCps,
+              captionMinOnScreenMs: options.captionMinOnScreenMs,
+              captionMinOnScreenMsShort: options.captionMinOnScreenMsShort,
+              captionDropFillers: options.captionDropFillers,
+              captionFillerWords: options.captionFillerWords,
+              captionAnimation: options.captionAnimation,
+              captionFontFamily: options.captionFontFamily ?? defaultCaptionFamily,
+              captionFontWeight: options.captionFontWeight ?? captionDefaults.fontWeight,
+              captionFontFile: options.captionFontFile ?? captionDefaults.fontFile,
+              fonts: options.captionFonts ?? (captionDefaults.fonts.length > 0 ? captionDefaults.fonts : undefined),
+              maxLinesPerPage: options.maxLinesPerPage,
+              maxCharsPerLine: options.maxCharsPerLine,
+              archetype: options.archetype,
+              splitScreenRatio: options.splitScreenRatio,
+              gameplayPosition: options.gameplayPosition,
+              contentPosition: options.contentPosition,
+              downloadAssets: options.downloadAssets,
+              hook: options.hook,
+              onProgress: (event) =>
+                emitStageProgress({
+                  emitter: eventEmitter,
+                  pipelineId,
+                  stage,
+                  stageIndex,
+                  totalStages,
+                  phase: event.phase,
+                  progress: event.progress ?? 0,
+                  message: event.message,
+                }),
+            }),
+          log
+        );
+
+        options.onProgress?.(stage, 'Video rendered');
+        const durationMs = Math.round(performance.now() - stageStart);
+        eventEmitter?.emit({
+          type: 'stage:completed',
+          timestamp: Date.now(),
+          pipelineId,
+          stage,
+          stageIndex,
+          totalStages,
+          durationMs,
+        });
+        return result;
+      } catch (error) {
+        const wrapped = wrapStageError(stage, error);
+        eventEmitter?.emit({
+          type: 'stage:failed',
+          timestamp: Date.now(),
+          pipelineId,
+          stage,
+          stageIndex,
+          totalStages,
+          error: wrapped,
+        });
+        throw wrapped;
+      }
+    })();
 
     costs.total = costs.llm + costs.tts;
 
     if (!options.keepArtifacts) {
       log.debug('Cleaning up artifacts');
-      await cleanupArtifacts(artifacts);
+      await Promise.all(
+        Array.from(generatedPaths).map((path) => rm(path, { force: true }))
+      );
     }
 
     log.info(
-      { duration: render.duration, fileSize: render.fileSize, costs: costs.total },
+      {
+        duration: render.duration,
+        fileSize: render.fileSize,
+        costs: costs.total,
+      },
       'Pipeline completed successfully'
     );
 
-    emitPipelineEvent(emitter, {
-      type: 'pipeline:completed',
-      timestamp: Date.now(),
-      pipelineId,
-      durationMs: Date.now() - pipelineStart,
-      outputPath: render.outputPath,
-    });
+    if (eventEmitter) {
+      eventEmitter.emit({
+        type: 'pipeline:completed',
+        timestamp: Date.now(),
+        pipelineId,
+        durationMs: Math.round(performance.now() - startTime),
+        outputPath: render.outputPath,
+      });
+    }
 
     return {
       script,
@@ -619,35 +678,31 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
       costs: costs.total > 0 ? costs : undefined,
     };
   } catch (error) {
-    log.error({ error }, 'Pipeline failed');
-
-    if (currentStage) {
-      emitPipelineEvent(emitter, {
-        type: 'stage:failed',
-        timestamp: Date.now(),
-        pipelineId,
-        stage: currentStage.stage,
-        stageIndex: currentStage.stageIndex,
-        totalStages,
-        error: error instanceof Error ? error : new Error(String(error)),
-      });
-    }
-    emitPipelineEvent(emitter, {
-      type: 'pipeline:failed',
-      timestamp: Date.now(),
-      pipelineId,
-      error: error instanceof Error ? error : new Error(String(error)),
-      stage: currentStage?.stage,
-    });
-
-    if (!options.keepArtifacts) {
-      await cleanupArtifacts(artifacts, options.outputPath);
-    }
-
-    throw new PipelineError(
+    const wrapped = error instanceof PipelineError ? error : new PipelineError(
       'generate',
       `Pipeline failed: ${error instanceof Error ? error.message : String(error)}`,
       error instanceof Error ? error : undefined
     );
+
+    log.error({ error: wrapped }, 'Pipeline failed');
+
+    if (!options.keepArtifacts) {
+      await Promise.all(
+        Array.from(generatedPaths).map((path) => rm(path, { force: true }))
+      ).catch(() => {});
+      if (renderAttempted) {
+        await rm(options.outputPath, { force: true }).catch(() => {});
+      }
+    }
+
+    eventEmitter?.emit({
+      type: 'pipeline:failed',
+      timestamp: Date.now(),
+      pipelineId,
+      error: wrapped,
+      stage: wrapped.stage,
+    });
+
+    throw wrapped;
   }
 }

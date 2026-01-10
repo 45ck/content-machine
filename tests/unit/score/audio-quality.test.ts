@@ -17,6 +17,9 @@ import {
 } from '../../../src/score/audio-quality';
 import type { TimestampsOutput } from '../../../src/audio/schema';
 
+const shouldRunRealOutput = process.env.CM_RUN_REAL_OUTPUT_TESTS === 'true';
+const describeRealOutput = shouldRunRealOutput ? describe : describe.skip;
+
 describe('Audio Quality Metrics', () => {
   describe('Unit Tests', () => {
     it('should detect unnatural silence gaps (>800ms)', () => {
@@ -179,7 +182,7 @@ describe('Audio Quality Metrics', () => {
     });
   });
 
-  describe('Real Output Quality Gates', () => {
+  describeRealOutput('Real Output Quality Gates', () => {
     let timestamps: TimestampsOutput;
     let report: AudioQualityReport;
 

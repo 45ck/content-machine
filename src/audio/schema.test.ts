@@ -15,6 +15,7 @@ import {
   type TimestampsOutput,
   type AudioOutput,
 } from './schema';
+import { AUDIO_MIX_SCHEMA_VERSION } from './mix/schema';
 
 describe('WordTimestampSchema', () => {
   it('should validate correct word timestamp', () => {
@@ -203,5 +204,43 @@ describe('AudioOutputSchema', () => {
     if (result.success) {
       expect(result.data.ttsCost).toBe(0.001);
     }
+  });
+
+  it('should allow optional audio mix fields', () => {
+    const output: AudioOutput = {
+      schemaVersion: AUDIO_SCHEMA_VERSION,
+      audioPath: '/path/to/audio.wav',
+      timestampsPath: '/path/to/timestamps.json',
+      timestamps: {
+        schemaVersion: AUDIO_SCHEMA_VERSION,
+        scenes: [
+          {
+            sceneId: 'scene-001',
+            audioStart: 0,
+            audioEnd: 1.0,
+            words: [{ word: 'Test', start: 0, end: 0.5 }],
+          },
+        ],
+        allWords: [{ word: 'Test', start: 0, end: 0.5 }],
+        totalDuration: 1.0,
+        ttsEngine: 'kokoro',
+        asrEngine: 'whisper-cpp',
+      },
+      duration: 1.0,
+      wordCount: 1,
+      voice: 'af_heart',
+      sampleRate: 24000,
+      audioMixPath: '/path/to/audio.mix.json',
+      audioMix: {
+        schemaVersion: AUDIO_MIX_SCHEMA_VERSION,
+        voicePath: '/path/to/audio.wav',
+        totalDuration: 1.0,
+        layers: [],
+        warnings: [],
+      },
+    };
+
+    const result = AudioOutputSchema.safeParse(output);
+    expect(result.success).toBe(true);
   });
 });

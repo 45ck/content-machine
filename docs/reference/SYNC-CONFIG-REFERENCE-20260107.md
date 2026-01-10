@@ -63,6 +63,39 @@ auto_repair = true
 
 ---
 
+## Audio Mix Configuration (Optional)
+
+```toml
+[audio_mix]
+# Mix preset: clean, punchy, cinematic, viral
+preset = "clean"
+lufs_target = -16
+
+[music]
+default = "lofi-01"
+volume_db = -18
+duck_db = -8
+loop = true
+fade_in_ms = 400
+fade_out_ms = 600
+
+[sfx]
+pack = "pops"
+volume_db = -12
+placement = "scene"
+min_gap_ms = 800
+duration_seconds = 0.4
+
+[ambience]
+default = "roomtone-01"
+volume_db = -26
+loop = true
+fade_in_ms = 200
+fade_out_ms = 400
+```
+
+---
+
 ## Strategy Comparison
 
 | Strategy         | Speed     | Accuracy | Requirements | Fallback    |
