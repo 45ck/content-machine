@@ -71,6 +71,27 @@ function parseChromeMode(value: unknown): ChromeMode | undefined {
   });
 }
 
+function parseOptionalInt(value: unknown): number | undefined {
+  if (value == null) return undefined;
+  const parsed = Number.parseInt(String(value), 10);
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function parseOptionalNumber(value: unknown): number | undefined {
+  if (value == null) return undefined;
+  const parsed = Number.parseFloat(String(value));
+  return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function parseWordList(value: unknown): string[] | undefined {
+  if (value == null) return undefined;
+  const items = String(value)
+    .split(',')
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+  return items.length > 0 ? items : [];
+}
+
 /**
  * Parse caption CLI options into CaptionConfig partial
  *
@@ -166,6 +187,7 @@ function mergeCaptionConfigPartials(
     layout: { ...base.layout, ...overrides.layout },
     positionOffset: { ...base.positionOffset, ...overrides.positionOffset },
     safeZone: { ...base.safeZone, ...overrides.safeZone },
+    cleanup: { ...base.cleanup, ...overrides.cleanup },
   };
 }
 
@@ -582,6 +604,17 @@ async function runRenderCommand(
     (templateDefaults?.captionConfig as Partial<CaptionConfig> | undefined) ?? undefined,
     parseCaptionOptions(options)
   );
+  const captionMaxWords = parseOptionalInt(options.captionMaxWords);
+  const captionMinWords = parseOptionalInt(options.captionMinWords);
+  const captionTargetWords = parseOptionalInt(options.captionTargetWords);
+  const captionMaxWpm = parseOptionalNumber(options.captionMaxWpm);
+  const captionMaxCps = parseOptionalNumber(options.captionMaxCps);
+  const captionMinOnScreenMs = parseOptionalInt(options.captionMinOnScreenMs);
+  const captionMinOnScreenMsShort = parseOptionalInt(options.captionMinOnScreenMsShort);
+  const captionFillerWords = parseWordList(options.captionFillerWords);
+  const captionDropFillersSource = command.getOptionValueSource('captionDropFillers');
+  const captionDropFillers =
+    captionDropFillersSource === 'default' ? undefined : Boolean(options.captionDropFillers);
 
   const archetype = templateDefaults?.archetype as string | undefined;
   const compositionId = resolvedTemplate?.template.compositionId;
@@ -625,6 +658,15 @@ async function runRenderCommand(
     captionPreset: options.captionPreset as CaptionPresetName,
     captionMode: options.captionMode as 'page' | 'single' | 'buildup' | 'chunk' | undefined,
     captionConfig,
+    wordsPerPage: captionMaxWords ?? undefined,
+    captionMinWords: captionMinWords ?? undefined,
+    captionTargetWords: captionTargetWords ?? undefined,
+    captionMaxWpm: captionMaxWpm ?? undefined,
+    captionMaxCps: captionMaxCps ?? undefined,
+    captionMinOnScreenMs: captionMinOnScreenMs ?? undefined,
+    captionMinOnScreenMsShort: captionMinOnScreenMsShort ?? undefined,
+    captionDropFillers,
+    captionFillerWords,
     onProgress,
     archetype,
     compositionId,
@@ -692,6 +734,15 @@ export const renderCommand = new Command('render')
   .option('--caption-position <pos>', 'Vertical position (top, center, bottom)')
   .option('--caption-max-chars <n>', 'Max characters per line')
   .option('--caption-max-lines <n>', 'Max lines per page (1-3)')
+  .option('--caption-max-words <count>', 'Max words per chunk/page')
+  .option('--caption-min-words <count>', 'Min words per chunk/page')
+  .option('--caption-target-words <count>', 'Target words per chunk (chunk mode)')
+  .option('--caption-max-wpm <value>', 'Max words per minute for caption pacing')
+  .option('--caption-max-cps <value>', 'Max characters per second for caption pacing')
+  .option('--caption-min-on-screen-ms <ms>', 'Minimum on-screen time for captions (ms)')
+  .option('--caption-min-on-screen-short-ms <ms>', 'Minimum on-screen time for short captions (ms)')
+  .option('--caption-drop-fillers', 'Drop filler words from captions')
+  .option('--caption-filler-words <list>', 'Comma-separated filler words/phrases to drop')
   // Caption animation
   .option(
     '--caption-animation <anim>',
