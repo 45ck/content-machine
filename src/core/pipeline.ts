@@ -136,6 +136,22 @@ export interface PipelineOptions {
    * Caption animation: none (default), fade, slideUp, slideDown, pop, bounce
    */
   captionAnimation?: 'none' | 'fade' | 'slideUp' | 'slideDown' | 'pop' | 'bounce';
+  /** Drop filler words from captions */
+  captionDropFillers?: boolean;
+  /** Custom filler list for caption cleanup */
+  captionFillerWords?: string[];
+  /** Max words per minute for caption pacing */
+  captionMaxWpm?: number;
+  /** Max characters per second for caption pacing */
+  captionMaxCps?: number;
+  /** Minimum on-screen time for captions in ms */
+  captionMinOnScreenMs?: number;
+  /** Minimum on-screen time for short captions in ms */
+  captionMinOnScreenMsShort?: number;
+  /** Target words per chunk (chunk mode) */
+  captionTargetWords?: number;
+  /** Minimum words per chunk/page */
+  captionMinWords?: number;
 }
 
 /**
@@ -362,6 +378,14 @@ async function executeRenderStage(
         maxLinesPerPage: options.maxLinesPerPage,
         maxCharsPerLine: options.maxCharsPerLine,
         captionAnimation: options.captionAnimation,
+        captionDropFillers: options.captionDropFillers,
+        captionFillerWords: options.captionFillerWords,
+        captionMaxWpm: options.captionMaxWpm,
+        captionMaxCps: options.captionMaxCps,
+        captionMinOnScreenMs: options.captionMinOnScreenMs,
+        captionMinOnScreenMsShort: options.captionMinOnScreenMsShort,
+        captionTargetWords: options.captionTargetWords,
+        captionMinWords: options.captionMinWords,
       });
     },
     log

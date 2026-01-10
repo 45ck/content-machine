@@ -1214,8 +1214,9 @@ function showDryRunSummary(
   if (options.captionMode) {
     writeStderrLine(`   Caption Mode: ${options.captionMode}`);
   }
-  if (options.wordsPerPage) {
-    writeStderrLine(`   Words Per Page: ${options.wordsPerPage}`);
+  const wordsPerPage = options.wordsPerPage ?? options.captionMaxWords;
+  if (wordsPerPage) {
+    writeStderrLine(`   Words Per Page: ${wordsPerPage}`);
   }
   if (options.maxLines) {
     writeStderrLine(`   Max Lines: ${options.maxLines}`);
@@ -1395,6 +1396,15 @@ export const generateCommand = new Command('generate')
     '--words-per-page <count>',
     'Words per caption page/group (default: 8 for larger sentences)'
   )
+  .option('--caption-max-words <count>', 'Max words per chunk/page (alias of --words-per-page)')
+  .option('--caption-min-words <count>', 'Min words per chunk/page')
+  .option('--caption-target-words <count>', 'Target words per chunk (chunk mode)')
+  .option('--caption-max-wpm <value>', 'Max words per minute for caption pacing')
+  .option('--caption-max-cps <value>', 'Max characters per second for caption pacing')
+  .option('--caption-min-on-screen-ms <ms>', 'Minimum on-screen time for captions (ms)')
+  .option('--caption-min-on-screen-short-ms <ms>', 'Minimum on-screen time for short captions (ms)')
+  .option('--caption-drop-fillers', 'Drop filler words from captions')
+  .option('--caption-filler-words <list>', 'Comma-separated filler words/phrases to drop')
   .option(
     '--max-lines <count>',
     'Maximum lines per caption page (default: 2 for multi-line captions)'
