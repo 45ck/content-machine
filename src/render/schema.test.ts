@@ -188,6 +188,8 @@ describe('RenderPropsSchema', () => {
         style: 'subway-surfers',
       },
       splitScreenRatio: 0.55,
+      gameplayPosition: 'bottom',
+      contentPosition: 'top',
     };
 
     const result = RenderPropsSchema.safeParse(props);

@@ -14,7 +14,8 @@
 import React, { useMemo } from 'react';
 import { useCurrentFrame, useVideoConfig, spring, Sequence, interpolate } from 'remotion';
 import { CaptionConfig, CaptionConfigSchema, CaptionDisplayMode } from './config';
-import { createCaptionPages, toTimedWords, CaptionPage, TimedWord } from './paging';
+import { createCaptionPages, toTimedWords, CaptionPage, TimedWord, isDisplayableWord } from './paging';
+import { createCaptionChunks, layoutToChunkingConfig, chunkToPage } from './chunking';
 import { PRESET_CAPCUT_BOLD } from './presets';
 import { isWordActive } from './timing';
 
@@ -45,18 +46,26 @@ export const Caption: React.FC<CaptionProps> = ({ words, config: configInput }) 
   }, [configInput]);
 
   const displayMode: CaptionDisplayMode = config.displayMode ?? 'page';
+  const displayWords = useMemo(
+    () => words.filter((word) => typeof word.word === 'string' && isDisplayableWord(word.word)),
+    [words]
+  );
 
   // Route to appropriate renderer based on display mode
   if (displayMode === 'single') {
-    return <SingleWordCaption words={words} config={config} />;
+    return <SingleWordCaption words={displayWords} config={config} />;
   }
 
   if (displayMode === 'buildup') {
-    return <BuildupCaption words={words} config={config} />;
+    return <BuildupCaption words={displayWords} config={config} />;
+  }
+
+  if (displayMode === 'chunk') {
+    return <ChunkedCaption words={displayWords} config={config} fps={fps} />;
   }
 
   // Default 'page' mode - uses TikTok-style pages with word grouping
-  return <PagedCaption words={words} config={config} fps={fps} />;
+  return <PagedCaption words={displayWords} config={config} fps={fps} />;
 };
 
 /**
@@ -93,6 +102,56 @@ const PagedCaption: React.FC<PagedCaptionProps> = ({ words, config, fps }) => {
 
         return (
           <Sequence key={page.index} from={startFrame} durationInFrames={durationInFrames}>
+            <CaptionPageView page={page} config={config} />
+          </Sequence>
+        );
+      })}
+    </>
+  );
+};
+
+/**
+ * Chunk Mode: CapCut-style phrase grouping using timing-aware chunking
+ */
+interface ChunkedCaptionProps {
+  words: Array<{ word: string; start: number; end: number }>;
+  config: CaptionConfig;
+  fps: number;
+}
+
+const ChunkedCaption: React.FC<ChunkedCaptionProps> = ({ words, config, fps }) => {
+  const pages = useMemo(() => {
+    if (words.length === 0) return [];
+    const timedWords = toTimedWords(words);
+    const chunkWords = timedWords.map((word) => ({
+      word: word.text,
+      startMs: word.startMs,
+      endMs: word.endMs,
+    }));
+    const chunks = createCaptionChunks(
+      chunkWords,
+      layoutToChunkingConfig({
+        ...config.layout,
+        maxWordsPerPage: config.wordsPerPage ?? config.layout.maxWordsPerPage,
+      })
+    );
+    return chunks.map((chunk) => chunkToPage(chunk));
+  }, [words, config.layout, config.wordsPerPage]);
+
+  if (pages.length === 0) return null;
+
+  return (
+    <>
+      {pages.map((page, index) => {
+        const nextPage = pages[index + 1];
+        const startFrame = Math.floor((page.startMs / 1000) * fps);
+        const endFrame = nextPage
+          ? Math.floor((nextPage.startMs / 1000) * fps)
+          : Math.floor((page.endMs / 1000) * fps) + Math.floor(fps * 0.35);
+        const durationInFrames = Math.max(1, endFrame - startFrame);
+
+        return (
+          <Sequence key={`chunk-${page.index}`} from={startFrame} durationInFrames={durationInFrames}>
             <CaptionPageView page={page} config={config} />
           </Sequence>
         );

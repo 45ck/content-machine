@@ -85,6 +85,7 @@ export const SceneBackground: React.FC<SceneBackgroundProps> = ({
     ) : (
       <Video
         src={scene.url}
+        muted
         style={{ width: '100%', height: '100%', objectFit: 'cover', ...videoStyle }}
       />
     )}
@@ -99,7 +100,11 @@ export const LegacyClip: React.FC<{ clip: VideoClip; fps: number }> = ({ clip, f
   return (
     <Sequence from={clipStartFrame} durationInFrames={clipDurationFrames}>
       <AbsoluteFill>
-        <Video src={clip.url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <Video
+          src={clip.url}
+          muted
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+        />
       </AbsoluteFill>
     </Sequence>
   );

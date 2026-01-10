@@ -116,7 +116,7 @@ interface GenerateOptions {
   /** Auto-retry with better sync strategy if rating fails */
   autoRetrySync?: boolean;
   /** Caption display mode: page (default), single (one word at a time), buildup (accumulate per sentence) */
-  captionMode?: 'page' | 'single' | 'buildup';
+  captionMode?: 'page' | 'single' | 'buildup' | 'chunk';
   /** Words per caption page/group (default: 8) */
   wordsPerPage?: string;
   /** Maximum lines per caption page (default: 2) */
@@ -131,6 +131,10 @@ interface GenerateOptions {
   gameplayStyle?: string;
   /** Fail if gameplay clip is missing */
   gameplayStrict?: boolean;
+  /** Gameplay placement for split-screen templates */
+  gameplayPosition?: 'top' | 'bottom' | 'full';
+  /** Content placement for split-screen templates */
+  contentPosition?: 'top' | 'bottom' | 'full';
 }
 
 function printHeader(
@@ -192,6 +196,8 @@ function writeDryRunJson(params: {
         gameplay: options.gameplay ?? null,
         gameplayStyle: options.gameplayStyle ?? null,
         gameplayStrict: Boolean(options.gameplayStrict),
+        gameplayPosition: options.gameplayPosition ?? null,
+        contentPosition: options.contentPosition ?? null,
         dryRun: true,
       },
       outputs: { dryRun: true, artifactsDir },
@@ -240,6 +246,8 @@ function buildGenerateSuccessJsonArgs(params: {
     syncQualityCheck: Boolean(options.syncQualityCheck),
     minSyncRating: parseOptionalInt(options.minSyncRating),
     autoRetrySync: Boolean(options.autoRetrySync),
+    gameplayPosition: options.gameplayPosition ?? null,
+    contentPosition: options.contentPosition ?? null,
   };
 }
 
@@ -505,6 +513,8 @@ async function runGeneratePipeline(params: {
       captionAnimation: params.options.captionAnimation,
       gameplay: params.gameplay,
       splitScreenRatio: params.templateParams.splitScreenRatio,
+      gameplayPosition: params.options.gameplayPosition ?? params.templateParams.gameplayPosition,
+      contentPosition: params.options.contentPosition ?? params.templateParams.contentPosition,
     });
   } finally {
     dispose();
@@ -533,6 +543,15 @@ function getLogFps(options: GenerateOptions): number {
 
 function getCaptionPreset(options: GenerateOptions): string {
   return options.captionPreset ?? 'capcut';
+}
+
+function parseLayoutPosition(value: unknown, optionName: string): 'top' | 'bottom' | 'full' | undefined {
+  if (value == null) return undefined;
+  const raw = String(value);
+  if (raw === 'top' || raw === 'bottom' || raw === 'full') return raw;
+  throw new CMError('INVALID_ARGUMENT', `Invalid ${optionName} value: ${raw}`, {
+    fix: `Use one of: top, bottom, full for ${optionName}`,
+  });
 }
 
 function reportResearchSummary(
@@ -822,6 +841,11 @@ async function runGenerate(
     options.gameplayStrict = gameplay.required;
   }
 
+  const gameplayPosition = parseLayoutPosition(options.gameplayPosition, '--gameplay-position');
+  const contentPosition = parseLayoutPosition(options.contentPosition, '--content-position');
+  if (gameplayPosition) options.gameplayPosition = gameplayPosition;
+  if (contentPosition) options.contentPosition = contentPosition;
+
   const { result, finalOptions, sync, exitCode } = await runPipelineWithOptionalSyncQualityGate({
     topic,
     archetype,
@@ -908,6 +932,12 @@ function showDryRunSummary(
   }
   if (options.gameplayStrict) {
     writeStderrLine('   Gameplay Strict: enabled');
+  }
+  if (options.gameplayPosition) {
+    writeStderrLine(`   Gameplay Position: ${options.gameplayPosition}`);
+  }
+  if (options.contentPosition) {
+    writeStderrLine(`   Content Position: ${options.contentPosition}`);
   }
   writeStderrLine('   Pipeline stages:');
   if (options.research) {
@@ -1057,7 +1087,7 @@ export const generateCommand = new Command('generate')
   // Caption display options
   .option(
     '--caption-mode <mode>',
-    'Caption display mode: page (default), single (one word at a time), buildup (accumulate per sentence)'
+    'Caption display mode: page (default), single (one word at a time), buildup (accumulate per sentence), chunk (CapCut-style)'
   )
   .option(
     '--words-per-page <count>',
@@ -1078,6 +1108,8 @@ export const generateCommand = new Command('generate')
   .option('--gameplay <path>', 'Gameplay library directory or clip file path')
   .option('--gameplay-style <name>', 'Gameplay subfolder name (e.g., subway-surfers)')
   .option('--gameplay-strict', 'Fail if gameplay clip is missing')
+  .option('--gameplay-position <pos>', 'Gameplay position (top, bottom, full)')
+  .option('--content-position <pos>', 'Content position (top, bottom, full)')
   // Sync quality options
   .option(
     '--sync-preset <preset>',

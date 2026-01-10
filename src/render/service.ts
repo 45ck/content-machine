@@ -74,6 +74,9 @@ export interface RenderVideoOptions {
   compositionId?: string;
   /** Split-screen ratio (top height / total height), used by split-screen templates */
   splitScreenRatio?: number;
+  /** Split-screen layout positions */
+  gameplayPosition?: 'top' | 'bottom' | 'full';
+  contentPosition?: 'top' | 'bottom' | 'full';
   /** @deprecated Use captionConfig or captionPreset instead */
   captionStyle?: Partial<CaptionStyle>;
   /** New comprehensive caption configuration (accepts partial input, defaults applied) */
@@ -97,7 +100,7 @@ export interface RenderVideoOptions {
   /**
    * Caption display mode: page (default), single (one word at a time), buildup (accumulate per sentence)
    */
-  captionMode?: 'page' | 'single' | 'buildup';
+  captionMode?: 'page' | 'single' | 'buildup' | 'chunk';
   /**
    * Words per caption page/group.
    * Default: 8 (for larger sentences)
@@ -309,6 +312,8 @@ function buildRenderProps(
     archetype: options.archetype,
     gameplayClip: options.visuals.gameplayClip,
     splitScreenRatio,
+    gameplayPosition: options.gameplayPosition,
+    contentPosition: options.contentPosition,
     captionConfig,
     // Keep legacy captionStyle for backwards compatibility
     captionStyle: {

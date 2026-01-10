@@ -279,6 +279,7 @@ export const PRESET_NEON: CaptionConfig = CaptionConfigSchema.parse({
  * Emphasis on power words with scale animation.
  */
 export const PRESET_CAPCUT_BOLD: CaptionConfig = CaptionConfigSchema.parse({
+  displayMode: 'chunk',
   fontFamily: 'Inter',
   fontSize: 80,
   fontWeight: 'black',

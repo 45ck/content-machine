@@ -52,6 +52,7 @@ export const CaptionDisplayModeSchema = z.enum([
   'page', // Default: show N words at a time, highlight current (TikTok style)
   'single', // Show only ONE word at a time, replaces on each word
   'buildup', // Words accumulate per sentence, then clear for next sentence
+  'chunk', // CapCut-style chunks with natural phrase grouping
 ]);
 export type CaptionDisplayMode = z.infer<typeof CaptionDisplayModeSchema>;
 
@@ -183,7 +184,7 @@ export const CaptionConfigSchema = z.object({
   version: z.string().default('1.0.0'),
 
   // === DISPLAY MODE ===
-  /** How words are displayed: page (default), single (one word only), buildup (accumulate per sentence) */
+  /** How words are displayed: page (default), single (one word only), buildup (accumulate per sentence), chunk */
   displayMode: CaptionDisplayModeSchema.default('page'),
   /** Words per page/group - controls how many words appear together (default: 8 for larger sentences) */
   wordsPerPage: z.number().int().positive().default(8),

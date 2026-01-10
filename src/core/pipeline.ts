@@ -56,6 +56,11 @@ export interface PipelineOptions {
    */
   splitScreenRatio?: number;
   /**
+   * Split-screen layout positions.
+   */
+  gameplayPosition?: 'top' | 'bottom' | 'full';
+  contentPosition?: 'top' | 'bottom' | 'full';
+  /**
    * Caption preset name (tiktok, youtube, reels, bold, minimal, neon, capcut, hormozi, karaoke).
    * Priority: captionConfig > captionPreset > default (capcut).
    */
@@ -338,6 +343,8 @@ async function executeRenderStage(
         onProgress,
         compositionId: options.compositionId,
         splitScreenRatio: options.splitScreenRatio,
+        gameplayPosition: options.gameplayPosition,
+        contentPosition: options.contentPosition,
         captionPreset: options.captionPreset,
         captionConfig: options.captionConfig,
         archetype: options.archetype,

@@ -39,11 +39,28 @@ export const SplitScreenGameplay: React.FC<RenderProps> = ({
   captionConfig,
   gameplayClip,
   splitScreenRatio,
+  gameplayPosition,
+  contentPosition,
 }) => {
   const { fps, height } = useVideoConfig();
   const ratio = clampRatio(splitScreenRatio ?? 0.55, 0.3, 0.7);
+  const defaultGameplayPosition = 'bottom';
+  const defaultContentPosition = 'top';
+  const resolvedContentPosition = contentPosition ?? defaultContentPosition;
+  const resolvedGameplayPosition =
+    gameplayPosition ??
+    (resolvedContentPosition === 'bottom' ? 'top' : defaultGameplayPosition);
+  const isGameplayFull = resolvedGameplayPosition === 'full';
+  const isContentFull = resolvedContentPosition === 'full';
   const topHeight = Math.round(height * ratio);
   const bottomHeight = height - topHeight;
+  const contentOnTop = resolvedContentPosition === 'top';
+  const contentHeight = isContentFull ? height : contentOnTop ? topHeight : bottomHeight;
+  const contentTop = isContentFull ? 0 : contentOnTop ? 0 : topHeight;
+  const gameplayHeight = isGameplayFull ? height : contentOnTop ? bottomHeight : topHeight;
+  const gameplayTop = isGameplayFull ? 0 : contentOnTop ? topHeight : 0;
+  const captionTop = isGameplayFull ? 0 : contentTop;
+  const captionHeight = isGameplayFull ? height : contentHeight;
   const durationMs = Math.max(0, Math.round(totalDuration * 1000));
   const totalFrames = Math.ceil(totalDuration * fps);
 
@@ -59,27 +76,29 @@ export const SplitScreenGameplay: React.FC<RenderProps> = ({
 
   return (
     <AbsoluteFill style={{ backgroundColor: '#000' }}>
-      {visualSequences.map(({ fromFrame, durationInFrames, scene }, index) => (
-        <Sequence key={`scene-${index}`} from={fromFrame} durationInFrames={durationInFrames}>
-          <SceneBackground
-            scene={scene}
-            containerStyle={{ height: topHeight, overflow: 'hidden' }}
-          />
-        </Sequence>
-      ))}
-      {clips?.length ? (
-        <AbsoluteFill style={{ height: topHeight, overflow: 'hidden' }}>
+      {!isGameplayFull &&
+        visualSequences.map(({ fromFrame, durationInFrames, scene }, index) => (
+          <Sequence key={`scene-${index}`} from={fromFrame} durationInFrames={durationInFrames}>
+            <SceneBackground
+              scene={scene}
+              containerStyle={{ top: contentTop, height: contentHeight, overflow: 'hidden' }}
+            />
+          </Sequence>
+        ))}
+      {!isGameplayFull && clips?.length ? (
+        <AbsoluteFill style={{ top: contentTop, height: contentHeight, overflow: 'hidden' }}>
           {clips.map((clip) => (
             <LegacyClip key={clip.id} clip={clip} fps={fps} />
           ))}
         </AbsoluteFill>
       ) : null}
 
-      <AbsoluteFill style={{ top: topHeight, height: bottomHeight }}>
+      <AbsoluteFill style={{ top: gameplayTop, height: gameplayHeight }}>
         {gameplayClip?.path ? (
           <Loop durationInFrames={totalFrames}>
             <Video
               src={resolveGameplaySrc(gameplayClip.path)}
+              muted
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           </Loop>
@@ -88,22 +107,27 @@ export const SplitScreenGameplay: React.FC<RenderProps> = ({
         )}
       </AbsoluteFill>
 
-      <AbsoluteFill
-        style={{
-          height: topHeight,
-          background:
-            'linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 55%)',
-        }}
-      />
-      <AbsoluteFill
-        style={{
-          top: topHeight - 24,
-          height: 24,
-          background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.45) 100%)',
-        }}
-      />
+      {!isContentFull && !isGameplayFull ? (
+        <>
+          <AbsoluteFill
+            style={{
+              top: contentTop,
+              height: contentHeight,
+              background:
+                'linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 55%)',
+            }}
+          />
+          <AbsoluteFill
+            style={{
+              top: contentTop + contentHeight - 24,
+              height: 24,
+              background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.45) 100%)',
+            }}
+          />
+        </>
+      ) : null}
 
-      <AbsoluteFill style={{ height: topHeight, overflow: 'hidden' }}>
+      <AbsoluteFill style={{ top: captionTop, height: captionHeight, overflow: 'hidden' }}>
         <Caption words={words} config={captionConfig} />
       </AbsoluteFill>
 

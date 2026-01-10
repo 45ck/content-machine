@@ -307,9 +307,11 @@ function finalizeLine(words: TimedWord[]): CaptionLine {
 export function toTimedWords(
   words: Array<{ word: string; start: number; end: number }>
 ): TimedWord[] {
-  return words.map((w) => ({
-    text: w.word,
-    startMs: w.start * 1000,
-    endMs: w.end * 1000,
-  }));
+  return words
+    .filter((w) => typeof w.word === 'string' && w.word.trim().length > 0)
+    .map((w) => ({
+      text: w.word,
+      startMs: w.start * 1000,
+      endMs: w.end * 1000,
+    }));
 }

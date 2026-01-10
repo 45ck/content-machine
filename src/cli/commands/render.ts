@@ -5,6 +5,7 @@
  *
  * Caption Styling:
  *   --caption-preset <preset>  Use preset style (tiktok, youtube, reels, bold, minimal, neon, capcut, hormozi, karaoke)
+ *   --caption-mode <mode>      Caption display mode (page, single, buildup, chunk)
  *   --caption-font-size <px>   Override font size
  *   --caption-position <pos>   Caption position (top, center, bottom)
  *   --caption-highlight <mode> Highlight mode (background, color, glow, underline, scale)
@@ -56,6 +57,7 @@ import {
 } from '../../render/templates';
 
 type ChromeMode = 'headless-shell' | 'chrome-for-testing';
+type LayoutPosition = 'top' | 'bottom' | 'full';
 
 function parseChromeMode(value: unknown): ChromeMode | undefined {
   if (value == null) return undefined;
@@ -373,6 +375,15 @@ async function resolveTemplateAndApplyDefaults(
   return { resolvedTemplate, templateDefaults, templateParams, templateGameplay };
 }
 
+function parseLayoutPosition(value: unknown, optionName: string): LayoutPosition | undefined {
+  if (value == null) return undefined;
+  const raw = String(value);
+  if (raw === 'top' || raw === 'bottom' || raw === 'full') return raw;
+  throw new CMError('INVALID_ARGUMENT', `Invalid ${optionName} value: ${raw}`, {
+    fix: `Use one of: top, bottom, full for ${optionName}`,
+  });
+}
+
 async function readRenderInputs(options: { input: string; timestamps: string }): Promise<{
   visuals: VisualsOutput;
   timestamps: TimestampsOutput;
@@ -443,6 +454,7 @@ function writeRenderJsonEnvelope(params: {
         browserExecutable: params.options.browserExecutable ?? null,
         chromeMode: params.options.chromeMode ?? null,
         captionPreset: params.options.captionPreset,
+        captionMode: params.options.captionMode ?? null,
         validateTimestamps: params.options.validateTimestamps,
         extendVisuals: params.options.extendVisuals,
       },
@@ -482,6 +494,7 @@ function logRenderStart(
       audio: options.audio,
       output: options.output,
       captionPreset: options.captionPreset,
+      captionMode: options.captionMode,
       template: resolvedTemplate?.template.id,
       templateSource: resolvedTemplate ? formatTemplateSource(resolvedTemplate) : undefined,
       validateTimestamps: options.validateTimestamps,
@@ -535,6 +548,12 @@ async function runRenderCommand(
   const compositionId = resolvedTemplate?.template.compositionId;
   const gameplayRequired =
     templateGameplay?.required ?? Boolean(templateGameplay?.library || templateGameplay?.clip);
+  const gameplayPosition = parseLayoutPosition(options.gameplayPosition, '--gameplay-position');
+  const contentPosition = parseLayoutPosition(options.contentPosition, '--content-position');
+  const layout = {
+    gameplayPosition: gameplayPosition ?? templateParams.gameplayPosition,
+    contentPosition: contentPosition ?? templateParams.contentPosition,
+  };
 
   if (
     compositionId === 'SplitScreenGameplay' &&
@@ -560,11 +579,14 @@ async function runRenderCommand(
     browserExecutable: options.browserExecutable ? String(options.browserExecutable) : null,
     chromeMode: parseChromeMode(options.chromeMode),
     captionPreset: options.captionPreset as CaptionPresetName,
+    captionMode: options.captionMode as 'page' | 'single' | 'buildup' | 'chunk' | undefined,
     captionConfig,
     onProgress,
     archetype,
     compositionId,
     splitScreenRatio: templateParams.splitScreenRatio,
+    gameplayPosition: layout.gameplayPosition,
+    contentPosition: layout.contentPosition,
   });
 
   spinner.succeed('Video rendered successfully');
@@ -607,6 +629,7 @@ export const renderCommand = new Command('render')
     'Caption style preset (tiktok, youtube, reels, bold, minimal, neon, capcut, hormozi, karaoke)',
     'capcut'
   )
+  .option('--caption-mode <mode>', 'Caption display mode (page, single, buildup, chunk)')
   // Caption typography
   .option('--caption-font-size <px>', 'Font size in pixels')
   .option('--caption-color <hex>', 'Text color (hex)')
@@ -637,6 +660,8 @@ export const renderCommand = new Command('render')
   .option('--extend-visuals', 'Auto-extend visuals to match audio duration', true)
   .option('--no-extend-visuals', 'Keep visuals as-is (may cause black frames)')
   .option('--fallback-color <hex>', 'Background color for extended scenes', '#1a1a1a')
+  .option('--gameplay-position <pos>', 'Gameplay position (top, bottom, full)')
+  .option('--content-position <pos>', 'Content position (top, bottom, full)')
   .option('--browser-executable <path>', 'Chromium/Chrome executable path for rendering')
   .option(
     '--chrome-mode <mode>',

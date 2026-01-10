@@ -745,6 +745,10 @@
 	path = vendor/cli/examples/pnpm
 	url = https://github.com/pnpm/pnpm
 	shallow = true
+[submodule "vendor/cli/examples/prisma"]
+	path = vendor/cli/examples/prisma
+	url = https://github.com/prisma/prisma
+	shallow = true
 [submodule "vendor/cli/examples/vercel"]
 	path = vendor/cli/examples/vercel
 	url = https://github.com/vercel/vercel

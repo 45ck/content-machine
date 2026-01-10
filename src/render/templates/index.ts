@@ -51,14 +51,6 @@ const BUILTIN_TEMPLATES: Record<string, VideoTemplate> = {
       orientation: 'portrait',
       fps: 30,
       captionPreset: 'tiktok',
-      captionConfig: {
-        fontSize: 80,
-        position: 'top',
-        positionOffset: {
-          edgeDistance: 8,
-          horizontalPadding: 90,
-        },
-      },
     },
     params: { splitScreenRatio: 0.55 },
   }),

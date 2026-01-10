@@ -52,6 +52,8 @@ export const RenderPropsSchema = z.object({
   height: z.number().int().positive(),
   fps: z.number().int().positive().default(30),
   splitScreenRatio: z.number().min(0.3).max(0.7).optional(),
+  gameplayPosition: z.enum(['top', 'bottom', 'full']).optional(),
+  contentPosition: z.enum(['top', 'bottom', 'full']).optional(),
   /** @deprecated Use captionConfig instead */
   captionStyle: CaptionStyleSchema.optional(),
   /** New comprehensive caption configuration */
