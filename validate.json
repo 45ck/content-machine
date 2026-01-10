@@ -1,12 +1,12 @@
 {
   "schemaVersion": "1.0.0",
-  "videoPath": "test-coffee.mp4",
+  "videoPath": "output/demo-subway-pexels/video.mp4",
   "profile": "portrait",
   "passed": false,
   "summary": {
     "width": 1080,
     "height": 1920,
-    "durationSeconds": 26.112,
+    "durationSeconds": 27.050667,
     "container": "mp4",
     "videoCodec": "h264",
     "audioCodec": "aac"
@@ -30,11 +30,11 @@
       "passed": false,
       "severity": "error",
       "fix": "adjust-content-length",
-      "message": "Duration 26.1s is below minimum 30s",
+      "message": "Duration 27.1s is below minimum 30s",
       "details": {
         "minSeconds": 30,
         "maxSeconds": 60,
-        "actualSeconds": 26.112
+        "actualSeconds": 27.050667
       }
     },
     {
@@ -57,6 +57,6 @@
       }
     }
   ],
-  "createdAt": "2026-01-07T00:32:24.014Z",
-  "runtimeMs": 74
+  "createdAt": "2026-01-10T04:31:44.736Z",
+  "runtimeMs": 245
 }

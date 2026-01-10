@@ -41,6 +41,13 @@ export {
   type CaptionIssue,
 } from './caption-quality';
 
+// Caption diagnostics
+export {
+  analyzeCaptionChunks,
+  type CaptionDiagnosticsReport,
+  type CaptionChunkDiagnostic,
+} from './caption-diagnostics';
+
 // Paging quality metrics
 export {
   analyzePagingQuality,

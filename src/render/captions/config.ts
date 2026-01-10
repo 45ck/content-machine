@@ -203,8 +203,8 @@ export const CaptionConfigSchema = z.object({
   version: z.string().default('1.0.0'),
 
   // === DISPLAY MODE ===
-  /** How words are displayed: page (default), single (one word only), buildup (accumulate per sentence), chunk */
-  displayMode: CaptionDisplayModeSchema.default('page'),
+  /** How words are displayed: chunk (default), page, single (one word only), buildup (accumulate per sentence) */
+  displayMode: CaptionDisplayModeSchema.default('chunk'),
   /** Words per page/group - controls how many words appear together (default: 8 for larger sentences) */
   wordsPerPage: z.number().int().positive().default(8),
 
