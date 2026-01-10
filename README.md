@@ -59,6 +59,19 @@ npm run cli daily
 npm run cli weekly
 ```
 
+## Recommended Video Pipeline (Default)
+
+For best audio/caption sync, the default pipeline runs audio-first with Whisper timestamps
+and reconciles ASR output back to the script text.
+
+```bash
+# One-time Whisper setup (needed for audio-first)
+node --input-type=module -e "import('@remotion/install-whisper-cpp').then(async (w)=>{ await w.downloadWhisperModel({ model: 'base', folder: './.cache/whisper' }); await w.installWhisperCpp({ to: './.cache/whisper', version: '1.5.5' }); console.log('whisper ready'); })"
+
+# Generate a short video with best-sync defaults
+cm generate "Redis vs PostgreSQL for caching" --archetype versus --output output/video.mp4 --keep-artifacts
+```
+
 ## Vendored Dependencies
 
 This repo vendors several open-source projects for video generation:

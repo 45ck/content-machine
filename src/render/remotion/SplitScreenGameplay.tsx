@@ -22,6 +22,11 @@ function clampRatio(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
+function resolveGameplaySrc(path: string): string {
+  if (/^https?:\/\//i.test(path)) return path;
+  return staticFile(path);
+}
+
 /**
  * Main split-screen component.
  */
@@ -74,7 +79,7 @@ export const SplitScreenGameplay: React.FC<RenderProps> = ({
         {gameplayClip?.path ? (
           <Loop durationInFrames={totalFrames}>
             <Video
-              src={gameplayClip.path}
+              src={resolveGameplaySrc(gameplayClip.path)}
               style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           </Loop>

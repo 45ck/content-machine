@@ -402,22 +402,47 @@ function fixOverlappingTimestamps(words: WordTimestamp[]): WordTimestamp[] {
 function extendShortDurations(words: WordTimestamp[], minDurationMs: number): WordTimestamp[] {
   const minDuration = minDurationMs / 1000;
 
-  return words.map((word, i) => {
-    const duration = word.end - word.start;
+  const result = words.map((word) => ({ ...word }));
+  let pendingShift = 0;
 
-    if (duration < minDuration) {
-      // Extend end time, but don't overlap with next word
-      const maxEnd =
-        i < words.length - 1 ? words[i + 1].start : word.end + (minDuration - duration);
+  for (let i = 0; i < result.length; i++) {
+    const word = result[i];
 
-      return {
-        ...word,
-        end: Math.min(word.start + minDuration, maxEnd),
-      };
+    if (pendingShift !== 0) {
+      word.start += pendingShift;
+      word.end += pendingShift;
     }
 
-    return word;
-  });
+    const duration = word.end - word.start;
+    if (duration >= minDuration) continue;
+
+    const needed = minDuration - duration;
+
+    if (i < result.length - 1) {
+      const nextStart = result[i + 1].start + pendingShift;
+      const gap = nextStart - word.end;
+
+      if (gap >= needed) {
+        word.end = word.end + needed;
+      } else {
+        word.end = word.end + needed;
+        pendingShift += needed - gap;
+      }
+    } else {
+      word.end = word.start + minDuration;
+    }
+  }
+
+  const epsilon = 1e-6;
+  for (let i = 0; i < result.length - 1; i++) {
+    const current = result[i];
+    const next = result[i + 1];
+    if (current.end > next.start && current.end - next.start <= epsilon) {
+      current.end = next.start;
+    }
+  }
+
+  return result;
 }
 
 /**

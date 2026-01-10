@@ -64,7 +64,7 @@ export const SYNC_PRESETS: Record<string, SyncPresetConfig> = {
   /** Standard: audio-first pipeline (whisper required), no quality check */
   standard: {
     pipeline: 'audio-first',
-    reconcile: false,
+    reconcile: true,
     syncQualityCheck: false,
     minSyncRating: 60,
     autoRetrySync: false,

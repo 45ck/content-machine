@@ -653,3 +653,111 @@
 [submodule "vendor/awesome-lists/Awesome-Video-Diffusion"]
 	path = vendor/awesome-lists/Awesome-Video-Diffusion
 	url = https://github.com/showlab/Awesome-Video-Diffusion.git
+[submodule "vendor/cli/ui/bubbletea"]
+	path = vendor/cli/ui/bubbletea
+	url = https://github.com/charmbracelet/bubbletea
+	shallow = true
+[submodule "vendor/cli/ui/bubbles"]
+	path = vendor/cli/ui/bubbles
+	url = https://github.com/charmbracelet/bubbles
+	shallow = true
+[submodule "vendor/cli/ui/lipgloss"]
+	path = vendor/cli/ui/lipgloss
+	url = https://github.com/charmbracelet/lipgloss
+	shallow = true
+[submodule "vendor/cli/ui/ink"]
+	path = vendor/cli/ui/ink
+	url = https://github.com/vadimdemedes/ink
+	shallow = true
+[submodule "vendor/cli/ui/pastel"]
+	path = vendor/cli/ui/pastel
+	url = https://github.com/vadimdemedes/pastel
+	shallow = true
+[submodule "vendor/cli/ui/textual"]
+	path = vendor/cli/ui/textual
+	url = https://github.com/Textualize/textual
+	shallow = true
+[submodule "vendor/cli/ui/rich"]
+	path = vendor/cli/ui/rich
+	url = https://github.com/Textualize/rich
+	shallow = true
+[submodule "vendor/cli/frameworks/clipanion"]
+	path = vendor/cli/frameworks/clipanion
+	url = https://github.com/arcanis/clipanion
+	shallow = true
+[submodule "vendor/cli/frameworks/oclif-example-multi-ts"]
+	path = vendor/cli/frameworks/oclif-example-multi-ts
+	url = https://github.com/oclif/example-multi-ts
+	shallow = true
+[submodule "vendor/cli/motion/ora"]
+	path = vendor/cli/motion/ora
+	url = https://github.com/sindresorhus/ora
+	shallow = true
+[submodule "vendor/cli/motion/listr2"]
+	path = vendor/cli/motion/listr2
+	url = https://github.com/listr2/listr2
+	shallow = true
+[submodule "vendor/cli/motion/cli-spinners"]
+	path = vendor/cli/motion/cli-spinners
+	url = https://github.com/sindresorhus/cli-spinners
+	shallow = true
+[submodule "vendor/cli/motion/log-update"]
+	path = vendor/cli/motion/log-update
+	url = https://github.com/sindresorhus/log-update
+	shallow = true
+[submodule "vendor/cli/output/boxen"]
+	path = vendor/cli/output/boxen
+	url = https://github.com/sindresorhus/boxen
+	shallow = true
+[submodule "vendor/cli/output/boxen-cli"]
+	path = vendor/cli/output/boxen-cli
+	url = https://github.com/sindresorhus/boxen-cli
+	shallow = true
+[submodule "vendor/cli/output/terminal-image"]
+	path = vendor/cli/output/terminal-image
+	url = https://github.com/sindresorhus/terminal-image
+	shallow = true
+[submodule "vendor/cli/examples/lazygit"]
+	path = vendor/cli/examples/lazygit
+	url = https://github.com/jesseduffield/lazygit
+	shallow = true
+[submodule "vendor/cli/examples/btop"]
+	path = vendor/cli/examples/btop
+	url = https://github.com/aristocratos/btop
+	shallow = true
+[submodule "vendor/cli/examples/bat"]
+	path = vendor/cli/examples/bat
+	url = https://github.com/sharkdp/bat
+	shallow = true
+[submodule "vendor/cli/examples/workers-sdk"]
+	path = vendor/cli/examples/workers-sdk
+	url = https://github.com/cloudflare/workers-sdk
+	shallow = true
+[submodule "vendor/cli/examples/netlify-cli"]
+	path = vendor/cli/examples/netlify-cli
+	url = https://github.com/netlify/cli
+	shallow = true
+[submodule "vendor/cli/examples/firebase-tools"]
+	path = vendor/cli/examples/firebase-tools
+	url = https://github.com/firebase/firebase-tools
+	shallow = true
+[submodule "vendor/cli/examples/pnpm"]
+	path = vendor/cli/examples/pnpm
+	url = https://github.com/pnpm/pnpm
+	shallow = true
+[submodule "vendor/cli/examples/vercel"]
+	path = vendor/cli/examples/vercel
+	url = https://github.com/vercel/vercel
+	shallow = true
+[submodule "vendor/cli/recording/vhs"]
+	path = vendor/cli/recording/vhs
+	url = https://github.com/charmbracelet/vhs
+	shallow = true
+[submodule "vendor/cli/recording/asciinema"]
+	path = vendor/cli/recording/asciinema
+	url = https://github.com/asciinema/asciinema
+	shallow = true
+[submodule "vendor/cli/recording/terminalizer"]
+	path = vendor/cli/recording/terminalizer
+	url = https://github.com/faressoft/terminalizer
+	shallow = true

@@ -64,6 +64,21 @@ cm render --input visuals.json                # → video.mp4
 
 ---
 
+## Recommended Pipeline (Default)
+
+For best audio/caption sync, use audio-first timestamps (Whisper required) with ASR
+reconciliation enabled. This is now the default for `cm generate`.
+
+```bash
+# One-time Whisper setup (needed for audio-first)
+node --input-type=module -e "import('@remotion/install-whisper-cpp').then(async (w)=>{ await w.downloadWhisperModel({ model: 'base', folder: './.cache/whisper' }); await w.installWhisperCpp({ to: './.cache/whisper', version: '1.5.5' }); console.log('whisper ready'); })"
+
+# Recommended end-to-end command
+cm generate "Redis vs PostgreSQL for caching" --archetype versus --output output/video.mp4 --keep-artifacts
+```
+
+---
+
 ## 📦 Content Archetypes
 
 Six pre-built content patterns optimized for short-form engagement:

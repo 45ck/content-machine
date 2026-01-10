@@ -27,7 +27,7 @@ export const audioCommand = new Command('audio')
   .option('--reconcile', 'Reconcile ASR output to match original script text', false)
   .option('--require-whisper', 'Require whisper ASR (fail if unavailable)', false)
   .option('--whisper-model <model>', 'Whisper model size: tiny, base, small, medium', 'base')
-  .action(async (options) => {
+  .action(async (options, command: Command) => {
     const spinner = createSpinner('Generating audio...').start();
     const runtime = getCliRuntime();
 
@@ -40,7 +40,11 @@ export const audioCommand = new Command('audio')
       const { generateAudio } = await import('../../audio/pipeline');
 
       // Determine require-whisper from strategy or explicit flag
-      const requireWhisper = options.requireWhisper || options.syncStrategy === 'audio-first';
+      const syncStrategy = options.syncStrategy ?? 'standard';
+      const requireWhisper = options.requireWhisper || syncStrategy === 'audio-first';
+      const reconcileSource = command.getOptionValueSource('reconcile');
+      const reconcile =
+        reconcileSource === 'default' ? syncStrategy === 'audio-first' : Boolean(options.reconcile);
 
       const result = await generateAudio({
         script,
@@ -50,7 +54,7 @@ export const audioCommand = new Command('audio')
         mock: Boolean(options.mock),
         requireWhisper,
         whisperModel: options.whisperModel as 'tiny' | 'base' | 'small' | 'medium',
-        reconcile: Boolean(options.reconcile),
+        reconcile,
       });
 
       spinner.succeed('Audio generated successfully');
@@ -75,7 +79,7 @@ export const audioCommand = new Command('audio')
               voice: options.voice,
               mock: Boolean(options.mock),
               syncStrategy: options.syncStrategy,
-              reconcile: Boolean(options.reconcile),
+              reconcile,
               requireWhisper,
               whisperModel: options.whisperModel,
             },

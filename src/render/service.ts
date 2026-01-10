@@ -143,13 +143,32 @@ interface BundleResult {
   audioFilename: string;
 }
 
+interface BundleAsset {
+  sourcePath: string;
+  destPath: string;
+}
+
+function isRemoteUrl(path: string): boolean {
+  return /^https?:\/\//i.test(path);
+}
+
+function isLocalFile(path: string): boolean {
+  if (!path || isRemoteUrl(path)) return false;
+  try {
+    return existsSync(path);
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Bundle Remotion composition and copy audio to bundle
  */
 async function bundleComposition(
   audioPath: string,
   log: ReturnType<typeof createLogger>,
-  onProgress?: (event: RenderProgressEvent) => void
+  onProgress?: (event: RenderProgressEvent) => void,
+  extraAssets: BundleAsset[] = []
 ): Promise<BundleResult> {
   log.debug('Bundling Remotion composition');
 
@@ -172,6 +191,13 @@ async function bundleComposition(
   await mkdir(bundlePublicDir, { recursive: true });
   await copyFile(resolve(audioPath), bundleAudioPath);
   log.debug({ audioFilename, bundleAudioPath }, 'Audio copied to bundle');
+
+  for (const asset of extraAssets) {
+    const assetDest = join(bundlePublicDir, asset.destPath);
+    await mkdir(dirname(assetDest), { recursive: true });
+    await copyFile(resolve(asset.sourcePath), assetDest);
+    log.debug({ asset: asset.sourcePath, assetDest }, 'Asset copied to bundle');
+  }
 
   return { bundleLocation, audioFilename };
 }
@@ -409,12 +435,33 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
   }
 
   try {
+    const gameplayClip = options.visuals.gameplayClip;
+    const gameplayPublicPath = gameplayClip && isLocalFile(gameplayClip.path)
+      ? `gameplay/${basename(gameplayClip.path)}`
+      : null;
+    const extraAssets = gameplayPublicPath && gameplayClip
+      ? [{ sourcePath: gameplayClip.path, destPath: gameplayPublicPath }]
+      : [];
+
     const { bundleLocation, audioFilename } = await bundleComposition(
       options.audioPath,
       log,
-      safeProgress
+      safeProgress,
+      extraAssets
     );
-    const renderProps = buildRenderProps(options, dimensions, fps, audioFilename);
+    const visualsForRender =
+      gameplayPublicPath && gameplayClip
+        ? {
+            ...options.visuals,
+            gameplayClip: { ...gameplayClip, path: gameplayPublicPath },
+          }
+        : options.visuals;
+    const renderProps = buildRenderProps(
+      { ...options, visuals: visualsForRender },
+      dimensions,
+      fps,
+      audioFilename
+    );
     await executeRender({
       bundleLocation,
       renderProps,
