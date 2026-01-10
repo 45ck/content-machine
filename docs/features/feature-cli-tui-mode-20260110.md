@@ -2,7 +2,7 @@
 
 **Date:** 2026-01-10  
 **Status:** Draft  
-**Owners:** Unassigned  
+**Owners:** Unassigned
 
 ---
 
@@ -56,11 +56,13 @@ The "insane UX" goal is to make the default path feel like a product, while stil
 ### TUI Home Screen (Information Architecture)
 
 **Primary actions**
+
 - `Generate video` (guided wizard)
 - `Run stage` (script/audio/visuals/render) with "select input file" picker
 - `Open artifacts` (recent runs)
 
 **Secondary actions**
+
 - `Templates` (browse available templates, preview config)
 - `Validate / Score / Rate` (quality tooling)
 - `Publish` (if configured)
@@ -124,9 +126,11 @@ The "insane UX" goal is to make the default path feel like a product, while stil
 ### Event Model
 
 Leverage existing pipeline events:
+
 - `pipeline:*`, `stage:*` from `src/core/events/types.ts`
 
 Optional additions (future):
+
 - `artifact:written` (path + kind)
 - `log:line` (structured log line for UI panel)
 
@@ -148,6 +152,7 @@ Optional additions (future):
 ### Rendering Strategy
 
 To avoid conflicting redraw systems:
+
 - **TUI mode:** Ink owns terminal output; do not use `ora`/`listr2`/`log-update` concurrently.
 - **Non-TUI mode:** keep `ora` and/or `CliProgressObserver` behavior for lightweight UX.
 

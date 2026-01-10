@@ -6,7 +6,7 @@
  */
 import { Command } from 'commander';
 import { ArchetypeEnum } from '../../core/config';
-import { SchemaError } from '../../core/errors';
+import { CMError, SchemaError } from '../../core/errors';
 import { logger } from '../../core/logger';
 import { PackageOutputSchema } from '../../package/schema';
 import { ResearchOutputSchema } from '../../research/schema';
@@ -78,9 +78,10 @@ async function loadResearch(path?: string): Promise<ResearchOutput | undefined> 
 function writeDryRunOutput(params: {
   options: ScriptCommandOptions;
   archetype: string;
+  durationSeconds: number;
   runtime: ReturnType<typeof getCliRuntime>;
 }): void {
-  const { options, archetype, runtime } = params;
+  const { options, archetype, durationSeconds, runtime } = params;
 
   if (runtime.json) {
     writeJsonEnvelope(
@@ -106,13 +107,11 @@ function writeDryRunOutput(params: {
   writeStderrLine('Dry-run mode - no LLM call made');
   writeStderrLine(`   Topic: ${options.topic}`);
   writeStderrLine(`   Archetype: ${archetype}`);
-  writeStderrLine(`   Duration: ${options.duration}s`);
+  writeStderrLine(`   Duration: ${durationSeconds}s`);
   writeStderrLine(`   Output: ${options.output}`);
   if (options.package) writeStderrLine(`   Package: ${options.package}`);
   if (options.research) writeStderrLine(`   Research: ${options.research}`);
-  writeStderrLine(
-    `Prompt would use ~${Math.round(parseInt(options.duration, 10) * 2.5)} target words`
-  );
+  writeStderrLine(`Prompt would use ~${Math.round(durationSeconds * 2.5)} target words`);
   process.exit(0);
 }
 
@@ -161,6 +160,7 @@ function writeSuccessTextOutput(params: {
   writeStderrLine(`   Word count: ${script.meta?.wordCount ?? 'N/A'}`);
   writeStderrLine(`   Output: ${options.output}`);
   if (options.mock) writeStderrLine('   Mock mode - script is for testing only');
+  writeStderrLine(`Next: cm audio --input ${options.output}`);
 
   // Human-mode stdout should be reserved for the primary artifact path.
   process.stdout.write(`${options.output}\n`);
@@ -170,10 +170,16 @@ function writeSuccessTextOutput(params: {
 async function runScript(options: ScriptCommandOptions, spinner: SpinnerLike): Promise<void> {
   const runtime = getCliRuntime();
   const archetype = ArchetypeEnum.parse(options.archetype);
+  const durationSeconds = Number.parseInt(String(options.duration), 10);
+  if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) {
+    throw new CMError('INVALID_ARGUMENT', `Invalid --duration value: ${options.duration}`, {
+      fix: 'Use an integer number of seconds for --duration (e.g., --duration 45)',
+    });
+  }
 
   if (options.dryRun) {
     spinner.stop();
-    writeDryRunOutput({ options, archetype, runtime });
+    writeDryRunOutput({ options, archetype, durationSeconds, runtime });
     return;
   }
 
@@ -194,7 +200,7 @@ async function runScript(options: ScriptCommandOptions, spinner: SpinnerLike): P
   const script = await generateScript({
     topic: options.topic,
     archetype,
-    targetDuration: parseInt(options.duration, 10),
+    targetDuration: durationSeconds,
     llmProvider,
     packaging,
     research,

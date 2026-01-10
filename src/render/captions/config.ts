@@ -151,12 +151,20 @@ export const CaptionLayoutSchema = z.object({
   maxGapMs: z.number().int().nonnegative().default(1000),
   /** Minimum words per page */
   minWordsPerPage: z.number().int().positive().default(1),
+  /** Target words per chunk (used for chunk display mode) */
+  targetWordsPerChunk: z.number().int().positive().default(5),
   /** Maximum words per page (fallback if char limit not hit) */
   maxWordsPerPage: z.number().int().positive().default(8),
+  /** Maximum words per minute for readability */
+  maxWordsPerMinute: z.number().positive().default(180),
   /** Maximum characters per second for readability (TikTok native: ~15 CPS) */
   maxCharsPerSecond: z.number().positive().default(15),
+  /** Minimum on-screen time for short chunks (1-2 words) in ms */
+  minOnScreenMsShort: z.number().int().positive().default(800),
   /** Minimum on-screen time in ms (prevents flashing chunks) */
-  minOnScreenMs: z.number().int().positive().default(350),
+  minOnScreenMs: z.number().int().positive().default(1100),
+  /** Max words treated as a "short punch" chunk */
+  shortChunkMaxWords: z.number().int().positive().default(2),
   /** Minimum gap between chunks in ms (breathing room) */
   chunkGapMs: z.number().int().nonnegative().default(50),
 });
@@ -172,6 +180,17 @@ export const PositionOffsetSchema = z.object({
   horizontalPadding: z.number().nonnegative().default(40),
 });
 export type PositionOffset = z.infer<typeof PositionOffsetSchema>;
+
+/**
+ * Safe zone configuration (platform UI overlays)
+ */
+export const SafeZoneConfigSchema = z.object({
+  /** Enable safe zone padding */
+  enabled: z.boolean().default(true),
+  /** Platform safe zone preset */
+  platform: z.enum(['tiktok', 'reels', 'shorts', 'universal']).default('universal'),
+});
+export type SafeZoneConfig = z.infer<typeof SafeZoneConfigSchema>;
 
 /**
  * Complete Caption Configuration
@@ -242,6 +261,8 @@ export const CaptionConfigSchema = z.object({
   position: CaptionPositionSchema.default('bottom'),
   /** Position fine-tuning */
   positionOffset: PositionOffsetSchema.default({}),
+  /** Safe zone padding to avoid platform UI overlays */
+  safeZone: SafeZoneConfigSchema.default({}),
 
   // === ANIMATION ===
   /** Page entrance animation */
@@ -267,6 +288,8 @@ export type TextShadowInput = z.input<typeof TextShadowSchema>;
 export type EmphasisStyleInput = z.input<typeof EmphasisStyleSchema>;
 /** Input type for PositionOffset (before Zod transforms apply defaults) */
 export type PositionOffsetInput = z.input<typeof PositionOffsetSchema>;
+/** Input type for SafeZoneConfig (before Zod transforms apply defaults) */
+export type SafeZoneConfigInput = z.input<typeof SafeZoneConfigSchema>;
 
 /**
  * Parse and validate caption config with defaults

@@ -54,6 +54,23 @@ const BUILTIN_TEMPLATES: Record<string, VideoTemplate> = {
     },
     params: { splitScreenRatio: 0.55 },
   }),
+  'brainrot-split-gameplay-top': VideoTemplateSchema.parse({
+    id: 'brainrot-split-gameplay-top',
+    name: 'Brainrot Split Screen (Gameplay Top)',
+    description: 'Split-screen gameplay background (top gameplay, bottom content)',
+    compositionId: 'SplitScreenGameplay',
+    assets: {
+      gameplay: {
+        required: true,
+      },
+    },
+    defaults: {
+      orientation: 'portrait',
+      fps: 30,
+      captionPreset: 'capcut',
+    },
+    params: { splitScreenRatio: 0.55, gameplayPosition: 'top', contentPosition: 'bottom' },
+  }),
 };
 
 export function listBuiltinVideoTemplates(): VideoTemplate[] {

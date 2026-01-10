@@ -80,6 +80,26 @@ export const PACING_THRESHOLDS = {
   overallMinimum: 0.75,
 } as const;
 
+function looksLikeCta(text: string | undefined | null): boolean {
+  if (!text) return false;
+  const normalized = text.toLowerCase();
+  return (
+    normalized.includes('follow') ||
+    normalized.includes('subscribe') ||
+    normalized.includes('comment') ||
+    normalized.includes('like') ||
+    normalized.includes('share') ||
+    normalized.includes('link in bio') ||
+    normalized.includes('check out') ||
+    normalized.includes('download') ||
+    normalized.includes('sign up') ||
+    normalized.includes('join') ||
+    normalized.includes('newsletter') ||
+    normalized.includes('dm') ||
+    normalized.includes('message me')
+  );
+}
+
 /**
  * Analyze pacing quality from timestamps
  */
@@ -102,7 +122,13 @@ export function analyzePacingQuality(timestamps: TimestampsOutput): PacingQualit
 
   // Analyze each scene
   for (const [sceneIndex, scene] of scenes.entries()) {
-    const metrics = analyzeScenePacing(scene, sceneIndex, sceneIndex === scenes.length - 1, issues);
+    const metrics = analyzeScenePacing(
+      scene,
+      sceneIndex,
+      sceneIndex === scenes.length - 1,
+      scenes.length,
+      issues
+    );
     sceneMetrics.push(metrics);
   }
 
@@ -158,6 +184,7 @@ function analyzeScenePacing(
   scene: SceneTimestamp,
   sceneIndex: number,
   isLastScene: boolean,
+  totalScenes: number,
   issues: PacingIssue[]
 ): ScenePacingMetrics {
   const words = scene.words;
@@ -182,7 +209,7 @@ function analyzeScenePacing(
   const wpm = (words.length / durationSeconds) * 60;
   const roundedWpm = Math.round(wpm);
 
-  const isCta = isLastScene || words.length <= 5;
+  const isCta = (totalScenes > 1 && isLastScene) || looksLikeCta(scene.text);
   const status = isCta
     ? evaluateCtaPacing(roundedWpm, sceneIndex, issues)
     : evaluateScenePacing(roundedWpm, sceneIndex, issues);
@@ -256,8 +283,10 @@ function calculatePacingScore(
   // 1. Percentage of scenes with normal/acceptable pacing
   // 2. Consistency (inverse of CV)
 
-  const normalScenes = scenes.filter((s) => s.status === 'normal' || s.status === 'fast').length;
-  const pacingScore = normalScenes / scenes.length;
+  const acceptableScenes = scenes.filter(
+    (s) => s.status === 'normal' || s.status === 'fast' || s.status === 'slow'
+  ).length;
+  const pacingScore = acceptableScenes / scenes.length;
 
   // Consistency score: 1 when CV=0, decreasing as CV increases
   const consistencyScore = Math.max(

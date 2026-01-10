@@ -61,6 +61,13 @@ export interface PipelineOptions {
   gameplayPosition?: 'top' | 'bottom' | 'full';
   contentPosition?: 'top' | 'bottom' | 'full';
   /**
+   * Download remote visual assets (e.g. stock footage URLs) into the Remotion
+   * bundle for more reliable rendering.
+   *
+   * Default: true (best-effort; falls back to remote URL on failure).
+   */
+  downloadAssets?: boolean;
+  /**
    * Caption preset name (tiktok, youtube, reels, bold, minimal, neon, capcut, hormozi, karaoke).
    * Priority: captionConfig > captionPreset > default (capcut).
    */
@@ -107,9 +114,9 @@ export interface PipelineOptions {
    */
   reconcile?: boolean;
   /**
-   * Caption display mode: page (default), single (one word at a time), buildup (accumulate per sentence)
+   * Caption display mode: page (default), single (one word at a time), buildup (accumulate per sentence), chunk (CapCut-style)
    */
-  captionMode?: 'page' | 'single' | 'buildup';
+  captionMode?: 'page' | 'single' | 'buildup' | 'chunk';
   /**
    * Words per caption page/group.
    * Default: 8 (for larger sentences)
@@ -345,6 +352,7 @@ async function executeRenderStage(
         splitScreenRatio: options.splitScreenRatio,
         gameplayPosition: options.gameplayPosition,
         contentPosition: options.contentPosition,
+        downloadAssets: options.downloadAssets,
         captionPreset: options.captionPreset,
         captionConfig: options.captionConfig,
         archetype: options.archetype,
@@ -512,13 +520,15 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
     const emitRenderProgress = (event: RenderProgressEvent): void => {
       const progress = Math.min(1, Math.max(0, event.progress ?? 0));
       const overall =
-        event.phase === 'bundle'
-          ? progress * 0.2
-          : event.phase === 'select-composition'
-            ? 0.2 + progress * 0.05
-            : event.phase === 'render-media'
-              ? 0.25 + progress * 0.75
-              : progress;
+        event.phase === 'prepare-assets'
+          ? progress * 0.1
+          : event.phase === 'bundle'
+            ? 0.1 + progress * 0.2
+            : event.phase === 'select-composition'
+              ? 0.3 + progress * 0.05
+              : event.phase === 'render-media'
+                ? 0.35 + progress * 0.65
+                : progress;
 
       emitPipelineEvent(emitter, {
         type: 'stage:progress',

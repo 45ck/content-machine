@@ -101,6 +101,8 @@ interface GenerateOptions {
   dryRun: boolean;
   research?: string | boolean;
   pipeline?: 'standard' | 'audio-first';
+  /** Split-screen layout preset (gameplay-top, gameplay-bottom) */
+  splitLayout?: string;
   /** Whisper model size: tiny, base, small, medium */
   whisperModel?: 'tiny' | 'base' | 'small' | 'medium';
   /** Caption grouping window in milliseconds */
@@ -135,6 +137,8 @@ interface GenerateOptions {
   gameplayPosition?: 'top' | 'bottom' | 'full';
   /** Content placement for split-screen templates */
   contentPosition?: 'top' | 'bottom' | 'full';
+  /** Download remote stock assets into the render bundle (recommended) */
+  downloadAssets?: boolean;
 }
 
 function printHeader(
@@ -196,8 +200,10 @@ function writeDryRunJson(params: {
         gameplay: options.gameplay ?? null,
         gameplayStyle: options.gameplayStyle ?? null,
         gameplayStrict: Boolean(options.gameplayStrict),
+        splitLayout: options.splitLayout ?? null,
         gameplayPosition: options.gameplayPosition ?? null,
         contentPosition: options.contentPosition ?? null,
+        downloadAssets: options.downloadAssets !== false,
         dryRun: true,
       },
       outputs: { dryRun: true, artifactsDir },
@@ -248,6 +254,8 @@ function buildGenerateSuccessJsonArgs(params: {
     autoRetrySync: Boolean(options.autoRetrySync),
     gameplayPosition: options.gameplayPosition ?? null,
     contentPosition: options.contentPosition ?? null,
+    splitLayout: options.splitLayout ?? null,
+    downloadAssets: options.downloadAssets !== false,
   };
 }
 
@@ -515,6 +523,7 @@ async function runGeneratePipeline(params: {
       splitScreenRatio: params.templateParams.splitScreenRatio,
       gameplayPosition: params.options.gameplayPosition ?? params.templateParams.gameplayPosition,
       contentPosition: params.options.contentPosition ?? params.templateParams.contentPosition,
+      downloadAssets: params.options.downloadAssets !== false,
     });
   } finally {
     dispose();
@@ -551,6 +560,18 @@ function parseLayoutPosition(value: unknown, optionName: string): 'top' | 'botto
   if (raw === 'top' || raw === 'bottom' || raw === 'full') return raw;
   throw new CMError('INVALID_ARGUMENT', `Invalid ${optionName} value: ${raw}`, {
     fix: `Use one of: top, bottom, full for ${optionName}`,
+  });
+}
+
+function parseSplitLayoutPreset(
+  value: unknown
+): { gameplayPosition: 'top' | 'bottom' | 'full'; contentPosition: 'top' | 'bottom' | 'full' } | undefined {
+  if (value == null) return undefined;
+  const raw = String(value);
+  if (raw === 'gameplay-top') return { gameplayPosition: 'top', contentPosition: 'bottom' };
+  if (raw === 'gameplay-bottom') return { gameplayPosition: 'bottom', contentPosition: 'top' };
+  throw new CMError('INVALID_ARGUMENT', `Invalid --split-layout value: ${raw}`, {
+    fix: 'Use one of: gameplay-top, gameplay-bottom',
   });
 }
 
@@ -841,6 +862,12 @@ async function runGenerate(
     options.gameplayStrict = gameplay.required;
   }
 
+  const splitLayoutPreset = parseSplitLayoutPreset(options.splitLayout);
+  if (splitLayoutPreset) {
+    if (options.gameplayPosition == null) options.gameplayPosition = splitLayoutPreset.gameplayPosition;
+    if (options.contentPosition == null) options.contentPosition = splitLayoutPreset.contentPosition;
+  }
+
   const gameplayPosition = parseLayoutPosition(options.gameplayPosition, '--gameplay-position');
   const contentPosition = parseLayoutPosition(options.contentPosition, '--content-position');
   if (gameplayPosition) options.gameplayPosition = gameplayPosition;
@@ -1108,8 +1135,11 @@ export const generateCommand = new Command('generate')
   .option('--gameplay <path>', 'Gameplay library directory or clip file path')
   .option('--gameplay-style <name>', 'Gameplay subfolder name (e.g., subway-surfers)')
   .option('--gameplay-strict', 'Fail if gameplay clip is missing')
+  .option('--split-layout <layout>', 'Split-screen layout preset (gameplay-top, gameplay-bottom)')
   .option('--gameplay-position <pos>', 'Gameplay position (top, bottom, full)')
   .option('--content-position <pos>', 'Content position (top, bottom, full)')
+  .option('--download-assets', 'Download remote visual assets into the render bundle', true)
+  .option('--no-download-assets', 'Do not download remote assets (stream URLs directly)')
   // Sync quality options
   .option(
     '--sync-preset <preset>',

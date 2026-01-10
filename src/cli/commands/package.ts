@@ -12,10 +12,12 @@ import { handleCommandError, writeOutputFile } from '../utils';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
+import { CMError } from '../../core/errors';
 
 interface PackageCommandOptions {
   platform: string;
   variants: string;
+  select?: string;
   output: string;
   dryRun?: boolean;
   mock?: boolean;
@@ -24,6 +26,12 @@ interface PackageCommandOptions {
 function parseVariants(value: string): number {
   const parsed = Number.parseInt(value, 10);
   return Number.isFinite(parsed) && parsed > 0 ? parsed : 5;
+}
+
+function parseSelect(value: string | undefined): number | null {
+  if (!value) return null;
+  const parsed = Number.parseInt(value, 10);
+  return Number.isFinite(parsed) ? parsed : null;
 }
 
 function createMockPackagingProvider(topic: string): FakeLLMProvider {
@@ -81,6 +89,12 @@ async function runPackage(topic: string, options: PackageCommandOptions): Promis
   try {
     const platform = PlatformEnum.parse(options.platform);
     const variants = parseVariants(options.variants);
+    const select = parseSelect(options.select);
+    if (select !== null && (!Number.isFinite(select) || select <= 0)) {
+      throw new CMError('INVALID_ARGUMENT', `Invalid --select value: ${options.select}`, {
+        fix: 'Use a positive integer for --select (1-based), e.g. --select 2',
+      });
+    }
 
     if (options.dryRun) {
       spinner.stop();
@@ -88,7 +102,14 @@ async function runPackage(topic: string, options: PackageCommandOptions): Promis
         writeJsonEnvelope(
           buildJsonEnvelope({
             command: 'package',
-            args: { topic, platform, variants, output: options.output, dryRun: true },
+            args: {
+              topic,
+              platform,
+              variants,
+              select: select ?? null,
+              output: options.output,
+              dryRun: true,
+            },
             outputs: { dryRun: true },
             timingsMs: Date.now() - runtime.startTime,
           })
@@ -113,6 +134,17 @@ async function runPackage(topic: string, options: PackageCommandOptions): Promis
       llmProvider,
     });
 
+    if (select !== null) {
+      const index = select - 1;
+      if (index < 0 || index >= result.variants.length) {
+        throw new CMError('INVALID_ARGUMENT', `Invalid --select value: ${select}`, {
+          fix: `Use a value between 1 and ${result.variants.length} for --select`,
+        });
+      }
+      result.selectedIndex = index;
+      result.selected = result.variants[index];
+    }
+
     spinner.succeed('Packaging generated successfully');
     await writeOutputFile(options.output, result);
 
@@ -124,12 +156,14 @@ async function runPackage(topic: string, options: PackageCommandOptions): Promis
             topic,
             platform,
             variants,
+            select: select ?? null,
             output: options.output,
             mock: Boolean(options.mock),
           },
           outputs: {
             packagingPath: options.output,
             selectedTitle: result.selected.title,
+            selectedIndex: result.selectedIndex,
             variants: result.variants.length,
           },
           timingsMs: Date.now() - runtime.startTime,
@@ -142,6 +176,7 @@ async function runPackage(topic: string, options: PackageCommandOptions): Promis
     writeStderrLine(`   Topic: ${result.topic}`);
     writeStderrLine(`   Platform: ${result.platform}`);
     writeStderrLine(`   Variants: ${result.variants.length}`);
+    writeStderrLine(`   Selected: ${result.selectedIndex + 1}/${result.variants.length}`);
     if (options.mock) writeStderrLine('   Mock mode - packaging is for testing only');
     writeStderrLine(
       `Next: cm script --topic "${topic}" --package ${options.output}${options.mock ? ' --mock' : ''}`
@@ -160,6 +195,7 @@ export const packageCommand = new Command('package')
   .argument('<topic>', 'Topic for the video')
   .option('--platform <platform>', 'Target platform (tiktok, reels, shorts)', 'tiktok')
   .option('--variants <count>', 'Number of variants to generate', '5')
+  .option('--select <n>', 'Select which variant becomes selected (1-based index)')
   .option('-o, --output <path>', 'Output file path', 'packaging.json')
   .option('--dry-run', 'Preview without calling LLM')
   .option('--mock', 'Use mock LLM provider (for testing)')

@@ -2,9 +2,14 @@
  * Shared visual timeline helpers for Remotion compositions.
  */
 import React from 'react';
-import { AbsoluteFill, Sequence, Video } from 'remotion';
+import { AbsoluteFill, Sequence, Video, staticFile } from 'remotion';
 import type { VisualAsset, VideoClip } from '../../visuals/schema';
 import { ensureVisualCoverage, type VisualScene } from '../../visuals/duration';
+
+function resolveMediaSrc(path: string): string {
+  if (/^https?:\/\//i.test(path)) return path;
+  return staticFile(path);
+}
 
 export interface VisualSequenceInfo {
   fromFrame: number;
@@ -84,7 +89,7 @@ export const SceneBackground: React.FC<SceneBackgroundProps> = ({
       />
     ) : (
       <Video
-        src={scene.url}
+        src={resolveMediaSrc(scene.url)}
         muted
         style={{ width: '100%', height: '100%', objectFit: 'cover', ...videoStyle }}
       />
@@ -101,7 +106,7 @@ export const LegacyClip: React.FC<{ clip: VideoClip; fps: number }> = ({ clip, f
     <Sequence from={clipStartFrame} durationInFrames={clipDurationFrames}>
       <AbsoluteFill>
         <Video
-          src={clip.url}
+          src={resolveMediaSrc(clip.url)}
           muted
           style={{ width: '100%', height: '100%', objectFit: 'cover' }}
         />

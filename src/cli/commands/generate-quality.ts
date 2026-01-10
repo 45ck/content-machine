@@ -51,6 +51,20 @@ function getNextAttemptSettings(current: SyncAttemptSettings): SyncAttemptSettin
       whisperModel: current.whisperModel,
     };
   }
+
+  if (current.pipelineMode === 'audio-first') {
+    if (!current.reconcile) {
+      return { ...current, reconcile: true };
+    }
+
+    const ladder: WhisperModel[] = ['tiny', 'base', 'small', 'medium'];
+    const currentModel = current.whisperModel ?? 'base';
+    const index = ladder.indexOf(currentModel);
+    const nextModel = index >= 0 ? ladder[index + 1] : undefined;
+    if (!nextModel) return null;
+    return { ...current, whisperModel: nextModel };
+  }
+
   return null;
 }
 

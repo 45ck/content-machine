@@ -6,10 +6,11 @@
 import { Command } from 'commander';
 import { logger } from '../../core/logger';
 import { handleCommandError, readInputFile } from '../utils';
-import type { ScriptOutput } from '../../script/schema';
+import { ScriptOutputSchema } from '../../script/schema';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
+import { SchemaError } from '../../core/errors';
 
 export const audioCommand = new Command('audio')
   .description('Generate voiceover audio with word-level timestamps')
@@ -32,8 +33,17 @@ export const audioCommand = new Command('audio')
     const runtime = getCliRuntime();
 
     try {
-      // Read input script
-      const script = await readInputFile<ScriptOutput>(options.input);
+      // Read + validate input script
+      const rawScript = await readInputFile(options.input);
+      const parsedScript = ScriptOutputSchema.safeParse(rawScript);
+      if (!parsedScript.success) {
+        throw new SchemaError('Invalid script file', {
+          path: options.input,
+          issues: parsedScript.error.issues,
+          fix: 'Generate a script via `cm script --topic "<topic>" -o script.json` and pass --input script.json',
+        });
+      }
+      const script = parsedScript.data;
 
       logger.info({ input: options.input, voice: options.voice }, 'Starting audio generation');
 
@@ -99,6 +109,9 @@ export const audioCommand = new Command('audio')
       writeStderrLine(`   Audio: ${result.audioPath}`);
       writeStderrLine(`   Timestamps: ${result.timestampsPath}`);
       if (options.mock) writeStderrLine('   Mock mode - audio/timestamps are placeholders');
+      writeStderrLine(
+        `Next: cm visuals --input ${result.timestampsPath} --output visuals.json${options.mock ? ' --mock' : ''}`
+      );
 
       // Human-mode stdout should be reserved for the primary artifact path.
       process.stdout.write(`${result.audioPath}\n`);

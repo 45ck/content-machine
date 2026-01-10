@@ -30,14 +30,28 @@ interface ResearchOptions {
 }
 
 function parseSources(sourcesStr: string): ResearchSource[] {
-  const sourceList = sourcesStr.split(',').map((s: string) => s.trim());
+  const sourceList = sourcesStr
+    .split(',')
+    .map((s: string) => s.trim())
+    .filter(Boolean);
+
   const validSources: ResearchSource[] = [];
+  const invalidSources: string[] = [];
 
   for (const source of sourceList) {
     const parsed = ResearchSourceEnum.safeParse(source);
     if (parsed.success) {
       validSources.push(parsed.data);
+    } else {
+      invalidSources.push(source);
     }
+  }
+
+  if (invalidSources.length > 0) {
+    throw new CMError('INVALID_ARGUMENT', `Unknown sources: ${invalidSources.join(', ')}`, {
+      allowed: ResearchSourceEnum.options,
+      fix: `Use --sources ${ResearchSourceEnum.options.join(',')} (comma-separated)`,
+    });
   }
 
   return validSources;
@@ -88,6 +102,7 @@ function displaySummary(
   writeStderrLine(`   Output: ${output}`);
   writeStderrLine(`   Time: ${result.timingMs.total}ms`);
   if (mock) writeStderrLine('   Mock mode - angles are for testing only');
+  writeStderrLine(`Next: cm script --topic "${query}" --research ${output}`);
 }
 
 async function executeResearch(
@@ -183,6 +198,7 @@ export const researchCommand = new Command('research')
         writeStderrLine(`   Time range: ${options.timeRange}`);
         writeStderrLine(`   Generate angles: ${options.angles}`);
         writeStderrLine(`   Output: ${options.output}`);
+        writeStderrLine(`Next: cm script --topic "${options.query}" --research ${options.output}`);
         return;
       }
 

@@ -52,6 +52,10 @@ export const PRESET_TIKTOK: CaptionConfig = CaptionConfigSchema.parse({
     edgeDistance: 20,
     horizontalPadding: 40,
   },
+  safeZone: {
+    enabled: true,
+    platform: 'tiktok',
+  },
   pageAnimation: 'none',
   animationDuration: 150,
 });
@@ -93,6 +97,10 @@ export const PRESET_YOUTUBE_SHORTS: CaptionConfig = CaptionConfigSchema.parse({
   positionOffset: {
     edgeDistance: 0,
     horizontalPadding: 60,
+  },
+  safeZone: {
+    enabled: true,
+    platform: 'shorts',
   },
   pageAnimation: 'fade',
   animationDuration: 200,
@@ -141,6 +149,10 @@ export const PRESET_REELS: CaptionConfig = CaptionConfigSchema.parse({
   positionOffset: {
     edgeDistance: 25,
     horizontalPadding: 50,
+  },
+  safeZone: {
+    enabled: true,
+    platform: 'reels',
   },
   pageAnimation: 'slideUp',
   animationDuration: 180,
@@ -315,18 +327,26 @@ export const PRESET_CAPCUT_BOLD: CaptionConfig = CaptionConfigSchema.parse({
   },
   layout: {
     maxCharsPerLine: 20,
-    maxLinesPerPage: 1,
-    maxGapMs: 500,
+    maxLinesPerPage: 2,
+    maxGapMs: 300,
     minWordsPerPage: 2,
-    maxWordsPerPage: 4,
-    maxCharsPerSecond: 12,
-    minOnScreenMs: 400,
-    chunkGapMs: 60,
+    targetWordsPerChunk: 5,
+    maxWordsPerPage: 7,
+    maxWordsPerMinute: 180,
+    maxCharsPerSecond: 15,
+    minOnScreenMsShort: 800,
+    minOnScreenMs: 1100,
+    shortChunkMaxWords: 2,
+    chunkGapMs: 80,
   },
   position: 'bottom',
   positionOffset: {
-    edgeDistance: 30,
+    edgeDistance: 12,
     horizontalPadding: 40,
+  },
+  safeZone: {
+    enabled: true,
+    platform: 'universal',
   },
   pageAnimation: 'pop',
   animationDuration: 180,
@@ -493,6 +513,7 @@ export function getCaptionPresetWithOverrides(
     shadow: { ...preset.shadow, ...overrides.shadow },
     layout: { ...preset.layout, ...overrides.layout },
     positionOffset: { ...preset.positionOffset, ...overrides.positionOffset },
+    safeZone: { ...preset.safeZone, ...overrides.safeZone },
     emphasis: { ...preset.emphasis, ...overrides.emphasis },
   });
 }

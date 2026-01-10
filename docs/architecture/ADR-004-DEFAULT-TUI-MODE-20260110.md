@@ -2,7 +2,7 @@
 
 **Status:** Proposed  
 **Date:** 2026-01-10  
-**Owners:** Unassigned  
+**Owners:** Unassigned
 
 ---
 

@@ -19,7 +19,7 @@
 import { Command } from 'commander';
 import type { RenderProgressEvent } from '../../render/service';
 import { logger } from '../../core/logger';
-import { CMError } from '../../core/errors';
+import { CMError, SchemaError } from '../../core/errors';
 import { handleCommandError, readInputFile } from '../utils';
 import type {
   VisualsOutput,
@@ -28,6 +28,8 @@ import type {
   VisualsOutputInput,
 } from '../../visuals/schema';
 import type { TimestampsOutput } from '../../audio/schema';
+import { VisualsOutputSchema } from '../../visuals/schema';
+import { TimestampsOutputSchema } from '../../audio/schema';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
@@ -58,6 +60,7 @@ import {
 
 type ChromeMode = 'headless-shell' | 'chrome-for-testing';
 type LayoutPosition = 'top' | 'bottom' | 'full';
+type SplitLayoutPreset = 'gameplay-top' | 'gameplay-bottom';
 
 function parseChromeMode(value: unknown): ChromeMode | undefined {
   if (value == null) return undefined;
@@ -162,6 +165,7 @@ function mergeCaptionConfigPartials(
     shadow: { ...base.shadow, ...overrides.shadow },
     layout: { ...base.layout, ...overrides.layout },
     positionOffset: { ...base.positionOffset, ...overrides.positionOffset },
+    safeZone: { ...base.safeZone, ...overrides.safeZone },
   };
 }
 
@@ -384,15 +388,46 @@ function parseLayoutPosition(value: unknown, optionName: string): LayoutPosition
   });
 }
 
+function parseSplitLayoutPreset(
+  value: unknown
+): { gameplayPosition: LayoutPosition; contentPosition: LayoutPosition } | undefined {
+  if (value == null) return undefined;
+  const raw = String(value) as SplitLayoutPreset;
+  if (raw === 'gameplay-top') return { gameplayPosition: 'top', contentPosition: 'bottom' };
+  if (raw === 'gameplay-bottom') return { gameplayPosition: 'bottom', contentPosition: 'top' };
+  throw new CMError('INVALID_ARGUMENT', `Invalid --split-layout value: ${raw}`, {
+    fix: 'Use one of: gameplay-top, gameplay-bottom',
+  });
+}
+
 async function readRenderInputs(options: { input: string; timestamps: string }): Promise<{
   visuals: VisualsOutput;
   timestamps: TimestampsOutput;
 }> {
-  const [visuals, timestamps] = await Promise.all([
-    readInputFile<VisualsOutput>(options.input),
-    readInputFile<TimestampsOutput>(options.timestamps),
+  const [rawVisuals, rawTimestamps] = await Promise.all([
+    readInputFile(options.input),
+    readInputFile(options.timestamps),
   ]);
-  return { visuals, timestamps };
+
+  const parsedVisuals = VisualsOutputSchema.safeParse(rawVisuals);
+  if (!parsedVisuals.success) {
+    throw new SchemaError('Invalid visuals file', {
+      path: options.input,
+      issues: parsedVisuals.error.issues,
+      fix: `Generate visuals via \`cm visuals --input timestamps.json --output ${options.input}\` (or pass the visuals.json produced by cm visuals).`,
+    });
+  }
+
+  const parsedTimestamps = TimestampsOutputSchema.safeParse(rawTimestamps);
+  if (!parsedTimestamps.success) {
+    throw new SchemaError('Invalid timestamps file', {
+      path: options.timestamps,
+      issues: parsedTimestamps.error.issues,
+      fix: `Generate timestamps via \`cm audio --input script.json --timestamps ${options.timestamps}\` (or pass the timestamps.json produced by cm audio).`,
+    });
+  }
+
+  return { visuals: parsedVisuals.data, timestamps: parsedTimestamps.data };
 }
 
 function createOnProgress(runtime: RenderRuntime, spinner: RenderSpinner) {
@@ -405,13 +440,15 @@ function createOnProgress(runtime: RenderRuntime, spinner: RenderSpinner) {
     const phase = event.phase;
     const phaseProgress = Math.min(1, Math.max(0, event.progress ?? 0));
     const overall =
-      phase === 'bundle'
-        ? phaseProgress * 0.2
-        : phase === 'select-composition'
-          ? 0.2 + phaseProgress * 0.05
-          : phase === 'render-media'
-            ? 0.25 + phaseProgress * 0.75
-            : phaseProgress;
+      phase === 'prepare-assets'
+        ? phaseProgress * 0.1
+        : phase === 'bundle'
+          ? 0.1 + phaseProgress * 0.2
+          : phase === 'select-composition'
+            ? 0.3 + phaseProgress * 0.05
+            : phase === 'render-media'
+              ? 0.35 + phaseProgress * 0.65
+              : phaseProgress;
     const percent = Math.round(overall * 100);
 
     if (runtime.isTty) {
@@ -474,11 +511,13 @@ function writeRenderJsonEnvelope(params: {
 function writeRenderHumanSummary(params: {
   result: Awaited<ReturnType<(typeof import('../../render/service'))['renderVideo']>>;
   mock: boolean;
+  profile: 'portrait' | 'landscape';
 }): void {
   writeStderrLine(
     `Video: ${params.result.duration.toFixed(1)}s, ${params.result.width}x${params.result.height}, ${(params.result.fileSize / 1024 / 1024).toFixed(1)} MB`
   );
   if (params.mock) writeStderrLine('   Mock mode - video is a placeholder file');
+  writeStderrLine(`Next: cm validate ${params.result.outputPath} --profile ${params.profile}`);
 
   // Human-mode stdout should be reserved for the primary artifact path.
   process.stdout.write(`${params.result.outputPath}\n`);
@@ -548,6 +587,11 @@ async function runRenderCommand(
   const compositionId = resolvedTemplate?.template.compositionId;
   const gameplayRequired =
     templateGameplay?.required ?? Boolean(templateGameplay?.library || templateGameplay?.clip);
+  const splitLayoutPreset = parseSplitLayoutPreset(options.splitLayout);
+  if (splitLayoutPreset) {
+    if (options.gameplayPosition == null) options.gameplayPosition = splitLayoutPreset.gameplayPosition;
+    if (options.contentPosition == null) options.contentPosition = splitLayoutPreset.contentPosition;
+  }
   const gameplayPosition = parseLayoutPosition(options.gameplayPosition, '--gameplay-position');
   const contentPosition = parseLayoutPosition(options.contentPosition, '--content-position');
   const layout = {
@@ -587,6 +631,7 @@ async function runRenderCommand(
     splitScreenRatio: templateParams.splitScreenRatio,
     gameplayPosition: layout.gameplayPosition,
     contentPosition: layout.contentPosition,
+    downloadAssets: options.downloadAssets !== false,
   });
 
   spinner.succeed('Video rendered successfully');
@@ -610,7 +655,8 @@ async function runRenderCommand(
     return;
   }
 
-  writeRenderHumanSummary({ result, mock: Boolean(options.mock) });
+  const profile = options.orientation === 'landscape' ? 'landscape' : 'portrait';
+  writeRenderHumanSummary({ result, mock: Boolean(options.mock), profile });
 }
 
 export const renderCommand = new Command('render')
@@ -660,8 +706,14 @@ export const renderCommand = new Command('render')
   .option('--extend-visuals', 'Auto-extend visuals to match audio duration', true)
   .option('--no-extend-visuals', 'Keep visuals as-is (may cause black frames)')
   .option('--fallback-color <hex>', 'Background color for extended scenes', '#1a1a1a')
+  .option(
+    '--split-layout <layout>',
+    'Split-screen layout preset (gameplay-top, gameplay-bottom)'
+  )
   .option('--gameplay-position <pos>', 'Gameplay position (top, bottom, full)')
   .option('--content-position <pos>', 'Content position (top, bottom, full)')
+  .option('--download-assets', 'Download remote visual assets into the render bundle', true)
+  .option('--no-download-assets', 'Do not download remote assets (stream URLs directly)')
   .option('--browser-executable <path>', 'Chromium/Chrome executable path for rendering')
   .option(
     '--chrome-mode <mode>',

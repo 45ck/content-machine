@@ -2,7 +2,7 @@
 
 **Status:** Draft  
 **Date:** 2026-01-10  
-**Owners:** Unassigned  
+**Owners:** Unassigned
 
 This document proposes concrete, non-interactive UX upgrades for the pipeline commands:
 
@@ -63,12 +63,14 @@ From `vendor/cli/motion/*` and `vendor/cli/output/*`:
 H1 4, H2 4, H3 3, H4 4, H5 3, H6 3, H7 3, H8 4, H9 3, H10 3
 
 **Top gaps**
+
 - Artifact visibility is not complete (users want per-stage paths, not just "Artifacts: dir").
 - Recovery is not yet "one command" (retry/resume story is not standardized).
 - Discovery of presets/advanced flags is still "read the help".
 
 **10 improvement ideas**
-1. **Receipt output (H1,H6,H8):** Always print a post-run receipt listing *every* artifact path produced (script/audio/timestamps/visuals/video), plus `Next:` suggestions (validate, rate). (Inspired by `vendor/cli/examples/prisma`.)
+
+1. **Receipt output (H1,H6,H8):** Always print a post-run receipt listing _every_ artifact path produced (script/audio/timestamps/visuals/video), plus `Next:` suggestions (validate, rate). (Inspired by `vendor/cli/examples/prisma`.)
 2. **Artifact-as-you-go events (H1,H9):** Emit/print `artifact written` lines per stage as files land (especially with `--keep-artifacts`). (Pattern: "what changed" summaries from `vendor/cli/examples/workers-sdk`.)
 3. **Preflight mode (H5,H9):** Add a `--preflight` flag that validates dependencies (keys, whisper availability, template resolve, gameplay clip availability) and exits 0/1 without generating. (Pattern: "doctor" style checks seen in large CLIs like `vendor/cli/examples/firebase-tools`.)
 4. **Resumability story (H3,H7,H9):** Add a documented `--resume` mode: reuse existing artifacts in the artifacts dir when compatible (e.g., reuse audio+timestamps if present). Print exactly what was reused. (Pattern: pnpm-style "reusing cached" messaging in `vendor/cli/examples/pnpm`.)
@@ -87,11 +89,13 @@ H1 4, H2 4, H3 3, H4 4, H5 3, H6 3, H7 3, H8 4, H9 3, H10 3
 H1 3, H2 4, H3 3, H4 3, H5 3, H6 3, H7 3, H8 4, H9 3, H10 3
 
 **Top gaps**
+
 - Input validation for numeric args is late/unclear in some cases.
 - Research/package file failures need more "Fix:" specificity (some exists, standardize everywhere).
 - Iteration loop could be faster (diff, resume, deterministic knobs).
 
 **10 improvement ideas**
+
 1. **Strict arg validation (H5,H9):** Validate `--duration` range and type at CLI boundary; on failure include `Fix: --duration 45`. (Pattern: Wrangler-style early validation.)
 2. **Deterministic mode (H3,H7):** Add `--seed` or `--deterministic` to stabilize outputs for testing and iteration. Print the seed used in receipt. (Pattern: reproducibility culture in `vendor/cli/examples/pnpm`.)
 3. **One-line stdout path always (H4,H8):** In human mode, stdout prints only the output path; stderr contains the summary. Ensure this matches the global stdout/stderr contract everywhere. (Consistency with `docs/guides/guide-cli-stdout-stderr-contract-20260107.md`.)
@@ -111,11 +115,13 @@ H1 3, H2 4, H3 3, H4 3, H5 3, H6 3, H7 3, H8 4, H9 3, H10 3
 H1 2, H2 4, H3 3, H4 3, H5 2, H6 2, H7 3, H8 4, H9 3, H10 2
 
 **Top gaps**
+
 - Single-spinner hides sub-phases (tts/asr/align) and feels stuck.
 - No voice discoverability; invalid voices fail late.
 - Input schema validation should be early and clear.
 
 **10 improvement ideas**
+
 1. **Sub-phase progress events (H1,H4):** Emit `tts`, `asr`, `align` phases with percent or at least start/stop durations. (Align with `docs/features/feature-cli-progress-events-20260106.md`.)
 2. **Input schema preflight (H5,H9):** Validate `--input` against `ScriptOutputSchema` before any audio work; error includes `Fix: pass script.json from cm script`. (Error prevention.)
 3. **`cm audio voices` list (H6,H10):** Add a discoverable voice list command or `--list-voices`. (Pattern: "list" UX in many CLIs.)
@@ -135,11 +141,13 @@ H1 2, H2 4, H3 3, H4 3, H5 2, H6 2, H7 3, H8 4, H9 3, H10 2
 H1 3, H2 4, H3 3, H4 3, H5 3, H6 2, H7 3, H8 4, H9 3, H10 3
 
 **Top gaps**
+
 - Users often pass the wrong input file; help must make the "timestamps.json" requirement unmistakable.
 - Provider errors (missing keys, invalid provider) must fail fast and be explicit.
 - Debuggability: show what queries were used and why fallbacks happened.
 
 **10 improvement ideas**
+
 1. **Input type guard (H5,H9):** Detect common wrong inputs (`script.json`) and fail fast with `Fix: pass timestamps.json from cm audio`. (Error prevention.)
 2. **Provider enum validation (H4,H5):** Validate `--provider` and list allowed providers on error. (Consistency.)
 3. **Per-scene verbose trace (H1,H9):** In `--verbose`, print query term, hits, chosen asset, and fallback reason per scene. (Transparency.)
@@ -159,11 +167,13 @@ H1 3, H2 4, H3 3, H4 3, H5 3, H6 2, H7 3, H8 4, H9 3, H10 3
 H1 4, H2 4, H3 3, H4 4, H5 3, H6 3, H7 3, H8 4, H9 3, H10 3
 
 **Top gaps**
+
 - Preflights should catch schema mismatches and missing files before bundling.
 - Help and receipts should connect render outputs to validate/rate next steps.
 - Some options should be validated uniformly (fps, orientation, etc.).
 
 **10 improvement ideas**
+
 1. **Strict preflight (H5,H9):** Validate visuals schema, timestamps schema, and that all referenced file paths exist before bundle. Error points to the stage that produces the missing file. (Recovery.)
 2. **Stable phases (H1,H4):** Use stable progress phases (`bundle`, `select-composition`, `render-media`) and keep them consistent across versions. (Consistency; matches existing docs.)
 3. **Render receipt includes profile hint (H6):** Print `Next: cm validate <video> --profile portrait` (or inferred from orientation). (Recognition.)
@@ -186,4 +196,3 @@ H1 4, H2 4, H3 3, H4 4, H5 3, H6 3, H7 3, H8 4, H9 3, H10 3
   - `docs/guides/guide-cli-ux-cm-audio-20260106.md`
   - `docs/guides/guide-cli-ux-cm-visuals-20260106.md`
   - `docs/guides/guide-cli-ux-cm-render-20260106.md`
-

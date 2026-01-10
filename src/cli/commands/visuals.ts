@@ -9,10 +9,11 @@ import { matchVisuals } from '../../visuals/matcher';
 import type { VisualsProgressEvent } from '../../visuals/matcher';
 import { logger } from '../../core/logger';
 import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
-import type { TimestampsOutput } from '../../audio/schema';
+import { TimestampsOutputSchema } from '../../audio/schema';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
+import { SchemaError } from '../../core/errors';
 
 export const visualsCommand = new Command('visuals')
   .description('Find matching stock footage for script scenes')
@@ -29,8 +30,17 @@ export const visualsCommand = new Command('visuals')
     const runtime = getCliRuntime();
 
     try {
-      // Read input timestamps
-      const timestamps = await readInputFile<TimestampsOutput>(options.input);
+      // Read + validate input timestamps (users commonly pass script.json by mistake)
+      const rawTimestamps = await readInputFile(options.input);
+      const parsedTimestamps = TimestampsOutputSchema.safeParse(rawTimestamps);
+      if (!parsedTimestamps.success) {
+        throw new SchemaError('Invalid timestamps file', {
+          path: options.input,
+          issues: parsedTimestamps.error.issues,
+          fix: `Generate timestamps via \`cm audio --input script.json --timestamps ${options.input}\` (or pass the timestamps.json produced by cm audio).`,
+        });
+      }
+      const timestamps = parsedTimestamps.data;
 
       logger.info({ input: options.input, provider: options.provider }, 'Starting visual matching');
 
@@ -129,6 +139,9 @@ export const visualsCommand = new Command('visuals')
         writeStderrLine(`   Gameplay: ${visuals.gameplayClip.path}`);
       }
       if (options.mock) writeStderrLine('   Mock mode - visuals are placeholders');
+      writeStderrLine(
+        `Next: cm render --input ${options.output} --audio audio.wav --timestamps ${options.input} --output video.mp4${options.mock ? ' --mock' : ''}`
+      );
 
       // Human-mode stdout should be reserved for the primary artifact path.
       process.stdout.write(`${options.output}\n`);

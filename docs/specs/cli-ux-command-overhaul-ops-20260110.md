@@ -2,7 +2,7 @@
 
 **Status:** Draft  
 **Date:** 2026-01-10  
-**Owners:** Unassigned  
+**Owners:** Unassigned
 
 This document proposes concrete, non-interactive UX upgrades for the "ops" commands:
 
@@ -47,11 +47,13 @@ From `vendor/cli/output/*`:
 H1 3, H2 4, H3 3, H4 3, H5 2, H6 4, H7 3, H8 4, H9 3, H10 3
 
 **Top gaps**
+
 - Config write correctness (TOML nesting limitations) is a trust risk.
 - Env var guidance should be OS-aware and copy/paste ready.
 - Overwrite behavior needs a safe story.
 
 **10 improvement ideas**
+
 1. **Round-trip validation (H5,H9):** After writing `.content-machine.toml`, immediately parse it with the config loader and fail if it cannot be read. Print `Fix:` if parsing fails. (Error prevention.)
 2. **Safe overwrite flow (H3,H5):** If config exists, default to no overwrite; add `--force` or `--backup` and print what happened. (User control.)
 3. **OS-aware secret setup (H2,H6,H10):** Always print both PowerShell and bash examples (session and persistent) plus recommend `.env`. (Match to user environment.)
@@ -71,11 +73,13 @@ H1 3, H2 4, H3 3, H4 3, H5 2, H6 4, H7 3, H8 4, H9 3, H10 3
 H1 3, H2 4, H3 3, H4 4, H5 3, H6 3, H7 3, H8 4, H9 3, H10 2
 
 **Top gaps**
+
 - Help/examples can be richer (how to use templates with `cm generate`).
 - List output should be more scannable (columns, filters, counts).
 - Install behavior should clearly address overwrites and destination paths.
 
 **10 improvement ideas**
+
 1. **Scannable list format (H8,H6):** Print columns (id, source, name, short desc) and show a total count. (pnpm-style disciplined output.)
 2. **Better filtering (H7):** Add filters: `--source`, `--id`, `--search <text>`. (Efficiency.)
 3. **Explain "source" (H2,H10):** In `templates list`, add one line explaining builtin/user/project and the user templates dir path.
@@ -95,11 +99,13 @@ H1 3, H2 4, H3 3, H4 4, H5 3, H6 3, H7 3, H8 4, H9 3, H10 2
 H1 3, H2 4, H3 3, H4 4, H5 3, H6 4, H7 3, H8 4, H9 3, H10 3
 
 **Top gaps**
+
 - Selection is opaque (cannot choose which variant becomes selected).
 - Human output should make the selected variant immediately visible.
 - Support iteration workflows (compare packaging variants across runs).
 
 **10 improvement ideas**
+
 1. **Explicit selection control (H3,H7):** Add `--select <index|strategy>` and print what was selected and why.
 2. **Variant preview in stderr (H6,H8):** Print the selected variant fields (title/hook/cover) in human mode; keep it short.
 3. **`--variants` UX (H10):** In help, explain recommended variant counts and performance implications.
@@ -119,11 +125,13 @@ H1 3, H2 4, H3 3, H4 4, H5 3, H6 4, H7 3, H8 4, H9 3, H10 3
 H1 3, H2 4, H3 3, H4 4, H5 3, H6 3, H7 3, H8 4, H9 3, H10 2
 
 **Top gaps**
+
 - Help/docs are thin for non-obvious modes (`--llm`, platform differences).
 - Output could be more checklist-oriented and directly actionable.
 - Platform-specific guidance (TikTok vs Shorts) should be clearer.
 
 **10 improvement ideas**
+
 1. **Mode clarity (H2,H10):** In help and receipt, explicitly print `Mode: deterministic|llm` and what changes (fields derived vs generated).
 2. **Platform validation UX (H5,H9):** If platform invalid, list allowed values and provide examples.
 3. **Checklist-first output (H6):** Print the checklist items in human mode (top 5), not just counts. (Prisma-style checklists.)
@@ -142,4 +150,3 @@ H1 3, H2 4, H3 3, H4 4, H5 3, H6 3, H7 3, H8 4, H9 3, H10 2
 - Existing per-command UX reviews:
   - `docs/guides/guide-cli-ux-cm-init-20260106.md`
   - `docs/guides/guide-cli-ux-cm-package-20260106.md`
-

@@ -128,9 +128,13 @@ const DEFAULT_LAYOUT: CaptionLayout = {
   maxLinesPerPage: 2,
   maxGapMs: 1000,
   minWordsPerPage: 1,
+  targetWordsPerChunk: 5,
   maxWordsPerPage: 8,
+  maxWordsPerMinute: 180,
   maxCharsPerSecond: 15,
-  minOnScreenMs: 350,
+  minOnScreenMsShort: 800,
+  minOnScreenMs: 1100,
+  shortChunkMaxWords: 2,
   chunkGapMs: 50,
 };
 

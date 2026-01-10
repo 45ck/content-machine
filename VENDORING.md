@@ -12,51 +12,51 @@ Content Machine vendors external repositories for stability and offline developm
 
 ### CLI/TUI Frameworks (`vendor/cli/`)
 
-| Repo                     | Purpose                                      | Branch  |
-| ------------------------ | -------------------------------------------- | ------- |
-| `bubbletea`              | Go TUI framework (Elm-style state)           | default |
-| `bubbles`                | Bubble Tea components                        | default |
-| `lipgloss`               | Terminal layout + styling                    | default |
-| `ink`                    | React renderer for interactive CLIs          | default |
-| `pastel`                 | Ink-based CLI framework (FS routing)         | default |
-| `textual`                | Python app-like TUI framework                | default |
-| `rich`                   | Python rich text, tables, progress, live UI  | default |
-| `clipanion`              | Type-safe CLI framework                      | default |
-| `oclif-example-multi-ts` | TypeScript multi-command CLI reference       | default |
+| Repo                     | Purpose                                     | Branch  |
+| ------------------------ | ------------------------------------------- | ------- |
+| `bubbletea`              | Go TUI framework (Elm-style state)          | default |
+| `bubbles`                | Bubble Tea components                       | default |
+| `lipgloss`               | Terminal layout + styling                   | default |
+| `ink`                    | React renderer for interactive CLIs         | default |
+| `pastel`                 | Ink-based CLI framework (FS routing)        | default |
+| `textual`                | Python app-like TUI framework               | default |
+| `rich`                   | Python rich text, tables, progress, live UI | default |
+| `clipanion`              | Type-safe CLI framework                     | default |
+| `oclif-example-multi-ts` | TypeScript multi-command CLI reference      | default |
 
 ### CLI UX Tooling (`vendor/cli/`)
 
-| Repo             | Purpose                                   | Branch  |
-| ---------------- | ----------------------------------------- | ------- |
-| `listr2`         | Task runner with animated pipeline UX     | default |
-| `ora`            | Spinners with success/fail states         | default |
-| `cli-spinners`   | Spinner frames dataset                    | default |
-| `log-update`     | Live redraw updates                       | default |
-| `boxen`          | Boxed callouts/cards                      | default |
-| `boxen-cli`      | Boxen CLI helper                          | default |
-| `terminal-image` | Images in terminal (supported emulators)  | default |
+| Repo             | Purpose                                  | Branch  |
+| ---------------- | ---------------------------------------- | ------- |
+| `listr2`         | Task runner with animated pipeline UX    | default |
+| `ora`            | Spinners with success/fail states        | default |
+| `cli-spinners`   | Spinner frames dataset                   | default |
+| `log-update`     | Live redraw updates                      | default |
+| `boxen`          | Boxed callouts/cards                     | default |
+| `boxen-cli`      | Boxen CLI helper                         | default |
+| `terminal-image` | Images in terminal (supported emulators) | default |
 
 ### CLI UX Examples (`vendor/cli/`)
 
-| Repo             | Purpose                                  | Branch  |
-| ---------------- | ---------------------------------------- | ------- |
-| `lazygit`        | Panel-based keyboard UI                  | default |
-| `btop`           | High-density dashboard UI                | default |
-| `bat`            | Polished small-tool UX                   | default |
-| `workers-sdk`    | Wrangler CLI (Cloudflare Workers)        | default |
-| `vercel`         | Vercel CLI patterns                      | default |
-| `netlify-cli`    | Netlify CLI patterns                     | default |
-| `firebase-tools` | Firebase CLI patterns                    | default |
-| `pnpm`           | Large CLI output discipline              | default |
-| `prisma`         | Guided CLI flows                         | default |
+| Repo             | Purpose                           | Branch  |
+| ---------------- | --------------------------------- | ------- |
+| `lazygit`        | Panel-based keyboard UI           | default |
+| `btop`           | High-density dashboard UI         | default |
+| `bat`            | Polished small-tool UX            | default |
+| `workers-sdk`    | Wrangler CLI (Cloudflare Workers) | default |
+| `vercel`         | Vercel CLI patterns               | default |
+| `netlify-cli`    | Netlify CLI patterns              | default |
+| `firebase-tools` | Firebase CLI patterns             | default |
+| `pnpm`           | Large CLI output discipline       | default |
+| `prisma`         | Guided CLI flows                  | default |
 
 ### CLI Recording (`vendor/cli/`)
 
-| Repo           | Purpose                         | Branch  |
-| -------------- | ------------------------------- | ------- |
-| `vhs`          | Scripted CLI demos to GIF       | default |
-| `asciinema`    | Terminal session recorder       | default |
-| `terminalizer` | Record + render terminal demos  | default |
+| Repo           | Purpose                        | Branch  |
+| -------------- | ------------------------------ | ------- |
+| `vhs`          | Scripted CLI demos to GIF      | default |
+| `asciinema`    | Terminal session recorder      | default |
+| `terminalizer` | Record + render terminal demos | default |
 
 ### Prompt Libraries (`vendor/prompt-libraries/`)
 

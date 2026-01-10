@@ -25,6 +25,11 @@ import type { CaptionConfig, CaptionConfigInput } from './captions/config';
 import { join, dirname, resolve, basename } from 'path';
 import { fileURLToPath } from 'url';
 import { isDisplayableWord } from './captions/paging';
+import {
+  applyVisualAssetBundlePlan,
+  buildVisualAssetBundlePlan,
+} from './assets/visual-asset-bundler';
+import { downloadRemoteAssetsToCache } from './assets/remote-assets';
 
 // Get the directory containing this file for Remotion bundling
 // In ESM, we use import.meta.url; __dirname is injected by esbuild for CJS
@@ -77,6 +82,13 @@ export interface RenderVideoOptions {
   /** Split-screen layout positions */
   gameplayPosition?: 'top' | 'bottom' | 'full';
   contentPosition?: 'top' | 'bottom' | 'full';
+  /**
+   * Download remote visual assets (e.g. Pexels URLs) into the Remotion bundle for
+   * more reliable rendering.
+   *
+   * Default: true (best-effort, falls back to remote URL on failure).
+   */
+  downloadAssets?: boolean;
   /** @deprecated Use captionConfig or captionPreset instead */
   captionStyle?: Partial<CaptionStyle>;
   /** New comprehensive caption configuration (accepts partial input, defaults applied) */
@@ -126,7 +138,12 @@ export interface RenderVideoOptions {
   chromeMode?: 'headless-shell' | 'chrome-for-testing';
 }
 
-export type RenderProgressPhase = 'bundle' | 'select-composition' | 'render-media' | 'mock';
+export type RenderProgressPhase =
+  | 'prepare-assets'
+  | 'bundle'
+  | 'select-composition'
+  | 'render-media'
+  | 'mock';
 
 export interface RenderProgressEvent {
   phase: RenderProgressPhase;
@@ -162,6 +179,11 @@ function isLocalFile(path: string): boolean {
   } catch {
     return false;
   }
+}
+
+function resolveAssetCacheRoot(): string {
+  const env = process.env.CM_ASSET_CACHE_DIR;
+  return env ? resolve(env) : join(process.cwd(), '.cache', 'content-machine', 'assets');
 }
 
 /**
@@ -253,6 +275,7 @@ function resolveCaptionConfig(options: RenderVideoOptions): CaptionConfig {
       shadow: { ...preset.shadow, ...options.captionConfig.shadow },
       layout: { ...preset.layout, ...options.captionConfig.layout, ...layoutOverride },
       positionOffset: { ...preset.positionOffset, ...options.captionConfig.positionOffset },
+      safeZone: { ...preset.safeZone, ...options.captionConfig.safeZone },
       emphasis: { ...preset.emphasis, ...options.captionConfig.emphasis },
     };
   }
@@ -362,6 +385,14 @@ async function executeRender(opts: ExecuteRenderOptions): Promise<void> {
     log,
     onProgress,
   } = opts;
+  const concurrencyOverride = Number.parseInt(
+    process.env.CM_REMOTION_CONCURRENCY ?? process.env.REMOTION_CONCURRENCY ?? '',
+    10
+  );
+  const concurrency =
+    Number.isFinite(concurrencyOverride) && concurrencyOverride > 0
+      ? concurrencyOverride
+      : undefined;
   log.debug('Selecting composition');
   onProgress?.({ phase: 'select-composition', progress: 0, message: 'Selecting composition' });
 
@@ -392,6 +423,7 @@ async function executeRender(opts: ExecuteRenderOptions): Promise<void> {
     inputProps: renderProps,
     browserExecutable: opts.browserExecutable ?? null,
     chromeMode: opts.chromeMode,
+    ...(concurrency ? { concurrency } : {}),
     onProgress: ({ progress }) => {
       log.debug({ progress: Math.round(progress * 100) }, 'Render progress');
       onProgress?.({ phase: 'render-media', progress, message: 'Rendering' });
@@ -440,13 +472,47 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
   }
 
   try {
-    const gameplayClip = options.visuals.gameplayClip;
-    const gameplayPublicPath = gameplayClip && isLocalFile(gameplayClip.path)
-      ? `gameplay/${basename(gameplayClip.path)}`
-      : null;
-    const extraAssets = gameplayPublicPath && gameplayClip
-      ? [{ sourcePath: gameplayClip.path, destPath: gameplayPublicPath }]
-      : [];
+    const downloadAssets = options.downloadAssets !== false;
+    const assetCacheRoot = resolveAssetCacheRoot();
+
+    const visualPlan = downloadAssets
+      ? buildVisualAssetBundlePlan(options.visuals as VisualsOutputInput)
+      : { assets: [] };
+
+    let stockExtraAssets: BundleAsset[] = [];
+    let visualsWithBundledAssets: VisualsOutput | VisualsOutputInput = options.visuals;
+
+    if (downloadAssets && visualPlan.assets.length) {
+      safeProgress({ phase: 'prepare-assets', progress: 0, message: 'Preparing visual assets' });
+
+      const { extraAssets, succeededUrls } = await downloadRemoteAssetsToCache(visualPlan, {
+        cacheRoot: assetCacheRoot,
+        log,
+        onProgress: ({ progress, message }) =>
+          safeProgress({ phase: 'prepare-assets', progress, message }),
+      });
+
+      const succeededPlan = {
+        assets: visualPlan.assets.filter((asset) => succeededUrls.has(asset.sourceUrl)),
+      };
+
+      visualsWithBundledAssets = applyVisualAssetBundlePlan(
+        options.visuals as VisualsOutputInput,
+        succeededPlan
+      );
+      stockExtraAssets = extraAssets;
+    } else if (downloadAssets) {
+      safeProgress({ phase: 'prepare-assets', progress: 1, message: 'No visual assets to download' });
+    }
+
+    const gameplayClip = visualsWithBundledAssets.gameplayClip;
+    const gameplayPublicPath =
+      gameplayClip && isLocalFile(gameplayClip.path) ? `gameplay/${basename(gameplayClip.path)}` : null;
+    const gameplayAssets =
+      gameplayPublicPath && gameplayClip
+        ? [{ sourcePath: gameplayClip.path, destPath: gameplayPublicPath }]
+        : [];
+    const extraAssets = [...stockExtraAssets, ...gameplayAssets];
 
     const { bundleLocation, audioFilename } = await bundleComposition(
       options.audioPath,
@@ -457,10 +523,10 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
     const visualsForRender =
       gameplayPublicPath && gameplayClip
         ? {
-            ...options.visuals,
+            ...visualsWithBundledAssets,
             gameplayClip: { ...gameplayClip, path: gameplayPublicPath },
           }
-        : options.visuals;
+        : visualsWithBundledAssets;
     const renderProps = buildRenderProps(
       { ...options, visuals: visualsForRender },
       dimensions,

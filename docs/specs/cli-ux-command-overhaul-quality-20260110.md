@@ -2,7 +2,7 @@
 
 **Status:** Draft  
 **Date:** 2026-01-10  
-**Owners:** Unassigned  
+**Owners:** Unassigned
 
 This document proposes concrete, non-interactive UX upgrades for the quality and analysis commands:
 
@@ -48,11 +48,13 @@ From `vendor/cli/output/*`:
 H1 3, H2 4, H3 3, H4 2, H5 3, H6 3, H7 3, H8 4, H9 4, H10 3
 
 **Top gaps**
+
 - `--json` behavior is currently inconsistent with the global JSON envelope pattern.
 - Human output should include a compact pass/fail summary for all gates, not only failures.
 - Dependency errors (ffprobe/python/ffmpeg) should be preflighted and explained.
 
 **10 improvement ideas**
+
 1. **Unify JSON semantics (H4):** Align `cm validate --json` with the root JSON envelope (`CliJsonEnvelope`), and add an explicit `--report-json` (raw report) if needed. (Consistency.)
 2. **Gate receipt (H1,H6,H8):** In human mode, always print a compact gate table: PASS/FAIL for each gate and a final "Validation PASSED/FAILED". (Prisma-style checklists from `vendor/cli/examples/prisma`.)
 3. **Preflight dependencies (H5,H9):** Validate `ffprobe`/python paths early; if missing, print `Fix:` with exact OS-aware commands or `cm doctor` suggestion. (Firebase CLI style.)
@@ -72,11 +74,13 @@ H1 3, H2 4, H3 3, H4 2, H5 3, H6 3, H7 3, H8 4, H9 4, H10 3
 H1 3, H2 4, H3 3, H4 4, H5 4, H6 3, H7 3, H8 4, H9 4, H10 3
 
 **Top gaps**
+
 - Threshold semantics should be clearer (0..1 is not intuitive to many).
 - Human output could be more structured (top failed checks, recommended fixes).
 - Make it easier to compare scores across iterations.
 
 **10 improvement ideas**
+
 1. **Human-readable grade (H2,H6):** Print a letter grade (A/B/C) in addition to the numeric `overall` score (still store numeric in JSON). (Match to real world.)
 2. **Top-3 failed checks first (H8,H6):** Print only top N failures by severity by default; `--verbose` prints all. (Minimalist.)
 3. **Threshold UX (H6,H10):** Change `--min-overall` help text to explicitly say "0.0-1.0" and provide examples like `--min-overall 0.75`.
@@ -96,11 +100,13 @@ H1 3, H2 4, H3 3, H4 4, H5 4, H6 3, H7 3, H8 4, H9 4, H10 3
 H1 3, H2 4, H3 3, H4 4, H5 4, H6 3, H7 3, H8 3, H9 4, H10 3
 
 **Top gaps**
+
 - The output is good but can be more "action-first" (what should I do next?).
 - Dependency failures (OCR/ASR engines) must be diagnosed quickly.
 - Provide repeatability knobs and sampling transparency.
 
 **10 improvement ideas**
+
 1. **Action-first summary (H6,H9):** Print a single first line: "Rating 82/100 PASSED" and then the breakdown; keep the full formatted report after. (Minimalist, confidence.)
 2. **Suggested fix ranking (H9,H8):** Sort suggested fixes by expected impact and print top 3 by default; `--verbose` prints all.
 3. **Sampling transparency (H1,H2):** Print "Sampled at fps=X, frames=N, duration=Ys" so users trust the rating.
@@ -120,11 +126,13 @@ H1 3, H2 4, H3 3, H4 4, H5 4, H6 3, H7 3, H8 3, H9 4, H10 3
 H1 2, H2 4, H3 3, H4 2, H5 2, H6 3, H7 3, H8 4, H9 3, H10 3
 
 **Top gaps**
+
 - Invalid sources are silently dropped (trust-breaking).
 - Per-source progress and result counts are not visible enough by default.
 - JSON envelope output should be standardized (root contract).
 
 **10 improvement ideas**
+
 1. **No silent drops (H5,H9):** Fail fast on unknown sources (exit 2) and list allowed sources; optionally add `--ignore-unknown-sources`. (Error prevention.)
 2. **Per-source progress lines (H1):** Always show per-source start/end, results count, and duration in TTY and non-TTY. (Visibility.)
 3. **Coverage summary (H1,H2):** Print "Configured sources: X, Queried: Y, Errors: Z" so users understand completeness.
@@ -144,11 +152,13 @@ H1 2, H2 4, H3 3, H4 2, H5 2, H6 3, H7 3, H8 4, H9 3, H10 3
 H1 3, H2 4, H3 3, H4 4, H5 4, H6 3, H7 3, H8 4, H9 3, H10 2
 
 **Top gaps**
+
 - Prototype command needs better help/examples and clearer purpose boundaries.
 - Result presentation could be richer (why did this match?).
 - Stronger preflight for index schema and dimensions.
 
 **10 improvement ideas**
+
 1. **Explain prototype status (H2,H10):** In help output, explicitly label as prototype and explain how to create the index and what to expect.
 2. **Index preflight (H5,H9):** Validate the index schema and dimensions early; on failure print `Fix:` referencing the index builder command/docs.
 3. **Top-k formatting (H8):** Print a compact ranked list with score, title, and URL; avoid multi-line spam by default.
@@ -169,4 +179,3 @@ H1 3, H2 4, H3 3, H4 4, H5 4, H6 3, H7 3, H8 4, H9 3, H10 2
 - Existing per-command UX reviews:
   - `docs/guides/guide-cli-ux-cm-research-20260106.md`
   - `docs/guides/guide-cli-ux-cm-validate-20260106.md`
-

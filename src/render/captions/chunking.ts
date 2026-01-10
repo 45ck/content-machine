@@ -1,3 +1,17 @@
+const PIVOT_WORDS = new Set([
+  'but',
+  'so',
+  'because',
+  'then',
+  'however',
+  'instead',
+  'therefore',
+  'meanwhile',
+  'yet',
+  'also',
+  'plus',
+]);
+
 /**
  * TikTok-Native Caption Chunking
  *
@@ -56,22 +70,37 @@ export interface ChunkingConfig {
   maxWordsPerChunk: number;
   /** Minimum words per chunk (default: 2) */
   minWordsPerChunk: number;
+  /** Target words per chunk (soft break target) */
+  targetWordsPerChunk: number;
+  /** Max words per minute for readability */
+  maxWordsPerMinute: number;
   /** Maximum characters per second (default: 15) */
   maxCharsPerSecond: number;
+  /** Minimum on-screen time for short chunks in ms */
+  minOnScreenMsShort: number;
   /** Minimum on-screen time in ms (default: 350) */
   minOnScreenMs: number;
+  /** Max words treated as a short punch chunk */
+  shortChunkMaxWords: number;
   /** Gap in ms that forces a new chunk (default: 500) */
   pauseGapMs: number;
+  /** Minimum gap between chunks in ms */
+  chunkGapMs: number;
   /** Types of emphasis to detect */
   emphasisTypes: EmphasisType[];
 }
 
 const DEFAULT_CHUNKING_CONFIG: ChunkingConfig = {
-  maxWordsPerChunk: 5,
+  maxWordsPerChunk: 7,
   minWordsPerChunk: 2,
+  targetWordsPerChunk: 5,
+  maxWordsPerMinute: 180,
   maxCharsPerSecond: 15,
-  minOnScreenMs: 350,
-  pauseGapMs: 500,
+  minOnScreenMsShort: 800,
+  minOnScreenMs: 1100,
+  shortChunkMaxWords: 2,
+  pauseGapMs: 300,
+  chunkGapMs: 80,
   emphasisTypes: ['number', 'power', 'negation', 'pause'],
 };
 
@@ -209,6 +238,14 @@ function endsWithStrongPunctuation(word: string): boolean {
   return /[!?]$/.test(trimmed);
 }
 
+function normalizeWord(word: string): string {
+  return word.toLowerCase().replace(/[.,!?;:"]/g, '').trim();
+}
+
+function isPivotWord(word: string): boolean {
+  return PIVOT_WORDS.has(normalizeWord(word));
+}
+
 /**
  * Context for break decision logic
  */
@@ -218,8 +255,15 @@ interface BreakContext {
   currentWordsCount: number;
   cfg: ChunkingConfig;
   wouldCPS: number;
-  prevChunkWord?: ChunkedWord;
+  wouldWPM: number;
+  currentDurationMs: number;
+  currentMinDurationMs: number;
   gapFromPrevWord: number;
+  currentIsPivot: boolean;
+  prevEndsSentence: boolean;
+  prevEndsStrongPunctuation: boolean;
+  prevIsPivot: boolean;
+  currentChunkHasEmphasis: boolean;
 }
 
 /**
@@ -236,19 +280,44 @@ function shouldBreakChunk(ctx: BreakContext): { shouldBreak: boolean; reason: st
     return { shouldBreak: true, reason: 'pause-gap' };
   }
 
+  const meetsMinDuration = ctx.currentDurationMs >= ctx.currentMinDurationMs;
+
   // 3. CPS would exceed limit (but respect min words)
-  if (
-    ctx.currentWordsCount >= ctx.cfg.minWordsPerChunk &&
-    ctx.wouldCPS > ctx.cfg.maxCharsPerSecond
-  ) {
-    return { shouldBreak: true, reason: 'cps-limit' };
+  // Note: WPM is enforced via min-on-screen-time (not via splitting) to avoid over-fragmenting.
+  // Allow a small overshoot to avoid breaking natural 2-3 word phrases.
+  // We still enforce readability via min-on-screen-time after chunking.
+  const cpsBreakThreshold = ctx.cfg.maxCharsPerSecond * 1.25;
+  if (ctx.currentWordsCount >= ctx.cfg.minWordsPerChunk && ctx.wouldCPS > cpsBreakThreshold) {
+    return { shouldBreak: true, reason: 'pace-limit' };
   }
 
   // 4. Sentence boundary (but respect min words)
-  if (ctx.currentWordsCount >= ctx.cfg.minWordsPerChunk && ctx.prevChunkWord) {
-    if (endsWithSentencePunctuation(ctx.prevChunkWord.text)) {
-      return { shouldBreak: true, reason: 'sentence-end' };
-    }
+  if (ctx.currentWordsCount >= ctx.cfg.minWordsPerChunk && ctx.prevEndsSentence) {
+    return { shouldBreak: true, reason: 'sentence-end' };
+  }
+
+  // 5. Start new chunk at discourse pivot words
+  if (meetsMinDuration && ctx.currentIsPivot && ctx.currentWordsCount >= ctx.cfg.minWordsPerChunk) {
+    return { shouldBreak: true, reason: 'pivot' };
+  }
+
+  // 6. Allow short punch chunks on strong punctuation.
+  // Emphasis alone should not force breaks (it can be styling-only).
+  const shortPunchOk =
+    ctx.currentWordsCount <= ctx.cfg.shortChunkMaxWords && ctx.prevEndsStrongPunctuation;
+  if (meetsMinDuration && ctx.currentWordsCount >= 1 && shortPunchOk) {
+    return { shouldBreak: true, reason: 'punch' };
+  }
+
+  // 7. Soft break near target length when hints are present
+  const softPauseGap = ctx.cfg.pauseGapMs * 0.6;
+  const hasHint =
+    ctx.prevEndsStrongPunctuation ||
+    ctx.prevEndsSentence ||
+    ctx.prevIsPivot ||
+    ctx.gapFromPrevWord >= softPauseGap;
+  if (meetsMinDuration && ctx.currentWordsCount >= ctx.cfg.targetWordsPerChunk && hasHint) {
+    return { shouldBreak: true, reason: 'soft-hint' };
   }
 
   return { shouldBreak: false, reason: '' };
@@ -321,6 +390,20 @@ interface ChunkingState {
   currentCharCount: number;
 }
 
+function getRequiredMinDurationMs(
+  wordCount: number,
+  charCount: number,
+  cfg: ChunkingConfig
+): number {
+  if (wordCount <= 0) return 0;
+  const wordsPerMs = cfg.maxWordsPerMinute / 60000;
+  return Math.max(
+    wordCount <= cfg.shortChunkMaxWords ? cfg.minOnScreenMsShort : cfg.minOnScreenMs,
+    (wordCount / wordsPerMs) * 1000,
+    (charCount / cfg.maxCharsPerSecond) * 1000
+  );
+}
+
 function processTimedWord(params: {
   state: ChunkingState;
   word: { word: string; startMs: number; endMs: number };
@@ -340,16 +423,40 @@ function processTimedWord(params: {
       ? word.endMs - state.currentWords[0].startMs
       : word.endMs - word.startMs;
   const wouldCps = (newCharCount / Math.max(chunkDurationMs, 1)) * 1000;
+  const wouldWpm = ((state.currentWords.length + 1) / Math.max(chunkDurationMs, 1)) * 60000;
 
   const gapFromPrevWord = prevWord ? word.startMs - prevWord.endMs : 0;
+  const prevChunkWord = state.currentWords[state.currentWords.length - 1];
+  const prevEndsSentence = prevChunkWord ? endsWithSentencePunctuation(prevChunkWord.text) : false;
+  const prevEndsStrongPunctuation = prevChunkWord
+    ? endsWithStrongPunctuation(prevChunkWord.text)
+    : false;
+  const currentIsPivot = isPivotWord(word.word);
+  const prevIsPivot = prevChunkWord ? isPivotWord(prevChunkWord.text) : false;
+  const currentChunkHasEmphasis = state.currentWords.some((w) => w.isEmphasized);
+  const currentDurationMs = prevChunkWord
+    ? prevChunkWord.endMs - state.currentWords[0].startMs
+    : 0;
+  const currentMinDurationMs = getRequiredMinDurationMs(
+    state.currentWords.length,
+    state.currentCharCount,
+    cfg
+  );
   const breakDecision = shouldBreakChunk({
     wordIndex,
     totalWords,
     currentWordsCount: state.currentWords.length,
     cfg,
     wouldCPS: wouldCps,
-    prevChunkWord: state.currentWords[state.currentWords.length - 1],
+    wouldWPM: wouldWpm,
+    currentDurationMs,
+    currentMinDurationMs,
     gapFromPrevWord,
+    currentIsPivot,
+    prevEndsSentence,
+    prevEndsStrongPunctuation,
+    prevIsPivot,
+    currentChunkHasEmphasis,
   });
 
   const preventOrphan = shouldPreventOrphan(
@@ -405,19 +512,22 @@ export function createCaptionChunks(
   const lastChunk = finalizeChunk(state.currentWords, state.currentCharCount, state.chunks.length);
   if (lastChunk) state.chunks.push(lastChunk);
 
-  return enforceMinOnScreenTime(state.chunks, cfg.minOnScreenMs);
+  return enforceMinOnScreenTime(state.chunks, cfg);
 }
 
 /**
  * Ensure chunks have minimum on-screen time
  * Extends end time if chunk is too short
  */
-function enforceMinOnScreenTime(chunks: CaptionChunk[], minMs: number): CaptionChunk[] {
+function enforceMinOnScreenTime(chunks: CaptionChunk[], cfg: ChunkingConfig): CaptionChunk[] {
   return chunks.map((chunk, i) => {
     const duration = chunk.endMs - chunk.startMs;
+    const minMs = getRequiredMinDurationMs(chunk.words.length, chunk.charCount, cfg);
     if (duration < minMs) {
       const nextChunk = chunks[i + 1];
-      const maxEndMs = nextChunk ? nextChunk.startMs - 50 : chunk.endMs + (minMs - duration);
+      const maxEndMs = nextChunk
+        ? nextChunk.startMs - cfg.chunkGapMs
+        : chunk.endMs + (minMs - duration);
       return {
         ...chunk,
         endMs: Math.min(chunk.startMs + minMs, maxEndMs),
@@ -434,9 +544,14 @@ export function layoutToChunkingConfig(layout: Partial<CaptionLayout>): Partial<
   return {
     maxWordsPerChunk: layout.maxWordsPerPage ?? 5,
     minWordsPerChunk: layout.minWordsPerPage ?? 2,
+    targetWordsPerChunk: layout.targetWordsPerChunk ?? 5,
+    maxWordsPerMinute: layout.maxWordsPerMinute ?? 180,
     maxCharsPerSecond: layout.maxCharsPerSecond ?? 15,
+    minOnScreenMsShort: layout.minOnScreenMsShort ?? 600,
     minOnScreenMs: layout.minOnScreenMs ?? 350,
+    shortChunkMaxWords: layout.shortChunkMaxWords ?? 2,
     pauseGapMs: layout.maxGapMs ?? 500,
+    chunkGapMs: layout.chunkGapMs ?? 50,
   };
 }
 

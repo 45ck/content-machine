@@ -2,7 +2,7 @@
 
 **Status:** Draft  
 **Date:** 2026-01-10  
-**Owners:** Unassigned  
+**Owners:** Unassigned
 
 ## 1) What you mean (restated)
 
@@ -241,4 +241,3 @@ No - progress and summaries are designed to increase trust and clarity, not to a
   - `vendor/cli/examples/prisma`
   - `vendor/cli/motion/listr2`
   - `vendor/cli/output/boxen`
-

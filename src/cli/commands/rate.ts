@@ -21,6 +21,7 @@ interface RateOptions {
   fps: string;
   minRating: string;
   mock?: boolean;
+  summary?: boolean;
 }
 
 export const rateCommand = new Command('rate')
@@ -29,6 +30,7 @@ export const rateCommand = new Command('rate')
   .option('-o, --output <path>', 'Output sync-report.json path', 'sync-report.json')
   .option('--fps <n>', 'Frames per second to sample', '2')
   .option('--min-rating <n>', 'Fail if sync rating is below this threshold', '75')
+  .option('--summary', 'Print a compact summary only (human mode)', false)
   .option('--mock', 'Use mock analysis (for testing)', false)
   .action(async (options: RateOptions) => {
     const runtime = getCliRuntime();
@@ -100,9 +102,14 @@ export const rateCommand = new Command('rate')
         process.exit(passed ? 0 : 1);
       }
 
-      writeStderrLine('\n' + formatSyncRatingCLI(result));
+      if (options.summary) {
+        writeStderrLine(`Sync rating: ${result.rating}/100 (${result.ratingLabel})`);
+        writeStderrLine(`Passed: ${passed}`);
+      } else {
+        writeStderrLine('\n' + formatSyncRatingCLI(result));
+      }
 
-      if (result.errors.length > 0) {
+      if (!options.summary && result.errors.length > 0) {
         writeStderrLine('\nSuggested fixes:');
         for (const error of result.errors) {
           if (error.suggestedFix) {
@@ -111,7 +118,7 @@ export const rateCommand = new Command('rate')
         }
       }
 
-      writeStderrLine(`\nReport written to: ${options.output}`);
+      writeStderrLine(`${options.summary ? '' : '\n'}Report written to: ${options.output}`);
       process.stdout.write(`${options.output}\n`);
       process.exit(passed ? 0 : 1);
     } catch (error) {

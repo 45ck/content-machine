@@ -17,10 +17,7 @@ import {
 import type { RenderProps } from '../schema';
 import { Caption } from '../captions';
 import { buildSequences, buildVisualTimeline, LegacyClip, SceneBackground } from './visuals';
-
-function clampRatio(value: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, value));
-}
+import { computeSplitScreenLayout } from './split-screen-layout';
 
 function resolveGameplaySrc(path: string): string {
   if (/^https?:\/\//i.test(path)) return path;
@@ -43,24 +40,24 @@ export const SplitScreenGameplay: React.FC<RenderProps> = ({
   contentPosition,
 }) => {
   const { fps, height } = useVideoConfig();
-  const ratio = clampRatio(splitScreenRatio ?? 0.55, 0.3, 0.7);
-  const defaultGameplayPosition = 'bottom';
-  const defaultContentPosition = 'top';
-  const resolvedContentPosition = contentPosition ?? defaultContentPosition;
-  const resolvedGameplayPosition =
-    gameplayPosition ??
-    (resolvedContentPosition === 'bottom' ? 'top' : defaultGameplayPosition);
-  const isGameplayFull = resolvedGameplayPosition === 'full';
-  const isContentFull = resolvedContentPosition === 'full';
-  const topHeight = Math.round(height * ratio);
-  const bottomHeight = height - topHeight;
-  const contentOnTop = resolvedContentPosition === 'top';
-  const contentHeight = isContentFull ? height : contentOnTop ? topHeight : bottomHeight;
-  const contentTop = isContentFull ? 0 : contentOnTop ? 0 : topHeight;
-  const gameplayHeight = isGameplayFull ? height : contentOnTop ? bottomHeight : topHeight;
-  const gameplayTop = isGameplayFull ? 0 : contentOnTop ? topHeight : 0;
-  const captionTop = isGameplayFull ? 0 : contentTop;
-  const captionHeight = isGameplayFull ? height : contentHeight;
+
+  const layout = useMemo(
+    () =>
+      computeSplitScreenLayout({
+        height,
+        ratio: splitScreenRatio ?? 0.55,
+        contentPosition,
+        gameplayPosition,
+      }),
+    [height, splitScreenRatio, contentPosition, gameplayPosition]
+  );
+
+  const isGameplayFull = layout.isGameplayFull;
+  const isContentFull = layout.isContentFull;
+  const contentHeight = layout.content.height;
+  const contentTop = layout.content.top;
+  const gameplayHeight = layout.gameplay.height;
+  const gameplayTop = layout.gameplay.top;
   const durationMs = Math.max(0, Math.round(totalDuration * 1000));
   const totalFrames = Math.ceil(totalDuration * fps);
 
@@ -127,7 +124,7 @@ export const SplitScreenGameplay: React.FC<RenderProps> = ({
         </>
       ) : null}
 
-      <AbsoluteFill style={{ top: captionTop, height: captionHeight, overflow: 'hidden' }}>
+      <AbsoluteFill style={{ top: layout.captions.top, height: layout.captions.height }}>
         <Caption words={words} config={captionConfig} />
       </AbsoluteFill>
 

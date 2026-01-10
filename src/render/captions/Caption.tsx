@@ -18,6 +18,7 @@ import { createCaptionPages, toTimedWords, CaptionPage, TimedWord, isDisplayable
 import { createCaptionChunks, layoutToChunkingConfig, chunkToPage } from './chunking';
 import { PRESET_CAPCUT_BOLD } from './presets';
 import { isWordActive } from './timing';
+import { SAFE_ZONES, type PlatformName } from '../tokens/safe-zone';
 
 /**
  * Props for the Caption component
@@ -201,7 +202,7 @@ interface SingleWordViewProps {
 
 const SingleWordView: React.FC<SingleWordViewProps> = ({ word, config }) => {
   const frame = useCurrentFrame();
-  const { fps, height } = useVideoConfig();
+  const { fps, height, width } = useVideoConfig();
 
   // Pop-in animation
   const enterProgress = spring({
@@ -211,7 +212,7 @@ const SingleWordView: React.FC<SingleWordViewProps> = ({ word, config }) => {
     durationInFrames: 6,
   });
 
-  const edgePx = (config.positionOffset.edgeDistance / 100) * height;
+  const safeZone = getSafeZoneMetrics(config, width, height);
 
   const positionStyle: React.CSSProperties = {
     position: 'absolute',
@@ -220,10 +221,14 @@ const SingleWordView: React.FC<SingleWordViewProps> = ({ word, config }) => {
     alignItems: 'center',
     left: 0,
     right: 0,
-    padding: `0 ${config.positionOffset.horizontalPadding}px`,
-    ...(config.position === 'bottom' && { bottom: edgePx }),
-    ...(config.position === 'center' && { top: '50%', transform: 'translateY(-50%)' }),
-    ...(config.position === 'top' && { top: edgePx }),
+    paddingLeft: safeZone.paddingLeft,
+    paddingRight: safeZone.paddingRight,
+    ...(config.position === 'bottom' && { bottom: safeZone.bottomOffset }),
+    ...(config.position === 'center' && {
+      top: safeZone.centerY,
+      transform: 'translateY(-50%)',
+    }),
+    ...(config.position === 'top' && { top: safeZone.topOffset }),
   };
 
   const text = applyTextTransform(word, config.textTransform);
@@ -351,7 +356,7 @@ const BuildupSentenceView: React.FC<BuildupSentenceViewProps> = ({
   config,
 }) => {
   const frame = useCurrentFrame();
-  const { fps, height } = useVideoConfig();
+  const { fps, height, width } = useVideoConfig();
 
   // Current time relative to sentence start
   const sequenceTimeMs = (frame / fps) * 1000;
@@ -365,7 +370,7 @@ const BuildupSentenceView: React.FC<BuildupSentenceViewProps> = ({
     durationInFrames: 8,
   });
 
-  const edgePx = (config.positionOffset.edgeDistance / 100) * height;
+  const safeZone = getSafeZoneMetrics(config, width, height);
 
   const positionStyle: React.CSSProperties = {
     position: 'absolute',
@@ -374,13 +379,14 @@ const BuildupSentenceView: React.FC<BuildupSentenceViewProps> = ({
     alignItems: 'center',
     left: 0,
     right: 0,
-    padding: `0 ${config.positionOffset.horizontalPadding}px`,
-    ...(config.position === 'bottom' && { bottom: edgePx }),
+    paddingLeft: safeZone.paddingLeft,
+    paddingRight: safeZone.paddingRight,
+    ...(config.position === 'bottom' && { bottom: safeZone.bottomOffset }),
     ...(config.position === 'center' && {
-      top: '50%',
+      top: safeZone.centerY,
       transform: `translateY(-50%) scale(${0.8 + 0.2 * enterProgress})`,
     }),
-    ...(config.position === 'top' && { top: edgePx }),
+    ...(config.position === 'top' && { top: safeZone.topOffset }),
   };
 
   const containerStyle: React.CSSProperties = {
@@ -487,7 +493,7 @@ interface CaptionPageViewProps {
 
 const CaptionPageView: React.FC<CaptionPageViewProps> = ({ page, config }) => {
   const frame = useCurrentFrame();
-  const { fps, height } = useVideoConfig();
+  const { fps, height, width } = useVideoConfig();
 
   // CRITICAL: Convert frame to sequence-relative time in ms
   // frame is relative to Sequence start (resets to 0 for each page)
@@ -497,7 +503,7 @@ const CaptionPageView: React.FC<CaptionPageViewProps> = ({ page, config }) => {
   const enterProgress = useEnterAnimation(frame, fps, config);
 
   // Position styling
-  const positionStyle = usePositionStyle(config, height, enterProgress);
+  const positionStyle = usePositionStyle(config, width, height, enterProgress);
 
   return (
     <div style={positionStyle}>
@@ -565,6 +571,59 @@ const WordView: React.FC<WordViewProps> = ({ word, config, isActive }) => {
 
 // === STYLE HELPERS ===
 
+interface SafeZoneMetrics {
+  paddingLeft: number;
+  paddingRight: number;
+  topOffset: number;
+  bottomOffset: number;
+  centerY: number;
+}
+
+function resolveSafeZoneInsets(
+  config: CaptionConfig,
+  width: number,
+  height: number
+): { top: number; bottom: number; left: number; right: number } {
+  if (!config.safeZone?.enabled) {
+    return { top: 0, bottom: 0, left: 0, right: 0 };
+  }
+
+  const platform = (config.safeZone.platform ?? 'universal') as PlatformName;
+  const zone = SAFE_ZONES[platform];
+  const scaleX = width / 1080;
+  const scaleY = height / 1920;
+
+  return {
+    top: zone.top * scaleY,
+    bottom: zone.bottom * scaleY,
+    left: zone.left * scaleX,
+    right: zone.right * scaleX,
+  };
+}
+
+function getSafeZoneMetrics(
+  config: CaptionConfig,
+  width: number,
+  height: number
+): SafeZoneMetrics {
+  const safeZone = resolveSafeZoneInsets(config, width, height);
+  const edgePx = (config.positionOffset.edgeDistance / 100) * height;
+  const paddingLeft = Math.max(config.positionOffset.horizontalPadding, safeZone.left);
+  const paddingRight = Math.max(config.positionOffset.horizontalPadding, safeZone.right);
+  const topOffset = Math.max(edgePx, safeZone.top);
+  const bottomOffset = Math.max(edgePx, safeZone.bottom);
+  const safeHeight = Math.max(0, height - safeZone.top - safeZone.bottom);
+  const centerY = safeZone.top + safeHeight * 0.5;
+
+  return {
+    paddingLeft,
+    paddingRight,
+    topOffset,
+    bottomOffset,
+    centerY,
+  };
+}
+
 function useEnterAnimation(frame: number, fps: number, config: CaptionConfig): number {
   const animDuration = Math.ceil((config.animationDuration / 1000) * fps);
 
@@ -594,10 +653,11 @@ function useEnterAnimation(frame: number, fps: number, config: CaptionConfig): n
 
 function usePositionStyle(
   config: CaptionConfig,
+  screenWidth: number,
   screenHeight: number,
   enterProgress: number
 ): React.CSSProperties {
-  const edgePx = (config.positionOffset.edgeDistance / 100) * screenHeight;
+  const safeZone = getSafeZoneMetrics(config, screenWidth, screenHeight);
 
   const baseStyle: React.CSSProperties = {
     position: 'absolute',
@@ -605,7 +665,8 @@ function usePositionStyle(
     right: 0,
     display: 'flex',
     justifyContent: 'center',
-    padding: `0 ${config.positionOffset.horizontalPadding}px`,
+    paddingLeft: safeZone.paddingLeft,
+    paddingRight: safeZone.paddingRight,
   };
 
   // Slide animation offset
@@ -620,20 +681,20 @@ function usePositionStyle(
     case 'top':
       return {
         ...baseStyle,
-        top: edgePx,
+        top: safeZone.topOffset,
         transform: `translateY(${translateY}px)`,
       };
     case 'center':
       return {
         ...baseStyle,
-        top: '50%',
+        top: safeZone.centerY,
         transform: `translateY(calc(-50% + ${translateY}px))`,
       };
     case 'bottom':
     default:
       return {
         ...baseStyle,
-        bottom: edgePx,
+        bottom: safeZone.bottomOffset,
         transform: `translateY(${-translateY}px)`,
       };
   }
