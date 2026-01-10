@@ -163,6 +163,7 @@ export function buildSceneTimestamps(
 export interface GenerateAudioOptions {
   script: ScriptOutput;
   voice: string;
+  speed?: number;
   outputPath: string;
   timestampsPath: string;
   /** Use mock audio generation for testing */
@@ -211,6 +212,7 @@ export async function generateAudio(options: GenerateAudioOptions): Promise<Audi
   const ttsResult = await synthesizeSpeech({
     text: fullText,
     voice: options.voice,
+    speed: options.speed,
     outputPath: options.outputPath,
   });
 

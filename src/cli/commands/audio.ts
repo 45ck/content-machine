@@ -10,7 +10,7 @@ import { ScriptOutputSchema } from '../../script/schema';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
-import { SchemaError } from '../../core/errors';
+import { CMError, SchemaError } from '../../core/errors';
 
 export const audioCommand = new Command('audio')
   .description('Generate voiceover audio with word-level timestamps')
@@ -18,6 +18,7 @@ export const audioCommand = new Command('audio')
   .option('-o, --output <path>', 'Output audio file path', 'audio.wav')
   .option('--timestamps <path>', 'Output timestamps file path', 'timestamps.json')
   .option('--voice <voice>', 'TTS voice to use', 'af_heart')
+  .option('--tts-speed <n>', 'TTS speaking speed (e.g., 1.0, 1.2)', '1')
   .option('--mock', 'Use mock TTS/ASR (for testing)', false)
   // Sync strategy options
   .option(
@@ -52,6 +53,12 @@ export const audioCommand = new Command('audio')
       // Determine require-whisper from strategy or explicit flag
       const syncStrategy = options.syncStrategy ?? 'standard';
       const requireWhisper = options.requireWhisper || syncStrategy === 'audio-first';
+      const ttsSpeed = Number.parseFloat(String(options.ttsSpeed));
+      if (!Number.isFinite(ttsSpeed) || ttsSpeed <= 0) {
+        throw new CMError('INVALID_ARGUMENT', `Invalid --tts-speed value: ${options.ttsSpeed}`, {
+          fix: 'Use a positive number, e.g. --tts-speed 1.1',
+        });
+      }
       const reconcileSource = command.getOptionValueSource('reconcile');
       const reconcile =
         reconcileSource === 'default' ? syncStrategy === 'audio-first' : Boolean(options.reconcile);
@@ -59,6 +66,7 @@ export const audioCommand = new Command('audio')
       const result = await generateAudio({
         script,
         voice: options.voice,
+        speed: ttsSpeed,
         outputPath: options.output,
         timestampsPath: options.timestamps,
         mock: Boolean(options.mock),
@@ -87,6 +95,7 @@ export const audioCommand = new Command('audio')
               output: options.output,
               timestamps: options.timestamps,
               voice: options.voice,
+              ttsSpeed,
               mock: Boolean(options.mock),
               syncStrategy: options.syncStrategy,
               reconcile,
