@@ -14,6 +14,7 @@
 **Goal:** Let users set caption fonts via config files and ship a small bundled font pack.
 
 **User Story:**
+
 > As a content creator,
 > I want to configure caption fonts globally and optionally bundle custom fonts,
 > So that every render uses consistent, high-quality typography.
@@ -34,6 +35,7 @@ Better readability and consistent branding without needing to pass CLI flags on 
 ## Documentation Planning
 
 **Required updates:**
+
 - [x] Update `README.md` with caption font flags + config examples
 - [x] Update `AGENTS.md` with font defaults + config references
 
@@ -42,15 +44,18 @@ Better readability and consistent branding without needing to pass CLI flags on 
 ## Testing Considerations
 
 **Happy Path:**
+
 - Config defaults apply when CLI flags are omitted.
 - Bundled font file loads and is used during render.
 
 **Edge Cases:**
+
 - Invalid font weight values.
 - Missing font file path.
 - Config file with no font settings.
 
 **Error Scenarios:**
+
 - Non-existent font file path.
 - Invalid config schema for fonts.
 
@@ -69,15 +74,18 @@ Better readability and consistent branding without needing to pass CLI flags on 
 ## Implementation Plan
 
 ### Phase 1: Foundation
+
 - [x] Define config schema for caption fonts
 - [x] Write failing tests
 - [x] Implement config parsing
 
 ### Phase 2: Integration
+
 - [x] Wire config defaults into CLI + pipeline
 - [x] Bundle font assets into Remotion render
 
 ### Phase 3: Polish
+
 - [x] Add docs and examples
 - [x] Validate bundled font pack inclusion
 

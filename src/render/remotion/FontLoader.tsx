@@ -72,7 +72,7 @@ export const FontLoader: React.FC<{ fonts?: FontSource[] }> = ({ fonts }) => {
         );
       } catch (error) {
         // Don't fail the render if a custom font can't load.
-        // eslint-disable-next-line no-console
+
         console.warn('Failed to load custom fonts', error);
       } finally {
         finish();

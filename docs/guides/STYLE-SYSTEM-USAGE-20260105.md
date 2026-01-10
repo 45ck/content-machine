@@ -155,11 +155,11 @@ const bounds = getContentBounds(SAFE_ZONES.tiktok, 1080, 1920);
 
 ### Fonts (`FONT_STACKS`)
 
-| Stack    | Fonts                           | Use Case            |
-| -------- | ------------------------------- | ------------------- |
-| `impact` | Bebas Neue, Impact, ...         | Hooks, titles       |
-| `body`   | Inter, Montserrat, ...          | Captions, body text |
-| `mono`   | JetBrains Mono, Menlo, ...      | Code, technical     |
+| Stack    | Fonts                      | Use Case            |
+| -------- | -------------------------- | ------------------- |
+| `impact` | Bebas Neue, Impact, ...    | Hooks, titles       |
+| `body`   | Inter, Montserrat, ...     | Captions, body text |
+| `mono`   | JetBrains Mono, Menlo, ... | Code, technical     |
 
 ## Preset Reference
 

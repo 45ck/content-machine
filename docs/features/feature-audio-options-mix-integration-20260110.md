@@ -2,7 +2,7 @@
 
 **Date:** 2026-01-10  
 **Status:** Draft  
-**Owners:** Core  
+**Owners:** Core
 
 ---
 

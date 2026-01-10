@@ -56,6 +56,7 @@ cm workflows install workflow-pack.zip
 ```
 
 Stage modes:
+
 - `builtin`: run the cm stage as normal.
 - `external`: expect external artifacts (and optional exec hook).
 - `import`: external artifacts, usually created via `cm import` or other asset tooling.
@@ -63,9 +64,9 @@ Stage modes:
 ## Notes
 
 - Workflow search order:
-  1) `./.cm/workflows/<id>/workflow.json`
-  2) `~/.cm/workflows/<id>/workflow.json`
-  3) explicit path passed to `--workflow`
+  1. `./.cm/workflows/<id>/workflow.json`
+  2. `~/.cm/workflows/<id>/workflow.json`
+  3. explicit path passed to `--workflow`
 - Use `cm generate --workflow <id|path> --workflow-allow-exec` to run workflow hooks.
 - `defaults` keys accept CLI attribute names (camelCase) or flag names (kebab-case).
 - External stages default to artifacts in the output directory (`script.json`, `audio.wav`, etc).

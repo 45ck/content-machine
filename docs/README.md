@@ -58,7 +58,7 @@ Located in `research/`, these document findings from 139 vendored repos:
 | ----------------------------------------------------------------------------- | -------------------------------------- | ---------- |
 | [00-SUMMARY](research/00-SUMMARY-20260102.md)                                 | Master summary + architecture          | 2026-01-02 |
 | [10-short-video-maker-gyori](research/10-short-video-maker-gyori-20260102.md) | Blueprint repo (TypeScript + Remotion) | 2026-01-02 |
-| [12-vidosy](research/12-vidosy-20260102.md)                                   | JSON config -> video pattern            | 2026-01-02 |
+| [12-vidosy](research/12-vidosy-20260102.md)                                   | JSON config -> video pattern           | 2026-01-02 |
 | [01-moneyprinter-turbo](research/01-moneyprinter-turbo-20260102.md)           | Multi-provider LLM                     | 2026-01-02 |
 | [08-shortgpt](research/08-shortgpt-20260102.md)                               | EdgeTTS (30+ languages)                | 2026-01-02 |
 | [16-BATCH2-SUMMARY](research/16-BATCH2-SUMMARY-20260102.md)                   | Infrastructure repos summary           | 2026-01-02 |
@@ -295,7 +295,7 @@ All docs follow [Diataxis](https://diataxis.fr/):
 | **Tutorial**    | Learning        | "Your first video"         |
 | **Guide**       | Problem-solving | "How to add MCP connector" |
 | **Reference**   | Information     | "API documentation"        |
-| **Explanation** | Understanding   | "Why Remotion over X->"     |
+| **Explanation** | Understanding   | "Why Remotion over X->"    |
 
 ---
 

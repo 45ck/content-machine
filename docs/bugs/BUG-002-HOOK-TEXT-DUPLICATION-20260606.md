@@ -10,10 +10,12 @@
 ## Problem Statement
 
 The hook text was being spoken twice in generated audio:
+
 1. First as the explicit "hook" unit
 2. Second as part of "scene 1" content (which often repeats the hook)
 
 **Example Output:**
+
 ```
 Audio: "These 5 morning habits will change your life. These 5 morning habits..."
        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^     ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -27,14 +29,16 @@ Audio: "These 5 morning habits will change your life. These 5 morning habits..."
 ### The Script Structure Problem
 
 Scripts follow an archetype pattern where:
+
 - **Hook:** Opening attention-grabber (e.g., "These 5 morning habits will change your life")
 - **Scene 1:** Often begins with the same or similar text for narrative flow
 
 When the audio pipeline assembled alignment units naively:
+
 ```typescript
 // BUGGY: Naive assembly
 units = [
-  { text: script.hook },           // "5 morning habits..."
+  { text: script.hook }, // "5 morning habits..."
   { text: script.scenes[0].text }, // "5 morning habits..." (repeated!)
   { text: script.scenes[1].text },
   // ...
@@ -44,6 +48,7 @@ units = [
 ### LLM Script Generation Pattern
 
 The LLM naturally includes the hook in scene 1 because:
+
 1. Scene 1 should flow from the hook
 2. Repetition is natural in spoken content
 3. No explicit instruction to avoid duplication
@@ -85,12 +90,12 @@ export function buildAlignmentUnits(script: ScriptOutput): SpokenUnit[] {
 
 ### Deduplication Logic
 
-| Condition | Action |
-|-----------|--------|
-| `scene1.includes(hook)` | Skip separate hook unit |
-| `!scene1.includes(hook)` | Add hook as separate unit |
-| `lastScene.includes(cta)` | Skip separate CTA unit |
-| `!lastScene.includes(cta)` | Add CTA unit |
+| Condition                  | Action                    |
+| -------------------------- | ------------------------- |
+| `scene1.includes(hook)`    | Skip separate hook unit   |
+| `!scene1.includes(hook)`   | Add hook as separate unit |
+| `lastScene.includes(cta)`  | Skip separate CTA unit    |
+| `!lastScene.includes(cta)` | Add CTA unit              |
 
 ---
 
@@ -120,9 +125,7 @@ describe('buildAlignmentUnits', () => {
   it('includes hook when NOT in scene 1', () => {
     const script = {
       hook: 'Wait for it...',
-      scenes: [
-        { id: 'scene-001', text: 'Here are 5 tips' },
-      ],
+      scenes: [{ id: 'scene-001', text: 'Here are 5 tips' }],
     };
 
     const units = buildAlignmentUnits(script);
@@ -138,6 +141,7 @@ describe('buildAlignmentUnits', () => {
 ## Verification
 
 ### Before Fix
+
 ```
 Timestamps:
   [0.0s] "These"
@@ -150,6 +154,7 @@ Timestamps:
 ```
 
 ### After Fix
+
 ```
 Timestamps:
   [0.0s] "These"

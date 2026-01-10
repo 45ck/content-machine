@@ -2,7 +2,7 @@
 
 **Date:** 2026-01-10  
 **Status:** Draft  
-**Owners:** content-machine core  
+**Owners:** content-machine core
 
 ---
 
@@ -111,6 +111,7 @@ code unless `--workflow-allow-exec` is provided.
 ```
 
 Notes:
+
 - `defaults` keys can use CLI attribute names (camelCase) or flag names (kebab-case).
 - `stages.<stage>.exec` implies an external stage when `mode` is omitted.
 - External stages default to artifacts in the output directory (e.g. `script.json`, `audio.wav`).

@@ -25,12 +25,12 @@ Run the full pipeline with `cm generate` or run each stage independently.
 
 ## Pipeline
 
-| Stage   | Command      | Input                                   | Output                          |
-| ------- | ------------ | --------------------------------------- | ------------------------------- |
-| script  | `cm script`  | topic string                            | `script.json`                   |
-| audio   | `cm audio`   | `script.json`                           | `audio.wav`, `timestamps.json`  |
-| visuals | `cm visuals` | `timestamps.json`                       | `visuals.json`                  |
-| render  | `cm render`  | `visuals.json` + `audio.wav` + `timestamps.json` | `video.mp4`             |
+| Stage   | Command      | Input                                            | Output                         |
+| ------- | ------------ | ------------------------------------------------ | ------------------------------ |
+| script  | `cm script`  | topic string                                     | `script.json`                  |
+| audio   | `cm audio`   | `script.json`                                    | `audio.wav`, `timestamps.json` |
+| visuals | `cm visuals` | `timestamps.json`                                | `visuals.json`                 |
+| render  | `cm render`  | `visuals.json` + `audio.wav` + `timestamps.json` | `video.mp4`                    |
 
 `cm generate` runs the full pipeline in order.
 
@@ -97,6 +97,7 @@ This produces the same style as `output/demo-subway-pexels/video.mp4`: gameplay 
 Pexels B-roll on the other, CapCut-style captions, muted gameplay audio.
 
 Prereqs:
+
 - `.env` has `OPENAI_API_KEY` (keyword extraction) and `PEXELS_API_KEY` (stock footage).
 - Gameplay clips live in `~/.cm/assets/gameplay/<style>/` (or pass `--gameplay <path>`).
 
@@ -124,10 +125,12 @@ cm render --template brainrot-split-gameplay-top --split-layout gameplay-top \
 ```
 
 Layout options:
+
 - Swap positions: `--split-layout gameplay-bottom`
 - Force full-screen: `--gameplay-position full` or `--content-position full`
 
 Troubleshooting:
+
 - If Remotion fails to decode a gameplay clip, transcode to H.264 baseline:
   `ffmpeg -y -i input.mp4 -vf "scale=1080:-2" -c:v libx264 -profile:v baseline -level 3.1 -pix_fmt yuv420p -preset veryfast -crf 23 -an -movflags +faststart output.mp4`
 - For detailed logs: `--verbose` plus `REMOTION_LOG_LEVEL=verbose`
@@ -164,6 +167,7 @@ Default captions use an Inter-first stack with Montserrat fallback. A small Inte
 ships in `assets/fonts/Inter` for consistent rendering.
 
 CLI overrides:
+
 ```bash
 cm render --caption-font-family "Inter" \
   --caption-font-weight 700 \
@@ -172,6 +176,7 @@ cm render --caption-font-family "Inter" \
 ```
 
 Config defaults (`.content-machine.toml`):
+
 ```toml
 [captions]
 font_family = "Inter"
@@ -180,6 +185,7 @@ font_file = "assets/fonts/Inter/Inter-Bold.woff2"
 ```
 
 JSON config supports multiple fonts:
+
 ```json
 {
   "captions": {

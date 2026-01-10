@@ -64,12 +64,12 @@ Define the canonical vocabulary and documentation rules for content-machine so t
 
 ## Pipeline and artifacts
 
-| Stage   | Command      | Primary input        | Primary output                     |
-| ------- | ------------ | -------------------- | ---------------------------------- |
-| script  | `cm script`  | topic string         | `script.json`                      |
-| audio   | `cm audio`   | `script.json`        | `audio.wav`, `timestamps.json`     |
-| visuals | `cm visuals` | `timestamps.json`    | `visuals.json`                     |
-| render  | `cm render`  | `visuals.json` + `audio.wav` + `timestamps.json` | `video.mp4` |
+| Stage   | Command      | Primary input                                    | Primary output                 |
+| ------- | ------------ | ------------------------------------------------ | ------------------------------ |
+| script  | `cm script`  | topic string                                     | `script.json`                  |
+| audio   | `cm audio`   | `script.json`                                    | `audio.wav`, `timestamps.json` |
+| visuals | `cm visuals` | `timestamps.json`                                | `visuals.json`                 |
+| render  | `cm render`  | `visuals.json` + `audio.wav` + `timestamps.json` | `video.mp4`                    |
 
 `cm generate` runs the full pipeline in order using the same artifact names.
 

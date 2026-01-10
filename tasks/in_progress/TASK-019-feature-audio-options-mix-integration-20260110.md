@@ -5,7 +5,7 @@
 **Estimate:** L  
 **Created:** 2026-01-10  
 **Owner:** Unassigned  
-**Status:** Todo  
+**Status:** Todo
 
 ---
 
@@ -14,6 +14,7 @@
 **Goal:** Add optional music/SFX/ambience support with a mix plan that stays in sync with captions and visuals.
 
 **User Story:**
+
 > As a content creator,
 > I want to add background music and SFX via CLI flags,
 > So that my short-form videos feel more engaging without manual editing.
@@ -36,11 +37,13 @@ Improves perceived production quality and retention while keeping the pipeline c
 ## ÐY"s Required Documentation
 
 **Pre-Work (read these first):**
+
 - [ ] `docs/features/feature-audio-options-mix-integration-20260110.md`
 - [ ] `docs/architecture/IMPL-PHASE-2-AUDIO-20260105.md`
 - [ ] `docs/architecture/SYNC-ARCHITECTURE-20260610.md`
 
 **Deliverables (create these):**
+
 - [ ] `docs/guides/guide-audio-options-20260110.md`
 - [ ] Update `docs/reference/cm-audio-reference-20260106.md`
 - [ ] Update `docs/reference/cm-render-reference-20260106.md`
@@ -52,24 +55,29 @@ Improves perceived production quality and retention while keeping the pipeline c
 ## ÐYõ¦ Testing Considerations
 
 **Happy Path:**
+
 - Mix plan generated for music/SFX options.
 - Render consumes mix plan and includes extra audio layers.
 
 **Edge Cases:**
+
 - No mix layers provided (voice-only).
 - Missing local asset files (should warn + skip layer).
 - Mix plan voice path mismatch with `--audio`.
 - Hook clip present (audio timing offsets handled).
 
 **Error Scenarios:**
+
 - Invalid mix schema.
 - Invalid CLI values (non-numeric volume, negative fade).
 
 **Performance:**
+
 - Mix plan generation is lightweight (<10ms).
 - Render bundling copies only referenced audio assets.
 
 **Security:**
+
 - Path traversal prevention when resolving local asset paths.
 - No remote audio downloads unless explicitly supported.
 
@@ -102,6 +110,7 @@ Improves perceived production quality and retention while keeping the pipeline c
 ### Architecture
 
 **Components Involved:**
+
 - `src/audio/mix/` — mix schema + plan builder
 - `src/audio/pipeline.ts` — optional mix plan creation
 - `src/render/service.ts` — bundle and pass mix plan to Remotion
@@ -111,18 +120,21 @@ Improves perceived production quality and retention while keeping the pipeline c
 - `src/cli/commands/generate.ts` — pass-through flags
 
 **Data Flow:**
+
 ```
 cm audio: script.json -> audio.wav + timestamps.json + audio.mix.json
 cm render: visuals.json + timestamps.json + audio.wav (+ audio.mix.json) -> video.mp4
 ```
 
 **Dependencies:**
+
 - Remotion `Audio` component for layer playback.
 - Local asset resolution (no new external APIs).
 
 ### API Changes (if applicable)
 
 **New CLI Flags:**
+
 ```
 cm audio --music <path|preset> --sfx-pack <name> --mix-preset <preset>
 cm render --audio-mix <path>
@@ -138,16 +150,19 @@ None.
 ## Implementation Plan
 
 ### Phase 1: Foundation
+
 - [ ] Define mix schemas (Zod)
 - [ ] Write failing tests for mix schema + planner
 - [ ] Implement mix plan builder
 
 ### Phase 2: Integration
+
 - [ ] Wire `cm audio` options and mix output
 - [ ] Update render service + Remotion components
 - [ ] Add CLI support to `cm render` and `cm generate`
 
 ### Phase 3: Polish
+
 - [ ] Update docs + references
 - [ ] Add logging and warnings
 - [ ] Run full test suite
@@ -180,12 +195,15 @@ None.
 ## Related
 
 **Related Tasks:**
+
 - None
 
 **Related Features:**
+
 - `docs/features/feature-audio-options-mix-integration-20260110.md`
 
 **Related Docs:**
+
 - `docs/architecture/IMPL-PHASE-2-AUDIO-20260105.md`
 - `docs/architecture/SYNC-ARCHITECTURE-20260610.md`
 - `docs/specs/audio-breathing-room-spec-20260109.md`
@@ -194,7 +212,7 @@ None.
 
 ## Open Questions
 
-- [ ] Should `audio.mix.json` always be generated when `--audio-mix` is omitted?  
+- [ ] Should `audio.mix.json` always be generated when `--audio-mix` is omitted?
 - [ ] Do we want to support looping for short music beds (needs Remotion loop semantics)?
 
 ---

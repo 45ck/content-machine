@@ -14,6 +14,7 @@
 **Goal:** Add a hook intro system with a shared transitional hook library and support for user-provided hook clips.
 
 **User Story:**
+
 > As a creator,
 > I want to prepend a short hook clip to generated videos,
 > So that the first 1–3 seconds are thumb-stopping and consistent.
@@ -34,10 +35,12 @@ Improves early retention by standardizing attention-grabbing intros while keepin
 ## Required Documentation
 
 **Pre-Work (read these first):**
+
 - [ ] `docs/architecture/SYSTEM-DESIGN-20260104.md`
 - [ ] `docs/research/sections/SECTION-VIRALITY-ENGINEERING-20260105.md`
 
 **Deliverables (create these):**
+
 - [ ] `docs/features/feature-hook-library-20260111.md`
 - [ ] `docs/guides/guide-hook-library-20260111.md`
 
@@ -46,15 +49,18 @@ Improves early retention by standardizing attention-grabbing intros while keepin
 ## Testing Considerations
 
 **Happy Path:**
+
 - Hook id resolves to local file and is prepended.
 - Local hook path with duration override works.
 
 **Edge Cases:**
+
 - Missing hook file.
 - Hook duration missing for remote URL.
 - Hook longer than 3 seconds (warn).
 
 **Error Scenarios:**
+
 - ffprobe missing.
 - Invalid hook id or bad URL.
 
@@ -77,14 +83,17 @@ Improves early retention by standardizing attention-grabbing intros while keepin
 ## Implementation Plan
 
 ### Phase 1: Foundation
+
 - [ ] Define hook schema + defaults.
 - [ ] Add hook resolver and tests.
 
 ### Phase 2: Integration
+
 - [ ] Wire hook options into CLI + pipeline.
 - [ ] Update Remotion compositions to prepend hooks.
 
 ### Phase 3: Polish
+
 - [ ] Add hook sync script.
 - [ ] Add docs + examples.
 
