@@ -11,7 +11,7 @@ import {
   resolveChunkingConfig,
   getRequiredMinDurationMs,
 } from '../render/captions/chunking';
-import { isDisplayableWord } from '../render/captions/paging';
+import { filterCaptionWords } from '../render/captions/paging';
 
 export interface CaptionChunkDiagnostic {
   index: number;
@@ -38,14 +38,15 @@ export interface CaptionDiagnosticsReport {
   chunks: CaptionChunkDiagnostic[];
 }
 
-function toChunkWords(words: WordTimestamp[]): Array<{ word: string; startMs: number; endMs: number }> {
-  return words
-    .filter((word) => typeof word.word === 'string' && isDisplayableWord(word.word))
-    .map((word) => ({
-      word: word.word,
-      startMs: word.start * 1000,
-      endMs: word.end * 1000,
-    }));
+function toChunkWords(
+  words: WordTimestamp[],
+  cleanup: CaptionConfig['cleanup']
+): Array<{ word: string; startMs: number; endMs: number }> {
+  return filterCaptionWords(words, cleanup).map((word) => ({
+    word: word.word,
+    startMs: word.start * 1000,
+    endMs: word.end * 1000,
+  }));
 }
 
 export function analyzeCaptionChunks(
@@ -57,7 +58,7 @@ export function analyzeCaptionChunks(
     maxWordsPerPage: captionConfig.wordsPerPage ?? captionConfig.layout.maxWordsPerPage,
   };
   const chunkingConfig = resolveChunkingConfig(layoutToChunkingConfig(layoutOverride));
-  const chunkWords = toChunkWords(words);
+  const chunkWords = toChunkWords(words, captionConfig.cleanup);
   const chunks = createCaptionChunks(chunkWords, chunkingConfig);
 
   if (chunks.length === 0) {

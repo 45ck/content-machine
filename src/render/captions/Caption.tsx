@@ -14,7 +14,7 @@
 import React, { useMemo } from 'react';
 import { useCurrentFrame, useVideoConfig, spring, Sequence, interpolate } from 'remotion';
 import { CaptionConfig, CaptionConfigSchema, CaptionDisplayMode } from './config';
-import { createCaptionPages, toTimedWords, CaptionPage, TimedWord, isDisplayableWord } from './paging';
+import { createCaptionPages, toTimedWords, CaptionPage, TimedWord, filterCaptionWords } from './paging';
 import { createCaptionChunks, layoutToChunkingConfig, chunkToPage } from './chunking';
 import { PRESET_CAPCUT_BOLD } from './presets';
 import { isWordActive } from './timing';
@@ -48,8 +48,8 @@ export const Caption: React.FC<CaptionProps> = ({ words, config: configInput }) 
 
   const displayMode: CaptionDisplayMode = config.displayMode ?? 'page';
   const displayWords = useMemo(
-    () => words.filter((word) => typeof word.word === 'string' && isDisplayableWord(word.word)),
-    [words]
+    () => filterCaptionWords(words, config.cleanup),
+    [words, config.cleanup]
   );
 
   // Route to appropriate renderer based on display mode

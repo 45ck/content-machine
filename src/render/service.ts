@@ -24,7 +24,7 @@ import { getCaptionPreset, CaptionPresetName } from './captions/presets';
 import type { CaptionConfig, CaptionConfigInput } from './captions/config';
 import { join, dirname, resolve, basename } from 'path';
 import { fileURLToPath } from 'url';
-import { isDisplayableWord } from './captions/paging';
+import { filterCaptionWords } from './captions/paging';
 import {
   applyVisualAssetBundlePlan,
   buildVisualAssetBundlePlan,
@@ -132,6 +132,22 @@ export interface RenderVideoOptions {
    * Caption animation: none (default), fade, slideUp, slideDown, pop, bounce
    */
   captionAnimation?: 'none' | 'fade' | 'slideUp' | 'slideDown' | 'pop' | 'bounce';
+  /** Drop filler words from captions */
+  captionDropFillers?: boolean;
+  /** Custom filler list (comma-separated via CLI) */
+  captionFillerWords?: string[];
+  /** Max words per minute for caption pacing */
+  captionMaxWpm?: number;
+  /** Max characters per second for caption pacing */
+  captionMaxCps?: number;
+  /** Minimum on-screen time for captions in ms */
+  captionMinOnScreenMs?: number;
+  /** Minimum on-screen time for short captions in ms */
+  captionMinOnScreenMsShort?: number;
+  /** Target words per chunk (chunk mode) */
+  captionTargetWords?: number;
+  /** Minimum words per chunk/page */
+  captionMinWords?: number;
   /** Optional browser executable path for Remotion (useful if bundled Chromium fails) */
   browserExecutable?: string | null;
   /** Chrome mode for Remotion browser launch */
@@ -250,6 +266,24 @@ function resolveCaptionConfig(options: RenderVideoOptions): CaptionConfig {
   if (options.maxCharsPerLine) {
     layoutOverride.maxCharsPerLine = options.maxCharsPerLine;
   }
+  if (options.captionMaxWpm !== undefined) {
+    layoutOverride.maxWordsPerMinute = options.captionMaxWpm;
+  }
+  if (options.captionMaxCps !== undefined) {
+    layoutOverride.maxCharsPerSecond = options.captionMaxCps;
+  }
+  if (options.captionMinOnScreenMs !== undefined) {
+    layoutOverride.minOnScreenMs = options.captionMinOnScreenMs;
+  }
+  if (options.captionMinOnScreenMsShort !== undefined) {
+    layoutOverride.minOnScreenMsShort = options.captionMinOnScreenMsShort;
+  }
+  if (options.captionTargetWords !== undefined) {
+    layoutOverride.targetWordsPerChunk = options.captionTargetWords;
+  }
+  if (options.captionMinWords !== undefined) {
+    layoutOverride.minWordsPerPage = options.captionMinWords;
+  }
 
   // Build top-level overrides
   const topLevelOverride: Partial<CaptionConfig> = {};
@@ -262,6 +296,19 @@ function resolveCaptionConfig(options: RenderVideoOptions): CaptionConfig {
   if (options.captionAnimation) {
     topLevelOverride.pageAnimation = options.captionAnimation;
   }
+  const dropFillers =
+    options.captionDropFillers !== undefined
+      ? options.captionDropFillers
+      : options.captionFillerWords && options.captionFillerWords.length > 0
+        ? true
+        : undefined;
+  const cleanupOverride =
+    dropFillers !== undefined || (options.captionFillerWords && options.captionFillerWords.length > 0)
+      ? {
+          dropFillers: Boolean(dropFillers),
+          fillerWords: options.captionFillerWords ?? [],
+        }
+      : undefined;
 
   // If captionConfig is provided, merge it with the preset
   if (options.captionConfig) {
@@ -277,14 +324,24 @@ function resolveCaptionConfig(options: RenderVideoOptions): CaptionConfig {
       positionOffset: { ...preset.positionOffset, ...options.captionConfig.positionOffset },
       safeZone: { ...preset.safeZone, ...options.captionConfig.safeZone },
       emphasis: { ...preset.emphasis, ...options.captionConfig.emphasis },
+      cleanup: {
+        ...preset.cleanup,
+        ...options.captionConfig.cleanup,
+        ...(cleanupOverride ?? {}),
+      },
     };
   }
 
   // Apply overrides to preset
-  if (Object.keys(layoutOverride).length > 0 || Object.keys(topLevelOverride).length > 0) {
+  if (
+    Object.keys(layoutOverride).length > 0 ||
+    Object.keys(topLevelOverride).length > 0 ||
+    cleanupOverride
+  ) {
     return {
       ...preset,
       ...topLevelOverride,
+      ...(cleanupOverride ? { cleanup: { ...preset.cleanup, ...cleanupOverride } } : {}),
       layout: { ...preset.layout, ...layoutOverride },
     };
   }
@@ -320,8 +377,8 @@ function buildRenderProps(
   const captionConfig = resolveCaptionConfig(options);
   const splitScreenRatio = normalizeSplitScreenRatio(options.splitScreenRatio);
 
-  // Sanitize words: filter out TTS markers like [_TT_###] and standalone punctuation
-  const sanitizedWords = options.timestamps.allWords.filter((w) => isDisplayableWord(w.word));
+  // Sanitize words: filter out TTS markers, standalone punctuation, and optional fillers
+  const sanitizedWords = filterCaptionWords(options.timestamps.allWords, captionConfig.cleanup);
 
   return {
     schemaVersion: RENDER_SCHEMA_VERSION,

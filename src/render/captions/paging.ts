@@ -19,6 +19,21 @@ import { CaptionLayout } from './config';
  */
 const TTS_MARKER_PATTERN = /^\[_?[A-Z]+_?\d*\]$/;
 
+const DEFAULT_FILLER_WORDS = new Set([
+  'um',
+  'uh',
+  'erm',
+  'er',
+  'ah',
+  'hmm',
+  'mm',
+  'uhm',
+]);
+
+function normalizeWordToken(word: string): string {
+  return word.trim().toLowerCase().replace(/^[^a-z0-9']+|[^a-z0-9']+$/gi, '');
+}
+
 /**
  * Pattern for ASR artifacts that shouldn't be displayed
  * - Standalone punctuation (e.g., "?" or "." as a separate word)
@@ -53,6 +68,28 @@ export function isDisplayableWord(word: string): boolean {
   if (isTtsMarker(trimmed)) return false;
   if (isAsrArtifact(trimmed)) return false;
   return true;
+}
+
+export function filterCaptionWords<T extends { word: string }>(
+  words: T[],
+  options?: { dropFillers?: boolean; fillerWords?: string[] }
+): T[] {
+  const dropFillers = Boolean(options?.dropFillers);
+  const customFillers = (options?.fillerWords ?? [])
+    .map((word) => normalizeWordToken(word))
+    .filter(Boolean);
+  const fillerSet =
+    dropFillers && customFillers.length > 0
+      ? new Set([...DEFAULT_FILLER_WORDS, ...customFillers])
+      : DEFAULT_FILLER_WORDS;
+
+  return words.filter((word) => {
+    if (!isDisplayableWord(word.word)) return false;
+    if (!dropFillers) return true;
+    const token = normalizeWordToken(word.word);
+    if (!token) return false;
+    return !fillerSet.has(token);
+  });
 }
 
 /**

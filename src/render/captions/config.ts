@@ -137,6 +137,17 @@ export const EmphasisStyleSchema = z.object({
 export type EmphasisStyle = z.infer<typeof EmphasisStyleSchema>;
 
 /**
+ * Cleanup configuration (optional word filtering)
+ */
+export const CaptionCleanupSchema = z.object({
+  /** Drop filler words (e.g., um, uh) */
+  dropFillers: z.boolean().default(false),
+  /** Custom filler word list */
+  fillerWords: z.array(z.string()).default([]),
+});
+export type CaptionCleanup = z.infer<typeof CaptionCleanupSchema>;
+
+/**
  * Layout configuration - controls how words are grouped into pages
  *
  * IMPORTANT: Words are NEVER broken mid-word. Full words only.
@@ -251,6 +262,10 @@ export const CaptionConfigSchema = z.object({
   // === EMPHASIS ===
   /** Emphasis styling for power words, numbers, etc. */
   emphasis: EmphasisStyleSchema.default({}),
+
+  // === CLEANUP ===
+  /** Optional filtering rules for caption words */
+  cleanup: CaptionCleanupSchema.default({}),
 
   // === LAYOUT ===
   /** How words are grouped into pages/lines */

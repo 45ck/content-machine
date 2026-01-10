@@ -4,6 +4,7 @@
  * Generates high-quality speech audio locally.
  */
 
+import { RawAudio } from '@huggingface/transformers';
 import { createLogger } from '../../core/logger';
 import { APIError } from '../../core/errors';
 
@@ -37,6 +38,79 @@ type KokoroTTSInstance = Awaited<
 >;
 let cachedTTS: KokoroTTSInstance | null = null;
 
+const LONG_TEXT_CHAR_THRESHOLD = 500;
+const DEFAULT_PAUSE_SECONDS = 0.08;
+
+function shouldChunkText(text: string): boolean {
+  return text.length >= LONG_TEXT_CHAR_THRESHOLD;
+}
+
+function mergeAudioChunks(params: {
+  chunks: Float32Array[];
+  sampleRate: number;
+  pauseSeconds?: number;
+}): RawAudio {
+  const pauseSeconds = params.pauseSeconds ?? DEFAULT_PAUSE_SECONDS;
+  const pauseSamples =
+    pauseSeconds > 0 ? Math.max(0, Math.round(params.sampleRate * pauseSeconds)) : 0;
+  const totalLength =
+    params.chunks.reduce((sum, chunk) => sum + chunk.length, 0) +
+    pauseSamples * Math.max(0, params.chunks.length - 1);
+
+  const combined = new Float32Array(totalLength);
+  let offset = 0;
+
+  params.chunks.forEach((chunk, index) => {
+    combined.set(chunk, offset);
+    offset += chunk.length;
+    if (pauseSamples > 0 && index < params.chunks.length - 1) {
+      offset += pauseSamples;
+    }
+  });
+
+  return new RawAudio(combined, params.sampleRate);
+}
+
+async function generateChunkedAudio(params: {
+  text: string;
+  voice: string;
+  speed: number;
+  log: ReturnType<typeof createLogger>;
+}): Promise<RawAudio> {
+  const kokoro = await getKokoro();
+
+  if (!cachedTTS) {
+    params.log.debug('Loading TTS model');
+    cachedTTS = await kokoro.KokoroTTS.from_pretrained(
+      'onnx-community/Kokoro-82M-v1.0-ONNX',
+      { dtype: 'q8' }
+    );
+    params.log.debug('TTS model loaded');
+  }
+
+  const splitter = new kokoro.TextSplitterStream();
+  splitter.push(params.text);
+  splitter.close();
+
+  const chunks: Float32Array[] = [];
+  let sampleRate = 24000;
+  let chunkCount = 0;
+
+  params.log.info('Generating chunked TTS audio');
+
+  for await (const { audio } of cachedTTS.stream(splitter, {
+    voice: params.voice,
+    speed: params.speed,
+  })) {
+    chunkCount += 1;
+    sampleRate = audio.sampling_rate;
+    chunks.push(audio.audio);
+  }
+
+  params.log.info({ chunkCount }, 'Chunked TTS audio generated');
+  return mergeAudioChunks({ chunks, sampleRate });
+}
+
 /**
  * Synthesize speech from text using kokoro-js
  */
@@ -58,12 +132,24 @@ export async function synthesizeSpeech(options: TTSOptions): Promise<TTSResult> 
       log.debug('TTS model loaded');
     }
 
-    // Generate audio
-    log.debug('Generating audio');
-    const audio = await cachedTTS.generate(options.text, {
-      voice: options.voice,
-      speed: options.speed ?? 1.0,
-    });
+    const speed = options.speed ?? 1.0;
+    let audio: RawAudio;
+
+    if (shouldChunkText(options.text)) {
+      audio = await generateChunkedAudio({
+        text: options.text,
+        voice: options.voice,
+        speed,
+        log,
+      });
+    } else {
+      // Generate audio
+      log.debug('Generating audio');
+      audio = await cachedTTS.generate(options.text, {
+        voice: options.voice,
+        speed,
+      });
+    }
 
     // Save to file
     await audio.save(options.outputPath);

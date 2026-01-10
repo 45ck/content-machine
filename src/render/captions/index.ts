@@ -37,6 +37,7 @@ export {
   type StrokeStyle,
   type TextShadow,
   type CaptionLayout,
+  type CaptionCleanup,
   parseCaptionConfig,
   mergeCaptionConfig,
 } from './config';
@@ -64,6 +65,7 @@ export {
   toTimedWords,
   sanitizeTimedWords,
   sanitizeTimedWordsWithConfidence,
+  filterCaptionWords,
   isDisplayableWord,
   isTtsMarker,
   isAsrArtifact,
