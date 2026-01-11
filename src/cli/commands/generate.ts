@@ -135,8 +135,8 @@ interface GenerateOptions {
   pipeline?: 'standard' | 'audio-first';
   /** Split-screen layout preset (gameplay-top, gameplay-bottom) */
   splitLayout?: string;
-  /** Whisper model size: tiny, base, small, medium */
-  whisperModel?: 'tiny' | 'base' | 'small' | 'medium';
+  /** Whisper model size: tiny, base, small, medium, large */
+  whisperModel?: 'tiny' | 'base' | 'small' | 'medium' | 'large';
   /** Caption grouping window in milliseconds */
   captionGroupMs?: string;
   /** Reconcile ASR output to original script text */
@@ -2599,7 +2599,7 @@ export const generateCommand = new Command('generate')
   )
   .option(
     '--whisper-model <model>',
-    'Whisper model size: tiny, base (default), small, medium (larger = more accurate but slower)'
+    'Whisper model size: tiny, base (default), small, medium, large (larger = more accurate but slower)'
   )
   .option(
     '--caption-group-ms <ms>',
