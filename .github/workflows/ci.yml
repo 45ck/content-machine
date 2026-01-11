@@ -6,6 +6,8 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
+  pull_request_target:
+    branches: [master]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -18,11 +20,21 @@ jobs:
   quality:
     name: Quality Gates
     runs-on: ubuntu-latest
+    if: >-
+      ${{
+        github.event_name != 'pull_request_target' ||
+        (
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          startsWith(github.head_ref, 'release-please--')
+        )
+      }}
     env:
       HUSKY: 0
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v6

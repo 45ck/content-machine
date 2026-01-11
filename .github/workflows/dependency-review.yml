@@ -2,6 +2,8 @@ name: Dependency Review
 
 on:
   pull_request:
+  pull_request_target:
+    branches: [master]
   workflow_dispatch:
     inputs:
       base_ref:
@@ -19,12 +21,22 @@ permissions:
 jobs:
   dependency-review:
     runs-on: ubuntu-latest
+    if: >-
+      ${{
+        github.event_name != 'pull_request_target' ||
+        (
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          startsWith(github.head_ref, 'release-please--')
+        )
+      }}
     env:
-      BASE_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.base_ref || github.base_ref }}
-      HEAD_REF: ${{ github.event_name == 'workflow_dispatch' && (inputs.head_ref || github.ref_name) || github.head_ref }}
+      BASE_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.base_ref || github.event.pull_request.base.ref }}
+      HEAD_REF: ${{ github.event_name == 'workflow_dispatch' && (inputs.head_ref || github.ref_name) || github.event.pull_request.head.ref }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Dependency Review
         uses: actions/dependency-review-action@v4
