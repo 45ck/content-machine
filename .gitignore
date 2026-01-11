@@ -52,5 +52,8 @@ out/
 .cache/
 *.traineddata
 
+# Stryker (mutation testing)
+.stryker-tmp/
+
 # Generated docs
 docs/api/

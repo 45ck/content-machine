@@ -111,11 +111,14 @@ program.hook('preAction', (_thisCommand, actionCommand) => {
       ? actionCommand.optsWithGlobals()
       : actionCommand.opts();
 
+  const offline = Boolean(opts.offline) || process.env.CM_OFFLINE === '1';
+  const yes = Boolean(opts.yes) || process.env.CM_YES === '1';
+
   setCliRuntime({
     json: Boolean(opts.json),
     verbose: Boolean(opts.verbose),
-    offline: Boolean(opts.offline),
-    yes: Boolean(opts.yes),
+    offline,
+    yes,
     isTty: Boolean(process.stderr.isTTY),
     startTime: Date.now(),
     command: getCommandPath(actionCommand),
@@ -123,14 +126,10 @@ program.hook('preAction', (_thisCommand, actionCommand) => {
 
   if (opts.offline) {
     process.env.CM_OFFLINE = '1';
-  } else {
-    delete process.env.CM_OFFLINE;
   }
 
   if (opts.yes) {
     process.env.CM_YES = '1';
-  } else {
-    delete process.env.CM_YES;
   }
 
   // In JSON mode, stdout must remain machine-readable (no logs/spinners).
