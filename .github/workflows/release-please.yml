@@ -29,6 +29,43 @@ jobs:
             const baseBranch = context.payload.repository.default_branch;
             const prefix = `release-please--branches--${baseBranch}--components--`;
 
+            const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+            async function dispatchWithRetry({ workflow_id, ref, inputs }) {
+              for (let attempt = 1; attempt <= 5; attempt++) {
+                try {
+                  await github.rest.actions.createWorkflowDispatch({
+                    owner,
+                    repo,
+                    workflow_id,
+                    ref,
+                    inputs,
+                  });
+                  core.info(`Dispatched ${workflow_id} on ${ref}`);
+                  return true;
+                } catch (error) {
+                  const status = error?.status;
+                  const message = String(error?.message ?? error);
+
+                  const isDispatchTriggerRace =
+                    status === 422 && message.includes("Workflow does not have 'workflow_dispatch' trigger");
+
+                  if (isDispatchTriggerRace && attempt < 5) {
+                    core.warning(
+                      `Dispatch for ${workflow_id} failed (attempt ${attempt}/5): ${message} — retrying...`
+                    );
+                    await sleep(5000);
+                    continue;
+                  }
+
+                  core.warning(`Dispatch for ${workflow_id} failed: ${message}`);
+                  return false;
+                }
+              }
+
+              return false;
+            }
+
             const { data: pulls } = await github.rest.pulls.list({
               owner,
               repo,
@@ -46,23 +83,17 @@ jobs:
             for (const pr of releasePrs) {
               core.info(`Dispatching workflows for PR #${pr.number} on ref ${pr.head.ref}`);
 
-              await github.rest.actions.createWorkflowDispatch({
-                owner,
-                repo,
+              await dispatchWithRetry({
                 workflow_id: 'ci.yml',
                 ref: pr.head.ref,
               });
 
-              await github.rest.actions.createWorkflowDispatch({
-                owner,
-                repo,
+              await dispatchWithRetry({
                 workflow_id: 'codeql.yml',
                 ref: pr.head.ref,
               });
 
-              await github.rest.actions.createWorkflowDispatch({
-                owner,
-                repo,
+              await dispatchWithRetry({
                 workflow_id: 'dependency-review.yml',
                 ref: pr.head.ref,
                 inputs: {
