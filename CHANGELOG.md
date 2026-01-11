@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1](https://github.com/45ck/content-machine/compare/v0.2.0...v0.2.1) (2026-01-11)
+
+
+### Bug Fixes
+
+* **ci:** avoid duplicate checks on release-please PRs ([#25](https://github.com/45ck/content-machine/issues/25)) ([e7e4129](https://github.com/45ck/content-machine/commit/e7e41291627a6f97abbe79963d2e2629137c3c3f))
+* **security:** force esbuild &gt;=0.27.2 ([#22](https://github.com/45ck/content-machine/issues/22)) ([1842dac](https://github.com/45ck/content-machine/commit/1842dacb32aef5fa59d8aedacf335f5896809387))
+
 ## [0.2.0](https://github.com/45ck/content-machine/compare/v0.1.0...v0.2.0) (2026-01-11)
 
 
