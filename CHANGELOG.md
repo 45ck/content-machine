@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2](https://github.com/45ck/content-machine/compare/v0.2.1...v0.2.2) (2026-01-11)
+
+
+### Bug Fixes
+
+* **ci:** restore required check names ([#26](https://github.com/45ck/content-machine/issues/26)) ([87d22d0](https://github.com/45ck/content-machine/commit/87d22d0af9f1e329d0b970384c68088d088784cc))
+
 ## [0.2.1](https://github.com/45ck/content-machine/compare/v0.2.0...v0.2.1) (2026-01-11)
 
 
