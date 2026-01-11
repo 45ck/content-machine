@@ -6,6 +6,8 @@ on:
     branches: [master]
   pull_request:
     branches: [master]
+  pull_request_target:
+    branches: [master]
   schedule:
     - cron: '24 3 * * 1'
 
@@ -22,9 +24,19 @@ jobs:
   analyze:
     name: Analyze (CodeQL)
     runs-on: ubuntu-latest
+    if: >-
+      ${{
+        github.event_name != 'pull_request_target' ||
+        (
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          startsWith(github.head_ref, 'release-please--')
+        )
+      }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
