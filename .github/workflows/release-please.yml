@@ -7,13 +7,67 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  actions: write
 
 jobs:
   release-please:
     runs-on: ubuntu-latest
     steps:
       - name: Release Please
+        id: release
         uses: googleapis/release-please-action@v4
         with:
           config-file: .release-please-config.json
           manifest-file: .release-please-manifest.json
+
+      - name: Dispatch required checks for release PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const baseBranch = context.payload.repository.default_branch;
+            const prefix = `release-please--branches--${baseBranch}--components--`;
+
+            const { data: pulls } = await github.rest.pulls.list({
+              owner,
+              repo,
+              state: 'open',
+              base: baseBranch,
+              per_page: 100,
+            });
+
+            const releasePrs = pulls.filter((pr) => pr.head.ref.startsWith(prefix));
+            if (releasePrs.length === 0) {
+              core.info('No open release-please PR found; skipping dispatch.');
+              return;
+            }
+
+            for (const pr of releasePrs) {
+              core.info(`Dispatching workflows for PR #${pr.number} on ref ${pr.head.ref}`);
+
+              await github.rest.actions.createWorkflowDispatch({
+                owner,
+                repo,
+                workflow_id: 'ci.yml',
+                ref: pr.head.ref,
+              });
+
+              await github.rest.actions.createWorkflowDispatch({
+                owner,
+                repo,
+                workflow_id: 'codeql.yml',
+                ref: pr.head.ref,
+              });
+
+              await github.rest.actions.createWorkflowDispatch({
+                owner,
+                repo,
+                workflow_id: 'dependency-review.yml',
+                ref: pr.head.ref,
+                inputs: {
+                  base_ref: pr.base.ref,
+                  head_ref: pr.head.ref,
+                },
+              });
+            }
