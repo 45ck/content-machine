@@ -1,6 +1,7 @@
 import { loadConfig } from '../core/config';
 import { createLogger } from '../core/logger';
 import { CMError, NotFoundError } from '../core/errors';
+import { getCliRuntime } from './runtime';
 import {
   HookAudioModeEnum,
   HookFitEnum,
@@ -49,18 +50,23 @@ function normalizeTrimDuration(value: number | undefined): number | undefined {
   return value;
 }
 
-export async function resolveHookFromCli(options: {
-  hook?: unknown;
-  hookLibrary?: unknown;
-  hooksDir?: unknown;
-  downloadHook?: unknown;
-  hookDuration?: unknown;
-  hookTrim?: unknown;
-  hookAudio?: unknown;
-  hookFit?: unknown;
-}): Promise<HookClip | null> {
+export async function resolveHookFromCli(
+  options: {
+    hook?: unknown;
+    hookLibrary?: unknown;
+    hooksDir?: unknown;
+    downloadHook?: unknown;
+    hookDuration?: unknown;
+    hookTrim?: unknown;
+    hookAudio?: unknown;
+    hookFit?: unknown;
+  },
+  policy: { allowDownloads?: boolean } = {}
+): Promise<HookClip | null> {
   const log = createLogger({ module: 'hooks' });
+  const runtime = getCliRuntime();
   const config = loadConfig();
+  const allowDownloads = policy.allowDownloads !== false;
   const hookFromCli = options.hook !== undefined && options.hook !== null;
   const rawHookValue = options.hook ? String(options.hook) : config.hooks.defaultHook;
   const hookValue = normalizeHookValue(rawHookValue);
@@ -79,7 +85,7 @@ export async function resolveHookFromCli(options: {
   }
   const audio = parseHookAudio(options.hookAudio ?? config.hooks.audio);
   const fit = parseHookFit(options.hookFit ?? config.hooks.fit);
-  const downloadMissing = Boolean(options.downloadHook);
+  const downloadMissing = allowDownloads && (Boolean(options.downloadHook) || runtime.yes);
 
   try {
     return await resolveHookSelection({
