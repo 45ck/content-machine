@@ -62,8 +62,8 @@ function parseWordList(value: string | undefined): string[] | undefined {
   return items.length > 0 ? items : [];
 }
 
-function resolvePresetName(raw: string): CaptionPresetName {
-  const presetName = raw.toLowerCase();
+function getPresetName(value: string): CaptionPresetName {
+  const presetName = value.toLowerCase();
   if (!Object.prototype.hasOwnProperty.call(CAPTION_STYLE_PRESETS, presetName)) {
     throw new CMError('INVALID_ARGUMENT', `Invalid --caption-preset: ${presetName}`, {
       fix: 'Use one of: tiktok, youtube, reels, bold, minimal, neon, capcut, hormozi, karaoke',
@@ -72,7 +72,7 @@ function resolvePresetName(raw: string): CaptionPresetName {
   return presetName as CaptionPresetName;
 }
 
-function resolveCaptionMode(value?: string): CaptionDisplayMode | undefined {
+function parseCaptionMode(value: string | undefined): CaptionDisplayMode | undefined {
   if (!value) return undefined;
   const parsed = CaptionDisplayModeSchema.safeParse(String(value));
   if (!parsed.success) {
@@ -83,13 +83,8 @@ function resolveCaptionMode(value?: string): CaptionDisplayMode | undefined {
   return parsed.data;
 }
 
-function buildCaptionConfig(
-  options: CaptionsOptions,
-  presetName: CaptionPresetName
-): CaptionConfig {
-  const preset = getCaptionPreset(presetName);
+function buildLayoutOverride(options: CaptionsOptions): Partial<CaptionConfig['layout']> {
   const layoutOverride: Partial<CaptionConfig['layout']> = {};
-
   const maxWords = parseOptionalInt(options.captionMaxWords);
   if (maxWords !== undefined) layoutOverride.maxWordsPerPage = maxWords;
   const minWords = parseOptionalInt(options.captionMinWords);
@@ -106,28 +101,86 @@ function buildCaptionConfig(
   if (minOnScreenMsShort !== undefined) {
     layoutOverride.minOnScreenMsShort = minOnScreenMsShort;
   }
+  return layoutOverride;
+}
 
-  const captionMode = resolveCaptionMode(options.captionMode);
-  const fillerWords = parseWordList(options.captionFillerWords);
-  const dropFillers = Boolean(
-    options.captionDropFillers || (fillerWords && fillerWords.length > 0)
-  );
-
+function buildCaptionConfig(params: {
+  presetName: CaptionPresetName;
+  captionMode?: CaptionDisplayMode;
+  layoutOverride: Partial<CaptionConfig['layout']>;
+  fillerWords: string[] | undefined;
+  dropFillers: boolean;
+}): CaptionConfig {
+  const preset = getCaptionPreset(params.presetName);
   return CaptionConfigSchema.parse({
     ...preset,
-    ...(captionMode ? { displayMode: captionMode } : {}),
-    ...(Object.keys(layoutOverride).length > 0
-      ? { layout: { ...preset.layout, ...layoutOverride } }
+    ...(params.captionMode ? { displayMode: params.captionMode } : {}),
+    ...(Object.keys(params.layoutOverride).length > 0
+      ? { layout: { ...preset.layout, ...params.layoutOverride } }
       : {}),
-    ...(dropFillers
+    ...(params.dropFillers
       ? {
           cleanup: {
             dropFillers: true,
-            fillerWords: fillerWords ?? [],
+            fillerWords: params.fillerWords ?? [],
           },
         }
       : {}),
   });
+}
+
+function buildJsonArgs(
+  options: CaptionsOptions,
+  presetName: string,
+  captionMode: string | null,
+  dropFillers: boolean,
+  fillerWords: string[] | undefined
+) {
+  return {
+    timestamps: options.timestamps,
+    output: options.output,
+    captionPreset: presetName,
+    captionMode,
+    captionMaxWords: parseOptionalInt(options.captionMaxWords) ?? null,
+    captionMinWords: parseOptionalInt(options.captionMinWords) ?? null,
+    captionTargetWords: parseOptionalInt(options.captionTargetWords) ?? null,
+    captionMaxWpm: parseOptionalNumber(options.captionMaxWpm) ?? null,
+    captionMaxCps: parseOptionalNumber(options.captionMaxCps) ?? null,
+    captionMinOnScreenMs: parseOptionalInt(options.captionMinOnScreenMs) ?? null,
+    captionMinOnScreenMsShort: parseOptionalInt(options.captionMinOnScreenMsShort) ?? null,
+    captionDropFillers: dropFillers,
+    captionFillerWords: fillerWords ?? null,
+    summary: Boolean(options.summary),
+  };
+}
+
+function buildSummaryLines(params: {
+  report: ReturnType<typeof analyzeCaptionChunks>;
+  output: string;
+  includeDetails: boolean;
+}): string[] {
+  const { report, output, includeDetails } = params;
+  const lines = formatKeyValueRows([
+    ['Chunks', String(report.totalChunks)],
+    ['Avg duration', `${(report.avgDurationMs / 1000).toFixed(2)}s`],
+    ['Min duration', `${(report.minDurationMs / 1000).toFixed(2)}s`],
+    ['Max duration', `${(report.maxDurationMs / 1000).toFixed(2)}s`],
+    ['Fast chunks', String(report.fastChunkCount)],
+    ['Max CPS', report.maxCps.toFixed(1)],
+    ['Max WPM', report.maxWpm.toFixed(0)],
+    ['Report', output],
+  ]);
+
+  if (includeDetails && report.fastChunkCount > 0) {
+    const fastChunks = report.chunks.filter((chunk) => !chunk.meetsMinDuration).slice(0, 5);
+    lines.push('', 'Fast chunks (first 5):');
+    for (const chunk of fastChunks) {
+      lines.push(
+        `- [${chunk.index}] ${(chunk.durationMs / 1000).toFixed(2)}s < ${(chunk.requiredMinMs / 1000).toFixed(2)}s: ${chunk.text}`
+      );
+    }
+  }
+  return lines;
 }
 
 export const captionsCommand = new Command('captions')
@@ -156,13 +209,22 @@ export const captionsCommand = new Command('captions')
 
     try {
       const timestamps = await readInputFile<TimestampsOutput>(options.timestamps);
-      const presetName = resolvePresetName(String(options.captionPreset));
-      const captionMode = resolveCaptionMode(options.captionMode);
+      const presetName = getPresetName(String(options.captionPreset));
+      const captionMode = parseCaptionMode(options.captionMode);
+      const layoutOverride = buildLayoutOverride(options);
+
       const fillerWords = parseWordList(options.captionFillerWords);
       const dropFillers = Boolean(
         options.captionDropFillers || (fillerWords && fillerWords.length > 0)
       );
-      const captionConfig = buildCaptionConfig(options, presetName);
+
+      const captionConfig = buildCaptionConfig({
+        presetName,
+        captionMode,
+        layoutOverride,
+        fillerWords,
+        dropFillers,
+      });
 
       const report = analyzeCaptionChunks(timestamps.allWords, captionConfig);
 
@@ -173,23 +235,7 @@ export const captionsCommand = new Command('captions')
         writeJsonEnvelope(
           buildJsonEnvelope({
             command: 'captions',
-            args: {
-              timestamps: options.timestamps,
-              output: options.output,
-              captionPreset: presetName,
-              captionMode: captionMode ?? null,
-              captionMaxWords: parseOptionalInt(options.captionMaxWords) ?? null,
-              captionMinWords: parseOptionalInt(options.captionMinWords) ?? null,
-              captionTargetWords: parseOptionalInt(options.captionTargetWords) ?? null,
-              captionMaxWpm: parseOptionalNumber(options.captionMaxWpm) ?? null,
-              captionMaxCps: parseOptionalNumber(options.captionMaxCps) ?? null,
-              captionMinOnScreenMs: parseOptionalInt(options.captionMinOnScreenMs) ?? null,
-              captionMinOnScreenMsShort:
-                parseOptionalInt(options.captionMinOnScreenMsShort) ?? null,
-              captionDropFillers: dropFillers,
-              captionFillerWords: fillerWords ?? null,
-              summary: Boolean(options.summary),
-            },
+            args: buildJsonArgs(options, presetName, captionMode ?? null, dropFillers, fillerWords),
             outputs: {
               reportPath: options.output,
               totalChunks: report.totalChunks,
@@ -204,26 +250,11 @@ export const captionsCommand = new Command('captions')
         );
         process.exit(report.fastChunkCount === 0 ? 0 : 1);
       }
-      const lines = formatKeyValueRows([
-        ['Chunks', String(report.totalChunks)],
-        ['Avg duration', `${(report.avgDurationMs / 1000).toFixed(2)}s`],
-        ['Min duration', `${(report.minDurationMs / 1000).toFixed(2)}s`],
-        ['Max duration', `${(report.maxDurationMs / 1000).toFixed(2)}s`],
-        ['Fast chunks', String(report.fastChunkCount)],
-        ['Max CPS', report.maxCps.toFixed(1)],
-        ['Max WPM', report.maxWpm.toFixed(0)],
-        ['Report', options.output],
-      ]);
-
-      if (!options.summary && report.fastChunkCount > 0) {
-        const fastChunks = report.chunks.filter((chunk) => !chunk.meetsMinDuration).slice(0, 5);
-        lines.push('', 'Fast chunks (first 5):');
-        for (const chunk of fastChunks) {
-          lines.push(
-            `- [${chunk.index}] ${(chunk.durationMs / 1000).toFixed(2)}s < ${(chunk.requiredMinMs / 1000).toFixed(2)}s: ${chunk.text}`
-          );
-        }
-      }
+      const lines = buildSummaryLines({
+        report,
+        output: options.output,
+        includeDetails: !options.summary,
+      });
 
       await writeSummaryCard({
         title: 'Caption diagnostics',

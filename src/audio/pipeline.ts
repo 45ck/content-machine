@@ -43,7 +43,7 @@ export interface GenerateAudioOptions {
    * Larger models are more accurate but slower.
    * Default: 'base'
    */
-  whisperModel?: 'tiny' | 'base' | 'small' | 'medium';
+  whisperModel?: 'tiny' | 'base' | 'small' | 'medium' | 'large';
   /**
    * Reconcile ASR output to match original script text.
    * Improves caption readability by using original punctuation/casing.

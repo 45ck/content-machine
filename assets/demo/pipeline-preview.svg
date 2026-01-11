@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-label="Content Machine pipeline: topic to script to audio to visuals to video">
+  <defs>
+    <style>
+      :root { color-scheme: light dark; }
+      .bg { fill: #0b0f19; }
+      .card { fill: #111827; stroke: #334155; stroke-width: 2; }
+      .txt { fill: #e5e7eb; font: 600 22px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
+      .sub { fill: #94a3b8; font: 500 16px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; }
+      .mono { fill: #cbd5e1; font: 600 16px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+      .arrow { stroke: #64748b; stroke-width: 4; fill: none; stroke-linecap: round; }
+      .accent { fill: #22c55e; }
+    </style>
+  </defs>
+  <rect class="bg" x="0" y="0" width="1200" height="420" rx="24"/>
+
+  <text class="txt" x="48" y="78">Content Machine</text>
+  <text class="sub" x="48" y="108">CLI pipeline for turning a topic into a short-form video</text>
+
+  <g transform="translate(48,150)">
+    <rect class="card" x="0" y="0" width="210" height="140" rx="18"/>
+    <text class="txt" x="24" y="54">Topic</text>
+    <text class="mono" x="24" y="92">"Redis vs Postgres"</text>
+  </g>
+
+  <path class="arrow" d="M 276 220 L 330 220"/>
+  <polygon class="accent" points="330,220 314,210 314,230"/>
+
+  <g transform="translate(350,150)">
+    <rect class="card" x="0" y="0" width="210" height="140" rx="18"/>
+    <text class="txt" x="24" y="54">Script</text>
+    <text class="mono" x="24" y="92">script.json</text>
+  </g>
+
+  <path class="arrow" d="M 578 220 L 632 220"/>
+  <polygon class="accent" points="632,220 616,210 616,230"/>
+
+  <g transform="translate(652,150)">
+    <rect class="card" x="0" y="0" width="230" height="140" rx="18"/>
+    <text class="txt" x="24" y="54">Audio</text>
+    <text class="mono" x="24" y="92">audio.wav</text>
+    <text class="mono" x="24" y="116">timestamps.json</text>
+  </g>
+
+  <path class="arrow" d="M 902 220 L 956 220"/>
+  <polygon class="accent" points="956,220 940,210 940,230"/>
+
+  <g transform="translate(976,150)">
+    <rect class="card" x="0" y="0" width="176" height="140" rx="18"/>
+    <text class="txt" x="24" y="54">Video</text>
+    <text class="mono" x="24" y="92">video.mp4</text>
+  </g>
+
+  <text class="sub" x="48" y="354">Stages can run independently: script → audio → visuals → render</text>
+</svg>
+

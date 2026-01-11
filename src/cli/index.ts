@@ -6,11 +6,13 @@
  */
 import 'dotenv/config';
 import { Command } from 'commander';
-import { version } from '../../package.json';
+import { createRequire } from 'node:module';
 import { setCliRuntime } from './runtime';
 import { logger } from '../core/logger';
 
 const program = new Command();
+const require = createRequire(import.meta.url);
+const { version } = require('../../package.json') as { version: string };
 
 type CommandLoader = () => Promise<Command>;
 
@@ -147,6 +149,10 @@ async function main(): Promise<void> {
 }
 
 main().catch((error) => {
-  logger.error({ error }, 'CLI failed to start');
+  const serializedError =
+    error instanceof Error
+      ? { name: error.name, message: error.message, stack: error.stack }
+      : { message: String(error) };
+  logger.error({ error: serializedError }, 'CLI failed to start');
   process.exit(1);
 });
