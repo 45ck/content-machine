@@ -49,7 +49,7 @@ export interface PipelineOptions {
   /** Pipeline mode: standard (whisper optional) or audio-first (whisper required) */
   pipelineMode?: 'standard' | 'audio-first';
   /** Whisper model size */
-  whisperModel?: 'tiny' | 'base' | 'small' | 'medium';
+  whisperModel?: 'tiny' | 'base' | 'small' | 'medium' | 'large';
   /** Reconcile ASR output to script text */
   reconcile?: boolean;
   /** Optional research output to inject into script stage */
@@ -129,12 +129,15 @@ export interface PipelineResult {
 
 const STAGES: PipelineStage[] = ['script', 'audio', 'visuals', 'render'];
 
-function normalizeWhisperModel(model: string | undefined): 'tiny' | 'base' | 'small' | 'medium' {
+function normalizeWhisperModel(
+  model: string | undefined
+): 'tiny' | 'base' | 'small' | 'medium' | 'large' {
   switch (model) {
     case 'tiny':
     case 'base':
     case 'small':
     case 'medium':
+    case 'large':
       return model;
     default:
       return 'base';
