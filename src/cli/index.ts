@@ -19,6 +19,7 @@ const COMMAND_LOADERS: Array<[string, CommandLoader]> = [
   ['audio', async () => (await import('./commands/audio')).audioCommand],
   ['visuals', async () => (await import('./commands/visuals')).visualsCommand],
   ['render', async () => (await import('./commands/render')).renderCommand],
+  ['assets', async () => (await import('./commands/assets')).assetsCommand],
   ['package', async () => (await import('./commands/package')).packageCommand],
   ['research', async () => (await import('./commands/research')).researchCommand],
   ['retrieve', async () => (await import('./commands/retrieve')).retrieveCommand],
