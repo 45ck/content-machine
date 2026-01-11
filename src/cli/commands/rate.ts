@@ -13,6 +13,7 @@ import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { CMError } from '../../core/errors';
+import type { SyncRatingOutput } from '../../score/sync-schema';
 import { existsSync } from 'node:fs';
 
 interface RateOptions {
@@ -22,6 +23,63 @@ interface RateOptions {
   minRating: string;
   mock?: boolean;
   summary?: boolean;
+}
+
+type SyncRatingResult = SyncRatingOutput;
+
+function parseFps(value: string): number {
+  const fps = Number.parseInt(value, 10);
+  if (!Number.isFinite(fps) || fps < 1 || fps > 30) {
+    throw new CMError('INVALID_ARGUMENT', `Invalid --fps value: ${value}`, {
+      fix: 'Use a number between 1 and 30 for --fps',
+    });
+  }
+  return fps;
+}
+
+function parseMinRating(value: string): number {
+  const minRating = Number.parseInt(value, 10);
+  if (!Number.isFinite(minRating) || minRating < 0 || minRating > 100) {
+    throw new CMError('INVALID_ARGUMENT', `Invalid --min-rating value: ${value}`, {
+      fix: 'Use a number between 0 and 100 for --min-rating',
+    });
+  }
+  return minRating;
+}
+
+function ensureVideoExists(path: string, mock: boolean | undefined): void {
+  if (mock) return;
+  if (!existsSync(path)) {
+    throw new CMError('FILE_NOT_FOUND', `Video file not found: ${path}`);
+  }
+}
+
+function writeHumanOutput(params: {
+  options: RateOptions;
+  passed: boolean;
+  result: SyncRatingResult;
+  formatCli: (result: SyncRatingResult) => string;
+}): void {
+  const { options, passed, result, formatCli } = params;
+
+  if (options.summary) {
+    writeStderrLine(`Sync rating: ${result.rating}/100 (${result.ratingLabel})`);
+    writeStderrLine(`Passed: ${passed}`);
+  } else {
+    writeStderrLine('\n' + formatCli(result));
+  }
+
+  if (!options.summary && result.errors.length > 0) {
+    writeStderrLine('\nSuggested fixes:');
+    for (const error of result.errors) {
+      if (error.suggestedFix) {
+        writeStderrLine(`  - ${error.suggestedFix}`);
+      }
+    }
+  }
+
+  writeStderrLine(`${options.summary ? '' : '\n'}Report written to: ${options.output}`);
+  writeStdoutLine(options.output);
 }
 
 export const rateCommand = new Command('rate')
@@ -37,23 +95,9 @@ export const rateCommand = new Command('rate')
     const spinner = createSpinner('Analyzing video sync quality...').start();
 
     try {
-      if (!options.mock && !existsSync(options.input)) {
-        throw new CMError('FILE_NOT_FOUND', `Video file not found: ${options.input}`);
-      }
-
-      const fps = Number.parseInt(options.fps, 10);
-      if (!Number.isFinite(fps) || fps < 1 || fps > 30) {
-        throw new CMError('INVALID_ARGUMENT', `Invalid --fps value: ${options.fps}`, {
-          fix: 'Use a number between 1 and 30 for --fps',
-        });
-      }
-
-      const minRating = Number.parseInt(options.minRating, 10);
-      if (!Number.isFinite(minRating) || minRating < 0 || minRating > 100) {
-        throw new CMError('INVALID_ARGUMENT', `Invalid --min-rating value: ${options.minRating}`, {
-          fix: 'Use a number between 0 and 100 for --min-rating',
-        });
-      }
+      ensureVideoExists(options.input, options.mock);
+      const fps = parseFps(options.fps);
+      const minRating = parseMinRating(options.minRating);
 
       spinner.text = 'Analyzing captions vs audio...';
 
@@ -102,24 +146,12 @@ export const rateCommand = new Command('rate')
         process.exit(passed ? 0 : 1);
       }
 
-      if (options.summary) {
-        writeStderrLine(`Sync rating: ${result.rating}/100 (${result.ratingLabel})`);
-        writeStderrLine(`Passed: ${passed}`);
-      } else {
-        writeStderrLine('\n' + formatSyncRatingCLI(result));
-      }
-
-      if (!options.summary && result.errors.length > 0) {
-        writeStderrLine('\nSuggested fixes:');
-        for (const error of result.errors) {
-          if (error.suggestedFix) {
-            writeStderrLine(`  - ${error.suggestedFix}`);
-          }
-        }
-      }
-
-      writeStderrLine(`${options.summary ? '' : '\n'}Report written to: ${options.output}`);
-      writeStdoutLine(options.output);
+      writeHumanOutput({
+        options,
+        passed,
+        result,
+        formatCli: formatSyncRatingCLI,
+      });
       process.exit(passed ? 0 : 1);
     } catch (error) {
       spinner.fail('Sync rating failed');

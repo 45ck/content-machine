@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import { getCliRuntime } from './runtime';
-import { writeStderrLine } from './output';
+import { writeStderr, writeStderrLine } from './output';
 
 const ASCII_BORDER = {
   topLeft: '+',
@@ -65,5 +65,5 @@ export async function writeSummaryCard(params: {
     margin: { top: 1, bottom: 1 },
     borderStyle: ASCII_BORDER,
   });
-  writeStderrLine(boxed);
+  writeStderr(`${boxed}\n`);
 }
