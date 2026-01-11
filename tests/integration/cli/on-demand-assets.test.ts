@@ -277,6 +277,25 @@ describe('on-demand assets', () => {
     expect(parsed.errors[0].code).toBe('OFFLINE');
   }, 90_000);
 
+  it('CM_OFFLINE=1 hooks download fails (env offline)', async () => {
+    const outDir = join(process.cwd(), 'tests', '.tmp', 'on-demand-assets', 'hooks-offline-env');
+    rmSync(outDir, { recursive: true, force: true });
+    mkdirSync(outDir, { recursive: true });
+
+    const hooksDir = join(outDir, 'hooks');
+
+    const result = await runCli(
+      ['hooks', 'download', 'no-crunch', '--hooks-dir', hooksDir, '--json'],
+      { CM_OFFLINE: '1' },
+      60000
+    );
+
+    expect(result.code).toBe(1);
+    const parsed = assertPureJson(result.stdout);
+    expect(parsed.command).toBe('hooks:download');
+    expect(parsed.errors[0].code).toBe('OFFLINE');
+  }, 90_000);
+
   it('cm --offline setup whisper --json fails fast (no downloads)', async () => {
     const outDir = join(
       process.cwd(),
