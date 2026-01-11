@@ -10,6 +10,7 @@
 import { createLogger } from '../core/logger';
 import { CMError } from '../core/errors';
 import { transcribeAudio, type ASRResult } from '../audio/asr';
+import { normalizeWord, isFuzzyMatch } from '../core/text/similarity';
 import {
   type SyncRatingOutput,
   type SyncMetrics,
@@ -27,7 +28,6 @@ import { join, basename } from 'node:path';
 import { tmpdir } from 'node:os';
 import { promisify } from 'node:util';
 import { probeVideoWithFfprobe } from '../validate/ffprobe';
-import { isFuzzyMatch, normalizeWord } from '../core/text/similarity';
 
 const log = createLogger({ module: 'sync-rater' });
 const execFileAsync = promisify(execFile);
@@ -485,21 +485,17 @@ export async function rateSyncQuality(
   log.info({ videoPath, options: opts }, 'Starting sync quality rating');
 
   if (mock) {
-    validateSyncRatingInput(videoPath, opts, { requireVideoExists: false });
     const analysisTimeMs = Date.now() - startTime;
     return buildMockSyncRatingOutput(videoPath, opts, analysisTimeMs);
   }
 
-  validateSyncRatingInput(videoPath, opts, { requireVideoExists: true });
+  validateSyncRatingInput(videoPath, opts);
+
   return rateSyncQualityReal(videoPath, opts, startTime);
 }
 
-function validateSyncRatingInput(
-  videoPath: string,
-  opts: SyncRatingOptions,
-  options: { requireVideoExists: boolean }
-): void {
-  if (options.requireVideoExists && !existsSync(videoPath)) {
+function validateSyncRatingInput(videoPath: string, opts: SyncRatingOptions): void {
+  if (!existsSync(videoPath)) {
     throw new CMError('FILE_NOT_FOUND', `Video file not found: ${videoPath}`);
   }
 

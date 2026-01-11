@@ -2,9 +2,9 @@
  * Import command - build artifacts from external assets
  */
 import { Command } from 'commander';
-import { glob, readdir, stat } from 'fs/promises';
-import { existsSync } from 'fs';
-import { extname, join } from 'path';
+import { readdir, stat } from 'node:fs/promises';
+import { existsSync } from 'node:fs';
+import { extname, join, resolve, sep } from 'node:path';
 import { CMError, SchemaError } from '../../core/errors';
 import { TimestampsOutputSchema } from '../../audio/schema';
 import { createSpinner } from '../progress';
@@ -17,6 +17,54 @@ const VIDEO_EXTENSIONS = new Set(['.mp4', '.mov', '.mkv', '.webm', '.avi']);
 
 function looksLikeGlob(spec: string): boolean {
   return /[*?[\]]/.test(spec);
+}
+
+function globToRegExp(globPattern: string): RegExp {
+  const escaped = globPattern
+    .replaceAll('\\', '/')
+    .replace(/[.+^${}()|\\]/g, '\\$&')
+    .replace(/\*\*/g, '___GLOBSTAR___')
+    .replace(/\*/g, '[^/]*')
+    .replace(/\?/g, '[^/]')
+    .replace(/___GLOBSTAR___/g, '.*');
+
+  return new RegExp(`^${escaped}$`, 'i');
+}
+
+function getGlobBaseDir(pattern: string): string {
+  const normalized = pattern.replaceAll('\\', '/');
+  const firstGlob = normalized.search(/[*?[\]]/);
+  if (firstGlob === -1) return resolve(pattern);
+  const before = normalized.slice(0, firstGlob);
+  const lastSlash = before.lastIndexOf('/');
+  if (lastSlash === -1) return resolve('.');
+  const base = normalized.slice(0, lastSlash);
+  return resolve(base.length ? base : '.');
+}
+
+async function walkFiles(dir: string): Promise<string[]> {
+  const entries = await readdir(dir, { withFileTypes: true });
+  const results: string[] = [];
+
+  for (const entry of entries) {
+    const fullPath = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      results.push(...(await walkFiles(fullPath)));
+      continue;
+    }
+    if (entry.isFile()) results.push(fullPath);
+  }
+
+  return results;
+}
+
+async function simpleGlob(pattern: string): Promise<string[]> {
+  const baseDir = getGlobBaseDir(pattern);
+  if (!existsSync(baseDir)) return [];
+
+  const matcher = globToRegExp(resolve(pattern).replaceAll(sep, '/'));
+  const files = await walkFiles(baseDir);
+  return files.filter((filePath) => matcher.test(resolve(filePath).replaceAll(sep, '/')));
 }
 
 function isVideoPath(path: string): boolean {
@@ -40,10 +88,7 @@ async function resolveClipInputs(options: { clips?: string; clip?: string }): Pr
   if (options.clips) {
     const spec = String(options.clips);
     if (looksLikeGlob(spec)) {
-      const matches: string[] = [];
-      for await (const match of glob(spec)) {
-        matches.push(match);
-      }
+      const matches = await simpleGlob(spec);
       results.push(...matches.filter(isVideoPath));
     } else {
       if (!existsSync(spec)) {
