@@ -28,7 +28,7 @@ import type { ResearchOutput } from '../../research/schema';
 import { createResearchOrchestrator } from '../../research/orchestrator';
 import { OpenAIProvider } from '../../core/llm/openai';
 import { CMError, NotFoundError, SchemaError } from '../../core/errors';
-import { resolveWhisperModelPath } from '../../core/assets/whisper';
+import { evaluateRequirements, planWhisperRequirements } from '../../core/assets/requirements';
 import { CliProgressObserver, PipelineEventEmitter, type PipelineEvent } from '../../core/events';
 import { getCliErrorInfo } from '../format';
 import {
@@ -731,22 +731,19 @@ async function runGeneratePreflight(params: {
   }
 
   const pipelineMode = options.pipeline ?? 'standard';
-  if (!options.mock && pipelineMode === 'audio-first') {
+  const whisperRequired =
+    !options.mock && pipelineMode === 'audio-first' && !options.timestamps && !options.audio;
+  if (whisperRequired) {
     const whisperModel = (options.whisperModel ?? 'base') as 'tiny' | 'base' | 'small' | 'medium';
-    const modelPath = resolveWhisperModelPath(whisperModel);
-    if (existsSync(modelPath)) {
+    const requirements = planWhisperRequirements({ required: true, model: whisperModel });
+    const results = await evaluateRequirements(requirements);
+    for (const requirement of results) {
       addPreflightCheck(checks, {
-        label: 'Whisper model',
-        status: 'ok',
-        detail: `${whisperModel} (${modelPath})`,
-      });
-    } else {
-      addPreflightCheck(checks, {
-        label: 'Whisper model',
-        status: 'fail',
-        code: 'DEPENDENCY_MISSING',
-        detail: `${whisperModel} model missing`,
-        fix: `Run: cm setup whisper --model ${whisperModel}`,
+        label: requirement.label,
+        status: requirement.ok ? 'ok' : 'fail',
+        code: requirement.ok ? undefined : 'DEPENDENCY_MISSING',
+        detail: requirement.detail,
+        fix: requirement.ok ? undefined : requirement.fix,
       });
     }
   }
