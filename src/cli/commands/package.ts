@@ -5,7 +5,7 @@
  */
 import { Command } from 'commander';
 import { generatePackage } from '../../package/generator';
-import { PlatformEnum } from '../../package/schema';
+import { Platform, PlatformEnum } from '../../package/schema';
 import { logger } from '../../core/logger';
 import { FakeLLMProvider } from '../../test/stubs/fake-llm';
 import { handleCommandError, writeOutputFile } from '../utils';
@@ -82,38 +82,112 @@ function writeDryRun(topic: string, platform: string, variants: number, output: 
   writeStderrLine(`   Output: ${output}`);
 }
 
+function parsePackageInputs(options: PackageCommandOptions): {
+  platform: Platform;
+  variants: number;
+  select: number | null;
+} {
+  const platform = PlatformEnum.parse(options.platform);
+  const variants = parseVariants(options.variants);
+  const select = parseSelect(options.select);
+  if (select !== null && (!Number.isFinite(select) || select <= 0)) {
+    throw new CMError('INVALID_ARGUMENT', `Invalid --select value: ${options.select}`, {
+      fix: 'Use a positive integer for --select (1-based), e.g. --select 2',
+    });
+  }
+  return { platform, variants, select };
+}
+
+function writeDryRunJson(params: {
+  topic: string;
+  platform: string;
+  variants: number;
+  select: number | null;
+  output: string;
+  runtime: ReturnType<typeof getCliRuntime>;
+}): void {
+  writeJsonEnvelope(
+    buildJsonEnvelope({
+      command: 'package',
+      args: {
+        topic: params.topic,
+        platform: params.platform,
+        variants: params.variants,
+        select: params.select ?? null,
+        output: params.output,
+        dryRun: true,
+      },
+      outputs: { dryRun: true },
+      timingsMs: Date.now() - params.runtime.startTime,
+    })
+  );
+}
+
+function writePackageJsonResult(params: {
+  topic: string;
+  options: PackageCommandOptions;
+  variants: number;
+  platform: string;
+  result: Awaited<ReturnType<typeof generatePackage>>;
+  runtime: ReturnType<typeof getCliRuntime>;
+}): void {
+  writeJsonEnvelope(
+    buildJsonEnvelope({
+      command: 'package',
+      args: {
+        topic: params.topic,
+        platform: params.platform,
+        variants: params.variants,
+        select: params.options.select ?? null,
+        output: params.options.output,
+        mock: Boolean(params.options.mock),
+      },
+      outputs: {
+        packagingPath: params.options.output,
+        selectedTitle: params.result.selected.title,
+        selectedIndex: params.result.selectedIndex,
+        variants: params.result.variants.length,
+      },
+      timingsMs: Date.now() - params.runtime.startTime,
+    })
+  );
+}
+
+function writePackageSummary(params: {
+  topic: string;
+  options: PackageCommandOptions;
+  result: Awaited<ReturnType<typeof generatePackage>>;
+}): void {
+  const { topic, options, result } = params;
+  writeStderrLine(`Packaging: ${result.selected.title}`);
+  writeStderrLine(`   Topic: ${result.topic}`);
+  writeStderrLine(`   Platform: ${result.platform}`);
+  writeStderrLine(`   Variants: ${result.variants.length}`);
+  writeStderrLine(`   Selected: ${result.selectedIndex + 1}/${result.variants.length}`);
+  if (options.mock) writeStderrLine('   Mock mode - packaging is for testing only');
+  writeStderrLine(
+    `Next: cm script --topic "${topic}" --package ${options.output}${options.mock ? ' --mock' : ''}`
+  );
+}
+
 async function runPackage(topic: string, options: PackageCommandOptions): Promise<void> {
   const spinner = createSpinner('Generating packaging...').start();
   const runtime = getCliRuntime();
 
   try {
-    const platform = PlatformEnum.parse(options.platform);
-    const variants = parseVariants(options.variants);
-    const select = parseSelect(options.select);
-    if (select !== null && (!Number.isFinite(select) || select <= 0)) {
-      throw new CMError('INVALID_ARGUMENT', `Invalid --select value: ${options.select}`, {
-        fix: 'Use a positive integer for --select (1-based), e.g. --select 2',
-      });
-    }
+    const { platform, variants, select } = parsePackageInputs(options);
 
     if (options.dryRun) {
       spinner.stop();
       if (runtime.json) {
-        writeJsonEnvelope(
-          buildJsonEnvelope({
-            command: 'package',
-            args: {
-              topic,
-              platform,
-              variants,
-              select: select ?? null,
-              output: options.output,
-              dryRun: true,
-            },
-            outputs: { dryRun: true },
-            timingsMs: Date.now() - runtime.startTime,
-          })
-        );
+        writeDryRunJson({
+          topic,
+          platform,
+          variants,
+          select,
+          output: options.output,
+          runtime,
+        });
         return;
       }
       writeDryRun(topic, platform, variants, options.output);
@@ -149,38 +223,11 @@ async function runPackage(topic: string, options: PackageCommandOptions): Promis
     await writeOutputFile(options.output, result);
 
     if (runtime.json) {
-      writeJsonEnvelope(
-        buildJsonEnvelope({
-          command: 'package',
-          args: {
-            topic,
-            platform,
-            variants,
-            select: select ?? null,
-            output: options.output,
-            mock: Boolean(options.mock),
-          },
-          outputs: {
-            packagingPath: options.output,
-            selectedTitle: result.selected.title,
-            selectedIndex: result.selectedIndex,
-            variants: result.variants.length,
-          },
-          timingsMs: Date.now() - runtime.startTime,
-        })
-      );
+      writePackageJsonResult({ topic, options, variants, platform, result, runtime });
       return;
     }
 
-    writeStderrLine(`Packaging: ${result.selected.title}`);
-    writeStderrLine(`   Topic: ${result.topic}`);
-    writeStderrLine(`   Platform: ${result.platform}`);
-    writeStderrLine(`   Variants: ${result.variants.length}`);
-    writeStderrLine(`   Selected: ${result.selectedIndex + 1}/${result.variants.length}`);
-    if (options.mock) writeStderrLine('   Mock mode - packaging is for testing only');
-    writeStderrLine(
-      `Next: cm script --topic "${topic}" --package ${options.output}${options.mock ? ' --mock' : ''}`
-    );
+    writePackageSummary({ topic, options, result });
 
     // Human-mode stdout should be reserved for the primary artifact path.
     writeStdoutLine(options.output);
