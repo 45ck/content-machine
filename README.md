@@ -1,5 +1,10 @@
 ﻿# Content Machine
 
+[![CI](https://github.com/45ck/content-machine/actions/workflows/ci.yml/badge.svg)](https://github.com/45ck/content-machine/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/45ck/content-machine/actions/workflows/codeql.yml/badge.svg)](https://github.com/45ck/content-machine/actions/workflows/codeql.yml)
+[![codecov](https://codecov.io/gh/45ck/content-machine/branch/master/graph/badge.svg)](https://codecov.io/gh/45ck/content-machine)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 Automated short-form video generation pipeline for TikTok, Reels, and Shorts.
 
 > **Status:** Early development. Not production-ready yet.

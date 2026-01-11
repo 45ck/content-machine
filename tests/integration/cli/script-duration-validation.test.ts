@@ -21,4 +21,3 @@ describe('cm script duration validation', () => {
     expect(result.stderr).toContain('--duration');
   });
 });
-

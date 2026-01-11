@@ -55,10 +55,15 @@ function validateClipPath(path: string): void {
   try {
     stats = statSync(path);
   } catch (error) {
-    throw new CMError('INVALID_MEDIA', `Unable to read clip file: ${path}`, {
-      path,
-      fix: 'Ensure the clip file exists and is readable',
-    }, error instanceof Error ? error : undefined);
+    throw new CMError(
+      'INVALID_MEDIA',
+      `Unable to read clip file: ${path}`,
+      {
+        path,
+        fix: 'Ensure the clip file exists and is readable',
+      },
+      error instanceof Error ? error : undefined
+    );
   }
 
   if (!stats.isFile()) {

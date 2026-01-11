@@ -381,18 +381,24 @@ interface PreflightCheck {
   code?: string;
 }
 
-const PREFLIGHT_USAGE_CODES = new Set(['INVALID_ARGUMENT', 'SCHEMA_ERROR', 'FILE_NOT_FOUND', 'INVALID_JSON']);
+const PREFLIGHT_USAGE_CODES = new Set([
+  'INVALID_ARGUMENT',
+  'SCHEMA_ERROR',
+  'FILE_NOT_FOUND',
+  'INVALID_JSON',
+]);
 
-function addPreflightCheck(
-  checks: PreflightCheck[],
-  entry: PreflightCheck
-): void {
+function addPreflightCheck(checks: PreflightCheck[], entry: PreflightCheck): void {
   checks.push(entry);
 }
 
 function formatPreflightLine(check: PreflightCheck): string {
   const status =
-    check.status === 'ok' ? chalk.green('OK ') : check.status === 'warn' ? chalk.yellow('WARN') : chalk.red('FAIL');
+    check.status === 'ok'
+      ? chalk.green('OK ')
+      : check.status === 'warn'
+        ? chalk.yellow('WARN')
+        : chalk.red('FAIL');
   const detail = check.detail ? ` - ${check.detail}` : '';
   return `- ${status} ${check.label}${detail}`;
 }
@@ -736,7 +742,9 @@ async function runGeneratePreflight(params: {
       status: existsSync(options.gameplay) ? 'ok' : 'fail',
       code: existsSync(options.gameplay) ? undefined : 'FILE_NOT_FOUND',
       detail: options.gameplay,
-      fix: existsSync(options.gameplay) ? undefined : 'Provide a valid gameplay directory or clip path',
+      fix: existsSync(options.gameplay)
+        ? undefined
+        : 'Provide a valid gameplay directory or clip path',
     });
   }
 
@@ -860,7 +868,8 @@ function writePreflightOutput(params: {
   passed: boolean;
   exitCode: number;
 }): void {
-  const { topic, options, runtime, templateSpec, resolvedTemplateId, checks, passed, exitCode } = params;
+  const { topic, options, runtime, templateSpec, resolvedTemplateId, checks, passed, exitCode } =
+    params;
 
   if (runtime.json) {
     const errors = passed
@@ -927,9 +936,7 @@ function parseOptionalNumber(value: string | undefined): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-function parseFontWeight(
-  value: string | undefined
-): number | 'normal' | 'bold' | 'black' | null {
+function parseFontWeight(value: string | undefined): number | 'normal' | 'bold' | 'black' | null {
   if (!value) return null;
   const raw = value.trim().toLowerCase();
   if (raw === 'normal' || raw === 'bold' || raw === 'black') {
@@ -955,7 +962,9 @@ function collectList(value: string, previous: string[] = []): string[] {
   return [...previous, value];
 }
 
-function parseSfxPlacement(value: string | undefined): 'hook' | 'scene' | 'list-item' | 'cta' | null {
+function parseSfxPlacement(
+  value: string | undefined
+): 'hook' | 'scene' | 'list-item' | 'cta' | null {
   if (!value) return null;
   const raw = value.trim();
   if (raw === 'hook' || raw === 'scene' || raw === 'list-item' || raw === 'cta') {
@@ -978,20 +987,19 @@ function buildAudioMixOptions(options: GenerateOptions): AudioMixPlanOptions {
   return {
     mixPreset: options.mixPreset ?? config.audioMix.preset,
     lufsTarget: parseOptionalNumber(options.lufsTarget) ?? config.audioMix.lufsTarget,
-    music: noMusic ? null : musicInput ?? config.music.default ?? null,
+    music: noMusic ? null : (musicInput ?? config.music.default ?? null),
     musicVolumeDb: parseOptionalNumber(options.musicVolume) ?? config.music.volumeDb,
     musicDuckDb: parseOptionalNumber(options.musicDuck) ?? config.music.duckDb,
     musicLoop: options.musicLoop !== undefined ? Boolean(options.musicLoop) : config.music.loop,
     musicFadeInMs: parseOptionalInt(options.musicFadeIn) ?? config.music.fadeInMs,
     musicFadeOutMs: parseOptionalInt(options.musicFadeOut) ?? config.music.fadeOutMs,
     sfx: noSfx ? [] : sfxInputs,
-    sfxPack: noSfx ? null : options.sfxPack ?? config.sfx.pack ?? null,
+    sfxPack: noSfx ? null : (options.sfxPack ?? config.sfx.pack ?? null),
     sfxAt: parseSfxPlacement(options.sfxAt) ?? config.sfx.placement,
     sfxVolumeDb: parseOptionalNumber(options.sfxVolume) ?? config.sfx.volumeDb,
     sfxMinGapMs: parseOptionalInt(options.sfxMinGap) ?? config.sfx.minGapMs,
-    sfxDurationSeconds:
-      parseOptionalNumber(options.sfxDuration) ?? config.sfx.durationSeconds,
-    ambience: noAmbience ? null : ambienceInput ?? config.ambience.default ?? null,
+    sfxDurationSeconds: parseOptionalNumber(options.sfxDuration) ?? config.sfx.durationSeconds,
+    ambience: noAmbience ? null : (ambienceInput ?? config.ambience.default ?? null),
     ambienceVolumeDb: parseOptionalNumber(options.ambienceVolume) ?? config.ambience.volumeDb,
     ambienceLoop:
       options.ambienceLoop !== undefined ? Boolean(options.ambienceLoop) : config.ambience.loop,
@@ -1235,7 +1243,10 @@ function getOptionNameMap(command: Command): Map<string, string> {
   return map;
 }
 
-function resolveWorkflowPath(baseDir: string | undefined, value: string | undefined): string | undefined {
+function resolveWorkflowPath(
+  baseDir: string | undefined,
+  value: string | undefined
+): string | undefined {
   if (!value) return undefined;
   return resolve(baseDir ?? process.cwd(), value);
 }
@@ -1270,7 +1281,12 @@ function applyWorkflowInputs(
 
   applyDefaultOption(record, command, 'script', resolveWorkflowPath(baseDir, inputs.script));
   applyDefaultOption(record, command, 'audio', resolveWorkflowPath(baseDir, inputs.audio));
-  applyDefaultOption(record, command, 'timestamps', resolveWorkflowPath(baseDir, inputs.timestamps));
+  applyDefaultOption(
+    record,
+    command,
+    'timestamps',
+    resolveWorkflowPath(baseDir, inputs.timestamps)
+  );
   applyDefaultOption(record, command, 'visuals', resolveWorkflowPath(baseDir, inputs.visuals));
 }
 
@@ -1572,8 +1588,7 @@ async function runGeneratePipeline(params: {
 
   try {
     const { runPipeline } = await import('../../core/pipeline');
-    const wordsPerPage =
-      params.options.wordsPerPage ?? params.options.captionMaxWords ?? undefined;
+    const wordsPerPage = params.options.wordsPerPage ?? params.options.captionMaxWords ?? undefined;
     const captionFillerWords = parseWordList(params.options.captionFillerWords);
     const captionDropFillers =
       params.options.captionDropFillers || (captionFillerWords && captionFillerWords.length > 0)
@@ -1693,7 +1708,10 @@ function getCaptionPreset(options: GenerateOptions): string {
   return options.captionPreset ?? 'capcut';
 }
 
-function parseLayoutPosition(value: unknown, optionName: string): 'top' | 'bottom' | 'full' | undefined {
+function parseLayoutPosition(
+  value: unknown,
+  optionName: string
+): 'top' | 'bottom' | 'full' | undefined {
   if (value == null) return undefined;
   const raw = String(value);
   if (raw === 'top' || raw === 'bottom' || raw === 'full') return raw;
@@ -1704,7 +1722,9 @@ function parseLayoutPosition(value: unknown, optionName: string): 'top' | 'botto
 
 function parseSplitLayoutPreset(
   value: unknown
-): { gameplayPosition: 'top' | 'bottom' | 'full'; contentPosition: 'top' | 'bottom' | 'full' } | undefined {
+):
+  | { gameplayPosition: 'top' | 'bottom' | 'full'; contentPosition: 'top' | 'bottom' | 'full' }
+  | undefined {
   if (value == null) return undefined;
   const raw = String(value);
   if (raw === 'gameplay-top') return { gameplayPosition: 'top', contentPosition: 'bottom' };
@@ -1959,7 +1979,12 @@ async function runGenerate(
   const { resolvedTemplate, templateDefaults, templateParams, templateGameplay } =
     await resolveTemplateAndApplyDefaults(options, command);
 
-  applyWorkflowDefaults(options, command, workflowDefinition, new Set(['template', 'workflowAllowExec']));
+  applyWorkflowDefaults(
+    options,
+    command,
+    workflowDefinition,
+    new Set(['template', 'workflowAllowExec'])
+  );
   applyWorkflowInputs(options, command, workflowDefinition, workflowBaseDir);
   applyWorkflowStageDefaults(options, workflowStageModes, artifactsDir);
   const templateSpec = toNullableString(options.template);
@@ -2111,8 +2136,10 @@ async function runGenerate(
 
   const splitLayoutPreset = parseSplitLayoutPreset(options.splitLayout);
   if (splitLayoutPreset) {
-    if (options.gameplayPosition == null) options.gameplayPosition = splitLayoutPreset.gameplayPosition;
-    if (options.contentPosition == null) options.contentPosition = splitLayoutPreset.contentPosition;
+    if (options.gameplayPosition == null)
+      options.gameplayPosition = splitLayoutPreset.gameplayPosition;
+    if (options.contentPosition == null)
+      options.contentPosition = splitLayoutPreset.contentPosition;
   }
 
   const gameplayPosition = parseLayoutPosition(options.gameplayPosition, '--gameplay-position');
@@ -2309,14 +2336,18 @@ function showDryRunSummary(
   );
   if (options.audio) {
     const tsLabel = options.timestamps ? options.timestamps : 'timestamps.json';
-    writeStderrLine(`   2. Audio -> ${options.audio} + ${tsLabel}${hasMix ? ' + audio.mix.json' : ''} (external)`);
+    writeStderrLine(
+      `   2. Audio -> ${options.audio} + ${tsLabel}${hasMix ? ' + audio.mix.json' : ''} (external)`
+    );
   } else {
     writeStderrLine(
       `   2. Audio -> audio.wav + timestamps.json${hasMix ? ' + audio.mix.json' : ''}${options.pipeline === 'audio-first' ? ' (Whisper ASR required)' : ''}`
     );
   }
   writeStderrLine(
-    options.visuals ? `   3. Visuals -> ${options.visuals} (external)` : '   3. Visuals -> visuals.json'
+    options.visuals
+      ? `   3. Visuals -> ${options.visuals} (external)`
+      : '   3. Visuals -> visuals.json'
   );
   writeStderrLine(`   4. Render -> ${options.output}`);
 }
@@ -2375,11 +2406,7 @@ async function showSuccessSummary(
       artifactRows.push(['Audio mix', result.audio.audioMixPath]);
     }
     artifactRows.push(['Visuals', join(artifactsDir, 'visuals.json')]);
-    lines.push(
-      '',
-      'Artifacts',
-      ...formatKeyValueRows(artifactRows)
-    );
+    lines.push('', 'Artifacts', ...formatKeyValueRows(artifactRows));
   }
 
   const profile = options.orientation === 'landscape' ? 'landscape' : 'portrait';

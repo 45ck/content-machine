@@ -37,7 +37,7 @@ export const rateCommand = new Command('rate')
     const spinner = createSpinner('Analyzing video sync quality...').start();
 
     try {
-      if (!existsSync(options.input)) {
+      if (!options.mock && !existsSync(options.input)) {
         throw new CMError('FILE_NOT_FOUND', `Video file not found: ${options.input}`);
       }
 

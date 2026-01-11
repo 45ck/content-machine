@@ -140,9 +140,7 @@ export async function selectGameplayClip(
     });
   }
 
-  const library = resolve(
-    expandTilde(resolvedLibrary ?? join('~', '.cm', 'assets', 'gameplay'))
-  );
+  const library = resolve(expandTilde(resolvedLibrary ?? join('~', '.cm', 'assets', 'gameplay')));
   if (!existsSync(library)) {
     if (options.strict) {
       throw new NotFoundError(`Gameplay library not found: ${library}`, {

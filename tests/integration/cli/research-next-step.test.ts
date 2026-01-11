@@ -10,4 +10,3 @@ describe('cm research Next: guidance', () => {
     expect(result.stderr).toContain('--research');
   });
 });
-

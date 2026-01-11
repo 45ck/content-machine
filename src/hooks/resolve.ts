@@ -118,8 +118,7 @@ export async function resolveHookSelection(options: ResolveHookOptions): Promise
     source = 'url';
   } else {
     const resolvedPath = resolve(expandTilde(hookValue));
-    const looksLikePath =
-      /[\\/]/.test(hookValue) || /\.(mp4|mov|mkv|webm)$/i.test(hookValue);
+    const looksLikePath = /[\\/]/.test(hookValue) || /\.(mp4|mov|mkv|webm)$/i.test(hookValue);
     if (existsSync(resolvedPath)) {
       source = 'file';
       hookPath = resolvedPath;

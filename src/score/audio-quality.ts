@@ -13,6 +13,7 @@
  */
 
 import type { SceneTimestamp, TimestampsOutput } from '../audio/schema';
+import { normalizeScenes, summarizeWords, type TimestampWord } from './timestamps';
 
 // ============================================================================
 // Types
@@ -94,28 +95,10 @@ export const AUDIO_THRESHOLDS = {
 // Analysis Functions
 // ============================================================================
 
-type TimestampWord = SceneTimestamp['words'][number];
-
-function normalizeScenes(timestamps: TimestampsOutput): SceneTimestamp[] {
-  if (timestamps.scenes && timestamps.scenes.length > 0) return timestamps.scenes;
-  if (timestamps.allWords.length === 0) return [];
-
-  return [
-    {
-      sceneId: 'scene-001',
-      audioStart: timestamps.allWords[0].start,
-      audioEnd: timestamps.allWords[timestamps.allWords.length - 1].end,
-      words: timestamps.allWords,
-    },
-  ];
-}
-
-function summarizeWords(words: TimestampWord[]): { totalDuration: number } {
-  if (words.length === 0) return { totalDuration: 0 };
-  return { totalDuration: words[words.length - 1].end - words[0].start };
-}
-
-function analyzeSilenceGaps(words: TimestampWord[], issues: AudioIssue[]): {
+function analyzeSilenceGaps(
+  words: TimestampWord[],
+  issues: AudioIssue[]
+): {
   silenceGapsScore: number;
   avgGapMs: number;
   maxGapMs: number;
@@ -146,7 +129,10 @@ function analyzeSilenceGaps(words: TimestampWord[], issues: AudioIssue[]): {
   return { silenceGapsScore, avgGapMs, maxGapMs };
 }
 
-function analyzeOverlaps(words: TimestampWord[], issues: AudioIssue[]): {
+function analyzeOverlaps(
+  words: TimestampWord[],
+  issues: AudioIssue[]
+): {
   overlapFreeScore: number;
   overlapsFound: number;
 } {
@@ -199,10 +185,13 @@ function analyzePaceConsistency(scenes: SceneTimestamp[], issues: AudioIssue[]):
     }
   }
 
-  const avgPace = scenePaces.length > 0 ? scenePaces.reduce((a, b) => a + b, 0) / scenePaces.length : 0;
+  const avgPace =
+    scenePaces.length > 0 ? scenePaces.reduce((a, b) => a + b, 0) / scenePaces.length : 0;
   const paceStdDev =
     scenePaces.length > 1
-      ? Math.sqrt(scenePaces.reduce((sum, p) => sum + Math.pow(p - avgPace, 2), 0) / scenePaces.length)
+      ? Math.sqrt(
+          scenePaces.reduce((sum, p) => sum + Math.pow(p - avgPace, 2), 0) / scenePaces.length
+        )
       : 0;
 
   const paceCv = avgPace > 0 ? paceStdDev / avgPace : 0;
@@ -210,7 +199,10 @@ function analyzePaceConsistency(scenes: SceneTimestamp[], issues: AudioIssue[]):
   return Math.max(0, 100 - (paceCv - AUDIO_THRESHOLDS.paceVarianceThreshold) * 200);
 }
 
-function analyzeBreathingRoom(words: TimestampWord[], issues: AudioIssue[]): {
+function analyzeBreathingRoom(
+  words: TimestampWord[],
+  issues: AudioIssue[]
+): {
   breathingRoomScore: number;
   expectedPauses: number;
   pausesFound: number;
@@ -237,11 +229,15 @@ function analyzeBreathingRoom(words: TimestampWord[], issues: AudioIssue[]): {
     });
   }
 
-  const breathingRoomScore = expectedPauses > 0 ? Math.round((pausesFound / expectedPauses) * 100) : 100;
+  const breathingRoomScore =
+    expectedPauses > 0 ? Math.round((pausesFound / expectedPauses) * 100) : 100;
   return { breathingRoomScore, expectedPauses, pausesFound };
 }
 
-function analyzeTransitions(scenes: SceneTimestamp[], issues: AudioIssue[]): {
+function analyzeTransitions(
+  scenes: SceneTimestamp[],
+  issues: AudioIssue[]
+): {
   transitionSmoothnessScore: number;
   sceneTransitions: number;
   abruptTransitions: number;
@@ -255,7 +251,8 @@ function analyzeTransitions(scenes: SceneTimestamp[], issues: AudioIssue[]): {
 
     if (prevScene.words.length === 0 || currScene.words.length === 0) continue;
 
-    const gapMs = (currScene.words[0].start - prevScene.words[prevScene.words.length - 1].end) * 1000;
+    const gapMs =
+      (currScene.words[0].start - prevScene.words[prevScene.words.length - 1].end) * 1000;
     sceneTransitions++;
 
     if (gapMs < AUDIO_THRESHOLDS.minSceneGapMs) {
@@ -280,7 +277,9 @@ function analyzeTransitions(scenes: SceneTimestamp[], issues: AudioIssue[]): {
   }
 
   const transitionSmoothnessScore =
-    sceneTransitions > 0 ? Math.round(((sceneTransitions - abruptTransitions) / sceneTransitions) * 100) : 100;
+    sceneTransitions > 0
+      ? Math.round(((sceneTransitions - abruptTransitions) / sceneTransitions) * 100)
+      : 100;
 
   return { transitionSmoothnessScore, sceneTransitions, abruptTransitions };
 }
@@ -288,9 +287,7 @@ function analyzeTransitions(scenes: SceneTimestamp[], issues: AudioIssue[]): {
 /**
  * Analyze audio quality from timestamps
  */
-export function analyzeAudioQuality(
-  timestamps: TimestampsOutput
-): AudioQualityReport {
+export function analyzeAudioQuality(timestamps: TimestampsOutput): AudioQualityReport {
   const issues: AudioIssue[] = [];
 
   const scenes = normalizeScenes(timestamps);
@@ -331,8 +328,14 @@ export function analyzeAudioQuality(
   const { silenceGapsScore, avgGapMs, maxGapMs } = analyzeSilenceGaps(allWords, issues);
   const { overlapFreeScore, overlapsFound } = analyzeOverlaps(allWords, issues);
   const paceConsistencyScore = analyzePaceConsistency(scenes, issues);
-  const { breathingRoomScore, expectedPauses, pausesFound } = analyzeBreathingRoom(allWords, issues);
-  const { transitionSmoothnessScore, sceneTransitions, abruptTransitions } = analyzeTransitions(scenes, issues);
+  const { breathingRoomScore, expectedPauses, pausesFound } = analyzeBreathingRoom(
+    allWords,
+    issues
+  );
+  const { transitionSmoothnessScore, sceneTransitions, abruptTransitions } = analyzeTransitions(
+    scenes,
+    issues
+  );
 
   // ========== CALCULATE OVERALL SCORE ==========
   const weights = {

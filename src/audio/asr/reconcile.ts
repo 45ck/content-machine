@@ -10,6 +10,8 @@
  * @module audio/asr/reconcile
  */
 
+import { similarity as similarityCore } from '../../core/text/similarity';
+
 /**
  * Word with timing information
  */
@@ -42,39 +44,10 @@ interface ScriptWord {
 }
 
 /**
- * Calculate Levenshtein distance between two strings
- */
-function levenshteinDistance(s1: string, s2: string): number {
-  const m = s1.length;
-  const n = s2.length;
-  const dp: number[][] = Array(m + 1)
-    .fill(null)
-    .map(() => Array(n + 1).fill(0));
-
-  for (let i = 0; i <= m; i++) dp[i][0] = i;
-  for (let j = 0; j <= n; j++) dp[0][j] = j;
-
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      if (s1[i - 1] === s2[j - 1]) {
-        dp[i][j] = dp[i - 1][j - 1];
-      } else {
-        dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
-      }
-    }
-  }
-
-  return dp[m][n];
-}
-
-/**
  * Calculate similarity between two strings (0-1)
  */
 export function similarity(s1: string, s2: string): number {
-  const maxLen = Math.max(s1.length, s2.length);
-  if (maxLen === 0) return 1;
-  const distance = levenshteinDistance(s1, s2);
-  return 1 - distance / maxLen;
+  return similarityCore(s1, s2);
 }
 
 /**
@@ -119,7 +92,7 @@ function enhancedSimilarity(s1: string, s2: string): number {
   // Try phonetic similarity
   const phonetic1 = phoneticNormalize(s1);
   const phonetic2 = phoneticNormalize(s2);
-  const phoneticSim = similarity(phonetic1, phonetic2);
+  const phoneticSim = similarityCore(phonetic1, phonetic2);
 
   return Math.max(directSim, phoneticSim);
 }

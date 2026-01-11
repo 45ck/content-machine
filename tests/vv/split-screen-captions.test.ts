@@ -35,4 +35,3 @@ describe('V&V: split-screen captions placement', () => {
     expect(layout.content.top).toBeGreaterThan(0);
   });
 });
-

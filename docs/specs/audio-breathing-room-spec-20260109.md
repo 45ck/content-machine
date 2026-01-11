@@ -42,11 +42,13 @@ LLM generates pause metadata per sentence. Audio stage experiments with:
 ### 2.2 Pipeline Integration
 
 **Affected stages:**
+
 - `src/script/` - Add pause hint generation to LLM prompts
 - `src/audio/` - Implement pause insertion (approach TBD via experiment)
 - `src/score/` - Breathing room metric validation
 
 **Unchanged stages:**
+
 - `src/visuals/` - No impact
 - `src/render/` - No impact (receives audio with pauses already applied)
 
@@ -55,6 +57,7 @@ LLM generates pause metadata per sentence. Audio stage experiments with:
 **Experiment: two approaches to evaluate**
 
 **Option A: Extend script schema**
+
 ```typescript
 // In ScriptOutputSchema
 sentences: z.array(
@@ -67,6 +70,7 @@ sentences: z.array(
 ```
 
 **Option B: Inline markup**
+
 ```text
 This is important. [pause:400] The next point is...
 ```
@@ -84,6 +88,7 @@ Decision: prototype both, measure which integrates cleaner with ASR reconciliati
 ### 3.1 Archetype Support
 
 All archetypes affected equally:
+
 - **listicle**: Pauses between list items
 - **versus**: Pauses at comparison transitions
 - **howto**: Pauses between steps
@@ -93,12 +98,12 @@ All archetypes affected equally:
 
 ### 3.2 Quality Metrics
 
-| Metric | Current | Target | Gate |
-|--------|---------|--------|------|
-| Audio Quality | 88% | 95%+ | 90% |
-| Breathing Room | 60% | 90%+ | - |
-| Caption Quality | 99.4% | 99%+ | No regression |
-| Sync Quality | 95% | 95%+ | No regression |
+| Metric          | Current | Target | Gate          |
+| --------------- | ------- | ------ | ------------- |
+| Audio Quality   | 88%     | 95%+   | 90%           |
+| Breathing Room  | 60%     | 90%+   | -             |
+| Caption Quality | 99.4%   | 99%+   | No regression |
+| Sync Quality    | 95%     | 95%+   | No regression |
 
 ### 3.3 Edge Cases
 
@@ -113,39 +118,44 @@ All archetypes affected equally:
 ### 4.1 Phases
 
 **Phase 1: Experimentation Setup**
+
 - Create test harness for pause approaches
 - Generate baseline audio samples (no pauses)
 - Implement metric for measuring pause presence
 
 **Phase 2: Approach Prototyping**
+
 - Prototype A: SSML `<break>` tags in TTS input
 - Prototype B: Post-process WAV with silence insertion
 - Prototype C: TTS rate/speed adjustments
 
 **Phase 3: Measurement & Selection**
+
 - Generate 10+ samples with each approach
 - Measure breathing room score
 - Manual review (listen test)
 - Check for regressions in caption sync
 
 **Phase 4: LLM Pause Hints**
+
 - Update script prompts to generate pause hints
 - Experiment with schema approach vs inline markup
 - Validate LLM output quality
 
 **Phase 5: Integration & Quality Gate**
+
 - Integrate winning approach into pipeline
 - Add 90% quality gate
 - Update PHOENIX LOOP tracker
 
 ### 4.2 Technical Decisions
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Pause source | LLM at script time | Context-aware, understands semantics |
-| Validation | Prototype + listen | Quality requires human judgment |
-| Complexity tolerance | Quality wins | Willing to add complexity for measurable improvement |
-| Scope | One issue at a time | Clean A/B testing, isolated changes |
+| Decision             | Choice              | Rationale                                            |
+| -------------------- | ------------------- | ---------------------------------------------------- |
+| Pause source         | LLM at script time  | Context-aware, understands semantics                 |
+| Validation           | Prototype + listen  | Quality requires human judgment                      |
+| Complexity tolerance | Quality wins        | Willing to add complexity for measurable improvement |
+| Scope                | One issue at a time | Clean A/B testing, isolated changes                  |
 
 ### 4.3 Open Questions
 
@@ -159,16 +169,19 @@ All archetypes affected equally:
 ### 5.1 Testing Strategy
 
 **Unit tests:**
+
 - Pause hint generation from LLM
 - Pause insertion logic (all three approaches)
 - Breathing room metric calculation
 
 **Integration tests:**
+
 - Full pipeline with pauses enabled
 - Caption sync verification after pause insertion
 - Quality gate enforcement
 
 **Manual validation:**
+
 - Listen to 10+ generated videos
 - Compare before/after on the same script
 - Check for awkward pauses or timing issues
@@ -183,20 +196,21 @@ All archetypes affected equally:
 ### 5.3 LLM Evaluation
 
 May need promptfoo eval for pause hint generation:
+
 - Are pauses placed at semantically appropriate locations?
 - Are pause durations reasonable (150-600ms)?
 - Does the LLM handle edge cases (lists, questions)?
 
 ## 6. Risks and Mitigations
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|------------|--------|------------|
-| SSML not supported by kokoro | Medium | High | Fallback to post-process approach |
-| Pauses break ASR reconciliation | Medium | High | Test sync quality before/after extensively |
-| Pauses too long (2+ seconds) | Low | Medium | Cap max pause at 600ms in validation |
-| LLM generates inconsistent hints | Medium | Medium | Add Zod validation, fallback to heuristics |
-| Render failures from length change | Low | High | Ensure Remotion compositions handle variable length |
-| Caption desync from pauses | Medium | High | Re-run reconciliation after pause insertion |
+| Risk                               | Likelihood | Impact | Mitigation                                          |
+| ---------------------------------- | ---------- | ------ | --------------------------------------------------- |
+| SSML not supported by kokoro       | Medium     | High   | Fallback to post-process approach                   |
+| Pauses break ASR reconciliation    | Medium     | High   | Test sync quality before/after extensively          |
+| Pauses too long (2+ seconds)       | Low        | Medium | Cap max pause at 600ms in validation                |
+| LLM generates inconsistent hints   | Medium     | Medium | Add Zod validation, fallback to heuristics          |
+| Render failures from length change | Low        | High   | Ensure Remotion compositions handle variable length |
+| Caption desync from pauses         | Medium     | High   | Re-run reconciliation after pause insertion         |
 
 ## 7. Interview Notes
 
@@ -213,6 +227,7 @@ May need promptfoo eval for pause hint generation:
 9. Housekeeping: commit Pexels fix first to keep changes isolated
 
 **Failure modes to guard against:**
+
 - Silent gaps too long (kills engagement)
 - Caption desync (pauses break ASR reconciliation)
 - Render failures (audio length changes cause composition errors)

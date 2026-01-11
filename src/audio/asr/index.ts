@@ -86,6 +86,17 @@ function resolveWhisperModel(model: NonNullable<ASROptions['model']>): WhisperMo
   return model;
 }
 
+function shouldAutoInstallWhisper(): boolean {
+  if (process.env.CM_WHISPER_AUTO_INSTALL === '0') return false;
+  if (process.env.NODE_ENV === 'test') return false;
+  if (process.env.CI) return false;
+  return true;
+}
+
+function resolveWhisperModelFilename(model: WhisperModel): string {
+  return `ggml-${model}.bin`;
+}
+
 /**
  * Resample audio to 16kHz mono WAV for Whisper.cpp compatibility.
  * Whisper.cpp requires 16kHz sample rate.
@@ -301,19 +312,30 @@ async function transcribeWithWhisper(
   const whisperCppVersion = '1.5.5';
   const language = options.language ? (options.language as Language) : undefined;
 
-  // Ensure whisper model is installed
-  await whisper.downloadWhisperModel({
-    model,
-    folder: whisperFolder,
-  });
-  log.debug({ model, whisperFolder }, 'Whisper model ready');
+  const autoInstall = shouldAutoInstallWhisper();
+  const whisperFolderAbs = path.resolve(whisperFolder);
 
-  // Ensure whisper executable is installed
-  await whisper.installWhisperCpp({
-    to: whisperFolder,
-    version: whisperCppVersion,
-  });
-  log.debug({ whisperFolder, whisperCppVersion }, 'Whisper executable ready');
+  if (!autoInstall) {
+    const modelFile = path.join(whisperFolderAbs, resolveWhisperModelFilename(model));
+    if (!fs.existsSync(modelFile)) {
+      log.debug({ modelFile }, 'Whisper model missing; skipping whisper.cpp');
+      return null;
+    }
+  } else {
+    // Ensure whisper model is installed
+    await whisper.downloadWhisperModel({
+      model,
+      folder: whisperFolder,
+    });
+    log.debug({ model, whisperFolder }, 'Whisper model ready');
+
+    // Ensure whisper executable is installed
+    await whisper.installWhisperCpp({
+      to: whisperFolder,
+      version: whisperCppVersion,
+    });
+    log.debug({ whisperFolder, whisperCppVersion }, 'Whisper executable ready');
+  }
 
   // Resample audio to 16kHz for Whisper compatibility
   const { resampledPath, needsCleanup } = await resampleFor16kHz(options.audioPath, log);

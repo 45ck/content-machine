@@ -45,7 +45,10 @@ const DEFAULT_FILLER_PHRASES = [
 ];
 
 function normalizeCaptionToken(word: string): string {
-  return word.toLowerCase().replace(/[^a-z0-9']/g, '').trim();
+  return word
+    .toLowerCase()
+    .replace(/[^a-z0-9']/g, '')
+    .trim();
 }
 
 function buildFillerConfig(cleanup?: CaptionCleanup): {

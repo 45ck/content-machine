@@ -179,7 +179,6 @@ export const GameplayClipSchema = z.object({
 
 export type GameplayClip = z.infer<typeof GameplayClipSchema>;
 
-
 /**
  * Full visuals output (matches SYSTEM-DESIGN §6.5 VisualPlanSchema)
  *

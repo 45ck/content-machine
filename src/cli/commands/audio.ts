@@ -137,17 +137,17 @@ export const audioCommand = new Command('audio')
       const sfxInputs = Array.isArray(options.sfx) ? options.sfx : [];
       const mixOptions: AudioMixPlanOptions = {
         mixPreset: options.mixPreset ?? config.audioMix.preset,
-        lufsTarget: parseOptionalNumber(options.lufsTarget, '--lufs-target') ?? config.audioMix.lufsTarget,
+        lufsTarget:
+          parseOptionalNumber(options.lufsTarget, '--lufs-target') ?? config.audioMix.lufsTarget,
         music: noMusic
           ? null
           : typeof options.music === 'string'
             ? options.music
-            : config.music.default ?? null,
+            : (config.music.default ?? null),
         musicVolumeDb:
           parseOptionalNumber(options.musicVolume, '--music-volume') ?? config.music.volumeDb,
         musicDuckDb: parseOptionalNumber(options.musicDuck, '--music-duck') ?? config.music.duckDb,
-        musicLoop:
-          options.musicLoop !== undefined ? Boolean(options.musicLoop) : config.music.loop,
+        musicLoop: options.musicLoop !== undefined ? Boolean(options.musicLoop) : config.music.loop,
         musicFadeInMs:
           parseOptionalInt(options.musicFadeIn, '--music-fade-in') ?? config.music.fadeInMs,
         musicFadeOutMs:
@@ -158,13 +158,12 @@ export const audioCommand = new Command('audio')
         sfxVolumeDb: parseOptionalNumber(options.sfxVolume, '--sfx-volume') ?? config.sfx.volumeDb,
         sfxMinGapMs: parseOptionalInt(options.sfxMinGap, '--sfx-min-gap') ?? config.sfx.minGapMs,
         sfxDurationSeconds:
-          parseOptionalNumber(options.sfxDuration, '--sfx-duration') ??
-          config.sfx.durationSeconds,
+          parseOptionalNumber(options.sfxDuration, '--sfx-duration') ?? config.sfx.durationSeconds,
         ambience: noAmbience
           ? null
           : typeof options.ambience === 'string'
             ? options.ambience
-            : config.ambience.default ?? null,
+            : (config.ambience.default ?? null),
         ambienceVolumeDb:
           parseOptionalNumber(options.ambienceVolume, '--ambience-volume') ??
           config.ambience.volumeDb,
@@ -249,15 +248,18 @@ export const audioCommand = new Command('audio')
         process.exit(0);
       }
 
-      const lines = formatKeyValueRows([
+      const rows: Array<[string, string]> = [
         ['Duration', `${result.duration.toFixed(1)}s`],
         ['Words', String(result.wordCount)],
-        ['Voice', options.voice],
+        ['Voice', String(options.voice)],
         ['Speed', String(ttsSpeed)],
         ['Audio', result.audioPath],
         ['Timestamps', result.timestampsPath],
-        ...(result.audioMixPath ? [['Audio mix', result.audioMixPath]] : []),
-      ]);
+      ];
+      if (result.audioMixPath) {
+        rows.push(['Audio mix', result.audioMixPath]);
+      }
+      const lines = formatKeyValueRows(rows);
       const footerLines = [];
       if (options.mock) footerLines.push('Mock mode - audio/timestamps are placeholders');
       footerLines.push(

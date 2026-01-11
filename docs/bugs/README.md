@@ -21,11 +21,11 @@ Each bug document follows this structure:
 
 ## Bug Index
 
-| ID | Title | Status | Severity | Related Commits |
-|----|-------|--------|----------|-----------------|
-| [BUG-001](BUG-001-TTS-MARKERS-IN-CAPTIONS-20260606.md) | TTS Markers in Video Captions | FIXED | High | 96eedc2, 1462eae |
-| [BUG-002](BUG-002-HOOK-TEXT-DUPLICATION-20260606.md) | Hook Text Duplication in Audio | FIXED | Medium | 7020b15 |
-| [BUG-003](BUG-003-ASR-ARTIFACTS-AS-WORDS-20260606.md) | ASR Artifacts as Caption Words | FIXED | Medium | 1462eae |
+| ID                                                     | Title                          | Status | Severity | Related Commits  |
+| ------------------------------------------------------ | ------------------------------ | ------ | -------- | ---------------- |
+| [BUG-001](BUG-001-TTS-MARKERS-IN-CAPTIONS-20260606.md) | TTS Markers in Video Captions  | FIXED  | High     | 96eedc2, 1462eae |
+| [BUG-002](BUG-002-HOOK-TEXT-DUPLICATION-20260606.md)   | Hook Text Duplication in Audio | FIXED  | Medium   | 7020b15          |
+| [BUG-003](BUG-003-ASR-ARTIFACTS-AS-WORDS-20260606.md)  | ASR Artifacts as Caption Words | FIXED  | Medium   | 1462eae          |
 
 ---
 
@@ -48,6 +48,7 @@ All caption-related bugs were fixed with a defense-in-depth approach:
 ### Content-Aware Processing
 
 Script assembly bugs (hook duplication) were fixed by:
+
 - Detecting content overlap between sections
 - Case-insensitive text matching
 - Conditional section inclusion
@@ -55,6 +56,7 @@ Script assembly bugs (hook duplication) were fixed by:
 ### Confidence-Based Filtering
 
 ASR artifacts were addressed by:
+
 - Using Whisper confidence scores
 - Empirically tuned thresholds (0.15 for ASR, 0.10 for captions)
 - Preserving words without confidence scores

@@ -13,7 +13,9 @@ console.log('=== First 30 words ===');
 ts.allWords.slice(0, 30).forEach((w: any, i: number) => {
   const marker = w.word.startsWith('[_TT_') ? ' [TTS MARKER]' : '';
   const lowConf = w.confidence < 0.5 ? ' [LOW CONF]' : '';
-  console.log(`${i.toString().padStart(2)}: ${w.start.toFixed(2)}s-${w.end.toFixed(2)}s  "${w.word}"${marker}${lowConf}`);
+  console.log(
+    `${i.toString().padStart(2)}: ${w.start.toFixed(2)}s-${w.end.toFixed(2)}s  "${w.word}"${marker}${lowConf}`
+  );
 });
 
 console.log('\n=== Words between 0-5 seconds (should be hook only) ===');

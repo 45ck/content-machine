@@ -15,7 +15,13 @@ import {
 } from 'remotion';
 import type { RenderProps } from '../schema';
 import { Caption } from '../captions';
-import { buildSequences, buildVisualTimeline, HookClip, LegacyClip, SceneBackground } from './visuals';
+import {
+  buildSequences,
+  buildVisualTimeline,
+  HookClipLayer,
+  LegacyClip,
+  SceneBackground,
+} from './visuals';
 import { FontLoader } from './FontLoader';
 import { computeSplitScreenLayout } from './split-screen-layout';
 import { AudioLayers } from './AudioLayers';
@@ -84,7 +90,7 @@ export const SplitScreenGameplay: React.FC<RenderProps> = ({
       <FontLoader fonts={fonts} />
       {hook && hookFrames > 0 ? (
         <Sequence from={0} durationInFrames={hookFrames}>
-          <HookClip hook={hook} />
+          <HookClipLayer hook={hook} />
         </Sequence>
       ) : null}
 
@@ -126,8 +132,7 @@ export const SplitScreenGameplay: React.FC<RenderProps> = ({
               style={{
                 top: contentTop,
                 height: contentHeight,
-                background:
-                  'linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 55%)',
+                background: 'linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0) 55%)',
               }}
             />
             <AbsoluteFill

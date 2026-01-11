@@ -4,7 +4,7 @@
 import React from 'react';
 import { AbsoluteFill, Sequence, Video, staticFile } from 'remotion';
 import type { VisualAsset, VideoClip } from '../../visuals/schema';
-import type { HookClip } from '../schema';
+import type { HookClip as HookClipSchema } from '../schema';
 import { ensureVisualCoverage, type VisualScene } from '../../visuals/duration';
 
 function resolveMediaSrc(path: string): string {
@@ -99,11 +99,11 @@ export const SceneBackground: React.FC<SceneBackgroundProps> = ({
 );
 
 export interface HookClipProps {
-  hook: HookClip;
+  hook: HookClipSchema;
   containerStyle?: React.CSSProperties;
 }
 
-export const HookClip: React.FC<HookClipProps> = ({ hook, containerStyle }) => (
+export const HookClipLayer: React.FC<HookClipProps> = ({ hook, containerStyle }) => (
   <AbsoluteFill style={containerStyle}>
     <Video
       src={resolveMediaSrc(hook.path)}

@@ -17,11 +17,7 @@ import {
 import { synthesizeSpeech } from './tts';
 import { transcribeAudio, ASRResult } from './asr';
 import { reconcileToScript as reconcileAsrToScript } from './asr/reconcile';
-import {
-  buildAlignmentUnits,
-  buildSceneTimestamps,
-  normalizeSpokenText,
-} from './alignment';
+import { buildAlignmentUnits, buildSceneTimestamps, normalizeSpokenText } from './alignment';
 import { buildAudioMixPlan, hasAudioMixSources, type AudioMixPlanOptions } from './mix/planner';
 import type { AudioMixOutput } from './mix/schema';
 

@@ -243,7 +243,10 @@ function endsWithStrongPunctuation(word: string): boolean {
 }
 
 function normalizeWord(word: string): string {
-  return word.toLowerCase().replace(/[.,!?;:"]/g, '').trim();
+  return word
+    .toLowerCase()
+    .replace(/[.,!?;:"]/g, '')
+    .trim();
 }
 
 function isPivotWord(word: string): boolean {
@@ -426,18 +429,17 @@ function mergeChunks(left: CaptionChunk, right: CaptionChunk): CaptionChunk {
   };
 }
 
-function shouldMergeChunks(
-  left: CaptionChunk,
-  right: CaptionChunk,
-  cfg: ChunkingConfig
-): boolean {
+function shouldMergeChunks(left: CaptionChunk, right: CaptionChunk, cfg: ChunkingConfig): boolean {
   const gapMs = right.startMs - left.endMs;
   if (gapMs >= cfg.pauseGapMs) {
     return false;
   }
 
   const lastWord = left.words[left.words.length - 1];
-  if (lastWord && (endsWithSentencePunctuation(lastWord.text) || endsWithStrongPunctuation(lastWord.text))) {
+  if (
+    lastWord &&
+    (endsWithSentencePunctuation(lastWord.text) || endsWithStrongPunctuation(lastWord.text))
+  ) {
     return false;
   }
 
@@ -506,7 +508,8 @@ function processTimedWord(params: {
   const wordLength = word.word.trim().length;
 
   const chunkedWord = createChunkedWord(word, nextWord, cfg);
-  const newCharCount = state.currentCharCount + (state.currentWords.length > 0 ? 1 : 0) + wordLength;
+  const newCharCount =
+    state.currentCharCount + (state.currentWords.length > 0 ? 1 : 0) + wordLength;
   const chunkDurationMs =
     state.currentWords.length > 0
       ? word.endMs - state.currentWords[0].startMs
@@ -523,9 +526,7 @@ function processTimedWord(params: {
   const currentIsPivot = isPivotWord(word.word);
   const prevIsPivot = prevChunkWord ? isPivotWord(prevChunkWord.text) : false;
   const currentChunkHasEmphasis = state.currentWords.some((w) => w.isEmphasized);
-  const currentDurationMs = prevChunkWord
-    ? prevChunkWord.endMs - state.currentWords[0].startMs
-    : 0;
+  const currentDurationMs = prevChunkWord ? prevChunkWord.endMs - state.currentWords[0].startMs : 0;
   const currentMinDurationMs = getRequiredMinDurationMs(
     state.currentWords.length,
     state.currentCharCount,

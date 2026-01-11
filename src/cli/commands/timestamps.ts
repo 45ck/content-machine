@@ -21,11 +21,7 @@ export const timestampsCommand = new Command('timestamps')
   .option('-o, --output <path>', 'Output timestamps file path', 'timestamps.json')
   .option('--reconcile', 'Reconcile ASR output to match script text', false)
   .option('--require-whisper', 'Require whisper ASR (fail if unavailable)', false)
-  .option(
-    '--whisper-model <model>',
-    'Whisper model size: tiny, base, small, medium, large',
-    'base'
-  )
+  .option('--whisper-model <model>', 'Whisper model size: tiny, base, small, medium, large', 'base')
   .action(async (options) => {
     const spinner = createSpinner('Generating timestamps...').start();
     const runtime = getCliRuntime();
@@ -103,9 +99,7 @@ export const timestampsCommand = new Command('timestamps')
       await writeSummaryCard({
         title: 'Timestamps ready',
         lines,
-        footerLines: [
-          `Next: cm import visuals --timestamps ${options.output} --clips <dir>`,
-        ],
+        footerLines: [`Next: cm import visuals --timestamps ${options.output} --clips <dir>`],
       });
 
       process.stdout.write(`${options.output}\n`);

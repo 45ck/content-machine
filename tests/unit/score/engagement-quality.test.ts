@@ -26,9 +26,7 @@ describe('Engagement Quality Metrics', () => {
     it('should detect hook starting after 3 seconds', () => {
       const mockScript: ScriptOutput = {
         schemaVersion: '1.0.0',
-        scenes: [
-          { id: 'scene-1', text: 'Welcome to the video', visualDirection: '', mood: '' },
-        ],
+        scenes: [{ id: 'scene-1', text: 'Welcome to the video', visualDirection: '', mood: '' }],
         title: 'Test',
         hook: 'Welcome to the video',
         cta: 'Follow!',
@@ -63,9 +61,7 @@ describe('Engagement Quality Metrics', () => {
     it('should give high engagement score for question hooks', () => {
       const mockScript: ScriptOutput = {
         schemaVersion: '1.0.0',
-        scenes: [
-          { id: 'scene-1', text: 'Want to know a secret?', visualDirection: '', mood: '' },
-        ],
+        scenes: [{ id: 'scene-1', text: 'Want to know a secret?', visualDirection: '', mood: '' }],
         title: 'Test',
         hook: 'Want to know a secret?',
         cta: '',
@@ -104,9 +100,7 @@ describe('Engagement Quality Metrics', () => {
     it('should detect missing CTA', () => {
       const mockScript: ScriptOutput = {
         schemaVersion: '1.0.0',
-        scenes: [
-          { id: 'scene-1', text: 'That is all', visualDirection: '', mood: '' },
-        ],
+        scenes: [{ id: 'scene-1', text: 'That is all', visualDirection: '', mood: '' }],
         title: 'Test',
         hook: 'Hook',
         cta: 'That is all', // No CTA patterns
@@ -136,9 +130,7 @@ describe('Engagement Quality Metrics', () => {
     it('should detect good CTA', () => {
       const mockScript: ScriptOutput = {
         schemaVersion: '1.0.0',
-        scenes: [
-          { id: 'scene-1', text: 'Follow for more tips!', visualDirection: '', mood: '' },
-        ],
+        scenes: [{ id: 'scene-1', text: 'Follow for more tips!', visualDirection: '', mood: '' }],
         title: 'Test',
         hook: 'Hook',
         cta: 'Follow for more tips!',

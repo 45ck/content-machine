@@ -62,7 +62,12 @@ export { WebSearchTool } from './research/tools/web-search';
 export type { ResearchTool, SearchToolOptions, SearchToolResult } from './research/tools/types';
 
 // Workflows
-export type { WorkflowDefinition, WorkflowCommand, WorkflowStage, WorkflowInputs } from './workflows/schema';
+export type {
+  WorkflowDefinition,
+  WorkflowCommand,
+  WorkflowStage,
+  WorkflowInputs,
+} from './workflows/schema';
 
 // Test stubs (for testing consumers)
 export { FakeLLMProvider } from './test/stubs/fake-llm';

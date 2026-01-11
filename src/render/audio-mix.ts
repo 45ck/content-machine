@@ -24,10 +24,7 @@ function isRemoteSource(path: string): boolean {
   return /^https?:\/\//i.test(path) || path.startsWith('data:');
 }
 
-function resolveLocalPath(
-  path: string,
-  baseDir: string
-): { resolved: string; exists: boolean } {
+function resolveLocalPath(path: string, baseDir: string): { resolved: string; exists: boolean } {
   const resolved = resolve(baseDir, path);
   if (existsSync(resolved)) {
     return { resolved, exists: true };

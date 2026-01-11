@@ -24,7 +24,13 @@ export const HookPatternEnum = z.enum([
 ]);
 
 // Psychological triggers for hook design (choose 1-2).
-export const HookTriggerEnum = z.enum(['curiosity-gap', 'self-relevance', 'surprise', 'stakes', 'clarity']);
+export const HookTriggerEnum = z.enum([
+  'curiosity-gap',
+  'self-relevance',
+  'surprise',
+  'stakes',
+  'clarity',
+]);
 
 export const HookDefinitionSchema = z.object({
   id: z.string().min(1),

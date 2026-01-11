@@ -10,10 +10,15 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   quality:
     name: Quality Gates
     runs-on: ubuntu-latest
+    env:
+      HUSKY: 0
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -36,11 +41,20 @@ jobs:
       - name: Format check
         run: npm run format:check
 
+      - name: Build
+        run: npm run build
+
+      - name: Build types
+        run: npm run build:types
+
       - name: Test with coverage
         run: npm run test:coverage
 
       - name: Duplication check
         run: npm run dup:check
+
+      - name: Size check
+        run: npm run size:check
 
       - name: Upload coverage
         uses: codecov/codecov-action@v4

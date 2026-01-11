@@ -9,7 +9,13 @@ describe('cm package', () => {
     mkdirSync(tmpDir, { recursive: true });
     const outPath = join(tmpDir, 'packaging.json');
 
-    const result = await runCli(['package', 'Redis vs PostgreSQL for caching', '--mock', '-o', outPath]);
+    const result = await runCli([
+      'package',
+      'Redis vs PostgreSQL for caching',
+      '--mock',
+      '-o',
+      outPath,
+    ]);
     expect(result.code).toBe(0);
     expect(result.stdout.trim()).toBe(outPath);
 
@@ -42,7 +48,11 @@ describe('cm package', () => {
     expect(result.code).toBe(0);
 
     const raw = readFileSync(outPath, 'utf-8');
-    const parsed = JSON.parse(raw) as { selectedIndex: number; variants: Array<{ title: string }>; selected: { title: string } };
+    const parsed = JSON.parse(raw) as {
+      selectedIndex: number;
+      variants: Array<{ title: string }>;
+      selected: { title: string };
+    };
     expect(parsed.selectedIndex).toBe(1);
     expect(parsed.selected.title).toBe(parsed.variants[1].title);
   });
@@ -62,9 +72,11 @@ describe('cm package', () => {
     ]);
 
     expect(result.code).toBe(0);
-    const envelope = JSON.parse(result.stdout) as { command: string; outputs: Record<string, unknown> };
+    const envelope = JSON.parse(result.stdout) as {
+      command: string;
+      outputs: Record<string, unknown>;
+    };
     expect(envelope.command).toBe('package');
     expect(envelope.outputs.packagingPath).toBe(outPath);
   });
 });
-

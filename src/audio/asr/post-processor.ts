@@ -45,10 +45,36 @@ const SPLIT_WORD_PATTERNS: Map<string, Array<[string, string]>> = new Map([
   // Interjections
   ['U', [['gh', 'Ugh']]],
   ['u', [['gh', 'ugh']]],
-  ['A', [['h', 'Ah'], ['w', 'Aw']]],
-  ['a', [['h', 'ah'], ['w', 'aw']]],
-  ['O', [['h', 'Oh'], ['k', 'Ok'], ['kay', 'Okay']]],
-  ['o', [['h', 'oh'], ['k', 'ok'], ['kay', 'okay']]],
+  [
+    'A',
+    [
+      ['h', 'Ah'],
+      ['w', 'Aw'],
+    ],
+  ],
+  [
+    'a',
+    [
+      ['h', 'ah'],
+      ['w', 'aw'],
+    ],
+  ],
+  [
+    'O',
+    [
+      ['h', 'Oh'],
+      ['k', 'Ok'],
+      ['kay', 'Okay'],
+    ],
+  ],
+  [
+    'o',
+    [
+      ['h', 'oh'],
+      ['k', 'ok'],
+      ['kay', 'okay'],
+    ],
+  ],
   // Str- words
   [
     'Str',
@@ -206,22 +232,48 @@ const VALID_SINGLE_LETTERS = new Set(['a', 'A', 'i', 'I', 'o', 'O']);
 function filterASRArtifacts(words: WordTimestamp[]): WordTimestamp[] {
   return words.filter((word) => {
     const text = word.word.trim();
-    
+
     // Keep valid single letters
     if (text.length === 1 && /^[a-zA-Z]$/.test(text)) {
       return VALID_SINGLE_LETTERS.has(text);
     }
-    
+
     // Keep two-letter words only if they're valid
     if (text.length === 2 && /^[a-zA-Z]+$/.test(text)) {
       const validTwoLetter = new Set([
-        'an', 'as', 'at', 'be', 'by', 'do', 'go', 'he', 'if', 'in', 
-        'is', 'it', 'me', 'my', 'no', 'of', 'on', 'or', 'so', 'to', 
-        'up', 'us', 'we', 'am', 'ok', 'oh', 'ah', 'aw', 'uh'
+        'an',
+        'as',
+        'at',
+        'be',
+        'by',
+        'do',
+        'go',
+        'he',
+        'if',
+        'in',
+        'is',
+        'it',
+        'me',
+        'my',
+        'no',
+        'of',
+        'on',
+        'or',
+        'so',
+        'to',
+        'up',
+        'us',
+        'we',
+        'am',
+        'ok',
+        'oh',
+        'ah',
+        'aw',
+        'uh',
       ]);
       return validTwoLetter.has(text.toLowerCase());
     }
-    
+
     // Keep everything else
     return true;
   });
@@ -568,10 +620,7 @@ export function postProcessASRWordsWithStats(
  * @param scriptText - Original script text with punctuation
  * @returns Words with punctuation restored
  */
-export function restorePunctuation(
-  words: WordTimestamp[],
-  scriptText: string
-): WordTimestamp[] {
+export function restorePunctuation(words: WordTimestamp[], scriptText: string): WordTimestamp[] {
   if (!scriptText || words.length === 0) return words;
 
   // Tokenize script into words, preserving punctuation attached to words
@@ -582,7 +631,10 @@ export function restorePunctuation(
 
   for (const scriptWord of scriptWords) {
     // Extract the base word (remove leading/trailing punctuation for matching)
-    const baseWord = scriptWord.replace(/^[^\w]*/, '').replace(/[^\w]*$/, '').toLowerCase();
+    const baseWord = scriptWord
+      .replace(/^[^\w]*/, '')
+      .replace(/[^\w]*$/, '')
+      .toLowerCase();
 
     // Store the original word with punctuation
     if (baseWord && !punctuationMap.has(baseWord)) {

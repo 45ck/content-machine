@@ -5,11 +5,7 @@
  */
 import type { ScriptOutput } from '../../script/schema';
 import type { TimestampsOutput } from '../schema';
-import {
-  AUDIO_MIX_SCHEMA_VERSION,
-  type AudioMixOutput,
-  type AudioMixLayer,
-} from './schema';
+import { AUDIO_MIX_SCHEMA_VERSION, type AudioMixOutput, type AudioMixLayer } from './schema';
 
 export type SfxPlacement = 'hook' | 'scene' | 'list-item' | 'cta';
 
@@ -106,7 +102,11 @@ interface SfxEvent {
   sceneId?: string;
 }
 
-function resolvePresetDefaults(name?: string): { preset: MixPresetDefaults; presetName: string; warning?: string } {
+function resolvePresetDefaults(name?: string): {
+  preset: MixPresetDefaults;
+  presetName: string;
+  warning?: string;
+} {
   const normalized = (name ?? 'clean').trim().toLowerCase();
   if (MIX_PRESETS[normalized]) {
     return { preset: MIX_PRESETS[normalized], presetName: normalized };
@@ -197,7 +197,8 @@ function buildSceneEvents(timestamps: TimestampsOutput, placement: SfxPlacement)
 
   if (placement === 'cta') {
     const ctaStart = getSceneStart(timestamps, 'cta');
-    const fallback = scenes.length > 0 ? scenes[scenes.length - 1].audioStart : getLastWordStart(timestamps);
+    const fallback =
+      scenes.length > 0 ? scenes[scenes.length - 1].audioStart : getLastWordStart(timestamps);
     return [
       {
         time: ctaStart ?? fallback,

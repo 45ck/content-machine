@@ -4,7 +4,13 @@
 import { spawn } from 'node:child_process';
 import { resolve } from 'node:path';
 import { CMError } from '../core/errors';
-import type { WorkflowCommand, WorkflowDefinition, WorkflowStage, WorkflowStageMode, WorkflowStages } from './schema';
+import type {
+  WorkflowCommand,
+  WorkflowDefinition,
+  WorkflowStage,
+  WorkflowStageMode,
+  WorkflowStages,
+} from './schema';
 
 export interface WorkflowCommandRunOptions {
   baseDir?: string;
@@ -49,7 +55,10 @@ export function collectWorkflowPostCommands(workflow: WorkflowDefinition): Workf
   return workflow.hooks?.post ?? [];
 }
 
-function resolveCommandCwd(command: WorkflowCommand, baseDir: string | undefined): string | undefined {
+function resolveCommandCwd(
+  command: WorkflowCommand,
+  baseDir: string | undefined
+): string | undefined {
   if (command.cwd) {
     return resolve(baseDir ?? process.cwd(), command.cwd);
   }

@@ -9,16 +9,17 @@
 
 ## 📊 PROGRESS TRACKER
 
-| Loop | Date | Layer | Before | After | Issue Fixed |
-|------|------|-------|--------|-------|-------------|
-| #1 | 2026-01-07 | Timing | 82.8% | 99.2% | Split words (r+isk→risk), filter order, duration threshold |
-| #2 | 2026-01-07 | Timing | 99.2% | 99.4% | Low confidence in merged words (boost to 80% min) |
-| #3 | 2026-01-07 | Aesthetics | 38.6% | 81.3% | Punctuation restoration, natural page boundaries |
-| #4 | 2026-01-07 | Aesthetics | N/A | 91.7% | Added scene pacing metrics (WPM consistency) |
-| #5 | 2026-01-07 | Engagement | N/A | 95.0% | Added engagement metrics (hook, CTA, list structure) |
-| #6 | 2026-01-07 | Audio | N/A | 88.0% | Added audio metrics (gaps, overlaps, pauses, transitions) |
+| Loop | Date       | Layer      | Before | After | Issue Fixed                                                |
+| ---- | ---------- | ---------- | ------ | ----- | ---------------------------------------------------------- |
+| #1   | 2026-01-07 | Timing     | 82.8%  | 99.2% | Split words (r+isk→risk), filter order, duration threshold |
+| #2   | 2026-01-07 | Timing     | 99.2%  | 99.4% | Low confidence in merged words (boost to 80% min)          |
+| #3   | 2026-01-07 | Aesthetics | 38.6%  | 81.3% | Punctuation restoration, natural page boundaries           |
+| #4   | 2026-01-07 | Aesthetics | N/A    | 91.7% | Added scene pacing metrics (WPM consistency)               |
+| #5   | 2026-01-07 | Engagement | N/A    | 95.0% | Added engagement metrics (hook, CTA, list structure)       |
+| #6   | 2026-01-07 | Audio      | N/A    | 88.0% | Added audio metrics (gaps, overlaps, pauses, transitions)  |
 
 **Current Scores:**
+
 - Caption Quality: 99.4% ✅
 - Paging Quality: 81.3% ✅
 - Pacing Quality: 91.7% ✅
@@ -26,6 +27,7 @@
 - Audio Quality: 88.0% ✅
 
 **Current Layer: Layer 5 (AUDIO) - ISSUES FOUND**
+
 - Breathing room: 60% (missing pauses after punctuation)
 - Transition smoothness: 60% (abrupt scene transitions)
 
@@ -148,26 +150,31 @@ Continuously improve video quality through systematic measurement, hypothesis te
 ## COMMANDS REFERENCE
 
 ### Generate Video
+
 ```bash
 npx tsx src/cli/index.ts generate "topic" --archetype listicle --caption-preset capcut -o output/phoenix-test.mp4 --keep-artifacts
 ```
 
 ### Run Quality Tests
+
 ```bash
 npx vitest run tests/unit/score/caption-quality.test.ts
 ```
 
 ### Run All Tests
+
 ```bash
 npm test
 ```
 
 ### Extract Screenshots
+
 ```bash
 ffmpeg -i output/phoenix-test.mp4 -vf fps=2 output/frames/frame_%03d.png
 ```
 
 ### Commit with Metrics
+
 ```bash
 git add -A && git commit --no-verify -m "fix(phoenix-loop-N): [metric] X% → Y% (+Z%)"
 ```
@@ -177,24 +184,28 @@ git add -A && git commit --no-verify -m "fix(phoenix-loop-N): [metric] X% → Y%
 ## TRACKING
 
 ### Current State
+
 - **Loop #:** 1
 - **Current Layer:** 1 (TIMING)
 - **Current Metric:** TBD (run measurement first)
 - **Baseline Score:** TBD
 
 ### Metrics History
+
 | Loop | Layer | Metric | Before | After | Delta |
-|------|-------|--------|--------|-------|-------|
+| ---- | ----- | ------ | ------ | ----- | ----- |
 | 1    | -     | -      | -      | -     | -     |
 
 ### Failed Hypotheses
+
 | Loop | Hypothesis | Why Failed |
-|------|------------|------------|
+| ---- | ---------- | ---------- |
 | -    | -          | -          |
 
 ### New Metrics Discovered
+
 | Loop | Metric Name | Layer | Description |
-|------|-------------|-------|-------------|
+| ---- | ----------- | ----- | ----------- |
 | -    | -           | -     | -           |
 
 ---
@@ -214,6 +225,7 @@ git add -A && git commit --no-verify -m "fix(phoenix-loop-N): [metric] X% → Y%
 ## START COMMAND
 
 To begin or continue the PHOENIX LOOP, I will:
+
 1. Read this file for context
 2. Check current loop state
 3. Execute the appropriate phase

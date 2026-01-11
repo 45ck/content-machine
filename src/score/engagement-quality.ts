@@ -15,6 +15,7 @@
 
 import type { ScriptOutput } from '../script/schema';
 import type { SceneTimestamp, TimestampsOutput } from '../audio/schema';
+import { normalizeScenes, summarizeWords } from './timestamps';
 
 // ============================================================================
 // Types
@@ -99,27 +100,6 @@ export const ENGAGEMENT_THRESHOLDS = {
 // ============================================================================
 // Analysis Functions
 // ============================================================================
-
-type TimestampWord = SceneTimestamp['words'][number];
-
-function normalizeScenes(timestamps: TimestampsOutput): SceneTimestamp[] {
-  if (timestamps.scenes && timestamps.scenes.length > 0) return timestamps.scenes;
-  if (timestamps.allWords.length === 0) return [];
-
-  return [
-    {
-      sceneId: 'scene-001',
-      audioStart: timestamps.allWords[0].start,
-      audioEnd: timestamps.allWords[timestamps.allWords.length - 1].end,
-      words: timestamps.allWords,
-    },
-  ];
-}
-
-function summarizeWords(words: TimestampWord[]): { totalDuration: number } {
-  if (words.length === 0) return { totalDuration: 0 };
-  return { totalDuration: words[words.length - 1].end - words[0].start };
-}
 
 function extractHookText(script: ScriptOutput): string {
   return script.hook || script.scenes[0]?.text.split('.')[0] || '';

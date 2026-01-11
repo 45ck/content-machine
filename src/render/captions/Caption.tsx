@@ -14,7 +14,13 @@
 import React, { useMemo } from 'react';
 import { useCurrentFrame, useVideoConfig, spring, Sequence, interpolate } from 'remotion';
 import { CaptionConfig, CaptionConfigSchema, CaptionDisplayMode } from './config';
-import { createCaptionPages, toTimedWords, CaptionPage, TimedWord, filterCaptionWords } from './paging';
+import {
+  createCaptionPages,
+  toTimedWords,
+  CaptionPage,
+  TimedWord,
+  filterCaptionWords,
+} from './paging';
 import { createCaptionChunks, layoutToChunkingConfig, chunkToPage } from './chunking';
 import { PRESET_CAPCUT_BOLD } from './presets';
 import { isWordActive } from './timing';
@@ -152,7 +158,11 @@ const ChunkedCaption: React.FC<ChunkedCaptionProps> = ({ words, config, fps }) =
         const durationInFrames = Math.max(1, endFrame - startFrame);
 
         return (
-          <Sequence key={`chunk-${page.index}`} from={startFrame} durationInFrames={durationInFrames}>
+          <Sequence
+            key={`chunk-${page.index}`}
+            from={startFrame}
+            durationInFrames={durationInFrames}
+          >
             <CaptionPageView page={page} config={config} />
           </Sequence>
         );
@@ -601,11 +611,7 @@ function resolveSafeZoneInsets(
   };
 }
 
-function getSafeZoneMetrics(
-  config: CaptionConfig,
-  width: number,
-  height: number
-): SafeZoneMetrics {
+function getSafeZoneMetrics(config: CaptionConfig, width: number, height: number): SafeZoneMetrics {
   const safeZone = resolveSafeZoneInsets(config, width, height);
   const edgePx = (config.positionOffset.edgeDistance / 100) * height;
   const paddingLeft = Math.max(config.positionOffset.horizontalPadding, safeZone.left);

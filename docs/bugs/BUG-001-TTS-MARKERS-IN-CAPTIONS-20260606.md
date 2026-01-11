@@ -11,7 +11,8 @@
 
 When rendering videos with the CapCut caption preset, internal TTS timing markers like `[_TT_140]` appeared as visible text in the video captions.
 
-**User Report:**  
+**User Report:**
+
 > "I can see `[_TT_140]` in the video captions"
 
 **Screenshot Evidence:**  
@@ -24,6 +25,7 @@ The rendered capcut-demo.mp4 showed raw TTS markers displayed as caption words.
 ### Layer 1: TTS Generation (Kokoro)
 
 Kokoro TTS (via kokoro-js) uses internal timing markers in the format `[_TT_###]` to control speech prosody and timing. These markers:
+
 - Are embedded in the audio stream for synthesis timing
 - Are NOT intended to be spoken or displayed
 - Format: `[_TT_` followed by numbers and `]`
@@ -31,6 +33,7 @@ Kokoro TTS (via kokoro-js) uses internal timing markers in the format `[_TT_###]
 ### Layer 2: ASR Transcription (Whisper)
 
 When whisper-cpp transcribes the generated audio:
+
 - It picks up audio artifacts from the TTS markers
 - Low-confidence "words" are generated for these sounds
 - Whisper reports them as actual words with timestamps
@@ -38,6 +41,7 @@ When whisper-cpp transcribes the generated audio:
 ### Layer 3: Caption Rendering (Remotion)
 
 The caption system was rendering ALL words from the timestamp file without filtering, causing:
+
 - TTS markers displayed as captions
 - Low-confidence noise words shown
 - Punctuation-only "words" displayed
@@ -51,18 +55,15 @@ The caption system was rendering ALL words from the timestamp file without filte
 **1. ASR-Level Filtering (`src/audio/asr/index.ts`)**
 
 ```typescript
-export function isWhisperArtifact(
-  word: string,
-  confidence?: number
-): boolean {
+export function isWhisperArtifact(word: string, confidence?: number): boolean {
   const trimmed = word.trim();
-  
+
   // Filter TTS timing markers (Kokoro pattern: [_TT_###])
   if (/^\[_?[A-Z]+_?\d*\]$/.test(trimmed)) return true;
-  
+
   // Filter very low-confidence transcriptions
   if (confidence !== undefined && confidence < 0.15) return true;
-  
+
   // Filter other artifacts...
   return false;
 }
@@ -98,22 +99,20 @@ export function sanitizeTimedWordsWithConfidence(
 **3. Render Service Integration (`src/render/service.ts`)**
 
 ```typescript
-const sanitizedWords = options.timestamps.allWords.filter((w) =>
-  isDisplayableWord(w.word)
-);
+const sanitizedWords = options.timestamps.allWords.filter((w) => isDisplayableWord(w.word));
 ```
 
 ---
 
 ## Patterns Filtered
 
-| Pattern | Example | Reason |
-|---------|---------|--------|
-| `[_TT_###]` | `[_TT_140]` | Kokoro TTS timing marker |
-| `[_XX_###]` | `[_SP_50]` | Generic TTS control sequence |
-| `[TAG]` | `[PAUSE]` | TTS control tags |
-| Low confidence | `bed!` (conf: 0.05) | ASR noise/artifact |
-| Punctuation-only | `.`, `!`, `,` | Whisper artifact |
+| Pattern          | Example             | Reason                       |
+| ---------------- | ------------------- | ---------------------------- |
+| `[_TT_###]`      | `[_TT_140]`         | Kokoro TTS timing marker     |
+| `[_XX_###]`      | `[_SP_50]`          | Generic TTS control sequence |
+| `[TAG]`          | `[PAUSE]`           | TTS control tags             |
+| Low confidence   | `bed!` (conf: 0.05) | ASR noise/artifact           |
+| Punctuation-only | `.`, `!`, `,`       | Whisper artifact             |
 
 ---
 
@@ -150,6 +149,7 @@ describe('sanitizeTimedWordsWithConfidence', () => {
 2. **After Fix:** Only clean displayable words appear
 
 To regenerate demo files:
+
 ```bash
 cm generate "morning routine tips" --archetype listicle --output test.mp4
 ```

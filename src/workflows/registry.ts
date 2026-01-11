@@ -45,7 +45,10 @@ async function readWorkflowFile(path: string): Promise<WorkflowDefinition | null
   }
 }
 
-async function listWorkflowsFromDir(root: string, source: WorkflowSource): Promise<ListedWorkflow[]> {
+async function listWorkflowsFromDir(
+  root: string,
+  source: WorkflowSource
+): Promise<ListedWorkflow[]> {
   if (!existsSync(root)) return [];
 
   const entries = await readdir(root, { withFileTypes: true });
@@ -71,9 +74,7 @@ async function listWorkflowsFromDir(root: string, source: WorkflowSource): Promi
   return workflows;
 }
 
-export async function listWorkflows(
-  options: ListWorkflowsOptions = {}
-): Promise<ListedWorkflow[]> {
+export async function listWorkflows(options: ListWorkflowsOptions = {}): Promise<ListedWorkflow[]> {
   const includeBuiltin = options.includeBuiltin !== false;
   const userDir = options.userDir ?? DEFAULT_USER_DIR;
   const projectDir = options.projectDir ?? DEFAULT_PROJECT_DIR;

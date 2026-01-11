@@ -75,9 +75,7 @@ function buildScriptOutput(
   const hook = sanitizeSpokenText(llmResponse.hook);
   const cta = sanitizeSpokenText(llmResponse.cta);
 
-  const allText = [hook, ...scenes.map((s) => s.text), cta]
-    .filter(Boolean)
-    .join(' ');
+  const allText = [hook, ...scenes.map((s) => s.text), cta].filter(Boolean).join(' ');
   const wordCount = allText.split(/\s+/).filter(Boolean).length;
   const estimatedDuration = wordCount / 2.5;
   const title = options.packaging?.title ?? llmResponse.title;

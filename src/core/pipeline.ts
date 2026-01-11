@@ -98,15 +98,17 @@ export interface PipelineOptions {
   visualsInput?: VisualsOutput;
 }
 
-export const PipelineConfigSchema = z.object({
-  topic: z.string().min(1),
-  archetype: ArchetypeEnum,
-  orientation: OrientationEnum,
-  voice: z.string().min(1),
-  targetDuration: z.number().positive(),
-  outputPath: z.string().min(1),
-  research: ResearchOutputSchema.optional(),
-}).passthrough();
+export const PipelineConfigSchema = z
+  .object({
+    topic: z.string().min(1),
+    archetype: ArchetypeEnum,
+    orientation: OrientationEnum,
+    voice: z.string().min(1),
+    targetDuration: z.number().positive(),
+    outputPath: z.string().min(1),
+    research: ResearchOutputSchema.optional(),
+  })
+  .passthrough();
 
 export interface PipelineResult {
   script: ScriptOutput;
@@ -125,17 +127,9 @@ export interface PipelineResult {
   };
 }
 
-interface StageCost {
-  estimatedCost?: number;
-  inputTokens?: number;
-  outputTokens?: number;
-}
-
 const STAGES: PipelineStage[] = ['script', 'audio', 'visuals', 'render'];
 
-function normalizeWhisperModel(
-  model: string | undefined
-): 'tiny' | 'base' | 'small' | 'medium' {
+function normalizeWhisperModel(model: string | undefined): 'tiny' | 'base' | 'small' | 'medium' {
   switch (model) {
     case 'tiny':
     case 'base':
@@ -195,7 +189,11 @@ function emitStageProgress(params: {
 function wrapStageError(stage: PipelineStage, error: unknown): PipelineError {
   if (error instanceof PipelineError) return error;
   const message = error instanceof Error ? error.message : String(error);
-  return new PipelineError(stage, `${stage} stage failed: ${message}`, error instanceof Error ? error : undefined);
+  return new PipelineError(
+    stage,
+    `${stage} stage failed: ${message}`,
+    error instanceof Error ? error : undefined
+  );
 }
 
 /**
@@ -442,9 +440,10 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
       costs.tts += audio.ttsCost;
     }
 
-    // Stage 3: Visual matching
-    const visuals = await (async () => {
-      const stage = 'visuals' as const;
+    const runStageWithEvents = async <T>(
+      stage: PipelineStage,
+      run: (ctx: { stage: PipelineStage; stageIndex: number }) => Promise<T>
+    ): Promise<T> => {
       const stageIndex = STAGES.indexOf(stage);
       eventEmitter?.emit({
         type: 'stage:started',
@@ -457,58 +456,7 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
 
       const stageStart = performance.now();
       try {
-        options.onProgress?.(stage, 'Matching visuals...');
-
-        if (options.visualsInput) {
-          if (options.keepArtifacts) {
-            await writeJson(artifacts.visuals, options.visualsInput);
-          }
-
-          options.onProgress?.(stage, 'Visuals ready');
-          const durationMs = Math.round(performance.now() - stageStart);
-          eventEmitter?.emit({
-            type: 'stage:completed',
-            timestamp: Date.now(),
-            pipelineId,
-            stage,
-            stageIndex,
-            totalStages,
-            durationMs,
-          });
-          return options.visualsInput;
-        }
-
-        const { matchVisuals } = await import('../visuals/matcher');
-        log.info('Starting Stage 3: Visual matching');
-        const result = await logTiming(
-          'visual-matching',
-          () =>
-            matchVisuals({
-              timestamps: audio.timestamps,
-              provider: config.visuals.provider,
-              orientation: options.orientation,
-              mock: options.mock,
-              gameplay: options.gameplay,
-              onProgress: (event) =>
-                emitStageProgress({
-                  emitter: eventEmitter,
-                  pipelineId,
-                  stage,
-                  stageIndex,
-                  totalStages,
-                  phase: event.phase,
-                  progress: event.progress,
-                  message: event.message,
-                }),
-            }),
-          log
-        );
-
-        if (options.keepArtifacts) {
-          await writeJson(artifacts.visuals, result);
-        }
-
-        options.onProgress?.(stage, 'Visuals matched');
+        const result = await run({ stage, stageIndex });
         const durationMs = Math.round(performance.now() - stageStart);
         eventEmitter?.emit({
           type: 'stage:completed',
@@ -533,117 +481,127 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
         });
         throw wrapped;
       }
-    })();
+    };
+
+    // Stage 3: Visual matching
+    const visuals = await runStageWithEvents('visuals', async ({ stage, stageIndex }) => {
+      options.onProgress?.(stage, 'Matching visuals...');
+
+      if (options.visualsInput) {
+        if (options.keepArtifacts) {
+          await writeJson(artifacts.visuals, options.visualsInput);
+        }
+        options.onProgress?.(stage, 'Visuals ready');
+        return options.visualsInput;
+      }
+
+      const { matchVisuals } = await import('../visuals/matcher');
+      log.info('Starting Stage 3: Visual matching');
+      const result = await logTiming(
+        'visual-matching',
+        () =>
+          matchVisuals({
+            timestamps: audio.timestamps,
+            provider: config.visuals.provider,
+            orientation: options.orientation,
+            mock: options.mock,
+            gameplay: options.gameplay,
+            onProgress: (event) =>
+              emitStageProgress({
+                emitter: eventEmitter,
+                pipelineId,
+                stage,
+                stageIndex,
+                totalStages,
+                phase: event.phase,
+                progress: event.progress,
+                message: event.message,
+              }),
+          }),
+        log
+      );
+
+      if (options.keepArtifacts) {
+        await writeJson(artifacts.visuals, result);
+      }
+
+      options.onProgress?.(stage, 'Visuals matched');
+      return result;
+    });
 
     // Stage 4: Render
-    const render = await (async () => {
-      const stage = 'render' as const;
-      const stageIndex = STAGES.indexOf(stage);
-      eventEmitter?.emit({
-        type: 'stage:started',
-        timestamp: Date.now(),
-        pipelineId,
-        stage,
-        stageIndex,
-        totalStages,
-      });
+    const render = await runStageWithEvents('render', async ({ stage, stageIndex }) => {
+      options.onProgress?.(stage, 'Rendering video...');
+      renderAttempted = true;
 
-      const stageStart = performance.now();
-      try {
-        options.onProgress?.(stage, 'Rendering video...');
-        renderAttempted = true;
+      const { renderVideo } = await import('../render/service');
+      log.info('Starting Stage 4: Video rendering');
+      const result = await logTiming(
+        'video-rendering',
+        () =>
+          renderVideo({
+            visuals,
+            timestamps: audio.timestamps,
+            audioPath: audio.audioPath,
+            audioMix: audio.audioMix,
+            audioMixBaseDir: audio.audioMixPath ? dirname(audio.audioMixPath) : undefined,
+            outputPath: options.outputPath,
+            orientation: options.orientation,
+            fps: options.fps ?? config.render.fps,
+            mock: options.mock,
+            compositionId: options.compositionId,
+            captionPreset: options.captionPreset,
+            captionConfig: options.captionConfig,
+            captionGroupMs: options.captionGroupMs,
+            captionMode: options.captionMode,
+            wordsPerPage: options.wordsPerPage,
+            captionMinWords: options.captionMinWords,
+            captionTargetWords: options.captionTargetWords,
+            captionMaxWpm: options.captionMaxWpm,
+            captionMaxCps: options.captionMaxCps,
+            captionMinOnScreenMs: options.captionMinOnScreenMs,
+            captionMinOnScreenMsShort: options.captionMinOnScreenMsShort,
+            captionDropFillers: options.captionDropFillers,
+            captionFillerWords: options.captionFillerWords,
+            captionAnimation: options.captionAnimation,
+            captionFontFamily: options.captionFontFamily ?? defaultCaptionFamily,
+            captionFontWeight: options.captionFontWeight ?? captionDefaults.fontWeight,
+            captionFontFile: options.captionFontFile ?? captionDefaults.fontFile,
+            fonts:
+              options.captionFonts ??
+              (captionDefaults.fonts.length > 0 ? captionDefaults.fonts : undefined),
+            maxLinesPerPage: options.maxLinesPerPage,
+            maxCharsPerLine: options.maxCharsPerLine,
+            archetype: options.archetype,
+            splitScreenRatio: options.splitScreenRatio,
+            gameplayPosition: options.gameplayPosition,
+            contentPosition: options.contentPosition,
+            downloadAssets: options.downloadAssets,
+            hook: options.hook,
+            onProgress: (event) =>
+              emitStageProgress({
+                emitter: eventEmitter,
+                pipelineId,
+                stage,
+                stageIndex,
+                totalStages,
+                phase: event.phase,
+                progress: event.progress ?? 0,
+                message: event.message,
+              }),
+          }),
+        log
+      );
 
-        const { renderVideo } = await import('../render/service');
-        log.info('Starting Stage 4: Video rendering');
-        const result = await logTiming(
-          'video-rendering',
-          () =>
-            renderVideo({
-              visuals,
-              timestamps: audio.timestamps,
-              audioPath: audio.audioPath,
-              audioMix: audio.audioMix,
-              audioMixBaseDir: audio.audioMixPath ? dirname(audio.audioMixPath) : undefined,
-              outputPath: options.outputPath,
-              orientation: options.orientation,
-              fps: options.fps ?? config.render.fps,
-              mock: options.mock,
-              compositionId: options.compositionId,
-              captionPreset: options.captionPreset,
-              captionConfig: options.captionConfig,
-              captionGroupMs: options.captionGroupMs,
-              captionMode: options.captionMode,
-              wordsPerPage: options.wordsPerPage,
-              captionMinWords: options.captionMinWords,
-              captionTargetWords: options.captionTargetWords,
-              captionMaxWpm: options.captionMaxWpm,
-              captionMaxCps: options.captionMaxCps,
-              captionMinOnScreenMs: options.captionMinOnScreenMs,
-              captionMinOnScreenMsShort: options.captionMinOnScreenMsShort,
-              captionDropFillers: options.captionDropFillers,
-              captionFillerWords: options.captionFillerWords,
-              captionAnimation: options.captionAnimation,
-              captionFontFamily: options.captionFontFamily ?? defaultCaptionFamily,
-              captionFontWeight: options.captionFontWeight ?? captionDefaults.fontWeight,
-              captionFontFile: options.captionFontFile ?? captionDefaults.fontFile,
-              fonts: options.captionFonts ?? (captionDefaults.fonts.length > 0 ? captionDefaults.fonts : undefined),
-              maxLinesPerPage: options.maxLinesPerPage,
-              maxCharsPerLine: options.maxCharsPerLine,
-              archetype: options.archetype,
-              splitScreenRatio: options.splitScreenRatio,
-              gameplayPosition: options.gameplayPosition,
-              contentPosition: options.contentPosition,
-              downloadAssets: options.downloadAssets,
-              hook: options.hook,
-              onProgress: (event) =>
-                emitStageProgress({
-                  emitter: eventEmitter,
-                  pipelineId,
-                  stage,
-                  stageIndex,
-                  totalStages,
-                  phase: event.phase,
-                  progress: event.progress ?? 0,
-                  message: event.message,
-                }),
-            }),
-          log
-        );
-
-        options.onProgress?.(stage, 'Video rendered');
-        const durationMs = Math.round(performance.now() - stageStart);
-        eventEmitter?.emit({
-          type: 'stage:completed',
-          timestamp: Date.now(),
-          pipelineId,
-          stage,
-          stageIndex,
-          totalStages,
-          durationMs,
-        });
-        return result;
-      } catch (error) {
-        const wrapped = wrapStageError(stage, error);
-        eventEmitter?.emit({
-          type: 'stage:failed',
-          timestamp: Date.now(),
-          pipelineId,
-          stage,
-          stageIndex,
-          totalStages,
-          error: wrapped,
-        });
-        throw wrapped;
-      }
-    })();
+      options.onProgress?.(stage, 'Video rendered');
+      return result;
+    });
 
     costs.total = costs.llm + costs.tts;
 
     if (!options.keepArtifacts) {
       log.debug('Cleaning up artifacts');
-      await Promise.all(
-        Array.from(generatedPaths).map((path) => rm(path, { force: true }))
-      );
+      await Promise.all(Array.from(generatedPaths).map((path) => rm(path, { force: true })));
     }
 
     log.info(
@@ -678,18 +636,21 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
       costs: costs.total > 0 ? costs : undefined,
     };
   } catch (error) {
-    const wrapped = error instanceof PipelineError ? error : new PipelineError(
-      'generate',
-      `Pipeline failed: ${error instanceof Error ? error.message : String(error)}`,
-      error instanceof Error ? error : undefined
-    );
+    const wrapped =
+      error instanceof PipelineError
+        ? error
+        : new PipelineError(
+            'generate',
+            `Pipeline failed: ${error instanceof Error ? error.message : String(error)}`,
+            error instanceof Error ? error : undefined
+          );
 
     log.error({ error: wrapped }, 'Pipeline failed');
 
     if (!options.keepArtifacts) {
-      await Promise.all(
-        Array.from(generatedPaths).map((path) => rm(path, { force: true }))
-      ).catch(() => {});
+      await Promise.all(Array.from(generatedPaths).map((path) => rm(path, { force: true }))).catch(
+        () => {}
+      );
       if (renderAttempted) {
         await rm(options.outputPath, { force: true }).catch(() => {});
       }

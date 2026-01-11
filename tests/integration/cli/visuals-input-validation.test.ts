@@ -14,4 +14,3 @@ describe('cm visuals input validation', () => {
     expect(result.stderr).toContain('cm audio');
   });
 });
-

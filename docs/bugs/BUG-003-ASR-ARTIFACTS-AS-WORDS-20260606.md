@@ -11,20 +11,21 @@
 
 Various ASR (Automatic Speech Recognition) artifacts appeared as displayable words in captions:
 
-| Artifact | Example | Issue |
-|----------|---------|-------|
-| `bed!` at timestamp 0 | First word wrong | Audio start noise |
-| Standalone punctuation | `.`, `!`, `,` | Whisper segment artifacts |
-| Sub-second fragments | `"the"` at 0.01s | Alignment errors |
+| Artifact               | Example          | Issue                     |
+| ---------------------- | ---------------- | ------------------------- |
+| `bed!` at timestamp 0  | First word wrong | Audio start noise         |
+| Standalone punctuation | `.`, `!`, `,`    | Whisper segment artifacts |
+| Sub-second fragments   | `"the"` at 0.01s | Alignment errors          |
 
 **Observed in `timestamps.json`:**
+
 ```json
 {
   "allWords": [
-    { "word": "bed!", "start": 0, "end": 0.5 },  // WRONG - not in script
+    { "word": "bed!", "start": 0, "end": 0.5 }, // WRONG - not in script
     { "word": "These", "start": 0.6, "end": 0.8 },
     // ...
-    { "word": ".", "start": 15.2, "end": 15.3 }  // Standalone punctuation
+    { "word": ".", "start": 15.2, "end": 15.3 } // Standalone punctuation
   ]
 }
 ```
@@ -36,6 +37,7 @@ Various ASR (Automatic Speech Recognition) artifacts appeared as displayable wor
 ### Layer 1: Audio Start Noise
 
 TTS engines (Kokoro) produce slight audio artifacts at the start:
+
 - Breath sounds
 - Initialization tones
 - Silence padding artifacts
@@ -45,6 +47,7 @@ Whisper interprets these as speech with low confidence.
 ### Layer 2: Whisper Segment Boundaries
 
 Whisper processes audio in segments and sometimes:
+
 - Splits punctuation into separate "words"
 - Creates fragments at segment boundaries
 - Reports noise as very short duration words
@@ -52,6 +55,7 @@ Whisper processes audio in segments and sometimes:
 ### Layer 3: Low-Confidence Transcriptions
 
 Whisper assigns confidence scores to each word:
+
 - High confidence (0.8-1.0): Actual speech
 - Medium confidence (0.3-0.8): Uncertain words
 - Low confidence (0.0-0.3): Likely artifacts
@@ -65,24 +69,21 @@ Whisper assigns confidence scores to each word:
 **1. Pattern-Based Filtering (`isWhisperArtifact`)**
 
 ```typescript
-export function isWhisperArtifact(
-  word: string,
-  confidence?: number
-): boolean {
+export function isWhisperArtifact(word: string, confidence?: number): boolean {
   const trimmed = word.trim();
-  
+
   // Punctuation-only "words"
   if (/^[.,!?;:'"()[\]{}—–-]+$/.test(trimmed)) return true;
-  
+
   // TTS timing markers
   if (/^\[_?[A-Z]+_?\d*\]$/.test(trimmed)) return true;
-  
+
   // Very low confidence (audio noise)
   if (confidence !== undefined && confidence < 0.15) return true;
-  
+
   // Single-character non-word
   if (trimmed.length === 1 && !/^[aAI]$/.test(trimmed)) return true;
-  
+
   return false;
 }
 ```
@@ -92,16 +93,16 @@ export function isWhisperArtifact(
 ```typescript
 export function isAsrArtifact(word: string): boolean {
   const trimmed = word.trim();
-  
+
   // Punctuation-only
   if (/^[.,!?;:'"()[\]{}—–-]+$/.test(trimmed)) return true;
-  
+
   // Empty or whitespace-only
   if (!trimmed) return true;
-  
+
   // Whisper bracket artifacts
   if (/^\[.*\]$/.test(trimmed)) return true;
-  
+
   return false;
 }
 ```
@@ -110,9 +111,7 @@ export function isAsrArtifact(word: string): boolean {
 
 ```typescript
 // src/render/service.ts
-const sanitizedWords = options.timestamps.allWords.filter((w) =>
-  isDisplayableWord(w.word)
-);
+const sanitizedWords = options.timestamps.allWords.filter((w) => isDisplayableWord(w.word));
 ```
 
 ---
@@ -120,23 +119,26 @@ const sanitizedWords = options.timestamps.allWords.filter((w) =>
 ## Artifact Categories
 
 ### Category 1: Audio Start Noise
-| Pattern | Example | Confidence | Action |
-|---------|---------|------------|--------|
-| Random word at t=0 | `bed!` | < 0.15 | Filter by confidence |
-| Breath sound | `[breath]` | N/A | Filter by pattern |
+
+| Pattern            | Example    | Confidence | Action               |
+| ------------------ | ---------- | ---------- | -------------------- |
+| Random word at t=0 | `bed!`     | < 0.15     | Filter by confidence |
+| Breath sound       | `[breath]` | N/A        | Filter by pattern    |
 
 ### Category 2: Punctuation Artifacts
-| Pattern | Example | Action |
-|---------|---------|--------|
-| Period only | `.` | Filter by regex |
-| Exclamation | `!` | Filter by regex |
-| Mixed punctuation | `...` | Filter by regex |
+
+| Pattern           | Example | Action          |
+| ----------------- | ------- | --------------- |
+| Period only       | `.`     | Filter by regex |
+| Exclamation       | `!`     | Filter by regex |
+| Mixed punctuation | `...`   | Filter by regex |
 
 ### Category 3: Segment Boundary Artifacts
-| Pattern | Example | Confidence | Action |
-|---------|---------|------------|--------|
-| Word fragment | `th-` | < 0.3 | Filter by confidence |
-| Repeated word | `the the` | N/A | Handled separately |
+
+| Pattern       | Example   | Confidence | Action               |
+| ------------- | --------- | ---------- | -------------------- |
+| Word fragment | `th-`     | < 0.3      | Filter by confidence |
+| Repeated word | `the the` | N/A        | Handled separately   |
 
 ---
 
@@ -145,11 +147,11 @@ const sanitizedWords = options.timestamps.allWords.filter((w) =>
 Analyzed 500+ transcribed words to determine optimal threshold:
 
 | Threshold | False Positives | False Negatives |
-|-----------|-----------------|-----------------|
-| 0.05 | 2% | 15% |
-| 0.10 | 5% | 8% |
-| **0.15** | **7%** | **3%** |
-| 0.20 | 12% | 1% |
+| --------- | --------------- | --------------- |
+| 0.05      | 2%              | 15%             |
+| 0.10      | 5%              | 8%              |
+| **0.15**  | **7%**          | **3%**          |
+| 0.20      | 12%             | 1%              |
 
 **Selected: 0.15** for ASR-level, **0.10** for caption-level (more conservative)
 
@@ -166,12 +168,12 @@ describe('isWhisperArtifact', () => {
     expect(isWhisperArtifact('!')).toBe(true);
     expect(isWhisperArtifact('...')).toBe(true);
   });
-  
+
   it('filters low-confidence words', () => {
     expect(isWhisperArtifact('bed!', 0.05)).toBe(true);
     expect(isWhisperArtifact('hello', 0.95)).toBe(false);
   });
-  
+
   it('keeps valid single letters', () => {
     expect(isWhisperArtifact('I')).toBe(false);
     expect(isWhisperArtifact('a')).toBe(false);
@@ -192,6 +194,7 @@ describe('isAsrArtifact', () => {
 ## Verification
 
 ### Before Fix
+
 ```
 Caption display: "bed! These 5 morning habits . will change !"
                   ^^^^                        ^            ^
@@ -199,6 +202,7 @@ Caption display: "bed! These 5 morning habits . will change !"
 ```
 
 ### After Fix
+
 ```
 Caption display: "These 5 morning habits will change"
 ```

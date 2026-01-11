@@ -128,7 +128,9 @@ export const captionsCommand = new Command('captions')
       }
 
       const fillerWords = parseWordList(options.captionFillerWords);
-      const dropFillers = Boolean(options.captionDropFillers || (fillerWords && fillerWords.length > 0));
+      const dropFillers = Boolean(
+        options.captionDropFillers || (fillerWords && fillerWords.length > 0)
+      );
 
       const captionConfig = CaptionConfigSchema.parse({
         ...preset,
@@ -166,7 +168,8 @@ export const captionsCommand = new Command('captions')
               captionMaxWpm: parseOptionalNumber(options.captionMaxWpm) ?? null,
               captionMaxCps: parseOptionalNumber(options.captionMaxCps) ?? null,
               captionMinOnScreenMs: parseOptionalInt(options.captionMinOnScreenMs) ?? null,
-              captionMinOnScreenMsShort: parseOptionalInt(options.captionMinOnScreenMsShort) ?? null,
+              captionMinOnScreenMsShort:
+                parseOptionalInt(options.captionMinOnScreenMsShort) ?? null,
               captionDropFillers: dropFillers,
               captionFillerWords: fillerWords ?? null,
               summary: Boolean(options.summary),

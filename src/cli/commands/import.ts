@@ -30,10 +30,7 @@ async function listClipsFromDirectory(dir: string): Promise<string[]> {
     .map((entry) => join(dir, entry.name));
 }
 
-async function resolveClipInputs(options: {
-  clips?: string;
-  clip?: string;
-}): Promise<string[]> {
+async function resolveClipInputs(options: { clips?: string; clip?: string }): Promise<string[]> {
   const results: string[] = [];
 
   if (options.clip) {
@@ -43,7 +40,10 @@ async function resolveClipInputs(options: {
   if (options.clips) {
     const spec = String(options.clips);
     if (looksLikeGlob(spec)) {
-      const matches = await glob(spec);
+      const matches: string[] = [];
+      for await (const match of glob(spec)) {
+        matches.push(match);
+      }
       results.push(...matches.filter(isVideoPath));
     } else {
       if (!existsSync(spec)) {

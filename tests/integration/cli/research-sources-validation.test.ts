@@ -15,4 +15,3 @@ describe('cm research sources validation', () => {
     expect(result.stderr).toContain('Fix:');
   });
 });
-

@@ -27,6 +27,7 @@ import { join, basename } from 'node:path';
 import { tmpdir } from 'node:os';
 import { promisify } from 'node:util';
 import { probeVideoWithFfprobe } from '../validate/ffprobe';
+import { isFuzzyMatch, normalizeWord } from '../core/text/similarity';
 
 const log = createLogger({ module: 'sync-rater' });
 const execFileAsync = promisify(execFile);
@@ -58,46 +59,6 @@ function standardDeviation(arr: number[]): number {
   const avg = mean(arr);
   const squareDiffs = arr.map((v) => Math.pow(v - avg, 2));
   return Math.sqrt(mean(squareDiffs));
-}
-
-// Normalize text for comparison
-function normalizeWord(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, '') // Remove punctuation
-    .trim();
-}
-
-// Levenshtein distance for fuzzy matching
-function levenshteinDistance(s1: string, s2: string): number {
-  const m = s1.length;
-  const n = s2.length;
-  const dp: number[][] = Array(m + 1)
-    .fill(null)
-    .map(() => Array(n + 1).fill(0));
-
-  for (let i = 0; i <= m; i++) dp[i][0] = i;
-  for (let j = 0; j <= n; j++) dp[0][j] = j;
-
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      if (s1[i - 1] === s2[j - 1]) {
-        dp[i][j] = dp[i - 1][j - 1];
-      } else {
-        dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
-      }
-    }
-  }
-
-  return dp[m][n];
-}
-
-function isFuzzyMatch(s1: string, s2: string, threshold = 0.7): boolean {
-  const maxLen = Math.max(s1.length, s2.length);
-  if (maxLen === 0) return true;
-  const distance = levenshteinDistance(s1, s2);
-  const similarity = 1 - distance / maxLen;
-  return similarity >= threshold;
 }
 
 /**
@@ -523,18 +484,22 @@ export async function rateSyncQuality(
 
   log.info({ videoPath, options: opts }, 'Starting sync quality rating');
 
-  validateSyncRatingInput(videoPath, opts);
-
   if (mock) {
+    validateSyncRatingInput(videoPath, opts, { requireVideoExists: false });
     const analysisTimeMs = Date.now() - startTime;
     return buildMockSyncRatingOutput(videoPath, opts, analysisTimeMs);
   }
 
+  validateSyncRatingInput(videoPath, opts, { requireVideoExists: true });
   return rateSyncQualityReal(videoPath, opts, startTime);
 }
 
-function validateSyncRatingInput(videoPath: string, opts: SyncRatingOptions): void {
-  if (!existsSync(videoPath)) {
+function validateSyncRatingInput(
+  videoPath: string,
+  opts: SyncRatingOptions,
+  options: { requireVideoExists: boolean }
+): void {
+  if (options.requireVideoExists && !existsSync(videoPath)) {
     throw new CMError('FILE_NOT_FOUND', `Video file not found: ${videoPath}`);
   }
 

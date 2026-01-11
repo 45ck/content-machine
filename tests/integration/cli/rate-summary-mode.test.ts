@@ -22,4 +22,3 @@ describe('cm rate --summary', () => {
     expect(result.stderr).toContain('Report');
   });
 });
-

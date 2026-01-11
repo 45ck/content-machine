@@ -31,7 +31,10 @@ function buildScriptText(script: ScriptOutput): string {
 }
 
 function wordsToText(words: WordTimestamp[]): string {
-  return words.map((word) => word.word).join(' ').trim();
+  return words
+    .map((word) => word.word)
+    .join(' ')
+    .trim();
 }
 
 export async function generateTimestamps(

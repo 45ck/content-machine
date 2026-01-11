@@ -71,4 +71,3 @@ describe('CLI UX: Next-step hints (pipeline commands)', () => {
     expect(renderResult.stderr).toContain('cm validate');
   }, 180_000);
 });
-

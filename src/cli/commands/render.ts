@@ -395,11 +395,17 @@ function applyConfigDefault(
 function applyCaptionDefaultsFromConfig(
   options: Record<string, unknown>,
   command: Command
-): { fonts: Array<{ family: string; src: string; weight?: number | string; style?: string }> } {
+): {
+  fonts: Array<{
+    family: string;
+    src: string;
+    weight?: number | 'normal' | 'bold' | 'black';
+    style?: 'normal' | 'italic' | 'oblique';
+  }>;
+} {
   const config = loadConfig();
   const captions = config.captions;
-  const defaultFamily =
-    captions.fonts.length > 0 ? captions.fonts[0].family : captions.fontFamily;
+  const defaultFamily = captions.fonts.length > 0 ? captions.fonts[0].family : captions.fontFamily;
   applyConfigDefault(options, command, 'captionFontFamily', defaultFamily);
   applyConfigDefault(options, command, 'captionFontWeight', captions.fontWeight);
   applyConfigDefault(options, command, 'captionFontFile', captions.fontFile);
@@ -680,7 +686,11 @@ async function runRenderCommand(
     await resolveTemplateAndApplyDefaults(options, command);
 
   const audioMixPath = options.audioMix ? String(options.audioMix) : undefined;
-  const { visuals: loadedVisuals, timestamps: loadedTimestamps, audioMix } = await readRenderInputs({
+  const {
+    visuals: loadedVisuals,
+    timestamps: loadedTimestamps,
+    audioMix,
+  } = await readRenderInputs({
     input: String(options.input),
     timestamps: String(options.timestamps),
     audioMix: audioMixPath,
@@ -742,8 +752,10 @@ async function runRenderCommand(
     templateGameplay?.required ?? Boolean(templateGameplay?.library || templateGameplay?.clip);
   const splitLayoutPreset = parseSplitLayoutPreset(options.splitLayout);
   if (splitLayoutPreset) {
-    if (options.gameplayPosition == null) options.gameplayPosition = splitLayoutPreset.gameplayPosition;
-    if (options.contentPosition == null) options.contentPosition = splitLayoutPreset.contentPosition;
+    if (options.gameplayPosition == null)
+      options.gameplayPosition = splitLayoutPreset.gameplayPosition;
+    if (options.contentPosition == null)
+      options.contentPosition = splitLayoutPreset.contentPosition;
   }
   const gameplayPosition = parseLayoutPosition(options.gameplayPosition, '--gameplay-position');
   const contentPosition = parseLayoutPosition(options.contentPosition, '--content-position');
@@ -894,10 +906,7 @@ export const renderCommand = new Command('render')
   .option('--extend-visuals', 'Auto-extend visuals to match audio duration', true)
   .option('--no-extend-visuals', 'Keep visuals as-is (may cause black frames)')
   .option('--fallback-color <hex>', 'Background color for extended scenes', '#1a1a1a')
-  .option(
-    '--split-layout <layout>',
-    'Split-screen layout preset (gameplay-top, gameplay-bottom)'
-  )
+  .option('--split-layout <layout>', 'Split-screen layout preset (gameplay-top, gameplay-bottom)')
   .option('--gameplay-position <pos>', 'Gameplay position (top, bottom, full)')
   .option('--content-position <pos>', 'Content position (top, bottom, full)')
   .option('--hook <idOrPath>', 'Hook intro clip id, path, or URL')
@@ -926,4 +935,3 @@ export const renderCommand = new Command('render')
       handleCommandError(error);
     }
   });
-

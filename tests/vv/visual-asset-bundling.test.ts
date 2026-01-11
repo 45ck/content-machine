@@ -50,4 +50,3 @@ describe('V&V: visual asset bundling', () => {
     expect(rewritten.scenes[1].assetPath).toBe(plan.assets[0].bundlePath);
   });
 });
-

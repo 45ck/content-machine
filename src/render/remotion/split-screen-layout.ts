@@ -43,9 +43,7 @@ function clampRatio(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
-export function computeSplitScreenLayout(
-  input: SplitScreenLayoutInput
-): SplitScreenLayoutResult {
+export function computeSplitScreenLayout(input: SplitScreenLayoutInput): SplitScreenLayoutResult {
   const ratio = clampRatio(input.ratio ?? 0.55, 0.3, 0.7);
   const resolvedContentPosition: SplitScreenPosition = input.contentPosition ?? 'top';
   const resolvedGameplayPosition: SplitScreenPosition =
@@ -78,4 +76,3 @@ export function computeSplitScreenLayout(
     contentOnTop,
   };
 }
-

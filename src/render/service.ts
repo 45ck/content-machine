@@ -476,7 +476,8 @@ function resolveCaptionConfig(options: RenderVideoOptions): CaptionConfig {
         ? true
         : undefined;
   const cleanupOverride =
-    dropFillers !== undefined || (options.captionFillerWords && options.captionFillerWords.length > 0)
+    dropFillers !== undefined ||
+    (options.captionFillerWords && options.captionFillerWords.length > 0)
       ? {
           dropFillers: Boolean(dropFillers),
           fillerWords: options.captionFillerWords ?? [],
@@ -758,7 +759,11 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
       );
       stockExtraAssets = extraAssets;
     } else if (downloadAssets) {
-      safeProgress({ phase: 'prepare-assets', progress: 1, message: 'No visual assets to download' });
+      safeProgress({
+        phase: 'prepare-assets',
+        progress: 1,
+        message: 'No visual assets to download',
+      });
     }
 
     if (localPlan.assets.length) {
@@ -788,7 +793,9 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
 
     const gameplayClip = visualsWithBundledAssets.gameplayClip;
     const gameplayPublicPath =
-      gameplayClip && isLocalFile(gameplayClip.path) ? `gameplay/${basename(gameplayClip.path)}` : null;
+      gameplayClip && isLocalFile(gameplayClip.path)
+        ? `gameplay/${basename(gameplayClip.path)}`
+        : null;
     const gameplayAssets =
       gameplayPublicPath && gameplayClip
         ? [{ sourcePath: gameplayClip.path, destPath: gameplayPublicPath }]

@@ -68,7 +68,6 @@ export function buildAlignmentUnits(script: ScriptOutput): SpokenUnit[] {
   const units: SpokenUnit[] = [];
   const scenes = script.scenes;
 
-  const firstSceneText = scenes.length > 0 ? normalizeSpokenText(scenes[0].text) : '';
   const lastSceneText =
     scenes.length > 0 ? normalizeSpokenText(scenes[scenes.length - 1].text) : '';
 

@@ -11,7 +11,11 @@
  * 4. Comfortable reading pace
  */
 import { describe, it, expect } from 'vitest';
-import { createCaptionPages, toTimedWords, type CaptionPage } from '../../../src/render/captions/paging';
+import {
+  createCaptionPages,
+  toTimedWords,
+  type CaptionPage,
+} from '../../../src/render/captions/paging';
 import * as fs from 'fs';
 import * as path from 'path';
 
@@ -60,7 +64,8 @@ function analyzePagingQuality(pages: CaptionPage[]): PagingQualityReport {
   const wordsPerPage = pages.map((p) => p.words.length);
   const avgWordsPerPage = wordsPerPage.reduce((a, b) => a + b, 0) / wordsPerPage.length;
   const variance =
-    wordsPerPage.reduce((sum, w) => sum + Math.pow(w - avgWordsPerPage, 2), 0) / wordsPerPage.length;
+    wordsPerPage.reduce((sum, w) => sum + Math.pow(w - avgWordsPerPage, 2), 0) /
+    wordsPerPage.length;
   const wordsPerPageStdDev = Math.sqrt(variance);
 
   // Calculate natural boundary rate (pages ending with punctuation)

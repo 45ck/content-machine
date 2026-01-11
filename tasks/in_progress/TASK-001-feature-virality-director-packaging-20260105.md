@@ -141,6 +141,7 @@ topic -> cm package -> packaging.json -> cm script --package -> script.json
 - [ ] Manual smoke commands run successfully
 
 Notes:
+
 - In some sandboxed environments, running Vitest may fail with `spawn EPERM` due to esbuild worker restrictions. Run tests locally to confirm.
 
 ---

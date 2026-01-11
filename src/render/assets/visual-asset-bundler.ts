@@ -105,16 +105,15 @@ export function applyVisualAssetBundlePlan(
   if (!plan.assets.length) return visuals;
 
   const mapping = new Map<string, string>(
-    plan.assets
-      .flatMap((asset) => {
-        const entries: Array<[string, string]> = [];
-        if (asset.sourceUrl) entries.push([asset.sourceUrl, asset.bundlePath]);
-        if (asset.sourcePath) {
-          entries.push([asset.sourcePath, asset.bundlePath]);
-          entries.push([resolve(asset.sourcePath), asset.bundlePath]);
-        }
-        return entries;
-      })
+    plan.assets.flatMap((asset) => {
+      const entries: Array<[string, string]> = [];
+      if (asset.sourceUrl) entries.push([asset.sourceUrl, asset.bundlePath]);
+      if (asset.sourcePath) {
+        entries.push([asset.sourcePath, asset.bundlePath]);
+        entries.push([resolve(asset.sourcePath), asset.bundlePath]);
+      }
+      return entries;
+    })
   );
 
   const rewrittenScenes = (visuals.scenes ?? []).map((scene) => {

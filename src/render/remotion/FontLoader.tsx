@@ -67,7 +67,7 @@ export const FontLoader: React.FC<{ fonts?: FontSource[] }> = ({ fonts }) => {
             const source = format ? `url(${src}) format("${format}")` : `url(${src})`;
             const face = new FontFace(font.family, source, descriptors);
             const loaded = await face.load();
-            document.fonts.add(loaded);
+            (document.fonts as unknown as { add: (font: FontFace) => void }).add(loaded);
           })
         );
       } catch (error) {

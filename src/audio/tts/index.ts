@@ -40,9 +40,58 @@ let cachedTTS: KokoroTTSInstance | null = null;
 
 const LONG_TEXT_CHAR_THRESHOLD = 500;
 const DEFAULT_PAUSE_SECONDS = 0.08;
+const DEFAULT_CHUNK_MAX_CHARS = 320;
 
 function shouldChunkText(text: string): boolean {
   return text.length >= LONG_TEXT_CHAR_THRESHOLD;
+}
+
+function normalizeSpokenText(text: string): string {
+  return text.replace(/[`*_]/g, '').replace(/\s+/g, ' ').trim();
+}
+
+function coerceRawAudio(output: unknown): RawAudio {
+  if (output instanceof RawAudio) return output;
+  if (output && typeof output === 'object') {
+    const maybe = output as { audio?: unknown; sampling_rate?: unknown };
+    if (maybe.audio instanceof Float32Array && typeof maybe.sampling_rate === 'number') {
+      return new RawAudio(maybe.audio, maybe.sampling_rate);
+    }
+  }
+  throw new Error('Unexpected TTS audio output');
+}
+
+function splitTextIntoChunks(text: string, maxChars: number): string[] {
+  const normalized = normalizeSpokenText(text);
+  if (!normalized) return [];
+  if (normalized.length <= maxChars) return [normalized];
+
+  const parts = normalized
+    .split(/(?<=[.!?])\s+/)
+    .map((part: string) => part.trim())
+    .filter(Boolean);
+
+  const chunks: string[] = [];
+  let current = '';
+  for (const part of parts.length > 0 ? parts : [normalized]) {
+    const next = current ? `${current} ${part}` : part;
+    if (next.length <= maxChars) {
+      current = next;
+      continue;
+    }
+    if (current) chunks.push(current);
+    if (part.length <= maxChars) {
+      current = part;
+      continue;
+    }
+    // Fallback: hard split very long sentence.
+    for (let i = 0; i < part.length; i += maxChars) {
+      chunks.push(part.slice(i, i + maxChars).trim());
+    }
+    current = '';
+  }
+  if (current) chunks.push(current);
+  return chunks.filter(Boolean);
 }
 
 function mergeAudioChunks(params: {
@@ -77,37 +126,29 @@ async function generateChunkedAudio(params: {
   speed: number;
   log: ReturnType<typeof createLogger>;
 }): Promise<RawAudio> {
-  const kokoro = await getKokoro();
-
   if (!cachedTTS) {
+    const kokoro = await getKokoro();
     params.log.debug('Loading TTS model');
-    cachedTTS = await kokoro.KokoroTTS.from_pretrained(
-      'onnx-community/Kokoro-82M-v1.0-ONNX',
-      { dtype: 'q8' }
-    );
+    cachedTTS = await kokoro.KokoroTTS.from_pretrained('onnx-community/Kokoro-82M-v1.0-ONNX', {
+      dtype: 'q8',
+    });
     params.log.debug('TTS model loaded');
   }
 
-  const splitter = new kokoro.TextSplitterStream();
-  splitter.push(params.text);
-  splitter.close();
-
   const chunks: Float32Array[] = [];
   let sampleRate = 24000;
-  let chunkCount = 0;
+  const textChunks = splitTextIntoChunks(params.text, DEFAULT_CHUNK_MAX_CHARS);
 
   params.log.info('Generating chunked TTS audio');
 
-  for await (const { audio } of cachedTTS.stream(splitter, {
-    voice: params.voice,
-    speed: params.speed,
-  })) {
-    chunkCount += 1;
+  for (const text of textChunks) {
+    const generated = await cachedTTS.generate(text, { voice: params.voice, speed: params.speed });
+    const audio = coerceRawAudio(generated);
     sampleRate = audio.sampling_rate;
     chunks.push(audio.audio);
   }
 
-  params.log.info({ chunkCount }, 'Chunked TTS audio generated');
+  params.log.info({ chunkCount: chunks.length }, 'Chunked TTS audio generated');
   return mergeAudioChunks({ chunks, sampleRate });
 }
 
@@ -145,10 +186,11 @@ export async function synthesizeSpeech(options: TTSOptions): Promise<TTSResult> 
     } else {
       // Generate audio
       log.debug('Generating audio');
-      audio = await cachedTTS.generate(options.text, {
+      const generated = await cachedTTS.generate(options.text, {
         voice: options.voice,
         speed,
       });
+      audio = coerceRawAudio(generated);
     }
 
     // Save to file

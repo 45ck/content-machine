@@ -8,7 +8,13 @@ import React, { useMemo } from 'react';
 import { Composition, AbsoluteFill, Sequence, useVideoConfig } from 'remotion';
 import type { RenderProps } from '../schema';
 import { Caption } from '../captions';
-import { buildSequences, buildVisualTimeline, HookClip, LegacyClip, SceneBackground } from './visuals';
+import {
+  buildSequences,
+  buildVisualTimeline,
+  HookClipLayer,
+  LegacyClip,
+  SceneBackground,
+} from './visuals';
 import { FontLoader } from './FontLoader';
 import { AudioLayers } from './AudioLayers';
 
@@ -49,7 +55,7 @@ export const ShortVideo: React.FC<RenderProps> = ({
       <FontLoader fonts={fonts} />
       {hook && hookFrames > 0 ? (
         <Sequence from={0} durationInFrames={hookFrames}>
-          <HookClip hook={hook} />
+          <HookClipLayer hook={hook} />
         </Sequence>
       ) : null}
 

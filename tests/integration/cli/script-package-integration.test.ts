@@ -69,4 +69,3 @@ describe('cm script --package', () => {
     expect(envelope.errors[0]?.context?.fix).toContain('cm package');
   });
 });
-

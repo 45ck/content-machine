@@ -19,4 +19,3 @@ describe('cm audio input validation', () => {
     expect(result.stderr).toContain('cm script');
   });
 });
-

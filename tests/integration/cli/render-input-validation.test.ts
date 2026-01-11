@@ -57,4 +57,3 @@ describe('cm render input validation', () => {
     expect(result.stderr).toContain('cm visuals');
   });
 });
-
