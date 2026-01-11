@@ -83,7 +83,7 @@ async function resolveHookClip(params: {
   fit: HookFit | undefined;
   hookLibrary?: unknown;
   hooksDir?: unknown;
-}): Promise<HookClip> {
+}): Promise<HookClip | null> {
   const config = loadConfig();
   return resolveHookSelection({
     hook: params.hookValue,

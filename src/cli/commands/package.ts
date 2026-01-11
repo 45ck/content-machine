@@ -5,7 +5,7 @@
  */
 import { Command } from 'commander';
 import { generatePackage } from '../../package/generator';
-import { PlatformEnum } from '../../package/schema';
+import { Platform, PlatformEnum } from '../../package/schema';
 import { logger } from '../../core/logger';
 import { FakeLLMProvider } from '../../test/stubs/fake-llm';
 import { handleCommandError, writeOutputFile } from '../utils';
@@ -87,8 +87,8 @@ function writeDryRun(topic: string, platform: string, variants: number, output: 
   writeStderrLine(`   Output: ${output}`);
 }
 
-function parsePackageInputs(topic: string, options: PackageCommandOptions): {
-  platform: string;
+function parsePackageInputs(options: PackageCommandOptions): {
+  platform: Platform;
   variants: number;
   select: number | null;
 } {
@@ -180,7 +180,7 @@ async function runPackage(topic: string, options: PackageCommandOptions): Promis
   const runtime = getCliRuntime();
 
   try {
-    const { platform, variants, select } = parsePackageInputs(topic, options);
+    const { platform, variants, select } = parsePackageInputs(options);
 
     if (options.dryRun) {
       spinner.stop();
