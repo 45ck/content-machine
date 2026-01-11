@@ -6,6 +6,7 @@
 import { Command } from 'commander';
 import type { PipelineResult } from '../../core/pipeline';
 import { logger } from '../../core/logger';
+import { evaluateRequirements, planWhisperRequirements } from '../../core/assets/requirements';
 import {
   ArchetypeEnum,
   OrientationEnum,
@@ -208,6 +209,8 @@ interface GenerateOptions {
   hookAudio?: string;
   /** Hook fit mode (cover, contain) */
   hookFit?: string;
+  /** Download missing hook clips */
+  downloadHook?: boolean;
   /** Download remote stock assets into the render bundle (recommended) */
   downloadAssets?: boolean;
   /** Background music track or preset */
@@ -751,6 +754,70 @@ async function runGeneratePreflight(params: {
     });
   }
 
+  if (options.hook !== undefined) {
+    try {
+      const hook = await resolveHookFromCli(options);
+      addPreflightCheck(checks, {
+        label: 'Hook clip',
+        status: 'ok',
+        detail: hook ? hook.path : 'disabled',
+      });
+    } catch (error) {
+      const info = getCliErrorInfo(error);
+      addPreflightCheck(checks, {
+        label: 'Hook clip',
+        status: 'fail',
+        code: info.code,
+        detail: info.message,
+        fix: info.fix,
+      });
+    }
+  }
+
+  if (!options.mock) {
+    let requireWhisper = options.pipeline === 'audio-first';
+    let whisperModel = options.whisperModel ?? 'base';
+    try {
+      const config = loadConfig();
+      requireWhisper = requireWhisper || config.sync.requireWhisper;
+      if (!options.whisperModel) whisperModel = config.sync.asrModel;
+    } catch (error) {
+      const info = getCliErrorInfo(error);
+      addPreflightCheck(checks, {
+        label: 'Config',
+        status: 'fail',
+        code: info.code,
+        detail: info.message,
+        fix: info.fix,
+      });
+    }
+
+    if (requireWhisper) {
+      try {
+        const requirements = planWhisperRequirements({ required: true, model: whisperModel });
+        const results = await evaluateRequirements(requirements);
+        for (const result of results) {
+          addPreflightCheck(checks, {
+            label: result.label,
+            status: result.ok ? 'ok' : 'fail',
+            code: result.ok ? undefined : 'DEPENDENCY_MISSING',
+            detail: result.detail,
+            fix: result.fix,
+          });
+        }
+      } catch (error) {
+        const info = getCliErrorInfo(error);
+        addPreflightCheck(checks, {
+          label: 'Whisper',
+          status: 'fail',
+          code: info.code,
+          detail: info.message,
+          fix: info.fix,
+        });
+      }
+    }
+  }
+
   const needsScript = !options.script;
   const needsVisuals = !options.visuals;
   const needsLlm = !options.mock && (needsScript || needsVisuals);
@@ -1094,6 +1161,7 @@ function buildGenerateSuccessJsonArgs(params: {
     hookTrim: options.hookTrim ?? null,
     hookAudio: options.hookAudio ?? null,
     hookFit: options.hookFit ?? null,
+    downloadHook: Boolean(options.downloadHook),
     downloadAssets: options.downloadAssets !== false,
   };
 }
@@ -2584,6 +2652,7 @@ export const generateCommand = new Command('generate')
   .option('--hook-trim <seconds>', 'Trim hook to N seconds (optional)')
   .option('--hook-audio <mode>', 'Hook audio mode (mute, keep)')
   .option('--hook-fit <mode>', 'Hook fit mode (cover, contain)')
+  .option('--download-hook', 'Download missing hook clips')
   .option('--download-assets', 'Download remote visual assets into the render bundle', true)
   .option('--no-download-assets', 'Do not download remote assets (stream URLs directly)')
   // Sync quality options

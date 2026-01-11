@@ -9,6 +9,7 @@ import {
   type HookFit,
 } from '../hooks/schema';
 import { resolveHookSelection } from '../hooks/resolve';
+import { getCliRuntime } from './runtime';
 
 function parseOptionalNumber(value: unknown): number | undefined {
   if (value == null) return undefined;
@@ -83,12 +84,14 @@ async function resolveHookClip(params: {
   fit: HookFit | undefined;
   hookLibrary?: unknown;
   hooksDir?: unknown;
+  downloadMissing?: boolean;
 }): Promise<HookClip | null> {
   const config = loadConfig();
   return resolveHookSelection({
     hook: params.hookValue,
     library: params.hookLibrary ? String(params.hookLibrary) : config.hooks.library,
     hooksDir: params.hooksDir ? String(params.hooksDir) : config.hooks.dir,
+    downloadMissing: params.downloadMissing,
     durationSeconds: params.durationSeconds,
     trimDurationSeconds: params.trimDurationSeconds,
     audio: params.audio,
@@ -105,8 +108,10 @@ export async function resolveHookFromCli(options: {
   hookTrim?: unknown;
   hookAudio?: unknown;
   hookFit?: unknown;
+  downloadHook?: unknown;
 }): Promise<HookClip | null> {
   const log = createLogger({ module: 'hooks' });
+  const runtime = getCliRuntime();
   const hookFromCli = options.hook !== undefined && options.hook !== null;
   const { hookValue, durationSeconds, trimDurationSeconds, audio, fit } =
     resolveHookDefaults(options);
@@ -121,6 +126,7 @@ export async function resolveHookFromCli(options: {
   }
 
   try {
+    const downloadMissing = !runtime.offline && (runtime.yes || Boolean(options.downloadHook));
     return await resolveHookClip({
       hookValue,
       durationSeconds,
@@ -129,6 +135,7 @@ export async function resolveHookFromCli(options: {
       fit,
       hookLibrary: options.hookLibrary,
       hooksDir: options.hooksDir,
+      downloadMissing,
     });
   } catch (error) {
     if (!hookFromCli && error instanceof NotFoundError) {

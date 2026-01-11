@@ -1,5 +1,21 @@
 import { writeSync } from 'fs';
 
+type OutputWriter = (fd: number, chunk: string) => void;
+
+let outputWriter: OutputWriter | null = null;
+
+export function setOutputWriter(writer: OutputWriter | null): void {
+  outputWriter = writer;
+}
+
+function writeWithFd(fd: number, text: string): void {
+  if (outputWriter) {
+    outputWriter(fd, text);
+    return;
+  }
+  writeSync(fd, text);
+}
+
 export interface CliJsonEnvelope {
   schemaVersion: number;
   command: string;
@@ -39,7 +55,7 @@ export function writeJsonEnvelope(envelope: CliJsonEnvelope): void {
 }
 
 export function writeStdout(text: string): void {
-  writeSync(1, text);
+  writeWithFd(1, text);
 }
 
 export function writeStdoutLine(line: string): void {
@@ -47,7 +63,7 @@ export function writeStdoutLine(line: string): void {
 }
 
 export function writeStderr(text: string): void {
-  writeSync(2, text);
+  writeWithFd(2, text);
 }
 
 export function writeStderrLine(line: string): void {

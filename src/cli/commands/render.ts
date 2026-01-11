@@ -17,12 +17,14 @@
  *   --fallback-color <hex>     Background color for extended scenes
  */
 import { Command } from 'commander';
+import { existsSync } from 'fs';
 import { dirname } from 'path';
 import type { RenderProgressEvent } from '../../render/service';
 import { logger } from '../../core/logger';
 import { CMError, SchemaError } from '../../core/errors';
 import { loadConfig, type CaptionFontConfig } from '../../core/config';
 import { handleCommandError, readInputFile } from '../utils';
+import { getCliErrorInfo } from '../format';
 import type {
   VisualsOutput,
   VisualAsset,
@@ -66,6 +68,31 @@ import { resolveHookFromCli } from '../hooks';
 type ChromeMode = 'headless-shell' | 'chrome-for-testing';
 type LayoutPosition = 'top' | 'bottom' | 'full';
 type SplitLayoutPreset = 'gameplay-top' | 'gameplay-bottom';
+type PreflightStatus = 'ok' | 'warn' | 'fail';
+
+interface PreflightCheck {
+  label: string;
+  status: PreflightStatus;
+  detail?: string;
+  fix?: string;
+  code?: string;
+}
+
+const PREFLIGHT_USAGE_CODES = new Set([
+  'INVALID_ARGUMENT',
+  'SCHEMA_ERROR',
+  'FILE_NOT_FOUND',
+  'INVALID_JSON',
+]);
+
+function addPreflightCheck(checks: PreflightCheck[], entry: PreflightCheck): void {
+  checks.push(entry);
+}
+
+function formatPreflightLine(check: PreflightCheck): string {
+  const detail = check.detail ? ` - ${check.detail}` : '';
+  return `- ${check.status.toUpperCase()} ${check.label}${detail}`;
+}
 
 function parseChromeMode(value: unknown): ChromeMode | undefined {
   if (value == null) return undefined;
@@ -506,6 +533,239 @@ async function readRenderInputs(options: {
   return { visuals: parsedVisuals.data, timestamps: parsedTimestamps.data, audioMix };
 }
 
+async function runRenderPreflight(params: {
+  options: Record<string, unknown>;
+  resolvedTemplate: Awaited<ReturnType<typeof resolveVideoTemplate>> | undefined;
+}): Promise<{ passed: boolean; checks: PreflightCheck[]; exitCode: number }> {
+  const { options, resolvedTemplate } = params;
+  const checks: PreflightCheck[] = [];
+
+  const templateId = resolvedTemplate?.template.id;
+  addPreflightCheck(checks, {
+    label: 'Template',
+    status: 'ok',
+    detail: templateId ? `${templateId} (${formatTemplateSource(resolvedTemplate)})` : 'default',
+  });
+
+  if (!options.input) {
+    addPreflightCheck(checks, {
+      label: 'Visuals input',
+      status: 'fail',
+      code: 'INVALID_ARGUMENT',
+      detail: 'Missing --input visuals.json',
+      fix: 'Provide --input <path> pointing to visuals.json',
+    });
+  } else {
+    try {
+      const rawVisuals = await readInputFile(String(options.input));
+      const parsedVisuals = VisualsOutputSchema.safeParse(rawVisuals);
+      if (!parsedVisuals.success) {
+        addPreflightCheck(checks, {
+          label: 'Visuals input',
+          status: 'fail',
+          code: 'SCHEMA_ERROR',
+          detail: 'Invalid visuals JSON',
+          fix: 'Generate visuals via `cm visuals --input timestamps.json`',
+        });
+      } else {
+        addPreflightCheck(checks, {
+          label: 'Visuals input',
+          status: 'ok',
+          detail: String(options.input),
+        });
+      }
+    } catch (error) {
+      const info = getCliErrorInfo(error);
+      addPreflightCheck(checks, {
+        label: 'Visuals input',
+        status: 'fail',
+        code: info.code,
+        detail: info.message,
+        fix: info.fix,
+      });
+    }
+  }
+
+  if (!options.timestamps) {
+    addPreflightCheck(checks, {
+      label: 'Timestamps input',
+      status: 'fail',
+      code: 'INVALID_ARGUMENT',
+      detail: 'Missing --timestamps timestamps.json',
+      fix: 'Provide --timestamps <path> pointing to timestamps.json',
+    });
+  } else {
+    try {
+      const rawTimestamps = await readInputFile(String(options.timestamps));
+      const parsedTimestamps = TimestampsOutputSchema.safeParse(rawTimestamps);
+      if (!parsedTimestamps.success) {
+        addPreflightCheck(checks, {
+          label: 'Timestamps input',
+          status: 'fail',
+          code: 'SCHEMA_ERROR',
+          detail: 'Invalid timestamps JSON',
+          fix: 'Generate timestamps via `cm audio --input script.json --timestamps timestamps.json`',
+        });
+      } else {
+        addPreflightCheck(checks, {
+          label: 'Timestamps input',
+          status: 'ok',
+          detail: String(options.timestamps),
+        });
+      }
+    } catch (error) {
+      const info = getCliErrorInfo(error);
+      addPreflightCheck(checks, {
+        label: 'Timestamps input',
+        status: 'fail',
+        code: info.code,
+        detail: info.message,
+        fix: info.fix,
+      });
+    }
+  }
+
+  if (!options.audio) {
+    addPreflightCheck(checks, {
+      label: 'Audio input',
+      status: 'fail',
+      code: 'INVALID_ARGUMENT',
+      detail: 'Missing --audio audio.wav',
+      fix: 'Provide --audio <path> pointing to audio.wav',
+    });
+  } else if (existsSync(String(options.audio))) {
+    addPreflightCheck(checks, {
+      label: 'Audio input',
+      status: 'ok',
+      detail: String(options.audio),
+    });
+  } else {
+    addPreflightCheck(checks, {
+      label: 'Audio input',
+      status: 'fail',
+      code: 'FILE_NOT_FOUND',
+      detail: `Audio file not found: ${options.audio}`,
+      fix: 'Provide a valid audio path',
+    });
+  }
+
+  if (options.audioMix) {
+    try {
+      const rawMix = await readInputFile(String(options.audioMix));
+      const parsedMix = AudioMixOutputSchema.safeParse(rawMix);
+      if (!parsedMix.success) {
+        addPreflightCheck(checks, {
+          label: 'Audio mix input',
+          status: 'fail',
+          code: 'SCHEMA_ERROR',
+          detail: 'Invalid audio mix JSON',
+          fix: 'Generate an audio mix plan via `cm audio --audio-mix audio.mix.json`',
+        });
+      } else {
+        addPreflightCheck(checks, {
+          label: 'Audio mix input',
+          status: 'ok',
+          detail: String(options.audioMix),
+        });
+      }
+    } catch (error) {
+      const info = getCliErrorInfo(error);
+      addPreflightCheck(checks, {
+        label: 'Audio mix input',
+        status: 'fail',
+        code: info.code,
+        detail: info.message,
+        fix: info.fix,
+      });
+    }
+  }
+
+  if (options.hook !== undefined) {
+    try {
+      const hook = await resolveHookFromCli(options);
+      addPreflightCheck(checks, {
+        label: 'Hook clip',
+        status: 'ok',
+        detail: hook ? hook.path : 'disabled',
+      });
+    } catch (error) {
+      const info = getCliErrorInfo(error);
+      addPreflightCheck(checks, {
+        label: 'Hook clip',
+        status: 'fail',
+        code: info.code,
+        detail: info.message,
+        fix: info.fix,
+      });
+    }
+  }
+
+  const failures = checks.filter((check) => check.status === 'fail');
+  const passed = failures.length === 0;
+  const exitCode = passed
+    ? 0
+    : failures.some((failure) => failure.code && PREFLIGHT_USAGE_CODES.has(failure.code))
+      ? 2
+      : 1;
+
+  return { passed, checks, exitCode };
+}
+
+function writeRenderPreflightOutput(params: {
+  runtime: RenderRuntime;
+  options: Record<string, unknown>;
+  checks: PreflightCheck[];
+  passed: boolean;
+  exitCode: number;
+}): void {
+  const { runtime, options, checks, passed, exitCode } = params;
+
+  if (runtime.json) {
+    const errors = passed
+      ? []
+      : checks
+          .filter((check) => check.status === 'fail')
+          .map((check) => {
+            const context: Record<string, unknown> = { label: check.label };
+            if (check.detail) context.detail = check.detail;
+            if (check.fix) context.fix = check.fix;
+            return {
+              code: check.code ?? 'PREFLIGHT_FAILED',
+              message: check.detail ? `${check.label}: ${check.detail}` : `${check.label} failed`,
+              context,
+            };
+          });
+    writeJsonEnvelope(
+      buildJsonEnvelope({
+        command: 'render',
+        args: {
+          input: options.input ?? null,
+          audio: options.audio ?? null,
+          timestamps: options.timestamps ?? null,
+          output: options.output ?? null,
+          preflight: true,
+        },
+        outputs: {
+          preflightPassed: passed,
+          checks,
+        },
+        errors,
+        timingsMs: Date.now() - runtime.startTime,
+      })
+    );
+    process.exit(exitCode);
+  }
+
+  writeStderrLine(passed ? 'Preflight: OK' : 'Preflight: FAILED');
+  for (const check of checks) {
+    writeStderrLine(formatPreflightLine(check));
+    if (check.status === 'fail' && check.fix) {
+      writeStderrLine(`  Fix: ${check.fix}`);
+    }
+  }
+  process.exit(exitCode);
+}
+
 function createOnProgress(runtime: RenderRuntime, spinner: RenderSpinner) {
   let lastBucket = -1;
   let lastPhase: string | undefined;
@@ -661,6 +921,19 @@ async function runRenderCommand(
   const configDefaults = applyCaptionDefaultsFromConfig(options, command);
   const { resolvedTemplate, templateDefaults, templateParams, templateGameplay } =
     await resolveTemplateAndApplyDefaults(options, command);
+
+  if (options.preflight) {
+    spinner.stop();
+    const preflight = await runRenderPreflight({ options, resolvedTemplate });
+    writeRenderPreflightOutput({
+      runtime,
+      options,
+      checks: preflight.checks,
+      passed: preflight.passed,
+      exitCode: preflight.exitCode,
+    });
+    return;
+  }
 
   const audioMixPath = options.audioMix ? String(options.audioMix) : undefined;
   const {
@@ -834,6 +1107,7 @@ export const renderCommand = new Command('render')
   .option('--orientation <type>', 'Video orientation (portrait, landscape, square)', 'portrait')
   .option('--fps <fps>', 'Frames per second', '30')
   .option('--mock', 'Use mock renderer (for testing)', false)
+  .option('--preflight', 'Validate dependencies and exit without execution')
   // Caption preset
   .option(
     '--caption-preset <preset>',
