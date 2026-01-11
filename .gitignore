@@ -42,6 +42,7 @@ coverage/
 tests/.tmp/
 report/
 .tmp/
+test-e2e-output/
 
 # Remotion
 .remotion/

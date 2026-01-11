@@ -18,6 +18,7 @@
  */
 import { Command } from 'commander';
 import { dirname } from 'path';
+import { existsSync } from 'fs';
 import type { RenderProgressEvent } from '../../render/service';
 import { logger } from '../../core/logger';
 import { CMError, SchemaError } from '../../core/errors';
@@ -37,6 +38,7 @@ import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
+import { getCliErrorInfo, getExitCodeForError } from '../format';
 import type { CaptionPresetName } from '../../render/captions/presets';
 import type {
   CaptionConfigInput,
@@ -633,6 +635,29 @@ async function readRenderInputs(options: {
   return { visuals: parsedVisuals.data, timestamps: parsedTimestamps.data, audioMix };
 }
 
+function writeRenderPreflightJson(params: {
+  runtime: RenderRuntime;
+  options: Record<string, unknown>;
+  passed: boolean;
+  errors: Array<{ code: string; message: string; context?: Record<string, unknown> }>;
+}): void {
+  writeJsonEnvelope(
+    buildJsonEnvelope({
+      command: 'render',
+      args: {
+        input: params.options.input,
+        timestamps: params.options.timestamps,
+        audio: params.options.audio,
+        output: params.options.output,
+        template: params.options.template ?? null,
+      },
+      outputs: { preflight: true, preflightPassed: params.passed },
+      errors: params.errors,
+      timingsMs: Date.now() - params.runtime.startTime,
+    })
+  );
+}
+
 function createOnProgress(runtime: RenderRuntime, spinner: RenderSpinner) {
   let lastBucket = -1;
   let lastPhase: string | undefined;
@@ -993,14 +1018,60 @@ export const renderCommand = new Command('render')
     'Chrome mode (headless-shell, chrome-for-testing)',
     'chrome-for-testing'
   )
+  .option('--preflight', 'Validate inputs and exit without rendering', false)
   .action(async (options, command: Command) => {
-    const spinner = createSpinner('Rendering video...').start();
     const runtime = getCliRuntime();
+    const spinner = createSpinner(
+      options.preflight ? 'Running render preflight...' : 'Rendering video...'
+    ).start();
 
     try {
+      if (options.preflight) {
+        const audioPath = String(options.audio);
+        if (!existsSync(audioPath)) {
+          throw new CMError('FILE_NOT_FOUND', `Audio file not found: ${audioPath}`, {
+            path: audioPath,
+            fix: 'Provide a valid --audio <path> (or re-run `cm audio` to generate it)',
+          });
+        }
+        await readRenderInputs({
+          input: String(options.input),
+          timestamps: String(options.timestamps),
+          audioMix: options.audioMix ? String(options.audioMix) : undefined,
+        });
+        if (runtime.json) {
+          writeRenderPreflightJson({
+            runtime,
+            options,
+            passed: true,
+            errors: [],
+          });
+        } else {
+          writeStderrLine('Preflight passed');
+        }
+        spinner.succeed('Preflight complete');
+        process.exit(0);
+      }
+
       await runRenderCommand(options as Record<string, unknown>, command, runtime, spinner);
     } catch (error) {
-      spinner.fail('Video render failed');
+      spinner.fail(options.preflight ? 'Preflight failed' : 'Video render failed');
+      if (options.preflight && runtime.json) {
+        const info = getCliErrorInfo(error);
+        writeRenderPreflightJson({
+          runtime,
+          options,
+          passed: false,
+          errors: [
+            {
+              code: info.code,
+              message: info.message,
+              context: info.context,
+            },
+          ],
+        });
+        process.exit(getExitCodeForError(info));
+      }
       handleCommandError(error);
     }
   });

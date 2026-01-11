@@ -27,7 +27,7 @@ import { ResearchOutputSchema } from '../../research/schema';
 import type { ResearchOutput } from '../../research/schema';
 import { createResearchOrchestrator } from '../../research/orchestrator';
 import { OpenAIProvider } from '../../core/llm/openai';
-import { CMError, SchemaError } from '../../core/errors';
+import { CMError, NotFoundError, SchemaError } from '../../core/errors';
 import { CliProgressObserver, PipelineEventEmitter, type PipelineEvent } from '../../core/events';
 import { getCliErrorInfo } from '../format';
 import {
@@ -273,6 +273,10 @@ function printHeader(
   }
   writeStderrLine(chalk.gray(`Output: ${options.output}`));
   writeStderrLine(chalk.gray(`Artifacts: ${dirname(options.output)}`));
+}
+
+function resolveWhisperModelPath(model: 'tiny' | 'base' | 'small' | 'medium'): string {
+  return resolve('.cache', 'whisper', `ggml-${model}.bin`);
 }
 
 // eslint-disable-next-line complexity
@@ -723,6 +727,51 @@ async function runGeneratePreflight(params: {
         label: 'Visuals input',
         status: shouldWarnMissing('visuals', info) ? 'warn' : 'fail',
         code: info.code,
+        detail: info.message,
+        fix: info.fix,
+      });
+    }
+  }
+
+  const pipelineMode = options.pipeline ?? 'standard';
+  if (!options.mock && pipelineMode === 'audio-first') {
+    const whisperModel = (options.whisperModel ?? 'base') as 'tiny' | 'base' | 'small' | 'medium';
+    const modelPath = resolveWhisperModelPath(whisperModel);
+    if (existsSync(modelPath)) {
+      addPreflightCheck(checks, {
+        label: 'Whisper model',
+        status: 'ok',
+        detail: `${whisperModel} (${modelPath})`,
+      });
+    } else {
+      addPreflightCheck(checks, {
+        label: 'Whisper model',
+        status: 'fail',
+        code: 'DEPENDENCY_MISSING',
+        detail: `${whisperModel} model missing`,
+        fix: `Run: cm setup whisper --model ${whisperModel}`,
+      });
+    }
+  }
+
+  if (options.hook) {
+    try {
+      const hook = await resolveHookFromCli(options);
+      addPreflightCheck(checks, {
+        label: 'Hook clip',
+        status: 'ok',
+        detail: hook?.path ?? hook?.id ?? String(options.hook),
+      });
+    } catch (error) {
+      const info = getCliErrorInfo(error);
+      const code =
+        error instanceof NotFoundError && error.resource === 'hook-file'
+          ? 'FILE_NOT_FOUND'
+          : info.code;
+      addPreflightCheck(checks, {
+        label: 'Hook clip',
+        status: 'fail',
+        code,
         detail: info.message,
         fix: info.fix,
       });

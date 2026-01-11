@@ -91,6 +91,7 @@ export const hooksCommand = new Command('hooks')
       .option('--library <id>', 'Hook library id (defaults to config)')
       .option('--hooks-dir <path>', 'Root directory for hook libraries (defaults to config)')
       .option('--force', 'Re-download even if cached', false)
+      .option('--offline', 'Disable network access for downloads', false)
       .action(async (hookId, options) => {
         try {
           const runtime = getCliRuntime();
@@ -98,6 +99,7 @@ export const hooksCommand = new Command('hooks')
           const library = options.library ? String(options.library) : config.hooks.library;
           const hooksDir = options.hooksDir ? String(options.hooksDir) : config.hooks.dir;
           const force = Boolean(options.force);
+          const offline = Boolean(options.offline);
 
           const definition = resolveHookDefinition(library, String(hookId).toLowerCase());
           const root = resolve(expandTilde(hooksDir || DEFAULT_HOOKS_DIR));
@@ -105,7 +107,11 @@ export const hooksCommand = new Command('hooks')
 
           await mkdir(join(root, library), { recursive: true });
 
-          const result = await downloadHookClip(definition, { destinationPath: destPath, force });
+          const result = await downloadHookClip(definition, {
+            destinationPath: destPath,
+            force,
+            offline,
+          });
 
           if (runtime.json) {
             writeJsonEnvelope(

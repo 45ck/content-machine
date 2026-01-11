@@ -48,6 +48,19 @@ function findRequestedCommand(args: string[]): string | null {
   return null;
 }
 
+function getCommandPath(actionCommand: Command): string {
+  const segments: string[] = [];
+  let current: Command | undefined = actionCommand;
+  while (current) {
+    const name = typeof current.name === 'function' ? current.name() : undefined;
+    if (name) segments.unshift(name);
+    current = current.parent ?? undefined;
+  }
+
+  if (segments[0] === 'cm') segments.shift();
+  return segments.join(':') || 'unknown';
+}
+
 async function loadAllCommands(): Promise<void> {
   for (const [, loader] of COMMAND_LOADERS) {
     program.addCommand(await loader());
@@ -100,7 +113,7 @@ program.hook('preAction', (_thisCommand, actionCommand) => {
     verbose: Boolean(opts.verbose),
     isTty: Boolean(process.stderr.isTTY),
     startTime: Date.now(),
-    command: actionCommand.name(),
+    command: getCommandPath(actionCommand),
   });
 
   // In JSON mode, stdout must remain machine-readable (no logs/spinners).

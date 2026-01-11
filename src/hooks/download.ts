@@ -3,21 +3,29 @@ import { mkdir, rename, rm } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
+import { CMError } from '../core/errors';
 import type { HookDefinition } from './schema';
 
 export interface DownloadHookOptions {
   destinationPath: string;
   force?: boolean;
+  offline?: boolean;
 }
 
 export async function downloadHookClip(
   hook: HookDefinition,
   options: DownloadHookOptions
 ): Promise<{ downloaded: boolean; path: string }> {
-  const { destinationPath, force } = options;
+  const { destinationPath, force, offline } = options;
 
   if (!force && existsSync(destinationPath)) {
     return { downloaded: false, path: destinationPath };
+  }
+
+  if (offline) {
+    throw new CMError('OFFLINE', 'Offline mode enabled; cannot download hook clips', {
+      fix: 'Run without --offline to allow downloads',
+    });
   }
 
   const response = await fetch(hook.url);
