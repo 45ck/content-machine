@@ -21,6 +21,22 @@ updates:
         update-types:
           - 'minor'
           - 'patch'
+    ignore:
+      # React 19 currently conflicts with the React/Remotion stack in this repo.
+      - dependency-name: 'react'
+        update-types: ['version-update:semver-major']
+      - dependency-name: 'react-dom'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@types/react'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@types/react-dom'
+        update-types: ['version-update:semver-major']
+
+      # Avoid broken PRs where coverage major requires a coordinated Vitest major upgrade.
+      - dependency-name: 'vitest'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@vitest/coverage-v8'
+        update-types: ['version-update:semver-major']
 
   - package-ecosystem: 'github-actions'
     directory: '/'

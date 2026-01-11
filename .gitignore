@@ -55,6 +55,9 @@ out/
 
 # Stryker (mutation testing)
 .stryker-tmp/
+stryker.conf.cjs
+.stryker-net-patch.cjs
+reports/
 
 # Generated docs
 docs/api/
