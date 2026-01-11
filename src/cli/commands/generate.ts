@@ -19,7 +19,12 @@ import { createMockScriptResponse } from '../../test/fixtures/mock-scenes.js';
 import { createSpinner } from '../progress';
 import chalk from 'chalk';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
+import {
+  buildJsonEnvelope,
+  writeJsonEnvelope,
+  writeStderrLine,
+  writeStdoutLine,
+} from '../output';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
 import { dirname, join, resolve } from 'path';
 import { existsSync } from 'fs';
@@ -27,8 +32,7 @@ import { ResearchOutputSchema } from '../../research/schema';
 import type { ResearchOutput } from '../../research/schema';
 import { createResearchOrchestrator } from '../../research/orchestrator';
 import { OpenAIProvider } from '../../core/llm/openai';
-import { CMError, NotFoundError, SchemaError } from '../../core/errors';
-import { evaluateRequirements, planWhisperRequirements } from '../../core/assets/requirements';
+import { CMError, SchemaError } from '../../core/errors';
 import { CliProgressObserver, PipelineEventEmitter, type PipelineEvent } from '../../core/events';
 import { getCliErrorInfo } from '../format';
 import {
@@ -74,10 +78,13 @@ export interface SyncPresetConfig {
   autoRetrySync: boolean;
 }
 
+const PIPELINE_STANDARD: SyncPresetConfig['pipeline'] = 'standard';
+const PIPELINE_AUDIO_FIRST: SyncPresetConfig['pipeline'] = 'audio-first';
+
 export const SYNC_PRESETS: Record<string, SyncPresetConfig> = {
   /** Fast: standard pipeline, no quality check, fastest rendering */
   fast: {
-    pipeline: 'standard',
+    pipeline: PIPELINE_STANDARD,
     reconcile: false,
     syncQualityCheck: false,
     minSyncRating: 0,
@@ -85,7 +92,7 @@ export const SYNC_PRESETS: Record<string, SyncPresetConfig> = {
   },
   /** Standard: audio-first pipeline (whisper required), no quality check */
   standard: {
-    pipeline: 'audio-first',
+    pipeline: PIPELINE_AUDIO_FIRST,
     reconcile: true,
     syncQualityCheck: false,
     minSyncRating: 60,
@@ -93,7 +100,7 @@ export const SYNC_PRESETS: Record<string, SyncPresetConfig> = {
   },
   /** Quality: audio-first with quality check enabled */
   quality: {
-    pipeline: 'audio-first',
+    pipeline: PIPELINE_AUDIO_FIRST,
     reconcile: true,
     syncQualityCheck: true,
     minSyncRating: 75,
@@ -101,7 +108,7 @@ export const SYNC_PRESETS: Record<string, SyncPresetConfig> = {
   },
   /** Maximum: audio-first with reconcile, quality check, and auto-retry */
   maximum: {
-    pipeline: 'audio-first',
+    pipeline: PIPELINE_AUDIO_FIRST,
     reconcile: true,
     syncQualityCheck: true,
     minSyncRating: 85,
@@ -276,7 +283,6 @@ function printHeader(
   writeStderrLine(chalk.gray(`Artifacts: ${dirname(options.output)}`));
 }
 
-// eslint-disable-next-line complexity
 function writeDryRunJson(params: {
   topic: string;
   archetype: string;
@@ -383,29 +389,22 @@ interface PreflightCheck {
   code?: string;
 }
 
-const PREFLIGHT_USAGE_CODES = new Set([
-  'INVALID_ARGUMENT',
-  'SCHEMA_ERROR',
-  'FILE_NOT_FOUND',
-  'INVALID_JSON',
-]);
+const PREFLIGHT_USAGE_CODES = new Set(['INVALID_ARGUMENT', 'SCHEMA_ERROR', 'FILE_NOT_FOUND', 'INVALID_JSON']);
 
-function addPreflightCheck(checks: PreflightCheck[], entry: PreflightCheck): void {
+function addPreflightCheck(
+  checks: PreflightCheck[],
+  entry: PreflightCheck
+): void {
   checks.push(entry);
 }
 
 function formatPreflightLine(check: PreflightCheck): string {
   const status =
-    check.status === 'ok'
-      ? chalk.green('OK ')
-      : check.status === 'warn'
-        ? chalk.yellow('WARN')
-        : chalk.red('FAIL');
+    check.status === 'ok' ? chalk.green('OK ') : check.status === 'warn' ? chalk.yellow('WARN') : chalk.red('FAIL');
   const detail = check.detail ? ` - ${check.detail}` : '';
   return `- ${status} ${check.label}${detail}`;
 }
 
-// eslint-disable-next-line max-lines-per-function, complexity, sonarjs/cognitive-complexity
 async function runGeneratePreflight(params: {
   topic: string;
   options: GenerateOptions;
@@ -730,48 +729,6 @@ async function runGeneratePreflight(params: {
     }
   }
 
-  const pipelineMode = options.pipeline ?? 'standard';
-  const whisperRequired =
-    !options.mock && pipelineMode === 'audio-first' && !options.timestamps && !options.audio;
-  if (whisperRequired) {
-    const whisperModel = (options.whisperModel ?? 'base') as 'tiny' | 'base' | 'small' | 'medium';
-    const requirements = planWhisperRequirements({ required: true, model: whisperModel });
-    const results = await evaluateRequirements(requirements);
-    for (const requirement of results) {
-      addPreflightCheck(checks, {
-        label: requirement.label,
-        status: requirement.ok ? 'ok' : 'fail',
-        code: requirement.ok ? undefined : 'DEPENDENCY_MISSING',
-        detail: requirement.detail,
-        fix: requirement.ok ? undefined : requirement.fix,
-      });
-    }
-  }
-
-  if (options.hook) {
-    try {
-      const hook = await resolveHookFromCli({ ...options }, { allowDownloads: false });
-      addPreflightCheck(checks, {
-        label: 'Hook clip',
-        status: 'ok',
-        detail: hook?.path ?? hook?.id ?? String(options.hook),
-      });
-    } catch (error) {
-      const info = getCliErrorInfo(error);
-      const code =
-        error instanceof NotFoundError && error.resource === 'hook-file'
-          ? 'FILE_NOT_FOUND'
-          : info.code;
-      addPreflightCheck(checks, {
-        label: 'Hook clip',
-        status: 'fail',
-        code,
-        detail: info.message,
-        fix: info.fix,
-      });
-    }
-  }
-
   const gameplayRequired = Boolean(options.gameplayStrict) || Boolean(templateGameplay?.required);
   if (gameplayRequired && !options.gameplay) {
     addPreflightCheck(checks, {
@@ -787,9 +744,7 @@ async function runGeneratePreflight(params: {
       status: existsSync(options.gameplay) ? 'ok' : 'fail',
       code: existsSync(options.gameplay) ? undefined : 'FILE_NOT_FOUND',
       detail: options.gameplay,
-      fix: existsSync(options.gameplay)
-        ? undefined
-        : 'Provide a valid gameplay directory or clip path',
+      fix: existsSync(options.gameplay) ? undefined : 'Provide a valid gameplay directory or clip path',
     });
   }
 
@@ -913,8 +868,7 @@ function writePreflightOutput(params: {
   passed: boolean;
   exitCode: number;
 }): void {
-  const { topic, options, runtime, templateSpec, resolvedTemplateId, checks, passed, exitCode } =
-    params;
+  const { topic, options, runtime, templateSpec, resolvedTemplateId, checks, passed, exitCode } = params;
 
   if (runtime.json) {
     const errors = passed
@@ -981,7 +935,9 @@ function parseOptionalNumber(value: string | undefined): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-function parseFontWeight(value: string | undefined): number | 'normal' | 'bold' | 'black' | null {
+function parseFontWeight(
+  value: string | undefined
+): number | 'normal' | 'bold' | 'black' | null {
   if (!value) return null;
   const raw = value.trim().toLowerCase();
   if (raw === 'normal' || raw === 'bold' || raw === 'black') {
@@ -1007,9 +963,7 @@ function collectList(value: string, previous: string[] = []): string[] {
   return [...previous, value];
 }
 
-function parseSfxPlacement(
-  value: string | undefined
-): 'hook' | 'scene' | 'list-item' | 'cta' | null {
+function parseSfxPlacement(value: string | undefined): 'hook' | 'scene' | 'list-item' | 'cta' | null {
   if (!value) return null;
   const raw = value.trim();
   if (raw === 'hook' || raw === 'scene' || raw === 'list-item' || raw === 'cta') {
@@ -1032,19 +986,20 @@ function buildAudioMixOptions(options: GenerateOptions): AudioMixPlanOptions {
   return {
     mixPreset: options.mixPreset ?? config.audioMix.preset,
     lufsTarget: parseOptionalNumber(options.lufsTarget) ?? config.audioMix.lufsTarget,
-    music: noMusic ? null : (musicInput ?? config.music.default ?? null),
+    music: noMusic ? null : musicInput ?? config.music.default ?? null,
     musicVolumeDb: parseOptionalNumber(options.musicVolume) ?? config.music.volumeDb,
     musicDuckDb: parseOptionalNumber(options.musicDuck) ?? config.music.duckDb,
     musicLoop: options.musicLoop !== undefined ? Boolean(options.musicLoop) : config.music.loop,
     musicFadeInMs: parseOptionalInt(options.musicFadeIn) ?? config.music.fadeInMs,
     musicFadeOutMs: parseOptionalInt(options.musicFadeOut) ?? config.music.fadeOutMs,
     sfx: noSfx ? [] : sfxInputs,
-    sfxPack: noSfx ? null : (options.sfxPack ?? config.sfx.pack ?? null),
+    sfxPack: noSfx ? null : options.sfxPack ?? config.sfx.pack ?? null,
     sfxAt: parseSfxPlacement(options.sfxAt) ?? config.sfx.placement,
     sfxVolumeDb: parseOptionalNumber(options.sfxVolume) ?? config.sfx.volumeDb,
     sfxMinGapMs: parseOptionalInt(options.sfxMinGap) ?? config.sfx.minGapMs,
-    sfxDurationSeconds: parseOptionalNumber(options.sfxDuration) ?? config.sfx.durationSeconds,
-    ambience: noAmbience ? null : (ambienceInput ?? config.ambience.default ?? null),
+    sfxDurationSeconds:
+      parseOptionalNumber(options.sfxDuration) ?? config.sfx.durationSeconds,
+    ambience: noAmbience ? null : ambienceInput ?? config.ambience.default ?? null,
     ambienceVolumeDb: parseOptionalNumber(options.ambienceVolume) ?? config.ambience.volumeDb,
     ambienceLoop:
       options.ambienceLoop !== undefined ? Boolean(options.ambienceLoop) : config.ambience.loop,
@@ -1056,7 +1011,6 @@ function buildAudioMixOptions(options: GenerateOptions): AudioMixPlanOptions {
   };
 }
 
-// eslint-disable-next-line complexity
 function buildGenerateSuccessJsonArgs(params: {
   topic: string;
   archetype: string;
@@ -1289,10 +1243,7 @@ function getOptionNameMap(command: Command): Map<string, string> {
   return map;
 }
 
-function resolveWorkflowPath(
-  baseDir: string | undefined,
-  value: string | undefined
-): string | undefined {
+function resolveWorkflowPath(baseDir: string | undefined, value: string | undefined): string | undefined {
   if (!value) return undefined;
   return resolve(baseDir ?? process.cwd(), value);
 }
@@ -1327,12 +1278,7 @@ function applyWorkflowInputs(
 
   applyDefaultOption(record, command, 'script', resolveWorkflowPath(baseDir, inputs.script));
   applyDefaultOption(record, command, 'audio', resolveWorkflowPath(baseDir, inputs.audio));
-  applyDefaultOption(
-    record,
-    command,
-    'timestamps',
-    resolveWorkflowPath(baseDir, inputs.timestamps)
-  );
+  applyDefaultOption(record, command, 'timestamps', resolveWorkflowPath(baseDir, inputs.timestamps));
   applyDefaultOption(record, command, 'visuals', resolveWorkflowPath(baseDir, inputs.visuals));
 }
 
@@ -1613,7 +1559,6 @@ function createPipelineObservation(runtime: ReturnType<typeof getCliRuntime>): {
   return { eventEmitter, dispose: () => stageObserver.dispose() };
 }
 
-// eslint-disable-next-line complexity
 async function runGeneratePipeline(params: {
   topic: string;
   archetype: Archetype;
@@ -1635,7 +1580,8 @@ async function runGeneratePipeline(params: {
 
   try {
     const { runPipeline } = await import('../../core/pipeline');
-    const wordsPerPage = params.options.wordsPerPage ?? params.options.captionMaxWords ?? undefined;
+    const wordsPerPage =
+      params.options.wordsPerPage ?? params.options.captionMaxWords ?? undefined;
     const captionFillerWords = parseWordList(params.options.captionFillerWords);
     const captionDropFillers =
       params.options.captionDropFillers || (captionFillerWords && captionFillerWords.length > 0)
@@ -1755,10 +1701,7 @@ function getCaptionPreset(options: GenerateOptions): string {
   return options.captionPreset ?? 'capcut';
 }
 
-function parseLayoutPosition(
-  value: unknown,
-  optionName: string
-): 'top' | 'bottom' | 'full' | undefined {
+function parseLayoutPosition(value: unknown, optionName: string): 'top' | 'bottom' | 'full' | undefined {
   if (value == null) return undefined;
   const raw = String(value);
   if (raw === 'top' || raw === 'bottom' || raw === 'full') return raw;
@@ -1769,9 +1712,7 @@ function parseLayoutPosition(
 
 function parseSplitLayoutPreset(
   value: unknown
-):
-  | { gameplayPosition: 'top' | 'bottom' | 'full'; contentPosition: 'top' | 'bottom' | 'full' }
-  | undefined {
+): { gameplayPosition: 'top' | 'bottom' | 'full'; contentPosition: 'top' | 'bottom' | 'full' } | undefined {
   if (value == null) return undefined;
   const raw = String(value);
   if (raw === 'gameplay-top') return { gameplayPosition: 'top', contentPosition: 'bottom' };
@@ -1990,7 +1931,6 @@ async function finalizeGenerateOutput(params: {
   if (params.exitCode !== 0) process.exit(params.exitCode);
 }
 
-// eslint-disable-next-line max-lines-per-function, complexity, sonarjs/cognitive-complexity
 async function runGenerate(
   topic: string,
   options: GenerateOptions,
@@ -2027,12 +1967,7 @@ async function runGenerate(
   const { resolvedTemplate, templateDefaults, templateParams, templateGameplay } =
     await resolveTemplateAndApplyDefaults(options, command);
 
-  applyWorkflowDefaults(
-    options,
-    command,
-    workflowDefinition,
-    new Set(['template', 'workflowAllowExec'])
-  );
+  applyWorkflowDefaults(options, command, workflowDefinition, new Set(['template', 'workflowAllowExec']));
   applyWorkflowInputs(options, command, workflowDefinition, workflowBaseDir);
   applyWorkflowStageDefaults(options, workflowStageModes, artifactsDir);
   const templateSpec = toNullableString(options.template);
@@ -2184,10 +2119,8 @@ async function runGenerate(
 
   const splitLayoutPreset = parseSplitLayoutPreset(options.splitLayout);
   if (splitLayoutPreset) {
-    if (options.gameplayPosition == null)
-      options.gameplayPosition = splitLayoutPreset.gameplayPosition;
-    if (options.contentPosition == null)
-      options.contentPosition = splitLayoutPreset.contentPosition;
+    if (options.gameplayPosition == null) options.gameplayPosition = splitLayoutPreset.gameplayPosition;
+    if (options.contentPosition == null) options.contentPosition = splitLayoutPreset.contentPosition;
   }
 
   const gameplayPosition = parseLayoutPosition(options.gameplayPosition, '--gameplay-position');
@@ -2246,7 +2179,6 @@ function createMockLLMProvider(topic: string): FakeLLMProvider {
   return provider;
 }
 
-// eslint-disable-next-line complexity, sonarjs/cognitive-complexity
 function showDryRunSummary(
   topic: string,
   options: GenerateOptions,
@@ -2385,18 +2317,14 @@ function showDryRunSummary(
   );
   if (options.audio) {
     const tsLabel = options.timestamps ? options.timestamps : 'timestamps.json';
-    writeStderrLine(
-      `   2. Audio -> ${options.audio} + ${tsLabel}${hasMix ? ' + audio.mix.json' : ''} (external)`
-    );
+    writeStderrLine(`   2. Audio -> ${options.audio} + ${tsLabel}${hasMix ? ' + audio.mix.json' : ''} (external)`);
   } else {
     writeStderrLine(
       `   2. Audio -> audio.wav + timestamps.json${hasMix ? ' + audio.mix.json' : ''}${options.pipeline === 'audio-first' ? ' (Whisper ASR required)' : ''}`
     );
   }
   writeStderrLine(
-    options.visuals
-      ? `   3. Visuals -> ${options.visuals} (external)`
-      : '   3. Visuals -> visuals.json'
+    options.visuals ? `   3. Visuals -> ${options.visuals} (external)` : '   3. Visuals -> visuals.json'
   );
   writeStderrLine(`   4. Render -> ${options.output}`);
 }
@@ -2455,7 +2383,11 @@ async function showSuccessSummary(
       artifactRows.push(['Audio mix', result.audio.audioMixPath]);
     }
     artifactRows.push(['Visuals', join(artifactsDir, 'visuals.json')]);
-    lines.push('', 'Artifacts', ...formatKeyValueRows(artifactRows));
+    lines.push(
+      '',
+      'Artifacts',
+      ...formatKeyValueRows(artifactRows)
+    );
   }
 
   const profile = options.orientation === 'landscape' ? 'landscape' : 'portrait';
@@ -2626,7 +2558,6 @@ export const generateCommand = new Command('generate')
   .option('--hook <idOrPath>', 'Hook intro clip id, path, or URL')
   .option('--hook-library <name>', 'Hook library id (defaults to config)')
   .option('--hooks-dir <path>', 'Root directory for hook libraries')
-  .option('--download-hook', 'Download hook clip from the selected library if missing', false)
   .option('--hook-duration <seconds>', 'Hook duration when ffprobe is unavailable')
   .option('--hook-trim <seconds>', 'Trim hook to N seconds (optional)')
   .option('--hook-audio <mode>', 'Hook audio mode (mute, keep)')

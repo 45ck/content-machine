@@ -457,32 +457,38 @@ function extendShortDurations(words: WordTimestamp[], minDurationMs: number): Wo
   const result = words.map((word) => ({ ...word }));
   let pendingShift = 0;
 
+  function applyPendingShift(word: WordTimestamp): void {
+    if (pendingShift === 0) return;
+    word.start += pendingShift;
+    word.end += pendingShift;
+  }
+
+  function extendWord(
+    word: WordTimestamp,
+    nextStart: number | null
+  ): number {
+    const duration = word.end - word.start;
+    if (duration >= minDuration) return 0;
+
+    const needed = minDuration - duration;
+    if (nextStart === null) {
+      word.end = word.start + minDuration;
+      return 0;
+    }
+
+    const gap = nextStart - word.end;
+    word.end += needed;
+    return gap >= needed ? 0 : needed - gap;
+  }
+
   for (let i = 0; i < result.length; i++) {
     const word = result[i];
 
-    if (pendingShift !== 0) {
-      word.start += pendingShift;
-      word.end += pendingShift;
-    }
+    applyPendingShift(word);
 
-    const duration = word.end - word.start;
-    if (duration >= minDuration) continue;
-
-    const needed = minDuration - duration;
-
-    if (i < result.length - 1) {
-      const nextStart = result[i + 1].start + pendingShift;
-      const gap = nextStart - word.end;
-
-      if (gap >= needed) {
-        word.end = word.end + needed;
-      } else {
-        word.end = word.end + needed;
-        pendingShift += needed - gap;
-      }
-    } else {
-      word.end = word.start + minDuration;
-    }
+    const nextStart =
+      i < result.length - 1 ? result[i + 1].start + pendingShift : null;
+    pendingShift += extendWord(word, nextStart);
   }
 
   const epsilon = 1e-6;

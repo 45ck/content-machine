@@ -10,7 +10,12 @@ import { queryResearchEvidenceIndex, parseResearchIndexFile } from '../../resear
 import { CMError } from '../../core/errors';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
+import {
+  buildJsonEnvelope,
+  writeJsonEnvelope,
+  writeStderrLine,
+  writeStdoutLine,
+} from '../output';
 
 interface RetrieveOptions {
   index: string;

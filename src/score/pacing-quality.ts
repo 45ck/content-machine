@@ -210,8 +210,7 @@ function analyzeScenePacing(
   const roundedWpm = Math.round(wpm);
 
   const sceneText = words.map((word) => word.word).join(' ');
-  const isCta =
-    scene.sceneId === 'cta' || (totalScenes > 1 && isLastScene) || looksLikeCta(sceneText);
+  const isCta = (totalScenes > 1 && isLastScene) || looksLikeCta(sceneText);
   const status = isCta
     ? evaluateCtaPacing(roundedWpm, sceneIndex, issues)
     : evaluateScenePacing(roundedWpm, sceneIndex, issues);
@@ -225,11 +224,7 @@ function analyzeScenePacing(
   };
 }
 
-function evaluateCtaPacing(
-  wpm: number,
-  sceneIndex: number,
-  issues: PacingIssue[]
-): ScenePacingMetrics['status'] {
+function evaluateCtaPacing(wpm: number, sceneIndex: number, issues: PacingIssue[]): ScenePacingMetrics['status'] {
   if (wpm <= PACING_THRESHOLDS.ctaMaxWpm) return 'normal';
   issues.push({
     type: 'abnormal-cta',
@@ -241,11 +236,7 @@ function evaluateCtaPacing(
   return 'abnormal';
 }
 
-function evaluateScenePacing(
-  wpm: number,
-  sceneIndex: number,
-  issues: PacingIssue[]
-): ScenePacingMetrics['status'] {
+function evaluateScenePacing(wpm: number, sceneIndex: number, issues: PacingIssue[]): ScenePacingMetrics['status'] {
   if (wpm > PACING_THRESHOLDS.absoluteMaxWpm) {
     issues.push({
       type: 'too-fast',
@@ -321,12 +312,15 @@ export function formatPacingReport(report: PacingQualityReport): string {
   lines.push(`\nAggregate Metrics:`);
   lines.push(`  Average WPM: ${report.aggregate.avgWpm}`);
   lines.push(`  Std Dev WPM: ${report.aggregate.stdDevWpm}`);
-  lines.push(`  Consistency (CV): ${(report.aggregate.coefficientOfVariation * 100).toFixed(1)}%`);
+  lines.push(
+    `  Consistency (CV): ${(report.aggregate.coefficientOfVariation * 100).toFixed(1)}%`
+  );
   lines.push(`  Abnormal Scenes: ${report.aggregate.abnormalScenes}/${report.scenes.length}`);
 
   lines.push(`\nPer-Scene Breakdown:`);
   for (const scene of report.scenes) {
-    const statusIcon = scene.status === 'normal' ? '✓' : scene.status === 'abnormal' ? '✗' : '⚠';
+    const statusIcon =
+      scene.status === 'normal' ? '✓' : scene.status === 'abnormal' ? '✗' : '⚠';
     lines.push(
       `  ${statusIcon} Scene ${scene.sceneIndex}: ${scene.wordCount} words, ${scene.durationSeconds.toFixed(1)}s, ${scene.wpm} WPM [${scene.status}]`
     );

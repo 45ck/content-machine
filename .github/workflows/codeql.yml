@@ -9,20 +9,15 @@ on:
   pull_request_target:
     branches: [master]
   schedule:
-    - cron: '24 3 * * 1'
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+    - cron: '23 4 * * 1'
 
 permissions:
-  actions: read
   contents: read
   security-events: write
 
 jobs:
   analyze:
-    name: Analyze (CodeQL)
+    name: Analyze
     runs-on: ubuntu-latest
     if: >-
       ${{
@@ -49,5 +44,5 @@ jobs:
       - name: Autobuild
         uses: github/codeql-action/autobuild@v3
 
-      - name: Perform CodeQL Analysis
+      - name: Analyze
         uses: github/codeql-action/analyze@v3

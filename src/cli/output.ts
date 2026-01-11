@@ -1,9 +1,5 @@
 import { writeSync } from 'fs';
 
-type OutputWriter = (fd: number, content: string) => void;
-
-let outputWriterOverride: OutputWriter | null = null;
-
 export interface CliJsonEnvelope {
   schemaVersion: number;
   command: string;
@@ -37,35 +33,23 @@ export function buildJsonEnvelope(params: {
   };
 }
 
-export function setOutputWriter(writer: OutputWriter | null): void {
-  outputWriterOverride = writer;
+export function writeJsonEnvelope(envelope: CliJsonEnvelope): void {
+  const content = JSON.stringify(envelope, null, 2);
+  writeStdout(`${content}\n`);
 }
 
-function writeToFd(fd: number, content: string): void {
-  if (outputWriterOverride) {
-    outputWriterOverride(fd, content);
-    return;
-  }
-  writeSync(fd, content);
-}
-
-export function writeStdout(content: string): void {
-  writeToFd(process.stdout.fd, content);
+export function writeStdout(text: string): void {
+  writeSync(1, text);
 }
 
 export function writeStdoutLine(line: string): void {
   writeStdout(`${line}\n`);
 }
 
-export function writeStderr(content: string): void {
-  writeToFd(process.stderr.fd, content);
+export function writeStderr(text: string): void {
+  writeSync(2, text);
 }
 
 export function writeStderrLine(line: string): void {
   writeStderr(`${line}\n`);
-}
-
-export function writeJsonEnvelope(envelope: CliJsonEnvelope): void {
-  const content = JSON.stringify(envelope, null, 2);
-  writeStdout(`${content}\n`);
 }

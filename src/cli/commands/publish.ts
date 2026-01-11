@@ -11,7 +11,12 @@ import { generatePublish } from '../../publish/generator';
 import { FakeLLMProvider } from '../../test/stubs/fake-llm';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
+import {
+  buildJsonEnvelope,
+  writeJsonEnvelope,
+  writeStderrLine,
+  writeStdoutLine,
+} from '../output';
 
 interface PublishOptions {
   input: string;

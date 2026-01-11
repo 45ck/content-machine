@@ -13,9 +13,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-permissions:
-  contents: read
-
 jobs:
   quality:
     name: Quality Gates
@@ -33,6 +30,10 @@ jobs:
       }}
     env:
       HUSKY: 0
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20, 22]
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -42,30 +43,26 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 20
+          node-version: ${{ matrix.node }}
           cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Audit (high/critical)
-        run: npm audit --audit-level=high
-        continue-on-error: true
-
       - name: Typecheck
         run: npm run typecheck
+
+      - name: Build CLI
+        run: npm run build
+
+      - name: Build types
+        run: npm run build:types
 
       - name: Lint
         run: npm run lint
 
       - name: Format check
         run: npm run format:check
-
-      - name: Build
-        run: npm run build
-
-      - name: Build types
-        run: npm run build:types
 
       - name: Test with coverage
         run: npm run test:coverage

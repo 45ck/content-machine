@@ -18,11 +18,10 @@
  */
 import { Command } from 'commander';
 import { dirname } from 'path';
-import { existsSync } from 'fs';
 import type { RenderProgressEvent } from '../../render/service';
 import { logger } from '../../core/logger';
 import { CMError, SchemaError } from '../../core/errors';
-import { loadConfig } from '../../core/config';
+import { loadConfig, type CaptionFontConfig } from '../../core/config';
 import { handleCommandError, readInputFile } from '../utils';
 import type {
   VisualsOutput,
@@ -36,11 +35,16 @@ import { TimestampsOutputSchema } from '../../audio/schema';
 import { AudioMixOutputSchema, type AudioMixOutput } from '../../audio/mix/schema';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
+import {
+  buildJsonEnvelope,
+  writeJsonEnvelope,
+  writeStderrLine,
+  writeStdoutLine,
+} from '../output';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
-import { getCliErrorInfo, getExitCodeForError } from '../format';
 import type { CaptionPresetName } from '../../render/captions/presets';
 import type {
+  CaptionConfig,
   CaptionConfigInput,
   HighlightMode,
   CaptionPosition,
@@ -371,123 +375,7 @@ function processVisuals(
 type RenderRuntime = ReturnType<typeof getCliRuntime>;
 type RenderSpinner = ReturnType<typeof createSpinner>;
 
-function buildCaptionSettings(
-  options: Record<string, unknown>,
-  command: Command,
-  templateDefaults: Record<string, unknown> | undefined
-): {
-  captionConfig: CaptionConfigInput;
-  captionMaxWords?: number;
-  captionMinWords?: number;
-  captionTargetWords?: number;
-  captionMaxWpm?: number;
-  captionMaxCps?: number;
-  captionMinOnScreenMs?: number;
-  captionMinOnScreenMsShort?: number;
-  captionFontFamily?: string;
-  captionFontWeight?: number | 'normal' | 'bold' | 'black';
-  captionFontFile?: string;
-  captionDropFillers?: boolean;
-  captionFillerWords?: string[];
-} {
-  const captionConfig = mergeCaptionConfigPartials(
-    (templateDefaults?.captionConfig as CaptionConfigInput | undefined) ?? undefined,
-    parseCaptionOptions(options)
-  );
-  const captionMaxWords = parseOptionalInt(options.captionMaxWords);
-  const captionMinWords = parseOptionalInt(options.captionMinWords);
-  const captionTargetWords = parseOptionalInt(options.captionTargetWords);
-  const captionMaxWpm = parseOptionalNumber(options.captionMaxWpm);
-  const captionMaxCps = parseOptionalNumber(options.captionMaxCps);
-  const captionMinOnScreenMs = parseOptionalInt(options.captionMinOnScreenMs);
-  const captionMinOnScreenMsShort = parseOptionalInt(options.captionMinOnScreenMsShort);
-  const captionFontFamily = options.captionFontFamily
-    ? String(options.captionFontFamily)
-    : undefined;
-  const captionFontWeight =
-    options.captionFontWeight !== undefined
-      ? parseFontWeight(options.captionFontWeight)
-      : undefined;
-  const captionFontFile = options.captionFontFile ? String(options.captionFontFile) : undefined;
-  const captionFillerWords = parseWordList(options.captionFillerWords);
-  const captionDropFillersSource = command.getOptionValueSource('captionDropFillers');
-  const captionDropFillers =
-    captionDropFillersSource === 'default' ? undefined : Boolean(options.captionDropFillers);
-
-  return {
-    captionConfig,
-    captionMaxWords,
-    captionMinWords,
-    captionTargetWords,
-    captionMaxWpm,
-    captionMaxCps,
-    captionMinOnScreenMs,
-    captionMinOnScreenMsShort,
-    captionFontFamily,
-    captionFontWeight,
-    captionFontFile,
-    captionDropFillers,
-    captionFillerWords,
-  };
-}
-
-function resolveLayoutOptions(params: {
-  options: Record<string, unknown>;
-  templateParams: ReturnType<typeof getTemplateParams>;
-  templateGameplay: ReturnType<typeof getTemplateGameplaySlot>;
-  templateDefaults?: Record<string, unknown>;
-  compositionId?: string;
-}): {
-  layout: { gameplayPosition?: LayoutPosition; contentPosition?: LayoutPosition };
-  archetype?: string;
-  compositionId?: string;
-  gameplayRequired: boolean;
-} {
-  const { options, templateParams, templateGameplay, templateDefaults } = params;
-  const archetype = templateDefaults?.archetype as string | undefined;
-  const compositionId = params.compositionId;
-  const gameplayRequired =
-    templateGameplay?.required ?? Boolean(templateGameplay?.library || templateGameplay?.clip);
-
-  const splitLayoutPreset = parseSplitLayoutPreset(options.splitLayout);
-  if (splitLayoutPreset) {
-    if (options.gameplayPosition == null) {
-      options.gameplayPosition = splitLayoutPreset.gameplayPosition;
-    }
-    if (options.contentPosition == null) {
-      options.contentPosition = splitLayoutPreset.contentPosition;
-    }
-  }
-
-  const gameplayPosition = parseLayoutPosition(options.gameplayPosition, '--gameplay-position');
-  const contentPosition = parseLayoutPosition(options.contentPosition, '--content-position');
-  const layout = {
-    gameplayPosition: gameplayPosition ?? templateParams.gameplayPosition,
-    contentPosition: contentPosition ?? templateParams.contentPosition,
-  };
-
-  return { layout, archetype, compositionId, gameplayRequired };
-}
-
-function ensureGameplayRequirement(params: {
-  compositionId?: string;
-  gameplayRequired: boolean;
-  visuals: VisualsOutputInput;
-  mock: boolean;
-}): void {
-  if (
-    params.compositionId === 'SplitScreenGameplay' &&
-    params.gameplayRequired &&
-    !params.visuals.gameplayClip &&
-    !params.mock
-  ) {
-    throw new CMError('MISSING_GAMEPLAY', 'Split-screen templates require gameplay footage', {
-      fix: 'Run `cm visuals --gameplay <path>` to populate gameplayClip in visuals.json',
-    });
-  }
-}
-
-function applyDefaultOption(
+function applyDefault(
   options: Record<string, unknown>,
   command: Command,
   optionName: string,
@@ -501,20 +389,14 @@ function applyDefaultOption(
 function applyCaptionDefaultsFromConfig(
   options: Record<string, unknown>,
   command: Command
-): {
-  fonts: Array<{
-    family: string;
-    src: string;
-    weight?: number | 'normal' | 'bold' | 'black';
-    style?: 'normal' | 'italic' | 'oblique';
-  }>;
-} {
+): { fonts: CaptionFontConfig[] } {
   const config = loadConfig();
   const captions = config.captions;
-  const defaultFamily = captions.fonts.length > 0 ? captions.fonts[0].family : captions.fontFamily;
-  applyDefaultOption(options, command, 'captionFontFamily', defaultFamily);
-  applyDefaultOption(options, command, 'captionFontWeight', captions.fontWeight);
-  applyDefaultOption(options, command, 'captionFontFile', captions.fontFile);
+  const defaultFamily =
+    captions.fonts.length > 0 ? captions.fonts[0].family : captions.fontFamily;
+  applyDefault(options, command, 'captionFontFamily', defaultFamily);
+  applyDefault(options, command, 'captionFontWeight', captions.fontWeight);
+  applyDefault(options, command, 'captionFontFile', captions.fontFile);
 
   return { fonts: captions.fonts };
 }
@@ -542,19 +424,19 @@ async function resolveTemplateAndApplyDefaults(
   const templateParams = getTemplateParams(resolvedTemplate.template);
   const templateGameplay = getTemplateGameplaySlot(resolvedTemplate.template);
 
-  applyDefaultOption(
+  applyDefault(
     options,
     command,
     'orientation',
     templateDefaults.orientation as string | undefined
   );
-  applyDefaultOption(
+  applyDefault(
     options,
     command,
     'fps',
     templateDefaults.fps !== undefined ? String(templateDefaults.fps) : undefined
   );
-  applyDefaultOption(
+  applyDefault(
     options,
     command,
     'captionPreset',
@@ -633,29 +515,6 @@ async function readRenderInputs(options: {
   }
 
   return { visuals: parsedVisuals.data, timestamps: parsedTimestamps.data, audioMix };
-}
-
-function writeRenderPreflightJson(params: {
-  runtime: RenderRuntime;
-  options: Record<string, unknown>;
-  passed: boolean;
-  errors: Array<{ code: string; message: string; context?: Record<string, unknown> }>;
-}): void {
-  writeJsonEnvelope(
-    buildJsonEnvelope({
-      command: 'render',
-      args: {
-        input: params.options.input,
-        timestamps: params.options.timestamps,
-        audio: params.options.audio,
-        output: params.options.output,
-        template: params.options.template ?? null,
-      },
-      outputs: { preflight: true, preflightPassed: params.passed },
-      errors: params.errors,
-      timingsMs: Date.now() - params.runtime.startTime,
-    })
-  );
 }
 
 function createOnProgress(runtime: RenderRuntime, spinner: RenderSpinner) {
@@ -815,11 +674,7 @@ async function runRenderCommand(
     await resolveTemplateAndApplyDefaults(options, command);
 
   const audioMixPath = options.audioMix ? String(options.audioMix) : undefined;
-  const {
-    visuals: loadedVisuals,
-    timestamps: loadedTimestamps,
-    audioMix,
-  } = await readRenderInputs({
+  const { visuals: loadedVisuals, timestamps: loadedTimestamps, audioMix } = await readRenderInputs({
     input: String(options.input),
     timestamps: String(options.timestamps),
     audioMix: audioMixPath,
@@ -847,26 +702,60 @@ async function runRenderCommand(
     'render'
   );
 
-  const captionSettings = buildCaptionSettings(options, command, templateDefaults);
+  const captionConfig = mergeCaptionConfigPartials(
+    (templateDefaults?.captionConfig as Partial<CaptionConfig> | undefined) ?? undefined,
+    parseCaptionOptions(options)
+  );
+  const captionMaxWords = parseOptionalInt(options.captionMaxWords);
+  const captionMinWords = parseOptionalInt(options.captionMinWords);
+  const captionTargetWords = parseOptionalInt(options.captionTargetWords);
+  const captionMaxWpm = parseOptionalNumber(options.captionMaxWpm);
+  const captionMaxCps = parseOptionalNumber(options.captionMaxCps);
+  const captionMinOnScreenMs = parseOptionalInt(options.captionMinOnScreenMs);
+  const captionMinOnScreenMsShort = parseOptionalInt(options.captionMinOnScreenMsShort);
+  const captionFontFamily = options.captionFontFamily
+    ? String(options.captionFontFamily)
+    : undefined;
+  const captionFontWeight =
+    options.captionFontWeight !== undefined
+      ? parseFontWeight(options.captionFontWeight)
+      : undefined;
+  const captionFontFile = options.captionFontFile ? String(options.captionFontFile) : undefined;
+  const captionFillerWords = parseWordList(options.captionFillerWords);
+  const captionDropFillersSource = command.getOptionValueSource('captionDropFillers');
+  const captionDropFillers =
+    captionDropFillersSource === 'default' ? undefined : Boolean(options.captionDropFillers);
   const hook = await resolveHookFromCli(options);
   if (!options.hook && hook) {
     options.hook = hook.id ?? hook.path;
   }
 
-  const { layout, archetype, compositionId, gameplayRequired } = resolveLayoutOptions({
-    options,
-    templateParams,
-    templateGameplay,
-    templateDefaults,
-    compositionId: resolvedTemplate?.template.compositionId,
-  });
+  const archetype = templateDefaults?.archetype as string | undefined;
+  const compositionId = resolvedTemplate?.template.compositionId;
+  const gameplayRequired =
+    templateGameplay?.required ?? Boolean(templateGameplay?.library || templateGameplay?.clip);
+  const splitLayoutPreset = parseSplitLayoutPreset(options.splitLayout);
+  if (splitLayoutPreset) {
+    if (options.gameplayPosition == null) options.gameplayPosition = splitLayoutPreset.gameplayPosition;
+    if (options.contentPosition == null) options.contentPosition = splitLayoutPreset.contentPosition;
+  }
+  const gameplayPosition = parseLayoutPosition(options.gameplayPosition, '--gameplay-position');
+  const contentPosition = parseLayoutPosition(options.contentPosition, '--content-position');
+  const layout = {
+    gameplayPosition: gameplayPosition ?? templateParams.gameplayPosition,
+    contentPosition: contentPosition ?? templateParams.contentPosition,
+  };
 
-  ensureGameplayRequirement({
-    compositionId,
-    gameplayRequired,
-    visuals,
-    mock: Boolean(options.mock),
-  });
+  if (
+    compositionId === 'SplitScreenGameplay' &&
+    gameplayRequired &&
+    !visuals.gameplayClip &&
+    !options.mock
+  ) {
+    throw new CMError('MISSING_GAMEPLAY', 'Split-screen templates require gameplay footage', {
+      fix: 'Run `cm visuals --gameplay <path>` to populate gameplayClip in visuals.json',
+    });
+  }
   const onProgress = createOnProgress(runtime, spinner);
 
   const { renderVideo } = await import('../../render/service');
@@ -884,20 +773,20 @@ async function runRenderCommand(
     chromeMode: parseChromeMode(options.chromeMode),
     captionPreset: options.captionPreset as CaptionPresetName,
     captionMode: options.captionMode as 'page' | 'single' | 'buildup' | 'chunk' | undefined,
-    captionConfig: captionSettings.captionConfig,
-    wordsPerPage: captionSettings.captionMaxWords ?? undefined,
-    captionMinWords: captionSettings.captionMinWords ?? undefined,
-    captionTargetWords: captionSettings.captionTargetWords ?? undefined,
-    captionMaxWpm: captionSettings.captionMaxWpm ?? undefined,
-    captionMaxCps: captionSettings.captionMaxCps ?? undefined,
-    captionMinOnScreenMs: captionSettings.captionMinOnScreenMs ?? undefined,
-    captionMinOnScreenMsShort: captionSettings.captionMinOnScreenMsShort ?? undefined,
-    captionFontFamily: captionSettings.captionFontFamily,
-    captionFontWeight: captionSettings.captionFontWeight,
-    captionFontFile: captionSettings.captionFontFile,
+    captionConfig,
+    wordsPerPage: captionMaxWords ?? undefined,
+    captionMinWords: captionMinWords ?? undefined,
+    captionTargetWords: captionTargetWords ?? undefined,
+    captionMaxWpm: captionMaxWpm ?? undefined,
+    captionMaxCps: captionMaxCps ?? undefined,
+    captionMinOnScreenMs: captionMinOnScreenMs ?? undefined,
+    captionMinOnScreenMsShort: captionMinOnScreenMsShort ?? undefined,
+    captionFontFamily,
+    captionFontWeight,
+    captionFontFile,
     fonts: configDefaults.fonts.length > 0 ? configDefaults.fonts : undefined,
-    captionDropFillers: captionSettings.captionDropFillers,
-    captionFillerWords: captionSettings.captionFillerWords,
+    captionDropFillers,
+    captionFillerWords,
     onProgress,
     archetype,
     compositionId,
@@ -999,13 +888,15 @@ export const renderCommand = new Command('render')
   .option('--extend-visuals', 'Auto-extend visuals to match audio duration', true)
   .option('--no-extend-visuals', 'Keep visuals as-is (may cause black frames)')
   .option('--fallback-color <hex>', 'Background color for extended scenes', '#1a1a1a')
-  .option('--split-layout <layout>', 'Split-screen layout preset (gameplay-top, gameplay-bottom)')
+  .option(
+    '--split-layout <layout>',
+    'Split-screen layout preset (gameplay-top, gameplay-bottom)'
+  )
   .option('--gameplay-position <pos>', 'Gameplay position (top, bottom, full)')
   .option('--content-position <pos>', 'Content position (top, bottom, full)')
   .option('--hook <idOrPath>', 'Hook intro clip id, path, or URL')
   .option('--hook-library <name>', 'Hook library id (defaults to config)')
   .option('--hooks-dir <path>', 'Root directory for hook libraries')
-  .option('--download-hook', 'Download hook clip from the selected library if missing', false)
   .option('--hook-duration <seconds>', 'Hook duration when ffprobe is unavailable')
   .option('--hook-trim <seconds>', 'Trim hook to N seconds (optional)')
   .option('--hook-audio <mode>', 'Hook audio mode (mute, keep)')
@@ -1018,60 +909,14 @@ export const renderCommand = new Command('render')
     'Chrome mode (headless-shell, chrome-for-testing)',
     'chrome-for-testing'
   )
-  .option('--preflight', 'Validate inputs and exit without rendering', false)
   .action(async (options, command: Command) => {
+    const spinner = createSpinner('Rendering video...').start();
     const runtime = getCliRuntime();
-    const spinner = createSpinner(
-      options.preflight ? 'Running render preflight...' : 'Rendering video...'
-    ).start();
 
     try {
-      if (options.preflight) {
-        const audioPath = String(options.audio);
-        if (!options.mock && !existsSync(audioPath)) {
-          throw new CMError('FILE_NOT_FOUND', `Audio file not found: ${audioPath}`, {
-            path: audioPath,
-            fix: 'Provide a valid --audio <path> (or re-run `cm audio` to generate it)',
-          });
-        }
-        await readRenderInputs({
-          input: String(options.input),
-          timestamps: String(options.timestamps),
-          audioMix: options.audioMix ? String(options.audioMix) : undefined,
-        });
-        if (runtime.json) {
-          writeRenderPreflightJson({
-            runtime,
-            options,
-            passed: true,
-            errors: [],
-          });
-        } else {
-          writeStderrLine('Preflight passed');
-        }
-        spinner.succeed('Preflight complete');
-        process.exit(0);
-      }
-
       await runRenderCommand(options as Record<string, unknown>, command, runtime, spinner);
     } catch (error) {
-      spinner.fail(options.preflight ? 'Preflight failed' : 'Video render failed');
-      if (options.preflight && runtime.json) {
-        const info = getCliErrorInfo(error);
-        writeRenderPreflightJson({
-          runtime,
-          options,
-          passed: false,
-          errors: [
-            {
-              code: info.code,
-              message: info.message,
-              context: info.context,
-            },
-          ],
-        });
-        process.exit(getExitCodeForError(info));
-      }
+      spinner.fail('Video render failed');
       handleCommandError(error);
     }
   });
