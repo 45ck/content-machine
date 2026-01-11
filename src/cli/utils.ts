@@ -112,7 +112,8 @@ export function formatFileSize(bytes: number): string {
 export type WhisperModel = 'tiny' | 'base' | 'small' | 'medium' | 'large';
 
 export function parseWhisperModel(value: unknown): WhisperModel {
-  const model = String(value ?? 'base').toLowerCase();
+  const raw = String(value ?? 'base').toLowerCase();
+  const model = raw === 'large-v3' ? 'large' : raw;
   if (
     model === 'tiny' ||
     model === 'base' ||

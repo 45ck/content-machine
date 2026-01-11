@@ -97,6 +97,13 @@ if [[ ${#urls[@]} -eq 0 && ${#files[@]} -eq 0 ]]; then
   exit 2
 fi
 
+if [[ "$trim" == "true" && "$seconds" != "0" ]]; then
+  if ! command -v ffmpeg >/dev/null 2>&1; then
+    echo "ffmpeg not found; skipping trim. Install ffmpeg or use --no-trim." >&2
+    trim="false"
+  fi
+fi
+
 dest="${root}/${style}"
 mkdir -p "$dest"
 
