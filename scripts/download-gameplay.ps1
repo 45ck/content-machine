@@ -1,31 +1,16 @@
 param(
   [string]$Root = ".cm/assets/gameplay",
   [int]$ClipSeconds = 180,
+  [string[]]$Urls = @(),
+  [string]$Style = "",
   [switch]$Force
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-$subwayUrls = @(
-  "https://youtu.be/arKMhppmNig",
-  "https://www.youtube.com/watch?v=QPW3XwBoQlw&t=4s",
-  "https://www.youtube.com/watch?v=hJcv2nZ8x84",
-  "https://www.youtube.com/watch?v=Iot_bB8lKgE"
-)
-
-$minecraftUrls = @(
-  "https://youtu.be/XBIaqOm0RKQ",
-  "https://www.youtube.com/watch?v=cjxxE2gwEVg",
-  "https://www.youtube.com/watch?v=7yl7Wc1dtWc",
-  "https://www.youtube.com/watch?v=pGkf1kMyNKI",
-  "https://www.youtube.com/watch?v=-LZceM7L8AE"
-)
-
-$styles = @(
-  @{ Name = "subway-surfers"; Urls = $subwayUrls },
-  @{ Name = "minecraft-parkour"; Urls = $minecraftUrls }
-)
+Write-Host "IMPORTANT: Only download/use content you own or have explicit rights to use."
+Write-Host "This repo does not ship or endorse downloading copyrighted gameplay."
 
 function Resolve-YtDlpCommand {
   $command = Get-Command "yt-dlp" -ErrorAction SilentlyContinue
@@ -59,13 +44,20 @@ if ($rootPathInfo) {
   $rootPath = Join-Path $cwd $Root
 }
 
-foreach ($style in $styles) {
-  $styleDir = Join-Path $rootPath $style.Name
+if ([string]::IsNullOrWhiteSpace($Style)) {
+  throw "Style is required. Example: -Style subway-surfers"
+}
+
+if ($Urls.Count -eq 0) {
+  throw "Provide one or more -Urls. Example: -Urls https://example.com/your-clip.mp4"
+}
+
+$styleDir = Join-Path $rootPath $Style
   if (-not (Test-Path $styleDir)) {
     New-Item -ItemType Directory -Path $styleDir -Force | Out-Null
   }
 
-  Write-Host "Downloading $($style.Name) clips to $styleDir"
+  Write-Host "Downloading gameplay clips to $styleDir"
 
   $clipEnd = [TimeSpan]::FromSeconds($ClipSeconds).ToString('hh\:mm\:ss')
   $commonArgs = @(
@@ -82,9 +74,8 @@ foreach ($style in $styles) {
     $commonArgs += "--no-overwrites"
   }
 
-  foreach ($url in $style.Urls) {
+  foreach ($url in $Urls) {
     & $ytDlp.Command @($ytDlp.Args) @commonArgs $url
   }
-}
 
 Write-Host "Gameplay downloads complete."

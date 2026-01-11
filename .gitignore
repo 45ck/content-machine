@@ -51,6 +51,7 @@ out/
 # Cache files
 .cache/
 *.traineddata
+.venv-yt-dlp/
 
 # Stryker (mutation testing)
 .stryker-tmp/

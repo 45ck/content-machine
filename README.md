@@ -1,13 +1,55 @@
 ﻿# Content Machine
 
 [![CI](https://github.com/45ck/content-machine/actions/workflows/ci.yml/badge.svg)](https://github.com/45ck/content-machine/actions/workflows/ci.yml)
-[![CodeQL](https://github.com/45ck/content-machine/actions/workflows/codeql.yml/badge.svg)](https://github.com/45ck/content-machine/actions/workflows/codeql.yml)
-[![codecov](https://codecov.io/gh/45ck/content-machine/branch/master/graph/badge.svg)](https://codecov.io/gh/45ck/content-machine)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 
 Automated short-form video generation pipeline for TikTok, Reels, and Shorts.
 
 > **Status:** Early development. Not production-ready yet.
+
+![Content Machine pipeline](assets/demo/pipeline-preview.svg)
+
+## Demo videos
+
+GitHub READMEs can’t reliably inline-play `mp4`, so this repo uses small previews (GIF/SVG)
+and links to full videos hosted elsewhere (GitHub Releases / YouTube / Vimeo).
+
+- Demo hosting: https://github.com/45ck/content-machine/releases
+- Guide: [docs/guides/guide-demo-media-20260111.md](docs/guides/guide-demo-media-20260111.md)
+
+### Demo 1: Split-screen gameplay + content (brainrot template)
+
+![Split-screen gameplay + content demo](assets/demo/demo-1-split-screen.gif)
+
+Shows:
+
+- Split-screen gameplay template with **Minecraft** (top) + **Subway Surfers** (bottom)
+- `cm import visuals` to bring your own clips
+- Gameplay slot selection (`--gameplay-style subway-surfers`)
+- `cm render --template brainrot-split-gameplay-top`
+
+### Demo 2: Subway Surfers-style gameplay with TikTok captions
+
+![Gameplay captions demo](assets/demo/demo-2-subway-captions.gif)
+
+Shows:
+
+- Full-screen **Subway Surfers** gameplay with word-highlighted captions
+- `cm import visuals` + `cm render --template tiktok-captions`
+
+### Demo 3: Bring your own clips (no stock footage)
+
+![Import clips demo](assets/demo/demo-3-import-clips.gif)
+
+Shows:
+
+- **Minecraft** clip imported via `cm import visuals`
+- `cm render --template tiktok-captions --caption-preset karaoke`
+
+Note: if you want _real_ gameplay (Subway Surfers / Minecraft parkour), you must supply your own
+clips with the appropriate rights in `~/.cm/assets/gameplay/<style>/`. This repo does not ship or
+download copyrighted gameplay footage by default. On Linux you can import clips with
+`scripts/download-gameplay.sh` (local files or URLs you have rights to).
 
 ## What is this?
 
@@ -46,6 +88,10 @@ Run the full pipeline with `cm generate` or run each stage independently.
 git clone https://github.com/45ck/content-machine.git
 cd content-machine
 
+# Prereqs
+# - Node.js >= 20
+# - (optional) ffmpeg (for making README demo GIFs)
+
 # Install dependencies
 npm install
 
@@ -64,7 +110,7 @@ and reconciles ASR output back to the script text.
 
 ```bash
 # One-time Whisper setup (needed for audio-first)
-cm setup whisper --model base
+node --input-type=module -e "import('@remotion/install-whisper-cpp').then(async (w)=>{ await w.downloadWhisperModel({ model: 'base', folder: './.cache/whisper' }); await w.installWhisperCpp({ to: './.cache/whisper', version: '1.5.5' }); console.log('whisper ready'); })"
 
 # Generate a short video with best-sync defaults
 cm generate "Redis vs PostgreSQL for caching" --archetype versus --output output/video.mp4 --keep-artifacts
@@ -139,11 +185,6 @@ Troubleshooting:
 - If Remotion fails to decode a gameplay clip, transcode to H.264 baseline:
   `ffmpeg -y -i input.mp4 -vf "scale=1080:-2" -c:v libx264 -profile:v baseline -level 3.1 -pix_fmt yuv420p -preset veryfast -crf 23 -an -movflags +faststart output.mp4`
 - For detailed logs: `--verbose` plus `REMOTION_LOG_LEVEL=verbose`
-
-Hook library notes:
-
-- List known hooks: `cm hooks list`
-- Download a specific hook clip: `cm hooks download no-crunch` (or pass `--download-hook` alongside `--hook <id>`)
 
 ## Vendored Dependencies
 
@@ -270,6 +311,15 @@ src/
 ## License
 
 MIT - See [LICENSE](LICENSE)
+
+## Contributing
+
+PRs welcome. Please read:
+
+- [CONTRIBUTING.md](CONTRIBUTING.md)
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- [SECURITY.md](SECURITY.md)
+- [SUPPORT.md](SUPPORT.md)
 
 ## Credits
 
