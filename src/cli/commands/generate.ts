@@ -753,7 +753,7 @@ async function runGeneratePreflight(params: {
 
   if (options.hook) {
     try {
-      const hook = await resolveHookFromCli(options);
+      const hook = await resolveHookFromCli({ ...options }, { allowDownloads: false });
       addPreflightCheck(checks, {
         label: 'Hook clip',
         status: 'ok',
