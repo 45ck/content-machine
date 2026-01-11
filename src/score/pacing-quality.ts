@@ -210,8 +210,7 @@ function analyzeScenePacing(
   const roundedWpm = Math.round(wpm);
 
   const sceneText = words.map((word) => word.word).join(' ');
-  const isCta =
-    scene.sceneId === 'cta' || (totalScenes > 1 && isLastScene) || looksLikeCta(sceneText);
+  const isCta = (totalScenes > 1 && isLastScene) || looksLikeCta(sceneText);
   const status = isCta
     ? evaluateCtaPacing(roundedWpm, sceneIndex, issues)
     : evaluateScenePacing(roundedWpm, sceneIndex, issues);

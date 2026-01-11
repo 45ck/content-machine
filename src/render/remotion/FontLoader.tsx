@@ -56,6 +56,9 @@ export const FontLoader: React.FC<{ fonts?: FontSource[] }> = ({ fonts }) => {
 
     const loadFonts = async () => {
       try {
+        const fontSet = document.fonts as FontFaceSet & {
+          add?: (face: FontFace) => void;
+        };
         await Promise.all(
           fonts.map(async (font) => {
             const src = isRemoteSource(font.src) ? font.src : staticFile(font.src);
@@ -67,7 +70,7 @@ export const FontLoader: React.FC<{ fonts?: FontSource[] }> = ({ fonts }) => {
             const source = format ? `url(${src}) format("${format}")` : `url(${src})`;
             const face = new FontFace(font.family, source, descriptors);
             const loaded = await face.load();
-            (document.fonts as unknown as { add: (font: FontFace) => void }).add(loaded);
+            fontSet.add?.(loaded);
           })
         );
       } catch (error) {
