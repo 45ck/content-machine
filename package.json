@@ -47,7 +47,7 @@
     "prepare": "husky || true"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.30.0",
+    "@anthropic-ai/sdk": "^0.71.2",
     "@google/generative-ai": "^0.24.1",
     "@remotion/animation-utils": "^4.0.402",
     "@remotion/bundler": "^4.0.0",
