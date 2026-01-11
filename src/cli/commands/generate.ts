@@ -1028,6 +1028,14 @@ function parseWordList(value: string | undefined): string[] | undefined {
   return items.length > 0 ? items : [];
 }
 
+function normalizeWhisperModelForSync(
+  model: GenerateOptions['whisperModel'] | undefined
+): SyncAttemptSettings['whisperModel'] {
+  if (!model) return 'base';
+  if (model === 'large') return 'medium';
+  return model;
+}
+
 function collectList(value: string, previous: string[] = []): string[] {
   return [...previous, value];
 }
@@ -1880,7 +1888,7 @@ async function runPipelineWithOptionalSyncQualityGate(
   const initialSettings: SyncAttemptSettings = {
     pipelineMode: params.options.pipeline ?? 'standard',
     reconcile: Boolean(params.options.reconcile),
-    whisperModel: params.options.whisperModel ?? 'base',
+    whisperModel: normalizeWhisperModelForSync(params.options.whisperModel),
   };
 
   const autoRetryRequested = Boolean(params.options.autoRetrySync);
@@ -1916,7 +1924,7 @@ async function runPipelineWithOptionalSyncQualityGate(
         maxMaxDriftMs: 500,
         minMatchRatio: 0.7,
       },
-      asrModel: params.options.whisperModel ?? 'base',
+      asrModel: normalizeWhisperModelForSync(params.options.whisperModel),
       mock: params.options.mock,
     });
   };
