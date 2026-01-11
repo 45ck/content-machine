@@ -1028,7 +1028,7 @@ export const renderCommand = new Command('render')
     try {
       if (options.preflight) {
         const audioPath = String(options.audio);
-        if (!existsSync(audioPath)) {
+        if (!options.mock && !existsSync(audioPath)) {
           throw new CMError('FILE_NOT_FOUND', `Audio file not found: ${audioPath}`, {
             path: audioPath,
             fix: 'Provide a valid --audio <path> (or re-run `cm audio` to generate it)',
