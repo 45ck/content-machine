@@ -21,7 +21,7 @@ cm setup whisper [options]
 #### Options
 
 - `--model <model>`: `tiny|base|small|medium|large` (default: `base`)
-- `--dir <path>`: install directory for whisper assets (default: `./.cache/whisper`)
+- `--dir <path>`: install directory for whisper assets (default: resolved via `CM_WHISPER_DIR`, else `~/.cm/assets/whisper`; falls back to `./.cache/whisper` if present)
 - `--version <version>`: whisper.cpp version (default: `1.5.5`)
 
 #### Outputs
@@ -34,6 +34,8 @@ cm setup whisper [options]
 
 - `-v, --verbose`: enable verbose logging
 - `--json`: print a schema-versioned JSON envelope to stdout
+- `--offline`: disable on-demand downloads
+- `-y, --yes`: allow safe auto-downloads where supported
 
 ## Exit codes
 
