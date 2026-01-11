@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { setOutputWriter } from '../../../src/cli/output';
 import { createSpinner } from '../../../src/cli/progress';
 import { resetCliRuntime, setCliRuntime } from '../../../src/cli/runtime';
 
@@ -8,17 +9,15 @@ describe('cli progress', () => {
     setCliRuntime({ json: true, isTty: true });
 
     const writes: string[] = [];
-    const original = process.stderr.write;
-    process.stderr.write = ((chunk: string) => {
-      writes.push(chunk);
-      return true;
-    }) as typeof process.stderr.write;
+    setOutputWriter((fd, chunk) => {
+      if (fd === process.stderr.fd) writes.push(String(chunk));
+    });
 
     const spinner = createSpinner('Working...');
     spinner.start();
     spinner.succeed('Done');
 
-    process.stderr.write = original;
+    setOutputWriter(null);
 
     expect(writes.length).toBe(0);
   });
@@ -28,17 +27,15 @@ describe('cli progress', () => {
     setCliRuntime({ json: false, isTty: false });
 
     const writes: string[] = [];
-    const original = process.stderr.write;
-    process.stderr.write = ((chunk: string) => {
-      writes.push(chunk);
-      return true;
-    }) as typeof process.stderr.write;
+    setOutputWriter((fd, chunk) => {
+      if (fd === process.stderr.fd) writes.push(String(chunk));
+    });
 
     const spinner = createSpinner('Working...');
     spinner.start();
     spinner.succeed('Done');
 
-    process.stderr.write = original;
+    setOutputWriter(null);
 
     const joined = writes.join('');
     expect(joined).toContain('INFO: Working...');

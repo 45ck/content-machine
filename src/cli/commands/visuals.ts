@@ -12,7 +12,7 @@ import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
 import { TimestampsOutputSchema } from '../../audio/schema';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { SchemaError } from '../../core/errors';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
 
@@ -152,7 +152,7 @@ export const visualsCommand = new Command('visuals')
       await writeSummaryCard({ title: 'Visuals ready', lines, footerLines });
 
       // Human-mode stdout should be reserved for the primary artifact path.
-      process.stdout.write(`${options.output}\n`);
+      writeStdoutLine(options.output);
     } catch (error) {
       spinner.fail('Visual matching failed');
       handleCommandError(error);

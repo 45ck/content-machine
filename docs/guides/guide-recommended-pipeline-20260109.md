@@ -21,8 +21,8 @@ Recommended defaults for the highest quality, best-synced short-form videos.
 ## Examples
 
 ```bash
-# Install whisper.cpp (one-time)
-node --input-type=module -e "import('@remotion/install-whisper-cpp').then(async (w)=>{ await w.downloadWhisperModel({ model: 'base', folder: './.cache/whisper' }); await w.installWhisperCpp({ to: './.cache/whisper', version: '1.5.5' }); console.log('whisper ready'); })"
+# Install whisper.cpp + model (one-time)
+cm setup whisper --model base
 
 # Recommended pipeline (defaults are audio-first + reconcile)
 cm generate "Redis vs PostgreSQL for caching" --archetype versus --output output/video.mp4 --keep-artifacts
@@ -39,7 +39,7 @@ cm render --input output/visuals.json --audio output/audio.wav --timestamps outp
 - **Symptom:** Captions drift ahead/behind audio.
   - **Fix:** Ensure `--sync-strategy audio-first` is used and Whisper is installed.
 - **Symptom:** Audio stage fails due to Whisper not installed.
-  - **Fix:** Run the Whisper install command above, then retry.
+  - **Fix:** Run `cm setup whisper --model base`, then retry.
 
 ## Related
 

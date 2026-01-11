@@ -10,7 +10,7 @@ import { CMError, SchemaError } from '../../core/errors';
 import { ScriptOutputSchema } from '../../script/schema';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope } from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStdoutLine } from '../output';
 import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
 
@@ -102,7 +102,7 @@ export const timestampsCommand = new Command('timestamps')
         footerLines: [`Next: cm import visuals --timestamps ${options.output} --clips <dir>`],
       });
 
-      process.stdout.write(`${options.output}\n`);
+      writeStdoutLine(options.output);
       process.exit(0);
     } catch (error) {
       spinner.fail('Timestamp generation failed');

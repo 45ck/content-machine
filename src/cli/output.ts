@@ -1,3 +1,9 @@
+import { writeSync } from 'fs';
+
+type OutputWriter = (fd: number, content: string) => void;
+
+let outputWriterOverride: OutputWriter | null = null;
+
 export interface CliJsonEnvelope {
   schemaVersion: number;
   command: string;
@@ -31,11 +37,35 @@ export function buildJsonEnvelope(params: {
   };
 }
 
-export function writeJsonEnvelope(envelope: CliJsonEnvelope): void {
-  const content = JSON.stringify(envelope, null, 2);
-  process.stdout.write(`${content}\n`);
+export function setOutputWriter(writer: OutputWriter | null): void {
+  outputWriterOverride = writer;
+}
+
+function writeToFd(fd: number, content: string): void {
+  if (outputWriterOverride) {
+    outputWriterOverride(fd, content);
+    return;
+  }
+  writeSync(fd, content);
+}
+
+export function writeStdout(content: string): void {
+  writeToFd(process.stdout.fd, content);
+}
+
+export function writeStdoutLine(line: string): void {
+  writeStdout(`${line}\n`);
+}
+
+export function writeStderr(content: string): void {
+  writeToFd(process.stderr.fd, content);
 }
 
 export function writeStderrLine(line: string): void {
-  process.stderr.write(`${line}\n`);
+  writeStderr(`${line}\n`);
+}
+
+export function writeJsonEnvelope(envelope: CliJsonEnvelope): void {
+  const content = JSON.stringify(envelope, null, 2);
+  writeStdout(`${content}\n`);
 }

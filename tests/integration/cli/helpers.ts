@@ -1,4 +1,5 @@
 import { spawn } from 'child_process';
+import { mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -15,12 +16,16 @@ export async function runCli(
 ): Promise<CliRunResult> {
   const helperDir = dirname(fileURLToPath(import.meta.url));
   const repoRoot = join(helperDir, '..', '..', '..');
-  const tsxCli = join(repoRoot, 'node_modules', 'tsx', 'dist', 'cli.mjs');
+  const tempRoot = join(repoRoot, '.tmp', 'tests', `cli-${process.pid}`);
+  mkdirSync(tempRoot, { recursive: true });
 
   return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, [tsxCli, 'src/cli/index.ts', ...args], {
+    const child = spawn(process.execPath, ['--import', 'tsx', 'src/cli/index.ts', ...args], {
       env: {
         ...process.env,
+        TMPDIR: tempRoot,
+        TMP: tempRoot,
+        TEMP: tempRoot,
         NODE_ENV: 'test',
         ...env,
       },

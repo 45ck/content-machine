@@ -52,10 +52,18 @@ cm generate [options] <topic>
 - `--mix-preset <preset>`: mix preset (clean, punchy, cinematic, viral)
 - `--lufs-target <db>`: target loudness for final mix
 - `--duration <seconds>`: target duration seconds (default: `45`)
+- `--pipeline <mode>`: pipeline mode: `audio-first` (default, requires Whisper) or `standard`
+- `--whisper-model <model>`: whisper model size: `tiny|base|small|medium` (default: `base`)
+- `--hook <idOrPath>`: hook intro clip id, local path, or URL
+- `--hook-library <id>`: hook library id (defaults to config)
+- `--hooks-dir <path>`: root directory for hook libraries (defaults to config)
+- `--download-hook`: download hook clip from the selected library if missing (default: false)
+- `--download-assets` / `--no-download-assets`: download remote visuals into the render bundle (default: download)
 - `--research [path]`: enable research before script (see Research Integration below)
 - `--keep-artifacts`: keep intermediate files (default: false)
 - `--mock`: use mock providers (testing)
 - `--dry-run`: preview configuration without execution
+- `--preflight`: validate dependencies and exit without execution
 
 ## Global options
 

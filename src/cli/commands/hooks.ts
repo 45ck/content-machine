@@ -6,7 +6,7 @@ import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { existsSync } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
-import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { getCliRuntime } from '../runtime';
 import { handleCommandError } from '../utils';
 import { loadConfig } from '../../core/config';
@@ -126,7 +126,7 @@ export const hooksCommand = new Command('hooks')
             writeStderrLine('Warning: download completed but file not found on disk');
           }
 
-          process.stdout.write(`${result.path}\n`);
+          writeStdoutLine(result.path);
         } catch (error) {
           handleCommandError(error);
         }

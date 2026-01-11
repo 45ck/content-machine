@@ -8,7 +8,7 @@ import { writeFile } from 'fs/promises';
 import { join } from 'path';
 import inquirer from 'inquirer';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { handleCommandError } from '../utils';
 
 interface InitOptions {
@@ -123,7 +123,7 @@ export const initCommand = new Command('init')
       printHints();
 
       // Human-mode stdout should be reserved for the primary artifact path.
-      process.stdout.write(`${configPath}\n`);
+      writeStdoutLine(configPath);
     } catch (error) {
       handleCommandError(error);
     }

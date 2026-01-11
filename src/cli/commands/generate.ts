@@ -19,7 +19,7 @@ import { createMockScriptResponse } from '../../test/fixtures/mock-scenes.js';
 import { createSpinner } from '../progress';
 import chalk from 'chalk';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
 import { dirname, join, resolve } from 'path';
 import { existsSync } from 'fs';
@@ -2417,7 +2417,7 @@ async function showSuccessSummary(
   });
 
   // Human-mode stdout should be reserved for the primary artifact path.
-  process.stdout.write(`${result.outputPath}\n`);
+  writeStdoutLine(result.outputPath);
 }
 
 /**

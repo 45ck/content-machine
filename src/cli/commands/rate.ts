@@ -11,7 +11,7 @@ import { Command } from 'commander';
 import { handleCommandError, writeOutputFile } from '../utils';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { CMError } from '../../core/errors';
 import { existsSync } from 'node:fs';
 
@@ -119,7 +119,7 @@ export const rateCommand = new Command('rate')
       }
 
       writeStderrLine(`${options.summary ? '' : '\n'}Report written to: ${options.output}`);
-      process.stdout.write(`${options.output}\n`);
+      writeStdoutLine(options.output);
       process.exit(passed ? 0 : 1);
     } catch (error) {
       spinner.fail('Sync rating failed');

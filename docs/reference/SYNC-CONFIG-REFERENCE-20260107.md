@@ -202,8 +202,8 @@ cm generate "5 JavaScript tips" --sync-preset maximum
 ### Installing Dependencies
 
 ```bash
-# whisper.cpp (via Remotion)
-npx @remotion/install-whisper-cpp
+# whisper.cpp + model (recommended)
+cm setup whisper --model base
 
 # Aeneas (Python)
 pip install aeneas

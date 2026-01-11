@@ -10,7 +10,7 @@ import { PackageOutputSchema } from '../../package/schema';
 import { scoreScript } from '../../score/scorer';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { CMError } from '../../core/errors';
 
 interface ScoreOptions {
@@ -89,7 +89,7 @@ export const scoreCommand = new Command('score')
       }
 
       // Human-mode stdout should be reserved for the primary artifact path.
-      process.stdout.write(`${options.output}\n`);
+      writeStdoutLine(options.output);
       process.exit(passedThreshold ? 0 : 1);
     } catch (error) {
       spinner.fail('Scoring failed');

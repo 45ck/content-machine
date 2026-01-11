@@ -13,7 +13,7 @@ import { PiqBrisqueAnalyzer } from '../../validate/quality';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import type { ValidateOptions } from '../../validate/validate';
-import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 
 interface ValidateCommandOptions {
   profile: string;
@@ -158,7 +158,7 @@ export const validateCommand = new Command('validate')
 
       if (reportJsonMode) {
         spinner.stop();
-        process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
+        writeStdoutLine(JSON.stringify(report, null, 2));
         process.exit(report.passed ? 0 : 1);
       }
 
@@ -185,7 +185,7 @@ export const validateCommand = new Command('validate')
       }
 
       // Human-mode stdout should be reserved for the primary artifact path.
-      process.stdout.write(`${options.output}\n`);
+      writeStdoutLine(options.output);
       process.exit(report.passed ? 0 : 1);
     } catch (error) {
       spinner.fail('Validation failed');

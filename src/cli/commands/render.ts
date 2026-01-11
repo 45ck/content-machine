@@ -35,7 +35,7 @@ import { TimestampsOutputSchema } from '../../audio/schema';
 import { AudioMixOutputSchema, type AudioMixOutput } from '../../audio/mix/schema';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
 import type { CaptionPresetName } from '../../render/captions/presets';
 import type {
@@ -650,7 +650,7 @@ async function writeRenderHumanSummary(params: {
   await writeSummaryCard({ title: 'Render complete', lines, footerLines });
 
   // Human-mode stdout should be reserved for the primary artifact path.
-  process.stdout.write(`${params.result.outputPath}\n`);
+  writeStdoutLine(params.result.outputPath);
 }
 
 function logRenderStart(

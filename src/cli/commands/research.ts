@@ -13,7 +13,7 @@ import { FakeLLMProvider } from '../../test/stubs/fake-llm';
 import { handleCommandError, writeOutputFile } from '../utils';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { CMError } from '../../core/errors';
 
 interface ResearchOptions {
@@ -238,7 +238,7 @@ export const researchCommand = new Command('research')
       displaySummary(options.query, result, options.output, options.mock);
 
       // Human-mode stdout should be reserved for the primary artifact path.
-      process.stdout.write(`${options.output}\n`);
+      writeStdoutLine(options.output);
     } catch (error) {
       spinner.fail('Research failed');
       handleCommandError(error);

@@ -10,7 +10,7 @@ import { queryResearchEvidenceIndex, parseResearchIndexFile } from '../../resear
 import { CMError } from '../../core/errors';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 
 interface RetrieveOptions {
   index: string;
@@ -79,7 +79,7 @@ export const retrieveCommand = new Command('retrieve')
       }
 
       // Human-mode stdout should be reserved for the primary artifact path.
-      process.stdout.write(`${options.output}\n`);
+      writeStdoutLine(options.output);
     } catch (error) {
       spinner.fail('Search failed');
       handleCommandError(error);

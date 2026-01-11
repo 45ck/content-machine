@@ -65,5 +65,5 @@ export async function writeSummaryCard(params: {
     margin: { top: 1, bottom: 1 },
     borderStyle: ASCII_BORDER,
   });
-  process.stderr.write(`${boxed}\n`);
+  writeStderrLine(boxed);
 }

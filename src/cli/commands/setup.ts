@@ -2,7 +2,7 @@
  * Setup command - download optional runtime dependencies
  */
 import { Command } from 'commander';
-import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { getCliRuntime } from '../runtime';
 import { handleCommandError } from '../utils';
 import { CMError } from '../../core/errors';
@@ -68,7 +68,7 @@ export const setupCommand = new Command('setup')
           }
 
           writeStderrLine('Whisper setup complete.');
-          process.stdout.write(`${folder}\n`);
+          writeStdoutLine(folder);
         } catch (error) {
           handleCommandError(error);
         }

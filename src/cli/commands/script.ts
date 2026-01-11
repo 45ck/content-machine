@@ -17,7 +17,7 @@ import { createMockScriptResponse } from '../../test/fixtures/mock-scenes.js';
 import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import type { SpinnerLike } from '../progress';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
 
@@ -168,7 +168,7 @@ async function writeSuccessTextOutput(params: {
   await writeSummaryCard({ title: 'Script ready', lines, footerLines });
 
   // Human-mode stdout should be reserved for the primary artifact path.
-  process.stdout.write(`${options.output}\n`);
+  writeStdoutLine(options.output);
   process.exit(0);
 }
 

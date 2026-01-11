@@ -7,7 +7,7 @@ import { Command } from 'commander';
 import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope } from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStdoutLine } from '../output';
 import { CMError } from '../../core/errors';
 import type { TimestampsOutput } from '../../audio/schema';
 import {
@@ -214,7 +214,7 @@ export const captionsCommand = new Command('captions')
         lines,
         footerLines: [`Next: cm render --timestamps ${options.timestamps}`],
       });
-      process.stdout.write(`${options.output}\n`);
+      writeStdoutLine(options.output);
       process.exit(report.fastChunkCount === 0 ? 0 : 1);
     } catch (error) {
       spinner.fail('Caption diagnostics failed');

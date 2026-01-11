@@ -9,7 +9,7 @@ import { CMError, SchemaError } from '../../core/errors';
 import { TimestampsOutputSchema } from '../../audio/schema';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope } from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStdoutLine } from '../output';
 import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
 
@@ -178,7 +178,7 @@ export const importCommand = new Command('import')
             footerLines: [`Next: cm render --input ${options.output} --audio <audio.wav>`],
           });
 
-          process.stdout.write(`${options.output}\n`);
+          writeStdoutLine(options.output);
         } catch (error) {
           spinner.fail('Visual import failed');
           handleCommandError(error);

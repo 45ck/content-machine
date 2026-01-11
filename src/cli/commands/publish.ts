@@ -11,7 +11,7 @@ import { generatePublish } from '../../publish/generator';
 import { FakeLLMProvider } from '../../test/stubs/fake-llm';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 
 interface PublishOptions {
   input: string;
@@ -97,7 +97,7 @@ export const publishCommand = new Command('publish')
       if (options.mock) writeStderrLine('   Mock mode - LLM output is for testing only');
 
       // Human-mode stdout should be reserved for the primary artifact path.
-      process.stdout.write(`${options.output}\n`);
+      writeStdoutLine(options.output);
     } catch (error) {
       spinner.fail('Publish failed');
       handleCommandError(error);

@@ -10,7 +10,7 @@ import { handleCommandError, readInputFile } from '../utils';
 import { ScriptOutputSchema } from '../../script/schema';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope } from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStdoutLine } from '../output';
 import { CMError, SchemaError } from '../../core/errors';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
 import { hasAudioMixSources, type AudioMixPlanOptions } from '../../audio/mix/planner';
@@ -268,7 +268,7 @@ export const audioCommand = new Command('audio')
       await writeSummaryCard({ title: 'Audio ready', lines, footerLines });
 
       // Human-mode stdout should be reserved for the primary artifact path.
-      process.stdout.write(`${result.audioPath}\n`);
+      writeStdoutLine(result.audioPath);
       process.exit(0);
     } catch (error) {
       spinner.fail('Audio generation failed');

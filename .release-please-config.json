@@ -1,0 +1,11 @@
+{
+  "release-type": "node",
+  "packages": {
+    ".": {
+      "package-name": "content-machine",
+      "changelog-path": "CHANGELOG.md",
+      "include-component-in-tag": false,
+      "include-v-in-tag": true
+    }
+  }
+}

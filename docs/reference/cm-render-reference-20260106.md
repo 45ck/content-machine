@@ -28,6 +28,10 @@ cm render [options]
 - `-o, --output <path>`: output video file path (default: `video.mp4`)
 - `--orientation <type>`: `portrait|landscape|square` (default: `portrait`)
 - `--fps <fps>`: frames per second (default: `30`)
+- `--hook <idOrPath>`: hook intro clip id, local path, or URL
+- `--hook-library <id>`: hook library id (defaults to config)
+- `--hooks-dir <path>`: root directory for hook libraries (defaults to config)
+- `--download-hook`: download hook clip from the selected library if missing (default: false)
 - `--mock`: use mock renderer (writes a placeholder MP4)
 - `--download-assets`: download remote visuals into the bundle (default: true)
 - `--no-download-assets`: stream remote visuals directly (no download)

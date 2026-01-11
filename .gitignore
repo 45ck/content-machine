@@ -41,6 +41,7 @@ coverage/
 .vitest/
 tests/.tmp/
 report/
+.tmp/
 
 # Remotion
 .remotion/
