@@ -10,6 +10,7 @@
 import { createLogger } from '../core/logger';
 import { CMError } from '../core/errors';
 import { transcribeAudio, type ASRResult } from '../audio/asr';
+import { normalizeWord, isFuzzyMatch } from '../core/text/similarity';
 import {
   type SyncRatingOutput,
   type SyncMetrics,
@@ -58,46 +59,6 @@ function standardDeviation(arr: number[]): number {
   const avg = mean(arr);
   const squareDiffs = arr.map((v) => Math.pow(v - avg, 2));
   return Math.sqrt(mean(squareDiffs));
-}
-
-// Normalize text for comparison
-function normalizeWord(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, '') // Remove punctuation
-    .trim();
-}
-
-// Levenshtein distance for fuzzy matching
-function levenshteinDistance(s1: string, s2: string): number {
-  const m = s1.length;
-  const n = s2.length;
-  const dp: number[][] = Array(m + 1)
-    .fill(null)
-    .map(() => Array(n + 1).fill(0));
-
-  for (let i = 0; i <= m; i++) dp[i][0] = i;
-  for (let j = 0; j <= n; j++) dp[0][j] = j;
-
-  for (let i = 1; i <= m; i++) {
-    for (let j = 1; j <= n; j++) {
-      if (s1[i - 1] === s2[j - 1]) {
-        dp[i][j] = dp[i - 1][j - 1];
-      } else {
-        dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
-      }
-    }
-  }
-
-  return dp[m][n];
-}
-
-function isFuzzyMatch(s1: string, s2: string, threshold = 0.7): boolean {
-  const maxLen = Math.max(s1.length, s2.length);
-  if (maxLen === 0) return true;
-  const distance = levenshteinDistance(s1, s2);
-  const similarity = 1 - distance / maxLen;
-  return similarity >= threshold;
 }
 
 /**
