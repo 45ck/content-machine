@@ -690,10 +690,11 @@ async function runRenderPreflight(params: {
       });
     } catch (error) {
       const info = getCliErrorInfo(error);
+      const code = info.code === 'NOT_FOUND' ? 'FILE_NOT_FOUND' : info.code;
       addPreflightCheck(checks, {
         label: 'Hook clip',
         status: 'fail',
-        code: info.code,
+        code,
         detail: info.message,
         fix: info.fix,
       });
