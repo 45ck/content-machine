@@ -62,6 +62,74 @@ function parseWordList(value: string | undefined): string[] | undefined {
   return items.length > 0 ? items : [];
 }
 
+function resolvePresetName(raw: string): CaptionPresetName {
+  const presetName = raw.toLowerCase();
+  if (!Object.prototype.hasOwnProperty.call(CAPTION_STYLE_PRESETS, presetName)) {
+    throw new CMError('INVALID_ARGUMENT', `Invalid --caption-preset: ${presetName}`, {
+      fix: 'Use one of: tiktok, youtube, reels, bold, minimal, neon, capcut, hormozi, karaoke',
+    });
+  }
+  return presetName as CaptionPresetName;
+}
+
+function resolveCaptionMode(value?: string): CaptionDisplayMode | undefined {
+  if (!value) return undefined;
+  const parsed = CaptionDisplayModeSchema.safeParse(String(value));
+  if (!parsed.success) {
+    throw new CMError('INVALID_ARGUMENT', `Invalid --caption-mode: ${value}`, {
+      fix: 'Use one of: page, single, buildup, chunk',
+    });
+  }
+  return parsed.data;
+}
+
+function buildCaptionConfig(
+  options: CaptionsOptions,
+  presetName: CaptionPresetName
+): CaptionConfig {
+  const preset = getCaptionPreset(presetName);
+  const layoutOverride: Partial<CaptionConfig['layout']> = {};
+
+  const maxWords = parseOptionalInt(options.captionMaxWords);
+  if (maxWords !== undefined) layoutOverride.maxWordsPerPage = maxWords;
+  const minWords = parseOptionalInt(options.captionMinWords);
+  if (minWords !== undefined) layoutOverride.minWordsPerPage = minWords;
+  const targetWords = parseOptionalInt(options.captionTargetWords);
+  if (targetWords !== undefined) layoutOverride.targetWordsPerChunk = targetWords;
+  const maxWpm = parseOptionalNumber(options.captionMaxWpm);
+  if (maxWpm !== undefined) layoutOverride.maxWordsPerMinute = maxWpm;
+  const maxCps = parseOptionalNumber(options.captionMaxCps);
+  if (maxCps !== undefined) layoutOverride.maxCharsPerSecond = maxCps;
+  const minOnScreenMs = parseOptionalInt(options.captionMinOnScreenMs);
+  if (minOnScreenMs !== undefined) layoutOverride.minOnScreenMs = minOnScreenMs;
+  const minOnScreenMsShort = parseOptionalInt(options.captionMinOnScreenMsShort);
+  if (minOnScreenMsShort !== undefined) {
+    layoutOverride.minOnScreenMsShort = minOnScreenMsShort;
+  }
+
+  const captionMode = resolveCaptionMode(options.captionMode);
+  const fillerWords = parseWordList(options.captionFillerWords);
+  const dropFillers = Boolean(
+    options.captionDropFillers || (fillerWords && fillerWords.length > 0)
+  );
+
+  return CaptionConfigSchema.parse({
+    ...preset,
+    ...(captionMode ? { displayMode: captionMode } : {}),
+    ...(Object.keys(layoutOverride).length > 0
+      ? { layout: { ...preset.layout, ...layoutOverride } }
+      : {}),
+    ...(dropFillers
+      ? {
+          cleanup: {
+            dropFillers: true,
+            fillerWords: fillerWords ?? [],
+          },
+        }
+      : {}),
+  });
+}
+
 export const captionsCommand = new Command('captions')
   .description('Analyze caption chunk pacing and readability')
   .requiredOption('--timestamps <path>', 'Input timestamps.json path')
@@ -88,65 +156,13 @@ export const captionsCommand = new Command('captions')
 
     try {
       const timestamps = await readInputFile<TimestampsOutput>(options.timestamps);
-      const presetName = String(options.captionPreset).toLowerCase();
-
-      if (!Object.prototype.hasOwnProperty.call(CAPTION_STYLE_PRESETS, presetName)) {
-        throw new CMError('INVALID_ARGUMENT', `Invalid --caption-preset: ${presetName}`, {
-          fix: 'Use one of: tiktok, youtube, reels, bold, minimal, neon, capcut, hormozi, karaoke',
-        });
-      }
-
-      let captionMode: CaptionDisplayMode | undefined;
-      if (options.captionMode) {
-        const parsed = CaptionDisplayModeSchema.safeParse(String(options.captionMode));
-        if (!parsed.success) {
-          throw new CMError('INVALID_ARGUMENT', `Invalid --caption-mode: ${options.captionMode}`, {
-            fix: 'Use one of: page, single, buildup, chunk',
-          });
-        }
-        captionMode = parsed.data;
-      }
-
-      const preset = getCaptionPreset(presetName as CaptionPresetName);
-      const layoutOverride: Partial<CaptionConfig['layout']> = {};
-
-      const maxWords = parseOptionalInt(options.captionMaxWords);
-      if (maxWords !== undefined) layoutOverride.maxWordsPerPage = maxWords;
-      const minWords = parseOptionalInt(options.captionMinWords);
-      if (minWords !== undefined) layoutOverride.minWordsPerPage = minWords;
-      const targetWords = parseOptionalInt(options.captionTargetWords);
-      if (targetWords !== undefined) layoutOverride.targetWordsPerChunk = targetWords;
-      const maxWpm = parseOptionalNumber(options.captionMaxWpm);
-      if (maxWpm !== undefined) layoutOverride.maxWordsPerMinute = maxWpm;
-      const maxCps = parseOptionalNumber(options.captionMaxCps);
-      if (maxCps !== undefined) layoutOverride.maxCharsPerSecond = maxCps;
-      const minOnScreenMs = parseOptionalInt(options.captionMinOnScreenMs);
-      if (minOnScreenMs !== undefined) layoutOverride.minOnScreenMs = minOnScreenMs;
-      const minOnScreenMsShort = parseOptionalInt(options.captionMinOnScreenMsShort);
-      if (minOnScreenMsShort !== undefined) {
-        layoutOverride.minOnScreenMsShort = minOnScreenMsShort;
-      }
-
+      const presetName = resolvePresetName(String(options.captionPreset));
+      const captionMode = resolveCaptionMode(options.captionMode);
       const fillerWords = parseWordList(options.captionFillerWords);
       const dropFillers = Boolean(
         options.captionDropFillers || (fillerWords && fillerWords.length > 0)
       );
-
-      const captionConfig = CaptionConfigSchema.parse({
-        ...preset,
-        ...(captionMode ? { displayMode: captionMode } : {}),
-        ...(Object.keys(layoutOverride).length > 0
-          ? { layout: { ...preset.layout, ...layoutOverride } }
-          : {}),
-        ...(dropFillers
-          ? {
-              cleanup: {
-                dropFillers: true,
-                fillerWords: fillerWords ?? [],
-              },
-            }
-          : {}),
-      });
+      const captionConfig = buildCaptionConfig(options, presetName);
 
       const report = analyzeCaptionChunks(timestamps.allWords, captionConfig);
 

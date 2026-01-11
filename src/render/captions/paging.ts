@@ -87,6 +87,24 @@ function buildFillerConfig(cleanup?: CaptionCleanup): {
   };
 }
 
+function matchesFillerPhrase<T extends { word: string }>(
+  words: T[],
+  startIndex: number,
+  phrase: string[]
+): boolean {
+  if (phrase.length === 0 || startIndex + phrase.length > words.length) return false;
+
+  for (let offset = 0; offset < phrase.length; offset++) {
+    const nextToken = words[startIndex + offset];
+    if (!nextToken || typeof nextToken.word !== 'string') return false;
+    if (!isDisplayableWord(nextToken.word)) return false;
+    const normalized = normalizeCaptionToken(nextToken.word);
+    if (normalized !== phrase[offset]) return false;
+  }
+
+  return true;
+}
+
 /**
  * Pattern for ASR artifacts that shouldn't be displayed
  * - Standalone punctuation (e.g., "?" or "." as a separate word)
@@ -138,27 +156,7 @@ export function filterCaptionWords<T extends { word: string }>(
     if (fillerConfig) {
       let matchedPhrase = false;
       for (const phrase of fillerConfig.phrases) {
-        if (phrase.length === 0 || i + phrase.length > words.length) continue;
-
-        let matches = true;
-        for (let j = 0; j < phrase.length; j++) {
-          const nextToken = words[i + j];
-          if (!nextToken || typeof nextToken.word !== 'string') {
-            matches = false;
-            break;
-          }
-          if (!isDisplayableWord(nextToken.word)) {
-            matches = false;
-            break;
-          }
-          const normalized = normalizeCaptionToken(nextToken.word);
-          if (normalized !== phrase[j]) {
-            matches = false;
-            break;
-          }
-        }
-
-        if (matches) {
+        if (matchesFillerPhrase(words, i, phrase)) {
           matchedPhrase = true;
           i += phrase.length - 1;
           break;

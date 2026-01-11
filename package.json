@@ -23,7 +23,7 @@
   ],
   "scripts": {
     "build": "esbuild src/cli/index.ts --bundle --platform=node --format=cjs --packages=external --log-override:empty-import-meta=silent --outfile=dist/cli/index.cjs",
-    "build:types": "tsc --emitDeclarationOnly",
+    "build:types": "tsc -p tsconfig.build.json --emitDeclarationOnly",
     "dev": "tsx watch src/cli/index.ts",
     "cm": "tsx src/cli/index.ts",
     "test": "vitest",
@@ -42,7 +42,9 @@
     "docs:watch": "typedoc --watch",
     "eval": "npx promptfoo eval",
     "eval:script": "npx promptfoo eval -c evals/configs/cm-script.yaml",
-    "prepare": "husky"
+    "prepack": "npm run build && npm run build:types",
+    "prepublishOnly": "npm run build && npm run build:types",
+    "prepare": "husky || true"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.30.0",
@@ -106,6 +108,7 @@
   "engines": {
     "node": ">=20"
   },
+  "packageManager": "npm@10.8.2",
   "repository": {
     "type": "git",
     "url": "https://github.com/45ck/content-machine.git"

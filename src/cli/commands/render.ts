@@ -39,7 +39,6 @@ import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine 
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
 import type { CaptionPresetName } from '../../render/captions/presets';
 import type {
-  CaptionConfig,
   CaptionConfigInput,
   HighlightMode,
   CaptionPosition,
@@ -370,18 +369,123 @@ function processVisuals(
 type RenderRuntime = ReturnType<typeof getCliRuntime>;
 type RenderSpinner = ReturnType<typeof createSpinner>;
 
-function applyTemplateDefault(
+function buildCaptionSettings(
   options: Record<string, unknown>,
   command: Command,
-  optionName: string,
-  value: string | undefined
-): void {
-  if (value === undefined) return;
-  if (command.getOptionValueSource(optionName) !== 'default') return;
-  options[optionName] = value;
+  templateDefaults: Record<string, unknown> | undefined
+): {
+  captionConfig: CaptionConfigInput;
+  captionMaxWords?: number;
+  captionMinWords?: number;
+  captionTargetWords?: number;
+  captionMaxWpm?: number;
+  captionMaxCps?: number;
+  captionMinOnScreenMs?: number;
+  captionMinOnScreenMsShort?: number;
+  captionFontFamily?: string;
+  captionFontWeight?: number | 'normal' | 'bold' | 'black';
+  captionFontFile?: string;
+  captionDropFillers?: boolean;
+  captionFillerWords?: string[];
+} {
+  const captionConfig = mergeCaptionConfigPartials(
+    (templateDefaults?.captionConfig as CaptionConfigInput | undefined) ?? undefined,
+    parseCaptionOptions(options)
+  );
+  const captionMaxWords = parseOptionalInt(options.captionMaxWords);
+  const captionMinWords = parseOptionalInt(options.captionMinWords);
+  const captionTargetWords = parseOptionalInt(options.captionTargetWords);
+  const captionMaxWpm = parseOptionalNumber(options.captionMaxWpm);
+  const captionMaxCps = parseOptionalNumber(options.captionMaxCps);
+  const captionMinOnScreenMs = parseOptionalInt(options.captionMinOnScreenMs);
+  const captionMinOnScreenMsShort = parseOptionalInt(options.captionMinOnScreenMsShort);
+  const captionFontFamily = options.captionFontFamily
+    ? String(options.captionFontFamily)
+    : undefined;
+  const captionFontWeight =
+    options.captionFontWeight !== undefined
+      ? parseFontWeight(options.captionFontWeight)
+      : undefined;
+  const captionFontFile = options.captionFontFile ? String(options.captionFontFile) : undefined;
+  const captionFillerWords = parseWordList(options.captionFillerWords);
+  const captionDropFillersSource = command.getOptionValueSource('captionDropFillers');
+  const captionDropFillers =
+    captionDropFillersSource === 'default' ? undefined : Boolean(options.captionDropFillers);
+
+  return {
+    captionConfig,
+    captionMaxWords,
+    captionMinWords,
+    captionTargetWords,
+    captionMaxWpm,
+    captionMaxCps,
+    captionMinOnScreenMs,
+    captionMinOnScreenMsShort,
+    captionFontFamily,
+    captionFontWeight,
+    captionFontFile,
+    captionDropFillers,
+    captionFillerWords,
+  };
 }
 
-function applyConfigDefault(
+function resolveLayoutOptions(params: {
+  options: Record<string, unknown>;
+  templateParams: ReturnType<typeof getTemplateParams>;
+  templateGameplay: ReturnType<typeof getTemplateGameplaySlot>;
+  templateDefaults?: Record<string, unknown>;
+  compositionId?: string;
+}): {
+  layout: { gameplayPosition?: LayoutPosition; contentPosition?: LayoutPosition };
+  archetype?: string;
+  compositionId?: string;
+  gameplayRequired: boolean;
+} {
+  const { options, templateParams, templateGameplay, templateDefaults } = params;
+  const archetype = templateDefaults?.archetype as string | undefined;
+  const compositionId = params.compositionId;
+  const gameplayRequired =
+    templateGameplay?.required ?? Boolean(templateGameplay?.library || templateGameplay?.clip);
+
+  const splitLayoutPreset = parseSplitLayoutPreset(options.splitLayout);
+  if (splitLayoutPreset) {
+    if (options.gameplayPosition == null) {
+      options.gameplayPosition = splitLayoutPreset.gameplayPosition;
+    }
+    if (options.contentPosition == null) {
+      options.contentPosition = splitLayoutPreset.contentPosition;
+    }
+  }
+
+  const gameplayPosition = parseLayoutPosition(options.gameplayPosition, '--gameplay-position');
+  const contentPosition = parseLayoutPosition(options.contentPosition, '--content-position');
+  const layout = {
+    gameplayPosition: gameplayPosition ?? templateParams.gameplayPosition,
+    contentPosition: contentPosition ?? templateParams.contentPosition,
+  };
+
+  return { layout, archetype, compositionId, gameplayRequired };
+}
+
+function ensureGameplayRequirement(params: {
+  compositionId?: string;
+  gameplayRequired: boolean;
+  visuals: VisualsOutputInput;
+  mock: boolean;
+}): void {
+  if (
+    params.compositionId === 'SplitScreenGameplay' &&
+    params.gameplayRequired &&
+    !params.visuals.gameplayClip &&
+    !params.mock
+  ) {
+    throw new CMError('MISSING_GAMEPLAY', 'Split-screen templates require gameplay footage', {
+      fix: 'Run `cm visuals --gameplay <path>` to populate gameplayClip in visuals.json',
+    });
+  }
+}
+
+function applyDefaultOption(
   options: Record<string, unknown>,
   command: Command,
   optionName: string,
@@ -406,9 +510,9 @@ function applyCaptionDefaultsFromConfig(
   const config = loadConfig();
   const captions = config.captions;
   const defaultFamily = captions.fonts.length > 0 ? captions.fonts[0].family : captions.fontFamily;
-  applyConfigDefault(options, command, 'captionFontFamily', defaultFamily);
-  applyConfigDefault(options, command, 'captionFontWeight', captions.fontWeight);
-  applyConfigDefault(options, command, 'captionFontFile', captions.fontFile);
+  applyDefaultOption(options, command, 'captionFontFamily', defaultFamily);
+  applyDefaultOption(options, command, 'captionFontWeight', captions.fontWeight);
+  applyDefaultOption(options, command, 'captionFontFile', captions.fontFile);
 
   return { fonts: captions.fonts };
 }
@@ -436,19 +540,19 @@ async function resolveTemplateAndApplyDefaults(
   const templateParams = getTemplateParams(resolvedTemplate.template);
   const templateGameplay = getTemplateGameplaySlot(resolvedTemplate.template);
 
-  applyTemplateDefault(
+  applyDefaultOption(
     options,
     command,
     'orientation',
     templateDefaults.orientation as string | undefined
   );
-  applyTemplateDefault(
+  applyDefaultOption(
     options,
     command,
     'fps',
     templateDefaults.fps !== undefined ? String(templateDefaults.fps) : undefined
   );
-  applyTemplateDefault(
+  applyDefaultOption(
     options,
     command,
     'captionPreset',
@@ -718,62 +822,26 @@ async function runRenderCommand(
     'render'
   );
 
-  const captionConfig = mergeCaptionConfigPartials(
-    (templateDefaults?.captionConfig as Partial<CaptionConfig> | undefined) ?? undefined,
-    parseCaptionOptions(options)
-  );
-  const captionMaxWords = parseOptionalInt(options.captionMaxWords);
-  const captionMinWords = parseOptionalInt(options.captionMinWords);
-  const captionTargetWords = parseOptionalInt(options.captionTargetWords);
-  const captionMaxWpm = parseOptionalNumber(options.captionMaxWpm);
-  const captionMaxCps = parseOptionalNumber(options.captionMaxCps);
-  const captionMinOnScreenMs = parseOptionalInt(options.captionMinOnScreenMs);
-  const captionMinOnScreenMsShort = parseOptionalInt(options.captionMinOnScreenMsShort);
-  const captionFontFamily = options.captionFontFamily
-    ? String(options.captionFontFamily)
-    : undefined;
-  const captionFontWeight =
-    options.captionFontWeight !== undefined
-      ? parseFontWeight(options.captionFontWeight)
-      : undefined;
-  const captionFontFile = options.captionFontFile ? String(options.captionFontFile) : undefined;
-  const captionFillerWords = parseWordList(options.captionFillerWords);
-  const captionDropFillersSource = command.getOptionValueSource('captionDropFillers');
-  const captionDropFillers =
-    captionDropFillersSource === 'default' ? undefined : Boolean(options.captionDropFillers);
+  const captionSettings = buildCaptionSettings(options, command, templateDefaults);
   const hook = await resolveHookFromCli(options);
   if (!options.hook && hook) {
     options.hook = hook.id ?? hook.path;
   }
 
-  const archetype = templateDefaults?.archetype as string | undefined;
-  const compositionId = resolvedTemplate?.template.compositionId;
-  const gameplayRequired =
-    templateGameplay?.required ?? Boolean(templateGameplay?.library || templateGameplay?.clip);
-  const splitLayoutPreset = parseSplitLayoutPreset(options.splitLayout);
-  if (splitLayoutPreset) {
-    if (options.gameplayPosition == null)
-      options.gameplayPosition = splitLayoutPreset.gameplayPosition;
-    if (options.contentPosition == null)
-      options.contentPosition = splitLayoutPreset.contentPosition;
-  }
-  const gameplayPosition = parseLayoutPosition(options.gameplayPosition, '--gameplay-position');
-  const contentPosition = parseLayoutPosition(options.contentPosition, '--content-position');
-  const layout = {
-    gameplayPosition: gameplayPosition ?? templateParams.gameplayPosition,
-    contentPosition: contentPosition ?? templateParams.contentPosition,
-  };
+  const { layout, archetype, compositionId, gameplayRequired } = resolveLayoutOptions({
+    options,
+    templateParams,
+    templateGameplay,
+    templateDefaults,
+    compositionId: resolvedTemplate?.template.compositionId,
+  });
 
-  if (
-    compositionId === 'SplitScreenGameplay' &&
-    gameplayRequired &&
-    !visuals.gameplayClip &&
-    !options.mock
-  ) {
-    throw new CMError('MISSING_GAMEPLAY', 'Split-screen templates require gameplay footage', {
-      fix: 'Run `cm visuals --gameplay <path>` to populate gameplayClip in visuals.json',
-    });
-  }
+  ensureGameplayRequirement({
+    compositionId,
+    gameplayRequired,
+    visuals,
+    mock: Boolean(options.mock),
+  });
   const onProgress = createOnProgress(runtime, spinner);
 
   const { renderVideo } = await import('../../render/service');
@@ -791,20 +859,20 @@ async function runRenderCommand(
     chromeMode: parseChromeMode(options.chromeMode),
     captionPreset: options.captionPreset as CaptionPresetName,
     captionMode: options.captionMode as 'page' | 'single' | 'buildup' | 'chunk' | undefined,
-    captionConfig,
-    wordsPerPage: captionMaxWords ?? undefined,
-    captionMinWords: captionMinWords ?? undefined,
-    captionTargetWords: captionTargetWords ?? undefined,
-    captionMaxWpm: captionMaxWpm ?? undefined,
-    captionMaxCps: captionMaxCps ?? undefined,
-    captionMinOnScreenMs: captionMinOnScreenMs ?? undefined,
-    captionMinOnScreenMsShort: captionMinOnScreenMsShort ?? undefined,
-    captionFontFamily,
-    captionFontWeight,
-    captionFontFile,
+    captionConfig: captionSettings.captionConfig,
+    wordsPerPage: captionSettings.captionMaxWords ?? undefined,
+    captionMinWords: captionSettings.captionMinWords ?? undefined,
+    captionTargetWords: captionSettings.captionTargetWords ?? undefined,
+    captionMaxWpm: captionSettings.captionMaxWpm ?? undefined,
+    captionMaxCps: captionSettings.captionMaxCps ?? undefined,
+    captionMinOnScreenMs: captionSettings.captionMinOnScreenMs ?? undefined,
+    captionMinOnScreenMsShort: captionSettings.captionMinOnScreenMsShort ?? undefined,
+    captionFontFamily: captionSettings.captionFontFamily,
+    captionFontWeight: captionSettings.captionFontWeight,
+    captionFontFile: captionSettings.captionFontFile,
     fonts: configDefaults.fonts.length > 0 ? configDefaults.fonts : undefined,
-    captionDropFillers,
-    captionFillerWords,
+    captionDropFillers: captionSettings.captionDropFillers,
+    captionFillerWords: captionSettings.captionFillerWords,
     onProgress,
     archetype,
     compositionId,

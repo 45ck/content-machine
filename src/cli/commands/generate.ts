@@ -275,6 +275,7 @@ function printHeader(
   writeStderrLine(chalk.gray(`Artifacts: ${dirname(options.output)}`));
 }
 
+// eslint-disable-next-line complexity
 function writeDryRunJson(params: {
   topic: string;
   archetype: string;
@@ -403,6 +404,7 @@ function formatPreflightLine(check: PreflightCheck): string {
   return `- ${status} ${check.label}${detail}`;
 }
 
+// eslint-disable-next-line max-lines-per-function, complexity, sonarjs/cognitive-complexity
 async function runGeneratePreflight(params: {
   topic: string;
   options: GenerateOptions;
@@ -1011,6 +1013,7 @@ function buildAudioMixOptions(options: GenerateOptions): AudioMixPlanOptions {
   };
 }
 
+// eslint-disable-next-line complexity
 function buildGenerateSuccessJsonArgs(params: {
   topic: string;
   archetype: string;
@@ -1567,6 +1570,7 @@ function createPipelineObservation(runtime: ReturnType<typeof getCliRuntime>): {
   return { eventEmitter, dispose: () => stageObserver.dispose() };
 }
 
+// eslint-disable-next-line complexity
 async function runGeneratePipeline(params: {
   topic: string;
   archetype: Archetype;
@@ -1943,6 +1947,7 @@ async function finalizeGenerateOutput(params: {
   if (params.exitCode !== 0) process.exit(params.exitCode);
 }
 
+// eslint-disable-next-line max-lines-per-function, complexity, sonarjs/cognitive-complexity
 async function runGenerate(
   topic: string,
   options: GenerateOptions,
@@ -2198,6 +2203,7 @@ function createMockLLMProvider(topic: string): FakeLLMProvider {
   return provider;
 }
 
+// eslint-disable-next-line complexity, sonarjs/cognitive-complexity
 function showDryRunSummary(
   topic: string,
   options: GenerateOptions,

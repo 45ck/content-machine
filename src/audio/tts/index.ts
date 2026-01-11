@@ -36,6 +36,8 @@ export interface TTSResult {
 type KokoroTTSInstance = Awaited<
   ReturnType<(typeof import('kokoro-js'))['KokoroTTS']['from_pretrained']>
 >;
+type KokoroGenerateOptions = NonNullable<Parameters<KokoroTTSInstance['generate']>[1]>;
+type KokoroVoice = KokoroGenerateOptions extends { voice?: infer V } ? V : never;
 let cachedTTS: KokoroTTSInstance | null = null;
 
 const LONG_TEXT_CHAR_THRESHOLD = 500;
@@ -142,7 +144,10 @@ async function generateChunkedAudio(params: {
   params.log.info('Generating chunked TTS audio');
 
   for (const text of textChunks) {
-    const generated = await cachedTTS.generate(text, { voice: params.voice, speed: params.speed });
+    const generated = await cachedTTS.generate(text, {
+      voice: params.voice as KokoroVoice,
+      speed: params.speed,
+    });
     const audio = coerceRawAudio(generated);
     sampleRate = audio.sampling_rate;
     chunks.push(audio.audio);
@@ -187,7 +192,7 @@ export async function synthesizeSpeech(options: TTSOptions): Promise<TTSResult> 
       // Generate audio
       log.debug('Generating audio');
       const generated = await cachedTTS.generate(options.text, {
-        voice: options.voice,
+        voice: options.voice as KokoroVoice,
         speed,
       });
       audio = coerceRawAudio(generated);

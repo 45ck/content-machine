@@ -199,6 +199,7 @@ function wrapStageError(stage: PipelineStage, error: unknown): PipelineError {
 /**
  * Run the full video generation pipeline
  */
+// eslint-disable-next-line max-lines-per-function
 export async function runPipeline(options: PipelineOptions): Promise<PipelineResult> {
   const log = createLogger({ pipeline: 'main', topic: options.topic });
   const config = loadConfig();

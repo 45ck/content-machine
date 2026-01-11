@@ -46,6 +46,86 @@ function resolveHookDefinition(library: string, hookId: string): HookDefinition 
   return undefined;
 }
 
+function validateTrimDuration(trimDuration?: number): void {
+  if (trimDuration === undefined) return;
+  if (!Number.isFinite(trimDuration) || trimDuration <= 0) {
+    throw new CMError('INVALID_ARGUMENT', 'Hook trim duration must be a positive number', {
+      trimDurationSeconds: trimDuration,
+    });
+  }
+}
+
+async function resolveHookSource(params: {
+  hookValue: string;
+  library: string;
+  hooksDir: string;
+  downloadMissing: boolean;
+  log: ReturnType<typeof createLogger>;
+}): Promise<{
+  source: 'library' | 'file' | 'url';
+  hookPath: string;
+  definition?: HookDefinition;
+}> {
+  const { hookValue, library, hooksDir, downloadMissing, log } = params;
+
+  if (isRemoteUrl(hookValue)) {
+    return { source: 'url', hookPath: hookValue };
+  }
+
+  const resolvedPath = resolve(expandTilde(hookValue));
+  const looksLikePath = /[\\/]/.test(hookValue) || /\.(mp4|mov|mkv|webm)$/i.test(hookValue);
+  if (existsSync(resolvedPath)) {
+    return { source: 'file', hookPath: resolvedPath };
+  }
+  if (looksLikePath) {
+    throw new NotFoundError(`Hook file not found: ${resolvedPath}`, {
+      resource: 'hook-file',
+      identifier: resolvedPath,
+      fix: 'Provide a valid file path or download the hook library',
+    });
+  }
+
+  const hookId = hookValue.toLowerCase();
+  const definition = resolveHookDefinition(library, hookId);
+  if (!definition && library !== 'transitionalhooks') {
+    throw new NotFoundError(`Hook library not found: ${library}`, {
+      resource: 'hook-library',
+      identifier: library,
+      fix: 'Use a known library id or pass a local hook path',
+    });
+  }
+  if (!definition) {
+    throw new NotFoundError(`Hook not found: ${hookValue}`, {
+      resource: 'hook',
+      identifier: hookValue,
+      fix: `Check the hook id or run the hook sync script for ${library}`,
+    });
+  }
+
+  const libraryRoot = resolve(expandTilde(hooksDir), library);
+  const hookPath = resolve(libraryRoot, definition.filename);
+  if (!existsSync(hookPath)) {
+    if (downloadMissing) {
+      log.info(
+        { hook: definition.id, library, destination: hookPath },
+        'Downloading missing hook clip'
+      );
+      await downloadHookClip(definition, { destinationPath: hookPath });
+    }
+    if (existsSync(hookPath)) {
+      log.info({ hook: definition.id, path: hookPath }, 'Hook clip ready');
+    } else {
+      throw new NotFoundError(`Hook file not found: ${hookPath}`, {
+        resource: 'hook-file',
+        identifier: hookPath,
+        fix: `Run: cm hooks download ${definition.id} --library ${library}`,
+      });
+    }
+  }
+
+  return { source: 'library', hookPath, definition };
+}
+
 async function resolveHookDuration(params: {
   source: 'library' | 'file' | 'url';
   hookId?: string;
@@ -113,72 +193,15 @@ export async function resolveHookSelection(options: ResolveHookOptions): Promise
   const maxDuration = options.maxDurationSeconds ?? DEFAULT_HOOK_MAX_DURATION;
   const trimDuration = options.trimDurationSeconds;
 
-  let source: 'library' | 'file' | 'url';
-  let hookPath = hookValue;
-  let definition: HookDefinition | undefined;
+  const { source, hookPath, definition } = await resolveHookSource({
+    hookValue,
+    library,
+    hooksDir,
+    downloadMissing,
+    log,
+  });
 
-  if (isRemoteUrl(hookValue)) {
-    source = 'url';
-  } else {
-    const resolvedPath = resolve(expandTilde(hookValue));
-    const looksLikePath = /[\\/]/.test(hookValue) || /\.(mp4|mov|mkv|webm)$/i.test(hookValue);
-    if (existsSync(resolvedPath)) {
-      source = 'file';
-      hookPath = resolvedPath;
-    } else if (looksLikePath) {
-      throw new NotFoundError(`Hook file not found: ${resolvedPath}`, {
-        resource: 'hook-file',
-        identifier: resolvedPath,
-        fix: 'Provide a valid file path or download the hook library',
-      });
-    } else {
-      const hookId = hookValue.toLowerCase();
-      definition = resolveHookDefinition(library, hookId);
-      if (!definition && library !== 'transitionalhooks') {
-        throw new NotFoundError(`Hook library not found: ${library}`, {
-          resource: 'hook-library',
-          identifier: library,
-          fix: 'Use a known library id or pass a local hook path',
-        });
-      }
-      if (!definition) {
-        throw new NotFoundError(`Hook not found: ${hookValue}`, {
-          resource: 'hook',
-          identifier: hookValue,
-          fix: `Check the hook id or run the hook sync script for ${library}`,
-        });
-      }
-      const libraryRoot = resolve(expandTilde(hooksDir), library);
-      hookPath = resolve(libraryRoot, definition.filename);
-      source = 'library';
-      if (!existsSync(hookPath)) {
-        if (downloadMissing) {
-          log.info(
-            { hook: definition.id, library, destination: hookPath },
-            'Downloading missing hook clip'
-          );
-          await downloadHookClip(definition, { destinationPath: hookPath });
-        }
-        if (existsSync(hookPath)) {
-          log.info({ hook: definition.id, path: hookPath }, 'Hook clip ready');
-        } else {
-          throw new NotFoundError(`Hook file not found: ${hookPath}`, {
-            resource: 'hook-file',
-            identifier: hookPath,
-            fix: `Run: cm hooks download ${definition.id} --library ${library}`,
-          });
-        }
-      }
-    }
-  }
-
-  if (trimDuration !== undefined) {
-    if (!Number.isFinite(trimDuration) || trimDuration <= 0) {
-      throw new CMError('INVALID_ARGUMENT', 'Hook trim duration must be a positive number', {
-        trimDurationSeconds: trimDuration,
-      });
-    }
-  }
+  validateTrimDuration(trimDuration);
 
   let duration: number;
   try {

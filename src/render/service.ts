@@ -669,6 +669,7 @@ async function executeRender(opts: ExecuteRenderOptions): Promise<void> {
 /**
  * Render final video with Remotion
  */
+// eslint-disable-next-line max-lines-per-function, complexity, sonarjs/cognitive-complexity
 export async function renderVideo(options: RenderVideoOptions): Promise<RenderOutput> {
   const log = createLogger({ module: 'render', outputPath: options.outputPath });
 
