@@ -188,57 +188,114 @@ async function ensureH264(path: string): Promise<void> {
   await transcodeToH264(path);
 }
 
-async function run(): Promise<void> {
+interface SyncOptions {
+  library: string;
+  rootDir: string;
+  force: boolean;
+  onlyRaw: string | undefined;
+  concurrency: number;
+  limit: number;
+  scrape: boolean;
+  pageUrl: string;
+  transcode: boolean;
+}
+
+function parseOptions(): SyncOptions {
   const library = readArg('--library') ?? DEFAULT_HOOK_LIBRARY;
   const rootDir = resolve(expandTilde(readArg('--dir') ?? DEFAULT_HOOKS_DIR));
-  const force = hasFlag('--force');
-  const onlyRaw = readArg('--only');
-  const concurrency = parseInteger(readArg('--concurrency'), 3);
-  const limit = parseInteger(readArg('--limit'), 0);
-  const scrape = hasFlag('--scrape');
-  const pageUrl = readArg('--page') ?? DEFAULT_LIBRARY_PAGE;
-  const transcode = !hasFlag('--no-transcode');
+  return {
+    library,
+    rootDir,
+    force: hasFlag('--force'),
+    onlyRaw: readArg('--only'),
+    concurrency: parseInteger(readArg('--concurrency'), 3),
+    limit: parseInteger(readArg('--limit'), 0),
+    scrape: hasFlag('--scrape'),
+    pageUrl: readArg('--page') ?? DEFAULT_LIBRARY_PAGE,
+    transcode: !hasFlag('--no-transcode'),
+  };
+}
 
-  if (scrape && library !== 'transitionalhooks') {
-    throw new Error('Scrape mode currently supports only the transitionalhooks library.');
-  }
-
-  const entries = scrape ? await scrapeHookLibrary(pageUrl) : resolveLibrary(library);
-  const only = onlyRaw
+function selectHookEntries(params: {
+  entries: HookEntry[];
+  onlyRaw: string | undefined;
+  limit: number;
+}): {
+  only: Set<string> | null;
+  selected: HookEntry[];
+  limited: HookEntry[];
+} {
+  const only = params.onlyRaw
     ? new Set(
-        onlyRaw
+        params.onlyRaw
           .split(',')
           .map((value) => value.trim())
           .filter(Boolean)
       )
     : null;
-  const selected = only ? entries.filter((entry) => only.has(entry.id)) : entries;
-  const limited = limit > 0 ? selected.slice(0, limit) : selected;
+  const selected = only ? params.entries.filter((entry) => only.has(entry.id)) : params.entries;
+  const limited = params.limit > 0 ? selected.slice(0, params.limit) : selected;
+  return { only, selected, limited };
+}
+
+function logSelection(params: {
+  scrape: boolean;
+  entries: HookEntry[];
+  pageUrl: string;
+  limit: number;
+  selected: HookEntry[];
+  limited: HookEntry[];
+}): void {
+  if (params.scrape) {
+    console.log(`[scrape] Found ${params.entries.length} clips from ${params.pageUrl}`);
+  }
+  if (params.limit > 0 && params.selected.length > params.limited.length) {
+    console.log(`[limit] Downloading ${params.limited.length} of ${params.selected.length} clips`);
+  }
+}
+
+async function run(): Promise<void> {
+  const options = parseOptions();
+
+  if (options.scrape && options.library !== 'transitionalhooks') {
+    throw new Error('Scrape mode currently supports only the transitionalhooks library.');
+  }
+
+  const entries = options.scrape
+    ? await scrapeHookLibrary(options.pageUrl)
+    : resolveLibrary(options.library);
+  const { selected, limited } = selectHookEntries({
+    entries,
+    onlyRaw: options.onlyRaw,
+    limit: options.limit,
+  });
 
   if (limited.length === 0) {
     console.log('No hooks matched the selection.');
     return;
   }
 
-  const targetDir = join(rootDir, library);
+  const targetDir = join(options.rootDir, options.library);
   await mkdir(targetDir, { recursive: true });
 
   let cursor = 0;
   const failures: Array<{ id: string; error: string }> = [];
 
-  if (scrape) {
-    console.log(`[scrape] Found ${entries.length} clips from ${pageUrl}`);
-  }
-  if (limit > 0 && selected.length > limited.length) {
-    console.log(`[limit] Downloading ${limited.length} of ${selected.length} clips`);
-  }
+  logSelection({
+    scrape: options.scrape,
+    entries,
+    pageUrl: options.pageUrl,
+    limit: options.limit,
+    selected,
+    limited,
+  });
 
-  const workers = Array.from({ length: concurrency }, async () => {
+  const workers = Array.from({ length: options.concurrency }, async () => {
     while (cursor < limited.length) {
       const entry = limited[cursor++];
       try {
-        await downloadHook(entry, targetDir, force);
-        if (transcode) {
+        await downloadHook(entry, targetDir, options.force);
+        if (options.transcode) {
           const destination = join(targetDir, entry.filename);
           if (existsSync(destination)) {
             await ensureH264(destination);

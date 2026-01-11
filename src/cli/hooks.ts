@@ -1,7 +1,6 @@
 import { loadConfig } from '../core/config';
 import { createLogger } from '../core/logger';
 import { CMError, NotFoundError } from '../core/errors';
-import { getCliRuntime } from './runtime';
 import {
   HookAudioModeEnum,
   HookFitEnum,
@@ -10,6 +9,7 @@ import {
   type HookFit,
 } from '../hooks/schema';
 import { resolveHookSelection } from '../hooks/resolve';
+import { getCliRuntime } from './runtime';
 
 function parseOptionalNumber(value: unknown): number | undefined {
   if (value == null) return undefined;
@@ -50,54 +50,92 @@ function normalizeTrimDuration(value: number | undefined): number | undefined {
   return value;
 }
 
-export async function resolveHookFromCli(
-  options: {
-    hook?: unknown;
-    hookLibrary?: unknown;
-    hooksDir?: unknown;
-    downloadHook?: unknown;
-    hookDuration?: unknown;
-    hookTrim?: unknown;
-    hookAudio?: unknown;
-    hookFit?: unknown;
-  },
-  policy: { allowDownloads?: boolean } = {}
-): Promise<HookClip | null> {
-  const log = createLogger({ module: 'hooks' });
-  const runtime = getCliRuntime();
+function resolveHookDefaults(options: {
+  hook?: unknown;
+  hookTrim?: unknown;
+  hookDuration?: unknown;
+  hookAudio?: unknown;
+  hookFit?: unknown;
+}): {
+  hookValue: string | null;
+  durationSeconds: number | undefined;
+  trimDurationSeconds: number | undefined;
+  audio: HookAudioMode | undefined;
+  fit: HookFit | undefined;
+} {
   const config = loadConfig();
-  const allowDownloads = policy.allowDownloads !== false;
-  const hookFromCli = options.hook !== undefined && options.hook !== null;
   const rawHookValue = options.hook ? String(options.hook) : config.hooks.defaultHook;
   const hookValue = normalizeHookValue(rawHookValue);
+  const durationSeconds = parseOptionalNumber(options.hookDuration);
+  const trimDurationSeconds = normalizeTrimDuration(
+    parseOptionalNumber(options.hookTrim ?? config.hooks.trimDuration)
+  );
+  const audio = parseHookAudio(options.hookAudio ?? config.hooks.audio);
+  const fit = parseHookFit(options.hookFit ?? config.hooks.fit);
+
+  return { hookValue, durationSeconds, trimDurationSeconds, audio, fit };
+}
+
+async function resolveHookClip(params: {
+  hookValue: string;
+  durationSeconds: number | undefined;
+  trimDurationSeconds: number | undefined;
+  audio: HookAudioMode | undefined;
+  fit: HookFit | undefined;
+  hookLibrary?: unknown;
+  hooksDir?: unknown;
+  downloadMissing?: boolean;
+}): Promise<HookClip | null> {
+  const config = loadConfig();
+  return resolveHookSelection({
+    hook: params.hookValue,
+    library: params.hookLibrary ? String(params.hookLibrary) : config.hooks.library,
+    hooksDir: params.hooksDir ? String(params.hooksDir) : config.hooks.dir,
+    downloadMissing: params.downloadMissing,
+    durationSeconds: params.durationSeconds,
+    trimDurationSeconds: params.trimDurationSeconds,
+    audio: params.audio,
+    fit: params.fit,
+    maxDurationSeconds: config.hooks.maxDuration,
+  });
+}
+
+export async function resolveHookFromCli(options: {
+  hook?: unknown;
+  hookLibrary?: unknown;
+  hooksDir?: unknown;
+  hookDuration?: unknown;
+  hookTrim?: unknown;
+  hookAudio?: unknown;
+  hookFit?: unknown;
+  downloadHook?: unknown;
+}): Promise<HookClip | null> {
+  const log = createLogger({ module: 'hooks' });
+  const runtime = getCliRuntime();
+  const hookFromCli = options.hook !== undefined && options.hook !== null;
+  const { hookValue, durationSeconds, trimDurationSeconds, audio, fit } =
+    resolveHookDefaults(options);
   if (!hookValue) {
     if (options.hook !== undefined) {
       options.hook = undefined;
     }
     return null;
   }
-  const durationSeconds = parseOptionalNumber(options.hookDuration);
-  const trimDurationSeconds = normalizeTrimDuration(
-    parseOptionalNumber(options.hookTrim ?? config.hooks.trimDuration)
-  );
   if (options.hookTrim === undefined && trimDurationSeconds !== undefined) {
     options.hookTrim = String(trimDurationSeconds);
   }
-  const audio = parseHookAudio(options.hookAudio ?? config.hooks.audio);
-  const fit = parseHookFit(options.hookFit ?? config.hooks.fit);
-  const downloadMissing = allowDownloads && (Boolean(options.downloadHook) || runtime.yes);
 
   try {
-    return await resolveHookSelection({
-      hook: hookValue,
-      library: options.hookLibrary ? String(options.hookLibrary) : config.hooks.library,
-      hooksDir: options.hooksDir ? String(options.hooksDir) : config.hooks.dir,
-      downloadMissing,
+    const downloadMissing = !runtime.offline && (runtime.yes || Boolean(options.downloadHook));
+    return await resolveHookClip({
+      hookValue,
       durationSeconds,
       trimDurationSeconds,
       audio,
       fit,
-      maxDurationSeconds: config.hooks.maxDuration,
+      hookLibrary: options.hookLibrary,
+      hooksDir: options.hooksDir,
+      downloadMissing,
     });
   } catch (error) {
     if (!hookFromCli && error instanceof NotFoundError) {

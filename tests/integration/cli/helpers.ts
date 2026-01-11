@@ -16,17 +16,19 @@ export async function runCli(
 ): Promise<CliRunResult> {
   const helperDir = dirname(fileURLToPath(import.meta.url));
   const repoRoot = join(helperDir, '..', '..', '..');
-  const tempRoot = join(repoRoot, '.tmp', 'tests', `cli-${process.pid}`);
-  mkdirSync(tempRoot, { recursive: true });
+  const tmpDir = join(repoRoot, '.cache', 'tsx-tmp');
+
+  mkdirSync(tmpDir, { recursive: true });
 
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, ['--import', 'tsx', 'src/cli/index.ts', ...args], {
       env: {
         ...process.env,
-        TMPDIR: tempRoot,
-        TMP: tempRoot,
-        TEMP: tempRoot,
         NODE_ENV: 'test',
+        TMPDIR: tmpDir,
+        TMP: tmpDir,
+        TEMP: tmpDir,
+        TSX_DISABLE_CACHE: '1',
         ...env,
       },
       cwd: repoRoot,
