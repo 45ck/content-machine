@@ -6,6 +6,7 @@
 import { Command } from 'commander';
 import type { PipelineResult } from '../../core/pipeline';
 import { logger } from '../../core/logger';
+import { evaluateRequirements, planWhisperRequirements } from '../../core/assets/requirements';
 import {
   ArchetypeEnum,
   OrientationEnum,
@@ -27,8 +28,7 @@ import { ResearchOutputSchema } from '../../research/schema';
 import type { ResearchOutput } from '../../research/schema';
 import { createResearchOrchestrator } from '../../research/orchestrator';
 import { OpenAIProvider } from '../../core/llm/openai';
-import { CMError, NotFoundError, SchemaError } from '../../core/errors';
-import { evaluateRequirements, planWhisperRequirements } from '../../core/assets/requirements';
+import { CMError, SchemaError } from '../../core/errors';
 import { CliProgressObserver, PipelineEventEmitter, type PipelineEvent } from '../../core/events';
 import { getCliErrorInfo } from '../format';
 import {
@@ -74,10 +74,13 @@ export interface SyncPresetConfig {
   autoRetrySync: boolean;
 }
 
+const PIPELINE_STANDARD: SyncPresetConfig['pipeline'] = 'standard';
+const PIPELINE_AUDIO_FIRST: SyncPresetConfig['pipeline'] = 'audio-first';
+
 export const SYNC_PRESETS: Record<string, SyncPresetConfig> = {
   /** Fast: standard pipeline, no quality check, fastest rendering */
   fast: {
-    pipeline: 'standard',
+    pipeline: PIPELINE_STANDARD,
     reconcile: false,
     syncQualityCheck: false,
     minSyncRating: 0,
@@ -85,7 +88,7 @@ export const SYNC_PRESETS: Record<string, SyncPresetConfig> = {
   },
   /** Standard: audio-first pipeline (whisper required), no quality check */
   standard: {
-    pipeline: 'audio-first',
+    pipeline: PIPELINE_AUDIO_FIRST,
     reconcile: true,
     syncQualityCheck: false,
     minSyncRating: 60,
@@ -93,7 +96,7 @@ export const SYNC_PRESETS: Record<string, SyncPresetConfig> = {
   },
   /** Quality: audio-first with quality check enabled */
   quality: {
-    pipeline: 'audio-first',
+    pipeline: PIPELINE_AUDIO_FIRST,
     reconcile: true,
     syncQualityCheck: true,
     minSyncRating: 75,
@@ -101,7 +104,7 @@ export const SYNC_PRESETS: Record<string, SyncPresetConfig> = {
   },
   /** Maximum: audio-first with reconcile, quality check, and auto-retry */
   maximum: {
-    pipeline: 'audio-first',
+    pipeline: PIPELINE_AUDIO_FIRST,
     reconcile: true,
     syncQualityCheck: true,
     minSyncRating: 85,
@@ -132,8 +135,8 @@ interface GenerateOptions {
   pipeline?: 'standard' | 'audio-first';
   /** Split-screen layout preset (gameplay-top, gameplay-bottom) */
   splitLayout?: string;
-  /** Whisper model size: tiny, base, small, medium */
-  whisperModel?: 'tiny' | 'base' | 'small' | 'medium';
+  /** Whisper model size: tiny, base, small, medium, large */
+  whisperModel?: 'tiny' | 'base' | 'small' | 'medium' | 'large';
   /** Caption grouping window in milliseconds */
   captionGroupMs?: string;
   /** Reconcile ASR output to original script text */
@@ -206,6 +209,8 @@ interface GenerateOptions {
   hookAudio?: string;
   /** Hook fit mode (cover, contain) */
   hookFit?: string;
+  /** Download missing hook clips */
+  downloadHook?: boolean;
   /** Download remote stock assets into the render bundle (recommended) */
   downloadAssets?: boolean;
   /** Background music track or preset */
@@ -276,7 +281,6 @@ function printHeader(
   writeStderrLine(chalk.gray(`Artifacts: ${dirname(options.output)}`));
 }
 
-// eslint-disable-next-line complexity
 function writeDryRunJson(params: {
   topic: string;
   archetype: string;
@@ -405,7 +409,6 @@ function formatPreflightLine(check: PreflightCheck): string {
   return `- ${status} ${check.label}${detail}`;
 }
 
-// eslint-disable-next-line max-lines-per-function, complexity, sonarjs/cognitive-complexity
 async function runGeneratePreflight(params: {
   topic: string;
   options: GenerateOptions;
@@ -730,48 +733,6 @@ async function runGeneratePreflight(params: {
     }
   }
 
-  const pipelineMode = options.pipeline ?? 'standard';
-  const whisperRequired =
-    !options.mock && pipelineMode === 'audio-first' && !options.timestamps && !options.audio;
-  if (whisperRequired) {
-    const whisperModel = (options.whisperModel ?? 'base') as 'tiny' | 'base' | 'small' | 'medium';
-    const requirements = planWhisperRequirements({ required: true, model: whisperModel });
-    const results = await evaluateRequirements(requirements);
-    for (const requirement of results) {
-      addPreflightCheck(checks, {
-        label: requirement.label,
-        status: requirement.ok ? 'ok' : 'fail',
-        code: requirement.ok ? undefined : 'DEPENDENCY_MISSING',
-        detail: requirement.detail,
-        fix: requirement.ok ? undefined : requirement.fix,
-      });
-    }
-  }
-
-  if (options.hook) {
-    try {
-      const hook = await resolveHookFromCli({ ...options }, { allowDownloads: false });
-      addPreflightCheck(checks, {
-        label: 'Hook clip',
-        status: 'ok',
-        detail: hook?.path ?? hook?.id ?? String(options.hook),
-      });
-    } catch (error) {
-      const info = getCliErrorInfo(error);
-      const code =
-        error instanceof NotFoundError && error.resource === 'hook-file'
-          ? 'FILE_NOT_FOUND'
-          : info.code;
-      addPreflightCheck(checks, {
-        label: 'Hook clip',
-        status: 'fail',
-        code,
-        detail: info.message,
-        fix: info.fix,
-      });
-    }
-  }
-
   const gameplayRequired = Boolean(options.gameplayStrict) || Boolean(templateGameplay?.required);
   if (gameplayRequired && !options.gameplay) {
     addPreflightCheck(checks, {
@@ -791,6 +752,71 @@ async function runGeneratePreflight(params: {
         ? undefined
         : 'Provide a valid gameplay directory or clip path',
     });
+  }
+
+  if (options.hook !== undefined) {
+    try {
+      const hook = await resolveHookFromCli(options);
+      addPreflightCheck(checks, {
+        label: 'Hook clip',
+        status: 'ok',
+        detail: hook ? hook.path : 'disabled',
+      });
+    } catch (error) {
+      const info = getCliErrorInfo(error);
+      const code = info.code === 'NOT_FOUND' ? 'FILE_NOT_FOUND' : info.code;
+      addPreflightCheck(checks, {
+        label: 'Hook clip',
+        status: 'fail',
+        code,
+        detail: info.message,
+        fix: info.fix,
+      });
+    }
+  }
+
+  if (!options.mock) {
+    let requireWhisper = options.pipeline === 'audio-first';
+    let whisperModel = options.whisperModel ?? 'base';
+    try {
+      const config = loadConfig();
+      requireWhisper = requireWhisper || config.sync.requireWhisper;
+      if (!options.whisperModel) whisperModel = config.sync.asrModel;
+    } catch (error) {
+      const info = getCliErrorInfo(error);
+      addPreflightCheck(checks, {
+        label: 'Config',
+        status: 'fail',
+        code: info.code,
+        detail: info.message,
+        fix: info.fix,
+      });
+    }
+
+    if (requireWhisper) {
+      try {
+        const requirements = planWhisperRequirements({ required: true, model: whisperModel });
+        const results = await evaluateRequirements(requirements);
+        for (const result of results) {
+          addPreflightCheck(checks, {
+            label: result.label,
+            status: result.ok ? 'ok' : 'fail',
+            code: result.ok ? undefined : 'DEPENDENCY_MISSING',
+            detail: result.detail,
+            fix: result.fix,
+          });
+        }
+      } catch (error) {
+        const info = getCliErrorInfo(error);
+        addPreflightCheck(checks, {
+          label: 'Whisper',
+          status: 'fail',
+          code: info.code,
+          detail: info.message,
+          fix: info.fix,
+        });
+      }
+    }
   }
 
   const needsScript = !options.script;
@@ -1003,6 +1029,14 @@ function parseWordList(value: string | undefined): string[] | undefined {
   return items.length > 0 ? items : [];
 }
 
+function normalizeWhisperModelForSync(
+  model: GenerateOptions['whisperModel'] | undefined
+): SyncAttemptSettings['whisperModel'] {
+  if (!model) return 'base';
+  if (model === 'large') return 'medium';
+  return model;
+}
+
 function collectList(value: string, previous: string[] = []): string[] {
   return [...previous, value];
 }
@@ -1056,7 +1090,6 @@ function buildAudioMixOptions(options: GenerateOptions): AudioMixPlanOptions {
   };
 }
 
-// eslint-disable-next-line complexity
 function buildGenerateSuccessJsonArgs(params: {
   topic: string;
   archetype: string;
@@ -1137,6 +1170,7 @@ function buildGenerateSuccessJsonArgs(params: {
     hookTrim: options.hookTrim ?? null,
     hookAudio: options.hookAudio ?? null,
     hookFit: options.hookFit ?? null,
+    downloadHook: Boolean(options.downloadHook),
     downloadAssets: options.downloadAssets !== false,
   };
 }
@@ -1613,7 +1647,6 @@ function createPipelineObservation(runtime: ReturnType<typeof getCliRuntime>): {
   return { eventEmitter, dispose: () => stageObserver.dispose() };
 }
 
-// eslint-disable-next-line complexity
 async function runGeneratePipeline(params: {
   topic: string;
   archetype: Archetype;
@@ -1856,7 +1889,7 @@ async function runPipelineWithOptionalSyncQualityGate(
   const initialSettings: SyncAttemptSettings = {
     pipelineMode: params.options.pipeline ?? 'standard',
     reconcile: Boolean(params.options.reconcile),
-    whisperModel: params.options.whisperModel ?? 'base',
+    whisperModel: normalizeWhisperModelForSync(params.options.whisperModel),
   };
 
   const autoRetryRequested = Boolean(params.options.autoRetrySync);
@@ -1892,7 +1925,7 @@ async function runPipelineWithOptionalSyncQualityGate(
         maxMaxDriftMs: 500,
         minMatchRatio: 0.7,
       },
-      asrModel: params.options.whisperModel ?? 'base',
+      asrModel: normalizeWhisperModelForSync(params.options.whisperModel),
       mock: params.options.mock,
     });
   };
@@ -1990,7 +2023,6 @@ async function finalizeGenerateOutput(params: {
   if (params.exitCode !== 0) process.exit(params.exitCode);
 }
 
-// eslint-disable-next-line max-lines-per-function, complexity, sonarjs/cognitive-complexity
 async function runGenerate(
   topic: string,
   options: GenerateOptions,
@@ -2246,7 +2278,6 @@ function createMockLLMProvider(topic: string): FakeLLMProvider {
   return provider;
 }
 
-// eslint-disable-next-line complexity, sonarjs/cognitive-complexity
 function showDryRunSummary(
   topic: string,
   options: GenerateOptions,
@@ -2577,7 +2608,7 @@ export const generateCommand = new Command('generate')
   )
   .option(
     '--whisper-model <model>',
-    'Whisper model size: tiny, base (default), small, medium (larger = more accurate but slower)'
+    'Whisper model size: tiny, base (default), small, medium, large (larger = more accurate but slower)'
   )
   .option(
     '--caption-group-ms <ms>',
@@ -2626,11 +2657,11 @@ export const generateCommand = new Command('generate')
   .option('--hook <idOrPath>', 'Hook intro clip id, path, or URL')
   .option('--hook-library <name>', 'Hook library id (defaults to config)')
   .option('--hooks-dir <path>', 'Root directory for hook libraries')
-  .option('--download-hook', 'Download hook clip from the selected library if missing', false)
   .option('--hook-duration <seconds>', 'Hook duration when ffprobe is unavailable')
   .option('--hook-trim <seconds>', 'Trim hook to N seconds (optional)')
   .option('--hook-audio <mode>', 'Hook audio mode (mute, keep)')
   .option('--hook-fit <mode>', 'Hook fit mode (cover, contain)')
+  .option('--download-hook', 'Download missing hook clips')
   .option('--download-assets', 'Download remote visual assets into the render bundle', true)
   .option('--no-download-assets', 'Do not download remote assets (stream URLs directly)')
   // Sync quality options

@@ -246,6 +246,103 @@ function clampDuration(value: number, totalDuration: number): number {
   return value;
 }
 
+function buildMusicLayer(params: {
+  totalDuration: number;
+  options: AudioMixPlanOptions;
+  preset: MixPresetDefaults;
+}): AudioMixLayer | null {
+  const { totalDuration, options, preset } = params;
+  if (options.noMusic || !options.music) return null;
+
+  const musicPath = resolvePresetPath(options.music, 'music');
+  const musicVolumeDb = options.musicVolumeDb ?? preset.musicVolumeDb;
+  const musicDuckDb = options.musicDuckDb ?? preset.musicDuckDb;
+  const fadeInMs = options.musicFadeInMs ?? DEFAULT_MUSIC_FADE_IN_MS;
+  const fadeOutMs = options.musicFadeOutMs ?? DEFAULT_MUSIC_FADE_OUT_MS;
+  const loop = options.musicLoop ?? true;
+
+  return {
+    type: 'music',
+    path: musicPath,
+    start: 0,
+    end: totalDuration,
+    volumeDb: musicVolumeDb,
+    duckDb: musicDuckDb,
+    fadeInMs,
+    fadeOutMs,
+    loop,
+  };
+}
+
+function buildAmbienceLayer(params: {
+  totalDuration: number;
+  options: AudioMixPlanOptions;
+  preset: MixPresetDefaults;
+}): AudioMixLayer | null {
+  const { totalDuration, options, preset } = params;
+  if (options.noAmbience || !options.ambience) return null;
+
+  const ambiencePath = resolvePresetPath(options.ambience, 'ambience');
+  const ambienceVolumeDb = options.ambienceVolumeDb ?? preset.ambienceVolumeDb;
+  const fadeInMs = options.ambienceFadeInMs ?? DEFAULT_AMBIENCE_FADE_IN_MS;
+  const fadeOutMs = options.ambienceFadeOutMs ?? DEFAULT_AMBIENCE_FADE_OUT_MS;
+  const loop = options.ambienceLoop ?? true;
+
+  return {
+    type: 'ambience',
+    path: ambiencePath,
+    start: 0,
+    end: totalDuration,
+    volumeDb: ambienceVolumeDb,
+    fadeInMs,
+    fadeOutMs,
+    loop,
+  };
+}
+
+function buildSfxLayers(params: {
+  timestamps: TimestampsOutput;
+  totalDuration: number;
+  options: AudioMixPlanOptions;
+  preset: MixPresetDefaults;
+  warnings: string[];
+}): AudioMixLayer[] {
+  const { timestamps, totalDuration, options, preset, warnings } = params;
+  if (options.noSfx) return [];
+
+  const sfxSources = resolveSfxSources(options);
+  const placement: SfxPlacement = options.sfxAt ?? 'scene';
+  const sfxEvents = buildSceneEvents(timestamps, placement);
+  const minGapMs = options.sfxMinGapMs ?? DEFAULT_SFX_MIN_GAP_MS;
+  const minGapSeconds = minGapMs / 1000;
+  const spacedEvents = applyMinGap(sfxEvents, minGapSeconds);
+  const durationSeconds = options.sfxDurationSeconds ?? DEFAULT_SFX_DURATION_SECONDS;
+  const sfxVolumeDb = options.sfxVolumeDb ?? preset.sfxVolumeDb;
+
+  if (sfxSources.length === 0 && spacedEvents.length > 0) {
+    warnings.push('SFX requested but no SFX sources provided');
+  }
+
+  return spacedEvents.flatMap((event, index) => {
+    const source = sfxSources[index % sfxSources.length];
+    if (!source) return [];
+    const start = clampDuration(event.time, totalDuration);
+    const end = clampDuration(start + durationSeconds, totalDuration);
+    if (end <= start) return [];
+    return [
+      {
+        type: 'sfx',
+        path: source,
+        start,
+        duration: end - start,
+        volumeDb: sfxVolumeDb,
+        event: event.event,
+        sceneId: event.sceneId,
+      },
+    ];
+  });
+}
+
 export function buildAudioMixPlan(params: BuildAudioMixPlanParams): AudioMixOutput {
   const { script: _script, timestamps, voicePath, options } = params;
   const warnings: string[] = [];
@@ -258,75 +355,21 @@ export function buildAudioMixPlan(params: BuildAudioMixPlanParams): AudioMixOutp
   const mixPresetName = presetName;
   const lufsTarget = options.lufsTarget ?? preset.lufsTarget;
 
-  if (!options.noMusic && options.music) {
-    const musicPath = resolvePresetPath(options.music, 'music');
-    const musicVolumeDb = options.musicVolumeDb ?? preset.musicVolumeDb;
-    const musicDuckDb = options.musicDuckDb ?? preset.musicDuckDb;
-    const fadeInMs = options.musicFadeInMs ?? DEFAULT_MUSIC_FADE_IN_MS;
-    const fadeOutMs = options.musicFadeOutMs ?? DEFAULT_MUSIC_FADE_OUT_MS;
-    const loop = options.musicLoop ?? true;
-    layers.push({
-      type: 'music',
-      path: musicPath,
-      start: 0,
-      end: totalDuration,
-      volumeDb: musicVolumeDb,
-      duckDb: musicDuckDb,
-      fadeInMs,
-      fadeOutMs,
-      loop,
-    });
-  }
+  const musicLayer = buildMusicLayer({ totalDuration, options, preset });
+  if (musicLayer) layers.push(musicLayer);
 
-  if (!options.noAmbience && options.ambience) {
-    const ambiencePath = resolvePresetPath(options.ambience, 'ambience');
-    const ambienceVolumeDb = options.ambienceVolumeDb ?? preset.ambienceVolumeDb;
-    const fadeInMs = options.ambienceFadeInMs ?? DEFAULT_AMBIENCE_FADE_IN_MS;
-    const fadeOutMs = options.ambienceFadeOutMs ?? DEFAULT_AMBIENCE_FADE_OUT_MS;
-    const loop = options.ambienceLoop ?? true;
-    layers.push({
-      type: 'ambience',
-      path: ambiencePath,
-      start: 0,
-      end: totalDuration,
-      volumeDb: ambienceVolumeDb,
-      fadeInMs,
-      fadeOutMs,
-      loop,
-    });
-  }
+  const ambienceLayer = buildAmbienceLayer({ totalDuration, options, preset });
+  if (ambienceLayer) layers.push(ambienceLayer);
 
-  if (!options.noSfx) {
-    const sfxSources = resolveSfxSources(options);
-    const placement: SfxPlacement = options.sfxAt ?? 'scene';
-    const sfxEvents = buildSceneEvents(timestamps, placement);
-    const minGapMs = options.sfxMinGapMs ?? DEFAULT_SFX_MIN_GAP_MS;
-    const minGapSeconds = minGapMs / 1000;
-    const spacedEvents = applyMinGap(sfxEvents, minGapSeconds);
-    const durationSeconds = options.sfxDurationSeconds ?? DEFAULT_SFX_DURATION_SECONDS;
-    const sfxVolumeDb = options.sfxVolumeDb ?? preset.sfxVolumeDb;
-
-    if (sfxSources.length === 0 && spacedEvents.length > 0) {
-      warnings.push('SFX requested but no SFX sources provided');
-    }
-
-    spacedEvents.forEach((event, index) => {
-      const source = sfxSources[index % sfxSources.length];
-      if (!source) return;
-      const start = clampDuration(event.time, totalDuration);
-      const end = clampDuration(start + durationSeconds, totalDuration);
-      if (end <= start) return;
-      layers.push({
-        type: 'sfx',
-        path: source,
-        start,
-        duration: end - start,
-        volumeDb: sfxVolumeDb,
-        event: event.event,
-        sceneId: event.sceneId,
-      });
-    });
-  }
+  layers.push(
+    ...buildSfxLayers({
+      timestamps,
+      totalDuration,
+      options,
+      preset,
+      warnings,
+    })
+  );
 
   return {
     schemaVersion: AUDIO_MIX_SCHEMA_VERSION,
