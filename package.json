@@ -15,6 +15,12 @@
       "import": "./dist/index.js"
     }
   },
+  "files": [
+    "dist/**",
+    "assets/**",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "esbuild src/cli/index.ts --bundle --platform=node --format=cjs --packages=external --log-override:empty-import-meta=silent --outfile=dist/cli/index.cjs",
     "build:types": "tsc --emitDeclarationOnly",

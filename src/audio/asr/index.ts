@@ -87,10 +87,11 @@ function resolveWhisperModel(model: NonNullable<ASROptions['model']>): WhisperMo
 }
 
 function shouldAutoInstallWhisper(): boolean {
-  if (process.env.CM_WHISPER_AUTO_INSTALL === '0') return false;
   if (process.env.NODE_ENV === 'test') return false;
   if (process.env.CI) return false;
-  return true;
+  if (process.env.CM_WHISPER_AUTO_INSTALL === '1') return true;
+  if (process.env.CM_WHISPER_AUTO_INSTALL === '0') return false;
+  return false;
 }
 
 function resolveWhisperModelFilename(model: WhisperModel): string {
@@ -267,7 +268,7 @@ export async function transcribeAudio(options: ASROptions): Promise<ASRResult> {
     // If requireWhisper is true, don't fall back to estimation
     if (options.requireWhisper) {
       throw new APIError(
-        'Whisper.cpp transcription failed and requireWhisper=true. Install whisper model or use standard pipeline.',
+        'Whisper.cpp transcription failed and requireWhisper=true. Run `cm setup whisper` (or set CM_WHISPER_AUTO_INSTALL=1) to install Whisper.',
         { audioPath: options.audioPath, error: String(error) }
       );
     }
@@ -277,7 +278,7 @@ export async function transcribeAudio(options: ASROptions): Promise<ASRResult> {
   // In audio-first mode, we require Whisper - never fall back
   if (options.requireWhisper) {
     throw new APIError(
-      'Whisper.cpp not available but requireWhisper=true. Run `npx @remotion/install-whisper-cpp` to install.',
+      'Whisper.cpp not available but requireWhisper=true. Run `cm setup whisper` (or set CM_WHISPER_AUTO_INSTALL=1) to install Whisper.',
       { audioPath: options.audioPath }
     );
   }

@@ -13,11 +13,13 @@ import {
 } from './constants';
 import type { HookClip, HookDefinition, HookAudioMode, HookFit } from './schema';
 import { TRANSITIONAL_HOOKS } from './libraries/transitionalhooks';
+import { downloadHookClip } from './download';
 
 export interface ResolveHookOptions {
   hook?: string;
   library?: string;
   hooksDir?: string;
+  downloadMissing?: boolean;
   durationSeconds?: number;
   trimDurationSeconds?: number;
   audio?: HookAudioMode;
@@ -105,6 +107,7 @@ export async function resolveHookSelection(options: ResolveHookOptions): Promise
   const log = createLogger({ module: 'hooks' });
   const library = options.library ?? DEFAULT_HOOK_LIBRARY;
   const hooksDir = options.hooksDir ?? DEFAULT_HOOKS_DIR;
+  const downloadMissing = Boolean(options.downloadMissing);
   const audio = options.audio ?? DEFAULT_HOOK_AUDIO;
   const fit = options.fit ?? DEFAULT_HOOK_FIT;
   const maxDuration = options.maxDurationSeconds ?? DEFAULT_HOOK_MAX_DURATION;
@@ -149,11 +152,22 @@ export async function resolveHookSelection(options: ResolveHookOptions): Promise
       hookPath = resolve(libraryRoot, definition.filename);
       source = 'library';
       if (!existsSync(hookPath)) {
-        throw new NotFoundError(`Hook file not found: ${hookPath}`, {
-          resource: 'hook-file',
-          identifier: hookPath,
-          fix: `Run: tsx scripts/sync-hooks.ts --library ${library}`,
-        });
+        if (downloadMissing) {
+          log.info(
+            { hook: definition.id, library, destination: hookPath },
+            'Downloading missing hook clip'
+          );
+          await downloadHookClip(definition, { destinationPath: hookPath });
+        }
+        if (existsSync(hookPath)) {
+          log.info({ hook: definition.id, path: hookPath }, 'Hook clip ready');
+        } else {
+          throw new NotFoundError(`Hook file not found: ${hookPath}`, {
+            resource: 'hook-file',
+            identifier: hookPath,
+            fix: `Run: cm hooks download ${definition.id} --library ${library}`,
+          });
+        }
       }
     }
   }

@@ -53,6 +53,7 @@ export async function resolveHookFromCli(options: {
   hook?: unknown;
   hookLibrary?: unknown;
   hooksDir?: unknown;
+  downloadHook?: unknown;
   hookDuration?: unknown;
   hookTrim?: unknown;
   hookAudio?: unknown;
@@ -78,12 +79,14 @@ export async function resolveHookFromCli(options: {
   }
   const audio = parseHookAudio(options.hookAudio ?? config.hooks.audio);
   const fit = parseHookFit(options.hookFit ?? config.hooks.fit);
+  const downloadMissing = Boolean(options.downloadHook);
 
   try {
     return await resolveHookSelection({
       hook: hookValue,
       library: options.hookLibrary ? String(options.hookLibrary) : config.hooks.library,
       hooksDir: options.hooksDir ? String(options.hooksDir) : config.hooks.dir,
+      downloadMissing,
       durationSeconds,
       trimDurationSeconds,
       audio,

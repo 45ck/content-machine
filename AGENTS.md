@@ -71,7 +71,7 @@ reconciliation enabled. This is now the default for `cm generate`.
 
 ```bash
 # One-time Whisper setup (needed for audio-first)
-node --input-type=module -e "import('@remotion/install-whisper-cpp').then(async (w)=>{ await w.downloadWhisperModel({ model: 'base', folder: './.cache/whisper' }); await w.installWhisperCpp({ to: './.cache/whisper', version: '1.5.5' }); console.log('whisper ready'); })"
+cm setup whisper --model base
 
 # Recommended end-to-end command
 cm generate "Redis vs PostgreSQL for caching" --archetype versus --output output/video.mp4 --keep-artifacts

@@ -162,7 +162,7 @@ export class AudioFirstSyncStrategy implements SyncStrategy {
       throw new CMError(
         'AUDIO_FIRST_WHISPER_REQUIRED',
         `Whisper ASR is required for audio-first strategy but failed. ` +
-          `Install whisper with: npx @remotion/install-whisper-cpp. ` +
+          `Install whisper with: cm setup whisper (or set CM_WHISPER_AUTO_INSTALL=1). ` +
           `Original error: ${String(error)}`,
         { audioPath, error: String(error) },
         error instanceof Error ? error : undefined

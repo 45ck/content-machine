@@ -30,6 +30,8 @@ const COMMAND_LOADERS: Array<[string, CommandLoader]> = [
   ['templates', async () => (await import('./commands/templates')).templatesCommand],
   ['timestamps', async () => (await import('./commands/timestamps')).timestampsCommand],
   ['import', async () => (await import('./commands/import')).importCommand],
+  ['hooks', async () => (await import('./commands/hooks')).hooksCommand],
+  ['setup', async () => (await import('./commands/setup')).setupCommand],
   ['workflows', async () => (await import('./commands/workflows')).workflowsCommand],
   ['generate', async () => (await import('./commands/generate')).generateCommand],
   ['init', async () => (await import('./commands/init')).initCommand],
@@ -56,7 +58,17 @@ async function loadCommandsForArgs(args: string[]): Promise<void> {
   const requested = findRequestedCommand(args);
   const wantsHelp = args.includes('--help') || args.includes('-h');
 
-  if (!requested || requested === 'help' || wantsHelp) {
+  if (!requested || requested === 'help') {
+    await loadAllCommands();
+    return;
+  }
+
+  if (wantsHelp) {
+    const loader = COMMAND_MAP.get(requested);
+    if (loader) {
+      program.addCommand(await loader());
+      return;
+    }
     await loadAllCommands();
     return;
   }

@@ -64,7 +64,7 @@ and reconciles ASR output back to the script text.
 
 ```bash
 # One-time Whisper setup (needed for audio-first)
-node --input-type=module -e "import('@remotion/install-whisper-cpp').then(async (w)=>{ await w.downloadWhisperModel({ model: 'base', folder: './.cache/whisper' }); await w.installWhisperCpp({ to: './.cache/whisper', version: '1.5.5' }); console.log('whisper ready'); })"
+cm setup whisper --model base
 
 # Generate a short video with best-sync defaults
 cm generate "Redis vs PostgreSQL for caching" --archetype versus --output output/video.mp4 --keep-artifacts
@@ -139,6 +139,11 @@ Troubleshooting:
 - If Remotion fails to decode a gameplay clip, transcode to H.264 baseline:
   `ffmpeg -y -i input.mp4 -vf "scale=1080:-2" -c:v libx264 -profile:v baseline -level 3.1 -pix_fmt yuv420p -preset veryfast -crf 23 -an -movflags +faststart output.mp4`
 - For detailed logs: `--verbose` plus `REMOTION_LOG_LEVEL=verbose`
+
+Hook library notes:
+
+- List known hooks: `cm hooks list`
+- Download a specific hook clip: `cm hooks download no-crunch` (or pass `--download-hook` alongside `--hook <id>`)
 
 ## Vendored Dependencies
 
