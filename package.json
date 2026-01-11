@@ -1,6 +1,6 @@
 {
   "name": "content-machine",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "CLI-first automated short-form video generator for TikTok, Reels, and Shorts",
   "license": "MIT",
   "type": "module",
