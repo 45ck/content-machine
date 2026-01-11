@@ -2,6 +2,15 @@ name: Dependency Review
 
 on:
   pull_request:
+  workflow_dispatch:
+    inputs:
+      base_ref:
+        description: Base ref to diff against (e.g. master)
+        required: true
+        default: master
+      head_ref:
+        description: Head ref to diff (optional; defaults to dispatch ref)
+        required: false
 
 permissions:
   contents: read
@@ -10,9 +19,15 @@ permissions:
 jobs:
   dependency-review:
     runs-on: ubuntu-latest
+    env:
+      BASE_REF: ${{ github.event_name == 'workflow_dispatch' && inputs.base_ref || github.base_ref }}
+      HEAD_REF: ${{ github.event_name == 'workflow_dispatch' && (inputs.head_ref || github.ref_name) || github.head_ref }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Dependency Review
         uses: actions/dependency-review-action@v4
+        with:
+          base-ref: ${{ env.BASE_REF }}
+          head-ref: ${{ env.HEAD_REF }}
