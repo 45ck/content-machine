@@ -209,6 +209,9 @@
 [submodule "vendor/connectors/web/firecrawl"]
 	path = vendor/connectors/web/firecrawl
 	url = https://github.com/mendableai/firecrawl
+[submodule "vendor/mcp/firecrawl-mcp-server"]
+	path = vendor/mcp/firecrawl-mcp-server
+	url = https://github.com/firecrawl/firecrawl-mcp-server
 [submodule "vendor/connectors/web/tavily-python"]
 	path = vendor/connectors/web/tavily-python
 	url = https://github.com/tavily-ai/tavily-python

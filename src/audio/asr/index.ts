@@ -15,6 +15,7 @@ import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
+import { resolveWhisperDir, resolveWhisperModelFilename } from '../../core/assets/whisper';
 
 // Re-export post-processor for direct use
 export {
@@ -92,10 +93,6 @@ function shouldAutoInstallWhisper(): boolean {
   if (process.env.CM_WHISPER_AUTO_INSTALL === '1') return true;
   if (process.env.CM_WHISPER_AUTO_INSTALL === '0') return false;
   return false;
-}
-
-function resolveWhisperModelFilename(model: WhisperModel): string {
-  return `ggml-${model}.bin`;
 }
 
 /**
@@ -309,7 +306,7 @@ async function transcribeWithWhisper(
 
   const rawModel = options.model ?? 'base';
   const model = resolveWhisperModel(rawModel);
-  const whisperFolder = './.cache/whisper';
+  const whisperFolder = resolveWhisperDir();
   const whisperCppVersion = '1.5.5';
   const language = options.language ? (options.language as Language) : undefined;
 

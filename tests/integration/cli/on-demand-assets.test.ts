@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { runCli } from './helpers';
-import { existsSync, mkdirSync, rmSync } from 'fs';
+import { existsSync, mkdirSync, rmSync, writeFileSync } from 'fs';
 import { join } from 'path';
+import { SCRIPT_SCHEMA_VERSION } from '../../../src/script/schema';
+import { VISUALS_SCHEMA_VERSION } from '../../../src/visuals/schema';
 
 function assertPureJson(stdout: string): any {
   const trimmed = stdout.trim();
@@ -11,6 +13,89 @@ function assertPureJson(stdout: string): any {
 }
 
 describe('on-demand assets', () => {
+  it('cm generate --preflight respects CM_WHISPER_DIR (does not use default cache)', async () => {
+    const outDir = join(process.cwd(), 'tests', '.tmp', 'on-demand-assets', 'generate-whisper-dir');
+    rmSync(outDir, { recursive: true, force: true });
+    mkdirSync(outDir, { recursive: true });
+
+    // Ensure the default whisper cache *appears* installed, so this test proves CM_WHISPER_DIR is respected.
+    const defaultWhisperDir = join(process.cwd(), '.cache', 'whisper');
+    mkdirSync(defaultWhisperDir, { recursive: true });
+    const defaultModelPath = join(defaultWhisperDir, 'ggml-base.bin');
+    if (!existsSync(defaultModelPath)) {
+      writeFileSync(defaultModelPath, 'stub', 'utf-8');
+    }
+    const defaultBinaryPath = join(
+      defaultWhisperDir,
+      process.platform === 'win32' ? 'main.exe' : 'main'
+    );
+    if (!existsSync(defaultBinaryPath)) {
+      writeFileSync(defaultBinaryPath, 'stub', 'utf-8');
+    }
+
+    const scriptPath = join(outDir, 'script.json');
+    const visualsPath = join(outDir, 'visuals.json');
+    const outVideo = join(outDir, 'video.mp4');
+
+    writeFileSync(
+      scriptPath,
+      JSON.stringify(
+        {
+          schemaVersion: SCRIPT_SCHEMA_VERSION,
+          scenes: [{ id: 'scene-001', text: 'hello world', visualDirection: 'mock' }],
+          reasoning: 'fixture',
+        },
+        null,
+        2
+      ),
+      'utf-8'
+    );
+
+    writeFileSync(
+      visualsPath,
+      JSON.stringify(
+        {
+          schemaVersion: VISUALS_SCHEMA_VERSION,
+          scenes: [{ sceneId: 'scene-001', source: 'mock', assetPath: 'mock', duration: 1 }],
+          totalAssets: 1,
+          fromUserFootage: 0,
+          fromStock: 0,
+          fallbacks: 0,
+        },
+        null,
+        2
+      ),
+      'utf-8'
+    );
+
+    const missingWhisperDir = join(outDir, 'whisper');
+
+    const result = await runCli(
+      [
+        'generate',
+        'Redis',
+        '--preflight',
+        '--json',
+        '--script',
+        scriptPath,
+        '--visuals',
+        visualsPath,
+        '--hook',
+        'none',
+        '-o',
+        outVideo,
+      ],
+      { CM_WHISPER_DIR: missingWhisperDir },
+      60000
+    );
+
+    expect(result.code).toBe(1);
+    const parsed = assertPureJson(result.stdout);
+    expect(parsed.command).toBe('generate');
+    expect(parsed.outputs.preflightPassed).toBe(false);
+    expect(parsed.errors.some((e: any) => e.code === 'DEPENDENCY_MISSING')).toBe(true);
+  }, 90_000);
+
   it('cm generate --preflight fails on missing explicit hook clip', async () => {
     const outDir = join(process.cwd(), 'tests', '.tmp', 'on-demand-assets', 'generate-hook');
     rmSync(outDir, { recursive: true, force: true });
@@ -34,6 +119,46 @@ describe('on-demand assets', () => {
         hooksDir,
         '-o',
         outVideo,
+      ],
+      undefined,
+      60000
+    );
+
+    expect(result.code).toBe(2);
+    const parsed = assertPureJson(result.stdout);
+    expect(parsed.command).toBe('generate');
+    expect(parsed.outputs.preflightPassed).toBe(false);
+    expect(parsed.errors.some((e: any) => e.code === 'FILE_NOT_FOUND')).toBe(true);
+  }, 90_000);
+
+  it('cm generate --preflight does not download hooks (even with --download-hook) when offline', async () => {
+    const outDir = join(
+      process.cwd(),
+      'tests',
+      '.tmp',
+      'on-demand-assets',
+      'generate-hook-offline'
+    );
+    rmSync(outDir, { recursive: true, force: true });
+    mkdirSync(outDir, { recursive: true });
+
+    const hooksDir = join(outDir, 'hooks');
+
+    const result = await runCli(
+      [
+        'generate',
+        'Redis',
+        '--mock',
+        '--preflight',
+        '--json',
+        '--hook',
+        'no-crunch',
+        '--hook-library',
+        'transitionalhooks',
+        '--hooks-dir',
+        hooksDir,
+        '--download-hook',
+        '--offline',
       ],
       undefined,
       60000
@@ -123,6 +248,25 @@ describe('on-demand assets', () => {
 
     const result = await runCli(
       ['hooks', 'download', 'no-crunch', '--hooks-dir', hooksDir, '--offline', '--json'],
+      undefined,
+      60000
+    );
+
+    expect(result.code).toBe(1);
+    const parsed = assertPureJson(result.stdout);
+    expect(parsed.command).toBe('hooks:download');
+    expect(parsed.errors[0].code).toBe('OFFLINE');
+  }, 90_000);
+
+  it('cm --offline hooks download fails (global offline)', async () => {
+    const outDir = join(process.cwd(), 'tests', '.tmp', 'on-demand-assets', 'hooks-offline-global');
+    rmSync(outDir, { recursive: true, force: true });
+    mkdirSync(outDir, { recursive: true });
+
+    const hooksDir = join(outDir, 'hooks');
+
+    const result = await runCli(
+      ['--offline', 'hooks', 'download', 'no-crunch', '--hooks-dir', hooksDir, '--json'],
       undefined,
       60000
     );

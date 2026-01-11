@@ -100,7 +100,9 @@ program
   .description('CLI-first automated short-form video generator for TikTok, Reels, and Shorts')
   .version(version)
   .option('-v, --verbose', 'Enable verbose logging')
-  .option('--json', 'Output results as JSON');
+  .option('--json', 'Output results as JSON')
+  .option('--offline', 'Disable network access for downloads', false)
+  .option('-y, --yes', 'Assume yes for prompts and safe downloads', false);
 
 program.hook('preAction', (_thisCommand, actionCommand) => {
   const opts =
@@ -111,10 +113,24 @@ program.hook('preAction', (_thisCommand, actionCommand) => {
   setCliRuntime({
     json: Boolean(opts.json),
     verbose: Boolean(opts.verbose),
+    offline: Boolean(opts.offline),
+    yes: Boolean(opts.yes),
     isTty: Boolean(process.stderr.isTTY),
     startTime: Date.now(),
     command: getCommandPath(actionCommand),
   });
+
+  if (opts.offline) {
+    process.env.CM_OFFLINE = '1';
+  } else {
+    delete process.env.CM_OFFLINE;
+  }
+
+  if (opts.yes) {
+    process.env.CM_YES = '1';
+  } else {
+    delete process.env.CM_YES;
+  }
 
   // In JSON mode, stdout must remain machine-readable (no logs/spinners).
   // pino-pretty logs to stdout by default, so silence logging for the duration of the command.

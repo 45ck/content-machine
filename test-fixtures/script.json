@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "1.0.0",
+  "scenes": [
+    {
+      "id": "scene-1",
+      "text": "This is a test script fixture for CLI validation tests.",
+      "visualDirection": "abstract background"
+    }
+  ],
+  "reasoning": "Test fixture",
+  "meta": {
+    "archetype": "listicle",
+    "topic": "fixture",
+    "generatedAt": "2026-01-11T00:00:00.000Z"
+  }
+}
+

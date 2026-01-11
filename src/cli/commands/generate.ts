@@ -28,6 +28,7 @@ import type { ResearchOutput } from '../../research/schema';
 import { createResearchOrchestrator } from '../../research/orchestrator';
 import { OpenAIProvider } from '../../core/llm/openai';
 import { CMError, NotFoundError, SchemaError } from '../../core/errors';
+import { resolveWhisperModelPath } from '../../core/assets/whisper';
 import { CliProgressObserver, PipelineEventEmitter, type PipelineEvent } from '../../core/events';
 import { getCliErrorInfo } from '../format';
 import {
@@ -273,10 +274,6 @@ function printHeader(
   }
   writeStderrLine(chalk.gray(`Output: ${options.output}`));
   writeStderrLine(chalk.gray(`Artifacts: ${dirname(options.output)}`));
-}
-
-function resolveWhisperModelPath(model: 'tiny' | 'base' | 'small' | 'medium'): string {
-  return resolve('.cache', 'whisper', `ggml-${model}.bin`);
 }
 
 // eslint-disable-next-line complexity

@@ -22,7 +22,7 @@ export async function downloadHookClip(
     return { downloaded: false, path: destinationPath };
   }
 
-  if (offline) {
+  if (offline || process.env.CM_OFFLINE === '1') {
     throw new CMError('OFFLINE', 'Offline mode enabled; cannot download hook clips', {
       fix: 'Run without --offline to allow downloads',
     });

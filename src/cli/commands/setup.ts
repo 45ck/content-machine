@@ -6,6 +6,7 @@ import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine 
 import { getCliRuntime } from '../runtime';
 import { handleCommandError } from '../utils';
 import { CMError } from '../../core/errors';
+import { resolveWhisperDir } from '../../core/assets/whisper';
 
 type WhisperModel = 'tiny' | 'base' | 'small' | 'medium' | 'large';
 
@@ -31,7 +32,7 @@ export const setupCommand = new Command('setup')
     new Command('whisper')
       .description('Install whisper.cpp and download a Whisper model')
       .option('--model <model>', 'Whisper model: tiny, base, small, medium, large', 'base')
-      .option('--dir <path>', 'Install directory for whisper assets', './.cache/whisper')
+      .option('--dir <path>', 'Install directory for whisper assets', resolveWhisperDir())
       .option('--version <version>', 'whisper.cpp version to install', '1.5.5')
       .action(async (options) => {
         try {

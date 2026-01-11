@@ -1,6 +1,6 @@
 name: Publish to npm
 
-on:
+'on':
   release:
     types: [published]
 
