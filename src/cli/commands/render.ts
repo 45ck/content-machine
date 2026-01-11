@@ -35,12 +35,7 @@ import { TimestampsOutputSchema } from '../../audio/schema';
 import { AudioMixOutputSchema, type AudioMixOutput } from '../../audio/mix/schema';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import {
-  buildJsonEnvelope,
-  writeJsonEnvelope,
-  writeStderrLine,
-  writeStdoutLine,
-} from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
 import type { CaptionPresetName } from '../../render/captions/presets';
 import type {
@@ -392,8 +387,7 @@ function applyCaptionDefaultsFromConfig(
 ): { fonts: CaptionFontConfig[] } {
   const config = loadConfig();
   const captions = config.captions;
-  const defaultFamily =
-    captions.fonts.length > 0 ? captions.fonts[0].family : captions.fontFamily;
+  const defaultFamily = captions.fonts.length > 0 ? captions.fonts[0].family : captions.fontFamily;
   applyDefault(options, command, 'captionFontFamily', defaultFamily);
   applyDefault(options, command, 'captionFontWeight', captions.fontWeight);
   applyDefault(options, command, 'captionFontFile', captions.fontFile);
@@ -424,12 +418,7 @@ async function resolveTemplateAndApplyDefaults(
   const templateParams = getTemplateParams(resolvedTemplate.template);
   const templateGameplay = getTemplateGameplaySlot(resolvedTemplate.template);
 
-  applyDefault(
-    options,
-    command,
-    'orientation',
-    templateDefaults.orientation as string | undefined
-  );
+  applyDefault(options, command, 'orientation', templateDefaults.orientation as string | undefined);
   applyDefault(
     options,
     command,
@@ -674,7 +663,11 @@ async function runRenderCommand(
     await resolveTemplateAndApplyDefaults(options, command);
 
   const audioMixPath = options.audioMix ? String(options.audioMix) : undefined;
-  const { visuals: loadedVisuals, timestamps: loadedTimestamps, audioMix } = await readRenderInputs({
+  const {
+    visuals: loadedVisuals,
+    timestamps: loadedTimestamps,
+    audioMix,
+  } = await readRenderInputs({
     input: String(options.input),
     timestamps: String(options.timestamps),
     audioMix: audioMixPath,
@@ -736,8 +729,10 @@ async function runRenderCommand(
     templateGameplay?.required ?? Boolean(templateGameplay?.library || templateGameplay?.clip);
   const splitLayoutPreset = parseSplitLayoutPreset(options.splitLayout);
   if (splitLayoutPreset) {
-    if (options.gameplayPosition == null) options.gameplayPosition = splitLayoutPreset.gameplayPosition;
-    if (options.contentPosition == null) options.contentPosition = splitLayoutPreset.contentPosition;
+    if (options.gameplayPosition == null)
+      options.gameplayPosition = splitLayoutPreset.gameplayPosition;
+    if (options.contentPosition == null)
+      options.contentPosition = splitLayoutPreset.contentPosition;
   }
   const gameplayPosition = parseLayoutPosition(options.gameplayPosition, '--gameplay-position');
   const contentPosition = parseLayoutPosition(options.contentPosition, '--content-position');
@@ -888,10 +883,7 @@ export const renderCommand = new Command('render')
   .option('--extend-visuals', 'Auto-extend visuals to match audio duration', true)
   .option('--no-extend-visuals', 'Keep visuals as-is (may cause black frames)')
   .option('--fallback-color <hex>', 'Background color for extended scenes', '#1a1a1a')
-  .option(
-    '--split-layout <layout>',
-    'Split-screen layout preset (gameplay-top, gameplay-bottom)'
-  )
+  .option('--split-layout <layout>', 'Split-screen layout preset (gameplay-top, gameplay-bottom)')
   .option('--gameplay-position <pos>', 'Gameplay position (top, bottom, full)')
   .option('--content-position <pos>', 'Content position (top, bottom, full)')
   .option('--hook <idOrPath>', 'Hook intro clip id, path, or URL')

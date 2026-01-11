@@ -48,7 +48,7 @@ const AudioLayer: React.FC<{
   const fadeOutFrames = msToFrames(layer.type === 'sfx' ? undefined : layer.fadeOutMs, fps);
 
   const baseDb = layer.volumeDb ?? 0;
-  const duckDb = layer.type === 'music' ? layer.duckDb ?? 0 : 0;
+  const duckDb = layer.type === 'music' ? (layer.duckDb ?? 0) : 0;
   const baseGain = dbToGain(baseDb + duckDb);
 
   const fadeIn =
@@ -95,10 +95,7 @@ export const AudioLayers: React.FC<{
             durationInFrames={durationInFrames}
             layout="none"
           >
-            <AudioLayer
-              layer={layer}
-              durationInFrames={durationInFrames}
-            />
+            <AudioLayer layer={layer} durationInFrames={durationInFrames} />
           </Sequence>
         );
       })}

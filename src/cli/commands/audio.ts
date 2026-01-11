@@ -83,20 +83,25 @@ function parseTtsSpeed(value: unknown): number {
   return parsed;
 }
 
-function resolveSyncOptions(options: Record<string, unknown>, command: Command): {
+function resolveSyncOptions(
+  options: Record<string, unknown>,
+  command: Command
+): {
   requireWhisper: boolean;
   reconcile: boolean;
 } {
   const syncStrategy = (options.syncStrategy as string | undefined) ?? 'standard';
-  const requireWhisper =
-    Boolean(options.requireWhisper) || syncStrategy === 'audio-first';
+  const requireWhisper = Boolean(options.requireWhisper) || syncStrategy === 'audio-first';
   const reconcileSource = command.getOptionValueSource('reconcile');
   const reconcile =
     reconcileSource === 'default' ? syncStrategy === 'audio-first' : Boolean(options.reconcile);
   return { requireWhisper, reconcile };
 }
 
-function resolveMusicOptions(options: Record<string, unknown>, config: ReturnType<typeof loadConfig>) {
+function resolveMusicOptions(
+  options: Record<string, unknown>,
+  config: ReturnType<typeof loadConfig>
+) {
   const noMusic = options.music === false;
   return {
     noMusic,
@@ -104,12 +109,11 @@ function resolveMusicOptions(options: Record<string, unknown>, config: ReturnTyp
       ? null
       : typeof options.music === 'string'
         ? options.music
-        : config.music.default ?? null,
+        : (config.music.default ?? null),
     musicVolumeDb:
       parseOptionalNumber(options.musicVolume, '--music-volume') ?? config.music.volumeDb,
     musicDuckDb: parseOptionalNumber(options.musicDuck, '--music-duck') ?? config.music.duckDb,
-    musicLoop:
-      options.musicLoop !== undefined ? Boolean(options.musicLoop) : config.music.loop,
+    musicLoop: options.musicLoop !== undefined ? Boolean(options.musicLoop) : config.music.loop,
     musicFadeInMs:
       parseOptionalInt(options.musicFadeIn, '--music-fade-in') ?? config.music.fadeInMs,
     musicFadeOutMs:
@@ -117,7 +121,10 @@ function resolveMusicOptions(options: Record<string, unknown>, config: ReturnTyp
   };
 }
 
-function resolveSfxOptions(options: Record<string, unknown>, config: ReturnType<typeof loadConfig>) {
+function resolveSfxOptions(
+  options: Record<string, unknown>,
+  config: ReturnType<typeof loadConfig>
+) {
   const noSfx = options.sfx === false;
   const sfxInputs = Array.isArray(options.sfx) ? options.sfx : [];
   return {
@@ -128,8 +135,7 @@ function resolveSfxOptions(options: Record<string, unknown>, config: ReturnType<
     sfxVolumeDb: parseOptionalNumber(options.sfxVolume, '--sfx-volume') ?? config.sfx.volumeDb,
     sfxMinGapMs: parseOptionalInt(options.sfxMinGap, '--sfx-min-gap') ?? config.sfx.minGapMs,
     sfxDurationSeconds:
-      parseOptionalNumber(options.sfxDuration, '--sfx-duration') ??
-      config.sfx.durationSeconds,
+      parseOptionalNumber(options.sfxDuration, '--sfx-duration') ?? config.sfx.durationSeconds,
   };
 }
 
@@ -144,18 +150,15 @@ function resolveAmbienceOptions(
       ? null
       : typeof options.ambience === 'string'
         ? options.ambience
-        : config.ambience.default ?? null,
+        : (config.ambience.default ?? null),
     ambienceVolumeDb:
-      parseOptionalNumber(options.ambienceVolume, '--ambience-volume') ??
-      config.ambience.volumeDb,
+      parseOptionalNumber(options.ambienceVolume, '--ambience-volume') ?? config.ambience.volumeDb,
     ambienceLoop:
       options.ambienceLoop !== undefined ? Boolean(options.ambienceLoop) : config.ambience.loop,
     ambienceFadeInMs:
-      parseOptionalInt(options.ambienceFadeIn, '--ambience-fade-in') ??
-      config.ambience.fadeInMs,
+      parseOptionalInt(options.ambienceFadeIn, '--ambience-fade-in') ?? config.ambience.fadeInMs,
     ambienceFadeOutMs:
-      parseOptionalInt(options.ambienceFadeOut, '--ambience-fade-out') ??
-      config.ambience.fadeOutMs,
+      parseOptionalInt(options.ambienceFadeOut, '--ambience-fade-out') ?? config.ambience.fadeOutMs,
   };
 }
 

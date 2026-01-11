@@ -12,12 +12,7 @@ import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
 import { TimestampsOutputSchema } from '../../audio/schema';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import {
-  buildJsonEnvelope,
-  writeJsonEnvelope,
-  writeStderrLine,
-  writeStdoutLine,
-} from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { SchemaError } from '../../core/errors';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
 
@@ -74,17 +69,18 @@ function createVisualsProgressHandler(params: {
   };
 }
 
-function resolveGameplayOptions(options: Record<string, unknown>, command: Command): {
+function resolveGameplayOptions(
+  options: Record<string, unknown>,
+  command: Command
+): {
   gameplay: GameplayOptions | undefined;
   gameplayRequired: boolean;
 } {
   const gameplaySpecified = Boolean(options.gameplay);
   const gameplayStyleSpecified = Boolean(options.gameplayStyle);
   const strictSource = command.getOptionValueSource('gameplayStrict');
-  const gameplayStrict =
-    strictSource === 'default' ? undefined : Boolean(options.gameplayStrict);
-  const gameplayRequested =
-    gameplaySpecified || gameplayStyleSpecified || Boolean(gameplayStrict);
+  const gameplayStrict = strictSource === 'default' ? undefined : Boolean(options.gameplayStrict);
+  const gameplayRequested = gameplaySpecified || gameplayStyleSpecified || Boolean(gameplayStrict);
   const gameplayRequired = gameplayStrict ?? gameplayRequested;
 
   return {

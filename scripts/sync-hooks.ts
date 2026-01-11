@@ -104,7 +104,11 @@ async function scrapeHookLibrary(pageUrl: string): Promise<HookDefinition[]> {
   return ensureUniqueIds(urls.map(buildHookDefinitionFromUrl));
 }
 
-async function downloadHook(entry: HookDefinition, targetDir: string, force: boolean): Promise<void> {
+async function downloadHook(
+  entry: HookDefinition,
+  targetDir: string,
+  force: boolean
+): Promise<void> {
   const destination = join(targetDir, entry.filename);
   if (!force && existsSync(destination)) {
     console.log(`[cached] ${entry.id}`);
@@ -222,7 +226,12 @@ function selectHookEntries(params: {
   limited: HookEntry[];
 } {
   const only = params.onlyRaw
-    ? new Set(params.onlyRaw.split(',').map((value) => value.trim()).filter(Boolean))
+    ? new Set(
+        params.onlyRaw
+          .split(',')
+          .map((value) => value.trim())
+          .filter(Boolean)
+      )
     : null;
   const selected = only ? params.entries.filter((entry) => only.has(entry.id)) : params.entries;
   const limited = params.limit > 0 ? selected.slice(0, params.limit) : selected;

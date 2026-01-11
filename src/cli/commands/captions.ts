@@ -129,7 +129,13 @@ function buildCaptionConfig(params: {
   });
 }
 
-function buildJsonArgs(options: CaptionsOptions, presetName: string, captionMode: string | null, dropFillers: boolean, fillerWords: string[] | undefined) {
+function buildJsonArgs(
+  options: CaptionsOptions,
+  presetName: string,
+  captionMode: string | null,
+  dropFillers: boolean,
+  fillerWords: string[] | undefined
+) {
   return {
     timestamps: options.timestamps,
     output: options.output,
@@ -229,13 +235,7 @@ export const captionsCommand = new Command('captions')
         writeJsonEnvelope(
           buildJsonEnvelope({
             command: 'captions',
-            args: buildJsonArgs(
-              options,
-              presetName,
-              captionMode ?? null,
-              dropFillers,
-              fillerWords
-            ),
+            args: buildJsonArgs(options, presetName, captionMode ?? null, dropFillers, fillerWords),
             outputs: {
               reportPath: options.output,
               totalChunks: report.totalChunks,

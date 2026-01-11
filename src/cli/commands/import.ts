@@ -78,10 +78,7 @@ async function listClipsFromDirectory(dir: string): Promise<string[]> {
     .map((entry) => join(dir, entry.name));
 }
 
-async function resolveClipInputs(options: {
-  clips?: string;
-  clip?: string;
-}): Promise<string[]> {
+async function resolveClipInputs(options: { clips?: string; clip?: string }): Promise<string[]> {
   const results: string[] = [];
 
   if (options.clip) {

@@ -10,12 +10,7 @@ import { PackageOutputSchema } from '../../package/schema';
 import { scoreScript } from '../../score/scorer';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import {
-  buildJsonEnvelope,
-  writeJsonEnvelope,
-  writeStderrLine,
-  writeStdoutLine,
-} from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { CMError } from '../../core/errors';
 
 interface ScoreOptions {

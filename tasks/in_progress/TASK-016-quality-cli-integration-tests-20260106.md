@@ -26,9 +26,11 @@ Make CLI integration tests deterministic by ensuring stdout/stderr are reliably 
 ## 📚 Required Documentation
 
 **Pre-Work (read these first):**
+
 - [ ] None
 
 **Deliverables (create these):**
+
 - [ ] None
 
 ---
@@ -36,16 +38,19 @@ Make CLI integration tests deterministic by ensuring stdout/stderr are reliably 
 ## 🧪 Testing Considerations
 
 **What needs testing:**
+
 - CLI stdout/stderr contract in human mode
 - JSON envelope outputs for `--json`
 - Mock mode behavior when real assets are missing
 - Input validation Fix hints
 
 **Risks:**
+
 - Output loss when commands exit immediately
 - Mock paths accidentally skipping validation in real runs
 
 **Dependencies:**
+
 - Integration tests rely on repo-local fixtures and `.cache` directories
 
 ---
@@ -62,12 +67,14 @@ Make CLI integration tests deterministic by ensuring stdout/stderr are reliably 
 ## Implementation Notes
 
 **Technical approach:**
+
 - Use synchronous stdout/stderr writes for CLI output helpers.
 - Update integration helper to run with `node --import tsx` for sandbox compatibility.
 - Add minimal `test-fixtures/script.json` for validation tests.
 - Skip file existence checks in mock sync rating flow.
 
 **Key files to modify:**
+
 - `src/cli/output.ts`
 - `tests/integration/cli/helpers.ts`
 - `src/cli/commands/*.ts`
@@ -90,6 +97,7 @@ Make CLI integration tests deterministic by ensuring stdout/stderr are reliably 
 ## Related
 
 **Related Tasks:**
+
 - `tasks/todo/TASK-011-quality-coverage-increase-20260106.md`
 
 ---

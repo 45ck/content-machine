@@ -13,12 +13,7 @@ import { FakeLLMProvider } from '../../test/stubs/fake-llm';
 import { handleCommandError, writeOutputFile } from '../utils';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import {
-  buildJsonEnvelope,
-  writeJsonEnvelope,
-  writeStderrLine,
-  writeStdoutLine,
-} from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { CMError } from '../../core/errors';
 
 interface ResearchOptions {

@@ -14,10 +14,7 @@ interface TextSplitterLike {
 }
 
 interface KokoroTTSLike {
-  generate: (
-    text: string,
-    options: { voice?: string; speed?: number }
-  ) => Promise<RawAudio>;
+  generate: (text: string, options: { voice?: string; speed?: number }) => Promise<RawAudio>;
   stream: (
     text: string | TextSplitterLike,
     options: { voice?: string; speed?: number }
@@ -101,10 +98,9 @@ async function generateChunkedAudio(params: {
 
   if (!cachedTTS) {
     params.log.debug('Loading TTS model');
-    cachedTTS = await kokoro.KokoroTTS.from_pretrained(
-      'onnx-community/Kokoro-82M-v1.0-ONNX',
-      { dtype: 'q8' }
-    );
+    cachedTTS = await kokoro.KokoroTTS.from_pretrained('onnx-community/Kokoro-82M-v1.0-ONNX', {
+      dtype: 'q8',
+    });
     params.log.debug('TTS model loaded');
   }
 

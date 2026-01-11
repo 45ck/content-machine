@@ -13,12 +13,7 @@ import { PiqBrisqueAnalyzer } from '../../validate/quality';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import type { ValidateOptions } from '../../validate/validate';
-import {
-  buildJsonEnvelope,
-  writeJsonEnvelope,
-  writeStderrLine,
-  writeStdoutLine,
-} from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 
 interface ValidateCommandOptions {
   profile: string;

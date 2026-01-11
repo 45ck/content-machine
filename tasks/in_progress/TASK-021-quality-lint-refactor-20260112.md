@@ -26,9 +26,11 @@ Refactor high-complexity and oversized functions to satisfy ESLint/sonarjs quali
 ## 📚 Required Documentation
 
 **Pre-Work (read these first):**
+
 - [ ] None
 
 **Deliverables (create these):**
+
 - [ ] None
 
 ---
@@ -36,15 +38,18 @@ Refactor high-complexity and oversized functions to satisfy ESLint/sonarjs quali
 ## 🧪 Testing Considerations
 
 **What needs testing:**
+
 - CLI integration suite
 - E2E sync pipeline tests
 - Any refactored helper units if behavior changes
 
 **Risks:**
+
 - Subtle behavior changes during extraction
 - Output formatting regressions
 
 **Dependencies:**
+
 - Keep acceptance criteria in `tasks/in_progress/TASK-016-quality-cli-integration-tests-20260106.md` green
 
 ---
@@ -52,12 +57,15 @@ Refactor high-complexity and oversized functions to satisfy ESLint/sonarjs quali
 ## 📝 Testing Plan
 
 ### Integration Tests
+
 - [ ] `npm run test:run -- tests/integration/cli`
 
 ### E2E Tests
+
 - [ ] `npm run test:run -- tests/e2e/sync-pipeline.test.ts`
 
 ### Lint
+
 - [ ] `npm run lint`
 
 ---
@@ -65,11 +73,13 @@ Refactor high-complexity and oversized functions to satisfy ESLint/sonarjs quali
 ## Implementation Notes
 
 **Technical approach:**
+
 - Extract complex flows into small, pure helpers.
 - Consolidate repeated literal strings into constants.
 - Prefer early returns to reduce nesting.
 
 **Key files to modify:**
+
 - `src/cli/commands/*.ts`
 - `src/core/pipeline.ts`
 - `src/render/service.ts`

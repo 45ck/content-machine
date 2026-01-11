@@ -463,10 +463,7 @@ function extendShortDurations(words: WordTimestamp[], minDurationMs: number): Wo
     word.end += pendingShift;
   }
 
-  function extendWord(
-    word: WordTimestamp,
-    nextStart: number | null
-  ): number {
+  function extendWord(word: WordTimestamp, nextStart: number | null): number {
     const duration = word.end - word.start;
     if (duration >= minDuration) return 0;
 
@@ -486,8 +483,7 @@ function extendShortDurations(words: WordTimestamp[], minDurationMs: number): Wo
 
     applyPendingShift(word);
 
-    const nextStart =
-      i < result.length - 1 ? result[i + 1].start + pendingShift : null;
+    const nextStart = i < result.length - 1 ? result[i + 1].start + pendingShift : null;
     pendingShift += extendWord(word, nextStart);
   }
 

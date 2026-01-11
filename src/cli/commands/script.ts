@@ -17,12 +17,7 @@ import { createMockScriptResponse } from '../../test/fixtures/mock-scenes.js';
 import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
-import {
-  buildJsonEnvelope,
-  writeJsonEnvelope,
-  writeStderrLine,
-  writeStdoutLine,
-} from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import type { SpinnerLike } from '../progress';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
 

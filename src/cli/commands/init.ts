@@ -8,12 +8,7 @@ import { writeFile } from 'fs/promises';
 import { join } from 'path';
 import inquirer from 'inquirer';
 import { getCliRuntime } from '../runtime';
-import {
-  buildJsonEnvelope,
-  writeJsonEnvelope,
-  writeStderrLine,
-  writeStdoutLine,
-} from '../output';
+import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { handleCommandError } from '../utils';
 
 interface InitOptions {
