@@ -2,47 +2,21 @@
  * Assets command - manage on-demand dependencies and cache locations
  */
 import { Command } from 'commander';
-import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { getCliRuntime } from '../runtime';
-import { handleCommandError } from '../utils';
+import { handleCommandError, parseWhisperModel } from '../utils';
 import { loadConfig } from '../../core/config';
 import { CMError } from '../../core/errors';
 import { resolveWhisperDir } from '../../core/assets/whisper';
 import { evaluateRequirements, planWhisperRequirements } from '../../core/assets/requirements';
-
-function expandTilde(inputPath: string): string {
-  if (inputPath === '~') return homedir();
-  if (inputPath.startsWith('~/') || inputPath.startsWith('~\\')) {
-    return join(homedir(), inputPath.slice(2));
-  }
-  return inputPath;
-}
+import { expandTilde } from '../paths';
 
 function resolveAssetCacheDir(): string {
   const env = process.env.CM_ASSET_CACHE_DIR;
   return env
     ? resolve(expandTilde(env))
     : join(process.cwd(), '.cache', 'content-machine', 'assets');
-}
-
-type WhisperModel = 'tiny' | 'base' | 'small' | 'medium' | 'large';
-
-function parseWhisperModel(value: unknown): WhisperModel {
-  const model = String(value ?? 'base').toLowerCase();
-  if (
-    model === 'tiny' ||
-    model === 'base' ||
-    model === 'small' ||
-    model === 'medium' ||
-    model === 'large'
-  ) {
-    return model;
-  }
-  throw new CMError('INVALID_ARGUMENT', `Invalid Whisper model: ${value}`, {
-    fix: 'Use one of: tiny, base, small, medium, large',
-  });
 }
 
 export const assetsCommand = new Command('assets')

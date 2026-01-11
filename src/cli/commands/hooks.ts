@@ -2,27 +2,19 @@
  * Hooks command - manage hook libraries
  */
 import { Command } from 'commander';
-import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { existsSync } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { getCliRuntime } from '../runtime';
 import { handleCommandError } from '../utils';
+import { expandTilde } from '../paths';
 import { loadConfig } from '../../core/config';
 import { NotFoundError } from '../../core/errors';
 import { TRANSITIONAL_HOOKS } from '../../hooks/libraries/transitionalhooks';
 import { DEFAULT_HOOKS_DIR } from '../../hooks/constants';
 import { downloadHookClip } from '../../hooks/download';
 import type { HookDefinition } from '../../hooks/schema';
-
-function expandTilde(inputPath: string): string {
-  if (inputPath === '~') return homedir();
-  if (inputPath.startsWith('~/') || inputPath.startsWith('~\\')) {
-    return join(homedir(), inputPath.slice(2));
-  }
-  return inputPath;
-}
 
 function resolveHookLibrary(library: string): HookDefinition[] {
   if (library === 'transitionalhooks') return TRANSITIONAL_HOOKS;

@@ -2,29 +2,13 @@
  * Setup command - download optional runtime dependencies
  */
 import { Command } from 'commander';
+import { resolve } from 'node:path';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { getCliRuntime } from '../runtime';
-import { handleCommandError } from '../utils';
+import { handleCommandError, parseWhisperModel } from '../utils';
 import { CMError } from '../../core/errors';
 import { resolveWhisperDir } from '../../core/assets/whisper';
-
-type WhisperModel = 'tiny' | 'base' | 'small' | 'medium' | 'large';
-
-function parseWhisperModel(value: unknown): WhisperModel {
-  const model = String(value ?? 'base').toLowerCase();
-  if (
-    model === 'tiny' ||
-    model === 'base' ||
-    model === 'small' ||
-    model === 'medium' ||
-    model === 'large'
-  ) {
-    return model;
-  }
-  throw new CMError('INVALID_ARGUMENT', `Invalid Whisper model: ${value}`, {
-    fix: 'Use one of: tiny, base, small, medium, large',
-  });
-}
+import { expandTilde } from '../paths';
 
 export const setupCommand = new Command('setup')
   .description('Download optional runtime dependencies')
@@ -37,8 +21,13 @@ export const setupCommand = new Command('setup')
       .action(async (options) => {
         try {
           const runtime = getCliRuntime();
+          if (runtime.offline || process.env.CM_OFFLINE === '1') {
+            throw new CMError('OFFLINE', 'Offline mode enabled; cannot download Whisper', {
+              fix: 'Run without --offline to allow downloads',
+            });
+          }
           const model = parseWhisperModel(options.model);
-          const folder = String(options.dir);
+          const folder = resolve(expandTilde(String(options.dir)));
           const version = String(options.version);
 
           const whisper = await import('@remotion/install-whisper-cpp');
