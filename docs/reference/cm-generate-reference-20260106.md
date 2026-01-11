@@ -69,6 +69,8 @@ cm generate [options] <topic>
 
 - `-v, --verbose`: enable verbose logging
 - `--json`: print a schema-versioned JSON envelope to stdout
+- `--offline`: disable on-demand downloads
+- `-y, --yes`: allow safe auto-downloads where supported
 
 ## Exit codes
 

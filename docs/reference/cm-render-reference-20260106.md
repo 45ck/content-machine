@@ -35,11 +35,14 @@ cm render [options]
 - `--mock`: use mock renderer (writes a placeholder MP4)
 - `--download-assets`: download remote visuals into the bundle (default: true)
 - `--no-download-assets`: stream remote visuals directly (no download)
+- `--preflight`: validate inputs and exit without rendering
 
 ## Global options
 
 - `-v, --verbose`: enable verbose logging
 - `--json`: print a schema-versioned JSON envelope to stdout
+- `--offline`: disable on-demand downloads
+- `-y, --yes`: allow safe auto-downloads where supported
 
 ## Exit codes
 

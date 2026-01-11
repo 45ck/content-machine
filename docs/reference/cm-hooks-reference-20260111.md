@@ -35,6 +35,7 @@ cm hooks download <hookId> [options]
 - `--library <id>`: hook library id (default: from config)
 - `--hooks-dir <path>`: hooks root directory (default: from config; typically `~/.cm/assets/hooks`)
 - `--force`: re-download even if cached
+- `--offline`: disable downloads (fails fast)
 
 #### Outputs
 
@@ -51,6 +52,8 @@ cm hooks download <hookId> [options]
 
 - `-v, --verbose`: enable verbose logging
 - `--json`: print a schema-versioned JSON envelope to stdout
+- `--offline`: disable on-demand downloads
+- `-y, --yes`: allow safe auto-downloads where supported
 
 ## Exit codes
 

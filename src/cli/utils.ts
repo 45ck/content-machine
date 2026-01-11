@@ -108,3 +108,21 @@ export function formatFileSize(bytes: number): string {
   }
   return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
 }
+
+export type WhisperModel = 'tiny' | 'base' | 'small' | 'medium' | 'large';
+
+export function parseWhisperModel(value: unknown): WhisperModel {
+  const model = String(value ?? 'base').toLowerCase();
+  if (
+    model === 'tiny' ||
+    model === 'base' ||
+    model === 'small' ||
+    model === 'medium' ||
+    model === 'large'
+  ) {
+    return model;
+  }
+  throw new CMError('INVALID_ARGUMENT', `Invalid Whisper model: ${value}`, {
+    fix: 'Use one of: tiny, base, small, medium, large',
+  });
+}

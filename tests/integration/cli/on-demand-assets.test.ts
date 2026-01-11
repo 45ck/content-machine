@@ -276,4 +276,29 @@ describe('on-demand assets', () => {
     expect(parsed.command).toBe('hooks:download');
     expect(parsed.errors[0].code).toBe('OFFLINE');
   }, 90_000);
+
+  it('cm --offline setup whisper --json fails fast (no downloads)', async () => {
+    const outDir = join(
+      process.cwd(),
+      'tests',
+      '.tmp',
+      'on-demand-assets',
+      'setup-whisper-offline'
+    );
+    rmSync(outDir, { recursive: true, force: true });
+    mkdirSync(outDir, { recursive: true });
+
+    const whisperDir = join(outDir, 'whisper');
+
+    const result = await runCli(
+      ['--offline', 'setup', 'whisper', '--json', '--model', 'base', '--dir', whisperDir],
+      undefined,
+      60000
+    );
+
+    expect(result.code).toBe(1);
+    const parsed = assertPureJson(result.stdout);
+    expect(parsed.command).toBe('setup:whisper');
+    expect(parsed.errors[0].code).toBe('OFFLINE');
+  }, 90_000);
 });
