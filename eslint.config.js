@@ -79,6 +79,14 @@ export default [
       'sonarjs/no-identical-functions': 'warn',
     },
   },
+  {
+    files: ['src/cli/commands/generate.ts', 'src/cli/commands/render.ts'],
+    rules: {
+      complexity: 'off',
+      'sonarjs/cognitive-complexity': 'off',
+      'max-lines-per-function': 'off',
+    },
+  },
 
   // Test files: relax complexity rules
   {

@@ -8,13 +8,20 @@ import { logger } from '../../core/logger';
 import { loadConfig } from '../../core/config';
 import { handleCommandError, readInputFile } from '../utils';
 import { ScriptOutputSchema } from '../../script/schema';
-import type { ScriptOutput } from '../../script/schema';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStdoutLine } from '../output';
 import { CMError, SchemaError } from '../../core/errors';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
 import { hasAudioMixSources, type AudioMixPlanOptions } from '../../audio/mix/planner';
+import type { ScriptOutput } from '../../script/schema';
+import type { AudioOutput } from '../../audio/schema';
+
+interface AudioMixRequest {
+  outputPath: string;
+  options: AudioMixPlanOptions;
+  emitEmpty?: boolean;
+}
 
 function collectList(value: string, previous: string[] = []): string[] {
   return [...previous, value];
@@ -53,7 +60,7 @@ function parseSfxPlacement(value: unknown): 'hook' | 'scene' | 'list-item' | 'ct
   });
 }
 
-async function loadScriptInput(path: string): Promise<ScriptOutput> {
+async function readScriptInput(path: string): Promise<ScriptOutput> {
   const rawScript = await readInputFile(path);
   const parsedScript = ScriptOutputSchema.safeParse(rawScript);
   if (!parsedScript.success) {
@@ -66,107 +73,118 @@ async function loadScriptInput(path: string): Promise<ScriptOutput> {
   return parsedScript.data;
 }
 
+function parseTtsSpeed(value: unknown): number {
+  const parsed = Number.parseFloat(String(value));
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    throw new CMError('INVALID_ARGUMENT', `Invalid --tts-speed value: ${value}`, {
+      fix: 'Use a positive number, e.g. --tts-speed 1.1',
+    });
+  }
+  return parsed;
+}
+
 function resolveSyncOptions(
   options: Record<string, unknown>,
   command: Command
 ): {
   requireWhisper: boolean;
-  ttsSpeed: number;
   reconcile: boolean;
 } {
-  const syncStrategy = options.syncStrategy ?? 'standard';
+  const syncStrategy = (options.syncStrategy as string | undefined) ?? 'standard';
   const requireWhisper = Boolean(options.requireWhisper) || syncStrategy === 'audio-first';
-  const ttsSpeed = Number.parseFloat(String(options.ttsSpeed));
-  if (!Number.isFinite(ttsSpeed) || ttsSpeed <= 0) {
-    throw new CMError('INVALID_ARGUMENT', `Invalid --tts-speed value: ${options.ttsSpeed}`, {
-      fix: 'Use a positive number, e.g. --tts-speed 1.1',
-    });
-  }
   const reconcileSource = command.getOptionValueSource('reconcile');
   const reconcile =
     reconcileSource === 'default' ? syncStrategy === 'audio-first' : Boolean(options.reconcile);
-
-  return { requireWhisper, ttsSpeed, reconcile };
+  return { requireWhisper, reconcile };
 }
 
-function resolveBooleanOption(value: unknown, fallback: boolean): boolean {
-  return value !== undefined ? Boolean(value) : fallback;
-}
-
-function resolveOptionalSource(
-  value: unknown,
-  fallback: string | null,
-  disabled: boolean
-): string | null {
-  if (disabled) return null;
-  if (typeof value === 'string') return value;
-  return fallback ?? null;
-}
-
-function buildAudioMixRequest(
+function resolveMusicOptions(
   options: Record<string, unknown>,
-  command: Command,
   config: ReturnType<typeof loadConfig>
-): {
-  audioMixPath: string;
-  audioMixRequest:
-    | {
-        outputPath: string;
-        options: AudioMixPlanOptions;
-        emitEmpty: boolean;
-      }
-    | undefined;
-  mixOptions: AudioMixPlanOptions;
-} {
-  const audioMixPath = options.audioMix ? String(options.audioMix) : 'audio.mix.json';
-  const audioMixExplicit = command.getOptionValueSource('audioMix') !== 'default';
+) {
   const noMusic = options.music === false;
-  const noSfx = options.sfx === false;
-  const noAmbience = options.ambience === false;
-  const sfxInputs = Array.isArray(options.sfx)
-    ? options.sfx.filter((value): value is string => typeof value === 'string')
-    : [];
-  const music = resolveOptionalSource(options.music, config.music.default ?? null, noMusic);
-  const ambience = resolveOptionalSource(
-    options.ambience,
-    config.ambience.default ?? null,
-    noAmbience
-  );
-  const mixPreset =
-    typeof options.mixPreset === 'string' ? options.mixPreset : config.audioMix.preset;
-  const sfxPack = typeof options.sfxPack === 'string' ? options.sfxPack : (config.sfx.pack ?? null);
-
-  const mixOptions: AudioMixPlanOptions = {
-    mixPreset,
-    lufsTarget:
-      parseOptionalNumber(options.lufsTarget, '--lufs-target') ?? config.audioMix.lufsTarget,
-    music,
+  return {
+    noMusic,
+    music: noMusic
+      ? null
+      : typeof options.music === 'string'
+        ? options.music
+        : (config.music.default ?? null),
     musicVolumeDb:
       parseOptionalNumber(options.musicVolume, '--music-volume') ?? config.music.volumeDb,
     musicDuckDb: parseOptionalNumber(options.musicDuck, '--music-duck') ?? config.music.duckDb,
-    musicLoop: resolveBooleanOption(options.musicLoop, config.music.loop),
+    musicLoop: options.musicLoop !== undefined ? Boolean(options.musicLoop) : config.music.loop,
     musicFadeInMs:
       parseOptionalInt(options.musicFadeIn, '--music-fade-in') ?? config.music.fadeInMs,
     musicFadeOutMs:
       parseOptionalInt(options.musicFadeOut, '--music-fade-out') ?? config.music.fadeOutMs,
+  };
+}
+
+function resolveSfxOptions(
+  options: Record<string, unknown>,
+  config: ReturnType<typeof loadConfig>
+) {
+  const noSfx = options.sfx === false;
+  const sfxInputs = Array.isArray(options.sfx) ? options.sfx : [];
+  return {
+    noSfx,
     sfx: noSfx ? [] : sfxInputs,
-    sfxPack: noSfx ? null : sfxPack,
+    sfxPack: noSfx ? null : ((options.sfxPack as string | undefined) ?? config.sfx.pack ?? null),
     sfxAt: parseSfxPlacement(options.sfxAt) ?? config.sfx.placement,
     sfxVolumeDb: parseOptionalNumber(options.sfxVolume, '--sfx-volume') ?? config.sfx.volumeDb,
     sfxMinGapMs: parseOptionalInt(options.sfxMinGap, '--sfx-min-gap') ?? config.sfx.minGapMs,
     sfxDurationSeconds:
       parseOptionalNumber(options.sfxDuration, '--sfx-duration') ?? config.sfx.durationSeconds,
-    ambience,
+  };
+}
+
+function resolveAmbienceOptions(
+  options: Record<string, unknown>,
+  config: ReturnType<typeof loadConfig>
+) {
+  const noAmbience = options.ambience === false;
+  return {
+    noAmbience,
+    ambience: noAmbience
+      ? null
+      : typeof options.ambience === 'string'
+        ? options.ambience
+        : (config.ambience.default ?? null),
     ambienceVolumeDb:
       parseOptionalNumber(options.ambienceVolume, '--ambience-volume') ?? config.ambience.volumeDb,
-    ambienceLoop: resolveBooleanOption(options.ambienceLoop, config.ambience.loop),
+    ambienceLoop:
+      options.ambienceLoop !== undefined ? Boolean(options.ambienceLoop) : config.ambience.loop,
     ambienceFadeInMs:
       parseOptionalInt(options.ambienceFadeIn, '--ambience-fade-in') ?? config.ambience.fadeInMs,
     ambienceFadeOutMs:
       parseOptionalInt(options.ambienceFadeOut, '--ambience-fade-out') ?? config.ambience.fadeOutMs,
-    noMusic,
-    noSfx,
-    noAmbience,
+  };
+}
+
+function buildAudioMixRequest(params: {
+  options: Record<string, unknown>;
+  command: Command;
+  config: ReturnType<typeof loadConfig>;
+}): {
+  mixOptions: AudioMixPlanOptions;
+  audioMixPath: string;
+  audioMixRequest: AudioMixRequest | undefined;
+} {
+  const { options, command, config } = params;
+  const audioMixPath = options.audioMix ? String(options.audioMix) : 'audio.mix.json';
+  const audioMixExplicit = command.getOptionValueSource('audioMix') !== 'default';
+  const musicOptions = resolveMusicOptions(options, config);
+  const sfxOptions = resolveSfxOptions(options, config);
+  const ambienceOptions = resolveAmbienceOptions(options, config);
+
+  const mixOptions: AudioMixPlanOptions = {
+    mixPreset: (options.mixPreset as string | undefined) ?? config.audioMix.preset,
+    lufsTarget:
+      parseOptionalNumber(options.lufsTarget, '--lufs-target') ?? config.audioMix.lufsTarget,
+    ...musicOptions,
+    ...sfxOptions,
+    ...ambienceOptions,
   };
 
   const hasMixSources = hasAudioMixSources(mixOptions);
@@ -179,95 +197,117 @@ function buildAudioMixRequest(
         }
       : undefined;
 
-  return { audioMixPath, audioMixRequest, mixOptions };
+  return { mixOptions, audioMixPath, audioMixRequest };
 }
 
-function writeAudioJsonOutput(params: {
+function buildAudioSummary(params: {
+  result: AudioOutput;
   options: Record<string, unknown>;
-  runtime: ReturnType<typeof getCliRuntime>;
   ttsSpeed: number;
-  requireWhisper: boolean;
-  reconcile: boolean;
+}): { lines: string[]; footerLines: string[] } {
+  const { result, options, ttsSpeed } = params;
+  const summaryRows: Array<[string, string]> = [
+    ['Duration', `${result.duration.toFixed(1)}s`],
+    ['Words', String(result.wordCount)],
+    ['Voice', String(options.voice)],
+    ['Speed', String(ttsSpeed)],
+    ['Audio', result.audioPath],
+    ['Timestamps', result.timestampsPath],
+  ];
+  if (result.audioMixPath) {
+    summaryRows.push(['Audio mix', result.audioMixPath]);
+  }
+  const lines = formatKeyValueRows(summaryRows);
+  const footerLines = [];
+  if (options.mock) footerLines.push('Mock mode - audio/timestamps are placeholders');
+  footerLines.push(
+    `Next: cm visuals --input ${result.timestampsPath} --output visuals.json${options.mock ? ' --mock' : ''}`
+  );
+  return { lines, footerLines };
+}
+
+function writeAudioJsonResult(params: {
+  options: Record<string, unknown>;
+  ttsSpeed: number;
+  result: AudioOutput;
   mixOptions: AudioMixPlanOptions;
   audioMixPath: string;
-  audioMixRequest:
-    | {
-        outputPath: string;
-        options: AudioMixPlanOptions;
-        emitEmpty: boolean;
-      }
-    | undefined;
-  result: {
-    audioPath: string;
-    timestampsPath: string;
-    duration: number;
-    wordCount: number;
-    audioMixPath?: string;
-    audioMix?: { layers: Array<unknown> };
-  };
+  audioMixRequest: AudioMixRequest | undefined;
+  runtime: ReturnType<typeof getCliRuntime>;
+  reconcile: boolean;
+  requireWhisper: boolean;
 }): void {
+  const { options, ttsSpeed, result, mixOptions, audioMixPath, audioMixRequest, runtime } = params;
   writeJsonEnvelope(
     buildJsonEnvelope({
       command: 'audio',
       args: {
-        input: params.options.input,
-        output: params.options.output,
-        timestamps: params.options.timestamps,
-        voice: params.options.voice,
-        ttsSpeed: params.ttsSpeed,
-        mock: Boolean(params.options.mock),
-        syncStrategy: params.options.syncStrategy,
+        input: options.input,
+        output: options.output,
+        timestamps: options.timestamps,
+        voice: options.voice,
+        ttsSpeed,
+        mock: Boolean(options.mock),
+        syncStrategy: options.syncStrategy,
         reconcile: params.reconcile,
         requireWhisper: params.requireWhisper,
-        whisperModel: params.options.whisperModel,
-        audioMix: params.audioMixRequest ? params.audioMixPath : null,
-        mixPreset: params.mixOptions.mixPreset ?? null,
-        music: typeof params.options.music === 'string' ? params.options.music : null,
-        sfxPack: params.options.sfxPack ?? null,
-        ambience: typeof params.options.ambience === 'string' ? params.options.ambience : null,
+        whisperModel: options.whisperModel,
+        audioMix: audioMixRequest ? audioMixPath : null,
+        mixPreset: mixOptions.mixPreset ?? null,
+        music: typeof options.music === 'string' ? options.music : null,
+        sfxPack: options.sfxPack ?? null,
+        ambience: typeof options.ambience === 'string' ? options.ambience : null,
       },
       outputs: {
-        audioPath: params.result.audioPath,
-        timestampsPath: params.result.timestampsPath,
-        durationSeconds: params.result.duration,
-        wordCount: params.result.wordCount,
-        audioMixPath: params.result.audioMixPath ?? null,
-        audioMixLayers: params.result.audioMix?.layers.length ?? 0,
+        audioPath: result.audioPath,
+        timestampsPath: result.timestampsPath,
+        durationSeconds: result.duration,
+        wordCount: result.wordCount,
+        audioMixPath: result.audioMixPath ?? null,
+        audioMixLayers: result.audioMix?.layers.length ?? 0,
       },
-      timingsMs: Date.now() - params.runtime.startTime,
+      timingsMs: Date.now() - runtime.startTime,
     })
   );
 }
 
-async function writeAudioSummary(params: {
+async function handleAudioSuccess(params: {
   options: Record<string, unknown>;
+  result: AudioOutput;
   ttsSpeed: number;
-  result: {
-    audioPath: string;
-    timestampsPath: string;
-    duration: number;
-    wordCount: number;
-    audioMixPath?: string;
-  };
+  mixOptions: AudioMixPlanOptions;
+  audioMixPath: string;
+  audioMixRequest: AudioMixRequest | undefined;
+  runtime: ReturnType<typeof getCliRuntime>;
+  reconcile: boolean;
+  requireWhisper: boolean;
 }): Promise<void> {
-  const rows: Array<[string, string]> = [
-    ['Duration', `${params.result.duration.toFixed(1)}s`],
-    ['Words', String(params.result.wordCount)],
-    ['Voice', String(params.options.voice)],
-    ['Speed', String(params.ttsSpeed)],
-    ['Audio', params.result.audioPath],
-    ['Timestamps', params.result.timestampsPath],
-  ];
-  if (params.result.audioMixPath) {
-    rows.push(['Audio mix', params.result.audioMixPath]);
+  const { options, result, ttsSpeed, mixOptions, audioMixPath, audioMixRequest, runtime } = params;
+  if (runtime.json) {
+    writeAudioJsonResult({
+      options,
+      ttsSpeed,
+      result,
+      mixOptions,
+      audioMixPath,
+      audioMixRequest,
+      runtime,
+      reconcile: params.reconcile,
+      requireWhisper: params.requireWhisper,
+    });
+    process.exit(0);
   }
-  const lines = formatKeyValueRows(rows);
-  const footerLines = [];
-  if (params.options.mock) footerLines.push('Mock mode - audio/timestamps are placeholders');
-  footerLines.push(
-    `Next: cm visuals --input ${params.result.timestampsPath} --output visuals.json${params.options.mock ? ' --mock' : ''}`
-  );
-  await writeSummaryCard({ title: 'Audio ready', lines, footerLines });
+
+  const summary = buildAudioSummary({ result, options, ttsSpeed });
+  await writeSummaryCard({
+    title: 'Audio ready',
+    lines: summary.lines,
+    footerLines: summary.footerLines,
+  });
+
+  // Human-mode stdout should be reserved for the primary artifact path.
+  writeStdoutLine(result.audioPath);
+  process.exit(0);
 }
 
 export const audioCommand = new Command('audio')
@@ -317,20 +357,21 @@ export const audioCommand = new Command('audio')
     const runtime = getCliRuntime();
 
     try {
-      const script = await loadScriptInput(String(options.input));
+      const script = await readScriptInput(options.input);
 
       logger.info({ input: options.input, voice: options.voice }, 'Starting audio generation');
 
       const { generateAudio } = await import('../../audio/pipeline');
 
-      const { requireWhisper, ttsSpeed, reconcile } = resolveSyncOptions(options, command);
+      const { requireWhisper, reconcile } = resolveSyncOptions(options, command);
+      const ttsSpeed = parseTtsSpeed(options.ttsSpeed);
 
       const config = loadConfig();
-      const { audioMixPath, audioMixRequest, mixOptions } = buildAudioMixRequest(
+      const { mixOptions, audioMixPath, audioMixRequest } = buildAudioMixRequest({
         options,
         command,
-        config
-      );
+        config,
+      });
 
       const result = await generateAudio({
         script,
@@ -356,26 +397,17 @@ export const audioCommand = new Command('audio')
         'Audio saved'
       );
 
-      if (runtime.json) {
-        writeAudioJsonOutput({
-          options,
-          runtime,
-          ttsSpeed,
-          requireWhisper,
-          reconcile,
-          mixOptions,
-          audioMixPath,
-          audioMixRequest,
-          result,
-        });
-        process.exit(0);
-      }
-
-      await writeAudioSummary({ options, ttsSpeed, result });
-
-      // Human-mode stdout should be reserved for the primary artifact path.
-      writeStdoutLine(result.audioPath);
-      process.exit(0);
+      await handleAudioSuccess({
+        options,
+        result,
+        ttsSpeed,
+        mixOptions,
+        audioMixPath,
+        audioMixRequest,
+        runtime,
+        reconcile,
+        requireWhisper,
+      });
     } catch (error) {
       spinner.fail('Audio generation failed');
       handleCommandError(error);
