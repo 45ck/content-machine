@@ -709,12 +709,13 @@ function getContainerStyle(config: CaptionConfig, enterProgress: number): React.
     config.pageAnimation === 'pop' || config.pageAnimation === 'bounce'
       ? 0.8 + 0.2 * enterProgress
       : 1;
+  const lineGapPx = resolveLineGapPx(config);
 
   return {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: `${config.lineHeight * 0.5}em`,
+    gap: `${lineGapPx}px`,
     opacity: enterProgress,
     transform: `scale(${scale})`,
   };
@@ -745,6 +746,10 @@ function getWordWrapperStyle(config: CaptionConfig): React.CSSProperties {
 
 function resolveWordGapPx(config: CaptionConfig): number {
   return Math.max(config.wordSpacing * 16, 8);
+}
+
+function resolveLineGapPx(config: CaptionConfig): number {
+  return Math.max(config.fontSize * 0.2, 16);
 }
 
 function resolveFontWeight(weight: CaptionConfig['fontWeight']): number {
