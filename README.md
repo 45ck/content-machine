@@ -48,9 +48,8 @@ Shows:
 
 Note: if you want _real_ gameplay (Subway Surfers / Minecraft parkour), you must supply your own
 clips with the appropriate rights in `~/.cm/assets/gameplay/<style>/`. This repo does not ship or
-download copyrighted gameplay footage by default. On Linux/macOS you can import clips with
-`scripts/download-gameplay.sh` (local files or URLs you have rights to). On Windows, use
-`scripts/download-gameplay.ps1`.
+download copyrighted gameplay footage by default. On Linux you can import clips with
+`scripts/download-gameplay.sh` (local files or URLs you have rights to).
 
 ## What is this?
 
@@ -111,17 +110,10 @@ and reconciles ASR output back to the script text.
 
 ```bash
 # One-time Whisper setup (needed for audio-first)
-cm setup whisper --model base
+node --input-type=module -e "import('@remotion/install-whisper-cpp').then(async (w)=>{ await w.downloadWhisperModel({ model: 'base', folder: './.cache/whisper' }); await w.installWhisperCpp({ to: './.cache/whisper', version: '1.5.5' }); console.log('whisper ready'); })"
 
 # Generate a short video with best-sync defaults
 cm generate "Redis vs PostgreSQL for caching" --archetype versus --output output/video.mp4 --keep-artifacts
-```
-
-If you're running from source (no global install), prefix commands with `npm run cm --`:
-
-```bash
-npm run cm -- setup whisper --model base
-npm run cm -- generate "Redis vs PostgreSQL for caching" --archetype versus --output output/video.mp4 --keep-artifacts
 ```
 
 ## Custom Assets and Workflows

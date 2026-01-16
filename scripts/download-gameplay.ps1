@@ -1,11 +1,9 @@
 param(
-  [string]$Root = "",
+  [string]$Root = ".cm/assets/gameplay",
   [int]$ClipSeconds = 180,
   [string[]]$Urls = @(),
-  [string[]]$Files = @(),
   [string]$Style = "",
-  [switch]$Force,
-  [switch]$NoTrim
+  [switch]$Force
 )
 
 Set-StrictMode -Version Latest
@@ -38,10 +36,6 @@ function Resolve-YtDlpCommand {
 
 $ytDlp = Resolve-YtDlpCommand
 
-if ([string]::IsNullOrWhiteSpace($Root)) {
-  $Root = Join-Path $HOME ".cm/assets/gameplay"
-}
-
 $rootPathInfo = Resolve-Path -Path $Root -ErrorAction SilentlyContinue
 if ($rootPathInfo) {
   $rootPath = $rootPathInfo.Path
@@ -54,49 +48,27 @@ if ([string]::IsNullOrWhiteSpace($Style)) {
   throw "Style is required. Example: -Style subway-surfers"
 }
 
-if ($Urls.Count -eq 0 -and $Files.Count -eq 0) {
-  throw "Provide one or more -Urls or -Files."
+if ($Urls.Count -eq 0) {
+  throw "Provide one or more -Urls. Example: -Urls https://example.com/your-clip.mp4"
 }
 
 $styleDir = Join-Path $rootPath $Style
-if (-not (Test-Path $styleDir)) {
-  New-Item -ItemType Directory -Path $styleDir -Force | Out-Null
-}
-
-Write-Host "Preparing gameplay clips in $styleDir"
-
-function Copy-LocalClip {
-  param([string]$Path)
-  if (-not (Test-Path $Path)) {
-    throw "File not found: $Path"
+  if (-not (Test-Path $styleDir)) {
+    New-Item -ItemType Directory -Path $styleDir -Force | Out-Null
   }
-  $dest = Join-Path $styleDir (Split-Path $Path -Leaf)
-  if ($Force) {
-    Copy-Item -Path $Path -Destination $dest -Force
-  } elseif (-not (Test-Path $dest)) {
-    Copy-Item -Path $Path -Destination $dest
-  }
-}
 
-foreach ($file in $Files) {
-  Copy-LocalClip -Path $file
-}
+  Write-Host "Downloading gameplay clips to $styleDir"
 
-if ($Urls.Count -gt 0) {
+  $clipEnd = [TimeSpan]::FromSeconds($ClipSeconds).ToString('hh\:mm\:ss')
   $commonArgs = @(
     "--no-playlist",
     "--restrict-filenames",
     "--windows-filenames",
     "-f", "best[ext=mp4]/best",
+    "--download-sections", "*00:00:00-$clipEnd",
     "-P", $styleDir,
     "-o", "%(id)s.%(ext)s"
   )
-
-  if (-not $NoTrim -and $ClipSeconds -gt 0) {
-    $clipEnd = [TimeSpan]::FromSeconds($ClipSeconds).ToString('hh\:mm\:ss')
-    $commonArgs += "--download-sections"
-    $commonArgs += "*00:00:00-$clipEnd"
-  }
 
   if (-not $Force) {
     $commonArgs += "--no-overwrites"
@@ -105,6 +77,5 @@ if ($Urls.Count -gt 0) {
   foreach ($url in $Urls) {
     & $ytDlp.Command @($ytDlp.Args) @commonArgs $url
   }
-}
 
-Write-Host "Gameplay clips ready."
+Write-Host "Gameplay downloads complete."

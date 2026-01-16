@@ -31,7 +31,7 @@ This project follows a code of conduct. By participating, you agree to:
 
 ### Prerequisites
 
-- Node.js 20+
+- Node.js 18+
 - Git
 - Basic understanding of TypeScript, Remotion, and MCP
 
@@ -39,10 +39,8 @@ This project follows a code of conduct. By participating, you agree to:
 
 1. **Fork and clone:**
 
-   Fork in the GitHub UI, then:
-
    ```bash
-   git clone https://github.com/<your-user>/content-machine.git
+   git fork https://github.com/45ck/content-machine.git
    cd content-machine
    ```
 
@@ -55,10 +53,6 @@ This project follows a code of conduct. By participating, you agree to:
 3. **Update submodules:**
 
    ```bash
-   # Linux/macOS
-   ./scripts/vendor.sh
-
-   # Windows (PowerShell)
    .\scripts\vendor.ps1
    ```
 

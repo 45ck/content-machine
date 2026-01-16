@@ -20,7 +20,7 @@ cm setup whisper [options]
 
 #### Options
 
-- `--model <model>`: `tiny|base|small|medium|large|large-v3` (default: `base`; `large-v3` maps to `large`)
+- `--model <model>`: `tiny|base|small|medium|large` (default: `base`)
 - `--dir <path>`: install directory for whisper assets (default: resolved via `CM_WHISPER_DIR`, else `~/.cm/assets/whisper`; falls back to `./.cache/whisper` if present)
 - `--version <version>`: whisper.cpp version (default: `1.5.5`)
 
