@@ -3,9 +3,13 @@
  *
  * Builds a mix plan that layers music, SFX, and ambience on top of voice.
  */
-import type { ScriptOutput } from '../../script/schema';
-import type { TimestampsOutput } from '../schema';
-import { AUDIO_MIX_SCHEMA_VERSION, type AudioMixOutput, type AudioMixLayer } from './schema';
+import {
+  AUDIO_MIX_SCHEMA_VERSION,
+  type AudioMixLayer,
+  type AudioMixOutput,
+  type ScriptOutput,
+  type TimestampsOutput,
+} from '../../domain';
 
 export type SfxPlacement = 'hook' | 'scene' | 'list-item' | 'cta';
 

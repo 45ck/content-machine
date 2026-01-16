@@ -3,7 +3,7 @@
  *
  * Reports chunk pacing metrics to identify fast/short caption events.
  */
-import type { WordTimestamp } from '../audio/schema';
+import type { WordTimestamp } from '../domain';
 import type { CaptionConfig } from '../render/captions/config';
 import {
   createCaptionChunks,

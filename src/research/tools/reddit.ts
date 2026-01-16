@@ -3,7 +3,7 @@
  *
  * Uses Template Method pattern via BaseResearchTool.
  */
-import type { Evidence } from '../schema';
+import type { Evidence } from '../../domain';
 import type {
   SearchToolOptions,
   ToolConfig,

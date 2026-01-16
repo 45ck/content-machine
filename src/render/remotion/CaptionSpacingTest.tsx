@@ -2,7 +2,7 @@
  * Visual test composition for caption spacing.
  */
 import React from 'react';
-import { AbsoluteFill, Composition } from 'remotion';
+import { AbsoluteFill, Composition, getInputProps } from 'remotion';
 import { Caption } from '../captions/Caption';
 import type { CaptionConfigInput } from '../captions/config';
 import { parseCaptionConfig } from '../captions/config';
@@ -33,13 +33,16 @@ const baseOverrides: CaptionConfigInput = {
   shadow: { enabled: false },
   stroke: { width: 0, color: '#000000', useWebkitStroke: true },
   layout: {
-    maxCharsPerLine: 10,
+    maxCharsPerLine: 40,
     maxLinesPerPage: 2,
     maxWordsPerPage: 4,
   },
 };
 
-const CaptionSpacingTest: React.FC<CaptionSpacingTestProps> = ({ words, config }) => {
+const CaptionSpacingTest: React.FC<CaptionSpacingTestProps> = (props) => {
+  const inputProps = getInputProps<CaptionSpacingTestProps>();
+  const resolvedProps = { ...inputProps, ...props };
+  const { words, config } = resolvedProps;
   const mergedConfig: CaptionConfigInput = {
     ...baseOverrides,
     ...config,

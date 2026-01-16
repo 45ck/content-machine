@@ -6,7 +6,7 @@ import { existsSync } from 'fs';
 import { dirname, join, resolve, extname } from 'path';
 import { tmpdir } from 'os';
 import AdmZip from 'adm-zip';
-import { WorkflowDefinitionSchema } from './schema';
+import { WorkflowDefinitionSchema } from '../domain';
 import { CMError, NotFoundError, SchemaError } from '../core/errors';
 
 interface InstallWorkflowOptions {

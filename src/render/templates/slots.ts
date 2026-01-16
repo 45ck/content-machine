@@ -1,7 +1,7 @@
 /**
  * Template asset slot + params helpers.
  */
-import type { VideoTemplate } from './schema';
+import type { VideoTemplate } from '../../domain/render-templates';
 import { SchemaError } from '../../core/errors';
 
 export interface GameplayAssetSlot {

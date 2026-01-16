@@ -7,7 +7,7 @@
  * @module audio/sync/types
  */
 
-import type { ScriptOutput } from '../../script/schema';
+import type { ScriptOutput } from '../../domain';
 import type { SyncStrategy as SyncStrategyName } from '../../core/config';
 
 /**

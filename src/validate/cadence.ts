@@ -1,6 +1,6 @@
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import type { CadenceGateResult } from './schema';
+import type { CadenceGateResult } from '../domain';
 import { CMError } from '../core/errors';
 import type { VideoInfo } from './video-info';
 import { detectSceneCutsWithPySceneDetect } from './scene-detect';

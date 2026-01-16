@@ -1,4 +1,4 @@
-import type { SceneTimestamp, TimestampsOutput } from '../audio/schema';
+import type { SceneTimestamp, TimestampsOutput } from '../domain';
 
 export type TimestampWord = SceneTimestamp['words'][number];
 

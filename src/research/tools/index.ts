@@ -1,7 +1,7 @@
 /**
  * Research Tools - Registry and Exports
  */
-import type { ResearchSource } from '../schema';
+import type { ResearchSource } from '../../domain';
 import type { ResearchTool, ToolConfig } from './types';
 import { HackerNewsTool } from './hackernews';
 import { RedditTool } from './reddit';

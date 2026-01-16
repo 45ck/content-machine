@@ -10,15 +10,17 @@ import { performance } from 'perf_hooks';
 import { randomUUID } from 'crypto';
 import { z } from 'zod';
 import type { LLMProvider } from './llm/provider';
-import type { ScriptOutput } from '../script/schema';
-import type { AudioOutput } from '../audio/schema';
-import type { VisualsOutput } from '../visuals/schema';
-import type { RenderOutput } from '../render/schema';
+import { ResearchOutputSchema } from '../domain';
+import type {
+  AudioOutput,
+  RenderOutput,
+  ResearchOutput,
+  ScriptOutput,
+  VisualsOutput,
+} from '../domain';
 import type { CaptionPresetName } from '../render/captions/presets';
 import type { CaptionConfig } from '../render/captions/config';
-import type { FontSource } from '../render/schema';
-import type { HookClip } from '../hooks/schema';
-import { ResearchOutputSchema, type ResearchOutput } from '../research/schema';
+import type { FontSource, HookClip } from '../domain';
 import type { PipelineEventEmitter } from './events';
 import type { AudioMixPlanOptions } from '../audio/mix/planner';
 import { createLogger, logTiming } from './logger';

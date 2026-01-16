@@ -6,7 +6,7 @@ import { readdir, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { extname, join, resolve, sep } from 'node:path';
 import { CMError, SchemaError } from '../../core/errors';
-import { TimestampsOutputSchema } from '../../audio/schema';
+import { TimestampsOutputSchema } from '../../domain';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStdoutLine } from '../output';

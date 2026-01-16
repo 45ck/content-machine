@@ -11,7 +11,7 @@ export {
   TrendingTopicSchema,
   ContentAngleSchema,
   ResearchOutputSchema,
-} from './schema';
+} from '../domain';
 
 export type {
   ResearchSource,
@@ -19,7 +19,7 @@ export type {
   TrendingTopic,
   ContentAngle,
   ResearchOutput,
-} from './schema';
+} from '../domain';
 
 // Tool exports
 export {

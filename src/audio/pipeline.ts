@@ -5,25 +5,24 @@
  * Based on SYSTEM-DESIGN §7.2 cm audio command.
  */
 import { writeFile } from 'fs/promises';
-import type { ScriptOutput } from '../script/schema';
+import type { ScriptOutput } from '../domain';
 import { createLogger } from '../core/logger';
 import {
-  AudioOutput,
   AudioOutputSchema,
   TimestampsOutput,
   WordTimestamp,
   AUDIO_SCHEMA_VERSION,
-} from './schema';
+} from '../domain';
 import { synthesizeSpeech } from './tts';
 import { transcribeAudio, ASRResult } from './asr';
 import { reconcileToScript as reconcileAsrToScript } from './asr/reconcile';
 import { buildAlignmentUnits, buildSceneTimestamps, normalizeSpokenText } from './alignment';
 import { buildAudioMixPlan, hasAudioMixSources, type AudioMixPlanOptions } from './mix/planner';
-import type { AudioMixOutput } from './mix/schema';
+import type { AudioMixOutput, AudioOutput } from '../domain';
 
 export { buildAlignmentUnits, buildSceneTimestamps } from './alignment';
 
-export type { AudioOutput, TimestampsOutput, WordTimestamp } from './schema';
+export type { AudioOutput, TimestampsOutput, WordTimestamp } from '../domain';
 
 export interface GenerateAudioOptions {
   script: ScriptOutput;

@@ -12,7 +12,7 @@
  * - wordBoundaryAccuracy: Words align with expected boundaries
  */
 
-import type { SceneTimestamp, TimestampsOutput } from '../audio/schema';
+import type { SceneTimestamp, TimestampsOutput } from '../domain';
 import { normalizeScenes, summarizeWords, type TimestampWord } from './timestamps';
 
 // ============================================================================

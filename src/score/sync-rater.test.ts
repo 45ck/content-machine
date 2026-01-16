@@ -15,7 +15,7 @@ import {
   SyncRatingOptionsSchema,
   type SyncRatingOutput,
   type WordMatch,
-} from './sync-schema';
+} from '../domain';
 
 describe('Sync Schema Validation', () => {
   describe('WordMatchSchema', () => {

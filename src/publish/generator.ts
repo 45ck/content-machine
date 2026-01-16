@@ -8,14 +8,13 @@ import { createLLMProvider, type LLMProvider, calculateLLMCost } from '../core/l
 import { loadConfig } from '../core/config';
 import { createLogger } from '../core/logger';
 import { SchemaError } from '../core/errors';
-import type { Platform, PackageOutput } from '../package/schema';
-import type { ScriptOutput } from '../script/schema';
+import type { PackageOutput, Platform, ScriptOutput } from '../domain';
 import {
   LLMPublishResponseSchema,
-  PublishOutput,
   PublishOutputSchema,
   PUBLISH_SCHEMA_VERSION,
-} from './schema';
+  type PublishOutput,
+} from '../domain';
 
 export interface GeneratePublishOptions {
   platform?: Platform;

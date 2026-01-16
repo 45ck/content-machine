@@ -27,7 +27,7 @@ export {
   type CaptionStyle,
   type RenderProps,
   type RenderOutput,
-} from './schema';
+} from '../domain';
 
 // Service exports
 export { renderVideo } from './service';

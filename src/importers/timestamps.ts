@@ -8,12 +8,12 @@ import { transcribeAudio } from '../audio/asr';
 import { reconcileToScript } from '../audio/asr/reconcile';
 import { buildAlignmentUnits, buildSceneTimestamps, normalizeSpokenText } from '../audio/alignment';
 import {
-  TimestampsOutputSchema,
   AUDIO_SCHEMA_VERSION,
+  TimestampsOutputSchema,
   type TimestampsOutput,
   type WordTimestamp,
-} from '../audio/schema';
-import type { ScriptOutput } from '../script/schema';
+} from '../domain';
+import type { ScriptOutput } from '../domain';
 import { probeAudioWithFfprobe } from '../validate/ffprobe-audio';
 
 export interface GenerateTimestampsOptions {

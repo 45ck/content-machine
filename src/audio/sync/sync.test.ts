@@ -9,7 +9,7 @@
  * - ForcedAlignSyncStrategy: Uses phoneme-level alignment (Aeneas)
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { ScriptOutput } from '../../script/schema';
+import type { ScriptOutput } from '../../domain';
 
 /**
  * Creates a minimal valid ScriptOutput for testing

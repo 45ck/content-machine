@@ -5,8 +5,7 @@
  */
 import { Command } from 'commander';
 import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
-import { ScriptOutputSchema } from '../../script/schema';
-import { PackageOutputSchema } from '../../package/schema';
+import { PackageOutputSchema, ScriptOutputSchema } from '../../domain';
 import { scoreScript } from '../../score/scorer';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';

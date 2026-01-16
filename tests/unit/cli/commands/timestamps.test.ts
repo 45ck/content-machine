@@ -70,7 +70,7 @@ describe('cli timestamps command', () => {
 
     const { handleCommandError } = await import('../../../../src/cli/utils');
     const { timestampsCommand } = await import('../../../../src/cli/commands/timestamps');
-    await timestampsCommand.parseAsync(['timestamps', '--audio', 'missing.wav'], { from: 'user' });
+    await timestampsCommand.parseAsync(['--audio', 'missing.wav'], { from: 'user' });
     expect(handleCommandError).toHaveBeenCalled();
   });
 
@@ -94,10 +94,9 @@ describe('cli timestamps command', () => {
     });
 
     const { timestampsCommand } = await import('../../../../src/cli/commands/timestamps');
-    await timestampsCommand.parseAsync(
-      ['timestamps', '--audio', 'audio.wav', '--output', 'out.json'],
-      { from: 'user' }
-    );
+    await timestampsCommand.parseAsync(['--audio', 'audio.wav', '--output', 'out.json'], {
+      from: 'user',
+    });
 
     await capture.reset();
     exitSpy.mockRestore();
@@ -126,10 +125,9 @@ describe('cli timestamps command', () => {
     const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
 
     const { timestampsCommand } = await import('../../../../src/cli/commands/timestamps');
-    await timestampsCommand.parseAsync(
-      ['timestamps', '--audio', 'audio.wav', '--output', 'out.json'],
-      { from: 'user' }
-    );
+    await timestampsCommand.parseAsync(['--audio', 'audio.wav', '--output', 'out.json'], {
+      from: 'user',
+    });
 
     exitSpy.mockRestore();
     expect(writeOutputFile).toHaveBeenCalledWith('out.json', expect.any(Object));

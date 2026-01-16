@@ -7,7 +7,7 @@ import {
   type HookClip,
   type HookAudioMode,
   type HookFit,
-} from '../hooks/schema';
+} from '../domain';
 import { resolveHookSelection } from '../hooks/resolve';
 import { getCliRuntime } from './runtime';
 

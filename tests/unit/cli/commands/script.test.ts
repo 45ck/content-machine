@@ -69,7 +69,7 @@ describe('cli script command', () => {
 
     const { scriptCommand } = await import('../../../../src/cli/commands/script');
     await scriptCommand.parseAsync(
-      ['script', '--topic', 'Redis', '--dry-run', '--duration', '30', '--output', 'out.json'],
+      ['--topic', 'Redis', '--dry-run', '--duration', '30', '--output', 'out.json'],
       { from: 'user' }
     );
 
@@ -98,7 +98,7 @@ describe('cli script command', () => {
 
     const { scriptCommand } = await import('../../../../src/cli/commands/script');
     await scriptCommand.parseAsync(
-      ['script', '--topic', 'Redis', '--duration', '45', '--output', 'out.json', '--mock'],
+      ['--topic', 'Redis', '--duration', '45', '--output', 'out.json', '--mock'],
       { from: 'user' }
     );
 
@@ -114,10 +114,9 @@ describe('cli script command', () => {
 
     const { scriptCommand } = await import('../../../../src/cli/commands/script');
     await expect(
-      scriptCommand.parseAsync(
-        ['script', '--topic', 'Redis', '--duration', '0', '--output', 'out.json'],
-        { from: 'user' }
-      )
+      scriptCommand.parseAsync(['--topic', 'Redis', '--duration', '0', '--output', 'out.json'], {
+        from: 'user',
+      })
     ).rejects.toThrow('handled');
 
     expect(handleCommandError).toHaveBeenCalled();

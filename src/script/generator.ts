@@ -9,20 +9,20 @@ import { loadConfig, Archetype } from '../core/config';
 import { SchemaError } from '../core/errors';
 import { createLogger } from '../core/logger';
 import {
-  ScriptOutput,
   ScriptOutputSchema,
   LLMScriptResponseSchema,
-  Scene,
   SCRIPT_SCHEMA_VERSION,
-} from './schema';
+  type Scene,
+  type ScriptOutput,
+} from '../domain';
 import { getPromptForArchetype } from './prompts';
 import { buildResearchContext, extractSourceUrls } from './research-context';
 import { sanitizeSpokenText } from './sanitize';
-import type { ResearchOutput } from '../research/schema';
+import type { ResearchOutput } from '../domain';
 
-export type { ScriptOutput, Scene } from './schema';
+export type { ScriptOutput, Scene } from '../domain';
 // Re-export deprecated type for backward compatibility
-export type { ScriptSection } from './schema';
+export type { ScriptSection } from '../domain';
 
 export interface GenerateScriptOptions {
   topic: string;

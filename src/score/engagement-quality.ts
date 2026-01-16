@@ -13,8 +13,7 @@
  * - sceneProgression: Scenes flow logically
  */
 
-import type { ScriptOutput } from '../script/schema';
-import type { SceneTimestamp, TimestampsOutput } from '../audio/schema';
+import type { SceneTimestamp, ScriptOutput, TimestampsOutput } from '../domain';
 import { normalizeScenes, summarizeWords } from './timestamps';
 
 // ============================================================================

@@ -10,7 +10,7 @@
  * - Aggregate score must meet overall threshold
  */
 
-import type { WordTimestamp } from '../audio/schema';
+import type { WordTimestamp } from '../domain';
 
 /**
  * Quality metrics result

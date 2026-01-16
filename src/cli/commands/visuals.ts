@@ -9,7 +9,7 @@ import { matchVisuals } from '../../visuals/matcher';
 import type { VisualsProgressEvent } from '../../visuals/matcher';
 import { logger } from '../../core/logger';
 import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
-import { TimestampsOutputSchema } from '../../audio/schema';
+import { TimestampsOutputSchema } from '../../domain';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';

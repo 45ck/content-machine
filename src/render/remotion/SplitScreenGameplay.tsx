@@ -13,7 +13,7 @@ import {
   staticFile,
   useVideoConfig,
 } from 'remotion';
-import type { RenderProps } from '../schema';
+import type { RenderProps } from '../../domain';
 import { Caption } from '../captions';
 import {
   buildSequences,

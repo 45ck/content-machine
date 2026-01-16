@@ -7,7 +7,7 @@ import { Command } from 'commander';
 import { existsSync } from 'fs';
 import { logger } from '../../core/logger';
 import { CMError, SchemaError } from '../../core/errors';
-import { ScriptOutputSchema } from '../../script/schema';
+import { ScriptOutputSchema } from '../../domain';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStdoutLine } from '../output';

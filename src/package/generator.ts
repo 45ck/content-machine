@@ -9,13 +9,13 @@ import { createLogger } from '../core/logger';
 import { SchemaError } from '../core/errors';
 import {
   PACKAGE_SCHEMA_VERSION,
-  PackageOutput,
   PackageOutputSchema,
-  PackageVariant,
-  Platform,
   PlatformEnum,
   LLMPackageResponseSchema,
-} from './schema';
+  type PackageOutput,
+  type PackageVariant,
+  type Platform,
+} from '../domain';
 
 export interface GeneratePackageOptions {
   topic: string;

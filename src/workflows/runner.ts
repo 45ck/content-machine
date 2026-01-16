@@ -10,7 +10,7 @@ import type {
   WorkflowStage,
   WorkflowStageMode,
   WorkflowStages,
-} from './schema';
+} from '../domain';
 
 export interface WorkflowCommandRunOptions {
   baseDir?: string;

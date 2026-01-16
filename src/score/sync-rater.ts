@@ -21,7 +21,7 @@ import {
   type SyncRatingLabel,
   SyncRatingOutputSchema,
   SyncRatingOptionsSchema,
-} from './sync-schema';
+} from '../domain';
 import { execFile } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs';
 import { join, basename } from 'node:path';

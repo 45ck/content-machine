@@ -2,6 +2,8 @@
 
 **Date Convention:** All documentation files MUST include `YYYYMMDD` suffix before file extension.
 
+**Exception:** Files in `docs/glossary/` use stable undated names (e.g., `scene.md`).
+
 ---
 
 ## Quick Links
@@ -11,6 +13,7 @@
 - [On-Demand Assets Feature](features/feature-on-demand-assets-20260111.md) - Minimal install + targeted downloads
 - [On-Demand Assets Implementation](architecture/IMPL-ON-DEMAND-ASSETS-20260111.md) - Options + rollout plan
 - [Ubiquitous Language Guide](guides/guide-ubiquitous-language-20260110.md) - Canonical terminology
+- [Glossary (Code-First)](glossary/README.md) - Bottom-up meaning of terms/fields
 - [VENDORING.md](../VENDORING.md) - Vendored repo policy
 - [Tasks](../tasks/README.md) - Task management system
 - [Templates](templates/README.md) - Documentation templates
@@ -30,6 +33,7 @@ docs/
   features/           # Feature specifications
   bugs/               # Bug reports
   guides/             # How-to guides
+  glossary/           # Code-first glossary (terms -> code/schema)
   reference/          # API documentation
   tutorials/          # Step-by-step tutorials
   postmortems/        # Incident postmortems

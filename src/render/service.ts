@@ -8,22 +8,25 @@ import { stat, writeFile, copyFile, mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
 import { bundle } from '@remotion/bundler';
 import { renderMedia, selectComposition } from '@remotion/renderer';
-import { VisualsOutput, VisualsOutputInput } from '../visuals/schema';
-import { TimestampsOutput } from '../audio/schema';
-import type { AudioMixOutput } from '../audio/mix/schema';
+import type {
+  AudioMixOutput,
+  TimestampsOutput,
+  VisualsOutput,
+  VisualsOutputInput,
+} from '../domain';
 import { Orientation } from '../core/config';
 import { createLogger } from '../core/logger';
 import { CMError, RenderError } from '../core/errors';
 import { probeVideoWithFfprobe } from '../validate/ffprobe';
 import {
-  RenderOutput,
   RenderOutputSchema,
   RenderPropsInput,
   CaptionStyle,
   RENDER_SCHEMA_VERSION,
   HookClipInput,
   type FontSource,
-} from './schema';
+  type RenderOutput,
+} from '../domain';
 import { getCaptionPreset, CaptionPresetName } from './captions/presets';
 import type { CaptionConfig, CaptionConfigInput } from './captions/config';
 import { join, dirname, resolve, basename } from 'path';
@@ -71,7 +74,7 @@ function resolveRemotionEntryPoint(): string {
   return join(RENDER_DIR, 'remotion', 'index.ts');
 }
 
-export type { RenderOutput, RenderProps } from './schema';
+export type { RenderOutput, RenderProps } from '../domain';
 
 export interface RenderVideoOptions {
   /** Visuals output - accepts input or output type (defaults applied during rendering) */

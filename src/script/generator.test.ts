@@ -3,7 +3,7 @@
  * Updated for SYSTEM-DESIGN §6.3 GeneratedScriptSchema
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ScriptOutputSchema, LLMScriptResponseSchema, SCRIPT_SCHEMA_VERSION } from './schema';
+import { LLMScriptResponseSchema, SCRIPT_SCHEMA_VERSION, ScriptOutputSchema } from '../domain';
 import { FakeLLMProvider } from '../test/stubs';
 
 // Mock config module before other imports

@@ -6,8 +6,12 @@ import { describe, expect, it, vi } from 'vitest';
 import { mkdirSync, rmSync } from 'fs';
 import { join } from 'path';
 import { renderVideo } from './service';
-import { VISUALS_SCHEMA_VERSION, type VisualsOutputInput } from '../visuals/schema';
-import { AUDIO_SCHEMA_VERSION, type TimestampsOutput } from '../audio/schema';
+import {
+  AUDIO_SCHEMA_VERSION,
+  VISUALS_SCHEMA_VERSION,
+  type TimestampsOutput,
+  type VisualsOutputInput,
+} from '../domain';
 
 describe('renderVideo() progress reporting', () => {
   it('calls onProgress in mock mode', async () => {

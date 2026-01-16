@@ -4,16 +4,8 @@
  * Coordinates multiple research tools, merges results, and generates content angles.
  */
 import type { LLMProvider, LLMOptions } from '../core/llm/provider';
-import type {
-  ResearchSource,
-  Evidence,
-  ContentAngle,
-  ResearchOutput,
-} from './schema';
-import {
-  ContentAngleSchema,
-  ResearchOutputSchema,
-} from './schema';
+import { ContentAngleSchema, ResearchOutputSchema } from '../domain';
+import type { ContentAngle, Evidence, ResearchOutput, ResearchSource } from '../domain';
 import type { ResearchTool, SearchToolOptions, SearchToolResult } from './tools';
 import { createTool } from './tools';
 
