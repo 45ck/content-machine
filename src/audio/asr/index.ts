@@ -7,7 +7,7 @@
  */
 import { createLogger } from '../../core/logger';
 import { APIError } from '../../core/errors';
-import { WordTimestamp } from '../schema';
+import type { WordTimestamp } from '../../domain';
 import { validateWordTimings, repairWordTimings, TimestampValidationError } from './validator';
 import { postProcessASRWordsWithStats } from './post-processor';
 import type { Language, WhisperModel } from '@remotion/install-whisper-cpp';

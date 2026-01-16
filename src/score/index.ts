@@ -11,7 +11,7 @@ export {
   type ScoreOutput,
   type ScoreCheck,
   type ScoreSeverity,
-} from './schema';
+} from '../domain';
 
 // Sync rater
 export { rateSyncQuality, formatSyncRatingCLI } from './sync-rater';
@@ -30,7 +30,7 @@ export {
   OCRFrameSchema,
   SyncRatingOptionsSchema,
   SyncThresholdsSchema,
-} from './sync-schema';
+} from '../domain';
 
 // Caption quality metrics
 export {

@@ -30,11 +30,9 @@ import type {
   VisualAsset,
   VisualAssetInput,
   VisualsOutputInput,
-} from '../../visuals/schema';
-import type { TimestampsOutput } from '../../audio/schema';
-import { VisualsOutputSchema } from '../../visuals/schema';
-import { TimestampsOutputSchema } from '../../audio/schema';
-import { AudioMixOutputSchema, type AudioMixOutput } from '../../audio/mix/schema';
+} from '../../domain';
+import type { AudioMixOutput, TimestampsOutput } from '../../domain';
+import { AudioMixOutputSchema, TimestampsOutputSchema, VisualsOutputSchema } from '../../domain';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';

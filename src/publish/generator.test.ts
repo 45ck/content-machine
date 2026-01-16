@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { generatePublish } from './generator';
-import type { ScriptOutput } from '../script/schema';
+import type { ScriptOutput } from '../domain';
 import { FakeLLMProvider } from '../test/stubs/fake-llm';
 
 describe('generatePublish', () => {

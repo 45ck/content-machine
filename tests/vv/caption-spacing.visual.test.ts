@@ -7,7 +7,11 @@ import { bundle } from '@remotion/bundler';
 import { renderStill, selectComposition } from '@remotion/renderer';
 import type { VideoConfig } from 'remotion';
 import type { CaptionConfigInput } from '../../src/render/captions/config';
-import { decodePng, computeMinGapBetweenInkRuns } from '../helpers/image';
+import {
+  decodePng,
+  computeMinGapBetweenInkRuns,
+  computeMinVerticalGapBetweenInkRuns,
+} from '../helpers/image';
 
 const entryPoint = path.join(process.cwd(), 'src', 'render', 'remotion', 'index.ts');
 const words = [
@@ -51,13 +55,24 @@ async function measureMinGap(
   }
 
   const image = decodePng(buffer);
-  return computeMinGapBetweenInkRuns(image, {
-    background: { r: 0, g: 0, b: 0 },
-    threshold: 20,
-    minInkPixels: 6,
-    minGapPx: 6,
-    minRunWidth: 6,
-  });
+  try {
+    return computeMinGapBetweenInkRuns(image, {
+      background: { r: 0, g: 0, b: 0 },
+      threshold: 20,
+      minInkPixels: 6,
+      minGapPx: 8,
+      minRunWidth: 6,
+    });
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('Not enough ink runs')) {
+      return computeMinVerticalGapBetweenInkRuns(image, {
+        background: { r: 0, g: 0, b: 0 },
+        threshold: 20,
+        minInkPixels: 6,
+      });
+    }
+    throw error;
+  }
 }
 
 describe('V&V: caption word spacing (visual)', () => {

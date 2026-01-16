@@ -5,7 +5,7 @@
  */
 import { Command } from 'commander';
 import { generatePackage } from '../../package/generator';
-import { Platform, PlatformEnum } from '../../package/schema';
+import { PlatformEnum, type Platform } from '../../domain';
 import { logger } from '../../core/logger';
 import { FakeLLMProvider } from '../../test/stubs/fake-llm';
 import { handleCommandError, writeOutputFile } from '../utils';

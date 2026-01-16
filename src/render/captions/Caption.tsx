@@ -399,12 +399,13 @@ const BuildupSentenceView: React.FC<BuildupSentenceViewProps> = ({
     ...(config.position === 'top' && { top: safeZone.topOffset }),
   };
 
+  const spacingPx = resolveWordGapPx(config);
   const containerStyle: React.CSSProperties = {
     display: 'flex',
     flexWrap: 'wrap',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 0,
+    gap: `${spacingPx}px`,
     maxWidth: '90%',
     opacity: enterProgress,
   };
@@ -412,28 +413,25 @@ const BuildupSentenceView: React.FC<BuildupSentenceViewProps> = ({
   return (
     <div style={positionStyle}>
       <div style={containerStyle}>
-        {words.map((word, index) => {
-          const wordStartMs = word.start * 1000;
-          const wordEndMs = word.end * 1000;
+        {(() => {
+          const visibleWords: Array<{ word: (typeof words)[number]; isActive: boolean }> = [];
+          for (const word of words) {
+            const wordStartMs = word.start * 1000;
+            const wordEndMs = word.end * 1000;
+            const relativeWordStartMs = wordStartMs - sentenceStartMs;
+            const hasStarted = sequenceTimeMs >= relativeWordStartMs;
+            if (!hasStarted) continue;
+            const isActive =
+              sequenceTimeMs >= relativeWordStartMs && sequenceTimeMs < wordEndMs - sentenceStartMs;
+            visibleWords.push({ word, isActive });
+          }
 
-          // Relative timing: word start relative to sentence start
-          const relativeWordStartMs = wordStartMs - sentenceStartMs;
-
-          // Only show words that have started (relative to sequence start)
-          const hasStarted = sequenceTimeMs >= relativeWordStartMs;
-          if (!hasStarted) return null;
-
-          // Is this word currently being spoken?
-          const isActive =
-            sequenceTimeMs >= relativeWordStartMs && sequenceTimeMs < wordEndMs - sentenceStartMs;
-
-          return (
-            <span key={index} style={getWordWrapperStyle()}>
+          return visibleWords.map(({ word, isActive }, index) => (
+            <span key={`${word.start}-${index}`} style={getWordWrapperStyle(config)}>
               <BuildupWordView word={word.word} isActive={isActive} config={config} />
-              {index < words.length - 1 && <span style={getWordSpacerStyle(config)} />}
             </span>
-          );
-        })}
+          ));
+        })()}
       </div>
     </div>
   );
@@ -532,7 +530,6 @@ const CaptionPageView: React.FC<CaptionPageViewProps> = ({ page, config }) => {
                   page.startMs,
                   sequenceTimeMs
                 )}
-                isLastWord={wordIndex === line.words.length - 1}
               />
             ))}
           </div>
@@ -549,10 +546,9 @@ interface WordViewProps {
   word: TimedWord;
   config: CaptionConfig;
   isActive: boolean;
-  isLastWord: boolean;
 }
 
-const WordView: React.FC<WordViewProps> = ({ word, config, isActive, isLastWord }) => {
+const WordView: React.FC<WordViewProps> = ({ word, config, isActive }) => {
   const wordStyle = getWordStyle(config, isActive);
 
   const text =
@@ -566,19 +562,17 @@ const WordView: React.FC<WordViewProps> = ({ word, config, isActive, isLastWord 
 
   if (config.highlightMode === 'background') {
     return (
-      <span style={getWordWrapperStyle()}>
+      <span style={getWordWrapperStyle(config)}>
         <span style={getPillStyle(config, isActive)}>
           <span style={wordStyle}>{text}</span>
         </span>
-        {!isLastWord && <span style={getWordSpacerStyle(config)} />}
       </span>
     );
   }
 
   return (
-    <span style={getWordWrapperStyle()}>
+    <span style={getWordWrapperStyle(config)}>
       <span style={wordStyle}>{text}</span>
-      {!isLastWord && <span style={getWordSpacerStyle(config)} />}
     </span>
   );
 };
@@ -727,30 +721,30 @@ function getContainerStyle(config: CaptionConfig, enterProgress: number): React.
 }
 
 function getLineStyle(config: CaptionConfig): React.CSSProperties {
+  const spacingPx = resolveWordGapPx(config);
+
   return {
     display: 'flex',
     flexWrap: 'wrap',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 0,
+    gap: `${spacingPx}px`,
     lineHeight: config.lineHeight,
   };
 }
 
-function getWordWrapperStyle(): React.CSSProperties {
+function getWordWrapperStyle(config: CaptionConfig): React.CSSProperties {
   return {
     display: 'inline-flex',
     alignItems: 'center',
+    flexShrink: 0,
+    fontSize: config.fontSize,
+    lineHeight: config.lineHeight,
   };
 }
 
-function getWordSpacerStyle(config: CaptionConfig): React.CSSProperties {
-  return {
-    display: 'inline-block',
-    width: `${config.wordSpacing}em`,
-    height: 1,
-    flexShrink: 0,
-  };
+function resolveWordGapPx(config: CaptionConfig): number {
+  return Math.max(config.wordSpacing * 16, 8);
 }
 
 function resolveFontWeight(weight: CaptionConfig['fontWeight']): number {
@@ -817,8 +811,13 @@ function getWordStyle(config: CaptionConfig, isActive: boolean): React.CSSProper
 }
 
 function getPillStyle(config: CaptionConfig, isActive: boolean): React.CSSProperties {
+  const inactiveAlpha = 0.15;
+  const backgroundColor = isActive
+    ? config.pillStyle.color
+    : applyAlphaToColor(config.pillStyle.color, inactiveAlpha);
+
   return {
-    backgroundColor: isActive ? config.pillStyle.color : 'transparent',
+    backgroundColor,
     borderRadius: config.pillStyle.borderRadius,
     padding: `${config.pillStyle.paddingY}px ${config.pillStyle.paddingX}px`,
     border:
@@ -827,6 +826,43 @@ function getPillStyle(config: CaptionConfig, isActive: boolean): React.CSSProper
         : undefined,
     display: 'inline-block',
   };
+}
+
+function applyAlphaToColor(color: string, alpha: number): string {
+  const trimmed = color.trim();
+  if (trimmed === 'transparent') {
+    return trimmed;
+  }
+
+  const rgbaMatch = trimmed.match(/^rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)$/i);
+  if (rgbaMatch) {
+    const [, r, g, b] = rgbaMatch;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  const rgbMatch = trimmed.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/i);
+  if (rgbMatch) {
+    const [, r, g, b] = rgbMatch;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  if (trimmed.startsWith('#')) {
+    const hex = trimmed.slice(1);
+    if (hex.length === 3) {
+      const r = parseInt(hex[0] + hex[0], 16);
+      const g = parseInt(hex[1] + hex[1], 16);
+      const b = parseInt(hex[2] + hex[2], 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+    if (hex.length === 6) {
+      const r = parseInt(hex.slice(0, 2), 16);
+      const g = parseInt(hex.slice(2, 4), 16);
+      const b = parseInt(hex.slice(4, 6), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+  }
+
+  return trimmed;
 }
 
 /**

@@ -147,3 +147,4 @@ cm render --input output/visuals.json --audio output/audio.wav --timestamps outp
 - `docs/guides/guide-cli-ux-standards-20260106.md`
 - `docs/architecture/SYSTEM-DESIGN-20260104.md`
 - `docs/reference/cm-generate-reference-20260106.md`
+- `docs/glossary/README.md`

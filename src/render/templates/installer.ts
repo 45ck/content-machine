@@ -6,7 +6,7 @@ import { existsSync } from 'fs';
 import { dirname, join, resolve, extname } from 'path';
 import { tmpdir } from 'os';
 import AdmZip from 'adm-zip';
-import { VideoTemplateSchema } from './schema';
+import { VideoTemplateSchema } from '../../domain/render-templates';
 import { CMError, NotFoundError, SchemaError } from '../../core/errors';
 
 interface InstallTemplateOptions {

@@ -10,7 +10,7 @@
  */
 import { createHash } from 'crypto';
 import { extname, resolve } from 'path';
-import type { VisualsOutputInput } from '../../visuals/schema';
+import type { VisualsOutputInput } from '../../domain';
 
 export interface VisualAssetBundlePlanItem {
   sourceUrl?: string;

@@ -10,7 +10,7 @@ import { homedir } from 'os';
 import { createLogger } from '../core/logger';
 import { CMError, NotFoundError } from '../core/errors';
 import { probeVideoWithFfprobe } from '../validate/ffprobe';
-import type { GameplayClip } from './schema';
+import type { GameplayClip } from '../domain';
 
 const VIDEO_EXTENSIONS = new Set(['.mp4', '.mov', '.mkv', '.webm']);
 

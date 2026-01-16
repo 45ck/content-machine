@@ -1,4 +1,4 @@
-import type { HookDefinition } from '../schema';
+import type { HookDefinition } from '../../domain';
 
 export const TRANSITIONAL_HOOKS: HookDefinition[] = [
   {

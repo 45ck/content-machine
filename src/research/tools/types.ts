@@ -1,7 +1,7 @@
 /**
  * Research Tools - Type Definitions
  */
-import type { Evidence, ResearchSource } from '../schema';
+import type { Evidence, ResearchSource } from '../../domain';
 
 export interface SearchToolOptions {
   limit?: number;

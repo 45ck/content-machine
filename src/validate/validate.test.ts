@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ValidateReportSchema } from './schema';
+import { ValidateReportSchema } from '../domain';
 import { validateVideoInfo } from './validate';
 import type { VideoInfo } from './video-info';
 

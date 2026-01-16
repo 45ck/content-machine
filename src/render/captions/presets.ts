@@ -341,7 +341,7 @@ export const PRESET_CAPCUT_BOLD: CaptionConfig = CaptionConfigSchema.parse({
     detectTypes: ['number', 'power', 'negation', 'pause'],
   },
   layout: {
-    maxCharsPerLine: 10,
+    maxCharsPerLine: 16,
     maxLinesPerPage: 2,
     maxGapMs: 300,
     minWordsPerPage: 2,

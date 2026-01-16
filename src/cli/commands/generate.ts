@@ -24,8 +24,6 @@ import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine 
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
 import { dirname, join, resolve } from 'path';
 import { existsSync } from 'fs';
-import { ResearchOutputSchema } from '../../research/schema';
-import type { ResearchOutput } from '../../research/schema';
 import { createResearchOrchestrator } from '../../research/orchestrator';
 import { OpenAIProvider } from '../../core/llm/openai';
 import { CMError, SchemaError } from '../../core/errors';
@@ -37,17 +35,28 @@ import {
   getTemplateGameplaySlot,
   getTemplateParams,
 } from '../../render/templates';
-import { ScriptOutputSchema, type ScriptOutput } from '../../script/schema';
-import { AudioOutputSchema, TimestampsOutputSchema, type AudioOutput } from '../../audio/schema';
-import { AudioMixOutputSchema } from '../../audio/mix/schema';
+import {
+  AudioMixOutputSchema,
+  AudioOutputSchema,
+  ResearchOutputSchema,
+  ScriptOutputSchema,
+  TimestampsOutputSchema,
+  VisualsOutputSchema,
+  type AudioOutput,
+  type CaptionConfig,
+  type FontSource,
+  type HookClip,
+  type ResearchOutput,
+  type ScriptOutput,
+  type SyncRatingOutput,
+  type VisualsOutput,
+  type WorkflowDefinition,
+  type WorkflowStageMode,
+} from '../../domain';
 import { hasAudioMixSources, type AudioMixPlanOptions } from '../../audio/mix/planner';
-import { VisualsOutputSchema, type VisualsOutput } from '../../visuals/schema';
 import { probeAudioWithFfprobe } from '../../validate/ffprobe-audio';
-import type { CaptionConfig, FontSource } from '../../render/schema';
 import type { CaptionPresetName } from '../../render/captions/presets';
-import type { SyncRatingOutput } from '../../score/sync-schema';
 import { resolveHookFromCli } from '../hooks';
-import type { HookClip } from '../../hooks/schema';
 import {
   runGenerateWithSyncQualityGate,
   type SyncAttemptSettings,
@@ -61,7 +70,6 @@ import {
   runWorkflowCommands,
   workflowHasExec,
 } from '../../workflows/runner';
-import type { WorkflowDefinition, WorkflowStageMode } from '../../workflows/schema';
 
 /**
  * Sync quality presets for different quality/speed tradeoffs

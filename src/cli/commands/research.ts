@@ -5,8 +5,7 @@
  */
 import { Command } from 'commander';
 import { logger } from '../../core/logger';
-import { ResearchSourceEnum } from '../../research/schema';
-import type { ResearchSource } from '../../research/schema';
+import { ResearchSourceEnum, type ResearchSource } from '../../domain';
 import { createResearchOrchestrator } from '../../research/orchestrator';
 import type { OrchestratorResult } from '../../research/orchestrator';
 import { FakeLLMProvider } from '../../test/stubs/fake-llm';

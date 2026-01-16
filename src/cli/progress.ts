@@ -1,4 +1,4 @@
-import ora from 'ora';
+import { createRequire } from 'module';
 import { getCliRuntime } from './runtime';
 import { writeStderrLine } from './output';
 
@@ -80,5 +80,17 @@ export function createSpinner(text: string): SpinnerLike {
     return new LineSpinner(text);
   }
 
-  return ora({ text, isEnabled: true, stream: process.stderr });
+  const nodeMajor = Number(process.versions.node.split('.')[0] ?? 0);
+  if (nodeMajor < 20) {
+    return new LineSpinner(text);
+  }
+
+  try {
+    const require = createRequire(import.meta.url);
+    const ora = require('ora') as typeof import('ora');
+    const factory = 'default' in ora ? ora.default : ora;
+    return factory({ text, isEnabled: true, stream: process.stderr });
+  } catch {
+    return new LineSpinner(text);
+  }
 }

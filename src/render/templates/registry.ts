@@ -6,7 +6,7 @@ import { existsSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
 import { readFile } from 'fs/promises';
-import { VideoTemplateSchema, type VideoTemplate } from './schema';
+import { VideoTemplateSchema, type VideoTemplate } from '../../domain/render-templates';
 import { createLogger } from '../../core/logger';
 import { listBuiltinVideoTemplates } from './index';
 

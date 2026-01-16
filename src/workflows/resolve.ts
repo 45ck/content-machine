@@ -9,7 +9,7 @@ import { stat } from 'fs/promises';
 import { join, resolve, dirname } from 'path';
 import { homedir } from 'os';
 import { NotFoundError, SchemaError } from '../core/errors';
-import { WorkflowDefinitionSchema, type WorkflowDefinition } from './schema';
+import { WorkflowDefinitionSchema, type WorkflowDefinition } from '../domain';
 
 export interface ResolvedWorkflow {
   workflow: WorkflowDefinition;

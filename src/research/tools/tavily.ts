@@ -5,7 +5,7 @@
  * Docs: https://docs.tavily.com/
  */
 import { tavily } from '@tavily/core';
-import type { Evidence } from '../schema';
+import type { Evidence } from '../../domain';
 import type {
   ResearchTool,
   SearchToolOptions,

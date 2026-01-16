@@ -6,7 +6,7 @@
  */
 import React, { useMemo } from 'react';
 import { Composition, AbsoluteFill, Sequence, useVideoConfig } from 'remotion';
-import type { RenderProps } from '../schema';
+import type { RenderProps } from '../../domain';
 import { Caption } from '../captions';
 import {
   buildSequences,

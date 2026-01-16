@@ -6,7 +6,7 @@ import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import { ResearchOrchestrator, createResearchOrchestrator } from './orchestrator';
 import { FakeLLMProvider } from '../test/stubs/fake-llm';
-import { EvidenceSchema, ContentAngleSchema } from './schema';
+import { ContentAngleSchema, EvidenceSchema } from '../domain';
 
 // Mock API responses
 const mockHNResponse = {

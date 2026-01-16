@@ -83,6 +83,27 @@ export default [
       'sonarjs/no-identical-functions': 'warn',
     },
   },
+
+  // Enforce centralized domain model imports.
+  // - Schemas/types/errors should be imported from `src/domain` rather than scattered `*/schema` modules.
+  // - Allow schema modules themselves to compose schemas directly without going through the domain barrel.
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: ['src/domain/**', '**/schema.ts', '**/schema.test.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/schema', '**/schema.ts', '**/*-schema', '**/*-schema.ts'],
+              message: 'Import schemas/types from `src/domain` instead of `*/schema`.',
+            },
+          ],
+        },
+      ],
+    },
+  },
   {
     files: ['src/cli/commands/generate.ts', 'src/cli/commands/render.ts'],
     rules: {

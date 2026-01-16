@@ -3,8 +3,7 @@
  */
 import React from 'react';
 import { AbsoluteFill, Sequence, Video, staticFile } from 'remotion';
-import type { VisualAsset, VideoClip } from '../../visuals/schema';
-import type { HookClip as HookClipSchema } from '../schema';
+import type { HookClip as HookClipSchema, VisualAsset, VideoClip } from '../../domain';
 import { ensureVisualCoverage, type VisualScene } from '../../visuals/duration';
 
 function resolveMediaSrc(path: string): string {

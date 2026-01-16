@@ -74,9 +74,14 @@ describe('cli progress', () => {
     const { createSpinner } = await import('../../../src/cli/progress');
     const spinner = createSpinner('Working...');
 
-    expect(ora).toHaveBeenCalledWith(
-      expect.objectContaining({ text: 'Working...', isEnabled: true, stream: process.stderr })
-    );
+    const nodeMajor = Number(process.versions.node.split('.')[0] ?? 0);
+    if (nodeMajor >= 20) {
+      expect(ora).toHaveBeenCalledWith(
+        expect.objectContaining({ text: 'Working...', isEnabled: true, stream: process.stderr })
+      );
+    } else {
+      expect(ora).not.toHaveBeenCalled();
+    }
     expect(spinner).toBeDefined();
   });
 });

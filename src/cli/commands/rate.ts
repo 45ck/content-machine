@@ -13,7 +13,7 @@ import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { CMError } from '../../core/errors';
-import type { SyncRatingOutput } from '../../score/sync-schema';
+import type { SyncRatingOutput } from '../../domain';
 import { existsSync } from 'node:fs';
 
 interface RateOptions {

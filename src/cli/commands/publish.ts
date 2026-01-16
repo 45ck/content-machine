@@ -5,8 +5,7 @@
  */
 import { Command } from 'commander';
 import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
-import { ScriptOutputSchema } from '../../script/schema';
-import { PackageOutputSchema, PlatformEnum } from '../../package/schema';
+import { PackageOutputSchema, PlatformEnum, ScriptOutputSchema } from '../../domain';
 import { generatePublish } from '../../publish/generator';
 import { FakeLLMProvider } from '../../test/stubs/fake-llm';
 import { createSpinner } from '../progress';

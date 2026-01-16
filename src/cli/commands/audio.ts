@@ -7,15 +7,14 @@ import { Command } from 'commander';
 import { logger } from '../../core/logger';
 import { loadConfig } from '../../core/config';
 import { handleCommandError, readInputFile } from '../utils';
-import { ScriptOutputSchema } from '../../script/schema';
+import { ScriptOutputSchema } from '../../domain';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStdoutLine } from '../output';
 import { CMError, SchemaError } from '../../core/errors';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
 import { hasAudioMixSources, type AudioMixPlanOptions } from '../../audio/mix/planner';
-import type { ScriptOutput } from '../../script/schema';
-import type { AudioOutput } from '../../audio/schema';
+import type { AudioOutput, ScriptOutput } from '../../domain';
 
 interface AudioMixRequest {
   outputPath: string;

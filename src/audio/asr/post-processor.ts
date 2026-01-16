@@ -10,7 +10,7 @@
  * @module audio/asr/post-processor
  */
 
-import type { WordTimestamp } from '../schema';
+import type { WordTimestamp } from '../../domain';
 
 /**
  * Options for post-processing

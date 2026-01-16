@@ -5,7 +5,7 @@
  */
 import React, { useEffect, useMemo } from 'react';
 import { continueRender, delayRender, staticFile } from 'remotion';
-import type { FontSource } from '../schema';
+import type { FontSource } from '../../domain';
 
 function isRemoteSource(src: string): boolean {
   return /^https?:\/\//i.test(src) || src.startsWith('data:');

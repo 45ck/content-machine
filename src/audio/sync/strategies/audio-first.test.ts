@@ -9,7 +9,7 @@
  * - Optionally reconciles ASR output with script text
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { ScriptOutput } from '../../../script/schema';
+import type { ScriptOutput } from '../../../domain';
 
 /**
  * Creates a minimal valid ScriptOutput for testing

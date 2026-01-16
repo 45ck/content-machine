@@ -4,7 +4,7 @@
  * Template Method pattern: defines the skeleton of the search algorithm,
  * deferring specific steps to subclasses.
  */
-import type { Evidence, ResearchSource } from '../schema';
+import type { Evidence, ResearchSource } from '../../domain';
 import type {
   ResearchTool,
   SearchToolOptions,
@@ -152,4 +152,3 @@ export abstract class BaseResearchTool<TResponse, THit> implements ResearchTool 
     return hitsLength;
   }
 }
-

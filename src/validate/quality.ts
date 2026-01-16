@@ -1,5 +1,5 @@
 import type { ValidateProfile } from './profiles';
-import type { VisualQualityGateResult } from './schema';
+import type { VisualQualityGateResult } from '../domain';
 import { CMError } from '../core/errors';
 import { resolve } from 'node:path';
 import { runPythonJson } from './python-json';

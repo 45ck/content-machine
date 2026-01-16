@@ -10,7 +10,7 @@ import {
   useCurrentFrame,
   useVideoConfig,
 } from 'remotion';
-import type { AudioMixLayer, AudioMixOutput } from '../../audio/mix/schema';
+import type { AudioMixLayer, AudioMixOutput } from '../../domain';
 
 function isRemoteSource(path: string): boolean {
   return /^https?:\/\//i.test(path) || path.startsWith('data:');

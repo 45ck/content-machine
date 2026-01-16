@@ -11,7 +11,7 @@ import {
   DEFAULT_HOOK_MAX_DURATION,
   DEFAULT_HOOKS_DIR,
 } from './constants';
-import type { HookClip, HookDefinition, HookAudioMode, HookFit } from './schema';
+import type { HookAudioMode, HookClip, HookDefinition, HookFit } from '../domain';
 import { TRANSITIONAL_HOOKS } from './libraries/transitionalhooks';
 import { downloadHookClip } from './download';
 

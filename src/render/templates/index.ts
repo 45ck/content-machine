@@ -10,10 +10,10 @@ import { stat } from 'fs/promises';
 import { join, resolve } from 'path';
 import { homedir } from 'os';
 import { NotFoundError, SchemaError } from '../../core/errors';
-import { VideoTemplateSchema, type VideoTemplate } from './schema';
+import { VideoTemplateSchema, type VideoTemplate } from '../../domain/render-templates';
 export { getTemplateGameplaySlot, getTemplateParams } from './slots';
 
-export type { VideoTemplate } from './schema';
+export type { VideoTemplate } from '../../domain/render-templates';
 
 export interface ResolvedVideoTemplate {
   template: VideoTemplate;

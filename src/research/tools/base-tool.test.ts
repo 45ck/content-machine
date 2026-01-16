@@ -2,7 +2,7 @@
  * @file Unit tests for BaseResearchTool Template Method pattern
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import type { Evidence } from '../../schema';
+import type { Evidence } from '../../domain';
 import type { SearchToolOptions } from '../types';
 import { BaseResearchTool } from './base-tool';
 

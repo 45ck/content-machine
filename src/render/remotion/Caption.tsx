@@ -12,8 +12,8 @@
 import React, { useMemo } from 'react';
 import { useCurrentFrame, useVideoConfig, spring, Sequence } from 'remotion';
 import { createTikTokStyleCaptions, Caption as RemotionCaption } from '@remotion/captions';
-import { CaptionStyle } from '../schema';
-import { WordTimestamp } from '../../audio/schema';
+import { CaptionStyle } from '../../domain';
+import type { WordTimestamp } from '../../domain';
 import { SPRING_CONFIGS } from '../tokens/easing';
 import { FONT_STACKS } from '../tokens/font';
 import type { CaptionDisplayMode } from '../captions/config';
