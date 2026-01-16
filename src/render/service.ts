@@ -921,7 +921,15 @@ async function generateMockRender(
   // Create a small, valid MP4 placeholder so players/validators accept it.
   const mockVideoBuffer = Buffer.from(MOCK_MP4_BASE64, 'base64');
   await writeFile(options.outputPath, mockVideoBuffer);
-  await probeVideoWithFfprobe(options.outputPath);
+  try {
+    await probeVideoWithFfprobe(options.outputPath);
+  } catch (error) {
+    if (error instanceof CMError && error.code === 'DEPENDENCY_MISSING') {
+      log.warn({ path: options.outputPath }, 'ffprobe missing; skipping mock render probe');
+    } else {
+      throw error;
+    }
+  }
 
   const output: RenderOutput = {
     schemaVersion: RENDER_SCHEMA_VERSION,

@@ -67,7 +67,7 @@ describe('cli progress', () => {
       fail: () => ({ text: '' }),
       stop: () => ({ text: '' }),
     }));
-    vi.doMock('ora', () => ({ default: ora }));
+    (globalThis as { __CM_ORA_FACTORY__?: typeof ora }).__CM_ORA_FACTORY__ = ora;
 
     await configureRuntime({ json: false, isTty: true });
 
@@ -83,5 +83,6 @@ describe('cli progress', () => {
       expect(ora).not.toHaveBeenCalled();
     }
     expect(spinner).toBeDefined();
+    delete (globalThis as { __CM_ORA_FACTORY__?: typeof ora }).__CM_ORA_FACTORY__;
   });
 });
