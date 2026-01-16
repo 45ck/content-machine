@@ -49,9 +49,3 @@ Linux helper (bring-your-own URLs or local files):
 ```bash
 ./scripts/download-gameplay.sh --style subway-surfers --file /path/to/your-clip.mp4
 ```
-
-Windows helper (PowerShell):
-
-```powershell
-.\scripts\download-gameplay.ps1 -Style subway-surfers -Files C:\path\to\your-clip.mp4
-```

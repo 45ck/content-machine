@@ -10,7 +10,6 @@
 - [SYSTEM-DESIGN-20260104.md](architecture/SYSTEM-DESIGN-20260104.md) - Authoritative spec (3,100 lines)
 - [On-Demand Assets Feature](features/feature-on-demand-assets-20260111.md) - Minimal install + targeted downloads
 - [On-Demand Assets Implementation](architecture/IMPL-ON-DEMAND-ASSETS-20260111.md) - Options + rollout plan
-- [Demo Media Guide](guides/guide-demo-media-20260111.md) - README demo workflow
 - [Ubiquitous Language Guide](guides/guide-ubiquitous-language-20260110.md) - Canonical terminology
 - [VENDORING.md](../VENDORING.md) - Vendored repo policy
 - [Tasks](../tasks/README.md) - Task management system

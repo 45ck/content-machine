@@ -268,7 +268,7 @@ const SingleWordView: React.FC<SingleWordViewProps> = ({ word, config }) => {
   if (config.highlightMode === 'background') {
     return (
       <div style={positionStyle}>
-        <span style={getPillStyle(config)}>
+        <span style={getPillStyle(config, true)}>
           <span style={wordStyle}>{text}</span>
         </span>
       </div>
@@ -404,7 +404,7 @@ const BuildupSentenceView: React.FC<BuildupSentenceViewProps> = ({
     flexWrap: 'wrap',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: `${config.wordSpacing}em`,
+    gap: 0,
     maxWidth: '90%',
     opacity: enterProgress,
   };
@@ -428,7 +428,10 @@ const BuildupSentenceView: React.FC<BuildupSentenceViewProps> = ({
             sequenceTimeMs >= relativeWordStartMs && sequenceTimeMs < wordEndMs - sentenceStartMs;
 
           return (
-            <BuildupWordView key={index} word={word.word} isActive={isActive} config={config} />
+            <span key={index} style={getWordWrapperStyle()}>
+              <BuildupWordView word={word.word} isActive={isActive} config={config} />
+              {index < words.length - 1 && <span style={getWordSpacerStyle(config)} />}
+            </span>
           );
         })}
       </div>
@@ -481,16 +484,15 @@ const BuildupWordView: React.FC<BuildupWordViewProps> = ({ word, isActive, confi
       }),
   };
 
-  // Wrap in pill if background mode and active
-  if (isActive && config.highlightMode === 'background') {
+  if (config.highlightMode === 'background') {
     return (
-      <span style={getPillStyle(config)}>
-        <span style={wordStyle}>{text} </span>
+      <span style={getPillStyle(config, isActive)}>
+        <span style={wordStyle}>{text}</span>
       </span>
     );
   }
 
-  return <span style={wordStyle}>{text} </span>;
+  return <span style={wordStyle}>{text}</span>;
 };
 
 /**
@@ -530,6 +532,7 @@ const CaptionPageView: React.FC<CaptionPageViewProps> = ({ page, config }) => {
                   page.startMs,
                   sequenceTimeMs
                 )}
+                isLastWord={wordIndex === line.words.length - 1}
               />
             ))}
           </div>
@@ -546,12 +549,11 @@ interface WordViewProps {
   word: TimedWord;
   config: CaptionConfig;
   isActive: boolean;
+  isLastWord: boolean;
 }
 
-const WordView: React.FC<WordViewProps> = ({ word, config, isActive }) => {
+const WordView: React.FC<WordViewProps> = ({ word, config, isActive, isLastWord }) => {
   const wordStyle = getWordStyle(config, isActive);
-  const pillStyle =
-    isActive && config.highlightMode === 'background' ? getPillStyle(config) : undefined;
 
   const text =
     config.textTransform === 'uppercase'
@@ -562,12 +564,13 @@ const WordView: React.FC<WordViewProps> = ({ word, config, isActive }) => {
           ? word.text.charAt(0).toUpperCase() + word.text.slice(1)
           : word.text;
 
-  if (pillStyle) {
+  if (config.highlightMode === 'background') {
     return (
       <span style={getWordWrapperStyle()}>
-        <span style={pillStyle}>
+        <span style={getPillStyle(config, isActive)}>
           <span style={wordStyle}>{text}</span>
         </span>
+        {!isLastWord && <span style={getWordSpacerStyle(config)} />}
       </span>
     );
   }
@@ -575,6 +578,7 @@ const WordView: React.FC<WordViewProps> = ({ word, config, isActive }) => {
   return (
     <span style={getWordWrapperStyle()}>
       <span style={wordStyle}>{text}</span>
+      {!isLastWord && <span style={getWordSpacerStyle(config)} />}
     </span>
   );
 };
@@ -728,7 +732,7 @@ function getLineStyle(config: CaptionConfig): React.CSSProperties {
     flexWrap: 'wrap',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: `${config.wordSpacing}em`,
+    gap: 0,
     lineHeight: config.lineHeight,
   };
 }
@@ -737,6 +741,15 @@ function getWordWrapperStyle(): React.CSSProperties {
   return {
     display: 'inline-flex',
     alignItems: 'center',
+  };
+}
+
+function getWordSpacerStyle(config: CaptionConfig): React.CSSProperties {
+  return {
+    display: 'inline-block',
+    width: `${config.wordSpacing}em`,
+    height: 1,
+    flexShrink: 0,
   };
 }
 
@@ -803,15 +816,13 @@ function getWordStyle(config: CaptionConfig, isActive: boolean): React.CSSProper
   return { ...baseStyle, textShadow };
 }
 
-function getPillStyle(config: CaptionConfig): React.CSSProperties {
+function getPillStyle(config: CaptionConfig, isActive: boolean): React.CSSProperties {
   return {
-    backgroundColor: config.pillStyle.color,
+    backgroundColor: isActive ? config.pillStyle.color : 'transparent',
     borderRadius: config.pillStyle.borderRadius,
     padding: `${config.pillStyle.paddingY}px ${config.pillStyle.paddingX}px`,
-    marginLeft: -config.pillStyle.paddingX / 2,
-    marginRight: -config.pillStyle.paddingX / 2,
     border:
-      config.pillStyle.borderWidth > 0
+      isActive && config.pillStyle.borderWidth > 0
         ? `${config.pillStyle.borderWidth}px solid ${config.pillStyle.borderColor}`
         : undefined,
     display: 'inline-block',

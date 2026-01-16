@@ -15,6 +15,10 @@ type BoxenModule = (text: string, options?: Record<string, unknown>) => string;
 
 let cachedBoxen: BoxenModule | null | undefined;
 
+export function __setCachedBoxen(value: BoxenModule | null | undefined): void {
+  cachedBoxen = value;
+}
+
 async function loadBoxen(): Promise<BoxenModule | null> {
   if (cachedBoxen !== undefined) return cachedBoxen;
   try {

@@ -1,44 +1,82 @@
-import { describe, expect, it } from 'vitest';
-import { setOutputWriter } from '../../../src/cli/output';
-import { createSpinner } from '../../../src/cli/progress';
-import { resetCliRuntime, setCliRuntime } from '../../../src/cli/runtime';
+import { describe, expect, it, vi } from 'vitest';
+
+async function configureRuntime(update: { json: boolean; isTty: boolean }): Promise<void> {
+  const { resetCliRuntime, setCliRuntime } = await import('../../../src/cli/runtime');
+  resetCliRuntime();
+  setCliRuntime(update);
+}
+
+async function captureOutput(): Promise<{
+  stderr: string[];
+  reset: () => Promise<void>;
+}> {
+  const { setOutputWriter } = await import('../../../src/cli/output');
+  const stderr: string[] = [];
+  setOutputWriter((fd, chunk) => {
+    if (fd === 2) stderr.push(String(chunk));
+  });
+  return {
+    stderr,
+    reset: async () => {
+      const { setOutputWriter } = await import('../../../src/cli/output');
+      setOutputWriter(null);
+    },
+  };
+}
 
 describe('cli progress', () => {
-  it('does not write to stderr in json mode', () => {
-    resetCliRuntime();
-    setCliRuntime({ json: true, isTty: true });
+  it('does not write to stderr in json mode', async () => {
+    await configureRuntime({ json: true, isTty: true });
+    const capture = await captureOutput();
 
-    const writes: string[] = [];
-    setOutputWriter((fd, chunk) => {
-      if (fd === process.stderr.fd) writes.push(String(chunk));
-    });
-
+    const { createSpinner } = await import('../../../src/cli/progress');
     const spinner = createSpinner('Working...');
     spinner.start();
+    spinner.fail('Nope');
     spinner.succeed('Done');
+    spinner.stop();
 
-    setOutputWriter(null);
-
-    expect(writes.length).toBe(0);
+    await capture.reset();
+    expect(capture.stderr.length).toBe(0);
   });
 
-  it('prints lines in non-tty mode', () => {
-    resetCliRuntime();
-    setCliRuntime({ json: false, isTty: false });
+  it('prints lines in non-tty mode', async () => {
+    await configureRuntime({ json: false, isTty: false });
+    const capture = await captureOutput();
 
-    const writes: string[] = [];
-    setOutputWriter((fd, chunk) => {
-      if (fd === process.stderr.fd) writes.push(String(chunk));
-    });
-
+    const { createSpinner } = await import('../../../src/cli/progress');
     const spinner = createSpinner('Working...');
     spinner.start();
+    spinner.fail('Nope');
     spinner.succeed('Done');
 
-    setOutputWriter(null);
+    await capture.reset();
 
-    const joined = writes.join('');
+    const joined = capture.stderr.join('');
     expect(joined).toContain('INFO: Working...');
+    expect(joined).toContain('ERROR: Nope');
     expect(joined).toContain('INFO: Done');
+  });
+
+  it('uses ora when running in a TTY', async () => {
+    vi.resetModules();
+    const ora = vi.fn(() => ({
+      text: '',
+      start: () => ({ text: '' }),
+      succeed: () => ({ text: '' }),
+      fail: () => ({ text: '' }),
+      stop: () => ({ text: '' }),
+    }));
+    vi.doMock('ora', () => ({ default: ora }));
+
+    await configureRuntime({ json: false, isTty: true });
+
+    const { createSpinner } = await import('../../../src/cli/progress');
+    const spinner = createSpinner('Working...');
+
+    expect(ora).toHaveBeenCalledWith(
+      expect.objectContaining({ text: 'Working...', isEnabled: true, stream: process.stderr })
+    );
+    expect(spinner).toBeDefined();
   });
 });

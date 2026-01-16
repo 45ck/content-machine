@@ -232,9 +232,9 @@ export const CaptionConfigSchema = z.object({
   /** Letter spacing (em units) */
   letterSpacing: z.number().default(0),
   /** Space between words (em units, scales with font size) */
-  wordSpacing: z.number().nonnegative().default(0.12),
+  wordSpacing: z.number().nonnegative().default(1.0),
   /** Line height multiplier */
-  lineHeight: z.number().positive().default(1.2),
+  lineHeight: z.number().positive().default(1.25),
   /** Text transform */
   textTransform: TextTransformSchema.default('uppercase'),
 
