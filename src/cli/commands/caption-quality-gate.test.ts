@@ -31,6 +31,7 @@ function stubCaptionRating(params: {
         outOfRecommendedRangeCount: 0,
         score: 1,
       },
+      coverage: { captionedSeconds: 5, coverageRatio: 0.95, score: 1 },
       density: {
         maxLines: 2,
         maxCharsPerLine: 25,
@@ -38,6 +39,8 @@ function stubCaptionRating(params: {
         charOverflowCount: params.charOverflowCount ?? 0,
         score: params.densityScore ?? 1,
       },
+      punctuation: { missingTerminalPunctuationCount: 0, repeatedPunctuationCount: 0, score: 1 },
+      capitalization: { style: 'all_caps', inconsistentStyleCount: 0, score: 1 },
       safeArea: { violationCount: 0, minMarginRatio: 0.1, score: params.safeAreaScore ?? 1 },
       ocrConfidence: { mean: params.ocrMean ?? 0.9, min: 0.8, stddev: 0.02, score: 1 },
       rhythm: {
@@ -47,6 +50,12 @@ function stubCaptionRating(params: {
         outOfAbsoluteRangeCount: 0,
         score: 1,
       },
+      alignment: { meanAbsCenterDxRatio: 0.01, maxAbsCenterDxRatio: 0.02, score: 1 },
+      placement: { stddevCenterXRatio: 0.01, stddevCenterYRatio: 0.01, score: 1 },
+      jitter: { meanCenterDeltaRatio: 0.01, maxCenterDeltaRatio: 0.02, score: 1 },
+      style: { maxBboxAreaRatio: 1.01, bboxAreaStdDevRatio: 0.01, score: 1 },
+      redundancy: { repeatedSegmentRatio: 0, score: 1 },
+      segmentation: { suspiciousSplitsCount: 0, suspiciousMergesCount: 0, score: 1 },
     } as any,
     errors: [],
     analysis: {

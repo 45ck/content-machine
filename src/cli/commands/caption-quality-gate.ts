@@ -118,6 +118,31 @@ function getNextAttemptSettings(params: {
         captionMaxCps: Math.min(next.captionMaxCps ?? 15, 12),
       };
     }
+
+    if (q.jitter.score < 0.9 || q.placement.score < 0.9 || q.alignment.score < 0.9) {
+      next = withBaseCaptionOverrides(next, {
+        pageAnimation: 'none',
+        animationDuration: 80,
+        wordTransitionMs: 0,
+      });
+    }
+
+    if (q.coverage.coverageRatio < 0.8) {
+      next = withBaseCaptionOverrides(next, {
+        displayMode: 'buildup',
+        layout: { maxGapMs: 2000, chunkGapMs: 0 },
+      });
+    }
+
+    if (q.segmentation.score < 0.9) {
+      next = withBaseCaptionOverrides(next, {
+        layout: { maxGapMs: 900, targetWordsPerChunk: 4 },
+      });
+    }
+
+    if (q.capitalization.score < 0.9) {
+      next = withBaseCaptionOverrides(next, { textTransform: 'uppercase' });
+    }
   }
 
   // Safe area + margin consistency (prioritize early if failing)
@@ -151,11 +176,29 @@ function getNextAttemptSettings(params: {
   }
 
   // Level 5: switch preset if everything else fails (last resort)
-  if (nextLevel >= 5 && q.overall.score < config.minOverallScore) {
+  if (nextLevel === 5 && q.overall.score < config.minOverallScore) {
     next = {
       ...next,
       captionPreset: (next.captionPreset ?? 'capcut') === 'capcut' ? 'tiktok' : 'capcut',
     };
+  }
+
+  if (nextLevel >= 6 && q.overall.score < config.minOverallScore) {
+    const ladder: CaptionPresetName[] = [
+      'capcut',
+      'tiktok',
+      'reels',
+      'youtube',
+      'minimal',
+      'bold',
+      'karaoke',
+      'hormozi',
+      'neon',
+    ];
+    const currentPreset = next.captionPreset ?? 'capcut';
+    const index = ladder.indexOf(currentPreset);
+    const nextPreset = ladder[(index >= 0 ? index + 1 : 0) % ladder.length];
+    next = { ...next, captionPreset: nextPreset };
   }
 
   const after = JSON.stringify(next);

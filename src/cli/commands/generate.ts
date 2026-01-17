@@ -170,6 +170,10 @@ interface GenerateOptions {
   autoRetryCaptions?: boolean;
   /** Maximum number of caption tuning retries after the initial attempt */
   maxCaptionRetries?: string;
+  /** Force a "perfect captions" optimization loop (enables caption quality gate + retries) */
+  captionPerfect?: boolean;
+  /** Use mock caption quality scoring (no OCR) */
+  captionQualityMock?: boolean;
   /** Caption display mode: page (default), single (one word at a time), buildup (accumulate per sentence) */
   captionMode?: 'page' | 'single' | 'buildup' | 'chunk';
   /** Words per caption page/group (default: 8) */
