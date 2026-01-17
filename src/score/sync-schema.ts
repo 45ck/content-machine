@@ -312,6 +312,11 @@ export type SyncRatingOutput = z.infer<typeof SyncRatingOutputSchema>;
 export const CaptionQualityRatingOptionsSchema = z.object({
   fps: z.number().default(2),
   ocrEngine: z.enum(['tesseract', 'easyocr']).default('tesseract'),
+  /**
+   * Optional cap for analysis duration (seconds). Useful to keep benchmark runs fast
+   * on long videos (sample only the beginning).
+   */
+  maxSeconds: z.number().positive().optional(),
   captionRegion: z
     .object({
       // Default crop tuned for our templates (captures multi-line captions above the bottom edge).
@@ -364,6 +369,11 @@ export const SyncRatingOptionsSchema = z.object({
   fps: z.number().default(2), // Frames per second to sample
   ocrEngine: z.enum(['tesseract', 'easyocr']).default('tesseract'),
   asrModel: z.enum(['tiny', 'base', 'small', 'medium']).default('base'),
+  /**
+   * Optional cap for analysis duration (seconds). Useful to keep benchmark runs fast
+   * on long videos (sample only the beginning).
+   */
+  maxSeconds: z.number().positive().optional(),
   captionRegion: z
     .object({
       // Default crop tuned for our templates (captures multi-line captions above the bottom edge).

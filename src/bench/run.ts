@@ -53,20 +53,22 @@ function hasErrorType(report: any, errorType: string): boolean {
   return Boolean(report.errors?.some((e: any) => e.type === errorType));
 }
 
-async function rateCaption(videoPath: string, fps: number): Promise<any> {
+async function rateCaption(videoPath: string, fps: number, maxSeconds?: number): Promise<any> {
   const { rateCaptionQuality } = await import('../score/sync-rater');
   return rateCaptionQuality(videoPath, {
     fps,
     captionRegion: { yRatio: 0.65, heightRatio: 0.35 },
+    maxSeconds,
   });
 }
 
-async function rateSync(videoPath: string, fps: number): Promise<any> {
+async function rateSync(videoPath: string, fps: number, maxSeconds?: number): Promise<any> {
   const { rateSyncQuality } = await import('../score/sync-rater');
   return rateSyncQuality(videoPath, {
     fps,
     captionRegion: { yRatio: 0.65, heightRatio: 0.35 },
     asrModel: 'base',
+    maxSeconds,
   });
 }
 
@@ -145,16 +147,27 @@ async function scoreOverallForVideos(params: {
   rootDir: string;
   videoPaths: string[];
   rateCaption: (videoPath: string) => Promise<any>;
-}): Promise<Array<{ videoPath: string; overallScore: number }>> {
-  const out: Array<{ videoPath: string; overallScore: number }> = [];
+}): Promise<{
+  scored: Array<{ videoPath: string; overallScore: number }>;
+  skipped: Array<{ videoPath: string; error: string }>;
+}> {
+  const scored: Array<{ videoPath: string; overallScore: number }> = [];
+  const skipped: Array<{ videoPath: string; error: string }> = [];
   for (const videoPath of params.videoPaths) {
-    const r = await params.rateCaption(videoPath);
-    out.push({
-      videoPath: relative(params.rootDir, videoPath),
-      overallScore: r.captionQuality.overall.score,
-    });
+    try {
+      const r = await params.rateCaption(videoPath);
+      scored.push({
+        videoPath: relative(params.rootDir, videoPath),
+        overallScore: r.captionQuality.overall.score,
+      });
+    } catch (error) {
+      skipped.push({
+        videoPath: relative(params.rootDir, videoPath),
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
   }
-  return out;
+  return { scored, skipped };
 }
 
 async function runStressChecks(params: {
@@ -343,6 +356,17 @@ export async function runBench(params: {
   determinismEpsilon: number;
   captionFps?: number;
   syncFps?: number;
+  /**
+   * Optional cap for analysis duration (seconds). When set, only the first N seconds
+   * of each video are sampled for OCR/ASR. This keeps benchmark runs fast on long videos.
+   */
+  maxSeconds?: number;
+  /**
+   * Optional cap on how many videos to score from each set (deterministic: first N in sorted order).
+   * Useful when benchmarking with large corpora (e.g., downloaded YouTube sets).
+   */
+  maxProVideos?: number;
+  maxOurVideos?: number;
   deps?: {
     rateCaption?: (videoPath: string) => Promise<any>;
     rateSync?: (videoPath: string) => Promise<any>;
@@ -354,8 +378,19 @@ export async function runBench(params: {
   const stressDir = join(rootDir, 'stress');
   const baselinePath = join(rootDir, 'results', 'baseline.json');
 
-  const proFiles = listMp4Files(proDir);
-  const ourFiles = listMp4Files(ourDir);
+  const maxProVideos =
+    typeof params.maxProVideos === 'number' && Number.isFinite(params.maxProVideos)
+      ? Math.max(0, Math.floor(params.maxProVideos))
+      : undefined;
+  const maxOurVideos =
+    typeof params.maxOurVideos === 'number' && Number.isFinite(params.maxOurVideos)
+      ? Math.max(0, Math.floor(params.maxOurVideos))
+      : undefined;
+
+  const allProFiles = listMp4Files(proDir);
+  const allOurFiles = listMp4Files(ourDir);
+  const proFiles = maxProVideos ? allProFiles.slice(0, maxProVideos) : allProFiles;
+  const ourFiles = maxOurVideos ? allOurFiles.slice(0, maxOurVideos) : allOurFiles;
   if (proFiles.length === 0) {
     throw new CMError('FILE_NOT_FOUND', `No PRO videos found under: ${proDir}`, {
       fix: 'Add a few captioned videos to bench/pro/*.mp4 and re-run: cm bench run',
@@ -369,11 +404,17 @@ export async function runBench(params: {
 
   const captionFps = Math.max(1, Math.round(params.captionFps ?? 2));
   const syncFps = Math.max(1, Math.round(params.syncFps ?? 2));
+  const maxSeconds =
+    typeof params.maxSeconds === 'number' && Number.isFinite(params.maxSeconds)
+      ? Math.max(0, params.maxSeconds)
+      : undefined;
 
   const deps = {
     rateCaption:
-      params.deps?.rateCaption ?? ((videoPath: string) => rateCaption(videoPath, captionFps)),
-    rateSync: params.deps?.rateSync ?? ((videoPath: string) => rateSync(videoPath, syncFps)),
+      params.deps?.rateCaption ??
+      ((videoPath: string) => rateCaption(videoPath, captionFps, maxSeconds)),
+    rateSync:
+      params.deps?.rateSync ?? ((videoPath: string) => rateSync(videoPath, syncFps, maxSeconds)),
   };
 
   const determinism = await runDeterminismCheck({
@@ -394,8 +435,8 @@ export async function runBench(params: {
     rateCaption: deps.rateCaption,
   });
 
-  const proScores = proVideos.map((v) => v.overallScore);
-  const ourScores = ourVideos.map((v) => v.overallScore);
+  const proScores = proVideos.scored.map((v) => v.overallScore);
+  const ourScores = ourVideos.scored.map((v) => v.overallScore);
   const separation = runSeparationCheck({ proScores, ourScores });
 
   const stressResults = params.includeStress
@@ -412,17 +453,18 @@ export async function runBench(params: {
     stressResults.every((r) => r.monotonicPassed) &&
     stressResults.every((r) => (r.expectedErrorType ? r.errorTriggered !== false : true));
 
-  const baseline = computeBaselineCheck({ baselinePath, ourVideos });
+  const baseline = computeBaselineCheck({ baselinePath, ourVideos: ourVideos.scored });
 
   return {
     schemaVersion: '1.0.0',
     createdAt: new Date().toISOString(),
     rootDir,
-    videos: { pro: proVideos, our: ourVideos },
+    videos: { pro: proVideos.scored, our: ourVideos.scored },
+    skipped: { pro: proVideos.skipped, our: ourVideos.skipped },
     summary: {
       passed: passed && baseline.passed,
-      proCount: proFiles.length,
-      ourCount: ourFiles.length,
+      proCount: proVideos.scored.length,
+      ourCount: ourVideos.scored.length,
       stressCount: stressResults.length,
     },
     determinism,

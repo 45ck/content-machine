@@ -107,6 +107,10 @@ export interface BenchReport {
     pro: Array<{ videoPath: string; overallScore: number }>;
     our: Array<{ videoPath: string; overallScore: number }>;
   };
+  skipped: {
+    pro: Array<{ videoPath: string; error: string }>;
+    our: Array<{ videoPath: string; error: string }>;
+  };
   summary: {
     passed: boolean;
     proCount: number;

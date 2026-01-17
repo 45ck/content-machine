@@ -32,6 +32,36 @@ interface BenchRunOptions extends BenchCommonOptions {
   epsilon?: string;
   captionFps?: string;
   syncFps?: string;
+  maxSeconds?: string;
+  maxPro?: string;
+  maxOur?: string;
+}
+
+function parseOptionalPositiveFloat(raw: unknown, flagName: string): number | undefined {
+  if (typeof raw !== 'string' || raw.trim().length === 0) return undefined;
+  const value = Number.parseFloat(raw);
+  if (!Number.isFinite(value) || value <= 0) {
+    throw new Error(`Invalid ${flagName} value: ${raw}`);
+  }
+  return value;
+}
+
+function parseOptionalPositiveInt(
+  raw: unknown,
+  flagName: string,
+  options?: { min?: number; max?: number }
+): number | undefined {
+  if (typeof raw !== 'string' || raw.trim().length === 0) return undefined;
+  const value = Number.parseInt(raw, 10);
+  if (!Number.isFinite(value)) {
+    throw new Error(`Invalid ${flagName} value: ${raw}`);
+  }
+  const min = options?.min ?? 1;
+  const max = options?.max ?? 10000;
+  if (value < min || value > max) {
+    throw new Error(`Invalid ${flagName} value: ${raw}`);
+  }
+  return value;
 }
 
 export const benchCommand = new Command('bench')
@@ -94,6 +124,12 @@ benchCommand
   .option('--epsilon <n>', 'Allowed score delta for determinism check (0..1)', '0.001')
   .option('--caption-fps <n>', 'OCR FPS for caption-quality scoring', '2')
   .option('--sync-fps <n>', 'OCR FPS for sync scoring (higher = more accurate, slower)', '6')
+  .option(
+    '--max-seconds <n>',
+    'Only analyze the first N seconds of each video (speeds up long videos)'
+  )
+  .option('--max-pro <n>', 'Only score the first N PRO videos (sorted)')
+  .option('--max-our <n>', 'Only score the first N OUR videos (sorted)')
   .action(async (options: BenchRunOptions, command: Command) => {
     const runtime = getCliRuntime();
     const spinner = createSpinner('Running benchmark...').start();
@@ -104,6 +140,9 @@ benchCommand
       const epsilon = Number.parseFloat(options.epsilon ?? '0.001');
       const captionFps = Number.parseInt(options.captionFps ?? '2', 10);
       const syncFps = Number.parseInt(options.syncFps ?? '6', 10);
+      const maxSeconds = parseOptionalPositiveFloat(options.maxSeconds, '--max-seconds');
+      const maxProVideos = parseOptionalPositiveInt(options.maxPro, '--max-pro');
+      const maxOurVideos = parseOptionalPositiveInt(options.maxOur, '--max-our');
 
       const { runBench } = await import('../../bench/run');
       const report = await runBench({
@@ -113,6 +152,9 @@ benchCommand
         determinismEpsilon: epsilon,
         captionFps,
         syncFps,
+        maxSeconds,
+        maxProVideos,
+        maxOurVideos,
       });
 
       await writeOutputFile(reportPath, report);
@@ -130,6 +172,9 @@ benchCommand
               epsilon,
               captionFps,
               syncFps,
+              maxSeconds: maxSeconds ?? null,
+              maxPro: maxProVideos ?? null,
+              maxOur: maxOurVideos ?? null,
             },
             outputs: {
               reportPath,

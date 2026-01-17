@@ -67,3 +67,7 @@ docs/api/
 bench/_tmp/
 bench/stress/manifest.json
 bench/results/report.json
+bench/results/*.json
+!bench/results/baseline.json
+bench/pro/youtube-refs.txt
+bench/pro/.yt-dlp-archive.txt

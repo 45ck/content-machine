@@ -72,7 +72,8 @@ function standardDeviation(arr: number[]): number {
 async function extractFrames(
   videoPath: string,
   fps: number,
-  captionRegion: { yRatio: number; heightRatio: number }
+  captionRegion: { yRatio: number; heightRatio: number },
+  maxSeconds?: number
 ): Promise<{
   framesDir: string;
   frameCount: number;
@@ -88,7 +89,10 @@ async function extractFrames(
   const info = await probeVideoWithFfprobe(videoPath);
   const width = info.width;
   const height = info.height;
-  const videoDurationSeconds = info.durationSeconds;
+  const videoDurationSeconds =
+    typeof maxSeconds === 'number' && Number.isFinite(maxSeconds)
+      ? Math.min(info.durationSeconds, Math.max(0, maxSeconds))
+      : info.durationSeconds;
 
   // Calculate crop region for captions (bottom portion)
   const cropY = Math.floor(height * captionRegion.yRatio);
@@ -96,22 +100,18 @@ async function extractFrames(
 
   // Extract frames, cropped to caption region
   try {
-    await execFileAsync(
-      'ffmpeg',
-      [
-        '-hide_banner',
-        '-loglevel',
-        'error',
-        '-i',
-        videoPath,
-        '-vf',
-        `fps=${fps},crop=${width}:${cropH}:0:${cropY}`,
-        '-q:v',
-        '2',
-        join(framesDir, 'frame_%04d.png'),
-      ],
-      { windowsHide: true, timeout: 60_000 }
+    const args: string[] = ['-hide_banner', '-loglevel', 'error', '-i', videoPath];
+    if (typeof maxSeconds === 'number' && Number.isFinite(maxSeconds) && maxSeconds > 0) {
+      args.push('-t', String(maxSeconds));
+    }
+    args.push(
+      '-vf',
+      `fps=${fps},crop=${width}:${cropH}:0:${cropY}`,
+      '-q:v',
+      '2',
+      join(framesDir, 'frame_%04d.png')
     );
+    await execFileAsync('ffmpeg', args, { windowsHide: true, timeout: 60_000 });
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
       throw new CMError('DEPENDENCY_MISSING', 'ffmpeg is required for sync rating', {
@@ -140,32 +140,33 @@ async function extractFrames(
 /**
  * Extract audio from video
  */
-async function extractAudio(videoPath: string): Promise<string> {
+async function extractAudio(videoPath: string, maxSeconds?: number): Promise<string> {
   const audioPath = join(tmpdir(), `cm-sync-audio-${Date.now()}.wav`);
 
   log.debug({ videoPath, audioPath }, 'Extracting audio');
 
   try {
-    await execFileAsync(
-      'ffmpeg',
-      [
-        '-hide_banner',
-        '-loglevel',
-        'error',
-        '-i',
-        videoPath,
-        '-vn',
-        '-acodec',
-        'pcm_s16le',
-        '-ar',
-        '16000',
-        '-ac',
-        '1',
-        '-y',
-        audioPath,
-      ],
-      { windowsHide: true, timeout: 60_000 }
-    );
+    const args: string[] = [
+      '-hide_banner',
+      '-loglevel',
+      'error',
+      '-i',
+      videoPath,
+      '-vn',
+      '-acodec',
+      'pcm_s16le',
+      '-ar',
+      '16000',
+      '-ac',
+      '1',
+      '-y',
+      audioPath,
+    ];
+    if (typeof maxSeconds === 'number' && Number.isFinite(maxSeconds) && maxSeconds > 0) {
+      // For audio we cap from start; good enough for benchmark sampling.
+      args.splice(5, 0, '-t', String(maxSeconds));
+    }
+    await execFileAsync('ffmpeg', args, { windowsHide: true, timeout: 60_000 });
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
       throw new CMError('DEPENDENCY_MISSING', 'ffmpeg is required for sync rating', {
@@ -714,11 +715,16 @@ async function rateSyncQualityReal(
 
   try {
     // Step 1: Extract frames
-    const frameResult = await extractFrames(videoPath, opts.fps, opts.captionRegion);
+    const frameResult = await extractFrames(
+      videoPath,
+      opts.fps,
+      opts.captionRegion,
+      opts.maxSeconds
+    );
     framesDir = frameResult.framesDir;
 
     // Step 2: Extract audio
-    audioPath = await extractAudio(videoPath);
+    audioPath = await extractAudio(videoPath, opts.maxSeconds);
 
     // Step 3: Run OCR
     const ocrFrames = await runOCR(framesDir, opts.fps, frameResult.captionCrop.offsetY);
@@ -830,7 +836,12 @@ async function rateCaptionQualityReal(
   let framesDir: string | null = null;
 
   try {
-    const frameResult = await extractFrames(videoPath, opts.fps, opts.captionRegion);
+    const frameResult = await extractFrames(
+      videoPath,
+      opts.fps,
+      opts.captionRegion,
+      opts.maxSeconds
+    );
     framesDir = frameResult.framesDir;
 
     const ocrFrames = await runOCR(framesDir, opts.fps, frameResult.captionCrop.offsetY);
