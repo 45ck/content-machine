@@ -1343,7 +1343,8 @@ function applyDefaultOption(
   value: unknown
 ): void {
   if (value === undefined) return;
-  if (command.getOptionValueSource(optionName) !== 'default') return;
+  const source = command.getOptionValueSource(optionName);
+  if (source !== 'default' && source !== undefined) return;
   options[optionName] = value;
 }
 
@@ -1374,13 +1375,21 @@ function applyCaptionDefaultsFromConfig(options: GenerateOptions, command: Comma
   }
 }
 
-function applyCaptionQualityPerfectDefaults(options: GenerateOptions): void {
+function applyCaptionQualityPerfectDefaults(options: GenerateOptions, command: Command): void {
   if (!options.captionPerfect) return;
   options.captionQualityCheck = true;
   options.autoRetryCaptions = true;
-  if (!options.minCaptionOverall) options.minCaptionOverall = '0.95';
-  if (!options.maxCaptionRetries) options.maxCaptionRetries = '50';
-  if (options.captionQualityMock == null) options.captionQualityMock = false;
+  const record = options as unknown as Record<string, unknown>;
+  applyDefaultOption(record, command, 'minCaptionOverall', '0.95');
+  applyDefaultOption(record, command, 'maxCaptionRetries', '50');
+  applyDefaultOption(record, command, 'captionQualityMock', false);
+  applyDefaultOption(record, command, 'captionMode', 'chunk');
+  applyDefaultOption(record, command, 'wordsPerPage', '8');
+  applyDefaultOption(record, command, 'captionGroupMs', '1200');
+  applyDefaultOption(record, command, 'captionMaxWpm', '220');
+  applyDefaultOption(record, command, 'captionMaxCps', '18');
+  applyDefaultOption(record, command, 'captionMinOnScreenMs', '1400');
+  applyDefaultOption(record, command, 'captionMinOnScreenMsShort', '1100');
 }
 
 function getOptionNameMap(command: Command): Map<string, string> {
@@ -1772,6 +1781,13 @@ async function runGeneratePipeline(params: {
             emitEmpty: Boolean(params.options.audioMix) && !hasMixSources,
           };
 
+    const mockRenderMode: 'placeholder' | 'real' | undefined =
+      params.options.mock &&
+      (params.options.captionPerfect || params.options.captionQualityCheck) &&
+      !params.options.captionQualityMock
+        ? 'real'
+        : undefined;
+
     return await runPipeline({
       topic: params.topic,
       archetype: params.archetype as
@@ -1792,6 +1808,7 @@ async function runGeneratePipeline(params: {
       keepArtifacts: params.options.keepArtifacts,
       llmProvider: params.llmProvider,
       mock: params.options.mock,
+      mockRenderMode,
       research: params.research,
       eventEmitter,
       pipelineMode: params.options.pipeline ?? 'standard',
@@ -2132,8 +2149,18 @@ async function runPipelineWithOptionalSyncQualityGate(
       visualsInput: result.visuals,
     };
 
+    const wordsPerPage = finalOptions.wordsPerPage ?? finalOptions.captionMaxWords;
+
     const initialCaptionSettings: CaptionAttemptSettings = {
       captionPreset: finalOptions.captionPreset as CaptionPresetName | undefined,
+      captionMode: finalOptions.captionMode ?? undefined,
+      wordsPerPage: wordsPerPage ? parseInt(wordsPerPage, 10) : undefined,
+      captionTargetWords: parseOptionalInt(finalOptions.captionTargetWords) ?? undefined,
+      captionMinWords: parseOptionalInt(finalOptions.captionMinWords) ?? undefined,
+      captionMaxWpm: parseOptionalNumber(finalOptions.captionMaxWpm) ?? undefined,
+      captionGroupMs: finalOptions.captionGroupMs
+        ? parseInt(finalOptions.captionGroupMs, 10)
+        : undefined,
       captionConfigOverrides: {},
       maxLinesPerPage: finalOptions.maxLines ? parseInt(finalOptions.maxLines, 10) : undefined,
       maxCharsPerLine: finalOptions.charsPerLine
@@ -2150,6 +2177,17 @@ async function runPipelineWithOptionalSyncQualityGate(
     const rerender = async (settings: CaptionAttemptSettings): Promise<PipelineResult> => {
       const attemptOptions: GenerateOptions = { ...finalOptions };
       if (settings.captionPreset) attemptOptions.captionPreset = settings.captionPreset;
+      if (settings.captionMode) attemptOptions.captionMode = settings.captionMode;
+      if (settings.wordsPerPage !== undefined)
+        attemptOptions.wordsPerPage = String(settings.wordsPerPage);
+      if (settings.captionTargetWords !== undefined)
+        attemptOptions.captionTargetWords = String(settings.captionTargetWords);
+      if (settings.captionMinWords !== undefined)
+        attemptOptions.captionMinWords = String(settings.captionMinWords);
+      if (settings.captionMaxWpm !== undefined)
+        attemptOptions.captionMaxWpm = String(settings.captionMaxWpm);
+      if (settings.captionGroupMs !== undefined)
+        attemptOptions.captionGroupMs = String(settings.captionGroupMs);
       if (settings.maxLinesPerPage !== undefined)
         attemptOptions.maxLines = String(settings.maxLinesPerPage);
       if (settings.maxCharsPerLine !== undefined)
@@ -2184,6 +2222,7 @@ async function runPipelineWithOptionalSyncQualityGate(
     const rate = (videoPath: string): Promise<CaptionQualityRatingOutput> => {
       return rateCaptionQuality(videoPath, {
         fps: 2,
+        captionRegion: { yRatio: 0.65, heightRatio: 0.35 },
         mock: Boolean(params.options.captionQualityMock),
       });
     };
@@ -2303,7 +2342,7 @@ async function runGenerate(
 
   applyCaptionDefaultsFromConfig(options, command);
   applySyncPresetDefaults(options, command);
-  applyCaptionQualityPerfectDefaults(options);
+  applyCaptionQualityPerfectDefaults(options, command);
   let resolvedWorkflow: Awaited<ReturnType<typeof resolveWorkflow>> | undefined;
   let workflowError: ReturnType<typeof getCliErrorInfo> | null = null;
 

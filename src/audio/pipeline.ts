@@ -198,9 +198,13 @@ async function generateMockAudio(options: GenerateAudioOptions): Promise<AudioOu
   // Save mock timestamps
   await writeFile(options.timestampsPath, JSON.stringify(timestamps, null, 2), 'utf-8');
 
-  // Create a small mock audio file (just a placeholder)
-  const mockAudioBuffer = Buffer.alloc(1024);
-  await writeFile(options.outputPath, mockAudioBuffer);
+  const sampleRate = 22050;
+  await writeSilentWav({
+    path: options.outputPath,
+    durationSeconds: totalDuration,
+    sampleRate,
+    channels: 1,
+  });
 
   const mixResult = await maybeWriteAudioMix({
     script: options.script,
@@ -217,7 +221,7 @@ async function generateMockAudio(options: GenerateAudioOptions): Promise<AudioOu
     duration: totalDuration,
     wordCount: words.length,
     voice: options.voice,
-    sampleRate: 22050,
+    sampleRate,
     ttsCost: 0,
     audioMixPath: mixResult.audioMixPath,
     audioMix: mixResult.audioMix,
@@ -232,6 +236,37 @@ async function generateMockAudio(options: GenerateAudioOptions): Promise<AudioOu
   );
 
   return AudioOutputSchema.parse(output);
+}
+
+async function writeSilentWav(params: {
+  path: string;
+  durationSeconds: number;
+  sampleRate: number;
+  channels: number;
+}): Promise<void> {
+  const bitsPerSample = 16;
+  const bytesPerSample = bitsPerSample / 8;
+  const frames = Math.max(1, Math.ceil(params.durationSeconds * params.sampleRate));
+  const dataSize = frames * params.channels * bytesPerSample;
+  const fileSize = 36 + dataSize;
+  const header = Buffer.alloc(44);
+
+  header.write('RIFF', 0, 4, 'ascii');
+  header.writeUInt32LE(fileSize, 4);
+  header.write('WAVE', 8, 4, 'ascii');
+  header.write('fmt ', 12, 4, 'ascii');
+  header.writeUInt32LE(16, 16); // fmt chunk size
+  header.writeUInt16LE(1, 20); // PCM
+  header.writeUInt16LE(params.channels, 22);
+  header.writeUInt32LE(params.sampleRate, 24);
+  header.writeUInt32LE(params.sampleRate * params.channels * bytesPerSample, 28); // byteRate
+  header.writeUInt16LE(params.channels * bytesPerSample, 32); // blockAlign
+  header.writeUInt16LE(bitsPerSample, 34);
+  header.write('data', 36, 4, 'ascii');
+  header.writeUInt32LE(dataSize, 40);
+
+  const silence = Buffer.alloc(dataSize);
+  await writeFile(params.path, Buffer.concat([header, silence]));
 }
 
 /**

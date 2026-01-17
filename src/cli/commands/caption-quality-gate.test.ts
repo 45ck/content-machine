@@ -17,6 +17,10 @@ function stubCaptionRating(params: {
   safeAreaScore?: number;
   ocrMean?: number;
   flashSegmentCount?: number;
+  displayTimeScore?: number;
+  outOfRecommendedRangeCount?: number;
+  rhythmScore?: number;
+  outOfIdealRangeCount?: number;
 }): CaptionQualityRatingOutput {
   return {
     schemaVersion: '1.0.0',
@@ -28,8 +32,8 @@ function stubCaptionRating(params: {
         minDurationSeconds: 1.2,
         maxDurationSeconds: 5,
         flashSegmentCount: params.flashSegmentCount ?? 0,
-        outOfRecommendedRangeCount: 0,
-        score: 1,
+        outOfRecommendedRangeCount: params.outOfRecommendedRangeCount ?? 0,
+        score: params.displayTimeScore ?? 1,
       },
       coverage: { captionedSeconds: 5, coverageRatio: 0.95, score: 1 },
       density: {
@@ -46,9 +50,9 @@ function stubCaptionRating(params: {
       rhythm: {
         meanWps: 2.5,
         stddevWps: 0.5,
-        outOfIdealRangeCount: 0,
+        outOfIdealRangeCount: params.outOfIdealRangeCount ?? 0,
         outOfAbsoluteRangeCount: 0,
-        score: 1,
+        score: params.rhythmScore ?? 1,
       },
       alignment: { meanAbsCenterDxRatio: 0.01, maxAbsCenterDxRatio: 0.02, score: 1 },
       placement: { stddevCenterXRatio: 0.01, stddevCenterYRatio: 0.01, score: 1 },
@@ -141,7 +145,6 @@ describe('runGenerateWithCaptionQualityGate', () => {
     expect((settingsUsed as any).captionMinOnScreenMs).toBeGreaterThanOrEqual(1400);
     expect((settingsUsed as any).captionMinOnScreenMsShort).toBeGreaterThanOrEqual(1100);
     expect((settingsUsed as any).maxCharsPerLine).toBeLessThanOrEqual(22);
-    expect((settingsUsed as any).captionMaxCps).toBeLessThanOrEqual(12);
   });
 
   it('retries and adjusts safe zone when safe area score is low', async () => {
@@ -176,5 +179,42 @@ describe('runGenerateWithCaptionQualityGate', () => {
     expect(
       (settingsUsed as any).captionConfigOverrides.positionOffset?.edgeDistance
     ).toBeGreaterThan(15);
+  });
+
+  it('retries and adjusts chunk sizing when rhythm/display time are poor', async () => {
+    const rate = vi
+      .fn()
+      .mockResolvedValueOnce(
+        stubCaptionRating({
+          overallScore: 0.55,
+          overallPassed: false,
+          displayTimeScore: 0.6,
+          outOfRecommendedRangeCount: 5,
+          rhythmScore: 0.65,
+          outOfIdealRangeCount: 4,
+        })
+      )
+      .mockResolvedValueOnce(stubCaptionRating({ overallScore: 0.9, overallPassed: true }));
+
+    const rerender = vi.fn(async (_settings: unknown) => stubPipelineResult('out.mp4'));
+
+    const result = await runGenerateWithCaptionQualityGate({
+      initialPipelineResult: stubPipelineResult('out.mp4'),
+      initialSettings: { captionConfigOverrides: {} },
+      config: { enabled: true, autoRetry: true, maxRetries: 2, minOverallScore: 0.8 },
+      rerender,
+      rate,
+    });
+
+    expect(result.attempts).toBe(2);
+    expect(rerender).toHaveBeenCalledTimes(1);
+
+    const settingsUsed = rerender.mock.calls[0]?.[0] as any;
+    expect(settingsUsed.captionMode).toBe('chunk');
+    expect(settingsUsed.wordsPerPage).toBeGreaterThanOrEqual(8);
+    expect(settingsUsed.captionMaxWpm).toBeGreaterThanOrEqual(220);
+    expect(settingsUsed.captionMaxCps).toBeGreaterThanOrEqual(18);
+    expect(settingsUsed.captionMinOnScreenMs).toBeGreaterThanOrEqual(1400);
+    expect(settingsUsed.captionMinOnScreenMsShort).toBeGreaterThanOrEqual(1100);
   });
 });

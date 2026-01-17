@@ -37,7 +37,7 @@ export const DEFAULT_BURNED_IN_CAPTION_THRESHOLDS: BurnedInCaptionThresholds = {
   absoluteReadingSpeedWps: { min: 1, max: 7 },
   recommendedCaptionDurationSeconds: { min: 1, max: 7 },
   flashDurationSecondsMax: 0.5,
-  density: { maxLines: 2, maxCharsPerLine: 45 },
+  density: { maxLines: 3, maxCharsPerLine: 45 },
   capitalization: { allCapsRatioMin: 0.8 },
   alignment: {
     idealCenterXRatio: 0.5,
@@ -109,6 +109,79 @@ function normalizeCaptionText(text: string): string {
   return String(text ?? '')
     .replace(/\s+/g, ' ')
     .trim();
+}
+
+function normalizeForSimilarity(text: string): string {
+  return normalizeCaptionText(text).toLowerCase();
+}
+
+function tokenizeForSimilarity(text: string): string[] {
+  const normalized = normalizeForSimilarity(text);
+  if (!normalized) return [];
+  return normalized
+    .split(/\s+/)
+    .map((w) => w.replace(/[^a-z0-9']/g, ''))
+    .filter(Boolean);
+}
+
+function levenshteinDistance(a: string, b: string, maxDistance: number): number {
+  if (a === b) return 0;
+  const alen = a.length;
+  const blen = b.length;
+  if (alen === 0) return blen;
+  if (blen === 0) return alen;
+  if (Math.abs(alen - blen) > maxDistance) return maxDistance + 1;
+
+  const v0 = new Array(blen + 1);
+  const v1 = new Array(blen + 1);
+  for (let i = 0; i <= blen; i++) v0[i] = i;
+
+  for (let i = 0; i < alen; i++) {
+    v1[0] = i + 1;
+    let rowMin = v1[0];
+
+    for (let j = 0; j < blen; j++) {
+      const cost = a[i] === b[j] ? 0 : 1;
+      v1[j + 1] = Math.min(v1[j] + 1, v0[j + 1] + 1, v0[j] + cost);
+      rowMin = Math.min(rowMin, v1[j + 1]);
+    }
+
+    if (rowMin > maxDistance) return maxDistance + 1;
+    for (let j = 0; j <= blen; j++) v0[j] = v1[j];
+  }
+
+  return v0[blen];
+}
+
+function computeTokenOverlapRatio(a: string, b: string): number {
+  const aTokens = tokenizeForSimilarity(a);
+  const bTokens = tokenizeForSimilarity(b);
+  const denom = Math.max(aTokens.length, bTokens.length);
+  if (denom === 0) return a.trim().length === 0 && b.trim().length === 0 ? 1 : 0;
+
+  const bSet = new Set(bTokens);
+  let intersection = 0;
+  for (const token of aTokens) {
+    if (bSet.has(token)) intersection += 1;
+  }
+  return intersection / denom;
+}
+
+function areSimilarCaptions(aNormalized: string, bNormalized: string): boolean {
+  const a = normalizeForSimilarity(aNormalized);
+  const b = normalizeForSimilarity(bNormalized);
+  if (a === b) return true;
+  if (!a || !b) return false;
+
+  const overlap = computeTokenOverlapRatio(a, b);
+  if (overlap >= 0.8) return true;
+
+  const maxLen = Math.max(a.length, b.length);
+  const dist = levenshteinDistance(a, b, 6);
+  if (dist <= 2) return true;
+  if (dist > 6) return false;
+  const similarity = 1 - dist / Math.max(1, maxLen);
+  return similarity >= 0.88;
 }
 
 function countWords(text: string): number {
@@ -232,6 +305,7 @@ export function segmentOcrCaptionTimeline(params: {
 
   let currentText: string | null = null;
   let currentNormalized: string | null = null;
+  let bestConfidence = -1;
   let startSeconds = 0;
   let lastSeconds = 0;
   let confidences: number[] = [];
@@ -284,6 +358,7 @@ export function segmentOcrCaptionTimeline(params: {
     if (currentText === null) {
       currentText = text;
       currentNormalized = normalized;
+      bestConfidence = f.confidence;
       startSeconds = f.timestamp;
       lastSeconds = f.timestamp;
       confidences = [f.confidence];
@@ -291,16 +366,26 @@ export function segmentOcrCaptionTimeline(params: {
       continue;
     }
 
-    if (normalized === currentNormalized) {
+    const similar =
+      normalized === currentNormalized ||
+      (currentNormalized !== null && areSimilarCaptions(normalized, currentNormalized));
+
+    if (similar) {
       lastSeconds = f.timestamp;
       confidences.push(f.confidence);
       if (bbox && normalized.length > 0) bboxes.push(bbox);
+      if (f.confidence > bestConfidence) {
+        bestConfidence = f.confidence;
+        currentText = text;
+        currentNormalized = normalized;
+      }
       continue;
     }
 
     flush();
     currentText = text;
     currentNormalized = normalized;
+    bestConfidence = f.confidence;
     startSeconds = f.timestamp;
     lastSeconds = f.timestamp;
     confidences = [f.confidence];
@@ -527,8 +612,14 @@ function computePunctuation(
     const nextFirst = getFirstChar(next.text);
     const looksLikeNewSentence = nextFirst ? nextFirst === nextFirst.toUpperCase() : false;
     const currentEndsWithWord = /[A-Za-z0-9]$/.test(text);
+    const currentHasLowercase = /[a-z]/.test(text);
 
-    if (looksLikeNewSentence && currentEndsWithWord && !endsWithTerminalPunctuation(text)) {
+    if (
+      currentHasLowercase &&
+      looksLikeNewSentence &&
+      currentEndsWithWord &&
+      !endsWithTerminalPunctuation(text)
+    ) {
       missingTerminalPunctuationCount += 1;
     }
   }

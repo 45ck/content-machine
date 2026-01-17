@@ -142,7 +142,12 @@ const ChunkedCaption: React.FC<ChunkedCaptionProps> = ({ words, config, fps }) =
         maxWordsPerPage: config.wordsPerPage ?? config.layout.maxWordsPerPage,
       })
     );
-    return chunks.map((chunk) => chunkToPage(chunk));
+    return chunks.map((chunk) =>
+      chunkToPage(chunk, {
+        maxCharsPerLine: config.layout.maxCharsPerLine,
+        maxLinesPerPage: config.layout.maxLinesPerPage,
+      })
+    );
   }, [words, config.layout, config.wordsPerPage]);
 
   if (pages.length === 0) return null;

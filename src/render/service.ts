@@ -112,6 +112,8 @@ export interface RenderVideoOptions {
   archetype?: string;
   /** Use mock mode for testing without real rendering */
   mock?: boolean;
+  /** Mock render mode: placeholder (fast) or real (renders actual video) */
+  mockRenderMode?: 'placeholder' | 'real';
   /**
    * Optional progress callback for CLI UX (phase + percent).
    * Progress is reported as 0..1 when available.
@@ -707,7 +709,7 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
     'Starting video render'
   );
 
-  if (options.mock) {
+  if (options.mock && options.mockRenderMode !== 'real') {
     safeProgress({ phase: 'mock', progress: 1, message: 'Mock render complete' });
     return generateMockRender(options, dimensions, fps, totalDuration);
   }

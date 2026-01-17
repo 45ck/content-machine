@@ -177,14 +177,15 @@ function createProgressEmitter(
 function generateMockVisuals(options: MatchVisualsOptions): VisualsOutput {
   const scenes = options.timestamps.scenes ?? [];
   const keywords = generateMockKeywords(scenes);
+  const palette = ['#0b1020', '#111827', '#0f172a', '#1f2937', '#111111'];
 
   const visualAssets: VisualAssetInput[] = scenes.map((scene, index) => ({
     sceneId: scene.sceneId,
-    source: 'mock' as const,
-    assetPath: `https://mock.pexels.com/video/${index + 1}.mp4`,
+    source: 'fallback-color' as const,
+    assetPath: palette[index % palette.length],
     duration: scene.audioEnd - scene.audioStart,
     matchReasoning: {
-      reasoning: `Mock video for scene ${scene.sceneId}`,
+      reasoning: `Mock fallback color for scene ${scene.sceneId}`,
       conceptsMatched: ['mock', 'test'],
     },
   }));
@@ -194,8 +195,8 @@ function generateMockVisuals(options: MatchVisualsOptions): VisualsOutput {
     scenes: visualAssets,
     totalAssets: visualAssets.length,
     fromUserFootage: 0,
-    fromStock: visualAssets.length,
-    fallbacks: 0,
+    fromStock: 0,
+    fallbacks: visualAssets.length,
     keywords,
     totalDuration: options.timestamps.totalDuration,
   });

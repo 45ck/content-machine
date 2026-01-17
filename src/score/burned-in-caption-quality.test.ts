@@ -35,6 +35,20 @@ describe('burned-in caption quality', () => {
     expect(segments[1]?.durationSeconds).toBeCloseTo(1.0);
   });
 
+  it('coalesces small OCR variations into a single segment', () => {
+    const fps = 2;
+    const frames: OCRFrame[] = [
+      frame({ timestamp: 0.0, text: 'HELLO WORLD' }),
+      frame({ timestamp: 0.5, text: 'HELLO WORID' }), // common OCR swap: L -> I
+      frame({ timestamp: 1.0, text: 'HELLO WORLD' }),
+      frame({ timestamp: 1.5, text: 'HELLO WORLD' }),
+    ];
+
+    const segments = segmentOcrCaptionTimeline({ ocrFrames: frames, fps });
+    expect(segments).toHaveLength(1);
+    expect(segments[0]?.durationSeconds).toBeCloseTo(2.0);
+  });
+
   it('detects flicker when the same caption disappears briefly and reappears', () => {
     const fps = 2;
     const frames: OCRFrame[] = [
@@ -73,6 +87,26 @@ describe('burned-in caption quality', () => {
 
     expect(report.punctuation.missingTerminalPunctuationCount).toBe(1);
     expect(report.punctuation.score).toBeLessThan(1);
+  });
+
+  it('does not infer missing punctuation from ALL CAPS transitions', () => {
+    const fps = 2;
+    const frames: OCRFrame[] = [
+      frame({ timestamp: 0.0, text: 'THIS IS A SENTENCE' }),
+      frame({ timestamp: 0.5, text: 'THIS IS A SENTENCE' }),
+      frame({ timestamp: 1.0, text: 'NEXT ONE' }),
+      frame({ timestamp: 1.5, text: 'NEXT ONE' }),
+    ];
+
+    const report = analyzeBurnedInCaptionQuality({
+      ocrFrames: frames,
+      fps,
+      videoDurationSeconds: 2,
+      frameSize: { width: 1080, height: 1920 },
+    });
+
+    expect(report.punctuation.missingTerminalPunctuationCount).toBe(0);
+    expect(report.punctuation.score).toBeCloseTo(1);
   });
 
   it('treats ALL CAPS as a valid capitalization style', () => {

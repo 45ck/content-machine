@@ -48,6 +48,8 @@ export interface PipelineOptions {
   llmProvider?: LLMProvider;
   /** Use mock mode for testing without real API calls */
   mock?: boolean;
+  /** Mock render mode: placeholder (fast) or real (renders actual video) */
+  mockRenderMode?: 'placeholder' | 'real';
   /** Pipeline mode: standard (whisper optional) or audio-first (whisper required) */
   pipelineMode?: 'standard' | 'audio-first';
   /** Whisper model size */
@@ -555,6 +557,7 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
             orientation: options.orientation,
             fps: options.fps ?? config.render.fps,
             mock: options.mock,
+            mockRenderMode: options.mockRenderMode,
             compositionId: options.compositionId,
             captionPreset: options.captionPreset,
             captionConfig: options.captionConfig,
