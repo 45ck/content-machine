@@ -100,21 +100,7 @@ export function computeMinGapBetweenInkRuns(
     columns[x] = inkCount;
   }
 
-  const runs: Array<{ start: number; end: number }> = [];
-  let runStart: number | null = null;
-
-  for (let x = bounds.minX; x <= bounds.maxX; x++) {
-    const hasInk = columns[x] >= minInkPixels;
-    if (hasInk && runStart === null) {
-      runStart = x;
-    } else if (!hasInk && runStart !== null) {
-      runs.push({ start: runStart, end: x - 1 });
-      runStart = null;
-    }
-  }
-  if (runStart !== null) {
-    runs.push({ start: runStart, end: bounds.maxX });
-  }
+  const runs = findInkRuns(columns, bounds.minX, bounds.maxX, minInkPixels);
 
   const filteredRuns = runs.filter((run) => run.end - run.start + 1 >= minRunWidth);
 
@@ -167,21 +153,7 @@ export function computeMinVerticalGapBetweenInkRuns(
     rows[y] = inkCount;
   }
 
-  const runs: Array<{ start: number; end: number }> = [];
-  let runStart: number | null = null;
-
-  for (let y = bounds.minY; y <= bounds.maxY; y++) {
-    const hasInk = rows[y] >= minInkPixels;
-    if (hasInk && runStart === null) {
-      runStart = y;
-    } else if (!hasInk && runStart !== null) {
-      runs.push({ start: runStart, end: y - 1 });
-      runStart = null;
-    }
-  }
-  if (runStart !== null) {
-    runs.push({ start: runStart, end: bounds.maxY });
-  }
+  const runs = findInkRuns(rows, bounds.minY, bounds.maxY, minInkPixels);
 
   if (runs.length < 2) {
     throw new Error('Not enough ink runs to compute line gaps.');
@@ -200,4 +172,30 @@ export function computeMinVerticalGapBetweenInkRuns(
   }
 
   return minGap;
+}
+
+function findInkRuns(
+  counts: number[],
+  start: number,
+  end: number,
+  minInkPixels: number
+): Array<{ start: number; end: number }> {
+  const runs: Array<{ start: number; end: number }> = [];
+  let runStart: number | null = null;
+
+  for (let index = start; index <= end; index++) {
+    const hasInk = counts[index] >= minInkPixels;
+    if (hasInk && runStart === null) {
+      runStart = index;
+    } else if (!hasInk && runStart !== null) {
+      runs.push({ start: runStart, end: index - 1 });
+      runStart = null;
+    }
+  }
+
+  if (runStart !== null) {
+    runs.push({ start: runStart, end });
+  }
+
+  return runs;
 }
