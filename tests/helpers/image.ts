@@ -178,27 +178,16 @@ function computeInkCounts(
   const { width, height, data } = image;
   const counts = new Array(axis === 'x' ? width : height).fill(0);
 
-  if (axis === 'x') {
-    for (let x = bounds.minX; x <= bounds.maxX; x++) {
-      let inkCount = 0;
-      for (let y = bounds.minY; y <= bounds.maxY; y++) {
-        const idx = (y * width + x) * 4;
-        const r = data[idx];
-        const g = data[idx + 1];
-        const b = data[idx + 2];
-        const a = data[idx + 3];
-        if (isInkPixel(r, g, b, a, background, threshold)) {
-          inkCount++;
-        }
-      }
-      counts[x] = inkCount;
-    }
-    return counts;
-  }
+  const primaryStart = axis === 'x' ? bounds.minX : bounds.minY;
+  const primaryEnd = axis === 'x' ? bounds.maxX : bounds.maxY;
+  const secondaryStart = axis === 'x' ? bounds.minY : bounds.minX;
+  const secondaryEnd = axis === 'x' ? bounds.maxY : bounds.maxX;
 
-  for (let y = bounds.minY; y <= bounds.maxY; y++) {
+  for (let primary = primaryStart; primary <= primaryEnd; primary++) {
     let inkCount = 0;
-    for (let x = bounds.minX; x <= bounds.maxX; x++) {
+    for (let secondary = secondaryStart; secondary <= secondaryEnd; secondary++) {
+      const x = axis === 'x' ? primary : secondary;
+      const y = axis === 'x' ? secondary : primary;
       const idx = (y * width + x) * 4;
       const r = data[idx];
       const g = data[idx + 1];
@@ -208,7 +197,7 @@ function computeInkCounts(
         inkCount++;
       }
     }
-    counts[y] = inkCount;
+    counts[primary] = inkCount;
   }
 
   return counts;
