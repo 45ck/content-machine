@@ -30,6 +30,8 @@ interface BenchRunOptions extends BenchCommonOptions {
   stress?: boolean;
   determinismRuns?: string;
   epsilon?: string;
+  captionFps?: string;
+  syncFps?: string;
 }
 
 export const benchCommand = new Command('bench')
@@ -90,6 +92,8 @@ benchCommand
   .option('--no-stress', 'Skip stress tests (only run separation + determinism)')
   .option('--determinism-runs <n>', 'How many times to re-rate for determinism check', '3')
   .option('--epsilon <n>', 'Allowed score delta for determinism check (0..1)', '0.001')
+  .option('--caption-fps <n>', 'OCR FPS for caption-quality scoring', '2')
+  .option('--sync-fps <n>', 'OCR FPS for sync scoring (higher = more accurate, slower)', '6')
   .action(async (options: BenchRunOptions, command: Command) => {
     const runtime = getCliRuntime();
     const spinner = createSpinner('Running benchmark...').start();
@@ -98,6 +102,8 @@ benchCommand
       const reportPath = resolve(options.output ?? resolve(root, 'results', 'report.json'));
       const determinismRuns = Number.parseInt(options.determinismRuns ?? '3', 10);
       const epsilon = Number.parseFloat(options.epsilon ?? '0.001');
+      const captionFps = Number.parseInt(options.captionFps ?? '2', 10);
+      const syncFps = Number.parseInt(options.syncFps ?? '6', 10);
 
       const { runBench } = await import('../../bench/run');
       const report = await runBench({
@@ -105,6 +111,8 @@ benchCommand
         includeStress: options.stress !== false,
         determinismRuns,
         determinismEpsilon: epsilon,
+        captionFps,
+        syncFps,
       });
 
       await writeOutputFile(reportPath, report);
@@ -120,6 +128,8 @@ benchCommand
               includeStress: options.stress !== false,
               determinismRuns,
               epsilon,
+              captionFps,
+              syncFps,
             },
             outputs: {
               reportPath,

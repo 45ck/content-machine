@@ -7,6 +7,7 @@
 import { RawAudio } from '@huggingface/transformers';
 import { createLogger } from '../../core/logger';
 import { APIError } from '../../core/errors';
+import { createRequire } from 'node:module';
 
 interface TextSplitterLike {
   push: (text: string) => void;
@@ -33,7 +34,12 @@ let kokoroModule: KokoroModule | null = null;
 
 async function getKokoro(): Promise<KokoroModule> {
   if (!kokoroModule) {
-    kokoroModule = (await import('kokoro-js')) as unknown as KokoroModule;
+    try {
+      const require = createRequire(import.meta.url);
+      kokoroModule = require('kokoro-js') as unknown as KokoroModule;
+    } catch {
+      kokoroModule = (await import('kokoro-js')) as unknown as KokoroModule;
+    }
   }
   return kokoroModule;
 }

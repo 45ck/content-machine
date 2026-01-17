@@ -46,10 +46,15 @@ describe('bench generate', () => {
   it('builds caption flicker args using configured period', () => {
     const variant = baseVariant({
       recipeId: 'caption-flicker',
-      recipeLabel: 'Caption flicker every 120 frames',
+      recipeLabel: 'Caption flicker every 4s',
       severity: 9,
       expectedMetric: 'flicker.score',
-      recipeParams: { periodFrames: 120, bandYRatio: 0.65, bandHeightRatio: 0.35 },
+      recipeParams: {
+        periodSeconds: 4,
+        gapSeconds: 0.45,
+        bandYRatio: 0.65,
+        bandHeightRatio: 0.35,
+      },
     });
 
     const { args } = buildFfmpegArgsForVariant({
@@ -60,6 +65,30 @@ describe('bench generate', () => {
     expect(args).toContain('-vf');
     const vfIdx = args.indexOf('-vf');
     expect(args[vfIdx + 1]).toContain('drawbox=');
-    expect(args[vfIdx + 1]).toContain('mod(n\\,120)');
+    expect(args[vfIdx + 1]).toContain('mod(t\\,4)');
+  });
+
+  it('builds compression args with a downscale-upscale filter when configured', () => {
+    const variant = baseVariant({
+      recipeId: 'compression',
+      recipeLabel: 'H.264 200k',
+      severity: 50,
+      expectedMetric: 'ocrConfidence.score',
+      recipeParams: { bitrateKbps: 200, downscaleFactor: 0.25 },
+    });
+
+    const { args } = buildFfmpegArgsForVariant({
+      variant,
+      proInfo: { width: 1080, height: 1920 },
+    });
+
+    expect(args).toContain('-vf');
+    const vfIdx = args.indexOf('-vf');
+    expect(args[vfIdx + 1]).toContain('scale=270:480');
+    expect(args[vfIdx + 1]).toContain('scale=1080:1920');
+
+    expect(args).toContain('-b:v');
+    const bvIdx = args.indexOf('-b:v');
+    expect(args[bvIdx + 1]).toBe('200k');
   });
 });

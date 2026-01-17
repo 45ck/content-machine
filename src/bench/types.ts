@@ -92,6 +92,8 @@ export interface BenchStressCheckResult {
   expectedMetric: BenchStressVariant['expectedMetric'];
   expectedErrorType?: string;
   spearman: number;
+  effect: number;
+  reversalCount: number;
   monotonicPassed: boolean;
   errorTriggered: boolean | null;
   points: Array<{ severity: number; value: number; videoPath: string }>;

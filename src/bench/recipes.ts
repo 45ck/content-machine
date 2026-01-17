@@ -13,47 +13,62 @@ export function buildDefaultBenchVariants(params: { proSourcePath: string }): Be
 
   const variants: BenchStressVariant[] = [];
 
-  // Caption crop / safe-area violation by cropping bottom pixels.
-  const cropPxLevels = [10, 20, 40, 80];
-  for (const px of cropPxLevels) {
+  // Safe-area violation by shifting the entire frame content downward.
+  // This moves captions closer to the bottom edge so `safeArea.score` worsens.
+  const shiftDownPxLevels = [80, 160, 240, 320];
+  for (const px of shiftDownPxLevels) {
     variants.push({
       schemaVersion: '1.0.0',
-      id: `${base}:crop-bottom:${px}px`,
-      recipeId: 'crop-bottom',
-      recipeLabel: `Crop bottom ${px}px`,
+      id: `${base}:safe-area-down:${px}px`,
+      recipeId: 'safe-area-down',
+      recipeLabel: `Shift down ${px}px`,
       severity: px,
       proSourcePath,
       outputPath: '',
-      description:
-        'Crops the bottom of the frame and pads back to original height (cuts captions).',
-      recipeParams: { cropBottomPx: px },
+      description: 'Shifts the full frame down, pushing captions into the unsafe bottom margin.',
+      recipeParams: { shiftDownPx: px },
       expectedMetric: 'safeArea.score',
       expectedErrorType: 'caption_safe_margin',
     });
   }
 
-  // Flicker injection by blanking the caption band periodically.
-  const flickerPeriods = [120, 60, 30, 15]; // frames between dropouts (smaller = worse)
-  for (const period of flickerPeriods) {
+  // Flicker injection by blanking the caption band for a short time periodically.
+  // Use time-based gating so the effect survives later frame sampling (e.g., OCR at 2fps).
+  // Keep the smallest period >= 1s so the signal doesn't degenerate into "missing captions"
+  // at high severity (which would confound the flicker metric).
+  const flickerPeriodsSeconds = [4, 2, 1.5, 1]; // smaller = worse (more frequent)
+  // Use a gap long enough to be reliably observed at the default OCR sampling rate (2fps).
+  const flickerGapSeconds = 0.45; // <= 0.5s so `flashDurationSecondsMax` counts it as flicker
+  for (const periodSeconds of flickerPeriodsSeconds) {
     variants.push({
       schemaVersion: '1.0.0',
-      id: `${base}:caption-flicker:1/${period}`,
+      id: `${base}:caption-flicker:${periodSeconds}s`,
       recipeId: 'caption-flicker',
-      recipeLabel: `Caption flicker every ${period} frames`,
-      severity: Math.round(1000 / period),
+      recipeLabel: `Caption flicker every ${periodSeconds}s`,
+      severity: Math.round(1000 / periodSeconds),
       proSourcePath,
       outputPath: '',
       description:
-        'Draws a black box over the caption region for one frame at a fixed interval (simulates caption dropout).',
-      recipeParams: { periodFrames: period, bandYRatio: 0.65, bandHeightRatio: 0.35 },
+        'Draws a black box over the caption region for a short time at a fixed interval (simulates caption dropout).',
+      recipeParams: {
+        periodSeconds,
+        gapSeconds: flickerGapSeconds,
+        bandYRatio: 0.65,
+        bandHeightRatio: 0.35,
+      },
       expectedMetric: 'flicker.score',
       expectedErrorType: 'caption_flicker',
     });
   }
 
   // Contrast/legibility sabotage (expect OCR confidence to drop).
-  const contrastLevels = [0.85, 0.7, 0.55, 0.4];
-  for (const contrast of contrastLevels) {
+  const contrastLevels = [
+    { contrast: 0.65, blurSigma: 1.2, noise: 6 },
+    { contrast: 0.45, blurSigma: 2.8, noise: 12 },
+    { contrast: 0.3, blurSigma: 5.0, noise: 22 },
+    { contrast: 0.2, blurSigma: 8.0, noise: 36 },
+  ];
+  for (const { contrast, blurSigma, noise } of contrastLevels) {
     variants.push({
       schemaVersion: '1.0.0',
       id: `${base}:contrast:${contrast}`,
@@ -63,15 +78,15 @@ export function buildDefaultBenchVariants(params: { proSourcePath: string }): Be
       proSourcePath,
       outputPath: '',
       description:
-        'Lowers contrast and slightly raises brightness to reduce text/background separation.',
-      recipeParams: { contrast, brightness: 0.05, saturation: 1.0 },
+        'Lowers contrast, raises brightness, and blurs slightly to reduce text/background separation.',
+      recipeParams: { contrast, brightness: 0.18, saturation: 0.9, blurSigma, noise },
       expectedMetric: 'ocrConfidence.score',
       expectedErrorType: 'caption_low_confidence',
     });
   }
 
   // Micro-shake injection (global transform that moves captions in the frame).
-  const shakePx = [1, 2, 4, 8];
+  const shakePx = [8, 16, 32, 64];
   for (const px of shakePx) {
     variants.push({
       schemaVersion: '1.0.0',
@@ -88,8 +103,13 @@ export function buildDefaultBenchVariants(params: { proSourcePath: string }): Be
   }
 
   // Compression artifacts by re-encoding at low bitrates (expect OCR confidence to drop).
-  const bitratesK = [3000, 1500, 800];
-  for (const kbps of bitratesK) {
+  const compressionLadder = [
+    { kbps: 800, downscaleFactor: 0.25, blurSigma: 1.2 },
+    { kbps: 400, downscaleFactor: 0.2, blurSigma: 2.4 },
+    { kbps: 200, downscaleFactor: 0.15, blurSigma: 3.6 },
+    { kbps: 100, downscaleFactor: 0.1, blurSigma: 5.0 },
+  ];
+  for (const { kbps, downscaleFactor, blurSigma } of compressionLadder) {
     variants.push({
       schemaVersion: '1.0.0',
       id: `${base}:compression:${kbps}k`,
@@ -99,14 +119,14 @@ export function buildDefaultBenchVariants(params: { proSourcePath: string }): Be
       proSourcePath,
       outputPath: '',
       description: 'Re-encodes at a low video bitrate to induce macroblocking and ringing.',
-      recipeParams: { bitrateKbps: kbps },
+      recipeParams: { bitrateKbps: kbps, downscaleFactor, blurSigma },
       expectedMetric: 'ocrConfidence.score',
     });
   }
 
   // Audio/caption desync by shifting audio later relative to video.
   // Requires a captioned PRO video where OCR words should align to spoken audio.
-  const audioDelayMsLevels = [80, 160, 250, 400];
+  const audioDelayMsLevels = [40, 80, 120, 160, 240, 320];
   for (const delayMs of audioDelayMsLevels) {
     variants.push({
       schemaVersion: '1.0.0',

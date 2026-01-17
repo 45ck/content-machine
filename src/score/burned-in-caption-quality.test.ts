@@ -69,6 +69,26 @@ describe('burned-in caption quality', () => {
     expect(report.flicker.score).toBeLessThan(1);
   });
 
+  it('detects flicker when captions disappear briefly between different captions', () => {
+    const fps = 2;
+    const frames: OCRFrame[] = [
+      frame({ timestamp: 0.0, text: 'HELLO' }),
+      frame({ timestamp: 0.5, text: 'HELLO' }),
+      frame({ timestamp: 1.0, text: '' }),
+      frame({ timestamp: 1.5, text: 'WORLD' }),
+    ];
+
+    const report = analyzeBurnedInCaptionQuality({
+      ocrFrames: frames,
+      fps,
+      videoDurationSeconds: 2,
+      frameSize: { width: 1080, height: 1920 },
+    });
+
+    expect(report.flicker.flickerEvents).toBeGreaterThan(0);
+    expect(report.flicker.score).toBeLessThan(1);
+  });
+
   it('flags missing terminal punctuation when a sentence appears to end', () => {
     const fps = 2;
     const frames: OCRFrame[] = [

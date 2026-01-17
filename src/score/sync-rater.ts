@@ -208,6 +208,43 @@ async function runOCR(framesDir: string, fps: number, cropOffsetY: number): Prom
   mkdirSync(cachePath, { recursive: true });
   const worker = await Tesseract.createWorker('eng', undefined, { cachePath });
 
+  function extractBboxesFromTsv(tsv: string | null | undefined): Array<{
+    x0: number;
+    y0: number;
+    x1: number;
+    y1: number;
+  }> {
+    if (!tsv) return [];
+    const lines = String(tsv).split('\n').filter(Boolean);
+    if (lines.length <= 1) return [];
+
+    const out: Array<{ x0: number; y0: number; x1: number; y1: number }> = [];
+    for (const line of lines.slice(1)) {
+      const cols = line.split('\t');
+      if (cols.length < 12) continue;
+      const level = Number(cols[0]);
+      // TSV levels: 5 = word. We union word boxes into a single caption bbox.
+      if (level !== 5) continue;
+
+      const left = Number(cols[6]);
+      const top = Number(cols[7]);
+      const width = Number(cols[8]);
+      const height = Number(cols[9]);
+      const text = cols.slice(11).join('\t').trim();
+      if (!text) continue;
+      if (![left, top, width, height].every((n) => Number.isFinite(n))) continue;
+      if (width <= 0 || height <= 0) continue;
+
+      out.push({
+        x0: left,
+        y0: top + cropOffsetY,
+        x1: left + width,
+        y1: top + height + cropOffsetY,
+      });
+    }
+    return out;
+  }
+
   for (let i = 0; i < files.length; i++) {
     const file = files[i];
     const framePath = join(framesDir, file);
@@ -216,28 +253,17 @@ async function runOCR(framesDir: string, fps: number, cropOffsetY: number): Prom
     const timestamp = i / fps;
 
     try {
-      const result = await worker.recognize(framePath);
+      // Ask tesseract.js to return TSV so we can derive word bounding boxes.
+      const result = await (worker as any).recognize(framePath, undefined, { tsv: true });
       const data = result.data as {
         text: string;
         confidence: number;
-        words?: Array<{ bbox?: { x0: number; y0: number; x1: number; y1: number } }>;
+        tsv?: string | null;
       };
       const text = data.text.trim();
       const confidence = data.confidence / 100;
 
-      const words = Array.isArray(data.words) ? data.words : [];
-      const bboxes = words
-        .map((w: any) => w?.bbox)
-        .filter(Boolean)
-        .filter((bbox: any) =>
-          [bbox?.x0, bbox?.y0, bbox?.x1, bbox?.y1].every((n) => Number.isFinite(Number(n)))
-        )
-        .map((bbox: any) => ({
-          x0: Number(bbox.x0),
-          y0: Number(bbox.y0) + cropOffsetY,
-          x1: Number(bbox.x1),
-          y1: Number(bbox.y1) + cropOffsetY,
-        }));
+      const bboxes = extractBboxesFromTsv(data.tsv);
 
       const bbox =
         bboxes.length > 0
@@ -431,6 +457,10 @@ function calculateMetrics(
  * Calculate sync rating from metrics
  */
 function calculateRating(metrics: SyncMetrics): number {
+  if (metrics.matchedWords === 0) {
+    return 0;
+  }
+
   let score = 100;
 
   // Deduction 1: Mean drift (max -40 points)
@@ -453,9 +483,17 @@ function calculateRating(metrics: SyncMetrics): number {
     score -= Math.min(10, (metrics.driftStdDev - 50) / 25);
   }
 
-  // Deduction 5: Low match ratio (max -10 points)
+  // Deduction 5: Low match ratio (max -100 points).
+  // If we can't match OCR ↔ ASR words, drift metrics are meaningless; score should tank.
   if (metrics.matchRatio < 0.9) {
-    score -= Math.min(10, (0.9 - metrics.matchRatio) * 50);
+    const matchRatio = Math.max(0, Math.min(1, metrics.matchRatio));
+    if (matchRatio >= 0.7) {
+      // 0.9 -> 0, 0.7 -> 20
+      score -= ((0.9 - matchRatio) / 0.2) * 20;
+    } else {
+      // 0.7 -> 20, 0.0 -> 100
+      score -= 20 + ((0.7 - matchRatio) / 0.7) * 80;
+    }
   }
 
   return Math.max(0, Math.round(score));
@@ -580,7 +618,7 @@ function detectCaptionQualityErrors(params: {
     });
   }
 
-  if (captionQuality.ocrConfidence.mean > 0 && captionQuality.ocrConfidence.mean < 0.7) {
+  if (captionQuality.ocrConfidence.mean < 0.7) {
     errors.push({
       type: 'caption_low_confidence',
       severity: 'warning',

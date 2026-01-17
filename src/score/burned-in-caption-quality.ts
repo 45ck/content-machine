@@ -582,7 +582,7 @@ function computeFlicker(params: {
     const c = allSegments[i + 2];
     if (a.normalizedText.length === 0) continue;
     if (b.normalizedText.length !== 0) continue;
-    if (c.normalizedText !== a.normalizedText) continue;
+    if (c.normalizedText.length === 0) continue;
 
     const gapSeconds = Math.max(0, c.startSeconds - a.endSeconds);
     if (gapSeconds <= params.thresholds.flashDurationSecondsMax) {

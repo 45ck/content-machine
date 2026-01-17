@@ -22,5 +22,11 @@ describe('bench recipes', () => {
       expect(v.expectedMetric).toBe('sync.rating');
       expect(v.recipeParams?.delayMs).toBeTruthy();
     }
+    expect(desync.map((v) => v.severity)).toEqual(
+      desync
+        .map((v) => v.severity)
+        .slice()
+        .sort((a, b) => a - b)
+    );
   });
 });

@@ -74,24 +74,29 @@ function buildVariantFilter(params: {
 }): string | null {
   const { recipeId, proInfo, variant } = params;
 
-  if (recipeId === 'crop-bottom') {
-    const px = numberParam(variant, 'cropBottomPx') ?? variant.severity;
-    return `crop=iw:ih-${px}:0:0,pad=iw:ih:0:0:black`;
+  if (recipeId === 'safe-area-down') {
+    const px = Math.max(0, Math.round(numberParam(variant, 'shiftDownPx') ?? variant.severity));
+    // Pad top to shift content down, then crop back to original height.
+    // This preserves the original resolution while pushing bottom content into unsafe margin (and at high severity, cropping it).
+    return `pad=iw:ih+${px}:0:${px}:black,crop=iw:ih:0:0`;
   }
 
   if (recipeId === 'caption-flicker') {
-    const periodFrames = Math.max(
-      2,
-      Math.round(
-        numberParam(variant, 'periodFrames') ?? Math.round(1000 / Math.max(1, variant.severity))
-      )
+    const periodSeconds = Math.max(
+      0.1,
+      Number(numberParam(variant, 'periodSeconds') ?? 1000 / Math.max(1, variant.severity))
+    );
+    const gapSeconds = Math.max(
+      0.05,
+      Math.min(0.5, Number(numberParam(variant, 'gapSeconds') ?? 0.45))
     );
     const bandYRatio = Math.max(0, Math.min(1, numberParam(variant, 'bandYRatio') ?? 0.65));
     const bandHeightRatio = Math.max(
       0,
       Math.min(1, numberParam(variant, 'bandHeightRatio') ?? 0.35)
     );
-    return `drawbox=x=0:y=ih*${bandYRatio}:w=iw:h=ih*${bandHeightRatio}:color=black@1:t=fill:enable='eq(mod(n\\,${periodFrames})\\,0)'`;
+    // Blank the caption band for `gapSeconds` at the start of each `periodSeconds` interval.
+    return `drawbox=x=0:y=ih*${bandYRatio}:w=iw:h=ih*${bandHeightRatio}:color=black@1:t=fill:enable='lt(mod(t\\,${periodSeconds})\\,${gapSeconds})'`;
   }
 
   if (recipeId === 'contrast-sabotage') {
@@ -101,16 +106,36 @@ function buildVariantFilter(params: {
     );
     const brightness = Math.max(-1, Math.min(1, numberParam(variant, 'brightness') ?? 0.05));
     const saturation = Math.max(0, Math.min(3, numberParam(variant, 'saturation') ?? 1.0));
-    return `eq=contrast=${contrast}:brightness=${brightness}:saturation=${saturation}`;
+    const blurSigma = Math.max(0, Math.min(12, numberParam(variant, 'blurSigma') ?? 0));
+    const noise = Math.max(0, Math.min(100, numberParam(variant, 'noise') ?? 0));
+    const eq = `eq=contrast=${contrast}:brightness=${brightness}:saturation=${saturation}`;
+    const parts: string[] = [eq];
+    if (blurSigma > 0) parts.push(`gblur=sigma=${blurSigma}:steps=1`);
+    if (noise > 0) parts.push(`noise=alls=${noise}:allf=t+u`);
+    return parts.join(',');
   }
 
   if (recipeId === 'shake') {
-    const amp = Math.max(1, Math.min(16, numberParam(variant, 'amplitudePx') ?? variant.severity));
+    const amp = Math.max(1, Math.min(128, numberParam(variant, 'amplitudePx') ?? variant.severity));
     const w = proInfo.width;
     const h = proInfo.height;
     // Scale slightly up to allow crop window to move without black borders, then crop with time-varying offsets.
     // Keep offsets within [0, 2*amp] pixels.
     return `scale=${w + 2 * amp}:${h + 2 * amp},crop=${w}:${h}:x='${amp}*(1+sin(n*0.15))':y='${amp}*(1+cos(n*0.13))'`;
+  }
+
+  if (recipeId === 'compression') {
+    const factor = Math.max(0.1, Math.min(1, numberParam(variant, 'downscaleFactor') ?? 1));
+    const blurSigma = Math.max(0, Math.min(12, numberParam(variant, 'blurSigma') ?? 0));
+    if (factor >= 1 && blurSigma <= 0) return null;
+    const downW = Math.max(2, Math.round((proInfo.width * factor) / 2) * 2);
+    const downH = Math.max(2, Math.round((proInfo.height * factor) / 2) * 2);
+    const parts = [
+      `scale=${downW}:${downH}:flags=bilinear`,
+      `scale=${proInfo.width}:${proInfo.height}:flags=bilinear`,
+    ];
+    if (blurSigma > 0) parts.push(`gblur=sigma=${blurSigma}:steps=1`);
+    return parts.join(',');
   }
 
   return null;

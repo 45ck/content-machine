@@ -53,18 +53,18 @@ function hasErrorType(report: any, errorType: string): boolean {
   return Boolean(report.errors?.some((e: any) => e.type === errorType));
 }
 
-async function rateCaption(videoPath: string): Promise<any> {
+async function rateCaption(videoPath: string, fps: number): Promise<any> {
   const { rateCaptionQuality } = await import('../score/sync-rater');
   return rateCaptionQuality(videoPath, {
-    fps: 2,
+    fps,
     captionRegion: { yRatio: 0.65, heightRatio: 0.35 },
   });
 }
 
-async function rateSync(videoPath: string): Promise<any> {
+async function rateSync(videoPath: string, fps: number): Promise<any> {
   const { rateSyncQuality } = await import('../score/sync-rater');
   return rateSyncQuality(videoPath, {
-    fps: 2,
+    fps,
     captionRegion: { yRatio: 0.65, heightRatio: 0.35 },
     asrModel: 'base',
   });
@@ -229,7 +229,17 @@ async function runStressChecks(params: {
     // Spearman on "defect severity vs (1-score)" so expected is strong positive.
     const invert = values.map((v) => 1 - v);
     const spearman = spearmanRankCorrelation(severities, invert);
-    const monotonicPassed = spearman >= 0.9;
+    const effect = Math.max(...invert) - Math.min(...invert);
+    const tolerance = 0.005; // ignore tiny OCR noise
+    let reversalCount = 0;
+    for (let i = 1; i < invert.length; i++) {
+      if (invert[i] + tolerance < invert[i - 1]) reversalCount += 1;
+    }
+    const spearmanThreshold = 0.9;
+    const spearmanEps = 1e-9;
+    const monotonicPassed =
+      effect >= 0.05 &&
+      (reversalCount === 0 || (invert.length >= 4 && spearman + spearmanEps >= spearmanThreshold));
 
     let errorTriggered: boolean | null = null;
     if (expectedErrorType) {
@@ -248,6 +258,8 @@ async function runStressChecks(params: {
       expectedMetric,
       expectedErrorType,
       spearman,
+      effect,
+      reversalCount,
       monotonicPassed,
       errorTriggered,
       points,
@@ -329,6 +341,8 @@ export async function runBench(params: {
   includeStress: boolean;
   determinismRuns: number;
   determinismEpsilon: number;
+  captionFps?: number;
+  syncFps?: number;
   deps?: {
     rateCaption?: (videoPath: string) => Promise<any>;
     rateSync?: (videoPath: string) => Promise<any>;
@@ -353,9 +367,13 @@ export async function runBench(params: {
     });
   }
 
+  const captionFps = Math.max(1, Math.round(params.captionFps ?? 2));
+  const syncFps = Math.max(1, Math.round(params.syncFps ?? 2));
+
   const deps = {
-    rateCaption: params.deps?.rateCaption ?? rateCaption,
-    rateSync: params.deps?.rateSync ?? rateSync,
+    rateCaption:
+      params.deps?.rateCaption ?? ((videoPath: string) => rateCaption(videoPath, captionFps)),
+    rateSync: params.deps?.rateSync ?? ((videoPath: string) => rateSync(videoPath, syncFps)),
   };
 
   const determinism = await runDeterminismCheck({

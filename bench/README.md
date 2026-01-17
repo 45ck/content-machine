@@ -21,6 +21,11 @@ npm run cm -- bench run
 
 Outputs a JSON report to `bench/results/report.json` and exits non-zero if the benchmark fails.
 
+Useful flags:
+
+- `--caption-fps 2` (default) keeps OCR fast
+- `--sync-fps 6` (default) improves sync detection for word-by-word captions
+
 ## Update baseline (optional)
 
 Create or update `bench/results/baseline.json` from the latest report:

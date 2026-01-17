@@ -42,10 +42,10 @@ describe('bench run', () => {
       writeFileSync(proPath, '');
       writeFileSync(ourPath, '');
 
-      const crop10 = join(stressDir, 'pro1', 'crop-bottom', '10.mp4');
-      const crop20 = join(stressDir, 'pro1', 'crop-bottom', '20.mp4');
-      const crop40 = join(stressDir, 'pro1', 'crop-bottom', '40.mp4');
-      mkdirSync(join(stressDir, 'pro1', 'crop-bottom'), { recursive: true });
+      const crop10 = join(stressDir, 'pro1', 'safe-area-down', '10.mp4');
+      const crop20 = join(stressDir, 'pro1', 'safe-area-down', '20.mp4');
+      const crop40 = join(stressDir, 'pro1', 'safe-area-down', '40.mp4');
+      mkdirSync(join(stressDir, 'pro1', 'safe-area-down'), { recursive: true });
       writeFileSync(crop10, '');
       writeFileSync(crop20, '');
       writeFileSync(crop40, '');
@@ -65,40 +65,40 @@ describe('bench run', () => {
         variants: [
           {
             schemaVersion: '1.0.0',
-            id: 'pro1:crop-bottom:10',
-            recipeId: 'crop-bottom',
-            recipeLabel: 'Crop bottom 10px',
+            id: 'pro1:safe-area-down:10',
+            recipeId: 'safe-area-down',
+            recipeLabel: 'Shift down 10px',
             severity: 10,
             proSourcePath: proPath,
             outputPath: crop10,
             description: 'crop',
-            recipeParams: { cropBottomPx: 10 },
+            recipeParams: { shiftDownPx: 10 },
             expectedMetric: 'safeArea.score',
             expectedErrorType: 'caption_safe_margin',
           },
           {
             schemaVersion: '1.0.0',
-            id: 'pro1:crop-bottom:20',
-            recipeId: 'crop-bottom',
-            recipeLabel: 'Crop bottom 20px',
+            id: 'pro1:safe-area-down:20',
+            recipeId: 'safe-area-down',
+            recipeLabel: 'Shift down 20px',
             severity: 20,
             proSourcePath: proPath,
             outputPath: crop20,
             description: 'crop',
-            recipeParams: { cropBottomPx: 20 },
+            recipeParams: { shiftDownPx: 20 },
             expectedMetric: 'safeArea.score',
             expectedErrorType: 'caption_safe_margin',
           },
           {
             schemaVersion: '1.0.0',
-            id: 'pro1:crop-bottom:40',
-            recipeId: 'crop-bottom',
-            recipeLabel: 'Crop bottom 40px',
+            id: 'pro1:safe-area-down:40',
+            recipeId: 'safe-area-down',
+            recipeLabel: 'Shift down 40px',
             severity: 40,
             proSourcePath: proPath,
             outputPath: crop40,
             description: 'crop',
-            recipeParams: { cropBottomPx: 40 },
+            recipeParams: { shiftDownPx: 40 },
             expectedMetric: 'safeArea.score',
             expectedErrorType: 'caption_safe_margin',
           },
@@ -189,7 +189,7 @@ describe('bench run', () => {
       expect(report.determinism.passed).toBe(true);
       expect(report.stress.length).toBe(2);
       expect(report.stress.every((s) => s.monotonicPassed)).toBe(true);
-      expect(report.stress.find((s) => s.recipeId === 'crop-bottom')?.errorTriggered).toBe(true);
+      expect(report.stress.find((s) => s.recipeId === 'safe-area-down')?.errorTriggered).toBe(true);
       expect(report.stress.find((s) => s.recipeId === 'audio-desync')?.errorTriggered).toBe(true);
     } finally {
       rmSync(root, { recursive: true, force: true });
