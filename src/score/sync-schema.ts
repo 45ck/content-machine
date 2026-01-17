@@ -309,6 +309,46 @@ export const SyncRatingOutputSchema = z.object({
 });
 export type SyncRatingOutput = z.infer<typeof SyncRatingOutputSchema>;
 
+export const CaptionQualityRatingOptionsSchema = z.object({
+  fps: z.number().default(2),
+  ocrEngine: z.enum(['tesseract', 'easyocr']).default('tesseract'),
+  captionRegion: z
+    .object({
+      yRatio: z.number().default(0.75),
+      heightRatio: z.number().default(0.25),
+    })
+    .default({}),
+});
+export type CaptionQualityRatingOptions = z.infer<typeof CaptionQualityRatingOptionsSchema>;
+
+export const CaptionQualityRatingOutputSchema = z.object({
+  schemaVersion: z.literal(SYNC_SCHEMA_VERSION),
+  videoPath: z.string(),
+  captionQuality: BurnedInCaptionQualityReportSchema,
+  errors: z.array(SyncErrorSchema).default([]),
+  analysis: z.object({
+    ocrEngine: z.enum(['tesseract', 'easyocr']),
+    fps: z.number(),
+    framesAnalyzed: z.number(),
+    analysisTimeMs: z.number(),
+    captionFrameSize: z.object({
+      width: z.number(),
+      height: z.number(),
+    }),
+    videoFrameSize: z.object({
+      width: z.number(),
+      height: z.number(),
+    }),
+    captionCropOffsetY: z.number(),
+    captionRegion: z.object({
+      yRatio: z.number(),
+      heightRatio: z.number(),
+    }),
+  }),
+  createdAt: z.string().datetime(),
+});
+export type CaptionQualityRatingOutput = z.infer<typeof CaptionQualityRatingOutputSchema>;
+
 // Rating thresholds configuration
 export const SyncThresholdsSchema = z.object({
   minRating: z.number().default(60),

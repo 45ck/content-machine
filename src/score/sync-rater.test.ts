@@ -8,6 +8,8 @@ import { describe, it, expect } from 'vitest';
 // Import helper functions - we need to export them for testing
 // For now, test the schema imports
 import {
+  CaptionQualityRatingOptionsSchema,
+  CaptionQualityRatingOutputSchema,
   SyncRatingOutputSchema,
   SyncMetricsSchema,
   WordMatchSchema,
@@ -16,6 +18,7 @@ import {
   type SyncRatingOutput,
   type WordMatch,
 } from '../domain';
+import { rateCaptionQuality } from './sync-rater';
 
 describe('Sync Schema Validation', () => {
   describe('WordMatchSchema', () => {
@@ -91,6 +94,24 @@ describe('Sync Schema Validation', () => {
 
       expect(result.fps).toBe(5);
       expect(result.thresholds.minRating).toBe(80);
+    });
+  });
+
+  describe('CaptionQualityRatingOptionsSchema', () => {
+    it('applies defaults for empty options', () => {
+      const result = CaptionQualityRatingOptionsSchema.parse({});
+      expect(result.fps).toBe(2);
+      expect(result.ocrEngine).toBe('tesseract');
+      expect(result.captionRegion.yRatio).toBe(0.75);
+      expect(result.captionRegion.heightRatio).toBe(0.25);
+    });
+  });
+
+  describe('CaptionQualityRatingOutputSchema', () => {
+    it('validates OCR-only output from mock rater', async () => {
+      const output = await rateCaptionQuality('/path/to/video.mp4', { mock: true });
+      const parsed = CaptionQualityRatingOutputSchema.safeParse(output);
+      expect(parsed.success).toBe(true);
     });
   });
 

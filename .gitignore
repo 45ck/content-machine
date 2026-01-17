@@ -56,6 +56,7 @@ out/
 # Stryker (mutation testing)
 .stryker-tmp/
 stryker.conf.cjs
+stryker.conf.json
 .stryker-net-patch.cjs
 reports/
 

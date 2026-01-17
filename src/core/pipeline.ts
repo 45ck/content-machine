@@ -19,7 +19,7 @@ import type {
   VisualsOutput,
 } from '../domain';
 import type { CaptionPresetName } from '../render/captions/presets';
-import type { CaptionConfig } from '../render/captions/config';
+import type { CaptionConfigInput } from '../render/captions/config';
 import type { FontSource, HookClip } from '../domain';
 import type { PipelineEventEmitter } from './events';
 import type { AudioMixPlanOptions } from '../audio/mix/planner';
@@ -68,7 +68,7 @@ export interface PipelineOptions {
   fps?: number;
   compositionId?: string;
   captionPreset?: CaptionPresetName;
-  captionConfig?: Partial<CaptionConfig>;
+  captionConfig?: CaptionConfigInput;
   captionGroupMs?: number;
   captionMode?: 'page' | 'single' | 'buildup' | 'chunk';
   wordsPerPage?: number;

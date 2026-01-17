@@ -43,7 +43,7 @@ import {
   TimestampsOutputSchema,
   VisualsOutputSchema,
   type AudioOutput,
-  type CaptionConfig,
+  type CaptionQualityRatingOutput,
   type FontSource,
   type HookClip,
   type ResearchOutput,
@@ -53,6 +53,7 @@ import {
   type WorkflowDefinition,
   type WorkflowStageMode,
 } from '../../domain';
+import type { CaptionConfigInput } from '../../render/captions/config';
 import { hasAudioMixSources, type AudioMixPlanOptions } from '../../audio/mix/planner';
 import { probeAudioWithFfprobe } from '../../validate/ffprobe-audio';
 import type { CaptionPresetName } from '../../render/captions/presets';
@@ -62,6 +63,10 @@ import {
   type SyncAttemptSettings,
   type SyncQualitySummary,
 } from './generate-quality';
+import {
+  runGenerateWithCaptionQualityGate,
+  type CaptionAttemptSettings,
+} from './caption-quality-gate';
 import { resolveWorkflow, formatWorkflowSource } from '../../workflows/resolve';
 import {
   collectWorkflowPostCommands,
@@ -157,6 +162,14 @@ interface GenerateOptions {
   minSyncRating?: string;
   /** Auto-retry with better sync strategy if rating fails */
   autoRetrySync?: boolean;
+  /** Enable burned-in caption quality check (OCR-only) after render */
+  captionQualityCheck?: boolean;
+  /** Minimum acceptable caption overall score (0..1, or 0..100) */
+  minCaptionOverall?: string;
+  /** Auto-retry with caption tuning if caption quality fails */
+  autoRetryCaptions?: boolean;
+  /** Maximum number of caption tuning retries after the initial attempt */
+  maxCaptionRetries?: string;
   /** Caption display mode: page (default), single (one word at a time), buildup (accumulate per sentence) */
   captionMode?: 'page' | 'single' | 'buildup' | 'chunk';
   /** Words per caption page/group (default: 8) */
@@ -1168,6 +1181,10 @@ function buildGenerateSuccessJsonArgs(params: {
     syncQualityCheck: Boolean(options.syncQualityCheck),
     minSyncRating: parseOptionalInt(options.minSyncRating),
     autoRetrySync: Boolean(options.autoRetrySync),
+    captionQualityCheck: Boolean(options.captionQualityCheck),
+    minCaptionOverall: parseMinCaptionOverall(options),
+    autoRetryCaptions: Boolean(options.autoRetryCaptions),
+    maxCaptionRetries: parseMaxCaptionRetries(options),
     gameplayPosition: options.gameplayPosition ?? null,
     contentPosition: options.contentPosition ?? null,
     splitLayout: options.splitLayout ?? null,
@@ -1213,12 +1230,41 @@ function buildGenerateSuccessJsonSyncOutputs(
   };
 }
 
+function buildGenerateSuccessJsonCaptionOutputs(
+  caption: CaptionQualitySummary | null | undefined
+): Record<string, unknown> {
+  if (!caption) {
+    return {
+      captionReportPath: null,
+      captionOverallScore: null,
+      captionPassed: null,
+      captionCoverageRatio: null,
+      captionSafeAreaScore: null,
+      captionFlickerEvents: null,
+      captionMeanOcrConfidence: null,
+      captionAttempts: null,
+    };
+  }
+
+  return {
+    captionReportPath: caption.reportPath,
+    captionOverallScore: caption.overallScore,
+    captionPassed: caption.passed,
+    captionCoverageRatio: caption.coverageRatio,
+    captionSafeAreaScore: caption.safeAreaScore,
+    captionFlickerEvents: caption.flickerEvents,
+    captionMeanOcrConfidence: caption.meanOcrConfidence,
+    captionAttempts: caption.attempts,
+  };
+}
+
 function buildGenerateSuccessJsonOutputs(params: {
   result: PipelineResult;
   artifactsDir: string;
   sync: SyncQualitySummary | null | undefined;
+  caption: CaptionQualitySummary | null | undefined;
 }): Record<string, unknown> {
-  const { result, artifactsDir, sync } = params;
+  const { result, artifactsDir, sync, caption } = params;
 
   return {
     videoPath: result.outputPath,
@@ -1233,6 +1279,7 @@ function buildGenerateSuccessJsonOutputs(params: {
     audioMixLayers: result.audio.audioMix?.layers.length ?? 0,
     gameplayClip: result.visuals.gameplayClip?.path ?? null,
     ...buildGenerateSuccessJsonSyncOutputs(sync),
+    ...buildGenerateSuccessJsonCaptionOutputs(caption),
   };
 }
 
@@ -1247,6 +1294,7 @@ function writeSuccessJson(params: {
   artifactsDir: string;
   result: PipelineResult;
   sync?: SyncQualitySummary | null;
+  caption?: CaptionQualitySummary | null;
   exitCode?: number;
 }): void {
   const {
@@ -1260,6 +1308,7 @@ function writeSuccessJson(params: {
     artifactsDir,
     result,
     sync,
+    caption,
     exitCode = 0,
   } = params;
 
@@ -1274,7 +1323,7 @@ function writeSuccessJson(params: {
         templateSpec,
         resolvedTemplateId,
       }),
-      outputs: buildGenerateSuccessJsonOutputs({ result, artifactsDir, sync }),
+      outputs: buildGenerateSuccessJsonOutputs({ result, artifactsDir, sync, caption }),
       timingsMs: Date.now() - runtime.startTime,
     })
   );
@@ -1724,7 +1773,7 @@ async function runGeneratePipeline(params: {
       fps: params.options.fps ? parseInt(params.options.fps, 10) : undefined,
       compositionId: params.resolvedTemplate?.template.compositionId,
       captionPreset: params.options.captionPreset as CaptionPresetName | undefined,
-      captionConfig: params.templateDefaults?.captionConfig as Partial<CaptionConfig> | undefined,
+      captionConfig: params.templateDefaults?.captionConfig as CaptionConfigInput | undefined,
       keepArtifacts: params.options.keepArtifacts,
       llmProvider: params.llmProvider,
       mock: params.options.mock,
@@ -1856,6 +1905,34 @@ function parseMinSyncRating(options: GenerateOptions): number {
   return minRating;
 }
 
+function parseMinCaptionOverall(options: GenerateOptions): number {
+  const raw = options.minCaptionOverall ?? '0.75';
+  const parsed = Number.parseFloat(raw);
+  if (!Number.isFinite(parsed)) {
+    throw new CMError('INVALID_ARGUMENT', `Invalid --min-caption-overall value: ${raw}`, {
+      fix: 'Use a number between 0 and 1 (or 0 and 100) for --min-caption-overall',
+    });
+  }
+  const normalized = parsed > 1 ? parsed / 100 : parsed;
+  if (!Number.isFinite(normalized) || normalized < 0 || normalized > 1) {
+    throw new CMError('INVALID_ARGUMENT', `Invalid --min-caption-overall value: ${raw}`, {
+      fix: 'Use a number between 0 and 1 (or 0 and 100) for --min-caption-overall',
+    });
+  }
+  return normalized;
+}
+
+function parseMaxCaptionRetries(options: GenerateOptions): number {
+  const raw = options.maxCaptionRetries ?? '2';
+  const value = Number.parseInt(raw, 10);
+  if (!Number.isFinite(value) || value < 0 || value > 10) {
+    throw new CMError('INVALID_ARGUMENT', `Invalid --max-caption-retries value: ${raw}`, {
+      fix: 'Use a number between 0 and 10 for --max-caption-retries',
+    });
+  }
+  return value;
+}
+
 function buildSyncQualitySummary(
   reportPath: string,
   rating: SyncRatingOutput,
@@ -1874,6 +1951,59 @@ function buildSyncQualitySummary(
   };
 }
 
+interface CaptionQualitySummary {
+  reportPath: string;
+  overallScore: number;
+  passed: boolean;
+  coverageRatio: number;
+  safeAreaScore: number;
+  flickerEvents: number;
+  meanOcrConfidence: number;
+  attempts: number;
+}
+
+function buildCaptionQualitySummary(
+  reportPath: string,
+  rating: CaptionQualityRatingOutput,
+  attempts: number,
+  minOverallScore: number
+): CaptionQualitySummary {
+  const passed =
+    rating.captionQuality.overall.passed && rating.captionQuality.overall.score >= minOverallScore;
+  return {
+    reportPath,
+    overallScore: rating.captionQuality.overall.score,
+    passed,
+    coverageRatio: rating.captionQuality.coverage.coverageRatio,
+    safeAreaScore: rating.captionQuality.safeArea.score,
+    flickerEvents: rating.captionQuality.flicker.flickerEvents,
+    meanOcrConfidence: rating.captionQuality.ocrConfidence.mean,
+    attempts,
+  };
+}
+
+function mergeTemplateDefaultsCaptionConfig(
+  templateDefaults: Record<string, unknown> | undefined,
+  overrides: CaptionConfigInput
+): Record<string, unknown> | undefined {
+  if (!overrides || Object.keys(overrides).length === 0) return templateDefaults;
+  const base = (templateDefaults?.captionConfig ?? {}) as CaptionConfigInput;
+  const merged: CaptionConfigInput = {
+    ...base,
+    ...overrides,
+    pillStyle: { ...(base.pillStyle ?? {}), ...(overrides.pillStyle ?? {}) },
+    stroke: { ...(base.stroke ?? {}), ...(overrides.stroke ?? {}) },
+    shadow: { ...(base.shadow ?? {}), ...(overrides.shadow ?? {}) },
+    layout: { ...(base.layout ?? {}), ...(overrides.layout ?? {}) },
+    positionOffset: { ...(base.positionOffset ?? {}), ...(overrides.positionOffset ?? {}) },
+    safeZone: { ...(base.safeZone ?? {}), ...(overrides.safeZone ?? {}) },
+    emphasis: { ...(base.emphasis ?? {}), ...(overrides.emphasis ?? {}) },
+    cleanup: { ...(base.cleanup ?? {}), ...(overrides.cleanup ?? {}) },
+  };
+
+  return { ...(templateDefaults ?? {}), captionConfig: merged };
+}
+
 type GeneratePipelineWithQualityGateParams = Parameters<typeof runGeneratePipeline>[0] & {
   artifactsDir: string;
 };
@@ -1882,96 +2012,187 @@ interface GeneratePipelineWithQualityGateResult {
   result: PipelineResult;
   finalOptions: GenerateOptions;
   sync: SyncQualitySummary | null;
+  caption: CaptionQualitySummary | null;
   exitCode: number;
 }
 
 async function runPipelineWithOptionalSyncQualityGate(
   params: GeneratePipelineWithQualityGateParams
 ): Promise<GeneratePipelineWithQualityGateResult> {
+  let result: PipelineResult;
+  let finalOptions: GenerateOptions = params.options;
+  let sync: SyncQualitySummary | null = null;
+  let caption: CaptionQualitySummary | null = null;
+  let exitCode = 0;
+
   if (!params.options.syncQualityCheck) {
-    const result = await runGeneratePipeline(params);
-    return { result, finalOptions: params.options, sync: null, exitCode: 0 };
-  }
-
-  const minRating = parseMinSyncRating(params.options);
-  const initialSettings: SyncAttemptSettings = {
-    pipelineMode: params.options.pipeline ?? 'standard',
-    reconcile: Boolean(params.options.reconcile),
-    whisperModel: normalizeWhisperModelForSync(params.options.whisperModel),
-  };
-
-  const autoRetryRequested = Boolean(params.options.autoRetrySync);
-  const autoRetry = params.audioInput ? false : autoRetryRequested;
-  const config = {
-    enabled: true,
-    autoRetry,
-    maxRetries: autoRetry ? 1 : 0,
-  };
-
-  const { rateSyncQuality } = await import('../../score/sync-rater');
-
-  const runAttempt = async (settings: SyncAttemptSettings): Promise<PipelineResult> => {
-    const attemptOptions: GenerateOptions = {
-      ...params.options,
-      pipeline: settings.pipelineMode,
-      reconcile: settings.reconcile,
-      whisperModel: settings.whisperModel,
+    result = await runGeneratePipeline(params);
+  } else {
+    const minRating = parseMinSyncRating(params.options);
+    const initialSettings: SyncAttemptSettings = {
+      pipelineMode: params.options.pipeline ?? 'standard',
+      reconcile: Boolean(params.options.reconcile),
+      whisperModel: normalizeWhisperModelForSync(params.options.whisperModel),
     };
 
-    const llmProvider = params.options.mock
-      ? createMockLLMProvider(params.topic)
-      : params.llmProvider;
-    return runGeneratePipeline({ ...params, options: attemptOptions, llmProvider });
-  };
+    const autoRetryRequested = Boolean(params.options.autoRetrySync);
+    const autoRetry = params.audioInput ? false : autoRetryRequested;
+    const config = {
+      enabled: true,
+      autoRetry,
+      maxRetries: autoRetry ? 1 : 0,
+    };
 
-  const rate = (videoPath: string): Promise<SyncRatingOutput> => {
-    return rateSyncQuality(videoPath, {
-      fps: 2,
-      thresholds: {
-        minRating,
-        maxMeanDriftMs: 180,
-        maxMaxDriftMs: 500,
-        minMatchRatio: 0.7,
-      },
-      asrModel: normalizeWhisperModelForSync(params.options.whisperModel),
-      mock: params.options.mock,
+    const { rateSyncQuality } = await import('../../score/sync-rater');
+
+    const runAttempt = async (settings: SyncAttemptSettings): Promise<PipelineResult> => {
+      const attemptOptions: GenerateOptions = {
+        ...params.options,
+        pipeline: settings.pipelineMode,
+        reconcile: settings.reconcile,
+        whisperModel: settings.whisperModel,
+      };
+
+      const llmProvider = params.options.mock
+        ? createMockLLMProvider(params.topic)
+        : params.llmProvider;
+      return runGeneratePipeline({ ...params, options: attemptOptions, llmProvider });
+    };
+
+    const rate = (videoPath: string): Promise<SyncRatingOutput> => {
+      return rateSyncQuality(videoPath, {
+        fps: 2,
+        thresholds: {
+          minRating,
+          maxMeanDriftMs: 180,
+          maxMaxDriftMs: 500,
+          minMatchRatio: 0.7,
+        },
+        asrModel: normalizeWhisperModelForSync(params.options.whisperModel),
+        mock: params.options.mock,
+      });
+    };
+
+    const outcome = await runGenerateWithSyncQualityGate({
+      initialSettings,
+      config,
+      runAttempt,
+      rate,
     });
-  };
 
-  const outcome = await runGenerateWithSyncQualityGate({
-    initialSettings,
-    config,
-    runAttempt,
-    rate,
-  });
+    result = outcome.pipelineResult;
 
-  const rating = outcome.rating;
-  if (!rating) {
-    return {
-      result: outcome.pipelineResult,
-      finalOptions: params.options,
-      sync: null,
-      exitCode: 0,
+    const rating = outcome.rating;
+    if (rating) {
+      const reportPath = await writeSyncQualityReportFiles(
+        params.artifactsDir,
+        rating,
+        outcome.attemptHistory
+      );
+      sync = buildSyncQualitySummary(reportPath, rating, outcome.attempts);
+      if (!sync.passed) exitCode = 1;
+    }
+
+    finalOptions = {
+      ...params.options,
+      pipeline: outcome.finalSettings.pipelineMode,
+      reconcile: outcome.finalSettings.reconcile,
+      whisperModel: outcome.finalSettings.whisperModel,
     };
   }
 
-  const reportPath = await writeSyncQualityReportFiles(
-    params.artifactsDir,
-    rating,
-    outcome.attemptHistory
-  );
+  if (params.options.captionQualityCheck) {
+    const minOverallScore = parseMinCaptionOverall(params.options);
+    const autoRetry = Boolean(params.options.autoRetryCaptions);
+    const config = {
+      enabled: true,
+      autoRetry,
+      maxRetries: autoRetry ? parseMaxCaptionRetries(params.options) : 0,
+      minOverallScore,
+    };
 
-  const sync = buildSyncQualitySummary(reportPath, rating, outcome.attempts);
-  const exitCode = sync.passed ? 0 : 1;
+    const baseInputs = {
+      scriptInput: result.script,
+      audioInput: result.audio,
+      visualsInput: result.visuals,
+    };
 
-  const finalOptions: GenerateOptions = {
-    ...params.options,
-    pipeline: outcome.finalSettings.pipelineMode,
-    reconcile: outcome.finalSettings.reconcile,
-    whisperModel: outcome.finalSettings.whisperModel,
-  };
+    const initialCaptionSettings: CaptionAttemptSettings = {
+      captionPreset: finalOptions.captionPreset as CaptionPresetName | undefined,
+      captionConfigOverrides: {},
+      maxLinesPerPage: finalOptions.maxLines ? parseInt(finalOptions.maxLines, 10) : undefined,
+      maxCharsPerLine: finalOptions.charsPerLine
+        ? parseInt(finalOptions.charsPerLine, 10)
+        : undefined,
+      captionMaxCps: parseOptionalNumber(finalOptions.captionMaxCps) ?? undefined,
+      captionMinOnScreenMs: parseOptionalInt(finalOptions.captionMinOnScreenMs) ?? undefined,
+      captionMinOnScreenMsShort:
+        parseOptionalInt(finalOptions.captionMinOnScreenMsShort) ?? undefined,
+    };
 
-  return { result: outcome.pipelineResult, finalOptions, sync, exitCode };
+    const { rateCaptionQuality } = await import('../../score/sync-rater');
+
+    const rerender = async (settings: CaptionAttemptSettings): Promise<PipelineResult> => {
+      const attemptOptions: GenerateOptions = { ...finalOptions };
+      if (settings.captionPreset) attemptOptions.captionPreset = settings.captionPreset;
+      if (settings.maxLinesPerPage !== undefined)
+        attemptOptions.maxLines = String(settings.maxLinesPerPage);
+      if (settings.maxCharsPerLine !== undefined)
+        attemptOptions.charsPerLine = String(settings.maxCharsPerLine);
+      if (settings.captionMaxCps !== undefined)
+        attemptOptions.captionMaxCps = String(settings.captionMaxCps);
+      if (settings.captionMinOnScreenMs !== undefined) {
+        attemptOptions.captionMinOnScreenMs = String(settings.captionMinOnScreenMs);
+      }
+      if (settings.captionMinOnScreenMsShort !== undefined) {
+        attemptOptions.captionMinOnScreenMsShort = String(settings.captionMinOnScreenMsShort);
+      }
+
+      const templateDefaults = mergeTemplateDefaultsCaptionConfig(
+        params.templateDefaults,
+        settings.captionConfigOverrides
+      );
+
+      const llmProvider = params.options.mock
+        ? createMockLLMProvider(params.topic)
+        : params.llmProvider;
+
+      return runGeneratePipeline({
+        ...params,
+        options: attemptOptions,
+        templateDefaults,
+        llmProvider,
+        ...baseInputs,
+      });
+    };
+
+    const rate = (videoPath: string): Promise<CaptionQualityRatingOutput> => {
+      return rateCaptionQuality(videoPath, { fps: 2, mock: params.options.mock });
+    };
+
+    const outcome = await runGenerateWithCaptionQualityGate({
+      initialPipelineResult: result,
+      initialSettings: initialCaptionSettings,
+      config,
+      rerender,
+      rate,
+    });
+
+    result = outcome.pipelineResult;
+
+    const rating = outcome.rating;
+    if (rating) {
+      const reportPath = await writeCaptionQualityReportFiles(
+        params.artifactsDir,
+        rating,
+        outcome.attemptHistory
+      );
+      caption = buildCaptionQualitySummary(reportPath, rating, outcome.attempts, minOverallScore);
+      if (!caption.passed) exitCode = 1;
+    }
+  }
+
+  return { result, finalOptions, sync, caption, exitCode };
 }
 
 async function writeSyncQualityReportFiles(
@@ -1991,6 +2212,26 @@ async function writeSyncQualityReportFiles(
   return reportPath;
 }
 
+async function writeCaptionQualityReportFiles(
+  artifactsDir: string,
+  rating: CaptionQualityRatingOutput,
+  attemptHistory: Array<{ rating?: CaptionQualityRatingOutput }>
+): Promise<string> {
+  const reportPath = join(artifactsDir, 'caption-report.json');
+  await writeOutputFile(reportPath, rating);
+
+  for (let i = 0; i < attemptHistory.length; i++) {
+    const attempt = attemptHistory[i];
+    if (!attempt.rating) continue;
+    await writeOutputFile(
+      join(artifactsDir, `caption-report-attempt${i + 1}.json`),
+      attempt.rating
+    );
+  }
+
+  return reportPath;
+}
+
 async function finalizeGenerateOutput(params: {
   topic: string;
   archetype: string;
@@ -2002,6 +2243,7 @@ async function finalizeGenerateOutput(params: {
   artifactsDir: string;
   result: PipelineResult;
   sync: SyncQualitySummary | null;
+  caption: CaptionQualitySummary | null;
   exitCode: number;
 }): Promise<void> {
   if (params.runtime.json) {
@@ -2016,6 +2258,7 @@ async function finalizeGenerateOutput(params: {
       artifactsDir: params.artifactsDir,
       result: params.result,
       sync: params.sync,
+      caption: params.caption,
       exitCode: params.exitCode,
     });
     return;
@@ -2026,6 +2269,7 @@ async function finalizeGenerateOutput(params: {
     params.options,
     params.artifactsDir,
     params.sync,
+    params.caption,
     params.topic
   );
   if (params.exitCode !== 0) process.exit(params.exitCode);
@@ -2235,24 +2479,25 @@ async function runGenerate(
   if (gameplayPosition) options.gameplayPosition = gameplayPosition;
   if (contentPosition) options.contentPosition = contentPosition;
 
-  const { result, finalOptions, sync, exitCode } = await runPipelineWithOptionalSyncQualityGate({
-    topic,
-    archetype,
-    orientation,
-    options,
-    resolvedTemplate,
-    templateDefaults,
-    templateParams,
-    gameplay,
-    hook,
-    research,
-    llmProvider,
-    runtime,
-    artifactsDir,
-    scriptInput,
-    audioInput,
-    visualsInput,
-  });
+  const { result, finalOptions, sync, caption, exitCode } =
+    await runPipelineWithOptionalSyncQualityGate({
+      topic,
+      archetype,
+      orientation,
+      options,
+      resolvedTemplate,
+      templateDefaults,
+      templateParams,
+      gameplay,
+      hook,
+      research,
+      llmProvider,
+      runtime,
+      artifactsDir,
+      scriptInput,
+      audioInput,
+      visualsInput,
+    });
 
   if (workflowDefinition && workflowHasExec(workflowDefinition) && options.workflowAllowExec) {
     const postCommands = collectWorkflowPostCommands(workflowDefinition);
@@ -2276,6 +2521,7 @@ async function runGenerate(
     artifactsDir,
     result,
     sync,
+    caption,
     exitCode,
   });
 }
@@ -2445,9 +2691,14 @@ async function showSuccessSummary(
   options: GenerateOptions,
   artifactsDir: string,
   sync: SyncQualitySummary | null,
+  caption: CaptionQualitySummary | null,
   topic: string
 ): Promise<void> {
-  const title = sync && !sync.passed ? 'Video generated (sync failed)' : 'Video generated';
+  const titleParts: string[] = [];
+  if (sync && !sync.passed) titleParts.push('sync failed');
+  if (caption && !caption.passed) titleParts.push('caption quality failed');
+  const title =
+    titleParts.length > 0 ? `Video generated (${titleParts.join(', ')})` : 'Video generated';
   const rows: Array<[string, string]> = [
     ['Title', result.script.title ?? topic],
     ['Duration', `${result.duration.toFixed(1)}s`],
@@ -2481,6 +2732,15 @@ async function showSuccessSummary(
       '',
       `Sync rating: ${sync.rating}/100 (${sync.ratingLabel}) - ${status} (attempts: ${sync.attempts})`,
       `Sync report: ${sync.reportPath}`
+    );
+  }
+
+  if (caption) {
+    const status = caption.passed ? 'PASSED' : 'FAILED';
+    lines.push(
+      '',
+      `Caption quality: overall=${caption.overallScore.toFixed(2)} - ${status} (attempts: ${caption.attempts})`,
+      `Caption report: ${caption.reportPath}`
     );
   }
 
@@ -2681,6 +2941,15 @@ export const generateCommand = new Command('generate')
   .option('--sync-quality-check', 'Run sync quality rating after render')
   .option('--min-sync-rating <rating>', 'Minimum acceptable sync rating (0-100)', '75')
   .option('--auto-retry-sync', 'Auto-retry with better strategy if rating fails')
+  // Caption quality options (OCR-only)
+  .option('--caption-quality-check', 'Run burned-in caption quality rating after render (OCR-only)')
+  .option(
+    '--min-caption-overall <score>',
+    'Minimum acceptable caption overall score (0..1 or 0..100)',
+    '0.75'
+  )
+  .option('--auto-retry-captions', 'Auto-retry render with caption tuning if caption quality fails')
+  .option('--max-caption-retries <count>', 'Maximum number of caption tuning retries (0-10)', '2')
   .option('--mock', 'Use mock providers (for testing)')
   .option('--dry-run', 'Preview configuration without execution')
   .option('--preflight', 'Validate dependencies and exit without execution')

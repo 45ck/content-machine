@@ -14,8 +14,10 @@ export {
 } from '../domain';
 
 // Sync rater
-export { rateSyncQuality, formatSyncRatingCLI } from './sync-rater';
+export { rateCaptionQuality, rateSyncQuality, formatSyncRatingCLI } from './sync-rater';
 export {
+  type CaptionQualityRatingOptions,
+  type CaptionQualityRatingOutput,
   type SyncRatingOutput,
   type SyncMetrics,
   type WordMatch,
@@ -23,6 +25,8 @@ export {
   type OCRFrame,
   type SyncRatingOptions,
   type SyncRatingLabel,
+  CaptionQualityRatingOptionsSchema,
+  CaptionQualityRatingOutputSchema,
   SyncRatingOutputSchema,
   SyncMetricsSchema,
   WordMatchSchema,

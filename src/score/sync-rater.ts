@@ -12,6 +12,8 @@ import { CMError } from '../core/errors';
 import { transcribeAudio, type ASRResult } from '../audio/asr';
 import { normalizeWord, isFuzzyMatch } from '../core/text/similarity';
 import {
+  type CaptionQualityRatingOptions,
+  type CaptionQualityRatingOutput,
   type SyncRatingOutput,
   type SyncMetrics,
   type SyncError,
@@ -19,6 +21,8 @@ import {
   type OCRFrame,
   type SyncRatingOptions,
   type SyncRatingLabel,
+  CaptionQualityRatingOptionsSchema,
+  CaptionQualityRatingOutputSchema,
   SyncRatingOutputSchema,
   SyncRatingOptionsSchema,
 } from '../domain';
@@ -615,6 +619,40 @@ export async function rateSyncQuality(
   return rateSyncQualityReal(videoPath, opts, startTime);
 }
 
+/**
+ * Rate burned-in caption quality (OCR-only, no ASR).
+ *
+ * Intended for fast caption tuning loops without paying the Whisper cost.
+ */
+export async function rateCaptionQuality(
+  videoPath: string,
+  options?: Partial<CaptionQualityRatingOptions> & { mock?: boolean }
+): Promise<CaptionQualityRatingOutput> {
+  const startTime = Date.now();
+  const { mock, ...rawOptions } = options ?? {};
+  const opts = CaptionQualityRatingOptionsSchema.parse(rawOptions);
+
+  log.info({ videoPath, options: opts }, 'Starting caption quality rating (OCR-only)');
+
+  if (mock) {
+    const analysisTimeMs = Date.now() - startTime;
+    return buildMockCaptionQualityRatingOutput(videoPath, opts, analysisTimeMs);
+  }
+
+  if (opts.ocrEngine !== 'tesseract') {
+    throw new CMError('INVALID_ARGUMENT', `Unsupported OCR engine: ${opts.ocrEngine}`, {
+      allowed: ['tesseract'],
+      fix: 'Use ocrEngine=tesseract (easyocr is not implemented yet)',
+    });
+  }
+
+  if (!existsSync(videoPath)) {
+    throw new CMError('FILE_NOT_FOUND', `Video file not found: ${videoPath}`);
+  }
+
+  return rateCaptionQualityReal(videoPath, opts, startTime);
+}
+
 function validateSyncRatingInput(videoPath: string, opts: SyncRatingOptions): void {
   if (opts.ocrEngine !== 'tesseract') {
     throw new CMError('INVALID_ARGUMENT', `Unsupported OCR engine: ${opts.ocrEngine}`, {
@@ -746,6 +784,58 @@ async function rateSyncQualityReal(
   }
 }
 
+async function rateCaptionQualityReal(
+  videoPath: string,
+  opts: CaptionQualityRatingOptions,
+  startTime: number
+): Promise<CaptionQualityRatingOutput> {
+  let framesDir: string | null = null;
+
+  try {
+    const frameResult = await extractFrames(videoPath, opts.fps, opts.captionRegion);
+    framesDir = frameResult.framesDir;
+
+    const ocrFrames = await runOCR(framesDir, opts.fps, frameResult.captionCrop.offsetY);
+
+    const captionQuality = analyzeBurnedInCaptionQuality({
+      ocrFrames,
+      fps: opts.fps,
+      videoDurationSeconds: frameResult.videoDurationSeconds,
+      frameSize: frameResult.videoFrameSize,
+    });
+
+    const errors = detectCaptionQualityErrors({ captionQuality });
+
+    const analysisTimeMs = Date.now() - startTime;
+    const output: CaptionQualityRatingOutput = {
+      schemaVersion: '1.0.0',
+      videoPath,
+      captionQuality,
+      errors,
+      analysis: {
+        ocrEngine: opts.ocrEngine,
+        fps: opts.fps,
+        framesAnalyzed: ocrFrames.length,
+        analysisTimeMs,
+        captionFrameSize: {
+          width: frameResult.captionCrop.width,
+          height: frameResult.captionCrop.height,
+        },
+        videoFrameSize: frameResult.videoFrameSize,
+        captionCropOffsetY: frameResult.captionCrop.offsetY,
+        captionRegion: opts.captionRegion,
+      },
+      createdAt: new Date().toISOString(),
+    };
+
+    return CaptionQualityRatingOutputSchema.parse(output);
+  } finally {
+    if (framesDir && existsSync(framesDir)) {
+      rmSync(framesDir, { recursive: true, force: true });
+    }
+  }
+}
+
 function buildMockSyncRatingOutput(
   videoPath: string,
   opts: SyncRatingOptions,
@@ -826,6 +916,63 @@ function buildMockSyncRatingOutput(
   };
 
   return SyncRatingOutputSchema.parse(output);
+}
+
+function buildMockCaptionQualityRatingOutput(
+  videoPath: string,
+  opts: CaptionQualityRatingOptions,
+  analysisTimeMs: number
+): CaptionQualityRatingOutput {
+  const videoFrameSize = { width: 1080, height: 1920 };
+  const cropY = Math.floor(videoFrameSize.height * opts.captionRegion.yRatio);
+  const cropH = Math.floor(videoFrameSize.height * opts.captionRegion.heightRatio);
+  const captionFrameSize = { width: videoFrameSize.width, height: cropH };
+
+  const framesAnalyzed = Math.max(1, Math.round(opts.fps * 6));
+  const ocrFrames: OCRFrame[] = [];
+  for (let i = 0; i < framesAnalyzed; i++) {
+    ocrFrames.push({
+      frameNumber: i + 1,
+      timestamp: i / opts.fps,
+      text: 'THIS IS A MOCK CAPTION',
+      confidence: 0.92,
+      bbox: {
+        x0: 120,
+        y0: cropY + 60,
+        x1: 960,
+        y1: cropY + 220,
+      },
+    });
+  }
+
+  const captionQuality = analyzeBurnedInCaptionQuality({
+    ocrFrames,
+    fps: opts.fps,
+    videoDurationSeconds: 6,
+    frameSize: videoFrameSize,
+  });
+
+  const errors = detectCaptionQualityErrors({ captionQuality });
+
+  const output: CaptionQualityRatingOutput = {
+    schemaVersion: '1.0.0',
+    videoPath,
+    captionQuality,
+    errors,
+    analysis: {
+      ocrEngine: opts.ocrEngine,
+      fps: opts.fps,
+      framesAnalyzed,
+      analysisTimeMs,
+      captionFrameSize,
+      videoFrameSize,
+      captionCropOffsetY: cropY,
+      captionRegion: opts.captionRegion,
+    },
+    createdAt: new Date().toISOString(),
+  };
+
+  return CaptionQualityRatingOutputSchema.parse(output);
 }
 
 /**
