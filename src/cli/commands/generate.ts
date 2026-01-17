@@ -1189,6 +1189,8 @@ function buildGenerateSuccessJsonArgs(params: {
     minCaptionOverall: parseMinCaptionOverall(options),
     autoRetryCaptions: Boolean(options.autoRetryCaptions),
     maxCaptionRetries: parseMaxCaptionRetries(options),
+    captionPerfect: Boolean(options.captionPerfect),
+    captionQualityMock: Boolean(options.captionQualityMock),
     gameplayPosition: options.gameplayPosition ?? null,
     contentPosition: options.contentPosition ?? null,
     splitLayout: options.splitLayout ?? null,
@@ -1370,6 +1372,15 @@ function applyCaptionDefaultsFromConfig(options: GenerateOptions, command: Comma
   if (!options.captionFonts && captions.fonts.length > 0) {
     options.captionFonts = captions.fonts;
   }
+}
+
+function applyCaptionQualityPerfectDefaults(options: GenerateOptions): void {
+  if (!options.captionPerfect) return;
+  options.captionQualityCheck = true;
+  options.autoRetryCaptions = true;
+  if (!options.minCaptionOverall) options.minCaptionOverall = '0.95';
+  if (!options.maxCaptionRetries) options.maxCaptionRetries = '50';
+  if (options.captionQualityMock == null) options.captionQualityMock = false;
 }
 
 function getOptionNameMap(command: Command): Map<string, string> {
@@ -1929,9 +1940,9 @@ function parseMinCaptionOverall(options: GenerateOptions): number {
 function parseMaxCaptionRetries(options: GenerateOptions): number {
   const raw = options.maxCaptionRetries ?? '2';
   const value = Number.parseInt(raw, 10);
-  if (!Number.isFinite(value) || value < 0 || value > 10) {
+  if (!Number.isFinite(value) || value < 0 || value > 100) {
     throw new CMError('INVALID_ARGUMENT', `Invalid --max-caption-retries value: ${raw}`, {
-      fix: 'Use a number between 0 and 10 for --max-caption-retries',
+      fix: 'Use a number between 0 and 100 for --max-caption-retries',
     });
   }
   return value;
@@ -2171,7 +2182,10 @@ async function runPipelineWithOptionalSyncQualityGate(
     };
 
     const rate = (videoPath: string): Promise<CaptionQualityRatingOutput> => {
-      return rateCaptionQuality(videoPath, { fps: 2, mock: params.options.mock });
+      return rateCaptionQuality(videoPath, {
+        fps: 2,
+        mock: Boolean(params.options.captionQualityMock),
+      });
     };
 
     const outcome = await runGenerateWithCaptionQualityGate({
@@ -2289,6 +2303,7 @@ async function runGenerate(
 
   applyCaptionDefaultsFromConfig(options, command);
   applySyncPresetDefaults(options, command);
+  applyCaptionQualityPerfectDefaults(options);
   let resolvedWorkflow: Awaited<ReturnType<typeof resolveWorkflow>> | undefined;
   let workflowError: ReturnType<typeof getCliErrorInfo> | null = null;
 
@@ -2948,12 +2963,17 @@ export const generateCommand = new Command('generate')
   // Caption quality options (OCR-only)
   .option('--caption-quality-check', 'Run burned-in caption quality rating after render (OCR-only)')
   .option(
+    '--caption-perfect',
+    'Keep retrying caption tuning until captions are excellent (enables caption quality gate)'
+  )
+  .option('--caption-quality-mock', 'Use mock caption quality scoring (no OCR)')
+  .option(
     '--min-caption-overall <score>',
     'Minimum acceptable caption overall score (0..1 or 0..100)',
     '0.75'
   )
   .option('--auto-retry-captions', 'Auto-retry render with caption tuning if caption quality fails')
-  .option('--max-caption-retries <count>', 'Maximum number of caption tuning retries (0-10)', '2')
+  .option('--max-caption-retries <count>', 'Maximum number of caption tuning retries (0-100)', '2')
   .option('--mock', 'Use mock providers (for testing)')
   .option('--dry-run', 'Preview configuration without execution')
   .option('--preflight', 'Validate dependencies and exit without execution')
