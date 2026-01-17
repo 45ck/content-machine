@@ -314,8 +314,9 @@ export const CaptionQualityRatingOptionsSchema = z.object({
   ocrEngine: z.enum(['tesseract', 'easyocr']).default('tesseract'),
   captionRegion: z
     .object({
-      yRatio: z.number().default(0.75),
-      heightRatio: z.number().default(0.25),
+      // Default crop tuned for our templates (captures multi-line captions above the bottom edge).
+      yRatio: z.number().default(0.65),
+      heightRatio: z.number().default(0.35),
     })
     .default({}),
 });
@@ -365,8 +366,9 @@ export const SyncRatingOptionsSchema = z.object({
   asrModel: z.enum(['tiny', 'base', 'small', 'medium']).default('base'),
   captionRegion: z
     .object({
-      yRatio: z.number().default(0.75), // Start at 75% down
-      heightRatio: z.number().default(0.25), // 25% of frame height
+      // Default crop tuned for our templates (captures multi-line captions above the bottom edge).
+      yRatio: z.number().default(0.65), // Start at 65% down
+      heightRatio: z.number().default(0.35), // 35% of frame height
     })
     .default({}),
   thresholds: SyncThresholdsSchema.default({}),

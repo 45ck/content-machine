@@ -78,8 +78,8 @@ describe('Sync Schema Validation', () => {
       expect(result.fps).toBe(2);
       expect(result.ocrEngine).toBe('tesseract');
       expect(result.asrModel).toBe('base');
-      expect(result.captionRegion.yRatio).toBe(0.75);
-      expect(result.captionRegion.heightRatio).toBe(0.25);
+      expect(result.captionRegion.yRatio).toBe(0.65);
+      expect(result.captionRegion.heightRatio).toBe(0.35);
       expect(result.thresholds.minRating).toBe(60);
       expect(result.thresholds.maxMeanDriftMs).toBe(180);
     });
@@ -102,8 +102,8 @@ describe('Sync Schema Validation', () => {
       const result = CaptionQualityRatingOptionsSchema.parse({});
       expect(result.fps).toBe(2);
       expect(result.ocrEngine).toBe('tesseract');
-      expect(result.captionRegion.yRatio).toBe(0.75);
-      expect(result.captionRegion.heightRatio).toBe(0.25);
+      expect(result.captionRegion.yRatio).toBe(0.65);
+      expect(result.captionRegion.heightRatio).toBe(0.35);
     });
   });
 
