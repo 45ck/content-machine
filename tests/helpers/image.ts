@@ -81,24 +81,8 @@ export function computeMinGapBetweenInkRuns(
   const minInkPixels = options.minInkPixels ?? 3;
   const minGapPx = options.minGapPx ?? 0;
   const minRunWidth = options.minRunWidth ?? 1;
-  const { width, data } = image;
   const bounds = findInkBoundingBox(image, background, threshold);
-  const columns = new Array(width).fill(0);
-
-  for (let x = bounds.minX; x <= bounds.maxX; x++) {
-    let inkCount = 0;
-    for (let y = bounds.minY; y <= bounds.maxY; y++) {
-      const idx = (y * width + x) * 4;
-      const r = data[idx];
-      const g = data[idx + 1];
-      const b = data[idx + 2];
-      const a = data[idx + 3];
-      if (isInkPixel(r, g, b, a, background, threshold)) {
-        inkCount++;
-      }
-    }
-    columns[x] = inkCount;
-  }
+  const columns = computeInkCounts(image, bounds, background, threshold, 'x');
 
   const runs = findInkRuns(columns, bounds.minX, bounds.maxX, minInkPixels);
 
@@ -134,24 +118,8 @@ export function computeMinVerticalGapBetweenInkRuns(
   const { background } = options;
   const threshold = options.threshold ?? 20;
   const minInkPixels = options.minInkPixels ?? 3;
-  const { height, data, width } = image;
   const bounds = findInkBoundingBox(image, background, threshold);
-  const rows = new Array(height).fill(0);
-
-  for (let y = bounds.minY; y <= bounds.maxY; y++) {
-    let inkCount = 0;
-    for (let x = bounds.minX; x <= bounds.maxX; x++) {
-      const idx = (y * width + x) * 4;
-      const r = data[idx];
-      const g = data[idx + 1];
-      const b = data[idx + 2];
-      const a = data[idx + 3];
-      if (isInkPixel(r, g, b, a, background, threshold)) {
-        inkCount++;
-      }
-    }
-    rows[y] = inkCount;
-  }
+  const rows = computeInkCounts(image, bounds, background, threshold, 'y');
 
   const runs = findInkRuns(rows, bounds.minY, bounds.maxY, minInkPixels);
 
@@ -198,4 +166,50 @@ function findInkRuns(
   }
 
   return runs;
+}
+
+function computeInkCounts(
+  image: DecodedImage,
+  bounds: { minX: number; minY: number; maxX: number; maxY: number },
+  background: RgbColor,
+  threshold: number,
+  axis: 'x' | 'y'
+): number[] {
+  const { width, height, data } = image;
+  const counts = new Array(axis === 'x' ? width : height).fill(0);
+
+  if (axis === 'x') {
+    for (let x = bounds.minX; x <= bounds.maxX; x++) {
+      let inkCount = 0;
+      for (let y = bounds.minY; y <= bounds.maxY; y++) {
+        const idx = (y * width + x) * 4;
+        const r = data[idx];
+        const g = data[idx + 1];
+        const b = data[idx + 2];
+        const a = data[idx + 3];
+        if (isInkPixel(r, g, b, a, background, threshold)) {
+          inkCount++;
+        }
+      }
+      counts[x] = inkCount;
+    }
+    return counts;
+  }
+
+  for (let y = bounds.minY; y <= bounds.maxY; y++) {
+    let inkCount = 0;
+    for (let x = bounds.minX; x <= bounds.maxX; x++) {
+      const idx = (y * width + x) * 4;
+      const r = data[idx];
+      const g = data[idx + 1];
+      const b = data[idx + 2];
+      const a = data[idx + 3];
+      if (isInkPixel(r, g, b, a, background, threshold)) {
+        inkCount++;
+      }
+    }
+    counts[y] = inkCount;
+  }
+
+  return counts;
 }
