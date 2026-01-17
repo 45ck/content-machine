@@ -62,3 +62,7 @@ reports/
 
 # Generated docs
 docs/api/
+
+# Bench (video scoring benchmarks)
+bench/stress/manifest.json
+bench/results/report.json

@@ -28,6 +28,7 @@ const COMMAND_LOADERS: Array<[string, CommandLoader]> = [
   ['validate', async () => (await import('./commands/validate')).validateCommand],
   ['score', async () => (await import('./commands/score')).scoreCommand],
   ['rate', async () => (await import('./commands/rate')).rateCommand],
+  ['bench', async () => (await import('./commands/bench')).benchCommand],
   ['captions', async () => (await import('./commands/captions')).captionsCommand],
   ['publish', async () => (await import('./commands/publish')).publishCommand],
   ['templates', async () => (await import('./commands/templates')).templatesCommand],
