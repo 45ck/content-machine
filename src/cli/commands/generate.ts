@@ -2272,7 +2272,7 @@ async function writeSyncQualityReportFiles(
 async function writeCaptionQualityReportFiles(
   artifactsDir: string,
   rating: CaptionQualityRatingOutput,
-  attemptHistory: Array<{ rating?: CaptionQualityRatingOutput }>
+  attemptHistory: Array<{ rating?: CaptionQualityRatingOutput; settings?: unknown }>
 ): Promise<string> {
   const reportPath = join(artifactsDir, 'caption-report.json');
   await writeOutputFile(reportPath, rating);
@@ -2284,6 +2284,17 @@ async function writeCaptionQualityReportFiles(
       join(artifactsDir, `caption-report-attempt${i + 1}.json`),
       attempt.rating
     );
+    if (attempt.settings) {
+      await writeOutputFile(
+        join(artifactsDir, `caption-settings-attempt${i + 1}.json`),
+        attempt.settings
+      );
+    }
+  }
+
+  const lastAttempt = attemptHistory[attemptHistory.length - 1];
+  if (lastAttempt?.settings) {
+    await writeOutputFile(join(artifactsDir, 'caption-settings.json'), lastAttempt.settings);
   }
 
   return reportPath;
