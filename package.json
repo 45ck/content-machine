@@ -56,7 +56,7 @@
     "@remotion/install-whisper-cpp": "^4.0.399",
     "@remotion/layout-utils": "^4.0.402",
     "@remotion/player": "^4.0.0",
-    "@remotion/renderer": "^4.0.0",
+    "@remotion/renderer": "^4.0.407",
     "@tavily/core": "^0.6.4",
     "adm-zip": "^0.5.16",
     "boxen": "^7.1.1",
