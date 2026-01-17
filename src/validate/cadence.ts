@@ -1,11 +1,24 @@
 import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
 import type { CadenceGateResult } from '../domain';
 import { CMError } from '../core/errors';
 import type { VideoInfo } from './video-info';
 import { detectSceneCutsWithPySceneDetect } from './scene-detect';
 
-const execFileAsync = promisify(execFile);
+function execFileWithOutput(
+  cmd: string,
+  args: string[],
+  options: { windowsHide: boolean; timeout: number }
+): Promise<{ stdout: string; stderr: string }> {
+  return new Promise((resolve, reject) => {
+    execFile(cmd, args, options, (error, stdout, stderr) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve({ stdout: String(stdout ?? ''), stderr: String(stderr ?? '') });
+    });
+  });
+}
 
 export interface CadenceEvaluation {
   passed: boolean;
@@ -59,7 +72,7 @@ export async function detectSceneCutsWithFfmpeg(params: {
   const timeoutMs = params.timeoutMs ?? 30_000;
 
   try {
-    const { stderr } = await execFileAsync(
+    const { stderr } = await execFileWithOutput(
       'ffmpeg',
       [
         '-hide_banner',

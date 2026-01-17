@@ -48,6 +48,17 @@ export {
   type CaptionChunkDiagnostic,
 } from './caption-diagnostics';
 
+// Burned-in caption quality metrics (OCR-derived)
+export {
+  analyzeBurnedInCaptionQuality,
+  segmentOcrCaptionTimeline,
+  DEFAULT_BURNED_IN_CAPTION_THRESHOLDS,
+  type BurnedInCaptionQualityReport,
+  type BurnedInCaptionThresholds,
+  type FrameSize,
+  type OcrCaptionSegment,
+} from './burned-in-caption-quality';
+
 // Paging quality metrics
 export {
   analyzePagingQuality,

@@ -28,6 +28,7 @@ import { join, basename } from 'node:path';
 import { tmpdir } from 'node:os';
 import { promisify } from 'node:util';
 import { probeVideoWithFfprobe } from '../validate/ffprobe';
+import { analyzeBurnedInCaptionQuality } from './burned-in-caption-quality';
 
 const log = createLogger({ module: 'sync-rater' });
 const execFileAsync = promisify(execFile);
@@ -68,7 +69,13 @@ async function extractFrames(
   videoPath: string,
   fps: number,
   captionRegion: { yRatio: number; heightRatio: number }
-): Promise<{ framesDir: string; frameCount: number }> {
+): Promise<{
+  framesDir: string;
+  frameCount: number;
+  videoFrameSize: { width: number; height: number };
+  captionCrop: { offsetY: number; width: number; height: number };
+  videoDurationSeconds: number;
+}> {
   const framesDir = join(tmpdir(), `cm-sync-frames-${Date.now()}`);
   mkdirSync(framesDir, { recursive: true });
 
@@ -77,6 +84,7 @@ async function extractFrames(
   const info = await probeVideoWithFfprobe(videoPath);
   const width = info.width;
   const height = info.height;
+  const videoDurationSeconds = info.durationSeconds;
 
   // Calculate crop region for captions (bottom portion)
   const cropY = Math.floor(height * captionRegion.yRatio);
@@ -116,7 +124,13 @@ async function extractFrames(
   const files = readdirSync(framesDir).filter((f) => f.endsWith('.png'));
   log.info({ frameCount: files.length, framesDir }, 'Frames extracted');
 
-  return { framesDir, frameCount: files.length };
+  return {
+    framesDir,
+    frameCount: files.length,
+    videoFrameSize: { width, height },
+    captionCrop: { offsetY: cropY, width, height: cropH },
+    videoDurationSeconds,
+  };
 }
 
 /**
@@ -168,7 +182,7 @@ async function extractAudio(videoPath: string): Promise<string> {
 /**
  * Run OCR on extracted frames using Tesseract.js
  */
-async function runOCR(framesDir: string, fps: number): Promise<OCRFrame[]> {
+async function runOCR(framesDir: string, fps: number, cropOffsetY: number): Promise<OCRFrame[]> {
   // Dynamic import for tesseract.js (optional dependency)
   let Tesseract: typeof import('tesseract.js');
   try {
@@ -199,19 +213,48 @@ async function runOCR(framesDir: string, fps: number): Promise<OCRFrame[]> {
 
     try {
       const result = await worker.recognize(framePath);
-      const text = result.data.text.trim().toUpperCase();
-      const confidence = result.data.confidence / 100;
+      const data = result.data as {
+        text: string;
+        confidence: number;
+        words?: Array<{ bbox?: { x0: number; y0: number; x1: number; y1: number } }>;
+      };
+      const text = data.text.trim();
+      const confidence = data.confidence / 100;
 
-      if (text.length > 0) {
-        results.push({
-          frameNumber,
-          timestamp,
-          text,
-          confidence,
-        });
-      }
+      const words = Array.isArray(data.words) ? data.words : [];
+      const bboxes = words
+        .map((w: any) => w?.bbox)
+        .filter(Boolean)
+        .filter((bbox: any) =>
+          [bbox?.x0, bbox?.y0, bbox?.x1, bbox?.y1].every((n) => Number.isFinite(Number(n)))
+        )
+        .map((bbox: any) => ({
+          x0: Number(bbox.x0),
+          y0: Number(bbox.y0) + cropOffsetY,
+          x1: Number(bbox.x1),
+          y1: Number(bbox.y1) + cropOffsetY,
+        }));
+
+      const bbox =
+        bboxes.length > 0
+          ? {
+              x0: Math.min(...bboxes.map((b: any) => b.x0)),
+              y0: Math.min(...bboxes.map((b: any) => b.y0)),
+              x1: Math.max(...bboxes.map((b: any) => b.x1)),
+              y1: Math.max(...bboxes.map((b: any) => b.y1)),
+            }
+          : undefined;
+
+      results.push({
+        frameNumber,
+        timestamp,
+        text,
+        confidence: Number.isFinite(confidence) ? confidence : 0,
+        ...(bbox ? { bbox } : {}),
+      });
     } catch (error) {
       log.warn({ frameNumber, error }, 'OCR failed for frame');
+      results.push({ frameNumber, timestamp, text: '', confidence: 0 });
     }
   }
 
@@ -467,6 +510,84 @@ function detectErrors(metrics: SyncMetrics, matches: WordMatch[]): SyncError[] {
   return errors;
 }
 
+function detectCaptionQualityErrors(params: {
+  captionQuality: NonNullable<SyncRatingOutput['captionQuality']>;
+}): SyncError[] {
+  const { captionQuality } = params;
+  const errors: SyncError[] = [];
+
+  if (captionQuality.overall && !captionQuality.overall.passed) {
+    errors.push({
+      type: 'caption_quality_overall',
+      severity: 'warning',
+      message: `Caption quality overall below threshold (score=${captionQuality.overall.score.toFixed(2)})`,
+      suggestedFix: 'Improve caption readability (safe margins, pacing, density) and re-render',
+    });
+  }
+
+  if (captionQuality.flicker.flickerEvents > 0) {
+    errors.push({
+      type: 'caption_flicker',
+      severity: 'warning',
+      message: `Caption flicker detected (${captionQuality.flicker.flickerEvents} reappearance event(s))`,
+      suggestedFix: 'Increase minimum on-screen time and avoid 1-frame subtitle dropouts',
+    });
+  }
+
+  if (captionQuality.safeArea.violationCount > 0) {
+    errors.push({
+      type: 'caption_safe_margin',
+      severity: 'warning',
+      message: `Captions violate safe margins (${captionQuality.safeArea.violationCount} frame(s))`,
+      suggestedFix: 'Move captions inward from screen edges (increase padding / safe area)',
+    });
+  }
+
+  if (
+    captionQuality.density.lineOverflowCount > 0 ||
+    captionQuality.density.charOverflowCount > 0
+  ) {
+    errors.push({
+      type: 'caption_density',
+      severity: 'warning',
+      message: `Caption crowding detected (lineOverflow=${captionQuality.density.lineOverflowCount}, charOverflow=${captionQuality.density.charOverflowCount})`,
+      suggestedFix: 'Reduce words per caption and keep captions to 1–2 lines',
+    });
+  }
+
+  if (
+    captionQuality.punctuation.missingTerminalPunctuationCount > 0 ||
+    captionQuality.punctuation.repeatedPunctuationCount > 0
+  ) {
+    errors.push({
+      type: 'caption_punctuation',
+      severity: 'warning',
+      message: `Caption punctuation issues (missingTerminal=${captionQuality.punctuation.missingTerminalPunctuationCount}, repeated=${captionQuality.punctuation.repeatedPunctuationCount})`,
+      suggestedFix: 'Fix punctuation in script/transcript normalization and re-render captions',
+    });
+  }
+
+  if (captionQuality.capitalization.inconsistentStyleCount > 0) {
+    errors.push({
+      type: 'caption_capitalization',
+      severity: 'warning',
+      message: `Caption capitalization inconsistencies (${captionQuality.capitalization.inconsistentStyleCount} issue(s), style=${captionQuality.capitalization.style})`,
+      suggestedFix: 'Pick a casing style (ALL CAPS or sentence-case) and enforce it consistently',
+    });
+  }
+
+  if (captionQuality.ocrConfidence.mean > 0 && captionQuality.ocrConfidence.mean < 0.7) {
+    errors.push({
+      type: 'caption_low_confidence',
+      severity: 'warning',
+      message: `Low OCR confidence may indicate poor caption legibility (mean=${captionQuality.ocrConfidence.mean.toFixed(2)})`,
+      suggestedFix: 'Increase caption contrast (outline/shadow) and avoid cluttered backgrounds',
+    });
+  }
+
+  return errors;
+}
+
 /**
  * Rate video sync quality
  *
@@ -495,15 +616,15 @@ export async function rateSyncQuality(
 }
 
 function validateSyncRatingInput(videoPath: string, opts: SyncRatingOptions): void {
-  if (!existsSync(videoPath)) {
-    throw new CMError('FILE_NOT_FOUND', `Video file not found: ${videoPath}`);
-  }
-
   if (opts.ocrEngine !== 'tesseract') {
     throw new CMError('INVALID_ARGUMENT', `Unsupported OCR engine: ${opts.ocrEngine}`, {
       allowed: ['tesseract'],
       fix: 'Use ocrEngine=tesseract (easyocr is not implemented yet)',
     });
+  }
+
+  if (!existsSync(videoPath)) {
+    throw new CMError('FILE_NOT_FOUND', `Video file not found: ${videoPath}`);
   }
 }
 
@@ -524,7 +645,7 @@ async function rateSyncQualityReal(
     audioPath = await extractAudio(videoPath);
 
     // Step 3: Run OCR
-    const ocrFrames = await runOCR(framesDir, opts.fps);
+    const ocrFrames = await runOCR(framesDir, opts.fps, frameResult.captionCrop.offsetY);
 
     // Step 4: Run ASR
     const asrResult = await transcribeAudio({
@@ -548,6 +669,14 @@ async function rateSyncQualityReal(
 
     // Step 9: Detect errors
     const errors = detectErrors(metrics, matches);
+
+    const captionQuality = analyzeBurnedInCaptionQuality({
+      ocrFrames,
+      fps: opts.fps,
+      videoDurationSeconds: frameResult.videoDurationSeconds,
+      frameSize: frameResult.videoFrameSize,
+    });
+    errors.push(...detectCaptionQualityErrors({ captionQuality }));
 
     // Step 10: Check pass/fail
     const passed =
@@ -579,7 +708,14 @@ async function rateSyncQualityReal(
         asrEngine: asrResult.engine,
         framesAnalyzed: ocrFrames.length,
         analysisTimeMs,
+        captionFrameSize: {
+          width: frameResult.captionCrop.width,
+          height: frameResult.captionCrop.height,
+        },
+        videoFrameSize: frameResult.videoFrameSize,
+        captionCropOffsetY: frameResult.captionCrop.offsetY,
       },
+      captionQuality,
       createdAt: new Date().toISOString(),
     };
 
@@ -636,6 +772,30 @@ function buildMockSyncRatingOutput(
   const ratingLabel = getRatingLabel(rating);
   const errors = detectErrors(metrics, wordMatches);
 
+  const videoFrameSize = { width: 1080, height: 1920 };
+  const captionFrameSize = { width: 1080, height: 480 };
+  const captionCropOffsetY = 1440;
+  const framesAnalyzed = Math.max(1, Math.round(opts.fps * 5));
+  const ocrFrames: OCRFrame[] = [];
+  for (let i = 0; i < framesAnalyzed; i++) {
+    const timestamp = i / Math.max(1, opts.fps);
+    const text = timestamp < 2.5 ? 'HELLO WORLD' : 'SECOND CAPTION.';
+    ocrFrames.push({
+      frameNumber: i + 1,
+      timestamp,
+      text,
+      confidence: 0.95,
+      bbox: { x0: 180, y0: 1600, x1: 900, y1: 1700 },
+    });
+  }
+  const captionQuality = analyzeBurnedInCaptionQuality({
+    ocrFrames,
+    fps: opts.fps,
+    videoDurationSeconds: 5,
+    frameSize: videoFrameSize,
+  });
+  errors.push(...detectCaptionQualityErrors({ captionQuality }));
+
   const passed =
     rating >= opts.thresholds.minRating &&
     metrics.meanDriftMs <= opts.thresholds.maxMeanDriftMs &&
@@ -655,9 +815,13 @@ function buildMockSyncRatingOutput(
     analysis: {
       ocrEngine: opts.ocrEngine,
       asrEngine: 'mock',
-      framesAnalyzed: Math.max(1, Math.round(opts.fps * 5)),
+      framesAnalyzed,
       analysisTimeMs,
+      captionFrameSize,
+      videoFrameSize,
+      captionCropOffsetY,
     },
+    captionQuality,
     createdAt: new Date().toISOString(),
   };
 
@@ -687,6 +851,42 @@ export function formatSyncRatingCLI(output: SyncRatingOutput): string {
     `│  Match Ratio:    ${(output.metrics.matchRatio * 100).toFixed(0).padStart(3)}%`.padEnd(62) +
       '│',
   ];
+
+  if (output.captionQuality) {
+    lines.push('│'.padEnd(62) + '│');
+    lines.push('│  CAPTION QUALITY (OCR)                                       │');
+    lines.push('│  ─────────────────────────────────────────────────────────  │');
+    lines.push(
+      `│  Overall:        ${output.captionQuality.overall.score.toFixed(2).padStart(4)} (${output.captionQuality.overall.passed ? 'PASS' : 'FAIL'})`.padEnd(
+        62
+      ) + '│'
+    );
+    lines.push(
+      `│  Coverage:       ${(output.captionQuality.coverage.coverageRatio * 100)
+        .toFixed(0)
+        .padStart(3)}%`.padEnd(62) + '│'
+    );
+    lines.push(
+      `│  Rhythm Score:    ${output.captionQuality.rhythm.score.toFixed(2).padStart(4)}`.padEnd(
+        62
+      ) + '│'
+    );
+    lines.push(
+      `│  Safe Area Score: ${output.captionQuality.safeArea.score.toFixed(2).padStart(4)}`.padEnd(
+        62
+      ) + '│'
+    );
+    lines.push(
+      `│  Density Score:   ${output.captionQuality.density.score.toFixed(2).padStart(4)}`.padEnd(
+        62
+      ) + '│'
+    );
+    lines.push(
+      `│  OCR Conf:        ${output.captionQuality.ocrConfidence.mean.toFixed(2).padStart(4)}`.padEnd(
+        62
+      ) + '│'
+    );
+  }
 
   if (output.errors.length > 0) {
     lines.push('├─────────────────────────────────────────────────────────────┤');

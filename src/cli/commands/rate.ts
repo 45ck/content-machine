@@ -65,6 +65,17 @@ function writeHumanOutput(params: {
   if (options.summary) {
     writeStderrLine(`Sync rating: ${result.rating}/100 (${result.ratingLabel})`);
     writeStderrLine(`Passed: ${passed}`);
+    if (result.captionQuality) {
+      writeStderrLine(
+        `Caption quality: overall=${result.captionQuality.overall.score.toFixed(2)} (${result.captionQuality.overall.passed ? 'PASS' : 'FAIL'}) coverage=${(
+          result.captionQuality.coverage.coverageRatio * 100
+        ).toFixed(
+          0
+        )}% rhythm=${result.captionQuality.rhythm.score.toFixed(2)} safeArea=${result.captionQuality.safeArea.score.toFixed(
+          2
+        )} density=${result.captionQuality.density.score.toFixed(2)}`
+      );
+    }
   } else {
     writeStderrLine('\n' + formatCli(result));
   }
@@ -139,6 +150,11 @@ export const rateCommand = new Command('rate')
               maxDriftMs: result.metrics.maxDriftMs,
               matchRatio: result.metrics.matchRatio,
               errorCount: result.errors.length,
+              captionOverall: result.captionQuality?.overall.score ?? null,
+              captionPassed: result.captionQuality?.overall.passed ?? null,
+              captionCoverageRatio: result.captionQuality?.coverage.coverageRatio ?? null,
+              captionSafeAreaScore: result.captionQuality?.safeArea.score ?? null,
+              captionFlickerEvents: result.captionQuality?.flicker.flickerEvents ?? null,
             },
             timingsMs: Date.now() - runtime.startTime,
           })
