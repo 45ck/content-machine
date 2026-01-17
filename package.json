@@ -52,7 +52,7 @@
     "@remotion/animation-utils": "^4.0.402",
     "@remotion/bundler": "^4.0.0",
     "@remotion/captions": "^4.0.402",
-    "@remotion/cli": "^4.0.0",
+    "@remotion/cli": "^4.0.407",
     "@remotion/install-whisper-cpp": "^4.0.399",
     "@remotion/layout-utils": "^4.0.402",
     "@remotion/player": "^4.0.0",
