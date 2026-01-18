@@ -532,6 +532,7 @@ const CaptionPageView: React.FC<CaptionPageViewProps> = ({ page, config }) => {
                 key={`${word.startMs}-${wordIndex}`}
                 word={word}
                 config={config}
+                pageStartMs={page.startMs}
                 isActive={isWordActive(
                   { startMs: word.startMs, endMs: word.endMs },
                   page.startMs,
@@ -552,13 +553,25 @@ const CaptionPageView: React.FC<CaptionPageViewProps> = ({ page, config }) => {
 interface WordViewProps {
   word: TimedWord;
   config: CaptionConfig;
+  pageStartMs: number;
   isActive: boolean;
 }
 
-const WordView: React.FC<WordViewProps> = ({ word, config, isActive }) => {
+const WordView: React.FC<WordViewProps> = ({ word, config, pageStartMs, isActive }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+
   const highlightEnabled = config.highlightMode !== 'none';
   const isHighlighted = highlightEnabled ? isActive : false;
   const wordStyle = getWordStyle(config, isHighlighted);
+  const wrapperStyle = getAnimatedWordWrapperStyle({
+    config,
+    isHighlighted,
+    fps,
+    frame,
+    pageStartMs,
+    wordStartMs: word.startMs,
+  });
 
   const text =
     config.textTransform === 'uppercase'
@@ -571,7 +584,7 @@ const WordView: React.FC<WordViewProps> = ({ word, config, isActive }) => {
 
   if (config.highlightMode === 'background') {
     return (
-      <span style={getWordWrapperStyle(config)}>
+      <span style={wrapperStyle}>
         <span style={getPillStyle(config, isHighlighted)}>
           <span style={wordStyle}>{text}</span>
         </span>
@@ -580,7 +593,7 @@ const WordView: React.FC<WordViewProps> = ({ word, config, isActive }) => {
   }
 
   return (
-    <span style={getWordWrapperStyle(config)}>
+    <span style={wrapperStyle}>
       <span style={wordStyle}>{text}</span>
     </span>
   );
@@ -751,6 +764,71 @@ function getWordWrapperStyle(config: CaptionConfig): React.CSSProperties {
     fontSize: config.fontSize,
     lineHeight: config.lineHeight,
   };
+}
+
+function getAnimatedWordWrapperStyle(args: {
+  config: CaptionConfig;
+  isHighlighted: boolean;
+  fps: number;
+  frame: number;
+  pageStartMs: number;
+  wordStartMs: number;
+}): React.CSSProperties {
+  const base = getWordWrapperStyle(args.config);
+  const { config } = args;
+
+  if (!args.isHighlighted || config.wordAnimation === 'none' || config.wordAnimationMs <= 0) {
+    return base;
+  }
+
+  const wordStartFrame = Math.max(
+    0,
+    Math.round(((args.wordStartMs - args.pageStartMs) / 1000) * args.fps)
+  );
+  const localFrame = args.frame - wordStartFrame;
+  if (localFrame < 0) return base;
+
+  const durationInFrames = Math.max(1, Math.round((config.wordAnimationMs / 1000) * args.fps));
+  const animFrame = Math.min(durationInFrames, localFrame);
+  const intensity = config.wordAnimationIntensity;
+
+  if (config.wordAnimation === 'pop' || config.wordAnimation === 'bounce') {
+    const startScale = 1 - 0.22 * intensity;
+    const scale = spring({
+      frame: animFrame,
+      fps: args.fps,
+      from: startScale,
+      to: 1,
+      durationInFrames,
+      config:
+        config.wordAnimation === 'bounce'
+          ? { damping: 8, stiffness: 240 }
+          : { damping: 14, stiffness: 420 },
+    });
+    return { ...base, transform: `scale(${scale})` };
+  }
+
+  const progress = interpolate(animFrame, [0, durationInFrames], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
+  if (config.wordAnimation === 'rise') {
+    const translateY = (1 - progress) * 10 * intensity;
+    const scale = 1 - (1 - progress) * 0.05 * intensity;
+    const opacity = 0.85 + 0.15 * progress;
+    return { ...base, transform: `translateY(${translateY}px) scale(${scale})`, opacity };
+  }
+
+  if (config.wordAnimation === 'shake') {
+    const decay = 1 - progress;
+    const wiggle = Math.sin(animFrame * 1.2) * decay;
+    const translateX = wiggle * 4 * intensity;
+    const rotate = wiggle * 2.5 * intensity;
+    return { ...base, transform: `translateX(${translateX}px) rotate(${rotate}deg)` };
+  }
+
+  return base;
 }
 
 function resolveWordGapPx(config: CaptionConfig): number {

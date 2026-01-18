@@ -188,6 +188,15 @@ function parseCaptionOptions(options: Record<string, unknown>): CaptionConfigInp
     (value) => {
       layout = { ...layout, maxLinesPerPage: Number.parseInt(String(value), 10) };
     },
+    (value) => {
+      config.wordAnimation = String(value) as CaptionConfigInput['wordAnimation'];
+    },
+    (value) => {
+      config.wordAnimationMs = Number.parseInt(String(value), 10);
+    },
+    (value) => {
+      config.wordAnimationIntensity = Number(String(value));
+    },
   ];
 
   const keys: Array<keyof typeof options> = [
@@ -204,6 +213,9 @@ function parseCaptionOptions(options: Record<string, unknown>): CaptionConfigInp
     'captionTransform',
     'captionMaxChars',
     'captionMaxLines',
+    'captionWordAnimation',
+    'captionWordAnimationMs',
+    'captionWordAnimationIntensity',
   ];
 
   for (let i = 0; i < keys.length; i++) {
@@ -1147,6 +1159,12 @@ export const renderCommand = new Command('render')
     '--caption-animation <anim>',
     'Page animation (pop, fade, slideUp, slideDown, bounce, none)'
   )
+  .option(
+    '--caption-word-animation <anim>',
+    'Active word animation (none, pop, bounce, rise, shake)'
+  )
+  .option('--caption-word-animation-ms <ms>', 'Active word animation duration in ms')
+  .option('--caption-word-animation-intensity <value>', 'Active word animation intensity (0..1)')
   // Sync validation settings
   .option('--validate-timestamps', 'Validate word timestamps before rendering', true)
   .option('--no-validate-timestamps', 'Skip timestamp validation')

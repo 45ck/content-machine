@@ -48,6 +48,18 @@ export const PageAnimationSchema = z.enum([
 export type PageAnimation = z.infer<typeof PageAnimationSchema>;
 
 /**
+ * Animation style for active word emphasis
+ */
+export const WordAnimationSchema = z.enum([
+  'none', // No per-word animation
+  'pop', // Scale pop when word becomes active
+  'bounce', // Bouncy pop when word becomes active
+  'rise', // Rise from below when word becomes active
+  'shake', // Quick shake when word becomes active
+]);
+export type WordAnimation = z.infer<typeof WordAnimationSchema>;
+
+/**
  * Caption display mode - controls how words appear on screen
  */
 export const CaptionDisplayModeSchema = z.enum([
@@ -290,6 +302,12 @@ export const CaptionConfigSchema = z.object({
   animationDuration: z.number().int().positive().default(200),
   /** Word transition duration in ms */
   wordTransitionMs: z.number().int().nonnegative().default(50),
+  /** Active word animation (per-word) */
+  wordAnimation: WordAnimationSchema.default('none'),
+  /** Active word animation duration in ms */
+  wordAnimationMs: z.number().int().nonnegative().default(120),
+  /** Active word animation intensity (0..1) */
+  wordAnimationIntensity: z.number().min(0).max(1).default(0.6),
 });
 
 export type CaptionConfig = z.infer<typeof CaptionConfigSchema>;

@@ -63,6 +63,9 @@ export const PRESET_TIKTOK: CaptionConfig = CaptionConfigSchema.parse({
   },
   pageAnimation: 'pop',
   animationDuration: 150,
+  wordAnimation: 'pop',
+  wordAnimationMs: 110,
+  wordAnimationIntensity: 0.65,
 });
 
 /**
@@ -169,6 +172,9 @@ export const PRESET_REELS: CaptionConfig = CaptionConfigSchema.parse({
   },
   pageAnimation: 'slideUp',
   animationDuration: 180,
+  wordAnimation: 'pop',
+  wordAnimationMs: 110,
+  wordAnimationIntensity: 0.6,
 });
 
 /**
@@ -360,6 +366,9 @@ export const PRESET_CAPCUT_BOLD: CaptionConfig = CaptionConfigSchema.parse({
   pageAnimation: 'pop',
   animationDuration: 180,
   wordTransitionMs: 80,
+  wordAnimation: 'pop',
+  wordAnimationMs: 120,
+  wordAnimationIntensity: 0.55,
 });
 
 /**

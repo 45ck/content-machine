@@ -202,6 +202,12 @@ interface GenerateOptions {
   charsPerLine?: string;
   /** Caption animation: none (default), fade, slideUp, slideDown, pop, bounce */
   captionAnimation?: 'none' | 'fade' | 'slideUp' | 'slideDown' | 'pop' | 'bounce';
+  /** Active word animation: none (default), pop, bounce, rise, shake */
+  captionWordAnimation?: 'none' | 'pop' | 'bounce' | 'rise' | 'shake';
+  /** Active word animation duration in ms */
+  captionWordAnimationMs?: string;
+  /** Active word animation intensity (0..1) */
+  captionWordAnimationIntensity?: string;
   /** Caption font family override */
   captionFontFamily?: string;
   /** Caption font weight override */
@@ -1838,6 +1844,10 @@ async function runGeneratePipeline(params: {
         ? parseInt(params.options.charsPerLine, 10)
         : undefined,
       captionAnimation: params.options.captionAnimation,
+      captionWordAnimation: params.options.captionWordAnimation,
+      captionWordAnimationMs: parseOptionalInt(params.options.captionWordAnimationMs) ?? undefined,
+      captionWordAnimationIntensity:
+        parseOptionalNumber(params.options.captionWordAnimationIntensity) ?? undefined,
       gameplay: params.gameplay,
       splitScreenRatio: params.templateParams.splitScreenRatio,
       gameplayPosition: params.options.gameplayPosition ?? params.templateParams.gameplayPosition,
@@ -2985,6 +2995,12 @@ export const generateCommand = new Command('generate')
     '--caption-animation <animation>',
     'Caption animation: none (default), fade, slideUp, slideDown, pop, bounce'
   )
+  .option(
+    '--caption-word-animation <animation>',
+    'Active word animation: none (default), pop, bounce, rise, shake'
+  )
+  .option('--caption-word-animation-ms <ms>', 'Active word animation duration in ms')
+  .option('--caption-word-animation-intensity <value>', 'Active word animation intensity (0..1)')
   .option('--gameplay <path>', 'Gameplay library directory or clip file path')
   .option('--gameplay-style <name>', 'Gameplay subfolder name (e.g., subway-surfers)')
   .option('--gameplay-strict', 'Fail if gameplay clip is missing')

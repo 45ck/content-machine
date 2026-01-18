@@ -251,6 +251,57 @@ describe('cli render command', () => {
     );
   });
 
+  it('supports per-word caption animation flags', async () => {
+    await configureRuntime({ json: true });
+
+    const { readInputFile } = await import('../../../../src/cli/utils');
+    (readInputFile as unknown as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce(visuals)
+      .mockResolvedValueOnce(timestamps);
+
+    const { renderVideo } = await import('../../../../src/render/service');
+    (renderVideo as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      outputPath: 'video.mp4',
+      duration: 1,
+      width: 1080,
+      height: 1920,
+      fps: 30,
+      fileSize: 12345,
+    });
+
+    const output = await import('../../../../src/cli/output');
+    vi.spyOn(output, 'writeJsonEnvelope').mockImplementation(() => undefined);
+
+    const { renderCommand } = await import('../../../../src/cli/commands/render');
+    await renderCommand.parseAsync(
+      [
+        '--input',
+        'visuals.json',
+        '--audio',
+        'audio.wav',
+        '--timestamps',
+        'timestamps.json',
+        '--caption-word-animation',
+        'shake',
+        '--caption-word-animation-ms',
+        '160',
+        '--caption-word-animation-intensity',
+        '0.8',
+      ],
+      { from: 'user' }
+    );
+
+    expect(renderVideo).toHaveBeenCalledWith(
+      expect.objectContaining({
+        captionConfig: expect.objectContaining({
+          wordAnimation: 'shake',
+          wordAnimationMs: 160,
+          wordAnimationIntensity: 0.8,
+        }),
+      })
+    );
+  });
+
   it('repairs timestamps when validation fails', async () => {
     await configureRuntime({ json: true });
 

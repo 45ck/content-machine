@@ -148,6 +148,12 @@ export interface RenderVideoOptions {
    * Caption animation: none (default), fade, slideUp, slideDown, pop, bounce
    */
   captionAnimation?: 'none' | 'fade' | 'slideUp' | 'slideDown' | 'pop' | 'bounce';
+  /** Active word animation: none (default), pop, bounce, rise, shake */
+  captionWordAnimation?: 'none' | 'pop' | 'bounce' | 'rise' | 'shake';
+  /** Active word animation duration in ms */
+  captionWordAnimationMs?: number;
+  /** Active word animation intensity (0..1) */
+  captionWordAnimationIntensity?: number;
   /** Caption font family override */
   captionFontFamily?: string;
   /** Caption font weight override */
@@ -419,13 +425,9 @@ async function bundleComposition(
  * Resolve caption configuration from options
  * Priority: captionConfig > captionPreset > default (capcut)
  */
-function resolveCaptionConfig(options: RenderVideoOptions): CaptionConfig {
-  // Start with a preset (default to capcut)
-  const presetName = options.captionPreset ?? 'capcut';
-  const preset = getCaptionPreset(presetName);
-
-  // Build layout with captionGroupMs, wordsPerPage, and line options overrides
+function buildCaptionLayoutOverride(options: RenderVideoOptions): Partial<CaptionConfig['layout']> {
   const layoutOverride: Partial<CaptionConfig['layout']> = {};
+
   if (options.captionGroupMs) {
     layoutOverride.maxGapMs = options.captionGroupMs;
   }
@@ -457,8 +459,12 @@ function resolveCaptionConfig(options: RenderVideoOptions): CaptionConfig {
     layoutOverride.minWordsPerPage = options.captionMinWords;
   }
 
-  // Build top-level overrides
+  return layoutOverride;
+}
+
+function buildCaptionTopLevelOverride(options: RenderVideoOptions): Partial<CaptionConfig> {
   const topLevelOverride: Partial<CaptionConfig> = {};
+
   if (options.captionMode) {
     topLevelOverride.displayMode = options.captionMode;
   }
@@ -474,27 +480,55 @@ function resolveCaptionConfig(options: RenderVideoOptions): CaptionConfig {
   if (options.captionAnimation) {
     topLevelOverride.pageAnimation = options.captionAnimation;
   }
+  if (options.captionWordAnimation) {
+    topLevelOverride.wordAnimation = options.captionWordAnimation;
+  }
+  if (options.captionWordAnimationMs !== undefined) {
+    topLevelOverride.wordAnimationMs = options.captionWordAnimationMs;
+  }
+  if (options.captionWordAnimationIntensity !== undefined) {
+    topLevelOverride.wordAnimationIntensity = options.captionWordAnimationIntensity;
+  }
+
+  return topLevelOverride;
+}
+
+function buildCaptionCleanupOverride(
+  options: RenderVideoOptions
+): Partial<CaptionConfig['cleanup']> | undefined {
   const dropFillers =
     options.captionDropFillers !== undefined
       ? options.captionDropFillers
       : options.captionFillerWords && options.captionFillerWords.length > 0
         ? true
         : undefined;
-  const cleanupOverride =
+
+  const shouldOverride =
     dropFillers !== undefined ||
-    (options.captionFillerWords && options.captionFillerWords.length > 0)
-      ? {
-          dropFillers: Boolean(dropFillers),
-          fillerWords: options.captionFillerWords ?? [],
-        }
-      : undefined;
+    (options.captionFillerWords && options.captionFillerWords.length > 0);
+  if (!shouldOverride) return undefined;
+
+  return {
+    dropFillers: Boolean(dropFillers),
+    fillerWords: options.captionFillerWords ?? [],
+  };
+}
+
+function resolveCaptionConfig(options: RenderVideoOptions): CaptionConfig {
+  // Start with a preset (default to capcut)
+  const presetName = options.captionPreset ?? 'capcut';
+  const preset = getCaptionPreset(presetName);
+
+  const layoutOverride = buildCaptionLayoutOverride(options);
+  const topLevelOverride = buildCaptionTopLevelOverride(options);
+  const cleanupOverride = buildCaptionCleanupOverride(options);
 
   // If captionConfig is provided, merge it with the preset
   if (options.captionConfig) {
     return {
       ...preset,
-      ...topLevelOverride,
       ...options.captionConfig,
+      ...topLevelOverride,
       // Deep merge nested objects
       pillStyle: { ...preset.pillStyle, ...options.captionConfig.pillStyle },
       stroke: { ...preset.stroke, ...options.captionConfig.stroke },

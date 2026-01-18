@@ -83,6 +83,9 @@ export interface PipelineOptions {
   captionDropFillers?: boolean;
   captionFillerWords?: string[];
   captionAnimation?: 'none' | 'fade' | 'slideUp' | 'slideDown' | 'pop' | 'bounce';
+  captionWordAnimation?: 'none' | 'pop' | 'bounce' | 'rise' | 'shake';
+  captionWordAnimationMs?: number;
+  captionWordAnimationIntensity?: number;
   captionFontFamily?: string;
   captionFontWeight?: number | 'normal' | 'bold' | 'black';
   captionFontFile?: string;
@@ -573,6 +576,9 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
             captionDropFillers: options.captionDropFillers,
             captionFillerWords: options.captionFillerWords,
             captionAnimation: options.captionAnimation,
+            captionWordAnimation: options.captionWordAnimation,
+            captionWordAnimationMs: options.captionWordAnimationMs,
+            captionWordAnimationIntensity: options.captionWordAnimationIntensity,
             captionFontFamily: options.captionFontFamily ?? defaultCaptionFamily,
             captionFontWeight: options.captionFontWeight ?? captionDefaults.fontWeight,
             captionFontFile: options.captionFontFile ?? captionDefaults.fontFile,
