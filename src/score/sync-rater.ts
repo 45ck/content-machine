@@ -478,12 +478,15 @@ function calculateMetrics(
     return {
       meanDriftMs: 0,
       maxDriftMs: 0,
+      rawMaxDriftMs: 0,
       p95DriftMs: 0,
       medianDriftMs: 0,
       meanSignedDriftMs: 0,
       leadingRatio: 0,
       laggingRatio: 0,
       driftStdDev: 0,
+      outlierCount: 0,
+      outlierRatio: 0,
       matchedWords: 0,
       totalOcrWords: ocrWordCount,
       totalAsrWords: asrWordCount,
@@ -491,18 +494,36 @@ function calculateMetrics(
     };
   }
 
+  const outlierCutoffMs = 300;
+  const maxOutlierRatioForRobustStats = 0.2;
+
   const drifts = matches.map((m) => m.driftMs);
   const absDrifts = drifts.map(Math.abs);
+  const rawMaxDriftMs = Math.max(...absDrifts);
+  const outlierCount = absDrifts.filter((d) => d > outlierCutoffMs).length;
+  const outlierRatio = outlierCount / Math.max(1, absDrifts.length);
+
+  const useRobustStats =
+    outlierCount > 0 && absDrifts.length >= 10 && outlierRatio < maxOutlierRatioForRobustStats;
+  const effectiveAbsDrifts = useRobustStats
+    ? absDrifts.filter((d) => d <= outlierCutoffMs)
+    : absDrifts;
+  const effectiveDrifts = useRobustStats
+    ? drifts.filter((_, index) => absDrifts[index] <= outlierCutoffMs)
+    : drifts;
 
   return {
-    meanDriftMs: mean(absDrifts),
-    maxDriftMs: Math.max(...absDrifts),
-    p95DriftMs: percentile(absDrifts, 95),
-    medianDriftMs: median(absDrifts),
-    meanSignedDriftMs: mean(drifts),
-    leadingRatio: drifts.filter((d) => d < 0).length / drifts.length,
-    laggingRatio: drifts.filter((d) => d > 0).length / drifts.length,
-    driftStdDev: standardDeviation(absDrifts),
+    meanDriftMs: mean(effectiveAbsDrifts),
+    maxDriftMs: Math.max(...effectiveAbsDrifts),
+    rawMaxDriftMs,
+    p95DriftMs: percentile(effectiveAbsDrifts, 95),
+    medianDriftMs: median(effectiveAbsDrifts),
+    meanSignedDriftMs: mean(effectiveDrifts),
+    leadingRatio: effectiveDrifts.filter((d) => d < 0).length / Math.max(1, effectiveDrifts.length),
+    laggingRatio: effectiveDrifts.filter((d) => d > 0).length / Math.max(1, effectiveDrifts.length),
+    driftStdDev: standardDeviation(effectiveAbsDrifts),
+    outlierCount,
+    outlierRatio,
     matchedWords: matches.length,
     totalOcrWords: ocrWordCount,
     totalAsrWords: asrWordCount,
@@ -1087,6 +1108,10 @@ export function formatSyncRatingCLI(output: SyncRatingOutput): string {
   const statusIcon = output.passed ? '✓' : '✗';
   const statusText = output.passed ? 'PASSED' : 'FAILED';
 
+  const hasMaxDriftDiffers =
+    Number.isFinite(output.metrics.rawMaxDriftMs) &&
+    Math.abs(output.metrics.rawMaxDriftMs - output.metrics.maxDriftMs) >= 1;
+
   const lines = [
     '┌─────────────────────────────────────────────────────────────┐',
     '│                    SYNC RATING REPORT                        │',
@@ -1099,9 +1124,22 @@ export function formatSyncRatingCLI(output: SyncRatingOutput): string {
     '│  ─────────────────────────────────────────────────────────  │',
     `│  Mean Drift:     ${output.metrics.meanDriftMs.toFixed(0).padStart(4)}ms`.padEnd(62) + '│',
     `│  Max Drift:      ${output.metrics.maxDriftMs.toFixed(0).padStart(4)}ms`.padEnd(62) + '│',
+    ...(hasMaxDriftDiffers
+      ? [
+          `│  Raw Max Drift:  ${output.metrics.rawMaxDriftMs.toFixed(0).padStart(4)}ms`.padEnd(62) +
+            '│',
+        ]
+      : []),
     `│  P95 Drift:      ${output.metrics.p95DriftMs.toFixed(0).padStart(4)}ms`.padEnd(62) + '│',
     `│  Match Ratio:    ${(output.metrics.matchRatio * 100).toFixed(0).padStart(3)}%`.padEnd(62) +
       '│',
+    ...(output.metrics.outlierCount > 0
+      ? [
+          `│  Outliers:       ${String(output.metrics.outlierCount).padStart(4)} (${(output.metrics.outlierRatio * 100).toFixed(1)}%)`.padEnd(
+            62
+          ) + '│',
+        ]
+      : []),
   ];
 
   if (output.captionQuality) {

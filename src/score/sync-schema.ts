@@ -32,6 +32,8 @@ export const SyncMetricsSchema = z.object({
   // Core drift metrics
   meanDriftMs: z.number(),
   maxDriftMs: z.number(),
+  /** Raw (unfiltered) maximum drift in ms. */
+  rawMaxDriftMs: z.number(),
   p95DriftMs: z.number(),
   medianDriftMs: z.number(),
 
@@ -42,6 +44,10 @@ export const SyncMetricsSchema = z.object({
 
   // Stability metrics
   driftStdDev: z.number(),
+
+  // Outlier diagnostics (useful when OCR sampling misses a word once)
+  outlierCount: z.number(),
+  outlierRatio: z.number(),
 
   // Coverage metrics
   matchedWords: z.number(),
