@@ -300,8 +300,8 @@ async function runOCR(framesDir: string, fps: number, cropOffsetY: number): Prom
  */
 function extractWordAppearances(
   ocrFrames: OCRFrame[]
-): Array<{ word: string; firstAppearance: number; lastAppearance: number }> {
-  const wordMap = new Map<string, { first: number; last: number }>();
+): Array<{ word: string; timestamps: number[] }> {
+  const wordMap = new Map<string, number[]>();
 
   for (const frame of ocrFrames) {
     const words = frame.text.split(/\s+/).filter(Boolean);
@@ -309,19 +309,18 @@ function extractWordAppearances(
       const normalized = normalizeWord(word);
       if (normalized.length < 2) continue; // Skip very short words
 
-      const existing = wordMap.get(normalized);
-      if (!existing) {
-        wordMap.set(normalized, { first: frame.timestamp, last: frame.timestamp });
+      const timestamps = wordMap.get(normalized);
+      if (!timestamps) {
+        wordMap.set(normalized, [frame.timestamp]);
       } else {
-        existing.last = frame.timestamp;
+        timestamps.push(frame.timestamp);
       }
     }
   }
 
-  return Array.from(wordMap.entries()).map(([word, times]) => ({
+  return Array.from(wordMap.entries()).map(([word, timestamps]) => ({
     word,
-    firstAppearance: times.first,
-    lastAppearance: times.last,
+    timestamps: timestamps.sort((a, b) => a - b),
   }));
 }
 
@@ -330,80 +329,137 @@ function extractWordAppearances(
  */
 type MatchQuality = 'exact' | 'fuzzy';
 
-function getMatchQuality(ocrWord: string, asrWord: string): MatchQuality | null {
-  if (ocrWord === asrWord) {
-    return 'exact';
-  }
-  if (isFuzzyMatch(ocrWord, asrWord)) {
-    return 'fuzzy';
-  }
-  return null;
+function isBetterCandidate(params: {
+  timeDiff: number;
+  quality: MatchQuality;
+  bestTimeDiff: number;
+  bestQuality: MatchQuality | undefined;
+}): boolean {
+  if (params.timeDiff < params.bestTimeDiff) return true;
+  if (params.timeDiff > params.bestTimeDiff) return false;
+  return params.quality === 'exact' && params.bestQuality !== 'exact';
 }
 
-function isBetterCandidate(
-  timeDiff: number,
-  quality: MatchQuality,
-  bestTimeDiff: number,
-  bestQuality: MatchQuality | undefined
-): boolean {
-  if (timeDiff < bestTimeDiff) return true;
-  if (timeDiff > bestTimeDiff) return false;
-  return quality === 'exact' && bestQuality !== 'exact';
-}
-
-function findBestAsrMatch(
-  ocrWord: { word: string; firstAppearance: number },
-  asrResult: ASRResult,
-  usedAsrIndices: Set<number>
-): { index: number; quality: MatchQuality } | null {
-  let bestIndex = -1;
-  let bestTimeDiff = Infinity;
-  let bestQuality: MatchQuality | undefined;
-
-  for (let i = 0; i < asrResult.words.length; i++) {
-    if (usedAsrIndices.has(i)) continue;
-
-    const asrWord = asrResult.words[i];
-    const normalizedAsr = normalizeWord(asrWord.word);
-    const quality = getMatchQuality(ocrWord.word, normalizedAsr);
-    if (!quality) continue;
-
-    const timeDiff = Math.abs(ocrWord.firstAppearance - asrWord.start);
-    if (isBetterCandidate(timeDiff, quality, bestTimeDiff, bestQuality)) {
-      bestIndex = i;
-      bestTimeDiff = timeDiff;
-      bestQuality = quality;
+function findNearestTimestampIndex(sorted: number[], target: number): number {
+  if (sorted.length === 0) return -1;
+  let lo = 0;
+  let hi = sorted.length - 1;
+  while (lo < hi) {
+    const mid = Math.floor((lo + hi) / 2);
+    if (sorted[mid] < target) lo = mid + 1;
+    else hi = mid;
+  }
+  const candidates = [lo, lo - 1].filter((idx) => idx >= 0 && idx < sorted.length);
+  let bestIdx = candidates[0] ?? -1;
+  let bestDiff = Infinity;
+  for (const idx of candidates) {
+    const diff = Math.abs(sorted[idx] - target);
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      bestIdx = idx;
     }
   }
+  return bestIdx;
+}
 
-  if (bestIndex < 0 || !bestQuality) {
-    return null;
+function getOcrCandidatesForAsrWord(params: {
+  ocrByWord: Map<string, { word: string; timestamps: number[] }>;
+  normalizedAsr: string;
+}): Array<{ ocrWord: string; quality: MatchQuality }> {
+  const candidates: Array<{ ocrWord: string; quality: MatchQuality }> = [];
+  const exact = params.ocrByWord.get(params.normalizedAsr);
+  if (exact) candidates.push({ ocrWord: exact.word, quality: 'exact' });
+
+  for (const ocrWord of params.ocrByWord.keys()) {
+    if (ocrWord === params.normalizedAsr) continue;
+    if (!isFuzzyMatch(ocrWord, params.normalizedAsr)) continue;
+    candidates.push({ ocrWord, quality: 'fuzzy' });
   }
 
-  return { index: bestIndex, quality: bestQuality };
+  return candidates;
+}
+
+function pickBestOcrTimestampForAsrStart(params: {
+  timestamps: number[];
+  asrStart: number;
+  frameStepSeconds: number;
+}): { ocrTimestamp: number; timeDiff: number } | null {
+  const idx = findNearestTimestampIndex(params.timestamps, params.asrStart);
+  if (idx < 0) return null;
+
+  const timestamps = params.timestamps;
+  const nearest = timestamps[idx];
+  const lowerBound = timestamps[idx] >= params.asrStart ? idx : idx + 1;
+  const prev = lowerBound - 1 >= 0 ? timestamps[lowerBound - 1] : undefined;
+  const next = lowerBound < timestamps.length ? timestamps[lowerBound] : undefined;
+
+  const isVisibleAtAsrStart =
+    typeof prev === 'number' &&
+    typeof next === 'number' &&
+    next - prev <= params.frameStepSeconds * 1.5 &&
+    params.asrStart - prev <= params.frameStepSeconds &&
+    next - params.asrStart <= params.frameStepSeconds;
+
+  const isNearSample = Math.abs(nearest - params.asrStart) <= params.frameStepSeconds * 1.1;
+  const ocrTimestamp =
+    isVisibleAtAsrStart || isNearSample ? params.asrStart : (nearest ?? Number.NaN);
+  if (!Number.isFinite(ocrTimestamp)) return null;
+  return { ocrTimestamp, timeDiff: Math.abs(ocrTimestamp - params.asrStart) };
 }
 
 function matchWords(
-  ocrWords: Array<{ word: string; firstAppearance: number }>,
-  asrResult: ASRResult
+  ocrWords: Array<{ word: string; timestamps: number[] }>,
+  asrResult: ASRResult,
+  fps: number
 ): WordMatch[] {
   const matches: WordMatch[] = [];
-  const usedAsrIndices = new Set<number>();
+  const ocrByWord = new Map(ocrWords.map((w) => [w.word, w] as const));
+  const frameStepSeconds = fps > 0 ? 1 / fps : 0.5;
 
-  for (const ocrWord of ocrWords) {
-    const bestMatch = findBestAsrMatch(ocrWord, asrResult, usedAsrIndices);
-    if (!bestMatch) continue;
+  for (const asrWord of asrResult.words) {
+    const normalizedAsr = normalizeWord(asrWord.word);
+    if (normalizedAsr.length < 2) continue;
 
-    const asrWord = asrResult.words[bestMatch.index];
-    usedAsrIndices.add(bestMatch.index);
+    let best: { ocrWord: string; quality: MatchQuality; timeDiff: number } | null = null;
+    let bestOcrTimestamp: number | null = null;
 
-    const driftMs = (ocrWord.firstAppearance - asrWord.start) * 1000;
+    const candidates = getOcrCandidatesForAsrWord({ ocrByWord, normalizedAsr });
+    for (const candidate of candidates) {
+      const timeline = ocrByWord.get(candidate.ocrWord);
+      if (!timeline || timeline.timestamps.length === 0) continue;
+
+      const pick = pickBestOcrTimestampForAsrStart({
+        timestamps: timeline.timestamps,
+        asrStart: asrWord.start,
+        frameStepSeconds,
+      });
+      if (!pick) continue;
+
+      if (
+        !best ||
+        isBetterCandidate({
+          timeDiff: pick.timeDiff,
+          quality: candidate.quality,
+          bestTimeDiff: best.timeDiff,
+          bestQuality: best.quality,
+        })
+      ) {
+        best = { ocrWord: candidate.ocrWord, quality: candidate.quality, timeDiff: pick.timeDiff };
+        bestOcrTimestamp = pick.ocrTimestamp;
+      }
+    }
+
+    if (!best || typeof bestOcrTimestamp !== 'number' || !Number.isFinite(bestOcrTimestamp)) {
+      continue;
+    }
+
+    const driftMs = (bestOcrTimestamp - asrWord.start) * 1000;
     matches.push({
-      word: ocrWord.word,
-      ocrTimestamp: ocrWord.firstAppearance,
+      word: best.ocrWord,
+      ocrTimestamp: bestOcrTimestamp,
       asrTimestamp: asrWord.start,
       driftMs,
-      matchQuality: bestMatch.quality,
+      matchQuality: best.quality,
     });
   }
 
@@ -740,7 +796,7 @@ async function rateSyncQualityReal(
     const ocrWords = extractWordAppearances(ocrFrames);
 
     // Step 6: Match words
-    const matches = matchWords(ocrWords, asrResult);
+    const matches = matchWords(ocrWords, asrResult, opts.fps);
 
     // Step 7: Calculate metrics
     const metrics = calculateMetrics(matches, ocrWords.length, asrResult.words.length);

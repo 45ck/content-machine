@@ -229,6 +229,75 @@ describe('burned-in caption quality', () => {
     expect(report.jitter.score).toBeLessThan(0.5);
   });
 
+  it('does not count jitter across caption transitions', () => {
+    const fps = 2;
+    const frames: OCRFrame[] = [
+      frame({ timestamp: 0.0, text: 'HELLO', bbox: { x0: 400, y0: 1600, x1: 680, y1: 1650 } }),
+      frame({ timestamp: 0.5, text: 'HELLO', bbox: { x0: 400, y0: 1600, x1: 680, y1: 1650 } }),
+      frame({ timestamp: 1.0, text: 'WORLD', bbox: { x0: 0, y0: 1600, x1: 280, y1: 1650 } }),
+      frame({ timestamp: 1.5, text: 'WORLD', bbox: { x0: 0, y0: 1600, x1: 280, y1: 1650 } }),
+    ];
+
+    const report = analyzeBurnedInCaptionQuality({
+      ocrFrames: frames,
+      fps,
+      videoDurationSeconds: 2,
+      frameSize: { width: 1080, height: 1920 },
+      thresholds: {
+        ...DEFAULT_BURNED_IN_CAPTION_THRESHOLDS,
+        jitter: {
+          maxMeanCenterDeltaPx: 1,
+          maxP95CenterDeltaPx: 2,
+        },
+      },
+    });
+
+    expect(report.jitter.meanCenterDeltaPx).toBeCloseTo(0);
+    expect(report.jitter.score).toBeCloseTo(1);
+  });
+
+  it('does not penalize style based purely on caption length', () => {
+    const fps = 2;
+    const frames: OCRFrame[] = [
+      frame({
+        timestamp: 0.0,
+        text: 'HELLO',
+        bbox: { x0: 400, y0: 1600, x1: 450, y1: 1620 }, // area=1000
+      }),
+      frame({
+        timestamp: 0.5,
+        text: 'HELLO',
+        bbox: { x0: 400, y0: 1600, x1: 450, y1: 1620 },
+      }),
+      frame({
+        timestamp: 1.0,
+        text: 'HELLO WORLD',
+        bbox: { x0: 400, y0: 1600, x1: 500, y1: 1620 }, // area=2000
+      }),
+      frame({
+        timestamp: 1.5,
+        text: 'HELLO WORLD',
+        bbox: { x0: 400, y0: 1600, x1: 500, y1: 1620 },
+      }),
+    ];
+
+    const report = analyzeBurnedInCaptionQuality({
+      ocrFrames: frames,
+      fps,
+      videoDurationSeconds: 2,
+      frameSize: { width: 1080, height: 1920 },
+      thresholds: {
+        ...DEFAULT_BURNED_IN_CAPTION_THRESHOLDS,
+        style: {
+          maxBboxHeightCv: 0.01,
+          maxBboxAreaCv: 0.01,
+        },
+      },
+    });
+
+    expect(report.style.score).toBeCloseTo(1);
+  });
+
   it('detects redundant caption reappearance across non-adjacent segments', () => {
     const fps = 2;
     const frames: OCRFrame[] = [

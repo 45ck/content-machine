@@ -41,24 +41,24 @@ export const DEFAULT_BURNED_IN_CAPTION_THRESHOLDS: BurnedInCaptionThresholds = {
   capitalization: { allCapsRatioMin: 0.8 },
   alignment: {
     idealCenterXRatio: 0.5,
-    maxMeanAbsCenterDxRatio: 0.06,
+    maxMeanAbsCenterDxRatio: 0.1,
   },
   placement: {
     maxStddevCenterXRatio: 0.02,
     maxStddevCenterYRatio: 0.02,
   },
   jitter: {
-    maxMeanCenterDeltaPx: 6,
-    maxP95CenterDeltaPx: 14,
+    maxMeanCenterDeltaPx: 10,
+    maxP95CenterDeltaPx: 40,
   },
   style: {
-    maxBboxHeightCv: 0.15,
-    maxBboxAreaCv: 0.25,
+    maxBboxHeightCv: 0.25,
+    maxBboxAreaCv: 0.4,
   },
   pass: {
     minOverall: 0.75,
     minCoverageRatio: 0.6,
-    maxFlickerEvents: 0,
+    maxFlickerEvents: 1,
   },
 };
 
@@ -819,6 +819,10 @@ function computeJitter(params: {
 
   const deltas: number[] = [];
   for (let i = 1; i < frames.length; i++) {
+    const prevText = normalizeCaptionText(frames[i - 1].text);
+    const curText = normalizeCaptionText(frames[i].text);
+    if (!areSimilarCaptions(prevText, curText)) continue;
+
     const prev = frames[i - 1].bbox!;
     const cur = frames[i].bbox!;
     const p = bboxCenter(prev);
@@ -846,10 +850,20 @@ function computeStyleConsistency(params: {
   thresholds: BurnedInCaptionThresholds;
 }): BurnedInCaptionQualityReport['style'] {
   const heights = params.segments
-    .map((s) => s.bboxHeightPx)
+    .map((s) => {
+      const h = s.bboxHeightPx;
+      if (typeof h !== 'number' || !Number.isFinite(h) || h <= 0) return null;
+      const lineCount = Math.max(1, s.lineCount);
+      return h / lineCount;
+    })
     .filter((h): h is number => typeof h === 'number' && Number.isFinite(h) && h > 0);
   const areas = params.segments
-    .map((s) => s.bboxAreaPx)
+    .map((s) => {
+      const a = s.bboxAreaPx;
+      if (typeof a !== 'number' || !Number.isFinite(a) || a <= 0) return null;
+      const charCount = Math.max(1, s.normalizedText.replace(/\s+/g, '').length);
+      return a / charCount;
+    })
     .filter((a): a is number => typeof a === 'number' && Number.isFinite(a) && a > 0);
 
   if (heights.length === 0 || areas.length === 0) {
