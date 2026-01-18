@@ -61,7 +61,7 @@ export const PRESET_TIKTOK: CaptionConfig = CaptionConfigSchema.parse({
     enabled: true,
     platform: 'tiktok',
   },
-  pageAnimation: 'none',
+  pageAnimation: 'pop',
   animationDuration: 150,
 });
 
@@ -357,8 +357,9 @@ export const PRESET_CAPCUT_BOLD: CaptionConfig = CaptionConfigSchema.parse({
     enabled: true,
     platform: 'universal',
   },
-  pageAnimation: 'none',
+  pageAnimation: 'pop',
   animationDuration: 180,
+  wordTransitionMs: 80,
 });
 
 /**

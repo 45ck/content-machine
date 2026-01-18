@@ -771,6 +771,8 @@ function resolveFontWeight(weight: CaptionConfig['fontWeight']): number {
 function getWordStyle(config: CaptionConfig, isActive: boolean): React.CSSProperties {
   const textColor = isActive ? config.highlightColor : config.textColor;
   const opacity = isActive ? 1 : config.inactiveOpacity;
+  const underline = isActive && config.highlightMode === 'underline';
+  const scale = isActive && config.highlightMode === 'scale' ? 1.08 : 1;
 
   // Build text shadow
   let textShadow = '';
@@ -790,7 +792,12 @@ function getWordStyle(config: CaptionConfig, isActive: boolean): React.CSSProper
     color: textColor,
     letterSpacing: `${config.letterSpacing}em`,
     opacity,
-    transition: `color ${config.wordTransitionMs}ms ease-out, opacity ${config.wordTransitionMs}ms ease-out`,
+    transform: `scale(${scale})`,
+    textDecorationLine: underline ? 'underline' : 'none',
+    textDecorationColor: underline ? config.highlightColor : undefined,
+    textDecorationThickness: underline ? '0.12em' : undefined,
+    textUnderlineOffset: underline ? '0.15em' : undefined,
+    transition: `color ${config.wordTransitionMs}ms ease-out, opacity ${config.wordTransitionMs}ms ease-out, transform ${config.wordTransitionMs}ms ease-out`,
     whiteSpace: 'pre',
   };
 

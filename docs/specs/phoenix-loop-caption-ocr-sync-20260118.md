@@ -40,5 +40,6 @@ Updated the default CapCut preset to reflect the best-performing configuration f
 
 ## Next Experiments
 
+- Sweep `pageAnimation` values for the new defaults and pick the best engagement animation that does not degrade OCR/sync. (Initial results: `pop` scored best for the CapCut defaults on the phoenix-loop1 fixture.)
 - Sweep `pageAnimation` and `wordTransitionMs` to quantify OCR stability impact.
 - Compare highlight modes (`color` vs `background`) under identical pacing constraints.
