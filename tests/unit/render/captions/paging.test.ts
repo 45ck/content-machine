@@ -101,6 +101,23 @@ describe('createCaptionPages', () => {
       expect(hasMultiLine).toBe(true);
     });
 
+    it('does not orphan terminal punctuation onto its own page', () => {
+      const words: TimedWord[] = [
+        { text: 'HI', startMs: 0, endMs: 400 },
+        { text: 'THERE', startMs: 450, endMs: 850 },
+        { text: 'OK.', startMs: 900, endMs: 1200 },
+      ];
+
+      const pages = createCaptionPages(words, {
+        maxCharsPerLine: 8, // "HI THERE" fits exactly, but adding "OK." would overflow
+        maxLinesPerPage: 1, // overflow would normally force a new page
+        maxWordsPerPage: 10,
+      });
+
+      expect(pages).toHaveLength(1);
+      expect(pages[0].text).toContain('OK.');
+    });
+
     it('respects maxLinesPerPage', () => {
       const words = createWords([
         'One',
@@ -166,6 +183,19 @@ describe('createCaptionPages', () => {
       // Should create 2 pages (8 words / 4 max = 2 pages)
       expect(pages.length).toBe(2);
     });
+
+    it('does not orphan a terminal punctuation word due to maxWordsPerPage', () => {
+      const words = createWords(['this', 'is', 'fine.']);
+      const pages = createCaptionPages(words, {
+        maxCharsPerLine: 100,
+        maxLinesPerPage: 5,
+        maxWordsPerPage: 2,
+        minWordsPerPage: 2,
+      });
+
+      expect(pages).toHaveLength(1);
+      expect(pages[0].text).toContain('fine.');
+    });
   });
 
   describe('time gap handling', () => {
@@ -189,6 +219,49 @@ describe('createCaptionPages', () => {
       expect(pages.length).toBe(2);
       expect(pages[0].text).toContain('First');
       expect(pages[1].text).toContain('Second');
+    });
+
+    it('avoids creating a tiny page after a gap', () => {
+      const words: TimedWord[] = [
+        { text: 'FIRST', startMs: 0, endMs: 400 },
+        { text: 'PART', startMs: 450, endMs: 850 },
+        // Large gap here
+        { text: 'TAIL', startMs: 3000, endMs: 3400 },
+      ];
+
+      const pages = createCaptionPages(words, {
+        maxCharsPerLine: 100,
+        maxLinesPerPage: 5,
+        maxWordsPerPage: 10,
+        maxGapMs: 1000,
+        minWordsPerPage: 2,
+      });
+
+      // Should not create a standalone 1-word tail page
+      expect(pages).toHaveLength(1);
+      expect(pages[0].text).toContain('TAIL');
+    });
+
+    it('keeps a short terminal punctuation word with the previous page', () => {
+      const words: TimedWord[] = [
+        { text: 'THIS', startMs: 0, endMs: 400 },
+        { text: 'IS', startMs: 450, endMs: 850 },
+        // Large gap here
+        { text: 'OK.', startMs: 3000, endMs: 3400 },
+        { text: 'NEXT', startMs: 3450, endMs: 3850 },
+      ];
+
+      const pages = createCaptionPages(words, {
+        maxCharsPerLine: 100,
+        maxLinesPerPage: 5,
+        maxWordsPerPage: 10,
+        maxGapMs: 1000,
+        minWordsPerPage: 2,
+      });
+
+      expect(pages).toHaveLength(2);
+      expect(pages[0].text).toContain('OK.');
+      expect(pages[1].text).toContain('NEXT');
     });
   });
 
