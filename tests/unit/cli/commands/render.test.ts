@@ -206,6 +206,51 @@ describe('cli render command', () => {
     expect(handleCommandError).toHaveBeenCalled();
   });
 
+  it('allows disabling caption highlight', async () => {
+    await configureRuntime({ json: true });
+
+    const { readInputFile } = await import('../../../../src/cli/utils');
+    (readInputFile as unknown as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce(visuals)
+      .mockResolvedValueOnce(timestamps);
+
+    const { renderVideo } = await import('../../../../src/render/service');
+    (renderVideo as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      outputPath: 'video.mp4',
+      duration: 1,
+      width: 1080,
+      height: 1920,
+      fps: 30,
+      fileSize: 12345,
+    });
+
+    const output = await import('../../../../src/cli/output');
+    vi.spyOn(output, 'writeJsonEnvelope').mockImplementation(() => undefined);
+
+    const { renderCommand } = await import('../../../../src/cli/commands/render');
+    await renderCommand.parseAsync(
+      [
+        '--input',
+        'visuals.json',
+        '--audio',
+        'audio.wav',
+        '--timestamps',
+        'timestamps.json',
+        '--caption-highlight',
+        'none',
+      ],
+      { from: 'user' }
+    );
+
+    expect(renderVideo).toHaveBeenCalledWith(
+      expect.objectContaining({
+        captionConfig: expect.objectContaining({
+          highlightMode: 'none',
+        }),
+      })
+    );
+  });
+
   it('repairs timestamps when validation fails', async () => {
     await configureRuntime({ json: true });
 

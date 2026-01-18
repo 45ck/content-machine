@@ -463,7 +463,9 @@ const BuildupWordView: React.FC<BuildupWordViewProps> = ({ word, isActive, confi
     durationInFrames: 5,
   });
 
-  const textColor = isActive ? config.highlightColor : config.textColor;
+  const highlightEnabled = config.highlightMode !== 'none';
+  const isHighlighted = highlightEnabled ? isActive : false;
+  const textColor = isHighlighted ? config.highlightColor : config.textColor;
   const text = applyTextTransform(word, config.textTransform);
   const textShadow = buildTextShadow(config);
 
@@ -489,7 +491,7 @@ const BuildupWordView: React.FC<BuildupWordViewProps> = ({ word, isActive, confi
 
   if (config.highlightMode === 'background') {
     return (
-      <span style={getPillStyle(config, isActive)}>
+      <span style={getPillStyle(config, isHighlighted)}>
         <span style={wordStyle}>{text}</span>
       </span>
     );
@@ -554,7 +556,9 @@ interface WordViewProps {
 }
 
 const WordView: React.FC<WordViewProps> = ({ word, config, isActive }) => {
-  const wordStyle = getWordStyle(config, isActive);
+  const highlightEnabled = config.highlightMode !== 'none';
+  const isHighlighted = highlightEnabled ? isActive : false;
+  const wordStyle = getWordStyle(config, isHighlighted);
 
   const text =
     config.textTransform === 'uppercase'
@@ -568,7 +572,7 @@ const WordView: React.FC<WordViewProps> = ({ word, config, isActive }) => {
   if (config.highlightMode === 'background') {
     return (
       <span style={getWordWrapperStyle(config)}>
-        <span style={getPillStyle(config, isActive)}>
+        <span style={getPillStyle(config, isHighlighted)}>
           <span style={wordStyle}>{text}</span>
         </span>
       </span>

@@ -13,6 +13,7 @@ import { FONT_STACKS } from '../tokens/font';
  * Highlight mode - how the active word is emphasized
  */
 export const HighlightModeSchema = z.enum([
+  'none', // No active-word highlighting
   'color', // Just change text color
   'background', // Background pill/rounded rect (TikTok style)
   'underline', // Underline the active word

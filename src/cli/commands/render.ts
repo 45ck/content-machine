@@ -165,7 +165,7 @@ function parseCaptionOptions(options: Record<string, unknown>): CaptionConfigInp
     },
     (value) => {
       const mode = String(value);
-      if (mode !== 'none') config.highlightMode = mode as HighlightMode;
+      config.highlightMode = mode as HighlightMode;
     },
     (value) => {
       config.pageAnimation = String(value) as PageAnimation;
