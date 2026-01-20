@@ -21,7 +21,7 @@ jobs:
           manifest-file: .release-please-manifest.json
 
       - name: Dispatch required checks for release PR
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const owner = context.repo.owner;
