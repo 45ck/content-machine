@@ -52,6 +52,9 @@ export const PRESET_TIKTOK: CaptionConfig = CaptionConfigSchema.parse({
     maxWordsPerPage: 5,
     minWordsPerPage: 2,
     targetWordsPerChunk: 3,
+    // Slightly higher than schema default (15) to avoid false negatives in V&V
+    // after shortening chunk sizes.
+    maxCharsPerSecond: 16,
   },
   position: 'bottom',
   positionOffset: {
