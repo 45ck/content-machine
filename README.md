@@ -1,4 +1,4 @@
-﻿# Content Machine
+# Content Machine
 
 [![CI](https://github.com/45ck/content-machine/actions/workflows/ci.yml/badge.svg)](https://github.com/45ck/content-machine/actions/workflows/ci.yml)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)

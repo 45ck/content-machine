@@ -9,6 +9,7 @@ output/
 *.mp4
 *.mp3
 *.wav
+/sync-report*.json
 /script.json
 /timestamps.json
 /visuals.json
@@ -62,6 +63,9 @@ reports/
 
 # Generated docs
 docs/api/
+
+# Demo media (tracked)
+!docs/demo/*.mp4
 
 # Bench (video scoring benchmarks)
 bench/_tmp/

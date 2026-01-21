@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Render command - Render final video with Remotion
  *
  * Usage: cm render --input visuals.json --audio audio.wav --output video.mp4
