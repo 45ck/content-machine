@@ -18,7 +18,8 @@ import { FONT_STACKS } from '../tokens/font';
  */
 export const PRESET_TIKTOK: CaptionConfig = CaptionConfigSchema.parse({
   fontFamily: FONT_STACKS.body,
-  fontSize: 72,
+  // Slightly smaller by default to avoid oversized caption blocks in chunk mode.
+  fontSize: 66,
   fontWeight: 'bold',
   textTransform: 'uppercase',
   wordSpacing: 1.0,
@@ -45,12 +46,12 @@ export const PRESET_TIKTOK: CaptionConfig = CaptionConfigSchema.parse({
     blur: 10,
   },
   layout: {
-    maxCharsPerLine: 25,
+    maxCharsPerLine: 23,
     maxLinesPerPage: 2,
     maxGapMs: 800,
-    maxWordsPerPage: 6,
+    maxWordsPerPage: 5,
     minWordsPerPage: 2,
-    targetWordsPerChunk: 4,
+    targetWordsPerChunk: 3,
   },
   position: 'bottom',
   positionOffset: {
@@ -61,11 +62,29 @@ export const PRESET_TIKTOK: CaptionConfig = CaptionConfigSchema.parse({
     enabled: true,
     platform: 'tiktok',
   },
+  cleanup: {
+    // We render list numbering via badges, so hide "1:"/"2:" tokens in captions by default for TikTok.
+    dropListMarkers: true,
+  },
+  listBadges: {
+    enabled: true,
+    durationMs: 1200,
+    fadeInMs: 160,
+    fadeOutMs: 240,
+    scaleFrom: 0.72,
+    scaleTo: 1,
+    sizePx: 110,
+    fontSizePx: 54,
+    captionSafetyPx: 80,
+    gapPx: 110,
+  },
   pageAnimation: 'pop',
   animationDuration: 150,
   wordAnimation: 'pop',
   wordAnimationMs: 110,
   wordAnimationIntensity: 0.65,
+  // Slight lead to counteract perceived audio decode latency during rendering.
+  timingOffsetMs: -50,
 });
 
 /**

@@ -154,6 +154,8 @@ export interface RenderVideoOptions {
   captionWordAnimationMs?: number;
   /** Active word animation intensity (0..1) */
   captionWordAnimationIntensity?: number;
+  /** Global caption timing offset in ms (negative = earlier captions) */
+  captionOffsetMs?: number;
   /** Caption font family override */
   captionFontFamily?: string;
   /** Caption font weight override */
@@ -164,6 +166,8 @@ export interface RenderVideoOptions {
   captionFontFile?: string;
   /** Drop filler words from captions */
   captionDropFillers?: boolean;
+  /** Drop list marker tokens like "1:" from captions */
+  captionDropListMarkers?: boolean;
   /** Custom filler list (comma-separated via CLI) */
   captionFillerWords?: string[];
   /** Max words per minute for caption pacing */
@@ -489,6 +493,9 @@ function buildCaptionTopLevelOverride(options: RenderVideoOptions): Partial<Capt
   if (options.captionWordAnimationIntensity !== undefined) {
     topLevelOverride.wordAnimationIntensity = options.captionWordAnimationIntensity;
   }
+  if (options.captionOffsetMs !== undefined) {
+    topLevelOverride.timingOffsetMs = options.captionOffsetMs;
+  }
 
   return topLevelOverride;
 }
@@ -502,15 +509,19 @@ function buildCaptionCleanupOverride(
       : options.captionFillerWords && options.captionFillerWords.length > 0
         ? true
         : undefined;
+  const dropListMarkers =
+    options.captionDropListMarkers !== undefined ? options.captionDropListMarkers : undefined;
 
   const shouldOverride =
     dropFillers !== undefined ||
+    dropListMarkers !== undefined ||
     (options.captionFillerWords && options.captionFillerWords.length > 0);
   if (!shouldOverride) return undefined;
 
   return {
     dropFillers: Boolean(dropFillers),
     fillerWords: options.captionFillerWords ?? [],
+    ...(dropListMarkers !== undefined ? { dropListMarkers } : {}),
   };
 }
 
@@ -536,6 +547,7 @@ function resolveCaptionConfig(options: RenderVideoOptions): CaptionConfig {
       layout: { ...preset.layout, ...options.captionConfig.layout, ...layoutOverride },
       positionOffset: { ...preset.positionOffset, ...options.captionConfig.positionOffset },
       safeZone: { ...preset.safeZone, ...options.captionConfig.safeZone },
+      listBadges: { ...preset.listBadges, ...(options.captionConfig.listBadges ?? {}) },
       emphasis: { ...preset.emphasis, ...options.captionConfig.emphasis },
       cleanup: {
         ...preset.cleanup,
@@ -591,8 +603,13 @@ function buildRenderProps(
   const captionConfig = resolveCaptionConfig(options);
   const splitScreenRatio = normalizeSplitScreenRatio(options.splitScreenRatio);
 
-  // Sanitize words: filter out TTS markers, standalone punctuation, and optional fillers
-  const sanitizedWords = filterCaptionWords(options.timestamps.allWords, captionConfig.cleanup);
+  // Sanitize words for the render word stream (shared by captions + overlays).
+  // Important: Keep list markers in the word stream so overlays (e.g. #1 badges)
+  // can still trigger even when captions are configured to hide "1:" tokens.
+  const sanitizedWords = filterCaptionWords(options.timestamps.allWords, {
+    ...captionConfig.cleanup,
+    dropListMarkers: false,
+  });
 
   return {
     schemaVersion: RENDER_SCHEMA_VERSION,

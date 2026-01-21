@@ -59,6 +59,22 @@ export const TimestampsOutputSchema = z.object({
   ttsEngine: z.string().describe('TTS engine used (e.g., kokoro, edge-tts)'),
   asrEngine: z.string().describe('ASR engine used (e.g., whisper-cpp)'),
 
+  analysis: z
+    .object({
+      reconciled: z.boolean().optional(),
+      scriptMatch: z
+        .object({
+          lcsRatio: z.number().min(0).max(1),
+          scriptCoverage: z.number().min(0).max(1),
+          asrCoverage: z.number().min(0).max(1),
+          lcsLength: z.number().int().nonnegative(),
+          scriptTokenCount: z.number().int().nonnegative(),
+          asrTokenCount: z.number().int().nonnegative(),
+        })
+        .optional(),
+    })
+    .optional(),
+
   // Legacy fields for backward compatibility
   segments: z.array(TranscriptSegmentSchema).optional().describe('@deprecated Use scenes'),
   words: z.array(WordTimestampSchema).optional().describe('@deprecated Use allWords'),

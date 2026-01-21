@@ -82,7 +82,7 @@ export function ensureVisualCoverage(
   audioDurationMs: number,
   options: CoverageOptions = {}
 ): VisualScene[] {
-  const { fallbackColor = '#1a1a1a', maxExtensionRatio = 1.5 } = options;
+  const { fallbackColor = '#1a1a1a', maxExtensionRatio = 1.5, useFallbackColor = false } = options;
 
   // Handle empty scenes
   if (scenes.length === 0) {
@@ -117,8 +117,8 @@ export function ensureVisualCoverage(
     return result;
   }
 
-  // If fallbackColor is explicitly provided in options, use it for the gap
-  if (options.fallbackColor !== undefined) {
+  // Force fallback when requested (useful for debugging or when video extension is undesirable)
+  if (useFallbackColor) {
     result.push({
       startMs: lastScene.endMs,
       endMs: audioDurationMs,

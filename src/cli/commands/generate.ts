@@ -47,6 +47,7 @@ import {
   type FontSource,
   type HookClip,
   type ResearchOutput,
+  type ResearchSource,
   type ScriptOutput,
   type SyncRatingOutput,
   type VisualsOutput,
@@ -194,6 +195,8 @@ interface GenerateOptions {
   captionMinOnScreenMsShort?: string;
   /** Drop filler words from captions */
   captionDropFillers?: boolean;
+  /** Drop list markers like "1:" from captions */
+  captionDropListMarkers?: boolean;
   /** Comma-separated filler words/phrases to drop */
   captionFillerWords?: string;
   /** Maximum lines per caption page (default: 2) */
@@ -208,6 +211,8 @@ interface GenerateOptions {
   captionWordAnimationMs?: string;
   /** Active word animation intensity (0..1) */
   captionWordAnimationIntensity?: string;
+  /** Global caption timing offset in ms (negative = earlier captions) */
+  captionOffsetMs?: string;
   /** Caption font family override */
   captionFontFamily?: string;
   /** Caption font weight override */
@@ -551,33 +556,44 @@ async function runGeneratePreflight(params: {
   }
 
   if (typeof options.research === 'string') {
-    try {
-      const raw = await readInputFile(options.research);
-      const parsed = ResearchOutputSchema.safeParse(raw);
-      if (!parsed.success) {
+    const normalized = options.research.trim().toLowerCase();
+    if (normalized === 'true') {
+      addPreflightCheck(checks, {
+        label: 'Research file',
+        status: 'ok',
+        detail: 'auto (run Stage 0 research)',
+      });
+    } else if (normalized === 'false') {
+      // Explicitly disabled; no check needed.
+    } else {
+      try {
+        const raw = await readInputFile(options.research);
+        const parsed = ResearchOutputSchema.safeParse(raw);
+        if (!parsed.success) {
+          addPreflightCheck(checks, {
+            label: 'Research file',
+            status: 'fail',
+            code: 'SCHEMA_ERROR',
+            detail: 'Invalid research JSON',
+            fix: 'Generate via `cm research -q "<topic>" -o research.json` and pass --research research.json',
+          });
+        } else {
+          addPreflightCheck(checks, {
+            label: 'Research file',
+            status: 'ok',
+            detail: options.research,
+          });
+        }
+      } catch (error) {
+        const info = getCliErrorInfo(error);
         addPreflightCheck(checks, {
           label: 'Research file',
           status: 'fail',
-          code: 'SCHEMA_ERROR',
-          detail: 'Invalid research JSON',
-          fix: 'Generate via `cm research -q "<topic>" -o research.json` and pass --research research.json',
-        });
-      } else {
-        addPreflightCheck(checks, {
-          label: 'Research file',
-          status: 'ok',
-          detail: options.research,
+          code: info.code,
+          detail: info.message,
+          fix: info.fix,
         });
       }
-    } catch (error) {
-      const info = getCliErrorInfo(error);
-      addPreflightCheck(checks, {
-        label: 'Research file',
-        status: 'fail',
-        code: info.code,
-        detail: info.message,
-        fix: info.fix,
-      });
     }
   }
 
@@ -1761,6 +1777,7 @@ async function runGeneratePipeline(params: {
       params.options.captionDropFillers || (captionFillerWords && captionFillerWords.length > 0)
         ? true
         : undefined;
+    const captionDropListMarkers = params.options.captionDropListMarkers ? true : undefined;
     const captionFontWeight = parseFontWeight(params.options.captionFontWeight) ?? undefined;
     const requestedDuration = parseOptionalNumber(params.options.duration) ?? 45;
     const hookDuration = params.hook?.duration ?? 0;
@@ -1834,6 +1851,7 @@ async function runGeneratePipeline(params: {
       captionMinOnScreenMsShort:
         parseOptionalInt(params.options.captionMinOnScreenMsShort) ?? undefined,
       captionDropFillers,
+      captionDropListMarkers,
       captionFillerWords,
       captionFontFamily: params.options.captionFontFamily ?? undefined,
       captionFontWeight,
@@ -1848,6 +1866,7 @@ async function runGeneratePipeline(params: {
       captionWordAnimationMs: parseOptionalInt(params.options.captionWordAnimationMs) ?? undefined,
       captionWordAnimationIntensity:
         parseOptionalNumber(params.options.captionWordAnimationIntensity) ?? undefined,
+      captionOffsetMs: parseOptionalInt(params.options.captionOffsetMs) ?? undefined,
       gameplay: params.gameplay,
       splitScreenRatio: params.templateParams.splitScreenRatio,
       gameplayPosition: params.options.gameplayPosition ?? params.templateParams.gameplayPosition,
@@ -2857,6 +2876,17 @@ async function loadOrRunResearch(
 ): Promise<ResearchOutput | undefined> {
   if (!researchOption) return undefined;
 
+  const normalizedOption =
+    typeof researchOption === 'string' ? researchOption.trim().toLowerCase() : researchOption;
+
+  // Commander parses `--research true` as a string value ("true") because the option is `[path]`.
+  // Accept common boolean string literals for convenience.
+  if (normalizedOption === 'true') {
+    researchOption = true;
+  } else if (normalizedOption === 'false') {
+    return undefined;
+  }
+
   // If it's a file path, load from file
   if (typeof researchOption === 'string') {
     const raw = await readInputFile(researchOption);
@@ -2874,6 +2904,10 @@ async function loadOrRunResearch(
   // If it's true (boolean flag), run research automatically
   const spinner = createSpinner('Stage 0/4: Researching topic...').start();
 
+  const sources: ResearchSource[] = ['hackernews', 'reddit'];
+  if (process.env.BRAVE_SEARCH_API_KEY) sources.push('web');
+  if (process.env.TAVILY_API_KEY) sources.push('tavily');
+
   const llmProvider = mock
     ? undefined
     : process.env.OPENAI_API_KEY
@@ -2882,7 +2916,7 @@ async function loadOrRunResearch(
 
   const orchestrator = createResearchOrchestrator(
     {
-      sources: ['hackernews', 'reddit', 'tavily'],
+      sources,
       limitPerSource: 5,
       generateAngles: true,
       maxAngles: 3,
@@ -2979,6 +3013,7 @@ export const generateCommand = new Command('generate')
   .option('--caption-min-on-screen-ms <ms>', 'Minimum on-screen time for captions (ms)')
   .option('--caption-min-on-screen-short-ms <ms>', 'Minimum on-screen time for short captions (ms)')
   .option('--caption-drop-fillers', 'Drop filler words from captions')
+  .option('--caption-drop-list-markers', 'Drop list markers like "1:" from captions')
   .option('--caption-filler-words <list>', 'Comma-separated filler words/phrases to drop')
   .option('--caption-font-family <name>', 'Caption font family (e.g., Inter)')
   .option('--caption-font-weight <weight>', 'Caption font weight (normal, bold, black, 100-900)')
@@ -3001,6 +3036,10 @@ export const generateCommand = new Command('generate')
   )
   .option('--caption-word-animation-ms <ms>', 'Active word animation duration in ms')
   .option('--caption-word-animation-intensity <value>', 'Active word animation intensity (0..1)')
+  .option(
+    '--caption-offset-ms <ms>',
+    'Global caption timing offset in ms (negative = earlier captions)'
+  )
   .option('--gameplay <path>', 'Gameplay library directory or clip file path')
   .option('--gameplay-style <name>', 'Gameplay subfolder name (e.g., subway-surfers)')
   .option('--gameplay-strict', 'Fail if gameplay clip is missing')

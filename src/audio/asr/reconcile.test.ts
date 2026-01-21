@@ -247,6 +247,19 @@ describe('reconcileToScript', () => {
       expect(result[2].word).toBe('world');
     });
 
+    it('does not jump to far-ahead script words by default', async () => {
+      const { reconcileToScript } = await import('./reconcile');
+
+      const asrWords: WordWithTiming[] = [{ word: 'zeta', start: 0, end: 0.4 }];
+      const scriptText =
+        'one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen zeta!';
+
+      const result = reconcileToScript(asrWords, scriptText);
+
+      // If we matched far-ahead punctuation-bearing script word, we'd get "zeta!".
+      expect(result[0].word).toBe('zeta');
+    });
+
     it('handles single word script', async () => {
       const { reconcileToScript } = await import('./reconcile');
 

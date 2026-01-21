@@ -210,6 +210,32 @@ describe('Script Generator', () => {
       expect(result.meta?.wordCount).toBeGreaterThan(10);
     });
 
+    it('should avoid repeating the hook as the first sentence', async () => {
+      fakeLLM.queueJsonResponse({
+        scenes: [
+          {
+            text: "This week, major global events are shaking up the headlines. Here's what matters most.",
+            visualDirection: 'news montage',
+            mood: 'urgent',
+          },
+          { text: '1: First headline.', visualDirection: 'test' },
+        ],
+        reasoning: 'Test reasoning.',
+        title: 'Test',
+        hook: 'Major global events are shaking up the headlines this week.',
+        cta: 'Follow for more.',
+      });
+
+      const result = await generateScript({
+        topic: 'test',
+        archetype: 'listicle',
+        llmProvider: fakeLLM,
+      });
+
+      expect(result.hook).toContain('Major global events');
+      expect(result.scenes[0].text).toBe("Here's what matters most.");
+    });
+
     it('should include scene IDs', async () => {
       fakeLLM.queueJsonResponse({
         scenes: [
@@ -357,6 +383,44 @@ describe('Script Generator', () => {
 
       const result = LLMScriptResponseSchema.safeParse(response);
       expect(result.success).toBe(true);
+    });
+
+    it('should attempt to shorten scripts that exceed target length', async () => {
+      // First response is intentionally too long.
+      fakeLLM.queueJsonResponse({
+        scenes: new Array(6).fill(null).map((_, i) => ({
+          text: `Scene ${i + 1}: ` + new Array(40).fill('word').join(' '),
+          visualDirection: 'b-roll',
+          mood: 'informative',
+        })),
+        reasoning: 'Long on purpose for test.',
+        title: 'Too Long',
+        hook: new Array(40).fill('hook').join(' '),
+        cta: new Array(40).fill('cta').join(' '),
+      });
+
+      // Second response is shorter.
+      fakeLLM.queueJsonResponse({
+        scenes: new Array(6).fill(null).map((_, i) => ({
+          text: `Scene ${i + 1}: short and punchy.`,
+          visualDirection: 'b-roll',
+          mood: 'informative',
+        })),
+        reasoning: 'Shortened version.',
+        title: 'Short Enough',
+        hook: 'Quick update.',
+        cta: 'Follow for more.',
+      });
+
+      const result = await generateScript({
+        topic: 'Global news roundup',
+        archetype: 'listicle',
+        targetDuration: 30,
+        llmProvider: fakeLLM,
+      });
+
+      expect(result.title).toBe('Short Enough');
+      expect(result.meta?.wordCount).toBeLessThanOrEqual(94);
     });
   });
 });

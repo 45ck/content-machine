@@ -47,6 +47,7 @@ import type {
   StrokeStyleInput,
   PillStyleInput,
   CaptionLayoutInput,
+  ListBadgesConfigInput,
 } from '../../render/captions/config';
 import {
   validateWordTimings,
@@ -146,6 +147,7 @@ function parseCaptionOptions(options: Record<string, unknown>): CaptionConfigInp
   let stroke: StrokeStyleInput = {};
   let pillStyle: PillStyleInput = {};
   let layout: CaptionLayoutInput = {};
+  let listBadges: ListBadgesConfigInput = {};
 
   const parsers: Array<(value: unknown) => void> = [
     (value) => {
@@ -197,6 +199,51 @@ function parseCaptionOptions(options: Record<string, unknown>): CaptionConfigInp
     (value) => {
       config.wordAnimationIntensity = Number(String(value));
     },
+    (value) => {
+      config.timingOffsetMs = Number.parseInt(String(value), 10);
+    },
+    (value) => {
+      listBadges = { ...listBadges, enabled: Boolean(value) };
+    },
+    (value) => {
+      listBadges = { ...listBadges, durationMs: Number.parseInt(String(value), 10) };
+    },
+    (value) => {
+      listBadges = { ...listBadges, fadeInMs: Number.parseInt(String(value), 10) };
+    },
+    (value) => {
+      listBadges = { ...listBadges, fadeOutMs: Number.parseInt(String(value), 10) };
+    },
+    (value) => {
+      listBadges = { ...listBadges, scaleFrom: Number.parseFloat(String(value)) };
+    },
+    (value) => {
+      listBadges = { ...listBadges, scaleTo: Number.parseFloat(String(value)) };
+    },
+    (value) => {
+      listBadges = { ...listBadges, sizePx: Number.parseInt(String(value), 10) };
+    },
+    (value) => {
+      listBadges = { ...listBadges, fontSizePx: Number.parseInt(String(value), 10) };
+    },
+    (value) => {
+      listBadges = { ...listBadges, backgroundColor: String(value) };
+    },
+    (value) => {
+      listBadges = { ...listBadges, borderWidthPx: Number.parseInt(String(value), 10) };
+    },
+    (value) => {
+      listBadges = { ...listBadges, borderColor: String(value) };
+    },
+    (value) => {
+      listBadges = { ...listBadges, textColor: String(value) };
+    },
+    (value) => {
+      listBadges = { ...listBadges, gapPx: Number.parseInt(String(value), 10) };
+    },
+    (value) => {
+      listBadges = { ...listBadges, captionSafetyPx: Number.parseInt(String(value), 10) };
+    },
   ];
 
   const keys: Array<keyof typeof options> = [
@@ -216,6 +263,21 @@ function parseCaptionOptions(options: Record<string, unknown>): CaptionConfigInp
     'captionWordAnimation',
     'captionWordAnimationMs',
     'captionWordAnimationIntensity',
+    'captionOffsetMs',
+    'listBadges',
+    'listBadgeDurationMs',
+    'listBadgeFadeInMs',
+    'listBadgeFadeOutMs',
+    'listBadgeScaleFrom',
+    'listBadgeScaleTo',
+    'listBadgeSizePx',
+    'listBadgeFontSizePx',
+    'listBadgeBackgroundColor',
+    'listBadgeBorderWidthPx',
+    'listBadgeBorderColor',
+    'listBadgeTextColor',
+    'listBadgeGapPx',
+    'listBadgeCaptionSafetyPx',
   ];
 
   for (let i = 0; i < keys.length; i++) {
@@ -228,6 +290,7 @@ function parseCaptionOptions(options: Record<string, unknown>): CaptionConfigInp
   if (Object.keys(stroke).length > 0) config.stroke = stroke;
   if (Object.keys(pillStyle).length > 0) config.pillStyle = pillStyle;
   if (Object.keys(layout).length > 0) config.layout = layout;
+  if (Object.keys(listBadges).length > 0) config.listBadges = listBadges;
 
   // For nested objects, we store raw values and let the service merge them
   // These are passed as separate options to renderVideo which can handle merging
@@ -250,6 +313,7 @@ function mergeCaptionConfigPartials(
     positionOffset: { ...base.positionOffset, ...overrides.positionOffset },
     safeZone: { ...base.safeZone, ...overrides.safeZone },
     cleanup: { ...base.cleanup, ...overrides.cleanup },
+    listBadges: { ...(base.listBadges ?? {}), ...(overrides.listBadges ?? {}) },
   };
 }
 
@@ -1002,6 +1066,11 @@ async function runRenderCommand(
   const captionDropFillersSource = command.getOptionValueSource('captionDropFillers');
   const captionDropFillers =
     captionDropFillersSource === 'default' ? undefined : Boolean(options.captionDropFillers);
+  const captionDropListMarkersSource = command.getOptionValueSource('captionDropListMarkers');
+  const captionDropListMarkers =
+    captionDropListMarkersSource === 'default'
+      ? undefined
+      : Boolean(options.captionDropListMarkers);
   const hook = await resolveHookFromCli(options);
   if (!options.hook && hook) {
     options.hook = hook.id ?? hook.path;
@@ -1065,6 +1134,7 @@ async function runRenderCommand(
     captionFontFile,
     fonts: configDefaults.fonts.length > 0 ? configDefaults.fonts : undefined,
     captionDropFillers,
+    captionDropListMarkers,
     captionFillerWords,
     onProgress,
     archetype,
@@ -1153,6 +1223,7 @@ export const renderCommand = new Command('render')
   .option('--caption-min-on-screen-ms <ms>', 'Minimum on-screen time for captions (ms)')
   .option('--caption-min-on-screen-short-ms <ms>', 'Minimum on-screen time for short captions (ms)')
   .option('--caption-drop-fillers', 'Drop filler words from captions')
+  .option('--caption-drop-list-markers', 'Drop list markers like "1:" from captions')
   .option('--caption-filler-words <list>', 'Comma-separated filler words/phrases to drop')
   // Caption animation
   .option(
@@ -1165,6 +1236,25 @@ export const renderCommand = new Command('render')
   )
   .option('--caption-word-animation-ms <ms>', 'Active word animation duration in ms')
   .option('--caption-word-animation-intensity <value>', 'Active word animation intensity (0..1)')
+  .option(
+    '--caption-offset-ms <ms>',
+    'Global caption timing offset in ms (negative = earlier captions)'
+  )
+  // List badge overlay (e.g., "#1" marker)
+  .option('--list-badges', 'Enable list number badges overlay', true)
+  .option('--list-badge-duration-ms <ms>', 'List badge total on-screen duration (ms)')
+  .option('--list-badge-fade-in-ms <ms>', 'List badge fade-in duration (ms)')
+  .option('--list-badge-fade-out-ms <ms>', 'List badge fade-out duration (ms)')
+  .option('--list-badge-scale-from <n>', 'List badge starting scale (e.g., 0.7)')
+  .option('--list-badge-scale-to <n>', 'List badge ending scale (e.g., 1.0)')
+  .option('--list-badge-size-px <px>', 'List badge circle size (px)')
+  .option('--list-badge-font-size-px <px>', 'List badge text size (px)')
+  .option('--list-badge-background-color <css>', 'List badge background color (CSS)')
+  .option('--list-badge-border-width-px <px>', 'List badge border width (px)')
+  .option('--list-badge-border-color <css>', 'List badge border color (CSS)')
+  .option('--list-badge-text-color <css>', 'List badge text color (CSS)')
+  .option('--list-badge-gap-px <px>', 'Gap between captions and badge (px)')
+  .option('--list-badge-caption-safety-px <px>', 'Extra reserved caption band height (px)')
   // Sync validation settings
   .option('--validate-timestamps', 'Validate word timestamps before rendering', true)
   .option('--no-validate-timestamps', 'Skip timestamp validation')

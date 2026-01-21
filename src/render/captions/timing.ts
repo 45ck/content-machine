@@ -22,6 +22,31 @@ export interface PageTiming {
 }
 
 /**
+ * Find the active word at a given absolute time.
+ *
+ * Uses word start times as boundaries (a word stays active until the next word starts),
+ * which makes highlighting more stable when ASR end times are very short.
+ */
+export function getActiveWord(words: Word[], absoluteTimeMs: number): Word | null {
+  if (words.length === 0) return null;
+
+  // Ensure deterministic order even if input isn't strictly sorted.
+  const sorted = [...words].sort((a, b) => a.startMs - b.startMs || a.endMs - b.endMs);
+
+  if (absoluteTimeMs < sorted[0].startMs) return null;
+
+  for (let i = 0; i < sorted.length; i++) {
+    const current = sorted[i];
+    const next = sorted[i + 1];
+    if (absoluteTimeMs >= current.startMs && (!next || absoluteTimeMs < next.startMs)) {
+      return current;
+    }
+  }
+
+  return sorted[sorted.length - 1];
+}
+
+/**
  * Determines if a word is currently active (should be highlighted) within a Sequence.
  *
  * This solves the critical bug from v3 where highlighting didn't work because:

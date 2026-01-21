@@ -89,8 +89,8 @@ describe('ensureVisualCoverage', () => {
       expect(lastScene.endMs).toBe(10000);
     });
 
-    it('adds fallback color scene when no video available to extend', () => {
-      const scenes: VisualScene[] = [{ startMs: 0, endMs: 5000, url: 'video1.mp4' }];
+    it('adds fallback color scene when no video exists', () => {
+      const scenes: VisualScene[] = [{ startMs: 0, endMs: 5000, url: null }];
       const audioDurationMs = 10000;
       const fallbackColor = '#1a1a1a';
 
@@ -103,6 +103,25 @@ describe('ensureVisualCoverage', () => {
         startMs: 5000,
         endMs: 10000,
         url: null, // No video
+        backgroundColor: fallbackColor,
+      });
+    });
+
+    it('can force fallback even when video exists', () => {
+      const scenes: VisualScene[] = [{ startMs: 0, endMs: 5000, url: 'video1.mp4' }];
+      const audioDurationMs = 10000;
+      const fallbackColor = '#1a1a1a';
+
+      const result = ensureVisualCoverage(scenes, audioDurationMs, {
+        fallbackColor,
+        useFallbackColor: true,
+      });
+
+      expect(result.length).toBe(2);
+      expect(result[1]).toEqual({
+        startMs: 5000,
+        endMs: 10000,
+        url: null,
         backgroundColor: fallbackColor,
       });
     });

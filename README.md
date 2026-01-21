@@ -51,6 +51,67 @@ clips with the appropriate rights in `~/.cm/assets/gameplay/<style>/`. This repo
 download copyrighted gameplay footage by default. On Linux you can import clips with
 `scripts/download-gameplay.sh` (local files or URLs you have rights to).
 
+### Demo 4: Latest news listicle (TikTok captions + number badges)
+
+![Latest news listicle demo](assets/demo/demo-4-latest-news.gif)
+
+Full clip: `docs/demo/demo-4-latest-news.mp4`
+
+This demo uses:
+
+- TikTok-style chunk captions (smaller default sizing)
+- Auto list-number badges (`#1`, `#2`, …) with fade/scale animation
+- List markers hidden in captions (so you don’t see `1:` in the text)
+
+Replicate the pipeline (exact commands):
+
+```bash
+# Node >= 20 recommended
+nvm use
+
+# (One-time) install deps + whisper for word-level timestamps
+npm install
+npm run cm -- setup whisper --model base
+
+# 1) Research latest headlines (Jan 2026 example query)
+npm run cm -- --yes research --no-angles \
+  -q "Davos World Economic Forum Iraq US forces withdrawal North Korea official fired January 2026" \
+  -s tavily -t week -l 12 \
+  -o output/research.stories.json
+
+# 2) Script (listicle)
+npm run cm -- --yes script \
+  --topic "global news this week" \
+  --research output/research.stories.json \
+  --duration 60 \
+  -o output/script.stories.v2.json
+
+# 3) Audio + timestamps (audio-first + reconcile for cleaner captions)
+npm run cm -- --yes audio \
+  -i output/script.stories.v2.json \
+  -o output/audio.stories.v2.wav \
+  --timestamps output/timestamps.stories.v2.json \
+  --sync-strategy audio-first --reconcile --require-whisper --whisper-model base \
+  --tts-speed 1.2 \
+  --no-music --no-sfx --no-ambience
+
+# 4) Visuals (Pexels)
+npm run cm -- --yes visuals \
+  -i output/timestamps.stories.v2.json \
+  -o output/visuals.stories.v2.json \
+  --provider pexels --orientation portrait
+
+# 5) Render (TikTok preset + chunk mode)
+npm run cm -- --yes render \
+  -i output/visuals.stories.v2.json \
+  --audio output/audio.stories.v2.wav \
+  --timestamps output/timestamps.stories.v2.json \
+  --caption-preset tiktok --caption-mode chunk \
+  --caption-offset-ms -80 \
+  --hook none \
+  -o output/global-news.stories.v2.tiktok-smaller.badges-back.mp4
+```
+
 ## What is this?
 
 Content Machine is a CLI-first pipeline that transforms a topic into a short-form video in four stages:
@@ -89,8 +150,12 @@ git clone https://github.com/45ck/content-machine.git
 cd content-machine
 
 # Prereqs
-# - Node.js >= 20
+# - Node.js >= 20 (recommended: use nvm + .nvmrc)
 # - (optional) ffmpeg (for making README demo GIFs)
+
+# Recommended Node setup (if you have nvm)
+nvm install
+nvm use
 
 # Install dependencies
 npm install
@@ -98,6 +163,10 @@ npm install
 # Set up environment
 cp .env.example .env
 # Add your OPENAI_API_KEY
+
+# Note:
+# - In this repo: use `npm run cm -- <command>`
+# - If installed globally: use `cm <command>`
 
 # Run the full pipeline in dev mode
 npm run cm -- generate "Redis vs PostgreSQL for caching" --archetype versus --output output/video.mp4 --keep-artifacts
@@ -110,10 +179,32 @@ and reconciles ASR output back to the script text.
 
 ```bash
 # One-time Whisper setup (needed for audio-first)
-node --input-type=module -e "import('@remotion/install-whisper-cpp').then(async (w)=>{ await w.downloadWhisperModel({ model: 'base', folder: './.cache/whisper' }); await w.installWhisperCpp({ to: './.cache/whisper', version: '1.5.5' }); console.log('whisper ready'); })"
+npm run cm -- setup whisper --model base
 
 # Generate a short video with best-sync defaults
-cm generate "Redis vs PostgreSQL for caching" --archetype versus --output output/video.mp4 --keep-artifacts
+npm run cm -- generate "Redis vs PostgreSQL for caching" --archetype versus --output output/video.mp4 --keep-artifacts
+```
+
+## Research (Latest News → Script → Video)
+
+`cm research` gathers evidence across sources and writes `research.json`. You can then feed that
+into `cm script` / `cm generate` to keep scripts grounded in the latest info.
+
+```bash
+# 1) Research (no API keys required: Hacker News + Reddit)
+npm run cm -- research -q "latest AI model news" -s hackernews,reddit -t day -o research.json
+
+# 2) Generate a full video using that evidence
+npm run cm -- generate "latest AI model news" --research research.json -a story --duration 35 -o output/news.mp4
+```
+
+Auto-research shortcut (runs Stage 0 automatically):
+
+```bash
+# Use `--research` with no value (or `--research true`).
+# Always uses hackernews,reddit; also adds web if BRAVE_SEARCH_API_KEY is set,
+# and adds tavily if TAVILY_API_KEY is set.
+npm run cm -- generate "latest AI model news" --research -a story --duration 35 -o output/news.mp4
 ```
 
 ## Custom Assets and Workflows
@@ -208,8 +299,10 @@ OPENAI_API_KEY=sk-...
 
 # Optional
 PEXELS_API_KEY=...         # For stock footage
-REDDIT_CLIENT_ID=...       # For trend fetching
-REDDIT_CLIENT_SECRET=...
+BRAVE_SEARCH_API_KEY=...   # For cm research --sources web
+TAVILY_API_KEY=...         # For cm research --sources tavily (and auto-research in cm generate)
+REDDIT_CLIENT_ID=...       # Optional (some Reddit features may use auth)
+REDDIT_CLIENT_SECRET=...   # Optional
 ```
 
 ## Caption Fonts

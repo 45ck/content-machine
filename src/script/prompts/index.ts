@@ -98,15 +98,23 @@ TTS WRITING RULES:
 }
 
 function getListiclePrompt(context: PromptContext): string {
+  const looksLikeNews = /\b(news|headlines|headline|roundup|breaking|update|updates|world)\b/i.test(
+    context.topic
+  );
+
+  const labelExamples = looksLikeNews
+    ? 'e.g., "1:", "Headline 2:", "Story 3:"'
+    : 'e.g., "1:", "Point 2:", "Number 3:"';
+
   return `Create a short-form video script about: "${context.topic}"
 
-FORMAT: Listicle (numbered list of tips/facts/items)
+FORMAT: Listicle (numbered list of ${looksLikeNews ? 'headlines/updates' : 'items'})
 
 REQUIREMENTS:
 - Start with a compelling hook that creates curiosity (first 3 seconds are critical)
 - Include 4-5 numbered points
-- Each point should be two sentences: the tip plus a quick payoff or why
-- Prefix each point with an explicit number label (e.g., "Tip 1:", "2)", "Number 3:").
+- Each point should be two sentences: the point + a quick payoff or why it matters
+- Prefix each point with an explicit number label (${labelExamples}). Choose a natural label for the topic (avoid calling news "tips").
 - End with a call-to-action (follow, like, comment)
 - Use conversational, TikTok-style language
 ${ttsWritingGuidelines(context)}

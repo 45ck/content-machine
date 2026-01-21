@@ -158,6 +158,8 @@ export const CaptionCleanupSchema = z.object({
   dropFillers: z.boolean().default(false),
   /** Custom filler word list */
   fillerWords: z.array(z.string()).default([]),
+  /** Drop list markers like "1:" / "2." / "#3" from captions */
+  dropListMarkers: z.boolean().default(false),
 });
 export type CaptionCleanup = z.infer<typeof CaptionCleanupSchema>;
 
@@ -216,6 +218,46 @@ export const SafeZoneConfigSchema = z.object({
   platform: z.enum(['tiktok', 'reels', 'shorts', 'universal']).default('universal'),
 });
 export type SafeZoneConfig = z.infer<typeof SafeZoneConfigSchema>;
+
+/**
+ * List badge overlay configuration (e.g., "#1" marker for listicles)
+ *
+ * This is intentionally conservative by default: it reserves extra space around
+ * caption bands so badges don't visually collide with captions.
+ */
+export const ListBadgesConfigSchema = z.object({
+  /** Enable/disable list badges overlay. */
+  enabled: z.boolean().default(true),
+  /** Total time a badge stays on screen (ms). */
+  durationMs: z.number().int().positive().default(1200),
+  /** Fade in duration (ms). */
+  fadeInMs: z.number().int().nonnegative().default(160),
+  /** Fade out duration (ms). */
+  fadeOutMs: z.number().int().nonnegative().default(220),
+  /** Starting scale for pop-in. */
+  scaleFrom: z.number().min(0.1).max(3).default(0.75),
+  /** Target scale after pop-in. */
+  scaleTo: z.number().min(0.1).max(3).default(1),
+  /** Badge circle size (px). */
+  sizePx: z.number().int().positive().default(110),
+  /** Badge text size (px). */
+  fontSizePx: z.number().int().positive().default(54),
+  /** Additional reserved padding above caption block (px). */
+  captionSafetyPx: z.number().int().nonnegative().default(80),
+  /** Gap between caption block and badge (px). */
+  gapPx: z.number().int().nonnegative().default(110),
+  /** Background color for the badge. */
+  backgroundColor: z.string().default('rgba(0,0,0,0.65)'),
+  /** Border width (px). */
+  borderWidthPx: z.number().int().nonnegative().default(4),
+  /** Border color. */
+  borderColor: z.string().default('rgba(255,255,255,0.85)'),
+  /** Text color. */
+  textColor: z.string().default('#FFFFFF'),
+  /** Text shadow CSS string. */
+  textShadow: z.string().default('0 6px 16px rgba(0,0,0,0.6)'),
+});
+export type ListBadgesConfig = z.infer<typeof ListBadgesConfigSchema>;
 
 /**
  * Complete Caption Configuration
@@ -295,6 +337,10 @@ export const CaptionConfigSchema = z.object({
   /** Safe zone padding to avoid platform UI overlays */
   safeZone: SafeZoneConfigSchema.default({}),
 
+  // === OVERLAYS ===
+  /** List item number badges overlay (e.g., "#1") */
+  listBadges: ListBadgesConfigSchema.default({}),
+
   // === ANIMATION ===
   /** Page entrance animation */
   pageAnimation: PageAnimationSchema.default('none'),
@@ -308,6 +354,13 @@ export const CaptionConfigSchema = z.object({
   wordAnimationMs: z.number().int().nonnegative().default(120),
   /** Active word animation intensity (0..1) */
   wordAnimationIntensity: z.number().min(0).max(1).default(0.6),
+
+  // === TIMING ===
+  /**
+   * Global timing offset applied to caption word timestamps (ms).
+   * Negative values make captions appear slightly earlier (useful if captions feel late).
+   */
+  timingOffsetMs: z.number().int().min(-2000).max(2000).default(0),
 });
 
 export type CaptionConfig = z.infer<typeof CaptionConfigSchema>;
@@ -327,6 +380,8 @@ export type EmphasisStyleInput = z.input<typeof EmphasisStyleSchema>;
 export type PositionOffsetInput = z.input<typeof PositionOffsetSchema>;
 /** Input type for SafeZoneConfig (before Zod transforms apply defaults) */
 export type SafeZoneConfigInput = z.input<typeof SafeZoneConfigSchema>;
+/** Input type for ListBadgesConfig (before Zod transforms apply defaults) */
+export type ListBadgesConfigInput = z.input<typeof ListBadgesConfigSchema>;
 
 /**
  * Parse and validate caption config with defaults

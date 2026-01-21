@@ -23,7 +23,7 @@ import {
 } from './paging';
 import { createCaptionChunks, layoutToChunkingConfig, chunkToPage } from './chunking';
 import { PRESET_CAPCUT_BOLD } from './presets';
-import { isWordActive } from './timing';
+import { getActiveWord, isWordActive } from './timing';
 import { SAFE_ZONES, type PlatformName } from '../tokens/safe-zone';
 
 /**
@@ -88,12 +88,12 @@ const PagedCaption: React.FC<PagedCaptionProps> = ({ words, config, fps }) => {
   // Convert words and create pages
   const pages = useMemo(() => {
     if (words.length === 0) return [];
-    const timedWords = toTimedWords(words);
+    const timedWords = toTimedWords(words, config.timingOffsetMs);
     return createCaptionPages(timedWords, {
       ...config.layout,
       maxWordsPerPage: config.wordsPerPage ?? config.layout.maxWordsPerPage,
     });
-  }, [words, config.layout, config.wordsPerPage]);
+  }, [words, config.layout, config.wordsPerPage, config.timingOffsetMs]);
 
   if (pages.length === 0) return null;
 
@@ -129,7 +129,7 @@ interface ChunkedCaptionProps {
 const ChunkedCaption: React.FC<ChunkedCaptionProps> = ({ words, config, fps }) => {
   const pages = useMemo(() => {
     if (words.length === 0) return [];
-    const timedWords = toTimedWords(words);
+    const timedWords = toTimedWords(words, config.timingOffsetMs);
     const chunkWords = timedWords.map((word) => ({
       word: word.text,
       startMs: word.startMs,
@@ -148,7 +148,7 @@ const ChunkedCaption: React.FC<ChunkedCaptionProps> = ({ words, config, fps }) =
         maxLinesPerPage: config.layout.maxLinesPerPage,
       })
     );
-  }, [words, config.layout, config.wordsPerPage]);
+  }, [words, config.layout, config.wordsPerPage, config.timingOffsetMs]);
 
   if (pages.length === 0) return null;
 
@@ -515,6 +515,11 @@ const CaptionPageView: React.FC<CaptionPageViewProps> = ({ page, config }) => {
   // CRITICAL: Convert frame to sequence-relative time in ms
   // frame is relative to Sequence start (resets to 0 for each page)
   const sequenceTimeMs = (frame / fps) * 1000;
+  const absoluteTimeMs = page.startMs + sequenceTimeMs;
+  const activeWord = getActiveWord(
+    page.lines.flatMap((line) => line.words),
+    absoluteTimeMs
+  );
 
   // Entrance animation
   const enterProgress = useEnterAnimation(frame, fps, config);
@@ -533,11 +538,15 @@ const CaptionPageView: React.FC<CaptionPageViewProps> = ({ page, config }) => {
                 word={word}
                 config={config}
                 pageStartMs={page.startMs}
-                isActive={isWordActive(
-                  { startMs: word.startMs, endMs: word.endMs },
-                  page.startMs,
-                  sequenceTimeMs
-                )}
+                isActive={
+                  activeWord
+                    ? word === activeWord
+                    : isWordActive(
+                        { startMs: word.startMs, endMs: word.endMs },
+                        page.startMs,
+                        sequenceTimeMs
+                      )
+                }
               />
             ))}
           </div>

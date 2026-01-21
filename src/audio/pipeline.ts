@@ -16,6 +16,7 @@ import {
 import { synthesizeSpeech } from './tts';
 import { transcribeAudio, ASRResult } from './asr';
 import { reconcileToScript as reconcileAsrToScript } from './asr/reconcile';
+import { computeScriptMatchMetrics } from './asr/script-match';
 import { buildAlignmentUnits, buildSceneTimestamps, normalizeSpokenText } from './alignment';
 import { buildAudioMixPlan, hasAudioMixSources, type AudioMixPlanOptions } from './mix/planner';
 import type { AudioMixOutput, AudioOutput } from '../domain';
@@ -111,14 +112,35 @@ export async function generateAudio(options: GenerateAudioOptions): Promise<Audi
 
   // Step 2b: Reconcile ASR to script text if enabled
   let finalWords = asrResult.words;
+  let reconciled = false;
   if (options.reconcile && asrResult.engine !== 'estimated') {
     log.info('Reconciling ASR output to script text');
     finalWords = reconcileAsrToScript(asrResult.words, fullText);
+    reconciled = true;
     log.info({ reconciledWords: finalWords.length }, 'Reconciliation complete');
   }
 
   // Step 3: Build timestamps output
-  const timestamps = buildTimestamps({ ...asrResult, words: finalWords }, options.script);
+  const scriptMatch =
+    asrResult.engine !== 'estimated'
+      ? computeScriptMatchMetrics({ scriptText: fullText, asrWords: finalWords })
+      : undefined;
+  if (scriptMatch && scriptMatch.lcsRatio < 0.9) {
+    log.warn(
+      {
+        lcsRatio: Number(scriptMatch.lcsRatio.toFixed(3)),
+        scriptCoverage: Number(scriptMatch.scriptCoverage.toFixed(3)),
+        asrCoverage: Number(scriptMatch.asrCoverage.toFixed(3)),
+        reconciled,
+      },
+      'Low script↔caption match detected (captions may look wrong). Consider --reconcile, slower TTS, or a larger Whisper model.'
+    );
+  }
+
+  const timestamps = buildTimestamps({ ...asrResult, words: finalWords }, options.script, {
+    reconciled,
+    scriptMatch,
+  });
 
   // Save timestamps
   await writeFile(options.timestampsPath, JSON.stringify(timestamps, null, 2), 'utf-8');
@@ -313,7 +335,11 @@ async function maybeWriteAudioMix(params: {
 /**
  * Build timestamps output from ASR result aligned to scenes
  */
-function buildTimestamps(asr: ASRResult, script: ScriptOutput): TimestampsOutput {
+function buildTimestamps(
+  asr: ASRResult,
+  script: ScriptOutput,
+  analysis?: TimestampsOutput['analysis']
+): TimestampsOutput {
   // Align scenes to the same units used for TTS (hook/scenes/cta) to prevent drift.
   const units = buildAlignmentUnits(script);
   const scenes = buildSceneTimestamps(asr.words, units, asr.duration);
@@ -325,5 +351,6 @@ function buildTimestamps(asr: ASRResult, script: ScriptOutput): TimestampsOutput
     totalDuration: asr.duration,
     ttsEngine: 'kokoro',
     asrEngine: asr.engine,
+    analysis,
   };
 }

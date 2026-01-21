@@ -113,6 +113,22 @@ function matchesFillerPhrase<T extends { word: string }>(
  */
 const ASR_ARTIFACT_PATTERN = /^[.?!,;:\-–—…'"()]+$/;
 
+function isListMarkerToken(word: string, nextWord?: string): boolean {
+  const trimmed = word.trim();
+  if (!trimmed) return false;
+
+  // "1:" / "2." / "3)"
+  if (/^\d{1,2}[:.)]$/.test(trimmed)) return true;
+  // "#1"
+  if (/^#\d{1,2}$/.test(trimmed)) return true;
+  // "1" ":" split
+  if (/^\d{1,2}$/.test(trimmed) && nextWord) {
+    const nextTrim = nextWord.trim();
+    if (/^[:.)]$/.test(nextTrim)) return true;
+  }
+  return false;
+}
+
 /**
  * Check if a word is a TTS internal marker that should be filtered
  */
@@ -150,8 +166,13 @@ export function filterCaptionWords<T extends { word: string }>(
 
   for (let i = 0; i < words.length; i++) {
     const token = words[i];
+    const next = words[i + 1];
     if (!token || typeof token.word !== 'string') continue;
     if (!isDisplayableWord(token.word)) continue;
+
+    if (cleanup?.dropListMarkers) {
+      if (isListMarkerToken(token.word, next?.word)) continue;
+    }
 
     if (fillerConfig) {
       let matchedPhrase = false;
@@ -463,13 +484,20 @@ function finalizeLine(words: TimedWord[]): CaptionLine {
  * Convert our WordTimestamp format to TimedWord format
  */
 export function toTimedWords(
-  words: Array<{ word: string; start: number; end: number }>
+  words: Array<{ word: string; start: number; end: number }>,
+  timingOffsetMs: number = 0
 ): TimedWord[] {
   return words
     .filter((w) => typeof w.word === 'string' && w.word.trim().length > 0)
-    .map((w) => ({
-      text: w.word,
-      startMs: w.start * 1000,
-      endMs: w.end * 1000,
-    }));
+    .map((w) => {
+      const startMs = w.start * 1000 + timingOffsetMs;
+      const endMs = w.end * 1000 + timingOffsetMs;
+      const safeStartMs = Math.max(0, Math.round(startMs));
+      const safeEndMs = Math.max(safeStartMs + 1, Math.round(endMs));
+      return {
+        text: w.word,
+        startMs: safeStartMs,
+        endMs: safeEndMs,
+      };
+    });
 }

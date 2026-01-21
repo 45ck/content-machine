@@ -28,6 +28,8 @@ interface ResearchOptions {
   mock: boolean;
 }
 
+const SUPPORTED_SOURCES: ResearchSource[] = ['hackernews', 'reddit', 'web', 'tavily'];
+
 function parseSources(sourcesStr: string): ResearchSource[] {
   const sourceList = sourcesStr
     .split(',')
@@ -39,7 +41,7 @@ function parseSources(sourcesStr: string): ResearchSource[] {
 
   for (const source of sourceList) {
     const parsed = ResearchSourceEnum.safeParse(source);
-    if (parsed.success) {
+    if (parsed.success && SUPPORTED_SOURCES.includes(parsed.data)) {
       validSources.push(parsed.data);
     } else {
       invalidSources.push(source);
@@ -48,8 +50,8 @@ function parseSources(sourcesStr: string): ResearchSource[] {
 
   if (invalidSources.length > 0) {
     throw new CMError('INVALID_ARGUMENT', `Unknown sources: ${invalidSources.join(', ')}`, {
-      allowed: ResearchSourceEnum.options,
-      fix: `Use --sources ${ResearchSourceEnum.options.join(',')} (comma-separated)`,
+      allowed: SUPPORTED_SOURCES,
+      fix: `Use --sources ${SUPPORTED_SOURCES.join(',')} (comma-separated)`,
     });
   }
 
@@ -142,7 +144,7 @@ export const researchCommand = new Command('research')
   .requiredOption('-q, --query <query>', 'Search query')
   .option(
     '-s, --sources <sources>',
-    'Comma-separated sources (hackernews,reddit,web)',
+    `Comma-separated sources (${SUPPORTED_SOURCES.join(',')})`,
     'hackernews,reddit'
   )
   .option('-o, --output <path>', 'Output file path', 'research.json')

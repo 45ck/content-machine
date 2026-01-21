@@ -17,6 +17,7 @@ import {
 } from './visuals';
 import { FontLoader } from './FontLoader';
 import { AudioLayers } from './AudioLayers';
+import { ListBadges } from './ListBadges';
 
 /**
  * Main video component
@@ -31,6 +32,7 @@ export const ShortVideo: React.FC<RenderProps> = ({
   captionConfig,
   hook,
   fonts,
+  archetype,
 }) => {
   const { fps } = useVideoConfig();
   const videoAssets = scenes ?? [];
@@ -49,6 +51,7 @@ export const ShortVideo: React.FC<RenderProps> = ({
     () => buildSequences(visualTimeline, contentDuration, fps),
     [visualTimeline, contentDuration, fps]
   );
+  const listBadgesEnabled = captionConfig?.listBadges?.enabled ?? true;
 
   return (
     <AbsoluteFill style={{ backgroundColor: '#000' }}>
@@ -72,6 +75,15 @@ export const ShortVideo: React.FC<RenderProps> = ({
 
         <AbsoluteFill>
           <Caption words={words} config={captionConfig} />
+          <ListBadges
+            words={words}
+            enabled={
+              (archetype === 'listicle' || archetype === 'news' || archetype === undefined) &&
+              listBadgesEnabled
+            }
+            timingOffsetMs={captionConfig?.timingOffsetMs ?? 0}
+            captionConfig={captionConfig}
+          />
         </AbsoluteFill>
 
         <AudioLayers audioPath={audioPath} mix={audioMix} />

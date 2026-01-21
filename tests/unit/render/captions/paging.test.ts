@@ -11,6 +11,7 @@ import { describe, it, expect } from 'vitest';
 import {
   createCaptionPages,
   toTimedWords,
+  filterCaptionWords,
   sanitizeTimedWords,
   sanitizeTimedWordsWithConfidence,
   isDisplayableWord,
@@ -548,6 +549,31 @@ describe('TTS marker filtering (CRITICAL)', () => {
       expect(isDisplayableWord('hello')).toBe(true);
       expect(isDisplayableWord('world!')).toBe(true);
       expect(isDisplayableWord("don't")).toBe(true);
+    });
+  });
+
+  describe('filterCaptionWords', () => {
+    it('drops list marker tokens when enabled', () => {
+      const words = [
+        { word: '1:', start: 0, end: 0.1 },
+        { word: 'Iraq', start: 0.1, end: 0.3 },
+        { word: '2.', start: 0.3, end: 0.4 },
+        { word: 'North', start: 0.4, end: 0.55 },
+        { word: '#3', start: 0.55, end: 0.65 },
+        { word: 'Iran', start: 0.65, end: 0.8 },
+      ];
+
+      const filtered = filterCaptionWords(words, { dropListMarkers: true });
+      expect(filtered.map((w) => w.word)).toEqual(['Iraq', 'North', 'Iran']);
+    });
+
+    it('keeps list marker tokens when disabled', () => {
+      const words = [
+        { word: '1:', start: 0, end: 0.1 },
+        { word: 'Iraq', start: 0.1, end: 0.3 },
+      ];
+      const filtered = filterCaptionWords(words, { dropListMarkers: false });
+      expect(filtered.map((w) => w.word)).toEqual(['1:', 'Iraq']);
     });
   });
 

@@ -213,6 +213,15 @@ function buildAudioSummary(params: {
     ['Audio', result.audioPath],
     ['Timestamps', result.timestampsPath],
   ];
+  if (result.timestamps.analysis?.reconciled !== undefined) {
+    summaryRows.push(['Reconciled', result.timestamps.analysis.reconciled ? 'yes' : 'no']);
+  }
+  if (result.timestamps.analysis?.scriptMatch) {
+    summaryRows.push([
+      'Script match',
+      `${Math.round(result.timestamps.analysis.scriptMatch.lcsRatio * 100)}%`,
+    ]);
+  }
   if (result.audioMixPath) {
     summaryRows.push(['Audio mix', result.audioMixPath]);
   }
