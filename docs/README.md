@@ -199,6 +199,7 @@ Located in `reference/`, information-oriented technical docs:
 ### CLI command references
 
 - `reference/cm-generate-reference-20260106.md`
+- `reference/cm-mcp-reference-20260126.md`
 - `reference/cm-script-reference-20260106.md`
 - `reference/cm-audio-reference-20260106.md`
 - `reference/cm-visuals-reference-20260106.md`

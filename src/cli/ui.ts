@@ -1,4 +1,4 @@
-import chalk from 'chalk';
+import { chalk } from './colors';
 import { getCliRuntime } from './runtime';
 import { writeStderr, writeStderrLine } from './output';
 

@@ -6,7 +6,6 @@
 import { Command } from 'commander';
 import { writeFile } from 'fs/promises';
 import { join } from 'path';
-import inquirer from 'inquirer';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { handleCommandError } from '../utils';
@@ -15,7 +14,21 @@ interface InitOptions {
   yes?: boolean;
 }
 
+type InquirerLike = {
+  prompt: <T extends Record<string, unknown>>(question: unknown) => Promise<T>;
+};
+
+let cachedInquirer: InquirerLike | null | undefined;
+
+async function getInquirer(): Promise<InquirerLike> {
+  if (cachedInquirer) return cachedInquirer;
+  const mod = await import('inquirer');
+  cachedInquirer = ((mod as unknown as { default?: unknown }).default ?? mod) as InquirerLike;
+  return cachedInquirer;
+}
+
 async function promptConfig(): Promise<Record<string, unknown>> {
+  const inquirer = await getInquirer();
   const { llmProvider } = await inquirer.prompt<{ llmProvider: string }>({
     type: 'list',
     name: 'llmProvider',

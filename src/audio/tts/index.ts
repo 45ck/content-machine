@@ -35,7 +35,7 @@ let kokoroModule: KokoroModule | null = null;
 async function getKokoro(): Promise<KokoroModule> {
   if (!kokoroModule) {
     try {
-      const require = createRequire(import.meta.url);
+      const require = createRequire(typeof __filename === 'string' ? __filename : import.meta.url);
       kokoroModule = require('kokoro-js') as unknown as KokoroModule;
     } catch {
       kokoroModule = (await import('kokoro-js')) as unknown as KokoroModule;

@@ -6,17 +6,16 @@
  */
 import 'dotenv/config';
 import { Command } from 'commander';
-import { createRequire } from 'node:module';
 import { setCliRuntime } from './runtime';
+import { version } from './meta';
 import { logger } from '../core/logger';
 
 const program = new Command();
-const require = createRequire(import.meta.url);
-const { version } = require('../../package.json') as { version: string };
 
 type CommandLoader = () => Promise<Command>;
 
 const COMMAND_LOADERS: Array<[string, CommandLoader]> = [
+  ['mcp', async () => (await import('./commands/mcp')).mcpCommand],
   ['script', async () => (await import('./commands/script')).scriptCommand],
   ['audio', async () => (await import('./commands/audio')).audioCommand],
   ['visuals', async () => (await import('./commands/visuals')).visualsCommand],

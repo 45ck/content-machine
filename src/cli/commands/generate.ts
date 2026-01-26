@@ -18,7 +18,7 @@ import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
 import { FakeLLMProvider } from '../../test/stubs/fake-llm';
 import { createMockScriptResponse } from '../../test/fixtures/mock-scenes.js';
 import { createSpinner } from '../progress';
-import chalk from 'chalk';
+import { chalk } from '../colors';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';

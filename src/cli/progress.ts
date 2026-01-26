@@ -103,7 +103,7 @@ export function createSpinner(text: string): SpinnerLike {
         stream: process.stderr,
       });
     }
-    const require = createRequire(import.meta.url);
+    const require = createRequire(typeof __filename === 'string' ? __filename : import.meta.url);
     const ora = require('ora') as typeof import('ora');
     const factory = 'default' in ora ? ora.default : ora;
     return factory({ text, isEnabled: true, stream: process.stderr });
