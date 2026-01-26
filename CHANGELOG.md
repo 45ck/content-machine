@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.3.0](https://github.com/45ck/content-machine/compare/v0.2.2...v0.3.0) (2026-01-26)
+
+
+### Features
+
+* **bench:** add stress benchmark + desync ladder ([7f787d3](https://github.com/45ck/content-machine/commit/7f787d3259afd1890fe568994109646e3116e3b7))
+* **bench:** cap benchmark scoring and tolerate bad videos ([b923162](https://github.com/45ck/content-machine/commit/b9231628987460055ccefd8bd09734a66709e6f7))
+* **captions:** add engagement animations and highlights ([c98cdac](https://github.com/45ck/content-machine/commit/c98cdaca667de00fd9c43129ba7d166ed84836bb))
+* **captions:** add per-word animation options ([c17303a](https://github.com/45ck/content-machine/commit/c17303a42f13453299e50b353f17642200694f08))
+* **captions:** avoid orphan terminal words ([65ce5c1](https://github.com/45ck/content-machine/commit/65ce5c117d31ef46b59f058d84d6b98af5fa7fe5))
+* **captions:** update capcut defaults from phoenix loop ([034e097](https://github.com/45ck/content-machine/commit/034e097753a638f0c01083ef275a3a4f22c4623a))
+* **generate:** write caption tuning settings to artifacts ([471013a](https://github.com/45ck/content-machine/commit/471013ac384606fd6a9f754461b706b338933876))
+* **mcp:** add local MCP server with safety hardening ([4dc00b8](https://github.com/45ck/content-machine/commit/4dc00b86514bad5bc069c0b0ec677204b39479b0))
+* **phoenix-loop:** add caption sweep runner ([aed93cb](https://github.com/45ck/content-machine/commit/aed93cb36053296b50d06e6779c28d2820f523ee))
+* **quality:** add caption-quality command and tune default crop ([f9306ca](https://github.com/45ck/content-machine/commit/f9306ca054a040dd57411226d9523093e5e755d8))
+* **render:** allow disabling caption highlight ([1065bb1](https://github.com/45ck/content-machine/commit/1065bb1b20ff5b387889783f083bc06b8cc78658))
+* **score:** calibrate caption quality and sync matching ([cf22966](https://github.com/45ck/content-machine/commit/cf22966799336277aa44de7f0fbc208f6dd14bab))
+* **score:** make sync rating robust to OCR outliers ([483959d](https://github.com/45ck/content-machine/commit/483959d27978020719d4561a8488743a01af8e9d))
+* **tiktok:** better captions, badges, demo ([55be218](https://github.com/45ck/content-machine/commit/55be218ae7a98c4f894764dacff18f4de9e1a991))
+
+
+### Bug Fixes
+
+* **tiktok:** relax caption cps limit ([9d93e22](https://github.com/45ck/content-machine/commit/9d93e2221ccc006993376928272f2cdbca34f604))
+
 ## [0.2.2](https://github.com/45ck/content-machine/compare/v0.2.1...v0.2.2) (2026-01-11)
 
 
