@@ -90,7 +90,7 @@ describe('extractKeywords', () => {
 
     expect(result).toHaveLength(2);
     expect(result[0].keyword).toBe('laptop typing');
-    expect(result[1].keyword).toBe('abstract technology');
+    expect(result[1].keyword).toBe('world');
   });
 
   it('wraps single-object responses', async () => {
@@ -102,7 +102,7 @@ describe('extractKeywords', () => {
     const result = await extractKeywords({ scenes: baseScenes() });
 
     expect(result[0].keyword).toBe('sunrise');
-    expect(result[1].keyword).toBe('abstract technology');
+    expect(result[1].keyword).toBe('world');
   });
 
   it('supports keywords and scenes wrappers', async () => {

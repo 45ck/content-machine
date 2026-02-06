@@ -86,17 +86,18 @@ template: |
   5. Do not copy the hook sentence into any scene text.
   6. Hook must be a statement (no question mark).
   7. Always include hook and cta fields in the JSON.
-  8. Each scene text must be at least 20 words.
+  8. Each scene text must be at least 12 words.
   9. Write for spoken delivery at 120-180 WPM.
   10. Target length: ~{{targetWordCount}} words (~{{targetDuration}} seconds).
   11. Total spoken word count must be between ~0.8x and ~1.25x of targetWordCount.
   12. Use short sentences (<=15 words) and one idea per sentence.
-  13. Each scene should be 2 sentences and ~22-30 words (minimum 20 words per scene).
+  13. Each scene should be 1-2 sentences and ~18-28 words (minimum 12 words per scene).
   14. Use contractions and second person ("you", "you'll").
   15. Use punctuation for timing (commas = micro-pause, periods = full beat).
   16. Normalize text for speech: expand numbers, acronyms, URLs, emails, file paths, and units.
   17. Avoid openers like "In this video" or "Today we're going to".
   18. Double-check total word count before responding.
+  19. visualDirection must describe concrete, filmable visuals (avoid abstract phrases like "technology" or "success").
 
   {{#if archetype}}
   ## Content Style: {{archetype}}

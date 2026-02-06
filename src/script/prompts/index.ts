@@ -25,8 +25,9 @@ OUTPUT RULES:
 - Scene 1 must continue after the hook with NEW information (no restating or paraphrasing the hook).
 - Do not copy the hook sentence into any scene text.
 - Always include hook and cta fields in the JSON.
-- Each scene text must be at least 20 words.
+- Each scene text must be at least 12 words.
 - Hook must be a statement (no question mark).
+- visualDirection must describe concrete, filmable visuals (avoid abstract phrases like "technology" or "success").
 `;
 
 // Common JSON output format for all archetypes
@@ -79,13 +80,17 @@ PACKAGING (must follow):
 function ttsWritingGuidelines(context: PromptContext): string {
   const minWordCount = Math.max(60, Math.round(context.targetWordCount * 0.8));
   const maxWordCount = Math.max(minWordCount + 20, Math.round(context.targetWordCount * 1.25));
+  const isShort = context.targetDuration <= 40;
+  const sceneGuidance = isShort
+    ? 'Each scene should be 1-2 short sentences and ~14-22 words (minimum 12 words per scene).'
+    : 'Each scene should be 1-2 sentences and ~18-28 words (minimum 12 words per scene).';
   return `
 TTS WRITING RULES:
 - Write for spoken delivery at 120-180 WPM.
 - Target length: ~${context.targetWordCount} words (~${context.targetDuration} seconds).
 - Total spoken word count must be between ${minWordCount}-${maxWordCount}. If below, add another sentence to each scene and expand the CTA. If above, trim.
 - Use short sentences (<=15 words) and one idea per sentence.
-- Each scene should be 2 sentences and ~22-30 words (minimum 20 words per scene).
+- ${sceneGuidance}
 - Use contractions and second person ("you", "you'll").
 - Use punctuation for timing (commas = micro-pause, periods = full beat).
 - Normalize text for speech: expand numbers, acronyms, URLs, emails, file paths, and units into words.
@@ -93,7 +98,7 @@ TTS WRITING RULES:
 - Avoid openers like "In this video" or "Today we're going to".
 - Hook is a single sentence and must not be repeated in scene 1.
 - Double-check total word count before responding.
-- CHECKLIST (must pass before responding): total words in range, every scene >= 20 words, hook is a statement.
+- CHECKLIST (must pass before responding): total words in range, every scene >= 12 words, hook is a statement.
 `;
 }
 

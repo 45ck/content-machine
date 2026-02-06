@@ -18,6 +18,98 @@ interface KeywordResponse {
   keyword: string;
 }
 
+const STOPWORDS = new Set<string>([
+  'a',
+  'an',
+  'and',
+  'are',
+  'as',
+  'at',
+  'be',
+  'but',
+  'by',
+  'for',
+  'from',
+  'has',
+  'have',
+  'how',
+  'i',
+  'if',
+  'in',
+  'into',
+  'is',
+  'it',
+  'its',
+  'like',
+  'me',
+  'my',
+  'no',
+  'not',
+  'of',
+  'on',
+  'or',
+  'our',
+  'so',
+  'that',
+  'the',
+  'their',
+  'then',
+  'there',
+  'they',
+  'this',
+  'to',
+  'too',
+  'up',
+  'was',
+  'we',
+  'were',
+  'what',
+  'when',
+  'with',
+  'you',
+  'your',
+]);
+
+function normalizeToken(word: string): string {
+  return word
+    .toLowerCase()
+    .replace(/^[^\p{L}\p{N}]+/gu, '')
+    .replace(/[^\p{L}\p{N}]+$/gu, '');
+}
+
+function isUsefulToken(token: string): boolean {
+  if (!token) return false;
+  if (token.length < 3) return false;
+  if (STOPWORDS.has(token)) return false;
+  if (/^\d+$/.test(token)) return false;
+  return true;
+}
+
+function fallbackKeywordForScene(scene: SceneTimestamp | undefined): string {
+  const text = scene ? scene.words.map((w) => w.word).join(' ') : '';
+  const rawTokens = text.split(/\s+/).map(normalizeToken);
+  const tokens = rawTokens.filter(isUsefulToken);
+
+  // Small heuristic mapping for non-visual topics.
+  const joined = ` ${tokens.join(' ')} `;
+  if (/\b(redis|postgresql|database|sql|nosql|cache|server|backend|api)\b/.test(joined)) {
+    return 'coding laptop';
+  }
+  if (/\b(ai|model|llm|chatgpt|openai|anthropic|gemini)\b/.test(joined)) {
+    return 'robot face';
+  }
+  if (/\b(news|headline|breaking|update|updates)\b/.test(joined)) {
+    return 'news studio';
+  }
+  if (/\b(money|finance|stocks|invest|crypto|bitcoin)\b/.test(joined)) {
+    return 'stock chart';
+  }
+
+  if (tokens.length >= 2) return `${tokens[0]} ${tokens[1]}`;
+  if (tokens.length === 1) return tokens[0];
+  return 'people talking';
+}
+
 /**
  * Parse LLM response for keywords, handling various formats
  */
@@ -59,6 +151,7 @@ function parseKeywordResponse(
  */
 function fillMissingKeywordResponses(
   keywordResponses: KeywordResponse[],
+  scenes: SceneTimestamp[],
   sceneCount: number,
   log: ReturnType<typeof createLogger>
 ): KeywordResponse[] {
@@ -71,7 +164,7 @@ function fillMissingKeywordResponses(
 
   const filled = [...keywordResponses];
   for (let i = filled.length; i < sceneCount; i++) {
-    filled.push({ sceneIndex: i, keyword: 'abstract technology' });
+    filled.push({ sceneIndex: i, keyword: fallbackKeywordForScene(scenes[i]) });
   }
   return filled;
 }
@@ -178,7 +271,7 @@ export async function extractKeywords(options: ExtractKeywordsOptions): Promise<
     throw new APIError('Failed to extract keywords from LLM response');
   }
 
-  keywordResponses = fillMissingKeywordResponses(keywordResponses, scenes.length, log);
+  keywordResponses = fillMissingKeywordResponses(keywordResponses, scenes, scenes.length, log);
   return mapKeywordResponsesToKeywords(keywordResponses, scenes, log);
 }
 

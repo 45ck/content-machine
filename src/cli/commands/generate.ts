@@ -165,6 +165,8 @@ interface GenerateOptions {
   autoRetrySync?: boolean;
   /** Enable burned-in caption quality check (OCR-only) after render */
   captionQualityCheck?: boolean;
+  /** Enable higher-quality defaults (slower) */
+  quality?: boolean;
   /** Minimum acceptable caption overall score (0..1, or 0..100) */
   minCaptionOverall?: string;
   /** Auto-retry with caption tuning if caption quality fails */
@@ -1370,6 +1372,25 @@ function applyDefaultOption(
   options[optionName] = value;
 }
 
+function applyQualityDefaults(options: GenerateOptions, command: Command): void {
+  if (!options.quality) return;
+
+  const record = options as unknown as Record<string, unknown>;
+
+  // Prefer better sync defaults, but do not override explicit flags.
+  applyDefaultOption(record, command, 'syncPreset', 'quality');
+  applyDefaultOption(record, command, 'syncQualityCheck', true);
+  applyDefaultOption(record, command, 'autoRetrySync', true);
+  applyDefaultOption(record, command, 'minSyncRating', '80');
+
+  // Prefer readable burned-in captions; keep retries bounded.
+  applyDefaultOption(record, command, 'captionQualityCheck', true);
+  applyDefaultOption(record, command, 'autoRetryCaptions', true);
+  applyDefaultOption(record, command, 'maxCaptionRetries', '3');
+  applyDefaultOption(record, command, 'minCaptionOverall', '0.80');
+  applyDefaultOption(record, command, 'captionQualityMock', false);
+}
+
 function applySyncPresetDefaults(options: GenerateOptions, command: Command): void {
   const presetName = options.syncPreset ?? 'standard';
   const preset = SYNC_PRESETS[presetName];
@@ -2381,6 +2402,7 @@ async function runGenerate(
   const artifactsDir = dirname(options.output);
 
   applyCaptionDefaultsFromConfig(options, command);
+  applyQualityDefaults(options, command);
   applySyncPresetDefaults(options, command);
   applyCaptionQualityPerfectDefaults(options, command);
   let resolvedWorkflow: Awaited<ReturnType<typeof resolveWorkflow>> | undefined;
@@ -3056,6 +3078,10 @@ export const generateCommand = new Command('generate')
   .option('--download-hook', 'Download missing hook clips')
   .option('--download-assets', 'Download remote visual assets into the render bundle', true)
   .option('--no-download-assets', 'Do not download remote assets (stream URLs directly)')
+  .option(
+    '--quality',
+    'Enable higher-quality defaults (slower): audio-first sync + reconcile + post-render sync/caption quality gates'
+  )
   // Sync quality options
   .option(
     '--sync-preset <preset>',
