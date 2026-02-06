@@ -40,27 +40,6 @@ describe('Experiment Lab server (integration)', () => {
       'utf-8'
     );
 
-    await writeFile(
-      join(aDir, 'sync-report.json'),
-      JSON.stringify({
-        rating: 88,
-        ratingLabel: 'Good',
-        metrics: { meanDriftMs: 10, maxDriftMs: 40 },
-      }),
-      'utf-8'
-    );
-    await writeFile(
-      join(aDir, 'caption-report.json'),
-      JSON.stringify({
-        captionQuality: {
-          overall: { score: 0.9 },
-          coverage: { coverageRatio: 0.8 },
-          ocrConfidence: { mean: 0.95 },
-        },
-      }),
-      'utf-8'
-    );
-
     const allowedRoots = await resolveAllowedRoots([allowedRoot]);
     const session = createLabSession();
     const started = await startLabServer({
@@ -97,6 +76,29 @@ describe('Experiment Lab server (integration)', () => {
       });
       expect(importBRes.status).toBe(200);
       const importB = await readJson(importBRes);
+
+      // Write reports after import to ensure feedback submission snapshots
+      // derived metrics (not stale run store fields).
+      await writeFile(
+        join(aDir, 'sync-report.json'),
+        JSON.stringify({
+          rating: 88,
+          ratingLabel: 'Good',
+          metrics: { meanDriftMs: 10, maxDriftMs: 40 },
+        }),
+        'utf-8'
+      );
+      await writeFile(
+        join(aDir, 'caption-report.json'),
+        JSON.stringify({
+          captionQuality: {
+            overall: { score: 0.9 },
+            coverage: { coverageRatio: 0.8 },
+            ocrConfidence: { mean: 0.95 },
+          },
+        }),
+        'utf-8'
+      );
 
       const runARes = await fetch(u(`/api/runs/${encodeURIComponent(importA.runId)}`));
       expect(runARes.status).toBe(200);
@@ -186,6 +188,15 @@ describe('Experiment Lab server (integration)', () => {
       const entries = await readFeedbackEntries(defaultFeedbackStorePath());
       const forExp = entries.filter((e) => e.experimentId === created.experimentId);
       expect(forExp.length).toBe(2);
+      const baseline = forExp.find((e) => e.variantId === 'baseline');
+      expect(baseline?.reports?.syncReportPath).toBe(join(aDir, 'sync-report.json'));
+      expect(baseline?.reports?.captionReportPath).toBe(join(aDir, 'caption-report.json'));
+      expect(baseline?.autoMetricsSnapshot?.syncRating).toBe(88);
+      expect(baseline?.autoMetricsSnapshot?.meanDriftMs).toBe(10);
+      expect(baseline?.autoMetricsSnapshot?.maxDriftMs).toBe(40);
+      expect(baseline?.autoMetricsSnapshot?.captionOverall).toBe(90);
+      expect(baseline?.autoMetricsSnapshot?.captionCoverageRatio).toBe(0.8);
+      expect(baseline?.autoMetricsSnapshot?.ocrConfidenceMean).toBe(0.95);
 
       const poll1Res = await fetch(
         u(`/api/feedback?since=0&sessionId=${encodeURIComponent(session.sessionId)}&limit=50`)

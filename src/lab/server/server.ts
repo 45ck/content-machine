@@ -14,9 +14,11 @@ import {
 import type {
   FeedbackEntry,
   FeedbackRatings,
+  LabAutoMetricsSummary,
   LabExperiment,
   LabExport,
   LabIdempotencyRecord,
+  LabRun,
 } from '../../domain';
 import {
   FeedbackEntrySchema,
@@ -68,6 +70,49 @@ export interface StartedLabServer {
 
 function nowIso(): string {
   return new Date().toISOString();
+}
+
+function buildOptionalReportsFromDiscovered(
+  discovered: Awaited<ReturnType<typeof discoverArtifacts>>
+): FeedbackEntry['reports'] {
+  const syncReportPath = discovered.syncReportPath ?? undefined;
+  const captionReportPath = discovered.captionReportPath ?? undefined;
+  const scorePath = discovered.scorePath ?? undefined;
+  if (!syncReportPath && !captionReportPath && !scorePath) return undefined;
+  return { syncReportPath, captionReportPath, scorePath };
+}
+
+function buildAutoMetricsSnapshotFromSummary(
+  summary: LabAutoMetricsSummary | undefined
+): FeedbackEntry['autoMetricsSnapshot'] {
+  if (!summary) return undefined;
+  return {
+    syncRating: summary.syncRating,
+    captionOverall: summary.captionOverall,
+    proxyScoreOverall: summary.proxyScoreOverall,
+    meanDriftMs: summary.meanDriftMs,
+    maxDriftMs: summary.maxDriftMs,
+    captionCoverageRatio: summary.captionCoverageRatio,
+    ocrConfidenceMean: summary.ocrConfidenceMean,
+  };
+}
+
+async function deriveRunSnapshotForFeedback(run: LabRun): Promise<{
+  videoPath: string | undefined;
+  reports: FeedbackEntry['reports'];
+  autoMetricsSnapshot: FeedbackEntry['autoMetricsSnapshot'];
+}> {
+  const discovered = await discoverArtifacts(run.artifactsDir);
+  const autoMetricsSummary = await extractAutoMetricsSummary({
+    syncReportPath: discovered.syncReportPath,
+    captionReportPath: discovered.captionReportPath,
+    scorePath: discovered.scorePath,
+  });
+  return {
+    videoPath: discovered.videoPath ?? run.videoPath ?? undefined,
+    reports: buildOptionalReportsFromDiscovered(discovered),
+    autoMetricsSnapshot: buildAutoMetricsSnapshotFromSummary(autoMetricsSummary),
+  };
 }
 
 function isPathInside(childPath: string, parentPath: string): boolean {
@@ -732,6 +777,7 @@ async function handleExperimentSubmitRoute(params: {
   const feedbackIds: string[] = [];
   for (const pr of submit.perRun) {
     const run = await getLabRunById(pr.runId);
+    const derived = await deriveRunSnapshotForFeedback(run);
     const feedbackId = randomUUID();
     const entry: FeedbackEntry = {
       schemaVersion: 1,
@@ -742,23 +788,14 @@ async function handleExperimentSubmitRoute(params: {
       experimentId: exp.experimentId,
       variantId: pr.variantId,
       topic: run.topic,
-      videoPath: run.videoPath,
+      videoPath: derived.videoPath,
       artifactsDir: run.artifactsDir,
       ratings: validateRatings(pr.ratings),
       notes: parseOptionalNotes(pr.notes),
       tags: parseOptionalTags(pr.tags),
-      reports: run.reports,
-      autoMetricsSnapshot: run.autoMetricsSummary
-        ? {
-            syncRating: run.autoMetricsSummary.syncRating,
-            captionOverall: run.autoMetricsSummary.captionOverall,
-            proxyScoreOverall: run.autoMetricsSummary.proxyScoreOverall,
-            meanDriftMs: run.autoMetricsSummary.meanDriftMs,
-            maxDriftMs: run.autoMetricsSummary.maxDriftMs,
-            captionCoverageRatio: run.autoMetricsSummary.captionCoverageRatio,
-            ocrConfidenceMean: run.autoMetricsSummary.ocrConfidenceMean,
-          }
-        : undefined,
+      reports: derived.reports,
+      autoMetricsSnapshot: derived.autoMetricsSnapshot,
+      answers: submit.answers,
     };
 
     const appended = await appendFeedback({
@@ -845,6 +882,7 @@ async function handleFeedbackRoutes(params: {
     const runId =
       typeof body.runId === 'string' && body.runId.trim() ? body.runId.trim() : undefined;
     const run = runId ? await getLabRunById(runId) : null;
+    const derived = run ? await deriveRunSnapshotForFeedback(run) : null;
 
     const feedbackId = randomUUID();
     const entry: FeedbackEntry = {
@@ -862,25 +900,19 @@ async function handleFeedbackRoutes(params: {
           ? body.variantId.trim()
           : undefined,
       topic: run?.topic ?? (typeof body.topic === 'string' ? body.topic : undefined),
-      videoPath: run?.videoPath,
+      videoPath: derived?.videoPath,
       artifactsDir: run?.artifactsDir,
       ratings: validateRatings(body.ratings),
       notes: typeof body.notes === 'string' && body.notes.trim() ? body.notes.trim() : undefined,
       tags: Array.isArray(body.tags)
         ? body.tags.filter((t: unknown) => typeof t === 'string' && t.trim())
         : undefined,
-      reports: run?.reports,
-      autoMetricsSnapshot: run?.autoMetricsSummary
-        ? {
-            syncRating: run.autoMetricsSummary.syncRating,
-            captionOverall: run.autoMetricsSummary.captionOverall,
-            proxyScoreOverall: run.autoMetricsSummary.proxyScoreOverall,
-            meanDriftMs: run.autoMetricsSummary.meanDriftMs,
-            maxDriftMs: run.autoMetricsSummary.maxDriftMs,
-            captionCoverageRatio: run.autoMetricsSummary.captionCoverageRatio,
-            ocrConfidenceMean: run.autoMetricsSummary.ocrConfidenceMean,
-          }
-        : undefined,
+      reports: derived?.reports,
+      autoMetricsSnapshot: derived?.autoMetricsSnapshot,
+      answers:
+        body.answers && typeof body.answers === 'object'
+          ? (body.answers as Record<string, unknown>)
+          : undefined,
     };
 
     const appended = await appendFeedback({
