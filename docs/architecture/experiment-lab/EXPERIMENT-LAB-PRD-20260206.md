@@ -119,7 +119,7 @@ Evaluator UX:
    - Enable via `cm lab --enable-runner`
 
 2. Rating dimensions:
-   - Default: overall/hook/pacing/visuals/captions/sync
+   - Default: overall/hook/pacing/visuals/motion/captions/sync
    - Allow experiment-specific extra questions (agent-authored prompts)
 
 ## 10) Success metrics (for the Lab itself)

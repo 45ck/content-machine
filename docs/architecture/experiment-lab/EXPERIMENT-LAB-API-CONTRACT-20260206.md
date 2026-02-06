@@ -309,7 +309,15 @@ Body:
   "runId": "run_...",
   "experimentId": "exp_...",
   "variantId": "var_...",
-  "ratings": { "overall": 80, "hook": 70, "pacing": 75, "visuals": 60, "captions": 85, "sync": 90 },
+  "ratings": {
+    "overall": 80,
+    "hook": 70,
+    "pacing": 75,
+    "visuals": 60,
+    "motion": 72,
+    "captions": 85,
+    "sync": 90
+  },
   "notes": "Hook too generic",
   "tags": ["needs-hook", "visuals-off"]
 }

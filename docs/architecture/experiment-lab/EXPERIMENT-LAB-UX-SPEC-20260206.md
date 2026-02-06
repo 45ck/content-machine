@@ -63,7 +63,7 @@ Video controls:
 
 Feedback panel (default dimensions):
 
-- sliders (0-100): overall, hook, pacing, visuals, captions, sync
+- sliders (0-100): overall, hook, pacing, visuals, motion, captions, sync
 - notes text area
 - tags (typeahead optional, freeform)
 - submit button

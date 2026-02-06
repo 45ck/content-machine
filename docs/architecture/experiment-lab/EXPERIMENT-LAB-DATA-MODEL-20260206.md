@@ -109,7 +109,7 @@ Minimum fields:
 - optional `experimentId` + `variantId` (when feedback is part of an experiment)
 - `ratings` (0-100):
   - baseline dimensions are optional; Lab defaults to:
-    - `overall`, `hook`, `pacing`, `visuals`, `captions`, `sync`
+    - `overall`, `hook`, `pacing`, `visuals`, `motion`, `captions`, `sync`
   - existing feedback ratings include `script`; Lab may keep it for backward compatibility
 - `notes` (optional)
 - `tags` (optional)

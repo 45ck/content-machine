@@ -9,6 +9,7 @@ export const FeedbackRatingsSchema = z
     pacing: z.number().int().min(0).max(100).optional(),
     script: z.number().int().min(0).max(100).optional(),
     visuals: z.number().int().min(0).max(100).optional(),
+    motion: z.number().int().min(0).max(100).optional(),
     captions: z.number().int().min(0).max(100).optional(),
     sync: z.number().int().min(0).max(100).optional(),
   })

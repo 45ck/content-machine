@@ -70,7 +70,7 @@ Keep the loop high-signal:
 
 1. Change one knob.
 2. Predict one observable improvement.
-3. Define what “better” means in the rubric (overall, hook, pacing, visuals, captions, sync).
+3. Define what “better” means in the rubric (overall, hook, pacing, visuals, motion, captions, sync).
 4. Add one sentence of “what to look for” in the compare notes prompt.
 
 ## Related docs

@@ -192,6 +192,7 @@ function ratingGridHtml(prefix) {
     ['hook', 'Hook'],
     ['pacing', 'Pacing'],
     ['visuals', 'Visuals'],
+    ['motion', 'Motion'],
     ['captions', 'Captions'],
     ['sync', 'Sync'],
   ];
@@ -280,14 +281,14 @@ function bindRatingGrid(rootEl, initialValues = {}) {
   return {
     getRatings: () => {
       const out = {};
-      ['overall', 'hook', 'pacing', 'visuals', 'captions', 'sync'].forEach((k) => {
+      ['overall', 'hook', 'pacing', 'visuals', 'motion', 'captions', 'sync'].forEach((k) => {
         const v = getValue(k);
         if (typeof v === 'number') out[k] = v;
       });
       return out;
     },
     setRatings: (ratings) => {
-      ['overall', 'hook', 'pacing', 'visuals', 'captions', 'sync'].forEach((k) => {
+      ['overall', 'hook', 'pacing', 'visuals', 'motion', 'captions', 'sync'].forEach((k) => {
         setValue(k, ratings && typeof ratings[k] === 'number' ? ratings[k] : null);
       });
     },
