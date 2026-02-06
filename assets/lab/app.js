@@ -6,6 +6,7 @@ const state = {
   config: null,
   token: null,
   sessionId: null,
+  cleanup: null,
 };
 
 function setFootStatus(text) {
@@ -112,6 +113,64 @@ function parseIso(iso) {
   } catch {
     return String(iso || '');
   }
+}
+
+function formatSeconds(seconds) {
+  const n = Number(seconds);
+  if (!Number.isFinite(n) || n < 0) return '--:--';
+  const total = Math.floor(n);
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+function mediaErrorLabel(videoEl) {
+  const err = videoEl && videoEl.error ? videoEl.error : null;
+  if (!err) return null;
+  const code = Number(err.code);
+  const map = { 1: 'aborted', 2: 'network', 3: 'decode', 4: 'src-not-supported' };
+  const label = map[code] || 'unknown';
+  return `${label} (${code || '?'})`;
+}
+
+function bindVideoDiagnostics({ videoEl, statusEl, label }) {
+  if (!videoEl || !statusEl) return;
+
+  const update = () => {
+    const err = mediaErrorLabel(videoEl);
+    if (err) {
+      statusEl.textContent = `${label}: error ${err}`;
+      statusEl.classList.add('video-status-error');
+      return;
+    }
+    statusEl.classList.remove('video-status-error');
+
+    const time = formatSeconds(videoEl.currentTime);
+    const dur = formatSeconds(videoEl.duration);
+    const rate = Number.isFinite(videoEl.playbackRate)
+      ? `${videoEl.playbackRate.toFixed(2)}x`
+      : '';
+    const state = videoEl.paused ? 'paused' : 'playing';
+    statusEl.textContent = `${label}: ${state} ${time}/${dur} ${rate}`.trim();
+  };
+
+  [
+    'loadedmetadata',
+    'durationchange',
+    'timeupdate',
+    'play',
+    'pause',
+    'ratechange',
+    'waiting',
+    'playing',
+    'error',
+    'stalled',
+    'seeking',
+  ].forEach((ev) => {
+    videoEl.addEventListener(ev, update);
+  });
+
+  update();
 }
 
 function getRoute() {
@@ -237,58 +296,193 @@ function bindRatingGrid(rootEl, initialValues = {}) {
   };
 }
 
-function setupLinkedVideoControls({ videoA, videoB, linkEl, speedEl, toggleEl, syncEl }) {
-  let ignore = false;
+function setupLinkedVideoControls({ videoA, videoB, linkEl, speedEl, audioEl, toggleEl, syncEl }) {
+  const suppress = new WeakMap();
+  let driver = 'a';
 
-  function sync(from, to) {
-    if (ignore) return;
-    if (!linkEl.checked) return;
-    ignore = true;
-    try {
-      to.currentTime = from.currentTime;
-      to.playbackRate = from.playbackRate;
-      if (from.paused) {
-        to.pause();
-      } else {
-        to.play().catch(() => {});
-      }
-    } finally {
-      ignore = false;
-    }
+  function nowMs() {
+    return typeof performance !== 'undefined' && typeof performance.now === 'function'
+      ? performance.now()
+      : Date.now();
   }
 
-  videoA.addEventListener('play', () => sync(videoA, videoB));
-  videoB.addEventListener('play', () => sync(videoB, videoA));
-  videoA.addEventListener('pause', () => sync(videoA, videoB));
-  videoB.addEventListener('pause', () => sync(videoB, videoA));
-  videoA.addEventListener('seeked', () => sync(videoA, videoB));
-  videoB.addEventListener('seeked', () => sync(videoB, videoA));
+  function isSuppressed(videoEl) {
+    const until = Number(suppress.get(videoEl) || 0);
+    return nowMs() < until;
+  }
+
+  function suppressFor(videoEl, ms = 800) {
+    suppress.set(videoEl, nowMs() + ms);
+  }
+
+  function safePlay(videoEl) {
+    try {
+      const p = videoEl.play();
+      if (p && typeof p.catch === 'function') p.catch(() => {});
+    } catch {}
+  }
+
+  function safePause(videoEl) {
+    try {
+      videoEl.pause();
+    } catch {}
+  }
+
+  function safeSetCurrentTime(videoEl, t) {
+    try {
+      if (!Number.isFinite(t)) return;
+      videoEl.currentTime = t;
+    } catch {}
+  }
+
+  function safeSetPlaybackRate(videoEl, rate) {
+    try {
+      if (!Number.isFinite(rate) || rate <= 0) return;
+      videoEl.playbackRate = rate;
+    } catch {}
+  }
+
+  function applyAudio() {
+    if (!audioEl) return;
+    const mode = String(audioEl.value || 'a');
+    if (mode === 'mute') {
+      videoA.muted = true;
+      videoB.muted = true;
+      return;
+    }
+    if (mode === 'both') {
+      videoA.muted = false;
+      videoB.muted = false;
+      return;
+    }
+    if (mode === 'b') {
+      videoA.muted = true;
+      videoB.muted = false;
+      return;
+    }
+    videoA.muted = false;
+    videoB.muted = true;
+  }
+
+  function sync(from, to) {
+    if (!linkEl.checked) return;
+    if (isSuppressed(from)) return;
+    suppressFor(to);
+    safeSetCurrentTime(to, from.currentTime);
+    safeSetPlaybackRate(to, from.playbackRate);
+    applyAudio();
+    if (from.paused) safePause(to);
+    else safePlay(to);
+  }
+
+  function setDriver(which) {
+    driver = which;
+  }
+
+  videoA.addEventListener('play', () => {
+    if (isSuppressed(videoA)) return;
+    setDriver('a');
+    sync(videoA, videoB);
+  });
+  videoB.addEventListener('play', () => {
+    if (isSuppressed(videoB)) return;
+    setDriver('b');
+    sync(videoB, videoA);
+  });
+  videoA.addEventListener('pause', () => {
+    if (isSuppressed(videoA)) return;
+    setDriver('a');
+    sync(videoA, videoB);
+  });
+  videoB.addEventListener('pause', () => {
+    if (isSuppressed(videoB)) return;
+    setDriver('b');
+    sync(videoB, videoA);
+  });
+
+  // Sync seeks but avoid seeked ping-pong loops (seek completion fires async).
+  videoA.addEventListener('seeking', () => {
+    if (isSuppressed(videoA)) return;
+    setDriver('a');
+    sync(videoA, videoB);
+  });
+  videoB.addEventListener('seeking', () => {
+    if (isSuppressed(videoB)) return;
+    setDriver('b');
+    sync(videoB, videoA);
+  });
 
   speedEl.addEventListener('change', () => {
     const rate = Number(speedEl.value);
     if (!Number.isFinite(rate) || rate <= 0) return;
-    videoA.playbackRate = rate;
-    videoB.playbackRate = rate;
+    safeSetPlaybackRate(videoA, rate);
+    safeSetPlaybackRate(videoB, rate);
   });
+
+  if (audioEl) {
+    audioEl.addEventListener('change', applyAudio);
+  }
 
   toggleEl.addEventListener('click', () => {
     if (videoA.paused && videoB.paused) {
-      const t = Math.min(videoA.currentTime, videoB.currentTime);
-      videoA.currentTime = t;
-      videoB.currentTime = t;
-      videoA.play().catch(() => {});
-      videoB.play().catch(() => {});
+      setDriver('a');
+      const t = Math.min(Number(videoA.currentTime || 0), Number(videoB.currentTime || 0));
+      suppressFor(videoA);
+      suppressFor(videoB);
+      safeSetCurrentTime(videoA, t);
+      safeSetCurrentTime(videoB, t);
+      applyAudio();
+      safePlay(videoA);
+      safePlay(videoB);
       return;
     }
-    videoA.pause();
-    videoB.pause();
+    suppressFor(videoA);
+    suppressFor(videoB);
+    safePause(videoA);
+    safePause(videoB);
   });
 
   syncEl.addEventListener('click', () => {
-    const t = Math.min(videoA.currentTime, videoB.currentTime);
-    videoA.currentTime = t;
-    videoB.currentTime = t;
+    const t = Math.min(Number(videoA.currentTime || 0), Number(videoB.currentTime || 0));
+    suppressFor(videoA);
+    suppressFor(videoB);
+    safeSetCurrentTime(videoA, t);
+    safeSetCurrentTime(videoB, t);
   });
+
+  // Light drift correction loop so A/B stays watchable for longer clips.
+  const driftTimer = setInterval(() => {
+    if (!linkEl.checked) return;
+    if (videoA.readyState < 1 || videoB.readyState < 1) return;
+    if (videoA.paused || videoB.paused) return;
+
+    const master = driver === 'b' ? videoB : videoA;
+    const follower = driver === 'b' ? videoA : videoB;
+    const diff = Number(follower.currentTime) - Number(master.currentTime);
+    if (!Number.isFinite(diff)) return;
+
+    const baseRate = Number.isFinite(master.playbackRate) ? master.playbackRate : 1;
+    if (Math.abs(diff) > 0.25) {
+      suppressFor(follower);
+      safeSetCurrentTime(follower, master.currentTime);
+      safeSetPlaybackRate(follower, baseRate);
+      applyAudio();
+      safePlay(follower);
+      return;
+    }
+
+    const nudge = Math.max(-0.04, Math.min(0.04, -diff * 0.35));
+    safeSetPlaybackRate(follower, baseRate + nudge);
+  }, 250);
+
+  driftTimer.unref && driftTimer.unref();
+  applyAudio();
+
+  return () => {
+    try {
+      clearInterval(driftTimer);
+    } catch {}
+  };
 }
 
 async function renderRunsPage() {
@@ -535,7 +729,8 @@ async function renderReviewPage(runId) {
 
         <div class="row" style="margin-top: 12px;">
           <div class="col">
-            <video class="video" controls playsinline preload="metadata" src="/api/runs/${encodeURIComponent(runId)}/video"></video>
+            <video id="videoReview" class="video" controls playsinline preload="metadata" src="/api/runs/${encodeURIComponent(runId)}/video"></video>
+            <div class="video-status muted mono" id="statusReview"></div>
             <div class="sep"></div>
             <div class="row" style="align-items: center; gap: 10px; flex-wrap: wrap;">
               ${metricChip('sync', m.syncRating)}
@@ -579,6 +774,12 @@ async function renderReviewPage(runId) {
       </div>
     </div>
   `;
+
+  bindVideoDiagnostics({
+    videoEl: document.getElementById('videoReview'),
+    statusEl: document.getElementById('statusReview'),
+    label: 'Video',
+  });
 
   const gridApi = bindRatingGrid(appEl);
   const submitBtn = document.getElementById('submitBtn');
@@ -669,6 +870,14 @@ async function renderComparePage(experimentId) {
           <div class="row" style="align-items: center;">
             <button class="btn" id="playPause" type="button">Play/Pause</button>
             <button class="btn" id="syncBtn" type="button">Sync</button>
+            <label class="toggle">audio
+              <select class="select" id="audioSel" style="width: 120px;">
+                <option value="a" selected>A</option>
+                <option value="b">B</option>
+                <option value="both">Both</option>
+                <option value="mute">Mute</option>
+              </select>
+            </label>
             <label class="toggle">speed
               <select class="select" id="speedSel" style="width: 110px;">
                 <option value="0.75">0.75x</option>
@@ -687,13 +896,15 @@ async function renderComparePage(experimentId) {
             <div class="pill mono">A (baseline) ${escapeHtml(shortId(baseline.runId))}</div>
             <div class="muted mono" style="margin-top: 6px;">${escapeHtml(baseline.topic || '')}</div>
             <video id="videoA" class="video" controls playsinline preload="metadata" src="/api/runs/${encodeURIComponent(baseline.runId)}/video"></video>
+            <div class="video-status muted mono" id="statusA"></div>
           </div>
           <div>
             <div class="pill mono">B (variant) ${variant ? escapeHtml(shortId(variant.runId)) : 'missing'}</div>
             <div class="muted mono" style="margin-top: 6px;">${escapeHtml((variantRun && variantRun.topic) || '')}</div>
             ${
               variant
-                ? `<video id="videoB" class="video" controls playsinline preload="metadata" src="/api/runs/${encodeURIComponent(variant.runId)}/video"></video>`
+                ? `<video id="videoB" class="video" controls playsinline preload="metadata" src="/api/runs/${encodeURIComponent(variant.runId)}/video"></video>
+                   <div class="video-status muted mono" id="statusB"></div>`
                 : `<div class="error">No variant found for this experiment.</div>`
             }
           </div>
@@ -839,14 +1050,28 @@ async function renderComparePage(experimentId) {
     gridAApi.setRatings(gridBApi.getRatings());
   });
 
+  const videoAEl = document.getElementById('videoA');
+  bindVideoDiagnostics({
+    videoEl: videoAEl,
+    statusEl: document.getElementById('statusA'),
+    label: 'A',
+  });
+
   if (variant) {
-    setupLinkedVideoControls({
-      videoA: document.getElementById('videoA'),
-      videoB: document.getElementById('videoB'),
+    const videoBEl = document.getElementById('videoB');
+    state.cleanup = setupLinkedVideoControls({
+      videoA: videoAEl,
+      videoB: videoBEl,
       linkEl: document.getElementById('linkVideos'),
       speedEl: document.getElementById('speedSel'),
+      audioEl: document.getElementById('audioSel'),
       toggleEl: document.getElementById('playPause'),
       syncEl: document.getElementById('syncBtn'),
+    });
+    bindVideoDiagnostics({
+      videoEl: videoBEl,
+      statusEl: document.getElementById('statusB'),
+      label: 'B',
     });
   }
 
@@ -930,6 +1155,13 @@ async function renderComparePage(experimentId) {
 }
 
 async function renderRoute() {
+  if (typeof state.cleanup === 'function') {
+    try {
+      state.cleanup();
+    } catch {}
+    state.cleanup = null;
+  }
+
   const parts = getRoute();
   const page = parts[0] || 'runs';
 

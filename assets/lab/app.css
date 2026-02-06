@@ -276,6 +276,15 @@ body {
   overflow: hidden;
 }
 
+.video-status {
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.video-status-error {
+  color: var(--danger);
+}
+
 .rating-grid {
   display: grid;
   grid-template-columns: 1fr;
