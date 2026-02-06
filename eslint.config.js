@@ -39,6 +39,15 @@ export default [
       },
     },
   },
+  // Browser-only static assets (Lab UI)
+  {
+    files: ['assets/lab/**/*.js'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+      },
+    },
+  },
 
   // TypeScript files
   {
@@ -89,7 +98,7 @@ export default [
   // - Allow schema modules themselves to compose schemas directly without going through the domain barrel.
   {
     files: ['src/**/*.{ts,tsx}'],
-    ignores: ['src/domain/**', '**/schema.ts', '**/schema.test.ts'],
+    ignores: ['src/domain/**', 'src/**/schema/**', '**/schema.ts', '**/schema.test.ts'],
     rules: {
       'no-restricted-imports': [
         'error',

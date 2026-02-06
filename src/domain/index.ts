@@ -12,6 +12,9 @@
 /** Error taxonomy (stable codes + context). */
 export * from '../core/errors';
 
+/** Feedback schema + types. */
+export * from '../feedback/schema';
+
 /** Script artifact schema + types. */
 export * from '../script/schema';
 /** Audio artifact schema + types. */
@@ -60,3 +63,9 @@ export * from '../validate/schema';
 export * from '../score/schema';
 /** Sync scoring schema + types. */
 export * from '../score/sync-schema';
+
+/** Experiment Lab schemas + types. */
+export * from '../lab/schema/run';
+export * from '../lab/schema/experiment';
+export * from '../lab/schema/export';
+export * from '../lab/schema/idempotency';

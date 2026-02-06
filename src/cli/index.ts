@@ -40,6 +40,8 @@ const COMMAND_LOADERS: Array<[string, CommandLoader]> = [
   ['hooks', async () => (await import('./commands/hooks')).hooksCommand],
   ['setup', async () => (await import('./commands/setup')).setupCommand],
   ['workflows', async () => (await import('./commands/workflows')).workflowsCommand],
+  ['feedback', async () => (await import('./commands/feedback')).feedbackCommand],
+  ['lab', async () => (await import('./commands/lab')).labCommand],
   ['generate', async () => (await import('./commands/generate')).generateCommand],
   ['init', async () => (await import('./commands/init')).initCommand],
 ];

@@ -7,24 +7,12 @@ import { Command } from 'commander';
 import { writeFile } from 'fs/promises';
 import { join } from 'path';
 import { getCliRuntime } from '../runtime';
+import { getInquirer } from '../inquirer';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { handleCommandError } from '../utils';
 
 interface InitOptions {
   yes?: boolean;
-}
-
-type InquirerLike = {
-  prompt: <T extends Record<string, unknown>>(question: unknown) => Promise<T>;
-};
-
-let cachedInquirer: InquirerLike | null | undefined;
-
-async function getInquirer(): Promise<InquirerLike> {
-  if (cachedInquirer) return cachedInquirer;
-  const mod = await import('inquirer');
-  cachedInquirer = ((mod as unknown as { default?: unknown }).default ?? mod) as InquirerLike;
-  return cachedInquirer;
 }
 
 async function promptConfig(): Promise<Record<string, unknown>> {

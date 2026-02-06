@@ -123,10 +123,14 @@ cm generate "Docker vs Kubernetes" --archetype versus
 
 ```
 content-machine/
-├── src/                          # Implementation (Starting now)
+├── assets/                       # Packaged static assets
+│   └── lab/                      # Experiment Lab UI (static)
+├── src/                          # Implementation (TypeScript)
 │   ├── cli/                     # Commander.js entry points
 │   │   ├── index.ts             # Main CLI entry
 │   │   └── commands/            # script.ts, audio.ts, visuals.ts, render.ts
+│   ├── feedback/                # Human feedback schema + JSONL store helpers
+│   ├── lab/                     # Local Experiment Lab (UI server + API + stores)
 │   ├── script/                  # Script generation pipeline
 │   │   ├── generator.ts         # LLM script generation
 │   │   ├── prompts/             # YAML prompt templates
@@ -171,6 +175,8 @@ content-machine/
 | `cm audio`    | Generate voiceover + timestamps | `audio.wav`, `timestamps.json` |
 | `cm visuals`  | Find matching stock footage     | `visuals.json`                 |
 | `cm render`   | Render final video              | `video.mp4`                    |
+| `cm feedback` | Capture/export human feedback   | `feedback.jsonl`, export JSON  |
+| `cm lab`      | Experiment Lab UI (review/A-B)  | Local web UI + API             |
 | `cm init`     | Interactive setup wizard        | `.content-machine.toml`        |
 | `cm help`     | Show help for all commands      | —                              |
 
@@ -255,12 +261,12 @@ content-machine/
 
 ### V&V Framework (4-Layer Approach)
 
-| Layer | Type                | Example                                      |
-| ----- | ------------------- | -------------------------------------------- |
-| 1     | Schema Validation   | Zod safeParse for JSON structure             |
-| 2     | Programmatic Checks | Word count, scene count, duration            |
-| 3     | LLM-as-Judge        | Hook quality, TikTok voice, visual relevance |
-| 4     | Human Review        | Random sample QA                             |
+| Layer | Type                | Example                                       |
+| ----- | ------------------- | --------------------------------------------- |
+| 1     | Schema Validation   | Zod safeParse for JSON structure              |
+| 2     | Programmatic Checks | Word count, scene count, duration             |
+| 3     | LLM-as-Judge        | Hook quality, TikTok voice, visual relevance  |
+| 4     | Human Review        | Experiment Lab A/B reviews (`cm lab compare`) |
 
 **Key Evaluation Metrics:**
 
@@ -273,6 +279,8 @@ content-machine/
 
 - [RQ-24: LLM Evaluation](docs/research/investigations/RQ-24-LLM-EVALUATION-QUALITY-ASSURANCE-20260105.md)
 - [V&V Framework Guide](docs/guides/VV-FRAMEWORK-20260105.md)
+- [Experiment Lab Playbook](docs/guides/guide-experiment-lab-20260206.md)
+- [Experiment Lab Architecture](docs/architecture/experiment-lab/README.md)
 - [evals/](evals/) — promptfoo configurations
 
 ### Test Stubs (Required for All Providers)
