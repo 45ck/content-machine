@@ -63,12 +63,15 @@ function computeDefaultAllowedRoots(extra: string[] | undefined): string[] {
 
 function shouldAutoOpen(
   runtime: ReturnType<typeof getCliRuntime>,
-  options: BaseLabOptions
+  options: BaseLabOptions,
+  forceIfNotTty: boolean
 ): boolean {
   if (runtime.json) return false;
   if (options.open === false) return false;
   if (options.open === true) return true;
-  return runtime.isTty;
+  if (runtime.isTty) return true;
+  if (forceIfNotTty && !process.env.CI && process.env.NODE_ENV !== 'test') return true;
+  return false;
 }
 
 function parseExitAfterSubmit(options: BaseLabOptions, defaultValue: number): number {
@@ -151,7 +154,9 @@ async function startLab(params: {
     writeStderrLine(`Lab URL: ${url}`);
   }
 
-  if (shouldAutoOpen(params.runtime, params.options)) {
+  // In one-shot review/compare flows we expect a human to act next, so prefer opening even when not in a TTY.
+  const forceOpen = params.task !== null;
+  if (shouldAutoOpen(params.runtime, params.options, forceOpen)) {
     await openBrowser(url);
   }
 }
