@@ -31,6 +31,7 @@ describe('Experiment Lab UI (Playwright)', () => {
       await import('../../src/lab/stores/experiments-store');
     const { LabExperimentSchema } = await import('../../src/domain');
     const { readFeedbackEntries } = await import('../../src/feedback/store');
+    const { renderVideo } = await import('../../src/render/service');
 
     const allowedRoot = join(base, 'allowed');
     const aDir = join(allowedRoot, 'runA');
@@ -38,9 +39,42 @@ describe('Experiment Lab UI (Playwright)', () => {
     await mkdir(aDir, { recursive: true });
     await mkdir(bDir, { recursive: true });
 
-    // Tiny bytes are fine here: we only verify the UI renders and can submit.
-    await writeFile(join(aDir, 'video.mp4'), Buffer.from('0123456789abcdef'));
-    await writeFile(join(bDir, 'video.mp4'), Buffer.from('fedcba9876543210'));
+    // Generate valid MP4s so we can verify metadata loads and linked playback doesn't deadlock.
+    // Use mock render mode so this remains fast and deterministic in CI.
+    const visuals = {
+      schemaVersion: '1.0.0',
+      scenes: [{ sceneId: 'scene-1', source: 'mock', assetPath: 'mock://asset', duration: 1 }],
+      totalAssets: 1,
+      fromUserFootage: 0,
+      fromStock: 1,
+      fallbacks: 0,
+    };
+
+    const timestamps = {
+      schemaVersion: '1.0.0',
+      allWords: [{ word: 'test', start: 0, end: 0.5 }],
+      totalDuration: 1,
+      ttsEngine: 'mock',
+      asrEngine: 'mock',
+    };
+
+    await renderVideo({
+      visuals,
+      timestamps,
+      audioPath: join(aDir, 'audio.wav'),
+      outputPath: join(aDir, 'video.mp4'),
+      orientation: 'portrait',
+      mock: true,
+    });
+    await renderVideo({
+      visuals,
+      timestamps,
+      audioPath: join(bDir, 'audio.wav'),
+      outputPath: join(bDir, 'video.mp4'),
+      orientation: 'portrait',
+      mock: true,
+    });
+
     await writeFile(
       join(aDir, 'script.json'),
       JSON.stringify({ meta: { topic: 'A topic' } }),
@@ -95,6 +129,43 @@ describe('Experiment Lab UI (Playwright)', () => {
       const url = `${started.url}#/compare/${encodeURIComponent(experimentId)}`;
       await page.goto(url, { waitUntil: 'domcontentloaded' });
       await page.waitForSelector('h1:has-text("Compare")', { timeout: 10_000 });
+
+      // Verify videos load and linked playback is usable.
+      await page.waitForSelector('#videoA', { timeout: 10_000 });
+      await page.waitForSelector('#videoB', { timeout: 10_000 });
+      await page.waitForFunction(
+        () => {
+          const a = document.getElementById('videoA');
+          const b = document.getElementById('videoB');
+          if (!(a instanceof HTMLVideoElement) || !(b instanceof HTMLVideoElement)) return false;
+          return a.readyState >= 1 && b.readyState >= 1 && a.duration > 0 && b.duration > 0;
+        },
+        { timeout: 15_000 }
+      );
+
+      // Mute both before starting to avoid autoplay restrictions in headless.
+      await page.selectOption('#audioSel', 'mute');
+
+      await page.click('#playPause');
+      await page.waitForFunction(
+        () => {
+          const a = document.getElementById('videoA');
+          const b = document.getElementById('videoB');
+          if (!(a instanceof HTMLVideoElement) || !(b instanceof HTMLVideoElement)) return false;
+          return !a.paused && !b.paused;
+        },
+        { timeout: 10_000 }
+      );
+
+      // Allow a bit of time for drift correction to settle, then ensure the videos remain close.
+      await page.waitForTimeout(800);
+      const drift = await page.evaluate(() => {
+        const a = document.getElementById('videoA');
+        const b = document.getElementById('videoB');
+        if (!(a instanceof HTMLVideoElement) || !(b instanceof HTMLVideoElement)) return 999;
+        return Math.abs(a.currentTime - b.currentTime);
+      });
+      expect(drift).toBeLessThan(0.35);
 
       // Blind by default: metrics hidden until user reveals.
       expect(await page.isChecked('#revealMetrics')).toBe(false);

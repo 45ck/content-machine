@@ -147,9 +147,7 @@ function bindVideoDiagnostics({ videoEl, statusEl, label }) {
 
     const time = formatSeconds(videoEl.currentTime);
     const dur = formatSeconds(videoEl.duration);
-    const rate = Number.isFinite(videoEl.playbackRate)
-      ? `${videoEl.playbackRate.toFixed(2)}x`
-      : '';
+    const rate = Number.isFinite(videoEl.playbackRate) ? `${videoEl.playbackRate.toFixed(2)}x` : '';
     const state = videoEl.paused ? 'paused' : 'playing';
     statusEl.textContent = `${label}: ${state} ${time}/${dur} ${rate}`.trim();
   };
@@ -319,27 +317,36 @@ function setupLinkedVideoControls({ videoA, videoB, linkEl, speedEl, audioEl, to
     try {
       const p = videoEl.play();
       if (p && typeof p.catch === 'function') p.catch(() => {});
-    } catch {}
+    } catch {
+      // Best-effort: play() can fail due to autoplay policies or decode issues.
+      return;
+    }
   }
 
   function safePause(videoEl) {
     try {
       videoEl.pause();
-    } catch {}
+    } catch {
+      return;
+    }
   }
 
   function safeSetCurrentTime(videoEl, t) {
     try {
       if (!Number.isFinite(t)) return;
       videoEl.currentTime = t;
-    } catch {}
+    } catch {
+      return;
+    }
   }
 
   function safeSetPlaybackRate(videoEl, rate) {
     try {
       if (!Number.isFinite(rate) || rate <= 0) return;
       videoEl.playbackRate = rate;
-    } catch {}
+    } catch {
+      return;
+    }
   }
 
   function applyAudio() {
@@ -479,9 +486,7 @@ function setupLinkedVideoControls({ videoA, videoB, linkEl, speedEl, audioEl, to
   applyAudio();
 
   return () => {
-    try {
-      clearInterval(driftTimer);
-    } catch {}
+    clearInterval(driftTimer);
   };
 }
 
@@ -1156,9 +1161,7 @@ async function renderComparePage(experimentId) {
 
 async function renderRoute() {
   if (typeof state.cleanup === 'function') {
-    try {
-      state.cleanup();
-    } catch {}
+    state.cleanup();
     state.cleanup = null;
   }
 
