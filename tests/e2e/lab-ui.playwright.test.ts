@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { chromium } from 'playwright';
+import { chromium, firefox, type BrowserType } from 'playwright';
+import { existsSync } from 'node:fs';
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -14,8 +15,8 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): 
 }
 
 describe('Experiment Lab UI (Playwright)', () => {
-  it('loads compare UI, keeps metrics blind by default, submits, and auto-closes', async () => {
-    const base = await mkdtemp(join(tmpdir(), 'cm-lab-ui-'));
+  async function runCompareE2E(params: { browserType: BrowserType; browserName: string }) {
+    const base = await mkdtemp(join(tmpdir(), `cm-lab-ui-${params.browserName}-`));
     const prevLabRoot = process.env.CM_LAB_ROOT;
     const prevFeedbackStore = process.env.CM_FEEDBACK_STORE_PATH;
 
@@ -122,7 +123,7 @@ describe('Experiment Lab UI (Playwright)', () => {
       started.server.once('close', () => resolve());
     });
 
-    const browser = await chromium.launch();
+    const browser = await params.browserType.launch();
     try {
       const page = await browser.newPage();
 
@@ -194,5 +195,17 @@ describe('Experiment Lab UI (Playwright)', () => {
       if (prevFeedbackStore === undefined) delete process.env.CM_FEEDBACK_STORE_PATH;
       else process.env.CM_FEEDBACK_STORE_PATH = prevFeedbackStore;
     }
+  }
+
+  it('chromium: loads compare UI, keeps metrics blind by default, submits, and auto-closes', async () => {
+    await runCompareE2E({ browserType: chromium, browserName: 'chromium' });
   }, 60_000);
+
+  it.runIf(existsSync(firefox.executablePath()))(
+    'firefox: loads compare UI, keeps metrics blind by default, submits, and auto-closes',
+    async () => {
+      await runCompareE2E({ browserType: firefox, browserName: 'firefox' });
+    },
+    60_000
+  );
 });

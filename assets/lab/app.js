@@ -460,11 +460,14 @@ function setupLinkedVideoControls({ videoA, videoB, linkEl, speedEl, audioEl, to
   // Light drift correction loop so A/B stays watchable for longer clips.
   const driftTimer = setInterval(() => {
     if (!linkEl.checked) return;
-    if (videoA.readyState < 1 || videoB.readyState < 1) return;
+    // Avoid fighting the browser while it buffers or seeks; this is a common source of "stuck" playback in Firefox.
+    if (videoA.readyState < 2 || videoB.readyState < 2) return;
     if (videoA.paused || videoB.paused) return;
+    if (videoA.seeking || videoB.seeking) return;
 
     const master = driver === 'b' ? videoB : videoA;
     const follower = driver === 'b' ? videoA : videoB;
+    if (isSuppressed(follower)) return;
     const diff = Number(follower.currentTime) - Number(master.currentTime);
     if (!Number.isFinite(diff)) return;
 
