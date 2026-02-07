@@ -16,6 +16,7 @@ type CommandLoader = () => Promise<Command>;
 
 const COMMAND_LOADERS: Array<[string, CommandLoader]> = [
   ['mcp', async () => (await import('./commands/mcp')).mcpCommand],
+  ['config', async () => (await import('./commands/config')).configCommand],
   ['script', async () => (await import('./commands/script')).scriptCommand],
   ['audio', async () => (await import('./commands/audio')).audioCommand],
   ['visuals', async () => (await import('./commands/visuals')).visualsCommand],
@@ -49,8 +50,15 @@ const COMMAND_LOADERS: Array<[string, CommandLoader]> = [
 const COMMAND_MAP = new Map(COMMAND_LOADERS);
 
 function findRequestedCommand(args: string[]): string | null {
-  for (const arg of args) {
+  const takesValue = new Set(['--config']);
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
     if (arg === '--') break;
+    if (takesValue.has(arg)) {
+      // Skip the value token for global options that take a value, e.g. `--config path`.
+      i += 1;
+      continue;
+    }
     if (arg.startsWith('-')) continue;
     return arg;
   }
@@ -108,6 +116,7 @@ program
   .name('cm')
   .description('CLI-first automated short-form video generator for TikTok, Reels, and Shorts')
   .version(version)
+  .option('--config <path>', 'Path to config file (overrides discovery and $CM_CONFIG)')
   .option('-v, --verbose', 'Enable verbose logging')
   .option('--json', 'Output results as JSON')
   .option('--offline', 'Disable network access for downloads', false)
@@ -138,6 +147,10 @@ program.hook('preAction', (_thisCommand, actionCommand) => {
 
   if (opts.yes) {
     process.env.CM_YES = '1';
+  }
+
+  if (typeof opts.config === 'string' && opts.config.trim()) {
+    process.env.CM_CONFIG = opts.config;
   }
 
   // In JSON mode, stdout must remain machine-readable (no logs/spinners).

@@ -5,7 +5,7 @@
  * Based on SYSTEM-DESIGN §7.1 cm script command.
  */
 import { Command } from 'commander';
-import { ArchetypeEnum } from '../../core/config';
+import { ArchetypeEnum, loadConfig } from '../../core/config';
 import { CMError, SchemaError } from '../../core/errors';
 import { logger } from '../../core/logger';
 import { PackageOutputSchema, ResearchOutputSchema, type ResearchOutput } from '../../domain';
@@ -56,6 +56,13 @@ interface ScriptCommandOptions {
   duration: string;
   dryRun?: boolean;
   mock?: boolean;
+}
+
+function applyDefaultsFromConfig(options: ScriptCommandOptions, command: Command): void {
+  const config = loadConfig();
+  if (command.getOptionValueSource('archetype') === 'default') {
+    options.archetype = config.defaults.archetype;
+  }
 }
 
 async function loadResearch(path?: string): Promise<ResearchOutput | undefined> {
@@ -231,9 +238,10 @@ export const scriptCommand = new Command('script')
   .option('--duration <seconds>', 'Target duration in seconds', '45')
   .option('--dry-run', 'Preview without calling LLM')
   .option('--mock', 'Use mock LLM provider (for testing)')
-  .action(async (options: ScriptCommandOptions) => {
+  .action(async (options: ScriptCommandOptions, command: Command) => {
     const spinner = createSpinner('Generating script...').start();
     try {
+      applyDefaultsFromConfig(options, command);
       await runScript(options, spinner);
     } catch (error) {
       spinner.fail('Script generation failed');

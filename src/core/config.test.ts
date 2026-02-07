@@ -3,22 +3,21 @@
  * TDD: Write tests FIRST, then implement
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { existsSync, mkdirSync, rmSync, writeFileSync } from 'fs';
+import { existsSync, mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'fs';
 import { join } from 'path';
+import { tmpdir } from 'os';
 
 // Mock environment before importing
 const originalEnv = process.env;
 const originalCwd = process.cwd();
 
 describe('Config', () => {
-  const testDir = join(process.cwd(), '.test-config');
+  let testDir: string;
 
   beforeEach(() => {
     vi.resetModules();
     process.env = { ...originalEnv };
-    if (!existsSync(testDir)) {
-      mkdirSync(testDir, { recursive: true });
-    }
+    testDir = mkdtempSync(join(tmpdir(), 'content-machine-config-'));
   });
 
   afterEach(() => {
@@ -74,17 +73,75 @@ describe('Config', () => {
 
     it('should merge config file with defaults', async () => {
       process.chdir(testDir);
-      // This would need an actual config file test
+      const configPath = join(testDir, '.content-machine.toml');
+      const expectedFontPath = join(testDir, 'assets/fonts/Montserrat-Bold.woff2');
+      writeFileSync(
+        configPath,
+        [
+          '[defaults]',
+          'archetype = "versus"',
+          'orientation = "landscape"',
+          'voice = "am_adam"',
+          '',
+          '[llm]',
+          'provider = "anthropic"',
+          'model = "claude-3-5-sonnet-20241022"',
+          'temperature = 0.5',
+          '',
+          '[captions]',
+          'font_family = "Montserrat"',
+          'font_weight = 700',
+          'font_file = "assets/fonts/Montserrat-Bold.woff2"',
+          '',
+          '[[captions.fonts]]',
+          'family = "Montserrat"',
+          'src = "assets/fonts/Montserrat-Bold.woff2"',
+          'weight = 700',
+          'style = "normal"',
+          '',
+        ].join('\n'),
+        'utf-8'
+      );
+
       const { loadConfig, clearConfigCache } = await import('./config');
       clearConfigCache();
       const config = loadConfig();
 
-      expect(config.llm).toBeDefined();
-      expect(config.llm.provider).toBeDefined();
+      expect(config.defaults.archetype).toBe('versus');
+      expect(config.defaults.orientation).toBe('landscape');
+      expect(config.defaults.voice).toBe('am_adam');
+
+      expect(config.llm.provider).toBe('anthropic');
+      expect(config.llm.model).toBe('claude-3-5-sonnet-20241022');
+      expect(config.llm.temperature).toBe(0.5);
+
+      expect(config.captions.fontFamily).toBe('Montserrat');
+      expect(config.captions.fontWeight).toBe(700);
+      expect(config.captions.fontFile).toBe(expectedFontPath);
+      expect(config.captions.fonts).toHaveLength(1);
+      expect(config.captions.fonts[0].family).toBe('Montserrat');
+    });
+
+    it('should parse TOML files with CRLF line endings', async () => {
+      process.chdir(testDir);
+      const configPath = join(testDir, '.content-machine.toml');
+      writeFileSync(
+        configPath,
+        ['[defaults]', 'archetype = "story"', 'orientation = "square"', ''].join('\r\n'),
+        'utf-8'
+      );
+
+      const { loadConfig, clearConfigCache } = await import('./config');
+      clearConfigCache();
+      const config = loadConfig();
+
+      expect(config.defaults.archetype).toBe('story');
+      expect(config.defaults.orientation).toBe('square');
     });
 
     it('should load caption font settings from JSON config', async () => {
       const configPath = join(testDir, '.cmrc.json');
+      const expectedFontPath = join(testDir, 'assets/fonts/Montserrat-Bold.woff2');
       writeFileSync(
         configPath,
         JSON.stringify(
@@ -118,9 +175,76 @@ describe('Config', () => {
       expect(config.captions).toBeDefined();
       expect(config.captions.fontFamily).toBe('Montserrat');
       expect(config.captions.fontWeight).toBe(700);
-      expect(config.captions.fontFile).toBe('assets/fonts/Montserrat-Bold.woff2');
+      expect(config.captions.fontFile).toBe(expectedFontPath);
       expect(config.captions.fonts).toHaveLength(1);
       expect(config.captions.fonts[0].family).toBe('Montserrat');
+    });
+
+    it('should discover project config by walking up directories', async () => {
+      const configPath = join(testDir, '.content-machine.toml');
+      writeFileSync(
+        configPath,
+        ['[defaults]', 'archetype = "howto"', 'voice = "am_adam"', ''].join('\n'),
+        'utf-8'
+      );
+
+      const nestedDir = join(testDir, 'a', 'b', 'c');
+      mkdirSync(nestedDir, { recursive: true });
+      process.chdir(nestedDir);
+
+      const { loadConfig, clearConfigCache } = await import('./config');
+      clearConfigCache();
+      const config = loadConfig();
+
+      expect(config.defaults.archetype).toBe('howto');
+      expect(config.defaults.voice).toBe('am_adam');
+    });
+
+    it('should merge user config and project config (project wins)', async () => {
+      const fakeHome = join(testDir, 'home');
+      const userConfigDir = join(fakeHome, '.cm');
+      mkdirSync(userConfigDir, { recursive: true });
+      process.env.HOME = fakeHome;
+
+      writeFileSync(
+        join(userConfigDir, 'config.toml'),
+        [
+          '[captions]',
+          'font_family = "UserFont"',
+          '',
+          '[music]',
+          'volume_db = -10',
+          '',
+          '[sync]',
+          'strategy = "audio-first"',
+          '',
+        ].join('\n'),
+        'utf-8'
+      );
+
+      writeFileSync(
+        join(testDir, '.content-machine.toml'),
+        [
+          '[captions]',
+          'font_family = "ProjectFont"',
+          '',
+          '[sync]',
+          'reconcile_to_script = true',
+          '',
+        ].join('\n'),
+        'utf-8'
+      );
+
+      process.chdir(testDir);
+
+      const { loadConfig, clearConfigCache } = await import('./config');
+      clearConfigCache();
+      const config = loadConfig();
+
+      expect(config.captions.fontFamily).toBe('ProjectFont');
+      expect(config.music.volumeDb).toBe(-10);
+      expect(config.sync.strategy).toBe('audio-first');
+      expect(config.sync.reconcileToScript).toBe(true);
     });
   });
 

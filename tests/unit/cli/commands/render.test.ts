@@ -30,11 +30,15 @@ vi.mock('../../../../src/core/config', async (importOriginal) => {
   return {
     ...actual,
     loadConfig: vi.fn(() => ({
+      defaults: { archetype: 'listicle', orientation: 'portrait', voice: 'af_heart' },
+      render: { fps: 30, template: undefined },
       captions: {
         fontFamily: 'Test Sans',
         fontWeight: 'bold',
         fontFile: undefined,
         fonts: [],
+        preset: undefined,
+        config: undefined,
       },
     })),
   };

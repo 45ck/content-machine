@@ -365,6 +365,11 @@ export const audioCommand = new Command('audio')
     const runtime = getCliRuntime();
 
     try {
+      const config = loadConfig();
+      if (command.getOptionValueSource('voice') === 'default') {
+        options.voice = config.defaults.voice;
+      }
+
       const script = await readScriptInput(options.input);
 
       logger.info({ input: options.input, voice: options.voice }, 'Starting audio generation');
@@ -374,7 +379,6 @@ export const audioCommand = new Command('audio')
       const { requireWhisper, reconcile } = resolveSyncOptions(options, command);
       const ttsSpeed = parseTtsSpeed(options.ttsSpeed);
 
-      const config = loadConfig();
       const { mixOptions, audioMixPath, audioMixRequest } = buildAudioMixRequest({
         options,
         command,

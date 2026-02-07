@@ -35,6 +35,18 @@ vi.mock('../../../../src/cli/ui', () => ({
   writeSummaryCard: vi.fn(),
 }));
 
+vi.mock('../../../../src/core/config', async () => {
+  const actual = await vi.importActual<typeof import('../../../../src/core/config')>(
+    '../../../../src/core/config'
+  );
+  return {
+    ...actual,
+    loadConfig: vi.fn(() => ({
+      defaults: { archetype: 'listicle', orientation: 'portrait', voice: 'af_heart' },
+    })),
+  };
+});
+
 async function configureRuntime(update: { json: boolean }) {
   const { resetCliRuntime, setCliRuntime } = await import('../../../../src/cli/runtime');
   resetCliRuntime();

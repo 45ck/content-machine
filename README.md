@@ -305,6 +305,14 @@ REDDIT_CLIENT_ID=...       # Optional (some Reddit features may use auth)
 REDDIT_CLIENT_SECRET=...   # Optional
 ```
 
+### Config Files
+
+- Project config (auto-discovered by walking up from `cwd`): `.content-machine.toml`, `content-machine.toml`, `.cmrc.json`
+- User config (optional): `~/.cm/config.toml`, `~/.cm/config.json`, `~/.cmrc.json`
+- Merge order: user first, then project (project wins)
+- Override: `CM_CONFIG=/abs/path/to/config.toml` or `cm --config /abs/path/to/config.toml ...`
+- Inspect: `cm config paths`, `cm config show`
+
 ## Caption Fonts
 
 Default captions use an Inter-first stack with Montserrat fallback. A small Inter font pack

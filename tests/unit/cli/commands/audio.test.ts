@@ -109,6 +109,11 @@ const baseAudioOutput = {
 };
 
 const baseConfig = {
+  defaults: {
+    archetype: 'listicle',
+    orientation: 'portrait',
+    voice: 'af_heart',
+  },
   audioMix: { preset: 'clean', lufsTarget: -16 },
   music: {
     default: 'music.mp3',

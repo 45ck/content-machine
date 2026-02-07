@@ -32,6 +32,13 @@ vi.mock('../../../../src/cli/ui', () => ({
   writeSummaryCard: vi.fn(),
 }));
 
+vi.mock('../../../../src/core/config', () => ({
+  loadConfig: vi.fn(() => ({
+    defaults: { archetype: 'listicle', orientation: 'portrait', voice: 'af_heart' },
+    visuals: { provider: 'pexels' },
+  })),
+}));
+
 async function configureRuntime(update: { json: boolean; isTty?: boolean }) {
   const { resetCliRuntime, setCliRuntime } = await import('../../../../src/cli/runtime');
   resetCliRuntime();

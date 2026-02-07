@@ -15,11 +15,18 @@ vi.mock('../../../../src/core/config', async () => {
   return {
     ...actual,
     loadConfig: vi.fn(() => ({
+      defaults: {
+        archetype: 'listicle',
+        orientation: 'portrait',
+        voice: 'af_heart',
+      },
       captions: {
         fontFamily: 'Test Sans',
         fontWeight: 'bold',
         fontFile: undefined,
         fonts: [],
+        preset: undefined,
+        config: undefined,
       },
       llm: {
         provider: 'openai',
@@ -30,6 +37,14 @@ vi.mock('../../../../src/core/config', async () => {
       sync: {
         requireWhisper: false,
         asrModel: 'base',
+      },
+      render: {
+        width: 1080,
+        height: 1920,
+        fps: 30,
+        codec: 'h264',
+        crf: 23,
+        template: undefined,
       },
       audioMix: { preset: 'clean', lufsTarget: -16 },
       music: {
@@ -55,6 +70,9 @@ vi.mock('../../../../src/core/config', async () => {
         fit: 'cover',
         maxDuration: 3,
         defaultHook: 'no-crunch',
+      },
+      generate: {
+        workflow: undefined,
       },
     })),
   };

@@ -15,6 +15,7 @@ import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { SchemaError } from '../../core/errors';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
+import { loadConfig } from '../../core/config';
 
 interface GameplayOptions {
   library?: string;
@@ -135,6 +136,14 @@ export const visualsCommand = new Command('visuals')
     const runtime = getCliRuntime();
 
     try {
+      const config = loadConfig();
+      if (command.getOptionValueSource('provider') === 'default') {
+        options.provider = config.visuals.provider;
+      }
+      if (command.getOptionValueSource('orientation') === 'default') {
+        options.orientation = config.defaults.orientation;
+      }
+
       const timestamps = await readTimestampsInput(options.input);
 
       logger.info({ input: options.input, provider: options.provider }, 'Starting visual matching');

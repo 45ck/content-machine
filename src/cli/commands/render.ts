@@ -39,7 +39,6 @@ import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine 
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
 import type { CaptionPresetName } from '../../render/captions/presets';
 import type {
-  CaptionConfig,
   CaptionConfigInput,
   HighlightMode,
   CaptionPosition,
@@ -478,7 +477,8 @@ function applyDefault(
   value: unknown
 ): void {
   if (value === undefined) return;
-  if (command.getOptionValueSource(optionName) !== 'default') return;
+  const source = command.getOptionValueSource(optionName);
+  if (source !== 'default' && source !== undefined) return;
   options[optionName] = value;
 }
 
@@ -489,9 +489,13 @@ function applyCaptionDefaultsFromConfig(
   const config = loadConfig();
   const captions = config.captions;
   const defaultFamily = captions.fonts.length > 0 ? captions.fonts[0].family : captions.fontFamily;
+  applyDefault(options, command, 'orientation', config.defaults.orientation);
+  applyDefault(options, command, 'fps', String(config.render.fps));
+  applyDefault(options, command, 'template', config.render.template);
   applyDefault(options, command, 'captionFontFamily', defaultFamily);
   applyDefault(options, command, 'captionFontWeight', captions.fontWeight);
   applyDefault(options, command, 'captionFontFile', captions.fontFile);
+  applyDefault(options, command, 'captionPreset', captions.preset);
 
   return { fonts: captions.fonts };
 }
@@ -1043,10 +1047,15 @@ async function runRenderCommand(
     'render'
   );
 
-  const captionConfig = mergeCaptionConfigPartials(
-    (templateDefaults?.captionConfig as Partial<CaptionConfig> | undefined) ?? undefined,
-    parseCaptionOptions(options)
-  );
+  const mergedConfig = loadConfig();
+  let captionConfigBase = mergedConfig.captions.config as CaptionConfigInput | undefined;
+  if (templateDefaults?.captionConfig) {
+    captionConfigBase = mergeCaptionConfigPartials(
+      captionConfigBase,
+      templateDefaults.captionConfig as CaptionConfigInput
+    );
+  }
+  const captionConfig = mergeCaptionConfigPartials(captionConfigBase, parseCaptionOptions(options));
   const captionMaxWords = parseOptionalInt(options.captionMaxWords);
   const captionMinWords = parseOptionalInt(options.captionMinWords);
   const captionTargetWords = parseOptionalInt(options.captionTargetWords);

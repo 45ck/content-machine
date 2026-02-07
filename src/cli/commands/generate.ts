@@ -1404,15 +1404,26 @@ function applySyncPresetDefaults(options: GenerateOptions, command: Command): vo
   applyDefaultOption(record, command, 'autoRetrySync', preset.autoRetrySync);
 }
 
-function applyCaptionDefaultsFromConfig(options: GenerateOptions, command: Command): void {
+function applyDefaultsFromConfig(options: GenerateOptions, command: Command): void {
   const config = loadConfig();
-  const captions = config.captions;
   const record = options as unknown as Record<string, unknown>;
+
+  // Pipeline defaults
+  applyDefaultOption(record, command, 'archetype', config.defaults.archetype);
+  applyDefaultOption(record, command, 'orientation', config.defaults.orientation);
+  applyDefaultOption(record, command, 'voice', config.defaults.voice);
+  applyDefaultOption(record, command, 'fps', String(config.render.fps));
+  applyDefaultOption(record, command, 'template', config.render.template);
+  applyDefaultOption(record, command, 'workflow', config.generate.workflow);
+
+  // Caption defaults
+  const captions = config.captions;
   const defaultFamily =
     captions.fonts && captions.fonts.length > 0 ? captions.fonts[0].family : captions.fontFamily;
   applyDefaultOption(record, command, 'captionFontFamily', defaultFamily);
   applyDefaultOption(record, command, 'captionFontWeight', String(captions.fontWeight));
   applyDefaultOption(record, command, 'captionFontFile', captions.fontFile);
+  applyDefaultOption(record, command, 'captionPreset', captions.preset);
   if (!options.captionFonts && captions.fonts.length > 0) {
     options.captionFonts = captions.fonts;
   }
@@ -1433,6 +1444,28 @@ function applyCaptionQualityPerfectDefaults(options: GenerateOptions, command: C
   applyDefaultOption(record, command, 'captionMaxCps', '18');
   applyDefaultOption(record, command, 'captionMinOnScreenMs', '1400');
   applyDefaultOption(record, command, 'captionMinOnScreenMsShort', '1100');
+}
+
+function mergeCaptionConfigPartials(
+  base: CaptionConfigInput | undefined,
+  overrides: CaptionConfigInput | undefined
+): CaptionConfigInput | undefined {
+  if (!base) return overrides;
+  if (!overrides) return base;
+
+  return {
+    ...base,
+    ...overrides,
+    pillStyle: { ...base.pillStyle, ...overrides.pillStyle },
+    stroke: { ...base.stroke, ...overrides.stroke },
+    shadow: { ...base.shadow, ...overrides.shadow },
+    layout: { ...base.layout, ...overrides.layout },
+    positionOffset: { ...base.positionOffset, ...overrides.positionOffset },
+    safeZone: { ...base.safeZone, ...overrides.safeZone },
+    cleanup: { ...base.cleanup, ...overrides.cleanup },
+    listBadges: { ...(base.listBadges ?? {}), ...(overrides.listBadges ?? {}) },
+    emphasis: { ...base.emphasis, ...overrides.emphasis },
+  };
 }
 
 function getOptionNameMap(command: Command): Map<string, string> {
@@ -1832,6 +1865,12 @@ async function runGeneratePipeline(params: {
         ? 'real'
         : undefined;
 
+    const config = loadConfig();
+    const mergedCaptionConfig = mergeCaptionConfigPartials(
+      config.captions.config as CaptionConfigInput | undefined,
+      (params.templateDefaults?.captionConfig as CaptionConfigInput | undefined) ?? undefined
+    );
+
     return await runPipeline({
       topic: params.topic,
       archetype: params.archetype as
@@ -1848,7 +1887,7 @@ async function runGeneratePipeline(params: {
       fps: params.options.fps ? parseInt(params.options.fps, 10) : undefined,
       compositionId: params.resolvedTemplate?.template.compositionId,
       captionPreset: params.options.captionPreset as CaptionPresetName | undefined,
-      captionConfig: params.templateDefaults?.captionConfig as CaptionConfigInput | undefined,
+      captionConfig: mergedCaptionConfig,
       keepArtifacts: params.options.keepArtifacts,
       llmProvider: params.llmProvider,
       mock: params.options.mock,
@@ -2401,7 +2440,7 @@ async function runGenerate(
   const runtime = getCliRuntime();
   const artifactsDir = dirname(options.output);
 
-  applyCaptionDefaultsFromConfig(options, command);
+  applyDefaultsFromConfig(options, command);
   applyQualityDefaults(options, command);
   applySyncPresetDefaults(options, command);
   applyCaptionQualityPerfectDefaults(options, command);
@@ -2423,22 +2462,13 @@ async function runGenerate(
   const workflowBaseDir = resolvedWorkflow?.baseDir;
   const workflowStageModes = resolveWorkflowStageModes(workflowDefinition);
 
-  if (workflowDefinition?.defaults && 'template' in workflowDefinition.defaults) {
-    const record = options as unknown as Record<string, unknown>;
-    applyDefaultOption(record, command, 'template', workflowDefinition.defaults.template);
-  }
+  // Apply workflow defaults before template defaults so templates can override workflows.
+  applyWorkflowDefaults(options, command, workflowDefinition, new Set(['workflowAllowExec']));
+  applyWorkflowInputs(options, command, workflowDefinition, workflowBaseDir);
+  applyWorkflowStageDefaults(options, workflowStageModes, artifactsDir);
 
   const { resolvedTemplate, templateDefaults, templateParams, templateGameplay } =
     await resolveTemplateAndApplyDefaults(options, command);
-
-  applyWorkflowDefaults(
-    options,
-    command,
-    workflowDefinition,
-    new Set(['template', 'workflowAllowExec'])
-  );
-  applyWorkflowInputs(options, command, workflowDefinition, workflowBaseDir);
-  applyWorkflowStageDefaults(options, workflowStageModes, artifactsDir);
   const templateSpec = toNullableString(options.template);
   const resolvedTemplateId = resolveTemplateId(resolvedTemplate);
 

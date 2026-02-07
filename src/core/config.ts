@@ -8,9 +8,13 @@
  */
 import { z } from 'zod';
 import { existsSync, readFileSync } from 'fs';
-import { join } from 'path';
+import { dirname, join, resolve } from 'path';
+import { createRequire } from 'node:module';
+import { homedir } from 'node:os';
 import { ConfigError } from './errors.js';
 import { FONT_STACKS } from '../render/tokens/font';
+import { CAPTION_STYLE_PRESETS, type CaptionPresetName } from '../render/captions/presets';
+import { CaptionConfigSchema } from '../render/captions/config';
 
 // ============================================================================
 // Schema Definitions
@@ -87,6 +91,8 @@ const RenderConfigSchema = z.object({
   fps: z.number().int().min(24).max(60).default(30),
   codec: z.enum(['h264', 'h265', 'vp9']).default('h264'),
   crf: z.number().int().min(0).max(51).default(23),
+  /** Default video template id or path to template.json */
+  template: z.string().optional(),
 });
 
 const FontWeightSchema = z.union([
@@ -103,11 +109,24 @@ const CaptionFontSchema = z.object({
   style: FontStyleSchema.optional(),
 });
 
+const CaptionPresetNameSchema = z.enum(
+  Object.keys(CAPTION_STYLE_PRESETS) as [CaptionPresetName, ...CaptionPresetName[]]
+);
+
 const CaptionsConfigSchema = z.object({
   fontFamily: z.string().default(FONT_STACKS.body),
   fontWeight: FontWeightSchema.default('bold'),
   fontFile: z.string().optional(),
   fonts: z.array(CaptionFontSchema).default([]),
+  /** Default caption style preset (e.g. capcut, tiktok) */
+  preset: CaptionPresetNameSchema.optional(),
+  /** Deep-partial CaptionConfig overrides merged on top of the preset */
+  config: CaptionConfigSchema.deepPartial().optional(),
+});
+
+const GenerateConfigSchema = z.object({
+  /** Default workflow id or path to workflow.json for `cm generate` */
+  workflow: z.string().optional(),
 });
 
 const HookAudioModeEnum = z.enum(['mute', 'keep']);
@@ -248,6 +267,7 @@ export const ConfigSchema = z.object({
   captions: CaptionsConfigSchema.default({}),
   hooks: HooksConfigSchema.default({}),
   sync: SyncConfigSchema.default({}),
+  generate: GenerateConfigSchema.default({}),
 });
 
 export type Config = z.infer<typeof ConfigSchema>;
@@ -264,6 +284,7 @@ export type AudioMixConfig = z.infer<typeof AudioMixConfigSchema>;
 export type MusicConfig = z.infer<typeof MusicConfigSchema>;
 export type SfxConfig = z.infer<typeof SfxConfigSchema>;
 export type AmbienceConfig = z.infer<typeof AmbienceConfigSchema>;
+export type GenerateConfig = z.infer<typeof GenerateConfigSchema>;
 
 // ============================================================================
 // API Key Management
@@ -304,62 +325,232 @@ let cachedConfig: Config | null = null;
 /**
  * Find the config file path in the current directory
  */
-function findConfigFile(): string | null {
-  for (const filename of CONFIG_FILENAMES) {
-    const path = join(process.cwd(), filename);
-    if (existsSync(path)) {
-      return path;
+function resolveHomeDir(): string {
+  return process.env.HOME ?? process.env.USERPROFILE ?? homedir();
+}
+
+function expandTilde(inputPath: string): string {
+  if (!inputPath) return inputPath;
+  if (inputPath === '~') return resolveHomeDir();
+  if (inputPath.startsWith('~/') || inputPath.startsWith('~\\')) {
+    return join(resolveHomeDir(), inputPath.slice(2));
+  }
+  return inputPath;
+}
+
+function isGitRoot(dir: string): boolean {
+  return existsSync(join(dir, '.git'));
+}
+
+/**
+ * Find the project config file path by walking up from the current directory.
+ *
+ * Stops at the first directory containing `.git` (repo root) if present.
+ */
+function findProjectConfigFile(startDir: string = process.cwd()): string | null {
+  let current = resolve(startDir);
+
+  while (true) {
+    for (const filename of CONFIG_FILENAMES) {
+      const candidate = join(current, filename);
+      if (existsSync(candidate)) return candidate;
     }
+
+    if (isGitRoot(current)) return null;
+
+    const parent = dirname(current);
+    if (parent === current) return null;
+    current = parent;
+  }
+}
+
+function findUserConfigFile(): string | null {
+  const home = resolveHomeDir();
+  const candidates = [
+    join(home, '.cm', 'config.toml'),
+    join(home, '.cm', 'config.json'),
+    join(home, '.cmrc.json'),
+  ];
+
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) return candidate;
   }
   return null;
 }
 
 /**
- * Parse a TOML value string into its typed value
+ * Parse TOML config file.
  */
-function parseTomlValue(rawValue: string): unknown {
-  if (rawValue === 'true') return true;
-  if (rawValue === 'false') return false;
-  if (/^-?\d+$/.test(rawValue)) return parseInt(rawValue, 10);
-  if (/^-?\d+\.\d+$/.test(rawValue)) return parseFloat(rawValue);
-  if (rawValue.startsWith('"') && rawValue.endsWith('"')) {
-    return rawValue.slice(1, -1);
+function parseToml(content: string): unknown {
+  try {
+    const require = createRequire(import.meta.url);
+    const toml = require('@iarna/toml') as { parse: (input: string) => unknown };
+    // @iarna/toml rejects raw CR characters; normalize CRLF/CR → LF to accept
+    // config files created on Windows or via copy/paste.
+    const normalized = content.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    return toml.parse(normalized);
+  } catch (error) {
+    throw new ConfigError('Failed to parse TOML config', { error: String(error) });
   }
-  return rawValue;
 }
 
-/**
- * Parse TOML config file (simplified parser for our use case)
- */
-function parseToml(content: string): Record<string, unknown> {
-  const result: Record<string, unknown> = {};
-  let currentSection: Record<string, unknown> = result;
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  if (typeof value !== 'object' || value === null) return false;
+  const proto = Object.getPrototypeOf(value);
+  return proto === Object.prototype || proto === null;
+}
 
-  for (const line of content.split('\n')) {
-    const trimmed = line.trim();
+function toCamelCaseKey(key: string): string {
+  return key.replace(/_([a-z0-9])/g, (_, c) => String(c).toUpperCase());
+}
 
-    // Skip comments and empty lines
-    if (!trimmed || trimmed.startsWith('#')) continue;
+function normalizeConfigKeys(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map((entry) => normalizeConfigKeys(entry));
+  if (!isPlainObject(value)) return value;
+  const out: Record<string, unknown> = {};
+  for (const [key, child] of Object.entries(value)) {
+    out[toCamelCaseKey(key)] = normalizeConfigKeys(child);
+  }
+  return out;
+}
 
-    // Section header
-    const sectionMatch = trimmed.match(/^\[(\w+)\]$/);
-    if (sectionMatch) {
-      const sectionName = sectionMatch[1];
-      result[sectionName] = result[sectionName] || {};
-      currentSection = result[sectionName] as Record<string, unknown>;
-      continue;
+function isRemoteAsset(value: string): boolean {
+  return /^https?:\/\//i.test(value) || value.startsWith('data:');
+}
+
+function looksLikePathSpec(spec: string): boolean {
+  return (
+    spec.includes('/') ||
+    spec.includes('\\') ||
+    spec.startsWith('.') ||
+    spec.startsWith('~') ||
+    /^[a-zA-Z]:[\\/]/.test(spec) ||
+    spec.endsWith('.json')
+  );
+}
+
+function resolvePathFromConfig(value: unknown, baseDir: string): unknown {
+  if (typeof value !== 'string') return value;
+  const expanded = expandTilde(value);
+  if (!expanded || isRemoteAsset(expanded)) return expanded;
+  if (expanded.startsWith('/') || /^[a-zA-Z]:[\\/]/.test(expanded)) return expanded;
+  return resolve(baseDir, expanded);
+}
+
+function resolveConfigPaths(
+  config: Record<string, unknown>,
+  baseDir: string
+): Record<string, unknown> {
+  const next = { ...config };
+
+  // captions.fontFile
+  if (isPlainObject(next.captions)) {
+    const captions = next.captions as Record<string, unknown>;
+    if ('fontFile' in captions) {
+      captions.fontFile = resolvePathFromConfig(captions.fontFile, baseDir);
     }
 
-    // Key-value pair
-    const kvMatch = trimmed.match(/^(\w+)\s*=\s*(.+)$/);
-    if (kvMatch) {
-      const [, key, rawValue] = kvMatch;
-      const camelKey = key.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
-      currentSection[camelKey] = parseTomlValue(rawValue);
+    // captions.fonts[].src
+    if (Array.isArray(captions.fonts)) {
+      captions.fonts = captions.fonts.map((font) => {
+        if (!isPlainObject(font)) return font;
+        const entry = { ...font };
+        if ('src' in entry) {
+          entry.src = resolvePathFromConfig(entry.src, baseDir);
+        }
+        return entry;
+      });
     }
+
+    next.captions = captions;
   }
 
-  return result;
+  // hooks.dir
+  if (isPlainObject(next.hooks)) {
+    const hooks = next.hooks as Record<string, unknown>;
+    if ('dir' in hooks) {
+      hooks.dir = resolvePathFromConfig(hooks.dir, baseDir);
+    }
+    next.hooks = hooks;
+  }
+
+  // render.template (resolve only if it looks like a path)
+  if (isPlainObject(next.render)) {
+    const render = next.render as Record<string, unknown>;
+    if (typeof render.template === 'string' && looksLikePathSpec(render.template)) {
+      render.template = resolvePathFromConfig(render.template, baseDir);
+    }
+    next.render = render;
+  }
+
+  // generate.workflow (resolve only if it looks like a path)
+  if (isPlainObject(next.generate)) {
+    const generate = next.generate as Record<string, unknown>;
+    if (typeof generate.workflow === 'string' && looksLikePathSpec(generate.workflow)) {
+      generate.workflow = resolvePathFromConfig(generate.workflow, baseDir);
+    }
+    next.generate = generate;
+  }
+
+  return next;
+}
+
+function deepMerge<T extends unknown>(base: T, override: unknown): T {
+  if (Array.isArray(base) || Array.isArray(override)) {
+    return (override !== undefined ? override : base) as T;
+  }
+
+  if (isPlainObject(base) && isPlainObject(override)) {
+    const out: Record<string, unknown> = { ...base };
+    for (const [key, value] of Object.entries(override)) {
+      if (value === undefined) continue;
+      const existing = out[key];
+      out[key] = deepMerge(existing, value);
+    }
+    return out as T;
+  }
+
+  return (override !== undefined ? override : base) as T;
+}
+
+function loadConfigFile(path: string): Record<string, unknown> {
+  const content = readFileSync(path, 'utf-8');
+  const parsedRaw = path.endsWith('.json') ? JSON.parse(content) : parseToml(content);
+  const normalized = normalizeConfigKeys(parsedRaw);
+  if (!isPlainObject(normalized)) {
+    throw new ConfigError(`Invalid config file: expected an object at root`, { path });
+  }
+  return resolveConfigPaths(normalized, dirname(path));
+}
+
+export interface ResolvedConfigFiles {
+  userConfigPath: string | null;
+  projectConfigPath: string | null;
+  envConfigPath: string | null;
+  explicitConfigPath: string | null;
+  loadedConfigPaths: string[];
+}
+
+export function resolveConfigFiles(configPath?: string): ResolvedConfigFiles {
+  const envRaw = typeof process.env.CM_CONFIG === 'string' ? process.env.CM_CONFIG.trim() : '';
+  const envConfigPath = envRaw ? resolve(expandTilde(envRaw)) : null;
+  const explicitConfigPath = configPath ? resolve(expandTilde(configPath)) : null;
+
+  const projectConfigPath = explicitConfigPath ?? envConfigPath ?? findProjectConfigFile();
+  const userConfigPath = findUserConfigFile();
+
+  const loadedConfigPaths: string[] = [];
+  if (userConfigPath) loadedConfigPaths.push(userConfigPath);
+  if (projectConfigPath && projectConfigPath !== userConfigPath)
+    loadedConfigPaths.push(projectConfigPath);
+
+  return {
+    userConfigPath,
+    projectConfigPath,
+    envConfigPath,
+    explicitConfigPath,
+    loadedConfigPaths,
+  };
 }
 
 /**
@@ -370,25 +561,19 @@ export function loadConfig(configPath?: string): Config {
     return cachedConfig;
   }
 
-  let fileConfig: Record<string, unknown> = {};
+  let mergedConfig: Record<string, unknown> = {};
+  const resolved = resolveConfigFiles(configPath);
 
-  // Try to load config file
-  const path = configPath ?? findConfigFile();
-  if (path && existsSync(path)) {
+  for (const path of resolved.loadedConfigPaths) {
     try {
-      const content = readFileSync(path, 'utf-8');
-      if (path.endsWith('.json')) {
-        fileConfig = JSON.parse(content);
-      } else {
-        fileConfig = parseToml(content);
-      }
+      mergedConfig = deepMerge(mergedConfig, loadConfigFile(path));
     } catch (error) {
       throw new ConfigError(`Failed to parse config file: ${path}`, { path, error: String(error) });
     }
   }
 
   // Parse and validate with defaults
-  const result = ConfigSchema.safeParse(fileConfig);
+  const result = ConfigSchema.safeParse(mergedConfig);
   if (!result.success) {
     throw new ConfigError(
       `Invalid configuration: ${result.error.issues.map((i) => i.message).join(', ')}`,
