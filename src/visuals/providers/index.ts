@@ -68,13 +68,16 @@ export function createVideoProvider(name: ProviderName): VideoProvider {
  *
  * Supports both video providers (Pexels, Pixabay) and image providers (NanoBanana).
  */
-export function createAssetProvider(name: AssetProviderName): AssetProvider {
+export function createAssetProvider(
+  name: AssetProviderName,
+  config?: { visuals?: { nanobanana?: { model?: string } } }
+): AssetProvider {
   switch (name) {
     case 'pexels':
       // PexelsProvider implements VideoProvider, wrap it
       return adaptVideoProviderToAssetProvider(new PexelsProvider());
     case 'nanobanana':
-      return new NanoBananaProvider();
+      return new NanoBananaProvider(config?.visuals?.nanobanana?.model);
     case 'mock':
       return adaptVideoProviderToAssetProvider(new MockVideoProvider());
     case 'pixabay':

@@ -2,13 +2,43 @@
  * Shared visual timeline helpers for Remotion compositions.
  */
 import React from 'react';
-import { AbsoluteFill, Sequence, Video, staticFile } from 'remotion';
+import {
+  AbsoluteFill,
+  Img,
+  Sequence,
+  Video,
+  staticFile,
+  interpolate,
+  useCurrentFrame,
+  useVideoConfig,
+} from 'remotion';
 import type { HookClip as HookClipSchema, VisualAsset, VideoClip } from '../../domain';
 import { ensureVisualCoverage, type VisualScene } from '../../visuals/duration';
 
 function resolveMediaSrc(path: string): string {
   if (/^https?:\/\//i.test(path)) return path;
   return staticFile(path);
+}
+
+function isProbablyImageUrl(path: string): boolean {
+  const lowered = path.toLowerCase();
+  return (
+    lowered.endsWith('.png') ||
+    lowered.endsWith('.jpg') ||
+    lowered.endsWith('.jpeg') ||
+    lowered.endsWith('.webp') ||
+    lowered.startsWith('data:image/')
+  );
+}
+
+function hash32(input: string): number {
+  // Tiny deterministic hash for motion variety. Not cryptographic.
+  let h = 2166136261;
+  for (let i = 0; i < input.length; i++) {
+    h ^= input.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
 }
 
 export interface VisualSequenceInfo {
@@ -38,7 +68,14 @@ export function buildVisualTimeline(videoAssets: VisualAsset[], durationMs: numb
         durationMs: assetDurationMs,
       };
     }
-    return { startMs, endMs, url: asset.assetPath, durationMs: assetDurationMs };
+    return {
+      startMs,
+      endMs,
+      url: asset.assetPath,
+      mediaType: asset.assetType ?? (isProbablyImageUrl(asset.assetPath) ? 'image' : 'video'),
+      motionStrategy: asset.motionStrategy ?? 'none',
+      durationMs: assetDurationMs,
+    };
   });
 
   return ensureVisualCoverage(rawScenes, durationMs, { fallbackColor: '#000000' });
@@ -88,14 +125,68 @@ export const SceneBackground: React.FC<SceneBackgroundProps> = ({
         }}
       />
     ) : (
-      <Video
-        src={resolveMediaSrc(scene.url)}
-        muted
-        style={{ width: '100%', height: '100%', objectFit: 'cover', ...videoStyle }}
-      />
+      <SceneMedia scene={scene} videoStyle={videoStyle} />
     )}
   </AbsoluteFill>
 );
+
+const SceneMedia: React.FC<{ scene: VisualScene; videoStyle?: React.CSSProperties }> = ({
+  scene,
+  videoStyle,
+}) => {
+  const url = scene.url as string;
+  const mediaType = scene.mediaType ?? (isProbablyImageUrl(url) ? 'image' : 'video');
+
+  if (mediaType === 'video') {
+    return (
+      <Video
+        src={resolveMediaSrc(url)}
+        muted
+        style={{ width: '100%', height: '100%', objectFit: 'cover', ...videoStyle }}
+      />
+    );
+  }
+
+  // Ken Burns at render-time (no ffmpeg dependency). Uses scene.startMs/endMs
+  // to make the animation restart for each scene despite global frame numbers.
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
+  const startFrame = Math.max(0, Math.round((scene.startMs / 1000) * fps));
+  const endFrame = Math.max(startFrame + 1, Math.round((scene.endMs / 1000) * fps));
+  const durationInFrames = Math.max(1, endFrame - startFrame);
+  const rel = frame - startFrame;
+
+  const t = interpolate(rel, [0, durationInFrames], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
+  const seed = hash32(url);
+  const dirX = seed % 2 === 0 ? 1 : -1;
+  const dirY = seed % 3 === 0 ? 1 : -1;
+  const panX = ((seed % 17) / 17) * 3.5 * dirX; // percent
+  const panY = (((seed >>> 5) % 19) / 19) * 3.5 * dirY; // percent
+  const zoomStart = 1.06;
+  const zoomEnd = scene.motionStrategy === 'kenburns' ? 1.14 : 1.06;
+  const scale = interpolate(t, [0, 1], [zoomStart, zoomEnd]);
+  const translateX = interpolate(t, [0, 1], [0, -panX]);
+  const translateY = interpolate(t, [0, 1], [0, -panY]);
+
+  return (
+    <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
+      <Img
+        src={resolveMediaSrc(url)}
+        style={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          transform: `translate(${translateX}%, ${translateY}%) scale(${scale})`,
+          ...videoStyle,
+        }}
+      />
+    </div>
+  );
+};
 
 export interface HookClipProps {
   hook: HookClipSchema;

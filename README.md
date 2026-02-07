@@ -299,10 +299,21 @@ OPENAI_API_KEY=sk-...
 
 # Optional
 PEXELS_API_KEY=...         # For stock footage
+GEMINI_API_KEY=...         # For AI image generation (provider: nanobanana)
+GOOGLE_API_KEY=...         # Alias for GEMINI_API_KEY (either works)
 BRAVE_SEARCH_API_KEY=...   # For cm research --sources web
 TAVILY_API_KEY=...         # For cm research --sources tavily (and auto-research in cm generate)
 REDDIT_CLIENT_ID=...       # Optional (some Reddit features may use auth)
 REDDIT_CLIENT_SECRET=...   # Optional
+```
+
+### AI Images (Gemini)
+
+Generate per-scene AI images (and animate them at render-time):
+
+```bash
+cm visuals --input timestamps.json --provider nanobanana --motion-strategy kenburns --output visuals.json
+cm render --input visuals.json --audio audio.wav --timestamps timestamps.json --output video.mp4
 ```
 
 ### Config Files

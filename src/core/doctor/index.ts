@@ -184,8 +184,19 @@ function buildLlmKeyCheck(config: any): DoctorCheck | null {
 function buildVisualsKeyCheck(config: any): DoctorCheck | null {
   const visualsProvider = config?.visuals?.provider;
   if (!visualsProvider) return null;
-  const visualsKey = visualsProvider === 'pexels' ? 'PEXELS_API_KEY' : 'PIXABAY_API_KEY';
-  const visualsKeyPresent = Boolean(process.env[visualsKey]);
+  const visualsKey =
+    visualsProvider === 'pexels'
+      ? 'PEXELS_API_KEY'
+      : visualsProvider === 'pixabay'
+        ? 'PIXABAY_API_KEY'
+        : visualsProvider === 'nanobanana'
+          ? 'GOOGLE_API_KEY (or GEMINI_API_KEY)'
+          : 'UNKNOWN';
+
+  const visualsKeyPresent =
+    visualsProvider === 'nanobanana'
+      ? Boolean(process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY)
+      : Boolean(process.env[visualsKey]);
   return {
     id: 'visuals-provider',
     label: 'Visuals provider',
@@ -193,7 +204,11 @@ function buildVisualsKeyCheck(config: any): DoctorCheck | null {
     detail: visualsKeyPresent
       ? `${visualsProvider} (${visualsKey} set)`
       : `${visualsProvider} (${visualsKey} missing)`,
-    fix: visualsKeyPresent ? undefined : `Set ${visualsKey} in your environment or .env file`,
+    fix: visualsKeyPresent
+      ? undefined
+      : visualsProvider === 'nanobanana'
+        ? 'Set GOOGLE_API_KEY (or GEMINI_API_KEY) in your environment or .env file'
+        : `Set ${visualsKey} in your environment or .env file`,
     code: visualsKeyPresent ? undefined : 'CONFIG_WARN',
   };
 }

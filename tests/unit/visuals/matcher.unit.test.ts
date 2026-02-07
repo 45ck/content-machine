@@ -1,9 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { TimestampsOutput } from '../../../src/domain';
 
-const extractKeywordsMock = vi.fn();
-const createVideoProviderMock = vi.fn();
-const selectGameplayClipMock = vi.fn();
+const { extractKeywordsMock, createAssetProviderMock, selectGameplayClipMock } = vi.hoisted(() => ({
+  extractKeywordsMock: vi.fn(),
+  createAssetProviderMock: vi.fn(),
+  selectGameplayClipMock: vi.fn(),
+}));
 
 vi.mock('../../../src/visuals/keywords.js', () => ({
   extractKeywords: extractKeywordsMock,
@@ -11,7 +13,7 @@ vi.mock('../../../src/visuals/keywords.js', () => ({
 }));
 
 vi.mock('../../../src/visuals/providers/index.js', () => ({
-  createVideoProvider: createVideoProviderMock,
+  createAssetProvider: createAssetProviderMock,
 }));
 
 vi.mock('../../../src/visuals/gameplay.js', () => ({
@@ -35,13 +37,29 @@ function buildTimestamps(): TimestampsOutput {
 describe('matchVisuals', () => {
   beforeEach(() => {
     extractKeywordsMock.mockReset();
-    createVideoProviderMock.mockReset();
+    createAssetProviderMock.mockReset();
     selectGameplayClipMock.mockResolvedValue(null);
   });
 
   it('matches keywords with the provider and reports progress', async () => {
-    const searchMock = vi.fn().mockResolvedValue([{ url: 'https://example.com/clip.mp4' }]);
-    createVideoProviderMock.mockReturnValue({ name: 'pexels', search: searchMock });
+    const searchMock = vi.fn().mockResolvedValue([
+      {
+        id: 'clip-1',
+        url: 'https://example.com/clip.mp4',
+        type: 'video',
+        width: 1080,
+        height: 1920,
+      },
+    ]);
+    createAssetProviderMock.mockReturnValue({
+      name: 'pexels',
+      assetType: 'video',
+      requiresMotion: false,
+      costPerAsset: 0,
+      search: searchMock,
+      isAvailable: () => true,
+      estimateCost: () => 0,
+    });
 
     extractKeywordsMock.mockResolvedValue([
       { keyword: 'laptop typing', sectionId: 'scene-1', startTime: 0, endTime: 2 },
@@ -62,11 +80,27 @@ describe('matchVisuals', () => {
   it('falls back to abstract results when the first search fails', async () => {
     const searchMock = vi.fn(async (params: { query: string }) => {
       if (params.query === 'abstract motion background') {
-        return [{ url: 'https://example.com/abstract.mp4' }];
+        return [
+          {
+            id: 'abs-1',
+            url: 'https://example.com/abstract.mp4',
+            type: 'video',
+            width: 1080,
+            height: 1920,
+          },
+        ];
       }
       return [];
     });
-    createVideoProviderMock.mockReturnValue({ name: 'pexels', search: searchMock });
+    createAssetProviderMock.mockReturnValue({
+      name: 'pexels',
+      assetType: 'video',
+      requiresMotion: false,
+      costPerAsset: 0,
+      search: searchMock,
+      isAvailable: () => true,
+      estimateCost: () => 0,
+    });
 
     extractKeywordsMock.mockResolvedValue([
       { keyword: 'missing footage', sectionId: 'scene-1', startTime: 0, endTime: 2 },
@@ -81,7 +115,15 @@ describe('matchVisuals', () => {
 
   it('uses solid color fallback when all searches fail', async () => {
     const searchMock = vi.fn().mockResolvedValue([]);
-    createVideoProviderMock.mockReturnValue({ name: 'pexels', search: searchMock });
+    createAssetProviderMock.mockReturnValue({
+      name: 'pexels',
+      assetType: 'video',
+      requiresMotion: false,
+      costPerAsset: 0,
+      search: searchMock,
+      isAvailable: () => true,
+      estimateCost: () => 0,
+    });
 
     extractKeywordsMock.mockResolvedValue([
       { keyword: 'missing footage', sectionId: 'scene-1', startTime: 0, endTime: 2 },

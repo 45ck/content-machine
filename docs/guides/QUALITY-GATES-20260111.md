@@ -17,11 +17,17 @@ Define the strict success criteria for code health in this repo and how to verif
 1. Run the strict quality gate:
    - `npm run quality`
 2. Confirm the exit code is 0.
+3. (Optional, slower) Run mutation testing:
+   - `npm run mutation`
+4. (Optional, slowest) Run the full suite:
+   - `npm run quality:full`
 
 ## Examples
 
 ```bash
 npm run quality
+npm run mutation
+npm run quality:full
 ```
 
 ## Troubleshooting
@@ -32,8 +38,11 @@ npm run quality
   - **Fix:** Ensure required fixtures exist or run in the same environment as CI.
 - **Symptom:** Duplication check fails.
   - **Fix:** Refactor duplicate blocks or update the jscpd config with justification.
+- **Symptom:** Mutation score is below the break threshold.
+  - **Fix:** Add/strengthen unit tests for the mutated module(s), then rerun `npm run mutation`.
 
 ## Related
 
 - `package.json`
+- `stryker.conf.json`
 - `docs/architecture/SYSTEM-DESIGN-20260104.md`

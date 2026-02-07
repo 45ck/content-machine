@@ -5,7 +5,7 @@
  * This provider generates images that require motion strategies for video output.
  *
  * Supported models:
- * - gemini-2.5-flash-preview-image (fast, ~$0.04/image)
+ * - gemini-2.5-flash-image (fast, ~$0.04/image)
  * - gemini-3-pro-image-preview (high quality, ~$0.08/image)
  *
  * See ADR-002-VISUAL-PROVIDER-SYSTEM-20260107.md
@@ -14,6 +14,10 @@
 import type { AssetProvider, AssetType, AssetSearchOptions, VisualAssetResult } from './types.js';
 import { getApiKey, getOptionalApiKey } from '../../core/config.js';
 import { createLogger } from '../../core/logger.js';
+import { createHash } from 'node:crypto';
+import { mkdir, stat, writeFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { homedir } from 'node:os';
 
 const log = createLogger({ module: 'nanobanana-provider' });
 
@@ -26,7 +30,96 @@ const DEFAULT_COST_PER_ASSET = 0.04;
 /**
  * Default model for image generation.
  */
-const DEFAULT_MODEL = 'gemini-2.5-flash-preview-image';
+const DEFAULT_MODEL = 'gemini-2.5-flash-image';
+
+const DEFAULT_CACHE_DIR = join(homedir(), '.cm', 'assets', 'generated', 'nanobanana');
+
+function sha256Hex(input: string): string {
+  return createHash('sha256').update(input).digest('hex');
+}
+
+async function isOkFile(path: string): Promise<boolean> {
+  try {
+    const info = await stat(path);
+    return info.isFile() && info.size > 0;
+  } catch {
+    return false;
+  }
+}
+
+function extForMimeType(mimeType: string | undefined): string {
+  if (!mimeType) return '.png';
+  const m = mimeType.toLowerCase();
+  if (m === 'image/png') return '.png';
+  if (m === 'image/jpeg' || m === 'image/jpg') return '.jpg';
+  if (m === 'image/webp') return '.webp';
+  return '.png';
+}
+
+type GeminiGenerateContentResponse = {
+  candidates?: Array<{
+    content?: {
+      parts?: Array<{
+        inlineData?: { mimeType?: string; data?: string };
+        text?: string;
+      }>;
+    };
+  }>;
+  promptFeedback?: { blockReason?: string };
+};
+
+async function generateGeminiImage(params: {
+  apiKey: string;
+  model: string;
+  prompt: string;
+}): Promise<{ mimeType: string; bytesBase64: string }> {
+  const { apiKey, model, prompt } = params;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
+    model
+  )}:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      // Part of the Gemini image-generation API request. If the backend ignores
+      // it, we still attempt to parse inline image parts.
+      generationConfig: {
+        responseModalities: ['IMAGE'],
+      },
+    }),
+  });
+
+  const raw = await res.text();
+  if (!res.ok) {
+    throw new Error(`Gemini API HTTP ${res.status}: ${raw.slice(0, 300)}`);
+  }
+
+  let json: GeminiGenerateContentResponse;
+  try {
+    json = JSON.parse(raw) as GeminiGenerateContentResponse;
+  } catch {
+    throw new Error(`Gemini API returned non-JSON: ${raw.slice(0, 300)}`);
+  }
+
+  if (json.promptFeedback?.blockReason) {
+    throw new Error(`Gemini prompt blocked: ${json.promptFeedback.blockReason}`);
+  }
+
+  const parts = json.candidates?.[0]?.content?.parts ?? [];
+  const inline = parts.find((p) => p.inlineData?.data)?.inlineData;
+  if (!inline?.data) {
+    const text = parts
+      .map((p) => p.text)
+      .filter(Boolean)
+      .join(' ')
+      .slice(0, 200);
+    throw new Error(`Gemini image missing inlineData. Got text: ${text || '(none)'}`);
+  }
+
+  return { mimeType: inline.mimeType ?? 'image/png', bytesBase64: inline.data };
+}
 
 /**
  * NanoBanana Provider - Gemini image generation for visual content.
@@ -54,9 +147,11 @@ export class NanoBananaProvider implements AssetProvider {
   readonly costPerAsset = DEFAULT_COST_PER_ASSET;
 
   private model: string;
+  private cacheDir: string;
 
-  constructor(model?: string) {
+  constructor(model?: string, cacheDir?: string) {
     this.model = model ?? DEFAULT_MODEL;
+    this.cacheDir = cacheDir ?? DEFAULT_CACHE_DIR;
   }
 
   /**
@@ -81,13 +176,13 @@ export class NanoBananaProvider implements AssetProvider {
     log.info({ prompt, model: this.model }, 'Generating image');
 
     // Ensure API key is available
-    this.getApiKey();
+    const apiKey = this.getApiKey();
 
     const enhancedPrompt = this.buildPrompt(prompt, options);
     const { width, height } = this.getDimensions(options?.orientation);
 
     try {
-      const result = await this.generateImage(enhancedPrompt, { width, height });
+      const result = await this.generateImage(enhancedPrompt, { width, height, apiKey });
 
       log.info({ id: result.id }, 'Image generated successfully');
 
@@ -195,13 +290,32 @@ export class NanoBananaProvider implements AssetProvider {
    */
   protected async generateImage(
     _prompt: string,
-    _options: { width: number; height: number }
+    _options: { width: number; height: number; apiKey: string }
   ): Promise<{ id: string; url: string; width: number; height: number }> {
-    // In a real implementation, this would call the Gemini API
-    // For now, we throw to indicate it's not implemented yet
-    throw new Error(
-      'Gemini API integration not yet implemented. ' +
-        'Set up @google/generative-ai package and implement generateImage().'
-    );
+    const { width, height, apiKey } = _options;
+    const cacheKey = sha256Hex(
+      JSON.stringify({ model: this.model, prompt: _prompt, width, height })
+    )
+      .slice(0, 24)
+      .toLowerCase();
+
+    await mkdir(this.cacheDir, { recursive: true });
+
+    // Use PNG by default; if the API returns something else we swap extension.
+    const defaultPath = join(this.cacheDir, `${cacheKey}.png`);
+    if (await isOkFile(defaultPath)) {
+      return { id: cacheKey, url: defaultPath, width, height };
+    }
+
+    const generated = await generateGeminiImage({ apiKey, model: this.model, prompt: _prompt });
+    const ext = extForMimeType(generated.mimeType);
+    const finalPath = ext === '.png' ? defaultPath : join(this.cacheDir, `${cacheKey}${ext}`);
+
+    if (!(await isOkFile(finalPath))) {
+      const buf = Buffer.from(generated.bytesBase64, 'base64');
+      await writeFile(finalPath, buf);
+    }
+
+    return { id: cacheKey, url: finalPath, width, height };
   }
 }

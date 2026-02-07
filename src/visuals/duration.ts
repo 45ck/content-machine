@@ -15,8 +15,12 @@ export interface VisualScene {
   startMs: number;
   /** End time in milliseconds */
   endMs: number;
-  /** Video URL (null for color-only scenes) */
+  /** Media URL/path (null for color-only scenes) */
   url: string | null;
+  /** Whether this scene is a video or a still image. */
+  mediaType?: 'video' | 'image';
+  /** Motion strategy hint for image scenes (render-time effects). */
+  motionStrategy?: 'none' | 'kenburns' | 'depthflow' | 'veo';
   /** Optional background color for fallback scenes */
   backgroundColor?: string;
   /** Original video duration in ms (for looping calculation) */
@@ -148,6 +152,8 @@ export function ensureVisualCoverage(
         startMs: currentEnd,
         endMs: currentEnd + loopDuration,
         url: lastScene.url,
+        mediaType: lastScene.mediaType,
+        motionStrategy: lastScene.motionStrategy,
         durationMs: originalDuration,
       });
       currentEnd += loopDuration;

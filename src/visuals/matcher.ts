@@ -16,19 +16,27 @@ import {
   VisualAssetInput,
   Keyword,
   VISUALS_SCHEMA_VERSION,
+  type MotionStrategyType,
+  type VisualSource,
 } from './schema.js';
 import { extractKeywords, generateMockKeywords } from './keywords.js';
-import { createVideoProvider, type VideoProvider, type ProviderName } from './providers/index.js';
+import {
+  createAssetProvider,
+  type AssetProvider,
+  type AssetProviderName,
+} from './providers/index.js';
 import { selectGameplayClip } from './gameplay.js';
+import { loadConfig } from '../core/config.js';
 
 export type { VisualsOutput, VisualAsset } from './schema.js';
 export type { VideoClip } from './schema.js'; // Deprecated re-export
 
 export interface MatchVisualsOptions {
   timestamps: TimestampsOutput;
-  provider?: ProviderName;
+  provider?: AssetProviderName;
   orientation?: 'portrait' | 'landscape' | 'square';
   mock?: boolean;
+  motionStrategy?: MotionStrategyType;
   gameplay?: {
     library?: string;
     style?: string;
@@ -48,87 +56,126 @@ export interface VisualsProgressEvent {
 
 interface VideoMatchResult {
   asset: VisualAssetInput;
-  fromStock: boolean;
   isFallback: boolean;
 }
 
-type AssetSource = 'user-footage' | 'stock-pexels' | 'stock-pixabay' | 'fallback-color' | 'mock';
+function toVisualSource(provider: AssetProvider, resultType: 'video' | 'image'): VisualSource {
+  if (provider.name === 'pexels') return 'stock-pexels';
+  if (provider.name === 'pixabay') return 'stock-pixabay';
+  if (provider.name === 'nanobanana') return 'generated-nanobanana';
+  if (provider.name === 'dalle') return 'generated-dalle';
+  if (provider.name === 'unsplash') return 'stock-unsplash';
+  if (provider.name === 'mock') return 'mock';
+
+  // Best-effort defaults to keep schema valid.
+  return resultType === 'image' ? 'generated-nanobanana' : 'stock-pexels';
+}
 
 /**
- * Match a single keyword to video footage
+ * Match a single keyword to a visual asset (video or image).
  */
-async function matchKeywordToVideo(
+async function matchKeywordToAsset(
   keyword: Keyword,
-  videoProvider: VideoProvider,
+  provider: AssetProvider,
   orientation: 'portrait' | 'landscape' | 'square',
+  motionStrategy: MotionStrategyType,
   log: ReturnType<typeof createLogger>
 ): Promise<VideoMatchResult> {
-  const source: AssetSource = `stock-${videoProvider.name}` as AssetSource;
   const duration = keyword.endTime - keyword.startTime;
 
   try {
-    const results = await videoProvider.search({
+    const results = await provider.search({
       query: keyword.keyword,
       orientation,
       perPage: 5,
     });
 
     if (results.length === 0) {
-      throw new NotFoundError(`No videos found for: ${keyword.keyword}`);
+      throw new NotFoundError(`No assets found for: ${keyword.keyword}`);
     }
 
-    const video = results[0];
+    const assetResult = results[0];
+    const source = toVisualSource(provider, assetResult.type);
     return {
       asset: {
         sceneId: keyword.sectionId,
         source,
-        assetPath: video.url,
+        assetPath: assetResult.url,
         duration,
+        assetType: assetResult.type,
+        ...(assetResult.type === 'image'
+          ? {
+              motionStrategy,
+              motionApplied: false,
+              generationPrompt:
+                (assetResult.metadata?.prompt as string | undefined) ?? keyword.keyword,
+              generationModel: (assetResult.metadata?.model as string | undefined) ?? undefined,
+              generationCost: provider.costPerAsset,
+            }
+          : { motionStrategy: 'none' as const, motionApplied: false }),
         matchReasoning: {
-          reasoning: `Found video matching keyword "${keyword.keyword}"`,
+          reasoning: `Found ${assetResult.type} matching keyword "${keyword.keyword}"`,
           conceptsMatched: [keyword.keyword],
         },
       },
-      fromStock: true,
       isFallback: false,
     };
   } catch (error) {
-    log.warn({ keyword: keyword.keyword, error }, 'Failed to find video, using fallback');
-    return tryFallbackVideo(keyword, videoProvider, orientation, duration, source, log);
+    log.warn({ keyword: keyword.keyword, error }, 'Failed to find asset, using fallback');
+    return tryFallbackAsset(keyword, provider, orientation, motionStrategy, duration, log);
   }
 }
 
 /**
- * Try fallback video search with generic query
+ * Try fallback search with generic query.
  */
-async function tryFallbackVideo(
+async function tryFallbackAsset(
   keyword: Keyword,
-  videoProvider: VideoProvider,
+  provider: AssetProvider,
   orientation: 'portrait' | 'landscape' | 'square',
+  motionStrategy: MotionStrategyType,
   duration: number,
-  source: AssetSource,
   log: ReturnType<typeof createLogger>
 ): Promise<VideoMatchResult> {
   try {
-    const results = await videoProvider.search({
-      query: 'abstract motion background',
+    const results = await provider.search({
+      query:
+        provider.assetType === 'image'
+          ? 'abstract cinematic background, no text'
+          : 'abstract motion background',
       orientation,
       perPage: 3,
     });
 
     if (results.length > 0) {
+      const assetResult = results[0];
+      const source = toVisualSource(provider, assetResult.type);
       return {
         asset: {
           sceneId: keyword.sectionId,
           source,
-          assetPath: results[0].url,
+          assetPath: assetResult.url,
           duration,
+          assetType: assetResult.type,
+          ...(assetResult.type === 'image'
+            ? {
+                motionStrategy,
+                motionApplied: false,
+                generationPrompt:
+                  (assetResult.metadata?.prompt as string | undefined) ??
+                  'abstract cinematic background, no text',
+                generationModel: (assetResult.metadata?.model as string | undefined) ?? undefined,
+                generationCost: provider.costPerAsset,
+              }
+            : { motionStrategy: 'none' as const, motionApplied: false }),
           matchReasoning: {
             reasoning: `Fallback to abstract background - original query "${keyword.keyword}" failed`,
-            conceptsMatched: ['abstract', 'motion', 'background'],
+            conceptsMatched:
+              assetResult.type === 'image'
+                ? ['abstract', 'cinematic', 'background']
+                : ['abstract', 'motion', 'background'],
           },
         },
-        fromStock: true,
         isFallback: true,
       };
     }
@@ -143,11 +190,13 @@ async function tryFallbackVideo(
       source: 'fallback-color',
       assetPath: '#1a1a2e',
       duration,
+      assetType: 'video',
+      motionStrategy: 'none',
+      motionApplied: false,
       matchReasoning: {
-        reasoning: `No video found for "${keyword.keyword}", using solid color fallback`,
+        reasoning: `No asset found for "${keyword.keyword}", using solid color fallback`,
       },
     },
-    fromStock: false,
     isFallback: true,
   };
 }
@@ -213,6 +262,9 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
   const orientation = options.orientation ?? 'portrait';
   const emit = createProgressEmitter(options.onProgress, log);
   const gameplay = options.gameplay;
+  const config = loadConfig();
+  const motionStrategy: MotionStrategyType =
+    options.motionStrategy ?? (config.visuals.motionStrategy as MotionStrategyType);
 
   const gameplayClip = gameplay
     ? await selectGameplayClip({
@@ -248,12 +300,32 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
     });
   }
 
-  // Create the video provider (Strategy pattern)
-  const videoProvider = createVideoProvider(providerName as ProviderName);
+  // Create the asset provider (Strategy pattern)
+  const assetProvider = createAssetProvider(providerName as AssetProviderName, {
+    visuals: config.visuals,
+  });
   const scenes = options.timestamps.scenes ?? [];
 
   // Extract keywords using LLM
-  const keywords = await extractKeywords({ scenes });
+  let keywords: Keyword[];
+  try {
+    keywords = await extractKeywords({ scenes, config });
+  } catch (error) {
+    log.warn({ error }, 'Keyword extraction failed; falling back to naive per-scene keywords');
+    keywords = scenes.map((scene) => {
+      const raw = scene.words
+        .map((w) => w.word)
+        .join(' ')
+        .trim();
+      const hint = raw.split(/\s+/).slice(0, 4).join(' ');
+      return {
+        keyword: hint || 'abstract background',
+        sectionId: scene.sceneId,
+        startTime: scene.audioStart,
+        endTime: scene.audioEnd,
+      };
+    });
+  }
   log.info({ keywordCount: keywords.length }, 'Keywords extracted');
   emit({
     phase: 'keywords',
@@ -263,16 +335,20 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
     total: keywords.length,
   });
 
-  // Match each keyword to video
+  // Match each keyword to an asset
   const visualAssets: VisualAssetInput[] = [];
   let fallbacks = 0;
-  let fromStock = 0;
 
   for (let index = 0; index < keywords.length; index++) {
     const keyword = keywords[index];
-    const result = await matchKeywordToVideo(keyword, videoProvider, orientation, log);
+    const result = await matchKeywordToAsset(
+      keyword,
+      assetProvider,
+      orientation,
+      motionStrategy,
+      log
+    );
     visualAssets.push(result.asset);
-    if (result.fromStock) fromStock++;
     if (result.isFallback) fallbacks++;
 
     const completed = index + 1;
@@ -286,6 +362,13 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
     });
   }
 
+  const fromStock = visualAssets.filter(
+    (a) => a.source === 'stock-pexels' || a.source === 'stock-pixabay'
+  ).length;
+  const fromGenerated = visualAssets.filter(
+    (a) => a.source === 'generated-nanobanana' || a.source === 'generated-dalle'
+  ).length;
+
   const output = {
     schemaVersion: VISUALS_SCHEMA_VERSION,
     scenes: visualAssets,
@@ -293,6 +376,8 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
     fromUserFootage: 0,
     fromStock,
     fallbacks,
+    fromGenerated,
+    motionStrategy,
     keywords,
     totalDuration: options.timestamps.totalDuration,
     ...(gameplayClip ? { gameplayClip } : {}),

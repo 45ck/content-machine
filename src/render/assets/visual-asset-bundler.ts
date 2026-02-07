@@ -81,8 +81,14 @@ export function buildVisualAssetBundlePlan(visuals: VisualsOutputInput): VisualA
       urls.add(path);
       continue;
     }
-    if (scene.source !== 'user-footage') continue;
     if (!isLocalPathCandidate(path)) continue;
+    const isUserOrGenerated =
+      scene.source === 'user-footage' ||
+      scene.source === 'generated-nanobanana' ||
+      scene.source === 'generated-dalle' ||
+      scene.source === 'stock-unsplash' ||
+      scene.source === 'mock';
+    if (!isUserOrGenerated) continue;
     locals.add(path);
   }
 

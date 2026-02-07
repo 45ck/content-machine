@@ -33,10 +33,12 @@ export default defineConfig({
       ],
       // Overall thresholds - set to current baseline, ratchet up as tests added
       thresholds: {
-        lines: 18,
-        functions: 55,
-        statements: 18,
-        branches: 50,
+        // Baseline as of 2026-02-07 (see `npm run test:coverage`).
+        // Keep this slightly below current to avoid flakiness while preventing regressions.
+        lines: 75,
+        functions: 85,
+        statements: 75,
+        branches: 68,
         // NOTE: perFile: true deferred until coverage ~70%
 
         // Glob-specific thresholds (enable when ready):

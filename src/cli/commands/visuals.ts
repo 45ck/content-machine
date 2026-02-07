@@ -106,6 +106,7 @@ function buildVisualsSummary(params: {
     ['Duration', visuals.totalDuration ? `${visuals.totalDuration.toFixed(1)}s` : 'N/A'],
     ['Provider', String(options.provider)],
     ['From stock', String(visuals.fromStock)],
+    ['From generated', String(visuals.fromGenerated)],
     ['Fallbacks', String(visuals.fallbacks)],
     ['Visuals', String(options.output)],
   ];
@@ -125,7 +126,17 @@ export const visualsCommand = new Command('visuals')
   .description('Find matching stock footage for script scenes')
   .requiredOption('-i, --input <path>', 'Input timestamps JSON file')
   .option('-o, --output <path>', 'Output visuals file path', 'visuals.json')
-  .option('--provider <provider>', 'Stock footage provider', 'pexels')
+  .option(
+    '--provider <provider>',
+    'Visual provider (stock video: pexels; AI images: nanobanana)',
+    'pexels'
+  )
+  .option('--asset-provider <provider>', 'Alias for --provider (preferred name in ADR)', undefined)
+  .option(
+    '--motion-strategy <strategy>',
+    'Motion strategy for image providers (none|kenburns|depthflow|veo)',
+    undefined
+  )
   .option('--orientation <type>', 'Footage orientation', 'portrait')
   .option('--gameplay <path>', 'Gameplay library directory or clip file path')
   .option('--gameplay-style <name>', 'Gameplay subfolder name (e.g., subway-surfers)')
@@ -137,8 +148,14 @@ export const visualsCommand = new Command('visuals')
 
     try {
       const config = loadConfig();
+      if (options.assetProvider && command.getOptionValueSource('provider') === 'default') {
+        options.provider = options.assetProvider;
+      }
       if (command.getOptionValueSource('provider') === 'default') {
         options.provider = config.visuals.provider;
+      }
+      if (command.getOptionValueSource('motionStrategy') === 'default') {
+        options.motionStrategy = config.visuals.motionStrategy;
       }
       if (command.getOptionValueSource('orientation') === 'default') {
         options.orientation = config.defaults.orientation;
@@ -156,6 +173,7 @@ export const visualsCommand = new Command('visuals')
         provider: options.provider,
         orientation: options.orientation,
         mock: Boolean(options.mock),
+        motionStrategy: options.motionStrategy,
         gameplay,
         onProgress,
       });
@@ -175,6 +193,7 @@ export const visualsCommand = new Command('visuals')
               input: options.input,
               output: options.output,
               provider: options.provider,
+              motionStrategy: options.motionStrategy ?? null,
               orientation: options.orientation,
               mock: Boolean(options.mock),
               gameplay: options.gameplay ?? null,
@@ -187,6 +206,7 @@ export const visualsCommand = new Command('visuals')
               totalDurationSeconds: visuals.totalDuration ?? null,
               fromStock: visuals.fromStock,
               fallbacks: visuals.fallbacks,
+              fromGenerated: visuals.fromGenerated,
               gameplayClip: visuals.gameplayClip?.path ?? null,
             },
             timingsMs: Date.now() - runtime.startTime,

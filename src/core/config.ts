@@ -79,8 +79,19 @@ const AmbienceConfigSchema = z.object({
   fadeOutMs: z.number().int().nonnegative().default(400),
 });
 
+const VisualsProviderEnum = z.enum(['pexels', 'pixabay', 'nanobanana']);
+const MotionStrategyEnum = z.enum(['none', 'kenburns', 'depthflow', 'veo']);
+
+const NanoBananaConfigSchema = z.object({
+  /** Gemini image generation model id (Gemini Developer API). */
+  model: z.string().default('gemini-2.5-flash-image'),
+});
+
 const VisualsConfigSchema = z.object({
-  provider: z.enum(['pexels', 'pixabay']).default('pexels'),
+  provider: VisualsProviderEnum.default('pexels'),
+  /** Default motion strategy for image-based providers. */
+  motionStrategy: MotionStrategyEnum.default('kenburns'),
+  nanobanana: NanoBananaConfigSchema.default({}),
   cacheEnabled: z.boolean().default(true),
   cacheTtl: z.number().int().positive().default(3600),
 });
