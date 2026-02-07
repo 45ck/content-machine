@@ -10,6 +10,7 @@
 
 - [AGENTS.md](../AGENTS.md) - Project overview, north star, commands
 - [SYSTEM-DESIGN-20260104.md](architecture/SYSTEM-DESIGN-20260104.md) - Authoritative spec (3,100 lines)
+- [Platform Expansion Roadmap](features/feature-platform-expansion-roadmap-20260207.md) - Adoption + templates + brand kits + inputs
 - [On-Demand Assets Feature](features/feature-on-demand-assets-20260111.md) - Minimal install + targeted downloads
 - [On-Demand Assets Implementation](architecture/IMPL-ON-DEMAND-ASSETS-20260111.md) - Options + rollout plan
 - [Ubiquitous Language Guide](guides/guide-ubiquitous-language-20260110.md) - Canonical terminology
