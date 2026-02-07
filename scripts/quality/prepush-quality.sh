@@ -20,4 +20,4 @@ if [ -d "$repo_root/node_modules" ]; then
   ln -s "$repo_root/node_modules" "$tmp_dir/node_modules"
 fi
 
-scripts/quality/with-node20.sh sh -c "cd \"$tmp_dir\" && npm run quality"
+scripts/quality/with-node20.sh sh -c "cd \"$tmp_dir\" && npm run quality:push"
