@@ -20,5 +20,5 @@
   ],
   "format": ["typescript", "javascript"],
   "minTokens": 70,
-  "absolute": true
+  "absolute": false
 }
