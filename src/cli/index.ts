@@ -17,6 +17,8 @@ type CommandLoader = () => Promise<Command>;
 const COMMAND_LOADERS: Array<[string, CommandLoader]> = [
   ['mcp', async () => (await import('./commands/mcp')).mcpCommand],
   ['config', async () => (await import('./commands/config')).configCommand],
+  ['doctor', async () => (await import('./commands/doctor')).doctorCommand],
+  ['demo', async () => (await import('./commands/demo')).demoCommand],
   ['script', async () => (await import('./commands/script')).scriptCommand],
   ['audio', async () => (await import('./commands/audio')).audioCommand],
   ['visuals', async () => (await import('./commands/visuals')).visualsCommand],

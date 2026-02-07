@@ -98,7 +98,7 @@ benchCommand
               ffprobe: options.ffprobe ?? 'ffprobe',
               overwrite: Boolean(options.overwrite),
             },
-            outputs: result,
+            outputs: result as unknown as Record<string, unknown>,
             timingsMs: Date.now() - runtime.startTime,
           })
         );

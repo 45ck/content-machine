@@ -12,6 +12,12 @@ vi.mock('../../../../src/render/templates/installer', () => ({
   installTemplatePack: vi.fn(),
 }));
 
+vi.mock('../../../../src/render/templates/dev', () => ({
+  scaffoldVideoTemplate: vi.fn(),
+  packVideoTemplate: vi.fn(),
+  previewVideoTemplate: vi.fn(),
+}));
+
 vi.mock('../../../../src/cli/utils', () => ({
   handleCommandError: vi.fn(() => {
     throw new Error('handled');
@@ -113,5 +119,44 @@ describe('cli templates command', () => {
 
     await capture.reset();
     expect(capture.stderr.join('')).toContain('Installed template');
+  });
+
+  it('scaffolds a template in json mode', async () => {
+    await configureRuntime({ json: true });
+    const capture = await captureOutput();
+
+    const { scaffoldVideoTemplate } = await import('../../../../src/render/templates/dev');
+    (scaffoldVideoTemplate as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: 'acme-demo',
+      templateDir: '/tmp/acme-demo',
+      templatePath: '/tmp/acme-demo/template.json',
+    });
+
+    const { templatesCommand } = await import('../../../../src/cli/commands/templates');
+    await templatesCommand.parseAsync(['new', 'acme-demo'], { from: 'user' });
+
+    await capture.reset();
+    const payload = JSON.parse(capture.stdout.join(''));
+    expect(payload.command).toBe('templates:new');
+    expect(payload.outputs.templateId).toBe('acme-demo');
+  });
+
+  it('packs a template dir in json mode', async () => {
+    await configureRuntime({ json: true });
+    const capture = await captureOutput();
+
+    const { packVideoTemplate } = await import('../../../../src/render/templates/dev');
+    (packVideoTemplate as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: 'acme-demo',
+      outputPath: '/tmp/acme-demo.zip',
+    });
+
+    const { templatesCommand } = await import('../../../../src/cli/commands/templates');
+    await templatesCommand.parseAsync(['pack', '/tmp/acme-demo'], { from: 'user' });
+
+    await capture.reset();
+    const payload = JSON.parse(capture.stdout.join(''));
+    expect(payload.command).toBe('templates:pack');
+    expect(payload.outputs.templateId).toBe('acme-demo');
   });
 });

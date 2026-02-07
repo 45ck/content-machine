@@ -168,17 +168,20 @@ content-machine/
 
 ## 📋 Command Reference
 
-| Command       | Description                     | Primary Output                 |
-| ------------- | ------------------------------- | ------------------------------ |
-| `cm generate` | Full pipeline: topic → video    | `video.mp4`                    |
-| `cm script`   | Generate script from topic      | `script.json`                  |
-| `cm audio`    | Generate voiceover + timestamps | `audio.wav`, `timestamps.json` |
-| `cm visuals`  | Find matching stock footage     | `visuals.json`                 |
-| `cm render`   | Render final video              | `video.mp4`                    |
-| `cm feedback` | Capture/export human feedback   | `feedback.jsonl`, export JSON  |
-| `cm lab`      | Experiment Lab UI (review/A-B)  | Local web UI + API             |
-| `cm init`     | Interactive setup wizard        | `.content-machine.toml`        |
-| `cm help`     | Show help for all commands      | —                              |
+| Command        | Description                                     | Primary Output                   |
+| -------------- | ----------------------------------------------- | -------------------------------- |
+| `cm generate`  | Full pipeline: topic → video                    | `video.mp4`                      |
+| `cm script`    | Generate script from topic                      | `script.json`                    |
+| `cm audio`     | Generate voiceover + timestamps                 | `audio.wav`, `timestamps.json`   |
+| `cm visuals`   | Find matching stock footage                     | `visuals.json`                   |
+| `cm render`    | Render final video                              | `video.mp4`                      |
+| `cm doctor`    | Diagnose setup/dependency issues                | Diagnostic report (JSON/human)   |
+| `cm demo`      | Render a deterministic demo video (no API keys) | `demo.mp4` + artifacts           |
+| `cm templates` | Manage video templates (list/install/new/pack)  | Template packs + `template.json` |
+| `cm feedback`  | Capture/export human feedback                   | `feedback.jsonl`, export JSON    |
+| `cm lab`       | Experiment Lab UI (review/A-B)                  | Local web UI + API               |
+| `cm init`      | Interactive setup wizard                        | `.content-machine.toml`          |
+| `cm help`      | Show help for all commands                      | —                                |
 
 ### Common Options
 

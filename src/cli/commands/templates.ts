@@ -10,8 +10,10 @@ import { handleCommandError } from '../utils';
 import { resolveVideoTemplate } from '../../render/templates';
 import { listVideoTemplates } from '../../render/templates/registry';
 import { installTemplatePack } from '../../render/templates/installer';
+import { packVideoTemplate, scaffoldVideoTemplate } from '../../render/templates/dev';
 
 const USER_TEMPLATES_DIR = join(homedir(), '.cm', 'templates');
+const PROJECT_TEMPLATES_DIR = join(process.cwd(), '.cm', 'templates');
 
 function formatTemplateLine(entry: {
   id: string;
@@ -29,6 +31,83 @@ function formatTemplateLine(entry: {
 
 export const templatesCommand = new Command('templates')
   .description('Manage video templates')
+  .addCommand(
+    new Command('new')
+      .description('Scaffold a new template directory')
+      .argument('<id>', 'New template id')
+      .option('--root <dir>', 'Destination templates root directory', PROJECT_TEMPLATES_DIR)
+      .option('--from <idOrPath>', 'Base template id or path', 'tiktok-captions')
+      .option('--force', 'Overwrite existing directory if it exists', false)
+      .action(async (id, options) => {
+        try {
+          const runtime = getCliRuntime();
+          const result = await scaffoldVideoTemplate({
+            id: String(id),
+            rootDir: String(options.root ?? PROJECT_TEMPLATES_DIR),
+            from: options.from ? String(options.from) : undefined,
+            force: Boolean(options.force),
+          });
+
+          if (runtime.json) {
+            writeJsonEnvelope(
+              buildJsonEnvelope({
+                command: 'templates:new',
+                args: {
+                  id,
+                  root: options.root ?? PROJECT_TEMPLATES_DIR,
+                  from: options.from ?? 'tiktok-captions',
+                  force: Boolean(options.force),
+                },
+                outputs: {
+                  templateId: result.id,
+                  templateDir: result.templateDir,
+                  templatePath: result.templatePath,
+                },
+                timingsMs: Date.now() - runtime.startTime,
+              })
+            );
+            return;
+          }
+
+          writeStderrLine(`Scaffolded template: ${result.id}`);
+          writeStderrLine(`Location: ${result.templateDir}`);
+        } catch (error) {
+          handleCommandError(error);
+        }
+      })
+  )
+  .addCommand(
+    new Command('pack')
+      .description('Pack a template directory into a .zip template pack')
+      .argument('<path>', 'Path to a template directory')
+      .option('-o, --output <path>', 'Output .zip path')
+      .action(async (path, options) => {
+        try {
+          const runtime = getCliRuntime();
+          const result = await packVideoTemplate({
+            templateDir: String(path),
+            outputPath: options.output ? String(options.output) : undefined,
+          });
+
+          if (runtime.json) {
+            writeJsonEnvelope(
+              buildJsonEnvelope({
+                command: 'templates:pack',
+                args: { path, output: options.output ?? null },
+                outputs: { templateId: result.id, outputPath: result.outputPath },
+                timingsMs: Date.now() - runtime.startTime,
+              })
+            );
+            return;
+          }
+
+          writeStderrLine(`Packed template: ${result.id}`);
+          writeStderrLine(`Output: ${result.outputPath}`);
+        } catch (error) {
+          handleCommandError(error);
+        }
+      })
+  )
   .addCommand(
     new Command('list')
       .description('List available templates')
