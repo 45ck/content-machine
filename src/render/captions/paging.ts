@@ -157,6 +157,11 @@ export function isDisplayableWord(word: string): boolean {
   return true;
 }
 
+/**
+ * Filter caption tokens by applying the configured cleanup rules.
+ * @param words Words/tokens to filter
+ * @param cleanup Optional cleanup rules (drop markers, filler words, etc.)
+ */
 export function filterCaptionWords<T extends { word: string }>(
   words: T[],
   cleanup?: CaptionCleanup
@@ -207,6 +212,7 @@ export function sanitizeTimedWords(words: TimedWord[]): TimedWord[] {
 /**
  * Sanitize words with confidence-based filtering.
  * Use this when you have access to confidence scores.
+ * @param words Words to sanitize
  * @param minConfidence Minimum confidence threshold (default: 0.1)
  */
 export function sanitizeTimedWordsWithConfidence(

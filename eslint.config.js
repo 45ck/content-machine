@@ -3,6 +3,7 @@ import globals from 'globals';
 import tsParser from '@typescript-eslint/parser';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 import sonarjs from 'eslint-plugin-sonarjs';
+import jsdoc from 'eslint-plugin-jsdoc';
 
 export default [
   // Global ignores
@@ -66,6 +67,7 @@ export default [
     plugins: {
       '@typescript-eslint': tsPlugin,
       sonarjs,
+      jsdoc,
     },
     rules: {
       // Disable base rules replaced by TS versions
@@ -77,6 +79,14 @@ export default [
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
+
+      // JSDoc correctness for any docs that exist (keeps docs consistent without forcing them everywhere).
+      'jsdoc/check-alignment': 'error',
+      'jsdoc/check-param-names': 'error',
+      // Too strict for example blocks inside JSDoc (e.g., CLI usage snippets).
+      'jsdoc/check-indentation': 'off',
+      'jsdoc/check-tag-names': ['error', { definedTags: ['packageDocumentation'] }],
+      'jsdoc/check-types': 'error',
 
       // === MAINTAINABILITY GATES ===
       // Keep these as guidance (warn) so CI stays green while the project matures.

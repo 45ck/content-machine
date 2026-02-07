@@ -1,1 +1,4 @@
-npm run test:run
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+scripts/quality/with-node20.sh npm run quality
