@@ -1045,8 +1045,19 @@ export async function startLabServer(options: LabServerOptions): Promise<Started
 
   let submissions = 0;
   let server: HttpServer;
+  let closing = false;
   const closeSoon = () => {
+    if (closing) return;
+    closing = true;
     setTimeout(() => {
+      // Ensure one-shot flows actually exit promptly even when clients (e.g. fetch/undici)
+      // keep connections alive.
+      try {
+        server.closeIdleConnections();
+        server.closeAllConnections();
+      } catch {
+        // Best-effort; we'll still call `server.close()` below.
+      }
       server.close();
     }, 50);
   };
