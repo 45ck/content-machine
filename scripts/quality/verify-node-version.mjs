@@ -16,4 +16,3 @@ if (major < 20) {
   console.error('Fix: run `nvm use` (repo includes `.nvmrc`), or install Node 20+.');
   process.exit(1);
 }
-

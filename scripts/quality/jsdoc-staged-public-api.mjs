@@ -11,7 +11,10 @@ function runGit(args) {
 function listStagedFiles() {
   const output = runGit(['diff', '--cached', '--name-only', '--diff-filter=ACM']);
   if (!output) return [];
-  return output.split('\n').map((l) => l.trim()).filter(Boolean);
+  return output
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
 }
 
 function isSrcTsFile(filePath) {
@@ -124,4 +127,3 @@ for (const m of allMissing) {
 console.error('Fix: add a `/** ... */` doc block above the exported declaration.');
 console.error('Opt-out: add `@internal` inside the JSDoc block.');
 process.exit(1);
-
