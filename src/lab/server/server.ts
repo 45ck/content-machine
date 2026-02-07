@@ -225,6 +225,7 @@ function validateRatings(input: unknown): FeedbackRatings | undefined {
     'pacing',
     'script',
     'visuals',
+    'motion',
     'captions',
     'sync',
   ];

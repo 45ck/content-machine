@@ -174,7 +174,9 @@ describe('Experiment Lab UI (Playwright)', () => {
       expect(await page.isVisible('#metricsB')).toBe(false);
 
       await page.fill('[data-prefix="a"] .rating[data-key="overall"] .num', '70');
+      await page.fill('[data-prefix="a"] .rating[data-key="motion"] .num', '65');
       await page.fill('[data-prefix="b"] .rating[data-key="overall"] .num', '80');
+      await page.fill('[data-prefix="b"] .rating[data-key="motion"] .num', '75');
       await page.click('label:has-text("B wins")');
       await page.fill('#reason', 'B is clearer and more engaging');
 
@@ -182,7 +184,10 @@ describe('Experiment Lab UI (Playwright)', () => {
       await page.waitForSelector('#submitMsg .success', { timeout: 10_000 });
 
       const feedback = await readFeedbackEntries(process.env.CM_FEEDBACK_STORE_PATH);
-      expect(feedback.filter((f) => f.experimentId === experimentId).length).toBe(2);
+      const entries = feedback.filter((f) => f.experimentId === experimentId);
+      expect(entries.length).toBe(2);
+      expect(entries.find((e) => e.runId === a.run.runId)?.ratings?.motion).toBe(65);
+      expect(entries.find((e) => e.runId === b.run.runId)?.ratings?.motion).toBe(75);
 
       await withTimeout(serverClosed, 15_000, 'Lab server auto-close after submit');
     } finally {
