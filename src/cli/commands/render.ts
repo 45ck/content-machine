@@ -563,41 +563,6 @@ function parseSplitLayoutPreset(
   });
 }
 
-type TemplateDepsMode = 'auto' | 'prompt' | 'never';
-
-function parseTemplateDepsMode(value: unknown): TemplateDepsMode | undefined {
-  if (value == null) return undefined;
-  const raw = String(value).trim().toLowerCase();
-  if (raw === 'auto' || raw === 'prompt' || raw === 'never') return raw;
-  throw new CMError('INVALID_ARGUMENT', `Invalid --template-deps value: ${value}`, {
-    fix: 'Use one of: auto, prompt, never',
-  });
-}
-
-async function resolveTemplateDepsInstallDecision(params: {
-  runtime: RenderRuntime;
-  rootDir: string;
-  mode: TemplateDepsMode;
-}): Promise<boolean> {
-  const { runtime, rootDir, mode } = params;
-  if (mode === 'never') return false;
-  if (mode === 'auto') return true;
-  // prompt
-  if (runtime.offline) return false;
-  if (runtime.yes) return true;
-  if (!runtime.isTty || runtime.json) return false;
-
-  const inquirer = await getInquirer();
-  const result = await inquirer.prompt<{ install: boolean }>({
-    type: 'confirm',
-    name: 'install',
-    message: `Template dependencies are missing in ${rootDir}. Install now?`,
-    default: false,
-  });
-
-  return Boolean(result.install);
-}
-
 async function readRenderInputs(options: {
   input: string;
   timestamps: string;
