@@ -1,0 +1,28 @@
+id: product-demo
+name: Product Demo / Review
+description: Problem -> demo -> pros/cons -> verdict.
+version: 1
+script:
+  template: |
+    Create a short-form video script demoing or reviewing: "{{topic}}"
+
+    FORMAT: Product demo / review
+    Typical length: 15-60s
+
+    REQUIREMENTS:
+    - Frame as problem -> demo -> verdict.
+    - Show the product/tool solving the problem on screen (not just talking).
+    - Use fast on-screen labels in visualDirection (Pro / Con / Best for).
+
+    STRUCTURE:
+    1) Hook field: problem hook ("If you hate ___, do this.")
+    2) Scene 1: demo (show it working; add callouts)
+    3) Scene 2-3: more demo + edge case
+    4) Scene 4: pros/cons (labeled)
+    5) Final scene: verdict + who it's for + CTA
+
+    TIMELINE (35s template):
+    - 0-3s: problem hook
+    - 3-20s: demo
+    - 20-28s: pros/cons
+    - 28-35s: verdict + CTA

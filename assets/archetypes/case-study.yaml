@@ -1,0 +1,29 @@
+id: case-study
+name: Mini Case Study
+description: Result metric first, then baseline, changes, proof, and takeaway.
+version: 1
+script:
+  template: |
+    Create a short-form video script as a mini case study about: "{{topic}}"
+
+    FORMAT: Mini case study
+    Typical length: 20-60s
+
+    REQUIREMENTS:
+    - Start with the result/metric first (overlay the number in visualDirection).
+    - Show the baseline (before) briefly.
+    - Explain 2-3 changes with proof clips/screenshots.
+    - End with a repeatable principle.
+
+    STRUCTURE:
+    1) Hook field: result first (metric)
+    2) Scene 1: baseline context ("Before: ...")
+    3) Scene 2-4: 2-3 changes + quick proof
+    4) Final scene: recap metric + lesson + CTA
+
+    TIMELINE (40s template):
+    - 0-3s: result first
+    - 3-8s: baseline
+    - 8-30s: 3 changes (about 7s each)
+    - 30-36s: metric again
+    - 36-40s: lesson + CTA

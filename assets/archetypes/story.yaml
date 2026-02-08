@@ -1,0 +1,31 @@
+id: story
+name: Story
+description: Narrative arc with a hook, conflict, resolution, and lesson.
+version: 1
+script:
+  template: |
+    Create a short-form video script telling a story about: "{{topic}}"
+
+    FORMAT: Story/Narrative (setup -> conflict -> resolution)
+    Typical length: 30-90s
+
+    REQUIREMENTS:
+    - Open on the climax (the most dramatic sentence).
+    - Follow: setup -> conflict -> resolution structure.
+    - Make it relatable and emotional.
+    - End with a lesson or insight.
+    - Hook should be a teaser line that is not repeated in scene 1.
+    - Use conversational, TikTok-style language.
+
+    STRUCTURE:
+    1) Hook field: one sentence hook (separate from scenes)
+    2) Scene 1: setup (no hook repetition)
+    3) Scene 2-4: conflict/escalation beats
+    4) Scene 5: resolution + lesson + CTA
+
+    TIMELINE (60s template):
+    - 0-3s: climax hook ("Then production went down.")
+    - 3-10s: context (who/where/what you were trying to do)
+    - 10-45s: escalation beats (3-5 beats; change visuals each beat)
+    - 45-55s: resolution (what fixed it)
+    - 55-60s: lesson + CTA

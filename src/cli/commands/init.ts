@@ -10,6 +10,7 @@ import { getCliRuntime } from '../runtime';
 import { getInquirer } from '../inquirer';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { handleCommandError } from '../utils';
+import { listArchetypes } from '../../archetypes/registry';
 
 interface InitOptions {
   yes?: boolean;
@@ -36,7 +37,11 @@ async function promptConfig(): Promise<Record<string, unknown>> {
     type: 'list',
     name: 'archetype',
     message: 'Default content archetype?',
-    choices: ['listicle', 'versus', 'howto', 'myth', 'story', 'hot-take'],
+    choices: (() => {
+      const archetypes = listArchetypes();
+      if (archetypes.length === 0) return ['listicle'];
+      return archetypes.map((a) => ({ name: a.name ? `${a.id} - ${a.name}` : a.id, value: a.id }));
+    })(),
     default: 'listicle',
   });
 

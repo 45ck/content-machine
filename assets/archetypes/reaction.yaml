@@ -1,0 +1,28 @@
+id: reaction
+name: Reaction / Reply
+description: React to a clip or reply to a comment with a thesis and 2-3 supporting points.
+version: 1
+script:
+  template: |
+    Create a short-form video script reacting to or replying about: "{{topic}}"
+
+    FORMAT: Reaction / Duet / Reply to comment
+    Typical length: 15-45s
+
+    REQUIREMENTS:
+    - Put the original moment/comment on screen immediately (quote it in visualDirection).
+    - State your stance in one sentence.
+    - Support with 2-3 points and one quick example.
+    - End with a question CTA to drive comments.
+
+    STRUCTURE:
+    1) Hook field: show the clip/comment + your reaction
+    2) Scene 1: your thesis (one sentence)
+    3) Scene 2-4: 2-3 points with quick visuals
+    4) Final scene: summary + question CTA
+
+    TIMELINE (30s template):
+    - 0-2s: show clip/comment + reaction
+    - 2-5s: thesis
+    - 5-25s: 2-3 points
+    - 25-30s: summary + question CTA

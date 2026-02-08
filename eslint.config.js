@@ -22,7 +22,7 @@ export default [
       'reports/**',
       '**/test-e2e-output/**',
       '**/vendor/**',
-      '**/templates/**',
+      'assets/templates/**',
       '**/connectors/**',
       '**/docs/api/**',
       '**/*.d.ts',

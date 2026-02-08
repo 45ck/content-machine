@@ -26,6 +26,9 @@ export * from '../visuals/schema';
 /** Hook asset schema + types. */
 export * from '../hooks/schema';
 
+/** Archetype schema + types. */
+export * from '../archetypes/schema';
+
 /**
  * Render schema exports are explicit to avoid name collisions with other domains
  * (e.g., `HookClip`, `HookClipInput`, `VideoClip`).

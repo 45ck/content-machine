@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "brainrot-split-gameplay-top",
+  "name": "Brainrot Split Screen (Gameplay Top)",
+  "description": "Split-screen gameplay background (top gameplay, bottom content)",
+  "compositionId": "SplitScreenGameplay",
+  "assets": {
+    "gameplay": {
+      "required": true
+    }
+  },
+  "defaults": {
+    "orientation": "portrait",
+    "fps": 30,
+    "captionPreset": "capcut"
+  },
+  "params": {
+    "splitScreenRatio": 0.55,
+    "gameplayPosition": "top",
+    "contentPosition": "bottom"
+  }
+}
+

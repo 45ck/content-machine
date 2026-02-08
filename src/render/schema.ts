@@ -69,6 +69,10 @@ export const RenderPropsSchema = z.object({
   gameplayPosition: z.enum(['top', 'bottom', 'full']).optional(),
   contentPosition: z.enum(['top', 'bottom', 'full']).optional(),
   fonts: z.array(FontSourceSchema).optional(),
+  /** Optional template metadata (useful for code templates). */
+  templateId: z.string().optional(),
+  templateSource: z.string().optional(),
+  templateParams: z.record(z.unknown()).optional(),
   /** @deprecated Use captionConfig instead */
   captionStyle: CaptionStyleSchema.optional(),
   /** New comprehensive caption configuration */

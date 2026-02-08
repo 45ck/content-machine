@@ -7,13 +7,9 @@ import { Command } from 'commander';
 import type { PipelineResult } from '../../core/pipeline';
 import { logger } from '../../core/logger';
 import { evaluateRequirements, planWhisperRequirements } from '../../core/assets/requirements';
-import {
-  ArchetypeEnum,
-  OrientationEnum,
-  type Archetype,
-  type Orientation,
-} from '../../core/config';
+import { OrientationEnum, type Archetype, type Orientation } from '../../core/config';
 import { loadConfig } from '../../core/config';
+import { formatArchetypeSource, resolveArchetype } from '../../archetypes/registry';
 import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
 import { FakeLLMProvider } from '../../test/stubs/fake-llm';
 import { createMockScriptResponse } from '../../test/fixtures/mock-scenes.js';
@@ -1873,13 +1869,7 @@ async function runGeneratePipeline(params: {
 
     return await runPipeline({
       topic: params.topic,
-      archetype: params.archetype as
-        | 'listicle'
-        | 'versus'
-        | 'howto'
-        | 'myth'
-        | 'story'
-        | 'hot-take',
+      archetype: params.archetype as Archetype,
       orientation: params.orientation as 'portrait' | 'landscape' | 'square',
       voice: params.options.voice,
       targetDuration,
@@ -2482,8 +2472,14 @@ async function runGenerate(
 
   printHeader(topic, options, runtime);
 
-  const archetype = ArchetypeEnum.parse(options.archetype);
+  const resolvedArchetype = await resolveArchetype(options.archetype);
+  const archetype = resolvedArchetype.archetype.id;
   const orientation = OrientationEnum.parse(options.orientation);
+  if (!runtime.json) {
+    writeStderrLine(
+      chalk.gray(`Archetype resolved: ${archetype} (${formatArchetypeSource(resolvedArchetype)})`)
+    );
+  }
 
   if (options.preflight) {
     const preflight = await runGeneratePreflight({
@@ -2989,7 +2985,7 @@ async function loadOrRunResearch(
 export const generateCommand = new Command('generate')
   .description('Generate a complete video from a topic')
   .argument('<topic>', 'Topic for the video')
-  .option('-a, --archetype <type>', 'Content archetype', 'listicle')
+  .option('-a, --archetype <idOrPath>', 'Content archetype (use `cm archetypes list`)', 'listicle')
   .option('--template <idOrPath>', 'Video template id or path to template.json')
   .option('--workflow <idOrPath>', 'Workflow id or path to workflow.json')
   .option('--workflow-allow-exec', 'Allow workflow exec hooks to run')

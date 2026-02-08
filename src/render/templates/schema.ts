@@ -15,6 +15,47 @@ const CaptionPresetNameSchema = z.enum(
   Object.keys(CAPTION_STYLE_PRESETS) as [CaptionPresetName, ...CaptionPresetName[]]
 );
 
+export const TemplatePackageManagerSchema = z.enum(['npm', 'pnpm', 'yarn']);
+export type TemplatePackageManager = z.infer<typeof TemplatePackageManagerSchema>;
+
+export const TemplateDependencyInstallModeSchema = z.enum(['auto', 'prompt', 'never']);
+export type TemplateDependencyInstallMode = z.infer<typeof TemplateDependencyInstallModeSchema>;
+
+export const RemotionTemplateProjectSchema = z
+  .object({
+    /**
+     * Path to the Remotion entrypoint (the file that calls `registerRoot()`).
+     * Resolved relative to the template directory (or `rootDir` if set).
+     */
+    entryPoint: z.string().min(1),
+    /**
+     * Root directory for the Remotion project.
+     * Resolved relative to the template directory.
+     *
+     * If omitted, defaults to the template directory itself.
+     */
+    rootDir: z.string().optional(),
+    /**
+     * Public directory to copy into the bundle (relative to `rootDir`).
+     * Defaults to `public` if omitted.
+     */
+    publicDir: z.string().optional(),
+    /**
+     * Package manager to use when installing template dependencies.
+     * If omitted, auto-detect via lockfiles (pnpm/yarn/npm).
+     */
+    packageManager: TemplatePackageManagerSchema.optional(),
+    /**
+     * Dependency installation mode.
+     *
+     * - auto: install automatically when missing (respects --offline)
+     * - prompt: prompt in interactive CLIs (fallback to error in non-interactive)
+     * - never: never install; user must install manually
+     */
+    installDeps: TemplateDependencyInstallModeSchema.optional(),
+  })
+  .strict();
+
 export const VideoTemplateDefaultsSchema = z.object({
   orientation: OrientationEnum.optional(),
   fps: z.number().int().min(1).max(120).optional(),
@@ -29,10 +70,16 @@ export const VideoTemplateSchema = z.object({
   name: z.string().min(1),
   description: z.string().optional(),
   compositionId: z.string().min(1),
+  /**
+   * Optional: A code template. When present, CM will bundle this Remotion project
+   * instead of the built-in compositions.
+   *
+   * Security: This executes arbitrary JS/TS. It must be explicitly allowed by the caller.
+   */
+  remotion: RemotionTemplateProjectSchema.optional(),
   defaults: VideoTemplateDefaultsSchema.optional(),
   assets: z.record(z.unknown()).optional(),
   params: z.record(z.unknown()).optional(),
 });
 
 export type VideoTemplate = z.infer<typeof VideoTemplateSchema>;
-

@@ -1,0 +1,30 @@
+id: howto
+name: How-To
+description: Step-by-step tutorial with a clear payoff.
+version: 1
+script:
+  template: |
+    Create a short-form video script teaching: "{{topic}}"
+
+    FORMAT: How-To/Tutorial (step-by-step guide)
+    Typical length: 15-35s
+
+    REQUIREMENTS:
+    - Start with a hook showing the end result or problem.
+    - Break into 3-5 steps max (each step must be showable).
+    - Each step should be two sentences: the action plus a quick result/why.
+    - Use conversational, TikTok-style language.
+
+    STRUCTURE:
+    1) Hook field: one sentence hook (separate from scenes)
+    2) Scene 1: show the finished outcome (one quick shot), then transition into steps
+    3) Scenes: steps 1-3 (about 5-6s each). Overlay "Step X" in visualDirection.
+    4) Penultimate scene: common mistake / warning (one line)
+    5) Final scene: recap + CTA ("Save this / follow for part 2")
+
+    TIMELINE (30s template):
+    - 0-2s: hook (result first)
+    - 2-5s: show the finished outcome
+    - 5-22s: steps 1-3
+    - 22-27s: warning
+    - 27-30s: recap + CTA

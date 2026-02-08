@@ -1,10 +1,10 @@
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { createRequire } from 'node:module';
 import { loadConfig, resolveConfigFiles } from '../config';
 import { evaluateRequirements, planWhisperRequirements } from '../assets/requirements';
 import { getOptionalApiKey } from '../config';
 import type { DoctorCheck, DoctorReport, DoctorStatus } from '../../domain/doctor';
+import { createRequireSafe } from '../require';
 
 const execFileAsync = promisify(execFile);
 
@@ -19,7 +19,7 @@ function parseNodeMajor(version: string): number | null {
 
 function resolveRecommendedNodeMajor(): number | null {
   try {
-    const require = createRequire(import.meta.url);
+    const require = createRequireSafe(import.meta.url);
     const pkg = require('../../../package.json') as { engines?: { node?: string } };
     const raw = pkg.engines?.node;
     if (!raw) return null;
@@ -184,6 +184,33 @@ function buildLlmKeyCheck(config: any): DoctorCheck | null {
 function buildVisualsKeyCheck(config: any): DoctorCheck | null {
   const visualsProvider = config?.visuals?.provider;
   if (!visualsProvider) return null;
+
+  const fallbackProviders: string[] = Array.isArray(config?.visuals?.fallbackProviders)
+    ? config.visuals.fallbackProviders
+    : [];
+  const usesLocal = [visualsProvider, ...fallbackProviders].some(
+    (p) => p === 'local' || p === 'localimage'
+  );
+  if (usesLocal) {
+    const dir = config?.visuals?.local?.dir;
+    const manifest = config?.visuals?.local?.manifest;
+    const ok = Boolean(dir && String(dir).trim().length > 0);
+    const detailParts = [
+      `${visualsProvider}${fallbackProviders.length ? ` (+fallbacks: ${fallbackProviders.join(', ')})` : ''}`,
+      ok ? 'dir set' : 'dir missing',
+      manifest ? `manifest: ${String(manifest)}` : null,
+    ].filter(Boolean);
+    return {
+      id: 'visuals-provider',
+      label: 'Visuals provider',
+      status: asStatus(ok, true),
+      detail: detailParts.join(' | '),
+      fix: ok
+        ? undefined
+        : 'Set visuals.local.dir in your config (or use --local-dir / --provider local/localimage)',
+      code: ok ? undefined : 'CONFIG_WARN',
+    };
+  }
   const visualsKey =
     visualsProvider === 'pexels'
       ? 'PEXELS_API_KEY'
@@ -241,6 +268,9 @@ function computeDoctorOk(checks: DoctorCheck[], strict: boolean): boolean {
   return !hasFail && !(strict && hasWarn);
 }
 
+/**
+ * Run environment diagnostics (node, config, whisper, api keys, ffprobe).
+ */
 export async function runDoctor(options: DoctorOptions = {}): Promise<DoctorReport> {
   const strict = Boolean(options.strict);
 

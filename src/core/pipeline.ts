@@ -105,6 +105,22 @@ export interface PipelineOptions {
   scriptInput?: ScriptOutput;
   audioInput?: AudioOutput;
   visualsInput?: VisualsOutput;
+
+  // ---------------------------------------------------------------------------
+  // Remotion code templates / custom projects (optional)
+  // ---------------------------------------------------------------------------
+  allowTemplateCode?: boolean;
+  installTemplateDeps?: boolean;
+  templateDepsAllowOutput?: boolean;
+  templatePackageManager?: 'npm' | 'pnpm' | 'yarn';
+  remotionEntryPoint?: string;
+  remotionRootDir?: string;
+  remotionPublicDir?: string;
+  remotionEnableCaching?: boolean;
+  remotionExtraModules?: string[];
+  templateId?: string;
+  templateSource?: string;
+  templateParams?: Record<string, unknown>;
 }
 
 export const PipelineConfigSchema = z
@@ -564,6 +580,18 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
             mock: options.mock,
             mockRenderMode: options.mockRenderMode,
             compositionId: options.compositionId,
+            allowTemplateCode: options.allowTemplateCode,
+            installTemplateDeps: options.installTemplateDeps,
+            templateDepsAllowOutput: options.templateDepsAllowOutput,
+            templatePackageManager: options.templatePackageManager,
+            remotionEntryPoint: options.remotionEntryPoint,
+            remotionRootDir: options.remotionRootDir,
+            remotionPublicDir: options.remotionPublicDir,
+            remotionEnableCaching: options.remotionEnableCaching,
+            remotionExtraModules: options.remotionExtraModules,
+            templateId: options.templateId,
+            templateSource: options.templateSource,
+            templateParams: options.templateParams,
             captionPreset: options.captionPreset,
             captionConfig: options.captionConfig,
             captionGroupMs: options.captionGroupMs,

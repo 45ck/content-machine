@@ -67,7 +67,7 @@ The script generator uses archetype-specific prompts from `src/script/prompts/`:
 // src/script/generator.ts
 import { getPromptForArchetype } from './prompts';
 
-const prompt = getPromptForArchetype(options.archetype, {
+const { prompt } = await getPromptForArchetype(options.archetype, {
   topic: options.topic,
   targetWordCount,
   targetDuration,
@@ -79,7 +79,7 @@ const response = await llm.chat([
 ]);
 ```
 
-**Archetypes available:** `listicle`, `versus`, `howto`, `myth`, `story`, `hot-take`
+**Archetypes available:** dynamic (run `cm archetypes list`)
 
 **Output:** `ScriptOutput` with scenes, hook, CTA, hashtags
 

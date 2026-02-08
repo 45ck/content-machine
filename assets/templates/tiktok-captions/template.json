@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "tiktok-captions",
+  "name": "TikTok Captions",
+  "description": "Full-screen video + TikTok-style word-highlight captions",
+  "compositionId": "ShortVideo",
+  "defaults": {
+    "orientation": "portrait",
+    "fps": 30,
+    "captionPreset": "tiktok"
+  }
+}
+

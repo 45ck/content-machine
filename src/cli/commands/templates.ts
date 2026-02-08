@@ -7,6 +7,7 @@ import { join } from 'path';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output';
 import { getCliRuntime } from '../runtime';
 import { handleCommandError } from '../utils';
+import { CMError } from '../../core/errors';
 import { resolveVideoTemplate } from '../../render/templates';
 import { listVideoTemplates } from '../../render/templates/registry';
 import { installTemplatePack } from '../../render/templates/installer';
@@ -37,14 +38,22 @@ export const templatesCommand = new Command('templates')
       .argument('<id>', 'New template id')
       .option('--root <dir>', 'Destination templates root directory', PROJECT_TEMPLATES_DIR)
       .option('--from <idOrPath>', 'Base template id or path', 'tiktok-captions')
+      .option('--mode <mode>', 'Template mode (data, code)', 'data')
       .option('--force', 'Overwrite existing directory if it exists', false)
       .action(async (id, options) => {
         try {
           const runtime = getCliRuntime();
+          const modeRaw = String(options.mode ?? 'data');
+          if (modeRaw !== 'data' && modeRaw !== 'code') {
+            throw new CMError('INVALID_ARGUMENT', `Invalid --mode value: ${modeRaw}`, {
+              fix: 'Use --mode data (safe) or --mode code (trusted Remotion project)',
+            });
+          }
           const result = await scaffoldVideoTemplate({
             id: String(id),
             rootDir: String(options.root ?? PROJECT_TEMPLATES_DIR),
             from: options.from ? String(options.from) : undefined,
+            mode: modeRaw,
             force: Boolean(options.force),
           });
 
@@ -56,6 +65,7 @@ export const templatesCommand = new Command('templates')
                   id,
                   root: options.root ?? PROJECT_TEMPLATES_DIR,
                   from: options.from ?? 'tiktok-captions',
+                  mode: modeRaw,
                   force: Boolean(options.force),
                 },
                 outputs: {

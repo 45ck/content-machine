@@ -32,7 +32,6 @@ export const ShortVideo: React.FC<RenderProps> = ({
   captionConfig,
   hook,
   fonts,
-  archetype,
 }) => {
   const { fps } = useVideoConfig();
   const videoAssets = scenes ?? [];
@@ -77,10 +76,7 @@ export const ShortVideo: React.FC<RenderProps> = ({
           <Caption words={words} config={captionConfig} />
           <ListBadges
             words={words}
-            enabled={
-              (archetype === 'listicle' || archetype === 'news' || archetype === undefined) &&
-              listBadgesEnabled
-            }
+            enabled={listBadgesEnabled}
             timingOffsetMs={captionConfig?.timingOffsetMs ?? 0}
             captionConfig={captionConfig}
           />

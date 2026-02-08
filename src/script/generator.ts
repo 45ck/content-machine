@@ -15,7 +15,7 @@ import {
   type Scene,
   type ScriptOutput,
 } from '../domain';
-import { getPromptForArchetype } from './prompts';
+import { getPromptForArchetype } from './prompts/index.js';
 import { buildResearchContext, extractSourceUrls } from './research-context';
 import { sanitizeSpokenText } from './sanitize';
 import type { ResearchOutput } from '../domain';
@@ -195,14 +195,23 @@ export async function generateScript(options: GenerateScriptOptions): Promise<Sc
   const targetWordCount = Math.round(targetDuration * 2.5);
   const { maxWordCount } = getWordCountBounds(targetWordCount);
 
-  log.info({ archetype: options.archetype, targetDuration, targetWordCount }, 'Generating script');
-
-  let prompt = getPromptForArchetype(options.archetype, {
+  const promptResult = await getPromptForArchetype(options.archetype, {
     topic: options.topic,
     targetWordCount,
     targetDuration,
     packaging: options.packaging,
   });
+  const resolvedOptions: GenerateScriptOptions = {
+    ...options,
+    archetype: promptResult.archetypeId,
+  };
+
+  log.info(
+    { archetype: promptResult.archetypeId, targetDuration, targetWordCount },
+    'Generating script'
+  );
+
+  let prompt = promptResult.prompt;
 
   // Inject research context if available
   if (options.research && options.research.evidence.length > 0) {
@@ -217,7 +226,7 @@ export async function generateScript(options: GenerateScriptOptions): Promise<Sc
     [
       {
         role: 'system',
-        content: `You are an expert short-form video scriptwriter. You write engaging scripts for TikTok, Reels, and YouTube Shorts. Your scripts are punchy, conversational, and optimized for viewer retention. Always respond with valid JSON.`,
+        content: promptResult.systemPrompt ?? '',
       },
       { role: 'user', content: prompt },
     ],
@@ -225,7 +234,12 @@ export async function generateScript(options: GenerateScriptOptions): Promise<Sc
   );
 
   let llmResponse = parseLLMResponse(response.content, log);
-  let output = buildScriptOutput(llmResponse, options, response.model, response.usage?.totalTokens);
+  let output = buildScriptOutput(
+    llmResponse,
+    resolvedOptions,
+    response.model,
+    response.usage?.totalTokens
+  );
 
   if ((output.meta?.wordCount ?? 0) > maxWordCount) {
     log.warn(
@@ -254,7 +268,12 @@ export async function generateScript(options: GenerateScriptOptions): Promise<Sc
     );
 
     llmResponse = parseLLMResponse(rewrite.content, log);
-    output = buildScriptOutput(llmResponse, options, rewrite.model, rewrite.usage?.totalTokens);
+    output = buildScriptOutput(
+      llmResponse,
+      resolvedOptions,
+      rewrite.model,
+      rewrite.usage?.totalTokens
+    );
   }
 
   output = dedupeHookFromFirstScene(output);

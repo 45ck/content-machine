@@ -6,6 +6,27 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { LLMScriptResponseSchema, SCRIPT_SCHEMA_VERSION, ScriptOutputSchema } from '../domain';
 import { FakeLLMProvider } from '../test/stubs';
 
+// Mock archetype registry (avoid filesystem reads in unit tests)
+vi.mock('../archetypes/registry', async () => {
+  return {
+    resolveArchetype: vi.fn(async (spec: string) => {
+      const id = String(spec);
+      return {
+        archetype: {
+          id,
+          name: id,
+          version: 1,
+          script: { template: 'Create a short-form video script about: "{{topic}}"' },
+        },
+        spec: id,
+        source: 'builtin',
+        archetypePath: `/fake/${id}.yaml`,
+      };
+    }),
+    loadBaselineRules: vi.fn(() => ({ content: '', path: undefined })),
+  };
+});
+
 // Mock config module before other imports
 vi.mock('../core/config', async () => {
   const { z } = await import('zod');
@@ -17,7 +38,7 @@ vi.mock('../core/config', async () => {
         temperature: 0.7,
       },
     }),
-    ArchetypeEnum: z.enum(['listicle', 'versus', 'howto', 'myth', 'story', 'hot-take']),
+    ArchetypeEnum: z.string().min(1),
   };
 });
 

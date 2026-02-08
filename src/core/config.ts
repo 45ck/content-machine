@@ -9,9 +9,9 @@
 import { z } from 'zod';
 import { existsSync, readFileSync } from 'fs';
 import { dirname, join, resolve } from 'path';
-import { createRequire } from 'node:module';
 import { homedir } from 'node:os';
 import { ConfigError } from './errors.js';
+import { createRequireSafe } from './require';
 import { FONT_STACKS } from '../render/tokens/font';
 import { CAPTION_STYLE_PRESETS, type CaptionPresetName } from '../render/captions/presets';
 import { CaptionConfigSchema } from '../render/captions/config';
@@ -20,7 +20,9 @@ import { CaptionConfigSchema } from '../render/captions/config';
 // Schema Definitions
 // ============================================================================
 
-export const ArchetypeEnum = z.enum(['listicle', 'versus', 'howto', 'myth', 'story', 'hot-take']);
+// Archetypes are data-driven. This schema only enforces "non-empty string".
+// Use `cm archetypes list` + archetype registry resolution for discovery/validation.
+export const ArchetypeEnum = z.string().min(1);
 
 export const OrientationEnum = z.enum(['portrait', 'landscape', 'square']);
 
@@ -79,21 +81,53 @@ const AmbienceConfigSchema = z.object({
   fadeOutMs: z.number().int().nonnegative().default(400),
 });
 
-const VisualsProviderEnum = z.enum(['pexels', 'pixabay', 'nanobanana']);
+const VisualsProviderEnum = z.enum(['pexels', 'pixabay', 'nanobanana', 'local', 'localimage']);
 const MotionStrategyEnum = z.enum(['none', 'kenburns', 'depthflow', 'veo']);
 
 const NanoBananaConfigSchema = z.object({
   /** Gemini image generation model id (Gemini Developer API). */
   model: z.string().default('gemini-2.5-flash-image'),
+  /** Optional override of per-image cost in USD for budgeting/estimation. */
+  costPerAssetUsd: z.number().positive().optional(),
+  /** Optional directory to store generated images. Defaults to ~/.cm/assets/generated/nanobanana */
+  cacheDir: z.string().optional(),
+  /** Base URL for the Gemini Developer API. */
+  apiBaseUrl: z.string().default('https://generativelanguage.googleapis.com'),
+  /** API version path segment (e.g. v1beta). */
+  apiVersion: z.string().default('v1beta'),
+  /** Request timeout for image generation (ms). */
+  timeoutMs: z.number().int().positive().default(60_000),
 });
 
 const VisualsConfigSchema = z.object({
   provider: VisualsProviderEnum.default('pexels'),
+  /** Fallback providers (used in order) if the primary provider cannot return a scene asset. */
+  fallbackProviders: z.array(VisualsProviderEnum).default([]),
   /** Default motion strategy for image-based providers. */
   motionStrategy: MotionStrategyEnum.default('kenburns'),
   nanobanana: NanoBananaConfigSchema.default({}),
   cacheEnabled: z.boolean().default(true),
   cacheTtl: z.number().int().positive().default(3600),
+  /** Max concurrent generation/search requests in the visuals stage. */
+  generationConcurrency: z.number().int().min(1).max(8).default(2),
+  /** Hard cap on estimated generation spend (USD). */
+  maxGenerationCostUsd: z.number().nonnegative().optional(),
+  /** @deprecated Use maxGenerationCostUsd. Kept for backward compatibility with older docs/configs. */
+  maxGenerationCost: z.number().nonnegative().optional(),
+  /** Warn (log) if estimated generation spend exceeds this (USD). */
+  warnAtGenerationCostUsd: z.number().nonnegative().optional(),
+  /** @deprecated Use warnAtGenerationCostUsd. Kept for backward compatibility with older docs/configs. */
+  warnAtCost: z.number().nonnegative().optional(),
+  local: z
+    .object({
+      /** Folder containing user-provided assets for the local provider. */
+      dir: z.string().optional(),
+      /** Optional manifest JSON to deterministically map sceneId -> asset path. */
+      manifest: z.string().optional(),
+      /** Recursively scan subfolders when indexing assets. */
+      recursive: z.boolean().default(true),
+    })
+    .default({}),
 });
 
 const RenderConfigSchema = z.object({
@@ -104,6 +138,23 @@ const RenderConfigSchema = z.object({
   crf: z.number().int().min(0).max(51).default(23),
   /** Default video template id or path to template.json */
   template: z.string().optional(),
+  /**
+   * Allow executing Remotion code shipped inside template packs.
+   *
+   * Security: This executes arbitrary JS/TS during bundling and rendering.
+   * Default: false.
+   */
+  allowTemplateCode: z.boolean().default(false),
+  /**
+   * Template dependency installation mode when a code template has a package.json.
+   *
+   * - prompt: ask in interactive CLIs, error in non-interactive
+   * - auto: install automatically when missing (respects --offline)
+   * - never: never install automatically
+   */
+  templateDeps: z.enum(['prompt', 'auto', 'never']).default('prompt'),
+  /** Preferred package manager for template dependency installs (optional). */
+  templatePackageManager: z.enum(['npm', 'pnpm', 'yarn']).optional(),
 });
 
 const FontWeightSchema = z.union([
@@ -394,7 +445,7 @@ function findUserConfigFile(): string | null {
  */
 function parseToml(content: string): unknown {
   try {
-    const require = createRequire(import.meta.url);
+    const require = createRequireSafe(import.meta.url);
     const toml = require('@iarna/toml') as { parse: (input: string) => unknown };
     // @iarna/toml rejects raw CR characters; normalize CRLF/CR → LF to accept
     // config files created on Windows or via copy/paste.
@@ -542,6 +593,9 @@ export interface ResolvedConfigFiles {
   loadedConfigPaths: string[];
 }
 
+/**
+ * Resolve config file paths to load (user + project), optionally overriding via `--config` or `CM_CONFIG`.
+ */
 export function resolveConfigFiles(configPath?: string): ResolvedConfigFiles {
   const envRaw = typeof process.env.CM_CONFIG === 'string' ? process.env.CM_CONFIG.trim() : '';
   const envConfigPath = envRaw ? resolve(expandTilde(envRaw)) : null;

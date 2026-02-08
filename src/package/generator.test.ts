@@ -16,8 +16,7 @@ vi.mock('../core/config', async () => {
         temperature: 0.7,
       },
     }),
-    // Keep enum exports compatible with other imports
-    ArchetypeEnum: z.enum(['listicle', 'versus', 'howto', 'myth', 'story', 'hot-take']),
+    ArchetypeEnum: z.string().min(1),
   };
 });
 

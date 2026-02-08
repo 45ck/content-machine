@@ -17,6 +17,8 @@ export interface ScaffoldVideoTemplateOptions {
   rootDir: string;
   /** Base template id or path. Defaults to `tiktok-captions`. */
   from?: string;
+  /** Template mode: data-only (safe) or code (trusted Remotion project). */
+  mode?: 'data' | 'code';
   /** Overwrite if the destination directory already exists. */
   force?: boolean;
 }
@@ -46,12 +48,16 @@ function assertNonEmpty(value: string, label: string): string {
   return value.trim();
 }
 
+/**
+ * Scaffold a new video template directory under `rootDir`, optionally based on an existing template id.
+ */
 export async function scaffoldVideoTemplate(
   options: ScaffoldVideoTemplateOptions
 ): Promise<ScaffoldVideoTemplateResult> {
   const id = assertNonEmpty(options.id, 'id');
   const rootDir = resolve(assertNonEmpty(options.rootDir, 'rootDir'));
   const from = options.from ? assertNonEmpty(options.from, 'from') : 'tiktok-captions';
+  const mode = options.mode ?? 'data';
 
   const templateDir = join(rootDir, id);
   const templatePath = join(templateDir, 'template.json');
@@ -78,10 +84,65 @@ export async function scaffoldVideoTemplate(
     description: base.description,
   };
 
+  if (mode === 'code') {
+    // Turn into a code template: we keep defaults, but point rendering at template-local Remotion code.
+    template.remotion = {
+      entryPoint: 'remotion/index.ts',
+      rootDir: '.',
+      publicDir: 'public',
+      installDeps: 'prompt',
+    };
+  }
+
   // Ensure the scaffold is valid and normalized (fills defaults like schemaVersion).
   const validated = VideoTemplateSchema.parse(template);
 
   await writeFile(templatePath, `${JSON.stringify(validated, null, 2)}\n`, 'utf-8');
+
+  if (mode === 'code') {
+    // Scaffold a minimal Remotion project wired to CM RenderProps.
+    const remotionDir = join(templateDir, 'remotion');
+    await mkdir(remotionDir, { recursive: true });
+
+    const compositionId = validated.compositionId;
+    const componentName = compositionId === 'SplitScreenGameplay' ? 'SplitScreenGameplay' : 'ShortVideo';
+
+    // Minimal package.json so users can add dependencies (transitions, animations, etc).
+    const pkgJsonPath = join(templateDir, 'package.json');
+    const pkgJson = {
+      name: `cm-template-${id}`,
+      private: true,
+      type: 'module',
+    };
+    await writeFile(pkgJsonPath, `${JSON.stringify(pkgJson, null, 2)}\n`, 'utf-8');
+
+    // Public folder (optional assets).
+    const publicDir = join(templateDir, 'public');
+    await mkdir(publicDir, { recursive: true });
+    await writeFile(join(publicDir, 'README.txt'), 'Template public assets go here.\n', 'utf-8');
+
+    // Remotion entrypoint (must include "registerRoot" for bundler validation).
+    await writeFile(
+      join(remotionDir, 'index.ts'),
+      `import { registerRoot } from 'remotion';\nimport { Root } from './root';\n\nregisterRoot(Root);\n`,
+      'utf-8'
+    );
+
+    // Root: registers a single composition with the template's compositionId.
+    await writeFile(
+      join(remotionDir, 'root.tsx'),
+      `import React from 'react';\nimport { Composition } from 'remotion';\nimport type { RenderProps } from 'content-machine';\nimport { Main } from './Main';\n\nexport const Root: React.FC = () => {\n  return (\n    <>\n      <Composition\n        id=${JSON.stringify(compositionId)}\n        component={Main as unknown as React.FC}\n        durationInFrames={30 * 60}\n        fps={30}\n        width={1080}\n        height={1920}\n        defaultProps={{\n          clips: [],\n          words: [],\n          audioPath: '',\n          audioMix: undefined,\n          duration: 60,\n          width: 1080,\n          height: 1920,\n          fps: 30,\n        } satisfies Partial<RenderProps>}\n      />\n    </>\n  );\n};\n`,
+      'utf-8'
+    );
+
+    // Main composition component: start by reusing CM's built-in component, then customize.
+    // Template authors can import any Remotion animation libs and wrap/replace this component.
+    await writeFile(
+      join(remotionDir, 'Main.tsx'),
+      `import React from 'react';\nimport type { RenderProps } from 'content-machine';\nimport { TemplateSDK } from 'content-machine';\n\nconst { ${componentName} } = TemplateSDK;\n\nexport const Main: React.FC<RenderProps> = (props) => {\n  return <${componentName} {...props} />;\n};\n`,
+      'utf-8'
+    );
+  }
 
   return { id, templateDir, templatePath };
 }
@@ -132,6 +193,9 @@ async function loadTemplateFromDir(templateDir: string): Promise<{ template: Vid
   return { template: parsed.data, templatePath };
 }
 
+/**
+ * Pack a video template directory into a `.cmtemplate.zip` bundle.
+ */
 export async function packVideoTemplate(options: PackVideoTemplateOptions): Promise<PackVideoTemplateResult> {
   const templateDir = resolve(assertNonEmpty(options.templateDir, 'templateDir'));
   if (!existsSync(templateDir)) {
@@ -191,4 +255,3 @@ export async function previewVideoTemplate(
   const { template } = await loadTemplateFromDir(templateDir);
   return { id: template.id };
 }
-

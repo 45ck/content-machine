@@ -18,7 +18,7 @@
  */
 import { Command } from 'commander';
 import { existsSync } from 'fs';
-import { dirname } from 'path';
+import { dirname, join } from 'path';
 import type { RenderProgressEvent } from '../../render/service';
 import { logger } from '../../core/logger';
 import { CMError, SchemaError } from '../../core/errors';
@@ -35,6 +35,7 @@ import type { AudioMixOutput, TimestampsOutput } from '../../domain';
 import { AudioMixOutputSchema, TimestampsOutputSchema, VisualsOutputSchema } from '../../domain';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
+import { parseTemplateDepsMode, resolveTemplateDepsInstallDecision } from '../template-code';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
 import type { CaptionPresetName } from '../../render/captions/presets';
@@ -60,6 +61,7 @@ import {
   formatTemplateSource,
   getTemplateGameplaySlot,
   getTemplateParams,
+  resolveRemotionTemplateProject,
 } from '../../render/templates';
 import { resolveHookFromCli } from '../hooks';
 
@@ -561,6 +563,41 @@ function parseSplitLayoutPreset(
   });
 }
 
+type TemplateDepsMode = 'auto' | 'prompt' | 'never';
+
+function parseTemplateDepsMode(value: unknown): TemplateDepsMode | undefined {
+  if (value == null) return undefined;
+  const raw = String(value).trim().toLowerCase();
+  if (raw === 'auto' || raw === 'prompt' || raw === 'never') return raw;
+  throw new CMError('INVALID_ARGUMENT', `Invalid --template-deps value: ${value}`, {
+    fix: 'Use one of: auto, prompt, never',
+  });
+}
+
+async function resolveTemplateDepsInstallDecision(params: {
+  runtime: RenderRuntime;
+  rootDir: string;
+  mode: TemplateDepsMode;
+}): Promise<boolean> {
+  const { runtime, rootDir, mode } = params;
+  if (mode === 'never') return false;
+  if (mode === 'auto') return true;
+  // prompt
+  if (runtime.offline) return false;
+  if (runtime.yes) return true;
+  if (!runtime.isTty || runtime.json) return false;
+
+  const inquirer = await getInquirer();
+  const result = await inquirer.prompt<{ install: boolean }>({
+    type: 'confirm',
+    name: 'install',
+    message: `Template dependencies are missing in ${rootDir}. Install now?`,
+    default: false,
+  });
+
+  return Boolean(result.install);
+}
+
 async function readRenderInputs(options: {
   input: string;
   timestamps: string;
@@ -624,6 +661,58 @@ async function runRenderPreflight(params: {
     status: 'ok',
     detail: templateId ? `${templateId} (${formatTemplateSource(resolvedTemplate)})` : 'default',
   });
+
+  let remotionProject: ReturnType<typeof resolveRemotionTemplateProject> | null = null;
+  if (resolvedTemplate) {
+    try {
+      remotionProject = resolveRemotionTemplateProject(resolvedTemplate);
+    } catch (error) {
+      const info = getCliErrorInfo(error);
+      addPreflightCheck(checks, {
+        label: 'Template code',
+        status: 'fail',
+        code: info.code,
+        detail: info.message,
+        fix: info.fix,
+      });
+    }
+  }
+
+  if (remotionProject) {
+    const allowTemplateCode = Boolean(options.allowTemplateCode);
+    addPreflightCheck(checks, {
+      label: 'Template code',
+      status: allowTemplateCode ? 'ok' : 'fail',
+      code: allowTemplateCode ? undefined : 'INVALID_ARGUMENT',
+      detail: allowTemplateCode ? `Enabled (${remotionProject.entryPoint})` : 'Disabled',
+      fix: allowTemplateCode
+        ? undefined
+        : 'Re-run with --allow-template-code to allow executing template-provided Remotion code',
+    });
+
+    const hasPkg = existsSync(join(remotionProject.rootDir, 'package.json'));
+    const hasNodeModules = existsSync(join(remotionProject.rootDir, 'node_modules'));
+    if (hasPkg && hasNodeModules) {
+      addPreflightCheck(checks, {
+        label: 'Template deps',
+        status: 'ok',
+        detail: `${remotionProject.rootDir}/node_modules`,
+      });
+    } else if (hasPkg && !hasNodeModules) {
+      addPreflightCheck(checks, {
+        label: 'Template deps',
+        status: 'warn',
+        detail: 'node_modules missing',
+        fix: 'Run `npm install` in the template rootDir, or re-run with --template-deps auto',
+      });
+    } else {
+      addPreflightCheck(checks, {
+        label: 'Template deps',
+        status: 'ok',
+        detail: 'No package.json (no deps install needed)',
+      });
+    }
+  }
 
   if (!options.input) {
     addPreflightCheck(checks, {
@@ -855,15 +944,17 @@ function createOnProgress(runtime: RenderRuntime, spinner: RenderSpinner) {
     const phase = event.phase;
     const phaseProgress = Math.min(1, Math.max(0, event.progress ?? 0));
     const overall =
-      phase === 'prepare-assets'
-        ? phaseProgress * 0.1
-        : phase === 'bundle'
-          ? 0.1 + phaseProgress * 0.2
-          : phase === 'select-composition'
-            ? 0.3 + phaseProgress * 0.05
-            : phase === 'render-media'
-              ? 0.35 + phaseProgress * 0.65
-              : phaseProgress;
+      phase === 'install-template-deps'
+        ? phaseProgress * 0.05
+        : phase === 'prepare-assets'
+          ? 0.05 + phaseProgress * 0.1
+          : phase === 'bundle'
+            ? 0.15 + phaseProgress * 0.2
+            : phase === 'select-composition'
+              ? 0.35 + phaseProgress * 0.05
+              : phase === 'render-media'
+                ? 0.4 + phaseProgress * 0.6
+                : phaseProgress;
     const percent = Math.round(overall * 100);
 
     if (runtime.isTty) {
@@ -901,6 +992,9 @@ function writeRenderJsonEnvelope(params: {
         output: params.options.output,
         template: params.options.template ?? null,
         resolvedTemplateId: params.resolvedTemplateId,
+        allowTemplateCode: Boolean(params.options.allowTemplateCode),
+        templateDeps: params.options.templateDeps ?? null,
+        templatePm: params.options.templatePm ?? null,
         orientation: params.options.orientation,
         fps: params.options.fps,
         hook: params.options.hook ?? null,
@@ -1000,6 +1094,9 @@ async function runRenderCommand(
   const configDefaults = applyCaptionDefaultsFromConfig(options, command);
   const { resolvedTemplate, templateDefaults, templateParams, templateGameplay } =
     await resolveTemplateAndApplyDefaults(options, command);
+  const remotionProject = resolvedTemplate
+    ? resolveRemotionTemplateProject(resolvedTemplate)
+    : null;
 
   if (options.preflight) {
     spinner.stop();
@@ -1012,6 +1109,69 @@ async function runRenderCommand(
       exitCode: preflight.exitCode,
     });
     return;
+  }
+
+  const allowTemplateCodeSource = command.getOptionValueSource('allowTemplateCode');
+  const config = loadConfig();
+  const allowTemplateCode =
+    remotionProject && allowTemplateCodeSource === 'default'
+      ? Boolean(config.render.allowTemplateCode)
+      : Boolean(options.allowTemplateCode);
+
+  if (remotionProject && !allowTemplateCode) {
+    throw new CMError('INVALID_ARGUMENT', 'Code templates require --allow-template-code', {
+      templateId: resolvedTemplate?.template.id,
+      templateDir: remotionProject.templateDir,
+      fix: 'Re-run with --allow-template-code to allow executing template-provided Remotion code',
+    });
+  }
+
+  const templateDepsSource = command.getOptionValueSource('templateDeps');
+  const templateDepsRaw =
+    templateDepsSource === 'default' || templateDepsSource === undefined
+      ? (remotionProject?.installDeps ?? config.render.templateDeps)
+      : options.templateDeps;
+  const templateDepsMode = parseTemplateDepsMode(templateDepsRaw ?? 'prompt');
+
+  const templatePmSource = command.getOptionValueSource('templatePm');
+  const templatePmRaw =
+    templatePmSource === 'default' || templatePmSource === undefined
+      ? (remotionProject?.packageManager ?? config.render.templatePackageManager)
+      : options.templatePm;
+  const templatePackageManager = templatePmRaw ? String(templatePmRaw) : undefined;
+
+  const templateHasPackageJson = remotionProject
+    ? existsSync(join(remotionProject.rootDir, 'package.json'))
+    : false;
+  const templateHasNodeModules = remotionProject
+    ? existsSync(join(remotionProject.rootDir, 'node_modules'))
+    : false;
+  const installTemplateDeps =
+    remotionProject && templateHasPackageJson && !templateHasNodeModules
+      ? await resolveTemplateDepsInstallDecision({
+          runtime,
+          rootDir: remotionProject.rootDir,
+          mode: templateDepsMode ?? 'prompt',
+        })
+      : false;
+
+  if (remotionProject && templateHasPackageJson && !templateHasNodeModules && runtime.offline) {
+    throw new CMError('OFFLINE', 'Offline mode enabled; cannot install template dependencies', {
+      rootDir: remotionProject.rootDir,
+      fix: 'Re-run without --offline, or install dependencies manually in the template rootDir',
+    });
+  }
+
+  if (
+    remotionProject &&
+    templateHasPackageJson &&
+    !templateHasNodeModules &&
+    !installTemplateDeps
+  ) {
+    throw new CMError('TEMPLATE_DEPS_MISSING', 'Template dependencies are not installed', {
+      rootDir: remotionProject.rootDir,
+      fix: 'Run `npm install` in the template rootDir, or re-run with --template-deps auto',
+    });
   }
 
   const audioMixPath = options.audioMix ? String(options.audioMix) : undefined;
@@ -1126,6 +1286,23 @@ async function runRenderCommand(
     orientation: String(options.orientation) as 'portrait' | 'landscape' | 'square',
     fps: Number.parseInt(String(options.fps), 10),
     mock: Boolean(options.mock),
+    allowTemplateCode,
+    installTemplateDeps,
+    templateDepsAllowOutput: runtime.verbose,
+    templatePackageManager:
+      templatePackageManager === 'npm' ||
+      templatePackageManager === 'pnpm' ||
+      templatePackageManager === 'yarn'
+        ? templatePackageManager
+        : undefined,
+    remotionEntryPoint: remotionProject?.entryPoint,
+    remotionRootDir: remotionProject?.rootDir,
+    remotionPublicDir: remotionProject?.publicDir,
+    templateId: resolvedTemplate?.template.id,
+    templateSource: resolvedTemplate ? formatTemplateSource(resolvedTemplate) : undefined,
+    templateParams: (resolvedTemplate?.template.params ?? undefined) as
+      | Record<string, unknown>
+      | undefined,
     browserExecutable: options.browserExecutable ? String(options.browserExecutable) : null,
     chromeMode: parseChromeMode(options.chromeMode),
     captionPreset: options.captionPreset as CaptionPresetName,
@@ -1194,6 +1371,12 @@ export const renderCommand = new Command('render')
   .option('--timestamps <path>', 'Timestamps JSON file', 'timestamps.json')
   .option('-o, --output <path>', 'Output video file path', 'video.mp4')
   .option('--template <idOrPath>', 'Video template id or path to template.json')
+  .option('--allow-template-code', 'Allow executing Remotion code templates (dangerous)', false)
+  .option(
+    '--template-deps <mode>',
+    'Template dependency install mode for code templates (auto, prompt, never)'
+  )
+  .option('--template-pm <pm>', 'Template package manager (npm, pnpm, yarn)')
   .option('--orientation <type>', 'Video orientation (portrait, landscape, square)', 'portrait')
   .option('--fps <fps>', 'Frames per second', '30')
   .option('--mock', 'Use mock renderer (for testing)', false)

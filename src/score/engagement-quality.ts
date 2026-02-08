@@ -172,26 +172,22 @@ function scoreCtaTiming(
 
 function scoreListStructure(
   script: ScriptOutput,
-  archetype: string,
+  _archetype: string,
   issues: EngagementIssue[]
 ): { listStructureScore: number; numberedItems: number } {
-  if (archetype !== 'listicle') return { listStructureScore: 100, numberedItems: 0 };
-
   let numberedItems = 0;
   for (const scene of script.scenes) {
     if (ENGAGEMENT_THRESHOLDS.numberPatterns.some((p) => p.test(scene.text))) numberedItems++;
   }
 
+  // Only score list structure when the script actually looks list-like.
+  // Avoid coupling behavior to a specific archetype id.
+  if (numberedItems === 0) return { listStructureScore: 100, numberedItems: 0 };
+
   const expectedItems = Math.max(3, script.scenes.length - 2);
   const score = Math.min(100, (numberedItems / expectedItems) * 100);
 
-  if (numberedItems === 0) {
-    issues.push({
-      type: 'missing-numbers',
-      severity: 'critical',
-      message: 'Listicle has no numbered items detected',
-    });
-  } else if (numberedItems < 3) {
+  if (numberedItems < 3) {
     issues.push({
       type: 'missing-numbers',
       severity: 'warning',

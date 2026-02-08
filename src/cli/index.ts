@@ -19,6 +19,7 @@ const COMMAND_LOADERS: Array<[string, CommandLoader]> = [
   ['config', async () => (await import('./commands/config')).configCommand],
   ['doctor', async () => (await import('./commands/doctor')).doctorCommand],
   ['demo', async () => (await import('./commands/demo')).demoCommand],
+  ['archetypes', async () => (await import('./commands/archetypes')).archetypesCommand],
   ['script', async () => (await import('./commands/script')).scriptCommand],
   ['audio', async () => (await import('./commands/audio')).audioCommand],
   ['visuals', async () => (await import('./commands/visuals')).visualsCommand],
@@ -86,11 +87,24 @@ async function loadAllCommands(): Promise<void> {
   }
 }
 
+function loadCommandStubsForRootHelp(): void {
+  // Keep `cm --help` robust even when some command modules have optional deps or
+  // environment-specific behavior. Subcommand details remain available via
+  // `cm <command> --help` which loads the real module.
+  for (const [name] of COMMAND_LOADERS) {
+    program.command(name).description(`Run \`cm ${name} --help\` for details`);
+  }
+}
+
 async function loadCommandsForArgs(args: string[]): Promise<void> {
   const requested = findRequestedCommand(args);
   const wantsHelp = args.includes('--help') || args.includes('-h');
 
   if (!requested || requested === 'help') {
+    if (wantsHelp) {
+      loadCommandStubsForRootHelp();
+      return;
+    }
     await loadAllCommands();
     return;
   }

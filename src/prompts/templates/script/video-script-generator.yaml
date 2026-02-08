@@ -41,10 +41,14 @@ variables:
     type: string
     example: "5 JavaScript tips for beginners"
   - name: archetype
-    description: Content archetype (listicle, versus, howto, myth, story, hot-take)
+    description: Archetype id (string). Discover available ids via `cm archetypes list`.
     required: false
     type: string
     example: "listicle"
+  - name: archetypeGuidance
+    description: Optional archetype-specific guidance text (inject from an archetype data file).
+    required: false
+    type: string
   - name: targetDuration
     description: Target duration in seconds
     required: false
@@ -101,31 +105,9 @@ template: |
 
   {{#if archetype}}
   ## Content Style: {{archetype}}
-  {{#if (eq archetype "listicle")}}
-  Structure as a numbered list with a hook, 4-5 clear items, and a call-to-action.
-  Each item should be two sentences: the tip plus a quick payoff or why.
   {{/if}}
-  {{#if (eq archetype "versus")}}
-  Present a balanced comparison with a clear recommendation at the end.
-  The hook must be provocative; avoid neutral phrasing like "Choosing between X and Y".
-  {{/if}}
-  {{#if (eq archetype "howto")}}
-  Give 4-5 clear steps that are easy to follow.
-  Each step should be two sentences: the action plus a quick result/why.
-  {{/if}}
-  {{#if (eq archetype "myth")}}
-  Start with the myth, then reveal the reality with evidence.
-  Use explicit "Myth: X" and "Reality: Y" phrasing in scene text.
-  The hook should be a provocative tease, not a "Myth:" line.
-  {{/if}}
-  {{#if (eq archetype "story")}}
-  Use narrative structure: setup, conflict, resolution.
-  The hook should be a teaser line that is not repeated in scene 1.
-  {{/if}}
-  {{#if (eq archetype "hot-take")}}
-  Lead with a provocative opinion, then back it up with reasoning.
-  The hook should be a bold statement, not a question.
-  {{/if}}
+  {{#if archetypeGuidance}}
+  {{archetypeGuidance}}
   {{/if}}
 
   # Input:

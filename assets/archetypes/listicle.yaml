@@ -1,0 +1,32 @@
+id: listicle
+name: Listicle
+description: Numbered items with fast pacing and a strong hook.
+version: 1
+script:
+  template: |
+    Create a short-form video script about: "{{topic}}"
+
+    FORMAT: Listicle (numbered list of items)
+    Typical length: 15-40s
+
+    REQUIREMENTS:
+    - Start with a compelling hook that creates curiosity (first 3 seconds are critical).
+    - Include 4-5 numbered points.
+    - Keep items parallel: same pattern per item (example -> point -> quick payoff).
+    - Each item should be two sentences: the point plus a quick payoff or why it matters.
+    - Prefix each point with an explicit number label (e.g., "1:", "Point 2:", "Number 3:").
+    - Add a progress indicator vibe via wording in the text (e.g. "Number one...", "Second...").
+    - End with a call-to-action (follow, like, comment).
+    - Use conversational, TikTok-style language.
+
+    STRUCTURE:
+    1) Hook field: one sentence hook (separate from scenes)
+    2) Scene 1: immediate payoff after the hook (no hook repetition)
+    3) Scene 2-6: points (4-5 numbered items, each with visual direction)
+    4) Final scene: conclusion/CTA
+
+    TIMELINE (25s template):
+    - 0-2s: hook ("Stop doing these 3 things...")
+    - 2-20s: items 1-3 (about 6s each; show example + fix)
+    - 20-23s: "Most important one is #__ because..."
+    - 23-25s: CTA ("Save/share if you want part 2")

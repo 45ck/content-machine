@@ -6,7 +6,7 @@
  */
 import { stat, writeFile, copyFile, mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
-import { bundle } from '@remotion/bundler';
+import { bundle, type WebpackOverrideFn, type WebpackConfiguration } from '@remotion/bundler';
 import { renderMedia, selectComposition } from '@remotion/renderer';
 import type {
   AudioMixOutput,
@@ -39,6 +39,13 @@ import {
 } from './assets/visual-asset-bundler';
 import { downloadRemoteAssetsToCache } from './assets/remote-assets';
 import { prepareAudioMixForRender, type BundleAsset } from './audio-mix';
+import { createRequireSafe } from '../core/require';
+import type { TemplatePackageManager } from '../domain/render-templates';
+import {
+  installTemplateDependencies,
+  templateHasNodeModules,
+  templateHasPackageJson,
+} from './templates/deps';
 
 // Get the directory containing this file for Remotion bundling
 // In ESM, we use import.meta.url; __dirname is injected by esbuild for CJS
@@ -53,6 +60,16 @@ function getCurrentDir(): string {
 }
 
 const RENDER_DIR = getCurrentDir();
+
+let cachedHostNodeModulesDir: string | null = null;
+
+function resolveHostNodeModulesDir(): string {
+  if (cachedHostNodeModulesDir) return cachedHostNodeModulesDir;
+  const require = createRequireSafe(import.meta.url);
+  const remotionPkgJson = require.resolve('remotion/package.json');
+  cachedHostNodeModulesDir = dirname(dirname(remotionPkgJson));
+  return cachedHostNodeModulesDir;
+}
 
 function resolveRemotionEntryPoint(): string {
   const envOverride = process.env.CM_REMOTION_ENTRY;
@@ -188,9 +205,46 @@ export interface RenderVideoOptions {
   chromeMode?: 'headless-shell' | 'chrome-for-testing';
   /** Custom font sources for Remotion */
   fonts?: FontSource[];
+
+  // ---------------------------------------------------------------------------
+  // Template metadata (optional; useful for code templates)
+  // ---------------------------------------------------------------------------
+  templateId?: string;
+  templateSource?: string;
+  templateParams?: Record<string, unknown>;
+
+  // ---------------------------------------------------------------------------
+  // Remotion project override (code templates / custom projects)
+  // ---------------------------------------------------------------------------
+  /**
+   * Absolute path to a Remotion entrypoint (file that calls registerRoot()).
+   * If set, CM will bundle this entrypoint instead of the built-in compositions.
+   */
+  remotionEntryPoint?: string;
+  /** Absolute path for the Remotion project root (bundler rootDir). */
+  remotionRootDir?: string;
+  /** Public dir to copy (relative to remotionRootDir). Defaults to "public". */
+  remotionPublicDir?: string;
+  /** Enable Webpack filesystem caching during bundling. Default: true. */
+  remotionEnableCaching?: boolean;
+  /** Additional module directories to resolve packages from during bundling. */
+  remotionExtraModules?: string[];
+
+  // ---------------------------------------------------------------------------
+  // Safety + dependency install for code templates
+  // ---------------------------------------------------------------------------
+  /** Explicit opt-in gate for executing template-provided Remotion code. */
+  allowTemplateCode?: boolean;
+  /** Install template dependencies automatically if package.json exists and node_modules is missing. */
+  installTemplateDeps?: boolean;
+  /** Allow package manager output during template deps install (useful for debugging). */
+  templateDepsAllowOutput?: boolean;
+  /** Preferred package manager for template deps installs (optional). */
+  templatePackageManager?: TemplatePackageManager;
 }
 
 export type RenderProgressPhase =
+  | 'install-template-deps'
   | 'prepare-assets'
   | 'bundle'
   | 'select-composition'
@@ -237,6 +291,9 @@ function deriveFontFamilyFromPath(path: string): string {
   return normalized || 'Custom Font';
 }
 
+/**
+ * Resolve caption font sources and bundle any local font files into the render artifacts.
+ */
 export function resolveCaptionFontAssets(options: RenderVideoOptions): {
   fontSources: FontSource[];
   fontAssets: BundleAsset[];
@@ -384,6 +441,41 @@ async function validateLocalVideoAssets(
   }
 }
 
+function dedupeStrings(values: string[]): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const value of values) {
+    if (!value) continue;
+    if (seen.has(value)) continue;
+    seen.add(value);
+    out.push(value);
+  }
+  return out;
+}
+
+function createWebpackOverride(extraModuleDirs: string[]): WebpackOverrideFn {
+  const normalizedExtras = dedupeStrings(extraModuleDirs.map((dir) => resolve(dir)));
+  return (current: WebpackConfiguration): WebpackConfiguration => {
+    const currentResolve = current.resolve ?? {};
+    const currentModulesRaw = (currentResolve as { modules?: unknown }).modules;
+    const currentModules = Array.isArray(currentModulesRaw)
+      ? currentModulesRaw.filter((m): m is string => typeof m === 'string')
+      : [];
+
+    // Important: Setting resolve.modules overrides Webpack defaults, so we must include
+    // 'node_modules' to preserve normal resolution semantics.
+    const nextModules = dedupeStrings([...normalizedExtras, ...currentModules, 'node_modules']);
+
+    return {
+      ...current,
+      resolve: {
+        ...currentResolve,
+        modules: nextModules,
+      },
+    };
+  };
+}
+
 /**
  * Bundle Remotion composition and copy audio to bundle
  */
@@ -391,12 +483,23 @@ async function bundleComposition(
   audioPath: string,
   log: ReturnType<typeof createLogger>,
   onProgress?: (event: RenderProgressEvent) => void,
-  extraAssets: BundleAsset[] = []
+  extraAssets: BundleAsset[] = [],
+  remotion?: {
+    entryPoint: string;
+    rootDir?: string;
+    publicDir?: string;
+    enableCaching?: boolean;
+    webpackOverride?: WebpackOverrideFn;
+  }
 ): Promise<BundleResult> {
   log.debug('Bundling Remotion composition');
 
   const bundleLocation = await bundle({
-    entryPoint: resolveRemotionEntryPoint(),
+    entryPoint: remotion?.entryPoint ?? resolveRemotionEntryPoint(),
+    ...(remotion?.rootDir ? { rootDir: remotion.rootDir } : {}),
+    ...(remotion?.publicDir ? { publicDir: remotion.publicDir } : {}),
+    ...(remotion?.enableCaching !== undefined ? { enableCaching: remotion.enableCaching } : {}),
+    ...(remotion?.webpackOverride ? { webpackOverride: remotion.webpackOverride } : {}),
     onProgress: (progress) => {
       log.debug({ progress: Math.round(progress * 100) }, 'Bundling progress');
       onProgress?.({ phase: 'bundle', progress, message: 'Bundling' });
@@ -622,6 +725,9 @@ function buildRenderProps(
     height: dimensions.height,
     fps,
     archetype: options.archetype,
+    templateId: options.templateId,
+    templateSource: options.templateSource,
+    templateParams: options.templateParams,
     gameplayClip: options.visuals.gameplayClip,
     splitScreenRatio,
     gameplayPosition: options.gameplayPosition,
@@ -882,11 +988,85 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
       ...(mixResult?.assets ?? []),
     ];
 
+    const usesTemplateProject = Boolean(
+      options.remotionEntryPoint || options.remotionRootDir || options.remotionPublicDir
+    );
+    if (usesTemplateProject && !options.allowTemplateCode) {
+      throw new CMError('TEMPLATE_CODE_NOT_ALLOWED', 'Remotion code templates are not allowed', {
+        fix: 'Re-run with allowTemplateCode=true (API) or --allow-template-code (CLI)',
+      });
+    }
+
+    const remotionRootDir = options.remotionRootDir ? resolve(options.remotionRootDir) : undefined;
+    const remotionEntryPoint = options.remotionEntryPoint
+      ? resolve(remotionRootDir ?? process.cwd(), options.remotionEntryPoint)
+      : resolveRemotionEntryPoint();
+
+    if (usesTemplateProject && !existsSync(remotionEntryPoint)) {
+      throw new CMError('FILE_NOT_FOUND', 'Remotion entrypoint not found', {
+        entryPoint: remotionEntryPoint,
+        fix: 'Ensure template.remotion.entryPoint points to an existing file inside the template pack',
+      });
+    }
+
+    if (usesTemplateProject && remotionRootDir && templateHasPackageJson(remotionRootDir)) {
+      const hasNodeModules = templateHasNodeModules(remotionRootDir);
+      if (!hasNodeModules) {
+        if (process.env.CM_OFFLINE === '1') {
+          throw new CMError(
+            'OFFLINE',
+            'Template dependencies are missing and cannot be installed in offline mode',
+            {
+              rootDir: remotionRootDir,
+              fix: 'Re-run without --offline (or install dependencies manually in the template rootDir)',
+            }
+          );
+        }
+
+        if (!options.installTemplateDeps) {
+          throw new CMError('TEMPLATE_DEPS_MISSING', 'Template dependencies are not installed', {
+            rootDir: remotionRootDir,
+            fix: 'Run `npm install` in the template rootDir, or re-run with installTemplateDeps=true / --template-deps auto',
+          });
+        }
+
+        safeProgress({
+          phase: 'install-template-deps',
+          progress: 0,
+          message: 'Installing template dependencies',
+        });
+        await installTemplateDependencies({
+          rootDir: remotionRootDir,
+          packageManager: options.templatePackageManager,
+          allowOutput: Boolean(options.templateDepsAllowOutput),
+        });
+        safeProgress({
+          phase: 'install-template-deps',
+          progress: 1,
+          message: 'Template dependencies installed',
+        });
+      }
+    }
+
+    const remotionBundle = usesTemplateProject
+      ? {
+          entryPoint: remotionEntryPoint,
+          rootDir: remotionRootDir,
+          publicDir: options.remotionPublicDir,
+          enableCaching: options.remotionEnableCaching,
+          webpackOverride: createWebpackOverride([
+            resolveHostNodeModulesDir(),
+            ...(options.remotionExtraModules ?? []),
+          ]),
+        }
+      : undefined;
+
     const { bundleLocation, audioFilename } = await bundleComposition(
       options.audioPath,
       log,
       safeProgress,
-      extraAssets
+      extraAssets,
+      remotionBundle
     );
     const visualsForRender =
       gameplayPublicPath && gameplayClip

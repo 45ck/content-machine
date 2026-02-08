@@ -5,11 +5,12 @@
  * Based on SYSTEM-DESIGN §7.1 cm script command.
  */
 import { Command } from 'commander';
-import { ArchetypeEnum, loadConfig } from '../../core/config';
+import { loadConfig } from '../../core/config';
 import { CMError, SchemaError } from '../../core/errors';
 import { logger } from '../../core/logger';
 import { PackageOutputSchema, ResearchOutputSchema, type ResearchOutput } from '../../domain';
 import { generateScript } from '../../script/generator';
+import { formatArchetypeSource, resolveArchetype } from '../../archetypes/registry';
 import { FakeLLMProvider } from '../../test/stubs/fake-llm';
 import { createMockScriptResponse } from '../../test/fixtures/mock-scenes.js';
 import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
@@ -179,7 +180,8 @@ async function writeSuccessTextOutput(params: {
 
 async function runScript(options: ScriptCommandOptions, spinner: SpinnerLike): Promise<void> {
   const runtime = getCliRuntime();
-  const archetype = ArchetypeEnum.parse(options.archetype);
+  const resolvedArchetype = await resolveArchetype(options.archetype);
+  const archetype = resolvedArchetype.archetype.id;
   const durationSeconds = Number.parseInt(String(options.duration), 10);
   if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) {
     throw new CMError('INVALID_ARGUMENT', `Invalid --duration value: ${options.duration}`, {
@@ -193,7 +195,10 @@ async function runScript(options: ScriptCommandOptions, spinner: SpinnerLike): P
     return;
   }
 
-  logger.info({ topic: options.topic, archetype }, 'Starting script generation');
+  logger.info(
+    { topic: options.topic, archetype, source: formatArchetypeSource(resolvedArchetype) },
+    'Starting script generation'
+  );
 
   const llmProvider = options.mock ? createMockLLMProvider(options.topic) : undefined;
   if (options.mock) {
@@ -231,7 +236,7 @@ async function runScript(options: ScriptCommandOptions, spinner: SpinnerLike): P
 export const scriptCommand = new Command('script')
   .description('Generate a script from a topic')
   .requiredOption('-t, --topic <topic>', 'Topic for the video')
-  .option('-a, --archetype <type>', 'Content archetype', 'listicle')
+  .option('-a, --archetype <idOrPath>', 'Content archetype (use `cm archetypes list`)', 'listicle')
   .option('-o, --output <path>', 'Output file path', 'script.json')
   .option('--package <path>', 'Packaging JSON file (from cm package)')
   .option('--research <path>', 'Research JSON file (from cm research)')

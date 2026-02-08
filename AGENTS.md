@@ -81,16 +81,18 @@ cm generate "Redis vs PostgreSQL for caching" --archetype versus --output output
 
 ## 📦 Content Archetypes
 
-Six pre-built content patterns optimized for short-form engagement:
+Archetypes are **data files**, not hardcoded in `src/`.
 
-| Archetype    | Structure                         | Best For                     |
-| ------------ | --------------------------------- | ---------------------------- |
-| **listicle** | "5 things..." with numbered items | Tips, facts, recommendations |
-| **versus**   | "X vs Y" comparison               | Tool comparisons, decisions  |
-| **howto**    | Step-by-step instructions         | Tutorials, quick wins        |
-| **myth**     | "Myth: X / Reality: Y"            | Debunking misconceptions     |
-| **story**    | Narrative arc with hook           | Case studies, journeys       |
-| **hot-take** | Provocative opinion               | Engagement bait, discussions |
+- Built-in examples ship in `assets/archetypes/`.
+- Project overrides live in `./.cm/archetypes/`.
+- User installs live in `~/.cm/archetypes/`.
+
+Discover what is available right now:
+
+```bash
+cm archetypes list
+cm archetypes show <id>
+```
 
 Usage:
 

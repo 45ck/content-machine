@@ -58,9 +58,13 @@ async function captureOutput() {
 }
 
 describe('cli assets command', () => {
+  const prevAssetCacheDir = process.env.CM_ASSET_CACHE_DIR;
+
   beforeEach(() => {
     vi.clearAllMocks();
     vi.resetModules();
+    if (prevAssetCacheDir === undefined) delete process.env.CM_ASSET_CACHE_DIR;
+    else process.env.CM_ASSET_CACHE_DIR = prevAssetCacheDir;
   });
 
   it('prints paths in json mode', async () => {

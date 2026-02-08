@@ -37,6 +37,9 @@ export { VisualsOutputSchema, VideoClipSchema, VisualAssetSchema } from './domai
 export type { RenderProps, RenderOutput } from './domain';
 export { RenderPropsSchema, RenderOutputSchema } from './domain';
 
+// Remotion template SDK (for code templates)
+export * as TemplateSDK from './render/template-sdk';
+
 // Style system - presets
 export { PALETTES } from './render/presets/palette';
 export { TYPOGRAPHY_PRESETS } from './render/presets/typography';

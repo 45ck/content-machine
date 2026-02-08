@@ -1,0 +1,28 @@
+id: before-after
+name: Before / After
+description: Show the after first, then reveal the changes that made it happen.
+version: 1
+script:
+  template: |
+    Create a short-form video script about: "{{topic}}"
+
+    FORMAT: Before / After
+    Typical length: 10-25s
+
+    REQUIREMENTS:
+    - Show AFTER first as a pattern interrupt.
+    - Flash BEFORE quickly so contrast lands.
+    - Explain 2-3 labeled changes (e.g. "Change #1: ...").
+    - Keep before/after comparable (same framing/angle/format).
+
+    STRUCTURE:
+    1) Hook field: show AFTER immediately (one sentence spoken hook)
+    2) Scene 1: flash BEFORE and name the gap
+    3) Scene 2-4: changes (2-3)
+    4) Final scene: final AFTER + CTA
+
+    TIMELINE (18s template):
+    - 0-2s: AFTER
+    - 2-4s: BEFORE
+    - 4-14s: 3 changes (about 3s each)
+    - 14-18s: AFTER + CTA ("Want the exact settings? comment 'AFTER'.")

@@ -16,11 +16,39 @@ import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine 
 import { SchemaError } from '../../core/errors';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
 import { loadConfig } from '../../core/config';
+import type { AssetProviderName } from '../../visuals/providers';
 
 interface GameplayOptions {
   library?: string;
   style?: string;
   required: boolean;
+}
+
+const ASSET_PROVIDER_NAMES: ReadonlySet<AssetProviderName> = new Set([
+  'pexels',
+  'pixabay',
+  'local',
+  'localimage',
+  'nanobanana',
+  'dalle',
+  'unsplash',
+  'mock',
+]);
+
+function parseProviderNameList(values: string[]): AssetProviderName[] {
+  const out: AssetProviderName[] = [];
+  for (const raw of values) {
+    const name = raw.trim();
+    if (!name) continue;
+    if (!ASSET_PROVIDER_NAMES.has(name as AssetProviderName)) {
+      throw new SchemaError('Invalid provider name', {
+        provider: name,
+        fix: `Use one of: ${Array.from(ASSET_PROVIDER_NAMES).join(', ')}`,
+      });
+    }
+    out.push(name as AssetProviderName);
+  }
+  return out;
 }
 
 async function readTimestampsInput(path: string) {
@@ -101,10 +129,21 @@ function buildVisualsSummary(params: {
   options: Record<string, unknown>;
 }): { lines: string[]; footerLines: string[] } {
   const { visuals, options } = params;
+  const providerRaw = String(options.provider ?? 'pexels');
+  const providers = Array.isArray(options.providers)
+    ? (options.providers as string[])
+    : providerRaw
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+  const providerLabel =
+    providers.length > 1 ? providers.join(' -> ') : (providers[0] ?? providerRaw);
   const rows: Array<[string, string]> = [
     ['Scenes', String(visuals.scenes.length)],
     ['Duration', visuals.totalDuration ? `${visuals.totalDuration.toFixed(1)}s` : 'N/A'],
-    ['Provider', String(options.provider)],
+    ['Provider', providerLabel],
+    ['Motion', visuals.motionStrategy ?? String(options.motionStrategy ?? 'N/A')],
+    ['From you', String((visuals as any).fromUserFootage ?? 0)],
     ['From stock', String(visuals.fromStock)],
     ['From generated', String(visuals.fromGenerated)],
     ['Fallbacks', String(visuals.fallbacks)],
@@ -127,11 +166,26 @@ export const visualsCommand = new Command('visuals')
   .requiredOption('-i, --input <path>', 'Input timestamps JSON file')
   .option('-o, --output <path>', 'Output visuals file path', 'visuals.json')
   .option(
+    '--local-dir <path>',
+    'Directory for --provider local/localimage (bring your own assets)',
+    undefined
+  )
+  .option(
+    '--local-manifest <path>',
+    'Optional JSON mapping sceneId -> assetPath (deterministic BYO visuals)',
+    undefined
+  )
+  .option(
     '--provider <provider>',
     'Visual provider (stock video: pexels; AI images: nanobanana)',
     'pexels'
   )
   .option('--asset-provider <provider>', 'Alias for --provider (preferred name in ADR)', undefined)
+  .option(
+    '--fallback-providers <providers>',
+    'Comma-separated fallback providers (e.g. nanobanana). If --provider is a comma list, it already defines a chain.',
+    undefined
+  )
   .option(
     '--motion-strategy <strategy>',
     'Motion strategy for image providers (none|kenburns|depthflow|veo)',
@@ -163,14 +217,41 @@ export const visualsCommand = new Command('visuals')
 
       const timestamps = await readTimestampsInput(options.input);
 
-      logger.info({ input: options.input, provider: options.provider }, 'Starting visual matching');
+      const providerRaw = String(options.provider ?? config.visuals.provider);
+      const providerChainFromFlag = providerRaw
+        .split(',')
+        .map((s: string) => s.trim())
+        .filter(Boolean);
+      const fallbackProvidersFromFlag = String(options.fallbackProviders ?? '')
+        .split(',')
+        .map((s: string) => s.trim())
+        .filter(Boolean);
+      const fallbackProvidersFromConfig = Array.isArray(config.visuals.fallbackProviders)
+        ? (config.visuals.fallbackProviders as string[])
+        : [];
+      const providerChainRaw =
+        providerChainFromFlag.length > 1
+          ? providerChainFromFlag
+          : [
+              providerChainFromFlag[0] ?? 'pexels',
+              ...fallbackProvidersFromFlag,
+              ...fallbackProvidersFromConfig,
+            ];
+      const providerChain = parseProviderNameList(providerChainRaw);
+      options.providers = providerChain;
+
+      logger.info({ input: options.input, providerChain }, 'Starting visual matching');
 
       const onProgress = createVisualsProgressHandler({ runtime, spinner });
       const { gameplay, gameplayRequired } = resolveGameplayOptions(options, command);
 
       const visuals = await matchVisuals({
         timestamps,
-        provider: options.provider,
+        provider: providerChain[0],
+        providers: providerChain,
+        localDir: typeof options.localDir === 'string' ? options.localDir : undefined,
+        localManifest:
+          typeof options.localManifest === 'string' ? options.localManifest : undefined,
         orientation: options.orientation,
         mock: Boolean(options.mock),
         motionStrategy: options.motionStrategy,
@@ -192,18 +273,23 @@ export const visualsCommand = new Command('visuals')
             args: {
               input: options.input,
               output: options.output,
-              provider: options.provider,
+              provider: providerChain[0],
+              providers: providerChain,
               motionStrategy: options.motionStrategy ?? null,
               orientation: options.orientation,
               mock: Boolean(options.mock),
               gameplay: options.gameplay ?? null,
               gameplayStyle: options.gameplayStyle ?? null,
               gameplayStrict: Boolean(gameplayRequired),
+              localDir: typeof options.localDir === 'string' ? options.localDir : null,
+              localManifest:
+                typeof options.localManifest === 'string' ? options.localManifest : null,
             },
             outputs: {
               visualsPath: options.output,
               scenes: visuals.scenes.length,
               totalDurationSeconds: visuals.totalDuration ?? null,
+              fromUserFootage: (visuals as any).fromUserFootage ?? 0,
               fromStock: visuals.fromStock,
               fallbacks: visuals.fallbacks,
               fromGenerated: visuals.fromGenerated,

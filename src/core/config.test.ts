@@ -294,12 +294,12 @@ describe('Config', () => {
       expect(result.success).toBe(true);
     });
 
-    it('should reject invalid archetype', async () => {
+    it('should reject empty archetype', async () => {
       const { ConfigSchema } = await import('./config');
 
       const invalidConfig = {
         defaults: {
-          archetype: 'invalid-archetype',
+          archetype: '',
         },
       };
 

@@ -1,0 +1,32 @@
+id: myth
+name: Myth
+description: Myth vs reality debunk with fast proof.
+version: 1
+script:
+  template: |
+    Create a short-form video script debunking: "{{topic}}"
+
+    FORMAT: Myth-Busting (Myth vs Reality)
+    Typical length: 20-45s
+
+    REQUIREMENTS:
+    - Start with a provocative hook stating the common belief.
+    - Present 2-3 myths and their realities.
+    - Use explicit "Myth: X" and "Reality: Y" phrasing in scene text.
+    - Hook should be a provocative tease (not a "Myth:" line).
+    - End with the key takeaway.
+    - Add one sentence of nuance so it does not feel like clickbait.
+    - Use conversational, TikTok-style language.
+
+    STRUCTURE:
+    1) Hook field: one sentence hook (separate from scenes)
+    2) Scene 1: immediate payoff after the hook (state the misconception)
+    3) Scene 2-4: myth/reality pairs
+    4) Final scene: key takeaway
+
+    TIMELINE (30s template):
+    - 0-2s: claim ("Hot take: ...")
+    - 2-6s: why people believe it
+    - 6-22s: proof/demo (show, do not tell)
+    - 22-27s: nuance ("It matters if...")
+    - 27-30s: replacement rule + CTA

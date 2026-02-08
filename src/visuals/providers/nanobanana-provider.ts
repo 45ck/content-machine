@@ -38,10 +38,13 @@ function sha256Hex(input: string): string {
   return createHash('sha256').update(input).digest('hex');
 }
 
-async function isOkFile(path: string): Promise<boolean> {
+async function isFreshEnough(path: string, ttlSeconds: number | undefined): Promise<boolean> {
   try {
     const info = await stat(path);
-    return info.isFile() && info.size > 0;
+    if (!info.isFile() || info.size <= 0) return false;
+    if (!ttlSeconds || ttlSeconds <= 0) return true;
+    const ageMs = Date.now() - info.mtimeMs;
+    return ageMs <= ttlSeconds * 1000;
   } catch {
     return false;
   }
@@ -72,24 +75,38 @@ async function generateGeminiImage(params: {
   apiKey: string;
   model: string;
   prompt: string;
+  apiBaseUrl: string;
+  apiVersion: string;
+  timeoutMs: number;
 }): Promise<{ mimeType: string; bytesBase64: string }> {
-  const { apiKey, model, prompt } = params;
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(
+  const { apiKey, model, prompt, apiBaseUrl, apiVersion, timeoutMs } = params;
+  const base = apiBaseUrl.replace(/\/+$/, '');
+  const version = apiVersion.replace(/^\/+/, '').replace(/\/+$/, '');
+  const url = `${base}/${version}/models/${encodeURIComponent(
     model
   )}:generateContent?key=${encodeURIComponent(apiKey)}`;
 
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      // Part of the Gemini image-generation API request. If the backend ignores
-      // it, we still attempt to parse inline image parts.
-      generationConfig: {
-        responseModalities: ['IMAGE'],
-      },
-    }),
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), Math.max(1, timeoutMs));
+
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        // Part of the Gemini image-generation API request. If the backend ignores
+        // it, we still attempt to parse inline image parts.
+        generationConfig: {
+          responseModalities: ['IMAGE'],
+        },
+      }),
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
 
   const raw = await res.text();
   if (!res.ok) {
@@ -144,14 +161,47 @@ export class NanoBananaProvider implements AssetProvider {
   readonly name = 'nanobanana';
   readonly assetType: AssetType = 'image';
   readonly requiresMotion = true;
-  readonly costPerAsset = DEFAULT_COST_PER_ASSET;
+  readonly costPerAsset: number;
 
   private model: string;
   private cacheDir: string;
+  private apiBaseUrl: string;
+  private apiVersion: string;
+  private timeoutMs: number;
+  private cacheEnabled: boolean;
+  private cacheTtlSeconds: number | undefined;
 
-  constructor(model?: string, cacheDir?: string) {
-    this.model = model ?? DEFAULT_MODEL;
-    this.cacheDir = cacheDir ?? DEFAULT_CACHE_DIR;
+  constructor(
+    modelOrOptions?:
+      | string
+      | {
+          model?: string;
+          cacheDir?: string;
+          costPerAssetUsd?: number;
+          apiBaseUrl?: string;
+          apiVersion?: string;
+          timeoutMs?: number;
+          cacheEnabled?: boolean;
+          cacheTtlSeconds?: number;
+        },
+    cacheDir?: string
+  ) {
+    const options =
+      typeof modelOrOptions === 'string'
+        ? { model: modelOrOptions, cacheDir }
+        : (modelOrOptions ?? {});
+
+    this.model = options.model ?? DEFAULT_MODEL;
+    this.cacheDir = options.cacheDir ?? DEFAULT_CACHE_DIR;
+    this.costPerAsset =
+      typeof options.costPerAssetUsd === 'number'
+        ? options.costPerAssetUsd
+        : DEFAULT_COST_PER_ASSET;
+    this.apiBaseUrl = options.apiBaseUrl ?? 'https://generativelanguage.googleapis.com';
+    this.apiVersion = options.apiVersion ?? 'v1beta';
+    this.timeoutMs = options.timeoutMs ?? 60_000;
+    this.cacheEnabled = options.cacheEnabled ?? true;
+    this.cacheTtlSeconds = options.cacheTtlSeconds;
   }
 
   /**
@@ -195,6 +245,7 @@ export class NanoBananaProvider implements AssetProvider {
         metadata: {
           model: this.model,
           prompt: enhancedPrompt,
+          cacheHit: result.cacheHit,
         },
       };
     } catch (error) {
@@ -291,7 +342,7 @@ export class NanoBananaProvider implements AssetProvider {
   protected async generateImage(
     _prompt: string,
     _options: { width: number; height: number; apiKey: string }
-  ): Promise<{ id: string; url: string; width: number; height: number }> {
+  ): Promise<{ id: string; url: string; width: number; height: number; cacheHit: boolean }> {
     const { width, height, apiKey } = _options;
     const cacheKey = sha256Hex(
       JSON.stringify({ model: this.model, prompt: _prompt, width, height })
@@ -301,21 +352,35 @@ export class NanoBananaProvider implements AssetProvider {
 
     await mkdir(this.cacheDir, { recursive: true });
 
-    // Use PNG by default; if the API returns something else we swap extension.
-    const defaultPath = join(this.cacheDir, `${cacheKey}.png`);
-    if (await isOkFile(defaultPath)) {
-      return { id: cacheKey, url: defaultPath, width, height };
+    // Prefer cached artifacts regardless of extension (Gemini may return PNG/JPEG/WebP).
+    const cachedCandidates = [
+      join(this.cacheDir, `${cacheKey}.png`),
+      join(this.cacheDir, `${cacheKey}.jpg`),
+      join(this.cacheDir, `${cacheKey}.jpeg`),
+      join(this.cacheDir, `${cacheKey}.webp`),
+    ];
+    if (this.cacheEnabled) {
+      for (const path of cachedCandidates) {
+        if (await isFreshEnough(path, this.cacheTtlSeconds)) {
+          return { id: cacheKey, url: path, width, height, cacheHit: true };
+        }
+      }
     }
 
-    const generated = await generateGeminiImage({ apiKey, model: this.model, prompt: _prompt });
+    const generated = await generateGeminiImage({
+      apiKey,
+      model: this.model,
+      prompt: _prompt,
+      apiBaseUrl: this.apiBaseUrl,
+      apiVersion: this.apiVersion,
+      timeoutMs: this.timeoutMs,
+    });
     const ext = extForMimeType(generated.mimeType);
-    const finalPath = ext === '.png' ? defaultPath : join(this.cacheDir, `${cacheKey}${ext}`);
+    const finalPath = join(this.cacheDir, `${cacheKey}${ext}`);
 
-    if (!(await isOkFile(finalPath))) {
-      const buf = Buffer.from(generated.bytesBase64, 'base64');
-      await writeFile(finalPath, buf);
-    }
+    const buf = Buffer.from(generated.bytesBase64, 'base64');
+    await writeFile(finalPath, buf);
 
-    return { id: cacheKey, url: finalPath, width, height };
+    return { id: cacheKey, url: finalPath, width, height, cacheHit: false };
   }
 }

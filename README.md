@@ -316,6 +316,24 @@ cm visuals --input timestamps.json --provider nanobanana --motion-strategy kenbu
 cm render --input visuals.json --audio audio.wav --timestamps timestamps.json --output video.mp4
 ```
 
+### Bring Your Own Visuals (Local)
+
+Use your own folder of clips/images as a visuals provider:
+
+```bash
+# Use local video clips (best-match by filename/folders)
+cm visuals --input timestamps.json --provider local --local-dir ./my-footage --output visuals.json
+
+# Use local images (requires a motion strategy at render-time)
+cm visuals --input timestamps.json --provider localimage --local-dir ./my-images --motion-strategy kenburns --output visuals.json
+```
+
+For deterministic mapping (no fuzzy matching), provide a manifest mapping `sceneId -> assetPath`:
+
+```bash
+cm visuals --input timestamps.json --provider pexels --local-manifest ./visuals-manifest.json --output visuals.json
+```
+
 ### Config Files
 
 - Project config (auto-discovered by walking up from `cwd`): `.content-machine.toml`, `content-machine.toml`, `.cmrc.json`

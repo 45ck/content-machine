@@ -5,13 +5,16 @@
  * Templates are data-only presets for render defaults + composition selection.
  */
 import { readFile } from 'fs/promises';
-import { existsSync } from 'fs';
+import { existsSync, readFileSync, readdirSync } from 'fs';
 import { stat } from 'fs/promises';
 import { join, resolve } from 'path';
 import { homedir } from 'os';
+import { dirname } from 'node:path';
 import { NotFoundError, SchemaError } from '../../core/errors';
 import { VideoTemplateSchema, type VideoTemplate } from '../../domain/render-templates';
+import { createRequireSafe } from '../../core/require';
 export { getTemplateGameplaySlot, getTemplateParams } from './slots';
+export { resolveRemotionTemplateProject, type ResolvedRemotionTemplateProject } from './remotion';
 
 export type { VideoTemplate } from '../../domain/render-templates';
 
@@ -25,58 +28,76 @@ export interface ResolvedVideoTemplate {
   templatePath?: string;
 }
 
-const BUILTIN_TEMPLATES: Record<string, VideoTemplate> = {
-  'tiktok-captions': VideoTemplateSchema.parse({
-    id: 'tiktok-captions',
-    name: 'TikTok Captions',
-    description: 'Full-screen video + TikTok-style word-highlight captions',
-    compositionId: 'ShortVideo',
-    defaults: {
-      orientation: 'portrait',
-      fps: 30,
-      captionPreset: 'tiktok',
-    },
-  }),
-  'brainrot-split-gameplay': VideoTemplateSchema.parse({
-    id: 'brainrot-split-gameplay',
-    name: 'Brainrot Split Screen (Gameplay)',
-    description: 'Split-screen gameplay background (top content, bottom gameplay)',
-    compositionId: 'SplitScreenGameplay',
-    assets: {
-      gameplay: {
-        required: true,
-      },
-    },
-    defaults: {
-      orientation: 'portrait',
-      fps: 30,
-      captionPreset: 'tiktok',
-    },
-    params: { splitScreenRatio: 0.55 },
-  }),
-  'brainrot-split-gameplay-top': VideoTemplateSchema.parse({
-    id: 'brainrot-split-gameplay-top',
-    name: 'Brainrot Split Screen (Gameplay Top)',
-    description: 'Split-screen gameplay background (top gameplay, bottom content)',
-    compositionId: 'SplitScreenGameplay',
-    assets: {
-      gameplay: {
-        required: true,
-      },
-    },
-    defaults: {
-      orientation: 'portrait',
-      fps: 30,
-      captionPreset: 'capcut',
-    },
-    params: { splitScreenRatio: 0.55, gameplayPosition: 'top', contentPosition: 'bottom' },
-  }),
-};
+function getPackageRoot(): string {
+  const require = createRequireSafe(import.meta.url);
+  const candidates = ['../../../package.json', '../../package.json', '../package.json', './package.json'];
+  for (const candidate of candidates) {
+    try {
+      const pkgJsonPath = require.resolve(candidate);
+      return dirname(pkgJsonPath);
+    } catch {
+      continue;
+    }
+  }
+  throw new SchemaError('Unable to locate package.json to resolve built-in templates', {
+    fix: 'Run CM from an installed package or from a repository checkout that contains package.json',
+  });
+}
 
+function getBuiltinTemplatesDir(): string {
+  return join(getPackageRoot(), 'assets', 'templates');
+}
+
+function loadBuiltinTemplatesSync(): Record<string, VideoTemplate> {
+  const root = getBuiltinTemplatesDir();
+  if (!existsSync(root)) return {};
+
+  const entries = readdirSync(root, { withFileTypes: true }).filter((d) => d.isDirectory());
+  const templates: Record<string, VideoTemplate> = {};
+
+  for (const entry of entries) {
+    const templatePath = join(root, entry.name, 'template.json');
+    if (!existsSync(templatePath)) continue;
+
+    const raw = readFileSync(templatePath, 'utf-8');
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(raw);
+    } catch (error) {
+      throw new SchemaError('Invalid built-in template JSON', {
+        path: templatePath,
+        error: error instanceof Error ? error.message : String(error),
+        fix: 'Fix JSON syntax in assets/templates/*/template.json',
+      });
+    }
+
+    const validated = VideoTemplateSchema.safeParse(parsed);
+    if (!validated.success) {
+      throw new SchemaError('Invalid built-in video template', {
+        path: templatePath,
+        issues: validated.error.issues,
+        fix: 'Fix schema issues in assets/templates/*/template.json',
+      });
+    }
+
+    templates[validated.data.id] = validated.data;
+  }
+
+  return templates;
+}
+
+const BUILTIN_TEMPLATES: Record<string, VideoTemplate> = loadBuiltinTemplatesSync();
+
+/**
+ * List built-in templates shipped with the package.
+ */
 export function listBuiltinVideoTemplates(): VideoTemplate[] {
   return Object.values(BUILTIN_TEMPLATES);
 }
 
+/**
+ * Get a built-in template by id.
+ */
 export function getBuiltinVideoTemplate(id: string): VideoTemplate | undefined {
   return BUILTIN_TEMPLATES[id];
 }
@@ -198,6 +219,9 @@ export async function resolveVideoTemplate(spec: string): Promise<ResolvedVideoT
   });
 }
 
+/**
+ * Format a resolved template origin for display/logging.
+ */
 export function formatTemplateSource(resolved: ResolvedVideoTemplate): string {
   if (resolved.source === 'builtin') return `builtin:${resolved.template.id}`;
   return resolved.templatePath ? `file:${resolved.templatePath}` : 'file';
