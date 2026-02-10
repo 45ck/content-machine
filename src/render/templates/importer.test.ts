@@ -84,6 +84,33 @@ describe('importRemotionTemplate', () => {
     }
   });
 
+  it('rejects when importing into an existing template directory without --force', async () => {
+    const srcDir = await makeTempDir('cm-importer-exists-src');
+    const destRootDir = await makeTempDir('cm-importer-exists-dest');
+
+    try {
+      await writeFile(join(srcDir, 'package.json'), JSON.stringify({ name: 'demo', private: true }, null, 2));
+
+      await importRemotionTemplate({
+        source: srcDir,
+        destRootDir,
+        id: 'already-exists',
+        force: true,
+      });
+
+      await expect(
+        importRemotionTemplate({
+          source: srcDir,
+          destRootDir,
+          id: 'already-exists',
+        })
+      ).rejects.toMatchObject({ name: 'CMError', code: 'ALREADY_EXISTS' });
+    } finally {
+      await rm(srcDir, { recursive: true, force: true });
+      await rm(destRootDir, { recursive: true, force: true });
+    }
+  });
+
   it('rejects remote sources in offline mode', async () => {
     const destRootDir = await makeTempDir('cm-importer-offline');
     try {
@@ -95,6 +122,27 @@ describe('importRemotionTemplate', () => {
         })
       ).rejects.toMatchObject({ name: 'CMError', code: 'OFFLINE' });
     } finally {
+      await rm(destRootDir, { recursive: true, force: true });
+    }
+  });
+
+  it('rejects unsupported import modes', async () => {
+    const srcDir = await makeTempDir('cm-importer-mode-src');
+    const destRootDir = await makeTempDir('cm-importer-mode-dest');
+
+    try {
+      await writeFile(join(srcDir, 'package.json'), JSON.stringify({ name: 'demo', private: true }, null, 2));
+      await expect(
+        importRemotionTemplate({
+          source: srcDir,
+          destRootDir,
+          // Intentional invalid mode for coverage of error path.
+          mode: 'nope' as any,
+          force: true,
+        })
+      ).rejects.toMatchObject({ name: 'CMError', code: 'INVALID_ARGUMENT' });
+    } finally {
+      await rm(srcDir, { recursive: true, force: true });
       await rm(destRootDir, { recursive: true, force: true });
     }
   });
