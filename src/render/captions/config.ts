@@ -265,6 +265,9 @@ export type ListBadgesConfig = z.infer<typeof ListBadgesConfigSchema>;
  * This is the single source of truth for all caption styling.
  * Can be loaded from JSON/YAML config files.
  */
+/**
+ * Ubiquitous Language: Zod schema for CaptionConfig.
+ */
 export const CaptionConfigSchema = z.object({
   /** Schema version for migrations */
   version: z.string().default('1.0.0'),
@@ -363,6 +366,9 @@ export const CaptionConfigSchema = z.object({
   timingOffsetMs: z.number().int().min(-2000).max(2000).default(0),
 });
 
+/**
+ * Ubiquitous Language: Caption config (render-time caption styling contract).
+ */
 export type CaptionConfig = z.infer<typeof CaptionConfigSchema>;
 /** Input type for CaptionConfig (before Zod transforms apply defaults) */
 export type CaptionConfigInput = z.input<typeof CaptionConfigSchema>;

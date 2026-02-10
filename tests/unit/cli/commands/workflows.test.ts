@@ -13,6 +13,11 @@ vi.mock('../../../../src/workflows/installer', () => ({
   installWorkflowPack: vi.fn(),
 }));
 
+vi.mock('../../../../src/workflows/dev', () => ({
+  scaffoldWorkflow: vi.fn(),
+  packWorkflow: vi.fn(),
+}));
+
 async function configureRuntime(update: { json: boolean }): Promise<void> {
   const { resetCliRuntime, setCliRuntime } = await import('../../../../src/cli/runtime');
   resetCliRuntime();
@@ -142,5 +147,48 @@ describe('cli workflows command', () => {
     const joined = capture.stderr.join('');
     expect(joined).toContain('Installed workflow: demo');
     expect(joined).toContain('Location: /home/calvin/.cm/workflows/demo');
+  });
+
+  it('scaffolds workflows in json mode', async () => {
+    const { scaffoldWorkflow } = await import('../../../../src/workflows/dev');
+    (scaffoldWorkflow as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: 'demo',
+      workflowDir: '/repo/.cm/workflows/demo',
+      workflowPath: '/repo/.cm/workflows/demo/workflow.json',
+    });
+
+    await configureRuntime({ json: true });
+    const capture = await captureOutput();
+
+    const { workflowsCommand } = await import('../../../../src/cli/commands/workflows');
+    await workflowsCommand.parseAsync(['new', 'demo', '--root', '/repo/.cm/workflows'], {
+      from: 'user',
+    });
+
+    await capture.reset();
+    const payload = JSON.parse(capture.stdout.join(''));
+    expect(payload.command).toBe('workflows:new');
+    expect(payload.outputs.workflowId).toBe('demo');
+  });
+
+  it('packs workflows in human mode', async () => {
+    const { packWorkflow } = await import('../../../../src/workflows/dev');
+    (packWorkflow as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: 'demo',
+      outputPath: '/tmp/demo.cmworkflow.zip',
+    });
+
+    await configureRuntime({ json: false });
+    const capture = await captureOutput();
+
+    const { workflowsCommand } = await import('../../../../src/cli/commands/workflows');
+    await workflowsCommand.parseAsync(['pack', '/repo/.cm/workflows/demo'], {
+      from: 'user',
+    });
+
+    await capture.reset();
+    const joined = capture.stderr.join('');
+    expect(joined).toContain('Packed workflow: demo');
+    expect(joined).toContain('Output: /tmp/demo.cmworkflow.zip');
   });
 });

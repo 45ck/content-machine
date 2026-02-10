@@ -29,6 +29,7 @@ const COMMAND_LOADERS: Array<[string, CommandLoader]> = [
   ['research', async () => (await import('./commands/research')).researchCommand],
   ['retrieve', async () => (await import('./commands/retrieve')).retrieveCommand],
   ['validate', async () => (await import('./commands/validate')).validateCommand],
+  ['videospec', async () => (await import('./commands/videospec')).videospecCommand],
   ['score', async () => (await import('./commands/score')).scoreCommand],
   ['rate', async () => (await import('./commands/rate')).rateCommand],
   [

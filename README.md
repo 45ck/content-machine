@@ -122,6 +122,16 @@ topic -> script.json -> audio.wav + timestamps.json -> visuals.json -> video.mp4
 
 Run the full pipeline with `cm generate` or run each stage independently.
 
+## Ubiquitous Language (Important)
+
+These words mean specific things in this repo:
+
+- **Archetype**: script format (hook + structure + pacing rules). Used by `cm script` / `cm generate`.
+- **Template**: render template (Remotion composition + render defaults). Used by `cm render` / `cm generate`.
+- **Workflow**: pipeline orchestration preset (stage modes + defaults, optional exec hooks). Used by `cm generate`.
+
+Full glossary: `docs/reference/GLOSSARY.md`.
+
 **Key features:**
 
 - LLM script generation into scene-based `script.json`
@@ -309,7 +319,7 @@ REDDIT_CLIENT_SECRET=...   # Optional
 
 ### AI Images (Gemini)
 
-Generate per-scene AI images (and animate them at render-time):
+Generate per-scene AI images as a first-class visuals provider (and animate them at render-time):
 
 ```bash
 cm visuals --input timestamps.json --provider nanobanana --motion-strategy kenburns --output visuals.json

@@ -18,6 +18,7 @@ import { chalk } from '../colors';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
+import { parseTemplateDepsMode, resolveTemplateDepsInstallDecision } from '../template-code';
 import { dirname, join, resolve } from 'path';
 import { existsSync } from 'fs';
 import { createResearchOrchestrator } from '../../research/orchestrator';
@@ -28,12 +29,18 @@ import { getCliErrorInfo } from '../format';
 import {
   formatTemplateSource,
   resolveVideoTemplate,
+  getTemplateFontSources,
   getTemplateGameplaySlot,
+  getTemplateOverlays,
   getTemplateParams,
+  mergeFontSources,
+  resolveRemotionTemplateProject,
+  type ResolvedRemotionTemplateProject,
 } from '../../render/templates';
 import {
   AudioMixOutputSchema,
   AudioOutputSchema,
+  OverlayAsset,
   ResearchOutputSchema,
   ScriptOutputSchema,
   TimestampsOutputSchema,
@@ -287,6 +294,13 @@ interface GenerateOptions {
   lufsTarget?: string;
   /** Validate dependencies without running the pipeline */
   preflight?: boolean;
+
+  /** Allow executing Remotion code shipped inside template packs (code templates). */
+  allowTemplateCode?: boolean;
+  /** Template dependency install mode for code templates (auto, prompt, never). */
+  templateDeps?: string;
+  /** Template package manager (npm, pnpm, yarn). */
+  templatePm?: string;
 }
 
 function printHeader(
@@ -464,6 +478,132 @@ async function runGeneratePreflight(params: {
     status: 'ok',
     detail: templateId ? `${templateId} (${formatTemplateSource(resolvedTemplate)})` : 'default',
   });
+
+  let remotionProject: ResolvedRemotionTemplateProject | null = null;
+  if (resolvedTemplate) {
+    try {
+      remotionProject = resolveRemotionTemplateProject(resolvedTemplate);
+    } catch (error) {
+      const info = getCliErrorInfo(error);
+      addPreflightCheck(checks, {
+        label: 'Template code',
+        status: 'fail',
+        code: info.code,
+        detail: info.message,
+        fix: info.fix,
+      });
+    }
+  }
+
+  if (remotionProject) {
+    const config = loadConfig();
+
+    const allowTemplateCodeSource = command.getOptionValueSource('allowTemplateCode');
+    const allowTemplateCode =
+      allowTemplateCodeSource === 'default' || allowTemplateCodeSource === undefined
+        ? Boolean(config.render.allowTemplateCode)
+        : Boolean(options.allowTemplateCode);
+
+    addPreflightCheck(checks, {
+      label: 'Template code',
+      status: allowTemplateCode ? 'ok' : 'fail',
+      code: allowTemplateCode ? undefined : 'INVALID_ARGUMENT',
+      detail: allowTemplateCode ? `Enabled (${remotionProject.entryPoint})` : 'Disabled',
+      fix: allowTemplateCode
+        ? undefined
+        : 'Re-run with --allow-template-code to allow executing template-provided Remotion code',
+    });
+
+    const hasPkg = existsSync(join(remotionProject.rootDir, 'package.json'));
+    const hasNodeModules = existsSync(join(remotionProject.rootDir, 'node_modules'));
+
+    if (hasPkg && hasNodeModules) {
+      addPreflightCheck(checks, {
+        label: 'Template deps',
+        status: 'ok',
+        detail: `${remotionProject.rootDir}/node_modules`,
+      });
+    } else if (hasPkg && !hasNodeModules) {
+      let templateDepsMode: ReturnType<typeof parseTemplateDepsMode> | undefined;
+      try {
+        const templateDepsSource = command.getOptionValueSource('templateDeps');
+        const templateDepsRaw =
+          templateDepsSource === 'default' || templateDepsSource === undefined
+            ? (remotionProject.installDeps ?? config.render.templateDeps)
+            : options.templateDeps;
+        templateDepsMode = parseTemplateDepsMode(templateDepsRaw ?? 'prompt');
+      } catch (error) {
+        const info = getCliErrorInfo(error);
+        addPreflightCheck(checks, {
+          label: 'Template deps',
+          status: 'fail',
+          code: info.code,
+          detail: info.message,
+          fix: info.fix,
+        });
+        templateDepsMode = undefined;
+      }
+
+      const mode = templateDepsMode ?? 'prompt';
+      if (params.runtime.offline) {
+        addPreflightCheck(checks, {
+          label: 'Template deps',
+          status: 'fail',
+          code: 'OFFLINE',
+          detail: 'node_modules missing (offline mode enabled)',
+          fix: 'Re-run without --offline, or install dependencies manually in the template rootDir',
+        });
+      } else if (mode === 'never') {
+        addPreflightCheck(checks, {
+          label: 'Template deps',
+          status: 'fail',
+          code: 'TEMPLATE_DEPS_MISSING',
+          detail: 'node_modules missing (--template-deps never)',
+          fix: 'Run `npm install` in the template rootDir, or re-run with --template-deps auto',
+        });
+      } else if (mode === 'auto') {
+        addPreflightCheck(checks, {
+          label: 'Template deps',
+          status: 'warn',
+          detail: 'node_modules missing (will install automatically at render time)',
+          fix: 'Run `npm install` in the template rootDir to avoid installs during generation',
+        });
+      } else {
+        // prompt
+        const canPrompt = params.runtime.isTty && !params.runtime.json;
+        const willInstall = Boolean(params.runtime.yes);
+        if (willInstall) {
+          addPreflightCheck(checks, {
+            label: 'Template deps',
+            status: 'warn',
+            detail: 'node_modules missing (--yes will auto-install)',
+            fix: 'Run `npm install` in the template rootDir to avoid installs during generation',
+          });
+        } else if (canPrompt) {
+          addPreflightCheck(checks, {
+            label: 'Template deps',
+            status: 'warn',
+            detail: 'node_modules missing (will prompt to install)',
+            fix: 'Run `npm install` in the template rootDir, or pass --template-deps auto',
+          });
+        } else {
+          addPreflightCheck(checks, {
+            label: 'Template deps',
+            status: 'fail',
+            code: 'TEMPLATE_DEPS_MISSING',
+            detail: 'node_modules missing (non-interactive mode cannot prompt)',
+            fix: 'Run `npm install` in the template rootDir, or pass --template-deps auto',
+          });
+        }
+      }
+    } else {
+      addPreflightCheck(checks, {
+        label: 'Template deps',
+        status: 'ok',
+        detail: 'No package.json (no deps install needed)',
+      });
+    }
+  }
 
   if (options.workflow) {
     if (workflowError) {
@@ -1109,7 +1249,7 @@ function buildAudioMixOptions(options: GenerateOptions): AudioMixPlanOptions {
   const ambienceInput = typeof options.ambience === 'string' ? options.ambience : undefined;
 
   return {
-    mixPreset: options.mixPreset ?? config.audioMix.preset,
+    mixPreset: (options.mixPreset as string | undefined) ?? config.audioMix.preset,
     lufsTarget: parseOptionalNumber(options.lufsTarget) ?? config.audioMix.lufsTarget,
     music: noMusic ? null : (musicInput ?? config.music.default ?? null),
     musicVolumeDb: parseOptionalNumber(options.musicVolume) ?? config.music.volumeDb,
@@ -1573,6 +1713,7 @@ async function resolveTemplateAndApplyDefaults(
   templateDefaults: Record<string, unknown> | undefined;
   templateParams: ReturnType<typeof getTemplateParams>;
   templateGameplay: ReturnType<typeof getTemplateGameplaySlot>;
+  templateOverlays: OverlayAsset[];
 }> {
   if (!options.template) {
     return {
@@ -1580,6 +1721,7 @@ async function resolveTemplateAndApplyDefaults(
       templateDefaults: undefined,
       templateParams: {},
       templateGameplay: null,
+      templateOverlays: [],
     };
   }
 
@@ -1587,6 +1729,14 @@ async function resolveTemplateAndApplyDefaults(
   const templateDefaults = (resolvedTemplate.template.defaults ?? {}) as Record<string, unknown>;
   const templateParams = getTemplateParams(resolvedTemplate.template);
   const templateGameplay = getTemplateGameplaySlot(resolvedTemplate.template);
+  const templateFonts = getTemplateFontSources(
+    resolvedTemplate.template,
+    resolvedTemplate.templateDir
+  );
+  const templateOverlays = getTemplateOverlays(
+    resolvedTemplate.template,
+    resolvedTemplate.templateDir
+  );
 
   const record = options as unknown as Record<string, unknown>;
   applyDefaultOption(record, command, 'archetype', templateDefaults.archetype);
@@ -1598,8 +1748,13 @@ async function resolveTemplateAndApplyDefaults(
     templateDefaults.fps !== undefined ? String(templateDefaults.fps) : undefined
   );
   applyDefaultOption(record, command, 'captionPreset', templateDefaults.captionPreset);
+  if (templateFonts.length > 0) {
+    // Prefer template-provided fonts over config defaults unless the user explicitly overrides.
+    applyDefaultOption(record, command, 'captionFontFamily', templateFonts[0]?.family);
+    options.captionFonts = mergeFontSources(templateFonts, options.captionFonts ?? []);
+  }
 
-  return { resolvedTemplate, templateDefaults, templateParams, templateGameplay };
+  return { resolvedTemplate, templateDefaults, templateParams, templateGameplay, templateOverlays };
 }
 
 function handleDryRun(params: {
@@ -1806,8 +1961,14 @@ async function runGeneratePipeline(params: {
   orientation: Orientation;
   options: GenerateOptions;
   resolvedTemplate: Awaited<ReturnType<typeof resolveVideoTemplate>> | undefined;
+  remotionProject: ResolvedRemotionTemplateProject | null;
+  allowTemplateCode?: boolean;
+  installTemplateDeps?: boolean;
+  templateDepsAllowOutput?: boolean;
+  templatePackageManager?: 'npm' | 'pnpm' | 'yarn';
   templateDefaults: Record<string, unknown> | undefined;
   templateParams: ReturnType<typeof getTemplateParams>;
+  templateOverlays: OverlayAsset[];
   gameplay?: { library?: string; style?: string; required?: boolean };
   hook?: HookClip | null;
   research: ResearchOutput | undefined;
@@ -1876,6 +2037,21 @@ async function runGeneratePipeline(params: {
       outputPath: params.options.output,
       fps: params.options.fps ? parseInt(params.options.fps, 10) : undefined,
       compositionId: params.resolvedTemplate?.template.compositionId,
+      allowTemplateCode: params.allowTemplateCode,
+      installTemplateDeps: params.installTemplateDeps,
+      templateDepsAllowOutput: params.templateDepsAllowOutput,
+      templatePackageManager: params.templatePackageManager,
+      remotionEntryPoint: params.remotionProject?.entryPoint,
+      remotionRootDir: params.remotionProject?.rootDir,
+      remotionPublicDir: params.remotionProject?.publicDir,
+      templateId: params.resolvedTemplate?.template.id,
+      templateSource: params.resolvedTemplate
+        ? formatTemplateSource(params.resolvedTemplate)
+        : undefined,
+      templateParams: (params.resolvedTemplate?.template.params ?? undefined) as
+        | Record<string, unknown>
+        | undefined,
+      overlays: params.templateOverlays.length > 0 ? params.templateOverlays : undefined,
       captionPreset: params.options.captionPreset as CaptionPresetName | undefined,
       captionConfig: mergedCaptionConfig,
       keepArtifacts: params.options.keepArtifacts,
@@ -2379,6 +2555,54 @@ async function writeCaptionQualityReportFiles(
   return reportPath;
 }
 
+async function writeResolvedTemplateArtifact(params: {
+  artifactsDir: string;
+  resolvedTemplate: Awaited<ReturnType<typeof resolveVideoTemplate>>;
+  templateDefaults: Record<string, unknown> | undefined;
+  templateParams: ReturnType<typeof getTemplateParams>;
+  templateGameplay: ReturnType<typeof getTemplateGameplaySlot>;
+  templateFonts: FontSource[];
+  templateOverlays: OverlayAsset[];
+  options: GenerateOptions;
+}): Promise<string> {
+  const outPath = join(params.artifactsDir, 'template.resolved.json');
+  await writeOutputFile(outPath, {
+    schemaVersion: '1.0.0',
+    templateSpec: params.options.template ?? null,
+    resolved: {
+      id: params.resolvedTemplate.template.id,
+      name: params.resolvedTemplate.template.name,
+      description: params.resolvedTemplate.template.description ?? null,
+      compositionId: params.resolvedTemplate.template.compositionId,
+      source: formatTemplateSource(params.resolvedTemplate),
+      templatePath: params.resolvedTemplate.templatePath ?? null,
+      templateDir: params.resolvedTemplate.templateDir ?? null,
+      templateSchemaVersion: params.resolvedTemplate.template.schemaVersion,
+      defaults: params.resolvedTemplate.template.defaults ?? null,
+      params: params.resolvedTemplate.template.params ?? null,
+      assets: params.resolvedTemplate.template.assets ?? null,
+      remotion: params.resolvedTemplate.template.remotion ?? null,
+    },
+    derived: {
+      templateDefaults: params.templateDefaults ?? null,
+      templateParams: params.templateParams,
+      templateGameplay: params.templateGameplay,
+      templateFonts: params.templateFonts,
+      templateOverlays: params.templateOverlays,
+    },
+    effective: {
+      archetype: params.options.archetype ?? null,
+      orientation: params.options.orientation ?? null,
+      fps: params.options.fps ?? null,
+      captionPreset: params.options.captionPreset ?? null,
+      captionFontFamily: params.options.captionFontFamily ?? null,
+      captionFontWeight: params.options.captionFontWeight ?? null,
+      captionFontFile: params.options.captionFontFile ?? null,
+    },
+  });
+  return outPath;
+}
+
 async function finalizeGenerateOutput(params: {
   topic: string;
   archetype: string;
@@ -2457,7 +2681,7 @@ async function runGenerate(
   applyWorkflowInputs(options, command, workflowDefinition, workflowBaseDir);
   applyWorkflowStageDefaults(options, workflowStageModes, artifactsDir);
 
-  const { resolvedTemplate, templateDefaults, templateParams, templateGameplay } =
+  const { resolvedTemplate, templateDefaults, templateParams, templateGameplay, templateOverlays } =
     await resolveTemplateAndApplyDefaults(options, command);
   const templateSpec = toNullableString(options.template);
   const resolvedTemplateId = resolveTemplateId(resolvedTemplate);
@@ -2527,6 +2751,74 @@ async function runGenerate(
         fix: 'Remove render stage overrides or use `cm render` with your artifacts',
       }
     );
+  }
+
+  const remotionProject = resolvedTemplate
+    ? resolveRemotionTemplateProject(resolvedTemplate)
+    : null;
+  let allowTemplateCode: boolean | undefined;
+  let installTemplateDeps: boolean | undefined;
+  let templatePackageManager: 'npm' | 'pnpm' | 'yarn' | undefined;
+
+  if (remotionProject) {
+    const config = loadConfig();
+
+    const allowTemplateCodeSource = command.getOptionValueSource('allowTemplateCode');
+    allowTemplateCode =
+      allowTemplateCodeSource === 'default' || allowTemplateCodeSource === undefined
+        ? Boolean(config.render.allowTemplateCode)
+        : Boolean(options.allowTemplateCode);
+
+    if (!allowTemplateCode) {
+      throw new CMError('INVALID_ARGUMENT', 'Code templates require --allow-template-code', {
+        templateId: resolvedTemplate?.template.id,
+        templateDir: remotionProject.templateDir,
+        fix: 'Re-run with --allow-template-code to allow executing template-provided Remotion code',
+      });
+    }
+
+    const templateDepsSource = command.getOptionValueSource('templateDeps');
+    const templateDepsRaw =
+      templateDepsSource === 'default' || templateDepsSource === undefined
+        ? (remotionProject.installDeps ?? config.render.templateDeps)
+        : options.templateDeps;
+    const templateDepsMode = parseTemplateDepsMode(templateDepsRaw ?? 'prompt');
+
+    const templatePmSource = command.getOptionValueSource('templatePm');
+    const templatePmRaw =
+      templatePmSource === 'default' || templatePmSource === undefined
+        ? (remotionProject.packageManager ?? config.render.templatePackageManager)
+        : options.templatePm;
+    const templatePmValue = templatePmRaw ? String(templatePmRaw) : undefined;
+    templatePackageManager =
+      templatePmValue === 'npm' || templatePmValue === 'pnpm' || templatePmValue === 'yarn'
+        ? templatePmValue
+        : undefined;
+
+    const templateHasPackageJson = existsSync(join(remotionProject.rootDir, 'package.json'));
+    const templateHasNodeModules = existsSync(join(remotionProject.rootDir, 'node_modules'));
+    installTemplateDeps =
+      templateHasPackageJson && !templateHasNodeModules
+        ? await resolveTemplateDepsInstallDecision({
+            runtime,
+            rootDir: remotionProject.rootDir,
+            mode: templateDepsMode ?? 'prompt',
+          })
+        : false;
+
+    if (templateHasPackageJson && !templateHasNodeModules && runtime.offline) {
+      throw new CMError('OFFLINE', 'Offline mode enabled; cannot install template dependencies', {
+        rootDir: remotionProject.rootDir,
+        fix: 'Re-run without --offline, or install dependencies manually in the template rootDir',
+      });
+    }
+
+    if (templateHasPackageJson && !templateHasNodeModules && !installTemplateDeps) {
+      throw new CMError('TEMPLATE_DEPS_MISSING', 'Template dependencies are not installed', {
+        rootDir: remotionProject.rootDir,
+        fix: 'Run `npm install` in the template rootDir, or re-run with --template-deps auto',
+      });
+    }
   }
 
   if (workflowDefinition && workflowHasExec(workflowDefinition) && !options.workflowAllowExec) {
@@ -2632,8 +2924,14 @@ async function runGenerate(
       orientation,
       options,
       resolvedTemplate,
+      remotionProject,
+      allowTemplateCode,
+      installTemplateDeps,
+      templateDepsAllowOutput: runtime.verbose,
+      templatePackageManager,
       templateDefaults,
       templateParams,
+      templateOverlays,
       gameplay,
       hook,
       research,
@@ -2644,6 +2942,27 @@ async function runGenerate(
       audioInput,
       visualsInput,
     });
+
+  if (options.keepArtifacts && resolvedTemplate) {
+    const templateFonts = getTemplateFontSources(
+      resolvedTemplate.template,
+      resolvedTemplate.templateDir
+    );
+    const templateOverlays = getTemplateOverlays(
+      resolvedTemplate.template,
+      resolvedTemplate.templateDir
+    );
+    await writeResolvedTemplateArtifact({
+      artifactsDir,
+      resolvedTemplate,
+      templateDefaults,
+      templateParams,
+      templateGameplay,
+      templateFonts,
+      templateOverlays,
+      options,
+    });
+  }
 
   if (workflowDefinition && workflowHasExec(workflowDefinition) && options.workflowAllowExec) {
     const postCommands = collectWorkflowPostCommands(workflowDefinition);
@@ -2900,6 +3219,9 @@ async function showSuccessSummary(
       artifactRows.push(['Audio mix', result.audio.audioMixPath]);
     }
     artifactRows.push(['Visuals', join(artifactsDir, 'visuals.json')]);
+    if (options.template) {
+      artifactRows.push(['Template', join(artifactsDir, 'template.resolved.json')]);
+    }
     lines.push('', 'Artifacts', ...formatKeyValueRows(artifactRows));
   }
 
@@ -2985,9 +3307,25 @@ async function loadOrRunResearch(
 export const generateCommand = new Command('generate')
   .description('Generate a complete video from a topic')
   .argument('<topic>', 'Topic for the video')
-  .option('-a, --archetype <idOrPath>', 'Content archetype (use `cm archetypes list`)', 'listicle')
-  .option('--template <idOrPath>', 'Video template id or path to template.json')
-  .option('--workflow <idOrPath>', 'Workflow id or path to workflow.json')
+  .option(
+    '-a, --archetype <idOrPath>',
+    'Script archetype (script format). Use `cm archetypes list`',
+    'listicle'
+  )
+  .option(
+    '--template <idOrPath>',
+    'Render template (Remotion composition + render defaults). Use `cm templates list`'
+  )
+  .option('--allow-template-code', 'Allow executing Remotion code templates (dangerous)', false)
+  .option(
+    '--template-deps <mode>',
+    'Template dependency install mode for code templates (auto, prompt, never)'
+  )
+  .option('--template-pm <pm>', 'Template package manager (npm, pnpm, yarn)')
+  .option(
+    '--workflow <idOrPath>',
+    'Pipeline workflow (orchestration + defaults). Use `cm workflows list`'
+  )
   .option('--workflow-allow-exec', 'Allow workflow exec hooks to run')
   .option('--script <path>', 'Use existing script.json (skip script stage)')
   .option('--audio <path>', 'Use existing audio file (requires --timestamps)')

@@ -1,6 +1,6 @@
 # guide-ubiquitous-language-20260110
 
-Define the canonical vocabulary and documentation rules for content-machine so terminology stays consistent across docs, code, and CLI output.
+Apply the repo's canonical vocabulary consistently across docs, code, CLI help text, and errors.
 
 ## When to use this
 
@@ -15,11 +15,26 @@ Define the canonical vocabulary and documentation rules for content-machine so t
 
 ## Steps
 
-1. Use the canonical domain terms in "Ubiquitous language (domain)".
-2. Use stage and artifact names exactly as listed in "Pipeline and artifacts".
-3. Use software terms consistently as defined in "Software perspective (implementation)".
+1. Use the canonical definitions from `docs/reference/ubiquitous-language.yaml` (source of truth).
+2. Confirm the generated glossary (`docs/reference/GLOSSARY.md`) matches what you're writing.
+3. Use stage and artifact names exactly as listed in "Pipeline and artifacts".
 4. Avoid deprecated or ambiguous terms listed in "Terms to avoid".
 5. Apply "Documentation structure rules" to every new or edited doc.
+
+## Canonical glossary system
+
+Canonical sources:
+
+- Registry (edit this): `docs/reference/ubiquitous-language.yaml`
+- Glossary (generated): `docs/reference/GLOSSARY.md`
+- System explainer: `docs/reference/ubiquitous-language-system-20260210.md`
+
+Commands:
+
+```bash
+npm run glossary:gen
+npm run glossary:check
+```
 
 ## Ubiquitous language (domain)
 
@@ -147,4 +162,5 @@ cm render --input output/visuals.json --audio output/audio.wav --timestamps outp
 - `docs/guides/guide-cli-ux-standards-20260106.md`
 - `docs/architecture/SYSTEM-DESIGN-20260104.md`
 - `docs/reference/cm-generate-reference-20260106.md`
-- `docs/glossary/README.md`
+- `docs/reference/GLOSSARY.md`
+- `docs/reference/ubiquitous-language.yaml`

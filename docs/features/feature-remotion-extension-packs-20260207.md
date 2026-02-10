@@ -1,7 +1,7 @@
 # Feature: Remotion Extension Packs (Code Templates + Animation Packs)
 
 **Date:** 2026-02-07  
-**Status:** Proposed  
+**Status:** Implemented (Code templates + TemplateSDK; animation packs TBD)  
 **Owners:** content-machine core
 
 ---

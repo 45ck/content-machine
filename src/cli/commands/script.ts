@@ -236,7 +236,11 @@ async function runScript(options: ScriptCommandOptions, spinner: SpinnerLike): P
 export const scriptCommand = new Command('script')
   .description('Generate a script from a topic')
   .requiredOption('-t, --topic <topic>', 'Topic for the video')
-  .option('-a, --archetype <idOrPath>', 'Content archetype (use `cm archetypes list`)', 'listicle')
+  .option(
+    '-a, --archetype <idOrPath>',
+    'Script archetype (script format). Use `cm archetypes list`',
+    'listicle'
+  )
   .option('-o, --output <path>', 'Output file path', 'script.json')
   .option('--package <path>', 'Packaging JSON file (from cm package)')
   .option('--research <path>', 'Research JSON file (from cm research)')

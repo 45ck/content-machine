@@ -57,6 +57,34 @@ cm render -i visuals.json --audio audio.wav --timestamps timestamps.json \
   --template ./my-template/template.json -o out/video.mp4
 ```
 
+## Create a code template (Remotion project)
+
+Code templates let you ship a Remotion project inside the template pack so you can:
+
+- copy/paste animations from Remotion official/community templates
+- install animation libraries and use them directly in the composition
+
+Security: this executes arbitrary JS/TS and is denied by default.
+
+Scaffold a code template:
+
+```bash
+cm templates new my-code-template --mode code
+```
+
+Render it:
+
+```bash
+cm render -i visuals.json --audio audio.wav --timestamps timestamps.json \
+  --template ./my-code-template/template.json --allow-template-code -o out/video.mp4
+```
+
+If the template has a `package.json` and needs dependencies:
+
+```bash
+cm render ... --allow-template-code --template-deps auto
+```
+
 ## Add gameplay backgrounds (Subway Surfers / Minecraft parkour)
 
 Keep gameplay clips outside the repo (copyright compliance). Use the asset library convention:

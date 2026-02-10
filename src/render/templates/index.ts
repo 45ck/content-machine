@@ -13,7 +13,13 @@ import { dirname } from 'node:path';
 import { NotFoundError, SchemaError } from '../../core/errors';
 import { VideoTemplateSchema, type VideoTemplate } from '../../domain/render-templates';
 import { createRequireSafe } from '../../core/require';
-export { getTemplateGameplaySlot, getTemplateParams } from './slots';
+export {
+  getTemplateFontSources,
+  getTemplateGameplaySlot,
+  getTemplateOverlays,
+  getTemplateParams,
+  mergeFontSources,
+} from './slots';
 export { resolveRemotionTemplateProject, type ResolvedRemotionTemplateProject } from './remotion';
 
 export type { VideoTemplate } from '../../domain/render-templates';
@@ -24,8 +30,10 @@ export interface ResolvedVideoTemplate {
   spec: string;
   /** Where the template was loaded from. */
   source: 'builtin' | 'file';
-  /** Absolute template.json path when source === 'file'. */
+  /** Absolute template.json path (when known). */
   templatePath?: string;
+  /** Absolute directory containing template.json (when known). */
+  templateDir?: string;
 }
 
 function getPackageRoot(): string {
@@ -48,12 +56,16 @@ function getBuiltinTemplatesDir(): string {
   return join(getPackageRoot(), 'assets', 'templates');
 }
 
-function loadBuiltinTemplatesSync(): Record<string, VideoTemplate> {
+function loadBuiltinTemplatesSync(): {
+  templates: Record<string, VideoTemplate>;
+  templatePaths: Record<string, string>;
+} {
   const root = getBuiltinTemplatesDir();
-  if (!existsSync(root)) return {};
+  if (!existsSync(root)) return { templates: {}, templatePaths: {} };
 
   const entries = readdirSync(root, { withFileTypes: true }).filter((d) => d.isDirectory());
   const templates: Record<string, VideoTemplate> = {};
+  const templatePaths: Record<string, string> = {};
 
   for (const entry of entries) {
     const templatePath = join(root, entry.name, 'template.json');
@@ -81,12 +93,15 @@ function loadBuiltinTemplatesSync(): Record<string, VideoTemplate> {
     }
 
     templates[validated.data.id] = validated.data;
+    templatePaths[validated.data.id] = templatePath;
   }
 
-  return templates;
+  return { templates, templatePaths };
 }
 
-const BUILTIN_TEMPLATES: Record<string, VideoTemplate> = loadBuiltinTemplatesSync();
+const BUILTIN_TEMPLATES_SYNC = loadBuiltinTemplatesSync();
+const BUILTIN_TEMPLATES: Record<string, VideoTemplate> = BUILTIN_TEMPLATES_SYNC.templates;
+const BUILTIN_TEMPLATE_PATHS: Record<string, string> = BUILTIN_TEMPLATES_SYNC.templatePaths;
 
 /**
  * List built-in templates shipped with the package.
@@ -191,13 +206,20 @@ export async function resolveVideoTemplate(spec: string): Promise<ResolvedVideoT
       });
     }
     const template = await loadTemplateFromFile(templatePath);
-    return { template, spec, source: 'file', templatePath };
+    return { template, spec, source: 'file', templatePath, templateDir: dirname(templatePath) };
   }
 
   // ID mode
   const builtin = getBuiltinVideoTemplate(spec);
   if (builtin) {
-    return { template: builtin, spec, source: 'builtin' };
+    const builtinTemplatePath = BUILTIN_TEMPLATE_PATHS[spec];
+    return {
+      template: builtin,
+      spec,
+      source: 'builtin',
+      templatePath: builtinTemplatePath,
+      templateDir: builtinTemplatePath ? dirname(builtinTemplatePath) : undefined,
+    };
   }
 
   const candidates = [
@@ -208,7 +230,7 @@ export async function resolveVideoTemplate(spec: string): Promise<ResolvedVideoT
   for (const candidate of candidates) {
     if (!existsSync(candidate)) continue;
     const template = await loadTemplateFromFile(candidate);
-    return { template, spec, source: 'file', templatePath: candidate };
+    return { template, spec, source: 'file', templatePath: candidate, templateDir: dirname(candidate) };
   }
 
   throw new NotFoundError(`Unknown video template: ${spec}`, {

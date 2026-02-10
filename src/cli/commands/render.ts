@@ -30,6 +30,8 @@ import type {
   VisualAsset,
   VisualAssetInput,
   VisualsOutputInput,
+  FontSource,
+  OverlayAsset,
 } from '../../domain';
 import type { AudioMixOutput, TimestampsOutput } from '../../domain';
 import { AudioMixOutputSchema, TimestampsOutputSchema, VisualsOutputSchema } from '../../domain';
@@ -59,8 +61,11 @@ import { ensureVisualCoverage, type VisualScene } from '../../visuals/duration';
 import {
   resolveVideoTemplate,
   formatTemplateSource,
+  getTemplateFontSources,
   getTemplateGameplaySlot,
+  getTemplateOverlays,
   getTemplateParams,
+  mergeFontSources,
   resolveRemotionTemplateProject,
 } from '../../render/templates';
 import { resolveHookFromCli } from '../hooks';
@@ -510,6 +515,8 @@ async function resolveTemplateAndApplyDefaults(
   templateDefaults: Record<string, unknown> | undefined;
   templateParams: ReturnType<typeof getTemplateParams>;
   templateGameplay: ReturnType<typeof getTemplateGameplaySlot>;
+  templateFonts: FontSource[];
+  templateOverlays: OverlayAsset[];
 }> {
   if (!options.template) {
     return {
@@ -517,6 +524,8 @@ async function resolveTemplateAndApplyDefaults(
       templateDefaults: undefined,
       templateParams: {},
       templateGameplay: null,
+      templateFonts: [],
+      templateOverlays: [],
     };
   }
 
@@ -524,6 +533,14 @@ async function resolveTemplateAndApplyDefaults(
   const templateDefaults = (resolvedTemplate.template.defaults ?? {}) as Record<string, unknown>;
   const templateParams = getTemplateParams(resolvedTemplate.template);
   const templateGameplay = getTemplateGameplaySlot(resolvedTemplate.template);
+  const templateFonts = getTemplateFontSources(
+    resolvedTemplate.template,
+    resolvedTemplate.templateDir
+  );
+  const templateOverlays = getTemplateOverlays(
+    resolvedTemplate.template,
+    resolvedTemplate.templateDir
+  );
 
   applyDefault(options, command, 'orientation', templateDefaults.orientation as string | undefined);
   applyDefault(
@@ -538,8 +555,18 @@ async function resolveTemplateAndApplyDefaults(
     'captionPreset',
     templateDefaults.captionPreset as string | undefined
   );
+  if (templateFonts.length > 0) {
+    applyDefault(options, command, 'captionFontFamily', templateFonts[0]?.family);
+  }
 
-  return { resolvedTemplate, templateDefaults, templateParams, templateGameplay };
+  return {
+    resolvedTemplate,
+    templateDefaults,
+    templateParams,
+    templateGameplay,
+    templateFonts,
+    templateOverlays,
+  };
 }
 
 function parseLayoutPosition(value: unknown, optionName: string): LayoutPosition | undefined {
@@ -616,8 +643,9 @@ async function readRenderInputs(options: {
 async function runRenderPreflight(params: {
   options: Record<string, unknown>;
   resolvedTemplate: Awaited<ReturnType<typeof resolveVideoTemplate>> | undefined;
+  command: Command;
 }): Promise<{ passed: boolean; checks: PreflightCheck[]; exitCode: number }> {
-  const { options, resolvedTemplate } = params;
+  const { options, resolvedTemplate, command } = params;
   const checks: PreflightCheck[] = [];
 
   const templateId = resolvedTemplate?.template.id;
@@ -644,7 +672,12 @@ async function runRenderPreflight(params: {
   }
 
   if (remotionProject) {
-    const allowTemplateCode = Boolean(options.allowTemplateCode);
+    const config = loadConfig();
+    const allowTemplateCodeSource = command.getOptionValueSource('allowTemplateCode');
+    const allowTemplateCode =
+      allowTemplateCodeSource === 'default' || allowTemplateCodeSource === undefined
+        ? Boolean(config.render.allowTemplateCode)
+        : Boolean(options.allowTemplateCode);
     addPreflightCheck(checks, {
       label: 'Template code',
       status: allowTemplateCode ? 'ok' : 'fail',
@@ -1057,15 +1090,22 @@ async function runRenderCommand(
   spinner: RenderSpinner
 ) {
   const configDefaults = applyCaptionDefaultsFromConfig(options, command);
-  const { resolvedTemplate, templateDefaults, templateParams, templateGameplay } =
-    await resolveTemplateAndApplyDefaults(options, command);
+  const {
+    resolvedTemplate,
+    templateDefaults,
+    templateParams,
+    templateGameplay,
+    templateFonts,
+    templateOverlays,
+  } = await resolveTemplateAndApplyDefaults(options, command);
   const remotionProject = resolvedTemplate
     ? resolveRemotionTemplateProject(resolvedTemplate)
     : null;
+  const mergedFonts = mergeFontSources(templateFonts, configDefaults.fonts);
 
   if (options.preflight) {
     spinner.stop();
-    const preflight = await runRenderPreflight({ options, resolvedTemplate });
+    const preflight = await runRenderPreflight({ options, resolvedTemplate, command });
     writeRenderPreflightOutput({
       runtime,
       options,
@@ -1079,7 +1119,8 @@ async function runRenderCommand(
   const allowTemplateCodeSource = command.getOptionValueSource('allowTemplateCode');
   const config = loadConfig();
   const allowTemplateCode =
-    remotionProject && allowTemplateCodeSource === 'default'
+    remotionProject &&
+    (allowTemplateCodeSource === 'default' || allowTemplateCodeSource === undefined)
       ? Boolean(config.render.allowTemplateCode)
       : Boolean(options.allowTemplateCode);
 
@@ -1268,6 +1309,7 @@ async function runRenderCommand(
     templateParams: (resolvedTemplate?.template.params ?? undefined) as
       | Record<string, unknown>
       | undefined,
+    overlays: templateOverlays.length > 0 ? templateOverlays : undefined,
     browserExecutable: options.browserExecutable ? String(options.browserExecutable) : null,
     chromeMode: parseChromeMode(options.chromeMode),
     captionPreset: options.captionPreset as CaptionPresetName,
@@ -1283,7 +1325,7 @@ async function runRenderCommand(
     captionFontFamily,
     captionFontWeight,
     captionFontFile,
-    fonts: configDefaults.fonts.length > 0 ? configDefaults.fonts : undefined,
+    fonts: mergedFonts.length > 0 ? mergedFonts : undefined,
     captionDropFillers,
     captionDropListMarkers,
     captionFillerWords,

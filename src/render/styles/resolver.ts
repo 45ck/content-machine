@@ -6,7 +6,7 @@ import type { Theme } from '../themes/types';
 import type { ColorPalette } from '../presets/palette';
 import type { TypographyPreset } from '../presets/typography';
 import type { AnimationConfig } from '../presets/animation';
-import type { CaptionPreset } from '../presets/caption';
+import type { ThemeCaptionPreset } from '../presets/caption';
 import type { SafeZone } from '../tokens/safe-zone';
 import type { ResolvedStyle, StyleOverrides } from './types';
 
@@ -16,7 +16,7 @@ export interface StyleResolverDeps {
   palettes: Record<string, ColorPalette>;
   typography: Record<string, TypographyPreset>;
   animations: Record<string, AnimationConfig>;
-  captions: Record<string, CaptionPreset>;
+  captions: Record<string, ThemeCaptionPreset>;
   safeZones: Record<string, SafeZone>;
 }
 

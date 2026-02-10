@@ -46,6 +46,48 @@ export const FontSourceSchema = z.object({
 
 export type FontSource = z.infer<typeof FontSourceSchema>;
 
+export const OverlayLayerSchema = z.enum(['below-captions', 'above-captions']);
+export type OverlayLayer = z.infer<typeof OverlayLayerSchema>;
+
+export const OverlayKindSchema = z.enum(['image', 'video']);
+export type OverlayKind = z.infer<typeof OverlayKindSchema>;
+
+export const OverlayPositionSchema = z.enum([
+  'top-left',
+  'top-right',
+  'bottom-left',
+  'bottom-right',
+  'center',
+]);
+export type OverlayPosition = z.infer<typeof OverlayPositionSchema>;
+
+export const OverlayAssetSchema = z
+  .object({
+    /** Bundle-relative path or remote URL. */
+    src: z.string().min(1),
+    kind: OverlayKindSchema.optional(),
+    layer: OverlayLayerSchema.optional(),
+    position: OverlayPositionSchema.optional(),
+    /** Seconds from start of the composition. */
+    start: z.number().nonnegative().optional(),
+    /** Seconds from start of the composition. */
+    end: z.number().nonnegative().optional(),
+    opacity: z.number().min(0).max(1).optional(),
+    marginPx: z.number().int().nonnegative().optional(),
+    widthPx: z.number().int().positive().optional(),
+    heightPx: z.number().int().positive().optional(),
+    fit: z.enum(['contain', 'cover']).optional(),
+    /** For video overlays. Default: true. */
+    muted: z.boolean().optional(),
+  })
+  .strict()
+  .refine((val) => !(val.start !== undefined && val.end !== undefined && val.end < val.start), {
+    message: 'Overlay end must be >= start',
+    path: ['end'],
+  });
+
+export type OverlayAsset = z.infer<typeof OverlayAssetSchema>;
+
 // Re-export the new caption config for convenience
 export { CaptionConfigSchema, type CaptionConfig };
 
@@ -58,6 +100,7 @@ export const RenderPropsSchema = z.object({
   clips: z.array(VideoClipSchema).optional().describe('@deprecated Use scenes'),
   gameplayClip: GameplayClipSchema.optional(),
   hook: HookClipSchema.optional(),
+  overlays: z.array(OverlayAssetSchema).optional(),
   words: z.array(WordTimestampSchema),
   audioPath: z.string(),
   audioMix: AudioMixOutputSchema.optional(),
@@ -82,6 +125,9 @@ export const RenderPropsSchema = z.object({
 
 export type VideoScene = z.infer<typeof VisualAssetSchema>;
 export type VideoClip = z.infer<typeof VideoClipSchema>;
+/**
+ * Ubiquitous Language: Hook clip (intro hook overlay video).
+ */
 export type HookClip = z.infer<typeof HookClipSchema>;
 export type HookClipInput = z.input<typeof HookClipSchema>;
 export type RenderProps = z.infer<typeof RenderPropsSchema>;

@@ -9,7 +9,17 @@ import { z } from 'zod';
 /** Current schema version for migrations */
 export const PACKAGE_SCHEMA_VERSION = '1.0.0';
 
+/**
+ * Ubiquitous Language: Packaging platform enum.
+ */
+/**
+ * Ubiquitous Language: Packaging platform enum.
+ */
 export const PlatformEnum = z.enum(['tiktok', 'reels', 'shorts']);
+
+/**
+ * Ubiquitous Language: Packaging platform.
+ */
 export type Platform = z.infer<typeof PlatformEnum>;
 
 /**
@@ -29,6 +39,9 @@ export const PackageVariantSchema = z.object({
   extra: z.record(z.unknown()).optional(),
 });
 
+/**
+ * Ubiquitous Language: Packaging variant.
+ */
 export type PackageVariant = z.infer<typeof PackageVariantSchema>;
 
 export const PackageMetaSchema = z.object({
@@ -38,6 +51,9 @@ export const PackageMetaSchema = z.object({
   llmCost: z.number().nonnegative().optional(),
 });
 
+/**
+ * Ubiquitous Language: Packaging meta.
+ */
 export type PackageMeta = z.infer<typeof PackageMetaSchema>;
 
 /**
@@ -78,6 +94,9 @@ export const PackageOutputSchema = z
     }
   });
 
+/**
+ * Ubiquitous Language: Packaging output artifact.
+ */
 export type PackageOutput = z.infer<typeof PackageOutputSchema>;
 
 /**
@@ -95,4 +114,7 @@ export const LLMPackageResponseSchema = z.object({
   reasoning: z.string().optional(),
 });
 
+/**
+ * Ubiquitous Language: Packaging LLM response (raw).
+ */
 export type LLMPackageResponse = z.infer<typeof LLMPackageResponseSchema>;

@@ -4,12 +4,16 @@
  * Coordinates video rendering with Remotion.
  * Based on SYSTEM-DESIGN §7.4 cm render command.
  */
-import { stat, writeFile, copyFile, mkdir } from 'fs/promises';
-import { existsSync } from 'fs';
+import { createWriteStream, existsSync } from 'fs';
+import { stat, writeFile, copyFile, mkdir, rename, rm } from 'fs/promises';
 import { bundle, type WebpackOverrideFn, type WebpackConfiguration } from '@remotion/bundler';
 import { renderMedia, selectComposition } from '@remotion/renderer';
+import { createHash } from 'crypto';
+import { pipeline } from 'stream/promises';
+import { Readable } from 'stream';
 import type {
   AudioMixOutput,
+  OverlayAsset,
   TimestampsOutput,
   VisualsOutput,
   VisualsOutputInput,
@@ -29,7 +33,7 @@ import {
 } from '../domain';
 import { getCaptionPreset, CaptionPresetName } from './captions/presets';
 import type { CaptionConfig, CaptionConfigInput } from './captions/config';
-import { join, dirname, resolve, basename } from 'path';
+import { join, dirname, resolve, basename, extname } from 'path';
 import { fileURLToPath } from 'url';
 import { filterCaptionWords } from './captions/paging';
 import { FONT_STACKS } from './tokens/font';
@@ -113,6 +117,8 @@ export interface RenderVideoOptions {
   contentPosition?: 'top' | 'bottom' | 'full';
   /** Optional hook clip to prepend before main content */
   hook?: HookClipInput;
+  /** Template or user-provided overlays (render-time layer). */
+  overlays?: OverlayAsset[];
   /**
    * Download remote visual assets (e.g. Pexels URLs) into the Remotion bundle for
    * more reliable rendering.
@@ -275,6 +281,10 @@ function isRemoteUrl(path: string): boolean {
   return /^https?:\/\//i.test(path);
 }
 
+function isDataUrl(path: string): boolean {
+  return path.startsWith('data:');
+}
+
 function isLocalFile(path: string): boolean {
   if (!path || isRemoteUrl(path)) return false;
   try {
@@ -282,6 +292,120 @@ function isLocalFile(path: string): boolean {
   } catch {
     return false;
   }
+}
+
+function hashOverlayKey(key: string): string {
+  return createHash('sha256').update(key).digest('hex').slice(0, 16);
+}
+
+function getRemoteOverlayExtension(url: string, kind?: OverlayAsset['kind']): string {
+  try {
+    const parsed = new URL(url);
+    const ext = (parsed.pathname.split('.').pop() ?? '').toLowerCase();
+    if (ext) return `.${ext}`;
+  } catch {
+    // ignore
+  }
+  return kind === 'video' ? '.mp4' : '.png';
+}
+
+function toOverlayBundlePath(key: string, ext: string): string {
+  return `overlays/${hashOverlayKey(key)}${ext.startsWith('.') ? ext : `.${ext}`}`;
+}
+
+function isOverlayVideo(overlay: OverlayAsset): boolean {
+  if (overlay.kind) return overlay.kind === 'video';
+  const lower = overlay.src.toLowerCase();
+  return (
+    lower.endsWith('.mp4') ||
+    lower.endsWith('.mov') ||
+    lower.endsWith('.webm') ||
+    lower.endsWith('.mkv')
+  );
+}
+
+async function isOkCachedFile(path: string): Promise<boolean> {
+  try {
+    const st = await stat(path);
+    return st.isFile() && st.size > 0;
+  } catch {
+    return false;
+  }
+}
+
+async function downloadOverlayAssetsToCache(
+  overlays: OverlayAsset[],
+  options: {
+    cacheRoot: string;
+    log: ReturnType<typeof createLogger>;
+    onProgress?: (event: { progress: number; message?: string }) => void;
+  }
+): Promise<{ extraAssets: BundleAsset[]; rewritten: OverlayAsset[] }> {
+  const { cacheRoot, log, onProgress } = options;
+  const remoteUrls = Array.from(
+    new Set(overlays.map((o) => o?.src).filter((src): src is string => Boolean(src)))
+  ).filter((src) => isRemoteUrl(src) && !isDataUrl(src));
+  const remote = remoteUrls.map((src) => ({ src }));
+  if (remote.length === 0) return { extraAssets: [], rewritten: overlays };
+
+  const extraAssets: BundleAsset[] = [];
+  const rewritten = [...overlays];
+  const total = remote.length;
+
+  for (let i = 0; i < remote.length; i++) {
+    const url = remote[i]!.src;
+    const kindHint = overlays.find((o) => o?.src === url)?.kind;
+    const inferredKind =
+      kindHint ?? (isOverlayVideo({ src: url } as OverlayAsset) ? 'video' : 'image');
+    const ext = getRemoteOverlayExtension(url, inferredKind);
+    const bundlePath = toOverlayBundlePath(url, ext);
+    const cachePath = join(cacheRoot, bundlePath);
+
+    onProgress?.({
+      progress: total > 0 ? i / total : 1,
+      message: `Downloading overlay assets (${i}/${total})`,
+    });
+
+    try {
+      if (await isOkCachedFile(cachePath)) {
+        extraAssets.push({ sourcePath: cachePath, destPath: bundlePath });
+        for (let j = 0; j < rewritten.length; j++) {
+          if (rewritten[j]?.src === url) {
+            rewritten[j] = { ...rewritten[j], src: bundlePath };
+          }
+        }
+        continue;
+      }
+
+      // Reuse the same download logic used for stock assets (inline here to keep overlay naming stable).
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
+      if (!response.body) throw new Error('No response body');
+      await mkdir(dirname(cachePath), { recursive: true });
+      const tmpPath = `${cachePath}.part`;
+      // Clean up any previous partial file.
+      await rm(tmpPath, { force: true }).catch(() => {});
+      const fileStream = createWriteStream(tmpPath);
+      const readable = Readable.fromWeb(response.body as any);
+      await pipeline(readable, fileStream);
+      await rename(tmpPath, cachePath);
+
+      extraAssets.push({ sourcePath: cachePath, destPath: bundlePath });
+      for (let j = 0; j < rewritten.length; j++) {
+        if (rewritten[j]?.src === url) {
+          rewritten[j] = { ...rewritten[j], src: bundlePath };
+        }
+      }
+    } catch (error) {
+      log.warn({ url, error }, 'Failed to download overlay asset, falling back to remote URL');
+    }
+  }
+
+  onProgress?.({
+    progress: 1,
+    message: total ? 'Overlay assets ready' : 'No overlay assets needed',
+  });
+  return { extraAssets, rewritten };
 }
 
 function deriveFontFamilyFromPath(path: string): string {
@@ -362,7 +486,7 @@ function resolveAssetCacheRoot(): string {
 
 type LocalVideoAsset = {
   path: string;
-  label: 'visual' | 'gameplay' | 'hook';
+  label: 'visual' | 'gameplay' | 'hook' | 'overlay';
 };
 
 async function validateLocalVideoAsset(
@@ -717,6 +841,7 @@ function buildRenderProps(
   return {
     schemaVersion: RENDER_SCHEMA_VERSION,
     scenes: options.visuals.scenes,
+    overlays: options.overlays,
     words: sanitizedWords,
     audioPath: audioFilename,
     audioMix: options.audioMix,
@@ -894,11 +1019,25 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
     if (hookClipInput && isLocalFile(hookClipInput.path)) {
       localValidationAssets.push({ path: hookClipInput.path, label: 'hook' });
     }
+
+    // Template overlays (local video overlays are validated like other local video inputs).
+    const overlaysInput = options.overlays ?? [];
+    for (const overlay of overlaysInput) {
+      if (!overlay?.src) continue;
+      if (!isLocalFile(overlay.src)) continue;
+      if (isOverlayVideo(overlay)) {
+        localValidationAssets.push({ path: overlay.src, label: 'overlay' });
+      }
+    }
     await validateLocalVideoAssets(localValidationAssets, log);
 
     let stockExtraAssets: BundleAsset[] = [];
     let localExtraAssets: BundleAsset[] = [];
+    let overlayExtraAssets: BundleAsset[] = [];
     let visualsWithBundledAssets: VisualsOutput | VisualsOutputInput = options.visuals;
+    let overlaysForRender: OverlayAsset[] | undefined = overlaysInput.length
+      ? overlaysInput
+      : undefined;
 
     if (downloadAssets && remotePlan.assets.length) {
       safeProgress({ phase: 'prepare-assets', progress: 0, message: 'Preparing visual assets' });
@@ -954,6 +1093,56 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
       }
     }
 
+    // Bundle local overlay assets into the render bundle.
+    if (overlaysForRender && overlaysForRender.length > 0) {
+      const mapping = new Map<string, string>();
+      for (const overlay of overlaysForRender) {
+        const src = overlay.src;
+        if (!src || !isLocalFile(src)) continue;
+        const resolvedPath = resolve(src);
+        if (!existsSync(resolvedPath)) {
+          throw new CMError('FILE_NOT_FOUND', 'Local overlay asset not found', {
+            path: resolvedPath,
+            fix: 'Ensure template assets.overlays points to existing files in the template pack',
+          });
+        }
+        const ext = extname(resolvedPath);
+        if (!ext) {
+          throw new CMError('INVALID_ARGUMENT', 'Overlay asset has no file extension', {
+            path: resolvedPath,
+            fix: 'Use an overlay file with a standard extension (e.g. .png, .mp4)',
+          });
+        }
+        const bundlePath = toOverlayBundlePath(resolvedPath, ext);
+        if (!mapping.has(resolvedPath)) {
+          overlayExtraAssets.push({ sourcePath: resolvedPath, destPath: bundlePath });
+          mapping.set(resolvedPath, bundlePath);
+        }
+      }
+
+      if (mapping.size > 0) {
+        overlaysForRender = overlaysForRender.map((overlay) => {
+          if (!overlay?.src) return overlay;
+          if (!isLocalFile(overlay.src)) return overlay;
+          const resolvedPath = resolve(overlay.src);
+          const replacement = mapping.get(resolvedPath);
+          return replacement ? { ...overlay, src: replacement } : overlay;
+        });
+      }
+    }
+
+    // Download remote overlay assets into the cache and bundle them (best-effort).
+    if (downloadAssets && overlaysForRender && overlaysForRender.length > 0) {
+      const overlayDownload = await downloadOverlayAssetsToCache(overlaysForRender, {
+        cacheRoot: assetCacheRoot,
+        log,
+        onProgress: ({ progress, message }) =>
+          safeProgress({ phase: 'prepare-assets', progress, message }),
+      });
+      overlayExtraAssets.push(...overlayDownload.extraAssets);
+      overlaysForRender = overlayDownload.rewritten;
+    }
+
     const gameplayClip = visualsWithBundledAssets.gameplayClip;
     const gameplayPublicPath =
       gameplayClip && isLocalFile(gameplayClip.path)
@@ -982,6 +1171,7 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
     const extraAssets = [
       ...stockExtraAssets,
       ...localExtraAssets,
+      ...overlayExtraAssets,
       ...gameplayAssets,
       ...hookAssets,
       ...fontAssets,
@@ -1088,6 +1278,7 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
         fonts: fontSources,
         captionFontFamily,
         audioMix: audioMixForRender,
+        overlays: overlaysForRender,
       },
       dimensions,
       fps,

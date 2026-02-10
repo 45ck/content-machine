@@ -11,8 +11,20 @@ import {
   type TimestampsOutput,
 } from '../../domain';
 
-export type SfxPlacement = 'hook' | 'scene' | 'list-item' | 'cta';
+import {
+  AUDIO_MIX_PRESETS,
+  SFX_PACKS,
+  type AudioMixPresetDefaults,
+  type SfxPlacement,
+  isBuiltinAudioMixPresetId,
+  isBuiltinSfxPackId,
+} from './presets';
 
+/**
+ * Ubiquitous Language: Audio mix plan options.
+ *
+ * These options control how music/SFX/ambience are layered over the voice track.
+ */
 export interface AudioMixPlanOptions {
   music?: string | null;
   musicVolumeDb?: number;
@@ -21,6 +33,8 @@ export interface AudioMixPlanOptions {
   musicFadeInMs?: number;
   musicFadeOutMs?: number;
   sfx?: string[] | null;
+  // Note: allow arbitrary strings so users can refer to custom packs; only known packs
+  // in `SFX_PACKS` will resolve to bundled file lists.
   sfxPack?: string | null;
   sfxAt?: SfxPlacement;
   sfxVolumeDb?: number;
@@ -31,6 +45,8 @@ export interface AudioMixPlanOptions {
   ambienceLoop?: boolean;
   ambienceFadeInMs?: number;
   ambienceFadeOutMs?: number;
+  // Note: allow arbitrary strings so users can refer to custom presets; only known presets
+  // in `AUDIO_MIX_PRESETS` will resolve to bundled defaults.
   mixPreset?: string;
   lufsTarget?: number;
   noMusic?: boolean;
@@ -45,58 +61,12 @@ export interface BuildAudioMixPlanParams {
   options: AudioMixPlanOptions;
 }
 
-interface MixPresetDefaults {
-  musicVolumeDb: number;
-  musicDuckDb: number;
-  sfxVolumeDb: number;
-  ambienceVolumeDb: number;
-  lufsTarget: number;
-}
-
-const MIX_PRESETS: Record<string, MixPresetDefaults> = {
-  clean: {
-    musicVolumeDb: -18,
-    musicDuckDb: -8,
-    sfxVolumeDb: -12,
-    ambienceVolumeDb: -26,
-    lufsTarget: -16,
-  },
-  punchy: {
-    musicVolumeDb: -16,
-    musicDuckDb: -10,
-    sfxVolumeDb: -10,
-    ambienceVolumeDb: -24,
-    lufsTarget: -14,
-  },
-  cinematic: {
-    musicVolumeDb: -20,
-    musicDuckDb: -6,
-    sfxVolumeDb: -14,
-    ambienceVolumeDb: -28,
-    lufsTarget: -18,
-  },
-  viral: {
-    musicVolumeDb: -15,
-    musicDuckDb: -12,
-    sfxVolumeDb: -9,
-    ambienceVolumeDb: -24,
-    lufsTarget: -14,
-  },
-};
-
 const DEFAULT_MUSIC_FADE_IN_MS = 400;
 const DEFAULT_MUSIC_FADE_OUT_MS = 600;
 const DEFAULT_SFX_DURATION_SECONDS = 0.4;
 const DEFAULT_SFX_MIN_GAP_MS = 800;
 const DEFAULT_AMBIENCE_FADE_IN_MS = 200;
 const DEFAULT_AMBIENCE_FADE_OUT_MS = 400;
-
-const SFX_PACKS: Record<string, string[]> = {
-  pops: ['pop-01.wav', 'pop-02.wav', 'pop-03.wav'],
-  whoosh: ['whoosh-01.wav', 'whoosh-02.wav'],
-  glitch: ['glitch-01.wav'],
-  clicks: ['click-01.wav', 'click-02.wav'],
-};
 
 const SPECIAL_SCENE_IDS = new Set(['hook', 'cta']);
 
@@ -107,16 +77,16 @@ interface SfxEvent {
 }
 
 function resolvePresetDefaults(name?: string): {
-  preset: MixPresetDefaults;
+  preset: AudioMixPresetDefaults;
   presetName: string;
   warning?: string;
 } {
   const normalized = (name ?? 'clean').trim().toLowerCase();
-  if (MIX_PRESETS[normalized]) {
-    return { preset: MIX_PRESETS[normalized], presetName: normalized };
+  if (isBuiltinAudioMixPresetId(normalized)) {
+    return { preset: AUDIO_MIX_PRESETS[normalized], presetName: normalized };
   }
   return {
-    preset: MIX_PRESETS.clean,
+    preset: AUDIO_MIX_PRESETS.clean,
     presetName: 'clean',
     warning: normalized ? `Unknown mix preset: ${normalized}` : undefined,
   };
@@ -147,10 +117,13 @@ function resolvePresetPath(value: string, kind: 'music' | 'sfx' | 'ambience'): s
 function resolveSfxPackSources(pack?: string | null): string[] {
   if (!pack) return [];
   const normalized = pack.trim().toLowerCase();
-  const entries = SFX_PACKS[normalized] ?? [];
+  const entries = isBuiltinSfxPackId(normalized) ? SFX_PACKS[normalized] : [];
   return entries.map((file) => `assets/audio/sfx/${normalized}/${file}`);
 }
 
+/**
+ * Returns true if the provided mix options would result in any non-voice audio layers.
+ */
 export function hasAudioMixSources(options: AudioMixPlanOptions): boolean {
   if (options.noMusic !== true && options.music) return true;
   if (options.noAmbience !== true && options.ambience) return true;
@@ -253,7 +226,7 @@ function clampDuration(value: number, totalDuration: number): number {
 function buildMusicLayer(params: {
   totalDuration: number;
   options: AudioMixPlanOptions;
-  preset: MixPresetDefaults;
+  preset: AudioMixPresetDefaults;
 }): AudioMixLayer | null {
   const { totalDuration, options, preset } = params;
   if (options.noMusic || !options.music) return null;
@@ -281,7 +254,7 @@ function buildMusicLayer(params: {
 function buildAmbienceLayer(params: {
   totalDuration: number;
   options: AudioMixPlanOptions;
-  preset: MixPresetDefaults;
+  preset: AudioMixPresetDefaults;
 }): AudioMixLayer | null {
   const { totalDuration, options, preset } = params;
   if (options.noAmbience || !options.ambience) return null;
@@ -308,7 +281,7 @@ function buildSfxLayers(params: {
   timestamps: TimestampsOutput;
   totalDuration: number;
   options: AudioMixPlanOptions;
-  preset: MixPresetDefaults;
+  preset: AudioMixPresetDefaults;
   warnings: string[];
 }): AudioMixLayer[] {
   const { timestamps, totalDuration, options, preset, warnings } = params;
@@ -347,6 +320,12 @@ function buildSfxLayers(params: {
   });
 }
 
+/**
+ * Build an `audio.mix.json` plan from timestamps + CLI options.
+ *
+ * This returns mix layers (voice/music/ambience/sfx) and warnings that can be
+ * surfaced to the user.
+ */
 export function buildAudioMixPlan(params: BuildAudioMixPlanParams): AudioMixOutput {
   const { script: _script, timestamps, voicePath, options } = params;
   const warnings: string[] = [];

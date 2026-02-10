@@ -15,6 +15,8 @@ import { createRequireSafe } from './require';
 import { FONT_STACKS } from '../render/tokens/font';
 import { CAPTION_STYLE_PRESETS, type CaptionPresetName } from '../render/captions/presets';
 import { CaptionConfigSchema } from '../render/captions/config';
+import { HookAudioModeEnum, HookFitEnum, MotionStrategyEnum } from '../domain';
+import { AudioMixPresetIdSchema, SfxPackIdSchema, SfxPlacementEnum } from '../audio/mix/presets';
 
 // ============================================================================
 // Schema Definitions
@@ -47,10 +49,8 @@ const AudioConfigSchema = z.object({
   asrModel: z.enum(['tiny', 'base', 'small', 'medium', 'large']).default('base'),
 });
 
-const AudioMixPresetEnum = z.enum(['clean', 'punchy', 'cinematic', 'viral']);
-
 const AudioMixConfigSchema = z.object({
-  preset: AudioMixPresetEnum.default('clean'),
+  preset: AudioMixPresetIdSchema.default('clean'),
   lufsTarget: z.number().default(-16),
 });
 
@@ -63,10 +63,8 @@ const MusicConfigSchema = z.object({
   fadeOutMs: z.number().int().nonnegative().default(600),
 });
 
-const SfxPlacementEnum = z.enum(['hook', 'scene', 'list-item', 'cta']);
-
 const SfxConfigSchema = z.object({
-  pack: z.string().optional(),
+  pack: SfxPackIdSchema.optional(),
   volumeDb: z.number().default(-12),
   placement: SfxPlacementEnum.default('scene'),
   minGapMs: z.number().int().nonnegative().default(800),
@@ -82,7 +80,6 @@ const AmbienceConfigSchema = z.object({
 });
 
 const VisualsProviderEnum = z.enum(['pexels', 'pixabay', 'nanobanana', 'local', 'localimage']);
-const MotionStrategyEnum = z.enum(['none', 'kenburns', 'depthflow', 'veo']);
 
 const NanoBananaConfigSchema = z.object({
   /** Gemini image generation model id (Gemini Developer API). */
@@ -190,9 +187,6 @@ const GenerateConfigSchema = z.object({
   /** Default workflow id or path to workflow.json for `cm generate` */
   workflow: z.string().optional(),
 });
-
-const HookAudioModeEnum = z.enum(['mute', 'keep']);
-const HookFitEnum = z.enum(['cover', 'contain']);
 
 const HooksConfigSchema = z.object({
   library: z.string().default('transitionalhooks'),

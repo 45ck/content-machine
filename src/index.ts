@@ -44,7 +44,7 @@ export * as TemplateSDK from './render/template-sdk';
 export { PALETTES } from './render/presets/palette';
 export { TYPOGRAPHY_PRESETS } from './render/presets/typography';
 export { ANIMATION_PRESETS } from './render/presets/animation';
-export { CAPTION_PRESETS } from './render/presets/caption';
+export { THEME_CAPTION_PRESETS } from './render/presets/caption';
 
 // Style system - tokens
 export * from './render/tokens';
@@ -66,6 +66,12 @@ export type { ResearchTool, SearchToolOptions, SearchToolResult } from './resear
 
 // Workflows
 export type { WorkflowDefinition, WorkflowCommand, WorkflowStage, WorkflowInputs } from './domain';
+
+// VideoSpec (reverse-engineering)
+export { analyzeVideoToVideoSpecV1 } from './videospec/analyze';
+export type { AnalyzeVideoToVideoSpecV1Options } from './videospec/analyze';
+export { VideoSpecV1Schema, VIDEOSPEC_V1_VERSION } from './domain';
+export type { VideoSpecV1 } from './domain';
 
 // Test stubs (for testing consumers)
 export { FakeLLMProvider } from './test/stubs/fake-llm';

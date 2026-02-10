@@ -4,6 +4,8 @@
  * Usage: cm audio --input script.json --output audio.wav
  */
 import { Command } from 'commander';
+import { mkdir } from 'fs/promises';
+import { dirname } from 'path';
 import { logger } from '../../core/logger';
 import { loadConfig } from '../../core/config';
 import { handleCommandError, readInputFile } from '../utils';
@@ -385,12 +387,21 @@ export const audioCommand = new Command('audio')
         config,
       });
 
+      // Ensure output directories exist (audio, timestamps, and optional audio mix).
+      const outputPath = String(options.output);
+      const timestampsPath = String(options.timestamps);
+      await mkdir(dirname(outputPath), { recursive: true });
+      await mkdir(dirname(timestampsPath), { recursive: true });
+      if (audioMixRequest) {
+        await mkdir(dirname(audioMixRequest.outputPath), { recursive: true });
+      }
+
       const result = await generateAudio({
         script,
         voice: options.voice,
         speed: ttsSpeed,
-        outputPath: options.output,
-        timestampsPath: options.timestamps,
+        outputPath,
+        timestampsPath,
         mock: Boolean(options.mock),
         requireWhisper,
         whisperModel: options.whisperModel as 'tiny' | 'base' | 'small' | 'medium',

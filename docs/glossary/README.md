@@ -1,4 +1,4 @@
-# Glossary (Code-First)
+# Glossary (Code-First, Supplemental)
 
 This folder defines **content-machine** terminology and the **data layer** from the bottom up, by pointing directly at the code that implements each concept.
 
@@ -7,11 +7,17 @@ Use this when you need to answer: “What does this word/field mean in our syste
 ## What this is (and is not)
 
 - **This is:** a set of small reference docs that map **domain terms → concrete code and schema fields**.
-- **This is not:** a duplicate of `docs/guides/guide-ubiquitous-language-20260110.md`. That guide is the canonical vocabulary; this glossary explains how the vocabulary shows up in code and artifacts.
+- **This is not:** the canonical source of term definitions.
+
+Canonical sources (single source of truth):
+
+- Registry: `docs/reference/ubiquitous-language.yaml`
+- Generated glossary: `docs/reference/GLOSSARY.md`
+- System explainer: `docs/reference/ubiquitous-language-system-20260210.md`
 
 ## Rules (to keep the domain harmonized)
 
-0. **One definition per file.** Each glossary file should define exactly one term/entity.
+0. **Do not redefine terms here.** If a definition changes, update `docs/reference/ubiquitous-language.yaml`.
 1. **One concept, one name.** If multiple names exist in code (legacy), document the canonical name and mark the others as legacy.
 2. **Every glossary entry must include code references.** Link to the TypeScript file(s) and the schema(s) that define the behavior and shape.
 3. **Artifacts are contracts.** Fields in `script.json`, `timestamps.json`, and `visuals.json` are stable APIs; changes require a `schemaVersion` bump and (when feasible) a migration path.
@@ -38,6 +44,9 @@ Keep entries short, and include:
 - `docs/glossary/command.md`
 - `docs/glossary/artifact.md`
 - `docs/glossary/schema-version.md`
+- `docs/glossary/template.md`
+- `docs/glossary/template-pack.md`
+- `docs/glossary/composition.md`
 - `docs/glossary/scene.md`
 - `docs/glossary/scene-id.md`
 - `docs/glossary/scene-timestamp.md`
@@ -49,5 +58,7 @@ Keep entries short, and include:
 
 ## Related
 
-- `docs/guides/guide-ubiquitous-language-20260110.md`
+- `docs/reference/GLOSSARY.md`
+- `docs/reference/ubiquitous-language.yaml`
+- `docs/reference/ubiquitous-language-system-20260210.md`
 - `docs/architecture/SYSTEM-DESIGN-20260104.md`

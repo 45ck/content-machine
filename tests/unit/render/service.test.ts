@@ -222,6 +222,61 @@ describe('render service', () => {
     expect(selectCompositionMock).toHaveBeenCalled();
   });
 
+  it('bundles local overlay assets and rewrites overlay src to bundle path', async () => {
+    const dir = makeTempDir();
+    const audioPath = path.join(dir, 'audio.wav');
+    writeBigFile(audioPath, 9 * 1024);
+
+    const localVisualPath = path.join(dir, 'local.mp4');
+    writeBigFile(localVisualPath);
+
+    const overlayPath = path.join(dir, 'overlay.png');
+    fs.writeFileSync(overlayPath, Buffer.from([0x89, 0x50, 0x4e, 0x47])); // PNG signature prefix
+
+    const bundleDir = makeTempDir();
+    bundleMock.mockResolvedValueOnce(bundleDir);
+
+    const outputPath = path.join(dir, 'out.mp4');
+
+    const { renderVideo } = await import('../../../src/render/service');
+    const output = await renderVideo({
+      visuals: {
+        scenes: [{ sceneId: 'scene-1', source: 'mock', assetPath: localVisualPath, duration: 1 }],
+        totalAssets: 1,
+        fromUserFootage: 0,
+        fromStock: 0,
+        fallbacks: 0,
+        fromGenerated: 0,
+      },
+      timestamps: {
+        allWords: [{ word: 'hello', start: 0.1, end: 0.2 }],
+        totalDuration: 1,
+        ttsEngine: 'kokoro',
+        asrEngine: 'whisper',
+      },
+      overlays: [
+        { src: overlayPath, kind: 'image', layer: 'above-captions', position: 'top-right' },
+      ],
+      audioPath,
+      outputPath,
+      orientation: 'portrait',
+      mock: true,
+      mockRenderMode: 'real',
+    });
+
+    expect(output.outputPath).toBe(outputPath);
+    expect(fs.existsSync(outputPath)).toBe(true);
+
+    const selectCall = selectCompositionMock.mock.calls[0]?.[0] as any;
+    expect(selectCall?.inputProps?.overlays?.length).toBe(1);
+    const bundledOverlaySrc = selectCall.inputProps.overlays[0].src as string;
+    expect(bundledOverlaySrc.startsWith('overlays/')).toBe(true);
+    expect(bundledOverlaySrc.endsWith('.png')).toBe(true);
+
+    // Asset should be copied into the bundle public dir at the rewritten path.
+    expect(fs.existsSync(path.join(bundleDir, 'public', bundledOverlaySrc))).toBe(true);
+  });
+
   it('skips local video validation when ffprobe is missing', async () => {
     const dir = makeTempDir();
     const audioPath = path.join(dir, 'audio.wav');

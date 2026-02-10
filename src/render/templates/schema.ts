@@ -10,6 +10,7 @@ import { z } from 'zod';
 import { ArchetypeEnum, OrientationEnum } from '../../core/config';
 import { CAPTION_STYLE_PRESETS, type CaptionPresetName } from '../captions/presets';
 import { CaptionConfigSchema } from '../captions/config';
+import { CompositionIdSchema, TemplateIdSchema } from '../../domain/ids';
 
 const CaptionPresetNameSchema = z.enum(
   Object.keys(CAPTION_STYLE_PRESETS) as [CaptionPresetName, ...CaptionPresetName[]]
@@ -21,6 +22,13 @@ export type TemplatePackageManager = z.infer<typeof TemplatePackageManagerSchema
 export const TemplateDependencyInstallModeSchema = z.enum(['auto', 'prompt', 'never']);
 export type TemplateDependencyInstallMode = z.infer<typeof TemplateDependencyInstallModeSchema>;
 
+/**
+ * Ubiquitous Language: Code template project schema.
+ *
+ * When present on a Render Template, this points CM to a template-local Remotion project.
+ * Security: This enables executing arbitrary JS/TS during bundling/rendering and must
+ * be explicitly allowed by the caller.
+ */
 export const RemotionTemplateProjectSchema = z
   .object({
     /**
@@ -64,12 +72,15 @@ export const VideoTemplateDefaultsSchema = z.object({
   archetype: ArchetypeEnum.optional(),
 });
 
+/**
+ * Ubiquitous Language: Render template schema (composition + defaults).
+ */
 export const VideoTemplateSchema = z.object({
   schemaVersion: z.string().default('1.0.0'),
-  id: z.string().min(1),
+  id: TemplateIdSchema,
   name: z.string().min(1),
   description: z.string().optional(),
-  compositionId: z.string().min(1),
+  compositionId: CompositionIdSchema,
   /**
    * Optional: A code template. When present, CM will bundle this Remotion project
    * instead of the built-in compositions.
@@ -82,4 +93,9 @@ export const VideoTemplateSchema = z.object({
   params: z.record(z.unknown()).optional(),
 });
 
+/**
+ * Ubiquitous Language: Render template.
+ *
+ * Data-only template config validated by {@link VideoTemplateSchema}.
+ */
 export type VideoTemplate = z.infer<typeof VideoTemplateSchema>;

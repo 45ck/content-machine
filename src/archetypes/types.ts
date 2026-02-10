@@ -1,3 +1,5 @@
+import type { ArchetypeId } from '../domain/ids';
+
 export interface ArchetypeScriptSpec {
   /**
    * Prompt fragment describing format/requirements/structure.
@@ -9,9 +11,15 @@ export interface ArchetypeScriptSpec {
   systemPrompt?: string;
 }
 
+/**
+ * Ubiquitous Language: Script archetype spec.
+ *
+ * A data-only definition that constrains the script generator to a repeatable
+ * format (hook + structure + pacing rules).
+ */
 export interface ArchetypeSpec {
   /** Stable identifier used by CLI flags and config defaults. */
-  id: string;
+  id: ArchetypeId;
   /** Human-friendly name for UIs. */
   name: string;
   description?: string;

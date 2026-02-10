@@ -29,7 +29,7 @@ function formatLine(entry: {
 }
 
 export const archetypesCommand = new Command('archetypes')
-  .description('Manage archetype definitions')
+  .description('Manage script archetypes (script formats)')
   .addCommand(
     new Command('new')
       .description('Scaffold a new archetype YAML file')

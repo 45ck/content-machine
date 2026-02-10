@@ -6,7 +6,7 @@ import { defaultThemeRegistry } from '../themes';
 import { PALETTES } from '../presets/palette';
 import { TYPOGRAPHY_PRESETS } from '../presets/typography';
 import { ANIMATION_PRESETS } from '../presets/animation';
-import { CAPTION_PRESETS } from '../presets/caption';
+import { THEME_CAPTION_PRESETS } from '../presets/caption';
 import { SAFE_ZONES } from '../tokens/safe-zone';
 
 export * from './types';
@@ -18,7 +18,7 @@ const defaultDeps: StyleResolverDeps = {
   palettes: PALETTES,
   typography: TYPOGRAPHY_PRESETS,
   animations: ANIMATION_PRESETS,
-  captions: CAPTION_PRESETS,
+  captions: THEME_CAPTION_PRESETS,
   safeZones: SAFE_ZONES,
 };
 

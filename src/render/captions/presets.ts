@@ -523,6 +523,9 @@ export const CAPTION_STYLE_PRESETS = {
   karaoke: PRESET_KARAOKE,
 } as const;
 
+/**
+ * Ubiquitous Language: Caption preset name.
+ */
 export type CaptionPresetName = keyof typeof CAPTION_STYLE_PRESETS;
 
 /**

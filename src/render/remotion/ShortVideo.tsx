@@ -18,6 +18,7 @@ import {
 import { FontLoader } from './FontLoader';
 import { AudioLayers } from './AudioLayers';
 import { ListBadges } from './ListBadges';
+import { Overlays } from './Overlays';
 
 /**
  * Main video component
@@ -25,6 +26,7 @@ import { ListBadges } from './ListBadges';
 export const ShortVideo: React.FC<RenderProps> = ({
   scenes,
   clips,
+  overlays,
   words,
   audioPath,
   audioMix,
@@ -72,6 +74,8 @@ export const ShortVideo: React.FC<RenderProps> = ({
           <LegacyClip key={clip.id} clip={clip} fps={fps} />
         ))}
 
+        <Overlays overlays={overlays} layer="below-captions" />
+
         <AbsoluteFill>
           <Caption words={words} config={captionConfig} />
           <ListBadges
@@ -80,6 +84,7 @@ export const ShortVideo: React.FC<RenderProps> = ({
             timingOffsetMs={captionConfig?.timingOffsetMs ?? 0}
             captionConfig={captionConfig}
           />
+          <Overlays overlays={overlays} layer="above-captions" />
         </AbsoluteFill>
 
         <AudioLayers audioPath={audioPath} mix={audioMix} />

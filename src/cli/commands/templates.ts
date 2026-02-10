@@ -31,7 +31,7 @@ function formatTemplateLine(entry: {
 }
 
 export const templatesCommand = new Command('templates')
-  .description('Manage video templates')
+  .description('Manage render templates (Remotion composition + render defaults)')
   .addCommand(
     new Command('new')
       .description('Scaffold a new template directory')

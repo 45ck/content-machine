@@ -177,13 +177,13 @@ export const visualsCommand = new Command('visuals')
   )
   .option(
     '--provider <provider>',
-    'Visual provider (stock video: pexels; AI images: nanobanana)',
+    'Visual provider or provider chain. Examples: pexels | nanobanana | local | pexels,local,nanobanana',
     'pexels'
   )
   .option('--asset-provider <provider>', 'Alias for --provider (preferred name in ADR)', undefined)
   .option(
     '--fallback-providers <providers>',
-    'Comma-separated fallback providers (e.g. nanobanana). If --provider is a comma list, it already defines a chain.',
+    'Comma-separated fallback providers appended after --provider (only when --provider is a single value). If --provider is a comma list, it already defines the chain.',
     undefined
   )
   .option(

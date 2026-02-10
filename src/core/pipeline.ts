@@ -20,7 +20,7 @@ import type {
 } from '../domain';
 import type { CaptionPresetName } from '../render/captions/presets';
 import type { CaptionConfigInput } from '../render/captions/config';
-import type { FontSource, HookClip } from '../domain';
+import type { FontSource, HookClip, OverlayAsset } from '../domain';
 import type { PipelineEventEmitter } from './events';
 import type { AudioMixPlanOptions } from '../audio/mix/planner';
 import { createLogger, logTiming } from './logger';
@@ -92,6 +92,7 @@ export interface PipelineOptions {
   captionFontWeight?: number | 'normal' | 'bold' | 'black';
   captionFontFile?: string;
   captionFonts?: FontSource[];
+  overlays?: OverlayAsset[];
   maxLinesPerPage?: number;
   maxCharsPerLine?: number;
   /** Visuals + layout options */
@@ -580,6 +581,7 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
             mock: options.mock,
             mockRenderMode: options.mockRenderMode,
             compositionId: options.compositionId,
+            overlays: options.overlays,
             allowTemplateCode: options.allowTemplateCode,
             installTemplateDeps: options.installTemplateDeps,
             templateDepsAllowOutput: options.templateDepsAllowOutput,

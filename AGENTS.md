@@ -81,7 +81,7 @@ cm generate "Redis vs PostgreSQL for caching" --archetype versus --output output
 
 ## 📦 Content Archetypes
 
-Archetypes are **data files**, not hardcoded in `src/`.
+**Archetype** = script format (hook + structure + pacing rules). Archetypes are **data files**, not hardcoded in `src/`.
 
 - Built-in examples ship in `assets/archetypes/`.
 - Project overrides live in `./.cm/archetypes/`.
@@ -102,6 +102,16 @@ cm generate "Docker vs Kubernetes" --archetype versus
 ```
 
 ---
+
+## 🧠 Ubiquitous Language
+
+This repo has three similarly-named concepts. Use these definitions consistently:
+
+- **Archetype**: script format (used by `cm script`, `--archetype`)
+- **Template**: render preset (Remotion composition + render defaults; used by `cm render`, `--template`)
+- **Workflow**: pipeline orchestration preset (used by `cm generate`, `--workflow`)
+
+Full glossary: `docs/reference/GLOSSARY.md`.
 
 ## 🔧 Tech Stack (Final Decisions)
 

@@ -25,9 +25,14 @@ export * from '../audio/mix/schema';
 export * from '../visuals/schema';
 /** Hook asset schema + types. */
 export * from '../hooks/schema';
+/** VideoSpec (reverse-engineering) schema + types. */
+export * from '../videospec/schema';
 
 /** Archetype schema + types. */
 export * from '../archetypes/schema';
+
+/** Ubiquitous language IDs (branded string types). */
+export * from './ids';
 
 /**
  * Render schema exports are explicit to avoid name collisions with other domains
@@ -37,6 +42,10 @@ export {
   RENDER_SCHEMA_VERSION,
   CaptionStyleSchema,
   FontSourceSchema,
+  OverlayAssetSchema,
+  OverlayKindSchema,
+  OverlayLayerSchema,
+  OverlayPositionSchema,
   CaptionConfigSchema,
   RenderPropsSchema,
   RenderOutputSchema,
@@ -47,6 +56,10 @@ export type {
   CaptionStyle,
   FontSource,
   CaptionConfig,
+  OverlayAsset,
+  OverlayKind,
+  OverlayLayer,
+  OverlayPosition,
   RenderProps,
   RenderPropsInput,
   RenderOutput,

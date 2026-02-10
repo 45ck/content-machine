@@ -24,6 +24,9 @@ export const VISUALS_SCHEMA_VERSION = '1.1.0';
  * Fallbacks:
  * - fallback-color, mock
  */
+/**
+ * Ubiquitous Language: Visual source discriminator.
+ */
 export const VisualSourceEnum = z.enum([
   // Video sources (no motion needed)
   'stock-pexels',
@@ -40,6 +43,9 @@ export const VisualSourceEnum = z.enum([
   'mock',
 ]);
 
+/**
+ * Ubiquitous Language: Visual source discriminator.
+ */
 export type VisualSource = z.infer<typeof VisualSourceEnum>;
 
 /**
@@ -50,8 +56,14 @@ export type VisualSource = z.infer<typeof VisualSourceEnum>;
  * - depthflow: 2.5D parallax animation (free)
  * - veo: Google Veo image-to-video (~$0.50/clip)
  */
+/**
+ * Ubiquitous Language: Motion strategy for animating static images.
+ */
 export const MotionStrategyEnum = z.enum(['none', 'kenburns', 'depthflow', 'veo']);
 
+/**
+ * Ubiquitous Language: Motion strategy type.
+ */
 export type MotionStrategyType = z.infer<typeof MotionStrategyEnum>;
 
 /**
@@ -115,6 +127,9 @@ const VisualAssetBaseSchema = z.object({
  * VisualAssetSchema with defaults applied during parsing.
  * Use VisualAssetInput for creating objects, VisualAsset for parsed objects.
  */
+/**
+ * Ubiquitous Language: Visual asset (per-scene) contract.
+ */
 export const VisualAssetSchema = VisualAssetBaseSchema.transform((asset) => ({
   ...asset,
   // Apply defaults for backward compatibility
@@ -169,6 +184,9 @@ export type Keyword = z.infer<typeof KeywordSchema>;
 /**
  * Gameplay clip metadata (for split-screen templates).
  */
+/**
+ * Ubiquitous Language: Gameplay clip metadata (for split-screen templates).
+ */
 export const GameplayClipSchema = z.object({
   path: z.string(),
   duration: z.number().positive(),
@@ -177,6 +195,9 @@ export const GameplayClipSchema = z.object({
   style: z.string().optional(),
 });
 
+/**
+ * Ubiquitous Language: Gameplay clip metadata.
+ */
 export type GameplayClip = z.infer<typeof GameplayClipSchema>;
 
 /**
@@ -214,6 +235,9 @@ const VisualsOutputBaseSchema = z.object({
 
 /**
  * VisualsOutputSchema with defaults applied during parsing.
+ */
+/**
+ * Ubiquitous Language: Visuals output artifact schema (visuals.json).
  */
 export const VisualsOutputSchema = VisualsOutputBaseSchema.transform((output) => ({
   ...output,

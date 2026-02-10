@@ -1,3 +1,8 @@
+/**
+ * Ubiquitous Language: Validation profile id.
+ *
+ * Identifies the target format rules used by `cm validate`.
+ */
 export type ValidateProfileId = 'portrait' | 'landscape';
 
 export interface ValidateProfile {
@@ -37,10 +42,16 @@ export const VALIDATE_PROFILES: Record<ValidateProfileId, ValidateProfile> = {
   },
 };
 
+/**
+ * Lookup a validation profile by id.
+ */
 export function getValidateProfile(profileId: ValidateProfileId): ValidateProfile {
   return VALIDATE_PROFILES[profileId];
 }
 
+/**
+ * Type guard for `ValidateProfileId`.
+ */
 export function isValidateProfileId(value: string): value is ValidateProfileId {
   return value === 'portrait' || value === 'landscape';
 }

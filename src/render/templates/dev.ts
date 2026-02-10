@@ -9,6 +9,7 @@ import { existsSync } from 'fs';
 import { dirname, join, resolve } from 'path';
 import AdmZip from 'adm-zip';
 import { VideoTemplateSchema, type VideoTemplate } from '../../domain/render-templates';
+import { TemplateIdSchema } from '../../domain/ids';
 import { CMError, NotFoundError, SchemaError } from '../../core/errors';
 import { resolveVideoTemplate } from './index';
 
@@ -54,7 +55,16 @@ function assertNonEmpty(value: string, label: string): string {
 export async function scaffoldVideoTemplate(
   options: ScaffoldVideoTemplateOptions
 ): Promise<ScaffoldVideoTemplateResult> {
-  const id = assertNonEmpty(options.id, 'id');
+  const idRaw = assertNonEmpty(options.id, 'id');
+  const parsedId = TemplateIdSchema.safeParse(idRaw);
+  if (!parsedId.success) {
+    throw new SchemaError('Invalid template id', {
+      id: idRaw,
+      issues: parsedId.error.issues,
+      fix: 'Use a kebab-case template id (letters/digits/hyphens), e.g. "acme-demo"',
+    });
+  }
+  const id = parsedId.data;
   const rootDir = resolve(assertNonEmpty(options.rootDir, 'rootDir'));
   const from = options.from ? assertNonEmpty(options.from, 'from') : 'tiktok-captions';
   const mode = options.mode ?? 'data';
@@ -77,7 +87,7 @@ export async function scaffoldVideoTemplate(
   const resolvedBase = await resolveVideoTemplate(from);
   const base: VideoTemplate = resolvedBase.template;
 
-  const template: VideoTemplate = {
+  const template = {
     ...base,
     id,
     name: toTitleCaseFromId(id) || base.name || id,
@@ -230,7 +240,15 @@ export async function packVideoTemplate(options: PackVideoTemplateOptions): Prom
   await mkdir(dirname(outputPath), { recursive: true });
 
   const zip = new AdmZip();
-  zip.addLocalFolder(templateDir, template.id);
+  // Never pack node_modules: it makes packs huge and non-portable across platforms.
+  zip.addLocalFolder(templateDir, template.id, (filename) => {
+    const normalized = filename.replace(/\\/g, '/');
+    if (normalized.includes('/node_modules/')) return false;
+    if (normalized.endsWith('/node_modules')) return false;
+    if (normalized.includes('/.git/')) return false;
+    if (normalized.endsWith('/.git')) return false;
+    return true;
+  });
   zip.writeZip(outputPath);
 
   return { id: template.id, outputPath };

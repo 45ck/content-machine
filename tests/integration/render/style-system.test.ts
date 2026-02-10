@@ -11,7 +11,7 @@ import { defaultThemeRegistry } from '../../../src/render/themes';
 import { PALETTES } from '../../../src/render/presets/palette';
 import { TYPOGRAPHY_PRESETS } from '../../../src/render/presets/typography';
 import { ANIMATION_PRESETS, ANIMATION_TYPES } from '../../../src/render/presets/animation';
-import { CAPTION_PRESETS } from '../../../src/render/presets/caption';
+import { THEME_CAPTION_PRESETS } from '../../../src/render/presets/caption';
 import { SAFE_ZONES } from '../../../src/render/tokens/safe-zone';
 import { TIMING_MS, msToFrames } from '../../../src/render/tokens/timing';
 import { SPRING_CONFIGS, EASING_CURVES } from '../../../src/render/tokens/easing';
@@ -131,7 +131,7 @@ describe('Style System Integration', () => {
         palettes: PALETTES,
         typography: TYPOGRAPHY_PRESETS,
         animations: ANIMATION_PRESETS,
-        captions: CAPTION_PRESETS,
+        captions: THEME_CAPTION_PRESETS,
         safeZones: SAFE_ZONES,
       });
 

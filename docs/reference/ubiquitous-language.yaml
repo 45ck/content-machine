@@ -1,0 +1,572 @@
+# Ubiquitous Language registry (source of truth for loaded terms)
+#
+# This file exists so the repo has ONE canonical place for:
+# - what a term means
+# - what it does NOT mean
+# - the canonical types/schemas in code that represent it
+# - where it appears in the CLI
+#
+# `docs/reference/GLOSSARY.md` is generated from this file.
+
+version: 1
+
+terms:
+  - term: Archetype
+    canonicalName: Script Archetype
+    definition: >
+      A script format (hook + structure + pacing rules) used by the script stage.
+      Archetypes guide the LLM to produce a particular style of script (listicle,
+      tutorial, story, etc).
+    nonExamples:
+      - Not a Remotion composition or render layout.
+      - Not a pipeline orchestration preset.
+    canonicalTypes:
+      - ArchetypeId
+      - ArchetypeSpec
+    canonicalSchemas:
+      - ArchetypeIdSchema
+      - ArchetypeSpecSchema
+    ownedBy: script
+    whereItLives:
+      - 'Built-in examples: assets/archetypes/*.yaml (and assets/archetypes/baseline.md)'
+      - 'Project overrides: ./.cm/archetypes/'
+      - 'User installs: ~/.cm/archetypes/'
+    cliSurface:
+      - 'cm script --archetype <idOrPath>'
+      - 'cm generate --archetype <idOrPath>'
+      - 'cm archetypes list|show|validate|new|pack|install'
+    synonymsToAvoid:
+      - format
+      - script template
+
+  - term: Template
+    canonicalName: Render Template
+    definition: >
+      A render preset that selects a Remotion composition and provides render defaults
+      (orientation/fps/caption preset/config, split-screen params, required slots).
+    nonExamples:
+      - Not a script format (archetypes do that).
+      - Not pipeline orchestration (workflows do that).
+    canonicalTypes:
+      - TemplateId
+      - VideoTemplate
+    canonicalSchemas:
+      - TemplateIdSchema
+      - VideoTemplateSchema
+    ownedBy: render
+    whereItLives:
+      - 'Built-in examples: assets/templates/<id>/template.json'
+      - 'Project templates: ./.cm/templates/<id>/template.json'
+      - 'User installs: ~/.cm/templates/<id>/template.json'
+    cliSurface:
+      - 'cm render --template <idOrPath>'
+      - 'cm generate --template <idOrPath>'
+      - 'cm templates list|show|validate|new|pack|install'
+    synonymsToAvoid:
+      - layout
+      - theme
+
+  - term: TemplatePack
+    canonicalName: Template Pack
+    definition: >
+      A distributable bundle (directory or .zip) that installs a Render Template into
+      `~/.cm/templates/<id>/...` (template.json + optional local assets).
+    nonExamples:
+      - Not a render template itself (the render template is template.json).
+      - Not a workflow pack (workflows install into ~/.cm/workflows).
+    canonicalTypes: []
+    canonicalSchemas: []
+    ownedBy: render
+    whereItLives:
+      - 'Packed from: any directory containing template.json'
+      - 'Installed to: ~/.cm/templates/<id>/'
+    cliSurface:
+      - 'cm templates pack <dir> -o <pack.zip>'
+      - 'cm templates install <dirOrZip> [--force]'
+    synonymsToAvoid:
+      - plugin
+
+  - term: Pack
+    canonicalName: Pack
+    definition: >
+      A distributable bundle (directory or .zip) containing data-defined CM resources
+      (templates, workflows, archetypes, presets, hooks, etc). Packs are installable locally
+      and should be validated by schemas.
+    nonExamples:
+      - Not a Packaging Artifact (cm package output).
+      - Not a code plugin by default (data-only unless explicitly opted in).
+    canonicalTypes: []
+    canonicalSchemas: []
+    ownedBy: core
+    whereItLives:
+      - 'Proposed structure: docs/architecture/configuration/CONFIGURATION-SYSTEM-DESIGN-20260207.md'
+    cliSurface:
+      - 'cm templates pack|install'
+      - 'cm workflows pack|install'
+      - 'cm archetypes pack|install'
+    synonymsToAvoid:
+      - plugin
+      - extension
+
+  - term: CodeTemplate
+    canonicalName: Code Template
+    definition: >
+      A template pack that also ships a Remotion project (entrypoint + compositions). When a
+      Render Template includes a `remotion` block, CM will execute that code during bundling/render.
+      This requires explicit opt-in via config/flags.
+    nonExamples:
+      - Not the same as a Render Template (data-only template.json).
+    canonicalTypes: []
+    canonicalSchemas:
+      - RemotionTemplateProjectSchema
+    ownedBy: render
+    whereItLives:
+      - 'Render template field: template.json -> remotion'
+      - 'Schema: src/render/templates/schema.ts'
+    cliSurface:
+      - 'cm render --allow-template-code'
+      - 'cm generate --allow-template-code'
+    synonymsToAvoid:
+      - plugin
+      - code pack
+
+  - term: Composition
+    canonicalName: Remotion Composition
+    definition: >
+      A Remotion composition id that defines the video layout and timeline behavior
+      (React component + animations). Selected by Render Templates via `compositionId`.
+    nonExamples:
+      - Not a render template (templates select compositions and defaults).
+    canonicalTypes:
+      - CompositionId
+    canonicalSchemas:
+      - CompositionIdSchema
+    ownedBy: render
+    whereItLives:
+      - 'Template field: template.json -> compositionId'
+      - 'Built-in compositions: src/render/remotion/*'
+    cliSurface:
+      - 'cm render --template <idOrPath> (indirectly)'
+
+  - term: Workflow
+    canonicalName: Pipeline Workflow
+    definition: >
+      A pipeline orchestration preset for cm generate. Workflows can select stage modes
+      (builtin vs external/import), provide default inputs, and provide workflow defaults.
+      Workflows may contain exec hooks, which require explicit opt-in.
+    nonExamples:
+      - Not a render template.
+      - Not a script format.
+    canonicalTypes:
+      - WorkflowId
+      - WorkflowDefinition
+    canonicalSchemas:
+      - WorkflowIdSchema
+      - WorkflowDefinitionSchema
+    ownedBy: pipeline
+    whereItLives:
+      - 'Project workflows: ./.cm/workflows/<id>/workflow.json'
+      - 'User installs: ~/.cm/workflows/<id>/workflow.json'
+    cliSurface:
+      - 'cm generate --workflow <idOrPath> [--workflow-allow-exec]'
+      - 'cm workflows list|show|validate|new|pack|install'
+    synonymsToAvoid:
+      - recipe
+
+  - term: Preset
+    canonicalName: Preset
+    definition: >
+      A named set of default values for a specific subsystem (e.g. captions, sync, audio mix).
+      Presets tune one subsystem; they do not change pipeline orchestration.
+    nonExamples:
+      - Not a Render Template (templates select compositions and render defaults).
+      - Not a Pipeline Workflow (workflows orchestrate stages).
+    canonicalTypes: []
+    canonicalSchemas: []
+    ownedBy: core
+    whereItLives:
+      - 'Varies by subsystem (captions, sync, audio, etc)'
+    cliSurface:
+      - 'cm generate --sync-preset ...'
+      - 'cm audio --mix-preset ...'
+
+  - term: SyncPreset
+    canonicalName: Sync Preset
+    definition: >
+      A named quality/speed tradeoff preset for timestamp sync in `cm generate` (fast/standard/quality/maximum).
+      Sync presets set pipeline mode (standard vs audio-first) and related sync-quality options.
+    nonExamples:
+      - Not a caption preset (caption presets affect burned-in caption styling).
+      - Not a workflow (workflows orchestrate stages broadly; sync presets only tune sync behavior).
+    canonicalTypes:
+      - SyncPresetConfig
+    canonicalSchemas: []
+    ownedBy: sync
+    whereItLives:
+      - 'CLI implementation: src/cli/commands/generate.ts'
+    cliSurface:
+      - 'cm generate --sync-preset <fast|standard|quality|maximum>'
+
+  - term: AudioMixPreset
+    canonicalName: Audio Mix Preset
+    definition: >
+      A named set of audio mix defaults (music/SFX/ambience levels and LUFS target) used by the audio mix planner.
+      Mix presets are intended to be data-defined and installable via packs; built-ins ship with CM.
+    nonExamples:
+      - Not a sync preset (sync presets tune timestamp sync behavior).
+      - Not a caption preset (caption presets control burned-in caption styling).
+    canonicalTypes:
+      - AudioMixPresetId
+    canonicalSchemas:
+      - AudioMixPresetIdSchema
+    ownedBy: audio
+    whereItLives:
+      - 'Built-in defaults: src/audio/mix/presets.ts'
+      - 'Future pack location (planned): audio/mix-presets/<id>.json'
+    cliSurface:
+      - 'cm audio --mix-preset <id>'
+      - 'cm generate --mix-preset <id>'
+    synonymsToAvoid:
+      - profile
+
+  - term: SfxPack
+    canonicalName: SFX Pack
+    definition: >
+      A named bundle of short sound effects used by the audio mix planner (pops/whooshes/clicks/etc).
+      Packs are intended to be installable and data-only by default.
+    nonExamples:
+      - Not a single SFX file path passed via --sfx.
+    canonicalTypes:
+      - SfxPackId
+    canonicalSchemas:
+      - SfxPackIdSchema
+    ownedBy: audio
+    whereItLives:
+      - 'Built-in defaults: src/audio/mix/presets.ts'
+      - 'Future pack location (planned): audio/sfx/<pack-id>/manifest.json + audio files'
+    cliSurface:
+      - 'cm audio --sfx-pack <id>'
+      - 'cm generate --sfx-pack <id>'
+
+  - term: SfxPlacement
+    canonicalName: SFX Placement
+    definition: >
+      A scheduling rule for when SFX events are placed relative to the script timeline (hook/scene/list-item/cta).
+    nonExamples:
+      - Not a sync strategy.
+    canonicalTypes:
+      - SfxPlacement
+    canonicalSchemas:
+      - SfxPlacementEnum
+    ownedBy: audio
+    whereItLives:
+      - 'CLI flags: --sfx-at'
+      - 'Schema: src/audio/mix/presets.ts'
+    cliSurface:
+      - 'cm audio --sfx-at <hook|scene|list-item|cta>'
+      - 'cm generate --sfx-at <hook|scene|list-item|cta>'
+
+  - term: Artifact
+    canonicalName: Pipeline Artifact
+    definition: >
+      An intermediate file produced/consumed by pipeline stages (script.json, audio.wav,
+      timestamps.json, visuals.json, video.mp4). Artifacts are the stable stage contract.
+    nonExamples:
+      - Not a template/archetype/workflow.
+    canonicalTypes: []
+    canonicalSchemas: []
+    ownedBy: core
+    whereItLives:
+      - output/ (by convention) or wherever --output points
+    cliSurface:
+      - 'cm script|audio|visuals|render|generate'
+
+  - term: Packaging
+    canonicalName: Packaging Artifact
+    definition: >
+      A versioned JSON artifact produced by `cm package` containing multiple title/cover/hook variants
+      plus a selected winner. Packaging is used to improve CTR (title/cover) and muted autoplay retention.
+    nonExamples:
+      - Not a render template or workflow.
+    canonicalTypes:
+      - PackageOutput
+      - PackageVariant
+      - Platform
+    canonicalSchemas:
+      - PackageOutputSchema
+      - PackageVariantSchema
+      - PlatformEnum
+    ownedBy: packaging
+    whereItLives:
+      - 'Artifact: packaging.json'
+      - 'Schema: src/package/schema.ts'
+    cliSurface:
+      - 'cm package <topic> -o packaging.json'
+
+  - term: Stage
+    canonicalName: Pipeline Stage
+    definition: >
+      One step in the pipeline: script, audio, visuals, render. Stages can be run individually
+      or composed via cm generate.
+    nonExamples:
+      - Not a workflow (workflows orchestrate stages).
+    canonicalTypes: []
+    canonicalSchemas: []
+    ownedBy: pipeline
+    whereItLives:
+      - src/cli/commands/{script,audio,visuals,render,generate}.ts
+    cliSurface:
+      - 'cm script|audio|visuals|render|generate'
+
+  - term: Provider
+    canonicalName: Provider
+    definition: >
+      An external system/integration used by a stage (LLM providers, stock visuals providers,
+      image generation providers).
+    nonExamples:
+      - Not a preset or a template.
+    canonicalTypes:
+      - VisualsProviderId
+    canonicalSchemas:
+      - VisualsProviderIdSchema
+    ownedBy: core
+    whereItLives:
+      - src/core/llm/*
+      - src/visuals/providers/*
+    cliSurface:
+      - 'cm visuals --provider <id>'
+
+  - term: Hook
+    canonicalName: Hook Clip
+    definition: >
+      A short intro clip used to stop the scroll in the first ~1-3 seconds. Hooks can be selected
+      from a hook library, a local file, or a URL and are layered before the main content.
+    nonExamples:
+      - Not the script hook sentence (that's part of the script content).
+    canonicalTypes:
+      - HookClip
+      - HookDefinition
+    canonicalSchemas:
+      - HookClipSchema
+      - HookDefinitionSchema
+      - HookAudioModeEnum
+      - HookFitEnum
+    ownedBy: hooks
+    whereItLives:
+      - 'User hooks dir: ~/.cm/assets/hooks'
+      - 'Schema: src/hooks/schema.ts'
+    cliSurface:
+      - 'cm render --hook <idOrPath>'
+      - 'cm generate --hook <idOrPath>'
+      - 'cm hooks list|download|show'
+
+  - term: MotionStrategy
+    canonicalName: Motion Strategy
+    definition: >
+      The technique used to animate static images into moving visuals at render-time
+      (e.g. Ken Burns, parallax). Required for image-based visuals sources.
+    nonExamples:
+      - Not a template (templates select compositions and defaults).
+    canonicalTypes:
+      - MotionStrategyType
+    canonicalSchemas:
+      - MotionStrategyEnum
+    ownedBy: visuals
+    whereItLives:
+      - 'Schema: src/visuals/schema.ts'
+    cliSurface:
+      - 'cm visuals --motion-strategy <id>'
+
+  - term: GameplayClip
+    canonicalName: Gameplay Clip
+    definition: >
+      Optional gameplay footage used by split-screen templates as background (e.g. Subway Surfers).
+    nonExamples:
+      - Not stock b-roll matched per scene (that's visuals scenes).
+    canonicalTypes:
+      - GameplayClip
+    canonicalSchemas:
+      - GameplayClipSchema
+    ownedBy: visuals
+    whereItLives:
+      - 'User gameplay dir: ~/.cm/assets/gameplay/<style>/'
+      - 'Schema: src/visuals/schema.ts'
+    cliSurface:
+      - 'cm visuals --gameplay <path> | --gameplay-style <style>'
+      - 'cm render --gameplay <path>'
+
+  - term: Timestamps
+    canonicalName: Timestamps Artifact
+    definition: >
+      The word-level and scene-level timestamps contract used for caption sync and pacing.
+      Produced by `cm audio` and consumed by `cm visuals` and `cm render`.
+    nonExamples:
+      - Not the script itself.
+    canonicalTypes:
+      - TimestampsOutput
+      - WordTimestamp
+      - SceneTimestamp
+    canonicalSchemas:
+      - TimestampsOutputSchema
+      - WordTimestampSchema
+      - SceneTimestampSchema
+    ownedBy: audio
+    whereItLives:
+      - 'Artifact: timestamps.json'
+      - 'Schema: src/audio/schema.ts'
+    cliSurface:
+      - 'cm audio --timestamps <path>'
+      - 'cm render --timestamps <path>'
+
+  - term: Visuals
+    canonicalName: Visuals Artifact
+    definition: >
+      The per-scene visual plan consumed by rendering (clips/images per scene, trimming, metadata).
+      Produced by `cm visuals` and consumed by `cm render`.
+    nonExamples:
+      - Not a template.
+    canonicalTypes:
+      - VisualAsset
+      - VisualsOutput
+      - VisualSource
+    canonicalSchemas:
+      - VisualAssetSchema
+      - VisualsOutputSchema
+      - VisualSourceEnum
+    ownedBy: visuals
+    whereItLives:
+      - 'Artifact: visuals.json'
+      - 'Schema: src/visuals/schema.ts'
+    cliSurface:
+      - 'cm visuals --output visuals.json'
+      - 'cm render --input visuals.json'
+
+  - term: Captions
+    canonicalName: Caption Config
+    definition: >
+      The full caption styling and layout contract used by rendering (fonts, safe zones, display
+      mode, highlighting, cleanup, badges).
+    nonExamples:
+      - Not the raw transcript/timestamps (captions consume timestamps).
+    canonicalTypes:
+      - CaptionConfig
+    canonicalSchemas:
+      - CaptionConfigSchema
+    ownedBy: render
+    whereItLives:
+      - 'Schema: src/render/captions/config.ts'
+    cliSurface:
+      - 'cm render --caption-preset <id> [--caption-* flags]'
+
+  - term: CaptionPreset
+    canonicalName: Caption Preset
+    definition: >
+      A named, tested baseline `CaptionConfig` (e.g. tiktok/capcut) that can be deep-overridden
+      by config or CLI flags.
+    nonExamples:
+      - Not a render template.
+    canonicalTypes:
+      - CaptionPresetName
+    canonicalSchemas: []
+    ownedBy: render
+    whereItLives:
+      - 'Presets: src/render/captions/presets.ts'
+    cliSurface:
+      - 'cm render --caption-preset <name>'
+
+  - term: ThemeCaptionPreset
+    canonicalName: Theme Caption Preset
+    definition: >
+      A preset used by the render style system (themes -> tokens) to produce consistent
+      on-screen design (typography/colors/position/animation intent). This is used by
+      the theme/style resolver and is distinct from burned-in caption rendering presets.
+    nonExamples:
+      - Not a `CaptionConfig` preset used by `cm render --caption-preset`.
+      - Not a render template (templates select compositions and render defaults).
+    canonicalTypes:
+      - ThemeCaptionPreset
+      - ThemeCaptionPresetName
+    canonicalSchemas: []
+    ownedBy: render
+    whereItLives:
+      - 'Presets: src/render/presets/caption.ts'
+    cliSurface: []
+    synonymsToAvoid:
+      - caption preset
+
+  - term: Theme
+    canonicalName: Theme
+    definition: >
+      A style-system definition that groups palette + typography + animation + theme caption preset
+      into a coherent visual direction. Themes are resolved per archetype into a Resolved Style.
+    nonExamples:
+      - Not a render template (templates also choose compositions and render defaults).
+      - Not a caption preset (burned-in captions use CaptionConfig presets).
+    canonicalTypes:
+      - Theme
+      - ThemeRegistry
+    canonicalSchemas: []
+    ownedBy: render
+    whereItLives:
+      - 'Registry: src/render/themes/index.ts'
+      - 'Types: src/render/themes/types.ts'
+    cliSurface: []
+    synonymsToAvoid:
+      - template
+
+  - term: StyleResolver
+    canonicalName: Style Resolver
+    definition: >
+      The function that resolves Theme references into concrete, render-ready style values
+      (colors, typography, animation, safe zones).
+    nonExamples:
+      - Not a template resolver (templates resolve template.json).
+    canonicalTypes:
+      - StyleResolverDeps
+      - ResolvedStyle
+      - StyleOverrides
+    canonicalSchemas: []
+    ownedBy: render
+    whereItLives:
+      - 'Resolver: src/render/styles/resolver.ts'
+      - 'Types: src/render/styles/types.ts'
+    cliSurface: []
+
+  - term: Profile
+    canonicalName: Validation Profile
+    definition: >
+      A named set of validation thresholds for cm validate (e.g. portrait/landscape).
+      Profiles determine what "valid output" means for a target format.
+    nonExamples:
+      - Not a template (templates affect rendering).
+    canonicalTypes:
+      - ValidateProfileId
+    canonicalSchemas: []
+    ownedBy: validate
+    whereItLives:
+      - src/validate/profiles.ts
+    cliSurface:
+      - 'cm validate <video> --profile <id>'
+
+  - term: VideoSpec
+    canonicalName: VideoSpec v1 (Reverse-Engineering Artifact)
+    definition: >
+      A single versioned JSON artifact emitted by `cm videospec` that captures a best-effort,
+      reverse-engineered representation of an existing short-form video: shots/timeline,
+      burned-in captions (OCR), transcript (ASR), and narrative summary.
+    nonExamples:
+      - Not a pipeline artifact produced by `cm generate`.
+      - Not a render template or script archetype.
+    canonicalTypes:
+      - VideoSpecV1
+    canonicalSchemas:
+      - VideoSpecV1Schema
+    ownedBy: videospec
+    whereItLives:
+      - 'Output artifact: videospec.v1.json (by convention, controlled by --output)'
+      - 'Schema: src/videospec/schema.ts'
+      - 'Reference: docs/reference/cm-videospec-reference-20260210.md'
+    cliSurface:
+      - 'cm videospec -i <video> -o <videospec.v1.json>'
+    synonymsToAvoid:
+      - spec (without saying VideoSpec)

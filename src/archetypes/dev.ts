@@ -11,6 +11,7 @@ import AdmZip from 'adm-zip';
 import { stringify as stringifyYaml, parse as parseYaml } from 'yaml';
 import { CMError, NotFoundError, SchemaError } from '../core/errors';
 import { ArchetypeSpecSchema, type ArchetypeSpec } from '../domain';
+import { ArchetypeIdSchema } from '../domain/ids';
 import { resolveArchetype } from './registry';
 
 export interface ScaffoldArchetypeOptions {
@@ -58,7 +59,16 @@ function toArchetypeYaml(spec: ArchetypeSpec): string {
 export async function scaffoldArchetype(
   options: ScaffoldArchetypeOptions
 ): Promise<ScaffoldArchetypeResult> {
-  const id = assertNonEmpty(options.id, 'id');
+  const idRaw = assertNonEmpty(options.id, 'id');
+  const parsedId = ArchetypeIdSchema.safeParse(idRaw);
+  if (!parsedId.success) {
+    throw new SchemaError('Invalid archetype id', {
+      id: idRaw,
+      issues: parsedId.error.issues,
+      fix: 'Use a kebab-case archetype id (letters/digits/hyphens), e.g. "listicle"',
+    });
+  }
+  const id = parsedId.data;
   const rootDir = resolve(assertNonEmpty(options.rootDir, 'rootDir'));
   const from = options.from ? assertNonEmpty(options.from, 'from') : 'listicle';
 
@@ -78,7 +88,7 @@ export async function scaffoldArchetype(
   const resolvedBase = await resolveArchetype(from);
   const base = resolvedBase.archetype;
 
-  const candidate: ArchetypeSpec = {
+  const candidate = {
     ...base,
     id,
     name: toTitleCaseFromId(id) || base.name || id,
