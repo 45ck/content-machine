@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { getTemplateOverlays } from './slots';
-import { VideoTemplateSchema, type VideoTemplate } from '../../domain/render-templates';
+import { RenderTemplateSchema, type RenderTemplate } from '../../domain/render-templates';
 import { mkdtempSync } from 'fs';
 import { tmpdir } from 'os';
 import { join, resolve } from 'path';
 
-function makeTemplate(partial: Partial<VideoTemplate>): VideoTemplate {
-  return VideoTemplateSchema.parse({
+function makeTemplate(partial: Partial<RenderTemplate>): RenderTemplate {
+  return RenderTemplateSchema.parse({
     schemaVersion: '1.0.0',
     id: 't1',
     name: 'Template 1',

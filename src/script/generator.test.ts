@@ -5,6 +5,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { LLMScriptResponseSchema, SCRIPT_SCHEMA_VERSION, ScriptOutputSchema } from '../domain';
 import { FakeLLMProvider } from '../test/stubs';
+import { ArchetypeIdSchema } from '../domain/ids';
 
 // Mock archetype registry (avoid filesystem reads in unit tests)
 vi.mock('../archetypes/registry', async () => {
@@ -100,7 +101,7 @@ describe('Script Generator', () => {
 
       const result = await generateScript({
         topic: '5 JavaScript tips',
-        archetype: 'listicle',
+        archetype: ArchetypeIdSchema.parse('listicle'),
         targetDuration: 45,
         llmProvider: fakeLLM,
       });
@@ -150,7 +151,7 @@ describe('Script Generator', () => {
 
       const result = await generateScript({
         topic: 'React vs Vue',
-        archetype: 'versus',
+        archetype: ArchetypeIdSchema.parse('versus'),
         llmProvider: fakeLLM,
       });
 
@@ -179,7 +180,7 @@ describe('Script Generator', () => {
 
       const result = await generateScript({
         topic: 'test',
-        archetype: 'listicle',
+        archetype: ArchetypeIdSchema.parse('listicle'),
         llmProvider: fakeLLM,
         packaging,
       });
@@ -202,7 +203,7 @@ describe('Script Generator', () => {
       await expect(
         generateScript({
           topic: 'test',
-          archetype: 'listicle',
+          archetype: ArchetypeIdSchema.parse('listicle'),
           llmProvider: fakeLLM,
         })
       ).rejects.toThrow();
@@ -223,7 +224,7 @@ describe('Script Generator', () => {
 
       const result = await generateScript({
         topic: 'test',
-        archetype: 'listicle',
+        archetype: ArchetypeIdSchema.parse('listicle'),
         llmProvider: fakeLLM,
       });
 
@@ -249,7 +250,7 @@ describe('Script Generator', () => {
 
       const result = await generateScript({
         topic: 'test',
-        archetype: 'listicle',
+        archetype: ArchetypeIdSchema.parse('listicle'),
         llmProvider: fakeLLM,
       });
 
@@ -271,7 +272,7 @@ describe('Script Generator', () => {
 
       const result = await generateScript({
         topic: 'test',
-        archetype: 'listicle',
+        archetype: ArchetypeIdSchema.parse('listicle'),
         llmProvider: fakeLLM,
       });
 
@@ -295,7 +296,7 @@ describe('Script Generator', () => {
 
         await generateScript({
           topic: 'test topic',
-          archetype,
+          archetype: ArchetypeIdSchema.parse(archetype),
           llmProvider: fakeLLM,
         });
 
@@ -323,7 +324,7 @@ describe('Script Generator', () => {
         meta: {
           wordCount: 10,
           estimatedDuration: 4,
-          archetype: 'listicle',
+          archetype: ArchetypeIdSchema.parse('listicle'),
           topic: 'test',
           generatedAt: new Date().toISOString(),
         },
@@ -364,7 +365,7 @@ describe('Script Generator', () => {
         reasoning: 'Test reasoning.',
         hashtags: ['#javascript', '#coding', '#tips'],
         meta: {
-          archetype: 'listicle',
+          archetype: ArchetypeIdSchema.parse('listicle'),
           topic: 'test',
           generatedAt: new Date().toISOString(),
         },
@@ -435,7 +436,7 @@ describe('Script Generator', () => {
 
       const result = await generateScript({
         topic: 'Global news roundup',
-        archetype: 'listicle',
+        archetype: ArchetypeIdSchema.parse('listicle'),
         targetDuration: 30,
         llmProvider: fakeLLM,
       });

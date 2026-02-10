@@ -1,5 +1,5 @@
 /**
- * Video template developer tooling.
+ * Render template developer tooling.
  *
  * - scaffoldVideoTemplate(): create a new template directory + template.json
  * - packVideoTemplate(): bundle a template directory into a .zip pack for install
@@ -8,10 +8,10 @@ import { mkdir, readFile, rm, stat, writeFile } from 'fs/promises';
 import { existsSync } from 'fs';
 import { dirname, join, resolve } from 'path';
 import AdmZip from 'adm-zip';
-import { VideoTemplateSchema, type VideoTemplate } from '../../domain/render-templates';
+import { RenderTemplateSchema, type RenderTemplate } from '../../domain/render-templates';
 import { TemplateIdSchema } from '../../domain/ids';
 import { CMError, NotFoundError, SchemaError } from '../../core/errors';
-import { resolveVideoTemplate } from './index';
+import { resolveRenderTemplate } from './index';
 
 export interface ScaffoldVideoTemplateOptions {
   id: string;
@@ -84,8 +84,8 @@ export async function scaffoldVideoTemplate(
 
   await mkdir(templateDir, { recursive: true });
 
-  const resolvedBase = await resolveVideoTemplate(from);
-  const base: VideoTemplate = resolvedBase.template;
+  const resolvedBase = await resolveRenderTemplate(from);
+  const base: RenderTemplate = resolvedBase.template;
 
   const template = {
     ...base,
@@ -105,7 +105,7 @@ export async function scaffoldVideoTemplate(
   }
 
   // Ensure the scaffold is valid and normalized (fills defaults like schemaVersion).
-  const validated = VideoTemplateSchema.parse(template);
+  const validated = RenderTemplateSchema.parse(template);
 
   await writeFile(templatePath, `${JSON.stringify(validated, null, 2)}\n`, 'utf-8');
 
@@ -168,7 +168,9 @@ export interface PackVideoTemplateResult {
   outputPath: string;
 }
 
-async function loadTemplateFromDir(templateDir: string): Promise<{ template: VideoTemplate; templatePath: string }> {
+async function loadTemplateFromDir(
+  templateDir: string
+): Promise<{ template: RenderTemplate; templatePath: string }> {
   const templatePath = join(templateDir, 'template.json');
   if (!existsSync(templatePath)) {
     throw new NotFoundError(`template.json not found: ${templatePath}`, {
@@ -191,7 +193,7 @@ async function loadTemplateFromDir(templateDir: string): Promise<{ template: Vid
     });
   }
 
-  const parsed = VideoTemplateSchema.safeParse(parsedJson);
+  const parsed = RenderTemplateSchema.safeParse(parsedJson);
   if (!parsed.success) {
     throw new SchemaError('Invalid video template schema', {
       path: templatePath,

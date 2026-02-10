@@ -1,0 +1,34 @@
+{
+  "version": "0.2",
+  "language": "en",
+  "useGitignore": true,
+  "allowCompoundWords": true,
+  "ignorePaths": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/coverage/**",
+    "**/.cache/**",
+    "**/.tmp/**",
+    "**/.stryker-tmp/**",
+    "**/output/**",
+    "**/vendor/**",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/*.zip",
+    "**/*.traineddata",
+    "pipeline-output.txt"
+  ],
+  "dictionaryDefinitions": [
+    {
+      "name": "ubiquitous-language",
+      "path": "./config/cspell/ubiquitous-language.txt",
+      "addWords": true
+    },
+    {
+      "name": "project-words",
+      "path": "./config/cspell/project-words.txt",
+      "addWords": true
+    }
+  ],
+  "dictionaries": ["ubiquitous-language", "project-words"]
+}

@@ -22,6 +22,7 @@ import { Orientation } from '../core/config';
 import { createLogger } from '../core/logger';
 import { CMError, RenderError } from '../core/errors';
 import { probeVideoWithFfprobe } from '../validate/ffprobe';
+import type { ArchetypeId, TemplateId } from '../domain/ids';
 import {
   RenderOutputSchema,
   RenderPropsInput,
@@ -132,7 +133,7 @@ export interface RenderVideoOptions {
   captionConfig?: CaptionConfigInput;
   /** Use a preset caption style (tiktok, youtube, reels, bold, minimal, neon, capcut, hormozi, karaoke) */
   captionPreset?: CaptionPresetName;
-  archetype?: string;
+  archetype?: ArchetypeId;
   /** Use mock mode for testing without real rendering */
   mock?: boolean;
   /** Mock render mode: placeholder (fast) or real (renders actual video) */
@@ -215,7 +216,7 @@ export interface RenderVideoOptions {
   // ---------------------------------------------------------------------------
   // Template metadata (optional; useful for code templates)
   // ---------------------------------------------------------------------------
-  templateId?: string;
+  templateId?: TemplateId;
   templateSource?: string;
   templateParams?: Record<string, unknown>;
 

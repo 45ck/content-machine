@@ -28,7 +28,7 @@ import { CliProgressObserver, PipelineEventEmitter, type PipelineEvent } from '.
 import { getCliErrorInfo } from '../format';
 import {
   formatTemplateSource,
-  resolveVideoTemplate,
+  resolveRenderTemplate,
   getTemplateFontSources,
   getTemplateGameplaySlot,
   getTemplateOverlays,
@@ -460,7 +460,7 @@ function formatPreflightLine(check: PreflightCheck): string {
 async function runGeneratePreflight(params: {
   topic: string;
   options: GenerateOptions;
-  resolvedTemplate: Awaited<ReturnType<typeof resolveVideoTemplate>> | undefined;
+  resolvedTemplate: Awaited<ReturnType<typeof resolveRenderTemplate>> | undefined;
   templateGameplay: ReturnType<typeof getTemplateGameplaySlot>;
   runtime: ReturnType<typeof getCliRuntime>;
   command: Command;
@@ -1706,7 +1706,7 @@ async function resolveTemplateAndApplyDefaults(
   options: GenerateOptions,
   command: Command
 ): Promise<{
-  resolvedTemplate: Awaited<ReturnType<typeof resolveVideoTemplate>> | undefined;
+  resolvedTemplate: Awaited<ReturnType<typeof resolveRenderTemplate>> | undefined;
   templateDefaults: Record<string, unknown> | undefined;
   templateParams: ReturnType<typeof getTemplateParams>;
   templateGameplay: ReturnType<typeof getTemplateGameplaySlot>;
@@ -1722,7 +1722,7 @@ async function resolveTemplateAndApplyDefaults(
     };
   }
 
-  const resolvedTemplate = await resolveVideoTemplate(options.template);
+  const resolvedTemplate = await resolveRenderTemplate(options.template);
   const templateDefaults = (resolvedTemplate.template.defaults ?? {}) as Record<string, unknown>;
   const templateParams = getTemplateParams(resolvedTemplate.template);
   const templateGameplay = getTemplateGameplaySlot(resolvedTemplate.template);
@@ -1957,7 +1957,7 @@ async function runGeneratePipeline(params: {
   archetype: Archetype;
   orientation: Orientation;
   options: GenerateOptions;
-  resolvedTemplate: Awaited<ReturnType<typeof resolveVideoTemplate>> | undefined;
+  resolvedTemplate: Awaited<ReturnType<typeof resolveRenderTemplate>> | undefined;
   remotionProject: ResolvedRemotionTemplateProject | null;
   allowTemplateCode?: boolean;
   installTemplateDeps?: boolean;
@@ -2110,13 +2110,13 @@ function toNullableString(value: string | undefined): string | null {
 }
 
 function resolveTemplateId(
-  resolvedTemplate: Awaited<ReturnType<typeof resolveVideoTemplate>> | undefined
+  resolvedTemplate: Awaited<ReturnType<typeof resolveRenderTemplate>> | undefined
 ): string | null {
   return resolvedTemplate?.template.id ?? null;
 }
 
 function getTemplateSourceForLog(
-  resolvedTemplate: Awaited<ReturnType<typeof resolveVideoTemplate>> | undefined
+  resolvedTemplate: Awaited<ReturnType<typeof resolveRenderTemplate>> | undefined
 ): string | undefined {
   return resolvedTemplate ? formatTemplateSource(resolvedTemplate) : undefined;
 }
@@ -2554,7 +2554,7 @@ async function writeCaptionQualityReportFiles(
 
 async function writeResolvedTemplateArtifact(params: {
   artifactsDir: string;
-  resolvedTemplate: Awaited<ReturnType<typeof resolveVideoTemplate>>;
+  resolvedTemplate: Awaited<ReturnType<typeof resolveRenderTemplate>>;
   templateDefaults: Record<string, unknown> | undefined;
   templateParams: ReturnType<typeof getTemplateParams>;
   templateGameplay: ReturnType<typeof getTemplateGameplaySlot>;

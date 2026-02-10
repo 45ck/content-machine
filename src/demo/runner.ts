@@ -6,6 +6,7 @@ import { matchVisuals } from '../visuals/matcher';
 import { renderVideo } from '../render/service';
 import { FakeLLMProvider } from '../test/stubs/fake-llm';
 import { configureMockLLMProvider } from '../test/fixtures/mock-scenes';
+import { ArchetypeIdSchema } from '../domain/ids';
 
 export interface DemoOptions {
   outputPath: string;
@@ -22,6 +23,11 @@ export interface DemoResult {
   visualsPath: string;
 }
 
+/**
+ * Run the pipeline in mock mode and write its intermediate artifacts next to the output.
+ *
+ * Intended for smoke testing and local demos without API keys.
+ */
 export async function runDemo(options: DemoOptions): Promise<DemoResult> {
   const outputPath = resolve(options.outputPath);
   const artifactsDir = dirname(outputPath);
@@ -34,7 +40,7 @@ export async function runDemo(options: DemoOptions): Promise<DemoResult> {
   configureMockLLMProvider(llm, topic);
   const script = await generateScript({
     topic,
-    archetype: 'listicle',
+    archetype: ArchetypeIdSchema.parse('listicle'),
     targetDuration: durationSeconds,
     llmProvider: llm,
   });

@@ -199,16 +199,25 @@ Located in `reference/`, information-oriented technical docs:
 
 ### CLI command references
 
+- `reference/cm-assets-reference-20260111.md`
 - `reference/cm-generate-reference-20260106.md`
 - `reference/cm-mcp-reference-20260126.md`
 - `reference/cm-script-reference-20260106.md`
 - `reference/cm-audio-reference-20260106.md`
+- `reference/cm-timestamps-reference-20260110.md`
 - `reference/cm-visuals-reference-20260106.md`
+- `reference/cm-import-reference-20260110.md`
 - `reference/cm-render-reference-20260106.md`
 - `reference/cm-init-reference-20260106.md`
 - `reference/cm-package-reference-20260106.md`
 - `reference/cm-research-reference-20260106.md`
+- `reference/cm-retrieve-reference-20260107.md`
+- `reference/cm-score-reference-20260107.md`
+- `reference/cm-publish-reference-20260107.md`
 - `reference/cm-validate-reference-20260106.md`
+- `reference/cm-workflows-reference-20260110.md`
+- `reference/cm-templates-reference-20260210.md`
+- `reference/cm-videospec-reference-20260210.md`
 - `reference/cm-hooks-reference-20260111.md`
 - `reference/cm-setup-reference-20260111.md`
 

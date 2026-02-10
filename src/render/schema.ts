@@ -9,6 +9,7 @@ import { GameplayClipSchema, VideoClipSchema, VisualAssetSchema } from '../visua
 import { HookClipSchema } from '../hooks/schema';
 import { WordTimestampSchema } from '../audio/schema';
 import { AudioMixOutputSchema } from '../audio/mix/schema';
+import { ArchetypeIdSchema, TemplateIdSchema } from '../domain/ids';
 import { ANIMATION_TYPES } from './presets/animation';
 import { CaptionConfigSchema, type CaptionConfig } from './captions/config';
 import { FONT_STACKS } from './tokens/font';
@@ -113,14 +114,14 @@ export const RenderPropsSchema = z.object({
   contentPosition: z.enum(['top', 'bottom', 'full']).optional(),
   fonts: z.array(FontSourceSchema).optional(),
   /** Optional template metadata (useful for code templates). */
-  templateId: z.string().optional(),
+  templateId: TemplateIdSchema.optional(),
   templateSource: z.string().optional(),
   templateParams: z.record(z.unknown()).optional(),
   /** @deprecated Use captionConfig instead */
   captionStyle: CaptionStyleSchema.optional(),
   /** New comprehensive caption configuration */
   captionConfig: CaptionConfigSchema.optional(),
-  archetype: z.string().optional().describe('Script archetype id (used for style defaults)'),
+  archetype: ArchetypeIdSchema.optional().describe('Script archetype id (used for style defaults)'),
 });
 
 export type VideoScene = z.infer<typeof VisualAssetSchema>;
@@ -146,7 +147,7 @@ export const RenderOutputSchema = z.object({
   fps: z.number().int().positive(),
   fileSize: z.number().int().nonnegative(),
   codec: z.string(),
-  archetype: z.string().optional(),
+  archetype: ArchetypeIdSchema.optional(),
 });
 
 export type RenderOutput = z.infer<typeof RenderOutputSchema>;

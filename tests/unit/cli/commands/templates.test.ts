@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 vi.mock('../../../../src/render/templates/registry', () => ({
-  listVideoTemplates: vi.fn(),
+  listRenderTemplates: vi.fn(),
 }));
 
 vi.mock('../../../../src/render/templates', () => ({
-  resolveVideoTemplate: vi.fn(),
+  resolveRenderTemplate: vi.fn(),
   importRemotionTemplate: vi.fn(),
 }));
 
@@ -20,8 +20,8 @@ vi.mock('../../../../src/render/templates/dev', () => ({
 }));
 
 vi.mock('../../../../src/cli/utils', () => ({
-  handleCommandError: vi.fn(() => {
-    throw new Error('handled');
+  handleCommandError: vi.fn((error: unknown) => {
+    throw error;
   }),
 }));
 
@@ -59,8 +59,8 @@ describe('cli templates command', () => {
     await configureRuntime({ json: true });
     const capture = await captureOutput();
 
-    const { listVideoTemplates } = await import('../../../../src/render/templates/registry');
-    (listVideoTemplates as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([
+    const { listRenderTemplates } = await import('../../../../src/render/templates/registry');
+    (listRenderTemplates as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([
       { id: 'base', name: 'Base', source: 'builtin' },
     ]);
 
@@ -77,8 +77,8 @@ describe('cli templates command', () => {
     await configureRuntime({ json: false });
     const capture = await captureOutput();
 
-    const { listVideoTemplates } = await import('../../../../src/render/templates/registry');
-    (listVideoTemplates as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+    const { listRenderTemplates } = await import('../../../../src/render/templates/registry');
+    (listRenderTemplates as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([]);
 
     const { templatesCommand } = await import('../../../../src/cli/commands/templates');
     await templatesCommand.parseAsync(['list'], { from: 'user' });
@@ -91,8 +91,8 @@ describe('cli templates command', () => {
     await configureRuntime({ json: false });
     const capture = await captureOutput();
 
-    const { resolveVideoTemplate } = await import('../../../../src/render/templates');
-    (resolveVideoTemplate as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+    const { resolveRenderTemplate } = await import('../../../../src/render/templates');
+    (resolveRenderTemplate as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       template: { id: 'base' },
       source: 'builtin',
       templatePath: '/tmp/template.json',

@@ -21,6 +21,9 @@ cm generate [options] <topic>
 
 - `-a, --archetype <idOrPath>`: script archetype id or path to an archetype YAML file (default: `listicle`). Use `cm archetypes list`
 - `--template <idOrPath>`: render template id or path to `template.json`
+- `--allow-template-code`: allow executing Remotion code templates (dangerous)
+- `--template-deps <auto|prompt|never>`: code-template dependency install mode
+- `--template-pm <npm|pnpm|yarn>`: code-template package manager
 - `--workflow <idOrPath>`: pipeline workflow id or path to `workflow.json`
 - `--workflow-allow-exec`: allow workflow exec hooks to run
 - `--script <path>`: use existing `script.json` (skip script generation)
@@ -143,6 +146,7 @@ cm generate "Product recap" --workflow acme-marketing --workflow-allow-exec --ou
 - External inputs skip their corresponding stages; `--audio` requires `--timestamps`.
 - Workflow external stages default to artifacts in the output directory (unless `workflow.inputs` override them).
 - External render stages are not supported in `cm generate` yet (use `cm render`).
+- Code templates execute arbitrary JS/TS during bundling/rendering and are denied by default (require `--allow-template-code`).
 
 ## See also
 
@@ -155,3 +159,5 @@ cm generate "Product recap" --workflow acme-marketing --workflow-allow-exec --ou
 - `docs/reference/cm-research-reference-20260106.md`
 - `docs/reference/cm-validate-reference-20260106.md`
 - `docs/features/feature-research-script-integration-20260107.md`
+- `docs/reference/video-templates-reference-20260107.md`
+- `docs/reference/cm-templates-reference-20260210.md`

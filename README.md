@@ -146,6 +146,7 @@ Full glossary: `docs/reference/GLOSSARY.md`.
 - Local TTS via kokoro-js with word-level timestamps from whisper.cpp
 - Visual matching to scenes with stock footage providers (Pexels/Pixabay)
 - Remotion rendering with word-highlighted captions
+- Import Remotion templates as **code templates** (`cm templates import ...`) with explicit opt-in (`--allow-template-code`)
 - CLI-first, stage-by-stage artifacts for iteration and CI
 - Custom asset imports and workflow definitions for marketing pipelines
 
@@ -243,6 +244,22 @@ cm generate "Launch teaser" \
   --visuals output/visuals.json \
   --output output/video.mp4
 ```
+
+## Import Remotion Templates (Code Templates)
+
+Import Remotion official/community templates (or any Remotion repo) into CM as a **code template**:
+
+```bash
+cm templates import https://www.remotion.dev/templates/tiktok --id remotion-tiktok
+
+cm render -i visuals.json --audio audio.wav --timestamps timestamps.json \
+  --template remotion-tiktok --allow-template-code -o out/video.mp4
+```
+
+Docs:
+
+- `docs/guides/guide-remotion-template-import-20260210.md`
+- `docs/reference/cm-templates-reference-20260210.md`
 
 For repeatable pipelines, define a workflow in `./.cm/workflows/<id>/workflow.json`:
 

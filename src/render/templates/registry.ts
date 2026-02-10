@@ -6,9 +6,9 @@ import { existsSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
 import { readFile } from 'fs/promises';
-import { VideoTemplateSchema, type VideoTemplate } from '../../domain/render-templates';
+import { RenderTemplateSchema, type RenderTemplate } from '../../domain/render-templates';
 import { createLogger } from '../../core/logger';
-import { listBuiltinVideoTemplates } from './index';
+import { listBuiltinRenderTemplates } from './index';
 
 export type TemplateSource = 'builtin' | 'user' | 'project';
 
@@ -29,12 +29,12 @@ export interface ListTemplatesOptions {
 const DEFAULT_USER_DIR = join(homedir(), '.cm', 'templates');
 const DEFAULT_PROJECT_DIR = join(process.cwd(), '.cm', 'templates');
 
-async function readTemplateFile(path: string): Promise<VideoTemplate | null> {
+async function readTemplateFile(path: string): Promise<RenderTemplate | null> {
   const log = createLogger({ module: 'templates:registry' });
   try {
     const raw = await readFile(path, 'utf-8');
     const parsedJson = JSON.parse(raw);
-    const parsed = VideoTemplateSchema.safeParse(parsedJson);
+    const parsed = RenderTemplateSchema.safeParse(parsedJson);
     if (!parsed.success) {
       log.warn({ path, issues: parsed.error.issues }, 'Invalid template.json');
       return null;
@@ -72,7 +72,12 @@ async function listTemplatesFromDir(root: string, source: TemplateSource): Promi
   return templates;
 }
 
-export async function listVideoTemplates(
+/**
+ * List render templates from project, user, and builtin locations.
+ *
+ * Precedence: project > user > builtin.
+ */
+export async function listRenderTemplates(
   options: ListTemplatesOptions = {}
 ): Promise<ListedTemplate[]> {
   const includeBuiltin = options.includeBuiltin !== false;
@@ -81,7 +86,7 @@ export async function listVideoTemplates(
 
   const results: ListedTemplate[] = [];
   if (includeBuiltin) {
-    const builtins = listBuiltinVideoTemplates().map((template) => ({
+    const builtins = listBuiltinRenderTemplates().map((template) => ({
       id: template.id,
       name: template.name,
       description: template.description,
@@ -97,4 +102,11 @@ export async function listVideoTemplates(
 
   results.push(...projectTemplates, ...userTemplates);
   return results;
+}
+
+/**
+ * @deprecated Use listRenderTemplates.
+ */
+export async function listVideoTemplates(options: ListTemplatesOptions = {}): Promise<ListedTemplate[]> {
+  return listRenderTemplates(options);
 }

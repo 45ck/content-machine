@@ -109,6 +109,10 @@ cm render -i visuals.json --audio audio.wav --timestamps timestamps.json \
   --template remotion-tiktok --allow-template-code -o out/video.mp4
 ```
 
+For the full “steal animations” workflow (assets, deps, troubleshooting), see:
+
+- `docs/guides/guide-remotion-template-import-20260210.md`
+
 ## Add gameplay backgrounds (Subway Surfers / Minecraft parkour)
 
 Keep gameplay clips outside the repo (copyright compliance). Use the asset library convention:

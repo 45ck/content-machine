@@ -13,6 +13,7 @@ import {
   type RenderOutput,
 } from './schema';
 import { FONT_STACKS } from './tokens/font';
+import { ArchetypeIdSchema } from '../domain/ids';
 
 describe('CaptionStyleSchema', () => {
   it('should validate correct caption style', () => {
@@ -265,7 +266,7 @@ describe('RenderOutputSchema', () => {
       fps: 30,
       fileSize: 15000000,
       codec: 'h264',
-      archetype: 'listicle',
+      archetype: ArchetypeIdSchema.parse('listicle'),
     };
 
     const result = RenderOutputSchema.safeParse(output);

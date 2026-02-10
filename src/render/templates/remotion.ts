@@ -11,7 +11,7 @@ import { existsSync } from 'node:fs';
 import { dirname, resolve, relative, isAbsolute, join } from 'node:path';
 import { CMError, NotFoundError } from '../../core/errors';
 import type { TemplateDependencyInstallMode, TemplatePackageManager } from '../../domain/render-templates';
-import type { ResolvedVideoTemplate } from './index';
+import type { ResolvedRenderTemplate } from './index';
 
 export interface ResolvedRemotionTemplateProject {
   /** Absolute path to the template directory (folder containing template.json). */
@@ -43,7 +43,7 @@ function assertPathInside(baseDir: string, candidate: string, label: string): vo
  * Resolve a Remotion project for a code template, validating paths are within the template directory.
  */
 export function resolveRemotionTemplateProject(
-  resolved: ResolvedVideoTemplate
+  resolved: ResolvedRenderTemplate
 ): ResolvedRemotionTemplateProject | null {
   const remotion = resolved.template.remotion;
   if (!remotion) return null;

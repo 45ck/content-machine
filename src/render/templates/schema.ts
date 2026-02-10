@@ -1,5 +1,5 @@
 /**
- * Video Template Schema
+ * Render Template Schema
  *
  * A "template" selects a Remotion composition and provides render defaults
  * (caption preset/config, orientation, fps, etc).
@@ -64,7 +64,10 @@ export const RemotionTemplateProjectSchema = z
   })
   .strict();
 
-export const VideoTemplateDefaultsSchema = z.object({
+/**
+ * Ubiquitous Language: Render template defaults schema.
+ */
+export const RenderTemplateDefaultsSchema = z.object({
   orientation: OrientationEnum.optional(),
   fps: z.number().int().min(1).max(120).optional(),
   captionPreset: CaptionPresetNameSchema.optional(),
@@ -75,7 +78,7 @@ export const VideoTemplateDefaultsSchema = z.object({
 /**
  * Ubiquitous Language: Render template schema (composition + defaults).
  */
-export const VideoTemplateSchema = z.object({
+export const RenderTemplateSchema = z.object({
   schemaVersion: z.string().default('1.0.0'),
   id: TemplateIdSchema,
   name: z.string().min(1),
@@ -88,7 +91,7 @@ export const VideoTemplateSchema = z.object({
    * Security: This executes arbitrary JS/TS. It must be explicitly allowed by the caller.
    */
   remotion: RemotionTemplateProjectSchema.optional(),
-  defaults: VideoTemplateDefaultsSchema.optional(),
+  defaults: RenderTemplateDefaultsSchema.optional(),
   assets: z.record(z.unknown()).optional(),
   params: z.record(z.unknown()).optional(),
 });
@@ -96,6 +99,19 @@ export const VideoTemplateSchema = z.object({
 /**
  * Ubiquitous Language: Render template.
  *
- * Data-only template config validated by {@link VideoTemplateSchema}.
+ * Data-only template config validated by {@link RenderTemplateSchema}.
  */
-export type VideoTemplate = z.infer<typeof VideoTemplateSchema>;
+export type RenderTemplate = z.infer<typeof RenderTemplateSchema>;
+
+/**
+ * @deprecated Use RenderTemplateDefaultsSchema (kept for backward compatibility).
+ */
+export const VideoTemplateDefaultsSchema = RenderTemplateDefaultsSchema;
+/**
+ * @deprecated Use RenderTemplateSchema (kept for backward compatibility).
+ */
+export const VideoTemplateSchema = RenderTemplateSchema;
+/**
+ * @deprecated Use RenderTemplate (kept for backward compatibility).
+ */
+export type VideoTemplate = RenderTemplate;

@@ -6,7 +6,7 @@ import { existsSync } from 'fs';
 import { dirname, join, resolve, extname } from 'path';
 import { tmpdir } from 'os';
 import AdmZip from 'adm-zip';
-import { VideoTemplateSchema } from '../../domain/render-templates';
+import { RenderTemplateSchema } from '../../domain/render-templates';
 import { CMError, NotFoundError, SchemaError } from '../../core/errors';
 
 interface InstallTemplateOptions {
@@ -99,7 +99,7 @@ async function loadTemplateFromDir(templateDir: string) {
     });
   }
 
-  const parsed = VideoTemplateSchema.safeParse(parsedJson);
+  const parsed = RenderTemplateSchema.safeParse(parsedJson);
   if (!parsed.success) {
     throw new SchemaError('Invalid video template schema', {
       path: templatePath,
@@ -110,6 +110,11 @@ async function loadTemplateFromDir(templateDir: string) {
   return { template: parsed.data, templatePath };
 }
 
+/**
+ * Install a template pack (directory or .zip) into a destination templates directory.
+ *
+ * This copies the template directory as `destDir/<templateId>/...` after schema validation.
+ */
 export async function installTemplatePack(
   options: InstallTemplateOptions
 ): Promise<InstallTemplateResult> {

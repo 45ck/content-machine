@@ -167,17 +167,21 @@ function main() {
   const registryPath = path.join(repoRoot, 'docs', 'reference', 'ubiquitous-language.yaml');
   const glossaryPath = path.join(repoRoot, 'docs', 'reference', 'GLOSSARY.md');
   const idsPath = path.join(repoRoot, 'src', 'domain', 'ids.ts');
+  const cspellDictPath = path.join(repoRoot, 'config', 'cspell', 'ubiquitous-language.txt');
 
   const errors = [];
   if (!fileExists(registryPath)) errors.push(`Missing registry: ${registryPath}`);
   if (!fileExists(glossaryPath)) errors.push(`Missing glossary: ${glossaryPath}`);
   if (!fileExists(idsPath)) errors.push(`Missing ids module: ${idsPath}`);
+  if (!fileExists(cspellDictPath)) errors.push(`Missing cspell dictionary: ${cspellDictPath}`);
 
   if (errors.length > 0) {
     console.error('Ubiquitous language checks failed:');
     for (const e of errors) console.error(`- ${e}`);
     process.exit(1);
   }
+
+  const parsed = parseYaml(fs.readFileSync(registryPath, 'utf8'));
 
   // 1) Ensure glossary is generated from registry (idempotent).
   const before = fs.readFileSync(glossaryPath, 'utf8');
@@ -189,8 +193,17 @@ function main() {
     process.exit(1);
   }
 
+  // 1.5) Ensure cspell domain dictionary is generated from registry (idempotent).
+  const cspellBefore = fs.readFileSync(cspellDictPath, 'utf8');
+  run(process.execPath, [path.join(repoRoot, 'scripts', 'gen-cspell.mjs')], { cwd: repoRoot });
+  const cspellAfter = fs.readFileSync(cspellDictPath, 'utf8');
+  if (cspellBefore !== cspellAfter) {
+    console.error('CSpell domain dictionary is out of date.');
+    console.error('Fix: run `npm run cspell:gen` and commit the result.');
+    process.exit(1);
+  }
+
   // 2) Ensure canonical type/schema names exist somewhere in src/.
-  const parsed = parseYaml(fs.readFileSync(registryPath, 'utf8'));
   const terms = Array.isArray(parsed?.terms) ? parsed.terms : [];
 
   const names = [];
@@ -227,7 +240,7 @@ function main() {
   //
   // Scope: user-facing docs + CLI sources. Exclude research/architecture (historical notes)
   // and the registry/glossary themselves (they intentionally contain "synonyms to avoid").
-  const bannedPhrases = [
+  const defaultBannedPhrases = [
     {
       phrase: 'content archetype',
       fix: 'Use "script archetype" (or just "archetype" with context).',
@@ -240,6 +253,19 @@ function main() {
     { phrase: 'recipe', fix: 'Use "workflow".' },
   ];
 
+  const yamlBanned = parsed?.enforcement?.bannedPhrases;
+  const bannedPhrases =
+    Array.isArray(yamlBanned) && yamlBanned.length > 0
+      ? yamlBanned
+          .map((r) => ({
+            phrase: String(r?.phrase ?? '')
+              .toLowerCase()
+              .trim(),
+            fix: String(r?.fix ?? '').trim(),
+          }))
+          .filter((r) => r.phrase && r.fix)
+      : defaultBannedPhrases;
+
   const userFacingRoots = [
     path.join(repoRoot, 'README.md'),
     path.join(repoRoot, 'docs', 'reference'),
@@ -248,7 +274,7 @@ function main() {
     path.join(repoRoot, 'src', 'cli'),
   ];
 
-  const skipExact = new Set([registryPath, glossaryPath]);
+  const skipExact = new Set([registryPath, glossaryPath, cspellDictPath]);
   const skipDirPrefixes = [
     path.join(repoRoot, 'docs', 'reference', 'GLOSSARY.md'),
     path.join(repoRoot, 'docs', 'research'),

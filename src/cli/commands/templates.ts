@@ -8,8 +8,8 @@ import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output
 import { getCliRuntime } from '../runtime';
 import { handleCommandError } from '../utils';
 import { CMError } from '../../core/errors';
-import { importRemotionTemplate, resolveVideoTemplate } from '../../render/templates';
-import { listVideoTemplates } from '../../render/templates/registry';
+import { importRemotionTemplate, resolveRenderTemplate } from '../../render/templates';
+import { listRenderTemplates } from '../../render/templates/registry';
 import { installTemplatePack } from '../../render/templates/installer';
 import { packVideoTemplate, scaffoldVideoTemplate } from '../../render/templates/dev';
 
@@ -251,7 +251,7 @@ export const templatesCommand = new Command('templates')
       .action(async (options) => {
         try {
           const runtime = getCliRuntime();
-          const entries = await listVideoTemplates();
+          const entries = await listRenderTemplates();
           const filtered = options.source
             ? entries.filter((entry) => entry.source === options.source)
             : entries;
@@ -288,7 +288,7 @@ export const templatesCommand = new Command('templates')
       .action(async (idOrPath) => {
         try {
           const runtime = getCliRuntime();
-          const resolved = await resolveVideoTemplate(String(idOrPath));
+          const resolved = await resolveRenderTemplate(String(idOrPath));
 
           if (runtime.json) {
             writeJsonEnvelope(
@@ -323,7 +323,7 @@ export const templatesCommand = new Command('templates')
       .action(async (path) => {
         try {
           const runtime = getCliRuntime();
-          const resolved = await resolveVideoTemplate(String(path));
+          const resolved = await resolveRenderTemplate(String(path));
 
           if (runtime.json) {
             writeJsonEnvelope(

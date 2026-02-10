@@ -26,7 +26,7 @@ import AdmZip from 'adm-zip';
 import { CMError, NotFoundError, SchemaError } from '../../core/errors';
 import { TemplateIdSchema } from '../../domain/ids';
 import {
-  VideoTemplateSchema,
+  RenderTemplateSchema,
   type TemplateDependencyInstallMode,
   type TemplatePackageManager,
 } from '../../domain/render-templates';
@@ -549,7 +549,7 @@ export async function importRemotionTemplate(
 
     await ensurePackageJson(templateDir, id);
 
-    const template = VideoTemplateSchema.parse({
+    const template = RenderTemplateSchema.parse({
       schemaVersion: '1.0.0',
       id,
       name: options.name?.trim() || toTitleCaseFromId(id) || id,

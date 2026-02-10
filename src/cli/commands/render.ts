@@ -59,7 +59,7 @@ import {
 } from '../../audio/asr/validator';
 import { ensureVisualCoverage, type VisualScene } from '../../visuals/duration';
 import {
-  resolveVideoTemplate,
+  resolveRenderTemplate,
   formatTemplateSource,
   getTemplateFontSources,
   getTemplateGameplaySlot,
@@ -511,7 +511,7 @@ async function resolveTemplateAndApplyDefaults(
   options: Record<string, unknown>,
   command: Command
 ): Promise<{
-  resolvedTemplate: Awaited<ReturnType<typeof resolveVideoTemplate>> | undefined;
+  resolvedTemplate: Awaited<ReturnType<typeof resolveRenderTemplate>> | undefined;
   templateDefaults: Record<string, unknown> | undefined;
   templateParams: ReturnType<typeof getTemplateParams>;
   templateGameplay: ReturnType<typeof getTemplateGameplaySlot>;
@@ -529,7 +529,7 @@ async function resolveTemplateAndApplyDefaults(
     };
   }
 
-  const resolvedTemplate = await resolveVideoTemplate(String(options.template));
+  const resolvedTemplate = await resolveRenderTemplate(String(options.template));
   const templateDefaults = (resolvedTemplate.template.defaults ?? {}) as Record<string, unknown>;
   const templateParams = getTemplateParams(resolvedTemplate.template);
   const templateGameplay = getTemplateGameplaySlot(resolvedTemplate.template);
@@ -642,7 +642,7 @@ async function readRenderInputs(options: {
 
 async function runRenderPreflight(params: {
   options: Record<string, unknown>;
-  resolvedTemplate: Awaited<ReturnType<typeof resolveVideoTemplate>> | undefined;
+  resolvedTemplate: Awaited<ReturnType<typeof resolveRenderTemplate>> | undefined;
   command: Command;
 }): Promise<{ passed: boolean; checks: PreflightCheck[]; exitCode: number }> {
   const { options, resolvedTemplate, command } = params;
@@ -1063,7 +1063,7 @@ async function writeRenderHumanSummary(params: {
 
 function logRenderStart(
   options: Record<string, unknown>,
-  resolvedTemplate: Awaited<ReturnType<typeof resolveVideoTemplate>> | undefined
+  resolvedTemplate: Awaited<ReturnType<typeof resolveRenderTemplate>> | undefined
 ): void {
   logger.info(
     {
@@ -1261,7 +1261,7 @@ async function runRenderCommand(
     options.hook = hook.id ?? hook.path;
   }
 
-  const archetype = templateDefaults?.archetype as string | undefined;
+  const archetype = resolvedTemplate?.template.defaults?.archetype;
   const compositionId = resolvedTemplate?.template.compositionId;
   const gameplayRequired =
     templateGameplay?.required ?? Boolean(templateGameplay?.library || templateGameplay?.clip);

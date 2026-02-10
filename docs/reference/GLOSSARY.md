@@ -375,6 +375,33 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 
 **Owner:** `core`
 
+## Prompt Template
+
+**Term:** PromptTemplate
+
+**Definition:** A reusable text prompt (with variables) used to generate or transform artifacts inside CM (scripts, visuals, metadata, etc). Prompt templates are NOT render templates.
+
+**Not:**
+
+- Not a Render Template (template.json + composition selection).
+- Not a Script Archetype (archetypes define script structure/pacing).
+
+**Canonical types:**
+
+- `PromptTemplate`
+- `RenderedPrompt`
+
+**Where it lives:**
+
+- Prompt library: src/prompts/templates/\*\*
+- Types: src/prompts/types.ts
+
+**Synonyms to avoid:**
+
+- `render template`
+
+**Owner:** `prompts`
+
 ## Provider
 
 **Term:** Provider
@@ -447,12 +474,12 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 **Canonical types:**
 
 - `TemplateId`
-- `VideoTemplate`
+- `RenderTemplate`
 
 **Canonical schemas:**
 
 - `TemplateIdSchema`
-- `VideoTemplateSchema`
+- `RenderTemplateSchema`
 
 **Where it lives:**
 

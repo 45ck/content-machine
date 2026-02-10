@@ -55,6 +55,12 @@ jobs:
         run: npm audit --audit-level=high
         continue-on-error: true
 
+      - name: Ubiquitous language + glossary gate
+        run: npm run glossary:check
+
+      - name: Spell check (user-facing surfaces)
+        run: npm run cspell:check
+
       - name: Typecheck
         run: npm run typecheck
 

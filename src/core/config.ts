@@ -17,14 +17,21 @@ import { CAPTION_STYLE_PRESETS, type CaptionPresetName } from '../render/caption
 import { CaptionConfigSchema } from '../render/captions/config';
 import { HookAudioModeEnum, HookFitEnum, MotionStrategyEnum } from '../domain';
 import { AudioMixPresetIdSchema, SfxPackIdSchema, SfxPlacementEnum } from '../audio/mix/presets';
+import { ArchetypeIdSchema } from '../domain/ids';
 
 // ============================================================================
 // Schema Definitions
 // ============================================================================
 
-// Archetypes are data-driven. This schema only enforces "non-empty string".
-// Use `cm archetypes list` + archetype registry resolution for discovery/validation.
-export const ArchetypeEnum = z.string().min(1);
+/**
+ * Ubiquitous Language: Script archetype id schema.
+ *
+ * Archetypes are data-defined (builtin + user + project), so we do not hardcode an enum.
+ * We only validate that the value is a canonical archetype id (kebab-case).
+ *
+ * See: `docs/reference/GLOSSARY.md`.
+ */
+export const ArchetypeEnum = ArchetypeIdSchema;
 
 export const OrientationEnum = z.enum(['portrait', 'landscape', 'square']);
 

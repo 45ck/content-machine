@@ -7,6 +7,7 @@
 import Mustache from 'mustache';
 import type { Archetype } from '../../core/config';
 import { loadBaselineRules, resolveArchetype } from '../../archetypes/registry';
+import type { ArchetypeId } from '../../domain/ids';
 
 export interface PromptContext {
   topic: string;
@@ -20,7 +21,7 @@ export interface PromptContext {
 }
 
 export interface ArchetypePromptResult {
-  archetypeId: string;
+  archetypeId: ArchetypeId;
   prompt: string;
   systemPrompt?: string;
   baselinePath?: string;
@@ -112,7 +113,7 @@ export async function getPromptForArchetype(
   archetype: Archetype,
   context: PromptContext
 ): Promise<ArchetypePromptResult> {
-  const resolved = await resolveArchetype(String(archetype));
+  const resolved = await resolveArchetype(archetype);
   const baseline = loadBaselineRules();
   const baselineBody = stripLeadingMarkdownHeading(baseline.content);
   const baselineBlock = baselineBody

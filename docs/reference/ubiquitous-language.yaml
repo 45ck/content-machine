@@ -10,6 +10,26 @@
 
 version: 1
 
+enforcement:
+  # Repository-wide terminology checks used by scripts/quality/check-ubiquitous-language.mjs.
+  #
+  # Keep this list focused on phrases that are likely to be unambiguous mistakes in CM docs/CLI.
+  bannedPhrases:
+    - phrase: content archetype
+      fix: 'Use "script archetype" (or just "archetype" with context).'
+    - phrase: video template
+      fix: 'Use "render template".'
+    - phrase: script template
+      fix: 'Use "script archetype".'
+    - phrase: sfx pack name
+      fix: 'Use "SFX pack id".'
+    - phrase: extension pack
+      fix: 'Use "pack" (or "template pack"/"workflow pack").'
+    - phrase: plugin
+      fix: 'Prefer "pack" or "code template" depending on context.'
+    - phrase: recipe
+      fix: 'Use "workflow".'
+
 terms:
   - term: Archetype
     canonicalName: Script Archetype
@@ -49,10 +69,10 @@ terms:
       - Not pipeline orchestration (workflows do that).
     canonicalTypes:
       - TemplateId
-      - VideoTemplate
+      - RenderTemplate
     canonicalSchemas:
       - TemplateIdSchema
-      - VideoTemplateSchema
+      - RenderTemplateSchema
     ownedBy: render
     whereItLives:
       - 'Built-in examples: assets/templates/<id>/template.json'
@@ -129,6 +149,26 @@ terms:
     synonymsToAvoid:
       - plugin
       - code pack
+
+  - term: PromptTemplate
+    canonicalName: Prompt Template
+    definition: >
+      A reusable text prompt (with variables) used to generate or transform artifacts inside CM
+      (scripts, visuals, metadata, etc). Prompt templates are NOT render templates.
+    nonExamples:
+      - Not a Render Template (template.json + composition selection).
+      - Not a Script Archetype (archetypes define script structure/pacing).
+    canonicalTypes:
+      - PromptTemplate
+      - RenderedPrompt
+    canonicalSchemas: []
+    ownedBy: prompts
+    whereItLives:
+      - 'Prompt library: src/prompts/templates/**'
+      - 'Types: src/prompts/types.ts'
+    cliSurface: []
+    synonymsToAvoid:
+      - render template
 
   - term: Composition
     canonicalName: Remotion Composition

@@ -32,6 +32,7 @@ import {
   type Archetype,
   type Orientation,
 } from './config';
+import type { TemplateId } from '../domain/ids';
 
 export type PipelineStage = 'script' | 'audio' | 'visuals' | 'render';
 
@@ -119,7 +120,7 @@ export interface PipelineOptions {
   remotionPublicDir?: string;
   remotionEnableCaching?: boolean;
   remotionExtraModules?: string[];
-  templateId?: string;
+  templateId?: TemplateId;
   templateSource?: string;
   templateParams?: Record<string, unknown>;
 }

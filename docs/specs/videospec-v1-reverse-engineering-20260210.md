@@ -2,6 +2,10 @@
 
 This repo now supports extracting a structured reverse-engineering report from an input short-form video.
 
+Engineering implementation details live in:
+
+- `docs/architecture/IMPL-VIDEOSPEC-ANALYZER-20260210.md`
+
 ## Goals
 
 - Extract a normalized timeline skeleton (shots + pacing).
@@ -44,6 +48,24 @@ All times are seconds-from-start (`float`), timebase-normalized across modules.
 - Entities: minimal v1 derives speaker IDs from transcript only (visual face/object detection is stubbed)
 
 Every run records a `provenance.modules` map and optional notes describing fallbacks/omissions.
+
+## Design Notes
+
+### Determinism
+
+- Heuristic-only modules are deterministic given the same input file and tool versions.
+- OCR/ASR outputs depend on their engines and may change across engine upgrades.
+- LLM narrative mode runs at `temperature=0` but still depends on provider/model behavior; provenance records the provider/model.
+
+### Caching
+
+`cm videospec` caches module artifacts per input file (hash + size) under a cache root.
+
+- default cache root: `.cache/content-machine/videospec` (relative to CWD)
+- override: `--cache-dir` or `$CM_VIDEOSPEC_CACHE_DIR`
+- disable: `--no-cache`
+
+See `docs/architecture/IMPL-VIDEOSPEC-ANALYZER-20260210.md` for the list of cache artifacts.
 
 ## CLI
 

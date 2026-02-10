@@ -26,6 +26,10 @@ cm render [options]
 - `--audio-mix <path>`: audio mix plan JSON file (optional)
 - `--timestamps <path>`: timestamps JSON file (default: `timestamps.json`)
 - `-o, --output <path>`: output video file path (default: `video.mp4`)
+- `--template <idOrPath>`: render template id or path to `template.json`
+- `--allow-template-code`: allow executing Remotion code templates (dangerous)
+- `--template-deps <auto|prompt|never>`: code-template dependency install mode
+- `--template-pm <npm|pnpm|yarn>`: code-template package manager
 - `--orientation <type>`: `portrait|landscape|square` (default: `portrait`)
 - `--fps <fps>`: frames per second (default: `30`)
 - `--hook <idOrPath>`: hook intro clip id, local path, or URL
@@ -56,6 +60,10 @@ cm render [options]
 cm render -i out/visuals.json --audio out/audio.wav --timestamps out/timestamps.json -o out/video.mp4
 cm render -i visuals.json --audio audio.wav --orientation portrait --fps 30
 cm render -i visuals.json --audio audio.wav --audio-mix audio.mix.json --timestamps timestamps.json -o video.mp4
+
+# Render a code template (opt-in required)
+cm render -i visuals.json --audio audio.wav --timestamps timestamps.json \
+  --template remotion-tiktok --allow-template-code -o out/video.mp4
 ```
 
 ## Notes
@@ -63,9 +71,12 @@ cm render -i visuals.json --audio audio.wav --audio-mix audio.mix.json --timesta
 - Local visuals with `source: "user-footage"` are copied into the render bundle for reliable playback.
 - Use `--download-assets` (default) to cache remote stock footage inside the bundle.
 - Local clips are validated before render (file size + optional ffprobe); install ffprobe for deeper checks and clearer errors.
+- Code templates execute arbitrary JS/TS during bundling/rendering and are denied by default (require `--allow-template-code`).
 
 ## See also
 
 - `docs/guides/guide-cli-ux-cm-render-20260106.md`
 - `docs/guides/guide-audio-options-20260110.md`
 - `docs/reference/cm-validate-reference-20260106.md`
+- `docs/reference/video-templates-reference-20260107.md`
+- `docs/reference/cm-templates-reference-20260210.md`

@@ -2,7 +2,7 @@
  * Template asset slot + params helpers.
  */
 import { extname, resolve } from 'path';
-import type { VideoTemplate } from '../../domain/render-templates';
+import type { RenderTemplate } from '../../domain/render-templates';
 import type { FontSource } from '../../domain';
 import { SchemaError } from '../../core/errors';
 
@@ -110,7 +110,7 @@ function isAbsoluteLike(path: string): boolean {
 /**
  * Extract gameplay slot defaults from a template (if provided).
  */
-export function getTemplateGameplaySlot(template?: VideoTemplate): GameplayAssetSlot | null {
+export function getTemplateGameplaySlot(template?: RenderTemplate): GameplayAssetSlot | null {
   const assets = asRecord(template?.assets);
   if (!assets) return null;
   const gameplay = asRecord(assets.gameplay);
@@ -134,7 +134,10 @@ export function getTemplateGameplaySlot(template?: VideoTemplate): GameplayAsset
  *
  * Paths are resolved relative to `templateDir` when local.
  */
-export function getTemplateFontSources(template: VideoTemplate | undefined, templateDir?: string): FontSource[] {
+export function getTemplateFontSources(
+  template: RenderTemplate | undefined,
+  templateDir?: string
+): FontSource[] {
   const assets = asRecord(template?.assets);
   if (!assets) return [];
   const rawFonts = assets.fonts;
@@ -396,7 +399,7 @@ function inferOverlayKind(src: string): OverlayKind {
  * Local paths are resolved relative to `templateDir`.
  */
 export function getTemplateOverlays(
-  template: VideoTemplate | undefined,
+  template: RenderTemplate | undefined,
   templateDir?: string
 ): TemplateOverlayAsset[] {
   const assets = asRecord(template?.assets);
@@ -478,7 +481,7 @@ export function mergeFontSources(preferred: FontSource[] = [], fallback: FontSou
 /**
  * Extract supported `template.params` fields and validate their values.
  */
-export function getTemplateParams(template?: VideoTemplate): TemplateParams {
+export function getTemplateParams(template?: RenderTemplate): TemplateParams {
   const params = asRecord(template?.params);
   if (!params) return {};
 
