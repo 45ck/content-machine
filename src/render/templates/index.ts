@@ -21,6 +21,11 @@ export {
   mergeFontSources,
 } from './slots';
 export { resolveRemotionTemplateProject, type ResolvedRemotionTemplateProject } from './remotion';
+export {
+  importRemotionTemplate,
+  type ImportRemotionTemplateOptions,
+  type ImportRemotionTemplateResult,
+} from './importer';
 
 export type { VideoTemplate } from '../../domain/render-templates';
 

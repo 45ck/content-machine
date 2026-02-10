@@ -14,6 +14,15 @@ import { normalizeWord, isFuzzyMatch } from '../core/text/similarity';
 import { transcribeAudio } from '../audio/asr';
 import { createLLMProvider, type LLMProvider } from '../core/llm';
 import {
+  analyzePcmForBeatAndSfx,
+  classifyCameraMotionFromFrames,
+  computeAHash64,
+  extractGrayFrameAtTime,
+  extractPcmMonoS16le,
+  hammingDistance64,
+  probeHasAudioStream,
+} from './features';
+import {
   VIDEOSPEC_V1_VERSION,
   VideoSpecV1Schema,
   type VideoSpecV1,
@@ -253,6 +262,18 @@ function classifyPacing(avgShotDuration: number): 'very_fast' | 'fast' | 'modera
   if (avgShotDuration < 2.0) return 'fast';
   if (avgShotDuration < 4.0) return 'moderate';
   return 'slow';
+}
+
+function overlapsAnySegment(
+  range: { start: number; end: number },
+  segments: Array<{ start: number; end: number }>
+): boolean {
+  for (const seg of segments) {
+    if (seg.end <= range.start) continue;
+    if (seg.start >= range.end) continue;
+    return true;
+  }
+  return false;
 }
 
 function buildTranscriptSegmentsFromWords(params: {
@@ -970,21 +991,256 @@ async function analyzeOcr(params: {
   return { captions, textOverlays, ocrTexts };
 }
 
+async function analyzeEditingMotionAndEffects(params: {
+  ctx: AnalyzeContext;
+  shots: Array<{ id: number; start: number; end: number; transition_in?: string }>;
+  provenanceModules: Record<string, string>;
+  provenanceNotes: string[];
+}): Promise<{
+  cameraMotion: VideoSpecV1['editing']['camera_motion'];
+  jumpCutShotIds: number[];
+  shotIdToJumpCut: Map<number, boolean>;
+}> {
+  const { ctx, shots, provenanceModules, provenanceNotes } = params;
+  const cachePath = join(ctx.videoCacheDir, 'editing.effects.v1.json');
+  const cached = ctx.cacheEnabled
+    ? await readJsonIfExists<{
+        cameraMotion: VideoSpecV1['editing']['camera_motion'];
+        jumpCutShotIds: number[];
+      }>(cachePath)
+    : null;
+  if (cached) {
+    provenanceModules.camera_motion = 'cache';
+    provenanceModules.jump_cut_detection = 'cache';
+    const map = new Map<number, boolean>();
+    for (const id of cached.jumpCutShotIds ?? []) map.set(id, true);
+    return {
+      cameraMotion: cached.cameraMotion ?? [],
+      jumpCutShotIds: cached.jumpCutShotIds ?? [],
+      shotIdToJumpCut: map,
+    };
+  }
+
+  const maxShots = 200;
+  const slice = shots.length > maxShots ? shots.slice(0, maxShots) : shots;
+  if (shots.length > maxShots) {
+    provenanceNotes.push(
+      `Editing effects limited to first ${maxShots} shots for performance (detected ${shots.length} shots).`
+    );
+  }
+
+  const cameraMotion: VideoSpecV1['editing']['camera_motion'] = [];
+  const jumpCutShotIds: number[] = [];
+  const shotIdToJumpCut = new Map<number, boolean>();
+
+  for (const shot of slice) {
+    const eps = 0.05;
+    const t0 = Math.min(Math.max(shot.start + eps, 0), Math.max(0, shot.end - eps));
+    const t1 = Math.max(shot.end - eps, t0);
+    try {
+      const startFrame = await extractGrayFrameAtTime({
+        videoPath: ctx.inputPath,
+        timeSeconds: t0,
+        size: 32,
+      });
+      const endFrame = await extractGrayFrameAtTime({
+        videoPath: ctx.inputPath,
+        timeSeconds: t1,
+        size: 32,
+      });
+      const cls = classifyCameraMotionFromFrames({ start: startFrame, end: endFrame });
+      cameraMotion.push({
+        shot_id: shot.id,
+        motion: cls.motion,
+        start: shot.start,
+        end: shot.end,
+      });
+    } catch (error) {
+      provenanceNotes.push(
+        `Camera motion analysis failed for shot ${shot.id}. (${error instanceof Error ? error.message : String(error)})`
+      );
+      cameraMotion.push({ shot_id: shot.id, motion: 'unknown', start: shot.start, end: shot.end });
+      provenanceModules.camera_motion = 'unavailable';
+    }
+  }
+  if (!provenanceModules.camera_motion) {
+    provenanceModules.camera_motion = 'heuristic (ffmpeg frames + mse/shift/zoom)';
+  }
+
+  for (let i = 0; i < slice.length - 1; i++) {
+    const a = slice[i]!;
+    const b = slice[i + 1]!;
+    const eps = 0.05;
+    const ta = Math.max(a.end - eps, a.start);
+    const tb = Math.min(b.start + eps, b.end);
+    try {
+      const fa = await extractGrayFrameAtTime({
+        videoPath: ctx.inputPath,
+        timeSeconds: ta,
+        size: 32,
+      });
+      const fb = await extractGrayFrameAtTime({
+        videoPath: ctx.inputPath,
+        timeSeconds: tb,
+        size: 32,
+      });
+      const ha = computeAHash64(fa);
+      const hb = computeAHash64(fb);
+      const dist = hammingDistance64(ha, hb);
+      if (dist <= 8) {
+        jumpCutShotIds.push(b.id);
+        shotIdToJumpCut.set(b.id, true);
+      }
+    } catch (error) {
+      provenanceNotes.push(
+        `Jump-cut detection failed near shot ${b.id}. (${error instanceof Error ? error.message : String(error)})`
+      );
+      provenanceModules.jump_cut_detection = 'unavailable';
+      break;
+    }
+  }
+  if (!provenanceModules.jump_cut_detection) {
+    provenanceModules.jump_cut_detection = 'ahash(8x8) boundary compare';
+  }
+
+  if (ctx.cacheEnabled) {
+    await writeJsonAtomic(cachePath, { cameraMotion, jumpCutShotIds });
+  }
+
+  return { cameraMotion, jumpCutShotIds, shotIdToJumpCut };
+}
+
+async function analyzeAudioStructure(params: {
+  ctx: AnalyzeContext;
+  options: AnalyzeVideoToVideoSpecV1Options;
+  transcript: VideoSpecTranscriptSegment[];
+  provenanceModules: Record<string, string>;
+  provenanceNotes: string[];
+}): Promise<Pick<VideoSpecV1['audio'], 'music_segments' | 'sound_effects' | 'beat_grid'>> {
+  const { ctx, options, transcript, provenanceModules, provenanceNotes } = params;
+  const cachePath = join(ctx.videoCacheDir, 'audio.structure.v1.json');
+  const cached = ctx.cacheEnabled
+    ? await readJsonIfExists<
+        Pick<VideoSpecV1['audio'], 'music_segments' | 'sound_effects' | 'beat_grid'>
+      >(cachePath)
+    : null;
+  if (cached) {
+    provenanceModules.music_detection = 'cache';
+    provenanceModules.beat_tracking = 'cache';
+    provenanceModules.sfx_detection = 'cache';
+    return cached;
+  }
+
+  let hasAudio = false;
+  try {
+    hasAudio = await probeHasAudioStream(ctx.inputPath);
+  } catch (error) {
+    provenanceNotes.push(
+      `Audio probing failed; skipping audio structure. (${error instanceof Error ? error.message : String(error)})`
+    );
+    provenanceModules.music_detection = 'unavailable';
+    provenanceModules.beat_tracking = 'unavailable';
+    provenanceModules.sfx_detection = 'unavailable';
+    return { music_segments: [], sound_effects: [], beat_grid: { bpm: null, beats: [] } };
+  }
+
+  if (!hasAudio) {
+    provenanceModules.music_detection = 'no-audio';
+    provenanceModules.beat_tracking = 'no-audio';
+    provenanceModules.sfx_detection = 'no-audio';
+    return { music_segments: [], sound_effects: [], beat_grid: { bpm: null, beats: [] } };
+  }
+
+  const sampleRate = 22050;
+  const pcm = await extractPcmMonoS16le({
+    videoPath: ctx.inputPath,
+    sampleRate,
+    maxSeconds: options.maxSeconds,
+  });
+  if (pcm.length === 0) {
+    provenanceModules.music_detection = 'no-audio';
+    provenanceModules.beat_tracking = 'no-audio';
+    provenanceModules.sfx_detection = 'no-audio';
+    return { music_segments: [], sound_effects: [], beat_grid: { bpm: null, beats: [] } };
+  }
+
+  const durationSeconds =
+    typeof options.maxSeconds === 'number' && options.maxSeconds > 0
+      ? Math.min(ctx.durationSeconds, options.maxSeconds)
+      : ctx.durationSeconds;
+
+  const { beatGrid, sfx } = analyzePcmForBeatAndSfx({
+    pcmS16le: pcm,
+    sampleRate,
+    durationSeconds,
+  });
+
+  const speechSegments = transcript.map((t) => ({ start: t.start, end: t.end }));
+  const beatPresent =
+    beatGrid.bpm !== null && beatGrid.beats.length >= 8 && beatGrid.confidence >= 0.6;
+
+  const music_segments: VideoSpecV1['audio']['music_segments'] = [];
+  if (beatPresent) {
+    const range = { start: 0, end: durationSeconds };
+    music_segments.push({
+      start: range.start,
+      end: range.end,
+      track: null,
+      background: overlapsAnySegment(range, speechSegments),
+      description: 'Background music (heuristic: beat grid detected)',
+      confidence: Math.min(0.95, 0.6 + beatGrid.confidence * 0.35),
+    });
+    provenanceModules.music_detection = 'heuristic (beat grid present)';
+  } else if (transcript.length > 0 && sfx.length >= 6) {
+    const range = { start: 0, end: durationSeconds };
+    music_segments.push({
+      start: range.start,
+      end: range.end,
+      track: null,
+      background: true,
+      description: 'Audio bed present (heuristic)',
+      confidence: 0.55,
+    });
+    provenanceModules.music_detection = 'heuristic (energy peaks)';
+  } else {
+    provenanceModules.music_detection = 'heuristic (no music detected)';
+  }
+
+  provenanceModules.beat_tracking = beatGrid.bpm
+    ? 'heuristic (onset energy)'
+    : 'heuristic (no bpm)';
+  provenanceModules.sfx_detection = sfx.length ? 'heuristic (energy onsets)' : 'heuristic (none)';
+
+  const sound_effects: VideoSpecV1['audio']['sound_effects'] = sfx.map((e) => ({
+    time: e.time,
+    type: e.type,
+    confidence: e.confidence,
+  }));
+  const beat_grid: VideoSpecV1['audio']['beat_grid'] = { bpm: beatGrid.bpm, beats: beatGrid.beats };
+
+  const out = { music_segments, sound_effects, beat_grid };
+  if (ctx.cacheEnabled) await writeJsonAtomic(cachePath, out);
+  return out;
+}
+
 function deriveCharacters(
   transcript: VideoSpecTranscriptSegment[]
 ): VideoSpecV1['entities']['characters'] {
   const speakerIds = [...new Set(transcript.map((s) => s.speaker).filter(Boolean))] as string[];
-  return (speakerIds.length > 0 ? speakerIds : ['Person1']).map((id, i) => ({
-    id,
-    appearances: [],
-    speaker_label: `Speaker${i}`,
-    speaking_segments:
+  return (speakerIds.length > 0 ? speakerIds : ['Person1']).map((id, i) => {
+    const speaking =
       transcript.length > 0
         ? transcript
             .filter((s) => (s.speaker ?? 'Person1') === id)
             .map((s) => ({ start: s.start, end: s.end }))
-        : [],
-  }));
+        : [];
+    return {
+      id,
+      appearances: speaking,
+      speaker_label: `Speaker${i}`,
+      speaking_segments: speaking,
+    };
+  });
 }
 
 async function analyzeNarrative(params: {
@@ -1075,6 +1331,26 @@ export async function analyzeVideoToVideoSpecV1(
 
   const characters = deriveCharacters(transcript);
 
+  const { cameraMotion, jumpCutShotIds, shotIdToJumpCut } = await analyzeEditingMotionAndEffects({
+    ctx,
+    shots: shots.map((s) => ({
+      id: s.id,
+      start: s.start,
+      end: s.end,
+      transition_in: s.transition_in,
+    })),
+    provenanceModules,
+    provenanceNotes,
+  });
+
+  const audioStructure = await analyzeAudioStructure({
+    ctx,
+    options,
+    transcript,
+    provenanceModules,
+    provenanceNotes,
+  });
+
   const narrative = await analyzeNarrative({
     ctx,
     options,
@@ -1102,20 +1378,23 @@ export async function analyzeVideoToVideoSpecV1(
         start: s.start,
         end: s.end,
         transition_in: s.transition_in,
+        ...(shotIdToJumpCut.get(s.id) ? { jump_cut: true } : {}),
       })),
       pacing,
     },
     editing: {
       captions,
       text_overlays: textOverlays,
-      camera_motion: [],
-      other_effects: {},
+      camera_motion: cameraMotion,
+      other_effects: {
+        ...(jumpCutShotIds.length > 0 ? { jump_cuts: jumpCutShotIds } : {}),
+      },
     },
     audio: {
       transcript,
-      music_segments: [],
-      sound_effects: [],
-      beat_grid: { bpm: null, beats: [] },
+      music_segments: audioStructure.music_segments,
+      sound_effects: audioStructure.sound_effects,
+      beat_grid: audioStructure.beat_grid,
     },
     entities: {
       characters,
