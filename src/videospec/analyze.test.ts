@@ -1,10 +1,13 @@
 import { describe, expect, test } from 'vitest';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { createHash } from 'node:crypto';
+import { createReadStream } from 'node:fs';
 import { mkdir, rm } from 'node:fs/promises';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { analyzeVideoToVideoSpecV1 } from './analyze';
+import { resolveVideoSpecCacheDir } from './cache';
 
 const execFileAsync = promisify(execFile);
 
@@ -35,6 +38,17 @@ async function makeTinyTwoSceneVideo(outPath: string): Promise<void> {
   );
 }
 
+async function sha256FileHex(path: string): Promise<string> {
+  const hash = createHash('sha256');
+  await new Promise<void>((resolvePromise, reject) => {
+    const stream = createReadStream(path);
+    stream.on('data', (chunk) => hash.update(chunk));
+    stream.on('end', () => resolvePromise());
+    stream.on('error', reject);
+  });
+  return hash.digest('hex');
+}
+
 describe('analyzeVideoToVideoSpecV1', () => {
   test('produces a valid spec with minimal modules', async () => {
     const dir = join(tmpdir(), `cm-videospec-test-${Date.now()}-${Math.random()}`);
@@ -58,6 +72,128 @@ describe('analyzeVideoToVideoSpecV1', () => {
       expect(spec.timeline.shots.length).toBeGreaterThanOrEqual(1);
       expect(spec.timeline.pacing.shot_count).toBe(spec.timeline.shots.length);
       expect(typeof spec.provenance.modules.shot_detection).toBe('string');
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+
+  test('uses cache artifacts when present (no heavy deps)', async () => {
+    const dir = join(tmpdir(), `cm-videospec-test-cache-${Date.now()}-${Math.random()}`);
+    await mkdir(dir, { recursive: true });
+    const videoPath = join(dir, 'tiny.mp4');
+    const cacheDir = join(dir, 'cache-root');
+
+    try {
+      await makeTinyTwoSceneVideo(videoPath);
+
+      const cacheRoot = resolveVideoSpecCacheDir(cacheDir);
+      const stat = await (await import('node:fs/promises')).stat(videoPath);
+      const videoHash = await sha256FileHex(videoPath);
+      const videoKey = `${videoHash.slice(0, 16)}-${stat.size}`;
+      const videoCacheDir = join(cacheRoot, videoKey);
+      await mkdir(videoCacheDir, { recursive: true });
+
+      // Pre-populate cache artifacts so analysis takes the "cache hit" branches.
+      await (
+        await import('node:fs/promises')
+      ).writeFile(join(videoCacheDir, 'shots.v1.json'), JSON.stringify([0.5]), 'utf-8');
+      await (
+        await import('node:fs/promises')
+      ).writeFile(
+        join(videoCacheDir, 'audio.transcript.v1.json'),
+        JSON.stringify(
+          [{ start: 0, end: 0.4, speaker: 'Person1', text: 'hello world', confidence: 0.9 }],
+          null,
+          2
+        ),
+        'utf-8'
+      );
+      await (
+        await import('node:fs/promises')
+      ).writeFile(
+        join(videoCacheDir, 'editing.ocr.1fps.v1.json'),
+        JSON.stringify([{ start: 0.1, end: 0.3, text: 'SUBTITLE', confidence: 0.8 }], null, 2),
+        'utf-8'
+      );
+      // Empty refine cache triggers the "refine yielded no segments" note branch.
+      await (
+        await import('node:fs/promises')
+      ).writeFile(
+        join(videoCacheDir, 'editing.ocr.2fps.v1.json'),
+        JSON.stringify([], null, 2),
+        'utf-8'
+      );
+      await (
+        await import('node:fs/promises')
+      ).writeFile(
+        join(videoCacheDir, 'inserted-content.v1.json'),
+        JSON.stringify(
+          [
+            {
+              id: 'icb-1',
+              type: 'generic_screenshot',
+              start: 0,
+              end: 0.8,
+              presentation: 'full_screen',
+              keyframes: [{ time: 0.2, text: 'r/AskReddit', confidence: 0.7 }],
+              extraction: { ocr: { engine: 'tesseract.js', text: 'r/AskReddit' } },
+              confidence: { is_inserted_content: 0.9, type: 0.5, ocr_quality: 0.6 },
+            },
+          ],
+          null,
+          2
+        ),
+        'utf-8'
+      );
+      await (
+        await import('node:fs/promises')
+      ).writeFile(
+        join(videoCacheDir, 'editing.effects.v1.json'),
+        JSON.stringify({ cameraMotion: null, jumpCutShotIds: [1] }, null, 2),
+        'utf-8'
+      );
+      await (
+        await import('node:fs/promises')
+      ).writeFile(
+        join(videoCacheDir, 'audio.structure.v1.json'),
+        JSON.stringify(
+          { music_segments: [], sound_effects: [], beat_grid: { bpm: null, beats: [] } },
+          null,
+          2
+        ),
+        'utf-8'
+      );
+
+      const { spec } = await analyzeVideoToVideoSpecV1({
+        inputPath: videoPath,
+        inputSource: 'test://tiny.mp4',
+        cache: true,
+        cacheDir,
+        pass: 'both',
+        ocr: true,
+        insertedContent: true,
+        asr: true,
+        narrative: 'off',
+        shotDetector: 'ffmpeg',
+        maxSeconds: 1,
+      });
+
+      expect(spec.provenance.modules.shot_detection).toBe('cache');
+      expect(spec.provenance.modules.asr).toBe('cache');
+      expect(spec.provenance.modules.ocr).toBe('cache');
+      expect(spec.provenance.modules.ocr_refine).toBe('cache');
+      expect(spec.provenance.modules.inserted_content_blocks).toBe('cache');
+      expect(spec.provenance.modules.camera_motion).toBe('cache');
+      expect(spec.provenance.modules.jump_cut_detection).toBe('cache');
+      expect(spec.provenance.modules.music_detection).toBe('cache');
+      expect(spec.provenance.modules.beat_tracking).toBe('cache');
+      expect(spec.provenance.modules.sfx_detection).toBe('cache');
+      expect(spec.provenance.modules.narrative_analysis).toBe('disabled');
+
+      expect(spec.meta.notes).toContain('OCR refine pass yielded no segments');
+      expect(spec.editing.other_effects.jump_cuts?.length).toBeGreaterThanOrEqual(1);
+      expect(spec.timeline.shots.some((s) => s.jump_cut === true)).toBe(true);
+      expect(spec.inserted_content_blocks?.length).toBe(1);
     } finally {
       await rm(dir, { recursive: true, force: true });
     }

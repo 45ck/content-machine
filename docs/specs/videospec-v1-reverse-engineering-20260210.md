@@ -10,6 +10,7 @@ Engineering implementation details live in:
 
 - Extract a normalized timeline skeleton (shots + pacing).
 - Extract editing metadata (primarily burned-in captions via OCR).
+- Detect embedded screenshot/page segments (inserted content blocks) with best-effort OCR.
 - Extract audio transcript (local-first Whisper.cpp when installed).
 - Infer a narrative arc summary (hook -> escalation -> payoff).
 - Emit a single versioned JSON artifact (`VideoSpec.v1`) with provenance notes.
@@ -43,6 +44,7 @@ All times are seconds-from-start (`float`), timebase-normalized across modules.
 - Ingest: local file path (or `http(s)` URL downloaded via `yt-dlp`), then `ffprobe` for duration + resolution
 - Shots: try PySceneDetect (Python), fall back to ffmpeg scene filter
 - OCR: `tesseract.js` over a caption-friendly bottom crop
+- Inserted content blocks: heuristic detection (edge density + motion) + keyframe OCR for embedded screenshots/pages
 - ASR: `@remotion/install-whisper-cpp` (local Whisper.cpp) when installed; otherwise transcript is omitted
 - Narrative: heuristic by default; optional LLM mode supported
 - Entities: minimal v1 derives speaker IDs from transcript only (visual face/object detection is stubbed)

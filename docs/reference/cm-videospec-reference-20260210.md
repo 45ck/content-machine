@@ -53,6 +53,7 @@ Optional (best-effort):
 - `--shot-threshold <n>`: PySceneDetect threshold (default: `30`)
 - `--no-ocr`: disable OCR
 - `--ocr-fps <n>`: OCR sampling rate (frames per second)
+- `--no-inserted-content`: disable inserted content block extraction (screenshots/pages embedded in the video)
 - `--no-asr`: disable ASR
 - `--asr-model <tiny|base|small|medium|large>`: Whisper model (default: `base`)
 - `--narrative <heuristic|llm|off>`: narrative arc mode (default: `heuristic`)
@@ -80,6 +81,8 @@ cm videospec -i input.mp4 -o videospec.v1.json --pass both
 ## Output
 
 `cm videospec` writes a single JSON artifact conforming to `VideoSpec.v1`.
+
+When detected, embedded screenshot/page segments are emitted as `inserted_content_blocks` (time ranges, region, and best-effort OCR text).
 
 In non-JSON CLI mode, stdout prints only the output path (for piping in scripts).
 

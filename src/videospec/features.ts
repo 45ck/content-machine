@@ -46,31 +46,68 @@ export async function extractGrayFrameAtTime(params: {
   const t = Math.max(0, timeSeconds);
 
   try {
-    const { stdout } = await execFileAsync(
-      'ffmpeg',
-      [
-        '-hide_banner',
-        '-loglevel',
-        'error',
-        '-ss',
-        String(t),
-        '-i',
-        videoPath,
-        '-frames:v',
-        '1',
-        '-vf',
-        `scale=${safeSize}:${safeSize},format=gray`,
-        '-f',
-        'rawvideo',
-        '-pix_fmt',
-        'gray',
-        'pipe:1',
-      ],
-      { windowsHide: true, timeout: 30_000, maxBuffer: safeSize * safeSize + 1024 }
-    );
-
-    const buf = Buffer.isBuffer(stdout) ? stdout : Buffer.from(stdout as any);
     const expected = safeSize * safeSize;
+    const maxBuffer = Math.max(1024 * 1024, expected + 4096);
+
+    async function run(mode: 'fast' | 'accurate'): Promise<Buffer> {
+      // `-ss` before `-i` is faster but can return empty output for some short/VFR files.
+      // Fall back to accurate seek (`-ss` after `-i`) when that happens.
+      const args =
+        mode === 'fast'
+          ? [
+              '-hide_banner',
+              '-loglevel',
+              'error',
+              '-nostdin',
+              '-ss',
+              String(t),
+              '-i',
+              videoPath,
+              '-frames:v',
+              '1',
+              '-vf',
+              `scale=${safeSize}:${safeSize},format=gray`,
+              '-f',
+              'rawvideo',
+              '-pix_fmt',
+              'gray',
+              'pipe:1',
+            ]
+          : [
+              '-hide_banner',
+              '-loglevel',
+              'error',
+              '-nostdin',
+              '-i',
+              videoPath,
+              '-ss',
+              String(t),
+              '-frames:v',
+              '1',
+              '-vf',
+              `scale=${safeSize}:${safeSize},format=gray`,
+              '-f',
+              'rawvideo',
+              '-pix_fmt',
+              'gray',
+              'pipe:1',
+            ];
+
+      const { stdout } = await execFileAsync('ffmpeg', args, {
+        windowsHide: true,
+        timeout: 30_000,
+        // stdout is raw binary; don't decode as utf-8 (it can inflate output and corrupt bytes).
+        encoding: 'buffer',
+        maxBuffer,
+      });
+
+      return Buffer.isBuffer(stdout) ? stdout : Buffer.from(stdout as any);
+    }
+
+    let buf = await run('fast');
+    if (buf.length < expected) {
+      buf = await run('accurate');
+    }
     if (buf.length < expected) {
       throw new CMError('VIDEO_PROBE_ERROR', 'ffmpeg returned too few bytes for a frame', {
         videoPath,

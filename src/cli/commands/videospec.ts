@@ -24,6 +24,7 @@ interface VideoSpecOptions {
   shotThreshold?: string;
   ocr: boolean;
   ocrFps?: string;
+  insertedContent: boolean;
   asr: boolean;
   asrModel?: string;
   narrative: NarrativeMode;
@@ -54,6 +55,7 @@ export const videospecCommand = new Command('videospec')
   .option('--shot-threshold <n>', 'PySceneDetect threshold (default 30)', '30')
   .option('--no-ocr', 'Disable OCR (captions/overlays)')
   .option('--ocr-fps <n>', 'OCR FPS sampling rate (default depends on pass)', undefined)
+  .option('--no-inserted-content', 'Disable inserted content block extraction')
   .option('--no-asr', 'Disable ASR (transcript)')
   .option('--asr-model <model>', 'Whisper model: tiny|base|small|medium|large', 'base')
   .option('--narrative <mode>', 'Narrative mode: heuristic|llm|off', 'heuristic')
@@ -115,6 +117,7 @@ export const videospecCommand = new Command('videospec')
         shotThreshold,
         ocr: options.ocr,
         ocrFps,
+        insertedContent: options.insertedContent,
         asr: options.asr,
         asrModel,
         narrative,
@@ -137,6 +140,7 @@ export const videospecCommand = new Command('videospec')
               shotThreshold: shotThreshold ?? null,
               ocr: options.ocr,
               ocrFps: ocrFps ?? null,
+              insertedContent: options.insertedContent,
               asr: options.asr,
               asrModel,
               narrative,
@@ -147,6 +151,7 @@ export const videospecCommand = new Command('videospec')
               transcriptSegments: result.spec.audio.transcript.length,
               captions: result.spec.editing.captions.length,
               overlays: result.spec.editing.text_overlays.length,
+              insertedContentBlocks: result.spec.inserted_content_blocks?.length ?? 0,
             },
             timingsMs: Date.now() - runtime.startTime,
           })
@@ -158,6 +163,9 @@ export const videospecCommand = new Command('videospec')
       writeStderrLine(`Transcript segments: ${result.spec.audio.transcript.length}`);
       writeStderrLine(`OCR captions: ${result.spec.editing.captions.length}`);
       writeStderrLine(`OCR overlays: ${result.spec.editing.text_overlays.length}`);
+      writeStderrLine(
+        `Inserted content blocks: ${result.spec.inserted_content_blocks?.length ?? 0}`
+      );
 
       // Human-mode stdout: primary artifact path only.
       writeStdoutLine(options.output);

@@ -64,6 +64,11 @@ export interface AnalyzeVideoToVideoSpecV1Options {
   ocrFps?: number;
   /** OCR region from the bottom of the frame; defaults to caption-friendly crop. */
   ocrCrop?: { yRatio: number; heightRatio: number };
+  /**
+   * Detect and extract "inserted content blocks" (e.g. screenshots of Reddit/chat/browser UIs)
+   * as structured segments with best-effort OCR. Disabled when `ocr` is disabled.
+   */
+  insertedContent?: boolean;
 
   // ASR
   asr?: boolean;
@@ -92,6 +97,39 @@ function median(arr: number[]): number {
 function clampNumber(value: number, min: number, max: number): number {
   if (!Number.isFinite(value)) return min;
   return Math.min(max, Math.max(min, value));
+}
+
+function mseFrames(a: { width: number; height: number; data: Float32Array }, b: typeof a): number {
+  if (a.width !== b.width || a.height !== b.height) return Number.POSITIVE_INFINITY;
+  const n = a.data.length;
+  if (n === 0 || n !== b.data.length) return Number.POSITIVE_INFINITY;
+  let sum = 0;
+  for (let i = 0; i < n; i++) {
+    const d = (a.data[i] ?? 0) - (b.data[i] ?? 0);
+    sum += d * d;
+  }
+  return sum / n;
+}
+
+function edgeDensity(frame: { width: number; height: number; data: Float32Array }): number {
+  const w = frame.width;
+  const h = frame.height;
+  if (w < 3 || h < 3) return 0;
+  const data = frame.data;
+  const threshold = 0.18;
+
+  let edges = 0;
+  let n = 0;
+  for (let y = 1; y < h - 1; y++) {
+    for (let x = 1; x < w - 1; x++) {
+      const idx = y * w + x;
+      const gx = Math.abs((data[idx + 1] ?? 0) - (data[idx - 1] ?? 0));
+      const gy = Math.abs((data[idx + w] ?? 0) - (data[idx - w] ?? 0));
+      if (gx + gy > threshold) edges++;
+      n++;
+    }
+  }
+  return n > 0 ? edges / n : 0;
 }
 
 async function sha256FileHex(path: string): Promise<string> {
@@ -433,6 +471,40 @@ async function extractOcrFrames(params: {
 
 type OcrFrame = { t: number; text: string; confidence?: number };
 
+async function extractPngFrameAtTime(params: {
+  videoPath: string;
+  timeSeconds: number;
+  outPath: string;
+}): Promise<void> {
+  const t = Math.max(0, params.timeSeconds);
+  const args: string[] = [
+    '-hide_banner',
+    '-loglevel',
+    'error',
+    '-ss',
+    String(t),
+    '-i',
+    params.videoPath,
+    '-frames:v',
+    '1',
+    '-q:v',
+    '2',
+    '-y',
+    params.outPath,
+  ];
+
+  try {
+    await execFileAsync('ffmpeg', args, { windowsHide: true, timeout: 60_000 });
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+      throw new CMError('DEPENDENCY_MISSING', 'ffmpeg is required for frame extraction', {
+        binary: 'ffmpeg',
+      });
+    }
+    throw error;
+  }
+}
+
 async function runTesseractOcr(framesDir: string, fps: number): Promise<OcrFrame[]> {
   let Tesseract: typeof import('tesseract.js');
   try {
@@ -485,6 +557,112 @@ async function runTesseractOcr(framesDir: string, fps: number): Promise<OcrFrame
         ? clampNumber(data.confidence / 100, 0, 1)
         : undefined;
     out.push({ t, text, ...(conf !== undefined ? { confidence: conf } : {}) });
+  }
+
+  await (worker as any).terminate();
+  return out;
+}
+
+type InsertedContentOcrKeyframe = {
+  time: number;
+  text: string;
+  confidence?: number;
+  words?: Array<{ text: string; bbox: [number, number, number, number]; confidence?: number }>;
+};
+
+async function ocrImagesWithTesseract(params: {
+  images: Array<{ time: number; path: string }>;
+  frameWidth: number;
+  frameHeight: number;
+  maxWords?: number;
+}): Promise<InsertedContentOcrKeyframe[]> {
+  let Tesseract: typeof import('tesseract.js');
+  try {
+    Tesseract = await import('tesseract.js');
+  } catch {
+    throw new CMError('DEPENDENCY_MISSING', 'tesseract.js is required for videospec OCR', {
+      install: 'npm install tesseract.js',
+    });
+  }
+
+  const cachePath = join(process.cwd(), '.cache', 'tesseract');
+  await mkdir(cachePath, { recursive: true });
+
+  // Prefer a local traineddata if present (repo ships eng.traineddata).
+  const localLangDir = cachePath;
+  const localEng = join(process.cwd(), 'eng.traineddata');
+  if (existsSync(localEng)) {
+    const dest = join(localLangDir, 'eng.traineddata');
+    try {
+      if (!existsSync(dest)) {
+        const { copyFile } = await import('node:fs/promises');
+        await copyFile(localEng, dest);
+      }
+    } catch {
+      // Best-effort; fall back to default download behavior.
+    }
+  }
+
+  const worker = await Tesseract.createWorker('eng', undefined, {
+    cachePath,
+    langPath: localLangDir,
+  } as any);
+
+  const out: InsertedContentOcrKeyframe[] = [];
+  for (const img of params.images) {
+    const result = await (worker as any).recognize(img.path);
+    const data = result.data as {
+      text?: string;
+      confidence?: number;
+      words?: Array<{
+        text?: string;
+        confidence?: number;
+        bbox?: { x0: number; y0: number; x1: number; y1: number };
+      }>;
+    };
+
+    const text = String(data.text ?? '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    const conf =
+      typeof data.confidence === 'number' && Number.isFinite(data.confidence)
+        ? clampNumber(data.confidence / 100, 0, 1)
+        : undefined;
+
+    const maxWords = Math.max(0, Math.min(2000, params.maxWords ?? 400));
+    const words: Array<{
+      text: string;
+      bbox: [number, number, number, number];
+      confidence?: number;
+    }> = [];
+    for (const w of (data.words ?? []).slice(0, maxWords)) {
+      const wt = String(w.text ?? '')
+        .replace(/\s+/g, ' ')
+        .trim();
+      if (!wt) continue;
+      const b = w.bbox;
+      if (!b) continue;
+      const x = clampNumber(b.x0 / params.frameWidth, 0, 1);
+      const y = clampNumber(b.y0 / params.frameHeight, 0, 1);
+      const ww = clampNumber((b.x1 - b.x0) / params.frameWidth, 0, 1);
+      const hh = clampNumber((b.y1 - b.y0) / params.frameHeight, 0, 1);
+      const wc =
+        typeof w.confidence === 'number' && Number.isFinite(w.confidence)
+          ? clampNumber(w.confidence / 100, 0, 1)
+          : undefined;
+      words.push({
+        text: wt,
+        bbox: [x, y, ww, hh],
+        ...(wc !== undefined ? { confidence: wc } : {}),
+      });
+    }
+
+    out.push({
+      time: img.time,
+      text,
+      ...(conf !== undefined ? { confidence: conf } : {}),
+      ...(words.length > 0 ? { words } : {}),
+    });
   }
 
   await (worker as any).terminate();
@@ -995,6 +1173,312 @@ async function analyzeOcr(params: {
   return { captions, textOverlays, ocrTexts };
 }
 
+function classifyInsertedContentType(text: string): {
+  type: NonNullable<VideoSpecV1['inserted_content_blocks']>[number]['type'];
+  confidence: number;
+} {
+  const t = text.toLowerCase();
+  // OCR can insert spaces around punctuation; tolerate: "r / AskReddit" etc.
+  if (
+    /\br\s*\/\s*[a-z0-9_]+\b/.test(t) ||
+    /\bu\s*\/\s*[a-z0-9_-]+\b/.test(t) ||
+    t.includes('reddit') ||
+    t.includes('askreddit') ||
+    t.includes('subreddit')
+  ) {
+    return { type: 'reddit_screenshot', confidence: 0.85 };
+  }
+  if (/\bhttps?:\/\//.test(t) || /\bwww\./.test(t) || /\b[a-z0-9-]+\.(com|net|org)\b/.test(t)) {
+    return { type: 'browser_page', confidence: 0.75 };
+  }
+  if (/\b(sent|delivered|typing|message|dm|pm)\b/.test(t)) {
+    return { type: 'chat_screenshot', confidence: 0.65 };
+  }
+  return { type: 'generic_screenshot', confidence: 0.4 };
+}
+
+function computeSafeVideoEndTimeSeconds(ctx: AnalyzeContext): number {
+  // ffmpeg can return 0 bytes when asked for a frame at or past the end timestamp.
+  const marginSeconds = Math.max(0.05, 1 / Math.max(1, ctx.frameRate));
+  return Math.max(0, ctx.durationSeconds - marginSeconds);
+}
+
+type InsertedContentSample = { t: number; confidence: number };
+type InsertedContentSegment = { start: number; end: number; confs: number[] };
+type InsertedContentCandidate = { start: number; end: number; avg: number };
+type InsertedContentBlock = NonNullable<VideoSpecV1['inserted_content_blocks']>[number];
+
+async function sampleInsertedContentConfidence(params: {
+  ctx: AnalyzeContext;
+  sampleStepSeconds: number;
+  sampleSize: number;
+}): Promise<InsertedContentSample[]> {
+  const { ctx, sampleStepSeconds, sampleSize } = params;
+  const samples: InsertedContentSample[] = [];
+  const safeEndTimeSeconds = computeSafeVideoEndTimeSeconds(ctx);
+
+  let prev: Awaited<ReturnType<typeof extractGrayFrameAtTime>> | null = null;
+  for (let t = 0; t < safeEndTimeSeconds + 1e-6; t += sampleStepSeconds) {
+    const tt = Math.min(t, safeEndTimeSeconds);
+    const frame = await extractGrayFrameAtTime({
+      videoPath: ctx.inputPath,
+      timeSeconds: tt,
+      size: sampleSize,
+    });
+    const e = edgeDensity(frame);
+    const motion = prev ? mseFrames(frame, prev) : 0;
+
+    const edgeNorm = clampNumber((e - 0.05) / 0.18, 0, 1);
+    const motionPenalty = clampNumber(motion / 0.04, 0, 1);
+    const confidence = clampNumber(edgeNorm * (1 - motionPenalty), 0, 1);
+    samples.push({ t: tt, confidence });
+    prev = frame;
+  }
+
+  return samples;
+}
+
+function segmentsFromInsertedContentSamples(params: {
+  samples: InsertedContentSample[];
+  sampleStepSeconds: number;
+  startThreshold: number;
+  continueThreshold: number;
+}): InsertedContentSegment[] {
+  const { samples, sampleStepSeconds, startThreshold, continueThreshold } = params;
+
+  const segments: InsertedContentSegment[] = [];
+  let current: InsertedContentSegment | null = null;
+
+  for (const s of samples) {
+    if (!current) {
+      if (s.confidence >= startThreshold) {
+        current = { start: s.t, end: s.t + sampleStepSeconds, confs: [s.confidence] };
+      }
+      continue;
+    }
+
+    if (s.confidence >= continueThreshold) {
+      current.end = Math.max(current.end, s.t + sampleStepSeconds);
+      current.confs.push(s.confidence);
+      continue;
+    }
+
+    segments.push(current);
+    current = null;
+  }
+
+  if (current) segments.push(current);
+  return segments;
+}
+
+function mergeInsertedContentSegments(params: {
+  segments: InsertedContentSegment[];
+  maxGapSeconds: number;
+}): InsertedContentSegment[] {
+  const { segments, maxGapSeconds } = params;
+  const merged: InsertedContentSegment[] = [];
+
+  for (const seg of segments) {
+    const prevSeg = merged.length > 0 ? merged[merged.length - 1] : null;
+    if (prevSeg && seg.start - prevSeg.end <= maxGapSeconds) {
+      prevSeg.end = Math.max(prevSeg.end, seg.end);
+      prevSeg.confs.push(...seg.confs);
+      continue;
+    }
+    merged.push(seg);
+  }
+
+  return merged;
+}
+
+function candidatesFromInsertedContentSegments(params: {
+  ctx: AnalyzeContext;
+  merged: InsertedContentSegment[];
+  minDurationSeconds: number;
+  minAvgConfidence: number;
+  maxBlocks: number;
+}): InsertedContentCandidate[] {
+  const { ctx, merged, minDurationSeconds, minAvgConfidence, maxBlocks } = params;
+  return merged
+    .map((s) => ({
+      start: Math.max(0, s.start),
+      end: Math.min(ctx.durationSeconds, s.end),
+      avg: mean(s.confs),
+    }))
+    .filter((s) => s.end - s.start >= minDurationSeconds && s.avg >= minAvgConfidence)
+    .slice(0, maxBlocks);
+}
+
+async function buildInsertedContentBlock(params: {
+  ctx: AnalyzeContext;
+  seg: InsertedContentCandidate;
+  id: string;
+  tmpFramesDir: string;
+}): Promise<InsertedContentBlock> {
+  const { ctx, seg, id, tmpFramesDir } = params;
+  const dur = seg.end - seg.start;
+  const mid = (seg.start + seg.end) / 2;
+
+  const keyTimesBase = dur >= 1.2 ? [seg.start + 0.15, mid] : [mid];
+  const keyTimes = Array.from(
+    new Set(
+      keyTimesBase
+        .map((t) => clampNumber(t, 0, computeSafeVideoEndTimeSeconds(ctx)))
+        .map((t) => Math.round(t * 100) / 100)
+    )
+  ).slice(0, 2);
+
+  const images: Array<{ time: number; path: string }> = [];
+  for (let k = 0; k < keyTimes.length; k++) {
+    const t = keyTimes[k]!;
+    const framePath = join(tmpFramesDir, `${id}_kf${k}.png`);
+    await extractPngFrameAtTime({ videoPath: ctx.inputPath, timeSeconds: t, outPath: framePath });
+    images.push({ time: t, path: framePath });
+  }
+
+  const ocrKeyframes = await ocrImagesWithTesseract({
+    images,
+    frameWidth: ctx.info.width,
+    frameHeight: ctx.info.height,
+  });
+
+  const combinedTextFromKeyframes = ocrKeyframes
+    .map((k) => k.text)
+    .filter(Boolean)
+    .join(' ');
+  const combinedTextFromWords = ocrKeyframes
+    .flatMap((k) => k.words ?? [])
+    .map((w) => w.text)
+    .filter(Boolean)
+    .slice(0, 250)
+    .join(' ');
+  const combinedText = `${combinedTextFromKeyframes} ${combinedTextFromWords}`
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const typeGuess = classifyInsertedContentType(combinedText);
+  const ocrQuality = mean(
+    ocrKeyframes
+      .map((k) => k.confidence)
+      .filter((v): v is number => typeof v === 'number' && Number.isFinite(v))
+  );
+
+  return {
+    id,
+    type: typeGuess.type,
+    start: seg.start,
+    end: seg.end,
+    presentation: 'full_screen',
+    region: { x: 0, y: 0, w: 1, h: 1 },
+    keyframes: ocrKeyframes.map((k) => ({
+      time: k.time,
+      ...(k.text ? { text: k.text } : {}),
+      ...(k.confidence !== undefined ? { confidence: k.confidence } : {}),
+    })),
+    extraction: {
+      ocr: {
+        engine: 'tesseract.js',
+        ...(combinedText ? { text: combinedText } : {}),
+        ...(ocrKeyframes[0]?.words ? { words: ocrKeyframes[0].words } : {}),
+      },
+    },
+    confidence: {
+      is_inserted_content: seg.avg,
+      type: typeGuess.confidence,
+      ...(Number.isFinite(ocrQuality) ? { ocr_quality: ocrQuality } : {}),
+    },
+  };
+}
+
+async function analyzeInsertedContentBlocks(params: {
+  ctx: AnalyzeContext;
+  options: AnalyzeVideoToVideoSpecV1Options;
+  provenanceModules: Record<string, string>;
+  provenanceNotes: string[];
+}): Promise<NonNullable<VideoSpecV1['inserted_content_blocks']>> {
+  const { ctx, options, provenanceModules, provenanceNotes } = params;
+  const cachePath = join(ctx.videoCacheDir, 'inserted-content.v1.json');
+  const cached = ctx.cacheEnabled
+    ? await readJsonIfExists<NonNullable<VideoSpecV1['inserted_content_blocks']>>(cachePath)
+    : null;
+  if (cached) {
+    provenanceModules.inserted_content_blocks = 'cache';
+    return cached;
+  }
+
+  const insertedEnabled = options.insertedContent ?? true;
+  const ocrEnabled = options.ocr ?? true;
+  if (!insertedEnabled || !ocrEnabled) {
+    provenanceModules.inserted_content_blocks = 'disabled';
+    return [];
+  }
+
+  // V0: detect full-screen "screen-like" segments based on edge density + low motion.
+  const sampleStepSeconds = 0.5;
+  const sampleSize = 64;
+
+  const samples = await sampleInsertedContentConfidence({
+    ctx,
+    sampleStepSeconds,
+    sampleSize,
+  });
+  const segments = segmentsFromInsertedContentSamples({
+    samples,
+    sampleStepSeconds,
+    startThreshold: 0.45,
+    continueThreshold: 0.3,
+  });
+  const merged = mergeInsertedContentSegments({
+    segments,
+    maxGapSeconds: sampleStepSeconds * 0.9,
+  });
+  const candidates = candidatesFromInsertedContentSegments({
+    ctx,
+    merged,
+    minDurationSeconds: 1.0,
+    minAvgConfidence: 0.35,
+    maxBlocks: 6,
+  });
+
+  if (candidates.length === 0) {
+    provenanceModules.inserted_content_blocks = 'heuristic (none detected)';
+    return [];
+  }
+
+  const tmpFramesDir = join(tmpdir(), `cm-videospec-inserted-${Date.now()}-${Math.random()}`);
+  await mkdir(tmpFramesDir, { recursive: true });
+
+  try {
+    const blocks: NonNullable<VideoSpecV1['inserted_content_blocks']> = [];
+    for (let i = 0; i < candidates.length; i++) {
+      const seg = candidates[i]!;
+      const id = `icb_${String(i + 1).padStart(4, '0')}`;
+      const block = await buildInsertedContentBlock({ ctx, seg, id, tmpFramesDir });
+      const ocrText = block.extraction?.ocr?.text ?? '';
+      const ocrChars = ocrText.replace(/\s+/g, '').length;
+      if (ocrChars < 12) continue;
+      blocks.push(block);
+    }
+
+    if (blocks.length === 0) {
+      provenanceModules.inserted_content_blocks = 'heuristic (none detected)';
+      return [];
+    }
+
+    if (ctx.cacheEnabled) await writeJsonAtomic(cachePath, blocks);
+    provenanceModules.inserted_content_blocks = 'heuristic (edge-density + keyframe OCR)';
+    return blocks;
+  } catch (error) {
+    provenanceNotes.push(
+      `Inserted content block extraction failed; omitted. (${error instanceof Error ? error.message : String(error)})`
+    );
+    provenanceModules.inserted_content_blocks = 'unavailable';
+    return [];
+  } finally {
+    await rm(tmpFramesDir, { recursive: true, force: true });
+  }
+}
+
 async function analyzeEditingMotionAndEffects(params: {
   ctx: AnalyzeContext;
   shots: Array<{ id: number; start: number; end: number; transition_in?: string }>;
@@ -1336,6 +1820,13 @@ export async function analyzeVideoToVideoSpecV1(
     provenanceNotes,
   });
 
+  const insertedContentBlocks = await analyzeInsertedContentBlocks({
+    ctx,
+    options,
+    provenanceModules,
+    provenanceNotes,
+  });
+
   const characters = deriveCharacters(transcript);
 
   const { cameraMotion, jumpCutShotIds, shotIdToJumpCut } = await analyzeEditingMotionAndEffects({
@@ -1408,6 +1899,7 @@ export async function analyzeVideoToVideoSpecV1(
       objects: [],
     },
     narrative,
+    ...(insertedContentBlocks.length > 0 ? { inserted_content_blocks: insertedContentBlocks } : {}),
     provenance: {
       modules: {
         ...provenanceModules,

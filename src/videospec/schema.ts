@@ -136,6 +136,81 @@ export const VideoSpecEditingSchema = z.object({
 
 export type VideoSpecEditing = z.infer<typeof VideoSpecEditingSchema>;
 
+const NormalizedRectSchema = z.object({
+  x: z.number().finite().min(0).max(1),
+  y: z.number().finite().min(0).max(1),
+  w: z.number().finite().min(0).max(1),
+  h: z.number().finite().min(0).max(1),
+});
+
+export const VideoSpecInsertedContentOcrWordSchema = z.object({
+  text: z.string().min(1),
+  // Normalized [x, y, w, h] relative to the video frame.
+  bbox: z.tuple([
+    z.number().finite().min(0).max(1),
+    z.number().finite().min(0).max(1),
+    z.number().finite().min(0).max(1),
+    z.number().finite().min(0).max(1),
+  ]),
+  confidence: z.number().min(0).max(1).optional(),
+});
+
+export type VideoSpecInsertedContentOcrWord = z.infer<typeof VideoSpecInsertedContentOcrWordSchema>;
+
+export const VideoSpecInsertedContentOcrSchema = z.object({
+  engine: z.string().min(1),
+  text: z.string().min(1).optional(),
+  words: z.array(VideoSpecInsertedContentOcrWordSchema).optional(),
+});
+
+export type VideoSpecInsertedContentOcr = z.infer<typeof VideoSpecInsertedContentOcrSchema>;
+
+export const VideoSpecInsertedContentKeyframeSchema = z.object({
+  time: TimeSecondsSchema,
+  text: z.string().min(1).optional(),
+  confidence: z.number().min(0).max(1).optional(),
+});
+
+export type VideoSpecInsertedContentKeyframe = z.infer<
+  typeof VideoSpecInsertedContentKeyframeSchema
+>;
+
+export const VideoSpecInsertedContentConfidenceSchema = z.object({
+  is_inserted_content: z.number().min(0).max(1).optional(),
+  type: z.number().min(0).max(1).optional(),
+  ocr_quality: z.number().min(0).max(1).optional(),
+});
+
+export type VideoSpecInsertedContentConfidence = z.infer<
+  typeof VideoSpecInsertedContentConfidenceSchema
+>;
+
+export const VideoSpecInsertedContentBlockSchema = z
+  .object({
+    id: z.string().min(1),
+    type: z.enum([
+      'reddit_screenshot',
+      'chat_screenshot',
+      'browser_page',
+      'slide',
+      'generic_screenshot',
+    ]),
+    start: TimeSecondsSchema,
+    end: TimeSecondsSchema,
+    presentation: z.enum(['full_screen', 'picture_in_picture', 'split_screen']).optional(),
+    region: NormalizedRectSchema.optional(),
+    keyframes: z.array(VideoSpecInsertedContentKeyframeSchema).optional(),
+    extraction: z
+      .object({
+        ocr: VideoSpecInsertedContentOcrSchema.optional(),
+      })
+      .optional(),
+    confidence: VideoSpecInsertedContentConfidenceSchema.optional(),
+  })
+  .refine((v) => v.end >= v.start, { message: 'inserted content block end must be >= start' });
+
+export type VideoSpecInsertedContentBlock = z.infer<typeof VideoSpecInsertedContentBlockSchema>;
+
 export const VideoSpecTranscriptSegmentSchema = z
   .object({
     start: TimeSecondsSchema,
@@ -253,6 +328,7 @@ export const VideoSpecV1Schema = z.object({
   audio: VideoSpecAudioSchema,
   entities: VideoSpecEntitiesSchema,
   narrative: VideoSpecNarrativeSchema,
+  inserted_content_blocks: z.array(VideoSpecInsertedContentBlockSchema).optional(),
   provenance: VideoSpecProvenanceSchema,
 });
 

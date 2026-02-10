@@ -108,6 +108,7 @@ Known cache artifacts (v1):
 - `audio.transcript.v1.json`: transcript segments
 - `editing.ocr.<fps>fps.v1.json`: grouped OCR segments at a given FPS
 - `editing.effects.v1.json`: camera motion classifications + jump cut shot IDs
+- `inserted-content.v1.json`: inserted content blocks (embedded screenshots/pages) when enabled
 - `audio.structure.v1.json`: beat grid + SFX onsets + inferred music segments
 
 ### Provenance Modules (Keys)
@@ -125,6 +126,7 @@ The output always includes `provenance.modules`. These keys are stable and inten
 - `beat_tracking`: heuristic label, or `cache|no-audio`
 - `sfx_detection`: heuristic label, or `cache|no-audio`
 - `narrative_analysis`: `heuristic`, an LLM label, or `disabled`
+- `inserted_content_blocks`: inserted-content detection/extraction label, or `cache|disabled|unavailable`
 
 Reproducibility notes:
 
@@ -170,6 +172,25 @@ Classification:
 
 - segments are heuristically split into `editing.captions[]` vs `editing.text_overlays[]`
 - fuzzy transcript alignment is used to infer `caption.speaker` when possible
+
+### Editing: Inserted Content Blocks (Screenshots/Pages)
+
+This module detects and extracts embedded "screen-like" content blocks (for example: a Reddit post screenshot, a chat screenshot, or a browser page shown full-screen).
+
+Current v1 behavior:
+
+- Detection: downsampled grayscale samples are scored using edge density and inter-sample motion.
+- Segmentation: consecutive "screen-like" samples are grouped into `[start, end]` time ranges.
+- Extraction: 1-2 keyframes per segment are OCRed with Tesseract.js (full frame, no crop).
+- Output: blocks are emitted as `inserted_content_blocks[]` with:
+  - time range + `region` (currently always full-frame)
+  - keyframe OCR text and optional word-level boxes
+  - a best-effort `type` guess (`reddit_screenshot|browser_page|chat_screenshot|generic_screenshot`)
+
+Limitations (v1):
+
+- Full-screen only (no PiP/split-screen region localization yet).
+- Type classification is signature/keyword-based (no ML classifier yet).
 
 ### Editing: Effects (Camera Motion + Jump Cuts)
 
