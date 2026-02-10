@@ -208,7 +208,12 @@ function main() {
     },
     {
       path: path.join(repoRoot, 'docs', 'reference', 'cm-generate-reference-20260106.md'),
-      mustInclude: ['--archetype <idOrPath>', 'cm archetypes list', '--template <idOrPath>', '--workflow <idOrPath>'],
+      mustInclude: [
+        '--archetype <idOrPath>',
+        'cm archetypes list',
+        '--template <idOrPath>',
+        '--workflow <idOrPath>',
+      ],
       mustNotInclude: ['--mix-preset <preset>', '(clean, punchy, cinematic, viral)'],
       label: 'cm-generate reference data-driven docs',
     },
