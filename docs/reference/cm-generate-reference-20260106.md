@@ -20,8 +20,8 @@ cm generate [options] <topic>
 ## Options
 
 - `-a, --archetype <idOrPath>`: script archetype id or path to an archetype YAML file (default: `listicle`). Use `cm archetypes list`
-- `--template <idOrPath>`: video template id or path to `template.json`
-- `--workflow <idOrPath>`: workflow id or path to `workflow.json`
+- `--template <idOrPath>`: render template id or path to `template.json`
+- `--workflow <idOrPath>`: pipeline workflow id or path to `workflow.json`
 - `--workflow-allow-exec`: allow workflow exec hooks to run
 - `--script <path>`: use existing `script.json` (skip script generation)
 - `--audio <path>`: use existing audio file (requires `--timestamps`)

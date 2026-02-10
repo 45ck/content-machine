@@ -4,7 +4,7 @@ This document defines the **video template** contract: how templates are stored,
 
 ## Definitions
 
-- **Template**: a versioned JSON file that selects a Remotion composition and provides defaults for styling + assets.
+- **Render Template**: a versioned JSON file (`template.json`) that selects a Remotion composition and provides defaults for styling + assets.
 - **Template pack**: a zip containing a template directory (`template.json` + optional local assets).
 - **Composition**: a Remotion composition id registered in `src/render/remotion/index.ts` and selected by the renderer.
 - **Code template**: a template pack that also ships a Remotion project (entrypoint + compositions) and requires explicit opt-in to execute.
