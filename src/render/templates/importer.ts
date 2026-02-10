@@ -421,11 +421,13 @@ async function scaffoldCmWrapper(params: {
   templateDir: string;
   compositionId: string;
   baseComponent: 'ShortVideo' | 'SplitScreenGameplay';
-}): Promise<{ entryPoint: string }>{
+}): Promise<{ entryPoint: string }> {
   const { templateDir, compositionId, baseComponent } = params;
   const remotionDir = join(templateDir, 'remotion');
   await mkdir(remotionDir, { recursive: true });
-  await mkdir(join(remotionDir, 'public'), { recursive: true });
+  const publicDir = join(templateDir, 'public');
+  await mkdir(publicDir, { recursive: true });
+  await writeFile(join(publicDir, 'README.txt'), 'Template public assets go here.\n', 'utf-8');
 
   await writeFile(
     join(remotionDir, 'index.ts'),
@@ -451,7 +453,7 @@ async function scaffoldCmWrapper(params: {
     'utf-8'
   );
 
-  return { entryPoint: 'index.ts' };
+  return { entryPoint: 'remotion/index.ts' };
 }
 
 function deriveIdFromSource(source: string): string {
@@ -562,7 +564,7 @@ export async function importRemotionTemplate(
       },
       remotion: {
         entryPoint,
-        rootDir: 'remotion',
+        rootDir: '.',
         publicDir: 'public',
         ...(options.installDeps ? { installDeps: options.installDeps } : { installDeps: 'prompt' }),
         ...(options.packageManager ? { packageManager: options.packageManager } : {}),

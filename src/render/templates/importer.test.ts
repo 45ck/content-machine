@@ -41,8 +41,8 @@ describe('importRemotionTemplate', () => {
 
       expect(templateJson.schemaVersion).toBe('1.0.0');
       expect(templateJson.id).toBe('demo-template');
-      expect(templateJson.remotion.entryPoint).toBe('index.ts');
-      expect(templateJson.remotion.rootDir).toBe('remotion');
+      expect(templateJson.remotion.entryPoint).toBe('remotion/index.ts');
+      expect(templateJson.remotion.rootDir).toBe('.');
       expect(templateJson.remotion.publicDir).toBe('public');
 
       // Wrapper files.
@@ -198,8 +198,8 @@ describe('importRemotionTemplate', () => {
       expect(result.importedFrom.resolvedSource).toContain('github:acme/demo#main');
 
       const templateJson = JSON.parse(await readFile(join(result.templateDir, 'template.json'), 'utf-8')) as any;
-      expect(templateJson.remotion.entryPoint).toBe('index.ts');
-      expect(templateJson.remotion.rootDir).toBe('remotion');
+      expect(templateJson.remotion.entryPoint).toBe('remotion/index.ts');
+      expect(templateJson.remotion.rootDir).toBe('.');
 
       await readFile(join(result.templateDir, 'imported', 'index.ts'), 'utf-8');
     } finally {
