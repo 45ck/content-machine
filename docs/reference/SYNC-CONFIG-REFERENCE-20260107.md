@@ -67,7 +67,7 @@ auto_repair = true
 
 ```toml
 [audio_mix]
-# Mix preset: clean, punchy, cinematic, viral
+# Audio mix preset id (built-in examples: clean, punchy, cinematic, viral)
 preset = "clean"
 lufs_target = -16
 

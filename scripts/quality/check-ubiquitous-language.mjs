@@ -198,6 +198,39 @@ function main() {
   if (!/Pipeline workflow/i.test(generateCmd))
     errors.push('generate.ts missing phrase: "Pipeline workflow"');
 
+  // 4) Guard reference docs from drifting back into hardcoded lists for data-driven things.
+  const docChecks = [
+    {
+      path: path.join(repoRoot, 'docs', 'reference', 'cm-script-reference-20260106.md'),
+      mustInclude: ['--archetype <idOrPath>', 'cm archetypes list'],
+      mustNotInclude: ['listicle|versus', 'howto|myth', 'story|hot-take'],
+      label: 'cm-script reference archetype docs',
+    },
+    {
+      path: path.join(repoRoot, 'docs', 'reference', 'cm-generate-reference-20260106.md'),
+      mustInclude: ['--archetype <idOrPath>', 'cm archetypes list', '--template <idOrPath>', '--workflow <idOrPath>'],
+      mustNotInclude: ['--mix-preset <preset>', '(clean, punchy, cinematic, viral)'],
+      label: 'cm-generate reference data-driven docs',
+    },
+    {
+      path: path.join(repoRoot, 'docs', 'reference', 'video-templates-reference-20260107.md'),
+      mustInclude: ['defaults.archetype` (script archetype id)'],
+      mustNotInclude: ['defaults.archetype` (`listicle|versus|howto|myth|story|hot-take`)'],
+      label: 'video-templates reference archetype defaults docs',
+    },
+  ];
+
+  for (const check of docChecks) {
+    if (!fileExists(check.path)) continue;
+    const content = fs.readFileSync(check.path, 'utf8');
+    for (const needle of check.mustInclude ?? []) {
+      if (!content.includes(needle)) errors.push(`${check.label} missing: ${needle}`);
+    }
+    for (const needle of check.mustNotInclude ?? []) {
+      if (content.includes(needle)) errors.push(`${check.label} contains banned string: ${needle}`);
+    }
+  }
+
   if (errors.length > 0) {
     console.error('Ubiquitous language checks failed:');
     for (const e of errors) console.error(`- ${e}`);

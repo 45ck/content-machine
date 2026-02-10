@@ -15,7 +15,7 @@ cm script [options]
 ## Options
 
 - `-t, --topic <topic>`: topic string (required)
-- `-a, --archetype <type>`: `listicle|versus|howto|myth|story|hot-take` (default: `listicle`)
+- `-a, --archetype <idOrPath>`: script archetype id or path to an archetype YAML file (default: `listicle`). Use `cm archetypes list`
 - `-o, --output <path>`: output JSON path (default: `script.json`)
 - `--package <path>`: packaging JSON from `cm package`
 - `--research <path>`: research JSON from `cm research` (injects evidence into LLM prompt)

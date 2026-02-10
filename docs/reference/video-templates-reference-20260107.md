@@ -47,9 +47,9 @@ Optional:
 - `description` (string)
 - `defaults.orientation` (`portrait|landscape|square`)
 - `defaults.fps` (number)
-- `defaults.captionPreset` (`tiktok|youtube|reels|bold|minimal|neon`)
+- `defaults.captionPreset` (caption preset id; built-in examples: `tiktok|youtube|reels|bold|minimal|neon`)
 - `defaults.captionConfig` (partial, merged onto preset)
-- `defaults.archetype` (`listicle|versus|howto|myth|story|hot-take`)
+- `defaults.archetype` (script archetype id)
 - `remotion` (object; code templates only)
   - `remotion.entryPoint` (string; required if `remotion` is present) Path to the Remotion entrypoint file that calls `registerRoot()`
   - `remotion.rootDir` (string; optional) Remotion project root (relative to template dir)

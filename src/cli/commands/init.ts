@@ -36,7 +36,7 @@ async function promptConfig(): Promise<Record<string, unknown>> {
   const { archetype } = await inquirer.prompt<{ archetype: string }>({
     type: 'list',
     name: 'archetype',
-    message: 'Default content archetype?',
+    message: 'Default script archetype?',
     choices: (() => {
       const archetypes = listArchetypes();
       if (archetypes.length === 0) return ['listicle'];

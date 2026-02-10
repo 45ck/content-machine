@@ -19,7 +19,7 @@ cm generate [options] <topic>
 
 ## Options
 
-- `-a, --archetype <type>`: content archetype (default: `listicle`)
+- `-a, --archetype <idOrPath>`: script archetype id or path to an archetype YAML file (default: `listicle`). Use `cm archetypes list`
 - `--template <idOrPath>`: video template id or path to `template.json`
 - `--workflow <idOrPath>`: workflow id or path to `workflow.json`
 - `--workflow-allow-exec`: allow workflow exec hooks to run
@@ -38,7 +38,7 @@ cm generate [options] <topic>
 - `--music-loop` / `--no-music-loop`: toggle music looping
 - `--music-fade-in <ms>` / `--music-fade-out <ms>`: music fades
 - `--sfx <path>`: SFX file path (repeatable)
-- `--sfx-pack <name>`: SFX pack name
+- `--sfx-pack <id>`: SFX pack id (built-in examples: `pops`, `whoosh`, `glitch`, `clicks`)
 - `--sfx-at <placement>`: auto placement (hook, scene, list-item, cta)
 - `--sfx-volume <db>`: SFX volume in dB
 - `--sfx-min-gap <ms>`: minimum gap between SFX
@@ -49,7 +49,7 @@ cm generate [options] <topic>
 - `--ambience-volume <db>`: ambience volume in dB
 - `--ambience-loop` / `--no-ambience-loop`: toggle ambience looping
 - `--ambience-fade-in <ms>` / `--ambience-fade-out <ms>`: ambience fades
-- `--mix-preset <preset>`: mix preset (clean, punchy, cinematic, viral)
+- `--mix-preset <id>`: audio mix preset id (built-in examples: `clean`, `punchy`, `cinematic`, `viral`)
 - `--lufs-target <db>`: target loudness for final mix
 - `--duration <seconds>`: target duration seconds (default: `45`)
 - `--pipeline <mode>`: pipeline mode: `audio-first` (default, requires Whisper) or `standard`

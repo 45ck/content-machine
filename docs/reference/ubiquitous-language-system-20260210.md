@@ -96,6 +96,13 @@ Important split:
 
 If you say "caption preset" without qualifying which one, it’s ambiguous.
 
+### Audio Mix Preset vs SFX Pack
+
+- **Audio Mix Preset:** a named set of defaults for music/SFX/ambience levels + LUFS target (selected via `--mix-preset`).
+- **SFX Pack:** a named bundle of SFX sources (selected via `--sfx-pack`).
+
+Both are intended to be data-defined and installable via packs; CM ships built-in examples.
+
 ## Code Templates (Trusted Mode)
 
 Render Templates are data-only by default. A template becomes a **Code Template** if it includes `template.json -> remotion`.
