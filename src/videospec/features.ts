@@ -342,12 +342,14 @@ export function analyzePcmForBeatAndSfx(params: {
   const std = Math.sqrt(variance);
   const threshold = mean + std * 2;
 
+  // Threshold-crossing onset detection is more robust than local maxima for "gated" signals.
   const peaks: number[] = [];
   const minGap = 0.08; // seconds
-  for (let i = 1; i < energies.length - 1; i++) {
+  for (let i = 1; i < energies.length; i++) {
+    const prev = energies[i - 1]!;
     const e = energies[i]!;
+    if (prev >= threshold) continue;
     if (e < threshold) continue;
-    if (e <= energies[i - 1]! || e < energies[i + 1]!) continue;
     const t = times[i]!;
     if (peaks.length > 0 && t - peaks[peaks.length - 1]! < minGap) continue;
     peaks.push(t);
@@ -365,8 +367,11 @@ export function analyzePcmForBeatAndSfx(params: {
     if (dt >= 0.25 && dt <= 1.0) intervals.push(dt);
   }
 
+  const beatCandidates = peaks.filter((t) => t <= durationSeconds).slice(0, 500);
+
   if (intervals.length < 6) {
-    return { beatGrid: { bpm: null, beats: [], confidence: 0.2 }, sfx };
+    // Not enough periodicity evidence to claim a BPM, but we can still provide beat candidates.
+    return { beatGrid: { bpm: null, beats: beatCandidates, confidence: 0.2 }, sfx };
   }
 
   intervals.sort((a, b) => a - b);
@@ -381,7 +386,7 @@ export function analyzePcmForBeatAndSfx(params: {
   const confidence = Math.max(0.2, Math.min(0.95, consistent / intervals.length));
 
   const beats: number[] = [];
-  let t = peaks[0] ?? 0;
+  let t = beatCandidates[0] ?? 0;
   const step = median;
   while (t <= durationSeconds) {
     beats.push(t);

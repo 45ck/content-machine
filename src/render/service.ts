@@ -1202,39 +1202,34 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
     if (usesTemplateProject && remotionRootDir && templateHasPackageJson(remotionRootDir)) {
       const hasNodeModules = templateHasNodeModules(remotionRootDir);
       if (!hasNodeModules) {
-        if (process.env.CM_OFFLINE === '1') {
-          throw new CMError(
-            'OFFLINE',
-            'Template dependencies are missing and cannot be installed in offline mode',
-            {
-              rootDir: remotionRootDir,
-              fix: 'Re-run without --offline (or install dependencies manually in the template rootDir)',
-            }
-          );
-        }
+        if (options.installTemplateDeps) {
+          if (process.env.CM_OFFLINE === '1') {
+            throw new CMError(
+              'OFFLINE',
+              'Template dependencies are missing and cannot be installed in offline mode',
+              {
+                rootDir: remotionRootDir,
+                fix: 'Re-run without --offline (or install dependencies manually in the template rootDir)',
+              }
+            );
+          }
 
-        if (!options.installTemplateDeps) {
-          throw new CMError('TEMPLATE_DEPS_MISSING', 'Template dependencies are not installed', {
+          safeProgress({
+            phase: 'install-template-deps',
+            progress: 0,
+            message: 'Installing template dependencies',
+          });
+          await installTemplateDependencies({
             rootDir: remotionRootDir,
-            fix: 'Run `npm install` in the template rootDir, or re-run with installTemplateDeps=true / --template-deps auto',
+            packageManager: options.templatePackageManager,
+            allowOutput: Boolean(options.templateDepsAllowOutput),
+          });
+          safeProgress({
+            phase: 'install-template-deps',
+            progress: 1,
+            message: 'Template dependencies installed',
           });
         }
-
-        safeProgress({
-          phase: 'install-template-deps',
-          progress: 0,
-          message: 'Installing template dependencies',
-        });
-        await installTemplateDependencies({
-          rootDir: remotionRootDir,
-          packageManager: options.templatePackageManager,
-          allowOutput: Boolean(options.templateDepsAllowOutput),
-        });
-        safeProgress({
-          phase: 'install-template-deps',
-          progress: 1,
-          message: 'Template dependencies installed',
-        });
       }
     }
 

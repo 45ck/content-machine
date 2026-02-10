@@ -1,5 +1,5 @@
 /**
- * Templates command - manage video templates
+ * Templates command - manage render templates.
  */
 import { Command } from 'commander';
 import { homedir } from 'os';
@@ -8,7 +8,7 @@ import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine } from '../output
 import { getCliRuntime } from '../runtime';
 import { handleCommandError } from '../utils';
 import { CMError } from '../../core/errors';
-import { resolveVideoTemplate } from '../../render/templates';
+import { importRemotionTemplate, resolveVideoTemplate } from '../../render/templates';
 import { listVideoTemplates } from '../../render/templates/registry';
 import { installTemplatePack } from '../../render/templates/installer';
 import { packVideoTemplate, scaffoldVideoTemplate } from '../../render/templates/dev';
@@ -32,6 +32,132 @@ function formatTemplateLine(entry: {
 
 export const templatesCommand = new Command('templates')
   .description('Manage render templates (Remotion composition + render defaults)')
+  .addCommand(
+    new Command('import')
+      .description('Import a Remotion template/project into a CM code template')
+      .argument(
+        '<source>',
+        'Local dir, GitHub repo (owner/repo), Remotion template URL, or a .zip URL'
+      )
+      .option('--root <dir>', 'Destination templates root directory', USER_TEMPLATES_DIR)
+      .option('--id <id>', 'Template id (kebab-case). Defaults to derived from source')
+      .option('--name <name>', 'Template display name override')
+      .option('--description <text>', 'Template description override')
+      .option(
+        '--composition <id>',
+        'Base CM composition for the wrapper (ShortVideo, SplitScreenGameplay)',
+        'ShortVideo'
+      )
+      .option('--ref <ref>', 'Git ref (branch/tag) for GitHub sources')
+      .option('--subdir <path>', 'Subdirectory within the source to import (relative)')
+      .option(
+        '--template-deps <mode>',
+        'Template deps install mode (auto, prompt, never)',
+        'prompt'
+      )
+      .option('--template-pm <pm>', 'Template package manager (npm, pnpm, yarn)')
+      .option('--force', 'Overwrite existing template if it exists', false)
+      .action(async (source, options) => {
+        try {
+          const runtime = getCliRuntime();
+          const compositionRaw = String(options.composition ?? 'ShortVideo');
+          const composition =
+            compositionRaw === 'ShortVideo' || compositionRaw === 'SplitScreenGameplay'
+              ? compositionRaw
+              : null;
+          if (!composition) {
+            throw new CMError(
+              'INVALID_ARGUMENT',
+              `Invalid --composition value: ${compositionRaw}`,
+              {
+                fix: 'Use --composition ShortVideo or --composition SplitScreenGameplay',
+              }
+            );
+          }
+
+          const installDepsRaw = String(options.templateDeps ?? 'prompt')
+            .trim()
+            .toLowerCase();
+          if (
+            installDepsRaw !== 'auto' &&
+            installDepsRaw !== 'prompt' &&
+            installDepsRaw !== 'never'
+          ) {
+            throw new CMError(
+              'INVALID_ARGUMENT',
+              `Invalid --template-deps value: ${installDepsRaw}`,
+              {
+                fix: 'Use --template-deps auto, prompt, or never',
+              }
+            );
+          }
+
+          const pmRaw = options.templatePm
+            ? String(options.templatePm).trim().toLowerCase()
+            : undefined;
+          if (pmRaw && pmRaw !== 'npm' && pmRaw !== 'pnpm' && pmRaw !== 'yarn') {
+            throw new CMError('INVALID_ARGUMENT', `Invalid --template-pm value: ${pmRaw}`, {
+              fix: 'Use --template-pm npm, pnpm, or yarn',
+            });
+          }
+
+          const result = await importRemotionTemplate({
+            source: String(source),
+            destRootDir: String(options.root ?? USER_TEMPLATES_DIR),
+            id: options.id ? String(options.id) : undefined,
+            name: options.name ? String(options.name) : undefined,
+            description: options.description ? String(options.description) : undefined,
+            cmComposition: composition,
+            ref: options.ref ? String(options.ref) : undefined,
+            subdir: options.subdir ? String(options.subdir) : undefined,
+            force: Boolean(options.force),
+            offline: runtime.offline,
+            installDeps: installDepsRaw as 'auto' | 'prompt' | 'never',
+            packageManager: pmRaw as 'npm' | 'pnpm' | 'yarn' | undefined,
+          });
+
+          if (runtime.json) {
+            writeJsonEnvelope(
+              buildJsonEnvelope({
+                command: 'templates:import',
+                args: {
+                  source,
+                  root: options.root ?? USER_TEMPLATES_DIR,
+                  id: options.id ?? null,
+                  name: options.name ?? null,
+                  description: options.description ?? null,
+                  composition,
+                  ref: options.ref ?? null,
+                  subdir: options.subdir ?? null,
+                  templateDeps: installDepsRaw,
+                  templatePm: pmRaw ?? null,
+                  force: Boolean(options.force),
+                },
+                outputs: {
+                  templateId: result.id,
+                  templateDir: result.templateDir,
+                  templatePath: result.templatePath,
+                  importedFrom: result.importedFrom,
+                },
+                timingsMs: Date.now() - runtime.startTime,
+              })
+            );
+            return;
+          }
+
+          writeStderrLine(`Imported template: ${result.id}`);
+          writeStderrLine(`Location: ${result.templateDir}`);
+          writeStderrLine(
+            `Imported from: ${result.importedFrom.resolvedSource ?? result.importedFrom.source}`
+          );
+          writeStderrLine(
+            'Next: render with --allow-template-code and edit remotion/Main.tsx to customize.'
+          );
+        } catch (error) {
+          handleCommandError(error);
+        }
+      })
+  )
   .addCommand(
     new Command('new')
       .description('Scaffold a new template directory')

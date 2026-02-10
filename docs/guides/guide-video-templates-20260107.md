@@ -1,6 +1,6 @@
 # guide-video-templates-20260107
 
-Use video templates ("render templates") to quickly switch between different viral short-form video formats (e.g. split-screen Subway Surfers, full-screen captions, audiograms) without retyping a pile of CLI flags.
+Use render templates to quickly switch between different viral short-form video formats (e.g. split-screen Subway Surfers, full-screen captions, audiograms) without retyping a pile of CLI flags.
 
 ## When to use this
 
@@ -83,6 +83,30 @@ If the template has a `package.json` and needs dependencies:
 
 ```bash
 cm render ... --allow-template-code --template-deps auto
+```
+
+## Import a Remotion template/project
+
+You can import Remotion official/community templates (or any Remotion repo) into CM as a **code template**:
+
+```bash
+# Import from Remotion template gallery (auto-detects the GitHub source)
+cm templates import https://www.remotion.dev/templates/tiktok --id remotion-tiktok
+
+# Import from GitHub shorthand
+cm templates import remotion-dev/template-tiktok --id remotion-tiktok
+```
+
+What you get:
+
+- A CM-compatible Remotion wrapper at `remotion/Main.tsx` (renders with CM's `ShortVideo` by default)
+- The imported project copied under `imported/` (so you can pull animations/components into your wrapper)
+
+Render it (explicit opt-in required):
+
+```bash
+cm render -i visuals.json --audio audio.wav --timestamps timestamps.json \
+  --template remotion-tiktok --allow-template-code -o out/video.mp4
 ```
 
 ## Add gameplay backgrounds (Subway Surfers / Minecraft parkour)

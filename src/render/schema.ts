@@ -120,7 +120,7 @@ export const RenderPropsSchema = z.object({
   captionStyle: CaptionStyleSchema.optional(),
   /** New comprehensive caption configuration */
   captionConfig: CaptionConfigSchema.optional(),
-  archetype: z.string().optional().describe('Content archetype for style defaults'),
+  archetype: z.string().optional().describe('Script archetype id (used for style defaults)'),
 });
 
 export type VideoScene = z.infer<typeof VisualAssetSchema>;

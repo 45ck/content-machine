@@ -62,4 +62,66 @@ describe('analyzeVideoToVideoSpecV1', () => {
       await rm(dir, { recursive: true, force: true });
     }
   });
+
+  test('analyzes basic audio structure when an audio stream exists', async () => {
+    const dir = join(tmpdir(), `cm-videospec-test-audio-${Date.now()}-${Math.random()}`);
+    await mkdir(dir, { recursive: true });
+    const videoPath = join(dir, 'tiny-audio.mp4');
+
+    try {
+      // 5s black video + gated sine to create periodic energy onsets.
+      await execFileAsync(
+        'ffmpeg',
+        [
+          '-hide_banner',
+          '-loglevel',
+          'error',
+          '-y',
+          '-f',
+          'lavfi',
+          '-i',
+          'color=c=black:s=320x240:d=5',
+          '-f',
+          'lavfi',
+          '-i',
+          'sine=frequency=440:duration=5',
+          '-shortest',
+          '-af',
+          // Pulse every 0.5s for ~120 BPM-like onsets.
+          'volume=if(lt(mod(t\\,0.5)\\,0.05)\\,1\\,0)',
+          '-c:v',
+          'libx264',
+          '-pix_fmt',
+          'yuv420p',
+          '-c:a',
+          'aac',
+          videoPath,
+        ],
+        { windowsHide: true, timeout: 60_000 }
+      );
+
+      const { spec } = await analyzeVideoToVideoSpecV1({
+        inputPath: videoPath,
+        cache: false,
+        ocr: false,
+        asr: false,
+        narrative: 'heuristic',
+        shotDetector: 'ffmpeg',
+        maxSeconds: 5,
+      });
+
+      // We don't assert a particular BPM here (heuristics), but we do assert that
+      // the audio analysis ran and produced a well-formed structure.
+      expect(Array.isArray(spec.audio.music_segments)).toBe(true);
+      expect(Array.isArray(spec.audio.sound_effects)).toBe(true);
+      expect(Array.isArray(spec.audio.beat_grid.beats)).toBe(true);
+      expect(typeof spec.provenance.modules.music_detection).toBe('string');
+      expect(spec.provenance.modules.music_detection).not.toBe('no-audio');
+      expect(typeof spec.provenance.modules.beat_tracking).toBe('string');
+      expect(spec.provenance.modules.beat_tracking).not.toBe('no-audio');
+      expect(typeof spec.provenance.modules.sfx_detection).toBe('string');
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
 });

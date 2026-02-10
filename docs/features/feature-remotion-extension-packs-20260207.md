@@ -1,4 +1,4 @@
-# Feature: Remotion Extension Packs (Code Templates + Animation Packs)
+# Feature: Template Packs for Code Templates + Animation Packs
 
 **Date:** 2026-02-07  
 **Status:** Implemented (Code templates + TemplateSDK; animation packs TBD)  
@@ -32,7 +32,7 @@ We need an opt-in way to run _template-provided Remotion code_ and/or import ani
 
 ---
 
-## Key Idea: Two Extension Levels
+## Key Idea: Two Capability Levels
 
 ### Level 1: Code Templates (Template-Provided Remotion Project)
 
@@ -71,6 +71,7 @@ This is how we eventually get “import animations” without forcing every user
 
 - `cm templates new <id> --mode data` (existing behavior; data-only)
 - `cm templates new <id> --mode code` (new; scaffolds a Remotion project under the template dir)
+- `cm templates import <source>` (new; imports a Remotion project/template into a CM code template wrapper)
 
 Template directory layout for code templates:
 

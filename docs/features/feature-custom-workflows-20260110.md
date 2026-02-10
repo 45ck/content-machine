@@ -165,7 +165,7 @@ into the Remotion bundle before rendering.
 
 ### Alternatives considered
 
-1. In-process plugin system (rejected)
+1. In-process code execution system (rejected)
    - High security risk, dependency conflicts, hard to sandbox.
 2. External orchestration only (status quo)
    - Works for power users but not discoverable or systemized.
@@ -207,6 +207,6 @@ maximize modularity while staying CLI-first and safe by default.
 ## Related
 
 - ADRs: [ADR-002 Visual Provider System](../architecture/ADR-002-VISUAL-PROVIDER-SYSTEM-20260107.md)
-- Guides: [Video Templates Guide](../guides/guide-video-templates-20260107.md)
+- Guides: [Render Templates Guide](../guides/guide-video-templates-20260107.md)
 - References: [cm render reference](../reference/cm-render-reference-20260106.md)
 - Research: [vidosy JSON config pattern](../research/12-vidosy-20260102.md)

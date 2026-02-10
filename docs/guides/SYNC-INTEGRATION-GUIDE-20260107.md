@@ -18,7 +18,7 @@ This document provides a software engineering blueprint for integrating advanced
 
 ---
 
-## 2. Configuration Schema Extensions
+## 2. Configuration Schema Changes
 
 ### 2.1 New Config Fields
 

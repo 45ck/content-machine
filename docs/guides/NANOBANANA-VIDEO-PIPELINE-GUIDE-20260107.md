@@ -436,7 +436,7 @@ const keyframe = await generateWithRetry(() => generateKeyframe(scenePrompt));
 
 ## Integration with Content Machine
 
-### CLI Extension
+### CLI Integration
 
 ```bash
 # Generate visuals with Nano Banana Pro

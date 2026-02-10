@@ -1,4 +1,4 @@
-# Feature: Workflow Recipes (Curated Pipelines for Common Use Cases)
+# Feature: Curated Workflows (Pipelines for Common Use Cases)
 
 **Date:** 2026-02-07  
 **Status:** Draft  
@@ -9,7 +9,7 @@
 ## Overview
 
 Workflows let teams create repeatable pipelines. The repo already supports workflow resolution and
-installation (`cm workflows ...`). What is missing is a curated set of recipes that map to the
+installation (`cm workflows ...`). What is missing is a curated set of workflows that map to the
 most common short-form production workflows.
 
 This feature ships a small set of built-in workflows and a consistent authoring story so new

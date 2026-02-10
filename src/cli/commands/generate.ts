@@ -268,7 +268,7 @@ interface GenerateOptions {
   musicFadeOut?: string;
   /** Explicit SFX files (repeatable) */
   sfx?: string[] | boolean;
-  /** SFX pack name */
+  /** SFX pack id */
   sfxPack?: string;
   /** SFX placement strategy */
   sfxAt?: string;
@@ -548,16 +548,14 @@ async function runGeneratePreflight(params: {
       if (params.runtime.offline) {
         addPreflightCheck(checks, {
           label: 'Template deps',
-          status: 'fail',
-          code: 'OFFLINE',
-          detail: 'node_modules missing (offline mode enabled)',
-          fix: 'Re-run without --offline, or install dependencies manually in the template rootDir',
+          status: 'warn',
+          detail: 'node_modules missing (offline mode enabled; will not auto-install)',
+          fix: 'Install dependencies manually in the template rootDir if bundling fails',
         });
       } else if (mode === 'never') {
         addPreflightCheck(checks, {
           label: 'Template deps',
-          status: 'fail',
-          code: 'TEMPLATE_DEPS_MISSING',
+          status: 'warn',
           detail: 'node_modules missing (--template-deps never)',
           fix: 'Run `npm install` in the template rootDir, or re-run with --template-deps auto',
         });
@@ -589,8 +587,7 @@ async function runGeneratePreflight(params: {
         } else {
           addPreflightCheck(checks, {
             label: 'Template deps',
-            status: 'fail',
-            code: 'TEMPLATE_DEPS_MISSING',
+            status: 'warn',
             detail: 'node_modules missing (non-interactive mode cannot prompt)',
             fix: 'Run `npm install` in the template rootDir, or pass --template-deps auto',
           });
@@ -2797,27 +2794,24 @@ async function runGenerate(
 
     const templateHasPackageJson = existsSync(join(remotionProject.rootDir, 'package.json'));
     const templateHasNodeModules = existsSync(join(remotionProject.rootDir, 'node_modules'));
-    installTemplateDeps =
-      templateHasPackageJson && !templateHasNodeModules
-        ? await resolveTemplateDepsInstallDecision({
-            runtime,
-            rootDir: remotionProject.rootDir,
-            mode: templateDepsMode ?? 'prompt',
-          })
-        : false;
+    const templateDepsMissing = templateHasPackageJson && !templateHasNodeModules;
+    installTemplateDeps = templateDepsMissing
+      ? await resolveTemplateDepsInstallDecision({
+          runtime,
+          rootDir: remotionProject.rootDir,
+          mode: templateDepsMode ?? 'prompt',
+        })
+      : false;
 
-    if (templateHasPackageJson && !templateHasNodeModules && runtime.offline) {
-      throw new CMError('OFFLINE', 'Offline mode enabled; cannot install template dependencies', {
-        rootDir: remotionProject.rootDir,
-        fix: 'Re-run without --offline, or install dependencies manually in the template rootDir',
-      });
-    }
-
-    if (templateHasPackageJson && !templateHasNodeModules && !installTemplateDeps) {
-      throw new CMError('TEMPLATE_DEPS_MISSING', 'Template dependencies are not installed', {
-        rootDir: remotionProject.rootDir,
-        fix: 'Run `npm install` in the template rootDir, or re-run with --template-deps auto',
-      });
+    if (templateDepsMissing && runtime.offline && templateDepsMode === 'auto') {
+      throw new CMError(
+        'OFFLINE',
+        'Offline mode enabled; cannot auto-install template dependencies',
+        {
+          rootDir: remotionProject.rootDir,
+          fix: 'Re-run without --offline, or pass --template-deps never and install dependencies manually if needed',
+        }
+      );
     }
   }
 
@@ -3350,7 +3344,7 @@ export const generateCommand = new Command('generate')
   .option('--music-fade-in <ms>', 'Music fade-in in ms')
   .option('--music-fade-out <ms>', 'Music fade-out in ms')
   .option('--sfx <path>', 'SFX file path (repeatable)', collectList, [])
-  .option('--sfx-pack <name>', 'SFX pack name')
+  .option('--sfx-pack <id>', 'SFX pack id')
   .option('--sfx-at <placement>', 'Auto placement for SFX (hook, scene, list-item, cta)')
   .option('--sfx-volume <db>', 'SFX volume in dB')
   .option('--sfx-min-gap <ms>', 'Minimum gap between SFX in ms')

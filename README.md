@@ -120,6 +120,14 @@ Content Machine is a CLI-first pipeline that transforms a topic into a short-for
 topic -> script.json -> audio.wav + timestamps.json -> visuals.json -> video.mp4
 ```
 
+## Terminology
+
+This repo has a few loaded words (template, workflow, archetype, preset, pack).
+
+- Canonical registry: `docs/reference/ubiquitous-language.yaml`
+- Generated glossary: `docs/reference/GLOSSARY.md`
+- How it is enforced: `docs/reference/ubiquitous-language-system-20260210.md`
+
 Run the full pipeline with `cm generate` or run each stage independently.
 
 ## Ubiquitous Language (Important)

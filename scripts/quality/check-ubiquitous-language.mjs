@@ -137,6 +137,31 @@ function fileExists(p) {
   }
 }
 
+function listFilesRecursive(rootDir, includeExtensions) {
+  const out = [];
+  const stack = [rootDir];
+  while (stack.length > 0) {
+    const cur = stack.pop();
+    if (!cur) continue;
+    let entries = [];
+    try {
+      entries = fs.readdirSync(cur, { withFileTypes: true });
+    } catch {
+      continue;
+    }
+    for (const ent of entries) {
+      const full = path.join(cur, ent.name);
+      if (ent.isDirectory()) {
+        stack.push(full);
+        continue;
+      }
+      const ext = path.extname(ent.name).toLowerCase();
+      if (includeExtensions.has(ext)) out.push(full);
+    }
+  }
+  return out;
+}
+
 function main() {
   const repoRoot = process.cwd();
   const registryPath = path.join(repoRoot, 'docs', 'reference', 'ubiquitous-language.yaml');
@@ -197,6 +222,71 @@ function main() {
     errors.push('generate.ts missing phrase: "Render template"');
   if (!/Pipeline workflow/i.test(generateCmd))
     errors.push('generate.ts missing phrase: "Pipeline workflow"');
+
+  // 3.5) Enforce a small set of banned phrases in user-facing surfaces.
+  //
+  // Scope: user-facing docs + CLI sources. Exclude research/architecture (historical notes)
+  // and the registry/glossary themselves (they intentionally contain "synonyms to avoid").
+  const bannedPhrases = [
+    {
+      phrase: 'content archetype',
+      fix: 'Use "script archetype" (or just "archetype" with context).',
+    },
+    { phrase: 'video template', fix: 'Use "render template".' },
+    { phrase: 'script template', fix: 'Use "script archetype".' },
+    { phrase: 'sfx pack name', fix: 'Use "SFX pack id".' },
+    { phrase: 'extension pack', fix: 'Use "pack" (or "template pack"/"workflow pack").' },
+    { phrase: 'plugin', fix: 'Prefer "pack" or "code template" depending on context.' },
+    { phrase: 'recipe', fix: 'Use "workflow".' },
+  ];
+
+  const userFacingRoots = [
+    path.join(repoRoot, 'README.md'),
+    path.join(repoRoot, 'docs', 'reference'),
+    path.join(repoRoot, 'docs', 'guides'),
+    path.join(repoRoot, 'docs', 'features'),
+    path.join(repoRoot, 'src', 'cli'),
+  ];
+
+  const skipExact = new Set([registryPath, glossaryPath]);
+  const skipDirPrefixes = [
+    path.join(repoRoot, 'docs', 'reference', 'GLOSSARY.md'),
+    path.join(repoRoot, 'docs', 'research'),
+    path.join(repoRoot, 'docs', 'architecture'),
+    path.join(repoRoot, 'vendor'),
+    path.join(repoRoot, 'node_modules'),
+    path.join(repoRoot, 'dist'),
+  ];
+
+  const textExts = new Set(['.md', '.ts', '.tsx', '.js', '.mjs', '.cjs', '.json', '.yaml', '.yml']);
+
+  for (const root of userFacingRoots) {
+    const files = fs.statSync(root).isDirectory() ? listFilesRecursive(root, textExts) : [root];
+    for (const file of files) {
+      if (skipExact.has(file)) continue;
+      if (skipDirPrefixes.some((p) => file.startsWith(p))) continue;
+
+      let content = '';
+      try {
+        content = fs.readFileSync(file, 'utf8');
+      } catch {
+        continue;
+      }
+
+      const lower = content.toLowerCase();
+      for (const rule of bannedPhrases) {
+        const idx = lower.indexOf(rule.phrase);
+        if (idx === -1) continue;
+
+        // Make the error actionable with a 1-based line number.
+        const before = lower.slice(0, idx);
+        const line = before.split('\n').length;
+        errors.push(
+          `Banned phrase "${rule.phrase}" in ${path.relative(repoRoot, file)}:${line}. Fix: ${rule.fix}`
+        );
+      }
+    }
+  }
 
   // 4) Guard reference docs from drifting back into hardcoded lists for data-driven things.
   const docChecks = [

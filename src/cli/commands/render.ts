@@ -1152,32 +1152,42 @@ async function runRenderCommand(
   const templateHasNodeModules = remotionProject
     ? existsSync(join(remotionProject.rootDir, 'node_modules'))
     : false;
-  const installTemplateDeps =
+  const templateDepsMissing = Boolean(
     remotionProject && templateHasPackageJson && !templateHasNodeModules
-      ? await resolveTemplateDepsInstallDecision({
-          runtime,
-          rootDir: remotionProject.rootDir,
-          mode: templateDepsMode ?? 'prompt',
-        })
-      : false;
-
-  if (remotionProject && templateHasPackageJson && !templateHasNodeModules && runtime.offline) {
-    throw new CMError('OFFLINE', 'Offline mode enabled; cannot install template dependencies', {
+  );
+  let installTemplateDeps = false;
+  if (templateDepsMissing) {
+    // TypeScript doesn't reliably narrow through the Boolean(...) definition above.
+    if (!remotionProject) {
+      throw new CMError(
+        'INTERNAL_ERROR',
+        'Invariant failed: templateDepsMissing implies a remotionProject',
+        { templateId: resolvedTemplate?.template.id }
+      );
+    }
+    installTemplateDeps = await resolveTemplateDepsInstallDecision({
+      runtime,
       rootDir: remotionProject.rootDir,
-      fix: 'Re-run without --offline, or install dependencies manually in the template rootDir',
+      mode: templateDepsMode ?? 'prompt',
     });
   }
 
-  if (
-    remotionProject &&
-    templateHasPackageJson &&
-    !templateHasNodeModules &&
-    !installTemplateDeps
-  ) {
-    throw new CMError('TEMPLATE_DEPS_MISSING', 'Template dependencies are not installed', {
-      rootDir: remotionProject.rootDir,
-      fix: 'Run `npm install` in the template rootDir, or re-run with --template-deps auto',
-    });
+  if (templateDepsMissing && runtime.offline && templateDepsMode === 'auto') {
+    if (!remotionProject) {
+      throw new CMError(
+        'INTERNAL_ERROR',
+        'Invariant failed: templateDepsMissing implies a remotionProject',
+        { templateId: resolvedTemplate?.template.id }
+      );
+    }
+    throw new CMError(
+      'OFFLINE',
+      'Offline mode enabled; cannot auto-install template dependencies',
+      {
+        rootDir: remotionProject.rootDir,
+        fix: 'Re-run without --offline, or pass --template-deps never and install dependencies manually if needed',
+      }
+    );
   }
 
   const audioMixPath = options.audioMix ? String(options.audioMix) : undefined;
@@ -1377,7 +1387,7 @@ export const renderCommand = new Command('render')
   .option('--audio-mix <path>', 'Audio mix plan JSON file')
   .option('--timestamps <path>', 'Timestamps JSON file', 'timestamps.json')
   .option('-o, --output <path>', 'Output video file path', 'video.mp4')
-  .option('--template <idOrPath>', 'Video template id or path to template.json')
+  .option('--template <idOrPath>', 'Render template id or path to template.json')
   .option('--allow-template-code', 'Allow executing Remotion code templates (dangerous)', false)
   .option(
     '--template-deps <mode>',

@@ -1,4 +1,4 @@
-# Feature: Video Templates ("render templates")
+# Feature: Render Templates (Template Packs)
 
 **Date:** 2026-01-07  
 **Status:** Implemented (render + generate MVP)  
@@ -8,15 +8,15 @@
 
 ## Overview
 
-We need a first-class **video template** system to support multiple short-form formats (e.g. full-screen captions, split-screen gameplay like Subway Surfers, audiograms, reddit story, screen-recording product demos) without hardcoding every style into the render pipeline.
+We need a first-class **render template** system to support multiple short-form formats (e.g. full-screen captions, split-screen gameplay like Subway Surfers, audiograms, reddit story, screen-recording product demos) without hardcoding every style into the render pipeline.
 
-A **video template** is a **data-first preset** that selects:
+A **render template** is a **data-first preset** that selects:
 
 - **Layout / composition** (which Remotion composition to render)
 - **Default render + style choices** (caption preset + overrides, theme)
 - **Asset slots** (gameplay library, overlays, fonts, background music)
 
-This is complementary to **content archetypes** (listicle/versus/howto/etc). Archetypes shape the _script/pacing_; templates shape the _visual presentation_.
+This is complementary to **script archetypes** (listicle/versus/howto/etc). Archetypes shape the _script format_; templates shape the _visual presentation_.
 
 ## User Value
 

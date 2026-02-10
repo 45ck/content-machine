@@ -1,4 +1,4 @@
-# TASK-033-feature: Workflow Recipes
+# TASK-033-feature: Curated Workflows
 
 **Type:** Feature  
 **Priority:** P2  
@@ -11,7 +11,7 @@
 
 ## Feature Description
 
-**Goal:** Ship curated built-in workflows (recipes) and add workflow scaffolding.
+**Goal:** Ship curated built-in workflows and add workflow scaffolding.
 
 ## Acceptance Criteria
 
@@ -21,7 +21,7 @@
 
 ## Required Documentation
 
-- [x] `docs/features/feature-workflow-recipes-20260207.md`
+- [x] `docs/features/feature-curated-workflows-20260207.md`
 
 ## Related
 

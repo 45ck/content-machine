@@ -54,7 +54,7 @@ The design bias is:
 
 - Visual providers V2: unify on AssetProvider and support image sources with motion strategies.
 - Asset packs: unify installation and directory conventions for hooks, templates, SFX, music, overlays, fonts.
-- Workflow recipes: ship curated workflows that map to common short-form use cases.
+- Curated workflows: ship a set of workflows that map to common short-form use cases.
 
 ### Phase 3: Quality Engine (systematic iteration)
 
@@ -76,7 +76,7 @@ Scoring: 1 (low) to 5 (high). This is a planning tool, not a guarantee.
 | Brand kits                           | 4        | 4         | 4            | 3    | 3      | P1       |
 | Visuals providers V2 + image motion  | 3        | 5         | 4            | 4    | 4      | P2       |
 | Asset packs + import UX              | 3        | 4         | 4            | 3    | 3      | P2       |
-| Workflow recipes                     | 3        | 4         | 3            | 2    | 2      | P2       |
+| Curated workflows                    | 3        | 4         | 3            | 2    | 2      | P2       |
 | Quality loop automation              | 2        | 4         | 4            | 3    | 3      | P2       |
 | Distribution (binaries/Docker)       | 4        | 2         | 3            | 3    | 4      | P3       |
 
@@ -112,6 +112,6 @@ Scoring: 1 (low) to 5 (high). This is a planning tool, not a guarantee.
   - `docs/features/feature-brand-kits-20260207.md`
   - `docs/features/feature-visuals-asset-providers-v2-20260207.md`
   - `docs/features/feature-asset-packs-and-imports-20260207.md`
-  - `docs/features/feature-workflow-recipes-20260207.md`
+  - `docs/features/feature-curated-workflows-20260207.md` (curated workflows)
   - `docs/features/feature-quality-loop-20260207.md`
   - `docs/features/feature-distribution-and-packaging-20260207.md`

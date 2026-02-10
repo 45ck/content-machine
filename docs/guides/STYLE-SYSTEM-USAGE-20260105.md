@@ -211,7 +211,7 @@ const theme = defaultThemeRegistry.get('bold-tech');
 
 ### Archetype Defaults
 
-Each content archetype maps to a default theme:
+Each script archetype maps to a default theme:
 
 | Archetype  | Default Theme |
 | ---------- | ------------- |

@@ -6,6 +6,7 @@ vi.mock('../../../../src/render/templates/registry', () => ({
 
 vi.mock('../../../../src/render/templates', () => ({
   resolveVideoTemplate: vi.fn(),
+  importRemotionTemplate: vi.fn(),
 }));
 
 vi.mock('../../../../src/render/templates/installer', () => ({
@@ -158,5 +159,32 @@ describe('cli templates command', () => {
     const payload = JSON.parse(capture.stdout.join(''));
     expect(payload.command).toBe('templates:pack');
     expect(payload.outputs.templateId).toBe('acme-demo');
+  });
+
+  it('imports a Remotion project in json mode', async () => {
+    await configureRuntime({ json: true });
+    const capture = await captureOutput();
+
+    const { importRemotionTemplate } = await import('../../../../src/render/templates');
+    (importRemotionTemplate as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      id: 'tiktok',
+      templateDir: '/tmp/tiktok',
+      templatePath: '/tmp/tiktok/template.json',
+      importedFrom: {
+        source: 'https://www.remotion.dev/templates/tiktok',
+        resolvedSource: 'github:example/myrepo#main',
+      },
+    });
+
+    const { templatesCommand } = await import('../../../../src/cli/commands/templates');
+    await templatesCommand.parseAsync(
+      ['import', 'https://www.remotion.dev/templates/tiktok', '--id', 'tiktok'],
+      { from: 'user' }
+    );
+
+    await capture.reset();
+    const payload = JSON.parse(capture.stdout.join(''));
+    expect(payload.command).toBe('templates:import');
+    expect(payload.outputs.templateId).toBe('tiktok');
   });
 });

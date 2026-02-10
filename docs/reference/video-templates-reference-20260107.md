@@ -1,6 +1,6 @@
 # video-templates reference (20260107)
 
-This document defines the **video template** contract: how templates are stored, resolved, and applied by the CLI.
+This document defines the **render template** contract: how templates are stored, resolved, and applied by the CLI.
 
 ## Definitions
 
@@ -93,7 +93,9 @@ Overlay timing fields use **seconds** (`start`, `end`).
 ├── remotion/                # optional (code templates only)
 │   ├── index.ts             # entryPoint (registerRoot)
 │   └── root.tsx             # registers compositions
-├── public/                  # optional (code templates only)
+│   └── public/              # optional (code templates only; when rootDir=remotion)
+├── public/                  # optional (code templates only; when rootDir=.)
+├── imported/                # optional (created by `cm templates import`)
 ├── assets/
 │   ├── overlays/
 │   └── fonts/
@@ -129,6 +131,7 @@ Dependency install helpers for code templates:
 - `cm templates show <id>`
 - `cm templates validate <path>`
 - `cm templates new <id> [--from <idOrPath>]`
+- `cm templates import <source>`
 - `cm templates pack <dir> -o <pack.zip>`
 - `cm templates install <zip|dir>`
 
