@@ -101,7 +101,7 @@ async function loadTemplateFromDir(templateDir: string) {
 
   const parsed = RenderTemplateSchema.safeParse(parsedJson);
   if (!parsed.success) {
-    throw new SchemaError('Invalid video template schema', {
+    throw new SchemaError('Invalid render template schema', {
       path: templatePath,
       issues: parsed.error.issues,
       fix: 'Update template.json to match the required schema',

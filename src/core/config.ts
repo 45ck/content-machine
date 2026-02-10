@@ -140,7 +140,7 @@ const RenderConfigSchema = z.object({
   fps: z.number().int().min(24).max(60).default(30),
   codec: z.enum(['h264', 'h265', 'vp9']).default('h264'),
   crf: z.number().int().min(0).max(51).default(23),
-  /** Default video template id or path to template.json */
+  /** Default render template id or path to template.json */
   template: z.string().optional(),
   /**
    * Allow executing Remotion code shipped inside template packs.

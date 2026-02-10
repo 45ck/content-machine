@@ -13,6 +13,7 @@ import { detectSceneCutsWithPySceneDetect } from '../validate/scene-detect';
 import { normalizeWord, isFuzzyMatch } from '../core/text/similarity';
 import { transcribeAudio } from '../audio/asr';
 import { createLLMProvider, type LLMProvider } from '../core/llm';
+import { resolveVideoSpecCacheDir } from './cache';
 import {
   analyzePcmForBeatAndSfx,
   classifyCameraMotionFromFrames,
@@ -38,6 +39,15 @@ export type NarrativeMode = 'off' | 'heuristic' | 'llm';
 
 export interface AnalyzeVideoToVideoSpecV1Options {
   inputPath: string;
+  /**
+   * Optional higher-level source label for `meta.source` (e.g. original URL).
+   * The analyzer still reads frames/audio from `inputPath` (local file).
+   */
+  inputSource?: string;
+  /**
+   * Optional provenance entries from ingestion/downloading before analysis.
+   */
+  provenanceSeed?: { modules?: Record<string, string>; notes?: string[] };
   outputPath?: string;
   pass?: VideoSpecPass;
   cache?: boolean;
@@ -93,12 +103,6 @@ async function sha256FileHex(path: string): Promise<string> {
     stream.on('error', reject);
   });
   return hash.digest('hex');
-}
-
-function resolveVideoSpecCacheDir(explicit?: string): string {
-  if (explicit) return resolve(explicit);
-  if (process.env.CM_VIDEOSPEC_CACHE_DIR) return resolve(process.env.CM_VIDEOSPEC_CACHE_DIR);
-  return join(process.cwd(), '.cache', 'content-machine', 'videospec');
 }
 
 async function readJsonIfExists<T>(path: string): Promise<T | null> {
@@ -1301,9 +1305,12 @@ async function analyzeNarrative(params: {
 export async function analyzeVideoToVideoSpecV1(
   options: AnalyzeVideoToVideoSpecV1Options
 ): Promise<{ spec: VideoSpecV1; outputPath?: string }> {
-  const log = createLogger({ module: 'videospec', input: options.inputPath });
-  const provenanceModules: Record<string, string> = {};
-  const provenanceNotes: string[] = [];
+  const log = createLogger({
+    module: 'videospec',
+    input: options.inputSource ?? options.inputPath,
+  });
+  const provenanceModules: Record<string, string> = { ...(options.provenanceSeed?.modules ?? {}) };
+  const provenanceNotes: string[] = [...(options.provenanceSeed?.notes ?? [])];
 
   const ctx = await createAnalyzeContext(options);
 
@@ -1364,7 +1371,7 @@ export async function analyzeVideoToVideoSpecV1(
   const spec: VideoSpecV1 = {
     meta: {
       version: VIDEOSPEC_V1_VERSION,
-      source: ctx.inputPath,
+      source: options.inputSource ?? ctx.inputPath,
       duration: ctx.durationSeconds,
       frame_rate: ctx.frameRate,
       resolution: { width: ctx.info.width, height: ctx.info.height },

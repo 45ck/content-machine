@@ -10,6 +10,7 @@ import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { analyzeVideoToVideoSpecV1, type NarrativeMode, type VideoSpecPass } from '../../videospec';
+import { resolveVideoInput } from '../../videospec';
 import { CMError } from '../../core/errors';
 
 interface VideoSpecOptions {
@@ -43,7 +44,7 @@ export const videospecCommand = new Command('videospec')
   .description(
     'Reverse-engineer a video into VideoSpec.v1.json (shots, OCR captions, transcript, narrative)'
   )
-  .requiredOption('-i, --input <path>', 'Input video path (mp4/webm/mkv)')
+  .requiredOption('-i, --input <path>', 'Input video path (mp4/webm/mkv) or URL (http/https)')
   .option('-o, --output <path>', 'Output VideoSpec JSON path', 'videospec.v1.json')
   .option('--pass <p>', 'Pass: 1 (fast), 2 (refine), both', '1')
   .option('--no-cache', 'Disable module result caching')
@@ -95,8 +96,16 @@ export const videospecCommand = new Command('videospec')
       const ocrFps = options.ocrFps ? parsePositiveNumber(options.ocrFps, '--ocr-fps') : undefined;
       const asrModel = parseWhisperModel(options.asrModel);
 
+      const resolved = await resolveVideoInput({
+        input: options.input,
+        cache: options.cache,
+        cacheDir: options.cacheDir,
+      });
+
       const result = await analyzeVideoToVideoSpecV1({
-        inputPath: options.input,
+        inputPath: resolved.inputPath,
+        inputSource: resolved.inputSource,
+        provenanceSeed: resolved.provenanceSeed,
         outputPath: options.output,
         pass,
         cache: options.cache,
@@ -111,6 +120,7 @@ export const videospecCommand = new Command('videospec')
         narrative,
       });
 
+      await resolved.cleanup?.();
       spinner.succeed('VideoSpec generated');
 
       if (runtime.json) {

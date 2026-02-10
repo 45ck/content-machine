@@ -21,6 +21,12 @@ Related docs:
 cm videospec -i input.mp4 -o output/videospec.v1.json
 ```
 
+Analyze a URL (download then analyze):
+
+```bash
+cm videospec -i https://www.youtube.com/shorts/Q7lELlgg6zQ -o output/videospec.v1.json
+```
+
 ## Dependencies
 
 Required for a useful run:
@@ -33,10 +39,11 @@ Optional (best-effort):
 - Python + `PySceneDetect` (better shot detection; otherwise falls back to ffmpeg)
 - Local Whisper.cpp assets (ASR transcript; otherwise omitted)
 - LLM provider/API key (only when using `--narrative llm`)
+- `yt-dlp` for URL inputs (or set `CM_YTDLP_PATH=/abs/path/to/yt-dlp`)
 
 ## Options
 
-- `-i, --input <path>`: input video path (required)
+- `-i, --input <path>`: input video path or URL (required)
 - `-o, --output <path>`: output JSON (default: `videospec.v1.json`)
 - `--pass <1|2|both>`: analysis pass (default: `1`)
 - `--no-cache`: disable module caching
@@ -85,6 +92,12 @@ By default, `cm videospec` caches intermediate module outputs per input file und
 - disable: `--no-cache`
 
 Cache artifacts include shot cut times, OCR segments, transcript segments, editing effects, and audio structure heuristics. The exact filenames are documented in `docs/architecture/IMPL-VIDEOSPEC-ANALYZER-20260210.md`.
+
+URL inputs are downloaded under the cache root:
+
+- `<cacheRoot>/downloads/<sha256(url)>.mp4`
+
+When you run with `--no-cache`, URL inputs are downloaded to a temporary file for analysis and then cleaned up after the command completes.
 
 ## Provenance
 

@@ -40,7 +40,7 @@ All times are seconds-from-start (`float`), timebase-normalized across modules.
 
 `cm videospec` is implemented as a modular pipeline with fault-tolerant defaults:
 
-- Ingest: `ffprobe` for duration + resolution
+- Ingest: local file path (or `http(s)` URL downloaded via `yt-dlp`), then `ffprobe` for duration + resolution
 - Shots: try PySceneDetect (Python), fall back to ffmpeg scene filter
 - OCR: `tesseract.js` over a caption-friendly bottom crop
 - ASR: `@remotion/install-whisper-cpp` (local Whisper.cpp) when installed; otherwise transcript is omitted

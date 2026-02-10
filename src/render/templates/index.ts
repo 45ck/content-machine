@@ -95,7 +95,7 @@ function loadBuiltinTemplatesSync(): {
 
     const validated = RenderTemplateSchema.safeParse(parsed);
     if (!validated.success) {
-      throw new SchemaError('Invalid built-in video template', {
+      throw new SchemaError('Invalid built-in render template', {
         path: templatePath,
         issues: validated.error.issues,
         fix: 'Fix schema issues in assets/templates/*/template.json',
@@ -177,7 +177,7 @@ async function loadTemplateFromFile(templatePath: string): Promise<RenderTemplat
 
   const parsed = RenderTemplateSchema.safeParse(parsedJson);
   if (!parsed.success) {
-    throw new SchemaError('Invalid video template', {
+    throw new SchemaError('Invalid render template', {
       path: absolutePath,
       issues: parsed.error.issues,
       fix: 'Validate required fields (id, name, compositionId) and fix schema issues',
@@ -256,8 +256,8 @@ export async function resolveRenderTemplate(spec: string): Promise<ResolvedRende
     return { template, spec, source: 'file', templatePath: candidate, templateDir: dirname(candidate) };
   }
 
-  throw new NotFoundError(`Unknown video template: ${spec}`, {
-    resource: 'video-template',
+  throw new NotFoundError(`Unknown render template: ${spec}`, {
+    resource: 'render-template',
     identifier: spec,
     searched: candidates,
     fix: 'Use a built-in template id, or install one to ~/.cm/templates/<id>/template.json, or pass a path via --template',

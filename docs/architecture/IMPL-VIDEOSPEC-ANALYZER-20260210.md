@@ -22,7 +22,9 @@ Non-goals (v1):
 
 ## Inputs And Outputs
 
-**Input:** a video file path (`mp4/webm/mkv`) passed to `analyzeVideoToVideoSpecV1()` via `cm videospec -i`.
+**Input:** a local video file path (`mp4/webm/mkv`) passed to `analyzeVideoToVideoSpecV1()` via `cm videospec -i`.
+
+`cm videospec` also accepts `http(s)` URL inputs (YouTube Shorts/Reels/etc). URL inputs are downloaded via `yt-dlp` to a local mp4 before analysis, and `provenance.modules.video_ingestion` records how ingestion happened (file vs yt-dlp, cache-hit vs tmp).
 
 **Output:** a single JSON file conforming to `VideoSpec.v1`.
 

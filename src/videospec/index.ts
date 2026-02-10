@@ -1,5 +1,7 @@
 export { analyzeVideoToVideoSpecV1 } from './analyze';
 export type { AnalyzeVideoToVideoSpecV1Options, NarrativeMode, VideoSpecPass } from './analyze';
+export { resolveVideoInput } from './ingest';
+export type { ResolvedVideoInput } from './ingest';
 
 export {
   VideoSpecV1Schema,

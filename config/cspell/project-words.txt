@@ -47,3 +47,4 @@ vidosy
 virality
 wgsn
 whisperx
+YTDLP

@@ -50,7 +50,7 @@ function assertNonEmpty(value: string, label: string): string {
 }
 
 /**
- * Scaffold a new video template directory under `rootDir`, optionally based on an existing template id.
+ * Scaffold a new render template directory under `rootDir`, optionally based on an existing template id.
  */
 export async function scaffoldVideoTemplate(
   options: ScaffoldVideoTemplateOptions
@@ -195,7 +195,7 @@ async function loadTemplateFromDir(
 
   const parsed = RenderTemplateSchema.safeParse(parsedJson);
   if (!parsed.success) {
-    throw new SchemaError('Invalid video template schema', {
+    throw new SchemaError('Invalid render template schema', {
       path: templatePath,
       issues: parsed.error.issues,
       fix: 'Update template.json to match the required schema',
@@ -206,13 +206,13 @@ async function loadTemplateFromDir(
 }
 
 /**
- * Pack a video template directory into a `.cmtemplate.zip` bundle.
+ * Pack a render template directory into a `.cmtemplate.zip` bundle.
  */
 export async function packVideoTemplate(options: PackVideoTemplateOptions): Promise<PackVideoTemplateResult> {
   const templateDir = resolve(assertNonEmpty(options.templateDir, 'templateDir'));
   if (!existsSync(templateDir)) {
     throw new NotFoundError(`Template directory not found: ${templateDir}`, {
-      resource: 'video-template',
+      resource: 'render-template',
       identifier: templateDir,
       fix: 'Provide a valid template directory path',
     });

@@ -5,7 +5,7 @@ import { SchemaError } from '../../core/errors';
 import { installTemplatePack } from './installer';
 import { packVideoTemplate, scaffoldVideoTemplate } from './dev';
 
-describe('video template dev tooling', () => {
+describe('render template dev tooling', () => {
   it('scaffolds and packs an installable template', async () => {
     const root = join(process.cwd(), 'tests', '.tmp', 'template-dev', 'scaffold-pack');
     rmSync(root, { recursive: true, force: true });
