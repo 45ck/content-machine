@@ -243,6 +243,8 @@ export type VideoSpecProvenance = z.infer<typeof VideoSpecProvenanceSchema>;
 
 /**
  * Ubiquitous Language: Zod schema for VideoSpec v1.
+ *
+ * @cmTerm videospec-v1
  */
 export const VideoSpecV1Schema = z.object({
   meta: VideoSpecMetaSchema,
@@ -258,5 +260,7 @@ export const VideoSpecV1Schema = z.object({
  * Ubiquitous Language: VideoSpec v1 (reverse-engineering artifact).
  *
  * This is the JSON contract written by `cm videospec`.
+ *
+ * @cmTerm videospec-v1
  */
 export type VideoSpecV1 = z.infer<typeof VideoSpecV1Schema>;

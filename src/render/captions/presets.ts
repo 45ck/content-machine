@@ -525,6 +525,8 @@ export const CAPTION_STYLE_PRESETS = {
 
 /**
  * Ubiquitous Language: Caption preset name.
+ *
+ * @cmTerm caption-preset
  */
 export type CaptionPresetName = keyof typeof CAPTION_STYLE_PRESETS;
 

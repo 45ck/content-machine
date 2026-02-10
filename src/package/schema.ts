@@ -11,19 +11,22 @@ export const PACKAGE_SCHEMA_VERSION = '1.0.0';
 
 /**
  * Ubiquitous Language: Packaging platform enum.
- */
-/**
- * Ubiquitous Language: Packaging platform enum.
+ *
+ * @cmTerm packaging-artifact
  */
 export const PlatformEnum = z.enum(['tiktok', 'reels', 'shorts']);
 
 /**
  * Ubiquitous Language: Packaging platform.
+ *
+ * @cmTerm packaging-artifact
  */
 export type Platform = z.infer<typeof PlatformEnum>;
 
 /**
  * A single packaging variant
+ *
+ * @cmTerm packaging-artifact
  */
 export const PackageVariantSchema = z.object({
   title: z.string().min(3).max(140).describe('Video title'),
@@ -41,6 +44,8 @@ export const PackageVariantSchema = z.object({
 
 /**
  * Ubiquitous Language: Packaging variant.
+ *
+ * @cmTerm packaging-artifact
  */
 export type PackageVariant = z.infer<typeof PackageVariantSchema>;
 
@@ -58,6 +63,8 @@ export type PackageMeta = z.infer<typeof PackageMetaSchema>;
 
 /**
  * Full package output artifact
+ *
+ * @cmTerm packaging-artifact
  */
 export const PackageOutputSchema = z
   .object({
@@ -96,6 +103,8 @@ export const PackageOutputSchema = z
 
 /**
  * Ubiquitous Language: Packaging output artifact.
+ *
+ * @cmTerm packaging-artifact
  */
 export type PackageOutput = z.infer<typeof PackageOutputSchema>;
 

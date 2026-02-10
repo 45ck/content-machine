@@ -267,6 +267,8 @@ export type ListBadgesConfig = z.infer<typeof ListBadgesConfigSchema>;
  */
 /**
  * Ubiquitous Language: Zod schema for CaptionConfig.
+ *
+ * @cmTerm caption-config
  */
 export const CaptionConfigSchema = z.object({
   /** Schema version for migrations */
@@ -368,6 +370,8 @@ export const CaptionConfigSchema = z.object({
 
 /**
  * Ubiquitous Language: Caption config (render-time caption styling contract).
+ *
+ * @cmTerm caption-config
  */
 export type CaptionConfig = z.infer<typeof CaptionConfigSchema>;
 /** Input type for CaptionConfig (before Zod transforms apply defaults) */

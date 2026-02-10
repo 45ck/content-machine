@@ -28,6 +28,8 @@ export type TemplateDependencyInstallMode = z.infer<typeof TemplateDependencyIns
  * When present on a Render Template, this points CM to a template-local Remotion project.
  * Security: This enables executing arbitrary JS/TS during bundling/rendering and must
  * be explicitly allowed by the caller.
+ *
+ * @cmTerm code-template
  */
 export const RemotionTemplateProjectSchema = z
   .object({
@@ -77,6 +79,8 @@ export const RenderTemplateDefaultsSchema = z.object({
 
 /**
  * Ubiquitous Language: Render template schema (composition + defaults).
+ *
+ * @cmTerm render-template
  */
 export const RenderTemplateSchema = z.object({
   schemaVersion: z.string().default('1.0.0'),
@@ -100,6 +104,8 @@ export const RenderTemplateSchema = z.object({
  * Ubiquitous Language: Render template.
  *
  * Data-only template config validated by {@link RenderTemplateSchema}.
+ *
+ * @cmTerm render-template
  */
 export type RenderTemplate = z.infer<typeof RenderTemplateSchema>;
 

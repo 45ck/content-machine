@@ -82,6 +82,8 @@ import {
 
 /**
  * Sync quality presets for different quality/speed tradeoffs
+ *
+ * @cmTerm sync-preset
  */
 export interface SyncPresetConfig {
   pipeline: 'standard' | 'audio-first';

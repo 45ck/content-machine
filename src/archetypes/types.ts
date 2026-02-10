@@ -16,6 +16,8 @@ export interface ArchetypeScriptSpec {
  *
  * A data-only definition that constrains the script generator to a repeatable
  * format (hook + structure + pacing rules).
+ *
+ * @cmTerm script-archetype
  */
 export interface ArchetypeSpec {
   /** Stable identifier used by CLI flags and config defaults. */

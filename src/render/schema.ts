@@ -126,11 +126,8 @@ export const RenderPropsSchema = z.object({
 
 export type VideoScene = z.infer<typeof VisualAssetSchema>;
 export type VideoClip = z.infer<typeof VideoClipSchema>;
-/**
- * Ubiquitous Language: Hook clip (intro hook overlay video).
- */
-export type HookClip = z.infer<typeof HookClipSchema>;
-export type HookClipInput = z.input<typeof HookClipSchema>;
+// Re-export canonical hook types (avoid duplicate ubiquitous-language declarations).
+export type { HookClip, HookClipInput } from '../hooks/schema';
 export type RenderProps = z.infer<typeof RenderPropsSchema>;
 /** Input type for RenderProps (before Zod transforms apply defaults) */
 export type RenderPropsInput = z.input<typeof RenderPropsSchema>;

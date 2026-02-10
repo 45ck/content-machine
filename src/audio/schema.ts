@@ -12,6 +12,8 @@ export const AUDIO_SCHEMA_VERSION = '1.0.0';
 
 /**
  * Ubiquitous Language: Word timestamp (word-level alignment).
+ *
+ * @cmTerm timestamps-artifact
  */
 export const WordTimestampSchema = z.object({
   word: z.string().min(1),
@@ -27,6 +29,8 @@ export type WordTimestamp = z.infer<typeof WordTimestampSchema>;
 
 /**
  * Ubiquitous Language: Scene timestamp block (sceneId -> words).
+ *
+ * @cmTerm timestamps-artifact
  */
 export const SceneTimestampSchema = z.object({
   sceneId: z.string(),
@@ -37,6 +41,8 @@ export const SceneTimestampSchema = z.object({
 
 /**
  * Ubiquitous Language: Scene timestamp block.
+ *
+ * @cmTerm timestamps-artifact
  */
 export type SceneTimestamp = z.infer<typeof SceneTimestampSchema>;
 
@@ -56,6 +62,8 @@ export type TranscriptSegment = z.infer<typeof TranscriptSegmentSchema>;
 
 /**
  * Ubiquitous Language: Timestamps output artifact schema (timestamps.json).
+ *
+ * @cmTerm timestamps-artifact
  */
 export const TimestampsOutputSchema = z.object({
   schemaVersion: z.string().default(AUDIO_SCHEMA_VERSION),
@@ -90,6 +98,8 @@ export const TimestampsOutputSchema = z.object({
 
 /**
  * Ubiquitous Language: Timestamps output artifact.
+ *
+ * @cmTerm timestamps-artifact
  */
 export type TimestampsOutput = z.infer<typeof TimestampsOutputSchema>;
 

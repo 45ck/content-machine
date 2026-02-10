@@ -85,7 +85,7 @@ export default [
       'jsdoc/check-param-names': 'error',
       // Too strict for example blocks inside JSDoc (e.g., CLI usage snippets).
       'jsdoc/check-indentation': 'off',
-      'jsdoc/check-tag-names': ['error', { definedTags: ['packageDocumentation'] }],
+      'jsdoc/check-tag-names': ['error', { definedTags: ['packageDocumentation', 'cmTerm'] }],
       'jsdoc/check-types': 'error',
 
       // === MAINTAINABILITY GATES ===

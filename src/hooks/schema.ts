@@ -10,11 +10,15 @@ import { z } from 'zod';
  *
  * - mute: mute hook audio
  * - keep: keep hook audio
+ *
+ * @cmTerm hook-clip
  */
 export const HookAudioModeEnum = z.enum(['mute', 'keep']);
 
 /**
  * Ubiquitous Language: Hook fit mode (how the hook video fits its container).
+ *
+ * @cmTerm hook-clip
  */
 export const HookFitEnum = z.enum(['cover', 'contain']);
 export const HookSourceEnum = z.enum(['library', 'file', 'url']);
@@ -44,6 +48,8 @@ export const HookTriggerEnum = z.enum([
 
 /**
  * Ubiquitous Language: Hook definition entry (library metadata).
+ *
+ * @cmTerm hook-clip
  */
 export const HookDefinitionSchema = z.object({
   id: z.string().min(1),
@@ -59,6 +65,8 @@ export const HookDefinitionSchema = z.object({
 
 /**
  * Ubiquitous Language: Hook clip (resolved clip used in rendering).
+ *
+ * @cmTerm hook-clip
  */
 export const HookClipSchema = z.object({
   path: z.string(),
@@ -80,12 +88,16 @@ export type HookTrigger = z.infer<typeof HookTriggerEnum>;
  *
  * A selectable hook option (id, title, source URL/file) that can be resolved
  * into a concrete {@link HookClip}.
+ *
+ * @cmTerm hook-clip
  */
 export type HookDefinition = z.infer<typeof HookDefinitionSchema>;
 /**
  * Ubiquitous Language: Hook clip (resolved asset).
  *
  * A concrete video clip (path + timing + fit/mute) used at render-time.
+ *
+ * @cmTerm hook-clip
  */
 export type HookClip = z.infer<typeof HookClipSchema>;
 export type HookClipInput = z.input<typeof HookClipSchema>;

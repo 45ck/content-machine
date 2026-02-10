@@ -72,7 +72,11 @@ const BUILTIN_THEMES: Record<string, Theme> = {
   },
 };
 
-/** Theme registry interface */
+/**
+ * Theme registry interface
+ *
+ * @cmTerm theme
+ */
 export interface ThemeRegistry {
   get(name: string): Theme | undefined;
   getForArchetype(archetype: Archetype): Theme;

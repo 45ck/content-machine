@@ -57,11 +57,15 @@ export const AUDIO_MIX_PRESETS: Record<string, AudioMixPresetDefaults> = Object.
  * Ubiquitous Language: Audio mix preset id schema.
  *
  * Note: We intentionally do NOT hardcode an enum here; custom presets are expected to exist.
+ *
+ * @cmTerm audio-mix-preset
  */
 export const AudioMixPresetIdSchema = z.string().min(1);
 
 /**
  * Ubiquitous Language: Audio mix preset id.
+ *
+ * @cmTerm audio-mix-preset
  */
 export type AudioMixPresetId = z.infer<typeof AudioMixPresetIdSchema>;
 
@@ -76,11 +80,15 @@ export function isBuiltinAudioMixPresetId(value: string): value is BuiltinAudioM
 
 /**
  * Ubiquitous Language: SFX placement enum.
+ *
+ * @cmTerm sfx-placement
  */
 export const SfxPlacementEnum = z.enum(['hook', 'scene', 'list-item', 'cta']);
 
 /**
  * Ubiquitous Language: SFX placement.
+ *
+ * @cmTerm sfx-placement
  */
 export type SfxPlacement = z.infer<typeof SfxPlacementEnum>;
 
@@ -110,11 +118,15 @@ export const SFX_PACKS = Object.freeze({
  * Ubiquitous Language: SFX pack id schema.
  *
  * Note: We intentionally do NOT hardcode an enum here; custom packs are expected to exist.
+ *
+ * @cmTerm sfx-pack
  */
 export const SfxPackIdSchema = z.string().min(1);
 
 /**
  * Ubiquitous Language: SFX pack id.
+ *
+ * @cmTerm sfx-pack
  */
 export type SfxPackId = z.infer<typeof SfxPackIdSchema>;
 

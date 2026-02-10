@@ -1,38 +1,8 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { parse as parseYaml } from 'yaml';
-import { z } from 'zod';
+import { readUbiquitousLanguageRegistry } from './lib/ubiquitous-language.mjs';
 
 const RepoRoot = process.cwd();
-
-const RegistrySchema = z.object({
-  version: z.number().int().positive(),
-  terms: z.array(
-    z.object({
-      term: z.string().min(1),
-      canonicalName: z.string().min(1),
-      definition: z.string().min(1),
-      nonExamples: z.array(z.string().min(1)).default([]),
-      canonicalTypes: z.array(z.string().min(1)).default([]),
-      canonicalSchemas: z.array(z.string().min(1)).default([]),
-      ownedBy: z.string().min(1),
-      whereItLives: z.array(z.string().min(1)).default([]),
-      cliSurface: z.array(z.string().min(1)).default([]),
-      synonymsToAvoid: z.array(z.string().min(1)).default([]),
-    })
-  ),
-});
-
-function readRegistry() {
-  const filePath = path.join(RepoRoot, 'docs', 'reference', 'ubiquitous-language.yaml');
-  const raw = fs.readFileSync(filePath, 'utf8');
-  const parsed = parseYaml(raw);
-  const validated = RegistrySchema.parse(parsed);
-
-  // Stable sort so diffs are deterministic.
-  validated.terms.sort((a, b) => a.canonicalName.localeCompare(b.canonicalName));
-  return { registry: validated };
-}
 
 function mdList(items) {
   if (!items || items.length === 0) return '';
@@ -53,6 +23,8 @@ function generateGlossaryMd(params) {
 
   for (const t of registry.terms) {
     lines.push(`## ${t.canonicalName}`);
+    lines.push('');
+    lines.push(`**Id:** \`${t.id}\``);
     lines.push('');
     lines.push(`**Term:** ${t.term}`);
     lines.push('');
@@ -116,7 +88,7 @@ async function formatMarkdown(md, outPath) {
 }
 
 async function main() {
-  const { registry } = readRegistry();
+  const { registry } = readUbiquitousLanguageRegistry({ repoRoot: RepoRoot });
   const outPath = path.join(RepoRoot, 'docs', 'reference', 'GLOSSARY.md');
   const md = generateGlossaryMd({ registry });
   const formatted = await formatMarkdown(md, outPath);

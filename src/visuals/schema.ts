@@ -26,6 +26,8 @@ export const VISUALS_SCHEMA_VERSION = '1.1.0';
  */
 /**
  * Ubiquitous Language: Visual source discriminator.
+ *
+ * @cmTerm visuals-artifact
  */
 export const VisualSourceEnum = z.enum([
   // Video sources (no motion needed)
@@ -45,6 +47,8 @@ export const VisualSourceEnum = z.enum([
 
 /**
  * Ubiquitous Language: Visual source discriminator.
+ *
+ * @cmTerm visuals-artifact
  */
 export type VisualSource = z.infer<typeof VisualSourceEnum>;
 
@@ -58,11 +62,15 @@ export type VisualSource = z.infer<typeof VisualSourceEnum>;
  */
 /**
  * Ubiquitous Language: Motion strategy for animating static images.
+ *
+ * @cmTerm motion-strategy
  */
 export const MotionStrategyEnum = z.enum(['none', 'kenburns', 'depthflow', 'veo']);
 
 /**
  * Ubiquitous Language: Motion strategy type.
+ *
+ * @cmTerm motion-strategy
  */
 export type MotionStrategyType = z.infer<typeof MotionStrategyEnum>;
 
@@ -129,6 +137,8 @@ const VisualAssetBaseSchema = z.object({
  */
 /**
  * Ubiquitous Language: Visual asset (per-scene) contract.
+ *
+ * @cmTerm visuals-artifact
  */
 export const VisualAssetSchema = VisualAssetBaseSchema.transform((asset) => ({
   ...asset,
@@ -145,6 +155,8 @@ export type VisualAssetInput = z.input<typeof VisualAssetSchema>;
 
 /**
  * Output type after parsing VisualAsset (with defaults applied).
+ *
+ * @cmTerm visuals-artifact
  */
 export type VisualAsset = z.output<typeof VisualAssetSchema>;
 
@@ -186,6 +198,8 @@ export type Keyword = z.infer<typeof KeywordSchema>;
  */
 /**
  * Ubiquitous Language: Gameplay clip metadata (for split-screen templates).
+ *
+ * @cmTerm gameplay-clip
  */
 export const GameplayClipSchema = z.object({
   path: z.string(),
@@ -197,6 +211,8 @@ export const GameplayClipSchema = z.object({
 
 /**
  * Ubiquitous Language: Gameplay clip metadata.
+ *
+ * @cmTerm gameplay-clip
  */
 export type GameplayClip = z.infer<typeof GameplayClipSchema>;
 
@@ -238,6 +254,8 @@ const VisualsOutputBaseSchema = z.object({
  */
 /**
  * Ubiquitous Language: Visuals output artifact schema (visuals.json).
+ *
+ * @cmTerm visuals-artifact
  */
 export const VisualsOutputSchema = VisualsOutputBaseSchema.transform((output) => ({
   ...output,
@@ -252,5 +270,7 @@ export type VisualsOutputInput = z.input<typeof VisualsOutputSchema>;
 
 /**
  * Output type after parsing VisualsOutput (with defaults applied).
+ *
+ * @cmTerm visuals-artifact
  */
 export type VisualsOutput = z.output<typeof VisualsOutputSchema>;

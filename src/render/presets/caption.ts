@@ -15,6 +15,8 @@ import type { AnimationType } from './animation';
  *
  * An input to the render *style system* (themes -> tokens). This is distinct from
  * `CaptionConfig` / `CAPTION_STYLE_PRESETS`, which affect burned-in captions.
+ *
+ * @cmTerm theme-caption-preset
  */
 export interface ThemeCaptionPreset {
   readonly typography: TypographyPreset;
@@ -124,5 +126,7 @@ export const THEME_CAPTION_PRESETS = Object.freeze({
 
 /**
  * Ubiquitous Language: Theme caption preset name.
+ *
+ * @cmTerm theme-caption-preset
  */
 export type ThemeCaptionPresetName = keyof typeof THEME_CAPTION_PRESETS;

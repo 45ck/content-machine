@@ -32,6 +32,7 @@ enforcement:
 
 terms:
   - term: Archetype
+    id: script-archetype
     canonicalName: Script Archetype
     definition: >
       A script format (hook + structure + pacing rules) used by the script stage.
@@ -60,6 +61,7 @@ terms:
       - script template
 
   - term: Template
+    id: render-template
     canonicalName: Render Template
     definition: >
       A render preset that selects a Remotion composition and provides render defaults
@@ -87,6 +89,7 @@ terms:
       - theme
 
   - term: TemplatePack
+    id: template-pack
     canonicalName: Template Pack
     definition: >
       A distributable bundle (directory or .zip) that installs a Render Template into
@@ -107,6 +110,7 @@ terms:
       - plugin
 
   - term: Pack
+    id: pack
     canonicalName: Pack
     definition: >
       A distributable bundle (directory or .zip) containing data-defined CM resources
@@ -129,6 +133,7 @@ terms:
       - extension
 
   - term: CodeTemplate
+    id: code-template
     canonicalName: Code Template
     definition: >
       A template pack that also ships a Remotion project (entrypoint + compositions). When a
@@ -151,6 +156,7 @@ terms:
       - code pack
 
   - term: PromptTemplate
+    id: prompt-template
     canonicalName: Prompt Template
     definition: >
       A reusable text prompt (with variables) used to generate or transform artifacts inside CM
@@ -171,6 +177,7 @@ terms:
       - render template
 
   - term: Composition
+    id: remotion-composition
     canonicalName: Remotion Composition
     definition: >
       A Remotion composition id that defines the video layout and timeline behavior
@@ -189,6 +196,7 @@ terms:
       - 'cm render --template <idOrPath> (indirectly)'
 
   - term: Workflow
+    id: pipeline-workflow
     canonicalName: Pipeline Workflow
     definition: >
       A pipeline orchestration preset for cm generate. Workflows can select stage modes
@@ -214,6 +222,7 @@ terms:
       - recipe
 
   - term: Preset
+    id: preset
     canonicalName: Preset
     definition: >
       A named set of default values for a specific subsystem (e.g. captions, sync, audio mix).
@@ -231,6 +240,7 @@ terms:
       - 'cm audio --mix-preset ...'
 
   - term: SyncPreset
+    id: sync-preset
     canonicalName: Sync Preset
     definition: >
       A named quality/speed tradeoff preset for timestamp sync in `cm generate` (fast/standard/quality/maximum).
@@ -248,6 +258,7 @@ terms:
       - 'cm generate --sync-preset <fast|standard|quality|maximum>'
 
   - term: AudioMixPreset
+    id: audio-mix-preset
     canonicalName: Audio Mix Preset
     definition: >
       A named set of audio mix defaults (music/SFX/ambience levels and LUFS target) used by the audio mix planner.
@@ -270,6 +281,7 @@ terms:
       - profile
 
   - term: SfxPack
+    id: sfx-pack
     canonicalName: SFX Pack
     definition: >
       A named bundle of short sound effects used by the audio mix planner (pops/whooshes/clicks/etc).
@@ -289,6 +301,7 @@ terms:
       - 'cm generate --sfx-pack <id>'
 
   - term: SfxPlacement
+    id: sfx-placement
     canonicalName: SFX Placement
     definition: >
       A scheduling rule for when SFX events are placed relative to the script timeline (hook/scene/list-item/cta).
@@ -307,6 +320,7 @@ terms:
       - 'cm generate --sfx-at <hook|scene|list-item|cta>'
 
   - term: Artifact
+    id: pipeline-artifact
     canonicalName: Pipeline Artifact
     definition: >
       An intermediate file produced/consumed by pipeline stages (script.json, audio.wav,
@@ -322,6 +336,7 @@ terms:
       - 'cm script|audio|visuals|render|generate'
 
   - term: Packaging
+    id: packaging-artifact
     canonicalName: Packaging Artifact
     definition: >
       A versioned JSON artifact produced by `cm package` containing multiple title/cover/hook variants
@@ -344,6 +359,7 @@ terms:
       - 'cm package <topic> -o packaging.json'
 
   - term: Stage
+    id: pipeline-stage
     canonicalName: Pipeline Stage
     definition: >
       One step in the pipeline: script, audio, visuals, render. Stages can be run individually
@@ -359,6 +375,7 @@ terms:
       - 'cm script|audio|visuals|render|generate'
 
   - term: Provider
+    id: provider
     canonicalName: Provider
     definition: >
       An external system/integration used by a stage (LLM providers, stock visuals providers,
@@ -377,6 +394,7 @@ terms:
       - 'cm visuals --provider <id>'
 
   - term: Hook
+    id: hook-clip
     canonicalName: Hook Clip
     definition: >
       A short intro clip used to stop the scroll in the first ~1-3 seconds. Hooks can be selected
@@ -401,6 +419,7 @@ terms:
       - 'cm hooks list|download|show'
 
   - term: MotionStrategy
+    id: motion-strategy
     canonicalName: Motion Strategy
     definition: >
       The technique used to animate static images into moving visuals at render-time
@@ -418,6 +437,7 @@ terms:
       - 'cm visuals --motion-strategy <id>'
 
   - term: GameplayClip
+    id: gameplay-clip
     canonicalName: Gameplay Clip
     definition: >
       Optional gameplay footage used by split-screen templates as background (e.g. Subway Surfers).
@@ -436,6 +456,7 @@ terms:
       - 'cm render --gameplay <path>'
 
   - term: Timestamps
+    id: timestamps-artifact
     canonicalName: Timestamps Artifact
     definition: >
       The word-level and scene-level timestamps contract used for caption sync and pacing.
@@ -459,6 +480,7 @@ terms:
       - 'cm render --timestamps <path>'
 
   - term: Visuals
+    id: visuals-artifact
     canonicalName: Visuals Artifact
     definition: >
       The per-scene visual plan consumed by rendering (clips/images per scene, trimming, metadata).
@@ -482,6 +504,7 @@ terms:
       - 'cm render --input visuals.json'
 
   - term: Captions
+    id: caption-config
     canonicalName: Caption Config
     definition: >
       The full caption styling and layout contract used by rendering (fonts, safe zones, display
@@ -499,6 +522,7 @@ terms:
       - 'cm render --caption-preset <id> [--caption-* flags]'
 
   - term: CaptionPreset
+    id: caption-preset
     canonicalName: Caption Preset
     definition: >
       A named, tested baseline `CaptionConfig` (e.g. tiktok/capcut) that can be deep-overridden
@@ -515,6 +539,7 @@ terms:
       - 'cm render --caption-preset <name>'
 
   - term: ThemeCaptionPreset
+    id: theme-caption-preset
     canonicalName: Theme Caption Preset
     definition: >
       A preset used by the render style system (themes -> tokens) to produce consistent
@@ -535,6 +560,7 @@ terms:
       - caption preset
 
   - term: Theme
+    id: theme
     canonicalName: Theme
     definition: >
       A style-system definition that groups palette + typography + animation + theme caption preset
@@ -555,6 +581,7 @@ terms:
       - template
 
   - term: StyleResolver
+    id: style-resolver
     canonicalName: Style Resolver
     definition: >
       The function that resolves Theme references into concrete, render-ready style values
@@ -573,6 +600,7 @@ terms:
     cliSurface: []
 
   - term: Profile
+    id: validation-profile
     canonicalName: Validation Profile
     definition: >
       A named set of validation thresholds for cm validate (e.g. portrait/landscape).
@@ -589,6 +617,7 @@ terms:
       - 'cm validate <video> --profile <id>'
 
   - term: VideoSpec
+    id: videospec-v1
     canonicalName: VideoSpec v1 (Reverse-Engineering Artifact)
     definition: >
       A single versioned JSON artifact emitted by `cm videospec` that captures a best-effort,

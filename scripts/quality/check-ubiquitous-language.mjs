@@ -1,8 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
-import { parse as parseYaml } from 'yaml';
 import ts from 'typescript';
+import {
+  buildCanonicalExportToTermIdMap,
+  readUbiquitousLanguageRegistry,
+} from '../lib/ubiquitous-language.mjs';
 
 function run(cmd, args, opts = {}) {
   return execFileSync(cmd, args, { encoding: 'utf8', ...opts }).trimEnd();
@@ -68,7 +71,29 @@ function findDeclarationFile(repoRoot, name) {
   return null;
 }
 
-function assertCanonicalHasJsDoc(repoRoot, name, errors) {
+function extractCmTermTags(node) {
+  const out = [];
+  const tags = ts.getJSDocTags(node) ?? [];
+  for (const tag of tags) {
+    const tagName = tag.tagName?.getText?.();
+    if (tagName !== 'cmTerm') continue;
+
+    const comment = tag.comment;
+    if (typeof comment === 'string') {
+      const v = comment.trim();
+      if (v) out.push(v);
+      continue;
+    }
+
+    // Fall back to parsing tag text if TS doesn't provide a string comment.
+    const text = tag.getText?.() ?? '';
+    const m = text.match(/@cmTerm\\s+([^\\s*]+)/);
+    if (m?.[1]) out.push(m[1].trim());
+  }
+  return out;
+}
+
+function assertCanonicalHasJsDoc(repoRoot, name, expectedTermId, errors) {
   const declFile = findDeclarationFile(repoRoot, name);
   if (!declFile) {
     errors.push(`Missing exported declaration for canonical name (re-export only?): ${name}`);
@@ -90,6 +115,22 @@ function assertCanonicalHasJsDoc(repoRoot, name, errors) {
     errors.push(`Missing JSDoc for canonical export: ${name} (${declFile}:${line + 1})`);
   }
 
+  function recordMissingTerm(node) {
+    const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
+    errors.push(
+      `Missing @cmTerm ${expectedTermId} for canonical export: ${name} (${declFile}:${line + 1})`
+    );
+  }
+
+  function recordWrongTerm(node, actual) {
+    const { line } = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
+    errors.push(
+      `Wrong @cmTerm for canonical export: ${name} (${declFile}:${line + 1}). Expected: ${expectedTermId}. Found: ${actual.join(
+        ', '
+      )}`
+    );
+  }
+
   for (const st of sourceFile.statements) {
     if (!isExported(st)) continue;
 
@@ -97,6 +138,11 @@ function assertCanonicalHasJsDoc(repoRoot, name, errors) {
       for (const decl of st.declarationList.declarations) {
         if (ts.isIdentifier(decl.name) && decl.name.text === name) {
           if (!hasJsDoc(st, sourceFile)) recordMissing(st);
+          else {
+            const tags = extractCmTermTags(st);
+            if (tags.length === 0) recordMissingTerm(st);
+            else if (!tags.includes(expectedTermId)) recordWrongTerm(st, tags);
+          }
           return;
         }
       }
@@ -105,22 +151,47 @@ function assertCanonicalHasJsDoc(repoRoot, name, errors) {
 
     if (ts.isTypeAliasDeclaration(st) && st.name.text === name) {
       if (!hasJsDoc(st, sourceFile)) recordMissing(st);
+      else {
+        const tags = extractCmTermTags(st);
+        if (tags.length === 0) recordMissingTerm(st);
+        else if (!tags.includes(expectedTermId)) recordWrongTerm(st, tags);
+      }
       return;
     }
     if (ts.isInterfaceDeclaration(st) && st.name.text === name) {
       if (!hasJsDoc(st, sourceFile)) recordMissing(st);
+      else {
+        const tags = extractCmTermTags(st);
+        if (tags.length === 0) recordMissingTerm(st);
+        else if (!tags.includes(expectedTermId)) recordWrongTerm(st, tags);
+      }
       return;
     }
     if (ts.isFunctionDeclaration(st) && st.name?.text === name) {
       if (!hasJsDoc(st, sourceFile)) recordMissing(st);
+      else {
+        const tags = extractCmTermTags(st);
+        if (tags.length === 0) recordMissingTerm(st);
+        else if (!tags.includes(expectedTermId)) recordWrongTerm(st, tags);
+      }
       return;
     }
     if (ts.isClassDeclaration(st) && st.name?.text === name) {
       if (!hasJsDoc(st, sourceFile)) recordMissing(st);
+      else {
+        const tags = extractCmTermTags(st);
+        if (tags.length === 0) recordMissingTerm(st);
+        else if (!tags.includes(expectedTermId)) recordWrongTerm(st, tags);
+      }
       return;
     }
     if (ts.isEnumDeclaration(st) && st.name.text === name) {
       if (!hasJsDoc(st, sourceFile)) recordMissing(st);
+      else {
+        const tags = extractCmTermTags(st);
+        if (tags.length === 0) recordMissingTerm(st);
+        else if (!tags.includes(expectedTermId)) recordWrongTerm(st, tags);
+      }
       return;
     }
   }
@@ -167,12 +238,14 @@ function main() {
   const registryPath = path.join(repoRoot, 'docs', 'reference', 'ubiquitous-language.yaml');
   const glossaryPath = path.join(repoRoot, 'docs', 'reference', 'GLOSSARY.md');
   const idsPath = path.join(repoRoot, 'src', 'domain', 'ids.ts');
+  const ulTsPath = path.join(repoRoot, 'src', 'domain', 'ubiquitous-language.generated.ts');
   const cspellDictPath = path.join(repoRoot, 'config', 'cspell', 'ubiquitous-language.txt');
 
   const errors = [];
   if (!fileExists(registryPath)) errors.push(`Missing registry: ${registryPath}`);
   if (!fileExists(glossaryPath)) errors.push(`Missing glossary: ${glossaryPath}`);
   if (!fileExists(idsPath)) errors.push(`Missing ids module: ${idsPath}`);
+  if (!fileExists(ulTsPath)) errors.push(`Missing generated TS registry: ${ulTsPath}`);
   if (!fileExists(cspellDictPath)) errors.push(`Missing cspell dictionary: ${cspellDictPath}`);
 
   if (errors.length > 0) {
@@ -181,7 +254,13 @@ function main() {
     process.exit(1);
   }
 
-  const parsed = parseYaml(fs.readFileSync(registryPath, 'utf8'));
+  const { registry } = readUbiquitousLanguageRegistry({ repoRoot });
+
+  if ((registry.enforcement?.bannedPhrases ?? []).length === 0) {
+    errors.push(
+      'enforcement.bannedPhrases must not be empty in docs/reference/ubiquitous-language.yaml'
+    );
+  }
 
   // 1) Ensure glossary is generated from registry (idempotent).
   const before = fs.readFileSync(glossaryPath, 'utf8');
@@ -203,8 +282,20 @@ function main() {
     process.exit(1);
   }
 
+  // 1.75) Ensure the generated TS registry is generated from YAML (idempotent).
+  const ulTsBefore = fs.readFileSync(ulTsPath, 'utf8');
+  run(process.execPath, [path.join(repoRoot, 'scripts', 'gen-ubiquitous-language-ts.mjs')], {
+    cwd: repoRoot,
+  });
+  const ulTsAfter = fs.readFileSync(ulTsPath, 'utf8');
+  if (ulTsBefore !== ulTsAfter) {
+    console.error('Generated TS registry is out of date.');
+    console.error('Fix: run `npm run ul:gen` and commit the result.');
+    process.exit(1);
+  }
+
   // 2) Ensure canonical type/schema names exist somewhere in src/.
-  const terms = Array.isArray(parsed?.terms) ? parsed.terms : [];
+  const terms = Array.isArray(registry?.terms) ? registry.terms : [];
 
   const names = [];
   for (const t of terms) {
@@ -219,8 +310,14 @@ function main() {
   }
 
   // 2.5) Ensure canonical types/schemas have JSDoc in their declaring module.
+  const expectedTermIdByExport = buildCanonicalExportToTermIdMap(registry);
   for (const name of uniqueNames) {
-    assertCanonicalHasJsDoc(repoRoot, name, errors);
+    const expected = expectedTermIdByExport.get(name);
+    if (!expected) {
+      errors.push(`Missing term id mapping for canonical export in registry: ${name}`);
+      continue;
+    }
+    assertCanonicalHasJsDoc(repoRoot, name, expected, errors);
   }
 
   // 3) Guard the most visible CLI help strings (static check).
@@ -253,18 +350,15 @@ function main() {
     { phrase: 'recipe', fix: 'Use "workflow".' },
   ];
 
-  const yamlBanned = parsed?.enforcement?.bannedPhrases;
-  const bannedPhrases =
-    Array.isArray(yamlBanned) && yamlBanned.length > 0
-      ? yamlBanned
-          .map((r) => ({
-            phrase: String(r?.phrase ?? '')
-              .toLowerCase()
-              .trim(),
-            fix: String(r?.fix ?? '').trim(),
-          }))
-          .filter((r) => r.phrase && r.fix)
-      : defaultBannedPhrases;
+  const yamlBanned = registry?.enforcement?.bannedPhrases;
+  const bannedPhrases = (Array.isArray(yamlBanned) ? yamlBanned : defaultBannedPhrases)
+    .map((r) => ({
+      phrase: String(r?.phrase ?? '')
+        .toLowerCase()
+        .trim(),
+      fix: String(r?.fix ?? '').trim(),
+    }))
+    .filter((r) => r.phrase && r.fix);
 
   const userFacingRoots = [
     path.join(repoRoot, 'README.md'),

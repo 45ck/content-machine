@@ -61,6 +61,8 @@ export type WorkflowHooks = z.infer<typeof WorkflowHooksSchema>;
 
 /**
  * Ubiquitous Language: Workflow definition schema (cm generate orchestration preset).
+ *
+ * @cmTerm pipeline-workflow
  */
 export const WorkflowDefinitionSchema = z.object({
   schemaVersion: z.string().default(WORKFLOW_SCHEMA_VERSION),
@@ -77,5 +79,7 @@ export const WorkflowDefinitionSchema = z.object({
  * Ubiquitous Language: Pipeline workflow definition.
  *
  * Data-only orchestration preset validated by {@link WorkflowDefinitionSchema}.
+ *
+ * @cmTerm pipeline-workflow
  */
 export type WorkflowDefinition = z.infer<typeof WorkflowDefinitionSchema>;

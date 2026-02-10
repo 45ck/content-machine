@@ -28,6 +28,7 @@
     "cm": "tsx src/cli/index.ts",
     "glossary:gen": "node scripts/gen-glossary.mjs",
     "glossary:check": "node scripts/quality/check-ubiquitous-language.mjs",
+    "ul:gen": "node scripts/gen-ubiquitous-language-ts.mjs",
     "cspell:gen": "node scripts/gen-cspell.mjs",
     "cspell:check": "scripts/quality/with-node20.sh npx --no-install cspell lint --config cspell.json --no-progress README.md docs/reference/**/*.md docs/README.md src/cli/**/*.{ts,tsx,js,mjs,cjs}",
     "test": "vitest",

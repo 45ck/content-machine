@@ -23,6 +23,8 @@ export type AsrModel = 'tiny' | 'base' | 'small' | 'medium' | 'large';
 
 /**
  * A single word with timing information.
+ *
+ * @cmTerm timestamps-artifact
  */
 export interface WordTimestamp {
   /** The word text */

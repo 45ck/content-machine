@@ -6,6 +6,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 
 ## Audio Mix Preset
 
+**Id:** `audio-mix-preset`
+
 **Term:** AudioMixPreset
 
 **Definition:** A named set of audio mix defaults (music/SFX/ambience levels and LUFS target) used by the audio mix planner. Mix presets are intended to be data-defined and installable via packs; built-ins ship with CM.
@@ -41,6 +43,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 
 ## Caption Config
 
+**Id:** `caption-config`
+
 **Term:** Captions
 
 **Definition:** The full caption styling and layout contract used by rendering (fonts, safe zones, display mode, highlighting, cleanup, badges).
@@ -69,6 +73,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 
 ## Caption Preset
 
+**Id:** `caption-preset`
+
 **Term:** CaptionPreset
 
 **Definition:** A named, tested baseline `CaptionConfig` (e.g. tiktok/capcut) that can be deep-overridden by config or CLI flags.
@@ -92,6 +98,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 **Owner:** `render`
 
 ## Code Template
+
+**Id:** `code-template`
 
 **Term:** CodeTemplate
 
@@ -124,6 +132,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 
 ## Gameplay Clip
 
+**Id:** `gameplay-clip`
+
 **Term:** GameplayClip
 
 **Definition:** Optional gameplay footage used by split-screen templates as background (e.g. Subway Surfers).
@@ -153,6 +163,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 **Owner:** `visuals`
 
 ## Hook Clip
+
+**Id:** `hook-clip`
 
 **Term:** Hook
 
@@ -189,6 +201,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 
 ## Motion Strategy
 
+**Id:** `motion-strategy`
+
 **Term:** MotionStrategy
 
 **Definition:** The technique used to animate static images into moving visuals at render-time (e.g. Ken Burns, parallax). Required for image-based visuals sources.
@@ -217,6 +231,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 
 ## Pack
 
+**Id:** `pack`
+
 **Term:** Pack
 
 **Definition:** A distributable bundle (directory or .zip) containing data-defined CM resources (templates, workflows, archetypes, presets, hooks, etc). Packs are installable locally and should be validated by schemas.
@@ -244,6 +260,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 **Owner:** `core`
 
 ## Packaging Artifact
+
+**Id:** `packaging-artifact`
 
 **Term:** Packaging
 
@@ -278,6 +296,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 
 ## Pipeline Artifact
 
+**Id:** `pipeline-artifact`
+
 **Term:** Artifact
 
 **Definition:** An intermediate file produced/consumed by pipeline stages (script.json, audio.wav, timestamps.json, visuals.json, video.mp4). Artifacts are the stable stage contract.
@@ -298,6 +318,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 
 ## Pipeline Stage
 
+**Id:** `pipeline-stage`
+
 **Term:** Stage
 
 **Definition:** One step in the pipeline: script, audio, visuals, render. Stages can be run individually or composed via cm generate.
@@ -317,6 +339,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 **Owner:** `pipeline`
 
 ## Pipeline Workflow
+
+**Id:** `pipeline-workflow`
 
 **Term:** Workflow
 
@@ -355,6 +379,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 
 ## Preset
 
+**Id:** `preset`
+
 **Term:** Preset
 
 **Definition:** A named set of default values for a specific subsystem (e.g. captions, sync, audio mix). Presets tune one subsystem; they do not change pipeline orchestration.
@@ -376,6 +402,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 **Owner:** `core`
 
 ## Prompt Template
+
+**Id:** `prompt-template`
 
 **Term:** PromptTemplate
 
@@ -403,6 +431,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 **Owner:** `prompts`
 
 ## Provider
+
+**Id:** `provider`
 
 **Term:** Provider
 
@@ -433,6 +463,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 
 ## Remotion Composition
 
+**Id:** `remotion-composition`
+
 **Term:** Composition
 
 **Definition:** A Remotion composition id that defines the video layout and timeline behavior (React component + animations). Selected by Render Templates via `compositionId`.
@@ -461,6 +493,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 **Owner:** `render`
 
 ## Render Template
+
+**Id:** `render-template`
 
 **Term:** Template
 
@@ -502,6 +536,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 
 ## Script Archetype
 
+**Id:** `script-archetype`
+
 **Term:** Archetype
 
 **Definition:** A script format (hook + structure + pacing rules) used by the script stage. Archetypes guide the LLM to produce a particular style of script (listicle, tutorial, story, etc).
@@ -542,6 +578,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 
 ## SFX Pack
 
+**Id:** `sfx-pack`
+
 **Term:** SfxPack
 
 **Definition:** A named bundle of short sound effects used by the audio mix planner (pops/whooshes/clicks/etc). Packs are intended to be installable and data-only by default.
@@ -571,6 +609,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 **Owner:** `audio`
 
 ## SFX Placement
+
+**Id:** `sfx-placement`
 
 **Term:** SfxPlacement
 
@@ -602,6 +642,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 
 ## Style Resolver
 
+**Id:** `style-resolver`
+
 **Term:** StyleResolver
 
 **Definition:** The function that resolves Theme references into concrete, render-ready style values (colors, typography, animation, safe zones).
@@ -624,6 +666,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 **Owner:** `render`
 
 ## Sync Preset
+
+**Id:** `sync-preset`
 
 **Term:** SyncPreset
 
@@ -649,6 +693,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 **Owner:** `sync`
 
 ## Template Pack
+
+**Id:** `template-pack`
 
 **Term:** TemplatePack
 
@@ -677,6 +723,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 
 ## Theme
 
+**Id:** `theme`
+
 **Term:** Theme
 
 **Definition:** A style-system definition that groups palette + typography + animation + theme caption preset into a coherent visual direction. Themes are resolved per archetype into a Resolved Style.
@@ -704,6 +752,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 
 ## Theme Caption Preset
 
+**Id:** `theme-caption-preset`
+
 **Term:** ThemeCaptionPreset
 
 **Definition:** A preset used by the render style system (themes -> tokens) to produce consistent on-screen design (typography/colors/position/animation intent). This is used by the theme/style resolver and is distinct from burned-in caption rendering presets.
@@ -729,6 +779,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 **Owner:** `render`
 
 ## Timestamps Artifact
+
+**Id:** `timestamps-artifact`
 
 **Term:** Timestamps
 
@@ -764,6 +816,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 
 ## Validation Profile
 
+**Id:** `validation-profile`
+
 **Term:** Profile
 
 **Definition:** A named set of validation thresholds for cm validate (e.g. portrait/landscape). Profiles determine what "valid output" means for a target format.
@@ -787,6 +841,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 **Owner:** `validate`
 
 ## VideoSpec v1 (Reverse-Engineering Artifact)
+
+**Id:** `videospec-v1`
 
 **Term:** VideoSpec
 
@@ -822,6 +878,8 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 **Owner:** `videospec`
 
 ## Visuals Artifact
+
+**Id:** `visuals-artifact`
 
 **Term:** Visuals
 

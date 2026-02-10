@@ -12,10 +12,14 @@ type Brand<K extends string> = { readonly __brand: K };
 /**
  * Ubiquitous Language: Script Archetype id.
  * A stable identifier for an archetype data file.
+ *
+ * @cmTerm script-archetype
  */
 export type ArchetypeId = string & Brand<'ArchetypeId'>;
 /**
  * Ubiquitous Language: Script archetype id schema.
+ *
+ * @cmTerm script-archetype
  */
 export const ArchetypeIdSchema = z
   .string()
@@ -26,10 +30,14 @@ export const ArchetypeIdSchema = z
 /**
  * Ubiquitous Language: Render Template id.
  * A stable identifier for a render template (composition + defaults).
+ *
+ * @cmTerm render-template
  */
 export type TemplateId = string & Brand<'TemplateId'>;
 /**
  * Ubiquitous Language: Render template id schema.
+ *
+ * @cmTerm render-template
  */
 export const TemplateIdSchema = z
   .string()
@@ -40,10 +48,14 @@ export const TemplateIdSchema = z
 /**
  * Ubiquitous Language: Pipeline Workflow id.
  * A stable identifier for a workflow definition (orchestration preset).
+ *
+ * @cmTerm pipeline-workflow
  */
 export type WorkflowId = string & Brand<'WorkflowId'>;
 /**
  * Ubiquitous Language: Pipeline workflow id schema.
+ *
+ * @cmTerm pipeline-workflow
  */
 export const WorkflowIdSchema = z
   .string()
@@ -56,10 +68,14 @@ export const WorkflowIdSchema = z
  * E.g. pexels, pixabay, nanobanana, local.
  *
  * Note: stage-specific provider enums may constrain this further.
+ *
+ * @cmTerm provider
  */
 export type VisualsProviderId = string & Brand<'VisualsProviderId'>;
 /**
  * Ubiquitous Language: Visuals provider id schema.
+ *
+ * @cmTerm provider
  */
 export const VisualsProviderIdSchema = z
   .string()
@@ -71,9 +87,13 @@ export const VisualsProviderIdSchema = z
  *
  * This is the string identifier passed to Remotion's `Composition id=...`
  * and referenced by `template.json` via `compositionId`.
+ *
+ * @cmTerm remotion-composition
  */
 export type CompositionId = string;
 /**
  * Ubiquitous Language: Remotion composition id schema.
+ *
+ * @cmTerm remotion-composition
  */
 export const CompositionIdSchema = z.string().min(1);

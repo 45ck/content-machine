@@ -8,6 +8,8 @@ export const ArchetypeScriptSpecSchema = z.object({
 
 /**
  * Ubiquitous Language: Script archetype schema (data-defined script format).
+ *
+ * @cmTerm script-archetype
  */
 export const ArchetypeSpecSchema = z.object({
   id: ArchetypeIdSchema,
@@ -21,5 +23,7 @@ export type ArchetypeSpecInput = z.input<typeof ArchetypeSpecSchema>;
 
 /**
  * Ubiquitous Language: Script archetype.
+ *
+ * @cmTerm script-archetype
  */
 export type ArchetypeSpec = z.infer<typeof ArchetypeSpecSchema>;

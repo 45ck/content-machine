@@ -2,6 +2,8 @@
  * Ubiquitous Language: Validation profile id.
  *
  * Identifies the target format rules used by `cm validate`.
+ *
+ * @cmTerm validation-profile
  */
 export type ValidateProfileId = 'portrait' | 'landscape';
 

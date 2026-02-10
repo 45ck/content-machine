@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { parse as parseYaml } from 'yaml';
+import { readUbiquitousLanguageRegistry } from './lib/ubiquitous-language.mjs';
 
 const RepoRoot = process.cwd();
 
@@ -16,18 +16,13 @@ function isProbablyWord(s) {
   return /^[A-Za-z0-9][A-Za-z0-9_-]*$/.test(s);
 }
 
-function readRegistry() {
-  const filePath = path.join(RepoRoot, 'docs', 'reference', 'ubiquitous-language.yaml');
-  const raw = fs.readFileSync(filePath, 'utf8');
-  return parseYaml(raw);
-}
-
 function extractWords(registry) {
   const terms = Array.isArray(registry?.terms) ? registry.terms : [];
   const words = [];
 
   for (const t of terms) {
     if (t?.term) words.push(String(t.term));
+    if (t?.id) words.push(String(t.id));
 
     for (const n of t?.canonicalTypes ?? []) words.push(String(n));
     for (const n of t?.canonicalSchemas ?? []) words.push(String(n));
@@ -56,7 +51,7 @@ function renderDictionary(words) {
 }
 
 function main() {
-  const registry = readRegistry();
+  const { registry } = readUbiquitousLanguageRegistry({ repoRoot: RepoRoot });
   const words = extractWords(registry);
   const outPath = path.join(RepoRoot, 'config', 'cspell', 'ubiquitous-language.txt');
   fs.mkdirSync(path.dirname(outPath), { recursive: true });
