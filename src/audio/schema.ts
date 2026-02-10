@@ -24,6 +24,8 @@ export const WordTimestampSchema = z.object({
 
 /**
  * Ubiquitous Language: Word timestamp (word-level alignment).
+ *
+ * @cmTerm timestamps-artifact
  */
 export type WordTimestamp = z.infer<typeof WordTimestampSchema>;
 

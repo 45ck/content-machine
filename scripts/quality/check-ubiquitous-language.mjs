@@ -53,22 +53,47 @@ function hasJsDoc(node, sourceFile) {
   return !hasInternalTag(jsDocs, sourceFile);
 }
 
-function findDeclarationFile(repoRoot, name) {
-  // Prefer a direct exported declaration, not a re-export.
+function findDeclarationLocations(repoRoot, name) {
+  // Prefer direct exported declarations, not re-exports:
+  // - matches: `export type Foo = ...`
+  // - does NOT match: `export type { Foo } from ...`
   const pattern = `\\bexport\\s+(const|type|interface|class|function|enum)\\s+${name}\\b`;
+  const locs = [];
+
   const rg = runAllowFail('rg', ['-n', '-S', pattern, 'src'], {
     cwd: repoRoot,
     stdio: ['ignore', 'pipe', 'ignore'],
   });
-  if (rg) return rg.split('\n')[0].split(':')[0];
+  if (rg) {
+    for (const line of rg.split('\n')) {
+      const [file, lineNo] = line.split(':');
+      if (!file || !lineNo) continue;
+      locs.push({ file, line: Number.parseInt(lineNo, 10) || 0 });
+    }
+  } else {
+    const grepPattern = `export[[:space:]]+(const|type|interface|class|function|enum)[[:space:]]+${name}\\b`;
+    const grep = runAllowFail('grep', ['-R', '-n', '-E', grepPattern, 'src'], {
+      cwd: repoRoot,
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    if (grep) {
+      for (const line of grep.split('\n')) {
+        const [file, lineNo] = line.split(':');
+        if (!file || !lineNo) continue;
+        locs.push({ file, line: Number.parseInt(lineNo, 10) || 0 });
+      }
+    }
+  }
 
-  const grepPattern = `export[[:space:]]+(const|type|interface|class|function|enum)[[:space:]]+${name}\\b`;
-  const grep = runAllowFail('grep', ['-R', '-n', '-E', grepPattern, 'src'], {
-    cwd: repoRoot,
-    stdio: ['ignore', 'pipe', 'ignore'],
-  });
-  if (grep) return grep.split('\n')[0].split(':')[0];
-  return null;
+  // Stable + unique.
+  const uniq = new Map();
+  for (const l of locs) {
+    const key = `${l.file}:${l.line}`;
+    if (!uniq.has(key)) uniq.set(key, l);
+  }
+  return Array.from(uniq.values()).sort((a, b) =>
+    a.file === b.file ? a.line - b.line : a.file.localeCompare(b.file)
+  );
 }
 
 function extractCmTermTags(node) {
@@ -94,12 +119,21 @@ function extractCmTermTags(node) {
 }
 
 function assertCanonicalHasJsDoc(repoRoot, name, expectedTermId, errors) {
-  const declFile = findDeclarationFile(repoRoot, name);
-  if (!declFile) {
+  const locs = findDeclarationLocations(repoRoot, name);
+  if (locs.length === 0) {
     errors.push(`Missing exported declaration for canonical name (re-export only?): ${name}`);
     return;
   }
+  if (locs.length > 1) {
+    errors.push(
+      `Multiple exported declarations for canonical name: ${name}. Fix: keep ONE declaration and re-export elsewhere. Locations: ${locs
+        .map((l) => `${l.file}:${l.line}`)
+        .join(', ')}`
+    );
+    return;
+  }
 
+  const declFile = locs[0].file;
   const fullPath = path.join(repoRoot, declFile);
   const code = fs.readFileSync(fullPath, 'utf8');
   const sourceFile = ts.createSourceFile(declFile, code, ts.ScriptTarget.Latest, true);

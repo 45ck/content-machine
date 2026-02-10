@@ -9,6 +9,9 @@
 
 import type { ScriptOutput } from '../../domain';
 import type { SyncStrategy as SyncStrategyName } from '../../core/config';
+import type { WordTimestamp } from '../../domain';
+
+export type { WordTimestamp } from '../../domain';
 
 /**
  * Timestamp source identifiers.
@@ -20,22 +23,6 @@ export type TimestampSource = 'whisper' | 'estimation' | 'aeneas' | 'whisperx';
  * ASR model sizes supported by whisper.cpp
  */
 export type AsrModel = 'tiny' | 'base' | 'small' | 'medium' | 'large';
-
-/**
- * A single word with timing information.
- *
- * @cmTerm timestamps-artifact
- */
-export interface WordTimestamp {
-  /** The word text */
-  word: string;
-  /** Start time in seconds */
-  start: number;
-  /** End time in seconds */
-  end: number;
-  /** Optional confidence score for this word (0-1) */
-  confidence?: number;
-}
 
 /**
  * Metadata about the timestamp generation process.
