@@ -86,10 +86,10 @@ async function maybeWriteJsonFile(path: string | undefined, data: unknown): Prom
   await writeFile(path, JSON.stringify(data, null, 2), 'utf-8');
 }
 
+/* eslint-disable max-lines-per-function */
 /**
  * Build the Content Machine MCP tool registry for a session-aware server.
  */
-// eslint-disable-next-line max-lines-per-function
 export function createContentMachineMcpTools(params: {
   sessionStore: McpSessionStore;
 }): Record<string, { name: string; description: string; parameters: z.ZodTypeAny; execute: any }> {
@@ -553,6 +553,7 @@ export function createContentMachineMcpTools(params: {
 
   return tools;
 }
+/* eslint-enable max-lines-per-function */
 
 /**
  * Register Content Machine MCP tools on a FastMCP-compatible server.
