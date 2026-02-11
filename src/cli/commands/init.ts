@@ -15,12 +15,27 @@ import {
   CONFIG_SURFACE_FILES,
   REPO_FACTS,
   SUPPORTED_LLM_PROVIDER_IDS,
+  SUPPORTED_VISUALS_PROVIDER_IDS,
   VISUALS_PROVIDERS,
   LLM_PROVIDERS,
 } from '../../domain/repo-facts.generated';
 
 interface InitOptions {
   yes?: boolean;
+}
+
+function resolveLlmDefaultModel(providerId: string): string {
+  const facts = LLM_PROVIDERS.find((p) => p.id === providerId);
+  return facts?.defaultModel ?? REPO_FACTS.llm.default.model;
+}
+
+function resolveVisualsDefaultProvider(): string {
+  return SUPPORTED_VISUALS_PROVIDER_IDS[0] ?? 'pexels';
+}
+
+function resolveNanobananaDefaultModel(): string {
+  const facts = VISUALS_PROVIDERS.find((p) => p.id === 'nanobanana');
+  return facts?.defaultModel ?? 'gemini-2.5-flash-image';
 }
 
 async function promptConfig(): Promise<Record<string, unknown>> {
@@ -37,12 +52,7 @@ async function promptConfig(): Promise<Record<string, unknown>> {
     type: 'input',
     name: 'llmModel',
     message: 'Which model would you like to use?',
-    default:
-      llmProvider === 'openai'
-        ? REPO_FACTS.llm.default.model
-        : llmProvider === 'anthropic'
-          ? 'claude-3-5-sonnet-20241022'
-          : 'gemini-2.0-flash',
+    default: resolveLlmDefaultModel(llmProvider),
   });
 
   const { archetype } = await inquirer.prompt<{ archetype: string }>({
@@ -80,7 +90,7 @@ async function promptConfig(): Promise<Record<string, unknown>> {
       name: p.displayName,
       value: p.id,
     })),
-    default: 'pexels',
+    default: resolveVisualsDefaultProvider(),
   });
 
   let motionStrategy: string | undefined;
@@ -99,7 +109,7 @@ async function promptConfig(): Promise<Record<string, unknown>> {
       type: 'input',
       name: 'nanobananaModel',
       message: 'Gemini image model id?',
-      default: 'gemini-2.5-flash-image',
+      default: resolveNanobananaDefaultModel(),
     });
     nanobananaModel = nm.nanobananaModel;
   }
@@ -123,7 +133,7 @@ async function promptConfig(): Promise<Record<string, unknown>> {
       provider: visualsProvider,
       // Write explicit defaults even when the current provider is stock-video.
       motion_strategy: motionStrategy ?? 'kenburns',
-      nanobanana: { model: nanobananaModel ?? 'gemini-2.5-flash-image' },
+      nanobanana: { model: nanobananaModel ?? resolveNanobananaDefaultModel() },
     },
     render: {
       fps: 30,
@@ -207,9 +217,9 @@ function getDefaultConfig(): Record<string, unknown> {
       asr_engine: 'whisper',
     },
     visuals: {
-      provider: 'pexels',
+      provider: resolveVisualsDefaultProvider(),
       motion_strategy: 'kenburns',
-      nanobanana: { model: 'gemini-2.5-flash-image' },
+      nanobanana: { model: resolveNanobananaDefaultModel() },
     },
     render: {
       fps: 30,

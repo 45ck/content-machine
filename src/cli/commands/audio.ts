@@ -17,7 +17,10 @@ import { CMError, SchemaError } from '../../core/errors';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
 import { hasAudioMixSources, type AudioMixPlanOptions } from '../../audio/mix/planner';
 import type { AudioOutput, ScriptOutput } from '../../domain';
-import { DEFAULT_ARTIFACT_FILENAMES } from '../../domain/repo-facts.generated';
+import {
+  DEFAULT_ARTIFACT_FILENAMES,
+  DEFAULT_AUDIO_COMMAND_SYNC_STRATEGY,
+} from '../../domain/repo-facts.generated';
 
 interface AudioMixRequest {
   outputPath: string;
@@ -92,7 +95,8 @@ function resolveSyncOptions(
   requireWhisper: boolean;
   reconcile: boolean;
 } {
-  const syncStrategy = (options.syncStrategy as string | undefined) ?? 'standard';
+  const syncStrategy =
+    (options.syncStrategy as string | undefined) ?? DEFAULT_AUDIO_COMMAND_SYNC_STRATEGY;
   const requireWhisper = Boolean(options.requireWhisper) || syncStrategy === 'audio-first';
   const reconcileSource = command.getOptionValueSource('reconcile');
   const reconcile =
@@ -339,7 +343,7 @@ export const audioCommand = new Command('audio')
   .option(
     '--sync-strategy <strategy>',
     'Sync strategy: audio-first (whisper required), standard (whisper optional)',
-    'audio-first'
+    DEFAULT_AUDIO_COMMAND_SYNC_STRATEGY
   )
   .option('--reconcile', 'Reconcile ASR output to match original script text', false)
   .option('--require-whisper', 'Require whisper ASR (fail if unavailable)', false)

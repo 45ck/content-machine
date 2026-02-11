@@ -160,6 +160,10 @@ export const RepoFactsRegistrySchema = z.object({
     .object({
       sync: z
         .object({
+          defaultId: IdSchema.optional(),
+          qualityDefaultId: IdSchema.optional(),
+          configDefaultStrategy: z.enum(['standard', 'audio-first']).optional(),
+          audioCommandDefaultStrategy: z.enum(['standard', 'audio-first']).optional(),
           presets: z
             .array(
               z.object({
@@ -228,6 +232,10 @@ export function readRepoFactsRegistry(opts = {}) {
     'environment variable name',
     registry.facts.environment.variables.map((v) => v.name)
   );
+  assertUnique(
+    'sync preset id',
+    (registry.pipelinePresets?.sync?.presets ?? []).map((p) => p.id)
+  );
 
   const visualsProviderIds = new Set(registry.facts.visuals.supportedProviders.map((p) => p.id));
   for (const id of registry.facts.stockVisuals.providerIds) {
@@ -236,6 +244,20 @@ export function readRepoFactsRegistry(opts = {}) {
         `Stock visuals provider id not found in facts.visuals.supportedProviders: ${id}`
       );
     }
+  }
+
+  const syncPresetIds = new Set((registry.pipelinePresets?.sync?.presets ?? []).map((p) => p.id));
+  const defaultSyncPresetId = registry.pipelinePresets?.sync?.defaultId;
+  if (defaultSyncPresetId && !syncPresetIds.has(defaultSyncPresetId)) {
+    throw new Error(
+      `pipelinePresets.sync.defaultId not found in pipelinePresets.sync.presets: ${defaultSyncPresetId}`
+    );
+  }
+  const qualityDefaultSyncPresetId = registry.pipelinePresets?.sync?.qualityDefaultId;
+  if (qualityDefaultSyncPresetId && !syncPresetIds.has(qualityDefaultSyncPresetId)) {
+    throw new Error(
+      `pipelinePresets.sync.qualityDefaultId not found in pipelinePresets.sync.presets: ${qualityDefaultSyncPresetId}`
+    );
   }
 
   // Preserve YAML ordering for readability (providers are sometimes intentionally ordered

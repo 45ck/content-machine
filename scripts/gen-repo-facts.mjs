@@ -209,6 +209,21 @@ function generatePipelinePresetsMd({ registry }) {
   lines.push('');
   lines.push('## Sync Presets');
   lines.push('');
+  if (p.sync?.defaultId) lines.push(`- Default preset id: \`${p.sync.defaultId}\``);
+  if (p.sync?.qualityDefaultId)
+    lines.push(`- Preferred quality preset id: \`${p.sync.qualityDefaultId}\``);
+  if (p.sync?.configDefaultStrategy)
+    lines.push(`- Config default sync strategy: \`${p.sync.configDefaultStrategy}\``);
+  if (p.sync?.audioCommandDefaultStrategy)
+    lines.push(`- Audio command default sync strategy: \`${p.sync.audioCommandDefaultStrategy}\``);
+  if (
+    p.sync?.defaultId ||
+    p.sync?.qualityDefaultId ||
+    p.sync?.configDefaultStrategy ||
+    p.sync?.audioCommandDefaultStrategy
+  ) {
+    lines.push('');
+  }
   if ((p.sync?.presets ?? []).length === 0) lines.push('- (none)');
   else {
     for (const pr of p.sync.presets) {
@@ -317,6 +332,7 @@ function generateRepoFactsTs({ registry }) {
     id: p.id,
     displayName: p.displayName,
     envVarNames: [...(p.envVarNames ?? [])],
+    ...(p.defaultModel ? { defaultModel: p.defaultModel } : {}),
   }));
   const environmentVariables = (f.environment.variables ?? []).map((v) => ({
     name: v.name,
@@ -332,6 +348,16 @@ function generateRepoFactsTs({ registry }) {
       autoRetrySync: Boolean(preset.autoRetrySync),
     };
   }
+  const defaultSyncPresetId =
+    registry.pipelinePresets?.sync?.defaultId ??
+    (syncPresetConfigs.standard ? 'standard' : Object.keys(syncPresetConfigs)[0] ?? 'standard');
+  const preferredQualitySyncPresetId =
+    registry.pipelinePresets?.sync?.qualityDefaultId ??
+    (syncPresetConfigs.quality ? 'quality' : defaultSyncPresetId);
+  const defaultConfigSyncStrategy =
+    registry.pipelinePresets?.sync?.configDefaultStrategy ?? 'standard';
+  const defaultAudioCommandSyncStrategy =
+    registry.pipelinePresets?.sync?.audioCommandDefaultStrategy ?? 'audio-first';
 
   const lines = [];
   lines.push('/*');
@@ -401,6 +427,18 @@ function generateRepoFactsTs({ registry }) {
   lines.push(`export const SYNC_PRESET_CONFIGS = ${JSON.stringify(syncPresetConfigs)} as const;`);
   lines.push('export type SyncPresetId = keyof typeof SYNC_PRESET_CONFIGS;');
   lines.push('export const SYNC_PRESET_IDS = Object.keys(SYNC_PRESET_CONFIGS) as SyncPresetId[];');
+  lines.push(
+    `export const DEFAULT_SYNC_PRESET_ID = ${JSON.stringify(defaultSyncPresetId)} as SyncPresetId;`
+  );
+  lines.push(
+    `export const PREFERRED_QUALITY_SYNC_PRESET_ID = ${JSON.stringify(preferredQualitySyncPresetId)} as SyncPresetId;`
+  );
+  lines.push(
+    `export const DEFAULT_CONFIG_SYNC_STRATEGY = ${JSON.stringify(defaultConfigSyncStrategy)} as const;`
+  );
+  lines.push(
+    `export const DEFAULT_AUDIO_COMMAND_SYNC_STRATEGY = ${JSON.stringify(defaultAudioCommandSyncStrategy)} as const;`
+  );
   lines.push('');
 
   lines.push('export const CLI_ERROR_CONTRACT = {');

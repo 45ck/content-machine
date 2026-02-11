@@ -6,6 +6,11 @@ These preset ids are intended to stay stable (even if implementation evolves).
 
 ## Sync Presets
 
+- Default preset id: `standard`
+- Preferred quality preset id: `quality`
+- Config default sync strategy: `standard`
+- Audio command default sync strategy: `audio-first`
+
 - `fast`: Fastest, lowest quality.
   - pipeline: `standard`
   - reconcile: `false`

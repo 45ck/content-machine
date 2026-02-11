@@ -467,10 +467,13 @@ function applyTranscriptTextCorrections(text: string): string {
   out = out.replace(/\bstrang\s+est\b/gi, 'strangest');
   out = out.replace(/\bunle\s+ashed\b/gi, 'unleashed');
   out = out.replace(/\bvac\s+uums\b/gi, 'vacuums');
+  out = out.replace(/\bcharred\s+out\b/gi, 'charge out');
 
   // "Roombas" is frequently fragmented/misheard as "ombas" in this style of audio.
   out = out.replace(/\b(\d+)\s+ombas\b/gi, '$1 Roombas');
   out = out.replace(/\bombas\b/gi, 'Roombas');
+  out = out.replace(/\bmet\s+My\b/gi, 'met? My');
+  out = out.replace(/\bpart\s+She\b/gi, 'part. She');
 
   // Keep whitespace stable for downstream consumers.
   out = out.replace(/\s+/g, ' ').trim();
@@ -735,6 +738,7 @@ type InsertedContentOcrKeyframe = {
   confidence?: number;
   words?: Array<{ text: string; bbox: [number, number, number, number]; confidence?: number }>;
 };
+type InsertedContentOcrWord = NonNullable<InsertedContentOcrKeyframe['words']>[number];
 
 type TesseractBBox = { x0: number; y0: number; x1: number; y1: number };
 type TesseractWordLike = { text?: string; confidence?: number; bbox?: TesseractBBox };
@@ -1437,8 +1441,9 @@ async function analyzeTranscript(params: {
         ...s,
         start: clampNumber(s.start, 0, ctx.durationSeconds),
         end: clampNumber(s.end, 0, ctx.durationSeconds),
+        text: applyTranscriptTextCorrections(s.text),
       }))
-      .filter((s) => s.end > s.start);
+      .filter((s) => s.end > s.start && Boolean(String(s.text ?? '').trim()));
   }
 
   try {
@@ -1838,6 +1843,102 @@ function relPathOrNull(baseDir: string | null, absPath: string): string | null {
   return toPosixPath(rel);
 }
 
+function normalizeInsertedContentOcrToken(text: string): string {
+  let out = String(text ?? '').trim();
+  if (!out) return '';
+  out = out.replace(/^[^a-z0-9@#/]+|[^a-z0-9!?.,'"@/#:+-]+$/gi, '');
+  out = out.replace(/\s+/g, ' ').trim();
+  return out;
+}
+
+function sanitizeInsertedContentOcrWords(
+  words: InsertedContentOcrWord[]
+): InsertedContentOcrWord[] {
+  const out: InsertedContentOcrWord[] = [];
+  for (const word of words) {
+    const text = normalizeInsertedContentOcrToken(word.text);
+    if (!text) continue;
+
+    const metrics = computeOcrTextMetrics(text);
+    if (metrics.charCount < 2) continue;
+    if (metrics.alnumRatio < 0.4) continue;
+    if (metrics.weirdRatio > 0.35) continue;
+    if (!metrics.hasLetter && !/[0-9]/.test(text)) continue;
+
+    // Engagement counters/icons are common OCR noise in social UI chrome.
+    if (/^\d{1,4}\+?$/.test(text)) continue;
+    if (/^[a-z]?\)\d{1,4}\+?$/i.test(text)) continue;
+
+    if (
+      typeof word.confidence === 'number' &&
+      Number.isFinite(word.confidence) &&
+      word.confidence < 0.25
+    ) {
+      continue;
+    }
+
+    out.push({ ...word, text });
+  }
+  return out;
+}
+
+function buildReadableInsertedContentTextFromWords(words: InsertedContentOcrWord[]): string {
+  if (words.length === 0) return '';
+
+  const sorted = [...words].sort((a, b) => {
+    const ay = a.bbox[1] + a.bbox[3] / 2;
+    const by = b.bbox[1] + b.bbox[3] / 2;
+    if (Math.abs(ay - by) > 0.012) return ay - by;
+    return a.bbox[0] - b.bbox[0];
+  });
+
+  const lines: Array<{ y: number; words: InsertedContentOcrWord[] }> = [];
+  for (const word of sorted) {
+    const cy = word.bbox[1] + word.bbox[3] / 2;
+    const yThreshold = Math.max(0.012, word.bbox[3] * 1.1);
+    let line = lines.find((l) => Math.abs(l.y - cy) <= yThreshold);
+    if (!line) {
+      line = { y: cy, words: [] };
+      lines.push(line);
+    }
+    line.words.push(word);
+    line.y = (line.y * (line.words.length - 1) + cy) / line.words.length;
+  }
+
+  const lineTexts = lines
+    .sort((a, b) => a.y - b.y)
+    .map((line) =>
+      line.words
+        .sort((a, b) => a.bbox[0] - b.bbox[0])
+        .map((w) => w.text)
+        .join(' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+    )
+    .filter((text) => {
+      const m = computeOcrTextMetrics(text);
+      if (!text) return false;
+      if (!m.hasLetter) return false;
+      if (m.charCount < 4) return false;
+      if (m.alnumRatio < 0.55) return false;
+      if (m.weirdRatio > 0.2) return false;
+      if (/^[A-Z]{2,4}$/.test(text)) return false;
+      return true;
+    });
+
+  const deduped: string[] = [];
+  const dedupedNorm: string[] = [];
+  for (const text of lineTexts) {
+    const norm = normalizeWord(text);
+    if (!norm) continue;
+    if (dedupedNorm.some((p) => p === norm || isFuzzyMatch(p, norm, 0.9))) continue;
+    deduped.push(text);
+    dedupedNorm.push(norm);
+  }
+
+  return deduped.slice(0, 6).join(' ').trim();
+}
+
 function shouldKeepInsertedContentBlock(block: InsertedContentBlock): boolean {
   const text = block.extraction?.ocr?.text ?? '';
   const textMetrics = computeOcrTextMetrics(text);
@@ -2103,31 +2204,45 @@ async function buildInsertedContentBlock(params: {
     }));
   }
 
-  const keyframeChunks = ocrKeyframes.map((k) => k.text).filter(Boolean);
-  const combinedTextFromKeyframes = keyframeChunks.join(' ').replace(/\s+/g, ' ').trim();
-  const combinedTextFromWords = ocrKeyframes
-    .flatMap((k) => k.words ?? [])
-    .map((w) => w.text)
-    .filter(Boolean)
-    .slice(0, 250)
-    .join(' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-  const combinedText = (combinedTextFromKeyframes || combinedTextFromWords).trim();
-
-  const typeGuess = classifyInsertedContentType(combinedText);
-  const ocrQuality = mean(
-    ocrKeyframes
-      .map((k) => k.confidence)
-      .filter((v): v is number => typeof v === 'number' && Number.isFinite(v))
-  );
-
   const bestKeyframe =
     ocrKeyframes.length > 0
       ? ocrKeyframes.reduce((best, cur) =>
           (cur.confidence ?? 0) > (best.confidence ?? 0) ? cur : best
         )
       : null;
+  const bestKeyframeWords = sanitizeInsertedContentOcrWords(bestKeyframe?.words ?? []);
+  const readableTextFromWords = buildReadableInsertedContentTextFromWords(bestKeyframeWords);
+
+  const keyframeChunks = ocrKeyframes.map((k) => k.text).filter(Boolean);
+  const combinedTextFromKeyframes = keyframeChunks.join(' ').replace(/\s+/g, ' ').trim();
+  const combinedTextFromWords = ocrKeyframes
+    .flatMap((k) => k.words ?? [])
+    .map((w) => normalizeInsertedContentOcrToken(w.text))
+    .filter(Boolean)
+    .slice(0, 250)
+    .join(' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const classificationText = [combinedTextFromKeyframes, combinedTextFromWords]
+    .filter(Boolean)
+    .join(' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  const extractionText = (
+    readableTextFromWords ||
+    combinedTextFromWords ||
+    combinedTextFromKeyframes
+  )
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const typeGuess = classifyInsertedContentType(classificationText || extractionText);
+  const ocrQuality = mean(
+    ocrKeyframes
+      .map((k) => k.confidence)
+      .filter((v): v is number => typeof v === 'number' && Number.isFinite(v))
+  );
 
   return {
     id,
@@ -2152,8 +2267,8 @@ async function buildInsertedContentBlock(params: {
     extraction: {
       ocr: {
         engine: 'tesseract.js',
-        ...(combinedText ? { text: combinedText } : {}),
-        ...(bestKeyframe?.words ? { words: bestKeyframe.words.slice(0, 400) } : {}),
+        ...(extractionText ? { text: extractionText } : {}),
+        ...(bestKeyframeWords.length > 0 ? { words: bestKeyframeWords.slice(0, 400) } : {}),
       },
     },
     confidence: {

@@ -92,6 +92,7 @@ facts:
       - id: nanobanana
         displayName: NanoBanana (Gemini Images)
         envVarNames: ['GOOGLE_API_KEY', 'GEMINI_API_KEY']
+        defaultModel: 'gemini-2.5-flash-image'
         kind: ai
         notes: AI image provider (implemented); GOOGLE_API_KEY preferred.
       - id: local
@@ -266,6 +267,10 @@ cli:
 
 pipelinePresets:
   sync:
+    defaultId: standard
+    qualityDefaultId: quality
+    configDefaultStrategy: standard
+    audioCommandDefaultStrategy: audio-first
     # Canonical preset ids for sync quality/speed tradeoffs.
     # The implementation may evolve; keep ids stable.
     presets:

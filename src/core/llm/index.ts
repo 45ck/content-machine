@@ -7,6 +7,12 @@ import { OpenAIProvider } from './openai.js';
 import { AnthropicProvider } from './anthropic.js';
 import { GeminiProvider } from './gemini.js';
 import { ConfigError } from '../errors.js';
+import { LLM_PROVIDERS, REPO_FACTS } from '../../domain/repo-facts.generated.js';
+
+function resolveProviderDefaultModel(provider: LLMProviderType): string {
+  const facts = LLM_PROVIDERS.find((x) => x.id === provider);
+  return facts?.defaultModel ?? REPO_FACTS.llm.default.model;
+}
 
 /**
  * Create an LLM provider based on configuration
@@ -18,11 +24,11 @@ export function createLLMProvider(
 ): LLMProvider {
   switch (provider) {
     case 'openai':
-      return new OpenAIProvider(model ?? 'gpt-4o', apiKey);
+      return new OpenAIProvider(model ?? resolveProviderDefaultModel(provider), apiKey);
     case 'anthropic':
-      return new AnthropicProvider(model ?? 'claude-3-5-sonnet-20241022', apiKey);
+      return new AnthropicProvider(model ?? resolveProviderDefaultModel(provider), apiKey);
     case 'gemini':
-      return new GeminiProvider(model ?? 'gemini-1.5-flash', apiKey);
+      return new GeminiProvider(model ?? resolveProviderDefaultModel(provider), apiKey);
     default:
       throw new ConfigError(`Unknown LLM provider: ${provider}`);
   }

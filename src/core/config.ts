@@ -19,11 +19,13 @@ import { HookAudioModeEnum, HookFitEnum, MotionStrategyEnum } from '../domain';
 import { AudioMixPresetIdSchema, SfxPackIdSchema, SfxPlacementEnum } from '../audio/mix/presets';
 import { ArchetypeIdSchema } from '../domain/ids';
 import {
+  DEFAULT_CONFIG_SYNC_STRATEGY,
   PROJECT_CONFIG_CANDIDATES,
   REPO_FACTS,
   SUPPORTED_LLM_PROVIDER_IDS,
   SUPPORTED_VISUALS_PROVIDER_IDS,
   USER_CONFIG_CANDIDATES,
+  VISUALS_PROVIDERS,
 } from '../domain/repo-facts.generated';
 
 // ============================================================================
@@ -104,10 +106,12 @@ const VisualsProviderEnum = z.enum(
     (typeof SUPPORTED_VISUALS_PROVIDER_IDS)[number]
   >
 );
+const NANOBANANA_DEFAULT_MODEL =
+  VISUALS_PROVIDERS.find((p) => p.id === 'nanobanana')?.defaultModel ?? 'gemini-2.5-flash-image';
 
 const NanoBananaConfigSchema = z.object({
   /** Gemini image generation model id (Gemini Developer API). */
-  model: z.string().default('gemini-2.5-flash-image'),
+  model: z.string().default(NANOBANANA_DEFAULT_MODEL),
   /** Optional override of per-image cost in USD for budgeting/estimation. */
   costPerAssetUsd: z.number().positive().optional(),
   /** Optional directory to store generated images. Defaults to ~/.cm/assets/generated/nanobanana */
@@ -121,7 +125,7 @@ const NanoBananaConfigSchema = z.object({
 });
 
 const VisualsConfigSchema = z.object({
-  provider: VisualsProviderEnum.default('pexels'),
+  provider: VisualsProviderEnum.default(SUPPORTED_VISUALS_PROVIDER_IDS[0]),
   /** Fallback providers (used in order) if the primary provider cannot return a scene asset. */
   fallbackProviders: z.array(VisualsProviderEnum).default([]),
   /** Default motion strategy for image-based providers. */
@@ -256,7 +260,7 @@ export const SyncConfigSchema = z.object({
    * Sync strategy for timestamp extraction.
    * @default "standard"
    */
-  strategy: SyncStrategyEnum.default('standard'),
+  strategy: SyncStrategyEnum.default(DEFAULT_CONFIG_SYNC_STRATEGY),
 
   /**
    * Require whisper.cpp - fail if unavailable instead of falling back.

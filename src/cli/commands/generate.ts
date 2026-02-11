@@ -28,10 +28,11 @@ import { CliProgressObserver, PipelineEventEmitter, type PipelineEvent } from '.
 import { getCliErrorInfo } from '../format';
 import {
   DEFAULT_ARTIFACT_FILENAMES,
+  DEFAULT_SYNC_PRESET_ID,
   LLM_PROVIDERS,
+  PREFERRED_QUALITY_SYNC_PRESET_ID,
   REPO_FACTS,
   SYNC_PRESET_CONFIGS,
-  SYNC_PRESET_IDS,
   SUPPORTED_VISUALS_PROVIDER_IDS,
   type SyncPresetId,
   VISUALS_PROVIDERS,
@@ -104,15 +105,7 @@ export interface SyncPresetConfig {
 }
 
 export const SYNC_PRESETS = SYNC_PRESET_CONFIGS as Record<SyncPresetId, SyncPresetConfig>;
-const DEFAULT_SYNC_PRESET_ID: SyncPresetId = (
-  SYNC_PRESET_IDS.includes('standard' as SyncPresetId)
-    ? 'standard'
-    : (SYNC_PRESET_IDS[0] ?? 'standard')
-) as SyncPresetId;
-const PREFERRED_QUALITY_SYNC_PRESET_ID: SyncPresetId = (
-  SYNC_PRESET_IDS.includes('quality' as SyncPresetId) ? 'quality' : DEFAULT_SYNC_PRESET_ID
-) as SyncPresetId;
-const SYNC_PRESET_HELP = SYNC_PRESET_IDS.join(', ');
+const SYNC_PRESET_HELP = Object.keys(SYNC_PRESETS).join(', ');
 
 interface GenerateOptions {
   archetype: string;

@@ -82,6 +82,7 @@ export const VISUALS_PROVIDERS = [
     id: 'nanobanana',
     displayName: 'NanoBanana (Gemini Images)',
     envVarNames: ['GOOGLE_API_KEY', 'GEMINI_API_KEY'],
+    defaultModel: 'gemini-2.5-flash-image',
   },
   { id: 'local', displayName: 'Local Clips', envVarNames: [] },
   { id: 'localimage', displayName: 'Local Images', envVarNames: [] },
@@ -137,6 +138,10 @@ export const SYNC_PRESET_CONFIGS = {
 } as const;
 export type SyncPresetId = keyof typeof SYNC_PRESET_CONFIGS;
 export const SYNC_PRESET_IDS = Object.keys(SYNC_PRESET_CONFIGS) as SyncPresetId[];
+export const DEFAULT_SYNC_PRESET_ID = 'standard' as SyncPresetId;
+export const PREFERRED_QUALITY_SYNC_PRESET_ID = 'quality' as SyncPresetId;
+export const DEFAULT_CONFIG_SYNC_STRATEGY = 'standard' as const;
+export const DEFAULT_AUDIO_COMMAND_SYNC_STRATEGY = 'audio-first' as const;
 
 export const CLI_ERROR_CONTRACT = {
   errorPrefix: 'ERROR:',

@@ -243,6 +243,72 @@ function main() {
     );
     process.exit(1);
   }
+  if (
+    !configTs.includes('DEFAULT_CONFIG_SYNC_STRATEGY') ||
+    !configTs.includes("provider: VisualsProviderEnum.default(SUPPORTED_VISUALS_PROVIDER_IDS[0])")
+  ) {
+    console.error(
+      'Repo facts check failed: src/core/config.ts must source sync/visual defaults from generated repo facts constants.'
+    );
+    console.error(
+      'Fix: use DEFAULT_CONFIG_SYNC_STRATEGY and SUPPORTED_VISUALS_PROVIDER_IDS[0] from src/domain/repo-facts.generated.ts.'
+    );
+    process.exit(1);
+  }
+
+  const llmFactoryPath = path.join(repoRoot, 'src', 'core', 'llm', 'index.ts');
+  const llmFactory = readTextIfExists(llmFactoryPath);
+  if (!llmFactory.includes('LLM_PROVIDERS') || !llmFactory.includes('resolveProviderDefaultModel')) {
+    console.error(
+      'Repo facts check failed: src/core/llm/index.ts must derive provider default models from generated repo facts.'
+    );
+    console.error(
+      'Fix: import LLM_PROVIDERS from src/domain/repo-facts.generated.ts and resolve defaults via provider facts.'
+    );
+    process.exit(1);
+  }
+
+  const audioCommandPath = path.join(repoRoot, 'src', 'cli', 'commands', 'audio.ts');
+  const audioCommand = readTextIfExists(audioCommandPath);
+  if (!audioCommand.includes('DEFAULT_AUDIO_COMMAND_SYNC_STRATEGY')) {
+    console.error(
+      'Repo facts check failed: src/cli/commands/audio.ts must use DEFAULT_AUDIO_COMMAND_SYNC_STRATEGY from generated repo facts.'
+    );
+    console.error(
+      'Fix: import DEFAULT_AUDIO_COMMAND_SYNC_STRATEGY from src/domain/repo-facts.generated.ts and use it for sync-strategy defaults.'
+    );
+    process.exit(1);
+  }
+
+  const initCommandPath = path.join(repoRoot, 'src', 'cli', 'commands', 'init.ts');
+  const initCommand = readTextIfExists(initCommandPath);
+  if (
+    !initCommand.includes('SUPPORTED_VISUALS_PROVIDER_IDS') ||
+    !initCommand.includes('resolveLlmDefaultModel')
+  ) {
+    console.error(
+      'Repo facts check failed: src/cli/commands/init.ts must derive default provider/model values from generated repo facts.'
+    );
+    console.error(
+      'Fix: use SUPPORTED_VISUALS_PROVIDER_IDS and LLM_PROVIDERS generated constants for init defaults.'
+    );
+    process.exit(1);
+  }
+
+  const generateCommandPath = path.join(repoRoot, 'src', 'cli', 'commands', 'generate.ts');
+  const generateCommand = readTextIfExists(generateCommandPath);
+  if (
+    !generateCommand.includes('DEFAULT_SYNC_PRESET_ID') ||
+    !generateCommand.includes('PREFERRED_QUALITY_SYNC_PRESET_ID')
+  ) {
+    console.error(
+      'Repo facts check failed: src/cli/commands/generate.ts must use generated sync preset defaults.'
+    );
+    console.error(
+      'Fix: import DEFAULT_SYNC_PRESET_ID and PREFERRED_QUALITY_SYNC_PRESET_ID from src/domain/repo-facts.generated.ts.'
+    );
+    process.exit(1);
+  }
 
   const ciPath = path.join(repoRoot, registry.quality.ci.workflowPath);
   const ciText = readTextIfExists(ciPath);
