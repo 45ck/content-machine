@@ -245,7 +245,7 @@ function main() {
   }
   if (
     !configTs.includes('DEFAULT_CONFIG_SYNC_STRATEGY') ||
-    !configTs.includes("provider: VisualsProviderEnum.default(SUPPORTED_VISUALS_PROVIDER_IDS[0])")
+    !configTs.includes('provider: VisualsProviderEnum.default(SUPPORTED_VISUALS_PROVIDER_IDS[0])')
   ) {
     console.error(
       'Repo facts check failed: src/core/config.ts must source sync/visual defaults from generated repo facts constants.'
@@ -258,7 +258,10 @@ function main() {
 
   const llmFactoryPath = path.join(repoRoot, 'src', 'core', 'llm', 'index.ts');
   const llmFactory = readTextIfExists(llmFactoryPath);
-  if (!llmFactory.includes('LLM_PROVIDERS') || !llmFactory.includes('resolveProviderDefaultModel')) {
+  if (
+    !llmFactory.includes('LLM_PROVIDERS') ||
+    !llmFactory.includes('resolveProviderDefaultModel')
+  ) {
     console.error(
       'Repo facts check failed: src/core/llm/index.ts must derive provider default models from generated repo facts.'
     );

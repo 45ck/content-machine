@@ -350,7 +350,7 @@ function generateRepoFactsTs({ registry }) {
   }
   const defaultSyncPresetId =
     registry.pipelinePresets?.sync?.defaultId ??
-    (syncPresetConfigs.standard ? 'standard' : Object.keys(syncPresetConfigs)[0] ?? 'standard');
+    (syncPresetConfigs.standard ? 'standard' : (Object.keys(syncPresetConfigs)[0] ?? 'standard'));
   const preferredQualitySyncPresetId =
     registry.pipelinePresets?.sync?.qualityDefaultId ??
     (syncPresetConfigs.quality ? 'quality' : defaultSyncPresetId);
