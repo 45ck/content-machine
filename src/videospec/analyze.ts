@@ -1868,6 +1868,13 @@ function sanitizeInsertedContentOcrWords(
     // Engagement counters/icons are common OCR noise in social UI chrome.
     if (/^\d{1,4}\+?$/.test(text)) continue;
     if (/^[a-z]?\)\d{1,4}\+?$/i.test(text)) continue;
+    if (
+      /^[A-Z]{2,4}$/.test(text) &&
+      (!(typeof word.confidence === 'number' && Number.isFinite(word.confidence)) ||
+        word.confidence < 0.8)
+    ) {
+      continue;
+    }
 
     if (
       typeof word.confidence === 'number' &&
