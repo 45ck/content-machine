@@ -26,7 +26,7 @@ function renderTs({ registry }) {
 
   const lines = [];
   lines.push('/*');
-  lines.push(' * DO NOT EDIT: generated from docs/reference/ubiquitous-language.yaml');
+  lines.push(' * DO NOT EDIT: generated from registry/ubiquitous-language.yaml');
   lines.push(' * Run: npm run ul:gen');
   lines.push(' */');
   lines.push('');

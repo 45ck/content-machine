@@ -23,10 +23,14 @@ function mdProviderLines(providers) {
 
 function generateRepoFactsMd({ registry }) {
   const f = registry.facts;
+  const visualsById = new Map((f.visuals.supportedProviders ?? []).map((p) => [p.id, p]));
+  const stockProviders = (f.stockVisuals.providerIds ?? [])
+    .map((id) => visualsById.get(id))
+    .filter(Boolean);
   const lines = [];
   lines.push('# Repository Facts');
   lines.push('');
-  lines.push('> DO NOT EDIT: generated from `docs/reference/repo-facts.yaml`.');
+  lines.push('> DO NOT EDIT: generated from `registry/repo-facts.yaml`.');
   lines.push('');
   lines.push('See also (generated):');
   lines.push('- `docs/reference/ARTIFACT-CONTRACTS.md`');
@@ -50,8 +54,8 @@ function generateRepoFactsMd({ registry }) {
   lines.push(`- temperature: \`${String(f.llm.default.temperature)}\``);
   lines.push('');
   lines.push('## Stock Visuals Providers');
-  if ((f.stockVisuals.supportedProviders ?? []).length === 0) lines.push('- (none)');
-  else lines.push(mdProviderLines(f.stockVisuals.supportedProviders));
+  if (stockProviders.length === 0) lines.push('- (none)');
+  else lines.push(mdProviderLines(stockProviders));
   lines.push('');
 
   lines.push('## Visuals Providers');
@@ -84,7 +88,7 @@ function generateArtifactContractsMd({ registry }) {
   const lines = [];
   lines.push('# Artifact Contracts');
   lines.push('');
-  lines.push('> DO NOT EDIT: generated from `docs/reference/repo-facts.yaml`.');
+  lines.push('> DO NOT EDIT: generated from `registry/repo-facts.yaml`.');
   lines.push('');
   lines.push('These are the canonical stage contracts (filenames are conventional defaults).');
   lines.push('');
@@ -105,7 +109,7 @@ function generateConfigSurfaceMd({ registry }) {
   const lines = [];
   lines.push('# Config Surface');
   lines.push('');
-  lines.push('> DO NOT EDIT: generated from `docs/reference/repo-facts.yaml`.');
+  lines.push('> DO NOT EDIT: generated from `registry/repo-facts.yaml`.');
   lines.push('');
   lines.push('## Files & Locations');
   lines.push('');
@@ -123,6 +127,18 @@ function generateConfigSurfaceMd({ registry }) {
     lines.push(mdList((cs.precedence ?? []).map((x) => `\`${x}\``)));
     lines.push('');
   }
+  if ((cs.projectConfigCandidates ?? []).length > 0) {
+    lines.push('## Project Config Candidates');
+    lines.push('');
+    lines.push(mdList((cs.projectConfigCandidates ?? []).map((x) => `\`${x}\``)));
+    lines.push('');
+  }
+  if ((cs.userConfigCandidates ?? []).length > 0) {
+    lines.push('## User Config Candidates (under home directory)');
+    lines.push('');
+    lines.push(mdList((cs.userConfigCandidates ?? []).map((x) => `\`${x}\``)));
+    lines.push('');
+  }
   lines.push('');
   return lines.join('\n');
 }
@@ -132,7 +148,7 @@ function generateQualityGatesMd({ registry }) {
   const lines = [];
   lines.push('# Quality Gates');
   lines.push('');
-  lines.push('> DO NOT EDIT: generated from `docs/reference/repo-facts.yaml`.');
+  lines.push('> DO NOT EDIT: generated from `registry/repo-facts.yaml`.');
   lines.push('');
   lines.push('These checks must remain wired in CI and are expected to be runnable locally.');
   lines.push('');
@@ -153,7 +169,7 @@ function generateSecurityInvariantsMd({ registry }) {
   const lines = [];
   lines.push('# Security Invariants');
   lines.push('');
-  lines.push('> DO NOT EDIT: generated from `docs/reference/repo-facts.yaml`.');
+  lines.push('> DO NOT EDIT: generated from `registry/repo-facts.yaml`.');
   lines.push('');
   if ((s.invariants ?? []).length > 0) {
     lines.push('Invariants:');
@@ -170,7 +186,7 @@ function generateCliContractMd({ registry }) {
   const lines = [];
   lines.push('# CLI Contract');
   lines.push('');
-  lines.push('> DO NOT EDIT: generated from `docs/reference/repo-facts.yaml`.');
+  lines.push('> DO NOT EDIT: generated from `registry/repo-facts.yaml`.');
   lines.push('');
   lines.push('## Errors');
   lines.push('');
@@ -187,7 +203,7 @@ function generatePipelinePresetsMd({ registry }) {
   const lines = [];
   lines.push('# Pipeline Presets');
   lines.push('');
-  lines.push('> DO NOT EDIT: generated from `docs/reference/repo-facts.yaml`.');
+  lines.push('> DO NOT EDIT: generated from `registry/repo-facts.yaml`.');
   lines.push('');
   lines.push('These preset ids are intended to stay stable (even if implementation evolves).');
   lines.push('');
@@ -212,8 +228,8 @@ function generateCopilotInstructionsMd({ registry }) {
   lines.push(`This repository is \`${registry.meta.repoName}\`.`);
   lines.push('');
   lines.push('## Canonical sources of truth');
-  lines.push('- Repo facts: `docs/reference/repo-facts.yaml`');
-  lines.push('- Ubiquitous language: `docs/reference/ubiquitous-language.yaml`');
+  lines.push('- Repo facts: `registry/repo-facts.yaml`');
+  lines.push('- Ubiquitous language: `registry/ubiquitous-language.yaml`');
   lines.push('- Artifact contracts: `docs/reference/ARTIFACT-CONTRACTS.md`');
   lines.push('- Config surface: `docs/reference/CONFIG-SURFACE.md`');
   lines.push('- CLI contract: `docs/reference/CLI-CONTRACT.md`');
@@ -254,7 +270,7 @@ function generateClaudeMd({ registry }) {
   lines.push('- Only refer to secrets by env var name (example: `OPENAI_API_KEY`).');
   lines.push('');
   lines.push('## Glossary');
-  lines.push('Use canonical terms from `docs/reference/ubiquitous-language.yaml`.');
+  lines.push('Use canonical terms from `registry/ubiquitous-language.yaml`.');
   lines.push('');
   lines.push('');
   return lines.join('\n');
@@ -267,7 +283,7 @@ function tsString(s) {
 function generateRepoFactsTs({ registry }) {
   const f = registry.facts;
   const llmProviderIds = (f.llm.supportedProviders ?? []).map((p) => p.id);
-  const stockProviderIds = (f.stockVisuals.supportedProviders ?? []).map((p) => p.id);
+  const stockProviderIds = [...(f.stockVisuals.providerIds ?? [])];
   const visualsProviderIds = (f.visuals.supportedProviders ?? []).map((p) => p.id);
   const artifactFiles = {};
   for (const a of registry.artifacts ?? []) artifactFiles[a.id] = a.defaultFilename;
@@ -278,7 +294,11 @@ function generateRepoFactsTs({ registry }) {
     displayName: p.displayName,
     envVarNames: [...(p.envVarNames ?? [])],
   }));
-  const stockVisualsProviders = (f.stockVisuals.supportedProviders ?? []).map((p) => ({
+  const visualsById = new Map((f.visuals.supportedProviders ?? []).map((p) => [p.id, p]));
+  const stockVisualsProviders = stockProviderIds
+    .map((id) => visualsById.get(id))
+    .filter(Boolean)
+    .map((p) => ({
     id: p.id,
     displayName: p.displayName,
     envVarNames: [...(p.envVarNames ?? [])],
@@ -291,7 +311,7 @@ function generateRepoFactsTs({ registry }) {
 
   const lines = [];
   lines.push('/*');
-  lines.push(' * DO NOT EDIT: generated from docs/reference/repo-facts.yaml');
+  lines.push(' * DO NOT EDIT: generated from registry/repo-facts.yaml');
   lines.push(' * Run: npm run repo-facts:gen');
   lines.push(' */');
   lines.push('');
@@ -299,13 +319,13 @@ function generateRepoFactsTs({ registry }) {
   lines.push(
     `export const SUPPORTED_LLM_PROVIDER_IDS = ${JSON.stringify(llmProviderIds)} as const;`
   );
-  lines.push('export type RepoFactsLlmProviderId = (typeof SUPPORTED_LLM_PROVIDER_IDS)[number];');
+  lines.push('export type LlmProviderId = (typeof SUPPORTED_LLM_PROVIDER_IDS)[number];');
   lines.push('');
   lines.push(
     `export const SUPPORTED_STOCK_VISUALS_PROVIDER_IDS = ${JSON.stringify(stockProviderIds)} as const;`
   );
   lines.push(
-    'export type RepoFactsStockVisualsProviderId = (typeof SUPPORTED_STOCK_VISUALS_PROVIDER_IDS)[number];'
+    'export type StockVisualsProviderId = (typeof SUPPORTED_STOCK_VISUALS_PROVIDER_IDS)[number];'
   );
   lines.push('');
 
@@ -313,7 +333,7 @@ function generateRepoFactsTs({ registry }) {
     `export const SUPPORTED_VISUALS_PROVIDER_IDS = ${JSON.stringify(visualsProviderIds)} as const;`
   );
   lines.push(
-    'export type RepoFactsVisualsProviderId = (typeof SUPPORTED_VISUALS_PROVIDER_IDS)[number];'
+    'export type VisualsProviderId = (typeof SUPPORTED_VISUALS_PROVIDER_IDS)[number];'
   );
   lines.push('');
 
@@ -325,6 +345,18 @@ function generateRepoFactsTs({ registry }) {
 
   lines.push(`export const CONFIG_SURFACE_FILES = ${JSON.stringify(configSurfaceFiles)} as const;`);
   lines.push('export type ConfigSurfaceFileId = keyof typeof CONFIG_SURFACE_FILES;');
+  lines.push('');
+  lines.push(
+    `export const PROJECT_CONFIG_CANDIDATES = ${JSON.stringify(registry.configSurface?.projectConfigCandidates ?? [])} as const;`
+  );
+  lines.push(
+    'export type ProjectConfigCandidate = (typeof PROJECT_CONFIG_CANDIDATES)[number];'
+  );
+  lines.push('');
+  lines.push(
+    `export const USER_CONFIG_CANDIDATES = ${JSON.stringify(registry.configSurface?.userConfigCandidates ?? [])} as const;`
+  );
+  lines.push('export type UserConfigCandidate = (typeof USER_CONFIG_CANDIDATES)[number];');
   lines.push('');
 
   lines.push(`export const LLM_PROVIDERS = ${JSON.stringify(llmProviders)} as const;`);
@@ -392,16 +424,6 @@ function extractCspellWords({ registry }) {
     for (const part of dnParts) words.push(part);
   }
 
-  for (const p of f.stockVisuals.supportedProviders ?? []) {
-    words.push(p.id);
-    for (const v of p.envVarNames ?? []) words.push(v);
-    const dnParts = String(p.displayName)
-      .split(/[^A-Za-z0-9_-]+/g)
-      .map((x) => x.trim())
-      .filter(Boolean);
-    for (const part of dnParts) words.push(part);
-  }
-
   for (const p of f.visuals.supportedProviders ?? []) {
     words.push(p.id);
     for (const v of p.envVarNames ?? []) words.push(v);
@@ -420,7 +442,7 @@ function extractCspellWords({ registry }) {
 
 function renderDictionary(words) {
   const lines = [];
-  lines.push('# DO NOT EDIT: generated from docs/reference/repo-facts.yaml.');
+  lines.push('# DO NOT EDIT: generated from registry/repo-facts.yaml.');
   lines.push('# Update the registry, then run: npm run repo-facts:gen');
   lines.push('');
   for (const w of words) lines.push(w);
@@ -520,3 +542,6 @@ main().catch((error) => {
   console.error(error);
   process.exit(1);
 });
+  for (const ev of f.environment.variables ?? []) {
+    words.push(ev.name);
+  }

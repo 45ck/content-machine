@@ -42,7 +42,7 @@ function extractWords(registry) {
 
 function renderDictionary(words) {
   const lines = [];
-  lines.push('# DO NOT EDIT: generated from docs/reference/ubiquitous-language.yaml.');
+  lines.push('# DO NOT EDIT: generated from registry/ubiquitous-language.yaml.');
   lines.push('# Update the registry, then run: npm run cspell:gen');
   lines.push('');
   for (const w of words) lines.push(w);

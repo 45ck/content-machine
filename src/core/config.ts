@@ -19,9 +19,11 @@ import { HookAudioModeEnum, HookFitEnum, MotionStrategyEnum } from '../domain';
 import { AudioMixPresetIdSchema, SfxPackIdSchema, SfxPlacementEnum } from '../audio/mix/presets';
 import { ArchetypeIdSchema } from '../domain/ids';
 import {
+  PROJECT_CONFIG_CANDIDATES,
   REPO_FACTS,
   SUPPORTED_LLM_PROVIDER_IDS,
   SUPPORTED_VISUALS_PROVIDER_IDS,
+  USER_CONFIG_CANDIDATES,
 } from '../domain/repo-facts.generated';
 
 // ============================================================================
@@ -396,7 +398,7 @@ export function getOptionalApiKey(key: string): string | undefined {
 // Configuration Loading
 // ============================================================================
 
-const CONFIG_FILENAMES = ['.content-machine.toml', 'content-machine.toml', '.cmrc.json'];
+const CONFIG_FILENAMES = [...PROJECT_CONFIG_CANDIDATES];
 
 let cachedConfig: Config | null = null;
 
@@ -444,11 +446,7 @@ function findProjectConfigFile(startDir: string = process.cwd()): string | null 
 
 function findUserConfigFile(): string | null {
   const home = resolveHomeDir();
-  const candidates = [
-    join(home, '.cm', 'config.toml'),
-    join(home, '.cm', 'config.json'),
-    join(home, '.cmrc.json'),
-  ];
+  const candidates = USER_CONFIG_CANDIDATES.map((candidate) => join(home, candidate));
 
   for (const candidate of candidates) {
     if (existsSync(candidate)) return candidate;

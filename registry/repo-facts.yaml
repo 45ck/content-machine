@@ -79,34 +79,36 @@ facts:
       model: 'gpt-4o-mini'
       temperature: 0.7
 
-  stockVisuals:
-    supportedProviders:
-      - id: pexels
-        displayName: Pexels
-        envVarNames: ['PEXELS_API_KEY']
-
   visuals:
     supportedProviders:
       - id: pexels
         displayName: Pexels
         envVarNames: ['PEXELS_API_KEY']
+        kind: stock
         notes: Stock video provider (implemented).
       - id: nanobanana
         displayName: NanoBanana (Gemini Images)
         envVarNames: ['GOOGLE_API_KEY', 'GEMINI_API_KEY']
+        kind: ai
         notes: AI image provider (implemented); GOOGLE_API_KEY preferred.
       - id: local
         displayName: Local Clips
         envVarNames: []
+        kind: local
         notes: Use local clips/images; no API key required.
       - id: localimage
         displayName: Local Images
         envVarNames: []
+        kind: local
         notes: Use local images; no API key required.
       - id: pixabay
         displayName: Pixabay
         envVarNames: ['PIXABAY_API_KEY']
+        kind: stock
         notes: Planned (not implemented yet).
+
+  stockVisuals:
+    providerIds: ['pexels', 'pixabay']
 
   spellcheck:
     cspell:
@@ -119,6 +121,33 @@ facts:
       manualDictionaries:
         - name: project-words
           path: 'config/cspell/project-words.txt'
+
+  environment:
+    variables:
+      - name: OPENAI_API_KEY
+        required: true
+      - name: ANTHROPIC_API_KEY
+        required: false
+      - name: PEXELS_API_KEY
+        required: false
+      - name: PIXABAY_API_KEY
+        required: false
+      - name: GOOGLE_API_KEY
+        required: false
+      - name: GEMINI_API_KEY
+        required: false
+      - name: REDDIT_CLIENT_ID
+        required: false
+      - name: REDDIT_CLIENT_SECRET
+        required: false
+      - name: OUTPUT_DIR
+        required: false
+      - name: REDIS_URL
+        required: false
+      - name: TAVILY_API_KEY
+        required: false
+      - name: BRAVE_SEARCH_API_KEY
+        required: false
 
 artifacts:
   # These are the canonical stage contracts (filenames are conventional defaults).
@@ -175,6 +204,14 @@ configSurface:
       path: './output/'
       purpose: Default output directory for pipeline artifacts.
       secrets: false
+  projectConfigCandidates:
+    - '.content-machine.toml'
+    - 'content-machine.toml'
+    - '.cmrc.json'
+  userConfigCandidates:
+    - '.cm/config.toml'
+    - '.cm/config.json'
+    - '.cmrc.json'
   precedence:
     - 'CLI flags'
     - '.env (if present)'
@@ -187,6 +224,7 @@ quality:
     - glossary:check
     - repo-facts:check
     - cspell:check
+    - docs:check
     - typecheck
     - lint
     - format:check
@@ -195,6 +233,16 @@ quality:
     - size:check
   ci:
     workflowPath: '.github/workflows/ci.yml'
+
+  docsValidation:
+    markdownPaths:
+      - 'README.md'
+      - 'AGENTS.md'
+      - 'CLAUDE.md'
+      - 'docs/**/*.md'
+      - '.github/copilot-instructions.md'
+    ignoreLinkGlobs:
+      - 'docs/research/**/*.md'
 
 security:
   invariants:

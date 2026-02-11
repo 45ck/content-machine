@@ -12,6 +12,7 @@ const ProviderSchema = z.object({
   id: IdSchema,
   displayName: z.string().min(1),
   envVarNames: z.array(z.string().min(1)).default([]),
+  kind: z.enum(['stock', 'ai', 'local']).optional(),
   notes: z.string().min(1).optional(),
 });
 
@@ -33,6 +34,11 @@ const ConfigFileSchema = z.object({
   path: z.string().min(1),
   purpose: z.string().min(1),
   secrets: z.boolean(),
+});
+
+const EnvironmentVariableSchema = z.object({
+  name: z.string().min(1).regex(/^[A-Z0-9_]+$/),
+  required: z.boolean().default(false),
 });
 
 export const RepoFactsRegistrySchema = z.object({
@@ -75,16 +81,16 @@ export const RepoFactsRegistrySchema = z.object({
         temperature: z.number(),
       }),
     }),
-    stockVisuals: z
-      .object({
-        supportedProviders: z.array(ProviderSchema).default([]),
-      })
-      .default({ supportedProviders: [] }),
     visuals: z
       .object({
         supportedProviders: z.array(ProviderSchema).default([]),
       })
       .default({ supportedProviders: [] }),
+    stockVisuals: z
+      .object({
+        providerIds: z.array(IdSchema).default([]),
+      })
+      .default({ providerIds: [] }),
     spellcheck: z.object({
       cspell: z.object({
         configPath: z.string().min(1),
@@ -96,22 +102,39 @@ export const RepoFactsRegistrySchema = z.object({
           .default([]),
       }),
     }),
+    environment: z
+      .object({
+        variables: z.array(EnvironmentVariableSchema).default([]),
+      })
+      .default({ variables: [] }),
   }),
   artifacts: z.array(ArtifactSchema).default([]),
   configSurface: z
     .object({
       files: z.array(ConfigFileSchema).default([]),
+      projectConfigCandidates: z.array(z.string().min(1)).default([]),
+      userConfigCandidates: z.array(z.string().min(1)).default([]),
       precedence: z.array(z.string().min(1)).default([]),
     })
-    .default({ files: [], precedence: [] }),
+    .default({ files: [], projectConfigCandidates: [], userConfigCandidates: [], precedence: [] }),
   quality: z
     .object({
       requiredNpmScripts: z.array(z.string().min(1)).default([]),
       ci: z.object({
         workflowPath: z.string().min(1),
       }),
+      docsValidation: z
+        .object({
+          markdownPaths: z.array(z.string().min(1)).default([]),
+          ignoreLinkGlobs: z.array(z.string().min(1)).default([]),
+        })
+        .default({ markdownPaths: [], ignoreLinkGlobs: [] }),
     })
-    .default({ requiredNpmScripts: [], ci: { workflowPath: '.github/workflows/ci.yml' } }),
+    .default({
+      requiredNpmScripts: [],
+      ci: { workflowPath: '.github/workflows/ci.yml' },
+      docsValidation: { markdownPaths: [], ignoreLinkGlobs: [] },
+    }),
   security: z
     .object({
       invariants: z.array(z.string().min(1)).default([]),
@@ -155,7 +178,7 @@ function assertUnique(label, values) {
 export function readRepoFactsRegistry(opts = {}) {
   const repoRoot = opts.repoRoot ?? process.cwd();
   const registryPath =
-    opts.registryPath ?? path.join(repoRoot, 'docs', 'reference', 'repo-facts.yaml');
+    opts.registryPath ?? path.join(repoRoot, 'registry', 'repo-facts.yaml');
 
   const raw = fs.readFileSync(registryPath, 'utf8');
   const parsed = parseYaml(raw);
@@ -166,13 +189,10 @@ export function readRepoFactsRegistry(opts = {}) {
     registry.facts.llm.supportedProviders.map((p) => p.id)
   );
   assertUnique(
-    'stock visuals provider id',
-    registry.facts.stockVisuals.supportedProviders.map((p) => p.id)
-  );
-  assertUnique(
     'visuals provider id',
     registry.facts.visuals.supportedProviders.map((p) => p.id)
   );
+  assertUnique('stock visuals provider id', registry.facts.stockVisuals.providerIds ?? []);
 
   assertUnique(
     'artifact id',
@@ -186,11 +206,19 @@ export function readRepoFactsRegistry(opts = {}) {
   for (const p of registry.facts.llm.supportedProviders) {
     assertUnique(`env var name for LLM provider ${p.id}`, p.envVarNames ?? []);
   }
-  for (const p of registry.facts.stockVisuals.supportedProviders) {
-    assertUnique(`env var name for stock visuals provider ${p.id}`, p.envVarNames ?? []);
-  }
   for (const p of registry.facts.visuals.supportedProviders) {
     assertUnique(`env var name for visuals provider ${p.id}`, p.envVarNames ?? []);
+  }
+  assertUnique(
+    'environment variable name',
+    registry.facts.environment.variables.map((v) => v.name)
+  );
+
+  const visualsProviderIds = new Set(registry.facts.visuals.supportedProviders.map((p) => p.id));
+  for (const id of registry.facts.stockVisuals.providerIds) {
+    if (!visualsProviderIds.has(id)) {
+      throw new Error(`Stock visuals provider id not found in facts.visuals.supportedProviders: ${id}`);
+    }
   }
 
   // Preserve YAML ordering for readability (providers are sometimes intentionally ordered

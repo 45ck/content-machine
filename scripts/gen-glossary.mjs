@@ -14,7 +14,7 @@ function generateGlossaryMd(params) {
   const lines = [];
   lines.push('# Glossary (Ubiquitous Language)');
   lines.push('');
-  lines.push('> DO NOT EDIT: generated from `docs/reference/ubiquitous-language.yaml`.');
+  lines.push('> DO NOT EDIT: generated from `registry/ubiquitous-language.yaml`.');
   lines.push('');
   lines.push(
     'This repo uses a few loaded words. This glossary makes them unambiguous and points to the canonical types/schemas in code.'

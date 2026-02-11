@@ -269,7 +269,7 @@ function listFilesRecursive(rootDir, includeExtensions) {
 
 function main() {
   const repoRoot = process.cwd();
-  const registryPath = path.join(repoRoot, 'docs', 'reference', 'ubiquitous-language.yaml');
+  const registryPath = path.join(repoRoot, 'registry', 'ubiquitous-language.yaml');
   const glossaryPath = path.join(repoRoot, 'docs', 'reference', 'GLOSSARY.md');
   const idsPath = path.join(repoRoot, 'src', 'domain', 'ids.ts');
   const ulTsPath = path.join(repoRoot, 'src', 'domain', 'ubiquitous-language.generated.ts');
@@ -292,7 +292,7 @@ function main() {
 
   if ((registry.enforcement?.bannedPhrases ?? []).length === 0) {
     errors.push(
-      'enforcement.bannedPhrases must not be empty in docs/reference/ubiquitous-language.yaml'
+      'enforcement.bannedPhrases must not be empty in registry/ubiquitous-language.yaml'
     );
   }
 
@@ -484,7 +484,7 @@ function main() {
   if (errors.length > 0) {
     console.error('Ubiquitous language checks failed:');
     for (const e of errors) console.error(`- ${e}`);
-    console.error('Fix: update src exports and/or docs/reference/ubiquitous-language.yaml');
+    console.error('Fix: update src exports and/or registry/ubiquitous-language.yaml');
     process.exit(1);
   }
 }

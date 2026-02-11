@@ -84,7 +84,7 @@ function hasDateSuffix(filename) {
 
 function main() {
   const repoRoot = process.cwd();
-  const registryPath = path.join(repoRoot, 'docs', 'reference', 'repo-facts.yaml');
+  const registryPath = path.join(repoRoot, 'registry', 'repo-facts.yaml');
   const dotEnvExamplePath = path.join(repoRoot, '.env.example');
 
   const outRepoFactsMd = path.join(repoRoot, 'docs', 'reference', 'REPO-FACTS.md');
@@ -139,15 +139,16 @@ function main() {
   for (const p of registry.facts.llm.supportedProviders ?? []) {
     for (const v of p.envVarNames ?? []) expected.push(String(v));
   }
-  for (const p of registry.facts.stockVisuals.supportedProviders ?? []) {
+  for (const p of registry.facts.visuals.supportedProviders ?? []) {
     for (const v of p.envVarNames ?? []) expected.push(String(v));
+  }
+  for (const e of registry.facts.environment.variables ?? []) {
+    expected.push(String(e.name));
   }
   for (const v of expected) {
     if (!envNamesInExample.has(v)) {
       console.error(`Repo facts check failed: .env.example missing env var: ${v}`);
-      console.error(
-        'Fix: add it to .env.example (or remove it from docs/reference/repo-facts.yaml).'
-      );
+      console.error('Fix: add it to .env.example (or remove it from registry/repo-facts.yaml).');
       process.exit(1);
     }
   }
@@ -166,7 +167,7 @@ function main() {
         if (!hasDateSuffix(path.basename(file))) {
           console.error(`Repo facts check failed: docs file missing -YYYYMMDD suffix: ${rel}`);
           console.error(
-            'Fix: rename the file to include a date suffix, or add it to conventions.docs.undatedGlobs in docs/reference/repo-facts.yaml.'
+            'Fix: rename the file to include a date suffix, or add it to conventions.docs.undatedGlobs in registry/repo-facts.yaml.'
           );
           process.exit(1);
         }
@@ -192,7 +193,32 @@ function main() {
     if (!(script in pkgScripts)) {
       console.error(`Repo facts check failed: package.json missing script: ${script}`);
       console.error(
-        'Fix: add it to package.json scripts (or remove it from docs/reference/repo-facts.yaml).'
+        'Fix: add it to package.json scripts (or remove it from registry/repo-facts.yaml).'
+      );
+      process.exit(1);
+    }
+  }
+
+  // Guard against drift: hardcoded artifact filenames in source should use DEFAULT_ARTIFACT_FILENAMES.
+  const artifactNames = (registry.artifacts ?? []).map((a) => String(a.defaultFilename));
+  const disallowedLiteralPattern = artifactNames
+    .map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+    .join('|');
+  if (disallowedLiteralPattern) {
+    const srcFiles = listFilesRecursive(path.join(repoRoot, 'src'), new Set(['.ts', '.tsx']));
+    const disallow = new RegExp(`['"](?:${disallowedLiteralPattern})['"]`);
+    const allowlist = new Set(['src/domain/repo-facts.generated.ts']);
+    for (const file of srcFiles) {
+      const rel = path.relative(repoRoot, file).replaceAll(path.sep, '/');
+      if (allowlist.has(rel)) continue;
+      const content = readTextIfExists(file);
+      if (!disallow.test(content)) continue;
+      if (content.includes('DEFAULT_ARTIFACT_FILENAMES')) continue;
+      console.error(
+        `Repo facts check failed: hardcoded artifact filename found without DEFAULT_ARTIFACT_FILENAMES in ${rel}`
+      );
+      console.error(
+        'Fix: import and use DEFAULT_ARTIFACT_FILENAMES from src/domain/repo-facts.generated.ts.'
       );
       process.exit(1);
     }

@@ -52,7 +52,7 @@ function assertUnique(label, values) {
 export function readUbiquitousLanguageRegistry(opts = {}) {
   const repoRoot = opts.repoRoot ?? process.cwd();
   const registryPath =
-    opts.registryPath ?? path.join(repoRoot, 'docs', 'reference', 'ubiquitous-language.yaml');
+    opts.registryPath ?? path.join(repoRoot, 'registry', 'ubiquitous-language.yaml');
 
   const raw = fs.readFileSync(registryPath, 'utf8');
   const parsed = parseYaml(raw);
