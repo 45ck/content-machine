@@ -54,18 +54,10 @@ cm ui
 cm --no-tui --help
 ```
 
-### Never launch TUI (environment escape hatch)
+### Never launch TUI
 
 ```bash
-set CM_DISABLE_TUI=1
-cm
-```
-
-On macOS/Linux shells:
-
-```bash
-export CM_DISABLE_TUI=1
-cm
+cm --no-tui
 ```
 
 ### Keep automation unchanged
@@ -77,7 +69,7 @@ cm generate "Redis vs PostgreSQL for caching" --archetype versus --output output
 ## Troubleshooting
 
 - **Symptom:** `cm` launches help instead of the TUI
-  - **Fix:** Ensure you're in a TTY; check `CM_DISABLE_TUI` isn't set; don't use `--json`.
+  - **Fix:** Ensure you're in a TTY and avoid `--json`.
 - **Symptom:** Output looks garbled / flickers
   - **Fix:** Use a modern terminal, disable terminal "bracketed paste" issues, and avoid running inside non-interactive shells.
 - **Symptom:** CI scripts hang after `cm`

@@ -14,7 +14,7 @@ This guide documents three production-ready workflows for turning Nano Banana Pr
 
 ```bash
 # Required API Key
-export GOOGLE_AI_API_KEY="your-key-here"
+export GOOGLE_API_KEY="your-key-here"
 
 # Optional: Local tools for fallback workflows
 pip install depthflow  # For 2.5D parallax
@@ -32,7 +32,7 @@ Best for: Hero shots, character animation, complex motion
 ```typescript
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
 
 async function generateKeyframe(scenePrompt: string): Promise<Buffer> {
   const model = genAI.getGenerativeModel({

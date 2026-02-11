@@ -46,6 +46,28 @@ function extractProcessEnvVarNames(sourceText) {
   return out;
 }
 
+function extractLikelyEnvVarNamesFromMarkdown(markdownText) {
+  const out = new Set();
+
+  const processEnvRegex = /process\.env\.([A-Z0-9_]+)/g;
+  let match = processEnvRegex.exec(markdownText);
+  while (match) {
+    if (match[1]) out.add(match[1]);
+    match = processEnvRegex.exec(markdownText);
+  }
+
+  // Inline assignment examples: FOO_BAR=...
+  const assignRegex = /(^|\s)([A-Z][A-Z0-9_]{2,})=/gm;
+  match = assignRegex.exec(markdownText);
+  while (match) {
+    const name = match[2];
+    if (name) out.add(name);
+    match = assignRegex.exec(markdownText);
+  }
+
+  return out;
+}
+
 function listFilesRecursive(rootDir, includeExtensions) {
   const out = [];
   const stack = [rootDir];
@@ -160,6 +182,30 @@ function main() {
     if (!envNamesInExample.has(v)) {
       console.error(`Repo facts check failed: .env.example missing env var: ${v}`);
       console.error('Fix: add it to .env.example (or remove it from registry/repo-facts.yaml).');
+      process.exit(1);
+    }
+  }
+
+  // Canonical docs should only reference registered env var names (plus narrow allowlist).
+  const docsEnvAllowlist = new Set(['REMOTION_LOG_LEVEL']);
+  const canonicalDocsFiles = [
+    path.join(repoRoot, 'README.md'),
+    ...listFilesRecursive(path.join(repoRoot, 'docs', 'reference'), new Set(['.md'])),
+  ];
+  for (const file of canonicalDocsFiles) {
+    if (!fileExists(file)) continue;
+    const rel = path.relative(repoRoot, file).replaceAll(path.sep, '/');
+    const content = readTextIfExists(file);
+    const names = extractLikelyEnvVarNamesFromMarkdown(content);
+    for (const name of names) {
+      if (expected.includes(name) || docsEnvAllowlist.has(name)) continue;
+      if (!name.startsWith('CM_') && !name.includes('_API_KEY') && !name.endsWith('_KEY')) continue;
+      console.error(
+        `Repo facts check failed: ${rel} references env var ${name}, but it is not declared in registry/repo-facts.yaml facts.environment.variables.`
+      );
+      console.error(
+        'Fix: add the env var to the registry (and .env.example), or update docs to use canonical env vars.'
+      );
       process.exit(1);
     }
   }

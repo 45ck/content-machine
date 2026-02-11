@@ -118,18 +118,14 @@ fade_out_ms = 400
 
 ---
 
-## Environment Variables (Override Config)
+## Environment Variables
 
-```bash
-# Override sync strategy
-CM_SYNC_STRATEGY=audio-first
+Sync behavior is configured via:
 
-# Force whisper requirement
-CM_REQUIRE_WHISPER=true
+- config file (`[sync]` in `.content-machine.toml`)
+- CLI flags (`--sync-strategy`, `--reconcile`, `--drift-correction`, etc.)
 
-# Override drift correction
-CM_DRIFT_CORRECTION=auto
-```
+There are currently no dedicated `CM_SYNC_*` environment overrides.
 
 ---
 

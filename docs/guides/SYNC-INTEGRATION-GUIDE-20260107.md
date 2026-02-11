@@ -661,27 +661,19 @@ drift_correction = "auto"
 
 ## 9. Feature Flags for Gradual Rollout
 
-### 9.1 Environment Variable Overrides
+### 9.1 Runtime Overrides
 
-```typescript
-// src/core/config.ts
+Use CLI flags or project config for sync tuning:
 
-function applyFeatureFlags(config: Config): Config {
-  // Allow env vars to override sync settings for testing
-  if (process.env.CM_SYNC_STRATEGY) {
-    config.sync.strategy = process.env.CM_SYNC_STRATEGY as SyncStrategy;
-  }
+```bash
+# CLI override
+cm audio --input script.json --output audio.wav --sync-strategy audio-first --reconcile
 
-  if (process.env.CM_REQUIRE_WHISPER === 'true') {
-    config.sync.strategy = 'audio-first';
-  }
-
-  if (process.env.CM_DRIFT_CORRECTION) {
-    config.sync.driftCorrection = process.env.CM_DRIFT_CORRECTION as DriftCorrection;
-  }
-
-  return config;
-}
+# Project defaults (.content-machine.toml)
+[sync]
+strategy = "audio-first"
+reconcile_to_script = true
+drift_correction = "detect"
 ```
 
 ### 9.2 Experimental Features
