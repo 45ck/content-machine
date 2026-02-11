@@ -161,6 +161,19 @@ export const VideoSpecInsertedContentOcrSchema = z.object({
   engine: z.string().min(1),
   text: z.string().min(1).optional(),
   words: z.array(VideoSpecInsertedContentOcrWordSchema).optional(),
+  lines: z
+    .array(
+      z.object({
+        text: z.string().min(1),
+        bbox: z.tuple([
+          z.number().finite().min(0).max(1),
+          z.number().finite().min(0).max(1),
+          z.number().finite().min(0).max(1),
+          z.number().finite().min(0).max(1),
+        ]),
+      })
+    )
+    .optional(),
 });
 
 export type VideoSpecInsertedContentOcr = z.infer<typeof VideoSpecInsertedContentOcrSchema>;
@@ -194,6 +207,39 @@ export type VideoSpecInsertedContentConfidence = z.infer<
   typeof VideoSpecInsertedContentConfidenceSchema
 >;
 
+export const VideoSpecInsertedContentLayoutSchema = z.object({
+  engine: z.string().min(1),
+  elements: z
+    .array(
+      z.object({
+        id: z.string().min(1).optional(),
+        role: z.enum(['title', 'body', 'comment', 'message', 'ui_header', 'ui_footer']).optional(),
+        bbox: z
+          .tuple([
+            z.number().finite().min(0).max(1),
+            z.number().finite().min(0).max(1),
+            z.number().finite().min(0).max(1),
+            z.number().finite().min(0).max(1),
+          ])
+          .optional(),
+        text: z.string().min(1).optional(),
+      })
+    )
+    .optional(),
+  reading_order: z.array(z.string().min(1)).optional(),
+});
+
+export type VideoSpecInsertedContentLayout = z.infer<typeof VideoSpecInsertedContentLayoutSchema>;
+
+export const VideoSpecInsertedContentStructuredSchema = z.object({
+  schema_version: z.string().min(1),
+  data: z.record(z.unknown()).optional(),
+});
+
+export type VideoSpecInsertedContentStructured = z.infer<
+  typeof VideoSpecInsertedContentStructuredSchema
+>;
+
 export const VideoSpecInsertedContentBlockSchema = z
   .object({
     id: z.string().min(1),
@@ -212,6 +258,8 @@ export const VideoSpecInsertedContentBlockSchema = z
     extraction: z
       .object({
         ocr: VideoSpecInsertedContentOcrSchema.optional(),
+        layout: VideoSpecInsertedContentLayoutSchema.optional(),
+        structured: VideoSpecInsertedContentStructuredSchema.optional(),
       })
       .optional(),
     confidence: VideoSpecInsertedContentConfidenceSchema.optional(),

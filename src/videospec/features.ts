@@ -49,7 +49,7 @@ export async function extractGrayFrameAtTime(params: {
     const expected = safeSize * safeSize;
     const maxBuffer = Math.max(1024 * 1024, expected + 4096);
 
-    async function run(mode: 'fast' | 'accurate'): Promise<Buffer> {
+    async function runAtTime(timeSec: number, mode: 'fast' | 'accurate'): Promise<Buffer> {
       // `-ss` before `-i` is faster but can return empty output for some short/VFR files.
       // Fall back to accurate seek (`-ss` after `-i`) when that happens.
       const args =
@@ -60,7 +60,7 @@ export async function extractGrayFrameAtTime(params: {
               'error',
               '-nostdin',
               '-ss',
-              String(t),
+              String(timeSec),
               '-i',
               videoPath,
               '-frames:v',
@@ -81,7 +81,7 @@ export async function extractGrayFrameAtTime(params: {
               '-i',
               videoPath,
               '-ss',
-              String(t),
+              String(timeSec),
               '-frames:v',
               '1',
               '-vf',
@@ -104,11 +104,27 @@ export async function extractGrayFrameAtTime(params: {
       return Buffer.isBuffer(stdout) ? stdout : Buffer.from(stdout as any);
     }
 
-    let buf = await run('fast');
-    if (buf.length < expected) {
-      buf = await run('accurate');
+    const fallbackOffsets = [0, 1 / 30, 2 / 30, 0.1, 0.2, 0.35];
+    const attemptTimes = Array.from(
+      new Set(fallbackOffsets.map((offset) => Math.max(0, t - offset)).map((v) => v.toFixed(6)))
+    ).map((v) => Number(v));
+
+    let buf: Buffer<ArrayBufferLike> = Buffer.alloc(0);
+    let resolved = false;
+    for (const attemptTime of attemptTimes) {
+      buf = await runAtTime(attemptTime, 'fast');
+      if (buf.length >= expected) {
+        resolved = true;
+        break;
+      }
+      buf = await runAtTime(attemptTime, 'accurate');
+      if (buf.length >= expected) {
+        resolved = true;
+        break;
+      }
     }
-    if (buf.length < expected) {
+
+    if (!resolved || buf.length < expected) {
       throw new CMError('VIDEO_PROBE_ERROR', 'ffmpeg returned too few bytes for a frame', {
         videoPath,
         got: buf.length,

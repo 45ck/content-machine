@@ -137,7 +137,7 @@ describe('analyzeVideoToVideoSpecV1', () => {
         join(videoCacheDir, 'inserted-content.v1.json'),
         JSON.stringify(
           {
-            version: 3,
+            version: 4,
             blocks: [
               {
                 id: 'icb-1',
@@ -205,6 +205,73 @@ describe('analyzeVideoToVideoSpecV1', () => {
       expect(spec.editing.other_effects.jump_cuts?.length).toBeGreaterThanOrEqual(1);
       expect(spec.timeline.shots.some((s) => s.jump_cut === true)).toBe(true);
       expect(spec.inserted_content_blocks?.length).toBe(1);
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+
+  test('applies safe transcript fragment joins without overfitting punctuation/phrases', async () => {
+    const dir = join(tmpdir(), `cm-videospec-test-asr-cache-${Date.now()}-${Math.random()}`);
+    await mkdir(dir, { recursive: true });
+    const videoPath = join(dir, 'tiny.mp4');
+    const cacheDir = join(dir, 'cache-root');
+
+    try {
+      await makeTinyTwoSceneVideo(videoPath);
+
+      const cacheRoot = resolveVideoSpecCacheDir(cacheDir);
+      const stat = await (await import('node:fs/promises')).stat(videoPath);
+      const videoHash = await sha256FileHex(videoPath);
+      const videoKey = `${videoHash.slice(0, 16)}-${stat.size}`;
+      const videoCacheDir = join(cacheRoot, videoKey);
+      await mkdir(videoCacheDir, { recursive: true });
+
+      await (
+        await import('node:fs/promises')
+      ).writeFile(join(videoCacheDir, 'shots.v1.json'), JSON.stringify([0.5]), 'utf-8');
+      await (
+        await import('node:fs/promises')
+      ).writeFile(
+        join(videoCacheDir, 'audio.transcript.v1.json'),
+        JSON.stringify(
+          [
+            {
+              start: 0,
+              end: 0.4,
+              speaker: 'Person1',
+              text: 'strang est unle ashed vac uums 30 ombas',
+              confidence: 0.9,
+            },
+            {
+              start: 0.4,
+              end: 0.9,
+              speaker: 'Person1',
+              text: 'I met my teacher and part she said the wood was charred out',
+              confidence: 0.9,
+            },
+          ],
+          null,
+          2
+        ),
+        'utf-8'
+      );
+
+      const { spec } = await analyzeVideoToVideoSpecV1({
+        inputPath: videoPath,
+        cache: true,
+        cacheDir,
+        ocr: false,
+        insertedContent: false,
+        asr: true,
+        narrative: 'off',
+        shotDetector: 'ffmpeg',
+        maxSeconds: 1,
+      });
+
+      expect(spec.audio.transcript[0]?.text).toBe('strangest unleashed vacuums 30 Roombas');
+      expect(spec.audio.transcript[1]?.text).toBe(
+        'I met my teacher and part she said the wood was charred out'
+      );
     } finally {
       await rm(dir, { recursive: true, force: true });
     }

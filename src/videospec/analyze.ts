@@ -467,13 +467,10 @@ function applyTranscriptTextCorrections(text: string): string {
   out = out.replace(/\bstrang\s+est\b/gi, 'strangest');
   out = out.replace(/\bunle\s+ashed\b/gi, 'unleashed');
   out = out.replace(/\bvac\s+uums\b/gi, 'vacuums');
-  out = out.replace(/\bcharred\s+out\b/gi, 'charge out');
 
   // "Roombas" is frequently fragmented/misheard as "ombas" in this style of audio.
   out = out.replace(/\b(\d+)\s+ombas\b/gi, '$1 Roombas');
   out = out.replace(/\bombas\b/gi, 'Roombas');
-  out = out.replace(/\bmet\s+My\b/gi, 'met? My');
-  out = out.replace(/\bpart\s+She\b/gi, 'part. She');
 
   // Keep whitespace stable for downstream consumers.
   out = out.replace(/\s+/g, ' ').trim();
@@ -1745,7 +1742,7 @@ function classifyInsertedContentType(text: string): {
 
 function computeSafeVideoEndTimeSeconds(ctx: AnalyzeContext): number {
   // ffmpeg can return 0 bytes when asked for a frame at or past the end timestamp.
-  const marginSeconds = Math.max(0.05, 1 / Math.max(1, ctx.frameRate));
+  const marginSeconds = Math.max(0.1, 3 / Math.max(1, ctx.frameRate));
   return Math.max(0, ctx.durationSeconds - marginSeconds);
 }
 
@@ -1754,7 +1751,7 @@ type InsertedContentSegment = { start: number; end: number; confs: number[] };
 type InsertedContentCandidate = { start: number; end: number; avg: number };
 type InsertedContentBlock = NonNullable<VideoSpecV1['inserted_content_blocks']>[number];
 
-const INSERTED_CONTENT_BLOCKS_CACHE_VERSION = 3;
+const INSERTED_CONTENT_BLOCKS_CACHE_VERSION = 4;
 
 type InsertedContentBlocksCache = {
   version: number;
@@ -1889,8 +1886,15 @@ function sanitizeInsertedContentOcrWords(
   return out;
 }
 
-function buildReadableInsertedContentTextFromWords(words: InsertedContentOcrWord[]): string {
-  if (words.length === 0) return '';
+type InsertedContentLine = {
+  text: string;
+  bbox: [number, number, number, number];
+};
+
+function buildInsertedContentLinesFromWords(
+  words: InsertedContentOcrWord[]
+): InsertedContentLine[] {
+  if (words.length === 0) return [];
 
   const sorted = [...words].sort((a, b) => {
     const ay = a.bbox[1] + a.bbox[3] / 2;
@@ -1899,51 +1903,216 @@ function buildReadableInsertedContentTextFromWords(words: InsertedContentOcrWord
     return a.bbox[0] - b.bbox[0];
   });
 
-  const lines: Array<{ y: number; words: InsertedContentOcrWord[] }> = [];
+  const grouped: Array<{ y: number; words: InsertedContentOcrWord[] }> = [];
   for (const word of sorted) {
     const cy = word.bbox[1] + word.bbox[3] / 2;
     const yThreshold = Math.max(0.012, word.bbox[3] * 1.1);
-    let line = lines.find((l) => Math.abs(l.y - cy) <= yThreshold);
-    if (!line) {
-      line = { y: cy, words: [] };
-      lines.push(line);
+    let group = grouped.find((g) => Math.abs(g.y - cy) <= yThreshold);
+    if (!group) {
+      group = { y: cy, words: [] };
+      grouped.push(group);
     }
-    line.words.push(word);
-    line.y = (line.y * (line.words.length - 1) + cy) / line.words.length;
+    group.words.push(word);
+    group.y = (group.y * (group.words.length - 1) + cy) / group.words.length;
   }
 
-  const lineTexts = lines
+  return grouped
     .sort((a, b) => a.y - b.y)
-    .map((line) =>
-      line.words
-        .sort((a, b) => a.bbox[0] - b.bbox[0])
+    .map((group) => {
+      const wordsSorted = [...group.words].sort((a, b) => a.bbox[0] - b.bbox[0]);
+      const text = wordsSorted
         .map((w) => w.text)
         .join(' ')
         .replace(/\s+/g, ' ')
-        .trim()
-    )
-    .filter((text) => {
-      const m = computeOcrTextMetrics(text);
-      if (!text) return false;
+        .trim();
+
+      let x0 = 1;
+      let y0 = 1;
+      let x1 = 0;
+      let y1 = 0;
+      for (const w of wordsSorted) {
+        const [x, y, ww, hh] = w.bbox;
+        x0 = Math.min(x0, x);
+        y0 = Math.min(y0, y);
+        x1 = Math.max(x1, x + ww);
+        y1 = Math.max(y1, y + hh);
+      }
+
+      const bbox: [number, number, number, number] = [
+        clampNumber(x0, 0, 1),
+        clampNumber(y0, 0, 1),
+        clampNumber(Math.max(0, x1 - x0), 0, 1),
+        clampNumber(Math.max(0, y1 - y0), 0, 1),
+      ];
+
+      return { text, bbox };
+    })
+    .filter((line) => {
+      const m = computeOcrTextMetrics(line.text);
+      if (!line.text) return false;
       if (!m.hasLetter) return false;
       if (m.charCount < 4) return false;
       if (m.alnumRatio < 0.55) return false;
       if (m.weirdRatio > 0.2) return false;
-      if (/^[A-Z]{2,4}$/.test(text)) return false;
+      if (/^[A-Z]{2,4}$/.test(line.text)) return false;
       return true;
     });
+}
 
-  const deduped: string[] = [];
-  const dedupedNorm: string[] = [];
-  for (const text of lineTexts) {
-    const norm = normalizeWord(text);
+function dedupeInsertedContentLines(lines: InsertedContentLine[]): InsertedContentLine[] {
+  const out: InsertedContentLine[] = [];
+  const norms: string[] = [];
+  for (const line of lines) {
+    const norm = normalizeWord(line.text);
     if (!norm) continue;
-    if (dedupedNorm.some((p) => p === norm || isFuzzyMatch(p, norm, 0.9))) continue;
-    deduped.push(text);
-    dedupedNorm.push(norm);
+    if (norms.some((prev) => prev === norm || isFuzzyMatch(prev, norm, 0.9))) continue;
+    out.push(line);
+    norms.push(norm);
+  }
+  return out;
+}
+
+function normalizeInsertedContentKeyframeText(text: string): string {
+  const tokens = String(text ?? '')
+    .split(/\s+/g)
+    .map((t) => normalizeInsertedContentOcrToken(t))
+    .filter(Boolean)
+    .filter((token) => {
+      const m = computeOcrTextMetrics(token);
+      if (m.charCount < 2) return false;
+      if (m.alnumRatio < 0.4) return false;
+      if (m.weirdRatio > 0.35) return false;
+      if (/^\d{1,4}\+?$/.test(token)) return false;
+      if (/^[a-z]?\)\d{1,4}\+?$/i.test(token)) return false;
+      if (/^[A-Z]{2,4}$/.test(token)) return false;
+      return true;
+    });
+  return tokens.join(' ').replace(/\s+/g, ' ').trim();
+}
+
+function buildReadableInsertedContentTextFromWords(words: InsertedContentOcrWord[]): string {
+  const lines = dedupeInsertedContentLines(buildInsertedContentLinesFromWords(words));
+  return lines
+    .slice(0, 6)
+    .map((line) => line.text)
+    .join(' ')
+    .trim();
+}
+
+function inferLayoutRoleForLine(params: {
+  type: InsertedContentBlock['type'];
+  index: number;
+  totalLines: number;
+  text: string;
+}): 'title' | 'body' | 'comment' | 'message' | 'ui_header' | 'ui_footer' {
+  const { type, index, totalLines, text } = params;
+  if (type === 'chat_screenshot') return 'message';
+  if (type === 'reddit_screenshot') {
+    if (index === 0) return 'title';
+    if (totalLines <= 2) return 'title';
+    if (/\br\s*\/|u\s*\//i.test(text)) return 'ui_header';
+    return index <= 2 ? 'body' : 'comment';
+  }
+  if (type === 'browser_page') {
+    if (index === 0 && (/\bhttps?:\/\//i.test(text) || /\bwww\./i.test(text))) return 'ui_header';
+    return 'body';
+  }
+  return index === 0 ? 'title' : 'body';
+}
+
+function buildInsertedContentLayout(params: {
+  type: InsertedContentBlock['type'];
+  lines: InsertedContentLine[];
+}):
+  | {
+      engine: string;
+      elements: Array<{
+        id: string;
+        role: 'title' | 'body' | 'comment' | 'message' | 'ui_header' | 'ui_footer';
+        bbox: [number, number, number, number];
+        text: string;
+      }>;
+      reading_order: string[];
+    }
+  | undefined {
+  if (params.lines.length === 0) return undefined;
+  const elements = params.lines.slice(0, 12).map((line, index) => {
+    const id = `el_${String(index + 1).padStart(2, '0')}`;
+    return {
+      id,
+      role: inferLayoutRoleForLine({
+        type: params.type,
+        index,
+        totalLines: params.lines.length,
+        text: line.text,
+      }),
+      bbox: line.bbox,
+      text: line.text,
+    };
+  });
+  return {
+    engine: 'heuristic-line-grouping',
+    elements,
+    reading_order: elements.map((el) => el.id),
+  };
+}
+
+function buildInsertedContentStructuredData(params: {
+  type: InsertedContentBlock['type'];
+  lines: InsertedContentLine[];
+}): { schema_version: string; data: Record<string, unknown> } | undefined {
+  const lineTexts = params.lines.map((line) => line.text).filter(Boolean);
+  if (lineTexts.length === 0) return undefined;
+
+  if (params.type === 'reddit_screenshot') {
+    const joined = lineTexts.join(' ');
+    const subredditMatch = joined.match(/\br\s*\/\s*([a-z0-9_]+)/i);
+    const joinedLooksLikeSinglePrompt = lineTexts.length <= 2 && /[?!.]$/.test(joined.trim());
+    const title = joinedLooksLikeSinglePrompt ? joined.trim() : lineTexts[0];
+    const body =
+      joinedLooksLikeSinglePrompt || lineTexts.length <= 1
+        ? undefined
+        : lineTexts.slice(1).join(' ');
+    return {
+      schema_version: '1.0',
+      data: {
+        kind: 'reddit_post',
+        ...(subredditMatch ? { subreddit: `r/${subredditMatch[1]}` } : {}),
+        ...(title ? { title } : {}),
+        ...(body ? { body } : {}),
+        comments: [],
+      },
+    };
   }
 
-  return deduped.slice(0, 6).join(' ').trim();
+  if (params.type === 'chat_screenshot') {
+    return {
+      schema_version: '1.0',
+      data: {
+        kind: 'chat_thread',
+        messages: lineTexts.map((text, index) => ({ index: index + 1, text })),
+      },
+    };
+  }
+
+  if (params.type === 'browser_page') {
+    return {
+      schema_version: '1.0',
+      data: {
+        kind: 'browser_page',
+        ...(lineTexts[0] ? { title: lineTexts[0] } : {}),
+        sections: lineTexts.slice(1),
+      },
+    };
+  }
+
+  return {
+    schema_version: '1.0',
+    data: {
+      kind: 'generic_screenshot',
+      lines: lineTexts,
+    },
+  };
 }
 
 function shouldKeepInsertedContentBlock(block: InsertedContentBlock): boolean {
@@ -2211,17 +2380,29 @@ async function buildInsertedContentBlock(params: {
     }));
   }
 
-  const bestKeyframe =
-    ocrKeyframes.length > 0
-      ? ocrKeyframes.reduce((best, cur) =>
-          (cur.confidence ?? 0) > (best.confidence ?? 0) ? cur : best
+  const keyframeViews = ocrKeyframes.map((k) => {
+    const words = sanitizeInsertedContentOcrWords(k.words ?? []);
+    const lines = dedupeInsertedContentLines(buildInsertedContentLinesFromWords(words));
+    const textFromLines = buildReadableInsertedContentTextFromWords(words);
+    const text = textFromLines || normalizeInsertedContentKeyframeText(k.text);
+    return { keyframe: k, words, lines, text };
+  });
+
+  const bestKeyframeView =
+    keyframeViews.length > 0
+      ? keyframeViews.reduce((best, cur) =>
+          (cur.keyframe.confidence ?? 0) > (best.keyframe.confidence ?? 0) ? cur : best
         )
       : null;
-  const bestKeyframeWords = sanitizeInsertedContentOcrWords(bestKeyframe?.words ?? []);
-  const readableTextFromWords = buildReadableInsertedContentTextFromWords(bestKeyframeWords);
 
   const keyframeChunks = ocrKeyframes.map((k) => k.text).filter(Boolean);
   const combinedTextFromKeyframes = keyframeChunks.join(' ').replace(/\s+/g, ' ').trim();
+  const combinedTextFromCleanedKeyframes = keyframeViews
+    .map((k) => k.text)
+    .filter(Boolean)
+    .join(' ')
+    .replace(/\s+/g, ' ')
+    .trim();
   const combinedTextFromWords = ocrKeyframes
     .flatMap((k) => k.words ?? [])
     .map((w) => normalizeInsertedContentOcrToken(w.text))
@@ -2231,13 +2412,18 @@ async function buildInsertedContentBlock(params: {
     .replace(/\s+/g, ' ')
     .trim();
 
-  const classificationText = [combinedTextFromKeyframes, combinedTextFromWords]
+  const classificationText = [
+    combinedTextFromCleanedKeyframes,
+    combinedTextFromKeyframes,
+    combinedTextFromWords,
+  ]
     .filter(Boolean)
     .join(' ')
     .replace(/\s+/g, ' ')
     .trim();
   const extractionText = (
-    readableTextFromWords ||
+    bestKeyframeView?.text ||
+    combinedTextFromCleanedKeyframes ||
     combinedTextFromWords ||
     combinedTextFromKeyframes
   )
@@ -2245,6 +2431,13 @@ async function buildInsertedContentBlock(params: {
     .trim();
 
   const typeGuess = classifyInsertedContentType(classificationText || extractionText);
+  const bestKeyframeWords = bestKeyframeView?.words ?? [];
+  const bestKeyframeLines = bestKeyframeView?.lines ?? [];
+  const layout = buildInsertedContentLayout({ type: typeGuess.type, lines: bestKeyframeLines });
+  const structured = buildInsertedContentStructuredData({
+    type: typeGuess.type,
+    lines: bestKeyframeLines,
+  });
   const ocrQuality = mean(
     ocrKeyframes
       .map((k) => k.confidence)
@@ -2263,9 +2456,14 @@ async function buildInsertedContentBlock(params: {
       const cropPath = cropPaths[idx] ?? null;
       const relFull = fullPath ? relPathOrNull(cacheBaseDir, fullPath) : null;
       const relCrop = cropPath ? relPathOrNull(cacheBaseDir, cropPath) : null;
+      const view = keyframeViews[idx];
       return {
         time: k.time,
-        ...(k.text ? { text: k.text } : {}),
+        ...(view?.text
+          ? { text: view.text }
+          : k.text
+            ? { text: normalizeInsertedContentKeyframeText(k.text) }
+            : {}),
         ...(k.confidence !== undefined ? { confidence: k.confidence } : {}),
         ...(relFull ? { path: relFull } : {}),
         ...(relCrop ? { crop_path: relCrop } : {}),
@@ -2276,7 +2474,10 @@ async function buildInsertedContentBlock(params: {
         engine: 'tesseract.js',
         ...(extractionText ? { text: extractionText } : {}),
         ...(bestKeyframeWords.length > 0 ? { words: bestKeyframeWords.slice(0, 400) } : {}),
+        ...(bestKeyframeLines.length > 0 ? { lines: bestKeyframeLines.slice(0, 120) } : {}),
       },
+      ...(layout ? { layout } : {}),
+      ...(structured ? { structured } : {}),
     },
     confidence: {
       is_inserted_content: seg.avg,
@@ -2462,6 +2663,7 @@ async function analyzeEditingMotionAndEffects(params: {
   const jumpCutShotIds: number[] = [];
   const shotIdToJumpCut = new Map<number, boolean>();
   const safeEndTimeSeconds = computeSafeVideoEndTimeSeconds(ctx);
+  let cameraMotionFailures = 0;
 
   for (const shot of slice) {
     const eps = 0.05;
@@ -2494,15 +2696,19 @@ async function analyzeEditingMotionAndEffects(params: {
         end: shot.end,
       });
     } catch (error) {
+      cameraMotionFailures++;
       provenanceNotes.push(
         `Camera motion analysis failed for shot ${shot.id}. (${error instanceof Error ? error.message : String(error)})`
       );
       cameraMotion.push({ shot_id: shot.id, motion: 'unknown', start: shot.start, end: shot.end });
-      provenanceModules.camera_motion = 'unavailable';
     }
   }
-  if (!provenanceModules.camera_motion) {
+  if (cameraMotionFailures === 0) {
     provenanceModules.camera_motion = 'heuristic (ffmpeg frames + mse/shift/zoom)';
+  } else if (cameraMotionFailures < slice.length) {
+    provenanceModules.camera_motion = 'heuristic (ffmpeg frames + mse/shift/zoom; partial)';
+  } else {
+    provenanceModules.camera_motion = 'unavailable';
   }
 
   for (let i = 0; i < slice.length - 1; i++) {

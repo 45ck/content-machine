@@ -129,7 +129,7 @@ async function writeVideoSpecCacheArtifacts(params: {
     await import('node:fs/promises')
   ).writeFile(
     join(videoCacheDir, 'inserted-content.v1.json'),
-    JSON.stringify(insertedCacheRaw ?? { version: 3, blocks: insertedBlocks }, null, 2),
+    JSON.stringify(insertedCacheRaw ?? { version: 4, blocks: insertedBlocks }, null, 2),
     'utf-8'
   );
 }
