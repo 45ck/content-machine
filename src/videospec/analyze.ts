@@ -347,13 +347,126 @@ function overlapsAnySegment(
   return false;
 }
 
+const ASR_FRAGMENT_SUFFIXES = new Set([
+  's',
+  'es',
+  'ed',
+  'ing',
+  'er',
+  'ers',
+  'est',
+  'ly',
+  'ment',
+  'tion',
+  'tions',
+  'al',
+  'ial',
+  'u',
+  'um',
+  'ums',
+  'as',
+  'red',
+  'ashed',
+  'shed',
+]);
+const ASR_NON_MERGE_SHORT_WORDS = new Set([
+  'i',
+  'a',
+  'an',
+  'to',
+  'of',
+  'in',
+  'on',
+  'at',
+  'by',
+  'my',
+  'we',
+  'he',
+  'she',
+  'it',
+  'is',
+  'or',
+  'be',
+  'am',
+  'as',
+  'if',
+  'do',
+  'go',
+  'no',
+  'so',
+  'up',
+  'us',
+  'me',
+]);
+
+function isAsciiAlphaToken(token: string): boolean {
+  return /^[A-Za-z]+$/.test(token);
+}
+
+function shouldMergeAsrWordFragments(params: {
+  prevWord: string;
+  prevEnd: number;
+  currWord: string;
+  currStart: number;
+}): boolean {
+  if (!isAsciiAlphaToken(params.prevWord) || !isAsciiAlphaToken(params.currWord)) return false;
+  const gap = params.currStart - params.prevEnd;
+  if (!Number.isFinite(gap) || gap < -0.05 || gap > 0.12) return false;
+
+  const prev = params.prevWord.toLowerCase();
+  const curr = params.currWord.toLowerCase();
+  if (prev.length <= 1 || curr.length <= 1) return true;
+  if (prev.length <= 2 && curr.length <= 4 && !ASR_NON_MERGE_SHORT_WORDS.has(prev)) {
+    return true;
+  }
+  if (ASR_FRAGMENT_SUFFIXES.has(curr)) return true;
+
+  return false;
+}
+
+function mergeFragmentedAsrWords(
+  words: Array<{ word: string; start: number; end: number; confidence?: number }>
+): Array<{ word: string; start: number; end: number; confidence?: number }> {
+  const sorted = [...words].sort((a, b) => a.start - b.start || a.end - b.end);
+  if (sorted.length <= 1) return sorted;
+
+  const merged: Array<{ word: string; start: number; end: number; confidence?: number }> = [];
+  for (const w of sorted) {
+    const prev = merged[merged.length - 1];
+    if (!prev) {
+      merged.push({ ...w });
+      continue;
+    }
+    if (
+      shouldMergeAsrWordFragments({
+        prevWord: prev.word,
+        prevEnd: prev.end,
+        currWord: w.word,
+        currStart: w.start,
+      })
+    ) {
+      prev.word = `${prev.word}${w.word}`;
+      prev.end = Math.max(prev.end, w.end);
+      if (typeof prev.confidence === 'number' && typeof w.confidence === 'number') {
+        prev.confidence = mean([prev.confidence, w.confidence]);
+      } else if (typeof prev.confidence !== 'number' && typeof w.confidence === 'number') {
+        prev.confidence = w.confidence;
+      }
+      continue;
+    }
+    merged.push({ ...w });
+  }
+  return merged;
+}
+
 function buildTranscriptSegmentsFromWords(params: {
   words: Array<{ word: string; start: number; end: number; confidence?: number }>;
   speaker?: string;
 }): VideoSpecTranscriptSegment[] {
   const speaker = params.speaker;
-  const words = params.words.filter((w) => Number.isFinite(w.start) && Number.isFinite(w.end));
-  if (words.length === 0) return [];
+  const rawWords = params.words.filter((w) => Number.isFinite(w.start) && Number.isFinite(w.end));
+  if (rawWords.length === 0) return [];
+  const words = mergeFragmentedAsrWords(rawWords);
 
   const segments: VideoSpecTranscriptSegment[] = [];
   const maxSegmentSeconds = 4.0;
@@ -1707,19 +1820,40 @@ function relPathOrNull(baseDir: string | null, absPath: string): string | null {
 
 function shouldKeepInsertedContentBlock(block: InsertedContentBlock): boolean {
   const text = block.extraction?.ocr?.text ?? '';
+  const textMetrics = computeOcrTextMetrics(text);
   const alnumChars = text.replace(/[^a-z0-9]/gi, '').length;
-  const wordCount = (block.extraction?.ocr?.words ?? []).filter((w) =>
-    /[a-z0-9]/i.test(w.text)
+  const words = block.extraction?.ocr?.words ?? [];
+  const wordCount = words.filter((w) => /[a-z0-9]/i.test(w.text)).length;
+  const highConfWordCount = words.filter(
+    (w) =>
+      /[a-z0-9]/i.test(w.text) &&
+      typeof w.confidence === 'number' &&
+      Number.isFinite(w.confidence) &&
+      w.confidence >= 0.45
   ).length;
   const area = block.region ? rectArea(block.region) : 1;
+  const ocrQuality =
+    typeof block.confidence?.ocr_quality === 'number' &&
+    Number.isFinite(block.confidence.ocr_quality)
+      ? block.confidence.ocr_quality
+      : 0;
 
   // Captions often look like "inserted content" (high edges, low motion), so we aggressively
   // filter generic blocks unless we have enough text and a meaningful region size.
   if (block.type === 'generic_screenshot') {
-    return alnumChars >= 30 && wordCount >= 5 && area >= 0.06;
+    return (
+      alnumChars >= 24 &&
+      alnumChars <= 700 &&
+      wordCount >= 5 &&
+      highConfWordCount >= 4 &&
+      area >= 0.06 &&
+      ocrQuality >= 0.35 &&
+      textMetrics.alnumRatio >= 0.55 &&
+      textMetrics.weirdRatio <= 0.2
+    );
   }
 
-  return alnumChars >= 12 && wordCount >= 3;
+  return alnumChars >= 12 && wordCount >= 3 && ocrQuality >= 0.2;
 }
 
 async function sampleInsertedContentConfidence(params: {
@@ -1949,19 +2083,17 @@ async function buildInsertedContentBlock(params: {
     }));
   }
 
-  const combinedTextFromKeyframes = ocrKeyframes
-    .map((k) => k.text)
-    .filter(Boolean)
-    .join(' ');
+  const keyframeChunks = ocrKeyframes.map((k) => k.text).filter(Boolean);
+  const combinedTextFromKeyframes = keyframeChunks.join(' ').replace(/\s+/g, ' ').trim();
   const combinedTextFromWords = ocrKeyframes
     .flatMap((k) => k.words ?? [])
     .map((w) => w.text)
     .filter(Boolean)
     .slice(0, 250)
-    .join(' ');
-  const combinedText = `${combinedTextFromKeyframes} ${combinedTextFromWords}`
+    .join(' ')
     .replace(/\s+/g, ' ')
     .trim();
+  const combinedText = (combinedTextFromKeyframes || combinedTextFromWords).trim();
 
   const typeGuess = classifyInsertedContentType(combinedText);
   const ocrQuality = mean(
@@ -2082,11 +2214,27 @@ async function analyzeInsertedContentBlocks(params: {
     return [];
   }
 
-  const artifactsRootDir = ctx.cacheEnabled
-    ? join(ctx.videoCacheDir, 'inserted-content')
-    : join(tmpdir(), `cm-videospec-inserted-${Date.now()}-${Math.random()}`);
+  const outputPathAbs =
+    typeof options.outputPath === 'string' && options.outputPath.trim()
+      ? resolve(options.outputPath)
+      : null;
+  const outputArtifactsBaseDir = outputPathAbs
+    ? join(dirname(outputPathAbs), `${basename(outputPathAbs).replace(/\.[^.]+$/, '')}.artifacts`)
+    : null;
+  const fallbackNonCacheBaseDir = join(
+    resolveVideoSpecCacheDir(options.cacheDir),
+    'artifacts',
+    basename(ctx.videoCacheDir)
+  );
+  const artifactsBaseDir = ctx.cacheEnabled
+    ? ctx.videoCacheDir
+    : (outputArtifactsBaseDir ?? fallbackNonCacheBaseDir);
+  const artifactsRootDir = join(artifactsBaseDir, 'inserted-content');
   await mkdir(artifactsRootDir, { recursive: true });
-  const cacheBaseDir = ctx.cacheEnabled ? ctx.videoCacheDir : null;
+  const cacheBaseDir = artifactsBaseDir;
+  if (!ctx.cacheEnabled) {
+    provenanceNotes.push(`Inserted content artifacts saved to: ${artifactsRootDir}`);
+  }
 
   try {
     const blocks: NonNullable<VideoSpecV1['inserted_content_blocks']> = [];
@@ -2127,10 +2275,6 @@ async function analyzeInsertedContentBlocks(params: {
     );
     provenanceModules.inserted_content_blocks = 'unavailable';
     return [];
-  } finally {
-    if (!ctx.cacheEnabled) {
-      await rm(artifactsRootDir, { recursive: true, force: true });
-    }
   }
 }
 
