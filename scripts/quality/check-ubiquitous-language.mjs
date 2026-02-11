@@ -291,9 +291,7 @@ function main() {
   const { registry } = readUbiquitousLanguageRegistry({ repoRoot });
 
   if ((registry.enforcement?.bannedPhrases ?? []).length === 0) {
-    errors.push(
-      'enforcement.bannedPhrases must not be empty in registry/ubiquitous-language.yaml'
-    );
+    errors.push('enforcement.bannedPhrases must not be empty in registry/ubiquitous-language.yaml');
   }
 
   // 1) Ensure glossary is generated from registry (idempotent).

@@ -299,10 +299,10 @@ function generateRepoFactsTs({ registry }) {
     .map((id) => visualsById.get(id))
     .filter(Boolean)
     .map((p) => ({
-    id: p.id,
-    displayName: p.displayName,
-    envVarNames: [...(p.envVarNames ?? [])],
-  }));
+      id: p.id,
+      displayName: p.displayName,
+      envVarNames: [...(p.envVarNames ?? [])],
+    }));
   const visualsProviders = (f.visuals.supportedProviders ?? []).map((p) => ({
     id: p.id,
     displayName: p.displayName,
@@ -349,9 +349,7 @@ function generateRepoFactsTs({ registry }) {
   lines.push(
     `export const PROJECT_CONFIG_CANDIDATES = ${JSON.stringify(registry.configSurface?.projectConfigCandidates ?? [])} as const;`
   );
-  lines.push(
-    'export type ProjectConfigCandidate = (typeof PROJECT_CONFIG_CANDIDATES)[number];'
-  );
+  lines.push('export type ProjectConfigCandidate = (typeof PROJECT_CONFIG_CANDIDATES)[number];');
   lines.push('');
   lines.push(
     `export const USER_CONFIG_CANDIDATES = ${JSON.stringify(registry.configSurface?.userConfigCandidates ?? [])} as const;`

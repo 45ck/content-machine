@@ -37,7 +37,10 @@ const ConfigFileSchema = z.object({
 });
 
 const EnvironmentVariableSchema = z.object({
-  name: z.string().min(1).regex(/^[A-Z0-9_]+$/),
+  name: z
+    .string()
+    .min(1)
+    .regex(/^[A-Z0-9_]+$/),
   required: z.boolean().default(false),
 });
 
@@ -177,8 +180,7 @@ function assertUnique(label, values) {
 
 export function readRepoFactsRegistry(opts = {}) {
   const repoRoot = opts.repoRoot ?? process.cwd();
-  const registryPath =
-    opts.registryPath ?? path.join(repoRoot, 'registry', 'repo-facts.yaml');
+  const registryPath = opts.registryPath ?? path.join(repoRoot, 'registry', 'repo-facts.yaml');
 
   const raw = fs.readFileSync(registryPath, 'utf8');
   const parsed = parseYaml(raw);
@@ -217,7 +219,9 @@ export function readRepoFactsRegistry(opts = {}) {
   const visualsProviderIds = new Set(registry.facts.visuals.supportedProviders.map((p) => p.id));
   for (const id of registry.facts.stockVisuals.providerIds) {
     if (!visualsProviderIds.has(id)) {
-      throw new Error(`Stock visuals provider id not found in facts.visuals.supportedProviders: ${id}`);
+      throw new Error(
+        `Stock visuals provider id not found in facts.visuals.supportedProviders: ${id}`
+      );
     }
   }
 

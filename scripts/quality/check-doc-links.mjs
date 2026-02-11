@@ -115,7 +115,9 @@ function main() {
   if (errors.length > 0) {
     console.error('Doc link check failed:');
     for (const e of errors) console.error(`- ${e}`);
-    console.error('Fix: update broken local Markdown links or adjust quality.docsValidation.ignoreLinkGlobs in registry/repo-facts.yaml.');
+    console.error(
+      'Fix: update broken local Markdown links or adjust quality.docsValidation.ignoreLinkGlobs in registry/repo-facts.yaml.'
+    );
     process.exit(1);
   }
 }
