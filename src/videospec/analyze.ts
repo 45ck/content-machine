@@ -900,6 +900,64 @@ function dedupeTextOverlays(overlays: VideoSpecTextOverlay[]): VideoSpecTextOver
   return out;
 }
 
+function tokenizeTextWords(text: string, minLen = 2): string[] {
+  return String(text ?? '')
+    .toLowerCase()
+    .split(/[^a-z0-9']+/g)
+    .map((w) => w.trim().replace(/^'+|'+$/g, ''))
+    .filter((w) => w.length >= minLen);
+}
+
+function hasTranscriptSupportForOverlay(params: {
+  overlay: { text: string; start: number; end: number };
+  transcript: VideoSpecTranscriptSegment[];
+}): boolean {
+  if (params.transcript.length === 0) return true;
+  const seg = findBestOverlappingTranscriptSegment(
+    params.transcript,
+    params.overlay.start,
+    params.overlay.end
+  );
+  if (!seg) return false;
+
+  const overlayTokens = tokenizeTextWords(params.overlay.text, 3);
+  if (overlayTokens.length === 0) return false;
+
+  const trTokens = new Set(tokenizeTextWords(seg.text, 3));
+  if (trTokens.size === 0) return false;
+
+  const hits = overlayTokens.filter((t) => trTokens.has(t)).length;
+  if (hits >= 1 && hits / overlayTokens.length >= 0.34) return true;
+
+  // OCR corruption may produce partial words; keep a lenient fuzzy fallback.
+  return isFuzzyMatch(normalizeWord(params.overlay.text), normalizeWord(seg.text), 0.45);
+}
+
+function overlayLooksLikeInsertedContentDuplicate(params: {
+  overlay: { text: string; start: number; end: number };
+  insertedBlocks: NonNullable<VideoSpecV1['inserted_content_blocks']>;
+}): boolean {
+  const overlayTokens = tokenizeTextWords(params.overlay.text, 3);
+  if (overlayTokens.length === 0) return false;
+
+  for (const block of params.insertedBlocks) {
+    const overlap = overlapSeconds(params.overlay, block);
+    if (overlap <= 0) continue;
+    const blockText =
+      block.extraction?.ocr?.text ??
+      (Array.isArray(block.keyframes) ? block.keyframes.map((k) => k.text).join(' ') : '');
+    if (!blockText.trim()) continue;
+
+    const blockTokenSet = new Set(tokenizeTextWords(blockText, 3));
+    if (blockTokenSet.size === 0) continue;
+
+    const hits = overlayTokens.filter((t) => blockTokenSet.has(t)).length;
+    if (hits / overlayTokens.length >= 0.5) return true;
+  }
+
+  return false;
+}
+
 function findBestOverlappingTranscriptSegment(
   segments: VideoSpecTranscriptSegment[],
   start: number,
@@ -1370,6 +1428,7 @@ async function analyzeOcr(params: {
   ctx: AnalyzeContext;
   options: AnalyzeVideoToVideoSpecV1Options;
   transcript: VideoSpecTranscriptSegment[];
+  insertedContentBlocks?: NonNullable<VideoSpecV1['inserted_content_blocks']>;
   provenanceModules: Record<string, string>;
   provenanceNotes: string[];
 }): Promise<{
@@ -1378,6 +1437,7 @@ async function analyzeOcr(params: {
   ocrTexts: string[];
 }> {
   const { ctx, options, transcript, provenanceModules, provenanceNotes } = params;
+  const insertedContentBlocks = params.insertedContentBlocks ?? [];
   const pass = options.pass ?? '1';
   const ocrEnabled = options.ocr ?? true;
   const ocrCrop = options.ocrCrop ?? { yRatio: 0.6, heightRatio: 0.4 };
@@ -1501,9 +1561,24 @@ async function analyzeOcr(params: {
 
   // De-dupe noisy repeats across OCR crops/passes before emitting.
   const overlaysDeduped = dedupeTextOverlays(textOverlays);
+  const overlaysFiltered = overlaysDeduped.filter((overlay) => {
+    if (!hasTranscriptSupportForOverlay({ overlay, transcript })) return false;
+    if (
+      insertedContentBlocks.length > 0 &&
+      overlayLooksLikeInsertedContentDuplicate({ overlay, insertedBlocks: insertedContentBlocks })
+    ) {
+      return false;
+    }
+    return true;
+  });
+  if (overlaysDeduped.length > overlaysFiltered.length) {
+    provenanceNotes.push(
+      `OCR overlay filtering dropped ${overlaysDeduped.length - overlaysFiltered.length} low-quality/duplicate overlays.`
+    );
+  }
   const ocrTextsDeduped = dedupeOcrTexts(ocrTexts);
 
-  return { captions, textOverlays: overlaysDeduped, ocrTexts: ocrTextsDeduped };
+  return { captions, textOverlays: overlaysFiltered, ocrTexts: ocrTextsDeduped };
 }
 
 function classifyInsertedContentType(text: string): {
@@ -2387,17 +2462,18 @@ export async function analyzeVideoToVideoSpecV1(
     provenanceNotes,
   });
 
-  const { captions, textOverlays, ocrTexts } = await analyzeOcr({
+  const insertedContentBlocks = await analyzeInsertedContentBlocks({
     ctx,
     options,
-    transcript,
     provenanceModules,
     provenanceNotes,
   });
 
-  const insertedContentBlocks = await analyzeInsertedContentBlocks({
+  const { captions, textOverlays, ocrTexts } = await analyzeOcr({
     ctx,
     options,
+    transcript,
+    insertedContentBlocks,
     provenanceModules,
     provenanceNotes,
   });

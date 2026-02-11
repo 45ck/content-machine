@@ -62,6 +62,8 @@ export default defineConfig({
         // Ensure each test file runs in an isolated worker so `vi.mock()` is reliable and
         // global state doesn't leak across the suite (especially under coverage).
         isolate: true,
+        // Stabilize coverage aggregation by using one fork for the whole run.
+        singleFork: true,
       },
     },
     watch: false,
