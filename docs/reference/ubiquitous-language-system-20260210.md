@@ -9,7 +9,7 @@ This repo has a few loaded words (template, workflow, archetype, preset, pack). 
 
 ## Canonical Sources
 
-- **Registry (source of truth):** `docs/reference/ubiquitous-language.yaml`
+- **Registry (source of truth):** `registry/ubiquitous-language.yaml`
 - **Generated glossary (do not edit):** `docs/reference/GLOSSARY.md`
 - **Enforcement:** `scripts/quality/check-ubiquitous-language.mjs`
 

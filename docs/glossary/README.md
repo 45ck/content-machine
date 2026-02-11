@@ -11,13 +11,13 @@ Use this when you need to answer: “What does this word/field mean in our syste
 
 Canonical sources (single source of truth):
 
-- Registry: `docs/reference/ubiquitous-language.yaml`
+- Registry: `registry/ubiquitous-language.yaml`
 - Generated glossary: `docs/reference/GLOSSARY.md`
 - System explainer: `docs/reference/ubiquitous-language-system-20260210.md`
 
 ## Rules (to keep the domain harmonized)
 
-0. **Do not redefine terms here.** If a definition changes, update `docs/reference/ubiquitous-language.yaml`.
+0. **Do not redefine terms here.** If a definition changes, update `registry/ubiquitous-language.yaml`.
 1. **One concept, one name.** If multiple names exist in code (legacy), document the canonical name and mark the others as legacy.
 2. **Every glossary entry must include code references.** Link to the TypeScript file(s) and the schema(s) that define the behavior and shape.
 3. **Artifacts are contracts.** Fields in `script.json`, `timestamps.json`, and `visuals.json` are stable APIs; changes require a `schemaVersion` bump and (when feasible) a migration path.
@@ -59,6 +59,6 @@ Keep entries short, and include:
 ## Related
 
 - `docs/reference/GLOSSARY.md`
-- `docs/reference/ubiquitous-language.yaml`
+- `registry/ubiquitous-language.yaml`
 - `docs/reference/ubiquitous-language-system-20260210.md`
 - `docs/architecture/SYSTEM-DESIGN-20260104.md`

@@ -4,8 +4,8 @@ This repository is `content-machine`.
 
 ## Canonical sources of truth
 
-- Repo facts: `docs/reference/repo-facts.yaml`
-- Ubiquitous language: `docs/reference/ubiquitous-language.yaml`
+- Repo facts: `registry/repo-facts.yaml`
+- Ubiquitous language: `registry/ubiquitous-language.yaml`
 - Artifact contracts: `docs/reference/ARTIFACT-CONTRACTS.md`
 - Config surface: `docs/reference/CONFIG-SURFACE.md`
 - CLI contract: `docs/reference/CLI-CONTRACT.md`

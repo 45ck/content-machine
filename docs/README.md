@@ -44,8 +44,8 @@ docs/
 
 ## Single Sources Of Truth
 
-- Repo facts registry: `docs/reference/repo-facts.yaml` (generated: `docs/reference/REPO-FACTS.md`)
-- Ubiquitous language registry: `docs/reference/ubiquitous-language.yaml` (generated: `docs/reference/GLOSSARY.md`)
+- Repo facts registry: `registry/repo-facts.yaml` (generated: `docs/reference/REPO-FACTS.md`)
+- Ubiquitous language registry: `registry/ubiquitous-language.yaml` (generated: `docs/reference/GLOSSARY.md`)
 
 ---
 

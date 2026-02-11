@@ -1,6 +1,6 @@
 # Config Surface
 
-> DO NOT EDIT: generated from `docs/reference/repo-facts.yaml`.
+> DO NOT EDIT: generated from `registry/repo-facts.yaml`.
 
 ## Files & Locations
 
@@ -46,3 +46,15 @@
 - `.env (if present)`
 - `.content-machine.toml (if present)`
 - `built-in defaults`
+
+## Project Config Candidates
+
+- `.content-machine.toml`
+- `content-machine.toml`
+- `.cmrc.json`
+
+## User Config Candidates (under home directory)
+
+- `.cm/config.toml`
+- `.cm/config.json`
+- `.cmrc.json`

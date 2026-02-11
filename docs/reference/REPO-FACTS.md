@@ -1,6 +1,6 @@
 # Repository Facts
 
-> DO NOT EDIT: generated from `docs/reference/repo-facts.yaml`.
+> DO NOT EDIT: generated from `registry/repo-facts.yaml`.
 
 See also (generated):
 
@@ -35,7 +35,9 @@ Default:
 ## Stock Visuals Providers
 
 - Pexels (id: `pexels`)
-  - Env vars: `PEXELS_API_KEY`
+  - Env vars: `PEXELS_API_KEY`. Stock video provider (implemented).
+- Pixabay (id: `pixabay`)
+  - Env vars: `PIXABAY_API_KEY`. Planned (not implemented yet).
 
 ## Visuals Providers
 

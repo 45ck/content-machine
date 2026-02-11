@@ -319,13 +319,13 @@ function generateRepoFactsTs({ registry }) {
   lines.push(
     `export const SUPPORTED_LLM_PROVIDER_IDS = ${JSON.stringify(llmProviderIds)} as const;`
   );
-  lines.push('export type LlmProviderId = (typeof SUPPORTED_LLM_PROVIDER_IDS)[number];');
+  lines.push('export type RepoFactsLlmProviderId = (typeof SUPPORTED_LLM_PROVIDER_IDS)[number];');
   lines.push('');
   lines.push(
     `export const SUPPORTED_STOCK_VISUALS_PROVIDER_IDS = ${JSON.stringify(stockProviderIds)} as const;`
   );
   lines.push(
-    'export type StockVisualsProviderId = (typeof SUPPORTED_STOCK_VISUALS_PROVIDER_IDS)[number];'
+    'export type RepoFactsStockVisualsProviderId = (typeof SUPPORTED_STOCK_VISUALS_PROVIDER_IDS)[number];'
   );
   lines.push('');
 
@@ -333,7 +333,7 @@ function generateRepoFactsTs({ registry }) {
     `export const SUPPORTED_VISUALS_PROVIDER_IDS = ${JSON.stringify(visualsProviderIds)} as const;`
   );
   lines.push(
-    'export type VisualsProviderId = (typeof SUPPORTED_VISUALS_PROVIDER_IDS)[number];'
+    'export type RepoFactsVisualsProviderId = (typeof SUPPORTED_VISUALS_PROVIDER_IDS)[number];'
   );
   lines.push('');
 
@@ -432,6 +432,10 @@ function extractCspellWords({ registry }) {
       .map((x) => x.trim())
       .filter(Boolean);
     for (const part of dnParts) words.push(part);
+  }
+
+  for (const ev of f.environment.variables ?? []) {
+    words.push(ev.name);
   }
 
   // Include the default model token(s) if they are cspell-friendly.
@@ -542,6 +546,3 @@ main().catch((error) => {
   console.error(error);
   process.exit(1);
 });
-  for (const ev of f.environment.variables ?? []) {
-    words.push(ev.name);
-  }

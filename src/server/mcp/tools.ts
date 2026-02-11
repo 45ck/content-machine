@@ -27,6 +27,7 @@ import type {
   VisualsOutput,
 } from '../../domain';
 import type { ProviderName } from '../../visuals/providers';
+import { DEFAULT_ARTIFACT_FILENAMES } from '../../domain/repo-facts.generated';
 import type { McpSessionStore } from './session-store';
 import type { McpToolContextLike, McpSessionState } from './session-store';
 import { loadFastMcp } from './fastmcp';
@@ -85,6 +86,9 @@ async function maybeWriteJsonFile(path: string | undefined, data: unknown): Prom
   await writeFile(path, JSON.stringify(data, null, 2), 'utf-8');
 }
 
+/**
+ * Build the Content Machine MCP tool registry for a session-aware server.
+ */
 // eslint-disable-next-line max-lines-per-function
 export function createContentMachineMcpTools(params: {
   sessionStore: McpSessionStore;
@@ -312,10 +316,10 @@ export function createContentMachineMcpTools(params: {
 
         const outputPath = args.outputPath
           ? await resolveSessionPath(session, args.outputPath, 'outputPath')
-          : `${session.artifactsDir}/audio.wav`;
+          : `${session.artifactsDir}/${DEFAULT_ARTIFACT_FILENAMES.audio}`;
         const timestampsPath = args.timestampsPath
           ? await resolveSessionPath(session, args.timestampsPath, 'timestampsPath')
-          : `${session.artifactsDir}/timestamps.json`;
+          : `${session.artifactsDir}/${DEFAULT_ARTIFACT_FILENAMES.timestamps}`;
 
         await mkdir(dirname(outputPath), { recursive: true });
         await mkdir(dirname(timestampsPath), { recursive: true });
@@ -518,7 +522,7 @@ export function createContentMachineMcpTools(params: {
 
         const outputPath = args.outputPath
           ? await resolveSessionPath(session, args.outputPath, 'outputPath')
-          : `${session.artifactsDir}/video.mp4`;
+          : `${session.artifactsDir}/${DEFAULT_ARTIFACT_FILENAMES.video}`;
 
         const output = await renderVideo({
           visuals,
@@ -550,6 +554,9 @@ export function createContentMachineMcpTools(params: {
   return tools;
 }
 
+/**
+ * Register Content Machine MCP tools on a FastMCP-compatible server.
+ */
 export function registerContentMachineMcpTools(params: {
   server: { addTool: (tool: any) => void };
   sessionStore: McpSessionStore;

@@ -4,16 +4,26 @@ import { dirname, join, resolve } from 'node:path';
 import { CMError } from '../../core/errors';
 import { LabRunSchema, type LabRun, type LabRunFingerprint } from '../../domain';
 import { appendJsonl, readJsonl } from './jsonl';
+import { DEFAULT_ARTIFACT_FILENAMES } from '../../domain/repo-facts.generated';
 
+/**
+ * Read all persisted lab runs from the JSONL store.
+ */
 export async function readRuns(storePath: string): Promise<LabRun[]> {
   // runId is unique, so we keep append-only history but read all for now.
   return readJsonl({ path: storePath, schema: LabRunSchema });
 }
 
+/**
+ * Append a run entry to the JSONL store.
+ */
 export async function appendRun(storePath: string, run: LabRun): Promise<LabRun> {
   return appendJsonl({ path: storePath, value: run, schema: LabRunSchema });
 }
 
+/**
+ * Generate a stable unique run identifier.
+ */
 export function generateRunId(): string {
   return `run_${randomUUID()}`;
 }
@@ -28,13 +38,18 @@ async function statIfExists(path: string): Promise<{ sizeBytes: number; mtimeMs:
   }
 }
 
+/**
+ * Compute a lightweight artifact fingerprint for de-duplication.
+ */
 export async function computeRunFingerprint(params: {
   artifactsDir: string;
   videoPath?: string;
 }): Promise<LabRunFingerprint | undefined> {
   const artifactsDir = resolve(params.artifactsDir);
-  const videoPath = params.videoPath ? resolve(params.videoPath) : join(artifactsDir, 'video.mp4');
-  const scriptPath = join(artifactsDir, 'script.json');
+  const videoPath = params.videoPath
+    ? resolve(params.videoPath)
+    : join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.video);
+  const scriptPath = join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.script);
 
   const video = await statIfExists(videoPath);
   const script = await statIfExists(scriptPath);
@@ -45,6 +60,13 @@ export async function computeRunFingerprint(params: {
   if (video) fp.video = { path: videoPath, ...video };
   if (script) fp.script = { path: scriptPath, ...script };
   return fp;
+}
+
+/**
+ * Lookup a run by id.
+ */
+export function findRunById(runs: LabRun[], runId: string): LabRun | undefined {
+  return runs.find((r) => r.runId === runId);
 }
 
 function fingerprintsEqual(
@@ -66,10 +88,9 @@ function fingerprintsEqual(
   return true;
 }
 
-export function findRunById(runs: LabRun[], runId: string): LabRun | undefined {
-  return runs.find((r) => r.runId === runId);
-}
-
+/**
+ * Find an imported run by artifacts directory and fingerprint.
+ */
 export function findImportedRun(params: {
   runs: LabRun[];
   artifactsDirRealpath: string;
@@ -93,6 +114,9 @@ export function findImportedRun(params: {
   return null;
 }
 
+/**
+ * Infer artifacts/video paths from a user-provided input.
+ */
 export function inferArtifactsDirFromInputPath(inputPath: string): {
   artifactsDir: string;
   videoPath?: string;
@@ -106,6 +130,9 @@ export function inferArtifactsDirFromInputPath(inputPath: string): {
   return { artifactsDir: abs };
 }
 
+/**
+ * Assert that a run exists, otherwise throw a not-found error.
+ */
 export function assertRunExists(run: LabRun | undefined, runId: string): LabRun {
   if (run) return run;
   throw new CMError('NOT_FOUND', `Run not found: ${runId}`, { runId });

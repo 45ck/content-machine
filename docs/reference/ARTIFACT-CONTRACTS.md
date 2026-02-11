@@ -1,6 +1,6 @@
 # Artifact Contracts
 
-> DO NOT EDIT: generated from `docs/reference/repo-facts.yaml`.
+> DO NOT EDIT: generated from `registry/repo-facts.yaml`.
 
 These are the canonical stage contracts (filenames are conventional defaults).
 

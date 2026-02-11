@@ -15,7 +15,7 @@ Apply the repo's canonical vocabulary consistently across docs, code, CLI help t
 
 ## Steps
 
-1. Use the canonical definitions from `docs/reference/ubiquitous-language.yaml` (source of truth).
+1. Use the canonical definitions from `registry/ubiquitous-language.yaml` (source of truth).
 2. Confirm the generated glossary (`docs/reference/GLOSSARY.md`) matches what you're writing.
 3. Use stage and artifact names exactly as listed in "Pipeline and artifacts".
 4. Avoid deprecated or ambiguous terms listed in "Terms to avoid".
@@ -25,7 +25,7 @@ Apply the repo's canonical vocabulary consistently across docs, code, CLI help t
 
 Canonical sources:
 
-- Registry (edit this): `docs/reference/ubiquitous-language.yaml`
+- Registry (edit this): `registry/ubiquitous-language.yaml`
 - Glossary (generated): `docs/reference/GLOSSARY.md`
 - System explainer: `docs/reference/ubiquitous-language-system-20260210.md`
 
@@ -163,4 +163,4 @@ cm render --input output/visuals.json --audio output/audio.wav --timestamps outp
 - `docs/architecture/SYSTEM-DESIGN-20260104.md`
 - `docs/reference/cm-generate-reference-20260106.md`
 - `docs/reference/GLOSSARY.md`
-- `docs/reference/ubiquitous-language.yaml`
+- `registry/ubiquitous-language.yaml`

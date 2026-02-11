@@ -174,7 +174,9 @@ function buildAudioMixRequest(params: {
   audioMixRequest: AudioMixRequest | undefined;
 } {
   const { options, command, config } = params;
-  const audioMixPath = options.audioMix ? String(options.audioMix) : 'audio.mix.json';
+  const audioMixPath = options.audioMix
+    ? String(options.audioMix)
+    : DEFAULT_ARTIFACT_FILENAMES['audio-mix'];
   const audioMixExplicit = command.getOptionValueSource('audioMix') !== 'default';
   const musicOptions = resolveMusicOptions(options, config);
   const sfxOptions = resolveSfxOptions(options, config);
@@ -232,7 +234,7 @@ function buildAudioSummary(params: {
   const footerLines = [];
   if (options.mock) footerLines.push('Mock mode - audio/timestamps are placeholders');
   footerLines.push(
-    `Next: cm visuals --input ${result.timestampsPath} --output visuals.json${options.mock ? ' --mock' : ''}`
+    `Next: cm visuals --input ${result.timestampsPath} --output ${DEFAULT_ARTIFACT_FILENAMES.visuals}${options.mock ? ' --mock' : ''}`
   );
   return { lines, footerLines };
 }

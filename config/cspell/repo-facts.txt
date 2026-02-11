@@ -1,9 +1,10 @@
-# DO NOT EDIT: generated from docs/reference/repo-facts.yaml.
+# DO NOT EDIT: generated from registry/repo-facts.yaml.
 # Update the registry, then run: npm run repo-facts:gen
 
 anthropic
 Anthropic
 ANTHROPIC_API_KEY
+BRAVE_SEARCH_API_KEY
 Clips
 gemini
 Gemini
@@ -20,9 +21,14 @@ NanoBanana
 openai
 OpenAI
 OPENAI_API_KEY
+OUTPUT_DIR
 pexels
 Pexels
 PEXELS_API_KEY
 pixabay
 Pixabay
 PIXABAY_API_KEY
+REDDIT_CLIENT_ID
+REDDIT_CLIENT_SECRET
+REDIS_URL
+TAVILY_API_KEY

@@ -117,8 +117,8 @@ Full glossary: `docs/reference/GLOSSARY.md`.
 
 If a fact is repeated in multiple places (docs, agent instructions, code), it must have a single canonical source:
 
-- Terminology: `docs/reference/ubiquitous-language.yaml` (generated: `docs/reference/GLOSSARY.md`)
-- Repo-wide facts (providers, env var names, defaults): `docs/reference/repo-facts.yaml`
+- Terminology: `registry/ubiquitous-language.yaml` (generated: `docs/reference/GLOSSARY.md`)
+- Repo-wide facts (providers, env var names, defaults): `registry/repo-facts.yaml`
   - Generated: `docs/reference/REPO-FACTS.md`, `.github/copilot-instructions.md`, `CLAUDE.md`, `src/domain/repo-facts.generated.ts`, `config/cspell/repo-facts.txt`
   - Update workflow: edit the YAML, then run `npm run repo-facts:gen`
 

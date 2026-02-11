@@ -124,7 +124,7 @@ topic -> script.json -> audio.wav + timestamps.json -> visuals.json -> video.mp4
 
 This repo has a few loaded words (template, workflow, archetype, preset, pack).
 
-- Canonical registry: `docs/reference/ubiquitous-language.yaml`
+- Canonical registry: `registry/ubiquitous-language.yaml`
 - Generated glossary: `docs/reference/GLOSSARY.md`
 - How it is enforced: `docs/reference/ubiquitous-language-system-20260210.md`
 

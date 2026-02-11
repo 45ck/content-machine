@@ -21,6 +21,7 @@ import {
   readFeedbackEntries,
   writeFeedbackExportFile,
 } from '../../feedback/store';
+import { DEFAULT_ARTIFACT_FILENAMES } from '../../domain/repo-facts.generated';
 
 function parseOptionalInt0to100(value: unknown): number | undefined {
   if (value === undefined || value === null || value === '') return undefined;
@@ -51,7 +52,7 @@ async function resolveArtifactsDir(
 }
 
 async function inferTopicFromArtifacts(artifactsDir: string): Promise<string | undefined> {
-  const scriptPath = join(artifactsDir, 'script.json');
+  const scriptPath = join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.script);
   if (!(await pathExists(scriptPath))) return undefined;
 
   try {

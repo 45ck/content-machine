@@ -12,6 +12,7 @@ import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStdoutLine } from '../output';
 import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
+import { DEFAULT_ARTIFACT_FILENAMES } from '../../domain/repo-facts.generated';
 
 const VIDEO_EXTENSIONS = new Set(['.mp4', '.mov', '.mkv', '.webm', '.avi']);
 
@@ -144,7 +145,7 @@ export const importCommand = new Command('import')
       .option('--clip <path>', 'Single clip file path')
       .option('--mode <mode>', 'Mapping mode: sequence, loop, map', 'sequence')
       .option('--map <path>', 'JSON mapping of sceneId -> clip path (for map mode)')
-      .option('-o, --output <path>', 'Output visuals file path', 'visuals.json')
+      .option('-o, --output <path>', 'Output visuals file path', DEFAULT_ARTIFACT_FILENAMES.visuals)
       .action(async (options) => {
         const spinner = createSpinner('Importing visuals...').start();
         const runtime = getCliRuntime();
@@ -220,7 +221,9 @@ export const importCommand = new Command('import')
           await writeSummaryCard({
             title: 'Visuals ready',
             lines,
-            footerLines: [`Next: cm render --input ${options.output} --audio <audio.wav>`],
+            footerLines: [
+              `Next: cm render --input ${options.output} --audio <${DEFAULT_ARTIFACT_FILENAMES.audio}>`,
+            ],
           });
 
           writeStdoutLine(options.output);

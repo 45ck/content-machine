@@ -1717,20 +1717,20 @@ function applyWorkflowStageDefaults(
 ): void {
   if (isExternalStageMode(stageModes.script)) {
     if (!options.script) {
-      options.script = join(artifactsDir, 'script.json');
+      options.script = join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.script);
     }
   }
   if (isExternalStageMode(stageModes.audio)) {
     if (!options.audio) {
-      options.audio = join(artifactsDir, 'audio.wav');
+      options.audio = join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.audio);
     }
     if (!options.timestamps) {
-      options.timestamps = join(artifactsDir, 'timestamps.json');
+      options.timestamps = join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.timestamps);
     }
   }
   if (isExternalStageMode(stageModes.visuals)) {
     if (!options.visuals) {
-      options.visuals = join(artifactsDir, 'visuals.json');
+      options.visuals = join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.visuals);
     }
   }
 }
@@ -2035,7 +2035,8 @@ async function runGeneratePipeline(params: {
     const mixOptions = buildAudioMixOptions(params.options);
     const hasMixSources = hasAudioMixSources(mixOptions);
     const artifactsDir = dirname(params.options.output);
-    const audioMixOutputPath = params.options.audioMix ?? join(artifactsDir, 'audio.mix.json');
+    const audioMixOutputPath =
+      params.options.audioMix ?? join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES['audio-mix']);
     const audioMixRequest =
       params.audioInput || (!hasMixSources && !params.options.audioMix)
         ? undefined
@@ -3158,22 +3159,24 @@ function showDryRunSummary(
     writeStderrLine('   0. Research -> research.json');
   }
   writeStderrLine(
-    options.script ? `   1. Script -> ${options.script} (external)` : '   1. Script -> script.json'
+    options.script
+      ? `   1. Script -> ${options.script} (external)`
+      : `   1. Script -> ${DEFAULT_ARTIFACT_FILENAMES.script}`
   );
   if (options.audio) {
-    const tsLabel = options.timestamps ? options.timestamps : 'timestamps.json';
+    const tsLabel = options.timestamps ? options.timestamps : DEFAULT_ARTIFACT_FILENAMES.timestamps;
     writeStderrLine(
-      `   2. Audio -> ${options.audio} + ${tsLabel}${hasMix ? ' + audio.mix.json' : ''} (external)`
+      `   2. Audio -> ${options.audio} + ${tsLabel}${hasMix ? ` + ${DEFAULT_ARTIFACT_FILENAMES['audio-mix']}` : ''} (external)`
     );
   } else {
     writeStderrLine(
-      `   2. Audio -> audio.wav + timestamps.json${hasMix ? ' + audio.mix.json' : ''}${options.pipeline === 'audio-first' ? ' (Whisper ASR required)' : ''}`
+      `   2. Audio -> ${DEFAULT_ARTIFACT_FILENAMES.audio} + ${DEFAULT_ARTIFACT_FILENAMES.timestamps}${hasMix ? ` + ${DEFAULT_ARTIFACT_FILENAMES['audio-mix']}` : ''}${options.pipeline === 'audio-first' ? ' (Whisper ASR required)' : ''}`
     );
   }
   writeStderrLine(
     options.visuals
       ? `   3. Visuals -> ${options.visuals} (external)`
-      : '   3. Visuals -> visuals.json'
+      : `   3. Visuals -> ${DEFAULT_ARTIFACT_FILENAMES.visuals}`
   );
   writeStderrLine(`   4. Render -> ${options.output}`);
 }
@@ -3238,14 +3241,14 @@ async function showSuccessSummary(
 
   if (options.keepArtifacts) {
     const artifactRows: Array<[string, string]> = [
-      ['Script', join(artifactsDir, 'script.json')],
-      ['Audio', join(artifactsDir, 'audio.wav')],
-      ['Timestamps', join(artifactsDir, 'timestamps.json')],
+      ['Script', join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.script)],
+      ['Audio', join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.audio)],
+      ['Timestamps', join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.timestamps)],
     ];
     if (result.audio.audioMixPath) {
       artifactRows.push(['Audio mix', result.audio.audioMixPath]);
     }
-    artifactRows.push(['Visuals', join(artifactsDir, 'visuals.json')]);
+    artifactRows.push(['Visuals', join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.visuals)]);
     if (options.template) {
       artifactRows.push(['Template', join(artifactsDir, 'template.resolved.json')]);
     }
@@ -3354,11 +3357,20 @@ export const generateCommand = new Command('generate')
     'Pipeline workflow (orchestration + defaults). Use `cm workflows list`'
   )
   .option('--workflow-allow-exec', 'Allow workflow exec hooks to run')
-  .option('--script <path>', 'Use existing script.json (skip script stage)')
+  .option(
+    '--script <path>',
+    `Use existing ${DEFAULT_ARTIFACT_FILENAMES.script} (skip script stage)`
+  )
   .option('--audio <path>', 'Use existing audio file (requires --timestamps)')
   .option('--audio-mix <path>', 'Use existing audio mix plan (optional)')
-  .option('--timestamps <path>', 'Use existing timestamps.json (use with --audio)')
-  .option('--visuals <path>', 'Use existing visuals.json (skip visuals stage)')
+  .option(
+    '--timestamps <path>',
+    `Use existing ${DEFAULT_ARTIFACT_FILENAMES.timestamps} (use with --audio)`
+  )
+  .option(
+    '--visuals <path>',
+    `Use existing ${DEFAULT_ARTIFACT_FILENAMES.visuals} (skip visuals stage)`
+  )
   .option('-o, --output <path>', 'Output video file path', DEFAULT_ARTIFACT_FILENAMES.video)
   .option('--orientation <type>', 'Video orientation', 'portrait')
   .option('--fps <fps>', 'Frames per second', '30')

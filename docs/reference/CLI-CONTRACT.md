@@ -1,6 +1,6 @@
 # CLI Contract
 
-> DO NOT EDIT: generated from `docs/reference/repo-facts.yaml`.
+> DO NOT EDIT: generated from `registry/repo-facts.yaml`.
 
 ## Errors
 

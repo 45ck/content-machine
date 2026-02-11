@@ -61,6 +61,9 @@ jobs:
       - name: Spell check (user-facing surfaces)
         run: npm run cspell:check
 
+      - name: Docs check
+        run: npm run docs:check
+
       - name: Typecheck
         run: npm run typecheck
 

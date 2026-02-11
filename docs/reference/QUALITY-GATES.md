@@ -1,6 +1,6 @@
 # Quality Gates
 
-> DO NOT EDIT: generated from `docs/reference/repo-facts.yaml`.
+> DO NOT EDIT: generated from `registry/repo-facts.yaml`.
 
 These checks must remain wired in CI and are expected to be runnable locally.
 
@@ -9,6 +9,7 @@ Required npm scripts:
 - `npm run glossary:check`
 - `npm run repo-facts:check`
 - `npm run cspell:check`
+- `npm run docs:check`
 - `npm run typecheck`
 - `npm run lint`
 - `npm run format:check`

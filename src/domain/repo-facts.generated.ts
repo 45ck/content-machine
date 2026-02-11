@@ -1,12 +1,12 @@
 /*
- * DO NOT EDIT: generated from docs/reference/repo-facts.yaml
+ * DO NOT EDIT: generated from registry/repo-facts.yaml
  * Run: npm run repo-facts:gen
  */
 
 export const SUPPORTED_LLM_PROVIDER_IDS = ['openai', 'anthropic', 'gemini'] as const;
 export type RepoFactsLlmProviderId = (typeof SUPPORTED_LLM_PROVIDER_IDS)[number];
 
-export const SUPPORTED_STOCK_VISUALS_PROVIDER_IDS = ['pexels'] as const;
+export const SUPPORTED_STOCK_VISUALS_PROVIDER_IDS = ['pexels', 'pixabay'] as const;
 export type RepoFactsStockVisualsProviderId = (typeof SUPPORTED_STOCK_VISUALS_PROVIDER_IDS)[number];
 
 export const SUPPORTED_VISUALS_PROVIDER_IDS = [
@@ -38,6 +38,16 @@ export const CONFIG_SURFACE_FILES = {
 } as const;
 export type ConfigSurfaceFileId = keyof typeof CONFIG_SURFACE_FILES;
 
+export const PROJECT_CONFIG_CANDIDATES = [
+  '.content-machine.toml',
+  'content-machine.toml',
+  '.cmrc.json',
+] as const;
+export type ProjectConfigCandidate = (typeof PROJECT_CONFIG_CANDIDATES)[number];
+
+export const USER_CONFIG_CANDIDATES = ['.cm/config.toml', '.cm/config.json', '.cmrc.json'] as const;
+export type UserConfigCandidate = (typeof USER_CONFIG_CANDIDATES)[number];
+
 export const LLM_PROVIDERS = [
   { id: 'openai', displayName: 'OpenAI', envVarNames: ['OPENAI_API_KEY'] },
   { id: 'anthropic', displayName: 'Anthropic', envVarNames: ['ANTHROPIC_API_KEY'] },
@@ -47,6 +57,7 @@ export type LlmProviderFacts = (typeof LLM_PROVIDERS)[number];
 
 export const STOCK_VISUALS_PROVIDERS = [
   { id: 'pexels', displayName: 'Pexels', envVarNames: ['PEXELS_API_KEY'] },
+  { id: 'pixabay', displayName: 'Pixabay', envVarNames: ['PIXABAY_API_KEY'] },
 ] as const;
 export type StockVisualsProviderFacts = (typeof STOCK_VISUALS_PROVIDERS)[number];
 

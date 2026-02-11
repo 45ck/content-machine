@@ -1,5 +1,6 @@
 import { readdir, stat } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
+import { DEFAULT_ARTIFACT_FILENAMES } from '../../domain/repo-facts.generated';
 
 async function fileExists(path: string): Promise<boolean> {
   try {
@@ -28,18 +29,23 @@ function pickFirstExisting(dir: string, names: string[], candidates: string[]): 
   return null;
 }
 
+/**
+ * Discover well-known pipeline artifacts under an artifacts directory.
+ */
 export async function discoverArtifacts(artifactsDirInput: string): Promise<DiscoveredArtifacts> {
   const artifactsDir = resolve(artifactsDirInput);
   const candidates = await readdir(artifactsDir).catch(() => [] as string[]);
 
-  const scriptPath = (await fileExists(join(artifactsDir, 'script.json')))
-    ? join(artifactsDir, 'script.json')
+  const scriptPath = (await fileExists(join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.script)))
+    ? join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.script)
     : null;
-  const timestampsPath = (await fileExists(join(artifactsDir, 'timestamps.json')))
-    ? join(artifactsDir, 'timestamps.json')
+  const timestampsPath = (await fileExists(
+    join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.timestamps)
+  ))
+    ? join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.timestamps)
     : null;
-  const visualsPath = (await fileExists(join(artifactsDir, 'visuals.json')))
-    ? join(artifactsDir, 'visuals.json')
+  const visualsPath = (await fileExists(join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.visuals)))
+    ? join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.visuals)
     : null;
   const scorePath = (await fileExists(join(artifactsDir, 'score.json')))
     ? join(artifactsDir, 'score.json')
@@ -56,8 +62,8 @@ export async function discoverArtifacts(artifactsDirInput: string): Promise<Disc
     candidates
   );
 
-  const explicitVideoPath = (await fileExists(join(artifactsDir, 'video.mp4')))
-    ? join(artifactsDir, 'video.mp4')
+  const explicitVideoPath = (await fileExists(join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.video)))
+    ? join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.video)
     : null;
 
   const anyMp4 = explicitVideoPath

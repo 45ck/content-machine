@@ -7,6 +7,7 @@ import { renderVideo } from '../render/service';
 import { FakeLLMProvider } from '../test/stubs/fake-llm';
 import { configureMockLLMProvider } from '../test/fixtures/mock-scenes';
 import { ArchetypeIdSchema } from '../domain/ids';
+import { DEFAULT_ARTIFACT_FILENAMES } from '../domain/repo-facts.generated';
 
 export interface DemoOptions {
   outputPath: string;
@@ -45,11 +46,11 @@ export async function runDemo(options: DemoOptions): Promise<DemoResult> {
     llmProvider: llm,
   });
 
-  const scriptPath = join(artifactsDir, 'script.json');
+  const scriptPath = join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.script);
   await writeFile(scriptPath, JSON.stringify(script, null, 2), 'utf-8');
 
-  const audioPath = join(artifactsDir, 'audio.wav');
-  const timestampsPath = join(artifactsDir, 'timestamps.json');
+  const audioPath = join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.audio);
+  const timestampsPath = join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.timestamps);
   const audio = await generateAudio({
     script,
     voice: 'af_heart',
@@ -64,7 +65,7 @@ export async function runDemo(options: DemoOptions): Promise<DemoResult> {
     mock: true,
   });
 
-  const visualsPath = join(artifactsDir, 'visuals.json');
+  const visualsPath = join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.visuals);
   await writeFile(visualsPath, JSON.stringify(visuals, null, 2), 'utf-8');
 
   await renderVideo({

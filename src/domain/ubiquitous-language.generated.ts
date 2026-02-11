@@ -1,5 +1,5 @@
 /*
- * DO NOT EDIT: generated from docs/reference/ubiquitous-language.yaml
+ * DO NOT EDIT: generated from registry/ubiquitous-language.yaml
  * Run: npm run ul:gen
  */
 

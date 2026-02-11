@@ -13,12 +13,17 @@ import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStdoutLine } from '../output';
 import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
+import { DEFAULT_ARTIFACT_FILENAMES } from '../../domain/repo-facts.generated';
 
 export const timestampsCommand = new Command('timestamps')
   .description('Generate word-level timestamps from an audio file')
   .requiredOption('--audio <path>', 'Input audio file')
-  .option('--script <path>', 'Optional script.json for reconciliation')
-  .option('-o, --output <path>', 'Output timestamps file path', 'timestamps.json')
+  .option('--script <path>', `Optional ${DEFAULT_ARTIFACT_FILENAMES.script} for reconciliation`)
+  .option(
+    '-o, --output <path>',
+    'Output timestamps file path',
+    DEFAULT_ARTIFACT_FILENAMES.timestamps
+  )
   .option('--reconcile', 'Reconcile ASR output to match script text', false)
   .option('--require-whisper', 'Require whisper ASR (fail if unavailable)', false)
   .option('--whisper-model <model>', 'Whisper model size: tiny, base, small, medium, large', 'base')

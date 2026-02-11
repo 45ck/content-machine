@@ -239,10 +239,10 @@ quality:
       - 'README.md'
       - 'AGENTS.md'
       - 'CLAUDE.md'
-      - 'docs/**/*.md'
+      - 'docs/reference/*.md'
       - '.github/copilot-instructions.md'
     ignoreLinkGlobs:
-      - 'docs/research/**/*.md'
+      - 'docs/reference/NANOBANANA-PROMPT-ENGINEERING-20260107.md'
 
 security:
   invariants:

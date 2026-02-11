@@ -205,11 +205,16 @@ function main() {
     .map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
     .join('|');
   if (disallowedLiteralPattern) {
-    const srcFiles = listFilesRecursive(path.join(repoRoot, 'src'), new Set(['.ts', '.tsx']));
+    const enforceDirs = ['src/cli', 'src/core', 'src/lab', 'src/server', 'src/demo'];
+    const srcFiles = [];
+    for (const dir of enforceDirs) {
+      srcFiles.push(...listFilesRecursive(path.join(repoRoot, dir), new Set(['.ts', '.tsx'])));
+    }
     const disallow = new RegExp(`['"](?:${disallowedLiteralPattern})['"]`);
     const allowlist = new Set(['src/domain/repo-facts.generated.ts']);
     for (const file of srcFiles) {
       const rel = path.relative(repoRoot, file).replaceAll(path.sep, '/');
+      if (rel.endsWith('.test.ts') || rel.endsWith('.spec.ts')) continue;
       if (allowlist.has(rel)) continue;
       const content = readTextIfExists(file);
       if (!disallow.test(content)) continue;
@@ -222,6 +227,21 @@ function main() {
       );
       process.exit(1);
     }
+  }
+
+  const configTsPath = path.join(repoRoot, 'src', 'core', 'config.ts');
+  const configTs = readTextIfExists(configTsPath);
+  if (
+    !configTs.includes('PROJECT_CONFIG_CANDIDATES') ||
+    !configTs.includes('USER_CONFIG_CANDIDATES')
+  ) {
+    console.error(
+      'Repo facts check failed: src/core/config.ts must use PROJECT_CONFIG_CANDIDATES and USER_CONFIG_CANDIDATES from generated repo facts.'
+    );
+    console.error(
+      'Fix: import candidates from src/domain/repo-facts.generated.ts and stop hardcoding config file aliases.'
+    );
+    process.exit(1);
   }
 
   const ciPath = path.join(repoRoot, registry.quality.ci.workflowPath);

@@ -1,6 +1,6 @@
 # Glossary (Ubiquitous Language)
 
-> DO NOT EDIT: generated from `docs/reference/ubiquitous-language.yaml`.
+> DO NOT EDIT: generated from `registry/ubiquitous-language.yaml`.
 
 This repo uses a few loaded words. This glossary makes them unambiguous and points to the canonical types/schemas in code.
 
