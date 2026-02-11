@@ -9,13 +9,13 @@
 
 ### `cm audio` Command
 
-| Flag                 | Values                                              | Default    | Description                               |
-| -------------------- | --------------------------------------------------- | ---------- | ----------------------------------------- |
-| `--sync-strategy`    | `standard`, `audio-first`, `forced-align`, `hybrid` | `standard` | Timestamp extraction strategy             |
-| `--require-whisper`  | boolean                                             | `false`    | Require whisper.cpp (fail if unavailable) |
-| `--reconcile`        | boolean                                             | `false`    | Match ASR text to original script         |
-| `--drift-correction` | `none`, `detect`, `auto`                            | `none`     | Drift handling mode                       |
-| `--no-validate`      | boolean                                             | `false`    | Skip timestamp validation                 |
+| Flag                 | Values                                              | Default       | Description                               |
+| -------------------- | --------------------------------------------------- | ------------- | ----------------------------------------- |
+| `--sync-strategy`    | `standard`, `audio-first`, `forced-align`, `hybrid` | `audio-first` | Timestamp extraction strategy             |
+| `--require-whisper`  | boolean                                             | `false`       | Require whisper.cpp (fail if unavailable) |
+| `--reconcile`        | boolean                                             | `false`       | Match ASR text to original script         |
+| `--drift-correction` | `none`, `detect`, `auto`                            | `none`        | Drift handling mode                       |
+| `--no-validate`      | boolean                                             | `false`       | Skip timestamp validation                 |
 
 ### `cm render` Command
 
@@ -109,12 +109,12 @@ fade_out_ms = 400
 
 ## Preset Mappings
 
-| Preset     | Strategy     | Drift  | Reconcile | Use Case                |
-| ---------- | ------------ | ------ | --------- | ----------------------- |
-| `fast`     | standard     | none   | false     | Development, testing    |
-| `standard` | standard     | detect | false     | Production default      |
-| `quality`  | audio-first  | detect | true      | Quality-conscious users |
-| `maximum`  | forced-align | auto   | true      | Maximum sync accuracy   |
+| Preset     | Strategy    | Drift  | Reconcile | Use Case                |
+| ---------- | ----------- | ------ | --------- | ----------------------- |
+| `fast`     | standard    | none   | false     | Development, testing    |
+| `standard` | audio-first | detect | true      | Production default      |
+| `quality`  | audio-first | detect | true      | Quality-conscious users |
+| `maximum`  | audio-first | auto   | true      | Maximum sync accuracy   |
 
 ---
 
@@ -136,7 +136,7 @@ CM_DRIFT_CORRECTION=auto
 ## Quick Usage Examples
 
 ```bash
-# Default behavior (standard strategy)
+# Default behavior (audio-first strategy)
 cm audio -i script.json -o audio.wav
 
 # Require whisper (no estimation fallback)

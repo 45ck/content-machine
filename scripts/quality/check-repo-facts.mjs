@@ -312,6 +312,46 @@ function main() {
     );
     process.exit(1);
   }
+  if (
+    !generateCommand.includes('createLLMProvider') ||
+    generateCommand.includes('new OpenAIProvider(')
+  ) {
+    console.error(
+      'Repo facts check failed: src/cli/commands/generate.ts research bootstrap must not hardcode OpenAI provider construction.'
+    );
+    console.error(
+      'Fix: derive provider/model/keys from generated repo facts and config, then instantiate via createLLMProvider.'
+    );
+    process.exit(1);
+  }
+
+  const motionTypesPath = path.join(repoRoot, 'src', 'visuals', 'motion', 'types.ts');
+  const motionTypes = readTextIfExists(motionTypesPath);
+  if (!motionTypes.includes('MOTION_STRATEGY_FACTS')) {
+    console.error(
+      'Repo facts check failed: src/visuals/motion/types.ts must derive motion strategy metadata from generated repo facts.'
+    );
+    console.error(
+      'Fix: import MOTION_STRATEGIES from src/domain/repo-facts.generated.ts and build the runtime registry from it.'
+    );
+    process.exit(1);
+  }
+
+  const syncRefPath = path.join(repoRoot, 'docs', 'reference', 'SYNC-CONFIG-REFERENCE-20260107.md');
+  const syncRef = readTextIfExists(syncRefPath);
+  if (
+    !syncRef.includes('| `--sync-strategy`') ||
+    !syncRef.includes('`audio-first`') ||
+    !syncRef.includes('| `standard` | audio-first')
+  ) {
+    console.error(
+      'Repo facts check failed: docs/reference/SYNC-CONFIG-REFERENCE-20260107.md is out of sync with canonical sync defaults.'
+    );
+    console.error(
+      'Fix: align sync defaults/preset mappings with registry/repo-facts.yaml (see docs/reference/PIPELINE-PRESETS.md).'
+    );
+    process.exit(1);
+  }
 
   const ciPath = path.join(repoRoot, registry.quality.ci.workflowPath);
   const ciText = readTextIfExists(ciPath);

@@ -8,7 +8,7 @@ import type { PipelineResult } from '../../core/pipeline';
 import { logger } from '../../core/logger';
 import { evaluateRequirements, planWhisperRequirements } from '../../core/assets/requirements';
 import { OrientationEnum, type Archetype, type Orientation } from '../../core/config';
-import { loadConfig } from '../../core/config';
+import { getOptionalApiKey, loadConfig } from '../../core/config';
 import { formatArchetypeSource, resolveArchetype } from '../../archetypes/registry';
 import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
 import { FakeLLMProvider } from '../../test/stubs/fake-llm';
@@ -22,7 +22,7 @@ import { parseTemplateDepsMode, resolveTemplateDepsInstallDecision } from '../te
 import { dirname, join, resolve } from 'path';
 import { existsSync } from 'fs';
 import { createResearchOrchestrator } from '../../research/orchestrator';
-import { OpenAIProvider } from '../../core/llm/openai';
+import { createLLMProvider } from '../../core/llm';
 import { CMError, SchemaError } from '../../core/errors';
 import { CliProgressObserver, PipelineEventEmitter, type PipelineEvent } from '../../core/events';
 import { getCliErrorInfo } from '../format';
@@ -31,7 +31,6 @@ import {
   DEFAULT_SYNC_PRESET_ID,
   LLM_PROVIDERS,
   PREFERRED_QUALITY_SYNC_PRESET_ID,
-  REPO_FACTS,
   SYNC_PRESET_CONFIGS,
   SUPPORTED_VISUALS_PROVIDER_IDS,
   type SyncPresetId,
@@ -3279,11 +3278,16 @@ async function loadOrRunResearch(
   if (process.env.BRAVE_SEARCH_API_KEY) sources.push('web');
   if (process.env.TAVILY_API_KEY) sources.push('tavily');
 
-  const llmProvider = mock
-    ? undefined
-    : process.env.OPENAI_API_KEY
-      ? new OpenAIProvider(REPO_FACTS.llm.default.model, process.env.OPENAI_API_KEY)
-      : undefined;
+  let llmProvider = undefined;
+  if (!mock) {
+    const cfg = loadConfig();
+    const providerId = cfg.llm.provider;
+    const providerFacts = LLM_PROVIDERS.find((p) => p.id === providerId);
+    const key = (providerFacts?.envVarNames ?? []).map((k) => getOptionalApiKey(k)).find(Boolean);
+    if (key) {
+      llmProvider = createLLMProvider(providerId, cfg.llm.model, key);
+    }
+  }
 
   const orchestrator = createResearchOrchestrator(
     {

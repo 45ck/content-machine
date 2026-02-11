@@ -6,6 +6,7 @@
  *
  * See ADR-002-VISUAL-PROVIDER-SYSTEM-20260107.md
  */
+import { MOTION_STRATEGIES as MOTION_STRATEGY_FACTS } from '../../domain/repo-facts.generated.js';
 
 // =============================================================================
 // Motion Strategy Names
@@ -121,36 +122,18 @@ export interface MotionStrategyInfo {
 /**
  * Registry of all motion strategies with metadata.
  */
-export const MOTION_STRATEGIES: Record<MotionStrategyName, MotionStrategyInfo> = {
-  none: {
-    name: 'none',
-    displayName: 'None (Static)',
-    description: 'No motion - use static frame or pass-through for videos',
-    costPerClip: 0,
-    dependencies: [],
-  },
-  kenburns: {
-    name: 'kenburns',
-    displayName: 'Ken Burns Effect',
-    description: 'Classic zoom and pan effect using FFmpeg',
-    costPerClip: 0,
-    dependencies: ['ffmpeg'],
-  },
-  depthflow: {
-    name: 'depthflow',
-    displayName: 'DepthFlow 2.5D',
-    description: '2.5D parallax animation using depth estimation',
-    costPerClip: 0,
-    dependencies: ['python', 'depthflow'],
-  },
-  veo: {
-    name: 'veo',
-    displayName: 'Veo Image-to-Video',
-    description: 'Google Veo AI video generation (high quality)',
-    costPerClip: 0.5,
-    dependencies: ['GOOGLE_API_KEY'],
-  },
-};
+export const MOTION_STRATEGIES = MOTION_STRATEGY_FACTS.reduce<
+  Partial<Record<MotionStrategyName, MotionStrategyInfo>>
+>((acc, strategy) => {
+  acc[strategy.id] = {
+    name: strategy.id,
+    displayName: strategy.displayName,
+    description: strategy.description,
+    costPerClip: strategy.costPerClip,
+    dependencies: [...strategy.dependencies],
+  };
+  return acc;
+}, {}) as Record<MotionStrategyName, MotionStrategyInfo>;
 
 // =============================================================================
 // Factory Type

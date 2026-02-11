@@ -334,6 +334,13 @@ function generateRepoFactsTs({ registry }) {
     envVarNames: [...(p.envVarNames ?? [])],
     ...(p.defaultModel ? { defaultModel: p.defaultModel } : {}),
   }));
+  const motionStrategies = (f.visuals.motionStrategies ?? []).map((s) => ({
+    id: s.id,
+    displayName: s.displayName,
+    description: s.description,
+    costPerClip: s.costPerClip,
+    dependencies: [...(s.dependencies ?? [])],
+  }));
   const environmentVariables = (f.environment.variables ?? []).map((v) => ({
     name: v.name,
     required: Boolean(v.required),
@@ -418,6 +425,10 @@ function generateRepoFactsTs({ registry }) {
 
   lines.push(`export const VISUALS_PROVIDERS = ${JSON.stringify(visualsProviders)} as const;`);
   lines.push('export type VisualsProviderFacts = (typeof VISUALS_PROVIDERS)[number];');
+  lines.push('');
+  lines.push(`export const MOTION_STRATEGIES = ${JSON.stringify(motionStrategies)} as const;`);
+  lines.push('export type MotionStrategyFacts = (typeof MOTION_STRATEGIES)[number];');
+  lines.push('export type RepoFactsMotionStrategyId = MotionStrategyFacts["id"];');
   lines.push('');
   lines.push(
     `export const ENVIRONMENT_VARIABLES = ${JSON.stringify(environmentVariables)} as const;`

@@ -90,6 +90,39 @@ export const VISUALS_PROVIDERS = [
 ] as const;
 export type VisualsProviderFacts = (typeof VISUALS_PROVIDERS)[number];
 
+export const MOTION_STRATEGIES = [
+  {
+    id: 'none',
+    displayName: 'None (Static)',
+    description: 'No motion - use static frame or pass-through for videos.',
+    costPerClip: 0,
+    dependencies: [],
+  },
+  {
+    id: 'kenburns',
+    displayName: 'Ken Burns Effect',
+    description: 'Classic zoom and pan effect using FFmpeg.',
+    costPerClip: 0,
+    dependencies: ['ffmpeg'],
+  },
+  {
+    id: 'depthflow',
+    displayName: 'DepthFlow 2.5D',
+    description: '2.5D parallax animation using depth estimation.',
+    costPerClip: 0,
+    dependencies: ['python', 'depthflow'],
+  },
+  {
+    id: 'veo',
+    displayName: 'Veo Image-to-Video',
+    description: 'Google Veo AI video generation (high quality).',
+    costPerClip: 0.5,
+    dependencies: ['GOOGLE_API_KEY'],
+  },
+] as const;
+export type MotionStrategyFacts = (typeof MOTION_STRATEGIES)[number];
+export type RepoFactsMotionStrategyId = MotionStrategyFacts['id'];
+
 export const ENVIRONMENT_VARIABLES = [
   { name: 'OPENAI_API_KEY', required: true },
   { name: 'ANTHROPIC_API_KEY', required: false },
@@ -103,6 +136,25 @@ export const ENVIRONMENT_VARIABLES = [
   { name: 'REDIS_URL', required: false },
   { name: 'TAVILY_API_KEY', required: false },
   { name: 'BRAVE_SEARCH_API_KEY', required: false },
+  { name: 'CM_CONFIG', required: false },
+  { name: 'CM_OFFLINE', required: false },
+  { name: 'CM_YES', required: false },
+  { name: 'CM_WHISPER_AUTO_INSTALL', required: false },
+  { name: 'CM_WHISPER_DIR', required: false },
+  { name: 'CM_ASSET_CACHE_DIR', required: false },
+  { name: 'CM_REMOTION_ENTRY', required: false },
+  { name: 'CM_REMOTION_CONCURRENCY', required: false },
+  { name: 'REMOTION_CONCURRENCY', required: false },
+  { name: 'CM_LAB_ROOT', required: false },
+  { name: 'CM_FEEDBACK_STORE_PATH', required: false },
+  { name: 'CM_VIDEOSPEC_CACHE_DIR', required: false },
+  { name: 'CM_YTDLP_PATH', required: false },
+  { name: 'CM_MCP_ARTIFACTS_DIR', required: false },
+  { name: 'CM_MCP_SESSION_TTL_MS', required: false },
+  { name: 'CM_MCP_MAX_SESSIONS', required: false },
+  { name: 'CM_MCP_CLEANUP_ARTIFACTS_ON_EVICT', required: false },
+  { name: 'CM_MCP_SWEEP_INTERVAL_MS', required: false },
+  { name: 'LOG_LEVEL', required: false },
 ] as const;
 export type RepoEnvironmentVariable = (typeof ENVIRONMENT_VARIABLES)[number];
 

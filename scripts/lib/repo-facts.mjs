@@ -16,6 +16,14 @@ const ProviderSchema = z.object({
   kind: z.enum(['stock', 'ai', 'local']).optional(),
   notes: z.string().min(1).optional(),
 });
+const MotionStrategyIdSchema = z.enum(['none', 'kenburns', 'depthflow', 'veo']);
+const MotionStrategySchema = z.object({
+  id: MotionStrategyIdSchema,
+  displayName: z.string().min(1),
+  description: z.string().min(1),
+  costPerClip: z.number().nonnegative(),
+  dependencies: z.array(z.string().min(1)).default([]),
+});
 
 const DocsConventionsSchema = z.object({
   dateSuffix: z.string().min(1),
@@ -88,8 +96,9 @@ export const RepoFactsRegistrySchema = z.object({
     visuals: z
       .object({
         supportedProviders: z.array(ProviderSchema).default([]),
+        motionStrategies: z.array(MotionStrategySchema).default([]),
       })
-      .default({ supportedProviders: [] }),
+      .default({ supportedProviders: [], motionStrategies: [] }),
     stockVisuals: z
       .object({
         providerIds: z.array(IdSchema).default([]),
@@ -231,6 +240,10 @@ export function readRepoFactsRegistry(opts = {}) {
   assertUnique(
     'environment variable name',
     registry.facts.environment.variables.map((v) => v.name)
+  );
+  assertUnique(
+    'motion strategy id',
+    registry.facts.visuals.motionStrategies.map((s) => s.id)
   );
   assertUnique(
     'sync preset id',
