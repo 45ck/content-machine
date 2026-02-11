@@ -213,6 +213,15 @@ function generatePipelinePresetsMd({ registry }) {
   else {
     for (const pr of p.sync.presets) {
       lines.push(`- \`${pr.id}\`: ${pr.description.trim()}`);
+      if (pr.pipeline) lines.push(`  - pipeline: \`${pr.pipeline}\``);
+      if (typeof pr.reconcile === 'boolean')
+        lines.push(`  - reconcile: \`${String(pr.reconcile)}\``);
+      if (typeof pr.syncQualityCheck === 'boolean')
+        lines.push(`  - syncQualityCheck: \`${String(pr.syncQualityCheck)}\``);
+      if (typeof pr.minSyncRating === 'number')
+        lines.push(`  - minSyncRating: \`${String(pr.minSyncRating)}\``);
+      if (typeof pr.autoRetrySync === 'boolean')
+        lines.push(`  - autoRetrySync: \`${String(pr.autoRetrySync)}\``);
     }
   }
   lines.push('');
@@ -293,6 +302,7 @@ function generateRepoFactsTs({ registry }) {
     id: p.id,
     displayName: p.displayName,
     envVarNames: [...(p.envVarNames ?? [])],
+    ...(p.defaultModel ? { defaultModel: p.defaultModel } : {}),
   }));
   const visualsById = new Map((f.visuals.supportedProviders ?? []).map((p) => [p.id, p]));
   const stockVisualsProviders = stockProviderIds
@@ -308,6 +318,20 @@ function generateRepoFactsTs({ registry }) {
     displayName: p.displayName,
     envVarNames: [...(p.envVarNames ?? [])],
   }));
+  const environmentVariables = (f.environment.variables ?? []).map((v) => ({
+    name: v.name,
+    required: Boolean(v.required),
+  }));
+  const syncPresetConfigs = {};
+  for (const preset of registry.pipelinePresets?.sync?.presets ?? []) {
+    syncPresetConfigs[preset.id] = {
+      pipeline: preset.pipeline ?? 'standard',
+      reconcile: Boolean(preset.reconcile),
+      syncQualityCheck: Boolean(preset.syncQualityCheck),
+      minSyncRating: typeof preset.minSyncRating === 'number' ? preset.minSyncRating : 0,
+      autoRetrySync: Boolean(preset.autoRetrySync),
+    };
+  }
 
   const lines = [];
   lines.push('/*');
@@ -368,6 +392,15 @@ function generateRepoFactsTs({ registry }) {
 
   lines.push(`export const VISUALS_PROVIDERS = ${JSON.stringify(visualsProviders)} as const;`);
   lines.push('export type VisualsProviderFacts = (typeof VISUALS_PROVIDERS)[number];');
+  lines.push('');
+  lines.push(
+    `export const ENVIRONMENT_VARIABLES = ${JSON.stringify(environmentVariables)} as const;`
+  );
+  lines.push('export type RepoEnvironmentVariable = (typeof ENVIRONMENT_VARIABLES)[number];');
+  lines.push('');
+  lines.push(`export const SYNC_PRESET_CONFIGS = ${JSON.stringify(syncPresetConfigs)} as const;`);
+  lines.push('export type SyncPresetId = keyof typeof SYNC_PRESET_CONFIGS;');
+  lines.push('export const SYNC_PRESET_IDS = Object.keys(SYNC_PRESET_CONFIGS) as SyncPresetId[];');
   lines.push('');
 
   lines.push('export const CLI_ERROR_CONTRACT = {');

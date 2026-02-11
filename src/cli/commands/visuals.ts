@@ -17,7 +17,10 @@ import { SchemaError } from '../../core/errors';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
 import { loadConfig } from '../../core/config';
 import type { AssetProviderName } from '../../visuals/providers';
-import { DEFAULT_ARTIFACT_FILENAMES } from '../../domain/repo-facts.generated';
+import {
+  DEFAULT_ARTIFACT_FILENAMES,
+  SUPPORTED_VISUALS_PROVIDER_IDS,
+} from '../../domain/repo-facts.generated';
 
 interface GameplayOptions {
   library?: string;
@@ -26,11 +29,7 @@ interface GameplayOptions {
 }
 
 const ASSET_PROVIDER_NAMES: ReadonlySet<AssetProviderName> = new Set([
-  'pexels',
-  'pixabay',
-  'local',
-  'localimage',
-  'nanobanana',
+  ...SUPPORTED_VISUALS_PROVIDER_IDS,
   'dalle',
   'unsplash',
   'mock',
@@ -130,7 +129,7 @@ function buildVisualsSummary(params: {
   options: Record<string, unknown>;
 }): { lines: string[]; footerLines: string[] } {
   const { visuals, options } = params;
-  const providerRaw = String(options.provider ?? 'pexels');
+  const providerRaw = String(options.provider ?? SUPPORTED_VISUALS_PROVIDER_IDS[0]);
   const providers = Array.isArray(options.providers)
     ? (options.providers as string[])
     : providerRaw
@@ -157,7 +156,7 @@ function buildVisualsSummary(params: {
   const footerLines = [];
   if (options.mock) footerLines.push('Mock mode - visuals are placeholders');
   footerLines.push(
-    `Next: cm render --input ${options.output} --audio audio.wav --timestamps ${options.input} --output video.mp4${options.mock ? ' --mock' : ''}`
+    `Next: cm render --input ${options.output} --audio ${DEFAULT_ARTIFACT_FILENAMES.audio} --timestamps ${options.input} --output ${DEFAULT_ARTIFACT_FILENAMES.video}${options.mock ? ' --mock' : ''}`
   );
   return { lines, footerLines };
 }
@@ -179,7 +178,7 @@ export const visualsCommand = new Command('visuals')
   .option(
     '--provider <provider>',
     'Visual provider or provider chain. Examples: pexels | nanobanana | local | pexels,local,nanobanana',
-    'pexels'
+    SUPPORTED_VISUALS_PROVIDER_IDS[0]
   )
   .option('--asset-provider <provider>', 'Alias for --provider (preferred name in ADR)', undefined)
   .option(
@@ -234,7 +233,7 @@ export const visualsCommand = new Command('visuals')
         providerChainFromFlag.length > 1
           ? providerChainFromFlag
           : [
-              providerChainFromFlag[0] ?? 'pexels',
+              providerChainFromFlag[0] ?? SUPPORTED_VISUALS_PROVIDER_IDS[0],
               ...fallbackProvidersFromFlag,
               ...fallbackProvidersFromConfig,
             ];

@@ -27,7 +27,10 @@ import type {
   VisualsOutput,
 } from '../../domain';
 import type { ProviderName } from '../../visuals/providers';
-import { DEFAULT_ARTIFACT_FILENAMES } from '../../domain/repo-facts.generated';
+import {
+  DEFAULT_ARTIFACT_FILENAMES,
+  SUPPORTED_STOCK_VISUALS_PROVIDER_IDS,
+} from '../../domain/repo-facts.generated';
 import type { McpSessionStore } from './session-store';
 import type { McpToolContextLike, McpSessionState } from './session-store';
 import { loadFastMcp } from './fastmcp';
@@ -35,6 +38,10 @@ import { loadFastMcp } from './fastmcp';
 const CaptionPresetNameSchema = z.enum(
   Object.keys(CAPTION_STYLE_PRESETS) as [CaptionPresetName, ...CaptionPresetName[]]
 );
+const McpVisualsProviderSchema = z.enum([...SUPPORTED_STOCK_VISUALS_PROVIDER_IDS, 'mock'] as [
+  ProviderName,
+  ...ProviderName[],
+]);
 
 export interface McpToolContext extends McpToolContextLike {
   log: {
@@ -353,7 +360,9 @@ export function createContentMachineMcpTools(params: {
         timestamps: TimestampsOutputSchema.optional(),
         timestampsPath: z.string().optional(),
         useSessionTimestamps: z.boolean().optional().default(true),
-        provider: z.enum(['pexels', 'pixabay', 'mock']).optional().default('pexels'),
+        provider: McpVisualsProviderSchema.optional().default(
+          SUPPORTED_STOCK_VISUALS_PROVIDER_IDS[0]
+        ),
         orientation: z.enum(['portrait', 'landscape', 'square']).optional().default('portrait'),
         mock: z.boolean().optional().default(false),
         gameplay: z

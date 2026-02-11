@@ -30,6 +30,10 @@ import {
   DEFAULT_ARTIFACT_FILENAMES,
   LLM_PROVIDERS,
   REPO_FACTS,
+  SYNC_PRESET_CONFIGS,
+  SYNC_PRESET_IDS,
+  SUPPORTED_VISUALS_PROVIDER_IDS,
+  type SyncPresetId,
   VISUALS_PROVIDERS,
 } from '../../domain/repo-facts.generated';
 import {
@@ -99,43 +103,16 @@ export interface SyncPresetConfig {
   autoRetrySync: boolean;
 }
 
-const PIPELINE_STANDARD: SyncPresetConfig['pipeline'] = 'standard';
-const PIPELINE_AUDIO_FIRST: SyncPresetConfig['pipeline'] = 'audio-first';
-
-export const SYNC_PRESETS: Record<string, SyncPresetConfig> = {
-  /** Fast: standard pipeline, no quality check, fastest rendering */
-  fast: {
-    pipeline: PIPELINE_STANDARD,
-    reconcile: false,
-    syncQualityCheck: false,
-    minSyncRating: 0,
-    autoRetrySync: false,
-  },
-  /** Standard: audio-first pipeline (whisper required), no quality check */
-  standard: {
-    pipeline: PIPELINE_AUDIO_FIRST,
-    reconcile: true,
-    syncQualityCheck: false,
-    minSyncRating: 60,
-    autoRetrySync: false,
-  },
-  /** Quality: audio-first with quality check enabled */
-  quality: {
-    pipeline: PIPELINE_AUDIO_FIRST,
-    reconcile: true,
-    syncQualityCheck: true,
-    minSyncRating: 75,
-    autoRetrySync: false,
-  },
-  /** Maximum: audio-first with reconcile, quality check, and auto-retry */
-  maximum: {
-    pipeline: PIPELINE_AUDIO_FIRST,
-    reconcile: true,
-    syncQualityCheck: true,
-    minSyncRating: 85,
-    autoRetrySync: true,
-  },
-};
+export const SYNC_PRESETS = SYNC_PRESET_CONFIGS as Record<SyncPresetId, SyncPresetConfig>;
+const DEFAULT_SYNC_PRESET_ID: SyncPresetId = (
+  SYNC_PRESET_IDS.includes('standard' as SyncPresetId)
+    ? 'standard'
+    : (SYNC_PRESET_IDS[0] ?? 'standard')
+) as SyncPresetId;
+const PREFERRED_QUALITY_SYNC_PRESET_ID: SyncPresetId = (
+  SYNC_PRESET_IDS.includes('quality' as SyncPresetId) ? 'quality' : DEFAULT_SYNC_PRESET_ID
+) as SyncPresetId;
+const SYNC_PRESET_HELP = SYNC_PRESET_IDS.join(', ');
 
 interface GenerateOptions {
   archetype: string;
@@ -1069,7 +1046,7 @@ async function runGeneratePreflight(params: {
   if (needsVisualsProvider) {
     try {
       const config = await loadConfig();
-      const provider = config.visuals?.provider ?? 'pexels';
+      const provider = config.visuals?.provider ?? SUPPORTED_VISUALS_PROVIDER_IDS[0];
       const facts = VISUALS_PROVIDERS.find((p) => p.id === provider);
       const keys = facts?.envVarNames ?? [];
       const hasKey = keys.length === 0 ? true : keys.some((k) => Boolean(process.env[k]));
@@ -1544,7 +1521,7 @@ function applyQualityDefaults(options: GenerateOptions, command: Command): void 
   const record = options as unknown as Record<string, unknown>;
 
   // Prefer better sync defaults, but do not override explicit flags.
-  applyDefaultOption(record, command, 'syncPreset', 'quality');
+  applyDefaultOption(record, command, 'syncPreset', PREFERRED_QUALITY_SYNC_PRESET_ID);
   applyDefaultOption(record, command, 'syncQualityCheck', true);
   applyDefaultOption(record, command, 'autoRetrySync', true);
   applyDefaultOption(record, command, 'minSyncRating', '80');
@@ -1558,8 +1535,9 @@ function applyQualityDefaults(options: GenerateOptions, command: Command): void 
 }
 
 function applySyncPresetDefaults(options: GenerateOptions, command: Command): void {
-  const presetName = options.syncPreset ?? 'standard';
-  const preset = SYNC_PRESETS[presetName];
+  const presetName = (options.syncPreset ?? DEFAULT_SYNC_PRESET_ID) as string;
+  if (!(presetName in SYNC_PRESETS)) return;
+  const preset = SYNC_PRESETS[presetName as SyncPresetId];
   if (!preset) return;
 
   const record = options as unknown as Record<string, unknown>;
@@ -3488,8 +3466,8 @@ export const generateCommand = new Command('generate')
   // Sync quality options
   .option(
     '--sync-preset <preset>',
-    'Sync quality preset: fast, standard, quality, maximum',
-    'standard'
+    `Sync quality preset: ${SYNC_PRESET_HELP}`,
+    DEFAULT_SYNC_PRESET_ID
   )
   .option('--sync-quality-check', 'Run sync quality rating after render')
   .option('--min-sync-rating <rating>', 'Minimum acceptable sync rating (0-100)', '75')

@@ -49,9 +49,24 @@ export const USER_CONFIG_CANDIDATES = ['.cm/config.toml', '.cm/config.json', '.c
 export type UserConfigCandidate = (typeof USER_CONFIG_CANDIDATES)[number];
 
 export const LLM_PROVIDERS = [
-  { id: 'openai', displayName: 'OpenAI', envVarNames: ['OPENAI_API_KEY'] },
-  { id: 'anthropic', displayName: 'Anthropic', envVarNames: ['ANTHROPIC_API_KEY'] },
-  { id: 'gemini', displayName: 'Google Gemini', envVarNames: ['GOOGLE_API_KEY', 'GEMINI_API_KEY'] },
+  {
+    id: 'openai',
+    displayName: 'OpenAI',
+    envVarNames: ['OPENAI_API_KEY'],
+    defaultModel: 'gpt-4o-mini',
+  },
+  {
+    id: 'anthropic',
+    displayName: 'Anthropic',
+    envVarNames: ['ANTHROPIC_API_KEY'],
+    defaultModel: 'claude-3-5-sonnet-20241022',
+  },
+  {
+    id: 'gemini',
+    displayName: 'Google Gemini',
+    envVarNames: ['GOOGLE_API_KEY', 'GEMINI_API_KEY'],
+    defaultModel: 'gemini-2.0-flash',
+  },
 ] as const;
 export type LlmProviderFacts = (typeof LLM_PROVIDERS)[number];
 
@@ -73,6 +88,55 @@ export const VISUALS_PROVIDERS = [
   { id: 'pixabay', displayName: 'Pixabay', envVarNames: ['PIXABAY_API_KEY'] },
 ] as const;
 export type VisualsProviderFacts = (typeof VISUALS_PROVIDERS)[number];
+
+export const ENVIRONMENT_VARIABLES = [
+  { name: 'OPENAI_API_KEY', required: true },
+  { name: 'ANTHROPIC_API_KEY', required: false },
+  { name: 'PEXELS_API_KEY', required: false },
+  { name: 'PIXABAY_API_KEY', required: false },
+  { name: 'GOOGLE_API_KEY', required: false },
+  { name: 'GEMINI_API_KEY', required: false },
+  { name: 'REDDIT_CLIENT_ID', required: false },
+  { name: 'REDDIT_CLIENT_SECRET', required: false },
+  { name: 'OUTPUT_DIR', required: false },
+  { name: 'REDIS_URL', required: false },
+  { name: 'TAVILY_API_KEY', required: false },
+  { name: 'BRAVE_SEARCH_API_KEY', required: false },
+] as const;
+export type RepoEnvironmentVariable = (typeof ENVIRONMENT_VARIABLES)[number];
+
+export const SYNC_PRESET_CONFIGS = {
+  fast: {
+    pipeline: 'standard',
+    reconcile: false,
+    syncQualityCheck: false,
+    minSyncRating: 0,
+    autoRetrySync: false,
+  },
+  standard: {
+    pipeline: 'audio-first',
+    reconcile: true,
+    syncQualityCheck: false,
+    minSyncRating: 60,
+    autoRetrySync: false,
+  },
+  quality: {
+    pipeline: 'audio-first',
+    reconcile: true,
+    syncQualityCheck: true,
+    minSyncRating: 75,
+    autoRetrySync: false,
+  },
+  maximum: {
+    pipeline: 'audio-first',
+    reconcile: true,
+    syncQualityCheck: true,
+    minSyncRating: 85,
+    autoRetrySync: true,
+  },
+} as const;
+export type SyncPresetId = keyof typeof SYNC_PRESET_CONFIGS;
+export const SYNC_PRESET_IDS = Object.keys(SYNC_PRESET_CONFIGS) as SyncPresetId[];
 
 export const CLI_ERROR_CONTRACT = {
   errorPrefix: 'ERROR:',

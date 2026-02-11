@@ -31,7 +31,7 @@
     "ul:gen": "node scripts/gen-ubiquitous-language-ts.mjs",
     "repo-facts:gen": "scripts/quality/with-node20.sh node scripts/gen-repo-facts.mjs",
     "repo-facts:check": "scripts/quality/with-node20.sh node scripts/quality/check-repo-facts.mjs",
-    "docs:lint": "scripts/quality/with-node20.sh npx --no-install markdownlint-cli2 \"README.md\" \"AGENTS.md\" \"CLAUDE.md\" \"docs/**/*.md\" \".github/copilot-instructions.md\"",
+    "docs:lint": "scripts/quality/with-node20.sh node scripts/quality/docs-lint.mjs",
     "docs:linkcheck": "scripts/quality/with-node20.sh node scripts/quality/check-doc-links.mjs",
     "docs:check": "npm run docs:lint && npm run docs:linkcheck",
     "cspell:gen": "node scripts/gen-cspell.mjs",

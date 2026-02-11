@@ -459,6 +459,24 @@ function mergeFragmentedAsrWords(
   return merged;
 }
 
+function applyTranscriptTextCorrections(text: string): string {
+  let out = String(text ?? '');
+  if (!out) return out;
+
+  // Common ASR fragment joins seen in short-form content.
+  out = out.replace(/\bstrang\s+est\b/gi, 'strangest');
+  out = out.replace(/\bunle\s+ashed\b/gi, 'unleashed');
+  out = out.replace(/\bvac\s+uums\b/gi, 'vacuums');
+
+  // "Roombas" is frequently fragmented/misheard as "ombas" in this style of audio.
+  out = out.replace(/\b(\d+)\s+ombas\b/gi, '$1 Roombas');
+  out = out.replace(/\bombas\b/gi, 'Roombas');
+
+  // Keep whitespace stable for downstream consumers.
+  out = out.replace(/\s+/g, ' ').trim();
+  return out;
+}
+
 function buildTranscriptSegmentsFromWords(params: {
   words: Array<{ word: string; start: number; end: number; confidence?: number }>;
   speaker?: string;
@@ -476,7 +494,9 @@ function buildTranscriptSegmentsFromWords(params: {
 
   function flush(): void {
     if (!current) return;
-    const text = current.parts.join(' ').replace(/\s+/g, ' ').trim();
+    const text = applyTranscriptTextCorrections(
+      current.parts.join(' ').replace(/\s+/g, ' ').trim()
+    );
     if (text) {
       segments.push({
         start: current.start,
@@ -2319,11 +2339,20 @@ async function analyzeEditingMotionAndEffects(params: {
   const cameraMotion: VideoSpecV1['editing']['camera_motion'] = [];
   const jumpCutShotIds: number[] = [];
   const shotIdToJumpCut = new Map<number, boolean>();
+  const safeEndTimeSeconds = computeSafeVideoEndTimeSeconds(ctx);
 
   for (const shot of slice) {
     const eps = 0.05;
-    const t0 = Math.min(Math.max(shot.start + eps, 0), Math.max(0, shot.end - eps));
-    const t1 = Math.max(shot.end - eps, t0);
+    const t0 = clampNumber(
+      Math.min(Math.max(shot.start + eps, 0), Math.max(0, shot.end - eps)),
+      0,
+      safeEndTimeSeconds
+    );
+    const t1 = clampNumber(
+      Math.max(Math.min(shot.end - eps, safeEndTimeSeconds), t0),
+      t0,
+      safeEndTimeSeconds
+    );
     try {
       const startFrame = await extractGrayFrameAtTime({
         videoPath: ctx.inputPath,
@@ -2358,8 +2387,8 @@ async function analyzeEditingMotionAndEffects(params: {
     const a = slice[i]!;
     const b = slice[i + 1]!;
     const eps = 0.05;
-    const ta = Math.max(a.end - eps, a.start);
-    const tb = Math.min(b.start + eps, b.end);
+    const ta = clampNumber(Math.max(a.end - eps, a.start), 0, safeEndTimeSeconds);
+    const tb = clampNumber(Math.min(b.start + eps, b.end), 0, safeEndTimeSeconds);
     try {
       const fa = await extractGrayFrameAtTime({
         videoPath: ctx.inputPath,

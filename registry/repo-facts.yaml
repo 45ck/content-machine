@@ -66,13 +66,16 @@ facts:
       - id: openai
         displayName: OpenAI
         envVarNames: ['OPENAI_API_KEY']
+        defaultModel: 'gpt-4o-mini'
         notes: Preferred for structured outputs.
       - id: anthropic
         displayName: Anthropic
         envVarNames: ['ANTHROPIC_API_KEY']
+        defaultModel: 'claude-3-5-sonnet-20241022'
       - id: gemini
         displayName: Google Gemini
         envVarNames: ['GOOGLE_API_KEY', 'GEMINI_API_KEY']
+        defaultModel: 'gemini-2.0-flash'
         notes: Google key alias supported; prefer GOOGLE_API_KEY.
     default:
       providerId: openai
@@ -268,9 +271,29 @@ pipelinePresets:
     presets:
       - id: fast
         description: Fastest, lowest quality.
+        pipeline: standard
+        reconcile: false
+        syncQualityCheck: false
+        minSyncRating: 0
+        autoRetrySync: false
       - id: standard
         description: Balanced default.
+        pipeline: audio-first
+        reconcile: true
+        syncQualityCheck: false
+        minSyncRating: 60
+        autoRetrySync: false
       - id: quality
         description: Higher quality, slower.
+        pipeline: audio-first
+        reconcile: true
+        syncQualityCheck: true
+        minSyncRating: 75
+        autoRetrySync: false
       - id: maximum
         description: Slowest, highest quality.
+        pipeline: audio-first
+        reconcile: true
+        syncQualityCheck: true
+        minSyncRating: 85
+        autoRetrySync: true

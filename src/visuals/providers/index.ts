@@ -21,31 +21,22 @@ import { MockVideoProvider } from './mock-provider.js';
 import { NanoBananaProvider } from './nanobanana-provider.js';
 import { LocalProvider } from './local-provider.js';
 import { LocalImageProvider } from './local-image-provider.js';
+import { SUPPORTED_VISUALS_PROVIDER_IDS } from '../../domain/repo-facts.generated';
+import type {
+  RepoFactsStockVisualsProviderId,
+  RepoFactsVisualsProviderId,
+} from '../../domain/repo-facts.generated';
 
 // =============================================================================
 // Provider Names
 // =============================================================================
 
 /**
- * Video provider names (legacy, returns video clips).
- */
-export type ProviderName = 'pexels' | 'pixabay' | 'mock';
-
-/**
  * Asset provider names (extended, includes image generators).
  */
-export type AssetProviderName =
-  // Video providers
-  | 'pexels'
-  | 'pixabay'
-  | 'local'
-  // Image providers
-  | 'nanobanana'
-  | 'localimage'
-  | 'dalle'
-  | 'unsplash'
-  // Special
-  | 'mock';
+export type AssetProviderName = RepoFactsVisualsProviderId | 'dalle' | 'unsplash' | 'mock';
+
+export type ProviderName = RepoFactsStockVisualsProviderId | 'mock';
 
 // =============================================================================
 // Factory Functions
@@ -146,7 +137,7 @@ const assetProviderFactories: Record<AssetProviderName, AssetProviderFactory> = 
  * Get list of available asset providers (those with API keys configured).
  */
 export function getAvailableProviders(): AssetProviderName[] {
-  const providers: AssetProviderName[] = ['pexels', 'nanobanana', 'mock'];
+  const providers: AssetProviderName[] = [...SUPPORTED_VISUALS_PROVIDER_IDS, 'mock'];
   return providers.filter((name) => {
     try {
       const provider = createAssetProvider(name);

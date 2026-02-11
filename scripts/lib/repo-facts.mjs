@@ -12,6 +12,7 @@ const ProviderSchema = z.object({
   id: IdSchema,
   displayName: z.string().min(1),
   envVarNames: z.array(z.string().min(1)).default([]),
+  defaultModel: z.string().min(1).optional(),
   kind: z.enum(['stock', 'ai', 'local']).optional(),
   notes: z.string().min(1).optional(),
 });
@@ -159,7 +160,19 @@ export const RepoFactsRegistrySchema = z.object({
     .object({
       sync: z
         .object({
-          presets: z.array(z.object({ id: IdSchema, description: z.string().min(1) })).default([]),
+          presets: z
+            .array(
+              z.object({
+                id: IdSchema,
+                description: z.string().min(1),
+                pipeline: z.enum(['standard', 'audio-first']).optional(),
+                reconcile: z.boolean().optional(),
+                syncQualityCheck: z.boolean().optional(),
+                minSyncRating: z.number().optional(),
+                autoRetrySync: z.boolean().optional(),
+              })
+            )
+            .default([]),
         })
         .default({ presets: [] }),
     })
