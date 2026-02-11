@@ -95,6 +95,8 @@ export const RepoFactsRegistrySchema = z.object({
     }),
     visuals: z
       .object({
+        defaultProviderId: IdSchema.optional(),
+        defaultMotionStrategyId: MotionStrategyIdSchema.optional(),
         supportedProviders: z.array(ProviderSchema).default([]),
         motionStrategies: z.array(MotionStrategySchema).default([]),
       })
@@ -251,6 +253,21 @@ export function readRepoFactsRegistry(opts = {}) {
   );
 
   const visualsProviderIds = new Set(registry.facts.visuals.supportedProviders.map((p) => p.id));
+  const defaultVisualsProviderId = registry.facts.visuals.defaultProviderId;
+  if (defaultVisualsProviderId && !visualsProviderIds.has(defaultVisualsProviderId)) {
+    throw new Error(
+      `facts.visuals.defaultProviderId not found in facts.visuals.supportedProviders: ${defaultVisualsProviderId}`
+    );
+  }
+
+  const motionStrategyIds = new Set(registry.facts.visuals.motionStrategies.map((s) => s.id));
+  const defaultMotionStrategyId = registry.facts.visuals.defaultMotionStrategyId;
+  if (defaultMotionStrategyId && !motionStrategyIds.has(defaultMotionStrategyId)) {
+    throw new Error(
+      `facts.visuals.defaultMotionStrategyId not found in facts.visuals.motionStrategies: ${defaultMotionStrategyId}`
+    );
+  }
+
   for (const id of registry.facts.stockVisuals.providerIds) {
     if (!visualsProviderIds.has(id)) {
       throw new Error(

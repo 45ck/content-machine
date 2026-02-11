@@ -8,6 +8,10 @@
  * See ADR-002-VISUAL-PROVIDER-SYSTEM-20260107.md
  */
 import { z } from 'zod';
+import {
+  MOTION_STRATEGIES,
+  type RepoFactsMotionStrategyId,
+} from '../domain/repo-facts.generated.js';
 
 /** Current schema version for migrations */
 export const VISUALS_SCHEMA_VERSION = '1.1.0';
@@ -60,12 +64,21 @@ export type VisualSource = z.infer<typeof VisualSourceEnum>;
  * - depthflow: 2.5D parallax animation (free)
  * - veo: Google Veo image-to-video (~$0.50/clip)
  */
+const MOTION_STRATEGY_IDS = MOTION_STRATEGIES.map((strategy) => strategy.id);
+if (MOTION_STRATEGY_IDS.length === 0) {
+  throw new Error(
+    'MOTION_STRATEGIES is empty; regenerate repo facts from registry/repo-facts.yaml'
+  );
+}
+
 /**
  * Ubiquitous Language: Motion strategy for animating static images.
  *
  * @cmTerm motion-strategy
  */
-export const MotionStrategyEnum = z.enum(['none', 'kenburns', 'depthflow', 'veo']);
+export const MotionStrategyEnum = z.enum(
+  MOTION_STRATEGY_IDS as [RepoFactsMotionStrategyId, ...RepoFactsMotionStrategyId[]]
+);
 
 /**
  * Ubiquitous Language: Motion strategy type.

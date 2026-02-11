@@ -35,6 +35,17 @@ function extractEnvVarNamesFromDotEnvExample(dotEnvExampleContent) {
   return out;
 }
 
+function extractProcessEnvVarNames(sourceText) {
+  const out = new Set();
+  const regex = /process\.env\.([A-Z0-9_]+)/g;
+  let match = regex.exec(sourceText);
+  while (match) {
+    if (match[1]) out.add(match[1]);
+    match = regex.exec(sourceText);
+  }
+  return out;
+}
+
 function listFilesRecursive(rootDir, includeExtensions) {
   const out = [];
   const stack = [rootDir];
@@ -153,6 +164,36 @@ function main() {
     }
   }
 
+  // Reverse guard: env vars referenced as process.env.* in code/tests/scripts must
+  // either be registered in repo-facts, or explicitly allowlisted as host/test/runtime vars.
+  const registeredEnvVars = new Set(expected);
+  const envAllowlist = new Set(['CI', 'HOME', 'NODE_ENV', 'USERPROFILE', 'VITEST', 'SOME_KEY']);
+  const envScanRoots = ['src', 'scripts', 'tests'];
+  const envScanFiles = [];
+  for (const root of envScanRoots) {
+    envScanFiles.push(
+      ...listFilesRecursive(
+        path.join(repoRoot, root),
+        new Set(['.ts', '.tsx', '.js', '.mjs', '.cjs'])
+      )
+    );
+  }
+  for (const file of envScanFiles) {
+    const rel = path.relative(repoRoot, file).replaceAll(path.sep, '/');
+    const content = readTextIfExists(file);
+    const used = extractProcessEnvVarNames(content);
+    for (const name of used) {
+      if (registeredEnvVars.has(name) || envAllowlist.has(name)) continue;
+      console.error(
+        `Repo facts check failed: ${rel} references process.env.${name}, but it is not declared in registry/repo-facts.yaml facts.environment.variables.`
+      );
+      console.error(
+        'Fix: add the env var to the registry (and .env.example), or remove the usage.'
+      );
+      process.exit(1);
+    }
+  }
+
   // Ensure docs follow the date suffix convention (where enforced).
   const docsConv = registry.conventions?.docs;
   if (docsConv) {
@@ -245,13 +286,15 @@ function main() {
   }
   if (
     !configTs.includes('DEFAULT_CONFIG_SYNC_STRATEGY') ||
-    !configTs.includes('provider: VisualsProviderEnum.default(SUPPORTED_VISUALS_PROVIDER_IDS[0])')
+    !configTs.includes('DEFAULT_VISUALS_PROVIDER_ID') ||
+    !configTs.includes('DEFAULT_MOTION_STRATEGY_ID') ||
+    !configTs.includes('DEFAULT_NANOBANANA_MODEL')
   ) {
     console.error(
-      'Repo facts check failed: src/core/config.ts must source sync/visual defaults from generated repo facts constants.'
+      'Repo facts check failed: src/core/config.ts must source sync/visual defaults and nanobanana model defaults from generated repo facts constants.'
     );
     console.error(
-      'Fix: use DEFAULT_CONFIG_SYNC_STRATEGY and SUPPORTED_VISUALS_PROVIDER_IDS[0] from src/domain/repo-facts.generated.ts.'
+      'Fix: use DEFAULT_CONFIG_SYNC_STRATEGY, DEFAULT_VISUALS_PROVIDER_ID, DEFAULT_MOTION_STRATEGY_ID, and DEFAULT_NANOBANANA_MODEL from src/domain/repo-facts.generated.ts.'
     );
     process.exit(1);
   }
@@ -297,6 +340,20 @@ function main() {
     );
     process.exit(1);
   }
+  if (
+    !initCommand.includes('DEFAULT_VISUALS_PROVIDER_ID') ||
+    !initCommand.includes('DEFAULT_MOTION_STRATEGY_ID') ||
+    !initCommand.includes('DEFAULT_NANOBANANA_MODEL') ||
+    !initCommand.includes('MOTION_STRATEGIES')
+  ) {
+    console.error(
+      'Repo facts check failed: src/cli/commands/init.ts must derive visuals defaults and motion choices from generated repo facts constants.'
+    );
+    console.error(
+      'Fix: use DEFAULT_VISUALS_PROVIDER_ID, DEFAULT_MOTION_STRATEGY_ID, DEFAULT_NANOBANANA_MODEL, and MOTION_STRATEGIES from src/domain/repo-facts.generated.ts.'
+    );
+    process.exit(1);
+  }
 
   const generateCommandPath = path.join(repoRoot, 'src', 'cli', 'commands', 'generate.ts');
   const generateCommand = readTextIfExists(generateCommandPath);
@@ -327,12 +384,30 @@ function main() {
 
   const motionTypesPath = path.join(repoRoot, 'src', 'visuals', 'motion', 'types.ts');
   const motionTypes = readTextIfExists(motionTypesPath);
-  if (!motionTypes.includes('MOTION_STRATEGY_FACTS')) {
+  if (
+    !motionTypes.includes('MOTION_STRATEGY_FACTS') ||
+    !motionTypes.includes('RepoFactsMotionStrategyId')
+  ) {
     console.error(
-      'Repo facts check failed: src/visuals/motion/types.ts must derive motion strategy metadata from generated repo facts.'
+      'Repo facts check failed: src/visuals/motion/types.ts must derive motion strategy metadata and ids from generated repo facts.'
     );
     console.error(
-      'Fix: import MOTION_STRATEGIES from src/domain/repo-facts.generated.ts and build the runtime registry from it.'
+      'Fix: import MOTION_STRATEGIES and RepoFactsMotionStrategyId from src/domain/repo-facts.generated.ts and build the runtime registry from it.'
+    );
+    process.exit(1);
+  }
+
+  const visualsSchemaPath = path.join(repoRoot, 'src', 'visuals', 'schema.ts');
+  const visualsSchema = readTextIfExists(visualsSchemaPath);
+  if (
+    !visualsSchema.includes('MOTION_STRATEGIES') ||
+    !visualsSchema.includes('RepoFactsMotionStrategyId')
+  ) {
+    console.error(
+      'Repo facts check failed: src/visuals/schema.ts must derive MotionStrategyEnum from generated repo facts constants.'
+    );
+    console.error(
+      'Fix: import MOTION_STRATEGIES and RepoFactsMotionStrategyId from src/domain/repo-facts.generated.ts and construct MotionStrategyEnum from generated ids.'
     );
     process.exit(1);
   }

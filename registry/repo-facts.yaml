@@ -83,6 +83,8 @@ facts:
       temperature: 0.7
 
   visuals:
+    defaultProviderId: pexels
+    defaultMotionStrategyId: kenburns
     supportedProviders:
       - id: pexels
         displayName: Pexels
@@ -208,6 +210,8 @@ facts:
       - name: CM_MCP_CLEANUP_ARTIFACTS_ON_EVICT
         required: false
       - name: CM_MCP_SWEEP_INTERVAL_MS
+        required: false
+      - name: CM_RUN_REAL_OUTPUT_TESTS
         required: false
       - name: LOG_LEVEL
         required: false

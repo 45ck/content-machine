@@ -24,6 +24,12 @@ function mdProviderLines(providers) {
 function generateRepoFactsMd({ registry }) {
   const f = registry.facts;
   const visualsById = new Map((f.visuals.supportedProviders ?? []).map((p) => [p.id, p]));
+  const nanobananaModel = visualsById.get('nanobanana')?.defaultModel;
+  if ((f.visuals.supportedProviders ?? []).some((p) => p.id === 'nanobanana') && !nanobananaModel) {
+    throw new Error(
+      'facts.visuals.supportedProviders[nanobanana].defaultModel is required when nanobanana is supported'
+    );
+  }
   const stockProviders = (f.stockVisuals.providerIds ?? [])
     .map((id) => visualsById.get(id))
     .filter(Boolean);
@@ -61,6 +67,10 @@ function generateRepoFactsMd({ registry }) {
   lines.push('## Visuals Providers');
   if ((f.visuals.supportedProviders ?? []).length === 0) lines.push('- (none)');
   else lines.push(mdProviderLines(f.visuals.supportedProviders));
+  if (f.visuals.defaultProviderId)
+    lines.push(`- Default visuals provider: \`${f.visuals.defaultProviderId}\``);
+  if (f.visuals.defaultMotionStrategyId)
+    lines.push(`- Default motion strategy: \`${f.visuals.defaultMotionStrategyId}\``);
   lines.push('');
   lines.push('## Spellcheck');
   lines.push(`- CSpell config: \`${f.spellcheck.cspell.configPath}\``);
@@ -320,6 +330,10 @@ function generateRepoFactsTs({ registry }) {
     ...(p.defaultModel ? { defaultModel: p.defaultModel } : {}),
   }));
   const visualsById = new Map((f.visuals.supportedProviders ?? []).map((p) => [p.id, p]));
+  const defaultVisualsProviderId =
+    f.visuals.defaultProviderId ?? f.visuals.supportedProviders?.[0]?.id ?? 'pexels';
+  const defaultMotionStrategyId = f.visuals.defaultMotionStrategyId ?? 'kenburns';
+  const nanobananaModel = visualsById.get('nanobanana')?.defaultModel;
   const stockVisualsProviders = stockProviderIds
     .map((id) => visualsById.get(id))
     .filter(Boolean)
@@ -391,6 +405,15 @@ function generateRepoFactsTs({ registry }) {
   );
   lines.push(
     'export type RepoFactsVisualsProviderId = (typeof SUPPORTED_VISUALS_PROVIDER_IDS)[number];'
+  );
+  lines.push(
+    `export const DEFAULT_VISUALS_PROVIDER_ID = ${JSON.stringify(defaultVisualsProviderId)} as const;`
+  );
+  lines.push(
+    `export const DEFAULT_MOTION_STRATEGY_ID = ${JSON.stringify(defaultMotionStrategyId)} as const;`
+  );
+  lines.push(
+    `export const DEFAULT_NANOBANANA_MODEL = ${JSON.stringify(nanobananaModel ?? '')} as const;`
   );
   lines.push('');
 

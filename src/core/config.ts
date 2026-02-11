@@ -19,7 +19,10 @@ import { HookAudioModeEnum, HookFitEnum, MotionStrategyEnum } from '../domain';
 import { AudioMixPresetIdSchema, SfxPackIdSchema, SfxPlacementEnum } from '../audio/mix/presets';
 import { ArchetypeIdSchema } from '../domain/ids';
 import {
+  DEFAULT_MOTION_STRATEGY_ID,
+  DEFAULT_NANOBANANA_MODEL,
   DEFAULT_CONFIG_SYNC_STRATEGY,
+  DEFAULT_VISUALS_PROVIDER_ID,
   PROJECT_CONFIG_CANDIDATES,
   REPO_FACTS,
   SUPPORTED_LLM_PROVIDER_IDS,
@@ -107,7 +110,7 @@ const VisualsProviderEnum = z.enum(
   >
 );
 const NANOBANANA_DEFAULT_MODEL =
-  VISUALS_PROVIDERS.find((p) => p.id === 'nanobanana')?.defaultModel ?? 'gemini-2.5-flash-image';
+  VISUALS_PROVIDERS.find((p) => p.id === 'nanobanana')?.defaultModel ?? DEFAULT_NANOBANANA_MODEL;
 
 const NanoBananaConfigSchema = z.object({
   /** Gemini image generation model id (Gemini Developer API). */
@@ -125,11 +128,11 @@ const NanoBananaConfigSchema = z.object({
 });
 
 const VisualsConfigSchema = z.object({
-  provider: VisualsProviderEnum.default(SUPPORTED_VISUALS_PROVIDER_IDS[0]),
+  provider: VisualsProviderEnum.default(DEFAULT_VISUALS_PROVIDER_ID),
   /** Fallback providers (used in order) if the primary provider cannot return a scene asset. */
   fallbackProviders: z.array(VisualsProviderEnum).default([]),
   /** Default motion strategy for image-based providers. */
-  motionStrategy: MotionStrategyEnum.default('kenburns'),
+  motionStrategy: MotionStrategyEnum.default(DEFAULT_MOTION_STRATEGY_ID),
   nanobanana: NanoBananaConfigSchema.default({}),
   cacheEnabled: z.boolean().default(true),
   cacheTtl: z.number().int().positive().default(3600),

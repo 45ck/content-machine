@@ -17,6 +17,9 @@ export const SUPPORTED_VISUALS_PROVIDER_IDS = [
   'pixabay',
 ] as const;
 export type RepoFactsVisualsProviderId = (typeof SUPPORTED_VISUALS_PROVIDER_IDS)[number];
+export const DEFAULT_VISUALS_PROVIDER_ID = 'pexels' as const;
+export const DEFAULT_MOTION_STRATEGY_ID = 'kenburns' as const;
+export const DEFAULT_NANOBANANA_MODEL = 'gemini-2.5-flash-image' as const;
 
 export const DEFAULT_ARTIFACT_FILENAMES = {
   script: 'script.json',
@@ -154,6 +157,7 @@ export const ENVIRONMENT_VARIABLES = [
   { name: 'CM_MCP_MAX_SESSIONS', required: false },
   { name: 'CM_MCP_CLEANUP_ARTIFACTS_ON_EVICT', required: false },
   { name: 'CM_MCP_SWEEP_INTERVAL_MS', required: false },
+  { name: 'CM_RUN_REAL_OUTPUT_TESTS', required: false },
   { name: 'LOG_LEVEL', required: false },
 ] as const;
 export type RepoEnvironmentVariable = (typeof ENVIRONMENT_VARIABLES)[number];

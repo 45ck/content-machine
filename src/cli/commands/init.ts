@@ -13,6 +13,10 @@ import { handleCommandError } from '../utils';
 import { listArchetypes } from '../../archetypes/registry';
 import {
   CONFIG_SURFACE_FILES,
+  DEFAULT_MOTION_STRATEGY_ID,
+  DEFAULT_NANOBANANA_MODEL,
+  DEFAULT_VISUALS_PROVIDER_ID,
+  MOTION_STRATEGIES,
   REPO_FACTS,
   SUPPORTED_LLM_PROVIDER_IDS,
   SUPPORTED_VISUALS_PROVIDER_IDS,
@@ -30,12 +34,14 @@ function resolveLlmDefaultModel(providerId: string): string {
 }
 
 function resolveVisualsDefaultProvider(): string {
-  return SUPPORTED_VISUALS_PROVIDER_IDS[0] ?? 'pexels';
+  return SUPPORTED_VISUALS_PROVIDER_IDS.includes(DEFAULT_VISUALS_PROVIDER_ID)
+    ? DEFAULT_VISUALS_PROVIDER_ID
+    : SUPPORTED_VISUALS_PROVIDER_IDS[0];
 }
 
 function resolveNanobananaDefaultModel(): string {
   const facts = VISUALS_PROVIDERS.find((p) => p.id === 'nanobanana');
-  return facts?.defaultModel ?? 'gemini-2.5-flash-image';
+  return facts?.defaultModel ?? DEFAULT_NANOBANANA_MODEL;
 }
 
 async function promptConfig(): Promise<Record<string, unknown>> {
@@ -100,8 +106,8 @@ async function promptConfig(): Promise<Record<string, unknown>> {
       type: 'list',
       name: 'motionStrategy',
       message: 'Default motion strategy (for image providers)?',
-      choices: ['kenburns', 'none'],
-      default: 'kenburns',
+      choices: MOTION_STRATEGIES.map((s) => ({ name: s.displayName, value: s.id })),
+      default: DEFAULT_MOTION_STRATEGY_ID,
     });
     motionStrategy = ms.motionStrategy;
 
@@ -132,7 +138,7 @@ async function promptConfig(): Promise<Record<string, unknown>> {
     visuals: {
       provider: visualsProvider,
       // Write explicit defaults even when the current provider is stock-video.
-      motion_strategy: motionStrategy ?? 'kenburns',
+      motion_strategy: motionStrategy ?? DEFAULT_MOTION_STRATEGY_ID,
       nanobanana: { model: nanobananaModel ?? resolveNanobananaDefaultModel() },
     },
     render: {
@@ -218,7 +224,7 @@ function getDefaultConfig(): Record<string, unknown> {
     },
     visuals: {
       provider: resolveVisualsDefaultProvider(),
-      motion_strategy: 'kenburns',
+      motion_strategy: DEFAULT_MOTION_STRATEGY_ID,
       nanobanana: { model: resolveNanobananaDefaultModel() },
     },
     render: {

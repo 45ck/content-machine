@@ -6,7 +6,10 @@
  *
  * See ADR-002-VISUAL-PROVIDER-SYSTEM-20260107.md
  */
-import { MOTION_STRATEGIES as MOTION_STRATEGY_FACTS } from '../../domain/repo-facts.generated.js';
+import {
+  MOTION_STRATEGIES as MOTION_STRATEGY_FACTS,
+  type RepoFactsMotionStrategyId,
+} from '../../domain/repo-facts.generated.js';
 
 // =============================================================================
 // Motion Strategy Names
@@ -20,7 +23,7 @@ import { MOTION_STRATEGIES as MOTION_STRATEGY_FACTS } from '../../domain/repo-fa
  * - 'depthflow': 2.5D parallax animation using depth estimation (free)
  * - 'veo': Google Veo AI video generation (~$0.50/clip)
  */
-export type MotionStrategyName = 'none' | 'kenburns' | 'depthflow' | 'veo';
+export type MotionStrategyName = RepoFactsMotionStrategyId;
 
 // =============================================================================
 // Motion Options and Results

@@ -51,6 +51,8 @@ Default:
   - Notes: Use local images; no API key required.
 - Pixabay (id: `pixabay`)
   - Env vars: `PIXABAY_API_KEY`. Planned (not implemented yet).
+- Default visuals provider: `pexels`
+- Default motion strategy: `kenburns`
 
 ## Spellcheck
 
