@@ -108,10 +108,13 @@ function main() {
     outCliMd,
     outPresetsMd,
     outCopilotMd,
-    outClaudeMd,
     outTs,
     outCspell,
   ];
+
+  // CLAUDE.md is often intentionally gitignored in this repo. Treat it as optional:
+  // validate idempotency when present, but do not require it to exist in clean archives.
+  if (fileExists(outClaudeMd)) outputs.push(outClaudeMd);
 
   const errors = [];
   if (!fileExists(registryPath)) errors.push(`Missing registry: ${registryPath}`);
