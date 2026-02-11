@@ -13,6 +13,7 @@ vi.mock('@google/generative-ai', () => ({
 
 vi.mock('../../../../src/core/config', () => ({
   getApiKey: vi.fn(() => 'key'),
+  getOptionalApiKey: vi.fn(() => undefined),
 }));
 
 vi.mock('../../../../src/core/retry', () => ({
@@ -61,7 +62,7 @@ describe('gemini provider', () => {
     (getApiKey as unknown as ReturnType<typeof vi.fn>).mockReturnValue('');
 
     const { GeminiProvider } = await import('../../../../src/core/llm/gemini');
-    expect(() => new GeminiProvider('gemini', undefined as any)).toThrow('GOOGLE_API_KEY not set');
+    expect(() => new GeminiProvider('gemini', undefined as any)).toThrow(/GOOGLE_API_KEY/i);
   });
 
   it('throws RateLimitError on quota errors', async () => {

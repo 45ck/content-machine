@@ -9,6 +9,8 @@
  */
 import { createLogger } from '../core/logger';
 import { CMError } from '../core/errors';
+import { createTesseractWorkerEng } from '../core/ocr/tesseract';
+import { execFfmpeg } from '../core/video/ffmpeg';
 import { transcribeAudio, type ASRResult } from '../audio/asr';
 import { normalizeWord, isFuzzyMatch } from '../core/text/similarity';
 import {
@@ -26,16 +28,13 @@ import {
   SyncRatingOutputSchema,
   SyncRatingOptionsSchema,
 } from '../domain';
-import { execFile } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs';
 import { join, basename } from 'node:path';
 import { tmpdir } from 'node:os';
-import { promisify } from 'node:util';
 import { probeVideoWithFfprobe } from '../validate/ffprobe';
 import { analyzeBurnedInCaptionQuality } from './burned-in-caption-quality';
 
 const log = createLogger({ module: 'sync-rater' });
-const execFileAsync = promisify(execFile);
 
 // Statistical helpers
 function mean(arr: number[]): number {
@@ -111,13 +110,9 @@ async function extractFrames(
       '2',
       join(framesDir, 'frame_%04d.png')
     );
-    await execFileAsync('ffmpeg', args, { windowsHide: true, timeout: 60_000 });
+    await execFfmpeg(args, { dependencyMessage: 'ffmpeg is required for sync rating' });
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-      throw new CMError('DEPENDENCY_MISSING', 'ffmpeg is required for sync rating', {
-        binary: 'ffmpeg',
-      });
-    }
+    if (error instanceof CMError && error.code === 'DEPENDENCY_MISSING') throw error;
     throw new CMError(
       'SYNC_RATING_ERROR',
       `Failed to extract frames: ${error instanceof Error ? error.message : String(error)}`,
@@ -166,13 +161,9 @@ async function extractAudio(videoPath: string, maxSeconds?: number): Promise<str
       // For audio we cap from start; good enough for benchmark sampling.
       args.splice(5, 0, '-t', String(maxSeconds));
     }
-    await execFileAsync('ffmpeg', args, { windowsHide: true, timeout: 60_000 });
+    await execFfmpeg(args, { dependencyMessage: 'ffmpeg is required for sync rating' });
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-      throw new CMError('DEPENDENCY_MISSING', 'ffmpeg is required for sync rating', {
-        binary: 'ffmpeg',
-      });
-    }
+    if (error instanceof CMError && error.code === 'DEPENDENCY_MISSING') throw error;
     throw new CMError(
       'SYNC_RATING_ERROR',
       `Failed to extract audio: ${error instanceof Error ? error.message : String(error)}`,
@@ -188,16 +179,6 @@ async function extractAudio(videoPath: string, maxSeconds?: number): Promise<str
  * Run OCR on extracted frames using Tesseract.js
  */
 async function runOCR(framesDir: string, fps: number, cropOffsetY: number): Promise<OCRFrame[]> {
-  // Dynamic import for tesseract.js (optional dependency)
-  let Tesseract: typeof import('tesseract.js');
-  try {
-    Tesseract = await import('tesseract.js');
-  } catch {
-    throw new CMError('DEPENDENCY_MISSING', 'tesseract.js is required for sync rating', {
-      install: 'npm install tesseract.js',
-    });
-  }
-
   const files = readdirSync(framesDir)
     .filter((f) => f.endsWith('.png'))
     .sort();
@@ -205,9 +186,9 @@ async function runOCR(framesDir: string, fps: number, cropOffsetY: number): Prom
   log.info({ frameCount: files.length }, 'Running OCR on frames');
 
   const results: OCRFrame[] = [];
-  const cachePath = join(process.cwd(), '.cache', 'tesseract');
-  mkdirSync(cachePath, { recursive: true });
-  const worker = await Tesseract.createWorker('eng', undefined, { cachePath });
+  const { worker } = await createTesseractWorkerEng({
+    dependencyMessage: 'tesseract.js is required for sync rating',
+  });
 
   function extractBboxesFromTsv(tsv: string | null | undefined): Array<{
     x0: number;

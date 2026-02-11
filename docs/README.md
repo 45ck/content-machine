@@ -10,6 +10,7 @@
 
 - [AGENTS.md](../AGENTS.md) - Project overview, north star, commands
 - [SYSTEM-DESIGN-20260104.md](architecture/SYSTEM-DESIGN-20260104.md) - Authoritative spec (3,100 lines)
+- [Repo Facts (generated)](reference/REPO-FACTS.md) - Canonical repo-wide facts (providers, env vars, defaults)
 - [Platform Expansion Roadmap](features/feature-platform-expansion-roadmap-20260207.md) - Adoption + templates + brand kits + inputs
 - [On-Demand Assets Feature](features/feature-on-demand-assets-20260111.md) - Minimal install + targeted downloads
 - [On-Demand Assets Implementation](architecture/IMPL-ON-DEMAND-ASSETS-20260111.md) - Options + rollout plan
@@ -40,6 +41,11 @@ docs/
   postmortems/        # Incident postmortems
   templates/          # Documentation templates
 ```
+
+## Single Sources Of Truth
+
+- Repo facts registry: `docs/reference/repo-facts.yaml` (generated: `docs/reference/REPO-FACTS.md`)
+- Ubiquitous language registry: `docs/reference/ubiquitous-language.yaml` (generated: `docs/reference/GLOSSARY.md`)
 
 ---
 

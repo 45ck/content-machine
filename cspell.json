@@ -25,10 +25,15 @@
       "addWords": true
     },
     {
+      "name": "repo-facts",
+      "path": "./config/cspell/repo-facts.txt",
+      "addWords": true
+    },
+    {
       "name": "project-words",
       "path": "./config/cspell/project-words.txt",
       "addWords": true
     }
   ],
-  "dictionaries": ["ubiquitous-language", "project-words"]
+  "dictionaries": ["ubiquitous-language", "repo-facts", "project-words"]
 }

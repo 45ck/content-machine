@@ -1,0 +1,28 @@
+# DO NOT EDIT: generated from docs/reference/repo-facts.yaml.
+# Update the registry, then run: npm run repo-facts:gen
+
+anthropic
+Anthropic
+ANTHROPIC_API_KEY
+Clips
+gemini
+Gemini
+GEMINI_API_KEY
+Google
+GOOGLE_API_KEY
+gpt-4o-mini
+Images
+local
+Local
+localimage
+nanobanana
+NanoBanana
+openai
+OpenAI
+OPENAI_API_KEY
+pexels
+Pexels
+PEXELS_API_KEY
+pixabay
+Pixabay
+PIXABAY_API_KEY

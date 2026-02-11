@@ -19,6 +19,7 @@ import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import type { SpinnerLike } from '../progress';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
+import { DEFAULT_ARTIFACT_FILENAMES } from '../../domain/repo-facts.generated';
 
 interface PackagingInput {
   title: string;
@@ -241,7 +242,7 @@ export const scriptCommand = new Command('script')
     'Script archetype (script format). Use `cm archetypes list`',
     'listicle'
   )
-  .option('-o, --output <path>', 'Output file path', 'script.json')
+  .option('-o, --output <path>', 'Output file path', DEFAULT_ARTIFACT_FILENAMES.script)
   .option('--package <path>', 'Packaging JSON file (from cm package)')
   .option('--research <path>', 'Research JSON file (from cm research)')
   .option('--duration <seconds>', 'Target duration in seconds', '45')

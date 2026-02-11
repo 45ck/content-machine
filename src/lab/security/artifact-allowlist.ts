@@ -1,9 +1,10 @@
 import { CMError } from '../../core/errors';
+import { DEFAULT_ARTIFACT_FILENAMES } from '../../domain/repo-facts.generated';
 
 const EXACT_ALLOWED = new Set([
-  'script.json',
-  'timestamps.json',
-  'visuals.json',
+  DEFAULT_ARTIFACT_FILENAMES.script,
+  DEFAULT_ARTIFACT_FILENAMES.timestamps,
+  DEFAULT_ARTIFACT_FILENAMES.visuals,
   'score.json',
   'sync-report.json',
   'caption-report.json',

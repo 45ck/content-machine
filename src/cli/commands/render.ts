@@ -40,6 +40,7 @@ import { getCliRuntime } from '../runtime';
 import { parseTemplateDepsMode, resolveTemplateDepsInstallDecision } from '../template-code';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
+import { DEFAULT_ARTIFACT_FILENAMES } from '../../domain/repo-facts.generated';
 import type { CaptionPresetName } from '../../render/captions/presets';
 import type {
   CaptionConfigInput,
@@ -1385,8 +1386,8 @@ export const renderCommand = new Command('render')
   .requiredOption('-i, --input <path>', 'Input visuals JSON file')
   .requiredOption('--audio <path>', 'Audio file path')
   .option('--audio-mix <path>', 'Audio mix plan JSON file')
-  .option('--timestamps <path>', 'Timestamps JSON file', 'timestamps.json')
-  .option('-o, --output <path>', 'Output video file path', 'video.mp4')
+  .option('--timestamps <path>', 'Timestamps JSON file', DEFAULT_ARTIFACT_FILENAMES.timestamps)
+  .option('-o, --output <path>', 'Output video file path', DEFAULT_ARTIFACT_FILENAMES.video)
   .option('--template <idOrPath>', 'Render template id or path to template.json')
   .option('--allow-template-code', 'Allow executing Remotion code templates (dangerous)', false)
   .option(

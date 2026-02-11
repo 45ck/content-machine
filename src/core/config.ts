@@ -18,10 +18,17 @@ import { CaptionConfigSchema } from '../render/captions/config';
 import { HookAudioModeEnum, HookFitEnum, MotionStrategyEnum } from '../domain';
 import { AudioMixPresetIdSchema, SfxPackIdSchema, SfxPlacementEnum } from '../audio/mix/presets';
 import { ArchetypeIdSchema } from '../domain/ids';
+import {
+  REPO_FACTS,
+  SUPPORTED_LLM_PROVIDER_IDS,
+  SUPPORTED_VISUALS_PROVIDER_IDS,
+} from '../domain/repo-facts.generated';
 
 // ============================================================================
 // Schema Definitions
 // ============================================================================
+
+type NonEmptyArray<T> = [T, ...T[]];
 
 /**
  * Ubiquitous Language: Script archetype id schema.
@@ -35,7 +42,11 @@ export const ArchetypeEnum = ArchetypeIdSchema;
 
 export const OrientationEnum = z.enum(['portrait', 'landscape', 'square']);
 
-const LLMProviderEnum = z.enum(['openai', 'anthropic', 'gemini']);
+const LLMProviderEnum = z.enum(
+  SUPPORTED_LLM_PROVIDER_IDS as unknown as NonEmptyArray<
+    (typeof SUPPORTED_LLM_PROVIDER_IDS)[number]
+  >
+);
 
 const DefaultsSchema = z.object({
   archetype: ArchetypeEnum.default('listicle'),
@@ -44,9 +55,9 @@ const DefaultsSchema = z.object({
 });
 
 const LLMConfigSchema = z.object({
-  provider: LLMProviderEnum.default('openai'),
-  model: z.string().default('gpt-4o'),
-  temperature: z.number().min(0).max(2).default(0.7),
+  provider: LLMProviderEnum.default(REPO_FACTS.llm.default.providerId),
+  model: z.string().default(REPO_FACTS.llm.default.model),
+  temperature: z.number().min(0).max(2).default(REPO_FACTS.llm.default.temperature),
   maxRetries: z.number().int().min(0).default(2),
 });
 
@@ -86,7 +97,11 @@ const AmbienceConfigSchema = z.object({
   fadeOutMs: z.number().int().nonnegative().default(400),
 });
 
-const VisualsProviderEnum = z.enum(['pexels', 'pixabay', 'nanobanana', 'local', 'localimage']);
+const VisualsProviderEnum = z.enum(
+  SUPPORTED_VISUALS_PROVIDER_IDS as unknown as NonEmptyArray<
+    (typeof SUPPORTED_VISUALS_PROVIDER_IDS)[number]
+  >
+);
 
 const NanoBananaConfigSchema = z.object({
   /** Gemini image generation model id (Gemini Developer API). */

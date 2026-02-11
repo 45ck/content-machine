@@ -1,6 +1,5 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { EventEmitter } from 'node:events';
-import { CMError } from '../../../src/core/errors';
 
 const spawned: EventEmitter[] = [];
 
@@ -17,6 +16,9 @@ describe('workflows runner', () => {
   beforeEach(() => {
     spawned.length = 0;
     vi.clearAllMocks();
+    // In coverage mode we may run with a single non-isolated worker, so module caches can
+    // persist across files. Reset modules to ensure our `node:child_process` mock applies.
+    vi.resetModules();
   });
 
   it('resolves workflow stage modes', async () => {
@@ -62,6 +64,7 @@ describe('workflows runner', () => {
   });
 
   it('runs workflow commands and handles non-zero exit codes', async () => {
+    const { CMError } = await import('../../../src/core/errors');
     const { runWorkflowCommands } = await import('../../../src/workflows/runner');
     const runPromise = runWorkflowCommands([{ command: 'echo', args: ['hi'] }], {});
 

@@ -17,6 +17,7 @@ import { SchemaError } from '../../core/errors';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
 import { loadConfig } from '../../core/config';
 import type { AssetProviderName } from '../../visuals/providers';
+import { DEFAULT_ARTIFACT_FILENAMES } from '../../domain/repo-facts.generated';
 
 interface GameplayOptions {
   library?: string;
@@ -164,7 +165,7 @@ function buildVisualsSummary(params: {
 export const visualsCommand = new Command('visuals')
   .description('Find matching stock footage for script scenes')
   .requiredOption('-i, --input <path>', 'Input timestamps JSON file')
-  .option('-o, --output <path>', 'Output visuals file path', 'visuals.json')
+  .option('-o, --output <path>', 'Output visuals file path', DEFAULT_ARTIFACT_FILENAMES.visuals)
   .option(
     '--local-dir <path>',
     'Directory for --provider local/localimage (bring your own assets)',

@@ -25,6 +25,7 @@ import type { PipelineEventEmitter } from './events';
 import type { AudioMixPlanOptions } from '../audio/mix/planner';
 import { createLogger, logTiming } from './logger';
 import { PipelineError } from './errors';
+import { DEFAULT_ARTIFACT_FILENAMES } from '../domain/repo-facts.generated';
 import {
   ArchetypeEnum,
   OrientationEnum,
@@ -249,11 +250,11 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
     captionDefaults.fonts.length > 0 ? captionDefaults.fonts[0].family : captionDefaults.fontFamily;
 
   const artifacts = {
-    script: join(workDir, 'script.json'),
-    audio: join(workDir, 'audio.wav'),
-    timestamps: join(workDir, 'timestamps.json'),
-    audioMix: join(workDir, 'audio.mix.json'),
-    visuals: join(workDir, 'visuals.json'),
+    script: join(workDir, DEFAULT_ARTIFACT_FILENAMES.script),
+    audio: join(workDir, DEFAULT_ARTIFACT_FILENAMES.audio),
+    timestamps: join(workDir, DEFAULT_ARTIFACT_FILENAMES.timestamps),
+    audioMix: join(workDir, DEFAULT_ARTIFACT_FILENAMES['audio-mix']),
+    visuals: join(workDir, DEFAULT_ARTIFACT_FILENAMES.visuals),
   };
 
   const generatedPaths = new Set<string>();

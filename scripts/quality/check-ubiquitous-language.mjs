@@ -395,6 +395,7 @@ function main() {
     .filter((r) => r.phrase && r.fix);
 
   const userFacingRoots = [
+    path.join(repoRoot, 'AGENTS.md'),
     path.join(repoRoot, 'README.md'),
     path.join(repoRoot, 'docs', 'reference'),
     path.join(repoRoot, 'docs', 'guides'),

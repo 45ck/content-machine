@@ -53,8 +53,9 @@ async function writeVideoSpecCacheArtifacts(params: {
   videoPath: string;
   cacheDir: string;
   insertedBlocks: any[];
+  insertedCacheRaw?: unknown;
 }): Promise<void> {
-  const { videoPath, cacheDir, insertedBlocks } = params;
+  const { videoPath, cacheDir, insertedBlocks, insertedCacheRaw } = params;
   const cacheRoot = resolveVideoSpecCacheDir(cacheDir);
   const stat = await (await import('node:fs/promises')).stat(videoPath);
   const videoHash = await sha256FileHex(videoPath);
@@ -86,11 +87,49 @@ async function writeVideoSpecCacheArtifacts(params: {
     ),
     'utf-8'
   );
+  // Keep OCR deterministic/offline: populate empty OCR caches so the analyzer never invokes
+  // live Tesseract in this suite.
+  await (
+    await import('node:fs/promises')
+  ).writeFile(
+    join(videoCacheDir, 'editing.ocr.1fps.v1.json'),
+    JSON.stringify([], null, 2),
+    'utf-8'
+  );
+  await (
+    await import('node:fs/promises')
+  ).writeFile(
+    join(videoCacheDir, 'editing.ocr.2fps.v1.json'),
+    JSON.stringify([], null, 2),
+    'utf-8'
+  );
+  // New OCR cache keys (v2): bottom captions + center overlays.
+  await (
+    await import('node:fs/promises')
+  ).writeFile(
+    join(videoCacheDir, 'editing.ocr.bottom.1fps.v2.json'),
+    JSON.stringify([], null, 2),
+    'utf-8'
+  );
+  await (
+    await import('node:fs/promises')
+  ).writeFile(
+    join(videoCacheDir, 'editing.ocr.bottom.2fps.v2.json'),
+    JSON.stringify([], null, 2),
+    'utf-8'
+  );
+  await (
+    await import('node:fs/promises')
+  ).writeFile(
+    join(videoCacheDir, 'editing.ocr.center.2fps.v2.json'),
+    JSON.stringify([], null, 2),
+    'utf-8'
+  );
   await (
     await import('node:fs/promises')
   ).writeFile(
     join(videoCacheDir, 'inserted-content.v1.json'),
-    JSON.stringify(insertedBlocks, null, 2),
+    JSON.stringify(insertedCacheRaw ?? { version: 3, blocks: insertedBlocks }, null, 2),
     'utf-8'
   );
 }
@@ -128,7 +167,7 @@ describe('inserted content blocks', () => {
         cacheDir,
         shotDetector: 'ffmpeg',
         maxSeconds: 2,
-        ocr: false,
+        ocr: true,
         insertedContent: true,
         asr: false,
         narrative: 'heuristic',
@@ -175,7 +214,7 @@ describe('inserted content blocks', () => {
         cacheDir,
         shotDetector: 'ffmpeg',
         maxSeconds: 2,
-        ocr: false,
+        ocr: true,
         insertedContent: true,
         asr: false,
         narrative: 'heuristic',
@@ -222,7 +261,7 @@ describe('inserted content blocks', () => {
         cacheDir,
         shotDetector: 'ffmpeg',
         maxSeconds: 2,
-        ocr: false,
+        ocr: true,
         insertedContent: true,
         asr: false,
         narrative: 'heuristic',
@@ -232,6 +271,55 @@ describe('inserted content blocks', () => {
       expect(spec.provenance.modules.inserted_content_blocks).toBe('cache');
       expect(blocks.length).toBe(1);
       expect(blocks[0]!.type).toBe('chat_screenshot');
+    } finally {
+      await rm(dir, { recursive: true, force: true });
+    }
+  });
+
+  test('treats version-mismatched inserted content cache as stale and records a note', async () => {
+    const dir = join(tmpdir(), `cm-videospec-icb-stale-${Date.now()}-${Math.random()}`);
+    await mkdir(dir, { recursive: true });
+    const videoPath = join(dir, 'icb.mp4');
+    const cacheDir = join(dir, 'cache-root');
+
+    try {
+      await makeTinyTwoSceneVideo(videoPath);
+      await writeVideoSpecCacheArtifacts({
+        videoPath,
+        cacheDir,
+        insertedBlocks: [
+          {
+            id: 'icb-1',
+            type: 'reddit_screenshot',
+            start: 0,
+            end: 1.0,
+            presentation: 'full_screen',
+            region: { x: 0, y: 0, w: 1, h: 1 },
+            keyframes: [{ time: 0.5, text: 'r/AskReddit', confidence: 0.7 }],
+            extraction: { ocr: { engine: 'tesseract.js', text: 'r/AskReddit' } },
+            confidence: { is_inserted_content: 0.9, type: 0.7, ocr_quality: 0.6 },
+          },
+        ],
+        insertedCacheRaw: { version: 1, blocks: [] },
+      });
+
+      const { spec } = await analyzeVideoToVideoSpecV1({
+        inputPath: videoPath,
+        cache: true,
+        cacheDir,
+        shotDetector: 'ffmpeg',
+        maxSeconds: 2,
+        // Keep this test deterministic/offline: don't OCR, but still exercise the cache parser path.
+        ocr: false,
+        insertedContent: true,
+        asr: false,
+        narrative: 'heuristic',
+      });
+
+      expect(spec.provenance.notes?.some((n) => n.includes('Inserted content cache stale'))).toBe(
+        true
+      );
+      expect(spec.provenance.modules.inserted_content_blocks).toBe('disabled');
     } finally {
       await rm(dir, { recursive: true, force: true });
     }

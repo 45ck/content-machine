@@ -11,6 +11,13 @@ import { getInquirer } from '../inquirer';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { handleCommandError } from '../utils';
 import { listArchetypes } from '../../archetypes/registry';
+import {
+  CONFIG_SURFACE_FILES,
+  REPO_FACTS,
+  SUPPORTED_LLM_PROVIDER_IDS,
+  VISUALS_PROVIDERS,
+  LLM_PROVIDERS,
+} from '../../domain/repo-facts.generated';
 
 interface InitOptions {
   yes?: boolean;
@@ -22,8 +29,8 @@ async function promptConfig(): Promise<Record<string, unknown>> {
     type: 'list',
     name: 'llmProvider',
     message: 'Which LLM provider would you like to use?',
-    choices: ['openai', 'anthropic', 'gemini'],
-    default: 'openai',
+    choices: [...SUPPORTED_LLM_PROVIDER_IDS],
+    default: REPO_FACTS.llm.default.providerId,
   });
 
   const { llmModel } = await inquirer.prompt<{ llmModel: string }>({
@@ -32,7 +39,7 @@ async function promptConfig(): Promise<Record<string, unknown>> {
     message: 'Which model would you like to use?',
     default:
       llmProvider === 'openai'
-        ? 'gpt-4o'
+        ? REPO_FACTS.llm.default.model
         : llmProvider === 'anthropic'
           ? 'claude-3-5-sonnet-20241022'
           : 'gemini-2.0-flash',
@@ -69,10 +76,10 @@ async function promptConfig(): Promise<Record<string, unknown>> {
     type: 'list',
     name: 'visualsProvider',
     message: 'Default visuals provider?',
-    choices: [
-      { name: 'pexels (stock video)', value: 'pexels' },
-      { name: 'nanobanana (Gemini AI images)', value: 'nanobanana' },
-    ],
+    choices: VISUALS_PROVIDERS.filter((p) => p.id !== 'pixabay').map((p) => ({
+      name: p.displayName,
+      value: p.id,
+    })),
     default: 'pexels',
   });
 
@@ -126,7 +133,7 @@ async function promptConfig(): Promise<Record<string, unknown>> {
 }
 
 async function writeConfigFile(config: Record<string, unknown>): Promise<string> {
-  const configPath = join(process.cwd(), '.content-machine.toml');
+  const configPath = join(process.cwd(), CONFIG_SURFACE_FILES['project-config']);
   const tomlContent = generateToml(config);
   await writeFile(configPath, tomlContent, 'utf-8');
   return configPath;
@@ -134,10 +141,18 @@ async function writeConfigFile(config: Record<string, unknown>): Promise<string>
 
 function printHints(): void {
   writeStderrLine("Don't forget to set your API keys:");
-  writeStderrLine('   bash: export OPENAI_API_KEY="sk-..."');
-  writeStderrLine('   bash: export ANTHROPIC_API_KEY="..."');
-  writeStderrLine('   bash: export GOOGLE_API_KEY="..."   # for Gemini / NanoBanana');
-  writeStderrLine('   bash: export PEXELS_API_KEY="..."   # for stock footage');
+  for (const p of SUPPORTED_LLM_PROVIDER_IDS) {
+    const facts = LLM_PROVIDERS.find((x) => x.id === p);
+    if (!facts) continue;
+    const firstKey = facts.envVarNames?.[0];
+    if (!firstKey) continue;
+    writeStderrLine(`   bash: export ${firstKey}="..."   # ${facts.displayName}`);
+  }
+  for (const p of VISUALS_PROVIDERS) {
+    const firstKey = p.envVarNames?.[0];
+    if (!firstKey) continue;
+    writeStderrLine(`   bash: export ${firstKey}="..."   # ${p.displayName}`);
+  }
   writeStderrLine('   # Or add them to a .env file');
   writeStderrLine('Ready! Run: cm generate "Your topic here"');
 }
@@ -165,7 +180,7 @@ export const initCommand = new Command('init')
         return;
       }
 
-      writeStderrLine('Configuration saved to .content-machine.toml');
+      writeStderrLine(`Configuration saved to ${CONFIG_SURFACE_FILES['project-config']}`);
       printHints();
 
       // Human-mode stdout should be reserved for the primary artifact path.
@@ -183,8 +198,8 @@ function getDefaultConfig(): Record<string, unknown> {
       voice: 'af_heart',
     },
     llm: {
-      provider: 'openai',
-      model: 'gpt-4o',
+      provider: REPO_FACTS.llm.default.providerId,
+      model: REPO_FACTS.llm.default.model,
       temperature: 0.7,
     },
     audio: {

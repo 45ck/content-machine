@@ -5,6 +5,7 @@ This repo now supports extracting a structured reverse-engineering report from a
 Engineering implementation details live in:
 
 - `docs/architecture/IMPL-VIDEOSPEC-ANALYZER-20260210.md`
+  - Source PDF (imported): `docs/specs/videospec-v1-integration-spec.pdf`
 
 ## Goals
 
@@ -44,7 +45,7 @@ All times are seconds-from-start (`float`), timebase-normalized across modules.
 - Ingest: local file path (or `http(s)` URL downloaded via `yt-dlp`), then `ffprobe` for duration + resolution
 - Shots: try PySceneDetect (Python), fall back to ffmpeg scene filter
 - OCR: `tesseract.js` over a caption-friendly bottom crop
-- Inserted content blocks: heuristic detection (edge density + motion) + keyframe OCR for embedded screenshots/pages
+- Inserted content blocks: heuristic detection (tile edge density + motion) + keyframe OCR, with best-effort region localization (PiP) and cached keyframe artifacts
 - ASR: `@remotion/install-whisper-cpp` (local Whisper.cpp) when installed; otherwise transcript is omitted
 - Narrative: heuristic by default; optional LLM mode supported
 - Entities: minimal v1 derives speaker IDs from transcript only (visual face/object detection is stubbed)

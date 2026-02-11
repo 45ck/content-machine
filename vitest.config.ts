@@ -17,8 +17,13 @@ export default defineConfig({
     include: ['src/**/*.test.ts', 'tests/**/*.test.ts'],
     exclude: ['node_modules', 'dist', 'vendor', 'templates', 'connectors'],
     coverage: {
-      provider: 'v8',
+      provider: 'custom',
+      customProviderModule: './scripts/vitest/coverage-provider.mjs',
       reporter: ['text', 'json', 'html', 'lcov'],
+      // We manage cleaning ourselves in `scripts/quality/clean-coverage.mjs`.
+      // Vitest's built-in clean can race in some environments when using forks + coverage.
+      clean: false,
+      cleanOnRerun: false,
       // Explicit scope ensures thresholds are meaningful
       include: ['src/**/*.ts'],
       exclude: [
@@ -52,6 +57,13 @@ export default defineConfig({
     },
     testTimeout: 30000,
     pool: 'forks',
+    poolOptions: {
+      forks: {
+        // Ensure each test file runs in an isolated worker so `vi.mock()` is reliable and
+        // global state doesn't leak across the suite (especially under coverage).
+        isolate: true,
+      },
+    },
     watch: false,
     alias: {
       '../errors.js': '../errors.ts',

@@ -48,15 +48,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Remotion browser
-        run: npx remotion browser install
-
       - name: Audit (high/critical)
         run: npm audit --audit-level=high
         continue-on-error: true
 
       - name: Ubiquitous language + glossary gate
         run: npm run glossary:check
+
+      - name: Repo facts gate
+        run: npm run repo-facts:check
 
       - name: Spell check (user-facing surfaces)
         run: npm run cspell:check
@@ -77,7 +77,8 @@ jobs:
         run: npm run build:types
 
       - name: Test with coverage
-        run: npm run test:coverage
+        # Keep PR CI deterministic and fast. Heavy V&V visual tests and Playwright E2E are label-gated.
+        run: npm run test:coverage:push
 
       - name: Duplication check
         run: npm run dup:check

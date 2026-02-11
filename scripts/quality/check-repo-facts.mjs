@@ -1,0 +1,246 @@
+import fs from 'node:fs';
+import path from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { readRepoFactsRegistry } from '../lib/repo-facts.mjs';
+
+function run(cmd, args, opts = {}) {
+  return execFileSync(cmd, args, { encoding: 'utf8', ...opts }).trimEnd();
+}
+
+function fileExists(p) {
+  try {
+    fs.accessSync(p);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function readTextIfExists(p) {
+  try {
+    return fs.readFileSync(p, 'utf8');
+  } catch {
+    return '';
+  }
+}
+
+function extractEnvVarNamesFromDotEnvExample(dotEnvExampleContent) {
+  const out = new Set();
+  for (const line of String(dotEnvExampleContent).split('\n')) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) continue;
+    const m = trimmed.match(/^([A-Z0-9_]+)\s*=/);
+    if (m?.[1]) out.add(m[1]);
+  }
+  return out;
+}
+
+function listFilesRecursive(rootDir, includeExtensions) {
+  const out = [];
+  const stack = [rootDir];
+  while (stack.length > 0) {
+    const cur = stack.pop();
+    if (!cur) continue;
+    let entries = [];
+    try {
+      entries = fs.readdirSync(cur, { withFileTypes: true });
+    } catch {
+      continue;
+    }
+    for (const ent of entries) {
+      const full = path.join(cur, ent.name);
+      if (ent.isDirectory()) {
+        stack.push(full);
+        continue;
+      }
+      const ext = path.extname(ent.name).toLowerCase();
+      if (includeExtensions.has(ext)) out.push(full);
+    }
+  }
+  return out;
+}
+
+function isUndatedException(relPath, undatedGlobs) {
+  // Minimal glob support for patterns used in repo-facts.yaml:
+  // - exact paths
+  // - prefix/** patterns
+  for (const g of undatedGlobs ?? []) {
+    const glob = String(g);
+    if (!glob) continue;
+    if (glob.endsWith('/**')) {
+      const prefix = glob.slice(0, -3);
+      if (relPath === prefix || relPath.startsWith(prefix + '/')) return true;
+      continue;
+    }
+    if (relPath === glob) return true;
+  }
+  return false;
+}
+
+function hasDateSuffix(filename) {
+  // Something-like-YYYYMMDD.ext
+  return /-\d{8}\.[^.]+$/.test(filename);
+}
+
+function main() {
+  const repoRoot = process.cwd();
+  const registryPath = path.join(repoRoot, 'docs', 'reference', 'repo-facts.yaml');
+  const dotEnvExamplePath = path.join(repoRoot, '.env.example');
+
+  const outRepoFactsMd = path.join(repoRoot, 'docs', 'reference', 'REPO-FACTS.md');
+  const outArtifactsMd = path.join(repoRoot, 'docs', 'reference', 'ARTIFACT-CONTRACTS.md');
+  const outConfigMd = path.join(repoRoot, 'docs', 'reference', 'CONFIG-SURFACE.md');
+  const outQualityMd = path.join(repoRoot, 'docs', 'reference', 'QUALITY-GATES.md');
+  const outSecurityMd = path.join(repoRoot, 'docs', 'reference', 'SECURITY-INVARIANTS.md');
+  const outCliMd = path.join(repoRoot, 'docs', 'reference', 'CLI-CONTRACT.md');
+  const outPresetsMd = path.join(repoRoot, 'docs', 'reference', 'PIPELINE-PRESETS.md');
+  const outCopilotMd = path.join(repoRoot, '.github', 'copilot-instructions.md');
+  const outClaudeMd = path.join(repoRoot, 'CLAUDE.md');
+  const outTs = path.join(repoRoot, 'src', 'domain', 'repo-facts.generated.ts');
+  const outCspell = path.join(repoRoot, 'config', 'cspell', 'repo-facts.txt');
+
+  const outputs = [
+    outRepoFactsMd,
+    outArtifactsMd,
+    outConfigMd,
+    outQualityMd,
+    outSecurityMd,
+    outCliMd,
+    outPresetsMd,
+    outCopilotMd,
+    outClaudeMd,
+    outTs,
+    outCspell,
+  ];
+
+  const errors = [];
+  if (!fileExists(registryPath)) errors.push(`Missing registry: ${registryPath}`);
+  if (!fileExists(dotEnvExamplePath)) errors.push(`Missing .env.example: ${dotEnvExamplePath}`);
+  for (const p of outputs) {
+    if (!fileExists(p)) errors.push(`Missing generated output: ${p}`);
+  }
+  if (errors.length > 0) {
+    console.error('Repo facts checks failed:');
+    for (const e of errors) console.error(`- ${e}`);
+    console.error('Fix: run `npm run repo-facts:gen` and commit generated outputs.');
+    process.exit(1);
+  }
+
+  // Ensure provider env var names are documented in .env.example.
+  //
+  // Note: .env.example may contain additional vars not in repo-facts.yaml (that's fine).
+  const { registry } = readRepoFactsRegistry({ repoRoot });
+  const envExample = fs.readFileSync(dotEnvExamplePath, 'utf8');
+  const envNamesInExample = extractEnvVarNamesFromDotEnvExample(envExample);
+  const expected = [];
+  for (const p of registry.facts.llm.supportedProviders ?? []) {
+    for (const v of p.envVarNames ?? []) expected.push(String(v));
+  }
+  for (const p of registry.facts.stockVisuals.supportedProviders ?? []) {
+    for (const v of p.envVarNames ?? []) expected.push(String(v));
+  }
+  for (const v of expected) {
+    if (!envNamesInExample.has(v)) {
+      console.error(`Repo facts check failed: .env.example missing env var: ${v}`);
+      console.error(
+        'Fix: add it to .env.example (or remove it from docs/reference/repo-facts.yaml).'
+      );
+      process.exit(1);
+    }
+  }
+
+  // Ensure docs follow the date suffix convention (where enforced).
+  const docsConv = registry.conventions?.docs;
+  if (docsConv) {
+    const undatedGlobs = docsConv.undatedGlobs ?? [];
+    for (const dir of docsConv.enforceDateSuffixInDirs ?? []) {
+      const fullDir = path.join(repoRoot, dir);
+      if (!fileExists(fullDir)) continue;
+      const files = listFilesRecursive(fullDir, new Set(['.md']));
+      for (const file of files) {
+        const rel = path.relative(repoRoot, file).replaceAll(path.sep, '/');
+        if (isUndatedException(rel, undatedGlobs)) continue;
+        if (!hasDateSuffix(path.basename(file))) {
+          console.error(`Repo facts check failed: docs file missing -YYYYMMDD suffix: ${rel}`);
+          console.error(
+            'Fix: rename the file to include a date suffix, or add it to conventions.docs.undatedGlobs in docs/reference/repo-facts.yaml.'
+          );
+          process.exit(1);
+        }
+      }
+    }
+  }
+
+  // Ensure CI runs the required npm scripts (basic drift check).
+  const pkgPath = path.join(repoRoot, 'package.json');
+  const pkgText = readTextIfExists(pkgPath);
+  let pkg = null;
+  try {
+    pkg = JSON.parse(pkgText);
+  } catch {
+    // Ignore; other checks will fail elsewhere.
+  }
+  const pkgScripts =
+    pkg && typeof pkg === 'object' && pkg.scripts && typeof pkg.scripts === 'object'
+      ? pkg.scripts
+      : {};
+
+  for (const script of registry.quality.requiredNpmScripts ?? []) {
+    if (!(script in pkgScripts)) {
+      console.error(`Repo facts check failed: package.json missing script: ${script}`);
+      console.error(
+        'Fix: add it to package.json scripts (or remove it from docs/reference/repo-facts.yaml).'
+      );
+      process.exit(1);
+    }
+  }
+
+  const ciPath = path.join(repoRoot, registry.quality.ci.workflowPath);
+  const ciText = readTextIfExists(ciPath);
+  for (const script of registry.quality.requiredNpmScripts ?? []) {
+    const needle = `npm run ${script}`;
+    if (!ciText.includes(needle)) {
+      console.error(`Repo facts check failed: CI workflow missing step running: ${needle}`);
+      console.error(`Expected to find it in: ${registry.quality.ci.workflowPath}`);
+      process.exit(1);
+    }
+  }
+
+  // Conservative source scan: do not log env var values in src/.
+  const securityPatterns = registry.security.bannedLogValuePatterns ?? [];
+  if (securityPatterns.length > 0) {
+    const srcDir = path.join(repoRoot, 'src');
+    const files = listFilesRecursive(srcDir, new Set(['.ts', '.tsx', '.js', '.mjs', '.cjs']));
+    for (const file of files) {
+      const rel = path.relative(repoRoot, file).replaceAll(path.sep, '/');
+      const content = readTextIfExists(file);
+      for (const pat of securityPatterns) {
+        const re = new RegExp(String(pat));
+        if (re.test(content)) {
+          console.error(
+            `Repo facts check failed: possible secret logging pattern in ${rel}: /${pat}/`
+          );
+          console.error(
+            'Fix: never log process.env.* values; pass secrets only to provider constructors.'
+          );
+          process.exit(1);
+        }
+      }
+    }
+  }
+
+  const before = new Map(outputs.map((p) => [p, fs.readFileSync(p, 'utf8')]));
+
+  run(process.execPath, [path.join(repoRoot, 'scripts', 'gen-repo-facts.mjs')], { cwd: repoRoot });
+
+  for (const p of outputs) {
+    const after = fs.readFileSync(p, 'utf8');
+    if (after !== before.get(p)) {
+      console.error('Repo facts generated outputs are out of date.');
+      console.error('Fix: run `npm run repo-facts:gen` and commit the result.');
+      process.exit(1);
+    }
+  }
+}
+
+main();

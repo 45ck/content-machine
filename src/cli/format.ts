@@ -1,4 +1,5 @@
 import { isCMError, isRetryable } from '../core/errors';
+import { CLI_ERROR_CONTRACT } from '../domain/repo-facts.generated';
 
 export interface CliErrorInfo {
   code: string;
@@ -35,10 +36,10 @@ export function getCliErrorInfo(error: unknown): CliErrorInfo {
 }
 
 export function formatCliErrorLines(info: CliErrorInfo): string[] {
-  const lines: string[] = [`ERROR: ${info.message}`];
+  const lines: string[] = [`${CLI_ERROR_CONTRACT.errorPrefix} ${info.message}`];
 
   if (info.fix) {
-    lines.push(`Fix: ${info.fix}`);
+    lines.push(`${CLI_ERROR_CONTRACT.fixPrefix} ${info.fix}`);
   }
 
   if (info.context && Object.keys(info.context).length > 0) {

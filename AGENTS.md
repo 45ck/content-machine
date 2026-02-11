@@ -79,9 +79,9 @@ cm generate "Redis vs PostgreSQL for caching" --archetype versus --output output
 
 ---
 
-## 📦 Content Archetypes
+## 📦 Script Archetypes
 
-**Archetype** = script format (hook + structure + pacing rules). Archetypes are **data files**, not hardcoded in `src/`.
+**Archetype** = script format (hook + structure + pacing rules). Script archetypes are **data files**, not hardcoded in `src/`.
 
 - Built-in examples ship in `assets/archetypes/`.
 - Project overrides live in `./.cm/archetypes/`.
@@ -112,6 +112,15 @@ This repo has three similarly-named concepts. Use these definitions consistently
 - **Workflow**: pipeline orchestration preset (used by `cm generate`, `--workflow`)
 
 Full glossary: `docs/reference/GLOSSARY.md`.
+
+## ✅ Canonical Sources Of Truth
+
+If a fact is repeated in multiple places (docs, agent instructions, code), it must have a single canonical source:
+
+- Terminology: `docs/reference/ubiquitous-language.yaml` (generated: `docs/reference/GLOSSARY.md`)
+- Repo-wide facts (providers, env var names, defaults): `docs/reference/repo-facts.yaml`
+  - Generated: `docs/reference/REPO-FACTS.md`, `.github/copilot-instructions.md`, `CLAUDE.md`, `src/domain/repo-facts.generated.ts`, `config/cspell/repo-facts.txt`
+  - Update workflow: edit the YAML, then run `npm run repo-facts:gen`
 
 ## 🔧 Tech Stack (Final Decisions)
 
@@ -189,7 +198,7 @@ content-machine/
 | `cm render`    | Render final video                              | `video.mp4`                      |
 | `cm doctor`    | Diagnose setup/dependency issues                | Diagnostic report (JSON/human)   |
 | `cm demo`      | Render a deterministic demo video (no API keys) | `demo.mp4` + artifacts           |
-| `cm templates` | Manage video templates (list/install/new/pack)  | Template packs + `template.json` |
+| `cm templates` | Manage render templates (list/install/new/pack) | Template packs + `template.json` |
 | `cm feedback`  | Capture/export human feedback                   | `feedback.jsonl`, export JSON    |
 | `cm lab`       | Experiment Lab UI (review/A-B)                  | Local web UI + API               |
 | `cm init`      | Interactive setup wizard                        | `.content-machine.toml`          |
@@ -199,7 +208,7 @@ content-machine/
 
 ```bash
 --output, -o <path>    # Output file path
---archetype <type>     # Content archetype (listicle, versus, etc.)
+--archetype <type>     # Script archetype (listicle, versus, etc.)
 --voice <voice>        # TTS voice selection
 --orientation <type>   # portrait (default), landscape, square
 --caption-font-family <name>  # Caption font family (e.g., Inter)

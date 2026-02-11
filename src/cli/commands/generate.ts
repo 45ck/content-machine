@@ -27,6 +27,12 @@ import { CMError, SchemaError } from '../../core/errors';
 import { CliProgressObserver, PipelineEventEmitter, type PipelineEvent } from '../../core/events';
 import { getCliErrorInfo } from '../format';
 import {
+  DEFAULT_ARTIFACT_FILENAMES,
+  LLM_PROVIDERS,
+  REPO_FACTS,
+  VISUALS_PROVIDERS,
+} from '../../domain/repo-facts.generated';
+import {
   formatTemplateSource,
   resolveRenderTemplate,
   getTemplateFontSources,
@@ -1015,29 +1021,31 @@ async function runGeneratePreflight(params: {
       detail: 'Mock providers enabled (skipping API key checks)',
     });
   } else if (needsLlm) {
+    let config: any | null = null;
     try {
-      const config = await loadConfig();
+      config = await loadConfig();
       const provider = config.llm.provider;
-      const llmKey =
-        provider === 'openai'
-          ? 'OPENAI_API_KEY'
-          : provider === 'anthropic'
-            ? 'ANTHROPIC_API_KEY'
-            : 'GOOGLE_API_KEY';
+      const facts = LLM_PROVIDERS.find((p) => p.id === provider);
+      const keys = facts?.envVarNames ?? [];
+      const hasKey = keys.length > 0 && keys.some((k) => Boolean(process.env[k]));
+      const keyLabel =
+        keys.length === 1
+          ? String(keys[0] ?? '')
+          : `${String(keys[0] ?? '')} (or ${keys.slice(1).join(', ')})`;
 
-      if (!process.env[llmKey]) {
+      if (!hasKey) {
         addPreflightCheck(checks, {
           label: 'LLM provider',
           status: 'fail',
           code: 'CONFIG_ERROR',
-          detail: `${provider} (${llmKey} missing)`,
-          fix: `Set ${llmKey} in your environment or .env file`,
+          detail: `${provider} (${keyLabel} missing)`,
+          fix: `Set ${keyLabel} in your environment or .env file`,
         });
       } else {
         addPreflightCheck(checks, {
           label: 'LLM provider',
           status: 'ok',
-          detail: `${provider} (${llmKey} set)`,
+          detail: `${provider} (API key set)`,
         });
       }
     } catch (error) {
@@ -1059,19 +1067,42 @@ async function runGeneratePreflight(params: {
   }
 
   if (needsVisualsProvider) {
-    if (!process.env.PEXELS_API_KEY) {
+    try {
+      const config = await loadConfig();
+      const provider = config.visuals?.provider ?? 'pexels';
+      const facts = VISUALS_PROVIDERS.find((p) => p.id === provider);
+      const keys = facts?.envVarNames ?? [];
+      const hasKey = keys.length === 0 ? true : keys.some((k) => Boolean(process.env[k]));
+      const keyLabel =
+        keys.length === 0
+          ? 'no API key required'
+          : keys.length === 1
+            ? String(keys[0] ?? '')
+            : `${String(keys[0] ?? '')} (or ${keys.slice(1).join(', ')})`;
+
+      if (!hasKey) {
+        addPreflightCheck(checks, {
+          label: 'Visuals provider',
+          status: 'fail',
+          code: 'CONFIG_ERROR',
+          detail: `${provider} (${keyLabel} missing)`,
+          fix: `Set ${keyLabel} in your environment or .env file`,
+        });
+      } else {
+        addPreflightCheck(checks, {
+          label: 'Visuals provider',
+          status: 'ok',
+          detail: `${provider} (${keyLabel})`,
+        });
+      }
+    } catch (error) {
+      const info = getCliErrorInfo(error);
       addPreflightCheck(checks, {
         label: 'Visuals provider',
         status: 'fail',
-        code: 'CONFIG_ERROR',
-        detail: 'pexels (PEXELS_API_KEY missing)',
-        fix: 'Set PEXELS_API_KEY in your environment or .env file',
-      });
-    } else {
-      addPreflightCheck(checks, {
-        label: 'Visuals provider',
-        status: 'ok',
-        detail: 'pexels (PEXELS_API_KEY set)',
+        code: info.code,
+        detail: info.message,
+        fix: info.fix,
       });
     }
   } else if (!options.mock) {
@@ -3277,7 +3308,7 @@ async function loadOrRunResearch(
   const llmProvider = mock
     ? undefined
     : process.env.OPENAI_API_KEY
-      ? new OpenAIProvider('gpt-4o-mini', process.env.OPENAI_API_KEY)
+      ? new OpenAIProvider(REPO_FACTS.llm.default.model, process.env.OPENAI_API_KEY)
       : undefined;
 
   const orchestrator = createResearchOrchestrator(
@@ -3328,7 +3359,7 @@ export const generateCommand = new Command('generate')
   .option('--audio-mix <path>', 'Use existing audio mix plan (optional)')
   .option('--timestamps <path>', 'Use existing timestamps.json (use with --audio)')
   .option('--visuals <path>', 'Use existing visuals.json (skip visuals stage)')
-  .option('-o, --output <path>', 'Output video file path', 'video.mp4')
+  .option('-o, --output <path>', 'Output video file path', DEFAULT_ARTIFACT_FILENAMES.video)
   .option('--orientation <type>', 'Video orientation', 'portrait')
   .option('--fps <fps>', 'Frames per second', '30')
   .option(

@@ -4,6 +4,7 @@ import { loadConfig, resolveConfigFiles } from '../config';
 import { evaluateRequirements, planWhisperRequirements } from '../assets/requirements';
 import { getOptionalApiKey } from '../config';
 import type { DoctorCheck, DoctorReport, DoctorStatus } from '../../domain/doctor';
+import { LLM_PROVIDERS, VISUALS_PROVIDERS } from '../../domain/repo-facts.generated';
 import { createRequireSafe } from '../require';
 
 const execFileAsync = promisify(execFile);
@@ -146,37 +147,21 @@ function buildLlmKeyCheck(config: any): DoctorCheck | null {
   const llmProvider = config?.llm?.provider;
   if (!llmProvider) return null;
 
-  if (llmProvider === 'gemini') {
-    const hasKey = Boolean(
-      getOptionalApiKey('GOOGLE_API_KEY') || getOptionalApiKey('GEMINI_API_KEY')
-    );
-    return {
-      id: 'llm',
-      label: 'LLM provider',
-      status: asStatus(hasKey, true),
-      detail: hasKey ? 'gemini (API key set)' : 'gemini (GOOGLE_API_KEY/GEMINI_API_KEY missing)',
-      fix: hasKey
-        ? undefined
-        : 'Set GOOGLE_API_KEY (or GEMINI_API_KEY) in your environment or .env file',
-      code: hasKey ? undefined : 'CONFIG_WARN',
-    };
-  }
+  const facts = LLM_PROVIDERS.find((p) => p.id === llmProvider);
+  if (!facts) return null;
 
-  const llmKey =
-    llmProvider === 'openai'
-      ? 'OPENAI_API_KEY'
-      : llmProvider === 'anthropic'
-        ? 'ANTHROPIC_API_KEY'
-        : null;
-  if (!llmKey) return null;
-
-  const hasKey = Boolean(process.env[llmKey]);
+  const keys = facts.envVarNames ?? [];
+  const hasKey = keys.some((k) => Boolean(getOptionalApiKey(k)));
+  const keyLabel =
+    keys.length <= 1
+      ? String(keys[0] ?? '')
+      : `${String(keys[0] ?? '')} (or ${keys.slice(1).join(', ')})`;
   return {
     id: 'llm',
     label: 'LLM provider',
     status: asStatus(hasKey, true),
-    detail: hasKey ? `${llmProvider} (${llmKey} set)` : `${llmProvider} (${llmKey} missing)`,
-    fix: hasKey ? undefined : `Set ${llmKey} in your environment or .env file`,
+    detail: hasKey ? `${llmProvider} (API key set)` : `${llmProvider} (${keyLabel} missing)`,
+    fix: hasKey ? undefined : `Set ${keyLabel} in your environment or .env file`,
     code: hasKey ? undefined : 'CONFIG_WARN',
   };
 }
@@ -211,32 +196,26 @@ function buildVisualsKeyCheck(config: any): DoctorCheck | null {
       code: ok ? undefined : 'CONFIG_WARN',
     };
   }
-  const visualsKey =
-    visualsProvider === 'pexels'
-      ? 'PEXELS_API_KEY'
-      : visualsProvider === 'pixabay'
-        ? 'PIXABAY_API_KEY'
-        : visualsProvider === 'nanobanana'
-          ? 'GOOGLE_API_KEY (or GEMINI_API_KEY)'
-          : 'UNKNOWN';
+  const facts = VISUALS_PROVIDERS.find((p) => p.id === visualsProvider);
+  if (!facts) return null;
 
-  const visualsKeyPresent =
-    visualsProvider === 'nanobanana'
-      ? Boolean(process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY)
-      : Boolean(process.env[visualsKey]);
+  const keys = facts.envVarNames ?? [];
+  const hasKey = keys.length === 0 ? true : keys.some((k) => Boolean(getOptionalApiKey(k)));
+  const keyLabel =
+    keys.length === 0
+      ? 'no API key required'
+      : keys.length === 1
+        ? String(keys[0] ?? '')
+        : `${String(keys[0] ?? '')} (or ${keys.slice(1).join(', ')})`;
   return {
     id: 'visuals-provider',
     label: 'Visuals provider',
-    status: asStatus(visualsKeyPresent, true),
-    detail: visualsKeyPresent
-      ? `${visualsProvider} (${visualsKey} set)`
-      : `${visualsProvider} (${visualsKey} missing)`,
-    fix: visualsKeyPresent
-      ? undefined
-      : visualsProvider === 'nanobanana'
-        ? 'Set GOOGLE_API_KEY (or GEMINI_API_KEY) in your environment or .env file'
-        : `Set ${visualsKey} in your environment or .env file`,
-    code: visualsKeyPresent ? undefined : 'CONFIG_WARN',
+    status: asStatus(hasKey, true),
+    detail: hasKey
+      ? `${visualsProvider} (${keyLabel})`
+      : `${visualsProvider} (${keyLabel} missing)`,
+    fix: hasKey ? undefined : `Set ${keyLabel} in your environment or .env file`,
+    code: hasKey ? undefined : 'CONFIG_WARN',
   };
 }
 

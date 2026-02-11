@@ -29,12 +29,14 @@
     "glossary:gen": "node scripts/gen-glossary.mjs",
     "glossary:check": "node scripts/quality/check-ubiquitous-language.mjs",
     "ul:gen": "node scripts/gen-ubiquitous-language-ts.mjs",
+    "repo-facts:gen": "scripts/quality/with-node20.sh node scripts/gen-repo-facts.mjs",
+    "repo-facts:check": "scripts/quality/with-node20.sh node scripts/quality/check-repo-facts.mjs",
     "cspell:gen": "node scripts/gen-cspell.mjs",
     "cspell:check": "scripts/quality/with-node20.sh npx --no-install cspell lint --config cspell.json --no-progress README.md docs/reference/**/*.md docs/README.md src/cli/**/*.{ts,tsx,js,mjs,cjs}",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:coverage": "node scripts/quality/clean-coverage.mjs && vitest run --coverage",
-    "test:coverage:push": "node scripts/quality/clean-coverage.mjs && vitest run --coverage --exclude tests/vv/**/*.visual.test.ts --exclude tests/e2e/**/*.playwright.test.ts",
+    "test:coverage": "scripts/quality/with-node20.sh sh -c \"node scripts/quality/clean-coverage.mjs && CM_COVERAGE_SINGLE_WORKER=1 vitest run --coverage\"",
+    "test:coverage:push": "scripts/quality/with-node20.sh sh -c \"node scripts/quality/clean-coverage.mjs && CM_COVERAGE_SINGLE_WORKER=1 vitest run --coverage --exclude tests/vv/**/*.visual.test.ts --exclude tests/e2e/**/*.playwright.test.ts\"",
     "mutation": "stryker run",
     "mutation:node20": "npx -y node@20.18.1 ./node_modules/.bin/stryker run",
     "lint": "eslint . --max-warnings 0",
@@ -43,8 +45,8 @@
     "format:check": "prettier . --check",
     "typecheck": "tsc --noEmit",
     "dup:check": "jscpd --config .jscpd.json",
-    "quality": "npm run glossary:check && npm run cspell:check && npm run typecheck && npm run lint && npm run format:check && npm run test:coverage && npm run dup:check",
-    "quality:push": "npm run glossary:check && npm run cspell:check && npm run typecheck && npm run lint && npm run format:check && npm run test:coverage:push && npm run dup:check",
+    "quality": "npm run glossary:check && npm run repo-facts:check && npm run cspell:check && npm run typecheck && npm run lint && npm run format:check && npm run test:coverage && npm run dup:check",
+    "quality:push": "npm run glossary:check && npm run repo-facts:check && npm run cspell:check && npm run typecheck && npm run lint && npm run format:check && npm run test:coverage:push && npm run dup:check",
     "quality:full": "npm run quality && npm run mutation",
     "size": "size-limit",
     "size:check": "size-limit --json",
@@ -104,7 +106,8 @@
     "@types/react": "^18.2.0",
     "@typescript-eslint/eslint-plugin": "^8.52.0",
     "@typescript-eslint/parser": "^8.51.0",
-    "@vitest/coverage-v8": "^2.0.0",
+    "@vitest/coverage-istanbul": "^2.1.9",
+    "@vitest/coverage-v8": "^2.1.9",
     "cspell": "^9.2.0",
     "esbuild": "0.27.2",
     "eslint": "^9.0.0",
@@ -149,6 +152,9 @@
     "cli"
   ],
   "lint-staged": {
+    "docs/reference/repo-facts.yaml": [
+      "node scripts/quality/lintstaged-repo-facts-gen.mjs"
+    ],
     "*.{ts,tsx}": [
       "eslint --cache --cache-location .cache/eslint/ --max-warnings 0 --fix",
       "prettier --write"

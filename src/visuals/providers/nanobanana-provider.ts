@@ -12,13 +12,13 @@
  */
 
 import type { AssetProvider, AssetType, AssetSearchOptions, VisualAssetResult } from './types.js';
-import { getApiKey, getOptionalApiKey } from '../../core/config.js';
+import { getOptionalApiKey } from '../../core/config.js';
 import { createLogger } from '../../core/logger.js';
 import { createHash } from 'node:crypto';
 import { mkdir, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { homedir } from 'node:os';
-import { APIError, RateLimitError } from '../../core/errors.js';
+import { APIError, ConfigError, RateLimitError } from '../../core/errors.js';
 import { withRetry } from '../../core/retry.js';
 
 const log = createLogger({ module: 'nanobanana-provider' });
@@ -324,8 +324,9 @@ export class NanoBananaProvider implements AssetProvider {
     const geminiKey = getOptionalApiKey('GEMINI_API_KEY');
     if (geminiKey) return geminiKey;
 
-    // This will throw with a helpful error message
-    return getApiKey('GOOGLE_API_KEY');
+    throw new ConfigError(
+      'GOOGLE_API_KEY (or GEMINI_API_KEY) not set. Add it to your .env file or environment.'
+    );
   }
 
   /**

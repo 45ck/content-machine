@@ -169,6 +169,15 @@ export const VideoSpecInsertedContentKeyframeSchema = z.object({
   time: TimeSecondsSchema,
   text: z.string().min(1).optional(),
   confidence: z.number().min(0).max(1).optional(),
+  /**
+   * Optional artifact path to a keyframe image (typically relative to the per-video cache dir).
+   * This is best-effort and may be omitted when caching is disabled.
+   */
+  path: z.string().min(1).optional(),
+  /**
+   * Optional artifact path to a cropped keyframe image (typically relative to the per-video cache dir).
+   */
+  crop_path: z.string().min(1).optional(),
 });
 
 export type VideoSpecInsertedContentKeyframe = z.infer<

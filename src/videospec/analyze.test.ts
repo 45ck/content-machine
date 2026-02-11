@@ -111,7 +111,7 @@ describe('analyzeVideoToVideoSpecV1', () => {
       await (
         await import('node:fs/promises')
       ).writeFile(
-        join(videoCacheDir, 'editing.ocr.1fps.v1.json'),
+        join(videoCacheDir, 'editing.ocr.bottom.1fps.v2.json'),
         JSON.stringify([{ start: 0.1, end: 0.3, text: 'SUBTITLE', confidence: 0.8 }], null, 2),
         'utf-8'
       );
@@ -119,7 +119,15 @@ describe('analyzeVideoToVideoSpecV1', () => {
       await (
         await import('node:fs/promises')
       ).writeFile(
-        join(videoCacheDir, 'editing.ocr.2fps.v1.json'),
+        join(videoCacheDir, 'editing.ocr.bottom.2fps.v2.json'),
+        JSON.stringify([], null, 2),
+        'utf-8'
+      );
+      // Center-crop overlays OCR cache (avoid live Tesseract in tests).
+      await (
+        await import('node:fs/promises')
+      ).writeFile(
+        join(videoCacheDir, 'editing.ocr.center.4fps.v2.json'),
         JSON.stringify([], null, 2),
         'utf-8'
       );
@@ -128,18 +136,21 @@ describe('analyzeVideoToVideoSpecV1', () => {
       ).writeFile(
         join(videoCacheDir, 'inserted-content.v1.json'),
         JSON.stringify(
-          [
-            {
-              id: 'icb-1',
-              type: 'generic_screenshot',
-              start: 0,
-              end: 0.8,
-              presentation: 'full_screen',
-              keyframes: [{ time: 0.2, text: 'r/AskReddit', confidence: 0.7 }],
-              extraction: { ocr: { engine: 'tesseract.js', text: 'r/AskReddit' } },
-              confidence: { is_inserted_content: 0.9, type: 0.5, ocr_quality: 0.6 },
-            },
-          ],
+          {
+            version: 3,
+            blocks: [
+              {
+                id: 'icb-1',
+                type: 'generic_screenshot',
+                start: 0,
+                end: 0.8,
+                presentation: 'full_screen',
+                keyframes: [{ time: 0.2, text: 'r/AskReddit', confidence: 0.7 }],
+                extraction: { ocr: { engine: 'tesseract.js', text: 'r/AskReddit' } },
+                confidence: { is_inserted_content: 0.9, type: 0.5, ocr_quality: 0.6 },
+              },
+            ],
+          },
           null,
           2
         ),

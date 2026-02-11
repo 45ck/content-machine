@@ -108,7 +108,8 @@ Known cache artifacts (v1):
 - `audio.transcript.v1.json`: transcript segments
 - `editing.ocr.<fps>fps.v1.json`: grouped OCR segments at a given FPS
 - `editing.effects.v1.json`: camera motion classifications + jump cut shot IDs
-- `inserted-content.v1.json`: inserted content blocks (embedded screenshots/pages) when enabled
+- `inserted-content.v1.json`: inserted content blocks cache (versioned wrapper with `{ version, blocks }`)
+- `inserted-content/`: inserted-content keyframe artifacts (full frames + crops) when enabled
 - `audio.structure.v1.json`: beat grid + SFX onsets + inferred music segments
 
 ### Provenance Modules (Keys)
@@ -175,22 +176,27 @@ Classification:
 
 ### Editing: Inserted Content Blocks (Screenshots/Pages)
 
-This module detects and extracts embedded "screen-like" content blocks (for example: a Reddit post screenshot, a chat screenshot, or a browser page shown full-screen).
+This module detects and extracts embedded "inserted" assets composited into the video (for example: a Reddit post card overlay, a chat screenshot, or a browser page shown full-screen).
 
 Current v1 behavior:
 
-- Detection: downsampled grayscale samples are scored using edge density and inter-sample motion.
-- Segmentation: consecutive "screen-like" samples are grouped into `[start, end]` time ranges.
-- Extraction: 1-2 keyframes per segment are OCRed with Tesseract.js (full frame, no crop).
+- Detection: downsampled grayscale samples are scored using **tile-based edge density + low motion** so picture-in-picture inserts can be detected even when the background moves.
+- Segmentation: consecutive "screen-like" samples are grouped into `[start, end]` time ranges (seconds).
+- Region localization: keyframes are OCRed full-frame; high-confidence word bboxes are unioned/padded to infer `region` and `presentation` (`full_screen|picture_in_picture`).
+- Extraction: the inferred region is cropped and OCRed again to avoid mixing background/captions into extracted text.
+- Artifacts: keyframe images are written under the per-video cache directory:
+  - `inserted-content/<icb_id>/kfN.full.png`
+  - `inserted-content/<icb_id>/kfN.crop.png`
+    These are referenced in `inserted_content_blocks[].keyframes[].path` and `.crop_path` (relative to the per-video cache dir).
 - Output: blocks are emitted as `inserted_content_blocks[]` with:
-  - time range + `region` (currently always full-frame)
-  - keyframe OCR text and optional word-level boxes
+  - time range + `region`
+  - keyframe OCR text and optional word-level bboxes
   - a best-effort `type` guess (`reddit_screenshot|browser_page|chat_screenshot|generic_screenshot`)
 
 Limitations (v1):
 
-- Full-screen only (no PiP/split-screen region localization yet).
-- Type classification is signature/keyword-based (no ML classifier yet).
+- Still heuristic (no ML classifier yet); noisy OCR can reduce type confidence.
+- Does not yet detect split-screen/multiple regions, nor perspective transforms/homography.
 
 ### Editing: Effects (Camera Motion + Jump Cuts)
 
@@ -241,7 +247,7 @@ Two modes:
 
 `off`:
 
-- disables LLM usage but still returns a heuristic narrative (so downstream always has an arc structure)
+- disables narrative analysis and emits a stable placeholder arc (the `narrative` key is required by the v1 schema)
 
 ## Extension Guide (How To Add A New Module)
 

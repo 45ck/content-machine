@@ -17,6 +17,7 @@ import { CMError, SchemaError } from '../../core/errors';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
 import { hasAudioMixSources, type AudioMixPlanOptions } from '../../audio/mix/planner';
 import type { AudioOutput, ScriptOutput } from '../../domain';
+import { DEFAULT_ARTIFACT_FILENAMES } from '../../domain/repo-facts.generated';
 
 interface AudioMixRequest {
   outputPath: string;
@@ -323,8 +324,12 @@ async function handleAudioSuccess(params: {
 export const audioCommand = new Command('audio')
   .description('Generate voiceover audio with word-level timestamps')
   .requiredOption('-i, --input <path>', 'Input script JSON file')
-  .option('-o, --output <path>', 'Output audio file path', 'audio.wav')
-  .option('--timestamps <path>', 'Output timestamps file path', 'timestamps.json')
+  .option('-o, --output <path>', 'Output audio file path', DEFAULT_ARTIFACT_FILENAMES.audio)
+  .option(
+    '--timestamps <path>',
+    'Output timestamps file path',
+    DEFAULT_ARTIFACT_FILENAMES.timestamps
+  )
   .option('--voice <voice>', 'TTS voice to use', 'af_heart')
   .option('--tts-speed <n>', 'TTS speaking speed (e.g., 1.0, 1.2)', '1')
   .option('--mock', 'Use mock TTS/ASR (for testing)', false)
@@ -337,7 +342,11 @@ export const audioCommand = new Command('audio')
   .option('--reconcile', 'Reconcile ASR output to match original script text', false)
   .option('--require-whisper', 'Require whisper ASR (fail if unavailable)', false)
   .option('--whisper-model <model>', 'Whisper model size: tiny, base, small, medium', 'base')
-  .option('--audio-mix <path>', 'Output audio mix plan path', 'audio.mix.json')
+  .option(
+    '--audio-mix <path>',
+    'Output audio mix plan path',
+    DEFAULT_ARTIFACT_FILENAMES['audio-mix']
+  )
   .option('--music <pathOrPreset>', 'Background music track or preset')
   .option('--no-music', 'Disable background music')
   .option('--music-volume <db>', 'Music volume in dB')

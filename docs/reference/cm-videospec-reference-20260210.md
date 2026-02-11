@@ -57,6 +57,7 @@ Optional (best-effort):
 - `--no-asr`: disable ASR
 - `--asr-model <tiny|base|small|medium|large>`: Whisper model (default: `base`)
 - `--narrative <heuristic|llm|off>`: narrative arc mode (default: `heuristic`)
+  - Note: `off` disables narrative analysis and emits a stable placeholder arc (the `narrative` key is required by the `VideoSpec.v1` schema).
 
 ## Examples
 
@@ -83,6 +84,8 @@ cm videospec -i input.mp4 -o videospec.v1.json --pass both
 `cm videospec` writes a single JSON artifact conforming to `VideoSpec.v1`.
 
 When detected, embedded screenshot/page segments are emitted as `inserted_content_blocks` (time ranges, region, and best-effort OCR text).
+
+When caching is enabled, `cm videospec` also writes inserted-content keyframe artifacts under the per-video cache directory (full frames + crops), and `inserted_content_blocks[].keyframes[].path` / `.crop_path` reference those files.
 
 In non-JSON CLI mode, stdout prints only the output path (for piping in scripts).
 

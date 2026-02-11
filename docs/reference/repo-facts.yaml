@@ -1,0 +1,228 @@
+# Repository facts registry (source of truth for stable repo-wide facts)
+#
+# This file exists so the repo has ONE canonical place for facts that are repeated
+# across docs, agent instructions, and code (and would otherwise drift).
+#
+# Generated outputs:
+# - docs/reference/REPO-FACTS.md
+# - .github/copilot-instructions.md
+# - CLAUDE.md
+# - src/domain/repo-facts.generated.ts
+# - config/cspell/repo-facts.txt
+
+version: 1
+
+meta:
+  repoName: content-machine
+  repoId: 45ck/content-machine
+  owners:
+    - team: core
+      contact: '@45ck'
+  # Update this when facts are reviewed for correctness.
+  lastReviewed: '2026-02-11'
+
+conventions:
+  docs:
+    dateSuffix: 'YYYYMMDD'
+    # Enforced for files in these directories (recursively), excluding undatedGlobs.
+    enforceDateSuffixInDirs:
+      - 'docs/architecture'
+      - 'docs/bugs'
+      - 'docs/features'
+      - 'docs/guides'
+      - 'docs/postmortems'
+      - 'docs/research'
+      - 'docs/specs'
+      - 'docs/tutorials'
+      - 'docs/reference'
+    undatedGlobs:
+      # Repo-level docs and stable index files
+      - 'docs/README.md'
+      - 'docs/architecture/configuration/README.md'
+      - 'docs/architecture/experiment-lab/README.md'
+      - 'docs/bugs/README.md'
+      - 'docs/research/synthesis/README.md'
+      - 'docs/glossary/**'
+      # Generated docs (undated on purpose)
+      - 'docs/reference/GLOSSARY.md'
+      - 'docs/reference/REPO-FACTS.md'
+      - 'docs/reference/ARTIFACT-CONTRACTS.md'
+      - 'docs/reference/CONFIG-SURFACE.md'
+      - 'docs/reference/QUALITY-GATES.md'
+      - 'docs/reference/SECURITY-INVARIANTS.md'
+      - 'docs/reference/CLI-CONTRACT.md'
+      - 'docs/reference/PIPELINE-PRESETS.md'
+
+facts:
+  runtime:
+    node:
+      supported: '>=20'
+      packageManager: 'npm'
+    language:
+      primary: 'TypeScript'
+
+  llm:
+    supportedProviders:
+      - id: openai
+        displayName: OpenAI
+        envVarNames: ['OPENAI_API_KEY']
+        notes: Preferred for structured outputs.
+      - id: anthropic
+        displayName: Anthropic
+        envVarNames: ['ANTHROPIC_API_KEY']
+      - id: gemini
+        displayName: Google Gemini
+        envVarNames: ['GOOGLE_API_KEY', 'GEMINI_API_KEY']
+        notes: Google key alias supported; prefer GOOGLE_API_KEY.
+    default:
+      providerId: openai
+      model: 'gpt-4o-mini'
+      temperature: 0.7
+
+  stockVisuals:
+    supportedProviders:
+      - id: pexels
+        displayName: Pexels
+        envVarNames: ['PEXELS_API_KEY']
+
+  visuals:
+    supportedProviders:
+      - id: pexels
+        displayName: Pexels
+        envVarNames: ['PEXELS_API_KEY']
+        notes: Stock video provider (implemented).
+      - id: nanobanana
+        displayName: NanoBanana (Gemini Images)
+        envVarNames: ['GOOGLE_API_KEY', 'GEMINI_API_KEY']
+        notes: AI image provider (implemented); GOOGLE_API_KEY preferred.
+      - id: local
+        displayName: Local Clips
+        envVarNames: []
+        notes: Use local clips/images; no API key required.
+      - id: localimage
+        displayName: Local Images
+        envVarNames: []
+        notes: Use local images; no API key required.
+      - id: pixabay
+        displayName: Pixabay
+        envVarNames: ['PIXABAY_API_KEY']
+        notes: Planned (not implemented yet).
+
+  spellcheck:
+    cspell:
+      configPath: 'cspell.json'
+      generatedDictionaries:
+        - name: ubiquitous-language
+          path: 'config/cspell/ubiquitous-language.txt'
+        - name: repo-facts
+          path: 'config/cspell/repo-facts.txt'
+      manualDictionaries:
+        - name: project-words
+          path: 'config/cspell/project-words.txt'
+
+artifacts:
+  # These are the canonical stage contracts (filenames are conventional defaults).
+  # Some commands let you override outputs, but these names should remain the mental model.
+  - id: script
+    stage: script
+    defaultFilename: script.json
+    description: Scene-based script output.
+  - id: audio
+    stage: audio
+    defaultFilename: audio.wav
+    description: Final voiceover audio.
+  - id: timestamps
+    stage: audio
+    defaultFilename: timestamps.json
+    description: Word-level and scene-level timestamps contract.
+  - id: audio-mix
+    stage: audio
+    defaultFilename: audio.mix.json
+    description: Optional audio mix plan artifact.
+  - id: visuals
+    stage: visuals
+    defaultFilename: visuals.json
+    description: Per-scene visuals plan (clips/images/metadata).
+  - id: video
+    stage: render
+    defaultFilename: video.mp4
+    description: Rendered video output.
+
+configSurface:
+  # Canonical config files/locations and precedence rules.
+  files:
+    - id: dotenv
+      path: '.env'
+      purpose: Secrets and local overrides (API keys, etc).
+      secrets: true
+    - id: dotenv-example
+      path: '.env.example'
+      purpose: Documented environment variables (names only).
+      secrets: false
+    - id: project-config
+      path: '.content-machine.toml'
+      purpose: Project configuration (non-secret defaults).
+      secrets: false
+    - id: project-data
+      path: './.cm/'
+      purpose: Project-scoped installs (templates/workflows/archetypes/etc).
+      secrets: false
+    - id: user-data
+      path: '~/.cm/'
+      purpose: User-scoped installs (templates/workflows/archetypes/assets/etc).
+      secrets: false
+    - id: output-dir
+      path: './output/'
+      purpose: Default output directory for pipeline artifacts.
+      secrets: false
+  precedence:
+    - 'CLI flags'
+    - '.env (if present)'
+    - '.content-machine.toml (if present)'
+    - 'built-in defaults'
+
+quality:
+  # These are the quality gates that must stay wired in CI for PRs to be accepted.
+  requiredNpmScripts:
+    - glossary:check
+    - repo-facts:check
+    - cspell:check
+    - typecheck
+    - lint
+    - format:check
+    - test:coverage:push
+    - dup:check
+    - size:check
+  ci:
+    workflowPath: '.github/workflows/ci.yml'
+
+security:
+  invariants:
+    - 'Never print or log secret values.'
+    - 'Only refer to secrets by env var name (example: OPENAI_API_KEY).'
+    - 'Do not commit real API keys or tokens to git.'
+    - 'Prefer least-privilege GitHub Actions permissions.'
+  # Conservative patterns we can lint for in src/ (avoid accidental leakage in logs).
+  bannedLogValuePatterns:
+    - 'console.(log|error|warn|info).*process.env.[A-Z0-9_]+'
+    - 'logger.(trace|debug|info|warn|error|fatal).*process.env.[A-Z0-9_]+'
+
+cli:
+  errorContract:
+    errorPrefix: 'ERROR:'
+    fixPrefix: 'Fix:'
+    note: 'User-facing errors should include an actionable Fix line when possible.'
+
+pipelinePresets:
+  sync:
+    # Canonical preset ids for sync quality/speed tradeoffs.
+    # The implementation may evolve; keep ids stable.
+    presets:
+      - id: fast
+        description: Fastest, lowest quality.
+      - id: standard
+        description: Balanced default.
+      - id: quality
+        description: Higher quality, slower.
+      - id: maximum
+        description: Slowest, highest quality.

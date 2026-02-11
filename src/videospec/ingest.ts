@@ -119,7 +119,7 @@ export async function resolveVideoInput(params: {
 
   const ytDlp = await resolveYtDlpBinary();
   if (!ytDlp) {
-    throw new CMError('MISSING_DEPENDENCY', 'yt-dlp is required to analyze a URL input', {
+    throw new CMError('DEPENDENCY_MISSING', 'yt-dlp is required to analyze a URL input', {
       fix: 'Install yt-dlp (and ffmpeg), or set CM_YTDLP_PATH=/abs/path/to/yt-dlp.',
     });
   }
