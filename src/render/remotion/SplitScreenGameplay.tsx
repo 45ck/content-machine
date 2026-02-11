@@ -102,6 +102,8 @@ export const SplitScreenGameplay: React.FC<RenderProps> = ({
             <Sequence key={`scene-${index}`} from={fromFrame} durationInFrames={durationInFrames}>
               <SceneBackground
                 scene={scene}
+                startFrame={hookFrames + fromFrame}
+                durationInFrames={durationInFrames}
                 containerStyle={{ top: contentTop, height: contentHeight, overflow: 'hidden' }}
               />
             </Sequence>

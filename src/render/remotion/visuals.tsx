@@ -10,7 +10,6 @@ import {
   staticFile,
   interpolate,
   useCurrentFrame,
-  useVideoConfig,
 } from 'remotion';
 import type { HookClip as HookClipSchema, VisualAsset, VideoClip } from '../../domain';
 import { ensureVisualCoverage, type VisualScene } from '../../visuals/duration';
@@ -105,6 +104,10 @@ export function buildSequences(
 
 export interface SceneBackgroundProps {
   scene: VisualScene;
+  /** Global (composition) start frame of this scene. */
+  startFrame: number;
+  /** Duration of this scene sequence. */
+  durationInFrames: number;
   containerStyle?: React.CSSProperties;
   videoStyle?: React.CSSProperties;
 }
@@ -112,6 +115,8 @@ export interface SceneBackgroundProps {
 /** Render a single visual scene */
 export const SceneBackground: React.FC<SceneBackgroundProps> = ({
   scene,
+  startFrame,
+  durationInFrames,
   containerStyle,
   videoStyle,
 }) => (
@@ -125,15 +130,22 @@ export const SceneBackground: React.FC<SceneBackgroundProps> = ({
         }}
       />
     ) : (
-      <SceneMedia scene={scene} videoStyle={videoStyle} />
+      <SceneMedia
+        scene={scene}
+        startFrame={startFrame}
+        durationInFrames={durationInFrames}
+        videoStyle={videoStyle}
+      />
     )}
   </AbsoluteFill>
 );
 
-const SceneMedia: React.FC<{ scene: VisualScene; videoStyle?: React.CSSProperties }> = ({
-  scene,
-  videoStyle,
-}) => {
+const SceneMedia: React.FC<{
+  scene: VisualScene;
+  startFrame: number;
+  durationInFrames: number;
+  videoStyle?: React.CSSProperties;
+}> = ({ scene, startFrame, durationInFrames, videoStyle }) => {
   const url = scene.url as string;
   const mediaType = scene.mediaType ?? (isProbablyImageUrl(url) ? 'image' : 'video');
 
@@ -147,13 +159,9 @@ const SceneMedia: React.FC<{ scene: VisualScene; videoStyle?: React.CSSPropertie
     );
   }
 
-  // Ken Burns at render-time (no ffmpeg dependency). Uses scene.startMs/endMs
-  // to make the animation restart for each scene despite global frame numbers.
+  // Ken Burns at render-time (no ffmpeg dependency).
+  // Use global frame numbers to ensure correct motion even with nested Sequences (e.g. hook layers).
   const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const startFrame = Math.max(0, Math.round((scene.startMs / 1000) * fps));
-  const endFrame = Math.max(startFrame + 1, Math.round((scene.endMs / 1000) * fps));
-  const durationInFrames = Math.max(1, endFrame - startFrame);
   const rel = frame - startFrame;
 
   const t = interpolate(rel, [0, durationInFrames], [0, 1], {
@@ -166,11 +174,15 @@ const SceneMedia: React.FC<{ scene: VisualScene; videoStyle?: React.CSSPropertie
   const dirY = seed % 3 === 0 ? 1 : -1;
   const panX = ((seed % 17) / 17) * 3.5 * dirX; // percent
   const panY = (((seed >>> 5) % 19) / 19) * 3.5 * dirY; // percent
+
+  const motion = scene.motionStrategy ?? 'kenburns';
+  const isStatic = motion === 'none';
+
   const zoomStart = 1.06;
-  const zoomEnd = scene.motionStrategy === 'kenburns' ? 1.14 : 1.06;
-  const scale = interpolate(t, [0, 1], [zoomStart, zoomEnd]);
-  const translateX = interpolate(t, [0, 1], [0, -panX]);
-  const translateY = interpolate(t, [0, 1], [0, -panY]);
+  const zoomEnd = motion === 'kenburns' ? 1.14 : zoomStart;
+  const scale = isStatic ? 1 : interpolate(t, [0, 1], [zoomStart, zoomEnd]);
+  const translateX = isStatic ? 0 : interpolate(t, [0, 1], [0, -panX]);
+  const translateY = isStatic ? 0 : interpolate(t, [0, 1], [0, -panY]);
 
   return (
     <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
@@ -193,6 +205,7 @@ export interface HookClipProps {
   containerStyle?: React.CSSProperties;
 }
 
+/** Renders a hook clip (e.g., an intro/pattern-interrupt) as a full-frame layer. */
 export const HookClipLayer: React.FC<HookClipProps> = ({ hook, containerStyle }) => (
   <AbsoluteFill style={containerStyle}>
     <Video

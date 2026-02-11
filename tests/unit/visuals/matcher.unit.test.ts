@@ -4,11 +4,13 @@ import { mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-const { extractKeywordsMock, createAssetProviderMock, selectGameplayClipMock } = vi.hoisted(() => ({
-  extractKeywordsMock: vi.fn(),
-  createAssetProviderMock: vi.fn(),
-  selectGameplayClipMock: vi.fn(),
-}));
+const { extractKeywordsMock, createAssetProviderMock, selectGameplayClipMock, loadConfigMock } =
+  vi.hoisted(() => ({
+    extractKeywordsMock: vi.fn(),
+    createAssetProviderMock: vi.fn(),
+    selectGameplayClipMock: vi.fn(),
+    loadConfigMock: vi.fn(),
+  }));
 
 vi.mock('../../../src/visuals/keywords.js', () => ({
   extractKeywords: extractKeywordsMock,
@@ -21,6 +23,10 @@ vi.mock('../../../src/visuals/providers/index.js', () => ({
 
 vi.mock('../../../src/visuals/gameplay.js', () => ({
   selectGameplayClip: selectGameplayClipMock,
+}));
+
+vi.mock('../../../src/core/config.js', () => ({
+  loadConfig: loadConfigMock,
 }));
 
 function buildTimestamps(): TimestampsOutput {
@@ -42,6 +48,21 @@ describe('matchVisuals', () => {
     extractKeywordsMock.mockReset();
     createAssetProviderMock.mockReset();
     selectGameplayClipMock.mockResolvedValue(null);
+    loadConfigMock.mockReset();
+
+    loadConfigMock.mockReturnValue({
+      defaults: { orientation: 'portrait' },
+      visuals: {
+        provider: 'pexels',
+        motionStrategy: 'kenburns',
+        generationConcurrency: 2,
+        maxGenerationCostUsd: undefined,
+        warnAtGenerationCostUsd: undefined,
+        cacheEnabled: true,
+        cacheTtl: 3600,
+        nanobanana: { model: 'gemini-2.5-flash-image' },
+      },
+    });
   });
 
   it('matches keywords with the provider and reports progress', async () => {
@@ -136,6 +157,8 @@ describe('matchVisuals', () => {
     const { matchVisuals } = await import('../../../src/visuals/matcher');
     const output = await matchVisuals({ timestamps: buildTimestamps() });
 
+    // We always produce visuals for every timestamps scene; if keyword extraction returns fewer,
+    // the matcher fills the gaps with default/fallback queries.
     expect(output.fallbacks).toBe(2);
     expect(output.scenes[0].assetPath).toBe('#1a1a2e');
     expect(output.scenes[1].assetPath).toBe('#1a1a2e');
@@ -166,6 +189,7 @@ describe('matchVisuals', () => {
           estimateCost: () => 0,
         };
       }
+
       return {
         name: 'nanobanana',
         assetType: 'image',
@@ -231,10 +255,93 @@ describe('matchVisuals', () => {
     });
 
     expect(searchMock).not.toHaveBeenCalled();
-    expect((output as any).fromUserFootage).toBe(2);
+    expect(output.fromUserFootage).toBe(2);
     expect(output.fromStock).toBe(0);
     expect(output.fromGenerated).toBe(0);
     expect(output.scenes[0].assetType).toBe('image');
     expect(output.scenes[1].assetType).toBe('video');
+  });
+
+  it('enforces max generation cost for image providers', async () => {
+    const searchMock = vi.fn().mockResolvedValue([
+      {
+        id: 'img-1',
+        url: '/tmp/generated.png',
+        type: 'image',
+        width: 1080,
+        height: 1920,
+        metadata: { model: 'gemini-2.5-flash-image', prompt: 'p', cacheHit: false },
+      },
+    ]);
+    createAssetProviderMock.mockReturnValue({
+      name: 'nanobanana',
+      assetType: 'image',
+      requiresMotion: true,
+      costPerAsset: 0.04,
+      search: searchMock,
+      isAvailable: () => true,
+      estimateCost: (n: number) => n * 0.04,
+    });
+
+    extractKeywordsMock.mockResolvedValue([
+      { keyword: 'a', sectionId: 'scene-1', startTime: 0, endTime: 2 },
+      { keyword: 'b', sectionId: 'scene-2', startTime: 2, endTime: 4 },
+    ]);
+
+    loadConfigMock.mockReturnValue({
+      defaults: { orientation: 'portrait' },
+      visuals: {
+        provider: 'nanobanana',
+        motionStrategy: 'kenburns',
+        generationConcurrency: 2,
+        maxGenerationCostUsd: 0.01,
+        warnAtGenerationCostUsd: undefined,
+        cacheEnabled: true,
+        cacheTtl: 3600,
+        nanobanana: { model: 'gemini-2.5-flash-image' },
+      },
+    });
+
+    const { matchVisuals } = await import('../../../src/visuals/matcher');
+    await expect(
+      matchVisuals({ timestamps: buildTimestamps(), provider: 'nanobanana' })
+    ).rejects.toMatchObject({
+      code: 'COST_LIMIT',
+    });
+  });
+
+  it('sets generationCost to 0 when provider returns cacheHit', async () => {
+    const searchMock = vi.fn().mockResolvedValue([
+      {
+        id: 'img-1',
+        url: '/tmp/generated.png',
+        type: 'image',
+        width: 1080,
+        height: 1920,
+        metadata: { model: 'gemini-2.5-flash-image', prompt: 'p', cacheHit: true },
+      },
+    ]);
+    createAssetProviderMock.mockReturnValue({
+      name: 'nanobanana',
+      assetType: 'image',
+      requiresMotion: true,
+      costPerAsset: 0.04,
+      search: searchMock,
+      isAvailable: () => true,
+      estimateCost: (n: number) => n * 0.04,
+    });
+
+    extractKeywordsMock.mockResolvedValue([
+      { keyword: 'a', sectionId: 'scene-1', startTime: 0, endTime: 2 },
+      { keyword: 'b', sectionId: 'scene-2', startTime: 2, endTime: 4 },
+    ]);
+
+    const { matchVisuals } = await import('../../../src/visuals/matcher');
+    const out = await matchVisuals({ timestamps: buildTimestamps(), provider: 'nanobanana' });
+
+    expect(out.fromGenerated).toBe(2);
+    expect(out.scenes[0].generationCost).toBe(0);
+    expect(out.scenes[1].generationCost).toBe(0);
+    expect(out.totalGenerationCost).toBe(0);
   });
 });

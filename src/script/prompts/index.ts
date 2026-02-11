@@ -64,7 +64,7 @@ function stripLeadingMarkdownHeading(text: string): string {
   const trimmed = text.trim();
   const lines = trimmed.split('\n');
   if (lines.length === 0) return '';
-  if (/^#{1,6}\\s+/.test(lines[0] ?? '')) return lines.slice(1).join('\n').trim();
+  if (/^#{1,6}\s+/.test(lines[0] ?? '')) return lines.slice(1).join('\n').trim();
   return trimmed;
 }
 
@@ -88,6 +88,7 @@ function ttsWritingGuidelines(context: PromptContext): string {
   const sceneGuidance = isShort
     ? 'Each scene should be 1-2 short sentences and ~14-22 words (minimum 12 words per scene).'
     : 'Each scene should be 1-2 sentences and ~18-28 words (minimum 12 words per scene).';
+
   return `
 TTS WRITING RULES:
 - Write for spoken delivery at 120-180 WPM.
@@ -103,7 +104,7 @@ TTS WRITING RULES:
 - Hook is a single sentence and must not be repeated in scene 1.
 - Double-check total word count before responding.
 - CHECKLIST (must pass before responding): total words in range, every scene >= 12 words, hook is a statement.
-	`.trim();
+`.trim();
 }
 
 /**
@@ -117,7 +118,7 @@ export async function getPromptForArchetype(
   const baseline = loadBaselineRules();
   const baselineBody = stripLeadingMarkdownHeading(baseline.content);
   const baselineBlock = baselineBody
-    ? `BASELINE RULES (apply to every archetype):\\n${baselineBody}`.trim()
+    ? `BASELINE RULES (apply to every archetype):\n${baselineBody}`.trim()
     : '';
 
   const fragment = Mustache.render(resolved.archetype.script.template, {
@@ -137,7 +138,7 @@ export async function getPromptForArchetype(
 
   return {
     archetypeId: resolved.archetype.id,
-    prompt: blocks.join('\\n\\n'),
+    prompt: blocks.join('\n\n'),
     systemPrompt: resolved.archetype.script.systemPrompt ?? DEFAULT_SYSTEM_PROMPT,
     baselinePath: baseline.path,
     archetypePath: resolved.archetypePath,

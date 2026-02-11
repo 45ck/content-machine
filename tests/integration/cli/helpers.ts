@@ -1,5 +1,5 @@
 import { spawn } from 'child_process';
-import { mkdirSync } from 'fs';
+import { mkdirSync, mkdtempSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -19,9 +19,12 @@ export async function runCli(
   const maxAttempts = 2;
   const helperDir = dirname(fileURLToPath(import.meta.url));
   const repoRoot = join(helperDir, '..', '..', '..');
-  const tmpDir = join(repoRoot, '.cache', 'tsx-tmp');
+  const tmpRoot = join(repoRoot, '.cache', 'tsx-tmp');
 
-  mkdirSync(tmpDir, { recursive: true });
+  mkdirSync(tmpRoot, { recursive: true });
+  // Use a unique temp directory per invocation so parallel tests can't step on
+  // each other via shared TMPDIR/TEMP (ffmpeg/remotion/tsx caches, etc.).
+  const tmpDir = mkdtempSync(join(tmpRoot, 'run-'));
 
   async function runOnce(): Promise<{
     code: number | null;

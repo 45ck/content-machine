@@ -66,7 +66,11 @@ export const ShortVideo: React.FC<RenderProps> = ({
       <Sequence from={hookFrames} durationInFrames={contentFrames}>
         {visualSequences.map(({ fromFrame, durationInFrames, scene }, index) => (
           <Sequence key={`scene-${index}`} from={fromFrame} durationInFrames={durationInFrames}>
-            <SceneBackground scene={scene} />
+            <SceneBackground
+              scene={scene}
+              startFrame={hookFrames + fromFrame}
+              durationInFrames={durationInFrames}
+            />
           </Sequence>
         ))}
 

@@ -30,7 +30,6 @@ vi.mock('../archetypes/registry', async () => {
 
 // Mock config module before other imports
 vi.mock('../core/config', async () => {
-  const { z } = await import('zod');
   return {
     loadConfig: vi.fn().mockResolvedValue({
       llm: {
@@ -39,7 +38,7 @@ vi.mock('../core/config', async () => {
         temperature: 0.7,
       },
     }),
-    ArchetypeEnum: z.string().min(1),
+    ArchetypeEnum: ArchetypeIdSchema,
   };
 });
 

@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
+const writeFileMock = vi.fn();
 vi.mock('fs/promises', () => ({
-  writeFile: vi.fn(),
+  writeFile: writeFileMock,
 }));
 
 vi.mock('inquirer', () => ({
@@ -44,6 +45,7 @@ describe('cli init command', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.resetModules();
+    writeFileMock.mockReset();
   });
 
   it('writes config in json mode with defaults', async () => {
@@ -57,6 +59,13 @@ describe('cli init command', () => {
     const payload = JSON.parse(capture.stdout.join(''));
     expect(payload.command).toBe('init');
     expect(payload.outputs.configPath).toContain('.content-machine.toml');
+    expect(writeFileMock).toHaveBeenCalled();
+    const [, toml] = writeFileMock.mock.calls[0];
+    expect(String(toml)).toContain('[visuals]');
+    expect(String(toml)).toContain('motion_strategy = "kenburns"');
+    expect(String(toml)).toContain('[visuals.nanobanana]');
+    expect(String(toml)).toContain('model = "gemini-2.5-flash-image"');
+    expect(String(toml)).not.toContain('fallback_provider');
   });
 
   it('prompts when not using --yes and prints hints', async () => {
@@ -69,7 +78,8 @@ describe('cli init command', () => {
       .mockResolvedValueOnce({ llmModel: 'gpt-4o' })
       .mockResolvedValueOnce({ archetype: 'listicle' })
       .mockResolvedValueOnce({ orientation: 'portrait' })
-      .mockResolvedValueOnce({ voice: 'af_heart' });
+      .mockResolvedValueOnce({ voice: 'af_heart' })
+      .mockResolvedValueOnce({ visualsProvider: 'pexels' });
 
     const { initCommand } = await import('../../../../src/cli/commands/init');
     await initCommand.parseAsync([], { from: 'user' });
