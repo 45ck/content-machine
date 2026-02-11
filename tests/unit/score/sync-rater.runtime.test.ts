@@ -9,6 +9,8 @@ const transcribeAudioMock = vi.fn();
 const createWorkerMock = vi.fn();
 const analyzeBurnedInCaptionQualityMock = vi.fn();
 
+let baseCaptionQualityReport: unknown;
+
 vi.mock('node:child_process', () => ({
   execFile: execFileMock,
 }));
@@ -37,6 +39,23 @@ function makeTempVideo(): string {
 }
 
 describe('rateSyncQuality (runtime)', () => {
+  const makePassingCaptionQualityReport = () => {
+    const report = structuredClone(baseCaptionQualityReport as any);
+    report.overall = { score: 0.95, passed: true };
+    report.flicker = { ...report.flicker, flickerEvents: 0, score: 1 };
+    report.safeArea = { ...report.safeArea, violationCount: 0, score: 1 };
+    report.density = { ...report.density, lineOverflowCount: 0, charOverflowCount: 0, score: 1 };
+    report.punctuation = {
+      ...report.punctuation,
+      missingTerminalPunctuationCount: 0,
+      repeatedPunctuationCount: 0,
+      score: 1,
+    };
+    report.capitalization = { ...report.capitalization, inconsistentStyleCount: 0, score: 1 };
+    report.ocrConfidence = { ...report.ocrConfidence, mean: 0.9, min: 0.8, score: 1 };
+    return report;
+  };
+
   beforeEach(() => {
     execFileMock.mockImplementation((cmd, args, options, cb) => {
       if (typeof options === 'function') {
@@ -84,7 +103,7 @@ describe('rateSyncQuality (runtime)', () => {
       terminate: vi.fn().mockResolvedValue(undefined),
     });
 
-    analyzeBurnedInCaptionQualityMock.mockReturnValue({
+    baseCaptionQualityReport = {
       thresholds: {
         safeMarginRatio: 0.05,
         idealReadingSpeedWps: { min: 2, max: 4 },
@@ -174,7 +193,8 @@ describe('rateSyncQuality (runtime)', () => {
       style: { bboxHeightCv: 0.3, bboxAreaCv: 0.4, score: 0.2 },
       redundancy: { reappearanceEvents: 1, adjacentOverlapEvents: 1, score: 0.2 },
       segmentation: { danglingConjunctionCount: 1, midSentenceBreakCount: 1, score: 0.2 },
-    });
+    };
+    analyzeBurnedInCaptionQualityMock.mockReturnValue(baseCaptionQualityReport);
   });
 
   afterEach(() => {
@@ -209,6 +229,174 @@ describe('rateSyncQuality (runtime)', () => {
     expect(output.analysis.framesAnalyzed).toBeGreaterThan(0);
     expect(output.metrics.matchedWords).toBeGreaterThan(0);
     expect(execFileMock).toHaveBeenCalled();
+  });
+
+  it('returns rating 0 with low_match_ratio error when no OCR words match ASR words', async () => {
+    const { rateSyncQuality } = await import('../../../src/score/sync-rater');
+    const videoPath = makeTempVideo();
+
+    analyzeBurnedInCaptionQualityMock.mockReturnValue(makePassingCaptionQualityReport());
+    createWorkerMock.mockResolvedValue({
+      recognize: vi.fn().mockResolvedValue({
+        data: { text: 'QWERTY ASDF', confidence: 95 },
+      }),
+      terminate: vi.fn().mockResolvedValue(undefined),
+    });
+
+    const output = await rateSyncQuality(videoPath, { fps: 2 });
+
+    expect(output.rating).toBe(0);
+    expect(output.metrics.matchedWords).toBe(0);
+    expect(output.errors.some((e) => e.type === 'low_match_ratio')).toBe(true);
+  });
+
+  it('applies a partial penalty when matchRatio is between 0.7 and 0.9', async () => {
+    const { rateSyncQuality } = await import('../../../src/score/sync-rater');
+    const videoPath = makeTempVideo();
+
+    analyzeBurnedInCaptionQualityMock.mockReturnValue(makePassingCaptionQualityReport());
+    createWorkerMock.mockResolvedValue({
+      recognize: vi.fn().mockResolvedValue({
+        data: { text: 'one two three four', confidence: 95 },
+      }),
+      terminate: vi.fn().mockResolvedValue(undefined),
+    });
+    transcribeAudioMock.mockResolvedValue({
+      engine: 'whisper-cpp',
+      duration: 2,
+      text: 'one two three four five',
+      words: [
+        { word: 'one', start: 0.1, end: 0.2, confidence: 0.95 },
+        { word: 'two', start: 0.2, end: 0.3, confidence: 0.95 },
+        { word: 'three', start: 0.3, end: 0.4, confidence: 0.95 },
+        { word: 'four', start: 0.4, end: 0.5, confidence: 0.95 },
+        { word: 'five', start: 0.5, end: 0.6, confidence: 0.95 },
+      ],
+    });
+
+    const output = await rateSyncQuality(videoPath, { fps: 2 });
+
+    expect(output.metrics.matchRatio).toBeCloseTo(0.8, 3);
+    expect(output.rating).toBe(90);
+  });
+
+  it('applies a heavy penalty when matchRatio is below 0.7 and emits low_match_ratio', async () => {
+    const { rateSyncQuality } = await import('../../../src/score/sync-rater');
+    const videoPath = makeTempVideo();
+
+    analyzeBurnedInCaptionQualityMock.mockReturnValue(makePassingCaptionQualityReport());
+    createWorkerMock.mockResolvedValue({
+      recognize: vi.fn().mockResolvedValue({
+        data: { text: 'one two', confidence: 95 },
+      }),
+      terminate: vi.fn().mockResolvedValue(undefined),
+    });
+    transcribeAudioMock.mockResolvedValue({
+      engine: 'whisper-cpp',
+      duration: 2,
+      text: 'one two three four five',
+      words: [
+        { word: 'one', start: 0.1, end: 0.2, confidence: 0.95 },
+        { word: 'two', start: 0.2, end: 0.3, confidence: 0.95 },
+        { word: 'three', start: 0.3, end: 0.4, confidence: 0.95 },
+        { word: 'four', start: 0.4, end: 0.5, confidence: 0.95 },
+        { word: 'five', start: 0.5, end: 0.6, confidence: 0.95 },
+      ],
+    });
+
+    const output = await rateSyncQuality(videoPath, { fps: 2 });
+
+    expect(output.metrics.matchRatio).toBeCloseTo(0.4, 3);
+    expect(output.rating).toBeLessThan(60);
+    expect(output.errors.some((e) => e.type === 'low_match_ratio')).toBe(true);
+  });
+
+  it('emits global_offset error when all drifts are consistently positive', async () => {
+    const { rateSyncQuality } = await import('../../../src/score/sync-rater');
+    const videoPath = makeTempVideo();
+
+    analyzeBurnedInCaptionQualityMock.mockReturnValue(makePassingCaptionQualityReport());
+    execFileMock.mockImplementation((cmd, args, options, cb) => {
+      if (typeof options === 'function') cb = options;
+      const argsList = args ?? [];
+      const outputPath = argsList[argsList.length - 1];
+
+      if (argsList.includes('-vn')) {
+        fs.writeFileSync(outputPath, 'audio');
+      } else if (typeof outputPath === 'string') {
+        const framesDir = path.dirname(outputPath);
+        fs.mkdirSync(framesDir, { recursive: true });
+        for (let i = 1; i <= 6; i++) {
+          fs.writeFileSync(path.join(framesDir, `frame_${String(i).padStart(4, '0')}.png`), 'f');
+        }
+      }
+
+      cb?.(null, '', '');
+    });
+
+    let calls = 0;
+    createWorkerMock.mockResolvedValue({
+      recognize: vi.fn().mockImplementation(async () => {
+        calls += 1;
+        const text = calls <= 4 ? '' : 'HELLO WORLD';
+        return { data: { text, confidence: 95 } };
+      }),
+      terminate: vi.fn().mockResolvedValue(undefined),
+    });
+
+    transcribeAudioMock.mockResolvedValue({
+      engine: 'whisper-cpp',
+      duration: 2,
+      text: 'hello world',
+      words: [
+        { word: 'hello', start: 0.1, end: 0.3, confidence: 0.95 },
+        { word: 'world', start: 0.6, end: 0.8, confidence: 0.95 },
+      ],
+    });
+
+    const output = await rateSyncQuality(videoPath, { fps: 2 });
+
+    expect(output.errors.some((e) => e.type === 'global_offset')).toBe(true);
+  });
+
+  it('uses robust stats when a single outlier exists and prints raw drift in CLI output', async () => {
+    const { rateSyncQuality, formatSyncRatingCLI } = await import('../../../src/score/sync-rater');
+    const videoPath = makeTempVideo();
+
+    analyzeBurnedInCaptionQualityMock.mockReturnValue(makePassingCaptionQualityReport());
+    createWorkerMock.mockResolvedValue({
+      recognize: vi.fn().mockResolvedValue({
+        data: { text: 'one two three four five six seven eight nine ten', confidence: 95 },
+      }),
+      terminate: vi.fn().mockResolvedValue(undefined),
+    });
+
+    transcribeAudioMock.mockResolvedValue({
+      engine: 'whisper-cpp',
+      duration: 4,
+      text: 'one two three four five six seven eight nine ten',
+      words: [
+        { word: 'one', start: 0.1, end: 0.2, confidence: 0.95 },
+        { word: 'two', start: 0.2, end: 0.3, confidence: 0.95 },
+        { word: 'three', start: 0.3, end: 0.4, confidence: 0.95 },
+        { word: 'four', start: 0.35, end: 0.45, confidence: 0.95 },
+        { word: 'five', start: 0.4, end: 0.5, confidence: 0.95 },
+        { word: 'six', start: 0.45, end: 0.55, confidence: 0.95 },
+        { word: 'seven', start: 0.5, end: 0.6, confidence: 0.95 },
+        { word: 'eight', start: 0.55, end: 0.65, confidence: 0.95 },
+        { word: 'nine', start: 0.6, end: 0.7, confidence: 0.95 },
+        { word: 'ten', start: 3.0, end: 3.1, confidence: 0.95 },
+      ],
+    });
+
+    const output = await rateSyncQuality(videoPath, { fps: 2 });
+
+    expect(output.metrics.outlierCount).toBe(1);
+    expect(output.errors.some((e) => e.type === 'sporadic_errors')).toBe(true);
+
+    const rendered = formatSyncRatingCLI(output);
+    expect(rendered).toContain('Raw Max Drift');
+    expect(rendered).toContain('Outliers');
   });
 
   it('formats CLI output with issue section when errors exist', async () => {
