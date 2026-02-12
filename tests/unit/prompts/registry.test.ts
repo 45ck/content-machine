@@ -10,6 +10,7 @@ import {
   listCategories,
   listProviders,
   PROMPT_IDS,
+  SEED_CREATIVE_PROMPTS,
 } from '../../../src/prompts';
 import type { PromptTemplate } from '../../../src/prompts/types';
 
@@ -87,6 +88,14 @@ describe('PromptRegistry', () => {
       expect(results.every((r) => r.template.tags.includes('nano-banana'))).toBe(true);
     });
 
+    it('should find Seed Creative stack prompts by tags', () => {
+      const results = PromptRegistry.search({ tags: ['seedance'] });
+      expect(results.length).toBeGreaterThan(0);
+      expect(results.some((r) => r.template.id === PROMPT_IDS.VISUALS_SEEDANCE_SHOT_SPEC)).toBe(
+        true
+      );
+    });
+
     it('should limit results', () => {
       const results = PromptRegistry.search({ limit: 2 });
       expect(results.length).toBeLessThanOrEqual(2);
@@ -118,6 +127,23 @@ describe('PromptRegistry', () => {
       const retrieved = PromptRegistry.get('test/custom-template');
       expect(retrieved).toBeDefined();
       expect(retrieved?.name).toBe('Custom Test Template');
+    });
+
+    it('should reject invalid template payloads', () => {
+      const invalidTemplate = {
+        id: 'test/invalid-template',
+        name: 'Invalid Template',
+        description: 'Missing required variable declaration',
+        category: 'script',
+        provider: 'any',
+        outputFormat: 'text',
+        version: '1.0.0',
+        template: 'Hello {{name}}',
+        variables: [],
+        tags: ['test'],
+      } as unknown as PromptTemplate;
+
+      expect(() => PromptRegistry.register(invalidTemplate)).toThrow(/Invalid prompt template/);
     });
   });
 });
@@ -208,6 +234,57 @@ describe('renderPrompt()', () => {
     expect(rendered.meta.variables).toEqual({ foo: 'bar' });
     expect(rendered.meta.renderedAt).toBeDefined();
   });
+
+  it('should render if/else blocks when condition is truthy', () => {
+    const template: PromptTemplate = {
+      id: 'test/if-else-truthy',
+      name: 'Test',
+      description: 'Test',
+      category: 'script',
+      provider: 'any',
+      outputFormat: 'text',
+      version: '1.0.0',
+      template: '{{#if metaphor}}Metaphor: {{metaphor}}{{else}}Fallback{{/if}}',
+      variables: [{ name: 'metaphor', description: 'Metaphor', required: false }],
+      tags: [],
+    };
+
+    const rendered = renderPrompt(template, { metaphor: 'light trails' });
+    expect(rendered.user).toBe('Metaphor: light trails');
+  });
+
+  it('should render if/else blocks when condition is falsy', () => {
+    const template: PromptTemplate = {
+      id: 'test/if-else-falsy',
+      name: 'Test',
+      description: 'Test',
+      category: 'script',
+      provider: 'any',
+      outputFormat: 'text',
+      version: '1.0.0',
+      template: '{{#if metaphor}}Metaphor: {{metaphor}}{{else}}Fallback{{/if}}',
+      variables: [{ name: 'metaphor', description: 'Metaphor', required: false }],
+      tags: [],
+    };
+
+    const rendered = renderPrompt(template, {});
+    expect(rendered.user).toBe('Fallback');
+  });
+
+  it('should render abstract-concept template without leaking else branch when metaphor is provided', () => {
+    const template = getPrompt(PROMPT_IDS.IMAGE_ABSTRACT_CONCEPT);
+    expect(template).toBeDefined();
+
+    const rendered = renderPrompt(template!, {
+      concept: 'speed and performance',
+      metaphor: 'light trails on a highway at night',
+    });
+
+    expect(rendered.user).toContain('Visual metaphor: light trails on a highway at night');
+    expect(rendered.user).not.toContain(
+      'Create a striking visual metaphor that instantly communicates this concept.'
+    );
+  });
 });
 
 describe('listCategories()', () => {
@@ -233,5 +310,62 @@ describe('PROMPT_IDS', () => {
   it('should have valid IDs', () => {
     expect(PROMPT_IDS.SCRIPT_VIDEO_GENERATOR).toBe('script/video-script-generator');
     expect(PROMPT_IDS.IMAGE_CINEMATIC_SCENE).toBe('image-generation/cinematic-scene');
+    expect(PROMPT_IDS.IMAGE_SEEDREAM_HERO_STILL).toBe('image-generation/seedream-hero-still');
+    expect(PROMPT_IDS.IMAGE_SEEDREAM_REFERENCE_ANCHORED).toBe(
+      'image-generation/seedream-reference-anchored'
+    );
+    expect(PROMPT_IDS.IMAGE_SEEDREAM_STYLIZED_REMIX).toBe(
+      'image-generation/seedream-stylized-remix'
+    );
+    expect(PROMPT_IDS.VISUALS_SEEDANCE_SHOT_SPEC).toBe('visuals/seedance-shot-spec');
+  });
+
+  it('should resolve Seed Creative templates from registry', () => {
+    expect(getPrompt(PROMPT_IDS.IMAGE_SEEDREAM_HERO_STILL)).toBeDefined();
+    expect(getPrompt(PROMPT_IDS.IMAGE_SEEDREAM_REFERENCE_ANCHORED)).toBeDefined();
+    expect(getPrompt(PROMPT_IDS.IMAGE_SEEDREAM_STYLIZED_REMIX)).toBeDefined();
+    expect(getPrompt(PROMPT_IDS.VISUALS_SEEDANCE_SHOT_SPEC)).toBeDefined();
+  });
+});
+
+describe('SEED_CREATIVE_PROMPTS', () => {
+  it('should expose stable aliases for Seed prompt templates', () => {
+    expect(SEED_CREATIVE_PROMPTS.seedreamHeroStill).toBe(PROMPT_IDS.IMAGE_SEEDREAM_HERO_STILL);
+    expect(SEED_CREATIVE_PROMPTS.seedreamReferenceAnchored).toBe(
+      PROMPT_IDS.IMAGE_SEEDREAM_REFERENCE_ANCHORED
+    );
+    expect(SEED_CREATIVE_PROMPTS.seedreamStylizedRemix).toBe(
+      PROMPT_IDS.IMAGE_SEEDREAM_STYLIZED_REMIX
+    );
+    expect(SEED_CREATIVE_PROMPTS.seedanceShotSpec).toBe(PROMPT_IDS.VISUALS_SEEDANCE_SHOT_SPEC);
+  });
+});
+
+describe('Seed template quality gates', () => {
+  it('should render Seed templates without unresolved placeholders', () => {
+    const templateInputs: Record<string, Record<string, unknown>> = {
+      [PROMPT_IDS.IMAGE_SEEDREAM_HERO_STILL]: {
+        characterBrief: 'fictional antihero with glasses and shaved head',
+      },
+      [PROMPT_IDS.IMAGE_SEEDREAM_REFERENCE_ANCHORED]: {
+        newScene: 'walking through a dim lab corridor',
+      },
+      [PROMPT_IDS.IMAGE_SEEDREAM_STYLIZED_REMIX]: {
+        archetypeBrief: 'stoic science-teacher antihero',
+        scene: 'standing in a desert workspace at dusk',
+      },
+      [PROMPT_IDS.VISUALS_SEEDANCE_SHOT_SPEC]: {
+        subject: 'fictional antihero chemistry teacher',
+        action: 'walks toward camera and adjusts glasses',
+        environment: 'desert roadside at golden hour',
+      },
+    };
+
+    for (const [templateId, inputs] of Object.entries(templateInputs)) {
+      const template = getPrompt(templateId);
+      expect(template).toBeDefined();
+      const rendered = renderPrompt(template!, inputs);
+      expect(rendered.user).not.toMatch(/\{\{[^}]+\}\}/);
+    }
   });
 });

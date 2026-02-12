@@ -7,6 +7,7 @@ bokeh
 cmrc
 cmworkflow
 dalle
+dall
 davos
 diataxis
 dslr
@@ -14,8 +15,10 @@ emph
 ffprobe
 ggml
 gyori
+gyoridavid
 hasselblad
 hormozi
+imagen
 kburns
 kbps
 kokoro

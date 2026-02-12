@@ -12,6 +12,7 @@ import {
   MOTION_STRATEGIES,
   type RepoFactsMotionStrategyId,
 } from '../domain/repo-facts.generated.js';
+import { PROVIDER_ROUTING_POLICIES, type ProviderRoutingPolicy } from './provider-router.js';
 
 /** Current schema version for migrations */
 export const VISUALS_SCHEMA_VERSION = '1.1.0';
@@ -79,6 +80,9 @@ if (MOTION_STRATEGY_IDS.length === 0) {
 export const MotionStrategyEnum = z.enum(
   MOTION_STRATEGY_IDS as [RepoFactsMotionStrategyId, ...RepoFactsMotionStrategyId[]]
 );
+const ProviderRoutingPolicyEnum = z.enum(
+  PROVIDER_ROUTING_POLICIES as unknown as [ProviderRoutingPolicy, ...ProviderRoutingPolicy[]]
+);
 
 /**
  * Ubiquitous Language: Motion strategy type.
@@ -94,6 +98,18 @@ export const MatchReasoningSchema = z.object({
   reasoning: z.string().describe('LLM explanation for selection'),
   conceptsMatched: z.array(z.string()).optional(),
   moodAlignment: z.string().optional(),
+  selectedProvider: z.string().optional(),
+  providerAttempts: z.array(z.string()).optional(),
+  routingPolicy: ProviderRoutingPolicyEnum.optional(),
+  routingRationale: z.string().optional(),
+  skippedProviders: z
+    .array(
+      z.object({
+        provider: z.string(),
+        reason: z.string(),
+      })
+    )
+    .optional(),
   alternatives: z
     .array(
       z.object({
@@ -254,6 +270,8 @@ const VisualsOutputBaseSchema = z.object({
   embeddingModel: z.string().optional(),
   reasoningModel: z.string().optional(),
   provider: z.string().optional().describe('@deprecated Use source in scenes'),
+  providerRoutingPolicy: ProviderRoutingPolicyEnum.optional(),
+  providerChain: z.array(z.string()).optional(),
 
   // Legacy fields for backward compatibility
   clips: z.array(VideoClipSchema).optional().describe('@deprecated Use scenes'),

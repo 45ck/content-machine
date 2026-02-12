@@ -1,0 +1,113 @@
+# Seedance Shot Spec Builder
+#
+# Original: content-machine
+# License: MIT
+# Created: 2026-02-12
+# Purpose: Build concise shot specs for Seedance multimodal text+reference workflows
+
+id: visuals/seedance-shot-spec
+name: Seedance Shot Spec Builder
+description: >
+  Builds a concise, natural-language shot specification for Seedance-style
+  text plus reference generation. Focuses on composition, camera movement,
+  lighting, performance, and continuity constraints.
+category: visuals
+provider: any
+outputFormat: text
+version: "1.0.0"
+tags:
+  - visuals
+  - seedance
+  - shot-spec
+  - multimodal
+  - director-control
+  - video-generation
+estimatedTokens: 180
+recommendedTemperature: 0.4
+
+variables:
+  - name: subject
+    description: The primary subject or character
+    required: true
+    type: string
+    example: "fictional antihero chemistry teacher"
+  - name: action
+    description: The main action in this shot
+    required: true
+    type: string
+    example: "walks toward camera and adjusts glasses"
+  - name: environment
+    description: Set and environmental context
+    required: true
+    type: string
+    example: "desert roadside at golden hour"
+  - name: cameraPlan
+    description: Lens, angle, movement, and framing
+    required: false
+    type: string
+    default: "35mm lens, medium shot, subtle push-in"
+    example: "50mm lens, medium close-up, slow handheld drift"
+  - name: lightingPlan
+    description: Lighting and shadow behavior
+    required: false
+    type: string
+    default: "cinematic key plus soft fill with long shadows"
+    example: "backlit sunset rim light and deep foreground shadows"
+  - name: continuityLock
+    description: Elements that must stay consistent with references
+    required: false
+    type: string
+    default: "wardrobe, face traits, prop placement"
+    example: "hat shape, glasses, jacket color, RV position"
+  - name: durationSeconds
+    description: Target clip duration in seconds
+    required: false
+    type: number
+    default: 5
+    example: 10
+  - name: aspectRatio
+    description: Output aspect ratio
+    required: false
+    type: string
+    default: "9:16"
+    example: "16:9"
+
+template: |
+  Create a cinematic video shot using reference assets for continuity.
+
+  Subject: {{subject}}.
+  Action: {{action}}.
+  Environment: {{environment}}.
+  Camera plan: {{cameraPlan}}.
+  Lighting plan: {{lightingPlan}}.
+  Continuity lock: {{continuityLock}}.
+  Duration: {{durationSeconds}} seconds.
+  Aspect ratio: {{aspectRatio}}.
+
+  Keep one primary subject and coherent body motion.
+  Avoid duplicate faces, anatomy artifacts, unreadable text, and abrupt style shifts.
+
+examples:
+  - input:
+      subject: "fictional antihero chemistry teacher"
+      action: "walks toward camera and adjusts glasses"
+      environment: "desert roadside at golden hour"
+      cameraPlan: "50mm lens, medium close-up, slow forward dolly"
+      lightingPlan: "backlit sunset rim light and deep foreground shadows"
+      continuityLock: "hat shape, glasses, jacket color, RV position"
+      durationSeconds: 5
+      aspectRatio: "9:16"
+    output: |
+      Create a cinematic video shot using reference assets for continuity.
+
+      Subject: fictional antihero chemistry teacher.
+      Action: walks toward camera and adjusts glasses.
+      Environment: desert roadside at golden hour.
+      Camera plan: 50mm lens, medium close-up, slow forward dolly.
+      Lighting plan: backlit sunset rim light and deep foreground shadows.
+      Continuity lock: hat shape, glasses, jacket color, RV position.
+      Duration: 5 seconds.
+      Aspect ratio: 9:16.
+
+      Keep one primary subject and coherent body motion.
+      Avoid duplicate faces, anatomy artifacts, unreadable text, and abrupt style shifts.

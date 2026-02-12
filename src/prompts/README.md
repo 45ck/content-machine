@@ -107,7 +107,7 @@ const response = await llm.chat([
 import { getPrompt, renderPrompt, NANO_BANANA_PROMPTS } from '../prompts';
 
 // Get the cinematic scene template
-const template = getPrompt(NANO_BANANA_PROMPTS.CINEMATIC_SCENE);
+const template = getPrompt(NANO_BANANA_PROMPTS.cinematic);
 
 // Render with scene-specific variables
 const prompt = renderPrompt(template, {
@@ -156,7 +156,7 @@ class NanoBananaProvider implements VisualProvider {
     });
 
     // 2. Select best template (by relevance score)
-    const template = results[0]?.template ?? getPrompt(NANO_BANANA_PROMPTS.CINEMATIC_SCENE);
+    const template = results[0]?.template ?? getPrompt(NANO_BANANA_PROMPTS.cinematic);
 
     // 3. Render with scene-specific variables
     const prompt = renderPrompt(template, {
@@ -198,13 +198,16 @@ Prompts for generating stock footage search terms.
 
 Prompts for generating images with Gemini/DALL-E/Nano Banana.
 
-| Template             | Source          | Use Case                          |
-| -------------------- | --------------- | --------------------------------- |
-| `cinematic-scene`    | content-machine | Cinematic B-roll style            |
-| `tech-visualization` | content-machine | Abstract tech concepts            |
-| `comparison-split`   | content-machine | Side-by-side "X vs Y" visuals     |
-| `person-action`      | content-machine | Lifestyle/person doing action     |
-| `abstract-concept`   | content-machine | Concept-to-metaphor visualization |
+| Template                      | Source          | Use Case                              |
+| ----------------------------- | --------------- | ------------------------------------- |
+| `cinematic-scene`             | content-machine | Cinematic B-roll style                |
+| `tech-visualization`          | content-machine | Abstract tech concepts                |
+| `comparison-split`            | content-machine | Side-by-side "X vs Y" visuals         |
+| `person-action`               | content-machine | Lifestyle/person doing action         |
+| `abstract-concept`            | content-machine | Concept-to-metaphor visualization     |
+| `seedream-hero-still`         | content-machine | Character-first hero still/keyframe   |
+| `seedream-reference-anchored` | content-machine | Identity-consistent reference edit    |
+| `seedream-stylized-remix`     | content-machine | Stylized policy-safer character remix |
 
 ---
 
@@ -220,6 +223,7 @@ import {
   PromptRegistry,
   PROMPT_IDS,
   NANO_BANANA_PROMPTS,
+  SEED_CREATIVE_PROMPTS,
 } from './prompts';
 ```
 
@@ -231,7 +235,8 @@ const template = getPrompt('script/video-script-generator');
 
 // Using constants (recommended)
 const template = getPrompt(PROMPT_IDS.SCRIPT_VIDEO_GENERATOR);
-const template = getPrompt(NANO_BANANA_PROMPTS.CINEMATIC_SCENE);
+const template = getPrompt(NANO_BANANA_PROMPTS.cinematic);
+const seedTemplate = getPrompt(SEED_CREATIVE_PROMPTS.seedreamHeroStill);
 ```
 
 ### Search Prompts
@@ -345,16 +350,16 @@ async function selectPromptForScene(scene: Scene): Promise<RenderedPrompt> {
 function selectDefaultTemplate(scene: Scene): PromptTemplate {
   // Use scene hints to pick template
   if (scene.visualDirection.includes('vs') || scene.visualDirection.includes('comparison')) {
-    return getPrompt(NANO_BANANA_PROMPTS.COMPARISON_SPLIT)!;
+    return getPrompt(NANO_BANANA_PROMPTS.comparison)!;
   }
   if (scene.visualDirection.includes('abstract') || scene.visualDirection.includes('concept')) {
-    return getPrompt(NANO_BANANA_PROMPTS.ABSTRACT_CONCEPT)!;
+    return getPrompt(NANO_BANANA_PROMPTS.abstract)!;
   }
   if (scene.visualDirection.includes('person') || scene.visualDirection.includes('someone')) {
-    return getPrompt(NANO_BANANA_PROMPTS.PERSON_ACTION)!;
+    return getPrompt(NANO_BANANA_PROMPTS.person)!;
   }
   // Default to cinematic
-  return getPrompt(NANO_BANANA_PROMPTS.CINEMATIC_SCENE)!;
+  return getPrompt(NANO_BANANA_PROMPTS.cinematic)!;
 }
 ```
 

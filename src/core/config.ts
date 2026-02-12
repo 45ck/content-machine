@@ -18,6 +18,7 @@ import { CaptionConfigSchema } from '../render/captions/config';
 import { HookAudioModeEnum, HookFitEnum, MotionStrategyEnum } from '../domain';
 import { AudioMixPresetIdSchema, SfxPackIdSchema, SfxPlacementEnum } from '../audio/mix/presets';
 import { ArchetypeIdSchema } from '../domain/ids';
+import { PROVIDER_ROUTING_POLICIES, type ProviderRoutingPolicy } from '../visuals/provider-router';
 import {
   DEFAULT_MOTION_STRATEGY_ID,
   DEFAULT_NANOBANANA_MODEL,
@@ -109,6 +110,9 @@ const VisualsProviderEnum = z.enum(
     (typeof SUPPORTED_VISUALS_PROVIDER_IDS)[number]
   >
 );
+const ProviderRoutingPolicyEnum = z.enum(
+  PROVIDER_ROUTING_POLICIES as unknown as [ProviderRoutingPolicy, ...ProviderRoutingPolicy[]]
+);
 const NANOBANANA_DEFAULT_MODEL =
   VISUALS_PROVIDERS.find((p) => p.id === 'nanobanana')?.defaultModel ?? DEFAULT_NANOBANANA_MODEL;
 
@@ -129,6 +133,8 @@ const NanoBananaConfigSchema = z.object({
 
 const VisualsConfigSchema = z.object({
   provider: VisualsProviderEnum.default(DEFAULT_VISUALS_PROVIDER_ID),
+  /** Provider routing policy used to order provider attempts. */
+  routingPolicy: ProviderRoutingPolicyEnum.default('configured'),
   /** Fallback providers (used in order) if the primary provider cannot return a scene asset. */
   fallbackProviders: z.array(VisualsProviderEnum).default([]),
   /** Default motion strategy for image-based providers. */

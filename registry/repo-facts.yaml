@@ -187,6 +187,12 @@ facts:
         required: false
       - name: CM_ASSET_CACHE_DIR
         required: false
+      - name: CM_VISUALS_TELEMETRY_PATH
+        required: false
+      - name: CM_ASSET_LINEAGE_PATH
+        required: false
+      - name: CM_VISUALS_OBSERVABILITY
+        required: false
       - name: CM_REMOTION_ENTRY
         required: false
       - name: CM_REMOTION_CONCURRENCY

@@ -16,6 +16,133 @@ import type {
   RenderedPrompt,
 } from './types';
 
+const VALID_CATEGORIES = new Set<PromptCategory>([
+  'script',
+  'visuals',
+  'image-generation',
+  'editing',
+  'metadata',
+]);
+const VALID_PROVIDERS = new Set<PromptProvider>(['openai', 'anthropic', 'gemini', 'pexels', 'any']);
+const VALID_OUTPUT_FORMATS = new Set(['json', 'text', 'markdown', 'structured']);
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
+
+function extractPlaceholders(input: string): Set<string> {
+  const placeholders = new Set<string>();
+  const regex = /\{\{\s*([A-Za-z_]\w*)\s*\}\}/g;
+  let match: RegExpExecArray | null = regex.exec(input);
+  while (match) {
+    if (match[1] !== 'else') {
+      placeholders.add(match[1]);
+    }
+    match = regex.exec(input);
+  }
+  return placeholders;
+}
+
+function validateRequiredStringFields(raw: Record<string, unknown>): string[] {
+  const errors: string[] = [];
+  const requiredStringFields = [
+    'id',
+    'name',
+    'description',
+    'category',
+    'provider',
+    'outputFormat',
+    'version',
+    'template',
+  ];
+  for (const field of requiredStringFields) {
+    if (typeof raw[field] !== 'string' || raw[field].trim().length === 0) {
+      errors.push(`missing or invalid field: ${field}`);
+    }
+  }
+  return errors;
+}
+
+function validateTemplateVariables(raw: Record<string, unknown>): string[] {
+  const errors: string[] = [];
+  if (!Array.isArray(raw.variables)) {
+    return ['missing or invalid field: variables'];
+  }
+
+  const seenVariableNames = new Set<string>();
+  for (const variable of raw.variables) {
+    if (!isObject(variable)) {
+      errors.push('invalid variable entry: expected object');
+      continue;
+    }
+    const name = variable.name;
+    if (typeof name !== 'string' || name.trim().length === 0) {
+      errors.push('invalid variable entry: missing name');
+      continue;
+    }
+    if (seenVariableNames.has(name)) {
+      errors.push(`duplicate variable name: ${name}`);
+    }
+    seenVariableNames.add(name);
+  }
+  return errors;
+}
+
+function validateTemplateEnums(raw: Record<string, unknown>): string[] {
+  const errors: string[] = [];
+  if (!Array.isArray(raw.tags)) {
+    errors.push('missing or invalid field: tags');
+  }
+
+  if (typeof raw.category === 'string' && !VALID_CATEGORIES.has(raw.category as PromptCategory)) {
+    errors.push(`invalid category: ${raw.category}`);
+  }
+
+  if (typeof raw.provider === 'string' && !VALID_PROVIDERS.has(raw.provider as PromptProvider)) {
+    errors.push(`invalid provider: ${raw.provider}`);
+  }
+
+  if (typeof raw.outputFormat === 'string' && !VALID_OUTPUT_FORMATS.has(raw.outputFormat)) {
+    errors.push(`invalid outputFormat: ${raw.outputFormat}`);
+  }
+  return errors;
+}
+
+function validateTemplatePlaceholders(raw: Record<string, unknown>): string[] {
+  const errors: string[] = [];
+  if (!(typeof raw.template === 'string' && Array.isArray(raw.variables))) {
+    return errors;
+  }
+
+  const placeholderNames = extractPlaceholders(raw.template);
+  const knownVariables = new Set(
+    raw.variables
+      .filter((v): v is Record<string, unknown> => isObject(v))
+      .map((v) => v.name)
+      .filter((name): name is string => typeof name === 'string')
+  );
+  for (const placeholder of placeholderNames) {
+    if (!knownVariables.has(placeholder)) {
+      errors.push(`template placeholder has no variable definition: ${placeholder}`);
+    }
+  }
+  return errors;
+}
+
+function validatePromptTemplate(raw: unknown): string[] {
+  if (!isObject(raw)) {
+    return ['template must be an object'];
+  }
+
+  const errors: string[] = [];
+  errors.push(...validateRequiredStringFields(raw));
+  errors.push(...validateTemplateVariables(raw));
+  errors.push(...validateTemplateEnums(raw));
+  errors.push(...validateTemplatePlaceholders(raw));
+
+  return errors;
+}
+
 /**
  * In-memory prompt registry
  */
@@ -48,8 +175,20 @@ class PromptRegistryImpl {
       for (const file of files) {
         try {
           const content = readFileSync(join(categoryDir, file), 'utf-8');
-          const template = parseYaml(content) as PromptTemplate;
-          this.templates.set(template.id, template);
+          const template = parseYaml(content) as unknown;
+          const errors = validatePromptTemplate(template);
+          if (errors.length > 0) {
+            console.warn(`Skipping invalid prompt template ${file}: ${errors.join('; ')}`);
+            continue;
+          }
+          const typedTemplate = template as PromptTemplate;
+          if (this.templates.has(typedTemplate.id)) {
+            console.warn(
+              `Skipping duplicate prompt template id "${typedTemplate.id}" from ${file}`
+            );
+            continue;
+          }
+          this.templates.set(typedTemplate.id, typedTemplate);
         } catch (error) {
           console.warn(`Failed to load prompt template ${file}:`, error);
         }
@@ -224,6 +363,10 @@ class PromptRegistryImpl {
    */
   register(template: PromptTemplate): void {
     this.ensureLoaded();
+    const errors = validatePromptTemplate(template);
+    if (errors.length > 0) {
+      throw new Error(`Invalid prompt template: ${errors.join('; ')}`);
+    }
     this.templates.set(template.id, template);
   }
 
@@ -267,6 +410,18 @@ export function renderPrompt(
 ): RenderedPrompt {
   let rendered = template.template;
 
+  // Handle simple conditionals before raw placeholder cleanup.
+  // Supports:
+  // - {{#if var}}...{{/if}}
+  // - {{#if var}}...{{else}}...{{/if}}
+  rendered = rendered.replace(
+    /\{\{#if\s+(\w+)\}\}([\s\S]*?)(?:\{\{else\}\}([\s\S]*?))?\{\{\/if\}\}/g,
+    (_, varName: string, ifContent: string, elseContent?: string) => {
+      const value = variables[varName];
+      return value ? ifContent : (elseContent ?? '');
+    }
+  );
+
   // Simple variable substitution ({{variable}})
   for (const [key, value] of Object.entries(variables)) {
     const pattern = new RegExp(`\\{\\{${key}\\}\\}`, 'g');
@@ -283,15 +438,6 @@ export function renderPrompt(
 
   // Clean up any remaining unsubstituted variables
   rendered = rendered.replace(/\{\{[^}]+\}\}/g, '');
-
-  // Handle simple conditionals ({{#if var}}...{{/if}})
-  rendered = rendered.replace(
-    /\{\{#if\s+(\w+)\}\}([\s\S]*?)\{\{\/if\}\}/g,
-    (_, varName, content) => {
-      const value = variables[varName];
-      return value ? content : '';
-    }
-  );
 
   return {
     system: template.systemPrompt,

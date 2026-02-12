@@ -64,6 +64,12 @@ export const PROMPT_IDS = {
   IMAGE_COMPARISON_SPLIT: 'image-generation/comparison-split',
   IMAGE_PERSON_ACTION: 'image-generation/person-action',
   IMAGE_ABSTRACT_CONCEPT: 'image-generation/abstract-concept',
+  IMAGE_SEEDREAM_HERO_STILL: 'image-generation/seedream-hero-still',
+  IMAGE_SEEDREAM_REFERENCE_ANCHORED: 'image-generation/seedream-reference-anchored',
+  IMAGE_SEEDREAM_STYLIZED_REMIX: 'image-generation/seedream-stylized-remix',
+
+  // Seedance shot planning
+  VISUALS_SEEDANCE_SHOT_SPEC: 'visuals/seedance-shot-spec',
 } as const;
 
 /**
@@ -75,4 +81,14 @@ export const NANO_BANANA_PROMPTS = {
   comparison: PROMPT_IDS.IMAGE_COMPARISON_SPLIT,
   person: PROMPT_IDS.IMAGE_PERSON_ACTION,
   abstract: PROMPT_IDS.IMAGE_ABSTRACT_CONCEPT,
+} as const;
+
+/**
+ * Quick access to Seed Creative Stack prompts
+ */
+export const SEED_CREATIVE_PROMPTS = {
+  seedreamHeroStill: PROMPT_IDS.IMAGE_SEEDREAM_HERO_STILL,
+  seedreamReferenceAnchored: PROMPT_IDS.IMAGE_SEEDREAM_REFERENCE_ANCHORED,
+  seedreamStylizedRemix: PROMPT_IDS.IMAGE_SEEDREAM_STYLIZED_REMIX,
+  seedanceShotSpec: PROMPT_IDS.VISUALS_SEEDANCE_SHOT_SPEC,
 } as const;
