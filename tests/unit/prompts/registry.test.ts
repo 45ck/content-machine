@@ -368,4 +368,34 @@ describe('Seed template quality gates', () => {
       expect(rendered.user).not.toMatch(/\{\{[^}]+\}\}/);
     }
   });
+
+  it('should keep rendered hero still prompt stable (golden snapshot)', () => {
+    const template = getPrompt(PROMPT_IDS.IMAGE_SEEDREAM_HERO_STILL);
+    expect(template).toBeDefined();
+
+    const rendered = renderPrompt(template!, {
+      characterBrief: 'fictional antihero chemistry teacher, shaved head, glasses, goatee',
+      wardrobe: 'pork pie hat, wireframe glasses, dark green jacket',
+      shotSpec: 'medium close-up, eye-level, 50mm lens',
+      lighting: 'hard sunset side light with long shadows',
+      location: 'desert roadside with an aging RV',
+      mood: 'quiet menace',
+      aspectRatio: '9:16',
+    });
+
+    expect(rendered.user).toMatchInlineSnapshot(`
+      "Create a cinematic hero still of a fictional character with this brief: fictional antihero chemistry teacher, shaved head, glasses, goatee.
+
+      Wardrobe anchors: pork pie hat, wireframe glasses, dark green jacket.
+      Shot specification: medium close-up, eye-level, 50mm lens.
+      Lighting: hard sunset side light with long shadows.
+      Location and set dressing: desert roadside with an aging RV.
+      Mood: quiet menace.
+      Aspect ratio: 9:16.
+
+      Keep one clear subject, one face, natural anatomy, and coherent hands.
+      Preserve wardrobe consistency and avoid style drift.
+      No text, no logo, no watermark."
+    `);
+  });
 });

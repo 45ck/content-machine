@@ -13,6 +13,8 @@ import type { LLMProvider } from './llm/provider';
 import { ResearchOutputSchema } from '../domain';
 import type {
   AudioOutput,
+  GenerationPolicy,
+  MediaManifest,
   RenderOutput,
   ResearchOutput,
   ScriptOutput,
@@ -21,6 +23,8 @@ import type {
 import type { CaptionPresetName } from '../render/captions/presets';
 import type { CaptionConfigInput } from '../render/captions/config';
 import type { FontSource, HookClip, OverlayAsset } from '../domain';
+import type { ProviderRoutingPolicy } from '../visuals/provider-router';
+import type { AssetProviderName } from '../visuals/providers';
 import type { PipelineEventEmitter } from './events';
 import type { AudioMixPlanOptions } from '../audio/mix/planner';
 import { createLogger, logTiming } from './logger';
@@ -98,6 +102,18 @@ export interface PipelineOptions {
   maxLinesPerPage?: number;
   maxCharsPerLine?: number;
   /** Visuals + layout options */
+  visualsProvider?: AssetProviderName;
+  visualsProviders?: AssetProviderName[];
+  visualsRoutingPolicy?: ProviderRoutingPolicy;
+  visualsMaxGenerationCostUsd?: number;
+  visualsPolicyGates?: {
+    enforce?: boolean;
+    maxFallbackRate?: number;
+    minProviderSuccessRate?: number;
+  };
+  visualsRoutingAdaptiveWindow?: number;
+  visualsRoutingAdaptiveMinRecords?: number;
+  generationPolicy?: GenerationPolicy;
   gameplay?: { library?: string; style?: string; required?: boolean };
   splitScreenRatio?: number;
   gameplayPosition?: 'top' | 'bottom' | 'full';
@@ -108,6 +124,18 @@ export interface PipelineOptions {
   scriptInput?: ScriptOutput;
   audioInput?: AudioOutput;
   visualsInput?: VisualsOutput;
+  mediaManifestInput?: MediaManifest;
+  media?: {
+    enabled?: boolean;
+    extractVideoKeyframes?: boolean;
+    synthesizeImageMotion?: boolean;
+    outputDir?: string;
+    ffmpegPath?: string;
+    adapterByMotionStrategy?: {
+      depthflow?: string;
+      veo?: string;
+    };
+  };
 
   // ---------------------------------------------------------------------------
   // Remotion code templates / custom projects (optional)
@@ -142,6 +170,7 @@ export interface PipelineResult {
   script: ScriptOutput;
   audio: AudioOutput;
   visuals: VisualsOutput;
+  media?: MediaManifest;
   render: RenderOutput;
   outputPath: string;
   duration: number;
@@ -175,6 +204,16 @@ function normalizeWhisperModel(
 function clampProgress(value: number): number {
   if (!Number.isFinite(value)) return 0;
   return Math.min(1, Math.max(0, value));
+}
+
+function shouldAutoEnableMediaStage(visuals: VisualsOutput): boolean {
+  return visuals.scenes.some(
+    (scene) =>
+      scene.assetType === 'image' &&
+      scene.motionStrategy !== undefined &&
+      scene.motionStrategy !== 'none' &&
+      scene.motionStrategy !== 'kenburns'
+  );
 }
 
 async function writeJson(path: string, data: unknown): Promise<void> {
@@ -255,6 +294,7 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
     timestamps: join(workDir, DEFAULT_ARTIFACT_FILENAMES.timestamps),
     audioMix: join(workDir, DEFAULT_ARTIFACT_FILENAMES['audio-mix']),
     visuals: join(workDir, DEFAULT_ARTIFACT_FILENAMES.visuals),
+    mediaManifest: join(workDir, 'media-manifest.json'),
   };
 
   const generatedPaths = new Set<string>();
@@ -534,7 +574,15 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
         () =>
           matchVisuals({
             timestamps: audio.timestamps,
-            provider: config.visuals.provider,
+            provider: options.visualsProvider ?? config.visuals.provider,
+            providers: options.visualsProviders,
+            routingPolicy: options.visualsRoutingPolicy,
+            maxGenerationCostUsd: options.visualsMaxGenerationCostUsd,
+            policyGates: options.visualsPolicyGates,
+            routingAdaptiveWindow: options.visualsRoutingAdaptiveWindow,
+            routingAdaptiveMinRecords: options.visualsRoutingAdaptiveMinRecords,
+            pipelineId,
+            topic: options.topic,
             orientation: options.orientation,
             mock: options.mock,
             gameplay: options.gameplay,
@@ -561,6 +609,39 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
       return result;
     });
 
+    let visualsForRender = visuals;
+    let mediaManifest: MediaManifest | undefined;
+    const mediaEnabled = options.media?.enabled ?? shouldAutoEnableMediaStage(visuals);
+    const mediaOutputDir = options.media?.outputDir ?? join(workDir, 'media');
+    if (mediaEnabled) {
+      if (options.mediaManifestInput) {
+        mediaManifest = options.mediaManifestInput;
+      } else {
+        const { synthesizeMediaManifest } = await import('../media/service');
+        mediaManifest = await logTiming(
+          'media-synthesis',
+          () =>
+            synthesizeMediaManifest({
+              visuals,
+              outputDir: mediaOutputDir,
+              extractVideoKeyframes: options.media?.extractVideoKeyframes ?? true,
+              synthesizeImageMotion: options.media?.synthesizeImageMotion ?? true,
+              ffmpegPath: options.media?.ffmpegPath,
+              adapterByMotionStrategy: options.media?.adapterByMotionStrategy,
+            }),
+          log
+        );
+      }
+
+      const { applyMediaManifestToVisuals } = await import('../media/service');
+      visualsForRender = applyMediaManifestToVisuals(visuals, mediaManifest);
+      generatedPaths.add(artifacts.mediaManifest);
+      generatedPaths.add(mediaOutputDir);
+      if (options.keepArtifacts) {
+        await writeJson(artifacts.mediaManifest, mediaManifest);
+      }
+    }
+
     // Stage 4: Render
     const render = await runStageWithEvents('render', async ({ stage, stageIndex }) => {
       options.onProgress?.(stage, 'Rendering video...');
@@ -572,7 +653,7 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
         'video-rendering',
         () =>
           renderVideo({
-            visuals,
+            visuals: visualsForRender,
             timestamps: audio.timestamps,
             audioPath: audio.audioPath,
             audioMix: audio.audioMix,
@@ -678,6 +759,7 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
       script,
       audio,
       visuals,
+      media: mediaManifest,
       render,
       outputPath: render.outputPath,
       duration: render.duration,
@@ -699,9 +781,9 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
     log.error({ error: wrapped }, 'Pipeline failed');
 
     if (!options.keepArtifacts) {
-      await Promise.all(Array.from(generatedPaths).map((path) => rm(path, { force: true }))).catch(
-        () => {}
-      );
+      await Promise.all(
+        Array.from(generatedPaths).map((path) => rm(path, { force: true, recursive: true }))
+      ).catch(() => {});
       if (renderAttempted) {
         await rm(options.outputPath, { force: true }).catch(() => {});
       }

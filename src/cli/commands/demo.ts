@@ -31,18 +31,35 @@ async function openBrowser(url: string): Promise<void> {
 export const demoCommand = new Command('demo')
   .description('Render a deterministic mock demo video (no API keys required)')
   .option('-o, --output <path>', 'Output mp4 path', 'output/demo.mp4')
+  .option(
+    '--template <idOrPath>',
+    'Render template id or path to template.json (used for defaults/overlays/fonts)',
+    'demo-onboarding'
+  )
   .option('--topic <topic>', 'Demo topic', 'Content Machine demo')
   .option('--duration <seconds>', 'Approximate duration in seconds', '20')
+  .option('--render <mode>', 'Render mode: placeholder|real', 'placeholder')
   .option('--open-lab', 'Open the Experiment Lab review UI after rendering', false)
   .action(
-    async (options: { output?: string; topic?: string; duration?: string; openLab?: boolean }) => {
+    async (options: {
+      output?: string;
+      topic?: string;
+      duration?: string;
+      template?: string;
+      render?: string;
+      openLab?: boolean;
+    }) => {
       try {
         const runtime = getCliRuntime();
         const outputPath = resolve(String(options.output ?? 'output/demo.mp4'));
         const durationSeconds = Number.parseInt(String(options.duration ?? '20'), 10);
         const topic = String(options.topic ?? 'Content Machine demo');
 
-        const result = await runDemo({ outputPath, topic, durationSeconds });
+        const template = options.template ? String(options.template) : undefined;
+        const renderRaw = String(options.render ?? 'placeholder');
+        const renderMode = renderRaw === 'real' ? 'real' : 'placeholder';
+
+        const result = await runDemo({ outputPath, topic, durationSeconds, template, renderMode });
 
         if (runtime.json) {
           writeJsonEnvelope(
@@ -50,8 +67,10 @@ export const demoCommand = new Command('demo')
               command: 'demo',
               args: {
                 output: outputPath,
+                template: template ?? null,
                 topic,
                 duration: durationSeconds,
+                renderMode,
                 openLab: Boolean(options.openLab),
               },
               outputs: result as unknown as Record<string, unknown>,

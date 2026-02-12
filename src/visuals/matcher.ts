@@ -15,6 +15,7 @@ import {
   VisualsOutputSchema,
   VisualAssetInput,
   Keyword,
+  PolicyGateResult,
   VISUALS_SCHEMA_VERSION,
   type MotionStrategyType,
   type VisualSource,
@@ -25,6 +26,16 @@ import {
   type AssetProvider,
   type AssetProviderName,
 } from './providers/index.js';
+import { createProviderRoutingPlan, type ProviderRoutingPolicy } from './provider-router.js';
+import {
+  isVisualObservabilityEnabled,
+  readVisualsRoutingTelemetry,
+  writeVisualAssetLineage,
+  writeVisualsRoutingTelemetry,
+  type ProviderAttemptTelemetry,
+  type VisualAssetLineageRecord,
+} from './observability.js';
+import { recommendRoutingPolicy } from './evaluation.js';
 import { selectGameplayClip } from './gameplay.js';
 import { loadConfig } from '../core/config.js';
 import { readFile } from 'node:fs/promises';
@@ -44,6 +55,17 @@ export interface MatchVisualsOptions {
   /** Optional manifest JSON mapping `sceneId -> assetPath` for deterministic BYO visuals. */
   localManifest?: string;
   orientation?: 'portrait' | 'landscape' | 'square';
+  routingPolicy?: ProviderRoutingPolicy;
+  maxGenerationCostUsd?: number;
+  routingAdaptiveWindow?: number;
+  routingAdaptiveMinRecords?: number;
+  policyGates?: {
+    enforce?: boolean;
+    maxFallbackRate?: number;
+    minProviderSuccessRate?: number;
+  };
+  pipelineId?: string;
+  topic?: string;
   mock?: boolean;
   motionStrategy?: MotionStrategyType;
   gameplay?: {
@@ -66,6 +88,8 @@ export interface VisualsProgressEvent {
 interface VideoMatchResult {
   asset: VisualAssetInput;
   isFallback: boolean;
+  attempts: ProviderAttemptTelemetry[];
+  skippedProviders: Array<{ provider: string; reason: string }>;
 }
 
 interface SceneQuery {
@@ -106,21 +130,48 @@ function fallbackQueryForProvider(provider: AssetProvider): string {
     : 'abstract motion background';
 }
 
+// eslint-disable-next-line sonarjs/cognitive-complexity
 async function matchSceneWithProviders(params: {
   sceneQuery: SceneQuery;
   providers: AssetProvider[];
   orientation: 'portrait' | 'landscape' | 'square';
   motionStrategy: MotionStrategyType;
+  routingPolicy: ProviderRoutingPolicy;
+  remainingGenerationBudgetUsd?: number;
   log: ReturnType<typeof createLogger>;
 }): Promise<VideoMatchResult> {
-  const { sceneQuery, providers, orientation, motionStrategy, log } = params;
+  const {
+    sceneQuery,
+    providers,
+    orientation,
+    motionStrategy,
+    routingPolicy,
+    remainingGenerationBudgetUsd,
+    log,
+  } = params;
   const duration = sceneQuery.endTime - sceneQuery.startTime;
+  const providerAttempts: string[] = [];
+  const attempts: ProviderAttemptTelemetry[] = [];
+  const routingPlan = createProviderRoutingPlan({
+    providers,
+    policy: routingPolicy,
+    remainingGenerationBudgetUsd,
+  });
+  const routedProviders = routingPlan.orderedProviders;
 
   // 1) Try provider chain with the intended query.
-  for (const provider of providers) {
+  for (const provider of routedProviders) {
     const query = queryForProvider(sceneQuery, provider);
+    providerAttempts.push(`${provider.name}:primary`);
+    const started = Date.now();
     try {
       const results = await provider.search({ query, orientation, perPage: 5 });
+      attempts.push({
+        provider: provider.name,
+        phase: 'primary',
+        success: results.length > 0,
+        durationMs: Date.now() - started,
+      });
       if (!results.length) continue;
 
       const assetResult = results[0];
@@ -150,11 +201,25 @@ async function matchSceneWithProviders(params: {
           matchReasoning: {
             reasoning: `Found ${assetResult.type} from "${provider.name}" for "${sceneQuery.stockQuery}"`,
             conceptsMatched: [sceneQuery.stockQuery],
+            selectedProvider: provider.name,
+            providerAttempts,
+            routingPolicy,
+            routingRationale: routingPlan.rationale,
+            skippedProviders: routingPlan.skippedProviders,
           },
         },
         isFallback: false,
+        attempts,
+        skippedProviders: routingPlan.skippedProviders,
       };
     } catch (error) {
+      attempts.push({
+        provider: provider.name,
+        phase: 'primary',
+        success: false,
+        durationMs: Date.now() - started,
+        error: error instanceof Error ? error.message : String(error),
+      });
       log.warn(
         { provider: provider.name, query: sceneQuery.stockQuery, error },
         'Provider search failed'
@@ -164,10 +229,18 @@ async function matchSceneWithProviders(params: {
   }
 
   // 2) Try generic fallback queries on the provider chain.
-  for (const provider of providers) {
+  for (const provider of routedProviders) {
     const query = fallbackQueryForProvider(provider);
+    providerAttempts.push(`${provider.name}:fallback`);
+    const started = Date.now();
     try {
       const results = await provider.search({ query, orientation, perPage: 3 });
+      attempts.push({
+        provider: provider.name,
+        phase: 'fallback',
+        success: results.length > 0,
+        durationMs: Date.now() - started,
+      });
       if (!results.length) continue;
 
       const assetResult = results[0];
@@ -196,11 +269,25 @@ async function matchSceneWithProviders(params: {
               assetResult.type === 'image'
                 ? ['abstract', 'cinematic', 'background']
                 : ['abstract', 'motion', 'background'],
+            selectedProvider: provider.name,
+            providerAttempts,
+            routingPolicy,
+            routingRationale: routingPlan.rationale,
+            skippedProviders: routingPlan.skippedProviders,
           },
         },
         isFallback: true,
+        attempts,
+        skippedProviders: routingPlan.skippedProviders,
       };
     } catch (error) {
+      attempts.push({
+        provider: provider.name,
+        phase: 'fallback',
+        success: false,
+        durationMs: Date.now() - started,
+        error: error instanceof Error ? error.message : String(error),
+      });
       log.debug({ provider: provider.name, error }, 'Fallback search failed');
       continue;
     }
@@ -218,9 +305,15 @@ async function matchSceneWithProviders(params: {
       motionApplied: false,
       matchReasoning: {
         reasoning: `No asset found for "${sceneQuery.stockQuery}", using solid color fallback`,
+        providerAttempts,
+        routingPolicy,
+        routingRationale: routingPlan.rationale,
+        skippedProviders: routingPlan.skippedProviders,
       },
     },
     isFallback: true,
+    attempts,
+    skippedProviders: routingPlan.skippedProviders,
   };
 }
 
@@ -341,27 +434,6 @@ function resolveProviderChain(params: {
   return uniqueProviderChain;
 }
 
-function assertMotionStrategySupportedForProviders(params: {
-  hasImageProvider: boolean;
-  motionStrategy: MotionStrategyType;
-  providerChain: AssetProviderName[];
-}): void {
-  const { hasImageProvider, motionStrategy, providerChain } = params;
-  if (!hasImageProvider) return;
-
-  if (motionStrategy === 'kenburns' || motionStrategy === 'none') return;
-
-  throw new CMError(
-    'UNSUPPORTED_OPTION',
-    `Motion strategy "${motionStrategy}" is not supported for image providers yet`,
-    {
-      motionStrategy,
-      providers: providerChain,
-      fix: 'Use --motion-strategy kenburns (or none). depthflow/veo require additional integrations.',
-    }
-  );
-}
-
 async function resolveKeywords(params: {
   hasVideoProvider: boolean;
   scenes: NonNullable<TimestampsOutput['scenes']>[number][];
@@ -438,23 +510,28 @@ function enforceGenerationCostBudget(params: {
   hasImageProvider: boolean;
   providers: AssetProvider[];
   sceneCount: number;
-  visualsConfig: unknown;
+  maxGenerationCostUsd?: number;
+  warnAtGenerationCostUsd?: number;
   providerChain: AssetProviderName[];
   log: ReturnType<typeof createLogger>;
 }): void {
-  const { hasImageProvider, providers, sceneCount, visualsConfig, providerChain, log } = params;
+  const {
+    hasImageProvider,
+    providers,
+    sceneCount,
+    maxGenerationCostUsd,
+    warnAtGenerationCostUsd,
+    providerChain,
+    log,
+  } = params;
   if (!hasImageProvider) return;
 
   const estimatedWorstCase = Math.max(
     ...providers.filter((p) => p.assetType === 'image').map((p) => p.estimateCost(sceneCount)),
     0
   );
-  const maxCost =
-    ((visualsConfig as any).maxGenerationCostUsd as number | undefined) ??
-    ((visualsConfig as any).maxGenerationCost as number | undefined);
-  const warnAt =
-    ((visualsConfig as any).warnAtGenerationCostUsd as number | undefined) ??
-    ((visualsConfig as any).warnAtCost as number | undefined);
+  const maxCost = maxGenerationCostUsd;
+  const warnAt = warnAtGenerationCostUsd;
 
   if (typeof warnAt === 'number' && estimatedWorstCase > warnAt) {
     log.warn(
@@ -476,6 +553,73 @@ function enforceGenerationCostBudget(params: {
       }
     );
   }
+}
+
+function getConfiguredGenerationBudgetUsd(visualsConfig: unknown): number | undefined {
+  return (
+    ((visualsConfig as any).maxGenerationCostUsd as number | undefined) ??
+    ((visualsConfig as any).maxGenerationCost as number | undefined)
+  );
+}
+
+async function resolveEffectiveRoutingPolicy(params: {
+  requestedPolicy: ProviderRoutingPolicy | 'adaptive';
+  adaptiveWindow: number;
+  adaptiveMinRecords: number;
+  log: ReturnType<typeof createLogger>;
+}): Promise<ProviderRoutingPolicy> {
+  const { requestedPolicy, adaptiveWindow, adaptiveMinRecords, log } = params;
+  if (requestedPolicy !== 'adaptive') return requestedPolicy;
+
+  try {
+    const telemetry = await readVisualsRoutingTelemetry();
+    const recent = telemetry.slice(-adaptiveWindow);
+    const recommendation = recommendRoutingPolicy({
+      records: recent,
+      minRecords: adaptiveMinRecords,
+    });
+    if (!recommendation) {
+      log.info(
+        { adaptiveWindow, adaptiveMinRecords, recentRecords: recent.length },
+        'Adaptive routing has insufficient telemetry; using balanced policy'
+      );
+      return 'balanced';
+    }
+    log.info(
+      {
+        policy: recommendation.policy,
+        confidence: recommendation.confidence,
+        reason: recommendation.reason,
+      },
+      'Adaptive routing policy selected from telemetry'
+    );
+    return recommendation.policy;
+  } catch (error) {
+    log.warn({ error }, 'Adaptive routing evaluation failed; using balanced policy');
+    return 'balanced';
+  }
+}
+
+function resolveEffectiveConcurrency(params: {
+  configuredConcurrency: number;
+  hasImageProvider: boolean;
+  maxGenerationCostUsd?: number;
+  log: ReturnType<typeof createLogger>;
+}): number {
+  const { configuredConcurrency, hasImageProvider, maxGenerationCostUsd, log } = params;
+  if (!hasImageProvider) return configuredConcurrency;
+  if (typeof maxGenerationCostUsd !== 'number') return configuredConcurrency;
+  if (configuredConcurrency <= 1) return configuredConcurrency;
+
+  log.warn(
+    {
+      configuredConcurrency,
+      enforcedConcurrency: 1,
+      maxGenerationCostUsd,
+    },
+    'Using sequential generation to enforce hard generation budget deterministically'
+  );
+  return 1;
 }
 
 function summarizeMatchedAssets(params: { matchResults: VideoMatchResult[] }): {
@@ -510,6 +654,35 @@ function summarizeMatchedAssets(params: { matchResults: VideoMatchResult[] }): {
     fromUserFootage,
     totalGenerationCost,
   };
+}
+
+function extractAssetLineageRecords(params: {
+  matchResults: VideoMatchResult[];
+  routingPolicy: ProviderRoutingPolicy;
+  pipelineId?: string;
+  topic?: string;
+}): VisualAssetLineageRecord[] {
+  const { matchResults, routingPolicy, pipelineId, topic } = params;
+  return matchResults.map((result) => {
+    const asset = result.asset;
+    const matchReasoning = asset.matchReasoning;
+    return {
+      schemaVersion: 1,
+      recordedAt: new Date().toISOString(),
+      pipelineId,
+      topic,
+      sceneId: asset.sceneId,
+      assetPath: asset.assetPath,
+      source: asset.source,
+      assetType: asset.assetType ?? 'video',
+      selectedProvider: matchReasoning?.selectedProvider,
+      routingPolicy,
+      generationModel: asset.generationModel,
+      generationPrompt: asset.generationPrompt,
+      generationCostUsd: asset.generationCost,
+      isFallback: result.isFallback,
+    };
+  });
 }
 
 type LocalManifest = Record<string, string>;
@@ -554,6 +727,7 @@ async function loadLocalManifest(params: {
  *
  * Main orchestrator that uses Strategy pattern for providers.
  */
+// eslint-disable-next-line max-lines-per-function, complexity, sonarjs/cognitive-complexity
 export async function matchVisuals(options: MatchVisualsOptions): Promise<VisualsOutput> {
   const providerName = options.mock ? 'mock' : (options.provider ?? 'pexels');
   const log = createLogger({ module: 'visuals', provider: providerName });
@@ -565,10 +739,20 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
     localDir: options.localDir,
     localManifest: options.localManifest,
   });
+  const requestedRoutingPolicy: ProviderRoutingPolicy | 'adaptive' =
+    options.routingPolicy ??
+    ((visualsConfig as any).routingPolicy as ProviderRoutingPolicy | undefined) ??
+    'configured';
+  const routingPolicy = await resolveEffectiveRoutingPolicy({
+    requestedPolicy: requestedRoutingPolicy,
+    adaptiveWindow: options.routingAdaptiveWindow ?? 200,
+    adaptiveMinRecords: options.routingAdaptiveMinRecords ?? 20,
+    log,
+  });
 
   const motionStrategy: MotionStrategyType =
     options.motionStrategy ?? (visualsConfig.motionStrategy as MotionStrategyType);
-  const generationConcurrency = (visualsConfig as any).generationConcurrency ?? 2;
+  const configuredGenerationConcurrency = (visualsConfig as any).generationConcurrency ?? 2;
 
   const gameplayClip = gameplay
     ? await selectGameplayClip({
@@ -629,10 +813,25 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
   const hasImageProvider = providers.some((p) => p.assetType === 'image');
   const hasVideoProvider = providers.some((p) => p.assetType === 'video');
 
-  assertMotionStrategySupportedForProviders({
+  if (hasImageProvider && motionStrategy !== 'none' && motionStrategy !== 'kenburns') {
+    log.info(
+      {
+        motionStrategy,
+        providers: uniqueProviderChain,
+      },
+      'Advanced motion strategy selected for image assets; media stage synthesis will resolve motion'
+    );
+  }
+  const maxGenerationCostUsd = getConfiguredGenerationBudgetUsd(visualsConfig);
+  const effectiveMaxGenerationCostUsd = options.maxGenerationCostUsd ?? maxGenerationCostUsd;
+  const warnAtGenerationCostUsd =
+    ((visualsConfig as any).warnAtGenerationCostUsd as number | undefined) ??
+    ((visualsConfig as any).warnAtCost as number | undefined);
+  const generationConcurrency = resolveEffectiveConcurrency({
+    configuredConcurrency: configuredGenerationConcurrency,
     hasImageProvider,
-    motionStrategy,
-    providerChain: uniqueProviderChain,
+    maxGenerationCostUsd: effectiveMaxGenerationCostUsd,
+    log,
   });
 
   // Build per-scene queries:
@@ -650,7 +849,8 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
     hasImageProvider,
     providers,
     sceneCount: sceneQueries.length,
-    visualsConfig,
+    maxGenerationCostUsd: effectiveMaxGenerationCostUsd,
+    warnAtGenerationCostUsd,
     providerChain: uniqueProviderChain,
     log,
   });
@@ -669,6 +869,7 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
 
   const manifestPath = (visualsConfig as any)?.local?.manifest as string | undefined;
   const manifestLoaded = manifestPath ? await loadLocalManifest({ manifestPath, log }) : null;
+  let remainingGenerationBudgetUsd = effectiveMaxGenerationCostUsd;
 
   const matchResults = await mapWithConcurrency({
     items: sceneQueries,
@@ -700,7 +901,12 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
               conceptsMatched: ['manifest'],
             },
           };
-          return { asset, isFallback: mapped.startsWith('#') };
+          return {
+            asset,
+            isFallback: mapped.startsWith('#'),
+            attempts: [],
+            skippedProviders: [],
+          };
         }
 
         log.warn(
@@ -709,7 +915,25 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
         );
       }
 
-      return matchSceneWithProviders({ sceneQuery, providers, orientation, motionStrategy, log });
+      const result = await matchSceneWithProviders({
+        sceneQuery,
+        providers,
+        orientation,
+        motionStrategy,
+        routingPolicy,
+        remainingGenerationBudgetUsd,
+        log,
+      });
+      if (
+        typeof remainingGenerationBudgetUsd === 'number' &&
+        typeof result.asset.generationCost === 'number'
+      ) {
+        remainingGenerationBudgetUsd = Math.max(
+          0,
+          remainingGenerationBudgetUsd - result.asset.generationCost
+        );
+      }
+      return result;
     },
     onProgress: (completed, total) => {
       emit({
@@ -730,6 +954,79 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
     fromUserFootage,
     totalGenerationCost,
   } = summarizeMatchedAssets({ matchResults });
+  const gateResults: PolicyGateResult[] = [];
+  const providerAttempts = matchResults.flatMap((result) => result.attempts);
+  const skippedProviders = Array.from(
+    new Map(
+      matchResults
+        .flatMap((result) => result.skippedProviders)
+        .map((item) => [`${item.provider}:${item.reason}`, item])
+    ).values()
+  );
+  const totalAssets = visualAssets.length;
+  const fallbackRate = totalAssets > 0 ? fallbacks / totalAssets : 0;
+  const providerAttemptCount = providerAttempts.length;
+  const providerSuccessCount = providerAttempts.filter((attempt) => attempt.success).length;
+  const providerSuccessRate =
+    providerAttemptCount > 0 ? providerSuccessCount / providerAttemptCount : 1;
+  const configuredGates = options.policyGates;
+
+  if (typeof configuredGates?.maxFallbackRate === 'number') {
+    const pass = fallbackRate <= configuredGates.maxFallbackRate;
+    gateResults.push({
+      id: 'visuals.max-fallback-rate',
+      stage: 'post',
+      status: pass ? 'pass' : 'fail',
+      message: pass ? 'Fallback rate within threshold' : 'Fallback rate exceeds threshold',
+      metric: fallbackRate,
+      threshold: configuredGates.maxFallbackRate,
+    });
+  }
+
+  if (typeof configuredGates?.minProviderSuccessRate === 'number') {
+    const pass = providerSuccessRate >= configuredGates.minProviderSuccessRate;
+    gateResults.push({
+      id: 'visuals.min-provider-success-rate',
+      stage: 'post',
+      status: pass ? 'pass' : 'fail',
+      message: pass
+        ? 'Provider success rate meets threshold'
+        : 'Provider success rate below threshold',
+      metric: providerSuccessRate,
+      threshold: configuredGates.minProviderSuccessRate,
+    });
+  }
+
+  if (isVisualObservabilityEnabled()) {
+    try {
+      await writeVisualsRoutingTelemetry({
+        pipelineId: options.pipelineId,
+        topic: options.topic,
+        routingPolicy,
+        providerChain: uniqueProviderChain,
+        sceneCount: sceneQueries.length,
+        fromGenerated,
+        fallbacks,
+        totalGenerationCostUsd: totalGenerationCost,
+        providerAttempts,
+        skippedProviders,
+      });
+    } catch (error) {
+      log.warn({ error }, 'Failed to persist visuals routing telemetry');
+    }
+
+    try {
+      const lineageRecords = extractAssetLineageRecords({
+        matchResults,
+        routingPolicy,
+        pipelineId: options.pipelineId,
+        topic: options.topic,
+      });
+      await writeVisualAssetLineage({ records: lineageRecords });
+    } catch (error) {
+      log.warn({ error }, 'Failed to persist visual asset lineage records');
+    }
+  }
 
   const output = {
     schemaVersion: VISUALS_SCHEMA_VERSION,
@@ -741,12 +1038,24 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
     fromGenerated,
     totalGenerationCost,
     motionStrategy,
+    providerRoutingPolicy: routingPolicy,
+    providerChain: uniqueProviderChain,
+    policyGates: gateResults,
     keywords: keywordsForOutput,
     totalDuration: options.timestamps.totalDuration,
     ...(gameplayClip ? { gameplayClip } : {}),
   };
 
   const validated = VisualsOutputSchema.parse(output);
+  if (configuredGates?.enforce) {
+    const failedGates = gateResults.filter((gate) => gate.status === 'fail');
+    if (failedGates.length > 0) {
+      throw new CMError('POLICY_GATE_FAILED', 'Visuals policy gate failure', {
+        failedGates,
+        fix: 'Loosen policy thresholds, improve provider chain quality, or disable enforce mode',
+      });
+    }
+  }
   log.info(
     { assetCount: validated.scenes.length, fallbacks: validated.fallbacks },
     'Visual matching complete'

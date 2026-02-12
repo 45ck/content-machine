@@ -122,6 +122,17 @@ export const MatchReasoningSchema = z.object({
 
 export type MatchReasoning = z.infer<typeof MatchReasoningSchema>;
 
+export const PolicyGateResultSchema = z.object({
+  id: z.string(),
+  stage: z.enum(['pre', 'post']),
+  status: z.enum(['pass', 'fail']),
+  message: z.string(),
+  metric: z.number().optional(),
+  threshold: z.number().optional(),
+});
+
+export type PolicyGateResult = z.infer<typeof PolicyGateResultSchema>;
+
 /**
  * A visual asset (matches SYSTEM-DESIGN §6.5 VisualAssetSchema)
  *
@@ -272,6 +283,7 @@ const VisualsOutputBaseSchema = z.object({
   provider: z.string().optional().describe('@deprecated Use source in scenes'),
   providerRoutingPolicy: ProviderRoutingPolicyEnum.optional(),
   providerChain: z.array(z.string()).optional(),
+  policyGates: z.array(PolicyGateResultSchema).optional(),
 
   // Legacy fields for backward compatibility
   clips: z.array(VideoClipSchema).optional().describe('@deprecated Use scenes'),

@@ -344,4 +344,42 @@ describe('matchVisuals', () => {
     expect(out.scenes[1].generationCost).toBe(0);
     expect(out.totalGenerationCost).toBe(0);
   });
+
+  it('allows advanced motion strategies for image providers and defers execution', async () => {
+    const searchMock = vi.fn().mockResolvedValue([
+      {
+        id: 'img-1',
+        url: '/tmp/generated.png',
+        type: 'image',
+        width: 1080,
+        height: 1920,
+        metadata: { model: 'gemini-2.5-flash-image', prompt: 'p', cacheHit: false },
+      },
+    ]);
+    createAssetProviderMock.mockReturnValue({
+      name: 'nanobanana',
+      assetType: 'image',
+      requiresMotion: true,
+      costPerAsset: 0.04,
+      search: searchMock,
+      isAvailable: () => true,
+      estimateCost: (n: number) => n * 0.04,
+    });
+
+    extractKeywordsMock.mockResolvedValue([
+      { keyword: 'a', sectionId: 'scene-1', startTime: 0, endTime: 2 },
+      { keyword: 'b', sectionId: 'scene-2', startTime: 2, endTime: 4 },
+    ]);
+
+    const { matchVisuals } = await import('../../../src/visuals/matcher');
+    const out = await matchVisuals({
+      timestamps: buildTimestamps(),
+      provider: 'nanobanana',
+      motionStrategy: 'depthflow',
+    });
+
+    expect(out.scenes[0].assetType).toBe('image');
+    expect(out.scenes[0].motionStrategy).toBe('depthflow');
+    expect(out.scenes[1].motionStrategy).toBe('depthflow');
+  });
 });

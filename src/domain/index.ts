@@ -23,6 +23,8 @@ export * from '../audio/schema';
 export * from '../audio/mix/schema';
 /** Visuals artifact schema + types. */
 export * from '../visuals/schema';
+/** Media synthesis artifact schema + types. */
+export * from '../media/schema';
 /** Hook asset schema + types. */
 export * from '../hooks/schema';
 /** VideoSpec (reverse-engineering) schema + types. */
@@ -73,6 +75,8 @@ export * from '../publish/schema';
 export * from '../research/schema';
 /** Workflow schema + types. */
 export * from '../workflows/schema';
+/** Generation policy schema + types. */
+export * from '../policy/schema';
 /** Validation schema + types. */
 export * from '../validate/schema';
 /** Scoring schema + types. */

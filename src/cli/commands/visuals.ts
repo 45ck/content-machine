@@ -7,6 +7,10 @@
 import { Command } from 'commander';
 import { matchVisuals } from '../../visuals/matcher';
 import type { VisualsProgressEvent } from '../../visuals/matcher';
+import {
+  PROVIDER_ROUTING_POLICIES,
+  type ProviderRoutingPolicy,
+} from '../../visuals/provider-router';
 import { logger } from '../../core/logger';
 import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
 import { TimestampsOutputSchema } from '../../domain';
@@ -34,6 +38,7 @@ const ASSET_PROVIDER_NAMES: ReadonlySet<AssetProviderName> = new Set([
   'unsplash',
   'mock',
 ]);
+const ROUTING_POLICIES: readonly ProviderRoutingPolicy[] = PROVIDER_ROUTING_POLICIES;
 
 function parseProviderNameList(values: string[]): AssetProviderName[] {
   const out: AssetProviderName[] = [];
@@ -49,6 +54,17 @@ function parseProviderNameList(values: string[]): AssetProviderName[] {
     out.push(name as AssetProviderName);
   }
   return out;
+}
+
+function parseRoutingPolicy(value: unknown): ProviderRoutingPolicy | undefined {
+  if (typeof value !== 'string' || !value.trim()) return undefined;
+  if (ROUTING_POLICIES.includes(value as ProviderRoutingPolicy)) {
+    return value as ProviderRoutingPolicy;
+  }
+  throw new SchemaError('Invalid routing policy', {
+    routingPolicy: value,
+    fix: `Use one of: ${ROUTING_POLICIES.join(', ')}`,
+  });
 }
 
 async function readTimestampsInput(path: string) {
@@ -142,6 +158,7 @@ function buildVisualsSummary(params: {
     ['Scenes', String(visuals.scenes.length)],
     ['Duration', visuals.totalDuration ? `${visuals.totalDuration.toFixed(1)}s` : 'N/A'],
     ['Provider', providerLabel],
+    ['Routing', String(visuals.providerRoutingPolicy ?? options.routingPolicy ?? 'configured')],
     ['Motion', visuals.motionStrategy ?? String(options.motionStrategy ?? 'N/A')],
     ['From you', String((visuals as any).fromUserFootage ?? 0)],
     ['From stock', String(visuals.fromStock)],
@@ -191,11 +208,22 @@ export const visualsCommand = new Command('visuals')
     'Motion strategy for image providers (none|kenburns|depthflow|veo)',
     undefined
   )
+  .option(
+    '--routing-policy <policy>',
+    'Provider routing policy (configured|balanced|cost-first|quality-first)',
+    undefined
+  )
+  .option(
+    '--max-generation-cost-usd <amount>',
+    'Hard cap for AI image generation spend during visuals stage (USD)',
+    undefined
+  )
   .option('--orientation <type>', 'Footage orientation', 'portrait')
   .option('--gameplay <path>', 'Gameplay library directory or clip file path')
   .option('--gameplay-style <name>', 'Gameplay subfolder name (e.g., subway-surfers)')
   .option('--gameplay-strict', 'Fail if gameplay clip is missing')
   .option('--mock', 'Use mock visuals (for testing)', false)
+  // eslint-disable-next-line complexity
   .action(async (options, command: Command) => {
     const spinner = createSpinner('Finding matching visuals...').start();
     const runtime = getCliRuntime();
@@ -210,6 +238,9 @@ export const visualsCommand = new Command('visuals')
       }
       if (command.getOptionValueSource('motionStrategy') === 'default') {
         options.motionStrategy = config.visuals.motionStrategy;
+      }
+      if (command.getOptionValueSource('routingPolicy') === 'default') {
+        options.routingPolicy = config.visuals.routingPolicy;
       }
       if (command.getOptionValueSource('orientation') === 'default') {
         options.orientation = config.defaults.orientation;
@@ -238,6 +269,22 @@ export const visualsCommand = new Command('visuals')
               ...fallbackProvidersFromConfig,
             ];
       const providerChain = parseProviderNameList(providerChainRaw);
+      const routingPolicy = parseRoutingPolicy(options.routingPolicy) ?? 'configured';
+      const maxGenerationCostUsdRaw =
+        typeof options.maxGenerationCostUsd === 'string' ? options.maxGenerationCostUsd : undefined;
+      const maxGenerationCostUsd =
+        maxGenerationCostUsdRaw && Number.isFinite(Number(maxGenerationCostUsdRaw))
+          ? Number(maxGenerationCostUsdRaw)
+          : undefined;
+      if (
+        maxGenerationCostUsdRaw &&
+        (maxGenerationCostUsd === undefined || maxGenerationCostUsd < 0)
+      ) {
+        throw new SchemaError('Invalid generation cost cap', {
+          maxGenerationCostUsd: maxGenerationCostUsdRaw,
+          fix: 'Use a non-negative number, e.g. --max-generation-cost-usd 2.5',
+        });
+      }
       options.providers = providerChain;
 
       logger.info({ input: options.input, providerChain }, 'Starting visual matching');
@@ -249,6 +296,8 @@ export const visualsCommand = new Command('visuals')
         timestamps,
         provider: providerChain[0],
         providers: providerChain,
+        routingPolicy,
+        maxGenerationCostUsd,
         localDir: typeof options.localDir === 'string' ? options.localDir : undefined,
         localManifest:
           typeof options.localManifest === 'string' ? options.localManifest : undefined,
@@ -275,6 +324,8 @@ export const visualsCommand = new Command('visuals')
               output: options.output,
               provider: providerChain[0],
               providers: providerChain,
+              routingPolicy,
+              maxGenerationCostUsd: maxGenerationCostUsd ?? null,
               motionStrategy: options.motionStrategy ?? null,
               orientation: options.orientation,
               mock: Boolean(options.mock),
@@ -293,6 +344,8 @@ export const visualsCommand = new Command('visuals')
               fromStock: visuals.fromStock,
               fallbacks: visuals.fallbacks,
               fromGenerated: visuals.fromGenerated,
+              providerRoutingPolicy: visuals.providerRoutingPolicy ?? null,
+              providerChain: visuals.providerChain ?? null,
               gameplayClip: visuals.gameplayClip?.path ?? null,
             },
             timingsMs: Date.now() - runtime.startTime,

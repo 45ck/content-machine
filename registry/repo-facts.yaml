@@ -193,6 +193,20 @@ facts:
         required: false
       - name: CM_VISUALS_OBSERVABILITY
         required: false
+      - name: CM_MEDIA_SORA_ENDPOINT
+        required: false
+      - name: CM_MEDIA_SORA_MODEL
+        required: false
+      - name: CM_MEDIA_VEO_ENDPOINT
+        required: false
+      - name: CM_MEDIA_VEO_MODEL
+        required: false
+      - name: BYTEPLUS_API_KEY
+        required: false
+      - name: CM_MEDIA_SEEDANCE_ENDPOINT
+        required: false
+      - name: CM_MEDIA_SEEDANCE_MODEL
+        required: false
       - name: CM_REMOTION_ENTRY
         required: false
       - name: CM_REMOTION_CONCURRENCY

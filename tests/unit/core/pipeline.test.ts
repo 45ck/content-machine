@@ -9,6 +9,8 @@ const generateScriptMock = vi.fn();
 const generateAudioMock = vi.fn();
 const matchVisualsMock = vi.fn();
 const renderVideoMock = vi.fn();
+const synthesizeMediaManifestMock = vi.fn();
+const applyMediaManifestToVisualsMock = vi.fn();
 
 vi.mock('../../../src/core/config', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../../../src/core/config')>();
@@ -32,6 +34,11 @@ vi.mock('../../../src/visuals/matcher', () => ({
 
 vi.mock('../../../src/render/service', () => ({
   renderVideo: renderVideoMock,
+}));
+
+vi.mock('../../../src/media/service', () => ({
+  synthesizeMediaManifest: synthesizeMediaManifestMock,
+  applyMediaManifestToVisuals: applyMediaManifestToVisualsMock,
 }));
 
 function makeTempDir(): string {
@@ -60,6 +67,15 @@ describe('core pipeline', () => {
       render: {
         fps: 30,
       },
+    });
+    applyMediaManifestToVisualsMock.mockImplementation((visuals) => visuals);
+    synthesizeMediaManifestMock.mockResolvedValue({
+      schemaVersion: '1.0.0',
+      generatedAt: new Date().toISOString(),
+      totalScenes: 0,
+      keyframesExtracted: 0,
+      videosSynthesized: 0,
+      scenes: [],
     });
   });
 
@@ -1010,6 +1026,181 @@ describe('core pipeline', () => {
 
     expect(eventEmitter.emit).toHaveBeenCalledWith(
       expect.objectContaining({ type: 'stage:failed', stage: 'visuals' })
+    );
+  });
+
+  it('auto-enables media synthesis for advanced image motion and renders rewritten visuals', async () => {
+    const dir = makeTempDir();
+    const outputPath = path.join(dir, 'video.mp4');
+
+    generateScriptMock.mockResolvedValue({
+      schemaVersion: '1.0.0',
+      scenes: [{ id: 'scene-1', text: 'Hello', visualDirection: 'demo' }],
+      reasoning: 'ok',
+    });
+    generateAudioMock.mockResolvedValue({
+      schemaVersion: '1.0.0',
+      audioPath: path.join(dir, 'audio.wav'),
+      timestampsPath: path.join(dir, 'timestamps.json'),
+      timestamps: {
+        schemaVersion: '1.0.0',
+        allWords: [{ word: 'hello', start: 0.1, end: 0.3 }],
+        totalDuration: 1,
+        ttsEngine: 'kokoro',
+        asrEngine: 'whisper',
+      },
+      duration: 1,
+      wordCount: 1,
+      voice: 'af_heart',
+      sampleRate: 48000,
+    });
+    const visuals = {
+      schemaVersion: '1.1.0',
+      scenes: [
+        {
+          sceneId: 'scene-1',
+          source: 'generated-nanobanana',
+          assetPath: '/tmp/scene-1.png',
+          duration: 1,
+          assetType: 'image',
+          motionStrategy: 'depthflow',
+          motionApplied: false,
+        },
+      ],
+      totalAssets: 1,
+      fromUserFootage: 0,
+      fromStock: 0,
+      fallbacks: 0,
+      fromGenerated: 1,
+    };
+    matchVisualsMock.mockResolvedValue(visuals);
+
+    const rewrittenVisuals = {
+      ...visuals,
+      scenes: [
+        {
+          ...visuals.scenes[0],
+          assetType: 'video',
+          motionStrategy: 'none',
+          motionApplied: true,
+          assetPath: '/tmp/media/scene-1-depthflow.mp4',
+        },
+      ],
+    };
+    applyMediaManifestToVisualsMock.mockReturnValue(rewrittenVisuals);
+
+    renderVideoMock.mockResolvedValue({
+      schemaVersion: '1.0.0',
+      outputPath,
+      duration: 1,
+      width: 1080,
+      height: 1920,
+      fps: 30,
+      fileSize: 123,
+      codec: 'h264',
+      archetype: 'listicle',
+    });
+
+    const { runPipeline } = await import('../../../src/core/pipeline');
+    await runPipeline({
+      topic: 'Redis',
+      archetype: 'listicle',
+      orientation: 'portrait',
+      voice: 'af_heart',
+      targetDuration: 10,
+      outputPath,
+      keepArtifacts: false,
+      mock: true,
+    });
+
+    expect(synthesizeMediaManifestMock).toHaveBeenCalledTimes(1);
+    expect(applyMediaManifestToVisualsMock).toHaveBeenCalledTimes(1);
+    expect(renderVideoMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        visuals: rewrittenVisuals,
+      })
+    );
+  });
+
+  it('skips media synthesis when explicitly disabled', async () => {
+    const dir = makeTempDir();
+    const outputPath = path.join(dir, 'video.mp4');
+
+    generateScriptMock.mockResolvedValue({
+      schemaVersion: '1.0.0',
+      scenes: [{ id: 'scene-1', text: 'Hello', visualDirection: 'demo' }],
+      reasoning: 'ok',
+    });
+    generateAudioMock.mockResolvedValue({
+      schemaVersion: '1.0.0',
+      audioPath: path.join(dir, 'audio.wav'),
+      timestampsPath: path.join(dir, 'timestamps.json'),
+      timestamps: {
+        schemaVersion: '1.0.0',
+        allWords: [{ word: 'hello', start: 0.1, end: 0.3 }],
+        totalDuration: 1,
+        ttsEngine: 'kokoro',
+        asrEngine: 'whisper',
+      },
+      duration: 1,
+      wordCount: 1,
+      voice: 'af_heart',
+      sampleRate: 48000,
+    });
+    const visuals = {
+      schemaVersion: '1.1.0',
+      scenes: [
+        {
+          sceneId: 'scene-1',
+          source: 'generated-nanobanana',
+          assetPath: '/tmp/scene-1.png',
+          duration: 1,
+          assetType: 'image',
+          motionStrategy: 'veo',
+          motionApplied: false,
+        },
+      ],
+      totalAssets: 1,
+      fromUserFootage: 0,
+      fromStock: 0,
+      fallbacks: 0,
+      fromGenerated: 1,
+    };
+    matchVisualsMock.mockResolvedValue(visuals);
+
+    renderVideoMock.mockResolvedValue({
+      schemaVersion: '1.0.0',
+      outputPath,
+      duration: 1,
+      width: 1080,
+      height: 1920,
+      fps: 30,
+      fileSize: 123,
+      codec: 'h264',
+      archetype: 'listicle',
+    });
+
+    const { runPipeline } = await import('../../../src/core/pipeline');
+    await runPipeline({
+      topic: 'Redis',
+      archetype: 'listicle',
+      orientation: 'portrait',
+      voice: 'af_heart',
+      targetDuration: 10,
+      outputPath,
+      keepArtifacts: false,
+      mock: true,
+      media: {
+        enabled: false,
+      },
+    });
+
+    expect(synthesizeMediaManifestMock).not.toHaveBeenCalled();
+    expect(applyMediaManifestToVisualsMock).not.toHaveBeenCalled();
+    expect(renderVideoMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        visuals,
+      })
     );
   });
 });

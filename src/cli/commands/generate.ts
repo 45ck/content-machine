@@ -36,6 +36,8 @@ import {
   type SyncPresetId,
   VISUALS_PROVIDERS,
 } from '../../domain/repo-facts.generated';
+import type { AssetProviderName } from '../../visuals/providers';
+import { isProviderRoutingPolicy, type ProviderRoutingPolicy } from '../../visuals/provider-router';
 import {
   formatTemplateSource,
   resolveRenderTemplate,
@@ -66,6 +68,8 @@ import {
   type VisualsOutput,
   type WorkflowDefinition,
   type WorkflowStageMode,
+  GenerationPolicySchema,
+  type GenerationPolicy,
 } from '../../domain';
 import type { CaptionConfigInput } from '../../render/captions/config';
 import { hasAudioMixSources, type AudioMixPlanOptions } from '../../audio/mix/planner';
@@ -111,6 +115,7 @@ interface GenerateOptions {
   output: string;
   orientation: string;
   template?: string;
+  policy?: string;
   workflow?: string;
   workflowAllowExec?: boolean;
   script?: string;
@@ -118,6 +123,22 @@ interface GenerateOptions {
   audioMix?: string;
   timestamps?: string;
   visuals?: string;
+  visualsProvider?: string;
+  visualsFallbackProviders?: string;
+  visualsRoutingPolicy?: string;
+  visualsMaxGenerationCostUsd?: string;
+  visualsGateEnforce?: boolean;
+  visualsGateMaxFallbackRate?: string;
+  visualsGateMinProviderSuccessRate?: string;
+  visualsRoutingAdaptiveWindow?: string;
+  visualsRoutingAdaptiveMinRecords?: string;
+  media?: boolean;
+  mediaKeyframes?: boolean;
+  mediaSynthesizeMotion?: boolean;
+  mediaDir?: string;
+  mediaFfmpeg?: string;
+  mediaDepthflowAdapter?: string;
+  mediaVeoAdapter?: string;
   fps?: string;
   captionPreset?: string;
   voice: string;
@@ -335,6 +356,7 @@ function writeDryRunJson(params: {
         archetype,
         orientation,
         template: templateSpec,
+        policy: options.policy ?? null,
         resolvedTemplateId,
         workflow: options.workflow ?? null,
         workflowAllowExec: Boolean(options.workflowAllowExec),
@@ -343,6 +365,15 @@ function writeDryRunJson(params: {
         audioMix: options.audioMix ?? null,
         timestamps: options.timestamps ?? null,
         visuals: options.visuals ?? null,
+        visualsProvider: options.visualsProvider ?? null,
+        visualsFallbackProviders: options.visualsFallbackProviders ?? null,
+        visualsRoutingPolicy: options.visualsRoutingPolicy ?? null,
+        visualsMaxGenerationCostUsd: options.visualsMaxGenerationCostUsd ?? null,
+        visualsGateEnforce: Boolean(options.visualsGateEnforce),
+        visualsGateMaxFallbackRate: options.visualsGateMaxFallbackRate ?? null,
+        visualsGateMinProviderSuccessRate: options.visualsGateMinProviderSuccessRate ?? null,
+        visualsRoutingAdaptiveWindow: options.visualsRoutingAdaptiveWindow ?? null,
+        visualsRoutingAdaptiveMinRecords: options.visualsRoutingAdaptiveMinRecords ?? null,
         fps: options.fps ?? '30',
         captionPreset: options.captionPreset ?? 'tiktok',
         captionMode: options.captionMode ?? null,
@@ -1038,31 +1069,68 @@ async function runGeneratePreflight(params: {
   if (needsVisualsProvider) {
     try {
       const config = await loadConfig();
-      const provider = config.visuals?.provider ?? SUPPORTED_VISUALS_PROVIDER_IDS[0];
-      const facts = VISUALS_PROVIDERS.find((p) => p.id === provider);
-      const keys = facts?.envVarNames ?? [];
-      const hasKey = keys.length === 0 ? true : keys.some((k) => Boolean(process.env[k]));
-      const keyLabel =
-        keys.length === 0
-          ? 'no API key required'
-          : keys.length === 1
-            ? String(keys[0] ?? '')
-            : `${String(keys[0] ?? '')} (or ${keys.slice(1).join(', ')})`;
+      const providerChain = parseVisualsProviderChain({
+        providerRaw: options.visualsProvider ?? config.visuals?.provider,
+        fallbackRaw: options.visualsFallbackProviders,
+        configFallbacks: Array.isArray(config.visuals?.fallbackProviders)
+          ? (config.visuals?.fallbackProviders as string[])
+          : [],
+      });
 
-      if (!hasKey) {
-        addPreflightCheck(checks, {
-          label: 'Visuals provider',
-          status: 'fail',
-          code: 'CONFIG_ERROR',
-          detail: `${provider} (${keyLabel} missing)`,
-          fix: `Set ${keyLabel} in your environment or .env file`,
-        });
-      } else {
-        addPreflightCheck(checks, {
-          label: 'Visuals provider',
-          status: 'ok',
-          detail: `${provider} (${keyLabel})`,
-        });
+      for (const provider of providerChain) {
+        const facts = VISUALS_PROVIDERS.find((p) => p.id === provider);
+        const keys = facts?.envVarNames ?? [];
+        const hasKey = keys.length === 0 ? true : keys.some((k) => Boolean(process.env[k]));
+        const keyLabel =
+          keys.length === 0
+            ? 'no API key required'
+            : keys.length === 1
+              ? String(keys[0] ?? '')
+              : `${String(keys[0] ?? '')} (or ${keys.slice(1).join(', ')})`;
+
+        if (!hasKey) {
+          addPreflightCheck(checks, {
+            label: `Visuals provider (${provider})`,
+            status: 'fail',
+            code: 'CONFIG_ERROR',
+            detail: `${provider} (${keyLabel} missing)`,
+            fix: `Set ${keyLabel} in your environment or .env file`,
+          });
+        } else {
+          addPreflightCheck(checks, {
+            label: `Visuals provider (${provider})`,
+            status: 'ok',
+            detail: `${provider} (${keyLabel})`,
+          });
+        }
+      }
+
+      const routingPolicy = parseProviderRoutingPolicy(
+        options.visualsRoutingPolicy ?? config.visuals?.routingPolicy
+      );
+      addPreflightCheck(checks, {
+        label: 'Visuals routing policy',
+        status: 'ok',
+        detail: routingPolicy ?? config.visuals?.routingPolicy,
+      });
+
+      if (options.visualsMaxGenerationCostUsd) {
+        const cap = parseOptionalNumber(options.visualsMaxGenerationCostUsd);
+        if (cap == null || cap < 0) {
+          addPreflightCheck(checks, {
+            label: 'Visuals cost cap',
+            status: 'fail',
+            code: 'INVALID_ARGUMENT',
+            detail: `Invalid value: ${options.visualsMaxGenerationCostUsd}`,
+            fix: 'Use a non-negative number, e.g. --visuals-max-generation-cost-usd 2.5',
+          });
+        } else {
+          addPreflightCheck(checks, {
+            label: 'Visuals cost cap',
+            status: 'ok',
+            detail: `$${cap.toFixed(2)}`,
+          });
+        }
       }
     } catch (error) {
       const info = getCliErrorInfo(error);
@@ -1191,6 +1259,133 @@ function parseOptionalNumber(value: string | undefined): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+const GENERATE_VISUAL_PROVIDER_NAMES: ReadonlySet<AssetProviderName> = new Set([
+  ...SUPPORTED_VISUALS_PROVIDER_IDS,
+  'dalle',
+  'unsplash',
+  'mock',
+]);
+
+function parseVisualsProviderChain(params: {
+  providerRaw: string | undefined;
+  fallbackRaw: string | undefined;
+  configFallbacks: string[];
+}): AssetProviderName[] {
+  const providerList = String(params.providerRaw ?? '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
+  const fallbackList = String(params.fallbackRaw ?? '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  const rawChain =
+    providerList.length > 1
+      ? providerList
+      : [
+          providerList[0] ?? SUPPORTED_VISUALS_PROVIDER_IDS[0],
+          ...fallbackList,
+          ...params.configFallbacks,
+        ];
+  const unique = Array.from(new Set(rawChain));
+  const parsed: AssetProviderName[] = [];
+
+  for (const provider of unique) {
+    if (!GENERATE_VISUAL_PROVIDER_NAMES.has(provider as AssetProviderName)) {
+      throw new CMError('INVALID_ARGUMENT', `Unknown visuals provider: ${provider}`, {
+        fix: `Use one of: ${Array.from(GENERATE_VISUAL_PROVIDER_NAMES).join(', ')}`,
+      });
+    }
+    parsed.push(provider as AssetProviderName);
+  }
+
+  return parsed;
+}
+
+function parseProviderRoutingPolicy(value: string | undefined): ProviderRoutingPolicy | undefined {
+  if (!value) return undefined;
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  if (trimmed === 'adaptive') return 'balanced';
+  if (isProviderRoutingPolicy(trimmed)) return trimmed;
+  throw new CMError('INVALID_ARGUMENT', `Invalid visuals routing policy: ${trimmed}`, {
+    fix: 'Use one of: configured, balanced, cost-first, quality-first, adaptive',
+  });
+}
+
+async function loadGenerationPolicy(path: string): Promise<GenerationPolicy> {
+  const raw = await readInputFile(path);
+  const parsed = GenerationPolicySchema.safeParse(raw);
+  if (!parsed.success) {
+    throw new SchemaError('Invalid policy file', {
+      path,
+      issues: parsed.error.issues,
+      fix: 'Provide a valid generation policy JSON with schemaVersion: 1',
+    });
+  }
+  return parsed.data;
+}
+
+function applyPolicyDefaults(
+  options: GenerateOptions,
+  command: Command,
+  policy: GenerationPolicy | undefined
+): void {
+  if (!policy?.visuals) return;
+  const visuals = policy.visuals;
+  const record = options as unknown as Record<string, unknown>;
+
+  if (visuals.providerChain && visuals.providerChain.length > 0) {
+    applyDefaultOption(record, command, 'visualsProvider', visuals.providerChain.join(','));
+    if (visuals.providerChain.length > 1) {
+      applyDefaultOption(
+        record,
+        command,
+        'visualsFallbackProviders',
+        visuals.providerChain.slice(1).join(',')
+      );
+    }
+  }
+
+  applyDefaultOption(record, command, 'visualsRoutingPolicy', visuals.routingPolicy);
+  applyDefaultOption(
+    record,
+    command,
+    'visualsMaxGenerationCostUsd',
+    visuals.maxGenerationCostUsd !== undefined ? String(visuals.maxGenerationCostUsd) : undefined
+  );
+  applyDefaultOption(record, command, 'visualsGateEnforce', visuals.gates?.enforce);
+  applyDefaultOption(
+    record,
+    command,
+    'visualsGateMaxFallbackRate',
+    visuals.gates?.maxFallbackRate !== undefined ? String(visuals.gates.maxFallbackRate) : undefined
+  );
+  applyDefaultOption(
+    record,
+    command,
+    'visualsGateMinProviderSuccessRate',
+    visuals.gates?.minProviderSuccessRate !== undefined
+      ? String(visuals.gates.minProviderSuccessRate)
+      : undefined
+  );
+  applyDefaultOption(
+    record,
+    command,
+    'visualsRoutingAdaptiveWindow',
+    visuals.evaluation?.adaptiveWindow !== undefined
+      ? String(visuals.evaluation.adaptiveWindow)
+      : undefined
+  );
+  applyDefaultOption(
+    record,
+    command,
+    'visualsRoutingAdaptiveMinRecords',
+    visuals.evaluation?.minRecords !== undefined ? String(visuals.evaluation.minRecords) : undefined
+  );
+}
+
 function parseFontWeight(value: string | undefined): number | 'normal' | 'bold' | 'black' | null {
   if (!value) return null;
   const raw = value.trim().toLowerCase();
@@ -1289,6 +1484,7 @@ function buildGenerateSuccessJsonArgs(params: {
     archetype,
     orientation,
     template: templateSpec,
+    policy: options.policy ?? null,
     resolvedTemplateId,
     workflow: options.workflow ?? null,
     workflowAllowExec: Boolean(options.workflowAllowExec),
@@ -1297,6 +1493,15 @@ function buildGenerateSuccessJsonArgs(params: {
     audioMix: options.audioMix ?? null,
     timestamps: options.timestamps ?? null,
     visuals: options.visuals ?? null,
+    visualsProvider: options.visualsProvider ?? null,
+    visualsFallbackProviders: options.visualsFallbackProviders ?? null,
+    visualsRoutingPolicy: options.visualsRoutingPolicy ?? null,
+    visualsMaxGenerationCostUsd: options.visualsMaxGenerationCostUsd ?? null,
+    visualsGateEnforce: Boolean(options.visualsGateEnforce),
+    visualsGateMaxFallbackRate: options.visualsGateMaxFallbackRate ?? null,
+    visualsGateMinProviderSuccessRate: options.visualsGateMinProviderSuccessRate ?? null,
+    visualsRoutingAdaptiveWindow: options.visualsRoutingAdaptiveWindow ?? null,
+    visualsRoutingAdaptiveMinRecords: options.visualsRoutingAdaptiveMinRecords ?? null,
     gameplay: options.gameplay ?? null,
     gameplayStyle: options.gameplayStyle ?? null,
     gameplayStrict: Boolean(options.gameplayStrict),
@@ -1551,6 +1756,21 @@ function applyDefaultsFromConfig(options: GenerateOptions, command: Command): vo
   applyDefaultOption(record, command, 'fps', String(config.render.fps));
   applyDefaultOption(record, command, 'template', config.render.template);
   applyDefaultOption(record, command, 'workflow', config.generate.workflow);
+  applyDefaultOption(
+    record,
+    command,
+    'visualsProvider',
+    config.visuals?.provider ?? SUPPORTED_VISUALS_PROVIDER_IDS[0]
+  );
+  applyDefaultOption(record, command, 'visualsRoutingPolicy', config.visuals?.routingPolicy);
+  applyDefaultOption(
+    record,
+    command,
+    'visualsMaxGenerationCostUsd',
+    config.visuals?.maxGenerationCostUsd !== undefined
+      ? String(config.visuals.maxGenerationCostUsd)
+      : undefined
+  );
 
   // Caption defaults
   const captions = config.captions;
@@ -1977,6 +2197,7 @@ async function runGeneratePipeline(params: {
   scriptInput?: ScriptOutput;
   audioInput?: AudioOutput;
   visualsInput?: VisualsOutput;
+  generationPolicy?: GenerationPolicy;
 }): Promise<PipelineResult> {
   const { eventEmitter, dispose } = createPipelineObservation(params.runtime);
 
@@ -2024,6 +2245,24 @@ async function runGeneratePipeline(params: {
         : undefined;
 
     const config = loadConfig();
+    const visualsProviderChain = parseVisualsProviderChain({
+      providerRaw: params.options.visualsProvider ?? config.visuals?.provider,
+      fallbackRaw: params.options.visualsFallbackProviders,
+      configFallbacks: Array.isArray(config.visuals?.fallbackProviders)
+        ? (config.visuals?.fallbackProviders as string[])
+        : [],
+    });
+    const visualsRoutingPolicy = parseProviderRoutingPolicy(params.options.visualsRoutingPolicy);
+    const visualsMaxGenerationCostUsd =
+      parseOptionalNumber(params.options.visualsMaxGenerationCostUsd) ?? undefined;
+    const visualsGateMaxFallbackRate =
+      parseOptionalNumber(params.options.visualsGateMaxFallbackRate) ?? undefined;
+    const visualsGateMinProviderSuccessRate =
+      parseOptionalNumber(params.options.visualsGateMinProviderSuccessRate) ?? undefined;
+    const visualsRoutingAdaptiveWindow =
+      parseOptionalInt(params.options.visualsRoutingAdaptiveWindow) ?? undefined;
+    const visualsRoutingAdaptiveMinRecords =
+      parseOptionalInt(params.options.visualsRoutingAdaptiveMinRecords) ?? undefined;
     const mergedCaptionConfig = mergeCaptionConfigPartials(
       config.captions.config as CaptionConfigInput | undefined,
       (params.templateDefaults?.captionConfig as CaptionConfigInput | undefined) ?? undefined
@@ -2034,6 +2273,28 @@ async function runGeneratePipeline(params: {
       archetype: params.archetype as Archetype,
       orientation: params.orientation as 'portrait' | 'landscape' | 'square',
       voice: params.options.voice,
+      visualsProvider: visualsProviderChain[0],
+      visualsProviders: visualsProviderChain,
+      visualsRoutingPolicy,
+      visualsMaxGenerationCostUsd,
+      visualsPolicyGates: {
+        enforce: Boolean(params.options.visualsGateEnforce),
+        maxFallbackRate: visualsGateMaxFallbackRate,
+        minProviderSuccessRate: visualsGateMinProviderSuccessRate,
+      },
+      visualsRoutingAdaptiveWindow,
+      visualsRoutingAdaptiveMinRecords,
+      media: {
+        enabled: params.options.media,
+        extractVideoKeyframes: params.options.mediaKeyframes,
+        synthesizeImageMotion: params.options.mediaSynthesizeMotion,
+        outputDir: params.options.mediaDir,
+        ffmpegPath: params.options.mediaFfmpeg,
+        adapterByMotionStrategy: {
+          depthflow: params.options.mediaDepthflowAdapter,
+          veo: params.options.mediaVeoAdapter,
+        },
+      },
       targetDuration,
       outputPath: params.options.output,
       fps: params.options.fps ? parseInt(params.options.fps, 10) : undefined,
@@ -2103,6 +2364,7 @@ async function runGeneratePipeline(params: {
       scriptInput: params.scriptInput,
       audioInput: params.audioInput,
       visualsInput: params.visualsInput,
+      generationPolicy: params.generationPolicy,
     });
   } finally {
     dispose();
@@ -2676,11 +2938,18 @@ async function runGenerate(
   const workflowDefinition = resolvedWorkflow?.workflow;
   const workflowBaseDir = resolvedWorkflow?.baseDir;
   const workflowStageModes = resolveWorkflowStageModes(workflowDefinition);
+  let generationPolicy: GenerationPolicy | undefined;
 
   // Apply workflow defaults before template defaults so templates can override workflows.
   applyWorkflowDefaults(options, command, workflowDefinition, new Set(['workflowAllowExec']));
   applyWorkflowInputs(options, command, workflowDefinition, workflowBaseDir);
   applyWorkflowStageDefaults(options, workflowStageModes, artifactsDir);
+  if (options.policy) {
+    generationPolicy = await loadGenerationPolicy(
+      resolve(workflowBaseDir ?? process.cwd(), options.policy)
+    );
+  }
+  applyPolicyDefaults(options, command, generationPolicy);
 
   const { resolvedTemplate, templateDefaults, templateParams, templateGameplay, templateOverlays } =
     await resolveTemplateAndApplyDefaults(options, command);
@@ -2859,6 +3128,7 @@ async function runGenerate(
       archetype,
       orientation,
       template: resolvedTemplate?.template.id,
+      policy: options.policy,
       templateSource: getTemplateSourceForLog(resolvedTemplate),
       workflow: resolvedWorkflow?.workflow.id,
       workflowSource: resolvedWorkflow ? formatWorkflowSource(resolvedWorkflow) : undefined,
@@ -2939,6 +3209,7 @@ async function runGenerate(
       scriptInput,
       audioInput,
       visualsInput,
+      generationPolicy,
     });
 
   if (options.keepArtifacts && resolvedTemplate) {
@@ -3321,6 +3592,7 @@ export const generateCommand = new Command('generate')
     '--template <idOrPath>',
     'Render template (Remotion composition + render defaults). Use `cm templates list`'
   )
+  .option('--policy <path>', 'Generation policy JSON file (cross-stage orchestration policy)')
   .option('--allow-template-code', 'Allow executing Remotion code templates (dangerous)', false)
   .option(
     '--template-deps <mode>',
@@ -3346,6 +3618,52 @@ export const generateCommand = new Command('generate')
     '--visuals <path>',
     `Use existing ${DEFAULT_ARTIFACT_FILENAMES.visuals} (skip visuals stage)`
   )
+  .option(
+    '--visuals-provider <providerOrChain>',
+    'Visuals provider or provider chain (e.g., pexels or pexels,local,nanobanana)'
+  )
+  .option(
+    '--visuals-fallback-providers <providers>',
+    'Comma-separated fallback providers appended to --visuals-provider when provider is a single value'
+  )
+  .option(
+    '--visuals-routing-policy <policy>',
+    'Visuals provider routing policy (configured|balanced|cost-first|quality-first)'
+  )
+  .option(
+    '--visuals-max-generation-cost-usd <amount>',
+    'Hard cap for AI image generation spend during visuals stage (USD)'
+  )
+  .option('--visuals-gate-enforce', 'Fail generate if configured visuals policy gates fail', false)
+  .option(
+    '--visuals-gate-max-fallback-rate <0..1>',
+    'Post-stage gate: maximum allowed fallback asset rate'
+  )
+  .option(
+    '--visuals-gate-min-provider-success-rate <0..1>',
+    'Post-stage gate: minimum allowed provider success rate'
+  )
+  .option(
+    '--visuals-routing-adaptive-window <n>',
+    'Adaptive routing: number of recent telemetry records to inspect'
+  )
+  .option(
+    '--visuals-routing-adaptive-min-records <n>',
+    'Adaptive routing: minimum telemetry records before recommendation is trusted'
+  )
+  .option(
+    '--media',
+    'Enable media synthesis stage (image-to-video for depthflow/veo + video keyframes)'
+  )
+  .option('--no-media-keyframes', 'Disable media-stage video keyframe extraction')
+  .option(
+    '--no-media-synthesize-motion',
+    'Disable media-stage image-to-video synthesis for depthflow/veo scenes'
+  )
+  .option('--media-dir <path>', 'Directory for generated media-stage artifacts')
+  .option('--media-ffmpeg <path>', 'ffmpeg executable path for media stage')
+  .option('--media-depthflow-adapter <id>', 'Adapter id for depthflow image-to-video synthesis')
+  .option('--media-veo-adapter <id>', 'Adapter id for veo image-to-video synthesis')
   .option('-o, --output <path>', 'Output video file path', DEFAULT_ARTIFACT_FILENAMES.video)
   .option('--orientation <type>', 'Video orientation', 'portrait')
   .option('--fps <fps>', 'Frames per second', '30')
