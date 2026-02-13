@@ -45,8 +45,28 @@ cm hooks download <hookId> [options]
 
 ## Related generate/render flags
 
-- `--hook <idOrPath>`: use a hook clip by id, local path, or URL
+- `--hook <idOrPath>`: use a hook clip by id, local path, or URL (use `"none"` to explicitly disable)
+- `--no-hook`: disable hook intro clip (equivalent to `--hook none`)
 - `--download-hook`: download the hook clip if missing (library id mode)
+
+### Default behavior
+
+By default, **no hook is added** to generated videos. To enable a hook, pass
+`--hook <id>` explicitly or set `default_hook` in your config file:
+
+```toml
+# .content-machine.toml
+[hooks]
+default_hook = "no-crunch"
+```
+
+To disable a hook when one is configured as the default:
+
+```bash
+cm generate "..." --no-hook
+# or
+cm generate "..." --hook none
+```
 
 ## Global options
 
@@ -70,6 +90,12 @@ cm hooks list
 # Download a single clip
 cm hooks download no-crunch
 
-# Use the hook by id (auto-download when opted in)
+# Use a hook by id (auto-download when opted in)
 cm generate "..." --hook no-crunch --download-hook
+
+# Generate without any hook
+cm generate "..." --no-hook
+
+# Disable hook when a default is configured
+cm generate "..." --hook none
 ```

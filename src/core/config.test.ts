@@ -638,7 +638,7 @@ describe('Config', () => {
       expect(result.hooks).toBeDefined();
       expect(result.hooks.library).toBe('transitionalhooks');
       expect(result.hooks.audio).toBe('keep');
-      expect(result.hooks.defaultHook).toBe('no-crunch');
+      expect(result.hooks.defaultHook).toBeUndefined();
     });
 
     it('should include audio mix defaults when not provided', async () => {

@@ -232,7 +232,7 @@ const HooksConfigSchema = z.object({
   fit: HookFitEnum.default('cover'),
   maxDuration: z.number().positive().default(3),
   trimDuration: z.number().positive().optional(),
-  defaultHook: z.string().default('no-crunch'),
+  defaultHook: z.string().optional(),
 });
 
 // ============================================================================

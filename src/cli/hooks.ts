@@ -64,7 +64,13 @@ function resolveHookDefaults(options: {
   fit: HookFit | undefined;
 } {
   const config = loadConfig();
-  const rawHookValue = options.hook ? String(options.hook) : config.hooks.defaultHook;
+  // --no-hook sets options.hook to false (Commander.js negation)
+  const rawHookValue =
+    options.hook === false
+      ? 'none'
+      : options.hook
+        ? String(options.hook)
+        : config.hooks.defaultHook;
   const hookValue = normalizeHookValue(rawHookValue);
   const durationSeconds = parseOptionalNumber(options.hookDuration);
   const trimDurationSeconds = normalizeTrimDuration(
@@ -100,6 +106,7 @@ async function resolveHookClip(params: {
   });
 }
 
+/** Resolve hook configuration from CLI options, returning null if hooks are disabled. */
 export async function resolveHookFromCli(options: {
   hook?: unknown;
   hookLibrary?: unknown;
