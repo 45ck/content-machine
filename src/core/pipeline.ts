@@ -13,7 +13,6 @@ import type { LLMProvider } from './llm/provider';
 import { ResearchOutputSchema } from '../domain';
 import type {
   AudioOutput,
-  GenerationPolicy,
   MediaManifest,
   RenderOutput,
   ResearchOutput,
@@ -104,7 +103,7 @@ export interface PipelineOptions {
   /** Visuals + layout options */
   visualsProvider?: AssetProviderName;
   visualsProviders?: AssetProviderName[];
-  visualsRoutingPolicy?: ProviderRoutingPolicy;
+  visualsRoutingPolicy?: ProviderRoutingPolicy | 'adaptive';
   visualsMaxGenerationCostUsd?: number;
   visualsPolicyGates?: {
     enforce?: boolean;
@@ -113,7 +112,6 @@ export interface PipelineOptions {
   };
   visualsRoutingAdaptiveWindow?: number;
   visualsRoutingAdaptiveMinRecords?: number;
-  generationPolicy?: GenerationPolicy;
   gameplay?: { library?: string; style?: string; required?: boolean };
   splitScreenRatio?: number;
   gameplayPosition?: 'top' | 'bottom' | 'full';

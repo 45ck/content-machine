@@ -63,23 +63,32 @@ This roadmap uses existing CM terms only:
 - No breaking changes: fields are additive and optional.
 - Enables policy tuning, auditability, and deterministic cost control now.
 
-## Next increments
+## Follow-on increments
 
-1. Cross-stage policy object in `cm generate`
+1. Cross-stage policy object in `cm generate` (completed)
 
-- Normalize policy/config shape into one explicit object shared across stages (not just visuals).
+- Added `--policy <path>` with schema validation (`schemaVersion: 1`).
+- Visuals policy defaults now map into generate options for provider chain, routing policy, budget, and evaluation knobs.
 
-2. Query and reporting tools for telemetry/lineage
+2. Query and reporting tools for telemetry/lineage (completed)
 
-- Add `cm` commands for viewing telemetry trends and lineage lookup by asset/scene/pipeline.
+- Added `cm telemetry routing` and `cm telemetry lineage` commands for machine-readable operational reporting.
 
-3. Policy gates
+3. Policy gates (completed)
 
-- Add pre/post generation policy gates with machine-readable gate outcomes in artifacts.
+- Added visuals policy gates with machine-readable gate outcomes in `visuals.json`.
+- Optional enforcement mode now fails generation with explicit `POLICY_GATE_FAILED`.
 
-4. Evaluation loop
+4. Evaluation loop (completed)
 
-- Record provider outcomes (latency, success rate, fallbacks, cost) to tune router decisions empirically.
+- Added telemetry-driven adaptive routing recommendation logic.
+- Router can tune effective policy from observed provider outcomes (latency/success/fallback trends).
+
+## Remaining work
+
+1. Expand policy object coverage to non-visual stages (script/audio/render) and add stage-level gate parity.
+
+2. Add longitudinal telemetry rollups and SLO dashboards for failure-rate drift and cost-per-output regression detection.
 
 ## Success criteria
 

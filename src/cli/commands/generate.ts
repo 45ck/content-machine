@@ -68,7 +68,7 @@ import {
   type VisualsOutput,
   type WorkflowDefinition,
   type WorkflowStageMode,
-  GenerationPolicySchema,
+  safeParseGenerationPolicy,
   type GenerationPolicy,
 } from '../../domain';
 import type { CaptionConfigInput } from '../../render/captions/config';
@@ -1303,11 +1303,13 @@ function parseVisualsProviderChain(params: {
   return parsed;
 }
 
-function parseProviderRoutingPolicy(value: string | undefined): ProviderRoutingPolicy | undefined {
+function parseProviderRoutingPolicy(
+  value: string | undefined
+): ProviderRoutingPolicy | 'adaptive' | undefined {
   if (!value) return undefined;
   const trimmed = value.trim();
   if (!trimmed) return undefined;
-  if (trimmed === 'adaptive') return 'balanced';
+  if (trimmed === 'adaptive') return 'adaptive';
   if (isProviderRoutingPolicy(trimmed)) return trimmed;
   throw new CMError('INVALID_ARGUMENT', `Invalid visuals routing policy: ${trimmed}`, {
     fix: 'Use one of: configured, balanced, cost-first, quality-first, adaptive',
@@ -1316,12 +1318,12 @@ function parseProviderRoutingPolicy(value: string | undefined): ProviderRoutingP
 
 async function loadGenerationPolicy(path: string): Promise<GenerationPolicy> {
   const raw = await readInputFile(path);
-  const parsed = GenerationPolicySchema.safeParse(raw);
+  const parsed = safeParseGenerationPolicy(raw);
   if (!parsed.success) {
     throw new SchemaError('Invalid policy file', {
       path,
       issues: parsed.error.issues,
-      fix: 'Provide a valid generation policy JSON with schemaVersion: 1',
+      fix: 'Provide a valid generation policy JSON with schemaVersion: 1 (or legacy 1.0.0)',
     });
   }
   return parsed.data;
@@ -2197,7 +2199,6 @@ async function runGeneratePipeline(params: {
   scriptInput?: ScriptOutput;
   audioInput?: AudioOutput;
   visualsInput?: VisualsOutput;
-  generationPolicy?: GenerationPolicy;
 }): Promise<PipelineResult> {
   const { eventEmitter, dispose } = createPipelineObservation(params.runtime);
 
@@ -2364,7 +2365,6 @@ async function runGeneratePipeline(params: {
       scriptInput: params.scriptInput,
       audioInput: params.audioInput,
       visualsInput: params.visualsInput,
-      generationPolicy: params.generationPolicy,
     });
   } finally {
     dispose();
@@ -3209,7 +3209,6 @@ async function runGenerate(
       scriptInput,
       audioInput,
       visualsInput,
-      generationPolicy,
     });
 
   if (options.keepArtifacts && resolvedTemplate) {

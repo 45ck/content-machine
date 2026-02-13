@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createProviderRoutingPlan } from './provider-router';
+import { createProviderRoutingPlan, isProviderRoutingPolicy } from './provider-router';
 import type { AssetProvider, AssetSearchOptions, VisualAssetResult } from './providers/types';
 
 function provider(input: {
@@ -21,6 +21,12 @@ function provider(input: {
 }
 
 describe('createProviderRoutingPlan', () => {
+  it('validates routing policy identifiers', () => {
+    expect(isProviderRoutingPolicy('balanced')).toBe(true);
+    expect(isProviderRoutingPolicy('adaptive')).toBe(false);
+    expect(isProviderRoutingPolicy(42)).toBe(false);
+  });
+
   it('preserves order for configured policy', () => {
     const plan = createProviderRoutingPlan({
       providers: [

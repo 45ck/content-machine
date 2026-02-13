@@ -55,7 +55,7 @@ export interface MatchVisualsOptions {
   /** Optional manifest JSON mapping `sceneId -> assetPath` for deterministic BYO visuals. */
   localManifest?: string;
   orientation?: 'portrait' | 'landscape' | 'square';
-  routingPolicy?: ProviderRoutingPolicy;
+  routingPolicy?: ProviderRoutingPolicy | 'adaptive';
   maxGenerationCostUsd?: number;
   routingAdaptiveWindow?: number;
   routingAdaptiveMinRecords?: number;

@@ -498,6 +498,119 @@ describe('cli generate command', () => {
     exitSpy.mockRestore();
   });
 
+  it('passes adaptive visuals routing policy through to pipeline', async () => {
+    await configureRuntime({ json: true });
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+
+    const { runPipeline } = await import('../../../../src/core/pipeline');
+    (runPipeline as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      script: {},
+      audio: { audioMixPath: null },
+      visuals: {},
+      render: {},
+      outputPath: 'out.mp4',
+      duration: 1,
+      width: 1080,
+      height: 1920,
+      fileSize: 123,
+    });
+
+    const output = await import('../../../../src/cli/output');
+    vi.spyOn(output, 'writeJsonEnvelope').mockImplementation(() => undefined);
+
+    const { generateCommand } = await import('../../../../src/cli/commands/generate');
+    await generateCommand.parseAsync(
+      [
+        'Redis',
+        '--output',
+        'out.mp4',
+        '--mock',
+        '--visuals-provider',
+        'mock',
+        '--visuals-routing-policy',
+        'adaptive',
+      ],
+      {
+        from: 'user',
+      }
+    );
+
+    expect(runPipeline).toHaveBeenCalledWith(
+      expect.objectContaining({
+        visualsRoutingPolicy: 'adaptive',
+      })
+    );
+    expect(exitSpy).toHaveBeenCalled();
+
+    exitSpy.mockRestore();
+  });
+
+  it('loads legacy policy file and applies visuals defaults', async () => {
+    await configureRuntime({ json: true });
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+
+    const { readInputFile } = await import('../../../../src/cli/utils');
+    (readInputFile as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      schemaVersion: '1.0.0',
+      visuals: {
+        providerChain: ['mock', 'local'],
+        routingPolicy: 'adaptive',
+        maxGenerationCostUsd: 1.25,
+        gates: {
+          enforce: true,
+          maxFallbackRate: 0.3,
+          minProviderSuccessRate: 0.7,
+        },
+        evaluation: {
+          adaptiveWindow: 75,
+          minRecords: 15,
+        },
+      },
+    });
+
+    const { runPipeline } = await import('../../../../src/core/pipeline');
+    (runPipeline as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      script: {},
+      audio: { audioMixPath: null },
+      visuals: {},
+      render: {},
+      outputPath: 'out.mp4',
+      duration: 1,
+      width: 1080,
+      height: 1920,
+      fileSize: 123,
+    });
+
+    const output = await import('../../../../src/cli/output');
+    vi.spyOn(output, 'writeJsonEnvelope').mockImplementation(() => undefined);
+
+    const { generateCommand } = await import('../../../../src/cli/commands/generate');
+    await generateCommand.parseAsync(
+      ['Redis', '--output', 'out.mp4', '--mock', '--policy', 'policy.json'],
+      {
+        from: 'user',
+      }
+    );
+
+    expect(runPipeline).toHaveBeenCalledWith(
+      expect.objectContaining({
+        visualsProviders: ['mock', 'local'],
+        visualsRoutingPolicy: 'adaptive',
+        visualsMaxGenerationCostUsd: 1.25,
+        visualsPolicyGates: {
+          enforce: true,
+          maxFallbackRate: 0.3,
+          minProviderSuccessRate: 0.7,
+        },
+        visualsRoutingAdaptiveWindow: 75,
+        visualsRoutingAdaptiveMinRecords: 15,
+      })
+    );
+    expect(exitSpy).toHaveBeenCalled();
+
+    exitSpy.mockRestore();
+  });
+
   it('runs sync quality gating when enabled', async () => {
     await configureRuntime({ json: true });
     const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
