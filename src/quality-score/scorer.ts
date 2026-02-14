@@ -5,14 +5,16 @@
  * weighted average of repo metric scores.
  */
 import { resolve } from 'node:path';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { runPythonJson } from '../validate/python-json';
 import type { FeatureVector } from '../domain';
 
 export interface QualityScoreResult {
   score: number;
+  confidence: number;
   label: 'bad' | 'below_average' | 'average' | 'good' | 'excellent';
   subscores: Record<string, number>;
+  defects: string[];
   topFactors: Array<{ feature: string; impact: number; direction: 'positive' | 'negative' }>;
   modelVersion: string;
   method: 'learned' | 'heuristic';
@@ -88,10 +90,19 @@ function scoreHeuristic(features: FeatureVector, explain: boolean): QualityScore
   // Sort factors by absolute impact
   factors.sort((a, b) => Math.abs(b.impact) - Math.abs(a.impact));
 
+  // Derive defects from low-scoring metrics
+  const defects = deriveDefects(repoMetrics);
+
+  // Confidence: linear from 0.3 (at boundary score=50) to 1.0 (at extremes).
+  // Floor of 0.3 reflects that heuristic scoring always has some signal even at the boundary.
+  const confidence = Math.min(1, Math.abs(clampedScore - 50) / 50 + 0.3);
+
   return {
     score: clampedScore,
+    confidence: Math.round(confidence * 100) / 100,
     label: scoreToLabel(clampedScore),
     subscores,
+    defects,
     topFactors: factors.slice(0, 5),
     modelVersion: 'heuristic-v1',
     method: 'heuristic',
@@ -123,12 +134,20 @@ async function scoreWithModel(
       timeoutMs: options.timeoutMs ?? 60_000,
     })) as { score: number; modelVersion?: string };
 
-    const score = Math.max(0, Math.min(100, Math.round(result.score)));
+    let score = Math.max(0, Math.min(100, Math.round(result.score)));
+
+    // Apply Platt scaling calibration if available
+    const calibrationPath = modelPath.replace(/\.onnx$/, '_calibration.json');
+    score = applyPlattCalibration(score, calibrationPath);
+
+    const confidence = Math.min(1, Math.abs(score - 50) / 50 + 0.3);
 
     return {
       score,
+      confidence: Math.round(confidence * 100) / 100,
       label: scoreToLabel(score),
       subscores: {},
+      defects: deriveDefects(features.repoMetrics),
       topFactors: [],
       modelVersion: result.modelVersion ?? 'unknown',
       method: 'learned',
@@ -139,6 +158,40 @@ async function scoreWithModel(
     } catch {
       // cleanup best effort
     }
+  }
+}
+
+/** Derive defect codes from low-scoring repo metrics. */
+function deriveDefects(repoMetrics: FeatureVector['repoMetrics']): string[] {
+  const defects: string[] = [];
+  if (repoMetrics.syncRating != null && repoMetrics.syncRating < 40)
+    defects.push('low_sync_rating');
+  if (repoMetrics.audioScore != null && repoMetrics.audioScore < 30)
+    defects.push('audio_quality_poor');
+  if (repoMetrics.audioOverlapCount != null && repoMetrics.audioOverlapCount > 0)
+    defects.push('audio_overlap_detected');
+  if (repoMetrics.captionOverall != null && repoMetrics.captionOverall < 0.3)
+    defects.push('caption_quality_poor');
+  if (repoMetrics.pacingScore != null && repoMetrics.pacingScore < 0.3) defects.push('pacing_poor');
+  if (repoMetrics.engagementScore != null && repoMetrics.engagementScore < 30)
+    defects.push('low_engagement');
+  if (repoMetrics.hookTiming != null && repoMetrics.hookTiming < 20) defects.push('weak_hook');
+  return defects;
+}
+
+/**
+ * Apply Platt scaling calibration if a calibration JSON exists.
+ * Expects {a, b} params pre-fit to the model's 0-1 normalized score distribution
+ * via standard logistic regression: p = 1 / (1 + exp(a * score_norm + b)).
+ */
+function applyPlattCalibration(rawScore: number, calibrationPath: string): number {
+  try {
+    const cal = JSON.parse(readFileSync(calibrationPath, 'utf-8')) as { a: number; b: number };
+    const x = rawScore / 100;
+    const calibrated = 1 / (1 + Math.exp(cal.a * x + cal.b));
+    return Math.max(0, Math.min(100, Math.round(calibrated * 100)));
+  } catch {
+    return rawScore;
   }
 }
 

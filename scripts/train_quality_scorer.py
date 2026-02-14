@@ -74,10 +74,88 @@ def _discover_feature_names(features: Dict[str, Dict[str, Any]]) -> List[str]:
     return sorted(names)
 
 
+def _make_cv(y, groups=None):
+    """Create cross-validation splitter. Uses GroupKFold if groups provided."""
+    import numpy as np
+    n_splits = min(5, len(y))
+    if groups is not None and len(set(groups)) >= n_splits:
+        from sklearn.model_selection import GroupKFold
+        return GroupKFold(n_splits=n_splits), groups
+    from sklearn.model_selection import KFold
+    return KFold(n_splits=n_splits, shuffle=True, random_state=42), None
+
+
+def _compute_extended_metrics(y_true, y_pred) -> Dict[str, float]:
+    """Compute PR-AUC, balanced accuracy, and ECE in addition to basic metrics."""
+    import numpy as np
+    metrics: Dict[str, float] = {}
+
+    # Binarize at threshold 4 (good/bad) for classification metrics
+    y_bin = (y_true >= 4).astype(int)
+    y_pred_bin = (y_pred >= 4).astype(int)
+    y_pred_prob = np.clip((y_pred - 1) / 4, 0, 1)  # Normalize to [0,1]
+
+    try:
+        from sklearn.metrics import precision_recall_curve, auc, balanced_accuracy_score
+        precision, recall, _ = precision_recall_curve(y_bin, y_pred_prob)
+        metrics["pr_auc"] = float(auc(recall, precision))
+        metrics["balanced_accuracy"] = float(balanced_accuracy_score(y_bin, y_pred_bin))
+    except Exception:
+        pass
+
+    # Expected Calibration Error (ECE)
+    try:
+        n_bins = min(10, len(y_true))
+        bin_edges = np.linspace(0, 1, n_bins + 1)
+        ece = 0.0
+        for i in range(n_bins):
+            # Use <= for last bin to include upper edge (values == 1.0)
+            upper_op = np.less_equal if i == n_bins - 1 else np.less
+            mask = (y_pred_prob >= bin_edges[i]) & upper_op(y_pred_prob, bin_edges[i + 1])
+            if mask.sum() > 0:
+                bin_acc = y_bin[mask].mean()
+                bin_conf = y_pred_prob[mask].mean()
+                ece += mask.sum() / len(y_true) * abs(bin_acc - bin_conf)
+        metrics["ece"] = float(ece)
+    except Exception:
+        pass
+
+    return metrics
+
+
+def _eval_model(model, X, y, cv, groups) -> Dict[str, Any]:
+    """Evaluate a model with cross-validation and extended metrics."""
+    import numpy as np
+    from sklearn.model_selection import cross_val_score
+    from scipy.stats import spearmanr
+
+    if groups is not None:
+        scores = cross_val_score(model, X, y, cv=cv, groups=groups, scoring="neg_mean_squared_error")
+    else:
+        scores = cross_val_score(model, X, y, cv=cv, scoring="neg_mean_squared_error")
+    rmse_scores = np.sqrt(-scores)
+
+    model.fit(X, y)
+    preds = model.predict(X)
+    spearman_corr, _ = spearmanr(y, preds)
+
+    metrics = {
+        "cv_rmse_mean": float(rmse_scores.mean()),
+        "cv_rmse_std": float(rmse_scores.std()),
+        "spearman_correlation": float(spearman_corr),
+        "n_samples": len(y),
+    }
+    metrics.update(_compute_extended_metrics(y, preds))
+    return metrics
+
+
+# Global state set by main() before training
+_cv_groups = None
+
+
 def _train_xgboost(X, y, feature_names: List[str]) -> Tuple[Any, Dict[str, Any]]:
     try:
         from xgboost import XGBRegressor
-        from sklearn.model_selection import cross_val_score
         import numpy as np
     except ImportError:
         _fail("Missing dependencies: pip install xgboost scikit-learn numpy")
@@ -89,58 +167,27 @@ def _train_xgboost(X, y, feature_names: List[str]) -> Tuple[Any, Dict[str, Any]]
         objective="reg:squarederror",
     )
 
-    scores = cross_val_score(model, X, y, cv=min(5, len(y)), scoring="neg_mean_squared_error")
-    rmse_scores = np.sqrt(-scores)
-
-    model.fit(X, y)
-
-    # Spearman correlation
-    from scipy.stats import spearmanr
-    preds = model.predict(X)
-    spearman_corr, _ = spearmanr(y, preds)
-
-    metrics = {
-        "cv_rmse_mean": float(rmse_scores.mean()),
-        "cv_rmse_std": float(rmse_scores.std()),
-        "spearman_correlation": float(spearman_corr),
-        "n_samples": len(y),
-    }
-
+    cv, groups = _make_cv(y, _cv_groups)
+    metrics = _eval_model(model, X, y, cv, groups)
     return model, metrics
 
 
 def _train_logistic(X, y, feature_names: List[str]) -> Tuple[Any, Dict[str, Any]]:
     try:
         from sklearn.linear_model import Ridge
-        from sklearn.model_selection import cross_val_score
         import numpy as np
     except ImportError:
         _fail("Missing dependencies: pip install scikit-learn numpy")
 
     model = Ridge(alpha=1.0)
-    scores = cross_val_score(model, X, y, cv=min(5, len(y)), scoring="neg_mean_squared_error")
-    rmse_scores = np.sqrt(-scores)
-
-    model.fit(X, y)
-
-    from scipy.stats import spearmanr
-    preds = model.predict(X)
-    spearman_corr, _ = spearmanr(y, preds)
-
-    metrics = {
-        "cv_rmse_mean": float(rmse_scores.mean()),
-        "cv_rmse_std": float(rmse_scores.std()),
-        "spearman_correlation": float(spearman_corr),
-        "n_samples": len(y),
-    }
-
+    cv, groups = _make_cv(y, _cv_groups)
+    metrics = _eval_model(model, X, y, cv, groups)
     return model, metrics
 
 
 def _train_mlp(X, y, feature_names: List[str]) -> Tuple[Any, Dict[str, Any]]:
     try:
         from sklearn.neural_network import MLPRegressor
-        from sklearn.model_selection import cross_val_score
         import numpy as np
     except ImportError:
         _fail("Missing dependencies: pip install scikit-learn numpy")
@@ -152,22 +199,8 @@ def _train_mlp(X, y, feature_names: List[str]) -> Tuple[Any, Dict[str, Any]]:
         validation_fraction=0.15,
     )
 
-    scores = cross_val_score(model, X, y, cv=min(5, len(y)), scoring="neg_mean_squared_error")
-    rmse_scores = np.sqrt(-scores)
-
-    model.fit(X, y)
-
-    from scipy.stats import spearmanr
-    preds = model.predict(X)
-    spearman_corr, _ = spearmanr(y, preds)
-
-    metrics = {
-        "cv_rmse_mean": float(rmse_scores.mean()),
-        "cv_rmse_std": float(rmse_scores.std()),
-        "spearman_correlation": float(spearman_corr),
-        "n_samples": len(y),
-    }
-
+    cv, groups = _make_cv(y, _cv_groups)
+    metrics = _eval_model(model, X, y, cv, groups)
     return model, metrics
 
 
@@ -205,6 +238,8 @@ def main() -> None:
     parser.add_argument("--labels", required=True, help="JSONL file with quality labels")
     parser.add_argument("--output", default="quality_scorer.onnx", help="Output ONNX model path")
     parser.add_argument("--model-type", choices=["logistic", "xgboost", "mlp"], default="xgboost")
+    parser.add_argument("--group-col", default=None, help="Column for GroupKFold split (e.g. creator prefix from video_id)")
+    parser.add_argument("--quantize", action="store_true", help="Apply post-training ONNX quantization")
     args = parser.parse_args()
 
     # Load data
@@ -253,6 +288,12 @@ def main() -> None:
     # Replace NaN with 0
     X = np.nan_to_num(X, nan=0.0)
 
+    # Set up group-based CV if requested
+    global _cv_groups
+    if args.group_col:
+        # Extract group from video_id (e.g. creator prefix before first dash or underscore)
+        _cv_groups = np.array([vid.split("-")[0].split("_")[0] for vid in matched_ids])
+
     # Train
     trainers = {"xgboost": _train_xgboost, "logistic": _train_logistic, "mlp": _train_mlp}
     trainer = trainers[args.model_type]
@@ -260,6 +301,16 @@ def main() -> None:
 
     # Export ONNX
     _export_onnx(model, X.shape[1], args.output, args.model_type)
+
+    # Optional quantization
+    if args.quantize:
+        try:
+            from onnxruntime.quantization import quantize_dynamic, QuantType
+            quantized_path = args.output.replace(".onnx", "_quantized.onnx")
+            quantize_dynamic(args.output, quantized_path, weight_type=QuantType.QUInt8)
+            metrics["quantized_path"] = quantized_path
+        except ImportError:
+            print(json.dumps({"warning": "onnxruntime.quantization not available, skipping quantization"}), file=sys.stderr)
 
     # Save metadata
     version_hash = hashlib.sha256(json.dumps(sorted(matched_ids)).encode()).hexdigest()[:12]

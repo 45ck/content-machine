@@ -27,12 +27,18 @@ export async function extractFeatures(options: FeatureExtractorOptions): Promise
   const { videoPath } = options;
   const videoId = basename(videoPath).replace(/\.[^.]+$/, '');
 
-  const [repoMetrics, metadata, clipEmbedding, textEmbedding] = await Promise.all([
+  const [repoMetricsResult, metadata, clipEmbedding, textEmbedding] = await Promise.all([
     extractRepoMetrics(options),
     extractMetadata(videoPath, options),
     options.includeClip ? extractClipEmbedding(videoPath, options) : undefined,
     options.includeText ? extractTextEmbedding(options) : undefined,
   ]);
+
+  const { metrics: repoMetrics, ocrConfidenceMean, sceneCount } = repoMetricsResult;
+
+  // Merge extracted metadata enrichments
+  if (ocrConfidenceMean !== undefined) metadata.ocrConfidenceMean = ocrConfidenceMean;
+  if (sceneCount !== undefined) metadata.sceneCount = sceneCount;
 
   const vector: FeatureVector = {
     videoId,
@@ -47,9 +53,17 @@ export async function extractFeatures(options: FeatureExtractorOptions): Promise
   return FeatureVectorSchema.parse(vector);
 }
 
-async function extractRepoMetrics(options: FeatureExtractorOptions): Promise<RepoMetricFeatures> {
+interface RepoMetricsResult {
+  metrics: RepoMetricFeatures;
+  ocrConfidenceMean?: number;
+  sceneCount?: number;
+}
+
+async function extractRepoMetrics(options: FeatureExtractorOptions): Promise<RepoMetricsResult> {
   const { videoPath, scriptPath } = options;
   const metrics: RepoMetricFeatures = {};
+  let ocrConfidenceMean: number | undefined;
+  let sceneCount: number | undefined;
 
   // Run sync rating
   try {
@@ -58,16 +72,27 @@ async function extractRepoMetrics(options: FeatureExtractorOptions): Promise<Rep
     metrics.syncRating = syncResult.rating;
     metrics.syncMeanDriftMs = syncResult.metrics.meanDriftMs;
     metrics.syncMatchRatio = syncResult.metrics.matchRatio;
+
+    // Extract caption quality subscores if available
+    if (syncResult.captionQuality) {
+      const cq = syncResult.captionQuality;
+      metrics.captionOverall = cq.overall.score;
+      metrics.captionCoverage = cq.coverage.score;
+      metrics.captionRhythm = cq.rhythm.score;
+      metrics.captionJitter = cq.jitter.score;
+      metrics.captionSafeArea = cq.safeArea.score;
+      ocrConfidenceMean = cq.ocrConfidence.mean;
+    }
   } catch {
     // Sync rating not available (missing deps, etc.)
   }
 
   // Run pacing quality
   try {
-    const { scorePacing } = await import('../score/pacing-quality');
+    const { analyzePacingQuality } = await import('../score/pacing-quality');
     const timestamps = await loadTimestamps(videoPath);
     if (timestamps) {
-      const pacingResult = scorePacing(timestamps);
+      const pacingResult = analyzePacingQuality(timestamps as any);
       metrics.pacingScore = pacingResult.overallScore;
       metrics.pacingAvgWpm = pacingResult.aggregate.avgWpm;
       metrics.pacingCv = pacingResult.aggregate.coefficientOfVariation;
@@ -81,7 +106,7 @@ async function extractRepoMetrics(options: FeatureExtractorOptions): Promise<Rep
     const { analyzeAudioQuality } = await import('../score/audio-quality');
     const timestamps = await loadTimestamps(videoPath);
     if (timestamps) {
-      const audioResult = analyzeAudioQuality(timestamps);
+      const audioResult = analyzeAudioQuality(timestamps as any);
       metrics.audioScore = audioResult.overallScore;
       metrics.audioGapCount = audioResult.details.pausesFound;
       metrics.audioOverlapCount = audioResult.details.overlapsFound;
@@ -97,7 +122,7 @@ async function extractRepoMetrics(options: FeatureExtractorOptions): Promise<Rep
     if (timestamps && scriptPath) {
       const { readFileSync } = await import('node:fs');
       const script = JSON.parse(readFileSync(scriptPath, 'utf-8'));
-      const engResult = analyzeEngagementQuality(timestamps, script);
+      const engResult = analyzeEngagementQuality(script as any, timestamps as any);
       metrics.engagementScore = engResult.overallScore;
       metrics.hookTiming = engResult.metrics.hookTiming;
       metrics.ctaPresence = engResult.metrics.ctaPresence;
@@ -107,7 +132,7 @@ async function extractRepoMetrics(options: FeatureExtractorOptions): Promise<Rep
     // Engagement not available
   }
 
-  // Run script score
+  // Run script score and extract scene count
   if (scriptPath) {
     try {
       const { scoreScript } = await import('../score/scorer');
@@ -117,12 +142,17 @@ async function extractRepoMetrics(options: FeatureExtractorOptions): Promise<Rep
       const script = ScriptOutputSchema.parse(rawScript);
       const scoreResult = scoreScript({ script, scriptPath });
       metrics.scriptScore = scoreResult.overall;
+
+      // Extract scene count from script
+      if (script.scenes && Array.isArray(script.scenes)) {
+        sceneCount = script.scenes.length;
+      }
     } catch {
       // Script scoring not available
     }
   }
 
-  return metrics;
+  return { metrics, ocrConfidenceMean, sceneCount };
 }
 
 async function extractMetadata(
@@ -136,8 +166,6 @@ async function extractMetadata(
       durationS: info.durationSeconds,
       width: info.width,
       height: info.height,
-      fps: info.fps,
-      frameCount: info.fps ? Math.round(info.durationSeconds * info.fps) : undefined,
     };
   } catch {
     return { durationS: 0 };

@@ -129,4 +129,131 @@ describe('scoreQuality', () => {
     expect(result.score).toBe(50); // default when no metrics available
     expect(result.method).toBe('heuristic');
   });
+
+  it('should include confidence in result', async () => {
+    const result = await scoreQuality({
+      features: makeFeatures(),
+      heuristic: true,
+    });
+
+    expect(result.confidence).toBeGreaterThanOrEqual(0);
+    expect(result.confidence).toBeLessThanOrEqual(1);
+  });
+
+  it('should include defects array in result', async () => {
+    const result = await scoreQuality({
+      features: makeFeatures(),
+      heuristic: true,
+    });
+
+    expect(Array.isArray(result.defects)).toBe(true);
+  });
+
+  it('should detect low_sync_rating defect', async () => {
+    const result = await scoreQuality({
+      features: makeFeatures({ syncRating: 20 }),
+      heuristic: true,
+    });
+
+    expect(result.defects).toContain('low_sync_rating');
+  });
+
+  it('should detect audio_quality_poor defect', async () => {
+    const result = await scoreQuality({
+      features: makeFeatures({ audioScore: 15 }),
+      heuristic: true,
+    });
+
+    expect(result.defects).toContain('audio_quality_poor');
+  });
+
+  it('should detect audio_overlap_detected defect', async () => {
+    const result = await scoreQuality({
+      features: makeFeatures({ audioOverlapCount: 3 }),
+      heuristic: true,
+    });
+
+    expect(result.defects).toContain('audio_overlap_detected');
+  });
+
+  it('should detect caption_quality_poor defect', async () => {
+    const result = await scoreQuality({
+      features: makeFeatures({ captionOverall: 0.1 }),
+      heuristic: true,
+    });
+
+    expect(result.defects).toContain('caption_quality_poor');
+  });
+
+  it('should detect pacing_poor defect', async () => {
+    const result = await scoreQuality({
+      features: makeFeatures({ pacingScore: 0.1 }),
+      heuristic: true,
+    });
+
+    expect(result.defects).toContain('pacing_poor');
+  });
+
+  it('should detect low_engagement defect', async () => {
+    const result = await scoreQuality({
+      features: makeFeatures({ engagementScore: 10 }),
+      heuristic: true,
+    });
+
+    expect(result.defects).toContain('low_engagement');
+  });
+
+  it('should detect weak_hook defect', async () => {
+    const result = await scoreQuality({
+      features: makeFeatures({ hookTiming: 5 }),
+      heuristic: true,
+    });
+
+    expect(result.defects).toContain('weak_hook');
+  });
+
+  it('should detect multiple simultaneous defects', async () => {
+    const result = await scoreQuality({
+      features: makeFeatures({ syncRating: 10, audioScore: 10, hookTiming: 5 }),
+      heuristic: true,
+    });
+
+    expect(result.defects).toContain('low_sync_rating');
+    expect(result.defects).toContain('audio_quality_poor');
+    expect(result.defects).toContain('weak_hook');
+    expect(result.defects.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('should have confidence minimum of 0.3 at decision boundary', async () => {
+    const result = await scoreQuality({
+      features: {
+        videoId: 'boundary',
+        extractedAt: '2026-01-15T10:00:00.000Z',
+        version: '1.0.0',
+        repoMetrics: {},
+        metadata: { durationS: 30 },
+      },
+      heuristic: true,
+    });
+
+    // Score defaults to 50, confidence should be at floor (0.3)
+    expect(result.confidence).toBeCloseTo(0.3, 1);
+  });
+
+  it('should report no defects for good metrics', async () => {
+    const result = await scoreQuality({
+      features: makeFeatures({
+        syncRating: 90,
+        audioScore: 85,
+        audioOverlapCount: 0,
+        captionOverall: 0.8,
+        pacingScore: 0.7,
+        engagementScore: 80,
+        hookTiming: 70,
+      }),
+      heuristic: true,
+    });
+
+    expect(result.defects).toEqual([]);
+  });
 });

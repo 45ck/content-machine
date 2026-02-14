@@ -16,6 +16,10 @@ export const QualitySubscoresSchema = z.object({
   audioCleanliness: OrdinalScore.describe('1=noisy/distorted, 3=clean, 5=studio quality'),
   pacingNatural: OrdinalScore.describe('1=rushed/dragging, 3=natural, 5=perfectly paced'),
   productionCoherence: OrdinalScore.describe('1=disjointed, 3=coherent, 5=polished'),
+  captionSync: OrdinalScore.describe('1=completely out of sync, 3=acceptable, 5=perfect sync'),
+  visualComposition: OrdinalScore.describe('1=poor framing/exposure, 3=acceptable, 5=cinematic'),
+  sceneContinuity: OrdinalScore.describe('1=jarring cuts, 3=smooth, 5=seamless transitions'),
+  policyRisk: OrdinalScore.describe('1=safe, 3=borderline, 5=high risk'),
 });
 
 /** Tags for categorizing labeled videos. */
@@ -36,6 +40,13 @@ export const QualityLabelSchema = z.object({
   ),
   subscores: QualitySubscoresSchema,
   tags: QualityTagsSchema,
+  defects: z
+    .array(z.string())
+    .default([])
+    .describe(
+      'Structured failure reasons, e.g. "caption_density_overflow", "audio_overlap_detected"'
+    ),
+  publishDecision: z.enum(['good', 'bad']).optional().describe('Derived from overallQuality >= 4'),
   notes: z.string().optional(),
   labeledAt: z.string().datetime().optional(),
   labeledBy: z.string().optional(),

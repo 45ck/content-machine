@@ -223,3 +223,95 @@ describe('rankByUncertainty', () => {
     }
   });
 });
+
+describe('rankByQualityUncertainty', () => {
+  it('ranks scores near decision boundary higher', async () => {
+    const { rankByQualityUncertainty } = await import('../../../src/evaluate/active-learning');
+
+    const features = [
+      {
+        videoId: 'clear-good',
+        extractedAt: '2026-01-01T00:00:00.000Z',
+        version: '1.0.0',
+        repoMetrics: { syncRating: 90, audioScore: 90, engagementScore: 90 },
+        metadata: { durationS: 30 },
+      },
+      {
+        videoId: 'borderline',
+        extractedAt: '2026-01-01T00:00:00.000Z',
+        version: '1.0.0',
+        repoMetrics: { syncRating: 50, audioScore: 50, engagementScore: 50 },
+        metadata: { durationS: 30 },
+      },
+    ];
+
+    const mockScorer = {
+      async scoreQuality({ features: f }: any) {
+        const avg = ((f.repoMetrics.syncRating ?? 50) + (f.repoMetrics.audioScore ?? 50)) / 2;
+        return {
+          score: avg,
+          confidence: 0.5,
+          label: 'average' as const,
+          subscores: {},
+          defects: [],
+          topFactors: [],
+          modelVersion: 'test',
+          method: 'heuristic' as const,
+        };
+      },
+    };
+
+    const rankings = await rankByQualityUncertainty(features as any, mockScorer);
+
+    expect(rankings).toHaveLength(2);
+    expect(rankings[0].videoId).toBe('borderline');
+    expect(rankings[0].uncertaintyScore).toBeGreaterThan(rankings[1].uncertaintyScore);
+  });
+
+  it('incorporates CLIP diversity when embeddings present', async () => {
+    const { rankByQualityUncertainty } = await import('../../../src/evaluate/active-learning');
+
+    const features = [
+      {
+        videoId: 'close-to-labeled',
+        extractedAt: '2026-01-01T00:00:00.000Z',
+        version: '1.0.0',
+        repoMetrics: { syncRating: 50 },
+        metadata: { durationS: 30 },
+        clipEmbedding: [1, 0, 0],
+      },
+      {
+        videoId: 'far-from-labeled',
+        extractedAt: '2026-01-01T00:00:00.000Z',
+        version: '1.0.0',
+        repoMetrics: { syncRating: 50 },
+        metadata: { durationS: 30 },
+        clipEmbedding: [10, 10, 10],
+      },
+    ];
+
+    const mockScorer = {
+      async scoreQuality() {
+        return {
+          score: 50,
+          confidence: 0.5,
+          label: 'average' as const,
+          subscores: {},
+          defects: [],
+          topFactors: [],
+          modelVersion: 'test',
+          method: 'heuristic' as const,
+        };
+      },
+    };
+
+    const labeledEmbeddings = [[1, 0, 0]]; // close to first feature
+
+    const rankings = await rankByQualityUncertainty(features as any, mockScorer, labeledEmbeddings);
+
+    expect(rankings).toHaveLength(2);
+    // Both have same uncertainty (score=50), but "far-from-labeled" has higher diversity
+    expect(rankings[0].videoId).toBe('far-from-labeled');
+    expect(rankings[0].diversityScore).toBeGreaterThan(rankings[1].diversityScore);
+  });
+});

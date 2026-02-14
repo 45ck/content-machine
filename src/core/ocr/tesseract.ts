@@ -48,7 +48,7 @@ export async function createTesseractWorkerEng(params: {
 
   // PSM 6: treat cropped caption region as a single uniform block of text.
   // Default PSM 3 (auto) misinterprets styled text on busy backgrounds.
-  await worker.setParameters({ tessedit_pageseg_mode: '6' });
+  await worker.setParameters({ tessedit_pageseg_mode: '6' as any });
 
   return { worker, cacheDir };
 }

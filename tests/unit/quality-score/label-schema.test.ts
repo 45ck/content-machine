@@ -14,6 +14,10 @@ describe('QualityLabelSchema', () => {
       audioCleanliness: 4,
       pacingNatural: 4,
       productionCoherence: 3,
+      captionSync: 4,
+      visualComposition: 3,
+      sceneContinuity: 4,
+      policyRisk: 1,
     },
     tags: {
       niche: 'tech',
@@ -60,5 +64,44 @@ describe('QualityLabelSchema', () => {
 
   it('should require source to be youtube or internal', () => {
     expect(() => QualityLabelSchema.parse({ ...validLabel, source: 'tiktok' })).toThrow();
+  });
+
+  it('should accept new subscores (captionSync, visualComposition, sceneContinuity, policyRisk)', () => {
+    const result = QualityLabelSchema.parse(validLabel);
+    expect(result.subscores.captionSync).toBe(4);
+    expect(result.subscores.visualComposition).toBe(3);
+    expect(result.subscores.sceneContinuity).toBe(4);
+    expect(result.subscores.policyRisk).toBe(1);
+  });
+
+  it('should reject new subscores outside 1-5 range', () => {
+    expect(() =>
+      QualityLabelSchema.parse({
+        ...validLabel,
+        subscores: { ...validLabel.subscores, policyRisk: 0 },
+      })
+    ).toThrow();
+  });
+
+  it('should default defects to empty array', () => {
+    const result = QualityLabelSchema.parse(validLabel);
+    expect(result.defects).toEqual([]);
+  });
+
+  it('should accept defects array', () => {
+    const result = QualityLabelSchema.parse({
+      ...validLabel,
+      defects: ['caption_density_overflow', 'audio_overlap_detected'],
+    });
+    expect(result.defects).toEqual(['caption_density_overflow', 'audio_overlap_detected']);
+  });
+
+  it('should accept publishDecision', () => {
+    const result = QualityLabelSchema.parse({ ...validLabel, publishDecision: 'good' });
+    expect(result.publishDecision).toBe('good');
+  });
+
+  it('should reject invalid publishDecision', () => {
+    expect(() => QualityLabelSchema.parse({ ...validLabel, publishDecision: 'maybe' })).toThrow();
   });
 });

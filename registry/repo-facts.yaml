@@ -233,6 +233,8 @@ facts:
         required: false
       - name: CM_RUN_REAL_OUTPUT_TESTS
         required: false
+      - name: PYTHON_PATH
+        required: false
       - name: LOG_LEVEL
         required: false
 
