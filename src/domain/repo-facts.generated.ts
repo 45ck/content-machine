@@ -130,6 +130,7 @@ export const ENVIRONMENT_VARIABLES = [
   { name: 'OPENAI_API_KEY', required: true },
   { name: 'ANTHROPIC_API_KEY', required: false },
   { name: 'PEXELS_API_KEY', required: false },
+  { name: 'ELEVENLABS_API_KEY', required: false },
   { name: 'PIXABAY_API_KEY', required: false },
   { name: 'GOOGLE_API_KEY', required: false },
   { name: 'GEMINI_API_KEY', required: false },

@@ -88,6 +88,24 @@ function parseTtsSpeed(value: unknown): number {
   return parsed;
 }
 
+function parseTtsEngine(value: unknown): 'kokoro' | 'edge' | 'elevenlabs' | undefined {
+  if (value === undefined || value === null || value === '') return undefined;
+  const raw = String(value);
+  if (raw === 'kokoro' || raw === 'edge' || raw === 'elevenlabs') return raw;
+  throw new CMError('INVALID_ARGUMENT', `Invalid --tts-engine value: ${raw}`, {
+    fix: 'Use one of: kokoro, elevenlabs, edge',
+  });
+}
+
+function parseAsrEngine(value: unknown): 'whisper' | 'elevenlabs-forced-alignment' | undefined {
+  if (value === undefined || value === null || value === '') return undefined;
+  const raw = String(value);
+  if (raw === 'whisper' || raw === 'elevenlabs-forced-alignment') return raw;
+  throw new CMError('INVALID_ARGUMENT', `Invalid --asr-engine value: ${raw}`, {
+    fix: 'Use one of: whisper, elevenlabs-forced-alignment',
+  });
+}
+
 function resolveSyncOptions(
   options: Record<string, unknown>,
   command: Command
@@ -218,6 +236,8 @@ function buildAudioSummary(params: {
     ['Duration', `${result.duration.toFixed(1)}s`],
     ['Words', String(result.wordCount)],
     ['Voice', String(options.voice)],
+    ['TTS engine', result.timestamps.ttsEngine],
+    ['Timestamp engine', result.timestamps.asrEngine],
     ['Speed', String(ttsSpeed)],
     ['Audio', result.audioPath],
     ['Timestamps', result.timestampsPath],
@@ -263,12 +283,14 @@ function writeAudioJsonResult(params: {
         output: options.output,
         timestamps: options.timestamps,
         voice: options.voice,
+        ttsEngine: options.ttsEngine ?? null,
         ttsSpeed,
         mock: Boolean(options.mock),
         syncStrategy: options.syncStrategy,
         reconcile: params.reconcile,
         requireWhisper: params.requireWhisper,
         whisperModel: options.whisperModel,
+        asrEngine: options.asrEngine ?? null,
         audioMix: audioMixRequest ? audioMixPath : null,
         mixPreset: mixOptions.mixPreset ?? null,
         music: typeof options.music === 'string' ? options.music : null,
@@ -337,6 +359,7 @@ export const audioCommand = new Command('audio')
     DEFAULT_ARTIFACT_FILENAMES.timestamps
   )
   .option('--voice <voice>', 'TTS voice to use', 'af_heart')
+  .option('--tts-engine <engine>', 'TTS engine: kokoro, elevenlabs')
   .option('--tts-speed <n>', 'TTS speaking speed (e.g., 1.0, 1.2)', '1')
   .option('--mock', 'Use mock TTS/ASR (for testing)', false)
   // Sync strategy options
@@ -348,6 +371,10 @@ export const audioCommand = new Command('audio')
   .option('--reconcile', 'Reconcile ASR output to match original script text', false)
   .option('--require-whisper', 'Require whisper ASR (fail if unavailable)', false)
   .option('--whisper-model <model>', 'Whisper model size: tiny, base, small, medium', 'base')
+  .option(
+    '--asr-engine <engine>',
+    'Timestamp engine: whisper, elevenlabs-forced-alignment (requires ELEVENLABS_API_KEY)'
+  )
   .option(
     '--audio-mix <path>',
     'Output audio mix plan path',
@@ -386,6 +413,12 @@ export const audioCommand = new Command('audio')
       if (command.getOptionValueSource('voice') === 'default') {
         options.voice = config.defaults.voice;
       }
+      if (command.getOptionValueSource('ttsEngine') === 'default') {
+        options.ttsEngine = config.audio.ttsEngine;
+      }
+      if (command.getOptionValueSource('asrEngine') === 'default') {
+        options.asrEngine = config.audio.asrEngine;
+      }
 
       const script = await readScriptInput(options.input);
 
@@ -395,6 +428,8 @@ export const audioCommand = new Command('audio')
 
       const { requireWhisper, reconcile } = resolveSyncOptions(options, command);
       const ttsSpeed = parseTtsSpeed(options.ttsSpeed);
+      const ttsEngine = parseTtsEngine(options.ttsEngine);
+      const asrEngine = parseAsrEngine(options.asrEngine);
 
       const { mixOptions, audioMixPath, audioMixRequest } = buildAudioMixRequest({
         options,
@@ -414,6 +449,8 @@ export const audioCommand = new Command('audio')
       const result = await generateAudio({
         script,
         voice: options.voice,
+        ttsEngine,
+        asrEngine,
         speed: ttsSpeed,
         outputPath,
         timestampsPath,

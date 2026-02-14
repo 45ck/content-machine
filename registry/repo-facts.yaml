@@ -157,6 +157,8 @@ facts:
         required: false
       - name: PEXELS_API_KEY
         required: false
+      - name: ELEVENLABS_API_KEY
+        required: false
       - name: PIXABAY_API_KEY
         required: false
       - name: GOOGLE_API_KEY

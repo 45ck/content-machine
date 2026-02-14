@@ -49,6 +49,11 @@ describe('core pipeline', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     loadConfigMock.mockReturnValue({
+      audio: {
+        ttsEngine: 'kokoro',
+        asrEngine: 'whisper',
+        asrModel: 'base',
+      },
       captions: {
         fontFamily: 'Test Sans',
         fontWeight: 'bold',
@@ -533,6 +538,11 @@ describe('core pipeline', () => {
     const outputPath = path.join(dir, 'video.mp4');
 
     loadConfigMock.mockReturnValue({
+      audio: {
+        ttsEngine: 'kokoro',
+        asrEngine: 'whisper',
+        asrModel: 'base',
+      },
       captions: {
         fontFamily: 'Fallback Sans',
         fontWeight: 'bold',
@@ -892,6 +902,11 @@ describe('core pipeline', () => {
     const outputPath = path.join(dir, 'video.mp4');
 
     loadConfigMock.mockReturnValue({
+      audio: {
+        ttsEngine: 'kokoro',
+        asrEngine: 'whisper',
+        asrModel: 'base',
+      },
       captions: {
         fontFamily: 'Test Sans',
         fontWeight: 'bold',

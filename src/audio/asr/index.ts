@@ -47,6 +47,8 @@ async function getWhisper() {
 
 export interface ASROptions {
   audioPath: string;
+  /** ASR/alignment engine to use. Default: whisper */
+  engine?: 'whisper' | 'elevenlabs-forced-alignment';
   model?: 'tiny' | 'base' | 'small' | 'medium' | 'large';
   language?: string;
   /** Original text for fallback estimation */
@@ -64,7 +66,7 @@ export interface ASRResult {
   words: WordTimestamp[];
   duration: number;
   text: string;
-  engine: 'whisper-cpp' | 'estimated';
+  engine: 'whisper-cpp' | 'estimated' | 'elevenlabs-forced-alignment';
 }
 
 /** Whisper transcription segment structure */
@@ -252,8 +254,35 @@ function validateOrRepairTimestamps(
 export async function transcribeAudio(options: ASROptions): Promise<ASRResult> {
   const log = createLogger({ module: 'asr', audioPath: options.audioPath });
   const model = options.model ?? 'base';
+  const engine = options.engine ?? 'whisper';
 
-  log.info({ model, requireWhisper: options.requireWhisper }, 'Starting transcription');
+  log.info({ engine, model, requireWhisper: options.requireWhisper }, 'Starting transcription');
+
+  if (engine === 'elevenlabs-forced-alignment') {
+    if (!options.originalText) {
+      throw new APIError('ElevenLabs forced alignment requires originalText', {
+        engine,
+        fix: 'Pass originalText (the exact transcript used to synthesize the audio).',
+      });
+    }
+
+    const { transcribeWithElevenLabsForcedAlignment } =
+      await import('./elevenlabs-forced-alignment');
+    const aligned = await transcribeWithElevenLabsForcedAlignment({
+      audioPath: options.audioPath,
+      transcriptText: options.originalText,
+    });
+
+    const duration = options.audioDuration ?? aligned.duration;
+    const validatedWords = validateOrRepairTimestamps(aligned.words, duration, log);
+
+    return {
+      words: validatedWords,
+      duration,
+      text: options.originalText,
+      engine: 'elevenlabs-forced-alignment',
+    };
+  }
 
   // Try whisper.cpp first
   try {

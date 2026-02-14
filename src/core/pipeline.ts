@@ -45,6 +45,8 @@ export interface PipelineOptions {
   archetype: Archetype;
   orientation: Orientation;
   voice: string;
+  ttsEngine?: 'kokoro' | 'edge' | 'elevenlabs';
+  asrEngine?: 'whisper' | 'elevenlabs-forced-alignment';
   targetDuration: number;
   outputPath: string;
   keepArtifacts?: boolean;
@@ -461,6 +463,8 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
             generateAudio({
               script,
               voice: options.voice,
+              ttsEngine: options.ttsEngine ?? config.audio.ttsEngine,
+              asrEngine: options.asrEngine ?? config.audio.asrEngine,
               outputPath: artifacts.audio,
               timestampsPath: artifacts.timestamps,
               mock: options.mock,

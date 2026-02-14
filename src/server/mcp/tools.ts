@@ -277,6 +277,8 @@ export function createContentMachineMcpTools(params: {
         scriptPath: z.string().optional(),
         useSessionScript: z.boolean().optional().default(true),
         voice: z.string().min(1).default('af_heart'),
+        ttsEngine: z.enum(['kokoro', 'edge', 'elevenlabs']).optional(),
+        asrEngine: z.enum(['whisper', 'elevenlabs-forced-alignment']).optional(),
         speed: z.number().positive().optional(),
         outputPath: z.string().optional(),
         timestampsPath: z.string().optional(),
@@ -292,6 +294,8 @@ export function createContentMachineMcpTools(params: {
           scriptPath?: string;
           useSessionScript?: boolean;
           voice: string;
+          ttsEngine?: 'kokoro' | 'edge' | 'elevenlabs';
+          asrEngine?: 'whisper' | 'elevenlabs-forced-alignment';
           speed?: number;
           outputPath?: string;
           timestampsPath?: string;
@@ -334,6 +338,8 @@ export function createContentMachineMcpTools(params: {
         const output = await generateAudio({
           script,
           voice: args.voice,
+          ttsEngine: args.ttsEngine,
+          asrEngine: args.asrEngine,
           speed: args.speed,
           outputPath,
           timestampsPath,

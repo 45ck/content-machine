@@ -28,6 +28,10 @@ export type { AudioOutput, TimestampsOutput, WordTimestamp } from '../domain';
 export interface GenerateAudioOptions {
   script: ScriptOutput;
   voice: string;
+  /** TTS engine id (defaults to kokoro) */
+  ttsEngine?: 'kokoro' | 'elevenlabs' | 'edge';
+  /** Timestamp engine (defaults to whisper) */
+  asrEngine?: 'whisper' | 'elevenlabs-forced-alignment';
   speed?: number;
   outputPath: string;
   timestampsPath: string;
@@ -84,6 +88,7 @@ export async function generateAudio(options: GenerateAudioOptions): Promise<Audi
   // Step 1: Generate TTS audio
   log.info('Generating TTS audio');
   const ttsResult = await synthesizeSpeech({
+    engine: options.ttsEngine ?? 'kokoro',
     text: fullText,
     voice: options.voice,
     speed: options.speed,
@@ -98,6 +103,7 @@ export async function generateAudio(options: GenerateAudioOptions): Promise<Audi
     'Transcribing audio for timestamps'
   );
   const asrResult = await transcribeAudio({
+    engine: options.asrEngine ?? 'whisper',
     audioPath: options.outputPath,
     model: options.whisperModel,
     originalText: fullText,
@@ -137,10 +143,15 @@ export async function generateAudio(options: GenerateAudioOptions): Promise<Audi
     );
   }
 
-  const timestamps = buildTimestamps({ ...asrResult, words: finalWords }, options.script, {
-    reconciled,
-    scriptMatch,
-  });
+  const timestamps = buildTimestamps(
+    { ...asrResult, words: finalWords },
+    options.script,
+    options.ttsEngine ?? 'kokoro',
+    {
+      reconciled,
+      scriptMatch,
+    }
+  );
 
   // Save timestamps
   await writeFile(options.timestampsPath, JSON.stringify(timestamps, null, 2), 'utf-8');
@@ -338,6 +349,7 @@ async function maybeWriteAudioMix(params: {
 function buildTimestamps(
   asr: ASRResult,
   script: ScriptOutput,
+  ttsEngine: string,
   analysis?: TimestampsOutput['analysis']
 ): TimestampsOutput {
   // Align scenes to the same units used for TTS (hook/scenes/cta) to prevent drift.
@@ -349,7 +361,7 @@ function buildTimestamps(
     scenes,
     allWords: asr.words,
     totalDuration: asr.duration,
-    ttsEngine: 'kokoro',
+    ttsEngine,
     asrEngine: asr.engine,
     analysis,
   };
