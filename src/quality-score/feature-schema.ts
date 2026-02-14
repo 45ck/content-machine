@@ -38,6 +38,21 @@ export const RepoMetricFeaturesSchema = z.object({
 
   // Script score (if script available)
   scriptScore: z.number().min(0).max(1).optional(),
+
+  // Temporal quality (from TemporalAnalyzer)
+  temporalFlickerScore: z.number().min(0).max(1).optional(),
+  temporalDuplicateRatio: z.number().min(0).max(1).optional(),
+
+  // Freeze detection (from FreezeAnalyzer)
+  freezeRatio: z.number().min(0).max(1).optional(),
+  blackRatio: z.number().min(0).max(1).optional(),
+
+  // Audio signal (from FfmpegAudioAnalyzer)
+  audioLoudnessLUFS: z.number().min(-70).max(0).optional(),
+  audioClippingRatio: z.number().min(0).max(1).optional(),
+
+  // Flow consistency (from FlowConsistencyAnalyzer)
+  flowMeanWarpError: z.number().min(0).optional(),
 });
 
 /** Metadata features derived from video properties. */

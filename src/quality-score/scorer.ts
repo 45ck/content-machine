@@ -29,18 +29,32 @@ export interface QualityScoreOptions {
   timeoutMs?: number;
 }
 
-const HEURISTIC_WEIGHTS: Record<
-  string,
-  { key: keyof FeatureVector['repoMetrics']; weight: number; scale: number }
-> = {
-  syncRating: { key: 'syncRating', weight: 0.18, scale: 100 },
-  captionOverall: { key: 'captionOverall', weight: 0.12, scale: 1 },
-  pacingScore: { key: 'pacingScore', weight: 0.1, scale: 1 },
-  audioScore: { key: 'audioScore', weight: 0.1, scale: 1 },
-  engagementScore: { key: 'engagementScore', weight: 0.12, scale: 1 },
-  scriptScore: { key: 'scriptScore', weight: 0.08, scale: 1 },
-  syncMatchRatio: { key: 'syncMatchRatio', weight: 0.06, scale: 1 },
-  hookTiming: { key: 'hookTiming', weight: 0.06, scale: 1 },
+interface WeightConfig {
+  key: keyof FeatureVector['repoMetrics'];
+  weight: number;
+  scale: number;
+  /** If true, lower raw values are better (e.g. freezeRatio). Score = 1 - normalized. */
+  invert?: boolean;
+}
+
+const HEURISTIC_WEIGHTS: Record<string, WeightConfig> = {
+  // Existing repo metrics (scaled down by ~0.76 to make room for intrinsic)
+  syncRating: { key: 'syncRating', weight: 0.14, scale: 100 },
+  captionOverall: { key: 'captionOverall', weight: 0.09, scale: 1 },
+  pacingScore: { key: 'pacingScore', weight: 0.08, scale: 1 },
+  audioScore: { key: 'audioScore', weight: 0.08, scale: 100 },
+  engagementScore: { key: 'engagementScore', weight: 0.09, scale: 100 },
+  scriptScore: { key: 'scriptScore', weight: 0.06, scale: 1 },
+  syncMatchRatio: { key: 'syncMatchRatio', weight: 0.05, scale: 1 },
+  hookTiming: { key: 'hookTiming', weight: 0.05, scale: 100 },
+
+  // Video-intrinsic metrics (work on ALL videos)
+  temporalFlickerScore: { key: 'temporalFlickerScore', weight: 0.06, scale: 1 },
+  temporalDuplicateRatio: { key: 'temporalDuplicateRatio', weight: 0.06, scale: 1, invert: true },
+  freezeRatio: { key: 'freezeRatio', weight: 0.05, scale: 1, invert: true },
+  blackRatio: { key: 'blackRatio', weight: 0.03, scale: 1, invert: true },
+  audioClippingRatio: { key: 'audioClippingRatio', weight: 0.03, scale: 1, invert: true },
+  flowMeanWarpError: { key: 'flowMeanWarpError', weight: 0.04, scale: 0.5, invert: true },
 };
 
 /** Video-intrinsic quality signals derived from metadata (no repo artifacts needed). */
@@ -121,7 +135,8 @@ function scoreHeuristic(features: FeatureVector, explain: boolean): QualityScore
     if (raw == null) continue;
     availableMetrics++;
 
-    const normalized = raw / config.scale;
+    let normalized = Math.min(raw / config.scale, 1);
+    if (config.invert) normalized = 1 - normalized;
     const contribution = normalized * config.weight;
     weightedSum += contribution;
     totalWeight += config.weight;
@@ -132,6 +147,25 @@ function scoreHeuristic(features: FeatureVector, explain: boolean): QualityScore
         feature: name,
         impact: Math.round(contribution * 100),
         direction: normalized >= 0.5 ? 'positive' : 'negative',
+      });
+    }
+  }
+
+  // LUFS loudness scoring (special handling — distance from -14 target)
+  if (repoMetrics.audioLoudnessLUFS != null) {
+    availableMetrics++;
+    const distance = Math.abs(repoMetrics.audioLoudnessLUFS - -14);
+    const lufsNormalized = Math.max(0, 1 - distance / 20);
+    const lufsWeight = 0.04;
+    weightedSum += lufsNormalized * lufsWeight;
+    totalWeight += lufsWeight;
+    subscores.audioLoudnessLUFS = Math.round(lufsNormalized * 100);
+
+    if (explain) {
+      factors.push({
+        feature: 'audioLoudnessLUFS',
+        impact: Math.round(lufsNormalized * lufsWeight * 100),
+        direction: lufsNormalized >= 0.5 ? 'positive' : 'negative',
       });
     }
   }
@@ -239,16 +273,24 @@ function deriveDefects(repoMetrics: FeatureVector['repoMetrics']): string[] {
   const defects: string[] = [];
   if (repoMetrics.syncRating != null && repoMetrics.syncRating < 40)
     defects.push('low_sync_rating');
-  if (repoMetrics.audioScore != null && repoMetrics.audioScore < 0.3)
+  if (repoMetrics.audioScore != null && repoMetrics.audioScore < 30)
     defects.push('audio_quality_poor');
   if (repoMetrics.audioOverlapCount != null && repoMetrics.audioOverlapCount > 0)
     defects.push('audio_overlap_detected');
   if (repoMetrics.captionOverall != null && repoMetrics.captionOverall < 0.3)
     defects.push('caption_quality_poor');
   if (repoMetrics.pacingScore != null && repoMetrics.pacingScore < 0.3) defects.push('pacing_poor');
-  if (repoMetrics.engagementScore != null && repoMetrics.engagementScore < 0.3)
+  if (repoMetrics.engagementScore != null && repoMetrics.engagementScore < 30)
     defects.push('low_engagement');
-  if (repoMetrics.hookTiming != null && repoMetrics.hookTiming < 0.2) defects.push('weak_hook');
+  if (repoMetrics.hookTiming != null && repoMetrics.hookTiming < 20) defects.push('weak_hook');
+  if (repoMetrics.temporalDuplicateRatio != null && repoMetrics.temporalDuplicateRatio > 0.5)
+    defects.push('high_duplicate_frames');
+  if (repoMetrics.freezeRatio != null && repoMetrics.freezeRatio > 0.3)
+    defects.push('excessive_freeze');
+  if (repoMetrics.audioClippingRatio != null && repoMetrics.audioClippingRatio > 0.1)
+    defects.push('audio_clipping');
+  if (repoMetrics.flowMeanWarpError != null && repoMetrics.flowMeanWarpError > 0.3)
+    defects.push('inconsistent_motion');
   return defects;
 }
 

@@ -161,6 +161,42 @@ async function extractRepoMetrics(options: FeatureExtractorOptions): Promise<Rep
     }
   }
 
+  // Video-intrinsic metrics (no timestamps/script needed — run in parallel)
+  await Promise.allSettled([
+    // Temporal quality
+    (async () => {
+      const { TemporalAnalyzer } = await import('../validate/temporal');
+      const analyzer = new TemporalAnalyzer({ pythonPath: options.pythonPath });
+      const result = await analyzer.analyze(videoPath);
+      metrics.temporalFlickerScore = result.flicker.score;
+      metrics.temporalDuplicateRatio = result.duplicateFrameRatio;
+    })(),
+    // Freeze detection
+    (async () => {
+      const { FreezeAnalyzer } = await import('../validate/freeze');
+      const analyzer = new FreezeAnalyzer({ pythonPath: options.pythonPath });
+      const result = await analyzer.analyze(videoPath);
+      metrics.freezeRatio = result.freezeRatio;
+      metrics.blackRatio = result.blackRatio;
+    })(),
+    // Audio signal
+    (async () => {
+      const { FfmpegAudioAnalyzer } = await import('../validate/audio-signal');
+      const analyzer = new FfmpegAudioAnalyzer({ pythonPath: options.pythonPath });
+      const result = await analyzer.analyze(videoPath);
+      metrics.audioLoudnessLUFS = result.loudnessLUFS;
+      metrics.audioClippingRatio = result.clippingRatio;
+    })(),
+    // Flow consistency
+    (async () => {
+      const { FlowConsistencyAnalyzer } = await import('../validate/flow-consistency');
+      const analyzer = new FlowConsistencyAnalyzer({ pythonPath: options.pythonPath });
+      const result = await analyzer.analyze(videoPath);
+      metrics.flowMeanWarpError = result.meanWarpError;
+    })(),
+  ]);
+  // Errors are silently ignored (graceful degradation)
+
   return { metrics, ocrConfidenceMean, sceneCount };
 }
 

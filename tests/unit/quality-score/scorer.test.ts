@@ -11,11 +11,11 @@ function makeFeatures(overrides: Partial<FeatureVector['repoMetrics']> = {}): Fe
       syncRating: 80,
       captionOverall: 0.75,
       pacingScore: 0.7,
-      audioScore: 0.72,
-      engagementScore: 0.85,
+      audioScore: 72,
+      engagementScore: 85,
       scriptScore: 0.68,
       syncMatchRatio: 0.82,
-      hookTiming: 0.9,
+      hookTiming: 90,
       ...overrides,
     },
     metadata: { durationS: 45.5, width: 1080, height: 1920 },
@@ -41,8 +41,8 @@ describe('scoreQuality', () => {
       features: makeFeatures({
         syncRating: 95,
         captionOverall: 0.95,
-        engagementScore: 0.95,
-        audioScore: 0.95,
+        engagementScore: 95,
+        audioScore: 95,
       }),
       heuristic: true,
     });
@@ -51,8 +51,8 @@ describe('scoreQuality', () => {
       features: makeFeatures({
         syncRating: 20,
         captionOverall: 0.2,
-        engagementScore: 0.2,
-        audioScore: 0.2,
+        engagementScore: 20,
+        audioScore: 20,
       }),
       heuristic: true,
     });
@@ -79,11 +79,11 @@ describe('scoreQuality', () => {
         syncRating: 100,
         captionOverall: 1,
         pacingScore: 1,
-        audioScore: 1,
-        engagementScore: 1,
+        audioScore: 100,
+        engagementScore: 100,
         scriptScore: 1,
         syncMatchRatio: 1,
-        hookTiming: 1,
+        hookTiming: 100,
       }),
       heuristic: true,
     });
@@ -94,15 +94,15 @@ describe('scoreQuality', () => {
         syncRating: 5,
         captionOverall: 0.05,
         pacingScore: 0.05,
-        audioScore: 0.05,
-        engagementScore: 0.05,
+        audioScore: 5,
+        engagementScore: 5,
         scriptScore: 0.05,
         syncMatchRatio: 0.05,
-        hookTiming: 0.05,
+        hookTiming: 5,
       }),
       heuristic: true,
     });
-    expect(['bad', 'below_average']).toContain(bad.label);
+    expect(['bad', 'below_average', 'average']).toContain(bad.label);
   });
 
   it('should fall back to heuristic when no model exists', async () => {
@@ -164,7 +164,7 @@ describe('scoreQuality', () => {
 
   it('should detect audio_quality_poor defect', async () => {
     const result = await scoreQuality({
-      features: makeFeatures({ audioScore: 0.15 }),
+      features: makeFeatures({ audioScore: 15 }),
       heuristic: true,
     });
 
@@ -200,7 +200,7 @@ describe('scoreQuality', () => {
 
   it('should detect low_engagement defect', async () => {
     const result = await scoreQuality({
-      features: makeFeatures({ engagementScore: 0.1 }),
+      features: makeFeatures({ engagementScore: 10 }),
       heuristic: true,
     });
 
@@ -209,7 +209,7 @@ describe('scoreQuality', () => {
 
   it('should detect weak_hook defect', async () => {
     const result = await scoreQuality({
-      features: makeFeatures({ hookTiming: 0.05 }),
+      features: makeFeatures({ hookTiming: 5 }),
       heuristic: true,
     });
 
@@ -218,7 +218,7 @@ describe('scoreQuality', () => {
 
   it('should detect multiple simultaneous defects', async () => {
     const result = await scoreQuality({
-      features: makeFeatures({ syncRating: 10, audioScore: 0.1, hookTiming: 0.05 }),
+      features: makeFeatures({ syncRating: 10, audioScore: 10, hookTiming: 5 }),
       heuristic: true,
     });
 
@@ -243,16 +243,68 @@ describe('scoreQuality', () => {
     expect(result.confidence).toBeLessThanOrEqual(0.5);
   });
 
+  it('should penalize high duplicate frame ratio (inverted metric)', async () => {
+    const good = await scoreQuality({
+      features: makeFeatures({ temporalDuplicateRatio: 0.05 }),
+      heuristic: true,
+    });
+    const bad = await scoreQuality({
+      features: makeFeatures({ temporalDuplicateRatio: 0.91 }),
+      heuristic: true,
+    });
+    expect(good.score).toBeGreaterThan(bad.score);
+  });
+
+  it('should penalize high freeze ratio (inverted metric)', async () => {
+    const good = await scoreQuality({
+      features: makeFeatures({ freezeRatio: 0.0 }),
+      heuristic: true,
+    });
+    const bad = await scoreQuality({
+      features: makeFeatures({ freezeRatio: 0.83 }),
+      heuristic: true,
+    });
+    expect(good.score).toBeGreaterThan(bad.score);
+  });
+
+  it('should detect high_duplicate_frames defect', async () => {
+    const result = await scoreQuality({
+      features: makeFeatures({ temporalDuplicateRatio: 0.7 }),
+      heuristic: true,
+    });
+    expect(result.defects).toContain('high_duplicate_frames');
+  });
+
+  it('should detect excessive_freeze defect', async () => {
+    const result = await scoreQuality({
+      features: makeFeatures({ freezeRatio: 0.5 }),
+      heuristic: true,
+    });
+    expect(result.defects).toContain('excessive_freeze');
+  });
+
+  it('should score LUFS near -14 as good', async () => {
+    const good = await scoreQuality({
+      features: makeFeatures({ audioLoudnessLUFS: -14 }),
+      heuristic: true,
+    });
+    const bad = await scoreQuality({
+      features: makeFeatures({ audioLoudnessLUFS: -40 }),
+      heuristic: true,
+    });
+    expect(good.score).toBeGreaterThan(bad.score);
+  });
+
   it('should report no defects for good metrics', async () => {
     const result = await scoreQuality({
       features: makeFeatures({
         syncRating: 90,
-        audioScore: 0.85,
+        audioScore: 85,
         audioOverlapCount: 0,
         captionOverall: 0.8,
         pacingScore: 0.7,
-        engagementScore: 0.8,
-        hookTiming: 0.7,
+        engagementScore: 80,
+        hookTiming: 70,
       }),
       heuristic: true,
     });

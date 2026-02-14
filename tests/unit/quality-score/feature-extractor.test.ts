@@ -47,6 +47,52 @@ vi.mock('../../../src/score/engagement-quality', () => ({
   }),
 }));
 
+vi.mock('../../../src/validate/temporal', () => ({
+  TemporalAnalyzer: vi.fn().mockImplementation(() => ({
+    analyze: vi.fn().mockResolvedValue({
+      flicker: { score: 0.9, variance: 0.01, meanDiff: 5 },
+      duplicateFrameRatio: 0.03,
+      framesAnalyzed: 100,
+    }),
+  })),
+}));
+
+vi.mock('../../../src/validate/freeze', () => ({
+  FreezeAnalyzer: vi.fn().mockImplementation(() => ({
+    analyze: vi.fn().mockResolvedValue({
+      freezeRatio: 0.01,
+      blackRatio: 0.0,
+      freezeEvents: 0,
+      blackFrames: 0,
+      totalFrames: 900,
+    }),
+  })),
+}));
+
+vi.mock('../../../src/validate/audio-signal', () => ({
+  FfmpegAudioAnalyzer: vi.fn().mockImplementation(() => ({
+    analyze: vi.fn().mockResolvedValue({
+      loudnessLUFS: -14.2,
+      truePeakDBFS: -1.5,
+      loudnessRange: 8,
+      clippingRatio: 0.0,
+      peakLevelDB: -2,
+      snrDB: 30,
+    }),
+  })),
+}));
+
+vi.mock('../../../src/validate/flow-consistency', () => ({
+  FlowConsistencyAnalyzer: vi.fn().mockImplementation(() => ({
+    analyze: vi.fn().mockResolvedValue({
+      meanWarpError: 0.08,
+      maxWarpError: 0.25,
+      frameErrors: [0.05, 0.08, 0.12],
+      framesAnalyzed: 50,
+    }),
+  })),
+}));
+
 // Must mock node:fs at module level for existsSync/readFileSync used in loadTimestamps
 const { mockExistsSync, mockReadFileSync } = vi.hoisted(() => ({
   mockExistsSync: vi.fn().mockReturnValue(false),
@@ -126,6 +172,20 @@ describe('extractFeatures', () => {
     expect(features.repoMetrics.pacingAvgWpm).toBe(150);
     expect(features.repoMetrics.audioScore).toBe(0.9);
     expect(features.repoMetrics.audioGapCount).toBe(1);
+  });
+
+  it('should extract video-intrinsic metrics from analyzers', async () => {
+    const features = await extractFeatures({
+      videoPath: '/tmp/test-video.mp4',
+    });
+
+    expect(features.repoMetrics.temporalFlickerScore).toBe(0.9);
+    expect(features.repoMetrics.temporalDuplicateRatio).toBe(0.03);
+    expect(features.repoMetrics.freezeRatio).toBe(0.01);
+    expect(features.repoMetrics.blackRatio).toBe(0.0);
+    expect(features.repoMetrics.audioLoudnessLUFS).toBe(-14.2);
+    expect(features.repoMetrics.audioClippingRatio).toBe(0.0);
+    expect(features.repoMetrics.flowMeanWarpError).toBe(0.08);
   });
 
   it('should gracefully handle missing timestamps', async () => {

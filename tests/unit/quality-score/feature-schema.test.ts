@@ -58,6 +58,35 @@ describe('FeatureVectorSchema', () => {
     ).toThrow();
   });
 
+  it('should accept video-intrinsic metric fields', () => {
+    const withIntrinsic = {
+      ...validFeatures,
+      repoMetrics: {
+        ...validFeatures.repoMetrics,
+        temporalFlickerScore: 0.85,
+        temporalDuplicateRatio: 0.05,
+        freezeRatio: 0.0,
+        blackRatio: 0.02,
+        audioLoudnessLUFS: -14,
+        audioClippingRatio: 0.01,
+        flowMeanWarpError: 0.12,
+      },
+    };
+    const result = FeatureVectorSchema.parse(withIntrinsic);
+    expect(result.repoMetrics.temporalDuplicateRatio).toBe(0.05);
+    expect(result.repoMetrics.audioLoudnessLUFS).toBe(-14);
+    expect(result.repoMetrics.flowMeanWarpError).toBe(0.12);
+  });
+
+  it('should reject freezeRatio outside 0-1', () => {
+    expect(() =>
+      FeatureVectorSchema.parse({
+        ...validFeatures,
+        repoMetrics: { ...validFeatures.repoMetrics, freezeRatio: 1.5 },
+      })
+    ).toThrow();
+  });
+
   it('should reject negative duration', () => {
     expect(() =>
       FeatureVectorSchema.parse({
