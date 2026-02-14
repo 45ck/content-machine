@@ -281,7 +281,7 @@ async function runOCR(framesDir: string, fps: number, cropOffsetY: number): Prom
  */
 function extractWordAppearances(
   ocrFrames: OCRFrame[],
-  { minConfidence = 0.5 }: { minConfidence?: number } = {}
+  { minConfidence = 0.3 }: { minConfidence?: number } = {}
 ): Array<{ word: string; timestamps: number[] }> {
   const wordMap = new Map<string, number[]>();
 
@@ -440,6 +440,10 @@ function matchWords(
     if (!best || typeof bestOcrTimestamp !== 'number' || !Number.isFinite(bestOcrTimestamp)) {
       continue;
     }
+
+    // Cap match distance: a word matched >5s from speech is background text, not a caption
+    const MAX_MATCH_DISTANCE_S = 5;
+    if (best.timeDiff > MAX_MATCH_DISTANCE_S) continue;
 
     const driftMs = (bestOcrTimestamp - asrWord.start) * 1000;
     matches.push({
