@@ -6,6 +6,8 @@ import { runPythonJson } from './python-json';
 
 export interface VideoQualitySummary {
   brisque: { mean: number; min: number; max: number };
+  niqe?: { mean: number; min: number; max: number };
+  cambi?: { mean: number; max: number };
   framesAnalyzed: number;
 }
 
@@ -13,6 +15,7 @@ export interface VideoQualityAnalyzer {
   analyze(videoPath: string, options?: { sampleRate?: number }): Promise<VideoQualitySummary>;
 }
 
+/** Runs the visual quality gate using BRISQUE, NIQE, and CAMBI metrics against profile thresholds. */
 export function runVisualQualityGate(
   summary: VideoQualitySummary,
   profile: ValidateProfile
@@ -23,7 +26,25 @@ export function runVisualQualityGate(
     });
   }
 
-  const passed = summary.brisque.mean < profile.brisqueMax;
+  const brisquePassed = summary.brisque.mean < profile.brisqueMax;
+
+  const issues: string[] = [];
+  if (!brisquePassed) {
+    issues.push(`BRISQUE mean ${summary.brisque.mean.toFixed(2)} >= ${profile.brisqueMax}`);
+  }
+
+  // NIQE check (optional — only fail if threshold is set and data is available)
+  if (summary.niqe && profile.niqeMax !== undefined && summary.niqe.mean >= profile.niqeMax) {
+    issues.push(`NIQE mean ${summary.niqe.mean.toFixed(2)} >= ${profile.niqeMax}`);
+  }
+
+  // CAMBI check (optional — only fail if threshold is set and data is available)
+  if (summary.cambi && profile.cambiMax !== undefined && summary.cambi.mean >= profile.cambiMax) {
+    issues.push(`CAMBI mean ${summary.cambi.mean.toFixed(2)} >= ${profile.cambiMax}`);
+  }
+
+  const passed = issues.length === 0;
+
   return {
     gateId: 'visual-quality',
     passed,
@@ -31,13 +52,15 @@ export function runVisualQualityGate(
     fix: passed ? 'none' : 'reduce-compression',
     message: passed
       ? `Visual quality OK (BRISQUE mean ${summary.brisque.mean.toFixed(2)} < ${profile.brisqueMax})`
-      : `Visual quality low (BRISQUE mean ${summary.brisque.mean.toFixed(2)} >= ${profile.brisqueMax})`,
+      : `Visual quality low: ${issues.join('; ')}`,
     details: {
       brisqueMax: profile.brisqueMax,
       mean: summary.brisque.mean,
       min: summary.brisque.min,
       max: summary.brisque.max,
       framesAnalyzed: summary.framesAnalyzed,
+      ...(summary.niqe ? { niqe: summary.niqe } : {}),
+      ...(summary.cambi ? { cambi: summary.cambi } : {}),
     },
   };
 }
@@ -68,12 +91,36 @@ function parseQualityJson(data: unknown): VideoQualitySummary {
     });
   }
 
-  return {
+  const result: VideoQualitySummary = {
     brisque: { mean, min, max },
     framesAnalyzed: frames,
   };
+
+  // Parse optional NIQE
+  const niqeObj = obj['niqe'] as Record<string, unknown> | undefined;
+  if (niqeObj && typeof niqeObj === 'object') {
+    const nMean = Number(niqeObj['mean']);
+    const nMin = Number(niqeObj['min']);
+    const nMax = Number(niqeObj['max']);
+    if ([nMean, nMin, nMax].every((n) => Number.isFinite(n))) {
+      result.niqe = { mean: nMean, min: nMin, max: nMax };
+    }
+  }
+
+  // Parse optional CAMBI
+  const cambiObj = obj['cambi'] as Record<string, unknown> | undefined;
+  if (cambiObj && typeof cambiObj === 'object') {
+    const cMean = Number(cambiObj['mean']);
+    const cMax = Number(cambiObj['max']);
+    if ([cMean, cMax].every((n) => Number.isFinite(n))) {
+      result.cambi = { mean: cMean, max: cMax };
+    }
+  }
+
+  return result;
 }
 
+/** Analyzes per-frame visual quality metrics (BRISQUE, NIQE, CAMBI) using a Python backend. */
 export class PiqBrisqueAnalyzer implements VideoQualityAnalyzer {
   readonly pythonPath?: string;
   readonly scriptPath: string;

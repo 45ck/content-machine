@@ -105,7 +105,7 @@ async function extractFrames(
     }
     args.push(
       '-vf',
-      `fps=${fps},crop=${width}:${cropH}:0:${cropY}`,
+      `fps=${fps},crop=${width}:${cropH}:0:${cropY},format=gray,eq=contrast=1.5:brightness=0.05,unsharp=5:5:1.5:5:5:0.5`,
       '-q:v',
       '2',
       join(framesDir, 'frame_%04d.png')
@@ -360,7 +360,7 @@ function getOcrCandidatesForAsrWord(params: {
 
   for (const ocrWord of params.ocrByWord.keys()) {
     if (ocrWord === params.normalizedAsr) continue;
-    if (!isFuzzyMatch(ocrWord, params.normalizedAsr)) continue;
+    if (!isFuzzyMatch(ocrWord, params.normalizedAsr, 0.55)) continue;
     candidates.push({ ocrWord, quality: 'fuzzy' });
   }
 

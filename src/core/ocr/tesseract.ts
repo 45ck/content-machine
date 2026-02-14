@@ -24,6 +24,7 @@ async function ensureLocalEngTrainedData(langDir: string): Promise<void> {
   }
 }
 
+/** Creates and configures a Tesseract.js worker for English OCR with local caching. */
 export async function createTesseractWorkerEng(params: {
   dependencyMessage: string;
 }): Promise<{ worker: any; cacheDir: string }> {
@@ -44,6 +45,10 @@ export async function createTesseractWorkerEng(params: {
     cachePath: cacheDir,
     langPath: cacheDir,
   } as any);
+
+  // PSM 6: treat cropped caption region as a single uniform block of text.
+  // Default PSM 3 (auto) misinterprets styled text on busy backgrounds.
+  await worker.setParameters({ tessedit_pageseg_mode: '6' });
 
   return { worker, cacheDir };
 }

@@ -51,6 +51,8 @@ const COMMAND_LOADERS: Array<[string, CommandLoader]> = [
   ['telemetry', async () => (await import('./commands/telemetry')).telemetryCommand],
   ['lab', async () => (await import('./commands/lab')).labCommand],
   ['generate', async () => (await import('./commands/generate')).generateCommand],
+  ['evaluate', async () => (await import('./commands/evaluate')).evaluateCommand],
+  ['annotate', async () => (await import('./commands/annotate')).annotateCommand],
   ['init', async () => (await import('./commands/init')).initCommand],
 ];
 

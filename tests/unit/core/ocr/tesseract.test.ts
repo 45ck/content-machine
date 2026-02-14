@@ -18,7 +18,7 @@ describe('createTesseractWorkerEng', () => {
 
   it('creates a worker and returns cacheDir', async () => {
     vi.resetModules();
-    const createWorker = vi.fn(async () => ({ terminate: vi.fn() }));
+    const createWorker = vi.fn(async () => ({ terminate: vi.fn(), setParameters: vi.fn() }));
     vi.doMock('tesseract.js', () => ({ createWorker }));
 
     const { createTesseractWorkerEng } = await import('../../../../src/core/ocr/tesseract');
@@ -32,7 +32,7 @@ describe('createTesseractWorkerEng', () => {
 
   it('copies local eng.traineddata into the cache dir when present', async () => {
     vi.resetModules();
-    const createWorker = vi.fn(async () => ({ terminate: vi.fn() }));
+    const createWorker = vi.fn(async () => ({ terminate: vi.fn(), setParameters: vi.fn() }));
     vi.doMock('tesseract.js', () => ({ createWorker }));
 
     const prevCwd = process.cwd();

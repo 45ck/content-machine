@@ -1,0 +1,3388 @@
+{
+  "schemaVersion": "1.0.0",
+  "videoPath": "output/v-gametop/showcase-gameplay-top.mp4",
+  "passed": true,
+  "checks": [
+    {
+      "checkId": "score",
+      "passed": true,
+      "skipped": true,
+      "summary": "no script provided",
+      "durationMs": 0
+    },
+    {
+      "checkId": "validate",
+      "passed": true,
+      "skipped": false,
+      "summary": "1080x1920, 50s, h264/aac",
+      "durationMs": 134,
+      "detail": {
+        "schemaVersion": "1.0.0",
+        "videoPath": "output/v-gametop/showcase-gameplay-top.mp4",
+        "profile": "portrait",
+        "passed": true,
+        "summary": {
+          "width": 1080,
+          "height": 1920,
+          "durationSeconds": 49.685333,
+          "container": "mp4",
+          "videoCodec": "h264",
+          "audioCodec": "aac"
+        },
+        "gates": [
+          {
+            "gateId": "resolution",
+            "passed": true,
+            "severity": "error",
+            "fix": "adjust-render-resolution",
+            "message": "Resolution OK (1080x1920)",
+            "details": {
+              "expectedWidth": 1080,
+              "expectedHeight": 1920,
+              "actualWidth": 1080,
+              "actualHeight": 1920
+            }
+          },
+          {
+            "gateId": "duration",
+            "passed": true,
+            "severity": "error",
+            "fix": "adjust-content-length",
+            "message": "Duration OK (49.7s)",
+            "details": {
+              "minSeconds": 30,
+              "maxSeconds": 60,
+              "actualSeconds": 49.685333
+            }
+          },
+          {
+            "gateId": "format",
+            "passed": true,
+            "severity": "error",
+            "fix": "adjust-render-format",
+            "message": "Format OK (mp4/h264/aac)",
+            "details": {
+              "expected": {
+                "container": "mp4",
+                "videoCodec": "h264",
+                "audioCodec": "aac"
+              },
+              "actual": {
+                "container": "mp4",
+                "videoCodec": "h264",
+                "audioCodec": "aac"
+              }
+            }
+          }
+        ],
+        "createdAt": "2026-02-13T23:13:48.192Z",
+        "runtimeMs": 134
+      }
+    },
+    {
+      "checkId": "rate",
+      "passed": true,
+      "skipped": false,
+      "summary": "0/100, broken, mean drift 3907ms",
+      "durationMs": 67079,
+      "detail": {
+        "schemaVersion": "1.0.0",
+        "videoPath": "output/v-gametop/showcase-gameplay-top.mp4",
+        "rating": 0,
+        "ratingLabel": "broken",
+        "passed": false,
+        "metrics": {
+          "meanDriftMs": 3907.303370786517,
+          "maxDriftMs": 45980,
+          "rawMaxDriftMs": 45980,
+          "p95DriftMs": 18097.999999999978,
+          "medianDriftMs": 630.0000000000025,
+          "meanSignedDriftMs": -1985.2808988764052,
+          "leadingRatio": 0.24719101123595505,
+          "laggingRatio": 0.2696629213483146,
+          "driftStdDev": 9138.277044111348,
+          "outlierCount": 46,
+          "outlierRatio": 0.5168539325842697,
+          "matchedWords": 89,
+          "totalOcrWords": 407,
+          "totalAsrWords": 114,
+          "matchRatio": 0.21867321867321868
+        },
+        "wordMatches": [
+          {
+            "word": "you",
+            "ocrTimestamp": 10,
+            "asrTimestamp": 0.37,
+            "driftMs": 9630,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "sending",
+            "ocrTimestamp": 0.67,
+            "asrTimestamp": 0.67,
+            "driftMs": 0,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "hours",
+            "ocrTimestamp": 1.28,
+            "asrTimestamp": 1.28,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "making",
+            "ocrTimestamp": 1.65,
+            "asrTimestamp": 1.65,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "to",
+            "ocrTimestamp": 6.5,
+            "asrTimestamp": 2.48,
+            "driftMs": 4019.9999999999995,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "videos",
+            "ocrTimestamp": 2.81,
+            "asrTimestamp": 2.81,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "use",
+            "ocrTimestamp": 3.65,
+            "asrTimestamp": 3.65,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "contenii",
+            "ocrTimestamp": 5,
+            "asrTimestamp": 4,
+            "driftMs": 1000,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "achinen",
+            "ocrTimestamp": 5,
+            "asrTimestamp": 4.32,
+            "driftMs": 679.9999999999998,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "his",
+            "ocrTimestamp": 6.07,
+            "asrTimestamp": 6.07,
+            "driftMs": 0,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "tool",
+            "ocrTimestamp": 6.3,
+            "asrTimestamp": 6.3,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "generates",
+            "ocrTimestamp": 6.58,
+            "asrTimestamp": 6.58,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "video",
+            "ocrTimestamp": 6.5,
+            "asrTimestamp": 7.28,
+            "driftMs": -780.0000000000002,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "in",
+            "ocrTimestamp": 13,
+            "asrTimestamp": 7.63,
+            "driftMs": 5370,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "minutes",
+            "ocrTimestamp": 9,
+            "asrTimestamp": 8.41,
+            "driftMs": 589.9999999999999,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "saving",
+            "ocrTimestamp": 10,
+            "asrTimestamp": 9.04,
+            "driftMs": 960.0000000000009,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "you",
+            "ocrTimestamp": 10,
+            "asrTimestamp": 9.36,
+            "driftMs": 640.0000000000006,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "and",
+            "ocrTimestamp": 13,
+            "asrTimestamp": 9.74,
+            "driftMs": 3260,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "any",
+            "ocrTimestamp": 11.5,
+            "asrTimestamp": 12.43,
+            "driftMs": -929.9999999999998,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "topic",
+            "ocrTimestamp": 12,
+            "asrTimestamp": 12.97,
+            "driftMs": -970.0000000000007,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "and",
+            "ocrTimestamp": 13.020000000000001,
+            "asrTimestamp": 13.020000000000001,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "watch",
+            "ocrTimestamp": 13.270000000000001,
+            "asrTimestamp": 13.270000000000001,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "it",
+            "ocrTimestamp": 16.5,
+            "asrTimestamp": 13.660000000000002,
+            "driftMs": 2839.999999999998,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "iecreate",
+            "ocrTimestamp": 13.850000000000001,
+            "asrTimestamp": 13.850000000000001,
+            "driftMs": 0,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "and",
+            "ocrTimestamp": 14.890000000000002,
+            "asrTimestamp": 14.890000000000002,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "video",
+            "ocrTimestamp": 6.5,
+            "asrTimestamp": 15.13,
+            "driftMs": -8630,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "cutline",
+            "ocrTimestamp": 15.540000000000001,
+            "asrTimestamp": 15.540000000000001,
+            "driftMs": 0,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "for",
+            "ocrTimestamp": 23,
+            "asrTimestamp": 15.720000000000002,
+            "driftMs": 7279.999999999997,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "you",
+            "ocrTimestamp": 10,
+            "asrTimestamp": 16.59,
+            "driftMs": -6590,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "its",
+            "ocrTimestamp": 24.5,
+            "asrTimestamp": 17.03,
+            "driftMs": 7469.999999999999,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "and",
+            "ocrTimestamp": 18.470000000000002,
+            "asrTimestamp": 18.470000000000002,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "you",
+            "ocrTimestamp": 10,
+            "asrTimestamp": 19.26,
+            "driftMs": -9260.000000000002,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "cana",
+            "ocrTimestamp": 5.5,
+            "asrTimestamp": 19.5,
+            "driftMs": -14000,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "eren",
+            "ocrTimestamp": 39.5,
+            "asrTimestamp": 19.87,
+            "driftMs": 19630,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "customize",
+            "ocrTimestamp": 20.180000000000003,
+            "asrTimestamp": 20.180000000000003,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "styles",
+            "ocrTimestamp": 21.060000000000002,
+            "asrTimestamp": 21.060000000000002,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "and",
+            "ocrTimestamp": 21.59,
+            "asrTimestamp": 21.59,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "add",
+            "ocrTimestamp": 22.23,
+            "asrTimestamp": 22.23,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "music",
+            "ocrTimestamp": 21.5,
+            "asrTimestamp": 22.28,
+            "driftMs": -780.0000000000011,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "its",
+            "ocrTimestamp": 24.5,
+            "asrTimestamp": 23.230000000000004,
+            "driftMs": 1269.999999999996,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "perfect",
+            "ocrTimestamp": 23.400000000000002,
+            "asrTimestamp": 23.400000000000002,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "for",
+            "ocrTimestamp": 23,
+            "asrTimestamp": 23.820000000000004,
+            "driftMs": -820.0000000000039,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "creators",
+            "ocrTimestamp": 24.000000000000004,
+            "asrTimestamp": 24.000000000000004,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "neering",
+            "ocrTimestamp": 24.520000000000003,
+            "asrTimestamp": 24.520000000000003,
+            "driftMs": 0,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "quick",
+            "ocrTimestamp": 24.970000000000002,
+            "asrTimestamp": 24.970000000000002,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "content",
+            "ocrTimestamp": 36.5,
+            "asrTimestamp": 25.290000000000003,
+            "driftMs": 11209.999999999998,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "especially",
+            "ocrTimestamp": 25.900000000000002,
+            "asrTimestamp": 25.900000000000002,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "when",
+            "ocrTimestamp": 25.5,
+            "asrTimestamp": 26.720000000000002,
+            "driftMs": -1220.0000000000025,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "on",
+            "ocrTimestamp": 14,
+            "asrTimestamp": 27.060000000000002,
+            "driftMs": -13060.000000000002,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "schedule",
+            "ocrTimestamp": 27.69,
+            "asrTimestamp": 27.69,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "proz",
+            "ocrTimestamp": 14.5,
+            "asrTimestamp": 28.950000000000003,
+            "driftMs": -14450.000000000004,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "its",
+            "ocrTimestamp": 24.5,
+            "asrTimestamp": 29.160000000000004,
+            "driftMs": -4660.000000000004,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "quick",
+            "ocrTimestamp": 29.720000000000002,
+            "asrTimestamp": 29.720000000000002,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "and",
+            "ocrTimestamp": 31,
+            "asrTimestamp": 29.980000000000004,
+            "driftMs": 1019.999999999996,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "ser",
+            "ocrTimestamp": 31,
+            "asrTimestamp": 30.240000000000002,
+            "driftMs": 759.999999999998,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "cons",
+            "ocrTimestamp": 32.07,
+            "asrTimestamp": 32.07,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "options",
+            "ocrTimestamp": 33.480000000000004,
+            "asrTimestamp": 33.480000000000004,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "and",
+            "ocrTimestamp": 34.09,
+            "asrTimestamp": 34.09,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "lack",
+            "ocrTimestamp": 33.5,
+            "asrTimestamp": 34.78,
+            "driftMs": -1280.0000000000011,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "some",
+            "ocrTimestamp": 34.5,
+            "asrTimestamp": 35.13,
+            "driftMs": -630.0000000000025,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "sreative",
+            "ocrTimestamp": 36.5,
+            "asrTimestamp": 35.480000000000004,
+            "driftMs": 1019.999999999996,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "content",
+            "ocrTimestamp": 37.24,
+            "asrTimestamp": 37.24,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "machine",
+            "ocrTimestamp": 37.57,
+            "asrTimestamp": 37.57,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "is",
+            "ocrTimestamp": 39.5,
+            "asrTimestamp": 38.36,
+            "driftMs": 1140.0000000000005,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "for",
+            "ocrTimestamp": 23,
+            "asrTimestamp": 38.8,
+            "driftMs": -15799.999999999996,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "busy",
+            "ocrTimestamp": 40.5,
+            "asrTimestamp": 39.06,
+            "driftMs": 1439.9999999999977,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "creatorsand",
+            "ocrTimestamp": 39.47,
+            "asrTimestamp": 39.47,
+            "driftMs": 0,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "and",
+            "ocrTimestamp": 38.5,
+            "asrTimestamp": 40.11,
+            "driftMs": -1609.9999999999995,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "markeferse",
+            "ocrTimestamp": 40.37,
+            "asrTimestamp": 40.37,
+            "driftMs": 0,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "try",
+            "ocrTimestamp": 43,
+            "asrTimestamp": 41.74,
+            "driftMs": 1259.999999999998,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "it",
+            "ocrTimestamp": 43,
+            "asrTimestamp": 41.85,
+            "driftMs": 1149.9999999999986,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "out",
+            "ocrTimestamp": 43,
+            "asrTimestamp": 41.92,
+            "driftMs": 1079.9999999999982,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "and",
+            "ocrTimestamp": 43,
+            "asrTimestamp": 42.19,
+            "driftMs": 810.0000000000023,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "simplify",
+            "ocrTimestamp": 42.47,
+            "asrTimestamp": 42.47,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "your",
+            "ocrTimestamp": 43.2,
+            "asrTimestamp": 43.2,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "video",
+            "ocrTimestamp": 6.5,
+            "asrTimestamp": 43.57,
+            "driftMs": -37070,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "making",
+            "ocrTimestamp": 2.5,
+            "asrTimestamp": 44.03,
+            "driftMs": -41530,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "process",
+            "ocrTimestamp": 44.57,
+            "asrTimestamp": 44.57,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "today",
+            "ocrTimestamp": 45.23,
+            "asrTimestamp": 45.23,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "try",
+            "ocrTimestamp": 46.29,
+            "asrTimestamp": 46.29,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "it",
+            "ocrTimestamp": 46.41,
+            "asrTimestamp": 46.41,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "out",
+            "ocrTimestamp": 46.46,
+            "asrTimestamp": 46.46,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "and",
+            "ocrTimestamp": 46.71,
+            "asrTimestamp": 46.71,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "simplify",
+            "ocrTimestamp": 47.03,
+            "asrTimestamp": 47.03,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "your",
+            "ocrTimestamp": 47.7,
+            "asrTimestamp": 47.7,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "video",
+            "ocrTimestamp": 6.5,
+            "asrTimestamp": 48.04,
+            "driftMs": -41540,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "making",
+            "ocrTimestamp": 2.5,
+            "asrTimestamp": 48.48,
+            "driftMs": -45980,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "process",
+            "ocrTimestamp": 49.01,
+            "asrTimestamp": 49.01,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "today",
+            "ocrTimestamp": 49,
+            "asrTimestamp": 49.63,
+            "driftMs": -630.0000000000025,
+            "matchQuality": "exact"
+          }
+        ],
+        "driftTimeline": [
+          {
+            "timestamp": 0.37,
+            "driftMs": 9630
+          },
+          {
+            "timestamp": 0.67,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 1.28,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 1.65,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 2.48,
+            "driftMs": 4019.9999999999995
+          },
+          {
+            "timestamp": 2.81,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 3.65,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 4,
+            "driftMs": 1000
+          },
+          {
+            "timestamp": 4.32,
+            "driftMs": 679.9999999999998
+          },
+          {
+            "timestamp": 6.07,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 6.3,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 6.58,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 7.28,
+            "driftMs": -780.0000000000002
+          },
+          {
+            "timestamp": 7.63,
+            "driftMs": 5370
+          },
+          {
+            "timestamp": 8.41,
+            "driftMs": 589.9999999999999
+          },
+          {
+            "timestamp": 9.04,
+            "driftMs": 960.0000000000009
+          },
+          {
+            "timestamp": 9.36,
+            "driftMs": 640.0000000000006
+          },
+          {
+            "timestamp": 9.74,
+            "driftMs": 3260
+          },
+          {
+            "timestamp": 12.43,
+            "driftMs": -929.9999999999998
+          },
+          {
+            "timestamp": 12.97,
+            "driftMs": -970.0000000000007
+          },
+          {
+            "timestamp": 13.020000000000001,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 13.270000000000001,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 13.660000000000002,
+            "driftMs": 2839.999999999998
+          },
+          {
+            "timestamp": 13.850000000000001,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 14.890000000000002,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 15.13,
+            "driftMs": -8630
+          },
+          {
+            "timestamp": 15.540000000000001,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 15.720000000000002,
+            "driftMs": 7279.999999999997
+          },
+          {
+            "timestamp": 16.59,
+            "driftMs": -6590
+          },
+          {
+            "timestamp": 17.03,
+            "driftMs": 7469.999999999999
+          },
+          {
+            "timestamp": 18.470000000000002,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 19.26,
+            "driftMs": -9260.000000000002
+          },
+          {
+            "timestamp": 19.5,
+            "driftMs": -14000
+          },
+          {
+            "timestamp": 19.87,
+            "driftMs": 19630
+          },
+          {
+            "timestamp": 20.180000000000003,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 21.060000000000002,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 21.59,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 22.23,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 22.28,
+            "driftMs": -780.0000000000011
+          },
+          {
+            "timestamp": 23.230000000000004,
+            "driftMs": 1269.999999999996
+          },
+          {
+            "timestamp": 23.400000000000002,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 23.820000000000004,
+            "driftMs": -820.0000000000039
+          },
+          {
+            "timestamp": 24.000000000000004,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 24.520000000000003,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 24.970000000000002,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 25.290000000000003,
+            "driftMs": 11209.999999999998
+          },
+          {
+            "timestamp": 25.900000000000002,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 26.720000000000002,
+            "driftMs": -1220.0000000000025
+          },
+          {
+            "timestamp": 27.060000000000002,
+            "driftMs": -13060.000000000002
+          },
+          {
+            "timestamp": 27.69,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 28.950000000000003,
+            "driftMs": -14450.000000000004
+          },
+          {
+            "timestamp": 29.160000000000004,
+            "driftMs": -4660.000000000004
+          },
+          {
+            "timestamp": 29.720000000000002,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 29.980000000000004,
+            "driftMs": 1019.999999999996
+          },
+          {
+            "timestamp": 30.240000000000002,
+            "driftMs": 759.999999999998
+          },
+          {
+            "timestamp": 32.07,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 33.480000000000004,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 34.09,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 34.78,
+            "driftMs": -1280.0000000000011
+          },
+          {
+            "timestamp": 35.13,
+            "driftMs": -630.0000000000025
+          },
+          {
+            "timestamp": 35.480000000000004,
+            "driftMs": 1019.999999999996
+          },
+          {
+            "timestamp": 37.24,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 37.57,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 38.36,
+            "driftMs": 1140.0000000000005
+          },
+          {
+            "timestamp": 38.8,
+            "driftMs": -15799.999999999996
+          },
+          {
+            "timestamp": 39.06,
+            "driftMs": 1439.9999999999977
+          },
+          {
+            "timestamp": 39.47,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 40.11,
+            "driftMs": -1609.9999999999995
+          },
+          {
+            "timestamp": 40.37,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 41.74,
+            "driftMs": 1259.999999999998
+          },
+          {
+            "timestamp": 41.85,
+            "driftMs": 1149.9999999999986
+          },
+          {
+            "timestamp": 41.92,
+            "driftMs": 1079.9999999999982
+          },
+          {
+            "timestamp": 42.19,
+            "driftMs": 810.0000000000023
+          },
+          {
+            "timestamp": 42.47,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 43.2,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 43.57,
+            "driftMs": -37070
+          },
+          {
+            "timestamp": 44.03,
+            "driftMs": -41530
+          },
+          {
+            "timestamp": 44.57,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 45.23,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 46.29,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 46.41,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 46.46,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 46.71,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 47.03,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 47.7,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 48.04,
+            "driftMs": -41540
+          },
+          {
+            "timestamp": 48.48,
+            "driftMs": -45980
+          },
+          {
+            "timestamp": 49.01,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 49.63,
+            "driftMs": -630.0000000000025
+          }
+        ],
+        "errors": [
+          {
+            "type": "low_match_ratio",
+            "severity": "critical",
+            "message": "Only 22% of words matched",
+            "suggestedFix": "Check OCR accuracy or video clarity"
+          },
+          {
+            "type": "caption_quality_overall",
+            "severity": "warning",
+            "message": "Caption quality overall below threshold (score=0.46)",
+            "suggestedFix": "Improve caption readability (safe margins, pacing, density) and re-render"
+          },
+          {
+            "type": "caption_safe_margin",
+            "severity": "warning",
+            "message": "Captions violate safe margins (82 frame(s))",
+            "suggestedFix": "Move captions inward from screen edges (increase padding / safe area)"
+          },
+          {
+            "type": "caption_density",
+            "severity": "warning",
+            "message": "Caption crowding detected (lineOverflow=60, charOverflow=0)",
+            "suggestedFix": "Reduce words per caption and keep captions to 1–2 lines"
+          },
+          {
+            "type": "caption_punctuation",
+            "severity": "warning",
+            "message": "Caption punctuation issues (missingTerminal=31, repeated=0)",
+            "suggestedFix": "Fix punctuation in script/transcript normalization and re-render captions"
+          },
+          {
+            "type": "caption_capitalization",
+            "severity": "warning",
+            "message": "Caption capitalization inconsistencies (30 issue(s), style=all_caps)",
+            "suggestedFix": "Pick a casing style (ALL CAPS or sentence-case) and enforce it consistently"
+          },
+          {
+            "type": "caption_low_confidence",
+            "severity": "warning",
+            "message": "Low OCR confidence may indicate poor caption legibility (mean=0.44)",
+            "suggestedFix": "Increase caption contrast (outline/shadow) and avoid cluttered backgrounds"
+          }
+        ],
+        "analysis": {
+          "ocrEngine": "tesseract",
+          "asrEngine": "whisper-cpp",
+          "framesAnalyzed": 99,
+          "analysisTimeMs": 67046,
+          "captionFrameSize": {
+            "width": 1080,
+            "height": 672
+          },
+          "videoFrameSize": {
+            "width": 1080,
+            "height": 1920
+          },
+          "captionCropOffsetY": 1248
+        },
+        "captionQuality": {
+          "thresholds": {
+            "safeMarginRatio": 0.05,
+            "idealReadingSpeedWps": {
+              "min": 2,
+              "max": 4
+            },
+            "absoluteReadingSpeedWps": {
+              "min": 1,
+              "max": 7
+            },
+            "recommendedCaptionDurationSeconds": {
+              "min": 1,
+              "max": 7
+            },
+            "flashDurationSecondsMax": 0.5,
+            "density": {
+              "maxLines": 3,
+              "maxCharsPerLine": 45
+            },
+            "capitalization": {
+              "allCapsRatioMin": 0.8
+            },
+            "alignment": {
+              "idealCenterXRatio": 0.5,
+              "maxMeanAbsCenterDxRatio": 0.1
+            },
+            "placement": {
+              "maxStddevCenterXRatio": 0.02,
+              "maxStddevCenterYRatio": 0.02
+            },
+            "jitter": {
+              "maxMeanCenterDeltaPx": 10,
+              "maxP95CenterDeltaPx": 40
+            },
+            "style": {
+              "maxBboxHeightCv": 0.25,
+              "maxBboxAreaCv": 0.4
+            },
+            "pass": {
+              "minOverall": 0.75,
+              "minCoverageRatio": 0.6,
+              "maxFlickerEvents": 1
+            }
+          },
+          "weights": {
+            "rhythm": 0.12,
+            "displayTime": 0.08,
+            "coverage": 0.12,
+            "safeArea": 0.1,
+            "density": 0.06,
+            "punctuation": 0.04,
+            "capitalization": 0.03,
+            "alignment": 0.06,
+            "placement": 0.06,
+            "jitter": 0.08,
+            "style": 0.05,
+            "redundancy": 0.05,
+            "segmentation": 0.06,
+            "ocrConfidence": 0.09
+          },
+          "overall": {
+            "score": 0.4586051463965038,
+            "passed": false
+          },
+          "segments": [
+            {
+              "text": "| LiL Ih WW 1 J “oe = — E——\nNS SPENDING TS\n\"2 HOURS MAKING\n| ym =|\n) TIKTOK(\n\nSN\n— WF a ws",
+              "normalizedText": "| LiL Ih WW 1 J “oe = — E—— NS SPENDING TS \"2 HOURS MAKING | ym =| ) TIKTOK( SN — WF a ws",
+              "startSeconds": 0,
+              "endSeconds": 0.5,
+              "durationSeconds": 0.5,
+              "wordCount": 26,
+              "lineCount": 7,
+              "maxCharsPerLine": 27,
+              "meanConfidence": 0.41,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1917
+              },
+              "center": {
+                "x": 540,
+                "y": 1582.5
+              },
+              "bboxHeightPx": 669,
+              "bboxAreaPx": 722520
+            },
+            {
+              "text": "NN SENDING =i\nAHOURS MAKING\n\n7 5 |\n3 \\ TIKTOK\n\n= A [\"",
+              "normalizedText": "NN SENDING =i AHOURS MAKING 7 5 | 3 \\ TIKTOK = A [\"",
+              "startSeconds": 0.5,
+              "endSeconds": 1,
+              "durationSeconds": 0.5,
+              "wordCount": 14,
+              "lineCount": 5,
+              "maxCharsPerLine": 13,
+              "meanConfidence": 0.36,
+              "bbox": {
+                "x0": 0,
+                "y0": 1264,
+                "x1": 1080,
+                "y1": 1919
+              },
+              "center": {
+                "x": 540,
+                "y": 1591.5
+              },
+              "bboxHeightPx": 655,
+              "bboxAreaPx": 707400
+            },
+            {
+              "text": "SSEENDING L\npe HOURS MAKING\n> ad\ny MIKTOK\n\n>V. S. | ayy",
+              "normalizedText": "SSEENDING L pe HOURS MAKING > ad y MIKTOK >V. S. | ayy",
+              "startSeconds": 1,
+              "endSeconds": 1.5,
+              "durationSeconds": 0.5,
+              "wordCount": 13,
+              "lineCount": 5,
+              "maxCharsPerLine": 15,
+              "meanConfidence": 0.45,
+              "bbox": {
+                "x0": 0,
+                "y0": 1277,
+                "x1": 1048,
+                "y1": 1849
+              },
+              "center": {
+                "x": 524,
+                "y": 1563
+              },
+              "bboxHeightPx": 572,
+              "bboxAreaPx": 599456
+            },
+            {
+              "text": "SPENDING\nus HOURS MAKING\n: \\ TIKTOK!\n\n< , f -",
+              "normalizedText": "SPENDING us HOURS MAKING : \\ TIKTOK! < , f -",
+              "startSeconds": 1.5,
+              "endSeconds": 2,
+              "durationSeconds": 0.5,
+              "wordCount": 11,
+              "lineCount": 4,
+              "maxCharsPerLine": 15,
+              "meanConfidence": 0.4,
+              "bbox": {
+                "x0": 33,
+                "y0": 1295,
+                "x1": 1005,
+                "y1": 1846
+              },
+              "center": {
+                "x": 519,
+                "y": 1570.5
+              },
+              "bboxHeightPx": 551,
+              "bboxAreaPx": 535572
+            },
+            {
+              "text": "BN SPENDING =\nv {HOURS MAKING\nJ rok |",
+              "normalizedText": "BN SPENDING = v {HOURS MAKING J rok |",
+              "startSeconds": 2,
+              "endSeconds": 2.5,
+              "durationSeconds": 0.5,
+              "wordCount": 9,
+              "lineCount": 3,
+              "maxCharsPerLine": 15,
+              "meanConfidence": 0.55,
+              "bbox": {
+                "x0": 0,
+                "y0": 1259,
+                "x1": 1061,
+                "y1": 1695
+              },
+              "center": {
+                "x": 530.5,
+                "y": 1477
+              },
+              "bboxHeightPx": 436,
+              "bboxAreaPx": 462596
+            },
+            {
+              "text": "N SPENDING S\nvs HOURS MAKING\n: HE\n\nTS HS\n== 4 AN [| Y n",
+              "normalizedText": "N SPENDING S vs HOURS MAKING : HE TS HS == 4 AN [| Y n",
+              "startSeconds": 2.5,
+              "endSeconds": 3,
+              "durationSeconds": 0.5,
+              "wordCount": 16,
+              "lineCount": 5,
+              "maxCharsPerLine": 15,
+              "meanConfidence": 0.36,
+              "bbox": {
+                "x0": 0,
+                "y0": 1268,
+                "x1": 1078,
+                "y1": 1920
+              },
+              "center": {
+                "x": 539,
+                "y": 1594
+              },
+              "bboxHeightPx": 652,
+              "bboxAreaPx": 702856
+            },
+            {
+              "text": "Ni\nv5 ob i :\ni VIDEOS, |",
+              "normalizedText": "Ni v5 ob i : i VIDEOS, |",
+              "startSeconds": 3,
+              "endSeconds": 3.5,
+              "durationSeconds": 0.5,
+              "wordCount": 8,
+              "lineCount": 3,
+              "maxCharsPerLine": 11,
+              "meanConfidence": 0.39,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1055,
+                "y1": 1920
+              },
+              "center": {
+                "x": 527.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 708960
+            },
+            {
+              "text": "\\ EE\nMESLSECON TENT /\n= : VIACHINE!\n\nMv hk\n= N Na AR\"",
+              "normalizedText": "\\ EE MESLSECON TENT / = : VIACHINE! Mv hk = N Na AR\"",
+              "startSeconds": 3.5,
+              "endSeconds": 4,
+              "durationSeconds": 0.5,
+              "wordCount": 14,
+              "lineCount": 5,
+              "maxCharsPerLine": 16,
+              "meanConfidence": 0.32,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "li p Ril\n! USE Fey\nWi",
+              "normalizedText": "li p Ril ! USE Fey Wi",
+              "startSeconds": 4,
+              "endSeconds": 4.5,
+              "durationSeconds": 0.5,
+              "wordCount": 7,
+              "lineCount": 3,
+              "maxCharsPerLine": 9,
+              "meanConfidence": 0.34,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1069,
+                "y1": 1920
+              },
+              "center": {
+                "x": 534.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 718368
+            },
+            {
+              "text": "4\nOEY TEN\n~ gS SIN =\nSS XN ZF\nNS NINE\nNS lls\nRN :",
+              "normalizedText": "4 OEY TEN ~ gS SIN = SS XN ZF NS NINE NS lls RN :",
+              "startSeconds": 4.5,
+              "endSeconds": 5,
+              "durationSeconds": 0.5,
+              "wordCount": 16,
+              "lineCount": 7,
+              "maxCharsPerLine": 10,
+              "meanConfidence": 0.28,
+              "bbox": {
+                "x0": 218,
+                "y0": 1338,
+                "x1": 766,
+                "y1": 1834
+              },
+              "center": {
+                "x": 492,
+                "y": 1586
+              },
+              "bboxHeightPx": 496,
+              "bboxAreaPx": 271808
+            },
+            {
+              "text": "gi — Y -\nA\nUSE. CONTENII\nW r=\nACHINEN\n= N=\nAL\nNN",
+              "normalizedText": "gi — Y - A USE. CONTENII W r= ACHINEN = N= AL NN",
+              "startSeconds": 5,
+              "endSeconds": 5.5,
+              "durationSeconds": 0.5,
+              "wordCount": 14,
+              "lineCount": 8,
+              "maxCharsPerLine": 13,
+              "meanConfidence": 0.31,
+              "bbox": {
+                "x0": 218,
+                "y0": 1248,
+                "x1": 1072,
+                "y1": 1905
+              },
+              "center": {
+                "x": 645,
+                "y": 1576.5
+              },
+              "bboxHeightPx": 657,
+              "bboxAreaPx": 561078
+            },
+            {
+              "text": "YEE. Br\na\nul.\nUSE CONTENI]I\n(CANA ELILIINIL—\nTES 1 QL ==)\nSO A =\nNN NAN\nND 5\nNR 3\nND\nNS",
+              "normalizedText": "YEE. Br a ul. USE CONTENI]I (CANA ELILIINIL— TES 1 QL ==) SO A = NN NAN ND 5 NR 3 ND NS",
+              "startSeconds": 5.5,
+              "endSeconds": 6,
+              "durationSeconds": 0.5,
+              "wordCount": 23,
+              "lineCount": 12,
+              "maxCharsPerLine": 16,
+              "meanConfidence": 0.29,
+              "bbox": {
+                "x0": 218,
+                "y0": 1248,
+                "x1": 961,
+                "y1": 1899
+              },
+              "center": {
+                "x": 589.5,
+                "y": 1573.5
+              },
+              "bboxHeightPx": 651,
+              "bboxAreaPx": 483693
+            },
+            {
+              "text": "S TOOL GENERATES\ni)\n\\VIDE®INIUNDERIEIVE",
+              "normalizedText": "S TOOL GENERATES i) \\VIDE®INIUNDERIEIVE",
+              "startSeconds": 6,
+              "endSeconds": 6.5,
+              "durationSeconds": 0.5,
+              "wordCount": 5,
+              "lineCount": 3,
+              "maxCharsPerLine": 19,
+              "meanConfidence": 0.62,
+              "bbox": {
+                "x0": 76,
+                "y0": 1323,
+                "x1": 961,
+                "y1": 1647
+              },
+              "center": {
+                "x": 518.5,
+                "y": 1485
+              },
+              "bboxHeightPx": 324,
+              "bboxAreaPx": 286740
+            },
+            {
+              "text": "J\nHIS TO\nOL, GENERATES\nVIDEO Nui\nNIUNDERIEIVE\nNN NN\nNN wil 1\ni RNY",
+              "normalizedText": "J HIS TO OL, GENERATES VIDEO Nui NIUNDERIEIVE NN NN NN wil 1 i RNY",
+              "startSeconds": 6.5,
+              "endSeconds": 7,
+              "durationSeconds": 0.5,
+              "wordCount": 15,
+              "lineCount": 8,
+              "maxCharsPerLine": 13,
+              "meanConfidence": 0.44,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 961,
+                "y1": 1920
+              },
+              "center": {
+                "x": 480.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 645792
+            },
+            {
+              "text": "JF— vy\nNES TOOL GERERSIES\n>\nYEO/INIUNDERIEIVE",
+              "normalizedText": "JF— vy NES TOOL GERERSIES > YEO/INIUNDERIEIVE",
+              "startSeconds": 7,
+              "endSeconds": 7.5,
+              "durationSeconds": 0.5,
+              "wordCount": 7,
+              "lineCount": 4,
+              "maxCharsPerLine": 18,
+              "meanConfidence": 0.24,
+              "bbox": {
+                "x0": 44,
+                "y0": 1248,
+                "x1": 957,
+                "y1": 1651
+              },
+              "center": {
+                "x": 500.5,
+                "y": 1449.5
+              },
+              "bboxHeightPx": 403,
+              "bboxAreaPx": 367939
+            },
+            {
+              "text": "v\nMHIS TOOLGENERATIES\nA\nVVIDEG]IN DERYEIVE\nNN Ne\nNA B",
+              "normalizedText": "v MHIS TOOLGENERATIES A VVIDEG]IN DERYEIVE NN Ne NA B",
+              "startSeconds": 7.5,
+              "endSeconds": 8,
+              "durationSeconds": 0.5,
+              "wordCount": 10,
+              "lineCount": 6,
+              "maxCharsPerLine": 19,
+              "meanConfidence": 0.24,
+              "bbox": {
+                "x0": 44,
+                "y0": 1248,
+                "x1": 961,
+                "y1": 1920
+              },
+              "center": {
+                "x": 502.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 616224
+            },
+            {
+              "text": "a A = 4\nNHIS TOOL GENERATES\nVID EQUI ER EME",
+              "normalizedText": "a A = 4 NHIS TOOL GENERATES VID EQUI ER EME",
+              "startSeconds": 8,
+              "endSeconds": 8.5,
+              "durationSeconds": 0.5,
+              "wordCount": 11,
+              "lineCount": 3,
+              "maxCharsPerLine": 19,
+              "meanConfidence": 0.31,
+              "bbox": {
+                "x0": 44,
+                "y0": 1248,
+                "x1": 965,
+                "y1": 1656
+              },
+              "center": {
+                "x": 504.5,
+                "y": 1452
+              },
+              "bboxHeightPx": 408,
+              "bboxAreaPx": 375768
+            },
+            {
+              "text": "I'S v\nC \"SAVINGY.OU\nwNIME\n2 Y ) 5 0 '\nANDEFROR Te!\n= Li\ntS J",
+              "normalizedText": "I'S v C \"SAVINGY.OU wNIME 2 Y ) 5 0 ' ANDEFROR Te! = Li tS J",
+              "startSeconds": 8.5,
+              "endSeconds": 9,
+              "durationSeconds": 0.5,
+              "wordCount": 17,
+              "lineCount": 7,
+              "maxCharsPerLine": 13,
+              "meanConfidence": 0.2,
+              "bbox": {
+                "x0": 224,
+                "y0": 1248,
+                "x1": 1068,
+                "y1": 1829
+              },
+              "center": {
+                "x": 646,
+                "y": 1538.5
+              },
+              "bboxHeightPx": 581,
+              "bboxAreaPx": 490364
+            },
+            {
+              "text": "———\nMINUTES | SAV GAY OU)\nAND'EFEORTEY",
+              "normalizedText": "——— MINUTES | SAV GAY OU) AND'EFEORTEY",
+              "startSeconds": 9,
+              "endSeconds": 9.5,
+              "durationSeconds": 0.5,
+              "wordCount": 7,
+              "lineCount": 3,
+              "maxCharsPerLine": 21,
+              "meanConfidence": 0.4,
+              "bbox": {
+                "x0": 49,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1671
+              },
+              "center": {
+                "x": 564.5,
+                "y": 1459.5
+              },
+              "bboxHeightPx": 423,
+              "bboxAreaPx": 436113
+            },
+            {
+              "text": "AS\nMINUTES ;SAVINGNOU\nges mE\nSWANDIEEEO Ril\ni\nA y- het",
+              "normalizedText": "AS MINUTES ;SAVINGNOU ges mE SWANDIEEEO Ril i A y- het",
+              "startSeconds": 9.5,
+              "endSeconds": 10,
+              "durationSeconds": 0.5,
+              "wordCount": 11,
+              "lineCount": 6,
+              "maxCharsPerLine": 18,
+              "meanConfidence": 0.27,
+              "bbox": {
+                "x0": 49,
+                "y0": 1248,
+                "x1": 1069,
+                "y1": 1909
+              },
+              "center": {
+                "x": 559,
+                "y": 1578.5
+              },
+              "bboxHeightPx": 661,
+              "bboxAreaPx": 674220
+            },
+            {
+              "text": "po TAKE\nMINUTES SAVING YOU\n\\ pRO\nS#ANDIEEEOR!\n1\n4 <jlte",
+              "normalizedText": "po TAKE MINUTES SAVING YOU \\ pRO S#ANDIEEEOR! 1 4 <jlte",
+              "startSeconds": 10,
+              "endSeconds": 10.5,
+              "durationSeconds": 0.5,
+              "wordCount": 11,
+              "lineCount": 6,
+              "maxCharsPerLine": 18,
+              "meanConfidence": 0.55,
+              "bbox": {
+                "x0": 49,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1913
+              },
+              "center": {
+                "x": 564.5,
+                "y": 1580.5
+              },
+              "bboxHeightPx": 665,
+              "bboxAreaPx": 685615
+            },
+            {
+              "text": "Af\nMINUTES SAVINGAYOU\ni pRO\nSrANDEEEO RIE\nCN a\nA \\ jie’",
+              "normalizedText": "Af MINUTES SAVINGAYOU i pRO SrANDEEEO RIE CN a A \\ jie’",
+              "startSeconds": 10.5,
+              "endSeconds": 11,
+              "durationSeconds": 0.5,
+              "wordCount": 12,
+              "lineCount": 6,
+              "maxCharsPerLine": 18,
+              "meanConfidence": 0.27,
+              "bbox": {
+                "x0": 49,
+                "y0": 1248,
+                "x1": 1068,
+                "y1": 1920
+              },
+              "center": {
+                "x": 558.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 684768
+            },
+            {
+              "text": "AP\nMINUTES, SAVINGAYOU\n: oe” |\npRO\nSWANDJEEEO Riles\n\\ 4 | Der",
+              "normalizedText": "AP MINUTES, SAVINGAYOU : oe” | pRO SWANDJEEEO Riles \\ 4 | Der",
+              "startSeconds": 11,
+              "endSeconds": 11.5,
+              "durationSeconds": 0.5,
+              "wordCount": 13,
+              "lineCount": 6,
+              "maxCharsPerLine": 19,
+              "meanConfidence": 0.37,
+              "bbox": {
+                "x0": 49,
+                "y0": 1248,
+                "x1": 951,
+                "y1": 1918
+              },
+              "center": {
+                "x": 500,
+                "y": 1583
+              },
+              "bboxHeightPx": 670,
+              "bboxAreaPx": 604340
+            },
+            {
+              "text": "pRO ) EN Coa\nI TE ANY v\n2\nre\n| yIRE\nA io\" .\nel",
+              "normalizedText": "pRO ) EN Coa I TE ANY v 2 re | yIRE A io\" . el",
+              "startSeconds": 11.5,
+              "endSeconds": 12,
+              "durationSeconds": 0.5,
+              "wordCount": 16,
+              "lineCount": 7,
+              "maxCharsPerLine": 12,
+              "meanConfidence": 0.35,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1075,
+                "y1": 1920
+              },
+              "center": {
+                "x": 537.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 722400
+            },
+            {
+              "text": "\\\\) KE\nWCC\noo\niBENIER .\noR\n: TOPIC\n\\ (10%\n\\ 5IRE RA’ y",
+              "normalizedText": "\\\\) KE WCC oo iBENIER . oR : TOPIC \\ (10% \\ 5IRE RA’ y",
+              "startSeconds": 12,
+              "endSeconds": 12.5,
+              "durationSeconds": 0.5,
+              "wordCount": 15,
+              "lineCount": 8,
+              "maxCharsPerLine": 12,
+              "meanConfidence": 0.34,
+              "bbox": {
+                "x0": 126,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1914
+              },
+              "center": {
+                "x": 603,
+                "y": 1581
+              },
+              "bboxHeightPx": 666,
+              "bboxAreaPx": 635364
+            },
+            {
+              "text": "<\\O% TAKE\n6 Soe -\nBENNER\n1 pR L\n0 SFL\n\\ cco\"",
+              "normalizedText": "<\\O% TAKE 6 Soe - BENNER 1 pR L 0 SFL \\ cco\"",
+              "startSeconds": 12.5,
+              "endSeconds": 13,
+              "durationSeconds": 0.5,
+              "wordCount": 13,
+              "lineCount": 6,
+              "maxCharsPerLine": 9,
+              "meanConfidence": 0.4,
+              "bbox": {
+                "x0": 128,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1845
+              },
+              "center": {
+                "x": 604,
+                "y": 1546.5
+              },
+              "bboxHeightPx": 597,
+              "bboxAreaPx": 568344
+            },
+            {
+              "text": "<\\O TAKE\nAND WATCHIMITECREATE\n& > M7 In| ccENE - ~~\n= orOZ a ~C\nSCRIPIVAND)IDEO\n| ’ oF\nPN oe TEE",
+              "normalizedText": "<\\O TAKE AND WATCHIMITECREATE & > M7 In| ccENE - ~~ = orOZ a ~C SCRIPIVAND)IDEO | ’ oF PN oe TEE",
+              "startSeconds": 13,
+              "endSeconds": 13.5,
+              "durationSeconds": 0.5,
+              "wordCount": 22,
+              "lineCount": 7,
+              "maxCharsPerLine": 21,
+              "meanConfidence": 0.27,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "<\\O TAKE\nAND WATCH: IECREATE\n(Cy -\nSCERIRIAFANDNIDEO\n\\ ” fo |\nSPR ot er",
+              "normalizedText": "<\\O TAKE AND WATCH: IECREATE (Cy - SCERIRIAFANDNIDEO \\ ” fo | SPR ot er",
+              "startSeconds": 13.5,
+              "endSeconds": 14,
+              "durationSeconds": 0.5,
+              "wordCount": 15,
+              "lineCount": 6,
+              "maxCharsPerLine": 19,
+              "meanConfidence": 0.42,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "<\\O TAKE\nAND WATCH IRCREATE\n(Om on\nore a\nSERIRIWVANDMNIDEO\n\\ oR’",
+              "normalizedText": "<\\O TAKE AND WATCH IRCREATE (Om on ore a SERIRIWVANDMNIDEO \\ oR’",
+              "startSeconds": 14,
+              "endSeconds": 14.5,
+              "durationSeconds": 0.5,
+              "wordCount": 12,
+              "lineCount": 6,
+              "maxCharsPerLine": 18,
+              "meanConfidence": 0.4,
+              "bbox": {
+                "x0": 44,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1802
+              },
+              "center": {
+                "x": 562,
+                "y": 1525
+              },
+              "bboxHeightPx": 554,
+              "bboxAreaPx": 573944
+            },
+            {
+              "text": "<\\& TAKE\nAND WATCHIi IRCREATE\no (¢ nt GCN -\n_ pROZ -\nSCRIPIVAND)VIDEO\n\\ oR: _\n: ) | Ra",
+              "normalizedText": "<\\& TAKE AND WATCHIi IRCREATE o (¢ nt GCN - _ pROZ - SCRIPIVAND)VIDEO \\ oR: _ : ) | Ra",
+              "startSeconds": 14.5,
+              "endSeconds": 15,
+              "durationSeconds": 0.5,
+              "wordCount": 21,
+              "lineCount": 7,
+              "maxCharsPerLine": 20,
+              "meanConfidence": 0.38,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1078,
+                "y1": 1920
+              },
+              "center": {
+                "x": 539,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 724416
+            },
+            {
+              "text": "eB we\nSUT EEORYOU.\n| ot",
+              "normalizedText": "eB we SUT EEORYOU. | ot",
+              "startSeconds": 15,
+              "endSeconds": 15.5,
+              "durationSeconds": 0.5,
+              "wordCount": 6,
+              "lineCount": 3,
+              "maxCharsPerLine": 12,
+              "meanConfidence": 0.38,
+              "bbox": {
+                "x0": 130,
+                "y0": 1248,
+                "x1": 1029,
+                "y1": 1829
+              },
+              "center": {
+                "x": 579.5,
+                "y": 1538.5
+              },
+              "bboxHeightPx": 581,
+              "bboxAreaPx": 522319
+            },
+            {
+              "text": "10 KE\nwe .\nM7 15 2c? -\nor So\nCUTLINE EORY.OU.\n\\ (OR\nFUCA En | .",
+              "normalizedText": "10 KE we . M7 15 2c? - or So CUTLINE EORY.OU. \\ (OR FUCA En | .",
+              "startSeconds": 15.5,
+              "endSeconds": 16,
+              "durationSeconds": 0.5,
+              "wordCount": 18,
+              "lineCount": 7,
+              "maxCharsPerLine": 16,
+              "meanConfidence": 0.33,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "o g NCES -\n(TESATRIAT be AND! .\nP TREN S) - ND -\nA : oc\n\nERA —~ | Ph",
+              "normalizedText": "o g NCES - (TESATRIAT be AND! . P TREN S) - ND - A : oc ERA —~ | Ph",
+              "startSeconds": 16,
+              "endSeconds": 16.5,
+              "durationSeconds": 0.5,
+              "wordCount": 21,
+              "lineCount": 5,
+              "maxCharsPerLine": 20,
+              "meanConfidence": 0.33,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1074,
+                "y1": 1920
+              },
+              "center": {
+                "x": 537,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 721728
+            },
+            {
+              "text": "| IN |\nuN | 4\niT: THATEASY AND\nVENT,",
+              "normalizedText": "| IN | uN | 4 iT: THATEASY AND VENT,",
+              "startSeconds": 16.5,
+              "endSeconds": 17,
+              "durationSeconds": 0.5,
+              "wordCount": 10,
+              "lineCount": 4,
+              "maxCharsPerLine": 16,
+              "meanConfidence": 0.39,
+              "bbox": {
+                "x0": 100,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1664
+              },
+              "center": {
+                "x": 590,
+                "y": 1456
+              },
+              "bboxHeightPx": 416,
+              "bboxAreaPx": 407680
+            },
+            {
+              "text": "»n\nRTH SY AND\n< Pr ~~",
+              "normalizedText": "»n RTH SY AND < Pr ~~",
+              "startSeconds": 17,
+              "endSeconds": 17.5,
+              "durationSeconds": 0.5,
+              "wordCount": 7,
+              "lineCount": 3,
+              "maxCharsPerLine": 10,
+              "meanConfidence": 0.45,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 905,
+                "y1": 1801
+              },
+              "center": {
+                "x": 452.5,
+                "y": 1524.5
+              },
+              "bboxHeightPx": 553,
+              "bboxAreaPx": 500465
+            },
+            {
+              "text": "\\\nhs a N\n7)\n\nJ “IFAS.",
+              "normalizedText": "\\ hs a N 7) J “IFAS.",
+              "startSeconds": 17.5,
+              "endSeconds": 18,
+              "durationSeconds": 0.5,
+              "wordCount": 7,
+              "lineCount": 4,
+              "maxCharsPerLine": 8,
+              "meanConfidence": 0.29,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 850,
+                "y1": 1862
+              },
+              "center": {
+                "x": 425,
+                "y": 1555
+              },
+              "bboxHeightPx": 614,
+              "bboxAreaPx": 521900
+            },
+            {
+              "text": "J i A\n- . = a n\nIi SHA\" AND",
+              "normalizedText": "J i A - . = a n Ii SHA\" AND",
+              "startSeconds": 18,
+              "endSeconds": 18.5,
+              "durationSeconds": 0.5,
+              "wordCount": 11,
+              "lineCount": 3,
+              "maxCharsPerLine": 11,
+              "meanConfidence": 0.54,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 905,
+                "y1": 1616
+              },
+              "center": {
+                "x": 452.5,
+                "y": 1432
+              },
+              "bboxHeightPx": 368,
+              "bboxAreaPx": 333040
+            },
+            {
+              "text": "21 |\n| a\nIT AES An\nol ZH0%",
+              "normalizedText": "21 | | a IT AES An ol ZH0%",
+              "startSeconds": 18.5,
+              "endSeconds": 19,
+              "durationSeconds": 0.5,
+              "wordCount": 9,
+              "lineCount": 4,
+              "maxCharsPerLine": 9,
+              "meanConfidence": 0.36,
+              "bbox": {
+                "x0": 0,
+                "y0": 1249,
+                "x1": 1040,
+                "y1": 1918
+              },
+              "center": {
+                "x": 520,
+                "y": 1583.5
+              },
+              "bboxHeightPx": 669,
+              "bboxAreaPx": 695760
+            },
+            {
+              "text": "| ALE BLT AL} |\nCUSTOMIZE\nSTYLES AND ADD\nMUSIC\nyi T - DP wn,",
+              "normalizedText": "| ALE BLT AL} | CUSTOMIZE STYLES AND ADD MUSIC yi T - DP wn,",
+              "startSeconds": 19,
+              "endSeconds": 19.5,
+              "durationSeconds": 0.5,
+              "wordCount": 15,
+              "lineCount": 5,
+              "maxCharsPerLine": 15,
+              "meanConfidence": 0.49,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 841,
+                "y1": 1849
+              },
+              "center": {
+                "x": 420.5,
+                "y": 1548.5
+              },
+              "bboxHeightPx": 601,
+              "bboxAreaPx": 505441
+            },
+            {
+              "text": "Y \" NR |\nCUSTOMIZE |\n: ~ =\nSTYLES » ADD\nMUSIC i\nyi Vv A D wr,",
+              "normalizedText": "Y \" NR | CUSTOMIZE | : ~ = STYLES » ADD MUSIC i yi Vv A D wr,",
+              "startSeconds": 19.5,
+              "endSeconds": 20,
+              "durationSeconds": 0.5,
+              "wordCount": 19,
+              "lineCount": 6,
+              "maxCharsPerLine": 13,
+              "meanConfidence": 0.45,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1033,
+                "y1": 1848
+              },
+              "center": {
+                "x": 516.5,
+                "y": 1548
+              },
+              "bboxHeightPx": 600,
+              "bboxAreaPx": 619800
+            },
+            {
+              "text": "BE F777 dower\nMUSIC\nyu v : Dw",
+              "normalizedText": "BE F777 dower MUSIC yu v : Dw",
+              "startSeconds": 20,
+              "endSeconds": 20.5,
+              "durationSeconds": 0.5,
+              "wordCount": 8,
+              "lineCount": 3,
+              "maxCharsPerLine": 13,
+              "meanConfidence": 0.41,
+              "bbox": {
+                "x0": 5,
+                "y0": 1248,
+                "x1": 809,
+                "y1": 1849
+              },
+              "center": {
+                "x": 407,
+                "y": 1548.5
+              },
+              "bboxHeightPx": 601,
+              "bboxAreaPx": 483204
+            },
+            {
+              "text": "BT F% xia\n« CUSTOMIZE\nSTYLES Alip Abo\nMUSICA\nFR\n> 7 \\ LN",
+              "normalizedText": "BT F% xia « CUSTOMIZE STYLES Alip Abo MUSICA FR > 7 \\ LN",
+              "startSeconds": 20.5,
+              "endSeconds": 21,
+              "durationSeconds": 0.5,
+              "wordCount": 14,
+              "lineCount": 6,
+              "maxCharsPerLine": 15,
+              "meanConfidence": 0.3,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 845,
+                "y1": 1919
+              },
+              "center": {
+                "x": 422.5,
+                "y": 1583.5
+              },
+              "bboxHeightPx": 671,
+              "bboxAreaPx": 566995
+            },
+            {
+              "text": "/cysTomize\nSTYLES AND ADD\nMUSIC.\nye vo 4 -s.",
+              "normalizedText": "/cysTomize STYLES AND ADD MUSIC. ye vo 4 -s.",
+              "startSeconds": 21,
+              "endSeconds": 21.5,
+              "durationSeconds": 0.5,
+              "wordCount": 9,
+              "lineCount": 4,
+              "maxCharsPerLine": 14,
+              "meanConfidence": 0.44,
+              "bbox": {
+                "x0": 37,
+                "y0": 1288,
+                "x1": 880,
+                "y1": 1857
+              },
+              "center": {
+                "x": 458.5,
+                "y": 1572.5
+              },
+              "bboxHeightPx": 569,
+              "bboxAreaPx": 479667
+            },
+            {
+              "text": "' CUSTOMIZE\nSTYLESANL ADD\nMUSIC!\nPo v. ®",
+              "normalizedText": "' CUSTOMIZE STYLESANL ADD MUSIC! Po v. ®",
+              "startSeconds": 21.5,
+              "endSeconds": 22,
+              "durationSeconds": 0.5,
+              "wordCount": 8,
+              "lineCount": 4,
+              "maxCharsPerLine": 13,
+              "meanConfidence": 0.44,
+              "bbox": {
+                "x0": 21,
+                "y0": 1272,
+                "x1": 845,
+                "y1": 1859
+              },
+              "center": {
+                "x": 433,
+                "y": 1565.5
+              },
+              "bboxHeightPx": 587,
+              "bboxAreaPx": 483688
+            },
+            {
+              "text": "CUSTOMIZE |\nSTYLES AND ADD\n\\USIe\n4 ATS",
+              "normalizedText": "CUSTOMIZE | STYLES AND ADD \\USIe 4 ATS",
+              "startSeconds": 22,
+              "endSeconds": 22.5,
+              "durationSeconds": 0.5,
+              "wordCount": 8,
+              "lineCount": 4,
+              "maxCharsPerLine": 14,
+              "meanConfidence": 0.62,
+              "bbox": {
+                "x0": 60,
+                "y0": 1280,
+                "x1": 845,
+                "y1": 1860
+              },
+              "center": {
+                "x": 452.5,
+                "y": 1570
+              },
+              "bboxHeightPx": 580,
+              "bboxAreaPx": 455300
+            },
+            {
+              "text": "' + cusTomIZE\nSTYLES ANE ADD\nM JSIC |\n, < v Pw",
+              "normalizedText": "' + cusTomIZE STYLES ANE ADD M JSIC | , < v Pw",
+              "startSeconds": 22.5,
+              "endSeconds": 23,
+              "durationSeconds": 0.5,
+              "wordCount": 13,
+              "lineCount": 4,
+              "maxCharsPerLine": 14,
+              "meanConfidence": 0.63,
+              "bbox": {
+                "x0": 47,
+                "y0": 1270,
+                "x1": 848,
+                "y1": 1858
+              },
+              "center": {
+                "x": 447.5,
+                "y": 1564
+              },
+              "bboxHeightPx": 588,
+              "bboxAreaPx": 470988
+            },
+            {
+              "text": "PERFECT FOR\nCREATORS NEEDING!\nQUICK\nPe 0 K =o",
+              "normalizedText": "PERFECT FOR CREATORS NEEDING! QUICK Pe 0 K =o",
+              "startSeconds": 23,
+              "endSeconds": 23.5,
+              "durationSeconds": 0.5,
+              "wordCount": 9,
+              "lineCount": 4,
+              "maxCharsPerLine": 17,
+              "meanConfidence": 0.34,
+              "bbox": {
+                "x0": 82,
+                "y0": 1331,
+                "x1": 913,
+                "y1": 1858
+              },
+              "center": {
+                "x": 497.5,
+                "y": 1594.5
+              },
+              "bboxHeightPx": 527,
+              "bboxAreaPx": 437937
+            },
+            {
+              "text": "X IT'SIPERFECTYFOR\nCREATORS NEEDING\nQUICK\nWoT",
+              "normalizedText": "X IT'SIPERFECTYFOR CREATORS NEEDING QUICK WoT",
+              "startSeconds": 23.5,
+              "endSeconds": 24,
+              "durationSeconds": 0.5,
+              "wordCount": 6,
+              "lineCount": 4,
+              "maxCharsPerLine": 18,
+              "meanConfidence": 0.44,
+              "bbox": {
+                "x0": 4,
+                "y0": 1279,
+                "x1": 905,
+                "y1": 1859
+              },
+              "center": {
+                "x": 454.5,
+                "y": 1569
+              },
+              "bboxHeightPx": 580,
+              "bboxAreaPx": 522580
+            },
+            {
+              "text": "a PERFECT4FOR\nQUICK\nPe v 4 ® wn,",
+              "normalizedText": "a PERFECT4FOR QUICK Pe v 4 ® wn,",
+              "startSeconds": 24,
+              "endSeconds": 24.5,
+              "durationSeconds": 0.5,
+              "wordCount": 8,
+              "lineCount": 3,
+              "maxCharsPerLine": 13,
+              "meanConfidence": 0.42,
+              "bbox": {
+                "x0": 0,
+                "y0": 1289,
+                "x1": 903,
+                "y1": 1861
+              },
+              "center": {
+                "x": 451.5,
+                "y": 1575
+              },
+              "bboxHeightPx": 572,
+              "bboxAreaPx": 516516
+            },
+            {
+              "text": "19\nIT'S PERFECT,EOR\nCREATORS NEERING!\nQUICK\n&",
+              "normalizedText": "19 IT'S PERFECT,EOR CREATORS NEERING! QUICK &",
+              "startSeconds": 24.5,
+              "endSeconds": 25,
+              "durationSeconds": 0.5,
+              "wordCount": 7,
+              "lineCount": 5,
+              "maxCharsPerLine": 17,
+              "meanConfidence": 0.66,
+              "bbox": {
+                "x0": 100,
+                "y0": 1248,
+                "x1": 912,
+                "y1": 1716
+              },
+              "center": {
+                "x": 506,
+                "y": 1482
+              },
+              "bboxHeightPx": 468,
+              "bboxAreaPx": 380016
+            },
+            {
+              "text": "AN\nSPER EC ]\nCREATORS NEERING\nlod 740",
+              "normalizedText": "AN SPER EC ] CREATORS NEERING lod 740",
+              "startSeconds": 25,
+              "endSeconds": 25.5,
+              "durationSeconds": 0.5,
+              "wordCount": 8,
+              "lineCount": 4,
+              "maxCharsPerLine": 16,
+              "meanConfidence": 0.33,
+              "bbox": {
+                "x0": 93,
+                "y0": 1248,
+                "x1": 945,
+                "y1": 1920
+              },
+              "center": {
+                "x": 519,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 572544
+            },
+            {
+              "text": "ESPECIALLY WHEN\nONATIGHTY =\nSCHEDUIEN\n\nZ 2\ni < Eos",
+              "normalizedText": "ESPECIALLY WHEN ONATIGHTY = SCHEDUIEN Z 2 i < Eos",
+              "startSeconds": 25.5,
+              "endSeconds": 26,
+              "durationSeconds": 0.5,
+              "wordCount": 10,
+              "lineCount": 5,
+              "maxCharsPerLine": 15,
+              "meanConfidence": 0.6,
+              "bbox": {
+                "x0": 129,
+                "y0": 1324,
+                "x1": 944,
+                "y1": 1832
+              },
+              "center": {
+                "x": 536.5,
+                "y": 1578
+              },
+              "bboxHeightPx": 508,
+              "bboxAreaPx": 414020
+            },
+            {
+              "text": "ESPECIAULYAWHEN?\n\"SCHEDULE. |",
+              "normalizedText": "ESPECIAULYAWHEN? \"SCHEDULE. |",
+              "startSeconds": 26,
+              "endSeconds": 26.5,
+              "durationSeconds": 0.5,
+              "wordCount": 3,
+              "lineCount": 2,
+              "maxCharsPerLine": 16,
+              "meanConfidence": 0.29,
+              "bbox": {
+                "x0": 4,
+                "y0": 1258,
+                "x1": 981,
+                "y1": 1660
+              },
+              "center": {
+                "x": 492.5,
+                "y": 1459
+              },
+              "bboxHeightPx": 402,
+              "bboxAreaPx": 392754
+            },
+            {
+              "text": "ESPECIAPIEYAWHEN®\n< \"USCHEDULE. | |",
+              "normalizedText": "ESPECIAPIEYAWHEN® < \"USCHEDULE. | |",
+              "startSeconds": 26.5,
+              "endSeconds": 27,
+              "durationSeconds": 0.5,
+              "wordCount": 5,
+              "lineCount": 2,
+              "maxCharsPerLine": 17,
+              "meanConfidence": 0.22,
+              "bbox": {
+                "x0": 4,
+                "y0": 1328,
+                "x1": 980,
+                "y1": 1715
+              },
+              "center": {
+                "x": 492,
+                "y": 1521.5
+              },
+              "bboxHeightPx": 387,
+              "bboxAreaPx": 377712
+            },
+            {
+              "text": "ESPECIALLYAWHEN®\n7 serebuie |\na3 ==\ni — = 7",
+              "normalizedText": "ESPECIALLYAWHEN® 7 serebuie | a3 == i — = 7",
+              "startSeconds": 27,
+              "endSeconds": 27.5,
+              "durationSeconds": 0.5,
+              "wordCount": 10,
+              "lineCount": 4,
+              "maxCharsPerLine": 16,
+              "meanConfidence": 0.24,
+              "bbox": {
+                "x0": 4,
+                "y0": 1328,
+                "x1": 1080,
+                "y1": 1891
+              },
+              "center": {
+                "x": 542,
+                "y": 1609.5
+              },
+              "bboxHeightPx": 563,
+              "bboxAreaPx": 605788
+            },
+            {
+              "text": "ESPECIALLYAWHEN:\na “\" SCHEDULE=== |",
+              "normalizedText": "ESPECIALLYAWHEN: a “\" SCHEDULE=== |",
+              "startSeconds": 27.5,
+              "endSeconds": 28,
+              "durationSeconds": 0.5,
+              "wordCount": 5,
+              "lineCount": 2,
+              "maxCharsPerLine": 18,
+              "meanConfidence": 0.25,
+              "bbox": {
+                "x0": 4,
+                "y0": 1295,
+                "x1": 968,
+                "y1": 1714
+              },
+              "center": {
+                "x": 486,
+                "y": 1504.5
+              },
+              "bboxHeightPx": 419,
+              "bboxAreaPx": 403916
+            },
+            {
+              "text": "ESPECIALLYAWHEN?\n) Se SchEpulE—— |\nCf e— PB",
+              "normalizedText": "ESPECIALLYAWHEN? ) Se SchEpulE—— | Cf e— PB",
+              "startSeconds": 28,
+              "endSeconds": 28.5,
+              "durationSeconds": 0.5,
+              "wordCount": 8,
+              "lineCount": 3,
+              "maxCharsPerLine": 17,
+              "meanConfidence": 0.1,
+              "bbox": {
+                "x0": 4,
+                "y0": 1328,
+                "x1": 1076,
+                "y1": 1794
+              },
+              "center": {
+                "x": 540,
+                "y": 1561
+              },
+              "bboxHeightPx": 466,
+              "bboxAreaPx": 499552
+            },
+            {
+              "text": "ESPECIALLYAWHEN?\n| BEONATICHS. |\n=U : p— : I:\ner",
+              "normalizedText": "ESPECIALLYAWHEN? | BEONATICHS. | =U : p— : I: er",
+              "startSeconds": 28.5,
+              "endSeconds": 29,
+              "durationSeconds": 0.5,
+              "wordCount": 10,
+              "lineCount": 4,
+              "maxCharsPerLine": 16,
+              "meanConfidence": 0.37,
+              "bbox": {
+                "x0": 0,
+                "y0": 1294,
+                "x1": 980,
+                "y1": 1756
+              },
+              "center": {
+                "x": 490,
+                "y": 1525
+              },
+              "bboxHeightPx": 462,
+              "bboxAreaPx": 452760
+            },
+            {
+              "text": "_PROSIT'SQUICK/AND\na |USER\"FRIENDLY-= |",
+              "normalizedText": "_PROSIT'SQUICK/AND a |USER\"FRIENDLY-= |",
+              "startSeconds": 29,
+              "endSeconds": 29.5,
+              "durationSeconds": 0.5,
+              "wordCount": 4,
+              "lineCount": 2,
+              "maxCharsPerLine": 20,
+              "meanConfidence": 0.26,
+              "bbox": {
+                "x0": 0,
+                "y0": 1394,
+                "x1": 970,
+                "y1": 1714
+              },
+              "center": {
+                "x": 485,
+                "y": 1554
+              },
+              "bboxHeightPx": 320,
+              "bboxAreaPx": 310400
+            },
+            {
+              "text": "iy 1 TD QUICK ¢ AN D\na SR ET 1",
+              "normalizedText": "iy 1 TD QUICK ¢ AN D a SR ET 1",
+              "startSeconds": 29.5,
+              "endSeconds": 30,
+              "durationSeconds": 0.5,
+              "wordCount": 11,
+              "lineCount": 2,
+              "maxCharsPerLine": 20,
+              "meanConfidence": 0.52,
+              "bbox": {
+                "x0": 0,
+                "y0": 1338,
+                "x1": 987,
+                "y1": 1729
+              },
+              "center": {
+                "x": 493.5,
+                "y": 1533.5
+              },
+              "bboxHeightPx": 391,
+              "bboxAreaPx": 385917
+            },
+            {
+              "text": "_ PROSHIT!SIQUICKIAND |\n) {USER-FRIENDLY= |\n= 7",
+              "normalizedText": "_ PROSHIT!SIQUICKIAND | ) {USER-FRIENDLY= | = 7",
+              "startSeconds": 30,
+              "endSeconds": 30.5,
+              "durationSeconds": 0.5,
+              "wordCount": 8,
+              "lineCount": 3,
+              "maxCharsPerLine": 23,
+              "meanConfidence": 0.29,
+              "bbox": {
+                "x0": 0,
+                "y0": 1394,
+                "x1": 1069,
+                "y1": 1869
+              },
+              "center": {
+                "x": 534.5,
+                "y": 1631.5
+              },
+              "bboxHeightPx": 475,
+              "bboxAreaPx": 507775
+            },
+            {
+              "text": "_ PROSAIT!SIQUICKJAND :\na \\USER-FRIENDLY= |",
+              "normalizedText": "_ PROSAIT!SIQUICKJAND : a \\USER-FRIENDLY= |",
+              "startSeconds": 30.5,
+              "endSeconds": 31,
+              "durationSeconds": 0.5,
+              "wordCount": 6,
+              "lineCount": 2,
+              "maxCharsPerLine": 23,
+              "meanConfidence": 0.39,
+              "bbox": {
+                "x0": 0,
+                "y0": 1394,
+                "x1": 1000,
+                "y1": 1732
+              },
+              "center": {
+                "x": 500,
+                "y": 1563
+              },
+              "bboxHeightPx": 338,
+              "bboxAreaPx": 338000
+            },
+            {
+              "text": "| p——|\n_PROSHIES QUICK AND |\noh | USERSERIENDLYA\n0 Ser IE |\nH- E",
+              "normalizedText": "| p——| _PROSHIES QUICK AND | oh | USERSERIENDLYA 0 Ser IE | H- E",
+              "startSeconds": 31,
+              "endSeconds": 31.5,
+              "durationSeconds": 0.5,
+              "wordCount": 15,
+              "lineCount": 5,
+              "maxCharsPerLine": 21,
+              "meanConfidence": 0.47,
+              "bbox": {
+                "x0": 0,
+                "y0": 1339,
+                "x1": 1080,
+                "y1": 1892
+              },
+              "center": {
+                "x": 540,
+                "y": 1615.5
+              },
+              "bboxHeightPx": 553,
+              "bboxAreaPx": 597240
+            },
+            {
+              "text": "PROSIIT:S QUICK AND]\n< WSERSERIENDLY",
+              "normalizedText": "PROSIIT:S QUICK AND] < WSERSERIENDLY",
+              "startSeconds": 31.5,
+              "endSeconds": 32,
+              "durationSeconds": 0.5,
+              "wordCount": 5,
+              "lineCount": 2,
+              "maxCharsPerLine": 20,
+              "meanConfidence": 0.16,
+              "bbox": {
+                "x0": 0,
+                "y0": 1413,
+                "x1": 981,
+                "y1": 1717
+              },
+              "center": {
+                "x": 490.5,
+                "y": 1565
+              },
+              "bboxHeightPx": 304,
+              "bboxAreaPx": 298224
+            },
+            {
+              "text": "|\na =cons = |\npn. oy 7",
+              "normalizedText": "| a =cons = | pn. oy 7",
+              "startSeconds": 32,
+              "endSeconds": 32.5,
+              "durationSeconds": 0.5,
+              "wordCount": 8,
+              "lineCount": 3,
+              "maxCharsPerLine": 11,
+              "meanConfidence": 0.35,
+              "bbox": {
+                "x0": 0,
+                "y0": 1267,
+                "x1": 1080,
+                "y1": 1912
+              },
+              "center": {
+                "x": 540,
+                "y": 1589.5
+              },
+              "bboxHeightPx": 645,
+              "bboxAreaPx": 696600
+            },
+            {
+              "text": "|\na cons: we. | {it\npn. 7",
+              "normalizedText": "| a cons: we. | {it pn. 7",
+              "startSeconds": 32.5,
+              "endSeconds": 33,
+              "durationSeconds": 0.5,
+              "wordCount": 8,
+              "lineCount": 3,
+              "maxCharsPerLine": 17,
+              "meanConfidence": 0.44,
+              "bbox": {
+                "x0": 0,
+                "y0": 1267,
+                "x1": 1080,
+                "y1": 1912
+              },
+              "center": {
+                "x": 540,
+                "y": 1589.5
+              },
+              "bboxHeightPx": 645,
+              "bboxAreaPx": 696600
+            },
+            {
+              "text": "== OPTIONS==—\n+o ANDIMIGHTILACKS J",
+              "normalizedText": "== OPTIONS==— +o ANDIMIGHTILACKS J",
+              "startSeconds": 33,
+              "endSeconds": 33.5,
+              "durationSeconds": 0.5,
+              "wordCount": 5,
+              "lineCount": 2,
+              "maxCharsPerLine": 20,
+              "meanConfidence": 0.33,
+              "bbox": {
+                "x0": 0,
+                "y0": 1282,
+                "x1": 980,
+                "y1": 1582
+              },
+              "center": {
+                "x": 490,
+                "y": 1432
+              },
+              "bboxHeightPx": 300,
+              "bboxAreaPx": 294000
+            },
+            {
+              "text": "— pT ONS —\n. ANDMIGHT LACK: |",
+              "normalizedText": "— pT ONS — . ANDMIGHT LACK: |",
+              "startSeconds": 33.5,
+              "endSeconds": 34,
+              "durationSeconds": 0.5,
+              "wordCount": 8,
+              "lineCount": 2,
+              "maxCharsPerLine": 18,
+              "meanConfidence": 0.23,
+              "bbox": {
+                "x0": 0,
+                "y0": 1278,
+                "x1": 980,
+                "y1": 1582
+              },
+              "center": {
+                "x": 490,
+                "y": 1430
+              },
+              "bboxHeightPx": 304,
+              "bboxAreaPx": 297920
+            },
+            {
+              "text": "== OPTIONS =—\n, ABMgHTLACK |\n- i a | 7",
+              "normalizedText": "== OPTIONS =— , ABMgHTLACK | - i a | 7",
+              "startSeconds": 34,
+              "endSeconds": 34.5,
+              "durationSeconds": 0.5,
+              "wordCount": 11,
+              "lineCount": 3,
+              "maxCharsPerLine": 14,
+              "meanConfidence": 0.31,
+              "bbox": {
+                "x0": 0,
+                "y0": 1274,
+                "x1": 1073,
+                "y1": 1891
+              },
+              "center": {
+                "x": 536.5,
+                "y": 1582.5
+              },
+              "bboxHeightPx": 617,
+              "bboxAreaPx": 662041
+            },
+            {
+              "text": "i | —L_1_ALILI —/\n| bon,\nOPINIONS |\n\n: AMIN oo\nAND VICI AG\n| gees Some f\nFN lll SHS\n|SOMER | .\ny | | §\ny 1 eae 0 hl i; oy\n| N O,=-\nial ILA |",
+              "normalizedText": "i | —L_1_ALILI —/ | bon, OPINIONS | : AMIN oo AND VICI AG | gees Some f FN lll SHS |SOMER | . y | | § y 1 eae 0 hl i; oy | N O,=- ial ILA |",
+              "startSeconds": 34.5,
+              "endSeconds": 35,
+              "durationSeconds": 0.5,
+              "wordCount": 41,
+              "lineCount": 12,
+              "maxCharsPerLine": 18,
+              "meanConfidence": 0.42,
+              "bbox": {
+                "x0": 29,
+                "y0": 1248,
+                "x1": 1074,
+                "y1": 1913
+              },
+              "center": {
+                "x": 551.5,
+                "y": 1580.5
+              },
+              "bboxHeightPx": 665,
+              "bboxAreaPx": 694925
+            },
+            {
+              "text": "OPTIONS i\n;\nSOMERS |\n~BER ©)\n3 a",
+              "normalizedText": "OPTIONS i ; SOMERS | ~BER ©) 3 a",
+              "startSeconds": 35,
+              "endSeconds": 35.5,
+              "durationSeconds": 0.5,
+              "wordCount": 9,
+              "lineCount": 5,
+              "maxCharsPerLine": 9,
+              "meanConfidence": 0.23,
+              "bbox": {
+                "x0": 245,
+                "y0": 1318,
+                "x1": 844,
+                "y1": 1860
+              },
+              "center": {
+                "x": 544.5,
+                "y": 1589
+              },
+              "bboxHeightPx": 542,
+              "bboxAreaPx": 324658
+            },
+            {
+              "text": "Li i.e\nCRE FLAIRY\nyO NER i 4 4\nMACHINES\nol) Zoe \\\nJT ans",
+              "normalizedText": "Li i.e CRE FLAIRY yO NER i 4 4 MACHINES ol) Zoe \\ JT ans",
+              "startSeconds": 35.5,
+              "endSeconds": 36,
+              "durationSeconds": 0.5,
+              "wordCount": 15,
+              "lineCount": 6,
+              "maxCharsPerLine": 12,
+              "meanConfidence": 0.27,
+              "bbox": {
+                "x0": 170,
+                "y0": 1248,
+                "x1": 1076,
+                "y1": 1779
+              },
+              "center": {
+                "x": 623,
+                "y": 1513.5
+              },
+              "bboxHeightPx": 531,
+              "bboxAreaPx": 481086
+            },
+            {
+              "text": "all nda”\nCREATIVE|FIAIRY\na\nM ACHINE= |\n\\.4 a i a. © | A\nwr S&S CA 5) N—",
+              "normalizedText": "all nda” CREATIVE|FIAIRY a M ACHINE= | \\.4 a i a. © | A wr S&S CA 5) N—",
+              "startSeconds": 36,
+              "endSeconds": 36.5,
+              "durationSeconds": 0.5,
+              "wordCount": 19,
+              "lineCount": 6,
+              "maxCharsPerLine": 16,
+              "meanConfidence": 0.35,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "| FE i al da \"ing ‘\nSREATIVE Rs a\nCONTENT\nMACH |\ny [| J > ks\nps. 4 ol RE © h",
+              "normalizedText": "| FE i al da \"ing ‘ SREATIVE Rs a CONTENT MACH | y [| J > ks ps. 4 ol RE © h",
+              "startSeconds": 36.5,
+              "endSeconds": 37,
+              "durationSeconds": 0.5,
+              "wordCount": 24,
+              "lineCount": 6,
+              "maxCharsPerLine": 19,
+              "meanConfidence": 0.37,
+              "bbox": {
+                "x0": 158,
+                "y0": 1248,
+                "x1": 1072,
+                "y1": 1798
+              },
+              "center": {
+                "x": 615,
+                "y": 1523
+              },
+              "bboxHeightPx": 550,
+              "bboxAreaPx": 502700
+            },
+            {
+              "text": "GREATIVEELAIRY\nil = W ) ® p! (a\nCONTENT |\nMACHIN =\nBEAT BE oY",
+              "normalizedText": "GREATIVEELAIRY il = W ) ® p! (a CONTENT | MACHIN = BEAT BE oY",
+              "startSeconds": 37,
+              "endSeconds": 37.5,
+              "durationSeconds": 0.5,
+              "wordCount": 15,
+              "lineCount": 5,
+              "maxCharsPerLine": 16,
+              "meanConfidence": 0.44,
+              "bbox": {
+                "x0": 0,
+                "y0": 1318,
+                "x1": 1069,
+                "y1": 1920
+              },
+              "center": {
+                "x": 534.5,
+                "y": 1619
+              },
+              "bboxHeightPx": 602,
+              "bboxAreaPx": 643538
+            },
+            {
+              "text": "| : [eg\nCREATIVEELEAIRS \"\nkoon *\nCONTENT a\nMACHINE i",
+              "normalizedText": "| : [eg CREATIVEELEAIRS \" koon * CONTENT a MACHINE i",
+              "startSeconds": 37.5,
+              "endSeconds": 38,
+              "durationSeconds": 0.5,
+              "wordCount": 11,
+              "lineCount": 5,
+              "maxCharsPerLine": 17,
+              "meanConfidence": 0.53,
+              "bbox": {
+                "x0": 170,
+                "y0": 1248,
+                "x1": 1076,
+                "y1": 1739
+              },
+              "center": {
+                "x": 623,
+                "y": 1493.5
+              },
+              "bboxHeightPx": 491,
+              "bboxAreaPx": 444846
+            },
+            {
+              "text": "I [Ving\nCREATIVE|ELYAIRS\nBOO = |\ncontENT|\nMRCHINER|\nll = i\nJ em ®",
+              "normalizedText": "I [Ving CREATIVE|ELYAIRS BOO = | contENT| MRCHINER| ll = i J em ®",
+              "startSeconds": 38,
+              "endSeconds": 38.5,
+              "durationSeconds": 0.5,
+              "wordCount": 14,
+              "lineCount": 7,
+              "maxCharsPerLine": 16,
+              "meanConfidence": 0.45,
+              "bbox": {
+                "x0": 170,
+                "y0": 1248,
+                "x1": 949,
+                "y1": 1920
+              },
+              "center": {
+                "x": 559.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 523488
+            },
+            {
+              "text": "GREAT:EORBUSY\nCREAN AND\nPee\n3 aR -",
+              "normalizedText": "GREAT:EORBUSY CREAN AND Pee 3 aR -",
+              "startSeconds": 38.5,
+              "endSeconds": 39,
+              "durationSeconds": 0.5,
+              "wordCount": 7,
+              "lineCount": 4,
+              "maxCharsPerLine": 13,
+              "meanConfidence": 0.33,
+              "bbox": {
+                "x0": 191,
+                "y0": 1315,
+                "x1": 1080,
+                "y1": 1889
+              },
+              "center": {
+                "x": 635.5,
+                "y": 1602
+              },
+              "bboxHeightPx": 574,
+              "bboxAreaPx": 510286
+            },
+            {
+              "text": "/ b Pin, :\nGREAT{EORIBUSY\n50 \\ cor\nCREATORS/AND\nMARKETERS |\ni EMETS x | Gl",
+              "normalizedText": "/ b Pin, : GREAT{EORIBUSY 50 \\ cor CREATORS/AND MARKETERS | i EMETS x | Gl",
+              "startSeconds": 39,
+              "endSeconds": 39.5,
+              "durationSeconds": 0.5,
+              "wordCount": 16,
+              "lineCount": 6,
+              "maxCharsPerLine": 14,
+              "meanConfidence": 0.32,
+              "bbox": {
+                "x0": 191,
+                "y0": 1248,
+                "x1": 1077,
+                "y1": 1759
+              },
+              "center": {
+                "x": 634,
+                "y": 1503.5
+              },
+              "bboxHeightPx": 511,
+              "bboxAreaPx": 452746
+            },
+            {
+              "text": "|\njag ih ay\nIS EREN FORBUSY,\npOC go |\nCREATIORSIAND!\ncome ¢\nMARKETERSS\n” coo Eo 7 3:\nL CSS 50\" -\nY oo = ;\n: co Bo -",
+              "normalizedText": "| jag ih ay IS EREN FORBUSY, pOC go | CREATIORSIAND! come ¢ MARKETERSS ” coo Eo 7 3: L CSS 50\" - Y oo = ; : co Bo -",
+              "startSeconds": 39.5,
+              "endSeconds": 40,
+              "durationSeconds": 0.5,
+              "wordCount": 31,
+              "lineCount": 11,
+              "maxCharsPerLine": 16,
+              "meanConfidence": 0.25,
+              "bbox": {
+                "x0": 113,
+                "y0": 1248,
+                "x1": 1077,
+                "y1": 1793
+              },
+              "center": {
+                "x": 595,
+                "y": 1520.5
+              },
+              "bboxHeightPx": 545,
+              "bboxAreaPx": 525380
+            },
+            {
+              "text": "SRG TORS\nMARKEFERSE |\n5 gS",
+              "normalizedText": "SRG TORS MARKEFERSE | 5 gS",
+              "startSeconds": 40,
+              "endSeconds": 40.5,
+              "durationSeconds": 0.5,
+              "wordCount": 6,
+              "lineCount": 3,
+              "maxCharsPerLine": 12,
+              "meanConfidence": 0.34,
+              "bbox": {
+                "x0": 191,
+                "y0": 1438,
+                "x1": 888,
+                "y1": 1870
+              },
+              "center": {
+                "x": 539.5,
+                "y": 1654
+              },
+              "bboxHeightPx": 432,
+              "bboxAreaPx": 301104
+            },
+            {
+              "text": "i |.\nGREAT.FOR BUSY,\nISOON =\nCREATORS/AND\nMARKETERSK |",
+              "normalizedText": "i |. GREAT.FOR BUSY, ISOON = CREATORS/AND MARKETERSK |",
+              "startSeconds": 40.5,
+              "endSeconds": 41,
+              "durationSeconds": 0.5,
+              "wordCount": 9,
+              "lineCount": 5,
+              "maxCharsPerLine": 15,
+              "meanConfidence": 0.28,
+              "bbox": {
+                "x0": 191,
+                "y0": 1248,
+                "x1": 884,
+                "y1": 1660
+              },
+              "center": {
+                "x": 537.5,
+                "y": 1454
+              },
+              "bboxHeightPx": 412,
+              "bboxAreaPx": 285516
+            },
+            {
+              "text": "OR Bi\nCREATORSIANDY |,\nMARKETERS!\n{| a es p=",
+              "normalizedText": "OR Bi CREATORSIANDY |, MARKETERS! {| a es p=",
+              "startSeconds": 41,
+              "endSeconds": 41.5,
+              "durationSeconds": 0.5,
+              "wordCount": 9,
+              "lineCount": 4,
+              "maxCharsPerLine": 16,
+              "meanConfidence": 0.38,
+              "bbox": {
+                "x0": 191,
+                "y0": 1327,
+                "x1": 981,
+                "y1": 1743
+              },
+              "center": {
+                "x": 586,
+                "y": 1535
+              },
+              "bboxHeightPx": 416,
+              "bboxAreaPx": 328640
+            },
+            {
+              "text": "IRY.IT/OUTAND Og\nsimplex\nYOUR'VIDEO:MAKING\n\nF a ®",
+              "normalizedText": "IRY.IT/OUTAND Og simplex YOUR'VIDEO:MAKING F a ®",
+              "startSeconds": 41.5,
+              "endSeconds": 42,
+              "durationSeconds": 0.5,
+              "wordCount": 7,
+              "lineCount": 4,
+              "maxCharsPerLine": 17,
+              "meanConfidence": 0.31,
+              "bbox": {
+                "x0": 69,
+                "y0": 1292,
+                "x1": 1078,
+                "y1": 1892
+              },
+              "center": {
+                "x": 573.5,
+                "y": 1592
+              },
+              "bboxHeightPx": 600,
+              "bboxAreaPx": 605400
+            },
+            {
+              "text": "wv . JE\nMRYAIT, OUTIAND 4 oO\nfi MRUIEY\nYOUR VIDEQ-MAKING\nFAW",
+              "normalizedText": "wv . JE MRYAIT, OUTIAND 4 oO fi MRUIEY YOUR VIDEQ-MAKING FAW",
+              "startSeconds": 42,
+              "endSeconds": 42.5,
+              "durationSeconds": 0.5,
+              "wordCount": 12,
+              "lineCount": 5,
+              "maxCharsPerLine": 20,
+              "meanConfidence": 0.29,
+              "bbox": {
+                "x0": 69,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1761
+              },
+              "center": {
+                "x": 574.5,
+                "y": 1504.5
+              },
+              "bboxHeightPx": 513,
+              "bboxAreaPx": 518643
+            },
+            {
+              "text": "wv , AE\nMRY-IT, OUTIAND 4 of\n{ry\nYOUR VIDEQ-MAKING\nJ { Civess a hh :",
+              "normalizedText": "wv , AE MRY-IT, OUTIAND 4 of {ry YOUR VIDEQ-MAKING J { Civess a hh :",
+              "startSeconds": 42.5,
+              "endSeconds": 43,
+              "durationSeconds": 0.5,
+              "wordCount": 16,
+              "lineCount": 5,
+              "maxCharsPerLine": 20,
+              "meanConfidence": 0.3,
+              "bbox": {
+                "x0": 69,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1761
+              },
+              "center": {
+                "x": 574.5,
+                "y": 1504.5
+              },
+              "bboxHeightPx": 513,
+              "bboxAreaPx": 518643
+            },
+            {
+              "text": "TRY IT OUT AND\nSIMPLIFY\nYOUR VIDEO-MAKING",
+              "normalizedText": "TRY IT OUT AND SIMPLIFY YOUR VIDEO-MAKING",
+              "startSeconds": 43,
+              "endSeconds": 44.5,
+              "durationSeconds": 1.5,
+              "wordCount": 7,
+              "lineCount": 3,
+              "maxCharsPerLine": 17,
+              "meanConfidence": 0.9333333333333332,
+              "bbox": {
+                "x0": 69,
+                "y0": 1328,
+                "x1": 930,
+                "y1": 1628
+              },
+              "center": {
+                "x": 499.5,
+                "y": 1478
+              },
+              "bboxHeightPx": 300,
+              "bboxAreaPx": 258300
+            },
+            {
+              "text": "PROCESS TODAY.",
+              "normalizedText": "PROCESS TODAY.",
+              "startSeconds": 44.5,
+              "endSeconds": 46.5,
+              "durationSeconds": 2,
+              "wordCount": 2,
+              "lineCount": 1,
+              "maxCharsPerLine": 14,
+              "meanConfidence": 0.9524999999999999,
+              "bbox": {
+                "x0": 158,
+                "y0": 1568,
+                "x1": 841,
+                "y1": 1628
+              },
+              "center": {
+                "x": 499.5,
+                "y": 1598
+              },
+              "bboxHeightPx": 60,
+              "bboxAreaPx": 40980
+            },
+            {
+              "text": "TRY IT OUT AND\nSIMPLIFY\nYOUR VIDEO-MAKING",
+              "normalizedText": "TRY IT OUT AND SIMPLIFY YOUR VIDEO-MAKING",
+              "startSeconds": 46.5,
+              "endSeconds": 49,
+              "durationSeconds": 2.5,
+              "wordCount": 7,
+              "lineCount": 3,
+              "maxCharsPerLine": 17,
+              "meanConfidence": 0.93,
+              "bbox": {
+                "x0": 69,
+                "y0": 1328,
+                "x1": 930,
+                "y1": 1628
+              },
+              "center": {
+                "x": 499.5,
+                "y": 1478
+              },
+              "bboxHeightPx": 300,
+              "bboxAreaPx": 258300
+            },
+            {
+              "text": "PROCESS TODAY.",
+              "normalizedText": "PROCESS TODAY.",
+              "startSeconds": 49,
+              "endSeconds": 49.5,
+              "durationSeconds": 0.5,
+              "wordCount": 2,
+              "lineCount": 1,
+              "maxCharsPerLine": 14,
+              "meanConfidence": 0.95,
+              "bbox": {
+                "x0": 158,
+                "y0": 1568,
+                "x1": 841,
+                "y1": 1628
+              },
+              "center": {
+                "x": 499.5,
+                "y": 1598
+              },
+              "bboxHeightPx": 60,
+              "bboxAreaPx": 40980
+            }
+          ],
+          "rhythm": {
+            "meanWps": 22.938518518518517,
+            "stddevWps": 12.762275534463212,
+            "outOfIdealRangeCount": 88,
+            "outOfAbsoluteRangeCount": 85,
+            "score": 0
+          },
+          "displayTime": {
+            "minDurationSeconds": 0.5,
+            "maxDurationSeconds": 2.5,
+            "flashSegmentCount": 0,
+            "outOfRecommendedRangeCount": 87,
+            "score": 0.5166666666666666
+          },
+          "coverage": {
+            "captionedSeconds": 49.5,
+            "coverageRatio": 0.9962698649921496,
+            "score": 0.9962698649921496
+          },
+          "density": {
+            "maxLines": 12,
+            "maxCharsPerLine": 27,
+            "lineOverflowCount": 60,
+            "charOverflowCount": 0,
+            "score": 0.33333333333333337
+          },
+          "punctuation": {
+            "missingTerminalPunctuationCount": 31,
+            "repeatedPunctuationCount": 0,
+            "score": 0.6555555555555556
+          },
+          "capitalization": {
+            "style": "all_caps",
+            "inconsistentStyleCount": 30,
+            "score": 0.6666666666666667
+          },
+          "ocrConfidence": {
+            "mean": 0.44303030303030316,
+            "min": 0.1,
+            "stddev": 0.21747148678981998,
+            "score": 0.22555881624048318
+          },
+          "safeArea": {
+            "violationCount": 82,
+            "minMarginRatio": 0,
+            "score": 0
+          },
+          "flicker": {
+            "flickerEvents": 0,
+            "score": 1
+          },
+          "alignment": {
+            "meanAbsCenterDxRatio": 0.03731995884773664,
+            "maxAbsCenterDxRatio": 0.12314814814814815,
+            "score": 0.6268004115226337
+          },
+          "placement": {
+            "stddevCenterXRatio": 0.0482205830332145,
+            "stddevCenterYRatio": 0.025832512064014705,
+            "score": 0
+          },
+          "jitter": {
+            "meanCenterDeltaPx": 0.2222222222222222,
+            "p95CenterDeltaPx": 0.7999999999999998,
+            "score": 0.9788888888888889
+          },
+          "style": {
+            "bboxHeightCv": 0.32505488295884977,
+            "bboxAreaCv": 0.5655513183298481,
+            "score": 0
+          },
+          "redundancy": {
+            "reappearanceEvents": 2,
+            "adjacentOverlapEvents": 1,
+            "score": 0.9722222222222222
+          },
+          "segmentation": {
+            "danglingConjunctionCount": 2,
+            "midSentenceBreakCount": 18,
+            "score": 0.7777777777777778
+          }
+        },
+        "createdAt": "2026-02-13T23:14:55.239Z"
+      }
+    },
+    {
+      "checkId": "captionQuality",
+      "passed": true,
+      "skipped": true,
+      "summary": "included in rate",
+      "durationMs": 0
+    }
+  ],
+  "thresholds": {
+    "validateProfile": "portrait"
+  },
+  "totalDurationMs": 67214,
+  "createdAt": "2026-02-13T23:14:55.272Z"
+}

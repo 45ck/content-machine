@@ -84,6 +84,9 @@ export * from '../score/schema';
 /** Sync scoring schema + types. */
 export * from '../score/sync-schema';
 
+/** Evaluation schema + types. */
+export * from '../evaluate/schema';
+
 /** Experiment Lab schemas + types. */
 export * from '../lab/schema/run';
 export * from '../lab/schema/experiment';

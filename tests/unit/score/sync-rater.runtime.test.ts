@@ -101,6 +101,7 @@ describe('rateSyncQuality (runtime)', () => {
         data: { text: 'HELLO WORLD', confidence: 95 },
       }),
       terminate: vi.fn().mockResolvedValue(undefined),
+      setParameters: vi.fn().mockResolvedValue(undefined),
     });
 
     baseCaptionQualityReport = {
@@ -241,6 +242,7 @@ describe('rateSyncQuality (runtime)', () => {
         data: { text: 'QWERTY ASDF', confidence: 95 },
       }),
       terminate: vi.fn().mockResolvedValue(undefined),
+      setParameters: vi.fn().mockResolvedValue(undefined),
     });
 
     const output = await rateSyncQuality(videoPath, { fps: 2 });
@@ -260,6 +262,7 @@ describe('rateSyncQuality (runtime)', () => {
         data: { text: 'one two three four', confidence: 95 },
       }),
       terminate: vi.fn().mockResolvedValue(undefined),
+      setParameters: vi.fn().mockResolvedValue(undefined),
     });
     transcribeAudioMock.mockResolvedValue({
       engine: 'whisper-cpp',
@@ -292,6 +295,7 @@ describe('rateSyncQuality (runtime)', () => {
         data: { text: 'one two', confidence: 95 },
       }),
       terminate: vi.fn().mockResolvedValue(undefined),
+      setParameters: vi.fn().mockResolvedValue(undefined),
     });
     transcribeAudioMock.mockResolvedValue({
       engine: 'whisper-cpp',
@@ -345,6 +349,7 @@ describe('rateSyncQuality (runtime)', () => {
         return { data: { text, confidence: 95 } };
       }),
       terminate: vi.fn().mockResolvedValue(undefined),
+      setParameters: vi.fn().mockResolvedValue(undefined),
     });
 
     transcribeAudioMock.mockResolvedValue({
@@ -372,6 +377,7 @@ describe('rateSyncQuality (runtime)', () => {
         data: { text: 'one two three four five six seven eight nine ten', confidence: 95 },
       }),
       terminate: vi.fn().mockResolvedValue(undefined),
+      setParameters: vi.fn().mockResolvedValue(undefined),
     });
 
     transcribeAudioMock.mockResolvedValue({
