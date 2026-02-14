@@ -54,6 +54,11 @@ const COMMAND_LOADERS: Array<[string, CommandLoader]> = [
   ['evaluate', async () => (await import('./commands/evaluate')).evaluateCommand],
   ['annotate', async () => (await import('./commands/annotate')).annotateCommand],
   ['init', async () => (await import('./commands/init')).initCommand],
+  ['quality-score', async () => (await import('./commands/quality-score')).qualityScoreCommand],
+  [
+    'extract-features',
+    async () => (await import('./commands/extract-features')).extractFeaturesCommand,
+  ],
 ];
 
 const COMMAND_MAP = new Map(COMMAND_LOADERS);

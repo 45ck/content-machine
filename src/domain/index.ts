@@ -87,6 +87,10 @@ export * from '../score/sync-schema';
 /** Evaluation schema + types. */
 export * from '../evaluate/schema';
 
+/** Quality score schemas + types. */
+export * from '../quality-score/label-schema';
+export * from '../quality-score/feature-schema';
+
 /** Experiment Lab schemas + types. */
 export * from '../lab/schema/run';
 export * from '../lab/schema/experiment';
