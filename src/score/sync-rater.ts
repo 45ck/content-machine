@@ -280,13 +280,20 @@ async function runOCR(framesDir: string, fps: number, cropOffsetY: number): Prom
  * Extract word appearances from OCR frames
  */
 function extractWordAppearances(
-  ocrFrames: OCRFrame[]
+  ocrFrames: OCRFrame[],
+  { minConfidence = 0.5 }: { minConfidence?: number } = {}
 ): Array<{ word: string; timestamps: number[] }> {
   const wordMap = new Map<string, number[]>();
 
   for (const frame of ocrFrames) {
+    // Skip low-confidence frames (background imagery, noise)
+    if (frame.confidence < minConfidence) continue;
+
     const words = frame.text.split(/\s+/).filter(Boolean);
     for (const word of words) {
+      // Skip words with no alphabetic characters (pure numbers/symbols are OCR noise)
+      if (!/[a-zA-Z]/.test(word)) continue;
+
       const normalized = normalizeWord(word);
       if (normalized.length < 2) continue; // Skip very short words
 
@@ -475,8 +482,8 @@ function calculateMetrics(
     };
   }
 
-  const outlierCutoffMs = 300;
-  const maxOutlierRatioForRobustStats = 0.2;
+  const outlierCutoffMs = 2000;
+  const maxOutlierRatioForRobustStats = 0.3;
 
   const drifts = matches.map((m) => m.driftMs);
   const absDrifts = drifts.map(Math.abs);
@@ -508,7 +515,7 @@ function calculateMetrics(
     matchedWords: matches.length,
     totalOcrWords: ocrWordCount,
     totalAsrWords: asrWordCount,
-    matchRatio: matches.length / Math.max(ocrWordCount, asrWordCount),
+    matchRatio: asrWordCount > 0 ? matches.length / asrWordCount : 0,
   };
 }
 
@@ -522,14 +529,20 @@ function calculateRating(metrics: SyncMetrics): number {
 
   let score = 100;
 
-  // Deduction 1: Mean drift (max -40 points)
-  if (metrics.meanDriftMs > 50) {
-    score -= Math.min(40, (metrics.meanDriftMs - 50) / 6.25);
+  // Deduction 1: Median drift — primary signal, robust to outliers (max -30 points)
+  if (metrics.medianDriftMs > 50) {
+    score -= Math.min(30, (metrics.medianDriftMs - 50) / 8.33);
   }
 
-  // Deduction 2: Max drift (max -25 points)
-  if (metrics.maxDriftMs > 100) {
-    score -= Math.min(25, (metrics.maxDriftMs - 100) / 16);
+  // Deduction 1b: Mean-median gap — catches systemic drift that median hides (max -10 points)
+  const meanMedianGap = Math.abs(metrics.meanDriftMs - metrics.medianDriftMs);
+  if (meanMedianGap > 50) {
+    score -= Math.min(10, (meanMedianGap - 50) / 25);
+  }
+
+  // Deduction 2: Max drift (max -20 points, threshold 200ms)
+  if (metrics.maxDriftMs > 200) {
+    score -= Math.min(20, (metrics.maxDriftMs - 200) / 20);
   }
 
   // Deduction 3: P95 drift (max -15 points)
@@ -542,16 +555,18 @@ function calculateRating(metrics: SyncMetrics): number {
     score -= Math.min(10, (metrics.driftStdDev - 50) / 25);
   }
 
-  // Deduction 5: Low match ratio (max -100 points).
-  // If we can't match OCR ↔ ASR words, drift metrics are meaningless; score should tank.
+  // Deduction 5: Low match ratio — softer 3-tier curve (max -50 points)
   if (metrics.matchRatio < 0.9) {
     const matchRatio = Math.max(0, Math.min(1, metrics.matchRatio));
     if (matchRatio >= 0.7) {
-      // 0.9 -> 0, 0.7 -> 20
-      score -= ((0.9 - matchRatio) / 0.2) * 20;
+      // 0.9 -> 0, 0.7 -> 15
+      score -= ((0.9 - matchRatio) / 0.2) * 15;
+    } else if (matchRatio >= 0.4) {
+      // 0.7 -> 15, 0.4 -> 35
+      score -= 15 + ((0.7 - matchRatio) / 0.3) * 20;
     } else {
-      // 0.7 -> 20, 0.0 -> 100
-      score -= 20 + ((0.7 - matchRatio) / 0.7) * 80;
+      // 0.4 -> 35, 0.0 -> 50
+      score -= 35 + ((0.4 - matchRatio) / 0.4) * 15;
     }
   }
 
@@ -1081,6 +1096,14 @@ function buildMockCaptionQualityRatingOutput(
 
   return CaptionQualityRatingOutputSchema.parse(output);
 }
+
+/**
+ * Format sync rating as CLI output
+ */
+// Exported for unit testing
+export { extractWordAppearances as _extractWordAppearances };
+export { calculateMetrics as _calculateMetrics };
+export { calculateRating as _calculateRating };
 
 /**
  * Format sync rating as CLI output

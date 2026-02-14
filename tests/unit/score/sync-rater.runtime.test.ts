@@ -277,7 +277,9 @@ describe('rateSyncQuality (runtime)', () => {
     const output = await rateSyncQuality(videoPath, { fps: 2 });
 
     expect(output.metrics.matchRatio).toBeCloseTo(0.8, 3);
-    expect(output.rating).toBe(90);
+    // Softer matchRatio curve: 0.8 ratio penalizes ~7.5 pts (was ~10)
+    expect(output.rating).toBeGreaterThanOrEqual(90);
+    expect(output.rating).toBeLessThanOrEqual(95);
   });
 
   it('applies a heavy penalty when matchRatio is below 0.7 and emits low_match_ratio', async () => {
@@ -307,7 +309,8 @@ describe('rateSyncQuality (runtime)', () => {
     const output = await rateSyncQuality(videoPath, { fps: 2 });
 
     expect(output.metrics.matchRatio).toBeCloseTo(0.4, 3);
-    expect(output.rating).toBeLessThan(60);
+    // Softer curve: 0.4 matchRatio penalizes ~35 pts, leaving gradient signal
+    expect(output.rating).toBeLessThan(75);
     expect(output.errors.some((e) => e.type === 'low_match_ratio')).toBe(true);
   });
 
