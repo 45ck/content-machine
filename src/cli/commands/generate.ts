@@ -479,6 +479,7 @@ async function runGeneratePreflight(params: {
     params;
   const checks: PreflightCheck[] = [];
   const stageModes = resolveWorkflowStageModes(resolvedWorkflow?.workflow);
+  const config = loadConfig();
 
   const templateId = resolvedTemplate?.template.id;
   addPreflightCheck(checks, {
@@ -504,8 +505,6 @@ async function runGeneratePreflight(params: {
   }
 
   if (remotionProject) {
-    const config = loadConfig();
-
     const allowTemplateCodeSource = command.getOptionValueSource('allowTemplateCode');
     const allowTemplateCode =
       allowTemplateCodeSource === 'default' || allowTemplateCodeSource === undefined
@@ -737,6 +736,46 @@ async function runGeneratePreflight(params: {
           fix: info.fix,
         });
       }
+    }
+  }
+
+  // Audio engine checks only matter when the audio stage is built-in (i.e. we will synthesize).
+  if (!isExternalStageMode(stageModes.audio) && !options.audio) {
+    const ttsEngine = config.audio?.ttsEngine ?? 'kokoro';
+    const asrEngine = config.audio?.asrEngine ?? 'whisper';
+
+    if (ttsEngine === 'edge') {
+      addPreflightCheck(checks, {
+        label: 'TTS engine',
+        status: 'fail',
+        code: 'INVALID_ARGUMENT',
+        detail: 'edge (not implemented)',
+        fix: 'Set audio.ttsEngine="kokoro" or audio.ttsEngine="elevenlabs" in your config',
+      });
+    } else if (ttsEngine === 'elevenlabs') {
+      const hasKey = Boolean(process.env.ELEVENLABS_API_KEY);
+      addPreflightCheck(checks, {
+        label: 'TTS engine',
+        status: hasKey ? 'ok' : 'fail',
+        code: hasKey ? undefined : 'CONFIG_ERROR',
+        detail: hasKey ? 'elevenlabs' : 'elevenlabs (ELEVENLABS_API_KEY missing)',
+        fix: hasKey ? undefined : 'Set ELEVENLABS_API_KEY in your environment or .env file',
+      });
+    } else {
+      addPreflightCheck(checks, { label: 'TTS engine', status: 'ok', detail: 'kokoro' });
+    }
+
+    if (asrEngine === 'elevenlabs-forced-alignment') {
+      const hasKey = Boolean(process.env.ELEVENLABS_API_KEY);
+      addPreflightCheck(checks, {
+        label: 'Timestamp engine',
+        status: hasKey ? 'ok' : 'fail',
+        code: hasKey ? undefined : 'CONFIG_ERROR',
+        detail: hasKey
+          ? 'elevenlabs-forced-alignment'
+          : 'elevenlabs-forced-alignment (ELEVENLABS_API_KEY missing)',
+        fix: hasKey ? undefined : 'Set ELEVENLABS_API_KEY in your environment or .env file',
+      });
     }
   }
 

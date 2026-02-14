@@ -465,6 +465,7 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
               voice: options.voice,
               ttsEngine: options.ttsEngine ?? config.audio.ttsEngine,
               asrEngine: options.asrEngine ?? config.audio.asrEngine,
+              elevenlabs: config.audio?.elevenlabs,
               outputPath: artifacts.audio,
               timestampsPath: artifacts.timestamps,
               mock: options.mock,

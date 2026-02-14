@@ -69,10 +69,30 @@ const LLMConfigSchema = z.object({
   maxRetries: z.number().int().min(0).default(2),
 });
 
+const ElevenLabsVoiceSettingsSchema = z
+  .object({
+    stability: z.number().min(0).max(1).optional(),
+    similarity_boost: z.number().min(0).max(1).optional(),
+    style: z.number().min(0).max(1).optional(),
+    speed: z.number().min(0.5).max(2).optional(),
+    use_speaker_boost: z.boolean().optional(),
+  })
+  .default({});
+
+const ElevenLabsConfigSchema = z
+  .object({
+    apiBaseUrl: z.string().default('https://api.elevenlabs.io'),
+    modelId: z.string().default('eleven_multilingual_v2'),
+    outputFormat: z.string().default('mp3_44100_128'),
+    voiceSettings: ElevenLabsVoiceSettingsSchema.optional(),
+  })
+  .default({});
+
 const AudioConfigSchema = z.object({
   ttsEngine: z.enum(['kokoro', 'edge', 'elevenlabs']).default('kokoro'),
   asrEngine: z.enum(['whisper', 'elevenlabs-forced-alignment']).default('whisper'),
   asrModel: z.enum(['tiny', 'base', 'small', 'medium', 'large']).default('base'),
+  elevenlabs: ElevenLabsConfigSchema.default({}),
 });
 
 const AudioMixConfigSchema = z.object({

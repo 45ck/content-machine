@@ -49,6 +49,7 @@ export interface ASROptions {
   audioPath: string;
   /** ASR/alignment engine to use. Default: whisper */
   engine?: 'whisper' | 'elevenlabs-forced-alignment';
+  elevenlabs?: { apiBaseUrl?: string };
   model?: 'tiny' | 'base' | 'small' | 'medium' | 'large';
   language?: string;
   /** Original text for fallback estimation */
@@ -271,6 +272,7 @@ export async function transcribeAudio(options: ASROptions): Promise<ASRResult> {
     const aligned = await transcribeWithElevenLabsForcedAlignment({
       audioPath: options.audioPath,
       transcriptText: options.originalText,
+      apiBaseUrl: options.elevenlabs?.apiBaseUrl,
     });
 
     const duration = options.audioDuration ?? aligned.duration;

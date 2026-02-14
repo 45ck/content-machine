@@ -14,6 +14,7 @@ import {
   AUDIO_SCHEMA_VERSION,
 } from '../domain';
 import { synthesizeSpeech } from './tts';
+import type { ElevenLabsVoiceSettings } from './tts';
 import { transcribeAudio, ASRResult } from './asr';
 import { reconcileToScript as reconcileAsrToScript } from './asr/reconcile';
 import { computeScriptMatchMetrics } from './asr/script-match';
@@ -32,6 +33,13 @@ export interface GenerateAudioOptions {
   ttsEngine?: 'kokoro' | 'elevenlabs' | 'edge';
   /** Timestamp engine (defaults to whisper) */
   asrEngine?: 'whisper' | 'elevenlabs-forced-alignment';
+  /** Optional engine-specific configuration for ElevenLabs. */
+  elevenlabs?: {
+    apiBaseUrl?: string;
+    modelId?: string;
+    outputFormat?: string;
+    voiceSettings?: ElevenLabsVoiceSettings;
+  };
   speed?: number;
   outputPath: string;
   timestampsPath: string;
@@ -93,6 +101,7 @@ export async function generateAudio(options: GenerateAudioOptions): Promise<Audi
     voice: options.voice,
     speed: options.speed,
     outputPath: options.outputPath,
+    elevenlabs: options.elevenlabs,
   });
 
   log.info({ duration: ttsResult.duration }, 'TTS audio generated');
@@ -109,6 +118,7 @@ export async function generateAudio(options: GenerateAudioOptions): Promise<Audi
     originalText: fullText,
     audioDuration: ttsResult.duration,
     requireWhisper: options.requireWhisper,
+    elevenlabs: options.elevenlabs ? { apiBaseUrl: options.elevenlabs.apiBaseUrl } : undefined,
   });
 
   log.info(

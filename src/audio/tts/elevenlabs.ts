@@ -15,8 +15,9 @@ import { pipeline } from 'node:stream/promises';
 import { exec } from 'node:child_process';
 import { promisify } from 'node:util';
 import { createLogger } from '../../core/logger';
-import { APIError } from '../../core/errors';
+import { APIError, RateLimitError } from '../../core/errors';
 import { getApiKey } from '../../core/config';
+import { withRetry } from '../../core/retry';
 import type { TTSOptions, TTSResult } from './types';
 
 const execAsync = promisify(exec);
@@ -66,30 +67,57 @@ export async function synthesizeSpeechElevenLabs(options: TTSOptions): Promise<T
   const outAbs = resolve(options.outputPath);
   await mkdir(dirname(outAbs), { recursive: true });
 
-  const tmpPath = join(dirname(outAbs), `${basename(outAbs)}.elevenlabs.tmp.mp3`);
+  const tmpPath = join(dirname(outAbs), `${basename(outAbs)}.elevenlabs.tmp`);
   const url = `${apiBaseUrl.replace(/\/+$/u, '')}/v1/text-to-speech/${encodeURIComponent(
     options.voice
   )}/stream`;
 
   log.info({ textLength: options.text.length, outputFormat, modelId }, 'Starting ElevenLabs TTS');
 
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'xi-api-key': apiKey,
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({
-      text: options.text,
-      model_id: modelId,
-      output_format: outputFormat,
-      voice_settings: options.elevenlabs?.voiceSettings ?? undefined,
-    }),
-  });
+  const res = await withRetry(
+    async () => {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'xi-api-key': apiKey,
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          text: options.text,
+          model_id: modelId,
+          output_format: outputFormat,
+          voice_settings: options.elevenlabs?.voiceSettings ?? undefined,
+        }),
+      });
 
-  if (!res.ok || !res.body) {
-    const errText = await res.text().catch(() => '');
-    throw new APIError(`ElevenLabs TTS failed: ${res.status} ${res.statusText} ${errText}`, {
+      if (response.status === 429) {
+        const retryAfterRaw = response.headers.get('retry-after');
+        const retryAfter = retryAfterRaw ? Number.parseInt(retryAfterRaw, 10) : 10;
+        throw new RateLimitError('elevenlabs', Number.isFinite(retryAfter) ? retryAfter : 10);
+      }
+
+      if (!response.ok) {
+        const errText = await response.text().catch(() => '');
+        throw new APIError(
+          `ElevenLabs TTS failed: ${response.status} ${response.statusText} ${errText}`,
+          {
+            provider: 'elevenlabs',
+            status: response.status,
+            voice: options.voice,
+            engine: 'elevenlabs',
+          }
+        );
+      }
+
+      return response;
+    },
+    { context: { provider: 'elevenlabs', op: 'tts' } }
+  );
+
+  if (!res.body) {
+    throw new APIError(`ElevenLabs TTS returned no body`, {
+      provider: 'elevenlabs',
+      status: 200,
       engine: 'elevenlabs',
       voice: options.voice,
     });

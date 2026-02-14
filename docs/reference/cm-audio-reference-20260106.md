@@ -24,6 +24,13 @@ cm audio [options]
 - `-o, --output <path>`: output audio file path (default: `audio.wav`)
 - `--timestamps <path>`: output timestamps file path (default: `timestamps.json`)
 - `--voice <voice>`: TTS voice id (default: `af_heart`)
+- `--tts-engine <engine>`: TTS engine (`kokoro`, `elevenlabs`)
+- `--tts-speed <n>`: TTS speaking speed (e.g. `1.0`, `1.2`)
+- `--asr-engine <engine>`: timestamp engine (`whisper`, `elevenlabs-forced-alignment`)
+- `--sync-strategy <strategy>`: sync strategy (`standard`, `audio-first`)
+- `--reconcile`: reconcile ASR output to match original script text
+- `--require-whisper`: require whisper ASR (fail if unavailable)
+- `--whisper-model <model>`: Whisper model size (`tiny`, `base`, `small`, `medium`, `large`)
 - `--audio-mix <path>`: output audio mix plan (default: `audio.mix.json`)
 - `--music <pathOrPreset>`: background music track or preset name
 - `--no-music`: disable background music (overrides config defaults)
@@ -63,6 +70,7 @@ cm audio [options]
 ```bash
 cm audio -i out/script.json -o out/audio.wav --timestamps out/timestamps.json
 cm audio -i script.json --voice af_heart
+cm audio -i script.json --tts-engine elevenlabs --asr-engine elevenlabs-forced-alignment
 cm audio -i script.json --music lofi-01 --sfx-pack pops --audio-mix audio.mix.json
 ```
 

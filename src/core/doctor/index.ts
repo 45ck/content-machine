@@ -226,6 +226,20 @@ function buildApiKeyChecks(config: any | null): DoctorCheck[] {
   if (llm) checks.push(llm);
   const visuals = buildVisualsKeyCheck(config);
   if (visuals) checks.push(visuals);
+  const ttsEngine = config?.audio?.ttsEngine;
+  const asrEngine = config?.audio?.asrEngine;
+  const usesElevenLabs = ttsEngine === 'elevenlabs' || asrEngine === 'elevenlabs-forced-alignment';
+  if (usesElevenLabs) {
+    const hasKey = Boolean(getOptionalApiKey('ELEVENLABS_API_KEY'));
+    checks.push({
+      id: 'elevenlabs',
+      label: 'ElevenLabs',
+      status: asStatus(hasKey, true),
+      detail: hasKey ? 'ELEVENLABS_API_KEY set' : 'ELEVENLABS_API_KEY missing',
+      fix: hasKey ? undefined : 'Set ELEVENLABS_API_KEY in your environment or .env file',
+      code: hasKey ? undefined : 'CONFIG_WARN',
+    });
+  }
   return checks;
 }
 
@@ -238,6 +252,18 @@ async function buildFfprobeCheck(): Promise<DoctorCheck> {
     detail: ffprobe.detail,
     fix: ffprobe.ok ? undefined : ffprobe.fix,
     code: ffprobe.ok ? undefined : ffprobe.code,
+  };
+}
+
+async function buildFfmpegCheck(): Promise<DoctorCheck> {
+  const ffmpeg = await checkBinaryOnPath('ffmpeg', 'ffmpeg');
+  return {
+    id: 'ffmpeg',
+    label: 'ffmpeg',
+    status: asStatus(ffmpeg.ok, true),
+    detail: ffmpeg.detail,
+    fix: ffmpeg.ok ? undefined : ffmpeg.fix,
+    code: ffmpeg.ok ? undefined : ffmpeg.code,
   };
 }
 
@@ -263,6 +289,7 @@ export async function runDoctor(options: DoctorOptions = {}): Promise<DoctorRepo
   checks.push(...(await buildWhisperChecks(whisperModel)));
 
   checks.push(...buildApiKeyChecks(config));
+  checks.push(await buildFfmpegCheck());
   checks.push(await buildFfprobeCheck());
 
   return {

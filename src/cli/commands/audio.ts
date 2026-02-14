@@ -88,12 +88,12 @@ function parseTtsSpeed(value: unknown): number {
   return parsed;
 }
 
-function parseTtsEngine(value: unknown): 'kokoro' | 'edge' | 'elevenlabs' | undefined {
+function parseTtsEngine(value: unknown): 'kokoro' | 'elevenlabs' | undefined {
   if (value === undefined || value === null || value === '') return undefined;
   const raw = String(value);
-  if (raw === 'kokoro' || raw === 'edge' || raw === 'elevenlabs') return raw;
+  if (raw === 'kokoro' || raw === 'elevenlabs') return raw;
   throw new CMError('INVALID_ARGUMENT', `Invalid --tts-engine value: ${raw}`, {
-    fix: 'Use one of: kokoro, elevenlabs, edge',
+    fix: 'Use one of: kokoro, elevenlabs',
   });
 }
 
@@ -414,10 +414,10 @@ export const audioCommand = new Command('audio')
         options.voice = config.defaults.voice;
       }
       if (command.getOptionValueSource('ttsEngine') === 'default') {
-        options.ttsEngine = config.audio.ttsEngine;
+        options.ttsEngine = config.audio?.ttsEngine ?? 'kokoro';
       }
       if (command.getOptionValueSource('asrEngine') === 'default') {
-        options.asrEngine = config.audio.asrEngine;
+        options.asrEngine = config.audio?.asrEngine ?? 'whisper';
       }
 
       const script = await readScriptInput(options.input);
@@ -451,6 +451,7 @@ export const audioCommand = new Command('audio')
         voice: options.voice,
         ttsEngine,
         asrEngine,
+        elevenlabs: config.audio?.elevenlabs,
         speed: ttsSpeed,
         outputPath,
         timestampsPath,
