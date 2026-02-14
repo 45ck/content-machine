@@ -22,6 +22,41 @@ vi.mock('../../../src/validate/python-json', () => ({
   runPythonJson: vi.fn().mockResolvedValue({ embedding: new Array(512).fill(0.1) }),
 }));
 
+vi.mock('../../../src/score/pacing-quality', () => ({
+  analyzePacingQuality: vi.fn().mockReturnValue({
+    overallScore: 0.82,
+    aggregate: { avgWpm: 150, coefficientOfVariation: 0.15 },
+    scenes: [],
+    issues: [],
+  }),
+}));
+
+vi.mock('../../../src/score/audio-quality', () => ({
+  analyzeAudioQuality: vi.fn().mockReturnValue({
+    overallScore: 0.9,
+    details: { pausesFound: 1, overlapsFound: 0 },
+    issues: [],
+  }),
+}));
+
+vi.mock('../../../src/score/engagement-quality', () => ({
+  analyzeEngagementQuality: vi.fn().mockReturnValue({
+    overallScore: 0.75,
+    metrics: { hookTiming: 0.9, ctaPresence: 0.8, sceneProgression: 0.7 },
+    issues: [],
+  }),
+}));
+
+// Must mock node:fs at module level for existsSync/readFileSync used in loadTimestamps
+const { mockExistsSync, mockReadFileSync } = vi.hoisted(() => ({
+  mockExistsSync: vi.fn().mockReturnValue(false),
+  mockReadFileSync: vi.fn().mockReturnValue('{}'),
+}));
+vi.mock('node:fs', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('node:fs')>();
+  return { ...actual, existsSync: mockExistsSync, readFileSync: mockReadFileSync };
+});
+
 import { extractFeatures } from '../../../src/quality-score/feature-extractor';
 
 describe('extractFeatures', () => {
@@ -54,5 +89,54 @@ describe('extractFeatures', () => {
 
     expect(features.clipEmbedding).toBeUndefined();
     expect(features.textEmbedding).toBeUndefined();
+  });
+
+  it('should load timestamps.json and populate pacing/audio metrics', async () => {
+    const fakeTimestamps = {
+      schemaVersion: '1.0.0',
+      totalDuration: 1.0,
+      ttsEngine: 'test',
+      asrEngine: 'test',
+      allWords: [
+        { word: 'hello', start: 0, end: 0.5 },
+        { word: 'world', start: 0.6, end: 1.0 },
+      ],
+      scenes: [
+        {
+          sceneId: 'scene-0',
+          audioStart: 0,
+          audioEnd: 1.0,
+          words: [
+            { word: 'hello', start: 0, end: 0.5 },
+            { word: 'world', start: 0.6, end: 1.0 },
+          ],
+        },
+      ],
+    };
+
+    mockExistsSync.mockReturnValue(true);
+    mockReadFileSync.mockReturnValue(JSON.stringify(fakeTimestamps));
+
+    const features = await extractFeatures({
+      videoPath: '/tmp/test-video.mp4',
+      timestampsPath: '/tmp/timestamps.json',
+    });
+
+    expect(features.repoMetrics.pacingScore).toBe(0.82);
+    expect(features.repoMetrics.pacingAvgWpm).toBe(150);
+    expect(features.repoMetrics.audioScore).toBe(0.9);
+    expect(features.repoMetrics.audioGapCount).toBe(1);
+  });
+
+  it('should gracefully handle missing timestamps', async () => {
+    mockExistsSync.mockReturnValue(false);
+
+    const features = await extractFeatures({
+      videoPath: '/tmp/test-video.mp4',
+    });
+
+    // Pacing/audio metrics should not be set
+    expect(features.repoMetrics.pacingScore).toBeUndefined();
+    expect(features.repoMetrics.audioScore).toBeUndefined();
   });
 });

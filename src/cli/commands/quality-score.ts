@@ -14,6 +14,7 @@ import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine 
 interface QualityScoreCommandOptions {
   input: string;
   script?: string;
+  timestamps?: string;
   model?: string;
   heuristic?: boolean;
   explain?: boolean;
@@ -30,6 +31,7 @@ export const qualityScoreCommand = new Command('quality-score')
   .option('--model <path>', 'Path to ONNX model file')
   .option('--heuristic', 'Force heuristic mode (skip ML model)', false)
   .option('--explain', 'Include top contributing features in output', false)
+  .option('--timestamps <path>', 'Path to timestamps JSON')
   .option('--clip', 'Include CLIP frame embeddings', false)
   .option('--text', 'Include DistilBERT text embeddings', false)
   .option('-o, --output <path>', 'Output JSON path', 'quality-score.json')
@@ -45,6 +47,7 @@ export const qualityScoreCommand = new Command('quality-score')
       const features = await extractFeatures({
         videoPath: options.input,
         scriptPath: options.script,
+        timestampsPath: options.timestamps,
         includeClip: options.clip,
         includeText: options.text,
       });

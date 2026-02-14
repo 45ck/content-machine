@@ -105,7 +105,7 @@ export class FfmpegAudioAnalyzer implements AudioSignalAnalyzer {
   constructor(options?: { pythonPath?: string; scriptPath?: string; timeoutMs?: number }) {
     this.pythonPath = options?.pythonPath;
     this.scriptPath = options?.scriptPath ?? resolve(process.cwd(), 'scripts', 'audio_quality.py');
-    this.timeoutMs = options?.timeoutMs ?? 60_000;
+    this.timeoutMs = options?.timeoutMs ?? 180_000;
   }
 
   async analyze(mediaPath: string): Promise<AudioSignalSummary> {

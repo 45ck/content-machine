@@ -6,6 +6,7 @@
  *   cm extract-features --batch videos/ [-o features-dir/]
  */
 import { Command } from 'commander';
+import { dirname } from 'node:path';
 import { handleCommandError, writeOutputFile } from '../utils';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
@@ -14,6 +15,7 @@ import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine 
 interface ExtractFeaturesCommandOptions {
   input?: string;
   script?: string;
+  timestamps?: string;
   batch?: string;
   clip?: boolean;
   text?: boolean;
@@ -25,6 +27,7 @@ export const extractFeaturesCommand = new Command('extract-features')
   .description('Extract feature vectors for quality scoring')
   .option('-i, --input <videoPath>', 'Path to video file')
   .option('--script <scriptPath>', 'Path to script JSON')
+  .option('--timestamps <path>', 'Path to timestamps JSON (single mode)')
   .option('--batch <dir>', 'Directory of video files for batch extraction')
   .option('--clip', 'Include CLIP frame embeddings', false)
   .option('--text', 'Include DistilBERT text embeddings', false)
@@ -58,6 +61,7 @@ async function runSingleExtraction(
     const features = await extractFeatures({
       videoPath: options.input,
       scriptPath: options.script,
+      timestampsPath: options.timestamps,
       includeClip: options.clip,
       includeText: options.text,
     });
@@ -112,8 +116,12 @@ async function runBatchExtraction(
       const videoPath = join(dir, file);
       const outPath = join(options.output, file.replace(/\.[^.]+$/, '.json'));
 
+      // Auto-discover timestamps.json in the video's directory
+      const tsCandidate = join(dirname(videoPath), 'timestamps.json');
+      const { existsSync } = await import('node:fs');
       const features = await extractFeatures({
         videoPath,
+        timestampsPath: existsSync(tsCandidate) ? tsCandidate : undefined,
         includeClip: options.clip,
         includeText: options.text,
       });

@@ -11,14 +11,14 @@ function makeFeatures(overrides: Partial<FeatureVector['repoMetrics']> = {}): Fe
       syncRating: 80,
       captionOverall: 0.75,
       pacingScore: 0.7,
-      audioScore: 72,
-      engagementScore: 85,
+      audioScore: 0.72,
+      engagementScore: 0.85,
       scriptScore: 0.68,
       syncMatchRatio: 0.82,
-      hookTiming: 90,
+      hookTiming: 0.9,
       ...overrides,
     },
-    metadata: { durationS: 45.5 },
+    metadata: { durationS: 45.5, width: 1080, height: 1920 },
   };
 }
 
@@ -33,7 +33,7 @@ describe('scoreQuality', () => {
     expect(result.score).toBeGreaterThanOrEqual(0);
     expect(result.score).toBeLessThanOrEqual(100);
     expect(result.label).toBeDefined();
-    expect(result.modelVersion).toBe('heuristic-v1');
+    expect(result.modelVersion).toBe('heuristic-v2');
   });
 
   it('should produce higher scores for better metrics', async () => {
@@ -41,8 +41,8 @@ describe('scoreQuality', () => {
       features: makeFeatures({
         syncRating: 95,
         captionOverall: 0.95,
-        engagementScore: 95,
-        audioScore: 95,
+        engagementScore: 0.95,
+        audioScore: 0.95,
       }),
       heuristic: true,
     });
@@ -51,8 +51,8 @@ describe('scoreQuality', () => {
       features: makeFeatures({
         syncRating: 20,
         captionOverall: 0.2,
-        engagementScore: 20,
-        audioScore: 20,
+        engagementScore: 0.2,
+        audioScore: 0.2,
       }),
       heuristic: true,
     });
@@ -79,11 +79,11 @@ describe('scoreQuality', () => {
         syncRating: 100,
         captionOverall: 1,
         pacingScore: 1,
-        audioScore: 100,
-        engagementScore: 100,
+        audioScore: 1,
+        engagementScore: 1,
         scriptScore: 1,
         syncMatchRatio: 1,
-        hookTiming: 100,
+        hookTiming: 1,
       }),
       heuristic: true,
     });
@@ -94,11 +94,11 @@ describe('scoreQuality', () => {
         syncRating: 5,
         captionOverall: 0.05,
         pacingScore: 0.05,
-        audioScore: 5,
-        engagementScore: 5,
+        audioScore: 0.05,
+        engagementScore: 0.05,
         scriptScore: 0.05,
         syncMatchRatio: 0.05,
-        hookTiming: 5,
+        hookTiming: 0.05,
       }),
       heuristic: true,
     });
@@ -121,13 +121,17 @@ describe('scoreQuality', () => {
         extractedAt: '2026-01-15T10:00:00.000Z',
         version: '1.0.0',
         repoMetrics: {},
-        metadata: { durationS: 30 },
+        metadata: { durationS: 30, width: 1080, height: 1920 },
       },
       heuristic: true,
     });
 
-    expect(result.score).toBe(50); // default when no metrics available
+    // With no repo metrics, score is purely intrinsic (portrait, 1080w, good duration)
+    expect(result.score).toBeGreaterThanOrEqual(30);
+    expect(result.score).toBeLessThanOrEqual(100);
     expect(result.method).toBe('heuristic');
+    // Confidence should be low since no repo metrics
+    expect(result.confidence).toBeLessThan(0.6);
   });
 
   it('should include confidence in result', async () => {
@@ -160,7 +164,7 @@ describe('scoreQuality', () => {
 
   it('should detect audio_quality_poor defect', async () => {
     const result = await scoreQuality({
-      features: makeFeatures({ audioScore: 15 }),
+      features: makeFeatures({ audioScore: 0.15 }),
       heuristic: true,
     });
 
@@ -196,7 +200,7 @@ describe('scoreQuality', () => {
 
   it('should detect low_engagement defect', async () => {
     const result = await scoreQuality({
-      features: makeFeatures({ engagementScore: 10 }),
+      features: makeFeatures({ engagementScore: 0.1 }),
       heuristic: true,
     });
 
@@ -205,7 +209,7 @@ describe('scoreQuality', () => {
 
   it('should detect weak_hook defect', async () => {
     const result = await scoreQuality({
-      features: makeFeatures({ hookTiming: 5 }),
+      features: makeFeatures({ hookTiming: 0.05 }),
       heuristic: true,
     });
 
@@ -214,7 +218,7 @@ describe('scoreQuality', () => {
 
   it('should detect multiple simultaneous defects', async () => {
     const result = await scoreQuality({
-      features: makeFeatures({ syncRating: 10, audioScore: 10, hookTiming: 5 }),
+      features: makeFeatures({ syncRating: 10, audioScore: 0.1, hookTiming: 0.05 }),
       heuristic: true,
     });
 
@@ -224,32 +228,31 @@ describe('scoreQuality', () => {
     expect(result.defects.length).toBeGreaterThanOrEqual(3);
   });
 
-  it('should have confidence minimum of 0.3 at decision boundary', async () => {
+  it('should have low confidence when no repo metrics available', async () => {
     const result = await scoreQuality({
       features: {
         videoId: 'boundary',
         extractedAt: '2026-01-15T10:00:00.000Z',
         version: '1.0.0',
         repoMetrics: {},
-        metadata: { durationS: 30 },
+        metadata: { durationS: 30, width: 1080, height: 1920 },
       },
       heuristic: true,
     });
 
-    // Score defaults to 50, confidence should be at floor (0.3)
-    expect(result.confidence).toBeCloseTo(0.3, 1);
+    expect(result.confidence).toBeLessThanOrEqual(0.5);
   });
 
   it('should report no defects for good metrics', async () => {
     const result = await scoreQuality({
       features: makeFeatures({
         syncRating: 90,
-        audioScore: 85,
+        audioScore: 0.85,
         audioOverlapCount: 0,
         captionOverall: 0.8,
         pacingScore: 0.7,
-        engagementScore: 80,
-        hookTiming: 70,
+        engagementScore: 0.8,
+        hookTiming: 0.7,
       }),
       heuristic: true,
     });

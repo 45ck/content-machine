@@ -4,14 +4,22 @@
  * Orchestrates extraction of a feature vector from a single video by
  * combining existing repo metrics with optional CLIP/text embeddings.
  */
-import { resolve, basename } from 'node:path';
+import { resolve, basename, dirname, join } from 'node:path';
+import { existsSync, readFileSync } from 'node:fs';
 import { runPythonJson } from '../validate/python-json';
-import type { FeatureVector, RepoMetricFeatures, MetadataFeatures } from '../domain';
-import { FeatureVectorSchema } from '../domain';
+import type {
+  FeatureVector,
+  RepoMetricFeatures,
+  MetadataFeatures,
+  TimestampsOutput,
+} from '../domain';
+import { FeatureVectorSchema, TimestampsOutputSchema } from '../domain';
 
 export interface FeatureExtractorOptions {
   videoPath: string;
   scriptPath?: string;
+  /** Explicit path to timestamps.json. If omitted, auto-discovers from video directory. */
+  timestampsPath?: string;
   /** Include CLIP frame embeddings (requires Python + CLIP). */
   includeClip?: boolean;
   /** Include DistilBERT text embeddings (requires Python + transformers). */
@@ -60,10 +68,13 @@ interface RepoMetricsResult {
 }
 
 async function extractRepoMetrics(options: FeatureExtractorOptions): Promise<RepoMetricsResult> {
-  const { videoPath, scriptPath } = options;
+  const { videoPath, scriptPath, timestampsPath } = options;
   const metrics: RepoMetricFeatures = {};
   let ocrConfidenceMean: number | undefined;
   let sceneCount: number | undefined;
+
+  // Load timestamps once for pacing/audio/engagement metrics
+  const timestamps = loadTimestamps(videoPath, timestampsPath);
 
   // Run sync rating
   try {
@@ -88,48 +99,46 @@ async function extractRepoMetrics(options: FeatureExtractorOptions): Promise<Rep
   }
 
   // Run pacing quality
-  try {
-    const { analyzePacingQuality } = await import('../score/pacing-quality');
-    const timestamps = await loadTimestamps(videoPath);
-    if (timestamps) {
-      const pacingResult = analyzePacingQuality(timestamps as any);
+  if (timestamps) {
+    try {
+      const { analyzePacingQuality } = await import('../score/pacing-quality');
+      const pacingResult = analyzePacingQuality(timestamps);
       metrics.pacingScore = pacingResult.overallScore;
       metrics.pacingAvgWpm = pacingResult.aggregate.avgWpm;
       metrics.pacingCv = pacingResult.aggregate.coefficientOfVariation;
+    } catch {
+      // Pacing not available
     }
-  } catch {
-    // Pacing not available
   }
 
   // Run audio quality
-  try {
-    const { analyzeAudioQuality } = await import('../score/audio-quality');
-    const timestamps = await loadTimestamps(videoPath);
-    if (timestamps) {
-      const audioResult = analyzeAudioQuality(timestamps as any);
+  if (timestamps) {
+    try {
+      const { analyzeAudioQuality } = await import('../score/audio-quality');
+      const audioResult = analyzeAudioQuality(timestamps);
       metrics.audioScore = audioResult.overallScore;
       metrics.audioGapCount = audioResult.details.pausesFound;
       metrics.audioOverlapCount = audioResult.details.overlapsFound;
+    } catch {
+      // Audio quality not available
     }
-  } catch {
-    // Audio quality not available
   }
 
   // Run engagement quality
-  try {
-    const { analyzeEngagementQuality } = await import('../score/engagement-quality');
-    const timestamps = await loadTimestamps(videoPath);
-    if (timestamps && scriptPath) {
-      const { readFileSync } = await import('node:fs');
-      const script = JSON.parse(readFileSync(scriptPath, 'utf-8'));
-      const engResult = analyzeEngagementQuality(script as any, timestamps as any);
+  if (timestamps && scriptPath) {
+    try {
+      const { analyzeEngagementQuality } = await import('../score/engagement-quality');
+      const scriptRaw = JSON.parse(readFileSync(scriptPath, 'utf-8'));
+      const { ScriptOutputSchema } = await import('../domain');
+      const script = ScriptOutputSchema.parse(scriptRaw);
+      const engResult = analyzeEngagementQuality(script, timestamps);
       metrics.engagementScore = engResult.overallScore;
       metrics.hookTiming = engResult.metrics.hookTiming;
       metrics.ctaPresence = engResult.metrics.ctaPresence;
       metrics.sceneProgression = engResult.metrics.sceneProgression;
+    } catch {
+      // Engagement not available
     }
-  } catch {
-    // Engagement not available
   }
 
   // Run script score and extract scene count
@@ -232,10 +241,23 @@ async function extractTranscriptFromScript(scriptPath?: string): Promise<string 
 }
 
 /**
- * Placeholder for timestamp loading. The sync rater extracts timestamps
- * internally and doesn't expose them, so timestamp-dependent metrics
- * (pacing, audio, engagement) are only available when sync rating runs.
+ * Load timestamps from an explicit path or auto-discover from the video directory.
+ * Looks for `timestamps.json` in `dirname(videoPath)`.
  */
-async function loadTimestamps(_videoPath: string): Promise<unknown> {
+function loadTimestamps(videoPath: string, timestampsPath?: string): TimestampsOutput | undefined {
+  const candidates = timestampsPath
+    ? [timestampsPath]
+    : [join(dirname(videoPath), 'timestamps.json')];
+
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) {
+      try {
+        const raw = JSON.parse(readFileSync(candidate, 'utf-8'));
+        return TimestampsOutputSchema.parse(raw);
+      } catch {
+        // Invalid timestamps file, skip
+      }
+    }
+  }
   return undefined;
 }

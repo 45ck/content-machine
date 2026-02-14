@@ -29,7 +29,7 @@ async function detectSpeech(videoPath: string): Promise<boolean> {
     // Use ffmpeg silencedetect to determine if there's speech
     const child = spawn(
       'ffmpeg',
-      ['-i', videoPath, '-af', 'silencedetect=noise=-30dB:d=2', '-f', 'null', '-'],
+      ['-i', videoPath, '-af', 'silencedetect=noise=-30dB:d=0.5', '-f', 'null', '-'],
       { stdio: ['ignore', 'pipe', 'pipe'] }
     );
 

@@ -93,7 +93,7 @@ export class TemporalAnalyzer implements TemporalQualityAnalyzer {
     this.pythonPath = options?.pythonPath;
     this.scriptPath =
       options?.scriptPath ?? resolve(process.cwd(), 'scripts', 'temporal_quality.py');
-    this.timeoutMs = options?.timeoutMs ?? 120_000;
+    this.timeoutMs = options?.timeoutMs ?? 300_000;
   }
 
   async analyze(

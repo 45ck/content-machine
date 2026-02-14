@@ -138,9 +138,12 @@ def _snr_estimate(
     noise_match = re.search(r"Noise floor dB:\s*([-\d.]+)", stderr)
 
     if rms_match and noise_match:
-        rms_db = float(rms_match.group(1))
-        noise_db = float(noise_match.group(1))
-        return rms_db - noise_db
+        try:
+            rms_db = float(rms_match.group(1))
+            noise_db = float(noise_match.group(1))
+            return rms_db - noise_db
+        except ValueError:
+            return None
 
     return None
 

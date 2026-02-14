@@ -1,6 +1,17 @@
 import { spawn } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { CMError } from '../core/errors';
 
+function detectPython(): string {
+  if (process.env.CM_PYTHON) return process.env.CM_PYTHON;
+  // Auto-detect .venv in project root
+  const venvPython = resolve(process.cwd(), '.venv', 'bin', 'python3');
+  if (existsSync(venvPython)) return venvPython;
+  return 'python3';
+}
+
+/** Spawns a Python script and parses its stdout as JSON. */
 export function runPythonJson(params: {
   errorCode: string;
   pythonPath?: string;
@@ -8,7 +19,7 @@ export function runPythonJson(params: {
   args: readonly string[];
   timeoutMs?: number;
 }): Promise<unknown> {
-  const pythonPath = params.pythonPath ?? 'python';
+  const pythonPath = params.pythonPath ?? detectPython();
   const timeoutMs = params.timeoutMs ?? 30_000;
 
   return new Promise((resolvePromise, reject) => {

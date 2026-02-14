@@ -33,15 +33,62 @@ const HEURISTIC_WEIGHTS: Record<
   string,
   { key: keyof FeatureVector['repoMetrics']; weight: number; scale: number }
 > = {
-  syncRating: { key: 'syncRating', weight: 0.2, scale: 100 },
-  captionOverall: { key: 'captionOverall', weight: 0.15, scale: 1 },
-  pacingScore: { key: 'pacingScore', weight: 0.12, scale: 1 },
-  audioScore: { key: 'audioScore', weight: 0.12, scale: 100 },
-  engagementScore: { key: 'engagementScore', weight: 0.15, scale: 100 },
-  scriptScore: { key: 'scriptScore', weight: 0.1, scale: 1 },
-  syncMatchRatio: { key: 'syncMatchRatio', weight: 0.08, scale: 1 },
-  hookTiming: { key: 'hookTiming', weight: 0.08, scale: 100 },
+  syncRating: { key: 'syncRating', weight: 0.18, scale: 100 },
+  captionOverall: { key: 'captionOverall', weight: 0.12, scale: 1 },
+  pacingScore: { key: 'pacingScore', weight: 0.1, scale: 1 },
+  audioScore: { key: 'audioScore', weight: 0.1, scale: 1 },
+  engagementScore: { key: 'engagementScore', weight: 0.12, scale: 1 },
+  scriptScore: { key: 'scriptScore', weight: 0.08, scale: 1 },
+  syncMatchRatio: { key: 'syncMatchRatio', weight: 0.06, scale: 1 },
+  hookTiming: { key: 'hookTiming', weight: 0.06, scale: 1 },
 };
+
+/** Video-intrinsic quality signals derived from metadata (no repo artifacts needed). */
+function computeIntrinsicScore(metadata: FeatureVector['metadata']): number {
+  let score = 0;
+  let maxScore = 0;
+
+  // Duration: 20-60s is ideal for shorts
+  maxScore += 25;
+  const dur = metadata.durationS;
+  if (dur >= 20 && dur <= 60) score += 25;
+  else if (dur >= 15 && dur <= 90) score += 18;
+  else if (dur >= 10) score += 8;
+  else score += 2;
+
+  // Aspect ratio: portrait (9:16) is ideal
+  maxScore += 25;
+  const { width, height } = metadata;
+  if (width && height) {
+    const ratio = width / height;
+    if (ratio < 0.7)
+      score += 25; // portrait
+    else if (ratio < 1.0)
+      score += 15; // near-portrait
+    else if (ratio < 1.4)
+      score += 10; // landscape-ish
+    else score += 5; // wide landscape
+  }
+
+  // Resolution: 1080 width is ideal for shorts
+  maxScore += 25;
+  if (width) {
+    if (width >= 1080) score += 25;
+    else if (width >= 720) score += 15;
+    else score += 5;
+  }
+
+  // OCR confidence (if available) — proxy for caption presence/readability
+  maxScore += 25;
+  if (metadata.ocrConfidenceMean != null) {
+    score += Math.round(metadata.ocrConfidenceMean * 25);
+  } else {
+    // No OCR data — neutral
+    score += 12;
+  }
+
+  return maxScore > 0 ? score / maxScore : 0.5;
+}
 
 /** Scores a video using either a learned model or heuristic fallback. */
 export async function scoreQuality(options: QualityScoreOptions): Promise<QualityScoreResult> {
@@ -59,15 +106,20 @@ export async function scoreQuality(options: QualityScoreOptions): Promise<Qualit
 }
 
 function scoreHeuristic(features: FeatureVector, explain: boolean): QualityScoreResult {
-  const { repoMetrics } = features;
+  const { repoMetrics, metadata } = features;
   let weightedSum = 0;
   let totalWeight = 0;
   const subscores: Record<string, number> = {};
   const factors: QualityScoreResult['topFactors'] = [];
 
+  // Count how many repo metrics are available to determine blend ratio
+  const totalPossibleMetrics = Object.keys(HEURISTIC_WEIGHTS).length;
+  let availableMetrics = 0;
+
   for (const [name, config] of Object.entries(HEURISTIC_WEIGHTS)) {
     const raw = repoMetrics[config.key];
     if (raw == null) continue;
+    availableMetrics++;
 
     const normalized = raw / config.scale;
     const contribution = normalized * config.weight;
@@ -84,8 +136,29 @@ function scoreHeuristic(features: FeatureVector, explain: boolean): QualityScore
     }
   }
 
-  const score = totalWeight > 0 ? Math.round((weightedSum / totalWeight) * 100) : 50;
+  const repoScore = totalWeight > 0 ? weightedSum / totalWeight : 0;
+
+  // Intrinsic score from video metadata (always available)
+  const intrinsicScore = computeIntrinsicScore(metadata);
+  subscores._intrinsic = Math.round(intrinsicScore * 100);
+
+  // Blend: when all repo metrics are present, repo dominates (80/20).
+  // When few or no repo metrics are available, intrinsic dominates.
+  const coverage = availableMetrics / totalPossibleMetrics;
+  const repoBlend = coverage * 0.8;
+  const intrinsicBlend = 1 - repoBlend;
+  const blendedScore = repoScore * repoBlend + intrinsicScore * intrinsicBlend;
+
+  const score = Math.round(blendedScore * 100);
   const clampedScore = Math.max(0, Math.min(100, score));
+
+  if (explain) {
+    factors.push({
+      feature: '_intrinsic',
+      impact: Math.round(intrinsicScore * intrinsicBlend * 100),
+      direction: intrinsicScore >= 0.5 ? 'positive' : 'negative',
+    });
+  }
 
   // Sort factors by absolute impact
   factors.sort((a, b) => Math.abs(b.impact) - Math.abs(a.impact));
@@ -93,9 +166,9 @@ function scoreHeuristic(features: FeatureVector, explain: boolean): QualityScore
   // Derive defects from low-scoring metrics
   const defects = deriveDefects(repoMetrics);
 
-  // Confidence: linear from 0.3 (at boundary score=50) to 1.0 (at extremes).
-  // Floor of 0.3 reflects that heuristic scoring always has some signal even at the boundary.
-  const confidence = Math.min(1, Math.abs(clampedScore - 50) / 50 + 0.3);
+  // Confidence scales with metric coverage
+  const rawConfidence = 0.3 + coverage * 0.5 + (Math.abs(clampedScore - 50) / 50) * 0.2;
+  const confidence = Math.min(1, rawConfidence);
 
   return {
     score: clampedScore,
@@ -104,7 +177,7 @@ function scoreHeuristic(features: FeatureVector, explain: boolean): QualityScore
     subscores,
     defects,
     topFactors: factors.slice(0, 5),
-    modelVersion: 'heuristic-v1',
+    modelVersion: 'heuristic-v2',
     method: 'heuristic',
   };
 }
@@ -166,16 +239,16 @@ function deriveDefects(repoMetrics: FeatureVector['repoMetrics']): string[] {
   const defects: string[] = [];
   if (repoMetrics.syncRating != null && repoMetrics.syncRating < 40)
     defects.push('low_sync_rating');
-  if (repoMetrics.audioScore != null && repoMetrics.audioScore < 30)
+  if (repoMetrics.audioScore != null && repoMetrics.audioScore < 0.3)
     defects.push('audio_quality_poor');
   if (repoMetrics.audioOverlapCount != null && repoMetrics.audioOverlapCount > 0)
     defects.push('audio_overlap_detected');
   if (repoMetrics.captionOverall != null && repoMetrics.captionOverall < 0.3)
     defects.push('caption_quality_poor');
   if (repoMetrics.pacingScore != null && repoMetrics.pacingScore < 0.3) defects.push('pacing_poor');
-  if (repoMetrics.engagementScore != null && repoMetrics.engagementScore < 30)
+  if (repoMetrics.engagementScore != null && repoMetrics.engagementScore < 0.3)
     defects.push('low_engagement');
-  if (repoMetrics.hookTiming != null && repoMetrics.hookTiming < 20) defects.push('weak_hook');
+  if (repoMetrics.hookTiming != null && repoMetrics.hookTiming < 0.2) defects.push('weak_hook');
   return defects;
 }
 
