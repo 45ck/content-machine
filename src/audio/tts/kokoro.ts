@@ -36,10 +36,11 @@ let kokoroModule: KokoroModule | null = null;
 async function getKokoro(): Promise<KokoroModule> {
   if (!kokoroModule) {
     try {
+      // Prefer dynamic import so test runners can vi.mock('kokoro-js') reliably.
+      kokoroModule = (await import('kokoro-js')) as unknown as KokoroModule;
+    } catch {
       const require = createRequire(typeof __filename === 'string' ? __filename : import.meta.url);
       kokoroModule = require('kokoro-js') as unknown as KokoroModule;
-    } catch {
-      kokoroModule = (await import('kokoro-js')) as unknown as KokoroModule;
     }
   }
   return kokoroModule;

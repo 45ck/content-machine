@@ -74,4 +74,44 @@ describe('ASR (ElevenLabs forced alignment)', () => {
       })
     ).rejects.toMatchObject({ name: 'ConfigError' });
   });
+
+  it('retries on 429 and succeeds', async () => {
+    const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cm-elevenlabs-asr-'));
+    const audioPath = path.join(tmpDir, 'audio.mp3');
+    fs.writeFileSync(audioPath, Buffer.from('not-real-audio'));
+
+    let calls = 0;
+    globalThis.fetch = (async (_url: any, _init: any) => {
+      calls += 1;
+      if (calls === 1) {
+        return {
+          ok: false,
+          status: 429,
+          statusText: 'Too Many Requests',
+          headers: new Headers({ 'retry-after': '0' }),
+          text: async () => 'rate limited',
+        } as any;
+      }
+      return {
+        ok: true,
+        status: 200,
+        headers: new Headers(),
+        json: async () => ({
+          loss: 0.01,
+          words: [{ text: 'Hello', start: 0.0, end: 0.2, loss: 0.001 }],
+        }),
+      } as any;
+    }) as any;
+
+    const { transcribeAudio } = await import('../../../src/audio/asr');
+    const result = await transcribeAudio({
+      engine: 'elevenlabs-forced-alignment',
+      audioPath,
+      originalText: 'Hello',
+      audioDuration: 1,
+    });
+
+    expect(calls).toBe(2);
+    expect(result.words.length).toBe(1);
+  });
 });

@@ -11,6 +11,7 @@ import { handleCommandError, writeOutputFile } from '../utils';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
+import { DEFAULT_ARTIFACT_FILENAMES } from '../../domain/repo-facts.generated';
 
 interface ExtractFeaturesCommandOptions {
   input?: string;
@@ -117,7 +118,7 @@ async function runBatchExtraction(
       const outPath = join(options.output, file.replace(/\.[^.]+$/, '.json'));
 
       // Auto-discover timestamps.json in the video's directory
-      const tsCandidate = join(dirname(videoPath), 'timestamps.json');
+      const tsCandidate = join(dirname(videoPath), DEFAULT_ARTIFACT_FILENAMES.timestamps);
       const { existsSync } = await import('node:fs');
       const features = await extractFeatures({
         videoPath,
