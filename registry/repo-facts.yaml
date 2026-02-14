@@ -237,6 +237,8 @@ facts:
         required: false
       - name: PYTHON_PATH
         required: false
+      - name: CM_PYTHON
+        required: false
       - name: LOG_LEVEL
         required: false
 
