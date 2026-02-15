@@ -395,9 +395,12 @@ function main() {
   const userFacingRoots = [
     path.join(repoRoot, 'AGENTS.md'),
     path.join(repoRoot, 'README.md'),
+    path.join(repoRoot, 'docs', 'README.md'),
+    path.join(repoRoot, 'docs', 'dev', 'README.md'),
+    path.join(repoRoot, 'docs', 'user'),
     path.join(repoRoot, 'docs', 'reference'),
-    path.join(repoRoot, 'docs', 'guides'),
-    path.join(repoRoot, 'docs', 'features'),
+    path.join(repoRoot, 'docs', 'dev', 'guides'),
+    path.join(repoRoot, 'docs', 'dev', 'features'),
     path.join(repoRoot, 'src', 'cli'),
   ];
 
@@ -405,7 +408,7 @@ function main() {
   const skipDirPrefixes = [
     path.join(repoRoot, 'docs', 'reference', 'GLOSSARY.md'),
     path.join(repoRoot, 'docs', 'research'),
-    path.join(repoRoot, 'docs', 'architecture'),
+    path.join(repoRoot, 'docs', 'dev', 'architecture'),
     path.join(repoRoot, 'vendor'),
     path.join(repoRoot, 'node_modules'),
     path.join(repoRoot, 'dist'),

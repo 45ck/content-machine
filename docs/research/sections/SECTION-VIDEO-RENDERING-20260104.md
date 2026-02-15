@@ -406,7 +406,7 @@ await renderMedia({
 
 ## 7. Evidence: Vidosy Composition Pattern
 
-**Source:** [templates/vidosy/src/remotion/VidosyComposition.tsx](../../../templates/vidosy/src/remotion/VidosyComposition.tsx)
+**Source:** [templates/vidosy/src/remotion/VidosyComposition.tsx](../../../dev/templates/vidosy/src/remotion/VidosyComposition.tsx)
 
 ### 7.1 Config-Driven Composition
 

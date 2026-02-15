@@ -33,7 +33,7 @@
 
 ### 2.2 vidosy Pattern (Recommended)
 
-**Source:** [templates/vidosy/src/cli/index.ts](../../../templates/vidosy/src/cli/index.ts)
+**Source:** [templates/vidosy/src/cli/index.ts](../../../dev/templates/vidosy/src/cli/index.ts)
 
 ```typescript
 #!/usr/bin/env node
@@ -169,7 +169,7 @@ init().catch((err) => console.error(`Unexpected error - `, err));
 
 ### 3.1 CLI Logger (Human-Readable)
 
-**Source:** [templates/vidosy/src/cli/utils/logger.ts](../../../templates/vidosy/src/cli/utils/logger.ts)
+**Source:** [templates/vidosy/src/cli/utils/logger.ts](../../../dev/templates/vidosy/src/cli/utils/logger.ts)
 
 ```typescript
 import chalk from 'chalk';
@@ -543,8 +543,8 @@ export function registerScriptCommand(program: Command): void {
 
 ### Vendor Files
 
-- [templates/vidosy/src/cli/index.ts](../../../templates/vidosy/src/cli/index.ts) - Commander pattern
-- [templates/vidosy/src/cli/utils/logger.ts](../../../templates/vidosy/src/cli/utils/logger.ts) - CLI logger
+- [templates/vidosy/src/cli/index.ts](../../../dev/templates/vidosy/src/cli/index.ts) - Commander pattern
+- [templates/vidosy/src/cli/utils/logger.ts](../../../dev/templates/vidosy/src/cli/utils/logger.ts) - CLI logger
 - [vendor/review-ui/budibase/packages/cli/src/structures/Command.ts](../../../vendor/review-ui/budibase/packages/cli/src/structures/Command.ts) - Wrapper pattern
 - [vendor/review-ui/budibase/packages/cli/src/index.ts](../../../vendor/review-ui/budibase/packages/cli/src/index.ts) - Entry point
 - [vendor/short-video-maker-gyori/src/config.ts](../../../vendor/short-video-maker-gyori/src/config.ts) - Config class

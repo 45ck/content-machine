@@ -12,8 +12,8 @@ This is intended for:
 Related docs:
 
 - Schema: `src/videospec/schema.ts`
-- Spec/design: `docs/specs/videospec-v1-reverse-engineering-20260210.md`
-- Implementation: `docs/architecture/IMPL-VIDEOSPEC-ANALYZER-20260210.md`
+- Spec/design: `docs/dev/specs/videospec-v1-reverse-engineering-20260210.md`
+- Implementation: `docs/dev/architecture/IMPL-VIDEOSPEC-ANALYZER-20260210.md`
 
 ## Basic
 
@@ -97,7 +97,7 @@ By default, `cm videospec` caches intermediate module outputs per input file und
 - override: `--cache-dir` or `$CM_VIDEOSPEC_CACHE_DIR`
 - disable: `--no-cache`
 
-Cache artifacts include shot cut times, OCR segments, transcript segments, editing effects, and audio structure heuristics. The exact filenames are documented in `docs/architecture/IMPL-VIDEOSPEC-ANALYZER-20260210.md`.
+Cache artifacts include shot cut times, OCR segments, transcript segments, editing effects, and audio structure heuristics. The exact filenames are documented in `docs/dev/architecture/IMPL-VIDEOSPEC-ANALYZER-20260210.md`.
 
 URL inputs are downloaded under the cache root:
 

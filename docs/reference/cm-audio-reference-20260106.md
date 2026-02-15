@@ -76,6 +76,6 @@ cm audio -i script.json --music lofi-01 --sfx-pack pops --audio-mix audio.mix.js
 
 ## See also
 
-- `docs/guides/guide-cli-ux-cm-audio-20260106.md`
-- `docs/guides/guide-audio-options-20260110.md`
+- `docs/dev/guides/guide-cli-ux-cm-audio-20260106.md`
+- `docs/dev/guides/guide-audio-options-20260110.md`
 - `docs/reference/cm-visuals-reference-20260106.md`

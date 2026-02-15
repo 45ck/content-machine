@@ -41,15 +41,15 @@
 
 **Pre-Work (read these first):**
 
-- [ ] `docs/features/feature-cli-progress-events-20260106.md`
-- [ ] `docs/features/feature-cli-json-contract-20260106.md`
-- [ ] `docs/guides/guide-cli-stdout-stderr-contract-20260107.md`
+- [ ] `docs/dev/features/feature-cli-progress-events-20260106.md`
+- [ ] `docs/dev/features/feature-cli-json-contract-20260106.md`
+- [ ] `docs/dev/guides/guide-cli-stdout-stderr-contract-20260107.md`
 
 **Deliverables (create these):**
 
-- [ ] `docs/features/feature-cli-tui-mode-20260110.md`
-- [ ] `docs/guides/guide-cli-tui-mode-20260110.md`
-- [ ] `docs/architecture/ADR-004-DEFAULT-TUI-MODE-20260110.md`
+- [ ] `docs/dev/features/feature-cli-tui-mode-20260110.md`
+- [ ] `docs/dev/guides/guide-cli-tui-mode-20260110.md`
+- [ ] `docs/dev/architecture/ADR-004-DEFAULT-TUI-MODE-20260110.md`
 
 ---
 
@@ -163,8 +163,8 @@
 
 ## Related
 
-- `docs/features/feature-cli-tui-mode-20260110.md`
-- `docs/architecture/ADR-004-DEFAULT-TUI-MODE-20260110.md`
+- `docs/dev/features/feature-cli-tui-mode-20260110.md`
+- `docs/dev/architecture/ADR-004-DEFAULT-TUI-MODE-20260110.md`
 
 ---
 

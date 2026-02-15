@@ -344,7 +344,7 @@ console.log('Video generated:', videoId);
 
 ### Templates
 
-**ALWAYS use templates** from `docs/templates/`:
+**ALWAYS use templates** from `docs/dev/templates/`:
 
 - Feature specs → `FEATURE.template.md`
 - Bug reports → `BUG.template.md`

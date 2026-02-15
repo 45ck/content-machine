@@ -35,12 +35,12 @@ This is intentionally review-only by default; runner execution remains gated and
 
 **Pre-Work (read these first):**
 
-- [x] `docs/architecture/ADR-005-EXPERIMENT-LAB-LOCAL-FIRST-20260206.md`
-- [x] `docs/architecture/experiment-lab/README.md`
+- [x] `docs/dev/architecture/ADR-005-EXPERIMENT-LAB-LOCAL-FIRST-20260206.md`
+- [x] `docs/dev/architecture/experiment-lab/README.md`
 
 **Deliverables (create these):**
 
-- [x] `docs/architecture/experiment-lab/*-20260206.md` (design suite)
+- [x] `docs/dev/architecture/experiment-lab/*-20260206.md` (design suite)
 
 ---
 
@@ -103,4 +103,4 @@ This is intentionally review-only by default; runner execution remains gated and
 
 ## Related
 
-- Docs: `docs/architecture/experiment-lab/README.md`
+- Docs: `docs/dev/architecture/experiment-lab/README.md`

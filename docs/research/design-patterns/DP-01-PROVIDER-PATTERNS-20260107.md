@@ -585,7 +585,7 @@ export function runTTSProviderContractTests(createProvider: () => TTSProvider, n
 
 ## 8. References
 
-- [SYSTEM-DESIGN-20260104.md](../../architecture/SYSTEM-DESIGN-20260104.md) §5.1 Dependency Injection
+- [SYSTEM-DESIGN-20260104.md](../../dev/architecture/SYSTEM-DESIGN-20260104.md) §5.1 Dependency Injection
 - [AGENTS.md](../../../AGENTS.md) Architecture Principles
 - Gang of Four: Design Patterns (Gamma et al., 1994)
 - [FakeLLMProvider](../../../src/test/stubs/fake-llm.ts) - Reference implementation

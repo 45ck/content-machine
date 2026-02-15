@@ -61,4 +61,4 @@ Keep entries short, and include:
 - `docs/reference/GLOSSARY.md`
 - `registry/ubiquitous-language.yaml`
 - `docs/reference/ubiquitous-language-system-20260210.md`
-- `docs/architecture/SYSTEM-DESIGN-20260104.md`
+- `docs/dev/architecture/SYSTEM-DESIGN-20260104.md`

@@ -253,7 +253,7 @@ function formatZodError(error: ZodError): ValidationErrorResult {
 
 ## 5. Evidence: vidosy (Modular Zod Schemas)
 
-**Source:** [templates/vidosy/src/shared/zod-schema.ts](../../../templates/vidosy/src/shared/zod-schema.ts)
+**Source:** [templates/vidosy/src/shared/zod-schema.ts](../../../dev/templates/vidosy/src/shared/zod-schema.ts)
 
 ### 5.1 Hierarchical Schema Composition
 

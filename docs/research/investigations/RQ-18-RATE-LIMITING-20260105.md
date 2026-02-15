@@ -478,4 +478,4 @@ async function loadRateStates(): Promise<Record<string, PersistedRateState>> {
 - [vendor/remotion/packages/renderer](../../../vendor/remotion/packages/renderer) — p-limit implementation
 - [vendor/openai-agents-js](../../../vendor/openai-agents-js) — Rate limit headers
 - [vendor/short-video-maker-gyori](../../../vendor/short-video-maker-gyori) — Retry patterns
-- [OpenAI Rate Limits](https://platform.openai.com/docs/guides/rate-limits) — Official docs
+- [OpenAI Rate Limits](https://platform.openai.com/docs/dev/guides/rate-limits) — Official docs

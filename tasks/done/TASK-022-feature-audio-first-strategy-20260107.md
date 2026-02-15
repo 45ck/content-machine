@@ -387,4 +387,4 @@ const STRATEGY_MAP = {
 
 - **Depends On:** TASK-019 (Interface), TASK-021 (Reconcile Module)
 - **Blocks:** TASK-023 (CLI Flags)
-- **Implementation Plan:** [IMPL-SYNC-STRATEGIES-20260107](../../docs/architecture/IMPL-SYNC-STRATEGIES-20260107.md)
+- **Implementation Plan:** [IMPL-SYNC-STRATEGIES-20260107](../../docs/dev/architecture/IMPL-SYNC-STRATEGIES-20260107.md)

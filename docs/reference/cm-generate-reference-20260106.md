@@ -150,14 +150,14 @@ cm generate "Product recap" --workflow acme-marketing --workflow-allow-exec --ou
 
 ## See also
 
-- `docs/guides/guide-cli-ux-cm-generate-20260106.md`
-- `docs/guides/guide-audio-options-20260110.md`
+- `docs/dev/guides/guide-cli-ux-cm-generate-20260106.md`
+- `docs/dev/guides/guide-audio-options-20260110.md`
 - `docs/reference/cm-script-reference-20260106.md`
 - `docs/reference/cm-timestamps-reference-20260110.md`
 - `docs/reference/cm-import-reference-20260110.md`
 - `docs/reference/cm-workflows-reference-20260110.md`
 - `docs/reference/cm-research-reference-20260106.md`
 - `docs/reference/cm-validate-reference-20260106.md`
-- `docs/features/feature-research-script-integration-20260107.md`
+- `docs/dev/features/feature-research-script-integration-20260107.md`
 - `docs/reference/video-templates-reference-20260107.md`
 - `docs/reference/cm-templates-reference-20260210.md`

@@ -4,7 +4,7 @@
  * TDD tests for the isWordActive helper function.
  * Tests verify correct handling of Remotion Sequence frame reset.
  *
- * @see docs/architecture/CAPTION-TIMING-20260610.md
+ * @see docs/dev/architecture/CAPTION-TIMING-20260610.md
  * @see docs/research/investigations/RQ-28-AUDIO-VISUAL-CAPTION-SYNC-20260610.md
  */
 import { describe, it, expect } from 'vitest';

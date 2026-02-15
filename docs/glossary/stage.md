@@ -16,8 +16,8 @@ A **stage** is one logical step in the pipeline that reads inputs and produces a
 
 ## Code references
 
-- `docs/guides/guide-ubiquitous-language-20260110.md` (Pipeline and artifacts)
-- `docs/architecture/SYSTEM-DESIGN-20260104.md` (pipeline design)
+- `docs/dev/guides/guide-ubiquitous-language-20260110.md` (Pipeline and artifacts)
+- `docs/dev/architecture/SYSTEM-DESIGN-20260104.md` (pipeline design)
 
 ## Related
 

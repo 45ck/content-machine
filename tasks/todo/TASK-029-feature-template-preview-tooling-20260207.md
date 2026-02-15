@@ -32,12 +32,12 @@ Templates are the scaling mechanism for formats. Better tooling increases contri
 
 **Pre-Work (read these first):**
 
-- [ ] `docs/features/feature-video-templates-20260107.md`
+- [ ] `docs/dev/features/feature-video-templates-20260107.md`
 
 **Deliverables (create these):**
 
-- [x] `docs/features/feature-template-authoring-and-preview-20260207.md`
-- [ ] `docs/guides/guide-template-authoring-20260207.md`
+- [x] `docs/dev/features/feature-template-authoring-and-preview-20260207.md`
+- [ ] `docs/dev/guides/guide-template-authoring-20260207.md`
 - [ ] Update `docs/reference/video-templates-reference-*.md` (new commands)
 
 ## Testing Considerations
@@ -67,7 +67,7 @@ Templates are the scaling mechanism for formats. Better tooling increases contri
 
 ## Related
 
-- `docs/features/feature-platform-expansion-roadmap-20260207.md`
+- `docs/dev/features/feature-platform-expansion-roadmap-20260207.md`
 
 ---
 

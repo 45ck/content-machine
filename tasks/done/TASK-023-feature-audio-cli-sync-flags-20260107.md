@@ -314,5 +314,5 @@ buildJsonEnvelope({
 
 - **Depends On:** TASK-019, TASK-020, TASK-022
 - **Blocks:** TASK-024 (Generate integration)
-- **Implementation Plan:** [IMPL-SYNC-STRATEGIES-20260107](../../docs/architecture/IMPL-SYNC-STRATEGIES-20260107.md)
+- **Implementation Plan:** [IMPL-SYNC-STRATEGIES-20260107](../../docs/dev/architecture/IMPL-SYNC-STRATEGIES-20260107.md)
 - **Reference:** [SYNC-CONFIG-REFERENCE-20260107](../../docs/reference/SYNC-CONFIG-REFERENCE-20260107.md)

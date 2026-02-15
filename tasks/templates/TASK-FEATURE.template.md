@@ -37,12 +37,12 @@ Use Given/When/Then format:
 
 **Pre-Work (read these first):**
 - [ ] `docs/research/XX-relevant-research-YYYYMMDD.md`
-- [ ] `docs/architecture/adr-NNN-relevant-decision-YYYYMMDD.md` (if exists)
+- [ ] `docs/dev/architecture/adr-NNN-relevant-decision-YYYYMMDD.md` (if exists)
 
 **Deliverables (create these):**
-- [ ] `docs/features/feature-[name]-YYYYMMDD.md` — Feature specification
-- [ ] `docs/architecture/adr-NNN-[decision]-YYYYMMDD.md` — ADR (if architectural)
-- [ ] `docs/guides/guide-[how-to-use-feature]-YYYYMMDD.md` — User guide
+- [ ] `docs/dev/features/feature-[name]-YYYYMMDD.md` — Feature specification
+- [ ] `docs/dev/architecture/adr-NNN-[decision]-YYYYMMDD.md` — ADR (if architectural)
+- [ ] `docs/dev/guides/guide-[how-to-use-feature]-YYYYMMDD.md` — User guide
 - [ ] Update `docs/reference/api-reference-YYYYMMDD.md` (if API changes)
 
 ---
@@ -165,8 +165,8 @@ CREATE TABLE [name] (...)
 - [ ] All tests pass (`pnpm test`)
 - [ ] TypeScript compiles (`pnpm type-check`)
 - [ ] Linting clean (`pnpm lint`)
-- [ ] Feature specification written (`docs/features/`)
-- [ ] User guide written (`docs/guides/`)
+- [ ] Feature specification written (`docs/dev/features/`)
+- [ ] User guide written (`docs/dev/guides/`)
 - [ ] ADR written (if architectural decision)
 - [ ] Code committed to main branch
 - [ ] CI passed (when CI is implemented)

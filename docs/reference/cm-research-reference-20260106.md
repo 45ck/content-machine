@@ -87,7 +87,7 @@ cm generate "Redis caching" --research
 cm generate "Redis caching" --research research.json
 ```
 
-See [feature-research-script-integration-20260107.md](../features/feature-research-script-integration-20260107.md) for full details.
+See [feature-research-script-integration-20260107.md](../dev/features/feature-research-script-integration-20260107.md) for full details.
 
 ## Examples
 
@@ -111,6 +111,6 @@ cm script --topic "TypeScript tips" --research research.json -o script.json
 
 ## See also
 
-- `docs/guides/guide-cli-ux-cm-research-20260106.md`
+- `docs/dev/guides/guide-cli-ux-cm-research-20260106.md`
 - `docs/reference/cm-script-reference-20260106.md`
-- `docs/features/feature-research-script-integration-20260107.md`
+- `docs/dev/features/feature-research-script-integration-20260107.md`

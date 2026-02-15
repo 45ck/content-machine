@@ -1,5 +1,5 @@
 {
-  "name": "content-machine",
+  "name": "@45ck/content-machine",
   "version": "0.2.2",
   "description": "CLI-first automated short-form video generator for TikTok, Reels, and Shorts",
   "license": "MIT",
@@ -7,22 +7,29 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "cm": "./dist/cli/index.cjs"
+    "cm": "dist/cli/index.cjs"
   },
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     }
   },
   "files": [
     "dist/**",
-    "assets/**",
+    "assets/archetypes/**",
+    "assets/fonts/**",
+    "assets/lab/**",
+    "assets/templates/**",
     "README.md",
     "LICENSE"
   ],
   "scripts": {
-    "build": "esbuild src/cli/index.ts --bundle --platform=node --format=cjs --packages=external --log-override:empty-import-meta=silent --outfile=dist/cli/index.cjs",
+    "build": "npm run build:cli && npm run build:lib && npm run build:lib:cjs",
+    "build:cli": "esbuild src/cli/index.ts --bundle --platform=node --format=cjs --packages=external --log-override:empty-import-meta=silent --outfile=dist/cli/index.cjs",
+    "build:lib": "esbuild src/index.ts --bundle --platform=node --format=esm --packages=external --log-override:empty-import-meta=silent --sourcemap --outfile=dist/index.js",
+    "build:lib:cjs": "esbuild src/index.ts --bundle --platform=node --format=cjs --packages=external --log-override:empty-import-meta=silent --sourcemap --outfile=dist/index.cjs",
     "build:types": "tsc -p tsconfig.build.json --emitDeclarationOnly",
     "dev": "tsx watch src/cli/index.ts",
     "cm": "tsx src/cli/index.ts",
@@ -36,7 +43,7 @@
     "docs:linkcheck": "scripts/quality/with-node20.sh node scripts/quality/check-doc-links.mjs",
     "docs:check": "npm run docs:lint && npm run docs:linkcheck",
     "cspell:gen": "node scripts/gen-cspell.mjs",
-    "cspell:check": "scripts/quality/with-node20.sh npx --no-install cspell lint --config cspell.json --no-progress README.md docs/reference/**/*.md docs/README.md src/cli/**/*.{ts,tsx,js,mjs,cjs}",
+    "cspell:check": "scripts/quality/with-node20.sh npx --no-install cspell lint --config cspell.json --no-progress README.md docs/README.md docs/dev/*.md docs/user/**/*.md docs/reference/**/*.md src/cli/**/*.{ts,tsx,js,mjs,cjs}",
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "scripts/quality/with-node20.sh sh -c \"node scripts/quality/clean-coverage.mjs && CM_COVERAGE_SINGLE_WORKER=1 scripts/quality/vitest-coverage-retry.sh\"",
@@ -139,11 +146,14 @@
   "packageManager": "npm@10.8.2",
   "repository": {
     "type": "git",
-    "url": "https://github.com/45ck/content-machine.git"
+    "url": "git+https://github.com/45ck/content-machine.git"
   },
   "homepage": "https://github.com/45ck/content-machine#readme",
   "bugs": {
     "url": "https://github.com/45ck/content-machine/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "keywords": [
     "video-generation",

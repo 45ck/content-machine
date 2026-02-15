@@ -123,7 +123,7 @@ terms:
     canonicalSchemas: []
     ownedBy: core
     whereItLives:
-      - 'Proposed structure: docs/architecture/configuration/CONFIGURATION-SYSTEM-DESIGN-20260207.md'
+      - 'Proposed structure: docs/dev/architecture/configuration/CONFIGURATION-SYSTEM-DESIGN-20260207.md'
     cliSurface:
       - 'cm templates pack|install'
       - 'cm workflows pack|install'

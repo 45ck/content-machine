@@ -23,6 +23,7 @@ output/
 # Logs
 *.log
 npm-debug.log*
+*.tgz
 
 # OS
 .DS_Store

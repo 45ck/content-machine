@@ -38,13 +38,13 @@ Improves perceived production quality and retention while keeping the pipeline c
 
 **Pre-Work (read these first):**
 
-- [ ] `docs/features/feature-audio-options-mix-integration-20260110.md`
-- [ ] `docs/architecture/IMPL-PHASE-2-AUDIO-20260105.md`
-- [ ] `docs/architecture/SYNC-ARCHITECTURE-20260610.md`
+- [ ] `docs/dev/features/feature-audio-options-mix-integration-20260110.md`
+- [ ] `docs/dev/architecture/IMPL-PHASE-2-AUDIO-20260105.md`
+- [ ] `docs/dev/architecture/SYNC-ARCHITECTURE-20260610.md`
 
 **Deliverables (create these):**
 
-- [ ] `docs/guides/guide-audio-options-20260110.md`
+- [ ] `docs/dev/guides/guide-audio-options-20260110.md`
 - [ ] Update `docs/reference/cm-audio-reference-20260106.md`
 - [ ] Update `docs/reference/cm-render-reference-20260106.md`
 - [ ] Update `docs/reference/cm-generate-reference-20260106.md` (if new flags exposed)
@@ -177,8 +177,8 @@ None.
 - [ ] All tests pass (`pnpm test`)
 - [ ] TypeScript compiles (`pnpm type-check`)
 - [ ] Linting clean (`pnpm lint`)
-- [ ] Feature specification written (`docs/features/`)
-- [ ] User guide written (`docs/guides/`)
+- [ ] Feature specification written (`docs/dev/features/`)
+- [ ] User guide written (`docs/dev/guides/`)
 - [ ] ADR written (if architectural decision)
 - [ ] Code committed to main branch
 - [ ] CI passed (when CI is implemented)
@@ -200,13 +200,13 @@ None.
 
 **Related Features:**
 
-- `docs/features/feature-audio-options-mix-integration-20260110.md`
+- `docs/dev/features/feature-audio-options-mix-integration-20260110.md`
 
 **Related Docs:**
 
-- `docs/architecture/IMPL-PHASE-2-AUDIO-20260105.md`
-- `docs/architecture/SYNC-ARCHITECTURE-20260610.md`
-- `docs/specs/audio-breathing-room-spec-20260109.md`
+- `docs/dev/architecture/IMPL-PHASE-2-AUDIO-20260105.md`
+- `docs/dev/architecture/SYNC-ARCHITECTURE-20260610.md`
+- `docs/dev/specs/audio-breathing-room-spec-20260109.md`
 
 ---
 

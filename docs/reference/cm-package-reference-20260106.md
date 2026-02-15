@@ -39,5 +39,5 @@ cm package "Redis vs PostgreSQL" --dry-run
 
 ## See also
 
-- `docs/guides/guide-cli-ux-cm-package-20260106.md`
+- `docs/dev/guides/guide-cli-ux-cm-package-20260106.md`
 - `docs/reference/cm-script-reference-20260106.md`

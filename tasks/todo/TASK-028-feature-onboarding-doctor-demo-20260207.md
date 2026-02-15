@@ -34,13 +34,13 @@ makes the tool feel reliable.
 
 **Pre-Work (read these first):**
 
-- [ ] `docs/features/feature-on-demand-assets-20260111.md`
-- [ ] `docs/guides/guide-cli-errors-and-fix-lines-20260107.md`
+- [ ] `docs/dev/features/feature-on-demand-assets-20260111.md`
+- [ ] `docs/dev/guides/guide-cli-errors-and-fix-lines-20260107.md`
 
 **Deliverables (create these):**
 
-- [x] `docs/features/feature-onboarding-doctor-and-demo-20260207.md` - Feature specification
-- [ ] `docs/guides/guide-cm-doctor-20260207.md` - How to use doctor + demo
+- [x] `docs/dev/features/feature-onboarding-doctor-and-demo-20260207.md` - Feature specification
+- [ ] `docs/dev/guides/guide-cm-doctor-20260207.md` - How to use doctor + demo
 - [ ] Update `docs/reference/` for new commands/flags
 
 ## Testing Considerations
@@ -118,7 +118,7 @@ Data Flow:
 
 ## Related
 
-- `docs/features/feature-platform-expansion-roadmap-20260207.md`
+- `docs/dev/features/feature-platform-expansion-roadmap-20260207.md`
 
 ---
 

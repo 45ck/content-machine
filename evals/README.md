@@ -129,4 +129,4 @@ jobs:
 - [LLM-Rubric Assertions](https://promptfoo.dev/docs/configuration/expected-outputs/model-graded/)
 - [G-Eval Pattern](https://promptfoo.dev/docs/configuration/expected-outputs/model-graded/g-eval/)
 - [RQ-24: LLM Evaluation Research](../docs/research/investigations/RQ-24-LLM-EVALUATION-QUALITY-ASSURANCE-20260105.md)
-- [V&V Framework](../docs/guides/VV-FRAMEWORK-20260105.md)
+- [V&V Framework](../docs/dev/guides/VV-FRAMEWORK-20260105.md)

@@ -40,6 +40,7 @@ function generateRepoFactsMd({ registry }) {
   lines.push('');
   lines.push('See also (generated):');
   lines.push('- `docs/reference/ARTIFACT-CONTRACTS.md`');
+  lines.push('- `docs/reference/ENVIRONMENT-VARIABLES.md`');
   lines.push('- `docs/reference/CONFIG-SURFACE.md`');
   lines.push('- `docs/reference/QUALITY-GATES.md`');
   lines.push('- `docs/reference/SECURITY-INVARIANTS.md`');
@@ -91,6 +92,41 @@ function generateRepoFactsMd({ registry }) {
   }
 
   lines.push('');
+  return lines.join('\n');
+}
+
+function generateEnvironmentVariablesMd({ registry }) {
+  const vars = registry.facts.environment.variables ?? [];
+  const required = vars.filter((v) => Boolean(v.required)).map((v) => String(v.name));
+  const optional = vars.filter((v) => !v.required).map((v) => String(v.name));
+
+  required.sort((a, b) => a.localeCompare(b));
+  optional.sort((a, b) => a.localeCompare(b));
+
+  const lines = [];
+  lines.push('# Environment Variables');
+  lines.push('');
+  lines.push('> DO NOT EDIT: generated from `registry/repo-facts.yaml`.');
+  lines.push('');
+  lines.push('Names only. Do not commit secret values.');
+  lines.push('');
+  lines.push('See also (generated):');
+  lines.push('- `docs/reference/CONFIG-SURFACE.md`');
+  lines.push('- `docs/reference/REPO-FACTS.md`');
+  lines.push('');
+
+  lines.push('## Required');
+  lines.push('');
+  if (required.length === 0) lines.push('- (none)');
+  else for (const name of required) lines.push(`- \`${name}\``);
+  lines.push('');
+
+  lines.push('## Optional');
+  lines.push('');
+  if (optional.length === 0) lines.push('- (none)');
+  else for (const name of optional) lines.push(`- \`${name}\``);
+  lines.push('');
+
   return lines.join('\n');
 }
 
@@ -573,6 +609,7 @@ async function main() {
 
   const outRepoFactsMd = path.join(RepoRoot, 'docs', 'reference', 'REPO-FACTS.md');
   const outArtifactsMd = path.join(RepoRoot, 'docs', 'reference', 'ARTIFACT-CONTRACTS.md');
+  const outEnvMd = path.join(RepoRoot, 'docs', 'reference', 'ENVIRONMENT-VARIABLES.md');
   const outConfigMd = path.join(RepoRoot, 'docs', 'reference', 'CONFIG-SURFACE.md');
   const outQualityMd = path.join(RepoRoot, 'docs', 'reference', 'QUALITY-GATES.md');
   const outSecurityMd = path.join(RepoRoot, 'docs', 'reference', 'SECURITY-INVARIANTS.md');
@@ -591,6 +628,11 @@ async function main() {
   const artifactsMd = await formatWithPrettier(
     generateArtifactContractsMd({ registry }),
     outArtifactsMd,
+    'markdown'
+  );
+  const envMd = await formatWithPrettier(
+    generateEnvironmentVariablesMd({ registry }),
+    outEnvMd,
     'markdown'
   );
   const configMd = await formatWithPrettier(
@@ -634,6 +676,7 @@ async function main() {
 
   fs.writeFileSync(outRepoFactsMd, repoFactsMd, 'utf8');
   fs.writeFileSync(outArtifactsMd, artifactsMd, 'utf8');
+  fs.writeFileSync(outEnvMd, envMd, 'utf8');
   fs.writeFileSync(outConfigMd, configMd, 'utf8');
   fs.writeFileSync(outQualityMd, qualityMd, 'utf8');
   fs.writeFileSync(outSecurityMd, securityMd, 'utf8');

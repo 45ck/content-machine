@@ -5,7 +5,7 @@ An **error code** is the stable string in `CMError.code` used for scripting, log
 ## Code references
 
 - `src/core/errors.ts` (`CMError.code`)
-- `docs/guides/guide-ubiquitous-language-20260110.md` (term: error code)
+- `docs/dev/guides/guide-ubiquitous-language-20260110.md` (term: error code)
 
 ## Related
 

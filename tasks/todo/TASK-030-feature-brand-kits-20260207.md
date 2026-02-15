@@ -27,8 +27,8 @@
 
 ## Required Documentation
 
-- [x] `docs/features/feature-brand-kits-20260207.md`
-- [ ] `docs/guides/guide-brand-kits-20260207.md`
+- [x] `docs/dev/features/feature-brand-kits-20260207.md`
+- [ ] `docs/dev/guides/guide-brand-kits-20260207.md`
 - [ ] Reference updates for brand flags/commands
 
 ## Testing Plan (TDD)
@@ -42,7 +42,7 @@
 
 ## Related
 
-- `docs/features/feature-platform-expansion-roadmap-20260207.md`
+- `docs/dev/features/feature-platform-expansion-roadmap-20260207.md`
 
 ---
 

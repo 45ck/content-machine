@@ -244,5 +244,5 @@ function transformTOMLKeys(obj: Record<string, unknown>): Record<string, unknown
 
 - **Depends On:** None (foundation task)
 - **Blocks:** TASK-019, TASK-020, TASK-021, TASK-022, TASK-023
-- **Implementation Plan:** [IMPL-SYNC-STRATEGIES-20260107](../../docs/architecture/IMPL-SYNC-STRATEGIES-20260107.md)
+- **Implementation Plan:** [IMPL-SYNC-STRATEGIES-20260107](../../docs/dev/architecture/IMPL-SYNC-STRATEGIES-20260107.md)
 - **Research:** [RQ-30: Sync Pipeline Architecture](../../docs/research/investigations/RQ-30-SYNC-PIPELINE-ARCHITECTURE-20260107.md)

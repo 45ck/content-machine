@@ -302,9 +302,9 @@ content-machine/
 **Documentation:**
 
 - [RQ-24: LLM Evaluation](docs/research/investigations/RQ-24-LLM-EVALUATION-QUALITY-ASSURANCE-20260105.md)
-- [V&V Framework Guide](docs/guides/VV-FRAMEWORK-20260105.md)
-- [Experiment Lab Playbook](docs/guides/guide-experiment-lab-20260206.md)
-- [Experiment Lab Architecture](docs/architecture/experiment-lab/README.md)
+- [V&V Framework Guide](docs/dev/guides/VV-FRAMEWORK-20260105.md)
+- [Experiment Lab Playbook](docs/dev/guides/guide-experiment-lab-20260206.md)
+- [Experiment Lab Architecture](docs/dev/architecture/experiment-lab/README.md)
 - [evals/](evals/) — promptfoo configurations
 
 ### Test Stubs (Required for All Providers)
@@ -324,15 +324,15 @@ export class FakeLLMProvider implements LLMProvider {
 
 | Document                                                                                                 | Purpose                                       |
 | -------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| [SYSTEM-DESIGN-20260104.md](docs/architecture/SYSTEM-DESIGN-20260104.md)                                 | **Authoritative specification** (3,300 lines) |
-| [IMPL-PHASE-0-FOUNDATION](docs/architecture/IMPL-PHASE-0-FOUNDATION-20260105.md)                         | Phase 0: Project setup, core infrastructure   |
-| [IMPL-PHASE-1-SCRIPT](docs/architecture/IMPL-PHASE-1-SCRIPT-20260105.md)                                 | Phase 1: Script generation pipeline           |
-| [IMPL-PHASE-2-AUDIO](docs/architecture/IMPL-PHASE-2-AUDIO-20260105.md)                                   | Phase 2: TTS and ASR integration              |
-| [IMPL-PHASE-3-VISUALS](docs/architecture/IMPL-PHASE-3-VISUALS-20260105.md)                               | Phase 3: Stock footage matching               |
-| [IMPL-PHASE-4-RENDER](docs/architecture/IMPL-PHASE-4-RENDER-20260105.md)                                 | Phase 4: Remotion video rendering             |
-| [IMPL-PHASE-5-INTEGRATION](docs/architecture/IMPL-PHASE-5-INTEGRATION-20260105.md)                       | Phase 5: Pipeline integration, polish         |
+| [SYSTEM-DESIGN-20260104.md](docs/dev/architecture/SYSTEM-DESIGN-20260104.md)                             | **Authoritative specification** (3,300 lines) |
+| [IMPL-PHASE-0-FOUNDATION](docs/dev/architecture/IMPL-PHASE-0-FOUNDATION-20260105.md)                     | Phase 0: Project setup, core infrastructure   |
+| [IMPL-PHASE-1-SCRIPT](docs/dev/architecture/IMPL-PHASE-1-SCRIPT-20260105.md)                             | Phase 1: Script generation pipeline           |
+| [IMPL-PHASE-2-AUDIO](docs/dev/architecture/IMPL-PHASE-2-AUDIO-20260105.md)                               | Phase 2: TTS and ASR integration              |
+| [IMPL-PHASE-3-VISUALS](docs/dev/architecture/IMPL-PHASE-3-VISUALS-20260105.md)                           | Phase 3: Stock footage matching               |
+| [IMPL-PHASE-4-RENDER](docs/dev/architecture/IMPL-PHASE-4-RENDER-20260105.md)                             | Phase 4: Remotion video rendering             |
+| [IMPL-PHASE-5-INTEGRATION](docs/dev/architecture/IMPL-PHASE-5-INTEGRATION-20260105.md)                   | Phase 5: Pipeline integration, polish         |
 | [RQ-24: LLM Evaluation](docs/research/investigations/RQ-24-LLM-EVALUATION-QUALITY-ASSURANCE-20260105.md) | LLM-as-judge, promptfoo patterns              |
-| [V&V Framework](docs/guides/VV-FRAMEWORK-20260105.md)                                                    | Validation & verification guide               |
+| [V&V Framework](docs/dev/guides/VV-FRAMEWORK-20260105.md)                                                | Validation & verification guide               |
 | [00-SUMMARY-20260102.md](docs/research/00-SUMMARY-20260102.md)                                           | Research overview                             |
 | [investigations/](docs/research/investigations/)                                                         | 24 investigation documents (RQ-01 to RQ-24)   |
 | [deep-dives/](docs/research/deep-dives/)                                                                 | 13 deep-dive analyses                         |
@@ -387,7 +387,7 @@ font_file = "assets/fonts/Inter/Inter-Bold.woff2"
 - ✅ `investigation-tts-latency-20260120.md`
 - ❌ `feature-caption-system.md` (NO DATE)
 
-**Templates:** All templates in `docs/templates/` (use these, never start from scratch)
+**Templates:** All templates in `docs/dev/templates/` (use these, never start from scratch)
 
 ---
 
@@ -515,7 +515,7 @@ tasks/
 
 1. Check `tasks/todo/` for prioritized work
 2. Move task to `in_progress/` (max 3 concurrent)
-3. Read [SYSTEM-DESIGN-20260104.md](docs/architecture/SYSTEM-DESIGN-20260104.md)
+3. Read [SYSTEM-DESIGN-20260104.md](docs/dev/architecture/SYSTEM-DESIGN-20260104.md)
 4. Write failing tests first (TDD)
 
 ### Pull Request Checklist

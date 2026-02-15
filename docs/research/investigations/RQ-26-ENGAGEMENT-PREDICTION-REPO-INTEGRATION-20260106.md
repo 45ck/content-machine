@@ -146,7 +146,7 @@ Highlights:
 
 ## Next Steps (Concrete)
 
-1. Define `score.json` schema and rubric (align with `docs/guides/VV-FRAMEWORK-20260105.md`).
+1. Define `score.json` schema and rubric (align with `docs/dev/guides/VV-FRAMEWORK-20260105.md`).
 2. Implement `cm score` as a pure artifact consumer (no external network required).
 3. Add an internal `cm metrics ingest` design doc for post-publish analytics loop (future).
 4. (Optional) Create a research harness wrapper for running repo baselines in a quarantined environment.

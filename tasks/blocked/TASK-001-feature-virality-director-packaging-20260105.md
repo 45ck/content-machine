@@ -42,12 +42,12 @@
 
 - [x] `docs/research/sections/SECTION-VIRALITY-ENGINEERING-20260105.md`
 - [x] `docs/research/investigations/RQ-25-VIRALITY-OPTIMIZATION-QUALITY-GATES-20260105.md`
-- [x] `docs/features/feature-virality-director-20260105.md`
+- [x] `docs/dev/features/feature-virality-director-20260105.md`
 
 **Deliverables (create these):**
 
-- [x] `docs/features/feature-virality-director-20260105.md` — Feature specification
-- [ ] `docs/guides/guide-cm-package-20260105.md` — How to use `cm package` (optional for MVP)
+- [x] `docs/dev/features/feature-virality-director-20260105.md` — Feature specification
+- [ ] `docs/dev/guides/guide-cm-package-20260105.md` — How to use `cm package` (optional for MVP)
 
 ---
 
@@ -150,4 +150,4 @@ Notes:
 
 - `docs/research/sections/SECTION-VIRALITY-ENGINEERING-20260105.md`
 - `docs/research/investigations/RQ-25-VIRALITY-OPTIMIZATION-QUALITY-GATES-20260105.md`
-- `docs/features/feature-virality-director-20260105.md`
+- `docs/dev/features/feature-virality-director-20260105.md`

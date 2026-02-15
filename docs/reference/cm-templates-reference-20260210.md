@@ -95,7 +95,7 @@ cm render -i visuals.json --audio audio.wav --timestamps timestamps.json \
 
 ## See Also
 
-- `docs/guides/guide-remotion-template-import-20260210.md`
-- `docs/guides/guide-video-templates-20260107.md`
+- `docs/dev/guides/guide-remotion-template-import-20260210.md`
+- `docs/dev/guides/guide-video-templates-20260107.md`
 - `docs/reference/video-templates-reference-20260107.md`
 - `docs/reference/cm-render-reference-20260106.md`

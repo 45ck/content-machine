@@ -37,6 +37,6 @@ Templates are data-first by default, but can optionally become **code templates*
 
 **Related:**
 
-- `docs/guides/guide-ubiquitous-language-20260110.md`
+- `docs/dev/guides/guide-ubiquitous-language-20260110.md`
 - `docs/reference/video-templates-reference-20260107.md`
-- `docs/architecture/IMPL-VIDEO-TEMPLATES-20260107.md`
+- `docs/dev/architecture/IMPL-VIDEO-TEMPLATES-20260107.md`

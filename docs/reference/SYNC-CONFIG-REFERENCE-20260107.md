@@ -212,7 +212,7 @@ pip install whisperx
 
 ## Related Documentation
 
-- [SYNC-INTEGRATION-GUIDE](../guides/SYNC-INTEGRATION-GUIDE-20260107.md) - Full implementation guide
+- [SYNC-INTEGRATION-GUIDE](../dev/guides/SYNC-INTEGRATION-GUIDE-20260107.md) - Full implementation guide
 - [RQ-30: Sync Pipeline Architecture](../research/investigations/RQ-30-SYNC-PIPELINE-ARCHITECTURE-20260107.md)
 - [RQ-32: Forced Alignment vs ASR](../research/investigations/RQ-32-FORCED-ALIGNMENT-VS-ASR-ANALYSIS-20260107.md)
 - [RQ-33: Remotion Caption Patterns](../research/investigations/RQ-33-REMOTION-CAPTION-SYNC-PATTERNS-20260107.md)

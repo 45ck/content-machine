@@ -122,6 +122,7 @@ function main() {
 
   const outRepoFactsMd = path.join(repoRoot, 'docs', 'reference', 'REPO-FACTS.md');
   const outArtifactsMd = path.join(repoRoot, 'docs', 'reference', 'ARTIFACT-CONTRACTS.md');
+  const outEnvMd = path.join(repoRoot, 'docs', 'reference', 'ENVIRONMENT-VARIABLES.md');
   const outConfigMd = path.join(repoRoot, 'docs', 'reference', 'CONFIG-SURFACE.md');
   const outQualityMd = path.join(repoRoot, 'docs', 'reference', 'QUALITY-GATES.md');
   const outSecurityMd = path.join(repoRoot, 'docs', 'reference', 'SECURITY-INVARIANTS.md');
@@ -135,6 +136,7 @@ function main() {
   const outputs = [
     outRepoFactsMd,
     outArtifactsMd,
+    outEnvMd,
     outConfigMd,
     outQualityMd,
     outSecurityMd,

@@ -46,7 +46,7 @@
 
 **Deliverables:**
 - [ ] `docs/investigations/investigation-[topic]-YYYYMMDD.md` — Research report
-- [ ] `docs/architecture/adr-NNN-[decision]-YYYYMMDD.md` — ADR (if research leads to decision)
+- [ ] `docs/dev/architecture/adr-NNN-[decision]-YYYYMMDD.md` — ADR (if research leads to decision)
 - [ ] Follow-up task(s) in `tasks/todo/` (if implementation needed)
 
 ---
@@ -196,7 +196,7 @@
 ## Next Steps
 
 **Immediate Actions:**
-- [ ] Create ADR: `docs/architecture/adr-NNN-[decision]-YYYYMMDD.md`
+- [ ] Create ADR: `docs/dev/architecture/adr-NNN-[decision]-YYYYMMDD.md`
 - [ ] Create implementation task: `TASK-NNN-feature-[name]-YYYYMMDD.md`
 - [ ] Update research summary: `docs/research/00-SUMMARY.md`
 

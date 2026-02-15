@@ -14,7 +14,7 @@ A **command** is a CLI entry that executes a stage (or orchestrates multiple sta
 
 ## Code references
 
-- `docs/guides/guide-ubiquitous-language-20260110.md`
+- `docs/dev/guides/guide-ubiquitous-language-20260110.md`
 - `src/cli/commands/` (command implementations)
 
 ## Related

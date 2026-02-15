@@ -445,7 +445,7 @@ estimation-algorithm = "character-weighted"
 ## 12. Related Documents
 
 - [RQ-29: Video Sync Rating System](RQ-29-VIDEO-SYNC-RATING-SYSTEM-20260107.md) - Sync quality measurement
-- [IMPL-PHASE-2-AUDIO](../architecture/IMPL-PHASE-2-AUDIO-20260105.md) - Audio pipeline architecture
+- [IMPL-PHASE-2-AUDIO](../dev/architecture/IMPL-PHASE-2-AUDIO-20260105.md) - Audio pipeline architecture
 - [src/audio/asr/index.ts](../../../src/audio/asr/index.ts) - Current ASR implementation
 
 ---

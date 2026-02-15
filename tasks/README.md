@@ -118,12 +118,12 @@ A task is **NOT complete** until:
 
 ## Documentation Requirements by Task Type
 
-| Task Type    | Pre-Work                   | Deliverable                                | Post-Work                |
-| ------------ | -------------------------- | ------------------------------------------ | ------------------------ |
-| **Bug**      | Investigation (if complex) | Bug Report (`docs/bugs/`)                  | Postmortem (if critical) |
-| **Feature**  | ADR (if architectural)     | Feature Spec (`docs/features/`) + Tests    | Guide (`docs/guides/`)   |
-| **Research** | —                          | Investigation Doc (`docs/investigations/`) | ADR, Follow-up Tasks     |
-| **Refactor** | Investigation (if risky)   | ADR (`docs/architecture/`)                 | —                        |
+| Task Type    | Pre-Work                   | Deliverable                                 | Post-Work                  |
+| ------------ | -------------------------- | ------------------------------------------- | -------------------------- |
+| **Bug**      | Investigation (if complex) | Bug Report (`docs/dev/bugs/`)               | Postmortem (if critical)   |
+| **Feature**  | ADR (if architectural)     | Feature Spec (`docs/dev/features/`) + Tests | Guide (`docs/dev/guides/`) |
+| **Research** | —                          | Investigation Doc (`docs/investigations/`)  | ADR, Follow-up Tasks       |
+| **Refactor** | Investigation (if risky)   | ADR (`docs/dev/architecture/`)              | —                          |
 
 **All docs MUST include YYYYMMDD suffix!**
 
@@ -267,9 +267,9 @@ Implement MCP server that connects to Reddit API for trend research. Server shou
 
 ## Required Documentation
 
-- [ ] `docs/guides/guide-setup-reddit-mcp-20260102.md` — Setup guide
+- [ ] `docs/dev/guides/guide-setup-reddit-mcp-20260102.md` — Setup guide
 - [ ] `docs/reference/api-reddit-mcp-20260102.md` — API reference
-- [ ] Update `docs/architecture/` if new patterns
+- [ ] Update `docs/dev/architecture/` if new patterns
 
 ## Testing Plan
 

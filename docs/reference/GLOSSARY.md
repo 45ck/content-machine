@@ -244,7 +244,7 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 
 **Where it lives:**
 
-- Proposed structure: docs/architecture/configuration/CONFIGURATION-SYSTEM-DESIGN-20260207.md
+- Proposed structure: docs/dev/architecture/configuration/CONFIGURATION-SYSTEM-DESIGN-20260207.md
 
 **CLI surface:**
 

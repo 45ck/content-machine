@@ -14,6 +14,7 @@ function main() {
   const generated = [
     'docs/reference/REPO-FACTS.md',
     'docs/reference/ARTIFACT-CONTRACTS.md',
+    'docs/reference/ENVIRONMENT-VARIABLES.md',
     'docs/reference/CONFIG-SURFACE.md',
     'docs/reference/QUALITY-GATES.md',
     'docs/reference/SECURITY-INVARIANTS.md',

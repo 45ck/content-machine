@@ -21,11 +21,11 @@
 
 ## Required Documentation
 
-- [x] `docs/features/feature-asset-packs-and-imports-20260207.md`
+- [x] `docs/dev/features/feature-asset-packs-and-imports-20260207.md`
 
 ## Related
 
-- `docs/features/feature-platform-expansion-roadmap-20260207.md`
+- `docs/dev/features/feature-platform-expansion-roadmap-20260207.md`
 
 ---
 

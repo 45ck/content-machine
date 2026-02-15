@@ -403,5 +403,5 @@ function correctLinearDrift(timestamps, slope) {
 
 - **Depends On:** None (can be developed in parallel)
 - **Used By:** TASK-022, TASK-024
-- **Implementation Plan:** [IMPL-SYNC-STRATEGIES-20260107](../../docs/architecture/IMPL-SYNC-STRATEGIES-20260107.md)
+- **Implementation Plan:** [IMPL-SYNC-STRATEGIES-20260107](../../docs/dev/architecture/IMPL-SYNC-STRATEGIES-20260107.md)
 - **Research:** [RQ-34: Drift Detection Strategies](../../docs/research/investigations/RQ-34-DRIFT-DETECTION-RETIMING-STRATEGIES-20260107.md)

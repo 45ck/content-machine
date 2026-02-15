@@ -16,7 +16,7 @@ A **visual asset** is the per-scene selected media (video or image) used during 
 ## Code references
 
 - `src/visuals/schema.ts` (`VisualAssetSchema`, `VisualsOutputSchema`)
-- `docs/guides/guide-ubiquitous-language-20260110.md` (term: visual asset)
+- `docs/dev/guides/guide-ubiquitous-language-20260110.md` (term: visual asset)
 
 ## Related
 

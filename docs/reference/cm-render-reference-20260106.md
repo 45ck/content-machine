@@ -75,8 +75,8 @@ cm render -i visuals.json --audio audio.wav --timestamps timestamps.json \
 
 ## See also
 
-- `docs/guides/guide-cli-ux-cm-render-20260106.md`
-- `docs/guides/guide-audio-options-20260110.md`
+- `docs/dev/guides/guide-cli-ux-cm-render-20260106.md`
+- `docs/dev/guides/guide-audio-options-20260110.md`
 - `docs/reference/cm-validate-reference-20260106.md`
 - `docs/reference/video-templates-reference-20260107.md`
 - `docs/reference/cm-templates-reference-20260210.md`

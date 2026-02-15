@@ -20,11 +20,11 @@
 
 ## Required Documentation
 
-- [x] `docs/features/feature-distribution-and-packaging-20260207.md`
+- [x] `docs/dev/features/feature-distribution-and-packaging-20260207.md`
 
 ## Related
 
-- `docs/features/feature-platform-expansion-roadmap-20260207.md`
+- `docs/dev/features/feature-platform-expansion-roadmap-20260207.md`
 
 ---
 

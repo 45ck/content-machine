@@ -17,7 +17,7 @@ An **artifact** is a file written to disk by a pipeline stage and treated as the
 
 ## Code references
 
-- `docs/guides/guide-ubiquitous-language-20260110.md` (Pipeline and artifacts)
+- `docs/dev/guides/guide-ubiquitous-language-20260110.md` (Pipeline and artifacts)
 - `src/script/schema.ts` (`ScriptOutputSchema`)
 - `src/audio/schema.ts` (`TimestampsOutputSchema`)
 - `src/visuals/schema.ts` (`VisualsOutputSchema`)

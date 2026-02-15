@@ -78,7 +78,7 @@ cm script --topic "Redis caching" --research out/research.json -o out/script.jso
 
 ## See also
 
-- `docs/guides/guide-cli-ux-cm-script-20260106.md`
+- `docs/dev/guides/guide-cli-ux-cm-script-20260106.md`
 - `docs/reference/cm-package-reference-20260106.md`
 - `docs/reference/cm-research-reference-20260106.md`
-- `docs/features/feature-research-script-integration-20260107.md`
+- `docs/dev/features/feature-research-script-integration-20260107.md`

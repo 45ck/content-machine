@@ -17,7 +17,7 @@
  Documentation System:
     AGENTS.md         - Comprehensive project guide
     docs/README.md    - Documentation index
-    docs/templates/   - Doc templates (with YYYYMMDD convention)
+    docs/dev/templates/   - Doc templates (with YYYYMMDD convention)
     Research reports  - 16 reports on vendored repos
 
  Task Management:
@@ -84,5 +84,4 @@
 
 
 Ready to start development! 
-
 

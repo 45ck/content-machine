@@ -376,6 +376,6 @@ function extractScriptWords(text: string): Array<{
 
 - **Depends On:** None (can be developed in parallel)
 - **Blocks:** TASK-022 (AudioFirstSyncStrategy)
-- **Implementation Plan:** [IMPL-SYNC-STRATEGIES-20260107](../../docs/architecture/IMPL-SYNC-STRATEGIES-20260107.md)
+- **Implementation Plan:** [IMPL-SYNC-STRATEGIES-20260107](../../docs/dev/architecture/IMPL-SYNC-STRATEGIES-20260107.md)
 - **Research:** [RQ-31: TTS Timestamp Extraction](../../docs/research/investigations/RQ-31-TTS-TIMESTAMP-EXTRACTION-METHODS-20260107.md)
 - **Existing Code:** [src/score/sync-rater.ts](../../src/score/sync-rater.ts) (has Levenshtein)

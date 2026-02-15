@@ -43,5 +43,5 @@ cm visuals -i out/timestamps.json -o out/visuals.json --provider pexels
 
 ## See also
 
-- `docs/guides/guide-cli-ux-cm-visuals-20260106.md`
+- `docs/dev/guides/guide-cli-ux-cm-visuals-20260106.md`
 - `docs/reference/cm-render-reference-20260106.md`

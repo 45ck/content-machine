@@ -338,9 +338,9 @@ settings = Settings()
 
 **File Paths:**
 
-- [src/shared/zod-schema.ts](../../../templates/vidosy/src/shared/zod-schema.ts)
-- [src/shared/constants.ts](../../../templates/vidosy/src/shared/constants.ts)
-- [demo-vidosy.json](../../../templates/vidosy/demo-vidosy.json)
+- [src/shared/zod-schema.ts](../../../dev/templates/vidosy/src/shared/zod-schema.ts)
+- [src/shared/constants.ts](../../../dev/templates/vidosy/src/shared/constants.ts)
+- [demo-vidosy.json](../../../dev/templates/vidosy/demo-vidosy.json)
 
 **Zod Schema Pattern:**
 

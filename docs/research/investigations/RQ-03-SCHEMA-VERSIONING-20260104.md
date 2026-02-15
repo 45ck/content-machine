@@ -41,7 +41,7 @@ SUPPORTED_PROTOCOL_VERSIONS = [
 
 ### 2.2 Zod Schema Extension Pattern
 
-**Source:** [templates/vidosy/src/shared/zod-schema.ts](../../../templates/vidosy/src/shared/zod-schema.ts)
+**Source:** [templates/vidosy/src/shared/zod-schema.ts](../../../dev/templates/vidosy/src/shared/zod-schema.ts)
 
 Zod's `.extend()` enables backwards-compatible schema evolution:
 
@@ -361,6 +361,6 @@ cm migrate project/ --backup
 ## 7. References
 
 - [vendor/mcp/python-sdk/src/mcp/shared/version.py](../../../vendor/mcp/python-sdk/src/mcp/shared/version.py) — Protocol versioning
-- [templates/vidosy/src/shared/zod-schema.ts](../../../templates/vidosy/src/shared/zod-schema.ts) — Zod patterns
+- [templates/vidosy/src/shared/zod-schema.ts](../../../dev/templates/vidosy/src/shared/zod-schema.ts) — Zod patterns
 - [vendor/mcp/python-sdk/src/mcp/types.py](../../../vendor/mcp/python-sdk/src/mcp/types.py) — Forward compatibility
 - [SECTION-SCHEMAS-VALIDATION-20260104.md](../sections/SECTION-SCHEMAS-VALIDATION-20260104.md) — Validation patterns
