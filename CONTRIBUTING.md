@@ -97,61 +97,13 @@ npm run test:coverage  # Tests with coverage thresholds
 npm run dup:check      # Code duplication detection
 ```
 
-### Quality Gate Thresholds
+### Quality Gate Rules (Source Of Truth)
 
-| Check                 | Threshold        | Action on Failure               |
-| --------------------- | ---------------- | ------------------------------- |
-| Cyclomatic complexity | ≤15 per function | Refactor into smaller functions |
-| Cognitive complexity  | ≤15 per function | Simplify logic flow             |
-| Nesting depth         | ≤5 levels        | Extract nested blocks           |
-| Line coverage         | ≥60%             | Add tests for uncovered code    |
-| Branch coverage       | ≥50%             | Add tests for edge cases        |
-| Code duplication      | ≤5%              | Extract shared utilities        |
+Avoid duplicating thresholds in docs. The enforced rules live in config:
 
-### Fixing Common Issues
-
-**Complexity too high:**
-
-```typescript
-// ❌ High complexity
-function processData(data) {
-  if (data.type === 'A') {
-    if (data.subtype === 'A1') {
-      /* ... */
-    } else if (data.subtype === 'A2') {
-      /* ... */
-    }
-  } else if (data.type === 'B') {
-    /* ... */
-  }
-}
-
-// ✅ Lower complexity
-const processors = {
-  'A-A1': processA1,
-  'A-A2': processA2,
-  B: processB,
-};
-function processData(data) {
-  const key = data.subtype ? `${data.type}-${data.subtype}` : data.type;
-  return processors[key]?.(data);
-}
-```
-
-**Coverage too low:**
-
-- Add unit tests for new functions
-- Test error paths and edge cases
-- Use `npm run test:coverage` to identify uncovered lines
-
-### Coverage Ratchet Schedule
-
-| Milestone     | Coverage     | Action                                                  |
-| ------------- | ------------ | ------------------------------------------------------- |
-| **Now**       | Any          | Overall thresholds: 60/60/60/50                         |
-| **≥70%**      | 70%+ overall | Enable `src/core/**` glob threshold (70/70/70/55)       |
-| **≥75%**      | 75%+ overall | Switch to negative thresholds (freeze uncovered counts) |
-| **Quarterly** | —            | Review and tighten warn-level rules                     |
+- Lint rules + maintainability gates: `eslint.config.js`
+- Coverage thresholds + exclusions: `vitest.config.ts`
+- Duplication rules: `.jscpd.json`
 
 ---
 
