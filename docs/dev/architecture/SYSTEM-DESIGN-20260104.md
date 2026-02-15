@@ -1617,7 +1617,7 @@ tests:
 **Full V&V Documentation:**
 
 - [RQ-24: LLM Evaluation & Quality Assurance](../research/investigations/RQ-24-LLM-EVALUATION-QUALITY-ASSURANCE-20260105.md)
-- [V&V Framework Guide](../dev/guides/VV-FRAMEWORK-20260105.md)
+- [V&V Framework Guide](../guides/VV-FRAMEWORK-20260105.md)
 - [evals/ directory](../../evals/README.md)
 
 Evaluation frameworks from [L3-CAT-G-AGENT-FRAMEWORKS-20260104.md](../research/synthesis/L3-CAT-G-AGENT-FRAMEWORKS-20260104.md) (promptfoo, Langfuse) track quality over prompt iterations.
@@ -1832,7 +1832,7 @@ Every phase follows the 4-layer V&V approach from [RQ-24](../research/investigat
 | **3. LLM-as-Judge** | Quality scores       | promptfoo         | PR reviews     |
 | **4. Human Review** | Sample QA            | Manual            | Release gates  |
 
-**Detailed V&V Guide:** [VV-FRAMEWORK-20260105.md](../dev/guides/VV-FRAMEWORK-20260105.md)
+**Detailed V&V Guide:** [VV-FRAMEWORK-20260105.md](../guides/VV-FRAMEWORK-20260105.md)
 
 ### 11.9 Post-MVP Roadmap
 
@@ -3409,7 +3409,7 @@ Detailed implementation guides for each development phase. These documents provi
 
 | Document                                                             | Purpose                     |
 | -------------------------------------------------------------------- | --------------------------- |
-| [VV-FRAMEWORK-20260105.md](../dev/guides/VV-FRAMEWORK-20260105.md)   | 4-layer validation approach |
+| [VV-FRAMEWORK-20260105.md](../guides/VV-FRAMEWORK-20260105.md)       | 4-layer validation approach |
 | [evals/README.md](../../evals/README.md)                             | Promptfoo evaluation suite  |
 | [evals/configs/cm-script.yaml](../../evals/configs/cm-script.yaml)   | Script generation evals     |
 | [evals/configs/cm-visuals.yaml](../../evals/configs/cm-visuals.yaml) | Visual matching evals       |

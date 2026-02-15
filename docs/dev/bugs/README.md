@@ -1,6 +1,6 @@
 # Bug Analysis Index
 
-**Last Updated:** 2026-06-06
+**Last Updated:** 2026-02-15
 
 This directory contains systematic root-cause analyses and deep-fix documentation for bugs discovered during content-machine development.
 
@@ -23,9 +23,9 @@ Each bug document follows this structure:
 
 | ID                                                     | Title                          | Status | Severity | Related Commits  |
 | ------------------------------------------------------ | ------------------------------ | ------ | -------- | ---------------- |
-| [BUG-001](BUG-001-TTS-MARKERS-IN-CAPTIONS-20260606.md) | TTS Markers in Video Captions  | FIXED  | High     | 96eedc2, 1462eae |
-| [BUG-002](BUG-002-HOOK-TEXT-DUPLICATION-20260606.md)   | Hook Text Duplication in Audio | FIXED  | Medium   | 7020b15          |
-| [BUG-003](BUG-003-ASR-ARTIFACTS-AS-WORDS-20260606.md)  | ASR Artifacts as Caption Words | FIXED  | Medium   | 1462eae          |
+| [BUG-001](BUG-001-TTS-MARKERS-IN-CAPTIONS-20260106.md) | TTS Markers in Video Captions  | FIXED  | High     | 96eedc2, 1462eae |
+| [BUG-002](BUG-002-HOOK-TEXT-DUPLICATION-20260106.md)   | Hook Text Duplication in Audio | FIXED  | Medium   | 7020b15          |
+| [BUG-003](BUG-003-ASR-ARTIFACTS-AS-WORDS-20260106.md)  | ASR Artifacts as Caption Words | FIXED  | Medium   | 1462eae          |
 
 ---
 
@@ -75,6 +75,6 @@ ASR artifacts were addressed by:
 
 ## Related Documentation
 
-- [V&V Framework](../dev/guides/VV-FRAMEWORK-20260105.md) - Validation approach
-- [Caption System](../dev/features/feature-caption-system-20260605.md) - Caption architecture
-- [Audio Pipeline](../dev/architecture/IMPL-PHASE-2-AUDIO-20260105.md) - TTS/ASR design
+- [V&V Framework](../guides/VV-FRAMEWORK-20260105.md) - Validation approach
+- [Render Stage (Captions)](../architecture/IMPL-PHASE-4-RENDER-20260105.md) - Caption rendering architecture
+- [Audio Pipeline](../architecture/IMPL-PHASE-2-AUDIO-20260105.md) - TTS/ASR design

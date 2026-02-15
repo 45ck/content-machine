@@ -26,4 +26,4 @@ A **scene id** is the identifier that links a scene across artifacts.
 
 ## Related
 
-- `docs/glossary/scene.md`
+- `docs/dev/glossary/scene.md`

@@ -15,8 +15,7 @@
     "**/*.test.ts",
     "**/*.spec.ts",
     "**/*.zip",
-    "**/*.traineddata",
-    "pipeline-output.txt"
+    "**/*.traineddata"
   ],
   "dictionaryDefinitions": [
     {

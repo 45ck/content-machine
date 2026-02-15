@@ -4,7 +4,7 @@
  * TDD tests for timestamp validation to prevent the corruption
  * seen in v3 render where word.end < word.start.
  *
- * @see docs/research/investigations/RQ-28-AUDIO-VISUAL-CAPTION-SYNC-20260610.md
+ * @see docs/research/investigations/RQ-28-AUDIO-VISUAL-CAPTION-SYNC-20260110.md
  */
 import { describe, it, expect } from 'vitest';
 import { validateWordTimings, TimestampValidationError } from '../../../src/audio/asr/validator';

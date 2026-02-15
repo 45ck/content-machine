@@ -161,14 +161,9 @@ Break content into scannable sections with clear headings.
 ```markdown
 ## Related
 
-**ADRs:**
-- [ADR-001: Use Remotion for Rendering](../dev/architecture/adr-001-use-remotion-20260102.md)
-
-**Tasks:**
-- [TASK-005: Implement caption system](../../tasks/in_progress/TASK-005-feature-captions-20260110.md)
-
-**Research:**
-- [vidosy JSON config pattern](../research/12-vidosy.md)
+- System design: `docs/dev/architecture/SYSTEM-DESIGN-20260104.md`
+- Task workflow: `tasks/README.md`
+- Research summary: `docs/research/00-SUMMARY-20260102.md`
 ```
 
 ---
@@ -180,7 +175,7 @@ Before committing documentation:
 - [ ] Filename includes YYYYMMDD date
 - [ ] Used appropriate template
 - [ ] All sections filled (no [placeholders])
-- [ ] Terminology matches docs/dev/guides/guide-ubiquitous-language-20260110.md
+- [ ] Terminology matches `docs/reference/GLOSSARY.md` and `docs/dev/guides/guide-ubiquitous-language-20260110.md`
 - [ ] Code examples tested and work
 - [ ] Cross-references added
 - [ ] Spelling/grammar checked

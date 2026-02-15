@@ -1,5 +1,7 @@
 # 🔥 PHOENIX LOOP - Infinite Quality Evolution Protocol
 
+> Developer workflow guide. Related docs live in `docs/dev/guides/`.
+
 **Name:** PHOENIX LOOP (rises from failures, never dies)  
 **Version:** 1.0  
 **Created:** 2026-01-07  

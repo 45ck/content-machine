@@ -42,3 +42,7 @@ Core design:
 
 - System design: [`docs/dev/architecture/SYSTEM-DESIGN-20260104.md`](dev/architecture/SYSTEM-DESIGN-20260104.md)
 - Project overview: [`AGENTS.md`](../AGENTS.md)
+
+Developer reference:
+
+- Code-first glossary (term -> code references): [`docs/dev/glossary/`](dev/glossary/)

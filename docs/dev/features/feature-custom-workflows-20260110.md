@@ -206,7 +206,7 @@ maximize modularity while staying CLI-first and safe by default.
 
 ## Related
 
-- ADRs: [ADR-002 Visual Provider System](../dev/architecture/ADR-002-VISUAL-PROVIDER-SYSTEM-20260107.md)
-- Guides: [Render Templates Guide](../dev/guides/guide-video-templates-20260107.md)
+- ADRs: [ADR-002 Visual Provider System](../architecture/ADR-002-VISUAL-PROVIDER-SYSTEM-20260107.md)
+- Guides: [Render Templates Guide](../guides/guide-video-templates-20260107.md)
 - References: [cm render reference](../reference/cm-render-reference-20260106.md)
 - Research: [vidosy JSON config pattern](../research/12-vidosy-20260102.md)

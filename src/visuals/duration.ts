@@ -4,7 +4,7 @@
  * Ensures visual scenes cover the full audio duration to prevent
  * the v3 bug where scenes ended at 20.32s but audio continued to 25.22s.
  *
- * @see docs/research/investigations/RQ-28-AUDIO-VISUAL-CAPTION-SYNC-20260610.md
+ * @see docs/research/investigations/RQ-28-AUDIO-VISUAL-CAPTION-SYNC-20260110.md
  */
 
 /**

@@ -580,7 +580,7 @@ src/audio/
 - [RQ-32: Forced Alignment vs ASR](../research/investigations/RQ-32-FORCED-ALIGNMENT-VS-ASR-ANALYSIS-20260107.md)
 - [RQ-33: Remotion Caption Patterns](../research/investigations/RQ-33-REMOTION-CAPTION-SYNC-PATTERNS-20260107.md)
 - [RQ-34: Drift Detection Strategies](../research/investigations/RQ-34-DRIFT-DETECTION-RETIMING-STRATEGIES-20260107.md)
-- [SYNC-INTEGRATION-GUIDE](../dev/guides/SYNC-INTEGRATION-GUIDE-20260107.md)
+- [SYNC-INTEGRATION-GUIDE](../guides/SYNC-INTEGRATION-GUIDE-20260107.md)
 - [SYNC-CONFIG-REFERENCE](../reference/SYNC-CONFIG-REFERENCE-20260107.md)
 
 ---

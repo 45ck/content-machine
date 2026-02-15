@@ -16,6 +16,7 @@ Primary dev docs (dated):
 - Feature specs: [`docs/dev/features/`](features/)
 - Bugs: [`docs/dev/bugs/`](bugs/)
 - Specs: [`docs/dev/specs/`](specs/)
+- Code-first glossary (term -> code references): [`docs/dev/glossary/`](glossary/)
 - Research: [`docs/research/`](../research/)
 
 User docs (undated, enforced):

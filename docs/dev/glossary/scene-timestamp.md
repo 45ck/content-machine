@@ -18,5 +18,5 @@ A **scene timestamp** groups word timestamps for a single scene, with scene-leve
 
 ## Related
 
-- `docs/glossary/word-timestamp.md`
-- `docs/glossary/scene-id.md`
+- `docs/dev/glossary/word-timestamp.md`
+- `docs/dev/glossary/scene-id.md`

@@ -1,6 +1,6 @@
 # Audio-Visual-Caption Synchronization Architecture
 
-**Date:** 2026-06-10  
+**Date:** 2026-01-10  
 **Version:** 1.0.0  
 **Status:** Design Complete  
 **Related:** RQ-28-AUDIO-VISUAL-CAPTION-SYNC
@@ -416,7 +416,7 @@ function ensureVisualCoverage(scenes: VisualScene[], audioDuration: number): Vis
 
 ## 9. References
 
-- [RQ-28: Audio-Visual-Caption Sync Issues](./investigations/RQ-28-AUDIO-VISUAL-CAPTION-SYNC-20260610.md)
+- [RQ-28: Audio-Visual-Caption Sync Issues](../../research/investigations/RQ-28-AUDIO-VISUAL-CAPTION-SYNC-20260110.md)
 - [Remotion Sequence docs](https://www.remotion.dev/docs/sequence)
 - [gyoridavid/short-video-maker](https://github.com/gyoridavid/short-video-maker)
 - [remotion-dev/template-tiktok](https://github.com/remotion-dev/template-tiktok)

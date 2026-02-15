@@ -165,5 +165,5 @@ Example `audio.mix.json`:
 - ADRs: none yet
 - Guides: `docs/dev/guides/guide-recommended-pipeline-20260109.md`
 - References: `docs/reference/cm-audio-reference-20260106.md`, `docs/reference/cm-render-reference-20260106.md`
-- Research: `docs/dev/architecture/IMPL-PHASE-2-AUDIO-20260105.md`, `docs/dev/architecture/SYNC-ARCHITECTURE-20260610.md`, `docs/dev/specs/audio-breathing-room-spec-20260109.md`
+- Research: `docs/dev/architecture/IMPL-PHASE-2-AUDIO-20260105.md`, `docs/dev/architecture/SYNC-ARCHITECTURE-20260110.md`, `docs/dev/specs/audio-breathing-room-spec-20260109.md`
 - Tasks: none yet (create task when implementing)

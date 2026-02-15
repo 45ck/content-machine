@@ -14,5 +14,5 @@
 
 ## Related
 
-- `docs/glossary/error-code.md`
-- `docs/glossary/retryable.md`
+- `docs/dev/glossary/error-code.md`
+- `docs/dev/glossary/retryable.md`

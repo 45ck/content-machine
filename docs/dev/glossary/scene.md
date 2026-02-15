@@ -17,4 +17,4 @@ A **scene** is the primary script unit with spoken text and visual direction.
 
 ## Related
 
-- `docs/glossary/scene-id.md`
+- `docs/dev/glossary/scene-id.md`

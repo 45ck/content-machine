@@ -398,6 +398,6 @@ Optional (for local motion):
 ## Related Documents
 
 - [RQ-35: Nano Banana Pro Integration](./investigations/RQ-35-NANOBANANA-PRO-INTEGRATION-20260107.md)
-- [Nano Banana Video Pipeline Guide](../dev/guides/NANOBANANA-VIDEO-PIPELINE-GUIDE-20260107.md)
+- [Nano Banana Video Pipeline Guide](../guides/NANOBANANA-VIDEO-PIPELINE-GUIDE-20260107.md)
 - [Prompt Engineering Reference](../reference/NANOBANANA-PROMPT-ENGINEERING-20260107.md)
 - [Vendored Libraries Index](./VENDORED-PROMPT-VIDEO-LIBRARIES-INDEX-20260107.md)

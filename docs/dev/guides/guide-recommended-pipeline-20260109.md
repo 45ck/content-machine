@@ -43,4 +43,4 @@ cm render --input output/visuals.json --audio output/audio.wav --timestamps outp
 
 ## Related
 
-- INSTRUCTIONS_PHOENIX_LOOP.md
+- [`guide-phoenix-loop-20260107.md`](guide-phoenix-loop-20260107.md)

@@ -1,9 +1,9 @@
-﻿# Audio Breathing Room Specification
+# Audio Breathing Room Specification
 
 **Status:** Draft  
 **Author:** Claude (via PHOENIX LOOP interview)  
 **Date:** 2026-01-09  
-**Plan Reference:** `INSTRUCTIONS_PHOENIX_LOOP.md` (Loop #7)
+**Plan Reference:** [`docs/dev/guides/guide-phoenix-loop-20260107.md`](../guides/guide-phoenix-loop-20260107.md) (Loop #7)
 
 ## 1. Overview
 

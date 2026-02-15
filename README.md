@@ -63,8 +63,8 @@ Online docs (useful for npm installs): https://github.com/45ck/content-machine/t
 
 ## Demo Videos
 
-GitHub READMEs can't reliably inline-play `mp4`, so this repo uses small previews (GIF/SVG)
-and hosts full clips in GitHub Releases.
+GitHub READMEs can't reliably inline-play `mp4`, so this repo uses small previews (GIF/SVG).
+Full clips are either stored in `docs/demo/` (small) or attached to GitHub Releases (large).
 
 - Releases: https://github.com/45ck/content-machine/releases
 - Demo media guide: [`docs/dev/guides/guide-demo-media-20260111.md`](docs/dev/guides/guide-demo-media-20260111.md)

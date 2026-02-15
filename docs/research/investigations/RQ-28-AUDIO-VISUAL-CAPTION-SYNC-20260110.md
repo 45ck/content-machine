@@ -1,6 +1,6 @@
 # RQ-28: Audio-Visual-Caption Synchronization Issues
 
-**Date:** 2026-06-10  
+**Date:** 2026-01-10  
 **Status:** In Progress  
 **Severity:** Critical  
 **Components:** Captions, Render, Audio, Visuals

@@ -24,5 +24,5 @@ An **artifact** is a file written to disk by a pipeline stage and treated as the
 
 ## Related
 
-- `docs/glossary/stage.md`
-- `docs/glossary/schema-version.md`
+- `docs/dev/glossary/stage.md`
+- `docs/dev/glossary/schema-version.md`

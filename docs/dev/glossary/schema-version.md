@@ -21,4 +21,4 @@
 
 ## Related
 
-- `docs/glossary/artifact.md`
+- `docs/dev/glossary/artifact.md`

@@ -40,7 +40,7 @@ Improves perceived production quality and retention while keeping the pipeline c
 
 - [ ] `docs/dev/features/feature-audio-options-mix-integration-20260110.md`
 - [ ] `docs/dev/architecture/IMPL-PHASE-2-AUDIO-20260105.md`
-- [ ] `docs/dev/architecture/SYNC-ARCHITECTURE-20260610.md`
+- [ ] `docs/dev/architecture/SYNC-ARCHITECTURE-20260110.md`
 
 **Deliverables (create these):**
 
@@ -205,7 +205,7 @@ None.
 **Related Docs:**
 
 - `docs/dev/architecture/IMPL-PHASE-2-AUDIO-20260105.md`
-- `docs/dev/architecture/SYNC-ARCHITECTURE-20260610.md`
+- `docs/dev/architecture/SYNC-ARCHITECTURE-20260110.md`
 - `docs/dev/specs/audio-breathing-room-spec-20260109.md`
 
 ---

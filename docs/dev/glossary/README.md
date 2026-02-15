@@ -28,7 +28,7 @@ Canonical sources (single source of truth):
 
 Create a new file in this folder:
 
-- `docs/glossary/<term>.md`
+- `docs/dev/glossary/<term>.md`
 
 Keep entries short, and include:
 
@@ -40,21 +40,21 @@ Keep entries short, and include:
 
 ## Index
 
-- `docs/glossary/stage.md`
-- `docs/glossary/command.md`
-- `docs/glossary/artifact.md`
-- `docs/glossary/schema-version.md`
-- `docs/glossary/template.md`
-- `docs/glossary/template-pack.md`
-- `docs/glossary/composition.md`
-- `docs/glossary/scene.md`
-- `docs/glossary/scene-id.md`
-- `docs/glossary/scene-timestamp.md`
-- `docs/glossary/word-timestamp.md`
-- `docs/glossary/visual-asset.md`
-- `docs/glossary/cmerror.md`
-- `docs/glossary/error-code.md`
-- `docs/glossary/retryable.md`
+- `docs/dev/glossary/stage.md`
+- `docs/dev/glossary/command.md`
+- `docs/dev/glossary/artifact.md`
+- `docs/dev/glossary/schema-version.md`
+- `docs/dev/glossary/template.md`
+- `docs/dev/glossary/template-pack.md`
+- `docs/dev/glossary/composition.md`
+- `docs/dev/glossary/scene.md`
+- `docs/dev/glossary/scene-id.md`
+- `docs/dev/glossary/scene-timestamp.md`
+- `docs/dev/glossary/word-timestamp.md`
+- `docs/dev/glossary/visual-asset.md`
+- `docs/dev/glossary/cmerror.md`
+- `docs/dev/glossary/error-code.md`
+- `docs/dev/glossary/retryable.md`
 
 ## Related
 

@@ -542,7 +542,7 @@ function WordHighlight({ word, pageStartMs }: Props) {
 
 ## 11. References
 
-- [RQ-28: Audio-Visual-Caption Sync Issues](RQ-28-AUDIO-VISUAL-CAPTION-SYNC-20260610.md)
+- [RQ-28: Audio-Visual-Caption Sync Issues](RQ-28-AUDIO-VISUAL-CAPTION-SYNC-20260110.md)
 - [RQ-29: Sync Approaches Evaluation](RQ-29-SYNC-APPROACHES-EVALUATION-20260107.md)
 - [RQ-08: Forced Alignment Algorithms](RQ-08-FORCED-ALIGNMENT-20260104.md)
 - [RQ-09: Timestamp Drift Handling](RQ-09-TIMESTAMP-DRIFT-20260104.md)

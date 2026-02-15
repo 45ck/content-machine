@@ -20,4 +20,4 @@ A **visual asset** is the per-scene selected media (video or image) used during 
 
 ## Related
 
-- `docs/glossary/scene-id.md`
+- `docs/dev/glossary/scene-id.md`

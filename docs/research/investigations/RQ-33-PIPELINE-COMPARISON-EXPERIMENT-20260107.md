@@ -1,4 +1,4 @@
-﻿# RQ-33: Audio-First vs Standard Pipeline Comparison
+# RQ-33: Audio-First vs Standard Pipeline Comparison
 
 **Date:** 2026-01-07  
 **Status:** Research Complete  

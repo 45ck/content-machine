@@ -44,7 +44,7 @@ cm generate "Redis caching" --research
 cm generate "Redis caching" --research research.json
 ```
 
-See [feature-research-script-integration-20260107.md](../dev/features/feature-research-script-integration-20260107.md) for full details.
+See [feature-research-script-integration-20260107.md](../features/feature-research-script-integration-20260107.md) for full details.
 
 ## UX gaps
 

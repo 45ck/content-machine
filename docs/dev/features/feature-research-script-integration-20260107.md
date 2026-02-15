@@ -204,7 +204,7 @@ cm script --topic "TypeScript best practices 2025" --research research-demo.json
 - [cm-research-reference-20260106.md](../reference/cm-research-reference-20260106.md)
 - [cm-script-reference-20260106.md](../reference/cm-script-reference-20260106.md)
 - [cm-generate-reference-20260106.md](../reference/cm-generate-reference-20260106.md)
-- [guide-cli-ux-cm-research-20260106.md](../dev/guides/guide-cli-ux-cm-research-20260106.md)
+- [guide-cli-ux-cm-research-20260106.md](../guides/guide-cli-ux-cm-research-20260106.md)
 
 ---
 

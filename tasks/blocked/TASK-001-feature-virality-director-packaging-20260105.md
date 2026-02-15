@@ -1,4 +1,4 @@
-﻿# TASK-001-feature: Virality Director (cm package + cm script --package)
+# TASK-001-feature: Virality Director (cm package + cm script --package)
 
 **Type:** Feature  
 **Priority:** P1  

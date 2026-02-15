@@ -9,4 +9,4 @@ An **error code** is the stable string in `CMError.code` used for scripting, log
 
 ## Related
 
-- `docs/glossary/cmerror.md`
+- `docs/dev/glossary/cmerror.md`

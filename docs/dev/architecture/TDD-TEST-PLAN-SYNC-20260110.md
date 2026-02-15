@@ -1,6 +1,6 @@
 # TDD Test Plan: Audio-Visual-Caption Synchronization
 
-**Date:** 2026-06-10  
+**Date:** 2026-01-10  
 **Version:** 1.0.0  
 **Status:** Ready for Implementation  
 **Related:** RQ-28, SYNC-ARCHITECTURE, CAPTION-TIMING
@@ -481,6 +481,6 @@ pnpm test --watch tests/unit/render/captions/timing.test.ts
 ## 10. References
 
 - [AGENTS.md TDD Requirements](../../AGENTS.md)
-- [RQ-28 Investigation](./investigations/RQ-28-AUDIO-VISUAL-CAPTION-SYNC-20260610.md)
-- [SYNC-ARCHITECTURE](./SYNC-ARCHITECTURE-20260610.md)
-- [CAPTION-TIMING](./CAPTION-TIMING-20260610.md)
+- [RQ-28 Investigation](../../research/investigations/RQ-28-AUDIO-VISUAL-CAPTION-SYNC-20260110.md)
+- [SYNC-ARCHITECTURE](./SYNC-ARCHITECTURE-20260110.md)
+- [CAPTION-TIMING](./CAPTION-TIMING-20260110.md)

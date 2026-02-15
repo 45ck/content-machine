@@ -1,6 +1,6 @@
 # BUG-001: TTS Markers Appearing in Video Captions
 
-**Date:** 2026-06-06  
+**Date:** 2026-01-06  
 **Status:** FIXED  
 **Severity:** High (visible to end users)  
 **Commits:** 96eedc2, 1462eae (enhanced in current session)

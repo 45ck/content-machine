@@ -19,4 +19,4 @@ A **command** is a CLI entry that executes a stage (or orchestrates multiple sta
 
 ## Related
 
-- `docs/glossary/stage.md`
+- `docs/dev/glossary/stage.md`

@@ -15,4 +15,4 @@ An error is **retryable** if the caller can safely retry the operation after a d
 
 ## Related
 
-- `docs/glossary/cmerror.md`
+- `docs/dev/glossary/cmerror.md`

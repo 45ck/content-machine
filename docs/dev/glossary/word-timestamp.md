@@ -13,4 +13,4 @@ A **word timestamp** is a word with `start` and `end` times (seconds) used for c
 
 ## Related
 
-- `docs/glossary/scene-timestamp.md`
+- `docs/dev/glossary/scene-timestamp.md`

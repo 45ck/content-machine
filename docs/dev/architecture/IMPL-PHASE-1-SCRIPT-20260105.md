@@ -677,7 +677,7 @@ describe('generateScript', () => {
 | Structured LLM output      | [RQ-04-STRUCTURED-LLM-OUTPUT-20260104.md](../research/investigations/RQ-04-STRUCTURED-LLM-OUTPUT-20260104.md)                       |
 | Content archetypes         | [RQ-21-CONTENT-ARCHETYPES-20260105.md](../research/investigations/RQ-21-CONTENT-ARCHETYPES-20260105.md)                             |
 | LLM evaluation             | [RQ-24-LLM-EVALUATION-QUALITY-ASSURANCE-20260105.md](../research/investigations/RQ-24-LLM-EVALUATION-QUALITY-ASSURANCE-20260105.md) |
-| V&V framework              | [VV-FRAMEWORK-20260105.md](../dev/guides/VV-FRAMEWORK-20260105.md)                                                                  |
+| V&V framework              | [VV-FRAMEWORK-20260105.md](../guides/VV-FRAMEWORK-20260105.md)                                                                      |
 
 ---
 

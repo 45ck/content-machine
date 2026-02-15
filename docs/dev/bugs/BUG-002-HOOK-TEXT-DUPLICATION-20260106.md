@@ -1,6 +1,6 @@
-﻿# BUG-002: Hook Text Duplication in Audio
+# BUG-002: Hook Text Duplication in Audio
 
-**Date:** 2026-06-06  
+**Date:** 2026-01-06  
 **Status:** FIXED (prior commit 7020b15)  
 **Severity:** Medium (audio quality issue)  
 **Root Cause:** Script assembly logic

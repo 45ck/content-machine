@@ -5,8 +5,8 @@
  * Handles the critical conversion from absolute word times to
  * Sequence-relative times (Remotion's frame resets to 0 at each Sequence start).
  *
- * @see docs/dev/architecture/CAPTION-TIMING-20260610.md
- * @see docs/research/investigations/RQ-28-AUDIO-VISUAL-CAPTION-SYNC-20260610.md
+ * @see docs/dev/architecture/CAPTION-TIMING-20260110.md
+ * @see docs/research/investigations/RQ-28-AUDIO-VISUAL-CAPTION-SYNC-20260110.md
  */
 
 export interface Word {

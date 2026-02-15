@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Reconcile-to-Script Module
  *
  * Maps ASR-transcribed words back to original script text, preserving

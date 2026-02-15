@@ -762,7 +762,7 @@ export const CAPTION_CONFIG = {
 
 ## 11. References
 
-- [RQ-28: Audio-Visual-Caption Sync](RQ-28-AUDIO-VISUAL-CAPTION-SYNC-20260610.md)
+- [RQ-28: Audio-Visual-Caption Sync](RQ-28-AUDIO-VISUAL-CAPTION-SYNC-20260110.md)
 - [RQ-30: Sync Pipeline Architecture](RQ-30-SYNC-PIPELINE-ARCHITECTURE-20260107.md)
 - [Remotion Sequence Documentation](https://www.remotion.dev/docs/sequence)
 - [Remotion useCurrentFrame](https://www.remotion.dev/docs/use-current-frame)

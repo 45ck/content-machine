@@ -21,5 +21,5 @@ A **stage** is one logical step in the pipeline that reads inputs and produces a
 
 ## Related
 
-- `docs/glossary/command.md`
-- `docs/glossary/artifact.md`
+- `docs/dev/glossary/command.md`
+- `docs/dev/glossary/artifact.md`

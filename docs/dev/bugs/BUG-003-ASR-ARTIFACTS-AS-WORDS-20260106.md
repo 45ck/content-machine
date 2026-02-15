@@ -1,6 +1,6 @@
 # BUG-003: ASR Artifacts as Caption Words
 
-**Date:** 2026-06-06  
+**Date:** 2026-01-06  
 **Status:** FIXED (commit 1462eae, enhanced in current session)  
 **Severity:** Medium (visual quality issue)  
 **Root Cause:** Whisper transcription noise
