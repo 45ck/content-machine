@@ -8,7 +8,13 @@
  * @see docs/research/investigations/RQ-28-AUDIO-VISUAL-CAPTION-SYNC-20260110.md
  */
 import { describe, it, expect } from 'vitest';
-import { isWordActive } from '../../../../src/render/captions/timing';
+import {
+  frameToMs,
+  getActiveWord,
+  getWordProgress,
+  isWordActive,
+  msToFrame,
+} from '../../../../src/render/captions/timing';
 
 describe('isWordActive', () => {
   // === Happy Path ===
@@ -142,5 +148,84 @@ describe('isWordActive', () => {
       // At 1000ms, "productivity" should be active
       expect(isWordActive(words[4], pageStartMs, 1000)).toBe(true);
     });
+  });
+});
+
+describe('getActiveWord', () => {
+  it('returns null for empty input', () => {
+    expect(getActiveWord([], 0)).toBeNull();
+  });
+
+  it('returns null when before the first word start', () => {
+    const words = [
+      { text: 'a', startMs: 100, endMs: 200 },
+      { text: 'b', startMs: 200, endMs: 300 },
+    ];
+
+    expect(getActiveWord(words, 99)).toBeNull();
+  });
+
+  it('returns the active word using start-time boundaries (stable highlighting)', () => {
+    const words = [
+      { text: 'one', startMs: 0, endMs: 1 }, // short end time shouldn't matter
+      { text: 'two', startMs: 500, endMs: 999 },
+      { text: 'three', startMs: 1000, endMs: 1500 },
+    ];
+
+    expect(getActiveWord(words, 0)?.text).toBe('one');
+    expect(getActiveWord(words, 499)?.text).toBe('one');
+    expect(getActiveWord(words, 500)?.text).toBe('two');
+    expect(getActiveWord(words, 999)?.text).toBe('two');
+    expect(getActiveWord(words, 1000)?.text).toBe('three');
+  });
+
+  it('sorts input defensively when words are not ordered', () => {
+    const words = [
+      { text: 'two', startMs: 500, endMs: 999 },
+      { text: 'one', startMs: 0, endMs: 1 },
+      { text: 'three', startMs: 1000, endMs: 1500 },
+    ];
+
+    expect(getActiveWord(words, 250)?.text).toBe('one');
+    expect(getActiveWord(words, 750)?.text).toBe('two');
+  });
+});
+
+describe('getWordProgress', () => {
+  it('returns null when the word is not active', () => {
+    const word = { text: 'hello', startMs: 1000, endMs: 1500 };
+    expect(getWordProgress(word, 0, 999)).toBeNull();
+  });
+
+  it('returns 0 for zero/negative-duration words when active', () => {
+    const word = { text: 'oops', startMs: 1000, endMs: 1000 };
+    // pageStart 0; sequenceTime 1000 => absolute 1000 => active boundary
+    expect(getWordProgress(word, 0, 1000)).toBe(0);
+  });
+
+  it('returns a value clamped to [0, 1] while active', () => {
+    const word = { text: 'hello', startMs: 1000, endMs: 1500 };
+    const pageStartMs = 500;
+
+    // absolute 1000 => progress 0
+    expect(getWordProgress(word, pageStartMs, 500)).toBe(0);
+
+    // absolute 1250 => progress 0.5
+    expect(getWordProgress(word, pageStartMs, 750)).toBeCloseTo(0.5, 5);
+
+    // absolute 1499 => almost 1
+    expect(getWordProgress(word, pageStartMs, 999)).toBeGreaterThan(0.99);
+  });
+});
+
+describe('frame/ms conversion helpers', () => {
+  it('frameToMs converts at a given fps', () => {
+    expect(frameToMs(30, 30)).toBe(1000);
+    expect(frameToMs(15, 30)).toBe(500);
+  });
+
+  it('msToFrame floors to the nearest frame', () => {
+    expect(msToFrame(1000, 30)).toBe(30);
+    expect(msToFrame(999, 30)).toBe(29);
   });
 });
