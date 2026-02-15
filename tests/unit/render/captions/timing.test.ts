@@ -197,10 +197,10 @@ describe('getWordProgress', () => {
     expect(getWordProgress(word, 0, 999)).toBeNull();
   });
 
-  it('returns 0 for zero/negative-duration words when active', () => {
+  it('returns null for zero/negative-duration words (never active)', () => {
     const word = { text: 'oops', startMs: 1000, endMs: 1000 };
-    // pageStart 0; sequenceTime 1000 => absolute 1000 => active boundary
-    expect(getWordProgress(word, 0, 1000)).toBe(0);
+    // isWordActive requires absoluteTimeMs < endMs, so endMs == startMs can't be active.
+    expect(getWordProgress(word, 0, 1000)).toBeNull();
   });
 
   it('returns a value clamped to [0, 1] while active', () => {
