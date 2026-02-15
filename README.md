@@ -8,7 +8,7 @@ CLI-first automated short-form video generator for TikTok, Reels, and Shorts.
 
 > **Status:** Early development. Not production-ready yet.
 
-![Content Machine pipeline](assets/demo/pipeline-preview.svg)
+![Content Machine pipeline](https://raw.githubusercontent.com/45ck/content-machine/master/assets/demo/pipeline-preview.svg)
 
 ## Install
 
@@ -44,7 +44,7 @@ cm generate "Redis vs PostgreSQL for caching" \
   --keep-artifacts
 ```
 
-More: [`docs/user/QUICKSTART.md`](docs/user/QUICKSTART.md)
+More: https://github.com/45ck/content-machine/blob/master/docs/user/QUICKSTART.md
 
 ## Docs
 
@@ -78,7 +78,10 @@ Run end-to-end:
 cm generate "Redis vs PostgreSQL" --archetype versus --output output/video.mp4
 ```
 
-Stage-by-stage usage and full command references live in [`docs/user/CLI.md`](docs/user/CLI.md) and `docs/reference/`.
+Stage-by-stage usage and full command references live in:
+
+- https://github.com/45ck/content-machine/blob/master/docs/user/CLI.md
+- https://github.com/45ck/content-machine/tree/master/docs/reference
 
 ## Terminology (Ubiquitous Language)
 
@@ -88,7 +91,7 @@ These words mean specific things in this repo:
 - **Render template**: render preset used by `cm render` / `cm generate`
 - **Pipeline workflow**: orchestration preset used by `cm generate`
 
-Canonical glossary (generated): [`docs/reference/GLOSSARY.md`](docs/reference/GLOSSARY.md)
+Canonical glossary (generated): https://github.com/45ck/content-machine/blob/master/docs/reference/GLOSSARY.md
 
 ## Development (From Source)
 
