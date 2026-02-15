@@ -59,37 +59,10 @@ Canonical references (generated; do not edit):
 - Environment variables: [`docs/reference/ENVIRONMENT-VARIABLES.md`](docs/reference/ENVIRONMENT-VARIABLES.md)
 - Glossary (ubiquitous language): [`docs/reference/GLOSSARY.md`](docs/reference/GLOSSARY.md)
 
-Online docs (useful for npm installs): https://github.com/45ck/content-machine/tree/master/docs/user
+Examples and demo gallery:
 
-## Demo Videos
-
-GitHub READMEs can't reliably inline-play `mp4`, so this repo uses small previews (GIF/SVG).
-Full clips are either stored in `docs/demo/` (small) or attached to GitHub Releases (large).
-
-- Releases: https://github.com/45ck/content-machine/releases
-- Demo media guide: [`docs/dev/guides/guide-demo-media-20260111.md`](docs/dev/guides/guide-demo-media-20260111.md)
-
-### Demo 1: Split-screen gameplay + content (render template)
-
-![Split-screen gameplay + content demo](assets/demo/demo-1-split-screen.gif)
-
-How to reproduce: [`docs/user/examples/split-screen-gameplay.md`](docs/user/examples/split-screen-gameplay.md)
-
-### Demo 2: Gameplay with TikTok captions (render template)
-
-![Gameplay captions demo](assets/demo/demo-2-subway-captions.gif)
-
-### Demo 3: Bring your own clips (no stock visuals)
-
-![Import clips demo](assets/demo/demo-3-import-clips.gif)
-
-### Demo 4: Latest news listicle (research -> video)
-
-![Latest news listicle demo](assets/demo/demo-4-latest-news.gif)
-
-Full clip: [`docs/demo/demo-4-latest-news.mp4`](docs/demo/demo-4-latest-news.mp4)
-
-How to reproduce: [`docs/user/examples/latest-news-listicle.md`](docs/user/examples/latest-news-listicle.md)
+- Examples: [`docs/user/EXAMPLES.md`](docs/user/EXAMPLES.md)
+- Demo media: [`docs/demo/`](docs/demo/)
 
 ## How It Works
 
@@ -105,14 +78,7 @@ Run end-to-end:
 cm generate "Redis vs PostgreSQL" --archetype versus --output output/video.mp4
 ```
 
-Or run stages independently:
-
-```bash
-cm script --topic "Redis vs PostgreSQL" -o output/script.json
-cm audio --input output/script.json --output output/audio.wav --timestamps output/timestamps.json
-cm visuals --input output/timestamps.json --output output/visuals.json
-cm render --input output/visuals.json --audio output/audio.wav --timestamps output/timestamps.json -o output/video.mp4
-```
+Stage-by-stage usage and full command references live in [`docs/user/CLI.md`](docs/user/CLI.md) and `docs/reference/`.
 
 ## Terminology (Ubiquitous Language)
 

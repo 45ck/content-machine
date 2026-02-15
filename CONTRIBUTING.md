@@ -31,7 +31,7 @@ This project follows a code of conduct. By participating, you agree to:
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js `>=20` (canonical: [`docs/reference/REPO-FACTS.md`](docs/reference/REPO-FACTS.md))
 - Git
 - Basic understanding of TypeScript, Remotion, and MCP
 
@@ -40,7 +40,8 @@ This project follows a code of conduct. By participating, you agree to:
 1. **Fork and clone:**
 
    ```bash
-   git fork https://github.com/45ck/content-machine.git
+   # Option A: GitHub UI: fork, then clone your fork
+   git clone --recurse-submodules https://github.com/<you>/content-machine.git
    cd content-machine
    ```
 
@@ -50,23 +51,33 @@ This project follows a code of conduct. By participating, you agree to:
    npm install
    ```
 
-3. **Update submodules:**
+3. **Initialize/update submodules (vendored repos):**
 
    ```bash
-   .\scripts\vendor.ps1
+   git submodule update --init --recursive
    ```
 
 4. **Set up environment:**
 
    ```bash
    cp .env.example .env
-   # Add your OPENAI_API_KEY
+   # Add any required API keys (see docs/reference/ENVIRONMENT-VARIABLES.md)
    ```
 
 5. **Read the docs:**
    - `AGENTS.md` - Project overview
    - `docs/README.md` - Documentation index
    - `tasks/README.md` - Task workflow
+   - `docs/dev/README.md` - Dev docs and "single source of truth" rules
+
+### Single Sources Of Truth (Required)
+
+This repo enforces canonical registries for terminology and repo-wide facts:
+
+- Repo facts registry (edit): `registry/repo-facts.yaml`
+  - Generate outputs: `npm run repo-facts:gen`
+- Ubiquitous language registry (edit): `registry/ubiquitous-language.yaml`
+  - Generate outputs: `npm run glossary:gen && npm run ul:gen`
 
 ---
 
