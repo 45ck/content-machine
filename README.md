@@ -50,19 +50,19 @@ More: https://github.com/45ck/content-machine/blob/master/docs/user/QUICKSTART.m
 
 Start here:
 
-- User docs: [`docs/user/README.md`](docs/user/README.md)
-- Docs portal: [`docs/README.md`](docs/README.md)
+- User docs: https://github.com/45ck/content-machine/blob/master/docs/user/README.md
+- Docs portal: https://github.com/45ck/content-machine/blob/master/docs/README.md
 
 Canonical references (generated; do not edit):
 
-- Repo facts: [`docs/reference/REPO-FACTS.md`](docs/reference/REPO-FACTS.md)
-- Environment variables: [`docs/reference/ENVIRONMENT-VARIABLES.md`](docs/reference/ENVIRONMENT-VARIABLES.md)
-- Glossary (ubiquitous language): [`docs/reference/GLOSSARY.md`](docs/reference/GLOSSARY.md)
+- Repo facts: https://github.com/45ck/content-machine/blob/master/docs/reference/REPO-FACTS.md
+- Environment variables: https://github.com/45ck/content-machine/blob/master/docs/reference/ENVIRONMENT-VARIABLES.md
+- Glossary (ubiquitous language): https://github.com/45ck/content-machine/blob/master/docs/reference/GLOSSARY.md
 
 Examples and demo gallery:
 
-- Examples: [`docs/user/EXAMPLES.md`](docs/user/EXAMPLES.md)
-- Demo media: [`docs/demo/`](docs/demo/)
+- Examples: https://github.com/45ck/content-machine/blob/master/docs/user/EXAMPLES.md
+- Demo media: https://github.com/45ck/content-machine/tree/master/docs/demo
 
 ## How It Works
 
