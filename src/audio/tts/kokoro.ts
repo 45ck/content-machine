@@ -173,7 +173,7 @@ export async function synthesizeSpeechKokoro(options: TTSOptions): Promise<TTSRe
     }
 
     if (typeof options.outputPath !== 'string' || options.outputPath.trim().length === 0) {
-      const keys = Object.keys(options as Record<string, unknown>);
+      const keys = Object.keys(options as unknown as Record<string, unknown>);
       // Include a hint if a common snake_case variant is present.
       const maybeSnakeCase = (options as unknown as Record<string, unknown>)['output_path'];
       throw new Error(
