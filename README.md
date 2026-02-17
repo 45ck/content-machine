@@ -52,6 +52,7 @@ Start here:
 
 - User docs: https://github.com/45ck/content-machine/blob/master/docs/user/README.md
 - Docs portal: https://github.com/45ck/content-machine/blob/master/docs/README.md
+- Google Gemini provider: https://github.com/45ck/content-machine/blob/master/docs/user/providers/gemini.md
 
 Canonical references (generated; do not edit):
 

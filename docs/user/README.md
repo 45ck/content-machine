@@ -7,6 +7,7 @@ Start here:
 - [Configuration](CONFIGURATION.md)
 - [CLI usage](CLI.md)
 - [Examples](EXAMPLES.md)
+- [Providers: Google Gemini](providers/gemini.md)
 
 Canonical references (generated; do not edit):
 

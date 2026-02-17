@@ -48,6 +48,15 @@ function isAdvancedMotionStrategy(strategy: string | undefined): strategy is 'de
   return strategy === 'depthflow' || strategy === 'veo';
 }
 
+function resolveVeoDurationSeconds(targetSeconds: number): number {
+  // Veo currently supports a small set of discrete clip durations.
+  // We select the smallest duration >= target, otherwise clamp to the max supported.
+  if (!Number.isFinite(targetSeconds) || targetSeconds <= 0) return 4;
+  if (targetSeconds <= 4) return 4;
+  if (targetSeconds <= 6) return 6;
+  return 8;
+}
+
 async function extractSceneKeyframe(params: {
   sceneId: string;
   inputPath: string;
@@ -174,12 +183,15 @@ async function processImageScene(params: {
     `${scene.sceneId.replace(/[^a-zA-Z0-9._-]/g, '_')}-${motionStrategy}.mp4`
   );
 
+  const durationSeconds =
+    motionStrategy === 'veo' ? resolveVeoDurationSeconds(scene.duration) : scene.duration;
+
   const job = await context.orchestrator.runJob({
     adapterName,
     request: {
       kind: 'image-to-video',
       inputImagePath: localImagePath,
-      durationSeconds: scene.duration,
+      durationSeconds,
       width: 1080,
       height: 1920,
       outputPath,

@@ -31,6 +31,17 @@ cm generate [options] <topic>
 - `--audio-mix <path>`: use existing audio mix plan (optional)
 - `--timestamps <path>`: use existing `timestamps.json`
 - `--visuals <path>`: use existing `visuals.json` (skip visuals matching)
+- `--visuals-provider <providerOrChain>`: visuals provider id or provider chain (e.g., `pexels` or `pexels,local,nanobanana`)
+- `--visuals-fallback-providers <providers>`: comma-separated fallback providers appended to `--visuals-provider` when provider is a single value
+- `--visuals-routing-policy <policy>`: visuals provider routing policy (`configured|balanced|cost-first|quality-first`)
+- `--visuals-max-generation-cost-usd <amount>`: hard cap for AI image generation spend during visuals stage (USD)
+- `--media`: enable media synthesis stage (image-to-video for `depthflow`/`veo` + video keyframes)
+- `--no-media-keyframes`: disable media-stage video keyframe extraction
+- `--no-media-synthesize-motion`: disable media-stage image-to-video synthesis for `depthflow`/`veo` scenes
+- `--media-dir <path>`: directory for generated media-stage artifacts
+- `--media-ffmpeg <path>`: ffmpeg executable path for media stage
+- `--media-depthflow-adapter <id>`: adapter id for depthflow image-to-video synthesis
+- `--media-veo-adapter <id>`: adapter id for veo image-to-video synthesis
 - `-o, --output <path>`: output MP4 path (default: `video.mp4`)
 - `--orientation <type>`: `portrait|landscape|square` (default: `portrait`)
 - `--voice <voice>`: TTS voice id (default: `af_heart`)
@@ -155,6 +166,7 @@ cm generate "Product recap" --workflow acme-marketing --workflow-allow-exec --ou
 - `docs/reference/cm-script-reference-20260106.md`
 - `docs/reference/cm-timestamps-reference-20260110.md`
 - `docs/reference/cm-import-reference-20260110.md`
+- `docs/reference/cm-media-reference-20260217.md`
 - `docs/reference/cm-workflows-reference-20260110.md`
 - `docs/reference/cm-research-reference-20260106.md`
 - `docs/reference/cm-validate-reference-20260106.md`

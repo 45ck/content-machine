@@ -20,6 +20,7 @@ Pipeline commands:
 - `cm script`
 - `cm audio`
 - `cm visuals`
+- `cm media`
 - `cm render`
 
 Utilities:
@@ -36,6 +37,7 @@ Command references (dated):
 - [`docs/reference/cm-script-reference-20260106.md`](../reference/cm-script-reference-20260106.md)
 - [`docs/reference/cm-audio-reference-20260106.md`](../reference/cm-audio-reference-20260106.md)
 - [`docs/reference/cm-visuals-reference-20260106.md`](../reference/cm-visuals-reference-20260106.md)
+- [`docs/reference/cm-media-reference-20260217.md`](../reference/cm-media-reference-20260217.md)
 - [`docs/reference/cm-render-reference-20260106.md`](../reference/cm-render-reference-20260106.md)
 
 Canonical CLI output/error rules (generated): [`docs/reference/CLI-CONTRACT.md`](../reference/CLI-CONTRACT.md)

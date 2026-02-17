@@ -35,11 +35,12 @@ export function createMediaSynthesisRegistry(
     );
   }
 
-  if (process.env.GOOGLE_API_KEY && process.env.CM_MEDIA_VEO_ENDPOINT) {
+  const googleApiKey = process.env.GOOGLE_API_KEY ?? process.env.GEMINI_API_KEY;
+  if (googleApiKey) {
     adapters.push(
       new GoogleVeoAdapter({
-        apiKey: process.env.GOOGLE_API_KEY,
-        endpoint: process.env.CM_MEDIA_VEO_ENDPOINT,
+        apiKey: googleApiKey,
+        baseUrl: process.env.CM_MEDIA_VEO_ENDPOINT,
         model: process.env.CM_MEDIA_VEO_MODEL,
       })
     );

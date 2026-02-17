@@ -2,6 +2,8 @@
 
 - [Latest news listicle (research -> video)](examples/latest-news-listicle.md)
 - [Split-screen gameplay + Pexels (render template)](examples/split-screen-gameplay.md)
+- [NanoBanana images + Ken Burns (no Veo)](examples/nanobanana-kenburns.md)
+- [NanoBanana keyframes + Veo (image-to-video)](examples/nanobanana-veo.md)
 - [Import render templates and code templates](examples/import-render-templates.md)
 
 Also see:

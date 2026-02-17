@@ -120,7 +120,7 @@ export const MOTION_STRATEGIES = [
     displayName: 'Veo Image-to-Video',
     description: 'Google Veo AI video generation (high quality).',
     costPerClip: 0.5,
-    dependencies: ['GOOGLE_API_KEY'],
+    dependencies: ['GOOGLE_API_KEY', 'GEMINI_API_KEY'],
   },
 ] as const;
 export type MotionStrategyFacts = (typeof MOTION_STRATEGIES)[number];

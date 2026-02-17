@@ -5,14 +5,12 @@ const downloadToPath = vi.fn(async ({ outputPath }: { outputPath: string }) => o
 const fetchJsonWithTimeout = vi.fn();
 const fileToDataUrl = vi.fn(async () => 'data:image/jpeg;base64,AQID');
 const sleep = vi.fn(async () => undefined);
-const writeBase64ToPath = vi.fn(async ({ outputPath }: { outputPath: string }) => outputPath);
 
 vi.mock('../../../../../src/media/synthesis/http', () => ({
   downloadToPath,
   fetchJsonWithTimeout,
   fileToDataUrl,
   sleep,
-  writeBase64ToPath,
 }));
 
 describe('GoogleVeoAdapter', () => {
@@ -20,17 +18,21 @@ describe('GoogleVeoAdapter', () => {
     vi.clearAllMocks();
   });
 
-  it('submits text-to-video request and resolves direct output URL', async () => {
+  it('submits text-to-video request and resolves completed operation output', async () => {
     fetchJsonWithTimeout.mockResolvedValueOnce({
-      status: 'completed',
-      outputUrl: 'https://example.com/veo.mp4',
+      done: true,
+      response: {
+        generateVideoResponse: {
+          generatedSamples: [{ video: { uri: 'https://example.com/veo.mp4' } }],
+        },
+      },
     });
 
     const { GoogleVeoAdapter } =
       await import('../../../../../src/media/synthesis/adapters/google-veo');
     const adapter = new GoogleVeoAdapter({
       apiKey: 'g-key',
-      endpoint: 'https://veo.example.com/jobs',
+      baseUrl: 'https://generativelanguage.googleapis.com/v1beta',
       model: 'veo-3.1-fast',
     });
 
@@ -48,25 +50,30 @@ describe('GoogleVeoAdapter', () => {
     expect(downloadToPath).toHaveBeenCalledWith({
       url: 'https://example.com/veo.mp4',
       outputPath: '/tmp/veo.mp4',
+      headers: expect.objectContaining({ 'x-goog-api-key': 'g-key' }),
+      timeoutMs: expect.any(Number),
     });
   });
 
-  it('polls running image-to-video jobs and resolves base64 output', async () => {
+  it('polls unfinished image-to-video operations and downloads video output', async () => {
     fetchJsonWithTimeout
       .mockResolvedValueOnce({
-        status: 'running',
-        jobId: 'veo-job-1',
+        name: 'operations/veo-job-1',
       })
       .mockResolvedValueOnce({
-        status: 'succeeded',
-        videoBase64: 'AQID',
+        done: true,
+        response: {
+          generateVideoResponse: {
+            generatedSamples: [{ video: { uri: 'https://example.com/veo-polled.mp4' } }],
+          },
+        },
       });
 
     const { GoogleVeoAdapter } =
       await import('../../../../../src/media/synthesis/adapters/google-veo');
     const adapter = new GoogleVeoAdapter({
       apiKey: 'g-key',
-      endpoint: 'https://veo.example.com/jobs?region=us',
+      baseUrl: 'https://generativelanguage.googleapis.com/v1beta',
       pollIntervalMs: 1,
       maxPollAttempts: 2,
     });
@@ -83,23 +90,26 @@ describe('GoogleVeoAdapter', () => {
 
     expect(fileToDataUrl).toHaveBeenCalledWith('/tmp/input.jpg');
     expect(sleep).toHaveBeenCalledTimes(1);
-    expect(writeBase64ToPath).toHaveBeenCalledWith({
-      base64: 'AQID',
-      outputPath: '/tmp/veo-polled.mp4',
-    });
+    expect(downloadToPath).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: 'https://example.com/veo-polled.mp4',
+        outputPath: '/tmp/veo-polled.mp4',
+        headers: expect.objectContaining({ 'x-goog-api-key': 'g-key' }),
+      })
+    );
     expect(result.outputPath).toBe('/tmp/veo-polled.mp4');
   });
 
-  it('throws when async creation response lacks job id', async () => {
+  it('throws when async creation response lacks operation name', async () => {
     fetchJsonWithTimeout.mockResolvedValueOnce({
-      status: 'running',
+      done: false,
     });
 
     const { GoogleVeoAdapter } =
       await import('../../../../../src/media/synthesis/adapters/google-veo');
     const adapter = new GoogleVeoAdapter({
       apiKey: 'g-key',
-      endpoint: 'https://veo.example.com/jobs',
+      baseUrl: 'https://generativelanguage.googleapis.com/v1beta',
       maxPollAttempts: 1,
     });
 
@@ -112,24 +122,24 @@ describe('GoogleVeoAdapter', () => {
         height: 1280,
         outputPath: '/tmp/out.mp4',
       })
-    ).rejects.toThrow(/did not include job id/);
+    ).rejects.toThrow(/did not include operation name/);
   });
 
-  it('throws when polled status is cancelled', async () => {
+  it('throws when polled operation contains an error', async () => {
     fetchJsonWithTimeout
       .mockResolvedValueOnce({
-        status: 'running',
-        id: 'veo-job-2',
+        name: 'operations/veo-job-2',
       })
       .mockResolvedValueOnce({
-        status: 'cancelled',
+        done: true,
+        error: { message: 'cancelled' },
       });
 
     const { GoogleVeoAdapter } =
       await import('../../../../../src/media/synthesis/adapters/google-veo');
     const adapter = new GoogleVeoAdapter({
       apiKey: 'g-key',
-      endpoint: 'https://veo.example.com/jobs',
+      baseUrl: 'https://generativelanguage.googleapis.com/v1beta',
       pollIntervalMs: 1,
       maxPollAttempts: 1,
     });
@@ -143,6 +153,6 @@ describe('GoogleVeoAdapter', () => {
         height: 1280,
         outputPath: '/tmp/out.mp4',
       })
-    ).rejects.toThrow(/ended with status "cancelled"/);
+    ).rejects.toThrow(/operation failed/i);
   });
 });
