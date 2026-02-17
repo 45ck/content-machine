@@ -204,7 +204,11 @@ function parseBooleanQueryParam(query, keys) {
 }
 
 function parseRouteModes(query) {
-  const routeRequireOverall = parseBooleanQueryParam(query, ['requireOverall', 'require-overall', 'overall']);
+  const routeRequireOverall = parseBooleanQueryParam(query, [
+    'requireOverall',
+    'require-overall',
+    'overall',
+  ]);
   const routeGoodBadMode = parseBooleanQueryParam(query, ['goodBadMode', 'good-bad', 'goodBad']);
   return {
     requireOverall: routeRequireOverall,
@@ -296,7 +300,9 @@ function runCardHtml({
   const labelText = escapeHtml(label || prefix.toUpperCase());
   const upperPrefix = safePrefix.toUpperCase();
   const summary = run && run.autoMetricsSummary ? run.autoMetricsSummary : null;
-  const safeVariantId = escapeHtml(String(variantId || (isVariant ? `v-${safePrefix}` : 'baseline')));
+  const safeVariantId = escapeHtml(
+    String(variantId || (isVariant ? `v-${safePrefix}` : 'baseline'))
+  );
   return `
     <div
       class="run-card"
@@ -743,18 +749,18 @@ async function renderRunsPage() {
       }
     });
 
-  document.querySelectorAll('.pick').forEach((el) => {
-    el.addEventListener('change', () => {
-      const runId = el.getAttribute('data-run');
-      if (!runId) return;
-      const next = selected.slice();
-      const idx = next.indexOf(runId);
-      if (el.checked && idx === -1) next.push(runId);
-      if (!el.checked && idx !== -1) next.splice(idx, 1);
-      selected = next;
-      render();
+    document.querySelectorAll('.pick').forEach((el) => {
+      el.addEventListener('change', () => {
+        const runId = el.getAttribute('data-run');
+        if (!runId) return;
+        const next = selected.slice();
+        const idx = next.indexOf(runId);
+        if (el.checked && idx === -1) next.push(runId);
+        if (!el.checked && idx !== -1) next.splice(idx, 1);
+        selected = next;
+        render();
+      });
     });
-  });
 
     document.getElementById('compareBtn').addEventListener('click', async () => {
       if (selected.length < 2) return;
@@ -1359,8 +1365,10 @@ async function renderComparePage(experimentId, routeOptions = {}) {
     if (state.gridApi && activeRatingGridApi) {
       state.gridApi.setRatings(activeRatingGridApi.getRatings());
     }
-    if (state.notesEl) state.notesEl.value = String(activeNotesEl && activeNotesEl.value ? activeNotesEl.value : '');
-    if (state.tagsEl) state.tagsEl.value = String(activeTagsEl && activeTagsEl.value ? activeTagsEl.value : '');
+    if (state.notesEl)
+      state.notesEl.value = String(activeNotesEl && activeNotesEl.value ? activeNotesEl.value : '');
+    if (state.tagsEl)
+      state.tagsEl.value = String(activeTagsEl && activeTagsEl.value ? activeTagsEl.value : '');
   };
 
   const populateActiveReviewFromState = (state) => {
@@ -1615,10 +1623,14 @@ async function renderComparePage(experimentId, routeOptions = {}) {
     const oneCardMode = setSingleVideoMode();
     if (!oneCardMode || !active) {
       deckPositionEl.textContent = `Reviewing all (${total + (baselineState ? 1 : 0)} video cards)`;
-      if (deckPositionChipEl) deckPositionChipEl.textContent = `cards: ${total + (baselineState ? 1 : 0)}`;
+      if (deckPositionChipEl)
+        deckPositionChipEl.textContent = `cards: ${total + (baselineState ? 1 : 0)}`;
       return;
     }
-    const activeLabel = String(active.label || active.prefix || '').split('(')[0].trim() || String(active.label || '');
+    const activeLabel =
+      String(active.label || active.prefix || '')
+        .split('(')[0]
+        .trim() || String(active.label || '');
     deckPositionEl.textContent = `Reviewing ${activeLabel} (${active.index}/${total})`;
     if (deckPositionChipEl) deckPositionChipEl.textContent = `#${active.index}/${total}`;
   };
@@ -1665,7 +1677,8 @@ async function renderComparePage(experimentId, routeOptions = {}) {
       deckPrevBtn.textContent = hasVariants ? 'Prev variant' : 'Prev variant';
     }
     if (deckNextBtn) {
-      deckNextBtn.disabled = !hasVariants || !single || activeVariantIndex >= variantStates.length - 1;
+      deckNextBtn.disabled =
+        !hasVariants || !single || activeVariantIndex >= variantStates.length - 1;
       deckNextBtn.textContent = hasVariants ? 'Next variant' : 'Next variant';
     }
     if (deckPrevBtn) deckPrevBtn.classList.toggle('btn-primary', !deckPrevBtn.disabled);
@@ -1726,7 +1739,12 @@ async function renderComparePage(experimentId, routeOptions = {}) {
           if (state.videoEl && state.videoEl !== active.videoEl) safePause(state.videoEl);
         });
         safePlay(active.videoEl);
-      } else if (normalizedChoice === 'tie' && active.videoEl && baselineState && baselineState.videoEl) {
+      } else if (
+        normalizedChoice === 'tie' &&
+        active.videoEl &&
+        baselineState &&
+        baselineState.videoEl
+      ) {
         safePlay(active.videoEl);
         safePlay(baselineState.videoEl);
       }
@@ -1791,7 +1809,9 @@ async function renderComparePage(experimentId, routeOptions = {}) {
     const goodBad = isGoodBadMode();
 
     if (swipeHintEl) {
-      swipeHintEl.textContent = goodBad ? 'Swipe: ← A (bad) / → B (good)' : 'Swipe: ← A / ↑ tie / → B';
+      swipeHintEl.textContent = goodBad
+        ? 'Swipe: ← A (bad) / → B (good)'
+        : 'Swipe: ← A / ↑ tie / → B';
     }
 
     if (swipeLeftBtn) {
@@ -1840,16 +1860,16 @@ async function renderComparePage(experimentId, routeOptions = {}) {
     else setSwipeChoice('tie');
   };
 
-    if (singleVideoModeEl) {
-      singleVideoModeEl.addEventListener('change', () => {
-        applyDeckLayout();
-        updateDeckStatus();
-        updateDeckControls();
-        setAudioForActiveCard();
-        if (!setSingleVideoMode()) {
-          winnerInputs.forEach((el) => {
-            el.checked = false;
-          });
+  if (singleVideoModeEl) {
+    singleVideoModeEl.addEventListener('change', () => {
+      applyDeckLayout();
+      updateDeckStatus();
+      updateDeckControls();
+      setAudioForActiveCard();
+      if (!setSingleVideoMode()) {
+        winnerInputs.forEach((el) => {
+          el.checked = false;
+        });
       }
       ensureSwipeChoice();
       populateActiveReviewFromState(getReviewTargetState());
@@ -2069,7 +2089,8 @@ async function renderComparePage(experimentId, routeOptions = {}) {
       }
 
       const detailNote = state.notesEl ? String(state.notesEl.value || '').trim() : '';
-      const note = detailNote || (quickRateModeEl && quickRateModeEl.checked ? readQuickNote(state) : '');
+      const note =
+        detailNote || (quickRateModeEl && quickRateModeEl.checked ? readQuickNote(state) : '');
       const rawTags = state.tagsEl ? parseTags(state.tagsEl.value) : [];
       return {
         runId: state.runId,
@@ -2216,7 +2237,9 @@ async function renderComparePage(experimentId, routeOptions = {}) {
     if (swipeMode) {
       const activeState = getActiveVariantState();
       let activeSwipeChoice =
-        activeState && swipeChoiceByRunId.get(activeState.runId) ? swipeChoiceByRunId.get(activeState.runId) : '';
+        activeState && swipeChoiceByRunId.get(activeState.runId)
+          ? swipeChoiceByRunId.get(activeState.runId)
+          : '';
       if (!activeSwipeChoice && !winnerVariantId) {
         const fallbackChoice = isGoodBadMode() ? '' : 'tie';
         setSwipeChoice(fallbackChoice);
