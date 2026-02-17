@@ -56,6 +56,31 @@ interface BaseLabOptions {
   stayOpen?: boolean;
 }
 
+interface RequireFeedbackOptions {
+  requireOverall?: boolean;
+}
+
+interface CompareLabOptions extends BaseLabOptions, RequireFeedbackOptions {
+  name?: string;
+  hypothesis?: string;
+  goodBad?: boolean;
+}
+
+function buildReviewQuery(options: RequireFeedbackOptions = {}): string {
+  const params = new URLSearchParams();
+  if (options.requireOverall) params.set('requireOverall', '1');
+  const encoded = params.toString();
+  return encoded ? `?${encoded}` : '';
+}
+
+function buildCompareQuery(options: CompareLabOptions = {}): string {
+  const params = new URLSearchParams();
+  if (options.requireOverall) params.set('requireOverall', '1');
+  if (options.goodBad) params.set('goodBadMode', '1');
+  const encoded = params.toString();
+  return encoded ? `?${encoded}` : '';
+}
+
 function computeDefaultAllowedRoots(extra: string[] | undefined): string[] {
   const roots = [process.cwd(), join(process.cwd(), 'output'), ...(extra ?? [])];
   return Array.from(new Set(roots.map((r) => resolve(r))));
@@ -193,33 +218,40 @@ export const labCommand = new Command('lab')
     new Command('review')
       .description('One-shot review: import a run and open directly into review')
       .argument('<path>', 'Artifacts directory or output video path')
-      .action(async (inputPath: string, _options: BaseLabOptions, command: Command) => {
-        try {
-          const options = command.optsWithGlobals() as BaseLabOptions;
-          const common = await resolveLabCommonOptions(options);
-          const session = createLabSession();
-          const { run } = await importLabRunFromPath({
-            session,
-            allowedRoots: common.allowedRoots,
-            inputPath,
-          });
+      .option('--require-overall', 'Require overall feedback before submit (disabled by default)')
+      .action(
+        async (
+          inputPath: string,
+          _options: BaseLabOptions & RequireFeedbackOptions,
+          command: Command
+        ) => {
+          try {
+            const options = command.optsWithGlobals() as BaseLabOptions & RequireFeedbackOptions;
+            const common = await resolveLabCommonOptions(options);
+            const session = createLabSession();
+            const { run } = await importLabRunFromPath({
+              session,
+              allowedRoots: common.allowedRoots,
+              inputPath,
+            });
 
-          await startLab({
-            runtime: common.runtime,
-            options,
-            host: common.host,
-            port: common.port,
-            task: { type: 'review', runId: run.runId },
-            session,
-            allowedRoots: common.allowedRoots,
-            exitAfterSubmitDefault: 1,
-            deepLink: `#/review/${encodeURIComponent(run.runId)}`,
-            outputs: common.runtime.json ? { runId: run.runId } : undefined,
-          });
-        } catch (error) {
-          handleCommandError(error);
+            await startLab({
+              runtime: common.runtime,
+              options,
+              host: common.host,
+              port: common.port,
+              task: { type: 'review', runId: run.runId },
+              session,
+              allowedRoots: common.allowedRoots,
+              exitAfterSubmitDefault: 1,
+              deepLink: `#/review/${encodeURIComponent(run.runId)}${buildReviewQuery(options)}`,
+              outputs: common.runtime.json ? { runId: run.runId } : undefined,
+            });
+          } catch (error) {
+            handleCommandError(error);
+          }
         }
-      })
+      )
   )
   .addCommand(
     new Command('compare')
@@ -228,18 +260,12 @@ export const labCommand = new Command('lab')
       .argument('<pathB>', 'Artifacts directory or output video path (B/variant)')
       .option('--name <name>', 'Experiment name', 'A/B Compare')
       .option('--hypothesis <text>', 'Hypothesis (one sentence)')
+      .option('--require-overall', 'Require overall feedback before submit (disabled by default)')
+      .option('--good-bad', 'Enable Tinder-style good/bad mode (no tie)')
       .action(
-        async (
-          pathA: string,
-          pathB: string,
-          _options: BaseLabOptions & { name?: string; hypothesis?: string },
-          command: Command
-        ) => {
+        async (pathA: string, pathB: string, _options: CompareLabOptions, command: Command) => {
           try {
-            const options = command.optsWithGlobals() as BaseLabOptions & {
-              name?: string;
-              hypothesis?: string;
-            };
+            const options = command.optsWithGlobals() as CompareLabOptions;
             const common = await resolveLabCommonOptions(options);
             const session = createLabSession();
 
@@ -282,7 +308,7 @@ export const labCommand = new Command('lab')
               allowedRoots: common.allowedRoots,
               task: { type: 'compare', experimentId },
               exitAfterSubmitDefault: 1,
-              deepLink: `#/compare/${encodeURIComponent(experimentId)}`,
+              deepLink: `#/compare/${encodeURIComponent(experimentId)}${buildCompareQuery(options)}`,
               outputs: { experimentId, baselineRunId: a.run.runId, variantRunId: b.run.runId },
             });
           } catch (error) {

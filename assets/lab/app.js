@@ -174,9 +174,31 @@ function bindVideoDiagnostics({ videoEl, statusEl, label }) {
 function getRoute() {
   const raw = window.location.hash || '#/runs';
   const h = raw.startsWith('#') ? raw.slice(1) : raw;
-  const [path] = h.split('?');
-  const parts = path.split('/').filter(Boolean);
-  return parts;
+  const [pathPart, queryString = ''] = h.split('?');
+  const parts = pathPart.split('/').filter(Boolean);
+  return { parts, query: new URLSearchParams(queryString) };
+}
+
+function parseBooleanQueryParam(query, keys) {
+  if (!query || !keys) return false;
+  const names = Array.isArray(keys) ? keys : [keys];
+  for (const key of names) {
+    const raw = query.get(key);
+    if (raw === null) continue;
+    const normalized = String(raw).trim().toLowerCase();
+    if (['1', 'true', 'yes', 'on'].includes(normalized)) return true;
+    if (['0', 'false', 'no', 'off'].includes(normalized)) return false;
+  }
+  return false;
+}
+
+function parseRouteModes(query) {
+  const routeRequireOverall = parseBooleanQueryParam(query, ['requireOverall', 'require-overall', 'overall']);
+  const routeGoodBadMode = parseBooleanQueryParam(query, ['goodBadMode', 'good-bad', 'goodBad']);
+  return {
+    requireOverall: routeRequireOverall,
+    goodBadMode: routeGoodBadMode,
+  };
 }
 
 function renderError(err) {
@@ -211,6 +233,100 @@ function ratingGridHtml(prefix) {
         `
         )
         .join('')}
+    </div>
+  `;
+}
+
+function quickRateHtml(prefix, label) {
+  const safePrefix = escapeHtml(prefix);
+  return `
+    <div class="quick-rate" data-prefix="${safePrefix}">
+      <div class="muted mono">Quick ${escapeHtml(label)} overall</div>
+      <div class="quick-rate-row">
+        <input
+          class="range quick-range"
+          type="range"
+          data-prefix="${safePrefix}"
+          data-field="overall"
+          min="0"
+          max="100"
+          value="70"
+        />
+        <input
+          class="input quick-num"
+          type="number"
+          data-prefix="${safePrefix}"
+          data-field="overall"
+          min="0"
+          max="100"
+          value="70"
+        />
+      </div>
+      <div class="quick-rate-value muted mono" data-prefix="${safePrefix}" data-field="overall">70</div>
+      <div class="advanced-only">
+        <div class="muted mono" style="margin-top: 8px;">Quick note</div>
+        <textarea class="textarea quick-note" data-prefix="${safePrefix}" data-field="note" placeholder="What made it good or bad overall?"></textarea>
+      </div>
+    </div>
+  `;
+}
+
+function runCardHtml({
+  prefix,
+  label,
+  runId,
+  topic,
+  run,
+  variantId,
+  isVariant = false,
+  index = 0,
+}) {
+  const safePrefix = escapeHtml(prefix);
+  const labelText = escapeHtml(label || prefix.toUpperCase());
+  const upperPrefix = safePrefix.toUpperCase();
+  const summary = run && run.autoMetricsSummary ? run.autoMetricsSummary : null;
+  const safeVariantId = escapeHtml(String(variantId || (isVariant ? `v-${safePrefix}` : 'baseline')));
+  return `
+    <div
+      class="run-card"
+      data-run-prefix="${safePrefix}"
+      data-run-index="${String(index)}"
+      data-run-id="${escapeHtml(runId)}"
+      data-run-variant="${escapeHtml(isVariant ? '1' : '0')}"
+      data-run-variant-id="${safeVariantId}"
+      data-run-label="${labelText}"
+    >
+      <div class="pill mono">${labelText}</div>
+      <div class="muted mono advanced-only" style="margin-top: 6px;">${escapeHtml(topic || '')}</div>
+      <video
+        id="video${upperPrefix}"
+        class="video"
+        autoplay
+        muted
+        controls
+        loop
+        playsinline
+        preload="auto"
+        src="/api/runs/${encodeURIComponent(runId)}/video"
+      ></video>
+      <div class="video-status muted mono advanced-only" id="status${upperPrefix}"></div>
+      <div class="sep"></div>
+      <div class="run-metrics muted mono" id="metrics${upperPrefix}" style="display: none;">
+        ${metricChip(`${labelText} sync`, summary ? summary.syncRating : null)}
+        ${metricChip(`${labelText} caption`, summary ? summary.captionOverall : null)}
+        ${metricChip(`${labelText} score`, summary ? summary.proxyScoreOverall : null)}
+      </div>
+      <div class="muted mono advanced-only" style="margin-top: 8px;"><span class="mono">Run:</span> ${escapeHtml(shortId(runId))}</div>
+      ${quickRateHtml(safePrefix, labelText)}
+      <div class="sep advanced-only"></div>
+      <div class="advanced-only">
+        ${ratingGridHtml(safePrefix)}
+      </div>
+      <div class="sep advanced-only"></div>
+      <div class="muted mono advanced-only">Notes (${labelText}) — detailed</div>
+      <textarea class="textarea notes-field advanced-only" id="notes${safePrefix}" placeholder="Notes for ${labelText}"></textarea>
+      <div class="muted mono advanced-only" style="margin-top: 10px;">Tags (${labelText})</div>
+      <input class="input tags-field advanced-only" id="tags${safePrefix}" placeholder="comma,separated" />
     </div>
   `;
 }
@@ -316,8 +432,29 @@ function setupLinkedVideoControls({ videoA, videoB, linkEl, speedEl, audioEl, to
 
   function safePlay(videoEl) {
     try {
-      const p = videoEl.play();
-      if (p && typeof p.catch === 'function') p.catch(() => {});
+      const attempt = () => {
+        const p = videoEl.play();
+        if (!p || typeof p.catch !== 'function') return;
+
+        p.catch(() => {
+          if (videoEl.muted) return;
+
+          try {
+            videoEl.muted = true;
+            const mutedPlay = videoEl.play();
+            if (!mutedPlay || typeof mutedPlay.then !== 'function') return;
+            mutedPlay
+              .then(() => {
+                videoEl.muted = false;
+              })
+              .catch(() => {});
+          } catch {
+            // Ignore autoplay fallbacks if browser blocks everything.
+          }
+        });
+      };
+
+      attempt();
     } catch {
       // Best-effort: play() can fail due to autoplay policies or decode issues.
       return;
@@ -530,7 +667,7 @@ async function renderRunsPage() {
 
           <div class="row" style="align-items: center; justify-content: space-between;">
             <div class="muted mono">Selected for compare: ${selected.map(shortId).join(' , ') || 'none'}</div>
-            <button class="btn btn-primary" id="compareBtn" ${selected.length === 2 ? '' : 'disabled'} type="button">Compare selected</button>
+            <button class="btn btn-primary" id="compareBtn" ${selected.length >= 2 ? '' : 'disabled'} type="button">Compare selected</button>
           </div>
 
           <div style="margin-top: 12px; overflow: auto;">
@@ -595,30 +732,33 @@ async function renderRunsPage() {
       }
     });
 
-    document.querySelectorAll('.pick').forEach((el) => {
-      el.addEventListener('change', () => {
-        const runId = el.getAttribute('data-run');
-        if (!runId) return;
-        const next = selected.slice();
-        const idx = next.indexOf(runId);
-        if (el.checked && idx === -1) next.push(runId);
-        if (!el.checked && idx !== -1) next.splice(idx, 1);
-        selected = next.slice(-2);
-        render();
-      });
+  document.querySelectorAll('.pick').forEach((el) => {
+    el.addEventListener('change', () => {
+      const runId = el.getAttribute('data-run');
+      if (!runId) return;
+      const next = selected.slice();
+      const idx = next.indexOf(runId);
+      if (el.checked && idx === -1) next.push(runId);
+      if (!el.checked && idx !== -1) next.splice(idx, 1);
+      selected = next;
+      render();
     });
+  });
 
     document.getElementById('compareBtn').addEventListener('click', async () => {
-      if (selected.length !== 2) return;
+      if (selected.length < 2) return;
       setFootStatus('Creating experiment…');
       try {
         const requestId = crypto.randomUUID();
         const out = await apiPost(
           '/api/experiments',
           {
-            name: 'A/B Compare',
+            name: selected.length === 2 ? 'A/B Compare' : `${selected.length} Video Fleet`,
             baselineRunId: selected[0],
-            variants: [{ label: 'B', runId: selected[1] }],
+            variants: selected.slice(1).map((runId, index) => ({
+              label: String.fromCharCode(66 + index),
+              runId,
+            })),
           },
           { requestId }
         );
@@ -686,7 +826,7 @@ async function renderExperimentsPage() {
   `;
 }
 
-async function renderReviewPage(runId) {
+async function renderReviewPage(runId, routeOptions = {}) {
   setFootStatus('Loading run…');
   const run = await apiGet(`/api/runs/${encodeURIComponent(runId)}`);
   setFootStatus('');
@@ -738,7 +878,7 @@ async function renderReviewPage(runId) {
 
         <div class="row" style="margin-top: 12px;">
           <div class="col">
-            <video id="videoReview" class="video" controls playsinline preload="metadata" src="/api/runs/${encodeURIComponent(runId)}/video"></video>
+            <video id="videoReview" class="video" controls loop playsinline preload="auto" src="/api/runs/${encodeURIComponent(runId)}/video"></video>
             <div class="video-status muted mono" id="statusReview"></div>
             <div class="sep"></div>
             <div class="row" style="align-items: center; gap: 10px; flex-wrap: wrap;">
@@ -793,12 +933,13 @@ async function renderReviewPage(runId) {
   const gridApi = bindRatingGrid(appEl);
   const submitBtn = document.getElementById('submitBtn');
   const submitMsgEl = document.getElementById('submitMsg');
+  const requireOverall = Boolean(routeOptions.requireOverall);
   let submitting = false;
 
   submitBtn.addEventListener('click', async () => {
     if (submitting) return;
     const ratings = gridApi.getRatings();
-    if (typeof ratings.overall !== 'number') {
+    if (requireOverall && typeof ratings.overall !== 'number') {
       submitMsgEl.innerHTML = `<div class="error">overall is required</div>`;
       return;
     }
@@ -836,16 +977,66 @@ async function renderReviewPage(runId) {
   });
 }
 
-async function renderComparePage(experimentId) {
+async function renderComparePage(experimentId, routeOptions = {}) {
   setFootStatus('Loading experiment…');
   const exp = await apiGet(`/api/experiments/${encodeURIComponent(experimentId)}`);
   setFootStatus('Loading runs…');
   const baseline = await apiGet(`/api/runs/${encodeURIComponent(exp.baselineRunId)}`);
-  const variant = exp.variants && exp.variants[0] ? exp.variants[0] : null;
-  const variantRun = variant
-    ? await apiGet(`/api/runs/${encodeURIComponent(variant.runId)}`)
-    : null;
+  const variants = Array.isArray(exp.variants) ? exp.variants : [];
+  const variant = variants[0] || null;
+  const variantRuns = await Promise.all(
+    variants.map((v) => apiGet(`/api/runs/${encodeURIComponent(v.runId)}`))
+  );
   setFootStatus('');
+
+  const baselineCardHtml = runCardHtml({
+    prefix: 'a',
+    label: 'A (baseline)',
+    runId: exp.baselineRunId,
+    topic: baseline.topic || '',
+    run: baseline,
+    variantId: 'baseline',
+    isVariant: false,
+    index: 0,
+  });
+
+  const variantCards = variants.map((v, index) => ({
+    variant: v,
+    run: variantRuns[index],
+    prefix: String.fromCharCode(98 + index),
+    label: `${String.fromCharCode(65 + index + 1)} (${v.label})`,
+    topic: (variantRuns[index] && variantRuns[index].topic) || '',
+    index: index + 1,
+  }));
+
+  const variantCardsHtml = variantCards
+    .map((entry) =>
+      runCardHtml({
+        prefix: entry.prefix,
+        label: entry.label,
+        runId: entry.variant.runId,
+        topic: entry.topic,
+        run: entry.run,
+        variantId: entry.variant.variantId,
+        isVariant: true,
+        index: entry.index,
+      })
+    )
+    .join('');
+
+  const winnerChoicesHtml =
+    `<label class="toggle"><input type="radio" name="winner" value="baseline" /> A (baseline) wins</label>` +
+    variantCards
+      .map((entry) => {
+        const value = escapeHtml(entry.variant.variantId);
+        const label = escapeHtml(entry.label);
+        return `<label class="toggle"><input type="radio" name="winner" value="${value}" /> ${label} wins</label>`;
+      })
+      .join('');
+
+  const firstVariantRunId = variant ? variant.runId : '';
+  const firstVariantExists = variantCards.length > 0;
+  const canSwipe = firstVariantExists;
 
   const blindDefault = Boolean(
     state.config && state.config.ui && state.config.ui.blindMetricsDefault
@@ -858,6 +1049,9 @@ async function renderComparePage(experimentId) {
     state.config.task.experimentId === experimentId &&
     Number(state.config.exitAfterSubmit || 0) > 0;
 
+  const routeRequireOverall = Boolean(routeOptions.requireOverall);
+  const routeGoodBadMode = Boolean(routeOptions.goodBadMode);
+
   const done = exp.status === 'done';
 
   appEl.innerHTML = `
@@ -866,275 +1060,1233 @@ async function renderComparePage(experimentId) {
         <div class="compare-head">
           <div>
             <h1 class="h1">Compare</h1>
-            <div class="muted mono">Experiment: <span class="mono">${escapeHtml(exp.experimentId)}</span></div>
-            <div class="muted mono">Hypothesis: ${escapeHtml(exp.hypothesis || '')}</div>
+            <div class="muted mono advanced-only">Experiment: <span class="mono">${escapeHtml(exp.experimentId)}</span></div>
+            <div class="muted mono advanced-only">Hypothesis: ${escapeHtml(exp.hypothesis || '')}</div>
           </div>
           <div class="pill ${oneShot ? 'pill-warn' : ''}">${oneShot ? 'one-shot (auto-close)' : 'session'}</div>
         </div>
 
         <div class="sep"></div>
 
-        <div class="row" style="align-items: center; justify-content: space-between; flex-wrap: wrap;">
-          <label class="toggle"><input id="linkVideos" type="checkbox" checked /> link playback</label>
-          <div class="row" style="align-items: center;">
-            <button class="btn" id="playPause" type="button">Play/Pause</button>
-            <button class="btn" id="syncBtn" type="button">Sync</button>
-            <label class="toggle">audio
-              <select class="select" id="audioSel" style="width: 120px;">
+        <div class="row compare-strip" style="align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+          <div class="row" style="align-items: center; gap: 12px; flex-wrap: wrap;">
+            <span class="muted mono" id="swipeHint">Swipe: ← or A (bad) / ↑ (tie) / → or B (good)</span>
+            <label class="toggle">
+              <input id="advancedMode" type="checkbox" />
+              noisy mode
+            </label>
+            <label class="toggle advanced-only">
+              <input id="autoplaySwipe" type="checkbox" checked />
+              autoplay on swipe
+            </label>
+            <label class="toggle advanced-only">
+              <input id="autoAdvanceSwipe" type="checkbox" checked />
+              auto-advance
+            </label>
+            <label class="toggle advanced-only">
+              <input id="singleVideoMode" type="checkbox" checked />
+              one-card mode
+            </label>
+            <label class="toggle advanced-only">
+              <input id="swipeMode" type="checkbox" checked />
+              swipe mode
+            </label>
+            <label class="toggle advanced-only">
+              <input id="goodBadMode" type="checkbox" ${routeGoodBadMode ? 'checked' : ''} />
+              good / bad
+            </label>
+            <label class="toggle advanced-only">
+              <input id="revealMetrics" type="checkbox" ${blindDefault ? '' : 'checked'} />
+              reveal metrics (may bias)
+            </label>
+            <label class="toggle advanced-only">
+              <input id="linkVideos" type="checkbox" ${canSwipe ? 'checked' : 'disabled'} />
+              link playback
+            </label>
+            <label class="toggle advanced-only">audio
+              <select class="select" id="audioSel" style="width: 120px;" ${canSwipe ? '' : 'disabled'}>
                 <option value="a" selected>A</option>
                 <option value="b">B</option>
                 <option value="both">Both</option>
                 <option value="mute">Mute</option>
               </select>
             </label>
-            <label class="toggle">speed
-              <select class="select" id="speedSel" style="width: 110px;">
+            <label class="toggle advanced-only">speed
+              <select class="select" id="speedSel" style="width: 110px;" ${canSwipe ? '' : 'disabled'}>
                 <option value="0.75">0.75x</option>
                 <option value="1" selected>1x</option>
                 <option value="1.25">1.25x</option>
                 <option value="1.5">1.5x</option>
               </select>
             </label>
-          </div>
-        </div>
-
-        <div class="sep"></div>
-
-        <div class="two">
-          <div>
-            <div class="pill mono">A (baseline) ${escapeHtml(shortId(baseline.runId))}</div>
-            <div class="muted mono" style="margin-top: 6px;">${escapeHtml(baseline.topic || '')}</div>
-            <video id="videoA" class="video" controls playsinline preload="metadata" src="/api/runs/${encodeURIComponent(baseline.runId)}/video"></video>
-            <div class="video-status muted mono" id="statusA"></div>
-          </div>
-          <div>
-            <div class="pill mono">B (variant) ${variant ? escapeHtml(shortId(variant.runId)) : 'missing'}</div>
-            <div class="muted mono" style="margin-top: 6px;">${escapeHtml((variantRun && variantRun.topic) || '')}</div>
-            ${
-              variant
-                ? `<video id="videoB" class="video" controls playsinline preload="metadata" src="/api/runs/${encodeURIComponent(variant.runId)}/video"></video>
-                   <div class="video-status muted mono" id="statusB"></div>`
-                : `<div class="error">No variant found for this experiment.</div>`
-            }
-          </div>
-        </div>
-
-        <div class="sep"></div>
-
-        <div class="row" style="align-items: center; justify-content: space-between; flex-wrap: wrap;">
-          <div class="row" style="align-items: center; gap: 12px; flex-wrap: wrap;">
-            <label class="toggle"><input id="revealMetrics" type="checkbox" ${blindDefault ? '' : 'checked'} /> reveal metrics (may bias)</label>
-            <div id="metricsA" style="display: none;">
-              ${metricChip('A sync', (baseline.autoMetricsSummary || {}).syncRating)}
-              ${metricChip('A caption', (baseline.autoMetricsSummary || {}).captionOverall)}
-              ${metricChip('A score', (baseline.autoMetricsSummary || {}).proxyScoreOverall)}
-            </div>
-            <div id="metricsB" style="display: none;">
-              ${metricChip('B sync', (variantRun && (variantRun.autoMetricsSummary || {}).syncRating) || null)}
-              ${metricChip('B caption', (variantRun && (variantRun.autoMetricsSummary || {}).captionOverall) || null)}
-              ${metricChip('B score', (variantRun && (variantRun.autoMetricsSummary || {}).proxyScoreOverall) || null)}
-            </div>
+            <button class="btn" id="playPause" type="button">Pause/Play</button>
+            <button class="btn advanced-only" id="syncBtn" type="button">Sync</button>
           </div>
           <div class="pill mono">${done ? 'already submitted' : 'ready'}</div>
         </div>
 
         <div class="sep"></div>
 
-        <div class="row">
-          <div class="col">
-            <h2 class="h2">Winner</h2>
-            <div class="row" style="align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 8px;">
-              <label class="toggle"><input type="radio" name="winner" value="baseline" /> A wins</label>
-              <label class="toggle"><input type="radio" name="winner" value="${variant ? escapeHtml(variant.variantId) : ''}" /> B wins</label>
-              <label class="toggle"><input type="radio" name="winner" value="" /> No winner</label>
+        <div class="compare-layout">
+          <div class="compare-grid-wrap">
+            <div class="run-grid">
+              ${baselineCardHtml}
+              ${variantCardsHtml}
+            </div>
+          </div>
+          <div class="compare-side">
+            <h2 class="h2">Swipe Deck</h2>
+            <div class="row deck-nav advanced-only" style="align-items: center; gap: 8px; margin-top: 8px; flex-wrap: wrap;">
+              <button class="btn" id="deckPrev" type="button">Prev variant</button>
+              <span class="muted mono" id="deckPosition"></span>
+              <button class="btn" id="deckNext" type="button">Next variant</button>
             </div>
             <div class="sep"></div>
-            <div class="muted mono">Reason (optional)</div>
-            <textarea class="textarea" id="reason" placeholder="What made it better?"></textarea>
-          </div>
-          <div class="col">
-            <h2 class="h2">Questions</h2>
-            <div class="muted mono">Agent-authored targeted questions (optional).</div>
-            <div id="questions" style="margin-top: 10px;"></div>
-          </div>
-        </div>
-
-        <div class="sep"></div>
-
-        <div class="row" style="align-items: center; justify-content: space-between; flex-wrap: wrap;">
-          <h2 class="h2">Ratings</h2>
-          <div class="row" style="align-items: center;">
-            <button class="btn" id="copyAtoB" type="button">Copy A to B</button>
-            <button class="btn" id="copyBtoA" type="button">Copy B to A</button>
-          </div>
-        </div>
-
-        <div class="two" style="margin-top: 10px;">
-          <div class="card" style="box-shadow: none;">
-            <div class="card-inner">
-              <div class="pill mono">A</div>
-              ${ratingGridHtml('a')}
-              <div class="sep"></div>
-              <div class="muted mono">Notes (A)</div>
-              <textarea class="textarea" id="notesA" placeholder="Notes for A"></textarea>
-              <div class="muted mono" style="margin-top: 10px;">Tags (A)</div>
-              <input class="input" id="tagsA" placeholder="comma,separated" />
+            <div class="swipe-row">
+              <button class="btn swipe-btn" id="swipeLeft" type="button" ${done ? 'disabled' : ''}>Swipe Left (A)</button>
+              <button class="btn swipe-btn" id="swipeTie" type="button" ${done ? 'disabled' : ''}>Swipe Equal</button>
+              <button class="btn swipe-btn" id="swipeRight" type="button" ${done || !firstVariantRunId ? 'disabled' : ''}>Swipe Right (B)</button>
             </div>
-          </div>
-          <div class="card" style="box-shadow: none;">
-            <div class="card-inner">
-              <div class="pill mono">B</div>
-              ${ratingGridHtml('b')}
-              <div class="sep"></div>
-              <div class="muted mono">Notes (B)</div>
-              <textarea class="textarea" id="notesB" placeholder="Notes for B"></textarea>
-              <div class="muted mono" style="margin-top: 10px;">Tags (B)</div>
-              <input class="input" id="tagsB" placeholder="comma,separated" />
+            <div class="sep"></div>
+            <div id="swipeReasonWrap" style="display: none;">
+              <div class="swipe-note">
+                <div class="muted mono" style="margin-top: 8px;">Feedback note (optional)</div>
+                <textarea class="textarea" id="swipeReason" placeholder="What stood out in this choice?" style="min-height: 58px;"></textarea>
+              </div>
             </div>
+            <div class="row" id="activeReviewPanel" style="gap: 10px; flex-direction: column;">
+              <div>
+                <h2 class="h2" style="margin-bottom: 6px;">Feedback for active video</h2>
+                <div class="muted mono" id="activeReviewTarget">Loading…</div>
+              </div>
+              <div class="sep"></div>
+              <div class="row" style="align-items: center; gap: 8px; flex-wrap: wrap;">
+                <span class="muted mono">Quick overall</span>
+                <input class="select" id="activeQuickRange" style="width: 180px;" type="range" min="0" max="100" value="70" />
+                <input class="input" id="activeQuickNum" style="width: 86px;" type="number" min="0" max="100" value="70" />
+                <span class="muted mono" id="activeQuickValue">70</span>
+              </div>
+              <div class="sep"></div>
+              <div id="activeDetailedPanel">
+                <div class="muted mono" style="margin-top: 4px;">Detailed ratings</div>
+                <div id="activeRatingGrid">
+                  ${ratingGridHtml('active')}
+                </div>
+                <div class="muted mono" style="margin-top: 10px;">Notes</div>
+                <textarea class="textarea" id="activeNotes" placeholder="What made this good or bad?"></textarea>
+                <div class="muted mono" style="margin-top: 10px;">Tags (comma separated)</div>
+                <input class="input" id="activeTags" placeholder="comma,separated" />
+              </div>
+            </div>
+            <div class="row advanced-only" style="align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 4px;">
+              <span class="muted mono" id="deckPositionChip"></span>
+              <div class="muted mono">Confidence</div>
+              <input class="select advanced-only" id="swipeConfidence" style="width: 150px;" type="range" min="0" max="100" value="70" />
+              <span class="muted mono advanced-only" id="swipeConfidenceLabel">70</span>
+            </div>
+
+            <div class="sep"></div>
+            <div class="row" style="align-items: center; justify-content: space-between; flex-wrap: wrap;">
+              <label class="toggle advanced-only">
+                <input id="quickRateMode" type="checkbox" />
+                quick rating mode
+              </label>
+              <label class="toggle advanced-only">
+                <input id="requireOverall" type="checkbox" ${routeRequireOverall ? 'checked' : ''} />
+                require overall
+              </label>
+            </div>
+            <div class="advanced-only" style="display: none; margin-top: 8px;">
+              <h2 class="h2">Detailed Controls</h2>
+              <div class="sep"></div>
+              <div class="row" style="align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 6px;">
+                ${winnerChoicesHtml}
+                <label class="toggle"><input type="radio" name="winner" value="" /> No winner</label>
+              </div>
+              <div class="muted mono" style="margin-top: 8px;">Reason (optional)</div>
+              <textarea class="textarea" id="reason" placeholder="What made it better?"></textarea>
+              <div class="sep"></div>
+              <div class="muted mono">Agent-authored targeted questions</div>
+              <div id="questions" style="margin-top: 10px;"></div>
+              <div class="sep"></div>
+              <div class="row" style="gap: 8px; align-items: center; flex-wrap: wrap;">
+                <div class="muted mono">Copy ratings</div>
+                <div>
+                  <button class="btn" id="copyAtoB" type="button">Copy A to B</button>
+                  <button class="btn" id="copyBtoA" type="button">Copy B to A</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="sep"></div>
+            <div class="row" style="align-items: center; justify-content: space-between; flex-wrap: wrap;">
+              <div class="muted mono">${oneShot ? 'Submitting will close the server automatically.' : 'Submit once when done.'}</div>
+              <button class="btn btn-primary" id="submitCompare" type="button" ${done ? 'disabled' : ''}>Submit</button>
+            </div>
+            <div id="submitMsg" style="margin-top: 10px;"></div>
           </div>
         </div>
-
-        <div class="sep"></div>
-
-        <div class="row" style="align-items: center; justify-content: space-between; flex-wrap: wrap;">
-          <div class="muted mono">${oneShot ? 'Submitting will close the server automatically.' : 'Submit once when done.'}</div>
-          <button class="btn btn-primary" id="submitCompare" type="button" ${done ? 'disabled' : ''}>Submit</button>
-        </div>
-        <div id="submitMsg" style="margin-top: 10px;"></div>
       </div>
     </div>
   `;
 
   const revealEl = document.getElementById('revealMetrics');
-  const metricsAEl = document.getElementById('metricsA');
-  const metricsBEl = document.getElementById('metricsB');
+  const metricEls = Array.from(document.querySelectorAll('.run-metrics'));
   const applyReveal = () => {
     const on = Boolean(revealEl.checked);
-    metricsAEl.style.display = on ? 'inline-flex' : 'none';
-    metricsBEl.style.display = on ? 'inline-flex' : 'none';
+    metricEls.forEach((el) => {
+      el.style.display = on ? 'flex' : 'none';
+    });
   };
   if (blindDefault) revealEl.checked = false;
   applyReveal();
   revealEl.addEventListener('change', applyReveal);
 
-  const questionsEl = document.getElementById('questions');
-  const questions = Array.isArray(exp.questions) ? exp.questions : [];
-  if (!questions.length) {
-    questionsEl.innerHTML = `<div class="muted mono">No targeted questions for this experiment.</div>`;
-  } else {
-    questionsEl.innerHTML = questions
-      .map((q) => {
-        const id = escapeHtml(q.id);
-        const prompt = escapeHtml(q.prompt);
-        if (q.type === 'text') {
-          return `
-            <div style="margin-bottom: 10px;">
-              <div class="muted mono">${prompt}</div>
-              <textarea class="textarea" data-q="${id}" placeholder="Answer"></textarea>
-            </div>
-          `;
-        }
-        return `
-          <div style="margin-bottom: 10px;">
-            <div class="muted mono">${prompt}</div>
-            <select class="select" data-q="${id}">
-              <option value="">(skip)</option>
-              <option value="yes">yes</option>
-              <option value="no">no</option>
-              <option value="unsure">unsure</option>
-            </select>
-          </div>
-        `;
-      })
-      .join('');
-  }
+  const requireOverallEl = document.getElementById('requireOverall');
+  const goodBadModeEl = document.getElementById('goodBadMode');
+  const swipeHintEl = document.getElementById('swipeHint');
 
-  const gridAApi = bindRatingGrid(appEl.querySelector('[data-prefix="a"]').closest('.card-inner'));
-  const gridBApi = bindRatingGrid(appEl.querySelector('[data-prefix="b"]').closest('.card-inner'));
+  const advancedModeEl = document.getElementById('advancedMode');
+  const advancedEls = Array.from(document.querySelectorAll('.advanced-only'));
+  const singleVideoModeEl = document.getElementById('singleVideoMode');
+  const linkVideosEl = document.getElementById('linkVideos');
+  const autoAdvanceSwipeEl = document.getElementById('autoAdvanceSwipe');
+  const autoplayOnSwipeEl = document.getElementById('autoplaySwipe');
 
-  document.getElementById('copyAtoB').addEventListener('click', () => {
-    gridBApi.setRatings(gridAApi.getRatings());
-  });
-  document.getElementById('copyBtoA').addEventListener('click', () => {
-    gridAApi.setRatings(gridBApi.getRatings());
-  });
-
-  const videoAEl = document.getElementById('videoA');
-  bindVideoDiagnostics({
-    videoEl: videoAEl,
-    statusEl: document.getElementById('statusA'),
-    label: 'A',
-  });
-
-  if (variant) {
-    const videoBEl = document.getElementById('videoB');
-    state.cleanup = setupLinkedVideoControls({
-      videoA: videoAEl,
-      videoB: videoBEl,
-      linkEl: document.getElementById('linkVideos'),
-      speedEl: document.getElementById('speedSel'),
-      audioEl: document.getElementById('audioSel'),
-      toggleEl: document.getElementById('playPause'),
-      syncEl: document.getElementById('syncBtn'),
+  const applyAdvancedMode = () => {
+    const on = Boolean(advancedModeEl && advancedModeEl.checked);
+    advancedEls.forEach((el) => {
+      el.style.display = on ? '' : 'none';
     });
-    bindVideoDiagnostics({
-      videoEl: videoBEl,
-      statusEl: document.getElementById('statusB'),
-      label: 'B',
-    });
-  }
 
-  const submitCompareBtn = document.getElementById('submitCompare');
-  const submitCompareMsgEl = document.getElementById('submitMsg');
-  let submittingCompare = false;
+    if (!on) {
+      if (singleVideoModeEl) singleVideoModeEl.checked = true;
+      if (autoAdvanceSwipeEl) autoAdvanceSwipeEl.checked = true;
+      if (autoplayOnSwipeEl) autoplayOnSwipeEl.checked = true;
+      if (linkVideosEl) linkVideosEl.checked = false;
+    }
+  };
 
-  submitCompareBtn.addEventListener('click', async () => {
-    if (submittingCompare) return;
-    if (!variant) return;
-    const ratingsA = gridAApi.getRatings();
-    const ratingsB = gridBApi.getRatings();
-    if (typeof ratingsA.overall !== 'number' || typeof ratingsB.overall !== 'number') {
-      submitCompareMsgEl.innerHTML = `<div class="error">overall is required for both A and B</div>`;
+  const runStates = Array.from(appEl.querySelectorAll('.run-card')).map((card) => {
+    const index = Number(card.getAttribute('data-run-index'));
+    const prefix = String(card.getAttribute('data-run-prefix') || '');
+    const upperPrefix = prefix.toUpperCase();
+    const runId = String(card.getAttribute('data-run-id') || '');
+    const variantId = String(card.getAttribute('data-run-variant-id') || '');
+    const label = String(card.getAttribute('data-run-label') || prefix);
+    const safePrefix = CSS.escape(prefix);
+    const quickRange = card.querySelector(
+      `.quick-range[data-prefix="${safePrefix}"][data-field="overall"]`
+    );
+    const quickNum = card.querySelector(
+      `.quick-num[data-prefix="${safePrefix}"][data-field="overall"]`
+    );
+    const quickNote = card.querySelector('.quick-note[data-field="note"]');
+    const quickValueEl = card.querySelector('.quick-rate-value[data-field="overall"]');
+    return {
+      cardEl: card,
+      index: Number.isFinite(index) ? index : 0,
+      prefix,
+      upperPrefix,
+      runId,
+      variantId,
+      label,
+      notesEl: card.querySelector('.notes-field'),
+      tagsEl: card.querySelector('.tags-field'),
+      quickRangeEl: quickRange,
+      quickNumEl: quickNum,
+      quickNoteEl: quickNote,
+      quickValueEl,
+      metricsEl: card.querySelector('.run-metrics'),
+      gridApi: bindRatingGrid(card),
+      videoEl: document.getElementById(`video${upperPrefix}`),
+      videoStatusEl: document.getElementById(`status${upperPrefix}`),
+    };
+  });
+
+  const runByPrefix = Object.fromEntries(runStates.map((state) => [state.prefix, state]));
+  const clampRating = (value) => Math.max(0, Math.min(100, Math.round(Number(value))));
+
+  const activeReviewTargetEl = document.getElementById('activeReviewTarget');
+  const activeQuickRangeEl = document.getElementById('activeQuickRange');
+  const activeQuickNumEl = document.getElementById('activeQuickNum');
+  const activeQuickValueEl = document.getElementById('activeQuickValue');
+  const activeNotesEl = document.getElementById('activeNotes');
+  const activeTagsEl = document.getElementById('activeTags');
+  const activeRatingGridEl = document.getElementById('activeRatingGrid');
+  const activeRatingGridApi = activeRatingGridEl ? bindRatingGrid(activeRatingGridEl) : null;
+
+  const getReviewTargetState = () => {
+    if (singleVideoModeEl && singleVideoModeEl.checked && variantStates.length) {
+      return getActiveVariantState() || variantStates[0] || baselineState || null;
+    }
+    return baselineState || runStates[0] || null;
+  };
+
+  const getActiveQuickValue = (state) => {
+    if (!state) return 70;
+    if (state.quickNumEl) {
+      const raw = Number.parseInt(String(state.quickNumEl.value || '').trim(), 10);
+      if (Number.isFinite(raw)) return clampRating(raw);
+    }
+    if (state.quickRangeEl) {
+      const raw = Number.parseInt(String(state.quickRangeEl.value || '').trim(), 10);
+      if (Number.isFinite(raw)) return clampRating(raw);
+    }
+    return 70;
+  };
+
+  const writeActiveReviewToState = (state) => {
+    if (!state) return;
+    const quickValue = getActiveQuickValueFromPanel();
+    if (state.quickRangeEl) state.quickRangeEl.value = String(quickValue);
+    if (state.quickNumEl) state.quickNumEl.value = String(quickValue);
+    if (state.quickValueEl) state.quickValueEl.textContent = `${quickValue}/100`;
+    if (state.gridApi && activeRatingGridApi) {
+      state.gridApi.setRatings(activeRatingGridApi.getRatings());
+    }
+    if (state.notesEl) state.notesEl.value = String(activeNotesEl && activeNotesEl.value ? activeNotesEl.value : '');
+    if (state.tagsEl) state.tagsEl.value = String(activeTagsEl && activeTagsEl.value ? activeTagsEl.value : '');
+  };
+
+  const populateActiveReviewFromState = (state) => {
+    const safeState = state || getReviewTargetState();
+    if (!safeState) {
+      if (activeReviewTargetEl) activeReviewTargetEl.textContent = 'No active video';
+      if (activeQuickRangeEl) activeQuickRangeEl.value = '70';
+      if (activeQuickNumEl) activeQuickNumEl.value = '70';
+      if (activeQuickValueEl) activeQuickValueEl.textContent = '70';
+      if (activeNotesEl) activeNotesEl.value = '';
+      if (activeTagsEl) activeTagsEl.value = '';
+      if (activeRatingGridApi) activeRatingGridApi.setRatings({});
       return;
     }
 
-    const winner = document.querySelector('input[name="winner"]:checked');
-    const winnerVariantId = winner ? String(winner.value || '') : '';
+    if (activeReviewTargetEl) {
+      activeReviewTargetEl.textContent = `Reviewing ${safeState.label || safeState.prefix.toUpperCase()}`;
+    }
 
+    const quickValue = getActiveQuickValue(safeState);
+    if (activeQuickRangeEl) activeQuickRangeEl.value = String(quickValue);
+    if (activeQuickNumEl) activeQuickNumEl.value = String(quickValue);
+    if (activeQuickValueEl) activeQuickValueEl.textContent = `${quickValue}/100`;
+    if (activeNotesEl) {
+      activeNotesEl.value = safeState.notesEl ? String(safeState.notesEl.value || '') : '';
+    }
+    if (activeTagsEl) {
+      const rawTags = safeState.tagsEl ? String(safeState.tagsEl.value || '') : '';
+      activeTagsEl.value = rawTags;
+    }
+    if (activeRatingGridApi && safeState.gridApi) {
+      activeRatingGridApi.setRatings(safeState.gridApi.getRatings());
+    }
+  };
+
+  const syncActiveReviewFromPanel = () => {
+    const state = getReviewTargetState();
+    writeActiveReviewToState(state);
+  };
+
+  const getActiveQuickValueFromPanel = () => {
+    if (activeQuickNumEl) {
+      const direct = Number.parseInt(String(activeQuickNumEl.value || '').trim(), 10);
+      if (Number.isFinite(direct)) return clampRating(direct);
+    }
+    if (activeQuickRangeEl) {
+      const direct = Number.parseInt(String(activeQuickRangeEl.value || '').trim(), 10);
+      if (Number.isFinite(direct)) return clampRating(direct);
+    }
+    return 70;
+  };
+
+  const setActiveQuickFromPanel = () => {
+    const value = getActiveQuickValueFromPanel();
+    if (activeQuickRangeEl) activeQuickRangeEl.value = String(value);
+    if (activeQuickNumEl) activeQuickNumEl.value = String(value);
+    if (activeQuickValueEl) activeQuickValueEl.textContent = `${value}/100`;
+  };
+
+  const syncQuick = (state, value) => {
+    if (!state) return;
+    const clamped = clampRating(value);
+    if (state.quickRangeEl) state.quickRangeEl.value = String(clamped);
+    if (state.quickNumEl) state.quickNumEl.value = String(clamped);
+    if (state.quickValueEl) state.quickValueEl.textContent = `${clamped}/100`;
+  };
+
+  const readQuickOverall = (state) => {
+    if (!state) return undefined;
+    if (state.quickNumEl) {
+      const raw = Number.parseInt(String(state.quickNumEl.value || '').trim(), 10);
+      if (Number.isFinite(raw)) return clampRating(raw);
+    }
+    if (state.quickRangeEl) {
+      const rangeValue = Number.parseInt(String(state.quickRangeEl.value || '').trim(), 10);
+      if (Number.isFinite(rangeValue)) return clampRating(rangeValue);
+    }
+    return undefined;
+  };
+
+  const readQuickNote = (state) => {
+    if (!state || !state.quickNoteEl) return '';
+    return String(state.quickNoteEl.value || '').trim();
+  };
+
+  runStates.forEach((state) => {
+    if (!state.quickRangeEl || !state.quickNumEl) return;
+    [state.quickRangeEl, state.quickNumEl].forEach((el) => {
+      el.addEventListener('input', () => {
+        const next = readQuickOverall(state);
+        if (typeof next === 'number') syncQuick(state, next);
+      });
+    });
+  });
+
+  const applyQuickDefaults = () => {
+    runStates.forEach((state) => {
+      syncQuick(state, 70);
+    });
+  };
+
+  runStates.forEach((state) => {
+    if (state.videoEl) {
+      state.videoEl.loop = true;
+      state.videoEl.playsInline = true;
+    }
+    if (state.videoEl && state.videoStatusEl) {
+      bindVideoDiagnostics({
+        videoEl: state.videoEl,
+        statusEl: state.videoStatusEl,
+        label: state.prefix.toUpperCase(),
+      });
+    }
+  });
+
+  const swipeModeEl = document.getElementById('swipeMode');
+  const swipeLeftBtn = document.getElementById('swipeLeft');
+  const swipeTieBtn = document.getElementById('swipeTie');
+  const swipeRightBtn = document.getElementById('swipeRight');
+  const swipeReasonEl = document.getElementById('swipeReason');
+  const swipeReasonWrapEl = document.getElementById('swipeReasonWrap');
+  const swipeConfidenceEl = document.getElementById('swipeConfidence');
+  const swipeConfidenceLabelEl = document.getElementById('swipeConfidenceLabel');
+  const questionsEl = document.getElementById('questions');
+  const winnerInputs = Array.from(document.querySelectorAll('input[name="winner"]'));
+  const quickRateModeEl = document.getElementById('quickRateMode');
+  const deckPositionChipEl = document.getElementById('deckPositionChip');
+  const audioSelEl = document.getElementById('audioSel');
+
+  const deckPrevBtn = document.getElementById('deckPrev');
+  const deckNextBtn = document.getElementById('deckNext');
+  const deckPositionEl = document.getElementById('deckPosition');
+
+  const baselineState = runStates[0] || null;
+  const variantStates = runStates.slice(1);
+  const pendingPlayByVideo = new WeakMap();
+
+  const safePlay = (videoEl) => {
+    try {
+      if (!(videoEl instanceof HTMLVideoElement)) return;
+      const run = () => {
+        const attempt = () => {
+          const p = videoEl.play();
+          if (!p || typeof p.catch !== 'function') return;
+
+          p.catch(() => {
+            if (videoEl.muted) return;
+            try {
+              videoEl.muted = true;
+              const mutedPlay = videoEl.play();
+              if (!mutedPlay || typeof mutedPlay.then !== 'function') return;
+              mutedPlay
+                .then(() => {
+                  videoEl.muted = false;
+                })
+                .catch(() => {});
+            } catch {
+              // Ignore autoplay fallbacks if browser blocks everything.
+            }
+          });
+        };
+
+        attempt();
+      };
+
+      if (videoEl.readyState >= 2 || videoEl.readyState === 4) {
+        run();
+        return;
+      }
+
+      const existing = pendingPlayByVideo.get(videoEl);
+      if (existing) {
+        try {
+          videoEl.removeEventListener('loadeddata', existing);
+        } catch {
+          // best effort
+        }
+      }
+
+      const onLoaded = () => {
+        pendingPlayByVideo.delete(videoEl);
+        run();
+      };
+
+      pendingPlayByVideo.set(videoEl, onLoaded);
+      videoEl.addEventListener('loadeddata', onLoaded, { once: true });
+      return;
+    } catch {
+      return;
+    }
+  };
+
+  const safePause = (videoEl) => {
+    try {
+      videoEl.pause();
+    } catch {
+      return;
+    }
+  };
+
+  const pauseAllVideos = (opts = {}) => {
+    runStates.forEach((state) => {
+      if (!state.videoEl) return;
+      if (opts.preserve === state.videoEl) return;
+      safePause(state.videoEl);
+    });
+  };
+
+  const setSingleVideoMode = () => Boolean(singleVideoModeEl && singleVideoModeEl.checked);
+  const clampVariantIndex = (value) => {
+    if (!variantStates.length) return 0;
+    const max = variantStates.length - 1;
+    return Math.max(0, Math.min(max, value));
+  };
+
+  let activeVariantIndex = clampVariantIndex(0);
+  const getActiveVariantState = () =>
+    variantStates.length ? variantStates[clampVariantIndex(activeVariantIndex)] : null;
+
+  const setAudioForActiveCard = () => {
+    const oneCardMode = setSingleVideoMode() && variantStates.length > 0;
+    if (!oneCardMode) return;
+
+    const active = getActiveVariantState();
+    runStates.forEach((state) => {
+      if (!state.videoEl) return;
+      state.videoEl.muted = state !== active;
+    });
+
+    if (!audioSelEl) return;
+    if (audioSelEl.value !== 'b') {
+      audioSelEl.value = 'b';
+      audioSelEl.dispatchEvent(new Event('change'));
+    }
+  };
+
+  const applyDeckLayout = () => {
+    const oneCardMode = setSingleVideoMode();
+    const active = getActiveVariantState();
+    const showAll = !oneCardMode || !active;
+    runStates.forEach((state) => {
+      if (!state.cardEl) return;
+      const isActive = showAll || state === active || !variantStates.length;
+      state.cardEl.classList.toggle('run-card-hidden', !isActive);
+    });
+  };
+
+  const updateDeckStatus = () => {
+    if (!deckPositionEl) return;
+    const active = getActiveVariantState();
+    const total = variantStates.length;
+    const oneCardMode = setSingleVideoMode();
+    if (!oneCardMode || !active) {
+      deckPositionEl.textContent = `Reviewing all (${total + (baselineState ? 1 : 0)} video cards)`;
+      if (deckPositionChipEl) deckPositionChipEl.textContent = `cards: ${total + (baselineState ? 1 : 0)}`;
+      return;
+    }
+    const activeLabel = String(active.label || active.prefix || '').split('(')[0].trim() || String(active.label || '');
+    deckPositionEl.textContent = `Reviewing ${activeLabel} (${active.index}/${total})`;
+    if (deckPositionChipEl) deckPositionChipEl.textContent = `#${active.index}/${total}`;
+  };
+
+  const setActiveVariantIndex = (next, opts = {}) => {
+    const prevTarget = getReviewTargetState();
+    syncActiveReviewFromPanel();
+    const wasTarget = prevTarget;
+    if (!variantStates.length) {
+      activeVariantIndex = 0;
+      syncSwipeToRadios();
+      applyDeckLayout();
+      updateDeckStatus();
+      populateActiveReviewFromState(wasTarget);
+      return;
+    }
+    const clamped = clampVariantIndex(next);
+    activeVariantIndex = clamped;
+    const nextState = getActiveVariantState();
+    const preserve = nextState?.videoEl || null;
+    if (singleVideoModeEl && singleVideoModeEl.checked) {
+      pauseAllVideos({ preserve });
+    }
+    if (opts.autoPlay && shouldAutoplaySwipe() && nextState && nextState.videoEl) {
+      safePlay(nextState.videoEl);
+    }
+    setAudioForActiveCard();
+    syncSwipeToRadios();
+    if (singleVideoModeEl && singleVideoModeEl.checked) {
+      applyDeckLayout();
+      updateDeckStatus();
+    }
+    populateActiveReviewFromState(nextState);
+    if (!opts.silent && opts.autoFocusActive && getActiveVariantState()?.cardEl) {
+      getActiveVariantState()?.cardEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+  };
+
+  const updateDeckControls = () => {
+    const hasVariants = variantStates.length > 0;
+    const single = setSingleVideoMode();
+    if (deckPrevBtn) {
+      deckPrevBtn.disabled = !hasVariants || !single || activeVariantIndex <= 0;
+      deckPrevBtn.textContent = hasVariants ? 'Prev variant' : 'Prev variant';
+    }
+    if (deckNextBtn) {
+      deckNextBtn.disabled = !hasVariants || !single || activeVariantIndex >= variantStates.length - 1;
+      deckNextBtn.textContent = hasVariants ? 'Next variant' : 'Next variant';
+    }
+    if (deckPrevBtn) deckPrevBtn.classList.toggle('btn-primary', !deckPrevBtn.disabled);
+    if (deckNextBtn) deckNextBtn.classList.toggle('btn-primary', !deckNextBtn.disabled);
+  };
+
+  const runIdByVariant = (state) => state && state.runId;
+  const swipeChoiceByRunId = new Map();
+  let swipeMode = false;
+  let swipeChoice = '';
+  let swipeConfidence = 70;
+  const shouldAutoplaySwipe = () => !autoplayOnSwipeEl || Boolean(autoplayOnSwipeEl.checked);
+  const isGoodBadMode = () => Boolean(goodBadModeEl && goodBadModeEl.checked);
+  const isRequireOverall = () => Boolean(requireOverallEl && requireOverallEl.checked);
+
+  if (autoAdvanceSwipeEl) {
+    autoAdvanceSwipeEl.addEventListener('change', () => {
+      if (singleVideoModeEl && singleVideoModeEl.checked) {
+        updateDeckControls();
+      }
+    });
+  }
+
+  const setSwipeChoice = (choice) => {
+    const normalizedChoice = isGoodBadMode() && choice === 'tie' ? '' : choice;
+    const active = getActiveVariantState();
+    if (!active || !active.runId) {
+      swipeChoice = normalizedChoice;
+      return;
+    }
+    swipeChoiceByRunId.set(active.runId, normalizedChoice);
+    swipeChoice = normalizedChoice;
+
+    if (normalizedChoice === 'baseline') {
+      syncQuick(baselineState, 80);
+      syncQuick(active, 20);
+    } else if (normalizedChoice === 'variant') {
+      syncQuick(active, 80);
+      syncQuick(baselineState, 20);
+    } else if (normalizedChoice === 'tie') {
+      syncQuick(active, 50);
+      syncQuick(baselineState, 50);
+    }
+
+    if (swipeLeftBtn) swipeLeftBtn.classList.remove('selected');
+    if (swipeTieBtn) swipeTieBtn.classList.remove('selected');
+    if (swipeRightBtn) swipeRightBtn.classList.remove('selected');
+
+    if (normalizedChoice === 'baseline' && swipeLeftBtn) swipeLeftBtn.classList.add('selected');
+    if (normalizedChoice === 'tie' && swipeTieBtn) swipeTieBtn.classList.add('selected');
+    if (normalizedChoice === 'variant' && swipeRightBtn) swipeRightBtn.classList.add('selected');
+
+    if (shouldAutoplaySwipe()) {
+      if (normalizedChoice === 'baseline' && baselineState && baselineState.videoEl) {
+        runStates.forEach((state) => {
+          if (state.videoEl && state.videoEl !== baselineState.videoEl) safePause(state.videoEl);
+        });
+        safePlay(baselineState.videoEl);
+      } else if (normalizedChoice === 'variant' && active.videoEl) {
+        runStates.forEach((state) => {
+          if (state.videoEl && state.videoEl !== active.videoEl) safePause(state.videoEl);
+        });
+        safePlay(active.videoEl);
+      } else if (normalizedChoice === 'tie' && active.videoEl && baselineState && baselineState.videoEl) {
+        safePlay(active.videoEl);
+        safePlay(baselineState.videoEl);
+      }
+    }
+
+    if (autoAdvanceSwipeEl && autoAdvanceSwipeEl.checked && variantStates.length) {
+      if (activeVariantIndex < variantStates.length - 1) {
+        setActiveVariantIndex(activeVariantIndex + 1, { silent: false, autoPlay: true });
+        return;
+      }
+    }
+    syncSwipeToRadios();
+  };
+
+  const syncSwipeToRadios = () => {
+    if (!swipeMode) return;
+    const allowTie = !isGoodBadMode();
+    const active = getActiveVariantState();
+    const activeChoice = active ? swipeChoiceByRunId.get(runIdByVariant(active)) || '' : '';
+    const variantInput = active
+      ? winnerInputs.find((el) => String(el.value || '') === active.variantId)
+      : null;
+
+    const baseline = winnerInputs.find((el) => String(el.value || '') === 'baseline');
+    const tie = winnerInputs.find((el) => String(el.value || '') === '');
+
+    if (swipeLeftBtn) swipeLeftBtn.classList.remove('selected');
+    if (swipeTieBtn) swipeTieBtn.classList.remove('selected');
+    if (swipeRightBtn) swipeRightBtn.classList.remove('selected');
+
+    if (activeChoice === 'baseline' && baseline) baseline.checked = true;
+    if (allowTie && activeChoice === 'tie' && tie) tie.checked = true;
+    if (activeChoice === 'variant' && variantInput) variantInput.checked = true;
+
+    if (activeChoice === 'baseline' && swipeLeftBtn) swipeLeftBtn.classList.add('selected');
+    if (activeChoice === 'tie' && swipeTieBtn) swipeTieBtn.classList.add('selected');
+    if (activeChoice === 'variant' && swipeRightBtn) swipeRightBtn.classList.add('selected');
+
+    winnerInputs.forEach((input) => {
+      input.disabled = false;
+    });
+  };
+
+  const setWinnerFromRadio = () => {
+    if (!swipeMode) return;
+    const active = getActiveVariantState();
+    const value = winnerInputs.find((el) => el.checked);
+    if (!active || !value) {
+      if (active) setSwipeChoice('');
+      return;
+    }
+    const selected = String(value.value || '');
+    if (!selected) setSwipeChoice('tie');
+    else if (selected === 'baseline') setSwipeChoice('baseline');
+    else if (selected === active.variantId) setSwipeChoice('variant');
+  };
+
+  const updateSwipeMode = () => {
+    if (!swipeModeEl) return;
+    swipeMode = Boolean(swipeModeEl.checked);
+    updateDeckControls();
+    const goodBad = isGoodBadMode();
+
+    if (swipeHintEl) {
+      swipeHintEl.textContent = goodBad ? 'Swipe: ← A (bad) / → B (good)' : 'Swipe: ← A / ↑ tie / → B';
+    }
+
+    if (swipeLeftBtn) {
+      swipeLeftBtn.textContent = goodBad ? 'Swipe Left (A)' : 'Swipe Left (A)';
+    }
+    if (swipeRightBtn) {
+      swipeRightBtn.textContent = goodBad ? 'Swipe Right (B)' : 'Swipe Right (B)';
+    }
+    if (swipeTieBtn) {
+      swipeTieBtn.style.display = goodBad ? 'none' : '';
+    }
+
+    if (swipeReasonWrapEl) {
+      swipeReasonWrapEl.style.display = swipeMode ? 'block' : 'none';
+    }
+    if (!swipeMode) {
+      setSwipeChoice('');
+      swipeChoiceByRunId.clear();
+      winnerInputs.forEach((el) => {
+        el.checked = false;
+        el.disabled = false;
+      });
+      return;
+    }
+
+    winnerInputs.forEach((input) => {
+      const value = String(input.value || '');
+      if (goodBad && !value) {
+        input.disabled = true;
+      } else {
+        input.disabled = false;
+      }
+    });
+
+    syncSwipeToRadios();
+  };
+
+  const ensureSwipeChoice = () => {
+    if (!swipeMode) return;
+    const active = getActiveVariantState();
+    if (!active) return;
+    if (swipeChoiceByRunId.has(active.runId)) {
+      swipeChoice = swipeChoiceByRunId.get(active.runId);
+      return;
+    }
+    if (isGoodBadMode()) setSwipeChoice('');
+    else setSwipeChoice('tie');
+  };
+
+    if (singleVideoModeEl) {
+      singleVideoModeEl.addEventListener('change', () => {
+        applyDeckLayout();
+        updateDeckStatus();
+        updateDeckControls();
+        setAudioForActiveCard();
+        if (!setSingleVideoMode()) {
+          winnerInputs.forEach((el) => {
+            el.checked = false;
+          });
+      }
+      ensureSwipeChoice();
+      populateActiveReviewFromState(getReviewTargetState());
+    });
+  }
+
+  const propagateActiveReviewPanel = () => {
+    setActiveQuickFromPanel();
+    syncActiveReviewFromPanel();
+  };
+
+  if (activeQuickRangeEl) {
+    activeQuickRangeEl.addEventListener('input', propagateActiveReviewPanel);
+  }
+  if (activeQuickNumEl) {
+    activeQuickNumEl.addEventListener('input', propagateActiveReviewPanel);
+  }
+  if (activeNotesEl) {
+    activeNotesEl.addEventListener('input', syncActiveReviewFromPanel);
+  }
+  if (activeTagsEl) {
+    activeTagsEl.addEventListener('input', syncActiveReviewFromPanel);
+  }
+  if (activeRatingGridEl) {
+    activeRatingGridEl.addEventListener('input', syncActiveReviewFromPanel);
+    activeRatingGridEl.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      if (target.classList.contains('clear')) {
+        syncActiveReviewFromPanel();
+      }
+    });
+  }
+
+  if (deckPrevBtn) {
+    deckPrevBtn.addEventListener('click', () => {
+      setActiveVariantIndex(activeVariantIndex - 1, { silent: true, autoFocusActive: true });
+      ensureSwipeChoice();
+      updateDeckControls();
+    });
+  }
+
+  if (deckNextBtn) {
+    deckNextBtn.addEventListener('click', () => {
+      setActiveVariantIndex(activeVariantIndex + 1, { silent: true, autoFocusActive: true });
+      ensureSwipeChoice();
+      updateDeckControls();
+    });
+  }
+
+  if (swipeModeEl) {
+    swipeModeEl.addEventListener('change', updateSwipeMode);
+  }
+  if (goodBadModeEl) {
+    goodBadModeEl.addEventListener('change', () => {
+      updateSwipeMode();
+      ensureSwipeChoice();
+    });
+  }
+  if (swipeLeftBtn) {
+    swipeLeftBtn.addEventListener('click', () => {
+      if (!swipeMode || !getActiveVariantState()) return;
+      setSwipeChoice('baseline');
+    });
+  }
+  if (swipeTieBtn) {
+    swipeTieBtn.addEventListener('click', () => {
+      if (!swipeMode || !getActiveVariantState()) return;
+      if (isGoodBadMode()) return;
+      setSwipeChoice('tie');
+    });
+  }
+  if (swipeRightBtn) {
+    swipeRightBtn.addEventListener('click', () => {
+      if (!swipeMode || !getActiveVariantState()) return;
+      setSwipeChoice('variant');
+    });
+  }
+  winnerInputs.forEach((input) => {
+    input.addEventListener('change', setWinnerFromRadio);
+  });
+
+  if (swipeConfidenceEl) {
+    swipeConfidenceEl.addEventListener('input', () => {
+      const value = Number(swipeConfidenceEl.value);
+      if (Number.isFinite(value)) {
+        swipeConfidence = value;
+        if (swipeConfidenceLabelEl) swipeConfidenceLabelEl.textContent = String(value);
+      }
+    });
+  }
+
+  const isInputTarget = (target) => {
+    if (!(target instanceof Element)) return false;
+    const tag = target.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return true;
+    if (target.isContentEditable) return true;
+    return false;
+  };
+
+  const triggerLeft = () => {
+    if (!swipeMode || done || !getActiveVariantState()) return;
+    setSwipeChoice('baseline');
+  };
+  const triggerTie = () => {
+    if (!swipeMode || done || !getActiveVariantState()) return;
+    if (isGoodBadMode()) return;
+    setSwipeChoice('tie');
+  };
+  const triggerRight = () => {
+    if (!swipeMode || done || !getActiveVariantState()) return;
+    setSwipeChoice('variant');
+  };
+
+  const keyboardHandler = (event) => {
+    if (done || isInputTarget(event.target)) return;
+    if (event.key === 'a' || event.key === 'A' || event.key === 'ArrowLeft') {
+      triggerLeft();
+      event.preventDefault();
+      return;
+    }
+    if (event.key === 'b' || event.key === 'B' || event.key === 'ArrowRight') {
+      triggerRight();
+      event.preventDefault();
+      return;
+    }
+    if (event.key === 'ArrowUp' || event.key === ' ') {
+      triggerTie();
+      event.preventDefault();
+      return;
+    }
+    if (event.key === 'Enter') {
+      const submit = document.getElementById('submitCompare');
+      if (submit && !submit.disabled) {
+        submit.click();
+        event.preventDefault();
+      }
+      return;
+    }
+    if (event.key === 'n' || event.key === 'ArrowDown') {
+      if (!singleVideoModeEl || !singleVideoModeEl.checked) return;
+      setActiveVariantIndex(activeVariantIndex + 1, { silent: true });
+      ensureSwipeChoice();
+      updateDeckControls();
+      event.preventDefault();
+      return;
+    }
+    if (event.key === 'p') {
+      if (!singleVideoModeEl || !singleVideoModeEl.checked) return;
+      setActiveVariantIndex(activeVariantIndex - 1, { silent: true });
+      ensureSwipeChoice();
+      updateDeckControls();
+      event.preventDefault();
+      return;
+    }
+  };
+
+  if (document) {
+    document.addEventListener('keydown', keyboardHandler);
+  }
+
+  if (questionsEl) {
+    const questions = Array.isArray(exp.questions) ? exp.questions : [];
+    if (!questions.length) {
+      questionsEl.innerHTML = `<div class="muted mono">No targeted questions for this experiment.</div>`;
+    } else {
+      questionsEl.innerHTML = questions
+        .map((q) => {
+          const id = escapeHtml(q.id);
+          const prompt = escapeHtml(q.prompt);
+          if (q.type === 'text') {
+            return `
+              <div style="margin-bottom: 10px;">
+                <div class="muted mono">${prompt}</div>
+                <textarea class="textarea" data-q="${id}" placeholder="Answer"></textarea>
+              </div>
+            `;
+          }
+          return `
+            <div style="margin-bottom: 10px;">
+              <div class="muted mono">${prompt}</div>
+              <select class="select" data-q="${id}">
+                <option value="">(skip)</option>
+                <option value="yes">yes</option>
+                <option value="no">no</option>
+                <option value="unsure">unsure</option>
+              </select>
+            </div>
+          `;
+        })
+        .join('');
+    }
+  }
+
+  const getAnswers = () => {
     const answers = {};
+    if (!questionsEl) return answers;
     questionsEl.querySelectorAll('[data-q]').forEach((el) => {
       const id = el.getAttribute('data-q');
       const val = String(el.value || '').trim();
       if (!id || !val) return;
       answers[id] = val;
     });
+    return answers;
+  };
+
+  const readPerRunPayload = () => {
+    const missing = [];
+    const perRun = runStates.map((state) => {
+      const ratings = state.gridApi ? state.gridApi.getRatings() : {};
+      if (quickRateModeEl && quickRateModeEl.checked) {
+        const quickOverall = readQuickOverall(state);
+        if (typeof quickOverall === 'number') ratings.overall = quickOverall;
+      }
+      if (isRequireOverall() && typeof ratings.overall !== 'number') {
+        missing.push(state.label);
+      }
+
+      const detailNote = state.notesEl ? String(state.notesEl.value || '').trim() : '';
+      const note = detailNote || (quickRateModeEl && quickRateModeEl.checked ? readQuickNote(state) : '');
+      const rawTags = state.tagsEl ? parseTags(state.tagsEl.value) : [];
+      return {
+        runId: state.runId,
+        variantId: state.variantId,
+        ratings,
+        notes: note || undefined,
+        tags: rawTags.length ? rawTags : undefined,
+      };
+    });
+
+    return { perRun, missing };
+  };
+
+  const resolveSwipeOverallForRole = (choice, role) => {
+    const normalized = String(choice || '').trim();
+    if (normalized === 'baseline') return role === 'baseline' ? 80 : 20;
+    if (normalized === 'variant') return role === 'baseline' ? 20 : 80;
+    if (normalized === 'tie' && !isGoodBadMode()) return 50;
+    return undefined;
+  };
+
+  const getRunLabelByRunId = (runId) => {
+    const match = runStates.find((entry) => entry.runId === runId);
+    return match ? match.label : String(runId || '');
+  };
+
+  const applySwipeImpliedRatings = (perRunById) => {
+    if (!baselineState || quickRateModeEl?.checked) return;
+    let baselineTotal = 0;
+    let baselineCount = 0;
+
+    variantStates.forEach((state) => {
+      const choice = state.runId ? swipeChoiceByRunId.get(state.runId) : '';
+      if (!state.runId || !choice) return;
+      const baselineScore = resolveSwipeOverallForRole(choice, 'baseline');
+      const variantScore = resolveSwipeOverallForRole(choice, 'variant');
+
+      const variantEntry = perRunById.get(state.runId);
+      if (typeof variantScore === 'number' && variantEntry) {
+        variantEntry.ratings = {
+          ...variantEntry.ratings,
+          overall: variantScore,
+        };
+      }
+
+      if (typeof baselineScore === 'number') {
+        baselineTotal += baselineScore;
+        baselineCount += 1;
+      }
+    });
+
+    const baselineEntry = perRunById.get(baselineState.runId);
+    if (baselineEntry && baselineCount > 0) {
+      baselineEntry.ratings = {
+        ...baselineEntry.ratings,
+        overall: Math.round(baselineTotal / baselineCount),
+      };
+    }
+  };
+
+  const missingOverallLabels = (perRun) =>
+    perRun
+      .filter((entry) => {
+        const hasOverall = entry && entry.ratings && typeof entry.ratings.overall === 'number';
+        return !hasOverall;
+      })
+      .map((entry) => getRunLabelByRunId(entry.runId))
+      .filter(Boolean);
+
+  const copyAtoB = document.getElementById('copyAtoB');
+  const copyBtoA = document.getElementById('copyBtoA');
+  if (copyAtoB && runByPrefix.a && runByPrefix.b) {
+    copyAtoB.addEventListener('click', () => {
+      const aState = runByPrefix.a;
+      const bState = runByPrefix.b;
+      if (!aState.gridApi || !bState.gridApi) return;
+      bState.gridApi.setRatings(aState.gridApi.getRatings());
+    });
+  }
+  if (copyBtoA && runByPrefix.a && runByPrefix.b) {
+    copyBtoA.addEventListener('click', () => {
+      const aState = runByPrefix.a;
+      const bState = runByPrefix.b;
+      if (!aState.gridApi || !bState.gridApi) return;
+      aState.gridApi.setRatings(bState.gridApi.getRatings());
+    });
+  }
+
+  const cleanupFns = [];
+  if (baselineState && variantStates[0] && variantStates[0].videoEl && baselineState.videoEl) {
+    const cleanup = setupLinkedVideoControls({
+      videoA: baselineState.videoEl,
+      videoB: variantStates[0].videoEl,
+      linkEl: document.getElementById('linkVideos'),
+      speedEl: document.getElementById('speedSel'),
+      audioEl: document.getElementById('audioSel'),
+      toggleEl: document.getElementById('playPause'),
+      syncEl: document.getElementById('syncBtn'),
+    });
+    if (typeof cleanup === 'function') {
+      cleanupFns.push(cleanup);
+    }
+  }
+  cleanupFns.push(() => {
+    document.removeEventListener('keydown', keyboardHandler);
+  });
+  state.cleanup = () => {
+    cleanupFns.forEach((fn) => {
+      try {
+        fn();
+      } catch {
+        // Defensive cleanup: avoid masking page-level failures with teardown issues.
+      }
+    });
+  };
+
+  const submitCompareBtn = document.getElementById('submitCompare');
+  const submitCompareMsgEl = document.getElementById('submitMsg');
+  let submittingCompare = false;
+
+  if (advancedModeEl) {
+    advancedModeEl.addEventListener('change', applyAdvancedMode);
+  }
+  applyAdvancedMode();
+  applyDeckLayout();
+  updateDeckStatus();
+  updateDeckControls();
+  updateSwipeMode();
+  applyQuickDefaults();
+  populateActiveReviewFromState(getReviewTargetState());
+  setActiveVariantIndex(0, { silent: true, autoPlay: true });
+
+  submitCompareBtn.addEventListener('click', async () => {
+    if (submittingCompare) return;
+    if (!runStates.length) return;
+    syncActiveReviewFromPanel();
+    const { perRun, missing } = readPerRunPayload();
+    const isNoisy = Boolean(advancedModeEl && advancedModeEl.checked);
+    const isRequire = isRequireOverall();
+
+    const winner = document.querySelector('input[name="winner"]:checked');
+    const winnerVariantId = winner ? String(winner.value || '') : '';
+
+    if (swipeMode) {
+      const activeState = getActiveVariantState();
+      let activeSwipeChoice =
+        activeState && swipeChoiceByRunId.get(activeState.runId) ? swipeChoiceByRunId.get(activeState.runId) : '';
+      if (!activeSwipeChoice && !winnerVariantId) {
+        const fallbackChoice = isGoodBadMode() ? '' : 'tie';
+        setSwipeChoice(fallbackChoice);
+        activeSwipeChoice = fallbackChoice;
+      }
+
+      const perRunById = new Map(perRun.map((item) => [item.runId, item]));
+      applySwipeImpliedRatings(perRunById);
+
+      const requireMissing = missingOverallLabels(perRun);
+      if (isRequire && requireMissing.length) {
+        submitCompareMsgEl.innerHTML = `<div class="error">overall is required for ${escapeHtml(
+          requireMissing.join(', ')
+        )}</div>`;
+        return;
+      }
+
+      const swipeReason = String(swipeReasonEl.value || '').trim();
+      if (activeSwipeChoice && activeState) {
+        const baselineEntry = baselineState ? perRunById.get(baselineState.runId) : null;
+        const activeEntry = perRunById.get(activeState.runId);
+        const targetEntry = activeSwipeChoice === 'baseline' ? baselineEntry : activeEntry;
+        if (targetEntry && !targetEntry.notes && swipeReason) targetEntry.notes = swipeReason;
+      }
+
+      const swipeAnswers = {
+        ...getAnswers(),
+        mode: 'swipe',
+        confidence: Number.isFinite(swipeConfidence) ? swipeConfidence : 70,
+        activeVariantId: activeState?.runId || null,
+      };
+
+      const body = {
+        winnerVariantId: winnerVariantId || undefined,
+        reason: isNoisy ? swipeReason : undefined,
+        answers: Object.keys(swipeAnswers).length ? swipeAnswers : undefined,
+        perRun,
+      };
+
+      submittingCompare = true;
+      submitCompareBtn.disabled = true;
+      submitCompareMsgEl.innerHTML = '';
+      setFootStatus('Submitting…');
+      try {
+        const requestId = crypto.randomUUID();
+        const out = await apiPost(
+          `/api/experiments/${encodeURIComponent(experimentId)}/submit`,
+          body,
+          { requestId }
+        );
+        submitCompareMsgEl.innerHTML = `<div class="success">Submitted. feedbackIds: ${escapeHtml(
+          Array.isArray(out.feedbackIds) ? out.feedbackIds.map(shortId).join(', ') : ''
+        )} ${oneShot ? 'Server will close shortly.' : ''}</div>`;
+      } catch (err) {
+        submitCompareMsgEl.innerHTML = `<div class="error">${escapeHtml(
+          err instanceof Error ? err.message : String(err)
+        )}</div>`;
+        submitCompareBtn.disabled = false;
+      } finally {
+        setFootStatus('');
+        submittingCompare = false;
+      }
+      return;
+    }
+
+    if (isRequire && missing.length) {
+      submitCompareMsgEl.innerHTML = `<div class="error">overall is required for ${escapeHtml(
+        missing.join(', ')
+      )}</div>`;
+      return;
+    }
 
     const body = {
       winnerVariantId: winnerVariantId || undefined,
       reason: String(document.getElementById('reason').value || '').trim() || undefined,
-      answers: Object.keys(answers).length ? answers : undefined,
-      perRun: [
-        {
-          runId: baseline.runId,
-          variantId: 'baseline',
-          ratings: ratingsA,
-          notes: String(document.getElementById('notesA').value || '').trim() || undefined,
-          tags: (() => {
-            const t = parseTags(document.getElementById('tagsA').value);
-            return t.length ? t : undefined;
-          })(),
-        },
-        {
-          runId: variant.runId,
-          variantId: variant.variantId,
-          ratings: ratingsB,
-          notes: String(document.getElementById('notesB').value || '').trim() || undefined,
-          tags: (() => {
-            const t = parseTags(document.getElementById('tagsB').value);
-            return t.length ? t : undefined;
-          })(),
-        },
-      ],
+      answers: (() => {
+        const answers = getAnswers();
+        return Object.keys(answers).length ? answers : undefined;
+      })(),
+      perRun,
     };
 
     submittingCompare = true;
@@ -1169,7 +2321,9 @@ async function renderRoute() {
     state.cleanup = null;
   }
 
-  const parts = getRoute();
+  const route = getRoute();
+  const parts = route.parts;
+  const routeModes = parseRouteModes(route.query);
   const page = parts[0] || 'runs';
 
   try {
@@ -1184,13 +2338,18 @@ async function renderRoute() {
     if (page === 'review') {
       const runId = parts[1];
       if (!runId) throw new Error('Missing runId');
-      await renderReviewPage(decodeURIComponent(runId));
+      await renderReviewPage(decodeURIComponent(runId), {
+        requireOverall: routeModes.requireOverall,
+      });
       return;
     }
     if (page === 'compare') {
       const experimentId = parts[1];
       if (!experimentId) throw new Error('Missing experimentId');
-      await renderComparePage(decodeURIComponent(experimentId));
+      await renderComparePage(decodeURIComponent(experimentId), {
+        requireOverall: routeModes.requireOverall,
+        goodBadMode: routeModes.goodBadMode,
+      });
       return;
     }
 
