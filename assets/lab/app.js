@@ -13,6 +13,17 @@ function setFootStatus(text) {
   footStatusEl.textContent = text || '';
 }
 
+function scheduleWindowClose(delayMs = 800) {
+  setTimeout(() => {
+    try {
+      window.close();
+    } catch {
+      // Some environments (especially tabs not opened by script) block programmatic close.
+      // We still show successful submit in the UI and rely on server auto-close.
+    }
+  }, delayMs);
+}
+
 function escapeHtml(text) {
   return String(text)
     .replaceAll('&', '&amp;')
@@ -965,6 +976,9 @@ async function renderReviewPage(runId, routeOptions = {}) {
       submitMsgEl.innerHTML = `<div class="success">Submitted. ${
         oneShot ? 'Server will close shortly.' : 'You can close this tab when you are done.'
       }</div>`;
+      if (oneShot) {
+        scheduleWindowClose(900);
+      }
     } catch (err) {
       submitMsgEl.innerHTML = `<div class="error">${escapeHtml(
         err instanceof Error ? err.message : String(err)
@@ -1661,7 +1675,6 @@ async function renderComparePage(experimentId, routeOptions = {}) {
   const runIdByVariant = (state) => state && state.runId;
   const swipeChoiceByRunId = new Map();
   let swipeMode = false;
-  let swipeChoice = '';
   let swipeConfidence = 70;
   const shouldAutoplaySwipe = () => !autoplayOnSwipeEl || Boolean(autoplayOnSwipeEl.checked);
   const isGoodBadMode = () => Boolean(goodBadModeEl && goodBadModeEl.checked);
@@ -1679,11 +1692,9 @@ async function renderComparePage(experimentId, routeOptions = {}) {
     const normalizedChoice = isGoodBadMode() && choice === 'tie' ? '' : choice;
     const active = getActiveVariantState();
     if (!active || !active.runId) {
-      swipeChoice = normalizedChoice;
       return;
     }
     swipeChoiceByRunId.set(active.runId, normalizedChoice);
-    swipeChoice = normalizedChoice;
 
     if (normalizedChoice === 'baseline') {
       syncQuick(baselineState, 80);
@@ -1823,7 +1834,6 @@ async function renderComparePage(experimentId, routeOptions = {}) {
     const active = getActiveVariantState();
     if (!active) return;
     if (swipeChoiceByRunId.has(active.runId)) {
-      swipeChoice = swipeChoiceByRunId.get(active.runId);
       return;
     }
     if (isGoodBadMode()) setSwipeChoice('');
@@ -2260,6 +2270,9 @@ async function renderComparePage(experimentId, routeOptions = {}) {
         submitCompareMsgEl.innerHTML = `<div class="success">Submitted. feedbackIds: ${escapeHtml(
           Array.isArray(out.feedbackIds) ? out.feedbackIds.map(shortId).join(', ') : ''
         )} ${oneShot ? 'Server will close shortly.' : ''}</div>`;
+        if (oneShot) {
+          scheduleWindowClose(900);
+        }
       } catch (err) {
         submitCompareMsgEl.innerHTML = `<div class="error">${escapeHtml(
           err instanceof Error ? err.message : String(err)
@@ -2303,6 +2316,9 @@ async function renderComparePage(experimentId, routeOptions = {}) {
       submitCompareMsgEl.innerHTML = `<div class="success">Submitted. feedbackIds: ${escapeHtml(
         Array.isArray(out.feedbackIds) ? out.feedbackIds.map(shortId).join(', ') : ''
       )} ${oneShot ? 'Server will close shortly.' : ''}</div>`;
+      if (oneShot) {
+        scheduleWindowClose(900);
+      }
     } catch (err) {
       submitCompareMsgEl.innerHTML = `<div class="error">${escapeHtml(
         err instanceof Error ? err.message : String(err)

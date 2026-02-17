@@ -152,6 +152,7 @@ async function startLab(params: {
   exitAfterSubmitDefault: number;
   deepLink?: string;
   outputs?: Record<string, unknown>;
+  awaitClose?: boolean;
 }): Promise<void> {
   const exitAfterSubmit = parseExitAfterSubmit(params.options, params.exitAfterSubmitDefault);
 
@@ -183,6 +184,10 @@ async function startLab(params: {
   const forceOpen = params.task !== null;
   if (shouldAutoOpen(params.runtime, params.options, forceOpen)) {
     await openBrowser(url);
+  }
+
+  if (params.awaitClose && exitAfterSubmit > 0) {
+    await started.waitForClose;
   }
 }
 
@@ -246,6 +251,7 @@ export const labCommand = new Command('lab')
               exitAfterSubmitDefault: 1,
               deepLink: `#/review/${encodeURIComponent(run.runId)}${buildReviewQuery(options)}`,
               outputs: common.runtime.json ? { runId: run.runId } : undefined,
+              awaitClose: true,
             });
           } catch (error) {
             handleCommandError(error);
@@ -310,6 +316,7 @@ export const labCommand = new Command('lab')
               exitAfterSubmitDefault: 1,
               deepLink: `#/compare/${encodeURIComponent(experimentId)}${buildCompareQuery(options)}`,
               outputs: { experimentId, baselineRunId: a.run.runId, variantRunId: b.run.runId },
+              awaitClose: true,
             });
           } catch (error) {
             handleCommandError(error);

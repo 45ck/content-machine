@@ -204,6 +204,23 @@ content-machine/
 | `cm init`      | Interactive setup wizard                        | `.content-machine.toml`          |
 | `cm help`      | Show help for all commands                      | —                                |
 
+### Lab Feedback Loop
+
+For Codex/Claude workflows, use one-shot lab flows to keep the agent in sync with human input:
+
+- `cm lab review <path>` opens a review page for a single run and keeps the process alive until the reviewer submits, then exits.
+- `cm lab compare <pathA> <pathB>` opens the compare page and keeps the process alive until one-shot submit, then exits.
+- Default one-shot behavior is `--exit-after-submit 1` for these subcommands.
+- Pass `--stay-open` when you need to inspect the lab without blocking on submit.
+- `--no-open` is supported and still keeps the command active in one-shot mode.
+- The server closes itself after successful submit and returns control to the calling automation immediately when `--exit-after-submit` threshold is reached.
+
+Preferred human workflow:
+
+1. Run `cm lab compare ...` (or `cm lab review ...`) from the agent.
+2. Wait for Lab to receive the submission payload.
+3. Resume next command only after command exit confirms feedback was persisted.
+
 ### Common Options
 
 ```bash

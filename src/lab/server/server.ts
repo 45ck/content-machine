@@ -65,6 +65,7 @@ export interface LabServerOptions {
 export interface StartedLabServer {
   url: string;
   server: HttpServer;
+  waitForClose: Promise<void>;
   close: () => Promise<void>;
 }
 
@@ -1036,6 +1037,12 @@ async function handleLabRequest(params: {
   res.end('Not found');
 }
 
+/**
+ * Start the Experiment Lab HTTP server.
+ *
+ * The CLI uses this in "one-shot" modes (review/compare) where the process should
+ * block until the user submits feedback, then exit promptly.
+ */
 export async function startLabServer(options: LabServerOptions): Promise<StartedLabServer> {
   await mkdir(dirname(labRunsStorePath()), { recursive: true });
   await mkdir(labExportsDir(), { recursive: true });
@@ -1046,6 +1053,10 @@ export async function startLabServer(options: LabServerOptions): Promise<Started
   let submissions = 0;
   let server: HttpServer;
   let closing = false;
+  let closeResolver: (() => void) | null = null;
+  const waitForClose = new Promise<void>((resolve) => {
+    closeResolver = resolve;
+  });
   const closeSoon = () => {
     if (closing) return;
     closing = true;
@@ -1086,6 +1097,13 @@ export async function startLabServer(options: LabServerOptions): Promise<Started
       handleRouteError(res, error);
     });
   });
+  server.on('close', () => {
+    if (closeResolver) {
+      const resolve = closeResolver;
+      closeResolver = null;
+      resolve();
+    }
+  });
 
   const actualPort = await listenWithPortFallback(server, options.host, options.port);
   const url = `http://${options.host}:${actualPort}/`;
@@ -1093,6 +1111,7 @@ export async function startLabServer(options: LabServerOptions): Promise<Started
   return {
     url,
     server,
+    waitForClose,
     close: () => new Promise((resolve) => server.close(() => resolve())),
   };
 }
