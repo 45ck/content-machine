@@ -18,7 +18,7 @@ model = "gemini-2.0-flash"
 
 [visuals]
 provider = "nanobanana"
-motionStrategy = "kenburns"
+motion_strategy = "kenburns"
 ```
 
 ## Run

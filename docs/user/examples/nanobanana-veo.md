@@ -24,7 +24,7 @@ model = "gemini-2.0-flash"
 
 [visuals]
 provider = "nanobanana"
-motionStrategy = "veo"
+motion_strategy = "veo"
 ```
 
 ## Run (One Command)
