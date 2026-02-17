@@ -222,6 +222,52 @@ describe('render service', () => {
     expect(selectCompositionMock).toHaveBeenCalled();
   });
 
+  it('does not ffprobe local image scene assets', async () => {
+    const dir = makeTempDir();
+    const audioPath = path.join(dir, 'audio.wav');
+    writeBigFile(audioPath, 9 * 1024);
+
+    const localImagePath = path.join(dir, 'local.png');
+    fs.writeFileSync(localImagePath, Buffer.from([0x89, 0x50, 0x4e, 0x47])); // PNG signature prefix
+
+    const outputPath = path.join(dir, 'out.mp4');
+
+    const { renderVideo } = await import('../../../src/render/service');
+    const output = await renderVideo({
+      visuals: {
+        scenes: [
+          {
+            sceneId: 'scene-image',
+            source: 'generated-nanobanana',
+            assetPath: localImagePath,
+            assetType: 'image',
+            duration: 1,
+          },
+        ],
+        totalAssets: 1,
+        fromUserFootage: 0,
+        fromStock: 0,
+        fallbacks: 0,
+        fromGenerated: 1,
+      } as never,
+      timestamps: {
+        allWords: [{ word: 'hello', start: 0.1, end: 0.2 }],
+        totalDuration: 1,
+        ttsEngine: 'kokoro',
+        asrEngine: 'whisper',
+      },
+      audioPath,
+      outputPath,
+      orientation: 'portrait',
+      mock: true,
+      mockRenderMode: 'real',
+    });
+
+    expect(output.outputPath).toBe(outputPath);
+    expect(probeVideoWithFfprobeMock).toHaveBeenCalledTimes(0);
+    expect(fs.existsSync(outputPath)).toBe(true);
+  });
+
   it('bundles local overlay assets and rewrites overlay src to bundle path', async () => {
     const dir = makeTempDir();
     const audioPath = path.join(dir, 'audio.wav');

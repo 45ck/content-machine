@@ -33,6 +33,7 @@
     "build:types": "tsc -p tsconfig.build.json --emitDeclarationOnly",
     "dev": "tsx watch src/cli/index.ts",
     "cm": "tsx src/cli/index.ts",
+    "review:latest": "node scripts/review-latest.mjs",
     "glossary:gen": "node scripts/gen-glossary.mjs",
     "glossary:check": "node scripts/quality/check-ubiquitous-language.mjs",
     "ul:gen": "node scripts/gen-ubiquitous-language-ts.mjs",

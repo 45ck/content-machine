@@ -31,6 +31,12 @@ Verify install (no API keys required):
 cm demo -o output/demo.mp4
 ```
 
+Review your most recent render:
+
+```bash
+npm run review:latest
+```
+
 Generate a real video (requires API keys):
 
 ```bash

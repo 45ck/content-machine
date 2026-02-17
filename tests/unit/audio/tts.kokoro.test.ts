@@ -21,21 +21,12 @@ vi.mock('@huggingface/transformers', () => ({
 }));
 
 const generateMock = vi.fn(async () => new FakeRawAudio(new Float32Array(24000), 24000));
-const streamMock = vi.fn(async function* () {
-  yield { audio: new FakeRawAudio(new Float32Array(12000), 24000) };
-  yield { audio: new FakeRawAudio(new Float32Array(12000), 24000) };
-});
 
 vi.mock('kokoro-js', () => ({
   KokoroTTS: {
     from_pretrained: vi.fn(async () => ({
       generate: generateMock,
-      stream: streamMock,
     })),
-  },
-  TextSplitterStream: class {
-    push() {}
-    close() {}
   },
 }));
 
@@ -59,13 +50,12 @@ describe('Kokoro TTS adapter', () => {
     });
 
     expect(generateMock).toHaveBeenCalledTimes(1);
-    expect(streamMock).toHaveBeenCalledTimes(0);
     expect(result.audioPath).toBe(outPath);
     expect(result.duration).toBeGreaterThan(0);
     expect(fs.existsSync(outPath)).toBe(true);
   });
 
-  it('synthesizes long text with stream() chunking', async () => {
+  it('synthesizes long text by chunking and calling generate() multiple times', async () => {
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cm-kokoro-'));
     const outPath = path.join(tmpDir, 'audio.wav');
 
@@ -79,7 +69,8 @@ describe('Kokoro TTS adapter', () => {
       speed: 1,
     });
 
-    expect(streamMock).toHaveBeenCalledTimes(1);
+    expect(generateMock).toHaveBeenCalled();
+    expect(generateMock.mock.calls.length).toBeGreaterThan(1);
     expect(result.audioPath).toBe(outPath);
     expect(result.duration).toBeGreaterThan(0);
     expect(fs.existsSync(outPath)).toBe(true);

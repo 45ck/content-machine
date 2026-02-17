@@ -206,20 +206,29 @@ content-machine/
 
 ### Lab Feedback Loop
 
-For Codex/Claude workflows, use one-shot lab flows to keep the agent in sync with human input:
+Lab is supported for structured, typed feedback collection (ratings + notes + tags) and is still the
+authoritative path for persistent feedback logging.
 
-- `cm lab review <path>` opens a review page for a single run and keeps the process alive until the reviewer submits, then exits.
-- `cm lab compare <pathA> <pathB>` opens the compare page and keeps the process alive until one-shot submit, then exits.
-- Default one-shot behavior is `--exit-after-submit 1` for these subcommands.
-- Pass `--stay-open` when you need to inspect the lab without blocking on submit.
-- `--no-open` is supported and still keeps the command active in one-shot mode.
-- The server closes itself after successful submit and returns control to the calling automation immediately when `--exit-after-submit` threshold is reached.
+Current default interaction preference for fast iteration:
 
-Preferred human workflow:
+1. Generate output to an absolute/relative file path and ensure the artifact folder is discoverable.
+2. Open the artifact folder and play the MP4 directly for informal visual inspection.
+3. Only launch `cm lab review` / `cm lab compare` when structured feedback is required.
 
-1. Run `cm lab compare ...` (or `cm lab review ...`) from the agent.
-2. Wait for Lab to receive the submission payload.
-3. Resume next command only after command exit confirms feedback was persisted.
+`cm lab review <path>` opens a review page for a single run and keeps the process alive until submit when used
+in one-shot mode.
+`cm lab compare <pathA> <pathB>` opens the compare page and keeps the process alive until one-shot submit.
+
+- One-shot defaults for these subcommands are `--exit-after-submit 1`.
+- Pass `--stay-open` to prevent auto-exit.
+- Pass `--no-open` if you want to keep the page launch fully manual.
+- Use Lab when you need durable feedback artifacts; use direct video playback for quick visual checks.
+
+Preferred human workflow in agent context:
+
+1. Quick-check via folder/video open for content quality and direction.
+2. Launch Lab only when you need explicit ratings/notes and structured persistence.
+3. Resume next command only after successful submit when one-shot mode is used.
 
 ### Common Options
 

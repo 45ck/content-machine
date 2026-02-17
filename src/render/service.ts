@@ -490,6 +490,21 @@ type LocalVideoAsset = {
   label: 'visual' | 'gameplay' | 'hook' | 'overlay';
 };
 
+function isProbablyImagePath(filePath: string): boolean {
+  const lower = filePath.toLowerCase();
+  return (
+    lower.endsWith('.png') ||
+    lower.endsWith('.jpg') ||
+    lower.endsWith('.jpeg') ||
+    lower.endsWith('.webp') ||
+    lower.endsWith('.gif') ||
+    lower.endsWith('.bmp') ||
+    lower.endsWith('.tiff') ||
+    lower.endsWith('.tif') ||
+    lower.endsWith('.avif')
+  );
+}
+
 async function validateLocalVideoAsset(
   asset: LocalVideoAsset,
   log: ReturnType<typeof createLogger>
@@ -1009,9 +1024,20 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
       assets: visualPlan.assets.filter((asset) => asset.sourcePath),
     };
 
-    const localValidationAssets: LocalVideoAsset[] = localPlan.assets
-      .filter((asset) => asset.sourcePath)
-      .map((asset) => ({ path: asset.sourcePath as string, label: 'visual' }));
+    // Validate only assets that will be used as *videos*. Images are supported by Remotion templates
+    // but are not probe-able via ffprobe and should not fail the render preflight.
+    const localValidationAssets: LocalVideoAsset[] = [];
+    for (const scene of options.visuals.scenes ?? []) {
+      if (!scene?.assetPath) continue;
+      if (!isLocalFile(scene.assetPath)) continue;
+      const declaredType = (scene as unknown as { assetType?: string }).assetType;
+      const mediaType =
+        declaredType === 'image' ? 'image' : declaredType === 'video' ? 'video' : undefined;
+      const inferredType = mediaType ?? (isProbablyImagePath(scene.assetPath) ? 'image' : 'video');
+      if (inferredType !== 'video') continue;
+      localValidationAssets.push({ path: scene.assetPath, label: 'visual' });
+    }
+
     const gameplayClipInput = options.visuals.gameplayClip;
     if (gameplayClipInput && isLocalFile(gameplayClipInput.path)) {
       localValidationAssets.push({ path: gameplayClipInput.path, label: 'gameplay' });
