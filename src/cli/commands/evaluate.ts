@@ -23,6 +23,7 @@ interface EvaluateCommandOptions {
   skipCaptionQuality?: boolean;
   skipTemporalQuality?: boolean;
   skipAudioSignal?: boolean;
+  skipFreeze?: boolean;
   semanticFidelity?: boolean;
   safety?: boolean;
   batch?: string;
@@ -48,6 +49,7 @@ const CHECK_NAMES: Record<string, string> = {
   score: 'Script Score',
   temporalQuality: 'Temporal Quality',
   audioSignal: 'Audio Signal',
+  frameBounds: 'Frame Bounds',
   semanticFidelity: 'Semantic Fidelity',
   safety: 'Safety',
   freeze: 'Freeze Detect',
@@ -71,6 +73,7 @@ export const evaluateCommand = new Command('evaluate')
   .option('--skip-caption-quality', 'Skip caption quality check', false)
   .option('--skip-temporal-quality', 'Skip temporal quality check', false)
   .option('--skip-audio-signal', 'Skip audio signal check', false)
+  .option('--skip-freeze', 'Skip freeze detect check', false)
   .option(
     '--semantic-fidelity',
     'Enable semantic fidelity check (requires --script and CLIP)',
@@ -117,6 +120,7 @@ function parseEvaluateOptions(options: EvaluateCommandOptions) {
   if (options.skipScore) checks.score = false;
   if (options.skipTemporalQuality) checks.temporalQuality = false;
   if (options.skipAudioSignal) checks.audioSignal = false;
+  if (options.skipFreeze) checks.freeze = false;
   if (options.semanticFidelity) checks.semanticFidelity = true;
   if (options.safety) checks.safety = true;
 

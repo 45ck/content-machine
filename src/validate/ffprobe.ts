@@ -1,5 +1,6 @@
 import { execFile } from 'node:child_process';
 import { CMError } from '../core/errors';
+import { resolveFfprobePath } from '../core/video/ffmpeg';
 import type { VideoInfo } from './video-info';
 
 function execFileWithOutput(
@@ -92,9 +93,15 @@ function validateAndExtractInfo(parsed: FfprobeOutput, videoPath: string): Video
 }
 
 function handleProbeError(error: unknown, videoPath: string, ffprobePath: string): never {
-  if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-    throw new CMError('DEPENDENCY_MISSING', 'ffprobe is required but was not found on PATH', {
+  const err = error as any;
+  if (
+    err?.code === 'ENOENT' ||
+    (typeof err?.message === 'string' &&
+      err.message.toLowerCase().includes('no application is associated'))
+  ) {
+    throw new CMError('DEPENDENCY_MISSING', 'ffprobe is required but could not be executed', {
       ffprobePath,
+      fix: 'Install ffprobe or set CM_FFPROBE to a valid ffprobe executable path',
     });
   }
   if (error instanceof SyntaxError) {
@@ -117,7 +124,7 @@ export async function probeVideoWithFfprobe(
 ): Promise<VideoInfo> {
   const resolvedOptions: Required<ProbeOptions> = {
     timeoutMs: options?.timeoutMs ?? 10_000,
-    ffprobePath: options?.ffprobePath ?? 'ffprobe',
+    ffprobePath: options?.ffprobePath ?? resolveFfprobePath(),
   };
 
   try {

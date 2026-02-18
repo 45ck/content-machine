@@ -41,9 +41,14 @@ export async function createTesseractWorkerEng(params: {
   await mkdir(cacheDir, { recursive: true });
   await ensureLocalEngTrainedData(cacheDir);
 
+  // tesseract.js `langPath` is where it looks for `<lang>.traineddata(.gz)`.
+  // If we point it at a local dir that doesn't yet contain eng.traineddata, OCR fails.
+  // So we only set `langPath` when the file is present; otherwise let tesseract.js download it
+  // and use `cachePath` to persist it for future runs.
+  const hasLocalEng = existsSync(join(cacheDir, 'eng.traineddata'));
   const worker = await Tesseract.createWorker('eng', undefined, {
     cachePath: cacheDir,
-    langPath: cacheDir,
+    ...(hasLocalEng ? { langPath: cacheDir } : null),
   } as any);
 
   // PSM 6: treat cropped caption region as a single uniform block of text.

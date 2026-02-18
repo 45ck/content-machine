@@ -21,6 +21,7 @@ import { FreezeAnalyzer, runFreezeGate } from '../validate/freeze';
 import { FlowConsistencyAnalyzer, runFlowConsistencyGate } from '../validate/flow-consistency';
 import { DnsmosAnalyzer } from '../score/dnsmos';
 import { getValidateProfile } from '../validate/profiles';
+import { analyzeFrameBounds, runFrameBoundsGate } from '../validate/frame-bounds';
 
 export interface EvaluateVideoOptions {
   videoPath: string;
@@ -35,6 +36,7 @@ export interface EvaluateVideoOptions {
     score?: boolean;
     temporalQuality?: boolean;
     audioSignal?: boolean;
+    frameBounds?: boolean;
     semanticFidelity?: boolean;
     safety?: boolean;
     freeze?: boolean;
@@ -112,6 +114,7 @@ interface EnabledChecks {
   score: boolean;
   temporalQuality: boolean;
   audioSignal: boolean;
+  frameBounds: boolean;
   semanticFidelity: boolean;
   safety: boolean;
   freeze: boolean;
@@ -133,6 +136,7 @@ function buildEnabledChecks(resolved: Record<string, boolean>): EnabledChecks {
     score: resolved.score !== false,
     temporalQuality: resolved.temporalQuality !== false,
     audioSignal: resolved.audioSignal !== false,
+    frameBounds: resolved.frameBounds !== false,
     semanticFidelity: resolved.semanticFidelity ?? false,
     safety: resolved.safety ?? false,
     freeze: resolved.freeze ?? false,
@@ -219,6 +223,22 @@ function runParallelChecks(
     );
   } else {
     skipped.push(skipCheck('audioSignal', 'disabled'));
+  }
+
+  if (enabledChecks.frameBounds) {
+    parallel.push(
+      runCheck('frameBounds', async () => {
+        const summary = await analyzeFrameBounds(videoPath, { frameCount: 5 });
+        const gate = runFrameBoundsGate(summary);
+        return {
+          passed: gate.passed,
+          summary: gate.summary,
+          detail: gate,
+        };
+      })
+    );
+  } else {
+    skipped.push(skipCheck('frameBounds', 'disabled'));
   }
 
   return parallel;
@@ -448,6 +468,7 @@ const CHECK_WEIGHTS: Record<string, number> = {
   score: 0.12,
   temporalQuality: 0.08,
   audioSignal: 0.08,
+  frameBounds: 0.07,
   semanticFidelity: 0.08,
   freeze: 0.06,
   dnsmos: 0.08,

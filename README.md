@@ -69,6 +69,7 @@ Canonical references (generated; do not edit):
 Examples and demo gallery:
 
 - Examples: https://github.com/45ck/content-machine/blob/master/docs/user/EXAMPLES.md
+- Repo examples (runnable from source): `examples/`
 - Demo media: https://github.com/45ck/content-machine/tree/master/docs/demo
 
 ## How It Works

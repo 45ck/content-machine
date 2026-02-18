@@ -53,7 +53,9 @@ async function getKokoro(): Promise<KokoroModule> {
 // Cache the TTS model
 let cachedTTS: KokoroTTSLike | null = null;
 
-const LONG_TEXT_CHAR_THRESHOLD = 500;
+// In practice, kokoro-js can truncate or degrade on longer single-pass inputs.
+// Keep this aligned with our chunker default so anything that would be split can be split.
+const LONG_TEXT_CHAR_THRESHOLD = 360;
 const DEFAULT_PAUSE_SECONDS = 0.08;
 
 function shouldChunkText(text: string): boolean {

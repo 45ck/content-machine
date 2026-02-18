@@ -284,6 +284,9 @@ function extractWordAppearances(
   { minConfidence = 0.3 }: { minConfidence?: number } = {}
 ): Array<{ word: string; timestamps: number[] }> {
   const wordMap = new Map<string, number[]>();
+  // Single-letter tokens matter for math/science content.
+  // Keep allowlist small to avoid pulling in OCR noise.
+  const allowedSingleLetter = new Set(['a', 'i', 'x', 'y', 'z']);
 
   for (const frame of ocrFrames) {
     // Skip low-confidence frames (background imagery, noise)
@@ -295,7 +298,7 @@ function extractWordAppearances(
       if (!/[a-zA-Z]/.test(word)) continue;
 
       const normalized = normalizeWord(word);
-      if (normalized.length < 2) continue; // Skip very short words
+      if (normalized.length < 2 && !allowedSingleLetter.has(normalized)) continue; // Skip very short words
 
       const timestamps = wordMap.get(normalized);
       if (!timestamps) {
@@ -358,6 +361,9 @@ function getOcrCandidatesForAsrWord(params: {
   const exact = params.ocrByWord.get(params.normalizedAsr);
   if (exact) candidates.push({ ocrWord: exact.word, quality: 'exact' });
 
+  // Avoid fuzzy matching for very short tokens; it's too noisy.
+  if (params.normalizedAsr.length < 2) return candidates;
+
   for (const ocrWord of params.ocrByWord.keys()) {
     if (ocrWord === params.normalizedAsr) continue;
     if (!isFuzzyMatch(ocrWord, params.normalizedAsr, 0.55)) continue;
@@ -403,10 +409,11 @@ function matchWords(
   const matches: WordMatch[] = [];
   const ocrByWord = new Map(ocrWords.map((w) => [w.word, w] as const));
   const frameStepSeconds = fps > 0 ? 1 / fps : 0.5;
+  const allowedSingleLetter = new Set(['a', 'i', 'x', 'y', 'z']);
 
   for (const asrWord of asrResult.words) {
     const normalizedAsr = normalizeWord(asrWord.word);
-    if (normalizedAsr.length < 2) continue;
+    if (normalizedAsr.length < 2 && !allowedSingleLetter.has(normalizedAsr)) continue;
 
     let best: { ocrWord: string; quality: MatchQuality; timeDiff: number } | null = null;
     let bestOcrTimestamp: number | null = null;
@@ -422,6 +429,17 @@ function matchWords(
         frameStepSeconds,
       });
       if (!pick) continue;
+
+      // Single-letter tokens are ambiguous and frequently mis-OCR'd across scenes.
+      // Only accept them when they're effectively "on the exact frame" of speech.
+      if (normalizedAsr.length < 2 && pick.timeDiff > frameStepSeconds * 1.1) {
+        continue;
+      }
+
+      // Fuzzy matches are only useful near the spoken time. Far fuzzy matches are almost always background noise.
+      if (candidate.quality === 'fuzzy' && pick.timeDiff > 1.0) {
+        continue;
+      }
 
       if (
         !best ||

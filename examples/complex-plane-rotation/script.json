@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "1.0.0",
+  "scenes": [
+    {
+      "id": "hook",
+      "text": "Quick math hack: multiplying by i rotates a point ninety degrees.",
+      "visualDirection": "Flash a complex plane with a single arrow and a bold mapping card: (x,y)->(-y,x).",
+      "duration": 4
+    },
+    {
+      "id": "setup",
+      "text": "Think of a point as x plus y i. That is just x and y on a 2D plane.",
+      "visualDirection": "Show a dot labeled (x,y) and the text z = x + yi.",
+      "duration": 7
+    },
+    {
+      "id": "multiply",
+      "text": "Now multiply by i. Watch what happens.",
+      "visualDirection": "Bring up (x + yi)i and start highlighting terms.",
+      "duration": 5
+    },
+    {
+      "id": "reveal",
+      "text": "It becomes negative y plus x i. So x comma y turns into negative y comma x.",
+      "visualDirection": "Show derivation and rotate the arrow ninety degrees exactly on the mapping reveal.",
+      "duration": 9
+    },
+    {
+      "id": "meaning",
+      "text": "That is a perfect ninety degree counterclockwise rotation. No trig required.",
+      "visualDirection": "Replay the rotation and stamp 90 degrees counterclockwise.",
+      "duration": 7
+    },
+    {
+      "id": "payoff",
+      "text": "This is why complex numbers show up in signals, graphics, and rotations.",
+      "visualDirection": "Show a waveform and a rotating vector icon briefly.",
+      "duration": 7
+    },
+    {
+      "id": "cta",
+      "text": "Want the any angle version next?",
+      "visualDirection": "Tease: e to the i theta.",
+      "duration": 4
+    }
+  ],
+  "reasoning": "Offline-friendly example script demonstrating the rotation-by-i mapping (x,y)->(-y,x) with a drawn complex plane overlay in Remotion.",
+  "title": "Multiply by i = Rotate 90°",
+  "hook": "Multiply by i rotates points.",
+  "hashtags": ["math", "complexnumbers", "engineering", "rotation"],
+  "meta": {
+    "archetype": "explainer",
+    "topic": "Complex numbers: rotation by i",
+    "generatedAt": "2026-02-18T00:00:00.000Z"
+  }
+}

@@ -11,11 +11,10 @@ import type { WordTimestamp } from '../../domain';
 import { validateWordTimings, repairWordTimings, TimestampValidationError } from './validator';
 import { postProcessASRWordsWithStats } from './post-processor';
 import type { Language, WhisperModel } from '@remotion/install-whisper-cpp';
-import { exec } from 'node:child_process';
-import { promisify } from 'node:util';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 import { resolveWhisperDir, resolveWhisperModelFilename } from '../../core/assets/whisper';
+import { execFfmpeg, execFfprobe } from '../../core/video/ffmpeg';
 
 // Re-export post-processor for direct use
 export {
@@ -23,8 +22,6 @@ export {
   type PostProcessorOptions,
   type PostProcessorStats,
 } from './post-processor';
-
-const execAsync = promisify(exec);
 
 // Import from @remotion/install-whisper-cpp for transcription
 let whisperModule: typeof import('@remotion/install-whisper-cpp') | null = null;
@@ -112,10 +109,24 @@ async function resampleFor16kHz(
 
   // Check current sample rate using ffprobe
   try {
-    const { stdout } = await execAsync(
-      `ffprobe -v error -select_streams a:0 -show_entries stream=sample_rate -of default=noprint_wrappers=1:nokey=1 "${absoluteAudioPath}"`
+    const { stdout } = await execFfprobe(
+      [
+        '-v',
+        'error',
+        '-select_streams',
+        'a:0',
+        '-show_entries',
+        'stream=sample_rate',
+        '-of',
+        'default=noprint_wrappers=1:nokey=1',
+        absoluteAudioPath,
+      ],
+      {
+        dependencyMessage: 'ffprobe is required to probe audio sample rate',
+        encoding: 'utf8',
+      }
     );
-    const sampleRate = parseInt(stdout.trim(), 10);
+    const sampleRate = parseInt(String(stdout).trim(), 10);
 
     if (sampleRate === 16000) {
       log.debug({ sampleRate }, 'Audio already at 16kHz, no resampling needed');
@@ -135,9 +146,11 @@ async function resampleFor16kHz(
 
   // Resample to 16kHz mono using FFmpeg
   try {
-    await execAsync(
-      `ffmpeg -y -i "${absoluteAudioPath}" -ar 16000 -ac 1 -c:a pcm_s16le "${resampledPath}"`
-    );
+    await execFfmpeg(['-y', '-i', absoluteAudioPath, '-ar', '16000', '-ac', '1', '-c:a', 'pcm_s16le', resampledPath], {
+      dependencyMessage: 'ffmpeg is required to resample audio for Whisper',
+      encoding: 'utf8',
+      timeoutMs: 5 * 60_000,
+    });
 
     // Verify the file was created
     if (!fs.existsSync(resampledPath)) {

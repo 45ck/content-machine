@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "example-complex-plane-rotation",
+  "name": "Example: Complex Plane Rotation (Drawn)",
+  "description": "Gameplay bottom + drawn complex plane diagram top (code template)",
+  "compositionId": "SplitScreenGameplay",
+  "remotion": {
+    "entryPoint": "remotion/index.ts",
+    "rootDir": ".",
+    "publicDir": "public",
+    "installDeps": "never"
+  },
+  "defaults": {
+    "orientation": "portrait",
+    "fps": 30,
+    "captionPreset": "tiktok",
+    "captionConfig": {
+      "textTransform": "uppercase",
+      "displayMode": "chunk",
+      "highlightMode": "none",
+      "textColor": "#FFFFFF",
+      "highlightColor": "#FFFFFF",
+      "fontSize": 78,
+      "fontWeight": "black",
+      "pageAnimation": "none",
+      "wordAnimation": "none",
+      "shadow": {
+        "enabled": false
+      },
+      "positionOffset": {
+        "edgeDistance": 4,
+        "horizontalPadding": 56
+      },
+      "safeZone": {
+        "enabled": true,
+        "platform": "tiktok"
+      },
+      "timingOffsetMs": 0,
+      "stroke": {
+        "width": 6
+      },
+      "layout": {
+        "maxCharsPerLine": 22,
+        "maxLinesPerPage": 2,
+        "maxWordsPerPage": 7,
+        "minWordsPerPage": 2,
+        "targetWordsPerChunk": 3,
+        "maxGapMs": 600,
+        "minOnScreenMs": 750,
+        "minOnScreenMsShort": 850
+      }
+    }
+  },
+  "assets": {
+    "gameplay": {
+      "required": false
+    }
+  },
+  "params": {
+    "splitScreenRatio": 0.55,
+    "contentPosition": "top",
+    "gameplayPosition": "bottom",
+    "gameplayMode": "procedural",
+    "diagram": {
+      "x": 2,
+      "y": 1,
+      "rotationStartSec": 13,
+      "rotationEndSec": 20
+    }
+  }
+}
