@@ -85,6 +85,10 @@ export const ComplexPlane: React.FC<{
   const scale = (view - margin) / maxAbs;
   const toSvgX = (vx: number) => vx * scale;
   const toSvgY = (vy: number) => -vy * scale;
+  const clampLabelX = (xPos: number, width: number) =>
+    clamp(xPos, -view + 4, view - width - 4);
+  const clampLabelY = (yPos: number, height: number) =>
+    clamp(yPos, -view + 4, view - height - 4);
 
   const tickStep = niceTickStep(maxAbs);
   const tickMax = Math.max(2, Math.ceil(maxAbs / tickStep) * tickStep);
@@ -283,7 +287,12 @@ export const ComplexPlane: React.FC<{
           </text>
 
           <g opacity={0.96}>
-            <g transform={`translate(${toSvgX(x) + 10}, ${toSvgY(y) - 14})`}>
+            <g
+              transform={`translate(${clampLabelX(toSvgX(x) + 10, 98)}, ${clampLabelY(
+                toSvgY(y) - 14,
+                28
+              )})`}
+            >
               <rect
                 x={0}
                 y={0}
@@ -309,7 +318,12 @@ export const ComplexPlane: React.FC<{
             </g>
 
             {(rotateProgress > 0.08 || postProgress > 0) && (
-              <g transform={`translate(${toSvgX(current.x) + 10}, ${toSvgY(current.y) - 14})`}>
+              <g
+                transform={`translate(${clampLabelX(toSvgX(current.x) + 10, 124)}, ${clampLabelY(
+                  toSvgY(current.y) - 14,
+                  28
+                )})`}
+              >
                 <rect
                   x={0}
                   y={0}
