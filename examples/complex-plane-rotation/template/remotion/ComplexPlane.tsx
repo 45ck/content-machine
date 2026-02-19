@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { AbsoluteFill, interpolate, useCurrentFrame, useVideoConfig } from 'remotion';
+import { AbsoluteFill, interpolate, random, useCurrentFrame, useVideoConfig } from 'remotion';
 
 export type ComplexPlaneParams = {
   x: number;
@@ -17,134 +17,129 @@ function fmt(n: number): string {
   return n.toFixed(2);
 }
 
+function complexText(re: number, im: number): string {
+  const sign = im >= 0 ? '+' : '-';
+  return `${fmt(re)} ${sign} ${fmt(Math.abs(im))}i`;
+}
+
 function niceTickStep(maxAbs: number): number {
   if (maxAbs <= 3) return 1;
-  if (maxAbs <= 6) return 1;
   if (maxAbs <= 10) return 2;
   return 5;
 }
 
-function chapterName(chapter: number): string {
-  if (chapter === 0) return 'Setup';
-  if (chapter === 1) return 'Rotate by i';
-  if (chapter === 2) return 'Scale by 2';
-  if (chapter === 3) return 'Reflect';
-  return 'Compose';
-}
+type Particle = {
+  id: number;
+  xOffset: number;
+  yOffset: number;
+  speed: number;
+  radius: number;
+  alpha: number;
+};
 
 export const ComplexPlane: React.FC<{
   params: ComplexPlaneParams;
 }> = ({ params }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-
-  const startF = Math.round(params.rotationStartSec * fps);
-  const endF = Math.max(startF + 1, Math.round(params.rotationEndSec * fps));
-
-  const chapterLen = Math.max(1, Math.floor(fps * 4.25));
-  const chapter = Math.floor(frame / chapterLen) % 5;
-  const chapterFrame = frame % chapterLen;
-  const chapterProgress = clamp(chapterFrame / chapterLen, 0, 1);
-  const blendIn = interpolate(chapterProgress, [0, 0.14], [0, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
-  const blendOut = interpolate(chapterProgress, [0.86, 1], [1, 0], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
-  const chapterOpacity = Math.min(blendIn, blendOut);
-
-  const thetaFromParams = interpolate(frame, [startF, endF], [0, Math.PI / 2], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
-  const chapterTheta =
-    chapter === 1
-      ? interpolate(chapterProgress, [0, 1], [0, Math.PI / 2], {
-          extrapolateLeft: 'clamp',
-          extrapolateRight: 'clamp',
-        })
-      : chapter === 3
-        ? Math.PI
-        : chapter === 4
-          ? interpolate(chapterProgress, [0, 1], [0, Math.PI * 1.5], {
-              extrapolateLeft: 'clamp',
-              extrapolateRight: 'clamp',
-            })
-          : 0;
-  const theta = chapter === 0 ? thetaFromParams : chapterTheta;
+  const timeSec = frame / fps;
 
   const x = params.x;
   const y = params.y;
-  const scaleFactor = chapter === 2 ? interpolate(chapterProgress, [0, 1], [1, 2], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  }) : chapter === 4 ? 1.4 : 1;
-  const rot90X = -y;
-  const rot90Y = x;
-  const r = Math.sqrt(x * x + y * y);
+  const targetX = -y;
+  const targetY = x;
 
-  const vec = useMemo(() => {
-    // Rotate (x,y) continuously from its original to 90 degrees CCW.
-    const base = Math.atan2(y, x);
-    const a = base + theta;
-    return { x: r * Math.cos(a) * scaleFactor, y: r * Math.sin(a) * scaleFactor };
-  }, [x, y, theta, r, scaleFactor]);
+  const pointRevealEndSec = clamp(params.rotationStartSec - 2.4, 1.5, 7.5);
+  const rotateStartSec = Math.max(pointRevealEndSec + 0.6, params.rotationStartSec);
+  const rotateEndSec = Math.max(rotateStartSec + 0.35, params.rotationEndSec);
+  const settleEndSec = rotateEndSec + 2.4;
 
-  const rotatedX = vec.x;
-  const rotatedY = vec.y;
-
-  // IMPORTANT: during rotation, components can reach +/-r even if max(|x|,|y|) is smaller.
-  // If we don't include r, the endpoint circle can clip at the SVG bounds.
-  const maxAbs = clamp(
-    Math.max(Math.abs(x), Math.abs(y), Math.abs(rotatedX), Math.abs(rotatedY), Math.abs(r * scaleFactor), 2),
-    2,
-    6
+  const revealProgress = clamp(timeSec / pointRevealEndSec, 0, 1);
+  const ruleProgress = clamp(
+    (timeSec - (pointRevealEndSec - 1.2)) / Math.max(0.4, rotateStartSec - (pointRevealEndSec - 1.2)),
+    0,
+    1
   );
-  const view = 120; // half-size of viewBox units
-  // Leave a safety margin so endpoint circles/labels never clip against the SVG bounds.
-  const margin = 14;
+  const rotateProgress = clamp((timeSec - rotateStartSec) / Math.max(0.001, rotateEndSec - rotateStartSec), 0, 1);
+  const postProgress = clamp((timeSec - rotateEndSec) / Math.max(0.001, settleEndSec - rotateEndSec), 0, 1);
+
+  const r = Math.sqrt(x * x + y * y);
+  const baseAngle = Math.atan2(y, x);
+  const theta = rotateProgress * (Math.PI / 2);
+
+  const current = useMemo(() => {
+    if (rotateProgress <= 0) return { x: x * revealProgress, y: y * revealProgress };
+    if (rotateProgress >= 1) return { x: targetX, y: targetY };
+    const a = baseAngle + theta;
+    return { x: r * Math.cos(a), y: r * Math.sin(a) };
+  }, [rotateProgress, x, y, revealProgress, targetX, targetY, baseAngle, theta, r]);
+
+  const maxAbs = clamp(
+    Math.max(Math.abs(x), Math.abs(y), Math.abs(targetX), Math.abs(targetY), Math.abs(current.x), Math.abs(current.y), 2),
+    2,
+    8
+  );
+
+  const view = 120;
+  const margin = 16;
   const scale = (view - margin) / maxAbs;
-
-  const cx = 0;
-  const cy = 0;
-
-  const toSvgX = (vx: number) => cx + vx * scale;
-  const toSvgY = (vy: number) => cy - vy * scale;
-  const clampLabelX = (xPos: number, width: number) => clamp(xPos, -view + 4, view - width - 4);
-  const clampLabelY = (yPos: number, height: number) => clamp(yPos, -view + 4, view - height - 4);
+  const toSvgX = (vx: number) => vx * scale;
+  const toSvgY = (vy: number) => -vy * scale;
 
   const tickStep = niceTickStep(maxAbs);
   const tickMax = Math.max(2, Math.ceil(maxAbs / tickStep) * tickStep);
   const ticks: number[] = [];
   for (let t = -tickMax; t <= tickMax; t += tickStep) ticks.push(t);
 
-  const baseAngle = Math.atan2(y, x);
-  const arcRadiusUnits = clamp(Math.sqrt(x * x + y * y) * 0.75 * scaleFactor, 0.9, maxAbs);
+  const arcRadiusUnits = clamp(r * 0.68, 1.0, maxAbs);
   const arcRadius = arcRadiusUnits * scale;
-  const arcStart = { x: arcRadiusUnits * Math.cos(baseAngle), y: arcRadiusUnits * Math.sin(baseAngle) };
-  const arcEnd = { x: arcRadiusUnits * Math.cos(baseAngle + theta), y: arcRadiusUnits * Math.sin(baseAngle + theta) };
-  const arcSweep = theta > 0 ? 1 : 0;
-  const arcLarge = theta > Math.PI ? 1 : 0;
-  const arcPath = `M ${toSvgX(arcStart.x)} ${toSvgY(arcStart.y)} A ${arcRadius} ${arcRadius} 0 ${arcLarge} ${arcSweep} ${toSvgX(arcEnd.x)} ${toSvgY(arcEnd.y)}`;
+  const arcStart = {
+    x: arcRadiusUnits * Math.cos(baseAngle),
+    y: arcRadiusUnits * Math.sin(baseAngle),
+  };
+  const arcEnd = {
+    x: arcRadiusUnits * Math.cos(baseAngle + theta),
+    y: arcRadiusUnits * Math.sin(baseAngle + theta),
+  };
+  const arcPath = `M ${toSvgX(arcStart.x)} ${toSvgY(arcStart.y)} A ${arcRadius} ${arcRadius} 0 0 1 ${toSvgX(arcEnd.x)} ${toSvgY(arcEnd.y)}`;
 
-  const phase = chapter === 0 ? (frame < startF ? 0 : frame <= endF ? 1 : 2) : 2;
-  const progress = chapter === 0 ? clamp((frame - startF) / Math.max(1, endF - startF), 0, 1) : chapterProgress;
-  const boardScale = 1.0 + Math.sin(frame / (fps * 1.7)) * 0.015;
-  const boardRotate = Math.sin(frame / (fps * 3.8)) * 0.45;
-  const headerOpacity = interpolate(frame, [0, Math.max(1, startF - fps * 0.5)], [1, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
-  const explainOpacity = interpolate(frame, [startF - fps * 0.5, startF, endF, endF + fps * 0.75], [0, 1, 1, 0.9], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
-  const mappingOpacity = interpolate(frame, [endF - fps * 0.5, endF, endF + fps * 1.5], [0, 1, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
+  const stageLabel =
+    timeSec < pointRevealEndSec
+      ? 'Step 1: Plot z'
+      : timeSec < rotateStartSec
+        ? 'Step 2: Apply rule'
+        : timeSec < rotateEndSec
+          ? 'Step 3: Rotate +90°'
+          : 'Step 4: Read result';
+
+  const stageHint =
+    timeSec < pointRevealEndSec
+      ? `z = (${fmt(x)}, ${fmt(y)})`
+      : timeSec < rotateStartSec
+        ? '(x, y) -> (-y, x)'
+        : timeSec < rotateEndSec
+          ? `Angle: ${Math.round(rotateProgress * 90)}°`
+          : `i(${complexText(x, y)}) = ${complexText(targetX, targetY)}`;
+
+  const particles = useMemo<Particle[]>(
+    () =>
+      Array.from({ length: 22 }, (_, id) => ({
+        id,
+        xOffset: random(`particle-x:${id}`) * 280,
+        yOffset: random(`particle-y:${id}`) * 280,
+        speed: 0.45 + random(`particle-speed:${id}`) * 0.75,
+        radius: 0.9 + random(`particle-r:${id}`) * 2.6,
+        alpha: 0.06 + random(`particle-a:${id}`) * 0.16,
+      })),
+    []
+  );
+
+  const backgroundShiftX = Math.sin(frame / (fps * 1.6)) * 16;
+  const backgroundShiftY = Math.cos(frame / (fps * 2.1)) * 12;
+  const timelineProgress = clamp(timeSec / Math.max(settleEndSec, 0.1), 0, 1);
+  const cameraX = Math.sin(frame / (fps * 1.9)) * 8;
+  const cameraY = Math.cos(frame / (fps * 2.4)) * 6;
+  const cameraScale = 1 + 0.012 * Math.sin(frame / (fps * 2.8));
 
   return (
     <AbsoluteFill
@@ -153,40 +148,55 @@ export const ComplexPlane: React.FC<{
         alignItems: 'center',
         justifyContent: 'center',
         padding: 26,
-        backgroundColor: '#05070b',
+        backgroundColor: '#040812',
       }}
     >
-      <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          position: 'relative',
+          transform: `translate(${cameraX}px, ${cameraY}px) scale(${cameraScale})`,
+          transformOrigin: '50% 46%',
+        }}
+      >
         <svg
           viewBox={`${-view} ${-view} ${view * 2} ${view * 2}`}
           width="100%"
           height="100%"
           style={{
-            background: 'linear-gradient(180deg, rgba(15,23,42,0.92) 0%, rgba(2,6,23,0.94) 100%)',
-            borderRadius: 0,
-            border: 'none',
+            background: `radial-gradient(900px 640px at ${52 + backgroundShiftX * 0.55}% ${15 + backgroundShiftY * 0.45}%, rgba(56,189,248,0.16), transparent 66%), linear-gradient(180deg, rgba(15,23,42,0.96) 0%, rgba(2,6,23,0.98) 100%)`,
             display: 'block',
-            transform: `scale(${boardScale}) rotate(${boardRotate}deg)`,
-            transformOrigin: '50% 52%',
           }}
         >
-          {/* Grid */}
+          {particles.map((particle) => {
+            const px = ((particle.xOffset + frame * particle.speed * 0.7) % 320) - 160;
+            const py = ((particle.yOffset + frame * particle.speed * 0.5) % 320) - 160;
+            return (
+              <circle
+                key={`p-${particle.id}`}
+                cx={px}
+                cy={py}
+                r={particle.radius}
+                fill={`rgba(56,189,248,${particle.alpha})`}
+              />
+            );
+          })}
+
           {ticks.map((t, i) => (
-            <g key={`grid-${i}`} opacity={t === 0 ? 0.2 : 0.14}>
-              <line x1={toSvgX(t)} y1={-view} x2={toSvgX(t)} y2={view} stroke="#94a3b8" strokeWidth={1} />
-              <line x1={-view} y1={toSvgY(t)} x2={view} y2={toSvgY(t)} stroke="#94a3b8" strokeWidth={1} />
+            <g key={`grid-${i}`} opacity={t === 0 ? 0.22 : 0.14}>
+              <line x1={toSvgX(t)} y1={-view} x2={toSvgX(t)} y2={view} stroke="#93a4be" strokeWidth={1} />
+              <line x1={-view} y1={toSvgY(t)} x2={view} y2={toSvgY(t)} stroke="#93a4be" strokeWidth={1} />
             </g>
           ))}
 
-          {/* Axes */}
-          <line x1={-view} y1={0} x2={view} y2={0} stroke="#e2e8f0" strokeWidth={2} opacity={0.65} />
-          <line x1={0} y1={-view} x2={0} y2={view} stroke="#e2e8f0" strokeWidth={2} opacity={0.65} />
+          <line x1={-view} y1={0} x2={view} y2={0} stroke="#e2e8f0" strokeWidth={2} opacity={0.75} />
+          <line x1={0} y1={-view} x2={0} y2={view} stroke="#e2e8f0" strokeWidth={2} opacity={0.75} />
 
-          {/* Tick labels */}
           {ticks
             .filter((t) => t !== 0)
             .map((t) => (
-              <g key={`tick-${t}`} opacity={0.72}>
+              <g key={`tick-${t}`} opacity={0.78}>
                 <text
                   x={toSvgX(t)}
                   y={14}
@@ -216,56 +226,74 @@ export const ComplexPlane: React.FC<{
               </g>
             ))}
 
-          {/* Original vector (faint) */}
           <line
             x1={0}
             y1={0}
             x2={toSvgX(x)}
             y2={toSvgY(y)}
-            stroke="#a78bfa"
+            stroke="#8b5cf6"
             strokeWidth={6}
-            opacity={0.25}
+            opacity={0.28 + revealProgress * 0.22}
             strokeLinecap="round"
           />
 
-          {/* Rotation arc */}
-          {phase >= 1 || chapter >= 1 ? (
+          <line
+            x1={0}
+            y1={0}
+            x2={toSvgX(targetX)}
+            y2={toSvgY(targetY)}
+            stroke="#34d399"
+            strokeWidth={5}
+            opacity={0.16 + ruleProgress * 0.44}
+            strokeDasharray="10 8"
+            strokeLinecap="round"
+          />
+
+          {rotateProgress > 0.01 ? (
             <path
               d={arcPath}
               stroke="#22d3ee"
               strokeWidth={4}
               fill="none"
-              opacity={0.65}
+              opacity={0.78}
               strokeLinecap="round"
-              strokeDasharray={`${Math.max(8, Math.floor(44 * (0.35 + progress * 0.65)))} 999`}
+              strokeDasharray={`${Math.max(8, Math.floor(46 * (0.35 + rotateProgress * 0.65)))} 999`}
             />
           ) : null}
 
-          {/* Rotating vector */}
-          <line x1={0} y1={0} x2={toSvgX(vec.x)} y2={toSvgY(vec.y)} stroke="#22d3ee" strokeWidth={8} strokeLinecap="round" />
-          <circle cx={toSvgX(vec.x)} cy={toSvgY(vec.y)} r={7} fill="#22d3ee" />
+          <line
+            x1={0}
+            y1={0}
+            x2={toSvgX(current.x)}
+            y2={toSvgY(current.y)}
+            stroke="#22d3ee"
+            strokeWidth={8}
+            strokeLinecap="round"
+          />
+          <circle cx={toSvgX(current.x)} cy={toSvgY(current.y)} r={7} fill="#22d3ee" />
 
-          {/* Final point marker (faint) */}
-          <circle cx={toSvgX(rot90X)} cy={toSvgY(rot90Y)} r={7} fill="#34d399" opacity={0.35} />
+          <circle cx={toSvgX(x)} cy={toSvgY(y)} r={5.5} fill="#8b5cf6" opacity={0.9} />
+          <circle cx={toSvgX(targetX)} cy={toSvgY(targetY)} r={5.5} fill="#34d399" opacity={0.8} />
 
-          {/* Labels */}
-          <text x={view - 12} y={-10} textAnchor="end" fill="#e2e8f0" fontSize="12" opacity="0.8">
+          <text x={view - 12} y={-10} textAnchor="end" fill="#e2e8f0" fontSize="12" opacity="0.9">
             Re (x)
           </text>
-          <text x={10} y={-view + 16} textAnchor="start" fill="#e2e8f0" fontSize="12" opacity="0.8">
+          <text x={10} y={-view + 16} textAnchor="start" fill="#e2e8f0" fontSize="12" opacity="0.9">
             Im (y)
           </text>
 
-          {/* Point labels */}
-          <g opacity={0.95}>
-            {/* z label */}
-            <g
-              transform={`translate(${clampLabelX(toSvgX(x) + 10, 96)}, ${clampLabelY(
-                toSvgY(y) - 14,
-                28
-              )})`}
-            >
-              <rect x={0} y={0} rx={10} ry={10} width={96} height={28} fill="rgba(2,6,23,0.75)" stroke="rgba(167,139,250,0.55)" />
+          <g opacity={0.96}>
+            <g transform={`translate(${toSvgX(x) + 10}, ${toSvgY(y) - 14})`}>
+              <rect
+                x={0}
+                y={0}
+                rx={10}
+                ry={10}
+                width={98}
+                height={28}
+                fill="rgba(2,6,23,0.75)"
+                stroke="rgba(139,92,246,0.55)"
+              />
               <text
                 x={10}
                 y={19}
@@ -280,16 +308,18 @@ export const ComplexPlane: React.FC<{
               </text>
             </g>
 
-            {/* iz label */}
-            {phase >= 2 ? (
-              <g
-                transform={`translate(${clampLabelX(toSvgX(rotatedX) + 10, 110)}, ${clampLabelY(
-                  toSvgY(rotatedY) - 14,
-                  28
-                )})`}
-                opacity={Math.max(mappingOpacity, chapterOpacity)}
-              >
-                <rect x={0} y={0} rx={10} ry={10} width={110} height={28} fill="rgba(2,6,23,0.75)" stroke="rgba(52,211,153,0.55)" />
+            {(rotateProgress > 0.08 || postProgress > 0) && (
+              <g transform={`translate(${toSvgX(current.x) + 10}, ${toSvgY(current.y) - 14})`}>
+                <rect
+                  x={0}
+                  y={0}
+                  rx={10}
+                  ry={10}
+                  width={124}
+                  height={28}
+                  fill="rgba(2,6,23,0.78)"
+                  stroke="rgba(52,211,153,0.55)"
+                />
                 <text
                   x={10}
                   y={19}
@@ -300,99 +330,56 @@ export const ComplexPlane: React.FC<{
                       'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
                   }}
                 >
-                  T(z) ({fmt(rotatedX)},{fmt(rotatedY)})
+                  i*z ({fmt(current.x)},{fmt(current.y)})
                 </text>
               </g>
-            ) : null}
+            )}
           </g>
         </svg>
 
-        {/* Avoid a full-width "HUD" that reads like debug UI. Use smaller callouts. */}
         <div
           style={{
             position: 'absolute',
             left: 18,
-            top: 18,
+            right: 18,
+            top: 14,
+            height: 8,
+            borderRadius: 999,
+            background: 'rgba(148,163,184,0.2)',
+            overflow: 'hidden',
+          }}
+        >
+          <div
+            style={{
+              height: '100%',
+              width: `${(timelineProgress * 100).toFixed(1)}%`,
+              background: 'linear-gradient(90deg, #22d3ee 0%, #34d399 100%)',
+              borderRadius: 999,
+            }}
+          />
+        </div>
+
+        <div
+          style={{
+            position: 'absolute',
+            left: 18,
+            top: 28,
             padding: '10px 12px',
             borderRadius: 14,
             background: 'rgba(2,6,23,0.62)',
-            border: '1px solid rgba(148,163,184,0.18)',
+            border: '1px solid rgba(148,163,184,0.2)',
             color: '#e2e8f0',
             fontFamily:
               'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"',
             lineHeight: 1.1,
-            opacity: headerOpacity,
             backdropFilter: 'blur(6px)',
           }}
         >
           <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: 0.2 }}>Multiply by i</div>
-          <div style={{ marginTop: 4, fontSize: 13, opacity: 0.88 }}>
-            {chapterName(chapter)}
-          </div>
+          <div style={{ marginTop: 4, fontSize: 13, opacity: 0.95 }}>{stageLabel}</div>
+          <div style={{ marginTop: 4, fontSize: 12, opacity: 0.82 }}>{stageHint}</div>
         </div>
 
-        <div
-          style={{
-            position: 'absolute',
-            left: 18,
-            bottom: 18,
-            maxWidth: '86%',
-            padding: '12px 14px',
-            borderRadius: 16,
-            background: 'rgba(2,6,23,0.68)',
-            border: '1px solid rgba(148,163,184,0.18)',
-            color: '#e2e8f0',
-            opacity: explainOpacity,
-            backdropFilter: 'blur(6px)',
-          }}
-        >
-          <div
-            style={{
-              fontFamily:
-                'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-              fontSize: 16,
-              fontWeight: 700,
-            }}
-          >
-            z = x + y i
-          </div>
-
-          <div
-            style={{
-              marginTop: 6,
-              fontFamily:
-                'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-              fontSize: 14,
-              opacity: 0.95,
-            }}
-          >
-            {chapter === 0 || chapter === 1 ? 'i * z = i(x + y i) = i x + i^2 y = -y + x i' : null}
-            {chapter === 2 ? '2 * z doubles radius from origin (same angle)' : null}
-            {chapter === 3 ? '-z rotates 180 deg across origin' : null}
-            {chapter === 4 ? '(1 - i)z = rotate + scale composite transform' : null}
-          </div>
-
-          <div style={{ marginTop: 8, opacity: mappingOpacity }}>
-            <div
-              style={{
-                display: 'inline-block',
-                padding: '6px 10px',
-                borderRadius: 999,
-                background: 'rgba(34,211,238,0.14)',
-                border: '1px solid rgba(34,211,238,0.35)',
-                fontFamily:
-                  'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
-                fontSize: 15,
-                fontWeight: 800,
-              }}
-            >
-              {chapter === 0 || chapter === 1 ? '(x, y) -> (-y, x)' : null}
-              {chapter === 2 ? '(x, y) -> (2x, 2y)' : null}
-              {chapter === 3 ? '(x, y) -> (-x, -y)' : null}
-              {chapter === 4 ? 'compose: scale + rotate' : null}
-            </div>
-          </div>
-        </div>
       </div>
     </AbsoluteFill>
   );

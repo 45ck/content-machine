@@ -57,7 +57,7 @@ export const Main: React.FC<RenderProps> = (props) => {
   const { fps, height } = useVideoConfig();
   const frame = useCurrentFrame();
   const gameplayMode = ((props.templateParams as any)?.gameplayMode as string | undefined) ?? 'auto';
-  const directorMode = ((props.templateParams as any)?.directorMode as string | undefined) ?? 'mixed';
+  const directorMode = ((props.templateParams as any)?.directorMode as string | undefined) ?? 'math-only';
 
   const layout = useMemo(
     () =>
@@ -110,19 +110,32 @@ export const Main: React.FC<RenderProps> = (props) => {
       : directorMode === 'clips-only'
         ? false
         : directorPhase !== 1;
-  const showSceneClips = directorMode === 'clips-only' ? true : (props.scenes?.length ?? 0) > 0;
+  const showSceneClips =
+    directorMode === 'clips-only'
+      ? true
+      : directorMode === 'math-only' || directorMode === 'diagram-only'
+        ? false
+        : (props.scenes?.length ?? 0) > 0;
   const sceneOpacity = directorMode === 'clips-only' ? 1 : directorPhase === 0 ? 0.3 : 0.96;
-  const diagramOpacity = showDiagram ? (directorPhase === 1 ? 0.3 : 1) : 0;
+  const diagramOpacity = showDiagram ? (directorMode === 'mixed' && directorPhase === 1 ? 0.3 : 1) : 0;
   const useGameplayClip =
     gameplayMode === 'clip' || (gameplayMode !== 'procedural' && Boolean(props.gameplayClip?.path));
-  const ambientShiftX = Math.sin(frame / (fps * 2.6)) * 6;
-  const ambientShiftY = Math.cos(frame / (fps * 3.4)) * 5;
-  const ambientPulse = 0.55 + 0.45 * Math.sin(frame / (fps * 4.1));
+  const forceGameplay = gameplayMode === 'clip' || gameplayMode === 'procedural';
+  const autoGameplay = gameplayMode === 'auto' && directorMode === 'mixed';
+  const showGameplay = forceGameplay || autoGameplay;
+  const effectiveContentTop = showGameplay ? contentTop : 0;
+  const effectiveContentHeight = showGameplay ? contentHeight : height;
+  const shouldRenderContent = !showGameplay || !isGameplayFull;
+  const ambientShiftX = Math.sin(frame / (fps * 1.6)) * 18;
+  const ambientShiftY = Math.cos(frame / (fps * 2.2)) * 14;
+  const ambientPulse = 0.45 + 0.55 * Math.sin(frame / (fps * 2.6));
+  const textureShiftX = (frame * 1.7) % 220;
+  const textureShiftY = (frame * 0.95) % 160;
 
   // IMPORTANT: `layout.captions` is intentionally full-frame in our layout helper so
   // captions don't "jump". However, a full-frame caption plate looks like weird UI.
   // Keep the Caption component full-frame, but restrict the contrast plate to a bottom band.
-  const captionBandTop = Math.round(height * 0.62);
+  const captionBandTop = Math.round(height * (showGameplay ? 0.62 : 0.72));
   const captionBandHeight = Math.max(0, height - captionBandTop);
 
   return (
@@ -137,8 +150,8 @@ export const Main: React.FC<RenderProps> = (props) => {
 
       <Sequence from={hookFrames} durationInFrames={contentFrames}>
         {/* Content slot (top by default): fully drawn diagram (no stock background, to reduce distraction) */}
-        {!isGameplayFull ? (
-          <AbsoluteFill style={{ top: contentTop, height: contentHeight, overflow: 'hidden' }}>
+        {shouldRenderContent ? (
+          <AbsoluteFill style={{ top: effectiveContentTop, height: effectiveContentHeight, overflow: 'hidden' }}>
             {showSceneClips
               ? visualSequences.map(({ fromFrame, durationInFrames, scene }: any, index: number) => (
                   <Sequence key={`scene-${index}`} from={fromFrame} durationInFrames={durationInFrames}>
@@ -158,22 +171,24 @@ export const Main: React.FC<RenderProps> = (props) => {
         ) : null}
 
         {/* Gameplay slot (bottom by default): procedural by default to keep the example deterministic. */}
-        <AbsoluteFill style={{ top: gameplayTop, height: gameplayHeight, overflow: 'hidden' }}>
-          {useGameplayClip && props.gameplayClip?.path ? (
-            <Loop durationInFrames={totalFrames}>
-              <Video
-                src={resolveGameplaySrc(props.gameplayClip.path)}
-                muted
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-            </Loop>
-          ) : (
-            <RunnerGameplay />
-          )}
-        </AbsoluteFill>
+        {showGameplay ? (
+          <AbsoluteFill style={{ top: gameplayTop, height: gameplayHeight, overflow: 'hidden' }}>
+            {useGameplayClip && props.gameplayClip?.path ? (
+              <Loop durationInFrames={totalFrames}>
+                <Video
+                  src={resolveGameplaySrc(props.gameplayClip.path)}
+                  muted
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              </Loop>
+            ) : (
+              <RunnerGameplay />
+            )}
+          </AbsoluteFill>
+        ) : null}
 
         {/* Soft separators/gradients to avoid hard edge and help caption contrast */}
-        {!isContentFull && !isGameplayFull ? (
+        {showGameplay && !isContentFull && !isGameplayFull ? (
           <>
             <AbsoluteFill
               style={{
@@ -182,31 +197,35 @@ export const Main: React.FC<RenderProps> = (props) => {
                 background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.55) 100%)',
               }}
             />
-            <AbsoluteFill
-              style={{
-                top: captionBandTop,
-                height: captionBandHeight,
-                background: 'rgba(2,6,23,0.42)',
-              }}
-            />
-            <AbsoluteFill
-              style={{
-                top: captionBandTop,
-                height: captionBandHeight,
-                // Keep OCR stable while preserving gameplay visibility.
-                background:
-                  'linear-gradient(180deg, rgba(0,0,0,0.34) 0%, rgba(0,0,0,0.70) 28%, rgba(0,0,0,0.88) 100%)',
-              }}
-            />
           </>
         ) : null}
+        <AbsoluteFill
+          style={{
+            top: captionBandTop,
+            height: captionBandHeight,
+            background: showGameplay
+              ? 'linear-gradient(180deg, rgba(0,0,0,0.30) 0%, rgba(0,0,0,0.68) 26%, rgba(0,0,0,0.86) 100%)'
+              : 'linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.56) 26%, rgba(0,0,0,0.82) 100%)',
+          }}
+        />
 
         <AbsoluteFill
           style={{
             pointerEvents: 'none',
-            opacity: 0.09 + ambientPulse * 0.03,
+            opacity: 0.14 + ambientPulse * 0.08,
             mixBlendMode: 'screen',
-            background: `radial-gradient(1200px 760px at ${52 + ambientShiftX}% ${18 + ambientShiftY}%, rgba(56,189,248,0.35), transparent 68%), radial-gradient(980px 640px at ${31 - ambientShiftX}% ${82 - ambientShiftY * 0.7}%, rgba(59,130,246,0.28), transparent 70%)`,
+            background: `radial-gradient(1280px 820px at ${50 + ambientShiftX}% ${18 + ambientShiftY}%, rgba(56,189,248,0.48), transparent 64%), radial-gradient(1040px 700px at ${30 - ambientShiftX * 0.9}% ${80 - ambientShiftY * 0.72}%, rgba(59,130,246,0.38), transparent 68%), radial-gradient(880px 560px at ${66 + ambientShiftY * 0.65}% ${54 - ambientShiftX * 0.42}%, rgba(52,211,153,0.24), transparent 72%)`,
+          }}
+        />
+        <AbsoluteFill
+          style={{
+            pointerEvents: 'none',
+            opacity: 0.028,
+            mixBlendMode: 'soft-light',
+            backgroundImage:
+              'repeating-linear-gradient(115deg, rgba(255,255,255,0.22) 0px, rgba(255,255,255,0.22) 1px, rgba(0,0,0,0) 1px, rgba(0,0,0,0) 6px)',
+            transform: `translate(${-textureShiftX}px, ${-textureShiftY}px) scale(1.18)`,
+            transformOrigin: 'center',
           }}
         />
 

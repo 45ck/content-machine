@@ -27,7 +27,16 @@ describe('FreezeAnalyzer', () => {
     expect(summary.totalFrames).toBe(500);
     expect(runPythonJsonMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        args: ['--video', 'video.mp4'],
+        args: [
+          '--video',
+          'video.mp4',
+          '--sample-rate',
+          '15',
+          '--diff-threshold',
+          '1.2',
+          '--min-run-frames',
+          '4',
+        ],
       })
     );
   });

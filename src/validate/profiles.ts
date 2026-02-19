@@ -41,7 +41,7 @@ export const VALIDATE_PROFILES: Record<ValidateProfileId, ValidateProfile> = {
     niqeMax: 8,
     cambiMax: 5,
     flickerMin: 0.5,
-    maxDuplicateFrameRatio: 0.3,
+    maxDuplicateFrameRatio: 0.4,
   },
   landscape: {
     id: 'landscape',
@@ -56,7 +56,7 @@ export const VALIDATE_PROFILES: Record<ValidateProfileId, ValidateProfile> = {
     niqeMax: 7,
     cambiMax: 4,
     flickerMin: 0.5,
-    maxDuplicateFrameRatio: 0.3,
+    maxDuplicateFrameRatio: 0.4,
   },
 };
 

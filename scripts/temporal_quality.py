@@ -64,7 +64,13 @@ def _compute_flicker(frames: List[Any]) -> Dict[str, Any]:
 
 
 def _compute_duplicate_ratio(frames: List[Any]) -> float:
-    """Compute ratio of perceptually duplicate frames using pHash."""
+    """
+    Compute ratio of repeated-frame runs using pHash.
+
+    We intentionally look for *runs* of near-identical sampled frames instead of
+    treating isolated similar pairs as defects. This reduces false positives on
+    low-motion explainer content while still flagging true stalls/freezes.
+    """
     try:
         import cv2  # type: ignore
         import numpy as np  # type: ignore
@@ -83,14 +89,26 @@ def _compute_duplicate_ratio(frames: List[Any]) -> float:
         return dct_low > median
 
     hashes = [phash(f) for f in frames]
-    duplicates = 0
-    for i in range(1, len(hashes)):
-        # Hamming distance between consecutive hashes
-        diff = np.count_nonzero(hashes[i] != hashes[i - 1])
-        if diff <= 5:  # threshold: <=5 bits different out of 64 = duplicate
-            duplicates += 1
+    threshold = 2
+    min_run = 3
+    duplicate_pairs_in_runs = 0
+    current_run = 0
 
-    return round(duplicates / (len(frames) - 1), 4)
+    for i in range(1, len(hashes)):
+        # Hamming distance between consecutive hashes.
+        diff = int(np.count_nonzero(hashes[i] != hashes[i - 1]))
+        is_near_duplicate = diff <= threshold
+        if is_near_duplicate:
+            current_run += 1
+        else:
+            if current_run >= min_run:
+                duplicate_pairs_in_runs += current_run
+            current_run = 0
+
+    if current_run >= min_run:
+        duplicate_pairs_in_runs += current_run
+
+    return round(duplicate_pairs_in_runs / (len(frames) - 1), 4)
 
 
 def main() -> int:

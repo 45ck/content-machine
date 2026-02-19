@@ -2,7 +2,7 @@
   "schemaVersion": "1.0.0",
   "id": "example-complex-plane-rotation",
   "name": "Example: Complex Plane Rotation (Drawn)",
-  "description": "Gameplay bottom + drawn complex plane diagram top (code template)",
+  "description": "Clarity-first complex-plane explainer with step-by-step motion",
   "compositionId": "SplitScreenGameplay",
   "remotion": {
     "entryPoint": "remotion/index.ts",
@@ -21,7 +21,7 @@
       "highlightMode": "none",
       "textColor": "#FFFFFF",
       "highlightColor": "#FFFFFF",
-      "fontSize": 68,
+      "fontSize": 62,
       "fontWeight": "black",
       "pageAnimation": "none",
       "wordAnimation": "none",
@@ -32,7 +32,7 @@
         "blur": 9
       },
       "positionOffset": {
-        "edgeDistance": 12,
+        "edgeDistance": 10,
         "horizontalPadding": 64
       },
       "safeZone": {
@@ -44,14 +44,14 @@
         "width": 6
       },
       "layout": {
-        "maxCharsPerLine": 22,
+        "maxCharsPerLine": 24,
         "maxLinesPerPage": 2,
-        "maxWordsPerPage": 6,
+        "maxWordsPerPage": 5,
         "minWordsPerPage": 2,
         "targetWordsPerChunk": 3,
-        "maxGapMs": 700,
-        "minOnScreenMs": 950,
-        "minOnScreenMsShort": 1000
+        "maxGapMs": 650,
+        "minOnScreenMs": 1100,
+        "minOnScreenMsShort": 1100
       }
     }
   },
@@ -65,12 +65,12 @@
     "contentPosition": "top",
     "gameplayPosition": "bottom",
     "gameplayMode": "auto",
-    "directorMode": "mixed",
+    "directorMode": "math-only",
     "diagram": {
       "x": 2,
       "y": 3,
-      "rotationStartSec": 13,
-      "rotationEndSec": 20
+      "rotationStartSec": 9.5,
+      "rotationEndSec": 15
     }
   }
 }

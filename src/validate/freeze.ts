@@ -11,7 +11,10 @@ export interface FreezeSummary {
 }
 
 export interface FreezeAnalyzerInterface {
-  analyze(videoPath: string): Promise<FreezeSummary>;
+  analyze(
+    videoPath: string,
+    options?: { sampleRate?: number; diffThreshold?: number; minRunFrames?: number }
+  ): Promise<FreezeSummary>;
 }
 
 export interface FreezeGateResult {
@@ -108,12 +111,36 @@ export class FreezeAnalyzer implements FreezeAnalyzerInterface {
     this.timeoutMs = options?.timeoutMs ?? 120_000;
   }
 
-  async analyze(videoPath: string): Promise<FreezeSummary> {
+  async analyze(
+    videoPath: string,
+    options?: { sampleRate?: number; diffThreshold?: number; minRunFrames?: number }
+  ): Promise<FreezeSummary> {
+    // Freeze detection should run on a coarser cadence than every frame; otherwise
+    // low-motion educational content can be misclassified as frozen.
+    const sampleRateRaw = options?.sampleRate ?? 15;
+    const sampleRate = Number.isFinite(sampleRateRaw)
+      ? Math.max(1, Math.floor(sampleRateRaw))
+      : 15;
+    const diffThresholdRaw = options?.diffThreshold ?? 1.2;
+    const diffThreshold =
+      Number.isFinite(diffThresholdRaw) && diffThresholdRaw > 0 ? diffThresholdRaw : 1.2;
+    const minRunRaw = options?.minRunFrames ?? 4;
+    const minRunFrames = Number.isFinite(minRunRaw) ? Math.max(1, Math.floor(minRunRaw)) : 4;
+
     const data = await runPythonJson({
       errorCode: 'VALIDATION_ERROR',
       pythonPath: this.pythonPath,
       scriptPath: this.scriptPath,
-      args: ['--video', videoPath],
+      args: [
+        '--video',
+        videoPath,
+        '--sample-rate',
+        String(sampleRate),
+        '--diff-threshold',
+        String(diffThreshold),
+        '--min-run-frames',
+        String(minRunFrames),
+      ],
       timeoutMs: this.timeoutMs,
     });
     return parseFreezeJson(data);

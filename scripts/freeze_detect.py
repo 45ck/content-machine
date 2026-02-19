@@ -11,8 +11,18 @@ def _fail(message: str, details: Dict[str, Any] | None = None) -> None:
     raise SystemExit(2)
 
 
-def _detect_freezes_and_black_frames(video_path: str, sample_rate: int) -> Dict[str, Any]:
-    """Detect freeze events and black frames in video."""
+def _detect_freezes_and_black_frames(
+    video_path: str,
+    sample_rate: int,
+    diff_threshold: float,
+    min_run_frames: int,
+) -> Dict[str, Any]:
+    """
+    Detect freeze events and black frames in video.
+
+    A freeze is counted only when we observe a run of near-identical sampled
+    frames (to avoid false positives on naturally low-motion content).
+    """
     try:
         import cv2  # type: ignore
         import numpy as np  # type: ignore
@@ -29,8 +39,11 @@ def _detect_freezes_and_black_frames(video_path: str, sample_rate: int) -> Dict[
         _fail("video has no frames", {"video": video_path})
 
     freeze_events = 0
+    freeze_comparison_frames = 0
     black_frames = 0
     frames_analyzed = 0
+    comparisons = 0
+    current_freeze_run = 0
     prev_frame = None
     frame_num = 0
 
@@ -46,20 +59,26 @@ def _detect_freezes_and_black_frames(video_path: str, sample_rate: int) -> Dict[
 
         frames_analyzed += 1
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        gray = cv2.resize(gray, (160, 90), interpolation=cv2.INTER_AREA)
 
         # Check for black frames (mean luminance < 10)
         mean_luminance = float(np.mean(gray))
         if mean_luminance < 10:
             black_frames += 1
 
-        # Check for freeze (consecutive frames with high similarity)
+        # Check for freeze run on sampled frames.
         if prev_frame is not None:
-            # Compute mean absolute difference
-            diff = np.mean(np.abs(gray.astype(float) - prev_frame.astype(float)))
-            # Threshold: diff < 2.55 (~1% of 255 range) indicates freeze
-            similarity = 1.0 - (diff / 255.0)
-            if similarity >= 0.99:
-                freeze_events += 1
+            diff = float(
+                np.mean(np.abs(gray.astype(np.float32) - prev_frame.astype(np.float32)))
+            )
+            comparisons += 1
+            if diff <= diff_threshold:
+                current_freeze_run += 1
+            else:
+                if current_freeze_run >= min_run_frames:
+                    freeze_events += 1
+                    freeze_comparison_frames += current_freeze_run
+                current_freeze_run = 0
 
         prev_frame = gray.copy()
         frame_num += 1
@@ -69,7 +88,13 @@ def _detect_freezes_and_black_frames(video_path: str, sample_rate: int) -> Dict[
     if frames_analyzed == 0:
         _fail("no frames analyzed", {"sampleRate": sample_rate})
 
-    freeze_ratio = round(freeze_events / frames_analyzed, 4) if frames_analyzed > 0 else 0.0
+    if current_freeze_run >= min_run_frames:
+        freeze_events += 1
+        freeze_comparison_frames += current_freeze_run
+
+    freeze_ratio = (
+        round(freeze_comparison_frames / comparisons, 4) if comparisons > 0 else 0.0
+    )
     black_ratio = round(black_frames / frames_analyzed, 4) if frames_analyzed > 0 else 0.0
 
     return {
@@ -78,6 +103,9 @@ def _detect_freezes_and_black_frames(video_path: str, sample_rate: int) -> Dict[
         "freezeRatio": freeze_ratio,
         "blackRatio": black_ratio,
         "totalFrames": frames_analyzed,
+        "sampleRate": sample_rate,
+        "diffThreshold": diff_threshold,
+        "minRunFrames": min_run_frames,
     }
 
 
@@ -85,9 +113,16 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--video", required=True)
     parser.add_argument("--sample-rate", type=int, default=1)
+    parser.add_argument("--diff-threshold", type=float, default=1.2)
+    parser.add_argument("--min-run-frames", type=int, default=3)
     args = parser.parse_args()
 
-    result = _detect_freezes_and_black_frames(args.video, max(1, args.sample_rate))
+    result = _detect_freezes_and_black_frames(
+        args.video,
+        max(1, args.sample_rate),
+        max(0.1, args.diff_threshold),
+        max(1, args.min_run_frames),
+    )
     print(json.dumps(result))
     return 0
 
