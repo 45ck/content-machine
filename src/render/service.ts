@@ -153,6 +153,8 @@ export interface RenderVideoOptions {
    * Caption display mode: page (default), single (one word at a time), buildup (accumulate per sentence)
    */
   captionMode?: 'page' | 'single' | 'buildup' | 'chunk';
+  /** Caption notation rendering mode */
+  captionNotation?: 'none' | 'unicode';
   /**
    * Words per caption page/group.
    * Default: 8 (for larger sentences)
@@ -714,6 +716,9 @@ function buildCaptionTopLevelOverride(options: RenderVideoOptions): Partial<Capt
 
   if (options.captionMode) {
     topLevelOverride.displayMode = options.captionMode;
+  }
+  if (options.captionNotation) {
+    topLevelOverride.notationMode = options.captionNotation;
   }
   if (options.captionFontFamily) {
     topLevelOverride.fontFamily = options.captionFontFamily;

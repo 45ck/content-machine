@@ -80,6 +80,7 @@ export interface PipelineOptions {
   captionConfig?: CaptionConfigInput;
   captionGroupMs?: number;
   captionMode?: 'page' | 'single' | 'buildup' | 'chunk';
+  captionNotation?: 'none' | 'unicode';
   wordsPerPage?: number;
   captionMinWords?: number;
   captionTargetWords?: number;
@@ -684,6 +685,7 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
             captionConfig: options.captionConfig,
             captionGroupMs: options.captionGroupMs,
             captionMode: options.captionMode,
+            captionNotation: options.captionNotation,
             wordsPerPage: options.wordsPerPage,
             captionMinWords: options.captionMinWords,
             captionTargetWords: options.captionTargetWords,

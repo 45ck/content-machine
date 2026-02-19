@@ -14,6 +14,7 @@
 import React, { useMemo } from 'react';
 import { useCurrentFrame, useVideoConfig, spring, Sequence, interpolate } from 'remotion';
 import { CaptionConfig, CaptionConfigSchema, CaptionDisplayMode } from './config';
+import { applyCaptionDisplayTransform } from './notation';
 import {
   createCaptionPages,
   toTimedWords,
@@ -246,7 +247,7 @@ const SingleWordView: React.FC<SingleWordViewProps> = ({ word, config }) => {
     ...(config.position === 'top' && { top: safeZone.topOffset }),
   };
 
-  const text = applyTextTransform(word, config.textTransform);
+  const text = applyCaptionDisplayTransform(word, config);
 
   // Build text shadow/stroke
   const textShadow = buildTextShadow(config);
@@ -466,7 +467,7 @@ const BuildupWordView: React.FC<BuildupWordViewProps> = ({ word, isActive, confi
   const highlightEnabled = config.highlightMode !== 'none';
   const isHighlighted = highlightEnabled ? isActive : false;
   const textColor = isHighlighted ? config.highlightColor : config.textColor;
-  const text = applyTextTransform(word, config.textTransform);
+  const text = applyCaptionDisplayTransform(word, config);
   const textShadow = buildTextShadow(config);
 
   const wordStyle: React.CSSProperties = {
@@ -582,14 +583,7 @@ const WordView: React.FC<WordViewProps> = ({ word, config, pageStartMs, isActive
     wordStartMs: word.startMs,
   });
 
-  const text =
-    config.textTransform === 'uppercase'
-      ? word.text.toUpperCase()
-      : config.textTransform === 'lowercase'
-        ? word.text.toLowerCase()
-        : config.textTransform === 'capitalize'
-          ? word.text.charAt(0).toUpperCase() + word.text.slice(1)
-          : word.text;
+  const text = applyCaptionDisplayTransform(word.text, config);
 
   if (config.highlightMode === 'background') {
     return (
@@ -971,22 +965,6 @@ function applyAlphaToColor(color: string, alpha: number): string {
   }
 
   return trimmed;
-}
-
-/**
- * Apply text transform to a word
- */
-function applyTextTransform(text: string, transform: CaptionConfig['textTransform']): string {
-  switch (transform) {
-    case 'uppercase':
-      return text.toUpperCase();
-    case 'lowercase':
-      return text.toLowerCase();
-    case 'capitalize':
-      return text.charAt(0).toUpperCase() + text.slice(1);
-    default:
-      return text;
-  }
 }
 
 /**

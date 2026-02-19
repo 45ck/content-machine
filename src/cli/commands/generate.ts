@@ -180,6 +180,8 @@ interface GenerateOptions {
   captionQualityMock?: boolean;
   /** Caption display mode: page (default), single (one word at a time), buildup (accumulate per sentence) */
   captionMode?: 'page' | 'single' | 'buildup' | 'chunk';
+  /** Caption notation rendering mode */
+  captionNotation?: 'none' | 'unicode';
   /** Words per caption page/group (default: 8) */
   wordsPerPage?: string;
   /** Max words per caption page/group (alias of wordsPerPage) */
@@ -377,6 +379,7 @@ function writeDryRunJson(params: {
         fps: options.fps ?? '30',
         captionPreset: options.captionPreset ?? 'tiktok',
         captionMode: options.captionMode ?? null,
+        captionNotation: options.captionNotation ?? null,
         wordsPerPage: parseOptionalInt(options.wordsPerPage ?? options.captionMaxWords),
         captionMaxWords: parseOptionalInt(options.captionMaxWords),
         captionMinWords: parseOptionalInt(options.captionMinWords),
@@ -1549,6 +1552,7 @@ function buildGenerateSuccessJsonArgs(params: {
     fps: options.fps,
     captionPreset: options.captionPreset,
     captionMode: options.captionMode ?? null,
+    captionNotation: options.captionNotation ?? null,
     wordsPerPage: parseOptionalInt(options.wordsPerPage ?? options.captionMaxWords),
     captionMaxWords: parseOptionalInt(options.captionMaxWords),
     captionMinWords: parseOptionalInt(options.captionMinWords),
@@ -2370,6 +2374,7 @@ async function runGeneratePipeline(params: {
         : undefined,
       reconcile: params.options.reconcile,
       captionMode: params.options.captionMode,
+      captionNotation: parseCaptionNotation(params.options.captionNotation),
       wordsPerPage: wordsPerPage ? parseInt(wordsPerPage, 10) : undefined,
       captionMinWords: parseOptionalInt(params.options.captionMinWords) ?? undefined,
       captionTargetWords: parseOptionalInt(params.options.captionTargetWords) ?? undefined,
@@ -2432,6 +2437,15 @@ function getLogFps(options: GenerateOptions): number {
 
 function getCaptionPreset(options: GenerateOptions): string {
   return options.captionPreset ?? 'capcut';
+}
+
+function parseCaptionNotation(value: unknown): 'none' | 'unicode' | undefined {
+  if (value === undefined || value === null || value === '') return undefined;
+  const raw = String(value).trim().toLowerCase();
+  if (raw === 'none' || raw === 'unicode') return raw;
+  throw new CMError('INVALID_ARGUMENT', `Invalid --caption-notation value: ${raw}`, {
+    fix: 'Use --caption-notation none or --caption-notation unicode',
+  });
 }
 
 function parseLayoutPosition(
@@ -3354,6 +3368,9 @@ function showDryRunSummary(
   if (options.captionMode) {
     writeStderrLine(`   Caption Mode: ${options.captionMode}`);
   }
+  if (options.captionNotation) {
+    writeStderrLine(`   Caption Notation: ${options.captionNotation}`);
+  }
   const wordsPerPage = options.wordsPerPage ?? options.captionMaxWords;
   if (wordsPerPage) {
     writeStderrLine(`   Caption Max Words: ${wordsPerPage}`);
@@ -3756,6 +3773,10 @@ export const generateCommand = new Command('generate')
   .option(
     '--caption-mode <mode>',
     'Caption display mode: page (default), single (one word at a time), buildup (accumulate per sentence), chunk (CapCut-style)'
+  )
+  .option(
+    '--caption-notation <mode>',
+    'Caption notation mode: none (default) or unicode (render math/symbol notation)'
   )
   .option(
     '--words-per-page <count>',

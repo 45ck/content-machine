@@ -29,6 +29,15 @@ export const TextTransformSchema = z.enum(['none', 'uppercase', 'lowercase', 'ca
 export type TextTransform = z.infer<typeof TextTransformSchema>;
 
 /**
+ * Caption notation rendering mode
+ */
+export const NotationModeSchema = z.enum([
+  'none', // Keep literal text exactly as supplied
+  'unicode', // Render common math/symbol notation with Unicode glyphs
+]);
+export type NotationMode = z.infer<typeof NotationModeSchema>;
+
+/**
  * Caption position with detailed control
  */
 export const CaptionPositionSchema = z.enum(['top', 'center', 'bottom']);
@@ -297,6 +306,8 @@ export const CaptionConfigSchema = z.object({
   lineHeight: z.number().positive().default(1.25),
   /** Text transform */
   textTransform: TextTransformSchema.default('uppercase'),
+  /** Notation formatting mode (math/symbol replacements) */
+  notationMode: NotationModeSchema.default('none'),
 
   // === COLORS ===
   /** Default text color */

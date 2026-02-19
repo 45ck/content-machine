@@ -109,6 +109,15 @@ function parseChromeMode(value: unknown): ChromeMode | undefined {
   });
 }
 
+function parseCaptionNotation(value: unknown): 'none' | 'unicode' | undefined {
+  if (value == null || value === '') return undefined;
+  const raw = String(value).trim().toLowerCase();
+  if (raw === 'none' || raw === 'unicode') return raw;
+  throw new CMError('INVALID_ARGUMENT', `Invalid --caption-notation value: ${raw}`, {
+    fix: 'Use one of: none, unicode',
+  });
+}
+
 function parseOptionalInt(value: unknown): number | undefined {
   if (value == null) return undefined;
   const parsed = Number.parseInt(String(value), 10);
@@ -1008,6 +1017,7 @@ function writeRenderJsonEnvelope(params: {
         chromeMode: params.options.chromeMode ?? null,
         captionPreset: params.options.captionPreset,
         captionMode: params.options.captionMode ?? null,
+        captionNotation: params.options.captionNotation ?? null,
         captionMaxWords: params.options.captionMaxWords ?? null,
         captionMinWords: params.options.captionMinWords ?? null,
         captionTargetWords: params.options.captionTargetWords ?? null,
@@ -1074,6 +1084,7 @@ function logRenderStart(
       output: options.output,
       captionPreset: options.captionPreset,
       captionMode: options.captionMode,
+      captionNotation: options.captionNotation,
       hook: options.hook ?? null,
       template: resolvedTemplate?.template.id,
       templateSource: resolvedTemplate ? formatTemplateSource(resolvedTemplate) : undefined,
@@ -1325,6 +1336,7 @@ async function runRenderCommand(
     chromeMode: parseChromeMode(options.chromeMode),
     captionPreset: options.captionPreset as CaptionPresetName,
     captionMode: options.captionMode as 'page' | 'single' | 'buildup' | 'chunk' | undefined,
+    captionNotation: parseCaptionNotation(options.captionNotation),
     captionConfig,
     wordsPerPage: captionMaxWords ?? undefined,
     captionMinWords: captionMinWords ?? undefined,
@@ -1406,6 +1418,7 @@ export const renderCommand = new Command('render')
     'capcut'
   )
   .option('--caption-mode <mode>', 'Caption display mode (page, single, buildup, chunk)')
+  .option('--caption-notation <mode>', 'Caption notation mode (none, unicode)')
   // Caption typography
   .option('--caption-font-family <name>', 'Caption font family (e.g., Inter)')
   .option('--caption-font-weight <weight>', 'Caption font weight (normal, bold, black, 100-900)')
