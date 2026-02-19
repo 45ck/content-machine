@@ -112,6 +112,8 @@ export const ComplexPlane: React.FC<{
 
   const toSvgX = (vx: number) => cx + vx * scale;
   const toSvgY = (vy: number) => cy - vy * scale;
+  const clampLabelX = (xPos: number, width: number) => clamp(xPos, -view + 4, view - width - 4);
+  const clampLabelY = (yPos: number, height: number) => clamp(yPos, -view + 4, view - height - 4);
 
   const tickStep = niceTickStep(maxAbs);
   const tickMax = Math.max(2, Math.ceil(maxAbs / tickStep) * tickStep);
@@ -257,7 +259,12 @@ export const ComplexPlane: React.FC<{
           {/* Point labels */}
           <g opacity={0.95}>
             {/* z label */}
-            <g transform={`translate(${toSvgX(x) + 10}, ${toSvgY(y) - 14})`}>
+            <g
+              transform={`translate(${clampLabelX(toSvgX(x) + 10, 96)}, ${clampLabelY(
+                toSvgY(y) - 14,
+                28
+              )})`}
+            >
               <rect x={0} y={0} rx={10} ry={10} width={96} height={28} fill="rgba(2,6,23,0.75)" stroke="rgba(167,139,250,0.55)" />
               <text
                 x={10}
@@ -275,7 +282,13 @@ export const ComplexPlane: React.FC<{
 
             {/* iz label */}
             {phase >= 2 ? (
-              <g transform={`translate(${toSvgX(rotatedX) + 10}, ${toSvgY(rotatedY) - 14})`} opacity={Math.max(mappingOpacity, chapterOpacity)}>
+              <g
+                transform={`translate(${clampLabelX(toSvgX(rotatedX) + 10, 110)}, ${clampLabelY(
+                  toSvgY(rotatedY) - 14,
+                  28
+                )})`}
+                opacity={Math.max(mappingOpacity, chapterOpacity)}
+              >
                 <rect x={0} y={0} rx={10} ry={10} width={110} height={28} fill="rgba(2,6,23,0.75)" stroke="rgba(52,211,153,0.55)" />
                 <text
                   x={10}

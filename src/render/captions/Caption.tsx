@@ -14,7 +14,7 @@
 import React, { useMemo } from 'react';
 import { useCurrentFrame, useVideoConfig, spring, Sequence, interpolate } from 'remotion';
 import { CaptionConfig, CaptionConfigSchema, CaptionDisplayMode } from './config';
-import { applyCaptionDisplayTransform } from './notation';
+import { applyCaptionDisplayTransform, normalizeNotationWordStream } from './notation';
 import {
   createCaptionPages,
   toTimedWords,
@@ -54,9 +54,13 @@ export const Caption: React.FC<CaptionProps> = ({ words, config: configInput }) 
   }, [configInput]);
 
   const displayMode: CaptionDisplayMode = config.displayMode ?? 'page';
+  const normalizedNotationWords = useMemo(
+    () => normalizeNotationWordStream(words, config.notationMode),
+    [words, config.notationMode]
+  );
   const displayWords = useMemo(
-    () => filterCaptionWords(words, config.cleanup),
-    [words, config.cleanup]
+    () => filterCaptionWords(normalizedNotationWords, config.cleanup),
+    [normalizedNotationWords, config.cleanup]
   );
 
   // Route to appropriate renderer based on display mode

@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { applyCaptionDisplayTransform, applyNotationTransform } from './notation';
+import {
+  applyCaptionDisplayTransform,
+  applyNotationTransform,
+  normalizeNotationWordStream,
+} from './notation';
 
 describe('applyNotationTransform', () => {
   it('keeps text unchanged when disabled', () => {
@@ -24,5 +28,20 @@ describe('applyCaptionDisplayTransform', () => {
       notationMode: 'unicode',
     });
     expect(value).toBe('θ X²');
+  });
+});
+
+describe('normalizeNotationWordStream', () => {
+  it('merges tokenized exponent operators', () => {
+    const words = normalizeNotationWordStream(
+      [
+        { word: 'i', start: 0, end: 0.1 },
+        { word: '^', start: 0.1, end: 0.15 },
+        { word: '2', start: 0.15, end: 0.2 },
+      ],
+      'unicode'
+    );
+    expect(words).toHaveLength(1);
+    expect(words[0]?.word).toBe('i^2');
   });
 });

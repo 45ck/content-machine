@@ -33,7 +33,7 @@ function resolveGameplaySrc(path: string): string {
 function coerceDiagramParams(raw: unknown): ComplexPlaneParams {
   const fallback: ComplexPlaneParams = {
     x: 2,
-    y: 1,
+    y: 3,
     rotationStartSec: 13,
     rotationEndSec: 20,
   };
@@ -100,7 +100,9 @@ export const Main: React.FC<RenderProps> = (props) => {
     [visualTimeline, contentDuration, fps]
   );
   const contentFrame = Math.max(0, frame - hookFrames);
-  const directorCycleFrames = Math.max(1, Math.floor(fps * 4));
+  const fastCutFrames = Math.max(1, Math.floor(fps * 2.2));
+  const steadyCutFrames = Math.max(1, Math.floor(fps * 3.4));
+  const directorCycleFrames = contentFrame < fps * 10 ? fastCutFrames : steadyCutFrames;
   const directorPhase = Math.floor(contentFrame / directorCycleFrames) % 3;
   const showDiagram =
     directorMode === 'math-only' || directorMode === 'diagram-only'
@@ -109,8 +111,8 @@ export const Main: React.FC<RenderProps> = (props) => {
         ? false
         : directorPhase !== 1;
   const showSceneClips = directorMode === 'clips-only' ? true : (props.scenes?.length ?? 0) > 0;
-  const sceneOpacity = directorMode === 'clips-only' ? 1 : directorPhase === 0 ? 0.28 : 1;
-  const diagramOpacity = showDiagram ? (directorPhase === 1 ? 0.18 : 1) : 0;
+  const sceneOpacity = directorMode === 'clips-only' ? 1 : directorPhase === 0 ? 0.38 : 1;
+  const diagramOpacity = showDiagram ? (directorPhase === 1 ? 0.3 : 1) : 0;
   const useGameplayClip =
     gameplayMode === 'clip' || (gameplayMode !== 'procedural' && Boolean(props.gameplayClip?.path));
 
@@ -181,9 +183,9 @@ export const Main: React.FC<RenderProps> = (props) => {
               style={{
                 top: captionBandTop,
                 height: captionBandHeight,
-                // Keep OCR stable: uniform dark plate behind captions reduces false positives.
+                // Keep OCR stable while preserving gameplay visibility.
                 background:
-                  'linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.55) 22%, rgba(0,0,0,0.72) 100%)',
+                  'linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.34) 22%, rgba(0,0,0,0.48) 100%)',
               }}
             />
           </>

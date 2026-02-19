@@ -60,6 +60,7 @@ const COMMAND_LOADERS: Array<[string, CommandLoader]> = [
     async () => (await import('./commands/extract-features')).extractFeaturesCommand,
   ],
   ['quality-rank', async () => (await import('./commands/quality-rank')).qualityRankCommand],
+  ['frame-analyze', async () => (await import('./commands/frame-analyze')).frameAnalyzeCommand],
 ];
 
 const COMMAND_MAP = new Map(COMMAND_LOADERS);

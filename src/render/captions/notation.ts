@@ -1,5 +1,11 @@
 import type { CaptionConfig } from './config';
 
+export type CaptionWordToken = {
+  word: string;
+  start: number;
+  end: number;
+};
+
 const SUPERSCRIPT_MAP: Record<string, string> = {
   '0': '⁰',
   '1': '¹',
@@ -115,4 +121,74 @@ export function applyCaptionDisplayTransform(
   }
 
   return applyNotationTransform(output, config.notationMode);
+}
+
+function isWordLike(token: string): boolean {
+  return /^[a-zA-Z0-9]+$/.test(token);
+}
+
+export function normalizeNotationWordStream(
+  words: CaptionWordToken[],
+  mode: CaptionConfig['notationMode'] | undefined
+): CaptionWordToken[] {
+  if (mode !== 'unicode') return words;
+
+  const out: CaptionWordToken[] = [];
+  for (let i = 0; i < words.length; i++) {
+    const a = words[i];
+    const b = words[i + 1];
+    const c = words[i + 2];
+    if (!a) continue;
+
+    if (a.word.toLowerCase() === 'sqrt' && b?.word === '(') {
+      out.push({ word: 'sqrt(', start: a.start, end: b.end });
+      i += 1;
+      continue;
+    }
+
+    if (b?.word === '^' && c && isWordLike(a.word) && isWordLike(c.word)) {
+      out.push({ word: `${a.word}^${c.word}`, start: a.start, end: c.end });
+      i += 2;
+      continue;
+    }
+
+    if (b?.word === '_' && c && isWordLike(a.word) && isWordLike(c.word)) {
+      out.push({ word: `${a.word}_${c.word}`, start: a.start, end: c.end });
+      i += 2;
+      continue;
+    }
+
+    if (a.word === '<' && b?.word === '-' && c?.word === '>') {
+      out.push({ word: '<->', start: a.start, end: c.end });
+      i += 2;
+      continue;
+    }
+
+    if (a.word === '-' && b?.word === '>') {
+      out.push({ word: '->', start: a.start, end: b.end });
+      i += 1;
+      continue;
+    }
+
+    if (a.word === '<' && b?.word === '=') {
+      out.push({ word: '<=', start: a.start, end: b.end });
+      i += 1;
+      continue;
+    }
+
+    if (a.word === '>' && b?.word === '=') {
+      out.push({ word: '>=', start: a.start, end: b.end });
+      i += 1;
+      continue;
+    }
+
+    if (a.word === '!' && b?.word === '=') {
+      out.push({ word: '!=', start: a.start, end: b.end });
+      i += 1;
+      continue;
+    }
+
+    out.push(a);
+  }
+  return out;
 }
