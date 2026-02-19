@@ -58,4 +58,26 @@ describe('Scene3dStaticAdapter', () => {
 
     await expect(adapter.submit(request)).rejects.toThrow(/only supports scene-to-video/i);
   });
+
+  it('fails fast for invalid scene spec JSON', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'cm-scene3d-'));
+    const specPath = join(dir, 'scene.json');
+    await writeFile(specPath, '{ not-json', 'utf8');
+
+    const { Scene3dStaticAdapter } = await import(
+      '../../../../../src/media/synthesis/adapters/scene3d-static'
+    );
+    const adapter = new Scene3dStaticAdapter();
+
+    await expect(
+      adapter.submit({
+        kind: 'scene-to-video',
+        sceneSpecPath: specPath,
+        durationSeconds: 2,
+        width: 720,
+        height: 1280,
+        outputPath: join(dir, 'out.mp4'),
+      })
+    ).rejects.toThrow(/Invalid scene spec JSON/);
+  });
 });

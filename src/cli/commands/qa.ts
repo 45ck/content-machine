@@ -22,6 +22,20 @@ interface QaCommandOptions {
   fps?: string;
 }
 
+function parseOptionalNumber(name: string, value: string | undefined): number | undefined {
+  if (value == null) return undefined;
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) {
+    throw new Error(`Invalid ${name}: expected a number, received "${value}"`);
+  }
+  return parsed;
+}
+
+function parseProfile(value: string): 'portrait' | 'landscape' {
+  if (value === 'portrait' || value === 'landscape') return value;
+  throw new Error(`Invalid profile: expected "portrait" or "landscape", received "${value}"`);
+}
+
 export const qaCommand = new Command('qa')
   .description('Run QA gate (evaluate) plus optional quality scoring')
   .requiredOption('-i, --input <videoPath>', 'Path to video file')
@@ -40,19 +54,24 @@ export const qaCommand = new Command('qa')
     const spinner = createSpinner('Running QA...').start();
 
     try {
+      const profile = parseProfile(String(options.profile));
+      const minSync = parseOptionalNumber('min-sync', options.minSync);
+      const minCaption = parseOptionalNumber('min-caption', options.minCaption);
+      const minScore = parseOptionalNumber('min-score', options.minScore);
+      const fps = parseOptionalNumber('fps', options.fps);
+
       const thresholds: EvaluationThresholds = {
-        validateProfile: options.profile,
-        ...(options.minSync ? { minSyncRating: Number(options.minSync) } : {}),
-        ...(options.minCaption ? { minCaptionOverall: Number(options.minCaption) } : {}),
+        validateProfile: profile,
+        ...(minSync != null ? { minSyncRating: minSync } : {}),
+        ...(minCaption != null ? { minCaptionOverall: minCaption } : {}),
       };
-      const fps = options.fps ? Number(options.fps) : undefined;
       const mode = options.mode as EvaluationMode | undefined;
 
       spinner.text = 'Running evaluate gate...';
       const evaluateReport = await evaluateVideo({
         videoPath: options.input,
         scriptPath: options.script,
-        profile: options.profile,
+        profile,
         thresholds,
         mode,
         checks: {},
@@ -77,7 +96,6 @@ export const qaCommand = new Command('qa')
         await writeOutputFile(options.scoreOutput, qualityScoreResult);
       }
 
-      const minScore = options.minScore ? Number(options.minScore) : undefined;
       const scorePassed =
         minScore == null || qualityScoreResult == null
           ? true
@@ -92,11 +110,11 @@ export const qaCommand = new Command('qa')
             command: 'qa',
             args: {
               input: options.input,
-              profile: options.profile,
+              profile,
               mode: options.mode ?? 'balanced',
-              minSync: options.minSync ?? null,
-              minCaption: options.minCaption ?? null,
-              minScore: options.minScore ?? null,
+              minSync: minSync ?? null,
+              minCaption: minCaption ?? null,
+              minScore: minScore ?? null,
               skipScore: Boolean(options.skipScore),
             },
             outputs: {

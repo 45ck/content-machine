@@ -23,12 +23,13 @@ function sanitizeColor(input: string | undefined): string {
 }
 
 async function readSceneSpec(path: string): Promise<SceneSpec> {
+  const raw = await readFile(path, 'utf8');
   try {
-    const raw = await readFile(path, 'utf8');
     const parsed = JSON.parse(raw) as SceneSpec;
     return parsed ?? {};
-  } catch {
-    return {};
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    throw new Error(`Invalid scene spec JSON at "${path}": ${detail}`);
   }
 }
 

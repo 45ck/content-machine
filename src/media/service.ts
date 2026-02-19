@@ -26,6 +26,7 @@ interface SynthesizeMediaOptions {
     depthflow?: string;
     veo?: string;
   };
+  sceneToVideoAdapter?: string;
 }
 
 function isRemoteUrl(path: string): boolean {
@@ -35,6 +36,11 @@ function isRemoteUrl(path: string): boolean {
 function isVideoPath(path: string): boolean {
   const ext = extname(path).toLowerCase();
   return ['.mp4', '.mov', '.mkv', '.webm', '.avi'].includes(ext);
+}
+
+function isSceneSpecPath(path: string): boolean {
+  const normalized = path.toLowerCase();
+  return normalized.endsWith('.scene3d.json') || normalized.endsWith('.scene.json');
 }
 
 function inferAssetType(assetPath: string, explicitType?: 'video' | 'image'): 'video' | 'image' {
@@ -125,6 +131,7 @@ interface MediaProcessingContext {
     depthflow: string;
     veo: string;
   };
+  sceneToVideoAdapter: string;
 }
 
 async function processImageScene(params: {
@@ -326,6 +333,90 @@ async function processVideoScene(params: {
   }
 }
 
+async function processSceneSpec(params: {
+  scene: VisualsOutput['scenes'][number];
+  assetPath: string;
+  context: MediaProcessingContext;
+}): Promise<{ scene: MediaScene; videoSynthesized: boolean }> {
+  const { scene, assetPath, context } = params;
+  if (isRemoteUrl(assetPath)) {
+    return {
+      videoSynthesized: false,
+      scene: {
+        sceneId: scene.sceneId,
+        assetPath,
+        assetType: 'image',
+        motionStrategy: scene.motionStrategy,
+        status: 'failed',
+        error: 'Scene-to-video synthesis currently requires local scene spec assets',
+      },
+    };
+  }
+
+  const sceneSpecPath = resolve(assetPath);
+  if (!existsSync(sceneSpecPath)) {
+    return {
+      videoSynthesized: false,
+      scene: {
+        sceneId: scene.sceneId,
+        assetPath: sceneSpecPath,
+        assetType: 'image',
+        motionStrategy: scene.motionStrategy,
+        status: 'failed',
+        error: 'Local scene spec asset not found',
+      },
+    };
+  }
+
+  const outputPath = join(
+    context.outputDir,
+    'clips',
+    `${scene.sceneId.replace(/[^a-zA-Z0-9._-]/g, '_')}-scene3d.mp4`
+  );
+
+  const job = await context.orchestrator.runJob({
+    adapterName: context.sceneToVideoAdapter,
+    request: {
+      kind: 'scene-to-video',
+      sceneSpecPath,
+      durationSeconds: scene.duration,
+      width: 1080,
+      height: 1920,
+      outputPath,
+    },
+  });
+
+  if (job.status === 'succeeded' && job.result?.outputPath) {
+    return {
+      videoSynthesized: true,
+      scene: {
+        sceneId: scene.sceneId,
+        assetPath: sceneSpecPath,
+        assetType: 'image',
+        motionStrategy: scene.motionStrategy,
+        synthesizedVideoPath: job.result.outputPath,
+        synthesisAdapter: context.sceneToVideoAdapter,
+        synthesisJobId: job.id,
+        status: 'video-synthesized',
+      },
+    };
+  }
+
+  return {
+    videoSynthesized: false,
+    scene: {
+      sceneId: scene.sceneId,
+      assetPath: sceneSpecPath,
+      assetType: 'image',
+      motionStrategy: scene.motionStrategy,
+      synthesisAdapter: context.sceneToVideoAdapter,
+      synthesisJobId: job.id,
+      status: 'failed',
+      error: job.error ?? 'Scene-to-video synthesis failed',
+    },
+  };
+}
+
 /**
  * Build a media-manifest artifact from visuals input.
  *
@@ -353,6 +444,7 @@ export async function synthesizeMediaManifest(
       depthflow: options.adapterByMotionStrategy?.depthflow ?? 'static-video',
       veo: options.adapterByMotionStrategy?.veo ?? 'static-video',
     },
+    sceneToVideoAdapter: options.sceneToVideoAdapter ?? 'scene3d-static',
   };
 
   let keyframesExtracted = 0;
@@ -361,6 +453,13 @@ export async function synthesizeMediaManifest(
 
   for (const scene of visuals.scenes) {
     const assetPath = scene.assetPath;
+    if (isSceneSpecPath(assetPath)) {
+      const result = await processSceneSpec({ scene, assetPath, context });
+      scenes.push(result.scene);
+      if (result.videoSynthesized) videosSynthesized++;
+      continue;
+    }
+
     const assetType = inferAssetType(assetPath, scene.assetType);
     if (assetType === 'image' && isAdvancedMotionStrategy(scene.motionStrategy)) {
       const result = await processImageScene({

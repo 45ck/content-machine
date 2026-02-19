@@ -136,6 +136,7 @@ export interface PipelineOptions {
       depthflow?: string;
       veo?: string;
     };
+    sceneToVideoAdapter?: string;
   };
 
   // ---------------------------------------------------------------------------
@@ -210,10 +211,12 @@ function clampProgress(value: number): number {
 function shouldAutoEnableMediaStage(visuals: VisualsOutput): boolean {
   return visuals.scenes.some(
     (scene) =>
-      scene.assetType === 'image' &&
-      scene.motionStrategy !== undefined &&
-      scene.motionStrategy !== 'none' &&
-      scene.motionStrategy !== 'kenburns'
+      scene.assetPath.toLowerCase().endsWith('.scene3d.json') ||
+      scene.assetPath.toLowerCase().endsWith('.scene.json') ||
+      (scene.assetType === 'image' &&
+        scene.motionStrategy !== undefined &&
+        scene.motionStrategy !== 'none' &&
+        scene.motionStrategy !== 'kenburns')
   );
 }
 
@@ -632,6 +635,7 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
               synthesizeImageMotion: options.media?.synthesizeImageMotion ?? true,
               ffmpegPath: options.media?.ffmpegPath,
               adapterByMotionStrategy: options.media?.adapterByMotionStrategy,
+              sceneToVideoAdapter: options.media?.sceneToVideoAdapter,
             }),
           log
         );

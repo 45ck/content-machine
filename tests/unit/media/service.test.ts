@@ -237,6 +237,72 @@ describe('synthesizeMediaManifest', () => {
     expect(manifest.scenes[0].error).toMatch(/requires local image assets/);
   });
 
+  it('synthesizes local scene spec assets via scene-to-video adapter', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'cm-media-'));
+    const sceneSpecPath = join(dir, 'scene-1.scene3d.json');
+    await writeFile(sceneSpecPath, JSON.stringify({ backgroundColor: '#112233' }), 'utf8');
+
+    const { synthesizeMediaManifest } = await import('../../../src/media/service');
+    const manifest = await synthesizeMediaManifest({
+      visuals: {
+        schemaVersion: '1.1.0',
+        scenes: [
+          {
+            sceneId: 'scene-1',
+            source: 'mock',
+            assetPath: sceneSpecPath,
+            duration: 4,
+            motionStrategy: 'none',
+            motionApplied: false,
+          },
+        ],
+        totalAssets: 1,
+        fromUserFootage: 0,
+        fromStock: 0,
+        fallbacks: 0,
+        fromGenerated: 0,
+        totalDuration: 4,
+      },
+      outputDir: join(dir, 'media'),
+    });
+
+    expect(manifest.videosSynthesized).toBe(1);
+    expect(manifest.scenes[0].status).toBe('video-synthesized');
+    expect(manifest.scenes[0].synthesizedVideoPath).toContain('scene-1-scene3d.mp4');
+    expect(manifest.scenes[0].synthesisAdapter).toBe('scene3d-static');
+  });
+
+  it('marks remote scene specs as failed because local input is required', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'cm-media-'));
+    const { synthesizeMediaManifest } = await import('../../../src/media/service');
+    const manifest = await synthesizeMediaManifest({
+      visuals: {
+        schemaVersion: '1.1.0',
+        scenes: [
+          {
+            sceneId: 'scene-1',
+            source: 'mock',
+            assetPath: 'https://example.com/scene.scene3d.json',
+            duration: 4,
+            motionStrategy: 'none',
+            motionApplied: false,
+          },
+        ],
+        totalAssets: 1,
+        fromUserFootage: 0,
+        fromStock: 0,
+        fallbacks: 0,
+        fromGenerated: 0,
+        totalDuration: 4,
+      },
+      outputDir: join(dir, 'media'),
+    });
+
+    expect(manifest.videosSynthesized).toBe(0);
+    expect(manifest.scenes[0].status).toBe('failed');
+    expect(manifest.scenes[0].error).toMatch(/requires local scene spec assets/);
+  });
+
   it('marks missing local video asset as failed', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'cm-media-'));
     const { synthesizeMediaManifest } = await import('../../../src/media/service');
