@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs';
+import { existsSync, statSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { basename, extname, join, resolve } from 'node:path';
@@ -104,19 +104,34 @@ function captureFrameAt(
   timeSec: number,
   outputPng: string
 ): void {
-  execFileSync(ffmpegPath, [
-    '-hide_banner',
-    '-y',
-    '-ss',
-    String(timeSec),
-    '-i',
-    inputVideo,
-    '-update',
-    '1',
-    '-frames:v',
-    '1',
-    outputPng,
-  ]);
+  const attempts = [timeSec, Math.max(0, timeSec - 0.2), Math.max(0, timeSec - 0.5)];
+  let lastError: unknown;
+  for (const seekTime of attempts) {
+    try {
+      execFileSync(ffmpegPath, [
+        '-hide_banner',
+        '-loglevel',
+        'error',
+        '-y',
+        '-ss',
+        String(seekTime),
+        '-i',
+        inputVideo,
+        '-update',
+        '1',
+        '-frames:v',
+        '1',
+        outputPng,
+      ]);
+      if (existsSync(outputPng) && statSync(outputPng).size > 0) {
+        return;
+      }
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  if (lastError instanceof Error) throw lastError;
+  throw new CMError('FFMPEG_ERROR', 'Failed to extract frame image', { outputPng, timeSec });
 }
 
 async function captureShots(params: {
