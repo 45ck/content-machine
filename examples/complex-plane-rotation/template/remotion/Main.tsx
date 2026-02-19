@@ -5,6 +5,7 @@ import {
   Sequence,
   Video,
   staticFile,
+  useCurrentFrame,
   useVideoConfig,
 } from 'remotion';
 // This example is intended to run from this repo without publishing/installing the package.
@@ -18,6 +19,9 @@ const {
   AudioLayers,
   FontLoader,
   HookClipLayer,
+  SceneBackground,
+  buildSequences,
+  buildVisualTimeline,
   computeSplitScreenLayout,
 } = TemplateSDK as any;
 
@@ -51,7 +55,9 @@ function coerceDiagramParams(raw: unknown): ComplexPlaneParams {
 
 export const Main: React.FC<RenderProps> = (props) => {
   const { fps, height } = useVideoConfig();
-  const gameplayMode = ((props.templateParams as any)?.gameplayMode as string | undefined) ?? 'procedural';
+  const frame = useCurrentFrame();
+  const gameplayMode = ((props.templateParams as any)?.gameplayMode as string | undefined) ?? 'auto';
+  const directorMode = ((props.templateParams as any)?.directorMode as string | undefined) ?? 'mixed';
 
   const layout = useMemo(
     () =>
@@ -79,11 +85,34 @@ export const Main: React.FC<RenderProps> = (props) => {
   const hookFrames = Math.max(0, Math.ceil(hookDuration * fps));
   const contentFrames = Math.max(1, Math.ceil(contentDuration * fps));
   const totalFrames = Math.max(1, Math.ceil(contentDuration * fps));
+  const durationMs = Math.max(0, Math.round(contentDuration * 1000));
 
   const diagramParams = useMemo(
     () => coerceDiagramParams((props.templateParams as any)?.diagram),
     [props.templateParams]
   );
+  const visualTimeline = useMemo(
+    () => buildVisualTimeline(props.scenes ?? [], durationMs),
+    [props.scenes, durationMs]
+  );
+  const visualSequences = useMemo(
+    () => buildSequences(visualTimeline, contentDuration, fps),
+    [visualTimeline, contentDuration, fps]
+  );
+  const contentFrame = Math.max(0, frame - hookFrames);
+  const directorCycleFrames = Math.max(1, Math.floor(fps * 4));
+  const directorPhase = Math.floor(contentFrame / directorCycleFrames) % 3;
+  const showDiagram =
+    directorMode === 'math-only' || directorMode === 'diagram-only'
+      ? true
+      : directorMode === 'clips-only'
+        ? false
+        : directorPhase !== 1;
+  const showSceneClips = directorMode === 'clips-only' ? true : (props.scenes?.length ?? 0) > 0;
+  const sceneOpacity = directorMode === 'clips-only' ? 1 : directorPhase === 0 ? 0.28 : 1;
+  const diagramOpacity = showDiagram ? (directorPhase === 1 ? 0.18 : 1) : 0;
+  const useGameplayClip =
+    gameplayMode === 'clip' || (gameplayMode !== 'procedural' && Boolean(props.gameplayClip?.path));
 
   // IMPORTANT: `layout.captions` is intentionally full-frame in our layout helper so
   // captions don't "jump". However, a full-frame caption plate looks like weird UI.
@@ -105,13 +134,27 @@ export const Main: React.FC<RenderProps> = (props) => {
         {/* Content slot (top by default): fully drawn diagram (no stock background, to reduce distraction) */}
         {!isGameplayFull ? (
           <AbsoluteFill style={{ top: contentTop, height: contentHeight, overflow: 'hidden' }}>
-            <ComplexPlane params={diagramParams} />
+            {showSceneClips
+              ? visualSequences.map(({ fromFrame, durationInFrames, scene }: any, index: number) => (
+                  <Sequence key={`scene-${index}`} from={fromFrame} durationInFrames={durationInFrames}>
+                    <SceneBackground
+                      scene={scene}
+                      startFrame={hookFrames + fromFrame}
+                      durationInFrames={durationInFrames}
+                      containerStyle={{ top: 0, height: '100%', overflow: 'hidden', opacity: sceneOpacity }}
+                    />
+                  </Sequence>
+                ))
+              : null}
+            <AbsoluteFill style={{ opacity: diagramOpacity }}>
+              <ComplexPlane params={diagramParams} />
+            </AbsoluteFill>
           </AbsoluteFill>
         ) : null}
 
         {/* Gameplay slot (bottom by default): procedural by default to keep the example deterministic. */}
         <AbsoluteFill style={{ top: gameplayTop, height: gameplayHeight, overflow: 'hidden' }}>
-          {gameplayMode === 'clip' && props.gameplayClip?.path ? (
+          {useGameplayClip && props.gameplayClip?.path ? (
             <Loop durationInFrames={totalFrames}>
               <Video
                 src={resolveGameplaySrc(props.gameplayClip.path)}

@@ -24,6 +24,14 @@ function niceTickStep(maxAbs: number): number {
   return 5;
 }
 
+function chapterName(chapter: number): string {
+  if (chapter === 0) return 'Setup';
+  if (chapter === 1) return 'Rotate by i';
+  if (chapter === 2) return 'Scale by 2';
+  if (chapter === 3) return 'Reflect';
+  return 'Compose';
+}
+
 export const ComplexPlane: React.FC<{
   params: ComplexPlaneParams;
 }> = ({ params }) => {
@@ -33,28 +41,64 @@ export const ComplexPlane: React.FC<{
   const startF = Math.round(params.rotationStartSec * fps);
   const endF = Math.max(startF + 1, Math.round(params.rotationEndSec * fps));
 
-  const theta = interpolate(frame, [startF, endF], [0, Math.PI / 2], {
+  const chapterLen = Math.max(1, Math.floor(fps * 4.25));
+  const chapter = Math.floor(frame / chapterLen) % 5;
+  const chapterFrame = frame % chapterLen;
+  const chapterProgress = clamp(chapterFrame / chapterLen, 0, 1);
+  const blendIn = interpolate(chapterProgress, [0, 0.14], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
+  const blendOut = interpolate(chapterProgress, [0.86, 1], [1, 0], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+  const chapterOpacity = Math.min(blendIn, blendOut);
+
+  const thetaFromParams = interpolate(frame, [startF, endF], [0, Math.PI / 2], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+  const chapterTheta =
+    chapter === 1
+      ? interpolate(chapterProgress, [0, 1], [0, Math.PI / 2], {
+          extrapolateLeft: 'clamp',
+          extrapolateRight: 'clamp',
+        })
+      : chapter === 3
+        ? Math.PI
+        : chapter === 4
+          ? interpolate(chapterProgress, [0, 1], [0, Math.PI * 1.5], {
+              extrapolateLeft: 'clamp',
+              extrapolateRight: 'clamp',
+            })
+          : 0;
+  const theta = chapter === 0 ? thetaFromParams : chapterTheta;
 
   const x = params.x;
   const y = params.y;
-  const rotatedX = -y;
-  const rotatedY = x;
+  const scaleFactor = chapter === 2 ? interpolate(chapterProgress, [0, 1], [1, 2], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  }) : chapter === 4 ? 1.4 : 1;
+  const rot90X = -y;
+  const rot90Y = x;
   const r = Math.sqrt(x * x + y * y);
 
   const vec = useMemo(() => {
     // Rotate (x,y) continuously from its original to 90 degrees CCW.
     const base = Math.atan2(y, x);
     const a = base + theta;
-    return { x: r * Math.cos(a), y: r * Math.sin(a) };
-  }, [x, y, theta, r]);
+    return { x: r * Math.cos(a) * scaleFactor, y: r * Math.sin(a) * scaleFactor };
+  }, [x, y, theta, r, scaleFactor]);
+
+  const rotatedX = vec.x;
+  const rotatedY = vec.y;
 
   // IMPORTANT: during rotation, components can reach +/-r even if max(|x|,|y|) is smaller.
   // If we don't include r, the endpoint circle can clip at the SVG bounds.
   const maxAbs = clamp(
-    Math.max(Math.abs(x), Math.abs(y), Math.abs(rotatedX), Math.abs(rotatedY), Math.abs(r), 2),
+    Math.max(Math.abs(x), Math.abs(y), Math.abs(rotatedX), Math.abs(rotatedY), Math.abs(r * scaleFactor), 2),
     2,
     6
   );
@@ -75,7 +119,7 @@ export const ComplexPlane: React.FC<{
   for (let t = -tickMax; t <= tickMax; t += tickStep) ticks.push(t);
 
   const baseAngle = Math.atan2(y, x);
-  const arcRadiusUnits = clamp(Math.sqrt(x * x + y * y) * 0.75, 0.9, maxAbs);
+  const arcRadiusUnits = clamp(Math.sqrt(x * x + y * y) * 0.75 * scaleFactor, 0.9, maxAbs);
   const arcRadius = arcRadiusUnits * scale;
   const arcStart = { x: arcRadiusUnits * Math.cos(baseAngle), y: arcRadiusUnits * Math.sin(baseAngle) };
   const arcEnd = { x: arcRadiusUnits * Math.cos(baseAngle + theta), y: arcRadiusUnits * Math.sin(baseAngle + theta) };
@@ -83,8 +127,10 @@ export const ComplexPlane: React.FC<{
   const arcLarge = theta > Math.PI ? 1 : 0;
   const arcPath = `M ${toSvgX(arcStart.x)} ${toSvgY(arcStart.y)} A ${arcRadius} ${arcRadius} 0 ${arcLarge} ${arcSweep} ${toSvgX(arcEnd.x)} ${toSvgY(arcEnd.y)}`;
 
-  const phase = frame < startF ? 0 : frame <= endF ? 1 : 2;
-  const progress = clamp((frame - startF) / Math.max(1, endF - startF), 0, 1);
+  const phase = chapter === 0 ? (frame < startF ? 0 : frame <= endF ? 1 : 2) : 2;
+  const progress = chapter === 0 ? clamp((frame - startF) / Math.max(1, endF - startF), 0, 1) : chapterProgress;
+  const boardScale = 1.0 + Math.sin(frame / (fps * 1.7)) * 0.015;
+  const boardRotate = Math.sin(frame / (fps * 3.8)) * 0.45;
   const headerOpacity = interpolate(frame, [0, Math.max(1, startF - fps * 0.5)], [1, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
@@ -118,6 +164,8 @@ export const ComplexPlane: React.FC<{
             borderRadius: 0,
             border: 'none',
             display: 'block',
+            transform: `scale(${boardScale}) rotate(${boardRotate}deg)`,
+            transformOrigin: '50% 52%',
           }}
         >
           {/* Grid */}
@@ -179,7 +227,7 @@ export const ComplexPlane: React.FC<{
           />
 
           {/* Rotation arc */}
-          {phase >= 1 ? (
+          {phase >= 1 || chapter >= 1 ? (
             <path
               d={arcPath}
               stroke="#22d3ee"
@@ -196,7 +244,7 @@ export const ComplexPlane: React.FC<{
           <circle cx={toSvgX(vec.x)} cy={toSvgY(vec.y)} r={7} fill="#22d3ee" />
 
           {/* Final point marker (faint) */}
-          <circle cx={toSvgX(rotatedX)} cy={toSvgY(rotatedY)} r={7} fill="#34d399" opacity={0.35} />
+          <circle cx={toSvgX(rot90X)} cy={toSvgY(rot90Y)} r={7} fill="#34d399" opacity={0.35} />
 
           {/* Labels */}
           <text x={view - 12} y={-10} textAnchor="end" fill="#e2e8f0" fontSize="12" opacity="0.8">
@@ -227,7 +275,7 @@ export const ComplexPlane: React.FC<{
 
             {/* iz label */}
             {phase >= 2 ? (
-              <g transform={`translate(${toSvgX(rotatedX) + 10}, ${toSvgY(rotatedY) - 14})`} opacity={mappingOpacity}>
+              <g transform={`translate(${toSvgX(rotatedX) + 10}, ${toSvgY(rotatedY) - 14})`} opacity={Math.max(mappingOpacity, chapterOpacity)}>
                 <rect x={0} y={0} rx={10} ry={10} width={110} height={28} fill="rgba(2,6,23,0.75)" stroke="rgba(52,211,153,0.55)" />
                 <text
                   x={10}
@@ -239,7 +287,7 @@ export const ComplexPlane: React.FC<{
                       'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
                   }}
                 >
-                  iz ({fmt(rotatedX)},{fmt(rotatedY)})
+                  T(z) ({fmt(rotatedX)},{fmt(rotatedY)})
                 </text>
               </g>
             ) : null}
@@ -265,7 +313,9 @@ export const ComplexPlane: React.FC<{
           }}
         >
           <div style={{ fontSize: 18, fontWeight: 800, letterSpacing: 0.2 }}>Multiply by i</div>
-          <div style={{ marginTop: 4, fontSize: 13, opacity: 0.88 }}>rotates 90 deg (CCW)</div>
+          <div style={{ marginTop: 4, fontSize: 13, opacity: 0.88 }}>
+            {chapterName(chapter)}
+          </div>
         </div>
 
         <div
@@ -303,7 +353,10 @@ export const ComplexPlane: React.FC<{
               opacity: 0.95,
             }}
           >
-            i * z = i(x + y i) = i x + i^2 y = -y + x i
+            {chapter === 0 || chapter === 1 ? 'i * z = i(x + y i) = i x + i^2 y = -y + x i' : null}
+            {chapter === 2 ? '2 * z doubles radius from origin (same angle)' : null}
+            {chapter === 3 ? '-z rotates 180 deg across origin' : null}
+            {chapter === 4 ? '(1 - i)z = rotate + scale composite transform' : null}
           </div>
 
           <div style={{ marginTop: 8, opacity: mappingOpacity }}>
@@ -320,7 +373,10 @@ export const ComplexPlane: React.FC<{
                 fontWeight: 800,
               }}
             >
-              (x, y) -&gt; (-y, x)
+              {chapter === 0 || chapter === 1 ? '(x, y) -> (-y, x)' : null}
+              {chapter === 2 ? '(x, y) -> (2x, 2y)' : null}
+              {chapter === 3 ? '(x, y) -> (-x, -y)' : null}
+              {chapter === 4 ? 'compose: scale + rotate' : null}
             </div>
           </div>
         </div>
@@ -328,4 +384,3 @@ export const ComplexPlane: React.FC<{
     </AbsoluteFill>
   );
 };
-

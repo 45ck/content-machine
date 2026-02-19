@@ -60,7 +60,8 @@
     "splitScreenRatio": 0.55,
     "contentPosition": "top",
     "gameplayPosition": "bottom",
-    "gameplayMode": "procedural",
+    "gameplayMode": "auto",
+    "directorMode": "mixed",
     "diagram": {
       "x": 2,
       "y": 1,
