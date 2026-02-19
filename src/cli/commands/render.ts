@@ -40,6 +40,7 @@ import { getCliRuntime } from '../runtime';
 import { parseTemplateDepsMode, resolveTemplateDepsInstallDecision } from '../template-code';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
+import { chalk } from '../colors';
 import { DEFAULT_ARTIFACT_FILENAMES } from '../../domain/repo-facts.generated';
 import type { CaptionPresetName } from '../../render/captions/presets';
 import type {
@@ -70,6 +71,7 @@ import {
   resolveRemotionTemplateProject,
 } from '../../render/templates';
 import { resolveHookFromCli } from '../hooks';
+import { analyzeVideoFrames, type AnalyzeVideoFramesResult } from '../../analysis/frame-analysis';
 
 type ChromeMode = 'headless-shell' | 'chrome-for-testing';
 type LayoutPosition = 'top' | 'bottom' | 'full';
@@ -128,6 +130,50 @@ function parseOptionalNumber(value: unknown): number | undefined {
   if (value == null) return undefined;
   const parsed = Number.parseFloat(String(value));
   return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function parseFrameAnalysisMode(value: unknown): 'fps' | 'shots' | 'both' {
+  const raw = String(value ?? 'both').trim().toLowerCase();
+  if (raw === 'fps' || raw === 'shots' || raw === 'both') return raw;
+  throw new CMError('INVALID_ARGUMENT', `Invalid --frame-analysis-mode value: ${raw}`, {
+    fix: 'Use one of: fps, shots, both',
+  });
+}
+
+async function runAutoFrameAnalysis(options: Record<string, unknown>): Promise<AnalyzeVideoFramesResult | null> {
+  if (options.frameAnalysis === false) return null;
+  const fpsRaw = Number.parseFloat(String(options.frameAnalysisFps ?? '1'));
+  if (!Number.isFinite(fpsRaw) || fpsRaw <= 0 || fpsRaw > 1) {
+    throw new CMError(
+      'INVALID_ARGUMENT',
+      `Invalid --frame-analysis-fps value: ${String(options.frameAnalysisFps)}`,
+      { fix: 'Use a number > 0 and <= 1' }
+    );
+  }
+  const shots = Number.parseInt(String(options.frameAnalysisShots ?? '30'), 10);
+  if (!Number.isFinite(shots) || shots < 1) {
+    throw new CMError(
+      'INVALID_ARGUMENT',
+      `Invalid --frame-analysis-shots value: ${String(options.frameAnalysisShots)}`,
+      { fix: 'Use an integer >= 1' }
+    );
+  }
+  const segments = Number.parseInt(String(options.frameAnalysisSegments ?? '5'), 10);
+  if (!Number.isFinite(segments) || segments < 1) {
+    throw new CMError(
+      'INVALID_ARGUMENT',
+      `Invalid --frame-analysis-segments value: ${String(options.frameAnalysisSegments)}`,
+      { fix: 'Use an integer >= 1' }
+    );
+  }
+  return analyzeVideoFrames({
+    inputVideo: String(options.output),
+    outputRootDir: String(options.frameAnalysisOutput ?? 'output/analysis'),
+    mode: parseFrameAnalysisMode(options.frameAnalysisMode ?? 'both'),
+    fps: fpsRaw,
+    shots,
+    segments,
+  });
 }
 
 function parseFontWeight(value: unknown): number | 'normal' | 'bold' | 'black' {
@@ -988,6 +1034,7 @@ function writeRenderJsonEnvelope(params: {
   resolvedTemplateId: string | null;
   result: Awaited<ReturnType<(typeof import('../../render/service'))['renderVideo']>>;
   runtime: RenderRuntime;
+  frameAnalysis: AnalyzeVideoFramesResult | null;
 }): void {
   writeJsonEnvelope(
     buildJsonEnvelope({
@@ -1029,6 +1076,12 @@ function writeRenderJsonEnvelope(params: {
         captionFillerWords: params.options.captionFillerWords ?? null,
         validateTimestamps: params.options.validateTimestamps,
         extendVisuals: params.options.extendVisuals,
+        frameAnalysis: params.options.frameAnalysis !== false,
+        frameAnalysisMode: params.options.frameAnalysisMode ?? 'both',
+        frameAnalysisFps: params.options.frameAnalysisFps ?? '1',
+        frameAnalysisShots: params.options.frameAnalysisShots ?? '30',
+        frameAnalysisSegments: params.options.frameAnalysisSegments ?? '5',
+        frameAnalysisOutput: params.options.frameAnalysisOutput ?? 'output/analysis',
       },
       outputs: {
         videoPath: params.result.outputPath,
@@ -1037,6 +1090,9 @@ function writeRenderJsonEnvelope(params: {
         height: params.result.height,
         fps: params.result.fps,
         fileSizeBytes: params.result.fileSize,
+        frameAnalysisManifestPath: params.frameAnalysis?.manifestPath ?? null,
+        frameAnalysisFpsFrames: params.frameAnalysis?.manifest.fpsFrames.length ?? 0,
+        frameAnalysisShotFrames: params.frameAnalysis?.manifest.shotFrames.length ?? 0,
       },
       timingsMs: Date.now() - params.runtime.startTime,
     })
@@ -1049,6 +1105,7 @@ async function writeRenderHumanSummary(params: {
   profile: 'portrait' | 'landscape';
   templateId?: string | null;
   audioMixPath?: string | null;
+  frameAnalysis?: AnalyzeVideoFramesResult | null;
 }): Promise<void> {
   const rows: Array<[string, string]> = [
     ['Duration', `${params.result.duration.toFixed(1)}s`],
@@ -1061,6 +1118,9 @@ async function writeRenderHumanSummary(params: {
   }
   if (params.audioMixPath) {
     rows.push(['Audio mix', params.audioMixPath]);
+  }
+  if (params.frameAnalysis?.manifestPath) {
+    rows.push(['Frame analysis', params.frameAnalysis.manifestPath]);
   }
   const lines = formatKeyValueRows(rows);
   const footerLines = [];
@@ -1362,6 +1422,26 @@ async function runRenderCommand(
     hook: hook ?? undefined,
   });
 
+  let frameAnalysis: AnalyzeVideoFramesResult | null = null;
+  try {
+    frameAnalysis = await runAutoFrameAnalysis({
+      ...options,
+      output: result.outputPath,
+    });
+  } catch (error) {
+    logger.warn(
+      { error: getCliErrorInfo(error), videoPath: result.outputPath },
+      'Automatic frame analysis failed'
+    );
+    if (!runtime.json) {
+      writeStderrLine(
+        chalk.yellow(
+          `Frame analysis skipped: ${getCliErrorInfo(error).message ?? 'unexpected error'}`
+        )
+      );
+    }
+  }
+
   spinner.succeed('Video rendered successfully');
 
   logger.info(
@@ -1379,6 +1459,7 @@ async function runRenderCommand(
       resolvedTemplateId: resolvedTemplate?.template.id ?? null,
       result,
       runtime,
+      frameAnalysis,
     });
     return;
   }
@@ -1390,6 +1471,7 @@ async function runRenderCommand(
     profile,
     templateId: resolvedTemplate?.template.id ?? null,
     audioMixPath: options.audioMix ? String(options.audioMix) : null,
+    frameAnalysis,
   });
 }
 
@@ -1500,6 +1582,21 @@ export const renderCommand = new Command('render')
   .option('--hook-fit <mode>', 'Hook fit mode (cover, contain)')
   .option('--download-assets', 'Download remote visual assets into the render bundle', true)
   .option('--no-download-assets', 'Do not download remote assets (stream URLs directly)')
+  .option('--frame-analysis', 'Run automatic frame analysis after render', true)
+  .option('--no-frame-analysis', 'Skip automatic frame analysis after render')
+  .option('--frame-analysis-mode <mode>', 'Frame analysis mode (fps, shots, both)', 'both')
+  .option(
+    '--frame-analysis-fps <value>',
+    'Frame analysis FPS sampling rate (> 0 and <= 1)',
+    '1'
+  )
+  .option('--frame-analysis-shots <count>', 'Frame analysis evenly spaced shot count', '30')
+  .option('--frame-analysis-segments <count>', 'Frame analysis timeline segment count', '5')
+  .option(
+    '--frame-analysis-output <dir>',
+    'Frame analysis output root directory',
+    'output/analysis'
+  )
   .option('--browser-executable <path>', 'Chromium/Chrome executable path for rendering')
   .option(
     '--chrome-mode <mode>',

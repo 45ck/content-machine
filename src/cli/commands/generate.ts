@@ -93,6 +93,7 @@ import {
   runWorkflowCommands,
   workflowHasExec,
 } from '../../workflows/runner';
+import { analyzeVideoFrames, type AnalyzeVideoFramesResult } from '../../analysis/frame-analysis';
 
 /**
  * Sync quality presets for different quality/speed tradeoffs
@@ -292,6 +293,18 @@ interface GenerateOptions {
   mixPreset?: string;
   /** Loudness target */
   lufsTarget?: string;
+  /** Run automatic frame analysis after render */
+  frameAnalysis?: boolean;
+  /** Frame analysis mode */
+  frameAnalysisMode?: 'fps' | 'shots' | 'both';
+  /** Frame analysis FPS sampling rate (>0 and <=1) */
+  frameAnalysisFps?: string;
+  /** Frame analysis shot count */
+  frameAnalysisShots?: string;
+  /** Frame analysis segment count */
+  frameAnalysisSegments?: string;
+  /** Frame analysis output root directory */
+  frameAnalysisOutput?: string;
   /** Validate dependencies without running the pipeline */
   preflight?: boolean;
 
@@ -1612,6 +1625,12 @@ function buildGenerateSuccessJsonArgs(params: {
     hookFit: options.hookFit ?? null,
     downloadHook: Boolean(options.downloadHook),
     downloadAssets: options.downloadAssets !== false,
+    frameAnalysis: options.frameAnalysis !== false,
+    frameAnalysisMode: options.frameAnalysisMode ?? 'both',
+    frameAnalysisFps: parseOptionalNumber(options.frameAnalysisFps) ?? 1,
+    frameAnalysisShots: parseOptionalInt(options.frameAnalysisShots) ?? 30,
+    frameAnalysisSegments: parseOptionalInt(options.frameAnalysisSegments) ?? 5,
+    frameAnalysisOutput: options.frameAnalysisOutput ?? 'output/analysis',
   };
 }
 
@@ -1678,8 +1697,9 @@ function buildGenerateSuccessJsonOutputs(params: {
   artifactsDir: string;
   sync: SyncQualitySummary | null | undefined;
   caption: CaptionQualitySummary | null | undefined;
+  frameAnalysis: AnalyzeVideoFramesResult | null | undefined;
 }): Record<string, unknown> {
-  const { result, artifactsDir, sync, caption } = params;
+  const { result, artifactsDir, sync, caption, frameAnalysis } = params;
 
   return {
     videoPath: result.outputPath,
@@ -1693,6 +1713,9 @@ function buildGenerateSuccessJsonOutputs(params: {
     audioMixPath: result.audio.audioMixPath ?? null,
     audioMixLayers: result.audio.audioMix?.layers.length ?? 0,
     gameplayClip: result.visuals.gameplayClip?.path ?? null,
+    frameAnalysisManifestPath: frameAnalysis?.manifestPath ?? null,
+    frameAnalysisFpsFrames: frameAnalysis?.manifest.fpsFrames.length ?? 0,
+    frameAnalysisShotFrames: frameAnalysis?.manifest.shotFrames.length ?? 0,
     ...buildGenerateSuccessJsonSyncOutputs(sync),
     ...buildGenerateSuccessJsonCaptionOutputs(caption),
   };
@@ -1710,6 +1733,7 @@ function writeSuccessJson(params: {
   result: PipelineResult;
   sync?: SyncQualitySummary | null;
   caption?: CaptionQualitySummary | null;
+  frameAnalysis?: AnalyzeVideoFramesResult | null;
   exitCode?: number;
 }): void {
   const {
@@ -1724,6 +1748,7 @@ function writeSuccessJson(params: {
     result,
     sync,
     caption,
+    frameAnalysis,
     exitCode = 0,
   } = params;
 
@@ -1738,7 +1763,7 @@ function writeSuccessJson(params: {
         templateSpec,
         resolvedTemplateId,
       }),
-      outputs: buildGenerateSuccessJsonOutputs({ result, artifactsDir, sync, caption }),
+      outputs: buildGenerateSuccessJsonOutputs({ result, artifactsDir, sync, caption, frameAnalysis }),
       timingsMs: Date.now() - runtime.startTime,
     })
   );
@@ -2448,6 +2473,53 @@ function parseCaptionNotation(value: unknown): 'none' | 'unicode' | undefined {
   });
 }
 
+function parseFrameAnalysisMode(value: unknown): 'fps' | 'shots' | 'both' {
+  const raw = String(value ?? 'both').trim().toLowerCase();
+  if (raw === 'fps' || raw === 'shots' || raw === 'both') return raw;
+  throw new CMError('INVALID_ARGUMENT', `Invalid --frame-analysis-mode value: ${raw}`, {
+    fix: 'Use one of: fps, shots, both',
+  });
+}
+
+async function runAutoFrameAnalysis(
+  options: GenerateOptions,
+  outputPath: string
+): Promise<AnalyzeVideoFramesResult | null> {
+  if (options.frameAnalysis === false) return null;
+  const fpsRaw = Number.parseFloat(String(options.frameAnalysisFps ?? '1'));
+  if (!Number.isFinite(fpsRaw) || fpsRaw <= 0 || fpsRaw > 1) {
+    throw new CMError(
+      'INVALID_ARGUMENT',
+      `Invalid --frame-analysis-fps value: ${String(options.frameAnalysisFps)}`,
+      { fix: 'Use a number > 0 and <= 1' }
+    );
+  }
+  const shots = Number.parseInt(String(options.frameAnalysisShots ?? '30'), 10);
+  if (!Number.isFinite(shots) || shots < 1) {
+    throw new CMError(
+      'INVALID_ARGUMENT',
+      `Invalid --frame-analysis-shots value: ${String(options.frameAnalysisShots)}`,
+      { fix: 'Use an integer >= 1' }
+    );
+  }
+  const segments = Number.parseInt(String(options.frameAnalysisSegments ?? '5'), 10);
+  if (!Number.isFinite(segments) || segments < 1) {
+    throw new CMError(
+      'INVALID_ARGUMENT',
+      `Invalid --frame-analysis-segments value: ${String(options.frameAnalysisSegments)}`,
+      { fix: 'Use an integer >= 1' }
+    );
+  }
+  return analyzeVideoFrames({
+    inputVideo: outputPath,
+    outputRootDir: options.frameAnalysisOutput ?? 'output/analysis',
+    mode: parseFrameAnalysisMode(options.frameAnalysisMode ?? 'both'),
+    fps: fpsRaw,
+    shots,
+    segments,
+  });
+}
+
 function parseLayoutPosition(
   value: unknown,
   optionName: string
@@ -2931,6 +3003,7 @@ async function finalizeGenerateOutput(params: {
   result: PipelineResult;
   sync: SyncQualitySummary | null;
   caption: CaptionQualitySummary | null;
+  frameAnalysis: AnalyzeVideoFramesResult | null;
   exitCode: number;
 }): Promise<void> {
   if (params.runtime.json) {
@@ -2946,6 +3019,7 @@ async function finalizeGenerateOutput(params: {
       result: params.result,
       sync: params.sync,
       caption: params.caption,
+      frameAnalysis: params.frameAnalysis,
       exitCode: params.exitCode,
     });
     return;
@@ -2957,6 +3031,7 @@ async function finalizeGenerateOutput(params: {
     params.artifactsDir,
     params.sync,
     params.caption,
+    params.frameAnalysis,
     params.topic
   );
   if (params.exitCode !== 0) process.exit(params.exitCode);
@@ -3264,6 +3339,23 @@ async function runGenerate(
       visualsInput,
     });
 
+  let frameAnalysis: AnalyzeVideoFramesResult | null = null;
+  try {
+    frameAnalysis = await runAutoFrameAnalysis(finalOptions, result.outputPath);
+  } catch (error) {
+    logger.warn(
+      { error: getCliErrorInfo(error), videoPath: result.outputPath },
+      'Automatic frame analysis failed'
+    );
+    if (!runtime.json) {
+      writeStderrLine(
+        chalk.yellow(
+          `Frame analysis skipped: ${getCliErrorInfo(error).message ?? 'unexpected error'}`
+        )
+      );
+    }
+  }
+
   if (options.keepArtifacts && resolvedTemplate) {
     const templateFonts = getTemplateFontSources(
       resolvedTemplate.template,
@@ -3308,6 +3400,7 @@ async function runGenerate(
     result,
     sync,
     caption,
+    frameAnalysis,
     exitCode,
   });
 }
@@ -3450,6 +3543,14 @@ function showDryRunSummary(
   if (options.hookTrim) {
     writeStderrLine(`   Hook Trim: ${options.hookTrim}s`);
   }
+  writeStderrLine(`   Frame Analysis: ${options.frameAnalysis === false ? 'disabled' : 'enabled'}`);
+  if (options.frameAnalysis !== false) {
+    writeStderrLine(`   Frame Analysis Mode: ${options.frameAnalysisMode ?? 'both'}`);
+    writeStderrLine(`   Frame Analysis FPS: ${options.frameAnalysisFps ?? '1'}`);
+    writeStderrLine(`   Frame Analysis Shots: ${options.frameAnalysisShots ?? '30'}`);
+    writeStderrLine(`   Frame Analysis Segments: ${options.frameAnalysisSegments ?? '5'}`);
+    writeStderrLine(`   Frame Analysis Output: ${options.frameAnalysisOutput ?? 'output/analysis'}`);
+  }
   writeStderrLine('   Pipeline stages:');
   if (options.research) {
     writeStderrLine('   0. Research -> research.json');
@@ -3483,6 +3584,7 @@ async function showSuccessSummary(
   artifactsDir: string,
   sync: SyncQualitySummary | null,
   caption: CaptionQualitySummary | null,
+  frameAnalysis: AnalyzeVideoFramesResult | null,
   topic: string
 ): Promise<void> {
   const titleParts: string[] = [];
@@ -3502,6 +3604,9 @@ async function showSuccessSummary(
   }
   if (options.hook) {
     rows.push(['Hook', options.hook]);
+  }
+  if (frameAnalysis?.manifestPath) {
+    rows.push(['Frame analysis', frameAnalysis.manifestPath]);
   }
   const lines = formatKeyValueRows(rows);
 
@@ -3834,6 +3939,21 @@ export const generateCommand = new Command('generate')
   .option('--download-hook', 'Download missing hook clips')
   .option('--download-assets', 'Download remote visual assets into the render bundle', true)
   .option('--no-download-assets', 'Do not download remote assets (stream URLs directly)')
+  .option('--frame-analysis', 'Run automatic frame analysis after render', true)
+  .option('--no-frame-analysis', 'Skip automatic frame analysis after render')
+  .option('--frame-analysis-mode <mode>', 'Frame analysis mode (fps, shots, both)', 'both')
+  .option(
+    '--frame-analysis-fps <value>',
+    'Frame analysis FPS sampling rate (> 0 and <= 1)',
+    '1'
+  )
+  .option('--frame-analysis-shots <count>', 'Frame analysis evenly spaced shot count', '30')
+  .option('--frame-analysis-segments <count>', 'Frame analysis timeline segment count', '5')
+  .option(
+    '--frame-analysis-output <dir>',
+    'Frame analysis output root directory',
+    'output/analysis'
+  )
   .option(
     '--quality',
     'Enable higher-quality defaults (slower): audio-first sync + reconcile + post-render sync/caption quality gates'
