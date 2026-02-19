@@ -98,14 +98,18 @@ export class OpenAISoraAdapter implements MediaSynthesisAdapter {
       duration: request.durationSeconds,
       size,
     };
-    const body: Record<string, unknown> =
-      request.kind === 'text-to-video'
-        ? { ...common, prompt: request.prompt }
-        : {
-            ...common,
-            prompt: request.prompt ?? 'Animate this image with natural motion',
-            image: await fileToDataUrl(request.inputImagePath),
-          };
+    let body: Record<string, unknown>;
+    if (request.kind === 'text-to-video') {
+      body = { ...common, prompt: request.prompt };
+    } else if (request.kind === 'image-to-video') {
+      body = {
+        ...common,
+        prompt: request.prompt ?? 'Animate this image with natural motion',
+        image: await fileToDataUrl(request.inputImagePath),
+      };
+    } else {
+      throw new Error(`OpenAI Sora adapter does not support "${request.kind}" requests`);
+    }
 
     const created = await fetchJsonWithTimeout({
       url: this.baseUrl,

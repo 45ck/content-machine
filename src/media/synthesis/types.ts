@@ -1,4 +1,4 @@
-export type MediaSynthesisCapability = 'text-to-video' | 'image-to-video';
+export type MediaSynthesisCapability = 'text-to-video' | 'image-to-video' | 'scene-to-video';
 
 export interface TextToVideoRequest {
   kind: 'text-to-video';
@@ -19,7 +19,20 @@ export interface ImageToVideoRequest {
   outputPath: string;
 }
 
-export type MediaSynthesisRequest = TextToVideoRequest | ImageToVideoRequest;
+export interface SceneToVideoRequest {
+  kind: 'scene-to-video';
+  sceneSpecPath: string;
+  prompt?: string;
+  durationSeconds: number;
+  width: number;
+  height: number;
+  outputPath: string;
+}
+
+export type MediaSynthesisRequest =
+  | TextToVideoRequest
+  | ImageToVideoRequest
+  | SceneToVideoRequest;
 
 export interface MediaSynthesisResult {
   outputPath: string;

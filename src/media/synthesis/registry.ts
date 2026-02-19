@@ -1,6 +1,7 @@
 import { GoogleVeoAdapter } from './adapters/google-veo';
 import { OpenAISoraAdapter } from './adapters/openai-sora';
 import { SeedanceBytePlusAdapter } from './adapters/seedance-byteplus';
+import { Scene3dStaticAdapter } from './adapters/scene3d-static';
 import { StaticVideoSynthesisAdapter } from './adapters/static-video';
 import type { MediaSynthesisAdapter } from './types';
 
@@ -20,6 +21,7 @@ export function createMediaSynthesisRegistry(
 ): MediaSynthesisAdapter[] {
   const adapters: MediaSynthesisAdapter[] = [
     new StaticVideoSynthesisAdapter({ ffmpegPath: options.ffmpegPath }),
+    new Scene3dStaticAdapter({ ffmpegPath: options.ffmpegPath }),
   ];
 
   const includeCloud = options.includeExperimentalCloudAdapters ?? true;

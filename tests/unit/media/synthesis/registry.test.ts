@@ -16,10 +16,11 @@ describe('createMediaSynthesisRegistry', () => {
     process.env = { ...original };
   });
 
-  it('always includes static-video adapter', () => {
+  it('always includes local static adapters', () => {
     const adapters = createMediaSynthesisRegistry({ includeExperimentalCloudAdapters: false });
     expect(adapters.map((a) => a.name)).toContain('static-video');
-    expect(adapters).toHaveLength(1);
+    expect(adapters.map((a) => a.name)).toContain('scene3d-static');
+    expect(adapters).toHaveLength(2);
   });
 
   it('adds cloud adapters only when required env is configured', () => {
@@ -31,7 +32,13 @@ describe('createMediaSynthesisRegistry', () => {
 
     const adapters = createMediaSynthesisRegistry();
     expect(adapters.map((a) => a.name)).toEqual(
-      expect.arrayContaining(['static-video', 'openai-sora', 'google-veo', 'seedance-byteplus'])
+      expect.arrayContaining([
+        'static-video',
+        'scene3d-static',
+        'openai-sora',
+        'google-veo',
+        'seedance-byteplus',
+      ])
     );
   });
 });

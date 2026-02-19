@@ -122,6 +122,10 @@ export class GoogleVeoAdapter implements MediaSynthesisAdapter {
       };
     }
 
+    if (request.kind !== 'image-to-video') {
+      throw new Error(`Google Veo adapter does not support "${request.kind}" requests`);
+    }
+
     return {
       instances: [
         {

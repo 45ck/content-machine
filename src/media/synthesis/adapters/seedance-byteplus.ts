@@ -97,6 +97,9 @@ export class SeedanceBytePlusAdapter implements MediaSynthesisAdapter {
     if (request.kind === 'text-to-video') {
       return { ...common, prompt: request.prompt };
     }
+    if (request.kind !== 'image-to-video') {
+      throw new Error(`Seedance adapter does not support "${request.kind}" requests`);
+    }
     return {
       ...common,
       prompt: request.prompt ?? 'Animate this image with natural movement',
