@@ -9,6 +9,7 @@ import {
   _extractWordAppearances as extractWordAppearances,
   _calculateMetrics as calculateMetrics,
   _calculateRating as calculateRating,
+  _matchWords as matchWords,
 } from './sync-rater';
 import {
   CaptionQualityRatingOptionsSchema,
@@ -231,11 +232,22 @@ describe('Sync Schema Validation', () => {
       expect(words).not.toContain('noise');
     });
 
-    it('skips words with no alphabetic characters', () => {
-      const frames = [{ frameNumber: 1, timestamp: 0.0, text: 'hello 1234 !!!', confidence: 0.9 }];
+    it('keeps math-relevant numeric and symbol aliases', () => {
+      const frames = [
+        {
+          frameNumber: 1,
+          timestamp: 0.0,
+          text: 'hello 90 + = 1234',
+          confidence: 0.9,
+        },
+      ];
       const result = extractWordAppearances(frames);
       const words = result.map((r) => r.word);
       expect(words).toContain('hello');
+      expect(words).toContain('90');
+      expect(words).toContain('plus');
+      expect(words).toContain('equals');
+      // Long standalone numbers are usually UI noise and should be ignored.
       expect(words).not.toContain('1234');
     });
 
@@ -274,6 +286,49 @@ describe('Sync Schema Validation', () => {
       const metrics = calculateMetrics(matches, 577, 100);
       // Should be 80/100 = 0.80, NOT 80/577
       expect(metrics.matchRatio).toBeCloseTo(0.8, 2);
+    });
+  });
+
+  describe('matchWords', () => {
+    it('rejects ambiguous tokens when only far OCR timestamps exist', () => {
+      const ocrWords = [{ word: 'equals', timestamps: [1.0] }];
+      const asrResult = {
+        words: [{ word: 'equals', start: 4.0, end: 4.2 }],
+        duration: 6,
+        text: 'equals',
+        engine: 'whisper-cpp' as const,
+      };
+
+      const matches = matchWords(ocrWords, asrResult, 2);
+      expect(matches).toHaveLength(0);
+    });
+
+    it('accepts ambiguous tokens when OCR aligns near speech', () => {
+      const ocrWords = [{ word: 'equals', timestamps: [3.5, 4.0] }];
+      const asrResult = {
+        words: [{ word: 'equals', start: 3.8, end: 4.0 }],
+        duration: 6,
+        text: 'equals',
+        engine: 'whisper-cpp' as const,
+      };
+
+      const matches = matchWords(ocrWords, asrResult, 2);
+      expect(matches).toHaveLength(1);
+      expect(matches[0]?.word).toBe('equals');
+      expect(Math.abs(matches[0]?.driftMs ?? 9999)).toBeLessThanOrEqual(20);
+    });
+
+    it('caps exact matches by max match distance', () => {
+      const ocrWords = [{ word: 'complex', timestamps: [1.0] }];
+      const asrResult = {
+        words: [{ word: 'complex', start: 3.3, end: 3.6 }],
+        duration: 6,
+        text: 'complex',
+        engine: 'whisper-cpp' as const,
+      };
+
+      const matches = matchWords(ocrWords, asrResult, 2);
+      expect(matches).toHaveLength(0);
     });
   });
 

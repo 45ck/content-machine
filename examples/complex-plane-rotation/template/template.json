@@ -15,21 +15,25 @@
     "fps": 30,
     "captionPreset": "tiktok",
     "captionConfig": {
-      "textTransform": "uppercase",
+      "textTransform": "none",
+      "notationMode": "unicode",
       "displayMode": "chunk",
       "highlightMode": "none",
       "textColor": "#FFFFFF",
       "highlightColor": "#FFFFFF",
-      "fontSize": 78,
+      "fontSize": 68,
       "fontWeight": "black",
       "pageAnimation": "none",
       "wordAnimation": "none",
       "shadow": {
-        "enabled": false
+        "enabled": true,
+        "color": "rgba(0,0,0,0.65)",
+        "offsetY": 3,
+        "blur": 9
       },
       "positionOffset": {
-        "edgeDistance": 4,
-        "horizontalPadding": 56
+        "edgeDistance": 12,
+        "horizontalPadding": 64
       },
       "safeZone": {
         "enabled": true,
@@ -42,12 +46,12 @@
       "layout": {
         "maxCharsPerLine": 22,
         "maxLinesPerPage": 2,
-        "maxWordsPerPage": 7,
+        "maxWordsPerPage": 6,
         "minWordsPerPage": 2,
         "targetWordsPerChunk": 3,
-        "maxGapMs": 600,
-        "minOnScreenMs": 750,
-        "minOnScreenMsShort": 850
+        "maxGapMs": 700,
+        "minOnScreenMs": 950,
+        "minOnScreenMsShort": 1000
       }
     }
   },

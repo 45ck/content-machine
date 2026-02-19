@@ -65,6 +65,55 @@ function standardDeviation(arr: number[]): number {
   return Math.sqrt(mean(squareDiffs));
 }
 
+const SYNC_ALLOWED_SINGLE_CHAR_TOKENS = new Set(['a', 'i', 'x', 'y', 'z']);
+const SYNC_AMBIGUOUS_ALIAS_TOKENS = new Set(['plus', 'minus', 'equals', 'times', 'over', 'to', 'degrees', 'sqrt']);
+
+function isNumericToken(text: string): boolean {
+  return /^[0-9]+$/.test(text);
+}
+
+function isEligibleNormalizedSyncToken(normalized: string): boolean {
+  if (!normalized) return false;
+  if (normalized.length >= 2) return true;
+  if (SYNC_ALLOWED_SINGLE_CHAR_TOKENS.has(normalized)) return true;
+  // Math captions frequently include 1-digit coefficients/constants.
+  return /^[0-9]$/.test(normalized);
+}
+
+function isHighRiskSyncToken(normalized: string): boolean {
+  if (!normalized) return true;
+  if (isNumericToken(normalized)) return true;
+  if (SYNC_AMBIGUOUS_ALIAS_TOKENS.has(normalized)) return true;
+  return normalized.length <= 3;
+}
+
+function normalizeOcrComparableTokens(rawToken: string): string[] {
+  const token = rawToken.trim();
+  if (!token) return [];
+
+  const out = new Set<string>();
+  const normalized = normalizeWord(token);
+  if (normalized) out.add(normalized);
+
+  if (/^[+＋]$/.test(token)) out.add('plus');
+  if (/^[-−]$/.test(token)) out.add('minus');
+  if (/^[=≈]$/.test(token)) out.add('equals');
+  if (/^[*×]$/.test(token)) out.add('times');
+  if (/^[/÷]$/.test(token)) out.add('over');
+  if (/^(?:->|→)$/.test(token)) out.add('to');
+  if (/^[√]$/.test(token) || /^sqrt$/i.test(token)) out.add('sqrt');
+
+  const degreeMatch = token.match(/^([0-9]+)\s*[°º]$/);
+  if (degreeMatch) {
+    out.add(degreeMatch[1]!);
+    out.add('degrees');
+  } else if (/[°º]/.test(token)) {
+    out.add('degrees');
+  }
+
+  return Array.from(out);
+}
+
 /**
  * Extract frames from video at specified FPS
  */
@@ -284,9 +333,6 @@ function extractWordAppearances(
   { minConfidence = 0.3 }: { minConfidence?: number } = {}
 ): Array<{ word: string; timestamps: number[] }> {
   const wordMap = new Map<string, number[]>();
-  // Single-letter tokens matter for math/science content.
-  // Keep allowlist small to avoid pulling in OCR noise.
-  const allowedSingleLetter = new Set(['a', 'i', 'x', 'y', 'z']);
 
   function buildCandidateWords(frameText: string): string[] {
     const base = frameText.split(/\s+/).filter(Boolean);
@@ -315,19 +361,20 @@ function extractWordAppearances(
     // Skip low-confidence frames (background imagery, noise)
     if (frame.confidence < minConfidence) continue;
 
-    const words = buildCandidateWords(frame.text);
-    for (const word of words) {
-      // Skip words with no alphabetic characters (pure numbers/symbols are OCR noise)
-      if (!/[a-zA-Z]/.test(word)) continue;
+    const rawTokens = buildCandidateWords(frame.text);
+    for (const rawToken of rawTokens) {
+      const comparableTokens = normalizeOcrComparableTokens(rawToken);
+      for (const normalized of comparableTokens) {
+        if (!isEligibleNormalizedSyncToken(normalized)) continue;
+        // Ignore long standalone numbers that are commonly UI noise (timers/scores).
+        if (isNumericToken(normalized) && normalized.length > 3) continue;
 
-      const normalized = normalizeWord(word);
-      if (normalized.length < 2 && !allowedSingleLetter.has(normalized)) continue; // Skip very short words
-
-      const timestamps = wordMap.get(normalized);
-      if (!timestamps) {
-        wordMap.set(normalized, [frame.timestamp]);
-      } else {
-        timestamps.push(frame.timestamp);
+        const timestamps = wordMap.get(normalized);
+        if (!timestamps) {
+          wordMap.set(normalized, [frame.timestamp]);
+        } else {
+          timestamps.push(frame.timestamp);
+        }
       }
     }
   }
@@ -400,7 +447,7 @@ function pickBestOcrTimestampForAsrStart(params: {
   timestamps: number[];
   asrStart: number;
   frameStepSeconds: number;
-}): { ocrTimestamp: number; timeDiff: number } | null {
+}): { ocrTimestamp: number; timeDiff: number; alignedToAsrStart: boolean } | null {
   const idx = findNearestTimestampIndex(params.timestamps, params.asrStart);
   if (idx < 0) return null;
 
@@ -418,10 +465,11 @@ function pickBestOcrTimestampForAsrStart(params: {
     next - params.asrStart <= params.frameStepSeconds;
 
   const isNearSample = Math.abs(nearest - params.asrStart) <= params.frameStepSeconds * 1.1;
+  const alignedToAsrStart = isVisibleAtAsrStart || isNearSample;
   const ocrTimestamp =
-    isVisibleAtAsrStart || isNearSample ? params.asrStart : (nearest ?? Number.NaN);
+    alignedToAsrStart ? params.asrStart : (nearest ?? Number.NaN);
   if (!Number.isFinite(ocrTimestamp)) return null;
-  return { ocrTimestamp, timeDiff: Math.abs(ocrTimestamp - params.asrStart) };
+  return { ocrTimestamp, timeDiff: Math.abs(ocrTimestamp - params.asrStart), alignedToAsrStart };
 }
 
 function matchWords(
@@ -432,11 +480,11 @@ function matchWords(
   const matches: WordMatch[] = [];
   const ocrByWord = new Map(ocrWords.map((w) => [w.word, w] as const));
   const frameStepSeconds = fps > 0 ? 1 / fps : 0.5;
-  const allowedSingleLetter = new Set(['a', 'i', 'x', 'y', 'z']);
 
   for (const asrWord of asrResult.words) {
     const normalizedAsr = normalizeWord(asrWord.word);
-    if (normalizedAsr.length < 2 && !allowedSingleLetter.has(normalizedAsr)) continue;
+    if (!isEligibleNormalizedSyncToken(normalizedAsr)) continue;
+    const highRiskToken = isHighRiskSyncToken(normalizedAsr);
 
     let best: { ocrWord: string; quality: MatchQuality; timeDiff: number } | null = null;
     let bestOcrTimestamp: number | null = null;
@@ -455,12 +503,22 @@ function matchWords(
 
       // Single-letter tokens are ambiguous and frequently mis-OCR'd across scenes.
       // Only accept them when they're effectively "on the exact frame" of speech.
-      if (normalizedAsr.length < 2 && pick.timeDiff > frameStepSeconds * 1.1) {
+      if (
+        normalizedAsr.length < 2 &&
+        !isNumericToken(normalizedAsr) &&
+        pick.timeDiff > frameStepSeconds * 1.1
+      ) {
         continue;
       }
 
       // Fuzzy matches are only useful near the spoken time. Far fuzzy matches are almost always background noise.
       if (candidate.quality === 'fuzzy' && pick.timeDiff > 1.0) {
+        continue;
+      }
+
+      // Ambiguous tokens (short words, numerics, math aliases) are only trusted
+      // when OCR evidence is aligned to the spoken timestamp window.
+      if (highRiskToken && !pick.alignedToAsrStart) {
         continue;
       }
 
@@ -483,7 +541,7 @@ function matchWords(
     }
 
     // Cap match distance: a word matched >5s from speech is background text, not a caption
-    const MAX_MATCH_DISTANCE_S = 5;
+    const MAX_MATCH_DISTANCE_S = 2;
     if (best.timeDiff > MAX_MATCH_DISTANCE_S) continue;
 
     const driftMs = (bestOcrTimestamp - asrWord.start) * 1000;
@@ -505,7 +563,7 @@ function matchWords(
 function calculateMetrics(
   matches: WordMatch[],
   ocrWordCount: number,
-  asrWordCount: number
+  eligibleAsrWordCount: number
 ): SyncMetrics {
   if (matches.length === 0) {
     return {
@@ -522,7 +580,7 @@ function calculateMetrics(
       outlierRatio: 0,
       matchedWords: 0,
       totalOcrWords: ocrWordCount,
-      totalAsrWords: asrWordCount,
+      totalAsrWords: eligibleAsrWordCount,
       matchRatio: 0,
     };
   }
@@ -559,8 +617,8 @@ function calculateMetrics(
     outlierRatio,
     matchedWords: matches.length,
     totalOcrWords: ocrWordCount,
-    totalAsrWords: asrWordCount,
-    matchRatio: asrWordCount > 0 ? matches.length / asrWordCount : 0,
+    totalAsrWords: eligibleAsrWordCount,
+    matchRatio: eligibleAsrWordCount > 0 ? matches.length / eligibleAsrWordCount : 0,
   };
 }
 
@@ -859,9 +917,12 @@ async function rateSyncQualityReal(
 
     // Step 6: Match words
     const matches = matchWords(ocrWords, asrResult, opts.fps);
+    const eligibleAsrWordCount = asrResult.words.filter((word) =>
+      isEligibleNormalizedSyncToken(normalizeWord(word.word))
+    ).length;
 
     // Step 7: Calculate metrics
-    const metrics = calculateMetrics(matches, ocrWords.length, asrResult.words.length);
+    const metrics = calculateMetrics(matches, ocrWords.length, eligibleAsrWordCount);
 
     // Step 8: Calculate rating
     const rating = calculateRating(metrics);
@@ -1149,6 +1210,7 @@ function buildMockCaptionQualityRatingOutput(
 export { extractWordAppearances as _extractWordAppearances };
 export { calculateMetrics as _calculateMetrics };
 export { calculateRating as _calculateRating };
+export { matchWords as _matchWords };
 
 /**
  * Format sync rating as CLI output

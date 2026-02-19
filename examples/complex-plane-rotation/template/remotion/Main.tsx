@@ -111,10 +111,13 @@ export const Main: React.FC<RenderProps> = (props) => {
         ? false
         : directorPhase !== 1;
   const showSceneClips = directorMode === 'clips-only' ? true : (props.scenes?.length ?? 0) > 0;
-  const sceneOpacity = directorMode === 'clips-only' ? 1 : directorPhase === 0 ? 0.38 : 1;
+  const sceneOpacity = directorMode === 'clips-only' ? 1 : directorPhase === 0 ? 0.3 : 0.96;
   const diagramOpacity = showDiagram ? (directorPhase === 1 ? 0.3 : 1) : 0;
   const useGameplayClip =
     gameplayMode === 'clip' || (gameplayMode !== 'procedural' && Boolean(props.gameplayClip?.path));
+  const ambientShiftX = Math.sin(frame / (fps * 2.6)) * 6;
+  const ambientShiftY = Math.cos(frame / (fps * 3.4)) * 5;
+  const ambientPulse = 0.55 + 0.45 * Math.sin(frame / (fps * 4.1));
 
   // IMPORTANT: `layout.captions` is intentionally full-frame in our layout helper so
   // captions don't "jump". However, a full-frame caption plate looks like weird UI.
@@ -183,13 +186,29 @@ export const Main: React.FC<RenderProps> = (props) => {
               style={{
                 top: captionBandTop,
                 height: captionBandHeight,
+                background: 'rgba(2,6,23,0.42)',
+              }}
+            />
+            <AbsoluteFill
+              style={{
+                top: captionBandTop,
+                height: captionBandHeight,
                 // Keep OCR stable while preserving gameplay visibility.
                 background:
-                  'linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.34) 22%, rgba(0,0,0,0.48) 100%)',
+                  'linear-gradient(180deg, rgba(0,0,0,0.34) 0%, rgba(0,0,0,0.70) 28%, rgba(0,0,0,0.88) 100%)',
               }}
             />
           </>
         ) : null}
+
+        <AbsoluteFill
+          style={{
+            pointerEvents: 'none',
+            opacity: 0.09 + ambientPulse * 0.03,
+            mixBlendMode: 'screen',
+            background: `radial-gradient(1200px 760px at ${52 + ambientShiftX}% ${18 + ambientShiftY}%, rgba(56,189,248,0.35), transparent 68%), radial-gradient(980px 640px at ${31 - ambientShiftX}% ${82 - ambientShiftY * 0.7}%, rgba(59,130,246,0.28), transparent 70%)`,
+          }}
+        />
 
         {/* Captions */}
         <AbsoluteFill style={{ top: layout.captions.top, height: layout.captions.height }}>
