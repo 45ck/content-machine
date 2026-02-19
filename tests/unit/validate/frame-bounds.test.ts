@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { analyzeFrameEdgesFromRgb } from '../../../src/validate/frame-bounds';
+import { analyzeFrameEdgesFromRgb, runFrameBoundsGate } from '../../../src/validate/frame-bounds';
 
 function makeRgb(width: number, height: number, fn: (x: number, y: number) => [number, number, number]): Uint8Array {
   const data = new Uint8Array(width * height * 3);
@@ -62,5 +62,50 @@ describe('frame-bounds', () => {
 
     expect(sides.top.chromaRatioBorder).toBeGreaterThan(0.5);
   });
-});
 
+  it('does not fail edge-only content when darkening is negligible', () => {
+    const gate = runFrameBoundsGate({
+      schemaVersion: '1.0.0',
+      videoPath: 'test.mp4',
+      frames: [],
+      thresholds: {
+        borderRatio: 0.01,
+        maxDarkening: 0.12,
+        maxEdgeContentRatio: 0.035,
+        brightLuma: 0.78,
+        chromaSat: 0.42,
+      },
+      worst: {
+        maxDarkening: 0.002,
+        maxEdgeContentRatio: 0.09,
+        side: 'right',
+        timestampSeconds: 12,
+      },
+    });
+
+    expect(gate.passed).toBe(true);
+  });
+
+  it('fails edge content when darkening indicates frame-bound issue', () => {
+    const gate = runFrameBoundsGate({
+      schemaVersion: '1.0.0',
+      videoPath: 'test.mp4',
+      frames: [],
+      thresholds: {
+        borderRatio: 0.01,
+        maxDarkening: 0.12,
+        maxEdgeContentRatio: 0.035,
+        brightLuma: 0.78,
+        chromaSat: 0.42,
+      },
+      worst: {
+        maxDarkening: 0.05,
+        maxEdgeContentRatio: 0.09,
+        side: 'right',
+        timestampSeconds: 12,
+      },
+    });
+
+    expect(gate.passed).toBe(false);
+  });
+});

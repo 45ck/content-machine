@@ -100,7 +100,9 @@ export class TemporalAnalyzer implements TemporalQualityAnalyzer {
     videoPath: string,
     options?: { sampleRate?: number }
   ): Promise<TemporalQualitySummary> {
-    const sampleRate = options?.sampleRate ?? 1;
+    // Analyze on a coarser cadence to detect perceptual freezes/repeats,
+    // not expected frame-to-frame similarity at 30fps.
+    const sampleRate = options?.sampleRate ?? 20;
     const data = await runPythonJson({
       errorCode: 'VALIDATION_ERROR',
       pythonPath: this.pythonPath,

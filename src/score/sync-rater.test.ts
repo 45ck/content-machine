@@ -238,6 +238,27 @@ describe('Sync Schema Validation', () => {
       expect(words).toContain('hello');
       expect(words).not.toContain('1234');
     });
+
+    it('adds merged OCR candidates for split words', () => {
+      const frames = [{ frameNumber: 1, timestamp: 0.0, text: 'Multip lying by i', confidence: 0.9 }];
+      const result = extractWordAppearances(frames);
+      const words = result.map((r) => r.word);
+      expect(words).toContain('multip');
+      expect(words).toContain('lying');
+      expect(words).toContain('multiplying');
+    });
+
+    it('adds merged OCR candidates for 3-part split words', () => {
+      const frames = [{ frameNumber: 1, timestamp: 0.0, text: 'Dist rib ute now', confidence: 0.9 }];
+      const result = extractWordAppearances(frames);
+      const words = result.map((r) => r.word);
+      expect(words).toContain('dist');
+      expect(words).toContain('rib');
+      expect(words).toContain('ute');
+      expect(words).toContain('distrib');
+      expect(words).toContain('tribute');
+      expect(words).toContain('distribute');
+    });
   });
 
   describe('calculateMetrics', () => {

@@ -288,11 +288,34 @@ function extractWordAppearances(
   // Keep allowlist small to avoid pulling in OCR noise.
   const allowedSingleLetter = new Set(['a', 'i', 'x', 'y', 'z']);
 
+  function buildCandidateWords(frameText: string): string[] {
+    const base = frameText.split(/\s+/).filter(Boolean);
+    const candidates = new Set<string>(base);
+
+    // OCR often splits a single lexical word into 2-3 chunks
+    // ("multip" + "lying", "dist" + "rib" + "ute").
+    // Add merged n-grams so ASR matching can recover the intended token.
+    const MAX_MERGE_PARTS = 3;
+    for (let i = 0; i < base.length; i++) {
+      let merged = '';
+      for (let parts = 1; parts <= MAX_MERGE_PARTS && i + parts - 1 < base.length; parts++) {
+        const token = base[i + parts - 1] ?? '';
+        if (!/[a-zA-Z]/.test(token)) break;
+        merged += token;
+        if (parts >= 2 && merged.length >= 5) {
+          candidates.add(merged);
+        }
+      }
+    }
+
+    return Array.from(candidates);
+  }
+
   for (const frame of ocrFrames) {
     // Skip low-confidence frames (background imagery, noise)
     if (frame.confidence < minConfidence) continue;
 
-    const words = frame.text.split(/\s+/).filter(Boolean);
+    const words = buildCandidateWords(frame.text);
     for (const word of words) {
       // Skip words with no alphabetic characters (pure numbers/symbols are OCR noise)
       if (!/[a-zA-Z]/.test(word)) continue;

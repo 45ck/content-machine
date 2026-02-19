@@ -5,10 +5,38 @@ import { CMError } from '../core/errors';
 
 function detectPython(): string {
   if (process.env.CM_PYTHON) return process.env.CM_PYTHON;
-  // Auto-detect .venv in project root
-  const venvPython = resolve(process.cwd(), '.venv', 'bin', 'python3');
-  if (existsSync(venvPython)) return venvPython;
-  return 'python3';
+  const candidates = [
+    resolve(process.cwd(), '.venv', 'Scripts', 'python.exe'),
+    resolve(process.cwd(), '.venv', 'bin', 'python3'),
+    resolve(process.cwd(), '.venv', 'bin', 'python'),
+  ];
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) return candidate;
+  }
+  return process.platform === 'win32' ? 'python' : 'python3';
+}
+
+function tryParseJsonFromOutput(output: string): unknown {
+  const text = output.trim();
+  if (!text) {
+    throw new Error('empty output');
+  }
+
+  try {
+    return JSON.parse(text) as unknown;
+  } catch {
+    // Some tools print logs before JSON. Find the first valid JSON payload suffix.
+    for (let i = 0; i < text.length; i += 1) {
+      const ch = text[i];
+      if (ch !== '{' && ch !== '[') continue;
+      try {
+        return JSON.parse(text.slice(i)) as unknown;
+      } catch {
+        // keep scanning
+      }
+    }
+    throw new Error('no JSON payload found');
+  }
 }
 
 /** Spawns a Python script and parses its stdout as JSON. */
@@ -62,7 +90,7 @@ export function runPythonJson(params: {
     child.on('close', (code) => {
       clearTimeout(timer);
       try {
-        const parsed = JSON.parse(stdout) as unknown;
+        const parsed = tryParseJsonFromOutput(stdout);
         if (code === 0) {
           resolvePromise(parsed);
           return;

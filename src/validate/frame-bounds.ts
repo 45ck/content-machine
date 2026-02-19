@@ -320,9 +320,12 @@ export async function analyzeFrameBounds(videoPath: string, opts?: { frameCount?
 
 export function runFrameBoundsGate(summary: FrameBoundsSummary): FrameBoundsGate {
   const { maxDarkening, maxEdgeContentRatio, side, timestampSeconds } = summary.worst;
+  // If there is no meaningful dark border, edge activity is usually intentional (labels/graphics at screen edge),
+  // not a framing defect. Keep edge-content gating strict only when darkening indicates a potential crop/vignette.
+  const hasMeaningfulDarkening = maxDarkening > Math.min(0.02, summary.thresholds.maxDarkening * 0.25);
   const passed =
     maxDarkening <= summary.thresholds.maxDarkening &&
-    maxEdgeContentRatio <= summary.thresholds.maxEdgeContentRatio;
+    (!hasMeaningfulDarkening || maxEdgeContentRatio <= summary.thresholds.maxEdgeContentRatio);
 
   const s = passed
     ? `Frame bounds OK (max darkening ${(maxDarkening * 100).toFixed(1)}%, edge content ${(maxEdgeContentRatio * 100).toFixed(1)}%)`

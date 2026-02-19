@@ -85,6 +85,25 @@ describe('runPythonJson', () => {
     });
   });
 
+  it('parses the final JSON payload when stdout has log noise', async () => {
+    const child = createChild();
+    spawnMock.mockReturnValue(child);
+
+    const { runPythonJson } = await import('../../../src/validate/python-json');
+    const promise = runPythonJson({
+      errorCode: 'TEST_ERROR',
+      scriptPath: 'script.py',
+      args: [],
+      timeoutMs: 1000,
+    });
+
+    child.stdout.emit('data', 'INFO: starting analysis\n');
+    child.stdout.emit('data', '{"ok":true,"metrics":{"frames":58}}');
+    child.emit('close', 0);
+
+    await expect(promise).resolves.toEqual({ ok: true, metrics: { frames: 58 } });
+  });
+
   it('times out and kills the process', async () => {
     vi.useFakeTimers();
     const child = createChild();

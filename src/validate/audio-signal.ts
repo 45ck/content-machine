@@ -2,6 +2,7 @@ import type { ValidateProfile } from './profiles';
 import type { AudioSignalGateResult } from '../domain';
 import { CMError } from '../core/errors';
 import { resolve } from 'node:path';
+import { resolveFfmpegPath } from '../core/video/ffmpeg';
 import { runPythonJson } from './python-json';
 
 export interface AudioSignalSummary {
@@ -109,11 +110,12 @@ export class FfmpegAudioAnalyzer implements AudioSignalAnalyzer {
   }
 
   async analyze(mediaPath: string): Promise<AudioSignalSummary> {
+    const ffmpegPath = resolveFfmpegPath();
     const data = await runPythonJson({
       errorCode: 'VALIDATION_ERROR',
       pythonPath: this.pythonPath,
       scriptPath: this.scriptPath,
-      args: ['--media', mediaPath],
+      args: ['--media', mediaPath, '--ffmpeg-path', ffmpegPath],
       timeoutMs: this.timeoutMs,
     });
     return parseAudioSignalJson(data);
