@@ -4,6 +4,10 @@
 [![npm](https://img.shields.io/npm/v/%4045ck%2Fcontent-machine)](https://www.npmjs.com/package/@45ck/content-machine)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 
+<p align="center">
+  <img src="banner.svg" alt="Content Machine banner" width="100%" />
+</p>
+
 CLI-first automated short-form video generator for TikTok, Reels, and Shorts.
 
 > **Status:** Early development. Not production-ready yet.
