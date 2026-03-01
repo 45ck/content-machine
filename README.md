@@ -5,7 +5,11 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 
 <p align="center">
-  <img src="banner.svg" alt="Content Machine banner" width="100%" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="assets/banner.dark.png" />
+    <source media="(prefers-color-scheme: light)" srcset="assets/banner.light.png" />
+    <img src="assets/banner.light.png" alt="content-machine banner" width="100%" />
+  </picture>
 </p>
 
 CLI-first automated short-form video generator for TikTok, Reels, and Shorts.

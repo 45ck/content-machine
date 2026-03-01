@@ -1,0 +1,24 @@
+{
+  "repo_name": "content-machine",
+  "tagline": "CLI-first short-form video generator",
+  "one_sentence_purpose": "An automated pipeline that transforms topics into production-ready TikTok, Reels, and Shorts videos using LLMs, TTS, stock footage, and Remotion rendering.",
+  "target_users": "Content creators and developers who want to automate short-form vertical video production from the command line",
+  "keywords": ["video-generation", "tiktok", "reels", "shorts", "cli", "remotion", "automation"],
+  "visual_metaphors": ["a conveyor belt pipeline transforming text into video frames", "film reel frames flowing through a terminal prompt", "stacked vertical phone screens emerging from a command line"],
+  "avoid": ["no mascots", "no photorealism", "no social media logos (trademark)", "no clip art"],
+  "style_adjectives": ["dynamic", "vibrant", "cinematic", "modern", "bold"],
+  "palette_hint": {
+    "bg_light": "#ffffff",
+    "bg_dark": "#0d1117",
+    "primary": "#FF3366",
+    "accent": "#00D4AA",
+    "ink": "#c9d1d9"
+  },
+  "assets_needed": [
+    {"path": "assets/banner.light.png", "type": "readme_banner", "desc": "Wide banner on white background with abstract pipeline stages flowing into vertical video frames, project name in hot pink"},
+    {"path": "assets/banner.dark.png", "type": "readme_banner", "desc": "Wide banner on dark background with abstract pipeline stages flowing into vertical video frames, project name in hot pink"},
+    {"path": "assets/logo.light.png", "type": "square_logo", "desc": "Square logo on white background with abstract play button merged with terminal cursor in pink and teal"},
+    {"path": "assets/logo.dark.png", "type": "square_logo", "desc": "Square logo on dark background with abstract play button merged with terminal cursor in pink and teal"},
+    {"path": "assets/social-preview.png", "type": "github_social_preview", "desc": "GitHub social preview card with tagline, abstract video pipeline flow, pink and teal palette"}
+  ]
+}
