@@ -240,6 +240,10 @@ facts:
         required: false
       - name: CM_PYTHON
         required: false
+      - name: CM_FFMPEG
+        required: false
+      - name: CM_FFPROBE
+        required: false
       - name: LOG_LEVEL
         required: false
 
