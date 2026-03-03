@@ -77,6 +77,11 @@ if (MOTION_STRATEGY_IDS.length === 0) {
  *
  * @cmTerm motion-strategy
  */
+/**
+ * Ubiquitous Language: Motion strategy for animating static images.
+ *
+ * @cmTerm motion-strategy
+ */
 export const MotionStrategyEnum = z.enum(
   MOTION_STRATEGY_IDS as [RepoFactsMotionStrategyId, ...RepoFactsMotionStrategyId[]]
 );
