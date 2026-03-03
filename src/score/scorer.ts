@@ -1,8 +1,5 @@
-import type { ScriptOutput } from '../script/schema';
-import type { PackageOutput } from '../package/schema';
-import type { ScoreCheck, ScoreOutput } from './schema';
-import { SCORE_SCHEMA_VERSION, ScoreOutputSchema } from './schema';
-import { SchemaError } from '../core/errors';
+import type { PackageOutput, ScoreCheck, ScoreOutput, ScriptOutput } from '../domain';
+import { SCORE_SCHEMA_VERSION, SchemaError, ScoreOutputSchema } from '../domain';
 
 function clamp01(n: number): number {
   return Math.max(0, Math.min(1, n));

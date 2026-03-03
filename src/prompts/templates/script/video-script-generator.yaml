@@ -41,10 +41,14 @@ variables:
     type: string
     example: "5 JavaScript tips for beginners"
   - name: archetype
-    description: Content archetype (listicle, versus, howto, myth, story, hot-take)
+    description: Archetype id (string). Discover available ids via `cm archetypes list`.
     required: false
     type: string
     example: "listicle"
+  - name: archetypeGuidance
+    description: Optional archetype-specific guidance text (inject from an archetype data file).
+    required: false
+    type: string
   - name: targetDuration
     description: Target duration in seconds
     required: false
@@ -86,45 +90,24 @@ template: |
   5. Do not copy the hook sentence into any scene text.
   6. Hook must be a statement (no question mark).
   7. Always include hook and cta fields in the JSON.
-  8. Each scene text must be at least 20 words.
+  8. Each scene text must be at least 12 words.
   9. Write for spoken delivery at 120-180 WPM.
   10. Target length: ~{{targetWordCount}} words (~{{targetDuration}} seconds).
   11. Total spoken word count must be between ~0.8x and ~1.25x of targetWordCount.
   12. Use short sentences (<=15 words) and one idea per sentence.
-  13. Each scene should be 2 sentences and ~22-30 words (minimum 20 words per scene).
+  13. Each scene should be 1-2 sentences and ~18-28 words (minimum 12 words per scene).
   14. Use contractions and second person ("you", "you'll").
   15. Use punctuation for timing (commas = micro-pause, periods = full beat).
   16. Normalize text for speech: expand numbers, acronyms, URLs, emails, file paths, and units.
   17. Avoid openers like "In this video" or "Today we're going to".
   18. Double-check total word count before responding.
+  19. visualDirection must describe concrete, filmable visuals (avoid abstract phrases like "technology" or "success").
 
   {{#if archetype}}
   ## Content Style: {{archetype}}
-  {{#if (eq archetype "listicle")}}
-  Structure as a numbered list with a hook, 4-5 clear items, and a call-to-action.
-  Each item should be two sentences: the tip plus a quick payoff or why.
   {{/if}}
-  {{#if (eq archetype "versus")}}
-  Present a balanced comparison with a clear recommendation at the end.
-  The hook must be provocative; avoid neutral phrasing like "Choosing between X and Y".
-  {{/if}}
-  {{#if (eq archetype "howto")}}
-  Give 4-5 clear steps that are easy to follow.
-  Each step should be two sentences: the action plus a quick result/why.
-  {{/if}}
-  {{#if (eq archetype "myth")}}
-  Start with the myth, then reveal the reality with evidence.
-  Use explicit "Myth: X" and "Reality: Y" phrasing in scene text.
-  The hook should be a provocative tease, not a "Myth:" line.
-  {{/if}}
-  {{#if (eq archetype "story")}}
-  Use narrative structure: setup, conflict, resolution.
-  The hook should be a teaser line that is not repeated in scene 1.
-  {{/if}}
-  {{#if (eq archetype "hot-take")}}
-  Lead with a provocative opinion, then back it up with reasoning.
-  The hook should be a bold statement, not a question.
-  {{/if}}
+  {{#if archetypeGuidance}}
+  {{archetypeGuidance}}
   {{/if}}
 
   # Input:

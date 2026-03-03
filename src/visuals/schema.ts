@@ -8,6 +8,11 @@
  * See ADR-002-VISUAL-PROVIDER-SYSTEM-20260107.md
  */
 import { z } from 'zod';
+import {
+  MOTION_STRATEGIES,
+  type RepoFactsMotionStrategyId,
+} from '../domain/repo-facts.generated.js';
+import { PROVIDER_ROUTING_POLICIES, type ProviderRoutingPolicy } from './provider-router.js';
 
 /** Current schema version for migrations */
 export const VISUALS_SCHEMA_VERSION = '1.1.0';
@@ -23,6 +28,11 @@ export const VISUALS_SCHEMA_VERSION = '1.1.0';
  *
  * Fallbacks:
  * - fallback-color, mock
+ */
+/**
+ * Ubiquitous Language: Visual source discriminator.
+ *
+ * @cmTerm visuals-artifact
  */
 export const VisualSourceEnum = z.enum([
   // Video sources (no motion needed)
@@ -40,6 +50,11 @@ export const VisualSourceEnum = z.enum([
   'mock',
 ]);
 
+/**
+ * Ubiquitous Language: Visual source discriminator.
+ *
+ * @cmTerm visuals-artifact
+ */
 export type VisualSource = z.infer<typeof VisualSourceEnum>;
 
 /**
@@ -50,8 +65,30 @@ export type VisualSource = z.infer<typeof VisualSourceEnum>;
  * - depthflow: 2.5D parallax animation (free)
  * - veo: Google Veo image-to-video (~$0.50/clip)
  */
-export const MotionStrategyEnum = z.enum(['none', 'kenburns', 'depthflow', 'veo']);
+const MOTION_STRATEGY_IDS = MOTION_STRATEGIES.map((strategy) => strategy.id);
+if (MOTION_STRATEGY_IDS.length === 0) {
+  throw new Error(
+    'MOTION_STRATEGIES is empty; regenerate repo facts from registry/repo-facts.yaml'
+  );
+}
 
+/**
+ * Ubiquitous Language: Motion strategy for animating static images.
+ *
+ * @cmTerm motion-strategy
+ */
+export const MotionStrategyEnum = z.enum(
+  MOTION_STRATEGY_IDS as [RepoFactsMotionStrategyId, ...RepoFactsMotionStrategyId[]]
+);
+const ProviderRoutingPolicyEnum = z.enum(
+  PROVIDER_ROUTING_POLICIES as unknown as [ProviderRoutingPolicy, ...ProviderRoutingPolicy[]]
+);
+
+/**
+ * Ubiquitous Language: Motion strategy type.
+ *
+ * @cmTerm motion-strategy
+ */
 export type MotionStrategyType = z.infer<typeof MotionStrategyEnum>;
 
 /**
@@ -61,6 +98,18 @@ export const MatchReasoningSchema = z.object({
   reasoning: z.string().describe('LLM explanation for selection'),
   conceptsMatched: z.array(z.string()).optional(),
   moodAlignment: z.string().optional(),
+  selectedProvider: z.string().optional(),
+  providerAttempts: z.array(z.string()).optional(),
+  routingPolicy: ProviderRoutingPolicyEnum.optional(),
+  routingRationale: z.string().optional(),
+  skippedProviders: z
+    .array(
+      z.object({
+        provider: z.string(),
+        reason: z.string(),
+      })
+    )
+    .optional(),
   alternatives: z
     .array(
       z.object({
@@ -72,6 +121,17 @@ export const MatchReasoningSchema = z.object({
 });
 
 export type MatchReasoning = z.infer<typeof MatchReasoningSchema>;
+
+export const PolicyGateResultSchema = z.object({
+  id: z.string(),
+  stage: z.enum(['pre', 'post']),
+  status: z.enum(['pass', 'fail']),
+  message: z.string(),
+  metric: z.number().optional(),
+  threshold: z.number().optional(),
+});
+
+export type PolicyGateResult = z.infer<typeof PolicyGateResultSchema>;
 
 /**
  * A visual asset (matches SYSTEM-DESIGN §6.5 VisualAssetSchema)
@@ -115,6 +175,11 @@ const VisualAssetBaseSchema = z.object({
  * VisualAssetSchema with defaults applied during parsing.
  * Use VisualAssetInput for creating objects, VisualAsset for parsed objects.
  */
+/**
+ * Ubiquitous Language: Visual asset (per-scene) contract.
+ *
+ * @cmTerm visuals-artifact
+ */
 export const VisualAssetSchema = VisualAssetBaseSchema.transform((asset) => {
   const assetType = asset.assetType ?? ('video' as const);
   return {
@@ -135,6 +200,8 @@ export type VisualAssetInput = z.input<typeof VisualAssetSchema>;
 
 /**
  * Output type after parsing VisualAsset (with defaults applied).
+ *
+ * @cmTerm visuals-artifact
  */
 export type VisualAsset = z.output<typeof VisualAssetSchema>;
 
@@ -174,6 +241,11 @@ export type Keyword = z.infer<typeof KeywordSchema>;
 /**
  * Gameplay clip metadata (for split-screen templates).
  */
+/**
+ * Ubiquitous Language: Gameplay clip metadata (for split-screen templates).
+ *
+ * @cmTerm gameplay-clip
+ */
 export const GameplayClipSchema = z.object({
   path: z.string(),
   duration: z.number().positive(),
@@ -182,6 +254,11 @@ export const GameplayClipSchema = z.object({
   style: z.string().optional(),
 });
 
+/**
+ * Ubiquitous Language: Gameplay clip metadata.
+ *
+ * @cmTerm gameplay-clip
+ */
 export type GameplayClip = z.infer<typeof GameplayClipSchema>;
 
 /**
@@ -209,6 +286,9 @@ const VisualsOutputBaseSchema = z.object({
   embeddingModel: z.string().optional(),
   reasoningModel: z.string().optional(),
   provider: z.string().optional().describe('@deprecated Use source in scenes'),
+  providerRoutingPolicy: ProviderRoutingPolicyEnum.optional(),
+  providerChain: z.array(z.string()).optional(),
+  policyGates: z.array(PolicyGateResultSchema).optional(),
 
   // Legacy fields for backward compatibility
   clips: z.array(VideoClipSchema).optional().describe('@deprecated Use scenes'),
@@ -219,6 +299,11 @@ const VisualsOutputBaseSchema = z.object({
 
 /**
  * VisualsOutputSchema with defaults applied during parsing.
+ */
+/**
+ * Ubiquitous Language: Visuals output artifact schema (visuals.json).
+ *
+ * @cmTerm visuals-artifact
  */
 export const VisualsOutputSchema = VisualsOutputBaseSchema.transform((output) => ({
   ...output,
@@ -234,5 +319,7 @@ export type VisualsOutputInput = z.input<typeof VisualsOutputSchema>;
 
 /**
  * Output type after parsing VisualsOutput (with defaults applied).
+ *
+ * @cmTerm visuals-artifact
  */
 export type VisualsOutput = z.output<typeof VisualsOutputSchema>;

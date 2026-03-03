@@ -5,8 +5,8 @@
  * Handles the critical conversion from absolute word times to
  * Sequence-relative times (Remotion's frame resets to 0 at each Sequence start).
  *
- * @see docs/architecture/CAPTION-TIMING-20260610.md
- * @see docs/research/investigations/RQ-28-AUDIO-VISUAL-CAPTION-SYNC-20260610.md
+ * @see docs/dev/architecture/CAPTION-TIMING-20260110.md
+ * @see docs/research/investigations/RQ-28-AUDIO-VISUAL-CAPTION-SYNC-20260110.md
  */
 
 export interface Word {
@@ -19,6 +19,31 @@ export interface Word {
 export interface PageTiming {
   startMs: number;
   endMs: number;
+}
+
+/**
+ * Find the active word at a given absolute time.
+ *
+ * Uses word start times as boundaries (a word stays active until the next word starts),
+ * which makes highlighting more stable when ASR end times are very short.
+ */
+export function getActiveWord(words: Word[], absoluteTimeMs: number): Word | null {
+  if (words.length === 0) return null;
+
+  // Ensure deterministic order even if input isn't strictly sorted.
+  const sorted = [...words].sort((a, b) => a.startMs - b.startMs || a.endMs - b.endMs);
+
+  if (absoluteTimeMs < sorted[0].startMs) return null;
+
+  for (let i = 0; i < sorted.length; i++) {
+    const current = sorted[i];
+    const next = sorted[i + 1];
+    if (absoluteTimeMs >= current.startMs && (!next || absoluteTimeMs < next.startMs)) {
+      return current;
+    }
+  }
+
+  return sorted[sorted.length - 1];
 }
 
 /**

@@ -1,0 +1,37 @@
+{
+  "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "testRunner": "command",
+  "commandRunner": {
+    "command": "npx vitest run tests/unit/visuals/*.test.ts"
+  },
+  "checkers": [],
+  "ignorePatterns": [
+    "vendor/**",
+    "dist/**",
+    "templates/**",
+    "connectors/**",
+    ".venv-yt-dlp/**",
+    ".cache/**",
+    ".tmp/**",
+    "coverage/**",
+    "report/**",
+    "reports/**",
+    "output/**",
+    "test-e2e-output/**"
+  ],
+  "disableTypeChecks": "src/**/*.ts",
+  "reporters": ["clear-text", "progress", "html"],
+  "coverageAnalysis": "off",
+  "thresholds": {
+    "high": 90,
+    "low": 85,
+    "break": 80
+  },
+  "mutator": {
+    "excludedMutations": ["StringLiteral", "ObjectLiteral"]
+  },
+  "mutate": ["src/visuals/keywords.ts"],
+  "tempDirName": ".stryker-tmp",
+  "timeoutMS": 180000,
+  "tsconfigFile": "tsconfig.json"
+}

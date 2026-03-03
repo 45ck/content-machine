@@ -257,7 +257,7 @@ Based on all 56 deep dives, the recommended content-machine stack:
 ## Related Resources
 
 - [AGENTS.md](../../../AGENTS.md) - Project overview and standards
-- [MVP-PLAN.md](../../MVP-PLAN.md) - Implementation roadmap
+- [System Design](../../dev/architecture/SYSTEM-DESIGN-20260104.md) - Authoritative spec
 - [Research Summary](../00-SUMMARY-20260102.md) - Initial research summary
 
 ---

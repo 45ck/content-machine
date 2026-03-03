@@ -14,6 +14,38 @@ describe('cli hook resolution', () => {
     resolveHookSelectionMock.mockResolvedValue(null);
   });
 
+  it('returns null when --hook none is passed', async () => {
+    setCliRuntime({ yes: false });
+    const { resolveHookFromCli } = await import('./hooks');
+
+    const result = await resolveHookFromCli({ hook: 'none' });
+
+    expect(result).toBeNull();
+    expect(resolveHookSelectionMock).not.toHaveBeenCalled();
+  });
+
+  it('returns null when --no-hook is passed (hook=false)', async () => {
+    setCliRuntime({ yes: false });
+    const { resolveHookFromCli } = await import('./hooks');
+
+    const result = await resolveHookFromCli({ hook: false as any });
+
+    expect(result).toBeNull();
+    expect(resolveHookSelectionMock).not.toHaveBeenCalled();
+  });
+
+  it('returns null when no default hook is configured', async () => {
+    setCliRuntime({ yes: false });
+    const { resolveHookFromCli } = await import('./hooks');
+
+    // With no --hook flag and no defaultHook in config (now undefined by default),
+    // should return null
+    const result = await resolveHookFromCli({});
+
+    expect(result).toBeNull();
+    expect(resolveHookSelectionMock).not.toHaveBeenCalled();
+  });
+
   it('treats --yes as permission to auto-download hook clips', async () => {
     setCliRuntime({ yes: true });
     const { resolveHookFromCli } = await import('./hooks');

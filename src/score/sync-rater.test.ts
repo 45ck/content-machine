@@ -5,9 +5,15 @@
  */
 import { describe, it, expect } from 'vitest';
 
-// Import helper functions - we need to export them for testing
-// For now, test the schema imports
 import {
+  _extractWordAppearances as extractWordAppearances,
+  _calculateMetrics as calculateMetrics,
+  _calculateRating as calculateRating,
+  _matchWords as matchWords,
+} from './sync-rater';
+import {
+  CaptionQualityRatingOptionsSchema,
+  CaptionQualityRatingOutputSchema,
   SyncRatingOutputSchema,
   SyncMetricsSchema,
   WordMatchSchema,
@@ -15,7 +21,8 @@ import {
   SyncRatingOptionsSchema,
   type SyncRatingOutput,
   type WordMatch,
-} from './sync-schema';
+} from '../domain';
+import { rateCaptionQuality } from './sync-rater';
 
 describe('Sync Schema Validation', () => {
   describe('WordMatchSchema', () => {
@@ -51,12 +58,15 @@ describe('Sync Schema Validation', () => {
       const metrics = {
         meanDriftMs: 45.5,
         maxDriftMs: 120,
+        rawMaxDriftMs: 120,
         p95DriftMs: 95,
         medianDriftMs: 40,
         meanSignedDriftMs: 30,
         leadingRatio: 0.2,
         laggingRatio: 0.8,
         driftStdDev: 25,
+        outlierCount: 0,
+        outlierRatio: 0,
         matchedWords: 50,
         totalOcrWords: 55,
         totalAsrWords: 52,
@@ -75,8 +85,8 @@ describe('Sync Schema Validation', () => {
       expect(result.fps).toBe(2);
       expect(result.ocrEngine).toBe('tesseract');
       expect(result.asrModel).toBe('base');
-      expect(result.captionRegion.yRatio).toBe(0.75);
-      expect(result.captionRegion.heightRatio).toBe(0.25);
+      expect(result.captionRegion.yRatio).toBe(0.65);
+      expect(result.captionRegion.heightRatio).toBe(0.35);
       expect(result.thresholds.minRating).toBe(60);
       expect(result.thresholds.maxMeanDriftMs).toBe(180);
     });
@@ -94,6 +104,24 @@ describe('Sync Schema Validation', () => {
     });
   });
 
+  describe('CaptionQualityRatingOptionsSchema', () => {
+    it('applies defaults for empty options', () => {
+      const result = CaptionQualityRatingOptionsSchema.parse({});
+      expect(result.fps).toBe(2);
+      expect(result.ocrEngine).toBe('tesseract');
+      expect(result.captionRegion.yRatio).toBe(0.65);
+      expect(result.captionRegion.heightRatio).toBe(0.35);
+    });
+  });
+
+  describe('CaptionQualityRatingOutputSchema', () => {
+    it('validates OCR-only output from mock rater', async () => {
+      const output = await rateCaptionQuality('/path/to/video.mp4', { mock: true });
+      const parsed = CaptionQualityRatingOutputSchema.safeParse(output);
+      expect(parsed.success).toBe(true);
+    });
+  });
+
   describe('SyncRatingOutputSchema', () => {
     it('validates a complete sync rating output', () => {
       const output: SyncRatingOutput = {
@@ -105,12 +133,15 @@ describe('Sync Schema Validation', () => {
         metrics: {
           meanDriftMs: 45,
           maxDriftMs: 120,
+          rawMaxDriftMs: 120,
           p95DriftMs: 95,
           medianDriftMs: 40,
           meanSignedDriftMs: 30,
           leadingRatio: 0.2,
           laggingRatio: 0.8,
           driftStdDev: 25,
+          outlierCount: 0,
+          outlierRatio: 0,
           matchedWords: 50,
           totalOcrWords: 55,
           totalAsrWords: 52,
@@ -153,12 +184,15 @@ describe('Sync Schema Validation', () => {
           metrics: {
             meanDriftMs: 0,
             maxDriftMs: 0,
+            rawMaxDriftMs: 0,
             p95DriftMs: 0,
             medianDriftMs: 0,
             meanSignedDriftMs: 0,
             leadingRatio: 0,
             laggingRatio: 0,
             driftStdDev: 0,
+            outlierCount: 0,
+            outlierRatio: 0,
             matchedWords: 0,
             totalOcrWords: 0,
             totalAsrWords: 0,
@@ -179,6 +213,192 @@ describe('Sync Schema Validation', () => {
         const result = SyncRatingOutputSchema.safeParse(output);
         expect(result.success).toBe(true);
       }
+    });
+  });
+
+  describe('extractWordAppearances', () => {
+    it('filters low-confidence frames', () => {
+      const frames = [
+        { frameNumber: 1, timestamp: 0.0, text: 'hello world', confidence: 0.9 },
+        { frameNumber: 2, timestamp: 0.5, text: 'subway sign noise', confidence: 0.27 },
+        { frameNumber: 3, timestamp: 1.0, text: 'hello again', confidence: 0.85 },
+      ];
+      const result = extractWordAppearances(frames, { minConfidence: 0.5 });
+      const words = result.map((r) => r.word);
+      expect(words).toContain('hello');
+      expect(words).toContain('world');
+      expect(words).toContain('again');
+      expect(words).not.toContain('subway');
+      expect(words).not.toContain('noise');
+    });
+
+    it('keeps math-relevant numeric and symbol aliases', () => {
+      const frames = [
+        {
+          frameNumber: 1,
+          timestamp: 0.0,
+          text: 'hello 90 + = 1234',
+          confidence: 0.9,
+        },
+      ];
+      const result = extractWordAppearances(frames);
+      const words = result.map((r) => r.word);
+      expect(words).toContain('hello');
+      expect(words).toContain('90');
+      expect(words).toContain('plus');
+      expect(words).toContain('equals');
+      // Long standalone numbers are usually UI noise and should be ignored.
+      expect(words).not.toContain('1234');
+    });
+
+    it('adds merged OCR candidates for split words', () => {
+      const frames = [{ frameNumber: 1, timestamp: 0.0, text: 'Multip lying by i', confidence: 0.9 }];
+      const result = extractWordAppearances(frames);
+      const words = result.map((r) => r.word);
+      expect(words).toContain('multip');
+      expect(words).toContain('lying');
+      expect(words).toContain('multiplying');
+    });
+
+    it('adds merged OCR candidates for 3-part split words', () => {
+      const frames = [{ frameNumber: 1, timestamp: 0.0, text: 'Dist rib ute now', confidence: 0.9 }];
+      const result = extractWordAppearances(frames);
+      const words = result.map((r) => r.word);
+      expect(words).toContain('dist');
+      expect(words).toContain('rib');
+      expect(words).toContain('ute');
+      expect(words).toContain('distrib');
+      expect(words).toContain('tribute');
+      expect(words).toContain('distribute');
+    });
+  });
+
+  describe('calculateMetrics', () => {
+    it('uses ASR word count as matchRatio denominator', () => {
+      const matches = Array.from({ length: 80 }, (_, i) => ({
+        word: `word${i}`,
+        ocrTimestamp: i * 0.5,
+        asrTimestamp: i * 0.5,
+        driftMs: 0,
+        matchQuality: 'exact' as const,
+      }));
+      // 577 OCR words, 100 ASR words, 80 matches
+      const metrics = calculateMetrics(matches, 577, 100);
+      // Should be 80/100 = 0.80, NOT 80/577
+      expect(metrics.matchRatio).toBeCloseTo(0.8, 2);
+    });
+  });
+
+  describe('matchWords', () => {
+    it('rejects ambiguous tokens when only far OCR timestamps exist', () => {
+      const ocrWords = [{ word: 'equals', timestamps: [1.0] }];
+      const asrResult = {
+        words: [{ word: 'equals', start: 4.0, end: 4.2 }],
+        duration: 6,
+        text: 'equals',
+        engine: 'whisper-cpp' as const,
+      };
+
+      const matches = matchWords(ocrWords, asrResult, 2);
+      expect(matches).toHaveLength(0);
+    });
+
+    it('accepts ambiguous tokens when OCR aligns near speech', () => {
+      const ocrWords = [{ word: 'equals', timestamps: [3.5, 4.0] }];
+      const asrResult = {
+        words: [{ word: 'equals', start: 3.8, end: 4.0 }],
+        duration: 6,
+        text: 'equals',
+        engine: 'whisper-cpp' as const,
+      };
+
+      const matches = matchWords(ocrWords, asrResult, 2);
+      expect(matches).toHaveLength(1);
+      expect(matches[0]?.word).toBe('equals');
+      expect(Math.abs(matches[0]?.driftMs ?? 9999)).toBeLessThanOrEqual(20);
+    });
+
+    it('caps exact matches by max match distance', () => {
+      const ocrWords = [{ word: 'complex', timestamps: [1.0] }];
+      const asrResult = {
+        words: [{ word: 'complex', start: 3.3, end: 3.6 }],
+        duration: 6,
+        text: 'complex',
+        engine: 'whisper-cpp' as const,
+      };
+
+      const matches = matchWords(ocrWords, asrResult, 2);
+      expect(matches).toHaveLength(0);
+    });
+  });
+
+  describe('calculateRating', () => {
+    it('scores a watchable-but-rough video ~60-70', () => {
+      // Profile: decent matchRatio, some drift
+      const metrics = {
+        meanDriftMs: 80,
+        maxDriftMs: 250,
+        rawMaxDriftMs: 250,
+        p95DriftMs: 150,
+        medianDriftMs: 60,
+        meanSignedDriftMs: 50,
+        leadingRatio: 0.1,
+        laggingRatio: 0.9,
+        driftStdDev: 60,
+        outlierCount: 2,
+        outlierRatio: 0.05,
+        matchedWords: 70,
+        totalOcrWords: 150,
+        totalAsrWords: 100,
+        matchRatio: 0.7,
+      };
+      const score = calculateRating(metrics);
+      expect(score).toBeGreaterThanOrEqual(55);
+      expect(score).toBeLessThanOrEqual(85);
+    });
+
+    it('scores perfect sync near 100', () => {
+      const metrics = {
+        meanDriftMs: 10,
+        maxDriftMs: 30,
+        rawMaxDriftMs: 30,
+        p95DriftMs: 25,
+        medianDriftMs: 8,
+        meanSignedDriftMs: 5,
+        leadingRatio: 0.3,
+        laggingRatio: 0.7,
+        driftStdDev: 10,
+        outlierCount: 0,
+        outlierRatio: 0,
+        matchedWords: 95,
+        totalOcrWords: 100,
+        totalAsrWords: 100,
+        matchRatio: 0.95,
+      };
+      const score = calculateRating(metrics);
+      expect(score).toBeGreaterThanOrEqual(90);
+    });
+
+    it('never returns 0 when there are matched words and some matchRatio', () => {
+      const metrics = {
+        meanDriftMs: 200,
+        maxDriftMs: 500,
+        rawMaxDriftMs: 500,
+        p95DriftMs: 400,
+        medianDriftMs: 150,
+        meanSignedDriftMs: 100,
+        leadingRatio: 0.0,
+        laggingRatio: 1.0,
+        driftStdDev: 150,
+        outlierCount: 5,
+        outlierRatio: 0.1,
+        matchedWords: 20,
+        totalOcrWords: 200,
+        totalAsrWords: 100,
+        matchRatio: 0.2,
+      };
+      const score = calculateRating(metrics);
+      expect(score).toBeGreaterThan(0);
     });
   });
 

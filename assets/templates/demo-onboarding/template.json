@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "demo-onboarding",
+  "name": "Demo: Onboarding",
+  "description": "Deterministic onboarding demo (mock-friendly) with a small watermark overlay",
+  "compositionId": "ShortVideo",
+  "defaults": {
+    "orientation": "portrait",
+    "fps": 30,
+    "captionPreset": "tiktok",
+    "archetype": "listicle"
+  },
+  "assets": {
+    "overlays": [
+      {
+        "src": "assets/overlays/cm-demo-watermark.png",
+        "kind": "image",
+        "layer": "above-captions",
+        "position": "top-right",
+        "opacity": 0.92,
+        "marginPx": 24,
+        "widthPx": 320
+      }
+    ]
+  }
+}
+

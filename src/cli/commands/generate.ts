@@ -7,52 +7,84 @@ import { Command } from 'commander';
 import type { PipelineResult } from '../../core/pipeline';
 import { logger } from '../../core/logger';
 import { evaluateRequirements, planWhisperRequirements } from '../../core/assets/requirements';
-import {
-  ArchetypeEnum,
-  OrientationEnum,
-  type Archetype,
-  type Orientation,
-} from '../../core/config';
-import { loadConfig } from '../../core/config';
+import { OrientationEnum, type Archetype, type Orientation } from '../../core/config';
+import { getOptionalApiKey, loadConfig } from '../../core/config';
+import { formatArchetypeSource, resolveArchetype } from '../../archetypes/registry';
 import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
 import { FakeLLMProvider } from '../../test/stubs/fake-llm';
 import { createMockScriptResponse } from '../../test/fixtures/mock-scenes.js';
 import { createSpinner } from '../progress';
-import chalk from 'chalk';
+import { chalk } from '../colors';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
+import { parseTemplateDepsMode, resolveTemplateDepsInstallDecision } from '../template-code';
 import { dirname, join, resolve } from 'path';
 import { existsSync } from 'fs';
-import { ResearchOutputSchema } from '../../research/schema';
-import type { ResearchOutput } from '../../research/schema';
 import { createResearchOrchestrator } from '../../research/orchestrator';
-import { OpenAIProvider } from '../../core/llm/openai';
+import { createLLMProvider } from '../../core/llm';
 import { CMError, SchemaError } from '../../core/errors';
 import { CliProgressObserver, PipelineEventEmitter, type PipelineEvent } from '../../core/events';
 import { getCliErrorInfo } from '../format';
 import {
+  DEFAULT_ARTIFACT_FILENAMES,
+  DEFAULT_SYNC_PRESET_ID,
+  LLM_PROVIDERS,
+  PREFERRED_QUALITY_SYNC_PRESET_ID,
+  SYNC_PRESET_CONFIGS,
+  SUPPORTED_VISUALS_PROVIDER_IDS,
+  type SyncPresetId,
+  VISUALS_PROVIDERS,
+} from '../../domain/repo-facts.generated';
+import type { AssetProviderName } from '../../visuals/providers';
+import { isProviderRoutingPolicy, type ProviderRoutingPolicy } from '../../visuals/provider-router';
+import {
   formatTemplateSource,
-  resolveVideoTemplate,
+  resolveRenderTemplate,
+  getTemplateFontSources,
   getTemplateGameplaySlot,
+  getTemplateOverlays,
   getTemplateParams,
+  mergeFontSources,
+  resolveRemotionTemplateProject,
+  type ResolvedRemotionTemplateProject,
 } from '../../render/templates';
-import { ScriptOutputSchema, type ScriptOutput } from '../../script/schema';
-import { AudioOutputSchema, TimestampsOutputSchema, type AudioOutput } from '../../audio/schema';
-import { AudioMixOutputSchema } from '../../audio/mix/schema';
+import {
+  AudioMixOutputSchema,
+  AudioOutputSchema,
+  OverlayAsset,
+  ResearchOutputSchema,
+  ScriptOutputSchema,
+  TimestampsOutputSchema,
+  VisualsOutputSchema,
+  type AudioOutput,
+  type CaptionQualityRatingOutput,
+  type FontSource,
+  type HookClip,
+  type ResearchOutput,
+  type ResearchSource,
+  type ScriptOutput,
+  type SyncRatingOutput,
+  type VisualsOutput,
+  type WorkflowDefinition,
+  type WorkflowStageMode,
+  safeParseGenerationPolicy,
+  type GenerationPolicy,
+} from '../../domain';
+import type { CaptionConfigInput } from '../../render/captions/config';
 import { hasAudioMixSources, type AudioMixPlanOptions } from '../../audio/mix/planner';
-import { VisualsOutputSchema, type VisualsOutput } from '../../visuals/schema';
 import { probeAudioWithFfprobe } from '../../validate/ffprobe-audio';
-import type { CaptionConfig, FontSource } from '../../render/schema';
 import type { CaptionPresetName } from '../../render/captions/presets';
-import type { SyncRatingOutput } from '../../score/sync-schema';
 import { resolveHookFromCli } from '../hooks';
-import type { HookClip } from '../../hooks/schema';
 import {
   runGenerateWithSyncQualityGate,
   type SyncAttemptSettings,
   type SyncQualitySummary,
 } from './generate-quality';
+import {
+  runGenerateWithCaptionQualityGate,
+  type CaptionAttemptSettings,
+} from './caption-quality-gate';
 import { resolveWorkflow, formatWorkflowSource } from '../../workflows/resolve';
 import {
   collectWorkflowPostCommands,
@@ -61,10 +93,12 @@ import {
   runWorkflowCommands,
   workflowHasExec,
 } from '../../workflows/runner';
-import type { WorkflowDefinition, WorkflowStageMode } from '../../workflows/schema';
+import { analyzeVideoFrames, type AnalyzeVideoFramesResult } from '../../analysis/frame-analysis';
 
 /**
  * Sync quality presets for different quality/speed tradeoffs
+ *
+ * @cmTerm sync-preset
  */
 export interface SyncPresetConfig {
   pipeline: 'standard' | 'audio-first';
@@ -74,49 +108,15 @@ export interface SyncPresetConfig {
   autoRetrySync: boolean;
 }
 
-const PIPELINE_STANDARD: SyncPresetConfig['pipeline'] = 'standard';
-const PIPELINE_AUDIO_FIRST: SyncPresetConfig['pipeline'] = 'audio-first';
-
-export const SYNC_PRESETS: Record<string, SyncPresetConfig> = {
-  /** Fast: standard pipeline, no quality check, fastest rendering */
-  fast: {
-    pipeline: PIPELINE_STANDARD,
-    reconcile: false,
-    syncQualityCheck: false,
-    minSyncRating: 0,
-    autoRetrySync: false,
-  },
-  /** Standard: audio-first pipeline (whisper required), no quality check */
-  standard: {
-    pipeline: PIPELINE_AUDIO_FIRST,
-    reconcile: true,
-    syncQualityCheck: false,
-    minSyncRating: 60,
-    autoRetrySync: false,
-  },
-  /** Quality: audio-first with quality check enabled */
-  quality: {
-    pipeline: PIPELINE_AUDIO_FIRST,
-    reconcile: true,
-    syncQualityCheck: true,
-    minSyncRating: 75,
-    autoRetrySync: false,
-  },
-  /** Maximum: audio-first with reconcile, quality check, and auto-retry */
-  maximum: {
-    pipeline: PIPELINE_AUDIO_FIRST,
-    reconcile: true,
-    syncQualityCheck: true,
-    minSyncRating: 85,
-    autoRetrySync: true,
-  },
-};
+export const SYNC_PRESETS = SYNC_PRESET_CONFIGS as Record<SyncPresetId, SyncPresetConfig>;
+const SYNC_PRESET_HELP = Object.keys(SYNC_PRESETS).join(', ');
 
 interface GenerateOptions {
   archetype: string;
   output: string;
   orientation: string;
   template?: string;
+  policy?: string;
   workflow?: string;
   workflowAllowExec?: boolean;
   script?: string;
@@ -124,6 +124,22 @@ interface GenerateOptions {
   audioMix?: string;
   timestamps?: string;
   visuals?: string;
+  visualsProvider?: string;
+  visualsFallbackProviders?: string;
+  visualsRoutingPolicy?: string;
+  visualsMaxGenerationCostUsd?: string;
+  visualsGateEnforce?: boolean;
+  visualsGateMaxFallbackRate?: string;
+  visualsGateMinProviderSuccessRate?: string;
+  visualsRoutingAdaptiveWindow?: string;
+  visualsRoutingAdaptiveMinRecords?: string;
+  media?: boolean;
+  mediaKeyframes?: boolean;
+  mediaSynthesizeMotion?: boolean;
+  mediaDir?: string;
+  mediaFfmpeg?: string;
+  mediaDepthflowAdapter?: string;
+  mediaVeoAdapter?: string;
   fps?: string;
   captionPreset?: string;
   voice: string;
@@ -149,8 +165,24 @@ interface GenerateOptions {
   minSyncRating?: string;
   /** Auto-retry with better sync strategy if rating fails */
   autoRetrySync?: boolean;
+  /** Enable burned-in caption quality check (OCR-only) after render */
+  captionQualityCheck?: boolean;
+  /** Enable higher-quality defaults (slower) */
+  quality?: boolean;
+  /** Minimum acceptable caption overall score (0..1, or 0..100) */
+  minCaptionOverall?: string;
+  /** Auto-retry with caption tuning if caption quality fails */
+  autoRetryCaptions?: boolean;
+  /** Maximum number of caption tuning retries after the initial attempt */
+  maxCaptionRetries?: string;
+  /** Force a "perfect captions" optimization loop (enables caption quality gate + retries) */
+  captionPerfect?: boolean;
+  /** Use mock caption quality scoring (no OCR) */
+  captionQualityMock?: boolean;
   /** Caption display mode: page (default), single (one word at a time), buildup (accumulate per sentence) */
   captionMode?: 'page' | 'single' | 'buildup' | 'chunk';
+  /** Caption notation rendering mode */
+  captionNotation?: 'none' | 'unicode';
   /** Words per caption page/group (default: 8) */
   wordsPerPage?: string;
   /** Max words per caption page/group (alias of wordsPerPage) */
@@ -169,6 +201,8 @@ interface GenerateOptions {
   captionMinOnScreenMsShort?: string;
   /** Drop filler words from captions */
   captionDropFillers?: boolean;
+  /** Drop list markers like "1:" from captions */
+  captionDropListMarkers?: boolean;
   /** Comma-separated filler words/phrases to drop */
   captionFillerWords?: string;
   /** Maximum lines per caption page (default: 2) */
@@ -177,6 +211,14 @@ interface GenerateOptions {
   charsPerLine?: string;
   /** Caption animation: none (default), fade, slideUp, slideDown, pop, bounce */
   captionAnimation?: 'none' | 'fade' | 'slideUp' | 'slideDown' | 'pop' | 'bounce';
+  /** Active word animation: none (default), pop, bounce, rise, shake */
+  captionWordAnimation?: 'none' | 'pop' | 'bounce' | 'rise' | 'shake';
+  /** Active word animation duration in ms */
+  captionWordAnimationMs?: string;
+  /** Active word animation intensity (0..1) */
+  captionWordAnimationIntensity?: string;
+  /** Global caption timing offset in ms (negative = earlier captions) */
+  captionOffsetMs?: string;
   /** Caption font family override */
   captionFontFamily?: string;
   /** Caption font weight override */
@@ -227,7 +269,7 @@ interface GenerateOptions {
   musicFadeOut?: string;
   /** Explicit SFX files (repeatable) */
   sfx?: string[] | boolean;
-  /** SFX pack name */
+  /** SFX pack id */
   sfxPack?: string;
   /** SFX placement strategy */
   sfxAt?: string;
@@ -251,8 +293,27 @@ interface GenerateOptions {
   mixPreset?: string;
   /** Loudness target */
   lufsTarget?: string;
+  /** Run automatic frame analysis after render */
+  frameAnalysis?: boolean;
+  /** Frame analysis mode */
+  frameAnalysisMode?: 'fps' | 'shots' | 'both';
+  /** Frame analysis FPS sampling rate (>0 and <=1) */
+  frameAnalysisFps?: string;
+  /** Frame analysis shot count */
+  frameAnalysisShots?: string;
+  /** Frame analysis segment count */
+  frameAnalysisSegments?: string;
+  /** Frame analysis output root directory */
+  frameAnalysisOutput?: string;
   /** Validate dependencies without running the pipeline */
   preflight?: boolean;
+
+  /** Allow executing Remotion code shipped inside template packs (code templates). */
+  allowTemplateCode?: boolean;
+  /** Template dependency install mode for code templates (auto, prompt, never). */
+  templateDeps?: string;
+  /** Template package manager (npm, pnpm, yarn). */
+  templatePm?: string;
 }
 
 function printHeader(
@@ -310,6 +371,7 @@ function writeDryRunJson(params: {
         archetype,
         orientation,
         template: templateSpec,
+        policy: options.policy ?? null,
         resolvedTemplateId,
         workflow: options.workflow ?? null,
         workflowAllowExec: Boolean(options.workflowAllowExec),
@@ -318,9 +380,19 @@ function writeDryRunJson(params: {
         audioMix: options.audioMix ?? null,
         timestamps: options.timestamps ?? null,
         visuals: options.visuals ?? null,
+        visualsProvider: options.visualsProvider ?? null,
+        visualsFallbackProviders: options.visualsFallbackProviders ?? null,
+        visualsRoutingPolicy: options.visualsRoutingPolicy ?? null,
+        visualsMaxGenerationCostUsd: options.visualsMaxGenerationCostUsd ?? null,
+        visualsGateEnforce: Boolean(options.visualsGateEnforce),
+        visualsGateMaxFallbackRate: options.visualsGateMaxFallbackRate ?? null,
+        visualsGateMinProviderSuccessRate: options.visualsGateMinProviderSuccessRate ?? null,
+        visualsRoutingAdaptiveWindow: options.visualsRoutingAdaptiveWindow ?? null,
+        visualsRoutingAdaptiveMinRecords: options.visualsRoutingAdaptiveMinRecords ?? null,
         fps: options.fps ?? '30',
         captionPreset: options.captionPreset ?? 'tiktok',
         captionMode: options.captionMode ?? null,
+        captionNotation: options.captionNotation ?? null,
         wordsPerPage: parseOptionalInt(options.wordsPerPage ?? options.captionMaxWords),
         captionMaxWords: parseOptionalInt(options.captionMaxWords),
         captionMinWords: parseOptionalInt(options.captionMinWords),
@@ -412,7 +484,7 @@ function formatPreflightLine(check: PreflightCheck): string {
 async function runGeneratePreflight(params: {
   topic: string;
   options: GenerateOptions;
-  resolvedTemplate: Awaited<ReturnType<typeof resolveVideoTemplate>> | undefined;
+  resolvedTemplate: Awaited<ReturnType<typeof resolveRenderTemplate>> | undefined;
   templateGameplay: ReturnType<typeof getTemplateGameplaySlot>;
   runtime: ReturnType<typeof getCliRuntime>;
   command: Command;
@@ -423,6 +495,7 @@ async function runGeneratePreflight(params: {
     params;
   const checks: PreflightCheck[] = [];
   const stageModes = resolveWorkflowStageModes(resolvedWorkflow?.workflow);
+  const config = loadConfig();
 
   const templateId = resolvedTemplate?.template.id;
   addPreflightCheck(checks, {
@@ -430,6 +503,127 @@ async function runGeneratePreflight(params: {
     status: 'ok',
     detail: templateId ? `${templateId} (${formatTemplateSource(resolvedTemplate)})` : 'default',
   });
+
+  let remotionProject: ResolvedRemotionTemplateProject | null = null;
+  if (resolvedTemplate) {
+    try {
+      remotionProject = resolveRemotionTemplateProject(resolvedTemplate);
+    } catch (error) {
+      const info = getCliErrorInfo(error);
+      addPreflightCheck(checks, {
+        label: 'Template code',
+        status: 'fail',
+        code: info.code,
+        detail: info.message,
+        fix: info.fix,
+      });
+    }
+  }
+
+  if (remotionProject) {
+    const allowTemplateCodeSource = command.getOptionValueSource('allowTemplateCode');
+    const allowTemplateCode =
+      allowTemplateCodeSource === 'default' || allowTemplateCodeSource === undefined
+        ? Boolean(config.render.allowTemplateCode)
+        : Boolean(options.allowTemplateCode);
+
+    addPreflightCheck(checks, {
+      label: 'Template code',
+      status: allowTemplateCode ? 'ok' : 'fail',
+      code: allowTemplateCode ? undefined : 'INVALID_ARGUMENT',
+      detail: allowTemplateCode ? `Enabled (${remotionProject.entryPoint})` : 'Disabled',
+      fix: allowTemplateCode
+        ? undefined
+        : 'Re-run with --allow-template-code to allow executing template-provided Remotion code',
+    });
+
+    const hasPkg = existsSync(join(remotionProject.rootDir, 'package.json'));
+    const hasNodeModules = existsSync(join(remotionProject.rootDir, 'node_modules'));
+
+    if (hasPkg && hasNodeModules) {
+      addPreflightCheck(checks, {
+        label: 'Template deps',
+        status: 'ok',
+        detail: `${remotionProject.rootDir}/node_modules`,
+      });
+    } else if (hasPkg && !hasNodeModules) {
+      let templateDepsMode: ReturnType<typeof parseTemplateDepsMode> | undefined;
+      try {
+        const templateDepsSource = command.getOptionValueSource('templateDeps');
+        const templateDepsRaw =
+          templateDepsSource === 'default' || templateDepsSource === undefined
+            ? (remotionProject.installDeps ?? config.render.templateDeps)
+            : options.templateDeps;
+        templateDepsMode = parseTemplateDepsMode(templateDepsRaw ?? 'prompt');
+      } catch (error) {
+        const info = getCliErrorInfo(error);
+        addPreflightCheck(checks, {
+          label: 'Template deps',
+          status: 'fail',
+          code: info.code,
+          detail: info.message,
+          fix: info.fix,
+        });
+        templateDepsMode = undefined;
+      }
+
+      const mode = templateDepsMode ?? 'prompt';
+      if (params.runtime.offline) {
+        addPreflightCheck(checks, {
+          label: 'Template deps',
+          status: 'warn',
+          detail: 'node_modules missing (offline mode enabled; will not auto-install)',
+          fix: 'Install dependencies manually in the template rootDir if bundling fails',
+        });
+      } else if (mode === 'never') {
+        addPreflightCheck(checks, {
+          label: 'Template deps',
+          status: 'warn',
+          detail: 'node_modules missing (--template-deps never)',
+          fix: 'Run `npm install` in the template rootDir, or re-run with --template-deps auto',
+        });
+      } else if (mode === 'auto') {
+        addPreflightCheck(checks, {
+          label: 'Template deps',
+          status: 'warn',
+          detail: 'node_modules missing (will install automatically at render time)',
+          fix: 'Run `npm install` in the template rootDir to avoid installs during generation',
+        });
+      } else {
+        // prompt
+        const canPrompt = params.runtime.isTty && !params.runtime.json;
+        const willInstall = Boolean(params.runtime.yes);
+        if (willInstall) {
+          addPreflightCheck(checks, {
+            label: 'Template deps',
+            status: 'warn',
+            detail: 'node_modules missing (--yes will auto-install)',
+            fix: 'Run `npm install` in the template rootDir to avoid installs during generation',
+          });
+        } else if (canPrompt) {
+          addPreflightCheck(checks, {
+            label: 'Template deps',
+            status: 'warn',
+            detail: 'node_modules missing (will prompt to install)',
+            fix: 'Run `npm install` in the template rootDir, or pass --template-deps auto',
+          });
+        } else {
+          addPreflightCheck(checks, {
+            label: 'Template deps',
+            status: 'warn',
+            detail: 'node_modules missing (non-interactive mode cannot prompt)',
+            fix: 'Run `npm install` in the template rootDir, or pass --template-deps auto',
+          });
+        }
+      }
+    } else {
+      addPreflightCheck(checks, {
+        label: 'Template deps',
+        status: 'ok',
+        detail: 'No package.json (no deps install needed)',
+      });
+    }
+  }
 
   if (options.workflow) {
     if (workflowError) {
@@ -520,32 +714,83 @@ async function runGeneratePreflight(params: {
   }
 
   if (typeof options.research === 'string') {
-    try {
-      const raw = await readInputFile(options.research);
-      const parsed = ResearchOutputSchema.safeParse(raw);
-      if (!parsed.success) {
+    const normalized = options.research.trim().toLowerCase();
+    if (normalized === 'true') {
+      addPreflightCheck(checks, {
+        label: 'Research file',
+        status: 'ok',
+        detail: 'auto (run Stage 0 research)',
+      });
+    } else if (normalized === 'false') {
+      // Explicitly disabled; no check needed.
+    } else {
+      try {
+        const raw = await readInputFile(options.research);
+        const parsed = ResearchOutputSchema.safeParse(raw);
+        if (!parsed.success) {
+          addPreflightCheck(checks, {
+            label: 'Research file',
+            status: 'fail',
+            code: 'SCHEMA_ERROR',
+            detail: 'Invalid research JSON',
+            fix: 'Generate via `cm research -q "<topic>" -o research.json` and pass --research research.json',
+          });
+        } else {
+          addPreflightCheck(checks, {
+            label: 'Research file',
+            status: 'ok',
+            detail: options.research,
+          });
+        }
+      } catch (error) {
+        const info = getCliErrorInfo(error);
         addPreflightCheck(checks, {
           label: 'Research file',
           status: 'fail',
-          code: 'SCHEMA_ERROR',
-          detail: 'Invalid research JSON',
-          fix: 'Generate via `cm research -q "<topic>" -o research.json` and pass --research research.json',
-        });
-      } else {
-        addPreflightCheck(checks, {
-          label: 'Research file',
-          status: 'ok',
-          detail: options.research,
+          code: info.code,
+          detail: info.message,
+          fix: info.fix,
         });
       }
-    } catch (error) {
-      const info = getCliErrorInfo(error);
+    }
+  }
+
+  // Audio engine checks only matter when the audio stage is built-in (i.e. we will synthesize).
+  if (!isExternalStageMode(stageModes.audio) && !options.audio) {
+    const ttsEngine = config.audio?.ttsEngine ?? 'kokoro';
+    const asrEngine = config.audio?.asrEngine ?? 'whisper';
+
+    if (ttsEngine === 'edge') {
       addPreflightCheck(checks, {
-        label: 'Research file',
+        label: 'TTS engine',
         status: 'fail',
-        code: info.code,
-        detail: info.message,
-        fix: info.fix,
+        code: 'INVALID_ARGUMENT',
+        detail: 'edge (not implemented)',
+        fix: 'Set audio.ttsEngine="kokoro" or audio.ttsEngine="elevenlabs" in your config',
+      });
+    } else if (ttsEngine === 'elevenlabs') {
+      const hasKey = Boolean(process.env.ELEVENLABS_API_KEY);
+      addPreflightCheck(checks, {
+        label: 'TTS engine',
+        status: hasKey ? 'ok' : 'fail',
+        code: hasKey ? undefined : 'CONFIG_ERROR',
+        detail: hasKey ? 'elevenlabs' : 'elevenlabs (ELEVENLABS_API_KEY missing)',
+        fix: hasKey ? undefined : 'Set ELEVENLABS_API_KEY in your environment or .env file',
+      });
+    } else {
+      addPreflightCheck(checks, { label: 'TTS engine', status: 'ok', detail: 'kokoro' });
+    }
+
+    if (asrEngine === 'elevenlabs-forced-alignment') {
+      const hasKey = Boolean(process.env.ELEVENLABS_API_KEY);
+      addPreflightCheck(checks, {
+        label: 'Timestamp engine',
+        status: hasKey ? 'ok' : 'fail',
+        code: hasKey ? undefined : 'CONFIG_ERROR',
+        detail: hasKey
+          ? 'elevenlabs-forced-alignment'
+          : 'elevenlabs-forced-alignment (ELEVENLABS_API_KEY missing)',
+        fix: hasKey ? undefined : 'Set ELEVENLABS_API_KEY in your environment or .env file',
       });
     }
   }
@@ -831,29 +1076,31 @@ async function runGeneratePreflight(params: {
       detail: 'Mock providers enabled (skipping API key checks)',
     });
   } else if (needsLlm) {
+    let config: any | null = null;
     try {
-      const config = await loadConfig();
+      config = await loadConfig();
       const provider = config.llm.provider;
-      const llmKey =
-        provider === 'openai'
-          ? 'OPENAI_API_KEY'
-          : provider === 'anthropic'
-            ? 'ANTHROPIC_API_KEY'
-            : 'GOOGLE_API_KEY';
+      const facts = LLM_PROVIDERS.find((p) => p.id === provider);
+      const keys = facts?.envVarNames ?? [];
+      const hasKey = keys.length > 0 && keys.some((k) => Boolean(process.env[k]));
+      const keyLabel =
+        keys.length === 1
+          ? String(keys[0] ?? '')
+          : `${String(keys[0] ?? '')} (or ${keys.slice(1).join(', ')})`;
 
-      if (!process.env[llmKey]) {
+      if (!hasKey) {
         addPreflightCheck(checks, {
           label: 'LLM provider',
           status: 'fail',
           code: 'CONFIG_ERROR',
-          detail: `${provider} (${llmKey} missing)`,
-          fix: `Set ${llmKey} in your environment or .env file`,
+          detail: `${provider} (${keyLabel} missing)`,
+          fix: `Set ${keyLabel} in your environment or .env file`,
         });
       } else {
         addPreflightCheck(checks, {
           label: 'LLM provider',
           status: 'ok',
-          detail: `${provider} (${llmKey} set)`,
+          detail: `${provider} (API key set)`,
         });
       }
     } catch (error) {
@@ -875,19 +1122,79 @@ async function runGeneratePreflight(params: {
   }
 
   if (needsVisualsProvider) {
-    if (!process.env.PEXELS_API_KEY) {
+    try {
+      const config = await loadConfig();
+      const providerChain = parseVisualsProviderChain({
+        providerRaw: options.visualsProvider ?? config.visuals?.provider,
+        fallbackRaw: options.visualsFallbackProviders,
+        configFallbacks: Array.isArray(config.visuals?.fallbackProviders)
+          ? (config.visuals?.fallbackProviders as string[])
+          : [],
+      });
+
+      for (const provider of providerChain) {
+        const facts = VISUALS_PROVIDERS.find((p) => p.id === provider);
+        const keys = facts?.envVarNames ?? [];
+        const hasKey = keys.length === 0 ? true : keys.some((k) => Boolean(process.env[k]));
+        const keyLabel =
+          keys.length === 0
+            ? 'no API key required'
+            : keys.length === 1
+              ? String(keys[0] ?? '')
+              : `${String(keys[0] ?? '')} (or ${keys.slice(1).join(', ')})`;
+
+        if (!hasKey) {
+          addPreflightCheck(checks, {
+            label: `Visuals provider (${provider})`,
+            status: 'fail',
+            code: 'CONFIG_ERROR',
+            detail: `${provider} (${keyLabel} missing)`,
+            fix: `Set ${keyLabel} in your environment or .env file`,
+          });
+        } else {
+          addPreflightCheck(checks, {
+            label: `Visuals provider (${provider})`,
+            status: 'ok',
+            detail: `${provider} (${keyLabel})`,
+          });
+        }
+      }
+
+      const routingPolicy = parseProviderRoutingPolicy(
+        options.visualsRoutingPolicy ?? config.visuals?.routingPolicy
+      );
+      addPreflightCheck(checks, {
+        label: 'Visuals routing policy',
+        status: 'ok',
+        detail: routingPolicy ?? config.visuals?.routingPolicy,
+      });
+
+      if (options.visualsMaxGenerationCostUsd) {
+        const cap = parseOptionalNumber(options.visualsMaxGenerationCostUsd);
+        if (cap == null || cap < 0) {
+          addPreflightCheck(checks, {
+            label: 'Visuals cost cap',
+            status: 'fail',
+            code: 'INVALID_ARGUMENT',
+            detail: `Invalid value: ${options.visualsMaxGenerationCostUsd}`,
+            fix: 'Use a non-negative number, e.g. --visuals-max-generation-cost-usd 2.5',
+          });
+        } else {
+          addPreflightCheck(checks, {
+            label: 'Visuals cost cap',
+            status: 'ok',
+            detail: `$${cap.toFixed(2)}`,
+          });
+        }
+      }
+    } catch (error) {
+      const info = getCliErrorInfo(error);
       addPreflightCheck(checks, {
         label: 'Visuals provider',
         status: 'fail',
-        code: 'CONFIG_ERROR',
-        detail: 'pexels (PEXELS_API_KEY missing)',
-        fix: 'Set PEXELS_API_KEY in your environment or .env file',
-      });
-    } else {
-      addPreflightCheck(checks, {
-        label: 'Visuals provider',
-        status: 'ok',
-        detail: 'pexels (PEXELS_API_KEY set)',
+        code: info.code,
+        detail: info.message,
+        fix: info.fix,
       });
     }
   } else if (!options.mock) {
@@ -1007,6 +1314,135 @@ function parseOptionalNumber(value: string | undefined): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+const GENERATE_VISUAL_PROVIDER_NAMES: ReadonlySet<AssetProviderName> = new Set([
+  ...SUPPORTED_VISUALS_PROVIDER_IDS,
+  'dalle',
+  'unsplash',
+  'mock',
+]);
+
+function parseVisualsProviderChain(params: {
+  providerRaw: string | undefined;
+  fallbackRaw: string | undefined;
+  configFallbacks: string[];
+}): AssetProviderName[] {
+  const providerList = String(params.providerRaw ?? '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
+  const fallbackList = String(params.fallbackRaw ?? '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+  const rawChain =
+    providerList.length > 1
+      ? providerList
+      : [
+          providerList[0] ?? SUPPORTED_VISUALS_PROVIDER_IDS[0],
+          ...fallbackList,
+          ...params.configFallbacks,
+        ];
+  const unique = Array.from(new Set(rawChain));
+  const parsed: AssetProviderName[] = [];
+
+  for (const provider of unique) {
+    if (!GENERATE_VISUAL_PROVIDER_NAMES.has(provider as AssetProviderName)) {
+      throw new CMError('INVALID_ARGUMENT', `Unknown visuals provider: ${provider}`, {
+        fix: `Use one of: ${Array.from(GENERATE_VISUAL_PROVIDER_NAMES).join(', ')}`,
+      });
+    }
+    parsed.push(provider as AssetProviderName);
+  }
+
+  return parsed;
+}
+
+function parseProviderRoutingPolicy(
+  value: string | undefined
+): ProviderRoutingPolicy | 'adaptive' | undefined {
+  if (!value) return undefined;
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  if (trimmed === 'adaptive') return 'adaptive';
+  if (isProviderRoutingPolicy(trimmed)) return trimmed;
+  throw new CMError('INVALID_ARGUMENT', `Invalid visuals routing policy: ${trimmed}`, {
+    fix: 'Use one of: configured, balanced, cost-first, quality-first, adaptive',
+  });
+}
+
+async function loadGenerationPolicy(path: string): Promise<GenerationPolicy> {
+  const raw = await readInputFile(path);
+  const parsed = safeParseGenerationPolicy(raw);
+  if (!parsed.success) {
+    throw new SchemaError('Invalid policy file', {
+      path,
+      issues: parsed.error.issues,
+      fix: 'Provide a valid generation policy JSON with schemaVersion: 1 (or legacy 1.0.0)',
+    });
+  }
+  return parsed.data;
+}
+
+function applyPolicyDefaults(
+  options: GenerateOptions,
+  command: Command,
+  policy: GenerationPolicy | undefined
+): void {
+  if (!policy?.visuals) return;
+  const visuals = policy.visuals;
+  const record = options as unknown as Record<string, unknown>;
+
+  if (visuals.providerChain && visuals.providerChain.length > 0) {
+    applyDefaultOption(record, command, 'visualsProvider', visuals.providerChain.join(','));
+    if (visuals.providerChain.length > 1) {
+      applyDefaultOption(
+        record,
+        command,
+        'visualsFallbackProviders',
+        visuals.providerChain.slice(1).join(',')
+      );
+    }
+  }
+
+  applyDefaultOption(record, command, 'visualsRoutingPolicy', visuals.routingPolicy);
+  applyDefaultOption(
+    record,
+    command,
+    'visualsMaxGenerationCostUsd',
+    visuals.maxGenerationCostUsd !== undefined ? String(visuals.maxGenerationCostUsd) : undefined
+  );
+  applyDefaultOption(record, command, 'visualsGateEnforce', visuals.gates?.enforce);
+  applyDefaultOption(
+    record,
+    command,
+    'visualsGateMaxFallbackRate',
+    visuals.gates?.maxFallbackRate !== undefined ? String(visuals.gates.maxFallbackRate) : undefined
+  );
+  applyDefaultOption(
+    record,
+    command,
+    'visualsGateMinProviderSuccessRate',
+    visuals.gates?.minProviderSuccessRate !== undefined
+      ? String(visuals.gates.minProviderSuccessRate)
+      : undefined
+  );
+  applyDefaultOption(
+    record,
+    command,
+    'visualsRoutingAdaptiveWindow',
+    visuals.evaluation?.adaptiveWindow !== undefined
+      ? String(visuals.evaluation.adaptiveWindow)
+      : undefined
+  );
+  applyDefaultOption(
+    record,
+    command,
+    'visualsRoutingAdaptiveMinRecords',
+    visuals.evaluation?.minRecords !== undefined ? String(visuals.evaluation.minRecords) : undefined
+  );
+}
+
 function parseFontWeight(value: string | undefined): number | 'normal' | 'bold' | 'black' | null {
   if (!value) return null;
   const raw = value.trim().toLowerCase();
@@ -1064,7 +1500,7 @@ function buildAudioMixOptions(options: GenerateOptions): AudioMixPlanOptions {
   const ambienceInput = typeof options.ambience === 'string' ? options.ambience : undefined;
 
   return {
-    mixPreset: options.mixPreset ?? config.audioMix.preset,
+    mixPreset: (options.mixPreset as string | undefined) ?? config.audioMix.preset,
     lufsTarget: parseOptionalNumber(options.lufsTarget) ?? config.audioMix.lufsTarget,
     music: noMusic ? null : (musicInput ?? config.music.default ?? null),
     musicVolumeDb: parseOptionalNumber(options.musicVolume) ?? config.music.volumeDb,
@@ -1105,6 +1541,7 @@ function buildGenerateSuccessJsonArgs(params: {
     archetype,
     orientation,
     template: templateSpec,
+    policy: options.policy ?? null,
     resolvedTemplateId,
     workflow: options.workflow ?? null,
     workflowAllowExec: Boolean(options.workflowAllowExec),
@@ -1113,12 +1550,22 @@ function buildGenerateSuccessJsonArgs(params: {
     audioMix: options.audioMix ?? null,
     timestamps: options.timestamps ?? null,
     visuals: options.visuals ?? null,
+    visualsProvider: options.visualsProvider ?? null,
+    visualsFallbackProviders: options.visualsFallbackProviders ?? null,
+    visualsRoutingPolicy: options.visualsRoutingPolicy ?? null,
+    visualsMaxGenerationCostUsd: options.visualsMaxGenerationCostUsd ?? null,
+    visualsGateEnforce: Boolean(options.visualsGateEnforce),
+    visualsGateMaxFallbackRate: options.visualsGateMaxFallbackRate ?? null,
+    visualsGateMinProviderSuccessRate: options.visualsGateMinProviderSuccessRate ?? null,
+    visualsRoutingAdaptiveWindow: options.visualsRoutingAdaptiveWindow ?? null,
+    visualsRoutingAdaptiveMinRecords: options.visualsRoutingAdaptiveMinRecords ?? null,
     gameplay: options.gameplay ?? null,
     gameplayStyle: options.gameplayStyle ?? null,
     gameplayStrict: Boolean(options.gameplayStrict),
     fps: options.fps,
     captionPreset: options.captionPreset,
     captionMode: options.captionMode ?? null,
+    captionNotation: options.captionNotation ?? null,
     wordsPerPage: parseOptionalInt(options.wordsPerPage ?? options.captionMaxWords),
     captionMaxWords: parseOptionalInt(options.captionMaxWords),
     captionMinWords: parseOptionalInt(options.captionMinWords),
@@ -1160,6 +1607,12 @@ function buildGenerateSuccessJsonArgs(params: {
     syncQualityCheck: Boolean(options.syncQualityCheck),
     minSyncRating: parseOptionalInt(options.minSyncRating),
     autoRetrySync: Boolean(options.autoRetrySync),
+    captionQualityCheck: Boolean(options.captionQualityCheck),
+    minCaptionOverall: parseMinCaptionOverall(options),
+    autoRetryCaptions: Boolean(options.autoRetryCaptions),
+    maxCaptionRetries: parseMaxCaptionRetries(options),
+    captionPerfect: Boolean(options.captionPerfect),
+    captionQualityMock: Boolean(options.captionQualityMock),
     gameplayPosition: options.gameplayPosition ?? null,
     contentPosition: options.contentPosition ?? null,
     splitLayout: options.splitLayout ?? null,
@@ -1172,6 +1625,12 @@ function buildGenerateSuccessJsonArgs(params: {
     hookFit: options.hookFit ?? null,
     downloadHook: Boolean(options.downloadHook),
     downloadAssets: options.downloadAssets !== false,
+    frameAnalysis: options.frameAnalysis !== false,
+    frameAnalysisMode: options.frameAnalysisMode ?? 'both',
+    frameAnalysisFps: parseOptionalNumber(options.frameAnalysisFps) ?? 1,
+    frameAnalysisShots: parseOptionalInt(options.frameAnalysisShots) ?? 30,
+    frameAnalysisSegments: parseOptionalInt(options.frameAnalysisSegments) ?? 5,
+    frameAnalysisOutput: options.frameAnalysisOutput ?? 'output/analysis',
   };
 }
 
@@ -1205,12 +1664,42 @@ function buildGenerateSuccessJsonSyncOutputs(
   };
 }
 
+function buildGenerateSuccessJsonCaptionOutputs(
+  caption: CaptionQualitySummary | null | undefined
+): Record<string, unknown> {
+  if (!caption) {
+    return {
+      captionReportPath: null,
+      captionOverallScore: null,
+      captionPassed: null,
+      captionCoverageRatio: null,
+      captionSafeAreaScore: null,
+      captionFlickerEvents: null,
+      captionMeanOcrConfidence: null,
+      captionAttempts: null,
+    };
+  }
+
+  return {
+    captionReportPath: caption.reportPath,
+    captionOverallScore: caption.overallScore,
+    captionPassed: caption.passed,
+    captionCoverageRatio: caption.coverageRatio,
+    captionSafeAreaScore: caption.safeAreaScore,
+    captionFlickerEvents: caption.flickerEvents,
+    captionMeanOcrConfidence: caption.meanOcrConfidence,
+    captionAttempts: caption.attempts,
+  };
+}
+
 function buildGenerateSuccessJsonOutputs(params: {
   result: PipelineResult;
   artifactsDir: string;
   sync: SyncQualitySummary | null | undefined;
+  caption: CaptionQualitySummary | null | undefined;
+  frameAnalysis: AnalyzeVideoFramesResult | null | undefined;
 }): Record<string, unknown> {
-  const { result, artifactsDir, sync } = params;
+  const { result, artifactsDir, sync, caption, frameAnalysis } = params;
 
   return {
     videoPath: result.outputPath,
@@ -1224,7 +1713,11 @@ function buildGenerateSuccessJsonOutputs(params: {
     audioMixPath: result.audio.audioMixPath ?? null,
     audioMixLayers: result.audio.audioMix?.layers.length ?? 0,
     gameplayClip: result.visuals.gameplayClip?.path ?? null,
+    frameAnalysisManifestPath: frameAnalysis?.manifestPath ?? null,
+    frameAnalysisFpsFrames: frameAnalysis?.manifest.fpsFrames.length ?? 0,
+    frameAnalysisShotFrames: frameAnalysis?.manifest.shotFrames.length ?? 0,
     ...buildGenerateSuccessJsonSyncOutputs(sync),
+    ...buildGenerateSuccessJsonCaptionOutputs(caption),
   };
 }
 
@@ -1239,6 +1732,8 @@ function writeSuccessJson(params: {
   artifactsDir: string;
   result: PipelineResult;
   sync?: SyncQualitySummary | null;
+  caption?: CaptionQualitySummary | null;
+  frameAnalysis?: AnalyzeVideoFramesResult | null;
   exitCode?: number;
 }): void {
   const {
@@ -1252,6 +1747,8 @@ function writeSuccessJson(params: {
     artifactsDir,
     result,
     sync,
+    caption,
+    frameAnalysis,
     exitCode = 0,
   } = params;
 
@@ -1266,7 +1763,7 @@ function writeSuccessJson(params: {
         templateSpec,
         resolvedTemplateId,
       }),
-      outputs: buildGenerateSuccessJsonOutputs({ result, artifactsDir, sync }),
+      outputs: buildGenerateSuccessJsonOutputs({ result, artifactsDir, sync, caption, frameAnalysis }),
       timingsMs: Date.now() - runtime.startTime,
     })
   );
@@ -1280,13 +1777,34 @@ function applyDefaultOption(
   value: unknown
 ): void {
   if (value === undefined) return;
-  if (command.getOptionValueSource(optionName) !== 'default') return;
+  const source = command.getOptionValueSource(optionName);
+  if (source !== 'default' && source !== undefined) return;
   options[optionName] = value;
 }
 
+function applyQualityDefaults(options: GenerateOptions, command: Command): void {
+  if (!options.quality) return;
+
+  const record = options as unknown as Record<string, unknown>;
+
+  // Prefer better sync defaults, but do not override explicit flags.
+  applyDefaultOption(record, command, 'syncPreset', PREFERRED_QUALITY_SYNC_PRESET_ID);
+  applyDefaultOption(record, command, 'syncQualityCheck', true);
+  applyDefaultOption(record, command, 'autoRetrySync', true);
+  applyDefaultOption(record, command, 'minSyncRating', '80');
+
+  // Prefer readable burned-in captions; keep retries bounded.
+  applyDefaultOption(record, command, 'captionQualityCheck', true);
+  applyDefaultOption(record, command, 'autoRetryCaptions', true);
+  applyDefaultOption(record, command, 'maxCaptionRetries', '3');
+  applyDefaultOption(record, command, 'minCaptionOverall', '0.80');
+  applyDefaultOption(record, command, 'captionQualityMock', false);
+}
+
 function applySyncPresetDefaults(options: GenerateOptions, command: Command): void {
-  const presetName = options.syncPreset ?? 'standard';
-  const preset = SYNC_PRESETS[presetName];
+  const presetName = (options.syncPreset ?? DEFAULT_SYNC_PRESET_ID) as string;
+  if (!(presetName in SYNC_PRESETS)) return;
+  const preset = SYNC_PRESETS[presetName as SyncPresetId];
   if (!preset) return;
 
   const record = options as unknown as Record<string, unknown>;
@@ -1297,18 +1815,83 @@ function applySyncPresetDefaults(options: GenerateOptions, command: Command): vo
   applyDefaultOption(record, command, 'autoRetrySync', preset.autoRetrySync);
 }
 
-function applyCaptionDefaultsFromConfig(options: GenerateOptions, command: Command): void {
+function applyDefaultsFromConfig(options: GenerateOptions, command: Command): void {
   const config = loadConfig();
-  const captions = config.captions;
   const record = options as unknown as Record<string, unknown>;
+
+  // Pipeline defaults
+  applyDefaultOption(record, command, 'archetype', config.defaults.archetype);
+  applyDefaultOption(record, command, 'orientation', config.defaults.orientation);
+  applyDefaultOption(record, command, 'voice', config.defaults.voice);
+  applyDefaultOption(record, command, 'fps', String(config.render.fps));
+  applyDefaultOption(record, command, 'template', config.render.template);
+  applyDefaultOption(record, command, 'workflow', config.generate.workflow);
+  applyDefaultOption(
+    record,
+    command,
+    'visualsProvider',
+    config.visuals?.provider ?? SUPPORTED_VISUALS_PROVIDER_IDS[0]
+  );
+  applyDefaultOption(record, command, 'visualsRoutingPolicy', config.visuals?.routingPolicy);
+  applyDefaultOption(
+    record,
+    command,
+    'visualsMaxGenerationCostUsd',
+    config.visuals?.maxGenerationCostUsd !== undefined
+      ? String(config.visuals.maxGenerationCostUsd)
+      : undefined
+  );
+
+  // Caption defaults
+  const captions = config.captions;
   const defaultFamily =
     captions.fonts && captions.fonts.length > 0 ? captions.fonts[0].family : captions.fontFamily;
   applyDefaultOption(record, command, 'captionFontFamily', defaultFamily);
   applyDefaultOption(record, command, 'captionFontWeight', String(captions.fontWeight));
   applyDefaultOption(record, command, 'captionFontFile', captions.fontFile);
+  applyDefaultOption(record, command, 'captionPreset', captions.preset);
   if (!options.captionFonts && captions.fonts.length > 0) {
     options.captionFonts = captions.fonts;
   }
+}
+
+function applyCaptionQualityPerfectDefaults(options: GenerateOptions, command: Command): void {
+  if (!options.captionPerfect) return;
+  options.captionQualityCheck = true;
+  options.autoRetryCaptions = true;
+  const record = options as unknown as Record<string, unknown>;
+  applyDefaultOption(record, command, 'minCaptionOverall', '0.95');
+  applyDefaultOption(record, command, 'maxCaptionRetries', '50');
+  applyDefaultOption(record, command, 'captionQualityMock', false);
+  applyDefaultOption(record, command, 'captionMode', 'chunk');
+  applyDefaultOption(record, command, 'wordsPerPage', '8');
+  applyDefaultOption(record, command, 'captionGroupMs', '1200');
+  applyDefaultOption(record, command, 'captionMaxWpm', '220');
+  applyDefaultOption(record, command, 'captionMaxCps', '18');
+  applyDefaultOption(record, command, 'captionMinOnScreenMs', '1400');
+  applyDefaultOption(record, command, 'captionMinOnScreenMsShort', '1100');
+}
+
+function mergeCaptionConfigPartials(
+  base: CaptionConfigInput | undefined,
+  overrides: CaptionConfigInput | undefined
+): CaptionConfigInput | undefined {
+  if (!base) return overrides;
+  if (!overrides) return base;
+
+  return {
+    ...base,
+    ...overrides,
+    pillStyle: { ...base.pillStyle, ...overrides.pillStyle },
+    stroke: { ...base.stroke, ...overrides.stroke },
+    shadow: { ...base.shadow, ...overrides.shadow },
+    layout: { ...base.layout, ...overrides.layout },
+    positionOffset: { ...base.positionOffset, ...overrides.positionOffset },
+    safeZone: { ...base.safeZone, ...overrides.safeZone },
+    cleanup: { ...base.cleanup, ...overrides.cleanup },
+    listBadges: { ...(base.listBadges ?? {}), ...(overrides.listBadges ?? {}) },
+    emphasis: { ...base.emphasis, ...overrides.emphasis },
+  };
 }
 
 function getOptionNameMap(command: Command): Map<string, string> {
@@ -1394,20 +1977,20 @@ function applyWorkflowStageDefaults(
 ): void {
   if (isExternalStageMode(stageModes.script)) {
     if (!options.script) {
-      options.script = join(artifactsDir, 'script.json');
+      options.script = join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.script);
     }
   }
   if (isExternalStageMode(stageModes.audio)) {
     if (!options.audio) {
-      options.audio = join(artifactsDir, 'audio.wav');
+      options.audio = join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.audio);
     }
     if (!options.timestamps) {
-      options.timestamps = join(artifactsDir, 'timestamps.json');
+      options.timestamps = join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.timestamps);
     }
   }
   if (isExternalStageMode(stageModes.visuals)) {
     if (!options.visuals) {
-      options.visuals = join(artifactsDir, 'visuals.json');
+      options.visuals = join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.visuals);
     }
   }
 }
@@ -1416,10 +1999,11 @@ async function resolveTemplateAndApplyDefaults(
   options: GenerateOptions,
   command: Command
 ): Promise<{
-  resolvedTemplate: Awaited<ReturnType<typeof resolveVideoTemplate>> | undefined;
+  resolvedTemplate: Awaited<ReturnType<typeof resolveRenderTemplate>> | undefined;
   templateDefaults: Record<string, unknown> | undefined;
   templateParams: ReturnType<typeof getTemplateParams>;
   templateGameplay: ReturnType<typeof getTemplateGameplaySlot>;
+  templateOverlays: OverlayAsset[];
 }> {
   if (!options.template) {
     return {
@@ -1427,13 +2011,22 @@ async function resolveTemplateAndApplyDefaults(
       templateDefaults: undefined,
       templateParams: {},
       templateGameplay: null,
+      templateOverlays: [],
     };
   }
 
-  const resolvedTemplate = await resolveVideoTemplate(options.template);
+  const resolvedTemplate = await resolveRenderTemplate(options.template);
   const templateDefaults = (resolvedTemplate.template.defaults ?? {}) as Record<string, unknown>;
   const templateParams = getTemplateParams(resolvedTemplate.template);
   const templateGameplay = getTemplateGameplaySlot(resolvedTemplate.template);
+  const templateFonts = getTemplateFontSources(
+    resolvedTemplate.template,
+    resolvedTemplate.templateDir
+  );
+  const templateOverlays = getTemplateOverlays(
+    resolvedTemplate.template,
+    resolvedTemplate.templateDir
+  );
 
   const record = options as unknown as Record<string, unknown>;
   applyDefaultOption(record, command, 'archetype', templateDefaults.archetype);
@@ -1445,8 +2038,13 @@ async function resolveTemplateAndApplyDefaults(
     templateDefaults.fps !== undefined ? String(templateDefaults.fps) : undefined
   );
   applyDefaultOption(record, command, 'captionPreset', templateDefaults.captionPreset);
+  if (templateFonts.length > 0) {
+    // Prefer template-provided fonts over config defaults unless the user explicitly overrides.
+    applyDefaultOption(record, command, 'captionFontFamily', templateFonts[0]?.family);
+    options.captionFonts = mergeFontSources(templateFonts, options.captionFonts ?? []);
+  }
 
-  return { resolvedTemplate, templateDefaults, templateParams, templateGameplay };
+  return { resolvedTemplate, templateDefaults, templateParams, templateGameplay, templateOverlays };
 }
 
 function handleDryRun(params: {
@@ -1652,9 +2250,15 @@ async function runGeneratePipeline(params: {
   archetype: Archetype;
   orientation: Orientation;
   options: GenerateOptions;
-  resolvedTemplate: Awaited<ReturnType<typeof resolveVideoTemplate>> | undefined;
+  resolvedTemplate: Awaited<ReturnType<typeof resolveRenderTemplate>> | undefined;
+  remotionProject: ResolvedRemotionTemplateProject | null;
+  allowTemplateCode?: boolean;
+  installTemplateDeps?: boolean;
+  templateDepsAllowOutput?: boolean;
+  templatePackageManager?: 'npm' | 'pnpm' | 'yarn';
   templateDefaults: Record<string, unknown> | undefined;
   templateParams: ReturnType<typeof getTemplateParams>;
+  templateOverlays: OverlayAsset[];
   gameplay?: { library?: string; style?: string; required?: boolean };
   hook?: HookClip | null;
   research: ResearchOutput | undefined;
@@ -1674,6 +2278,7 @@ async function runGeneratePipeline(params: {
       params.options.captionDropFillers || (captionFillerWords && captionFillerWords.length > 0)
         ? true
         : undefined;
+    const captionDropListMarkers = params.options.captionDropListMarkers ? true : undefined;
     const captionFontWeight = parseFontWeight(params.options.captionFontWeight) ?? undefined;
     const requestedDuration = parseOptionalNumber(params.options.duration) ?? 45;
     const hookDuration = params.hook?.duration ?? 0;
@@ -1690,7 +2295,8 @@ async function runGeneratePipeline(params: {
     const mixOptions = buildAudioMixOptions(params.options);
     const hasMixSources = hasAudioMixSources(mixOptions);
     const artifactsDir = dirname(params.options.output);
-    const audioMixOutputPath = params.options.audioMix ?? join(artifactsDir, 'audio.mix.json');
+    const audioMixOutputPath =
+      params.options.audioMix ?? join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES['audio-mix']);
     const audioMixRequest =
       params.audioInput || (!hasMixSources && !params.options.audioMix)
         ? undefined
@@ -1700,26 +2306,89 @@ async function runGeneratePipeline(params: {
             emitEmpty: Boolean(params.options.audioMix) && !hasMixSources,
           };
 
+    const mockRenderMode: 'placeholder' | 'real' | undefined =
+      params.options.mock &&
+      (params.options.captionPerfect || params.options.captionQualityCheck) &&
+      !params.options.captionQualityMock
+        ? 'real'
+        : undefined;
+
+    const config = loadConfig();
+    const visualsProviderChain = parseVisualsProviderChain({
+      providerRaw: params.options.visualsProvider ?? config.visuals?.provider,
+      fallbackRaw: params.options.visualsFallbackProviders,
+      configFallbacks: Array.isArray(config.visuals?.fallbackProviders)
+        ? (config.visuals?.fallbackProviders as string[])
+        : [],
+    });
+    const visualsRoutingPolicy = parseProviderRoutingPolicy(params.options.visualsRoutingPolicy);
+    const visualsMaxGenerationCostUsd =
+      parseOptionalNumber(params.options.visualsMaxGenerationCostUsd) ?? undefined;
+    const visualsGateMaxFallbackRate =
+      parseOptionalNumber(params.options.visualsGateMaxFallbackRate) ?? undefined;
+    const visualsGateMinProviderSuccessRate =
+      parseOptionalNumber(params.options.visualsGateMinProviderSuccessRate) ?? undefined;
+    const visualsRoutingAdaptiveWindow =
+      parseOptionalInt(params.options.visualsRoutingAdaptiveWindow) ?? undefined;
+    const visualsRoutingAdaptiveMinRecords =
+      parseOptionalInt(params.options.visualsRoutingAdaptiveMinRecords) ?? undefined;
+    const mergedCaptionConfig = mergeCaptionConfigPartials(
+      config.captions.config as CaptionConfigInput | undefined,
+      (params.templateDefaults?.captionConfig as CaptionConfigInput | undefined) ?? undefined
+    );
+
     return await runPipeline({
       topic: params.topic,
-      archetype: params.archetype as
-        | 'listicle'
-        | 'versus'
-        | 'howto'
-        | 'myth'
-        | 'story'
-        | 'hot-take',
+      archetype: params.archetype as Archetype,
       orientation: params.orientation as 'portrait' | 'landscape' | 'square',
       voice: params.options.voice,
+      visualsProvider: visualsProviderChain[0],
+      visualsProviders: visualsProviderChain,
+      visualsRoutingPolicy,
+      visualsMaxGenerationCostUsd,
+      visualsPolicyGates: {
+        enforce: Boolean(params.options.visualsGateEnforce),
+        maxFallbackRate: visualsGateMaxFallbackRate,
+        minProviderSuccessRate: visualsGateMinProviderSuccessRate,
+      },
+      visualsRoutingAdaptiveWindow,
+      visualsRoutingAdaptiveMinRecords,
+      media: {
+        enabled: params.options.media,
+        extractVideoKeyframes: params.options.mediaKeyframes,
+        synthesizeImageMotion: params.options.mediaSynthesizeMotion,
+        outputDir: params.options.mediaDir,
+        ffmpegPath: params.options.mediaFfmpeg,
+        adapterByMotionStrategy: {
+          depthflow: params.options.mediaDepthflowAdapter,
+          veo: params.options.mediaVeoAdapter,
+        },
+      },
       targetDuration,
       outputPath: params.options.output,
       fps: params.options.fps ? parseInt(params.options.fps, 10) : undefined,
       compositionId: params.resolvedTemplate?.template.compositionId,
+      allowTemplateCode: params.allowTemplateCode,
+      installTemplateDeps: params.installTemplateDeps,
+      templateDepsAllowOutput: params.templateDepsAllowOutput,
+      templatePackageManager: params.templatePackageManager,
+      remotionEntryPoint: params.remotionProject?.entryPoint,
+      remotionRootDir: params.remotionProject?.rootDir,
+      remotionPublicDir: params.remotionProject?.publicDir,
+      templateId: params.resolvedTemplate?.template.id,
+      templateSource: params.resolvedTemplate
+        ? formatTemplateSource(params.resolvedTemplate)
+        : undefined,
+      templateParams: (params.resolvedTemplate?.template.params ?? undefined) as
+        | Record<string, unknown>
+        | undefined,
+      overlays: params.templateOverlays.length > 0 ? params.templateOverlays : undefined,
       captionPreset: params.options.captionPreset as CaptionPresetName | undefined,
-      captionConfig: params.templateDefaults?.captionConfig as Partial<CaptionConfig> | undefined,
+      captionConfig: mergedCaptionConfig,
       keepArtifacts: params.options.keepArtifacts,
       llmProvider: params.llmProvider,
       mock: params.options.mock,
+      mockRenderMode,
       research: params.research,
       eventEmitter,
       pipelineMode: params.options.pipeline ?? 'standard',
@@ -1730,6 +2399,7 @@ async function runGeneratePipeline(params: {
         : undefined,
       reconcile: params.options.reconcile,
       captionMode: params.options.captionMode,
+      captionNotation: parseCaptionNotation(params.options.captionNotation),
       wordsPerPage: wordsPerPage ? parseInt(wordsPerPage, 10) : undefined,
       captionMinWords: parseOptionalInt(params.options.captionMinWords) ?? undefined,
       captionTargetWords: parseOptionalInt(params.options.captionTargetWords) ?? undefined,
@@ -1739,6 +2409,7 @@ async function runGeneratePipeline(params: {
       captionMinOnScreenMsShort:
         parseOptionalInt(params.options.captionMinOnScreenMsShort) ?? undefined,
       captionDropFillers,
+      captionDropListMarkers,
       captionFillerWords,
       captionFontFamily: params.options.captionFontFamily ?? undefined,
       captionFontWeight,
@@ -1749,6 +2420,11 @@ async function runGeneratePipeline(params: {
         ? parseInt(params.options.charsPerLine, 10)
         : undefined,
       captionAnimation: params.options.captionAnimation,
+      captionWordAnimation: params.options.captionWordAnimation,
+      captionWordAnimationMs: parseOptionalInt(params.options.captionWordAnimationMs) ?? undefined,
+      captionWordAnimationIntensity:
+        parseOptionalNumber(params.options.captionWordAnimationIntensity) ?? undefined,
+      captionOffsetMs: parseOptionalInt(params.options.captionOffsetMs) ?? undefined,
       gameplay: params.gameplay,
       splitScreenRatio: params.templateParams.splitScreenRatio,
       gameplayPosition: params.options.gameplayPosition ?? params.templateParams.gameplayPosition,
@@ -1769,13 +2445,13 @@ function toNullableString(value: string | undefined): string | null {
 }
 
 function resolveTemplateId(
-  resolvedTemplate: Awaited<ReturnType<typeof resolveVideoTemplate>> | undefined
+  resolvedTemplate: Awaited<ReturnType<typeof resolveRenderTemplate>> | undefined
 ): string | null {
   return resolvedTemplate?.template.id ?? null;
 }
 
 function getTemplateSourceForLog(
-  resolvedTemplate: Awaited<ReturnType<typeof resolveVideoTemplate>> | undefined
+  resolvedTemplate: Awaited<ReturnType<typeof resolveRenderTemplate>> | undefined
 ): string | undefined {
   return resolvedTemplate ? formatTemplateSource(resolvedTemplate) : undefined;
 }
@@ -1786,6 +2462,62 @@ function getLogFps(options: GenerateOptions): number {
 
 function getCaptionPreset(options: GenerateOptions): string {
   return options.captionPreset ?? 'capcut';
+}
+
+function parseCaptionNotation(value: unknown): 'none' | 'unicode' | undefined {
+  if (value === undefined || value === null || value === '') return undefined;
+  const raw = String(value).trim().toLowerCase();
+  if (raw === 'none' || raw === 'unicode') return raw;
+  throw new CMError('INVALID_ARGUMENT', `Invalid --caption-notation value: ${raw}`, {
+    fix: 'Use --caption-notation none or --caption-notation unicode',
+  });
+}
+
+function parseFrameAnalysisMode(value: unknown): 'fps' | 'shots' | 'both' {
+  const raw = String(value ?? 'both').trim().toLowerCase();
+  if (raw === 'fps' || raw === 'shots' || raw === 'both') return raw;
+  throw new CMError('INVALID_ARGUMENT', `Invalid --frame-analysis-mode value: ${raw}`, {
+    fix: 'Use one of: fps, shots, both',
+  });
+}
+
+async function runAutoFrameAnalysis(
+  options: GenerateOptions,
+  outputPath: string
+): Promise<AnalyzeVideoFramesResult | null> {
+  if (options.frameAnalysis === false) return null;
+  const fpsRaw = Number.parseFloat(String(options.frameAnalysisFps ?? '1'));
+  if (!Number.isFinite(fpsRaw) || fpsRaw <= 0 || fpsRaw > 1) {
+    throw new CMError(
+      'INVALID_ARGUMENT',
+      `Invalid --frame-analysis-fps value: ${String(options.frameAnalysisFps)}`,
+      { fix: 'Use a number > 0 and <= 1' }
+    );
+  }
+  const shots = Number.parseInt(String(options.frameAnalysisShots ?? '30'), 10);
+  if (!Number.isFinite(shots) || shots < 1) {
+    throw new CMError(
+      'INVALID_ARGUMENT',
+      `Invalid --frame-analysis-shots value: ${String(options.frameAnalysisShots)}`,
+      { fix: 'Use an integer >= 1' }
+    );
+  }
+  const segments = Number.parseInt(String(options.frameAnalysisSegments ?? '5'), 10);
+  if (!Number.isFinite(segments) || segments < 1) {
+    throw new CMError(
+      'INVALID_ARGUMENT',
+      `Invalid --frame-analysis-segments value: ${String(options.frameAnalysisSegments)}`,
+      { fix: 'Use an integer >= 1' }
+    );
+  }
+  return analyzeVideoFrames({
+    inputVideo: outputPath,
+    outputRootDir: options.frameAnalysisOutput ?? 'output/analysis',
+    mode: parseFrameAnalysisMode(options.frameAnalysisMode ?? 'both'),
+    fps: fpsRaw,
+    shots,
+    segments,
+  });
 }
 
 function parseLayoutPosition(
@@ -1848,6 +2580,34 @@ function parseMinSyncRating(options: GenerateOptions): number {
   return minRating;
 }
 
+function parseMinCaptionOverall(options: GenerateOptions): number {
+  const raw = options.minCaptionOverall ?? '0.75';
+  const parsed = Number.parseFloat(raw);
+  if (!Number.isFinite(parsed)) {
+    throw new CMError('INVALID_ARGUMENT', `Invalid --min-caption-overall value: ${raw}`, {
+      fix: 'Use a number between 0 and 1 (or 0 and 100) for --min-caption-overall',
+    });
+  }
+  const normalized = parsed > 1 ? parsed / 100 : parsed;
+  if (!Number.isFinite(normalized) || normalized < 0 || normalized > 1) {
+    throw new CMError('INVALID_ARGUMENT', `Invalid --min-caption-overall value: ${raw}`, {
+      fix: 'Use a number between 0 and 1 (or 0 and 100) for --min-caption-overall',
+    });
+  }
+  return normalized;
+}
+
+function parseMaxCaptionRetries(options: GenerateOptions): number {
+  const raw = options.maxCaptionRetries ?? '2';
+  const value = Number.parseInt(raw, 10);
+  if (!Number.isFinite(value) || value < 0 || value > 100) {
+    throw new CMError('INVALID_ARGUMENT', `Invalid --max-caption-retries value: ${raw}`, {
+      fix: 'Use a number between 0 and 100 for --max-caption-retries',
+    });
+  }
+  return value;
+}
+
 function buildSyncQualitySummary(
   reportPath: string,
   rating: SyncRatingOutput,
@@ -1866,6 +2626,59 @@ function buildSyncQualitySummary(
   };
 }
 
+interface CaptionQualitySummary {
+  reportPath: string;
+  overallScore: number;
+  passed: boolean;
+  coverageRatio: number;
+  safeAreaScore: number;
+  flickerEvents: number;
+  meanOcrConfidence: number;
+  attempts: number;
+}
+
+function buildCaptionQualitySummary(
+  reportPath: string,
+  rating: CaptionQualityRatingOutput,
+  attempts: number,
+  minOverallScore: number
+): CaptionQualitySummary {
+  const passed =
+    rating.captionQuality.overall.passed && rating.captionQuality.overall.score >= minOverallScore;
+  return {
+    reportPath,
+    overallScore: rating.captionQuality.overall.score,
+    passed,
+    coverageRatio: rating.captionQuality.coverage.coverageRatio,
+    safeAreaScore: rating.captionQuality.safeArea.score,
+    flickerEvents: rating.captionQuality.flicker.flickerEvents,
+    meanOcrConfidence: rating.captionQuality.ocrConfidence.mean,
+    attempts,
+  };
+}
+
+function mergeTemplateDefaultsCaptionConfig(
+  templateDefaults: Record<string, unknown> | undefined,
+  overrides: CaptionConfigInput
+): Record<string, unknown> | undefined {
+  if (!overrides || Object.keys(overrides).length === 0) return templateDefaults;
+  const base = (templateDefaults?.captionConfig ?? {}) as CaptionConfigInput;
+  const merged: CaptionConfigInput = {
+    ...base,
+    ...overrides,
+    pillStyle: { ...(base.pillStyle ?? {}), ...(overrides.pillStyle ?? {}) },
+    stroke: { ...(base.stroke ?? {}), ...(overrides.stroke ?? {}) },
+    shadow: { ...(base.shadow ?? {}), ...(overrides.shadow ?? {}) },
+    layout: { ...(base.layout ?? {}), ...(overrides.layout ?? {}) },
+    positionOffset: { ...(base.positionOffset ?? {}), ...(overrides.positionOffset ?? {}) },
+    safeZone: { ...(base.safeZone ?? {}), ...(overrides.safeZone ?? {}) },
+    emphasis: { ...(base.emphasis ?? {}), ...(overrides.emphasis ?? {}) },
+    cleanup: { ...(base.cleanup ?? {}), ...(overrides.cleanup ?? {}) },
+  };
+
+  return { ...(templateDefaults ?? {}), captionConfig: merged };
+}
+
 type GeneratePipelineWithQualityGateParams = Parameters<typeof runGeneratePipeline>[0] & {
   artifactsDir: string;
 };
@@ -1874,96 +2687,212 @@ interface GeneratePipelineWithQualityGateResult {
   result: PipelineResult;
   finalOptions: GenerateOptions;
   sync: SyncQualitySummary | null;
+  caption: CaptionQualitySummary | null;
   exitCode: number;
 }
 
 async function runPipelineWithOptionalSyncQualityGate(
   params: GeneratePipelineWithQualityGateParams
 ): Promise<GeneratePipelineWithQualityGateResult> {
+  let result: PipelineResult;
+  let finalOptions: GenerateOptions = params.options;
+  let sync: SyncQualitySummary | null = null;
+  let caption: CaptionQualitySummary | null = null;
+  let exitCode = 0;
+
   if (!params.options.syncQualityCheck) {
-    const result = await runGeneratePipeline(params);
-    return { result, finalOptions: params.options, sync: null, exitCode: 0 };
-  }
-
-  const minRating = parseMinSyncRating(params.options);
-  const initialSettings: SyncAttemptSettings = {
-    pipelineMode: params.options.pipeline ?? 'standard',
-    reconcile: Boolean(params.options.reconcile),
-    whisperModel: normalizeWhisperModelForSync(params.options.whisperModel),
-  };
-
-  const autoRetryRequested = Boolean(params.options.autoRetrySync);
-  const autoRetry = params.audioInput ? false : autoRetryRequested;
-  const config = {
-    enabled: true,
-    autoRetry,
-    maxRetries: autoRetry ? 1 : 0,
-  };
-
-  const { rateSyncQuality } = await import('../../score/sync-rater');
-
-  const runAttempt = async (settings: SyncAttemptSettings): Promise<PipelineResult> => {
-    const attemptOptions: GenerateOptions = {
-      ...params.options,
-      pipeline: settings.pipelineMode,
-      reconcile: settings.reconcile,
-      whisperModel: settings.whisperModel,
+    result = await runGeneratePipeline(params);
+  } else {
+    const minRating = parseMinSyncRating(params.options);
+    const initialSettings: SyncAttemptSettings = {
+      pipelineMode: params.options.pipeline ?? 'standard',
+      reconcile: Boolean(params.options.reconcile),
+      whisperModel: normalizeWhisperModelForSync(params.options.whisperModel),
     };
 
-    const llmProvider = params.options.mock
-      ? createMockLLMProvider(params.topic)
-      : params.llmProvider;
-    return runGeneratePipeline({ ...params, options: attemptOptions, llmProvider });
-  };
+    const autoRetryRequested = Boolean(params.options.autoRetrySync);
+    const autoRetry = params.audioInput ? false : autoRetryRequested;
+    const config = {
+      enabled: true,
+      autoRetry,
+      maxRetries: autoRetry ? 1 : 0,
+    };
 
-  const rate = (videoPath: string): Promise<SyncRatingOutput> => {
-    return rateSyncQuality(videoPath, {
-      fps: 2,
-      thresholds: {
-        minRating,
-        maxMeanDriftMs: 180,
-        maxMaxDriftMs: 500,
-        minMatchRatio: 0.7,
-      },
-      asrModel: normalizeWhisperModelForSync(params.options.whisperModel),
-      mock: params.options.mock,
+    const { rateSyncQuality } = await import('../../score/sync-rater');
+
+    const runAttempt = async (settings: SyncAttemptSettings): Promise<PipelineResult> => {
+      const attemptOptions: GenerateOptions = {
+        ...params.options,
+        pipeline: settings.pipelineMode,
+        reconcile: settings.reconcile,
+        whisperModel: settings.whisperModel,
+      };
+
+      const llmProvider = params.options.mock
+        ? createMockLLMProvider(params.topic)
+        : params.llmProvider;
+      return runGeneratePipeline({ ...params, options: attemptOptions, llmProvider });
+    };
+
+    const rate = (videoPath: string): Promise<SyncRatingOutput> => {
+      return rateSyncQuality(videoPath, {
+        fps: 2,
+        thresholds: {
+          minRating,
+          maxMeanDriftMs: 180,
+          maxMaxDriftMs: 500,
+          minMatchRatio: 0.7,
+        },
+        asrModel: normalizeWhisperModelForSync(params.options.whisperModel),
+        mock: params.options.mock,
+      });
+    };
+
+    const outcome = await runGenerateWithSyncQualityGate({
+      initialSettings,
+      config,
+      runAttempt,
+      rate,
     });
-  };
 
-  const outcome = await runGenerateWithSyncQualityGate({
-    initialSettings,
-    config,
-    runAttempt,
-    rate,
-  });
+    result = outcome.pipelineResult;
 
-  const rating = outcome.rating;
-  if (!rating) {
-    return {
-      result: outcome.pipelineResult,
-      finalOptions: params.options,
-      sync: null,
-      exitCode: 0,
+    const rating = outcome.rating;
+    if (rating) {
+      const reportPath = await writeSyncQualityReportFiles(
+        params.artifactsDir,
+        rating,
+        outcome.attemptHistory
+      );
+      sync = buildSyncQualitySummary(reportPath, rating, outcome.attempts);
+      if (!sync.passed) exitCode = 1;
+    }
+
+    finalOptions = {
+      ...params.options,
+      pipeline: outcome.finalSettings.pipelineMode,
+      reconcile: outcome.finalSettings.reconcile,
+      whisperModel: outcome.finalSettings.whisperModel,
     };
   }
 
-  const reportPath = await writeSyncQualityReportFiles(
-    params.artifactsDir,
-    rating,
-    outcome.attemptHistory
-  );
+  if (params.options.captionQualityCheck) {
+    const minOverallScore = parseMinCaptionOverall(params.options);
+    const autoRetry = Boolean(params.options.autoRetryCaptions);
+    const config = {
+      enabled: true,
+      autoRetry,
+      maxRetries: autoRetry ? parseMaxCaptionRetries(params.options) : 0,
+      minOverallScore,
+    };
 
-  const sync = buildSyncQualitySummary(reportPath, rating, outcome.attempts);
-  const exitCode = sync.passed ? 0 : 1;
+    const baseInputs = {
+      scriptInput: result.script,
+      audioInput: result.audio,
+      visualsInput: result.visuals,
+    };
 
-  const finalOptions: GenerateOptions = {
-    ...params.options,
-    pipeline: outcome.finalSettings.pipelineMode,
-    reconcile: outcome.finalSettings.reconcile,
-    whisperModel: outcome.finalSettings.whisperModel,
-  };
+    const wordsPerPage = finalOptions.wordsPerPage ?? finalOptions.captionMaxWords;
 
-  return { result: outcome.pipelineResult, finalOptions, sync, exitCode };
+    const initialCaptionSettings: CaptionAttemptSettings = {
+      captionPreset: finalOptions.captionPreset as CaptionPresetName | undefined,
+      captionMode: finalOptions.captionMode ?? undefined,
+      wordsPerPage: wordsPerPage ? parseInt(wordsPerPage, 10) : undefined,
+      captionTargetWords: parseOptionalInt(finalOptions.captionTargetWords) ?? undefined,
+      captionMinWords: parseOptionalInt(finalOptions.captionMinWords) ?? undefined,
+      captionMaxWpm: parseOptionalNumber(finalOptions.captionMaxWpm) ?? undefined,
+      captionGroupMs: finalOptions.captionGroupMs
+        ? parseInt(finalOptions.captionGroupMs, 10)
+        : undefined,
+      captionConfigOverrides: {},
+      maxLinesPerPage: finalOptions.maxLines ? parseInt(finalOptions.maxLines, 10) : undefined,
+      maxCharsPerLine: finalOptions.charsPerLine
+        ? parseInt(finalOptions.charsPerLine, 10)
+        : undefined,
+      captionMaxCps: parseOptionalNumber(finalOptions.captionMaxCps) ?? undefined,
+      captionMinOnScreenMs: parseOptionalInt(finalOptions.captionMinOnScreenMs) ?? undefined,
+      captionMinOnScreenMsShort:
+        parseOptionalInt(finalOptions.captionMinOnScreenMsShort) ?? undefined,
+    };
+
+    const { rateCaptionQuality } = await import('../../score/sync-rater');
+
+    const rerender = async (settings: CaptionAttemptSettings): Promise<PipelineResult> => {
+      const attemptOptions: GenerateOptions = { ...finalOptions };
+      if (settings.captionPreset) attemptOptions.captionPreset = settings.captionPreset;
+      if (settings.captionMode) attemptOptions.captionMode = settings.captionMode;
+      if (settings.wordsPerPage !== undefined)
+        attemptOptions.wordsPerPage = String(settings.wordsPerPage);
+      if (settings.captionTargetWords !== undefined)
+        attemptOptions.captionTargetWords = String(settings.captionTargetWords);
+      if (settings.captionMinWords !== undefined)
+        attemptOptions.captionMinWords = String(settings.captionMinWords);
+      if (settings.captionMaxWpm !== undefined)
+        attemptOptions.captionMaxWpm = String(settings.captionMaxWpm);
+      if (settings.captionGroupMs !== undefined)
+        attemptOptions.captionGroupMs = String(settings.captionGroupMs);
+      if (settings.maxLinesPerPage !== undefined)
+        attemptOptions.maxLines = String(settings.maxLinesPerPage);
+      if (settings.maxCharsPerLine !== undefined)
+        attemptOptions.charsPerLine = String(settings.maxCharsPerLine);
+      if (settings.captionMaxCps !== undefined)
+        attemptOptions.captionMaxCps = String(settings.captionMaxCps);
+      if (settings.captionMinOnScreenMs !== undefined) {
+        attemptOptions.captionMinOnScreenMs = String(settings.captionMinOnScreenMs);
+      }
+      if (settings.captionMinOnScreenMsShort !== undefined) {
+        attemptOptions.captionMinOnScreenMsShort = String(settings.captionMinOnScreenMsShort);
+      }
+
+      const templateDefaults = mergeTemplateDefaultsCaptionConfig(
+        params.templateDefaults,
+        settings.captionConfigOverrides
+      );
+
+      const llmProvider = params.options.mock
+        ? createMockLLMProvider(params.topic)
+        : params.llmProvider;
+
+      return runGeneratePipeline({
+        ...params,
+        options: attemptOptions,
+        templateDefaults,
+        llmProvider,
+        ...baseInputs,
+      });
+    };
+
+    const rate = (videoPath: string): Promise<CaptionQualityRatingOutput> => {
+      return rateCaptionQuality(videoPath, {
+        fps: 2,
+        captionRegion: { yRatio: 0.65, heightRatio: 0.35 },
+        mock: Boolean(params.options.captionQualityMock),
+      });
+    };
+
+    const outcome = await runGenerateWithCaptionQualityGate({
+      initialPipelineResult: result,
+      initialSettings: initialCaptionSettings,
+      config,
+      rerender,
+      rate,
+    });
+
+    result = outcome.pipelineResult;
+
+    const rating = outcome.rating;
+    if (rating) {
+      const reportPath = await writeCaptionQualityReportFiles(
+        params.artifactsDir,
+        rating,
+        outcome.attemptHistory
+      );
+      caption = buildCaptionQualitySummary(reportPath, rating, outcome.attempts, minOverallScore);
+      if (!caption.passed) exitCode = 1;
+    }
+  }
+
+  return { result, finalOptions, sync, caption, exitCode };
 }
 
 async function writeSyncQualityReportFiles(
@@ -1983,6 +2912,85 @@ async function writeSyncQualityReportFiles(
   return reportPath;
 }
 
+async function writeCaptionQualityReportFiles(
+  artifactsDir: string,
+  rating: CaptionQualityRatingOutput,
+  attemptHistory: Array<{ rating?: CaptionQualityRatingOutput; settings?: unknown }>
+): Promise<string> {
+  const reportPath = join(artifactsDir, 'caption-report.json');
+  await writeOutputFile(reportPath, rating);
+
+  for (let i = 0; i < attemptHistory.length; i++) {
+    const attempt = attemptHistory[i];
+    if (!attempt.rating) continue;
+    await writeOutputFile(
+      join(artifactsDir, `caption-report-attempt${i + 1}.json`),
+      attempt.rating
+    );
+    if (attempt.settings) {
+      await writeOutputFile(
+        join(artifactsDir, `caption-settings-attempt${i + 1}.json`),
+        attempt.settings
+      );
+    }
+  }
+
+  const lastAttempt = attemptHistory[attemptHistory.length - 1];
+  if (lastAttempt?.settings) {
+    await writeOutputFile(join(artifactsDir, 'caption-settings.json'), lastAttempt.settings);
+  }
+
+  return reportPath;
+}
+
+async function writeResolvedTemplateArtifact(params: {
+  artifactsDir: string;
+  resolvedTemplate: Awaited<ReturnType<typeof resolveRenderTemplate>>;
+  templateDefaults: Record<string, unknown> | undefined;
+  templateParams: ReturnType<typeof getTemplateParams>;
+  templateGameplay: ReturnType<typeof getTemplateGameplaySlot>;
+  templateFonts: FontSource[];
+  templateOverlays: OverlayAsset[];
+  options: GenerateOptions;
+}): Promise<string> {
+  const outPath = join(params.artifactsDir, 'template.resolved.json');
+  await writeOutputFile(outPath, {
+    schemaVersion: '1.0.0',
+    templateSpec: params.options.template ?? null,
+    resolved: {
+      id: params.resolvedTemplate.template.id,
+      name: params.resolvedTemplate.template.name,
+      description: params.resolvedTemplate.template.description ?? null,
+      compositionId: params.resolvedTemplate.template.compositionId,
+      source: formatTemplateSource(params.resolvedTemplate),
+      templatePath: params.resolvedTemplate.templatePath ?? null,
+      templateDir: params.resolvedTemplate.templateDir ?? null,
+      templateSchemaVersion: params.resolvedTemplate.template.schemaVersion,
+      defaults: params.resolvedTemplate.template.defaults ?? null,
+      params: params.resolvedTemplate.template.params ?? null,
+      assets: params.resolvedTemplate.template.assets ?? null,
+      remotion: params.resolvedTemplate.template.remotion ?? null,
+    },
+    derived: {
+      templateDefaults: params.templateDefaults ?? null,
+      templateParams: params.templateParams,
+      templateGameplay: params.templateGameplay,
+      templateFonts: params.templateFonts,
+      templateOverlays: params.templateOverlays,
+    },
+    effective: {
+      archetype: params.options.archetype ?? null,
+      orientation: params.options.orientation ?? null,
+      fps: params.options.fps ?? null,
+      captionPreset: params.options.captionPreset ?? null,
+      captionFontFamily: params.options.captionFontFamily ?? null,
+      captionFontWeight: params.options.captionFontWeight ?? null,
+      captionFontFile: params.options.captionFontFile ?? null,
+    },
+  });
+  return outPath;
+}
+
 async function finalizeGenerateOutput(params: {
   topic: string;
   archetype: string;
@@ -1994,6 +3002,8 @@ async function finalizeGenerateOutput(params: {
   artifactsDir: string;
   result: PipelineResult;
   sync: SyncQualitySummary | null;
+  caption: CaptionQualitySummary | null;
+  frameAnalysis: AnalyzeVideoFramesResult | null;
   exitCode: number;
 }): Promise<void> {
   if (params.runtime.json) {
@@ -2008,6 +3018,8 @@ async function finalizeGenerateOutput(params: {
       artifactsDir: params.artifactsDir,
       result: params.result,
       sync: params.sync,
+      caption: params.caption,
+      frameAnalysis: params.frameAnalysis,
       exitCode: params.exitCode,
     });
     return;
@@ -2018,6 +3030,8 @@ async function finalizeGenerateOutput(params: {
     params.options,
     params.artifactsDir,
     params.sync,
+    params.caption,
+    params.frameAnalysis,
     params.topic
   );
   if (params.exitCode !== 0) process.exit(params.exitCode);
@@ -2031,8 +3045,10 @@ async function runGenerate(
   const runtime = getCliRuntime();
   const artifactsDir = dirname(options.output);
 
-  applyCaptionDefaultsFromConfig(options, command);
+  applyDefaultsFromConfig(options, command);
+  applyQualityDefaults(options, command);
   applySyncPresetDefaults(options, command);
+  applyCaptionQualityPerfectDefaults(options, command);
   let resolvedWorkflow: Awaited<ReturnType<typeof resolveWorkflow>> | undefined;
   let workflowError: ReturnType<typeof getCliErrorInfo> | null = null;
 
@@ -2050,23 +3066,21 @@ async function runGenerate(
   const workflowDefinition = resolvedWorkflow?.workflow;
   const workflowBaseDir = resolvedWorkflow?.baseDir;
   const workflowStageModes = resolveWorkflowStageModes(workflowDefinition);
+  let generationPolicy: GenerationPolicy | undefined;
 
-  if (workflowDefinition?.defaults && 'template' in workflowDefinition.defaults) {
-    const record = options as unknown as Record<string, unknown>;
-    applyDefaultOption(record, command, 'template', workflowDefinition.defaults.template);
-  }
-
-  const { resolvedTemplate, templateDefaults, templateParams, templateGameplay } =
-    await resolveTemplateAndApplyDefaults(options, command);
-
-  applyWorkflowDefaults(
-    options,
-    command,
-    workflowDefinition,
-    new Set(['template', 'workflowAllowExec'])
-  );
+  // Apply workflow defaults before template defaults so templates can override workflows.
+  applyWorkflowDefaults(options, command, workflowDefinition, new Set(['workflowAllowExec']));
   applyWorkflowInputs(options, command, workflowDefinition, workflowBaseDir);
   applyWorkflowStageDefaults(options, workflowStageModes, artifactsDir);
+  if (options.policy) {
+    generationPolicy = await loadGenerationPolicy(
+      resolve(workflowBaseDir ?? process.cwd(), options.policy)
+    );
+  }
+  applyPolicyDefaults(options, command, generationPolicy);
+
+  const { resolvedTemplate, templateDefaults, templateParams, templateGameplay, templateOverlays } =
+    await resolveTemplateAndApplyDefaults(options, command);
   const templateSpec = toNullableString(options.template);
   const resolvedTemplateId = resolveTemplateId(resolvedTemplate);
 
@@ -2080,8 +3094,14 @@ async function runGenerate(
 
   printHeader(topic, options, runtime);
 
-  const archetype = ArchetypeEnum.parse(options.archetype);
+  const resolvedArchetype = await resolveArchetype(options.archetype);
+  const archetype = resolvedArchetype.archetype.id;
   const orientation = OrientationEnum.parse(options.orientation);
+  if (!runtime.json) {
+    writeStderrLine(
+      chalk.gray(`Archetype resolved: ${archetype} (${formatArchetypeSource(resolvedArchetype)})`)
+    );
+  }
 
   if (options.preflight) {
     const preflight = await runGeneratePreflight({
@@ -2131,6 +3151,71 @@ async function runGenerate(
     );
   }
 
+  const remotionProject = resolvedTemplate
+    ? resolveRemotionTemplateProject(resolvedTemplate)
+    : null;
+  let allowTemplateCode: boolean | undefined;
+  let installTemplateDeps: boolean | undefined;
+  let templatePackageManager: 'npm' | 'pnpm' | 'yarn' | undefined;
+
+  if (remotionProject) {
+    const config = loadConfig();
+
+    const allowTemplateCodeSource = command.getOptionValueSource('allowTemplateCode');
+    allowTemplateCode =
+      allowTemplateCodeSource === 'default' || allowTemplateCodeSource === undefined
+        ? Boolean(config.render.allowTemplateCode)
+        : Boolean(options.allowTemplateCode);
+
+    if (!allowTemplateCode) {
+      throw new CMError('INVALID_ARGUMENT', 'Code templates require --allow-template-code', {
+        templateId: resolvedTemplate?.template.id,
+        templateDir: remotionProject.templateDir,
+        fix: 'Re-run with --allow-template-code to allow executing template-provided Remotion code',
+      });
+    }
+
+    const templateDepsSource = command.getOptionValueSource('templateDeps');
+    const templateDepsRaw =
+      templateDepsSource === 'default' || templateDepsSource === undefined
+        ? (remotionProject.installDeps ?? config.render.templateDeps)
+        : options.templateDeps;
+    const templateDepsMode = parseTemplateDepsMode(templateDepsRaw ?? 'prompt');
+
+    const templatePmSource = command.getOptionValueSource('templatePm');
+    const templatePmRaw =
+      templatePmSource === 'default' || templatePmSource === undefined
+        ? (remotionProject.packageManager ?? config.render.templatePackageManager)
+        : options.templatePm;
+    const templatePmValue = templatePmRaw ? String(templatePmRaw) : undefined;
+    templatePackageManager =
+      templatePmValue === 'npm' || templatePmValue === 'pnpm' || templatePmValue === 'yarn'
+        ? templatePmValue
+        : undefined;
+
+    const templateHasPackageJson = existsSync(join(remotionProject.rootDir, 'package.json'));
+    const templateHasNodeModules = existsSync(join(remotionProject.rootDir, 'node_modules'));
+    const templateDepsMissing = templateHasPackageJson && !templateHasNodeModules;
+    installTemplateDeps = templateDepsMissing
+      ? await resolveTemplateDepsInstallDecision({
+          runtime,
+          rootDir: remotionProject.rootDir,
+          mode: templateDepsMode ?? 'prompt',
+        })
+      : false;
+
+    if (templateDepsMissing && runtime.offline && templateDepsMode === 'auto') {
+      throw new CMError(
+        'OFFLINE',
+        'Offline mode enabled; cannot auto-install template dependencies',
+        {
+          rootDir: remotionProject.rootDir,
+          fix: 'Re-run without --offline, or pass --template-deps never and install dependencies manually if needed',
+        }
+      );
+    }
+  }
+
   if (workflowDefinition && workflowHasExec(workflowDefinition) && !options.workflowAllowExec) {
     throw new CMError('INVALID_ARGUMENT', 'Workflow exec hooks require --workflow-allow-exec', {
       fix: 'Re-run with --workflow-allow-exec to allow workflow commands',
@@ -2171,6 +3256,7 @@ async function runGenerate(
       archetype,
       orientation,
       template: resolvedTemplate?.template.id,
+      policy: options.policy,
       templateSource: getTemplateSourceForLog(resolvedTemplate),
       workflow: resolvedWorkflow?.workflow.id,
       workflowSource: resolvedWorkflow ? formatWorkflowSource(resolvedWorkflow) : undefined,
@@ -2227,24 +3313,69 @@ async function runGenerate(
   if (gameplayPosition) options.gameplayPosition = gameplayPosition;
   if (contentPosition) options.contentPosition = contentPosition;
 
-  const { result, finalOptions, sync, exitCode } = await runPipelineWithOptionalSyncQualityGate({
-    topic,
-    archetype,
-    orientation,
-    options,
-    resolvedTemplate,
-    templateDefaults,
-    templateParams,
-    gameplay,
-    hook,
-    research,
-    llmProvider,
-    runtime,
-    artifactsDir,
-    scriptInput,
-    audioInput,
-    visualsInput,
-  });
+  const { result, finalOptions, sync, caption, exitCode } =
+    await runPipelineWithOptionalSyncQualityGate({
+      topic,
+      archetype,
+      orientation,
+      options,
+      resolvedTemplate,
+      remotionProject,
+      allowTemplateCode,
+      installTemplateDeps,
+      templateDepsAllowOutput: runtime.verbose,
+      templatePackageManager,
+      templateDefaults,
+      templateParams,
+      templateOverlays,
+      gameplay,
+      hook,
+      research,
+      llmProvider,
+      runtime,
+      artifactsDir,
+      scriptInput,
+      audioInput,
+      visualsInput,
+    });
+
+  let frameAnalysis: AnalyzeVideoFramesResult | null = null;
+  try {
+    frameAnalysis = await runAutoFrameAnalysis(finalOptions, result.outputPath);
+  } catch (error) {
+    logger.warn(
+      { error: getCliErrorInfo(error), videoPath: result.outputPath },
+      'Automatic frame analysis failed'
+    );
+    if (!runtime.json) {
+      writeStderrLine(
+        chalk.yellow(
+          `Frame analysis skipped: ${getCliErrorInfo(error).message ?? 'unexpected error'}`
+        )
+      );
+    }
+  }
+
+  if (options.keepArtifacts && resolvedTemplate) {
+    const templateFonts = getTemplateFontSources(
+      resolvedTemplate.template,
+      resolvedTemplate.templateDir
+    );
+    const templateOverlays = getTemplateOverlays(
+      resolvedTemplate.template,
+      resolvedTemplate.templateDir
+    );
+    await writeResolvedTemplateArtifact({
+      artifactsDir,
+      resolvedTemplate,
+      templateDefaults,
+      templateParams,
+      templateGameplay,
+      templateFonts,
+      templateOverlays,
+      options,
+    });
+  }
 
   if (workflowDefinition && workflowHasExec(workflowDefinition) && options.workflowAllowExec) {
     const postCommands = collectWorkflowPostCommands(workflowDefinition);
@@ -2268,6 +3399,8 @@ async function runGenerate(
     artifactsDir,
     result,
     sync,
+    caption,
+    frameAnalysis,
     exitCode,
   });
 }
@@ -2327,6 +3460,9 @@ function showDryRunSummary(
   }
   if (options.captionMode) {
     writeStderrLine(`   Caption Mode: ${options.captionMode}`);
+  }
+  if (options.captionNotation) {
+    writeStderrLine(`   Caption Notation: ${options.captionNotation}`);
   }
   const wordsPerPage = options.wordsPerPage ?? options.captionMaxWords;
   if (wordsPerPage) {
@@ -2407,27 +3543,37 @@ function showDryRunSummary(
   if (options.hookTrim) {
     writeStderrLine(`   Hook Trim: ${options.hookTrim}s`);
   }
+  writeStderrLine(`   Frame Analysis: ${options.frameAnalysis === false ? 'disabled' : 'enabled'}`);
+  if (options.frameAnalysis !== false) {
+    writeStderrLine(`   Frame Analysis Mode: ${options.frameAnalysisMode ?? 'both'}`);
+    writeStderrLine(`   Frame Analysis FPS: ${options.frameAnalysisFps ?? '1'}`);
+    writeStderrLine(`   Frame Analysis Shots: ${options.frameAnalysisShots ?? '30'}`);
+    writeStderrLine(`   Frame Analysis Segments: ${options.frameAnalysisSegments ?? '5'}`);
+    writeStderrLine(`   Frame Analysis Output: ${options.frameAnalysisOutput ?? 'output/analysis'}`);
+  }
   writeStderrLine('   Pipeline stages:');
   if (options.research) {
     writeStderrLine('   0. Research -> research.json');
   }
   writeStderrLine(
-    options.script ? `   1. Script -> ${options.script} (external)` : '   1. Script -> script.json'
+    options.script
+      ? `   1. Script -> ${options.script} (external)`
+      : `   1. Script -> ${DEFAULT_ARTIFACT_FILENAMES.script}`
   );
   if (options.audio) {
-    const tsLabel = options.timestamps ? options.timestamps : 'timestamps.json';
+    const tsLabel = options.timestamps ? options.timestamps : DEFAULT_ARTIFACT_FILENAMES.timestamps;
     writeStderrLine(
-      `   2. Audio -> ${options.audio} + ${tsLabel}${hasMix ? ' + audio.mix.json' : ''} (external)`
+      `   2. Audio -> ${options.audio} + ${tsLabel}${hasMix ? ` + ${DEFAULT_ARTIFACT_FILENAMES['audio-mix']}` : ''} (external)`
     );
   } else {
     writeStderrLine(
-      `   2. Audio -> audio.wav + timestamps.json${hasMix ? ' + audio.mix.json' : ''}${options.pipeline === 'audio-first' ? ' (Whisper ASR required)' : ''}`
+      `   2. Audio -> ${DEFAULT_ARTIFACT_FILENAMES.audio} + ${DEFAULT_ARTIFACT_FILENAMES.timestamps}${hasMix ? ` + ${DEFAULT_ARTIFACT_FILENAMES['audio-mix']}` : ''}${options.pipeline === 'audio-first' ? ' (Whisper ASR required)' : ''}`
     );
   }
   writeStderrLine(
     options.visuals
       ? `   3. Visuals -> ${options.visuals} (external)`
-      : '   3. Visuals -> visuals.json'
+      : `   3. Visuals -> ${DEFAULT_ARTIFACT_FILENAMES.visuals}`
   );
   writeStderrLine(`   4. Render -> ${options.output}`);
 }
@@ -2437,9 +3583,15 @@ async function showSuccessSummary(
   options: GenerateOptions,
   artifactsDir: string,
   sync: SyncQualitySummary | null,
+  caption: CaptionQualitySummary | null,
+  frameAnalysis: AnalyzeVideoFramesResult | null,
   topic: string
 ): Promise<void> {
-  const title = sync && !sync.passed ? 'Video generated (sync failed)' : 'Video generated';
+  const titleParts: string[] = [];
+  if (sync && !sync.passed) titleParts.push('sync failed');
+  if (caption && !caption.passed) titleParts.push('caption quality failed');
+  const title =
+    titleParts.length > 0 ? `Video generated (${titleParts.join(', ')})` : 'Video generated';
   const rows: Array<[string, string]> = [
     ['Title', result.script.title ?? topic],
     ['Duration', `${result.duration.toFixed(1)}s`],
@@ -2452,6 +3604,9 @@ async function showSuccessSummary(
   }
   if (options.hook) {
     rows.push(['Hook', options.hook]);
+  }
+  if (frameAnalysis?.manifestPath) {
+    rows.push(['Frame analysis', frameAnalysis.manifestPath]);
   }
   const lines = formatKeyValueRows(rows);
 
@@ -2476,16 +3631,28 @@ async function showSuccessSummary(
     );
   }
 
+  if (caption) {
+    const status = caption.passed ? 'PASSED' : 'FAILED';
+    lines.push(
+      '',
+      `Caption quality: overall=${caption.overallScore.toFixed(2)} - ${status} (attempts: ${caption.attempts})`,
+      `Caption report: ${caption.reportPath}`
+    );
+  }
+
   if (options.keepArtifacts) {
     const artifactRows: Array<[string, string]> = [
-      ['Script', join(artifactsDir, 'script.json')],
-      ['Audio', join(artifactsDir, 'audio.wav')],
-      ['Timestamps', join(artifactsDir, 'timestamps.json')],
+      ['Script', join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.script)],
+      ['Audio', join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.audio)],
+      ['Timestamps', join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.timestamps)],
     ];
     if (result.audio.audioMixPath) {
       artifactRows.push(['Audio mix', result.audio.audioMixPath]);
     }
-    artifactRows.push(['Visuals', join(artifactsDir, 'visuals.json')]);
+    artifactRows.push(['Visuals', join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.visuals)]);
+    if (options.template) {
+      artifactRows.push(['Template', join(artifactsDir, 'template.resolved.json')]);
+    }
     lines.push('', 'Artifacts', ...formatKeyValueRows(artifactRows));
   }
 
@@ -2510,6 +3677,17 @@ async function loadOrRunResearch(
 ): Promise<ResearchOutput | undefined> {
   if (!researchOption) return undefined;
 
+  const normalizedOption =
+    typeof researchOption === 'string' ? researchOption.trim().toLowerCase() : researchOption;
+
+  // Commander parses `--research true` as a string value ("true") because the option is `[path]`.
+  // Accept common boolean string literals for convenience.
+  if (normalizedOption === 'true') {
+    researchOption = true;
+  } else if (normalizedOption === 'false') {
+    return undefined;
+  }
+
   // If it's a file path, load from file
   if (typeof researchOption === 'string') {
     const raw = await readInputFile(researchOption);
@@ -2527,15 +3705,24 @@ async function loadOrRunResearch(
   // If it's true (boolean flag), run research automatically
   const spinner = createSpinner('Stage 0/4: Researching topic...').start();
 
-  const llmProvider = mock
-    ? undefined
-    : process.env.OPENAI_API_KEY
-      ? new OpenAIProvider('gpt-4o-mini', process.env.OPENAI_API_KEY)
-      : undefined;
+  const sources: ResearchSource[] = ['hackernews', 'reddit'];
+  if (process.env.BRAVE_SEARCH_API_KEY) sources.push('web');
+  if (process.env.TAVILY_API_KEY) sources.push('tavily');
+
+  let llmProvider = undefined;
+  if (!mock) {
+    const cfg = loadConfig();
+    const providerId = cfg.llm.provider;
+    const providerFacts = LLM_PROVIDERS.find((p) => p.id === providerId);
+    const key = (providerFacts?.envVarNames ?? []).map((k) => getOptionalApiKey(k)).find(Boolean);
+    if (key) {
+      llmProvider = createLLMProvider(providerId, cfg.llm.model, key);
+    }
+  }
 
   const orchestrator = createResearchOrchestrator(
     {
-      sources: ['hackernews', 'reddit', 'tavily'],
+      sources,
       limitPerSource: 5,
       generateAngles: true,
       maxAngles: 3,
@@ -2556,16 +3743,88 @@ async function loadOrRunResearch(
 export const generateCommand = new Command('generate')
   .description('Generate a complete video from a topic')
   .argument('<topic>', 'Topic for the video')
-  .option('-a, --archetype <type>', 'Content archetype', 'listicle')
-  .option('--template <idOrPath>', 'Video template id or path to template.json')
-  .option('--workflow <idOrPath>', 'Workflow id or path to workflow.json')
+  .option(
+    '-a, --archetype <idOrPath>',
+    'Script archetype (script format). Use `cm archetypes list`',
+    'listicle'
+  )
+  .option(
+    '--template <idOrPath>',
+    'Render template (Remotion composition + render defaults). Use `cm templates list`'
+  )
+  .option('--policy <path>', 'Generation policy JSON file (cross-stage orchestration policy)')
+  .option('--allow-template-code', 'Allow executing Remotion code templates (dangerous)', false)
+  .option(
+    '--template-deps <mode>',
+    'Template dependency install mode for code templates (auto, prompt, never)'
+  )
+  .option('--template-pm <pm>', 'Template package manager (npm, pnpm, yarn)')
+  .option(
+    '--workflow <idOrPath>',
+    'Pipeline workflow (orchestration + defaults). Use `cm workflows list`'
+  )
   .option('--workflow-allow-exec', 'Allow workflow exec hooks to run')
-  .option('--script <path>', 'Use existing script.json (skip script stage)')
+  .option(
+    '--script <path>',
+    `Use existing ${DEFAULT_ARTIFACT_FILENAMES.script} (skip script stage)`
+  )
   .option('--audio <path>', 'Use existing audio file (requires --timestamps)')
   .option('--audio-mix <path>', 'Use existing audio mix plan (optional)')
-  .option('--timestamps <path>', 'Use existing timestamps.json (use with --audio)')
-  .option('--visuals <path>', 'Use existing visuals.json (skip visuals stage)')
-  .option('-o, --output <path>', 'Output video file path', 'video.mp4')
+  .option(
+    '--timestamps <path>',
+    `Use existing ${DEFAULT_ARTIFACT_FILENAMES.timestamps} (use with --audio)`
+  )
+  .option(
+    '--visuals <path>',
+    `Use existing ${DEFAULT_ARTIFACT_FILENAMES.visuals} (skip visuals stage)`
+  )
+  .option(
+    '--visuals-provider <providerOrChain>',
+    'Visuals provider or provider chain (e.g., pexels or pexels,local,nanobanana)'
+  )
+  .option(
+    '--visuals-fallback-providers <providers>',
+    'Comma-separated fallback providers appended to --visuals-provider when provider is a single value'
+  )
+  .option(
+    '--visuals-routing-policy <policy>',
+    'Visuals provider routing policy (configured|balanced|cost-first|quality-first)'
+  )
+  .option(
+    '--visuals-max-generation-cost-usd <amount>',
+    'Hard cap for AI image generation spend during visuals stage (USD)'
+  )
+  .option('--visuals-gate-enforce', 'Fail generate if configured visuals policy gates fail', false)
+  .option(
+    '--visuals-gate-max-fallback-rate <0..1>',
+    'Post-stage gate: maximum allowed fallback asset rate'
+  )
+  .option(
+    '--visuals-gate-min-provider-success-rate <0..1>',
+    'Post-stage gate: minimum allowed provider success rate'
+  )
+  .option(
+    '--visuals-routing-adaptive-window <n>',
+    'Adaptive routing: number of recent telemetry records to inspect'
+  )
+  .option(
+    '--visuals-routing-adaptive-min-records <n>',
+    'Adaptive routing: minimum telemetry records before recommendation is trusted'
+  )
+  .option(
+    '--media',
+    'Enable media synthesis stage (image-to-video for depthflow/veo + video keyframes)'
+  )
+  .option('--no-media-keyframes', 'Disable media-stage video keyframe extraction')
+  .option(
+    '--no-media-synthesize-motion',
+    'Disable media-stage image-to-video synthesis for depthflow/veo scenes'
+  )
+  .option('--media-dir <path>', 'Directory for generated media-stage artifacts')
+  .option('--media-ffmpeg <path>', 'ffmpeg executable path for media stage')
+  .option('--media-depthflow-adapter <id>', 'Adapter id for depthflow image-to-video synthesis')
+  .option('--media-veo-adapter <id>', 'Adapter id for veo image-to-video synthesis')
+  .option('-o, --output <path>', 'Output video file path', DEFAULT_ARTIFACT_FILENAMES.video)
   .option('--orientation <type>', 'Video orientation', 'portrait')
   .option('--fps <fps>', 'Frames per second', '30')
   .option(
@@ -2583,7 +3842,7 @@ export const generateCommand = new Command('generate')
   .option('--music-fade-in <ms>', 'Music fade-in in ms')
   .option('--music-fade-out <ms>', 'Music fade-out in ms')
   .option('--sfx <path>', 'SFX file path (repeatable)', collectList, [])
-  .option('--sfx-pack <name>', 'SFX pack name')
+  .option('--sfx-pack <id>', 'SFX pack id')
   .option('--sfx-at <placement>', 'Auto placement for SFX (hook, scene, list-item, cta)')
   .option('--sfx-volume <db>', 'SFX volume in dB')
   .option('--sfx-min-gap <ms>', 'Minimum gap between SFX in ms')
@@ -2621,6 +3880,10 @@ export const generateCommand = new Command('generate')
     'Caption display mode: page (default), single (one word at a time), buildup (accumulate per sentence), chunk (CapCut-style)'
   )
   .option(
+    '--caption-notation <mode>',
+    'Caption notation mode: none (default) or unicode (render math/symbol notation)'
+  )
+  .option(
     '--words-per-page <count>',
     'Words per caption page/group (default: 8 for larger sentences)'
   )
@@ -2632,6 +3895,7 @@ export const generateCommand = new Command('generate')
   .option('--caption-min-on-screen-ms <ms>', 'Minimum on-screen time for captions (ms)')
   .option('--caption-min-on-screen-short-ms <ms>', 'Minimum on-screen time for short captions (ms)')
   .option('--caption-drop-fillers', 'Drop filler words from captions')
+  .option('--caption-drop-list-markers', 'Drop list markers like "1:" from captions')
   .option('--caption-filler-words <list>', 'Comma-separated filler words/phrases to drop')
   .option('--caption-font-family <name>', 'Caption font family (e.g., Inter)')
   .option('--caption-font-weight <weight>', 'Caption font weight (normal, bold, black, 100-900)')
@@ -2648,13 +3912,24 @@ export const generateCommand = new Command('generate')
     '--caption-animation <animation>',
     'Caption animation: none (default), fade, slideUp, slideDown, pop, bounce'
   )
+  .option(
+    '--caption-word-animation <animation>',
+    'Active word animation: none (default), pop, bounce, rise, shake'
+  )
+  .option('--caption-word-animation-ms <ms>', 'Active word animation duration in ms')
+  .option('--caption-word-animation-intensity <value>', 'Active word animation intensity (0..1)')
+  .option(
+    '--caption-offset-ms <ms>',
+    'Global caption timing offset in ms (negative = earlier captions)'
+  )
   .option('--gameplay <path>', 'Gameplay library directory or clip file path')
   .option('--gameplay-style <name>', 'Gameplay subfolder name (e.g., subway-surfers)')
   .option('--gameplay-strict', 'Fail if gameplay clip is missing')
   .option('--split-layout <layout>', 'Split-screen layout preset (gameplay-top, gameplay-bottom)')
   .option('--gameplay-position <pos>', 'Gameplay position (top, bottom, full)')
   .option('--content-position <pos>', 'Content position (top, bottom, full)')
-  .option('--hook <idOrPath>', 'Hook intro clip id, path, or URL')
+  .option('--hook <idOrPath>', 'Hook intro clip id, path, or URL (use "none" to disable)')
+  .option('--no-hook', 'Disable hook intro clip')
   .option('--hook-library <name>', 'Hook library id (defaults to config)')
   .option('--hooks-dir <path>', 'Root directory for hook libraries')
   .option('--hook-duration <seconds>', 'Hook duration when ffprobe is unavailable')
@@ -2664,15 +3939,48 @@ export const generateCommand = new Command('generate')
   .option('--download-hook', 'Download missing hook clips')
   .option('--download-assets', 'Download remote visual assets into the render bundle', true)
   .option('--no-download-assets', 'Do not download remote assets (stream URLs directly)')
+  .option('--frame-analysis', 'Run automatic frame analysis after render', true)
+  .option('--no-frame-analysis', 'Skip automatic frame analysis after render')
+  .option('--frame-analysis-mode <mode>', 'Frame analysis mode (fps, shots, both)', 'both')
+  .option(
+    '--frame-analysis-fps <value>',
+    'Frame analysis FPS sampling rate (> 0 and <= 1)',
+    '1'
+  )
+  .option('--frame-analysis-shots <count>', 'Frame analysis evenly spaced shot count', '30')
+  .option('--frame-analysis-segments <count>', 'Frame analysis timeline segment count', '5')
+  .option(
+    '--frame-analysis-output <dir>',
+    'Frame analysis output root directory',
+    'output/analysis'
+  )
+  .option(
+    '--quality',
+    'Enable higher-quality defaults (slower): audio-first sync + reconcile + post-render sync/caption quality gates'
+  )
   // Sync quality options
   .option(
     '--sync-preset <preset>',
-    'Sync quality preset: fast, standard, quality, maximum',
-    'standard'
+    `Sync quality preset: ${SYNC_PRESET_HELP}`,
+    DEFAULT_SYNC_PRESET_ID
   )
   .option('--sync-quality-check', 'Run sync quality rating after render')
   .option('--min-sync-rating <rating>', 'Minimum acceptable sync rating (0-100)', '75')
   .option('--auto-retry-sync', 'Auto-retry with better strategy if rating fails')
+  // Caption quality options (OCR-only)
+  .option('--caption-quality-check', 'Run burned-in caption quality rating after render (OCR-only)')
+  .option(
+    '--caption-perfect',
+    'Keep retrying caption tuning until captions are excellent (enables caption quality gate)'
+  )
+  .option('--caption-quality-mock', 'Use mock caption quality scoring (no OCR)')
+  .option(
+    '--min-caption-overall <score>',
+    'Minimum acceptable caption overall score (0..1 or 0..100)',
+    '0.75'
+  )
+  .option('--auto-retry-captions', 'Auto-retry render with caption tuning if caption quality fails')
+  .option('--max-caption-retries <count>', 'Maximum number of caption tuning retries (0-100)', '2')
   .option('--mock', 'Use mock providers (for testing)')
   .option('--dry-run', 'Preview configuration without execution')
   .option('--preflight', 'Validate dependencies and exit without execution')

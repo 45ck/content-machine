@@ -9,13 +9,13 @@
 
 ### `cm audio` Command
 
-| Flag                 | Values                                              | Default    | Description                               |
-| -------------------- | --------------------------------------------------- | ---------- | ----------------------------------------- |
-| `--sync-strategy`    | `standard`, `audio-first`, `forced-align`, `hybrid` | `standard` | Timestamp extraction strategy             |
-| `--require-whisper`  | boolean                                             | `false`    | Require whisper.cpp (fail if unavailable) |
-| `--reconcile`        | boolean                                             | `false`    | Match ASR text to original script         |
-| `--drift-correction` | `none`, `detect`, `auto`                            | `none`     | Drift handling mode                       |
-| `--no-validate`      | boolean                                             | `false`    | Skip timestamp validation                 |
+| Flag                 | Values                                              | Default       | Description                               |
+| -------------------- | --------------------------------------------------- | ------------- | ----------------------------------------- |
+| `--sync-strategy`    | `standard`, `audio-first`, `forced-align`, `hybrid` | `audio-first` | Timestamp extraction strategy             |
+| `--require-whisper`  | boolean                                             | `false`       | Require whisper.cpp (fail if unavailable) |
+| `--reconcile`        | boolean                                             | `false`       | Match ASR text to original script         |
+| `--drift-correction` | `none`, `detect`, `auto`                            | `none`        | Drift handling mode                       |
+| `--no-validate`      | boolean                                             | `false`       | Skip timestamp validation                 |
 
 ### `cm render` Command
 
@@ -67,7 +67,7 @@ auto_repair = true
 
 ```toml
 [audio_mix]
-# Mix preset: clean, punchy, cinematic, viral
+# Audio mix preset id (built-in examples: clean, punchy, cinematic, viral)
 preset = "clean"
 lufs_target = -16
 
@@ -109,34 +109,30 @@ fade_out_ms = 400
 
 ## Preset Mappings
 
-| Preset     | Strategy     | Drift  | Reconcile | Use Case                |
-| ---------- | ------------ | ------ | --------- | ----------------------- |
-| `fast`     | standard     | none   | false     | Development, testing    |
-| `standard` | standard     | detect | false     | Production default      |
-| `quality`  | audio-first  | detect | true      | Quality-conscious users |
-| `maximum`  | forced-align | auto   | true      | Maximum sync accuracy   |
+| Preset     | Strategy    | Drift  | Reconcile | Use Case                |
+| ---------- | ----------- | ------ | --------- | ----------------------- |
+| `fast`     | standard    | none   | false     | Development, testing    |
+| `standard` | audio-first | detect | true      | Production default      |
+| `quality`  | audio-first | detect | true      | Quality-conscious users |
+| `maximum`  | audio-first | auto   | true      | Maximum sync accuracy   |
 
 ---
 
-## Environment Variables (Override Config)
+## Environment Variables
 
-```bash
-# Override sync strategy
-CM_SYNC_STRATEGY=audio-first
+Sync behavior is configured via:
 
-# Force whisper requirement
-CM_REQUIRE_WHISPER=true
+- config file (`[sync]` in `.content-machine.toml`)
+- CLI flags (`--sync-strategy`, `--reconcile`, `--drift-correction`, etc.)
 
-# Override drift correction
-CM_DRIFT_CORRECTION=auto
-```
+There are currently no dedicated `CM_SYNC_*` environment overrides.
 
 ---
 
 ## Quick Usage Examples
 
 ```bash
-# Default behavior (standard strategy)
+# Default behavior (audio-first strategy)
 cm audio -i script.json -o audio.wav
 
 # Require whisper (no estimation fallback)
@@ -216,7 +212,7 @@ pip install whisperx
 
 ## Related Documentation
 
-- [SYNC-INTEGRATION-GUIDE](SYNC-INTEGRATION-GUIDE-20260107.md) - Full implementation guide
+- [SYNC-INTEGRATION-GUIDE](../dev/guides/SYNC-INTEGRATION-GUIDE-20260107.md) - Full implementation guide
 - [RQ-30: Sync Pipeline Architecture](../research/investigations/RQ-30-SYNC-PIPELINE-ARCHITECTURE-20260107.md)
 - [RQ-32: Forced Alignment vs ASR](../research/investigations/RQ-32-FORCED-ALIGNMENT-VS-ASR-ANALYSIS-20260107.md)
 - [RQ-33: Remotion Caption Patterns](../research/investigations/RQ-33-REMOTION-CAPTION-SYNC-PATTERNS-20260107.md)

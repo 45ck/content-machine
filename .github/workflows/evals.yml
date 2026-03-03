@@ -1,0 +1,64 @@
+name: LLM Evals (Promptfoo)
+
+on:
+  workflow_dispatch:
+  pull_request_target:
+    types: [opened, synchronize, reopened, labeled]
+    branches: [master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  llm-evals:
+    name: Promptfoo (Online)
+    runs-on: ubuntu-latest
+    if: >-
+      ${{
+        github.event_name == 'workflow_dispatch' ||
+        (
+          github.event_name == 'pull_request_target' &&
+          github.event.pull_request.head.repo.full_name == github.repository &&
+          contains(github.event.pull_request.labels.*.name, 'run-evals')
+        )
+      }}
+    env:
+      HUSKY: 0
+      # Reduce noise; keep costs reasonable.
+      PROMPTFOO_DISABLE_TELEMETRY: 1
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+    steps:
+      - name: Checkout (PR head SHA)
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run script evals
+        run: npx promptfoo eval -c evals/configs/cm-script.yaml --no-cache -o evals/results/cm-script-latest.json
+
+      - name: Run visuals evals
+        run: npx promptfoo eval -c evals/configs/cm-visuals.yaml --no-cache -o evals/results/cm-visuals-latest.json
+
+      - name: Upload eval results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: promptfoo-evals
+          path: |
+            evals/results/cm-script-latest.json
+            evals/results/cm-visuals-latest.json

@@ -1,0 +1,30 @@
+id: hot-take
+name: Hot Take
+description: Provocative opinion with quick justification and nuance.
+version: 1
+script:
+  template: |
+    Create a short-form video script about: "{{topic}}"
+
+    FORMAT: Hot take (provocative opinion + reasoning)
+    Typical length: 20-45s
+
+    REQUIREMENTS:
+    - Lead with a bold statement hook (no question marks).
+    - Back it up with 2-3 reasons or a quick example.
+    - Add one sentence of nuance so it does not feel like clickbait.
+    - End with a replacement rule or takeaway.
+    - Use conversational, TikTok-style language.
+
+    STRUCTURE:
+    1) Hook field: one sentence hook (separate from scenes)
+    2) Scene 1: stakes + thesis (no hook repetition)
+    3) Scene 2-4: reasons/proof
+    4) Scene 5: nuance + replacement rule + CTA
+
+    TIMELINE (30s template):
+    - 0-2s: claim
+    - 2-6s: why people believe the opposite
+    - 6-22s: proof/demo
+    - 22-27s: nuance
+    - 27-30s: replacement rule + CTA

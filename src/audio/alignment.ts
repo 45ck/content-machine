@@ -3,8 +3,7 @@
  *
  * Builds spoken units and scene timestamps from script text.
  */
-import type { ScriptOutput } from '../script/schema';
-import type { WordTimestamp, SceneTimestamp } from './schema';
+import type { ScriptOutput, WordTimestamp, SceneTimestamp } from '../domain';
 import { restorePunctuation } from './asr/post-processor';
 
 export interface SpokenUnit {

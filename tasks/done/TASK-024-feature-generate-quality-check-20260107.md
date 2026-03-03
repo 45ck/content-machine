@@ -382,5 +382,5 @@ async function runPipelineWithQualityCheck(
 
 - **Depends On:** TASK-020, TASK-022, TASK-023
 - **Blocks:** None (final integration task)
-- **Implementation Plan:** [IMPL-SYNC-STRATEGIES-20260107](../../docs/architecture/IMPL-SYNC-STRATEGIES-20260107.md)
+- **Implementation Plan:** [IMPL-SYNC-STRATEGIES-20260107](../../docs/dev/architecture/IMPL-SYNC-STRATEGIES-20260107.md)
 - **Existing:** [src/score/sync-rater.ts](../../src/score/sync-rater.ts)

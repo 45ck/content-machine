@@ -285,5 +285,5 @@ src/audio/sync/
 
 - **Depends On:** TASK-018 (SyncConfigSchema)
 - **Blocks:** TASK-020, TASK-022
-- **Implementation Plan:** [IMPL-SYNC-STRATEGIES-20260107](../../docs/architecture/IMPL-SYNC-STRATEGIES-20260107.md)
+- **Implementation Plan:** [IMPL-SYNC-STRATEGIES-20260107](../../docs/dev/architecture/IMPL-SYNC-STRATEGIES-20260107.md)
 - **Design Pattern:** Strategy Pattern (GoF)

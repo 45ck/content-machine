@@ -8,6 +8,7 @@ import { join } from 'path';
 import { runPipeline } from './pipeline';
 import { PipelineEventEmitter, type PipelineEvent } from './events';
 import { FakeLLMProvider } from '../test/stubs/fake-llm';
+import { ArchetypeIdSchema } from '../domain/ids';
 
 function createFakeScriptResponse(topic: string) {
   return {
@@ -40,7 +41,7 @@ describe('runPipeline() progress events', () => {
 
     const result = await runPipeline({
       topic: 'Redis',
-      archetype: 'listicle',
+      archetype: ArchetypeIdSchema.parse('listicle'),
       orientation: 'portrait',
       voice: 'af_heart',
       targetDuration: 15,
@@ -89,7 +90,7 @@ describe('runPipeline() progress events', () => {
 
     await runPipeline({
       topic: 'Redis',
-      archetype: 'listicle',
+      archetype: ArchetypeIdSchema.parse('listicle'),
       orientation: 'portrait',
       voice: 'af_heart',
       targetDuration: 15,

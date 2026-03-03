@@ -2,7 +2,11 @@
  * Tests for TikTok-native caption chunking
  */
 import { describe, it, expect } from 'vitest';
-import { createCaptionChunks, detectEmphasis } from '../../../../src/render/captions/chunking';
+import {
+  createCaptionChunks,
+  detectEmphasis,
+  chunkToPage,
+} from '../../../../src/render/captions/chunking';
 
 // Helper to create timed words
 function createWords(
@@ -430,5 +434,29 @@ describe('createCaptionChunks', () => {
       expect(chunks[1].index).toBe(1);
       expect(chunks[2].index).toBe(2);
     });
+  });
+});
+
+describe('chunkToPage', () => {
+  it('wraps chunk words into multiple lines when maxCharsPerLine is exceeded', () => {
+    const chunk = {
+      words: [
+        { text: 'THIS', startMs: 0, endMs: 200, isEmphasized: false },
+        { text: 'IS', startMs: 250, endMs: 450, isEmphasized: false },
+        { text: 'A', startMs: 500, endMs: 650, isEmphasized: false },
+        { text: 'LONGER', startMs: 700, endMs: 1000, isEmphasized: false },
+        { text: 'SENTENCE', startMs: 1050, endMs: 1400, isEmphasized: false },
+      ],
+      text: 'THIS IS A LONGER SENTENCE',
+      startMs: 0,
+      endMs: 1400,
+      charCount: 0,
+      index: 0,
+      hasEmphasis: false,
+    } as any;
+
+    const page = chunkToPage(chunk, { maxCharsPerLine: 10, maxLinesPerPage: 2 });
+    expect(page.lines.length).toBe(2);
+    expect(page.text).toContain('\n');
   });
 });

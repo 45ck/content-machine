@@ -5,29 +5,41 @@
  * Based on SYSTEM-DESIGN §7.2 cm audio command.
  */
 import { writeFile } from 'fs/promises';
-import type { ScriptOutput } from '../script/schema';
+import type { ScriptOutput } from '../domain';
 import { createLogger } from '../core/logger';
 import {
-  AudioOutput,
   AudioOutputSchema,
   TimestampsOutput,
   WordTimestamp,
   AUDIO_SCHEMA_VERSION,
-} from './schema';
+} from '../domain';
 import { synthesizeSpeech } from './tts';
+import type { ElevenLabsVoiceSettings } from './tts';
 import { transcribeAudio, ASRResult } from './asr';
 import { reconcileToScript as reconcileAsrToScript } from './asr/reconcile';
+import { computeScriptMatchMetrics } from './asr/script-match';
 import { buildAlignmentUnits, buildSceneTimestamps, normalizeSpokenText } from './alignment';
 import { buildAudioMixPlan, hasAudioMixSources, type AudioMixPlanOptions } from './mix/planner';
-import type { AudioMixOutput } from './mix/schema';
+import type { AudioMixOutput, AudioOutput } from '../domain';
 
 export { buildAlignmentUnits, buildSceneTimestamps } from './alignment';
 
-export type { AudioOutput, TimestampsOutput, WordTimestamp } from './schema';
+export type { AudioOutput, TimestampsOutput, WordTimestamp } from '../domain';
 
 export interface GenerateAudioOptions {
   script: ScriptOutput;
   voice: string;
+  /** TTS engine id (defaults to kokoro) */
+  ttsEngine?: 'kokoro' | 'elevenlabs' | 'edge';
+  /** Timestamp engine (defaults to whisper) */
+  asrEngine?: 'whisper' | 'elevenlabs-forced-alignment';
+  /** Optional engine-specific configuration for ElevenLabs. */
+  elevenlabs?: {
+    apiBaseUrl?: string;
+    modelId?: string;
+    outputFormat?: string;
+    voiceSettings?: ElevenLabsVoiceSettings;
+  };
   speed?: number;
   outputPath: string;
   timestampsPath: string;
@@ -84,10 +96,12 @@ export async function generateAudio(options: GenerateAudioOptions): Promise<Audi
   // Step 1: Generate TTS audio
   log.info('Generating TTS audio');
   const ttsResult = await synthesizeSpeech({
+    engine: options.ttsEngine ?? 'kokoro',
     text: fullText,
     voice: options.voice,
     speed: options.speed,
     outputPath: options.outputPath,
+    elevenlabs: options.elevenlabs,
   });
 
   log.info({ duration: ttsResult.duration }, 'TTS audio generated');
@@ -98,11 +112,13 @@ export async function generateAudio(options: GenerateAudioOptions): Promise<Audi
     'Transcribing audio for timestamps'
   );
   const asrResult = await transcribeAudio({
+    engine: options.asrEngine ?? 'whisper',
     audioPath: options.outputPath,
     model: options.whisperModel,
     originalText: fullText,
     audioDuration: ttsResult.duration,
     requireWhisper: options.requireWhisper,
+    elevenlabs: options.elevenlabs ? { apiBaseUrl: options.elevenlabs.apiBaseUrl } : undefined,
   });
 
   log.info(
@@ -112,14 +128,40 @@ export async function generateAudio(options: GenerateAudioOptions): Promise<Audi
 
   // Step 2b: Reconcile ASR to script text if enabled
   let finalWords = asrResult.words;
+  let reconciled = false;
   if (options.reconcile && asrResult.engine !== 'estimated') {
     log.info('Reconciling ASR output to script text');
     finalWords = reconcileAsrToScript(asrResult.words, fullText);
+    reconciled = true;
     log.info({ reconciledWords: finalWords.length }, 'Reconciliation complete');
   }
 
   // Step 3: Build timestamps output
-  const timestamps = buildTimestamps({ ...asrResult, words: finalWords }, options.script);
+  const scriptMatch =
+    asrResult.engine !== 'estimated'
+      ? computeScriptMatchMetrics({ scriptText: fullText, asrWords: finalWords })
+      : undefined;
+  if (scriptMatch && scriptMatch.lcsRatio < 0.9) {
+    log.warn(
+      {
+        lcsRatio: Number(scriptMatch.lcsRatio.toFixed(3)),
+        scriptCoverage: Number(scriptMatch.scriptCoverage.toFixed(3)),
+        asrCoverage: Number(scriptMatch.asrCoverage.toFixed(3)),
+        reconciled,
+      },
+      'Low script↔caption match detected (captions may look wrong). Consider --reconcile, slower TTS, or a larger Whisper model.'
+    );
+  }
+
+  const timestamps = buildTimestamps(
+    { ...asrResult, words: finalWords },
+    options.script,
+    options.ttsEngine ?? 'kokoro',
+    {
+      reconciled,
+      scriptMatch,
+    }
+  );
 
   // Save timestamps
   await writeFile(options.timestampsPath, JSON.stringify(timestamps, null, 2), 'utf-8');
@@ -199,9 +241,13 @@ async function generateMockAudio(options: GenerateAudioOptions): Promise<AudioOu
   // Save mock timestamps
   await writeFile(options.timestampsPath, JSON.stringify(timestamps, null, 2), 'utf-8');
 
-  // Create a small mock audio file (just a placeholder)
-  const mockAudioBuffer = Buffer.alloc(1024);
-  await writeFile(options.outputPath, mockAudioBuffer);
+  const sampleRate = 22050;
+  await writeSilentWav({
+    path: options.outputPath,
+    durationSeconds: totalDuration,
+    sampleRate,
+    channels: 1,
+  });
 
   const mixResult = await maybeWriteAudioMix({
     script: options.script,
@@ -218,7 +264,7 @@ async function generateMockAudio(options: GenerateAudioOptions): Promise<AudioOu
     duration: totalDuration,
     wordCount: words.length,
     voice: options.voice,
-    sampleRate: 22050,
+    sampleRate,
     ttsCost: 0,
     audioMixPath: mixResult.audioMixPath,
     audioMix: mixResult.audioMix,
@@ -233,6 +279,37 @@ async function generateMockAudio(options: GenerateAudioOptions): Promise<AudioOu
   );
 
   return AudioOutputSchema.parse(output);
+}
+
+async function writeSilentWav(params: {
+  path: string;
+  durationSeconds: number;
+  sampleRate: number;
+  channels: number;
+}): Promise<void> {
+  const bitsPerSample = 16;
+  const bytesPerSample = bitsPerSample / 8;
+  const frames = Math.max(1, Math.ceil(params.durationSeconds * params.sampleRate));
+  const dataSize = frames * params.channels * bytesPerSample;
+  const fileSize = 36 + dataSize;
+  const header = Buffer.alloc(44);
+
+  header.write('RIFF', 0, 4, 'ascii');
+  header.writeUInt32LE(fileSize, 4);
+  header.write('WAVE', 8, 4, 'ascii');
+  header.write('fmt ', 12, 4, 'ascii');
+  header.writeUInt32LE(16, 16); // fmt chunk size
+  header.writeUInt16LE(1, 20); // PCM
+  header.writeUInt16LE(params.channels, 22);
+  header.writeUInt32LE(params.sampleRate, 24);
+  header.writeUInt32LE(params.sampleRate * params.channels * bytesPerSample, 28); // byteRate
+  header.writeUInt16LE(params.channels * bytesPerSample, 32); // blockAlign
+  header.writeUInt16LE(bitsPerSample, 34);
+  header.write('data', 36, 4, 'ascii');
+  header.writeUInt32LE(dataSize, 40);
+
+  const silence = Buffer.alloc(dataSize);
+  await writeFile(params.path, Buffer.concat([header, silence]));
 }
 
 /**
@@ -279,7 +356,12 @@ async function maybeWriteAudioMix(params: {
 /**
  * Build timestamps output from ASR result aligned to scenes
  */
-function buildTimestamps(asr: ASRResult, script: ScriptOutput): TimestampsOutput {
+function buildTimestamps(
+  asr: ASRResult,
+  script: ScriptOutput,
+  ttsEngine: string,
+  analysis?: TimestampsOutput['analysis']
+): TimestampsOutput {
   // Align scenes to the same units used for TTS (hook/scenes/cta) to prevent drift.
   const units = buildAlignmentUnits(script);
   const scenes = buildSceneTimestamps(asr.words, units, asr.duration);
@@ -289,7 +371,8 @@ function buildTimestamps(asr: ASRResult, script: ScriptOutput): TimestampsOutput
     scenes,
     allWords: asr.words,
     totalDuration: asr.duration,
-    ttsEngine: 'kokoro',
+    ttsEngine,
     asrEngine: asr.engine,
+    analysis,
   };
 }

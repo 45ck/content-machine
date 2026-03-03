@@ -1,84 +1,143 @@
 /**
- * Video Templates
+ * Render Templates
  *
- * Resolve video templates by id or file path.
+ * Resolve render templates by id or file path.
  * Templates are data-only presets for render defaults + composition selection.
  */
 import { readFile } from 'fs/promises';
-import { existsSync } from 'fs';
+import { existsSync, readFileSync, readdirSync } from 'fs';
 import { stat } from 'fs/promises';
 import { join, resolve } from 'path';
 import { homedir } from 'os';
+import { dirname } from 'node:path';
 import { NotFoundError, SchemaError } from '../../core/errors';
-import { VideoTemplateSchema, type VideoTemplate } from './schema';
-export { getTemplateGameplaySlot, getTemplateParams } from './slots';
+import { RenderTemplateSchema, type RenderTemplate } from '../../domain/render-templates';
+import { createRequireSafe } from '../../core/require';
+export {
+  getTemplateFontSources,
+  getTemplateGameplaySlot,
+  getTemplateOverlays,
+  getTemplateParams,
+  mergeFontSources,
+} from './slots';
+export { resolveRemotionTemplateProject, type ResolvedRemotionTemplateProject } from './remotion';
+export {
+  importRemotionTemplate,
+  type ImportRemotionTemplateOptions,
+  type ImportRemotionTemplateResult,
+} from './importer';
 
-export type { VideoTemplate } from './schema';
+export type { RenderTemplate } from '../../domain/render-templates';
 
-export interface ResolvedVideoTemplate {
-  template: VideoTemplate;
+export interface ResolvedRenderTemplate {
+  template: RenderTemplate;
   /** Original spec provided (id or path). */
   spec: string;
   /** Where the template was loaded from. */
   source: 'builtin' | 'file';
-  /** Absolute template.json path when source === 'file'. */
+  /** Absolute template.json path (when known). */
   templatePath?: string;
+  /** Absolute directory containing template.json (when known). */
+  templateDir?: string;
 }
 
-const BUILTIN_TEMPLATES: Record<string, VideoTemplate> = {
-  'tiktok-captions': VideoTemplateSchema.parse({
-    id: 'tiktok-captions',
-    name: 'TikTok Captions',
-    description: 'Full-screen video + TikTok-style word-highlight captions',
-    compositionId: 'ShortVideo',
-    defaults: {
-      orientation: 'portrait',
-      fps: 30,
-      captionPreset: 'tiktok',
-    },
-  }),
-  'brainrot-split-gameplay': VideoTemplateSchema.parse({
-    id: 'brainrot-split-gameplay',
-    name: 'Brainrot Split Screen (Gameplay)',
-    description: 'Split-screen gameplay background (top content, bottom gameplay)',
-    compositionId: 'SplitScreenGameplay',
-    assets: {
-      gameplay: {
-        required: true,
-      },
-    },
-    defaults: {
-      orientation: 'portrait',
-      fps: 30,
-      captionPreset: 'tiktok',
-    },
-    params: { splitScreenRatio: 0.55 },
-  }),
-  'brainrot-split-gameplay-top': VideoTemplateSchema.parse({
-    id: 'brainrot-split-gameplay-top',
-    name: 'Brainrot Split Screen (Gameplay Top)',
-    description: 'Split-screen gameplay background (top gameplay, bottom content)',
-    compositionId: 'SplitScreenGameplay',
-    assets: {
-      gameplay: {
-        required: true,
-      },
-    },
-    defaults: {
-      orientation: 'portrait',
-      fps: 30,
-      captionPreset: 'capcut',
-    },
-    params: { splitScreenRatio: 0.55, gameplayPosition: 'top', contentPosition: 'bottom' },
-  }),
-};
+/**
+ * @deprecated Use ResolvedRenderTemplate.
+ */
+export type ResolvedVideoTemplate = ResolvedRenderTemplate;
 
-export function listBuiltinVideoTemplates(): VideoTemplate[] {
+function getPackageRoot(): string {
+  const require = createRequireSafe(import.meta.url);
+  const candidates = ['../../../package.json', '../../package.json', '../package.json', './package.json'];
+  for (const candidate of candidates) {
+    try {
+      const pkgJsonPath = require.resolve(candidate);
+      return dirname(pkgJsonPath);
+    } catch {
+      continue;
+    }
+  }
+  throw new SchemaError('Unable to locate package.json to resolve built-in templates', {
+    fix: 'Run CM from an installed package or from a repository checkout that contains package.json',
+  });
+}
+
+function getBuiltinTemplatesDir(): string {
+  return join(getPackageRoot(), 'assets', 'templates');
+}
+
+function loadBuiltinTemplatesSync(): {
+  templates: Record<string, RenderTemplate>;
+  templatePaths: Record<string, string>;
+} {
+  const root = getBuiltinTemplatesDir();
+  if (!existsSync(root)) return { templates: {}, templatePaths: {} };
+
+  const entries = readdirSync(root, { withFileTypes: true }).filter((d) => d.isDirectory());
+  const templates: Record<string, RenderTemplate> = {};
+  const templatePaths: Record<string, string> = {};
+
+  for (const entry of entries) {
+    const templatePath = join(root, entry.name, 'template.json');
+    if (!existsSync(templatePath)) continue;
+
+    const raw = readFileSync(templatePath, 'utf-8');
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(raw);
+    } catch (error) {
+      throw new SchemaError('Invalid built-in template JSON', {
+        path: templatePath,
+        error: error instanceof Error ? error.message : String(error),
+        fix: 'Fix JSON syntax in assets/templates/*/template.json',
+      });
+    }
+
+    const validated = RenderTemplateSchema.safeParse(parsed);
+    if (!validated.success) {
+      throw new SchemaError('Invalid built-in render template', {
+        path: templatePath,
+        issues: validated.error.issues,
+        fix: 'Fix schema issues in assets/templates/*/template.json',
+      });
+    }
+
+    templates[validated.data.id] = validated.data;
+    templatePaths[validated.data.id] = templatePath;
+  }
+
+  return { templates, templatePaths };
+}
+
+const BUILTIN_TEMPLATES_SYNC = loadBuiltinTemplatesSync();
+const BUILTIN_TEMPLATES: Record<string, RenderTemplate> = BUILTIN_TEMPLATES_SYNC.templates;
+const BUILTIN_TEMPLATE_PATHS: Record<string, string> = BUILTIN_TEMPLATES_SYNC.templatePaths;
+
+/**
+ * List built-in templates shipped with the package.
+ */
+export function listBuiltinRenderTemplates(): RenderTemplate[] {
   return Object.values(BUILTIN_TEMPLATES);
 }
 
-export function getBuiltinVideoTemplate(id: string): VideoTemplate | undefined {
+/**
+ * Get a built-in template by id.
+ */
+export function getBuiltinRenderTemplate(id: string): RenderTemplate | undefined {
   return BUILTIN_TEMPLATES[id];
+}
+
+/**
+ * @deprecated Use listBuiltinRenderTemplates.
+ */
+export function listBuiltinVideoTemplates(): RenderTemplate[] {
+  return listBuiltinRenderTemplates();
+}
+/**
+ * @deprecated Use getBuiltinRenderTemplate.
+ */
+export function getBuiltinVideoTemplate(id: string): RenderTemplate | undefined {
+  return getBuiltinRenderTemplate(id);
 }
 
 function expandTilde(inputPath: string): string {
@@ -101,7 +160,7 @@ function looksLikePath(spec: string): boolean {
   );
 }
 
-async function loadTemplateFromFile(templatePath: string): Promise<VideoTemplate> {
+async function loadTemplateFromFile(templatePath: string): Promise<RenderTemplate> {
   const absolutePath = resolve(expandTilde(templatePath));
   const raw = await readFile(absolutePath, 'utf-8');
 
@@ -116,9 +175,9 @@ async function loadTemplateFromFile(templatePath: string): Promise<VideoTemplate
     });
   }
 
-  const parsed = VideoTemplateSchema.safeParse(parsedJson);
+  const parsed = RenderTemplateSchema.safeParse(parsedJson);
   if (!parsed.success) {
-    throw new SchemaError('Invalid video template', {
+    throw new SchemaError('Invalid render template', {
       path: absolutePath,
       issues: parsed.error.issues,
       fix: 'Validate required fields (id, name, compositionId) and fix schema issues',
@@ -150,7 +209,7 @@ async function resolveTemplateFilePath(spec: string): Promise<string> {
  *   2) project templates: `./.cm/templates/<id>/template.json`
  *   3) user templates: `~/.cm/templates/<id>/template.json`
  */
-export async function resolveVideoTemplate(spec: string): Promise<ResolvedVideoTemplate> {
+export async function resolveRenderTemplate(spec: string): Promise<ResolvedRenderTemplate> {
   if (!spec || !spec.trim()) {
     throw new SchemaError('Invalid --template value', {
       spec,
@@ -170,13 +229,20 @@ export async function resolveVideoTemplate(spec: string): Promise<ResolvedVideoT
       });
     }
     const template = await loadTemplateFromFile(templatePath);
-    return { template, spec, source: 'file', templatePath };
+    return { template, spec, source: 'file', templatePath, templateDir: dirname(templatePath) };
   }
 
   // ID mode
-  const builtin = getBuiltinVideoTemplate(spec);
+  const builtin = getBuiltinRenderTemplate(spec);
   if (builtin) {
-    return { template: builtin, spec, source: 'builtin' };
+    const builtinTemplatePath = BUILTIN_TEMPLATE_PATHS[spec];
+    return {
+      template: builtin,
+      spec,
+      source: 'builtin',
+      templatePath: builtinTemplatePath,
+      templateDir: builtinTemplatePath ? dirname(builtinTemplatePath) : undefined,
+    };
   }
 
   const candidates = [
@@ -187,18 +253,28 @@ export async function resolveVideoTemplate(spec: string): Promise<ResolvedVideoT
   for (const candidate of candidates) {
     if (!existsSync(candidate)) continue;
     const template = await loadTemplateFromFile(candidate);
-    return { template, spec, source: 'file', templatePath: candidate };
+    return { template, spec, source: 'file', templatePath: candidate, templateDir: dirname(candidate) };
   }
 
-  throw new NotFoundError(`Unknown video template: ${spec}`, {
-    resource: 'video-template',
+  throw new NotFoundError(`Unknown render template: ${spec}`, {
+    resource: 'render-template',
     identifier: spec,
     searched: candidates,
     fix: 'Use a built-in template id, or install one to ~/.cm/templates/<id>/template.json, or pass a path via --template',
   });
 }
 
-export function formatTemplateSource(resolved: ResolvedVideoTemplate): string {
+/**
+ * @deprecated Use resolveRenderTemplate.
+ */
+export async function resolveVideoTemplate(spec: string): Promise<ResolvedRenderTemplate> {
+  return resolveRenderTemplate(spec);
+}
+
+/**
+ * Format a resolved template origin for display/logging.
+ */
+export function formatTemplateSource(resolved: ResolvedRenderTemplate): string {
   if (resolved.source === 'builtin') return `builtin:${resolved.template.id}`;
   return resolved.templatePath ? `file:${resolved.templatePath}` : 'file';
 }

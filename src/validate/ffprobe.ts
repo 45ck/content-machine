@@ -1,9 +1,23 @@
 import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
 import { CMError } from '../core/errors';
+import { resolveFfprobePath } from '../core/video/ffmpeg';
 import type { VideoInfo } from './video-info';
 
-const execFileAsync = promisify(execFile);
+function execFileWithOutput(
+  cmd: string,
+  args: string[],
+  options: { timeout: number; windowsHide: boolean }
+): Promise<{ stdout: string; stderr: string }> {
+  return new Promise((resolve, reject) => {
+    execFile(cmd, args, options, (error, stdout, stderr) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve({ stdout: String(stdout ?? ''), stderr: String(stderr ?? '') });
+    });
+  });
+}
 
 interface FfprobeStream {
   codec_type?: string;
@@ -37,7 +51,7 @@ function normalizeContainer(formatName: string | undefined): string {
 }
 
 async function executeFfprobe(videoPath: string, options: Required<ProbeOptions>): Promise<string> {
-  const { stdout } = await execFileAsync(
+  const { stdout } = await execFileWithOutput(
     options.ffprobePath,
     ['-v', 'error', '-print_format', 'json', '-show_streams', '-show_format', videoPath],
     { timeout: options.timeoutMs, windowsHide: true }
@@ -79,9 +93,15 @@ function validateAndExtractInfo(parsed: FfprobeOutput, videoPath: string): Video
 }
 
 function handleProbeError(error: unknown, videoPath: string, ffprobePath: string): never {
-  if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-    throw new CMError('DEPENDENCY_MISSING', 'ffprobe is required but was not found on PATH', {
+  const err = error as any;
+  if (
+    err?.code === 'ENOENT' ||
+    (typeof err?.message === 'string' &&
+      err.message.toLowerCase().includes('no application is associated'))
+  ) {
+    throw new CMError('DEPENDENCY_MISSING', 'ffprobe is required but could not be executed', {
       ffprobePath,
+      fix: 'Install ffprobe or set CM_FFPROBE to a valid ffprobe executable path',
     });
   }
   if (error instanceof SyntaxError) {
@@ -104,7 +124,7 @@ export async function probeVideoWithFfprobe(
 ): Promise<VideoInfo> {
   const resolvedOptions: Required<ProbeOptions> = {
     timeoutMs: options?.timeoutMs ?? 10_000,
-    ffprobePath: options?.ffprobePath ?? 'ffprobe',
+    ffprobePath: options?.ffprobePath ?? resolveFfprobePath(),
   };
 
   try {

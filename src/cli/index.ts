@@ -6,45 +6,76 @@
  */
 import 'dotenv/config';
 import { Command } from 'commander';
-import { createRequire } from 'node:module';
 import { setCliRuntime } from './runtime';
+import { version } from './meta';
 import { logger } from '../core/logger';
 
 const program = new Command();
-const require = createRequire(import.meta.url);
-const { version } = require('../../package.json') as { version: string };
 
 type CommandLoader = () => Promise<Command>;
 
 const COMMAND_LOADERS: Array<[string, CommandLoader]> = [
+  ['mcp', async () => (await import('./commands/mcp')).mcpCommand],
+  ['config', async () => (await import('./commands/config')).configCommand],
+  ['doctor', async () => (await import('./commands/doctor')).doctorCommand],
+  ['demo', async () => (await import('./commands/demo')).demoCommand],
+  ['archetypes', async () => (await import('./commands/archetypes')).archetypesCommand],
   ['script', async () => (await import('./commands/script')).scriptCommand],
   ['audio', async () => (await import('./commands/audio')).audioCommand],
   ['visuals', async () => (await import('./commands/visuals')).visualsCommand],
+  ['media', async () => (await import('./commands/media')).mediaCommand],
   ['render', async () => (await import('./commands/render')).renderCommand],
   ['assets', async () => (await import('./commands/assets')).assetsCommand],
   ['package', async () => (await import('./commands/package')).packageCommand],
   ['research', async () => (await import('./commands/research')).researchCommand],
   ['retrieve', async () => (await import('./commands/retrieve')).retrieveCommand],
   ['validate', async () => (await import('./commands/validate')).validateCommand],
+  ['videospec', async () => (await import('./commands/videospec')).videospecCommand],
   ['score', async () => (await import('./commands/score')).scoreCommand],
   ['rate', async () => (await import('./commands/rate')).rateCommand],
+  [
+    'caption-quality',
+    async () => (await import('./commands/caption-quality')).captionQualityCommand,
+  ],
+  ['bench', async () => (await import('./commands/bench')).benchCommand],
   ['captions', async () => (await import('./commands/captions')).captionsCommand],
   ['publish', async () => (await import('./commands/publish')).publishCommand],
   ['templates', async () => (await import('./commands/templates')).templatesCommand],
+  ['prompts', async () => (await import('./commands/prompts')).promptsCommand],
   ['timestamps', async () => (await import('./commands/timestamps')).timestampsCommand],
   ['import', async () => (await import('./commands/import')).importCommand],
   ['hooks', async () => (await import('./commands/hooks')).hooksCommand],
   ['setup', async () => (await import('./commands/setup')).setupCommand],
   ['workflows', async () => (await import('./commands/workflows')).workflowsCommand],
+  ['feedback', async () => (await import('./commands/feedback')).feedbackCommand],
+  ['telemetry', async () => (await import('./commands/telemetry')).telemetryCommand],
+  ['lab', async () => (await import('./commands/lab')).labCommand],
   ['generate', async () => (await import('./commands/generate')).generateCommand],
+  ['qa', async () => (await import('./commands/qa')).qaCommand],
+  ['evaluate', async () => (await import('./commands/evaluate')).evaluateCommand],
+  ['annotate', async () => (await import('./commands/annotate')).annotateCommand],
   ['init', async () => (await import('./commands/init')).initCommand],
+  ['quality-score', async () => (await import('./commands/quality-score')).qualityScoreCommand],
+  [
+    'extract-features',
+    async () => (await import('./commands/extract-features')).extractFeaturesCommand,
+  ],
+  ['quality-rank', async () => (await import('./commands/quality-rank')).qualityRankCommand],
+  ['frame-analyze', async () => (await import('./commands/frame-analyze')).frameAnalyzeCommand],
 ];
 
 const COMMAND_MAP = new Map(COMMAND_LOADERS);
 
 function findRequestedCommand(args: string[]): string | null {
-  for (const arg of args) {
+  const takesValue = new Set(['--config']);
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
     if (arg === '--') break;
+    if (takesValue.has(arg)) {
+      // Skip the value token for global options that take a value, e.g. `--config path`.
+      i += 1;
+      continue;
+    }
     if (arg.startsWith('-')) continue;
     return arg;
   }
@@ -70,11 +101,24 @@ async function loadAllCommands(): Promise<void> {
   }
 }
 
+function loadCommandStubsForRootHelp(): void {
+  // Keep `cm --help` robust even when some command modules have optional deps or
+  // environment-specific behavior. Subcommand details remain available via
+  // `cm <command> --help` which loads the real module.
+  for (const [name] of COMMAND_LOADERS) {
+    program.command(name).description(`Run \`cm ${name} --help\` for details`);
+  }
+}
+
 async function loadCommandsForArgs(args: string[]): Promise<void> {
   const requested = findRequestedCommand(args);
   const wantsHelp = args.includes('--help') || args.includes('-h');
 
   if (!requested || requested === 'help') {
+    if (wantsHelp) {
+      loadCommandStubsForRootHelp();
+      return;
+    }
     await loadAllCommands();
     return;
   }
@@ -102,6 +146,7 @@ program
   .name('cm')
   .description('CLI-first automated short-form video generator for TikTok, Reels, and Shorts')
   .version(version)
+  .option('--config <path>', 'Path to config file (overrides discovery and $CM_CONFIG)')
   .option('-v, --verbose', 'Enable verbose logging')
   .option('--json', 'Output results as JSON')
   .option('--offline', 'Disable network access for downloads', false)
@@ -132,6 +177,10 @@ program.hook('preAction', (_thisCommand, actionCommand) => {
 
   if (opts.yes) {
     process.env.CM_YES = '1';
+  }
+
+  if (typeof opts.config === 'string' && opts.config.trim()) {
+    process.env.CM_CONFIG = opts.config;
   }
 
   // In JSON mode, stdout must remain machine-readable (no logs/spinners).

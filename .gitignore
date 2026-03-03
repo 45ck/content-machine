@@ -9,6 +9,9 @@ output/
 *.mp4
 *.mp3
 *.wav
+/evaluate.json
+/quality-score.json
+/sync-report*.json
 /script.json
 /timestamps.json
 /visuals.json
@@ -20,6 +23,7 @@ output/
 # Logs
 *.log
 npm-debug.log*
+*.tgz
 
 # OS
 .DS_Store
@@ -51,13 +55,25 @@ out/
 # Cache files
 .cache/
 *.traineddata
+.venv/
 .venv-yt-dlp/
 
 # Stryker (mutation testing)
 .stryker-tmp/
-stryker.conf.cjs
 .stryker-net-patch.cjs
 reports/
 
 # Generated docs
 docs/api/
+
+# Demo media (tracked)
+!docs/demo/*.mp4
+
+# Bench (video scoring benchmarks)
+bench/_tmp/
+bench/stress/manifest.json
+bench/results/report.json
+bench/results/*.json
+!bench/results/baseline.json
+bench/pro/youtube-refs.txt
+bench/pro/.yt-dlp-archive.txt

@@ -4,7 +4,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdirSync, rmSync, writeFileSync } from 'fs';
 import { join, basename, relative } from 'path';
-import type { AudioMixOutput } from '../audio/mix/schema';
+import type { AudioMixOutput } from '../domain';
 import { prepareAudioMixForRender } from './audio-mix';
 
 describe('prepareAudioMixForRender', () => {

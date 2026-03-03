@@ -7,7 +7,7 @@
  * @module audio/sync/strategies/audio-first
  */
 
-import type { ScriptOutput } from '../../../script/schema';
+import type { ScriptOutput } from '../../../domain';
 import type {
   SyncStrategy,
   SyncStrategyOptions,

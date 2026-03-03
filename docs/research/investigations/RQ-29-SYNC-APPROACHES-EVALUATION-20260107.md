@@ -3,7 +3,7 @@
 **Date:** 2026-01-07  
 **Status:** Research Complete  
 **Priority:** High  
-**Related:** RQ-28-AUDIO-VISUAL-CAPTION-SYNC-20260610
+**Related:** RQ-28-AUDIO-VISUAL-CAPTION-SYNC-20260110
 
 ---
 
@@ -282,7 +282,7 @@ The user's 10-approach research validates our direction. Key improvements for v1
 
 ## References
 
-- [RQ-28: Audio-Visual-Caption Sync](RQ-28-AUDIO-VISUAL-CAPTION-SYNC-20260610.md)
+- [RQ-28: Audio-Visual-Caption Sync](RQ-28-AUDIO-VISUAL-CAPTION-SYNC-20260110.md)
 - [TIMESTAMP-DRIFT-TTS-ASR](../deep-dives/TIMESTAMP-DRIFT-TTS-ASR-20260104.md)
 - [FORCED-ALIGNMENT-ALGORITHMS](../deep-dives/FORCED-ALIGNMENT-ALGORITHMS-20260104.md)
 - [Aeneas GitHub](https://github.com/readbeyond/aeneas)

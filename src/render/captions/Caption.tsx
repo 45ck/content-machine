@@ -14,6 +14,7 @@
 import React, { useMemo } from 'react';
 import { useCurrentFrame, useVideoConfig, spring, Sequence, interpolate } from 'remotion';
 import { CaptionConfig, CaptionConfigSchema, CaptionDisplayMode } from './config';
+import { applyCaptionDisplayTransform, normalizeNotationWordStream } from './notation';
 import {
   createCaptionPages,
   toTimedWords,
@@ -23,7 +24,7 @@ import {
 } from './paging';
 import { createCaptionChunks, layoutToChunkingConfig, chunkToPage } from './chunking';
 import { PRESET_CAPCUT_BOLD } from './presets';
-import { isWordActive } from './timing';
+import { getActiveWord, isWordActive } from './timing';
 import { SAFE_ZONES, type PlatformName } from '../tokens/safe-zone';
 
 /**
@@ -53,9 +54,13 @@ export const Caption: React.FC<CaptionProps> = ({ words, config: configInput }) 
   }, [configInput]);
 
   const displayMode: CaptionDisplayMode = config.displayMode ?? 'page';
+  const normalizedNotationWords = useMemo(
+    () => normalizeNotationWordStream(words, config.notationMode),
+    [words, config.notationMode]
+  );
   const displayWords = useMemo(
-    () => filterCaptionWords(words, config.cleanup),
-    [words, config.cleanup]
+    () => filterCaptionWords(normalizedNotationWords, config.cleanup),
+    [normalizedNotationWords, config.cleanup]
   );
 
   // Route to appropriate renderer based on display mode
@@ -88,12 +93,12 @@ const PagedCaption: React.FC<PagedCaptionProps> = ({ words, config, fps }) => {
   // Convert words and create pages
   const pages = useMemo(() => {
     if (words.length === 0) return [];
-    const timedWords = toTimedWords(words);
+    const timedWords = toTimedWords(words, config.timingOffsetMs);
     return createCaptionPages(timedWords, {
       ...config.layout,
       maxWordsPerPage: config.wordsPerPage ?? config.layout.maxWordsPerPage,
     });
-  }, [words, config.layout, config.wordsPerPage]);
+  }, [words, config.layout, config.wordsPerPage, config.timingOffsetMs]);
 
   if (pages.length === 0) return null;
 
@@ -129,7 +134,7 @@ interface ChunkedCaptionProps {
 const ChunkedCaption: React.FC<ChunkedCaptionProps> = ({ words, config, fps }) => {
   const pages = useMemo(() => {
     if (words.length === 0) return [];
-    const timedWords = toTimedWords(words);
+    const timedWords = toTimedWords(words, config.timingOffsetMs);
     const chunkWords = timedWords.map((word) => ({
       word: word.text,
       startMs: word.startMs,
@@ -142,8 +147,13 @@ const ChunkedCaption: React.FC<ChunkedCaptionProps> = ({ words, config, fps }) =
         maxWordsPerPage: config.wordsPerPage ?? config.layout.maxWordsPerPage,
       })
     );
-    return chunks.map((chunk) => chunkToPage(chunk));
-  }, [words, config.layout, config.wordsPerPage]);
+    return chunks.map((chunk) =>
+      chunkToPage(chunk, {
+        maxCharsPerLine: config.layout.maxCharsPerLine,
+        maxLinesPerPage: config.layout.maxLinesPerPage,
+      })
+    );
+  }, [words, config.layout, config.wordsPerPage, config.timingOffsetMs]);
 
   if (pages.length === 0) return null;
 
@@ -241,7 +251,7 @@ const SingleWordView: React.FC<SingleWordViewProps> = ({ word, config }) => {
     ...(config.position === 'top' && { top: safeZone.topOffset }),
   };
 
-  const text = applyTextTransform(word, config.textTransform);
+  const text = applyCaptionDisplayTransform(word, config);
 
   // Build text shadow/stroke
   const textShadow = buildTextShadow(config);
@@ -268,7 +278,7 @@ const SingleWordView: React.FC<SingleWordViewProps> = ({ word, config }) => {
   if (config.highlightMode === 'background') {
     return (
       <div style={positionStyle}>
-        <span style={getPillStyle(config)}>
+        <span style={getPillStyle(config, true)}>
           <span style={wordStyle}>{text}</span>
         </span>
       </div>
@@ -399,12 +409,13 @@ const BuildupSentenceView: React.FC<BuildupSentenceViewProps> = ({
     ...(config.position === 'top' && { top: safeZone.topOffset }),
   };
 
+  const spacingPx = resolveWordGapPx(config);
   const containerStyle: React.CSSProperties = {
     display: 'flex',
     flexWrap: 'wrap',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: `${config.wordSpacing}em`,
+    gap: `${spacingPx}px`,
     maxWidth: '90%',
     opacity: enterProgress,
   };
@@ -412,25 +423,25 @@ const BuildupSentenceView: React.FC<BuildupSentenceViewProps> = ({
   return (
     <div style={positionStyle}>
       <div style={containerStyle}>
-        {words.map((word, index) => {
-          const wordStartMs = word.start * 1000;
-          const wordEndMs = word.end * 1000;
+        {(() => {
+          const visibleWords: Array<{ word: (typeof words)[number]; isActive: boolean }> = [];
+          for (const word of words) {
+            const wordStartMs = word.start * 1000;
+            const wordEndMs = word.end * 1000;
+            const relativeWordStartMs = wordStartMs - sentenceStartMs;
+            const hasStarted = sequenceTimeMs >= relativeWordStartMs;
+            if (!hasStarted) continue;
+            const isActive =
+              sequenceTimeMs >= relativeWordStartMs && sequenceTimeMs < wordEndMs - sentenceStartMs;
+            visibleWords.push({ word, isActive });
+          }
 
-          // Relative timing: word start relative to sentence start
-          const relativeWordStartMs = wordStartMs - sentenceStartMs;
-
-          // Only show words that have started (relative to sequence start)
-          const hasStarted = sequenceTimeMs >= relativeWordStartMs;
-          if (!hasStarted) return null;
-
-          // Is this word currently being spoken?
-          const isActive =
-            sequenceTimeMs >= relativeWordStartMs && sequenceTimeMs < wordEndMs - sentenceStartMs;
-
-          return (
-            <BuildupWordView key={index} word={word.word} isActive={isActive} config={config} />
-          );
-        })}
+          return visibleWords.map(({ word, isActive }, index) => (
+            <span key={`${word.start}-${index}`} style={getWordWrapperStyle(config)}>
+              <BuildupWordView word={word.word} isActive={isActive} config={config} />
+            </span>
+          ));
+        })()}
       </div>
     </div>
   );
@@ -457,8 +468,10 @@ const BuildupWordView: React.FC<BuildupWordViewProps> = ({ word, isActive, confi
     durationInFrames: 5,
   });
 
-  const textColor = isActive ? config.highlightColor : config.textColor;
-  const text = applyTextTransform(word, config.textTransform);
+  const highlightEnabled = config.highlightMode !== 'none';
+  const isHighlighted = highlightEnabled ? isActive : false;
+  const textColor = isHighlighted ? config.highlightColor : config.textColor;
+  const text = applyCaptionDisplayTransform(word, config);
   const textShadow = buildTextShadow(config);
 
   const wordStyle: React.CSSProperties = {
@@ -481,16 +494,15 @@ const BuildupWordView: React.FC<BuildupWordViewProps> = ({ word, isActive, confi
       }),
   };
 
-  // Wrap in pill if background mode and active
-  if (isActive && config.highlightMode === 'background') {
+  if (config.highlightMode === 'background') {
     return (
-      <span style={getPillStyle(config)}>
-        <span style={wordStyle}>{text} </span>
+      <span style={getPillStyle(config, isHighlighted)}>
+        <span style={wordStyle}>{text}</span>
       </span>
     );
   }
 
-  return <span style={wordStyle}>{text} </span>;
+  return <span style={wordStyle}>{text}</span>;
 };
 
 /**
@@ -508,6 +520,11 @@ const CaptionPageView: React.FC<CaptionPageViewProps> = ({ page, config }) => {
   // CRITICAL: Convert frame to sequence-relative time in ms
   // frame is relative to Sequence start (resets to 0 for each page)
   const sequenceTimeMs = (frame / fps) * 1000;
+  const absoluteTimeMs = page.startMs + sequenceTimeMs;
+  const activeWord = getActiveWord(
+    page.lines.flatMap((line) => line.words),
+    absoluteTimeMs
+  );
 
   // Entrance animation
   const enterProgress = useEnterAnimation(frame, fps, config);
@@ -525,11 +542,16 @@ const CaptionPageView: React.FC<CaptionPageViewProps> = ({ page, config }) => {
                 key={`${word.startMs}-${wordIndex}`}
                 word={word}
                 config={config}
-                isActive={isWordActive(
-                  { startMs: word.startMs, endMs: word.endMs },
-                  page.startMs,
-                  sequenceTimeMs
-                )}
+                pageStartMs={page.startMs}
+                isActive={
+                  activeWord
+                    ? word === activeWord
+                    : isWordActive(
+                        { startMs: word.startMs, endMs: word.endMs },
+                        page.startMs,
+                        sequenceTimeMs
+                      )
+                }
               />
             ))}
           </div>
@@ -545,27 +567,32 @@ const CaptionPageView: React.FC<CaptionPageViewProps> = ({ page, config }) => {
 interface WordViewProps {
   word: TimedWord;
   config: CaptionConfig;
+  pageStartMs: number;
   isActive: boolean;
 }
 
-const WordView: React.FC<WordViewProps> = ({ word, config, isActive }) => {
-  const wordStyle = getWordStyle(config, isActive);
-  const pillStyle =
-    isActive && config.highlightMode === 'background' ? getPillStyle(config) : undefined;
+const WordView: React.FC<WordViewProps> = ({ word, config, pageStartMs, isActive }) => {
+  const frame = useCurrentFrame();
+  const { fps } = useVideoConfig();
 
-  const text =
-    config.textTransform === 'uppercase'
-      ? word.text.toUpperCase()
-      : config.textTransform === 'lowercase'
-        ? word.text.toLowerCase()
-        : config.textTransform === 'capitalize'
-          ? word.text.charAt(0).toUpperCase() + word.text.slice(1)
-          : word.text;
+  const highlightEnabled = config.highlightMode !== 'none';
+  const isHighlighted = highlightEnabled ? isActive : false;
+  const wordStyle = getWordStyle(config, isHighlighted);
+  const wrapperStyle = getAnimatedWordWrapperStyle({
+    config,
+    isHighlighted,
+    fps,
+    frame,
+    pageStartMs,
+    wordStartMs: word.startMs,
+  });
 
-  if (pillStyle) {
+  const text = applyCaptionDisplayTransform(word.text, config);
+
+  if (config.highlightMode === 'background') {
     return (
-      <span style={getWordWrapperStyle()}>
-        <span style={pillStyle}>
+      <span style={wrapperStyle}>
+        <span style={getPillStyle(config, isHighlighted)}>
           <span style={wordStyle}>{text}</span>
         </span>
       </span>
@@ -573,7 +600,7 @@ const WordView: React.FC<WordViewProps> = ({ word, config, isActive }) => {
   }
 
   return (
-    <span style={getWordWrapperStyle()}>
+    <span style={wrapperStyle}>
       <span style={wordStyle}>{text}</span>
     </span>
   );
@@ -711,33 +738,112 @@ function getContainerStyle(config: CaptionConfig, enterProgress: number): React.
     config.pageAnimation === 'pop' || config.pageAnimation === 'bounce'
       ? 0.8 + 0.2 * enterProgress
       : 1;
+  const lineGapPx = resolveLineGapPx(config);
 
   return {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    gap: `${config.lineHeight * 0.5}em`,
+    gap: `${lineGapPx}px`,
     opacity: enterProgress,
     transform: `scale(${scale})`,
   };
 }
 
 function getLineStyle(config: CaptionConfig): React.CSSProperties {
+  const spacingPx = resolveWordGapPx(config);
+
   return {
     display: 'flex',
     flexWrap: 'wrap',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: `${config.wordSpacing}em`,
+    gap: `${spacingPx}px`,
     lineHeight: config.lineHeight,
   };
 }
 
-function getWordWrapperStyle(): React.CSSProperties {
+function getWordWrapperStyle(config: CaptionConfig): React.CSSProperties {
   return {
     display: 'inline-flex',
     alignItems: 'center',
+    flexShrink: 0,
+    fontSize: config.fontSize,
+    lineHeight: config.lineHeight,
   };
+}
+
+function getAnimatedWordWrapperStyle(args: {
+  config: CaptionConfig;
+  isHighlighted: boolean;
+  fps: number;
+  frame: number;
+  pageStartMs: number;
+  wordStartMs: number;
+}): React.CSSProperties {
+  const base = getWordWrapperStyle(args.config);
+  const { config } = args;
+
+  if (!args.isHighlighted || config.wordAnimation === 'none' || config.wordAnimationMs <= 0) {
+    return base;
+  }
+
+  const wordStartFrame = Math.max(
+    0,
+    Math.round(((args.wordStartMs - args.pageStartMs) / 1000) * args.fps)
+  );
+  const localFrame = args.frame - wordStartFrame;
+  if (localFrame < 0) return base;
+
+  const durationInFrames = Math.max(1, Math.round((config.wordAnimationMs / 1000) * args.fps));
+  const animFrame = Math.min(durationInFrames, localFrame);
+  const intensity = config.wordAnimationIntensity;
+
+  if (config.wordAnimation === 'pop' || config.wordAnimation === 'bounce') {
+    const startScale = 1 - 0.22 * intensity;
+    const scale = spring({
+      frame: animFrame,
+      fps: args.fps,
+      from: startScale,
+      to: 1,
+      durationInFrames,
+      config:
+        config.wordAnimation === 'bounce'
+          ? { damping: 8, stiffness: 240 }
+          : { damping: 14, stiffness: 420 },
+    });
+    return { ...base, transform: `scale(${scale})` };
+  }
+
+  const progress = interpolate(animFrame, [0, durationInFrames], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
+  if (config.wordAnimation === 'rise') {
+    const translateY = (1 - progress) * 10 * intensity;
+    const scale = 1 - (1 - progress) * 0.05 * intensity;
+    const opacity = 0.85 + 0.15 * progress;
+    return { ...base, transform: `translateY(${translateY}px) scale(${scale})`, opacity };
+  }
+
+  if (config.wordAnimation === 'shake') {
+    const decay = 1 - progress;
+    const wiggle = Math.sin(animFrame * 1.2) * decay;
+    const translateX = wiggle * 4 * intensity;
+    const rotate = wiggle * 2.5 * intensity;
+    return { ...base, transform: `translateX(${translateX}px) rotate(${rotate}deg)` };
+  }
+
+  return base;
+}
+
+function resolveWordGapPx(config: CaptionConfig): number {
+  return Math.max(config.wordSpacing * 16, 8);
+}
+
+function resolveLineGapPx(config: CaptionConfig): number {
+  return Math.max(config.fontSize * 0.2, 16);
 }
 
 function resolveFontWeight(weight: CaptionConfig['fontWeight']): number {
@@ -750,6 +856,8 @@ function resolveFontWeight(weight: CaptionConfig['fontWeight']): number {
 function getWordStyle(config: CaptionConfig, isActive: boolean): React.CSSProperties {
   const textColor = isActive ? config.highlightColor : config.textColor;
   const opacity = isActive ? 1 : config.inactiveOpacity;
+  const underline = isActive && config.highlightMode === 'underline';
+  const scale = isActive && config.highlightMode === 'scale' ? 1.08 : 1;
 
   // Build text shadow
   let textShadow = '';
@@ -769,7 +877,12 @@ function getWordStyle(config: CaptionConfig, isActive: boolean): React.CSSProper
     color: textColor,
     letterSpacing: `${config.letterSpacing}em`,
     opacity,
-    transition: `color ${config.wordTransitionMs}ms ease-out, opacity ${config.wordTransitionMs}ms ease-out`,
+    transform: `scale(${scale})`,
+    textDecorationLine: underline ? 'underline' : 'none',
+    textDecorationColor: underline ? config.highlightColor : undefined,
+    textDecorationThickness: underline ? '0.12em' : undefined,
+    textUnderlineOffset: underline ? '0.15em' : undefined,
+    transition: `color ${config.wordTransitionMs}ms ease-out, opacity ${config.wordTransitionMs}ms ease-out, transform ${config.wordTransitionMs}ms ease-out`,
     whiteSpace: 'pre',
   };
 
@@ -803,35 +916,59 @@ function getWordStyle(config: CaptionConfig, isActive: boolean): React.CSSProper
   return { ...baseStyle, textShadow };
 }
 
-function getPillStyle(config: CaptionConfig): React.CSSProperties {
+function getPillStyle(config: CaptionConfig, isActive: boolean): React.CSSProperties {
+  const inactiveAlpha = 0.15;
+  const backgroundColor = isActive
+    ? config.pillStyle.color
+    : applyAlphaToColor(config.pillStyle.color, inactiveAlpha);
+
   return {
-    backgroundColor: config.pillStyle.color,
+    backgroundColor,
     borderRadius: config.pillStyle.borderRadius,
     padding: `${config.pillStyle.paddingY}px ${config.pillStyle.paddingX}px`,
-    marginLeft: -config.pillStyle.paddingX / 2,
-    marginRight: -config.pillStyle.paddingX / 2,
     border:
-      config.pillStyle.borderWidth > 0
+      isActive && config.pillStyle.borderWidth > 0
         ? `${config.pillStyle.borderWidth}px solid ${config.pillStyle.borderColor}`
         : undefined,
     display: 'inline-block',
   };
 }
 
-/**
- * Apply text transform to a word
- */
-function applyTextTransform(text: string, transform: CaptionConfig['textTransform']): string {
-  switch (transform) {
-    case 'uppercase':
-      return text.toUpperCase();
-    case 'lowercase':
-      return text.toLowerCase();
-    case 'capitalize':
-      return text.charAt(0).toUpperCase() + text.slice(1);
-    default:
-      return text;
+function applyAlphaToColor(color: string, alpha: number): string {
+  const trimmed = color.trim();
+  if (trimmed === 'transparent') {
+    return trimmed;
   }
+
+  const rgbaMatch = trimmed.match(/^rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)$/i);
+  if (rgbaMatch) {
+    const [, r, g, b] = rgbaMatch;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  const rgbMatch = trimmed.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/i);
+  if (rgbMatch) {
+    const [, r, g, b] = rgbMatch;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  if (trimmed.startsWith('#')) {
+    const hex = trimmed.slice(1);
+    if (hex.length === 3) {
+      const r = parseInt(hex[0] + hex[0], 16);
+      const g = parseInt(hex[1] + hex[1], 16);
+      const b = parseInt(hex[2] + hex[2], 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+    if (hex.length === 6) {
+      const r = parseInt(hex.slice(0, 2), 16);
+      const g = parseInt(hex.slice(2, 4), 16);
+      const b = parseInt(hex.slice(4, 6), 16);
+      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+    }
+  }
+
+  return trimmed;
 }
 
 /**

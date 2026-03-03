@@ -153,7 +153,7 @@ Use your V&V layers to operationalize “virality mechanics” without pretendin
 
 - Quick skim checklist for any “risky” outputs or claims.
 
-See also: `docs/guides/VV-FRAMEWORK-20260105.md`.
+See also: `docs/dev/guides/VV-FRAMEWORK-20260105.md`.
 
 ---
 
@@ -188,9 +188,9 @@ These fit best as **manual checklist output** inside `publish.json` plus a compa
 
 ## Related
 
-- Architecture: `docs/architecture/SYSTEM-DESIGN-20260104.md`
-- Implementation plan: `docs/architecture/IMPL-PHASE-1-SCRIPT-20260105.md`
-- V&V framework: `docs/guides/VV-FRAMEWORK-20260105.md`
+- Architecture: `docs/dev/architecture/SYSTEM-DESIGN-20260104.md`
+- Implementation plan: `docs/dev/architecture/IMPL-PHASE-1-SCRIPT-20260105.md`
+- V&V framework: `docs/dev/guides/VV-FRAMEWORK-20260105.md`
 - LLM eval patterns: `docs/research/investigations/RQ-24-LLM-EVALUATION-QUALITY-ASSURANCE-20260105.md`
 - Structured output reliability: `docs/research/investigations/RQ-04-STRUCTURED-LLM-OUTPUT-20260104.md`
 

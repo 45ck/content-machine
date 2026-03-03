@@ -15,7 +15,7 @@ cm script [options]
 ## Options
 
 - `-t, --topic <topic>`: topic string (required)
-- `-a, --archetype <type>`: `listicle|versus|howto|myth|story|hot-take` (default: `listicle`)
+- `-a, --archetype <idOrPath>`: script archetype id or path to an archetype YAML file (default: `listicle`). Use `cm archetypes list`
 - `-o, --output <path>`: output JSON path (default: `script.json`)
 - `--package <path>`: packaging JSON from `cm package`
 - `--research <path>`: research JSON from `cm research` (injects evidence into LLM prompt)
@@ -78,7 +78,7 @@ cm script --topic "Redis caching" --research out/research.json -o out/script.jso
 
 ## See also
 
-- `docs/guides/guide-cli-ux-cm-script-20260106.md`
+- `docs/dev/guides/guide-cli-ux-cm-script-20260106.md`
 - `docs/reference/cm-package-reference-20260106.md`
 - `docs/reference/cm-research-reference-20260106.md`
-- `docs/features/feature-research-script-integration-20260107.md`
+- `docs/dev/features/feature-research-script-integration-20260107.md`

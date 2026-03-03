@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Paging Quality Metrics
  *
  * Measures the visual/readability quality of caption paging (how words group into pages/lines).
@@ -211,6 +211,9 @@ function buildPerPageMetrics(pages: CaptionPage[]): Array<PageMetrics & { pageIn
   }));
 }
 
+/**
+ * Computes caption paging readability metrics and derives an overall pass/fail.
+ */
 export function analyzePagingQuality(pages: CaptionPage[]): PagingQualityReport {
   if (pages.length === 0) {
     return {
@@ -251,6 +254,9 @@ export function analyzePagingQuality(pages: CaptionPage[]): PagingQualityReport 
   };
 }
 
+/**
+ * Formats a paging quality report for human-readable CLI output.
+ */
 export function formatPagingReport(report: PagingQualityReport): string {
   const pct = (v: number) => `${Math.round(v * 100)}%`;
   return [

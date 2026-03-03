@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { PipelineResult } from '../../core/pipeline';
-import type { SyncRatingOutput } from '../../score/sync-schema';
+import type { SyncRatingOutput } from '../../domain';
 import {
   runGenerateWithSyncQualityGate,
   type SyncAttemptSettings,

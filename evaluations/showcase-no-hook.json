@@ -1,0 +1,2470 @@
+{
+  "schemaVersion": "1.0.0",
+  "videoPath": "output/v-nohook/showcase-no-hook.mp4",
+  "passed": false,
+  "checks": [
+    {
+      "checkId": "score",
+      "passed": true,
+      "skipped": true,
+      "summary": "no script provided",
+      "durationMs": 0
+    },
+    {
+      "checkId": "validate",
+      "passed": true,
+      "skipped": false,
+      "summary": "1080x1920, 48s, h264/aac",
+      "durationMs": 114,
+      "detail": {
+        "schemaVersion": "1.0.0",
+        "videoPath": "output/v-nohook/showcase-no-hook.mp4",
+        "profile": "portrait",
+        "passed": true,
+        "summary": {
+          "width": 1080,
+          "height": 1920,
+          "durationSeconds": 47.786667,
+          "container": "mp4",
+          "videoCodec": "h264",
+          "audioCodec": "aac"
+        },
+        "gates": [
+          {
+            "gateId": "resolution",
+            "passed": true,
+            "severity": "error",
+            "fix": "adjust-render-resolution",
+            "message": "Resolution OK (1080x1920)",
+            "details": {
+              "expectedWidth": 1080,
+              "expectedHeight": 1920,
+              "actualWidth": 1080,
+              "actualHeight": 1920
+            }
+          },
+          {
+            "gateId": "duration",
+            "passed": true,
+            "severity": "error",
+            "fix": "adjust-content-length",
+            "message": "Duration OK (47.8s)",
+            "details": {
+              "minSeconds": 30,
+              "maxSeconds": 60,
+              "actualSeconds": 47.786667
+            }
+          },
+          {
+            "gateId": "format",
+            "passed": true,
+            "severity": "error",
+            "fix": "adjust-render-format",
+            "message": "Format OK (mp4/h264/aac)",
+            "details": {
+              "expected": {
+                "container": "mp4",
+                "videoCodec": "h264",
+                "audioCodec": "aac"
+              },
+              "actual": {
+                "container": "mp4",
+                "videoCodec": "h264",
+                "audioCodec": "aac"
+              }
+            }
+          }
+        ],
+        "createdAt": "2026-02-13T22:34:19.691Z",
+        "runtimeMs": 113
+      }
+    },
+    {
+      "checkId": "rate",
+      "passed": false,
+      "skipped": false,
+      "summary": "0/100, broken, mean drift 10577ms",
+      "durationMs": 74312,
+      "detail": {
+        "schemaVersion": "1.0.0",
+        "videoPath": "output/v-nohook/showcase-no-hook.mp4",
+        "rating": 0,
+        "ratingLabel": "broken",
+        "passed": false,
+        "metrics": {
+          "meanDriftMs": 10577.073170731708,
+          "maxDriftMs": 26200.00000000001,
+          "rawMaxDriftMs": 26200.00000000001,
+          "p95DriftMs": 19730.000000000004,
+          "medianDriftMs": 9590.000000000004,
+          "meanSignedDriftMs": -2259.5121951219517,
+          "leadingRatio": 0.4878048780487805,
+          "laggingRatio": 0.4634146341463415,
+          "driftStdDev": 6278.351983505894,
+          "outlierCount": 39,
+          "outlierRatio": 0.9512195121951219,
+          "matchedWords": 41,
+          "totalOcrWords": 520,
+          "totalAsrWords": 105,
+          "matchRatio": 0.07884615384615384
+        },
+        "wordMatches": [
+          {
+            "word": "on",
+            "ocrTimestamp": 3,
+            "asrTimestamp": 1.96,
+            "driftMs": 1040,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "fool",
+            "ocrTimestamp": 20,
+            "asrTimestamp": 4.359999999999999,
+            "driftMs": 15640,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "is",
+            "ocrTimestamp": 18.5,
+            "asrTimestamp": 5.02,
+            "driftMs": 13480,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "for",
+            "ocrTimestamp": 18.5,
+            "asrTimestamp": 5.07,
+            "driftMs": 13430,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "your",
+            "ocrTimestamp": 24,
+            "asrTimestamp": 5.79,
+            "driftMs": 18210,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "content",
+            "ocrTimestamp": 24,
+            "asrTimestamp": 6.19,
+            "driftMs": 17810,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "make",
+            "ocrTimestamp": 24,
+            "asrTimestamp": 7.19,
+            "driftMs": 16810,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "in",
+            "ocrTimestamp": 18.5,
+            "asrTimestamp": 11.18,
+            "driftMs": 7320,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "give",
+            "ocrTimestamp": 25.5,
+            "asrTimestamp": 11.9,
+            "driftMs": 13600,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "generate",
+            "ocrTimestamp": 24,
+            "asrTimestamp": 14.450000000000001,
+            "driftMs": 9549.999999999998,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "ful",
+            "ocrTimestamp": 20,
+            "asrTimestamp": 15.35,
+            "driftMs": 4650,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "and",
+            "ocrTimestamp": 24,
+            "asrTimestamp": 16.4,
+            "driftMs": 7600.000000000002,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "with",
+            "ocrTimestamp": 24,
+            "asrTimestamp": 17.41,
+            "driftMs": 6590,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "one",
+            "ocrTimestamp": 25.5,
+            "asrTimestamp": 17.740000000000002,
+            "driftMs": 7759.999999999998,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "preview",
+            "ocrTimestamp": 24,
+            "asrTimestamp": 18.48,
+            "driftMs": 5520,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "your",
+            "ocrTimestamp": 24,
+            "asrTimestamp": 19.05,
+            "driftMs": 4949.999999999999,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "and",
+            "ocrTimestamp": 24,
+            "asrTimestamp": 20.01,
+            "driftMs": 3989.9999999999986,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "tpe",
+            "ocrTimestamp": 22.5,
+            "asrTimestamp": 21.12,
+            "driftMs": 1379.999999999999,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "in",
+            "ocrTimestamp": 21.400000000000002,
+            "asrTimestamp": 21.400000000000002,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "and",
+            "ocrTimestamp": 24,
+            "asrTimestamp": 22.82,
+            "driftMs": 1179.9999999999998,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "for",
+            "ocrTimestamp": 18.5,
+            "asrTimestamp": 25.360000000000003,
+            "driftMs": -6860.000000000003,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "to",
+            "ocrTimestamp": 26.6,
+            "asrTimestamp": 26.6,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "ast",
+            "ocrTimestamp": 19,
+            "asrTimestamp": 28.590000000000003,
+            "driftMs": -9590.000000000004,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "for",
+            "ocrTimestamp": 18.5,
+            "asrTimestamp": 30.57,
+            "driftMs": -12070,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "limited",
+            "ocrTimestamp": 27.5,
+            "asrTimestamp": 32.82,
+            "driftMs": -5320,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "and",
+            "ocrTimestamp": 27.5,
+            "asrTimestamp": 34.54,
+            "driftMs": -7039.999999999999,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "on",
+            "ocrTimestamp": 23.5,
+            "asrTimestamp": 35.32,
+            "driftMs": -11820,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "your",
+            "ocrTimestamp": 32,
+            "asrTimestamp": 37.050000000000004,
+            "driftMs": -5050.000000000005,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "watt",
+            "ocrTimestamp": 23,
+            "asrTimestamp": 37.29,
+            "driftMs": -14290,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "is",
+            "ocrTimestamp": 32,
+            "asrTimestamp": 40.11,
+            "driftMs": -8109.999999999999,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "your",
+            "ocrTimestamp": 32,
+            "asrTimestamp": 40.16,
+            "driftMs": -8159.999999999996,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "fool",
+            "ocrTimestamp": 20,
+            "asrTimestamp": 40.82,
+            "driftMs": -20820,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "content",
+            "ocrTimestamp": 27.5,
+            "asrTimestamp": 41.43,
+            "driftMs": -13930,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "and",
+            "ocrTimestamp": 27.5,
+            "asrTimestamp": 42.64,
+            "driftMs": -15140,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "your",
+            "ocrTimestamp": 32,
+            "asrTimestamp": 43.519999999999996,
+            "driftMs": -11519.999999999996,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "content",
+            "ocrTimestamp": 27.5,
+            "asrTimestamp": 43.69,
+            "driftMs": -16189.999999999998,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "content",
+            "ocrTimestamp": 27.5,
+            "asrTimestamp": 45.05,
+            "driftMs": -17549.999999999996,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "and",
+            "ocrTimestamp": 27.5,
+            "asrTimestamp": 46.300000000000004,
+            "driftMs": -18800.000000000004,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "your",
+            "ocrTimestamp": 32,
+            "asrTimestamp": 46.96000000000001,
+            "driftMs": -14960.000000000007,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "content",
+            "ocrTimestamp": 27.5,
+            "asrTimestamp": 47.230000000000004,
+            "driftMs": -19730.000000000004,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "dain",
+            "ocrTimestamp": 21.5,
+            "asrTimestamp": 47.70000000000001,
+            "driftMs": -26200.00000000001,
+            "matchQuality": "fuzzy"
+          }
+        ],
+        "driftTimeline": [
+          {
+            "timestamp": 1.96,
+            "driftMs": 1040
+          },
+          {
+            "timestamp": 4.359999999999999,
+            "driftMs": 15640
+          },
+          {
+            "timestamp": 5.02,
+            "driftMs": 13480
+          },
+          {
+            "timestamp": 5.07,
+            "driftMs": 13430
+          },
+          {
+            "timestamp": 5.79,
+            "driftMs": 18210
+          },
+          {
+            "timestamp": 6.19,
+            "driftMs": 17810
+          },
+          {
+            "timestamp": 7.19,
+            "driftMs": 16810
+          },
+          {
+            "timestamp": 11.18,
+            "driftMs": 7320
+          },
+          {
+            "timestamp": 11.9,
+            "driftMs": 13600
+          },
+          {
+            "timestamp": 14.450000000000001,
+            "driftMs": 9549.999999999998
+          },
+          {
+            "timestamp": 15.35,
+            "driftMs": 4650
+          },
+          {
+            "timestamp": 16.4,
+            "driftMs": 7600.000000000002
+          },
+          {
+            "timestamp": 17.41,
+            "driftMs": 6590
+          },
+          {
+            "timestamp": 17.740000000000002,
+            "driftMs": 7759.999999999998
+          },
+          {
+            "timestamp": 18.48,
+            "driftMs": 5520
+          },
+          {
+            "timestamp": 19.05,
+            "driftMs": 4949.999999999999
+          },
+          {
+            "timestamp": 20.01,
+            "driftMs": 3989.9999999999986
+          },
+          {
+            "timestamp": 21.12,
+            "driftMs": 1379.999999999999
+          },
+          {
+            "timestamp": 21.400000000000002,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 22.82,
+            "driftMs": 1179.9999999999998
+          },
+          {
+            "timestamp": 25.360000000000003,
+            "driftMs": -6860.000000000003
+          },
+          {
+            "timestamp": 26.6,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 28.590000000000003,
+            "driftMs": -9590.000000000004
+          },
+          {
+            "timestamp": 30.57,
+            "driftMs": -12070
+          },
+          {
+            "timestamp": 32.82,
+            "driftMs": -5320
+          },
+          {
+            "timestamp": 34.54,
+            "driftMs": -7039.999999999999
+          },
+          {
+            "timestamp": 35.32,
+            "driftMs": -11820
+          },
+          {
+            "timestamp": 37.050000000000004,
+            "driftMs": -5050.000000000005
+          },
+          {
+            "timestamp": 37.29,
+            "driftMs": -14290
+          },
+          {
+            "timestamp": 40.11,
+            "driftMs": -8109.999999999999
+          },
+          {
+            "timestamp": 40.16,
+            "driftMs": -8159.999999999996
+          },
+          {
+            "timestamp": 40.82,
+            "driftMs": -20820
+          },
+          {
+            "timestamp": 41.43,
+            "driftMs": -13930
+          },
+          {
+            "timestamp": 42.64,
+            "driftMs": -15140
+          },
+          {
+            "timestamp": 43.519999999999996,
+            "driftMs": -11519.999999999996
+          },
+          {
+            "timestamp": 43.69,
+            "driftMs": -16189.999999999998
+          },
+          {
+            "timestamp": 45.05,
+            "driftMs": -17549.999999999996
+          },
+          {
+            "timestamp": 46.300000000000004,
+            "driftMs": -18800.000000000004
+          },
+          {
+            "timestamp": 46.96000000000001,
+            "driftMs": -14960.000000000007
+          },
+          {
+            "timestamp": 47.230000000000004,
+            "driftMs": -19730.000000000004
+          },
+          {
+            "timestamp": 47.70000000000001,
+            "driftMs": -26200.00000000001
+          }
+        ],
+        "errors": [
+          {
+            "type": "low_match_ratio",
+            "severity": "critical",
+            "message": "Only 8% of words matched",
+            "suggestedFix": "Check OCR accuracy or video clarity"
+          },
+          {
+            "type": "caption_quality_overall",
+            "severity": "warning",
+            "message": "Caption quality overall below threshold (score=0.42)",
+            "suggestedFix": "Improve caption readability (safe margins, pacing, density) and re-render"
+          },
+          {
+            "type": "caption_flicker",
+            "severity": "warning",
+            "message": "Caption flicker detected (2 reappearance event(s))",
+            "suggestedFix": "Increase minimum on-screen time and avoid 1-frame subtitle dropouts"
+          },
+          {
+            "type": "caption_safe_margin",
+            "severity": "warning",
+            "message": "Captions violate safe margins (92 frame(s))",
+            "suggestedFix": "Move captions inward from screen edges (increase padding / safe area)"
+          },
+          {
+            "type": "caption_density",
+            "severity": "warning",
+            "message": "Caption crowding detected (lineOverflow=25, charOverflow=3)",
+            "suggestedFix": "Reduce words per caption and keep captions to 1–2 lines"
+          },
+          {
+            "type": "caption_punctuation",
+            "severity": "warning",
+            "message": "Caption punctuation issues (missingTerminal=14, repeated=0)",
+            "suggestedFix": "Fix punctuation in script/transcript normalization and re-render captions"
+          },
+          {
+            "type": "caption_low_confidence",
+            "severity": "warning",
+            "message": "Low OCR confidence may indicate poor caption legibility (mean=0.44)",
+            "suggestedFix": "Increase caption contrast (outline/shadow) and avoid cluttered backgrounds"
+          }
+        ],
+        "analysis": {
+          "ocrEngine": "tesseract",
+          "asrEngine": "whisper-cpp",
+          "framesAnalyzed": 95,
+          "analysisTimeMs": 74291,
+          "captionFrameSize": {
+            "width": 1080,
+            "height": 672
+          },
+          "videoFrameSize": {
+            "width": 1080,
+            "height": 1920
+          },
+          "captionCropOffsetY": 1248
+        },
+        "captionQuality": {
+          "thresholds": {
+            "safeMarginRatio": 0.05,
+            "idealReadingSpeedWps": {
+              "min": 2,
+              "max": 4
+            },
+            "absoluteReadingSpeedWps": {
+              "min": 1,
+              "max": 7
+            },
+            "recommendedCaptionDurationSeconds": {
+              "min": 1,
+              "max": 7
+            },
+            "flashDurationSecondsMax": 0.5,
+            "density": {
+              "maxLines": 3,
+              "maxCharsPerLine": 45
+            },
+            "capitalization": {
+              "allCapsRatioMin": 0.8
+            },
+            "alignment": {
+              "idealCenterXRatio": 0.5,
+              "maxMeanAbsCenterDxRatio": 0.1
+            },
+            "placement": {
+              "maxStddevCenterXRatio": 0.02,
+              "maxStddevCenterYRatio": 0.02
+            },
+            "jitter": {
+              "maxMeanCenterDeltaPx": 10,
+              "maxP95CenterDeltaPx": 40
+            },
+            "style": {
+              "maxBboxHeightCv": 0.25,
+              "maxBboxAreaCv": 0.4
+            },
+            "pass": {
+              "minOverall": 0.75,
+              "minCoverageRatio": 0.6,
+              "maxFlickerEvents": 1
+            }
+          },
+          "weights": {
+            "rhythm": 0.12,
+            "displayTime": 0.08,
+            "coverage": 0.12,
+            "safeArea": 0.1,
+            "density": 0.06,
+            "punctuation": 0.04,
+            "capitalization": 0.03,
+            "alignment": 0.06,
+            "placement": 0.06,
+            "jitter": 0.08,
+            "style": 0.05,
+            "redundancy": 0.05,
+            "segmentation": 0.06,
+            "ocrConfidence": 0.09
+          },
+          "overall": {
+            "score": 0.4183055831273048,
+            "passed": false
+          },
+          "segments": [
+            {
+              "text": "as j= §\n2 . B.S ; Ya )\n= wp Ng.\nEe Le\ni J Jon",
+              "normalizedText": "as j= § 2 . B.S ; Ya ) = wp Ng. Ee Le i J Jon",
+              "startSeconds": 0,
+              "endSeconds": 0.5,
+              "durationSeconds": 0.5,
+              "wordCount": 17,
+              "lineCount": 5,
+              "maxCharsPerLine": 14,
+              "meanConfidence": 0.29,
+              "bbox": {
+                "x0": 0,
+                "y0": 1295,
+                "x1": 1071,
+                "y1": 1698
+              },
+              "center": {
+                "x": 535.5,
+                "y": 1496.5
+              },
+              "bboxHeightPx": 403,
+              "bboxAreaPx": 431613
+            },
+            {
+              "text": "SAK 2 [\nL~ {= x\nSS p\nLE +N\nhe oo ae\nk\nXi $ ko",
+              "normalizedText": "SAK 2 [ L~ {= x SS p LE +N he oo ae k Xi $ ko",
+              "startSeconds": 0.5,
+              "endSeconds": 1,
+              "durationSeconds": 0.5,
+              "wordCount": 17,
+              "lineCount": 7,
+              "maxCharsPerLine": 8,
+              "meanConfidence": 0.21,
+              "bbox": {
+                "x0": 56,
+                "y0": 1248,
+                "x1": 1031,
+                "y1": 1920
+              },
+              "center": {
+                "x": 543.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 655200
+            },
+            {
+              "text": "an a\nbel Xx 5 ;\n¥\nLs gE hey\n3 - 2 i a :\n= Paes\n0\nca \\",
+              "normalizedText": "an a bel Xx 5 ; ¥ Ls gE hey 3 - 2 i a : = Paes 0 ca \\",
+              "startSeconds": 1,
+              "endSeconds": 1.5,
+              "durationSeconds": 0.5,
+              "wordCount": 21,
+              "lineCount": 8,
+              "maxCharsPerLine": 11,
+              "meanConfidence": 0.3,
+              "bbox": {
+                "x0": 28,
+                "y0": 1248,
+                "x1": 693,
+                "y1": 1725
+              },
+              "center": {
+                "x": 360.5,
+                "y": 1486.5
+              },
+              "bboxHeightPx": 477,
+              "bboxAreaPx": 317205
+            },
+            {
+              "text": "\\s ae.\n0} “& A\nx 55 (5\nFe F = p\nok $a “i\n4 8 <A\nS27} )1\nol. %\nparE pr 3\nag\n= i HN\nSe § Ci ea\n“Por: Hh b eg We",
+              "normalizedText": "\\s ae. 0} “& A x 55 (5 Fe F = p ok $a “i 4 8 <A S27} )1 ol. % parE pr 3 ag = i HN Se § Ci ea “Por: Hh b eg We",
+              "startSeconds": 1.5,
+              "endSeconds": 2,
+              "durationSeconds": 0.5,
+              "wordCount": 38,
+              "lineCount": 13,
+              "maxCharsPerLine": 16,
+              "meanConfidence": 0.23,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1079,
+                "y1": 1911
+              },
+              "center": {
+                "x": 539.5,
+                "y": 1579.5
+              },
+              "bboxHeightPx": 663,
+              "bboxAreaPx": 715377
+            },
+            {
+              "text": "§ hE WR\n.\n¥\nss ) )\n3 Ss\n£5 x rt\n57 : £8 3 - 1\nLok 3 ht.\nSTs = i:\nSoya\nZe \\\ngees BE oY ha",
+              "normalizedText": "§ hE WR . ¥ ss ) ) 3 Ss £5 x rt 57 : £8 3 - 1 Lok 3 ht. STs = i: Soya Ze \\ gees BE oY ha",
+              "startSeconds": 2,
+              "endSeconds": 2.5,
+              "durationSeconds": 0.5,
+              "wordCount": 32,
+              "lineCount": 12,
+              "maxCharsPerLine": 13,
+              "meanConfidence": 0.31,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1036,
+                "y1": 1897
+              },
+              "center": {
+                "x": 518,
+                "y": 1572.5
+              },
+              "bboxHeightPx": 649,
+              "bboxAreaPx": 672364
+            },
+            {
+              "text": "Ea\n3 AEA\n4 h\n: Ve 2\n3 8 =\nJ ot 5 ’ A!\nry Es\n££ 2 f\nata y\nRVI } :\nFET ,\nx a 4",
+              "normalizedText": "Ea 3 AEA 4 h : Ve 2 3 8 = J ot 5 ’ A! ry Es ££ 2 f ata y RVI } : FET , x a 4",
+              "startSeconds": 2.5,
+              "endSeconds": 3,
+              "durationSeconds": 0.5,
+              "wordCount": 31,
+              "lineCount": 12,
+              "maxCharsPerLine": 11,
+              "meanConfidence": 0.25,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 710,
+                "y1": 1920
+              },
+              "center": {
+                "x": 355,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 477120
+            },
+            {
+              "text": "\\g\na.\n3 [\n5 A.\n<4 \\\nfy B.\n2 = g\n3 P77 a =\nLe a2\non (EER p\npis br\nTd i\n&d k=\"\ny. Fs E>\nBET A\nTEER\ngis EE fn\n2 Ml BA ) +\nENC i 3 /\nta 2,\n4 YE gr, ¥",
+              "normalizedText": "\\g a. 3 [ 5 A. <4 \\ fy B. 2 = g 3 P77 a = Le a2 on (EER p pis br Td i &d k=\" y. Fs E> BET A TEER gis EE fn 2 Ml BA ) + ENC i 3 / ta 2, 4 YE gr, ¥",
+              "startSeconds": 3,
+              "endSeconds": 3.5,
+              "durationSeconds": 0.5,
+              "wordCount": 52,
+              "lineCount": 21,
+              "maxCharsPerLine": 11,
+              "meanConfidence": 0.23,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 709,
+                "y1": 1920
+              },
+              "center": {
+                "x": 354.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 476448
+            },
+            {
+              "text": "i g\nge\n2) :\nPd\nAx oo =\nf- 5a\nony 3\nFIZ py,\nANE 2\nREND Se TE § 3",
+              "normalizedText": "i g ge 2) : Pd Ax oo = f- 5a ony 3 FIZ py, ANE 2 REND Se TE § 3",
+              "startSeconds": 3.5,
+              "endSeconds": 4,
+              "durationSeconds": 0.5,
+              "wordCount": 22,
+              "lineCount": 10,
+              "maxCharsPerLine": 14,
+              "meanConfidence": 0.26,
+              "bbox": {
+                "x0": 299,
+                "y0": 1265,
+                "x1": 696,
+                "y1": 1920
+              },
+              "center": {
+                "x": 497.5,
+                "y": 1592.5
+              },
+              "bboxHeightPx": 655,
+              "bboxAreaPx": 260035
+            },
+            {
+              "text": "0\n“on\nsed :\neg\n! Zh =\npe =\n25 A |\nof TPE f",
+              "normalizedText": "0 “on sed : eg ! Zh = pe = 25 A | of TPE f",
+              "startSeconds": 4,
+              "endSeconds": 4.5,
+              "durationSeconds": 0.5,
+              "wordCount": 16,
+              "lineCount": 8,
+              "maxCharsPerLine": 8,
+              "meanConfidence": 0.33,
+              "bbox": {
+                "x0": 270,
+                "y0": 1323,
+                "x1": 711,
+                "y1": 1920
+              },
+              "center": {
+                "x": 490.5,
+                "y": 1621.5
+              },
+              "bboxHeightPx": 597,
+              "bboxAreaPx": 263277
+            },
+            {
+              "text": "-— y",
+              "normalizedText": "-— y",
+              "startSeconds": 4.5,
+              "endSeconds": 5.5,
+              "durationSeconds": 1,
+              "wordCount": 2,
+              "lineCount": 1,
+              "maxCharsPerLine": 4,
+              "meanConfidence": 0.125,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1068,
+                "y1": 1920
+              },
+              "center": {
+                "x": 534,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 717696
+            },
+            {
+              "text": "4d |\n4",
+              "normalizedText": "4d | 4",
+              "startSeconds": 5.5,
+              "endSeconds": 6,
+              "durationSeconds": 0.5,
+              "wordCount": 3,
+              "lineCount": 2,
+              "maxCharsPerLine": 4,
+              "meanConfidence": 0.46,
+              "bbox": {
+                "x0": 174,
+                "y0": 1492,
+                "x1": 812,
+                "y1": 1920
+              },
+              "center": {
+                "x": 493,
+                "y": 1706
+              },
+              "bboxHeightPx": 428,
+              "bboxAreaPx": 273064
+            },
+            {
+              "text": "4 |",
+              "normalizedText": "4 |",
+              "startSeconds": 6,
+              "endSeconds": 6.5,
+              "durationSeconds": 0.5,
+              "wordCount": 2,
+              "lineCount": 1,
+              "maxCharsPerLine": 3,
+              "meanConfidence": 0.82,
+              "bbox": {
+                "x0": 167,
+                "y0": 1454,
+                "x1": 812,
+                "y1": 1534
+              },
+              "center": {
+                "x": 489.5,
+                "y": 1494
+              },
+              "bboxHeightPx": 80,
+              "bboxAreaPx": 51600
+            },
+            {
+              "text": "Y",
+              "normalizedText": "Y",
+              "startSeconds": 6.5,
+              "endSeconds": 7,
+              "durationSeconds": 0.5,
+              "wordCount": 1,
+              "lineCount": 1,
+              "maxCharsPerLine": 1,
+              "meanConfidence": 0.17,
+              "bbox": {
+                "x0": 683,
+                "y0": 1248,
+                "x1": 1071,
+                "y1": 1920
+              },
+              "center": {
+                "x": 877,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 260736
+            },
+            {
+              "text": "«,\n- N\na",
+              "normalizedText": "«, - N a",
+              "startSeconds": 7,
+              "endSeconds": 7.5,
+              "durationSeconds": 0.5,
+              "wordCount": 4,
+              "lineCount": 3,
+              "maxCharsPerLine": 3,
+              "meanConfidence": 0.4,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1048,
+                "y1": 1920
+              },
+              "center": {
+                "x": 524,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 704256
+            },
+            {
+              "text": "eX [|\noe",
+              "normalizedText": "eX [| oe",
+              "startSeconds": 7.5,
+              "endSeconds": 8,
+              "durationSeconds": 0.5,
+              "wordCount": 3,
+              "lineCount": 2,
+              "maxCharsPerLine": 5,
+              "meanConfidence": 0.14,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1066,
+                "y1": 1920
+              },
+              "center": {
+                "x": 533,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 716352
+            },
+            {
+              "text": "«® |\n1.",
+              "normalizedText": "«® | 1.",
+              "startSeconds": 8,
+              "endSeconds": 8.5,
+              "durationSeconds": 0.5,
+              "wordCount": 3,
+              "lineCount": 2,
+              "maxCharsPerLine": 4,
+              "meanConfidence": 0.72,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1050,
+                "y1": 1920
+              },
+              "center": {
+                "x": 525,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 705600
+            },
+            {
+              "text": "al",
+              "normalizedText": "al",
+              "startSeconds": 8.5,
+              "endSeconds": 9,
+              "durationSeconds": 0.5,
+              "wordCount": 1,
+              "lineCount": 1,
+              "maxCharsPerLine": 2,
+              "meanConfidence": 0.42,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "Ls |\nWR",
+              "normalizedText": "Ls | WR",
+              "startSeconds": 9,
+              "endSeconds": 9.5,
+              "durationSeconds": 0.5,
+              "wordCount": 3,
+              "lineCount": 2,
+              "maxCharsPerLine": 4,
+              "meanConfidence": 0.43,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1073,
+                "y1": 1920
+              },
+              "center": {
+                "x": 536.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 721056
+            },
+            {
+              "text": "4",
+              "normalizedText": "4",
+              "startSeconds": 9.5,
+              "endSeconds": 10,
+              "durationSeconds": 0.5,
+              "wordCount": 1,
+              "lineCount": 1,
+              "maxCharsPerLine": 1,
+              "meanConfidence": 0.08,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "bf\n—",
+              "normalizedText": "bf —",
+              "startSeconds": 10,
+              "endSeconds": 10.5,
+              "durationSeconds": 0.5,
+              "wordCount": 2,
+              "lineCount": 2,
+              "maxCharsPerLine": 2,
+              "meanConfidence": 0.28,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "A\né i\n‘wom J",
+              "normalizedText": "A é i ‘wom J",
+              "startSeconds": 10.5,
+              "endSeconds": 11,
+              "durationSeconds": 0.5,
+              "wordCount": 5,
+              "lineCount": 3,
+              "maxCharsPerLine": 6,
+              "meanConfidence": 0.36,
+              "bbox": {
+                "x0": 44,
+                "y0": 1248,
+                "x1": 1065,
+                "y1": 1920
+              },
+              "center": {
+                "x": 554.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 686112
+            },
+            {
+              "text": "< 4",
+              "normalizedText": "< 4",
+              "startSeconds": 11,
+              "endSeconds": 12.5,
+              "durationSeconds": 1.5,
+              "wordCount": 2,
+              "lineCount": 1,
+              "maxCharsPerLine": 3,
+              "meanConfidence": 0.37666666666666665,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "-_ A E ”\nEE L\n—",
+              "normalizedText": "-_ A E ” EE L —",
+              "startSeconds": 12.5,
+              "endSeconds": 13,
+              "durationSeconds": 0.5,
+              "wordCount": 7,
+              "lineCount": 3,
+              "maxCharsPerLine": 8,
+              "meanConfidence": 0.19,
+              "bbox": {
+                "x0": 73,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1857
+              },
+              "center": {
+                "x": 576.5,
+                "y": 1552.5
+              },
+              "bboxHeightPx": 609,
+              "bboxAreaPx": 613263
+            },
+            {
+              "text": "A - \\ Pl\nk | i",
+              "normalizedText": "A - \\ Pl k | i",
+              "startSeconds": 13,
+              "endSeconds": 13.5,
+              "durationSeconds": 0.5,
+              "wordCount": 7,
+              "lineCount": 2,
+              "maxCharsPerLine": 8,
+              "meanConfidence": 0.39,
+              "bbox": {
+                "x0": 326,
+                "y0": 1248,
+                "x1": 1079,
+                "y1": 1639
+              },
+              "center": {
+                "x": 702.5,
+                "y": 1443.5
+              },
+              "bboxHeightPx": 391,
+              "bboxAreaPx": 294423
+            },
+            {
+              "text": "- \\ :",
+              "normalizedText": "- \\ :",
+              "startSeconds": 13.5,
+              "endSeconds": 14,
+              "durationSeconds": 0.5,
+              "wordCount": 3,
+              "lineCount": 1,
+              "maxCharsPerLine": 5,
+              "meanConfidence": 0.5,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 992,
+                "y1": 1837
+              },
+              "center": {
+                "x": 496,
+                "y": 1542.5
+              },
+              "bboxHeightPx": 589,
+              "bboxAreaPx": 584288
+            },
+            {
+              "text": "Ng A T | .\n\" \\\n_",
+              "normalizedText": "Ng A T | . \" \\ _",
+              "startSeconds": 14.5,
+              "endSeconds": 15,
+              "durationSeconds": 0.5,
+              "wordCount": 8,
+              "lineCount": 3,
+              "maxCharsPerLine": 10,
+              "meanConfidence": 0.4,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1852
+              },
+              "center": {
+                "x": 540,
+                "y": 1550
+              },
+              "bboxHeightPx": 604,
+              "bboxAreaPx": 652320
+            },
+            {
+              "text": "> Ng | - ; .\n=> A\n—",
+              "normalizedText": "> Ng | - ; . => A —",
+              "startSeconds": 15,
+              "endSeconds": 15.5,
+              "durationSeconds": 0.5,
+              "wordCount": 9,
+              "lineCount": 3,
+              "maxCharsPerLine": 12,
+              "meanConfidence": 0.51,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1870
+              },
+              "center": {
+                "x": 540,
+                "y": 1559
+              },
+              "bboxHeightPx": 622,
+              "bboxAreaPx": 671760
+            },
+            {
+              "text": "Dang 5 | ’\nr",
+              "normalizedText": "Dang 5 | ’ r",
+              "startSeconds": 15.5,
+              "endSeconds": 16,
+              "durationSeconds": 0.5,
+              "wordCount": 5,
+              "lineCount": 2,
+              "maxCharsPerLine": 10,
+              "meanConfidence": 0.47,
+              "bbox": {
+                "x0": 30,
+                "y0": 1248,
+                "x1": 928,
+                "y1": 1878
+              },
+              "center": {
+                "x": 479,
+                "y": 1563
+              },
+              "bboxHeightPx": 630,
+              "bboxAreaPx": 565740
+            },
+            {
+              "text": "bay | 7 1",
+              "normalizedText": "bay | 7 1",
+              "startSeconds": 16,
+              "endSeconds": 16.5,
+              "durationSeconds": 0.5,
+              "wordCount": 4,
+              "lineCount": 1,
+              "maxCharsPerLine": 9,
+              "meanConfidence": 0.41,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 990,
+                "y1": 1446
+              },
+              "center": {
+                "x": 495,
+                "y": 1347
+              },
+              "bboxHeightPx": 198,
+              "bboxAreaPx": 196020
+            },
+            {
+              "text": "A",
+              "normalizedText": "A",
+              "startSeconds": 16.5,
+              "endSeconds": 17,
+              "durationSeconds": 0.5,
+              "wordCount": 1,
+              "lineCount": 1,
+              "maxCharsPerLine": 1,
+              "meanConfidence": 0.71,
+              "bbox": {
+                "x0": 696,
+                "y0": 1568,
+                "x1": 1080,
+                "y1": 1848
+              },
+              "center": {
+                "x": 888,
+                "y": 1708
+              },
+              "bboxHeightPx": 280,
+              "bboxAreaPx": 107520
+            },
+            {
+              "text": "XY a Tow\nNe |\n$",
+              "normalizedText": "XY a Tow Ne | $",
+              "startSeconds": 17,
+              "endSeconds": 17.5,
+              "durationSeconds": 0.5,
+              "wordCount": 6,
+              "lineCount": 3,
+              "maxCharsPerLine": 8,
+              "meanConfidence": 0.42,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1076,
+                "y1": 1920
+              },
+              "center": {
+                "x": 538,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 723072
+            },
+            {
+              "text": "dy i, | i\n7 i < ) ~\na. eS\n/ : i - Aa’ Ko he din\nD7 i pie \\\nCT hig & -~\nNE eck oa \\ 3 a\ni es Phas) 3 Z 3 4 a Ds >\n- i’ . y > k Ly 3 > i vid\n> A 0) , + J a ar ~~ oy\nAi. op EIR TI X BRAT > “RAE.\nTT nas WO Eo gd\nCree 3 Pe\nBI. A % va a aT\ndls PE - A. A wy md",
+              "normalizedText": "dy i, | i 7 i < ) ~ a. eS / : i - Aa’ Ko he din D7 i pie \\ CT hig & -~ NE eck oa \\ 3 a i es Phas) 3 Z 3 4 a Ds > - i’ . y > k Ly 3 > i vid > A 0) , + J a ar ~~ oy Ai. op EIR TI X BRAT > “RAE. TT nas WO Eo gd Cree 3 Pe BI. A % va a aT dls PE - A. A wy md",
+              "startSeconds": 17.5,
+              "endSeconds": 18,
+              "durationSeconds": 0.5,
+              "wordCount": 93,
+              "lineCount": 15,
+              "maxCharsPerLine": 28,
+              "meanConfidence": 0.29,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1072,
+                "y1": 1920
+              },
+              "center": {
+                "x": 536,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 720384
+            },
+            {
+              "text": "5 ee \\ an\ney AA Nv i\n4 oF edie” \"lh\nae iE Ts ) : N a\npr = (\\ ;\npain \\\n7s very : “-— gi\n{14 0 Tay F a - oy\noie, at a\nnme Hid .\n— Pl. wl SS.\n” >\ni 3 > 3\n72 y ’ . Be... §\nAen [N a - - 3 g P\nAa. oN (ThE “NE TR Ge TT\nPSR » x \" oo of hy oi\na , Re 3\nfg. SL 4\n: a / , ¢ § «7 _-\nak be £4 Sh mt\n“2h Shas J) we NN A",
+              "normalizedText": "5 ee \\ an ey AA Nv i 4 oF edie” \"lh ae iE Ts ) : N a pr = (\\ ; pain \\ 7s very : “-— gi {14 0 Tay F a - oy oie, at a nme Hid . — Pl. wl SS. ” > i 3 > 3 72 y ’ . Be... § Aen [N a - - 3 g P Aa. oN (ThE “NE TR Ge TT PSR » x \" oo of hy oi a , Re 3 fg. SL 4 : a / , ¢ § «7 _- ak be £4 Sh mt “2h Shas J) we NN A",
+              "startSeconds": 18,
+              "endSeconds": 18.5,
+              "durationSeconds": 0.5,
+              "wordCount": 108,
+              "lineCount": 22,
+              "maxCharsPerLine": 24,
+              "meanConfidence": 0.27,
+              "bbox": {
+                "x0": 0,
+                "y0": 1277,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1598.5
+              },
+              "bboxHeightPx": 643,
+              "bboxAreaPx": 694440
+            },
+            {
+              "text": "PT 4 TN .\ni A UR, J AR a . ‘\n/ gl he 4\n4 LC, Wine 109 [\nJ& 1 . “Sy\nBr. = \\\n= Peer \\ =\no£ —. 5 =\ni ne \\ a oop,\n£ 8 AL = 4 = “a\n= gL. ean a g\na 1 Vd ge 14 p =\n2 : bs Fe = 3:\n: pm ky £ LE\n3 oo py ey > 3 £5\nby RED p-. AX for\n7 \\ PREY FIN 3 = ~ fo J\n> Ai i 48 Es\nBRR - iS he (ey\n* 2 Set Be FS\na - 4 a - Ee |\nee ; A oo ol vd ©. 3 Er » »\nos | - at\n0 / po 13% \" : ; Tod Sh\np 4 Mary 3 i 3 In,",
+              "normalizedText": "PT 4 TN . i A UR, J AR a . ‘ / gl he 4 4 LC, Wine 109 [ J& 1 . “Sy Br. = \\ = Peer \\ = o£ —. 5 = i ne \\ a oop, £ 8 AL = 4 = “a = gL. ean a g a 1 Vd ge 14 p = 2 : bs Fe = 3: : pm ky £ LE 3 oo py ey > 3 £5 by RED p-. AX for 7 \\ PREY FIN 3 = ~ fo J > Ai i 48 Es BRR - iS he (ey * 2 Set Be FS a - 4 a - Ee | ee ; A oo ol vd ©. 3 Er » » os | - at 0 / po 13% \" : ; Tod Sh p 4 Mary 3 i 3 In,",
+              "startSeconds": 18.5,
+              "endSeconds": 19,
+              "durationSeconds": 0.5,
+              "wordCount": 145,
+              "lineCount": 25,
+              "maxCharsPerLine": 27,
+              "meanConfidence": 0.34,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "4 ” E ” \\ Bs -\n7 A : \\\nLz - |\n4 fw = ip \\ P\nV6 &\n£e dl —— 5 \\ E Bs ®\ned's. Pog 4 Ses T\n£77808 a ;\nz. 4\n~ v . OF w= h ¥ '& 3 B 14 a - 3 n i\n: he A (ae TI eat\nast & & £ BE CE 3 3 x\nSu, - . ie < - NE 3 Ns se\nib Ts ho ¥ po “3 ee” ©\n: ie, VRE, Ri - ind 3\nSTR id ’ Ry\nFa a 3 oa.\nLR NO Eline Eat\n4 A fa | - 3 4 5\n4 = = <\nd - Re - i £\n“ Sit RE a -",
+              "normalizedText": "4 ” E ” \\ Bs - 7 A : \\ Lz - | 4 fw = ip \\ P V6 & £e dl —— 5 \\ E Bs ® ed's. Pog 4 Ses T £77808 a ; z. 4 ~ v . OF w= h ¥ '& 3 B 14 a - 3 n i : he A (ae TI eat ast & & £ BE CE 3 3 x Su, - . ie < - NE 3 Ns se ib Ts ho ¥ po “3 ee” © : ie, VRE, Ri - ind 3 STR id ’ Ry Fa a 3 oa. LR NO Eline Eat 4 A fa | - 3 4 5 4 = = < d - Re - i £ “ Sit RE a -",
+              "startSeconds": 19,
+              "endSeconds": 19.5,
+              "durationSeconds": 0.5,
+              "wordCount": 131,
+              "lineCount": 22,
+              "maxCharsPerLine": 35,
+              "meanConfidence": 0.31,
+              "bbox": {
+                "x0": 0,
+                "y0": 1272,
+                "x1": 1079,
+                "y1": 1920
+              },
+              "center": {
+                "x": 539.5,
+                "y": 1596
+              },
+              "bboxHeightPx": 648,
+              "bboxAreaPx": 699192
+            },
+            {
+              "text": "7 oe | po\nWV... EY \\\nvot al : b | : 3\nPi: - jy ur ll\n8-Sskie ie A i Fo\nee  ¢ fe iy CEN\nel} TRAN - (a e\nNG Bo iL i: Vs pe RE & Ar Ee\n> Me 2 IE BR k,\nLor Mo) or ? SC ox he\n4 BER bs. P . in 8\nVa di - — 3 § -\n« NLT) a ~ iL ; CAR Ea a pr ,\na . & 4 23 Ee .,\nrr ho TR % SE",
+              "normalizedText": "7 oe | po WV... EY \\ vot al : b | : 3 Pi: - jy ur ll 8-Sskie ie A i Fo ee ¢ fe iy CEN el} TRAN - (a e NG Bo iL i: Vs pe RE & Ar Ee > Me 2 IE BR k, Lor Mo) or ? SC ox he 4 BER bs. P . in 8 Va di - — 3 § - « NLT) a ~ iL ; CAR Ea a pr , a . & 4 23 Ee ., rr ho TR % SE",
+              "startSeconds": 19.5,
+              "endSeconds": 20,
+              "durationSeconds": 0.5,
+              "wordCount": 94,
+              "lineCount": 15,
+              "maxCharsPerLine": 29,
+              "meanConfidence": 0.27,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "7 SA = Re || A :\n4 5 EN\nEo \\\\ c\nEy 4 ae ge A \\\\\n& pet . Al Wage\n\"7a al Ew 1 Mo.\ntae we ) = i 2s\nVi 25 5 . 3 3\nYR, TY SENN oe vd, | 4 Ee a\n- ae Tn\n3 k. Ee hs Ya - a\nnd < y (Ge oe\n0 Shiny ul £2 sed ORS 2 ao\nBe We, as PEE » - x “pe ’\ndor RE TR 5% FA\n: Br a, ER \"5 Eigh ©\nsy P pe\nBT le K Jo o pee p ving = CE\np/ > c Be SR 2 KS\n7 aa, 2 a be\" of\n. FUL = 3\n3 iS 7) ~ i Bo Re LL”\nEe A 3 3 t RE =\nTE x & Er Re (Sa &\ndS EER, Fool 0 8",
+              "normalizedText": "7 SA = Re || A : 4 5 EN Eo \\\\ c Ey 4 ae ge A \\\\ & pet . Al Wage \"7a al Ew 1 Mo. tae we ) = i 2s Vi 25 5 . 3 3 YR, TY SENN oe vd, | 4 Ee a - ae Tn 3 k. Ee hs Ya - a nd < y (Ge oe 0 Shiny ul £2 sed ORS 2 ao Be We, as PEE » - x “pe ’ dor RE TR 5% FA : Br a, ER \"5 Eigh © sy P pe BT le K Jo o pee p ving = CE p/ > c Be SR 2 KS 7 aa, 2 a be\" of . FUL = 3 3 iS 7) ~ i Bo Re LL” Ee A 3 3 t RE = TE x & Er Re (Sa & dS EER, Fool 0 8",
+              "startSeconds": 20,
+              "endSeconds": 20.5,
+              "durationSeconds": 0.5,
+              "wordCount": 151,
+              "lineCount": 25,
+              "maxCharsPerLine": 28,
+              "meanConfidence": 0.29,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "7 5. Rn,\nale i \\ Bn\nVV . eos 2 4 :\n> ATT! RL : A ? a\nm= ; ig = Re\ngp N Ns \"- ; Os 2 So\nb To Tr So mE -\nA fe SE\n: Sik Nts. ov A\nSi yy a ihe | CT voy WORE TE\nSi / $s >\nw/ Coe sy * \\\n“2% i IRE 5\ng¥ oe EN 8",
+              "normalizedText": "7 5. Rn, ale i \\ Bn VV . eos 2 4 : > ATT! RL : A ? a m= ; ig = Re gp N Ns \"- ; Os 2 So b To Tr So mE - A fe SE : Sik Nts. ov A Si yy a ihe | CT voy WORE TE Si / $s > w/ Coe sy * \\ “2% i IRE 5 g¥ oe EN 8",
+              "startSeconds": 20.5,
+              "endSeconds": 21,
+              "durationSeconds": 0.5,
+              "wordCount": 73,
+              "lineCount": 14,
+              "maxCharsPerLine": 28,
+              "meanConfidence": 0.24,
+              "bbox": {
+                "x0": 0,
+                "y0": 1287,
+                "x1": 1051,
+                "y1": 1920
+              },
+              "center": {
+                "x": 525.5,
+                "y": 1603.5
+              },
+              "bboxHeightPx": 633,
+              "bboxAreaPx": 665283
+            },
+            {
+              "text": "p 3 & Ba | - TT\n% %, he : A\nPJ Atri \\\n7 all ii 3\nB a . a = : ) |\n« 2 ELE i =\nbe as : : ; pr Rs 3 i 3, 3 nd\n4 PES oN Ne . & Sra or Ny 4 Nhe\npot x a Es 4\na p a3\nSAEs # § Ee * 5\n; Riga Ss» T\n: Sy § |. A 8 > -\nG7 RR Te % i\n7 4 Al PY ER 3 So J\npe ¥ Te gy L= ey Ns. Ro",
+              "normalizedText": "p 3 & Ba | - TT % %, he : A PJ Atri \\ 7 all ii 3 B a . a = : ) | « 2 ELE i = be as : : ; pr Rs 3 i 3, 3 nd 4 PES oN Ne . & Sra or Ny 4 Nhe pot x a Es 4 a p a3 SAEs # § Ee * 5 ; Riga Ss» T : Sy § |. A 8 > - G7 RR Te % i 7 4 Al PY ER 3 So J pe ¥ Te gy L= ey Ns. Ro",
+              "startSeconds": 21,
+              "endSeconds": 21.5,
+              "durationSeconds": 0.5,
+              "wordCount": 102,
+              "lineCount": 16,
+              "maxCharsPerLine": 31,
+              "meanConfidence": 0.31,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1079,
+                "y1": 1920
+              },
+              "center": {
+                "x": 539.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725088
+            },
+            {
+              "text": "tad, BL ‘4 . —~—\nCl a | - ha\n5/3 3 - ' r\n£94 dain \\ -\nJF al | 5\nYa 3 FE itn ; F o\nE 1 he FO\n= oo SLT a TT\n= hy & Te\n=m . p NA Fa SE\nSome (1 . SL (oA. - - 3\nKill a SOAR\nERC ow ae oS NO po -\n{Ty a g 4 “ - p |\n2 ST os AR P 3 - iN ~\nRE 7/7 BTN Py SRNL a\nPa aR . Nps i. NE md >\ny at - EE ol\n“4 elas Es at UE, r Pa",
+              "normalizedText": "tad, BL ‘4 . —~— Cl a | - ha 5/3 3 - ' r £94 dain \\ - JF al | 5 Ya 3 FE itn ; F o E 1 he FO = oo SLT a TT = hy & Te =m . p NA Fa SE Some (1 . SL (oA. - - 3 Kill a SOAR ERC ow ae oS NO po - {Ty a g 4 “ - p | 2 ST os AR P 3 - iN ~ RE 7/7 BTN Py SRNL a Pa aR . Nps i. NE md > y at - EE ol “4 elas Es at UE, r Pa",
+              "startSeconds": 21.5,
+              "endSeconds": 22,
+              "durationSeconds": 0.5,
+              "wordCount": 110,
+              "lineCount": 19,
+              "maxCharsPerLine": 23,
+              "meanConfidence": 0.26,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1909
+              },
+              "center": {
+                "x": 540,
+                "y": 1578.5
+              },
+              "bboxHeightPx": 661,
+              "bboxAreaPx": 713880
+            },
+            {
+              "text": "Er Me LL Se.\n2 > To \\ ~ B\n7 A = :\n7 5. 5 y\nELL Adi Se\nLT es g \\ ag,\no “ Be Jols 4 =\nSATS Ne gd LC\nJp. Sagal. + TAN : % ’\n4 TOSS CT\nRE id, Nw 3 —\n= i ae oe\ng fi 4\nCR Re\ni ED =\nBn i ; 3 4 a Ss PY\nBo “ i £> BERET A 5\nha da » = 2 Lon — S i ~\nFEC TU ( NN A\npe ka >® Qe § + Bali J\n5 Zl k i «3\nA s RE. ey -\n18% TAR 7 5 la A\nbo a . J Re oo g v5 ve at\nRAS y x FY 4 - :\nfy Go 2 > > od\n3 £4 od Ag u FR -\n; J 8 Rite as ’ 7\n®. gl Wi 1 - L's\n“ur Forty Las NL CE Be",
+              "normalizedText": "Er Me LL Se. 2 > To \\ ~ B 7 A = : 7 5. 5 y ELL Adi Se LT es g \\ ag, o “ Be Jols 4 = SATS Ne gd LC Jp. Sagal. + TAN : % ’ 4 TOSS CT RE id, Nw 3 — = i ae oe g fi 4 CR Re i ED = Bn i ; 3 4 a Ss PY Bo “ i £> BERET A 5 ha da » = 2 Lon — S i ~ FEC TU ( NN A pe ka >® Qe § + Bali J 5 Zl k i «3 A s RE. ey - 18% TAR 7 5 la A bo a . J Re oo g v5 ve at RAS y x FY 4 - : fy Go 2 > > od 3 £4 od Ag u FR - ; J 8 Rite as ’ 7 ®. gl Wi 1 - L's “ur Forty Las NL CE Be",
+              "startSeconds": 22,
+              "endSeconds": 22.5,
+              "durationSeconds": 0.5,
+              "wordCount": 166,
+              "lineCount": 30,
+              "maxCharsPerLine": 25,
+              "meanConfidence": 0.3,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "£ Oat Freee a “(, —\ny 4 - A\nBd fem \\ Be\ni h\nr= A RN . a he\n5 i d TPE Wl] =\nR= - Cael J Fo TN\nAe S h ¥ Ee GT\nhe 8 ; TTTSEAN IA Neri Is\n3 ~. i b 4 cl FYI\nhs A Bes PSB 3 ASTIRNE ©\n3 TR, > Te ~ da  N po -\n3 Firman) VER, Re <e >\ni (hy Bot alli\n« wf To Va S Te P al\nBE y g RE Ry or\ni Seg .. d * NY\n* Zh vg: \"= y 3 w\nh Ards EE Se 4",
+              "normalizedText": "£ Oat Freee a “(, — y 4 - A Bd fem \\ Be i h r= A RN . a he 5 i d TPE Wl] = R= - Cael J Fo TN Ae S h ¥ Ee GT he 8 ; TTTSEAN IA Neri Is 3 ~. i b 4 cl FYI hs A Bes PSB 3 ASTIRNE © 3 TR, > Te ~ da N po - 3 Firman) VER, Re <e > i (hy Bot alli « wf To Va S Te P al BE y g RE Ry or i Seg .. d * NY * Zh vg: \"= y 3 w h Ards EE Se 4",
+              "startSeconds": 22.5,
+              "endSeconds": 23,
+              "durationSeconds": 0.5,
+              "wordCount": 112,
+              "lineCount": 19,
+              "maxCharsPerLine": 25,
+              "meanConfidence": 0.26,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "7a Eee 4 4\nBF. 4 - rd TT\nyp BY. \\ on i\n] £74 het i \"\n5 SR d VE\n3 yo TH re . ) \\ :\ny- Eb vo fcc He \\ 7 og.\n/ RAFAL PR. § |\nwatt , a “ry\na or > : fio piss ¥. 38\nSo x 9 Sh 2 oo 5 £32 - ey ES\nTON LL s-a NS 27 Be\n3- Fes, TO, . % hen”\nRe ba oC al iy\nORR ; pr Fook\nRPA, ” u rd A\nAe Kole 2% 4 F RR 2\nI rE / : \\ he 1S 3 C ey A = p=\n8 Re, MEE a ®\n- < yi Ph = > > 2\n_ Lf ey kb ® df\n21 oa a a\naX) Pog i an On a »",
+              "normalizedText": "7a Eee 4 4 BF. 4 - rd TT yp BY. \\ on i ] £74 het i \" 5 SR d VE 3 yo TH re . ) \\ : y- Eb vo fcc He \\ 7 og. / RAFAL PR. § | watt , a “ry a or > : fio piss ¥. 38 So x 9 Sh 2 oo 5 £32 - ey ES TON LL s-a NS 27 Be 3- Fes, TO, . % hen” Re ba oC al iy ORR ; pr Fook RPA, ” u rd A Ae Kole 2% 4 F RR 2 I rE / : \\ he 1S 3 C ey A = p= 8 Re, MEE a ® - < yi Ph = > > 2 _ Lf ey kb ® df 21 oa a a aX) Pog i an On a »",
+              "startSeconds": 23,
+              "endSeconds": 23.5,
+              "durationSeconds": 0.5,
+              "wordCount": 143,
+              "lineCount": 23,
+              "maxCharsPerLine": 30,
+              "meanConfidence": 0.26,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "a . :\nA A\nJ [, y EN 7\nof 274 ; Ameri. h he :\n- Vt - ~~ ~~ \\\nFif A \\ 3\n0 45 - AR h\nFis Beaty 3 i F -\n/ CRE Te Snr 4 Hn\nrp . asthe ™ » 5\n¢ fs e , 3 ry\nWE “ON J te >\ni 4 3 Cel gy\n= XT 3 - — - =. Ap $ v at a =) S d be\n13 v4 4 A “R-)\nk ssn pe da Be A ®\n- p Fn ’ % , % r=\n[ a Fe 1 i Fk\nca BL\nchy by ey - eRe\n: Nk 7 eT a pr a.\nA, us : Be? Be ~ 2d\n> TRS wd ; >\n/ NAT lg DRI Se TT z\"\nA PREURL Lay C SERONN, a",
+              "normalizedText": "a . : A A J [, y EN 7 of 274 ; Ameri. h he : - Vt - ~~ ~~ \\ Fif A \\ 3 0 45 - AR h Fis Beaty 3 i F - / CRE Te Snr 4 Hn rp . asthe ™ » 5 ¢ fs e , 3 ry WE “ON J te > i 4 3 Cel gy = XT 3 - — - =. Ap $ v at a =) S d be 13 v4 4 A “R-) k ssn pe da Be A ® - p Fn ’ % , % r= [ a Fe 1 i Fk ca BL chy by ey - eRe : Nk 7 eT a pr a. A, us : Be? Be ~ 2d > TRS wd ; > / NAT lg DRI Se TT z\" A PREURL Lay C SERONN, a",
+              "startSeconds": 23.5,
+              "endSeconds": 24,
+              "durationSeconds": 0.5,
+              "wordCount": 147,
+              "lineCount": 25,
+              "maxCharsPerLine": 37,
+              "meanConfidence": 0.27,
+              "bbox": {
+                "x0": 0,
+                "y0": 1297,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1608.5
+              },
+              "bboxHeightPx": 623,
+              "bboxAreaPx": 672840
+            },
+            {
+              "text": "May occasionally generate incorrect information\nMay occasionally produce harmful instructions or biased content\nLimited knowledge of world and events after 2021\n’T Mar 14 Version. Free Research Preview. Our goal is to make Al systems more natural a\nto interact with. Your feedback will help us improve.",
+              "normalizedText": "May occasionally generate incorrect information May occasionally produce harmful instructions or biased content Limited knowledge of world and events after 2021 ’T Mar 14 Version. Free Research Preview. Our goal is to make Al systems more natural a to interact with. Your feedback will help us improve.",
+              "startSeconds": 24,
+              "endSeconds": 25.5,
+              "durationSeconds": 1.5,
+              "wordCount": 47,
+              "lineCount": 5,
+              "maxCharsPerLine": 87,
+              "meanConfidence": 0.93,
+              "bbox": {
+                "x0": 0,
+                "y0": 1274,
+                "x1": 1076,
+                "y1": 1901
+              },
+              "center": {
+                "x": 538,
+                "y": 1587.5
+              },
+              "bboxHeightPx": 627,
+              "bboxAreaPx": 674652
+            },
+            {
+              "text": "May occasionally generate incorrect information\nMay occasionally produce harmful instructions or biased content\nLimited knowledge of world and events after 2021\nan you give me one example of a free stock image providers beginnin\nthe letter 'P'?\n’T Mar 14 Version. Free Research Preview. Our goal is to make Al systems more natural a\nto interact with. Your feedback will help us improve.",
+              "normalizedText": "May occasionally generate incorrect information May occasionally produce harmful instructions or biased content Limited knowledge of world and events after 2021 an you give me one example of a free stock image providers beginnin the letter 'P'? ’T Mar 14 Version. Free Research Preview. Our goal is to make Al systems more natural a to interact with. Your feedback will help us improve.",
+              "startSeconds": 25.5,
+              "endSeconds": 28,
+              "durationSeconds": 2.5,
+              "wordCount": 63,
+              "lineCount": 7,
+              "maxCharsPerLine": 87,
+              "meanConfidence": 0.924,
+              "bbox": {
+                "x0": 0,
+                "y0": 1274,
+                "x1": 1080,
+                "y1": 1901
+              },
+              "center": {
+                "x": 540,
+                "y": 1587.5
+              },
+              "bboxHeightPx": 627,
+              "bboxAreaPx": 677160
+            },
+            {
+              "text": "’T Mar 14 Version. Free Research Preview. Our goal is to make Al systems more natural a\nto interact with. Your feedback will help us improve.",
+              "normalizedText": "’T Mar 14 Version. Free Research Preview. Our goal is to make Al systems more natural a to interact with. Your feedback will help us improve.",
+              "startSeconds": 28,
+              "endSeconds": 32.5,
+              "durationSeconds": 4.5,
+              "wordCount": 26,
+              "lineCount": 2,
+              "maxCharsPerLine": 87,
+              "meanConfidence": 0.9288888888888889,
+              "bbox": {
+                "x0": 0,
+                "y0": 1843,
+                "x1": 1080,
+                "y1": 1902
+              },
+              "center": {
+                "x": 540,
+                "y": 1872.5
+              },
+              "bboxHeightPx": 59,
+              "bboxAreaPx": 63720
+            },
+            {
+              "text": "¢ va V4 0 iy\nm— f » —— \\ i\na | A \" -",
+              "normalizedText": "¢ va V4 0 iy m— f » —— \\ i a | A \" -",
+              "startSeconds": 32.5,
+              "endSeconds": 33,
+              "durationSeconds": 0.5,
+              "wordCount": 16,
+              "lineCount": 3,
+              "maxCharsPerLine": 13,
+              "meanConfidence": 0.38,
+              "bbox": {
+                "x0": 0,
+                "y0": 1296,
+                "x1": 1016,
+                "y1": 1784
+              },
+              "center": {
+                "x": 508,
+                "y": 1540
+              },
+              "bboxHeightPx": 488,
+              "bboxAreaPx": 495808
+            },
+            {
+              "text": "\" mal) CN\nNAR\nVinh",
+              "normalizedText": "\" mal) CN NAR Vinh",
+              "startSeconds": 33.5,
+              "endSeconds": 34,
+              "durationSeconds": 0.5,
+              "wordCount": 5,
+              "lineCount": 3,
+              "maxCharsPerLine": 9,
+              "meanConfidence": 0.27,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "5 Was\n\".",
+              "normalizedText": "5 Was \".",
+              "startSeconds": 34,
+              "endSeconds": 34.5,
+              "durationSeconds": 0.5,
+              "wordCount": 3,
+              "lineCount": 2,
+              "maxCharsPerLine": 5,
+              "meanConfidence": 0.09,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 870,
+                "y1": 1846
+              },
+              "center": {
+                "x": 435,
+                "y": 1547
+              },
+              "bboxHeightPx": 598,
+              "bboxAreaPx": 520260
+            },
+            {
+              "text": "NE",
+              "normalizedText": "NE",
+              "startSeconds": 34.5,
+              "endSeconds": 35,
+              "durationSeconds": 0.5,
+              "wordCount": 1,
+              "lineCount": 1,
+              "maxCharsPerLine": 2,
+              "meanConfidence": 0.54,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "» - v",
+              "normalizedText": "» - v",
+              "startSeconds": 35,
+              "endSeconds": 35.5,
+              "durationSeconds": 0.5,
+              "wordCount": 3,
+              "lineCount": 1,
+              "maxCharsPerLine": 5,
+              "meanConfidence": 0.36,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 813,
+                "y1": 1356
+              },
+              "center": {
+                "x": 406.5,
+                "y": 1302
+              },
+              "bboxHeightPx": 108,
+              "bboxAreaPx": 87804
+            },
+            {
+              "text": "N 2",
+              "normalizedText": "N 2",
+              "startSeconds": 35.5,
+              "endSeconds": 36,
+              "durationSeconds": 0.5,
+              "wordCount": 2,
+              "lineCount": 1,
+              "maxCharsPerLine": 3,
+              "meanConfidence": 0.27,
+              "bbox": {
+                "x0": 158,
+                "y0": 1662,
+                "x1": 1079,
+                "y1": 1771
+              },
+              "center": {
+                "x": 618.5,
+                "y": 1716.5
+              },
+              "bboxHeightPx": 109,
+              "bboxAreaPx": 100389
+            },
+            {
+              "text": "=",
+              "normalizedText": "=",
+              "startSeconds": 36,
+              "endSeconds": 36.5,
+              "durationSeconds": 0.5,
+              "wordCount": 1,
+              "lineCount": 1,
+              "maxCharsPerLine": 1,
+              "meanConfidence": 0.36,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 359,
+                "y1": 1920
+              },
+              "center": {
+                "x": 179.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 241248
+            },
+            {
+              "text": "es X",
+              "normalizedText": "es X",
+              "startSeconds": 36.5,
+              "endSeconds": 37.5,
+              "durationSeconds": 1,
+              "wordCount": 2,
+              "lineCount": 1,
+              "maxCharsPerLine": 4,
+              "meanConfidence": 0.32999999999999996,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "/ 8 18 3 x ¥\nv : - Cl & . A é\n| | ow |\nia R | —",
+              "normalizedText": "/ 8 18 3 x ¥ v : - Cl & . A é | | ow | ia R | —",
+              "startSeconds": 37.5,
+              "endSeconds": 38,
+              "durationSeconds": 0.5,
+              "wordCount": 22,
+              "lineCount": 4,
+              "maxCharsPerLine": 16,
+              "meanConfidence": 0.46,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1078,
+                "y1": 1566
+              },
+              "center": {
+                "x": 539,
+                "y": 1407
+              },
+              "bboxHeightPx": 318,
+              "bboxAreaPx": 342804
+            },
+            {
+              "text": "AOTS i\n— — . S—",
+              "normalizedText": "AOTS i — — . S—",
+              "startSeconds": 38,
+              "endSeconds": 38.5,
+              "durationSeconds": 0.5,
+              "wordCount": 6,
+              "lineCount": 2,
+              "maxCharsPerLine": 8,
+              "meanConfidence": 0.21,
+              "bbox": {
+                "x0": 0,
+                "y0": 1339,
+                "x1": 800,
+                "y1": 1488
+              },
+              "center": {
+                "x": 400,
+                "y": 1413.5
+              },
+              "bboxHeightPx": 149,
+              "bboxAreaPx": 119200
+            },
+            {
+              "text": "N22 «Wi\nNY & 2\nA 3 $",
+              "normalizedText": "N22 «Wi NY & 2 A 3 $",
+              "startSeconds": 38.5,
+              "endSeconds": 39,
+              "durationSeconds": 0.5,
+              "wordCount": 8,
+              "lineCount": 3,
+              "maxCharsPerLine": 7,
+              "meanConfidence": 0.33,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 997,
+                "y1": 1920
+              },
+              "center": {
+                "x": 498.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 669984
+            },
+            {
+              "text": "- ~~ — CC —\na | i /\nfF. 4",
+              "normalizedText": "- ~~ — CC — a | i / fF. 4",
+              "startSeconds": 39,
+              "endSeconds": 39.5,
+              "durationSeconds": 0.5,
+              "wordCount": 11,
+              "lineCount": 3,
+              "maxCharsPerLine": 11,
+              "meanConfidence": 0.3,
+              "bbox": {
+                "x0": 0,
+                "y0": 1419,
+                "x1": 1080,
+                "y1": 1714
+              },
+              "center": {
+                "x": 540,
+                "y": 1566.5
+              },
+              "bboxHeightPx": 295,
+              "bboxAreaPx": 318600
+            },
+            {
+              "text": "vig",
+              "normalizedText": "vig",
+              "startSeconds": 39.5,
+              "endSeconds": 40,
+              "durationSeconds": 0.5,
+              "wordCount": 1,
+              "lineCount": 1,
+              "maxCharsPerLine": 3,
+              "meanConfidence": 0,
+              "bbox": {
+                "x0": 95,
+                "y0": 1533,
+                "x1": 1080,
+                "y1": 1851
+              },
+              "center": {
+                "x": 587.5,
+                "y": 1692
+              },
+              "bboxHeightPx": 318,
+              "bboxAreaPx": 313230
+            },
+            {
+              "text": "\\ ry,",
+              "normalizedText": "\\ ry,",
+              "startSeconds": 40,
+              "endSeconds": 40.5,
+              "durationSeconds": 0.5,
+              "wordCount": 2,
+              "lineCount": 1,
+              "maxCharsPerLine": 5,
+              "meanConfidence": 0.39,
+              "bbox": {
+                "x0": 0,
+                "y0": 1355,
+                "x1": 1080,
+                "y1": 1840
+              },
+              "center": {
+                "x": 540,
+                "y": 1597.5
+              },
+              "bboxHeightPx": 485,
+              "bboxAreaPx": 523800
+            },
+            {
+              "text": "Nm),",
+              "normalizedText": "Nm),",
+              "startSeconds": 40.5,
+              "endSeconds": 41,
+              "durationSeconds": 0.5,
+              "wordCount": 1,
+              "lineCount": 1,
+              "maxCharsPerLine": 4,
+              "meanConfidence": 0.29,
+              "bbox": {
+                "x0": 0,
+                "y0": 1350,
+                "x1": 1080,
+                "y1": 1829
+              },
+              "center": {
+                "x": 540,
+                "y": 1589.5
+              },
+              "bboxHeightPx": 479,
+              "bboxAreaPx": 517320
+            },
+            {
+              "text": "Vimy,",
+              "normalizedText": "Vimy,",
+              "startSeconds": 41,
+              "endSeconds": 41.5,
+              "durationSeconds": 0.5,
+              "wordCount": 1,
+              "lineCount": 1,
+              "maxCharsPerLine": 5,
+              "meanConfidence": 0.63,
+              "bbox": {
+                "x0": 0,
+                "y0": 1344,
+                "x1": 1080,
+                "y1": 1843
+              },
+              "center": {
+                "x": 540,
+                "y": 1593.5
+              },
+              "bboxHeightPx": 499,
+              "bboxAreaPx": 538920
+            },
+            {
+              "text": "Al",
+              "normalizedText": "Al",
+              "startSeconds": 41.5,
+              "endSeconds": 42,
+              "durationSeconds": 0.5,
+              "wordCount": 1,
+              "lineCount": 1,
+              "maxCharsPerLine": 2,
+              "meanConfidence": 0,
+              "bbox": {
+                "x0": 0,
+                "y0": 1345,
+                "x1": 1080,
+                "y1": 1835
+              },
+              "center": {
+                "x": 540,
+                "y": 1590
+              },
+              "bboxHeightPx": 490,
+              "bboxAreaPx": 529200
+            },
+            {
+              "text": "Vim,",
+              "normalizedText": "Vim,",
+              "startSeconds": 42,
+              "endSeconds": 42.5,
+              "durationSeconds": 0.5,
+              "wordCount": 1,
+              "lineCount": 1,
+              "maxCharsPerLine": 4,
+              "meanConfidence": 0.48,
+              "bbox": {
+                "x0": 0,
+                "y0": 1350,
+                "x1": 1080,
+                "y1": 1818
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 468,
+              "bboxAreaPx": 505440
+            },
+            {
+              "text": "\\ 7,",
+              "normalizedText": "\\ 7,",
+              "startSeconds": 42.5,
+              "endSeconds": 43,
+              "durationSeconds": 0.5,
+              "wordCount": 2,
+              "lineCount": 1,
+              "maxCharsPerLine": 4,
+              "meanConfidence": 0.36,
+              "bbox": {
+                "x0": 0,
+                "y0": 1364,
+                "x1": 1080,
+                "y1": 1814
+              },
+              "center": {
+                "x": 540,
+                "y": 1589
+              },
+              "bboxHeightPx": 450,
+              "bboxAreaPx": 486000
+            },
+            {
+              "text": "J d \\:",
+              "normalizedText": "J d \\:",
+              "startSeconds": 43,
+              "endSeconds": 43.5,
+              "durationSeconds": 0.5,
+              "wordCount": 3,
+              "lineCount": 1,
+              "maxCharsPerLine": 6,
+              "meanConfidence": 0.48,
+              "bbox": {
+                "x0": 0,
+                "y0": 1355,
+                "x1": 1073,
+                "y1": 1855
+              },
+              "center": {
+                "x": 536.5,
+                "y": 1605
+              },
+              "bboxHeightPx": 500,
+              "bboxAreaPx": 536500
+            },
+            {
+              "text": "\\ ry,",
+              "normalizedText": "\\ ry,",
+              "startSeconds": 43.5,
+              "endSeconds": 44,
+              "durationSeconds": 0.5,
+              "wordCount": 2,
+              "lineCount": 1,
+              "maxCharsPerLine": 5,
+              "meanConfidence": 0.32,
+              "bbox": {
+                "x0": 0,
+                "y0": 1355,
+                "x1": 1080,
+                "y1": 1839
+              },
+              "center": {
+                "x": 540,
+                "y": 1597
+              },
+              "bboxHeightPx": 484,
+              "bboxAreaPx": 522720
+            },
+            {
+              "text": "\\ /",
+              "normalizedText": "\\ /",
+              "startSeconds": 44,
+              "endSeconds": 44.5,
+              "durationSeconds": 0.5,
+              "wordCount": 2,
+              "lineCount": 1,
+              "maxCharsPerLine": 3,
+              "meanConfidence": 0.87,
+              "bbox": {
+                "x0": 0,
+                "y0": 1350,
+                "x1": 1080,
+                "y1": 1828
+              },
+              "center": {
+                "x": 540,
+                "y": 1589
+              },
+              "bboxHeightPx": 478,
+              "bboxAreaPx": 516240
+            },
+            {
+              "text": "Al YY",
+              "normalizedText": "Al YY",
+              "startSeconds": 44.5,
+              "endSeconds": 45.5,
+              "durationSeconds": 1,
+              "wordCount": 2,
+              "lineCount": 1,
+              "maxCharsPerLine": 5,
+              "meanConfidence": 0.08,
+              "bbox": {
+                "x0": 0,
+                "y0": 1344,
+                "x1": 1080,
+                "y1": 1844
+              },
+              "center": {
+                "x": 540,
+                "y": 1594
+              },
+              "bboxHeightPx": 500,
+              "bboxAreaPx": 540000
+            },
+            {
+              "text": "Vim,",
+              "normalizedText": "Vim,",
+              "startSeconds": 45.5,
+              "endSeconds": 46.5,
+              "durationSeconds": 1,
+              "wordCount": 1,
+              "lineCount": 1,
+              "maxCharsPerLine": 4,
+              "meanConfidence": 0.345,
+              "bbox": {
+                "x0": 0,
+                "y0": 1350,
+                "x1": 1080,
+                "y1": 1818
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 468,
+              "bboxAreaPx": 505440
+            },
+            {
+              "text": "X\nB\n¢",
+              "normalizedText": "X B ¢",
+              "startSeconds": 46.5,
+              "endSeconds": 47,
+              "durationSeconds": 0.5,
+              "wordCount": 3,
+              "lineCount": 3,
+              "maxCharsPerLine": 1,
+              "meanConfidence": 0.03,
+              "bbox": {
+                "x0": 0,
+                "y0": 1361,
+                "x1": 995,
+                "y1": 1852
+              },
+              "center": {
+                "x": 497.5,
+                "y": 1606.5
+              },
+              "bboxHeightPx": 491,
+              "bboxAreaPx": 488545
+            },
+            {
+              "text": "Vimy,",
+              "normalizedText": "Vimy,",
+              "startSeconds": 47,
+              "endSeconds": 47.5,
+              "durationSeconds": 0.5,
+              "wordCount": 1,
+              "lineCount": 1,
+              "maxCharsPerLine": 5,
+              "meanConfidence": 0.54,
+              "bbox": {
+                "x0": 0,
+                "y0": 1356,
+                "x1": 1080,
+                "y1": 1842
+              },
+              "center": {
+                "x": 540,
+                "y": 1599
+              },
+              "bboxHeightPx": 486,
+              "bboxAreaPx": 524880
+            }
+          ],
+          "rhythm": {
+            "meanWps": 55.68006088280061,
+            "stddevWps": 91.65848824655497,
+            "outOfIdealRangeCount": 51,
+            "outOfAbsoluteRangeCount": 39,
+            "score": 0
+          },
+          "displayTime": {
+            "minDurationSeconds": 0.5,
+            "maxDurationSeconds": 4.5,
+            "flashSegmentCount": 0,
+            "outOfRecommendedRangeCount": 65,
+            "score": 0.5547945205479452
+          },
+          "coverage": {
+            "captionedSeconds": 46.5,
+            "coverageRatio": 0.9730747699980833,
+            "score": 0.9730747699980833
+          },
+          "density": {
+            "maxLines": 30,
+            "maxCharsPerLine": 87,
+            "lineOverflowCount": 25,
+            "charOverflowCount": 3,
+            "score": 0.6164383561643836
+          },
+          "punctuation": {
+            "missingTerminalPunctuationCount": 14,
+            "repeatedPunctuationCount": 0,
+            "score": 0.8082191780821918
+          },
+          "capitalization": {
+            "style": "mixed",
+            "inconsistentStyleCount": 0,
+            "score": 1
+          },
+          "ocrConfidence": {
+            "mean": 0.4406451612903225,
+            "min": 0,
+            "stddev": 0.27937259373907974,
+            "score": 0.16127256755124275
+          },
+          "safeArea": {
+            "violationCount": 92,
+            "minMarginRatio": 0,
+            "score": 0
+          },
+          "flicker": {
+            "flickerEvents": 2,
+            "score": 0.6
+          },
+          "alignment": {
+            "meanAbsCenterDxRatio": 0.03646626078132927,
+            "maxAbsCenterDxRatio": 0.3337962962962963,
+            "score": 0.6353373921867074
+          },
+          "placement": {
+            "stddevCenterXRatio": 0.08136580226768671,
+            "stddevCenterYRatio": 0.03823201757881358,
+            "score": 0
+          },
+          "jitter": {
+            "meanCenterDeltaPx": 9.548762874244522,
+            "p95CenterDeltaPx": 29.88941375616435,
+            "score": 0.14894418433571954
+          },
+          "style": {
+            "bboxHeightCv": 0.8425935219628813,
+            "bboxAreaCv": 1.2511865727398754,
+            "score": 0
+          },
+          "redundancy": {
+            "reappearanceEvents": 3,
+            "adjacentOverlapEvents": 2,
+            "score": 0.9452054794520548
+          },
+          "segmentation": {
+            "danglingConjunctionCount": 0,
+            "midSentenceBreakCount": 17,
+            "score": 0.7671232876712328
+          }
+        },
+        "createdAt": "2026-02-13T22:35:33.983Z"
+      }
+    },
+    {
+      "checkId": "captionQuality",
+      "passed": true,
+      "skipped": true,
+      "summary": "included in rate",
+      "durationMs": 0
+    }
+  ],
+  "thresholds": {
+    "validateProfile": "portrait",
+    "minSyncRating": 75
+  },
+  "totalDurationMs": 74426,
+  "createdAt": "2026-02-13T22:35:34.004Z"
+}

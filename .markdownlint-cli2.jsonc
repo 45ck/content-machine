@@ -1,0 +1,6 @@
+{
+  "config": {
+    "default": false,
+  },
+  "ignores": ["docs/research/**/*.md"],
+}

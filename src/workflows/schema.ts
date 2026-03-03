@@ -4,6 +4,7 @@
  * Defines the data-only workflow definition format.
  */
 import { z } from 'zod';
+import { WorkflowIdSchema } from '../domain/ids';
 
 export const WORKFLOW_SCHEMA_VERSION = '1.0.0';
 
@@ -58,9 +59,14 @@ export const WorkflowHooksSchema = z
 
 export type WorkflowHooks = z.infer<typeof WorkflowHooksSchema>;
 
+/**
+ * Ubiquitous Language: Workflow definition schema (cm generate orchestration preset).
+ *
+ * @cmTerm pipeline-workflow
+ */
 export const WorkflowDefinitionSchema = z.object({
   schemaVersion: z.string().default(WORKFLOW_SCHEMA_VERSION),
-  id: z.string().min(1),
+  id: WorkflowIdSchema,
   name: z.string().min(1),
   description: z.string().optional(),
   defaults: z.record(z.unknown()).optional(),
@@ -69,4 +75,11 @@ export const WorkflowDefinitionSchema = z.object({
   hooks: WorkflowHooksSchema.optional(),
 });
 
+/**
+ * Ubiquitous Language: Pipeline workflow definition.
+ *
+ * Data-only orchestration preset validated by {@link WorkflowDefinitionSchema}.
+ *
+ * @cmTerm pipeline-workflow
+ */
 export type WorkflowDefinition = z.infer<typeof WorkflowDefinitionSchema>;

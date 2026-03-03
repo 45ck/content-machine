@@ -1,6 +1,6 @@
 import type { ValidateProfile } from './profiles';
 import type { VideoInfo } from './video-info';
-import type { DurationGateResult, FormatGateResult, ResolutionGateResult } from './schema';
+import type { DurationGateResult, FormatGateResult, ResolutionGateResult } from '../domain';
 
 export function runResolutionGate(info: VideoInfo, profile: ValidateProfile): ResolutionGateResult {
   const passed = info.width === profile.width && info.height === profile.height;

@@ -766,7 +766,7 @@ export function calculateSyncQualityScore(driftReport: DriftAnalysisResult): num
 ## 10. References
 
 - [RQ-09: Timestamp Drift Handling](RQ-09-TIMESTAMP-DRIFT-20260104.md)
-- [RQ-28: Audio-Visual-Caption Sync](RQ-28-AUDIO-VISUAL-CAPTION-SYNC-20260610.md)
+- [RQ-28: Audio-Visual-Caption Sync](RQ-28-AUDIO-VISUAL-CAPTION-SYNC-20260110.md)
 - [RQ-30: Sync Pipeline Architecture](RQ-30-SYNC-PIPELINE-ARCHITECTURE-20260107.md)
 - [FFmpeg Time Stretching](https://trac.ffmpeg.org/wiki/How%20to%20speed%20up%20/%20slow%20down%20a%20video)
 - [Audio Time Stretching Wikipedia](https://en.wikipedia.org/wiki/Audio_time_stretching_and_pitch_scaling)

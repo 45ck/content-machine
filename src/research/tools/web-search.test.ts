@@ -5,7 +5,7 @@ import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest';
 import { http, HttpResponse } from 'msw';
 import { setupServer } from 'msw/node';
 import { WebSearchTool } from './web-search';
-import { EvidenceSchema } from '../schema';
+import { EvidenceSchema } from '../../domain';
 import type { BraveSearchResponse } from './types';
 
 const mockResponse: BraveSearchResponse = {

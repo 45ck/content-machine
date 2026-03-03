@@ -1,0 +1,28 @@
+id: bts
+name: Behind The Scenes
+description: Process montage with captions and a satisfying final reveal.
+version: 1
+script:
+  template: |
+    Create a short-form video script as behind-the-scenes about: "{{topic}}"
+
+    FORMAT: Behind-the-scenes (process montage)
+    Typical length: 15-45s
+
+    REQUIREMENTS:
+    - Show the final result first (what you're making).
+    - Capture lots of short clips (setup, process, tiny wins).
+    - Use text/captions to narrate; audio should be optional.
+    - Make the end satisfying with a clean reveal.
+
+    STRUCTURE:
+    1) Hook field: final result first
+    2) Scene 1: setup shots (tools/workspace)
+    3) Scene 2-4: montage beats (short steps, quick wins)
+    4) Final scene: final reveal + CTA ("Want the template/settings?")
+
+    TIMELINE (25s template):
+    - 0-2s: final result first
+    - 2-6s: setup
+    - 6-20s: montage (6-10 clips, 1-2s each)
+    - 20-25s: reveal + CTA

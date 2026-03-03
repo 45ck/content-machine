@@ -45,13 +45,13 @@ Improves early retention by standardizing attention-grabbing intros while keepin
 
 **Pre-Work (read these first):**
 
-- [ ] `docs/architecture/SYSTEM-DESIGN-20260104.md`
+- [ ] `docs/dev/architecture/SYSTEM-DESIGN-20260104.md`
 - [ ] `docs/research/sections/SECTION-VIRALITY-ENGINEERING-20260105.md`
 
 **Deliverables (create these):**
 
-- [ ] `docs/features/feature-hook-library-20260111.md`
-- [ ] `docs/guides/guide-hook-library-20260111.md`
+- [ ] `docs/dev/features/feature-hook-library-20260111.md`
+- [ ] `docs/dev/guides/guide-hook-library-20260111.md`
 
 ---
 

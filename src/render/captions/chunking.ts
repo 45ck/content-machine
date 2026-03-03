@@ -649,7 +649,10 @@ export function layoutToChunkingConfig(layout: Partial<CaptionLayout>): Partial<
 /**
  * Convert chunk to CaptionPage format for backward compatibility
  */
-export function chunkToPage(chunk: CaptionChunk): {
+export function chunkToPage(
+  chunk: CaptionChunk,
+  layout: { maxCharsPerLine?: number; maxLinesPerPage?: number } = {}
+): {
   lines: Array<{
     words: Array<{ text: string; startMs: number; endMs: number }>;
     text: string;
@@ -668,17 +671,88 @@ export function chunkToPage(chunk: CaptionChunk): {
     endMs: w.endMs,
   }));
 
+  return chunkToPageWithLayout(chunk, words, layout);
+}
+
+function calculateLineCharCount(words: Array<{ text: string }>): number {
+  if (words.length === 0) return 0;
+  return words.reduce((sum, w) => sum + w.text.trim().length, 0) + (words.length - 1);
+}
+
+function wouldExceedLineLimit(
+  currentLineWords: Array<{ text: string }>,
+  newWord: { text: string },
+  maxChars: number
+): boolean {
+  const currentCount = calculateLineCharCount(currentLineWords);
+  const wordLength = newWord.text.trim().length;
+  const spaceNeeded = currentLineWords.length > 0 ? 1 : 0;
+  const totalAfterAdd = currentCount + spaceNeeded + wordLength;
+  if (currentLineWords.length === 0) return false;
+  return totalAfterAdd > maxChars;
+}
+
+function chunkToPageWithLayout(
+  chunk: CaptionChunk,
+  words: Array<{ text: string; startMs: number; endMs: number }>,
+  layout: { maxCharsPerLine?: number; maxLinesPerPage?: number } = {}
+): {
+  lines: Array<{
+    words: Array<{ text: string; startMs: number; endMs: number }>;
+    text: string;
+    startMs: number;
+    endMs: number;
+  }>;
+  words: Array<{ text: string; startMs: number; endMs: number }>;
+  text: string;
+  startMs: number;
+  endMs: number;
+  index: number;
+} {
+  const maxCharsPerLine = layout.maxCharsPerLine ?? 25;
+  const maxLinesPerPage = layout.maxLinesPerPage ?? 2;
+
+  const lines: Array<{
+    words: Array<{ text: string; startMs: number; endMs: number }>;
+    text: string;
+    startMs: number;
+    endMs: number;
+  }> = [];
+
+  let currentLineWords: Array<{ text: string; startMs: number; endMs: number }> = [];
+
+  function finalizeLine(): void {
+    if (currentLineWords.length === 0) return;
+    lines.push({
+      words: currentLineWords,
+      text: currentLineWords.map((w) => w.text.trim()).join(' '),
+      startMs: currentLineWords[0].startMs,
+      endMs: currentLineWords[currentLineWords.length - 1].endMs,
+    });
+    currentLineWords = [];
+  }
+
+  for (const word of words) {
+    const exceedsLineLimit = wouldExceedLineLimit(currentLineWords, word, maxCharsPerLine);
+
+    if (exceedsLineLimit && lines.length + 1 < maxLinesPerPage) {
+      finalizeLine();
+    }
+
+    currentLineWords.push(word);
+  }
+
+  finalizeLine();
+
+  const text = lines.map((l) => l.text).join('\n');
+
   return {
-    lines: [
-      {
-        words,
-        text: chunk.text,
-        startMs: chunk.startMs,
-        endMs: chunk.endMs,
-      },
-    ],
+    lines:
+      lines.length > 0
+        ? lines
+        : [{ words, text: chunk.text, startMs: chunk.startMs, endMs: chunk.endMs }],
     words,
-    text: chunk.text,
+    text: text || chunk.text,
     startMs: chunk.startMs,
     endMs: chunk.endMs,
     index: chunk.index,

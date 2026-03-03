@@ -8,6 +8,7 @@ tests/.tmp/
 vendor/
 templates/
 connectors/
+stryker.conf.json
 docs/research/virality-prediction/
 src/research/
 

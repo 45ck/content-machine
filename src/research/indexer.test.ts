@@ -5,7 +5,7 @@ import {
   parseResearchIndexFile,
   queryResearchEvidenceIndex,
 } from './indexer';
-import type { Evidence } from './schema';
+import type { Evidence } from '../domain';
 
 describe('research indexer', () => {
   it('builds and queries an evidence index', async () => {

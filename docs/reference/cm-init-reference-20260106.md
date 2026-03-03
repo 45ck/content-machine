@@ -35,4 +35,4 @@ cm init --yes
 
 ## See also
 
-- `docs/guides/guide-cli-ux-cm-init-20260106.md`
+- `docs/dev/guides/guide-cli-ux-cm-init-20260106.md`

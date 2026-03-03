@@ -8,7 +8,7 @@
  * - Scene boundary problems
  */
 
-import type { SceneTimestamp, TimestampsOutput } from '../audio/schema';
+import type { SceneTimestamp, TimestampsOutput } from '../domain';
 
 /**
  * Pacing quality report

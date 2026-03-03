@@ -4,7 +4,7 @@
  * Validates word-level timestamps from ASR to catch corruption
  * before it causes rendering issues (like the v3 bug where end < start).
  *
- * @see docs/research/investigations/RQ-28-AUDIO-VISUAL-CAPTION-SYNC-20260610.md
+ * @see docs/research/investigations/RQ-28-AUDIO-VISUAL-CAPTION-SYNC-20260110.md
  */
 
 export type ValidationIssue =

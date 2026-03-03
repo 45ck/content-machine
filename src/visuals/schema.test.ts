@@ -41,6 +41,25 @@ describe('MatchReasoningSchema', () => {
     const result = MatchReasoningSchema.safeParse(reasoning);
     expect(result.success).toBe(true);
   });
+
+  it('should allow routing provenance metadata', () => {
+    const reasoning = {
+      reasoning: 'Selected provider after routing policy evaluation',
+      selectedProvider: 'pexels',
+      providerAttempts: ['pexels:primary', 'nanobanana:primary'],
+      routingPolicy: 'balanced',
+      routingRationale: 'Applied balanced routing policy',
+      skippedProviders: [
+        {
+          provider: 'nanobanana',
+          reason: 'cost $0.04 exceeds remaining budget $0.01',
+        },
+      ],
+    };
+
+    const result = MatchReasoningSchema.safeParse(reasoning);
+    expect(result.success).toBe(true);
+  });
 });
 
 describe('VisualAssetSchema', () => {
@@ -272,5 +291,36 @@ describe('VisualsOutputSchema', () => {
       expect(result.data.fromStock).toBe(1);
       expect(result.data.fallbacks).toBe(1);
     }
+  });
+
+  it('should allow policy gate outcomes in output', () => {
+    const output: VisualsOutputInput = {
+      schemaVersion: VISUALS_SCHEMA_VERSION,
+      scenes: [
+        {
+          sceneId: TEST_SCENE_ID,
+          source: TEST_SOURCE_PEXELS,
+          assetPath: `assets/${TEST_SCENE_ID}.mp4`,
+          duration: 3.0,
+        },
+      ],
+      totalAssets: 1,
+      fromUserFootage: 0,
+      fromStock: 1,
+      fallbacks: 0,
+      policyGates: [
+        {
+          id: 'visuals.max-fallback-rate',
+          stage: 'post',
+          status: 'pass',
+          message: 'Fallback rate within threshold',
+          metric: 0,
+          threshold: 0.4,
+        },
+      ],
+    };
+
+    const result = VisualsOutputSchema.safeParse(output);
+    expect(result.success).toBe(true);
   });
 });

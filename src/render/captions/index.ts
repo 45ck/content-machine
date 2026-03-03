@@ -38,9 +38,13 @@ export {
   type TextShadow,
   type CaptionLayout,
   type CaptionCleanup,
+  type NotationMode,
   parseCaptionConfig,
   mergeCaptionConfig,
 } from './config';
+
+// Text + notation transforms
+export { applyCaptionDisplayTransform, applyNotationTransform } from './notation';
 
 // Presets
 export {

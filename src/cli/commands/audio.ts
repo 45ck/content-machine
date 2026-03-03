@@ -4,18 +4,23 @@
  * Usage: cm audio --input script.json --output audio.wav
  */
 import { Command } from 'commander';
+import { mkdir } from 'fs/promises';
+import { dirname } from 'path';
 import { logger } from '../../core/logger';
 import { loadConfig } from '../../core/config';
 import { handleCommandError, readInputFile } from '../utils';
-import { ScriptOutputSchema } from '../../script/schema';
+import { ScriptOutputSchema } from '../../domain';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStdoutLine } from '../output';
 import { CMError, SchemaError } from '../../core/errors';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
 import { hasAudioMixSources, type AudioMixPlanOptions } from '../../audio/mix/planner';
-import type { ScriptOutput } from '../../script/schema';
-import type { AudioOutput } from '../../audio/schema';
+import type { AudioOutput, ScriptOutput } from '../../domain';
+import {
+  DEFAULT_ARTIFACT_FILENAMES,
+  DEFAULT_AUDIO_COMMAND_SYNC_STRATEGY,
+} from '../../domain/repo-facts.generated';
 
 interface AudioMixRequest {
   outputPath: string;
@@ -83,6 +88,24 @@ function parseTtsSpeed(value: unknown): number {
   return parsed;
 }
 
+function parseTtsEngine(value: unknown): 'kokoro' | 'elevenlabs' | undefined {
+  if (value === undefined || value === null || value === '') return undefined;
+  const raw = String(value);
+  if (raw === 'kokoro' || raw === 'elevenlabs') return raw;
+  throw new CMError('INVALID_ARGUMENT', `Invalid --tts-engine value: ${raw}`, {
+    fix: 'Use one of: kokoro, elevenlabs',
+  });
+}
+
+function parseAsrEngine(value: unknown): 'whisper' | 'elevenlabs-forced-alignment' | undefined {
+  if (value === undefined || value === null || value === '') return undefined;
+  const raw = String(value);
+  if (raw === 'whisper' || raw === 'elevenlabs-forced-alignment') return raw;
+  throw new CMError('INVALID_ARGUMENT', `Invalid --asr-engine value: ${raw}`, {
+    fix: 'Use one of: whisper, elevenlabs-forced-alignment',
+  });
+}
+
 function resolveSyncOptions(
   options: Record<string, unknown>,
   command: Command
@@ -90,7 +113,8 @@ function resolveSyncOptions(
   requireWhisper: boolean;
   reconcile: boolean;
 } {
-  const syncStrategy = (options.syncStrategy as string | undefined) ?? 'standard';
+  const syncStrategy =
+    (options.syncStrategy as string | undefined) ?? DEFAULT_AUDIO_COMMAND_SYNC_STRATEGY;
   const requireWhisper = Boolean(options.requireWhisper) || syncStrategy === 'audio-first';
   const reconcileSource = command.getOptionValueSource('reconcile');
   const reconcile =
@@ -172,7 +196,9 @@ function buildAudioMixRequest(params: {
   audioMixRequest: AudioMixRequest | undefined;
 } {
   const { options, command, config } = params;
-  const audioMixPath = options.audioMix ? String(options.audioMix) : 'audio.mix.json';
+  const audioMixPath = options.audioMix
+    ? String(options.audioMix)
+    : DEFAULT_ARTIFACT_FILENAMES['audio-mix'];
   const audioMixExplicit = command.getOptionValueSource('audioMix') !== 'default';
   const musicOptions = resolveMusicOptions(options, config);
   const sfxOptions = resolveSfxOptions(options, config);
@@ -210,10 +236,21 @@ function buildAudioSummary(params: {
     ['Duration', `${result.duration.toFixed(1)}s`],
     ['Words', String(result.wordCount)],
     ['Voice', String(options.voice)],
+    ['TTS engine', result.timestamps.ttsEngine],
+    ['Timestamp engine', result.timestamps.asrEngine],
     ['Speed', String(ttsSpeed)],
     ['Audio', result.audioPath],
     ['Timestamps', result.timestampsPath],
   ];
+  if (result.timestamps.analysis?.reconciled !== undefined) {
+    summaryRows.push(['Reconciled', result.timestamps.analysis.reconciled ? 'yes' : 'no']);
+  }
+  if (result.timestamps.analysis?.scriptMatch) {
+    summaryRows.push([
+      'Script match',
+      `${Math.round(result.timestamps.analysis.scriptMatch.lcsRatio * 100)}%`,
+    ]);
+  }
   if (result.audioMixPath) {
     summaryRows.push(['Audio mix', result.audioMixPath]);
   }
@@ -221,7 +258,7 @@ function buildAudioSummary(params: {
   const footerLines = [];
   if (options.mock) footerLines.push('Mock mode - audio/timestamps are placeholders');
   footerLines.push(
-    `Next: cm visuals --input ${result.timestampsPath} --output visuals.json${options.mock ? ' --mock' : ''}`
+    `Next: cm visuals --input ${result.timestampsPath} --output ${DEFAULT_ARTIFACT_FILENAMES.visuals}${options.mock ? ' --mock' : ''}`
   );
   return { lines, footerLines };
 }
@@ -246,12 +283,14 @@ function writeAudioJsonResult(params: {
         output: options.output,
         timestamps: options.timestamps,
         voice: options.voice,
+        ttsEngine: options.ttsEngine ?? null,
         ttsSpeed,
         mock: Boolean(options.mock),
         syncStrategy: options.syncStrategy,
         reconcile: params.reconcile,
         requireWhisper: params.requireWhisper,
         whisperModel: options.whisperModel,
+        asrEngine: options.asrEngine ?? null,
         audioMix: audioMixRequest ? audioMixPath : null,
         mixPreset: mixOptions.mixPreset ?? null,
         music: typeof options.music === 'string' ? options.music : null,
@@ -313,21 +352,34 @@ async function handleAudioSuccess(params: {
 export const audioCommand = new Command('audio')
   .description('Generate voiceover audio with word-level timestamps')
   .requiredOption('-i, --input <path>', 'Input script JSON file')
-  .option('-o, --output <path>', 'Output audio file path', 'audio.wav')
-  .option('--timestamps <path>', 'Output timestamps file path', 'timestamps.json')
+  .option('-o, --output <path>', 'Output audio file path', DEFAULT_ARTIFACT_FILENAMES.audio)
+  .option(
+    '--timestamps <path>',
+    'Output timestamps file path',
+    DEFAULT_ARTIFACT_FILENAMES.timestamps
+  )
   .option('--voice <voice>', 'TTS voice to use', 'af_heart')
+  .option('--tts-engine <engine>', 'TTS engine: kokoro, elevenlabs')
   .option('--tts-speed <n>', 'TTS speaking speed (e.g., 1.0, 1.2)', '1')
   .option('--mock', 'Use mock TTS/ASR (for testing)', false)
   // Sync strategy options
   .option(
     '--sync-strategy <strategy>',
     'Sync strategy: audio-first (whisper required), standard (whisper optional)',
-    'audio-first'
+    DEFAULT_AUDIO_COMMAND_SYNC_STRATEGY
   )
   .option('--reconcile', 'Reconcile ASR output to match original script text', false)
   .option('--require-whisper', 'Require whisper ASR (fail if unavailable)', false)
   .option('--whisper-model <model>', 'Whisper model size: tiny, base, small, medium', 'base')
-  .option('--audio-mix <path>', 'Output audio mix plan path', 'audio.mix.json')
+  .option(
+    '--asr-engine <engine>',
+    'Timestamp engine: whisper, elevenlabs-forced-alignment (requires ELEVENLABS_API_KEY)'
+  )
+  .option(
+    '--audio-mix <path>',
+    'Output audio mix plan path',
+    DEFAULT_ARTIFACT_FILENAMES['audio-mix']
+  )
   .option('--music <pathOrPreset>', 'Background music track or preset')
   .option('--no-music', 'Disable background music')
   .option('--music-volume <db>', 'Music volume in dB')
@@ -337,7 +389,7 @@ export const audioCommand = new Command('audio')
   .option('--music-fade-in <ms>', 'Music fade-in in ms')
   .option('--music-fade-out <ms>', 'Music fade-out in ms')
   .option('--sfx <path>', 'SFX file path (repeatable)', collectList, [])
-  .option('--sfx-pack <name>', 'SFX pack name')
+  .option('--sfx-pack <id>', 'SFX pack id')
   .option('--sfx-at <placement>', 'Auto placement for SFX (hook, scene, list-item, cta)')
   .option('--sfx-volume <db>', 'SFX volume in dB')
   .option('--sfx-min-gap <ms>', 'Minimum gap between SFX in ms')
@@ -357,6 +409,17 @@ export const audioCommand = new Command('audio')
     const runtime = getCliRuntime();
 
     try {
+      const config = loadConfig();
+      if (command.getOptionValueSource('voice') === 'default') {
+        options.voice = config.defaults.voice;
+      }
+      if (command.getOptionValueSource('ttsEngine') === 'default') {
+        options.ttsEngine = config.audio?.ttsEngine ?? 'kokoro';
+      }
+      if (command.getOptionValueSource('asrEngine') === 'default') {
+        options.asrEngine = config.audio?.asrEngine ?? 'whisper';
+      }
+
       const script = await readScriptInput(options.input);
 
       logger.info({ input: options.input, voice: options.voice }, 'Starting audio generation');
@@ -365,20 +428,33 @@ export const audioCommand = new Command('audio')
 
       const { requireWhisper, reconcile } = resolveSyncOptions(options, command);
       const ttsSpeed = parseTtsSpeed(options.ttsSpeed);
+      const ttsEngine = parseTtsEngine(options.ttsEngine);
+      const asrEngine = parseAsrEngine(options.asrEngine);
 
-      const config = loadConfig();
       const { mixOptions, audioMixPath, audioMixRequest } = buildAudioMixRequest({
         options,
         command,
         config,
       });
 
+      // Ensure output directories exist (audio, timestamps, and optional audio mix).
+      const outputPath = String(options.output);
+      const timestampsPath = String(options.timestamps);
+      await mkdir(dirname(outputPath), { recursive: true });
+      await mkdir(dirname(timestampsPath), { recursive: true });
+      if (audioMixRequest) {
+        await mkdir(dirname(audioMixRequest.outputPath), { recursive: true });
+      }
+
       const result = await generateAudio({
         script,
         voice: options.voice,
+        ttsEngine,
+        asrEngine,
+        elevenlabs: config.audio?.elevenlabs,
         speed: ttsSpeed,
-        outputPath: options.output,
-        timestampsPath: options.timestamps,
+        outputPath,
+        timestampsPath,
         mock: Boolean(options.mock),
         requireWhisper,
         whisperModel: options.whisperModel as 'tiny' | 'base' | 'small' | 'medium',

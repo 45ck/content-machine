@@ -3,7 +3,7 @@
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { TavilySearchTool } from './tavily';
-import { EvidenceSchema } from '../schema';
+import { EvidenceSchema } from '../../domain';
 
 // Mock the @tavily/core module
 vi.mock('@tavily/core', () => ({

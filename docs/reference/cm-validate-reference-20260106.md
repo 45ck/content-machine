@@ -51,4 +51,4 @@ cm validate out/video.mp4 --quality --python python --quality-sample-rate 30
 
 ## See also
 
-- `docs/guides/guide-cli-ux-cm-validate-20260106.md`
+- `docs/dev/guides/guide-cli-ux-cm-validate-20260106.md`

@@ -72,7 +72,11 @@ const BUILTIN_THEMES: Record<string, Theme> = {
   },
 };
 
-/** Theme registry interface */
+/**
+ * Theme registry interface
+ *
+ * @cmTerm theme
+ */
 export interface ThemeRegistry {
   get(name: string): Theme | undefined;
   getForArchetype(archetype: Archetype): Theme;
@@ -86,7 +90,7 @@ export interface ThemeRegistry {
  */
 export function createThemeRegistry(
   themes: Record<string, Theme> = BUILTIN_THEMES,
-  archetypeDefaults: Record<Archetype, string> = ARCHETYPE_THEME_DEFAULTS
+  archetypeDefaults: Record<string, string> = ARCHETYPE_THEME_DEFAULTS
 ): ThemeRegistry {
   const frozenThemes = Object.freeze({ ...themes });
 

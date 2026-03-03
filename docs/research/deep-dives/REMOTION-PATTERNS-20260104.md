@@ -113,7 +113,7 @@ export const calculateMetadata: CalculateMetadataFunction<
 };
 ```
 
-**File:** [templates/template-tiktok-base/src/CaptionedVideo/index.tsx](../../../templates/template-tiktok-base/src/CaptionedVideo/index.tsx)
+**File:** [templates/template-tiktok-base/src/CaptionedVideo/index.tsx](../../../dev/templates/template-tiktok-base/src/CaptionedVideo/index.tsx)
 
 ```typescript
 export const calculateCaptionedVideoMetadata: CalculateMetadataFunction<
@@ -132,7 +132,7 @@ export const calculateCaptionedVideoMetadata: CalculateMetadataFunction<
 
 **Pattern:** Scenes are organized as arrays with timing calculated cumulatively.
 
-**File:** [templates/vidosy/src/remotion/VidosyComposition.tsx](../../../templates/vidosy/src/remotion/VidosyComposition.tsx)
+**File:** [templates/vidosy/src/remotion/VidosyComposition.tsx](../../../dev/templates/vidosy/src/remotion/VidosyComposition.tsx)
 
 ```tsx
 export const VidosyComposition: React.FC = () => {
@@ -164,7 +164,7 @@ export const VidosyComposition: React.FC = () => {
 
 ### 1.5 Scene Timing Calculation Hook
 
-**File:** [templates/vidosy/src/remotion/hooks/useCalculation.ts](../../../templates/vidosy/src/remotion/hooks/useCalculation.ts)
+**File:** [templates/vidosy/src/remotion/hooks/useCalculation.ts](../../../dev/templates/vidosy/src/remotion/hooks/useCalculation.ts)
 
 ```typescript
 export function useCalculation(config: VidosyConfig) {
@@ -234,7 +234,7 @@ const activeStyle = {
 
 ### 2.2 TikTok-Style Captions (Official @remotion/captions)
 
-**File:** [templates/template-tiktok-base/src/CaptionedVideo/Page.tsx](../../../templates/template-tiktok-base/src/CaptionedVideo/Page.tsx)
+**File:** [templates/template-tiktok-base/src/CaptionedVideo/Page.tsx](../../../dev/templates/template-tiktok-base/src/CaptionedVideo/Page.tsx)
 
 ```tsx
 import { TikTokPage } from '@remotion/captions';
@@ -367,7 +367,7 @@ if (captionPosition === 'bottom') {
 }
 ```
 
-**File:** [templates/vidosy/src/remotion/components/Subtitles.tsx](../../../templates/vidosy/src/remotion/components/Subtitles.tsx)
+**File:** [templates/vidosy/src/remotion/components/Subtitles.tsx](../../../dev/templates/vidosy/src/remotion/components/Subtitles.tsx)
 
 ```tsx
 const getPositionStyle = (position: string) => {
@@ -407,7 +407,7 @@ style={{
 
 ### 2.6 Word Animation with Easing
 
-**File:** [templates/template-audiogram/src/Audiogram/Word.tsx](../../../templates/template-audiogram/src/Audiogram/Word.tsx)
+**File:** [templates/template-audiogram/src/Audiogram/Word.tsx](../../../dev/templates/template-audiogram/src/Audiogram/Word.tsx)
 
 ```tsx
 const opacity = interpolate(
@@ -431,7 +431,7 @@ const translateY = interpolate(
 
 ### 2.7 Spring Animation for Captions
 
-**File:** [templates/template-tiktok-base/src/CaptionedVideo/SubtitlePage.tsx](../../../templates/template-tiktok-base/src/CaptionedVideo/SubtitlePage.tsx)
+**File:** [templates/template-tiktok-base/src/CaptionedVideo/SubtitlePage.tsx](../../../dev/templates/template-tiktok-base/src/CaptionedVideo/SubtitlePage.tsx)
 
 ```tsx
 const enter = spring({
@@ -500,7 +500,7 @@ export function calculateVolume(level: MusicVolumeEnum = MusicVolumeEnum.high): 
 
 ### 3.4 Audio Fade In/Out
 
-**File:** [templates/vidosy/src/remotion/components/Audio.tsx](../../../templates/vidosy/src/remotion/components/Audio.tsx)
+**File:** [templates/vidosy/src/remotion/components/Audio.tsx](../../../dev/templates/vidosy/src/remotion/components/Audio.tsx)
 
 ```tsx
 const backgroundVolume = audio?.volume || 1;
@@ -524,7 +524,7 @@ const backgroundVolumeMultiplier = interpolate(
 
 ### 3.5 Scene-Based Audio Layering
 
-**File:** [templates/vidosy/src/remotion/VidosyComposition.tsx](../../../templates/vidosy/src/remotion/VidosyComposition.tsx)
+**File:** [templates/vidosy/src/remotion/VidosyComposition.tsx](../../../dev/templates/vidosy/src/remotion/VidosyComposition.tsx)
 
 ```tsx
 <AbsoluteFill>
@@ -626,7 +626,7 @@ export class Remotion {
 
 ### 4.2 CLI Rendering Pattern
 
-**File:** [templates/vidosy/src/cli/commands/render.ts](../../../templates/vidosy/src/cli/commands/render.ts)
+**File:** [templates/vidosy/src/cli/commands/render.ts](../../../dev/templates/vidosy/src/cli/commands/render.ts)
 
 ```typescript
 import { bundle } from '@remotion/bundler';
@@ -690,7 +690,7 @@ function getQualitySettings(quality: string) {
 
 ### 4.4 Remotion Config File
 
-**File:** [templates/template-tiktok-base/remotion.config.ts](../../../templates/template-tiktok-base/remotion.config.ts)
+**File:** [templates/template-tiktok-base/remotion.config.ts](../../../dev/templates/template-tiktok-base/remotion.config.ts)
 
 ```typescript
 import { Config } from '@remotion/cli/config';
@@ -739,7 +739,7 @@ export const shortVideoSchema = z.object({
 
 ### 5.2 Vidosy Full Schema
 
-**File:** [templates/vidosy/src/shared/zod-schema.ts](../../../templates/vidosy/src/shared/zod-schema.ts)
+**File:** [templates/vidosy/src/shared/zod-schema.ts](../../../dev/templates/vidosy/src/shared/zod-schema.ts)
 
 ```typescript
 import { z } from 'zod';
@@ -803,7 +803,7 @@ export const vidosyConfigSchema = z.object({
 
 ### 5.3 Audiogram Schema with zColor
 
-**File:** [templates/template-audiogram/src/Audiogram/schema.ts](../../../templates/template-audiogram/src/Audiogram/schema.ts)
+**File:** [templates/template-audiogram/src/Audiogram/schema.ts](../../../dev/templates/template-audiogram/src/Audiogram/schema.ts)
 
 ```typescript
 import { zColor } from '@remotion/zod-types';
@@ -832,7 +832,7 @@ export const audiogramSchema = z.object({
 
 ### 5.4 JSON Config Example
 
-**File:** [templates/vidosy/demo-vidosy.json](../../../templates/vidosy/demo-vidosy.json)
+**File:** [templates/vidosy/demo-vidosy.json](../../../dev/templates/vidosy/demo-vidosy.json)
 
 ```json
 {
@@ -867,7 +867,7 @@ export const audiogramSchema = z.object({
 
 ### 5.5 Asset URL Resolution
 
-**File:** [templates/vidosy/src/remotion/utils/asset-resolver.ts](../../../templates/vidosy/src/remotion/utils/asset-resolver.ts)
+**File:** [templates/vidosy/src/remotion/utils/asset-resolver.ts](../../../dev/templates/vidosy/src/remotion/utils/asset-resolver.ts)
 
 ```typescript
 import { staticFile } from 'remotion';
@@ -996,8 +996,8 @@ export type CaptionPage = {
 | [vendor/short-video-maker-gyori/src/components/videos/PortraitVideo.tsx](../../../vendor/short-video-maker-gyori/src/components/videos/PortraitVideo.tsx) | Main video component       |
 | [vendor/short-video-maker-gyori/src/components/utils.ts](../../../vendor/short-video-maker-gyori/src/components/utils.ts)                                 | Caption pagination, schema |
 | [vendor/short-video-maker-gyori/src/short-creator/libraries/Remotion.ts](../../../vendor/short-video-maker-gyori/src/short-creator/libraries/Remotion.ts) | Rendering pipeline         |
-| [templates/vidosy/src/remotion/VidosyComposition.tsx](../../../templates/vidosy/src/remotion/VidosyComposition.tsx)                                       | Scene-based composition    |
-| [templates/vidosy/src/shared/zod-schema.ts](../../../templates/vidosy/src/shared/zod-schema.ts)                                                           | Full video schema          |
-| [templates/template-tiktok-base/src/CaptionedVideo/Page.tsx](../../../templates/template-tiktok-base/src/CaptionedVideo/Page.tsx)                         | TikTok-style captions      |
-| [templates/template-audiogram/src/Audiogram/Captions.tsx](../../../templates/template-audiogram/src/Audiogram/Captions.tsx)                               | Paginated captions         |
-| [templates/template-audiogram/src/Audiogram/Word.tsx](../../../templates/template-audiogram/src/Audiogram/Word.tsx)                                       | Animated word rendering    |
+| [templates/vidosy/src/remotion/VidosyComposition.tsx](../../../dev/templates/vidosy/src/remotion/VidosyComposition.tsx)                                   | Scene-based composition    |
+| [templates/vidosy/src/shared/zod-schema.ts](../../../dev/templates/vidosy/src/shared/zod-schema.ts)                                                       | Full video schema          |
+| [templates/template-tiktok-base/src/CaptionedVideo/Page.tsx](../../../dev/templates/template-tiktok-base/src/CaptionedVideo/Page.tsx)                     | TikTok-style captions      |
+| [templates/template-audiogram/src/Audiogram/Captions.tsx](../../../dev/templates/template-audiogram/src/Audiogram/Captions.tsx)                           | Paginated captions         |
+| [templates/template-audiogram/src/Audiogram/Word.tsx](../../../dev/templates/template-audiogram/src/Audiogram/Word.tsx)                                   | Animated word rendering    |

@@ -144,7 +144,7 @@ cm validate output.mp4 --json
 
 - Implemented in the canonical validator module under `src/validate/*` (kept single source of truth).
 - Optional gates are exposed via `cm validate` flags (`--quality`, `--cadence`, `--cadence-engine`).
-- Implementation plans and V&V checklists live under `docs/architecture/IMPL-RENDER-VALIDATION-*-20260107.md`.
+- Implementation plans and V&V checklists live under `docs/dev/architecture/IMPL-RENDER-VALIDATION-*-20260107.md`.
 
 ---
 

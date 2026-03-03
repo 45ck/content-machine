@@ -2,11 +2,12 @@ import { getValidateProfile, type ValidateProfileId } from './profiles';
 import type { VideoInfo } from './video-info';
 import { runDurationGate, runFormatGate, runResolutionGate } from './gates';
 import { probeVideoWithFfprobe } from './ffprobe';
-import type { GateResult, ValidateReport } from './schema';
-import { VALIDATE_SCHEMA_VERSION } from './schema';
+import { VALIDATE_SCHEMA_VERSION, type GateResult, type ValidateReport } from '../domain';
 import { PiqBrisqueAnalyzer, runVisualQualityGate, type VideoQualityAnalyzer } from './quality';
 import { probeVideoWithPython } from './python-probe';
 import { runCadenceGate } from './cadence';
+import { TemporalAnalyzer, runTemporalQualityGate, type TemporalQualityAnalyzer } from './temporal';
+import { FfmpegAudioAnalyzer, runAudioSignalGate, type AudioSignalAnalyzer } from './audio-signal';
 
 export interface ValidateOptions {
   profile: ValidateProfileId;
@@ -27,8 +28,18 @@ export interface ValidateOptions {
     sampleRate?: number;
     analyzer?: VideoQualityAnalyzer;
   };
+  temporal?: {
+    enabled: boolean;
+    sampleRate?: number;
+    analyzer?: TemporalQualityAnalyzer;
+  };
+  audioSignal?: {
+    enabled: boolean;
+    analyzer?: AudioSignalAnalyzer;
+  };
 }
 
+/** Validates pre-probed video metadata (resolution, duration, format) against the selected profile. */
 export function validateVideoInfo(info: VideoInfo, options: ValidateOptions): ValidateReport {
   const startTime = Date.now();
   const profile = getValidateProfile(options.profile);
@@ -60,6 +71,7 @@ export function validateVideoInfo(info: VideoInfo, options: ValidateOptions): Va
   };
 }
 
+/** Probes a video file and runs all enabled validation gates (format, quality, temporal, audio). */
 export async function validateVideoPath(
   videoPath: string,
   options: ValidateOptions
@@ -93,6 +105,18 @@ export async function validateVideoPath(
     const analyzer = options.quality.analyzer ?? new PiqBrisqueAnalyzer();
     const summary = await analyzer.analyze(videoPath, { sampleRate: options.quality.sampleRate });
     gates.push(runVisualQualityGate(summary, profile));
+  }
+
+  if (options.temporal?.enabled) {
+    const analyzer = options.temporal.analyzer ?? new TemporalAnalyzer();
+    const summary = await analyzer.analyze(videoPath, { sampleRate: options.temporal.sampleRate });
+    gates.push(runTemporalQualityGate(summary, profile));
+  }
+
+  if (options.audioSignal?.enabled) {
+    const analyzer = options.audioSignal.analyzer ?? new FfmpegAudioAnalyzer();
+    const summary = await analyzer.analyze(videoPath);
+    gates.push(runAudioSignalGate(summary, profile));
   }
 
   const passed = gates.every((gate) => gate.passed || gate.severity !== 'error');

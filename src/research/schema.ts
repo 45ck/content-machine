@@ -28,7 +28,7 @@ export type TrendingTopic = z.infer<typeof TrendingTopicSchema>;
 export const ContentAngleSchema = z.object({
   angle: z.string().min(1),
   hook: z.string().min(1),
-  archetype: z.enum(['listicle', 'versus', 'howto', 'myth', 'story', 'hot-take']),
+  archetype: z.string().min(1),
   targetEmotion: z.string().optional(),
   confidence: z.number().min(0).max(1).optional(),
 });

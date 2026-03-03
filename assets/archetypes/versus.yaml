@@ -1,0 +1,23 @@
+id: versus
+name: Versus
+description: X vs Y comparison with a clear recommendation.
+version: 1
+script:
+  template: |
+    Create a short-form video script comparing: "{{topic}}"
+
+    FORMAT: Versus/Comparison (X vs Y analysis)
+
+    REQUIREMENTS:
+    - Start with a hook that presents the dilemma (provocative or contrarian).
+    - Hook must be a bold statement, not a question.
+    - Avoid neutral hooks like "Choosing between X and Y" or "X vs Y".
+    - Compare 3-4 key aspects fairly.
+    - Give a clear recommendation at the end.
+    - Use conversational, TikTok-style language.
+
+    STRUCTURE:
+    1) Hook field: one sentence hook (separate from scenes)
+    2) Scene 1: immediate payoff after the hook (state the stakes)
+    3) Scene 2-4: comparison points
+    4) Scene 5: verdict/recommendation

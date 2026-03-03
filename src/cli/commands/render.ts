@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Render command - Render final video with Remotion
  *
  * Usage: cm render --input visuals.json --audio audio.wav --output video.mp4
@@ -18,7 +18,7 @@
  */
 import { Command } from 'commander';
 import { existsSync } from 'fs';
-import { dirname } from 'path';
+import { dirname, join } from 'path';
 import type { RenderProgressEvent } from '../../render/service';
 import { logger } from '../../core/logger';
 import { CMError, SchemaError } from '../../core/errors';
@@ -30,18 +30,20 @@ import type {
   VisualAsset,
   VisualAssetInput,
   VisualsOutputInput,
-} from '../../visuals/schema';
-import type { TimestampsOutput } from '../../audio/schema';
-import { VisualsOutputSchema } from '../../visuals/schema';
-import { TimestampsOutputSchema } from '../../audio/schema';
-import { AudioMixOutputSchema, type AudioMixOutput } from '../../audio/mix/schema';
+  FontSource,
+  OverlayAsset,
+} from '../../domain';
+import type { AudioMixOutput, TimestampsOutput } from '../../domain';
+import { AudioMixOutputSchema, TimestampsOutputSchema, VisualsOutputSchema } from '../../domain';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
+import { parseTemplateDepsMode, resolveTemplateDepsInstallDecision } from '../template-code';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
+import { chalk } from '../colors';
+import { DEFAULT_ARTIFACT_FILENAMES } from '../../domain/repo-facts.generated';
 import type { CaptionPresetName } from '../../render/captions/presets';
 import type {
-  CaptionConfig,
   CaptionConfigInput,
   HighlightMode,
   CaptionPosition,
@@ -49,6 +51,7 @@ import type {
   StrokeStyleInput,
   PillStyleInput,
   CaptionLayoutInput,
+  ListBadgesConfigInput,
 } from '../../render/captions/config';
 import {
   validateWordTimings,
@@ -58,12 +61,17 @@ import {
 } from '../../audio/asr/validator';
 import { ensureVisualCoverage, type VisualScene } from '../../visuals/duration';
 import {
-  resolveVideoTemplate,
+  resolveRenderTemplate,
   formatTemplateSource,
+  getTemplateFontSources,
   getTemplateGameplaySlot,
+  getTemplateOverlays,
   getTemplateParams,
+  mergeFontSources,
+  resolveRemotionTemplateProject,
 } from '../../render/templates';
 import { resolveHookFromCli } from '../hooks';
+import { analyzeVideoFrames, type AnalyzeVideoFramesResult } from '../../analysis/frame-analysis';
 
 type ChromeMode = 'headless-shell' | 'chrome-for-testing';
 type LayoutPosition = 'top' | 'bottom' | 'full';
@@ -103,6 +111,15 @@ function parseChromeMode(value: unknown): ChromeMode | undefined {
   });
 }
 
+function parseCaptionNotation(value: unknown): 'none' | 'unicode' | undefined {
+  if (value == null || value === '') return undefined;
+  const raw = String(value).trim().toLowerCase();
+  if (raw === 'none' || raw === 'unicode') return raw;
+  throw new CMError('INVALID_ARGUMENT', `Invalid --caption-notation value: ${raw}`, {
+    fix: 'Use one of: none, unicode',
+  });
+}
+
 function parseOptionalInt(value: unknown): number | undefined {
   if (value == null) return undefined;
   const parsed = Number.parseInt(String(value), 10);
@@ -113,6 +130,50 @@ function parseOptionalNumber(value: unknown): number | undefined {
   if (value == null) return undefined;
   const parsed = Number.parseFloat(String(value));
   return Number.isFinite(parsed) ? parsed : undefined;
+}
+
+function parseFrameAnalysisMode(value: unknown): 'fps' | 'shots' | 'both' {
+  const raw = String(value ?? 'both').trim().toLowerCase();
+  if (raw === 'fps' || raw === 'shots' || raw === 'both') return raw;
+  throw new CMError('INVALID_ARGUMENT', `Invalid --frame-analysis-mode value: ${raw}`, {
+    fix: 'Use one of: fps, shots, both',
+  });
+}
+
+async function runAutoFrameAnalysis(options: Record<string, unknown>): Promise<AnalyzeVideoFramesResult | null> {
+  if (options.frameAnalysis === false) return null;
+  const fpsRaw = Number.parseFloat(String(options.frameAnalysisFps ?? '1'));
+  if (!Number.isFinite(fpsRaw) || fpsRaw <= 0 || fpsRaw > 1) {
+    throw new CMError(
+      'INVALID_ARGUMENT',
+      `Invalid --frame-analysis-fps value: ${String(options.frameAnalysisFps)}`,
+      { fix: 'Use a number > 0 and <= 1' }
+    );
+  }
+  const shots = Number.parseInt(String(options.frameAnalysisShots ?? '30'), 10);
+  if (!Number.isFinite(shots) || shots < 1) {
+    throw new CMError(
+      'INVALID_ARGUMENT',
+      `Invalid --frame-analysis-shots value: ${String(options.frameAnalysisShots)}`,
+      { fix: 'Use an integer >= 1' }
+    );
+  }
+  const segments = Number.parseInt(String(options.frameAnalysisSegments ?? '5'), 10);
+  if (!Number.isFinite(segments) || segments < 1) {
+    throw new CMError(
+      'INVALID_ARGUMENT',
+      `Invalid --frame-analysis-segments value: ${String(options.frameAnalysisSegments)}`,
+      { fix: 'Use an integer >= 1' }
+    );
+  }
+  return analyzeVideoFrames({
+    inputVideo: String(options.output),
+    outputRootDir: String(options.frameAnalysisOutput ?? 'output/analysis'),
+    mode: parseFrameAnalysisMode(options.frameAnalysisMode ?? 'both'),
+    fps: fpsRaw,
+    shots,
+    segments,
+  });
 }
 
 function parseFontWeight(value: unknown): number | 'normal' | 'bold' | 'black' {
@@ -148,6 +209,7 @@ function parseCaptionOptions(options: Record<string, unknown>): CaptionConfigInp
   let stroke: StrokeStyleInput = {};
   let pillStyle: PillStyleInput = {};
   let layout: CaptionLayoutInput = {};
+  let listBadges: ListBadgesConfigInput = {};
 
   const parsers: Array<(value: unknown) => void> = [
     (value) => {
@@ -167,7 +229,7 @@ function parseCaptionOptions(options: Record<string, unknown>): CaptionConfigInp
     },
     (value) => {
       const mode = String(value);
-      if (mode !== 'none') config.highlightMode = mode as HighlightMode;
+      config.highlightMode = mode as HighlightMode;
     },
     (value) => {
       config.pageAnimation = String(value) as PageAnimation;
@@ -190,6 +252,60 @@ function parseCaptionOptions(options: Record<string, unknown>): CaptionConfigInp
     (value) => {
       layout = { ...layout, maxLinesPerPage: Number.parseInt(String(value), 10) };
     },
+    (value) => {
+      config.wordAnimation = String(value) as CaptionConfigInput['wordAnimation'];
+    },
+    (value) => {
+      config.wordAnimationMs = Number.parseInt(String(value), 10);
+    },
+    (value) => {
+      config.wordAnimationIntensity = Number(String(value));
+    },
+    (value) => {
+      config.timingOffsetMs = Number.parseInt(String(value), 10);
+    },
+    (value) => {
+      listBadges = { ...listBadges, enabled: Boolean(value) };
+    },
+    (value) => {
+      listBadges = { ...listBadges, durationMs: Number.parseInt(String(value), 10) };
+    },
+    (value) => {
+      listBadges = { ...listBadges, fadeInMs: Number.parseInt(String(value), 10) };
+    },
+    (value) => {
+      listBadges = { ...listBadges, fadeOutMs: Number.parseInt(String(value), 10) };
+    },
+    (value) => {
+      listBadges = { ...listBadges, scaleFrom: Number.parseFloat(String(value)) };
+    },
+    (value) => {
+      listBadges = { ...listBadges, scaleTo: Number.parseFloat(String(value)) };
+    },
+    (value) => {
+      listBadges = { ...listBadges, sizePx: Number.parseInt(String(value), 10) };
+    },
+    (value) => {
+      listBadges = { ...listBadges, fontSizePx: Number.parseInt(String(value), 10) };
+    },
+    (value) => {
+      listBadges = { ...listBadges, backgroundColor: String(value) };
+    },
+    (value) => {
+      listBadges = { ...listBadges, borderWidthPx: Number.parseInt(String(value), 10) };
+    },
+    (value) => {
+      listBadges = { ...listBadges, borderColor: String(value) };
+    },
+    (value) => {
+      listBadges = { ...listBadges, textColor: String(value) };
+    },
+    (value) => {
+      listBadges = { ...listBadges, gapPx: Number.parseInt(String(value), 10) };
+    },
+    (value) => {
+      listBadges = { ...listBadges, captionSafetyPx: Number.parseInt(String(value), 10) };
+    },
   ];
 
   const keys: Array<keyof typeof options> = [
@@ -206,6 +322,24 @@ function parseCaptionOptions(options: Record<string, unknown>): CaptionConfigInp
     'captionTransform',
     'captionMaxChars',
     'captionMaxLines',
+    'captionWordAnimation',
+    'captionWordAnimationMs',
+    'captionWordAnimationIntensity',
+    'captionOffsetMs',
+    'listBadges',
+    'listBadgeDurationMs',
+    'listBadgeFadeInMs',
+    'listBadgeFadeOutMs',
+    'listBadgeScaleFrom',
+    'listBadgeScaleTo',
+    'listBadgeSizePx',
+    'listBadgeFontSizePx',
+    'listBadgeBackgroundColor',
+    'listBadgeBorderWidthPx',
+    'listBadgeBorderColor',
+    'listBadgeTextColor',
+    'listBadgeGapPx',
+    'listBadgeCaptionSafetyPx',
   ];
 
   for (let i = 0; i < keys.length; i++) {
@@ -218,6 +352,7 @@ function parseCaptionOptions(options: Record<string, unknown>): CaptionConfigInp
   if (Object.keys(stroke).length > 0) config.stroke = stroke;
   if (Object.keys(pillStyle).length > 0) config.pillStyle = pillStyle;
   if (Object.keys(layout).length > 0) config.layout = layout;
+  if (Object.keys(listBadges).length > 0) config.listBadges = listBadges;
 
   // For nested objects, we store raw values and let the service merge them
   // These are passed as separate options to renderVideo which can handle merging
@@ -240,6 +375,7 @@ function mergeCaptionConfigPartials(
     positionOffset: { ...base.positionOffset, ...overrides.positionOffset },
     safeZone: { ...base.safeZone, ...overrides.safeZone },
     cleanup: { ...base.cleanup, ...overrides.cleanup },
+    listBadges: { ...(base.listBadges ?? {}), ...(overrides.listBadges ?? {}) },
   };
 }
 
@@ -404,7 +540,8 @@ function applyDefault(
   value: unknown
 ): void {
   if (value === undefined) return;
-  if (command.getOptionValueSource(optionName) !== 'default') return;
+  const source = command.getOptionValueSource(optionName);
+  if (source !== 'default' && source !== undefined) return;
   options[optionName] = value;
 }
 
@@ -415,9 +552,13 @@ function applyCaptionDefaultsFromConfig(
   const config = loadConfig();
   const captions = config.captions;
   const defaultFamily = captions.fonts.length > 0 ? captions.fonts[0].family : captions.fontFamily;
+  applyDefault(options, command, 'orientation', config.defaults.orientation);
+  applyDefault(options, command, 'fps', String(config.render.fps));
+  applyDefault(options, command, 'template', config.render.template);
   applyDefault(options, command, 'captionFontFamily', defaultFamily);
   applyDefault(options, command, 'captionFontWeight', captions.fontWeight);
   applyDefault(options, command, 'captionFontFile', captions.fontFile);
+  applyDefault(options, command, 'captionPreset', captions.preset);
 
   return { fonts: captions.fonts };
 }
@@ -426,10 +567,12 @@ async function resolveTemplateAndApplyDefaults(
   options: Record<string, unknown>,
   command: Command
 ): Promise<{
-  resolvedTemplate: Awaited<ReturnType<typeof resolveVideoTemplate>> | undefined;
+  resolvedTemplate: Awaited<ReturnType<typeof resolveRenderTemplate>> | undefined;
   templateDefaults: Record<string, unknown> | undefined;
   templateParams: ReturnType<typeof getTemplateParams>;
   templateGameplay: ReturnType<typeof getTemplateGameplaySlot>;
+  templateFonts: FontSource[];
+  templateOverlays: OverlayAsset[];
 }> {
   if (!options.template) {
     return {
@@ -437,13 +580,23 @@ async function resolveTemplateAndApplyDefaults(
       templateDefaults: undefined,
       templateParams: {},
       templateGameplay: null,
+      templateFonts: [],
+      templateOverlays: [],
     };
   }
 
-  const resolvedTemplate = await resolveVideoTemplate(String(options.template));
+  const resolvedTemplate = await resolveRenderTemplate(String(options.template));
   const templateDefaults = (resolvedTemplate.template.defaults ?? {}) as Record<string, unknown>;
   const templateParams = getTemplateParams(resolvedTemplate.template);
   const templateGameplay = getTemplateGameplaySlot(resolvedTemplate.template);
+  const templateFonts = getTemplateFontSources(
+    resolvedTemplate.template,
+    resolvedTemplate.templateDir
+  );
+  const templateOverlays = getTemplateOverlays(
+    resolvedTemplate.template,
+    resolvedTemplate.templateDir
+  );
 
   applyDefault(options, command, 'orientation', templateDefaults.orientation as string | undefined);
   applyDefault(
@@ -458,8 +611,18 @@ async function resolveTemplateAndApplyDefaults(
     'captionPreset',
     templateDefaults.captionPreset as string | undefined
   );
+  if (templateFonts.length > 0) {
+    applyDefault(options, command, 'captionFontFamily', templateFonts[0]?.family);
+  }
 
-  return { resolvedTemplate, templateDefaults, templateParams, templateGameplay };
+  return {
+    resolvedTemplate,
+    templateDefaults,
+    templateParams,
+    templateGameplay,
+    templateFonts,
+    templateOverlays,
+  };
 }
 
 function parseLayoutPosition(value: unknown, optionName: string): LayoutPosition | undefined {
@@ -535,9 +698,10 @@ async function readRenderInputs(options: {
 
 async function runRenderPreflight(params: {
   options: Record<string, unknown>;
-  resolvedTemplate: Awaited<ReturnType<typeof resolveVideoTemplate>> | undefined;
+  resolvedTemplate: Awaited<ReturnType<typeof resolveRenderTemplate>> | undefined;
+  command: Command;
 }): Promise<{ passed: boolean; checks: PreflightCheck[]; exitCode: number }> {
-  const { options, resolvedTemplate } = params;
+  const { options, resolvedTemplate, command } = params;
   const checks: PreflightCheck[] = [];
 
   const templateId = resolvedTemplate?.template.id;
@@ -546,6 +710,63 @@ async function runRenderPreflight(params: {
     status: 'ok',
     detail: templateId ? `${templateId} (${formatTemplateSource(resolvedTemplate)})` : 'default',
   });
+
+  let remotionProject: ReturnType<typeof resolveRemotionTemplateProject> | null = null;
+  if (resolvedTemplate) {
+    try {
+      remotionProject = resolveRemotionTemplateProject(resolvedTemplate);
+    } catch (error) {
+      const info = getCliErrorInfo(error);
+      addPreflightCheck(checks, {
+        label: 'Template code',
+        status: 'fail',
+        code: info.code,
+        detail: info.message,
+        fix: info.fix,
+      });
+    }
+  }
+
+  if (remotionProject) {
+    const config = loadConfig();
+    const allowTemplateCodeSource = command.getOptionValueSource('allowTemplateCode');
+    const allowTemplateCode =
+      allowTemplateCodeSource === 'default' || allowTemplateCodeSource === undefined
+        ? Boolean(config.render.allowTemplateCode)
+        : Boolean(options.allowTemplateCode);
+    addPreflightCheck(checks, {
+      label: 'Template code',
+      status: allowTemplateCode ? 'ok' : 'fail',
+      code: allowTemplateCode ? undefined : 'INVALID_ARGUMENT',
+      detail: allowTemplateCode ? `Enabled (${remotionProject.entryPoint})` : 'Disabled',
+      fix: allowTemplateCode
+        ? undefined
+        : 'Re-run with --allow-template-code to allow executing template-provided Remotion code',
+    });
+
+    const hasPkg = existsSync(join(remotionProject.rootDir, 'package.json'));
+    const hasNodeModules = existsSync(join(remotionProject.rootDir, 'node_modules'));
+    if (hasPkg && hasNodeModules) {
+      addPreflightCheck(checks, {
+        label: 'Template deps',
+        status: 'ok',
+        detail: `${remotionProject.rootDir}/node_modules`,
+      });
+    } else if (hasPkg && !hasNodeModules) {
+      addPreflightCheck(checks, {
+        label: 'Template deps',
+        status: 'warn',
+        detail: 'node_modules missing',
+        fix: 'Run `npm install` in the template rootDir, or re-run with --template-deps auto',
+      });
+    } else {
+      addPreflightCheck(checks, {
+        label: 'Template deps',
+        status: 'ok',
+        detail: 'No package.json (no deps install needed)',
+      });
+    }
+  }
 
   if (!options.input) {
     addPreflightCheck(checks, {
@@ -777,15 +998,17 @@ function createOnProgress(runtime: RenderRuntime, spinner: RenderSpinner) {
     const phase = event.phase;
     const phaseProgress = Math.min(1, Math.max(0, event.progress ?? 0));
     const overall =
-      phase === 'prepare-assets'
-        ? phaseProgress * 0.1
-        : phase === 'bundle'
-          ? 0.1 + phaseProgress * 0.2
-          : phase === 'select-composition'
-            ? 0.3 + phaseProgress * 0.05
-            : phase === 'render-media'
-              ? 0.35 + phaseProgress * 0.65
-              : phaseProgress;
+      phase === 'install-template-deps'
+        ? phaseProgress * 0.05
+        : phase === 'prepare-assets'
+          ? 0.05 + phaseProgress * 0.1
+          : phase === 'bundle'
+            ? 0.15 + phaseProgress * 0.2
+            : phase === 'select-composition'
+              ? 0.35 + phaseProgress * 0.05
+              : phase === 'render-media'
+                ? 0.4 + phaseProgress * 0.6
+                : phaseProgress;
     const percent = Math.round(overall * 100);
 
     if (runtime.isTty) {
@@ -811,6 +1034,7 @@ function writeRenderJsonEnvelope(params: {
   resolvedTemplateId: string | null;
   result: Awaited<ReturnType<(typeof import('../../render/service'))['renderVideo']>>;
   runtime: RenderRuntime;
+  frameAnalysis: AnalyzeVideoFramesResult | null;
 }): void {
   writeJsonEnvelope(
     buildJsonEnvelope({
@@ -823,6 +1047,9 @@ function writeRenderJsonEnvelope(params: {
         output: params.options.output,
         template: params.options.template ?? null,
         resolvedTemplateId: params.resolvedTemplateId,
+        allowTemplateCode: Boolean(params.options.allowTemplateCode),
+        templateDeps: params.options.templateDeps ?? null,
+        templatePm: params.options.templatePm ?? null,
         orientation: params.options.orientation,
         fps: params.options.fps,
         hook: params.options.hook ?? null,
@@ -837,6 +1064,7 @@ function writeRenderJsonEnvelope(params: {
         chromeMode: params.options.chromeMode ?? null,
         captionPreset: params.options.captionPreset,
         captionMode: params.options.captionMode ?? null,
+        captionNotation: params.options.captionNotation ?? null,
         captionMaxWords: params.options.captionMaxWords ?? null,
         captionMinWords: params.options.captionMinWords ?? null,
         captionTargetWords: params.options.captionTargetWords ?? null,
@@ -848,6 +1076,12 @@ function writeRenderJsonEnvelope(params: {
         captionFillerWords: params.options.captionFillerWords ?? null,
         validateTimestamps: params.options.validateTimestamps,
         extendVisuals: params.options.extendVisuals,
+        frameAnalysis: params.options.frameAnalysis !== false,
+        frameAnalysisMode: params.options.frameAnalysisMode ?? 'both',
+        frameAnalysisFps: params.options.frameAnalysisFps ?? '1',
+        frameAnalysisShots: params.options.frameAnalysisShots ?? '30',
+        frameAnalysisSegments: params.options.frameAnalysisSegments ?? '5',
+        frameAnalysisOutput: params.options.frameAnalysisOutput ?? 'output/analysis',
       },
       outputs: {
         videoPath: params.result.outputPath,
@@ -856,6 +1090,9 @@ function writeRenderJsonEnvelope(params: {
         height: params.result.height,
         fps: params.result.fps,
         fileSizeBytes: params.result.fileSize,
+        frameAnalysisManifestPath: params.frameAnalysis?.manifestPath ?? null,
+        frameAnalysisFpsFrames: params.frameAnalysis?.manifest.fpsFrames.length ?? 0,
+        frameAnalysisShotFrames: params.frameAnalysis?.manifest.shotFrames.length ?? 0,
       },
       timingsMs: Date.now() - params.runtime.startTime,
     })
@@ -868,6 +1105,7 @@ async function writeRenderHumanSummary(params: {
   profile: 'portrait' | 'landscape';
   templateId?: string | null;
   audioMixPath?: string | null;
+  frameAnalysis?: AnalyzeVideoFramesResult | null;
 }): Promise<void> {
   const rows: Array<[string, string]> = [
     ['Duration', `${params.result.duration.toFixed(1)}s`],
@@ -881,6 +1119,9 @@ async function writeRenderHumanSummary(params: {
   if (params.audioMixPath) {
     rows.push(['Audio mix', params.audioMixPath]);
   }
+  if (params.frameAnalysis?.manifestPath) {
+    rows.push(['Frame analysis', params.frameAnalysis.manifestPath]);
+  }
   const lines = formatKeyValueRows(rows);
   const footerLines = [];
   if (params.mock) footerLines.push('Mock mode - video is a placeholder file');
@@ -893,7 +1134,7 @@ async function writeRenderHumanSummary(params: {
 
 function logRenderStart(
   options: Record<string, unknown>,
-  resolvedTemplate: Awaited<ReturnType<typeof resolveVideoTemplate>> | undefined
+  resolvedTemplate: Awaited<ReturnType<typeof resolveRenderTemplate>> | undefined
 ): void {
   logger.info(
     {
@@ -903,6 +1144,7 @@ function logRenderStart(
       output: options.output,
       captionPreset: options.captionPreset,
       captionMode: options.captionMode,
+      captionNotation: options.captionNotation,
       hook: options.hook ?? null,
       template: resolvedTemplate?.template.id,
       templateSource: resolvedTemplate ? formatTemplateSource(resolvedTemplate) : undefined,
@@ -920,12 +1162,22 @@ async function runRenderCommand(
   spinner: RenderSpinner
 ) {
   const configDefaults = applyCaptionDefaultsFromConfig(options, command);
-  const { resolvedTemplate, templateDefaults, templateParams, templateGameplay } =
-    await resolveTemplateAndApplyDefaults(options, command);
+  const {
+    resolvedTemplate,
+    templateDefaults,
+    templateParams,
+    templateGameplay,
+    templateFonts,
+    templateOverlays,
+  } = await resolveTemplateAndApplyDefaults(options, command);
+  const remotionProject = resolvedTemplate
+    ? resolveRemotionTemplateProject(resolvedTemplate)
+    : null;
+  const mergedFonts = mergeFontSources(templateFonts, configDefaults.fonts);
 
   if (options.preflight) {
     spinner.stop();
-    const preflight = await runRenderPreflight({ options, resolvedTemplate });
+    const preflight = await runRenderPreflight({ options, resolvedTemplate, command });
     writeRenderPreflightOutput({
       runtime,
       options,
@@ -934,6 +1186,80 @@ async function runRenderCommand(
       exitCode: preflight.exitCode,
     });
     return;
+  }
+
+  const allowTemplateCodeSource = command.getOptionValueSource('allowTemplateCode');
+  const config = loadConfig();
+  const allowTemplateCode =
+    remotionProject &&
+    (allowTemplateCodeSource === 'default' || allowTemplateCodeSource === undefined)
+      ? Boolean(config.render.allowTemplateCode)
+      : Boolean(options.allowTemplateCode);
+
+  if (remotionProject && !allowTemplateCode) {
+    throw new CMError('INVALID_ARGUMENT', 'Code templates require --allow-template-code', {
+      templateId: resolvedTemplate?.template.id,
+      templateDir: remotionProject.templateDir,
+      fix: 'Re-run with --allow-template-code to allow executing template-provided Remotion code',
+    });
+  }
+
+  const templateDepsSource = command.getOptionValueSource('templateDeps');
+  const templateDepsRaw =
+    templateDepsSource === 'default' || templateDepsSource === undefined
+      ? (remotionProject?.installDeps ?? config.render.templateDeps)
+      : options.templateDeps;
+  const templateDepsMode = parseTemplateDepsMode(templateDepsRaw ?? 'prompt');
+
+  const templatePmSource = command.getOptionValueSource('templatePm');
+  const templatePmRaw =
+    templatePmSource === 'default' || templatePmSource === undefined
+      ? (remotionProject?.packageManager ?? config.render.templatePackageManager)
+      : options.templatePm;
+  const templatePackageManager = templatePmRaw ? String(templatePmRaw) : undefined;
+
+  const templateHasPackageJson = remotionProject
+    ? existsSync(join(remotionProject.rootDir, 'package.json'))
+    : false;
+  const templateHasNodeModules = remotionProject
+    ? existsSync(join(remotionProject.rootDir, 'node_modules'))
+    : false;
+  const templateDepsMissing = Boolean(
+    remotionProject && templateHasPackageJson && !templateHasNodeModules
+  );
+  let installTemplateDeps = false;
+  if (templateDepsMissing) {
+    // TypeScript doesn't reliably narrow through the Boolean(...) definition above.
+    if (!remotionProject) {
+      throw new CMError(
+        'INTERNAL_ERROR',
+        'Invariant failed: templateDepsMissing implies a remotionProject',
+        { templateId: resolvedTemplate?.template.id }
+      );
+    }
+    installTemplateDeps = await resolveTemplateDepsInstallDecision({
+      runtime,
+      rootDir: remotionProject.rootDir,
+      mode: templateDepsMode ?? 'prompt',
+    });
+  }
+
+  if (templateDepsMissing && runtime.offline && templateDepsMode === 'auto') {
+    if (!remotionProject) {
+      throw new CMError(
+        'INTERNAL_ERROR',
+        'Invariant failed: templateDepsMissing implies a remotionProject',
+        { templateId: resolvedTemplate?.template.id }
+      );
+    }
+    throw new CMError(
+      'OFFLINE',
+      'Offline mode enabled; cannot auto-install template dependencies',
+      {
+        rootDir: remotionProject.rootDir,
+        fix: 'Re-run without --offline, or pass --template-deps never and install dependencies manually if needed',
+      }
+    );
   }
 
   const audioMixPath = options.audioMix ? String(options.audioMix) : undefined;
@@ -969,10 +1295,15 @@ async function runRenderCommand(
     'render'
   );
 
-  const captionConfig = mergeCaptionConfigPartials(
-    (templateDefaults?.captionConfig as Partial<CaptionConfig> | undefined) ?? undefined,
-    parseCaptionOptions(options)
-  );
+  const mergedConfig = loadConfig();
+  let captionConfigBase = mergedConfig.captions.config as CaptionConfigInput | undefined;
+  if (templateDefaults?.captionConfig) {
+    captionConfigBase = mergeCaptionConfigPartials(
+      captionConfigBase,
+      templateDefaults.captionConfig as CaptionConfigInput
+    );
+  }
+  const captionConfig = mergeCaptionConfigPartials(captionConfigBase, parseCaptionOptions(options));
   const captionMaxWords = parseOptionalInt(options.captionMaxWords);
   const captionMinWords = parseOptionalInt(options.captionMinWords);
   const captionTargetWords = parseOptionalInt(options.captionTargetWords);
@@ -992,12 +1323,17 @@ async function runRenderCommand(
   const captionDropFillersSource = command.getOptionValueSource('captionDropFillers');
   const captionDropFillers =
     captionDropFillersSource === 'default' ? undefined : Boolean(options.captionDropFillers);
+  const captionDropListMarkersSource = command.getOptionValueSource('captionDropListMarkers');
+  const captionDropListMarkers =
+    captionDropListMarkersSource === 'default'
+      ? undefined
+      : Boolean(options.captionDropListMarkers);
   const hook = await resolveHookFromCli(options);
   if (!options.hook && hook) {
     options.hook = hook.id ?? hook.path;
   }
 
-  const archetype = templateDefaults?.archetype as string | undefined;
+  const archetype = resolvedTemplate?.template.defaults?.archetype;
   const compositionId = resolvedTemplate?.template.compositionId;
   const gameplayRequired =
     templateGameplay?.required ?? Boolean(templateGameplay?.library || templateGameplay?.clip);
@@ -1038,10 +1374,29 @@ async function runRenderCommand(
     orientation: String(options.orientation) as 'portrait' | 'landscape' | 'square',
     fps: Number.parseInt(String(options.fps), 10),
     mock: Boolean(options.mock),
+    allowTemplateCode,
+    installTemplateDeps,
+    templateDepsAllowOutput: runtime.verbose,
+    templatePackageManager:
+      templatePackageManager === 'npm' ||
+      templatePackageManager === 'pnpm' ||
+      templatePackageManager === 'yarn'
+        ? templatePackageManager
+        : undefined,
+    remotionEntryPoint: remotionProject?.entryPoint,
+    remotionRootDir: remotionProject?.rootDir,
+    remotionPublicDir: remotionProject?.publicDir,
+    templateId: resolvedTemplate?.template.id,
+    templateSource: resolvedTemplate ? formatTemplateSource(resolvedTemplate) : undefined,
+    templateParams: (resolvedTemplate?.template.params ?? undefined) as
+      | Record<string, unknown>
+      | undefined,
+    overlays: templateOverlays.length > 0 ? templateOverlays : undefined,
     browserExecutable: options.browserExecutable ? String(options.browserExecutable) : null,
     chromeMode: parseChromeMode(options.chromeMode),
     captionPreset: options.captionPreset as CaptionPresetName,
     captionMode: options.captionMode as 'page' | 'single' | 'buildup' | 'chunk' | undefined,
+    captionNotation: parseCaptionNotation(options.captionNotation),
     captionConfig,
     wordsPerPage: captionMaxWords ?? undefined,
     captionMinWords: captionMinWords ?? undefined,
@@ -1053,8 +1408,9 @@ async function runRenderCommand(
     captionFontFamily,
     captionFontWeight,
     captionFontFile,
-    fonts: configDefaults.fonts.length > 0 ? configDefaults.fonts : undefined,
+    fonts: mergedFonts.length > 0 ? mergedFonts : undefined,
     captionDropFillers,
+    captionDropListMarkers,
     captionFillerWords,
     onProgress,
     archetype,
@@ -1065,6 +1421,26 @@ async function runRenderCommand(
     downloadAssets: options.downloadAssets !== false,
     hook: hook ?? undefined,
   });
+
+  let frameAnalysis: AnalyzeVideoFramesResult | null = null;
+  try {
+    frameAnalysis = await runAutoFrameAnalysis({
+      ...options,
+      output: result.outputPath,
+    });
+  } catch (error) {
+    logger.warn(
+      { error: getCliErrorInfo(error), videoPath: result.outputPath },
+      'Automatic frame analysis failed'
+    );
+    if (!runtime.json) {
+      writeStderrLine(
+        chalk.yellow(
+          `Frame analysis skipped: ${getCliErrorInfo(error).message ?? 'unexpected error'}`
+        )
+      );
+    }
+  }
 
   spinner.succeed('Video rendered successfully');
 
@@ -1083,6 +1459,7 @@ async function runRenderCommand(
       resolvedTemplateId: resolvedTemplate?.template.id ?? null,
       result,
       runtime,
+      frameAnalysis,
     });
     return;
   }
@@ -1094,6 +1471,7 @@ async function runRenderCommand(
     profile,
     templateId: resolvedTemplate?.template.id ?? null,
     audioMixPath: options.audioMix ? String(options.audioMix) : null,
+    frameAnalysis,
   });
 }
 
@@ -1102,9 +1480,15 @@ export const renderCommand = new Command('render')
   .requiredOption('-i, --input <path>', 'Input visuals JSON file')
   .requiredOption('--audio <path>', 'Audio file path')
   .option('--audio-mix <path>', 'Audio mix plan JSON file')
-  .option('--timestamps <path>', 'Timestamps JSON file', 'timestamps.json')
-  .option('-o, --output <path>', 'Output video file path', 'video.mp4')
-  .option('--template <idOrPath>', 'Video template id or path to template.json')
+  .option('--timestamps <path>', 'Timestamps JSON file', DEFAULT_ARTIFACT_FILENAMES.timestamps)
+  .option('-o, --output <path>', 'Output video file path', DEFAULT_ARTIFACT_FILENAMES.video)
+  .option('--template <idOrPath>', 'Render template id or path to template.json')
+  .option('--allow-template-code', 'Allow executing Remotion code templates (dangerous)', false)
+  .option(
+    '--template-deps <mode>',
+    'Template dependency install mode for code templates (auto, prompt, never)'
+  )
+  .option('--template-pm <pm>', 'Template package manager (npm, pnpm, yarn)')
   .option('--orientation <type>', 'Video orientation (portrait, landscape, square)', 'portrait')
   .option('--fps <fps>', 'Frames per second', '30')
   .option('--mock', 'Use mock renderer (for testing)', false)
@@ -1116,6 +1500,7 @@ export const renderCommand = new Command('render')
     'capcut'
   )
   .option('--caption-mode <mode>', 'Caption display mode (page, single, buildup, chunk)')
+  .option('--caption-notation <mode>', 'Caption notation mode (none, unicode)')
   // Caption typography
   .option('--caption-font-family <name>', 'Caption font family (e.g., Inter)')
   .option('--caption-font-weight <weight>', 'Caption font weight (normal, bold, black, 100-900)')
@@ -1143,12 +1528,38 @@ export const renderCommand = new Command('render')
   .option('--caption-min-on-screen-ms <ms>', 'Minimum on-screen time for captions (ms)')
   .option('--caption-min-on-screen-short-ms <ms>', 'Minimum on-screen time for short captions (ms)')
   .option('--caption-drop-fillers', 'Drop filler words from captions')
+  .option('--caption-drop-list-markers', 'Drop list markers like "1:" from captions')
   .option('--caption-filler-words <list>', 'Comma-separated filler words/phrases to drop')
   // Caption animation
   .option(
     '--caption-animation <anim>',
     'Page animation (pop, fade, slideUp, slideDown, bounce, none)'
   )
+  .option(
+    '--caption-word-animation <anim>',
+    'Active word animation (none, pop, bounce, rise, shake)'
+  )
+  .option('--caption-word-animation-ms <ms>', 'Active word animation duration in ms')
+  .option('--caption-word-animation-intensity <value>', 'Active word animation intensity (0..1)')
+  .option(
+    '--caption-offset-ms <ms>',
+    'Global caption timing offset in ms (negative = earlier captions)'
+  )
+  // List badge overlay (e.g., "#1" marker)
+  .option('--list-badges', 'Enable list number badges overlay', true)
+  .option('--list-badge-duration-ms <ms>', 'List badge total on-screen duration (ms)')
+  .option('--list-badge-fade-in-ms <ms>', 'List badge fade-in duration (ms)')
+  .option('--list-badge-fade-out-ms <ms>', 'List badge fade-out duration (ms)')
+  .option('--list-badge-scale-from <n>', 'List badge starting scale (e.g., 0.7)')
+  .option('--list-badge-scale-to <n>', 'List badge ending scale (e.g., 1.0)')
+  .option('--list-badge-size-px <px>', 'List badge circle size (px)')
+  .option('--list-badge-font-size-px <px>', 'List badge text size (px)')
+  .option('--list-badge-background-color <css>', 'List badge background color (CSS)')
+  .option('--list-badge-border-width-px <px>', 'List badge border width (px)')
+  .option('--list-badge-border-color <css>', 'List badge border color (CSS)')
+  .option('--list-badge-text-color <css>', 'List badge text color (CSS)')
+  .option('--list-badge-gap-px <px>', 'Gap between captions and badge (px)')
+  .option('--list-badge-caption-safety-px <px>', 'Extra reserved caption band height (px)')
   // Sync validation settings
   .option('--validate-timestamps', 'Validate word timestamps before rendering', true)
   .option('--no-validate-timestamps', 'Skip timestamp validation')
@@ -1161,7 +1572,8 @@ export const renderCommand = new Command('render')
   .option('--split-layout <layout>', 'Split-screen layout preset (gameplay-top, gameplay-bottom)')
   .option('--gameplay-position <pos>', 'Gameplay position (top, bottom, full)')
   .option('--content-position <pos>', 'Content position (top, bottom, full)')
-  .option('--hook <idOrPath>', 'Hook intro clip id, path, or URL')
+  .option('--hook <idOrPath>', 'Hook intro clip id, path, or URL (use "none" to disable)')
+  .option('--no-hook', 'Disable hook intro clip')
   .option('--hook-library <name>', 'Hook library id (defaults to config)')
   .option('--hooks-dir <path>', 'Root directory for hook libraries')
   .option('--hook-duration <seconds>', 'Hook duration when ffprobe is unavailable')
@@ -1170,6 +1582,21 @@ export const renderCommand = new Command('render')
   .option('--hook-fit <mode>', 'Hook fit mode (cover, contain)')
   .option('--download-assets', 'Download remote visual assets into the render bundle', true)
   .option('--no-download-assets', 'Do not download remote assets (stream URLs directly)')
+  .option('--frame-analysis', 'Run automatic frame analysis after render', true)
+  .option('--no-frame-analysis', 'Skip automatic frame analysis after render')
+  .option('--frame-analysis-mode <mode>', 'Frame analysis mode (fps, shots, both)', 'both')
+  .option(
+    '--frame-analysis-fps <value>',
+    'Frame analysis FPS sampling rate (> 0 and <= 1)',
+    '1'
+  )
+  .option('--frame-analysis-shots <count>', 'Frame analysis evenly spaced shot count', '30')
+  .option('--frame-analysis-segments <count>', 'Frame analysis timeline segment count', '5')
+  .option(
+    '--frame-analysis-output <dir>',
+    'Frame analysis output root directory',
+    'output/analysis'
+  )
   .option('--browser-executable <path>', 'Chromium/Chrome executable path for rendering')
   .option(
     '--chrome-mode <mode>',

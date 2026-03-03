@@ -1,0 +1,114 @@
+# Seedream Reference Anchored Scene
+#
+# Original: content-machine
+# License: MIT
+# Created: 2026-02-12
+# Purpose: Reference-first prompt for identity consistency across generated stills
+
+id: image-generation/seedream-reference-anchored
+name: Seedream Reference Anchored Scene
+description: >
+  Generates prompts that preserve character identity from reference images while
+  changing only selected scene variables. Designed for iterative character consistency.
+category: image-generation
+provider: any
+outputFormat: text
+version: "1.0.0"
+tags:
+  - image-generation
+  - seedream
+  - reference
+  - character-consistency
+  - edit
+  - film-style
+estimatedTokens: 200
+recommendedTemperature: 0.5
+
+variables:
+  - name: referenceScope
+    description: What to preserve from the reference image
+    required: false
+    type: string
+    default: "face structure, hair, glasses, and wardrobe silhouette"
+    example: "face proportions, hat shape, jacket profile, and color palette"
+  - name: newScene
+    description: New scene to generate
+    required: true
+    type: string
+    example: "standing in a dim classroom after hours with chalk dust in the air"
+  - name: camera
+    description: Camera and framing details
+    required: false
+    type: string
+    default: "medium shot, eye-level, 50mm lens"
+    example: "close-up portrait, slight low angle, 85mm lens"
+  - name: lighting
+    description: Lighting direction and quality
+    required: false
+    type: string
+    default: "cinematic soft key light with directional shadows"
+    example: "single practical overhead light with deep falloff"
+  - name: colorGrade
+    description: Color treatment
+    required: false
+    type: string
+    default: "subtle teal-orange cinematic grade"
+    example: "desaturated green-brown grade"
+  - name: lockedElements
+    description: Elements that must remain unchanged
+    required: false
+    type: string
+    default: "identity traits and wardrobe anchors"
+    example: "glasses shape, hat, jacket texture"
+  - name: aspectRatio
+    description: Target aspect ratio
+    required: false
+    type: string
+    default: "9:16"
+    example: "16:9"
+
+defaultOptions:
+  style: cinematic
+  aspectRatio: "9:16"
+  lighting: dramatic
+  cameraAngle: eye-level
+  colorPalette: muted
+
+template: |
+  Use the provided reference image as the identity anchor.
+  Preserve: {{referenceScope}}.
+
+  Generate a new scene: {{newScene}}.
+  Camera: {{camera}}.
+  Lighting: {{lighting}}.
+  Color grade: {{colorGrade}}.
+  Keep unchanged: {{lockedElements}}.
+  Aspect ratio: {{aspectRatio}}.
+
+  Keep a single subject with consistent facial identity.
+  Avoid extra faces, extra limbs, distorted hands, unreadable text, and duplicate accessories.
+  No text, no logo, no watermark.
+
+examples:
+  - input:
+      referenceScope: "face proportions, glasses frame, goatee shape, and jacket silhouette"
+      newScene: "walking through a fluorescent-lit lab corridor"
+      camera: "medium tracking-style still, eye-level, 35mm lens"
+      lighting: "cool overhead fluorescent with rim light"
+      colorGrade: "desaturated green-brown grade"
+      lockedElements: "glasses frame, goatee shape, jacket silhouette"
+      aspectRatio: "9:16"
+    output: |
+      Use the provided reference image as the identity anchor.
+      Preserve: face proportions, glasses frame, goatee shape, and jacket silhouette.
+
+      Generate a new scene: walking through a fluorescent-lit lab corridor.
+      Camera: medium tracking-style still, eye-level, 35mm lens.
+      Lighting: cool overhead fluorescent with rim light.
+      Color grade: desaturated green-brown grade.
+      Keep unchanged: glasses frame, goatee shape, jacket silhouette.
+      Aspect ratio: 9:16.
+
+      Keep a single subject with consistent facial identity.
+      Avoid extra faces, extra limbs, distorted hands, unreadable text, and duplicate accessories.
+      No text, no logo, no watermark.

@@ -299,4 +299,4 @@ Per video (10 scenes × 2 embeddings each):
 - [vendor/storage/qdrant](../../../vendor/storage/qdrant) — Similarity thresholds
 - [vendor/Clip-Anything](../../../vendor/Clip-Anything) — Multimodal patterns
 - [SECTION-VISUAL-MATCHING-20260104.md](../sections/SECTION-VISUAL-MATCHING-20260104.md) — Matching pipeline
-- [OpenAI Embeddings Guide](https://platform.openai.com/docs/guides/embeddings) — Official docs
+- [OpenAI Embeddings Guide](https://platform.openai.com/docs/dev/guides/embeddings) — Official docs

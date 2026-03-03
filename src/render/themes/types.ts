@@ -4,10 +4,14 @@
 import type { PaletteName } from '../presets/palette';
 import type { TypographyPresetName } from '../presets/typography';
 import type { AnimationPresetName } from '../presets/animation';
-import type { CaptionPresetName } from '../presets/caption';
+import type { ThemeCaptionPresetName } from '../presets/caption';
 import type { PlatformName } from '../tokens/safe-zone';
 
-/** Theme definition */
+/**
+ * Theme definition
+ *
+ * @cmTerm theme
+ */
 export interface Theme {
   readonly name: string;
   readonly description?: string;
@@ -17,6 +21,6 @@ export interface Theme {
     readonly caption: TypographyPresetName;
   };
   readonly animation: AnimationPresetName;
-  readonly caption: CaptionPresetName;
+  readonly caption: ThemeCaptionPresetName;
   readonly platform: PlatformName;
 }

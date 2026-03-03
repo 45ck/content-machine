@@ -5,7 +5,7 @@ import { readdir, readFile } from 'fs/promises';
 import { existsSync } from 'fs';
 import { join } from 'path';
 import { homedir } from 'os';
-import { WorkflowDefinitionSchema, type WorkflowDefinition } from './schema';
+import { WorkflowDefinitionSchema, type WorkflowDefinition } from '../domain';
 import { createLogger } from '../core/logger';
 import { listBuiltinWorkflows } from './resolve';
 

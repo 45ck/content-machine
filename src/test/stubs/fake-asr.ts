@@ -2,7 +2,7 @@
  * Fake ASR Provider for Testing
  */
 import { ASRResult, ASROptions } from '../../audio/asr';
-import { WordTimestamp } from '../../audio/schema';
+import type { WordTimestamp } from '../../domain';
 
 export class FakeASRProvider {
   private responses: ASRResult[] = [];

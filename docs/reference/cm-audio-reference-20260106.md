@@ -24,6 +24,13 @@ cm audio [options]
 - `-o, --output <path>`: output audio file path (default: `audio.wav`)
 - `--timestamps <path>`: output timestamps file path (default: `timestamps.json`)
 - `--voice <voice>`: TTS voice id (default: `af_heart`)
+- `--tts-engine <engine>`: TTS engine (`kokoro`, `elevenlabs`)
+- `--tts-speed <n>`: TTS speaking speed (e.g. `1.0`, `1.2`)
+- `--asr-engine <engine>`: timestamp engine (`whisper`, `elevenlabs-forced-alignment`)
+- `--sync-strategy <strategy>`: sync strategy (`standard`, `audio-first`)
+- `--reconcile`: reconcile ASR output to match original script text
+- `--require-whisper`: require whisper ASR (fail if unavailable)
+- `--whisper-model <model>`: Whisper model size (`tiny`, `base`, `small`, `medium`, `large`)
 - `--audio-mix <path>`: output audio mix plan (default: `audio.mix.json`)
 - `--music <pathOrPreset>`: background music track or preset name
 - `--no-music`: disable background music (overrides config defaults)
@@ -32,7 +39,7 @@ cm audio [options]
 - `--music-loop` / `--no-music-loop`: toggle music looping
 - `--music-fade-in <ms>` / `--music-fade-out <ms>`: music fades
 - `--sfx <path>`: SFX file path (repeatable)
-- `--sfx-pack <name>`: SFX pack name
+- `--sfx-pack <id>`: SFX pack id (built-in examples: `pops`, `whoosh`, `glitch`, `clicks`)
 - `--sfx-at <placement>`: auto placement (hook, scene, list-item, cta)
 - `--sfx-volume <db>`: SFX volume in dB
 - `--sfx-min-gap <ms>`: minimum gap between SFX
@@ -43,7 +50,7 @@ cm audio [options]
 - `--ambience-volume <db>`: ambience volume in dB
 - `--ambience-loop` / `--no-ambience-loop`: toggle ambience looping
 - `--ambience-fade-in <ms>` / `--ambience-fade-out <ms>`: ambience fades
-- `--mix-preset <preset>`: mix preset (clean, punchy, cinematic, viral)
+- `--mix-preset <id>`: audio mix preset id (built-in examples: `clean`, `punchy`, `cinematic`, `viral`)
 - `--lufs-target <db>`: target loudness for final mix
 - `--mock`: use mock TTS/ASR (writes placeholder audio/timestamps)
 
@@ -63,11 +70,12 @@ cm audio [options]
 ```bash
 cm audio -i out/script.json -o out/audio.wav --timestamps out/timestamps.json
 cm audio -i script.json --voice af_heart
+cm audio -i script.json --tts-engine elevenlabs --asr-engine elevenlabs-forced-alignment
 cm audio -i script.json --music lofi-01 --sfx-pack pops --audio-mix audio.mix.json
 ```
 
 ## See also
 
-- `docs/guides/guide-cli-ux-cm-audio-20260106.md`
-- `docs/guides/guide-audio-options-20260110.md`
+- `docs/dev/guides/guide-cli-ux-cm-audio-20260106.md`
+- `docs/dev/guides/guide-audio-options-20260110.md`
 - `docs/reference/cm-visuals-reference-20260106.md`

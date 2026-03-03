@@ -9,7 +9,7 @@ import { stat } from 'fs/promises';
 import { join, resolve, dirname } from 'path';
 import { homedir } from 'os';
 import { NotFoundError, SchemaError } from '../core/errors';
-import { WorkflowDefinitionSchema, type WorkflowDefinition } from './schema';
+import { WorkflowDefinitionSchema, type WorkflowDefinition } from '../domain';
 
 export interface ResolvedWorkflow {
   workflow: WorkflowDefinition;
@@ -24,6 +24,11 @@ export interface ResolvedWorkflow {
 }
 
 const BUILTIN_WORKFLOWS: Record<string, WorkflowDefinition> = {};
+
+export function __setBuiltinWorkflows(workflows: Record<string, WorkflowDefinition>): void {
+  Object.keys(BUILTIN_WORKFLOWS).forEach((key) => delete BUILTIN_WORKFLOWS[key]);
+  Object.assign(BUILTIN_WORKFLOWS, workflows);
+}
 
 export function listBuiltinWorkflows(): WorkflowDefinition[] {
   return Object.values(BUILTIN_WORKFLOWS);

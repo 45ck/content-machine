@@ -29,7 +29,7 @@ Use Given/When/Then format:
 
 **Pre-Work (read these first):**
 - [ ] `docs/research/XX-relevant-research-YYYYMMDD.md`
-- [ ] `docs/architecture/adr-NNN-relevant-decision-YYYYMMDD.md`
+- [ ] `docs/dev/architecture/adr-NNN-relevant-decision-YYYYMMDD.md`
 
 **Deliverables (create these):**
 - [ ] `docs/[category]/[name]-YYYYMMDD.md` — [Purpose]

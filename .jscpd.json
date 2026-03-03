@@ -8,12 +8,17 @@
     "**/vendor/**",
     "**/templates/**",
     "**/connectors/**",
+    "**/.cache/**",
+    "**/.stryker-tmp/**",
     "**/.git/**",
+    "**/report/**",
+    "**/reports/**",
+    "**/test-e2e-output/**",
     "tests/**",
     "**/*.test.ts",
     "**/*.spec.ts"
   ],
   "format": ["typescript", "javascript"],
   "minTokens": 70,
-  "absolute": true
+  "absolute": false
 }

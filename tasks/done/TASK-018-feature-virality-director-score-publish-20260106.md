@@ -25,7 +25,7 @@ Docs to create/update (date-suffixed):
 
 - `docs/research/sections/SECTION-VIRALITY-DIRECTOR-INTEGRATION-20260106.md`
 - `docs/research/investigations/RQ-27-VIRALITY-DIRECTOR-AGENTIC-PROMPTING-20260106.md`
-- Optional: link these from `docs/features/feature-virality-director-20260105.md`
+- Optional: link these from `docs/dev/features/feature-virality-director-20260105.md`
 
 ---
 

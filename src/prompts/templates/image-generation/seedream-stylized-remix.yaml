@@ -1,0 +1,102 @@
+# Seedream Stylized Remix
+#
+# Original: content-machine
+# License: MIT
+# Created: 2026-02-12
+# Purpose: Generate policy-safer stylized character reinterpretations
+
+id: image-generation/seedream-stylized-remix
+name: Seedream Stylized Remix
+description: >
+  Generates stylized, non-photoreal reinterpretation prompts that preserve
+  character archetype cues while reducing reliance on real-person likeness.
+category: image-generation
+provider: any
+outputFormat: text
+version: "1.0.0"
+tags:
+  - image-generation
+  - seedream
+  - stylized
+  - policy-safe
+  - character
+  - remix
+estimatedTokens: 160
+recommendedTemperature: 0.7
+
+variables:
+  - name: archetypeBrief
+    description: Character archetype cues without naming real individuals
+    required: true
+    type: string
+    example: "stoic science-teacher antihero with iconic hat and glasses"
+  - name: styleFamily
+    description: Visual style family
+    required: false
+    type: string
+    default: "graphic novel ink with limited color palette"
+    example: "retro comic halftone with bold contour lines"
+  - name: palette
+    description: Controlled color palette
+    required: false
+    type: string
+    default: "olive green, tan, charcoal, off-white"
+    example: "teal, amber, deep black"
+  - name: scene
+    description: Scene setup
+    required: true
+    type: string
+    example: "standing in a makeshift desert lab at dusk"
+  - name: framing
+    description: Framing and camera perspective
+    required: false
+    type: string
+    default: "waist-up portrait, eye-level"
+    example: "dynamic three-quarter portrait, low angle"
+  - name: aspectRatio
+    description: Target aspect ratio
+    required: false
+    type: string
+    default: "9:16"
+    example: "1:1"
+
+defaultOptions:
+  style: illustration
+  aspectRatio: "9:16"
+  lighting: dramatic
+  cameraAngle: eye-level
+  colorPalette: muted
+
+template: |
+  Create a stylized illustration of a fictional character archetype: {{archetypeBrief}}.
+
+  Scene: {{scene}}.
+  Style family: {{styleFamily}}.
+  Palette: {{palette}}.
+  Framing: {{framing}}.
+  Aspect ratio: {{aspectRatio}}.
+
+  Prioritize stylization over photoreal likeness.
+  Keep one subject, clean silhouette, readable hands, and coherent costume details.
+  No text, no logo, no watermark.
+
+examples:
+  - input:
+      archetypeBrief: "stoic science-teacher antihero with iconic hat and glasses"
+      scene: "standing in a makeshift desert lab at dusk"
+      styleFamily: "retro comic halftone with bold contour lines"
+      palette: "olive green, amber, charcoal"
+      framing: "dynamic three-quarter portrait, low angle"
+      aspectRatio: "9:16"
+    output: |
+      Create a stylized illustration of a fictional character archetype: stoic science-teacher antihero with iconic hat and glasses.
+
+      Scene: standing in a makeshift desert lab at dusk.
+      Style family: retro comic halftone with bold contour lines.
+      Palette: olive green, amber, charcoal.
+      Framing: dynamic three-quarter portrait, low angle.
+      Aspect ratio: 9:16.
+
+      Prioritize stylization over photoreal likeness.
+      Keep one subject, clean silhouette, readable hands, and coherent costume details.
+      No text, no logo, no watermark.

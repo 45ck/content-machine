@@ -11,36 +11,32 @@ export * from './types.js';
 export { PexelsProvider } from './pexels-provider.js';
 export { MockVideoProvider } from './mock-provider.js';
 export { NanoBananaProvider } from './nanobanana-provider.js';
+export { LocalProvider } from './local-provider.js';
+export { LocalImageProvider } from './local-image-provider.js';
 export { searchPexels, getPexelsVideo } from './pexels.js';
 
 import type { VideoProvider, AssetProvider } from './types.js';
 import { PexelsProvider } from './pexels-provider.js';
 import { MockVideoProvider } from './mock-provider.js';
 import { NanoBananaProvider } from './nanobanana-provider.js';
+import { LocalProvider } from './local-provider.js';
+import { LocalImageProvider } from './local-image-provider.js';
+import { SUPPORTED_VISUALS_PROVIDER_IDS } from '../../domain/repo-facts.generated';
+import type {
+  RepoFactsStockVisualsProviderId,
+  RepoFactsVisualsProviderId,
+} from '../../domain/repo-facts.generated';
 
 // =============================================================================
 // Provider Names
 // =============================================================================
 
 /**
- * Video provider names (legacy, returns video clips).
- * Extended to include 'nanobanana' for AI image generation.
- */
-export type ProviderName = 'pexels' | 'pixabay' | 'mock' | 'nanobanana';
-
-/**
  * Asset provider names (extended, includes image generators).
  */
-export type AssetProviderName =
-  // Video providers
-  | 'pexels'
-  | 'pixabay'
-  // Image providers
-  | 'nanobanana'
-  | 'dalle'
-  | 'unsplash'
-  // Special
-  | 'mock';
+export type AssetProviderName = RepoFactsVisualsProviderId | 'dalle' | 'unsplash' | 'mock';
+
+export type ProviderName = RepoFactsStockVisualsProviderId | 'mock';
 
 // =============================================================================
 // Factory Functions
@@ -69,31 +65,79 @@ export function createVideoProvider(name: ProviderName): VideoProvider {
  *
  * Supports both video providers (Pexels, Pixabay) and image providers (NanoBanana).
  */
-export function createAssetProvider(name: AssetProviderName): AssetProvider {
-  switch (name) {
-    case 'pexels':
-      // PexelsProvider implements VideoProvider, wrap it
-      return adaptVideoProviderToAssetProvider(new PexelsProvider());
-    case 'nanobanana':
-      return new NanoBananaProvider();
-    case 'mock':
-      return adaptVideoProviderToAssetProvider(new MockVideoProvider());
-    case 'pixabay':
-      throw new Error('Pixabay provider not yet implemented');
-    case 'dalle':
-      throw new Error('DALL-E provider not yet implemented');
-    case 'unsplash':
-      throw new Error('Unsplash provider not yet implemented');
-    default:
-      throw new Error(`Unknown provider: ${name}`);
-  }
+export function createAssetProvider(
+  name: AssetProviderName,
+  config?: CreateAssetProviderConfig
+): AssetProvider {
+  return assetProviderFactories[name](config);
 }
+
+type CreateAssetProviderConfig = {
+  visuals?: {
+    nanobanana?: {
+      model?: string;
+      costPerAssetUsd?: number;
+      cacheDir?: string;
+      apiBaseUrl?: string;
+      apiVersion?: string;
+      timeoutMs?: number;
+    };
+    cacheEnabled?: boolean;
+    cacheTtl?: number;
+    local?: {
+      dir?: string;
+      recursive?: boolean;
+      manifest?: string;
+    };
+  };
+};
+
+type AssetProviderFactory = (config?: CreateAssetProviderConfig) => AssetProvider;
+
+const assetProviderFactories: Record<AssetProviderName, AssetProviderFactory> = {
+  pexels: () => adaptVideoProviderToAssetProvider(new PexelsProvider()),
+  mock: () => adaptVideoProviderToAssetProvider(new MockVideoProvider()),
+
+  nanobanana: (config) =>
+    new NanoBananaProvider({
+      model: config?.visuals?.nanobanana?.model,
+      cacheDir: config?.visuals?.nanobanana?.cacheDir,
+      costPerAssetUsd: config?.visuals?.nanobanana?.costPerAssetUsd,
+      apiBaseUrl: config?.visuals?.nanobanana?.apiBaseUrl,
+      apiVersion: config?.visuals?.nanobanana?.apiVersion,
+      timeoutMs: config?.visuals?.nanobanana?.timeoutMs,
+      cacheEnabled: config?.visuals?.cacheEnabled,
+      cacheTtlSeconds: config?.visuals?.cacheTtl,
+    }),
+
+  local: (config) =>
+    new LocalProvider({
+      dir: config?.visuals?.local?.dir,
+      recursive: config?.visuals?.local?.recursive,
+    }),
+
+  localimage: (config) =>
+    new LocalImageProvider({
+      dir: config?.visuals?.local?.dir,
+      recursive: config?.visuals?.local?.recursive,
+    }),
+
+  pixabay: () => {
+    throw new Error('Pixabay provider not yet implemented');
+  },
+  dalle: () => {
+    throw new Error('DALL-E provider not yet implemented');
+  },
+  unsplash: () => {
+    throw new Error('Unsplash provider not yet implemented');
+  },
+};
 
 /**
  * Get list of available asset providers (those with API keys configured).
  */
 export function getAvailableProviders(): AssetProviderName[] {
-  const providers: AssetProviderName[] = ['pexels', 'nanobanana', 'mock'];
+  const providers: AssetProviderName[] = [...SUPPORTED_VISUALS_PROVIDER_IDS, 'mock'];
   return providers.filter((name) => {
     try {
       const provider = createAssetProvider(name);

@@ -86,12 +86,23 @@ The following prompts are original to content-machine:
 - `image-generation/person-action`
 - `image-generation/tech-visualization`
 - `image-generation/comparison-split`
+- `image-generation/seedream-hero-still`
+- `image-generation/seedream-reference-anchored`
+- `image-generation/seedream-stylized-remix`
+- `visuals/seedance-shot-spec`
 
 These were designed specifically for:
 
 - Google Gemini Imagen 3 (via Nano Banana Pro)
 - OpenAI DALL-E 3
 - Other text-to-image providers
+
+### Research-Informed Prompt Pack (Seed Creative Stack)
+
+- Source report: `/home/calvin/Downloads/deep-research-report.md`
+- Adapted: 2026-02-12
+- Modifications: distilled long-form research into reusable prompt templates with
+  repo-native ubiquitous language and safety constraints.
 
 ---
 

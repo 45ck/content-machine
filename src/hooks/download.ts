@@ -4,7 +4,7 @@ import { dirname } from 'node:path';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { CMError } from '../core/errors';
-import type { HookDefinition } from './schema';
+import type { HookDefinition } from '../domain';
 
 export interface DownloadHookOptions {
   destinationPath: string;

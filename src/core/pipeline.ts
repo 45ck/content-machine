@@ -10,19 +10,25 @@ import { performance } from 'perf_hooks';
 import { randomUUID } from 'crypto';
 import { z } from 'zod';
 import type { LLMProvider } from './llm/provider';
-import type { ScriptOutput } from '../script/schema';
-import type { AudioOutput } from '../audio/schema';
-import type { VisualsOutput } from '../visuals/schema';
-import type { RenderOutput } from '../render/schema';
+import { ResearchOutputSchema } from '../domain';
+import type {
+  AudioOutput,
+  MediaManifest,
+  RenderOutput,
+  ResearchOutput,
+  ScriptOutput,
+  VisualsOutput,
+} from '../domain';
 import type { CaptionPresetName } from '../render/captions/presets';
-import type { CaptionConfig } from '../render/captions/config';
-import type { FontSource } from '../render/schema';
-import type { HookClip } from '../hooks/schema';
-import { ResearchOutputSchema, type ResearchOutput } from '../research/schema';
+import type { CaptionConfigInput } from '../render/captions/config';
+import type { FontSource, HookClip, OverlayAsset } from '../domain';
+import type { ProviderRoutingPolicy } from '../visuals/provider-router';
+import type { AssetProviderName } from '../visuals/providers';
 import type { PipelineEventEmitter } from './events';
 import type { AudioMixPlanOptions } from '../audio/mix/planner';
 import { createLogger, logTiming } from './logger';
 import { PipelineError } from './errors';
+import { DEFAULT_ARTIFACT_FILENAMES } from '../domain/repo-facts.generated';
 import {
   ArchetypeEnum,
   OrientationEnum,
@@ -30,6 +36,7 @@ import {
   type Archetype,
   type Orientation,
 } from './config';
+import type { TemplateId } from '../domain/ids';
 
 export type PipelineStage = 'script' | 'audio' | 'visuals' | 'render';
 
@@ -38,6 +45,8 @@ export interface PipelineOptions {
   archetype: Archetype;
   orientation: Orientation;
   voice: string;
+  ttsEngine?: 'kokoro' | 'edge' | 'elevenlabs';
+  asrEngine?: 'whisper' | 'elevenlabs-forced-alignment';
   targetDuration: number;
   outputPath: string;
   keepArtifacts?: boolean;
@@ -46,6 +55,8 @@ export interface PipelineOptions {
   llmProvider?: LLMProvider;
   /** Use mock mode for testing without real API calls */
   mock?: boolean;
+  /** Mock render mode: placeholder (fast) or real (renders actual video) */
+  mockRenderMode?: 'placeholder' | 'real';
   /** Pipeline mode: standard (whisper optional) or audio-first (whisper required) */
   pipelineMode?: 'standard' | 'audio-first';
   /** Whisper model size */
@@ -66,9 +77,10 @@ export interface PipelineOptions {
   fps?: number;
   compositionId?: string;
   captionPreset?: CaptionPresetName;
-  captionConfig?: Partial<CaptionConfig>;
+  captionConfig?: CaptionConfigInput;
   captionGroupMs?: number;
   captionMode?: 'page' | 'single' | 'buildup' | 'chunk';
+  captionNotation?: 'none' | 'unicode';
   wordsPerPage?: number;
   captionMinWords?: number;
   captionTargetWords?: number;
@@ -77,15 +89,32 @@ export interface PipelineOptions {
   captionMinOnScreenMs?: number;
   captionMinOnScreenMsShort?: number;
   captionDropFillers?: boolean;
+  captionDropListMarkers?: boolean;
   captionFillerWords?: string[];
   captionAnimation?: 'none' | 'fade' | 'slideUp' | 'slideDown' | 'pop' | 'bounce';
+  captionWordAnimation?: 'none' | 'pop' | 'bounce' | 'rise' | 'shake';
+  captionWordAnimationMs?: number;
+  captionWordAnimationIntensity?: number;
+  captionOffsetMs?: number;
   captionFontFamily?: string;
   captionFontWeight?: number | 'normal' | 'bold' | 'black';
   captionFontFile?: string;
   captionFonts?: FontSource[];
+  overlays?: OverlayAsset[];
   maxLinesPerPage?: number;
   maxCharsPerLine?: number;
   /** Visuals + layout options */
+  visualsProvider?: AssetProviderName;
+  visualsProviders?: AssetProviderName[];
+  visualsRoutingPolicy?: ProviderRoutingPolicy | 'adaptive';
+  visualsMaxGenerationCostUsd?: number;
+  visualsPolicyGates?: {
+    enforce?: boolean;
+    maxFallbackRate?: number;
+    minProviderSuccessRate?: number;
+  };
+  visualsRoutingAdaptiveWindow?: number;
+  visualsRoutingAdaptiveMinRecords?: number;
   gameplay?: { library?: string; style?: string; required?: boolean };
   splitScreenRatio?: number;
   gameplayPosition?: 'top' | 'bottom' | 'full';
@@ -96,6 +125,35 @@ export interface PipelineOptions {
   scriptInput?: ScriptOutput;
   audioInput?: AudioOutput;
   visualsInput?: VisualsOutput;
+  mediaManifestInput?: MediaManifest;
+  media?: {
+    enabled?: boolean;
+    extractVideoKeyframes?: boolean;
+    synthesizeImageMotion?: boolean;
+    outputDir?: string;
+    ffmpegPath?: string;
+    adapterByMotionStrategy?: {
+      depthflow?: string;
+      veo?: string;
+    };
+    sceneToVideoAdapter?: string;
+  };
+
+  // ---------------------------------------------------------------------------
+  // Remotion code templates / custom projects (optional)
+  // ---------------------------------------------------------------------------
+  allowTemplateCode?: boolean;
+  installTemplateDeps?: boolean;
+  templateDepsAllowOutput?: boolean;
+  templatePackageManager?: 'npm' | 'pnpm' | 'yarn';
+  remotionEntryPoint?: string;
+  remotionRootDir?: string;
+  remotionPublicDir?: string;
+  remotionEnableCaching?: boolean;
+  remotionExtraModules?: string[];
+  templateId?: TemplateId;
+  templateSource?: string;
+  templateParams?: Record<string, unknown>;
 }
 
 export const PipelineConfigSchema = z
@@ -114,6 +172,7 @@ export interface PipelineResult {
   script: ScriptOutput;
   audio: AudioOutput;
   visuals: VisualsOutput;
+  media?: MediaManifest;
   render: RenderOutput;
   outputPath: string;
   duration: number;
@@ -147,6 +206,18 @@ function normalizeWhisperModel(
 function clampProgress(value: number): number {
   if (!Number.isFinite(value)) return 0;
   return Math.min(1, Math.max(0, value));
+}
+
+function shouldAutoEnableMediaStage(visuals: VisualsOutput): boolean {
+  return visuals.scenes.some(
+    (scene) =>
+      scene.assetPath.toLowerCase().endsWith('.scene3d.json') ||
+      scene.assetPath.toLowerCase().endsWith('.scene.json') ||
+      (scene.assetType === 'image' &&
+        scene.motionStrategy !== undefined &&
+        scene.motionStrategy !== 'none' &&
+        scene.motionStrategy !== 'kenburns')
+  );
 }
 
 async function writeJson(path: string, data: unknown): Promise<void> {
@@ -222,11 +293,12 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
     captionDefaults.fonts.length > 0 ? captionDefaults.fonts[0].family : captionDefaults.fontFamily;
 
   const artifacts = {
-    script: join(workDir, 'script.json'),
-    audio: join(workDir, 'audio.wav'),
-    timestamps: join(workDir, 'timestamps.json'),
-    audioMix: join(workDir, 'audio.mix.json'),
-    visuals: join(workDir, 'visuals.json'),
+    script: join(workDir, DEFAULT_ARTIFACT_FILENAMES.script),
+    audio: join(workDir, DEFAULT_ARTIFACT_FILENAMES.audio),
+    timestamps: join(workDir, DEFAULT_ARTIFACT_FILENAMES.timestamps),
+    audioMix: join(workDir, DEFAULT_ARTIFACT_FILENAMES['audio-mix']),
+    visuals: join(workDir, DEFAULT_ARTIFACT_FILENAMES.visuals),
+    mediaManifest: join(workDir, 'media-manifest.json'),
   };
 
   const generatedPaths = new Set<string>();
@@ -395,6 +467,9 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
             generateAudio({
               script,
               voice: options.voice,
+              ttsEngine: options.ttsEngine ?? config.audio.ttsEngine,
+              asrEngine: options.asrEngine ?? config.audio.asrEngine,
+              elevenlabs: config.audio?.elevenlabs,
               outputPath: artifacts.audio,
               timestampsPath: artifacts.timestamps,
               mock: options.mock,
@@ -506,7 +581,15 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
         () =>
           matchVisuals({
             timestamps: audio.timestamps,
-            provider: config.visuals.provider,
+            provider: options.visualsProvider ?? config.visuals.provider,
+            providers: options.visualsProviders,
+            routingPolicy: options.visualsRoutingPolicy,
+            maxGenerationCostUsd: options.visualsMaxGenerationCostUsd,
+            policyGates: options.visualsPolicyGates,
+            routingAdaptiveWindow: options.visualsRoutingAdaptiveWindow,
+            routingAdaptiveMinRecords: options.visualsRoutingAdaptiveMinRecords,
+            pipelineId,
+            topic: options.topic,
             orientation: options.orientation,
             mock: options.mock,
             gameplay: options.gameplay,
@@ -533,6 +616,40 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
       return result;
     });
 
+    let visualsForRender = visuals;
+    let mediaManifest: MediaManifest | undefined;
+    const mediaEnabled = options.media?.enabled ?? shouldAutoEnableMediaStage(visuals);
+    const mediaOutputDir = options.media?.outputDir ?? join(workDir, 'media');
+    if (mediaEnabled) {
+      if (options.mediaManifestInput) {
+        mediaManifest = options.mediaManifestInput;
+      } else {
+        const { synthesizeMediaManifest } = await import('../media/service');
+        mediaManifest = await logTiming(
+          'media-synthesis',
+          () =>
+            synthesizeMediaManifest({
+              visuals,
+              outputDir: mediaOutputDir,
+              extractVideoKeyframes: options.media?.extractVideoKeyframes ?? true,
+              synthesizeImageMotion: options.media?.synthesizeImageMotion ?? true,
+              ffmpegPath: options.media?.ffmpegPath,
+              adapterByMotionStrategy: options.media?.adapterByMotionStrategy,
+              sceneToVideoAdapter: options.media?.sceneToVideoAdapter,
+            }),
+          log
+        );
+      }
+
+      const { applyMediaManifestToVisuals } = await import('../media/service');
+      visualsForRender = applyMediaManifestToVisuals(visuals, mediaManifest);
+      generatedPaths.add(artifacts.mediaManifest);
+      generatedPaths.add(mediaOutputDir);
+      if (options.keepArtifacts) {
+        await writeJson(artifacts.mediaManifest, mediaManifest);
+      }
+    }
+
     // Stage 4: Render
     const render = await runStageWithEvents('render', async ({ stage, stageIndex }) => {
       options.onProgress?.(stage, 'Rendering video...');
@@ -544,7 +661,7 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
         'video-rendering',
         () =>
           renderVideo({
-            visuals,
+            visuals: visualsForRender,
             timestamps: audio.timestamps,
             audioPath: audio.audioPath,
             audioMix: audio.audioMix,
@@ -553,11 +670,26 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
             orientation: options.orientation,
             fps: options.fps ?? config.render.fps,
             mock: options.mock,
+            mockRenderMode: options.mockRenderMode,
             compositionId: options.compositionId,
+            overlays: options.overlays,
+            allowTemplateCode: options.allowTemplateCode,
+            installTemplateDeps: options.installTemplateDeps,
+            templateDepsAllowOutput: options.templateDepsAllowOutput,
+            templatePackageManager: options.templatePackageManager,
+            remotionEntryPoint: options.remotionEntryPoint,
+            remotionRootDir: options.remotionRootDir,
+            remotionPublicDir: options.remotionPublicDir,
+            remotionEnableCaching: options.remotionEnableCaching,
+            remotionExtraModules: options.remotionExtraModules,
+            templateId: options.templateId,
+            templateSource: options.templateSource,
+            templateParams: options.templateParams,
             captionPreset: options.captionPreset,
             captionConfig: options.captionConfig,
             captionGroupMs: options.captionGroupMs,
             captionMode: options.captionMode,
+            captionNotation: options.captionNotation,
             wordsPerPage: options.wordsPerPage,
             captionMinWords: options.captionMinWords,
             captionTargetWords: options.captionTargetWords,
@@ -566,8 +698,13 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
             captionMinOnScreenMs: options.captionMinOnScreenMs,
             captionMinOnScreenMsShort: options.captionMinOnScreenMsShort,
             captionDropFillers: options.captionDropFillers,
+            captionDropListMarkers: options.captionDropListMarkers,
             captionFillerWords: options.captionFillerWords,
             captionAnimation: options.captionAnimation,
+            captionWordAnimation: options.captionWordAnimation,
+            captionWordAnimationMs: options.captionWordAnimationMs,
+            captionWordAnimationIntensity: options.captionWordAnimationIntensity,
+            captionOffsetMs: options.captionOffsetMs,
             captionFontFamily: options.captionFontFamily ?? defaultCaptionFamily,
             captionFontWeight: options.captionFontWeight ?? captionDefaults.fontWeight,
             captionFontFile: options.captionFontFile ?? captionDefaults.fontFile,
@@ -631,6 +768,7 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
       script,
       audio,
       visuals,
+      media: mediaManifest,
       render,
       outputPath: render.outputPath,
       duration: render.duration,
@@ -652,9 +790,9 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
     log.error({ error: wrapped }, 'Pipeline failed');
 
     if (!options.keepArtifacts) {
-      await Promise.all(Array.from(generatedPaths).map((path) => rm(path, { force: true }))).catch(
-        () => {}
-      );
+      await Promise.all(
+        Array.from(generatedPaths).map((path) => rm(path, { force: true, recursive: true }))
+      ).catch(() => {});
       if (renderAttempted) {
         await rm(options.outputPath, { force: true }).catch(() => {});
       }

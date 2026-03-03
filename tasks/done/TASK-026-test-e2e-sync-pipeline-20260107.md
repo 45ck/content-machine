@@ -414,4 +414,4 @@ jobs:
 
 - **Depends On:** TASK-020, TASK-022, TASK-023, TASK-024, TASK-025
 - **Blocks:** None (validation task)
-- **Implementation Plan:** [IMPL-SYNC-STRATEGIES-20260107](../../docs/architecture/IMPL-SYNC-STRATEGIES-20260107.md)
+- **Implementation Plan:** [IMPL-SYNC-STRATEGIES-20260107](../../docs/dev/architecture/IMPL-SYNC-STRATEGIES-20260107.md)

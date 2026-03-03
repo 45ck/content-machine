@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { mkdtemp, mkdir, rm, writeFile } from 'fs/promises';
 import { join } from 'path';
 import { tmpdir } from 'os';
-import { listVideoTemplates } from './registry';
+import { listRenderTemplates } from './registry';
 
 let tempRoot = '';
 
@@ -20,7 +20,7 @@ async function writeTemplate(dir: string, id: string): Promise<void> {
   await writeFile(join(dir, 'template.json'), JSON.stringify(template, null, 2), 'utf-8');
 }
 
-describe('listVideoTemplates', () => {
+describe('listRenderTemplates', () => {
   beforeEach(async () => {
     tempRoot = await mkdtemp(join(tmpdir(), 'cm-templates-'));
   });
@@ -38,7 +38,7 @@ describe('listVideoTemplates', () => {
     await writeTemplate(join(userDir, 'user-template'), 'user-template');
     await writeTemplate(join(projectDir, 'project-template'), 'project-template');
 
-    const templates = await listVideoTemplates({
+    const templates = await listRenderTemplates({
       includeBuiltin: false,
       userDir,
       projectDir,

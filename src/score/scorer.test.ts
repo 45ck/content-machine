@@ -1,8 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { scoreScript } from './scorer';
-import type { ScriptOutput } from '../script/schema';
-import type { PackageOutput } from '../package/schema';
-import type { ScriptMetadata } from '../script/schema';
+import type { PackageOutput, ScriptMetadata, ScriptOutput } from '../domain';
 
 function baseScript(partial?: Partial<ScriptOutput>): ScriptOutput {
   const base: ScriptOutput = {

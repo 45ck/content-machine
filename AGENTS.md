@@ -79,18 +79,20 @@ cm generate "Redis vs PostgreSQL for caching" --archetype versus --output output
 
 ---
 
-## 📦 Content Archetypes
+## 📦 Script Archetypes
 
-Six pre-built content patterns optimized for short-form engagement:
+**Archetype** = script format (hook + structure + pacing rules). Script archetypes are **data files**, not hardcoded in `src/`.
 
-| Archetype    | Structure                         | Best For                     |
-| ------------ | --------------------------------- | ---------------------------- |
-| **listicle** | "5 things..." with numbered items | Tips, facts, recommendations |
-| **versus**   | "X vs Y" comparison               | Tool comparisons, decisions  |
-| **howto**    | Step-by-step instructions         | Tutorials, quick wins        |
-| **myth**     | "Myth: X / Reality: Y"            | Debunking misconceptions     |
-| **story**    | Narrative arc with hook           | Case studies, journeys       |
-| **hot-take** | Provocative opinion               | Engagement bait, discussions |
+- Built-in examples ship in `assets/archetypes/`.
+- Project overrides live in `./.cm/archetypes/`.
+- User installs live in `~/.cm/archetypes/`.
+
+Discover what is available right now:
+
+```bash
+cm archetypes list
+cm archetypes show <id>
+```
 
 Usage:
 
@@ -100,6 +102,25 @@ cm generate "Docker vs Kubernetes" --archetype versus
 ```
 
 ---
+
+## 🧠 Ubiquitous Language
+
+This repo has three similarly-named concepts. Use these definitions consistently:
+
+- **Archetype**: script format (used by `cm script`, `--archetype`)
+- **Template**: render preset (Remotion composition + render defaults; used by `cm render`, `--template`)
+- **Workflow**: pipeline orchestration preset (used by `cm generate`, `--workflow`)
+
+Full glossary: `docs/reference/GLOSSARY.md`.
+
+## ✅ Canonical Sources Of Truth
+
+If a fact is repeated in multiple places (docs, agent instructions, code), it must have a single canonical source:
+
+- Terminology: `registry/ubiquitous-language.yaml` (generated: `docs/reference/GLOSSARY.md`)
+- Repo-wide facts (providers, env var names, defaults): `registry/repo-facts.yaml`
+  - Generated: `docs/reference/REPO-FACTS.md`, `.github/copilot-instructions.md`, `CLAUDE.md`, `src/domain/repo-facts.generated.ts`, `config/cspell/repo-facts.txt`
+  - Update workflow: edit the YAML, then run `npm run repo-facts:gen`
 
 ## 🔧 Tech Stack (Final Decisions)
 
@@ -123,10 +144,14 @@ cm generate "Docker vs Kubernetes" --archetype versus
 
 ```
 content-machine/
-├── src/                          # Implementation (Starting now)
+├── assets/                       # Packaged static assets
+│   └── lab/                      # Experiment Lab UI (static)
+├── src/                          # Implementation (TypeScript)
 │   ├── cli/                     # Commander.js entry points
 │   │   ├── index.ts             # Main CLI entry
 │   │   └── commands/            # script.ts, audio.ts, visuals.ts, render.ts
+│   ├── feedback/                # Human feedback schema + JSONL store helpers
+│   ├── lab/                     # Local Experiment Lab (UI server + API + stores)
 │   ├── script/                  # Script generation pipeline
 │   │   ├── generator.ts         # LLM script generation
 │   │   ├── prompts/             # YAML prompt templates
@@ -164,21 +189,52 @@ content-machine/
 
 ## 📋 Command Reference
 
-| Command       | Description                     | Primary Output                 |
-| ------------- | ------------------------------- | ------------------------------ |
-| `cm generate` | Full pipeline: topic → video    | `video.mp4`                    |
-| `cm script`   | Generate script from topic      | `script.json`                  |
-| `cm audio`    | Generate voiceover + timestamps | `audio.wav`, `timestamps.json` |
-| `cm visuals`  | Find matching stock footage     | `visuals.json`                 |
-| `cm render`   | Render final video              | `video.mp4`                    |
-| `cm init`     | Interactive setup wizard        | `.content-machine.toml`        |
-| `cm help`     | Show help for all commands      | —                              |
+| Command        | Description                                     | Primary Output                   |
+| -------------- | ----------------------------------------------- | -------------------------------- |
+| `cm generate`  | Full pipeline: topic → video                    | `video.mp4`                      |
+| `cm script`    | Generate script from topic                      | `script.json`                    |
+| `cm audio`     | Generate voiceover + timestamps                 | `audio.wav`, `timestamps.json`   |
+| `cm visuals`   | Find matching stock footage                     | `visuals.json`                   |
+| `cm render`    | Render final video                              | `video.mp4`                      |
+| `cm doctor`    | Diagnose setup/dependency issues                | Diagnostic report (JSON/human)   |
+| `cm demo`      | Render a deterministic demo video (no API keys) | `demo.mp4` + artifacts           |
+| `cm templates` | Manage render templates (list/install/new/pack) | Template packs + `template.json` |
+| `cm feedback`  | Capture/export human feedback                   | `feedback.jsonl`, export JSON    |
+| `cm lab`       | Experiment Lab UI (review/A-B)                  | Local web UI + API               |
+| `cm init`      | Interactive setup wizard                        | `.content-machine.toml`          |
+| `cm help`      | Show help for all commands                      | —                                |
+
+### Lab Feedback Loop
+
+Lab is supported for structured, typed feedback collection (ratings + notes + tags) and is still the
+authoritative path for persistent feedback logging.
+
+Current default interaction preference for fast iteration:
+
+1. Generate output to an absolute/relative file path and ensure the artifact folder is discoverable.
+2. Open the artifact folder and play the MP4 directly for informal visual inspection.
+3. Only launch `cm lab review` / `cm lab compare` when structured feedback is required.
+
+`cm lab review <path>` opens a review page for a single run and keeps the process alive until submit when used
+in one-shot mode.
+`cm lab compare <pathA> <pathB>` opens the compare page and keeps the process alive until one-shot submit.
+
+- One-shot defaults for these subcommands are `--exit-after-submit 1`.
+- Pass `--stay-open` to prevent auto-exit.
+- Pass `--no-open` if you want to keep the page launch fully manual.
+- Use Lab when you need durable feedback artifacts; use direct video playback for quick visual checks.
+
+Preferred human workflow in agent context:
+
+1. Quick-check via folder/video open for content quality and direction.
+2. Launch Lab only when you need explicit ratings/notes and structured persistence.
+3. Resume next command only after successful submit when one-shot mode is used.
 
 ### Common Options
 
 ```bash
 --output, -o <path>    # Output file path
---archetype <type>     # Content archetype (listicle, versus, etc.)
+--archetype <type>     # Script archetype (listicle, versus, etc.)
 --voice <voice>        # TTS voice selection
 --orientation <type>   # portrait (default), landscape, square
 --caption-font-family <name>  # Caption font family (e.g., Inter)
@@ -255,12 +311,12 @@ content-machine/
 
 ### V&V Framework (4-Layer Approach)
 
-| Layer | Type                | Example                                      |
-| ----- | ------------------- | -------------------------------------------- |
-| 1     | Schema Validation   | Zod safeParse for JSON structure             |
-| 2     | Programmatic Checks | Word count, scene count, duration            |
-| 3     | LLM-as-Judge        | Hook quality, TikTok voice, visual relevance |
-| 4     | Human Review        | Random sample QA                             |
+| Layer | Type                | Example                                       |
+| ----- | ------------------- | --------------------------------------------- |
+| 1     | Schema Validation   | Zod safeParse for JSON structure              |
+| 2     | Programmatic Checks | Word count, scene count, duration             |
+| 3     | LLM-as-Judge        | Hook quality, TikTok voice, visual relevance  |
+| 4     | Human Review        | Experiment Lab A/B reviews (`cm lab compare`) |
 
 **Key Evaluation Metrics:**
 
@@ -272,7 +328,9 @@ content-machine/
 **Documentation:**
 
 - [RQ-24: LLM Evaluation](docs/research/investigations/RQ-24-LLM-EVALUATION-QUALITY-ASSURANCE-20260105.md)
-- [V&V Framework Guide](docs/guides/VV-FRAMEWORK-20260105.md)
+- [V&V Framework Guide](docs/dev/guides/VV-FRAMEWORK-20260105.md)
+- [Experiment Lab Playbook](docs/dev/guides/guide-experiment-lab-20260206.md)
+- [Experiment Lab Architecture](docs/dev/architecture/experiment-lab/README.md)
 - [evals/](evals/) — promptfoo configurations
 
 ### Test Stubs (Required for All Providers)
@@ -292,15 +350,15 @@ export class FakeLLMProvider implements LLMProvider {
 
 | Document                                                                                                 | Purpose                                       |
 | -------------------------------------------------------------------------------------------------------- | --------------------------------------------- |
-| [SYSTEM-DESIGN-20260104.md](docs/architecture/SYSTEM-DESIGN-20260104.md)                                 | **Authoritative specification** (3,300 lines) |
-| [IMPL-PHASE-0-FOUNDATION](docs/architecture/IMPL-PHASE-0-FOUNDATION-20260105.md)                         | Phase 0: Project setup, core infrastructure   |
-| [IMPL-PHASE-1-SCRIPT](docs/architecture/IMPL-PHASE-1-SCRIPT-20260105.md)                                 | Phase 1: Script generation pipeline           |
-| [IMPL-PHASE-2-AUDIO](docs/architecture/IMPL-PHASE-2-AUDIO-20260105.md)                                   | Phase 2: TTS and ASR integration              |
-| [IMPL-PHASE-3-VISUALS](docs/architecture/IMPL-PHASE-3-VISUALS-20260105.md)                               | Phase 3: Stock footage matching               |
-| [IMPL-PHASE-4-RENDER](docs/architecture/IMPL-PHASE-4-RENDER-20260105.md)                                 | Phase 4: Remotion video rendering             |
-| [IMPL-PHASE-5-INTEGRATION](docs/architecture/IMPL-PHASE-5-INTEGRATION-20260105.md)                       | Phase 5: Pipeline integration, polish         |
+| [SYSTEM-DESIGN-20260104.md](docs/dev/architecture/SYSTEM-DESIGN-20260104.md)                             | **Authoritative specification** (3,300 lines) |
+| [IMPL-PHASE-0-FOUNDATION](docs/dev/architecture/IMPL-PHASE-0-FOUNDATION-20260105.md)                     | Phase 0: Project setup, core infrastructure   |
+| [IMPL-PHASE-1-SCRIPT](docs/dev/architecture/IMPL-PHASE-1-SCRIPT-20260105.md)                             | Phase 1: Script generation pipeline           |
+| [IMPL-PHASE-2-AUDIO](docs/dev/architecture/IMPL-PHASE-2-AUDIO-20260105.md)                               | Phase 2: TTS and ASR integration              |
+| [IMPL-PHASE-3-VISUALS](docs/dev/architecture/IMPL-PHASE-3-VISUALS-20260105.md)                           | Phase 3: Stock footage matching               |
+| [IMPL-PHASE-4-RENDER](docs/dev/architecture/IMPL-PHASE-4-RENDER-20260105.md)                             | Phase 4: Remotion video rendering             |
+| [IMPL-PHASE-5-INTEGRATION](docs/dev/architecture/IMPL-PHASE-5-INTEGRATION-20260105.md)                   | Phase 5: Pipeline integration, polish         |
 | [RQ-24: LLM Evaluation](docs/research/investigations/RQ-24-LLM-EVALUATION-QUALITY-ASSURANCE-20260105.md) | LLM-as-judge, promptfoo patterns              |
-| [V&V Framework](docs/guides/VV-FRAMEWORK-20260105.md)                                                    | Validation & verification guide               |
+| [V&V Framework](docs/dev/guides/VV-FRAMEWORK-20260105.md)                                                | Validation & verification guide               |
 | [00-SUMMARY-20260102.md](docs/research/00-SUMMARY-20260102.md)                                           | Research overview                             |
 | [investigations/](docs/research/investigations/)                                                         | 24 investigation documents (RQ-01 to RQ-24)   |
 | [deep-dives/](docs/research/deep-dives/)                                                                 | 13 deep-dive analyses                         |
@@ -355,7 +413,7 @@ font_file = "assets/fonts/Inter/Inter-Bold.woff2"
 - ✅ `investigation-tts-latency-20260120.md`
 - ❌ `feature-caption-system.md` (NO DATE)
 
-**Templates:** All templates in `docs/templates/` (use these, never start from scratch)
+**Templates:** All templates in `docs/dev/templates/` (use these, never start from scratch)
 
 ---
 
@@ -483,7 +541,7 @@ tasks/
 
 1. Check `tasks/todo/` for prioritized work
 2. Move task to `in_progress/` (max 3 concurrent)
-3. Read [SYSTEM-DESIGN-20260104.md](docs/architecture/SYSTEM-DESIGN-20260104.md)
+3. Read [SYSTEM-DESIGN-20260104.md](docs/dev/architecture/SYSTEM-DESIGN-20260104.md)
 4. Write failing tests first (TDD)
 
 ### Pull Request Checklist

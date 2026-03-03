@@ -1,1 +1,1 @@
-npm run test:run
+sh scripts/quality/prepush-quality.sh

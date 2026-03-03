@@ -18,9 +18,12 @@ import { FONT_STACKS } from '../tokens/font';
  */
 export const PRESET_TIKTOK: CaptionConfig = CaptionConfigSchema.parse({
   fontFamily: FONT_STACKS.body,
-  fontSize: 72,
+  // Slightly smaller by default to avoid oversized caption blocks in chunk mode.
+  fontSize: 66,
   fontWeight: 'bold',
   textTransform: 'uppercase',
+  wordSpacing: 1.0,
+  lineHeight: 1.25,
   textColor: '#FFFFFF',
   highlightColor: '#FFFFFF',
   highlightMode: 'background',
@@ -43,10 +46,15 @@ export const PRESET_TIKTOK: CaptionConfig = CaptionConfigSchema.parse({
     blur: 10,
   },
   layout: {
-    maxCharsPerLine: 25,
+    maxCharsPerLine: 23,
     maxLinesPerPage: 2,
     maxGapMs: 800,
-    maxWordsPerPage: 8,
+    maxWordsPerPage: 5,
+    minWordsPerPage: 2,
+    targetWordsPerChunk: 3,
+    // Slightly higher than schema default (15) to avoid false negatives in V&V
+    // after shortening chunk sizes.
+    maxCharsPerSecond: 16,
   },
   position: 'bottom',
   positionOffset: {
@@ -57,8 +65,29 @@ export const PRESET_TIKTOK: CaptionConfig = CaptionConfigSchema.parse({
     enabled: true,
     platform: 'tiktok',
   },
-  pageAnimation: 'none',
+  cleanup: {
+    // We render list numbering via badges, so hide "1:"/"2:" tokens in captions by default for TikTok.
+    dropListMarkers: true,
+  },
+  listBadges: {
+    enabled: true,
+    durationMs: 1200,
+    fadeInMs: 160,
+    fadeOutMs: 240,
+    scaleFrom: 0.72,
+    scaleTo: 1,
+    sizePx: 110,
+    fontSizePx: 54,
+    captionSafetyPx: 80,
+    gapPx: 110,
+  },
+  pageAnimation: 'pop',
   animationDuration: 150,
+  wordAnimation: 'pop',
+  wordAnimationMs: 110,
+  wordAnimationIntensity: 0.65,
+  // Slight lead to counteract perceived audio decode latency during rendering.
+  timingOffsetMs: -50,
 });
 
 /**
@@ -73,6 +102,8 @@ export const PRESET_YOUTUBE_SHORTS: CaptionConfig = CaptionConfigSchema.parse({
   fontSize: 64,
   fontWeight: 'bold',
   textTransform: 'none',
+  wordSpacing: 1.0,
+  lineHeight: 1.25,
   textColor: '#FFFFFF',
   highlightColor: '#FFCC00',
   highlightMode: 'color',
@@ -92,7 +123,9 @@ export const PRESET_YOUTUBE_SHORTS: CaptionConfig = CaptionConfigSchema.parse({
     maxCharsPerLine: 25,
     maxLinesPerPage: 2,
     maxGapMs: 800,
-    maxWordsPerPage: 8,
+    maxWordsPerPage: 6,
+    minWordsPerPage: 2,
+    targetWordsPerChunk: 4,
   },
   position: 'center',
   positionOffset: {
@@ -119,6 +152,8 @@ export const PRESET_REELS: CaptionConfig = CaptionConfigSchema.parse({
   fontSize: 68,
   fontWeight: 'bold',
   textTransform: 'uppercase',
+  wordSpacing: 1.0,
+  lineHeight: 1.25,
   textColor: '#FFFFFF',
   highlightColor: '#FFFFFF',
   highlightMode: 'background',
@@ -145,6 +180,8 @@ export const PRESET_REELS: CaptionConfig = CaptionConfigSchema.parse({
     maxLinesPerPage: 2,
     maxGapMs: 800,
     maxWordsPerPage: 6,
+    minWordsPerPage: 2,
+    targetWordsPerChunk: 4,
   },
   position: 'bottom',
   positionOffset: {
@@ -157,6 +194,9 @@ export const PRESET_REELS: CaptionConfig = CaptionConfigSchema.parse({
   },
   pageAnimation: 'slideUp',
   animationDuration: 180,
+  wordAnimation: 'pop',
+  wordAnimationMs: 110,
+  wordAnimationIntensity: 0.6,
 });
 
 /**
@@ -292,23 +332,19 @@ export const PRESET_NEON: CaptionConfig = CaptionConfigSchema.parse({
  * Emphasis on power words with scale animation.
  */
 export const PRESET_CAPCUT_BOLD: CaptionConfig = CaptionConfigSchema.parse({
-  displayMode: 'chunk',
+  displayMode: 'page',
   fontFamily: FONT_STACKS.body,
   fontSize: 80,
   fontWeight: 'black',
   textTransform: 'uppercase',
+  wordSpacing: 1.0,
+  lineHeight: 1.3,
   textColor: '#FFFFFF',
-  highlightColor: '#FFFFFF',
-  highlightMode: 'background',
-  pillStyle: {
-    color: '#FF0050',
-    borderRadius: 6,
-    paddingX: 16,
-    paddingY: 10,
-  },
+  highlightColor: '#FFE600',
+  highlightMode: 'color',
   stroke: {
     color: '#000000',
-    width: 4,
+    width: 10,
     useWebkitStroke: true,
   },
   shadow: {
@@ -327,16 +363,16 @@ export const PRESET_CAPCUT_BOLD: CaptionConfig = CaptionConfigSchema.parse({
     detectTypes: ['number', 'power', 'negation', 'pause'],
   },
   layout: {
-    maxCharsPerLine: 20,
+    maxCharsPerLine: 24,
     maxLinesPerPage: 2,
     maxGapMs: 300,
-    minWordsPerPage: 2,
-    targetWordsPerChunk: 5,
+    minWordsPerPage: 3,
+    targetWordsPerChunk: 3,
     maxWordsPerPage: 7,
     maxWordsPerMinute: 180,
     maxCharsPerSecond: 15,
     minOnScreenMsShort: 800,
-    minOnScreenMs: 1100,
+    minOnScreenMs: 1000,
     shortChunkMaxWords: 2,
     chunkGapMs: 80,
   },
@@ -351,6 +387,10 @@ export const PRESET_CAPCUT_BOLD: CaptionConfig = CaptionConfigSchema.parse({
   },
   pageAnimation: 'pop',
   animationDuration: 180,
+  wordTransitionMs: 80,
+  wordAnimation: 'pop',
+  wordAnimationMs: 120,
+  wordAnimationIntensity: 0.55,
 });
 
 /**
@@ -483,6 +523,11 @@ export const CAPTION_STYLE_PRESETS = {
   karaoke: PRESET_KARAOKE,
 } as const;
 
+/**
+ * Ubiquitous Language: Caption preset name.
+ *
+ * @cmTerm caption-preset
+ */
 export type CaptionPresetName = keyof typeof CAPTION_STYLE_PRESETS;
 
 /**

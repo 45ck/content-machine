@@ -1,0 +1,398 @@
+# Repository facts registry (source of truth for stable repo-wide facts)
+#
+# This file exists so the repo has ONE canonical place for facts that are repeated
+# across docs, agent instructions, and code (and would otherwise drift).
+#
+# Generated outputs:
+# - docs/reference/REPO-FACTS.md
+# - .github/copilot-instructions.md
+# - CLAUDE.md
+# - src/domain/repo-facts.generated.ts
+# - config/cspell/repo-facts.txt
+
+version: 1
+
+meta:
+  repoName: content-machine
+  repoId: 45ck/content-machine
+  owners:
+    - team: core
+      contact: '@45ck'
+  # Update this when facts are reviewed for correctness.
+  lastReviewed: '2026-02-11'
+
+conventions:
+  docs:
+    dateSuffix: 'YYYYMMDD'
+    # Enforced for files in these directories (recursively), excluding undatedGlobs.
+    enforceDateSuffixInDirs:
+      - 'docs/dev/architecture'
+      - 'docs/dev/bugs'
+      - 'docs/dev/features'
+      - 'docs/dev/guides'
+      - 'docs/postmortems'
+      - 'docs/research'
+      - 'docs/dev/specs'
+      - 'docs/tutorials'
+      - 'docs/reference'
+    undatedGlobs:
+      # Repo-level docs and stable index files
+      - 'docs/README.md'
+      - 'docs/dev/architecture/configuration/README.md'
+      - 'docs/dev/architecture/experiment-lab/README.md'
+      - 'docs/dev/bugs/README.md'
+      - 'docs/research/synthesis/README.md'
+      - 'docs/dev/glossary/**'
+      # Generated docs (undated on purpose)
+      - 'docs/reference/GLOSSARY.md'
+      - 'docs/reference/REPO-FACTS.md'
+      - 'docs/reference/ARTIFACT-CONTRACTS.md'
+      - 'docs/reference/ENVIRONMENT-VARIABLES.md'
+      - 'docs/reference/CONFIG-SURFACE.md'
+      - 'docs/reference/QUALITY-GATES.md'
+      - 'docs/reference/SECURITY-INVARIANTS.md'
+      - 'docs/reference/CLI-CONTRACT.md'
+      - 'docs/reference/PIPELINE-PRESETS.md'
+
+facts:
+  runtime:
+    node:
+      supported: '>=20'
+      packageManager: 'npm'
+    language:
+      primary: 'TypeScript'
+
+  llm:
+    supportedProviders:
+      - id: openai
+        displayName: OpenAI
+        envVarNames: ['OPENAI_API_KEY']
+        defaultModel: 'gpt-4o-mini'
+        notes: Preferred for structured outputs.
+      - id: anthropic
+        displayName: Anthropic
+        envVarNames: ['ANTHROPIC_API_KEY']
+        defaultModel: 'claude-3-5-sonnet-20241022'
+      - id: gemini
+        displayName: Google Gemini
+        envVarNames: ['GOOGLE_API_KEY', 'GEMINI_API_KEY']
+        defaultModel: 'gemini-2.0-flash'
+        notes: Google key alias supported; prefer GOOGLE_API_KEY.
+    default:
+      providerId: openai
+      model: 'gpt-4o-mini'
+      temperature: 0.7
+
+  visuals:
+    defaultProviderId: pexels
+    defaultMotionStrategyId: kenburns
+    supportedProviders:
+      - id: pexels
+        displayName: Pexels
+        envVarNames: ['PEXELS_API_KEY']
+        kind: stock
+        notes: Stock video provider (implemented).
+      - id: nanobanana
+        displayName: NanoBanana (Gemini Images)
+        envVarNames: ['GOOGLE_API_KEY', 'GEMINI_API_KEY']
+        defaultModel: 'gemini-2.5-flash-image'
+        kind: ai
+        notes: AI image provider (implemented); GOOGLE_API_KEY preferred.
+      - id: local
+        displayName: Local Clips
+        envVarNames: []
+        kind: local
+        notes: Use local clips/images; no API key required.
+      - id: localimage
+        displayName: Local Images
+        envVarNames: []
+        kind: local
+        notes: Use local images; no API key required.
+      - id: pixabay
+        displayName: Pixabay
+        envVarNames: ['PIXABAY_API_KEY']
+        kind: stock
+        notes: Planned (not implemented yet).
+    motionStrategies:
+      - id: none
+        displayName: None (Static)
+        description: No motion - use static frame or pass-through for videos.
+        costPerClip: 0
+        dependencies: []
+      - id: kenburns
+        displayName: Ken Burns Effect
+        description: Classic zoom and pan effect using FFmpeg.
+        costPerClip: 0
+        dependencies: ['ffmpeg']
+      - id: depthflow
+        displayName: DepthFlow 2.5D
+        description: 2.5D parallax animation using depth estimation.
+        costPerClip: 0
+        dependencies: ['python', 'depthflow']
+      - id: veo
+        displayName: Veo Image-to-Video
+        description: Google Veo AI video generation (high quality).
+        costPerClip: 0.5
+        dependencies: ['GOOGLE_API_KEY', 'GEMINI_API_KEY']
+
+  stockVisuals:
+    providerIds: ['pexels', 'pixabay']
+
+  spellcheck:
+    cspell:
+      configPath: 'cspell.json'
+      generatedDictionaries:
+        - name: ubiquitous-language
+          path: 'config/cspell/ubiquitous-language.txt'
+        - name: repo-facts
+          path: 'config/cspell/repo-facts.txt'
+      manualDictionaries:
+        - name: project-words
+          path: 'config/cspell/project-words.txt'
+
+  environment:
+    variables:
+      - name: OPENAI_API_KEY
+        required: true
+      - name: ANTHROPIC_API_KEY
+        required: false
+      - name: PEXELS_API_KEY
+        required: false
+      - name: ELEVENLABS_API_KEY
+        required: false
+      - name: PIXABAY_API_KEY
+        required: false
+      - name: GOOGLE_API_KEY
+        required: false
+      - name: GEMINI_API_KEY
+        required: false
+      - name: REDDIT_CLIENT_ID
+        required: false
+      - name: REDDIT_CLIENT_SECRET
+        required: false
+      - name: OUTPUT_DIR
+        required: false
+      - name: REDIS_URL
+        required: false
+      - name: TAVILY_API_KEY
+        required: false
+      - name: BRAVE_SEARCH_API_KEY
+        required: false
+      - name: CM_CONFIG
+        required: false
+      - name: CM_OFFLINE
+        required: false
+      - name: CM_YES
+        required: false
+      - name: CM_WHISPER_AUTO_INSTALL
+        required: false
+      - name: CM_WHISPER_DIR
+        required: false
+      - name: CM_ASSET_CACHE_DIR
+        required: false
+      - name: CM_VISUALS_TELEMETRY_PATH
+        required: false
+      - name: CM_ASSET_LINEAGE_PATH
+        required: false
+      - name: CM_VISUALS_OBSERVABILITY
+        required: false
+      - name: CM_MEDIA_SORA_ENDPOINT
+        required: false
+      - name: CM_MEDIA_SORA_MODEL
+        required: false
+      - name: CM_MEDIA_VEO_ENDPOINT
+        required: false
+      - name: CM_MEDIA_VEO_MODEL
+        required: false
+      - name: BYTEPLUS_API_KEY
+        required: false
+      - name: CM_MEDIA_SEEDANCE_ENDPOINT
+        required: false
+      - name: CM_MEDIA_SEEDANCE_MODEL
+        required: false
+      - name: CM_REMOTION_ENTRY
+        required: false
+      - name: CM_REMOTION_CONCURRENCY
+        required: false
+      - name: REMOTION_CONCURRENCY
+        required: false
+      - name: CM_LAB_ROOT
+        required: false
+      - name: CM_FEEDBACK_STORE_PATH
+        required: false
+      - name: CM_VIDEOSPEC_CACHE_DIR
+        required: false
+      - name: CM_YTDLP_PATH
+        required: false
+      - name: CM_MCP_ARTIFACTS_DIR
+        required: false
+      - name: CM_MCP_SESSION_TTL_MS
+        required: false
+      - name: CM_MCP_MAX_SESSIONS
+        required: false
+      - name: CM_MCP_CLEANUP_ARTIFACTS_ON_EVICT
+        required: false
+      - name: CM_MCP_SWEEP_INTERVAL_MS
+        required: false
+      - name: CM_RUN_REAL_OUTPUT_TESTS
+        required: false
+      - name: PYTHON_PATH
+        required: false
+      - name: CM_PYTHON
+        required: false
+      - name: LOG_LEVEL
+        required: false
+
+artifacts:
+  # These are the canonical stage contracts (filenames are conventional defaults).
+  # Some commands let you override outputs, but these names should remain the mental model.
+  - id: script
+    stage: script
+    defaultFilename: script.json
+    description: Scene-based script output.
+  - id: audio
+    stage: audio
+    defaultFilename: audio.wav
+    description: Final voiceover audio.
+  - id: timestamps
+    stage: audio
+    defaultFilename: timestamps.json
+    description: Word-level and scene-level timestamps contract.
+  - id: audio-mix
+    stage: audio
+    defaultFilename: audio.mix.json
+    description: Optional audio mix plan artifact.
+  - id: visuals
+    stage: visuals
+    defaultFilename: visuals.json
+    description: Per-scene visuals plan (clips/images/metadata).
+  - id: video
+    stage: render
+    defaultFilename: video.mp4
+    description: Rendered video output.
+
+configSurface:
+  # Canonical config files/locations and precedence rules.
+  files:
+    - id: dotenv
+      path: '.env'
+      purpose: Secrets and local overrides (API keys, etc).
+      secrets: true
+    - id: dotenv-example
+      path: '.env.example'
+      purpose: Documented environment variables (names only).
+      secrets: false
+    - id: project-config
+      path: '.content-machine.toml'
+      purpose: Project configuration (non-secret defaults).
+      secrets: false
+    - id: project-data
+      path: './.cm/'
+      purpose: Project-scoped installs (templates/workflows/archetypes/etc).
+      secrets: false
+    - id: user-data
+      path: '~/.cm/'
+      purpose: User-scoped installs (templates/workflows/archetypes/assets/etc).
+      secrets: false
+    - id: output-dir
+      path: './output/'
+      purpose: Default output directory for pipeline artifacts.
+      secrets: false
+  projectConfigCandidates:
+    - '.content-machine.toml'
+    - 'content-machine.toml'
+    - '.cmrc.json'
+  userConfigCandidates:
+    - '.cm/config.toml'
+    - '.cm/config.json'
+    - '.cmrc.json'
+  precedence:
+    - 'CLI flags'
+    - '.env (if present)'
+    - '.content-machine.toml (if present)'
+    - 'built-in defaults'
+
+quality:
+  # These are the quality gates that must stay wired in CI for PRs to be accepted.
+  requiredNpmScripts:
+    - glossary:check
+    - repo-facts:check
+    - cspell:check
+    - docs:check
+    - typecheck
+    - lint
+    - format:check
+    - test:coverage:push
+    - dup:check
+    - size:check
+  ci:
+    workflowPath: '.github/workflows/ci.yml'
+
+  docsValidation:
+    markdownPaths:
+      - 'README.md'
+      - 'AGENTS.md'
+      - 'CLAUDE.md'
+      - 'docs/README.md'
+      - 'docs/dev/*.md'
+      - 'docs/reference/*.md'
+      - 'docs/user/*.md'
+      - 'docs/user/*/*.md'
+      - '.github/copilot-instructions.md'
+    ignoreLinkGlobs:
+      - 'docs/reference/NANOBANANA-PROMPT-ENGINEERING-20260107.md'
+
+security:
+  invariants:
+    - 'Never print or log secret values.'
+    - 'Only refer to secrets by env var name (example: OPENAI_API_KEY).'
+    - 'Do not commit real API keys or tokens to git.'
+    - 'Prefer least-privilege GitHub Actions permissions.'
+  # Conservative patterns we can lint for in src/ (avoid accidental leakage in logs).
+  bannedLogValuePatterns:
+    - 'console.(log|error|warn|info).*process.env.[A-Z0-9_]+'
+    - 'logger.(trace|debug|info|warn|error|fatal).*process.env.[A-Z0-9_]+'
+
+cli:
+  errorContract:
+    errorPrefix: 'ERROR:'
+    fixPrefix: 'Fix:'
+    note: 'User-facing errors should include an actionable Fix line when possible.'
+
+pipelinePresets:
+  sync:
+    defaultId: standard
+    qualityDefaultId: quality
+    configDefaultStrategy: standard
+    audioCommandDefaultStrategy: audio-first
+    # Canonical preset ids for sync quality/speed tradeoffs.
+    # The implementation may evolve; keep ids stable.
+    presets:
+      - id: fast
+        description: Fastest, lowest quality.
+        pipeline: standard
+        reconcile: false
+        syncQualityCheck: false
+        minSyncRating: 0
+        autoRetrySync: false
+      - id: standard
+        description: Balanced default.
+        pipeline: audio-first
+        reconcile: true
+        syncQualityCheck: false
+        minSyncRating: 60
+        autoRetrySync: false
+      - id: quality
+        description: Higher quality, slower.
+        pipeline: audio-first
+        reconcile: true
+        syncQualityCheck: true
+        minSyncRating: 75
+        autoRetrySync: false
+      - id: maximum
+        description: Slowest, highest quality.
+        pipeline: audio-first
+        reconcile: true
+        syncQualityCheck: true
+        minSyncRating: 85
+        autoRetrySync: true

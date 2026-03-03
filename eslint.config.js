@@ -3,6 +3,7 @@ import globals from 'globals';
 import tsParser from '@typescript-eslint/parser';
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 import sonarjs from 'eslint-plugin-sonarjs';
+import jsdoc from 'eslint-plugin-jsdoc';
 
 export default [
   // Global ignores
@@ -12,12 +13,16 @@ export default [
       '**/dist/**',
       '**/coverage/**',
       '**/.cache/**',
+      '**/.stryker-tmp/**',
+      '.stryker-tmp/**',
       '**/tmp/**',
       '**/output/**',
       '**/report/**',
+      '**/reports/**',
+      'reports/**',
       '**/test-e2e-output/**',
       '**/vendor/**',
-      '**/templates/**',
+      'assets/templates/**',
       '**/connectors/**',
       '**/docs/api/**',
       '**/*.d.ts',
@@ -32,6 +37,15 @@ export default [
       ...js.configs.recommended.languageOptions,
       globals: {
         ...globals.node,
+      },
+    },
+  },
+  // Browser-only static assets (Lab UI)
+  {
+    files: ['assets/lab/**/*.js'],
+    languageOptions: {
+      globals: {
+        ...globals.browser,
       },
     },
   },
@@ -53,6 +67,7 @@ export default [
     plugins: {
       '@typescript-eslint': tsPlugin,
       sonarjs,
+      jsdoc,
     },
     rules: {
       // Disable base rules replaced by TS versions
@@ -64,6 +79,14 @@ export default [
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
+
+      // JSDoc correctness for any docs that exist (keeps docs consistent without forcing them everywhere).
+      'jsdoc/check-alignment': 'error',
+      'jsdoc/check-param-names': 'error',
+      // Too strict for example blocks inside JSDoc (e.g., CLI usage snippets).
+      'jsdoc/check-indentation': 'off',
+      'jsdoc/check-tag-names': ['error', { definedTags: ['packageDocumentation', 'cmTerm'] }],
+      'jsdoc/check-types': 'error',
 
       // === MAINTAINABILITY GATES ===
       // Keep these as guidance (warn) so CI stays green while the project matures.
@@ -77,6 +100,27 @@ export default [
       ],
       'sonarjs/no-duplicate-string': ['warn', { threshold: 10 }],
       'sonarjs/no-identical-functions': 'warn',
+    },
+  },
+
+  // Enforce centralized domain model imports.
+  // - Schemas/types/errors should be imported from `src/domain` rather than scattered `*/schema` modules.
+  // - Allow schema modules themselves to compose schemas directly without going through the domain barrel.
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: ['src/domain/**', 'src/**/schema/**', '**/schema.ts', '**/schema.test.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['**/schema', '**/schema.ts', '**/*-schema', '**/*-schema.ts'],
+              message: 'Import schemas/types from `src/domain` instead of `*/schema`.',
+            },
+          ],
+        },
+      ],
     },
   },
   {

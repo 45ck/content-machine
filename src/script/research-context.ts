@@ -3,7 +3,7 @@
  *
  * Formats research output into a prompt-friendly context for script generation.
  */
-import type { ResearchOutput, Evidence, ContentAngle } from '../research/schema';
+import type { ContentAngle, Evidence, ResearchOutput } from '../domain';
 
 const MAX_CONTEXT_LENGTH = 2500;
 const MAX_EVIDENCE_ITEMS = 10;

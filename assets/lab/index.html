@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Content Machine Lab</title>
+    <link rel="stylesheet" href="/lab/app.css" />
+  </head>
+  <body>
+    <div class="bg" aria-hidden="true"></div>
+    <header class="top">
+      <a class="brand" href="#/runs">
+        <div class="mark" aria-hidden="true">CM</div>
+        <div class="brand-text">
+          <div class="brand-title">Experiment Lab</div>
+          <div class="brand-sub" id="sessionLine">Loading…</div>
+        </div>
+      </a>
+      <nav class="nav">
+        <a class="nav-link" href="#/runs">Runs</a>
+        <a class="nav-link" href="#/experiments">Experiments</a>
+      </nav>
+    </header>
+    <main id="app" class="app" role="main"></main>
+    <footer class="foot">
+      <div class="foot-left" id="footStatus"></div>
+      <div class="foot-right">
+        <a class="foot-link" href="#/runs">Home</a>
+      </div>
+    </footer>
+    <script type="module" src="/lab/app.js"></script>
+  </body>
+</html>

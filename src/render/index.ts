@@ -27,7 +27,7 @@ export {
   type CaptionStyle,
   type RenderProps,
   type RenderOutput,
-} from './schema';
+} from '../domain';
 
 // Service exports
 export { renderVideo } from './service';
@@ -56,12 +56,12 @@ export {
   ANIMATION_PRESETS,
   PALETTES,
   TYPOGRAPHY_PRESETS,
-  CAPTION_PRESETS,
+  THEME_CAPTION_PRESETS,
   type AnimationType,
   type AnimationPresetName,
   type PaletteName,
   type TypographyPresetName,
-  type CaptionPresetName,
+  type ThemeCaptionPresetName,
   type AnimationConfig,
   type ColorPalette,
 } from './presets';

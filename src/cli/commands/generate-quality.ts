@@ -1,5 +1,5 @@
 import type { PipelineResult } from '../../core/pipeline';
-import type { SyncRatingOutput, SyncRatingLabel } from '../../score/sync-schema';
+import type { SyncRatingLabel, SyncRatingOutput } from '../../domain';
 
 export type PipelineMode = 'standard' | 'audio-first';
 export type WhisperModel = 'tiny' | 'base' | 'small' | 'medium';

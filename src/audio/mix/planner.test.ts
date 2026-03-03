@@ -2,8 +2,7 @@
  * Audio Mix Planner Tests
  */
 import { describe, it, expect } from 'vitest';
-import type { ScriptOutput } from '../../script/schema';
-import type { TimestampsOutput } from '../schema';
+import type { ScriptOutput, TimestampsOutput } from '../../domain';
 import { buildAudioMixPlan } from './planner';
 
 describe('buildAudioMixPlan', () => {

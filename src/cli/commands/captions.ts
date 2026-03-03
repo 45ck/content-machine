@@ -9,7 +9,7 @@ import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStdoutLine } from '../output';
 import { CMError } from '../../core/errors';
-import type { TimestampsOutput } from '../../audio/schema';
+import type { TimestampsOutput } from '../../domain';
 import {
   CaptionConfigSchema,
   CaptionDisplayModeSchema,

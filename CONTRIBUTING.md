@@ -31,7 +31,7 @@ This project follows a code of conduct. By participating, you agree to:
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js `>=20` (canonical: [`docs/reference/REPO-FACTS.md`](docs/reference/REPO-FACTS.md))
 - Git
 - Basic understanding of TypeScript, Remotion, and MCP
 
@@ -40,7 +40,8 @@ This project follows a code of conduct. By participating, you agree to:
 1. **Fork and clone:**
 
    ```bash
-   git fork https://github.com/45ck/content-machine.git
+   # Option A: GitHub UI: fork, then clone your fork
+   git clone --recurse-submodules https://github.com/<you>/content-machine.git
    cd content-machine
    ```
 
@@ -50,23 +51,33 @@ This project follows a code of conduct. By participating, you agree to:
    npm install
    ```
 
-3. **Update submodules:**
+3. **Initialize/update submodules (vendored repos):**
 
    ```bash
-   .\scripts\vendor.ps1
+   git submodule update --init --recursive
    ```
 
 4. **Set up environment:**
 
    ```bash
    cp .env.example .env
-   # Add your OPENAI_API_KEY
+   # Add any required API keys (see docs/reference/ENVIRONMENT-VARIABLES.md)
    ```
 
 5. **Read the docs:**
    - `AGENTS.md` - Project overview
    - `docs/README.md` - Documentation index
    - `tasks/README.md` - Task workflow
+   - `docs/dev/README.md` - Dev docs and "single source of truth" rules
+
+### Single Sources Of Truth (Required)
+
+This repo enforces canonical registries for terminology and repo-wide facts:
+
+- Repo facts registry (edit): `registry/repo-facts.yaml`
+  - Generate outputs: `npm run repo-facts:gen`
+- Ubiquitous language registry (edit): `registry/ubiquitous-language.yaml`
+  - Generate outputs: `npm run glossary:gen && npm run ul:gen`
 
 ---
 
@@ -86,61 +97,13 @@ npm run test:coverage  # Tests with coverage thresholds
 npm run dup:check      # Code duplication detection
 ```
 
-### Quality Gate Thresholds
+### Quality Gate Rules (Source Of Truth)
 
-| Check                 | Threshold        | Action on Failure               |
-| --------------------- | ---------------- | ------------------------------- |
-| Cyclomatic complexity | ≤15 per function | Refactor into smaller functions |
-| Cognitive complexity  | ≤15 per function | Simplify logic flow             |
-| Nesting depth         | ≤5 levels        | Extract nested blocks           |
-| Line coverage         | ≥60%             | Add tests for uncovered code    |
-| Branch coverage       | ≥50%             | Add tests for edge cases        |
-| Code duplication      | ≤5%              | Extract shared utilities        |
+Avoid duplicating thresholds in docs. The enforced rules live in config:
 
-### Fixing Common Issues
-
-**Complexity too high:**
-
-```typescript
-// ❌ High complexity
-function processData(data) {
-  if (data.type === 'A') {
-    if (data.subtype === 'A1') {
-      /* ... */
-    } else if (data.subtype === 'A2') {
-      /* ... */
-    }
-  } else if (data.type === 'B') {
-    /* ... */
-  }
-}
-
-// ✅ Lower complexity
-const processors = {
-  'A-A1': processA1,
-  'A-A2': processA2,
-  B: processB,
-};
-function processData(data) {
-  const key = data.subtype ? `${data.type}-${data.subtype}` : data.type;
-  return processors[key]?.(data);
-}
-```
-
-**Coverage too low:**
-
-- Add unit tests for new functions
-- Test error paths and edge cases
-- Use `npm run test:coverage` to identify uncovered lines
-
-### Coverage Ratchet Schedule
-
-| Milestone     | Coverage     | Action                                                  |
-| ------------- | ------------ | ------------------------------------------------------- |
-| **Now**       | Any          | Overall thresholds: 60/60/60/50                         |
-| **≥70%**      | 70%+ overall | Enable `src/core/**` glob threshold (70/70/70/55)       |
-| **≥75%**      | 75%+ overall | Switch to negative thresholds (freeze uncovered counts) |
-| **Quarterly** | —            | Review and tighten warn-level rules                     |
+- Lint rules + maintainability gates: `eslint.config.js`
+- Coverage thresholds + exclusions: `vitest.config.ts`
+- Duplication rules: `.jscpd.json`
 
 ---
 
@@ -344,7 +307,7 @@ console.log('Video generated:', videoId);
 
 ### Templates
 
-**ALWAYS use templates** from `docs/templates/`:
+**ALWAYS use templates** from `docs/dev/templates/`:
 
 - Feature specs → `FEATURE.template.md`
 - Bug reports → `BUG.template.md`

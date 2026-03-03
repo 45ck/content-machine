@@ -9,20 +9,20 @@ import { loadConfig, Archetype } from '../core/config';
 import { SchemaError } from '../core/errors';
 import { createLogger } from '../core/logger';
 import {
-  ScriptOutput,
   ScriptOutputSchema,
   LLMScriptResponseSchema,
-  Scene,
   SCRIPT_SCHEMA_VERSION,
-} from './schema';
-import { getPromptForArchetype } from './prompts';
+  type Scene,
+  type ScriptOutput,
+} from '../domain';
+import { getPromptForArchetype } from './prompts/index.js';
 import { buildResearchContext, extractSourceUrls } from './research-context';
 import { sanitizeSpokenText } from './sanitize';
-import type { ResearchOutput } from '../research/schema';
+import type { ResearchOutput } from '../domain';
 
-export type { ScriptOutput, Scene } from './schema';
+export type { ScriptOutput, Scene } from '../domain';
 // Re-export deprecated type for backward compatibility
-export type { ScriptSection } from './schema';
+export type { ScriptSection } from '../domain';
 
 export interface GenerateScriptOptions {
   topic: string;
@@ -114,6 +114,75 @@ function buildScriptOutput(
   };
 }
 
+function getWordCountBounds(targetWordCount: number): {
+  minWordCount: number;
+  maxWordCount: number;
+} {
+  const minWordCount = Math.max(60, Math.round(targetWordCount * 0.8));
+  const maxWordCount = Math.max(minWordCount + 20, Math.round(targetWordCount * 1.25));
+  return { minWordCount, maxWordCount };
+}
+
+function normalizeForDedupe(text: string): string[] {
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]+/g, ' ')
+    .split(/\s+/)
+    .filter(Boolean);
+}
+
+function overlapRatio(aTokens: string[], bTokens: string[]): number {
+  if (aTokens.length === 0 || bTokens.length === 0) return 0;
+  const aSet = new Set(aTokens);
+  let common = 0;
+  for (const t of bTokens) {
+    if (aSet.has(t)) common++;
+  }
+  return common / Math.max(1, Math.min(aTokens.length, bTokens.length));
+}
+
+function dedupeHookFromFirstScene(output: ScriptOutput): ScriptOutput {
+  if (!output.hook || output.scenes.length === 0) return output;
+
+  const first = output.scenes[0];
+  const match = first.text.match(/^(.+?[.!?])(\s+|$)(.*)$/s);
+  if (!match) return output;
+
+  const firstSentence = match[1] ?? '';
+  const rest = (match[3] ?? '').trim();
+  if (!firstSentence || !rest) return output;
+
+  const hookTokens = normalizeForDedupe(output.hook);
+  const sentenceTokens = normalizeForDedupe(firstSentence);
+  if (hookTokens.length < 5 || sentenceTokens.length < 5) return output;
+
+  // If the first sentence largely repeats the hook, drop it to avoid annoying duplication.
+  if (overlapRatio(hookTokens, sentenceTokens) >= 0.72) {
+    const updatedScenes = [...output.scenes];
+    updatedScenes[0] = { ...first, text: rest };
+
+    const allText = [output.hook, ...updatedScenes.map((s) => s.text), output.cta]
+      .filter(Boolean)
+      .join(' ');
+    const wordCount = allText.split(/\s+/).filter(Boolean).length;
+    const estimatedDuration = wordCount / 2.5;
+
+    return {
+      ...output,
+      scenes: updatedScenes,
+      meta: output.meta
+        ? {
+            ...output.meta,
+            wordCount,
+            estimatedDuration,
+          }
+        : output.meta,
+    };
+  }
+
+  return output;
+}
+
 /**
  * Generate a script from a topic using the specified archetype
  */
@@ -124,15 +193,25 @@ export async function generateScript(options: GenerateScriptOptions): Promise<Sc
 
   const targetDuration = options.targetDuration ?? 45;
   const targetWordCount = Math.round(targetDuration * 2.5);
+  const { maxWordCount } = getWordCountBounds(targetWordCount);
 
-  log.info({ archetype: options.archetype, targetDuration, targetWordCount }, 'Generating script');
-
-  let prompt = getPromptForArchetype(options.archetype, {
+  const promptResult = await getPromptForArchetype(options.archetype, {
     topic: options.topic,
     targetWordCount,
     targetDuration,
     packaging: options.packaging,
   });
+  const resolvedOptions: GenerateScriptOptions = {
+    ...options,
+    archetype: promptResult.archetypeId,
+  };
+
+  log.info(
+    { archetype: promptResult.archetypeId, targetDuration, targetWordCount },
+    'Generating script'
+  );
+
+  let prompt = promptResult.prompt;
 
   // Inject research context if available
   if (options.research && options.research.evidence.length > 0) {
@@ -147,20 +226,57 @@ export async function generateScript(options: GenerateScriptOptions): Promise<Sc
     [
       {
         role: 'system',
-        content: `You are an expert short-form video scriptwriter. You write engaging scripts for TikTok, Reels, and YouTube Shorts. Your scripts are punchy, conversational, and optimized for viewer retention. Always respond with valid JSON.`,
+        content: promptResult.systemPrompt ?? '',
       },
       { role: 'user', content: prompt },
     ],
     { temperature: config.llm.temperature ?? 0.7, maxTokens: 2000, jsonMode: true }
   );
 
-  const llmResponse = parseLLMResponse(response.content, log);
-  const output = buildScriptOutput(
+  let llmResponse = parseLLMResponse(response.content, log);
+  let output = buildScriptOutput(
     llmResponse,
-    options,
+    resolvedOptions,
     response.model,
     response.usage?.totalTokens
   );
+
+  if ((output.meta?.wordCount ?? 0) > maxWordCount) {
+    log.warn(
+      {
+        wordCount: output.meta?.wordCount,
+        estimatedDuration: output.meta?.estimatedDuration,
+        maxWordCount,
+        targetDuration,
+      },
+      'Script is longer than target. Attempting to shorten.'
+    );
+
+    const rewrite = await llm.chat(
+      [
+        {
+          role: 'system',
+          content:
+            'You are an expert short-form script editor. Rewrite the provided JSON script to fit the word limit while preserving the topic, structure, and factuality. Do not add new factual claims. Keep the same number of scenes. Output ONLY the revised script JSON object (no wrapper keys). Required keys: title, hook, scenes, reasoning, cta. Optional: hashtags.',
+        },
+        {
+          role: 'user',
+          content: `Constraints:\n- Max total spoken word count: ${maxWordCount}\n- Target duration: ~${targetDuration}s\n- Keep same number of scenes\n\nOriginal JSON script:\n${JSON.stringify(llmResponse, null, 2)}`,
+        },
+      ],
+      { temperature: 0.4, maxTokens: 1600, jsonMode: true }
+    );
+
+    llmResponse = parseLLMResponse(rewrite.content, log);
+    output = buildScriptOutput(
+      llmResponse,
+      resolvedOptions,
+      rewrite.model,
+      rewrite.usage?.totalTokens
+    );
+  }
+
+  output = dedupeHookFromFirstScene(output);
 
   const validated = ScriptOutputSchema.safeParse(output);
   if (!validated.success) {

@@ -293,5 +293,5 @@ export type { SyncStrategy, SyncStrategyOptions, TimestampsResult } from './stra
 
 - **Depends On:** TASK-018, TASK-019
 - **Blocks:** Phase 2 tasks
-- **Implementation Plan:** [IMPL-SYNC-STRATEGIES-20260107](../../docs/architecture/IMPL-SYNC-STRATEGIES-20260107.md)
+- **Implementation Plan:** [IMPL-SYNC-STRATEGIES-20260107](../../docs/dev/architecture/IMPL-SYNC-STRATEGIES-20260107.md)
 - **Existing Code:** [src/audio/asr/index.ts](../../src/audio/asr/index.ts)

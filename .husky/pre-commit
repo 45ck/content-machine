@@ -1,1 +1,2 @@
-npx lint-staged
+scripts/quality/with-node20.sh npx lint-staged
+scripts/quality/with-node20.sh node scripts/quality/jsdoc-staged-public-api.mjs

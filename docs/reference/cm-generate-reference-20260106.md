@@ -19,15 +19,29 @@ cm generate [options] <topic>
 
 ## Options
 
-- `-a, --archetype <type>`: content archetype (default: `listicle`)
-- `--template <idOrPath>`: video template id or path to `template.json`
-- `--workflow <idOrPath>`: workflow id or path to `workflow.json`
+- `-a, --archetype <idOrPath>`: script archetype id or path to an archetype YAML file (default: `listicle`). Use `cm archetypes list`
+- `--template <idOrPath>`: render template id or path to `template.json`
+- `--allow-template-code`: allow executing Remotion code templates (dangerous)
+- `--template-deps <auto|prompt|never>`: code-template dependency install mode
+- `--template-pm <npm|pnpm|yarn>`: code-template package manager
+- `--workflow <idOrPath>`: pipeline workflow id or path to `workflow.json`
 - `--workflow-allow-exec`: allow workflow exec hooks to run
 - `--script <path>`: use existing `script.json` (skip script generation)
 - `--audio <path>`: use existing audio file (requires `--timestamps`)
 - `--audio-mix <path>`: use existing audio mix plan (optional)
 - `--timestamps <path>`: use existing `timestamps.json`
 - `--visuals <path>`: use existing `visuals.json` (skip visuals matching)
+- `--visuals-provider <providerOrChain>`: visuals provider id or provider chain (e.g., `pexels` or `pexels,local,nanobanana`)
+- `--visuals-fallback-providers <providers>`: comma-separated fallback providers appended to `--visuals-provider` when provider is a single value
+- `--visuals-routing-policy <policy>`: visuals provider routing policy (`configured|balanced|cost-first|quality-first`)
+- `--visuals-max-generation-cost-usd <amount>`: hard cap for AI image generation spend during visuals stage (USD)
+- `--media`: enable media synthesis stage (image-to-video for `depthflow`/`veo` + video keyframes)
+- `--no-media-keyframes`: disable media-stage video keyframe extraction
+- `--no-media-synthesize-motion`: disable media-stage image-to-video synthesis for `depthflow`/`veo` scenes
+- `--media-dir <path>`: directory for generated media-stage artifacts
+- `--media-ffmpeg <path>`: ffmpeg executable path for media stage
+- `--media-depthflow-adapter <id>`: adapter id for depthflow image-to-video synthesis
+- `--media-veo-adapter <id>`: adapter id for veo image-to-video synthesis
 - `-o, --output <path>`: output MP4 path (default: `video.mp4`)
 - `--orientation <type>`: `portrait|landscape|square` (default: `portrait`)
 - `--voice <voice>`: TTS voice id (default: `af_heart`)
@@ -38,7 +52,7 @@ cm generate [options] <topic>
 - `--music-loop` / `--no-music-loop`: toggle music looping
 - `--music-fade-in <ms>` / `--music-fade-out <ms>`: music fades
 - `--sfx <path>`: SFX file path (repeatable)
-- `--sfx-pack <name>`: SFX pack name
+- `--sfx-pack <id>`: SFX pack id (built-in examples: `pops`, `whoosh`, `glitch`, `clicks`)
 - `--sfx-at <placement>`: auto placement (hook, scene, list-item, cta)
 - `--sfx-volume <db>`: SFX volume in dB
 - `--sfx-min-gap <ms>`: minimum gap between SFX
@@ -49,7 +63,7 @@ cm generate [options] <topic>
 - `--ambience-volume <db>`: ambience volume in dB
 - `--ambience-loop` / `--no-ambience-loop`: toggle ambience looping
 - `--ambience-fade-in <ms>` / `--ambience-fade-out <ms>`: ambience fades
-- `--mix-preset <preset>`: mix preset (clean, punchy, cinematic, viral)
+- `--mix-preset <id>`: audio mix preset id (built-in examples: `clean`, `punchy`, `cinematic`, `viral`)
 - `--lufs-target <db>`: target loudness for final mix
 - `--duration <seconds>`: target duration seconds (default: `45`)
 - `--pipeline <mode>`: pipeline mode: `audio-first` (default, requires Whisper) or `standard`
@@ -143,15 +157,19 @@ cm generate "Product recap" --workflow acme-marketing --workflow-allow-exec --ou
 - External inputs skip their corresponding stages; `--audio` requires `--timestamps`.
 - Workflow external stages default to artifacts in the output directory (unless `workflow.inputs` override them).
 - External render stages are not supported in `cm generate` yet (use `cm render`).
+- Code templates execute arbitrary JS/TS during bundling/rendering and are denied by default (require `--allow-template-code`).
 
 ## See also
 
-- `docs/guides/guide-cli-ux-cm-generate-20260106.md`
-- `docs/guides/guide-audio-options-20260110.md`
+- `docs/dev/guides/guide-cli-ux-cm-generate-20260106.md`
+- `docs/dev/guides/guide-audio-options-20260110.md`
 - `docs/reference/cm-script-reference-20260106.md`
 - `docs/reference/cm-timestamps-reference-20260110.md`
 - `docs/reference/cm-import-reference-20260110.md`
+- `docs/reference/cm-media-reference-20260217.md`
 - `docs/reference/cm-workflows-reference-20260110.md`
 - `docs/reference/cm-research-reference-20260106.md`
 - `docs/reference/cm-validate-reference-20260106.md`
-- `docs/features/feature-research-script-integration-20260107.md`
+- `docs/dev/features/feature-research-script-integration-20260107.md`
+- `docs/reference/video-templates-reference-20260107.md`
+- `docs/reference/cm-templates-reference-20260210.md`

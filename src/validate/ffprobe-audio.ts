@@ -1,8 +1,21 @@
 import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
 import { CMError } from '../core/errors';
 
-const execFileAsync = promisify(execFile);
+function execFileJson(
+  cmd: string,
+  args: string[],
+  options: { timeout: number; windowsHide: boolean }
+): Promise<{ stdout: string; stderr: string }> {
+  return new Promise((resolve, reject) => {
+    execFile(cmd, args, options, (error, stdout, stderr) => {
+      if (error) {
+        reject(error);
+        return;
+      }
+      resolve({ stdout: String(stdout ?? ''), stderr: String(stderr ?? '') });
+    });
+  });
+}
 
 interface FfprobeStream {
   codec_type?: string;
@@ -46,7 +59,7 @@ function normalizeContainer(formatName: string | undefined): string {
 }
 
 async function executeFfprobe(audioPath: string, options: Required<ProbeOptions>): Promise<string> {
-  const { stdout } = await execFileAsync(
+  const { stdout } = await execFileJson(
     options.ffprobePath,
     ['-v', 'error', '-print_format', 'json', '-show_streams', '-show_format', audioPath],
     { timeout: options.timeoutMs, windowsHide: true }

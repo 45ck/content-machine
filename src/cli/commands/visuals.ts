@@ -7,19 +7,64 @@
 import { Command } from 'commander';
 import { matchVisuals } from '../../visuals/matcher';
 import type { VisualsProgressEvent } from '../../visuals/matcher';
+import {
+  PROVIDER_ROUTING_POLICIES,
+  type ProviderRoutingPolicy,
+} from '../../visuals/provider-router';
 import { logger } from '../../core/logger';
 import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
-import { TimestampsOutputSchema } from '../../audio/schema';
+import { TimestampsOutputSchema } from '../../domain';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { SchemaError } from '../../core/errors';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
+import { loadConfig } from '../../core/config';
+import type { AssetProviderName } from '../../visuals/providers';
+import {
+  DEFAULT_ARTIFACT_FILENAMES,
+  SUPPORTED_VISUALS_PROVIDER_IDS,
+} from '../../domain/repo-facts.generated';
 
 interface GameplayOptions {
   library?: string;
   style?: string;
   required: boolean;
+}
+
+const ASSET_PROVIDER_NAMES: ReadonlySet<AssetProviderName> = new Set([
+  ...SUPPORTED_VISUALS_PROVIDER_IDS,
+  'dalle',
+  'unsplash',
+  'mock',
+]);
+const ROUTING_POLICIES: readonly ProviderRoutingPolicy[] = PROVIDER_ROUTING_POLICIES;
+
+function parseProviderNameList(values: string[]): AssetProviderName[] {
+  const out: AssetProviderName[] = [];
+  for (const raw of values) {
+    const name = raw.trim();
+    if (!name) continue;
+    if (!ASSET_PROVIDER_NAMES.has(name as AssetProviderName)) {
+      throw new SchemaError('Invalid provider name', {
+        provider: name,
+        fix: `Use one of: ${Array.from(ASSET_PROVIDER_NAMES).join(', ')}`,
+      });
+    }
+    out.push(name as AssetProviderName);
+  }
+  return out;
+}
+
+function parseRoutingPolicy(value: unknown): ProviderRoutingPolicy | undefined {
+  if (typeof value !== 'string' || !value.trim()) return undefined;
+  if (ROUTING_POLICIES.includes(value as ProviderRoutingPolicy)) {
+    return value as ProviderRoutingPolicy;
+  }
+  throw new SchemaError('Invalid routing policy', {
+    routingPolicy: value,
+    fix: `Use one of: ${ROUTING_POLICIES.join(', ')}`,
+  });
 }
 
 async function readTimestampsInput(path: string) {
@@ -100,11 +145,24 @@ function buildVisualsSummary(params: {
   options: Record<string, unknown>;
 }): { lines: string[]; footerLines: string[] } {
   const { visuals, options } = params;
+  const providerRaw = String(options.provider ?? SUPPORTED_VISUALS_PROVIDER_IDS[0]);
+  const providers = Array.isArray(options.providers)
+    ? (options.providers as string[])
+    : providerRaw
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+  const providerLabel =
+    providers.length > 1 ? providers.join(' -> ') : (providers[0] ?? providerRaw);
   const rows: Array<[string, string]> = [
     ['Scenes', String(visuals.scenes.length)],
     ['Duration', visuals.totalDuration ? `${visuals.totalDuration.toFixed(1)}s` : 'N/A'],
-    ['Provider', String(options.provider)],
+    ['Provider', providerLabel],
+    ['Routing', String(visuals.providerRoutingPolicy ?? options.routingPolicy ?? 'configured')],
+    ['Motion', visuals.motionStrategy ?? String(options.motionStrategy ?? 'N/A')],
+    ['From you', String((visuals as any).fromUserFootage ?? 0)],
     ['From stock', String(visuals.fromStock)],
+    ['From generated', String(visuals.fromGenerated)],
     ['Fallbacks', String(visuals.fallbacks)],
     ['Visuals', String(options.output)],
   ];
@@ -115,7 +173,7 @@ function buildVisualsSummary(params: {
   const footerLines = [];
   if (options.mock) footerLines.push('Mock mode - visuals are placeholders');
   footerLines.push(
-    `Next: cm render --input ${options.output} --audio audio.wav --timestamps ${options.input} --output video.mp4${options.mock ? ' --mock' : ''}`
+    `Next: cm render --input ${options.output} --audio ${DEFAULT_ARTIFACT_FILENAMES.audio} --timestamps ${options.input} --output ${DEFAULT_ARTIFACT_FILENAMES.video}${options.mock ? ' --mock' : ''}`
   );
   return { lines, footerLines };
 }
@@ -123,30 +181,129 @@ function buildVisualsSummary(params: {
 export const visualsCommand = new Command('visuals')
   .description('Find matching stock footage for script scenes')
   .requiredOption('-i, --input <path>', 'Input timestamps JSON file')
-  .option('-o, --output <path>', 'Output visuals file path', 'visuals.json')
-  .option('--provider <provider>', 'Stock footage provider', 'pexels')
+  .option('-o, --output <path>', 'Output visuals file path', DEFAULT_ARTIFACT_FILENAMES.visuals)
+  .option(
+    '--local-dir <path>',
+    'Directory for --provider local/localimage (bring your own assets)',
+    undefined
+  )
+  .option(
+    '--local-manifest <path>',
+    'Optional JSON mapping sceneId -> assetPath (deterministic BYO visuals)',
+    undefined
+  )
+  .option(
+    '--provider <provider>',
+    'Visual provider or provider chain. Examples: pexels | nanobanana | local | pexels,local,nanobanana',
+    SUPPORTED_VISUALS_PROVIDER_IDS[0]
+  )
+  .option('--asset-provider <provider>', 'Alias for --provider (preferred name in ADR)', undefined)
+  .option(
+    '--fallback-providers <providers>',
+    'Comma-separated fallback providers appended after --provider (only when --provider is a single value). If --provider is a comma list, it already defines the chain.',
+    undefined
+  )
+  .option(
+    '--motion-strategy <strategy>',
+    'Motion strategy for image providers (none|kenburns|depthflow|veo)',
+    undefined
+  )
+  .option(
+    '--routing-policy <policy>',
+    'Provider routing policy (configured|balanced|cost-first|quality-first)',
+    undefined
+  )
+  .option(
+    '--max-generation-cost-usd <amount>',
+    'Hard cap for AI image generation spend during visuals stage (USD)',
+    undefined
+  )
   .option('--orientation <type>', 'Footage orientation', 'portrait')
   .option('--gameplay <path>', 'Gameplay library directory or clip file path')
   .option('--gameplay-style <name>', 'Gameplay subfolder name (e.g., subway-surfers)')
   .option('--gameplay-strict', 'Fail if gameplay clip is missing')
   .option('--mock', 'Use mock visuals (for testing)', false)
+  // eslint-disable-next-line complexity
   .action(async (options, command: Command) => {
     const spinner = createSpinner('Finding matching visuals...').start();
     const runtime = getCliRuntime();
 
     try {
+      const config = loadConfig();
+      if (options.assetProvider && command.getOptionValueSource('provider') === 'default') {
+        options.provider = options.assetProvider;
+      }
+      if (command.getOptionValueSource('provider') === 'default') {
+        options.provider = config.visuals.provider;
+      }
+      if (command.getOptionValueSource('motionStrategy') === 'default') {
+        options.motionStrategy = config.visuals.motionStrategy;
+      }
+      if (command.getOptionValueSource('routingPolicy') === 'default') {
+        options.routingPolicy = config.visuals.routingPolicy;
+      }
+      if (command.getOptionValueSource('orientation') === 'default') {
+        options.orientation = config.defaults.orientation;
+      }
+
       const timestamps = await readTimestampsInput(options.input);
 
-      logger.info({ input: options.input, provider: options.provider }, 'Starting visual matching');
+      const providerRaw = String(options.provider ?? config.visuals.provider);
+      const providerChainFromFlag = providerRaw
+        .split(',')
+        .map((s: string) => s.trim())
+        .filter(Boolean);
+      const fallbackProvidersFromFlag = String(options.fallbackProviders ?? '')
+        .split(',')
+        .map((s: string) => s.trim())
+        .filter(Boolean);
+      const fallbackProvidersFromConfig = Array.isArray(config.visuals.fallbackProviders)
+        ? (config.visuals.fallbackProviders as string[])
+        : [];
+      const providerChainRaw =
+        providerChainFromFlag.length > 1
+          ? providerChainFromFlag
+          : [
+              providerChainFromFlag[0] ?? SUPPORTED_VISUALS_PROVIDER_IDS[0],
+              ...fallbackProvidersFromFlag,
+              ...fallbackProvidersFromConfig,
+            ];
+      const providerChain = parseProviderNameList(providerChainRaw);
+      const routingPolicy = parseRoutingPolicy(options.routingPolicy) ?? 'configured';
+      const maxGenerationCostUsdRaw =
+        typeof options.maxGenerationCostUsd === 'string' ? options.maxGenerationCostUsd : undefined;
+      const maxGenerationCostUsd =
+        maxGenerationCostUsdRaw && Number.isFinite(Number(maxGenerationCostUsdRaw))
+          ? Number(maxGenerationCostUsdRaw)
+          : undefined;
+      if (
+        maxGenerationCostUsdRaw &&
+        (maxGenerationCostUsd === undefined || maxGenerationCostUsd < 0)
+      ) {
+        throw new SchemaError('Invalid generation cost cap', {
+          maxGenerationCostUsd: maxGenerationCostUsdRaw,
+          fix: 'Use a non-negative number, e.g. --max-generation-cost-usd 2.5',
+        });
+      }
+      options.providers = providerChain;
+
+      logger.info({ input: options.input, providerChain }, 'Starting visual matching');
 
       const onProgress = createVisualsProgressHandler({ runtime, spinner });
       const { gameplay, gameplayRequired } = resolveGameplayOptions(options, command);
 
       const visuals = await matchVisuals({
         timestamps,
-        provider: options.provider,
+        provider: providerChain[0],
+        providers: providerChain,
+        routingPolicy,
+        maxGenerationCostUsd,
+        localDir: typeof options.localDir === 'string' ? options.localDir : undefined,
+        localManifest:
+          typeof options.localManifest === 'string' ? options.localManifest : undefined,
         orientation: options.orientation,
         mock: Boolean(options.mock),
+        motionStrategy: options.motionStrategy,
         gameplay,
         onProgress,
       });
@@ -165,19 +322,30 @@ export const visualsCommand = new Command('visuals')
             args: {
               input: options.input,
               output: options.output,
-              provider: options.provider,
+              provider: providerChain[0],
+              providers: providerChain,
+              routingPolicy,
+              maxGenerationCostUsd: maxGenerationCostUsd ?? null,
+              motionStrategy: options.motionStrategy ?? null,
               orientation: options.orientation,
               mock: Boolean(options.mock),
               gameplay: options.gameplay ?? null,
               gameplayStyle: options.gameplayStyle ?? null,
               gameplayStrict: Boolean(gameplayRequired),
+              localDir: typeof options.localDir === 'string' ? options.localDir : null,
+              localManifest:
+                typeof options.localManifest === 'string' ? options.localManifest : null,
             },
             outputs: {
               visualsPath: options.output,
               scenes: visuals.scenes.length,
               totalDurationSeconds: visuals.totalDuration ?? null,
+              fromUserFootage: (visuals as any).fromUserFootage ?? 0,
               fromStock: visuals.fromStock,
               fallbacks: visuals.fallbacks,
+              fromGenerated: visuals.fromGenerated,
+              providerRoutingPolicy: visuals.providerRoutingPolicy ?? null,
+              providerChain: visuals.providerChain ?? null,
               gameplayClip: visuals.gameplayClip?.path ?? null,
             },
             timingsMs: Date.now() - runtime.startTime,

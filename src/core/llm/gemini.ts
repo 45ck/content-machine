@@ -6,7 +6,7 @@
 import { GoogleGenerativeAI, GenerateContentResult } from '@google/generative-ai';
 import type { LLMProvider, LLMMessage, LLMOptions, LLMResponse } from './provider.js';
 import { APIError, RateLimitError, ConfigError } from '../errors.js';
-import { getApiKey } from '../config.js';
+import { getOptionalApiKey } from '../config.js';
 import { withRetry } from '../retry.js';
 
 /**
@@ -67,7 +67,9 @@ function handleError(error: unknown): never {
     }
 
     if (message.includes('api key') || message.includes('invalid key')) {
-      throw new ConfigError('Invalid Google API key. Set GOOGLE_API_KEY in .env');
+      throw new ConfigError(
+        'Invalid Google API key. Set GOOGLE_API_KEY (or GEMINI_API_KEY) in .env'
+      );
     }
 
     throw new APIError(error.message, { provider: 'gemini' }, error);
@@ -86,9 +88,12 @@ export class GeminiProvider implements LLMProvider {
     this.model = model;
     this.maxRetries = maxRetries;
 
-    const key = apiKey ?? getApiKey('GOOGLE_API_KEY');
+    const key =
+      apiKey ?? getOptionalApiKey('GOOGLE_API_KEY') ?? getOptionalApiKey('GEMINI_API_KEY');
     if (!key) {
-      throw new ConfigError('GOOGLE_API_KEY not set. Add it to your .env file.');
+      throw new ConfigError(
+        'GOOGLE_API_KEY (or GEMINI_API_KEY) not set. Add it to your .env file.'
+      );
     }
 
     this.client = new GoogleGenerativeAI(key);

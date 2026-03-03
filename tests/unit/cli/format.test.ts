@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { CMError } from '../../../src/core/errors';
+import { CMError, RateLimitError } from '../../../src/core/errors';
 import { formatCliErrorLines, getCliErrorInfo, getExitCodeForError } from '../../../src/cli/format';
 
 describe('cli format helpers', () => {
@@ -31,5 +31,22 @@ describe('cli format helpers', () => {
     const lines = formatCliErrorLines(info);
     expect(lines[0]).toBe('ERROR: Unexpected failure');
     expect(getExitCodeForError(info)).toBe(1);
+  });
+
+  it('includes context and retryable hints when available', () => {
+    const error = new RateLimitError('openai', 30);
+    const info = getCliErrorInfo(error);
+
+    const lines = formatCliErrorLines(info);
+    expect(lines).toContain('Context:');
+    expect(lines.some((line) => line.includes('provider: "openai"'))).toBe(true);
+    expect(lines.some((line) => line.includes('retryAfter: 30'))).toBe(true);
+    expect(lines).toContain('WARN: This error may be temporary. Try again in a few moments.');
+  });
+
+  it('stringifies non-error values', () => {
+    const info = getCliErrorInfo('nope');
+    expect(info.code).toBe('UNKNOWN_ERROR');
+    expect(info.message).toBe('nope');
   });
 });

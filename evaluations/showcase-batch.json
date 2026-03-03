@@ -1,0 +1,8 @@
+[
+  { "videoPath": "output/showcase-v1.mp4" },
+  { "videoPath": "output/v-subway/showcase-subway.mp4" },
+  { "videoPath": "output/v-nohook/showcase-no-hook.mp4" },
+  { "videoPath": "output/v-karaoke/showcase-karaoke.mp4" },
+  { "videoPath": "output/v-gametop/showcase-gameplay-top.mp4" },
+  { "videoPath": "output/v-withhook/showcase-with-hook.mp4" }
+]

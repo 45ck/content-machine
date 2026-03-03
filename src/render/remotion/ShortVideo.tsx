@@ -6,7 +6,7 @@
  */
 import React, { useMemo } from 'react';
 import { Composition, AbsoluteFill, Sequence, useVideoConfig } from 'remotion';
-import type { RenderProps } from '../schema';
+import type { RenderProps } from '../../domain';
 import { Caption } from '../captions';
 import {
   buildSequences,
@@ -17,6 +17,8 @@ import {
 } from './visuals';
 import { FontLoader } from './FontLoader';
 import { AudioLayers } from './AudioLayers';
+import { ListBadges } from './ListBadges';
+import { Overlays } from './Overlays';
 
 /**
  * Main video component
@@ -24,6 +26,7 @@ import { AudioLayers } from './AudioLayers';
 export const ShortVideo: React.FC<RenderProps> = ({
   scenes,
   clips,
+  overlays,
   words,
   audioPath,
   audioMix,
@@ -49,6 +52,7 @@ export const ShortVideo: React.FC<RenderProps> = ({
     () => buildSequences(visualTimeline, contentDuration, fps),
     [visualTimeline, contentDuration, fps]
   );
+  const listBadgesEnabled = captionConfig?.listBadges?.enabled ?? true;
 
   return (
     <AbsoluteFill style={{ backgroundColor: '#000' }}>
@@ -62,7 +66,11 @@ export const ShortVideo: React.FC<RenderProps> = ({
       <Sequence from={hookFrames} durationInFrames={contentFrames}>
         {visualSequences.map(({ fromFrame, durationInFrames, scene }, index) => (
           <Sequence key={`scene-${index}`} from={fromFrame} durationInFrames={durationInFrames}>
-            <SceneBackground scene={scene} />
+            <SceneBackground
+              scene={scene}
+              startFrame={hookFrames + fromFrame}
+              durationInFrames={durationInFrames}
+            />
           </Sequence>
         ))}
 
@@ -70,8 +78,17 @@ export const ShortVideo: React.FC<RenderProps> = ({
           <LegacyClip key={clip.id} clip={clip} fps={fps} />
         ))}
 
+        <Overlays overlays={overlays} layer="below-captions" />
+
         <AbsoluteFill>
           <Caption words={words} config={captionConfig} />
+          <ListBadges
+            words={words}
+            enabled={listBadgesEnabled}
+            timingOffsetMs={captionConfig?.timingOffsetMs ?? 0}
+            captionConfig={captionConfig}
+          />
+          <Overlays overlays={overlays} layer="above-captions" />
         </AbsoluteFill>
 
         <AudioLayers audioPath={audioPath} mix={audioMix} />

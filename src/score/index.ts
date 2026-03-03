@@ -11,11 +11,13 @@ export {
   type ScoreOutput,
   type ScoreCheck,
   type ScoreSeverity,
-} from './schema';
+} from '../domain';
 
 // Sync rater
-export { rateSyncQuality, formatSyncRatingCLI } from './sync-rater';
+export { rateCaptionQuality, rateSyncQuality, formatSyncRatingCLI } from './sync-rater';
 export {
+  type CaptionQualityRatingOptions,
+  type CaptionQualityRatingOutput,
   type SyncRatingOutput,
   type SyncMetrics,
   type WordMatch,
@@ -23,6 +25,8 @@ export {
   type OCRFrame,
   type SyncRatingOptions,
   type SyncRatingLabel,
+  CaptionQualityRatingOptionsSchema,
+  CaptionQualityRatingOutputSchema,
   SyncRatingOutputSchema,
   SyncMetricsSchema,
   WordMatchSchema,
@@ -30,7 +34,7 @@ export {
   OCRFrameSchema,
   SyncRatingOptionsSchema,
   SyncThresholdsSchema,
-} from './sync-schema';
+} from '../domain';
 
 // Caption quality metrics
 export {
@@ -47,6 +51,17 @@ export {
   type CaptionDiagnosticsReport,
   type CaptionChunkDiagnostic,
 } from './caption-diagnostics';
+
+// Burned-in caption quality metrics (OCR-derived)
+export {
+  analyzeBurnedInCaptionQuality,
+  segmentOcrCaptionTimeline,
+  DEFAULT_BURNED_IN_CAPTION_THRESHOLDS,
+  type BurnedInCaptionQualityReport,
+  type BurnedInCaptionThresholds,
+  type FrameSize,
+  type OcrCaptionSegment,
+} from './burned-in-caption-quality';
 
 // Paging quality metrics
 export {

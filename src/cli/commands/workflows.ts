@@ -10,8 +10,10 @@ import { handleCommandError } from '../utils';
 import { resolveWorkflow, formatWorkflowSource } from '../../workflows/resolve';
 import { listWorkflows } from '../../workflows/registry';
 import { installWorkflowPack } from '../../workflows/installer';
+import { packWorkflow, scaffoldWorkflow } from '../../workflows/dev';
 
 const USER_WORKFLOWS_DIR = join(homedir(), '.cm', 'workflows');
+const PROJECT_WORKFLOWS_DIR = join(process.cwd(), '.cm', 'workflows');
 
 function formatWorkflowLine(entry: {
   id: string;
@@ -28,7 +30,84 @@ function formatWorkflowLine(entry: {
 }
 
 export const workflowsCommand = new Command('workflows')
-  .description('Manage workflow definitions')
+  .description('Manage pipeline workflows (orchestration + defaults)')
+  .addCommand(
+    new Command('new')
+      .description('Scaffold a new workflow directory')
+      .argument('<id>', 'New workflow id')
+      .option('--root <dir>', 'Destination workflows root directory', PROJECT_WORKFLOWS_DIR)
+      .option('--from <idOrPath>', 'Base workflow id or path')
+      .option('--force', 'Overwrite existing directory if it exists', false)
+      .action(async (id, options) => {
+        try {
+          const runtime = getCliRuntime();
+          const result = await scaffoldWorkflow({
+            id: String(id),
+            rootDir: String(options.root ?? PROJECT_WORKFLOWS_DIR),
+            from: options.from ? String(options.from) : undefined,
+            force: Boolean(options.force),
+          });
+
+          if (runtime.json) {
+            writeJsonEnvelope(
+              buildJsonEnvelope({
+                command: 'workflows:new',
+                args: {
+                  id,
+                  root: options.root ?? PROJECT_WORKFLOWS_DIR,
+                  from: options.from ?? null,
+                  force: Boolean(options.force),
+                },
+                outputs: {
+                  workflowId: result.id,
+                  workflowDir: result.workflowDir,
+                  workflowPath: result.workflowPath,
+                },
+                timingsMs: Date.now() - runtime.startTime,
+              })
+            );
+            return;
+          }
+
+          writeStderrLine(`Scaffolded workflow: ${result.id}`);
+          writeStderrLine(`Location: ${result.workflowDir}`);
+        } catch (error) {
+          handleCommandError(error);
+        }
+      })
+  )
+  .addCommand(
+    new Command('pack')
+      .description('Pack a workflow directory into a .zip workflow pack')
+      .argument('<path>', 'Path to a workflow directory')
+      .option('-o, --output <path>', 'Output .zip path')
+      .action(async (path, options) => {
+        try {
+          const runtime = getCliRuntime();
+          const result = await packWorkflow({
+            workflowDir: String(path),
+            outputPath: options.output ? String(options.output) : undefined,
+          });
+
+          if (runtime.json) {
+            writeJsonEnvelope(
+              buildJsonEnvelope({
+                command: 'workflows:pack',
+                args: { path, output: options.output ?? null },
+                outputs: { workflowId: result.id, outputPath: result.outputPath },
+                timingsMs: Date.now() - runtime.startTime,
+              })
+            );
+            return;
+          }
+
+          writeStderrLine(`Packed workflow: ${result.id}`);
+          writeStderrLine(`Output: ${result.outputPath}`);
+        } catch (error) {
+          handleCommandError(error);
+        }
+      })
+  )
   .addCommand(
     new Command('list')
       .description('List available workflows')

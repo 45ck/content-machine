@@ -6,7 +6,11 @@ import type { TypographyPreset } from '../presets/typography';
 import type { AnimationConfig } from '../presets/animation';
 import type { SafeZone } from '../tokens/safe-zone';
 
-/** Style overrides from user/config */
+/**
+ * Style overrides from user/config
+ *
+ * @cmTerm style-resolver
+ */
 export interface StyleOverrides {
   palette?: Partial<ColorPalette>;
   typography?: Partial<TypographyPreset>;
@@ -14,7 +18,11 @@ export interface StyleOverrides {
   platform?: string;
 }
 
-/** Fully resolved style (no references, all values) */
+/**
+ * Fully resolved style (no references, all values)
+ *
+ * @cmTerm style-resolver
+ */
 export interface ResolvedStyle {
   readonly palette: ColorPalette;
   readonly typography: {

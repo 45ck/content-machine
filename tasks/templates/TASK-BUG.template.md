@@ -63,7 +63,7 @@
 - [ ] `docs/investigations/investigation-[bug-name]-YYYYMMDD.md` (if complex bug)
 
 **Deliverables:**
-- [ ] `docs/bugs/bug-NNN-[description]-YYYYMMDD.md` — Bug report
+- [ ] `docs/dev/bugs/bug-NNN-[description]-YYYYMMDD.md` — Bug report
 - [ ] `docs/postmortems/incident-[name]-YYYYMMDD.md` (if P0/P1)
 
 ---

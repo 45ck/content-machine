@@ -7,12 +7,13 @@ import { existsSync, statSync } from 'fs';
 import { resolve } from 'path';
 import { CMError } from '../core/errors';
 import {
-  VisualsOutputSchema,
   VISUALS_SCHEMA_VERSION,
+  VisualsOutputSchema,
+  type SceneTimestamp,
+  type TimestampsOutput,
   type VisualAssetInput,
   type VisualsOutput,
-} from '../visuals/schema';
-import type { TimestampsOutput, SceneTimestamp } from '../audio/schema';
+} from '../domain';
 
 export type VisualImportMode = 'sequence' | 'loop' | 'map';
 

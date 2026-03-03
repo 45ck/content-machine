@@ -4,29 +4,37 @@
  * Coordinates video rendering with Remotion.
  * Based on SYSTEM-DESIGN §7.4 cm render command.
  */
-import { stat, writeFile, copyFile, mkdir } from 'fs/promises';
-import { existsSync } from 'fs';
-import { bundle } from '@remotion/bundler';
+import { createWriteStream, existsSync } from 'fs';
+import { stat, writeFile, copyFile, mkdir, rename, rm } from 'fs/promises';
+import { bundle, type WebpackOverrideFn, type WebpackConfiguration } from '@remotion/bundler';
 import { renderMedia, selectComposition } from '@remotion/renderer';
-import { VisualsOutput, VisualsOutputInput } from '../visuals/schema';
-import { TimestampsOutput } from '../audio/schema';
-import type { AudioMixOutput } from '../audio/mix/schema';
+import { createHash } from 'crypto';
+import { pipeline } from 'stream/promises';
+import { Readable } from 'stream';
+import type {
+  AudioMixOutput,
+  OverlayAsset,
+  TimestampsOutput,
+  VisualsOutput,
+  VisualsOutputInput,
+} from '../domain';
 import { Orientation } from '../core/config';
 import { createLogger } from '../core/logger';
 import { CMError, RenderError } from '../core/errors';
 import { probeVideoWithFfprobe } from '../validate/ffprobe';
+import type { ArchetypeId, TemplateId } from '../domain/ids';
 import {
-  RenderOutput,
   RenderOutputSchema,
   RenderPropsInput,
   CaptionStyle,
   RENDER_SCHEMA_VERSION,
   HookClipInput,
   type FontSource,
-} from './schema';
+  type RenderOutput,
+} from '../domain';
 import { getCaptionPreset, CaptionPresetName } from './captions/presets';
 import type { CaptionConfig, CaptionConfigInput } from './captions/config';
-import { join, dirname, resolve, basename } from 'path';
+import { join, dirname, resolve, basename, extname } from 'path';
 import { fileURLToPath } from 'url';
 import { filterCaptionWords } from './captions/paging';
 import { FONT_STACKS } from './tokens/font';
@@ -36,6 +44,13 @@ import {
 } from './assets/visual-asset-bundler';
 import { downloadRemoteAssetsToCache } from './assets/remote-assets';
 import { prepareAudioMixForRender, type BundleAsset } from './audio-mix';
+import { createRequireSafe } from '../core/require';
+import type { TemplatePackageManager } from '../domain/render-templates';
+import {
+  installTemplateDependencies,
+  templateHasNodeModules,
+  templateHasPackageJson,
+} from './templates/deps';
 
 // Get the directory containing this file for Remotion bundling
 // In ESM, we use import.meta.url; __dirname is injected by esbuild for CJS
@@ -50,6 +65,16 @@ function getCurrentDir(): string {
 }
 
 const RENDER_DIR = getCurrentDir();
+
+let cachedHostNodeModulesDir: string | null = null;
+
+function resolveHostNodeModulesDir(): string {
+  if (cachedHostNodeModulesDir) return cachedHostNodeModulesDir;
+  const require = createRequireSafe(import.meta.url);
+  const remotionPkgJson = require.resolve('remotion/package.json');
+  cachedHostNodeModulesDir = dirname(dirname(remotionPkgJson));
+  return cachedHostNodeModulesDir;
+}
 
 function resolveRemotionEntryPoint(): string {
   const envOverride = process.env.CM_REMOTION_ENTRY;
@@ -71,7 +96,7 @@ function resolveRemotionEntryPoint(): string {
   return join(RENDER_DIR, 'remotion', 'index.ts');
 }
 
-export type { RenderOutput, RenderProps } from './schema';
+export type { RenderOutput, RenderProps } from '../domain';
 
 export interface RenderVideoOptions {
   /** Visuals output - accepts input or output type (defaults applied during rendering) */
@@ -93,6 +118,8 @@ export interface RenderVideoOptions {
   contentPosition?: 'top' | 'bottom' | 'full';
   /** Optional hook clip to prepend before main content */
   hook?: HookClipInput;
+  /** Template or user-provided overlays (render-time layer). */
+  overlays?: OverlayAsset[];
   /**
    * Download remote visual assets (e.g. Pexels URLs) into the Remotion bundle for
    * more reliable rendering.
@@ -106,9 +133,11 @@ export interface RenderVideoOptions {
   captionConfig?: CaptionConfigInput;
   /** Use a preset caption style (tiktok, youtube, reels, bold, minimal, neon, capcut, hormozi, karaoke) */
   captionPreset?: CaptionPresetName;
-  archetype?: string;
+  archetype?: ArchetypeId;
   /** Use mock mode for testing without real rendering */
   mock?: boolean;
+  /** Mock render mode: placeholder (fast) or real (renders actual video) */
+  mockRenderMode?: 'placeholder' | 'real';
   /**
    * Optional progress callback for CLI UX (phase + percent).
    * Progress is reported as 0..1 when available.
@@ -124,6 +153,8 @@ export interface RenderVideoOptions {
    * Caption display mode: page (default), single (one word at a time), buildup (accumulate per sentence)
    */
   captionMode?: 'page' | 'single' | 'buildup' | 'chunk';
+  /** Caption notation rendering mode */
+  captionNotation?: 'none' | 'unicode';
   /**
    * Words per caption page/group.
    * Default: 8 (for larger sentences)
@@ -143,6 +174,14 @@ export interface RenderVideoOptions {
    * Caption animation: none (default), fade, slideUp, slideDown, pop, bounce
    */
   captionAnimation?: 'none' | 'fade' | 'slideUp' | 'slideDown' | 'pop' | 'bounce';
+  /** Active word animation: none (default), pop, bounce, rise, shake */
+  captionWordAnimation?: 'none' | 'pop' | 'bounce' | 'rise' | 'shake';
+  /** Active word animation duration in ms */
+  captionWordAnimationMs?: number;
+  /** Active word animation intensity (0..1) */
+  captionWordAnimationIntensity?: number;
+  /** Global caption timing offset in ms (negative = earlier captions) */
+  captionOffsetMs?: number;
   /** Caption font family override */
   captionFontFamily?: string;
   /** Caption font weight override */
@@ -153,6 +192,8 @@ export interface RenderVideoOptions {
   captionFontFile?: string;
   /** Drop filler words from captions */
   captionDropFillers?: boolean;
+  /** Drop list marker tokens like "1:" from captions */
+  captionDropListMarkers?: boolean;
   /** Custom filler list (comma-separated via CLI) */
   captionFillerWords?: string[];
   /** Max words per minute for caption pacing */
@@ -173,9 +214,46 @@ export interface RenderVideoOptions {
   chromeMode?: 'headless-shell' | 'chrome-for-testing';
   /** Custom font sources for Remotion */
   fonts?: FontSource[];
+
+  // ---------------------------------------------------------------------------
+  // Template metadata (optional; useful for code templates)
+  // ---------------------------------------------------------------------------
+  templateId?: TemplateId;
+  templateSource?: string;
+  templateParams?: Record<string, unknown>;
+
+  // ---------------------------------------------------------------------------
+  // Remotion project override (code templates / custom projects)
+  // ---------------------------------------------------------------------------
+  /**
+   * Absolute path to a Remotion entrypoint (file that calls registerRoot()).
+   * If set, CM will bundle this entrypoint instead of the built-in compositions.
+   */
+  remotionEntryPoint?: string;
+  /** Absolute path for the Remotion project root (bundler rootDir). */
+  remotionRootDir?: string;
+  /** Public dir to copy (relative to remotionRootDir). Defaults to "public". */
+  remotionPublicDir?: string;
+  /** Enable Webpack filesystem caching during bundling. Default: true. */
+  remotionEnableCaching?: boolean;
+  /** Additional module directories to resolve packages from during bundling. */
+  remotionExtraModules?: string[];
+
+  // ---------------------------------------------------------------------------
+  // Safety + dependency install for code templates
+  // ---------------------------------------------------------------------------
+  /** Explicit opt-in gate for executing template-provided Remotion code. */
+  allowTemplateCode?: boolean;
+  /** Install template dependencies automatically if package.json exists and node_modules is missing. */
+  installTemplateDeps?: boolean;
+  /** Allow package manager output during template deps install (useful for debugging). */
+  templateDepsAllowOutput?: boolean;
+  /** Preferred package manager for template deps installs (optional). */
+  templatePackageManager?: TemplatePackageManager;
 }
 
 export type RenderProgressPhase =
+  | 'install-template-deps'
   | 'prepare-assets'
   | 'bundle'
   | 'select-composition'
@@ -206,6 +284,10 @@ function isRemoteUrl(path: string): boolean {
   return /^https?:\/\//i.test(path);
 }
 
+function isDataUrl(path: string): boolean {
+  return path.startsWith('data:');
+}
+
 function isLocalFile(path: string): boolean {
   if (!path || isRemoteUrl(path)) return false;
   try {
@@ -215,6 +297,120 @@ function isLocalFile(path: string): boolean {
   }
 }
 
+function hashOverlayKey(key: string): string {
+  return createHash('sha256').update(key).digest('hex').slice(0, 16);
+}
+
+function getRemoteOverlayExtension(url: string, kind?: OverlayAsset['kind']): string {
+  try {
+    const parsed = new URL(url);
+    const ext = (parsed.pathname.split('.').pop() ?? '').toLowerCase();
+    if (ext) return `.${ext}`;
+  } catch {
+    // ignore
+  }
+  return kind === 'video' ? '.mp4' : '.png';
+}
+
+function toOverlayBundlePath(key: string, ext: string): string {
+  return `overlays/${hashOverlayKey(key)}${ext.startsWith('.') ? ext : `.${ext}`}`;
+}
+
+function isOverlayVideo(overlay: OverlayAsset): boolean {
+  if (overlay.kind) return overlay.kind === 'video';
+  const lower = overlay.src.toLowerCase();
+  return (
+    lower.endsWith('.mp4') ||
+    lower.endsWith('.mov') ||
+    lower.endsWith('.webm') ||
+    lower.endsWith('.mkv')
+  );
+}
+
+async function isOkCachedFile(path: string): Promise<boolean> {
+  try {
+    const st = await stat(path);
+    return st.isFile() && st.size > 0;
+  } catch {
+    return false;
+  }
+}
+
+async function downloadOverlayAssetsToCache(
+  overlays: OverlayAsset[],
+  options: {
+    cacheRoot: string;
+    log: ReturnType<typeof createLogger>;
+    onProgress?: (event: { progress: number; message?: string }) => void;
+  }
+): Promise<{ extraAssets: BundleAsset[]; rewritten: OverlayAsset[] }> {
+  const { cacheRoot, log, onProgress } = options;
+  const remoteUrls = Array.from(
+    new Set(overlays.map((o) => o?.src).filter((src): src is string => Boolean(src)))
+  ).filter((src) => isRemoteUrl(src) && !isDataUrl(src));
+  const remote = remoteUrls.map((src) => ({ src }));
+  if (remote.length === 0) return { extraAssets: [], rewritten: overlays };
+
+  const extraAssets: BundleAsset[] = [];
+  const rewritten = [...overlays];
+  const total = remote.length;
+
+  for (let i = 0; i < remote.length; i++) {
+    const url = remote[i]!.src;
+    const kindHint = overlays.find((o) => o?.src === url)?.kind;
+    const inferredKind =
+      kindHint ?? (isOverlayVideo({ src: url } as OverlayAsset) ? 'video' : 'image');
+    const ext = getRemoteOverlayExtension(url, inferredKind);
+    const bundlePath = toOverlayBundlePath(url, ext);
+    const cachePath = join(cacheRoot, bundlePath);
+
+    onProgress?.({
+      progress: total > 0 ? i / total : 1,
+      message: `Downloading overlay assets (${i}/${total})`,
+    });
+
+    try {
+      if (await isOkCachedFile(cachePath)) {
+        extraAssets.push({ sourcePath: cachePath, destPath: bundlePath });
+        for (let j = 0; j < rewritten.length; j++) {
+          if (rewritten[j]?.src === url) {
+            rewritten[j] = { ...rewritten[j], src: bundlePath };
+          }
+        }
+        continue;
+      }
+
+      // Reuse the same download logic used for stock assets (inline here to keep overlay naming stable).
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
+      if (!response.body) throw new Error('No response body');
+      await mkdir(dirname(cachePath), { recursive: true });
+      const tmpPath = `${cachePath}.part`;
+      // Clean up any previous partial file.
+      await rm(tmpPath, { force: true }).catch(() => {});
+      const fileStream = createWriteStream(tmpPath);
+      const readable = Readable.fromWeb(response.body as any);
+      await pipeline(readable, fileStream);
+      await rename(tmpPath, cachePath);
+
+      extraAssets.push({ sourcePath: cachePath, destPath: bundlePath });
+      for (let j = 0; j < rewritten.length; j++) {
+        if (rewritten[j]?.src === url) {
+          rewritten[j] = { ...rewritten[j], src: bundlePath };
+        }
+      }
+    } catch (error) {
+      log.warn({ url, error }, 'Failed to download overlay asset, falling back to remote URL');
+    }
+  }
+
+  onProgress?.({
+    progress: 1,
+    message: total ? 'Overlay assets ready' : 'No overlay assets needed',
+  });
+  return { extraAssets, rewritten };
+}
+
 function deriveFontFamilyFromPath(path: string): string {
   const base = basename(path);
   const withoutExt = base.replace(/\.[^/.]+$/, '');
@@ -222,6 +418,9 @@ function deriveFontFamilyFromPath(path: string): string {
   return normalized || 'Custom Font';
 }
 
+/**
+ * Resolve caption font sources and bundle any local font files into the render artifacts.
+ */
 export function resolveCaptionFontAssets(options: RenderVideoOptions): {
   fontSources: FontSource[];
   fontAssets: BundleAsset[];
@@ -290,8 +489,23 @@ function resolveAssetCacheRoot(): string {
 
 type LocalVideoAsset = {
   path: string;
-  label: 'visual' | 'gameplay' | 'hook';
+  label: 'visual' | 'gameplay' | 'hook' | 'overlay';
 };
+
+function isProbablyImagePath(filePath: string): boolean {
+  const lower = filePath.toLowerCase();
+  return (
+    lower.endsWith('.png') ||
+    lower.endsWith('.jpg') ||
+    lower.endsWith('.jpeg') ||
+    lower.endsWith('.webp') ||
+    lower.endsWith('.gif') ||
+    lower.endsWith('.bmp') ||
+    lower.endsWith('.tiff') ||
+    lower.endsWith('.tif') ||
+    lower.endsWith('.avif')
+  );
+}
 
 async function validateLocalVideoAsset(
   asset: LocalVideoAsset,
@@ -369,6 +583,41 @@ async function validateLocalVideoAssets(
   }
 }
 
+function dedupeStrings(values: string[]): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const value of values) {
+    if (!value) continue;
+    if (seen.has(value)) continue;
+    seen.add(value);
+    out.push(value);
+  }
+  return out;
+}
+
+function createWebpackOverride(extraModuleDirs: string[]): WebpackOverrideFn {
+  const normalizedExtras = dedupeStrings(extraModuleDirs.map((dir) => resolve(dir)));
+  return (current: WebpackConfiguration): WebpackConfiguration => {
+    const currentResolve = current.resolve ?? {};
+    const currentModulesRaw = (currentResolve as { modules?: unknown }).modules;
+    const currentModules = Array.isArray(currentModulesRaw)
+      ? currentModulesRaw.filter((m): m is string => typeof m === 'string')
+      : [];
+
+    // Important: Setting resolve.modules overrides Webpack defaults, so we must include
+    // 'node_modules' to preserve normal resolution semantics.
+    const nextModules = dedupeStrings([...normalizedExtras, ...currentModules, 'node_modules']);
+
+    return {
+      ...current,
+      resolve: {
+        ...currentResolve,
+        modules: nextModules,
+      },
+    };
+  };
+}
+
 /**
  * Bundle Remotion composition and copy audio to bundle
  */
@@ -376,12 +625,23 @@ async function bundleComposition(
   audioPath: string,
   log: ReturnType<typeof createLogger>,
   onProgress?: (event: RenderProgressEvent) => void,
-  extraAssets: BundleAsset[] = []
+  extraAssets: BundleAsset[] = [],
+  remotion?: {
+    entryPoint: string;
+    rootDir?: string;
+    publicDir?: string;
+    enableCaching?: boolean;
+    webpackOverride?: WebpackOverrideFn;
+  }
 ): Promise<BundleResult> {
   log.debug('Bundling Remotion composition');
 
   const bundleLocation = await bundle({
-    entryPoint: resolveRemotionEntryPoint(),
+    entryPoint: remotion?.entryPoint ?? resolveRemotionEntryPoint(),
+    ...(remotion?.rootDir ? { rootDir: remotion.rootDir } : {}),
+    ...(remotion?.publicDir ? { publicDir: remotion.publicDir } : {}),
+    ...(remotion?.enableCaching !== undefined ? { enableCaching: remotion.enableCaching } : {}),
+    ...(remotion?.webpackOverride ? { webpackOverride: remotion.webpackOverride } : {}),
     onProgress: (progress) => {
       log.debug({ progress: Math.round(progress * 100) }, 'Bundling progress');
       onProgress?.({ phase: 'bundle', progress, message: 'Bundling' });
@@ -414,13 +674,9 @@ async function bundleComposition(
  * Resolve caption configuration from options
  * Priority: captionConfig > captionPreset > default (capcut)
  */
-function resolveCaptionConfig(options: RenderVideoOptions): CaptionConfig {
-  // Start with a preset (default to capcut)
-  const presetName = options.captionPreset ?? 'capcut';
-  const preset = getCaptionPreset(presetName);
-
-  // Build layout with captionGroupMs, wordsPerPage, and line options overrides
+function buildCaptionLayoutOverride(options: RenderVideoOptions): Partial<CaptionConfig['layout']> {
   const layoutOverride: Partial<CaptionConfig['layout']> = {};
+
   if (options.captionGroupMs) {
     layoutOverride.maxGapMs = options.captionGroupMs;
   }
@@ -452,10 +708,17 @@ function resolveCaptionConfig(options: RenderVideoOptions): CaptionConfig {
     layoutOverride.minWordsPerPage = options.captionMinWords;
   }
 
-  // Build top-level overrides
+  return layoutOverride;
+}
+
+function buildCaptionTopLevelOverride(options: RenderVideoOptions): Partial<CaptionConfig> {
   const topLevelOverride: Partial<CaptionConfig> = {};
+
   if (options.captionMode) {
     topLevelOverride.displayMode = options.captionMode;
+  }
+  if (options.captionNotation) {
+    topLevelOverride.notationMode = options.captionNotation;
   }
   if (options.captionFontFamily) {
     topLevelOverride.fontFamily = options.captionFontFamily;
@@ -469,27 +732,62 @@ function resolveCaptionConfig(options: RenderVideoOptions): CaptionConfig {
   if (options.captionAnimation) {
     topLevelOverride.pageAnimation = options.captionAnimation;
   }
+  if (options.captionWordAnimation) {
+    topLevelOverride.wordAnimation = options.captionWordAnimation;
+  }
+  if (options.captionWordAnimationMs !== undefined) {
+    topLevelOverride.wordAnimationMs = options.captionWordAnimationMs;
+  }
+  if (options.captionWordAnimationIntensity !== undefined) {
+    topLevelOverride.wordAnimationIntensity = options.captionWordAnimationIntensity;
+  }
+  if (options.captionOffsetMs !== undefined) {
+    topLevelOverride.timingOffsetMs = options.captionOffsetMs;
+  }
+
+  return topLevelOverride;
+}
+
+function buildCaptionCleanupOverride(
+  options: RenderVideoOptions
+): Partial<CaptionConfig['cleanup']> | undefined {
   const dropFillers =
     options.captionDropFillers !== undefined
       ? options.captionDropFillers
       : options.captionFillerWords && options.captionFillerWords.length > 0
         ? true
         : undefined;
-  const cleanupOverride =
+  const dropListMarkers =
+    options.captionDropListMarkers !== undefined ? options.captionDropListMarkers : undefined;
+
+  const shouldOverride =
     dropFillers !== undefined ||
-    (options.captionFillerWords && options.captionFillerWords.length > 0)
-      ? {
-          dropFillers: Boolean(dropFillers),
-          fillerWords: options.captionFillerWords ?? [],
-        }
-      : undefined;
+    dropListMarkers !== undefined ||
+    (options.captionFillerWords && options.captionFillerWords.length > 0);
+  if (!shouldOverride) return undefined;
+
+  return {
+    dropFillers: Boolean(dropFillers),
+    fillerWords: options.captionFillerWords ?? [],
+    ...(dropListMarkers !== undefined ? { dropListMarkers } : {}),
+  };
+}
+
+function resolveCaptionConfig(options: RenderVideoOptions): CaptionConfig {
+  // Start with a preset (default to capcut)
+  const presetName = options.captionPreset ?? 'capcut';
+  const preset = getCaptionPreset(presetName);
+
+  const layoutOverride = buildCaptionLayoutOverride(options);
+  const topLevelOverride = buildCaptionTopLevelOverride(options);
+  const cleanupOverride = buildCaptionCleanupOverride(options);
 
   // If captionConfig is provided, merge it with the preset
   if (options.captionConfig) {
     return {
       ...preset,
-      ...topLevelOverride,
       ...options.captionConfig,
+      ...topLevelOverride,
       // Deep merge nested objects
       pillStyle: { ...preset.pillStyle, ...options.captionConfig.pillStyle },
       stroke: { ...preset.stroke, ...options.captionConfig.stroke },
@@ -497,6 +795,7 @@ function resolveCaptionConfig(options: RenderVideoOptions): CaptionConfig {
       layout: { ...preset.layout, ...options.captionConfig.layout, ...layoutOverride },
       positionOffset: { ...preset.positionOffset, ...options.captionConfig.positionOffset },
       safeZone: { ...preset.safeZone, ...options.captionConfig.safeZone },
+      listBadges: { ...preset.listBadges, ...(options.captionConfig.listBadges ?? {}) },
       emphasis: { ...preset.emphasis, ...options.captionConfig.emphasis },
       cleanup: {
         ...preset.cleanup,
@@ -552,12 +851,18 @@ function buildRenderProps(
   const captionConfig = resolveCaptionConfig(options);
   const splitScreenRatio = normalizeSplitScreenRatio(options.splitScreenRatio);
 
-  // Sanitize words: filter out TTS markers, standalone punctuation, and optional fillers
-  const sanitizedWords = filterCaptionWords(options.timestamps.allWords, captionConfig.cleanup);
+  // Sanitize words for the render word stream (shared by captions + overlays).
+  // Important: Keep list markers in the word stream so overlays (e.g. #1 badges)
+  // can still trigger even when captions are configured to hide "1:" tokens.
+  const sanitizedWords = filterCaptionWords(options.timestamps.allWords, {
+    ...captionConfig.cleanup,
+    dropListMarkers: false,
+  });
 
   return {
     schemaVersion: RENDER_SCHEMA_VERSION,
     scenes: options.visuals.scenes,
+    overlays: options.overlays,
     words: sanitizedWords,
     audioPath: audioFilename,
     audioMix: options.audioMix,
@@ -566,6 +871,9 @@ function buildRenderProps(
     height: dimensions.height,
     fps,
     archetype: options.archetype,
+    templateId: options.templateId,
+    templateSource: options.templateSource,
+    templateParams: options.templateParams,
     gameplayClip: options.visuals.gameplayClip,
     splitScreenRatio,
     gameplayPosition: options.gameplayPosition,
@@ -704,7 +1012,7 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
     'Starting video render'
   );
 
-  if (options.mock) {
+  if (options.mock && options.mockRenderMode !== 'real') {
     safeProgress({ phase: 'mock', progress: 1, message: 'Mock render complete' });
     return generateMockRender(options, dimensions, fps, totalDuration);
   }
@@ -721,9 +1029,20 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
       assets: visualPlan.assets.filter((asset) => asset.sourcePath),
     };
 
-    const localValidationAssets: LocalVideoAsset[] = localPlan.assets
-      .filter((asset) => asset.sourcePath)
-      .map((asset) => ({ path: asset.sourcePath as string, label: 'visual' }));
+    // Validate only assets that will be used as *videos*. Images are supported by Remotion templates
+    // but are not probe-able via ffprobe and should not fail the render preflight.
+    const localValidationAssets: LocalVideoAsset[] = [];
+    for (const scene of options.visuals.scenes ?? []) {
+      if (!scene?.assetPath) continue;
+      if (!isLocalFile(scene.assetPath)) continue;
+      const declaredType = (scene as unknown as { assetType?: string }).assetType;
+      const mediaType =
+        declaredType === 'image' ? 'image' : declaredType === 'video' ? 'video' : undefined;
+      const inferredType = mediaType ?? (isProbablyImagePath(scene.assetPath) ? 'image' : 'video');
+      if (inferredType !== 'video') continue;
+      localValidationAssets.push({ path: scene.assetPath, label: 'visual' });
+    }
+
     const gameplayClipInput = options.visuals.gameplayClip;
     if (gameplayClipInput && isLocalFile(gameplayClipInput.path)) {
       localValidationAssets.push({ path: gameplayClipInput.path, label: 'gameplay' });
@@ -732,11 +1051,25 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
     if (hookClipInput && isLocalFile(hookClipInput.path)) {
       localValidationAssets.push({ path: hookClipInput.path, label: 'hook' });
     }
+
+    // Template overlays (local video overlays are validated like other local video inputs).
+    const overlaysInput = options.overlays ?? [];
+    for (const overlay of overlaysInput) {
+      if (!overlay?.src) continue;
+      if (!isLocalFile(overlay.src)) continue;
+      if (isOverlayVideo(overlay)) {
+        localValidationAssets.push({ path: overlay.src, label: 'overlay' });
+      }
+    }
     await validateLocalVideoAssets(localValidationAssets, log);
 
     let stockExtraAssets: BundleAsset[] = [];
     let localExtraAssets: BundleAsset[] = [];
+    let overlayExtraAssets: BundleAsset[] = [];
     let visualsWithBundledAssets: VisualsOutput | VisualsOutputInput = options.visuals;
+    let overlaysForRender: OverlayAsset[] | undefined = overlaysInput.length
+      ? overlaysInput
+      : undefined;
 
     if (downloadAssets && remotePlan.assets.length) {
       safeProgress({ phase: 'prepare-assets', progress: 0, message: 'Preparing visual assets' });
@@ -792,6 +1125,56 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
       }
     }
 
+    // Bundle local overlay assets into the render bundle.
+    if (overlaysForRender && overlaysForRender.length > 0) {
+      const mapping = new Map<string, string>();
+      for (const overlay of overlaysForRender) {
+        const src = overlay.src;
+        if (!src || !isLocalFile(src)) continue;
+        const resolvedPath = resolve(src);
+        if (!existsSync(resolvedPath)) {
+          throw new CMError('FILE_NOT_FOUND', 'Local overlay asset not found', {
+            path: resolvedPath,
+            fix: 'Ensure template assets.overlays points to existing files in the template pack',
+          });
+        }
+        const ext = extname(resolvedPath);
+        if (!ext) {
+          throw new CMError('INVALID_ARGUMENT', 'Overlay asset has no file extension', {
+            path: resolvedPath,
+            fix: 'Use an overlay file with a standard extension (e.g. .png, .mp4)',
+          });
+        }
+        const bundlePath = toOverlayBundlePath(resolvedPath, ext);
+        if (!mapping.has(resolvedPath)) {
+          overlayExtraAssets.push({ sourcePath: resolvedPath, destPath: bundlePath });
+          mapping.set(resolvedPath, bundlePath);
+        }
+      }
+
+      if (mapping.size > 0) {
+        overlaysForRender = overlaysForRender.map((overlay) => {
+          if (!overlay?.src) return overlay;
+          if (!isLocalFile(overlay.src)) return overlay;
+          const resolvedPath = resolve(overlay.src);
+          const replacement = mapping.get(resolvedPath);
+          return replacement ? { ...overlay, src: replacement } : overlay;
+        });
+      }
+    }
+
+    // Download remote overlay assets into the cache and bundle them (best-effort).
+    if (downloadAssets && overlaysForRender && overlaysForRender.length > 0) {
+      const overlayDownload = await downloadOverlayAssetsToCache(overlaysForRender, {
+        cacheRoot: assetCacheRoot,
+        log,
+        onProgress: ({ progress, message }) =>
+          safeProgress({ phase: 'prepare-assets', progress, message }),
+      });
+      overlayExtraAssets.push(...overlayDownload.extraAssets);
+      overlaysForRender = overlayDownload.rewritten;
+    }
+
     const gameplayClip = visualsWithBundledAssets.gameplayClip;
     const gameplayPublicPath =
       gameplayClip && isLocalFile(gameplayClip.path)
@@ -820,17 +1203,87 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
     const extraAssets = [
       ...stockExtraAssets,
       ...localExtraAssets,
+      ...overlayExtraAssets,
       ...gameplayAssets,
       ...hookAssets,
       ...fontAssets,
       ...(mixResult?.assets ?? []),
     ];
 
+    const usesTemplateProject = Boolean(
+      options.remotionEntryPoint || options.remotionRootDir || options.remotionPublicDir
+    );
+    if (usesTemplateProject && !options.allowTemplateCode) {
+      throw new CMError('TEMPLATE_CODE_NOT_ALLOWED', 'Remotion code templates are not allowed', {
+        fix: 'Re-run with allowTemplateCode=true (API) or --allow-template-code (CLI)',
+      });
+    }
+
+    const remotionRootDir = options.remotionRootDir ? resolve(options.remotionRootDir) : undefined;
+    const remotionEntryPoint = options.remotionEntryPoint
+      ? resolve(remotionRootDir ?? process.cwd(), options.remotionEntryPoint)
+      : resolveRemotionEntryPoint();
+
+    if (usesTemplateProject && !existsSync(remotionEntryPoint)) {
+      throw new CMError('FILE_NOT_FOUND', 'Remotion entrypoint not found', {
+        entryPoint: remotionEntryPoint,
+        fix: 'Ensure template.remotion.entryPoint points to an existing file inside the template pack',
+      });
+    }
+
+    if (usesTemplateProject && remotionRootDir && templateHasPackageJson(remotionRootDir)) {
+      const hasNodeModules = templateHasNodeModules(remotionRootDir);
+      if (!hasNodeModules) {
+        if (options.installTemplateDeps) {
+          if (process.env.CM_OFFLINE === '1') {
+            throw new CMError(
+              'OFFLINE',
+              'Template dependencies are missing and cannot be installed in offline mode',
+              {
+                rootDir: remotionRootDir,
+                fix: 'Re-run without --offline (or install dependencies manually in the template rootDir)',
+              }
+            );
+          }
+
+          safeProgress({
+            phase: 'install-template-deps',
+            progress: 0,
+            message: 'Installing template dependencies',
+          });
+          await installTemplateDependencies({
+            rootDir: remotionRootDir,
+            packageManager: options.templatePackageManager,
+            allowOutput: Boolean(options.templateDepsAllowOutput),
+          });
+          safeProgress({
+            phase: 'install-template-deps',
+            progress: 1,
+            message: 'Template dependencies installed',
+          });
+        }
+      }
+    }
+
+    const remotionBundle = usesTemplateProject
+      ? {
+          entryPoint: remotionEntryPoint,
+          rootDir: remotionRootDir,
+          publicDir: options.remotionPublicDir,
+          enableCaching: options.remotionEnableCaching,
+          webpackOverride: createWebpackOverride([
+            resolveHostNodeModulesDir(),
+            ...(options.remotionExtraModules ?? []),
+          ]),
+        }
+      : undefined;
+
     const { bundleLocation, audioFilename } = await bundleComposition(
       options.audioPath,
       log,
       safeProgress,
-      extraAssets
+      extraAssets,
+      remotionBundle
     );
     const visualsForRender =
       gameplayPublicPath && gameplayClip
@@ -852,6 +1305,7 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
         fonts: fontSources,
         captionFontFamily,
         audioMix: audioMixForRender,
+        overlays: overlaysForRender,
       },
       dimensions,
       fps,
@@ -915,9 +1369,18 @@ async function generateMockRender(
 ): Promise<RenderOutput> {
   const log = createLogger({ module: 'render', mock: true });
 
-  // Create a small mock video file (just a placeholder)
-  const mockVideoBuffer = Buffer.alloc(4096);
+  // Create a small, valid MP4 placeholder so players/validators accept it.
+  const mockVideoBuffer = Buffer.from(MOCK_MP4_BASE64, 'base64');
   await writeFile(options.outputPath, mockVideoBuffer);
+  try {
+    await probeVideoWithFfprobe(options.outputPath);
+  } catch (error) {
+    if (error instanceof CMError && error.code === 'DEPENDENCY_MISSING') {
+      log.warn({ path: options.outputPath }, 'ffprobe missing; skipping mock render probe');
+    } else {
+      throw error;
+    }
+  }
 
   const output: RenderOutput = {
     schemaVersion: RENDER_SCHEMA_VERSION,
@@ -941,3 +1404,65 @@ async function generateMockRender(
 
   return RenderOutputSchema.parse(output);
 }
+
+const MOCK_MP4_BASE64 = [
+  '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',
+  'AAYAAAAGAAAABgAAAAYAAAAGAAAABgAAAAYAAAAGAAAABgAAAAYAAAAGAAAABgAAAAYAAAAGAAAABgAAAAYAAAAGAAAABgAAAAYAAAAGAAAABgAAAAYAAAAG',
+  'AAAABgAAAAYAAAAGAAAABgAAAAYAAAAGAAAAcHN0Y28AAAAAAAAAGAAADToAAA2VAAAN5QAADjUAAA6OAAAO4AAADzAAAA+AAAAP2QAAECUAABB1AAAQxQAA',
+  'ER4AABFwAAARwAAAEhAAABJpAAAStQAAEwUAABNVAAATrQAAE/8AABRPAAAUnwAAABpzZ3BkAQAAAHJvbGwAAAACAAAAAf//AAAAHHNiZ3AAAAAAcm9sbAAA',
+  'AAEAAAAvAAAAAQAAAGJ1ZHRhAAAAWm1ldGEAAAAAAAAAIWhkbHIAAAAAAAAAAG1kaXJhcHBsAAAAAAAAAAAAAAAALWlsc3QAAAAlqXRvbwAAAB1kYXRhAAAA',
+  'AQAAAABMYXZmNjAuMTYuMTAwAAAACGZyZWUAAAwtbWRhdAAAAq4GBf//qtxF6b3m2Ui3lizYINkj7u94MjY0IC0gY29yZSAxNjQgcjMxMDggMzFlMTlmOSAt',
+  'IEguMjY0L01QRUctNCBBVkMgY29kZWMgLSBDb3B5bGVmdCAyMDAzLTIwMjMgLSBodHRwOi8vd3d3LnZpZGVvbGFuLm9yZy94MjY0Lmh0bWwgLSBvcHRpb25z',
+  'OiBjYWJhYz0xIHJlZj0zIGRlYmxvY2s9MTowOjAgYW5hbHlzZT0weDM6MHgxMTMgbWU9aGV4IHN1Ym1lPTcgcHN5PTEgcHN5X3JkPTEuMDA6MC4wMCBtaXhl',
+  'ZF9yZWY9MSBtZV9yYW5nZT0xNiBjaHJvbWFfbWU9MSB0cmVsbGlzPTEgOHg4ZGN0PTEgY3FtPTAgZGVhZHpvbmU9MjEsMTEgZmFzdF9wc2tpcD0xIGNocm9t',
+  'YV9xcF9vZmZzZXQ9LTIgdGhyZWFkcz02IGxvb2thaGVhZF90aHJlYWRzPTEgc2xpY2VkX3RocmVhZHM9MCBucj0wIGRlY2ltYXRlPTEgaW50ZXJsYWNlZD0w',
+  'IGJsdXJheV9jb21wYXQ9MCBjb25zdHJhaW5lZF9pbnRyYT0wIGJmcmFtZXM9MyBiX3B5cmFtaWQ9MiBiX2FkYXB0PTEgYl9iaWFzPTAgZGlyZWN0PTEgd2Vp',
+  'Z2h0Yj0xIG9wZW5fZ29wPTAgd2VpZ2h0cD0yIGtleWludD0yNTAga2V5aW50X21pbj0yNSBzY2VuZWN1dD00MCBpbnRyYV9yZWZyZXNoPTAgcmNfbG9va2Fo',
+  'ZWFkPTQwIHJjPWNyZiBtYnRyZWU9MSBjcmY9MjMuMCBxY29tcD0wLjYwIHFwbWluPTAgcXBtYXg9NjkgcXBzdGVwPTQgaXBfcmF0aW89MS40MCBhcT0xOjEu',
+  'MDAAgAAAAatliIQAO//+906/AptUwioDklcK9sqkJlm5UmsB8qYAAAMAAAMAAAMAAAMAWpjfJAsMpk3poAAAAwAAY8ACUgAh4AJeADUABkgA4gAfwATIAQ0A',
+  'PYAMUAOQAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAAD',
+  'AAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAAD',
+  'AAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAAD',
+  'AAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADAAADADihAAAAQ0GaJGxDv/6plgAA',
+  'AwAAAwAAAwAAAwAAAwAAAwAAAwAAAwAAAwAAAwAAAwAAAwAAAwAAAwAAAwAAAwAAAwAAAwAADQjeAgBMYXZjNjAuMzEuMTAyAEIgCMEYOAAAAEBBnkJ4hf8A',
+  'AAMAAAMAAAMAAAMAAAMAAAMAAAMAAAMAAAMAAAMAAAMAAAMAAAMAAAMAAAMAAAMAAAMAAAMAAA9JIRAEYIwcIRAEYIwcAAAAQAGeYXRCvwAAAwAAAwAAAwAA',
+  'AwAAAwAAAwAAAwAAAwAAAwAAAwAAAwAAAwAAAwAAAwAAAwAAAwAAAwAAAwAAFTAhEARgjBwhEARgjBwAAABAAZ5jakK/AAADAAADAAADAAADAAADAAADAAAD',
+  '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',
+].join('');

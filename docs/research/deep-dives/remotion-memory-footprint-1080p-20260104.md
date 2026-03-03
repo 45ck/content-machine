@@ -148,7 +148,7 @@ Working Memory ≈ (Frames in cache) × (Frame size) × (Concurrency) + (Browser
 
 ### 3.3 vidosy Performance Metrics
 
-From [CHANGELOG.md](../../../templates/vidosy/CHANGELOG.md):
+From [CHANGELOG.md](../../../dev/templates/vidosy/CHANGELOG.md):
 
 ```markdown
 #### Rendering Performance
@@ -467,4 +467,4 @@ constructor() {
 - [Remotion SIGKILL Troubleshooting](../../../vendor/render/remotion/packages/docs/docs/troubleshooting/sigkill.mdx)
 - [Remotion GPU Usage](../../../vendor/render/remotion/packages/docs/docs/gpu.mdx)
 - [short-video-maker-gyori README](../../../vendor/short-video-maker-gyori/README.md)
-- [vidosy CHANGELOG](../../../templates/vidosy/CHANGELOG.md)
+- [vidosy CHANGELOG](../../../dev/templates/vidosy/CHANGELOG.md)

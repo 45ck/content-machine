@@ -498,7 +498,7 @@ export class FakeStockProvider implements StockProvider {
 
 ## 8. Related Documents
 
-- [SYSTEM-DESIGN-20260104.md](../../architecture/SYSTEM-DESIGN-20260104.md) §18.2 Provider Interface System
+- [SYSTEM-DESIGN-20260104.md](../../dev/architecture/SYSTEM-DESIGN-20260104.md) §18.2 Provider Interface System
 - [RQ-22-EXTENSIBILITY-ARCHITECTURE-20260105.md](../investigations/RQ-22-EXTENSIBILITY-ARCHITECTURE-20260105.md)
 - [RQ-23-EXPERT-REVIEW-GAPS-20260105.md](../investigations/RQ-23-EXPERT-REVIEW-GAPS-20260105.md) GAP-23.2
 

@@ -31,7 +31,7 @@ Treat virality as **a set of controllable input constraints** plus **proxy quali
 - LLM-as-judge scoring for subjective qualities (Layer 3).
 - Human review for flagged items (Layer 4).
 
-This fits the existing V&V model in `docs/guides/VV-FRAMEWORK-20260105.md`.
+This fits the existing V&V model in `docs/dev/guides/VV-FRAMEWORK-20260105.md`.
 
 ---
 
@@ -181,5 +181,5 @@ LLM-as-judge:
 ## Related
 
 - Mapping doc: `docs/research/sections/SECTION-VIRALITY-ENGINEERING-20260105.md`
-- V&V framework: `docs/guides/VV-FRAMEWORK-20260105.md`
+- V&V framework: `docs/dev/guides/VV-FRAMEWORK-20260105.md`
 - LLM evals: `docs/research/investigations/RQ-24-LLM-EVALUATION-QUALITY-ASSURANCE-20260105.md`

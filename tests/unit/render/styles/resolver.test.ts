@@ -15,7 +15,7 @@ import { type Theme } from '../../../../src/render/themes';
 import { PALETTES } from '../../../../src/render/presets/palette';
 import { TYPOGRAPHY_PRESETS } from '../../../../src/render/presets/typography';
 import { ANIMATION_PRESETS } from '../../../../src/render/presets/animation';
-import { CAPTION_PRESETS } from '../../../../src/render/presets/caption';
+import { THEME_CAPTION_PRESETS } from '../../../../src/render/presets/caption';
 import { SAFE_ZONES } from '../../../../src/render/tokens/safe-zone';
 import type { Archetype } from '../../../../src/core/config';
 
@@ -36,7 +36,7 @@ describe('createStyleResolver', () => {
         palettes: PALETTES,
         typography: TYPOGRAPHY_PRESETS,
         animations: ANIMATION_PRESETS,
-        captions: CAPTION_PRESETS,
+        captions: THEME_CAPTION_PRESETS,
         safeZones: SAFE_ZONES,
       };
 
@@ -74,7 +74,7 @@ describe('createStyleResolver', () => {
         palettes: customPalettes as typeof PALETTES,
         typography: TYPOGRAPHY_PRESETS,
         animations: ANIMATION_PRESETS,
-        captions: CAPTION_PRESETS,
+        captions: THEME_CAPTION_PRESETS,
         safeZones: SAFE_ZONES,
       };
 
@@ -100,7 +100,7 @@ describe('createStyleResolver', () => {
         palettes: {},
         typography: TYPOGRAPHY_PRESETS,
         animations: ANIMATION_PRESETS,
-        captions: CAPTION_PRESETS,
+        captions: THEME_CAPTION_PRESETS,
         safeZones: SAFE_ZONES,
       };
 
@@ -122,7 +122,7 @@ describe('createStyleResolver', () => {
         palettes: PALETTES,
         typography: {},
         animations: ANIMATION_PRESETS,
-        captions: CAPTION_PRESETS,
+        captions: THEME_CAPTION_PRESETS,
         safeZones: SAFE_ZONES,
       };
 
@@ -144,7 +144,7 @@ describe('createStyleResolver', () => {
         palettes: PALETTES,
         typography: TYPOGRAPHY_PRESETS,
         animations: {},
-        captions: CAPTION_PRESETS,
+        captions: THEME_CAPTION_PRESETS,
         safeZones: SAFE_ZONES,
       };
 
@@ -166,7 +166,7 @@ describe('createStyleResolver', () => {
         palettes: PALETTES,
         typography: TYPOGRAPHY_PRESETS,
         animations: ANIMATION_PRESETS,
-        captions: CAPTION_PRESETS,
+        captions: THEME_CAPTION_PRESETS,
         safeZones: {},
       };
 
@@ -188,7 +188,7 @@ describe('createStyleResolver', () => {
         palettes: PALETTES,
         typography: TYPOGRAPHY_PRESETS,
         animations: ANIMATION_PRESETS,
-        captions: {},
+        captions: {} as typeof THEME_CAPTION_PRESETS,
         safeZones: SAFE_ZONES,
       };
 

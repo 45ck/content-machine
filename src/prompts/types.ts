@@ -74,6 +74,8 @@ export interface PromptSource {
 
 /**
  * Complete prompt template definition
+ *
+ * @cmTerm prompt-template
  */
 export interface PromptTemplate {
   /** Unique identifier (e.g., "script/video-script-generator") */
@@ -146,6 +148,8 @@ export interface PromptSearchResult {
 
 /**
  * Rendered prompt ready for API submission
+ *
+ * @cmTerm prompt-template
  */
 export interface RenderedPrompt {
   /** System prompt (if applicable) */

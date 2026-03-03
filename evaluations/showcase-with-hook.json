@@ -1,0 +1,3180 @@
+{
+  "schemaVersion": "1.0.0",
+  "videoPath": "output/v-withhook/showcase-with-hook.mp4",
+  "passed": true,
+  "checks": [
+    {
+      "checkId": "score",
+      "passed": true,
+      "skipped": true,
+      "summary": "no script provided",
+      "durationMs": 0
+    },
+    {
+      "checkId": "validate",
+      "passed": true,
+      "skipped": false,
+      "summary": "1080x1920, 58s, h264/aac",
+      "durationMs": 138,
+      "detail": {
+        "schemaVersion": "1.0.0",
+        "videoPath": "output/v-withhook/showcase-with-hook.mp4",
+        "profile": "portrait",
+        "passed": true,
+        "summary": {
+          "width": 1080,
+          "height": 1920,
+          "durationSeconds": 58.261333,
+          "container": "mp4",
+          "videoCodec": "h264",
+          "audioCodec": "aac"
+        },
+        "gates": [
+          {
+            "gateId": "resolution",
+            "passed": true,
+            "severity": "error",
+            "fix": "adjust-render-resolution",
+            "message": "Resolution OK (1080x1920)",
+            "details": {
+              "expectedWidth": 1080,
+              "expectedHeight": 1920,
+              "actualWidth": 1080,
+              "actualHeight": 1920
+            }
+          },
+          {
+            "gateId": "duration",
+            "passed": true,
+            "severity": "error",
+            "fix": "adjust-content-length",
+            "message": "Duration OK (58.3s)",
+            "details": {
+              "minSeconds": 30,
+              "maxSeconds": 60,
+              "actualSeconds": 58.261333
+            }
+          },
+          {
+            "gateId": "format",
+            "passed": true,
+            "severity": "error",
+            "fix": "adjust-render-format",
+            "message": "Format OK (mp4/h264/aac)",
+            "details": {
+              "expected": {
+                "container": "mp4",
+                "videoCodec": "h264",
+                "audioCodec": "aac"
+              },
+              "actual": {
+                "container": "mp4",
+                "videoCodec": "h264",
+                "audioCodec": "aac"
+              }
+            }
+          }
+        ],
+        "createdAt": "2026-02-13T23:14:56.532Z",
+        "runtimeMs": 138
+      }
+    },
+    {
+      "checkId": "rate",
+      "passed": true,
+      "skipped": false,
+      "summary": "0/100, broken, mean drift 13456ms",
+      "durationMs": 121552,
+      "detail": {
+        "schemaVersion": "1.0.0",
+        "videoPath": "output/v-withhook/showcase-with-hook.mp4",
+        "rating": 0,
+        "ratingLabel": "broken",
+        "passed": false,
+        "metrics": {
+          "meanDriftMs": 13456.470588235294,
+          "maxDriftMs": 44460,
+          "rawMaxDriftMs": 44460,
+          "p95DriftMs": 34490.999999999985,
+          "medianDriftMs": 14449.999999999995,
+          "meanSignedDriftMs": 7729.411764705882,
+          "leadingRatio": 0.19117647058823528,
+          "laggingRatio": 0.7058823529411765,
+          "driftStdDev": 11159.835646679556,
+          "outlierCount": 61,
+          "outlierRatio": 0.8970588235294118,
+          "matchedWords": 68,
+          "totalOcrWords": 1295,
+          "totalAsrWords": 127,
+          "matchRatio": 0.05250965250965251
+        },
+        "wordMatches": [
+          {
+            "word": "dont",
+            "ocrTimestamp": 18,
+            "asrTimestamp": 0.85,
+            "driftMs": 17150,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "but",
+            "ocrTimestamp": 18,
+            "asrTimestamp": 1.4,
+            "driftMs": 16600,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "to",
+            "ocrTimestamp": 17.5,
+            "asrTimestamp": 1.92,
+            "driftMs": 15580,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "his",
+            "ocrTimestamp": 17.5,
+            "asrTimestamp": 2.03,
+            "driftMs": 15470,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "if",
+            "ocrTimestamp": 23,
+            "asrTimestamp": 3.46,
+            "driftMs": 19540,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "you",
+            "ocrTimestamp": 18,
+            "asrTimestamp": 3.5100000000000002,
+            "driftMs": 14490,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "ate",
+            "ocrTimestamp": 18.5,
+            "asrTimestamp": 3.7,
+            "driftMs": 14800,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "spering",
+            "ocrTimestamp": 21.5,
+            "asrTimestamp": 4.06,
+            "driftMs": 17440,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "content",
+            "ocrTimestamp": 23.5,
+            "asrTimestamp": 5.83,
+            "driftMs": 17670,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "his",
+            "ocrTimestamp": 17.5,
+            "asrTimestamp": 6.72,
+            "driftMs": 10780.000000000002,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "for",
+            "ocrTimestamp": 49,
+            "asrTimestamp": 7.52,
+            "driftMs": 41480.00000000001,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "you",
+            "ocrTimestamp": 18,
+            "asrTimestamp": 7.72,
+            "driftMs": 10280.000000000002,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "content",
+            "ocrTimestamp": 23.5,
+            "asrTimestamp": 8.83,
+            "driftMs": 14670,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "many",
+            "ocrTimestamp": 17.5,
+            "asrTimestamp": 10.36,
+            "driftMs": 7140.000000000001,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "int",
+            "ocrTimestamp": 55.5,
+            "asrTimestamp": 11.04,
+            "driftMs": 44460,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "in",
+            "ocrTimestamp": 51.5,
+            "asrTimestamp": 11.89,
+            "driftMs": 39610,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "give",
+            "ocrTimestamp": 24.5,
+            "asrTimestamp": 12.49,
+            "driftMs": 12010,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "tipe",
+            "ocrTimestamp": 51.5,
+            "asrTimestamp": 14.09,
+            "driftMs": 37410,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "you",
+            "ocrTimestamp": 18,
+            "asrTimestamp": 14.459999999999999,
+            "driftMs": 3540.000000000001,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "and",
+            "ocrTimestamp": 18,
+            "asrTimestamp": 15.26,
+            "driftMs": 2740,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "it",
+            "ocrTimestamp": 17.5,
+            "asrTimestamp": 15.98,
+            "driftMs": 1519.9999999999995,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "generate",
+            "ocrTimestamp": 23.5,
+            "asrTimestamp": 16.16,
+            "driftMs": 7340,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "it",
+            "ocrTimestamp": 17.220000000000002,
+            "asrTimestamp": 17.220000000000002,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "and",
+            "ocrTimestamp": 18.610000000000003,
+            "asrTimestamp": 18.610000000000003,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "and",
+            "ocrTimestamp": 20.150000000000002,
+            "asrTimestamp": 20.150000000000002,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "to",
+            "ocrTimestamp": 23.5,
+            "asrTimestamp": 22.83,
+            "driftMs": 670.0000000000017,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "fiat",
+            "ocrTimestamp": 22.99,
+            "asrTimestamp": 22.99,
+            "driftMs": 0,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "your",
+            "ocrTimestamp": 23.259999999999998,
+            "asrTimestamp": 23.259999999999998,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "its",
+            "ocrTimestamp": 53.5,
+            "asrTimestamp": 24.43,
+            "driftMs": 29070,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "its",
+            "ocrTimestamp": 53.5,
+            "asrTimestamp": 26.419999999999998,
+            "driftMs": 27080.000000000004,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "ser",
+            "ocrTimestamp": 52.5,
+            "asrTimestamp": 26.62,
+            "driftMs": 25880,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "een",
+            "ocrTimestamp": 51,
+            "asrTimestamp": 27.65,
+            "driftMs": 23350,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "for",
+            "ocrTimestamp": 49,
+            "asrTimestamp": 28.03,
+            "driftMs": 20970,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "teh",
+            "ocrTimestamp": 51.5,
+            "asrTimestamp": 28.75,
+            "driftMs": 22750,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "ives",
+            "ocrTimestamp": 52,
+            "asrTimestamp": 28.83,
+            "driftMs": 23170,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "east",
+            "ocrTimestamp": 51.5,
+            "asrTimestamp": 29.9,
+            "driftMs": 21600,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "ily",
+            "ocrTimestamp": 55,
+            "asrTimestamp": 30.07,
+            "driftMs": 24930,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "the",
+            "ocrTimestamp": 26.5,
+            "asrTimestamp": 30.74,
+            "driftMs": -4239.999999999998,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "to",
+            "ocrTimestamp": 31.49,
+            "asrTimestamp": 31.49,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "your",
+            "ocrTimestamp": 31.5,
+            "asrTimestamp": 32.400000000000006,
+            "driftMs": -900.0000000000057,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "out",
+            "ocrTimestamp": 18.5,
+            "asrTimestamp": 33.54,
+            "driftMs": -15040,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "fist",
+            "ocrTimestamp": 51,
+            "asrTimestamp": 34.09,
+            "driftMs": 16909.999999999996,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "it",
+            "ocrTimestamp": 19,
+            "asrTimestamp": 34.46,
+            "driftMs": -15460,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "pres",
+            "ocrTimestamp": 50,
+            "asrTimestamp": 35.59000000000001,
+            "driftMs": 14409.999999999989,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "fist",
+            "ocrTimestamp": 51,
+            "asrTimestamp": 36.400000000000006,
+            "driftMs": 14599.999999999995,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "treat",
+            "ocrTimestamp": 55,
+            "asrTimestamp": 37.89000000000001,
+            "driftMs": 17109.999999999993,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "for",
+            "ocrTimestamp": 49,
+            "asrTimestamp": 38.330000000000005,
+            "driftMs": 10669.999999999995,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "cans",
+            "ocrTimestamp": 51,
+            "asrTimestamp": 39.80000000000001,
+            "driftMs": 11199.999999999989,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "limited",
+            "ocrTimestamp": 26.5,
+            "asrTimestamp": 40.63000000000001,
+            "driftMs": -14130.00000000001,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "bet",
+            "ocrTimestamp": 52,
+            "asrTimestamp": 42.99000000000001,
+            "driftMs": 9009.99999999999,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "for",
+            "ocrTimestamp": 49,
+            "asrTimestamp": 43.25000000000001,
+            "driftMs": 5749.999999999993,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "content",
+            "ocrTimestamp": 26.5,
+            "asrTimestamp": 45.94000000000001,
+            "driftMs": -19440.00000000001,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "content",
+            "ocrTimestamp": 26.5,
+            "asrTimestamp": 46.35000000000001,
+            "driftMs": -19850.000000000007,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "is",
+            "ocrTimestamp": 50.5,
+            "asrTimestamp": 47.38000000000001,
+            "driftMs": 3119.9999999999905,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "for",
+            "ocrTimestamp": 49,
+            "asrTimestamp": 47.92000000000001,
+            "driftMs": 1079.9999999999911,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "nee",
+            "ocrTimestamp": 50,
+            "asrTimestamp": 49.07000000000001,
+            "driftMs": 929.9999999999926,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "peed",
+            "ocrTimestamp": 52,
+            "asrTimestamp": 49.510000000000005,
+            "driftMs": 2489.999999999995,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "and",
+            "ocrTimestamp": 55,
+            "asrTimestamp": 50.06000000000001,
+            "driftMs": 4939.999999999991,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "ase",
+            "ocrTimestamp": 51,
+            "asrTimestamp": 50.220000000000006,
+            "driftMs": 779.9999999999941,
+            "matchQuality": "fuzzy"
+          },
+          {
+            "word": "try",
+            "ocrTimestamp": 54,
+            "asrTimestamp": 51.27000000000001,
+            "driftMs": 2729.99999999999,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "it",
+            "ocrTimestamp": 51.44000000000001,
+            "asrTimestamp": 51.44000000000001,
+            "driftMs": 0,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "and",
+            "ocrTimestamp": 55,
+            "asrTimestamp": 51.60000000000001,
+            "driftMs": 3399.9999999999914,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "your",
+            "ocrTimestamp": 31.5,
+            "asrTimestamp": 52.75000000000001,
+            "driftMs": -21250.000000000007,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "give",
+            "ocrTimestamp": 26.5,
+            "asrTimestamp": 54.49000000000001,
+            "driftMs": -27990.000000000007,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "content",
+            "ocrTimestamp": 26.5,
+            "asrTimestamp": 54.71000000000001,
+            "driftMs": -28210.000000000007,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "try",
+            "ocrTimestamp": 54,
+            "asrTimestamp": 55.790000000000006,
+            "driftMs": -1790.0000000000064,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "and",
+            "ocrTimestamp": 55,
+            "asrTimestamp": 55.98000000000001,
+            "driftMs": -980.0000000000111,
+            "matchQuality": "exact"
+          },
+          {
+            "word": "your",
+            "ocrTimestamp": 31.5,
+            "asrTimestamp": 56.94000000000001,
+            "driftMs": -25440.00000000001,
+            "matchQuality": "exact"
+          }
+        ],
+        "driftTimeline": [
+          {
+            "timestamp": 0.85,
+            "driftMs": 17150
+          },
+          {
+            "timestamp": 1.4,
+            "driftMs": 16600
+          },
+          {
+            "timestamp": 1.92,
+            "driftMs": 15580
+          },
+          {
+            "timestamp": 2.03,
+            "driftMs": 15470
+          },
+          {
+            "timestamp": 3.46,
+            "driftMs": 19540
+          },
+          {
+            "timestamp": 3.5100000000000002,
+            "driftMs": 14490
+          },
+          {
+            "timestamp": 3.7,
+            "driftMs": 14800
+          },
+          {
+            "timestamp": 4.06,
+            "driftMs": 17440
+          },
+          {
+            "timestamp": 5.83,
+            "driftMs": 17670
+          },
+          {
+            "timestamp": 6.72,
+            "driftMs": 10780.000000000002
+          },
+          {
+            "timestamp": 7.52,
+            "driftMs": 41480.00000000001
+          },
+          {
+            "timestamp": 7.72,
+            "driftMs": 10280.000000000002
+          },
+          {
+            "timestamp": 8.83,
+            "driftMs": 14670
+          },
+          {
+            "timestamp": 10.36,
+            "driftMs": 7140.000000000001
+          },
+          {
+            "timestamp": 11.04,
+            "driftMs": 44460
+          },
+          {
+            "timestamp": 11.89,
+            "driftMs": 39610
+          },
+          {
+            "timestamp": 12.49,
+            "driftMs": 12010
+          },
+          {
+            "timestamp": 14.09,
+            "driftMs": 37410
+          },
+          {
+            "timestamp": 14.459999999999999,
+            "driftMs": 3540.000000000001
+          },
+          {
+            "timestamp": 15.26,
+            "driftMs": 2740
+          },
+          {
+            "timestamp": 15.98,
+            "driftMs": 1519.9999999999995
+          },
+          {
+            "timestamp": 16.16,
+            "driftMs": 7340
+          },
+          {
+            "timestamp": 17.220000000000002,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 18.610000000000003,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 20.150000000000002,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 22.83,
+            "driftMs": 670.0000000000017
+          },
+          {
+            "timestamp": 22.99,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 23.259999999999998,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 24.43,
+            "driftMs": 29070
+          },
+          {
+            "timestamp": 26.419999999999998,
+            "driftMs": 27080.000000000004
+          },
+          {
+            "timestamp": 26.62,
+            "driftMs": 25880
+          },
+          {
+            "timestamp": 27.65,
+            "driftMs": 23350
+          },
+          {
+            "timestamp": 28.03,
+            "driftMs": 20970
+          },
+          {
+            "timestamp": 28.75,
+            "driftMs": 22750
+          },
+          {
+            "timestamp": 28.83,
+            "driftMs": 23170
+          },
+          {
+            "timestamp": 29.9,
+            "driftMs": 21600
+          },
+          {
+            "timestamp": 30.07,
+            "driftMs": 24930
+          },
+          {
+            "timestamp": 30.74,
+            "driftMs": -4239.999999999998
+          },
+          {
+            "timestamp": 31.49,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 32.400000000000006,
+            "driftMs": -900.0000000000057
+          },
+          {
+            "timestamp": 33.54,
+            "driftMs": -15040
+          },
+          {
+            "timestamp": 34.09,
+            "driftMs": 16909.999999999996
+          },
+          {
+            "timestamp": 34.46,
+            "driftMs": -15460
+          },
+          {
+            "timestamp": 35.59000000000001,
+            "driftMs": 14409.999999999989
+          },
+          {
+            "timestamp": 36.400000000000006,
+            "driftMs": 14599.999999999995
+          },
+          {
+            "timestamp": 37.89000000000001,
+            "driftMs": 17109.999999999993
+          },
+          {
+            "timestamp": 38.330000000000005,
+            "driftMs": 10669.999999999995
+          },
+          {
+            "timestamp": 39.80000000000001,
+            "driftMs": 11199.999999999989
+          },
+          {
+            "timestamp": 40.63000000000001,
+            "driftMs": -14130.00000000001
+          },
+          {
+            "timestamp": 42.99000000000001,
+            "driftMs": 9009.99999999999
+          },
+          {
+            "timestamp": 43.25000000000001,
+            "driftMs": 5749.999999999993
+          },
+          {
+            "timestamp": 45.94000000000001,
+            "driftMs": -19440.00000000001
+          },
+          {
+            "timestamp": 46.35000000000001,
+            "driftMs": -19850.000000000007
+          },
+          {
+            "timestamp": 47.38000000000001,
+            "driftMs": 3119.9999999999905
+          },
+          {
+            "timestamp": 47.92000000000001,
+            "driftMs": 1079.9999999999911
+          },
+          {
+            "timestamp": 49.07000000000001,
+            "driftMs": 929.9999999999926
+          },
+          {
+            "timestamp": 49.510000000000005,
+            "driftMs": 2489.999999999995
+          },
+          {
+            "timestamp": 50.06000000000001,
+            "driftMs": 4939.999999999991
+          },
+          {
+            "timestamp": 50.220000000000006,
+            "driftMs": 779.9999999999941
+          },
+          {
+            "timestamp": 51.27000000000001,
+            "driftMs": 2729.99999999999
+          },
+          {
+            "timestamp": 51.44000000000001,
+            "driftMs": 0
+          },
+          {
+            "timestamp": 51.60000000000001,
+            "driftMs": 3399.9999999999914
+          },
+          {
+            "timestamp": 52.75000000000001,
+            "driftMs": -21250.000000000007
+          },
+          {
+            "timestamp": 54.49000000000001,
+            "driftMs": -27990.000000000007
+          },
+          {
+            "timestamp": 54.71000000000001,
+            "driftMs": -28210.000000000007
+          },
+          {
+            "timestamp": 55.790000000000006,
+            "driftMs": -1790.0000000000064
+          },
+          {
+            "timestamp": 55.98000000000001,
+            "driftMs": -980.0000000000111
+          },
+          {
+            "timestamp": 56.94000000000001,
+            "driftMs": -25440.00000000001
+          }
+        ],
+        "errors": [
+          {
+            "type": "low_match_ratio",
+            "severity": "critical",
+            "message": "Only 5% of words matched",
+            "suggestedFix": "Check OCR accuracy or video clarity"
+          },
+          {
+            "type": "caption_quality_overall",
+            "severity": "warning",
+            "message": "Caption quality overall below threshold (score=0.39)",
+            "suggestedFix": "Improve caption readability (safe margins, pacing, density) and re-render"
+          },
+          {
+            "type": "caption_flicker",
+            "severity": "warning",
+            "message": "Caption flicker detected (6 reappearance event(s))",
+            "suggestedFix": "Increase minimum on-screen time and avoid 1-frame subtitle dropouts"
+          },
+          {
+            "type": "caption_safe_margin",
+            "severity": "warning",
+            "message": "Captions violate safe margins (107 frame(s))",
+            "suggestedFix": "Move captions inward from screen edges (increase padding / safe area)"
+          },
+          {
+            "type": "caption_density",
+            "severity": "warning",
+            "message": "Caption crowding detected (lineOverflow=31, charOverflow=8)",
+            "suggestedFix": "Reduce words per caption and keep captions to 1–2 lines"
+          },
+          {
+            "type": "caption_punctuation",
+            "severity": "warning",
+            "message": "Caption punctuation issues (missingTerminal=27, repeated=0)",
+            "suggestedFix": "Fix punctuation in script/transcript normalization and re-render captions"
+          },
+          {
+            "type": "caption_low_confidence",
+            "severity": "warning",
+            "message": "Low OCR confidence may indicate poor caption legibility (mean=0.46)",
+            "suggestedFix": "Increase caption contrast (outline/shadow) and avoid cluttered backgrounds"
+          }
+        ],
+        "analysis": {
+          "ocrEngine": "tesseract",
+          "asrEngine": "whisper-cpp",
+          "framesAnalyzed": 116,
+          "analysisTimeMs": 121529,
+          "captionFrameSize": {
+            "width": 1080,
+            "height": 672
+          },
+          "videoFrameSize": {
+            "width": 1080,
+            "height": 1920
+          },
+          "captionCropOffsetY": 1248
+        },
+        "captionQuality": {
+          "thresholds": {
+            "safeMarginRatio": 0.05,
+            "idealReadingSpeedWps": {
+              "min": 2,
+              "max": 4
+            },
+            "absoluteReadingSpeedWps": {
+              "min": 1,
+              "max": 7
+            },
+            "recommendedCaptionDurationSeconds": {
+              "min": 1,
+              "max": 7
+            },
+            "flashDurationSecondsMax": 0.5,
+            "density": {
+              "maxLines": 3,
+              "maxCharsPerLine": 45
+            },
+            "capitalization": {
+              "allCapsRatioMin": 0.8
+            },
+            "alignment": {
+              "idealCenterXRatio": 0.5,
+              "maxMeanAbsCenterDxRatio": 0.1
+            },
+            "placement": {
+              "maxStddevCenterXRatio": 0.02,
+              "maxStddevCenterYRatio": 0.02
+            },
+            "jitter": {
+              "maxMeanCenterDeltaPx": 10,
+              "maxP95CenterDeltaPx": 40
+            },
+            "style": {
+              "maxBboxHeightCv": 0.25,
+              "maxBboxAreaCv": 0.4
+            },
+            "pass": {
+              "minOverall": 0.75,
+              "minCoverageRatio": 0.6,
+              "maxFlickerEvents": 1
+            }
+          },
+          "weights": {
+            "rhythm": 0.12,
+            "displayTime": 0.08,
+            "coverage": 0.12,
+            "safeArea": 0.1,
+            "density": 0.06,
+            "punctuation": 0.04,
+            "capitalization": 0.03,
+            "alignment": 0.06,
+            "placement": 0.06,
+            "jitter": 0.08,
+            "style": 0.05,
+            "redundancy": 0.05,
+            "segmentation": 0.06,
+            "ocrConfidence": 0.09
+          },
+          "overall": {
+            "score": 0.3872347682961655,
+            "passed": false
+          },
+          "segments": [
+            {
+              "text": "| PP\nA 2",
+              "normalizedText": "| PP A 2",
+              "startSeconds": 0,
+              "endSeconds": 0.5,
+              "durationSeconds": 0.5,
+              "wordCount": 4,
+              "lineCount": 2,
+              "maxCharsPerLine": 4,
+              "meanConfidence": 0.45,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "#4\new",
+              "normalizedText": "#4 ew",
+              "startSeconds": 0.5,
+              "endSeconds": 1,
+              "durationSeconds": 0.5,
+              "wordCount": 2,
+              "lineCount": 2,
+              "maxCharsPerLine": 2,
+              "meanConfidence": 0.28,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "8 \"i\nLavd",
+              "normalizedText": "8 \"i Lavd",
+              "startSeconds": 1,
+              "endSeconds": 1.5,
+              "durationSeconds": 0.5,
+              "wordCount": 3,
+              "lineCount": 2,
+              "maxCharsPerLine": 4,
+              "meanConfidence": 0.17,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1064,
+                "y1": 1920
+              },
+              "center": {
+                "x": 532,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 715008
+            },
+            {
+              "text": "Joni FS\n§ WP, »",
+              "normalizedText": "Joni FS § WP, »",
+              "startSeconds": 1.5,
+              "endSeconds": 2,
+              "durationSeconds": 0.5,
+              "wordCount": 5,
+              "lineCount": 2,
+              "maxCharsPerLine": 7,
+              "meanConfidence": 0.31,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1634
+              },
+              "center": {
+                "x": 540,
+                "y": 1441
+              },
+              "bboxHeightPx": 386,
+              "bboxAreaPx": 416880
+            },
+            {
+              "text": "oN\n7 JR",
+              "normalizedText": "oN 7 JR",
+              "startSeconds": 2,
+              "endSeconds": 2.5,
+              "durationSeconds": 0.5,
+              "wordCount": 3,
+              "lineCount": 2,
+              "maxCharsPerLine": 4,
+              "meanConfidence": 0.36,
+              "bbox": {
+                "x0": 148,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 614,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 626304
+            },
+            {
+              "text": "h)\npa\nNY",
+              "normalizedText": "h) pa NY",
+              "startSeconds": 2.5,
+              "endSeconds": 3,
+              "durationSeconds": 0.5,
+              "wordCount": 3,
+              "lineCount": 3,
+              "maxCharsPerLine": 2,
+              "meanConfidence": 0.15,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "Ying",
+              "normalizedText": "Ying",
+              "startSeconds": 3,
+              "endSeconds": 3.5,
+              "durationSeconds": 0.5,
+              "wordCount": 1,
+              "lineCount": 1,
+              "maxCharsPerLine": 4,
+              "meanConfidence": 0.07,
+              "bbox": {
+                "x0": 70,
+                "y0": 1503,
+                "x1": 1080,
+                "y1": 1851
+              },
+              "center": {
+                "x": 575,
+                "y": 1677
+              },
+              "bboxHeightPx": 348,
+              "bboxAreaPx": 351480
+            },
+            {
+              "text": "\\ ry,",
+              "normalizedText": "\\ ry,",
+              "startSeconds": 3.5,
+              "endSeconds": 4,
+              "durationSeconds": 0.5,
+              "wordCount": 2,
+              "lineCount": 1,
+              "maxCharsPerLine": 5,
+              "meanConfidence": 0.39,
+              "bbox": {
+                "x0": 0,
+                "y0": 1355,
+                "x1": 1080,
+                "y1": 1837
+              },
+              "center": {
+                "x": 540,
+                "y": 1596
+              },
+              "bboxHeightPx": 482,
+              "bboxAreaPx": 520560
+            },
+            {
+              "text": "N 1m),",
+              "normalizedText": "N 1m),",
+              "startSeconds": 4,
+              "endSeconds": 4.5,
+              "durationSeconds": 0.5,
+              "wordCount": 2,
+              "lineCount": 1,
+              "maxCharsPerLine": 6,
+              "meanConfidence": 0.43,
+              "bbox": {
+                "x0": 0,
+                "y0": 1350,
+                "x1": 1080,
+                "y1": 1829
+              },
+              "center": {
+                "x": 540,
+                "y": 1589.5
+              },
+              "bboxHeightPx": 479,
+              "bboxAreaPx": 517320
+            },
+            {
+              "text": "Vimy,",
+              "normalizedText": "Vimy,",
+              "startSeconds": 4.5,
+              "endSeconds": 6,
+              "durationSeconds": 1.5,
+              "wordCount": 1,
+              "lineCount": 1,
+              "maxCharsPerLine": 5,
+              "meanConfidence": 0.49,
+              "bbox": {
+                "x0": 0,
+                "y0": 1344,
+                "x1": 1080,
+                "y1": 1844
+              },
+              "center": {
+                "x": 540,
+                "y": 1594
+              },
+              "bboxHeightPx": 500,
+              "bboxAreaPx": 540000
+            },
+            {
+              "text": "\\",
+              "normalizedText": "\\",
+              "startSeconds": 6,
+              "endSeconds": 6.5,
+              "durationSeconds": 0.5,
+              "wordCount": 1,
+              "lineCount": 1,
+              "maxCharsPerLine": 1,
+              "meanConfidence": 0.06,
+              "bbox": {
+                "x0": 0,
+                "y0": 1365,
+                "x1": 227,
+                "y1": 1695
+              },
+              "center": {
+                "x": 113.5,
+                "y": 1530
+              },
+              "bboxHeightPx": 330,
+              "bboxAreaPx": 74910
+            },
+            {
+              "text": "Vig",
+              "normalizedText": "Vig",
+              "startSeconds": 6.5,
+              "endSeconds": 7,
+              "durationSeconds": 0.5,
+              "wordCount": 1,
+              "lineCount": 1,
+              "maxCharsPerLine": 3,
+              "meanConfidence": 0.37,
+              "bbox": {
+                "x0": 46,
+                "y0": 1479,
+                "x1": 1080,
+                "y1": 1810
+              },
+              "center": {
+                "x": 563,
+                "y": 1644.5
+              },
+              "bboxHeightPx": 331,
+              "bboxAreaPx": 342254
+            },
+            {
+              "text": "Nim,",
+              "normalizedText": "Nim,",
+              "startSeconds": 7,
+              "endSeconds": 7.5,
+              "durationSeconds": 0.5,
+              "wordCount": 1,
+              "lineCount": 1,
+              "maxCharsPerLine": 4,
+              "meanConfidence": 0.28,
+              "bbox": {
+                "x0": 0,
+                "y0": 1374,
+                "x1": 1080,
+                "y1": 1813
+              },
+              "center": {
+                "x": 540,
+                "y": 1593.5
+              },
+              "bboxHeightPx": 439,
+              "bboxAreaPx": 474120
+            },
+            {
+              "text": "3\"",
+              "normalizedText": "3\"",
+              "startSeconds": 7.5,
+              "endSeconds": 8,
+              "durationSeconds": 0.5,
+              "wordCount": 1,
+              "lineCount": 1,
+              "maxCharsPerLine": 2,
+              "meanConfidence": 0.28,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "-— y",
+              "normalizedText": "-— y",
+              "startSeconds": 8,
+              "endSeconds": 8.5,
+              "durationSeconds": 0.5,
+              "wordCount": 2,
+              "lineCount": 1,
+              "maxCharsPerLine": 4,
+              "meanConfidence": 0.07,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1068,
+                "y1": 1920
+              },
+              "center": {
+                "x": 534,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 717696
+            },
+            {
+              "text": "| »\n4",
+              "normalizedText": "| » 4",
+              "startSeconds": 8.5,
+              "endSeconds": 9.5,
+              "durationSeconds": 1,
+              "wordCount": 3,
+              "lineCount": 2,
+              "maxCharsPerLine": 3,
+              "meanConfidence": 0.51,
+              "bbox": {
+                "x0": 167,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 623.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 613536
+            },
+            {
+              "text": "N",
+              "normalizedText": "N",
+              "startSeconds": 9.5,
+              "endSeconds": 10,
+              "durationSeconds": 0.5,
+              "wordCount": 1,
+              "lineCount": 1,
+              "maxCharsPerLine": 1,
+              "meanConfidence": 0.77,
+              "bbox": {
+                "x0": 805,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 942.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 184800
+            },
+            {
+              "text": "hL .\nN )\na",
+              "normalizedText": "hL . N ) a",
+              "startSeconds": 10,
+              "endSeconds": 10.5,
+              "durationSeconds": 0.5,
+              "wordCount": 5,
+              "lineCount": 3,
+              "maxCharsPerLine": 4,
+              "meanConfidence": 0.35,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1052,
+                "y1": 1920
+              },
+              "center": {
+                "x": 526,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 706944
+            },
+            {
+              "text": "«® i\noe",
+              "normalizedText": "«® i oe",
+              "startSeconds": 10.5,
+              "endSeconds": 11,
+              "durationSeconds": 0.5,
+              "wordCount": 3,
+              "lineCount": 2,
+              "maxCharsPerLine": 4,
+              "meanConfidence": 0.51,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1064,
+                "y1": 1920
+              },
+              "center": {
+                "x": 532,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 715008
+            },
+            {
+              "text": "- |\n1. UO",
+              "normalizedText": "- | 1. UO",
+              "startSeconds": 11,
+              "endSeconds": 11.5,
+              "durationSeconds": 0.5,
+              "wordCount": 4,
+              "lineCount": 2,
+              "maxCharsPerLine": 5,
+              "meanConfidence": 0.64,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1048,
+                "y1": 1920
+              },
+              "center": {
+                "x": 524,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 704256
+            },
+            {
+              "text": "all",
+              "normalizedText": "all",
+              "startSeconds": 11.5,
+              "endSeconds": 12,
+              "durationSeconds": 0.5,
+              "wordCount": 1,
+              "lineCount": 1,
+              "maxCharsPerLine": 3,
+              "meanConfidence": 0.5,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "Ls |\nwR",
+              "normalizedText": "Ls | wR",
+              "startSeconds": 12,
+              "endSeconds": 12.5,
+              "durationSeconds": 0.5,
+              "wordCount": 3,
+              "lineCount": 2,
+              "maxCharsPerLine": 4,
+              "meanConfidence": 0.33,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1071,
+                "y1": 1920
+              },
+              "center": {
+                "x": 535.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 719712
+            },
+            {
+              "text": "4",
+              "normalizedText": "4",
+              "startSeconds": 12.5,
+              "endSeconds": 13,
+              "durationSeconds": 0.5,
+              "wordCount": 1,
+              "lineCount": 1,
+              "maxCharsPerLine": 1,
+              "meanConfidence": 0.33,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "bi al\naml |",
+              "normalizedText": "bi al aml |",
+              "startSeconds": 13,
+              "endSeconds": 13.5,
+              "durationSeconds": 0.5,
+              "wordCount": 4,
+              "lineCount": 2,
+              "maxCharsPerLine": 5,
+              "meanConfidence": 0.33,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "A\nJ A\n‘wom J",
+              "normalizedText": "A J A ‘wom J",
+              "startSeconds": 13.5,
+              "endSeconds": 14,
+              "durationSeconds": 0.5,
+              "wordCount": 5,
+              "lineCount": 3,
+              "maxCharsPerLine": 6,
+              "meanConfidence": 0.36,
+              "bbox": {
+                "x0": 52,
+                "y0": 1248,
+                "x1": 1064,
+                "y1": 1920
+              },
+              "center": {
+                "x": 558,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 680064
+            },
+            {
+              "text": "Tad 4 |\ngr.\nwen",
+              "normalizedText": "Tad 4 | gr. wen",
+              "startSeconds": 14,
+              "endSeconds": 14.5,
+              "durationSeconds": 0.5,
+              "wordCount": 5,
+              "lineCount": 3,
+              "maxCharsPerLine": 7,
+              "meanConfidence": 0.53,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1079,
+                "y1": 1920
+              },
+              "center": {
+                "x": 539.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725088
+            },
+            {
+              "text": "ATH |\nId\nveh",
+              "normalizedText": "ATH | Id veh",
+              "startSeconds": 14.5,
+              "endSeconds": 15,
+              "durationSeconds": 0.5,
+              "wordCount": 4,
+              "lineCount": 3,
+              "maxCharsPerLine": 5,
+              "meanConfidence": 0.26,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 862,
+                "y1": 1920
+              },
+              "center": {
+                "x": 431,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 579264
+            },
+            {
+              "text": "| BE as",
+              "normalizedText": "| BE as",
+              "startSeconds": 15,
+              "endSeconds": 15.5,
+              "durationSeconds": 0.5,
+              "wordCount": 3,
+              "lineCount": 1,
+              "maxCharsPerLine": 7,
+              "meanConfidence": 0.59,
+              "bbox": {
+                "x0": 458,
+                "y0": 1825,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 769,
+                "y": 1872.5
+              },
+              "bboxHeightPx": 95,
+              "bboxAreaPx": 59090
+            },
+            {
+              "text": "Lr",
+              "normalizedText": "Lr",
+              "startSeconds": 15.5,
+              "endSeconds": 16,
+              "durationSeconds": 0.5,
+              "wordCount": 1,
+              "lineCount": 1,
+              "maxCharsPerLine": 2,
+              "meanConfidence": 0.4,
+              "bbox": {
+                "x0": 794,
+                "y0": 1821,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 937,
+                "y": 1870.5
+              },
+              "bboxHeightPx": 99,
+              "bboxAreaPx": 28314
+            },
+            {
+              "text": "\\\n4 | : 3",
+              "normalizedText": "\\ 4 | : 3",
+              "startSeconds": 16,
+              "endSeconds": 16.5,
+              "durationSeconds": 0.5,
+              "wordCount": 5,
+              "lineCount": 2,
+              "maxCharsPerLine": 7,
+              "meanConfidence": 0.68,
+              "bbox": {
+                "x0": 661,
+                "y0": 1751,
+                "x1": 996,
+                "y1": 1841
+              },
+              "center": {
+                "x": 828.5,
+                "y": 1796
+              },
+              "bboxHeightPx": 90,
+              "bboxAreaPx": 30150
+            },
+            {
+              "text": "A _-\nF 4 en\na",
+              "normalizedText": "A _- F 4 en a",
+              "startSeconds": 16.5,
+              "endSeconds": 17,
+              "durationSeconds": 0.5,
+              "wordCount": 6,
+              "lineCount": 3,
+              "maxCharsPerLine": 6,
+              "meanConfidence": 0.49,
+              "bbox": {
+                "x0": 644,
+                "y0": 1730,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 862,
+                "y": 1825
+              },
+              "bboxHeightPx": 190,
+              "bboxAreaPx": 82840
+            },
+            {
+              "text": "ditate with\ngine as many\neyes today.\nthe bell. k .\n1 LAY Ne\ners to his feet. He puts Yi\n1p. ¥ Yd\nE [ YF\n| \\\nIR ! ¥\n} nis\nJ\n| it iy\n— )\nJ 4.04 ol\ni ) . ’ Vhs\n» \"a b",
+              "normalizedText": "ditate with gine as many eyes today. the bell. k . 1 LAY Ne ers to his feet. He puts Yi 1p. ¥ Yd E [ YF | \\ IR ! ¥ } nis J | it iy — ) J 4.04 ol i ) . ’ Vhs » \"a b",
+              "startSeconds": 17.5,
+              "endSeconds": 18,
+              "durationSeconds": 0.5,
+              "wordCount": 51,
+              "lineCount": 17,
+              "maxCharsPerLine": 27,
+              "meanConfidence": 0.49,
+              "bbox": {
+                "x0": 0,
+                "y0": 1271,
+                "x1": 1080,
+                "y1": 1854
+              },
+              "center": {
+                "x": 540,
+                "y": 1562.5
+              },
+              "bboxHeightPx": 583,
+              "bboxAreaPx": 629640
+            },
+            {
+              "text": "’ (Bengali)\nWhy don’t you sit up and meditate with\nthe others and you can imagine as many\nbirds as you like.\nJAT\n(Bengali) per Ng\nI don’t want to close my eyes today.\nIsabel examines his precious face.\nISABEL\nOK. But help me with the bell. f\nJai smiles and excitedly scampers to his feet. He puts i\nhis hands out to help Isabel up. 4\nERT\n1\n4 [\n— 2: 14 Fi i\n—— rr — i\n. p- 1)\nSs» sd AAS\n- wo bt [ oe\n>",
+              "normalizedText": "’ (Bengali) Why don’t you sit up and meditate with the others and you can imagine as many birds as you like. JAT (Bengali) per Ng I don’t want to close my eyes today. Isabel examines his precious face. ISABEL OK. But help me with the bell. f Jai smiles and excitedly scampers to his feet. He puts i his hands out to help Isabel up. 4 ERT 1 4 [ — 2: 14 Fi i —— rr — i . p- 1) Ss» sd AAS - wo bt [ oe >",
+              "startSeconds": 18,
+              "endSeconds": 18.5,
+              "durationSeconds": 0.5,
+              "wordCount": 92,
+              "lineCount": 21,
+              "maxCharsPerLine": 56,
+              "meanConfidence": 0.73,
+              "bbox": {
+                "x0": 45,
+                "y0": 1249,
+                "x1": 1080,
+                "y1": 1912
+              },
+              "center": {
+                "x": 562.5,
+                "y": 1580.5
+              },
+              "bboxHeightPx": 663,
+              "bboxAreaPx": 686205
+            },
+            {
+              "text": "ey FT Th tad an 4 4\n> (Bengali)\nWhy don’t you sit up and meditate with\nthe others and you can imagine as many\nbirds as you like.\nJAI ;\n(Bengali) pel\nI don’t want to close my eyes today.\nIsabel examines his precious face.\nISABEL N\nOK. But help me with the bell. i\nvad,\nJai smiles and excitedly scampers to his feet. He puts | }\nhis hands out to help Isabel up. Nil\nRe Lit Ate\n3°\n{te 4 !\n1 1\n)\n— ~ A ri |\nS——\" JE\nEE\nSs i",
+              "normalizedText": "ey FT Th tad an 4 4 > (Bengali) Why don’t you sit up and meditate with the others and you can imagine as many birds as you like. JAI ; (Bengali) pel I don’t want to close my eyes today. Isabel examines his precious face. ISABEL N OK. But help me with the bell. i vad, Jai smiles and excitedly scampers to his feet. He puts | } his hands out to help Isabel up. Nil Re Lit Ate 3° {te 4 ! 1 1 ) — ~ A ri | S——\" JE EE Ss i",
+              "startSeconds": 18.5,
+              "endSeconds": 19,
+              "durationSeconds": 0.5,
+              "wordCount": 97,
+              "lineCount": 23,
+              "maxCharsPerLine": 58,
+              "meanConfidence": 0.73,
+              "bbox": {
+                "x0": 17,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1890
+              },
+              "center": {
+                "x": 548.5,
+                "y": 1569
+              },
+              "bboxHeightPx": 642,
+              "bboxAreaPx": 682446
+            },
+            {
+              "text": "re % 5 (sengalil) ! 4 J\n5 Why don’t you sit up and meditate with >\nthe others and you can imagine as many |\nbig you like.\n—\nJ i Less 21 Bh\n3enga) he hq '\nwant 2 my eyes today. i 3: t AR\n4 4 ia Ww\n1 ef his py ace \\ de it |\np me\n/ L £7 £1\n4 y But Hf ith 11. EI. ay\ni sf 1 ex samy iis feet. He puts DA. 3%\nJ s toll el i 4 f ,\nLin HE\n4 HELGA:\ni p +R\n; he F510\n/ N : y 5\n4 / ale)\n- \\ a\"\nf } haa ’\n) Teeny padi",
+              "normalizedText": "re % 5 (sengalil) ! 4 J 5 Why don’t you sit up and meditate with > the others and you can imagine as many | big you like. — J i Less 21 Bh 3enga) he hq ' want 2 my eyes today. i 3: t AR 4 4 ia Ww 1 ef his py ace \\ de it | p me / L £7 £1 4 y But Hf ith 11. EI. ay i sf 1 ex samy iis feet. He puts DA. 3% J s toll el i 4 f , Lin HE 4 HELGA: i p +R ; he F510 / N : y 5 4 / ale) - \\ a\" f } haa ’ ) Teeny padi",
+              "startSeconds": 19,
+              "endSeconds": 19.5,
+              "durationSeconds": 0.5,
+              "wordCount": 122,
+              "lineCount": 24,
+              "maxCharsPerLine": 42,
+              "meanConfidence": 0.51,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1068,
+                "y1": 1872
+              },
+              "center": {
+                "x": 534,
+                "y": 1560
+              },
+              "bboxHeightPx": 624,
+              "bboxAreaPx": 666432
+            },
+            {
+              "text": "0\") 4a. Why don’t you sit up and meditate with i\nthe otj and you can imagine as many \\\nbirds like.\nJAI 3. 1 3\n4 ali) yperin bt\nI E © se my eyes today. ') 38 dB\n3 reg ace. i Py /:\n£7 4 1\n[ . 1p} the bell. bh 3h\n2s ed ers to his feet. He puts CS Jif\n] 3 bo. Lv] Yi\n5 = | 2\nMRE\n) LY\nfot, ®\n“he\nfa dal a\nPp pel |\nV 7 \\ £4\n— LL TET »",
+              "normalizedText": "0\") 4a. Why don’t you sit up and meditate with i the otj and you can imagine as many \\ birds like. JAI 3. 1 3 4 ali) yperin bt I E © se my eyes today. ') 38 dB 3 reg ace. i Py /: £7 4 1 [ . 1p} the bell. bh 3h 2s ed ers to his feet. He puts CS Jif ] 3 bo. Lv] Yi 5 = | 2 MRE ) LY fot, ® “he fa dal a Pp pel | V 7 \\ £4 — LL TET »",
+              "startSeconds": 19.5,
+              "endSeconds": 20,
+              "durationSeconds": 0.5,
+              "wordCount": 95,
+              "lineCount": 20,
+              "maxCharsPerLine": 48,
+              "meanConfidence": 0.55,
+              "bbox": {
+                "x0": 29,
+                "y0": 1248,
+                "x1": 1078,
+                "y1": 1866
+              },
+              "center": {
+                "x": 553.5,
+                "y": 1557
+              },
+              "bboxHeightPx": 618,
+              "bboxAreaPx": 648282
+            },
+            {
+              "text": "” (Bengali) i i\n— my don’t you sit up and meditate with\nthe others and you can imagine as many\nbirdaes you like.\n~— ————\nJAI Te\nengali) peri }\n1 vagiito close my eyes today.\n:\nex 1 ous face.\nABEL\ny with the bell. 4 @\nxt scampers to his feet. He puts LUNA\n/ 5 vel up. a\n. {\n; :",
+              "normalizedText": "” (Bengali) i i — my don’t you sit up and meditate with the others and you can imagine as many birdaes you like. ~— ———— JAI Te engali) peri } 1 vagiito close my eyes today. : ex 1 ous face. ABEL y with the bell. 4 @ xt scampers to his feet. He puts LUNA / 5 vel up. a . { ; :",
+              "startSeconds": 20,
+              "endSeconds": 20.5,
+              "durationSeconds": 0.5,
+              "wordCount": 66,
+              "lineCount": 16,
+              "maxCharsPerLine": 39,
+              "meanConfidence": 0.66,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 985,
+                "y1": 1920
+              },
+              "center": {
+                "x": 492.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 661920
+            },
+            {
+              "text": "Sn Teenais LI ASENLL SEP J:\n. t (Bengali)\nX Why don’t you sit up and meditate with\nthe others and you can imagine as many\nbirds as you like.\n— CC ———\nJAI ! FE\nngali) pC\nI ant to close my eyes today.\n$3 ous face.\n| ABEL, -,\nwith the bell.\n/ -\n¢ i scampers to his feet. He puts ] 3\noel up.\n,\nd )",
+              "normalizedText": "Sn Teenais LI ASENLL SEP J: . t (Bengali) X Why don’t you sit up and meditate with the others and you can imagine as many birds as you like. — CC ——— JAI ! FE ngali) pC I ant to close my eyes today. $3 ous face. | ABEL, -, with the bell. / - ¢ i scampers to his feet. He puts ] 3 oel up. , d )",
+              "startSeconds": 20.5,
+              "endSeconds": 21,
+              "durationSeconds": 0.5,
+              "wordCount": 71,
+              "lineCount": 17,
+              "maxCharsPerLine": 40,
+              "meanConfidence": 0.7,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 970,
+                "y1": 1808
+              },
+              "center": {
+                "x": 485,
+                "y": 1528
+              },
+              "bboxHeightPx": 560,
+              "bboxAreaPx": 543200
+            },
+            {
+              "text": "Sa Wertman ad i) Nnen lB |\npo - (Bengali)\nX Why don’t you sit up and meditate with\nthe others and you can imagine as many\nbirds as you like.\n—~—— —\nJAL “\nngali) “AcSpering\nI ant to close my eyes today.\n# ous face. p-\nABEL\nwith the bell.\n/4 jcampers to his feet. He puts\noel up. [! N\\\n¢ 4 \\\nNe.\nES\nA\nd 3\n- 4\n|",
+              "normalizedText": "Sa Wertman ad i) Nnen lB | po - (Bengali) X Why don’t you sit up and meditate with the others and you can imagine as many birds as you like. —~—— — JAL “ ngali) “AcSpering I ant to close my eyes today. # ous face. p- ABEL with the bell. /4 jcampers to his feet. He puts oel up. [! N\\ ¢ 4 \\ Ne. ES A d 3 - 4 |",
+              "startSeconds": 21,
+              "endSeconds": 21.5,
+              "durationSeconds": 0.5,
+              "wordCount": 74,
+              "lineCount": 21,
+              "maxCharsPerLine": 40,
+              "meanConfidence": 0.7,
+              "bbox": {
+                "x0": 14,
+                "y0": 1248,
+                "x1": 1045,
+                "y1": 1920
+              },
+              "center": {
+                "x": 529.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 692832
+            },
+            {
+              "text": "-\npA poh ISABEL (CONT’D)\ny od (Bengali)\nX Why don’t you sit up and meditate with\nthe others and you can imagine as many\nbirds as you like.\na —\nJAT valde\ni) Wi (Spering\nto close my eyes today.\nF / I face. Lk -\n- F\n. 1 the bell. |\ni $ vers to his feet. He puts\nd ap.\ny\n;\nJ f\n|\nFr",
+              "normalizedText": "- pA poh ISABEL (CONT’D) y od (Bengali) X Why don’t you sit up and meditate with the others and you can imagine as many birds as you like. a — JAT valde i) Wi (Spering to close my eyes today. F / I face. Lk - - F . 1 the bell. | i $ vers to his feet. He puts d ap. y ; J f | Fr",
+              "startSeconds": 21.5,
+              "endSeconds": 22,
+              "durationSeconds": 0.5,
+              "wordCount": 70,
+              "lineCount": 20,
+              "maxCharsPerLine": 40,
+              "meanConfidence": 0.64,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1014,
+                "y1": 1920
+              },
+              "center": {
+                "x": 507,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 681408
+            },
+            {
+              "text": "Sha a diy | ISABEL (CONT'D) F\n¢ oll As (Bengali)\n204 Why don’t you sit up and meditate with\n{ the others and you can imagine as many\nbirds as you like. |\n(Bed # e y\nI don’t Fr\nIsabel exami\nBe\nx»\n4 r Fad\nI\n\" F\nfi\ni! “.\nI",
+              "normalizedText": "Sha a diy | ISABEL (CONT'D) F ¢ oll As (Bengali) 204 Why don’t you sit up and meditate with { the others and you can imagine as many birds as you like. | (Bed # e y I don’t Fr Isabel exami Be x» 4 r Fad I \" F fi i! “. I",
+              "startSeconds": 22,
+              "endSeconds": 22.5,
+              "durationSeconds": 0.5,
+              "wordCount": 55,
+              "lineCount": 16,
+              "maxCharsPerLine": 42,
+              "meanConfidence": 0.58,
+              "bbox": {
+                "x0": 4,
+                "y0": 1248,
+                "x1": 950,
+                "y1": 1808
+              },
+              "center": {
+                "x": 477,
+                "y": 1528
+              },
+              "bboxHeightPx": 560,
+              "bboxAreaPx": 529760
+            },
+            {
+              "text": "v L\nbp Aden 4 ISABEL (CONT’D)\n: Ar (Bengali) R\n- 0 Why don’t you sit up and meditate\n0 the others and You can imagine as s\nbirds as you like.\ny A\nIsabel e =\n4\nz the!\nIe j a 4 :\nrr ,\nbe,\ngy 5\" |",
+              "normalizedText": "v L bp Aden 4 ISABEL (CONT’D) : Ar (Bengali) R - 0 Why don’t you sit up and meditate 0 the others and You can imagine as s birds as you like. y A Isabel e = 4 z the! Ie j a 4 : rr , be, gy 5\" |",
+              "startSeconds": 22.5,
+              "endSeconds": 23,
+              "durationSeconds": 0.5,
+              "wordCount": 52,
+              "lineCount": 14,
+              "maxCharsPerLine": 37,
+              "meanConfidence": 0.6,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1032,
+                "y1": 1831
+              },
+              "center": {
+                "x": 516,
+                "y": 1539.5
+              },
+              "bboxHeightPx": 583,
+              "bboxAreaPx": 601656
+            },
+            {
+              "text": "Yala SEMANA. {ELE !\nFiat (Bengali)\n0M Why don’t you sit up and meditate with\n¢ the others and you can imagine as F\nbirds as you like. i\n12 ny\np day, R\n4 4 p Q\nIsabel ex; i \\—y\n\\ 4 he A\n- = ) :\n3 J If »\nF .\n- j— 1 p",
+              "normalizedText": "Yala SEMANA. {ELE ! Fiat (Bengali) 0M Why don’t you sit up and meditate with ¢ the others and you can imagine as F birds as you like. i 12 ny p day, R 4 4 p Q Isabel ex; i \\—y \\ 4 he A - = ) : 3 J If » F . - j— 1 p",
+              "startSeconds": 23,
+              "endSeconds": 23.5,
+              "durationSeconds": 0.5,
+              "wordCount": 60,
+              "lineCount": 14,
+              "maxCharsPerLine": 41,
+              "meanConfidence": 0.61,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1035,
+                "y1": 1920
+              },
+              "center": {
+                "x": 517.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 695520
+            },
+            {
+              "text": "May occasionally generate incorrect information\nMay occasionally produce harmful instructions or biased content\nLimited knowledge of world and events after 2021\n’T Mar 14 Version. Free Research Preview. Our goal is to make Al systems more natural a\nto interact with. Your feedback will help us improve.",
+              "normalizedText": "May occasionally generate incorrect information May occasionally produce harmful instructions or biased content Limited knowledge of world and events after 2021 ’T Mar 14 Version. Free Research Preview. Our goal is to make Al systems more natural a to interact with. Your feedback will help us improve.",
+              "startSeconds": 23.5,
+              "endSeconds": 24.5,
+              "durationSeconds": 1,
+              "wordCount": 47,
+              "lineCount": 5,
+              "maxCharsPerLine": 87,
+              "meanConfidence": 0.93,
+              "bbox": {
+                "x0": 0,
+                "y0": 1274,
+                "x1": 1076,
+                "y1": 1901
+              },
+              "center": {
+                "x": 538,
+                "y": 1587.5
+              },
+              "bboxHeightPx": 627,
+              "bboxAreaPx": 674652
+            },
+            {
+              "text": "May occasionally generate incorrect information\nMay occasionally produce harmful instructions or biased content\nLimited knowledge of world and events after 2021\nan you give me one example of a free stock image providers beginnin\nthe letter 'P'? X\n’T Mar 14 Version. Free Research Preview. Our goal is to make Al systems more natural a\nto interact with. Your feedback will help us improve.",
+              "normalizedText": "May occasionally generate incorrect information May occasionally produce harmful instructions or biased content Limited knowledge of world and events after 2021 an you give me one example of a free stock image providers beginnin the letter 'P'? X ’T Mar 14 Version. Free Research Preview. Our goal is to make Al systems more natural a to interact with. Your feedback will help us improve.",
+              "startSeconds": 24.5,
+              "endSeconds": 27,
+              "durationSeconds": 2.5,
+              "wordCount": 64,
+              "lineCount": 7,
+              "maxCharsPerLine": 87,
+              "meanConfidence": 0.924,
+              "bbox": {
+                "x0": 0,
+                "y0": 1274,
+                "x1": 1080,
+                "y1": 1901
+              },
+              "center": {
+                "x": 540,
+                "y": 1587.5
+              },
+              "bboxHeightPx": 627,
+              "bboxAreaPx": 677160
+            },
+            {
+              "text": "’T Mar 14 Version. Free Research Preview. Our goal is to make Al systems more natural a\nto interact with. Your feedback will help us improve.",
+              "normalizedText": "’T Mar 14 Version. Free Research Preview. Our goal is to make Al systems more natural a to interact with. Your feedback will help us improve.",
+              "startSeconds": 27,
+              "endSeconds": 32,
+              "durationSeconds": 5,
+              "wordCount": 26,
+              "lineCount": 2,
+              "maxCharsPerLine": 87,
+              "meanConfidence": 0.9289999999999999,
+              "bbox": {
+                "x0": 0,
+                "y0": 1843,
+                "x1": 1080,
+                "y1": 1903
+              },
+              "center": {
+                "x": 540,
+                "y": 1873
+              },
+              "bboxHeightPx": 60,
+              "bboxAreaPx": 64800
+            },
+            {
+              "text": "» a\nal",
+              "normalizedText": "» a al",
+              "startSeconds": 32,
+              "endSeconds": 32.5,
+              "durationSeconds": 0.5,
+              "wordCount": 3,
+              "lineCount": 2,
+              "maxCharsPerLine": 3,
+              "meanConfidence": 0.21,
+              "bbox": {
+                "x0": 0,
+                "y0": 1294,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1607
+              },
+              "bboxHeightPx": 626,
+              "bboxAreaPx": 676080
+            },
+            {
+              "text": "~\nPim. 25 |\n. hy",
+              "normalizedText": "~ Pim. 25 | . hy",
+              "startSeconds": 32.5,
+              "endSeconds": 33,
+              "durationSeconds": 0.5,
+              "wordCount": 6,
+              "lineCount": 3,
+              "maxCharsPerLine": 9,
+              "meanConfidence": 0.3,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1538
+              },
+              "center": {
+                "x": 540,
+                "y": 1393
+              },
+              "bboxHeightPx": 290,
+              "bboxAreaPx": 313200
+            },
+            {
+              "text": "<od :\n==\nCo —",
+              "normalizedText": "<od : == Co —",
+              "startSeconds": 33.5,
+              "endSeconds": 34,
+              "durationSeconds": 0.5,
+              "wordCount": 5,
+              "lineCount": 3,
+              "maxCharsPerLine": 5,
+              "meanConfidence": 0.3,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "OQ\n|",
+              "normalizedText": "OQ |",
+              "startSeconds": 34,
+              "endSeconds": 34.5,
+              "durationSeconds": 0.5,
+              "wordCount": 2,
+              "lineCount": 2,
+              "maxCharsPerLine": 2,
+              "meanConfidence": 0.12,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 800,
+                "y1": 1920
+              },
+              "center": {
+                "x": 400,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 537600
+            },
+            {
+              "text": ". TARE\n¥/\n- i.",
+              "normalizedText": ". TARE ¥/ - i.",
+              "startSeconds": 34.5,
+              "endSeconds": 35,
+              "durationSeconds": 0.5,
+              "wordCount": 5,
+              "lineCount": 3,
+              "maxCharsPerLine": 6,
+              "meanConfidence": 0.39,
+              "bbox": {
+                "x0": 0,
+                "y0": 1286,
+                "x1": 758,
+                "y1": 1920
+              },
+              "center": {
+                "x": 379,
+                "y": 1603
+              },
+              "bboxHeightPx": 634,
+              "bboxAreaPx": 480572
+            },
+            {
+              "text": "OF | /",
+              "normalizedText": "OF | /",
+              "startSeconds": 35,
+              "endSeconds": 35.5,
+              "durationSeconds": 0.5,
+              "wordCount": 3,
+              "lineCount": 1,
+              "maxCharsPerLine": 6,
+              "meanConfidence": 0.52,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 832,
+                "y1": 1834
+              },
+              "center": {
+                "x": 416,
+                "y": 1541
+              },
+              "bboxHeightPx": 586,
+              "bboxAreaPx": 487552
+            },
+            {
+              "text": "J",
+              "normalizedText": "J",
+              "startSeconds": 35.5,
+              "endSeconds": 36,
+              "durationSeconds": 0.5,
+              "wordCount": 1,
+              "lineCount": 1,
+              "maxCharsPerLine": 1,
+              "meanConfidence": 0.68,
+              "bbox": {
+                "x0": 246,
+                "y0": 1248,
+                "x1": 909,
+                "y1": 1920
+              },
+              "center": {
+                "x": 577.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 445536
+            },
+            {
+              "text": "¥)\ngv. 4",
+              "normalizedText": "¥) gv. 4",
+              "startSeconds": 36,
+              "endSeconds": 36.5,
+              "durationSeconds": 0.5,
+              "wordCount": 3,
+              "lineCount": 2,
+              "maxCharsPerLine": 5,
+              "meanConfidence": 0.22,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 930,
+                "y1": 1920
+              },
+              "center": {
+                "x": 465,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 624960
+            },
+            {
+              "text": "J",
+              "normalizedText": "J",
+              "startSeconds": 36.5,
+              "endSeconds": 37.5,
+              "durationSeconds": 1,
+              "wordCount": 1,
+              "lineCount": 1,
+              "maxCharsPerLine": 1,
+              "meanConfidence": 0.295,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "CE |\nya",
+              "normalizedText": "CE | ya",
+              "startSeconds": 37.5,
+              "endSeconds": 38,
+              "durationSeconds": 0.5,
+              "wordCount": 3,
+              "lineCount": 2,
+              "maxCharsPerLine": 4,
+              "meanConfidence": 0.46,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "Aa\n—",
+              "normalizedText": "Aa —",
+              "startSeconds": 38,
+              "endSeconds": 38.5,
+              "durationSeconds": 0.5,
+              "wordCount": 2,
+              "lineCount": 2,
+              "maxCharsPerLine": 2,
+              "meanConfidence": 0.28,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 711,
+                "y1": 1920
+              },
+              "center": {
+                "x": 355.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 477792
+            },
+            {
+              "text": "4 od\nd",
+              "normalizedText": "4 od d",
+              "startSeconds": 38.5,
+              "endSeconds": 39,
+              "durationSeconds": 0.5,
+              "wordCount": 3,
+              "lineCount": 2,
+              "maxCharsPerLine": 4,
+              "meanConfidence": 0.33,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 585,
+                "y1": 1424
+              },
+              "center": {
+                "x": 292.5,
+                "y": 1336
+              },
+              "bboxHeightPx": 176,
+              "bboxAreaPx": 102960
+            },
+            {
+              "text": "y >\n\" |",
+              "normalizedText": "y > \" |",
+              "startSeconds": 39,
+              "endSeconds": 39.5,
+              "durationSeconds": 0.5,
+              "wordCount": 4,
+              "lineCount": 2,
+              "maxCharsPerLine": 3,
+              "meanConfidence": 0.27,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 526,
+                "y1": 1392
+              },
+              "center": {
+                "x": 263,
+                "y": 1320
+              },
+              "bboxHeightPx": 144,
+              "bboxAreaPx": 75744
+            },
+            {
+              "text": "py “rag XC",
+              "normalizedText": "py “rag XC",
+              "startSeconds": 39.5,
+              "endSeconds": 40,
+              "durationSeconds": 0.5,
+              "wordCount": 3,
+              "lineCount": 1,
+              "maxCharsPerLine": 10,
+              "meanConfidence": 0.24,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 726,
+                "y1": 1484
+              },
+              "center": {
+                "x": 363,
+                "y": 1366
+              },
+              "bboxHeightPx": 236,
+              "bboxAreaPx": 171336
+            },
+            {
+              "text": "Subp\nRe 4",
+              "normalizedText": "Subp Re 4",
+              "startSeconds": 40,
+              "endSeconds": 40.5,
+              "durationSeconds": 0.5,
+              "wordCount": 3,
+              "lineCount": 2,
+              "maxCharsPerLine": 4,
+              "meanConfidence": 0.41,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "- Me\n\n.\nd »\na",
+              "normalizedText": "- Me . d » a",
+              "startSeconds": 40.5,
+              "endSeconds": 41,
+              "durationSeconds": 0.5,
+              "wordCount": 6,
+              "lineCount": 4,
+              "maxCharsPerLine": 4,
+              "meanConfidence": 0.1,
+              "bbox": {
+                "x0": 316,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 698,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 513408
+            },
+            {
+              "text": "| —— | | > |\nyr",
+              "normalizedText": "| —— | | > | yr",
+              "startSeconds": 41.5,
+              "endSeconds": 42,
+              "durationSeconds": 0.5,
+              "wordCount": 7,
+              "lineCount": 2,
+              "maxCharsPerLine": 12,
+              "meanConfidence": 0.53,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1073,
+                "y1": 1920
+              },
+              "center": {
+                "x": 536.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 721056
+            },
+            {
+              "text": "-— an | ales\nA | ams —\nA T—-— JPR",
+              "normalizedText": "-— an | ales A | ams — A T—-— JPR",
+              "startSeconds": 42,
+              "endSeconds": 42.5,
+              "durationSeconds": 0.5,
+              "wordCount": 11,
+              "lineCount": 3,
+              "maxCharsPerLine": 12,
+              "meanConfidence": 0.35,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1067,
+                "y1": 1920
+              },
+              "center": {
+                "x": 533.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 717024
+            },
+            {
+              "text": "0] | | \\ f\nP—E —— | :\nee Ln y =e fr",
+              "normalizedText": "0] | | \\ f P—E —— | : ee Ln y =e fr",
+              "startSeconds": 42.5,
+              "endSeconds": 43,
+              "durationSeconds": 0.5,
+              "wordCount": 14,
+              "lineCount": 3,
+              "maxCharsPerLine": 13,
+              "meanConfidence": 0.37,
+              "bbox": {
+                "x0": 50,
+                "y0": 1335,
+                "x1": 1026,
+                "y1": 1622
+              },
+              "center": {
+                "x": 538,
+                "y": 1478.5
+              },
+              "bboxHeightPx": 287,
+              "bboxAreaPx": 280112
+            },
+            {
+              "text": "mo pm",
+              "normalizedText": "mo pm",
+              "startSeconds": 43,
+              "endSeconds": 43.5,
+              "durationSeconds": 0.5,
+              "wordCount": 2,
+              "lineCount": 1,
+              "maxCharsPerLine": 5,
+              "meanConfidence": 0.37,
+              "bbox": {
+                "x0": 50,
+                "y0": 1367,
+                "x1": 952,
+                "y1": 1535
+              },
+              "center": {
+                "x": 501,
+                "y": 1451
+              },
+              "bboxHeightPx": 168,
+              "bboxAreaPx": 151536
+            },
+            {
+              "text": "BE A Je i+ - —\nNa pr",
+              "normalizedText": "BE A Je i+ - — Na pr",
+              "startSeconds": 43.5,
+              "endSeconds": 44,
+              "durationSeconds": 0.5,
+              "wordCount": 8,
+              "lineCount": 2,
+              "maxCharsPerLine": 14,
+              "meanConfidence": 0.29,
+              "bbox": {
+                "x0": 0,
+                "y0": 1545,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1732.5
+              },
+              "bboxHeightPx": 375,
+              "bboxAreaPx": 405000
+            },
+            {
+              "text": "p:\nLoh",
+              "normalizedText": "p: Loh",
+              "startSeconds": 44,
+              "endSeconds": 44.5,
+              "durationSeconds": 0.5,
+              "wordCount": 2,
+              "lineCount": 2,
+              "maxCharsPerLine": 3,
+              "meanConfidence": 0.1,
+              "bbox": {
+                "x0": 263,
+                "y0": 1261,
+                "x1": 1030,
+                "y1": 1920
+              },
+              "center": {
+                "x": 646.5,
+                "y": 1590.5
+              },
+              "bboxHeightPx": 659,
+              "bboxAreaPx": 505453
+            },
+            {
+              "text": "BE a - =~ —",
+              "normalizedText": "BE a - =~ —",
+              "startSeconds": 44.5,
+              "endSeconds": 45,
+              "durationSeconds": 0.5,
+              "wordCount": 5,
+              "lineCount": 1,
+              "maxCharsPerLine": 11,
+              "meanConfidence": 0.18,
+              "bbox": {
+                "x0": 159,
+                "y0": 1545,
+                "x1": 1020,
+                "y1": 1627
+              },
+              "center": {
+                "x": 589.5,
+                "y": 1586
+              },
+              "bboxHeightPx": 82,
+              "bboxAreaPx": 70602
+            },
+            {
+              "text": "Sa a = 7 = - ==\nh— pr",
+              "normalizedText": "Sa a = 7 = - == h— pr",
+              "startSeconds": 45,
+              "endSeconds": 45.5,
+              "durationSeconds": 0.5,
+              "wordCount": 9,
+              "lineCount": 2,
+              "maxCharsPerLine": 15,
+              "meanConfidence": 0.35,
+              "bbox": {
+                "x0": 0,
+                "y0": 1511,
+                "x1": 1078,
+                "y1": 1920
+              },
+              "center": {
+                "x": 539,
+                "y": 1715.5
+              },
+              "bboxHeightPx": 409,
+              "bboxAreaPx": 440902
+            },
+            {
+              "text": "—_— a.\n-o a x NL Et",
+              "normalizedText": "—_— a. -o a x NL Et",
+              "startSeconds": 45.5,
+              "endSeconds": 46,
+              "durationSeconds": 0.5,
+              "wordCount": 7,
+              "lineCount": 2,
+              "maxCharsPerLine": 12,
+              "meanConfidence": 0.25,
+              "bbox": {
+                "x0": 159,
+                "y0": 1356,
+                "x1": 1022,
+                "y1": 1628
+              },
+              "center": {
+                "x": 590.5,
+                "y": 1492
+              },
+              "bboxHeightPx": 272,
+              "bboxAreaPx": 234736
+            },
+            {
+              "text": ". pre g\n2 a py” YU",
+              "normalizedText": ". pre g 2 a py” YU",
+              "startSeconds": 46.5,
+              "endSeconds": 47,
+              "durationSeconds": 0.5,
+              "wordCount": 7,
+              "lineCount": 2,
+              "maxCharsPerLine": 10,
+              "meanConfidence": 0.3,
+              "bbox": {
+                "x0": 160,
+                "y0": 1403,
+                "x1": 953,
+                "y1": 1572
+              },
+              "center": {
+                "x": 556.5,
+                "y": 1487.5
+              },
+              "bboxHeightPx": 169,
+              "bboxAreaPx": 134017
+            },
+            {
+              "text": "\\ ig\n- a )",
+              "normalizedText": "\\ ig - a )",
+              "startSeconds": 47,
+              "endSeconds": 47.5,
+              "durationSeconds": 0.5,
+              "wordCount": 5,
+              "lineCount": 2,
+              "maxCharsPerLine": 5,
+              "meanConfidence": 0.23,
+              "bbox": {
+                "x0": 157,
+                "y0": 1544,
+                "x1": 1052,
+                "y1": 1679
+              },
+              "center": {
+                "x": 604.5,
+                "y": 1611.5
+              },
+              "bboxHeightPx": 135,
+              "bboxAreaPx": 120825
+            },
+            {
+              "text": "Bl Zi Bi\nTeeore eal =\n£ ” [ Iv | y",
+              "normalizedText": "Bl Zi Bi Teeore eal = £ ” [ Iv | y",
+              "startSeconds": 47.5,
+              "endSeconds": 48,
+              "durationSeconds": 0.5,
+              "wordCount": 12,
+              "lineCount": 3,
+              "maxCharsPerLine": 12,
+              "meanConfidence": 0.43,
+              "bbox": {
+                "x0": 11,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 545.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 718368
+            },
+            {
+              "text": "e—\nPecreiansae uo\n-w_ (1",
+              "normalizedText": "e— Pecreiansae uo -w_ (1",
+              "startSeconds": 48,
+              "endSeconds": 48.5,
+              "durationSeconds": 0.5,
+              "wordCount": 5,
+              "lineCount": 3,
+              "maxCharsPerLine": 14,
+              "meanConfidence": 0.17,
+              "bbox": {
+                "x0": 11,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 545.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 718368
+            },
+            {
+              "text": "| c——l 7\n7] ELEY Fr Ta . _—\n- 4\" _— \\\n» : —_—y |\n* rs ae L on\nA on wp = =; =\n\" [ BY |",
+              "normalizedText": "| c——l 7 7] ELEY Fr Ta . _— - 4\" _— \\ » : —_—y | * rs ae L on A on wp = =; = \" [ BY |",
+              "startSeconds": 48.5,
+              "endSeconds": 49.5,
+              "durationSeconds": 1,
+              "wordCount": 32,
+              "lineCount": 7,
+              "maxCharsPerLine": 18,
+              "meanConfidence": 0.385,
+              "bbox": {
+                "x0": 11,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 545.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 718368
+            },
+            {
+              "text": "| ——l 7\n7] ELEY Fr Ta . _—\n- 4\" _— \\\n» : _—y |\n* rs ae L on\ncoun ie =; _\n\" [ |",
+              "normalizedText": "| ——l 7 7] ELEY Fr Ta . _— - 4\" _— \\ » : _—y | * rs ae L on coun ie =; _ \" [ |",
+              "startSeconds": 49.5,
+              "endSeconds": 50,
+              "durationSeconds": 0.5,
+              "wordCount": 29,
+              "lineCount": 7,
+              "maxCharsPerLine": 18,
+              "meanConfidence": 0.35,
+              "bbox": {
+                "x0": 11,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 545.5,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 718368
+            },
+            {
+              "text": "fe ar EINE 7 i 3 BE GE fe. Fd\n\n$ ERS SAGER 1 shi\n\nv Sear pres, SERMTTES tHE 2 CAA\n\nws fs SGI HAR ENR RG WEEE tas\ni = RCRA i TE REAR ees\n“i NE E. RY CES RE RE\n\net ded) CARERS RE LES\nEN - TET CARR ¢ LIBRE EL TL\npA BONE Tv un a |\nhs Ge a ROTI IRR\nMe jo Alara ss, ERE HR\nap § ! RRIsRR ice Nip Laut oY\nj : : - ET SEES So\nSR \\ “4 . | i 3 = ges io a Pe 3 Pin\nMe eH NEE UIST WL RY\not i aie ARN: COE\nBe THT ah SRSLARY Chee\nhea 5: he TS ge\n| pty : at Ca eed\nWEL Sit je. I~ i SRA, ES\nAR EN les ’ . ic Cu PARR © hs a\nEE\nSCI ) aE SUSIE Ln\nSd il LX 5 IE Se Ah eA +\nNe Tiie RG Ca hg hy AR EY 8 WIRY 8 I\n5 IPTG\nA [3 Ga \\ 3 Hora! Fu $x iH 53 wr EE\nPRT. ots BR ro a FN Blmatell AY pope Cty, ER\n_— \\\\ Ty ANUS tlw\nRCE <a FE A Ro BERN na CL er CR",
+              "normalizedText": "fe ar EINE 7 i 3 BE GE fe. Fd $ ERS SAGER 1 shi v Sear pres, SERMTTES tHE 2 CAA ws fs SGI HAR ENR RG WEEE tas i = RCRA i TE REAR ees “i NE E. RY CES RE RE et ded) CARERS RE LES EN - TET CARR ¢ LIBRE EL TL pA BONE Tv un a | hs Ge a ROTI IRR Me jo Alara ss, ERE HR ap § ! RRIsRR ice Nip Laut oY j : : - ET SEES So SR \\ “4 . | i 3 = ges io a Pe 3 Pin Me eH NEE UIST WL RY ot i aie ARN: COE Be THT ah SRSLARY Chee hea 5: he TS ge | pty : at Ca eed WEL Sit je. I~ i SRA, ES AR EN les ’ . ic Cu PARR © hs a EE SCI ) aE SUSIE Ln Sd il LX 5 IE Se Ah eA + Ne Tiie RG Ca hg hy AR EY 8 WIRY 8 I 5 IPTG A [3 Ga \\ 3 Hora! Fu $x iH 53 wr EE PRT. ots BR ro a FN Blmatell AY pope Cty, ER _— \\\\ Ty ANUS tlw RCE <a FE A Ro BERN na CL er CR",
+              "startSeconds": 50,
+              "endSeconds": 50.5,
+              "durationSeconds": 0.5,
+              "wordCount": 215,
+              "lineCount": 30,
+              "maxCharsPerLine": 44,
+              "meanConfidence": 0.21,
+              "bbox": {
+                "x0": 0,
+                "y0": 1277,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1598.5
+              },
+              "bboxHeightPx": 643,
+              "bboxAreaPx": 694440
+            },
+            {
+              "text": "p F . 1 EERE acl § Ro JR 2 =i)\n\\ ww AREER £ CORE Ne id\ng: fails Nhe\ni } Fr AAT RR 30 He\nEta EARNS TERR i AE,\n. SE RL a ot SE FR\ni i . i NREL Ce et BR\nBE BE ETE AT\nEr CTR BE rs oR\nEE EY Yo Ro Re\n4 he 4 Eig pa i Ey 2 i 5 eT bs; is\n; EEE Pon Seb SERRA RTS\nGL \" ba Tl Se :\nRIE + 2d LF Chae Ty SR pes SURE JERS ’ ve\nSEG. 0 FETE ede\nRL _ Pe BREN re\nETRE 55 iin Bea\nBt. 8 _ JR BERNIE Elio pol\nAB EE fo RT Ae NE BERN a Scale\nSRT ag ao, L\\ -. SE Het Bak AE\nCa\nRE i re aah aA IRR a\na ae . JERS | TE Hod fd Te AR a\nIE. Ne\nIEEE Woe a aes ; fig Ee\npS SRE SE \\ § SHS FANE CH CL Ceitis Ba",
+              "normalizedText": "p F . 1 EERE acl § Ro JR 2 =i) \\ ww AREER £ CORE Ne id g: fails Nhe i } Fr AAT RR 30 He Eta EARNS TERR i AE, . SE RL a ot SE FR i i . i NREL Ce et BR BE BE ETE AT Er CTR BE rs oR EE EY Yo Ro Re 4 he 4 Eig pa i Ey 2 i 5 eT bs; is ; EEE Pon Seb SERRA RTS GL \" ba Tl Se : RIE + 2d LF Chae Ty SR pes SURE JERS ’ ve SEG. 0 FETE ede RL _ Pe BREN re ETRE 55 iin Bea Bt. 8 _ JR BERNIE Elio pol AB EE fo RT Ae NE BERN a Scale SRT ag ao, L\\ -. SE Het Bak AE Ca RE i re aah aA IRR a a ae . JERS | TE Hod fd Te AR a IE. Ne IEEE Woe a aes ; fig Ee pS SRE SE \\ § SHS FANE CH CL Ceitis Ba",
+              "startSeconds": 50.5,
+              "endSeconds": 51,
+              "durationSeconds": 0.5,
+              "wordCount": 176,
+              "lineCount": 26,
+              "maxCharsPerLine": 41,
+              "meanConfidence": 0.21,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "Pirlo shel 0-3 SENTRS\noF | REE Preis Iie BS hela RE\nEF | A Suh IRE ts MERE\nge 2 Leh LSE CRA IEEINIRT AIT\nBs V] Rfoicy! See bE, ae Ba I vp\nE be 1 TR RIK Li YE |\naE 3 wd BIL artes WHERE Dosa odit\nrs NTRS Me biggies 3 RRC ARE\n+ . IR TALL\na a NE re J RR EL Lun 85\n} - : Ea a ws v SRR 3 ok gi EN v2 > J ¥d «\n[A - > ’ Tas ab A pf TEEN RABE A oo\na Tr = . bo a.Y Fri Bor gy PBC\nPls pra abs EEA SHS.\n$55 d BAS ATRE 1 wlio ah Eh At 3\n1 EN Pos aE - AEN AT AONE\n\\ B J b it To y Fee 23 SE ee SARE LAP\n- i. PR a F a $3, pene HE ar iy a\nRR dae = Beh AL ER gah FIST\n: £ ) Eo b ASE mat iA Ty kd\nnr Sle. OX Sale RE EEN\nLp haa Fo RENE\ng a . \"WF Ae SAA Te a\nTi heal Bed\nBh. Tae RPS. SRS 7 4\nEN Lanse LDN\nNE ee LEE PONE BR SE INDY\na ha A . fy - gate # pI Gs Bp\nCLE 4s a > yy i AINE CANS Mh,\nENE y i if Lh fat ats i\nRECT i oro Hy x Ria Rie Adder Gar TEN\ni ny i. & y- 5) | 2d) Ed ig fH fra WANE\n= : ’ of? Ey AC ER STE Nk y\nDali Ti Te B85 3 “\\ Wea ray Fa TEINS\nBT J",
+              "normalizedText": "Pirlo shel 0-3 SENTRS oF | REE Preis Iie BS hela RE EF | A Suh IRE ts MERE ge 2 Leh LSE CRA IEEINIRT AIT Bs V] Rfoicy! See bE, ae Ba I vp E be 1 TR RIK Li YE | aE 3 wd BIL artes WHERE Dosa odit rs NTRS Me biggies 3 RRC ARE + . IR TALL a a NE re J RR EL Lun 85 } - : Ea a ws v SRR 3 ok gi EN v2 > J ¥d « [A - > ’ Tas ab A pf TEEN RABE A oo a Tr = . bo a.Y Fri Bor gy PBC Pls pra abs EEA SHS. $55 d BAS ATRE 1 wlio ah Eh At 3 1 EN Pos aE - AEN AT AONE \\ B J b it To y Fee 23 SE ee SARE LAP - i. PR a F a $3, pene HE ar iy a RR dae = Beh AL ER gah FIST : £ ) Eo b ASE mat iA Ty kd nr Sle. OX Sale RE EEN Lp haa Fo RENE g a . \"WF Ae SAA Te a Ti heal Bed Bh. Tae RPS. SRS 7 4 EN Lanse LDN NE ee LEE PONE BR SE INDY a ha A . fy - gate # pI Gs Bp CLE 4s a > yy i AINE CANS Mh, ENE y i if Lh fat ats i RECT i oro Hy x Ria Rie Adder Gar TEN i ny i. & y- 5) | 2d) Ed ig fH fra WANE = : ’ of? Ey AC ER STE Nk y Dali Ti Te B85 3 “\\ Wea ray Fa TEINS BT J",
+              "startSeconds": 51,
+              "endSeconds": 51.5,
+              "durationSeconds": 0.5,
+              "wordCount": 286,
+              "lineCount": 35,
+              "maxCharsPerLine": 42,
+              "meanConfidence": 0.21,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "I i F RET ed I Re Te\ni CF EEE RE ior SHEE\noo N fit BASIC het Set JE >\n2 ke Si ERT ae RE ex\ny — fan RE Tf BARNEY\n= \" od x LR PLS ae rt\na po Te \\ A SR fod SUE) VEN\nNe = < y i CARS 7 ENTRAR he\n= Tipe - 0H Sm Ney pai a nt\nEn Ea Ss ER TE\nST f 5 J ER Cy Betsy\nhs eT wy brs lg fics. Te SO Se\noh PRLS ] Era LH GRR i\nat, d BE Tle Ryo, 4 TEA\nXi 30 Ay a a ER 3 RCH he\nMc : = Fa EAST Sa dls yi SAR\na ee ed ee 2) ES Ad Ed as LO\n: | aE y : yo pie We CE weve\nBh 4 #5 ie g Tht Ke® Jal iB CL\nJ LT LT 4 od Jriv AE Ati RV IE THRE A RE\nBein Gf. SIAR pre\na 1 gs he. Res F d RE pr SN baal Ra, ! 5\na gar = ge dal SRY TREE ay (hp\nTT by 4 4 psi SF ih RRR oo\noor gd ; . ) | in A EERE * VaR i) A PEE\nTh & I oA Teh Rin\np hs oa gE oe TAA & g i eRe iy Bh L\nWEAN RR oy CH RRs ees\npr oo WU ford Fong’ \\) Pm Nr Sy spb vA\nI. Cw TL EAR CAT ATA gel 3\nPag AT ER RN DNS, SEE eC.",
+              "normalizedText": "I i F RET ed I Re Te i CF EEE RE ior SHEE oo N fit BASIC het Set JE > 2 ke Si ERT ae RE ex y — fan RE Tf BARNEY = \" od x LR PLS ae rt a po Te \\ A SR fod SUE) VEN Ne = < y i CARS 7 ENTRAR he = Tipe - 0H Sm Ney pai a nt En Ea Ss ER TE ST f 5 J ER Cy Betsy hs eT wy brs lg fics. Te SO Se oh PRLS ] Era LH GRR i at, d BE Tle Ryo, 4 TEA Xi 30 Ay a a ER 3 RCH he Mc : = Fa EAST Sa dls yi SAR a ee ed ee 2) ES Ad Ed as LO : | aE y : yo pie We CE weve Bh 4 #5 ie g Tht Ke® Jal iB CL J LT LT 4 od Jriv AE Ati RV IE THRE A RE Bein Gf. SIAR pre a 1 gs he. Res F d RE pr SN baal Ra, ! 5 a gar = ge dal SRY TREE ay (hp TT by 4 4 psi SF ih RRR oo oor gd ; . ) | in A EERE * VaR i) A PEE Th & I oA Teh Rin p hs oa gE oe TAA & g i eRe iy Bh L WEAN RR oy CH RRs ees pr oo WU ford Fong’ \\) Pm Nr Sy spb vA I. Cw TL EAR CAT ATA gel 3 Pag AT ER RN DNS, SEE eC.",
+              "startSeconds": 51.5,
+              "endSeconds": 52,
+              "durationSeconds": 0.5,
+              "wordCount": 267,
+              "lineCount": 31,
+              "maxCharsPerLine": 40,
+              "meanConfidence": 0.25,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "vi it\n4 1*_ Ae oa\ni a : | HEISEI ahs ad\na - Ardler & peed x RR San SE\n{ J i | fps AG oi pec el Hace an Ek ™\n; RRS A 8 BELINRES Sa\n3 A Re RE ARS\ngs Rit. Ps Vay Sy i SL\nLe pi 4 - Sh EAR oe ih es SAL\na fa I: i pe her 8, Eh bone! i. pa es\nbh a LH © oh Basis 5 * SEEN FL TREN ral\ntn Cie fi be I TATE PALE: Wan LY\nos RANI CFU Re Nh\niis % Ea Sot vat Shy 4 ei\nty Re ae ied I yi Eins A fn\n- Ee ' A IE i LAG He 0s\nX 1 oF Ar Ve A hd BET 3 a Bis ns\ni oh BK Sh xe bot ih be rat ¥ (do ads\nIn pi SLE BR pt) = ARC Sr\n: pr fe ano a SAN, Ihe\n© ok PRET 40 FLaSaR:\nRT NE ii 1 any CR With :\n#3 1 v i wh 7 de a, oh IB\nads ae = or hae Rady 1 a) a ER\nBea ARE ives\nARR : Po AEGAN ET 8\n. 2 - BE. HL CF BENE\n2) Ae 5 TE gy SU ri Pe “ we AA\n’ be ps\" 3 Yo CY KE ay i, tho)\ndai E By 4% LK Ty nies IE Tih wl aE “op\nFAT wr 3 x RR al RL |\n# . he” md, + By A Sh ey he [8\nPe .' ~ + ERNE a We BEE Pu © CR\nCam, POISE ga 10 RCE edn |\nAT Reh NREL 0 BY\nSEEN 2",
+              "normalizedText": "vi it 4 1*_ Ae oa i a : | HEISEI ahs ad a - Ardler & peed x RR San SE { J i | fps AG oi pec el Hace an Ek ™ ; RRS A 8 BELINRES Sa 3 A Re RE ARS gs Rit. Ps Vay Sy i SL Le pi 4 - Sh EAR oe ih es SAL a fa I: i pe her 8, Eh bone! i. pa es bh a LH © oh Basis 5 * SEEN FL TREN ral tn Cie fi be I TATE PALE: Wan LY os RANI CFU Re Nh iis % Ea Sot vat Shy 4 ei ty Re ae ied I yi Eins A fn - Ee ' A IE i LAG He 0s X 1 oF Ar Ve A hd BET 3 a Bis ns i oh BK Sh xe bot ih be rat ¥ (do ads In pi SLE BR pt) = ARC Sr : pr fe ano a SAN, Ihe © ok PRET 40 FLaSaR: RT NE ii 1 any CR With : #3 1 v i wh 7 de a, oh IB ads ae = or hae Rady 1 a) a ER Bea ARE ives ARR : Po AEGAN ET 8 . 2 - BE. HL CF BENE 2) Ae 5 TE gy SU ri Pe “ we AA ’ be ps\" 3 Yo CY KE ay i, tho) dai E By 4% LK Ty nies IE Tih wl aE “op FAT wr 3 x RR al RL | # . he” md, + By A Sh ey he [8 Pe .' ~ + ERNE a We BEE Pu © CR Cam, POISE ga 10 RCE edn | AT Reh NREL 0 BY SEEN 2",
+              "startSeconds": 52,
+              "endSeconds": 52.5,
+              "durationSeconds": 0.5,
+              "wordCount": 292,
+              "lineCount": 36,
+              "maxCharsPerLine": 39,
+              "meanConfidence": 0.25,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "Anam ob Ls oil\nBEE nS p: SE\nLP | gE FP RAT TON Wi REE)\n© QE Fd aE\nrF.a fost Ie Evy = Cs,\nwy EE ROR re On REE; UE is\nFr a ae ois LERNER 5 hs\nrd Ny y -— SE bo, He AREF Tha, No he\nF 3 --— a Popes Tn RR Vi\nFF FE Lule CARE\n¥, Bo ln arma Ay\n\\ f 5 SH TRE he A SEE fo B51\nSRE Ny EE CER is ay OR\nTe Fate “2 ad EY I AGA po = LA Ro\nes onl CON EE EE Ne\na Rik TE Fb WE 0 7\nSIRE | 18 4 - ox: on Ly er h i AEN\n2 | saa SER a\nkL $n » 4 + i n BG ES 3 oe ]\nSEER et iy Bay ALC TA Sd 5) hI\nJC a DRE SRR\nLOL I A ASE NPR RE NT ad Hg\n5 Sr COR ris es dl Af 3 pa IE A Ay oo\nARs Gee hs VR TE 54 aly",
+              "normalizedText": "Anam ob Ls oil BEE nS p: SE LP | gE FP RAT TON Wi REE) © QE Fd aE rF.a fost Ie Evy = Cs, wy EE ROR re On REE; UE is Fr a ae ois LERNER 5 hs rd Ny y -— SE bo, He AREF Tha, No he F 3 --— a Popes Tn RR Vi FF FE Lule CARE ¥, Bo ln arma Ay \\ f 5 SH TRE he A SEE fo B51 SRE Ny EE CER is ay OR Te Fate “2 ad EY I AGA po = LA Ro es onl CON EE EE Ne a Rik TE Fb WE 0 7 SIRE | 18 4 - ox: on Ly er h i AEN 2 | saa SER a kL $n » 4 + i n BG ES 3 oe ] SEER et iy Bay ALC TA Sd 5) hI JC a DRE SRR LOL I A ASE NPR RE NT ad Hg 5 Sr COR ris es dl Af 3 pa IE A Ay oo ARs Gee hs VR TE 54 aly",
+              "startSeconds": 52.5,
+              "endSeconds": 53,
+              "durationSeconds": 0.5,
+              "wordCount": 181,
+              "lineCount": 24,
+              "maxCharsPerLine": 37,
+              "meanConfidence": 0.23,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "SECRET» Noone os ta TEE 1X\n\nFO MES Ne fs SR Yah fg Gy SA\na To J als HS 3 ky g = ¥\n\n; JERR ERE TE ET dd\n\nCl 7 Rl SE fa a po\n\nPY EF 4 JR a a QA I EE\n\noe wl [gate br OSE Bo Rr OT\n\na. B I RELI I Ny\n\ny fe ARETE SANGRE EA 5S\n\nel EES ICs: io THe LR Ts a > J REG Hg nd\n\n© UR TR pty it Ee Sik So\n\nESN: oh et TTR Ta ay a BIA LT le\n\n> o_o a Eadie LORE FE\n\nFo Bc at ee BR Ne RES Joes\n\nSigs Elie: vo Be fhe Sele hal\n\npe CC TERA Ta SR\n\nio RE WEE A RN Meg\n\na br A b: Hae Sank « hs RY x 1 . pp\n\nRN GL HENS b Ch ssl (CARRE i Soa a hil Votre\n\nSr ARR % VAR For £0 ar\n\na = i ire cl J i 5 a By 4 i] 54\n\nITs AAD 48 a ’ \" » Jo» MGA, bs v L RLY ¢ »\n\nCE a, Az TEL ARREST\n\nThe Ls. TREE £ RA 1 PES\n\n2 Cp REE 5 Br SRE SBIR i ee\n\nBL er <i hogs ee SOREL SEs JAN 1 Sa, Seyi pi.\n\nFrain Rs 8 : Po Sk Ee SHR SRN\n\nEERIE Nag Co, 4 GENE Hie, SERENA VS in\n\nSs AER Ad, 5 A Tig a] < ei Role So bee # a g\n\nmL) Coie) Soll pe iy 25 2 tt Bit 3 a EN\n\nEh os el WHR He cash Woes Her SHORT VERE Sb We 0,\n\nAEE SER. HE Ea SC 24",
+              "normalizedText": "SECRET» Noone os ta TEE 1X FO MES Ne fs SR Yah fg Gy SA a To J als HS 3 ky g = ¥ ; JERR ERE TE ET dd Cl 7 Rl SE fa a po PY EF 4 JR a a QA I EE oe wl [gate br OSE Bo Rr OT a. B I RELI I Ny y fe ARETE SANGRE EA 5S el EES ICs: io THe LR Ts a > J REG Hg nd © UR TR pty it Ee Sik So ESN: oh et TTR Ta ay a BIA LT le > o_o a Eadie LORE FE Fo Bc at ee BR Ne RES Joes Sigs Elie: vo Be fhe Sele hal pe CC TERA Ta SR io RE WEE A RN Meg a br A b: Hae Sank « hs RY x 1 . pp RN GL HENS b Ch ssl (CARRE i Soa a hil Votre Sr ARR % VAR For £0 ar a = i ire cl J i 5 a By 4 i] 54 ITs AAD 48 a ’ \" » Jo» MGA, bs v L RLY ¢ » CE a, Az TEL ARREST The Ls. TREE £ RA 1 PES 2 Cp REE 5 Br SRE SBIR i ee BL er <i hogs ee SOREL SEs JAN 1 Sa, Seyi pi. Frain Rs 8 : Po Sk Ee SHR SRN EERIE Nag Co, 4 GENE Hie, SERENA VS in Ss AER Ad, 5 A Tig a] < ei Role So bee # a g mL) Coie) Soll pe iy 25 2 tt Bit 3 a EN Eh os el WHR He cash Woes Her SHORT VERE Sb We 0, AEE SER. HE Ea SC 24",
+              "startSeconds": 53.5,
+              "endSeconds": 54,
+              "durationSeconds": 0.5,
+              "wordCount": 287,
+              "lineCount": 32,
+              "maxCharsPerLine": 49,
+              "meanConfidence": 0.21,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "£% FF : | 5 ES nas § PEpdnscs Lay R\n\na? ERS SS Myy REE\n\n\\ - Heal Ries\nLi: GRRE ROSE Ne Gi REN\nDE. 000\nam Ne Wi i 5 ? Ni ¥ Eat oh vy i as ah Ts E\ni mR | RACERS PET\nRE J Tg 25 SFG, DRA RE A FL\nCARE CRY FE TE RS\nalign i x y Tide TAK CURR Eats\nal SE Bena Ee a EB\nTE. WW Snide Fre\nUr, fo ORY EE Tt\ni - Kei Rn Cu LER RAY\nil 3 o 4 Rs Wk MR A Ky 5 3 =)\nRope Be. SS EE\n«aE\nast ipa RIE i PA 2 v Blas Eris PRY SN\nFE a \\ SER PIE A\n\nie i i 44 5 He pr oR bes xe bd 0s oo bath as\n\nIR EEA | TE So INCRE yy\nON pe 1 SE\n\n\" a. at Ae 3 he ATE AR A TRY, or",
+              "normalizedText": "£% FF : | 5 ES nas § PEpdnscs Lay R a? ERS SS Myy REE \\ - Heal Ries Li: GRRE ROSE Ne Gi REN DE. 000 am Ne Wi i 5 ? Ni ¥ Eat oh vy i as ah Ts E i mR | RACERS PET RE J Tg 25 SFG, DRA RE A FL CARE CRY FE TE RS align i x y Tide TAK CURR Eats al SE Bena Ee a EB TE. WW Snide Fre Ur, fo ORY EE Tt i - Kei Rn Cu LER RAY il 3 o 4 Rs Wk MR A Ky 5 3 =) Rope Be. SS EE «aE ast ipa RIE i PA 2 v Blas Eris PRY SN FE a \\ SER PIE A ie i i 44 5 He pr oR bes xe bd 0s oo bath as IR EEA | TE So INCRE yy ON pe 1 SE \" a. at Ae 3 he ATE AR A TRY, or",
+              "startSeconds": 54,
+              "endSeconds": 54.5,
+              "durationSeconds": 0.5,
+              "wordCount": 164,
+              "lineCount": 23,
+              "maxCharsPerLine": 44,
+              "meanConfidence": 0.24,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "UF Ea\n1 - EIS UB Slat A FER Tg ee §\ni I En TER\n5 A BTA ROR ESRI 6\nNE y . lis AE Sh To RE\n& iE. © REFERERS FI 1 SRL\n§ oul i % BS Ss GRRE\nWar ew Ea Er EE\nBl : J EI Tain a i Res LC\ny Th by. [3 iy 338, Je ed 2) 5A Hal pik fe =\na ci He ENE CR CA CC Tis ENE RTE oF\noT 54 f CT ERE) prec 4 SO\nsh ¢ Le Re ARERR Lr Tih ad dlp\neon, ol eT Phx i rpadh i {Oe\noy ail c he’) GT Te, Pd SET\na CAR = ¢ 1 SACRA e a A SR\nir Ser Ea 3 Pree hr i 1 A a\nos NEEL & . bal 2 LU TR DEERE ©\nis od Re a J< ke SLBA ry ANE a pi\nLi oR id | 3 Sr an IRR (KE beg\nTUTE ~ ; Nn PER RR HT es B\nhie. | El \"ad Shia SIR RR RA\nTa A 1 olla’ TA BR SOs CHUB ER 08 Pe\nRe lly al RAE Sn aa :\na ERR\nI” AY\npi ) - Ps 5 \\ § SS RRR y x - PI p\nPRR [82 Ar Pie VA Ev Aly\na CEST AN \\ REL Re STATE A ICR",
+              "normalizedText": "UF Ea 1 - EIS UB Slat A FER Tg ee § i I En TER 5 A BTA ROR ESRI 6 NE y . lis AE Sh To RE & iE. © REFERERS FI 1 SRL § oul i % BS Ss GRRE War ew Ea Er EE Bl : J EI Tain a i Res LC y Th by. [3 iy 338, Je ed 2) 5A Hal pik fe = a ci He ENE CR CA CC Tis ENE RTE oF oT 54 f CT ERE) prec 4 SO sh ¢ Le Re ARERR Lr Tih ad dlp eon, ol eT Phx i rpadh i {Oe oy ail c he’) GT Te, Pd SET a CAR = ¢ 1 SACRA e a A SR ir Ser Ea 3 Pree hr i 1 A a os NEEL & . bal 2 LU TR DEERE © is od Re a J< ke SLBA ry ANE a pi Li oR id | 3 Sr an IRR (KE beg TUTE ~ ; Nn PER RR HT es B hie. | El \"ad Shia SIR RR RA Ta A 1 olla’ TA BR SOs CHUB ER 08 Pe Re lly al RAE Sn aa : a ERR I” AY pi ) - Ps 5 \\ § SS RRR y x - PI p PRR [82 Ar Pie VA Ev Aly a CEST AN \\ REL Re STATE A ICR",
+              "startSeconds": 54.5,
+              "endSeconds": 55,
+              "durationSeconds": 0.5,
+              "wordCount": 236,
+              "lineCount": 29,
+              "maxCharsPerLine": 44,
+              "meanConfidence": 0.22,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "i i 4 k Sb ET et ee LR\n“1 RET TR EA AS $y ERS\ni Li Sedeehe | SOK ERR a 3 GURL\nRa BERRA Ge Bi Ze BERANE = NI\nRs fi 1 Crh Sard, CR NAR\n- REINS Ted FT\ntT © z Vo ERRNO i\nie La ode \\ PRR Nl ¢ 3 MTR AY\nSH a Ne RES\nRS hb at  TRSELERERE © a\nmee a E AACA AL §. # TNE ATA\nA Vr EUR to 0 SN R&A\nche i PE La A EG y\nBa EES JRE T0R ERY op 410 jouL\nfo ’ BC pron EE oe FRCL Marl\nEL ey p io. ANE EER CT BEY 3 EY\nToray > = iy” By Ea BR SEY\nlh a : AONE th\nhth \" a is ) Pe ¥ 0 oq AR» ev, aly\nES BN RS\" Bi Pte a aT Lo id\ners § 4 he «3M Lada Ce k PRA He\noe : Say =p 0H RISES ARES\n. cme J RY Asti RAR Ln TER Rg\nSL : BT Tr RE A\nae COE SH and ARNE Bo ri ae SEY\nLi oh . BE Cal Epes ve\nEEN ps Bhs 7 of pis EAE Re trl Rak TAN A:\nEr ; a NST SR Sm ee\nRRA - Le reas Vaal to SRI Wh ETL\nRL TIS Te) AE Ey ok: o YER STA RS Ry\n= oni Aa X el 0 RELY | ne Rl NTR\ntha BEE En 3) MARCHE ih\n@/ ar REE ily 48. \\ Pe Vi ri et SA hie TB Rs\nTRACE \\ RW TREAT EEA eh Sa",
+              "normalizedText": "i i 4 k Sb ET et ee LR “1 RET TR EA AS $y ERS i Li Sedeehe | SOK ERR a 3 GURL Ra BERRA Ge Bi Ze BERANE = NI Rs fi 1 Crh Sard, CR NAR - REINS Ted FT tT © z Vo ERRNO i ie La ode \\ PRR Nl ¢ 3 MTR AY SH a Ne RES RS hb at TRSELERERE © a mee a E AACA AL §. # TNE ATA A Vr EUR to 0 SN R&A che i PE La A EG y Ba EES JRE T0R ERY op 410 jouL fo ’ BC pron EE oe FRCL Marl EL ey p io. ANE EER CT BEY 3 EY Toray > = iy” By Ea BR SEY lh a : AONE th hth \" a is ) Pe ¥ 0 oq AR» ev, aly ES BN RS\" Bi Pte a aT Lo id ers § 4 he «3M Lada Ce k PRA He oe : Say =p 0H RISES ARES . cme J RY Asti RAR Ln TER Rg SL : BT Tr RE A ae COE SH and ARNE Bo ri ae SEY Li oh . BE Cal Epes ve EEN ps Bhs 7 of pis EAE Re trl Rak TAN A: Er ; a NST SR Sm ee RRA - Le reas Vaal to SRI Wh ETL RL TIS Te) AE Ey ok: o YER STA RS Ry = oni Aa X el 0 RELY | ne Rl NTR tha BEE En 3) MARCHE ih @/ ar REE ily 48. \\ Pe Vi ri et SA hie TB Rs TRACE \\ RW TREAT EEA eh Sa",
+              "startSeconds": 55,
+              "endSeconds": 55.5,
+              "durationSeconds": 0.5,
+              "wordCount": 278,
+              "lineCount": 34,
+              "maxCharsPerLine": 44,
+              "meanConfidence": 0.2,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "K a\nE £ 2 ARB re pe\nILL L : <5 el DLP lie\nne , Er = 5 2 pe LR wre\nE , Bh hy UE RRS % ARE\n44 Sal 4 ftom ee LE SE 3 RRR\nEe -. fe QRS rs RTs\n_ ol Gh or fac 7 HR ad + FOREN\nA & kL ETA oR es RES A\na at) al pet a Sv\nfs 2 = = ) os hy ae 5 is Sat FRR . DEO\nFonns a 3 Ss Wine Ger, Bal 2\nge 5 5 1 WBE ke Ti 0 A\niH int JO be a ET A A Shite Ed Vat\nASR: q + # ae fo ee CRNA 1%, el\nil i EE I ry i RS ig ad PY Pi, it\nA: fil fate 2 gh\nae os od i Cl\nLP - SHES BE Roh\na! TN ia Ne pe A yr. - 0 RR = Fa Ha SS\ni rt HEN TRAE Fa A hi\ni 7 i | RIRETRE oO Erp\nHAA % 4 +8 Ala dnd fl AR Ags aks us\nva AA TS Ne ily\nEE pg 1 oo ) | i Py SR rah 7, : rvs\nOE a AY ada ay i, AR § 5%\nTe EE 54 Pt ie rs RG a hh\nE INNER: oc eu wir or My ENC RE, \\ HES\nREE a i Lo\nIe REET RE a\nEERE Leathe i CR d\not N CERN 1\n7 ve",
+              "normalizedText": "K a E £ 2 ARB re pe ILL L : <5 el DLP lie ne , Er = 5 2 pe LR wre E , Bh hy UE RRS % ARE 44 Sal 4 ftom ee LE SE 3 RRR Ee -. fe QRS rs RTs _ ol Gh or fac 7 HR ad + FOREN A & kL ETA oR es RES A a at) al pet a Sv fs 2 = = ) os hy ae 5 is Sat FRR . DEO Fonns a 3 Ss Wine Ger, Bal 2 ge 5 5 1 WBE ke Ti 0 A iH int JO be a ET A A Shite Ed Vat ASR: q + # ae fo ee CRNA 1%, el il i EE I ry i RS ig ad PY Pi, it A: fil fate 2 gh ae os od i Cl LP - SHES BE Roh a! TN ia Ne pe A yr. - 0 RR = Fa Ha SS i rt HEN TRAE Fa A hi i 7 i | RIRETRE oO Erp HAA % 4 +8 Ala dnd fl AR Ags aks us va AA TS Ne ily EE pg 1 oo ) | i Py SR rah 7, : rvs OE a AY ada ay i, AR § 5% Te EE 54 Pt ie rs RG a hh E INNER: oc eu wir or My ENC RE, \\ HES REE a i Lo Ie REET RE a EERE Leathe i CR d ot N CERN 1 7 ve",
+              "startSeconds": 55.5,
+              "endSeconds": 56,
+              "durationSeconds": 0.5,
+              "wordCount": 255,
+              "lineCount": 33,
+              "maxCharsPerLine": 38,
+              "meanConfidence": 0.24,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "1 h lls NA SET 2a && vi SRE | Ae 8\n4 ow § LAPEER ARC LNT TY 5 5 ds\n\n; Ea R051 SRN mere x TN\nab Fo 74 Ri TONE TL Fre, ERIN\nNS gi Ee Bh irs ess, Ra a Eh aR\ner oF By fi Prp=iyis ng CF Re, Ko 3 2\nol n © RE ATE EE\n\n1 ps AGERE ur ood |\na ® ent Te ATEN TASER RS\n: Aa RN SRCORCEIREISRE |\n\nii br ; RET 5 aE {Eh\ni. Bike + TR SC TR TS\nfe dn iS PERS. ) RG il Ca CT vb, TOA AR\nRe aia Th fray REEL eed >See: Ad Cy ty ha\nfh: Tre “9 PR a ls SEL oy Toy A x *\na : FU Ea NRA SE\n¢ St RE SRC\n} i Fa et Ky a hI Vara Ty\nCSE hath iE By lL Ln\nTe CT 2 Bee RA 3\nA a i N Ra Sra {an REE\nRie BT Ee oh rity. Rte!\nBi. TOL AEE (EATER ALR Rh\nI, OE i Lae RE RELRA0:\nba. HRs A dt HL ONC Re hy Sen\nBE at IRE SL, PEER AR 5\nTEAR ee HE\n\n: 3 aaa Sa ART a 1 oa\nEL Cent | EEA RE Ro 3",
+              "normalizedText": "1 h lls NA SET 2a && vi SRE | Ae 8 4 ow § LAPEER ARC LNT TY 5 5 ds ; Ea R051 SRN mere x TN ab Fo 74 Ri TONE TL Fre, ERIN NS gi Ee Bh irs ess, Ra a Eh aR er oF By fi Prp=iyis ng CF Re, Ko 3 2 ol n © RE ATE EE 1 ps AGERE ur ood | a ® ent Te ATEN TASER RS : Aa RN SRCORCEIREISRE | ii br ; RET 5 aE {Eh i. Bike + TR SC TR TS fe dn iS PERS. ) RG il Ca CT vb, TOA AR Re aia Th fray REEL eed >See: Ad Cy ty ha fh: Tre “9 PR a ls SEL oy Toy A x * a : FU Ea NRA SE ¢ St RE SRC } i Fa et Ky a hI Vara Ty CSE hath iE By lL Ln Te CT 2 Bee RA 3 A a i N Ra Sra {an REE Rie BT Ee oh rity. Rte! Bi. TOL AEE (EATER ALR Rh I, OE i Lae RE RELRA0: ba. HRs A dt HL ONC Re hy Sen BE at IRE SL, PEER AR 5 TEAR ee HE : 3 aaa Sa ART a 1 oa EL Cent | EEA RE Ro 3",
+              "startSeconds": 56,
+              "endSeconds": 56.5,
+              "durationSeconds": 0.5,
+              "wordCount": 222,
+              "lineCount": 29,
+              "maxCharsPerLine": 41,
+              "meanConfidence": 0.23,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "ET ER\nCo SER. ll LP: a 3 Ss Sp\nERE.” § Fc.\nPR. j K wo. & hol Cha LSE\n4 9 Bi CER a vi 5 CRE #5\nRe BA i\" BRL 5 7 ge meats am STEER\nx BF sae En i ory ER Es br par Be\nJE BEE C Lit Rpt § Bh GILGEN MRT ©\nor RL - - a Sus pais Rees GRRE\nCTE SE | GATE 1 ESAT SA i\nan a a ey fh BR ES Th SS Radio . Lo\nJ Con wee Eee Ee Berd Re\n& F SRN Toa Py, eat 1 Net Be ae\nalc CE EEE FER Y fo SRE\nERAN © CTU Ad a Pi REE i\nRe Eh SENT EO sa i\nSib TN At Eat ta DORE. oe\n3 Ji IN E EEN. To Fae SL A RR 5\nWan eh WW AA HEIRS ER gl aR\nNES po k pipers gins Bee (PR ¢g 5\npasa 43 \"SU BREET. 41 Sos IER\nfone Shor aa 5.4 4 ho ake i EAT Sia fi\nny Hind EP £2 NE oo a 3 NES She SAE ps\nOn Senora Aone\nATR TT RI vo pal Y Ay, AV EAR ERS LL\nI Lg A Te RR a Br EAR AR iE Seah oe\nAe ie ihe a\nSli TE Dan RR\nSEs a AEE Nhe LN, BA HE en BNL RR\nf& en Renae 5 5 x a CER J\nEE\niar 0 at TERESA I IK SI Se",
+              "normalizedText": "ET ER Co SER. ll LP: a 3 Ss Sp ERE.” § Fc. PR. j K wo. & hol Cha LSE 4 9 Bi CER a vi 5 CRE #5 Re BA i\" BRL 5 7 ge meats am STEER x BF sae En i ory ER Es br par Be JE BEE C Lit Rpt § Bh GILGEN MRT © or RL - - a Sus pais Rees GRRE CTE SE | GATE 1 ESAT SA i an a a ey fh BR ES Th SS Radio . Lo J Con wee Eee Ee Berd Re & F SRN Toa Py, eat 1 Net Be ae alc CE EEE FER Y fo SRE ERAN © CTU Ad a Pi REE i Re Eh SENT EO sa i Sib TN At Eat ta DORE. oe 3 Ji IN E EEN. To Fae SL A RR 5 Wan eh WW AA HEIRS ER gl aR NES po k pipers gins Bee (PR ¢g 5 pasa 43 \"SU BREET. 41 Sos IER fone Shor aa 5.4 4 ho ake i EAT Sia fi ny Hind EP £2 NE oo a 3 NES She SAE ps On Senora Aone ATR TT RI vo pal Y Ay, AV EAR ERS LL I Lg A Te RR a Br EAR AR iE Seah oe Ae ie ihe a Sli TE Dan RR SEs a AEE Nhe LN, BA HE en BNL RR f& en Renae 5 5 x a CER J EE iar 0 at TERESA I IK SI Se",
+              "startSeconds": 56.5,
+              "endSeconds": 57,
+              "durationSeconds": 0.5,
+              "wordCount": 255,
+              "lineCount": 32,
+              "maxCharsPerLine": 38,
+              "meanConfidence": 0.23,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            },
+            {
+              "text": "x 4 Bf y anus Sey SOR ws -\n28 iF Len ORS REN ys ha\nEE EF Ri ap AEN alg\nSARS Lo FS He Vea SRR\nBle 3 [E. SAGE 2 Ln, 2 Es\nSN hi EERE 2 Ste Rwy\n; S rs, Lo NEE Re RE CR LC Savy\nhe _ SEE fi i AdERRERS LAER\na aa A - ET Se “Sl\nFO i SS Ia pa Start £003\nKg 2) Ty - ha he % ] bs ia es A 55% X 5 op\nid i pad 2 + PR gE\nRE 4 Le WET ASE hs\nEA Ei : HE ESR BE\nMWe K BN ERR SE Ra\naR a fies o 9 xe “wokE; REA x TS RIES\nola ir a Aa Sees” Fi (ORE ac TRE)\nTRETEET TUTTI at ow RH Gr\n2 20h) HONE ge bk. E NT Poi a Lars RS Sk\nfT ae, S EERE Se\nERE Th ug I TER RE Bk eT\nleva WN ARO Se\nbE is ie pl Gg Eo Ch Re: Fi fhe STE Pc\nAlan [0 Ted EA sir Bas niet AAT wat ON ne RU EE\nER CL A Ry 8s < Yd waged En 8\n4A. UE Rass ©\n£ A Z 3 ARSE SEG TN Reb. ln AREER\nCae EERE\n4 ie | ABT a gp, a RE £0 REY\nory a HE x",
+              "normalizedText": "x 4 Bf y anus Sey SOR ws - 28 iF Len ORS REN ys ha EE EF Ri ap AEN alg SARS Lo FS He Vea SRR Ble 3 [E. SAGE 2 Ln, 2 Es SN hi EERE 2 Ste Rwy ; S rs, Lo NEE Re RE CR LC Savy he _ SEE fi i AdERRERS LAER a aa A - ET Se “Sl FO i SS Ia pa Start £003 Kg 2) Ty - ha he % ] bs ia es A 55% X 5 op id i pad 2 + PR gE RE 4 Le WET ASE hs EA Ei : HE ESR BE MWe K BN ERR SE Ra aR a fies o 9 xe “wokE; REA x TS RIES ola ir a Aa Sees” Fi (ORE ac TRE) TRETEET TUTTI at ow RH Gr 2 20h) HONE ge bk. E NT Poi a Lars RS Sk fT ae, S EERE Se ERE Th ug I TER RE Bk eT leva WN ARO Se bE is ie pl Gg Eo Ch Re: Fi fhe STE Pc Alan [0 Ted EA sir Bas niet AAT wat ON ne RU EE ER CL A Ry 8s < Yd waged En 8 4A. UE Rass © £ A Z 3 ARSE SEG TN Reb. ln AREER Cae EERE 4 ie | ABT a gp, a RE £0 REY ory a HE x",
+              "startSeconds": 57.5,
+              "endSeconds": 58,
+              "durationSeconds": 0.5,
+              "wordCount": 234,
+              "lineCount": 30,
+              "maxCharsPerLine": 47,
+              "meanConfidence": 0.22,
+              "bbox": {
+                "x0": 0,
+                "y0": 1248,
+                "x1": 1080,
+                "y1": 1920
+              },
+              "center": {
+                "x": 540,
+                "y": 1584
+              },
+              "bboxHeightPx": 672,
+              "bboxAreaPx": 725760
+            }
+          ],
+          "rhythm": {
+            "meanWps": 100.37875457875458,
+            "stddevWps": 171.8773986990515,
+            "outOfIdealRangeCount": 72,
+            "outOfAbsoluteRangeCount": 57,
+            "score": 0
+          },
+          "displayTime": {
+            "minDurationSeconds": 0.5,
+            "maxDurationSeconds": 5,
+            "flashSegmentCount": 0,
+            "outOfRecommendedRangeCount": 84,
+            "score": 0.5384615384615384
+          },
+          "coverage": {
+            "captionedSeconds": 55,
+            "coverageRatio": 0.9440223415416877,
+            "score": 0.9440223415416877
+          },
+          "density": {
+            "maxLines": 36,
+            "maxCharsPerLine": 87,
+            "lineOverflowCount": 31,
+            "charOverflowCount": 8,
+            "score": 0.5714285714285714
+          },
+          "punctuation": {
+            "missingTerminalPunctuationCount": 27,
+            "repeatedPunctuationCount": 0,
+            "score": 0.7032967032967032
+          },
+          "capitalization": {
+            "style": "mixed",
+            "inconsistentStyleCount": 0,
+            "score": 1
+          },
+          "ocrConfidence": {
+            "mean": 0.4555454545454545,
+            "min": 0.06,
+            "stddev": 0.26022922190615777,
+            "score": 0.1953162326392967
+          },
+          "safeArea": {
+            "violationCount": 107,
+            "minMarginRatio": 0,
+            "score": 0
+          },
+          "flicker": {
+            "flickerEvents": 6,
+            "score": 0
+          },
+          "alignment": {
+            "meanAbsCenterDxRatio": 0.04798534798534796,
+            "maxAbsCenterDxRatio": 0.39490740740740743,
+            "score": 0.5201465201465204
+          },
+          "placement": {
+            "stddevCenterXRatio": 0.10174516446100182,
+            "stddevCenterYRatio": 0.045779452660154735,
+            "score": 0
+          },
+          "jitter": {
+            "meanCenterDeltaPx": 24.434938739718298,
+            "p95CenterDeltaPx": 151.98745244918246,
+            "score": 0
+          },
+          "style": {
+            "bboxHeightCv": 0.8998149797457474,
+            "bboxAreaCv": 1.5776920160640713,
+            "score": 0
+          },
+          "redundancy": {
+            "reappearanceEvents": 1,
+            "adjacentOverlapEvents": 0,
+            "score": 0.989010989010989
+          },
+          "segmentation": {
+            "danglingConjunctionCount": 1,
+            "midSentenceBreakCount": 29,
+            "score": 0.6703296703296704
+          }
+        },
+        "createdAt": "2026-02-13T23:16:58.061Z"
+      }
+    },
+    {
+      "checkId": "captionQuality",
+      "passed": true,
+      "skipped": true,
+      "summary": "included in rate",
+      "durationMs": 0
+    }
+  ],
+  "thresholds": {
+    "validateProfile": "portrait"
+  },
+  "totalDurationMs": 121691,
+  "createdAt": "2026-02-13T23:16:58.085Z"
+}

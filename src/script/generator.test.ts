@@ -3,12 +3,33 @@
  * Updated for SYSTEM-DESIGN §6.3 GeneratedScriptSchema
  */
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ScriptOutputSchema, LLMScriptResponseSchema, SCRIPT_SCHEMA_VERSION } from './schema';
+import { LLMScriptResponseSchema, SCRIPT_SCHEMA_VERSION, ScriptOutputSchema } from '../domain';
 import { FakeLLMProvider } from '../test/stubs';
+import { ArchetypeIdSchema } from '../domain/ids';
+
+// Mock archetype registry (avoid filesystem reads in unit tests)
+vi.mock('../archetypes/registry', async () => {
+  return {
+    resolveArchetype: vi.fn(async (spec: string) => {
+      const id = String(spec);
+      return {
+        archetype: {
+          id,
+          name: id,
+          version: 1,
+          script: { template: 'Create a short-form video script about: "{{topic}}"' },
+        },
+        spec: id,
+        source: 'builtin',
+        archetypePath: `/fake/${id}.yaml`,
+      };
+    }),
+    loadBaselineRules: vi.fn(() => ({ content: '', path: undefined })),
+  };
+});
 
 // Mock config module before other imports
 vi.mock('../core/config', async () => {
-  const { z } = await import('zod');
   return {
     loadConfig: vi.fn().mockResolvedValue({
       llm: {
@@ -17,7 +38,7 @@ vi.mock('../core/config', async () => {
         temperature: 0.7,
       },
     }),
-    ArchetypeEnum: z.enum(['listicle', 'versus', 'howto', 'myth', 'story', 'hot-take']),
+    ArchetypeEnum: ArchetypeIdSchema,
   };
 });
 
@@ -79,7 +100,7 @@ describe('Script Generator', () => {
 
       const result = await generateScript({
         topic: '5 JavaScript tips',
-        archetype: 'listicle',
+        archetype: ArchetypeIdSchema.parse('listicle'),
         targetDuration: 45,
         llmProvider: fakeLLM,
       });
@@ -129,7 +150,7 @@ describe('Script Generator', () => {
 
       const result = await generateScript({
         topic: 'React vs Vue',
-        archetype: 'versus',
+        archetype: ArchetypeIdSchema.parse('versus'),
         llmProvider: fakeLLM,
       });
 
@@ -158,7 +179,7 @@ describe('Script Generator', () => {
 
       const result = await generateScript({
         topic: 'test',
-        archetype: 'listicle',
+        archetype: ArchetypeIdSchema.parse('listicle'),
         llmProvider: fakeLLM,
         packaging,
       });
@@ -181,7 +202,7 @@ describe('Script Generator', () => {
       await expect(
         generateScript({
           topic: 'test',
-          archetype: 'listicle',
+          archetype: ArchetypeIdSchema.parse('listicle'),
           llmProvider: fakeLLM,
         })
       ).rejects.toThrow();
@@ -202,12 +223,38 @@ describe('Script Generator', () => {
 
       const result = await generateScript({
         topic: 'test',
-        archetype: 'listicle',
+        archetype: ArchetypeIdSchema.parse('listicle'),
         llmProvider: fakeLLM,
       });
 
       // Verify word count is calculated
       expect(result.meta?.wordCount).toBeGreaterThan(10);
+    });
+
+    it('should avoid repeating the hook as the first sentence', async () => {
+      fakeLLM.queueJsonResponse({
+        scenes: [
+          {
+            text: "This week, major global events are shaking up the headlines. Here's what matters most.",
+            visualDirection: 'news montage',
+            mood: 'urgent',
+          },
+          { text: '1: First headline.', visualDirection: 'test' },
+        ],
+        reasoning: 'Test reasoning.',
+        title: 'Test',
+        hook: 'Major global events are shaking up the headlines this week.',
+        cta: 'Follow for more.',
+      });
+
+      const result = await generateScript({
+        topic: 'test',
+        archetype: ArchetypeIdSchema.parse('listicle'),
+        llmProvider: fakeLLM,
+      });
+
+      expect(result.hook).toContain('Major global events');
+      expect(result.scenes[0].text).toBe("Here's what matters most.");
     });
 
     it('should include scene IDs', async () => {
@@ -224,7 +271,7 @@ describe('Script Generator', () => {
 
       const result = await generateScript({
         topic: 'test',
-        archetype: 'listicle',
+        archetype: ArchetypeIdSchema.parse('listicle'),
         llmProvider: fakeLLM,
       });
 
@@ -248,7 +295,7 @@ describe('Script Generator', () => {
 
         await generateScript({
           topic: 'test topic',
-          archetype,
+          archetype: ArchetypeIdSchema.parse(archetype),
           llmProvider: fakeLLM,
         });
 
@@ -276,7 +323,7 @@ describe('Script Generator', () => {
         meta: {
           wordCount: 10,
           estimatedDuration: 4,
-          archetype: 'listicle',
+          archetype: ArchetypeIdSchema.parse('listicle'),
           topic: 'test',
           generatedAt: new Date().toISOString(),
         },
@@ -317,7 +364,7 @@ describe('Script Generator', () => {
         reasoning: 'Test reasoning.',
         hashtags: ['#javascript', '#coding', '#tips'],
         meta: {
-          archetype: 'listicle',
+          archetype: ArchetypeIdSchema.parse('listicle'),
           topic: 'test',
           generatedAt: new Date().toISOString(),
         },
@@ -357,6 +404,44 @@ describe('Script Generator', () => {
 
       const result = LLMScriptResponseSchema.safeParse(response);
       expect(result.success).toBe(true);
+    });
+
+    it('should attempt to shorten scripts that exceed target length', async () => {
+      // First response is intentionally too long.
+      fakeLLM.queueJsonResponse({
+        scenes: new Array(6).fill(null).map((_, i) => ({
+          text: `Scene ${i + 1}: ` + new Array(40).fill('word').join(' '),
+          visualDirection: 'b-roll',
+          mood: 'informative',
+        })),
+        reasoning: 'Long on purpose for test.',
+        title: 'Too Long',
+        hook: new Array(40).fill('hook').join(' '),
+        cta: new Array(40).fill('cta').join(' '),
+      });
+
+      // Second response is shorter.
+      fakeLLM.queueJsonResponse({
+        scenes: new Array(6).fill(null).map((_, i) => ({
+          text: `Scene ${i + 1}: short and punchy.`,
+          visualDirection: 'b-roll',
+          mood: 'informative',
+        })),
+        reasoning: 'Shortened version.',
+        title: 'Short Enough',
+        hook: 'Quick update.',
+        cta: 'Follow for more.',
+      });
+
+      const result = await generateScript({
+        topic: 'Global news roundup',
+        archetype: ArchetypeIdSchema.parse('listicle'),
+        targetDuration: 30,
+        llmProvider: fakeLLM,
+      });
+
+      expect(result.title).toBe('Short Enough');
+      expect(result.meta?.wordCount).toBeLessThanOrEqual(94);
     });
   });
 });

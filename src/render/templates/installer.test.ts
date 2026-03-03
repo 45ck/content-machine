@@ -7,6 +7,7 @@ import { join } from 'path';
 import { tmpdir } from 'os';
 import { installTemplatePack } from './installer';
 import AdmZip from 'adm-zip';
+import { SchemaError } from '../../core/errors';
 
 let tempRoot = '';
 
@@ -72,5 +73,30 @@ describe('installTemplatePack', () => {
 
     expect(result.id).toBe('zip-template');
     expect(result.installPath).toBe(join(destDir, 'zip-template'));
+  });
+
+  it('rejects unsafe template ids (path traversal)', async () => {
+    const sourceDir = await createTemplateDir(join(tempRoot, 'source-evil'), 'safe-dir');
+    const destDir = join(tempRoot, 'dest');
+
+    // Overwrite template.json with an unsafe id to ensure installers do not allow escaping destDir.
+    await writeFile(
+      join(sourceDir, 'template.json'),
+      JSON.stringify(
+        {
+          schemaVersion: '1.0.0',
+          id: '../evil',
+          name: 'Evil',
+          compositionId: 'ShortVideo',
+        },
+        null,
+        2
+      ),
+      'utf-8'
+    );
+
+    await expect(
+      installTemplatePack({ sourcePath: sourceDir, destDir, force: false })
+    ).rejects.toBeInstanceOf(SchemaError);
   });
 });

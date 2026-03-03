@@ -17,8 +17,13 @@ export default defineConfig({
     include: ['src/**/*.test.ts', 'tests/**/*.test.ts'],
     exclude: ['node_modules', 'dist', 'vendor', 'templates', 'connectors'],
     coverage: {
-      provider: 'v8',
+      provider: 'custom',
+      customProviderModule: './scripts/vitest/coverage-provider.mjs',
       reporter: ['text', 'json', 'html', 'lcov'],
+      // We manage cleaning ourselves in `scripts/quality/clean-coverage.mjs`.
+      // Vitest's built-in clean can race in some environments when using forks + coverage.
+      clean: false,
+      cleanOnRerun: false,
       // Explicit scope ensures thresholds are meaningful
       include: ['src/**/*.ts'],
       exclude: [
@@ -33,10 +38,12 @@ export default defineConfig({
       ],
       // Overall thresholds - set to current baseline, ratchet up as tests added
       thresholds: {
-        lines: 18,
-        functions: 55,
-        statements: 18,
-        branches: 50,
+        // Baseline as of 2026-02-07 (see `npm run test:coverage`).
+        // Keep this slightly below current to avoid flakiness while preventing regressions.
+        lines: 75,
+        functions: 85,
+        statements: 75,
+        branches: 68,
         // NOTE: perFile: true deferred until coverage ~70%
 
         // Glob-specific thresholds (enable when ready):
@@ -50,6 +57,15 @@ export default defineConfig({
     },
     testTimeout: 30000,
     pool: 'forks',
+    poolOptions: {
+      forks: {
+        // Ensure each test file runs in an isolated worker so `vi.mock()` is reliable and
+        // global state doesn't leak across the suite (especially under coverage).
+        isolate: true,
+        // Stabilize coverage aggregation by using one fork for the whole run.
+        singleFork: true,
+      },
+    },
     watch: false,
     alias: {
       '../errors.js': '../errors.ts',

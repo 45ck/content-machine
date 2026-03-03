@@ -62,6 +62,19 @@ export const VisualQualityGateResultSchema = GateBaseSchema.extend({
     min: z.number().nonnegative(),
     max: z.number().nonnegative(),
     framesAnalyzed: z.number().int().positive(),
+    niqe: z
+      .object({
+        mean: z.number().nonnegative(),
+        min: z.number().nonnegative(),
+        max: z.number().nonnegative(),
+      })
+      .optional(),
+    cambi: z
+      .object({
+        mean: z.number().nonnegative(),
+        max: z.number().nonnegative(),
+      })
+      .optional(),
   }),
 });
 
@@ -78,12 +91,88 @@ export const CadenceGateResultSchema = GateBaseSchema.extend({
 
 export type CadenceGateResult = z.infer<typeof CadenceGateResultSchema>;
 
+export const SafetyGateResultSchema = GateBaseSchema.extend({
+  gateId: z.literal('safety'),
+  details: z.object({
+    visualPassed: z.boolean(),
+    textPassed: z.boolean(),
+    visualFlags: z.array(z.string()),
+    textFlags: z.array(z.string()),
+    method: z.string(),
+  }),
+});
+
+export type SafetyGateResult = z.infer<typeof SafetyGateResultSchema>;
+
+export const AudioSignalGateResultSchema = GateBaseSchema.extend({
+  gateId: z.literal('audio-signal'),
+  details: z.object({
+    loudnessLUFS: z.number(),
+    truePeakDBFS: z.number(),
+    loudnessRange: z.number().nonnegative(),
+    clippingRatio: z.number().min(0).max(1),
+    snrDB: z.number(),
+    loudnessMinLUFS: z.number(),
+    loudnessMaxLUFS: z.number(),
+    maxClippingRatio: z.number().min(0).max(1),
+    truePeakMaxDBFS: z.number(),
+  }),
+});
+
+export type AudioSignalGateResult = z.infer<typeof AudioSignalGateResultSchema>;
+
+export const TemporalQualityGateResultSchema = GateBaseSchema.extend({
+  gateId: z.literal('temporal-quality'),
+  details: z.object({
+    flickerScore: z.number().min(0).max(1),
+    flickerVariance: z.number().nonnegative(),
+    duplicateFrameRatio: z.number().min(0).max(1),
+    framesAnalyzed: z.number().int().positive(),
+    flickerMin: z.number().min(0).max(1),
+    maxDuplicateFrameRatio: z.number().min(0).max(1),
+  }),
+});
+
+export type TemporalQualityGateResult = z.infer<typeof TemporalQualityGateResultSchema>;
+
+export const FreezeGateResultSchema = GateBaseSchema.extend({
+  gateId: z.literal('freeze'),
+  details: z.object({
+    freezeRatio: z.number().min(0).max(1),
+    blackRatio: z.number().min(0).max(1),
+    freezeEvents: z.number().int().nonnegative(),
+    blackFrames: z.number().int().nonnegative(),
+    totalFrames: z.number().int().positive(),
+    maxFreezeRatio: z.number().min(0).max(1),
+    maxBlackRatio: z.number().min(0).max(1),
+  }),
+});
+
+export type FreezeGateResult = z.infer<typeof FreezeGateResultSchema>;
+
+export const FlowConsistencyGateResultSchema = GateBaseSchema.extend({
+  gateId: z.literal('flow-consistency'),
+  details: z.object({
+    meanWarpError: z.number().nonnegative(),
+    maxWarpError: z.number().nonnegative(),
+    framesAnalyzed: z.number().int().positive(),
+    maxMeanWarpError: z.number().positive(),
+  }),
+});
+
+export type FlowConsistencyGateResult = z.infer<typeof FlowConsistencyGateResultSchema>;
+
 export const GateResultSchema = z.discriminatedUnion('gateId', [
   ResolutionGateResultSchema,
   DurationGateResultSchema,
   FormatGateResultSchema,
   VisualQualityGateResultSchema,
   CadenceGateResultSchema,
+  TemporalQualityGateResultSchema,
+  AudioSignalGateResultSchema,
+  SafetyGateResultSchema,
+  FreezeGateResultSchema,
+  FlowConsistencyGateResultSchema,
 ]);
 
 export type GateResult = z.infer<typeof GateResultSchema>;

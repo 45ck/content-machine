@@ -1,12 +1,24 @@
 /**
- * Caption Style Presets - Complete caption configurations
+ * Theme Caption Presets
+ *
+ * These presets are inputs to the *style system* (themes -> tokens).
+ * They are NOT the same as `CAPTION_STYLE_PRESETS` in `render/captions/presets.ts`,
+ * which are the actual burned-in caption rendering configs.
  */
 import { PALETTES } from './palette';
 import { TYPOGRAPHY_PRESETS, type TypographyPreset } from './typography';
 import type { AnimationType } from './animation';
 
 /** Complete caption style */
-export interface CaptionPreset {
+/**
+ * Ubiquitous Language: Theme caption preset.
+ *
+ * An input to the render *style system* (themes -> tokens). This is distinct from
+ * `CaptionConfig` / `CAPTION_STYLE_PRESETS`, which affect burned-in captions.
+ *
+ * @cmTerm theme-caption-preset
+ */
+export interface ThemeCaptionPreset {
   readonly typography: TypographyPreset;
   readonly colors: {
     readonly text: string;
@@ -18,8 +30,8 @@ export interface CaptionPreset {
   readonly position: 'top' | 'center' | 'bottom';
 }
 
-/** Pre-built caption presets */
-export const CAPTION_PRESETS = Object.freeze({
+/** Pre-built theme caption presets */
+export const THEME_CAPTION_PRESETS = Object.freeze({
   /** Bold pop style - high energy */
   boldPop: Object.freeze({
     typography: TYPOGRAPHY_PRESETS.captionImpact,
@@ -31,7 +43,7 @@ export const CAPTION_PRESETS = Object.freeze({
     animation: 'pop' as const,
     strokeWidth: 3,
     position: 'center' as const,
-  } as CaptionPreset),
+  } as ThemeCaptionPreset),
 
   /** Clean minimal - understated */
   cleanKaraoke: Object.freeze({
@@ -44,7 +56,7 @@ export const CAPTION_PRESETS = Object.freeze({
     animation: 'karaoke' as const,
     strokeWidth: 2,
     position: 'bottom' as const,
-  } as CaptionPreset),
+  } as ThemeCaptionPreset),
 
   /** Earthy warm - softer feel */
   warmBounce: Object.freeze({
@@ -57,7 +69,7 @@ export const CAPTION_PRESETS = Object.freeze({
     animation: 'bounce' as const,
     strokeWidth: 3,
     position: 'center' as const,
-  } as CaptionPreset),
+  } as ThemeCaptionPreset),
 
   /** TikTok native - platform brand colors */
   tikTokNative: Object.freeze({
@@ -70,7 +82,7 @@ export const CAPTION_PRESETS = Object.freeze({
     animation: 'pop' as const,
     strokeWidth: 3,
     position: 'center' as const,
-  } as CaptionPreset),
+  } as ThemeCaptionPreset),
 
   /** Fade subtle - elegant transition */
   fadeSubtle: Object.freeze({
@@ -83,7 +95,7 @@ export const CAPTION_PRESETS = Object.freeze({
     animation: 'fade' as const,
     strokeWidth: 1,
     position: 'bottom' as const,
-  } as CaptionPreset),
+  } as ThemeCaptionPreset),
 
   /** Slide impact - dramatic entrance */
   slideImpact: Object.freeze({
@@ -96,7 +108,7 @@ export const CAPTION_PRESETS = Object.freeze({
     animation: 'slideUp' as const,
     strokeWidth: 4,
     position: 'center' as const,
-  } as CaptionPreset),
+  } as ThemeCaptionPreset),
 
   /** Typewriter code - technical content */
   typewriterCode: Object.freeze({
@@ -109,7 +121,12 @@ export const CAPTION_PRESETS = Object.freeze({
     animation: 'typewriter' as const,
     strokeWidth: 0,
     position: 'bottom' as const,
-  } as CaptionPreset),
+  } as ThemeCaptionPreset),
 } as const);
 
-export type CaptionPresetName = keyof typeof CAPTION_PRESETS;
+/**
+ * Ubiquitous Language: Theme caption preset name.
+ *
+ * @cmTerm theme-caption-preset
+ */
+export type ThemeCaptionPresetName = keyof typeof THEME_CAPTION_PRESETS;

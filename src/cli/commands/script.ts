@@ -5,13 +5,12 @@
  * Based on SYSTEM-DESIGN §7.1 cm script command.
  */
 import { Command } from 'commander';
-import { ArchetypeEnum } from '../../core/config';
+import { loadConfig } from '../../core/config';
 import { CMError, SchemaError } from '../../core/errors';
 import { logger } from '../../core/logger';
-import { PackageOutputSchema } from '../../package/schema';
-import { ResearchOutputSchema } from '../../research/schema';
-import type { ResearchOutput } from '../../research/schema';
+import { PackageOutputSchema, ResearchOutputSchema, type ResearchOutput } from '../../domain';
 import { generateScript } from '../../script/generator';
+import { formatArchetypeSource, resolveArchetype } from '../../archetypes/registry';
 import { FakeLLMProvider } from '../../test/stubs/fake-llm';
 import { createMockScriptResponse } from '../../test/fixtures/mock-scenes.js';
 import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
@@ -20,6 +19,7 @@ import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import type { SpinnerLike } from '../progress';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
+import { DEFAULT_ARTIFACT_FILENAMES } from '../../domain/repo-facts.generated';
 
 interface PackagingInput {
   title: string;
@@ -58,6 +58,13 @@ interface ScriptCommandOptions {
   duration: string;
   dryRun?: boolean;
   mock?: boolean;
+}
+
+function applyDefaultsFromConfig(options: ScriptCommandOptions, command: Command): void {
+  const config = loadConfig();
+  if (command.getOptionValueSource('archetype') === 'default') {
+    options.archetype = config.defaults.archetype;
+  }
 }
 
 async function loadResearch(path?: string): Promise<ResearchOutput | undefined> {
@@ -174,7 +181,8 @@ async function writeSuccessTextOutput(params: {
 
 async function runScript(options: ScriptCommandOptions, spinner: SpinnerLike): Promise<void> {
   const runtime = getCliRuntime();
-  const archetype = ArchetypeEnum.parse(options.archetype);
+  const resolvedArchetype = await resolveArchetype(options.archetype);
+  const archetype = resolvedArchetype.archetype.id;
   const durationSeconds = Number.parseInt(String(options.duration), 10);
   if (!Number.isFinite(durationSeconds) || durationSeconds <= 0) {
     throw new CMError('INVALID_ARGUMENT', `Invalid --duration value: ${options.duration}`, {
@@ -188,7 +196,10 @@ async function runScript(options: ScriptCommandOptions, spinner: SpinnerLike): P
     return;
   }
 
-  logger.info({ topic: options.topic, archetype }, 'Starting script generation');
+  logger.info(
+    { topic: options.topic, archetype, source: formatArchetypeSource(resolvedArchetype) },
+    'Starting script generation'
+  );
 
   const llmProvider = options.mock ? createMockLLMProvider(options.topic) : undefined;
   if (options.mock) {
@@ -226,16 +237,21 @@ async function runScript(options: ScriptCommandOptions, spinner: SpinnerLike): P
 export const scriptCommand = new Command('script')
   .description('Generate a script from a topic')
   .requiredOption('-t, --topic <topic>', 'Topic for the video')
-  .option('-a, --archetype <type>', 'Content archetype', 'listicle')
-  .option('-o, --output <path>', 'Output file path', 'script.json')
+  .option(
+    '-a, --archetype <idOrPath>',
+    'Script archetype (script format). Use `cm archetypes list`',
+    'listicle'
+  )
+  .option('-o, --output <path>', 'Output file path', DEFAULT_ARTIFACT_FILENAMES.script)
   .option('--package <path>', 'Packaging JSON file (from cm package)')
   .option('--research <path>', 'Research JSON file (from cm research)')
   .option('--duration <seconds>', 'Target duration in seconds', '45')
   .option('--dry-run', 'Preview without calling LLM')
   .option('--mock', 'Use mock LLM provider (for testing)')
-  .action(async (options: ScriptCommandOptions) => {
+  .action(async (options: ScriptCommandOptions, command: Command) => {
     const spinner = createSpinner('Generating script...').start();
     try {
+      applyDefaultsFromConfig(options, command);
       await runScript(options, spinner);
     } catch (error) {
       spinner.fail('Script generation failed');

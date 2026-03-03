@@ -7,7 +7,7 @@
 import { createHash } from 'crypto';
 import { existsSync } from 'fs';
 import { basename, extname, isAbsolute, resolve } from 'path';
-import type { AudioMixOutput, AudioMixLayer } from '../audio/mix/schema';
+import type { AudioMixLayer, AudioMixOutput } from '../domain';
 
 export interface BundleAsset {
   sourcePath: string;

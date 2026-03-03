@@ -18,30 +18,33 @@ export { AnthropicProvider } from './core/llm/anthropic';
 
 // Script generation
 export { generateScript } from './script/generator';
-export type { ScriptOutput, ScriptSection, Scene, ScriptMetadata } from './script/schema';
-export { ScriptOutputSchema, ScriptSectionSchema, SceneSchema } from './script/schema';
+export type { ScriptOutput, ScriptSection, Scene, ScriptMetadata } from './domain';
+export { ScriptOutputSchema, ScriptSectionSchema, SceneSchema } from './domain';
 
 // Audio pipeline
-export type { AudioOutput, WordTimestamp } from './audio/schema';
-export { AudioOutputSchema, WordTimestampSchema } from './audio/schema';
+export type { AudioOutput, WordTimestamp } from './domain';
+export { AudioOutputSchema, WordTimestampSchema } from './domain';
 
 // Importers
 export { generateTimestamps } from './importers/timestamps';
 export { importVisualsFromClips } from './importers/visuals';
 
 // Visuals/footage matching
-export type { VisualsOutput, VideoClip, VisualAsset } from './visuals/schema';
-export { VisualsOutputSchema, VideoClipSchema, VisualAssetSchema } from './visuals/schema';
+export type { VisualsOutput, VideoClip, VisualAsset } from './domain';
+export { VisualsOutputSchema, VideoClipSchema, VisualAssetSchema } from './domain';
 
 // Render pipeline
-export type { RenderProps, RenderOutput } from './render/schema';
-export { RenderPropsSchema, RenderOutputSchema } from './render/schema';
+export type { RenderProps, RenderOutput } from './domain';
+export { RenderPropsSchema, RenderOutputSchema } from './domain';
+
+// Remotion template SDK (for code templates)
+export * as TemplateSDK from './render/template-sdk';
 
 // Style system - presets
 export { PALETTES } from './render/presets/palette';
 export { TYPOGRAPHY_PRESETS } from './render/presets/typography';
 export { ANIMATION_PRESETS } from './render/presets/animation';
-export { CAPTION_PRESETS } from './render/presets/caption';
+export { THEME_CAPTION_PRESETS } from './render/presets/caption';
 
 // Style system - tokens
 export * from './render/tokens';
@@ -52,8 +55,8 @@ export type { Theme, ThemeRegistry } from './render/themes';
 
 // Research pipeline
 export { ResearchOrchestrator, createResearchOrchestrator } from './research/orchestrator';
-export type { Evidence, ContentAngle, ResearchOutput, ResearchSource } from './research/schema';
-export { EvidenceSchema, ContentAngleSchema, ResearchOutputSchema } from './research/schema';
+export type { Evidence, ContentAngle, ResearchOutput, ResearchSource } from './domain';
+export { EvidenceSchema, ContentAngleSchema, ResearchOutputSchema } from './domain';
 
 // Research tools
 export { HackerNewsTool } from './research/tools/hackernews';
@@ -62,12 +65,13 @@ export { WebSearchTool } from './research/tools/web-search';
 export type { ResearchTool, SearchToolOptions, SearchToolResult } from './research/tools/types';
 
 // Workflows
-export type {
-  WorkflowDefinition,
-  WorkflowCommand,
-  WorkflowStage,
-  WorkflowInputs,
-} from './workflows/schema';
+export type { WorkflowDefinition, WorkflowCommand, WorkflowStage, WorkflowInputs } from './domain';
+
+// VideoSpec (reverse-engineering)
+export { analyzeVideoToVideoSpecV1 } from './videospec/analyze';
+export type { AnalyzeVideoToVideoSpecV1Options } from './videospec/analyze';
+export { VideoSpecV1Schema, VIDEOSPEC_V1_VERSION } from './domain';
+export type { VideoSpecV1 } from './domain';
 
 // Test stubs (for testing consumers)
 export { FakeLLMProvider } from './test/stubs/fake-llm';

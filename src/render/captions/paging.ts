@@ -113,6 +113,22 @@ function matchesFillerPhrase<T extends { word: string }>(
  */
 const ASR_ARTIFACT_PATTERN = /^[.?!,;:\-–—…'"()]+$/;
 
+function isListMarkerToken(word: string, nextWord?: string): boolean {
+  const trimmed = word.trim();
+  if (!trimmed) return false;
+
+  // "1:" / "2." / "3)"
+  if (/^\d{1,2}[:.)]$/.test(trimmed)) return true;
+  // "#1"
+  if (/^#\d{1,2}$/.test(trimmed)) return true;
+  // "1" ":" split
+  if (/^\d{1,2}$/.test(trimmed) && nextWord) {
+    const nextTrim = nextWord.trim();
+    if (/^[:.)]$/.test(nextTrim)) return true;
+  }
+  return false;
+}
+
 /**
  * Check if a word is a TTS internal marker that should be filtered
  */
@@ -141,6 +157,11 @@ export function isDisplayableWord(word: string): boolean {
   return true;
 }
 
+/**
+ * Filter caption tokens by applying the configured cleanup rules.
+ * @param words Words/tokens to filter
+ * @param cleanup Optional cleanup rules (drop markers, filler words, etc.)
+ */
 export function filterCaptionWords<T extends { word: string }>(
   words: T[],
   cleanup?: CaptionCleanup
@@ -150,8 +171,13 @@ export function filterCaptionWords<T extends { word: string }>(
 
   for (let i = 0; i < words.length; i++) {
     const token = words[i];
+    const next = words[i + 1];
     if (!token || typeof token.word !== 'string') continue;
     if (!isDisplayableWord(token.word)) continue;
+
+    if (cleanup?.dropListMarkers) {
+      if (isListMarkerToken(token.word, next?.word)) continue;
+    }
 
     if (fillerConfig) {
       let matchedPhrase = false;
@@ -186,6 +212,7 @@ export function sanitizeTimedWords(words: TimedWord[]): TimedWord[] {
 /**
  * Sanitize words with confidence-based filtering.
  * Use this when you have access to confidence scores.
+ * @param words Words to sanitize
  * @param minConfidence Minimum confidence threshold (default: 0.1)
  */
 export function sanitizeTimedWordsWithConfidence(
@@ -269,6 +296,12 @@ function endsWithSentencePunctuation(word: string): boolean {
   return /[.!?]$/.test(trimmed) && !/\.\.\.$/.test(trimmed);
 }
 
+function endsWithTerminalPunctuation(word: string): boolean {
+  const trimmed = word.trim();
+  // More permissive than sentence boundaries: treat ellipsis as terminal for layout decisions.
+  return /[.!?]$/.test(trimmed);
+}
+
 /**
  * Calculate the character count for a line of words
  * Includes spaces between words
@@ -321,8 +354,22 @@ export function createCaptionPages(
 ): CaptionPage[] {
   const config = { ...DEFAULT_LAYOUT, ...layout };
   const pages: CaptionPage[] = [];
+  const minWordsPerPage = Math.max(1, config.minWordsPerPage ?? 1);
 
   if (words.length === 0) return pages;
+
+  function countWordsUntilSentenceBoundary(startIndex: number): number {
+    let count = 0;
+    for (let j = startIndex; j < words.length; j++) {
+      count += 1;
+      const cur = words[j];
+      if (endsWithSentencePunctuation(cur.text)) break;
+      const next = words[j + 1];
+      if (!next) break;
+      if (next.startMs - cur.endMs > config.maxGapMs) break;
+    }
+    return count;
+  }
 
   // Current page being built
   let currentPageLines: CaptionLine[] = [];
@@ -371,19 +418,26 @@ export function createCaptionPages(
 
     // Check for time gap - forces new page
     const hasTimeGap = prevWord && word.startMs - prevWord.endMs > config.maxGapMs;
+    const breakForGap =
+      hasTimeGap && countWordsUntilSentenceBoundary(i) >= minWordsPerPage ? true : false;
 
     // Check if we've hit max words per page
     const exceedsWordLimit = currentPageWords.length >= config.maxWordsPerPage;
+    const allowTerminalWordOverflow =
+      exceedsWordLimit &&
+      endsWithTerminalPunctuation(word.text) &&
+      currentPageWords.length >= minWordsPerPage;
+    const breakForWordLimit = exceedsWordLimit && !allowTerminalWordOverflow;
 
     // Check if previous word ended a sentence (triggers new page)
     // Only trigger if we have at least minWordsPerPage on current page
     const prevEndedSentence =
       prevWord &&
       endsWithSentencePunctuation(prevWord.text) &&
-      currentPageWords.length >= (config.minWordsPerPage ?? 1);
+      currentPageWords.length >= minWordsPerPage;
 
     // Force new page on time gap, word limit, or sentence boundary
-    if (hasTimeGap || exceedsWordLimit || prevEndedSentence) {
+    if (breakForGap || breakForWordLimit || prevEndedSentence) {
       finalizeCurrentPage();
       currentPageStartMs = word.startMs;
     }
@@ -391,7 +445,14 @@ export function createCaptionPages(
     // Check if adding this word would exceed line character limit
     const exceedsLineLimit = wouldExceedLineLimit(currentLineWords, word, config.maxCharsPerLine);
 
-    if (exceedsLineLimit) {
+    // Special-case: avoid orphaning a terminal punctuation word onto its own new page/line.
+    // If it's the last line and the only reason we'd split is maxCharsPerLine, allow a small overflow.
+    const isTerminalPunctuation = endsWithTerminalPunctuation(word.text);
+    const isLastLine = currentPageLines.length >= config.maxLinesPerPage - 1;
+    const wouldOrphanTerminalWord =
+      exceedsLineLimit && isTerminalPunctuation && isLastLine && currentLineWords.length > 0;
+
+    if (exceedsLineLimit && !wouldOrphanTerminalWord) {
       // Finalize current line
       finalizeCurrentLine();
 
@@ -429,13 +490,20 @@ function finalizeLine(words: TimedWord[]): CaptionLine {
  * Convert our WordTimestamp format to TimedWord format
  */
 export function toTimedWords(
-  words: Array<{ word: string; start: number; end: number }>
+  words: Array<{ word: string; start: number; end: number }>,
+  timingOffsetMs: number = 0
 ): TimedWord[] {
   return words
     .filter((w) => typeof w.word === 'string' && w.word.trim().length > 0)
-    .map((w) => ({
-      text: w.word,
-      startMs: w.start * 1000,
-      endMs: w.end * 1000,
-    }));
+    .map((w) => {
+      const startMs = w.start * 1000 + timingOffsetMs;
+      const endMs = w.end * 1000 + timingOffsetMs;
+      const safeStartMs = Math.max(0, Math.round(startMs));
+      const safeEndMs = Math.max(safeStartMs + 1, Math.round(endMs));
+      return {
+        text: w.word,
+        startMs: safeStartMs,
+        endMs: safeEndMs,
+      };
+    });
 }

@@ -7,15 +7,14 @@
  */
 import { createLogger } from '../../core/logger';
 import { APIError } from '../../core/errors';
-import { WordTimestamp } from '../schema';
+import type { WordTimestamp } from '../../domain';
 import { validateWordTimings, repairWordTimings, TimestampValidationError } from './validator';
 import { postProcessASRWordsWithStats } from './post-processor';
 import type { Language, WhisperModel } from '@remotion/install-whisper-cpp';
-import { exec } from 'node:child_process';
-import { promisify } from 'node:util';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 import { resolveWhisperDir, resolveWhisperModelFilename } from '../../core/assets/whisper';
+import { execFfmpeg, execFfprobe } from '../../core/video/ffmpeg';
 
 // Re-export post-processor for direct use
 export {
@@ -23,8 +22,6 @@ export {
   type PostProcessorOptions,
   type PostProcessorStats,
 } from './post-processor';
-
-const execAsync = promisify(exec);
 
 // Import from @remotion/install-whisper-cpp for transcription
 let whisperModule: typeof import('@remotion/install-whisper-cpp') | null = null;
@@ -47,6 +44,9 @@ async function getWhisper() {
 
 export interface ASROptions {
   audioPath: string;
+  /** ASR/alignment engine to use. Default: whisper */
+  engine?: 'whisper' | 'elevenlabs-forced-alignment';
+  elevenlabs?: { apiBaseUrl?: string };
   model?: 'tiny' | 'base' | 'small' | 'medium' | 'large';
   language?: string;
   /** Original text for fallback estimation */
@@ -64,7 +64,7 @@ export interface ASRResult {
   words: WordTimestamp[];
   duration: number;
   text: string;
-  engine: 'whisper-cpp' | 'estimated';
+  engine: 'whisper-cpp' | 'estimated' | 'elevenlabs-forced-alignment';
 }
 
 /** Whisper transcription segment structure */
@@ -109,10 +109,24 @@ async function resampleFor16kHz(
 
   // Check current sample rate using ffprobe
   try {
-    const { stdout } = await execAsync(
-      `ffprobe -v error -select_streams a:0 -show_entries stream=sample_rate -of default=noprint_wrappers=1:nokey=1 "${absoluteAudioPath}"`
+    const { stdout } = await execFfprobe(
+      [
+        '-v',
+        'error',
+        '-select_streams',
+        'a:0',
+        '-show_entries',
+        'stream=sample_rate',
+        '-of',
+        'default=noprint_wrappers=1:nokey=1',
+        absoluteAudioPath,
+      ],
+      {
+        dependencyMessage: 'ffprobe is required to probe audio sample rate',
+        encoding: 'utf8',
+      }
     );
-    const sampleRate = parseInt(stdout.trim(), 10);
+    const sampleRate = parseInt(String(stdout).trim(), 10);
 
     if (sampleRate === 16000) {
       log.debug({ sampleRate }, 'Audio already at 16kHz, no resampling needed');
@@ -132,9 +146,11 @@ async function resampleFor16kHz(
 
   // Resample to 16kHz mono using FFmpeg
   try {
-    await execAsync(
-      `ffmpeg -y -i "${absoluteAudioPath}" -ar 16000 -ac 1 -c:a pcm_s16le "${resampledPath}"`
-    );
+    await execFfmpeg(['-y', '-i', absoluteAudioPath, '-ar', '16000', '-ac', '1', '-c:a', 'pcm_s16le', resampledPath], {
+      dependencyMessage: 'ffmpeg is required to resample audio for Whisper',
+      encoding: 'utf8',
+      timeoutMs: 5 * 60_000,
+    });
 
     // Verify the file was created
     if (!fs.existsSync(resampledPath)) {
@@ -252,8 +268,36 @@ function validateOrRepairTimestamps(
 export async function transcribeAudio(options: ASROptions): Promise<ASRResult> {
   const log = createLogger({ module: 'asr', audioPath: options.audioPath });
   const model = options.model ?? 'base';
+  const engine = options.engine ?? 'whisper';
 
-  log.info({ model, requireWhisper: options.requireWhisper }, 'Starting transcription');
+  log.info({ engine, model, requireWhisper: options.requireWhisper }, 'Starting transcription');
+
+  if (engine === 'elevenlabs-forced-alignment') {
+    if (!options.originalText) {
+      throw new APIError('ElevenLabs forced alignment requires originalText', {
+        engine,
+        fix: 'Pass originalText (the exact transcript used to synthesize the audio).',
+      });
+    }
+
+    const { transcribeWithElevenLabsForcedAlignment } =
+      await import('./elevenlabs-forced-alignment');
+    const aligned = await transcribeWithElevenLabsForcedAlignment({
+      audioPath: options.audioPath,
+      transcriptText: options.originalText,
+      apiBaseUrl: options.elevenlabs?.apiBaseUrl,
+    });
+
+    const duration = options.audioDuration ?? aligned.duration;
+    const validatedWords = validateOrRepairTimestamps(aligned.words, duration, log);
+
+    return {
+      words: validatedWords,
+      duration,
+      text: options.originalText,
+      engine: 'elevenlabs-forced-alignment',
+    };
+  }
 
   // Try whisper.cpp first
   try {

@@ -1,4 +1,4 @@
-import ora from 'ora';
+import { createRequire } from 'module';
 import { getCliRuntime } from './runtime';
 import { writeStderrLine } from './output';
 
@@ -69,6 +69,16 @@ class LineSpinner implements SpinnerLike {
   }
 }
 
+type OraFactory = (options: {
+  text: string;
+  isEnabled: boolean;
+  stream: NodeJS.WriteStream;
+}) => SpinnerLike;
+
+declare global {
+  var __CM_ORA_FACTORY__: OraFactory | undefined;
+}
+
 export function createSpinner(text: string): SpinnerLike {
   const runtime = getCliRuntime();
 
@@ -80,5 +90,24 @@ export function createSpinner(text: string): SpinnerLike {
     return new LineSpinner(text);
   }
 
-  return ora({ text, isEnabled: true, stream: process.stderr });
+  const nodeMajor = Number(process.versions.node.split('.')[0] ?? 0);
+  if (nodeMajor < 20) {
+    return new LineSpinner(text);
+  }
+
+  try {
+    if (globalThis.__CM_ORA_FACTORY__) {
+      return globalThis.__CM_ORA_FACTORY__({
+        text,
+        isEnabled: true,
+        stream: process.stderr,
+      });
+    }
+    const require = createRequire(typeof __filename === 'string' ? __filename : import.meta.url);
+    const ora = require('ora') as typeof import('ora');
+    const factory = 'default' in ora ? ora.default : ora;
+    return factory({ text, isEnabled: true, stream: process.stderr });
+  } catch {
+    return new LineSpinner(text);
+  }
 }

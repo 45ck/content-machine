@@ -1,0 +1,26 @@
+id: meme-pov
+name: Meme Sketch / POV
+description: Setup -> escalation -> punchline with tight timing.
+version: 1
+script:
+  template: |
+    Create a short-form video script as a meme/POV sketch about: "{{topic}}"
+
+    FORMAT: Meme sketch / POV
+    Typical length: 7-20s
+
+    REQUIREMENTS:
+    - One joke, one turn, one punchline (no subplots).
+    - Use captions for the punchline + a strong reaction.
+    - Tight timing: cut every pause.
+
+    STRUCTURE:
+    1) Hook field: setup text ("POV: ...")
+    2) Scene 1: setup (1 line)
+    3) Scene 2: escalation (1-2 quick lines)
+    4) Final scene: punchline + quick tag/end frame
+
+    TIMELINE (12s template):
+    - 0-2s: setup text
+    - 2-8s: escalation (jump cuts)
+    - 8-12s: punchline + end frame

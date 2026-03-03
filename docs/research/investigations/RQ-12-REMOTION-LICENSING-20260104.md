@@ -236,12 +236,12 @@ jobs:
 
 ## 7. Implementation Recommendations
 
-| Action                         | Priority | Location                    |
-| ------------------------------ | -------- | --------------------------- |
-| Add README notice              | P0       | README.md                   |
-| Add license check to CLI       | P1       | src/cli/index.ts            |
-| Document in installation guide | P1       | docs/guides/installation.md |
-| Add to CONTRIBUTING.md         | P2       | CONTRIBUTING.md             |
+| Action                         | Priority | Location                        |
+| ------------------------------ | -------- | ------------------------------- |
+| Add README notice              | P0       | README.md                       |
+| Add license check to CLI       | P1       | src/cli/index.ts                |
+| Document in installation guide | P1       | docs/dev/guides/installation.md |
+| Add to CONTRIBUTING.md         | P2       | CONTRIBUTING.md                 |
 
 ---
 

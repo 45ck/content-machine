@@ -9,11 +9,24 @@ import { z } from 'zod';
 /** Current schema version for migrations */
 export const PACKAGE_SCHEMA_VERSION = '1.0.0';
 
+/**
+ * Ubiquitous Language: Packaging platform enum.
+ *
+ * @cmTerm packaging-artifact
+ */
 export const PlatformEnum = z.enum(['tiktok', 'reels', 'shorts']);
+
+/**
+ * Ubiquitous Language: Packaging platform.
+ *
+ * @cmTerm packaging-artifact
+ */
 export type Platform = z.infer<typeof PlatformEnum>;
 
 /**
  * A single packaging variant
+ *
+ * @cmTerm packaging-artifact
  */
 export const PackageVariantSchema = z.object({
   title: z.string().min(3).max(140).describe('Video title'),
@@ -29,6 +42,11 @@ export const PackageVariantSchema = z.object({
   extra: z.record(z.unknown()).optional(),
 });
 
+/**
+ * Ubiquitous Language: Packaging variant.
+ *
+ * @cmTerm packaging-artifact
+ */
 export type PackageVariant = z.infer<typeof PackageVariantSchema>;
 
 export const PackageMetaSchema = z.object({
@@ -38,10 +56,15 @@ export const PackageMetaSchema = z.object({
   llmCost: z.number().nonnegative().optional(),
 });
 
+/**
+ * Ubiquitous Language: Packaging meta.
+ */
 export type PackageMeta = z.infer<typeof PackageMetaSchema>;
 
 /**
  * Full package output artifact
+ *
+ * @cmTerm packaging-artifact
  */
 export const PackageOutputSchema = z
   .object({
@@ -78,6 +101,11 @@ export const PackageOutputSchema = z
     }
   });
 
+/**
+ * Ubiquitous Language: Packaging output artifact.
+ *
+ * @cmTerm packaging-artifact
+ */
 export type PackageOutput = z.infer<typeof PackageOutputSchema>;
 
 /**
@@ -95,4 +123,7 @@ export const LLMPackageResponseSchema = z.object({
   reasoning: z.string().optional(),
 });
 
+/**
+ * Ubiquitous Language: Packaging LLM response (raw).
+ */
 export type LLMPackageResponse = z.infer<typeof LLMPackageResponseSchema>;

@@ -4,16 +4,8 @@
  * Coordinates multiple research tools, merges results, and generates content angles.
  */
 import type { LLMProvider, LLMOptions } from '../core/llm/provider';
-import type {
-  ResearchSource,
-  Evidence,
-  ContentAngle,
-  ResearchOutput,
-} from './schema';
-import {
-  ContentAngleSchema,
-  ResearchOutputSchema,
-} from './schema';
+import { ContentAngleSchema, ResearchOutputSchema } from '../domain';
+import type { ContentAngle, Evidence, ResearchOutput, ResearchSource } from '../domain';
 import type { ResearchTool, SearchToolOptions, SearchToolResult } from './tools';
 import { createTool } from './tools';
 
@@ -72,12 +64,15 @@ Based on the research evidence provided, generate content angles that would perf
 For each angle, provide:
 - angle: A clear description of the content angle
 - hook: An attention-grabbing opening line (under 10 words)
-- archetype: One of: listicle, versus, howto, myth, story, hot-take
+- archetype: An archetype id (string). Use an existing archetype when possible.
 - targetEmotion: The primary emotion to evoke (curiosity, surprise, fear, excitement, etc.)
 - confidence: Your confidence score 0-1 based on evidence strength
 
 Return a JSON array of content angles. Focus on angles with strong evidence support.`;
 
+/**
+ * Coordinates multi-source research and optional LLM-based angle generation.
+ */
 export class ResearchOrchestrator {
   private config: Required<OrchestratorConfig>;
   private llmProvider?: LLMProvider;

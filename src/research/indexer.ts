@@ -1,5 +1,4 @@
-import { EvidenceSchema } from './schema';
-import type { Evidence } from './schema';
+import { EvidenceSchema, type Evidence } from '../domain';
 import type { EmbeddingProvider } from '../core/embeddings/types';
 import { BruteForceVectorIndex } from '../core/retrieval/brute-force';
 import { z } from 'zod';

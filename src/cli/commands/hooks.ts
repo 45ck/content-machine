@@ -14,7 +14,7 @@ import { NotFoundError } from '../../core/errors';
 import { TRANSITIONAL_HOOKS } from '../../hooks/libraries/transitionalhooks';
 import { DEFAULT_HOOKS_DIR } from '../../hooks/constants';
 import { downloadHookClip } from '../../hooks/download';
-import type { HookDefinition } from '../../hooks/schema';
+import type { HookDefinition } from '../../domain';
 
 function resolveHookLibrary(library: string): HookDefinition[] {
   if (library === 'transitionalhooks') return TRANSITIONAL_HOOKS;

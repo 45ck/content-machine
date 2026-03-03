@@ -4,7 +4,7 @@
 
 import { describe, expect, it, vi } from 'vitest';
 import { matchVisuals } from './matcher';
-import { AUDIO_SCHEMA_VERSION, type TimestampsOutput } from '../audio/schema';
+import { AUDIO_SCHEMA_VERSION, type TimestampsOutput } from '../domain';
 
 describe('matchVisuals() progress reporting', () => {
   it('calls onProgress in mock mode', async () => {

@@ -13,7 +13,7 @@ import {
   staticFile,
   useVideoConfig,
 } from 'remotion';
-import type { RenderProps } from '../schema';
+import type { RenderProps } from '../../domain';
 import { Caption } from '../captions';
 import {
   buildSequences,
@@ -25,6 +25,7 @@ import {
 import { FontLoader } from './FontLoader';
 import { computeSplitScreenLayout } from './split-screen-layout';
 import { AudioLayers } from './AudioLayers';
+import { Overlays } from './Overlays';
 
 function resolveGameplaySrc(path: string): string {
   if (/^https?:\/\//i.test(path)) return path;
@@ -37,6 +38,7 @@ function resolveGameplaySrc(path: string): string {
 export const SplitScreenGameplay: React.FC<RenderProps> = ({
   scenes,
   clips,
+  overlays,
   words,
   audioPath,
   audioMix,
@@ -100,6 +102,8 @@ export const SplitScreenGameplay: React.FC<RenderProps> = ({
             <Sequence key={`scene-${index}`} from={fromFrame} durationInFrames={durationInFrames}>
               <SceneBackground
                 scene={scene}
+                startFrame={hookFrames + fromFrame}
+                durationInFrames={durationInFrames}
                 containerStyle={{ top: contentTop, height: contentHeight, overflow: 'hidden' }}
               />
             </Sequence>
@@ -145,10 +149,13 @@ export const SplitScreenGameplay: React.FC<RenderProps> = ({
           </>
         ) : null}
 
+        <Overlays overlays={overlays} layer="below-captions" />
+
         <AbsoluteFill style={{ top: layout.captions.top, height: layout.captions.height }}>
           <Caption words={words} config={captionConfig} />
         </AbsoluteFill>
 
+        <Overlays overlays={overlays} layer="above-captions" />
         <AudioLayers audioPath={audioPath} mix={audioMix} />
       </Sequence>
     </AbsoluteFill>

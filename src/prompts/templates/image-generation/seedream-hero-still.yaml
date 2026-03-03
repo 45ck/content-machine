@@ -1,0 +1,112 @@
+# Seedream Hero Still
+#
+# Original: content-machine
+# License: MIT
+# Created: 2026-02-12
+# Purpose: Generate character-consistent hero stills for Seedream/Seedance workflows
+
+id: image-generation/seedream-hero-still
+name: Seedream Hero Still
+description: >
+  Generates a concise, natural-language hero still prompt for character-first
+  workflows. Optimized for creating keyframe/poster references before video generation.
+category: image-generation
+provider: any
+outputFormat: text
+version: "1.0.0"
+tags:
+  - image-generation
+  - character
+  - hero-still
+  - seedream
+  - seedance
+  - film-style
+estimatedTokens: 170
+recommendedTemperature: 0.6
+
+variables:
+  - name: characterBrief
+    description: Character description using non-infringing traits
+    required: true
+    type: string
+    example: "middle-aged chemistry teacher turned antihero, shaved head, glasses, goatee"
+  - name: wardrobe
+    description: Signature wardrobe anchors
+    required: false
+    type: string
+    default: "black jacket, neutral shirt"
+    example: "pork pie hat, wireframe glasses, dark jacket"
+  - name: shotSpec
+    description: Shot framing and lens details
+    required: false
+    type: string
+    default: "medium close-up, eye-level, 50mm lens"
+    example: "tight portrait, low angle, 85mm lens"
+  - name: lighting
+    description: Lighting and shadow direction
+    required: false
+    type: string
+    default: "single-source cinematic key light with soft shadow falloff"
+    example: "hard desert sunset side light with long shadows"
+  - name: location
+    description: Set dressing and background context
+    required: false
+    type: string
+    default: "minimal background with subtle texture"
+    example: "desert roadside with old RV in background"
+  - name: mood
+    description: Emotional tone
+    required: false
+    type: string
+    default: "controlled tension"
+    example: "quiet menace"
+  - name: aspectRatio
+    description: Target aspect ratio
+    required: false
+    type: string
+    default: "9:16"
+    example: "16:9"
+
+defaultOptions:
+  style: cinematic
+  aspectRatio: "9:16"
+  lighting: dramatic
+  cameraAngle: eye-level
+  colorPalette: muted
+
+template: |
+  Create a cinematic hero still of a fictional character with this brief: {{characterBrief}}.
+
+  Wardrobe anchors: {{wardrobe}}.
+  Shot specification: {{shotSpec}}.
+  Lighting: {{lighting}}.
+  Location and set dressing: {{location}}.
+  Mood: {{mood}}.
+  Aspect ratio: {{aspectRatio}}.
+
+  Keep one clear subject, one face, natural anatomy, and coherent hands.
+  Preserve wardrobe consistency and avoid style drift.
+  No text, no logo, no watermark.
+
+examples:
+  - input:
+      characterBrief: "middle-aged chemistry teacher turned antihero, shaved head, glasses, goatee"
+      wardrobe: "pork pie hat, wireframe glasses, dark green jacket"
+      shotSpec: "medium close-up, eye-level, 50mm lens"
+      lighting: "hard sunset side light with long shadows"
+      location: "desert roadside with an aging RV"
+      mood: "quiet menace"
+      aspectRatio: "9:16"
+    output: |
+      Create a cinematic hero still of a fictional character with this brief: middle-aged chemistry teacher turned antihero, shaved head, glasses, goatee.
+
+      Wardrobe anchors: pork pie hat, wireframe glasses, dark green jacket.
+      Shot specification: medium close-up, eye-level, 50mm lens.
+      Lighting: hard sunset side light with long shadows.
+      Location and set dressing: desert roadside with an aging RV.
+      Mood: quiet menace.
+      Aspect ratio: 9:16.
+
+      Keep one clear subject, one face, natural anatomy, and coherent hands.
+      Preserve wardrobe consistency and avoid style drift.
+      No text, no logo, no watermark.

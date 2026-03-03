@@ -4,7 +4,7 @@
  * Ensures visual scenes cover the full audio duration to prevent
  * the v3 bug where scenes ended at 20.32s but audio continued to 25.22s.
  *
- * @see docs/research/investigations/RQ-28-AUDIO-VISUAL-CAPTION-SYNC-20260610.md
+ * @see docs/research/investigations/RQ-28-AUDIO-VISUAL-CAPTION-SYNC-20260110.md
  */
 
 /**
@@ -15,16 +15,16 @@ export interface VisualScene {
   startMs: number;
   /** End time in milliseconds */
   endMs: number;
-  /** Video URL (null for color-only scenes) */
+  /** Media URL/path (null for color-only scenes) */
   url: string | null;
+  /** Whether this scene is a video or a still image. */
+  mediaType?: 'video' | 'image';
+  /** Motion strategy hint for image scenes (render-time effects). */
+  motionStrategy?: 'none' | 'kenburns' | 'depthflow' | 'veo';
   /** Optional background color for fallback scenes */
   backgroundColor?: string;
   /** Original video duration in ms (for looping calculation) */
   durationMs?: number;
-  /** Asset type: 'video' (default) or 'image' */
-  assetType?: 'video' | 'image';
-  /** Motion strategy for image assets */
-  motionStrategy?: 'none' | 'kenburns' | 'depthflow' | 'veo';
 }
 
 export interface CoverageOptions {
@@ -86,7 +86,7 @@ export function ensureVisualCoverage(
   audioDurationMs: number,
   options: CoverageOptions = {}
 ): VisualScene[] {
-  const { fallbackColor = '#1a1a1a', maxExtensionRatio = 1.5 } = options;
+  const { fallbackColor = '#1a1a1a', maxExtensionRatio = 1.5, useFallbackColor = false } = options;
 
   // Handle empty scenes
   if (scenes.length === 0) {
@@ -121,8 +121,8 @@ export function ensureVisualCoverage(
     return result;
   }
 
-  // If fallbackColor is explicitly provided in options, use it for the gap
-  if (options.fallbackColor !== undefined) {
+  // Force fallback when requested (useful for debugging or when video extension is undesirable)
+  if (useFallbackColor) {
     result.push({
       startMs: lastScene.endMs,
       endMs: audioDurationMs,
@@ -152,9 +152,9 @@ export function ensureVisualCoverage(
         startMs: currentEnd,
         endMs: currentEnd + loopDuration,
         url: lastScene.url,
-        durationMs: originalDuration,
-        assetType: lastScene.assetType,
+        mediaType: lastScene.mediaType,
         motionStrategy: lastScene.motionStrategy,
+        durationMs: originalDuration,
       });
       currentEnd += loopDuration;
     }
