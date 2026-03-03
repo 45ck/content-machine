@@ -5,12 +5,20 @@
  * This provider generates images that require motion strategies for video output.
  *
  * Supported models:
- * - gemini-2.5-flash-preview-image (fast, ~$0.04/image)
- * - gemini-3-pro-image-preview (high quality, ~$0.08/image)
+ * - gemini-2.0-flash-exp-image-generation (fast, ~$0.04/image)
  *
  * See ADR-002-VISUAL-PROVIDER-SYSTEM-20260107.md
  */
 
+import type { GenerationConfig } from '@google/generative-ai';
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
+/**
+ * SDK v0.24.1 types don't include `responseModalities` yet — it is required
+ * at runtime for gemini-2.0-flash-exp-image-generation.  Remove once the
+ * upstream types are updated.
+ */
+type ImageGenerationConfig = GenerationConfig & { responseModalities: string[] };
 import type { AssetProvider, AssetType, AssetSearchOptions, VisualAssetResult } from './types.js';
 import { getApiKey, getOptionalApiKey } from '../../core/config.js';
 import { createLogger } from '../../core/logger.js';
@@ -26,7 +34,7 @@ const DEFAULT_COST_PER_ASSET = 0.04;
 /**
  * Default model for image generation.
  */
-const DEFAULT_MODEL = 'gemini-2.5-flash-preview-image';
+const DEFAULT_MODEL = 'gemini-2.0-flash-exp-image-generation';
 
 /**
  * NanoBanana Provider - Gemini image generation for visual content.
@@ -194,14 +202,34 @@ export class NanoBananaProvider implements AssetProvider {
    * This method can be overridden in tests for mocking.
    */
   protected async generateImage(
-    _prompt: string,
-    _options: { width: number; height: number }
+    prompt: string,
+    options: { width: number; height: number }
   ): Promise<{ id: string; url: string; width: number; height: number }> {
-    // In a real implementation, this would call the Gemini API
-    // For now, we throw to indicate it's not implemented yet
-    throw new Error(
-      'Gemini API integration not yet implemented. ' +
-        'Set up @google/generative-ai package and implement generateImage().'
-    );
+    const apiKey = this.getApiKey();
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({
+      model: this.model,
+      generationConfig: {
+        responseModalities: ['IMAGE'],
+      } as ImageGenerationConfig,
+    });
+
+    const result = await model.generateContent(prompt);
+    const parts = result.response.candidates?.[0]?.content?.parts ?? [];
+    const imagePart = parts.find((p) => p.inlineData);
+
+    if (!imagePart?.inlineData) {
+      throw new Error('Gemini returned no image data. Check model name and API key.');
+    }
+
+    const { data, mimeType } = imagePart.inlineData;
+    const dataUrl = `data:${mimeType};base64,${data}`;
+
+    return {
+      id: `nanobanana-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      url: dataUrl,
+      width: options.width,
+      height: options.height,
+    };
   }
 }

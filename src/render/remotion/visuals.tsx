@@ -2,13 +2,22 @@
  * Shared visual timeline helpers for Remotion compositions.
  */
 import React from 'react';
-import { AbsoluteFill, Sequence, Video, staticFile } from 'remotion';
+import {
+  AbsoluteFill,
+  Sequence,
+  Video,
+  interpolate,
+  useCurrentFrame,
+  useVideoConfig,
+  staticFile,
+} from 'remotion';
 import type { VisualAsset, VideoClip } from '../../visuals/schema';
 import type { HookClip as HookClipSchema } from '../schema';
 import { ensureVisualCoverage, type VisualScene } from '../../visuals/duration';
 
 function resolveMediaSrc(path: string): string {
   if (/^https?:\/\//i.test(path)) return path;
+  if (/^data:/i.test(path)) return path;
   return staticFile(path);
 }
 
@@ -39,7 +48,14 @@ export function buildVisualTimeline(videoAssets: VisualAsset[], durationMs: numb
         durationMs: assetDurationMs,
       };
     }
-    return { startMs, endMs, url: asset.assetPath, durationMs: assetDurationMs };
+    return {
+      startMs,
+      endMs,
+      url: asset.assetPath,
+      durationMs: assetDurationMs,
+      assetType: asset.assetType,
+      motionStrategy: asset.motionStrategy,
+    };
   });
 
   return ensureVisualCoverage(rawScenes, durationMs, { fallbackColor: '#000000' });
@@ -67,6 +83,41 @@ export function buildSequences(
   });
 }
 
+/**
+ * Ken Burns effect: slow zoom-in with subtle pan.
+ * Scales 1.0 → 1.12 and translates slightly over the scene duration.
+ */
+const KenBurnsImage: React.FC<{ src: string }> = ({ src }) => {
+  const frame = useCurrentFrame();
+  const { durationInFrames } = useVideoConfig();
+  const progress = durationInFrames > 1 ? frame / (durationInFrames - 1) : 0;
+  const scale = interpolate(progress, [0, 1], [1.0, 1.12]);
+  const translateX = interpolate(progress, [0, 1], [0, -20]);
+  const translateY = interpolate(progress, [0, 1], [0, -10]);
+
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden',
+      }}
+    >
+      <img
+        src={src}
+        style={{
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          transform: `scale(${scale}) translate(${translateX}px, ${translateY}px)`,
+          transformOrigin: 'center center',
+        }}
+        alt=""
+      />
+    </div>
+  );
+};
+
 export interface SceneBackgroundProps {
   scene: VisualScene;
   containerStyle?: React.CSSProperties;
@@ -88,6 +139,16 @@ export const SceneBackground: React.FC<SceneBackgroundProps> = ({
           backgroundColor: scene.backgroundColor ?? '#000000',
         }}
       />
+    ) : scene.assetType === 'image' ? (
+      scene.motionStrategy === 'kenburns' ? (
+        <KenBurnsImage src={resolveMediaSrc(scene.url)} />
+      ) : (
+        <img
+          src={resolveMediaSrc(scene.url)}
+          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          alt=""
+        />
+      )
     ) : (
       <Video
         src={resolveMediaSrc(scene.url)}

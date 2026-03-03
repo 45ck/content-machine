@@ -18,7 +18,12 @@ import {
   VISUALS_SCHEMA_VERSION,
 } from './schema.js';
 import { extractKeywords, generateMockKeywords } from './keywords.js';
-import { createVideoProvider, type VideoProvider, type ProviderName } from './providers/index.js';
+import {
+  createVideoProvider,
+  type VideoProvider,
+  type ProviderName,
+  NanoBananaProvider,
+} from './providers/index.js';
 import { selectGameplayClip } from './gameplay.js';
 
 export type { VisualsOutput, VisualAsset } from './schema.js';
@@ -52,7 +57,13 @@ interface VideoMatchResult {
   isFallback: boolean;
 }
 
-type AssetSource = 'user-footage' | 'stock-pexels' | 'stock-pixabay' | 'fallback-color' | 'mock';
+type AssetSource =
+  | 'user-footage'
+  | 'stock-pexels'
+  | 'stock-pixabay'
+  | 'generated-nanobanana'
+  | 'fallback-color'
+  | 'mock';
 
 /**
  * Match a single keyword to video footage
@@ -153,6 +164,109 @@ async function tryFallbackVideo(
 }
 
 /**
+ * Match visuals using AI image generation (NanoBanana/Gemini).
+ *
+ * Falls back to Pexels stock footage on per-image errors so the pipeline
+ * does not crash if one generation fails.
+ */
+async function matchVisualsWithAI(
+  options: MatchVisualsOptions,
+  keywords: Keyword[],
+  emit: (event: VisualsProgressEvent) => void,
+  log: ReturnType<typeof createLogger>
+): Promise<VisualsOutput> {
+  const orientation = options.orientation ?? 'portrait';
+  const provider = new NanoBananaProvider();
+  const pexelsFallback = createVideoProvider('pexels');
+
+  const visualAssets: VisualAssetInput[] = [];
+  let fromGenerated = 0;
+  let fallbacks = 0;
+  let totalGenerationCost = 0;
+
+  for (let index = 0; index < keywords.length; index++) {
+    const keyword = keywords[index];
+    const duration = keyword.endTime - keyword.startTime;
+    const prompt = keyword.visualHint ?? keyword.keyword;
+
+    try {
+      const result = await provider.generate(prompt, { query: prompt, orientation });
+      const model =
+        (result.metadata?.['model'] as string | undefined) ??
+        'gemini-2.0-flash-exp-image-generation';
+      const cost = provider.costPerAsset;
+      totalGenerationCost += cost;
+      fromGenerated++;
+
+      visualAssets.push({
+        sceneId: keyword.sectionId,
+        source: 'generated-nanobanana',
+        assetPath: result.url,
+        duration,
+        assetType: 'image',
+        motionStrategy: 'kenburns',
+        generationPrompt: (result.metadata?.['prompt'] as string | undefined) ?? prompt,
+        generationModel: model,
+        generationCost: cost,
+        matchReasoning: {
+          reasoning: `AI-generated image for "${keyword.keyword}"`,
+          conceptsMatched: [keyword.keyword],
+        },
+      });
+    } catch (error) {
+      log.warn(
+        { keyword: keyword.keyword, error },
+        'NanoBanana generation failed, falling back to Pexels'
+      );
+
+      // Pexels fallback — matchKeywordToVideo internally falls back to solid color, so this should not throw,
+      // but wrap defensively so a single keyword can never crash the whole loop.
+      try {
+        const fallbackResult = await matchKeywordToVideo(keyword, pexelsFallback, orientation, log);
+        visualAssets.push(fallbackResult.asset);
+        if (fallbackResult.isFallback) fallbacks++;
+      } catch (fallbackError) {
+        log.error(
+          { keyword: keyword.keyword, fallbackError },
+          'Pexels fallback also threw; using solid color'
+        );
+        visualAssets.push({
+          sceneId: keyword.sectionId,
+          source: 'fallback-color',
+          assetPath: '#1a1a2e',
+          duration,
+          matchReasoning: { reasoning: `All providers failed for "${keyword.keyword}"` },
+        });
+        fallbacks++;
+      }
+    }
+
+    const completed = index + 1;
+    const total = keywords.length;
+    emit({
+      phase: 'provider:search',
+      progress: total > 0 ? completed / total : 1,
+      message: `Generated ${completed}/${total}`,
+      completed,
+      total,
+    });
+  }
+
+  return VisualsOutputSchema.parse({
+    schemaVersion: VISUALS_SCHEMA_VERSION,
+    scenes: visualAssets,
+    totalAssets: visualAssets.length,
+    fromUserFootage: 0,
+    fromStock: visualAssets.length - fromGenerated,
+    fromGenerated,
+    fallbacks,
+    totalGenerationCost,
+    keywords,
+    totalDuration: options.timestamps.totalDuration,
+  });
+}
+
+/**
  * Safe progress emission wrapper
  */
 function createProgressEmitter(
@@ -183,6 +297,7 @@ function generateMockVisuals(options: MatchVisualsOptions): VisualsOutput {
     source: 'mock' as const,
     assetPath: `https://mock.pexels.com/video/${index + 1}.mp4`,
     duration: scene.audioEnd - scene.audioStart,
+    assetType: 'video' as const,
     matchReasoning: {
       reasoning: `Mock video for scene ${scene.sceneId}`,
       conceptsMatched: ['mock', 'test'],
@@ -247,11 +362,8 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
     });
   }
 
-  // Create the video provider (Strategy pattern)
-  const videoProvider = createVideoProvider(providerName as ProviderName);
+  // Extract keywords (used by both AI and stock paths)
   const scenes = options.timestamps.scenes ?? [];
-
-  // Extract keywords using LLM
   const keywords = await extractKeywords({ scenes });
   log.info({ keywordCount: keywords.length }, 'Keywords extracted');
   emit({
@@ -261,6 +373,29 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
     completed: 0,
     total: keywords.length,
   });
+
+  // NanoBanana path — AI image generation with Ken Burns
+  if (providerName === 'nanobanana') {
+    log.info('Using NanoBanana AI image generation');
+    const aiOutput = await matchVisualsWithAI(options, keywords, emit, log);
+    const validated = VisualsOutputSchema.parse({
+      ...aiOutput,
+      ...(gameplayClip ? { gameplayClip } : {}),
+    });
+    log.info(
+      {
+        assetCount: validated.scenes.length,
+        fromGenerated: validated.fromGenerated,
+        totalGenerationCost: validated.totalGenerationCost,
+      },
+      'AI visual matching complete'
+    );
+    emit({ phase: 'complete', progress: 1, message: 'AI visual matching complete' });
+    return validated;
+  }
+
+  // Create the video provider (Strategy pattern)
+  const videoProvider = createVideoProvider(providerName as Exclude<ProviderName, 'nanobanana'>);
 
   // Match each keyword to video
   const visualAssets: VisualAssetInput[] = [];

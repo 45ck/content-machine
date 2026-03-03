@@ -115,12 +115,17 @@ const VisualAssetBaseSchema = z.object({
  * VisualAssetSchema with defaults applied during parsing.
  * Use VisualAssetInput for creating objects, VisualAsset for parsed objects.
  */
-export const VisualAssetSchema = VisualAssetBaseSchema.transform((asset) => ({
-  ...asset,
-  // Apply defaults for backward compatibility
-  assetType: asset.assetType ?? ('video' as const),
-  motionApplied: asset.motionApplied ?? false,
-}));
+export const VisualAssetSchema = VisualAssetBaseSchema.transform((asset) => {
+  const assetType = asset.assetType ?? ('video' as const);
+  return {
+    ...asset,
+    assetType,
+    motionApplied: asset.motionApplied ?? false,
+    // Image assets default to kenburns; videos leave motionStrategy undefined
+    motionStrategy:
+      asset.motionStrategy ?? (assetType === 'image' ? ('kenburns' as const) : undefined),
+  };
+});
 
 /**
  * Input type for creating VisualAsset objects (before parsing).
@@ -219,6 +224,7 @@ export const VisualsOutputSchema = VisualsOutputBaseSchema.transform((output) =>
   ...output,
   // Apply defaults for backward compatibility
   fromGenerated: output.fromGenerated ?? 0,
+  totalGenerationCost: output.totalGenerationCost ?? 0,
 }));
 
 /**

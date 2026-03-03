@@ -21,6 +21,10 @@ export interface VisualScene {
   backgroundColor?: string;
   /** Original video duration in ms (for looping calculation) */
   durationMs?: number;
+  /** Asset type: 'video' (default) or 'image' */
+  assetType?: 'video' | 'image';
+  /** Motion strategy for image assets */
+  motionStrategy?: 'none' | 'kenburns' | 'depthflow' | 'veo';
 }
 
 export interface CoverageOptions {
@@ -149,6 +153,8 @@ export function ensureVisualCoverage(
         endMs: currentEnd + loopDuration,
         url: lastScene.url,
         durationMs: originalDuration,
+        assetType: lastScene.assetType,
+        motionStrategy: lastScene.motionStrategy,
       });
       currentEnd += loopDuration;
     }

@@ -24,8 +24,9 @@ import { NanoBananaProvider } from './nanobanana-provider.js';
 
 /**
  * Video provider names (legacy, returns video clips).
+ * Extended to include 'nanobanana' for AI image generation.
  */
-export type ProviderName = 'pexels' | 'pixabay' | 'mock';
+export type ProviderName = 'pexels' | 'pixabay' | 'mock' | 'nanobanana';
 
 /**
  * Asset provider names (extended, includes image generators).
