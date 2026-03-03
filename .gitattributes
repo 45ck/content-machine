@@ -1,0 +1,4 @@
+# Normalize line endings: store LF in git, checkout LF on all platforms.
+# This overrides core.autocrlf=true on Windows developer machines and ensures
+# `git archive` extracts text files with LF (required by quality gate idempotency checks).
+* text=auto eol=lf
