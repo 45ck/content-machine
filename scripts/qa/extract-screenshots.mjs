@@ -25,7 +25,6 @@ function mustExist(p, label) {
 
 const args = parseArgs(process.argv);
 if (!args.input || !args.outDir) {
-  // eslint-disable-next-line no-console
   console.error('Usage: node scripts/qa/extract-screenshots.mjs --input <video.mp4> --out <dir> [--count 5]');
   process.exit(2);
 }

@@ -53,11 +53,14 @@ function coerceDiagramParams(raw: unknown): ComplexPlaneParams {
   };
 }
 
+// eslint-disable-next-line sonarjs/cognitive-complexity, complexity
 export const Main: React.FC<RenderProps> = (props) => {
   const { fps, height } = useVideoConfig();
   const frame = useCurrentFrame();
-  const gameplayMode = ((props.templateParams as any)?.gameplayMode as string | undefined) ?? 'auto';
-  const directorMode = ((props.templateParams as any)?.directorMode as string | undefined) ?? 'math-only';
+  const gameplayMode =
+    ((props.templateParams as any)?.gameplayMode as string | undefined) ?? 'auto';
+  const directorMode =
+    ((props.templateParams as any)?.directorMode as string | undefined) ?? 'math-only';
 
   const layout = useMemo(
     () =>
@@ -117,7 +120,11 @@ export const Main: React.FC<RenderProps> = (props) => {
         ? false
         : (props.scenes?.length ?? 0) > 0;
   const sceneOpacity = directorMode === 'clips-only' ? 1 : directorPhase === 0 ? 0.3 : 0.96;
-  const diagramOpacity = showDiagram ? (directorMode === 'mixed' && directorPhase === 1 ? 0.3 : 1) : 0;
+  const diagramOpacity = showDiagram
+    ? directorMode === 'mixed' && directorPhase === 1
+      ? 0.3
+      : 1
+    : 0;
   const useGameplayClip =
     gameplayMode === 'clip' || (gameplayMode !== 'procedural' && Boolean(props.gameplayClip?.path));
   const forceGameplay = gameplayMode === 'clip' || gameplayMode === 'procedural';
@@ -151,18 +158,31 @@ export const Main: React.FC<RenderProps> = (props) => {
       <Sequence from={hookFrames} durationInFrames={contentFrames}>
         {/* Content slot (top by default): fully drawn diagram (no stock background, to reduce distraction) */}
         {shouldRenderContent ? (
-          <AbsoluteFill style={{ top: effectiveContentTop, height: effectiveContentHeight, overflow: 'hidden' }}>
+          <AbsoluteFill
+            style={{ top: effectiveContentTop, height: effectiveContentHeight, overflow: 'hidden' }}
+          >
             {showSceneClips
-              ? visualSequences.map(({ fromFrame, durationInFrames, scene }: any, index: number) => (
-                  <Sequence key={`scene-${index}`} from={fromFrame} durationInFrames={durationInFrames}>
-                    <SceneBackground
-                      scene={scene}
-                      startFrame={hookFrames + fromFrame}
+              ? visualSequences.map(
+                  ({ fromFrame, durationInFrames, scene }: any, index: number) => (
+                    <Sequence
+                      key={`scene-${index}`}
+                      from={fromFrame}
                       durationInFrames={durationInFrames}
-                      containerStyle={{ top: 0, height: '100%', overflow: 'hidden', opacity: sceneOpacity }}
-                    />
-                  </Sequence>
-                ))
+                    >
+                      <SceneBackground
+                        scene={scene}
+                        startFrame={hookFrames + fromFrame}
+                        durationInFrames={durationInFrames}
+                        containerStyle={{
+                          top: 0,
+                          height: '100%',
+                          overflow: 'hidden',
+                          opacity: sceneOpacity,
+                        }}
+                      />
+                    </Sequence>
+                  )
+                )
               : null}
             <AbsoluteFill style={{ opacity: diagramOpacity }}>
               <ComplexPlane params={diagramParams} />

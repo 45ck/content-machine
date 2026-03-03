@@ -64,6 +64,10 @@ function convertMapped(value: string, map: Record<string, string>): string {
   return output;
 }
 
+/**
+ * Applies notation transforms (arrow shortcuts, superscripts, subscripts, Greek letters)
+ * to a caption text string based on the configured notation mode.
+ */
 export function applyNotationTransform(
   text: string,
   mode: CaptionConfig['notationMode'] | undefined
@@ -100,6 +104,10 @@ export function applyNotationTransform(
   return output;
 }
 
+/**
+ * Applies text transform (uppercase/lowercase/capitalize) and notation transform
+ * to a caption display string.
+ */
 export function applyCaptionDisplayTransform(
   text: string,
   config: Pick<CaptionConfig, 'textTransform' | 'notationMode'>
@@ -127,6 +135,11 @@ function isWordLike(token: string): boolean {
   return /^[a-zA-Z0-9]+$/.test(token);
 }
 
+/**
+ * Normalizes a caption word-token stream for unicode notation rendering,
+ * merging adjacent notation tokens into composite words.
+ */
+// eslint-disable-next-line complexity
 export function normalizeNotationWordStream(
   words: CaptionWordToken[],
   mode: CaptionConfig['notationMode'] | undefined

@@ -66,7 +66,16 @@ function standardDeviation(arr: number[]): number {
 }
 
 const SYNC_ALLOWED_SINGLE_CHAR_TOKENS = new Set(['a', 'i', 'x', 'y', 'z']);
-const SYNC_AMBIGUOUS_ALIAS_TOKENS = new Set(['plus', 'minus', 'equals', 'times', 'over', 'to', 'degrees', 'sqrt']);
+const SYNC_AMBIGUOUS_ALIAS_TOKENS = new Set([
+  'plus',
+  'minus',
+  'equals',
+  'times',
+  'over',
+  'to',
+  'degrees',
+  'sqrt',
+]);
 
 function isNumericToken(text: string): boolean {
   return /^[0-9]+$/.test(text);
@@ -466,12 +475,12 @@ function pickBestOcrTimestampForAsrStart(params: {
 
   const isNearSample = Math.abs(nearest - params.asrStart) <= params.frameStepSeconds * 1.1;
   const alignedToAsrStart = isVisibleAtAsrStart || isNearSample;
-  const ocrTimestamp =
-    alignedToAsrStart ? params.asrStart : (nearest ?? Number.NaN);
+  const ocrTimestamp = alignedToAsrStart ? params.asrStart : (nearest ?? Number.NaN);
   if (!Number.isFinite(ocrTimestamp)) return null;
   return { ocrTimestamp, timeDiff: Math.abs(ocrTimestamp - params.asrStart), alignedToAsrStart };
 }
 
+// eslint-disable-next-line sonarjs/cognitive-complexity
 function matchWords(
   ocrWords: Array<{ word: string; timestamps: number[] }>,
   asrResult: ASRResult,

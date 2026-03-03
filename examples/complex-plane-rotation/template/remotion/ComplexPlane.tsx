@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { AbsoluteFill, interpolate, random, useCurrentFrame, useVideoConfig } from 'remotion';
+import { AbsoluteFill, random, useCurrentFrame, useVideoConfig } from 'remotion';
 
 export type ComplexPlaneParams = {
   x: number;
@@ -40,6 +40,7 @@ type Particle = {
 export const ComplexPlane: React.FC<{
   params: ComplexPlaneParams;
 }> = ({ params }) => {
+  // eslint-disable-line max-lines-per-function
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const timeSec = frame / fps;
@@ -56,12 +57,21 @@ export const ComplexPlane: React.FC<{
 
   const revealProgress = clamp(timeSec / pointRevealEndSec, 0, 1);
   const ruleProgress = clamp(
-    (timeSec - (pointRevealEndSec - 1.2)) / Math.max(0.4, rotateStartSec - (pointRevealEndSec - 1.2)),
+    (timeSec - (pointRevealEndSec - 1.2)) /
+      Math.max(0.4, rotateStartSec - (pointRevealEndSec - 1.2)),
     0,
     1
   );
-  const rotateProgress = clamp((timeSec - rotateStartSec) / Math.max(0.001, rotateEndSec - rotateStartSec), 0, 1);
-  const postProgress = clamp((timeSec - rotateEndSec) / Math.max(0.001, settleEndSec - rotateEndSec), 0, 1);
+  const rotateProgress = clamp(
+    (timeSec - rotateStartSec) / Math.max(0.001, rotateEndSec - rotateStartSec),
+    0,
+    1
+  );
+  const postProgress = clamp(
+    (timeSec - rotateEndSec) / Math.max(0.001, settleEndSec - rotateEndSec),
+    0,
+    1
+  );
 
   const r = Math.sqrt(x * x + y * y);
   const baseAngle = Math.atan2(y, x);
@@ -75,7 +85,15 @@ export const ComplexPlane: React.FC<{
   }, [rotateProgress, x, y, revealProgress, targetX, targetY, baseAngle, theta, r]);
 
   const maxAbs = clamp(
-    Math.max(Math.abs(x), Math.abs(y), Math.abs(targetX), Math.abs(targetY), Math.abs(current.x), Math.abs(current.y), 2),
+    Math.max(
+      Math.abs(x),
+      Math.abs(y),
+      Math.abs(targetX),
+      Math.abs(targetY),
+      Math.abs(current.x),
+      Math.abs(current.y),
+      2
+    ),
     2,
     8
   );
@@ -85,10 +103,8 @@ export const ComplexPlane: React.FC<{
   const scale = (view - margin) / maxAbs;
   const toSvgX = (vx: number) => vx * scale;
   const toSvgY = (vy: number) => -vy * scale;
-  const clampLabelX = (xPos: number, width: number) =>
-    clamp(xPos, -view + 4, view - width - 4);
-  const clampLabelY = (yPos: number, height: number) =>
-    clamp(yPos, -view + 4, view - height - 4);
+  const clampLabelX = (xPos: number, width: number) => clamp(xPos, -view + 4, view - width - 4);
+  const clampLabelY = (yPos: number, height: number) => clamp(yPos, -view + 4, view - height - 4);
 
   const tickStep = niceTickStep(maxAbs);
   const tickMax = Math.max(2, Math.ceil(maxAbs / tickStep) * tickStep);
@@ -189,13 +205,43 @@ export const ComplexPlane: React.FC<{
 
           {ticks.map((t, i) => (
             <g key={`grid-${i}`} opacity={t === 0 ? 0.22 : 0.14}>
-              <line x1={toSvgX(t)} y1={-view} x2={toSvgX(t)} y2={view} stroke="#93a4be" strokeWidth={1} />
-              <line x1={-view} y1={toSvgY(t)} x2={view} y2={toSvgY(t)} stroke="#93a4be" strokeWidth={1} />
+              <line
+                x1={toSvgX(t)}
+                y1={-view}
+                x2={toSvgX(t)}
+                y2={view}
+                stroke="#93a4be"
+                strokeWidth={1}
+              />
+              <line
+                x1={-view}
+                y1={toSvgY(t)}
+                x2={view}
+                y2={toSvgY(t)}
+                stroke="#93a4be"
+                strokeWidth={1}
+              />
             </g>
           ))}
 
-          <line x1={-view} y1={0} x2={view} y2={0} stroke="#e2e8f0" strokeWidth={2} opacity={0.75} />
-          <line x1={0} y1={-view} x2={0} y2={view} stroke="#e2e8f0" strokeWidth={2} opacity={0.75} />
+          <line
+            x1={-view}
+            y1={0}
+            x2={view}
+            y2={0}
+            stroke="#e2e8f0"
+            strokeWidth={2}
+            opacity={0.75}
+          />
+          <line
+            x1={0}
+            y1={-view}
+            x2={0}
+            y2={view}
+            stroke="#e2e8f0"
+            strokeWidth={2}
+            opacity={0.75}
+          />
 
           {ticks
             .filter((t) => t !== 0)
@@ -393,7 +439,6 @@ export const ComplexPlane: React.FC<{
           <div style={{ marginTop: 4, fontSize: 13, opacity: 0.95 }}>{stageLabel}</div>
           <div style={{ marginTop: 4, fontSize: 12, opacity: 0.82 }}>{stageHint}</div>
         </div>
-
       </div>
     </AbsoluteFill>
   );
