@@ -16,11 +16,11 @@ It is intended to be:
 
 ## Steps
 
-1) Put a gameplay MP4 in your gameplay library:
+1. Put a gameplay MP4 in your gameplay library:
 
 `~/.cm/assets/gameplay/subway-surfers/<any>.mp4`
 
-2) Run:
+2. Run:
 
 ```powershell
 $out = "output/examples/complex-plane-rotation"

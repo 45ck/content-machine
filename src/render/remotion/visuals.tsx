@@ -103,7 +103,6 @@ export function buildSequences(
   });
 }
 
-
 export interface SceneBackgroundProps {
   scene: VisualScene;
   /** Global (composition) start frame of this scene. */

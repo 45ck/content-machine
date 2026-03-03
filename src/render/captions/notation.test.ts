@@ -11,9 +11,7 @@ describe('applyNotationTransform', () => {
   });
 
   it('renders core symbol operators in unicode mode', () => {
-    expect(applyNotationTransform('x<=y and x!=z and x->z', 'unicode')).toBe(
-      'x≤y and x≠z and x→z'
-    );
+    expect(applyNotationTransform('x<=y and x!=z and x->z', 'unicode')).toBe('x≤y and x≠z and x→z');
   });
 
   it('renders simple powers/subscripts and greek words', () => {

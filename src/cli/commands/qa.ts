@@ -79,9 +79,7 @@ export const qaCommand = new Command('qa')
       });
       await writeOutputFile(options.output, evaluateReport);
 
-      let qualityScoreResult:
-        | Awaited<ReturnType<typeof scoreQuality>>
-        | null = null;
+      let qualityScoreResult: Awaited<ReturnType<typeof scoreQuality>> | null = null;
       if (!options.skipScore) {
         spinner.text = 'Extracting features...';
         const features = await extractFeatures({
@@ -132,7 +130,9 @@ export const qaCommand = new Command('qa')
       } else {
         writeStderrLine(`QA gate: ${evaluateReport.passed ? 'PASS' : 'FAIL'}`);
         if (qualityScoreResult) {
-          writeStderrLine(`Quality score: ${qualityScoreResult.score}/100 (${qualityScoreResult.label})`);
+          writeStderrLine(
+            `Quality score: ${qualityScoreResult.score}/100 (${qualityScoreResult.label})`
+          );
           if (minScore != null) {
             writeStderrLine(`Quality threshold: ${minScore} (${scorePassed ? 'PASS' : 'FAIL'})`);
           }

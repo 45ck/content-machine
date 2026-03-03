@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { analyzeFrameEdgesFromRgb, runFrameBoundsGate } from '../../../src/validate/frame-bounds';
 
-function makeRgb(width: number, height: number, fn: (x: number, y: number) => [number, number, number]): Uint8Array {
+function makeRgb(
+  width: number,
+  height: number,
+  fn: (x: number, y: number) => [number, number, number]
+): Uint8Array {
   const data = new Uint8Array(width * height * 3);
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {

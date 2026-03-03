@@ -79,6 +79,10 @@ function satProxy(r: number, g: number, b: number): number {
   return (max - min) / max;
 }
 
+/**
+ * Analyzes frame edge brightness and chroma from raw RGB pixel data
+ * to detect dark borders, letterboxing, or pillarboxing.
+ */
 export function analyzeFrameEdgesFromRgb(params: {
   width: number;
   height: number;
@@ -158,7 +162,12 @@ export function analyzeFrameEdgesFromRgb(params: {
           ? { x0: 0, y0: height - innerOffset - innerWidthPx, x1: width, y1: height - innerOffset }
           : side === 'left'
             ? { x0: innerOffset, y0: 0, x1: innerOffset + innerWidthPx, y1: height }
-            : { x0: width - innerOffset - innerWidthPx, y0: 0, x1: width - innerOffset, y1: height };
+            : {
+                x0: width - innerOffset - innerWidthPx,
+                y0: 0,
+                x1: width - innerOffset,
+                y1: height,
+              };
 
     const b = analyzeRegion(border);
     const inn = analyzeRegion(inner);
@@ -183,7 +192,14 @@ export function analyzeFrameEdgesFromRgb(params: {
   };
 }
 
-export async function analyzeFrameBounds(videoPath: string, opts?: { frameCount?: number }): Promise<FrameBoundsSummary> {
+/**
+ * Samples multiple frames from a video file and aggregates frame-edge
+ * analysis results into a summary suitable for quality gate evaluation.
+ */
+export async function analyzeFrameBounds(
+  videoPath: string,
+  opts?: { frameCount?: number }
+): Promise<FrameBoundsSummary> {
   const frameCount = Math.max(3, Math.min(9, opts?.frameCount ?? 5));
   const info = await probeVideoWithFfprobe(videoPath);
 
@@ -219,7 +235,18 @@ export async function analyzeFrameBounds(videoPath: string, opts?: { frameCount?
       const out = join(framesDir, `frame_${String(i + 1).padStart(2, '0')}_${t.toFixed(3)}.png`);
       outPaths.push(out);
       await execFfmpeg(
-        ['-hide_banner', '-loglevel', 'error', '-ss', String(t), '-i', videoPath, '-frames:v', '1', out],
+        [
+          '-hide_banner',
+          '-loglevel',
+          'error',
+          '-ss',
+          String(t),
+          '-i',
+          videoPath,
+          '-frames:v',
+          '1',
+          out,
+        ],
         { dependencyMessage: 'ffmpeg is required for frame bounds analysis' }
       );
     }
@@ -318,11 +345,16 @@ export async function analyzeFrameBounds(videoPath: string, opts?: { frameCount?
   }
 }
 
+/**
+ * Evaluates a frame-bounds summary against quality thresholds and returns
+ * a pass/fail gate result with diagnostic details.
+ */
 export function runFrameBoundsGate(summary: FrameBoundsSummary): FrameBoundsGate {
   const { maxDarkening, maxEdgeContentRatio, side, timestampSeconds } = summary.worst;
   // If there is no meaningful dark border, edge activity is usually intentional (labels/graphics at screen edge),
   // not a framing defect. Keep edge-content gating strict only when darkening indicates a potential crop/vignette.
-  const hasMeaningfulDarkening = maxDarkening > Math.min(0.02, summary.thresholds.maxDarkening * 0.25);
+  const hasMeaningfulDarkening =
+    maxDarkening > Math.min(0.02, summary.thresholds.maxDarkening * 0.25);
   const passed =
     maxDarkening <= summary.thresholds.maxDarkening &&
     (!hasMeaningfulDarkening || maxEdgeContentRatio <= summary.thresholds.maxEdgeContentRatio);

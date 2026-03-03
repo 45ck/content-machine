@@ -29,10 +29,7 @@ export interface SceneToVideoRequest {
   outputPath: string;
 }
 
-export type MediaSynthesisRequest =
-  | TextToVideoRequest
-  | ImageToVideoRequest
-  | SceneToVideoRequest;
+export type MediaSynthesisRequest = TextToVideoRequest | ImageToVideoRequest | SceneToVideoRequest;
 
 export interface MediaSynthesisResult {
   outputPath: string;

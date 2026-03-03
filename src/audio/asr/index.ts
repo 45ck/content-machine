@@ -146,11 +146,25 @@ async function resampleFor16kHz(
 
   // Resample to 16kHz mono using FFmpeg
   try {
-    await execFfmpeg(['-y', '-i', absoluteAudioPath, '-ar', '16000', '-ac', '1', '-c:a', 'pcm_s16le', resampledPath], {
-      dependencyMessage: 'ffmpeg is required to resample audio for Whisper',
-      encoding: 'utf8',
-      timeoutMs: 5 * 60_000,
-    });
+    await execFfmpeg(
+      [
+        '-y',
+        '-i',
+        absoluteAudioPath,
+        '-ar',
+        '16000',
+        '-ac',
+        '1',
+        '-c:a',
+        'pcm_s16le',
+        resampledPath,
+      ],
+      {
+        dependencyMessage: 'ffmpeg is required to resample audio for Whisper',
+        encoding: 'utf8',
+        timeoutMs: 5 * 60_000,
+      }
+    );
 
     // Verify the file was created
     if (!fs.existsSync(resampledPath)) {

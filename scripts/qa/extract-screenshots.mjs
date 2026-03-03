@@ -25,13 +25,27 @@ function mustExist(p, label) {
 
 const args = parseArgs(process.argv);
 if (!args.input || !args.outDir) {
-  console.error('Usage: node scripts/qa/extract-screenshots.mjs --input <video.mp4> --out <dir> [--count 5]');
+  console.error(
+    'Usage: node scripts/qa/extract-screenshots.mjs --input <video.mp4> --out <dir> [--count 5]'
+  );
   process.exit(2);
 }
 
 const repoRoot = process.cwd();
-const ffmpegExe = path.resolve(repoRoot, 'node_modules', '@remotion', 'compositor-win32-x64-msvc', 'ffmpeg.exe');
-const ffprobeExe = path.resolve(repoRoot, 'node_modules', '@remotion', 'compositor-win32-x64-msvc', 'ffprobe.exe');
+const ffmpegExe = path.resolve(
+  repoRoot,
+  'node_modules',
+  '@remotion',
+  'compositor-win32-x64-msvc',
+  'ffmpeg.exe'
+);
+const ffprobeExe = path.resolve(
+  repoRoot,
+  'node_modules',
+  '@remotion',
+  'compositor-win32-x64-msvc',
+  'ffprobe.exe'
+);
 
 mustExist(ffmpegExe, 'ffmpeg');
 mustExist(ffprobeExe, 'ffprobe');
@@ -50,7 +64,9 @@ const durationStr = execFileSync(ffprobeExe, [
   '-of',
   'default=noprint_wrappers=1:nokey=1',
   inputAbs,
-]).toString('utf8').trim();
+])
+  .toString('utf8')
+  .trim();
 
 const duration = Number.parseFloat(durationStr);
 if (!Number.isFinite(duration) || duration <= 0) {

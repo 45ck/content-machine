@@ -252,7 +252,9 @@ describe('Sync Schema Validation', () => {
     });
 
     it('adds merged OCR candidates for split words', () => {
-      const frames = [{ frameNumber: 1, timestamp: 0.0, text: 'Multip lying by i', confidence: 0.9 }];
+      const frames = [
+        { frameNumber: 1, timestamp: 0.0, text: 'Multip lying by i', confidence: 0.9 },
+      ];
       const result = extractWordAppearances(frames);
       const words = result.map((r) => r.word);
       expect(words).toContain('multip');
@@ -261,7 +263,9 @@ describe('Sync Schema Validation', () => {
     });
 
     it('adds merged OCR candidates for 3-part split words', () => {
-      const frames = [{ frameNumber: 1, timestamp: 0.0, text: 'Dist rib ute now', confidence: 0.9 }];
+      const frames = [
+        { frameNumber: 1, timestamp: 0.0, text: 'Dist rib ute now', confidence: 0.9 },
+      ];
       const result = extractWordAppearances(frames);
       const words = result.map((r) => r.word);
       expect(words).toContain('dist');

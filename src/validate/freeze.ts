@@ -118,9 +118,7 @@ export class FreezeAnalyzer implements FreezeAnalyzerInterface {
     // Freeze detection should run on a coarser cadence than every frame; otherwise
     // low-motion educational content can be misclassified as frozen.
     const sampleRateRaw = options?.sampleRate ?? 15;
-    const sampleRate = Number.isFinite(sampleRateRaw)
-      ? Math.max(1, Math.floor(sampleRateRaw))
-      : 15;
+    const sampleRate = Number.isFinite(sampleRateRaw) ? Math.max(1, Math.floor(sampleRateRaw)) : 15;
     const diffThresholdRaw = options?.diffThreshold ?? 1.2;
     const diffThreshold =
       Number.isFinite(diffThresholdRaw) && diffThresholdRaw > 0 ? diffThresholdRaw : 1.2;

@@ -1763,7 +1763,13 @@ function writeSuccessJson(params: {
         templateSpec,
         resolvedTemplateId,
       }),
-      outputs: buildGenerateSuccessJsonOutputs({ result, artifactsDir, sync, caption, frameAnalysis }),
+      outputs: buildGenerateSuccessJsonOutputs({
+        result,
+        artifactsDir,
+        sync,
+        caption,
+        frameAnalysis,
+      }),
       timingsMs: Date.now() - runtime.startTime,
     })
   );
@@ -2474,7 +2480,9 @@ function parseCaptionNotation(value: unknown): 'none' | 'unicode' | undefined {
 }
 
 function parseFrameAnalysisMode(value: unknown): 'fps' | 'shots' | 'both' {
-  const raw = String(value ?? 'both').trim().toLowerCase();
+  const raw = String(value ?? 'both')
+    .trim()
+    .toLowerCase();
   if (raw === 'fps' || raw === 'shots' || raw === 'both') return raw;
   throw new CMError('INVALID_ARGUMENT', `Invalid --frame-analysis-mode value: ${raw}`, {
     fix: 'Use one of: fps, shots, both',
@@ -3549,7 +3557,9 @@ function showDryRunSummary(
     writeStderrLine(`   Frame Analysis FPS: ${options.frameAnalysisFps ?? '1'}`);
     writeStderrLine(`   Frame Analysis Shots: ${options.frameAnalysisShots ?? '30'}`);
     writeStderrLine(`   Frame Analysis Segments: ${options.frameAnalysisSegments ?? '5'}`);
-    writeStderrLine(`   Frame Analysis Output: ${options.frameAnalysisOutput ?? 'output/analysis'}`);
+    writeStderrLine(
+      `   Frame Analysis Output: ${options.frameAnalysisOutput ?? 'output/analysis'}`
+    );
   }
   writeStderrLine('   Pipeline stages:');
   if (options.research) {
@@ -3942,11 +3952,7 @@ export const generateCommand = new Command('generate')
   .option('--frame-analysis', 'Run automatic frame analysis after render', true)
   .option('--no-frame-analysis', 'Skip automatic frame analysis after render')
   .option('--frame-analysis-mode <mode>', 'Frame analysis mode (fps, shots, both)', 'both')
-  .option(
-    '--frame-analysis-fps <value>',
-    'Frame analysis FPS sampling rate (> 0 and <= 1)',
-    '1'
-  )
+  .option('--frame-analysis-fps <value>', 'Frame analysis FPS sampling rate (> 0 and <= 1)', '1')
   .option('--frame-analysis-shots <count>', 'Frame analysis evenly spaced shot count', '30')
   .option('--frame-analysis-segments <count>', 'Frame analysis timeline segment count', '5')
   .option(

@@ -68,7 +68,9 @@ export const RunnerGameplay: React.FC<{
       />
 
       {/* Mountains / parallax blobs */}
-      <AbsoluteFill style={{ top: Math.floor(horizonY * 0.15), height: Math.floor(horizonY * 1.1) }}>
+      <AbsoluteFill
+        style={{ top: Math.floor(horizonY * 0.15), height: Math.floor(horizonY * 1.1) }}
+      >
         {Array.from({ length: 7 }, (_, i) => {
           const r = random(`${seed}:m:${i}`);
           const w = Math.floor(width * (0.35 + r * 0.35));
@@ -103,8 +105,7 @@ export const RunnerGameplay: React.FC<{
             top: horizonY,
             width: roadW,
             height: roadBottomY - horizonY,
-            background:
-              'linear-gradient(180deg, rgba(15,23,42,0.9) 0%, rgba(2,6,23,0.98) 100%)',
+            background: 'linear-gradient(180deg, rgba(15,23,42,0.9) 0%, rgba(2,6,23,0.98) 100%)',
             borderLeft: '2px solid rgba(148,163,184,0.18)',
             borderRight: '2px solid rgba(148,163,184,0.18)',
             overflow: 'hidden',
@@ -127,7 +128,7 @@ export const RunnerGameplay: React.FC<{
 
           {/* Speed stripes */}
           {stripes.map((i) => {
-            const z = (i * 0.6 + (t * speed) % 0.6) + 0.2;
+            const z = i * 0.6 + ((t * speed) % 0.6) + 0.2;
             const k = 1 / z;
             const y = interpolate(k, [0.12, 1.2], [horizonY + 20, roadBottomY + 60], {
               extrapolateLeft: 'clamp',
@@ -159,8 +160,7 @@ export const RunnerGameplay: React.FC<{
             // Wrap forward so obstacles keep coming.
             const zz = z < 0.5 ? z + 22 : z;
             const k = 1 / zz;
-            const laneX =
-              roadW / 2 + (o.lane * laneW) / 1 - (o.lane === 0 ? 0 : 0); // explicit
+            const laneX = roadW / 2 + (o.lane * laneW) / 1 - (o.lane === 0 ? 0 : 0); // explicit
             const x = laneX;
             const y = interpolate(k, [0.12, 1.2], [horizonY + 10, roadBottomY + 40], {
               extrapolateLeft: 'clamp',
@@ -204,4 +204,3 @@ export const RunnerGameplay: React.FC<{
     </AbsoluteFill>
   );
 };
-

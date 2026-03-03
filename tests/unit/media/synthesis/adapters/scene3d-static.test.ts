@@ -20,9 +20,8 @@ describe('Scene3dStaticAdapter', () => {
     const specPath = join(dir, 'scene.json');
     await writeFile(specPath, JSON.stringify({ backgroundColor: '#112233' }), 'utf8');
 
-    const { Scene3dStaticAdapter } = await import(
-      '../../../../../src/media/synthesis/adapters/scene3d-static'
-    );
+    const { Scene3dStaticAdapter } =
+      await import('../../../../../src/media/synthesis/adapters/scene3d-static');
     const adapter = new Scene3dStaticAdapter();
 
     const result = await adapter.submit({
@@ -42,9 +41,8 @@ describe('Scene3dStaticAdapter', () => {
   });
 
   it('rejects unsupported request kinds', async () => {
-    const { Scene3dStaticAdapter } = await import(
-      '../../../../../src/media/synthesis/adapters/scene3d-static'
-    );
+    const { Scene3dStaticAdapter } =
+      await import('../../../../../src/media/synthesis/adapters/scene3d-static');
     const adapter = new Scene3dStaticAdapter();
 
     const request: MediaSynthesisRequest = {
@@ -64,9 +62,8 @@ describe('Scene3dStaticAdapter', () => {
     const specPath = join(dir, 'scene.json');
     await writeFile(specPath, '{ not-json', 'utf8');
 
-    const { Scene3dStaticAdapter } = await import(
-      '../../../../../src/media/synthesis/adapters/scene3d-static'
-    );
+    const { Scene3dStaticAdapter } =
+      await import('../../../../../src/media/synthesis/adapters/scene3d-static');
     const adapter = new Scene3dStaticAdapter();
 
     await expect(

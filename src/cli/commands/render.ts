@@ -133,14 +133,18 @@ function parseOptionalNumber(value: unknown): number | undefined {
 }
 
 function parseFrameAnalysisMode(value: unknown): 'fps' | 'shots' | 'both' {
-  const raw = String(value ?? 'both').trim().toLowerCase();
+  const raw = String(value ?? 'both')
+    .trim()
+    .toLowerCase();
   if (raw === 'fps' || raw === 'shots' || raw === 'both') return raw;
   throw new CMError('INVALID_ARGUMENT', `Invalid --frame-analysis-mode value: ${raw}`, {
     fix: 'Use one of: fps, shots, both',
   });
 }
 
-async function runAutoFrameAnalysis(options: Record<string, unknown>): Promise<AnalyzeVideoFramesResult | null> {
+async function runAutoFrameAnalysis(
+  options: Record<string, unknown>
+): Promise<AnalyzeVideoFramesResult | null> {
   if (options.frameAnalysis === false) return null;
   const fpsRaw = Number.parseFloat(String(options.frameAnalysisFps ?? '1'));
   if (!Number.isFinite(fpsRaw) || fpsRaw <= 0 || fpsRaw > 1) {
@@ -1585,11 +1589,7 @@ export const renderCommand = new Command('render')
   .option('--frame-analysis', 'Run automatic frame analysis after render', true)
   .option('--no-frame-analysis', 'Skip automatic frame analysis after render')
   .option('--frame-analysis-mode <mode>', 'Frame analysis mode (fps, shots, both)', 'both')
-  .option(
-    '--frame-analysis-fps <value>',
-    'Frame analysis FPS sampling rate (> 0 and <= 1)',
-    '1'
-  )
+  .option('--frame-analysis-fps <value>', 'Frame analysis FPS sampling rate (> 0 and <= 1)', '1')
   .option('--frame-analysis-shots <count>', 'Frame analysis evenly spaced shot count', '30')
   .option('--frame-analysis-segments <count>', 'Frame analysis timeline segment count', '5')
   .option(
