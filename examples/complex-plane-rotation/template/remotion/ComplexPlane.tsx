@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function */
 import React, { useMemo } from 'react';
 import { AbsoluteFill, random, useCurrentFrame, useVideoConfig } from 'remotion';
 
@@ -40,7 +41,6 @@ type Particle = {
 export const ComplexPlane: React.FC<{
   params: ComplexPlaneParams;
 }> = ({ params }) => {
-  // eslint-disable-line max-lines-per-function
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const timeSec = frame / fps;
