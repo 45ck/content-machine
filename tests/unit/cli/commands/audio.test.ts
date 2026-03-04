@@ -335,6 +335,44 @@ describe('cli audio command', () => {
     exitSpy.mockRestore();
   });
 
+  it('passes asrEngine=gemini to generateAudio', async () => {
+    await configureRuntime({ json: false });
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+
+    const { readInputFile } = await import('../../../../src/cli/utils');
+    (readInputFile as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(baseScript);
+
+    const { loadConfig } = await import('../../../../src/core/config');
+    (loadConfig as unknown as ReturnType<typeof vi.fn>).mockReturnValue(baseConfig);
+
+    const { hasAudioMixSources } = await import('../../../../src/audio/mix/planner');
+    (hasAudioMixSources as unknown as ReturnType<typeof vi.fn>).mockReturnValue(false);
+
+    const mockGenerateAudio = vi.fn().mockResolvedValue(baseAudioOutput);
+    vi.doMock('../../../../src/audio/pipeline', () => ({ generateAudio: mockGenerateAudio }));
+
+    const { generateAudio } = await import('../../../../src/audio/pipeline');
+    (generateAudio as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(baseAudioOutput);
+
+    const { writeSummaryCard } = await import('../../../../src/cli/ui');
+    vi.spyOn(await import('../../../../src/cli/output'), 'writeStdoutLine').mockImplementation(
+      () => undefined
+    );
+
+    const { audioCommand } = await import('../../../../src/cli/commands/audio');
+    await audioCommand.parseAsync(
+      ['--input', 'script.json', '--output', 'audio.wav', '--asr-engine', 'gemini'],
+      { from: 'user' }
+    );
+
+    exitSpy.mockRestore();
+
+    expect(generateAudio).toHaveBeenCalledWith(
+      expect.objectContaining({ asrEngine: 'gemini' })
+    );
+    expect(writeSummaryCard).toHaveBeenCalled();
+  });
+
   it('rejects invalid integer options', async () => {
     await configureRuntime({ json: false });
     const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
