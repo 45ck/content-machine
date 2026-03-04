@@ -32,7 +32,7 @@ export interface GenerateAudioOptions {
   /** TTS engine id (defaults to kokoro) */
   ttsEngine?: 'kokoro' | 'elevenlabs' | 'edge';
   /** Timestamp engine (defaults to whisper) */
-  asrEngine?: 'whisper' | 'elevenlabs-forced-alignment';
+  asrEngine?: 'whisper' | 'gemini' | 'elevenlabs-forced-alignment';
   /** Optional engine-specific configuration for ElevenLabs. */
   elevenlabs?: {
     apiBaseUrl?: string;

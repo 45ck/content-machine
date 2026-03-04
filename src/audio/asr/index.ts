@@ -44,9 +44,15 @@ async function getWhisper() {
 
 export interface ASROptions {
   audioPath: string;
-  /** ASR/alignment engine to use. Default: whisper */
-  engine?: 'whisper' | 'elevenlabs-forced-alignment';
+  /**
+   * ASR/alignment engine to use. Default: whisper.
+   * - 'whisper': whisper.cpp local binary (most accurate, requires setup)
+   * - 'gemini': Gemini multimodal API (no local install, requires GOOGLE_API_KEY)
+   * - 'elevenlabs-forced-alignment': ElevenLabs forced alignment (requires ELEVENLABS_API_KEY)
+   */
+  engine?: 'whisper' | 'gemini' | 'elevenlabs-forced-alignment';
   elevenlabs?: { apiBaseUrl?: string };
+  gemini?: { model?: string; apiBaseUrl?: string; apiVersion?: string; timeoutMs?: number };
   model?: 'tiny' | 'base' | 'small' | 'medium' | 'large';
   language?: string;
   /** Original text for fallback estimation */
@@ -64,7 +70,7 @@ export interface ASRResult {
   words: WordTimestamp[];
   duration: number;
   text: string;
-  engine: 'whisper-cpp' | 'estimated' | 'elevenlabs-forced-alignment';
+  engine: 'whisper-cpp' | 'gemini' | 'estimated' | 'elevenlabs-forced-alignment';
 }
 
 /** Whisper transcription segment structure */
@@ -313,6 +319,19 @@ export async function transcribeAudio(options: ASROptions): Promise<ASRResult> {
     };
   }
 
+  if (engine === 'gemini') {
+    const { transcribeWithGemini } = await import('./gemini-asr');
+    log.info({ model: options.gemini?.model }, 'Transcribing with Gemini ASR');
+    const result = await transcribeWithGemini({
+      audioPath: options.audioPath,
+      ...options.gemini,
+    });
+    const duration = options.audioDuration ?? result.duration;
+    const postProcessed = postProcessASRWordsWithStats(result.words);
+    const validatedWords = validateOrRepairTimestamps(postProcessed.words, duration, log);
+    return { words: validatedWords, duration, text: result.text, engine: 'gemini' };
+  }
+
   // Try whisper.cpp first
   try {
     const result = await transcribeWithWhisper(options, log);
@@ -320,27 +339,56 @@ export async function transcribeAudio(options: ASROptions): Promise<ASRResult> {
       return result;
     }
   } catch (error) {
-    // If requireWhisper is true, don't fall back to estimation
+    // If requireWhisper is true, don't fall back at all
     if (options.requireWhisper) {
       throw new APIError(
         'Whisper.cpp transcription failed and requireWhisper=true. Run `cm setup whisper` (or set CM_WHISPER_AUTO_INSTALL=1) to install Whisper.',
         { audioPath: options.audioPath, error: String(error) }
       );
     }
-    log.warn({ error }, 'Whisper.cpp transcription failed, falling back to estimation');
+    log.warn({ error }, 'Whisper.cpp transcription failed, falling back');
   }
 
-  // In audio-first mode, we require Whisper - never fall back
+  // In audio-first mode, try Gemini before failing
   if (options.requireWhisper) {
+    const { isGeminiAsrAvailable, transcribeWithGemini } = await import('./gemini-asr');
+    if (isGeminiAsrAvailable()) {
+      log.info('Whisper unavailable; falling back to Gemini ASR for accurate timestamps');
+      const result = await transcribeWithGemini({ audioPath: options.audioPath });
+      const duration = options.audioDuration ?? result.duration;
+      const postProcessed = postProcessASRWordsWithStats(result.words);
+      const validatedWords = validateOrRepairTimestamps(postProcessed.words, duration, log);
+      return { words: validatedWords, duration, text: result.text, engine: 'gemini' };
+    }
     throw new APIError(
-      'Whisper.cpp not available but requireWhisper=true. Run `cm setup whisper` (or set CM_WHISPER_AUTO_INSTALL=1) to install Whisper.',
+      'Whisper.cpp not available and GOOGLE_API_KEY/GEMINI_API_KEY not set. ' +
+        'Run `cm setup whisper` to install Whisper, or add GOOGLE_API_KEY to your .env for Gemini ASR.',
       { audioPath: options.audioPath }
     );
   }
 
-  // Fallback to estimated timestamps (only in standard pipeline mode)
+  // Try Gemini as automatic fallback before falling back to dumb estimation
+  const { isGeminiAsrAvailable, transcribeWithGemini } = await import('./gemini-asr');
+  if (isGeminiAsrAvailable()) {
+    try {
+      log.info('Whisper unavailable; using Gemini ASR for accurate timestamps');
+      const result = await transcribeWithGemini({ audioPath: options.audioPath });
+      const duration = options.audioDuration ?? result.duration;
+      const postProcessed = postProcessASRWordsWithStats(result.words);
+      const validatedWords = validateOrRepairTimestamps(postProcessed.words, duration, log);
+      return { words: validatedWords, duration, text: result.text, engine: 'gemini' };
+    } catch (geminiError) {
+      log.warn({ error: geminiError }, 'Gemini ASR failed, falling back to estimation');
+    }
+  }
+
+  // Last resort: estimated timestamps (character-weighted distribution)
   if (options.originalText && options.audioDuration) {
-    log.info('Using estimated timestamps based on audio duration');
+    log.warn(
+      'No ASR available (whisper not installed, no Gemini key). ' +
+        'Using estimated timestamps — captions will NOT be accurately synced. ' +
+        'Add GOOGLE_API_KEY to .env or run `cm setup whisper` to fix this.'
+    );
     return estimateTimestamps(options.originalText, options.audioDuration);
   }
 

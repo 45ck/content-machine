@@ -97,12 +97,14 @@ function parseTtsEngine(value: unknown): 'kokoro' | 'elevenlabs' | undefined {
   });
 }
 
-function parseAsrEngine(value: unknown): 'whisper' | 'elevenlabs-forced-alignment' | undefined {
+function parseAsrEngine(
+  value: unknown
+): 'whisper' | 'gemini' | 'elevenlabs-forced-alignment' | undefined {
   if (value === undefined || value === null || value === '') return undefined;
   const raw = String(value);
-  if (raw === 'whisper' || raw === 'elevenlabs-forced-alignment') return raw;
+  if (raw === 'whisper' || raw === 'gemini' || raw === 'elevenlabs-forced-alignment') return raw;
   throw new CMError('INVALID_ARGUMENT', `Invalid --asr-engine value: ${raw}`, {
-    fix: 'Use one of: whisper, elevenlabs-forced-alignment',
+    fix: 'Use one of: whisper, gemini, elevenlabs-forced-alignment',
   });
 }
 
@@ -373,7 +375,7 @@ export const audioCommand = new Command('audio')
   .option('--whisper-model <model>', 'Whisper model size: tiny, base, small, medium', 'base')
   .option(
     '--asr-engine <engine>',
-    'Timestamp engine: whisper, elevenlabs-forced-alignment (requires ELEVENLABS_API_KEY)'
+    'Timestamp engine: whisper, gemini (requires GOOGLE_API_KEY), elevenlabs-forced-alignment (requires ELEVENLABS_API_KEY)'
   )
   .option(
     '--audio-mix <path>',
