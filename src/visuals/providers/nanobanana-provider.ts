@@ -4,9 +4,18 @@
  * Implements AssetProvider interface for Google Gemini image generation.
  * This provider generates images that require motion strategies for video output.
  *
- * Supported models:
- * - gemini-2.5-flash-image (fast, ~$0.04/image)
- * - gemini-3-pro-image-preview (high quality, ~$0.08/image)
+ * Supported models (verified via Gemini API, March 2026):
+ *
+ * Gemini native image models (generateContent + responseModalities: ['IMAGE']):
+ * - gemini-3.1-flash-image-preview  "Nano Banana 2"   latest, fast          ~$0.04/image
+ * - gemini-3-pro-image-preview      "Nano Banana Pro"  high quality          ~$0.08/image
+ * - gemini-2.5-flash-image          "Nano Banana"      stable, free tier     ~$0.04/image
+ * - gemini-2.0-flash-exp-image-generation              experimental          ~$0.03/image
+ *
+ * Imagen 4 models (predict endpoint, native aspect ratio support):
+ * - imagen-4.0-generate-001         Imagen 4           best quality          ~$0.04/image
+ * - imagen-4.0-fast-generate-001    Imagen 4 Fast      fast + cheaper        ~$0.02/image
+ * - imagen-4.0-ultra-generate-001   Imagen 4 Ultra     highest quality       ~$0.08/image
  *
  * See ADR-002-VISUAL-PROVIDER-SYSTEM-20260107.md
  */
@@ -25,14 +34,16 @@ const log = createLogger({ module: 'nanobanana-provider' });
 
 /**
  * Default cost per image generation in USD.
- * Based on Gemini 2.5 Flash pricing.
+ * Based on Gemini 3.1 Flash image preview pricing.
  */
 const DEFAULT_COST_PER_ASSET = 0.04;
 
 /**
  * Default model for image generation.
+ * Uses the latest Nano Banana 2 model (gemini-3.1-flash-image-preview).
+ * Falls back to gemini-2.5-flash-image if not available on your tier.
  */
-const DEFAULT_MODEL = 'gemini-2.5-flash-image';
+const DEFAULT_MODEL = 'gemini-3.1-flash-image-preview';
 
 const DEFAULT_CACHE_DIR = join(homedir(), '.cm', 'assets', 'generated', 'nanobanana');
 
@@ -184,6 +195,132 @@ async function generateGeminiImage(params: {
   return { mimeType: inline.mimeType ?? 'image/png', bytesBase64: inline.data };
 }
 
+type ImagenPredictResponse = {
+  predictions?: Array<{
+    bytesBase64Encoded?: string;
+    mimeType?: string;
+  }>;
+  error?: { code?: number; message?: string };
+};
+
+/**
+ * Generate an image using Imagen 4 via the :predict endpoint.
+ * Supports native aspectRatio parameter (e.g. "9:16", "16:9", "1:1").
+ */
+async function generateImagenImage(params: {
+  apiKey: string;
+  apiBaseUrl: string;
+  apiVersion: string;
+  model: string;
+  prompt: string;
+  aspectRatio: string;
+  timeoutMs: number;
+}): Promise<{ mimeType: string; bytesBase64: string }> {
+  const { apiKey, apiBaseUrl, apiVersion, model, prompt, aspectRatio, timeoutMs } = params;
+  const base = apiBaseUrl.replace(/\/+$/, '');
+  const ver = apiVersion.replace(/^\/+|\/+$/g, '');
+  const url = `${base}/${ver}/models/${encodeURIComponent(model)}:predict?key=${encodeURIComponent(apiKey)}`;
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    signal: controller.signal,
+    body: JSON.stringify({
+      instances: [{ prompt }],
+      parameters: {
+        sampleCount: 1,
+        aspectRatio,
+      },
+    }),
+  }).finally(() => clearTimeout(timeout));
+
+  const raw = await res.text();
+  if (!res.ok) {
+    let retryAfterSeconds = 10;
+    const retryAfter = res.headers.get('retry-after');
+    if (retryAfter && /^\d+$/.test(retryAfter)) retryAfterSeconds = Number(retryAfter);
+
+    try {
+      const parsed = JSON.parse(raw) as any;
+      const message = parsed?.error?.message ?? raw.slice(0, 300);
+      if (res.status === 429) throw new RateLimitError('gemini', retryAfterSeconds);
+      throw new APIError(`Imagen image generation failed: ${message}`, {
+        provider: 'gemini',
+        status: res.status,
+        model,
+      });
+    } catch (error) {
+      if (error instanceof RateLimitError) throw error;
+      if (error instanceof APIError) throw error;
+    }
+
+    if (res.status === 429) throw new RateLimitError('gemini', retryAfterSeconds);
+    throw new APIError(`Imagen API HTTP ${res.status}`, {
+      provider: 'gemini',
+      status: res.status,
+      model,
+      raw: raw.slice(0, 300),
+    });
+  }
+
+  let json: ImagenPredictResponse;
+  try {
+    json = JSON.parse(raw) as ImagenPredictResponse;
+  } catch {
+    throw new APIError(`Imagen predict returned non-JSON`, {
+      provider: 'gemini',
+      model,
+      raw: raw.slice(0, 300),
+    });
+  }
+
+  if (json.error) {
+    throw new APIError(`Imagen predict error: ${json.error.message ?? 'unknown'}`, {
+      provider: 'gemini',
+      model,
+      status: json.error.code,
+    });
+  }
+
+  const prediction = json.predictions?.[0];
+  if (!prediction?.bytesBase64Encoded) {
+    throw new APIError(`Imagen predict response missing bytesBase64Encoded`, {
+      provider: 'gemini',
+      model,
+    });
+  }
+
+  return {
+    mimeType: prediction.mimeType ?? 'image/png',
+    bytesBase64: prediction.bytesBase64Encoded,
+  };
+}
+
+/**
+ * Returns true if the model ID is an Imagen model (uses :predict endpoint).
+ */
+function isImagenModel(model: string): boolean {
+  return model.startsWith('imagen-');
+}
+
+/**
+ * Map orientation to Imagen/Gemini native aspect ratio string.
+ */
+function orientationToAspectRatio(orientation?: string): string {
+  switch (orientation) {
+    case 'landscape':
+      return '16:9';
+    case 'square':
+      return '1:1';
+    case 'portrait':
+    default:
+      return '9:16';
+  }
+}
+
 export type NanoBananaProviderOptions = {
   model?: string;
   costPerAssetUsd?: number;
@@ -266,9 +403,15 @@ export class NanoBananaProvider implements AssetProvider {
 
     const enhancedPrompt = this.buildPrompt(prompt, options);
     const { width, height } = this.getDimensions(options?.orientation);
+    const aspectRatio = orientationToAspectRatio(options?.orientation);
 
     try {
-      const result = await this.generateImage(enhancedPrompt, { width, height, apiKey });
+      const result = await this.generateImage(enhancedPrompt, {
+        width,
+        height,
+        apiKey,
+        aspectRatio,
+      });
 
       log.info({ id: result.id }, 'Image generated successfully');
 
@@ -375,15 +518,19 @@ export class NanoBananaProvider implements AssetProvider {
   }
 
   /**
-   * Generate image using Gemini API.
+   * Generate image using Gemini or Imagen API.
+   *
+   * Routes to the correct endpoint based on model name:
+   * - imagen-* models → :predict endpoint (native aspectRatio support)
+   * - gemini-* models → :generateContent endpoint (responseModalities: ['IMAGE'])
    *
    * This method can be overridden in tests for mocking.
    */
   protected async generateImage(
     _prompt: string,
-    _options: { width: number; height: number; apiKey: string }
+    _options: { width: number; height: number; apiKey: string; aspectRatio: string }
   ): Promise<{ id: string; url: string; width: number; height: number; cacheHit: boolean }> {
-    const { width, height, apiKey } = _options;
+    const { width, height, apiKey, aspectRatio } = _options;
     const cacheKey = sha256Hex(
       JSON.stringify({ model: this.model, prompt: _prompt, width, height })
     )
@@ -405,18 +552,33 @@ export class NanoBananaProvider implements AssetProvider {
       }
     }
 
-    const generated = await withRetry(
-      () =>
-        generateGeminiImage({
-          apiKey,
-          apiBaseUrl: this.apiBaseUrl,
-          apiVersion: this.apiVersion,
-          model: this.model,
-          prompt: _prompt,
-          timeoutMs: this.timeoutMs,
-        }),
-      { context: { provider: 'gemini', kind: 'image' } }
-    );
+    const generated = isImagenModel(this.model)
+      ? await withRetry(
+          () =>
+            generateImagenImage({
+              apiKey,
+              apiBaseUrl: this.apiBaseUrl,
+              apiVersion: this.apiVersion,
+              model: this.model,
+              prompt: _prompt,
+              aspectRatio,
+              timeoutMs: this.timeoutMs,
+            }),
+          { context: { provider: 'imagen', kind: 'image' } }
+        )
+      : await withRetry(
+          () =>
+            generateGeminiImage({
+              apiKey,
+              apiBaseUrl: this.apiBaseUrl,
+              apiVersion: this.apiVersion,
+              model: this.model,
+              prompt: _prompt,
+              timeoutMs: this.timeoutMs,
+            }),
+          { context: { provider: 'gemini', kind: 'image' } }
+        );
+
     const ext = extForMimeType(generated.mimeType);
     const finalPath = join(this.cacheDir, `${cacheKey}${ext}`);
 
