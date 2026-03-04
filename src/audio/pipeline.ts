@@ -18,7 +18,12 @@ import type { ElevenLabsVoiceSettings } from './tts';
 import { transcribeAudio, ASRResult } from './asr';
 import { reconcileToScript as reconcileAsrToScript } from './asr/reconcile';
 import { computeScriptMatchMetrics } from './asr/script-match';
-import { buildAlignmentUnits, buildSceneTimestamps, normalizeSpokenText } from './alignment';
+import {
+  buildAlignmentUnits,
+  buildSceneTimestamps,
+  buildSceneTimestampsFromUnitTimings,
+  normalizeSpokenText,
+} from './alignment';
 import { buildAudioMixPlan, hasAudioMixSources, type AudioMixPlanOptions } from './mix/planner';
 import type { AudioMixOutput, AudioOutput } from '../domain';
 
@@ -89,79 +94,106 @@ export async function generateAudio(options: GenerateAudioOptions): Promise<Audi
   }
 
   // Combine all script text for TTS
-  const fullText = buildFullText(options.script);
+  const units = buildAlignmentUnits(options.script);
+  const fullText = units.map((u) => normalizeSpokenText(u.text)).join(' ');
 
   log.debug({ textLength: fullText.length }, 'Combined script text');
 
   // Step 1: Generate TTS audio
+  // Pass units to Kokoro so it can synthesize per-scene and return exact unit timings.
+  // This eliminates ASR-based timing drift entirely for the default Kokoro path.
+  const ttsEngine = options.ttsEngine ?? 'kokoro';
   log.info('Generating TTS audio');
   const ttsResult = await synthesizeSpeech({
-    engine: options.ttsEngine ?? 'kokoro',
+    engine: ttsEngine,
     text: fullText,
     voice: options.voice,
     speed: options.speed,
     outputPath: options.outputPath,
     elevenlabs: options.elevenlabs,
+    units: ttsEngine === 'kokoro' ? units : undefined,
   });
 
-  log.info({ duration: ttsResult.duration }, 'TTS audio generated');
+  log.info({ duration: ttsResult.duration, hasUnitTimings: !!ttsResult.unitTimings }, 'TTS audio generated');
 
-  // Step 2: Transcribe for word-level timestamps
-  log.info(
-    { requireWhisper: options.requireWhisper, whisperModel: options.whisperModel },
-    'Transcribing audio for timestamps'
-  );
-  const asrResult = await transcribeAudio({
-    engine: options.asrEngine ?? 'whisper',
-    audioPath: options.outputPath,
-    model: options.whisperModel,
-    originalText: fullText,
-    audioDuration: ttsResult.duration,
-    requireWhisper: options.requireWhisper,
-    elevenlabs: options.elevenlabs ? { apiBaseUrl: options.elevenlabs.apiBaseUrl } : undefined,
-  });
+  // Step 2: Build timestamps
+  // If TTS returned exact per-unit timings (Kokoro per-scene synthesis), use them
+  // directly — no ASR needed. This gives near-perfect caption-to-voice sync.
+  let timestamps: TimestampsOutput;
 
-  log.info(
-    { wordCount: asrResult.words.length, engine: asrResult.engine },
-    'Transcription complete'
-  );
+  if (ttsResult.unitTimings && ttsResult.unitTimings.length > 0) {
+    log.info(
+      { unitCount: ttsResult.unitTimings.length, engine: 'kokoro-timed' },
+      'Using exact TTS unit timings for captions (no ASR needed)'
+    );
+    const { scenes, allWords } = buildSceneTimestampsFromUnitTimings(
+      units,
+      ttsResult.unitTimings,
+      ttsResult.duration
+    );
+    timestamps = {
+      schemaVersion: AUDIO_SCHEMA_VERSION,
+      scenes,
+      allWords,
+      totalDuration: ttsResult.duration,
+      ttsEngine,
+      asrEngine: 'kokoro-timed',
+      analysis: { reconciled: false },
+    };
+  } else {
+    // Fallback: ASR-based timing (non-Kokoro engines, or explicit --asr-engine override)
+    log.info(
+      { requireWhisper: options.requireWhisper, whisperModel: options.whisperModel },
+      'Transcribing audio for timestamps'
+    );
+    const asrResult = await transcribeAudio({
+      engine: options.asrEngine ?? 'whisper',
+      audioPath: options.outputPath,
+      model: options.whisperModel,
+      originalText: fullText,
+      audioDuration: ttsResult.duration,
+      requireWhisper: options.requireWhisper,
+      elevenlabs: options.elevenlabs ? { apiBaseUrl: options.elevenlabs.apiBaseUrl } : undefined,
+    });
 
-  // Step 2b: Reconcile ASR to script text if enabled
-  let finalWords = asrResult.words;
-  let reconciled = false;
-  if (options.reconcile && asrResult.engine !== 'estimated') {
-    log.info('Reconciling ASR output to script text');
-    finalWords = reconcileAsrToScript(asrResult.words, fullText);
-    reconciled = true;
-    log.info({ reconciledWords: finalWords.length }, 'Reconciliation complete');
-  }
+    log.info(
+      { wordCount: asrResult.words.length, engine: asrResult.engine },
+      'Transcription complete'
+    );
 
-  // Step 3: Build timestamps output
-  const scriptMatch =
-    asrResult.engine !== 'estimated'
-      ? computeScriptMatchMetrics({ scriptText: fullText, asrWords: finalWords })
-      : undefined;
-  if (scriptMatch && scriptMatch.lcsRatio < 0.9) {
-    log.warn(
-      {
-        lcsRatio: Number(scriptMatch.lcsRatio.toFixed(3)),
-        scriptCoverage: Number(scriptMatch.scriptCoverage.toFixed(3)),
-        asrCoverage: Number(scriptMatch.asrCoverage.toFixed(3)),
-        reconciled,
-      },
-      'Low script↔caption match detected (captions may look wrong). Consider --reconcile, slower TTS, or a larger Whisper model.'
+    // Reconcile ASR to script text if enabled
+    let finalWords = asrResult.words;
+    let reconciled = false;
+    if (options.reconcile && asrResult.engine !== 'estimated') {
+      log.info('Reconciling ASR output to script text');
+      finalWords = reconcileAsrToScript(asrResult.words, fullText);
+      reconciled = true;
+      log.info({ reconciledWords: finalWords.length }, 'Reconciliation complete');
+    }
+
+    const scriptMatch =
+      asrResult.engine !== 'estimated'
+        ? computeScriptMatchMetrics({ scriptText: fullText, asrWords: finalWords })
+        : undefined;
+    if (scriptMatch && scriptMatch.lcsRatio < 0.9) {
+      log.warn(
+        {
+          lcsRatio: Number(scriptMatch.lcsRatio.toFixed(3)),
+          scriptCoverage: Number(scriptMatch.scriptCoverage.toFixed(3)),
+          asrCoverage: Number(scriptMatch.asrCoverage.toFixed(3)),
+          reconciled,
+        },
+        'Low script↔caption match detected (captions may look wrong). Consider --reconcile, slower TTS, or a larger Whisper model.'
+      );
+    }
+
+    timestamps = buildTimestamps(
+      { ...asrResult, words: finalWords },
+      options.script,
+      ttsEngine,
+      { reconciled, scriptMatch }
     );
   }
-
-  const timestamps = buildTimestamps(
-    { ...asrResult, words: finalWords },
-    options.script,
-    options.ttsEngine ?? 'kokoro',
-    {
-      reconciled,
-      scriptMatch,
-    }
-  );
 
   // Save timestamps
   await writeFile(options.timestampsPath, JSON.stringify(timestamps, null, 2), 'utf-8');
@@ -179,7 +211,7 @@ export async function generateAudio(options: GenerateAudioOptions): Promise<Audi
     timestampsPath: options.timestampsPath,
     timestamps,
     duration: ttsResult.duration,
-    wordCount: asrResult.words.length,
+    wordCount: timestamps.allWords.length,
     voice: options.voice,
     sampleRate: ttsResult.sampleRate,
     ttsCost: ttsResult.cost,
@@ -312,14 +344,6 @@ async function writeSilentWav(params: {
   await writeFile(params.path, Buffer.concat([header, silence]));
 }
 
-/**
- * Build full text from script for TTS
- */
-function buildFullText(script: ScriptOutput): string {
-  return buildAlignmentUnits(script)
-    .map((unit) => normalizeSpokenText(unit.text))
-    .join(' ');
-}
 
 async function maybeWriteAudioMix(params: {
   script: ScriptOutput;

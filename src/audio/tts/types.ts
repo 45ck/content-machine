@@ -14,6 +14,12 @@ export interface TTSOptions {
   voice: string;
   outputPath: string;
   speed?: number;
+  /**
+   * When provided, synthesizes each unit separately so exact per-unit
+   * audio durations can be returned in TTSResult.unitTimings.
+   * Kokoro only — ignored by other engines.
+   */
+  units?: Array<{ id: string; text: string }>;
   elevenlabs?: {
     /**
      * ElevenLabs model id (e.g. "eleven_multilingual_v2").
@@ -36,4 +42,10 @@ export interface TTSResult {
   duration: number;
   sampleRate: number;
   cost: number;
+  /**
+   * Exact start/end times (seconds) for each unit in the concatenated audio.
+   * Present only when TTSOptions.units was provided and the engine supports it.
+   * Use this instead of ASR for perfectly-synced scene timestamps.
+   */
+  unitTimings?: Array<{ id: string; start: number; end: number }>;
 }

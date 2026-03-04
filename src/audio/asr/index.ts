@@ -70,7 +70,7 @@ export interface ASRResult {
   words: WordTimestamp[];
   duration: number;
   text: string;
-  engine: 'whisper-cpp' | 'gemini' | 'estimated' | 'elevenlabs-forced-alignment';
+  engine: 'whisper-cpp' | 'gemini' | 'estimated' | 'elevenlabs-forced-alignment' | 'kokoro-timed';
 }
 
 /** Whisper transcription segment structure */

@@ -128,9 +128,70 @@ async function generateChunkedAudio(params: {
 }
 
 /**
+ * Synthesize each spoken unit separately to get exact per-unit audio durations.
+ * Returns unitTimings so the pipeline can build perfectly-synced scene timestamps
+ * without relying on ASR estimation.
+ */
+async function synthesizeKokoroPerUnit(options: TTSOptions): Promise<TTSResult> {
+  const log = createLogger({ module: 'tts', engine: 'kokoro-per-unit', voice: options.voice });
+  const units = options.units!;
+  const speed = options.speed ?? 1.0;
+
+  const kokoro = await getKokoro();
+  if (!cachedTTS) {
+    log.debug('Loading TTS model');
+    cachedTTS = await kokoro.KokoroTTS.from_pretrained('onnx-community/Kokoro-82M-v1.0-ONNX', {
+      dtype: 'q8',
+    });
+    log.debug('TTS model loaded');
+  }
+
+  const chunks: Float32Array[] = [];
+  let sampleRate = 24000;
+  const unitTimings: Array<{ id: string; start: number; end: number }> = [];
+  let cumulativeSamples = 0;
+
+  for (let i = 0; i < units.length; i++) {
+    const unit = units[i];
+    const text = unit.text.replace(/[`*_]/g, '').replace(/\s+/g, ' ').trim();
+    const audio = await cachedTTS.generate(text, { voice: options.voice, speed });
+    sampleRate = audio.sampling_rate;
+
+    const startSamples = cumulativeSamples;
+    chunks.push(audio.audio);
+    cumulativeSamples += audio.audio.length;
+
+    unitTimings.push({
+      id: unit.id,
+      start: parseFloat((startSamples / sampleRate).toFixed(4)),
+      end: parseFloat((cumulativeSamples / sampleRate).toFixed(4)),
+    });
+
+    // Add inter-unit pause (except after last unit)
+    if (i < units.length - 1) {
+      cumulativeSamples += Math.max(0, Math.round(sampleRate * DEFAULT_PAUSE_SECONDS));
+    }
+  }
+
+  log.info({ unitCount: units.length }, 'Per-unit TTS synthesis complete');
+
+  // Concatenate with pauses
+  const merged = mergeAudioChunks({ chunks, sampleRate, pauseSeconds: DEFAULT_PAUSE_SECONDS });
+  await merged.save(options.outputPath);
+
+  const duration = merged.audio.length / sampleRate;
+  return { audioPath: options.outputPath, duration, sampleRate, cost: 0, unitTimings };
+}
+
+/**
  * Synthesize speech using the local Kokoro model.
  */
 export async function synthesizeSpeechKokoro(options: TTSOptions): Promise<TTSResult> {
+  // Use per-unit synthesis when units are provided for exact scene timing
+  if (options.units && options.units.length > 0) {
+    return synthesizeKokoroPerUnit(options);
+  }
+
   const log = createLogger({ module: 'tts', engine: 'kokoro', voice: options.voice });
 
   log.info(

@@ -123,6 +123,69 @@ function appendRemainingWords(
 }
 
 /**
+ * Build perfectly-synced scene timestamps directly from measured TTS unit durations.
+ *
+ * When Kokoro synthesizes each scene separately, we get the exact duration of each
+ * scene's audio. This function distributes word timestamps character-proportionally
+ * within each scene's exact time window — giving near-perfect sync without any ASR.
+ *
+ * This is the default path when ttsEngine=kokoro, producing a caption-to-TTS score
+ * very close to 100%.
+ */
+export function buildSceneTimestampsFromUnitTimings(
+  units: SpokenUnit[],
+  unitTimings: Array<{ id: string; start: number; end: number }>,
+  totalDuration: number
+): { scenes: SceneTimestamp[]; allWords: WordTimestamp[] } {
+  const scenes: SceneTimestamp[] = [];
+  const allWords: WordTimestamp[] = [];
+
+  for (let i = 0; i < units.length; i++) {
+    const unit = units[i];
+    const timing = unitTimings[i];
+    if (!timing) continue;
+
+    const rawWords = unit.text.split(/\s+/).filter(Boolean);
+    const unitDuration = timing.end - timing.start;
+    const totalChars = rawWords.reduce((s, w) => s + w.length, 0) || 1;
+
+    const wordTimestamps: WordTimestamp[] = [];
+    let cursor = timing.start;
+
+    for (const word of rawWords) {
+      const duration = (word.length / totalChars) * unitDuration;
+      const start = parseFloat(cursor.toFixed(3));
+      const end = parseFloat((cursor + duration).toFixed(3));
+      wordTimestamps.push({ word, start, end });
+      cursor += duration;
+    }
+
+    // Snap last word's end to the exact unit end
+    if (wordTimestamps.length > 0) {
+      wordTimestamps[wordTimestamps.length - 1].end = parseFloat(timing.end.toFixed(3));
+    }
+
+    scenes.push({
+      sceneId: unit.id,
+      audioStart: timing.start,
+      audioEnd: timing.end,
+      words: wordTimestamps,
+    });
+
+    allWords.push(...wordTimestamps);
+  }
+
+  // Snap last word to totalDuration
+  if (allWords.length > 0) {
+    allWords[allWords.length - 1].end = totalDuration;
+    const lastScene = scenes[scenes.length - 1];
+    if (lastScene) lastScene.audioEnd = totalDuration;
+  }
+
+  return { scenes, allWords };
+}
+
+/**
  * Build scene timestamps from words and scene text structure.
  * Assigns words to scenes proportionally based on word count.
  * Also restores punctuation from original script text.
