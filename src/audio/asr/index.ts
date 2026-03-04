@@ -283,6 +283,44 @@ function validateOrRepairTimestamps(
 }
 
 /**
+ * Scale Gemini word timestamps to match actual audio duration.
+ *
+ * Gemini estimates timing from the audio signal, but its clock can drift
+ * significantly from the actual TTS-generated duration (typically 10-30%
+ * over-estimation). Without scaling, captions drift progressively and
+ * late scenes may fall completely outside the video timeline.
+ *
+ * This applies a single linear scale factor: scale = actualDuration / geminiDuration.
+ * @internal
+ */
+function scaleGeminiTimestamps(
+  words: WordTimestamp[],
+  geminiDuration: number,
+  actualDuration: number,
+  log: ReturnType<typeof createLogger>
+): WordTimestamp[] {
+  if (geminiDuration <= 0 || actualDuration <= 0) return words;
+  const drift = Math.abs(geminiDuration - actualDuration) / actualDuration;
+  if (drift < 0.02) return words; // <2% drift — no scaling needed
+
+  const scale = actualDuration / geminiDuration;
+  log.warn(
+    {
+      geminiDuration: geminiDuration.toFixed(3),
+      actualDuration: actualDuration.toFixed(3),
+      scaleFactor: scale.toFixed(4),
+      driftPct: (drift * 100).toFixed(1),
+    },
+    'Gemini timestamps scaled to match actual audio duration (caption sync fix)'
+  );
+  return words.map((w) => ({
+    ...w,
+    start: parseFloat((w.start * scale).toFixed(3)),
+    end: parseFloat((w.end * scale).toFixed(3)),
+  }));
+}
+
+/**
  * Transcribe audio file to get word-level timestamps
  */
 export async function transcribeAudio(options: ASROptions): Promise<ASRResult> {
@@ -327,7 +365,8 @@ export async function transcribeAudio(options: ASROptions): Promise<ASRResult> {
       ...options.gemini,
     });
     const duration = options.audioDuration ?? result.duration;
-    const postProcessed = postProcessASRWordsWithStats(result.words);
+    const scaledWords = scaleGeminiTimestamps(result.words, result.duration, duration, log);
+    const postProcessed = postProcessASRWordsWithStats(scaledWords);
     const validatedWords = validateOrRepairTimestamps(postProcessed.words, duration, log);
     return { words: validatedWords, duration, text: result.text, engine: 'gemini' };
   }
@@ -356,7 +395,8 @@ export async function transcribeAudio(options: ASROptions): Promise<ASRResult> {
       log.info('Whisper unavailable; falling back to Gemini ASR for accurate timestamps');
       const result = await transcribeWithGemini({ audioPath: options.audioPath });
       const duration = options.audioDuration ?? result.duration;
-      const postProcessed = postProcessASRWordsWithStats(result.words);
+      const scaledWords = scaleGeminiTimestamps(result.words, result.duration, duration, log);
+      const postProcessed = postProcessASRWordsWithStats(scaledWords);
       const validatedWords = validateOrRepairTimestamps(postProcessed.words, duration, log);
       return { words: validatedWords, duration, text: result.text, engine: 'gemini' };
     }
@@ -374,7 +414,8 @@ export async function transcribeAudio(options: ASROptions): Promise<ASRResult> {
       log.info('Whisper unavailable; using Gemini ASR for accurate timestamps');
       const result = await transcribeWithGemini({ audioPath: options.audioPath });
       const duration = options.audioDuration ?? result.duration;
-      const postProcessed = postProcessASRWordsWithStats(result.words);
+      const scaledWords = scaleGeminiTimestamps(result.words, result.duration, duration, log);
+      const postProcessed = postProcessASRWordsWithStats(scaledWords);
       const validatedWords = validateOrRepairTimestamps(postProcessed.words, duration, log);
       return { words: validatedWords, duration, text: result.text, engine: 'gemini' };
     } catch (geminiError) {
