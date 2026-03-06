@@ -1,5 +1,6 @@
 # Examples
 
+- [Gemini image-led shorts (real rendered examples + GIF previews)](examples/gemini-image-shorts.md)
 - [Latest news listicle (research -> video)](examples/latest-news-listicle.md)
 - [Split-screen gameplay + Pexels (render template)](examples/split-screen-gameplay.md)
 - [Complex plane rotation (drawn diagrams + gameplay)](examples/complex-plane-rotation.md)

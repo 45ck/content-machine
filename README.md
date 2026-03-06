@@ -74,7 +74,10 @@ Examples and demo gallery:
 
 - Examples: https://github.com/45ck/content-machine/blob/master/docs/user/EXAMPLES.md
 - Repo examples (runnable from source): `examples/`
+- Gemini image-led examples: https://github.com/45ck/content-machine/blob/master/docs/user/examples/gemini-image-shorts.md
 - Demo media: https://github.com/45ck/content-machine/tree/master/docs/demo
+
+[![Gemini image-led short preview](assets/demo/demo-5-gemini-2026-feels-like-2016.gif)](docs/user/examples/gemini-image-shorts.md)
 
 ## How It Works
 
