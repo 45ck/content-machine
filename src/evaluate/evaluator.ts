@@ -128,6 +128,16 @@ interface ContentTypeInfo {
   hasCaptions: boolean;
 }
 
+function getCaptionQualityOverall(
+  result: Awaited<ReturnType<typeof rateCaptionQuality>>
+): { score: number; passed?: boolean } {
+  const overall = result.captionQuality.overall;
+  if (typeof overall === 'number') {
+    return { score: overall };
+  }
+  return { score: overall.score, passed: overall.passed };
+}
+
 function buildEnabledChecks(resolved: Record<string, boolean>): EnabledChecks {
   return {
     validate: resolved.validate !== false,
@@ -277,7 +287,8 @@ async function runRateChecksImpl(
       await runCheck('rate', async () => {
         const result = await rateSyncQuality(videoPath, options.fps ? { fps: options.fps } : {});
         const passed =
-          thresholds.minSyncRating == null || result.rating >= thresholds.minSyncRating;
+          result.passed &&
+          (thresholds.minSyncRating == null || result.rating >= thresholds.minSyncRating);
         return {
           passed,
           summary: `${result.rating}/100, ${result.ratingLabel}, mean drift ${result.metrics.meanDriftMs.toFixed(0)}ms`,
@@ -301,11 +312,11 @@ async function runRateChecksImpl(
     results.push(
       await runCheck('captionQuality', async () => {
         const result = await rateCaptionQuality(videoPath, options.fps ? { fps: options.fps } : {});
-        const overallObj = result.captionQuality.overall;
-        const overallScore = typeof overallObj === 'number' ? overallObj : overallObj.score;
+        const overall = getCaptionQualityOverall(result);
         const passed =
-          thresholds.minCaptionOverall == null || overallScore >= thresholds.minCaptionOverall;
-        return { passed, summary: `overall: ${overallScore.toFixed(2)}`, detail: result };
+          (overall.passed ?? true) &&
+          (thresholds.minCaptionOverall == null || overall.score >= thresholds.minCaptionOverall);
+        return { passed, summary: `overall: ${overall.score.toFixed(2)}`, detail: result };
       })
     );
   } else {

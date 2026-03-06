@@ -84,6 +84,44 @@ vi.mock('../../../src/validate/audio-signal', () => ({
     },
   }),
 }));
+vi.mock('../../../src/validate/frame-bounds', () => ({
+  analyzeFrameBounds: vi.fn().mockResolvedValue({
+    schemaVersion: '1.0.0',
+    videoPath: '/tmp/test.mp4',
+    frames: [],
+    thresholds: {
+      borderRatio: 0.01,
+      maxDarkening: 0.12,
+      maxEdgeContentRatio: 0.035,
+      brightLuma: 0.78,
+      chromaSat: 0.42,
+    },
+    worst: {
+      maxDarkening: 0.01,
+      maxEdgeContentRatio: 0,
+      side: 'left',
+      timestampSeconds: 0,
+    },
+  }),
+  runFrameBoundsGate: vi.fn().mockReturnValue({
+    schemaVersion: '1.0.0',
+    passed: true,
+    summary: 'Frame bounds OK',
+    details: {
+      maxDarkening: 0.01,
+      maxEdgeContentRatio: 0,
+      side: 'left',
+      timestampSeconds: 0,
+      thresholds: {
+        borderRatio: 0.01,
+        maxDarkening: 0.12,
+        maxEdgeContentRatio: 0.035,
+        brightLuma: 0.78,
+        chromaSat: 0.42,
+      },
+    },
+  }),
+}));
 
 describe('overall score aggregation', () => {
   it('produces a good score when all checks pass', async () => {

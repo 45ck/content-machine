@@ -158,6 +158,45 @@ vi.mock('../validate/audio-signal', () => ({
   }),
 }));
 
+vi.mock('../validate/frame-bounds', () => ({
+  analyzeFrameBounds: vi.fn().mockResolvedValue({
+    schemaVersion: '1.0.0',
+    videoPath: '/tmp/test.mp4',
+    frames: [],
+    thresholds: {
+      borderRatio: 0.01,
+      maxDarkening: 0.12,
+      maxEdgeContentRatio: 0.035,
+      brightLuma: 0.78,
+      chromaSat: 0.42,
+    },
+    worst: {
+      maxDarkening: 0.01,
+      maxEdgeContentRatio: 0,
+      side: 'left',
+      timestampSeconds: 0,
+    },
+  }),
+  runFrameBoundsGate: vi.fn().mockReturnValue({
+    schemaVersion: '1.0.0',
+    passed: true,
+    summary: 'Frame bounds OK',
+    details: {
+      maxDarkening: 0.01,
+      maxEdgeContentRatio: 0,
+      side: 'left',
+      timestampSeconds: 0,
+      thresholds: {
+        borderRatio: 0.01,
+        maxDarkening: 0.12,
+        maxEdgeContentRatio: 0.035,
+        brightLuma: 0.78,
+        chromaSat: 0.42,
+      },
+    },
+  }),
+}));
+
 const baseOptions = {
   videoPath: '/tmp/test.mp4',
   profile: 'portrait' as const,
@@ -170,7 +209,7 @@ describe('evaluateVideo', () => {
     const report = await evaluateVideo(baseOptions);
     expect(report.passed).toBe(true);
     expect(report.schemaVersion).toBe('1.0.0');
-    expect(report.checks.length).toBe(11);
+    expect(report.checks.length).toBe(12);
   });
 
   it('skips score when no script provided', async () => {
@@ -215,6 +254,45 @@ describe('evaluateVideo', () => {
     expect(rateCheck?.passed).toBe(true);
   });
 
+  it('fails rate when sync-rater detail fails even if rating clears the threshold', async () => {
+    const { rateSyncQuality } = await import('../score/sync-rater');
+    (rateSyncQuality as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      rating: 87,
+      ratingLabel: 'good',
+      passed: false,
+      metrics: { meanDriftMs: 142 },
+      captionQuality: { overall: 0.82 },
+    });
+
+    const report = await evaluateVideo({
+      ...baseOptions,
+      thresholds: { validateProfile: 'portrait', minSyncRating: 80 },
+    });
+
+    const rateCheck = report.checks.find((c) => c.checkId === 'rate');
+    expect(rateCheck?.passed).toBe(false);
+    expect(report.passed).toBe(false);
+  });
+
+  it('fails standalone captionQuality when the caption-quality detail fails', async () => {
+    const { rateCaptionQuality } = await import('../score/sync-rater');
+    (rateCaptionQuality as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      captionQuality: {
+        overall: { score: 0.82, passed: false },
+        subscores: { coverage: { score: 0.89 } },
+      },
+    });
+
+    const report = await evaluateVideo({
+      ...baseOptions,
+      checks: { validate: true, rate: false, captionQuality: true, score: false },
+    });
+
+    const cqCheck = report.checks.find((c) => c.checkId === 'captionQuality');
+    expect(cqCheck?.passed).toBe(false);
+    expect(report.passed).toBe(false);
+  });
+
   it('marks disabled checks as skipped', async () => {
     const report = await evaluateVideo({
       ...baseOptions,
@@ -225,6 +303,12 @@ describe('evaluateVideo', () => {
         score: false,
         temporalQuality: false,
         audioSignal: false,
+        frameBounds: false,
+        semanticFidelity: false,
+        safety: false,
+        freeze: false,
+        dnsmos: false,
+        flowConsistency: false,
       },
     });
     expect(report.checks.every((c) => c.skipped)).toBe(true);
