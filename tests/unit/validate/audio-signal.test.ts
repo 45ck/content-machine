@@ -27,13 +27,31 @@ describe('FfmpegAudioAnalyzer', () => {
     expect(summary.snrDB).toBe(25);
     expect(runPythonJsonMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        args: ['--media', 'video.mp4'],
+        args: ['--media', 'video.mp4', '--ffmpeg-path', expect.any(String)],
       })
     );
   });
 
   it('rejects invalid audio signal JSON', async () => {
     runPythonJsonMock.mockResolvedValue({});
+    const { FfmpegAudioAnalyzer } = await import('../../../src/validate/audio-signal');
+    const analyzer = new FfmpegAudioAnalyzer({ scriptPath: '/tmp/audio_quality.py' });
+
+    await expect(analyzer.analyze('video.mp4')).rejects.toMatchObject({
+      code: 'VALIDATION_ERROR',
+    });
+  });
+
+  it('rejects non-finite audio signal JSON', async () => {
+    runPythonJsonMock.mockResolvedValue({
+      loudnessLUFS: -14.2,
+      truePeakDBFS: Number.POSITIVE_INFINITY,
+      loudnessRange: 8.0,
+      clippingRatio: 0.0,
+      peakLevelDB: -1.2,
+      snrDB: 25,
+    });
+
     const { FfmpegAudioAnalyzer } = await import('../../../src/validate/audio-signal');
     const analyzer = new FfmpegAudioAnalyzer({ scriptPath: '/tmp/audio_quality.py' });
 
