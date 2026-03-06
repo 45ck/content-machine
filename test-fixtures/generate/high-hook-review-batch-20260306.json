@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "high-hook-review-batch-20260306",
+  "name": "High-Hook Review Batch",
+  "description": "Five-format review batch covering gameplay-heavy, meme-led, absurdist, practical, and clean control formats.",
+  "items": [
+    {
+      "id": "brainrot-2026-2016",
+      "topic": "Why 2026 feels like 2016 again",
+      "workflow": "brainrot-gameplay",
+      "template": "brainrot-split-gameplay-top",
+      "archetype": "meme-pov",
+      "notes": "Gameplay-heavy meme explainer with split-screen gameplay."
+    },
+    {
+      "id": "browser-cache-meme",
+      "topic": "Browser cache explained like the internet's most annoying roommate",
+      "workflow": "gemini-meme-explainer",
+      "template": "tiktok-captions",
+      "archetype": "hot-take",
+      "notes": "AI-image-led meme explainer."
+    },
+    {
+      "id": "black-holes-absurdist",
+      "topic": "Black holes explained like an absurd internet meme",
+      "workflow": "absurdist-edutainment",
+      "template": "tiktok-captions",
+      "archetype": "myth",
+      "notes": "Surreal science edutainment."
+    },
+    {
+      "id": "note-taking-hook",
+      "topic": "Three note-taking mistakes that make your brain feel laggy",
+      "workflow": "gemini-meme-explainer",
+      "template": "tiktok-captions",
+      "archetype": "howto",
+      "notes": "Practical tip format with a meme hook."
+    },
+    {
+      "id": "redis-control",
+      "topic": "Redis vs PostgreSQL for caching in 45 seconds",
+      "workflow": "clean-educational-control",
+      "template": "tiktok-captions",
+      "archetype": "versus",
+      "notes": "Cleaner educational control for comparison."
+    }
+  ]
+}

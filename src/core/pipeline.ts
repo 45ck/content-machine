@@ -14,6 +14,7 @@ import { ResearchOutputSchema } from '../domain';
 import type {
   AudioOutput,
   MediaManifest,
+  MotionStrategyType,
   RenderOutput,
   ResearchOutput,
   ScriptOutput,
@@ -107,6 +108,7 @@ export interface PipelineOptions {
   visualsProvider?: AssetProviderName;
   visualsProviders?: AssetProviderName[];
   visualsRoutingPolicy?: ProviderRoutingPolicy | 'adaptive';
+  visualsMotionStrategy?: MotionStrategyType;
   visualsMaxGenerationCostUsd?: number;
   visualsPolicyGates?: {
     enforce?: boolean;
@@ -584,6 +586,7 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
             provider: options.visualsProvider ?? config.visuals.provider,
             providers: options.visualsProviders,
             routingPolicy: options.visualsRoutingPolicy,
+            motionStrategy: options.visualsMotionStrategy,
             maxGenerationCostUsd: options.visualsMaxGenerationCostUsd,
             policyGates: options.visualsPolicyGates,
             routingAdaptiveWindow: options.visualsRoutingAdaptiveWindow,

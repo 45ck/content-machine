@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "clean-educational-control",
+  "name": "Clean Educational Control",
+  "description": "Cleaner control preset for baseline educational comparisons with stock-first visuals.",
+  "defaults": {
+    "template": "tiktok-captions",
+    "visualsProvider": "pexels,nanobanana",
+    "visualsRoutingPolicy": "configured",
+    "visualsMotionStrategy": "kenburns",
+    "captionPreset": "minimal",
+    "captionMode": "page",
+    "mixPreset": "clean",
+    "syncPreset": "quality"
+  }
+}

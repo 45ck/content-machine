@@ -28,6 +28,10 @@ Composition
 CompositionId
 CompositionIdSchema
 Config
+Content
+content-format
+ContentFormat
+Format
 Gameplay
 gameplay-clip
 GameplayClip

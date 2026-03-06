@@ -171,19 +171,36 @@ const SceneMedia: React.FC<{
   });
 
   const seed = hash32(url);
+  const isMockCard = url.startsWith('data:image/svg+xml');
   const dirX = seed % 2 === 0 ? 1 : -1;
   const dirY = seed % 3 === 0 ? 1 : -1;
-  const panX = ((seed % 17) / 17) * 3.5 * dirX; // percent
-  const panY = (((seed >>> 5) % 19) / 19) * 3.5 * dirY; // percent
+  const panRange = isMockCard ? 8 : 3.5;
+  const panX = ((seed % 17) / 17) * panRange * dirX; // percent
+  const panY = (((seed >>> 5) % 19) / 19) * panRange * dirY; // percent
 
   const motion = scene.motionStrategy ?? 'kenburns';
   const isStatic = motion === 'none';
+  const pulse = isStatic ? 0 : Math.sin(frame / (isMockCard ? 18 : 30));
 
-  const zoomStart = 1.06;
-  const zoomEnd = motion === 'kenburns' ? 1.14 : zoomStart;
-  const scale = isStatic ? 1 : interpolate(t, [0, 1], [zoomStart, zoomEnd]);
-  const translateX = isStatic ? 0 : interpolate(t, [0, 1], [0, -panX]);
-  const translateY = isStatic ? 0 : interpolate(t, [0, 1], [0, -panY]);
+  const zoomStart = isMockCard ? 1.1 : 1.06;
+  const zoomEnd = motion === 'kenburns' ? (isMockCard ? 1.24 : 1.14) : zoomStart;
+  const baseScale = isStatic ? 1 : interpolate(t, [0, 1], [zoomStart, zoomEnd]);
+  const scale = isMockCard ? baseScale + pulse * 0.018 : baseScale;
+  const translateX = isStatic ? 0 : interpolate(t, [0, 1], [0, -panX]) + (isMockCard ? pulse * 1.2 : 0);
+  const translateY = isStatic ? 0 : interpolate(t, [0, 1], [0, -panY]) + (isMockCard ? Math.cos(frame / 22) * 1.1 : 0);
+  const rotate = isStatic
+    ? 0
+    : interpolate(
+        t,
+        [0, 0.5, 1],
+        [0, isMockCard ? dirX * 1.2 : dirX * 0.35, isMockCard ? dirY * -0.8 : 0],
+        {
+          extrapolateLeft: 'clamp',
+          extrapolateRight: 'clamp',
+        }
+      );
+  const sheenX = isMockCard ? ((frame * 2.8 + (seed % 160)) % 180) - 40 : 0;
+  const sheenOpacity = isMockCard ? 0.12 + (Math.sin(frame / 16) + 1) * 0.04 : 0;
 
   return (
     <div style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
@@ -193,10 +210,21 @@ const SceneMedia: React.FC<{
           width: '100%',
           height: '100%',
           objectFit: 'cover',
-          transform: `translate(${translateX}%, ${translateY}%) scale(${scale})`,
+          transform: `translate(${translateX}%, ${translateY}%) scale(${scale}) rotate(${rotate}deg)`,
           ...videoStyle,
         }}
       />
+      {isMockCard ? (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: `linear-gradient(112deg, transparent 0%, transparent ${sheenX}%, rgba(255,255,255,${sheenOpacity}) ${sheenX + 12}%, transparent ${sheenX + 28}%, transparent 100%)`,
+            mixBlendMode: 'screen',
+            pointerEvents: 'none',
+          }}
+        />
+      ) : null}
     </div>
   );
 };

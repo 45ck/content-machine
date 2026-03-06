@@ -1137,6 +1137,84 @@ describe('core pipeline', () => {
     );
   });
 
+  it('passes explicit visuals motion strategy through to the visuals matcher', async () => {
+    const dir = makeTempDir();
+    const outputPath = path.join(dir, 'video.mp4');
+
+    generateScriptMock.mockResolvedValue({
+      schemaVersion: '1.0.0',
+      scenes: [{ id: 'scene-1', text: 'Hello', visualDirection: 'demo' }],
+      reasoning: 'ok',
+    });
+    generateAudioMock.mockResolvedValue({
+      schemaVersion: '1.0.0',
+      audioPath: path.join(dir, 'audio.wav'),
+      timestampsPath: path.join(dir, 'timestamps.json'),
+      timestamps: {
+        schemaVersion: '1.0.0',
+        allWords: [{ word: 'hello', start: 0.1, end: 0.3 }],
+        totalDuration: 1,
+        ttsEngine: 'kokoro',
+        asrEngine: 'whisper',
+      },
+      duration: 1,
+      wordCount: 1,
+      voice: 'af_heart',
+      sampleRate: 48000,
+    });
+    matchVisualsMock.mockResolvedValue({
+      schemaVersion: '1.1.0',
+      scenes: [
+        {
+          sceneId: 'scene-1',
+          source: 'generated-nanobanana',
+          assetPath: '/tmp/scene-1.png',
+          duration: 1,
+          assetType: 'image',
+          motionStrategy: 'veo',
+          motionApplied: false,
+        },
+      ],
+      totalAssets: 1,
+      fromUserFootage: 0,
+      fromStock: 0,
+      fromGenerated: 1,
+      fallbacks: 0,
+    });
+    renderVideoMock.mockResolvedValue({
+      schemaVersion: '1.0.0',
+      outputPath,
+      duration: 1,
+      width: 1080,
+      height: 1920,
+      fps: 30,
+      fileSize: 123,
+      codec: 'h264',
+      archetype: 'listicle',
+    });
+
+    const { runPipeline } = await import('../../../src/core/pipeline');
+    await runPipeline({
+      topic: 'Redis',
+      archetype: 'listicle',
+      orientation: 'portrait',
+      voice: 'af_heart',
+      targetDuration: 10,
+      outputPath,
+      keepArtifacts: false,
+      mock: true,
+      visualsProvider: 'nanobanana',
+      visualsMotionStrategy: 'veo',
+    });
+
+    expect(matchVisualsMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        provider: 'nanobanana',
+        motionStrategy: 'veo',
+      })
+    );
+  });
+
   it('auto-enables media synthesis for scene spec assets', async () => {
     const dir = makeTempDir();
     const outputPath = path.join(dir, 'video.mp4');

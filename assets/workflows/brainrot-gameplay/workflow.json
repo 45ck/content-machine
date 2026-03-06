@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "brainrot-gameplay",
+  "name": "Brainrot Gameplay",
+  "description": "Gameplay-heavy split-screen format with punchier caption and audio defaults.",
+  "defaults": {
+    "template": "brainrot-split-gameplay-top",
+    "splitLayout": "gameplay-top",
+    "gameplayStyle": "subway-surfers",
+    "visualsProvider": "nanobanana,pexels",
+    "visualsRoutingPolicy": "configured",
+    "visualsMotionStrategy": "kenburns",
+    "captionPreset": "capcut",
+    "captionMode": "chunk",
+    "captionAnimation": "pop",
+    "captionWordAnimation": "pop",
+    "mixPreset": "viral",
+    "syncPreset": "quality"
+  }
+}

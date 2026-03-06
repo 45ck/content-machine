@@ -23,8 +23,8 @@ These are real rendered MP4 outputs with voice audio and captions. They are imag
 
 ## Reproduction Notes
 
-- Workflow preset: [`google-ai-meme-education`](../../reference/cm-workflows-reference-20260110.md)
-- Topic fixture: [`test-fixtures/generate/google-real-gemini-review-formats-20260306.json`](../../../test-fixtures/generate/google-real-gemini-review-formats-20260306.json)
+- Workflow presets: [`gemini-meme-explainer`](../../reference/cm-workflows-reference-20260110.md) and [`absurdist-edutainment`](../../reference/cm-workflows-reference-20260110.md)
+- Topic fixture data: [`test-fixtures/generate/high-hook-review-batch-20260306.json`](../../../test-fixtures/generate/high-hook-review-batch-20260306.json)
 - Visual provider: `nanobanana`
 - Current motion path: image-led render flow with static/Ken Burns style motion, not Vertex Veo
 
@@ -46,9 +46,9 @@ cm visuals \
   --motion-strategy kenburns \
   --output output/visuals.json
 
-cm render \
-  --input output/visuals.json \
-  --audio output/audio.wav \
-  --timestamps output/timestamps.json \
+cm generate "Browser cache explained like the internet's most annoying roommate" \
+  --workflow gemini-meme-explainer \
+  --archetype hot-take \
+  --visuals-motion-strategy kenburns \
   --output output/video.mp4
 ```

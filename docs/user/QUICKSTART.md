@@ -8,7 +8,7 @@ Render a deterministic demo video:
 cm demo -o output/demo.mp4
 ```
 
-## 2) Generate A Real Video (Stock Visuals)
+## 2) Generate A Real Video Format (Stock Visuals)
 
 Prereqs:
 
@@ -39,7 +39,30 @@ cm generate "Redis vs PostgreSQL for caching" \
   --keep-artifacts
 ```
 
-## 3) When Things Fail
+## 3) Switch Formats Without Changing The Engine
+
+The same pipeline can make different short-form content types by swapping the building blocks:
+
+Extra prereqs for these examples:
+
+- `brainrot-gameplay`: gameplay footage available through the normal gameplay library flow
+- `gemini-meme-explainer`: `GEMINI_API_KEY` or `GOOGLE_API_KEY`
+
+```bash
+# Gameplay-heavy meme format
+cm generate "Why 2026 feels like 2016 again" \
+  --workflow brainrot-gameplay \
+  --archetype meme-pov \
+  --output output/brainrot.mp4
+
+# Gemini image-led format
+cm generate "Browser cache explained like the internet's most annoying roommate" \
+  --workflow gemini-meme-explainer \
+  --archetype hot-take \
+  --output output/meme.mp4
+```
+
+## 4) When Things Fail
 
 ```bash
 cm doctor

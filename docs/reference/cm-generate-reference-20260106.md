@@ -2,6 +2,12 @@
 
 Generate a full short-form video from a topic (script -> audio -> visuals -> render).
 
+CM is meant to make many kinds of short-form content from the same engine:
+
+- `--archetype` shapes the script/content structure
+- `--template` shapes the layout and caption presentation
+- `--workflow` applies reusable format defaults across the pipeline
+
 ## Synopsis
 
 ```bash
@@ -20,11 +26,11 @@ cm generate [options] <topic>
 ## Options
 
 - `-a, --archetype <idOrPath>`: script archetype id or path to an archetype YAML file (default: `listicle`). Use `cm archetypes list`
-- `--template <idOrPath>`: render template id or path to `template.json`
+- `--template <idOrPath>`: render template id or path to `template.json` (layout + caption presentation preset)
 - `--allow-template-code`: allow executing Remotion code templates (dangerous)
 - `--template-deps <auto|prompt|never>`: code-template dependency install mode
 - `--template-pm <npm|pnpm|yarn>`: code-template package manager
-- `--workflow <idOrPath>`: pipeline workflow id or path to `workflow.json`
+- `--workflow <idOrPath>`: workflow preset id or path to `workflow.json` (reusable format defaults + orchestration)
 - `--workflow-allow-exec`: allow workflow exec hooks to run
 - `--script <path>`: use existing `script.json` (skip script generation)
 - `--audio <path>`: use existing audio file (requires `--timestamps`)
@@ -34,6 +40,7 @@ cm generate [options] <topic>
 - `--visuals-provider <providerOrChain>`: visuals provider id or provider chain (e.g., `pexels` or `pexels,local,nanobanana`)
 - `--visuals-fallback-providers <providers>`: comma-separated fallback providers appended to `--visuals-provider` when provider is a single value
 - `--visuals-routing-policy <policy>`: visuals provider routing policy (`configured|balanced|cost-first|quality-first`)
+- `--visuals-motion-strategy <strategy>`: image motion strategy for visuals stage (`none|kenburns|depthflow|veo`)
 - `--visuals-max-generation-cost-usd <amount>`: hard cap for AI image generation spend during visuals stage (USD)
 - `--media`: enable media synthesis stage (image-to-video for `depthflow`/`veo` + video keyframes)
 - `--no-media-keyframes`: disable media-stage video keyframe extraction
@@ -147,6 +154,19 @@ cm generate "Launch teaser" \
 
 # Use a workflow definition
 cm generate "Product recap" --workflow acme-marketing --workflow-allow-exec --output out/video.mp4
+
+# Gameplay-heavy meme format
+cm generate "Why 2026 feels like 2016 again" \
+  --workflow brainrot-gameplay \
+  --archetype meme-pov \
+  --output out/brainrot.mp4
+
+# Gemini image-led meme explainer with explicit motion selection
+cm generate "Browser cache explained like the internet's most annoying roommate" \
+  --workflow gemini-meme-explainer \
+  --archetype hot-take \
+  --visuals-motion-strategy kenburns \
+  --output out/meme.mp4
 ```
 
 ## Notes
@@ -158,6 +178,7 @@ cm generate "Product recap" --workflow acme-marketing --workflow-allow-exec --ou
 - Workflow external stages default to artifacts in the output directory (unless `workflow.inputs` override them).
 - External render stages are not supported in `cm generate` yet (use `cm render`).
 - Code templates execute arbitrary JS/TS during bundling/rendering and are denied by default (require `--allow-template-code`).
+- Built-in format workflows now ship in `assets/workflows/`; see `cm workflows list`.
 
 ## See also
 

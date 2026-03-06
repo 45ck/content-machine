@@ -26,9 +26,14 @@ function isRemoteUrl(path: string): boolean {
   return /^https?:\/\//i.test(path);
 }
 
+function isDataUrl(path: string): boolean {
+  return path.startsWith('data:');
+}
+
 function isLocalPathCandidate(path: string): boolean {
   if (!path) return false;
   if (isRemoteUrl(path)) return false;
+  if (isDataUrl(path)) return false;
   if (path.startsWith('#')) return false;
   return true;
 }

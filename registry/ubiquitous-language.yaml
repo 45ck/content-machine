@@ -201,10 +201,12 @@ terms:
     definition: >
       A pipeline orchestration preset for cm generate. Workflows can select stage modes
       (builtin vs external/import), provide default inputs, and provide workflow defaults.
-      Workflows may contain exec hooks, which require explicit opt-in.
+      In practice, workflows are often used as reusable format defaults for a family of
+      short-form videos. Workflows may contain exec hooks, which require explicit opt-in.
     nonExamples:
       - Not a render template.
       - Not a script format.
+      - Not the entire content format by itself.
     canonicalTypes:
       - WorkflowId
       - WorkflowDefinition
@@ -220,6 +222,30 @@ terms:
       - 'cm workflows list|show|validate|new|pack|install'
     synonymsToAvoid:
       - recipe
+
+  - term: ContentFormat
+    id: content-format
+    canonicalName: Content Format
+    definition: >
+      A repeatable kind of short-form video CM can produce (for example meme explainer,
+      gameplay-heavy brainrot, clean educational control, or product demo). In practice,
+      a content format is usually expressed by combining a Script Archetype, a Render Template,
+      and a Pipeline Workflow, plus optional presets such as caption/audio mix settings.
+    nonExamples:
+      - Not a single subsystem preset by itself.
+      - Not synonymous with Workflow, Template, or Archetype alone.
+    canonicalTypes: []
+    canonicalSchemas: []
+    ownedBy: core
+    whereItLives:
+      - 'Expressed across assets/archetypes/, assets/templates/, assets/workflows/, and presets'
+      - 'User examples: docs/user/examples/'
+    cliSurface:
+      - 'cm generate --archetype <id> --template <id> --workflow <id>'
+    synonymsToAvoid:
+      - workflow
+      - template
+      - archetype
 
   - term: Preset
     id: preset

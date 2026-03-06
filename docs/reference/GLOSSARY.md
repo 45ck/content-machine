@@ -130,6 +130,36 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 
 **Owner:** `render`
 
+## Content Format
+
+**Id:** `content-format`
+
+**Term:** ContentFormat
+
+**Definition:** A repeatable kind of short-form video CM can produce (for example meme explainer, gameplay-heavy brainrot, clean educational control, or product demo). In practice, a content format is usually expressed by combining a Script Archetype, a Render Template, and a Pipeline Workflow, plus optional presets such as caption/audio mix settings.
+
+**Not:**
+
+- Not a single subsystem preset by itself.
+- Not synonymous with Workflow, Template, or Archetype alone.
+
+**Where it lives:**
+
+- Expressed across assets/archetypes/, assets/templates/, assets/workflows/, and presets
+- User examples: docs/user/examples/
+
+**CLI surface:**
+
+- `cm generate --archetype <id> --template <id> --workflow <id>`
+
+**Synonyms to avoid:**
+
+- `workflow`
+- `template`
+- `archetype`
+
+**Owner:** `core`
+
 ## Gameplay Clip
 
 **Id:** `gameplay-clip`
@@ -344,12 +374,13 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 
 **Term:** Workflow
 
-**Definition:** A pipeline orchestration preset for cm generate. Workflows can select stage modes (builtin vs external/import), provide default inputs, and provide workflow defaults. Workflows may contain exec hooks, which require explicit opt-in.
+**Definition:** A pipeline orchestration preset for cm generate. Workflows can select stage modes (builtin vs external/import), provide default inputs, and provide workflow defaults. In practice, workflows are often used as reusable format defaults for a family of short-form videos. Workflows may contain exec hooks, which require explicit opt-in.
 
 **Not:**
 
 - Not a render template.
 - Not a script format.
+- Not the entire content format by itself.
 
 **Canonical types:**
 

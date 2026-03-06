@@ -61,6 +61,8 @@ import {
   type CaptionQualityRatingOutput,
   type FontSource,
   type HookClip,
+  MotionStrategyEnum,
+  type MotionStrategyType,
   type ResearchOutput,
   type ResearchSource,
   type ScriptOutput,
@@ -128,6 +130,7 @@ interface GenerateOptions {
   visualsProvider?: string;
   visualsFallbackProviders?: string;
   visualsRoutingPolicy?: string;
+  visualsMotionStrategy?: string;
   visualsMaxGenerationCostUsd?: string;
   visualsGateEnforce?: boolean;
   visualsGateMaxFallbackRate?: string;
@@ -384,6 +387,7 @@ function writeDryRunJson(params: {
         visualsProvider: options.visualsProvider ?? null,
         visualsFallbackProviders: options.visualsFallbackProviders ?? null,
         visualsRoutingPolicy: options.visualsRoutingPolicy ?? null,
+        visualsMotionStrategy: options.visualsMotionStrategy ?? null,
         visualsMaxGenerationCostUsd: options.visualsMaxGenerationCostUsd ?? null,
         visualsGateEnforce: Boolean(options.visualsGateEnforce),
         visualsGateMaxFallbackRate: options.visualsGateMaxFallbackRate ?? null,
@@ -1426,6 +1430,17 @@ function parseProviderRoutingPolicy(
   });
 }
 
+function parseVisualsMotionStrategy(value: string | undefined): MotionStrategyType | undefined {
+  if (!value) return undefined;
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  const parsed = MotionStrategyEnum.safeParse(trimmed);
+  if (parsed.success) return parsed.data;
+  throw new CMError('INVALID_ARGUMENT', `Invalid visuals motion strategy: ${trimmed}`, {
+    fix: 'Use one of: none, kenburns, depthflow, veo',
+  });
+}
+
 async function loadGenerationPolicy(path: string): Promise<GenerationPolicy> {
   const raw = await readInputFile(path);
   const parsed = safeParseGenerationPolicy(raw);
@@ -1608,6 +1623,7 @@ function buildGenerateSuccessJsonArgs(params: {
     visualsProvider: options.visualsProvider ?? null,
     visualsFallbackProviders: options.visualsFallbackProviders ?? null,
     visualsRoutingPolicy: options.visualsRoutingPolicy ?? null,
+    visualsMotionStrategy: options.visualsMotionStrategy ?? null,
     visualsMaxGenerationCostUsd: options.visualsMaxGenerationCostUsd ?? null,
     visualsGateEnforce: Boolean(options.visualsGateEnforce),
     visualsGateMaxFallbackRate: options.visualsGateMaxFallbackRate ?? null,
@@ -1894,6 +1910,7 @@ function applyDefaultsFromConfig(options: GenerateOptions, command: Command): vo
     config.visuals?.provider ?? SUPPORTED_VISUALS_PROVIDER_IDS[0]
   );
   applyDefaultOption(record, command, 'visualsRoutingPolicy', config.visuals?.routingPolicy);
+  applyDefaultOption(record, command, 'visualsMotionStrategy', config.visuals?.motionStrategy);
   applyDefaultOption(
     record,
     command,
@@ -2367,12 +2384,9 @@ async function runGeneratePipeline(params: {
             emitEmpty: Boolean(params.options.audioMix) && !hasMixSources,
           };
 
-    const mockRenderMode: 'placeholder' | 'real' | undefined =
-      params.options.mock &&
-      (params.options.captionPerfect || params.options.captionQualityCheck) &&
-      !params.options.captionQualityMock
-        ? 'real'
-        : undefined;
+    const mockRenderMode: 'placeholder' | 'real' | undefined = params.options.mock
+      ? 'real'
+      : undefined;
 
     const config = loadConfig();
     const visualsProviderChain = parseVisualsProviderChain({
@@ -2383,6 +2397,7 @@ async function runGeneratePipeline(params: {
         : [],
     });
     const visualsRoutingPolicy = parseProviderRoutingPolicy(params.options.visualsRoutingPolicy);
+    const visualsMotionStrategy = parseVisualsMotionStrategy(params.options.visualsMotionStrategy);
     const visualsMaxGenerationCostUsd =
       parseOptionalNumber(params.options.visualsMaxGenerationCostUsd) ?? undefined;
     const visualsGateMaxFallbackRate =
@@ -2406,6 +2421,7 @@ async function runGeneratePipeline(params: {
       visualsProvider: visualsProviderChain[0],
       visualsProviders: visualsProviderChain,
       visualsRoutingPolicy,
+      visualsMotionStrategy,
       visualsMaxGenerationCostUsd,
       visualsPolicyGates: {
         enforce: Boolean(params.options.visualsGateEnforce),
@@ -3141,6 +3157,7 @@ async function runGenerate(
     );
   }
   applyPolicyDefaults(options, command, generationPolicy);
+  parseVisualsMotionStrategy(options.visualsMotionStrategy);
 
   const { resolvedTemplate, templateDefaults, templateParams, templateGameplay, templateOverlays } =
     await resolveTemplateAndApplyDefaults(options, command);
@@ -3507,6 +3524,15 @@ function showDryRunSummary(
   if (options.visuals) {
     writeStderrLine(`   Visuals: ${options.visuals}`);
   }
+  if (options.visualsProvider) {
+    writeStderrLine(`   Visuals Provider: ${options.visualsProvider}`);
+  }
+  if (options.visualsRoutingPolicy) {
+    writeStderrLine(`   Visuals Routing: ${options.visualsRoutingPolicy}`);
+  }
+  if (options.visualsMotionStrategy) {
+    writeStderrLine(`   Visuals Motion: ${options.visualsMotionStrategy}`);
+  }
   const mixOptions = buildAudioMixOptions(options);
   const hasMix = hasAudioMixSources(mixOptions) || Boolean(options.audioMix);
   writeStderrLine(
@@ -3806,16 +3832,16 @@ async function loadOrRunResearch(
 }
 
 export const generateCommand = new Command('generate')
-  .description('Generate a complete video from a topic')
-  .argument('<topic>', 'Topic for the video')
+  .description('Generate a complete short-form video from a topic')
+  .argument('<topic>', 'Topic or idea for the video')
   .option(
     '-a, --archetype <idOrPath>',
-    'Script archetype (script format). Use `cm archetypes list`',
+    'Script archetype (content structure). Use `cm archetypes list`',
     'listicle'
   )
   .option(
     '--template <idOrPath>',
-    'Render template (Remotion composition + render defaults). Use `cm templates list`'
+    'Render template (layout + caption defaults). Use `cm templates list`'
   )
   .option('--policy <path>', 'Generation policy JSON file (cross-stage orchestration policy)')
   .option('--allow-template-code', 'Allow executing Remotion code templates (dangerous)', false)
@@ -3826,7 +3852,7 @@ export const generateCommand = new Command('generate')
   .option('--template-pm <pm>', 'Template package manager (npm, pnpm, yarn)')
   .option(
     '--workflow <idOrPath>',
-    'Pipeline workflow (orchestration + defaults). Use `cm workflows list`'
+    'Pipeline workflow preset for pipeline defaults and content-format setup. Use `cm workflows list`'
   )
   .option('--workflow-allow-exec', 'Allow workflow exec hooks to run')
   .option(
@@ -3854,6 +3880,10 @@ export const generateCommand = new Command('generate')
   .option(
     '--visuals-routing-policy <policy>',
     'Visuals provider routing policy (configured|balanced|cost-first|quality-first)'
+  )
+  .option(
+    '--visuals-motion-strategy <strategy>',
+    'Image motion strategy for visuals stage (none|kenburns|depthflow|veo)'
   )
   .option(
     '--visuals-max-generation-cost-usd <amount>',

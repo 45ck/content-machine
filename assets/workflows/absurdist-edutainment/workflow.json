@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "absurdist-edutainment",
+  "name": "Absurdist Edutainment",
+  "description": "Surreal educational preset with Gemini-led visuals and bolder caption styling.",
+  "defaults": {
+    "template": "tiktok-captions",
+    "visualsProvider": "nanobanana,pexels",
+    "visualsRoutingPolicy": "configured",
+    "visualsMotionStrategy": "kenburns",
+    "captionPreset": "bold",
+    "captionMode": "chunk",
+    "mixPreset": "cinematic",
+    "syncPreset": "quality"
+  }
+}

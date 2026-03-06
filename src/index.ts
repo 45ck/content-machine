@@ -1,5 +1,5 @@
 /**
- * content-machine - CLI-first automated short-form video generator
+ * content-machine - CLI-first engine for many kinds of short-form video
  *
  * @packageDocumentation
  */

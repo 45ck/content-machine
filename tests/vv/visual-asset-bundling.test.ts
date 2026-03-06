@@ -49,4 +49,33 @@ describe('V&V: visual asset bundling', () => {
     expect(rewritten.scenes[0].assetPath).toBe(plan.assets[0].bundlePath);
     expect(rewritten.scenes[1].assetPath).toBe(plan.assets[0].bundlePath);
   });
+
+  it('leaves data URL image scenes untouched', () => {
+    const dataUrl = 'data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http://www.w3.org/2000/svg%22%20/%3E';
+    const visuals: VisualsOutputInput = {
+      schemaVersion: VISUALS_SCHEMA_VERSION,
+      scenes: [
+        {
+          sceneId: 'scene-inline',
+          source: 'mock',
+          assetPath: dataUrl,
+          assetType: 'image',
+          duration: 2,
+          matchReasoning: { reasoning: 'vv', conceptsMatched: ['vv'] },
+        },
+      ],
+      totalAssets: 1,
+      fromUserFootage: 0,
+      fromStock: 0,
+      fallbacks: 0,
+      keywords: [],
+      totalDuration: 2,
+    };
+
+    const plan = buildVisualAssetBundlePlan(visuals);
+    expect(plan.assets).toHaveLength(0);
+
+    const rewritten = applyVisualAssetBundlePlan(visuals, plan);
+    expect(rewritten.scenes[0].assetPath).toBe(dataUrl);
+  });
 });

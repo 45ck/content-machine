@@ -1,7 +1,7 @@
 {
   "name": "@45ck/content-machine",
   "version": "0.2.2",
-  "description": "CLI-first automated short-form video generator for TikTok, Reels, and Shorts",
+  "description": "CLI-first engine for making many kinds of short-form videos for TikTok, Reels, and Shorts",
   "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
@@ -22,6 +22,7 @@
     "assets/fonts/**",
     "assets/lab/**",
     "assets/templates/**",
+    "assets/workflows/**",
     "README.md",
     "LICENSE"
   ],

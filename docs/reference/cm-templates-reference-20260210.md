@@ -4,6 +4,12 @@ Manage video **render templates** (template packs).
 
 A **render template** is a `template.json` file that selects a Remotion `compositionId` and provides render defaults.
 
+In CM, templates are one of the core building blocks used to express a reusable content format:
+
+- `archetype`: script shape
+- `template`: render/layout shape
+- `workflow`: pipeline defaults and setup
+
 A **code template** is a render template that also ships a Remotion project via `template.json -> remotion`. Code templates execute arbitrary JS/TS during bundling/rendering and require explicit opt-in (`--allow-template-code`).
 
 ## Commands

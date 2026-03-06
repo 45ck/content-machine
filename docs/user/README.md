@@ -2,6 +2,9 @@
 
 Start here:
 
+- Content Machine can make many caption-first short-form formats from the same core pipeline.
+- Use `archetype` for script structure, `template` for layout/caption styling, and `workflow` for reusable format defaults.
+
 - [Installation](INSTALLATION.md)
 - [Quickstart](QUICKSTART.md)
 - [Configuration](CONFIGURATION.md)

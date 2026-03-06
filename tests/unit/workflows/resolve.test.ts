@@ -3,6 +3,8 @@ import { SchemaError, NotFoundError } from '../../../src/core/errors';
 
 vi.mock('fs', () => ({
   existsSync: vi.fn(),
+  readFileSync: vi.fn(),
+  readdirSync: vi.fn(() => []),
 }));
 
 vi.mock('fs/promises', () => ({
@@ -16,8 +18,10 @@ async function loadModule() {
 }
 
 describe('workflows resolve', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
+    const mod = await loadModule();
+    mod.__resetBuiltinWorkflows();
   });
 
   it('rejects empty specs', async () => {
@@ -103,6 +107,28 @@ describe('workflows resolve', () => {
     const result = await mod.resolveWorkflow('builtin');
     expect(result.source).toBe('builtin');
     expect(result.workflow.id).toBe('builtin');
+  });
+
+  it('prefers project workflows over builtins with the same id', async () => {
+    const { existsSync } = await import('fs');
+    const { readFile } = await import('fs/promises');
+    (existsSync as unknown as ReturnType<typeof vi.fn>).mockImplementation((p: string) =>
+      String(p).includes('.cm') && String(p).includes('workflow.json')
+    );
+    (readFile as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(
+      JSON.stringify({ id: 'brainrot-gameplay', name: 'Project Override', steps: [] })
+    );
+
+    const mod = await loadModule();
+    mod.__setBuiltinWorkflows({
+      'brainrot-gameplay': { id: 'brainrot-gameplay', name: 'Builtin', steps: [] },
+    });
+
+    const result = await mod.resolveWorkflow('brainrot-gameplay');
+
+    expect(result.source).toBe('file');
+    expect(result.workflow.name).toBe('Project Override');
+    expect(result.workflowPath).toContain('.cm');
   });
 
   it('searches candidate paths and throws when not found', async () => {

@@ -591,6 +591,143 @@ describe('cli generate command', () => {
     exitSpy.mockRestore();
   });
 
+  it('passes visuals motion strategy through to pipeline', async () => {
+    await configureRuntime({ json: true });
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+
+    const { runPipeline } = await import('../../../../src/core/pipeline');
+    (runPipeline as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      script: {},
+      audio: { audioMixPath: null },
+      visuals: {},
+      render: {},
+      outputPath: 'out.mp4',
+      duration: 1,
+      width: 1080,
+      height: 1920,
+      fileSize: 123,
+    });
+
+    const output = await import('../../../../src/cli/output');
+    vi.spyOn(output, 'writeJsonEnvelope').mockImplementation(() => undefined);
+
+    const { generateCommand } = await import('../../../../src/cli/commands/generate');
+    await generateCommand.parseAsync(
+      [
+        'Redis',
+        '--output',
+        'out.mp4',
+        '--mock',
+        '--visuals-provider',
+        'nanobanana',
+        '--visuals-motion-strategy',
+        'depthflow',
+      ],
+      {
+        from: 'user',
+      }
+    );
+
+    expect(runPipeline).toHaveBeenCalledWith(
+      expect.objectContaining({
+        visualsProviders: ['nanobanana'],
+        visualsMotionStrategy: 'depthflow',
+      })
+    );
+    expect(exitSpy).toHaveBeenCalled();
+
+    exitSpy.mockRestore();
+  });
+
+  it('uses real render mode for mock generate runs', async () => {
+    await configureRuntime({ json: true });
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+
+    const { runPipeline } = await import('../../../../src/core/pipeline');
+    (runPipeline as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      script: {},
+      audio: { audioMixPath: null },
+      visuals: {},
+      render: {},
+      outputPath: 'out.mp4',
+      duration: 1,
+      width: 1080,
+      height: 1920,
+      fileSize: 123,
+    });
+
+    const output = await import('../../../../src/cli/output');
+    vi.spyOn(output, 'writeJsonEnvelope').mockImplementation(() => undefined);
+
+    const { generateCommand } = await import('../../../../src/cli/commands/generate');
+    await generateCommand.parseAsync(['Redis', '--output', 'out.mp4', '--mock'], {
+      from: 'user',
+    });
+
+    expect(runPipeline).toHaveBeenCalledWith(
+      expect.objectContaining({
+        mock: true,
+        mockRenderMode: 'real',
+      })
+    );
+    expect(exitSpy).toHaveBeenCalled();
+
+    exitSpy.mockRestore();
+  });
+
+  it('applies workflow defaults for visuals motion strategy', async () => {
+    await configureRuntime({ json: true });
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+
+    const { resolveWorkflow } = await import('../../../../src/workflows/resolve');
+    (resolveWorkflow as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      source: 'builtin',
+      spec: 'gemini-meme-explainer',
+      workflow: {
+        id: 'gemini-meme-explainer',
+        name: 'Gemini Meme Explainer',
+        defaults: {
+          visualsProvider: 'nanobanana,pexels',
+          visualsMotionStrategy: 'kenburns',
+        },
+      },
+    });
+
+    const { runPipeline } = await import('../../../../src/core/pipeline');
+    (runPipeline as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      script: {},
+      audio: { audioMixPath: null },
+      visuals: {},
+      render: {},
+      outputPath: 'out.mp4',
+      duration: 1,
+      width: 1080,
+      height: 1920,
+      fileSize: 123,
+    });
+
+    const output = await import('../../../../src/cli/output');
+    vi.spyOn(output, 'writeJsonEnvelope').mockImplementation(() => undefined);
+
+    const { generateCommand } = await import('../../../../src/cli/commands/generate');
+    await generateCommand.parseAsync(
+      ['Redis', '--output', 'out.mp4', '--mock', '--workflow', 'gemini-meme-explainer'],
+      {
+        from: 'user',
+      }
+    );
+
+    expect(runPipeline).toHaveBeenCalledWith(
+      expect.objectContaining({
+        visualsProviders: ['nanobanana', 'pexels'],
+        visualsMotionStrategy: 'kenburns',
+      })
+    );
+    expect(exitSpy).toHaveBeenCalled();
+
+    exitSpy.mockRestore();
+  });
+
   it('loads legacy policy file and applies visuals defaults', async () => {
     await configureRuntime({ json: true });
     const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);

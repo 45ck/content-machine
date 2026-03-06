@@ -144,7 +144,7 @@ async function loadCommandsForArgs(args: string[]): Promise<void> {
 
 program
   .name('cm')
-  .description('CLI-first automated short-form video generator for TikTok, Reels, and Shorts')
+  .description('CLI-first engine for making many kinds of short-form videos for TikTok, Reels, and Shorts')
   .version(version)
   .option('--config <path>', 'Path to config file (overrides discovery and $CM_CONFIG)')
   .option('-v, --verbose', 'Enable verbose logging')

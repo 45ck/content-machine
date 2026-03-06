@@ -8,6 +8,7 @@ export const UBIQUITOUS_TERM_IDS = [
   'caption-config',
   'caption-preset',
   'code-template',
+  'content-format',
   'gameplay-clip',
   'hook-clip',
   'motion-strategy',
@@ -87,6 +88,16 @@ export const UBIQUITOUS_LANGUAGE_TERMS: Record<UbiquitousTermId, UbiquitousLangu
       'A template pack that also ships a Remotion project (entrypoint + compositions). When a Render Template includes a `remotion` block, CM will execute that code during bundling/render. This requires explicit opt-in via config/flags.',
     canonicalTypes: [],
     canonicalSchemas: ['RemotionTemplateProjectSchema'],
+  },
+  'content-format': {
+    id: 'content-format',
+    canonicalName: 'Content Format',
+    term: 'ContentFormat',
+    ownedBy: 'core',
+    definition:
+      'A repeatable kind of short-form video CM can produce (for example meme explainer, gameplay-heavy brainrot, clean educational control, or product demo). In practice, a content format is usually expressed by combining a Script Archetype, a Render Template, and a Pipeline Workflow, plus optional presets such as caption/audio mix settings.',
+    canonicalTypes: [],
+    canonicalSchemas: [],
   },
   'gameplay-clip': {
     id: 'gameplay-clip',
@@ -169,7 +180,7 @@ export const UBIQUITOUS_LANGUAGE_TERMS: Record<UbiquitousTermId, UbiquitousLangu
     term: 'Workflow',
     ownedBy: 'pipeline',
     definition:
-      'A pipeline orchestration preset for cm generate. Workflows can select stage modes (builtin vs external/import), provide default inputs, and provide workflow defaults. Workflows may contain exec hooks, which require explicit opt-in.',
+      'A pipeline orchestration preset for cm generate. Workflows can select stage modes (builtin vs external/import), provide default inputs, and provide workflow defaults. In practice, workflows are often used as reusable format defaults for a family of short-form videos. Workflows may contain exec hooks, which require explicit opt-in.',
     canonicalTypes: ['WorkflowId', 'WorkflowDefinition'],
     canonicalSchemas: ['WorkflowIdSchema', 'WorkflowDefinitionSchema'],
   },

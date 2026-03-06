@@ -30,13 +30,13 @@ function formatWorkflowLine(entry: {
 }
 
 export const workflowsCommand = new Command('workflows')
-  .description('Manage pipeline workflows (orchestration + defaults)')
+  .description('Manage workflow presets for repeatable content formats')
   .addCommand(
     new Command('new')
-      .description('Scaffold a new workflow directory')
-      .argument('<id>', 'New workflow id')
+      .description('Scaffold a new workflow preset directory')
+      .argument('<id>', 'New workflow preset id')
       .option('--root <dir>', 'Destination workflows root directory', PROJECT_WORKFLOWS_DIR)
-      .option('--from <idOrPath>', 'Base workflow id or path')
+      .option('--from <idOrPath>', 'Base workflow preset id or path')
       .option('--force', 'Overwrite existing directory if it exists', false)
       .action(async (id, options) => {
         try {
@@ -78,8 +78,8 @@ export const workflowsCommand = new Command('workflows')
   )
   .addCommand(
     new Command('pack')
-      .description('Pack a workflow directory into a .zip workflow pack')
-      .argument('<path>', 'Path to a workflow directory')
+      .description('Pack a workflow preset directory into a .zip workflow pack')
+      .argument('<path>', 'Path to a workflow preset directory')
       .option('-o, --output <path>', 'Output .zip path')
       .action(async (path, options) => {
         try {
@@ -110,7 +110,7 @@ export const workflowsCommand = new Command('workflows')
   )
   .addCommand(
     new Command('list')
-      .description('List available workflows')
+      .description('List available workflow presets')
       .option('--source <source>', 'Filter by source (builtin, user, project)')
       .action(async (options) => {
         try {
@@ -133,7 +133,7 @@ export const workflowsCommand = new Command('workflows')
           }
 
           if (filtered.length === 0) {
-            writeStderrLine('No workflows found.');
+            writeStderrLine('No workflow presets found.');
             return;
           }
 
@@ -147,8 +147,8 @@ export const workflowsCommand = new Command('workflows')
   )
   .addCommand(
     new Command('show')
-      .description('Show a workflow definition')
-      .argument('<idOrPath>', 'Workflow id or path to workflow.json')
+      .description('Show a workflow preset definition')
+      .argument('<idOrPath>', 'Workflow preset id or path to workflow.json')
       .action(async (idOrPath) => {
         try {
           const runtime = getCliRuntime();
@@ -182,8 +182,8 @@ export const workflowsCommand = new Command('workflows')
   )
   .addCommand(
     new Command('validate')
-      .description('Validate a workflow file or directory')
-      .argument('<path>', 'Path to workflow.json or workflow directory')
+      .description('Validate a workflow preset file or directory')
+      .argument('<path>', 'Path to workflow.json or workflow preset directory')
       .action(async (path) => {
         try {
           const runtime = getCliRuntime();
@@ -216,8 +216,8 @@ export const workflowsCommand = new Command('workflows')
   )
   .addCommand(
     new Command('install')
-      .description('Install a workflow pack (.zip or directory)')
-      .argument('<path>', 'Path to workflow directory or .zip pack')
+      .description('Install a workflow preset pack (.zip or directory)')
+      .argument('<path>', 'Path to workflow preset directory or .zip pack')
       .option('--force', 'Overwrite existing workflow if it exists')
       .action(async (path, options) => {
         try {

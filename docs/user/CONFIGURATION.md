@@ -28,10 +28,12 @@ voice = "af_heart"
 
 ## Data-Driven Resources
 
+These resources are the main building blocks for different content formats:
+
 These are intentionally data-defined (no code changes required):
 
 - Script archetypes: `assets/archetypes/`, `./.cm/archetypes/`, `~/.cm/archetypes/`
-- Render templates: `assets/dev/templates/`, `./.cm/dev/templates/`, `~/.cm/dev/templates/`
-- Pipeline workflows: `./.cm/workflows/`, `~/.cm/workflows/`
+- Render templates: `assets/templates/`, `./.cm/templates/`, `~/.cm/templates/`
+- Pipeline workflows: `assets/workflows/`, `./.cm/workflows/`, `~/.cm/workflows/`
 
 Canonical terminology (generated): [`docs/reference/GLOSSARY.md`](../reference/GLOSSARY.md)

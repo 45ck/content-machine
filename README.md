@@ -8,7 +8,7 @@
   <img src="banner.svg" alt="Content Machine banner" width="100%" />
 </p>
 
-CLI-first automated short-form video generator for TikTok, Reels, and Shorts.
+CLI-first engine for making many kinds of short-form videos for TikTok, Reels, and Shorts.
 
 > **Status:** Early development. Not production-ready yet.
 
@@ -55,6 +55,16 @@ cm generate "Redis vs PostgreSQL for caching" \
 ```
 
 More: https://github.com/45ck/content-machine/blob/master/docs/user/QUICKSTART.md
+
+## What CM Is
+
+Content Machine is a configurable short-form content engine.
+
+- `archetype` shapes the script
+- `template` shapes the render/layout
+- `workflow` shapes the pipeline defaults
+
+Those three building blocks let you produce lots of different short-form formats from the same core system: meme explainers, gameplay-heavy clips, clean educational shorts, product demos, and more.
 
 ## Docs
 
@@ -105,6 +115,7 @@ These words mean specific things in this repo:
 - **Script archetype**: script format used by `cm script` / `cm generate`
 - **Render template**: render preset used by `cm render` / `cm generate`
 - **Pipeline workflow**: orchestration preset used by `cm generate`
+- **Content format**: a repeatable kind of short produced by combining archetype + template + workflow
 
 Canonical glossary (generated): https://github.com/45ck/content-machine/blob/master/docs/reference/GLOSSARY.md
 

@@ -1,6 +1,6 @@
 # cm-workflows reference (20260110)
 
-Manage workflow definitions for repeatable content pipelines.
+Manage workflow presets for repeatable content formats and content pipelines.
 
 ## Synopsis
 
@@ -21,6 +21,9 @@ cm workflows <command> [options]
 # List workflows
 cm workflows list
 
+# Show a built-in workflow
+cm workflows show brainrot-gameplay
+
 # Show a workflow definition
 cm workflows show acme-marketing
 
@@ -30,6 +33,21 @@ cm workflows validate ./.cm/workflows/acme-marketing
 # Install from a zip pack
 cm workflows install workflow-pack.zip
 ```
+
+## Built-in workflows
+
+These ship with the repo under `assets/workflows/` and are available without installing anything. Think of them as reusable format defaults, not a separate subsystem:
+
+- `brainrot-gameplay`: gameplay-heavy split-screen preset using `brainrot-split-gameplay-top`, `nanobanana,pexels`, and chunkier CapCut-style captions
+- `gemini-meme-explainer`: Gemini-image-led meme explainer preset using `nanobanana,pexels`
+- `absurdist-edutainment`: Gemini-image-led surreal education preset with bolder caption styling
+- `clean-educational-control`: cleaner stock-first educational control preset using `pexels,nanobanana`
+
+In practice, workflows are one of the main building blocks for a CM content format:
+
+- `archetype`: script shape
+- `template`: render/layout shape
+- `workflow`: pipeline defaults and format setup
 
 ## Workflow definition
 
@@ -64,9 +82,10 @@ Stage modes:
 ## Notes
 
 - Workflow search order:
-  1. `./.cm/workflows/<id>/workflow.json`
-  2. `~/.cm/workflows/<id>/workflow.json`
-  3. explicit path passed to `--workflow`
+  1. explicit path passed to `--workflow`
+  2. `./.cm/workflows/<id>/workflow.json`
+  3. `~/.cm/workflows/<id>/workflow.json`
+  4. built-in workflows shipped in `assets/workflows/`
 - Use `cm generate --workflow <id|path> --workflow-allow-exec` to run workflow hooks.
 - `defaults` keys accept CLI attribute names (camelCase) or flag names (kebab-case).
 - External stages default to artifacts in the output directory (`script.json`, `audio.wav`, etc).
@@ -74,6 +93,7 @@ Stage modes:
 - `stages.<stage>.exec` runs only when `--workflow-allow-exec` is set.
 - `workflow-allow-exec` can only be set via CLI (workflow defaults cannot enable it).
 - If `stages.<stage>.exec` is provided without a `mode`, it is treated as external.
+- Use `--visuals-motion-strategy veo --media --media-veo-adapter google-veo` to upgrade the Gemini image-led workflows to Veo once Vertex auth is available.
 
 ## See also
 

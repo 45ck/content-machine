@@ -370,18 +370,58 @@ async function mapWithConcurrency<T, R>(params: {
 /**
  * Generate mock visuals for testing
  */
+function createMockSceneDataUrl(params: {
+  index: number;
+  accentColor: string;
+  backgroundColor: string;
+}): string {
+  const { index, accentColor, backgroundColor } = params;
+  const offset = 96 * (index % 4);
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+      <defs>
+        <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="${backgroundColor}" />
+          <stop offset="100%" stop-color="#020617" />
+        </linearGradient>
+        <linearGradient id="accent" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="${accentColor}" />
+          <stop offset="100%" stop-color="#38bdf8" />
+        </linearGradient>
+      </defs>
+      <rect width="1080" height="1920" fill="url(#bg)" />
+      <circle cx="${860 - offset}" cy="260" r="220" fill="${accentColor}" opacity="0.16" />
+      <circle cx="${220 + offset}" cy="1520" r="280" fill="#38bdf8" opacity="0.08" />
+      <rect x="84" y="${980 + offset}" width="912" height="18" rx="9" fill="url(#accent)" opacity="0.8" />
+      <rect x="84" y="${1040 + offset}" width="540" height="12" rx="6" fill="#94a3b8" opacity="0.42" />
+      <rect x="84" y="${1128 + offset}" width="220" height="220" rx="42" fill="${accentColor}" opacity="0.10" />
+      <rect x="330" y="${1164 + offset}" width="666" height="28" rx="14" fill="#e2e8f0" opacity="0.08" />
+      <rect x="330" y="${1220 + offset}" width="520" height="20" rx="10" fill="#cbd5e1" opacity="0.08" />
+    </svg>
+  `.trim();
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
 function generateMockVisuals(options: MatchVisualsOptions): VisualsOutput {
   const scenes = options.timestamps.scenes ?? [];
   const keywords = generateMockKeywords(scenes);
   const palette = ['#0b1020', '#111827', '#0f172a', '#1f2937', '#111111'];
+  const accentPalette = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#14b8a6'];
 
   const visualAssets: VisualAssetInput[] = scenes.map((scene, index) => ({
     sceneId: scene.sceneId,
-    source: 'fallback-color' as const,
-    assetPath: palette[index % palette.length],
+    source: 'mock' as const,
+    assetPath: createMockSceneDataUrl({
+      index,
+      accentColor: accentPalette[index % accentPalette.length]!,
+      backgroundColor: palette[index % palette.length]!,
+    }),
     duration: scene.audioEnd - scene.audioStart,
+    assetType: 'image',
+    motionStrategy: 'kenburns',
+    motionApplied: false,
     matchReasoning: {
-      reasoning: `Mock fallback color for scene ${scene.sceneId}`,
+      reasoning: `Mock image card for scene ${scene.sceneId}`,
       conceptsMatched: ['mock', 'test'],
     },
   }));
@@ -392,7 +432,7 @@ function generateMockVisuals(options: MatchVisualsOptions): VisualsOutput {
     totalAssets: visualAssets.length,
     fromUserFootage: 0,
     fromStock: 0,
-    fallbacks: visualAssets.length,
+    fallbacks: 0,
     keywords,
     totalDuration: options.timestamps.totalDuration,
   });

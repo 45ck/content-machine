@@ -101,6 +101,17 @@ describe('matchVisuals', () => {
     expect(searchMock).toHaveBeenCalled();
   });
 
+  it('generates animated image-based mock visuals in mock mode', async () => {
+    const { matchVisuals } = await import('../../../src/visuals/matcher');
+    const output = await matchVisuals({ timestamps: buildTimestamps(), mock: true });
+
+    expect(output.fallbacks).toBe(0);
+    expect(output.scenes[0].source).toBe('mock');
+    expect(output.scenes[0].assetType).toBe('image');
+    expect(output.scenes[0].motionStrategy).toBe('kenburns');
+    expect(output.scenes[0].assetPath.startsWith('data:image/svg+xml')).toBe(true);
+  });
+
   it('falls back to abstract results when the first search fails', async () => {
     const searchMock = vi.fn(async (params: { query: string }) => {
       if (params.query === 'abstract motion background') {

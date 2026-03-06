@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "1.0.0",
+  "id": "gemini-meme-explainer",
+  "name": "Gemini Meme Explainer",
+  "description": "AI-image-led meme explainer preset using Gemini images first and stock fallback second.",
+  "defaults": {
+    "template": "tiktok-captions",
+    "visualsProvider": "nanobanana,pexels",
+    "visualsRoutingPolicy": "configured",
+    "visualsMotionStrategy": "kenburns",
+    "captionPreset": "capcut",
+    "captionMode": "chunk",
+    "mixPreset": "punchy",
+    "syncPreset": "quality"
+  }
+}

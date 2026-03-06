@@ -4,12 +4,13 @@
  * Resolve workflows by id or by path to workflow.json.
  */
 import { readFile } from 'fs/promises';
-import { existsSync } from 'fs';
+import { existsSync, readFileSync, readdirSync } from 'fs';
 import { stat } from 'fs/promises';
 import { join, resolve, dirname } from 'path';
 import { homedir } from 'os';
 import { NotFoundError, SchemaError } from '../core/errors';
 import { WorkflowDefinitionSchema, type WorkflowDefinition } from '../domain';
+import { createRequireSafe } from '../core/require';
 
 export interface ResolvedWorkflow {
   workflow: WorkflowDefinition;
@@ -23,19 +24,81 @@ export interface ResolvedWorkflow {
   baseDir?: string;
 }
 
-const BUILTIN_WORKFLOWS: Record<string, WorkflowDefinition> = {};
+function getPackageRoot(): string {
+  const require = createRequireSafe(import.meta.url);
+  const candidates = ['../../package.json', '../package.json', './package.json'];
+  for (const candidate of candidates) {
+    try {
+      const pkgJsonPath = require.resolve(candidate);
+      return dirname(pkgJsonPath);
+    } catch {
+      continue;
+    }
+  }
+  throw new SchemaError('Unable to locate package.json to resolve built-in workflows', {
+    fix: 'Run CM from an installed package or from a repository checkout that contains package.json',
+  });
+}
+
+function getBuiltinWorkflowsDir(): string {
+  return join(getPackageRoot(), 'assets', 'workflows');
+}
+
+function loadBuiltinWorkflowsSync(): Record<string, WorkflowDefinition> {
+  const root = getBuiltinWorkflowsDir();
+  if (!existsSync(root)) return {};
+
+  const entries = readdirSync(root, { withFileTypes: true }).filter((entry) => entry.isDirectory());
+  const workflows: Record<string, WorkflowDefinition> = {};
+
+  for (const entry of entries) {
+    const workflowPath = join(root, entry.name, 'workflow.json');
+    if (!existsSync(workflowPath)) continue;
+
+    const raw = readFileSync(workflowPath, 'utf-8');
+    let parsedJson: unknown;
+    try {
+      parsedJson = JSON.parse(raw);
+    } catch (error) {
+      throw new SchemaError('Invalid built-in workflow JSON', {
+        path: workflowPath,
+        error: error instanceof Error ? error.message : String(error),
+        fix: 'Fix JSON syntax in assets/workflows/*/workflow.json',
+      });
+    }
+
+    const parsed = WorkflowDefinitionSchema.safeParse(parsedJson);
+    if (!parsed.success) {
+      throw new SchemaError('Invalid built-in workflow definition', {
+        path: workflowPath,
+        issues: parsed.error.issues,
+        fix: 'Fix schema issues in assets/workflows/*/workflow.json',
+      });
+    }
+
+    workflows[parsed.data.id] = parsed.data;
+  }
+
+  return workflows;
+}
+
+const BUILTIN_WORKFLOWS = loadBuiltinWorkflowsSync();
+let builtinWorkflowOverrides: Record<string, WorkflowDefinition> | null = null;
 
 export function __setBuiltinWorkflows(workflows: Record<string, WorkflowDefinition>): void {
-  Object.keys(BUILTIN_WORKFLOWS).forEach((key) => delete BUILTIN_WORKFLOWS[key]);
-  Object.assign(BUILTIN_WORKFLOWS, workflows);
+  builtinWorkflowOverrides = { ...workflows };
+}
+
+export function __resetBuiltinWorkflows(): void {
+  builtinWorkflowOverrides = null;
 }
 
 export function listBuiltinWorkflows(): WorkflowDefinition[] {
-  return Object.values(BUILTIN_WORKFLOWS);
+  return Object.values(builtinWorkflowOverrides ?? BUILTIN_WORKFLOWS);
 }
 
 export function getBuiltinWorkflow(id: string): WorkflowDefinition | undefined {
-  return BUILTIN_WORKFLOWS[id];
+  return (builtinWorkflowOverrides ?? BUILTIN_WORKFLOWS)[id];
 }
 
 function expandTilde(inputPath: string): string {
@@ -127,11 +190,6 @@ export async function resolveWorkflow(spec: string): Promise<ResolvedWorkflow> {
     };
   }
 
-  const builtin = getBuiltinWorkflow(spec);
-  if (builtin) {
-    return { workflow: builtin, spec, source: 'builtin' };
-  }
-
   const candidates = [
     join(process.cwd(), '.cm', 'workflows', spec, 'workflow.json'),
     join(homedir(), '.cm', 'workflows', spec, 'workflow.json'),
@@ -147,6 +205,11 @@ export async function resolveWorkflow(spec: string): Promise<ResolvedWorkflow> {
       workflowPath: candidate,
       baseDir: dirname(candidate),
     };
+  }
+
+  const builtin = getBuiltinWorkflow(spec);
+  if (builtin) {
+    return { workflow: builtin, spec, source: 'builtin' };
   }
 
   throw new NotFoundError(`Unknown workflow: ${spec}`, {

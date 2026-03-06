@@ -689,7 +689,10 @@ import { version } from '../../package.json';
 
 const program = new Command();
 
-program.name('cm').description('CLI-first automated short-form video generator').version(version);
+program
+  .name('cm')
+  .description('CLI-first engine for making many kinds of short-form videos')
+  .version(version);
 
 // Pipeline stages
 program.addCommand(createGenerateCommand());

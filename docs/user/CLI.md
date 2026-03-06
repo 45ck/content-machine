@@ -23,6 +23,12 @@ Pipeline commands:
 - `cm media`
 - `cm render`
 
+Format building blocks:
+
+- `cm generate --archetype <id>` chooses script/content structure
+- `cm generate --template <id>` chooses layout + caption presentation
+- `cm generate --workflow <id>` chooses reusable format defaults across the pipeline
+
 Utilities:
 
 - `cm demo`

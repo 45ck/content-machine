@@ -51,7 +51,7 @@ describe('cli workflows command', () => {
     vi.clearAllMocks();
   });
 
-  it('prints a message when no workflows exist', async () => {
+  it('prints a message when no workflow presets exist', async () => {
     const { listWorkflows } = await import('../../../../src/workflows/registry');
     (listWorkflows as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([]);
 
@@ -62,7 +62,7 @@ describe('cli workflows command', () => {
     await workflowsCommand.parseAsync(['list'], { from: 'user' });
 
     await capture.reset();
-    expect(capture.stderr.join('')).toContain('No workflows found.');
+    expect(capture.stderr.join('')).toContain('No workflow presets found.');
   });
 
   it('outputs list JSON in json mode', async () => {

@@ -12,6 +12,7 @@ import {
   Video,
   staticFile,
   useVideoConfig,
+  useCurrentFrame,
 } from 'remotion';
 import type { RenderProps } from '../../domain';
 import { Caption } from '../captions';
@@ -31,6 +32,38 @@ function resolveGameplaySrc(path: string): string {
   if (/^https?:\/\//i.test(path)) return path;
   return staticFile(path);
 }
+
+const GameplayFallback: React.FC = () => {
+  const frame = useCurrentFrame();
+  const t = frame / 45;
+  const y = Math.sin(t) * -3.5;
+  const scale = 1.04 + Math.sin(t * 0.85) * 0.035;
+  const x = Math.cos(t * 0.7) * 2.2;
+  const glowX = 18 + Math.sin(t * 0.55) * 10;
+  const glowY = 22 + Math.cos(t * 0.45) * 8;
+
+  return (
+    <div
+      style={{
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden',
+        background:
+          `radial-gradient(circle at ${glowX}% ${glowY}%, rgba(59,130,246,0.22), transparent 32%), linear-gradient(180deg, #020617 0%, #0b1120 100%)`,
+      }}
+    >
+      <div
+        style={{
+          width: '100%',
+          height: '100%',
+          transform: `translate(${x}%, ${y}%) scale(${scale})`,
+          background:
+            'linear-gradient(135deg, rgba(14,165,233,0.14) 0%, rgba(59,130,246,0.08) 45%, rgba(2,6,23,0) 100%)',
+        }}
+      />
+    </div>
+  );
+};
 
 /**
  * Main split-screen component.
@@ -126,7 +159,7 @@ export const SplitScreenGameplay: React.FC<RenderProps> = ({
               />
             </Loop>
           ) : (
-            <div style={{ width: '100%', height: '100%', backgroundColor: '#0b0b0f' }} />
+            <GameplayFallback />
           )}
         </AbsoluteFill>
 
