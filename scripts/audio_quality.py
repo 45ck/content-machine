@@ -1,5 +1,6 @@
 import argparse
 import json
+import math
 import subprocess
 import re
 from typing import Any, Dict
@@ -11,6 +12,24 @@ def _fail(message: str, details: Dict[str, Any] | None = None) -> None:
         payload["error"]["details"] = details
     print(json.dumps(payload))
     raise SystemExit(2)
+
+
+def _parse_optional_float(raw: str | None) -> float | None:
+    if raw is None:
+        return None
+    value = raw.strip()
+    if not value or value == "-":
+        return None
+    try:
+        return float(value)
+    except ValueError:
+        return None
+
+
+def _sanitize_metric(value: float | None, fallback: float = 0.0) -> float:
+    if value is None or not math.isfinite(value):
+        return fallback
+    return value
 
 
 def _loudness_via_ffmpeg(
@@ -91,13 +110,15 @@ def _detect_clipping(
 
     # Peak level
     match = re.search(r"Peak level dB:\s*([-\d.]+)", stderr)
-    if match:
-        stats["peakLevelDB"] = float(match.group(1))
+    peak_level_db = _parse_optional_float(match.group(1) if match else None)
+    if peak_level_db is not None:
+        stats["peakLevelDB"] = peak_level_db
 
     # Flat factor (consecutive identical samples — indicates clipping)
     match = re.search(r"Flat factor:\s*([\d.]+)", stderr)
-    if match:
-        stats["flatFactor"] = float(match.group(1))
+    flat_factor = _parse_optional_float(match.group(1) if match else None)
+    if flat_factor is not None:
+        stats["flatFactor"] = flat_factor
 
     # Clipping ratio from peak count
     # Samples at or above 0 dBFS indicate clipping
@@ -159,9 +180,9 @@ def main() -> int:
     # Loudness (LUFS)
     loudness = _loudness_via_ffmpeg(args.media, ffmpeg_path=args.ffmpeg_path)
     if loudness:
-        out["loudnessLUFS"] = loudness.get("integratedLUFS", 0.0)
-        out["truePeakDBFS"] = loudness.get("truePeakDBFS", 0.0)
-        out["loudnessRange"] = loudness.get("loudnessRange", 0.0)
+        out["loudnessLUFS"] = _sanitize_metric(loudness.get("integratedLUFS"), -99.0)
+        out["truePeakDBFS"] = _sanitize_metric(loudness.get("truePeakDBFS"), -99.0)
+        out["loudnessRange"] = _sanitize_metric(loudness.get("loudnessRange"), 0.0)
     else:
         _fail("failed to measure loudness", {"media": args.media})
 
