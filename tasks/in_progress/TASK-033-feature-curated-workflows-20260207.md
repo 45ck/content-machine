@@ -24,7 +24,12 @@
 - Built-in workflows now ship from `assets/workflows/` and resolve through `src/workflows/resolve.ts`.
 - `cm generate` supports workflow-driven image motion defaults via `--visuals-motion-strategy`.
 - Verified with targeted workflow/generate/pipeline tests plus `tsc --noEmit` and `check-ubiquitous-language`.
-- Task remains `In Progress` until the work is committed and pushed per task policy.
+- Manual QA review set was rebuilt with real Kokoro audio and balanced evaluation passes:
+  - `output/qa-manual-20260306/review-set-real-audio/`
+- Follow-up evaluator hardening shipped in:
+  - `b9d1d90` `Fix audio quality metrics for silent media`
+  - `28ad395` `Add regression coverage for audio quality script`
+- Work is committed and pushed on branch `publish-gemini-demo`; task remains `In Progress` until merged to `origin/master` per task policy.
 
 ## Required Documentation
 
