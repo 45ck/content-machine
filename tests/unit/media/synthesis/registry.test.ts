@@ -41,4 +41,14 @@ describe('createMediaSynthesisRegistry', () => {
       ])
     );
   });
+
+  it('adds google-veo in Vertex mode when cloud project is configured', () => {
+    setEnv('GOOGLE_CLOUD_PROJECT', 'demo-project');
+    setEnv('GOOGLE_CLOUD_ACCESS_TOKEN', 'demo-token');
+
+    const adapters = createMediaSynthesisRegistry();
+    expect(adapters.map((a) => a.name)).toEqual(
+      expect.arrayContaining(['static-video', 'scene3d-static', 'google-veo'])
+    );
+  });
 });

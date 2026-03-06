@@ -38,11 +38,20 @@ export function createMediaSynthesisRegistry(
   }
 
   const googleApiKey = process.env.GOOGLE_API_KEY ?? process.env.GEMINI_API_KEY;
-  if (googleApiKey) {
+  if (googleApiKey && process.env.CM_MEDIA_VEO_ENDPOINT) {
     adapters.push(
       new GoogleVeoAdapter({
         apiKey: googleApiKey,
-        baseUrl: process.env.CM_MEDIA_VEO_ENDPOINT,
+        endpoint: process.env.CM_MEDIA_VEO_ENDPOINT,
+        model: process.env.CM_MEDIA_VEO_MODEL,
+      })
+    );
+  } else if (process.env.GOOGLE_CLOUD_PROJECT) {
+    adapters.push(
+      new GoogleVeoAdapter({
+        vertexProject: process.env.GOOGLE_CLOUD_PROJECT,
+        vertexLocation: process.env.GOOGLE_CLOUD_LOCATION,
+        accessToken: process.env.GOOGLE_CLOUD_ACCESS_TOKEN,
         model: process.env.CM_MEDIA_VEO_MODEL,
       })
     );

@@ -360,6 +360,52 @@ describe('cli generate command', () => {
     exitSpy.mockRestore();
   });
 
+  it('reports Vertex Veo preflight readiness when google-veo is selected', async () => {
+    await configureRuntime({ json: true });
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+    const previousProject = process.env.GOOGLE_CLOUD_PROJECT;
+    const previousToken = process.env.GOOGLE_CLOUD_ACCESS_TOKEN;
+    process.env.GOOGLE_CLOUD_PROJECT = 'demo-project';
+    process.env.GOOGLE_CLOUD_ACCESS_TOKEN = 'demo-token';
+
+    const output = await import('../../../../src/cli/output');
+    const writeJsonSpy = vi.spyOn(output, 'writeJsonEnvelope').mockImplementation(() => undefined);
+
+    const { generateCommand } = await import('../../../../src/cli/commands/generate');
+    await generateCommand.parseAsync(
+      [
+        'Redis',
+        '--preflight',
+        '--mock',
+        '--media',
+        '--media-veo-adapter',
+        'google-veo',
+        '--output',
+        'out.mp4',
+      ],
+      { from: 'user' }
+    );
+
+    const payload = writeJsonSpy.mock.calls[0]?.[0];
+    expect(payload.outputs.preflightPassed).toBe(true);
+    expect(payload.outputs.checks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          label: 'Google Veo adapter',
+          status: 'ok',
+          detail: expect.stringContaining('Vertex AI: demo-project'),
+        }),
+      ])
+    );
+    expect(exitSpy).toHaveBeenCalledWith(0);
+
+    if (previousProject === undefined) delete process.env.GOOGLE_CLOUD_PROJECT;
+    else process.env.GOOGLE_CLOUD_PROJECT = previousProject;
+    if (previousToken === undefined) delete process.env.GOOGLE_CLOUD_ACCESS_TOKEN;
+    else process.env.GOOGLE_CLOUD_ACCESS_TOKEN = previousToken;
+    exitSpy.mockRestore();
+  });
+
   it('prints a detailed dry-run summary when many options are set', async () => {
     await configureRuntime({ json: false });
 

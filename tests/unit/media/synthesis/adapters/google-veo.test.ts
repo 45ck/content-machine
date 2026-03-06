@@ -5,12 +5,19 @@ const downloadToPath = vi.fn(async ({ outputPath }: { outputPath: string }) => o
 const fetchJsonWithTimeout = vi.fn();
 const fileToDataUrl = vi.fn(async () => 'data:image/jpeg;base64,AQID');
 const sleep = vi.fn(async () => undefined);
+const writeBase64ToPath = vi.fn(async ({ outputPath }: { outputPath: string }) => outputPath);
+const getGoogleAccessToken = vi.fn(async () => 'cloud-token');
 
 vi.mock('../../../../../src/media/synthesis/http', () => ({
   downloadToPath,
   fetchJsonWithTimeout,
   fileToDataUrl,
   sleep,
+  writeBase64ToPath,
+}));
+
+vi.mock('../../../../../src/media/synthesis/google-auth', () => ({
+  getGoogleAccessToken,
 }));
 
 describe('GoogleVeoAdapter', () => {
@@ -18,22 +25,18 @@ describe('GoogleVeoAdapter', () => {
     vi.clearAllMocks();
   });
 
-  it('submits text-to-video request and resolves completed operation output', async () => {
+  it('submits legacy text-to-video request and resolves completed output', async () => {
     fetchJsonWithTimeout.mockResolvedValueOnce({
-      done: true,
-      response: {
-        generateVideoResponse: {
-          generatedSamples: [{ video: { uri: 'https://example.com/veo.mp4' } }],
-        },
-      },
+      status: 'completed',
+      outputUrl: 'https://example.com/veo.mp4',
     });
 
     const { GoogleVeoAdapter } =
       await import('../../../../../src/media/synthesis/adapters/google-veo');
     const adapter = new GoogleVeoAdapter({
       apiKey: 'g-key',
-      baseUrl: 'https://generativelanguage.googleapis.com/v1beta',
-      model: 'veo-3.1-fast',
+      endpoint: 'https://example.com/veo',
+      model: 'veo-legacy',
     });
 
     const request: MediaSynthesisRequest = {
@@ -46,16 +49,19 @@ describe('GoogleVeoAdapter', () => {
     };
     const result = await adapter.submit(request);
 
-    expect(result.outputPath).toBe('/tmp/veo.mp4');
+    expect(fetchJsonWithTimeout).toHaveBeenCalledWith(
+      expect.objectContaining({
+        url: 'https://example.com/veo?key=g-key',
+      })
+    );
     expect(downloadToPath).toHaveBeenCalledWith({
       url: 'https://example.com/veo.mp4',
       outputPath: '/tmp/veo.mp4',
-      headers: expect.objectContaining({ 'x-goog-api-key': 'g-key' }),
-      timeoutMs: expect.any(Number),
     });
+    expect(result.outputPath).toBe('/tmp/veo.mp4');
   });
 
-  it('polls unfinished image-to-video operations and downloads video output', async () => {
+  it('polls Vertex image-to-video operations and writes inline bytes', async () => {
     fetchJsonWithTimeout
       .mockResolvedValueOnce({
         name: 'operations/veo-job-1',
@@ -63,17 +69,16 @@ describe('GoogleVeoAdapter', () => {
       .mockResolvedValueOnce({
         done: true,
         response: {
-          generateVideoResponse: {
-            generatedSamples: [{ video: { uri: 'https://example.com/veo-polled.mp4' } }],
-          },
+          videos: [{ bytesBase64Encoded: 'AQID' }],
         },
       });
 
     const { GoogleVeoAdapter } =
       await import('../../../../../src/media/synthesis/adapters/google-veo');
     const adapter = new GoogleVeoAdapter({
-      apiKey: 'g-key',
-      baseUrl: 'https://generativelanguage.googleapis.com/v1beta',
+      vertexProject: 'demo-project',
+      vertexLocation: 'us-central1',
+      accessToken: 'vertex-token',
       pollIntervalMs: 1,
       maxPollAttempts: 2,
     });
@@ -89,46 +94,66 @@ describe('GoogleVeoAdapter', () => {
     const result = await adapter.submit(request);
 
     expect(fileToDataUrl).toHaveBeenCalledWith('/tmp/input.jpg');
-    expect(sleep).toHaveBeenCalledTimes(1);
-    expect(downloadToPath).toHaveBeenCalledWith(
+    expect(fetchJsonWithTimeout).toHaveBeenNthCalledWith(
+      1,
       expect.objectContaining({
-        url: 'https://example.com/veo-polled.mp4',
-        outputPath: '/tmp/veo-polled.mp4',
-        headers: expect.objectContaining({ 'x-goog-api-key': 'g-key' }),
+        url: 'https://us-central1-aiplatform.googleapis.com/v1/projects/demo-project/locations/us-central1/publishers/google/models/veo-3.1-generate-preview:predictLongRunning',
+        init: expect.objectContaining({
+          method: 'POST',
+          headers: expect.objectContaining({ Authorization: 'Bearer vertex-token' }),
+        }),
       })
     );
+    expect(fetchJsonWithTimeout).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        url: 'https://us-central1-aiplatform.googleapis.com/v1/projects/demo-project/locations/us-central1/publishers/google/models/veo-3.1-generate-preview:fetchPredictOperation',
+      })
+    );
+    expect(writeBase64ToPath).toHaveBeenCalledWith({
+      base64: 'AQID',
+      outputPath: '/tmp/veo-polled.mp4',
+    });
     expect(result.outputPath).toBe('/tmp/veo-polled.mp4');
   });
 
-  it('throws when async creation response lacks operation name', async () => {
-    fetchJsonWithTimeout.mockResolvedValueOnce({
-      done: false,
-    });
+  it('falls back to auth helper for Vertex access token when not provided', async () => {
+    fetchJsonWithTimeout
+      .mockResolvedValueOnce({
+        name: 'operations/veo-job-2',
+      })
+      .mockResolvedValueOnce({
+        done: true,
+        response: {
+          videos: [{ bytesBase64Encoded: 'AQID' }],
+        },
+      });
 
     const { GoogleVeoAdapter } =
       await import('../../../../../src/media/synthesis/adapters/google-veo');
     const adapter = new GoogleVeoAdapter({
-      apiKey: 'g-key',
-      baseUrl: 'https://generativelanguage.googleapis.com/v1beta',
+      vertexProject: 'demo-project',
+      vertexLocation: 'us-central1',
+      pollIntervalMs: 1,
       maxPollAttempts: 1,
     });
 
-    await expect(
-      adapter.submit({
-        kind: 'text-to-video',
-        prompt: 'Prompt',
-        durationSeconds: 4,
-        width: 720,
-        height: 1280,
-        outputPath: '/tmp/out.mp4',
-      })
-    ).rejects.toThrow(/did not include operation name/);
+    await adapter.submit({
+      kind: 'text-to-video',
+      prompt: 'Prompt',
+      durationSeconds: 4,
+      width: 720,
+      height: 1280,
+      outputPath: '/tmp/out.mp4',
+    });
+
+    expect(getGoogleAccessToken).toHaveBeenCalled();
   });
 
-  it('throws when polled operation contains an error', async () => {
+  it('throws when Vertex operation contains an error', async () => {
     fetchJsonWithTimeout
       .mockResolvedValueOnce({
-        name: 'operations/veo-job-2',
+        name: 'operations/veo-job-3',
       })
       .mockResolvedValueOnce({
         done: true,
@@ -138,8 +163,8 @@ describe('GoogleVeoAdapter', () => {
     const { GoogleVeoAdapter } =
       await import('../../../../../src/media/synthesis/adapters/google-veo');
     const adapter = new GoogleVeoAdapter({
-      apiKey: 'g-key',
-      baseUrl: 'https://generativelanguage.googleapis.com/v1beta',
+      vertexProject: 'demo-project',
+      accessToken: 'vertex-token',
       pollIntervalMs: 1,
       maxPollAttempts: 1,
     });

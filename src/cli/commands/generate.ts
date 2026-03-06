@@ -94,6 +94,7 @@ import {
   workflowHasExec,
 } from '../../workflows/runner';
 import { analyzeVideoFrames, type AnalyzeVideoFramesResult } from '../../analysis/frame-analysis';
+import { getGoogleAccessToken, getGoogleCloudProjectId } from '../../media/synthesis/google-auth';
 
 /**
  * Sync quality presets for different quality/speed tradeoffs
@@ -1225,6 +1226,46 @@ async function runGeneratePreflight(params: {
     }
   }
 
+  if (options.media && options.mediaVeoAdapter === 'google-veo') {
+    const veoMode = googleVeoConfigMode();
+    if (!hasGoogleVeoAdapterConfig()) {
+      addPreflightCheck(checks, {
+        label: 'Google Veo adapter',
+        status: 'fail',
+        code: 'CONFIG_ERROR',
+        detail: 'google-veo is selected but no Veo credentials are configured',
+        fix: 'Set GOOGLE_CLOUD_PROJECT plus GOOGLE_CLOUD_ACCESS_TOKEN for Vertex mode, or set GOOGLE_API_KEY/GEMINI_API_KEY plus CM_MEDIA_VEO_ENDPOINT for legacy mode.',
+      });
+    } else if (veoMode === 'legacy') {
+      addPreflightCheck(checks, {
+        label: 'Google Veo adapter',
+        status: 'ok',
+        detail: 'google-veo (legacy gateway)',
+      });
+    } else {
+      try {
+        const projectId = await getGoogleCloudProjectId({ timeoutMs: 5_000 });
+        await getGoogleAccessToken({ timeoutMs: 5_000 });
+        addPreflightCheck(checks, {
+          label: 'Google Veo adapter',
+          status: 'ok',
+          detail: `google-veo (Vertex AI: ${projectId}${process.env.GOOGLE_CLOUD_LOCATION ? `, ${process.env.GOOGLE_CLOUD_LOCATION}` : ''})`,
+        });
+      } catch (error) {
+        const info = getCliErrorInfo(error);
+        addPreflightCheck(checks, {
+          label: 'Google Veo adapter',
+          status: 'fail',
+          code: info.code ?? 'CONFIG_ERROR',
+          detail: info.message,
+          fix:
+            info.fix ??
+            'Authenticate gcloud (`gcloud auth print-access-token`) or set GOOGLE_CLOUD_ACCESS_TOKEN.',
+        });
+      }
+    }
+  }
+
   const failures = checks.filter((check) => check.status === 'fail');
   const passed = failures.length === 0;
   const exitCode = passed
@@ -1312,6 +1353,20 @@ function parseOptionalNumber(value: string | undefined): number | null {
   if (!value) return null;
   const parsed = Number.parseFloat(value);
   return Number.isFinite(parsed) ? parsed : null;
+}
+
+function hasGoogleVeoAdapterConfig(): boolean {
+  const googleApiKey = process.env.GOOGLE_API_KEY ?? process.env.GEMINI_API_KEY;
+  return Boolean(
+    (googleApiKey && process.env.CM_MEDIA_VEO_ENDPOINT) || process.env.GOOGLE_CLOUD_PROJECT
+  );
+}
+
+function googleVeoConfigMode(): 'legacy' | 'vertex' | null {
+  const googleApiKey = process.env.GOOGLE_API_KEY ?? process.env.GEMINI_API_KEY;
+  if (googleApiKey && process.env.CM_MEDIA_VEO_ENDPOINT) return 'legacy';
+  if (process.env.GOOGLE_CLOUD_PROJECT) return 'vertex';
+  return null;
 }
 
 const GENERATE_VISUAL_PROVIDER_NAMES: ReadonlySet<AssetProviderName> = new Set([
