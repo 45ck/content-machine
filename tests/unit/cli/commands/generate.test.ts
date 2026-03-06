@@ -330,6 +330,56 @@ describe('cli generate command', () => {
     exitSpy.mockRestore();
   });
 
+  it('passes mock preflight for gameplay-required templates without a gameplay path', async () => {
+    await configureRuntime({ json: true });
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+    const { existsSync } = await import('fs');
+    (existsSync as unknown as ReturnType<typeof vi.fn>).mockImplementation((path: string) => {
+      return !String(path).endsWith('brainrot-split-gameplay-top');
+    });
+
+    const output = await import('../../../../src/cli/output');
+    const writeJsonSpy = vi.spyOn(output, 'writeJsonEnvelope').mockImplementation(() => undefined);
+
+    const { resolveWorkflow } = await import('../../../../src/workflows/resolve');
+    (resolveWorkflow as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      source: 'builtin',
+      spec: 'brainrot-gameplay',
+      workflow: {
+        id: 'brainrot-gameplay',
+        name: 'Brainrot Gameplay',
+        defaults: {
+          template: 'brainrot-split-gameplay-top',
+          gameplayStyle: 'subway-surfers',
+          splitLayout: 'gameplay-top',
+        },
+      },
+    });
+
+    const { generateCommand } = await import('../../../../src/cli/commands/generate');
+    await generateCommand.parseAsync(
+      ['Redis', '--preflight', '--mock', '--workflow', 'brainrot-gameplay', '--output', 'out.mp4'],
+      {
+        from: 'user',
+      }
+    );
+
+    const payload = writeJsonSpy.mock.calls.at(-1)?.[0];
+    expect(payload.outputs.preflightPassed).toBe(true);
+    expect(payload.outputs.checks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          label: 'Gameplay asset',
+          status: 'ok',
+          detail: expect.stringContaining('fallback'),
+        }),
+      ])
+    );
+    expect(exitSpy).toHaveBeenCalledWith(0);
+
+    exitSpy.mockRestore();
+  });
+
   it('reports preflight errors for timestamps without audio', async () => {
     await configureRuntime({ json: true });
     const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);

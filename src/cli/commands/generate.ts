@@ -985,13 +985,21 @@ async function runGeneratePreflight(params: {
 
   const gameplayRequired = Boolean(options.gameplayStrict) || Boolean(templateGameplay?.required);
   if (gameplayRequired && !options.gameplay) {
-    addPreflightCheck(checks, {
-      label: 'Gameplay asset',
-      status: 'fail',
-      code: 'FILE_NOT_FOUND',
-      detail: 'Gameplay is required but no path provided',
-      fix: 'Provide --gameplay <path> or choose a template without required gameplay',
-    });
+    if (options.mock) {
+      addPreflightCheck(checks, {
+        label: 'Gameplay asset',
+        status: 'ok',
+        detail: 'Mock mode will use the split-screen gameplay fallback',
+      });
+    } else {
+      addPreflightCheck(checks, {
+        label: 'Gameplay asset',
+        status: 'fail',
+        code: 'FILE_NOT_FOUND',
+        detail: 'Gameplay is required but no path provided',
+        fix: 'Provide --gameplay <path> or choose a template without required gameplay',
+      });
+    }
   } else if (options.gameplay) {
     addPreflightCheck(checks, {
       label: 'Gameplay asset',

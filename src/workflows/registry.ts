@@ -74,27 +74,41 @@ async function listWorkflowsFromDir(
   return workflows;
 }
 
+function dedupeWorkflowsByEffectivePrecedence(entries: ListedWorkflow[]): ListedWorkflow[] {
+  const seen = new Set<string>();
+  const deduped: ListedWorkflow[] = [];
+
+  for (const entry of entries) {
+    if (seen.has(entry.id)) continue;
+    seen.add(entry.id);
+    deduped.push(entry);
+  }
+
+  return deduped;
+}
+
 export async function listWorkflows(options: ListWorkflowsOptions = {}): Promise<ListedWorkflow[]> {
   const includeBuiltin = options.includeBuiltin !== false;
   const userDir = options.userDir ?? DEFAULT_USER_DIR;
   const projectDir = options.projectDir ?? DEFAULT_PROJECT_DIR;
 
-  const results: ListedWorkflow[] = [];
-  if (includeBuiltin) {
-    const builtins = listBuiltinWorkflows().map((workflow) => ({
+  const builtins: ListedWorkflow[] = includeBuiltin
+    ? listBuiltinWorkflows().map((workflow) => ({
       id: workflow.id,
       name: workflow.name,
       description: workflow.description,
       source: 'builtin' as const,
-    }));
-    results.push(...builtins);
-  }
+    }))
+    : [];
 
   const [userWorkflows, projectWorkflows] = await Promise.all([
     listWorkflowsFromDir(userDir, 'user'),
     listWorkflowsFromDir(projectDir, 'project'),
   ]);
 
-  results.push(...projectWorkflows, ...userWorkflows);
-  return results;
+  return dedupeWorkflowsByEffectivePrecedence([
+    ...projectWorkflows,
+    ...userWorkflows,
+    ...builtins,
+  ]);
 }

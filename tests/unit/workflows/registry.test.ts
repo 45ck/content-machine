@@ -60,7 +60,7 @@ describe('workflows registry', () => {
     expect(results).toEqual([]);
   });
 
-  it('includes builtin workflows by default and orders project before user', async () => {
+  it('includes builtin workflows by default after effective local precedence', async () => {
     const { existsSync } = await import('fs');
     const { readdir, readFile } = await import('fs/promises');
     const { listBuiltinWorkflows } = await import('../../../src/workflows/resolve');
@@ -92,6 +92,40 @@ describe('workflows registry', () => {
     const { listWorkflows } = await import('../../../src/workflows/registry');
     const results = await listWorkflows({ projectDir: '/project', userDir: '/user' });
 
-    expect(results.map((r) => r.id)).toEqual(['builtin', 'proj', 'user']);
+    expect(results.map((r) => r.id)).toEqual(['proj', 'user', 'builtin']);
+  });
+
+  it('returns only the effective workflow when a local workflow overrides a builtin id', async () => {
+    const { existsSync } = await import('fs');
+    const { readdir, readFile } = await import('fs/promises');
+    const { listBuiltinWorkflows } = await import('../../../src/workflows/resolve');
+
+    (listBuiltinWorkflows as unknown as ReturnType<typeof vi.fn>).mockReturnValue([
+      { id: 'brainrot-gameplay', name: 'Builtin Brainrot', steps: [] },
+    ]);
+
+    (existsSync as unknown as ReturnType<typeof vi.fn>).mockImplementation((p: string) => {
+      return String(p).includes('project') || String(p).includes('workflow.json');
+    });
+    (readdir as unknown as ReturnType<typeof vi.fn>).mockImplementation((p: string) => {
+      if (String(p).includes('project')) {
+        return Promise.resolve([{ name: 'brainrot-gameplay', isDirectory: () => true }]);
+      }
+      return Promise.resolve([]);
+    });
+    (readFile as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(
+      JSON.stringify({ id: 'brainrot-gameplay', name: 'Project Brainrot', steps: [] })
+    );
+
+    const { listWorkflows } = await import('../../../src/workflows/registry');
+    const results = await listWorkflows({ projectDir: '/project', userDir: '/user' });
+
+    expect(results).toEqual([
+      expect.objectContaining({
+        id: 'brainrot-gameplay',
+        name: 'Project Brainrot',
+        source: 'project',
+      }),
+    ]);
   });
 });
