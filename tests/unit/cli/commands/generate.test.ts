@@ -493,6 +493,135 @@ describe('cli generate command', () => {
     exitSpy.mockRestore();
   });
 
+  it('checks google-veo readiness when Veo motion is requested without explicit media flag', async () => {
+    await configureRuntime({ json: true });
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+    const previousProject = process.env.GOOGLE_CLOUD_PROJECT;
+    const previousToken = process.env.GOOGLE_CLOUD_ACCESS_TOKEN;
+    const previousOpenAiKey = process.env.OPENAI_API_KEY;
+    const previousPexelsKey = process.env.PEXELS_API_KEY;
+    process.env.GOOGLE_CLOUD_PROJECT = 'demo-project';
+    process.env.GOOGLE_CLOUD_ACCESS_TOKEN = 'demo-token';
+    process.env.OPENAI_API_KEY = 'test-openai-key';
+    process.env.PEXELS_API_KEY = 'test-pexels-key';
+
+    const output = await import('../../../../src/cli/output');
+    const writeJsonSpy = vi.spyOn(output, 'writeJsonEnvelope').mockImplementation(() => undefined);
+
+    const { generateCommand } = await import('../../../../src/cli/commands/generate');
+    await generateCommand.parseAsync(
+      [
+        'Redis',
+        '--preflight',
+        '--visuals-motion-strategy',
+        'veo',
+        '--media-veo-adapter',
+        'google-veo',
+        '--output',
+        'out.mp4',
+      ],
+      { from: 'user' }
+    );
+
+    const payload = writeJsonSpy.mock.calls.at(-1)?.[0];
+    expect(payload.outputs.preflightPassed).toBe(true);
+    expect(payload.outputs.checks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          label: 'Google Veo adapter',
+          status: 'ok',
+          detail: expect.stringContaining('Vertex AI: demo-project'),
+        }),
+      ])
+    );
+    expect(exitSpy).toHaveBeenCalledWith(0);
+
+    if (previousProject === undefined) delete process.env.GOOGLE_CLOUD_PROJECT;
+    else process.env.GOOGLE_CLOUD_PROJECT = previousProject;
+    if (previousToken === undefined) delete process.env.GOOGLE_CLOUD_ACCESS_TOKEN;
+    else process.env.GOOGLE_CLOUD_ACCESS_TOKEN = previousToken;
+    if (previousOpenAiKey === undefined) delete process.env.OPENAI_API_KEY;
+    else process.env.OPENAI_API_KEY = previousOpenAiKey;
+    if (previousPexelsKey === undefined) delete process.env.PEXELS_API_KEY;
+    else process.env.PEXELS_API_KEY = previousPexelsKey;
+    exitSpy.mockRestore();
+  });
+
+  it('checks google-veo readiness when external visuals already require Veo motion', async () => {
+    await configureRuntime({ json: true });
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+    const previousProject = process.env.GOOGLE_CLOUD_PROJECT;
+    const previousToken = process.env.GOOGLE_CLOUD_ACCESS_TOKEN;
+    const previousOpenAiKey = process.env.OPENAI_API_KEY;
+    process.env.GOOGLE_CLOUD_PROJECT = 'demo-project';
+    process.env.GOOGLE_CLOUD_ACCESS_TOKEN = 'demo-token';
+    process.env.OPENAI_API_KEY = 'test-openai-key';
+
+    const { readInputFile } = await import('../../../../src/cli/utils');
+    (readInputFile as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+      schemaVersion: '1.0.0',
+      scenes: [
+        {
+          sceneId: 'scene-1',
+          source: 'generated-nanobanana',
+          assetPath: 'assets/generated/scene-1.png',
+          assetType: 'image',
+          duration: 3.5,
+          motionStrategy: 'veo',
+        },
+      ],
+      totalAssets: 1,
+      fromUserFootage: 0,
+      fromStock: 0,
+      fromGenerated: 1,
+      fallbacks: 0,
+    });
+
+    const output = await import('../../../../src/cli/output');
+    const writeJsonSpy = vi.spyOn(output, 'writeJsonEnvelope').mockImplementation(() => undefined);
+
+    const { generateCommand } = await import('../../../../src/cli/commands/generate');
+    await generateCommand.parseAsync(
+      [
+        'Redis',
+        '--preflight',
+        '--visuals',
+        'visuals.json',
+        '--media-veo-adapter',
+        'google-veo',
+        '--output',
+        'out.mp4',
+      ],
+      { from: 'user' }
+    );
+
+    const payload = writeJsonSpy.mock.calls.at(-1)?.[0];
+    expect(payload.outputs.preflightPassed).toBe(true);
+    expect(payload.outputs.checks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          label: 'Visuals input',
+          status: 'ok',
+          detail: 'visuals.json',
+        }),
+        expect.objectContaining({
+          label: 'Google Veo adapter',
+          status: 'ok',
+          detail: expect.stringContaining('Vertex AI: demo-project'),
+        }),
+      ])
+    );
+    expect(exitSpy).toHaveBeenCalledWith(0);
+
+    if (previousProject === undefined) delete process.env.GOOGLE_CLOUD_PROJECT;
+    else process.env.GOOGLE_CLOUD_PROJECT = previousProject;
+    if (previousToken === undefined) delete process.env.GOOGLE_CLOUD_ACCESS_TOKEN;
+    else process.env.GOOGLE_CLOUD_ACCESS_TOKEN = previousToken;
+    if (previousOpenAiKey === undefined) delete process.env.OPENAI_API_KEY;
+    else process.env.OPENAI_API_KEY = previousOpenAiKey;
+    exitSpy.mockRestore();
+  });
+
   it('prints a detailed dry-run summary when many options are set', async () => {
     await configureRuntime({ json: false });
 

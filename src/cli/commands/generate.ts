@@ -512,6 +512,21 @@ function getMockMediaConstraint(options: GenerateOptions): MockMediaConstraint |
   return null;
 }
 
+function visualsRequireVeoAdapter(visuals: VisualsOutput): boolean {
+  return visuals.scenes.some((scene) => scene.motionStrategy === 'veo');
+}
+
+function shouldCheckGoogleVeoAdapter(params: {
+  options: GenerateOptions;
+  visualsInput?: VisualsOutput;
+}): boolean {
+  const { options, visualsInput } = params;
+  if (options.mediaVeoAdapter !== 'google-veo') return false;
+  if (options.media) return true;
+  if (parseVisualsMotionStrategy(options.visualsMotionStrategy) === 'veo') return true;
+  return visualsInput ? visualsRequireVeoAdapter(visualsInput) : false;
+}
+
 function formatPreflightLine(check: PreflightCheck): string {
   const status =
     check.status === 'ok'
@@ -538,6 +553,7 @@ async function runGeneratePreflight(params: {
   const checks: PreflightCheck[] = [];
   const stageModes = resolveWorkflowStageModes(resolvedWorkflow?.workflow);
   const config = loadConfig();
+  let visualsInput: VisualsOutput | undefined;
 
   const templateId = resolvedTemplate?.template.id;
   addPreflightCheck(checks, {
@@ -1002,6 +1018,7 @@ async function runGeneratePreflight(params: {
           fix: 'Generate visuals via `cm visuals --input timestamps.json`',
         });
       } else {
+        visualsInput = parsedVisuals.data;
         addPreflightCheck(checks, {
           label: 'Visuals input',
           status: 'ok',
@@ -1286,7 +1303,7 @@ async function runGeneratePreflight(params: {
     }
   }
 
-  if (options.media && options.mediaVeoAdapter === 'google-veo') {
+  if (shouldCheckGoogleVeoAdapter({ options, visualsInput })) {
     const veoMode = googleVeoConfigMode();
     if (!hasGoogleVeoAdapterConfig()) {
       addPreflightCheck(checks, {
