@@ -52,4 +52,5 @@ It covers:
 
 - `brainrot-gameplay` expects gameplay footage through the normal gameplay library flow.
 - `gemini-meme-explainer` expects `GEMINI_API_KEY` or `GOOGLE_API_KEY`.
-- The Gemini image-led workflows default to `kenburns`; upgrade them later with `--visuals-motion-strategy veo --media --media-veo-adapter google-veo` once Vertex auth is working.
+- The Gemini image-led workflows default to `kenburns`; upgrade them with `--visuals-motion-strategy veo --media --media-veo-adapter google-veo` once Vertex auth is working.
+- Do not combine `--mock` with `--visuals-motion-strategy veo|depthflow` or `--media`; mock visuals are inline QA cards, not real local image assets for synthesis.

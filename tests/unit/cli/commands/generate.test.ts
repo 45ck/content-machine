@@ -410,7 +410,7 @@ describe('cli generate command', () => {
     exitSpy.mockRestore();
   });
 
-  it('reports Vertex Veo preflight readiness when google-veo is selected', async () => {
+  it('fails mock preflight when google-veo is selected because mock visuals cannot use Veo', async () => {
     await configureRuntime({ json: true });
     const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
     const previousProject = process.env.GOOGLE_CLOUD_PROJECT;
@@ -437,22 +437,59 @@ describe('cli generate command', () => {
     );
 
     const payload = writeJsonSpy.mock.calls[0]?.[0];
-    expect(payload.outputs.preflightPassed).toBe(true);
+    expect(payload.outputs.preflightPassed).toBe(false);
     expect(payload.outputs.checks).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          label: 'Google Veo adapter',
-          status: 'ok',
-          detail: expect.stringContaining('Vertex AI: demo-project'),
+          label: 'Mock visuals compatibility',
+          status: 'fail',
+          detail: expect.stringContaining('cannot run through the media synthesis stage'),
         }),
       ])
     );
-    expect(exitSpy).toHaveBeenCalledWith(0);
+    expect(exitSpy).toHaveBeenCalledWith(2);
 
     if (previousProject === undefined) delete process.env.GOOGLE_CLOUD_PROJECT;
     else process.env.GOOGLE_CLOUD_PROJECT = previousProject;
     if (previousToken === undefined) delete process.env.GOOGLE_CLOUD_ACCESS_TOKEN;
     else process.env.GOOGLE_CLOUD_ACCESS_TOKEN = previousToken;
+    exitSpy.mockRestore();
+  });
+
+  it('fails mock preflight when advanced image motion is requested', async () => {
+    await configureRuntime({ json: true });
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+
+    const output = await import('../../../../src/cli/output');
+    const writeJsonSpy = vi.spyOn(output, 'writeJsonEnvelope').mockImplementation(() => undefined);
+
+    const { generateCommand } = await import('../../../../src/cli/commands/generate');
+    await generateCommand.parseAsync(
+      [
+        'Redis',
+        '--preflight',
+        '--mock',
+        '--visuals-motion-strategy',
+        'veo',
+        '--output',
+        'out.mp4',
+      ],
+      { from: 'user' }
+    );
+
+    const payload = writeJsonSpy.mock.calls.at(-1)?.[0];
+    expect(payload.outputs.preflightPassed).toBe(false);
+    expect(payload.outputs.checks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          label: 'Mock visuals compatibility',
+          status: 'fail',
+          detail: expect.stringContaining('cannot use veo motion'),
+        }),
+      ])
+    );
+    expect(exitSpy).toHaveBeenCalledWith(2);
+
     exitSpy.mockRestore();
   });
 
@@ -641,52 +678,30 @@ describe('cli generate command', () => {
     exitSpy.mockRestore();
   });
 
-  it('passes visuals motion strategy through to pipeline', async () => {
-    await configureRuntime({ json: true });
-    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
-
-    const { runPipeline } = await import('../../../../src/core/pipeline');
-    (runPipeline as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
-      script: {},
-      audio: { audioMixPath: null },
-      visuals: {},
-      render: {},
-      outputPath: 'out.mp4',
-      duration: 1,
-      width: 1080,
-      height: 1920,
-      fileSize: 123,
-    });
-
-    const output = await import('../../../../src/cli/output');
-    vi.spyOn(output, 'writeJsonEnvelope').mockImplementation(() => undefined);
+  it('rejects mock runs that request advanced image motion', async () => {
+    await configureRuntime({ json: false });
+    const { handleCommandError } = await import('../../../../src/cli/utils');
 
     const { generateCommand } = await import('../../../../src/cli/commands/generate');
-    await generateCommand.parseAsync(
-      [
-        'Redis',
-        '--output',
-        'out.mp4',
-        '--mock',
-        '--visuals-provider',
-        'nanobanana',
-        '--visuals-motion-strategy',
-        'depthflow',
-      ],
-      {
-        from: 'user',
-      }
-    );
+    await expect(
+      generateCommand.parseAsync(
+        [
+          'Redis',
+          '--output',
+          'out.mp4',
+          '--mock',
+          '--visuals-provider',
+          'nanobanana',
+          '--visuals-motion-strategy',
+          'depthflow',
+        ],
+        {
+          from: 'user',
+        }
+      )
+    ).rejects.toThrow();
 
-    expect(runPipeline).toHaveBeenCalledWith(
-      expect.objectContaining({
-        visualsProviders: ['nanobanana'],
-        visualsMotionStrategy: 'depthflow',
-      })
-    );
-    expect(exitSpy).toHaveBeenCalled();
-
-    exitSpy.mockRestore();
+    expect(handleCommandError).toHaveBeenCalled();
   });
 
   it('uses real render mode for mock generate runs', async () => {

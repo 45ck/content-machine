@@ -40,9 +40,9 @@ cm generate [options] <topic>
 - `--visuals-provider <providerOrChain>`: visuals provider id or provider chain (e.g., `pexels` or `pexels,local,nanobanana`)
 - `--visuals-fallback-providers <providers>`: comma-separated fallback providers appended to `--visuals-provider` when provider is a single value
 - `--visuals-routing-policy <policy>`: visuals provider routing policy (`configured|balanced|cost-first|quality-first`)
-- `--visuals-motion-strategy <strategy>`: image motion strategy for visuals stage (`none|kenburns|depthflow|veo`)
+- `--visuals-motion-strategy <strategy>`: image motion strategy for visuals stage (`none|kenburns|depthflow|veo`). `depthflow` and `veo` require real local image visuals; mock mode only supports `kenburns`.
 - `--visuals-max-generation-cost-usd <amount>`: hard cap for AI image generation spend during visuals stage (USD)
-- `--media`: enable media synthesis stage (image-to-video for `depthflow`/`veo` + video keyframes)
+- `--media`: enable media synthesis stage (image-to-video for `depthflow`/`veo` + video keyframes). Requires real local image assets; mock visuals do not support this stage.
 - `--no-media-keyframes`: disable media-stage video keyframe extraction
 - `--no-media-synthesize-motion`: disable media-stage image-to-video synthesis for `depthflow`/`veo` scenes
 - `--media-dir <path>`: directory for generated media-stage artifacts
@@ -82,7 +82,7 @@ cm generate [options] <topic>
 - `--download-assets` / `--no-download-assets`: download remote visuals into the render bundle (default: download)
 - `--research [path]`: enable research before script (see Research Integration below)
 - `--keep-artifacts`: keep intermediate files (default: false)
-- `--mock`: use mock providers (testing)
+- `--mock`: use mock providers (testing). Mock visuals are inline image cards for caption/render QA; they cannot exercise `depthflow`, `veo`, or the media synthesis stage.
 - `--dry-run`: preview configuration without execution
 - `--preflight`: validate dependencies and exit without execution
 
@@ -167,12 +167,22 @@ cm generate "Browser cache explained like the internet's most annoying roommate"
   --archetype hot-take \
   --visuals-motion-strategy kenburns \
   --output out/meme.mp4
+
+# Real Gemini images + Veo motion
+cm generate "Browser cache explained like the internet's most annoying roommate" \
+  --workflow gemini-meme-explainer \
+  --archetype hot-take \
+  --visuals-motion-strategy veo \
+  --media \
+  --media-veo-adapter google-veo \
+  --output out/meme-veo.mp4
 ```
 
 ## Notes
 
 - Intermediate artifacts are placed in `dirname(--output)` by default.
 - `--keep-artifacts` keeps `script.json`, `audio.wav`, `timestamps.json`, `visuals.json`, and `audio.mix.json` (when present) alongside the final output.
+- Mock runs are useful for render/caption QA, but they do not generate real Gemini images or Veo clips.
 - When `--research` is used with a path, the file must be valid `ResearchOutput` JSON from `cm research`.
 - External inputs skip their corresponding stages; `--audio` requires `--timestamps`.
 - Workflow external stages default to artifacts in the output directory (unless `workflow.inputs` override them).

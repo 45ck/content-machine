@@ -464,6 +464,11 @@ interface PreflightCheck {
   code?: string;
 }
 
+interface MockMediaConstraint {
+  reason: string;
+  fix: string;
+}
+
 const PREFLIGHT_USAGE_CODES = new Set([
   'INVALID_ARGUMENT',
   'SCHEMA_ERROR',
@@ -473,6 +478,38 @@ const PREFLIGHT_USAGE_CODES = new Set([
 
 function addPreflightCheck(checks: PreflightCheck[], entry: PreflightCheck): void {
   checks.push(entry);
+}
+
+function isAdvancedMotionStrategy(
+  strategy: MotionStrategyType | undefined
+): strategy is 'depthflow' | 'veo' {
+  return strategy === 'depthflow' || strategy === 'veo';
+}
+
+function getMockMediaConstraint(options: GenerateOptions): MockMediaConstraint | null {
+  const visualsMotionStrategy = parseVisualsMotionStrategy(options.visualsMotionStrategy);
+  const mediaRequested =
+    Boolean(options.media) ||
+    Boolean(options.mediaDepthflowAdapter) ||
+    Boolean(options.mediaVeoAdapter);
+
+  if (!options.mock) return null;
+
+  if (isAdvancedMotionStrategy(visualsMotionStrategy)) {
+    return {
+      reason: `Mock visuals cannot use ${visualsMotionStrategy} motion`,
+      fix: 'Remove --mock and generate real local image visuals, or use --visuals-motion-strategy kenburns for mock QA runs.',
+    };
+  }
+
+  if (mediaRequested) {
+    return {
+      reason: 'Mock visuals cannot run through the media synthesis stage',
+      fix: 'Remove --mock and use real local image visuals for media/depthflow/Veo, or remove --media and media adapter flags for mock QA runs.',
+    };
+  }
+
+  return null;
 }
 
 function formatPreflightLine(check: PreflightCheck): string {
@@ -1088,6 +1125,17 @@ async function runGeneratePreflight(params: {
       status: 'ok',
       detail: 'Mock providers enabled (skipping API key checks)',
     });
+
+    const mockMediaConstraint = getMockMediaConstraint(options);
+    if (mockMediaConstraint) {
+      addPreflightCheck(checks, {
+        label: 'Mock visuals compatibility',
+        status: 'fail',
+        code: 'INVALID_ARGUMENT',
+        detail: mockMediaConstraint.reason,
+        fix: mockMediaConstraint.fix,
+      });
+    }
   } else if (needsLlm) {
     let config: any | null = null;
     try {
@@ -3180,6 +3228,8 @@ async function runGenerate(
     options.gameplayStyle = templateGameplay.style;
   }
 
+  const mockMediaConstraint = getMockMediaConstraint(options);
+
   printHeader(topic, options, runtime);
 
   const resolvedArchetype = await resolveArchetype(options.archetype);
@@ -3213,6 +3263,12 @@ async function runGenerate(
       exitCode: preflight.exitCode,
     });
     return;
+  }
+
+  if (mockMediaConstraint) {
+    throw new CMError('INVALID_ARGUMENT', mockMediaConstraint.reason, {
+      fix: mockMediaConstraint.fix,
+    });
   }
 
   if (

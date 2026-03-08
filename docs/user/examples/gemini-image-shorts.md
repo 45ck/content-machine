@@ -27,6 +27,7 @@ These are real rendered MP4 outputs with voice audio and captions. They are imag
 - Topic fixture data: [`test-fixtures/generate/high-hook-review-batch-20260306.json`](../../../test-fixtures/generate/high-hook-review-batch-20260306.json)
 - Visual provider: `nanobanana`
 - Current motion path: image-led render flow with static/Ken Burns style motion, not Vertex Veo
+- Mock QA runs are not equivalent to these examples; mock visuals are inline cards and cannot be animated with Veo.
 
 ## Prereqs
 
