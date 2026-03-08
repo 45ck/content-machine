@@ -1,6 +1,5 @@
-import { existsSync } from 'node:fs';
 import path from 'node:path';
-import { resolveWhisperDir, resolveWhisperModelFilename } from './whisper';
+import { getWhisperRuntimeStatus, resolveWhisperDir } from './whisper';
 
 export type RequirementKind = 'dependency' | 'asset';
 export type RequirementSeverity = 'required' | 'optional';
@@ -45,20 +44,6 @@ export async function evaluateRequirements(
   );
 }
 
-function resolveWhisperExecutableCandidates(dir: string): string[] {
-  const candidates: string[] = [];
-
-  // whisper.cpp <= 1.7.3
-  candidates.push(path.join(dir, process.platform === 'win32' ? 'main.exe' : 'main'));
-
-  // whisper.cpp >= 1.7.4
-  candidates.push(
-    path.join(dir, 'build', 'bin', process.platform === 'win32' ? 'whisper-cli.exe' : 'whisper-cli')
-  );
-
-  return candidates;
-}
-
 export function planWhisperRequirements(params: {
   required: boolean;
   model: string;
@@ -68,12 +53,8 @@ export function planWhisperRequirements(params: {
   if (!params.required) return [];
 
   const dir = params.dir ? path.resolve(params.dir) : resolveWhisperDir();
-  const modelFilename = resolveWhisperModelFilename(params.model);
-  const modelPath = path.join(dir, modelFilename);
-  const executableCandidates = resolveWhisperExecutableCandidates(dir);
   const version = params.version ?? '1.5.5';
-
-  const fix = `Run: cm setup whisper --model ${params.model} --dir ${dir} --version ${version}`;
+  const fix = getWhisperRuntimeStatus({ model: params.model, dir, version }).fix;
 
   return [
     {
@@ -83,8 +64,8 @@ export function planWhisperRequirements(params: {
       severity: 'required',
       fix,
       check: async () => ({
-        ok: existsSync(modelPath),
-        detail: modelPath,
+        ok: getWhisperRuntimeStatus({ model: params.model, dir, version }).modelPresent,
+        detail: getWhisperRuntimeStatus({ model: params.model, dir, version }).modelPath,
       }),
     },
     {
@@ -93,10 +74,13 @@ export function planWhisperRequirements(params: {
       kind: 'dependency',
       severity: 'required',
       fix,
-      check: async () => ({
-        ok: executableCandidates.some((candidate) => existsSync(candidate)),
-        detail: executableCandidates.join(' | '),
-      }),
+      check: async () => {
+        const status = getWhisperRuntimeStatus({ model: params.model, dir, version });
+        return {
+          ok: status.binaryPresent,
+          detail: status.executableCandidates.join(' | '),
+        };
+      },
     },
   ];
 }

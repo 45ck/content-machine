@@ -6,14 +6,17 @@
  * based on audio duration when whisper is not available.
  */
 import { createLogger } from '../../core/logger';
-import { APIError } from '../../core/errors';
+import { APIError, CMError } from '../../core/errors';
 import type { WordTimestamp } from '../../domain';
 import { validateWordTimings, repairWordTimings, TimestampValidationError } from './validator';
 import { postProcessASRWordsWithStats } from './post-processor';
 import type { Language, WhisperModel } from '@remotion/install-whisper-cpp';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
-import { resolveWhisperDir, resolveWhisperModelFilename } from '../../core/assets/whisper';
+import {
+  getWhisperRuntimeStatus,
+  resolveWhisperDir,
+} from '../../core/assets/whisper';
 import { execFfmpeg, execFfprobe } from '../../core/video/ffmpeg';
 
 // Re-export post-processor for direct use
@@ -93,6 +96,40 @@ function shouldAutoInstallWhisper(): boolean {
   if (process.env.CM_WHISPER_AUTO_INSTALL === '1') return true;
   if (process.env.CM_WHISPER_AUTO_INSTALL === '0') return false;
   return false;
+}
+
+function isErrnoException(error: unknown): error is NodeJS.ErrnoException {
+  return typeof error === 'object' && error !== null && 'code' in error;
+}
+
+function isMissingWhisperRuntimeError(error: unknown): boolean {
+  if (error instanceof CMError && error.code === 'DEPENDENCY_MISSING') return true;
+  if (isErrnoException(error)) {
+    return error.code === 'ENOENT' || error.code === 'ENOTDIR' || error.errno === -2;
+  }
+  const message = error instanceof Error ? error.message : String(error);
+  return message.includes('ENOENT') || message.includes('whisper-cli') || message.includes('main.exe');
+}
+
+function createWhisperDependencyError(params: {
+  status: ReturnType<typeof getWhisperRuntimeStatus>;
+  audioPath: string;
+  cause?: Error;
+}): CMError {
+  const { status, audioPath, cause } = params;
+  return new CMError(
+    'DEPENDENCY_MISSING',
+    `Whisper runtime is not installed. ${status.fix}`,
+    {
+      audioPath,
+      whisperDir: status.dir,
+      whisperModel: status.model,
+      whisperModelPath: status.modelPath,
+      whisperExecutableCandidates: status.executableCandidates,
+      fix: status.fix,
+    },
+    cause
+  );
 }
 
 /**
@@ -322,6 +359,9 @@ export async function transcribeAudio(options: ASROptions): Promise<ASRResult> {
   } catch (error) {
     // If requireWhisper is true, don't fall back to estimation
     if (options.requireWhisper) {
+      if (error instanceof CMError && error.code === 'DEPENDENCY_MISSING') {
+        throw error;
+      }
       throw new APIError(
         'Whisper.cpp transcription failed and requireWhisper=true. Run `cm setup whisper` (or set CM_WHISPER_AUTO_INSTALL=1) to install Whisper.',
         { audioPath: options.audioPath, error: String(error) }
@@ -370,11 +410,30 @@ async function transcribeWithWhisper(
 
   const autoInstall = shouldAutoInstallWhisper();
   const whisperFolderAbs = path.resolve(whisperFolder);
+  let runtimeStatus = getWhisperRuntimeStatus({
+    model,
+    dir: whisperFolderAbs,
+    version: whisperCppVersion,
+  });
 
   if (!autoInstall) {
-    const modelFile = path.join(whisperFolderAbs, resolveWhisperModelFilename(model));
-    if (!fs.existsSync(modelFile)) {
-      log.debug({ modelFile }, 'Whisper model missing; skipping whisper.cpp');
+    if (!runtimeStatus.ready) {
+      log.debug(
+        {
+          whisperDir: runtimeStatus.dir,
+          modelPath: runtimeStatus.modelPath,
+          modelPresent: runtimeStatus.modelPresent,
+          binaryPresent: runtimeStatus.binaryPresent,
+          executableCandidates: runtimeStatus.executableCandidates,
+        },
+        'Whisper runtime missing; skipping whisper.cpp'
+      );
+      if (options.requireWhisper) {
+        throw createWhisperDependencyError({
+          status: runtimeStatus,
+          audioPath: options.audioPath,
+        });
+      }
       return null;
     }
   } else {
@@ -391,22 +450,39 @@ async function transcribeWithWhisper(
       version: whisperCppVersion,
     });
     log.debug({ whisperFolder, whisperCppVersion }, 'Whisper executable ready');
+    runtimeStatus = getWhisperRuntimeStatus({
+      model,
+      dir: whisperFolderAbs,
+      version: whisperCppVersion,
+    });
   }
 
   // Resample audio to 16kHz for Whisper compatibility
   const { resampledPath, needsCleanup } = await resampleFor16kHz(options.audioPath, log);
 
   try {
-    // Transcribe with word-level timestamps
-    const result = await whisper.transcribe({
-      inputPath: resampledPath,
-      whisperPath: whisperFolder,
-      whisperCppVersion,
-      model,
-      modelFolder: whisperFolder,
-      tokenLevelTimestamps: true,
-      language,
-    });
+    let result;
+    try {
+      // Transcribe with word-level timestamps
+      result = await whisper.transcribe({
+        inputPath: resampledPath,
+        whisperPath: whisperFolder,
+        whisperCppVersion,
+        model,
+        modelFolder: whisperFolder,
+        tokenLevelTimestamps: true,
+        language,
+      });
+    } catch (error) {
+      if (isMissingWhisperRuntimeError(error)) {
+        throw createWhisperDependencyError({
+          status: runtimeStatus,
+          audioPath: options.audioPath,
+          cause: error instanceof Error ? error : undefined,
+        });
+      }
+      throw error;
+    }
 
     // Extract word timestamps using helper
     const { words: rawWords, duration } = extractWordsFromSegments(result.transcription);
