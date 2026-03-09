@@ -10,6 +10,7 @@ function expandTilde(inputPath: string): string {
   return inputPath;
 }
 
+/** Resolve the effective Whisper asset directory for the current runtime. */
 export function resolveWhisperDir(cwd: string = process.cwd()): string {
   const env = process.env.CM_WHISPER_DIR;
   if (env && env.trim()) {
@@ -24,27 +25,37 @@ export function resolveWhisperDir(cwd: string = process.cwd()): string {
   return globalDir;
 }
 
+/** Map a Whisper model id to the packaged ggml model filename. */
 export function resolveWhisperModelFilename(model: string): string {
   const normalized = model === 'large' ? 'large-v3' : model;
   return `ggml-${normalized}.bin`;
 }
 
+/** Resolve the full path to a Whisper model file for the selected model. */
 export function resolveWhisperModelPath(model: string, cwd?: string): string {
   return path.join(resolveWhisperDir(cwd), resolveWhisperModelFilename(model));
 }
 
+/** Return the supported Whisper executable paths for the current platform. */
 export function resolveWhisperExecutableCandidates(dir: string): string[] {
   return [
     path.join(dir, process.platform === 'win32' ? 'main.exe' : 'main'),
-    path.join(dir, 'build', 'bin', process.platform === 'win32' ? 'whisper-cli.exe' : 'whisper-cli'),
+    path.join(
+      dir,
+      'build',
+      'bin',
+      process.platform === 'win32' ? 'whisper-cli.exe' : 'whisper-cli'
+    ),
   ];
 }
 
+/** Return the first runnable Whisper executable path, if present. */
 export function resolveWhisperExecutablePath(dir: string): string | null {
   const candidates = resolveWhisperExecutableCandidates(dir);
   return candidates.find((candidate) => existsSync(candidate)) ?? null;
 }
 
+/** Build the canonical `cm setup whisper ...` fix command for missing runtime assets. */
 export function buildWhisperInstallFix(params: {
   model: string;
   dir?: string;
@@ -69,6 +80,7 @@ export interface WhisperRuntimeStatus {
   fix: string;
 }
 
+/** Inspect the local Whisper runtime and report whether the model and binary are ready. */
 export function getWhisperRuntimeStatus(params: {
   model: string;
   dir?: string;

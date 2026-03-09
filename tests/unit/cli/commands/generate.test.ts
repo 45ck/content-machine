@@ -649,15 +649,7 @@ describe('cli generate command', () => {
 
     const { generateCommand } = await import('../../../../src/cli/commands/generate');
     await generateCommand.parseAsync(
-      [
-        'Redis',
-        '--preflight',
-        '--mock',
-        '--visuals-motion-strategy',
-        'veo',
-        '--output',
-        'out.mp4',
-      ],
+      ['Redis', '--preflight', '--mock', '--visuals-motion-strategy', 'veo', '--output', 'out.mp4'],
       { from: 'user' }
     );
 

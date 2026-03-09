@@ -112,8 +112,8 @@ describe('workflows resolve', () => {
   it('prefers project workflows over builtins with the same id', async () => {
     const { existsSync } = await import('fs');
     const { readFile } = await import('fs/promises');
-    (existsSync as unknown as ReturnType<typeof vi.fn>).mockImplementation((p: string) =>
-      String(p).includes('.cm') && String(p).includes('workflow.json')
+    (existsSync as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+      (p: string) => String(p).includes('.cm') && String(p).includes('workflow.json')
     );
     (readFile as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(
       JSON.stringify({ id: 'brainrot-gameplay', name: 'Project Override', steps: [] })

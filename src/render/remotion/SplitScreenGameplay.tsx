@@ -48,8 +48,7 @@ const GameplayFallback: React.FC = () => {
         width: '100%',
         height: '100%',
         overflow: 'hidden',
-        background:
-          `radial-gradient(circle at ${glowX}% ${glowY}%, rgba(59,130,246,0.22), transparent 32%), linear-gradient(180deg, #020617 0%, #0b1120 100%)`,
+        background: `radial-gradient(circle at ${glowX}% ${glowY}%, rgba(59,130,246,0.22), transparent 32%), linear-gradient(180deg, #020617 0%, #0b1120 100%)`,
       }}
     >
       <div

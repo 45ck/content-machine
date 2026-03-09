@@ -110,6 +110,7 @@ function dedupeWorkflowsByEffectivePrecedence(entries: ListedWorkflow[]): Listed
   return deduped;
 }
 
+/** List workflows by effective precedence, including invalid local overrides that block builtins. */
 export async function listWorkflows(options: ListWorkflowsOptions = {}): Promise<ListedWorkflow[]> {
   const includeBuiltin = options.includeBuiltin !== false;
   const userDir = options.userDir ?? DEFAULT_USER_DIR;
@@ -117,12 +118,12 @@ export async function listWorkflows(options: ListWorkflowsOptions = {}): Promise
 
   const builtins: ListedWorkflow[] = includeBuiltin
     ? listBuiltinWorkflows().map((workflow) => ({
-      id: workflow.id,
-      name: workflow.name,
-      description: workflow.description,
-      source: 'builtin' as const,
-      valid: true,
-    }))
+        id: workflow.id,
+        name: workflow.name,
+        description: workflow.description,
+        source: 'builtin' as const,
+        valid: true,
+      }))
     : [];
 
   const [userWorkflows, projectWorkflows] = await Promise.all([
@@ -130,9 +131,5 @@ export async function listWorkflows(options: ListWorkflowsOptions = {}): Promise
     listWorkflowsFromDir(projectDir, 'project'),
   ]);
 
-  return dedupeWorkflowsByEffectivePrecedence([
-    ...projectWorkflows,
-    ...userWorkflows,
-    ...builtins,
-  ]);
+  return dedupeWorkflowsByEffectivePrecedence([...projectWorkflows, ...userWorkflows, ...builtins]);
 }

@@ -132,9 +132,10 @@ interface ContentTypeInfo {
   hasCaptions: boolean;
 }
 
-function getCaptionQualityOverall(
-  result: Awaited<ReturnType<typeof rateCaptionQuality>>
-): { score: number; passed?: boolean } {
+function getCaptionQualityOverall(result: Awaited<ReturnType<typeof rateCaptionQuality>>): {
+  score: number;
+  passed?: boolean;
+} {
   const overall = result.captionQuality.overall;
   if (typeof overall === 'number') {
     return { score: overall };

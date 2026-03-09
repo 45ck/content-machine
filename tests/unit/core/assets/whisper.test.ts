@@ -46,8 +46,8 @@ describe('whisper asset paths', () => {
 
   it('falls back to global then legacy dirs', async () => {
     const { existsSync } = await import('node:fs');
-    (existsSync as unknown as ReturnType<typeof vi.fn>).mockImplementation((p: string) =>
-      String(p) === globalDir
+    (existsSync as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+      (p: string) => String(p) === globalDir
     );
 
     const { resolveWhisperDir } = await import('../../../../src/core/assets/whisper');
@@ -57,8 +57,8 @@ describe('whisper asset paths', () => {
 
   it('uses legacy dir when global is missing', async () => {
     const { existsSync } = await import('node:fs');
-    (existsSync as unknown as ReturnType<typeof vi.fn>).mockImplementation((p: string) =>
-      String(p) === legacyDir
+    (existsSync as unknown as ReturnType<typeof vi.fn>).mockImplementation(
+      (p: string) => String(p) === legacyDir
     );
 
     const { resolveWhisperDir } = await import('../../../../src/core/assets/whisper');
@@ -101,10 +101,12 @@ describe('whisper asset paths', () => {
     expect(status.modelPresent).toBe(true);
     expect(status.binaryPresent).toBe(true);
     expect(status.ready).toBe(true);
-    expect(status.fix).toBe(buildWhisperInstallFix({
-      model: 'base',
-      dir: whisperDir,
-      version: '1.7.4',
-    }));
+    expect(status.fix).toBe(
+      buildWhisperInstallFix({
+        model: 'base',
+        dir: whisperDir,
+        version: '1.7.4',
+      })
+    );
   });
 });

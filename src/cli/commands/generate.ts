@@ -575,7 +575,9 @@ function validateMediaAdapterSelection(params: {
       status: 'fail',
       code: 'INVALID_ARGUMENT',
       detail: `Adapter "${adapterName}" does not support ${capability}`,
-      fix: `Choose an adapter that supports ${capability}. Available adapters: ${Array.from(availableAdapters.entries())
+      fix: `Choose an adapter that supports ${capability}. Available adapters: ${Array.from(
+        availableAdapters.entries()
+      )
         .filter(([, info]) => info.capabilities.has(capability))
         .map(([name]) => name)
         .join(', ')}`,

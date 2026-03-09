@@ -51,7 +51,8 @@ describe('V&V: visual asset bundling', () => {
   });
 
   it('leaves data URL image scenes untouched', () => {
-    const dataUrl = 'data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http://www.w3.org/2000/svg%22%20/%3E';
+    const dataUrl =
+      'data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http://www.w3.org/2000/svg%22%20/%3E';
     const visuals: VisualsOutputInput = {
       schemaVersion: VISUALS_SCHEMA_VERSION,
       scenes: [

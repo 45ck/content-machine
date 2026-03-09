@@ -186,8 +186,12 @@ const SceneMedia: React.FC<{
   const zoomEnd = motion === 'kenburns' ? (isMockCard ? 1.24 : 1.14) : zoomStart;
   const baseScale = isStatic ? 1 : interpolate(t, [0, 1], [zoomStart, zoomEnd]);
   const scale = isMockCard ? baseScale + pulse * 0.018 : baseScale;
-  const translateX = isStatic ? 0 : interpolate(t, [0, 1], [0, -panX]) + (isMockCard ? pulse * 1.2 : 0);
-  const translateY = isStatic ? 0 : interpolate(t, [0, 1], [0, -panY]) + (isMockCard ? Math.cos(frame / 22) * 1.1 : 0);
+  const translateX = isStatic
+    ? 0
+    : interpolate(t, [0, 1], [0, -panX]) + (isMockCard ? pulse * 1.2 : 0);
+  const translateY = isStatic
+    ? 0
+    : interpolate(t, [0, 1], [0, -panY]) + (isMockCard ? Math.cos(frame / 22) * 1.1 : 0);
   const rotate = isStatic
     ? 0
     : interpolate(

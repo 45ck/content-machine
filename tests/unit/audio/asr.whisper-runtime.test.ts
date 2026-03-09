@@ -31,7 +31,10 @@ describe('audio ASR whisper runtime', () => {
   const previousWhisperDir = process.env.CM_WHISPER_DIR;
   const whisperDir = path.join(process.cwd(), 'tests', '.tmp', 'whisper-runtime');
   const modelPath = path.join(whisperDir, 'ggml-base.bin');
-  const legacyBinaryPath = path.join(whisperDir, process.platform === 'win32' ? 'main.exe' : 'main');
+  const legacyBinaryPath = path.join(
+    whisperDir,
+    process.platform === 'win32' ? 'main.exe' : 'main'
+  );
 
   beforeEach(() => {
     vi.clearAllMocks();

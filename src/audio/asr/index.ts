@@ -13,10 +13,7 @@ import { postProcessASRWordsWithStats } from './post-processor';
 import type { Language, WhisperModel } from '@remotion/install-whisper-cpp';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
-import {
-  getWhisperRuntimeStatus,
-  resolveWhisperDir,
-} from '../../core/assets/whisper';
+import { getWhisperRuntimeStatus, resolveWhisperDir } from '../../core/assets/whisper';
 import { execFfmpeg, execFfprobe } from '../../core/video/ffmpeg';
 
 // Re-export post-processor for direct use
@@ -108,7 +105,9 @@ function isMissingWhisperRuntimeError(error: unknown): boolean {
     return error.code === 'ENOENT' || error.code === 'ENOTDIR' || error.errno === -2;
   }
   const message = error instanceof Error ? error.message : String(error);
-  return message.includes('ENOENT') || message.includes('whisper-cli') || message.includes('main.exe');
+  return (
+    message.includes('ENOENT') || message.includes('whisper-cli') || message.includes('main.exe')
+  );
 }
 
 function createWhisperDependencyError(params: {
