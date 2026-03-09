@@ -6,9 +6,14 @@ import type { SearchToolOptions } from './types';
 class TestBaseTool extends BaseResearchTool<{ items: string[] }, string> {
   readonly source = 'web' as const;
   readonly name = 'Test Tool';
+  available = true;
 
   readTotalCount(response: { items: string[] }, hitsLength: number): number {
     return this.getTotalCount(response, hitsLength);
+  }
+
+  override isAvailable(): boolean {
+    return this.available;
   }
 
   protected buildUrl(query: string, _limit: number, _options: SearchToolOptions): string {
@@ -55,5 +60,16 @@ describe('BaseResearchTool', () => {
     expect(result.totalFound).toBe(3);
     expect(result.evidence).toHaveLength(3);
     expect(tool.readTotalCount({ items: ['only'] }, 1)).toBe(1);
+  });
+
+  it('uses the default unavailable message when the tool is unavailable', async () => {
+    const tool = new TestBaseTool();
+    tool.available = false;
+
+    const result = await tool.search('redis');
+
+    expect(result.success).toBe(false);
+    expect(result.error).toBe('Test Tool is not available');
+    expect(result.searchTimeMs).toBeGreaterThan(0);
   });
 });
