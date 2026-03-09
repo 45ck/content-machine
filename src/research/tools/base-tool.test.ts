@@ -7,6 +7,10 @@ class TestBaseTool extends BaseResearchTool<{ items: string[] }, string> {
   readonly source = 'web' as const;
   readonly name = 'Test Tool';
 
+  readTotalCount(response: { items: string[] }, hitsLength: number): number {
+    return this.getTotalCount(response, hitsLength);
+  }
+
   protected buildUrl(query: string, _limit: number, _options: SearchToolOptions): string {
     return `https://example.com/search?q=${encodeURIComponent(query)}`;
   }
@@ -50,5 +54,6 @@ describe('BaseResearchTool', () => {
     expect(result.success).toBe(true);
     expect(result.totalFound).toBe(3);
     expect(result.evidence).toHaveLength(3);
+    expect(tool.readTotalCount({ items: ['only'] }, 1)).toBe(1);
   });
 });
