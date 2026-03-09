@@ -689,6 +689,8 @@ describe('cli generate command', () => {
       [
         'Redis',
         '--preflight',
+        '--pipeline',
+        'standard',
         '--visuals-motion-strategy',
         'veo',
         '--media-veo-adapter',
@@ -761,6 +763,8 @@ describe('cli generate command', () => {
       [
         'Redis',
         '--preflight',
+        '--pipeline',
+        'standard',
         '--visuals',
         'visuals.json',
         '--media-veo-adapter',
