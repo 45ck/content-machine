@@ -81,6 +81,7 @@ export const EvaluationCheckResultSchema = z.object({
   passed: z.boolean(),
   skipped: z.boolean(),
   error: z.string().optional(),
+  fix: z.string().optional(),
   summary: z.string(),
   durationMs: z.number(),
   detail: z.unknown().optional(),

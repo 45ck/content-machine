@@ -22,6 +22,7 @@ import { FlowConsistencyAnalyzer, runFlowConsistencyGate } from '../validate/flo
 import { DnsmosAnalyzer } from '../score/dnsmos';
 import { getValidateProfile } from '../validate/profiles';
 import { analyzeFrameBounds, runFrameBoundsGate } from '../validate/frame-bounds';
+import { CMError } from '../core/errors';
 
 export interface EvaluateVideoOptions {
   videoPath: string;
@@ -62,11 +63,14 @@ async function runCheck(
       detail: result.detail,
     };
   } catch (err) {
+    const fix =
+      err instanceof CMError && typeof err.context?.fix === 'string' ? err.context.fix : undefined;
     return {
       checkId,
       passed: false,
       skipped: false,
       error: err instanceof Error ? err.message : String(err),
+      fix,
       summary: `Error: ${err instanceof Error ? err.message : String(err)}`,
       durationMs: Date.now() - start,
     };

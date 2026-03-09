@@ -339,7 +339,11 @@ describe('evaluateVideo', () => {
   it('reports missing Whisper as a failed rate check instead of crashing evaluation', async () => {
     const { rateSyncQuality } = await import('../score/sync-rater');
     (rateSyncQuality as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
-      new CMError('DEPENDENCY_MISSING', 'Whisper runtime is not installed. Run: cm setup whisper --model base')
+      new CMError(
+        'DEPENDENCY_MISSING',
+        'Whisper runtime is not installed. Run: cm setup whisper --model base',
+        { fix: 'Run: cm setup whisper --model base' }
+      )
     );
 
     const report = await evaluateVideo({
@@ -350,6 +354,7 @@ describe('evaluateVideo', () => {
     const rateCheck = report.checks.find((c) => c.checkId === 'rate');
     expect(rateCheck?.passed).toBe(false);
     expect(rateCheck?.error).toContain('Whisper runtime is not installed');
+    expect(rateCheck?.fix).toContain('cm setup whisper --model base');
     expect(report.passed).toBe(false);
   });
 

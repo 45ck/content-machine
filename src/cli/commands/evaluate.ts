@@ -235,6 +235,9 @@ function printHumanReadableReport(
     const label = checkLabel(c);
     const suffix = c.skipped ? `(${c.summary})` : c.error ? `(${c.error})` : `(${c.summary})`;
     writeStderrLine(`${icon} ${name} ${label}  ${suffix}`);
+    if (c.fix) {
+      writeStderrLine(`  Fix: ${c.fix}`);
+    }
   }
 
   const activeChecks = report.checks.filter((c) => !c.skipped);

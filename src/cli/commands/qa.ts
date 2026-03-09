@@ -141,6 +141,11 @@ export const qaCommand = new Command('qa')
         }
         writeStderrLine(`Overall: ${passed ? 'PASS' : 'FAIL'}`);
         writeStderrLine(`Evaluate report: ${options.output}`);
+        for (const check of evaluateReport.checks) {
+          if (!check.passed && !check.skipped && check.fix) {
+            writeStderrLine(`Fix (${check.checkId}): ${check.fix}`);
+          }
+        }
         if (!options.skipScore) {
           writeStderrLine(`Score report: ${options.scoreOutput}`);
         }
