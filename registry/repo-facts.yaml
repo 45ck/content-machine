@@ -254,6 +254,8 @@ facts:
         required: false
       - name: CM_PYTHON
         required: false
+      - name: CM_PRETTIER_CHECK_FILES
+        required: false
       - name: CM_FFMPEG
         required: false
       - name: CM_FFPROBE
