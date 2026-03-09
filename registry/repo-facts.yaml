@@ -166,6 +166,20 @@ facts:
         required: false
       - name: GEMINI_API_KEY
         required: false
+      - name: GOOGLE_CLOUD_PROJECT
+        required: false
+      - name: GOOGLE_CLOUD_LOCATION
+        required: false
+      - name: GOOGLE_CLOUD_ACCESS_TOKEN
+        required: false
+      - name: GOOGLE_APPLICATION_CREDENTIALS
+        required: false
+      - name: GCLOUD_ACCESS_TOKEN
+        required: false
+      - name: CLOUDSDK_AUTH_ACCESS_TOKEN
+        required: false
+      - name: GCE_METADATA_HOST
+        required: false
       - name: REDDIT_CLIENT_ID
         required: false
       - name: REDDIT_CLIENT_SECRET
