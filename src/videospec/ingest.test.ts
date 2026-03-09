@@ -11,32 +11,25 @@ function sha256Hex(value: string): string {
 }
 
 async function makeDummyYtDlp(binDir: string): Promise<string> {
-  const p = join(binDir, 'yt-dlp-dummy.sh');
-  const script = `#!/usr/bin/env bash
-set -euo pipefail
+  const p = join(binDir, 'yt-dlp-dummy.cjs');
+  const script = `const fs = require('node:fs');
+const path = require('node:path');
 
-if [[ "\${1:-}" == "--version" ]]; then
-  echo "dummy"
-  exit 0
-fi
+const args = process.argv.slice(2);
+if (args[0] === '--version') {
+  console.log('dummy');
+  process.exit(0);
+}
 
-out=""
-for ((i=1; i<=$#; i++)); do
-  arg="\${!i}"
-  if [[ "$arg" == "-o" ]]; then
-    j=$((i+1))
-    out="\${!j}"
-  fi
-done
+const outIndex = args.indexOf('-o');
+if (outIndex === -1 || !args[outIndex + 1]) {
+  console.error('missing -o');
+  process.exit(2);
+}
 
-if [[ -z "$out" ]]; then
-  echo "missing -o" >&2
-  exit 2
-fi
-
-mkdir -p "$(dirname "$out")"
-printf "dummy-video" > "$out"
-exit 0
+const out = args[outIndex + 1];
+fs.mkdirSync(path.dirname(out), { recursive: true });
+fs.writeFileSync(out, 'dummy-video');
 `;
   await writeFile(p, script, 'utf-8');
   await chmod(p, 0o755);

@@ -374,7 +374,7 @@ describe('rateSyncQuality (runtime)', () => {
     analyzeBurnedInCaptionQualityMock.mockReturnValue(makePassingCaptionQualityReport());
     createWorkerMock.mockResolvedValue({
       recognize: vi.fn().mockResolvedValue({
-        data: { text: 'one two three four five six seven eight nine ten', confidence: 95 },
+        data: { text: 'one two three four five six seven eight nine eleven', confidence: 95 },
       }),
       terminate: vi.fn().mockResolvedValue(undefined),
       setParameters: vi.fn().mockResolvedValue(undefined),
@@ -383,7 +383,7 @@ describe('rateSyncQuality (runtime)', () => {
     transcribeAudioMock.mockResolvedValue({
       engine: 'whisper-cpp',
       duration: 4,
-      text: 'one two three four five six seven eight nine ten',
+      text: 'one two three four five six seven eight nine eleven',
       words: [
         { word: 'one', start: 0.1, end: 0.2, confidence: 0.95 },
         { word: 'two', start: 0.2, end: 0.3, confidence: 0.95 },
@@ -394,7 +394,7 @@ describe('rateSyncQuality (runtime)', () => {
         { word: 'seven', start: 0.5, end: 0.6, confidence: 0.95 },
         { word: 'eight', start: 0.55, end: 0.65, confidence: 0.95 },
         { word: 'nine', start: 0.6, end: 0.7, confidence: 0.95 },
-        { word: 'ten', start: 3.0, end: 3.1, confidence: 0.95 },
+        { word: 'eleven', start: 3.0, end: 3.1, confidence: 0.95 },
       ],
     });
 

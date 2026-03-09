@@ -8,7 +8,9 @@ while true; do
   output_file="$(mktemp)"
   status=0
 
-  if ! npx --no-install vitest run --coverage "$@" >"$output_file" 2>&1; then
+  if npx --no-install vitest run --coverage "$@" >"$output_file" 2>&1; then
+    status=0
+  else
     status=$?
   fi
 

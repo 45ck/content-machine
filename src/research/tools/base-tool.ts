@@ -93,7 +93,7 @@ export abstract class BaseResearchTool<TResponse, THit> implements ResearchTool 
         success: true,
         evidence,
         totalFound: this.getTotalCount(data, hits.length),
-        searchTimeMs: Date.now() - startTime,
+        searchTimeMs: Math.max(1, Date.now() - startTime),
       };
     } catch (error) {
       return this.createErrorResult(
@@ -111,7 +111,7 @@ export abstract class BaseResearchTool<TResponse, THit> implements ResearchTool 
       success: false,
       evidence: [],
       totalFound: 0,
-      searchTimeMs: Date.now() - startTime,
+      searchTimeMs: Math.max(1, Date.now() - startTime),
       error: errorMessage,
     };
   }

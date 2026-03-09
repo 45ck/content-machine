@@ -1,5 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+vi.mock('node:fs/promises', () => ({
+  mkdir: vi.fn(),
+}));
+
+vi.mock('../../../../src/core/assets/whisper-install', () => ({
+  ensureWhisperExecutableInstalled: vi.fn(),
+}));
+
 vi.mock('../../../../src/cli/utils', () => ({
   handleCommandError: vi.fn((error: unknown) => {
     throw error;
@@ -42,13 +50,18 @@ describe('cli setup command', () => {
       { from: 'user' }
     );
 
-    const { downloadWhisperModel, installWhisperCpp } =
-      await import('@remotion/install-whisper-cpp');
+    const { downloadWhisperModel } = await import('@remotion/install-whisper-cpp');
+    const { mkdir } = await import('node:fs/promises');
+    const { ensureWhisperExecutableInstalled } =
+      await import('../../../../src/core/assets/whisper-install');
 
+    expect(mkdir).toHaveBeenCalledWith(expect.any(String), { recursive: true });
+    expect(ensureWhisperExecutableInstalled).toHaveBeenCalledWith(
+      expect.objectContaining({ version: '1.5.5' })
+    );
     expect(downloadWhisperModel).toHaveBeenCalledWith(
       expect.objectContaining({ model: 'large-v3' })
     );
-    expect(installWhisperCpp).toHaveBeenCalledWith(expect.objectContaining({ version: '1.5.5' }));
 
     const payload = writeJsonSpy.mock.calls[0]?.[0];
     expect(payload.command).toBe('setup:whisper');

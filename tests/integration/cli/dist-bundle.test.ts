@@ -57,17 +57,28 @@ describe('dist CLI bundle', () => {
   it('runs `cm --help` without ESM require errors', async () => {
     const repoRoot = getRepoRoot();
     const npmCmd = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+    const buildEnv = {
+      ...process.env,
+      NODE_ENV: 'test',
+      ...(process.platform === 'win32'
+        ? { npm_config_script_shell: 'C:\\Program Files\\Git\\bin\\bash.exe' }
+        : {}),
+    };
+    const buildCommand =
+      process.platform === 'win32' ? (process.env['ComSpec'] ?? 'cmd.exe') : npmCmd;
+    const buildArgs =
+      process.platform === 'win32' ? ['/d', '/s', '/c', 'npm run build'] : ['run', 'build'];
 
-    const build = await runCommand(npmCmd, ['run', 'build'], {
+    const build = await runCommand(buildCommand, buildArgs, {
       cwd: repoRoot,
-      env: { ...process.env, NODE_ENV: 'test' },
+      env: buildEnv,
       timeoutMs: 120_000,
     });
     expect(build.code).toBe(0);
 
     const run = await runCommand(process.execPath, ['dist/cli/index.cjs', '--help'], {
       cwd: repoRoot,
-      env: { ...process.env, NODE_ENV: 'test' },
+      env: buildEnv,
       timeoutMs: 60_000,
     });
 
@@ -98,8 +109,7 @@ describe('dist CLI bundle', () => {
     );
 
     const env = {
-      ...process.env,
-      NODE_ENV: 'test',
+      ...buildEnv,
       CM_LAB_ROOT: join(base, 'lab-root'),
       CM_FEEDBACK_STORE_PATH: join(base, 'feedback', 'feedback.jsonl'),
     };

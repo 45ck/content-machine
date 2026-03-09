@@ -325,8 +325,8 @@ describe('Sync Schema Validation', () => {
     it('caps exact matches by max match distance', () => {
       const ocrWords = [{ word: 'complex', timestamps: [1.0] }];
       const asrResult = {
-        words: [{ word: 'complex', start: 3.3, end: 3.6 }],
-        duration: 6,
+        words: [{ word: 'complex', start: 6.3, end: 6.6 }],
+        duration: 10,
         text: 'complex',
         engine: 'whisper-cpp' as const,
       };

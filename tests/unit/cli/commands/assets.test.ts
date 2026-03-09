@@ -22,6 +22,10 @@ vi.mock('../../../../src/core/assets/requirements', () => ({
   ]),
 }));
 
+vi.mock('../../../../src/core/assets/whisper-install', () => ({
+  ensureWhisperExecutableInstalled: vi.fn(),
+}));
+
 vi.mock('@remotion/install-whisper-cpp', () => ({
   downloadWhisperModel: vi.fn(),
   installWhisperCpp: vi.fn(),

@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
@@ -20,6 +20,8 @@ export function resolveWhisperDir(cwd: string = process.cwd()): string {
   const globalDir = path.resolve(os.homedir(), '.cm', 'assets', 'whisper');
   const legacyDir = path.resolve(cwd, '.cache', 'whisper');
 
+  if (resolveWhisperExecutablePath(globalDir)) return globalDir;
+  if (resolveWhisperExecutablePath(legacyDir)) return legacyDir;
   if (existsSync(globalDir)) return globalDir;
   if (existsSync(legacyDir)) return legacyDir;
   return globalDir;
@@ -49,10 +51,28 @@ export function resolveWhisperExecutableCandidates(dir: string): string[] {
   ];
 }
 
+function isRunnableWhisperExecutable(candidate: string): boolean {
+  if (!existsSync(candidate)) return false;
+
+  try {
+    const stat = statSync(candidate);
+    if (!stat.isFile() || stat.size <= 0) return false;
+
+    if (process.platform !== 'win32') {
+      return true;
+    }
+
+    const header = readFileSync(candidate).subarray(0, 2).toString('ascii');
+    return header === 'MZ';
+  } catch {
+    return false;
+  }
+}
+
 /** Return the first runnable Whisper executable path, if present. */
 export function resolveWhisperExecutablePath(dir: string): string | null {
   const candidates = resolveWhisperExecutableCandidates(dir);
-  return candidates.find((candidate) => existsSync(candidate)) ?? null;
+  return candidates.find((candidate) => isRunnableWhisperExecutable(candidate)) ?? null;
 }
 
 /** Build the canonical `cm setup whisper ...` fix command for missing runtime assets. */

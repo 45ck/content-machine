@@ -360,6 +360,16 @@ function extractWordAppearances(
         if (parts >= 2 && merged.length >= 5) {
           candidates.add(merged);
         }
+
+        // OCR can drop the boundary character when a word is split across 3 chunks
+        // ("Dist rib ute" -> "tribute"). Preserve that bridged suffix as a fallback.
+        if (parts >= 2 && i > 0) {
+          const prior = base[i - 1] ?? '';
+          const boundaryMerged = `${prior.slice(-1)}${merged}`;
+          if (boundaryMerged.length >= 5) {
+            candidates.add(boundaryMerged);
+          }
+        }
       }
     }
 
@@ -549,8 +559,9 @@ function matchWords(
       continue;
     }
 
-    // Cap match distance: a word matched >5s from speech is background text, not a caption
-    const MAX_MATCH_DISTANCE_S = 2;
+    // Cap match distance: a word matched >5s from speech is background text, not a caption.
+    // Keep this above the outlier cutoff so sporadic-error detection can still observe rare bad matches.
+    const MAX_MATCH_DISTANCE_S = 5;
     if (best.timeDiff > MAX_MATCH_DISTANCE_S) continue;
 
     const driftMs = (bestOcrTimestamp - asrWord.start) * 1000;

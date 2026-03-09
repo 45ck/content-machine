@@ -14,6 +14,7 @@ import type { Language, WhisperModel } from '@remotion/install-whisper-cpp';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 import { getWhisperRuntimeStatus, resolveWhisperDir } from '../../core/assets/whisper';
+import { ensureWhisperExecutableInstalled } from '../../core/assets/whisper-install';
 import { execFfmpeg, execFfprobe } from '../../core/video/ffmpeg';
 
 // Re-export post-processor for direct use
@@ -436,19 +437,18 @@ async function transcribeWithWhisper(
       return null;
     }
   } else {
-    // Ensure whisper model is installed
+    await ensureWhisperExecutableInstalled({
+      installer: whisper,
+      dir: whisperFolder,
+      version: whisperCppVersion,
+    });
+    log.debug({ whisperFolder, whisperCppVersion }, 'Whisper executable ready');
+
     await whisper.downloadWhisperModel({
       model,
       folder: whisperFolder,
     });
     log.debug({ model, whisperFolder }, 'Whisper model ready');
-
-    // Ensure whisper executable is installed
-    await whisper.installWhisperCpp({
-      to: whisperFolder,
-      version: whisperCppVersion,
-    });
-    log.debug({ whisperFolder, whisperCppVersion }, 'Whisper executable ready');
     runtimeStatus = getWhisperRuntimeStatus({
       model,
       dir: whisperFolderAbs,

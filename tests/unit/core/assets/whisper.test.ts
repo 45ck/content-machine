@@ -3,6 +3,8 @@ import path from 'node:path';
 
 vi.mock('node:fs', () => ({
   existsSync: vi.fn(),
+  statSync: vi.fn(),
+  readFileSync: vi.fn(),
 }));
 
 vi.mock('node:os', async (importOriginal) => {
@@ -66,8 +68,35 @@ describe('whisper asset paths', () => {
     expect(dir).toBe(legacyDir);
   });
 
+  it('prefers a valid legacy runtime when the global dir exists but has an invalid binary', async () => {
+    const { existsSync, statSync, readFileSync } = await import('node:fs');
+    const globalBinary = path.join(globalDir, process.platform === 'win32' ? 'main.exe' : 'main');
+    const legacyBinary = path.join(legacyDir, process.platform === 'win32' ? 'main.exe' : 'main');
+
+    (existsSync as unknown as ReturnType<typeof vi.fn>).mockImplementation((p: string) => {
+      const value = String(p);
+      return (
+        value === globalDir ||
+        value === legacyDir ||
+        value === globalBinary ||
+        value === legacyBinary
+      );
+    });
+    (statSync as unknown as ReturnType<typeof vi.fn>).mockImplementation((p: string) => ({
+      isFile: () => !String(p).endsWith('whisper'),
+      size: String(p) === globalBinary ? 4 : 4096,
+    }));
+    (readFileSync as unknown as ReturnType<typeof vi.fn>).mockImplementation((p: string) =>
+      Buffer.from(String(p) === globalBinary ? 'stub' : 'MZ')
+    );
+
+    const { resolveWhisperDir } = await import('../../../../src/core/assets/whisper');
+    const dir = resolveWhisperDir('/work');
+    expect(dir).toBe(legacyDir);
+  });
+
   it('resolves executable candidates and runtime status', async () => {
-    const { existsSync } = await import('node:fs');
+    const { existsSync, statSync, readFileSync } = await import('node:fs');
     const whisperDir = path.resolve(process.cwd(), 'tests', '.tmp', 'whisper-helper');
     const executablePath = path.join(
       whisperDir,
@@ -80,6 +109,11 @@ describe('whisper asset paths', () => {
       const value = String(p);
       return value === modelPath || value === executablePath;
     });
+    (statSync as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+      isFile: () => true,
+      size: 4096,
+    });
+    (readFileSync as unknown as ReturnType<typeof vi.fn>).mockReturnValue(Buffer.from('MZ'));
 
     const {
       resolveWhisperExecutableCandidates,
@@ -108,5 +142,44 @@ describe('whisper asset paths', () => {
         version: '1.7.4',
       })
     );
+  });
+
+  it('ignores invalid Windows exe stubs when resolving runtime status', async () => {
+    const { existsSync, statSync, readFileSync } = await import('node:fs');
+    const whisperDir = path.resolve(process.cwd(), 'tests', '.tmp', 'whisper-helper');
+    const executablePath = path.join(
+      whisperDir,
+      process.platform === 'win32' ? 'main.exe' : 'main'
+    );
+    const modelPath = path.join(whisperDir, 'ggml-base.bin');
+
+    (existsSync as unknown as ReturnType<typeof vi.fn>).mockImplementation((p: string) => {
+      const value = String(p);
+      return value === modelPath || value === executablePath;
+    });
+    (statSync as unknown as ReturnType<typeof vi.fn>).mockReturnValue({
+      isFile: () => true,
+      size: 4,
+    });
+    (readFileSync as unknown as ReturnType<typeof vi.fn>).mockReturnValue(Buffer.from('stub'));
+
+    const { resolveWhisperExecutablePath, getWhisperRuntimeStatus } =
+      await import('../../../../src/core/assets/whisper');
+
+    if (process.platform === 'win32') {
+      expect(resolveWhisperExecutablePath(whisperDir)).toBeNull();
+    } else {
+      expect(resolveWhisperExecutablePath(whisperDir)).toBe(executablePath);
+    }
+
+    const status = getWhisperRuntimeStatus({
+      model: 'base',
+      dir: whisperDir,
+      version: '1.7.4',
+    });
+
+    expect(status.modelPresent).toBe(true);
+    expect(status.binaryPresent).toBe(process.platform !== 'win32');
+    expect(status.ready).toBe(process.platform !== 'win32');
   });
 });

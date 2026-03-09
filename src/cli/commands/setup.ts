@@ -2,12 +2,14 @@
  * Setup command - download optional runtime dependencies
  */
 import { Command } from 'commander';
+import { mkdir } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
 import { getCliRuntime } from '../runtime';
 import { handleCommandError, parseWhisperModel } from '../utils';
 import { CMError } from '../../core/errors';
 import { resolveWhisperDir } from '../../core/assets/whisper';
+import { ensureWhisperExecutableInstalled } from '../../core/assets/whisper-install';
 import { expandTilde } from '../paths';
 
 export const setupCommand = new Command('setup')
@@ -31,6 +33,16 @@ export const setupCommand = new Command('setup')
           const version = String(options.version);
 
           const whisper = await import('@remotion/install-whisper-cpp');
+          await mkdir(folder, { recursive: true });
+
+          if (!runtime.json) {
+            writeStderrLine(`Installing whisper.cpp binaries (version: ${version})`);
+          }
+          await ensureWhisperExecutableInstalled({
+            installer: whisper,
+            dir: folder,
+            version,
+          });
 
           if (!runtime.json) {
             writeStderrLine(`Downloading Whisper model: ${model}`);
@@ -39,11 +51,6 @@ export const setupCommand = new Command('setup')
             model: model === 'large' ? 'large-v3' : model,
             folder,
           });
-
-          if (!runtime.json) {
-            writeStderrLine(`Installing whisper.cpp binaries (version: ${version})`);
-          }
-          await whisper.installWhisperCpp({ to: folder, version });
 
           if (runtime.json) {
             writeJsonEnvelope(

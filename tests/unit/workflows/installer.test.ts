@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 import { CMError, NotFoundError, SchemaError } from '../../../src/core/errors';
+import { join, resolve } from 'node:path';
 
 vi.mock('fs', () => ({
   existsSync: vi.fn(),
@@ -23,6 +24,10 @@ vi.mock('adm-zip', () => ({
 async function loadModule() {
   return import('../../../src/workflows/installer');
 }
+
+const sourceDir = resolve('/source');
+const destDir = resolve('/dest');
+const installDir = join(destDir, 'demo');
 
 describe('workflows installer', () => {
   beforeEach(() => {
@@ -100,7 +105,7 @@ describe('workflows installer', () => {
     (existsSync as unknown as ReturnType<typeof vi.fn>).mockImplementation((p: string) => {
       const str = String(p);
       if (str.includes('workflow.json')) return false;
-      return str.includes('/source');
+      return str === sourceDir;
     });
     (stat as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       isFile: () => false,
@@ -123,7 +128,7 @@ describe('workflows installer', () => {
 
     (existsSync as unknown as ReturnType<typeof vi.fn>).mockImplementation((p: string) => {
       const str = String(p);
-      return str.includes('/source') || str.includes('workflow.json');
+      return str === sourceDir || str.includes('workflow.json');
     });
     (stat as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       isFile: () => false,
@@ -145,7 +150,8 @@ describe('workflows installer', () => {
     const { stat, readdir, readFile } = await import('fs/promises');
 
     (existsSync as unknown as ReturnType<typeof vi.fn>).mockImplementation((p: string) => {
-      return String(p).includes('/source') || String(p).includes('workflow.json');
+      const str = String(p);
+      return str === sourceDir || str.includes('workflow.json');
     });
     (stat as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       isFile: () => false,
@@ -167,7 +173,8 @@ describe('workflows installer', () => {
     const { stat, readdir, readFile } = await import('fs/promises');
 
     (existsSync as unknown as ReturnType<typeof vi.fn>).mockImplementation((p: string) => {
-      return String(p).includes('/source') || String(p).includes('workflow.json');
+      const str = String(p);
+      return str === sourceDir || str.includes('workflow.json');
     });
     (stat as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       isFile: () => false,
@@ -192,9 +199,7 @@ describe('workflows installer', () => {
 
     (existsSync as unknown as ReturnType<typeof vi.fn>).mockImplementation((p: string) => {
       return (
-        String(p).includes('/source') ||
-        String(p).includes('workflow.json') ||
-        String(p).includes('/dest/demo')
+        String(p) === sourceDir || String(p).includes('workflow.json') || String(p) === installDir
       );
     });
     (stat as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
@@ -215,9 +220,9 @@ describe('workflows installer', () => {
       force: true,
     });
 
-    expect(mkdir).toHaveBeenCalledWith('/dest', { recursive: true });
-    expect(rm).toHaveBeenCalledWith('/dest/demo', { recursive: true, force: true });
+    expect(mkdir).toHaveBeenCalledWith(destDir, { recursive: true });
+    expect(rm).toHaveBeenCalledWith(installDir, { recursive: true, force: true });
     expect(cp).toHaveBeenCalled();
-    expect(result).toEqual({ id: 'demo', installPath: '/dest/demo' });
+    expect(result).toEqual({ id: 'demo', installPath: installDir });
   });
 });

@@ -5,14 +5,15 @@ import path from 'node:path';
 import { evaluateRequirements, planWhisperRequirements } from './requirements';
 
 describe('assets requirements', () => {
+  const whisperBinaryStub = process.platform === 'win32' ? Buffer.from('MZ-whisper-stub') : 'stub';
+
   it('evaluates whisper requirements as ok when model and binary exist', async () => {
     const tmpDir = mkdtempSync(path.join(os.tmpdir(), 'cm-whisper-'));
     try {
       writeFileSync(path.join(tmpDir, 'ggml-base.bin'), 'stub', 'utf-8');
       writeFileSync(
         path.join(tmpDir, process.platform === 'win32' ? 'main.exe' : 'main'),
-        'stub',
-        'utf-8'
+        whisperBinaryStub
       );
 
       const requirements = planWhisperRequirements({ required: true, model: 'base', dir: tmpDir });
@@ -51,8 +52,7 @@ describe('assets requirements', () => {
       mkdirSync(binDir, { recursive: true });
       writeFileSync(
         path.join(binDir, process.platform === 'win32' ? 'whisper-cli.exe' : 'whisper-cli'),
-        'stub',
-        'utf-8'
+        whisperBinaryStub
       );
 
       const requirements = planWhisperRequirements({ required: true, model: 'base', dir: tmpDir });

@@ -9,6 +9,7 @@ import { handleCommandError, parseWhisperModel } from '../utils';
 import { loadConfig } from '../../core/config';
 import { CMError } from '../../core/errors';
 import { resolveWhisperDir } from '../../core/assets/whisper';
+import { ensureWhisperExecutableInstalled } from '../../core/assets/whisper-install';
 import { evaluateRequirements, planWhisperRequirements } from '../../core/assets/requirements';
 import { expandTilde } from '../paths';
 
@@ -146,17 +147,21 @@ export const assetsCommand = new Command('assets')
               const whisper = await import('@remotion/install-whisper-cpp');
 
               if (!runtime.json) {
+                writeStderrLine(`Installing whisper.cpp binaries (version: ${version})`);
+              }
+              await ensureWhisperExecutableInstalled({
+                installer: whisper,
+                dir,
+                version,
+              });
+
+              if (!runtime.json) {
                 writeStderrLine(`Downloading Whisper model: ${model}`);
               }
               await whisper.downloadWhisperModel({
                 model: model === 'large' ? 'large-v3' : model,
                 folder: dir,
               });
-
-              if (!runtime.json) {
-                writeStderrLine(`Installing whisper.cpp binaries (version: ${version})`);
-              }
-              await whisper.installWhisperCpp({ to: dir, version });
 
               if (runtime.json) {
                 writeJsonEnvelope(

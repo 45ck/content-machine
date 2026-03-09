@@ -112,7 +112,7 @@ export class ResearchOrchestrator {
       output: validated,
       errors: context.errors,
       timingMs: {
-        total: Date.now() - startTime,
+        total: Math.max(1, Date.now() - startTime),
         perSource: context.timingPerSource,
         angleGeneration: angleResult.timeMs,
       },
@@ -175,10 +175,10 @@ export class ResearchOrchestrator {
     const sourceStart = Date.now();
     try {
       const result = await tool.search(query, options);
-      timing[source] = Date.now() - sourceStart;
+      timing[source] = Math.max(1, Date.now() - sourceStart);
       return { source, result };
     } catch (error) {
-      timing[source] = Date.now() - sourceStart;
+      timing[source] = Math.max(1, Date.now() - sourceStart);
       return {
         source,
         result: {
@@ -214,13 +214,13 @@ export class ResearchOrchestrator {
     const angleStart = Date.now();
     try {
       const angles = await this.generateContentAngles(evidence);
-      return { angles, timeMs: Date.now() - angleStart };
+      return { angles, timeMs: Math.max(1, Date.now() - angleStart) };
     } catch (error) {
       context.errors.push({
         source: 'web' as ResearchSource,
         error: `Angle generation failed: ${error instanceof Error ? error.message : String(error)}`,
       });
-      return { timeMs: Date.now() - angleStart };
+      return { timeMs: Math.max(1, Date.now() - angleStart) };
     }
   }
 
