@@ -114,19 +114,23 @@ def _detect_clipping(
     if peak_level_db is not None:
         stats["peakLevelDB"] = peak_level_db
 
-    # Flat factor (consecutive identical samples — indicates clipping)
+    # Flat factor (consecutive identical samples — indicates clipped plateaus)
     match = re.search(r"Flat factor:\s*([\d.]+)", stderr)
     flat_factor = _parse_optional_float(match.group(1) if match else None)
     if flat_factor is not None:
         stats["flatFactor"] = flat_factor
 
-    # Clipping ratio from peak count
-    # Samples at or above 0 dBFS indicate clipping
-    match = re.search(r"Number of Infs:\s*(\d+)", stderr)
-    infs = int(match.group(1)) if match else 0
+    # Peak-count based clipping proxy. astats reports the number of samples
+    # hitting the peak value; when the decoded signal is at/above 0 dBFS, that
+    # becomes a much better clipped-sample proxy than "Number of Infs".
+    match = re.search(r"(?:^|\n).*Peak count:\s*([-\d.]+)", stderr)
+    peak_count = _parse_optional_float(match.group(1) if match else None)
 
     if total_samples > 0:
-        stats["clippingRatio"] = infs / total_samples
+        clipped_samples = 0.0
+        if peak_level_db is not None and peak_level_db >= -0.1 and peak_count is not None:
+            clipped_samples = max(clipped_samples, peak_count)
+        stats["clippingRatio"] = max(0.0, min(1.0, clipped_samples / total_samples))
     else:
         stats["clippingRatio"] = 0.0
 
@@ -189,8 +193,8 @@ def main() -> int:
     # Clipping detection
     clipping = _detect_clipping(args.media, ffmpeg_path=args.ffmpeg_path)
     if clipping:
-        out["clippingRatio"] = clipping.get("clippingRatio", 0.0)
-        out["peakLevelDB"] = clipping.get("peakLevelDB", 0.0)
+        out["clippingRatio"] = _sanitize_metric(clipping.get("clippingRatio"), 0.0)
+        out["peakLevelDB"] = _sanitize_metric(clipping.get("peakLevelDB"), 0.0)
     else:
         out["clippingRatio"] = 0.0
         out["peakLevelDB"] = 0.0
@@ -198,7 +202,7 @@ def main() -> int:
     # SNR estimate
     snr = _snr_estimate(args.media, ffmpeg_path=args.ffmpeg_path)
     if snr is not None:
-        out["snrDB"] = snr
+        out["snrDB"] = _sanitize_metric(snr, 0.0)
     else:
         out["snrDB"] = 0.0
 

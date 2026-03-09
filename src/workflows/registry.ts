@@ -17,6 +17,8 @@ export interface ListedWorkflow {
   description?: string;
   source: WorkflowSource;
   workflowPath?: string;
+  valid: boolean;
+  error?: string;
 }
 
 export interface ListWorkflowsOptions {
@@ -28,7 +30,12 @@ export interface ListWorkflowsOptions {
 const DEFAULT_USER_DIR = join(homedir(), '.cm', 'workflows');
 const DEFAULT_PROJECT_DIR = join(process.cwd(), '.cm', 'workflows');
 
-async function readWorkflowFile(path: string): Promise<WorkflowDefinition | null> {
+interface WorkflowFileReadResult {
+  workflow?: WorkflowDefinition;
+  error?: string;
+}
+
+async function readWorkflowFile(path: string): Promise<WorkflowFileReadResult> {
   const log = createLogger({ module: 'workflows:registry' });
   try {
     const raw = await readFile(path, 'utf-8');
@@ -36,12 +43,16 @@ async function readWorkflowFile(path: string): Promise<WorkflowDefinition | null
     const parsed = WorkflowDefinitionSchema.safeParse(parsedJson);
     if (!parsed.success) {
       log.warn({ path, issues: parsed.error.issues }, 'Invalid workflow.json');
-      return null;
+      return {
+        error: 'Invalid workflow definition',
+      };
     }
-    return parsed.data;
+    return { workflow: parsed.data };
   } catch (error) {
     log.warn({ path, error }, 'Failed to read workflow.json');
-    return null;
+    return {
+      error: error instanceof Error ? error.message : 'Failed to read workflow.json',
+    };
   }
 }
 
@@ -59,15 +70,27 @@ async function listWorkflowsFromDir(
     const workflowPath = join(root, entry.name, 'workflow.json');
     if (!existsSync(workflowPath)) continue;
 
-    const workflow = await readWorkflowFile(workflowPath);
-    if (!workflow) continue;
+    const result = await readWorkflowFile(workflowPath);
+    if (!result.workflow) {
+      workflows.push({
+        id: entry.name,
+        name: entry.name,
+        description: 'Invalid workflow definition',
+        source,
+        workflowPath,
+        valid: false,
+        error: result.error ?? 'Invalid workflow definition',
+      });
+      continue;
+    }
 
     workflows.push({
-      id: workflow.id,
-      name: workflow.name,
-      description: workflow.description,
+      id: result.workflow.id,
+      name: result.workflow.name,
+      description: result.workflow.description,
       source,
       workflowPath,
+      valid: true,
     });
   }
 
@@ -98,6 +121,7 @@ export async function listWorkflows(options: ListWorkflowsOptions = {}): Promise
       name: workflow.name,
       description: workflow.description,
       source: 'builtin' as const,
+      valid: true,
     }))
     : [];
 

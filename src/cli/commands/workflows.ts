@@ -21,10 +21,17 @@ function formatWorkflowLine(entry: {
   description?: string;
   source: string;
   workflowPath?: string;
+  valid?: boolean;
+  error?: string;
 }): string {
-  const label = `${entry.id} (${entry.source})`;
+  const validity = entry.valid === false ? ', invalid' : '';
+  const label = `${entry.id} (${entry.source}${validity})`;
   const name = entry.name ? ` - ${entry.name}` : '';
-  const desc = entry.description ? `: ${entry.description}` : '';
+  const desc = entry.valid === false
+    ? `: ${entry.error ?? entry.description ?? 'Invalid workflow definition'}`
+    : entry.description
+      ? `: ${entry.description}`
+      : '';
   const path = entry.workflowPath ? ` @ ${entry.workflowPath}` : '';
   return `${label}${name}${desc}${path}`;
 }

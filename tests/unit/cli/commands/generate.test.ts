@@ -232,6 +232,7 @@ describe('cli generate command', () => {
 
     const { readInputFile } = await import('../../../../src/cli/utils');
     (readInputFile as unknown as ReturnType<typeof vi.fn>)
+      .mockReset()
       .mockResolvedValueOnce({
         schemaVersion: '1.0.0',
         reasoning: 'ok',
@@ -410,6 +411,189 @@ describe('cli generate command', () => {
     exitSpy.mockRestore();
   });
 
+  it('fails preflight for an unknown explicit media Veo adapter', async () => {
+    await configureRuntime({ json: true });
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+
+    const { readInputFile } = await import('../../../../src/cli/utils');
+    (readInputFile as unknown as ReturnType<typeof vi.fn>)
+      .mockReset()
+      .mockResolvedValueOnce({
+        schemaVersion: '1.0.0',
+        reasoning: 'ok',
+        scenes: [{ id: 'scene-1', text: 'Hello', visualDirection: 'demo' }],
+      })
+      .mockResolvedValueOnce({
+        schemaVersion: '1.1.0',
+        scenes: [
+          {
+            sceneId: 'scene-1',
+            source: 'mock',
+            assetPath: 'clip.mp4',
+            assetType: 'video',
+            duration: 1,
+          },
+        ],
+        totalAssets: 1,
+        fromUserFootage: 0,
+        fromStock: 0,
+        fallbacks: 1,
+      });
+
+    const output = await import('../../../../src/cli/output');
+    const writeJsonSpy = vi.spyOn(output, 'writeJsonEnvelope').mockImplementation(() => undefined);
+
+    const { generateCommand } = await import('../../../../src/cli/commands/generate');
+    await generateCommand.parseAsync(
+      [
+        'Redis',
+        '--preflight',
+        '--script',
+        'script.json',
+        '--visuals',
+        'visuals.json',
+        '--media-veo-adapter',
+        'typo-adapter',
+        '--output',
+        'out.mp4',
+      ],
+      { from: 'user' }
+    );
+
+    const payload = writeJsonSpy.mock.calls.at(-1)?.[0];
+    expect(payload.outputs.preflightPassed).toBe(false);
+    expect(payload.outputs.checks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          label: 'Media adapter (veo)',
+          status: 'fail',
+          detail: expect.stringContaining('Unknown synthesis adapter: typo-adapter'),
+        }),
+      ])
+    );
+    expect(exitSpy).toHaveBeenCalledWith(2);
+
+    exitSpy.mockRestore();
+  });
+
+  it('fails preflight when a selected media adapter lacks image-to-video capability', async () => {
+    await configureRuntime({ json: true });
+    const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
+
+    const { readInputFile } = await import('../../../../src/cli/utils');
+    (readInputFile as unknown as ReturnType<typeof vi.fn>)
+      .mockResolvedValueOnce({
+        schemaVersion: '1.0.0',
+        reasoning: 'ok',
+        scenes: [{ id: 'scene-1', text: 'Hello', visualDirection: 'demo' }],
+      })
+      .mockResolvedValueOnce({
+        schemaVersion: '1.1.0',
+        scenes: [
+          {
+            sceneId: 'scene-1',
+            source: 'generated-nanobanana',
+            assetPath: 'scene-1.png',
+            assetType: 'image',
+            duration: 2,
+            motionStrategy: 'depthflow',
+          },
+        ],
+        totalAssets: 1,
+        fromUserFootage: 0,
+        fromStock: 0,
+        fromGenerated: 1,
+        fallbacks: 0,
+      });
+
+    const output = await import('../../../../src/cli/output');
+    const writeJsonSpy = vi.spyOn(output, 'writeJsonEnvelope').mockImplementation(() => undefined);
+
+    const { generateCommand } = await import('../../../../src/cli/commands/generate');
+    await generateCommand.parseAsync(
+      [
+        'Redis',
+        '--preflight',
+        '--script',
+        'script.json',
+        '--visuals',
+        'visuals.json',
+        '--media-depthflow-adapter',
+        'scene3d-static',
+        '--output',
+        'out.mp4',
+      ],
+      { from: 'user' }
+    );
+
+    const payload = writeJsonSpy.mock.calls.at(-1)?.[0];
+    expect(payload.outputs.preflightPassed).toBe(false);
+    expect(payload.outputs.checks).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          label: 'Media adapter (depthflow)',
+          status: 'fail',
+          detail: expect.stringContaining('does not support image-to-video'),
+        }),
+      ])
+    );
+    expect(exitSpy).toHaveBeenCalledWith(2);
+
+    exitSpy.mockRestore();
+  });
+
+  it('rejects runtime execution for an unknown explicit media adapter before pipeline startup', async () => {
+    await configureRuntime({ json: false });
+
+    const { readInputFile, handleCommandError } = await import('../../../../src/cli/utils');
+    (readInputFile as unknown as ReturnType<typeof vi.fn>)
+      .mockReset()
+      .mockResolvedValueOnce({
+        schemaVersion: '1.0.0',
+        reasoning: 'ok',
+        scenes: [{ id: 'scene-1', text: 'Hello', visualDirection: 'demo' }],
+      })
+      .mockResolvedValueOnce({
+        schemaVersion: '1.1.0',
+        scenes: [
+          {
+            sceneId: 'scene-1',
+            source: 'mock',
+            assetPath: 'clip.mp4',
+            assetType: 'video',
+            duration: 1,
+          },
+        ],
+        totalAssets: 1,
+        fromUserFootage: 0,
+        fromStock: 0,
+        fallbacks: 1,
+      });
+
+    const { runPipeline } = await import('../../../../src/core/pipeline');
+    const { generateCommand } = await import('../../../../src/cli/commands/generate');
+
+    await expect(
+      generateCommand.parseAsync(
+        [
+          'Redis',
+          '--script',
+          'script.json',
+          '--visuals',
+          'visuals.json',
+          '--media-veo-adapter',
+          'typo-adapter',
+          '--output',
+          'out.mp4',
+        ],
+        { from: 'user' }
+      )
+    ).rejects.toThrow();
+
+    expect(handleCommandError).toHaveBeenCalled();
+    expect(runPipeline).not.toHaveBeenCalled();
+  });
+
   it('fails mock preflight when google-veo is selected because mock visuals cannot use Veo', async () => {
     await configureRuntime({ json: true });
     const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
@@ -558,8 +742,8 @@ describe('cli generate command', () => {
     process.env.OPENAI_API_KEY = 'test-openai-key';
 
     const { readInputFile } = await import('../../../../src/cli/utils');
-    (readInputFile as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
-      schemaVersion: '1.0.0',
+    (readInputFile as unknown as ReturnType<typeof vi.fn>).mockReset().mockResolvedValue({
+      schemaVersion: '1.1.0',
       scenes: [
         {
           sceneId: 'scene-1',
@@ -927,7 +1111,7 @@ describe('cli generate command', () => {
     const exitSpy = vi.spyOn(process, 'exit').mockImplementation(() => undefined as never);
 
     const { readInputFile } = await import('../../../../src/cli/utils');
-    (readInputFile as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+    (readInputFile as unknown as ReturnType<typeof vi.fn>).mockReset().mockResolvedValue({
       schemaVersion: '1.0.0',
       visuals: {
         providerChain: ['mock', 'local'],

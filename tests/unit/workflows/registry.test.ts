@@ -22,7 +22,7 @@ describe('workflows registry', () => {
     vi.clearAllMocks();
   });
 
-  it('skips dirs when workflow.json is missing or invalid', async () => {
+  it('surfaces invalid workflows instead of silently skipping them', async () => {
     const { existsSync } = await import('fs');
     const { readdir, readFile } = await import('fs/promises');
     (existsSync as unknown as ReturnType<typeof vi.fn>).mockImplementation((p: string) => {
@@ -42,8 +42,16 @@ describe('workflows registry', () => {
     const { listWorkflows } = await import('../../../src/workflows/registry');
     const results = await listWorkflows({ includeBuiltin: false, userDir: '/root' });
 
-    expect(results).toHaveLength(1);
+    expect(results).toHaveLength(2);
     expect(results[0].id).toBe('good');
+    expect(results[0].valid).toBe(true);
+    expect(results[1]).toEqual(
+      expect.objectContaining({
+        id: 'bad',
+        source: 'user',
+        valid: false,
+      })
+    );
   });
 
   it('returns empty when directories do not exist', async () => {
@@ -125,6 +133,36 @@ describe('workflows registry', () => {
         id: 'brainrot-gameplay',
         name: 'Project Brainrot',
         source: 'project',
+        valid: true,
+      }),
+    ]);
+  });
+
+  it('keeps an invalid local override ahead of the builtin it shadows', async () => {
+    const { existsSync } = await import('fs');
+    const { readdir, readFile } = await import('fs/promises');
+    const { listBuiltinWorkflows } = await import('../../../src/workflows/resolve');
+
+    (listBuiltinWorkflows as unknown as ReturnType<typeof vi.fn>).mockReturnValue([
+      { id: 'brainrot-gameplay', name: 'Builtin Brainrot', steps: [] },
+    ]);
+
+    (existsSync as unknown as ReturnType<typeof vi.fn>).mockImplementation((p: string) => {
+      return String(p).includes('project') || String(p).includes('workflow.json');
+    });
+    (readdir as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([
+      { name: 'brainrot-gameplay', isDirectory: () => true },
+    ]);
+    (readFile as unknown as ReturnType<typeof vi.fn>).mockResolvedValue('{invalid');
+
+    const { listWorkflows } = await import('../../../src/workflows/registry');
+    const results = await listWorkflows({ projectDir: '/project', userDir: '/user' });
+
+    expect(results).toEqual([
+      expect.objectContaining({
+        id: 'brainrot-gameplay',
+        source: 'project',
+        valid: false,
       }),
     ]);
   });

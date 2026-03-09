@@ -97,6 +97,8 @@ import {
 } from '../../workflows/runner';
 import { analyzeVideoFrames, type AnalyzeVideoFramesResult } from '../../analysis/frame-analysis';
 import { getGoogleAccessToken, getGoogleCloudProjectId } from '../../media/synthesis/google-auth';
+import { createMediaSynthesisRegistry } from '../../media/synthesis/registry';
+import type { MediaSynthesisCapability } from '../../media/synthesis/types';
 
 /**
  * Sync quality presets for different quality/speed tradeoffs
@@ -522,9 +524,94 @@ function shouldCheckGoogleVeoAdapter(params: {
 }): boolean {
   const { options, visualsInput } = params;
   if (options.mediaVeoAdapter !== 'google-veo') return false;
-  if (options.media) return true;
+  if (options.media || options.mediaVeoAdapter) return true;
   if (parseVisualsMotionStrategy(options.visualsMotionStrategy) === 'veo') return true;
   return visualsInput ? visualsRequireVeoAdapter(visualsInput) : false;
+}
+
+function getAvailableMediaAdapterMap(): Map<
+  string,
+  { capabilities: ReadonlySet<MediaSynthesisCapability> }
+> {
+  return new Map(
+    createMediaSynthesisRegistry().map((adapter) => [
+      adapter.name,
+      { capabilities: new Set(adapter.capabilities) },
+    ])
+  );
+}
+
+function validateMediaAdapterSelection(params: {
+  label: string;
+  adapterName: string | undefined;
+  capability: MediaSynthesisCapability;
+  availableAdapters: Map<string, { capabilities: ReadonlySet<MediaSynthesisCapability> }>;
+}): PreflightCheck | null {
+  const { label, adapterName, capability, availableAdapters } = params;
+  if (!adapterName) return null;
+
+  if (adapterName === 'google-veo') {
+    return {
+      label,
+      status: 'ok',
+      detail: `${adapterName} selected`,
+    };
+  }
+
+  const adapter = availableAdapters.get(adapterName);
+  if (!adapter) {
+    return {
+      label,
+      status: 'fail',
+      code: 'INVALID_ARGUMENT',
+      detail: `Unknown synthesis adapter: ${adapterName}`,
+      fix: `Use one of: ${Array.from(availableAdapters.keys()).join(', ')}, or google-veo when configured.`,
+    };
+  }
+
+  if (!adapter.capabilities.has(capability)) {
+    return {
+      label,
+      status: 'fail',
+      code: 'INVALID_ARGUMENT',
+      detail: `Adapter "${adapterName}" does not support ${capability}`,
+      fix: `Choose an adapter that supports ${capability}. Available adapters: ${Array.from(availableAdapters.entries())
+        .filter(([, info]) => info.capabilities.has(capability))
+        .map(([name]) => name)
+        .join(', ')}`,
+    };
+  }
+
+  return {
+    label,
+    status: 'ok',
+    detail: `${adapterName} (${capability})`,
+  };
+}
+
+function assertExplicitMediaAdapterSelections(options: GenerateOptions): void {
+  const availableAdapters = getAvailableMediaAdapterMap();
+  const checks = [
+    validateMediaAdapterSelection({
+      label: 'Media adapter (depthflow)',
+      adapterName: options.mediaDepthflowAdapter,
+      capability: 'image-to-video',
+      availableAdapters,
+    }),
+    validateMediaAdapterSelection({
+      label: 'Media adapter (veo)',
+      adapterName: options.mediaVeoAdapter,
+      capability: 'image-to-video',
+      availableAdapters,
+    }),
+  ].filter((entry): entry is PreflightCheck => entry !== null);
+
+  const failure = checks.find((entry) => entry.status === 'fail');
+  if (!failure) return;
+
+  throw new CMError('INVALID_ARGUMENT', failure.detail ?? `${failure.label} is invalid`, {
+    fix: failure.fix,
+  });
 }
 
 function formatPreflightLine(check: PreflightCheck): string {
@@ -1301,6 +1388,24 @@ async function runGeneratePreflight(params: {
         fix: info.fix,
       });
     }
+  }
+
+  const availableAdapters = getAvailableMediaAdapterMap();
+  for (const check of [
+    validateMediaAdapterSelection({
+      label: 'Media adapter (depthflow)',
+      adapterName: options.mediaDepthflowAdapter,
+      capability: 'image-to-video',
+      availableAdapters,
+    }),
+    validateMediaAdapterSelection({
+      label: 'Media adapter (veo)',
+      adapterName: options.mediaVeoAdapter,
+      capability: 'image-to-video',
+      availableAdapters,
+    }),
+  ]) {
+    if (check) addPreflightCheck(checks, check);
   }
 
   if (shouldCheckGoogleVeoAdapter({ options, visualsInput })) {
@@ -3287,6 +3392,8 @@ async function runGenerate(
       fix: mockMediaConstraint.fix,
     });
   }
+
+  assertExplicitMediaAdapterSelections(options);
 
   if (
     handleDryRun({

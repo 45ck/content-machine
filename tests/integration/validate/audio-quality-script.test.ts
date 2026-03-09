@@ -51,6 +51,25 @@ async function makeSilentVideo(outputPath: string, ffmpegPath: string): Promise<
   );
 }
 
+async function makeClippedAudio(outputPath: string, ffmpegPath: string): Promise<void> {
+  await execFileAsync(
+    ffmpegPath,
+    [
+      '-y',
+      '-f',
+      'lavfi',
+      '-i',
+      'sine=frequency=1000:sample_rate=44100:duration=1',
+      '-filter:a',
+      'volume=30dB',
+      '-c:a',
+      'pcm_s16le',
+      outputPath,
+    ],
+    { windowsHide: true, timeout: 120_000 }
+  );
+}
+
 const ffmpegPath = resolveFfmpegPath();
 const canRun = (await hasCommand('python')) && (await hasCommand(ffmpegPath, ['-version']));
 
@@ -91,5 +110,30 @@ describe('audio_quality.py integration', () => {
       peakLevelDB: 0.0,
       snrDB: 0.0,
     });
+  });
+
+  it.runIf(canRun)('reports a non-zero clipping ratio for clipped audio', async () => {
+    const mediaPath = join(dir, 'clipped.wav');
+    await makeClippedAudio(mediaPath, ffmpegPath);
+
+    const { stdout } = await execFileAsync(
+      'python',
+      [
+        resolve(process.cwd(), 'scripts', 'audio_quality.py'),
+        '--media',
+        mediaPath,
+        '--ffmpeg-path',
+        ffmpegPath,
+      ],
+      { windowsHide: true, timeout: 120_000 }
+    );
+
+    const payload = JSON.parse(stdout) as Record<string, number>;
+
+    expect(Number.isFinite(payload.clippingRatio)).toBe(true);
+    expect(Number.isFinite(payload.peakLevelDB)).toBe(true);
+    expect(Number.isFinite(payload.snrDB)).toBe(true);
+    expect(payload.clippingRatio).toBeGreaterThan(0);
+    expect(payload.peakLevelDB).toBeGreaterThanOrEqual(-0.1);
   });
 });
