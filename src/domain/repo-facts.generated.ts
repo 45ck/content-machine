@@ -173,6 +173,13 @@ export const ENVIRONMENT_VARIABLES = [
   { name: 'CM_PYTHON', required: false },
   { name: 'CM_FFMPEG', required: false },
   { name: 'CM_FFPROBE', required: false },
+  { name: 'GCE_METADATA_HOST', required: false },
+  { name: 'GOOGLE_CLOUD_ACCESS_TOKEN', required: false },
+  { name: 'GCLOUD_ACCESS_TOKEN', required: false },
+  { name: 'CLOUDSDK_AUTH_ACCESS_TOKEN', required: false },
+  { name: 'GOOGLE_CLOUD_PROJECT', required: false },
+  { name: 'GOOGLE_APPLICATION_CREDENTIALS', required: false },
+  { name: 'GOOGLE_CLOUD_LOCATION', required: false },
   { name: 'LOG_LEVEL', required: false },
 ] as const;
 export type RepoEnvironmentVariable = (typeof ENVIRONMENT_VARIABLES)[number];

@@ -131,7 +131,7 @@ export class GoogleVeoAdapter implements MediaSynthesisAdapter {
       prompt:
         request.kind === 'text-to-video'
           ? request.prompt
-          : request.prompt ?? 'Animate this image with cinematic motion',
+          : (request.prompt ?? 'Animate this image with cinematic motion'),
     };
 
     if (request.kind === 'image-to-video') {

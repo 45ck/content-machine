@@ -367,9 +367,7 @@ describe('cli audio command', () => {
 
     exitSpy.mockRestore();
 
-    expect(generateAudio).toHaveBeenCalledWith(
-      expect.objectContaining({ asrEngine: 'gemini' })
-    );
+    expect(generateAudio).toHaveBeenCalledWith(expect.objectContaining({ asrEngine: 'gemini' }));
     expect(writeSummaryCard).toHaveBeenCalled();
   });
 

@@ -121,10 +121,7 @@ export async function transcribeWithGemini(params: {
           contents: [
             {
               role: 'user',
-              parts: [
-                { inlineData: { mimeType, data: base64Audio } },
-                { text: TRANSCRIPT_PROMPT },
-              ],
+              parts: [{ inlineData: { mimeType, data: base64Audio } }, { text: TRANSCRIPT_PROMPT }],
             },
           ],
           generationConfig: {

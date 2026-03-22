@@ -126,7 +126,10 @@ export async function generateAudio(options: GenerateAudioOptions): Promise<Audi
     units: kokoroUnits,
   });
 
-  log.info({ duration: ttsResult.duration, hasUnitTimings: !!ttsResult.unitTimings }, 'TTS audio generated');
+  log.info(
+    { duration: ttsResult.duration, hasUnitTimings: !!ttsResult.unitTimings },
+    'TTS audio generated'
+  );
 
   // Step 2: Build timestamps
   // If TTS returned exact per-unit timings (Kokoro per-scene synthesis), use them
@@ -199,12 +202,10 @@ export async function generateAudio(options: GenerateAudioOptions): Promise<Audi
       );
     }
 
-    timestamps = buildTimestamps(
-      { ...asrResult, words: finalWords },
-      options.script,
-      ttsEngine,
-      { reconciled, scriptMatch }
-    );
+    timestamps = buildTimestamps({ ...asrResult, words: finalWords }, options.script, ttsEngine, {
+      reconciled,
+      scriptMatch,
+    });
   }
 
   // Save timestamps
@@ -355,7 +356,6 @@ async function writeSilentWav(params: {
   const silence = Buffer.alloc(dataSize);
   await writeFile(params.path, Buffer.concat([header, silence]));
 }
-
 
 async function maybeWriteAudioMix(params: {
   script: ScriptOutput;

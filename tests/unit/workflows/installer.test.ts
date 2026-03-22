@@ -199,11 +199,7 @@ describe('workflows installer', () => {
 
     (existsSync as unknown as ReturnType<typeof vi.fn>).mockImplementation((p: string) => {
       const str = toPosix(String(p));
-      return (
-        str.includes('/source') ||
-        str.includes('workflow.json') ||
-        str.includes('/dest/demo')
-      );
+      return str.includes('/source') || str.includes('workflow.json') || str.includes('/dest/demo');
     });
     (stat as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       isFile: () => false,
@@ -224,7 +220,10 @@ describe('workflows installer', () => {
     });
 
     expect(mkdir).toHaveBeenCalledWith(expect.stringMatching(/dest$/), { recursive: true });
-    expect(rm).toHaveBeenCalledWith(expect.stringMatching(/dest[/\\]demo$/), { recursive: true, force: true });
+    expect(rm).toHaveBeenCalledWith(expect.stringMatching(/dest[/\\]demo$/), {
+      recursive: true,
+      force: true,
+    });
     expect(cp).toHaveBeenCalled();
     expect(result.id).toBe('demo');
     expect(toPosix(result.installPath)).toContain('/dest/demo');

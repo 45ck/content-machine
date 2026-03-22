@@ -35,23 +35,37 @@ function checkAndFixNativeBinaries() {
     return; // All native binaries present
   }
 
-  log(`Missing native binaries: ${[needsRollup && 'rollup', needsSharp && 'sharp'].filter(Boolean).join(', ')}`);
+  log(
+    `Missing native binaries: ${[needsRollup && 'rollup', needsSharp && 'sharp'].filter(Boolean).join(', ')}`
+  );
 
   try {
     if (needsRollup) {
       log(`Installing ${rollupPkg}...`);
-      execSync(`npm install ${rollupPkg} --no-save`, { cwd: ROOT, stdio: 'inherit', timeout: 60_000 });
+      execSync(`npm install ${rollupPkg} --no-save`, {
+        cwd: ROOT,
+        stdio: 'inherit',
+        timeout: 60_000,
+      });
     }
 
     if (needsSharp) {
       log('Installing sharp with platform-specific binaries...');
-      execSync(`npm install --os=win32 --cpu=${cpu} sharp --no-save`, { cwd: ROOT, stdio: 'inherit', timeout: 60_000 });
+      execSync(`npm install --os=win32 --cpu=${cpu} sharp --no-save`, {
+        cwd: ROOT,
+        stdio: 'inherit',
+        timeout: 60_000,
+      });
     }
 
     // Sharp install can evict rollup — re-check and reinstall if needed
     if (needsSharp && !existsSync(rollupPath)) {
       log('Re-installing rollup native binary (evicted by sharp)...');
-      execSync(`npm install ${rollupPkg} --no-save`, { cwd: ROOT, stdio: 'inherit', timeout: 60_000 });
+      execSync(`npm install ${rollupPkg} --no-save`, {
+        cwd: ROOT,
+        stdio: 'inherit',
+        timeout: 60_000,
+      });
     }
 
     log('Native binary installation complete.');
