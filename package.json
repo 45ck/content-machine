@@ -68,6 +68,7 @@
     "eval:script": "npx promptfoo eval -c evals/configs/cm-script.yaml",
     "prepack": "npm run build && npm run build:types",
     "prepublishOnly": "npm run build && npm run build:types",
+    "postinstall": "node scripts/postinstall.mjs",
     "prepare": "husky || true"
   },
   "dependencies": {

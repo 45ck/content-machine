@@ -20,6 +20,11 @@ vi.mock('adm-zip', () => ({
   default: vi.fn(),
 }));
 
+/** Normalize to POSIX paths for cross-platform mock matching. */
+function toPosix(p: string): string {
+  return p.replace(/\\/g, '/').replace(/^[A-Z]:/i, '');
+}
+
 async function loadModule() {
   return import('../../../src/workflows/installer');
 }
@@ -98,7 +103,7 @@ describe('workflows installer', () => {
     const { stat, readdir } = await import('fs/promises');
 
     (existsSync as unknown as ReturnType<typeof vi.fn>).mockImplementation((p: string) => {
-      const str = String(p);
+      const str = toPosix(String(p));
       if (str.includes('workflow.json')) return false;
       return str.includes('/source');
     });
@@ -122,7 +127,7 @@ describe('workflows installer', () => {
     const { stat, readdir } = await import('fs/promises');
 
     (existsSync as unknown as ReturnType<typeof vi.fn>).mockImplementation((p: string) => {
-      const str = String(p);
+      const str = toPosix(String(p));
       return str.includes('/source') || str.includes('workflow.json');
     });
     (stat as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
@@ -145,7 +150,8 @@ describe('workflows installer', () => {
     const { stat, readdir, readFile } = await import('fs/promises');
 
     (existsSync as unknown as ReturnType<typeof vi.fn>).mockImplementation((p: string) => {
-      return String(p).includes('/source') || String(p).includes('workflow.json');
+      const str = toPosix(String(p));
+      return str.includes('/source') || str.includes('workflow.json');
     });
     (stat as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       isFile: () => false,
@@ -167,7 +173,8 @@ describe('workflows installer', () => {
     const { stat, readdir, readFile } = await import('fs/promises');
 
     (existsSync as unknown as ReturnType<typeof vi.fn>).mockImplementation((p: string) => {
-      return String(p).includes('/source') || String(p).includes('workflow.json');
+      const str = toPosix(String(p));
+      return str.includes('/source') || str.includes('workflow.json');
     });
     (stat as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       isFile: () => false,
@@ -191,10 +198,11 @@ describe('workflows installer', () => {
     const { stat, readdir, readFile, mkdir, rm, cp } = await import('fs/promises');
 
     (existsSync as unknown as ReturnType<typeof vi.fn>).mockImplementation((p: string) => {
+      const str = toPosix(String(p));
       return (
-        String(p).includes('/source') ||
-        String(p).includes('workflow.json') ||
-        String(p).includes('/dest/demo')
+        str.includes('/source') ||
+        str.includes('workflow.json') ||
+        str.includes('/dest/demo')
       );
     });
     (stat as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
@@ -215,9 +223,10 @@ describe('workflows installer', () => {
       force: true,
     });
 
-    expect(mkdir).toHaveBeenCalledWith('/dest', { recursive: true });
-    expect(rm).toHaveBeenCalledWith('/dest/demo', { recursive: true, force: true });
+    expect(mkdir).toHaveBeenCalledWith(expect.stringMatching(/dest$/), { recursive: true });
+    expect(rm).toHaveBeenCalledWith(expect.stringMatching(/dest[/\\]demo$/), { recursive: true, force: true });
     expect(cp).toHaveBeenCalled();
-    expect(result).toEqual({ id: 'demo', installPath: '/dest/demo' });
+    expect(result.id).toBe('demo');
+    expect(toPosix(result.installPath)).toContain('/dest/demo');
   });
 });

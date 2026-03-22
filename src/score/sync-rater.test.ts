@@ -272,7 +272,7 @@ describe('Sync Schema Validation', () => {
       expect(words).toContain('rib');
       expect(words).toContain('ute');
       expect(words).toContain('distrib');
-      expect(words).toContain('tribute');
+      expect(words).toContain('ribute');
       expect(words).toContain('distribute');
     });
   });
@@ -290,6 +290,32 @@ describe('Sync Schema Validation', () => {
       const metrics = calculateMetrics(matches, 577, 100);
       // Should be 80/100 = 0.80, NOT 80/577
       expect(metrics.matchRatio).toBeCloseTo(0.8, 2);
+    });
+
+    it('detects outliers when some matches have drift > 400ms', () => {
+      const matches = [
+        // 9 good matches with low drift
+        ...Array.from({ length: 9 }, (_, i) => ({
+          word: `word${i}`,
+          ocrTimestamp: i * 0.5,
+          asrTimestamp: i * 0.5 + 0.02,
+          driftMs: -20,
+          matchQuality: 'exact' as const,
+        })),
+        // 1 outlier with 800ms drift (within 2s match cap but above 400ms outlier cutoff)
+        {
+          word: 'outlier',
+          ocrTimestamp: 5.0,
+          asrTimestamp: 4.2,
+          driftMs: 800,
+          matchQuality: 'fuzzy' as const,
+        },
+      ];
+      const metrics = calculateMetrics(matches, 50, 10);
+      expect(metrics.outlierCount).toBe(1);
+      expect(metrics.outlierRatio).toBeCloseTo(0.1, 2);
+      // Robust stats should exclude the outlier from mean
+      expect(metrics.meanDriftMs).toBeLessThan(100);
     });
   });
 

@@ -594,7 +594,7 @@ function calculateMetrics(
     };
   }
 
-  const outlierCutoffMs = 2000;
+  const outlierCutoffMs = 400;
   const maxOutlierRatioForRobustStats = 0.3;
 
   const drifts = matches.map((m) => m.driftMs);

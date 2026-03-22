@@ -1,50 +1,65 @@
-import { describe, expect, it } from 'vitest';
-import { mkdtemp, rm, writeFile, chmod, readFile } from 'node:fs/promises';
+import { describe, expect, it, vi, beforeEach } from 'vitest';
+import { mkdtemp, rm, writeFile, readFile, mkdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { join, resolve, dirname } from 'node:path';
 import { existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
+import { EventEmitter } from 'node:events';
 
 import { resolveVideoInput } from '../../../src/videospec/ingest';
+
+const { spawnMock } = vi.hoisted(() => ({
+  spawnMock: vi.fn(),
+}));
+
+vi.mock('node:child_process', () => ({
+  spawn: spawnMock,
+}));
 
 function sha256Hex(value: string): string {
   return createHash('sha256').update(value).digest('hex');
 }
 
+/** Create a dummy yt-dlp file (just needs to exist for existsSync check). */
 async function makeDummyYtDlp(binDir: string): Promise<string> {
-  const p = join(binDir, 'yt-dlp-dummy.sh');
-  const script = `#!/usr/bin/env bash
-set -euo pipefail
-
-if [[ "\${1:-}" == "--version" ]]; then
-  echo "dummy"
-  exit 0
-fi
-
-out=""
-for ((i=1; i<=$#; i++)); do
-  arg="\${!i}"
-  if [[ "$arg" == "-o" ]]; then
-    j=$((i+1))
-    out="\${!j}"
-  fi
-done
-
-if [[ -z "$out" ]]; then
-  echo "missing -o" >&2
-  exit 2
-fi
-
-mkdir -p "$(dirname "$out")"
-printf "dummy-video" > "$out"
-exit 0
-`;
-  await writeFile(p, script, 'utf-8');
-  await chmod(p, 0o755);
+  const p = join(binDir, 'yt-dlp-dummy');
+  await writeFile(p, '', 'utf-8');
   return p;
 }
 
+/** Configure spawn mock to simulate yt-dlp: find -o arg, write dummy output file. */
+function setupSpawnMock() {
+  spawnMock.mockImplementation((_cmd: string, args: string[]) => {
+    const child = new EventEmitter() as EventEmitter & { kill: ReturnType<typeof vi.fn> };
+    child.kill = vi.fn();
+
+    const oIdx = args.indexOf('-o');
+    const outPath = oIdx >= 0 ? args[oIdx + 1] : null;
+
+    process.nextTick(async () => {
+      try {
+        if (outPath) {
+          const dir = dirname(outPath);
+          if (!existsSync(dir)) {
+            await mkdir(dir, { recursive: true });
+          }
+          await writeFile(outPath, 'dummy-video', 'utf-8');
+        }
+        child.emit('close', 0);
+      } catch (err) {
+        child.emit('error', err);
+      }
+    });
+
+    return child;
+  });
+}
+
 describe('resolveVideoInput', () => {
+  beforeEach(() => {
+    spawnMock.mockReset();
+  });
+
   it('resolves a local file path', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'cm-videospec-ingest-'));
     try {
@@ -68,6 +83,7 @@ describe('resolveVideoInput', () => {
     try {
       const yt = await makeDummyYtDlp(binDir);
       process.env.CM_YTDLP_PATH = yt;
+      setupSpawnMock();
 
       const url = 'https://example.com/video';
       const r1 = await resolveVideoInput({ input: url, cache: true, cacheDir: dir });
@@ -101,6 +117,7 @@ describe('resolveVideoInput', () => {
     try {
       const yt = await makeDummyYtDlp(binDir);
       process.env.CM_YTDLP_PATH = yt;
+      setupSpawnMock();
 
       const url = 'https://example.com/video2';
       const r = await resolveVideoInput({ input: url, cache: false, cacheDir: dir });
