@@ -7,6 +7,7 @@ import type { ScriptOutput } from '../../../src/script/schema';
 const synthesizeSpeechMock = vi.fn();
 const transcribeAudioMock = vi.fn();
 const reconcileMock = vi.fn();
+const isGeminiAsrAvailableMock = vi.fn();
 
 vi.mock('../../../src/audio/tts', () => ({
   synthesizeSpeech: synthesizeSpeechMock,
@@ -18,6 +19,10 @@ vi.mock('../../../src/audio/asr', () => ({
 
 vi.mock('../../../src/audio/asr/reconcile', () => ({
   reconcileToScript: reconcileMock,
+}));
+
+vi.mock('../../../src/audio/asr/gemini-asr', () => ({
+  isGeminiAsrAvailable: isGeminiAsrAvailableMock,
 }));
 
 function makeScript(): ScriptOutput {
@@ -44,6 +49,9 @@ describe('generateAudio', () => {
     synthesizeSpeechMock.mockReset();
     transcribeAudioMock.mockReset();
     reconcileMock.mockReset();
+    isGeminiAsrAvailableMock.mockReset();
+    // Default: Gemini not available (per-unit fallback)
+    isGeminiAsrAvailableMock.mockReturnValue(false);
   });
 
   it('generates mock audio and writes timestamps', async () => {
@@ -105,5 +113,72 @@ describe('generateAudio', () => {
     expect(transcribeAudioMock).toHaveBeenCalled();
     expect(reconcileMock).toHaveBeenCalled();
     expect(output.timestamps.scenes.length).toBeGreaterThan(0);
+  });
+
+  it('kokoro + Gemini available → synthesizeSpeech called without units (single-pass)', async () => {
+    isGeminiAsrAvailableMock.mockReturnValue(true);
+
+    const { generateAudio } = await import('../../../src/audio/pipeline');
+    const paths = makeTempPaths();
+
+    synthesizeSpeechMock.mockResolvedValue({
+      audioPath: paths.audioPath,
+      duration: 2,
+      sampleRate: 22050,
+      cost: 0,
+      // No unitTimings → pipeline falls through to ASR
+    });
+
+    const words = [{ word: 'Hook', start: 0, end: 0.3, confidence: 0.9 }];
+    transcribeAudioMock.mockResolvedValue({
+      engine: 'gemini',
+      duration: 2,
+      text: 'Hook line',
+      words,
+    });
+
+    await generateAudio({
+      script: makeScript(),
+      voice: 'kokoro',
+      ttsEngine: 'kokoro',
+      outputPath: paths.audioPath,
+      timestampsPath: paths.timestampsPath,
+    });
+
+    expect(synthesizeSpeechMock).toHaveBeenCalledWith(
+      expect.objectContaining({ units: undefined })
+    );
+    expect(transcribeAudioMock).toHaveBeenCalled();
+  });
+
+  it('kokoro + no Gemini → synthesizeSpeech called with units (per-unit fallback)', async () => {
+    isGeminiAsrAvailableMock.mockReturnValue(false);
+
+    const { generateAudio } = await import('../../../src/audio/pipeline');
+    const paths = makeTempPaths();
+
+    const unitTimings = [{ id: 'hook', start: 0, end: 1 }];
+    synthesizeSpeechMock.mockResolvedValue({
+      audioPath: paths.audioPath,
+      duration: 2,
+      sampleRate: 22050,
+      cost: 0,
+      unitTimings,
+    });
+
+    await generateAudio({
+      script: makeScript(),
+      voice: 'kokoro',
+      ttsEngine: 'kokoro',
+      outputPath: paths.audioPath,
+      timestampsPath: paths.timestampsPath,
+    });
+
+    // units array should be passed (non-undefined)
+    expect(synthesizeSpeechMock).toHaveBeenCalledWith(
+      expect.objectContaining({ units: expect.arrayContaining([expect.any(Object)]) })
+    );
+    // ASR should NOT be called — unit timings handle it
+    expect(transcribeAudioMock).not.toHaveBeenCalled();
   });
 });

@@ -391,6 +391,8 @@ export const PRESET_CAPCUT_BOLD: CaptionConfig = CaptionConfigSchema.parse({
   wordAnimation: 'pop',
   wordAnimationMs: 120,
   wordAnimationIntensity: 0.55,
+  // Slightly more aggressive than TikTok's -50ms — counteract perceived audio decode latency.
+  timingOffsetMs: -100,
 });
 
 /**

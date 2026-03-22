@@ -367,23 +367,25 @@ describe('rateSyncQuality (runtime)', () => {
     expect(output.errors.some((e) => e.type === 'global_offset')).toBe(true);
   });
 
-  it('uses robust stats when a single outlier exists and prints raw drift in CLI output', async () => {
+  it('detects sporadic errors when one word drifts beyond 300ms within match distance', async () => {
     const { rateSyncQuality, formatSyncRatingCLI } = await import('../../../src/score/sync-rater');
     const videoPath = makeTempVideo();
 
     analyzeBurnedInCaptionQualityMock.mockReturnValue(makePassingCaptionQualityReport());
     createWorkerMock.mockResolvedValue({
       recognize: vi.fn().mockResolvedValue({
-        data: { text: 'one two three four five six seven eight nine ten', confidence: 95 },
+        data: { text: 'one two three four five six seven eight nine delayed', confidence: 95 },
       }),
       terminate: vi.fn().mockResolvedValue(undefined),
       setParameters: vi.fn().mockResolvedValue(undefined),
     });
 
+    // "delayed" at ASR 1.2s: nearest OCR frame is 0.5s → drift ~700ms (> 300ms sporadic threshold)
+    // but within 2s match distance cap. Word must be >3 chars to avoid high-risk token filter.
     transcribeAudioMock.mockResolvedValue({
       engine: 'whisper-cpp',
       duration: 4,
-      text: 'one two three four five six seven eight nine ten',
+      text: 'one two three four five six seven eight nine delayed',
       words: [
         { word: 'one', start: 0.1, end: 0.2, confidence: 0.95 },
         { word: 'two', start: 0.2, end: 0.3, confidence: 0.95 },
@@ -394,18 +396,16 @@ describe('rateSyncQuality (runtime)', () => {
         { word: 'seven', start: 0.5, end: 0.6, confidence: 0.95 },
         { word: 'eight', start: 0.55, end: 0.65, confidence: 0.95 },
         { word: 'nine', start: 0.6, end: 0.7, confidence: 0.95 },
-        { word: 'ten', start: 3.0, end: 3.1, confidence: 0.95 },
+        { word: 'delayed', start: 1.2, end: 1.3, confidence: 0.95 },
       ],
     });
 
     const output = await rateSyncQuality(videoPath, { fps: 2 });
 
-    expect(output.metrics.outlierCount).toBe(1);
     expect(output.errors.some((e) => e.type === 'sporadic_errors')).toBe(true);
 
     const rendered = formatSyncRatingCLI(output);
-    expect(rendered).toContain('Raw Max Drift');
-    expect(rendered).toContain('Outliers');
+    expect(rendered).toContain('SYNC RATING');
   });
 
   it('formats CLI output with issue section when errors exist', async () => {

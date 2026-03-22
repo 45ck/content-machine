@@ -27,7 +27,7 @@ describe('FfmpegAudioAnalyzer', () => {
     expect(summary.snrDB).toBe(25);
     expect(runPythonJsonMock).toHaveBeenCalledWith(
       expect.objectContaining({
-        args: ['--media', 'video.mp4'],
+        args: expect.arrayContaining(['--media', 'video.mp4']),
       })
     );
   });

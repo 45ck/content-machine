@@ -100,10 +100,22 @@ export async function generateAudio(options: GenerateAudioOptions): Promise<Audi
   log.debug({ textLength: fullText.length }, 'Combined script text');
 
   // Step 1: Generate TTS audio
-  // Pass units to Kokoro so it can synthesize per-scene and return exact unit timings.
-  // This eliminates ASR-based timing drift entirely for the default Kokoro path.
+  // For Kokoro + Gemini: single-pass synthesis → Gemini ASR for accurate word timing.
+  // For Kokoro without Gemini: per-scene synthesis → exact unit timings, no ASR needed.
+  // For other engines: single-pass synthesis → ASR-based timing.
   const ttsEngine = options.ttsEngine ?? 'kokoro';
   log.info('Generating TTS audio');
+
+  let kokoroUnits: typeof units | undefined;
+  if (ttsEngine === 'kokoro') {
+    const { isGeminiAsrAvailable } = await import('./asr/gemini-asr');
+    // Force single-pass if: Gemini key present OR caller explicitly requested Gemini ASR.
+    // Explicit request without a key will fail loudly in transcribeAudio rather than
+    // silently downgrading to kokoro-timed.
+    const wantsGemini = isGeminiAsrAvailable() || options.asrEngine === 'gemini';
+    kokoroUnits = wantsGemini ? undefined : units;
+  }
+
   const ttsResult = await synthesizeSpeech({
     engine: ttsEngine,
     text: fullText,
@@ -111,7 +123,7 @@ export async function generateAudio(options: GenerateAudioOptions): Promise<Audi
     speed: options.speed,
     outputPath: options.outputPath,
     elevenlabs: options.elevenlabs,
-    units: ttsEngine === 'kokoro' ? units : undefined,
+    units: kokoroUnits,
   });
 
   log.info({ duration: ttsResult.duration, hasUnitTimings: !!ttsResult.unitTimings }, 'TTS audio generated');

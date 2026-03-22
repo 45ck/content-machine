@@ -99,6 +99,7 @@ describe('overall score aggregation', () => {
         score: false,
         temporalQuality: true,
         audioSignal: true,
+        frameBounds: false,
       },
     });
 
@@ -136,6 +137,7 @@ describe('overall score aggregation', () => {
         score: false,
         temporalQuality: false,
         audioSignal: false,
+        frameBounds: false,
       },
     });
 
@@ -158,6 +160,7 @@ describe('overall score aggregation', () => {
         score: false,
         temporalQuality: false,
         audioSignal: false,
+        frameBounds: false,
       },
     });
 
@@ -172,6 +175,7 @@ describe('overall score aggregation', () => {
         score: false,
         temporalQuality: true,
         audioSignal: true,
+        frameBounds: false,
       },
     });
 
