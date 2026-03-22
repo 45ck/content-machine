@@ -244,6 +244,20 @@ facts:
         required: false
       - name: CM_FFPROBE
         required: false
+      - name: GCE_METADATA_HOST
+        required: false
+      - name: GOOGLE_CLOUD_ACCESS_TOKEN
+        required: false
+      - name: GCLOUD_ACCESS_TOKEN
+        required: false
+      - name: CLOUDSDK_AUTH_ACCESS_TOKEN
+        required: false
+      - name: GOOGLE_CLOUD_PROJECT
+        required: false
+      - name: GOOGLE_APPLICATION_CREDENTIALS
+        required: false
+      - name: GOOGLE_CLOUD_LOCATION
+        required: false
       - name: LOG_LEVEL
         required: false
 
@@ -345,6 +359,7 @@ quality:
       - '.github/copilot-instructions.md'
     ignoreLinkGlobs:
       - 'docs/reference/NANOBANANA-PROMPT-ENGINEERING-20260107.md'
+      - 'docs/user/examples/gemini-image-shorts.md'
 
 security:
   invariants:
