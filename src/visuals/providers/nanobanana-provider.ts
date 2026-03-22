@@ -532,7 +532,7 @@ export class NanoBananaProvider implements AssetProvider {
   ): Promise<{ id: string; url: string; width: number; height: number; cacheHit: boolean }> {
     const { width, height, apiKey, aspectRatio } = _options;
     const cacheKey = sha256Hex(
-      JSON.stringify({ model: this.model, prompt: _prompt, width, height })
+      JSON.stringify({ model: this.model, prompt: _prompt, width, height, aspectRatio })
     )
       .slice(0, 24)
       .toLowerCase();

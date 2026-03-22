@@ -45,7 +45,7 @@ export interface PipelineOptions {
   archetype: Archetype;
   orientation: Orientation;
   voice: string;
-  ttsEngine?: 'kokoro' | 'edge' | 'elevenlabs';
+  ttsEngine?: 'kokoro' | 'elevenlabs';
   asrEngine?: 'whisper' | 'elevenlabs-forced-alignment';
   targetDuration: number;
   outputPath: string;

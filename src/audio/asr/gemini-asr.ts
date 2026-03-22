@@ -12,10 +12,24 @@
 
 import { readFile } from 'node:fs/promises';
 import { extname, resolve } from 'node:path';
+import { z } from 'zod';
 import { getOptionalApiKey } from '../../core/config.js';
 import { APIError, ConfigError, RateLimitError } from '../../core/errors.js';
 import { withRetry } from '../../core/retry.js';
 import type { WordTimestamp } from '../../domain/index.js';
+
+const GeminiWordItemSchema = z
+  .object({
+    word: z.string().optional(),
+    text: z.string().optional(),
+    start: z.number().optional(),
+    start_time: z.number().optional(),
+    startTime: z.number().optional(),
+    end: z.number().optional(),
+    end_time: z.number().optional(),
+    endTime: z.number().optional(),
+  })
+  .passthrough();
 
 const DEFAULT_MODEL = 'gemini-2.0-flash';
 const DEFAULT_API_BASE = 'https://generativelanguage.googleapis.com';
@@ -228,7 +242,9 @@ function parseGeminiTranscriptResponse(
 
   const words: WordTimestamp[] = [];
   for (const item of raw) {
-    const w = item as Record<string, unknown>;
+    const parsed = GeminiWordItemSchema.safeParse(item);
+    if (!parsed.success) continue;
+    const w = parsed.data;
     const word = String(w.word ?? w.text ?? '').trim();
     const start = Number(w.start ?? w.start_time ?? w.startTime ?? 0);
     const end = Number(w.end ?? w.end_time ?? w.endTime ?? 0);

@@ -1021,7 +1021,7 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
     const downloadAssets = options.downloadAssets !== false;
     const assetCacheRoot = resolveAssetCacheRoot();
 
-    const visualPlan = buildVisualAssetBundlePlan(options.visuals as VisualsOutputInput);
+    const visualPlan = buildVisualAssetBundlePlan(options.visuals);
     const remotePlan = {
       assets: visualPlan.assets.filter((asset) => asset.sourceUrl),
     };
@@ -1087,10 +1087,7 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
         ),
       };
 
-      visualsWithBundledAssets = applyVisualAssetBundlePlan(
-        options.visuals as VisualsOutputInput,
-        succeededPlan
-      );
+      visualsWithBundledAssets = applyVisualAssetBundlePlan(options.visuals, succeededPlan);
       stockExtraAssets = extraAssets;
     } else if (downloadAssets) {
       safeProgress({
@@ -1118,10 +1115,9 @@ export async function renderVideo(options: RenderVideoOptions): Promise<RenderOu
       });
 
       if (resolvedLocalAssets.length > 0) {
-        visualsWithBundledAssets = applyVisualAssetBundlePlan(
-          visualsWithBundledAssets as VisualsOutputInput,
-          { assets: resolvedLocalAssets }
-        );
+        visualsWithBundledAssets = applyVisualAssetBundlePlan(visualsWithBundledAssets, {
+          assets: resolvedLocalAssets,
+        });
       }
     }
 

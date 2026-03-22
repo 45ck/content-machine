@@ -17,16 +17,18 @@ import type {
 } from '../types';
 import { transcribeAudio } from '../../asr';
 import { reconcileToScript, type WordWithTiming } from '../../asr/reconcile';
+import { buildAlignmentUnits, normalizeSpokenText } from '../../alignment';
 import { CMError } from '../../../core/errors';
 import { createLogger } from '../../../core/logger';
 
 const log = createLogger({ module: 'sync-audio-first' });
 
 /**
- * Extract combined text from all script scenes
+ * Extract combined text from all script scenes using alignment units
  */
 function extractScriptText(script: ScriptOutput): string {
-  return script.scenes.map((scene) => scene.text).join(' ');
+  const units = buildAlignmentUnits(script);
+  return units.map((u) => normalizeSpokenText(u.text)).join(' ');
 }
 
 function countWords(text: string): number {

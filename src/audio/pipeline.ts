@@ -36,7 +36,7 @@ export interface GenerateAudioOptions {
   script: ScriptOutput;
   voice: string;
   /** TTS engine id (defaults to kokoro) */
-  ttsEngine?: 'kokoro' | 'elevenlabs' | 'edge';
+  ttsEngine?: 'kokoro' | 'elevenlabs';
   /** Timestamp engine (defaults to whisper) */
   asrEngine?: 'whisper' | 'gemini' | 'elevenlabs-forced-alignment';
   /** Optional engine-specific configuration for ElevenLabs. */

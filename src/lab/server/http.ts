@@ -44,8 +44,16 @@ export function handleRouteError(res: ServerResponse, error: unknown): void {
 }
 
 export async function readJsonBody<T = unknown>(req: IncomingMessage): Promise<T> {
+  const MAX_BODY_SIZE = 1_048_576; // 1MB
   const chunks: Buffer[] = [];
+  let totalSize = 0;
   for await (const chunk of req) {
+    totalSize += chunk.length;
+    if (totalSize > MAX_BODY_SIZE) {
+      throw new CMError('INVALID_ARGUMENT', 'Request body too large (max 1MB)', {
+        fix: 'Reduce the request body size to under 1MB',
+      });
+    }
     chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(String(chunk)));
   }
   const raw = Buffer.concat(chunks).toString('utf-8');

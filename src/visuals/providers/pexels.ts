@@ -94,6 +94,10 @@ export async function searchPexels(options: PexelsSearchOptions): Promise<Pexels
 function getBestVideoUrl(video: Video): string {
   const files = video.video_files;
 
+  if (files.length === 0) {
+    throw new Error('Pexels video has no downloadable files');
+  }
+
   // Sort by quality (height) descending
   const sorted = [...files].sort((a, b) => (b.height ?? 0) - (a.height ?? 0));
 

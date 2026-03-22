@@ -108,7 +108,7 @@ function writeDryRunOutput(params: {
         timingsMs: Date.now() - runtime.startTime,
       })
     );
-    process.exit(0);
+    process.exitCode = 0;
     return;
   }
 
@@ -120,7 +120,8 @@ function writeDryRunOutput(params: {
   if (options.package) writeStderrLine(`   Package: ${options.package}`);
   if (options.research) writeStderrLine(`   Research: ${options.research}`);
   writeStderrLine(`Prompt would use ~${Math.round(durationSeconds * 2.5)} target words`);
-  process.exit(0);
+  process.exitCode = 0;
+  return;
 }
 
 function writeSuccessJsonOutput(params: {
@@ -152,7 +153,8 @@ function writeSuccessJsonOutput(params: {
       timingsMs: Date.now() - runtime.startTime,
     })
   );
-  process.exit(0);
+  process.exitCode = 0;
+  return;
 }
 
 async function writeSuccessTextOutput(params: {
@@ -176,7 +178,8 @@ async function writeSuccessTextOutput(params: {
 
   // Human-mode stdout should be reserved for the primary artifact path.
   writeStdoutLine(options.output);
-  process.exit(0);
+  process.exitCode = 0;
+  return;
 }
 
 async function runScript(options: ScriptCommandOptions, spinner: SpinnerLike): Promise<void> {

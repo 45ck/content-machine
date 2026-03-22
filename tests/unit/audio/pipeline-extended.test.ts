@@ -104,11 +104,8 @@ function makeSingleSceneScript(): ScriptOutput {
   };
 }
 
-const tempDirs: string[] = [];
-
 function makeTempPaths() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cm-audio-integ-'));
-  tempDirs.push(dir);
   const audioPath = path.join(dir, 'audio.wav');
   // Create a dummy audio file (pipeline may check existence)
   fs.writeFileSync(audioPath, 'dummy-wav');
@@ -152,12 +149,6 @@ function assertMonotonicWords(words: WordTimestamp[]) {
 // ---------------------------------------------------------------------------
 
 describe('audio pipeline integration', () => {
-  afterAll(() => {
-    for (const dir of tempDirs) {
-      fs.rmSync(dir, { recursive: true, force: true });
-    }
-  });
-
   beforeEach(() => {
     synthesizeSpeechMock.mockReset();
     transcribeAudioMock.mockReset();

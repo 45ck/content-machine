@@ -81,4 +81,22 @@ describe('openai provider', () => {
       code: 'API_ERROR',
     });
   });
+
+  it('calls withRetry with expected configuration', async () => {
+    createSpy.mockResolvedValue({
+      model: 'gpt-4o',
+      choices: [{ message: { content: 'Hello' }, finish_reason: 'stop' }],
+      usage: { prompt_tokens: 1, completion_tokens: 2, total_tokens: 3 },
+    });
+
+    const { withRetry } = await import('../../../../src/core/retry');
+    const { OpenAIProvider } = await import('../../../../src/core/llm/openai');
+    const provider = new OpenAIProvider('gpt-4o', 'key');
+    await provider.chat([{ role: 'user', content: 'Hi' }]);
+
+    expect(withRetry).toHaveBeenCalledWith(
+      expect.any(Function),
+      expect.objectContaining({ maxRetries: expect.any(Number) })
+    );
+  });
 });

@@ -6,6 +6,7 @@ import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStdoutLine } from '../output';
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
 import { VisualsOutputSchema } from '../../domain';
+import { SchemaError } from '../../core/errors';
 import { synthesizeMediaManifest } from '../../media/service';
 
 const DEFAULT_MEDIA_MANIFEST = 'media-manifest.json';
@@ -30,7 +31,15 @@ export const mediaCommand = new Command('media')
 
     try {
       const rawVisuals = await readInputFile(options.input);
-      const visuals = VisualsOutputSchema.parse(rawVisuals);
+      const parsedVisuals = VisualsOutputSchema.safeParse(rawVisuals);
+      if (!parsedVisuals.success) {
+        throw new SchemaError('Invalid visuals file', {
+          path: options.input,
+          issues: parsedVisuals.error.issues,
+          fix: 'Ensure the input file is a valid visuals.json from `cm visuals`',
+        });
+      }
+      const visuals = parsedVisuals.data;
       const mediaDir = join(options.mediaDir);
 
       const manifest = await synthesizeMediaManifest({

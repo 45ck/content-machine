@@ -34,8 +34,8 @@ function tokenizeWords(words: Array<{ word: string }>): string[] {
 function lcsLength(a: string[], b: string[]): number {
   // DP with rolling arrays: O(n*m) but n,m are small (~100-300).
   const m = b.length;
-  let prev = new Uint16Array(m + 1);
-  let curr = new Uint16Array(m + 1);
+  let prev = new Uint32Array(m + 1);
+  let curr = new Uint32Array(m + 1);
 
   for (let i = 1; i <= a.length; i++) {
     curr[0] = 0;

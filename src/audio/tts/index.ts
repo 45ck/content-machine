@@ -24,14 +24,7 @@ export async function synthesizeSpeech(options: TTSOptions): Promise<TTSResult> 
   if (engine === 'elevenlabs') {
     return synthesizeSpeechElevenLabs(options);
   }
-  if (engine === 'edge') {
-    throw new Error(
-      `TTS engine "edge" is configured but not implemented. Use audio.ttsEngine="kokoro" or "elevenlabs".`
-    );
-  }
-
   // Exhaustive check (future engines)
-
   throw new Error(`Unsupported TTS engine: ${engine}`);
 }
 
@@ -44,6 +37,5 @@ export async function synthesizeSpeech(options: TTSOptions): Promise<TTSResult> 
 export async function getAvailableVoices(engine: TTSEngineId = 'kokoro'): Promise<string[]> {
   if (engine === 'kokoro') return getAvailableVoicesKokoro();
   if (engine === 'elevenlabs') return [];
-  if (engine === 'edge') return [];
   return [];
 }

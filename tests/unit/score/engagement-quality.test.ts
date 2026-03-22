@@ -212,55 +212,46 @@ describe('Engagement Quality Metrics', () => {
       report = analyzeEngagementQuality(script, timestamps);
     });
 
-    it('QUALITY GATE: Hook should start within 3 seconds', () => {
-      if (!report) return;
+    it.skipIf(!report)('QUALITY GATE: Hook should start within 3 seconds', () => {
+      console.log(`Hook starts at: ${report!.details.hookStartTime.toFixed(2)}s`);
+      console.log(`Hook text: "${report!.details.hookText}"`);
 
-      console.log(`Hook starts at: ${report.details.hookStartTime.toFixed(2)}s`);
-      console.log(`Hook text: "${report.details.hookText}"`);
-
-      expect(report.details.hookStartTime).toBeLessThanOrEqual(
+      expect(report!.details.hookStartTime).toBeLessThanOrEqual(
         ENGAGEMENT_THRESHOLDS.hookMaxStartTime
       );
-      expect(report.metrics.hookTiming).toBe(100);
+      expect(report!.metrics.hookTiming).toBe(100);
     });
 
-    it('QUALITY GATE: Hook should be engaging (questions/pain points)', () => {
-      if (!report) return;
+    it.skipIf(!report)('QUALITY GATE: Hook should be engaging (questions/pain points)', () => {
+      console.log(`Hook engagement score: ${report!.metrics.hookEngagement}%`);
 
-      console.log(`Hook engagement score: ${report.metrics.hookEngagement}%`);
-
-      expect(report.metrics.hookEngagement).toBeGreaterThanOrEqual(60);
+      expect(report!.metrics.hookEngagement).toBeGreaterThanOrEqual(60);
     });
 
-    it('QUALITY GATE: CTA should be present', () => {
-      if (!report) return;
+    it.skipIf(!report)('QUALITY GATE: CTA should be present', () => {
+      console.log(`CTA: "${report!.details.ctaText}"`);
+      console.log(`CTA presence score: ${report!.metrics.ctaPresence}%`);
 
-      console.log(`CTA: "${report.details.ctaText}"`);
-      console.log(`CTA presence score: ${report.metrics.ctaPresence}%`);
-
-      expect(report.metrics.ctaPresence).toBeGreaterThan(0);
+      expect(report!.metrics.ctaPresence).toBeGreaterThan(0);
     });
 
-    it('QUALITY GATE: Listicle should have numbered items', () => {
-      if (!report) return;
-      if (report.details.archetype !== 'listicle') {
+    it.skipIf(!report)('QUALITY GATE: Listicle should have numbered items', () => {
+      if (report!.details.archetype !== 'listicle') {
         console.log('Skipping - not a listicle');
         return;
       }
 
-      console.log(`Numbered items: ${report.details.numberedItems}`);
-      console.log(`List structure score: ${report.metrics.listStructure}%`);
+      console.log(`Numbered items: ${report!.details.numberedItems}`);
+      console.log(`List structure score: ${report!.metrics.listStructure}%`);
 
-      expect(report.details.numberedItems).toBeGreaterThanOrEqual(3);
-      expect(report.metrics.listStructure).toBeGreaterThanOrEqual(75);
+      expect(report!.details.numberedItems).toBeGreaterThanOrEqual(3);
+      expect(report!.metrics.listStructure).toBeGreaterThanOrEqual(75);
     });
 
-    it('QUALITY GATE: Overall engagement score >= 70%', () => {
-      if (!report) return;
+    it.skipIf(!report)('QUALITY GATE: Overall engagement score >= 70%', () => {
+      console.log('\n' + formatEngagementReport(report!));
 
-      console.log('\n' + formatEngagementReport(report));
-
-      expect(report.overallScore).toBeGreaterThanOrEqual(70);
+      expect(report!.overallScore).toBeGreaterThanOrEqual(70);
     });
   });
 });

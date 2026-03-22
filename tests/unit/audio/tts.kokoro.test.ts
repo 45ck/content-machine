@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterAll, vi } from 'vitest';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -30,7 +30,15 @@ vi.mock('kokoro-js', () => ({
   },
 }));
 
+const tempDirs: string[] = [];
+
 describe('Kokoro TTS adapter', () => {
+  afterAll(() => {
+    for (const dir of tempDirs) {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
     vi.resetModules();
@@ -38,6 +46,7 @@ describe('Kokoro TTS adapter', () => {
 
   it('synthesizes short text with generate() and writes output', async () => {
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cm-kokoro-'));
+    tempDirs.push(tmpDir);
     const outPath = path.join(tmpDir, 'audio.wav');
 
     const { synthesizeSpeechKokoro } = await import('../../../src/audio/tts/kokoro');
@@ -57,6 +66,7 @@ describe('Kokoro TTS adapter', () => {
 
   it('synthesizes long text by chunking and calling generate() multiple times', async () => {
     const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'cm-kokoro-'));
+    tempDirs.push(tmpDir);
     const outPath = path.join(tmpDir, 'audio.wav');
 
     const { synthesizeSpeechKokoro } = await import('../../../src/audio/tts/kokoro');

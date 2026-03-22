@@ -636,8 +636,8 @@ export function restorePunctuation(words: WordTimestamp[], scriptText: string): 
   // Tokenize script into words, preserving punctuation attached to words
   const scriptWords = scriptText.split(/\s+/).filter(Boolean);
 
-  // Create a normalized lookup map: lowercase word -> original word with punctuation
-  const punctuationMap = new Map<string, string>();
+  // Create a normalized lookup map: lowercase word -> original words with punctuation (in order)
+  const punctuationMap = new Map<string, string[]>();
 
   for (const scriptWord of scriptWords) {
     // Extract the base word (remove leading/trailing punctuation for matching)
@@ -646,16 +646,18 @@ export function restorePunctuation(words: WordTimestamp[], scriptText: string): 
       .replace(/[^\w]*$/, '')
       .toLowerCase();
 
-    // Store the original word with punctuation
-    if (baseWord && !punctuationMap.has(baseWord)) {
-      punctuationMap.set(baseWord, scriptWord);
+    // Store the original word with punctuation, preserving order for repeated words
+    if (baseWord) {
+      if (!punctuationMap.has(baseWord)) punctuationMap.set(baseWord, []);
+      punctuationMap.get(baseWord)!.push(scriptWord);
     }
   }
 
   // Apply punctuation to ASR words
   return words.map((word) => {
     const baseWord = word.word.toLowerCase().replace(/[^\w']/g, '');
-    const punctuatedWord = punctuationMap.get(baseWord);
+    const replacements = punctuationMap.get(baseWord);
+    const punctuatedWord = replacements?.shift();
 
     if (punctuatedWord) {
       // Extract trailing punctuation from script word

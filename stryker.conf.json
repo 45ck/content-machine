@@ -30,7 +30,14 @@
   "mutator": {
     "excludedMutations": ["StringLiteral", "ObjectLiteral"]
   },
-  "mutate": ["src/visuals/keywords.ts"],
+  "mutate": [
+    "src/visuals/keywords.ts",
+    "src/visuals/duration.ts",
+    "src/audio/alignment.ts",
+    "src/render/captions/timing.ts",
+    "src/render/captions/chunking.ts",
+    "src/score/sync-rater.ts"
+  ],
   "tempDirName": ".stryker-tmp",
   "timeoutMS": 180000,
   "tsconfigFile": "tsconfig.json"

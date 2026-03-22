@@ -63,8 +63,8 @@ describe('Caption Quality Metrics', () => {
     it('should detect split contractions like "It" + "\'s"', () => {
       const words: WordTimestamp[] = [
         { word: 'It', start: 6.51, end: 6.6, confidence: 0.56 },
-        { word: "'s", start: 6.6, end: 0.69, confidence: 0.98 },
-        { word: 'great', start: 0.7, end: 0.9, confidence: 0.99 },
+        { word: "'s", start: 6.6, end: 6.69, confidence: 0.98 },
+        { word: 'great', start: 6.7, end: 6.9, confidence: 0.99 },
       ];
 
       const report = analyzeCaptionQuality(words);
@@ -155,52 +155,44 @@ describe('Caption Quality Metrics', () => {
       expect(realWords!.length).toBeGreaterThan(0);
     });
 
-    it('QUALITY GATE: Word integrity should be >= 95%', () => {
-      if (!report) return; // Skip if no data
-      expect(report.metrics.wordIntegrity).toBeGreaterThanOrEqual(QUALITY_THRESHOLDS.wordIntegrity);
+    it.skipIf(!report)('QUALITY GATE: Word integrity should be >= 95%', () => {
+      expect(report!.metrics.wordIntegrity).toBeGreaterThanOrEqual(QUALITY_THRESHOLDS.wordIntegrity);
     });
 
-    it('QUALITY GATE: Contraction integrity should be >= 90%', () => {
-      if (!report) return;
-      expect(report.metrics.contractionIntegrity).toBeGreaterThanOrEqual(
+    it.skipIf(!report)('QUALITY GATE: Contraction integrity should be >= 90%', () => {
+      expect(report!.metrics.contractionIntegrity).toBeGreaterThanOrEqual(
         QUALITY_THRESHOLDS.contractionIntegrity
       );
     });
 
-    it('QUALITY GATE: Duration health should be >= 90%', () => {
-      if (!report) return;
-      expect(report.metrics.durationHealth).toBeGreaterThanOrEqual(
+    it.skipIf(!report)('QUALITY GATE: Duration health should be >= 90%', () => {
+      expect(report!.metrics.durationHealth).toBeGreaterThanOrEqual(
         QUALITY_THRESHOLDS.durationHealth
       );
     });
 
-    it('QUALITY GATE: No overlapping timestamps', () => {
-      if (!report) return;
-      expect(report.metrics.timestampValidity).toBe(1);
+    it.skipIf(!report)('QUALITY GATE: No overlapping timestamps', () => {
+      expect(report!.metrics.timestampValidity).toBe(1);
     });
 
-    it('QUALITY GATE: Confidence health should be >= 80%', () => {
-      if (!report) return;
-      expect(report.metrics.confidenceHealth).toBeGreaterThanOrEqual(
+    it.skipIf(!report)('QUALITY GATE: Confidence health should be >= 80%', () => {
+      expect(report!.metrics.confidenceHealth).toBeGreaterThanOrEqual(
         QUALITY_THRESHOLDS.confidenceHealth
       );
     });
 
-    it('QUALITY GATE: Readability rate should be >= 85%', () => {
-      if (!report) return;
-      expect(report.metrics.readabilityRate).toBeGreaterThanOrEqual(
+    it.skipIf(!report)('QUALITY GATE: Readability rate should be >= 85%', () => {
+      expect(report!.metrics.readabilityRate).toBeGreaterThanOrEqual(
         QUALITY_THRESHOLDS.readabilityRate
       );
     });
 
-    it('QUALITY GATE: Overall score should be >= 85%', () => {
-      if (!report) return;
-      expect(report.overallScore).toBeGreaterThanOrEqual(QUALITY_THRESHOLDS.overallMinimum);
+    it.skipIf(!report)('QUALITY GATE: Overall score should be >= 85%', () => {
+      expect(report!.overallScore).toBeGreaterThanOrEqual(QUALITY_THRESHOLDS.overallMinimum);
     });
 
-    it('QUALITY GATE: All metrics should pass', () => {
-      if (!report) return;
-      expect(report.passed).toBe(true);
+    it.skipIf(!report)('QUALITY GATE: All metrics should pass', () => {
+      expect(report!.passed).toBe(true);
     });
   });
 
@@ -208,9 +200,8 @@ describe('Caption Quality Metrics', () => {
     // These tests document specific issues found in output/timestamps.json
     // They serve as regression tests after fixes are applied
 
-    it('should NOT have "Str" + "uggling" split', () => {
-      const realWords = loadRealTimestamps();
-      if (!realWords) return;
+    it.skipIf(!loadRealTimestamps())('should NOT have "Str" + "uggling" split', () => {
+      const realWords = loadRealTimestamps()!;
 
       // Check for this specific split
       const hasStrSplit = realWords.some(
@@ -220,9 +211,8 @@ describe('Caption Quality Metrics', () => {
       expect(hasStrSplit).toBe(false);
     });
 
-    it('should NOT have "hyd" + "rate" split', () => {
-      const realWords = loadRealTimestamps();
-      if (!realWords) return;
+    it.skipIf(!loadRealTimestamps())('should NOT have "hyd" + "rate" split', () => {
+      const realWords = loadRealTimestamps()!;
 
       const hasHydSplit = realWords.some(
         (w, i) => w.word.toLowerCase() === 'hyd' && realWords[i + 1]?.word.toLowerCase() === 'rate'
@@ -231,9 +221,8 @@ describe('Caption Quality Metrics', () => {
       expect(hasHydSplit).toBe(false);
     });
 
-    it('should NOT have "It" + "\'s" split contractions', () => {
-      const realWords = loadRealTimestamps();
-      if (!realWords) return;
+    it.skipIf(!loadRealTimestamps())('should NOT have "It" + "\'s" split contractions', () => {
+      const realWords = loadRealTimestamps()!;
 
       const hasSplitContraction = realWords.some(
         (w, i) => (w.word === 'It' || w.word === 'it') && realWords[i + 1]?.word === "'s"
@@ -242,11 +231,10 @@ describe('Caption Quality Metrics', () => {
       expect(hasSplitContraction).toBe(false);
     });
 
-    it('should NOT have any word with duration < 29ms', () => {
+    it.skipIf(!loadRealTimestamps())('should NOT have any word with duration < 29ms', () => {
       // 29ms threshold accounts for floating point precision
       // Words between 30-50ms are acceptable for short function words like "a", "or"
-      const realWords = loadRealTimestamps();
-      if (!realWords) return;
+      const realWords = loadRealTimestamps()!;
 
       const veryShortWords = realWords.filter((w) => (w.end - w.start) * 1000 < 29);
 

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterAll } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
@@ -35,8 +35,11 @@ function makeScript(): ScriptOutput {
   };
 }
 
+const tempDirs: string[] = [];
+
 function makeTempPaths() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cm-audio-'));
+  tempDirs.push(dir);
   return {
     audioPath: path.join(dir, 'audio.wav'),
     timestampsPath: path.join(dir, 'timestamps.json'),
@@ -45,6 +48,12 @@ function makeTempPaths() {
 }
 
 describe('generateAudio', () => {
+  afterAll(() => {
+    for (const dir of tempDirs) {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   beforeEach(() => {
     synthesizeSpeechMock.mockReset();
     transcribeAudioMock.mockReset();

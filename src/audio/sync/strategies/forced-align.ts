@@ -20,10 +20,9 @@ import type { SyncStrategy, SyncStrategyOptions, TimestampsResult } from '../typ
  */
 export class ForcedAlignSyncStrategy implements SyncStrategy {
   readonly name = 'forced-align' as const;
-  private readonly options: SyncStrategyOptions;
 
-  constructor(options: SyncStrategyOptions = {}) {
-    this.options = options;
+  constructor(_options: SyncStrategyOptions = {}) {
+    // Options reserved for future Aeneas integration
   }
 
   /**
@@ -33,21 +32,9 @@ export class ForcedAlignSyncStrategy implements SyncStrategy {
   async generateTimestamps(
     _audioPath: string,
     _script: ScriptOutput,
-    options?: SyncStrategyOptions
+    _options?: SyncStrategyOptions
   ): Promise<TimestampsResult> {
-    const mergedOptions = { ...this.options, ...options };
-
-    // TODO: Future - Implement Aeneas integration
-    // For now, return a placeholder that satisfies the interface
-    return {
-      source: 'aeneas',
-      words: [],
-      confidence: 0,
-      metadata: {
-        processingTimeMs: 0,
-        reconciled: mergedOptions.reconcile ?? false,
-      },
-    };
+    throw new Error('Forced alignment sync strategy is not yet implemented');
   }
 }
 
@@ -56,7 +43,5 @@ export class ForcedAlignSyncStrategy implements SyncStrategy {
  * Depends on Aeneas being installed.
  */
 export function isForcedAlignAvailable(): boolean {
-  // TODO: Future - Check actual Aeneas availability
-  // For now, return true to allow testing
-  return true;
+  return false;
 }

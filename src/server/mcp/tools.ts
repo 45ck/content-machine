@@ -277,7 +277,7 @@ export function createContentMachineMcpTools(params: {
         scriptPath: z.string().optional(),
         useSessionScript: z.boolean().optional().default(true),
         voice: z.string().min(1).default('af_heart'),
-        ttsEngine: z.enum(['kokoro', 'edge', 'elevenlabs']).optional(),
+        ttsEngine: z.enum(['kokoro', 'elevenlabs']).optional(),
         asrEngine: z.enum(['whisper', 'elevenlabs-forced-alignment']).optional(),
         speed: z.number().positive().optional(),
         outputPath: z.string().optional(),
@@ -294,7 +294,7 @@ export function createContentMachineMcpTools(params: {
           scriptPath?: string;
           useSessionScript?: boolean;
           voice: string;
-          ttsEngine?: 'kokoro' | 'edge' | 'elevenlabs';
+          ttsEngine?: 'kokoro' | 'elevenlabs';
           asrEngine?: 'whisper' | 'elevenlabs-forced-alignment';
           speed?: number;
           outputPath?: string;

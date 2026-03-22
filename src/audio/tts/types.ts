@@ -1,4 +1,4 @@
-export type TTSEngineId = 'kokoro' | 'elevenlabs' | 'edge';
+export type TTSEngineId = 'kokoro' | 'elevenlabs';
 
 export interface ElevenLabsVoiceSettings {
   stability?: number;

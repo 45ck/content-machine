@@ -91,4 +91,24 @@ describe('gemini provider', () => {
       code: 'API_ERROR',
     });
   });
+
+  it('calls withRetry with expected configuration', async () => {
+    sendMessageSpy.mockResolvedValue({
+      response: {
+        text: () => 'Hi',
+        usageMetadata: { promptTokenCount: 1, candidatesTokenCount: 2, totalTokenCount: 3 },
+        candidates: [{ finishReason: 'stop' }],
+      },
+    });
+
+    const { withRetry } = await import('../../../../src/core/retry');
+    const { GeminiProvider } = await import('../../../../src/core/llm/gemini');
+    const provider = new GeminiProvider('gemini', 'key');
+    await provider.chat([{ role: 'user', content: 'Hi' }]);
+
+    expect(withRetry).toHaveBeenCalledWith(
+      expect.any(Function),
+      expect.objectContaining({ maxRetries: expect.any(Number) })
+    );
+  });
 });

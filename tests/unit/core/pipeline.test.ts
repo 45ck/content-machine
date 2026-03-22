@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -41,11 +41,21 @@ vi.mock('../../../src/media/service', () => ({
   applyMediaManifestToVisuals: applyMediaManifestToVisualsMock,
 }));
 
+const tempDirs: string[] = [];
+
 function makeTempDir(): string {
-  return fs.mkdtempSync(path.join(os.tmpdir(), 'cm-pipeline-test-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cm-pipeline-test-'));
+  tempDirs.push(dir);
+  return dir;
 }
 
 describe('core pipeline', () => {
+  afterAll(() => {
+    for (const dir of tempDirs) {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
     loadConfigMock.mockReturnValue({

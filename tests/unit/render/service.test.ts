@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -29,8 +29,12 @@ vi.mock('../../../src/render/assets/remote-assets', () => ({
   downloadRemoteAssetsToCache: downloadRemoteAssetsToCacheMock,
 }));
 
+const tempDirs: string[] = [];
+
 function makeTempDir(): string {
-  return fs.mkdtempSync(path.join(os.tmpdir(), 'cm-render-test-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cm-render-test-'));
+  tempDirs.push(dir);
+  return dir;
 }
 
 function writeBigFile(filePath: string, bytes = 12 * 1024): void {
@@ -39,6 +43,12 @@ function writeBigFile(filePath: string, bytes = 12 * 1024): void {
 }
 
 describe('render service', () => {
+  afterAll(() => {
+    for (const dir of tempDirs) {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
   beforeEach(() => {
     vi.clearAllMocks();
     delete process.env.CM_REMOTION_CONCURRENCY;

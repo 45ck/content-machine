@@ -336,7 +336,8 @@ async function handleAudioSuccess(params: {
       reconcile: params.reconcile,
       requireWhisper: params.requireWhisper,
     });
-    process.exit(0);
+    process.exitCode = 0;
+    return;
   }
 
   const summary = buildAudioSummary({ result, options, ttsSpeed });
@@ -348,7 +349,8 @@ async function handleAudioSuccess(params: {
 
   // Human-mode stdout should be reserved for the primary artifact path.
   writeStdoutLine(result.audioPath);
-  process.exit(0);
+  process.exitCode = 0;
+  return;
 }
 
 export const audioCommand = new Command('audio')

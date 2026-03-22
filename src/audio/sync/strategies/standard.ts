@@ -16,6 +16,7 @@ import type {
   TimestampSource,
 } from '../types';
 import { transcribeAudio } from '../../asr';
+import { buildAlignmentUnits, normalizeSpokenText } from '../../alignment';
 import { CMError } from '../../../core/errors';
 import { createLogger } from '../../../core/logger';
 
@@ -30,10 +31,11 @@ export interface StandardSyncOptions extends SyncStrategyOptions {
 }
 
 /**
- * Extract combined text from all script scenes
+ * Extract combined text from all script scenes using alignment units
  */
 function extractScriptText(script: ScriptOutput): string {
-  return script.scenes.map((scene) => scene.text).join(' ');
+  const units = buildAlignmentUnits(script);
+  return units.map((u) => normalizeSpokenText(u.text)).join(' ');
 }
 
 function countWords(text: string): number {

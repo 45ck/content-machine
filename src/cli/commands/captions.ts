@@ -248,7 +248,8 @@ export const captionsCommand = new Command('captions')
             timingsMs: Date.now() - runtime.startTime,
           })
         );
-        process.exit(report.fastChunkCount === 0 ? 0 : 1);
+        process.exitCode = report.fastChunkCount === 0 ? 0 : 1;
+        return;
       }
       const lines = buildSummaryLines({
         report,
@@ -262,7 +263,8 @@ export const captionsCommand = new Command('captions')
         footerLines: [`Next: cm render --timestamps ${options.timestamps}`],
       });
       writeStdoutLine(options.output);
-      process.exit(report.fastChunkCount === 0 ? 0 : 1);
+      process.exitCode = report.fastChunkCount === 0 ? 0 : 1;
+      return;
     } catch (error) {
       spinner.fail('Caption diagnostics failed');
       handleCommandError(error);

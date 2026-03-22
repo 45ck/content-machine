@@ -37,7 +37,9 @@ import {
 } from './observability.js';
 import { recommendRoutingPolicy } from './evaluation.js';
 import { selectGameplayClip } from './gameplay.js';
-import { loadConfig } from '../core/config.js';
+import { loadConfig, type Config } from '../core/config.js';
+
+type VisualsConfig = Config['visuals'];
 import { readFile } from 'node:fs/promises';
 import { dirname, extname, isAbsolute, resolve } from 'node:path';
 import { existsSync } from 'node:fs';
@@ -409,21 +411,20 @@ function resolveVisualsConfig(params: {
   return {
     ...config.visuals,
     local: {
-      ...(config.visuals as any).local,
+      ...config.visuals.local,
       ...(localDir ? { dir: localDir } : {}),
       ...(localManifest ? { manifest: localManifest } : {}),
     },
-  } as typeof config.visuals;
+  };
 }
 
 function resolveProviderChain(params: {
   providerName: string;
   providers?: AssetProviderName[] | undefined;
-  visualsConfig: unknown;
+  visualsConfig: VisualsConfig;
 }): AssetProviderName[] {
   const { providerName, providers, visualsConfig } = params;
-  const configuredFallbacks =
-    ((visualsConfig as any).fallbackProviders as AssetProviderName[] | undefined) ?? [];
+  const configuredFallbacks = visualsConfig.fallbackProviders ?? [];
   const providerChain: AssetProviderName[] = providers?.length
     ? providers
     : [providerName as AssetProviderName, ...configuredFallbacks];
@@ -555,11 +556,8 @@ function enforceGenerationCostBudget(params: {
   }
 }
 
-function getConfiguredGenerationBudgetUsd(visualsConfig: unknown): number | undefined {
-  return (
-    ((visualsConfig as any).maxGenerationCostUsd as number | undefined) ??
-    ((visualsConfig as any).maxGenerationCost as number | undefined)
-  );
+function getConfiguredGenerationBudgetUsd(visualsConfig: VisualsConfig): number | undefined {
+  return visualsConfig.maxGenerationCostUsd ?? visualsConfig.maxGenerationCost;
 }
 
 async function resolveEffectiveRoutingPolicy(params: {
@@ -740,9 +738,7 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
     localManifest: options.localManifest,
   });
   const requestedRoutingPolicy: ProviderRoutingPolicy | 'adaptive' =
-    options.routingPolicy ??
-    ((visualsConfig as any).routingPolicy as ProviderRoutingPolicy | undefined) ??
-    'configured';
+    options.routingPolicy ?? visualsConfig.routingPolicy ?? 'configured';
   const routingPolicy = await resolveEffectiveRoutingPolicy({
     requestedPolicy: requestedRoutingPolicy,
     adaptiveWindow: options.routingAdaptiveWindow ?? 200,
@@ -752,7 +748,7 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
 
   const motionStrategy: MotionStrategyType =
     options.motionStrategy ?? (visualsConfig.motionStrategy as MotionStrategyType);
-  const configuredGenerationConcurrency = (visualsConfig as any).generationConcurrency ?? 2;
+  const configuredGenerationConcurrency = visualsConfig.generationConcurrency ?? 2;
 
   const gameplayClip = gameplay
     ? await selectGameplayClip({
@@ -796,7 +792,7 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
 
   // Create the asset providers (Strategy pattern, supports hybrid chain)
   const providersAll = uniqueProviderChain.map((name) =>
-    createAssetProvider(name, { visuals: visualsConfig as any })
+    createAssetProvider(name, { visuals: visualsConfig })
   );
   const providers = providersAll.filter((p) => {
     try {
@@ -825,8 +821,7 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
   const maxGenerationCostUsd = getConfiguredGenerationBudgetUsd(visualsConfig);
   const effectiveMaxGenerationCostUsd = options.maxGenerationCostUsd ?? maxGenerationCostUsd;
   const warnAtGenerationCostUsd =
-    ((visualsConfig as any).warnAtGenerationCostUsd as number | undefined) ??
-    ((visualsConfig as any).warnAtCost as number | undefined);
+    visualsConfig.warnAtGenerationCostUsd ?? visualsConfig.warnAtCost;
   const generationConcurrency = resolveEffectiveConcurrency({
     configuredConcurrency: configuredGenerationConcurrency,
     hasImageProvider,
@@ -867,8 +862,11 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
     total: keywordsForOutput.length,
   });
 
-  const manifestPath = (visualsConfig as any)?.local?.manifest as string | undefined;
+  const manifestPath = visualsConfig.local?.manifest;
   const manifestLoaded = manifestPath ? await loadLocalManifest({ manifestPath, log }) : null;
+  // INVARIANT: This mutable variable is safe from races because resolveEffectiveConcurrency()
+  // forces concurrency=1 when maxGenerationCostUsd is set. If concurrency > 1,
+  // remainingGenerationBudgetUsd is undefined and the decrement path is unreachable.
   let remainingGenerationBudgetUsd = effectiveMaxGenerationCostUsd;
 
   const matchResults = await mapWithConcurrency({

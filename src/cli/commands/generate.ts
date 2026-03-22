@@ -761,15 +761,7 @@ async function runGeneratePreflight(params: {
     const ttsEngine = config.audio?.ttsEngine ?? 'kokoro';
     const asrEngine = config.audio?.asrEngine ?? 'whisper';
 
-    if (ttsEngine === 'edge') {
-      addPreflightCheck(checks, {
-        label: 'TTS engine',
-        status: 'fail',
-        code: 'INVALID_ARGUMENT',
-        detail: 'edge (not implemented)',
-        fix: 'Set audio.ttsEngine="kokoro" or audio.ttsEngine="elevenlabs" in your config',
-      });
-    } else if (ttsEngine === 'elevenlabs') {
+    if (ttsEngine === 'elevenlabs') {
       const hasKey = Boolean(process.env.ELEVENLABS_API_KEY);
       addPreflightCheck(checks, {
         label: 'TTS engine',

@@ -138,8 +138,9 @@ describe('cli captions command', () => {
     expect(payload.args.captionDropFillers).toBe(true);
     expect(payload.args.captionFillerWords).toEqual(['um', 'like']);
     expect(payload.outputs.fastChunkCount).toBe(1);
-    expect(exitSpy).toHaveBeenCalledWith(1);
+    expect(process.exitCode).toBe(1);
 
+    process.exitCode = undefined;
     exitSpy.mockRestore();
   });
 
@@ -172,8 +173,9 @@ describe('cli captions command', () => {
       })
     );
     expect(stdoutSpy).toHaveBeenCalledWith('caption-diagnostics.json');
-    expect(exitSpy).toHaveBeenCalledWith(0);
+    expect(process.exitCode).toBe(0);
 
+    process.exitCode = undefined;
     exitSpy.mockRestore();
   });
 

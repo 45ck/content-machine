@@ -89,7 +89,7 @@ const ElevenLabsConfigSchema = z
   .default({});
 
 const AudioConfigSchema = z.object({
-  ttsEngine: z.enum(['kokoro', 'edge', 'elevenlabs']).default('kokoro'),
+  ttsEngine: z.enum(['kokoro', 'elevenlabs']).default('kokoro'),
   asrEngine: z.enum(['whisper', 'elevenlabs-forced-alignment']).default('whisper'),
   asrModel: z.enum(['tiny', 'base', 'small', 'medium', 'large']).default('base'),
   elevenlabs: ElevenLabsConfigSchema.default({}),

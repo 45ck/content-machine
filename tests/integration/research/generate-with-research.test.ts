@@ -52,10 +52,6 @@ describe('cm generate --research integration', () => {
   });
 
   describe('research auto-discovery', () => {
-    it('should run research when --research flag is true without path', async () => {
-      // When --research is passed without a file path, it should auto-run research
-      // This is a design decision - we'll implement it as a boolean flag first
-      expect(true).toBe(true);
-    });
+    it.todo('should run research when --research flag is true without path');
   });
 });

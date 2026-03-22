@@ -52,14 +52,20 @@ describe('PexelsProvider', () => {
     expect(provider.isAvailable()).toBe(false);
   });
 
-  // Integration tests would require mocking the searchPexels function
-  // or the actual API call. These tests verify the interface contract.
-  it('search returns a promise', () => {
+  it('search returns results with expected shape', async () => {
     const provider = new PexelsProvider();
-    const result = provider.search({
-      query: 'nature',
-      orientation: 'portrait',
-    });
-    expect(result).toBeInstanceOf(Promise);
+    const results = await provider.search({ query: 'nature', orientation: 'portrait' });
+    expect(results).toBeDefined();
+    expect(Array.isArray(results)).toBe(true);
+    expect(results.length).toBeGreaterThan(0);
+    expect(results[0]).toEqual(
+      expect.objectContaining({
+        id: expect.any(String),
+        url: expect.any(String),
+        width: expect.any(Number),
+        height: expect.any(Number),
+        duration: expect.any(Number),
+      })
+    );
   });
 });

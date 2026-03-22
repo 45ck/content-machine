@@ -150,7 +150,7 @@ const VisualAssetBaseSchema = z.object({
   sceneId: z.string(),
   source: VisualSourceEnum,
   assetPath: z.string(),
-  duration: z.number().positive(),
+  duration: z.number().positive().describe('Duration in seconds'),
 
   // Asset type discriminator (v1.1) - optional for backward compatibility
   assetType: z.enum(['video', 'image']).optional(),

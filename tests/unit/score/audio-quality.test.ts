@@ -198,48 +198,38 @@ describe('Audio Quality Metrics', () => {
       report = analyzeAudioQuality(timestamps);
     });
 
-    it('QUALITY GATE: No word overlaps', () => {
-      if (!report) return;
+    it.skipIf(!report)('QUALITY GATE: No word overlaps', () => {
+      console.log(`Overlaps found: ${report!.details.overlapsFound}`);
 
-      console.log(`Overlaps found: ${report.details.overlapsFound}`);
-
-      expect(report.details.overlapsFound).toBe(0);
-      expect(report.metrics.overlapFree).toBe(100);
+      expect(report!.details.overlapsFound).toBe(0);
+      expect(report!.metrics.overlapFree).toBe(100);
     });
 
-    it('QUALITY GATE: No extreme silence gaps (>1500ms)', () => {
-      if (!report) return;
+    it.skipIf(!report)('QUALITY GATE: No extreme silence gaps (>1500ms)', () => {
+      console.log(`Max gap: ${report!.details.maxGapMs.toFixed(0)}ms`);
+      console.log(`Avg gap: ${report!.details.avgGapMs.toFixed(0)}ms`);
 
-      console.log(`Max gap: ${report.details.maxGapMs.toFixed(0)}ms`);
-      console.log(`Avg gap: ${report.details.avgGapMs.toFixed(0)}ms`);
-
-      expect(report.details.maxGapMs).toBeLessThan(AUDIO_THRESHOLDS.extremeGapMs);
+      expect(report!.details.maxGapMs).toBeLessThan(AUDIO_THRESHOLDS.extremeGapMs);
     });
 
-    it('QUALITY GATE: Breathing room at punctuation >= 50%', () => {
-      if (!report) return;
+    it.skipIf(!report)('QUALITY GATE: Breathing room at punctuation >= 50%', () => {
+      console.log(`Pauses: ${report!.details.pausesFound}/${report!.details.expectedPauses}`);
+      console.log(`Breathing room score: ${report!.metrics.breathingRoom}%`);
 
-      console.log(`Pauses: ${report.details.pausesFound}/${report.details.expectedPauses}`);
-      console.log(`Breathing room score: ${report.metrics.breathingRoom}%`);
-
-      expect(report.metrics.breathingRoom).toBeGreaterThanOrEqual(50);
+      expect(report!.metrics.breathingRoom).toBeGreaterThanOrEqual(50);
     });
 
-    it('QUALITY GATE: Scene transitions are smooth', () => {
-      if (!report) return;
+    it.skipIf(!report)('QUALITY GATE: Scene transitions are smooth', () => {
+      console.log(`Scene transitions: ${report!.details.sceneTransitions}`);
+      console.log(`Abrupt transitions: ${report!.details.abruptTransitions}`);
 
-      console.log(`Scene transitions: ${report.details.sceneTransitions}`);
-      console.log(`Abrupt transitions: ${report.details.abruptTransitions}`);
-
-      expect(report.metrics.transitionSmoothness).toBeGreaterThanOrEqual(60);
+      expect(report!.metrics.transitionSmoothness).toBeGreaterThanOrEqual(60);
     });
 
-    it('QUALITY GATE: Overall audio score >= 70%', () => {
-      if (!report) return;
+    it.skipIf(!report)('QUALITY GATE: Overall audio score >= 70%', () => {
+      console.log('\n' + formatAudioReport(report!));
 
-      console.log('\n' + formatAudioReport(report));
-
-      expect(report.overallScore).toBeGreaterThanOrEqual(70);
+      expect(report!.overallScore).toBeGreaterThanOrEqual(70);
     });
   });
 });

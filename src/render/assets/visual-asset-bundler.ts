@@ -10,7 +10,7 @@
  */
 import { createHash } from 'crypto';
 import { extname, resolve } from 'path';
-import type { VisualsOutputInput } from '../../domain';
+import type { VisualsOutput, VisualsOutputInput } from '../../domain';
 
 export interface VisualAssetBundlePlanItem {
   sourceUrl?: string;
@@ -68,7 +68,9 @@ function toLocalBundlePath(path: string): string {
   return `user/${hashPath(resolved)}${ext}`;
 }
 
-export function buildVisualAssetBundlePlan(visuals: VisualsOutputInput): VisualAssetBundlePlan {
+export function buildVisualAssetBundlePlan(
+  visuals: VisualsOutput | VisualsOutputInput
+): VisualAssetBundlePlan {
   const urls = new Set<string>();
   const locals = new Set<string>();
 
@@ -105,9 +107,9 @@ export function buildVisualAssetBundlePlan(visuals: VisualsOutputInput): VisualA
 }
 
 export function applyVisualAssetBundlePlan(
-  visuals: VisualsOutputInput,
+  visuals: VisualsOutput | VisualsOutputInput,
   plan: VisualAssetBundlePlan
-): VisualsOutputInput {
+): VisualsOutput | VisualsOutputInput {
   if (!plan.assets.length) return visuals;
 
   const mapping = new Map<string, string>(

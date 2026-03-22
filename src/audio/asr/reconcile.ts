@@ -75,7 +75,11 @@ function normalize(word: string): string {
 function phoneticNormalize(word: string): string {
   let result = normalize(word);
 
-  // Common number-to-word mappings
+  // Common number-to-word mappings.
+  // LIMITATION: Only handles single digits and "10". Multi-digit numbers > 10
+  // (e.g., "42", "100") are replaced digit-by-digit ("fourtwo", "onezerozer"),
+  // which will not match spoken forms like "forty-two" or "one hundred".
+  // Note: "10" must be replaced before single digits to avoid "1" -> "one" first.
   result = result
     .replace(/10/g, 'ten')
     .replace(/1/g, 'one')
@@ -295,7 +299,7 @@ function computeLcsPairs(
   const n = s.length;
   const m = a.length;
   const cols = m + 1;
-  const dp = new Uint16Array((n + 1) * (m + 1));
+  const dp = new Uint32Array((n + 1) * (m + 1));
 
   for (let i = 1; i <= n; i++) {
     const si = s[i - 1];
