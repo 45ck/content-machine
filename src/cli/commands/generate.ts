@@ -11,8 +11,7 @@ import { OrientationEnum, type Archetype, type Orientation } from '../../core/co
 import { getOptionalApiKey, loadConfig } from '../../core/config';
 import { formatArchetypeSource, resolveArchetype } from '../../archetypes/registry';
 import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
-import { FakeLLMProvider } from '../../test/stubs/fake-llm';
-import { createMockScriptResponse } from '../../test/fixtures/mock-scenes.js';
+import type { LLMProvider } from '../../core/llm/provider';
 import { createSpinner } from '../progress';
 import { chalk } from '../colors';
 import { getCliRuntime } from '../runtime';
@@ -112,7 +111,7 @@ export interface SyncPresetConfig {
 export const SYNC_PRESETS = SYNC_PRESET_CONFIGS as Record<SyncPresetId, SyncPresetConfig>;
 const SYNC_PRESET_HELP = Object.keys(SYNC_PRESETS).join(', ');
 
-interface GenerateOptions {
+export interface GenerateOptions {
   archetype: string;
   output: string;
   orientation: string;
@@ -2315,7 +2314,7 @@ async function runGeneratePipeline(params: {
   gameplay?: { library?: string; style?: string; required?: boolean };
   hook?: HookClip | null;
   research: ResearchOutput | undefined;
-  llmProvider: FakeLLMProvider | undefined;
+  llmProvider: LLMProvider | undefined;
   runtime: ReturnType<typeof getCliRuntime>;
   scriptInput?: ScriptOutput;
   audioInput?: AudioOutput;
@@ -2614,11 +2613,11 @@ function reportResearchSummary(
   );
 }
 
-function createGenerateLlmProvider(
+async function createGenerateLlmProvider(
   topic: string,
   options: GenerateOptions,
   runtime: ReturnType<typeof getCliRuntime>
-): FakeLLMProvider | undefined {
+): Promise<LLMProvider | undefined> {
   if (!options.mock) return undefined;
   if (!runtime.json) writeStderrLine(chalk.yellow('Mock mode - using fake providers'));
   return createMockLLMProvider(topic);
@@ -2784,7 +2783,7 @@ async function runPipelineWithOptionalSyncQualityGate(
       };
 
       const llmProvider = params.options.mock
-        ? createMockLLMProvider(params.topic)
+        ? await createMockLLMProvider(params.topic)
         : params.llmProvider;
       return runGeneratePipeline({ ...params, options: attemptOptions, llmProvider });
     };
@@ -2905,7 +2904,7 @@ async function runPipelineWithOptionalSyncQualityGate(
       );
 
       const llmProvider = params.options.mock
-        ? createMockLLMProvider(params.topic)
+        ? await createMockLLMProvider(params.topic)
         : params.llmProvider;
 
       return runGeneratePipeline({
@@ -3327,7 +3326,7 @@ async function runGenerate(
     : await loadOrRunResearch(options.research, topic, options.mock);
   reportResearchSummary(research, runtime);
 
-  const llmProvider = createGenerateLlmProvider(topic, options, runtime);
+  const llmProvider = await createGenerateLlmProvider(topic, options, runtime);
 
   const gameplaySpecified = Boolean(options.gameplay);
   const gameplayStyleSpecified = Boolean(options.gameplayStyle);
@@ -3460,7 +3459,9 @@ async function runGenerate(
   });
 }
 
-function createMockLLMProvider(topic: string): FakeLLMProvider {
+async function createMockLLMProvider(topic: string): Promise<LLMProvider> {
+  const { FakeLLMProvider } = await import('../../test/stubs/fake-llm');
+  const { createMockScriptResponse } = await import('../../test/fixtures/mock-scenes.js');
   const provider = new FakeLLMProvider();
   provider.queueJsonResponse(createMockScriptResponse(topic));
   return provider;

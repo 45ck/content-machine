@@ -4,7 +4,6 @@ import { generateScript } from '../script/generator';
 import { generateAudio } from '../audio/pipeline';
 import { matchVisuals } from '../visuals/matcher';
 import { renderVideo } from '../render/service';
-import { FakeLLMProvider } from '../test/stubs/fake-llm';
 import { ArchetypeIdSchema } from '../domain/ids';
 import { DEFAULT_ARTIFACT_FILENAMES } from '../domain/repo-facts.generated';
 import {
@@ -144,6 +143,7 @@ export async function runDemo(options: DemoOptions): Promise<DemoResult> {
 
   await mkdir(artifactsDir, { recursive: true });
 
+  const { FakeLLMProvider } = await import('../test/stubs/fake-llm');
   const llm = new FakeLLMProvider();
   llm.queueJsonResponse(createDemoScriptResponse(topic));
   const script = await generateScript({

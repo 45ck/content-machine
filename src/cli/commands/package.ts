@@ -7,7 +7,7 @@ import { Command } from 'commander';
 import { generatePackage } from '../../package/generator';
 import { PlatformEnum, type Platform } from '../../domain';
 import { logger } from '../../core/logger';
-import { FakeLLMProvider } from '../../test/stubs/fake-llm';
+import type { LLMProvider } from '../../core/llm/provider';
 import { handleCommandError, writeOutputFile } from '../utils';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
@@ -34,7 +34,8 @@ function parseSelect(value: string | undefined): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-function createMockPackagingProvider(topic: string): FakeLLMProvider {
+async function createMockPackagingProvider(topic: string): Promise<LLMProvider> {
+  const { FakeLLMProvider } = await import('../../test/stubs/fake-llm');
   const llmProvider = new FakeLLMProvider();
   llmProvider.queueJsonResponse({
     variants: [
@@ -196,7 +197,7 @@ async function runPackage(topic: string, options: PackageCommandOptions): Promis
 
     logger.info({ topic, platform, variants }, 'Starting packaging generation');
 
-    const llmProvider = options.mock ? createMockPackagingProvider(topic) : undefined;
+    const llmProvider = options.mock ? await createMockPackagingProvider(topic) : undefined;
     if (options.mock) {
       spinner.text = 'Generating packaging (mock mode)...';
     }

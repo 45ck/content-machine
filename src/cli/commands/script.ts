@@ -11,8 +11,7 @@ import { logger } from '../../core/logger';
 import { PackageOutputSchema, ResearchOutputSchema, type ResearchOutput } from '../../domain';
 import { generateScript } from '../../script/generator';
 import { formatArchetypeSource, resolveArchetype } from '../../archetypes/registry';
-import { FakeLLMProvider } from '../../test/stubs/fake-llm';
-import { createMockScriptResponse } from '../../test/fixtures/mock-scenes.js';
+import type { LLMProvider } from '../../core/llm/provider';
 import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
@@ -27,7 +26,9 @@ interface PackagingInput {
   onScreenHook: string;
 }
 
-function createMockLLMProvider(topic: string): FakeLLMProvider {
+async function createMockLLMProvider(topic: string): Promise<LLMProvider> {
+  const { FakeLLMProvider } = await import('../../test/stubs/fake-llm');
+  const { createMockScriptResponse } = await import('../../test/fixtures/mock-scenes.js');
   const provider = new FakeLLMProvider();
   provider.queueJsonResponse(createMockScriptResponse(topic));
   return provider;
@@ -204,7 +205,7 @@ async function runScript(options: ScriptCommandOptions, spinner: SpinnerLike): P
     'Starting script generation'
   );
 
-  const llmProvider = options.mock ? createMockLLMProvider(options.topic) : undefined;
+  const llmProvider = options.mock ? await createMockLLMProvider(options.topic) : undefined;
   if (options.mock) {
     spinner.text = 'Generating script (mock mode)...';
   }

@@ -73,5 +73,3 @@ export type { AnalyzeVideoToVideoSpecV1Options } from './videospec/analyze';
 export { VideoSpecV1Schema, VIDEOSPEC_V1_VERSION } from './domain';
 export type { VideoSpecV1 } from './domain';
 
-// Test stubs (for testing consumers)
-export { FakeLLMProvider } from './test/stubs/fake-llm';

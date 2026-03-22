@@ -8,7 +8,7 @@ import { logger } from '../../core/logger';
 import { ResearchSourceEnum, type ResearchSource } from '../../domain';
 import { createResearchOrchestrator } from '../../research/orchestrator';
 import type { OrchestratorResult } from '../../research/orchestrator';
-import { FakeLLMProvider } from '../../test/stubs/fake-llm';
+import type { LLMProvider } from '../../core/llm/provider';
 import { handleCommandError, writeOutputFile } from '../utils';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
@@ -58,7 +58,8 @@ function parseSources(sourcesStr: string): ResearchSource[] {
   return validSources;
 }
 
-function createMockLLMProvider(query: string): FakeLLMProvider {
+async function createMockLLMProvider(query: string): Promise<LLMProvider> {
+  const { FakeLLMProvider } = await import('../../test/stubs/fake-llm');
   const provider = new FakeLLMProvider();
   provider.queueJsonResponse([
     {
@@ -113,7 +114,7 @@ async function executeResearch(
   const spinner = createSpinner('Researching topic...').start();
 
   const llmProvider =
-    options.angles && options.mock ? createMockLLMProvider(options.query) : undefined;
+    options.angles && options.mock ? await createMockLLMProvider(options.query) : undefined;
 
   const orchestrator = createResearchOrchestrator(
     {

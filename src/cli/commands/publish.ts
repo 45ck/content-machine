@@ -7,7 +7,6 @@ import { Command } from 'commander';
 import { handleCommandError, readInputFile, writeOutputFile } from '../utils';
 import { PackageOutputSchema, PlatformEnum, ScriptOutputSchema } from '../../domain';
 import { generatePublish } from '../../publish/generator';
-import { FakeLLMProvider } from '../../test/stubs/fake-llm';
 import { createSpinner } from '../progress';
 import { getCliRuntime } from '../runtime';
 import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
@@ -69,7 +68,8 @@ export const publishCommand = new Command('publish')
       }
 
       const llmProvider = options.mock
-        ? (() => {
+        ? await (async () => {
+            const { FakeLLMProvider } = await import('../../test/stubs/fake-llm');
             const fake = new FakeLLMProvider();
             fake.queueJsonResponse({
               description: `Description for ${script.title ?? 'video'}`,
