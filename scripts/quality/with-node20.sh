@@ -10,14 +10,14 @@ current_major() {
 }
 
 major="$(current_major || true)"
-if [ -n "${major:-}" ] && [ "${major:-0}" -eq "$need_major" ]; then
+if [ -n "${major:-}" ] && [ "${major:-0}" -ge "$need_major" ]; then
   exec "$@"
 fi
 
 NVM_VERSIONS_DIR="${HOME}/.nvm/versions/node"
 best_bin=""
 if [ -d "$NVM_VERSIONS_DIR" ]; then
-  # Pick the highest installed Node 20.x (aligns with `.nvmrc` and avoids Node 22+ incompatibilities).
+  # Pick the highest installed Node 20.x as a fallback when current Node is below 20.
   if command -v sort >/dev/null 2>&1 && sort -V </dev/null >/dev/null 2>&1; then
     versions="$(ls -1 "$NVM_VERSIONS_DIR" 2>/dev/null | sort -V || true)"
   else
