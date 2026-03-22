@@ -1,48 +1,54 @@
 # Documentation
 
-This repo separates docs by audience:
+## For Users
 
-- Users: [`docs/user/README.md`](user/README.md)
-- Developers: [`docs/dev/README.md`](dev/README.md)
-- Canonical reference (generated + command references): [`docs/reference/`](reference/)
-- Research archive: [`docs/research/`](research/)
+Start here if you want to use Content Machine:
 
-## Single Sources Of Truth
+- [Installation](user/INSTALLATION.md)
+- [Quickstart](user/QUICKSTART.md)
+- [CLI Usage](user/CLI.md)
+- [Configuration](user/CONFIGURATION.md)
+- [Examples](user/EXAMPLES.md)
 
-If a fact is repeated in multiple places, it should come from one of these registries:
+Full index: [docs/user/README.md](user/README.md)
 
-- Repo facts registry (source of truth): `registry/repo-facts.yaml`
-  - Generated docs (do not edit): [`docs/reference/REPO-FACTS.md`](reference/REPO-FACTS.md)
-  - Generated env var names (do not edit): [`docs/reference/ENVIRONMENT-VARIABLES.md`](reference/ENVIRONMENT-VARIABLES.md)
-- Ubiquitous language registry (source of truth): `registry/ubiquitous-language.yaml`
-  - Generated glossary (do not edit): [`docs/reference/GLOSSARY.md`](reference/GLOSSARY.md)
-  - System explainer: [`docs/reference/ubiquitous-language-system-20260210.md`](reference/ubiquitous-language-system-20260210.md)
+## For Contributors
 
-## Date Convention
+- [Contributing Guide](../CONTRIBUTING.md) — setup, workflow, PR process
+- [Developer Docs](dev/README.md) — architecture, specs, guides
+- [Research Archive](research/) — 86+ research documents
 
-Docs in `docs/dev/architecture/`, `docs/dev/features/`, `docs/dev/guides/`, `docs/research/`, etc use `-YYYYMMDD` suffixes.
-User docs (`docs/user/`) are stable, undated entry points.
+## Reference (Generated)
 
-## Quick Links
+These are auto-generated from registries — edit the YAML source, not the output:
 
-Users:
+- [Repo Facts](reference/REPO-FACTS.md) ← `registry/repo-facts.yaml`
+- [Environment Variables](reference/ENVIRONMENT-VARIABLES.md) ← `registry/repo-facts.yaml`
+- [Config Surface](reference/CONFIG-SURFACE.md) ← `registry/repo-facts.yaml`
+- [Glossary](reference/GLOSSARY.md) ← `registry/ubiquitous-language.yaml`
+- [Pipeline Presets](reference/PIPELINE-PRESETS.md) ← `registry/repo-facts.yaml`
 
-- Quickstart: [`docs/user/QUICKSTART.md`](user/QUICKSTART.md)
-- Configuration: [`docs/user/CONFIGURATION.md`](user/CONFIGURATION.md)
-- Examples: [`docs/user/EXAMPLES.md`](user/EXAMPLES.md)
+Regenerate with: `npm run repo-facts:gen` / `npm run glossary:gen`
 
-Canonical references (generated; do not edit):
+## CLI Command References
 
-- Repo facts: [`docs/reference/REPO-FACTS.md`](reference/REPO-FACTS.md)
-- Environment variables: [`docs/reference/ENVIRONMENT-VARIABLES.md`](reference/ENVIRONMENT-VARIABLES.md)
-- Config surface: [`docs/reference/CONFIG-SURFACE.md`](reference/CONFIG-SURFACE.md)
-- Pipeline presets: [`docs/reference/PIPELINE-PRESETS.md`](reference/PIPELINE-PRESETS.md)
+- [`cm generate`](reference/cm-generate-reference-20260106.md)
+- [`cm script`](reference/cm-script-reference-20260106.md)
+- [`cm audio`](reference/cm-audio-reference-20260106.md)
+- [`cm visuals`](reference/cm-visuals-reference-20260106.md)
+- [`cm media`](reference/cm-media-reference-20260217.md)
+- [`cm render`](reference/cm-render-reference-20260106.md)
+- [`cm templates`](reference/cm-templates-reference-20260210.md)
+- [`cm setup`](reference/cm-setup-reference-20260111.md)
+- [`cm init`](reference/cm-init-reference-20260106.md)
+- [`cm research`](reference/cm-research-reference-20260106.md)
 
-Core design:
+## Demo Gallery
 
-- System design: [`docs/dev/architecture/SYSTEM-DESIGN-20260104.md`](dev/architecture/SYSTEM-DESIGN-20260104.md)
-- Project overview: [`AGENTS.md`](../AGENTS.md)
+- [Demo assets](demo/) — GIFs and preview media for README
 
-Developer reference:
+## Conventions
 
-- Code-first glossary (term -> code references): [`docs/dev/glossary/`](dev/glossary/)
+- **User docs** (`docs/user/`): stable, undated entry points
+- **Dev docs** (`docs/dev/`): dated filenames with `-YYYYMMDD` suffix
+- **Reference docs** (`docs/reference/`): auto-generated, do not edit

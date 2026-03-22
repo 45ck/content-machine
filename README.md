@@ -12,123 +12,112 @@
   </picture>
 </p>
 
-CLI-first automated short-form video generator for TikTok, Reels, and Shorts.
+**Turn any topic into a TikTok/Reels/Shorts video from the command line.**
 
-> **Status:** Early development. Not production-ready yet.
+One command in, vertical video out. Content Machine generates scripts, voiceover, captions, and stock footage — then renders everything into a ready-to-upload MP4.
 
-![Content Machine pipeline](https://raw.githubusercontent.com/45ck/content-machine/master/assets/demo/pipeline-preview.svg)
+```bash
+cm generate "Redis vs PostgreSQL for caching" --archetype versus -o video.mp4
+```
+
+<p align="center">
+  <img src="assets/demo/demo-1-split-screen.gif" alt="Split screen demo" width="32%" />
+  <img src="assets/demo/demo-2-subway-captions.gif" alt="Caption styles demo" width="32%" />
+  <img src="assets/demo/demo-4-latest-news.gif" alt="Latest news demo" width="32%" />
+</p>
+
+> Early development — working, but APIs may change between releases.
 
 ## Install
 
 ```bash
-# Node.js >= 20 required
 npm install -g @45ck/content-machine
+```
 
-# Verify
-cm --help
+Or run without installing:
 
-# Or run without installing
+```bash
 npx -y @45ck/content-machine --help
 ```
 
-## Quickstart
+Requires Node.js >= 20. See [full installation guide](docs/user/INSTALLATION.md) for optional setup (Whisper, ffmpeg).
 
-Verify install (no API keys required):
+## Quick Start
+
+**1. Try the demo** (no API keys needed):
 
 ```bash
 cm demo -o output/demo.mp4
 ```
 
-Review your most recent render:
+**2. Generate a real video** (needs OpenAI + Pexels keys):
 
 ```bash
-npm run review:latest
-```
-
-Generate a real video (requires API keys):
-
-```bash
-export OPENAI_API_KEY="..."
+export OPENAI_API_KEY="sk-..."
 export PEXELS_API_KEY="..."
 
-cm generate "Redis vs PostgreSQL for caching" \
-  --archetype versus \
-  --pipeline standard \
-  --output output/video.mp4 \
-  --keep-artifacts
+cm generate "5 things every dev should know about Docker" \
+  --archetype listicle \
+  -o output/docker-tips.mp4
 ```
 
-More: https://github.com/45ck/content-machine/blob/master/docs/user/QUICKSTART.md
+**3. Diagnose issues:**
 
-## Docs
+```bash
+cm doctor
+```
 
-Start here:
+See the full [Quickstart guide](docs/user/QUICKSTART.md) for Whisper setup and advanced options.
 
-- User docs: https://github.com/45ck/content-machine/blob/master/docs/user/README.md
-- Docs portal: https://github.com/45ck/content-machine/blob/master/docs/README.md
-- Google Gemini provider: https://github.com/45ck/content-machine/blob/master/docs/user/providers/gemini.md
+## What You Can Make
 
-Canonical references (generated; do not edit):
+| Archetype    | What it produces            | Example                                                |
+| ------------ | --------------------------- | ------------------------------------------------------ |
+| **listicle** | "5 things..." numbered tips | `cm generate "5 Docker tips" --archetype listicle`     |
+| **versus**   | Side-by-side comparison     | `cm generate "Redis vs Postgres" --archetype versus`   |
+| **howto**    | Step-by-step tutorial       | `cm generate "Deploy to AWS" --archetype howto`        |
+| **myth**     | Myth vs reality debunk      | `cm generate "JavaScript myths" --archetype myth`      |
+| **story**    | Narrative with a hook       | `cm generate "How Stripe was built" --archetype story` |
+| **hot-take** | Provocative opinion piece   | `cm generate "REST is dead" --archetype hot-take`      |
 
-- Repo facts: https://github.com/45ck/content-machine/blob/master/docs/reference/REPO-FACTS.md
-- Environment variables: https://github.com/45ck/content-machine/blob/master/docs/reference/ENVIRONMENT-VARIABLES.md
-- Glossary (ubiquitous language): https://github.com/45ck/content-machine/blob/master/docs/reference/GLOSSARY.md
-
-Examples and demo gallery:
-
-- Examples: https://github.com/45ck/content-machine/blob/master/docs/user/EXAMPLES.md
-- Repo examples (runnable from source): `examples/`
-- Gemini image-led examples: https://github.com/45ck/content-machine/blob/master/docs/user/examples/gemini-image-shorts.md
-- Demo media: https://github.com/45ck/content-machine/tree/master/docs/demo
+More examples: [docs/user/EXAMPLES.md](docs/user/EXAMPLES.md)
 
 [![Gemini image-led short preview](assets/demo/demo-5-gemini-2026-feels-like-2016.gif)](docs/user/examples/gemini-image-shorts.md)
 
 ## How It Works
 
-Content Machine is a 4-stage pipeline:
+Content Machine runs a 4-stage pipeline — each stage can also run independently:
 
 ```
-topic -> script.json -> audio.wav + timestamps.json -> visuals.json -> video.mp4
+topic → script → audio + timestamps → visuals → video.mp4
 ```
-
-Run end-to-end:
 
 ```bash
-cm generate "Redis vs PostgreSQL" --archetype versus --output output/video.mp4
+# Or run stages individually
+cm script  --topic "Redis vs PostgreSQL"       # LLM generates script
+cm audio   --input script.json                 # TTS + word-level timestamps
+cm visuals --input timestamps.json             # Stock footage matching
+cm render  --input visuals.json                # Remotion renders MP4
 ```
 
-Stage-by-stage usage and full command references live in:
+![Pipeline overview](assets/demo/pipeline-preview.svg)
 
-- https://github.com/45ck/content-machine/blob/master/docs/user/CLI.md
-- https://github.com/45ck/content-machine/tree/master/docs/reference
+## Documentation
 
-## Terminology (Ubiquitous Language)
+- **[User Guide](docs/user/README.md)** — installation, configuration, CLI reference, examples
+- **[Developer Docs](docs/dev/README.md)** — architecture, contributing guides, specs
+- **[Reference](docs/reference/)** — generated CLI references, environment variables, glossary
 
-These words mean specific things in this repo:
+## Contributing
 
-- **Script archetype**: script format used by `cm script` / `cm generate`
-- **Render template**: render preset used by `cm render` / `cm generate`
-- **Pipeline workflow**: orchestration preset used by `cm generate`
-
-Canonical glossary (generated): https://github.com/45ck/content-machine/blob/master/docs/reference/GLOSSARY.md
-
-## Development (From Source)
-
-Cloning the repo is only needed for development:
+Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
 
 ```bash
 git clone https://github.com/45ck/content-machine.git
-cd content-machine
-
-nvm install
-nvm use
-
-npm install
-cp .env.example .env
-
+cd content-machine && npm install && cp .env.example .env
 npm run cm -- --help
 ```
 
 ## License
 
-MIT.
+MIT

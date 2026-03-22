@@ -1,19 +1,27 @@
 # Support
 
-## Questions / help
+## Questions
 
-- Open a GitHub Issue with details (logs, OS, Node version).
-- If you’re not sure it’s a bug, open an Issue as a question with `[question]` in the title.
+- [Open an issue](https://github.com/45ck/content-machine/issues) with `[question]` in the title
+- Include your OS, Node.js version, and `cm --version` output
 
-## Bugs
+## Bug Reports
 
 Please include:
 
-- command you ran (`cm ...`)
-- expected vs actual behavior
-- `--verbose` logs (if available)
-- any relevant files from `output/` (e.g. `script.json`, `timestamps.json`)
+- The command you ran (`cm ...`)
+- Expected vs actual behavior
+- `--verbose` output (if available)
+- Relevant artifact files from `output/` (e.g., `script.json`, `timestamps.json`)
 
-## Security issues
+## Diagnostics
 
-See [SECURITY.md](SECURITY.md).
+Run the built-in doctor:
+
+```bash
+cm doctor
+```
+
+## Security Issues
+
+See [SECURITY.md](SECURITY.md) — do not use public issues for security reports.

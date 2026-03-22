@@ -26,7 +26,7 @@ if [ -d "$NVM_VERSIONS_DIR" ]; then
 
   for v in $versions; do
     v_major="$(printf '%s' "$v" | sed -E 's/^v([0-9]+).*/\1/' 2>/dev/null || echo '')"
-    if [ -n "${v_major:-}" ] && [ "$v_major" -eq "$need_major" ]; then
+    if [ -n "${v_major:-}" ] && [ "$v_major" -ge "$need_major" ]; then
       cand="$NVM_VERSIONS_DIR/$v/bin/node"
       if [ -x "$cand" ]; then
         best_bin="$cand"
