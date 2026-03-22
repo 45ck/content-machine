@@ -55,10 +55,14 @@ async function runInstallCommand(params: {
   cmd: TemplateDepsInstallCommand;
   allowOutput: boolean;
 }): Promise<void> {
-  const child = spawn(params.cmd.command, params.cmd.args, {
+  const cmd =
+    process.platform === 'win32' && /^(npm|pnpm|yarn)$/i.test(params.cmd.command)
+      ? `${params.cmd.command}.cmd`
+      : params.cmd.command;
+
+  const child = spawn(cmd, params.cmd.args, {
     cwd: params.cwd,
     stdio: params.allowOutput ? 'inherit' : 'pipe',
-    shell: true,
     env: process.env,
   });
 

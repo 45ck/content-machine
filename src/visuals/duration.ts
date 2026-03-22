@@ -144,6 +144,17 @@ export function ensureVisualCoverage(
 
   // Strategy 2: Loop last video if available
   if (lastScene.url) {
+    // Guard: if the scene has zero duration, looping would never advance → push a single filler entry.
+    if (originalDuration <= 0) {
+      result.push({
+        startMs: lastScene.endMs,
+        endMs: audioDurationMs,
+        url: null,
+        backgroundColor: fallbackColor,
+      });
+      return result;
+    }
+
     let currentEnd = lastScene.endMs;
 
     while (currentEnd < audioDurationMs) {

@@ -1,6 +1,20 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { dirname, extname } from 'node:path';
 
+const SENSITIVE_PARAMS = /^(key|token|api_key|apiKey|secret)$/i;
+
+function sanitizeUrl(raw: string): string {
+  try {
+    const u = new URL(raw);
+    for (const name of [...u.searchParams.keys()]) {
+      if (SENSITIVE_PARAMS.test(name)) u.searchParams.set(name, 'REDACTED');
+    }
+    return u.toString();
+  } catch {
+    return raw.replace(/([?&])(key|token|api_key|apiKey|secret)=[^&]*/gi, '$1$2=REDACTED');
+  }
+}
+
 function inferMimeType(path: string): string {
   const ext = extname(path).toLowerCase();
   if (ext === '.png') return 'image/png';
@@ -42,7 +56,7 @@ export async function fetchJsonWithTimeout(params: {
 
     if (!response.ok) {
       throw new Error(
-        `HTTP ${response.status} ${response.statusText} for ${params.url}: ${typeof json === 'string' ? json : JSON.stringify(json)}`
+        `HTTP ${response.status} ${response.statusText} for ${sanitizeUrl(params.url)}: ${typeof json === 'string' ? json : JSON.stringify(json)}`
       );
     }
     return json;

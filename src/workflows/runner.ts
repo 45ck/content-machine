@@ -73,11 +73,15 @@ async function runWorkflowCommand(
   const env = { ...process.env, ...(command.env ?? {}) };
   const stdio = options.allowOutput ? 'inherit' : 'pipe';
 
-  const child = spawn(command.command, command.args ?? [], {
+  const cmd =
+    process.platform === 'win32' && /^(npm|pnpm|yarn)$/i.test(command.command)
+      ? `${command.command}.cmd`
+      : command.command;
+
+  const child = spawn(cmd, command.args ?? [], {
     cwd,
     env,
     stdio,
-    shell: true,
   });
 
   const timeoutMs = command.timeoutMs;

@@ -12,36 +12,35 @@ import { mkdir, rename, rm } from 'node:fs/promises';
 import { basename, dirname, extname, join, resolve } from 'node:path';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
-import { exec } from 'node:child_process';
-import { promisify } from 'node:util';
 import { createLogger } from '../../core/logger';
 import { APIError, RateLimitError } from '../../core/errors';
 import { getApiKey } from '../../core/config';
 import { withRetry } from '../../core/retry';
+import { execFfprobe, execFfmpeg } from '../../core/video/ffmpeg';
 import type { TTSOptions, TTSResult } from './types';
-
-const execAsync = promisify(exec);
 
 async function ffprobeDurationSeconds(filePath: string): Promise<number> {
   const abs = resolve(filePath);
-  const { stdout } = await execAsync(
-    `ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${abs}"`
+  const { stdout } = await execFfprobe(
+    ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1:nokey=1', abs],
+    { dependencyMessage: 'ffprobe is required for audio metadata extraction' }
   );
-  const dur = Number.parseFloat(stdout.trim());
+  const dur = Number.parseFloat(String(stdout).trim());
   if (!Number.isFinite(dur) || dur <= 0) {
-    throw new Error(`Invalid duration from ffprobe: ${stdout.trim()}`);
+    throw new Error(`Invalid duration from ffprobe: ${String(stdout).trim()}`);
   }
   return dur;
 }
 
 async function ffprobeSampleRate(filePath: string): Promise<number> {
   const abs = resolve(filePath);
-  const { stdout } = await execAsync(
-    `ffprobe -v error -select_streams a:0 -show_entries stream=sample_rate -of default=noprint_wrappers=1:nokey=1 "${abs}"`
+  const { stdout } = await execFfprobe(
+    ['-v', 'error', '-select_streams', 'a:0', '-show_entries', 'stream=sample_rate', '-of', 'default=noprint_wrappers=1:nokey=1', abs],
+    { dependencyMessage: 'ffprobe is required for audio metadata extraction' }
   );
-  const rate = Number.parseInt(stdout.trim(), 10);
+  const rate = Number.parseInt(String(stdout).trim(), 10);
   if (!Number.isFinite(rate) || rate <= 0) {
-    throw new Error(`Invalid sample rate from ffprobe: ${stdout.trim()}`);
+    throw new Error(`Invalid sample rate from ffprobe: ${String(stdout).trim()}`);
   }
   return rate;
 }
@@ -49,9 +48,10 @@ async function ffprobeSampleRate(filePath: string): Promise<number> {
 async function transcodeToWav(params: { inputPath: string; outputPath: string }): Promise<void> {
   const inAbs = resolve(params.inputPath);
   const outAbs = resolve(params.outputPath);
-  await execAsync(`ffmpeg -y -i "${inAbs}" -ac 1 -ar 44100 -c:a pcm_s16le "${outAbs}"`, {
-    maxBuffer: 1024 * 1024,
-  });
+  await execFfmpeg(
+    ['-y', '-i', inAbs, '-ac', '1', '-ar', '44100', '-c:a', 'pcm_s16le', outAbs],
+    { maxBuffer: 1024 * 1024, dependencyMessage: 'ffmpeg is required for audio transcoding' }
+  );
 }
 
 /**

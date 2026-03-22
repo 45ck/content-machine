@@ -161,11 +161,10 @@ const SceneMedia: React.FC<{
   }
 
   // Ken Burns at render-time (no ffmpeg dependency).
-  // Use global frame numbers to ensure correct motion even with nested Sequences (e.g. hook layers).
+  // useCurrentFrame() inside a <Sequence> already returns 0-based frame relative to that Sequence.
   const frame = useCurrentFrame();
-  const rel = frame - startFrame;
 
-  const t = interpolate(rel, [0, durationInFrames], [0, 1], {
+  const t = interpolate(frame, [0, durationInFrames], [0, 1], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });

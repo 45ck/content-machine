@@ -82,7 +82,7 @@ export const AudioLayers: React.FC<{
 
   return (
     <>
-      <Audio src={staticFile(audioPath)} />
+      {audioPath ? <Audio src={staticFile(audioPath)} /> : null}
       {mix?.layers.map((layer, index) => {
         const durationSeconds = getLayerDurationSeconds(layer, totalDuration);
         if (durationSeconds <= 0) return null;
