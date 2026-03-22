@@ -582,7 +582,15 @@ export function postProcessASRWordsWithStats(
     prevCount = result.length;
   }
 
-  // Step 3: Fix overlapping timestamps
+  // Step 3: Merge repeated single characters (like "z" "z" "z" → "zzz")
+  result = mergeRepeatedCharacters(result);
+  prevCount = result.length;
+
+  // Step 4: Filter ASR artifacts AFTER merging (so patterns have a chance)
+  result = filterASRArtifacts(result);
+  prevCount = result.length;
+
+  // Step 5: Fix overlapping timestamps
   if (opts.fixOverlaps) {
     let overlapCount = 0;
     for (let i = 0; i < result.length - 1; i++) {
@@ -594,7 +602,7 @@ export function postProcessASRWordsWithStats(
     stats.fixedOverlaps = overlapCount;
   }
 
-  // Step 4: Extend very short durations
+  // Step 6: Extend very short durations
   if (opts.minDurationMs > 0) {
     let extendCount = 0;
     const minDuration = opts.minDurationMs / 1000;

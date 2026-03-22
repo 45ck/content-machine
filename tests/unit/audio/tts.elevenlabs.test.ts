@@ -3,40 +3,28 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-// Mock exec-based ffmpeg/ffprobe calls used by the ElevenLabs adapter.
-vi.mock('node:child_process', () => {
-  return {
-    exec: vi.fn((cmd: string, _opts: any, cb: any) => {
-      // Support exec(cmd, cb) and exec(cmd, opts, cb)
-      const callback = typeof _opts === 'function' ? _opts : cb;
-      const command = String(cmd);
-
-      if (command.includes('ffprobe') && command.includes('format=duration')) {
-        callback(null, { stdout: '1.234\n', stderr: '' });
-        return {} as any;
-      }
-
-      if (command.includes('ffprobe') && command.includes('stream=sample_rate')) {
-        callback(null, { stdout: '44100\n', stderr: '' });
-        return {} as any;
-      }
-
-      if (command.startsWith('ffmpeg ')) {
-        // Best-effort: create the output file path from the last quoted string.
-        const m = command.match(/"([^"]+)"\s*$/u);
-        if (m?.[1]) {
-          fs.mkdirSync(path.dirname(m[1]), { recursive: true });
-          fs.writeFileSync(m[1], Buffer.from('fake-wav'));
-        }
-        callback(null, { stdout: '', stderr: '' });
-        return {} as any;
-      }
-
-      callback(null, { stdout: '', stderr: '' });
-      return {} as any;
-    }),
-  };
-});
+// Mock execFfmpeg/execFfprobe used by the ElevenLabs adapter.
+vi.mock('../../../src/core/video/ffmpeg', () => ({
+  execFfprobe: vi.fn(async (args: string[]) => {
+    const joined = args.join(' ');
+    if (joined.includes('format=duration')) {
+      return { stdout: '1.234\n', stderr: '' };
+    }
+    if (joined.includes('stream=sample_rate')) {
+      return { stdout: '44100\n', stderr: '' };
+    }
+    return { stdout: '', stderr: '' };
+  }),
+  execFfmpeg: vi.fn(async (args: string[]) => {
+    // Create the output file (last arg)
+    const outPath = args[args.length - 1];
+    if (outPath) {
+      fs.mkdirSync(path.dirname(outPath), { recursive: true });
+      fs.writeFileSync(outPath, Buffer.from('fake-wav'));
+    }
+    return { stdout: '', stderr: '' };
+  }),
+}));
 
 describe('ElevenLabs TTS adapter', () => {
   const originalFetch = globalThis.fetch;

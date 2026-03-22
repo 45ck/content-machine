@@ -18,6 +18,7 @@ import type { ElevenLabsVoiceSettings } from './tts';
 import { transcribeAudio, ASRResult } from './asr';
 import { reconcileToScript as reconcileAsrToScript } from './asr/reconcile';
 import { computeScriptMatchMetrics } from './asr/script-match';
+import { repairWordTimings } from './asr/validator';
 import {
   buildAlignmentUnits,
   buildSceneTimestamps,
@@ -141,15 +142,16 @@ export async function generateAudio(options: GenerateAudioOptions): Promise<Audi
       { unitCount: ttsResult.unitTimings.length, engine: 'kokoro-timed' },
       'Using exact TTS unit timings for captions (no ASR needed)'
     );
-    const { scenes, allWords } = buildSceneTimestampsFromUnitTimings(
+    const built = buildSceneTimestampsFromUnitTimings(
       units,
       ttsResult.unitTimings,
       ttsResult.duration
     );
+    const validatedWords = repairWordTimings(built.allWords, ttsResult.duration);
     timestamps = {
       schemaVersion: AUDIO_SCHEMA_VERSION,
-      scenes,
-      allWords,
+      scenes: built.scenes,
+      allWords: validatedWords,
       totalDuration: ttsResult.duration,
       ttsEngine,
       asrEngine: 'kokoro-timed',
@@ -332,6 +334,10 @@ async function writeSilentWav(params: {
   sampleRate: number;
   channels: number;
 }): Promise<void> {
+  const MAX_SILENT_DURATION_S = 600;
+  if (params.durationSeconds > MAX_SILENT_DURATION_S) {
+    throw new Error(`Silent WAV duration ${params.durationSeconds}s exceeds maximum ${MAX_SILENT_DURATION_S}s`);
+  }
   const bitsPerSample = 16;
   const bytesPerSample = bitsPerSample / 8;
   const frames = Math.max(1, Math.ceil(params.durationSeconds * params.sampleRate));

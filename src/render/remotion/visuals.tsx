@@ -146,7 +146,7 @@ const SceneMedia: React.FC<{
   startFrame: number;
   durationInFrames: number;
   videoStyle?: React.CSSProperties;
-}> = ({ scene, startFrame, durationInFrames, videoStyle }) => {
+}> = ({ scene, durationInFrames, videoStyle }) => {
   const url = scene.url as string;
   const mediaType = scene.mediaType ?? (isProbablyImageUrl(url) ? 'image' : 'video');
 

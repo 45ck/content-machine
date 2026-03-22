@@ -15,12 +15,14 @@ export const AUDIO_SCHEMA_VERSION = '1.0.0';
  *
  * @cmTerm timestamps-artifact
  */
-export const WordTimestampSchema = z.object({
-  word: z.string().min(1),
-  start: z.number().nonnegative().describe('Start time in seconds'),
-  end: z.number().nonnegative().describe('End time in seconds'),
-  confidence: z.number().min(0).max(1).optional(),
-});
+export const WordTimestampSchema = z
+  .object({
+    word: z.string().min(1),
+    start: z.number().nonnegative().describe('Start time in seconds'),
+    end: z.number().nonnegative().describe('End time in seconds'),
+    confidence: z.number().min(0).max(1).optional(),
+  })
+  .refine((v) => v.end >= v.start, { message: 'end must be >= start' });
 
 /**
  * Ubiquitous Language: Word timestamp (word-level alignment).
@@ -34,12 +36,14 @@ export type WordTimestamp = z.infer<typeof WordTimestampSchema>;
  *
  * @cmTerm timestamps-artifact
  */
-export const SceneTimestampSchema = z.object({
-  sceneId: z.string(),
-  audioStart: z.number().nonnegative(),
-  audioEnd: z.number().nonnegative(),
-  words: z.array(WordTimestampSchema),
-});
+export const SceneTimestampSchema = z
+  .object({
+    sceneId: z.string(),
+    audioStart: z.number().nonnegative(),
+    audioEnd: z.number().nonnegative(),
+    words: z.array(WordTimestampSchema),
+  })
+  .refine((v) => v.audioEnd >= v.audioStart, { message: 'audioEnd must be >= audioStart' });
 
 /**
  * Ubiquitous Language: Scene timestamp block.
