@@ -23,6 +23,7 @@ export default [
       '**/test-e2e-output/**',
       '**/vendor/**',
       'assets/templates/**',
+      'templates/**',
       '**/connectors/**',
       '**/docs/api/**',
       '**/*.d.ts',

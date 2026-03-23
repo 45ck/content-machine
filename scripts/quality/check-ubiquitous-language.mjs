@@ -29,7 +29,8 @@ function searchExport(repoRoot, name) {
   if (rg) return rg;
 
   // grep -RE supports basic alternation via extended regex; use a simpler pattern.
-  const grepPattern = `export[[:space:]]+(type|const|interface)[[:space:]]+${name}\\b`;
+  // Use POSIX word boundary instead of \b for MSYS/Windows grep compatibility.
+  const grepPattern = `export[[:space:]]+(type|const|interface)[[:space:]]+${name}([^[:alnum:]_]|$)`;
   return runAllowFail('grep', ['-R', '-n', '-E', grepPattern, 'src'], {
     cwd: repoRoot,
     stdio: ['ignore', 'pipe', 'ignore'],
@@ -71,7 +72,8 @@ function findDeclarationLocations(repoRoot, name) {
       locs.push({ file, line: Number.parseInt(lineNo, 10) || 0 });
     }
   } else {
-    const grepPattern = `export[[:space:]]+(const|type|interface|class|function|enum)[[:space:]]+${name}\\b`;
+    // Use POSIX word boundary instead of \b for MSYS/Windows grep compatibility.
+    const grepPattern = `export[[:space:]]+(const|type|interface|class|function|enum)[[:space:]]+${name}([^[:alnum:]_]|$)`;
     const grep = runAllowFail('grep', ['-R', '-n', '-E', grepPattern, 'src'], {
       cwd: repoRoot,
       stdio: ['ignore', 'pipe', 'ignore'],

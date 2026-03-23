@@ -204,6 +204,20 @@ facts:
         required: false
       - name: CM_MEDIA_VEO_MODEL
         required: false
+      - name: GCE_METADATA_HOST
+        required: false
+      - name: GOOGLE_CLOUD_ACCESS_TOKEN
+        required: false
+      - name: GCLOUD_ACCESS_TOKEN
+        required: false
+      - name: CLOUDSDK_AUTH_ACCESS_TOKEN
+        required: false
+      - name: GOOGLE_CLOUD_PROJECT
+        required: false
+      - name: GOOGLE_CLOUD_LOCATION
+        required: false
+      - name: GOOGLE_APPLICATION_CREDENTIALS
+        required: false
       - name: BYTEPLUS_API_KEY
         required: false
       - name: CM_MEDIA_SEEDANCE_ENDPOINT

@@ -24,7 +24,7 @@ These are real rendered MP4 outputs with voice audio and captions. They are imag
 ## Reproduction Notes
 
 - Workflow preset: [`google-ai-meme-education`](../../reference/cm-workflows-reference-20260110.md)
-- Topic fixture: [`test-fixtures/generate/google-real-gemini-review-formats-20260306.json`](../../../test-fixtures/generate/google-real-gemini-review-formats-20260306.json)
+- Topic fixture: `test-fixtures/generate/google-real-gemini-review-formats-20260306.json`
 - Visual provider: `nanobanana`
 - Current motion path: image-led render flow with static/Ken Burns style motion, not Vertex Veo
 

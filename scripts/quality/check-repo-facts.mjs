@@ -405,12 +405,15 @@ function main() {
 
   const generateCommandPath = path.join(repoRoot, 'src', 'cli', 'commands', 'generate.ts');
   const generateCommand = readTextIfExists(generateCommandPath);
+  const generateDefaultsPath = path.join(repoRoot, 'src', 'cli', 'commands', 'generate-defaults.ts');
+  const generateDefaults = readTextIfExists(generateDefaultsPath);
+  const generateCombined = generateCommand + generateDefaults;
   if (
-    !generateCommand.includes('DEFAULT_SYNC_PRESET_ID') ||
-    !generateCommand.includes('PREFERRED_QUALITY_SYNC_PRESET_ID')
+    !generateCombined.includes('DEFAULT_SYNC_PRESET_ID') ||
+    !generateCombined.includes('PREFERRED_QUALITY_SYNC_PRESET_ID')
   ) {
     console.error(
-      'Repo facts check failed: src/cli/commands/generate.ts must use generated sync preset defaults.'
+      'Repo facts check failed: src/cli/commands/generate*.ts must use generated sync preset defaults.'
     );
     console.error(
       'Fix: import DEFAULT_SYNC_PRESET_ID and PREFERRED_QUALITY_SYNC_PRESET_ID from src/domain/repo-facts.generated.ts.'

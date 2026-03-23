@@ -15,8 +15,11 @@ function main() {
   const markdownPaths = registry.quality.docsValidation?.markdownPaths ?? [];
   if (markdownPaths.length === 0) return;
 
-  // .cmd files require shell:true on Windows (cmd.exe processes .cmd extensions)
-  execFileSync(resolveMarkdownlint(repoRoot), markdownPaths, {
+  // .cmd files require shell:true on Windows (cmd.exe processes .cmd extensions).
+  // Quote the binary path to handle directory names with spaces.
+  const bin = resolveMarkdownlint(repoRoot);
+  const cmd = process.platform === 'win32' ? `"${bin}"` : bin;
+  execFileSync(cmd, markdownPaths, {
     stdio: 'inherit',
     shell: process.platform === 'win32',
   });
