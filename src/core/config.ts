@@ -12,13 +12,14 @@ import { dirname, join, resolve } from 'path';
 import { homedir } from 'node:os';
 import { ConfigError } from './errors.js';
 import { createRequireSafe } from './require';
-import { FONT_STACKS } from '../render/tokens/font';
-import { CAPTION_STYLE_PRESETS, type CaptionPresetName } from '../render/captions/presets';
-import { CaptionConfigSchema } from '../render/captions/config';
 import { HookAudioModeEnum, HookFitEnum, MotionStrategyEnum } from '../domain';
-import { AudioMixPresetIdSchema, SfxPackIdSchema, SfxPlacementEnum } from '../audio/mix/presets';
 import { ArchetypeIdSchema } from '../domain/ids';
-import { PROVIDER_ROUTING_POLICIES, type ProviderRoutingPolicy } from '../visuals/provider-router';
+
+// Inlined from render/audio/visuals to avoid upward layer violations (ARCH-D1).
+// The canonical definitions live in their respective modules; these are config-level copies.
+const CAPTION_PRESET_NAMES = ['tiktok', 'youtube', 'reels', 'bold', 'minimal', 'neon', 'capcut', 'hormozi', 'karaoke'] as const;
+const PROVIDER_ROUTING_POLICY_VALUES = ['configured', 'balanced', 'cost-first', 'quality-first'] as const;
+const DEFAULT_FONT_FAMILY = '"Inter", "Montserrat", "Helvetica Neue", sans-serif';
 import {
   DEFAULT_MOTION_STRATEGY_ID,
   DEFAULT_NANOBANANA_MODEL,
@@ -96,7 +97,7 @@ const AudioConfigSchema = z.object({
 });
 
 const AudioMixConfigSchema = z.object({
-  preset: AudioMixPresetIdSchema.default('clean'),
+  preset: z.string().min(1).default('clean'),
   lufsTarget: z.number().default(-16),
 });
 
@@ -110,9 +111,9 @@ const MusicConfigSchema = z.object({
 });
 
 const SfxConfigSchema = z.object({
-  pack: SfxPackIdSchema.optional(),
+  pack: z.string().min(1).optional(),
   volumeDb: z.number().default(-12),
-  placement: SfxPlacementEnum.default('scene'),
+  placement: z.enum(['hook', 'scene', 'list-item', 'cta']).default('scene'),
   minGapMs: z.number().int().nonnegative().default(800),
   durationSeconds: z.number().positive().default(0.4),
 });
@@ -130,8 +131,9 @@ const VisualsProviderEnum = z.enum(
     (typeof SUPPORTED_VISUALS_PROVIDER_IDS)[number]
   >
 );
+type ProviderRoutingPolicyTuple = typeof PROVIDER_ROUTING_POLICY_VALUES;
 const ProviderRoutingPolicyEnum = z.enum(
-  PROVIDER_ROUTING_POLICIES as unknown as [ProviderRoutingPolicy, ...ProviderRoutingPolicy[]]
+  PROVIDER_ROUTING_POLICY_VALUES as unknown as [ProviderRoutingPolicyTuple[number], ...ProviderRoutingPolicyTuple[number][]]
 );
 const NANOBANANA_DEFAULT_MODEL =
   VISUALS_PROVIDERS.find((p) => p.id === 'nanobanana')?.defaultModel ?? DEFAULT_NANOBANANA_MODEL;
@@ -225,19 +227,20 @@ const CaptionFontSchema = z.object({
   style: FontStyleSchema.optional(),
 });
 
+type CaptionPresetNameTuple = typeof CAPTION_PRESET_NAMES;
 const CaptionPresetNameSchema = z.enum(
-  Object.keys(CAPTION_STYLE_PRESETS) as [CaptionPresetName, ...CaptionPresetName[]]
+  CAPTION_PRESET_NAMES as unknown as [CaptionPresetNameTuple[number], ...CaptionPresetNameTuple[number][]]
 );
 
 const CaptionsConfigSchema = z.object({
-  fontFamily: z.string().default(FONT_STACKS.body),
+  fontFamily: z.string().default(DEFAULT_FONT_FAMILY),
   fontWeight: FontWeightSchema.default('bold'),
   fontFile: z.string().optional(),
   fonts: z.array(CaptionFontSchema).default([]),
   /** Default caption style preset (e.g. capcut, tiktok) */
   preset: CaptionPresetNameSchema.optional(),
-  /** Deep-partial CaptionConfig overrides merged on top of the preset */
-  config: CaptionConfigSchema.deepPartial().optional(),
+  /** Deep-partial CaptionConfig overrides merged on top of the preset (validated at render time) */
+  config: z.record(z.unknown()).optional(),
 });
 
 const GenerateConfigSchema = z.object({

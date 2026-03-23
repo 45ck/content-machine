@@ -2,11 +2,16 @@
  * Generate command - Full pipeline: topic -> video
  *
  * Usage: cm generate "Redis vs PostgreSQL" --archetype versus --output video.mp4
+ *
+ * This file contains the command definition and main orchestration.
+ * Helpers are extracted into nearby modules:
+ *   - generate-defaults.ts  – option parsing, resolution, and defaults
+ *   - generate-output.ts    – display, JSON output, and summary formatting
+ *   - generate-preflight.ts – preflight validation checks
  */
 import { Command } from 'commander';
 import type { PipelineResult } from '../../core/pipeline';
 import { logger } from '../../core/logger';
-import { evaluateRequirements, planWhisperRequirements } from '../../core/assets/requirements';
 import { OrientationEnum, type Archetype, type Orientation } from '../../core/config';
 import { getOptionalApiKey, loadConfig } from '../../core/config';
 import { formatArchetypeSource, resolveArchetype } from '../../archetypes/registry';
@@ -15,8 +20,7 @@ import type { LLMProvider } from '../../core/llm/provider';
 import { createSpinner } from '../progress';
 import { chalk } from '../colors';
 import { getCliRuntime } from '../runtime';
-import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine } from '../output';
-import { formatKeyValueRows, writeSummaryCard } from '../ui';
+import { writeStderrLine } from '../output';
 import { parseTemplateDepsMode, resolveTemplateDepsInstallDecision } from '../template-code';
 import { dirname, join, resolve } from 'path';
 import { existsSync } from 'fs';
@@ -29,22 +33,13 @@ import {
   DEFAULT_ARTIFACT_FILENAMES,
   DEFAULT_SYNC_PRESET_ID,
   LLM_PROVIDERS,
-  PREFERRED_QUALITY_SYNC_PRESET_ID,
-  SYNC_PRESET_CONFIGS,
-  SUPPORTED_VISUALS_PROVIDER_IDS,
-  type SyncPresetId,
-  VISUALS_PROVIDERS,
 } from '../../domain/repo-facts.generated';
-import type { AssetProviderName } from '../../visuals/providers';
-import { isProviderRoutingPolicy, type ProviderRoutingPolicy } from '../../visuals/provider-router';
 import {
   formatTemplateSource,
   resolveRenderTemplate,
   getTemplateFontSources,
   getTemplateGameplaySlot,
   getTemplateOverlays,
-  getTemplateParams,
-  mergeFontSources,
   resolveRemotionTemplateProject,
   type ResolvedRemotionTemplateProject,
 } from '../../render/templates';
@@ -58,20 +53,16 @@ import {
   VisualsOutputSchema,
   type AudioOutput,
   type CaptionQualityRatingOutput,
-  type FontSource,
   type HookClip,
   type ResearchOutput,
   type ResearchSource,
   type ScriptOutput,
   type SyncRatingOutput,
   type VisualsOutput,
-  type WorkflowDefinition,
-  type WorkflowStageMode,
-  safeParseGenerationPolicy,
   type GenerationPolicy,
 } from '../../domain';
 import type { CaptionConfigInput } from '../../render/captions/config';
-import { hasAudioMixSources, type AudioMixPlanOptions } from '../../audio/mix/planner';
+import { hasAudioMixSources } from '../../audio/mix/planner';
 import { probeAudioWithFfprobe } from '../../validate/ffprobe-audio';
 import type { CaptionPresetName } from '../../render/captions/presets';
 import { resolveHookFromCli } from '../hooks';
@@ -88,1428 +79,71 @@ import { resolveWorkflow, formatWorkflowSource } from '../../workflows/resolve';
 import {
   collectWorkflowPostCommands,
   collectWorkflowPreCommands,
-  resolveWorkflowStageMode,
   runWorkflowCommands,
   workflowHasExec,
 } from '../../workflows/runner';
 import { analyzeVideoFrames, type AnalyzeVideoFramesResult } from '../../analysis/frame-analysis';
-import { getGoogleAccessToken, getGoogleCloudProjectId } from '../../media/synthesis/google-auth';
 
-/**
- * Sync quality presets for different quality/speed tradeoffs
- *
- * @cmTerm sync-preset
- */
-export interface SyncPresetConfig {
-  pipeline: 'standard' | 'audio-first';
-  reconcile: boolean;
-  syncQualityCheck: boolean;
-  minSyncRating: number;
-  autoRetrySync: boolean;
-}
+// -- Extracted modules -------------------------------------------------------
+import {
+  type GenerateOptions,
+  type SyncPresetConfig,
+  SYNC_PRESETS,
+  parseOptionalInt,
+  parseOptionalNumber,
+  parseWordList,
+  parseFontWeight,
+  parseCaptionNotation,
+  parseMinSyncRating,
+  parseMinCaptionOverall,
+  parseMaxCaptionRetries,
+  parseFrameAnalysisMode,
+  parseLayoutPosition,
+  parseSplitLayoutPreset,
+  collectList,
+  parseVisualsProviderChain,
+  parseProviderRoutingPolicy,
+  loadGenerationPolicy,
+  applyQualityDefaults,
+  applySyncPresetDefaults,
+  applyDefaultsFromConfig,
+  applyCaptionQualityPerfectDefaults,
+  applyPolicyDefaults,
+  applyWorkflowDefaults,
+  applyWorkflowInputs,
+  applyWorkflowStageDefaults,
+  resolveWorkflowStageModes,
+  isExternalStageMode,
+  resolveTemplateAndApplyDefaults,
+  buildAudioMixOptions,
+  mergeCaptionConfigPartials,
+  mergeTemplateDefaultsCaptionConfig,
+  type WorkflowStageModes,
+} from './generate-defaults';
+import {
+  printHeader,
+  writeDryRunJson,
+  showDryRunSummary,
+  writeSuccessJson,
+  showSuccessSummary,
+  buildSyncQualitySummary,
+  buildCaptionQualitySummary,
+  type CaptionQualitySummary,
+} from './generate-output';
+import {
+  runGeneratePreflight,
+  writePreflightOutput,
+} from './generate-preflight';
 
-export const SYNC_PRESETS = SYNC_PRESET_CONFIGS as Record<SyncPresetId, SyncPresetConfig>;
+// Re-export types that were previously exported from this file
+export type { GenerateOptions, SyncPresetConfig };
+export { SYNC_PRESETS };
+
 const SYNC_PRESET_HELP = Object.keys(SYNC_PRESETS).join(', ');
 
-export interface GenerateOptions {
-  archetype: string;
-  output: string;
-  orientation: string;
-  template?: string;
-  policy?: string;
-  workflow?: string;
-  workflowAllowExec?: boolean;
-  script?: string;
-  audio?: string;
-  audioMix?: string;
-  timestamps?: string;
-  visuals?: string;
-  visualsProvider?: string;
-  visualsFallbackProviders?: string;
-  visualsRoutingPolicy?: string;
-  visualsMaxGenerationCostUsd?: string;
-  visualsGateEnforce?: boolean;
-  visualsGateMaxFallbackRate?: string;
-  visualsGateMinProviderSuccessRate?: string;
-  visualsRoutingAdaptiveWindow?: string;
-  visualsRoutingAdaptiveMinRecords?: string;
-  media?: boolean;
-  mediaKeyframes?: boolean;
-  mediaSynthesizeMotion?: boolean;
-  mediaDir?: string;
-  mediaFfmpeg?: string;
-  mediaDepthflowAdapter?: string;
-  mediaVeoAdapter?: string;
-  fps?: string;
-  captionPreset?: string;
-  voice: string;
-  duration: string;
-  keepArtifacts: boolean;
-  mock: boolean;
-  dryRun: boolean;
-  research?: string | boolean;
-  pipeline?: 'standard' | 'audio-first';
-  /** Split-screen layout preset (gameplay-top, gameplay-bottom) */
-  splitLayout?: string;
-  /** Whisper model size: tiny, base, small, medium, large */
-  whisperModel?: 'tiny' | 'base' | 'small' | 'medium' | 'large';
-  /** Caption grouping window in milliseconds */
-  captionGroupMs?: string;
-  /** Reconcile ASR output to original script text */
-  reconcile?: boolean;
-  /** Sync quality preset: fast, standard, quality, maximum */
-  syncPreset?: string;
-  /** Enable sync quality check after render */
-  syncQualityCheck?: boolean;
-  /** Minimum acceptable sync rating (0-100) */
-  minSyncRating?: string;
-  /** Auto-retry with better sync strategy if rating fails */
-  autoRetrySync?: boolean;
-  /** Enable burned-in caption quality check (OCR-only) after render */
-  captionQualityCheck?: boolean;
-  /** Enable higher-quality defaults (slower) */
-  quality?: boolean;
-  /** Minimum acceptable caption overall score (0..1, or 0..100) */
-  minCaptionOverall?: string;
-  /** Auto-retry with caption tuning if caption quality fails */
-  autoRetryCaptions?: boolean;
-  /** Maximum number of caption tuning retries after the initial attempt */
-  maxCaptionRetries?: string;
-  /** Force a "perfect captions" optimization loop (enables caption quality gate + retries) */
-  captionPerfect?: boolean;
-  /** Use mock caption quality scoring (no OCR) */
-  captionQualityMock?: boolean;
-  /** Caption display mode: page (default), single (one word at a time), buildup (accumulate per sentence) */
-  captionMode?: 'page' | 'single' | 'buildup' | 'chunk';
-  /** Caption notation rendering mode */
-  captionNotation?: 'none' | 'unicode';
-  /** Words per caption page/group (default: 8) */
-  wordsPerPage?: string;
-  /** Max words per caption page/group (alias of wordsPerPage) */
-  captionMaxWords?: string;
-  /** Minimum words per caption page/group */
-  captionMinWords?: string;
-  /** Target words per chunk (chunk mode) */
-  captionTargetWords?: string;
-  /** Max words per minute for caption pacing */
-  captionMaxWpm?: string;
-  /** Max characters per second for caption pacing */
-  captionMaxCps?: string;
-  /** Minimum on-screen time for captions (ms) */
-  captionMinOnScreenMs?: string;
-  /** Minimum on-screen time for short captions (ms) */
-  captionMinOnScreenMsShort?: string;
-  /** Drop filler words from captions */
-  captionDropFillers?: boolean;
-  /** Drop list markers like "1:" from captions */
-  captionDropListMarkers?: boolean;
-  /** Comma-separated filler words/phrases to drop */
-  captionFillerWords?: string;
-  /** Maximum lines per caption page (default: 2) */
-  maxLines?: string;
-  /** Maximum characters per line (default: 25) */
-  charsPerLine?: string;
-  /** Caption animation: none (default), fade, slideUp, slideDown, pop, bounce */
-  captionAnimation?: 'none' | 'fade' | 'slideUp' | 'slideDown' | 'pop' | 'bounce';
-  /** Active word animation: none (default), pop, bounce, rise, shake */
-  captionWordAnimation?: 'none' | 'pop' | 'bounce' | 'rise' | 'shake';
-  /** Active word animation duration in ms */
-  captionWordAnimationMs?: string;
-  /** Active word animation intensity (0..1) */
-  captionWordAnimationIntensity?: string;
-  /** Global caption timing offset in ms (negative = earlier captions) */
-  captionOffsetMs?: string;
-  /** Caption font family override */
-  captionFontFamily?: string;
-  /** Caption font weight override */
-  captionFontWeight?: string;
-  /** Caption font file path to bundle */
-  captionFontFile?: string;
-  /** Caption font sources (from config) */
-  captionFonts?: FontSource[];
-  /** Gameplay library directory or clip file path */
-  gameplay?: string;
-  /** Gameplay subfolder name */
-  gameplayStyle?: string;
-  /** Fail if gameplay clip is missing */
-  gameplayStrict?: boolean;
-  /** Gameplay placement for split-screen templates */
-  gameplayPosition?: 'top' | 'bottom' | 'full';
-  /** Content placement for split-screen templates */
-  contentPosition?: 'top' | 'bottom' | 'full';
-  /** Hook intro clip id, path, or URL */
-  hook?: string;
-  /** Hook library id (defaults to config) */
-  hookLibrary?: string;
-  /** Root directory for hook libraries */
-  hooksDir?: string;
-  /** Hook duration when ffprobe is unavailable */
-  hookDuration?: string;
-  /** Trim hook to N seconds (optional) */
-  hookTrim?: string;
-  /** Hook audio mode (mute, keep) */
-  hookAudio?: string;
-  /** Hook fit mode (cover, contain) */
-  hookFit?: string;
-  /** Download missing hook clips */
-  downloadHook?: boolean;
-  /** Download remote stock assets into the render bundle (recommended) */
-  downloadAssets?: boolean;
-  /** Background music track or preset */
-  music?: string | boolean;
-  /** Music volume (db) */
-  musicVolume?: string;
-  /** Music ducking under voice (db) */
-  musicDuck?: string;
-  /** Loop music to voice duration */
-  musicLoop?: boolean;
-  /** Music fade-in (ms) */
-  musicFadeIn?: string;
-  /** Music fade-out (ms) */
-  musicFadeOut?: string;
-  /** Explicit SFX files (repeatable) */
-  sfx?: string[] | boolean;
-  /** SFX pack id */
-  sfxPack?: string;
-  /** SFX placement strategy */
-  sfxAt?: string;
-  /** SFX volume (db) */
-  sfxVolume?: string;
-  /** Minimum gap between SFX (ms) */
-  sfxMinGap?: string;
-  /** Default SFX duration (seconds) */
-  sfxDuration?: string;
-  /** Ambience bed track or preset */
-  ambience?: string | boolean;
-  /** Ambience volume (db) */
-  ambienceVolume?: string;
-  /** Loop ambience to voice duration */
-  ambienceLoop?: boolean;
-  /** Ambience fade-in (ms) */
-  ambienceFadeIn?: string;
-  /** Ambience fade-out (ms) */
-  ambienceFadeOut?: string;
-  /** Mix preset */
-  mixPreset?: string;
-  /** Loudness target */
-  lufsTarget?: string;
-  /** Run automatic frame analysis after render */
-  frameAnalysis?: boolean;
-  /** Frame analysis mode */
-  frameAnalysisMode?: 'fps' | 'shots' | 'both';
-  /** Frame analysis FPS sampling rate (>0 and <=1) */
-  frameAnalysisFps?: string;
-  /** Frame analysis shot count */
-  frameAnalysisShots?: string;
-  /** Frame analysis segment count */
-  frameAnalysisSegments?: string;
-  /** Frame analysis output root directory */
-  frameAnalysisOutput?: string;
-  /** Validate dependencies without running the pipeline */
-  preflight?: boolean;
-
-  /** Allow executing Remotion code shipped inside template packs (code templates). */
-  allowTemplateCode?: boolean;
-  /** Template dependency install mode for code templates (auto, prompt, never). */
-  templateDeps?: string;
-  /** Template package manager (npm, pnpm, yarn). */
-  templatePm?: string;
-}
-
-function printHeader(
-  topic: string,
-  options: GenerateOptions,
-  runtime: ReturnType<typeof getCliRuntime>
-): void {
-  if (runtime.json) return;
-
-  writeStderrLine(chalk.bold('content-machine'));
-  writeStderrLine(chalk.gray(`Topic: ${topic}`));
-  writeStderrLine(chalk.gray(`Archetype: ${options.archetype}`));
-  if (options.template) {
-    writeStderrLine(chalk.gray(`Template: ${options.template}`));
-  }
-  if (options.workflow) {
-    writeStderrLine(chalk.gray(`Workflow: ${options.workflow}`));
-  }
-  if (options.gameplay) {
-    writeStderrLine(chalk.gray(`Gameplay: ${options.gameplay}`));
-  }
-  if (options.hook) {
-    writeStderrLine(chalk.gray(`Hook: ${options.hook}`));
-  }
-  writeStderrLine(chalk.gray(`Output: ${options.output}`));
-  writeStderrLine(chalk.gray(`Artifacts: ${dirname(options.output)}`));
-}
-
-function writeDryRunJson(params: {
-  topic: string;
-  archetype: string;
-  orientation: string;
-  options: GenerateOptions;
-  templateSpec: string | null;
-  resolvedTemplateId: string | null;
-  runtime: ReturnType<typeof getCliRuntime>;
-  artifactsDir: string;
-}): void {
-  const {
-    topic,
-    archetype,
-    orientation,
-    options,
-    templateSpec,
-    resolvedTemplateId,
-    runtime,
-    artifactsDir,
-  } = params;
-
-  writeJsonEnvelope(
-    buildJsonEnvelope({
-      command: 'generate',
-      args: {
-        topic,
-        archetype,
-        orientation,
-        template: templateSpec,
-        policy: options.policy ?? null,
-        resolvedTemplateId,
-        workflow: options.workflow ?? null,
-        workflowAllowExec: Boolean(options.workflowAllowExec),
-        script: options.script ?? null,
-        audio: options.audio ?? null,
-        audioMix: options.audioMix ?? null,
-        timestamps: options.timestamps ?? null,
-        visuals: options.visuals ?? null,
-        visualsProvider: options.visualsProvider ?? null,
-        visualsFallbackProviders: options.visualsFallbackProviders ?? null,
-        visualsRoutingPolicy: options.visualsRoutingPolicy ?? null,
-        visualsMaxGenerationCostUsd: options.visualsMaxGenerationCostUsd ?? null,
-        visualsGateEnforce: Boolean(options.visualsGateEnforce),
-        visualsGateMaxFallbackRate: options.visualsGateMaxFallbackRate ?? null,
-        visualsGateMinProviderSuccessRate: options.visualsGateMinProviderSuccessRate ?? null,
-        visualsRoutingAdaptiveWindow: options.visualsRoutingAdaptiveWindow ?? null,
-        visualsRoutingAdaptiveMinRecords: options.visualsRoutingAdaptiveMinRecords ?? null,
-        fps: options.fps ?? '30',
-        captionPreset: options.captionPreset ?? 'tiktok',
-        captionMode: options.captionMode ?? null,
-        captionNotation: options.captionNotation ?? null,
-        wordsPerPage: parseOptionalInt(options.wordsPerPage ?? options.captionMaxWords),
-        captionMaxWords: parseOptionalInt(options.captionMaxWords),
-        captionMinWords: parseOptionalInt(options.captionMinWords),
-        captionTargetWords: parseOptionalInt(options.captionTargetWords),
-        captionMaxWpm: parseOptionalNumber(options.captionMaxWpm),
-        captionMaxCps: parseOptionalNumber(options.captionMaxCps),
-        captionMinOnScreenMs: parseOptionalInt(options.captionMinOnScreenMs),
-        captionMinOnScreenMsShort: parseOptionalInt(options.captionMinOnScreenMsShort),
-        captionDropFillers: options.captionDropFillers ?? null,
-        captionFillerWords: parseWordList(options.captionFillerWords) ?? null,
-        voice: options.voice,
-        durationSeconds: options.duration,
-        output: options.output,
-        keepArtifacts: options.keepArtifacts,
-        music: typeof options.music === 'string' ? options.music : null,
-        musicVolumeDb: parseOptionalNumber(options.musicVolume),
-        musicDuckDb: parseOptionalNumber(options.musicDuck),
-        musicLoop: options.musicLoop ?? null,
-        musicFadeInMs: parseOptionalInt(options.musicFadeIn),
-        musicFadeOutMs: parseOptionalInt(options.musicFadeOut),
-        sfx: Array.isArray(options.sfx) ? options.sfx : null,
-        sfxPack: options.sfxPack ?? null,
-        sfxAt: parseSfxPlacement(options.sfxAt) ?? null,
-        sfxVolumeDb: parseOptionalNumber(options.sfxVolume),
-        sfxMinGapMs: parseOptionalInt(options.sfxMinGap),
-        sfxDurationSeconds: parseOptionalNumber(options.sfxDuration),
-        ambience: typeof options.ambience === 'string' ? options.ambience : null,
-        ambienceVolumeDb: parseOptionalNumber(options.ambienceVolume),
-        ambienceLoop: options.ambienceLoop ?? null,
-        ambienceFadeInMs: parseOptionalInt(options.ambienceFadeIn),
-        ambienceFadeOutMs: parseOptionalInt(options.ambienceFadeOut),
-        mixPreset: options.mixPreset ?? null,
-        lufsTarget: parseOptionalNumber(options.lufsTarget),
-        gameplay: options.gameplay ?? null,
-        gameplayStyle: options.gameplayStyle ?? null,
-        gameplayStrict: Boolean(options.gameplayStrict),
-        splitLayout: options.splitLayout ?? null,
-        gameplayPosition: options.gameplayPosition ?? null,
-        contentPosition: options.contentPosition ?? null,
-        hook: options.hook ?? null,
-        hookLibrary: options.hookLibrary ?? null,
-        hooksDir: options.hooksDir ?? null,
-        hookDuration: options.hookDuration ?? null,
-        hookTrim: options.hookTrim ?? null,
-        hookAudio: options.hookAudio ?? null,
-        hookFit: options.hookFit ?? null,
-        downloadAssets: options.downloadAssets !== false,
-        dryRun: true,
-      },
-      outputs: { dryRun: true, artifactsDir },
-      timingsMs: Date.now() - runtime.startTime,
-    })
-  );
-  process.exit(0);
-}
-
-type PreflightStatus = 'ok' | 'warn' | 'fail';
-
-interface PreflightCheck {
-  label: string;
-  status: PreflightStatus;
-  detail?: string;
-  fix?: string;
-  code?: string;
-}
-
-const PREFLIGHT_USAGE_CODES = new Set([
-  'INVALID_ARGUMENT',
-  'SCHEMA_ERROR',
-  'FILE_NOT_FOUND',
-  'INVALID_JSON',
-]);
-
-function addPreflightCheck(checks: PreflightCheck[], entry: PreflightCheck): void {
-  checks.push(entry);
-}
-
-function formatPreflightLine(check: PreflightCheck): string {
-  const status =
-    check.status === 'ok'
-      ? chalk.green('OK ')
-      : check.status === 'warn'
-        ? chalk.yellow('WARN')
-        : chalk.red('FAIL');
-  const detail = check.detail ? ` - ${check.detail}` : '';
-  return `- ${status} ${check.label}${detail}`;
-}
-
-async function runGeneratePreflight(params: {
-  topic: string;
-  options: GenerateOptions;
-  resolvedTemplate: Awaited<ReturnType<typeof resolveRenderTemplate>> | undefined;
-  templateGameplay: ReturnType<typeof getTemplateGameplaySlot>;
-  runtime: ReturnType<typeof getCliRuntime>;
-  command: Command;
-  resolvedWorkflow?: Awaited<ReturnType<typeof resolveWorkflow>>;
-  workflowError?: ReturnType<typeof getCliErrorInfo> | null;
-}): Promise<{ passed: boolean; checks: PreflightCheck[]; exitCode: number }> {
-  const { options, resolvedTemplate, templateGameplay, command, resolvedWorkflow, workflowError } =
-    params;
-  const checks: PreflightCheck[] = [];
-  const stageModes = resolveWorkflowStageModes(resolvedWorkflow?.workflow);
-  const config = loadConfig();
-
-  const templateId = resolvedTemplate?.template.id;
-  addPreflightCheck(checks, {
-    label: 'Template',
-    status: 'ok',
-    detail: templateId ? `${templateId} (${formatTemplateSource(resolvedTemplate)})` : 'default',
-  });
-
-  let remotionProject: ResolvedRemotionTemplateProject | null = null;
-  if (resolvedTemplate) {
-    try {
-      remotionProject = resolveRemotionTemplateProject(resolvedTemplate);
-    } catch (error) {
-      const info = getCliErrorInfo(error);
-      addPreflightCheck(checks, {
-        label: 'Template code',
-        status: 'fail',
-        code: info.code,
-        detail: info.message,
-        fix: info.fix,
-      });
-    }
-  }
-
-  if (remotionProject) {
-    const allowTemplateCodeSource = command.getOptionValueSource('allowTemplateCode');
-    const allowTemplateCode =
-      allowTemplateCodeSource === 'default' || allowTemplateCodeSource === undefined
-        ? Boolean(config.render.allowTemplateCode)
-        : Boolean(options.allowTemplateCode);
-
-    addPreflightCheck(checks, {
-      label: 'Template code',
-      status: allowTemplateCode ? 'ok' : 'fail',
-      code: allowTemplateCode ? undefined : 'INVALID_ARGUMENT',
-      detail: allowTemplateCode ? `Enabled (${remotionProject.entryPoint})` : 'Disabled',
-      fix: allowTemplateCode
-        ? undefined
-        : 'Re-run with --allow-template-code to allow executing template-provided Remotion code',
-    });
-
-    const hasPkg = existsSync(join(remotionProject.rootDir, 'package.json'));
-    const hasNodeModules = existsSync(join(remotionProject.rootDir, 'node_modules'));
-
-    if (hasPkg && hasNodeModules) {
-      addPreflightCheck(checks, {
-        label: 'Template deps',
-        status: 'ok',
-        detail: `${remotionProject.rootDir}/node_modules`,
-      });
-    } else if (hasPkg && !hasNodeModules) {
-      let templateDepsMode: ReturnType<typeof parseTemplateDepsMode> | undefined;
-      try {
-        const templateDepsSource = command.getOptionValueSource('templateDeps');
-        const templateDepsRaw =
-          templateDepsSource === 'default' || templateDepsSource === undefined
-            ? (remotionProject.installDeps ?? config.render.templateDeps)
-            : options.templateDeps;
-        templateDepsMode = parseTemplateDepsMode(templateDepsRaw ?? 'prompt');
-      } catch (error) {
-        const info = getCliErrorInfo(error);
-        addPreflightCheck(checks, {
-          label: 'Template deps',
-          status: 'fail',
-          code: info.code,
-          detail: info.message,
-          fix: info.fix,
-        });
-        templateDepsMode = undefined;
-      }
-
-      const mode = templateDepsMode ?? 'prompt';
-      if (params.runtime.offline) {
-        addPreflightCheck(checks, {
-          label: 'Template deps',
-          status: 'warn',
-          detail: 'node_modules missing (offline mode enabled; will not auto-install)',
-          fix: 'Install dependencies manually in the template rootDir if bundling fails',
-        });
-      } else if (mode === 'never') {
-        addPreflightCheck(checks, {
-          label: 'Template deps',
-          status: 'warn',
-          detail: 'node_modules missing (--template-deps never)',
-          fix: 'Run `npm install` in the template rootDir, or re-run with --template-deps auto',
-        });
-      } else if (mode === 'auto') {
-        addPreflightCheck(checks, {
-          label: 'Template deps',
-          status: 'warn',
-          detail: 'node_modules missing (will install automatically at render time)',
-          fix: 'Run `npm install` in the template rootDir to avoid installs during generation',
-        });
-      } else {
-        // prompt
-        const canPrompt = params.runtime.isTty && !params.runtime.json;
-        const willInstall = Boolean(params.runtime.yes);
-        if (willInstall) {
-          addPreflightCheck(checks, {
-            label: 'Template deps',
-            status: 'warn',
-            detail: 'node_modules missing (--yes will auto-install)',
-            fix: 'Run `npm install` in the template rootDir to avoid installs during generation',
-          });
-        } else if (canPrompt) {
-          addPreflightCheck(checks, {
-            label: 'Template deps',
-            status: 'warn',
-            detail: 'node_modules missing (will prompt to install)',
-            fix: 'Run `npm install` in the template rootDir, or pass --template-deps auto',
-          });
-        } else {
-          addPreflightCheck(checks, {
-            label: 'Template deps',
-            status: 'warn',
-            detail: 'node_modules missing (non-interactive mode cannot prompt)',
-            fix: 'Run `npm install` in the template rootDir, or pass --template-deps auto',
-          });
-        }
-      }
-    } else {
-      addPreflightCheck(checks, {
-        label: 'Template deps',
-        status: 'ok',
-        detail: 'No package.json (no deps install needed)',
-      });
-    }
-  }
-
-  if (options.workflow) {
-    if (workflowError) {
-      addPreflightCheck(checks, {
-        label: 'Workflow',
-        status: 'fail',
-        code: workflowError.code,
-        detail: workflowError.message,
-        fix: workflowError.fix,
-      });
-    } else if (resolvedWorkflow) {
-      addPreflightCheck(checks, {
-        label: 'Workflow',
-        status: 'ok',
-        detail: `${resolvedWorkflow.workflow.id} (${formatWorkflowSource(resolvedWorkflow)})`,
-      });
-    }
-
-    if (resolvedWorkflow) {
-      const workflowExec = workflowHasExec(resolvedWorkflow.workflow);
-      if (workflowExec && !options.workflowAllowExec) {
-        addPreflightCheck(checks, {
-          label: 'Workflow exec',
-          status: 'fail',
-          code: 'INVALID_ARGUMENT',
-          detail: 'Workflow contains exec hooks but --workflow-allow-exec is not set',
-          fix: 'Re-run with --workflow-allow-exec to allow workflow commands',
-        });
-      } else if (workflowExec) {
-        addPreflightCheck(checks, {
-          label: 'Workflow exec',
-          status: 'ok',
-          detail: 'Workflow exec hooks allowed',
-        });
-      }
-    }
-  }
-
-  if (options.workflow && isExternalStageMode(stageModes.render)) {
-    addPreflightCheck(checks, {
-      label: 'Workflow render stage',
-      status: 'fail',
-      code: 'INVALID_ARGUMENT',
-      detail: 'External render stages are not supported in cm generate',
-      fix: 'Remove render.stage overrides or run `cm render` separately after generate',
-    });
-  }
-
-  if (options.workflow && isExternalStageMode(stageModes.script) && !options.script) {
-    addPreflightCheck(checks, {
-      label: 'Workflow script input',
-      status: 'fail',
-      code: 'INVALID_ARGUMENT',
-      detail: 'Workflow script stage is external but no script input was provided',
-      fix: 'Provide --script or set workflow.inputs.script',
-    });
-  }
-
-  if (options.workflow && isExternalStageMode(stageModes.audio)) {
-    if (!options.audio) {
-      addPreflightCheck(checks, {
-        label: 'Workflow audio input',
-        status: 'fail',
-        code: 'INVALID_ARGUMENT',
-        detail: 'Workflow audio stage is external but no audio input was provided',
-        fix: 'Provide --audio and --timestamps or set workflow.inputs.audio',
-      });
-    }
-    if (!options.timestamps) {
-      addPreflightCheck(checks, {
-        label: 'Workflow timestamps input',
-        status: 'fail',
-        code: 'INVALID_ARGUMENT',
-        detail: 'Workflow audio stage is external but no timestamps input was provided',
-        fix: 'Provide --timestamps or set workflow.inputs.timestamps',
-      });
-    }
-  }
-
-  if (options.workflow && isExternalStageMode(stageModes.visuals) && !options.visuals) {
-    addPreflightCheck(checks, {
-      label: 'Workflow visuals input',
-      status: 'fail',
-      code: 'INVALID_ARGUMENT',
-      detail: 'Workflow visuals stage is external but no visuals input was provided',
-      fix: 'Provide --visuals or set workflow.inputs.visuals',
-    });
-  }
-
-  if (typeof options.research === 'string') {
-    const normalized = options.research.trim().toLowerCase();
-    if (normalized === 'true') {
-      addPreflightCheck(checks, {
-        label: 'Research file',
-        status: 'ok',
-        detail: 'auto (run Stage 0 research)',
-      });
-    } else if (normalized === 'false') {
-      // Explicitly disabled; no check needed.
-    } else {
-      try {
-        const raw = await readInputFile(options.research);
-        const parsed = ResearchOutputSchema.safeParse(raw);
-        if (!parsed.success) {
-          addPreflightCheck(checks, {
-            label: 'Research file',
-            status: 'fail',
-            code: 'SCHEMA_ERROR',
-            detail: 'Invalid research JSON',
-            fix: 'Generate via `cm research -q "<topic>" -o research.json` and pass --research research.json',
-          });
-        } else {
-          addPreflightCheck(checks, {
-            label: 'Research file',
-            status: 'ok',
-            detail: options.research,
-          });
-        }
-      } catch (error) {
-        const info = getCliErrorInfo(error);
-        addPreflightCheck(checks, {
-          label: 'Research file',
-          status: 'fail',
-          code: info.code,
-          detail: info.message,
-          fix: info.fix,
-        });
-      }
-    }
-  }
-
-  // Audio engine checks only matter when the audio stage is built-in (i.e. we will synthesize).
-  if (!isExternalStageMode(stageModes.audio) && !options.audio) {
-    const ttsEngine = config.audio?.ttsEngine ?? 'kokoro';
-    const asrEngine = config.audio?.asrEngine ?? 'whisper';
-
-    if (ttsEngine === 'elevenlabs') {
-      const hasKey = Boolean(process.env.ELEVENLABS_API_KEY);
-      addPreflightCheck(checks, {
-        label: 'TTS engine',
-        status: hasKey ? 'ok' : 'fail',
-        code: hasKey ? undefined : 'CONFIG_ERROR',
-        detail: hasKey ? 'elevenlabs' : 'elevenlabs (ELEVENLABS_API_KEY missing)',
-        fix: hasKey ? undefined : 'Set ELEVENLABS_API_KEY in your environment or .env file',
-      });
-    } else {
-      addPreflightCheck(checks, { label: 'TTS engine', status: 'ok', detail: 'kokoro' });
-    }
-
-    if (asrEngine === 'elevenlabs-forced-alignment') {
-      const hasKey = Boolean(process.env.ELEVENLABS_API_KEY);
-      addPreflightCheck(checks, {
-        label: 'Timestamp engine',
-        status: hasKey ? 'ok' : 'fail',
-        code: hasKey ? undefined : 'CONFIG_ERROR',
-        detail: hasKey
-          ? 'elevenlabs-forced-alignment'
-          : 'elevenlabs-forced-alignment (ELEVENLABS_API_KEY missing)',
-        fix: hasKey ? undefined : 'Set ELEVENLABS_API_KEY in your environment or .env file',
-      });
-    }
-  }
-
-  const workflowExecAllowed =
-    Boolean(options.workflowAllowExec) && resolvedWorkflow
-      ? workflowHasExec(resolvedWorkflow.workflow)
-      : false;
-
-  const shouldWarnMissing = (optionName: string, info: ReturnType<typeof getCliErrorInfo>) =>
-    workflowExecAllowed &&
-    info.code === 'FILE_NOT_FOUND' &&
-    command.getOptionValueSource(optionName) === 'default';
-
-  if (options.audio && !options.timestamps) {
-    addPreflightCheck(checks, {
-      label: 'Audio timestamps',
-      status: 'fail',
-      code: 'INVALID_ARGUMENT',
-      detail: 'Audio provided without timestamps',
-      fix: 'Provide --timestamps <path> alongside --audio',
-    });
-  }
-
-  if (options.timestamps && !options.audio) {
-    addPreflightCheck(checks, {
-      label: 'Audio file',
-      status: 'fail',
-      code: 'INVALID_ARGUMENT',
-      detail: 'Timestamps provided without audio',
-      fix: 'Provide --audio <path> alongside --timestamps',
-    });
-  }
-
-  if (options.script) {
-    try {
-      const rawScript = await readInputFile(options.script);
-      const parsedScript = ScriptOutputSchema.safeParse(rawScript);
-      if (!parsedScript.success) {
-        addPreflightCheck(checks, {
-          label: 'Script input',
-          status: 'fail',
-          code: 'SCHEMA_ERROR',
-          detail: 'Invalid script JSON',
-          fix: 'Generate a script via `cm script --topic "<topic>" -o script.json`',
-        });
-      } else {
-        addPreflightCheck(checks, {
-          label: 'Script input',
-          status: 'ok',
-          detail: options.script,
-        });
-      }
-    } catch (error) {
-      const info = getCliErrorInfo(error);
-      addPreflightCheck(checks, {
-        label: 'Script input',
-        status: shouldWarnMissing('script', info) ? 'warn' : 'fail',
-        code: info.code,
-        detail: info.message,
-        fix: info.fix,
-      });
-    }
-  }
-
-  if (options.audio) {
-    if (existsSync(options.audio)) {
-      addPreflightCheck(checks, {
-        label: 'Audio input',
-        status: 'ok',
-        detail: options.audio,
-      });
-    } else {
-      const info = getCliErrorInfo(
-        new CMError('FILE_NOT_FOUND', `Audio file not found: ${options.audio}`, {
-          path: options.audio,
-        })
-      );
-      addPreflightCheck(checks, {
-        label: 'Audio input',
-        status: shouldWarnMissing('audio', info) ? 'warn' : 'fail',
-        code: info.code,
-        detail: info.message,
-        fix: info.fix ?? 'Provide a valid audio file path',
-      });
-    }
-  }
-
-  if (options.timestamps) {
-    try {
-      const rawTimestamps = await readInputFile(options.timestamps);
-      const parsedTimestamps = TimestampsOutputSchema.safeParse(rawTimestamps);
-      if (!parsedTimestamps.success) {
-        addPreflightCheck(checks, {
-          label: 'Timestamps input',
-          status: 'fail',
-          code: 'SCHEMA_ERROR',
-          detail: 'Invalid timestamps JSON',
-          fix: 'Generate timestamps via `cm timestamps --audio <path>`',
-        });
-      } else {
-        addPreflightCheck(checks, {
-          label: 'Timestamps input',
-          status: 'ok',
-          detail: options.timestamps,
-        });
-      }
-    } catch (error) {
-      const info = getCliErrorInfo(error);
-      addPreflightCheck(checks, {
-        label: 'Timestamps input',
-        status: shouldWarnMissing('timestamps', info) ? 'warn' : 'fail',
-        code: info.code,
-        detail: info.message,
-        fix: info.fix,
-      });
-    }
-  }
-
-  if (options.audioMix && !options.audio) {
-    addPreflightCheck(checks, {
-      label: 'Audio mix output',
-      status: 'ok',
-      detail: options.audioMix,
-    });
-  } else if (options.audioMix) {
-    try {
-      const rawMix = await readInputFile(options.audioMix);
-      const parsedMix = AudioMixOutputSchema.safeParse(rawMix);
-      if (!parsedMix.success) {
-        addPreflightCheck(checks, {
-          label: 'Audio mix input',
-          status: 'fail',
-          code: 'SCHEMA_ERROR',
-          detail: 'Invalid audio mix JSON',
-          fix: 'Generate via `cm audio --input script.json --audio-mix audio.mix.json`',
-        });
-      } else {
-        addPreflightCheck(checks, {
-          label: 'Audio mix input',
-          status: 'ok',
-          detail: options.audioMix,
-        });
-      }
-    } catch (error) {
-      const info = getCliErrorInfo(error);
-      addPreflightCheck(checks, {
-        label: 'Audio mix input',
-        status: shouldWarnMissing('audioMix', info) ? 'warn' : 'fail',
-        code: info.code,
-        detail: info.message,
-        fix: info.fix,
-      });
-    }
-  }
-
-  if (options.visuals) {
-    try {
-      const rawVisuals = await readInputFile(options.visuals);
-      const parsedVisuals = VisualsOutputSchema.safeParse(rawVisuals);
-      if (!parsedVisuals.success) {
-        addPreflightCheck(checks, {
-          label: 'Visuals input',
-          status: 'fail',
-          code: 'SCHEMA_ERROR',
-          detail: 'Invalid visuals JSON',
-          fix: 'Generate visuals via `cm visuals --input timestamps.json`',
-        });
-      } else {
-        addPreflightCheck(checks, {
-          label: 'Visuals input',
-          status: 'ok',
-          detail: options.visuals,
-        });
-      }
-    } catch (error) {
-      const info = getCliErrorInfo(error);
-      addPreflightCheck(checks, {
-        label: 'Visuals input',
-        status: shouldWarnMissing('visuals', info) ? 'warn' : 'fail',
-        code: info.code,
-        detail: info.message,
-        fix: info.fix,
-      });
-    }
-  }
-
-  const gameplayRequired = Boolean(options.gameplayStrict) || Boolean(templateGameplay?.required);
-  if (gameplayRequired && !options.gameplay) {
-    addPreflightCheck(checks, {
-      label: 'Gameplay asset',
-      status: 'fail',
-      code: 'FILE_NOT_FOUND',
-      detail: 'Gameplay is required but no path provided',
-      fix: 'Provide --gameplay <path> or choose a template without required gameplay',
-    });
-  } else if (options.gameplay) {
-    addPreflightCheck(checks, {
-      label: 'Gameplay asset',
-      status: existsSync(options.gameplay) ? 'ok' : 'fail',
-      code: existsSync(options.gameplay) ? undefined : 'FILE_NOT_FOUND',
-      detail: options.gameplay,
-      fix: existsSync(options.gameplay)
-        ? undefined
-        : 'Provide a valid gameplay directory or clip path',
-    });
-  }
-
-  if (options.hook !== undefined) {
-    try {
-      const hook = await resolveHookFromCli(options);
-      addPreflightCheck(checks, {
-        label: 'Hook clip',
-        status: 'ok',
-        detail: hook ? hook.path : 'disabled',
-      });
-    } catch (error) {
-      const info = getCliErrorInfo(error);
-      const code = info.code === 'NOT_FOUND' ? 'FILE_NOT_FOUND' : info.code;
-      addPreflightCheck(checks, {
-        label: 'Hook clip',
-        status: 'fail',
-        code,
-        detail: info.message,
-        fix: info.fix,
-      });
-    }
-  }
-
-  if (!options.mock) {
-    let requireWhisper = options.pipeline === 'audio-first';
-    let whisperModel = options.whisperModel ?? 'base';
-    try {
-      const config = loadConfig();
-      requireWhisper = requireWhisper || config.sync.requireWhisper;
-      if (!options.whisperModel) whisperModel = config.sync.asrModel;
-    } catch (error) {
-      const info = getCliErrorInfo(error);
-      addPreflightCheck(checks, {
-        label: 'Config',
-        status: 'fail',
-        code: info.code,
-        detail: info.message,
-        fix: info.fix,
-      });
-    }
-
-    if (requireWhisper) {
-      try {
-        const requirements = planWhisperRequirements({ required: true, model: whisperModel });
-        const results = await evaluateRequirements(requirements);
-        for (const result of results) {
-          addPreflightCheck(checks, {
-            label: result.label,
-            status: result.ok ? 'ok' : 'fail',
-            code: result.ok ? undefined : 'DEPENDENCY_MISSING',
-            detail: result.detail,
-            fix: result.fix,
-          });
-        }
-      } catch (error) {
-        const info = getCliErrorInfo(error);
-        addPreflightCheck(checks, {
-          label: 'Whisper',
-          status: 'fail',
-          code: info.code,
-          detail: info.message,
-          fix: info.fix,
-        });
-      }
-    }
-  }
-
-  const needsScript = !options.script;
-  const needsVisuals = !options.visuals;
-  const needsLlm = !options.mock && (needsScript || needsVisuals);
-  const needsVisualsProvider = !options.mock && needsVisuals;
-
-  if (options.mock) {
-    addPreflightCheck(checks, {
-      label: 'Mock mode',
-      status: 'ok',
-      detail: 'Mock providers enabled (skipping API key checks)',
-    });
-  } else if (needsLlm) {
-    let config: any | null = null;
-    try {
-      config = await loadConfig();
-      const provider = config.llm.provider;
-      const facts = LLM_PROVIDERS.find((p) => p.id === provider);
-      const keys = facts?.envVarNames ?? [];
-      const hasKey = keys.length > 0 && keys.some((k) => Boolean(process.env[k]));
-      const keyLabel =
-        keys.length === 1
-          ? String(keys[0] ?? '')
-          : `${String(keys[0] ?? '')} (or ${keys.slice(1).join(', ')})`;
-
-      if (!hasKey) {
-        addPreflightCheck(checks, {
-          label: 'LLM provider',
-          status: 'fail',
-          code: 'CONFIG_ERROR',
-          detail: `${provider} (${keyLabel} missing)`,
-          fix: `Set ${keyLabel} in your environment or .env file`,
-        });
-      } else {
-        addPreflightCheck(checks, {
-          label: 'LLM provider',
-          status: 'ok',
-          detail: `${provider} (API key set)`,
-        });
-      }
-    } catch (error) {
-      const info = getCliErrorInfo(error);
-      addPreflightCheck(checks, {
-        label: 'LLM provider',
-        status: 'fail',
-        code: info.code,
-        detail: info.message,
-        fix: info.fix,
-      });
-    }
-  } else {
-    addPreflightCheck(checks, {
-      label: 'LLM provider',
-      status: 'ok',
-      detail: 'Skipped (external script/visuals provided)',
-    });
-  }
-
-  if (needsVisualsProvider) {
-    try {
-      const config = await loadConfig();
-      const providerChain = parseVisualsProviderChain({
-        providerRaw: options.visualsProvider ?? config.visuals?.provider,
-        fallbackRaw: options.visualsFallbackProviders,
-        configFallbacks: Array.isArray(config.visuals?.fallbackProviders)
-          ? (config.visuals?.fallbackProviders as string[])
-          : [],
-      });
-
-      for (const provider of providerChain) {
-        const facts = VISUALS_PROVIDERS.find((p) => p.id === provider);
-        const keys = facts?.envVarNames ?? [];
-        const hasKey = keys.length === 0 ? true : keys.some((k) => Boolean(process.env[k]));
-        const keyLabel =
-          keys.length === 0
-            ? 'no API key required'
-            : keys.length === 1
-              ? String(keys[0] ?? '')
-              : `${String(keys[0] ?? '')} (or ${keys.slice(1).join(', ')})`;
-
-        if (!hasKey) {
-          addPreflightCheck(checks, {
-            label: `Visuals provider (${provider})`,
-            status: 'fail',
-            code: 'CONFIG_ERROR',
-            detail: `${provider} (${keyLabel} missing)`,
-            fix: `Set ${keyLabel} in your environment or .env file`,
-          });
-        } else {
-          addPreflightCheck(checks, {
-            label: `Visuals provider (${provider})`,
-            status: 'ok',
-            detail: `${provider} (${keyLabel})`,
-          });
-        }
-      }
-
-      const routingPolicy = parseProviderRoutingPolicy(
-        options.visualsRoutingPolicy ?? config.visuals?.routingPolicy
-      );
-      addPreflightCheck(checks, {
-        label: 'Visuals routing policy',
-        status: 'ok',
-        detail: routingPolicy ?? config.visuals?.routingPolicy,
-      });
-
-      if (options.visualsMaxGenerationCostUsd) {
-        const cap = parseOptionalNumber(options.visualsMaxGenerationCostUsd);
-        if (cap == null || cap < 0) {
-          addPreflightCheck(checks, {
-            label: 'Visuals cost cap',
-            status: 'fail',
-            code: 'INVALID_ARGUMENT',
-            detail: `Invalid value: ${options.visualsMaxGenerationCostUsd}`,
-            fix: 'Use a non-negative number, e.g. --visuals-max-generation-cost-usd 2.5',
-          });
-        } else {
-          addPreflightCheck(checks, {
-            label: 'Visuals cost cap',
-            status: 'ok',
-            detail: `$${cap.toFixed(2)}`,
-          });
-        }
-      }
-    } catch (error) {
-      const info = getCliErrorInfo(error);
-      addPreflightCheck(checks, {
-        label: 'Visuals provider',
-        status: 'fail',
-        code: info.code,
-        detail: info.message,
-        fix: info.fix,
-      });
-    }
-  } else if (!options.mock) {
-    addPreflightCheck(checks, {
-      label: 'Visuals provider',
-      status: 'ok',
-      detail: 'Skipped (external visuals provided)',
-    });
-  }
-
-  if (options.syncQualityCheck) {
-    try {
-      parseMinSyncRating(options);
-      addPreflightCheck(checks, {
-        label: 'Sync quality',
-        status: 'ok',
-        detail: `min rating ${options.minSyncRating ?? '75'}`,
-      });
-    } catch (error) {
-      const info = getCliErrorInfo(error);
-      addPreflightCheck(checks, {
-        label: 'Sync quality',
-        status: 'fail',
-        code: info.code,
-        detail: info.message,
-        fix: info.fix,
-      });
-    }
-  }
-
-  if (options.media && options.mediaVeoAdapter === 'google-veo') {
-    const veoMode = googleVeoConfigMode();
-    if (!hasGoogleVeoAdapterConfig()) {
-      addPreflightCheck(checks, {
-        label: 'Google Veo adapter',
-        status: 'fail',
-        code: 'CONFIG_ERROR',
-        detail: 'google-veo is selected but no Veo credentials are configured',
-        fix: 'Set GOOGLE_CLOUD_PROJECT plus GOOGLE_CLOUD_ACCESS_TOKEN for Vertex mode, or set GOOGLE_API_KEY/GEMINI_API_KEY plus CM_MEDIA_VEO_ENDPOINT for legacy mode.',
-      });
-    } else if (veoMode === 'legacy') {
-      addPreflightCheck(checks, {
-        label: 'Google Veo adapter',
-        status: 'ok',
-        detail: 'google-veo (legacy gateway)',
-      });
-    } else {
-      try {
-        const projectId = await getGoogleCloudProjectId({ timeoutMs: 5_000 });
-        await getGoogleAccessToken({ timeoutMs: 5_000 });
-        addPreflightCheck(checks, {
-          label: 'Google Veo adapter',
-          status: 'ok',
-          detail: `google-veo (Vertex AI: ${projectId}${process.env.GOOGLE_CLOUD_LOCATION ? `, ${process.env.GOOGLE_CLOUD_LOCATION}` : ''})`,
-        });
-      } catch (error) {
-        const info = getCliErrorInfo(error);
-        addPreflightCheck(checks, {
-          label: 'Google Veo adapter',
-          status: 'fail',
-          code: info.code ?? 'CONFIG_ERROR',
-          detail: info.message,
-          fix:
-            info.fix ??
-            'Authenticate gcloud (`gcloud auth print-access-token`) or set GOOGLE_CLOUD_ACCESS_TOKEN.',
-        });
-      }
-    }
-  }
-
-  const failures = checks.filter((check) => check.status === 'fail');
-  const passed = failures.length === 0;
-  const exitCode = passed
-    ? 0
-    : failures.some((failure) => failure.code && PREFLIGHT_USAGE_CODES.has(failure.code))
-      ? 2
-      : 1;
-
-  return { passed, checks, exitCode };
-}
-
-function writePreflightOutput(params: {
-  topic: string;
-  options: GenerateOptions;
-  runtime: ReturnType<typeof getCliRuntime>;
-  templateSpec: string | null;
-  resolvedTemplateId: string | null;
-  checks: PreflightCheck[];
-  passed: boolean;
-  exitCode: number;
-}): void {
-  const { topic, options, runtime, templateSpec, resolvedTemplateId, checks, passed, exitCode } =
-    params;
-
-  if (runtime.json) {
-    const errors = passed
-      ? []
-      : checks
-          .filter((check) => check.status === 'fail')
-          .map((check) => {
-            const context: Record<string, unknown> = { label: check.label };
-            if (check.detail) context.detail = check.detail;
-            if (check.fix) context.fix = check.fix;
-            return {
-              code: check.code ?? 'PREFLIGHT_FAILED',
-              message: check.detail ? `${check.label}: ${check.detail}` : `${check.label} failed`,
-              context,
-            };
-          });
-    writeJsonEnvelope(
-      buildJsonEnvelope({
-        command: 'generate',
-        args: {
-          ...buildGenerateSuccessJsonArgs({
-            topic,
-            archetype: options.archetype,
-            orientation: options.orientation,
-            options,
-            templateSpec,
-            resolvedTemplateId,
-          }),
-          preflight: true,
-        },
-        outputs: {
-          preflightPassed: passed,
-          checks,
-        },
-        errors,
-        timingsMs: Date.now() - runtime.startTime,
-      })
-    );
-    process.exit(exitCode);
-  }
-
-  writeStderrLine(passed ? 'Preflight: OK' : 'Preflight: FAILED');
-  for (const check of checks) {
-    writeStderrLine(formatPreflightLine(check));
-    if (check.status === 'fail' && check.fix) {
-      writeStderrLine(`  Fix: ${check.fix}`);
-    }
-  }
-  if (passed) {
-    writeStderrLine(`Next: cm generate "${topic}" -o ${options.output}`);
-  }
-  process.exit(exitCode);
-}
-
-function parseOptionalInt(value: string | undefined): number | null {
-  if (!value) return null;
-  const parsed = Number.parseInt(value, 10);
-  return Number.isFinite(parsed) ? parsed : null;
-}
-
-function parseOptionalNumber(value: string | undefined): number | null {
-  if (!value) return null;
-  const parsed = Number.parseFloat(value);
-  return Number.isFinite(parsed) ? parsed : null;
-}
-
-function hasGoogleVeoAdapterConfig(): boolean {
-  const googleApiKey = process.env.GOOGLE_API_KEY ?? process.env.GEMINI_API_KEY;
-  return Boolean(
-    (googleApiKey && process.env.CM_MEDIA_VEO_ENDPOINT) || process.env.GOOGLE_CLOUD_PROJECT
-  );
-}
-
-function googleVeoConfigMode(): 'legacy' | 'vertex' | null {
-  const googleApiKey = process.env.GOOGLE_API_KEY ?? process.env.GEMINI_API_KEY;
-  if (googleApiKey && process.env.CM_MEDIA_VEO_ENDPOINT) return 'legacy';
-  if (process.env.GOOGLE_CLOUD_PROJECT) return 'vertex';
-  return null;
-}
-
-const GENERATE_VISUAL_PROVIDER_NAMES: ReadonlySet<AssetProviderName> = new Set([
-  ...SUPPORTED_VISUALS_PROVIDER_IDS,
-  'dalle',
-  'unsplash',
-  'mock',
-]);
-
-function parseVisualsProviderChain(params: {
-  providerRaw: string | undefined;
-  fallbackRaw: string | undefined;
-  configFallbacks: string[];
-}): AssetProviderName[] {
-  const providerList = String(params.providerRaw ?? '')
-    .split(',')
-    .map((value) => value.trim())
-    .filter(Boolean);
-  const fallbackList = String(params.fallbackRaw ?? '')
-    .split(',')
-    .map((value) => value.trim())
-    .filter(Boolean);
-
-  const rawChain =
-    providerList.length > 1
-      ? providerList
-      : [
-          providerList[0] ?? SUPPORTED_VISUALS_PROVIDER_IDS[0],
-          ...fallbackList,
-          ...params.configFallbacks,
-        ];
-  const unique = Array.from(new Set(rawChain));
-  const parsed: AssetProviderName[] = [];
-
-  for (const provider of unique) {
-    if (!GENERATE_VISUAL_PROVIDER_NAMES.has(provider as AssetProviderName)) {
-      throw new CMError('INVALID_ARGUMENT', `Unknown visuals provider: ${provider}`, {
-        fix: `Use one of: ${Array.from(GENERATE_VISUAL_PROVIDER_NAMES).join(', ')}`,
-      });
-    }
-    parsed.push(provider as AssetProviderName);
-  }
-
-  return parsed;
-}
-
-function parseProviderRoutingPolicy(
-  value: string | undefined
-): ProviderRoutingPolicy | 'adaptive' | undefined {
-  if (!value) return undefined;
-  const trimmed = value.trim();
-  if (!trimmed) return undefined;
-  if (trimmed === 'adaptive') return 'adaptive';
-  if (isProviderRoutingPolicy(trimmed)) return trimmed;
-  throw new CMError('INVALID_ARGUMENT', `Invalid visuals routing policy: ${trimmed}`, {
-    fix: 'Use one of: configured, balanced, cost-first, quality-first, adaptive',
-  });
-}
-
-async function loadGenerationPolicy(path: string): Promise<GenerationPolicy> {
-  const raw = await readInputFile(path);
-  const parsed = safeParseGenerationPolicy(raw);
-  if (!parsed.success) {
-    throw new SchemaError('Invalid policy file', {
-      path,
-      issues: parsed.error.issues,
-      fix: 'Provide a valid generation policy JSON with schemaVersion: 1 (or legacy 1.0.0)',
-    });
-  }
-  return parsed.data;
-}
-
-function applyPolicyDefaults(
-  options: GenerateOptions,
-  command: Command,
-  policy: GenerationPolicy | undefined
-): void {
-  if (!policy?.visuals) return;
-  const visuals = policy.visuals;
-  const record = options as unknown as Record<string, unknown>;
-
-  if (visuals.providerChain && visuals.providerChain.length > 0) {
-    applyDefaultOption(record, command, 'visualsProvider', visuals.providerChain.join(','));
-    if (visuals.providerChain.length > 1) {
-      applyDefaultOption(
-        record,
-        command,
-        'visualsFallbackProviders',
-        visuals.providerChain.slice(1).join(',')
-      );
-    }
-  }
-
-  applyDefaultOption(record, command, 'visualsRoutingPolicy', visuals.routingPolicy);
-  applyDefaultOption(
-    record,
-    command,
-    'visualsMaxGenerationCostUsd',
-    visuals.maxGenerationCostUsd !== undefined ? String(visuals.maxGenerationCostUsd) : undefined
-  );
-  applyDefaultOption(record, command, 'visualsGateEnforce', visuals.gates?.enforce);
-  applyDefaultOption(
-    record,
-    command,
-    'visualsGateMaxFallbackRate',
-    visuals.gates?.maxFallbackRate !== undefined ? String(visuals.gates.maxFallbackRate) : undefined
-  );
-  applyDefaultOption(
-    record,
-    command,
-    'visualsGateMinProviderSuccessRate',
-    visuals.gates?.minProviderSuccessRate !== undefined
-      ? String(visuals.gates.minProviderSuccessRate)
-      : undefined
-  );
-  applyDefaultOption(
-    record,
-    command,
-    'visualsRoutingAdaptiveWindow',
-    visuals.evaluation?.adaptiveWindow !== undefined
-      ? String(visuals.evaluation.adaptiveWindow)
-      : undefined
-  );
-  applyDefaultOption(
-    record,
-    command,
-    'visualsRoutingAdaptiveMinRecords',
-    visuals.evaluation?.minRecords !== undefined ? String(visuals.evaluation.minRecords) : undefined
-  );
-}
-
-function parseFontWeight(value: string | undefined): number | 'normal' | 'bold' | 'black' | null {
-  if (!value) return null;
-  const raw = value.trim().toLowerCase();
-  if (raw === 'normal' || raw === 'bold' || raw === 'black') {
-    return raw as 'normal' | 'bold' | 'black';
-  }
-  const numeric = Number.parseInt(raw, 10);
-  if (Number.isFinite(numeric)) return numeric;
-  throw new CMError('INVALID_ARGUMENT', `Invalid --caption-font-weight value: ${raw}`, {
-    fix: 'Use normal, bold, black, or a numeric weight (100-900)',
-  });
-}
-
-function parseWordList(value: string | undefined): string[] | undefined {
-  if (!value) return undefined;
-  const items = value
-    .split(',')
-    .map((entry) => entry.trim())
-    .filter(Boolean);
-  return items.length > 0 ? items : [];
-}
+/* ------------------------------------------------------------------ */
+/*  Internal helpers (orchestration-only)                              */
+/* ------------------------------------------------------------------ */
 
 function normalizeWhisperModelForSync(
   model: GenerateOptions['whisperModel'] | undefined
@@ -1519,584 +153,28 @@ function normalizeWhisperModelForSync(
   return model;
 }
 
-function collectList(value: string, previous: string[] = []): string[] {
-  return [...previous, value];
+function toNullableString(value: string | undefined): string | null {
+  return value ?? null;
 }
 
-function parseSfxPlacement(
-  value: string | undefined
-): 'hook' | 'scene' | 'list-item' | 'cta' | null {
-  if (!value) return null;
-  const raw = value.trim();
-  if (raw === 'hook' || raw === 'scene' || raw === 'list-item' || raw === 'cta') {
-    return raw;
-  }
-  throw new CMError('INVALID_ARGUMENT', `Invalid --sfx-at value: ${raw}`, {
-    fix: 'Use one of: hook, scene, list-item, cta',
-  });
+function resolveTemplateId(
+  resolvedTemplate: Awaited<ReturnType<typeof resolveRenderTemplate>> | undefined
+): string | null {
+  return resolvedTemplate?.template.id ?? null;
 }
 
-function buildAudioMixOptions(options: GenerateOptions): AudioMixPlanOptions {
-  const config = loadConfig();
-  const noMusic = options.music === false;
-  const noSfx = options.sfx === false;
-  const noAmbience = options.ambience === false;
-  const sfxInputs = Array.isArray(options.sfx) ? options.sfx : [];
-  const musicInput = typeof options.music === 'string' ? options.music : undefined;
-  const ambienceInput = typeof options.ambience === 'string' ? options.ambience : undefined;
-
-  return {
-    mixPreset: (options.mixPreset as string | undefined) ?? config.audioMix.preset,
-    lufsTarget: parseOptionalNumber(options.lufsTarget) ?? config.audioMix.lufsTarget,
-    music: noMusic ? null : (musicInput ?? config.music.default ?? null),
-    musicVolumeDb: parseOptionalNumber(options.musicVolume) ?? config.music.volumeDb,
-    musicDuckDb: parseOptionalNumber(options.musicDuck) ?? config.music.duckDb,
-    musicLoop: options.musicLoop !== undefined ? Boolean(options.musicLoop) : config.music.loop,
-    musicFadeInMs: parseOptionalInt(options.musicFadeIn) ?? config.music.fadeInMs,
-    musicFadeOutMs: parseOptionalInt(options.musicFadeOut) ?? config.music.fadeOutMs,
-    sfx: noSfx ? [] : sfxInputs,
-    sfxPack: noSfx ? null : (options.sfxPack ?? config.sfx.pack ?? null),
-    sfxAt: parseSfxPlacement(options.sfxAt) ?? config.sfx.placement,
-    sfxVolumeDb: parseOptionalNumber(options.sfxVolume) ?? config.sfx.volumeDb,
-    sfxMinGapMs: parseOptionalInt(options.sfxMinGap) ?? config.sfx.minGapMs,
-    sfxDurationSeconds: parseOptionalNumber(options.sfxDuration) ?? config.sfx.durationSeconds,
-    ambience: noAmbience ? null : (ambienceInput ?? config.ambience.default ?? null),
-    ambienceVolumeDb: parseOptionalNumber(options.ambienceVolume) ?? config.ambience.volumeDb,
-    ambienceLoop:
-      options.ambienceLoop !== undefined ? Boolean(options.ambienceLoop) : config.ambience.loop,
-    ambienceFadeInMs: parseOptionalInt(options.ambienceFadeIn) ?? config.ambience.fadeInMs,
-    ambienceFadeOutMs: parseOptionalInt(options.ambienceFadeOut) ?? config.ambience.fadeOutMs,
-    noMusic,
-    noSfx,
-    noAmbience,
-  };
-}
-
-function buildGenerateSuccessJsonArgs(params: {
-  topic: string;
-  archetype: string;
-  orientation: string;
-  options: GenerateOptions;
-  templateSpec: string | null;
-  resolvedTemplateId: string | null;
-}): Record<string, unknown> {
-  const { topic, archetype, orientation, options, templateSpec, resolvedTemplateId } = params;
-
-  return {
-    topic,
-    archetype,
-    orientation,
-    template: templateSpec,
-    policy: options.policy ?? null,
-    resolvedTemplateId,
-    workflow: options.workflow ?? null,
-    workflowAllowExec: Boolean(options.workflowAllowExec),
-    script: options.script ?? null,
-    audio: options.audio ?? null,
-    audioMix: options.audioMix ?? null,
-    timestamps: options.timestamps ?? null,
-    visuals: options.visuals ?? null,
-    visualsProvider: options.visualsProvider ?? null,
-    visualsFallbackProviders: options.visualsFallbackProviders ?? null,
-    visualsRoutingPolicy: options.visualsRoutingPolicy ?? null,
-    visualsMaxGenerationCostUsd: options.visualsMaxGenerationCostUsd ?? null,
-    visualsGateEnforce: Boolean(options.visualsGateEnforce),
-    visualsGateMaxFallbackRate: options.visualsGateMaxFallbackRate ?? null,
-    visualsGateMinProviderSuccessRate: options.visualsGateMinProviderSuccessRate ?? null,
-    visualsRoutingAdaptiveWindow: options.visualsRoutingAdaptiveWindow ?? null,
-    visualsRoutingAdaptiveMinRecords: options.visualsRoutingAdaptiveMinRecords ?? null,
-    gameplay: options.gameplay ?? null,
-    gameplayStyle: options.gameplayStyle ?? null,
-    gameplayStrict: Boolean(options.gameplayStrict),
-    fps: options.fps,
-    captionPreset: options.captionPreset,
-    captionMode: options.captionMode ?? null,
-    captionNotation: options.captionNotation ?? null,
-    wordsPerPage: parseOptionalInt(options.wordsPerPage ?? options.captionMaxWords),
-    captionMaxWords: parseOptionalInt(options.captionMaxWords),
-    captionMinWords: parseOptionalInt(options.captionMinWords),
-    captionTargetWords: parseOptionalInt(options.captionTargetWords),
-    captionMaxWpm: parseOptionalNumber(options.captionMaxWpm),
-    captionMaxCps: parseOptionalNumber(options.captionMaxCps),
-    captionMinOnScreenMs: parseOptionalInt(options.captionMinOnScreenMs),
-    captionMinOnScreenMsShort: parseOptionalInt(options.captionMinOnScreenMsShort),
-    captionDropFillers: options.captionDropFillers ?? null,
-    captionFillerWords: parseWordList(options.captionFillerWords) ?? null,
-    voice: options.voice,
-    durationSeconds: options.duration,
-    output: options.output,
-    keepArtifacts: options.keepArtifacts,
-    music: typeof options.music === 'string' ? options.music : null,
-    musicVolumeDb: parseOptionalNumber(options.musicVolume),
-    musicDuckDb: parseOptionalNumber(options.musicDuck),
-    musicLoop: options.musicLoop ?? null,
-    musicFadeInMs: parseOptionalInt(options.musicFadeIn),
-    musicFadeOutMs: parseOptionalInt(options.musicFadeOut),
-    sfx: Array.isArray(options.sfx) ? options.sfx : null,
-    sfxPack: options.sfxPack ?? null,
-    sfxAt: parseSfxPlacement(options.sfxAt) ?? null,
-    sfxVolumeDb: parseOptionalNumber(options.sfxVolume),
-    sfxMinGapMs: parseOptionalInt(options.sfxMinGap),
-    sfxDurationSeconds: parseOptionalNumber(options.sfxDuration),
-    ambience: typeof options.ambience === 'string' ? options.ambience : null,
-    ambienceVolumeDb: parseOptionalNumber(options.ambienceVolume),
-    ambienceLoop: options.ambienceLoop ?? null,
-    ambienceFadeInMs: parseOptionalInt(options.ambienceFadeIn),
-    ambienceFadeOutMs: parseOptionalInt(options.ambienceFadeOut),
-    mixPreset: options.mixPreset ?? null,
-    lufsTarget: parseOptionalNumber(options.lufsTarget),
-    mock: options.mock,
-    pipeline: options.pipeline,
-    whisperModel: options.whisperModel ?? null,
-    reconcile: Boolean(options.reconcile),
-    syncPreset: options.syncPreset,
-    syncQualityCheck: Boolean(options.syncQualityCheck),
-    minSyncRating: parseOptionalInt(options.minSyncRating),
-    autoRetrySync: Boolean(options.autoRetrySync),
-    captionQualityCheck: Boolean(options.captionQualityCheck),
-    minCaptionOverall: parseMinCaptionOverall(options),
-    autoRetryCaptions: Boolean(options.autoRetryCaptions),
-    maxCaptionRetries: parseMaxCaptionRetries(options),
-    captionPerfect: Boolean(options.captionPerfect),
-    captionQualityMock: Boolean(options.captionQualityMock),
-    gameplayPosition: options.gameplayPosition ?? null,
-    contentPosition: options.contentPosition ?? null,
-    splitLayout: options.splitLayout ?? null,
-    hook: options.hook ?? null,
-    hookLibrary: options.hookLibrary ?? null,
-    hooksDir: options.hooksDir ?? null,
-    hookDuration: options.hookDuration ?? null,
-    hookTrim: options.hookTrim ?? null,
-    hookAudio: options.hookAudio ?? null,
-    hookFit: options.hookFit ?? null,
-    downloadHook: Boolean(options.downloadHook),
-    downloadAssets: options.downloadAssets !== false,
-    frameAnalysis: options.frameAnalysis !== false,
-    frameAnalysisMode: options.frameAnalysisMode ?? 'both',
-    frameAnalysisFps: parseOptionalNumber(options.frameAnalysisFps) ?? 1,
-    frameAnalysisShots: parseOptionalInt(options.frameAnalysisShots) ?? 30,
-    frameAnalysisSegments: parseOptionalInt(options.frameAnalysisSegments) ?? 5,
-    frameAnalysisOutput: options.frameAnalysisOutput ?? 'output/analysis',
-  };
-}
-
-function buildGenerateSuccessJsonSyncOutputs(
-  sync: SyncQualitySummary | null | undefined
-): Record<string, unknown> {
-  if (!sync) {
-    return {
-      syncReportPath: null,
-      syncRating: null,
-      syncRatingLabel: null,
-      syncPassed: null,
-      syncMeanDriftMs: null,
-      syncMaxDriftMs: null,
-      syncMatchRatio: null,
-      syncErrorCount: null,
-      syncAttempts: null,
-    };
-  }
-
-  return {
-    syncReportPath: sync.reportPath,
-    syncRating: sync.rating,
-    syncRatingLabel: sync.ratingLabel,
-    syncPassed: sync.passed,
-    syncMeanDriftMs: sync.meanDriftMs,
-    syncMaxDriftMs: sync.maxDriftMs,
-    syncMatchRatio: sync.matchRatio,
-    syncErrorCount: sync.errorCount,
-    syncAttempts: sync.attempts,
-  };
-}
-
-function buildGenerateSuccessJsonCaptionOutputs(
-  caption: CaptionQualitySummary | null | undefined
-): Record<string, unknown> {
-  if (!caption) {
-    return {
-      captionReportPath: null,
-      captionOverallScore: null,
-      captionPassed: null,
-      captionCoverageRatio: null,
-      captionSafeAreaScore: null,
-      captionFlickerEvents: null,
-      captionMeanOcrConfidence: null,
-      captionAttempts: null,
-    };
-  }
-
-  return {
-    captionReportPath: caption.reportPath,
-    captionOverallScore: caption.overallScore,
-    captionPassed: caption.passed,
-    captionCoverageRatio: caption.coverageRatio,
-    captionSafeAreaScore: caption.safeAreaScore,
-    captionFlickerEvents: caption.flickerEvents,
-    captionMeanOcrConfidence: caption.meanOcrConfidence,
-    captionAttempts: caption.attempts,
-  };
-}
-
-function buildGenerateSuccessJsonOutputs(params: {
-  result: PipelineResult;
-  artifactsDir: string;
-  sync: SyncQualitySummary | null | undefined;
-  caption: CaptionQualitySummary | null | undefined;
-  frameAnalysis: AnalyzeVideoFramesResult | null | undefined;
-}): Record<string, unknown> {
-  const { result, artifactsDir, sync, caption, frameAnalysis } = params;
-
-  return {
-    videoPath: result.outputPath,
-    durationSeconds: result.duration,
-    width: result.width,
-    height: result.height,
-    fps: result.render.fps,
-    fileSizeBytes: result.fileSize,
-    artifactsDir,
-    costs: result.costs ?? null,
-    audioMixPath: result.audio.audioMixPath ?? null,
-    audioMixLayers: result.audio.audioMix?.layers.length ?? 0,
-    gameplayClip: result.visuals.gameplayClip?.path ?? null,
-    frameAnalysisManifestPath: frameAnalysis?.manifestPath ?? null,
-    frameAnalysisFpsFrames: frameAnalysis?.manifest.fpsFrames.length ?? 0,
-    frameAnalysisShotFrames: frameAnalysis?.manifest.shotFrames.length ?? 0,
-    ...buildGenerateSuccessJsonSyncOutputs(sync),
-    ...buildGenerateSuccessJsonCaptionOutputs(caption),
-  };
-}
-
-function writeSuccessJson(params: {
-  topic: string;
-  archetype: string;
-  orientation: string;
-  options: GenerateOptions;
-  templateSpec: string | null;
-  resolvedTemplateId: string | null;
-  runtime: ReturnType<typeof getCliRuntime>;
-  artifactsDir: string;
-  result: PipelineResult;
-  sync?: SyncQualitySummary | null;
-  caption?: CaptionQualitySummary | null;
-  frameAnalysis?: AnalyzeVideoFramesResult | null;
-  exitCode?: number;
-}): void {
-  const {
-    topic,
-    archetype,
-    orientation,
-    options,
-    templateSpec,
-    resolvedTemplateId,
-    runtime,
-    artifactsDir,
-    result,
-    sync,
-    caption,
-    frameAnalysis,
-    exitCode = 0,
-  } = params;
-
-  writeJsonEnvelope(
-    buildJsonEnvelope({
-      command: 'generate',
-      args: buildGenerateSuccessJsonArgs({
-        topic,
-        archetype,
-        orientation,
-        options,
-        templateSpec,
-        resolvedTemplateId,
-      }),
-      outputs: buildGenerateSuccessJsonOutputs({
-        result,
-        artifactsDir,
-        sync,
-        caption,
-        frameAnalysis,
-      }),
-      timingsMs: Date.now() - runtime.startTime,
-    })
-  );
-  process.exit(exitCode);
-}
-
-function applyDefaultOption(
-  options: Record<string, unknown>,
-  command: Command,
-  optionName: string,
-  value: unknown
-): void {
-  if (value === undefined) return;
-  const source = command.getOptionValueSource(optionName);
-  if (source !== 'default' && source !== undefined) return;
-  options[optionName] = value;
-}
-
-function applyQualityDefaults(options: GenerateOptions, command: Command): void {
-  if (!options.quality) return;
-
-  const record = options as unknown as Record<string, unknown>;
-
-  // Prefer better sync defaults, but do not override explicit flags.
-  applyDefaultOption(record, command, 'syncPreset', PREFERRED_QUALITY_SYNC_PRESET_ID);
-  applyDefaultOption(record, command, 'syncQualityCheck', true);
-  applyDefaultOption(record, command, 'autoRetrySync', true);
-  applyDefaultOption(record, command, 'minSyncRating', '80');
-
-  // Prefer readable burned-in captions; keep retries bounded.
-  applyDefaultOption(record, command, 'captionQualityCheck', true);
-  applyDefaultOption(record, command, 'autoRetryCaptions', true);
-  applyDefaultOption(record, command, 'maxCaptionRetries', '3');
-  applyDefaultOption(record, command, 'minCaptionOverall', '0.80');
-  applyDefaultOption(record, command, 'captionQualityMock', false);
-}
-
-function applySyncPresetDefaults(options: GenerateOptions, command: Command): void {
-  const presetName = (options.syncPreset ?? DEFAULT_SYNC_PRESET_ID) as string;
-  if (!(presetName in SYNC_PRESETS)) return;
-  const preset = SYNC_PRESETS[presetName as SyncPresetId];
-  if (!preset) return;
-
-  const record = options as unknown as Record<string, unknown>;
-  applyDefaultOption(record, command, 'pipeline', preset.pipeline);
-  applyDefaultOption(record, command, 'reconcile', preset.reconcile);
-  applyDefaultOption(record, command, 'syncQualityCheck', preset.syncQualityCheck);
-  applyDefaultOption(record, command, 'minSyncRating', String(preset.minSyncRating));
-  applyDefaultOption(record, command, 'autoRetrySync', preset.autoRetrySync);
-}
-
-function applyDefaultsFromConfig(options: GenerateOptions, command: Command): void {
-  const config = loadConfig();
-  const record = options as unknown as Record<string, unknown>;
-
-  // Pipeline defaults
-  applyDefaultOption(record, command, 'archetype', config.defaults.archetype);
-  applyDefaultOption(record, command, 'orientation', config.defaults.orientation);
-  applyDefaultOption(record, command, 'voice', config.defaults.voice);
-  applyDefaultOption(record, command, 'fps', String(config.render.fps));
-  applyDefaultOption(record, command, 'template', config.render.template);
-  applyDefaultOption(record, command, 'workflow', config.generate.workflow);
-  applyDefaultOption(
-    record,
-    command,
-    'visualsProvider',
-    config.visuals?.provider ?? SUPPORTED_VISUALS_PROVIDER_IDS[0]
-  );
-  applyDefaultOption(record, command, 'visualsRoutingPolicy', config.visuals?.routingPolicy);
-  applyDefaultOption(
-    record,
-    command,
-    'visualsMaxGenerationCostUsd',
-    config.visuals?.maxGenerationCostUsd !== undefined
-      ? String(config.visuals.maxGenerationCostUsd)
-      : undefined
-  );
-
-  // Caption defaults
-  const captions = config.captions;
-  const defaultFamily =
-    captions.fonts && captions.fonts.length > 0 ? captions.fonts[0].family : captions.fontFamily;
-  applyDefaultOption(record, command, 'captionFontFamily', defaultFamily);
-  applyDefaultOption(record, command, 'captionFontWeight', String(captions.fontWeight));
-  applyDefaultOption(record, command, 'captionFontFile', captions.fontFile);
-  applyDefaultOption(record, command, 'captionPreset', captions.preset);
-  if (!options.captionFonts && captions.fonts.length > 0) {
-    options.captionFonts = captions.fonts;
-  }
-}
-
-function applyCaptionQualityPerfectDefaults(options: GenerateOptions, command: Command): void {
-  if (!options.captionPerfect) return;
-  options.captionQualityCheck = true;
-  options.autoRetryCaptions = true;
-  const record = options as unknown as Record<string, unknown>;
-  applyDefaultOption(record, command, 'minCaptionOverall', '0.95');
-  applyDefaultOption(record, command, 'maxCaptionRetries', '50');
-  applyDefaultOption(record, command, 'captionQualityMock', false);
-  applyDefaultOption(record, command, 'captionMode', 'chunk');
-  applyDefaultOption(record, command, 'wordsPerPage', '8');
-  applyDefaultOption(record, command, 'captionGroupMs', '1200');
-  applyDefaultOption(record, command, 'captionMaxWpm', '220');
-  applyDefaultOption(record, command, 'captionMaxCps', '18');
-  applyDefaultOption(record, command, 'captionMinOnScreenMs', '1400');
-  applyDefaultOption(record, command, 'captionMinOnScreenMsShort', '1100');
-}
-
-function mergeCaptionConfigPartials(
-  base: CaptionConfigInput | undefined,
-  overrides: CaptionConfigInput | undefined
-): CaptionConfigInput | undefined {
-  if (!base) return overrides;
-  if (!overrides) return base;
-
-  return {
-    ...base,
-    ...overrides,
-    pillStyle: { ...base.pillStyle, ...overrides.pillStyle },
-    stroke: { ...base.stroke, ...overrides.stroke },
-    shadow: { ...base.shadow, ...overrides.shadow },
-    layout: { ...base.layout, ...overrides.layout },
-    positionOffset: { ...base.positionOffset, ...overrides.positionOffset },
-    safeZone: { ...base.safeZone, ...overrides.safeZone },
-    cleanup: { ...base.cleanup, ...overrides.cleanup },
-    listBadges: { ...(base.listBadges ?? {}), ...(overrides.listBadges ?? {}) },
-    emphasis: { ...base.emphasis, ...overrides.emphasis },
-  };
-}
-
-function getOptionNameMap(command: Command): Map<string, string> {
-  const map = new Map<string, string>();
-  for (const option of command.options) {
-    const attribute = option.attributeName();
-    map.set(attribute, attribute);
-    if (option.long) {
-      map.set(option.long.replace(/^--/, ''), attribute);
-    }
-  }
-  return map;
-}
-
-function resolveWorkflowPath(
-  baseDir: string | undefined,
-  value: string | undefined
+function getTemplateSourceForLog(
+  resolvedTemplate: Awaited<ReturnType<typeof resolveRenderTemplate>> | undefined
 ): string | undefined {
-  if (!value) return undefined;
-  return resolve(baseDir ?? process.cwd(), value);
+  return resolvedTemplate ? formatTemplateSource(resolvedTemplate) : undefined;
 }
 
-function applyWorkflowDefaults(
-  options: GenerateOptions,
-  command: Command,
-  workflow: WorkflowDefinition | undefined,
-  skipKeys: Set<string> = new Set()
-): void {
-  if (!workflow?.defaults) return;
-  const record = options as unknown as Record<string, unknown>;
-  const optionMap = getOptionNameMap(command);
-
-  for (const [key, value] of Object.entries(workflow.defaults)) {
-    const normalizedKey = optionMap.get(key) ?? optionMap.get(key.replace(/^--/, ''));
-    if (!normalizedKey) continue;
-    if (skipKeys.has(normalizedKey)) continue;
-    applyDefaultOption(record, command, normalizedKey, value);
-  }
+function getLogFps(options: GenerateOptions): number {
+  return options.fps ? parseInt(options.fps, 10) : 30;
 }
 
-function applyWorkflowInputs(
-  options: GenerateOptions,
-  command: Command,
-  workflow: WorkflowDefinition | undefined,
-  baseDir: string | undefined
-): void {
-  if (!workflow?.inputs) return;
-  const record = options as unknown as Record<string, unknown>;
-  const inputs = workflow.inputs;
-
-  applyDefaultOption(record, command, 'script', resolveWorkflowPath(baseDir, inputs.script));
-  applyDefaultOption(record, command, 'audio', resolveWorkflowPath(baseDir, inputs.audio));
-  applyDefaultOption(
-    record,
-    command,
-    'timestamps',
-    resolveWorkflowPath(baseDir, inputs.timestamps)
-  );
-  applyDefaultOption(record, command, 'visuals', resolveWorkflowPath(baseDir, inputs.visuals));
-}
-
-type WorkflowStageId = 'script' | 'audio' | 'visuals' | 'render';
-type WorkflowStageModes = Record<WorkflowStageId, WorkflowStageMode>;
-
-function resolveWorkflowStageModes(workflow: WorkflowDefinition | undefined): WorkflowStageModes {
-  const stages = workflow?.stages;
-  return {
-    script: resolveWorkflowStageMode(stages?.script),
-    audio: resolveWorkflowStageMode(stages?.audio),
-    visuals: resolveWorkflowStageMode(stages?.visuals),
-    render: resolveWorkflowStageMode(stages?.render),
-  };
-}
-
-function isExternalStageMode(mode: WorkflowStageMode): boolean {
-  return mode !== 'builtin';
-}
-
-function applyWorkflowStageDefaults(
-  options: GenerateOptions,
-  stageModes: WorkflowStageModes,
-  artifactsDir: string
-): void {
-  if (isExternalStageMode(stageModes.script)) {
-    if (!options.script) {
-      options.script = join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.script);
-    }
-  }
-  if (isExternalStageMode(stageModes.audio)) {
-    if (!options.audio) {
-      options.audio = join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.audio);
-    }
-    if (!options.timestamps) {
-      options.timestamps = join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.timestamps);
-    }
-  }
-  if (isExternalStageMode(stageModes.visuals)) {
-    if (!options.visuals) {
-      options.visuals = join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.visuals);
-    }
-  }
-}
-
-async function resolveTemplateAndApplyDefaults(
-  options: GenerateOptions,
-  command: Command
-): Promise<{
-  resolvedTemplate: Awaited<ReturnType<typeof resolveRenderTemplate>> | undefined;
-  templateDefaults: Record<string, unknown> | undefined;
-  templateParams: ReturnType<typeof getTemplateParams>;
-  templateGameplay: ReturnType<typeof getTemplateGameplaySlot>;
-  templateOverlays: OverlayAsset[];
-}> {
-  if (!options.template) {
-    return {
-      resolvedTemplate: undefined,
-      templateDefaults: undefined,
-      templateParams: {},
-      templateGameplay: null,
-      templateOverlays: [],
-    };
-  }
-
-  const resolvedTemplate = await resolveRenderTemplate(options.template);
-  const templateDefaults = (resolvedTemplate.template.defaults ?? {}) as Record<string, unknown>;
-  const templateParams = getTemplateParams(resolvedTemplate.template);
-  const templateGameplay = getTemplateGameplaySlot(resolvedTemplate.template);
-  const templateFonts = getTemplateFontSources(
-    resolvedTemplate.template,
-    resolvedTemplate.templateDir
-  );
-  const templateOverlays = getTemplateOverlays(
-    resolvedTemplate.template,
-    resolvedTemplate.templateDir
-  );
-
-  const record = options as unknown as Record<string, unknown>;
-  applyDefaultOption(record, command, 'archetype', templateDefaults.archetype);
-  applyDefaultOption(record, command, 'orientation', templateDefaults.orientation);
-  applyDefaultOption(
-    record,
-    command,
-    'fps',
-    templateDefaults.fps !== undefined ? String(templateDefaults.fps) : undefined
-  );
-  applyDefaultOption(record, command, 'captionPreset', templateDefaults.captionPreset);
-  if (templateFonts.length > 0) {
-    // Prefer template-provided fonts over config defaults unless the user explicitly overrides.
-    applyDefaultOption(record, command, 'captionFontFamily', templateFonts[0]?.family);
-    options.captionFonts = mergeFontSources(templateFonts, options.captionFonts ?? []);
-  }
-
-  return { resolvedTemplate, templateDefaults, templateParams, templateGameplay, templateOverlays };
+function getCaptionPreset(options: GenerateOptions): string {
+  return options.captionPreset ?? 'capcut';
 }
 
 function handleDryRun(params: {
@@ -2104,8 +182,8 @@ function handleDryRun(params: {
   options: GenerateOptions;
   runtime: ReturnType<typeof getCliRuntime>;
   artifactsDir: string;
-  archetype: Archetype;
-  orientation: Orientation;
+  archetype: string;
+  orientation: string;
   templateSpec: string | null;
   resolvedTemplateId: string | null;
 }): boolean {
@@ -2127,6 +205,110 @@ function handleDryRun(params: {
 
   showDryRunSummary(params.topic, params.options, params.archetype, params.orientation);
   return true;
+}
+
+async function createMockLLMProvider(topic: string): Promise<LLMProvider> {
+  const { FakeLLMProvider } = await import('../../test/stubs/fake-llm');
+  const { createMockScriptResponse } = await import('../../test/fixtures/mock-scenes.js');
+  const provider = new FakeLLMProvider();
+  provider.queueJsonResponse(createMockScriptResponse(topic));
+  return provider;
+}
+
+async function createGenerateLlmProvider(
+  topic: string,
+  options: GenerateOptions,
+  runtime: ReturnType<typeof getCliRuntime>
+): Promise<LLMProvider | undefined> {
+  if (!options.mock) return undefined;
+  if (!runtime.json) writeStderrLine(chalk.yellow('Mock mode - using fake providers'));
+  return createMockLLMProvider(topic);
+}
+
+function reportResearchSummary(
+  research: ResearchOutput | undefined,
+  runtime: ReturnType<typeof getCliRuntime>
+): void {
+  if (!research || runtime.json) return;
+
+  writeStderrLine(
+    chalk.gray(
+      `Research: ${research.totalResults} evidence items from ${research.sources.join(', ')}`
+    )
+  );
+}
+
+/**
+ * Load research from file or run new research
+ */
+async function loadOrRunResearch(
+  researchOption: string | boolean | undefined,
+  topic: string,
+  mock: boolean
+): Promise<ResearchOutput | undefined> {
+  if (!researchOption) return undefined;
+
+  const normalizedOption =
+    typeof researchOption === 'string' ? researchOption.trim().toLowerCase() : researchOption;
+
+  // Commander parses `--research true` as a string value ("true") because the option is `[path]`.
+  // Accept common boolean string literals for convenience.
+  if (normalizedOption === 'true') {
+    researchOption = true;
+  } else if (normalizedOption === 'false') {
+    return undefined;
+  }
+
+  // If it's a file path, load from file
+  if (typeof researchOption === 'string') {
+    const raw = await readInputFile(researchOption);
+    const parsed = ResearchOutputSchema.safeParse(raw);
+    if (!parsed.success) {
+      throw new SchemaError('Invalid research file', {
+        path: researchOption,
+        issues: parsed.error.issues,
+        fix: 'Generate research via `cm research -q "<topic>" -o research.json` and pass --research research.json',
+      });
+    }
+    return parsed.data;
+  }
+
+  // If it's true (boolean flag), run research automatically
+  const spinner = createSpinner('Stage 0/4: Researching topic...').start();
+
+  const sources: ResearchSource[] = ['hackernews', 'reddit'];
+  if (process.env.BRAVE_SEARCH_API_KEY) sources.push('web');
+  if (process.env.TAVILY_API_KEY) sources.push('tavily');
+
+  let llmProvider = undefined;
+  if (!mock) {
+    const cfg = loadConfig();
+    const providerId = cfg.llm.provider;
+    const providerFacts = LLM_PROVIDERS.find((p) => p.id === providerId);
+    const key = (providerFacts?.envVarNames ?? []).map((k) => getOptionalApiKey(k)).find(Boolean);
+    if (key) {
+      llmProvider = createLLMProvider(providerId, cfg.llm.model, key);
+    }
+  }
+
+  const orchestrator = createResearchOrchestrator(
+    {
+      sources,
+      limitPerSource: 5,
+      generateAngles: true,
+      maxAngles: 3,
+    },
+    llmProvider
+  );
+
+  try {
+    const result = await orchestrator.research(topic);
+    spinner.succeed('Stage 0/4: Research complete');
+    return result.output;
+  } catch (error) {
+    spinner.fail('Stage 0/4: Research failed');
+    throw error;
+  }
 }
 
 async function loadExternalPipelineInputs(options: GenerateOptions): Promise<{
@@ -2309,7 +491,7 @@ async function runGeneratePipeline(params: {
   templateDepsAllowOutput?: boolean;
   templatePackageManager?: 'npm' | 'pnpm' | 'yarn';
   templateDefaults: Record<string, unknown> | undefined;
-  templateParams: ReturnType<typeof getTemplateParams>;
+  templateParams: ReturnType<typeof import('../../render/templates').getTemplateParams>;
   templateOverlays: OverlayAsset[];
   gameplay?: { library?: string; style?: string; required?: boolean };
   hook?: HookClip | null;
@@ -2492,49 +674,6 @@ async function runGeneratePipeline(params: {
   }
 }
 
-function toNullableString(value: string | undefined): string | null {
-  return value ?? null;
-}
-
-function resolveTemplateId(
-  resolvedTemplate: Awaited<ReturnType<typeof resolveRenderTemplate>> | undefined
-): string | null {
-  return resolvedTemplate?.template.id ?? null;
-}
-
-function getTemplateSourceForLog(
-  resolvedTemplate: Awaited<ReturnType<typeof resolveRenderTemplate>> | undefined
-): string | undefined {
-  return resolvedTemplate ? formatTemplateSource(resolvedTemplate) : undefined;
-}
-
-function getLogFps(options: GenerateOptions): number {
-  return options.fps ? parseInt(options.fps, 10) : 30;
-}
-
-function getCaptionPreset(options: GenerateOptions): string {
-  return options.captionPreset ?? 'capcut';
-}
-
-function parseCaptionNotation(value: unknown): 'none' | 'unicode' | undefined {
-  if (value === undefined || value === null || value === '') return undefined;
-  const raw = String(value).trim().toLowerCase();
-  if (raw === 'none' || raw === 'unicode') return raw;
-  throw new CMError('INVALID_ARGUMENT', `Invalid --caption-notation value: ${raw}`, {
-    fix: 'Use --caption-notation none or --caption-notation unicode',
-  });
-}
-
-function parseFrameAnalysisMode(value: unknown): 'fps' | 'shots' | 'both' {
-  const raw = String(value ?? 'both')
-    .trim()
-    .toLowerCase();
-  if (raw === 'fps' || raw === 'shots' || raw === 'both') return raw;
-  throw new CMError('INVALID_ARGUMENT', `Invalid --frame-analysis-mode value: ${raw}`, {
-    fix: 'Use one of: fps, shots, both',
-  });
-}
-
 async function runAutoFrameAnalysis(
   options: GenerateOptions,
   outputPath: string
@@ -2572,165 +711,6 @@ async function runAutoFrameAnalysis(
     shots,
     segments,
   });
-}
-
-function parseLayoutPosition(
-  value: unknown,
-  optionName: string
-): 'top' | 'bottom' | 'full' | undefined {
-  if (value == null) return undefined;
-  const raw = String(value);
-  if (raw === 'top' || raw === 'bottom' || raw === 'full') return raw;
-  throw new CMError('INVALID_ARGUMENT', `Invalid ${optionName} value: ${raw}`, {
-    fix: `Use one of: top, bottom, full for ${optionName}`,
-  });
-}
-
-function parseSplitLayoutPreset(
-  value: unknown
-):
-  | { gameplayPosition: 'top' | 'bottom' | 'full'; contentPosition: 'top' | 'bottom' | 'full' }
-  | undefined {
-  if (value == null) return undefined;
-  const raw = String(value);
-  if (raw === 'gameplay-top') return { gameplayPosition: 'top', contentPosition: 'bottom' };
-  if (raw === 'gameplay-bottom') return { gameplayPosition: 'bottom', contentPosition: 'top' };
-  throw new CMError('INVALID_ARGUMENT', `Invalid --split-layout value: ${raw}`, {
-    fix: 'Use one of: gameplay-top, gameplay-bottom',
-  });
-}
-
-function reportResearchSummary(
-  research: ResearchOutput | undefined,
-  runtime: ReturnType<typeof getCliRuntime>
-): void {
-  if (!research || runtime.json) return;
-
-  writeStderrLine(
-    chalk.gray(
-      `Research: ${research.totalResults} evidence items from ${research.sources.join(', ')}`
-    )
-  );
-}
-
-async function createGenerateLlmProvider(
-  topic: string,
-  options: GenerateOptions,
-  runtime: ReturnType<typeof getCliRuntime>
-): Promise<LLMProvider | undefined> {
-  if (!options.mock) return undefined;
-  if (!runtime.json) writeStderrLine(chalk.yellow('Mock mode - using fake providers'));
-  return createMockLLMProvider(topic);
-}
-
-function parseMinSyncRating(options: GenerateOptions): number {
-  const raw = options.minSyncRating ?? '75';
-  const minRating = Number.parseInt(raw, 10);
-  if (!Number.isFinite(minRating) || minRating < 0 || minRating > 100) {
-    throw new CMError('INVALID_ARGUMENT', `Invalid --min-sync-rating value: ${raw}`, {
-      fix: 'Use a number between 0 and 100 for --min-sync-rating',
-    });
-  }
-  return minRating;
-}
-
-function parseMinCaptionOverall(options: GenerateOptions): number {
-  const raw = options.minCaptionOverall ?? '0.75';
-  const parsed = Number.parseFloat(raw);
-  if (!Number.isFinite(parsed)) {
-    throw new CMError('INVALID_ARGUMENT', `Invalid --min-caption-overall value: ${raw}`, {
-      fix: 'Use a number between 0 and 1 (or 0 and 100) for --min-caption-overall',
-    });
-  }
-  const normalized = parsed > 1 ? parsed / 100 : parsed;
-  if (!Number.isFinite(normalized) || normalized < 0 || normalized > 1) {
-    throw new CMError('INVALID_ARGUMENT', `Invalid --min-caption-overall value: ${raw}`, {
-      fix: 'Use a number between 0 and 1 (or 0 and 100) for --min-caption-overall',
-    });
-  }
-  return normalized;
-}
-
-function parseMaxCaptionRetries(options: GenerateOptions): number {
-  const raw = options.maxCaptionRetries ?? '2';
-  const value = Number.parseInt(raw, 10);
-  if (!Number.isFinite(value) || value < 0 || value > 100) {
-    throw new CMError('INVALID_ARGUMENT', `Invalid --max-caption-retries value: ${raw}`, {
-      fix: 'Use a number between 0 and 100 for --max-caption-retries',
-    });
-  }
-  return value;
-}
-
-function buildSyncQualitySummary(
-  reportPath: string,
-  rating: SyncRatingOutput,
-  attempts: number
-): SyncQualitySummary {
-  return {
-    reportPath,
-    rating: rating.rating,
-    ratingLabel: rating.ratingLabel,
-    passed: rating.passed,
-    meanDriftMs: rating.metrics.meanDriftMs,
-    maxDriftMs: rating.metrics.maxDriftMs,
-    matchRatio: rating.metrics.matchRatio,
-    errorCount: rating.errors.length,
-    attempts,
-  };
-}
-
-interface CaptionQualitySummary {
-  reportPath: string;
-  overallScore: number;
-  passed: boolean;
-  coverageRatio: number;
-  safeAreaScore: number;
-  flickerEvents: number;
-  meanOcrConfidence: number;
-  attempts: number;
-}
-
-function buildCaptionQualitySummary(
-  reportPath: string,
-  rating: CaptionQualityRatingOutput,
-  attempts: number,
-  minOverallScore: number
-): CaptionQualitySummary {
-  const passed =
-    rating.captionQuality.overall.passed && rating.captionQuality.overall.score >= minOverallScore;
-  return {
-    reportPath,
-    overallScore: rating.captionQuality.overall.score,
-    passed,
-    coverageRatio: rating.captionQuality.coverage.coverageRatio,
-    safeAreaScore: rating.captionQuality.safeArea.score,
-    flickerEvents: rating.captionQuality.flicker.flickerEvents,
-    meanOcrConfidence: rating.captionQuality.ocrConfidence.mean,
-    attempts,
-  };
-}
-
-function mergeTemplateDefaultsCaptionConfig(
-  templateDefaults: Record<string, unknown> | undefined,
-  overrides: CaptionConfigInput
-): Record<string, unknown> | undefined {
-  if (!overrides || Object.keys(overrides).length === 0) return templateDefaults;
-  const base = (templateDefaults?.captionConfig ?? {}) as CaptionConfigInput;
-  const merged: CaptionConfigInput = {
-    ...base,
-    ...overrides,
-    pillStyle: { ...(base.pillStyle ?? {}), ...(overrides.pillStyle ?? {}) },
-    stroke: { ...(base.stroke ?? {}), ...(overrides.stroke ?? {}) },
-    shadow: { ...(base.shadow ?? {}), ...(overrides.shadow ?? {}) },
-    layout: { ...(base.layout ?? {}), ...(overrides.layout ?? {}) },
-    positionOffset: { ...(base.positionOffset ?? {}), ...(overrides.positionOffset ?? {}) },
-    safeZone: { ...(base.safeZone ?? {}), ...(overrides.safeZone ?? {}) },
-    emphasis: { ...(base.emphasis ?? {}), ...(overrides.emphasis ?? {}) },
-    cleanup: { ...(base.cleanup ?? {}), ...(overrides.cleanup ?? {}) },
-  };
-
-  return { ...(templateDefaults ?? {}), captionConfig: merged };
 }
 
 type GeneratePipelineWithQualityGateParams = Parameters<typeof runGeneratePipeline>[0] & {
@@ -3001,9 +981,9 @@ async function writeResolvedTemplateArtifact(params: {
   artifactsDir: string;
   resolvedTemplate: Awaited<ReturnType<typeof resolveRenderTemplate>>;
   templateDefaults: Record<string, unknown> | undefined;
-  templateParams: ReturnType<typeof getTemplateParams>;
+  templateParams: ReturnType<typeof import('../../render/templates').getTemplateParams>;
   templateGameplay: ReturnType<typeof getTemplateGameplaySlot>;
-  templateFonts: FontSource[];
+  templateFonts: import('../../domain').FontSource[];
   templateOverlays: OverlayAsset[];
   options: GenerateOptions;
 }): Promise<string> {
@@ -3090,6 +1070,10 @@ async function finalizeGenerateOutput(params: {
   );
   if (params.exitCode !== 0) process.exit(params.exitCode);
 }
+
+/* ------------------------------------------------------------------ */
+/*  Main orchestration                                                 */
+/* ------------------------------------------------------------------ */
 
 async function runGenerate(
   topic: string,
@@ -3459,344 +1443,9 @@ async function runGenerate(
   });
 }
 
-async function createMockLLMProvider(topic: string): Promise<LLMProvider> {
-  const { FakeLLMProvider } = await import('../../test/stubs/fake-llm');
-  const { createMockScriptResponse } = await import('../../test/fixtures/mock-scenes.js');
-  const provider = new FakeLLMProvider();
-  provider.queueJsonResponse(createMockScriptResponse(topic));
-  return provider;
-}
-
-function showDryRunSummary(
-  topic: string,
-  options: GenerateOptions,
-  archetype: string,
-  orientation: string
-): void {
-  writeStderrLine('Dry-run mode - no execution');
-  writeStderrLine(`   Topic: ${topic}`);
-  writeStderrLine(`   Archetype: ${archetype}`);
-  writeStderrLine(`   Orientation: ${orientation}`);
-  writeStderrLine(`   Voice: ${options.voice}`);
-  writeStderrLine(`   Duration: ${options.duration}s`);
-  writeStderrLine(`   Output: ${options.output}`);
-  writeStderrLine(`   Keep artifacts: ${options.keepArtifacts}`);
-  writeStderrLine(`   Research: ${options.research ? 'enabled' : 'disabled'}`);
-  if (options.workflow) {
-    writeStderrLine(`   Workflow: ${options.workflow}`);
-  }
-  if (options.script) {
-    writeStderrLine(`   Script: ${options.script}`);
-  }
-  if (options.audio) {
-    writeStderrLine(`   Audio: ${options.audio}`);
-  }
-  if (options.timestamps) {
-    writeStderrLine(`   Timestamps: ${options.timestamps}`);
-  }
-  if (options.audioMix) {
-    writeStderrLine(`   Audio mix: ${options.audioMix}`);
-  }
-  if (options.visuals) {
-    writeStderrLine(`   Visuals: ${options.visuals}`);
-  }
-  const mixOptions = buildAudioMixOptions(options);
-  const hasMix = hasAudioMixSources(mixOptions) || Boolean(options.audioMix);
-  writeStderrLine(
-    `   Pipeline: ${options.pipeline ?? 'standard'}${options.pipeline === 'audio-first' ? ' (requires Whisper)' : ''}`
-  );
-  if (options.whisperModel) {
-    writeStderrLine(`   Whisper Model: ${options.whisperModel}`);
-  }
-  if (options.captionGroupMs) {
-    writeStderrLine(`   Caption Group: ${options.captionGroupMs}ms`);
-  }
-  if (options.reconcile) {
-    writeStderrLine(`   Reconcile: enabled (match ASR to script)`);
-  }
-  if (options.captionMode) {
-    writeStderrLine(`   Caption Mode: ${options.captionMode}`);
-  }
-  if (options.captionNotation) {
-    writeStderrLine(`   Caption Notation: ${options.captionNotation}`);
-  }
-  const wordsPerPage = options.wordsPerPage ?? options.captionMaxWords;
-  if (wordsPerPage) {
-    writeStderrLine(`   Caption Max Words: ${wordsPerPage}`);
-  }
-  if (options.captionMinWords) {
-    writeStderrLine(`   Caption Min Words: ${options.captionMinWords}`);
-  }
-  if (options.captionTargetWords) {
-    writeStderrLine(`   Caption Target Words: ${options.captionTargetWords}`);
-  }
-  if (options.captionMaxWpm) {
-    writeStderrLine(`   Caption Max WPM: ${options.captionMaxWpm}`);
-  }
-  if (options.captionMaxCps) {
-    writeStderrLine(`   Caption Max CPS: ${options.captionMaxCps}`);
-  }
-  if (options.captionMinOnScreenMs) {
-    writeStderrLine(`   Caption Min On-Screen: ${options.captionMinOnScreenMs}ms`);
-  }
-  if (options.captionMinOnScreenMsShort) {
-    writeStderrLine(`   Caption Min On-Screen (Short): ${options.captionMinOnScreenMsShort}ms`);
-  }
-  if (options.captionDropFillers) {
-    writeStderrLine('   Caption Cleanup: drop fillers');
-  }
-  if (options.captionFillerWords) {
-    writeStderrLine(`   Caption Filler Words: ${options.captionFillerWords}`);
-  }
-  if (options.maxLines) {
-    writeStderrLine(`   Max Lines: ${options.maxLines}`);
-  }
-  if (options.charsPerLine) {
-    writeStderrLine(`   Chars Per Line: ${options.charsPerLine}`);
-  }
-  if (options.captionAnimation) {
-    writeStderrLine(`   Caption Animation: ${options.captionAnimation}`);
-  }
-  if (options.captionFontFamily) {
-    writeStderrLine(`   Caption Font: ${options.captionFontFamily}`);
-  }
-  if (options.captionFontFile) {
-    writeStderrLine(`   Caption Font File: ${options.captionFontFile}`);
-  }
-  if (options.mixPreset) {
-    writeStderrLine(`   Mix Preset: ${options.mixPreset}`);
-  }
-  if (typeof options.music === 'string') {
-    writeStderrLine(`   Music: ${options.music}`);
-  }
-  if (Array.isArray(options.sfx) && options.sfx.length > 0) {
-    writeStderrLine(`   SFX: ${options.sfx.join(', ')}`);
-  }
-  if (options.sfxPack) {
-    writeStderrLine(`   SFX Pack: ${options.sfxPack}`);
-  }
-  if (typeof options.ambience === 'string') {
-    writeStderrLine(`   Ambience: ${options.ambience}`);
-  }
-  if (options.gameplay) {
-    writeStderrLine(`   Gameplay: ${options.gameplay}`);
-  }
-  if (options.gameplayStyle) {
-    writeStderrLine(`   Gameplay Style: ${options.gameplayStyle}`);
-  }
-  if (options.gameplayStrict) {
-    writeStderrLine('   Gameplay Strict: enabled');
-  }
-  if (options.gameplayPosition) {
-    writeStderrLine(`   Gameplay Position: ${options.gameplayPosition}`);
-  }
-  if (options.contentPosition) {
-    writeStderrLine(`   Content Position: ${options.contentPosition}`);
-  }
-  if (options.hook) {
-    writeStderrLine(`   Hook: ${options.hook}`);
-  }
-  if (options.hookTrim) {
-    writeStderrLine(`   Hook Trim: ${options.hookTrim}s`);
-  }
-  writeStderrLine(`   Frame Analysis: ${options.frameAnalysis === false ? 'disabled' : 'enabled'}`);
-  if (options.frameAnalysis !== false) {
-    writeStderrLine(`   Frame Analysis Mode: ${options.frameAnalysisMode ?? 'both'}`);
-    writeStderrLine(`   Frame Analysis FPS: ${options.frameAnalysisFps ?? '1'}`);
-    writeStderrLine(`   Frame Analysis Shots: ${options.frameAnalysisShots ?? '30'}`);
-    writeStderrLine(`   Frame Analysis Segments: ${options.frameAnalysisSegments ?? '5'}`);
-    writeStderrLine(
-      `   Frame Analysis Output: ${options.frameAnalysisOutput ?? 'output/analysis'}`
-    );
-  }
-  writeStderrLine('   Pipeline stages:');
-  if (options.research) {
-    writeStderrLine('   0. Research -> research.json');
-  }
-  writeStderrLine(
-    options.script
-      ? `   1. Script -> ${options.script} (external)`
-      : `   1. Script -> ${DEFAULT_ARTIFACT_FILENAMES.script}`
-  );
-  if (options.audio) {
-    const tsLabel = options.timestamps ? options.timestamps : DEFAULT_ARTIFACT_FILENAMES.timestamps;
-    writeStderrLine(
-      `   2. Audio -> ${options.audio} + ${tsLabel}${hasMix ? ` + ${DEFAULT_ARTIFACT_FILENAMES['audio-mix']}` : ''} (external)`
-    );
-  } else {
-    writeStderrLine(
-      `   2. Audio -> ${DEFAULT_ARTIFACT_FILENAMES.audio} + ${DEFAULT_ARTIFACT_FILENAMES.timestamps}${hasMix ? ` + ${DEFAULT_ARTIFACT_FILENAMES['audio-mix']}` : ''}${options.pipeline === 'audio-first' ? ' (Whisper ASR required)' : ''}`
-    );
-  }
-  writeStderrLine(
-    options.visuals
-      ? `   3. Visuals -> ${options.visuals} (external)`
-      : `   3. Visuals -> ${DEFAULT_ARTIFACT_FILENAMES.visuals}`
-  );
-  writeStderrLine(`   4. Render -> ${options.output}`);
-}
-
-async function showSuccessSummary(
-  result: PipelineResult,
-  options: GenerateOptions,
-  artifactsDir: string,
-  sync: SyncQualitySummary | null,
-  caption: CaptionQualitySummary | null,
-  frameAnalysis: AnalyzeVideoFramesResult | null,
-  topic: string
-): Promise<void> {
-  const titleParts: string[] = [];
-  if (sync && !sync.passed) titleParts.push('sync failed');
-  if (caption && !caption.passed) titleParts.push('caption quality failed');
-  const title =
-    titleParts.length > 0 ? `Video generated (${titleParts.join(', ')})` : 'Video generated';
-  const rows: Array<[string, string]> = [
-    ['Title', result.script.title ?? topic],
-    ['Duration', `${result.duration.toFixed(1)}s`],
-    ['Resolution', `${result.width}x${result.height}`],
-    ['Size', `${(result.fileSize / 1024 / 1024).toFixed(1)} MB`],
-    ['Video', result.outputPath],
-  ];
-  if (result.visuals.gameplayClip) {
-    rows.push(['Gameplay', result.visuals.gameplayClip.path]);
-  }
-  if (options.hook) {
-    rows.push(['Hook', options.hook]);
-  }
-  if (frameAnalysis?.manifestPath) {
-    rows.push(['Frame analysis', frameAnalysis.manifestPath]);
-  }
-  const lines = formatKeyValueRows(rows);
-
-  if (result.costs) {
-    lines.push(
-      '',
-      'Costs',
-      ...formatKeyValueRows([
-        ['Total', `$${result.costs.total.toFixed(4)}`],
-        ['LLM', `$${result.costs.llm.toFixed(4)}`],
-        ['TTS', `$${result.costs.tts.toFixed(4)}`],
-      ])
-    );
-  }
-
-  if (sync) {
-    const status = sync.passed ? 'PASSED' : 'FAILED';
-    lines.push(
-      '',
-      `Sync rating: ${sync.rating}/100 (${sync.ratingLabel}) - ${status} (attempts: ${sync.attempts})`,
-      `Sync report: ${sync.reportPath}`
-    );
-  }
-
-  if (caption) {
-    const status = caption.passed ? 'PASSED' : 'FAILED';
-    lines.push(
-      '',
-      `Caption quality: overall=${caption.overallScore.toFixed(2)} - ${status} (attempts: ${caption.attempts})`,
-      `Caption report: ${caption.reportPath}`
-    );
-  }
-
-  if (options.keepArtifacts) {
-    const artifactRows: Array<[string, string]> = [
-      ['Script', join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.script)],
-      ['Audio', join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.audio)],
-      ['Timestamps', join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.timestamps)],
-    ];
-    if (result.audio.audioMixPath) {
-      artifactRows.push(['Audio mix', result.audio.audioMixPath]);
-    }
-    artifactRows.push(['Visuals', join(artifactsDir, DEFAULT_ARTIFACT_FILENAMES.visuals)]);
-    if (options.template) {
-      artifactRows.push(['Template', join(artifactsDir, 'template.resolved.json')]);
-    }
-    lines.push('', 'Artifacts', ...formatKeyValueRows(artifactRows));
-  }
-
-  const profile = options.orientation === 'landscape' ? 'landscape' : 'portrait';
-  await writeSummaryCard({
-    title,
-    lines,
-    footerLines: [`Next: cm validate ${result.outputPath} --profile ${profile}`],
-  });
-
-  // Human-mode stdout should be reserved for the primary artifact path.
-  writeStdoutLine(result.outputPath);
-}
-
-/**
- * Load research from file or run new research
- */
-async function loadOrRunResearch(
-  researchOption: string | boolean | undefined,
-  topic: string,
-  mock: boolean
-): Promise<ResearchOutput | undefined> {
-  if (!researchOption) return undefined;
-
-  const normalizedOption =
-    typeof researchOption === 'string' ? researchOption.trim().toLowerCase() : researchOption;
-
-  // Commander parses `--research true` as a string value ("true") because the option is `[path]`.
-  // Accept common boolean string literals for convenience.
-  if (normalizedOption === 'true') {
-    researchOption = true;
-  } else if (normalizedOption === 'false') {
-    return undefined;
-  }
-
-  // If it's a file path, load from file
-  if (typeof researchOption === 'string') {
-    const raw = await readInputFile(researchOption);
-    const parsed = ResearchOutputSchema.safeParse(raw);
-    if (!parsed.success) {
-      throw new SchemaError('Invalid research file', {
-        path: researchOption,
-        issues: parsed.error.issues,
-        fix: 'Generate research via `cm research -q "<topic>" -o research.json` and pass --research research.json',
-      });
-    }
-    return parsed.data;
-  }
-
-  // If it's true (boolean flag), run research automatically
-  const spinner = createSpinner('Stage 0/4: Researching topic...').start();
-
-  const sources: ResearchSource[] = ['hackernews', 'reddit'];
-  if (process.env.BRAVE_SEARCH_API_KEY) sources.push('web');
-  if (process.env.TAVILY_API_KEY) sources.push('tavily');
-
-  let llmProvider = undefined;
-  if (!mock) {
-    const cfg = loadConfig();
-    const providerId = cfg.llm.provider;
-    const providerFacts = LLM_PROVIDERS.find((p) => p.id === providerId);
-    const key = (providerFacts?.envVarNames ?? []).map((k) => getOptionalApiKey(k)).find(Boolean);
-    if (key) {
-      llmProvider = createLLMProvider(providerId, cfg.llm.model, key);
-    }
-  }
-
-  const orchestrator = createResearchOrchestrator(
-    {
-      sources,
-      limitPerSource: 5,
-      generateAngles: true,
-      maxAngles: 3,
-    },
-    llmProvider
-  );
-
-  try {
-    const result = await orchestrator.research(topic);
-    spinner.succeed('Stage 0/4: Research complete');
-    return result.output;
-  } catch (error) {
-    spinner.fail('Stage 0/4: Research failed');
-    throw error;
-  }
-}
+/* ------------------------------------------------------------------ */
+/*  Command definition                                                 */
+/* ------------------------------------------------------------------ */
 
 export const generateCommand = new Command('generate')
   .description('Generate a complete video from a topic')
