@@ -23,7 +23,7 @@ vi.mock('../score/sync-rater', () => ({
     ratingLabel: 'good',
     passed: true,
     metrics: { meanDriftMs: 142 },
-    captionQuality: { overall: 0.82 },
+    captionQuality: { overall: { score: 0.82, passed: true } },
   }),
   rateCaptionQuality: vi.fn().mockResolvedValue({
     captionQuality: {
@@ -158,6 +158,82 @@ vi.mock('../validate/audio-signal', () => ({
   }),
 }));
 
+vi.mock('../validate/frame-bounds', () => ({
+  analyzeFrameBounds: vi.fn().mockResolvedValue({
+    schemaVersion: '1.0.0',
+    passed: true,
+    summary: 'Frame bounds OK',
+    details: {
+      maxDarkening: 0.01,
+      maxEdgeContentRatio: 0,
+      side: 'bottom',
+      timestampSeconds: 0,
+    },
+    analysis: {
+      schemaVersion: '1.0.0',
+      videoPath: '/tmp/test.mp4',
+      frames: [],
+      thresholds: {
+        borderRatio: 0.01,
+        maxDarkening: 0.12,
+        maxEdgeContentRatio: 0.035,
+        brightLuma: 0.78,
+        chromaSat: 0.42,
+      },
+      worst: {
+        maxDarkening: 0.01,
+        maxEdgeContentRatio: 0,
+        side: 'bottom',
+        timestampSeconds: 0,
+      },
+    },
+  }),
+  runFrameBoundsGate: vi.fn().mockReturnValue({
+    schemaVersion: '1.0.0',
+    passed: true,
+    summary: 'Frame bounds OK',
+    details: {
+      maxDarkening: 0.01,
+      maxEdgeContentRatio: 0,
+      side: 'bottom',
+      timestampSeconds: 0,
+      thresholds: {
+        borderRatio: 0.01,
+        maxDarkening: 0.12,
+        maxEdgeContentRatio: 0.035,
+        brightLuma: 0.78,
+        chromaSat: 0.42,
+      },
+    },
+    analysis: {
+      schemaVersion: '1.0.0',
+      videoPath: '/tmp/test.mp4',
+      frames: [],
+      thresholds: {
+        borderRatio: 0.01,
+        maxDarkening: 0.12,
+        maxEdgeContentRatio: 0.035,
+        brightLuma: 0.78,
+        chromaSat: 0.42,
+      },
+      worst: {
+        maxDarkening: 0.01,
+        maxEdgeContentRatio: 0,
+        side: 'bottom',
+        timestampSeconds: 0,
+      },
+    },
+  }),
+}));
+
+vi.mock('../validate/content-type', () => ({
+  detectContentType: vi.fn().mockResolvedValue({
+    hasSpeech: true,
+    hasMusic: false,
+    hasCaptions: true,
+  }),
+}));
+
 const baseOptions = {
   videoPath: '/tmp/test.mp4',
   profile: 'portrait' as const,
@@ -170,7 +246,7 @@ describe('evaluateVideo', () => {
     const report = await evaluateVideo(baseOptions);
     expect(report.passed).toBe(true);
     expect(report.schemaVersion).toBe('1.0.0');
-    expect(report.checks.length).toBe(11);
+    expect(report.checks.length).toBe(12);
   });
 
   it('skips score when no script provided', async () => {
@@ -180,11 +256,12 @@ describe('evaluateVideo', () => {
     expect(scoreCheck?.summary).toContain('no script');
   });
 
-  it('skips captionQuality when rate is enabled (rate includes it)', async () => {
+  it('derives captionQuality from rate when rate is enabled', async () => {
     const report = await evaluateVideo(baseOptions);
     const cqCheck = report.checks.find((c) => c.checkId === 'captionQuality');
-    expect(cqCheck?.skipped).toBe(true);
-    expect(cqCheck?.summary).toContain('included in rate');
+    expect(cqCheck?.skipped).toBe(false);
+    expect(cqCheck?.summary).toContain('overall: 0.82');
+    expect(cqCheck?.passed).toBe(true);
   });
 
   it('runs standalone captionQuality when rate is disabled', async () => {
@@ -215,6 +292,16 @@ describe('evaluateVideo', () => {
     expect(rateCheck?.passed).toBe(true);
   });
 
+  it('fails when derived captionQuality from rate misses threshold', async () => {
+    const report = await evaluateVideo({
+      ...baseOptions,
+      thresholds: { validateProfile: 'portrait', minCaptionOverall: 0.9 },
+    });
+    const cqCheck = report.checks.find((c) => c.checkId === 'captionQuality');
+    expect(cqCheck?.passed).toBe(false);
+    expect(report.passed).toBe(false);
+  });
+
   it('marks disabled checks as skipped', async () => {
     const report = await evaluateVideo({
       ...baseOptions,
@@ -225,6 +312,12 @@ describe('evaluateVideo', () => {
         score: false,
         temporalQuality: false,
         audioSignal: false,
+        frameBounds: false,
+        semanticFidelity: false,
+        safety: false,
+        freeze: false,
+        dnsmos: false,
+        flowConsistency: false,
       },
     });
     expect(report.checks.every((c) => c.skipped)).toBe(true);

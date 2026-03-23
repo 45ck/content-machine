@@ -252,6 +252,45 @@ function runRateChecks(
   return runRateChecksImpl(options, enabledChecks, contentType);
 }
 
+function deriveCaptionQualityFromRate(params: {
+  rateDetail: unknown;
+  minCaptionOverall: number | undefined;
+}): { passed: boolean; summary: string; detail: unknown } | null {
+  const { rateDetail, minCaptionOverall } = params;
+  if (!rateDetail || typeof rateDetail !== 'object') return null;
+
+  const captionQuality = (rateDetail as { captionQuality?: unknown }).captionQuality;
+  if (!captionQuality || typeof captionQuality !== 'object') return null;
+
+  const overall = (captionQuality as { overall?: unknown }).overall;
+  let overallScore: number | null = null;
+  let providerPassed = true;
+
+  if (typeof overall === 'number' && Number.isFinite(overall)) {
+    overallScore = overall;
+  } else if (overall && typeof overall === 'object') {
+    const candidate = Number((overall as { score?: unknown }).score);
+    if (!Number.isFinite(candidate)) return null;
+    overallScore = candidate;
+    const maybePassed = (overall as { passed?: unknown }).passed;
+    if (typeof maybePassed === 'boolean') providerPassed = maybePassed;
+  }
+
+  if (overallScore == null) return null;
+
+  const thresholdPassed = minCaptionOverall == null || overallScore >= minCaptionOverall;
+  const passed = providerPassed && thresholdPassed;
+  const thresholdSummary =
+    minCaptionOverall == null ? '' : `, threshold ${minCaptionOverall.toFixed(2)}`;
+  const providerSummary = providerPassed ? '' : ', engine fail';
+
+  return {
+    passed,
+    summary: `overall: ${overallScore.toFixed(2)}${providerSummary}${thresholdSummary}`,
+    detail: captionQuality,
+  };
+}
+
 async function runRateChecksImpl(
   options: EvaluateVideoOptions,
   enabledChecks: EnabledChecks,
@@ -273,19 +312,41 @@ async function runRateChecksImpl(
   }
 
   if (enabledChecks.rate) {
-    results.push(
-      await runCheck('rate', async () => {
-        const result = await rateSyncQuality(videoPath, options.fps ? { fps: options.fps } : {});
-        const passed =
-          thresholds.minSyncRating == null || result.rating >= thresholds.minSyncRating;
-        return {
-          passed,
-          summary: `${result.rating}/100, ${result.ratingLabel}, mean drift ${result.metrics.meanDriftMs.toFixed(0)}ms`,
-          detail: result,
-        };
-      })
-    );
-    if (enabledChecks.captionQuality) results.push(skipCheck('captionQuality', 'included in rate'));
+    const rateCheck = await runCheck('rate', async () => {
+      const result = await rateSyncQuality(videoPath, options.fps ? { fps: options.fps } : {});
+      const passed = thresholds.minSyncRating == null || result.rating >= thresholds.minSyncRating;
+      return {
+        passed,
+        summary: `${result.rating}/100, ${result.ratingLabel}, mean drift ${result.metrics.meanDriftMs.toFixed(0)}ms`,
+        detail: result,
+      };
+    });
+    results.push(rateCheck);
+    if (enabledChecks.captionQuality) {
+      const derived = deriveCaptionQualityFromRate({
+        rateDetail: rateCheck.detail,
+        minCaptionOverall: thresholds.minCaptionOverall,
+      });
+      if (derived) {
+        results.push({
+          checkId: 'captionQuality',
+          passed: derived.passed,
+          skipped: false,
+          summary: derived.summary,
+          durationMs: 0,
+          detail: derived.detail,
+        });
+      } else {
+        results.push({
+          checkId: 'captionQuality',
+          passed: false,
+          skipped: false,
+          summary: 'caption quality unavailable from rate result',
+          durationMs: 0,
+          detail: { source: 'rate', reason: rateCheck.error ?? 'missing-caption-quality' },
+        });
+      }
+    }
     return results;
   }
 

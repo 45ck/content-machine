@@ -63,6 +63,40 @@ function resolveVeoDurationSeconds(targetSeconds: number): number {
   return 8;
 }
 
+async function transcodeVeoOutputForRender(params: {
+  inputPath: string;
+  outputPath: string;
+  ffmpegPath?: string;
+}): Promise<string> {
+  const outputPath = `${params.outputPath}.cm-browser.mp4`;
+  await execFfmpeg(
+    [
+      '-y',
+      '-i',
+      params.inputPath,
+      '-vf',
+      'scale=trunc(iw/2)*2:trunc(ih/2)*2,format=yuv420p',
+      '-c:v',
+      'libx264',
+      '-pix_fmt',
+      'yuv420p',
+      '-preset',
+      'fast',
+      '-crf',
+      '22',
+      '-an',
+      outputPath,
+    ],
+    {
+      ffmpegPath: params.ffmpegPath,
+      dependencyMessage:
+        'ffmpeg is required to make Veo clips browser-compatible for Remotion rendering',
+      timeoutMs: 180_000,
+    }
+  );
+  return outputPath;
+}
+
 async function extractSceneKeyframe(params: {
   sceneId: string;
   inputPath: string;
@@ -206,6 +240,26 @@ async function processImageScene(params: {
   });
 
   if (job.status === 'succeeded' && job.result?.outputPath) {
+    let synthesizedVideoPath = job.result.outputPath;
+    if (motionStrategy === 'veo') {
+      try {
+        synthesizedVideoPath = await transcodeVeoOutputForRender({
+          inputPath: job.result.outputPath,
+          outputPath: job.result.outputPath,
+          ffmpegPath: context.ffmpegPath,
+        });
+      } catch (error) {
+        log.warn(
+          {
+            sceneId: scene.sceneId,
+            inputPath: job.result.outputPath,
+            error: error instanceof Error ? error.message : String(error),
+          },
+          'Failed to transcode Veo clip for browser compatibility; using original file'
+        );
+      }
+    }
+
     return {
       videoSynthesized: true,
       scene: {
@@ -213,7 +267,7 @@ async function processImageScene(params: {
         assetPath: localImagePath,
         assetType: 'image',
         motionStrategy,
-        synthesizedVideoPath: job.result.outputPath,
+        synthesizedVideoPath,
         synthesisAdapter: adapterName,
         synthesisJobId: job.id,
         status: 'video-synthesized',

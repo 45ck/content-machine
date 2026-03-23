@@ -213,8 +213,7 @@ function shouldAutoEnableMediaStage(visuals: VisualsOutput): boolean {
     (scene) =>
       scene.assetPath.toLowerCase().endsWith('.scene3d.json') ||
       scene.assetPath.toLowerCase().endsWith('.scene.json') ||
-      (scene.assetType === 'image' &&
-        scene.motionStrategy !== undefined &&
+      (scene.motionStrategy !== undefined &&
         scene.motionStrategy !== 'none' &&
         scene.motionStrategy !== 'kenburns')
   );
