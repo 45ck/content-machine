@@ -17,8 +17,23 @@ import { ArchetypeIdSchema } from '../domain/ids';
 
 // Inlined from render/audio/visuals to avoid upward layer violations (ARCH-D1).
 // The canonical definitions live in their respective modules; these are config-level copies.
-const CAPTION_PRESET_NAMES = ['tiktok', 'youtube', 'reels', 'bold', 'minimal', 'neon', 'capcut', 'hormozi', 'karaoke'] as const;
-const PROVIDER_ROUTING_POLICY_VALUES = ['configured', 'balanced', 'cost-first', 'quality-first'] as const;
+const CAPTION_PRESET_NAMES = [
+  'tiktok',
+  'youtube',
+  'reels',
+  'bold',
+  'minimal',
+  'neon',
+  'capcut',
+  'hormozi',
+  'karaoke',
+] as const;
+const PROVIDER_ROUTING_POLICY_VALUES = [
+  'configured',
+  'balanced',
+  'cost-first',
+  'quality-first',
+] as const;
 const DEFAULT_FONT_FAMILY = '"Inter", "Montserrat", "Helvetica Neue", sans-serif';
 import {
   DEFAULT_MOTION_STRATEGY_ID,
@@ -133,7 +148,10 @@ const VisualsProviderEnum = z.enum(
 );
 type ProviderRoutingPolicyTuple = typeof PROVIDER_ROUTING_POLICY_VALUES;
 const ProviderRoutingPolicyEnum = z.enum(
-  PROVIDER_ROUTING_POLICY_VALUES as unknown as [ProviderRoutingPolicyTuple[number], ...ProviderRoutingPolicyTuple[number][]]
+  PROVIDER_ROUTING_POLICY_VALUES as unknown as [
+    ProviderRoutingPolicyTuple[number],
+    ...ProviderRoutingPolicyTuple[number][],
+  ]
 );
 const NANOBANANA_DEFAULT_MODEL =
   VISUALS_PROVIDERS.find((p) => p.id === 'nanobanana')?.defaultModel ?? DEFAULT_NANOBANANA_MODEL;
@@ -229,7 +247,10 @@ const CaptionFontSchema = z.object({
 
 type CaptionPresetNameTuple = typeof CAPTION_PRESET_NAMES;
 const CaptionPresetNameSchema = z.enum(
-  CAPTION_PRESET_NAMES as unknown as [CaptionPresetNameTuple[number], ...CaptionPresetNameTuple[number][]]
+  CAPTION_PRESET_NAMES as unknown as [
+    CaptionPresetNameTuple[number],
+    ...CaptionPresetNameTuple[number][],
+  ]
 );
 
 const CaptionsConfigSchema = z.object({

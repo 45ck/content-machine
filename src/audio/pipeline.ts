@@ -336,7 +336,9 @@ async function writeSilentWav(params: {
 }): Promise<void> {
   const MAX_SILENT_DURATION_S = 600;
   if (params.durationSeconds > MAX_SILENT_DURATION_S) {
-    throw new Error(`Silent WAV duration ${params.durationSeconds}s exceeds maximum ${MAX_SILENT_DURATION_S}s`);
+    throw new Error(
+      `Silent WAV duration ${params.durationSeconds}s exceeds maximum ${MAX_SILENT_DURATION_S}s`
+    );
   }
   const bitsPerSample = 16;
   const bytesPerSample = bitsPerSample / 8;

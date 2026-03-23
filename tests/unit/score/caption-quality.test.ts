@@ -156,7 +156,9 @@ describe('Caption Quality Metrics', () => {
     });
 
     it.skipIf(!report)('QUALITY GATE: Word integrity should be >= 95%', () => {
-      expect(report!.metrics.wordIntegrity).toBeGreaterThanOrEqual(QUALITY_THRESHOLDS.wordIntegrity);
+      expect(report!.metrics.wordIntegrity).toBeGreaterThanOrEqual(
+        QUALITY_THRESHOLDS.wordIntegrity
+      );
     });
 
     it.skipIf(!report)('QUALITY GATE: Contraction integrity should be >= 90%', () => {

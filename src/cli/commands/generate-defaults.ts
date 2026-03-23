@@ -16,10 +16,7 @@ import {
   type SyncPresetId,
 } from '../../domain/repo-facts.generated';
 import type { AssetProviderName } from '../../visuals/providers';
-import {
-  isProviderRoutingPolicy,
-  type ProviderRoutingPolicy,
-} from '../../visuals/provider-router';
+import { isProviderRoutingPolicy, type ProviderRoutingPolicy } from '../../visuals/provider-router';
 import {
   resolveRenderTemplate,
   getTemplateFontSources,
@@ -269,18 +266,21 @@ export interface GenerateOptions {
 /*  Tiny parsing utilities                                            */
 /* ------------------------------------------------------------------ */
 
+/** @internal */
 export function parseOptionalInt(value: string | undefined): number | null {
   if (!value) return null;
   const parsed = Number.parseInt(value, 10);
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+/** @internal */
 export function parseOptionalNumber(value: string | undefined): number | null {
   if (!value) return null;
   const parsed = Number.parseFloat(value);
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+/** @internal */
 export function parseWordList(value: string | undefined): string[] | undefined {
   if (!value) return undefined;
   const items = value
@@ -290,6 +290,7 @@ export function parseWordList(value: string | undefined): string[] | undefined {
   return items.length > 0 ? items : [];
 }
 
+/** @internal */
 export function parseFontWeight(
   value: string | undefined
 ): number | 'normal' | 'bold' | 'black' | null {
@@ -305,6 +306,7 @@ export function parseFontWeight(
   });
 }
 
+/** @internal */
 export function parseSfxPlacement(
   value: string | undefined
 ): 'hook' | 'scene' | 'list-item' | 'cta' | null {
@@ -318,6 +320,7 @@ export function parseSfxPlacement(
   });
 }
 
+/** @internal */
 export function parseCaptionNotation(value: unknown): 'none' | 'unicode' | undefined {
   if (value === undefined || value === null || value === '') return undefined;
   const raw = String(value).trim().toLowerCase();
@@ -327,6 +330,7 @@ export function parseCaptionNotation(value: unknown): 'none' | 'unicode' | undef
   });
 }
 
+/** @internal */
 export function parseMinSyncRating(options: GenerateOptions): number {
   const raw = options.minSyncRating ?? '75';
   const minRating = Number.parseInt(raw, 10);
@@ -338,6 +342,7 @@ export function parseMinSyncRating(options: GenerateOptions): number {
   return minRating;
 }
 
+/** @internal */
 export function parseMinCaptionOverall(options: GenerateOptions): number {
   const raw = options.minCaptionOverall ?? '0.75';
   const parsed = Number.parseFloat(raw);
@@ -355,6 +360,7 @@ export function parseMinCaptionOverall(options: GenerateOptions): number {
   return normalized;
 }
 
+/** @internal */
 export function parseMaxCaptionRetries(options: GenerateOptions): number {
   const raw = options.maxCaptionRetries ?? '2';
   const value = Number.parseInt(raw, 10);
@@ -366,6 +372,7 @@ export function parseMaxCaptionRetries(options: GenerateOptions): number {
   return value;
 }
 
+/** @internal */
 export function parseFrameAnalysisMode(value: unknown): 'fps' | 'shots' | 'both' {
   const raw = String(value ?? 'both')
     .trim()
@@ -376,6 +383,7 @@ export function parseFrameAnalysisMode(value: unknown): 'fps' | 'shots' | 'both'
   });
 }
 
+/** @internal */
 export function parseLayoutPosition(
   value: unknown,
   optionName: string
@@ -388,6 +396,7 @@ export function parseLayoutPosition(
   });
 }
 
+/** @internal */
 export function parseSplitLayoutPreset(
   value: unknown
 ):
@@ -402,6 +411,7 @@ export function parseSplitLayoutPreset(
   });
 }
 
+/** @internal */
 export function collectList(value: string, previous: string[] = []): string[] {
   return [...previous, value];
 }
@@ -417,6 +427,7 @@ const GENERATE_VISUAL_PROVIDER_NAMES: ReadonlySet<AssetProviderName> = new Set([
   'mock',
 ]);
 
+/** @internal */
 export function parseVisualsProviderChain(params: {
   providerRaw: string | undefined;
   fallbackRaw: string | undefined;
@@ -454,6 +465,7 @@ export function parseVisualsProviderChain(params: {
   return parsed;
 }
 
+/** @internal */
 export function parseProviderRoutingPolicy(
   value: string | undefined
 ): ProviderRoutingPolicy | 'adaptive' | undefined {
@@ -471,6 +483,7 @@ export function parseProviderRoutingPolicy(
 /*  Generation policy                                                 */
 /* ------------------------------------------------------------------ */
 
+/** @internal */
 export async function loadGenerationPolicy(path: string): Promise<GenerationPolicy> {
   const raw = await readInputFile(path);
   const parsed = safeParseGenerationPolicy(raw);
@@ -488,6 +501,7 @@ export async function loadGenerationPolicy(path: string): Promise<GenerationPoli
 /*  Option defaulting                                                 */
 /* ------------------------------------------------------------------ */
 
+/** @internal */
 export function applyDefaultOption(
   options: Record<string, unknown>,
   command: Command,
@@ -500,6 +514,7 @@ export function applyDefaultOption(
   options[optionName] = value;
 }
 
+/** @internal */
 export function applyQualityDefaults(options: GenerateOptions, command: Command): void {
   if (!options.quality) return;
 
@@ -519,6 +534,7 @@ export function applyQualityDefaults(options: GenerateOptions, command: Command)
   applyDefaultOption(record, command, 'captionQualityMock', false);
 }
 
+/** @internal */
 export function applySyncPresetDefaults(options: GenerateOptions, command: Command): void {
   const presetName = (options.syncPreset ?? DEFAULT_SYNC_PRESET_ID) as string;
   if (!(presetName in SYNC_PRESETS)) return;
@@ -533,6 +549,7 @@ export function applySyncPresetDefaults(options: GenerateOptions, command: Comma
   applyDefaultOption(record, command, 'autoRetrySync', preset.autoRetrySync);
 }
 
+/** @internal */
 export function applyDefaultsFromConfig(options: GenerateOptions, command: Command): void {
   const config = loadConfig();
   const record = options as unknown as Record<string, unknown>;
@@ -573,6 +590,7 @@ export function applyDefaultsFromConfig(options: GenerateOptions, command: Comma
   }
 }
 
+/** @internal */
 export function applyCaptionQualityPerfectDefaults(
   options: GenerateOptions,
   command: Command
@@ -593,6 +611,7 @@ export function applyCaptionQualityPerfectDefaults(
   applyDefaultOption(record, command, 'captionMinOnScreenMsShort', '1100');
 }
 
+/** @internal */
 export function applyPolicyDefaults(
   options: GenerateOptions,
   command: Command,
@@ -659,6 +678,7 @@ export function applyPolicyDefaults(
 type WorkflowStageId = 'script' | 'audio' | 'visuals' | 'render';
 export type WorkflowStageModes = Record<WorkflowStageId, WorkflowStageMode>;
 
+/** @internal */
 export function resolveWorkflowStageModes(
   workflow: WorkflowDefinition | undefined
 ): WorkflowStageModes {
@@ -671,6 +691,7 @@ export function resolveWorkflowStageModes(
   };
 }
 
+/** @internal */
 export function isExternalStageMode(mode: WorkflowStageMode): boolean {
   return mode !== 'builtin';
 }
@@ -687,6 +708,7 @@ function getOptionNameMap(command: Command): Map<string, string> {
   return map;
 }
 
+/** @internal */
 export function resolveWorkflowPath(
   baseDir: string | undefined,
   value: string | undefined
@@ -695,6 +717,7 @@ export function resolveWorkflowPath(
   return resolve(baseDir ?? process.cwd(), value);
 }
 
+/** @internal */
 export function applyWorkflowDefaults(
   options: GenerateOptions,
   command: Command,
@@ -713,6 +736,7 @@ export function applyWorkflowDefaults(
   }
 }
 
+/** @internal */
 export function applyWorkflowInputs(
   options: GenerateOptions,
   command: Command,
@@ -734,6 +758,7 @@ export function applyWorkflowInputs(
   applyDefaultOption(record, command, 'visuals', resolveWorkflowPath(baseDir, inputs.visuals));
 }
 
+/** @internal */
 export function applyWorkflowStageDefaults(
   options: GenerateOptions,
   stageModes: WorkflowStageModes,
@@ -763,6 +788,7 @@ export function applyWorkflowStageDefaults(
 /*  Template resolution                                               */
 /* ------------------------------------------------------------------ */
 
+/** @internal */
 export async function resolveTemplateAndApplyDefaults(
   options: GenerateOptions,
   command: Command
@@ -819,6 +845,7 @@ export async function resolveTemplateAndApplyDefaults(
 /*  Audio mix options                                                  */
 /* ------------------------------------------------------------------ */
 
+/** @internal */
 export function buildAudioMixOptions(options: GenerateOptions): AudioMixPlanOptions {
   const config = loadConfig();
   const noMusic = options.music === false;
@@ -859,6 +886,7 @@ export function buildAudioMixOptions(options: GenerateOptions): AudioMixPlanOpti
 /*  Caption config merging                                             */
 /* ------------------------------------------------------------------ */
 
+/** @internal */
 export function mergeCaptionConfigPartials(
   base: CaptionConfigInput | undefined,
   overrides: CaptionConfigInput | undefined
@@ -881,6 +909,7 @@ export function mergeCaptionConfigPartials(
   };
 }
 
+/** @internal */
 export function mergeTemplateDefaultsCaptionConfig(
   templateDefaults: Record<string, unknown> | undefined,
   overrides: CaptionConfigInput

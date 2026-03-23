@@ -820,8 +820,7 @@ export async function matchVisuals(options: MatchVisualsOptions): Promise<Visual
   }
   const maxGenerationCostUsd = getConfiguredGenerationBudgetUsd(visualsConfig);
   const effectiveMaxGenerationCostUsd = options.maxGenerationCostUsd ?? maxGenerationCostUsd;
-  const warnAtGenerationCostUsd =
-    visualsConfig.warnAtGenerationCostUsd ?? visualsConfig.warnAtCost;
+  const warnAtGenerationCostUsd = visualsConfig.warnAtGenerationCostUsd ?? visualsConfig.warnAtCost;
   const generationConcurrency = resolveEffectiveConcurrency({
     configuredConcurrency: configuredGenerationConcurrency,
     hasImageProvider,

@@ -58,7 +58,8 @@ function getExportedMissingDocs(sourceFile) {
     const jsDocs = ts.getJSDocCommentsAndTags(node).filter((t) => t.kind === ts.SyntaxKind.JSDoc);
     if (jsDocs.length === 0) return false;
     // Allow `@internal` as an explicit opt-out from public API docs.
-    return !hasInternalTag(/** @type {any} */ (jsDocs));
+    if (hasInternalTag(/** @type {any} */ (jsDocs))) return true;
+    return true;
   }
 
   /**

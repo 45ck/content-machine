@@ -130,10 +130,7 @@ import {
   buildCaptionQualitySummary,
   type CaptionQualitySummary,
 } from './generate-output';
-import {
-  runGeneratePreflight,
-  writePreflightOutput,
-} from './generate-preflight';
+import { runGeneratePreflight, writePreflightOutput } from './generate-preflight';
 
 // Re-export types that were previously exported from this file
 export type { GenerateOptions, SyncPresetConfig };

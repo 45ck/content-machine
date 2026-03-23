@@ -22,7 +22,15 @@ import type { TTSOptions, TTSResult } from './types';
 async function ffprobeDurationSeconds(filePath: string): Promise<number> {
   const abs = resolve(filePath);
   const { stdout } = await execFfprobe(
-    ['-v', 'error', '-show_entries', 'format=duration', '-of', 'default=noprint_wrappers=1:nokey=1', abs],
+    [
+      '-v',
+      'error',
+      '-show_entries',
+      'format=duration',
+      '-of',
+      'default=noprint_wrappers=1:nokey=1',
+      abs,
+    ],
     { dependencyMessage: 'ffprobe is required for audio metadata extraction' }
   );
   const dur = Number.parseFloat(String(stdout).trim());
@@ -35,7 +43,17 @@ async function ffprobeDurationSeconds(filePath: string): Promise<number> {
 async function ffprobeSampleRate(filePath: string): Promise<number> {
   const abs = resolve(filePath);
   const { stdout } = await execFfprobe(
-    ['-v', 'error', '-select_streams', 'a:0', '-show_entries', 'stream=sample_rate', '-of', 'default=noprint_wrappers=1:nokey=1', abs],
+    [
+      '-v',
+      'error',
+      '-select_streams',
+      'a:0',
+      '-show_entries',
+      'stream=sample_rate',
+      '-of',
+      'default=noprint_wrappers=1:nokey=1',
+      abs,
+    ],
     { dependencyMessage: 'ffprobe is required for audio metadata extraction' }
   );
   const rate = Number.parseInt(String(stdout).trim(), 10);
@@ -48,10 +66,10 @@ async function ffprobeSampleRate(filePath: string): Promise<number> {
 async function transcodeToWav(params: { inputPath: string; outputPath: string }): Promise<void> {
   const inAbs = resolve(params.inputPath);
   const outAbs = resolve(params.outputPath);
-  await execFfmpeg(
-    ['-y', '-i', inAbs, '-ac', '1', '-ar', '44100', '-c:a', 'pcm_s16le', outAbs],
-    { maxBuffer: 1024 * 1024, dependencyMessage: 'ffmpeg is required for audio transcoding' }
-  );
+  await execFfmpeg(['-y', '-i', inAbs, '-ac', '1', '-ar', '44100', '-c:a', 'pcm_s16le', outAbs], {
+    maxBuffer: 1024 * 1024,
+    dependencyMessage: 'ffmpeg is required for audio transcoding',
+  });
 }
 
 /**

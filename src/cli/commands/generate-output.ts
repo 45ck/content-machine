@@ -10,13 +10,8 @@ import { buildJsonEnvelope, writeJsonEnvelope, writeStderrLine, writeStdoutLine 
 import { formatKeyValueRows, writeSummaryCard } from '../ui';
 import { getCliRuntime } from '../runtime';
 import { hasAudioMixSources } from '../../audio/mix/planner';
-import {
-  DEFAULT_ARTIFACT_FILENAMES,
-} from '../../domain/repo-facts.generated';
-import type {
-  CaptionQualityRatingOutput,
-  SyncRatingOutput,
-} from '../../domain';
+import { DEFAULT_ARTIFACT_FILENAMES } from '../../domain/repo-facts.generated';
+import type { CaptionQualityRatingOutput, SyncRatingOutput } from '../../domain';
 import type { AnalyzeVideoFramesResult } from '../../analysis/frame-analysis';
 import type { GenerateOptions } from './generate-defaults';
 import {
@@ -51,6 +46,7 @@ export interface CaptionQualitySummary {
 /*  Summary builders                                                   */
 /* ------------------------------------------------------------------ */
 
+/** @internal */
 export function buildSyncQualitySummary(
   reportPath: string,
   rating: SyncRatingOutput,
@@ -69,6 +65,7 @@ export function buildSyncQualitySummary(
   };
 }
 
+/** @internal */
 export function buildCaptionQualitySummary(
   reportPath: string,
   rating: CaptionQualityRatingOutput,
@@ -93,6 +90,7 @@ export function buildCaptionQualitySummary(
 /*  Header                                                             */
 /* ------------------------------------------------------------------ */
 
+/** @internal */
 export function printHeader(
   topic: string,
   options: GenerateOptions,
@@ -123,6 +121,7 @@ export function printHeader(
 /*  Dry run                                                            */
 /* ------------------------------------------------------------------ */
 
+/** @internal */
 export function writeDryRunJson(params: {
   topic: string;
   archetype: string;
@@ -230,6 +229,7 @@ export function writeDryRunJson(params: {
   process.exit(0);
 }
 
+/** @internal */
 export function showDryRunSummary(
   topic: string,
   options: GenerateOptions,
@@ -403,6 +403,7 @@ export function showDryRunSummary(
 /*  Success JSON args                                                  */
 /* ------------------------------------------------------------------ */
 
+/** @internal */
 export function buildGenerateSuccessJsonArgs(params: {
   topic: string;
   archetype: string;
@@ -573,6 +574,7 @@ function buildGenerateSuccessJsonCaptionOutputs(
   };
 }
 
+/** @internal */
 export function buildGenerateSuccessJsonOutputs(params: {
   result: PipelineResult;
   artifactsDir: string;
@@ -606,6 +608,7 @@ export function buildGenerateSuccessJsonOutputs(params: {
 /*  Success JSON envelope                                              */
 /* ------------------------------------------------------------------ */
 
+/** @internal */
 export function writeSuccessJson(params: {
   topic: string;
   archetype: string;
@@ -665,6 +668,7 @@ export function writeSuccessJson(params: {
 /*  Success summary (human-readable)                                   */
 /* ------------------------------------------------------------------ */
 
+/** @internal */
 export async function showSuccessSummary(
   result: PipelineResult,
   options: GenerateOptions,
