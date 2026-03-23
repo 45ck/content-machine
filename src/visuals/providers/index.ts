@@ -9,14 +9,17 @@
 
 export * from './types.js';
 export { PexelsProvider } from './pexels-provider.js';
+export { PixabayProvider } from './pixabay-provider.js';
 export { MockVideoProvider } from './mock-provider.js';
 export { NanoBananaProvider } from './nanobanana-provider.js';
 export { LocalProvider } from './local-provider.js';
 export { LocalImageProvider } from './local-image-provider.js';
 export { searchPexels, getPexelsVideo } from './pexels.js';
+export { searchPixabay, getPixabayVideo } from './pixabay.js';
 
 import type { VideoProvider, AssetProvider } from './types.js';
 import { PexelsProvider } from './pexels-provider.js';
+import { PixabayProvider } from './pixabay-provider.js';
 import { MockVideoProvider } from './mock-provider.js';
 import { NanoBananaProvider } from './nanobanana-provider.js';
 import { LocalProvider } from './local-provider.js';
@@ -53,8 +56,7 @@ export function createVideoProvider(name: ProviderName): VideoProvider {
     case 'mock':
       return new MockVideoProvider();
     case 'pixabay':
-      // TODO: Implement Pixabay provider
-      throw new Error('Pixabay provider not yet implemented');
+      return new PixabayProvider();
     default:
       throw new Error(`Unknown provider: ${name}`);
   }
@@ -122,9 +124,7 @@ const assetProviderFactories: Record<AssetProviderName, AssetProviderFactory> = 
       recursive: config?.visuals?.local?.recursive,
     }),
 
-  pixabay: () => {
-    throw new Error('Pixabay provider not yet implemented');
-  },
+  pixabay: () => adaptVideoProviderToAssetProvider(new PixabayProvider()),
   dalle: () => {
     throw new Error('DALL-E provider not yet implemented');
   },

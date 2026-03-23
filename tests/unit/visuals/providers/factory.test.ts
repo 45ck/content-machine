@@ -5,16 +5,20 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { createVideoProvider } from '../../../../src/visuals/providers/index.js';
 import { MockVideoProvider } from '../../../../src/visuals/providers/mock-provider.js';
 import { PexelsProvider } from '../../../../src/visuals/providers/pexels-provider.js';
+import { PixabayProvider } from '../../../../src/visuals/providers/pixabay-provider.js';
 
 describe('createVideoProvider factory', () => {
-  const originalEnv = process.env.PEXELS_API_KEY;
+  const originalPexelsKey = process.env.PEXELS_API_KEY;
+  const originalPixabayKey = process.env.PIXABAY_API_KEY;
 
   beforeEach(() => {
     process.env.PEXELS_API_KEY = 'test-api-key';
+    process.env.PIXABAY_API_KEY = 'test-pixabay-key';
   });
 
   afterEach(() => {
-    process.env.PEXELS_API_KEY = originalEnv;
+    process.env.PEXELS_API_KEY = originalPexelsKey;
+    process.env.PIXABAY_API_KEY = originalPixabayKey;
   });
 
   it('creates MockVideoProvider for "mock"', () => {
@@ -29,8 +33,21 @@ describe('createVideoProvider factory', () => {
     expect(provider.name).toBe('pexels');
   });
 
-  it('throws for "pixabay" (not yet implemented)', () => {
-    expect(() => createVideoProvider('pixabay')).toThrow(/not yet implemented/);
+  it('creates PixabayProvider for "pixabay"', () => {
+    const provider = createVideoProvider('pixabay');
+    expect(provider).toBeInstanceOf(PixabayProvider);
+    expect(provider.name).toBe('pixabay');
+  });
+
+  it('reports pixabay as available when PIXABAY_API_KEY is set', () => {
+    const provider = createVideoProvider('pixabay');
+    expect(provider.isAvailable()).toBe(true);
+  });
+
+  it('reports pixabay as unavailable when PIXABAY_API_KEY is missing', () => {
+    delete process.env.PIXABAY_API_KEY;
+    const provider = createVideoProvider('pixabay');
+    expect(provider.isAvailable()).toBe(false);
   });
 
   it('throws for unknown provider names', () => {
