@@ -1,7 +1,24 @@
 import { readFile } from 'node:fs/promises';
 import { z } from 'zod';
-import { ScoreOutputSchema, SyncRatingOutputSchema } from '../../domain';
+import { ScoreOutputSchema } from '../../domain';
 import type { LabAutoMetricsSummary } from '../../domain';
+
+// Lenient schema: only extract the fields we need from sync reports on disk.
+// The full SyncRatingOutputSchema is for validated outputs; files on disk may
+// come from older versions or minimal test fixtures.
+const SyncReportExtractSchema = z
+  .object({
+    rating: z.number(),
+    ratingLabel: z.string().optional(),
+    metrics: z
+      .object({
+        meanDriftMs: z.number().optional(),
+        maxDriftMs: z.number().optional(),
+      })
+      .passthrough()
+      .optional(),
+  })
+  .passthrough();
 
 const CaptionReportSchema = z
   .object({
@@ -25,6 +42,7 @@ function parseJson(path: string): Promise<unknown> {
   return readFile(path, 'utf-8').then((t) => JSON.parse(t) as unknown);
 }
 
+/** @internal */
 export async function extractAutoMetricsSummary(params: {
   syncReportPath: string | null;
   captionReportPath: string | null;
@@ -39,16 +57,16 @@ export async function extractAutoMetricsSummary(params: {
   if (params.syncReportPath) {
     try {
       const raw = await parseJson(params.syncReportPath);
-      const parsed = SyncRatingOutputSchema.safeParse(raw);
+      const parsed = SyncReportExtractSchema.safeParse(raw);
       if (parsed.success) {
         summary.syncRating = round0to100(parsed.data.rating);
-        summary.syncLabel = parsed.data.ratingLabel;
+        summary.syncLabel = parsed.data.ratingLabel ?? null;
         summary.meanDriftMs =
-          typeof parsed.data.metrics.meanDriftMs === 'number'
+          typeof parsed.data.metrics?.meanDriftMs === 'number'
             ? parsed.data.metrics.meanDriftMs
             : null;
         summary.maxDriftMs =
-          typeof parsed.data.metrics.maxDriftMs === 'number'
+          typeof parsed.data.metrics?.maxDriftMs === 'number'
             ? parsed.data.metrics.maxDriftMs
             : null;
       }
