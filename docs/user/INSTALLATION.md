@@ -90,4 +90,4 @@ This checks for Node.js version, API key presence, Whisper installation, and oth
 
 - [Quickstart](QUICKSTART.md) — generate your first video
 - [Configuration](CONFIGURATION.md) — customize defaults
-- [Examples](EXAMPLES.md) — real-world recipes
+- [Examples](EXAMPLES.md) — real-world workflows

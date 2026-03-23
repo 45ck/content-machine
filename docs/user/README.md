@@ -6,7 +6,7 @@ Everything you need to use Content Machine.
 
 1. [Installation](INSTALLATION.md) — prerequisites, API keys, optional setup
 2. [Quickstart](QUICKSTART.md) — your first video in 5 minutes
-3. [Examples](EXAMPLES.md) — recipes for common use cases
+3. [Examples](EXAMPLES.md) — workflows for common use cases
 
 ## Reference
 

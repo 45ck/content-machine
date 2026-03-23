@@ -97,5 +97,5 @@ cm generate "test topic" --archetype listicle -o output/test.mp4 --verbose
 
 - [CLI Usage](CLI.md) — all commands and flags
 - [Configuration](CONFIGURATION.md) — customize defaults, LLM provider, voices
-- [Examples](EXAMPLES.md) — real-world recipes (research pipelines, split-screen, AI images)
+- [Examples](EXAMPLES.md) — real-world workflows (research pipelines, split-screen, AI images)
 - [Installation](INSTALLATION.md) — full setup details including ffmpeg, Whisper, all API keys
