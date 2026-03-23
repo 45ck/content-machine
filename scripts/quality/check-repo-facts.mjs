@@ -405,7 +405,13 @@ function main() {
 
   const generateCommandPath = path.join(repoRoot, 'src', 'cli', 'commands', 'generate.ts');
   const generateCommand = readTextIfExists(generateCommandPath);
-  const generateDefaultsPath = path.join(repoRoot, 'src', 'cli', 'commands', 'generate-defaults.ts');
+  const generateDefaultsPath = path.join(
+    repoRoot,
+    'src',
+    'cli',
+    'commands',
+    'generate-defaults.ts'
+  );
   const generateDefaults = readTextIfExists(generateDefaultsPath);
   const generateCombined = generateCommand + generateDefaults;
   if (

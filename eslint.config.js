@@ -125,7 +125,12 @@ export default [
     },
   },
   {
-    files: ['src/cli/commands/generate.ts', 'src/cli/commands/render.ts'],
+    files: [
+      'src/cli/commands/generate.ts',
+      'src/cli/commands/generate-output.ts',
+      'src/cli/commands/generate-preflight.ts',
+      'src/cli/commands/render.ts',
+    ],
     rules: {
       complexity: 'off',
       'sonarjs/cognitive-complexity': 'off',

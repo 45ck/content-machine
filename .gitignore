@@ -77,3 +77,12 @@ bench/results/*.json
 !bench/results/baseline.json
 bench/pro/youtube-refs.txt
 bench/pro/.yt-dlp-archive.txt
+
+# Local research / reference repos (not part of this project)
+vendor/
+connectors/
+templates/
+
+# Scratch files
+stash_out.txt
+*.bak
