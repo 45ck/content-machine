@@ -104,8 +104,10 @@ function makeSingleSceneScript(): ScriptOutput {
   };
 }
 
+const _tempDirs: string[] = [];
 function makeTempPaths() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'cm-audio-integ-'));
+  _tempDirs.push(dir);
   const audioPath = path.join(dir, 'audio.wav');
   // Create a dummy audio file (pipeline may check existence)
   fs.writeFileSync(audioPath, 'dummy-wav');
@@ -155,6 +157,10 @@ describe('audio pipeline integration', () => {
     reconcileMock.mockReset();
     isGeminiAsrAvailableMock.mockReset();
     isGeminiAsrAvailableMock.mockReturnValue(false);
+  });
+
+  afterAll(() => {
+    for (const d of _tempDirs) fs.rmSync(d, { recursive: true, force: true });
   });
 
   // =========================================================================

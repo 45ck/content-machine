@@ -28,22 +28,13 @@ import {
   parseMaxCaptionRetries,
   buildAudioMixOptions,
 } from './generate-defaults';
+import type { SyncQualitySummary } from './generate-quality';
+
+export type { SyncQualitySummary };
 
 /* ------------------------------------------------------------------ */
 /*  Summary types                                                      */
 /* ------------------------------------------------------------------ */
-
-export interface SyncQualitySummary {
-  reportPath: string;
-  rating: number;
-  ratingLabel: string;
-  passed: boolean;
-  meanDriftMs: number;
-  maxDriftMs: number;
-  matchRatio: number;
-  errorCount: number;
-  attempts: number;
-}
 
 export interface CaptionQualitySummary {
   reportPath: string;

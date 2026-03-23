@@ -12,6 +12,7 @@ import {
   DEFAULT_SYNC_PRESET_ID,
   PREFERRED_QUALITY_SYNC_PRESET_ID,
   SUPPORTED_VISUALS_PROVIDER_IDS,
+  SYNC_PRESET_CONFIGS,
   type SyncPresetId,
 } from '../../domain/repo-facts.generated';
 import type { AssetProviderName } from '../../visuals/providers';
@@ -30,6 +31,7 @@ import {
 import {
   OverlayAsset,
   safeParseGenerationPolicy,
+  type FontSource,
   type GenerationPolicy,
   type WorkflowDefinition,
   type WorkflowStageMode,
@@ -38,8 +40,6 @@ import { resolveWorkflowStageMode } from '../../workflows/runner';
 import { readInputFile } from '../utils';
 import type { CaptionConfigInput } from '../../render/captions/config';
 import type { AudioMixPlanOptions } from '../../audio/mix/planner';
-import type { GenerateOptions } from './generate';
-import { SYNC_PRESETS } from './generate';
 
 /* ------------------------------------------------------------------ */
 /*  Shared types & constants                                          */
