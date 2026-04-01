@@ -1,8 +1,8 @@
 import type { EditorVVManifest } from '../ground-truth';
 
 /**
- * Fast-cut montage with no text overlays and sine audio at varying
- * frequencies. Validates that the pipeline handles zero-caption,
+ * Fast-cut montage with no text overlays and silent audio. Validates
+ * that the pipeline handles zero-caption,
  * high-cut-count videos. PySceneDetect's ContentDetector misses many
  * 1-second solid-colour transitions (adjacent hues are too similar),
  * so scene count and pacing expectations are relaxed.
@@ -31,13 +31,13 @@ function montageSegments() {
   return colors.map((color, i) => ({
     duration: 1,
     video: { type: 'color' as const, color, size: '1080x1920' },
-    audio: { type: 'sine' as const, frequency: 200 + i * 30 },
+    audio: { type: 'silence' as const },
   }));
 }
 
 export const montageNoSpeech: EditorVVManifest = {
   name: 'montage-no-speech',
-  description: '15 fast cuts, no text, music-freq audio',
+  description: '15 fast cuts, no text, silent audio',
   tier: 'ffmpeg',
   resolution: { width: 1080, height: 1920 },
   fps: 30,
@@ -53,7 +53,9 @@ export const montageNoSpeech: EditorVVManifest = {
     hasCaptions: false,
     // With ~5 detected scenes in 15s, avg ≈ 3s → 'moderate'.
     expectedPacing: 'moderate',
-    skipAudioChecks: true,
+    skipVoiceoverCheck: true,
+    expectedArchetype: 'listicle',
+    expectedFormat: 'talking_head',
     tolerances: { sceneCountDelta: 12 },
   },
 };

@@ -39,10 +39,12 @@ export interface EditorVVGroundTruth {
   expectedArchetype?: string;
   expectedFormat?: string;
   /**
-   * Skip voiceover/music checks. Whisper hallucinates on synthetic sine-wave
-   * audio, so these checks are meaningless for Tier 1 (FFmpeg-composed) videos.
+   * Skip voiceover check only.  Whisper.cpp hallucinates phantom speech
+   * ("BLANK AUDIO", "[Bell]") on both sine tones and silence, making
+   * has_voiceover unreliable for any synthetic audio.  Music detection
+   * works correctly on silence, so has_music is tested separately.
    */
-  skipAudioChecks?: boolean;
+  skipVoiceoverCheck?: boolean;
   tolerances?: Partial<ComparisonTolerances>;
 }
 

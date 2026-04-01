@@ -23,7 +23,7 @@ export const fiveSceneHowto: EditorVVManifest = {
         x: '(w-text_w)/2',
         y: 'h*0.75',
       },
-      audio: { type: 'sine', frequency: 280 },
+      audio: { type: 'silence' },
     },
     {
       duration: 10,
@@ -35,7 +35,7 @@ export const fiveSceneHowto: EditorVVManifest = {
         x: '(w-text_w)/2',
         y: 'h*0.75',
       },
-      audio: { type: 'sine', frequency: 320 },
+      audio: { type: 'silence' },
     },
     {
       duration: 12,
@@ -47,7 +47,7 @@ export const fiveSceneHowto: EditorVVManifest = {
         x: '(w-text_w)/2',
         y: 'h*0.75',
       },
-      audio: { type: 'sine', frequency: 360 },
+      audio: { type: 'silence' },
     },
     {
       duration: 10,
@@ -59,7 +59,7 @@ export const fiveSceneHowto: EditorVVManifest = {
         x: '(w-text_w)/2',
         y: 'h*0.75',
       },
-      audio: { type: 'sine', frequency: 400 },
+      audio: { type: 'silence' },
     },
     {
       duration: 8,
@@ -71,7 +71,7 @@ export const fiveSceneHowto: EditorVVManifest = {
         x: '(w-text_w)/2',
         y: 'h*0.75',
       },
-      audio: { type: 'sine', frequency: 440 },
+      audio: { type: 'silence' },
     },
   ],
   groundTruth: {
@@ -83,6 +83,8 @@ export const fiveSceneHowto: EditorVVManifest = {
     // Tier 1 drawtext on solid backgrounds is not detected by OCR PSM 6.
     hasCaptions: false,
     expectedPacing: 'slow',
-    skipAudioChecks: true,
+    skipVoiceoverCheck: true,
+    expectedArchetype: 'listicle',
+    expectedFormat: 'talking_head',
   },
 };

@@ -2,8 +2,9 @@ import type { EditorVVManifest } from '../ground-truth';
 
 /**
  * Single continuous shot — 30 seconds of one colour with a single
- * caption and sine audio. Validates that the pipeline handles the
- * degenerate case (one shot, no cuts).
+ * caption and **silent** audio.  Validates that the pipeline handles
+ * the degenerate case (one shot, no cuts) and correctly classifies
+ * silent audio as no voiceover / no music.
  *
  * Total duration: 30 s  |  Scenes: 1  |  Pacing: slow
  */
@@ -24,7 +25,7 @@ export const singleShotTalking: EditorVVManifest = {
         x: '(w-text_w)/2',
         y: 'h*0.75',
       },
-      audio: { type: 'sine', frequency: 260 },
+      audio: { type: 'silence' },
     },
   ],
   groundTruth: {
@@ -36,6 +37,8 @@ export const singleShotTalking: EditorVVManifest = {
     // Tier 1 drawtext on solid backgrounds is not detected by OCR PSM 6.
     hasCaptions: false,
     expectedPacing: 'slow',
-    skipAudioChecks: true,
+    skipVoiceoverCheck: true,
+    expectedArchetype: 'listicle',
+    expectedFormat: 'talking_head',
   },
 };

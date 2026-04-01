@@ -2,14 +2,14 @@ import type { EditorVVManifest } from '../ground-truth';
 
 /**
  * Three-scene listicle: 3 colour segments with large caption text and
- * sine audio (not real speech). Validates shot detection on hard colour
- * cuts and OCR on bold drawtext.
+ * silent audio. Validates shot detection on hard colour cuts, pacing
+ * classification, and audio profile on silent input.
  *
  * Total duration: 21 s  |  Scenes: 3  |  Pacing: slow
  */
 export const threeSceneListicle: EditorVVManifest = {
   name: 'three-scene-listicle',
-  description: '3 color scenes with captions and sine audio',
+  description: '3 color scenes with captions and silent audio',
   tier: 'ffmpeg',
   resolution: { width: 1080, height: 1920 },
   fps: 30,
@@ -24,7 +24,7 @@ export const threeSceneListicle: EditorVVManifest = {
         x: '(w-text_w)/2',
         y: 'h*0.75',
       },
-      audio: { type: 'sine', frequency: 300 },
+      audio: { type: 'silence' },
     },
     {
       duration: 7,
@@ -36,7 +36,7 @@ export const threeSceneListicle: EditorVVManifest = {
         x: '(w-text_w)/2',
         y: 'h*0.75',
       },
-      audio: { type: 'sine', frequency: 350 },
+      audio: { type: 'silence' },
     },
     {
       duration: 7,
@@ -48,7 +48,7 @@ export const threeSceneListicle: EditorVVManifest = {
         x: '(w-text_w)/2',
         y: 'h*0.75',
       },
-      audio: { type: 'sine', frequency: 400 },
+      audio: { type: 'silence' },
     },
   ],
   groundTruth: {
@@ -61,6 +61,8 @@ export const threeSceneListicle: EditorVVManifest = {
     // Real-world captions on video content are tested via Tier 2.
     hasCaptions: false,
     expectedPacing: 'slow',
-    skipAudioChecks: true,
+    skipVoiceoverCheck: true,
+    expectedArchetype: 'listicle',
+    expectedFormat: 'talking_head',
   },
 };

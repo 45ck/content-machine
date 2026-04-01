@@ -117,18 +117,25 @@ function checkAudio(
   deps: DependencyReport
 ): CheckResult[] {
   const results: CheckResult[] = [];
-  if (gt.skipAudioChecks) {
-    results.push(skip('Has voiceover', 'synthetic audio (whisper hallucinates on sine tones)'));
-    results.push(skip('Has music', 'synthetic audio (whisper hallucinates on sine tones)'));
+
+  // Voiceover check
+  if (gt.skipVoiceoverCheck) {
+    results.push(skip('Has voiceover', 'whisper hallucinates on synthetic/silent audio'));
   } else if (!deps.whisper.available) {
     results.push(skip('Has voiceover', 'whisper unavailable'));
-    results.push(skip('Has music', 'whisper unavailable'));
   } else {
     results.push(
       boolCheck('Has voiceover', gt.hasVoiceover, blueprint.audio_profile.has_voiceover)
     );
+  }
+
+  // Music check (works correctly on silence — only skip when whisper unavailable)
+  if (!deps.whisper.available) {
+    results.push(skip('Has music', 'whisper unavailable'));
+  } else {
     results.push(boolCheck('Has music', gt.hasMusic, blueprint.audio_profile.has_music));
   }
+
   return results;
 }
 
