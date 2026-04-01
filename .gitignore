@@ -90,3 +90,8 @@ experiments/**/*.json
 # Scratch files
 stash_out.txt
 *.bak
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key
