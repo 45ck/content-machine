@@ -19,6 +19,8 @@ import { getPromptForArchetype } from './prompts/index.js';
 import { buildResearchContext, extractSourceUrls } from './research-context';
 import { sanitizeSpokenText } from './sanitize';
 import type { ResearchOutput } from '../domain';
+import type { VideoBlueprintV1 } from '../domain';
+import { buildBlueprintContext } from '../videointel/blueprint-context';
 
 export type { ScriptOutput, Scene } from '../domain';
 // Re-export deprecated type for backward compatibility
@@ -36,6 +38,8 @@ export interface GenerateScriptOptions {
   };
   /** Research output to inject evidence into script */
   research?: ResearchOutput;
+  /** VideoBlueprint to inject structural constraints into script */
+  blueprint?: VideoBlueprintV1;
 }
 
 /**
@@ -90,6 +94,13 @@ function buildScriptOutput(
       sources: extractSourceUrls(options.research),
       evidenceCount: options.research.evidence.length,
       query: options.research.query,
+    };
+  }
+  if (options.blueprint) {
+    extra.blueprint = {
+      archetype: options.blueprint.archetype,
+      sceneSlots: options.blueprint.scene_slots.length,
+      targetDuration: options.blueprint.pacing_profile.target_duration,
     };
   }
 
@@ -219,6 +230,18 @@ export async function generateScript(options: GenerateScriptOptions): Promise<Sc
     if (researchContext) {
       prompt = `${researchContext}\n\n---\n\n${prompt}`;
       log.info({ evidenceCount: options.research.evidence.length }, 'Injected research context');
+    }
+  }
+
+  // Inject blueprint constraints if available
+  if (options.blueprint) {
+    const blueprintContext = buildBlueprintContext(options.blueprint);
+    if (blueprintContext) {
+      prompt = `${blueprintContext}\n\n---\n\n${prompt}`;
+      log.info(
+        { sceneSlots: options.blueprint.scene_slots.length },
+        'Injected blueprint constraints'
+      );
     }
   }
 

@@ -31,6 +31,8 @@ export const UBIQUITOUS_TERM_IDS = [
   'theme-caption-preset',
   'timestamps-artifact',
   'validation-profile',
+  'video-blueprint',
+  'video-theme',
   'videospec-v1',
   'visuals-artifact',
 ] as const;
@@ -322,6 +324,26 @@ export const UBIQUITOUS_LANGUAGE_TERMS: Record<UbiquitousTermId, UbiquitousLangu
       'A named set of validation thresholds for cm validate (e.g. portrait/landscape). Profiles determine what "valid output" means for a target format.',
     canonicalTypes: ['ValidateProfileId'],
     canonicalSchemas: [],
+  },
+  'video-blueprint': {
+    id: 'video-blueprint',
+    canonicalName: 'Video Blueprint (Structure Extraction Artifact)',
+    term: 'VideoBlueprint',
+    ownedBy: 'videointel',
+    definition:
+      'A versioned JSON artifact produced by `cm blueprint` that captures the reusable structural recipe of a video: scene slots, pacing profile, caption profile, audio profile, and narrative structure. Used to constrain forward pipeline generation via `cm script --blueprint`.',
+    canonicalTypes: ['VideoBlueprintV1'],
+    canonicalSchemas: ['VideoBlueprintV1Schema'],
+  },
+  'video-theme': {
+    id: 'video-theme',
+    canonicalName: 'Video Theme (Classification Artifact)',
+    term: 'VideoTheme',
+    ownedBy: 'videointel',
+    definition:
+      'A versioned JSON artifact produced by `cm classify` that captures the content archetype, purpose, format, style, and edit signature of a reverse-engineered video. Used as input to blueprint extraction.',
+    canonicalTypes: ['VideoThemeV1'],
+    canonicalSchemas: ['VideoThemeV1Schema'],
   },
   'videospec-v1': {
     id: 'videospec-v1',

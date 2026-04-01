@@ -493,6 +493,7 @@ async function runGeneratePipeline(params: {
   gameplay?: { library?: string; style?: string; required?: boolean };
   hook?: HookClip | null;
   research: ResearchOutput | undefined;
+  blueprint?: import('../../videointel/schema').VideoBlueprintV1;
   llmProvider: LLMProvider | undefined;
   runtime: ReturnType<typeof getCliRuntime>;
   scriptInput?: ScriptOutput;
@@ -621,6 +622,7 @@ async function runGeneratePipeline(params: {
       mock: params.options.mock,
       mockRenderMode,
       research: params.research,
+      blueprint: params.blueprint,
       eventEmitter,
       pipelineMode: params.options.pipeline ?? 'standard',
       whisperModel: params.options.whisperModel,
@@ -1307,6 +1309,25 @@ async function runGenerate(
     : await loadOrRunResearch(options.research, topic, options.mock);
   reportResearchSummary(research, runtime);
 
+  let blueprint;
+  if (options.blueprint && !scriptInput) {
+    const { VideoBlueprintV1Schema } = await import('../../domain');
+    const blueprintRaw = await readInputFile(options.blueprint);
+    const blueprintParsed = VideoBlueprintV1Schema.safeParse(blueprintRaw);
+    if (!blueprintParsed.success) {
+      throw new SchemaError('Invalid blueprint file', {
+        path: options.blueprint,
+        issues: blueprintParsed.error.issues,
+        fix: 'Generate a blueprint via `cm blueprint --input videospec.v1.json -o blueprint.v1.json`',
+      });
+    }
+    blueprint = blueprintParsed.data;
+    logger.info(
+      { archetype: blueprint.archetype, sceneSlots: blueprint.scene_slots.length },
+      'Loaded blueprint constraints'
+    );
+  }
+
   const llmProvider = await createGenerateLlmProvider(topic, options, runtime);
 
   const gameplaySpecified = Boolean(options.gameplay);
@@ -1366,6 +1387,7 @@ async function runGenerate(
       gameplay,
       hook,
       research,
+      blueprint,
       llmProvider,
       runtime,
       artifactsDir,
@@ -1564,6 +1586,10 @@ export const generateCommand = new Command('generate')
   .option('--duration <seconds>', 'Target duration in seconds', '45')
   .option('--keep-artifacts', 'Keep intermediate files', false)
   .option('--research [path]', 'Use research (true = auto-run, or path to research.json)')
+  .option(
+    '--blueprint <path>',
+    'VideoBlueprint JSON file for structural constraints (from cm blueprint)'
+  )
   .option(
     '--pipeline <mode>',
     'Pipeline mode: audio-first (default, requires Whisper) or standard',

@@ -8,7 +8,13 @@ import { Command } from 'commander';
 import { loadConfig } from '../../core/config';
 import { CMError, SchemaError } from '../../core/errors';
 import { logger } from '../../core/logger';
-import { PackageOutputSchema, ResearchOutputSchema, type ResearchOutput } from '../../domain';
+import {
+  PackageOutputSchema,
+  ResearchOutputSchema,
+  VideoBlueprintV1Schema,
+  type ResearchOutput,
+  type VideoBlueprintV1,
+} from '../../domain';
 import { generateScript } from '../../script/generator';
 import { formatArchetypeSource, resolveArchetype } from '../../archetypes/registry';
 import type { LLMProvider } from '../../core/llm/provider';
@@ -56,6 +62,7 @@ interface ScriptCommandOptions {
   output: string;
   package?: string;
   research?: string;
+  blueprint?: string;
   duration: string;
   dryRun?: boolean;
   mock?: boolean;
@@ -66,6 +73,22 @@ function applyDefaultsFromConfig(options: ScriptCommandOptions, command: Command
   if (command.getOptionValueSource('archetype') === 'default') {
     options.archetype = config.defaults.archetype;
   }
+}
+
+async function loadBlueprint(path?: string): Promise<VideoBlueprintV1 | undefined> {
+  if (!path) return undefined;
+
+  const raw = await readInputFile(path);
+  const parsed = VideoBlueprintV1Schema.safeParse(raw);
+  if (!parsed.success) {
+    throw new SchemaError('Invalid blueprint file', {
+      path,
+      issues: parsed.error.issues,
+      fix: 'Generate a blueprint via `cm blueprint --input videospec.v1.json -o blueprint.v1.json` and pass --blueprint blueprint.v1.json',
+    });
+  }
+
+  return parsed.data;
 }
 
 async function loadResearch(path?: string): Promise<ResearchOutput | undefined> {
@@ -103,6 +126,7 @@ function writeDryRunOutput(params: {
           output: options.output,
           package: options.package ?? null,
           research: options.research ?? null,
+          blueprint: options.blueprint ?? null,
           dryRun: true,
         },
         outputs: { dryRun: true },
@@ -120,6 +144,7 @@ function writeDryRunOutput(params: {
   writeStderrLine(`   Output: ${options.output}`);
   if (options.package) writeStderrLine(`   Package: ${options.package}`);
   if (options.research) writeStderrLine(`   Research: ${options.research}`);
+  if (options.blueprint) writeStderrLine(`   Blueprint: ${options.blueprint}`);
   writeStderrLine(`Prompt would use ~${Math.round(durationSeconds * 2.5)} target words`);
   process.exitCode = 0;
   return;
@@ -143,6 +168,7 @@ function writeSuccessJsonOutput(params: {
         output: options.output,
         package: options.package ?? null,
         research: options.research ?? null,
+        blueprint: options.blueprint ?? null,
         mock: Boolean(options.mock),
       },
       outputs: {
@@ -212,9 +238,16 @@ async function runScript(options: ScriptCommandOptions, spinner: SpinnerLike): P
 
   const packaging = await loadPackaging(options.package);
   const research = await loadResearch(options.research);
+  const blueprint = await loadBlueprint(options.blueprint);
 
   if (research) {
     logger.info({ evidenceCount: research.evidence.length }, 'Loaded research evidence');
+  }
+  if (blueprint) {
+    logger.info(
+      { archetype: blueprint.archetype, sceneSlots: blueprint.scene_slots.length },
+      'Loaded blueprint constraints'
+    );
   }
 
   const script = await generateScript({
@@ -224,6 +257,7 @@ async function runScript(options: ScriptCommandOptions, spinner: SpinnerLike): P
     llmProvider,
     packaging,
     research,
+    blueprint,
   });
 
   await writeOutputFile(options.output, script);
@@ -249,6 +283,7 @@ export const scriptCommand = new Command('script')
   .option('-o, --output <path>', 'Output file path', DEFAULT_ARTIFACT_FILENAMES.script)
   .option('--package <path>', 'Packaging JSON file (from cm package)')
   .option('--research <path>', 'Research JSON file (from cm research)')
+  .option('--blueprint <path>', 'VideoBlueprint JSON file (from cm blueprint)')
   .option('--duration <seconds>', 'Target duration in seconds', '45')
   .option('--dry-run', 'Preview without calling LLM')
   .option('--mock', 'Use mock LLM provider (for testing)')

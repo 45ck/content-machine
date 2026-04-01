@@ -840,6 +840,72 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 
 **Owner:** `validate`
 
+## Video Blueprint (Structure Extraction Artifact)
+
+**Id:** `video-blueprint`
+
+**Term:** VideoBlueprint
+
+**Definition:** A versioned JSON artifact produced by `cm blueprint` that captures the reusable structural recipe of a video: scene slots, pacing profile, caption profile, audio profile, and narrative structure. Used to constrain forward pipeline generation via `cm script --blueprint`.
+
+**Not:**
+
+- Not a render template (templates select compositions and render defaults).
+- Not a script archetype (archetypes define script format/pacing rules).
+
+**Canonical types:**
+
+- `VideoBlueprintV1`
+
+**Canonical schemas:**
+
+- `VideoBlueprintV1Schema`
+
+**Where it lives:**
+
+- Output artifact: blueprint.v1.json (by convention, controlled by --output)
+- Schema: src/videointel/schema.ts
+
+**CLI surface:**
+
+- `cm blueprint --input <videospec.v1.json> [--theme <theme.v1.json>] -o <blueprint.v1.json>`
+- `cm script --blueprint <blueprint.v1.json>`
+- `cm generate --blueprint <blueprint.v1.json>`
+
+**Owner:** `videointel`
+
+## Video Theme (Classification Artifact)
+
+**Id:** `video-theme`
+
+**Term:** VideoTheme
+
+**Definition:** A versioned JSON artifact produced by `cm classify` that captures the content archetype, purpose, format, style, and edit signature of a reverse-engineered video. Used as input to blueprint extraction.
+
+**Not:**
+
+- Not a render theme (visual styling system for compositions).
+- Not a script archetype (archetypes define script structure).
+
+**Canonical types:**
+
+- `VideoThemeV1`
+
+**Canonical schemas:**
+
+- `VideoThemeV1Schema`
+
+**Where it lives:**
+
+- Output artifact: theme.v1.json (by convention, controlled by --output)
+- Schema: src/videointel/schema.ts
+
+**CLI surface:**
+
+- `cm classify --input <videospec.v1.json> -o <theme.v1.json>`
+
+**Owner:** `videointel`
+
 ## VideoSpec v1 (Reverse-Engineering Artifact)
 
 **Id:** `videospec-v1`

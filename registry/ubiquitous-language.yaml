@@ -639,3 +639,47 @@ terms:
       - 'cm videospec -i <video> -o <videospec.v1.json>'
     synonymsToAvoid:
       - spec (without saying VideoSpec)
+
+  - term: VideoTheme
+    id: video-theme
+    canonicalName: Video Theme (Classification Artifact)
+    definition: >
+      A versioned JSON artifact produced by `cm classify` that captures the content archetype,
+      purpose, format, style, and edit signature of a reverse-engineered video. Used as input
+      to blueprint extraction.
+    nonExamples:
+      - Not a render theme (visual styling system for compositions).
+      - Not a script archetype (archetypes define script structure).
+    canonicalTypes:
+      - VideoThemeV1
+    canonicalSchemas:
+      - VideoThemeV1Schema
+    ownedBy: videointel
+    whereItLives:
+      - 'Output artifact: theme.v1.json (by convention, controlled by --output)'
+      - 'Schema: src/videointel/schema.ts'
+    cliSurface:
+      - 'cm classify --input <videospec.v1.json> -o <theme.v1.json>'
+
+  - term: VideoBlueprint
+    id: video-blueprint
+    canonicalName: Video Blueprint (Structure Extraction Artifact)
+    definition: >
+      A versioned JSON artifact produced by `cm blueprint` that captures the reusable structural
+      recipe of a video: scene slots, pacing profile, caption profile, audio profile, and narrative
+      structure. Used to constrain forward pipeline generation via `cm script --blueprint`.
+    nonExamples:
+      - Not a render template (templates select compositions and render defaults).
+      - Not a script archetype (archetypes define script format/pacing rules).
+    canonicalTypes:
+      - VideoBlueprintV1
+    canonicalSchemas:
+      - VideoBlueprintV1Schema
+    ownedBy: videointel
+    whereItLives:
+      - 'Output artifact: blueprint.v1.json (by convention, controlled by --output)'
+      - 'Schema: src/videointel/schema.ts'
+    cliSurface:
+      - 'cm blueprint --input <videospec.v1.json> [--theme <theme.v1.json>] -o <blueprint.v1.json>'
+      - 'cm script --blueprint <blueprint.v1.json>'
+      - 'cm generate --blueprint <blueprint.v1.json>'

@@ -65,6 +65,8 @@ export interface PipelineOptions {
   reconcile?: boolean;
   /** Optional research output to inject into script stage */
   research?: ResearchOutput;
+  /** Optional VideoBlueprint for structural constraints in script stage */
+  blueprint?: import('../videointel/schema').VideoBlueprintV1;
   /** Optional event emitter for pipeline progress */
   eventEmitter?: PipelineEventEmitter;
   /** Optional audio mix plan generation */
@@ -364,6 +366,7 @@ export async function runPipeline(options: PipelineOptions): Promise<PipelineRes
               targetDuration: options.targetDuration,
               llmProvider: options.llmProvider,
               research: options.research,
+              blueprint: options.blueprint,
             }),
           log
         );

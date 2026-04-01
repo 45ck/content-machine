@@ -12,6 +12,7 @@ audio-mix-preset
 AudioMixPreset
 AudioMixPresetId
 AudioMixPresetIdSchema
+Blueprint
 Caption
 caption-config
 caption-preset
@@ -20,6 +21,7 @@ CaptionConfigSchema
 CaptionPreset
 CaptionPresetName
 Captions
+Classification
 Clip
 Code
 code-template
@@ -28,6 +30,7 @@ Composition
 CompositionId
 CompositionIdSchema
 Config
+Extraction
 Gameplay
 gameplay-clip
 GameplayClip
@@ -94,6 +97,7 @@ SfxPlacement
 SfxPlacementEnum
 Stage
 Strategy
+Structure
 Style
 style-resolver
 StyleOverrides
@@ -122,10 +126,19 @@ v1
 ValidateProfileId
 Validation
 validation-profile
+Video
+video-blueprint
+video-theme
+VideoBlueprint
+VideoBlueprintV1
+VideoBlueprintV1Schema
 VideoSpec
 videospec-v1
 VideoSpecV1
 VideoSpecV1Schema
+VideoTheme
+VideoThemeV1
+VideoThemeV1Schema
 VisualAsset
 VisualAssetSchema
 Visuals

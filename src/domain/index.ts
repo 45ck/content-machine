@@ -33,6 +33,9 @@ export * from '../videospec/schema';
 /** Archetype schema + types. */
 export * from '../archetypes/schema';
 
+/** Video Intelligence (theme + blueprint) schema + types. */
+export * from '../videointel/schema';
+
 /** Ubiquitous language IDs (branded string types). */
 export * from './ids';
 

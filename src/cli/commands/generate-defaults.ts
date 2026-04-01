@@ -251,6 +251,8 @@ export interface GenerateOptions {
   frameAnalysisSegments?: string;
   /** Frame analysis output root directory */
   frameAnalysisOutput?: string;
+  /** VideoBlueprint JSON file for structural constraints (from cm blueprint) */
+  blueprint?: string;
   /** Validate dependencies without running the pipeline */
   preflight?: boolean;
 
