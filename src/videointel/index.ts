@@ -12,3 +12,9 @@
 export { classifyVideoSpec, type ClassifyOptions } from './classify';
 export { extractBlueprint, type ExtractBlueprintOptions } from './blueprint';
 export { buildBlueprintContext } from './blueprint-context';
+export {
+  compareVideoSpecs,
+  type ReconstructionFidelityReport,
+  type MetricScore,
+  type CompareSpecsOptions,
+} from './compare';
