@@ -37,13 +37,40 @@ async function probe(binary: string, args: string[]): Promise<DepStatus> {
   }
 }
 
+/**
+ * The pipeline uses tesseract.js (npm), not the tesseract CLI binary.
+ * Check importability of the npm package instead of probing a CLI command.
+ */
+async function probeTesseractJs(): Promise<DepStatus> {
+  try {
+    const mod = await import('tesseract.js');
+    const version = (mod as Record<string, unknown>).version ?? 'installed';
+    return { available: true, version: String(version) };
+  } catch {
+    return { available: false };
+  }
+}
+
+/**
+ * The pipeline uses @remotion/install-whisper-cpp (whisper.cpp), not
+ * the Python whisper CLI. Check importability of the npm package.
+ */
+async function probeWhisperCpp(): Promise<DepStatus> {
+  try {
+    await import('@remotion/install-whisper-cpp');
+    return { available: true, version: 'whisper.cpp (remotion)' };
+  } catch {
+    return { available: false };
+  }
+}
+
 export async function checkDependencies(): Promise<DependencyReport> {
   const [ffmpeg, ffprobe, pyscenedetect, whisper, tesseract, melt] = await Promise.all([
     probe(resolveFfmpegPath(), ['-version']),
     probe(resolveFfprobePath(), ['-version']),
-    probe('scenedetect', ['--version']),
-    probe('whisper', ['--help']),
-    probe('tesseract', ['--version']),
+    probe('scenedetect', ['version']),
+    probeWhisperCpp(),
+    probeTesseractJs(),
     probe('melt', ['-version']),
   ]);
 

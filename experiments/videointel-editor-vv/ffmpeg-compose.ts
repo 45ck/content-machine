@@ -105,7 +105,7 @@ function buildFfmpegArgs(manifest: EditorVVManifest, outputPath: string): string
       const dt = seg.drawtext;
       const escapedText = dt.text.replace(/'/g, "\\'");
       filterParts.push(
-        `[${vidIdx}:v]drawtext=fontfile=${FONT_FILE}:text='${escapedText}':fontsize=${dt.fontsize}:fontcolor=${dt.fontcolor}:x=${dt.x}:y=${dt.y}[${vidLabel}]`
+        `[${vidIdx}:v]drawtext=fontfile=${FONT_FILE}:text='${escapedText}':fontsize=${dt.fontsize}:fontcolor=${dt.fontcolor}:x=${dt.x}:y=${dt.y}:box=1:boxcolor=black@0.8:boxborderw=12[${vidLabel}]`
       );
     } else {
       filterParts.push(`[${vidIdx}:v]null[${vidLabel}]`);

@@ -22,6 +22,7 @@ interface VideoSpecOptions {
   maxSeconds?: string;
   shotDetector: 'auto' | 'pyscenedetect' | 'ffmpeg';
   shotThreshold?: string;
+  ffThreshold?: string;
   ocr: boolean;
   ocrFps?: string;
   insertedContent: boolean;
@@ -53,6 +54,7 @@ export const videospecCommand = new Command('videospec')
   .option('--max-seconds <n>', 'Only analyze the first N seconds (dev/fast)')
   .option('--shot-detector <mode>', 'auto|pyscenedetect|ffmpeg', 'auto')
   .option('--shot-threshold <n>', 'PySceneDetect threshold (default 30)', '30')
+  .option('--ff-threshold <n>', 'FFmpeg scene-score threshold 0-1 (default 0.35)')
   .option('--no-ocr', 'Disable OCR (captions/overlays)')
   .option('--ocr-fps <n>', 'OCR FPS sampling rate (default depends on pass)', undefined)
   .option('--no-inserted-content', 'Disable inserted content block extraction')
@@ -95,6 +97,9 @@ export const videospecCommand = new Command('videospec')
         ? parsePositiveNumber(options.maxSeconds, '--max-seconds')
         : undefined;
       const shotThreshold = parsePositiveNumber(options.shotThreshold, '--shot-threshold');
+      const ffThreshold = options.ffThreshold
+        ? parsePositiveNumber(options.ffThreshold, '--ff-threshold')
+        : undefined;
       const ocrFps = options.ocrFps ? parsePositiveNumber(options.ocrFps, '--ocr-fps') : undefined;
       const asrModel = parseWhisperModel(options.asrModel);
 
@@ -115,6 +120,7 @@ export const videospecCommand = new Command('videospec')
         maxSeconds,
         shotDetector,
         shotThreshold,
+        ffThreshold,
         ocr: options.ocr,
         ocrFps,
         insertedContent: options.insertedContent,
@@ -138,6 +144,7 @@ export const videospecCommand = new Command('videospec')
               maxSeconds: maxSeconds ?? null,
               shotDetector,
               shotThreshold: shotThreshold ?? null,
+              ffThreshold: ffThreshold ?? null,
               ocr: options.ocr,
               ocrFps: ocrFps ?? null,
               insertedContent: options.insertedContent,

@@ -59,7 +59,10 @@ export interface AnalyzeVideoToVideoSpecV1Options {
 
   // Shot detection
   shotDetector?: 'auto' | 'pyscenedetect' | 'ffmpeg';
+  /** PySceneDetect threshold (0-100, default 30). */
   shotThreshold?: number;
+  /** FFmpeg scene-score threshold (0-1, default 0.35). Lower values detect subtler cuts. */
+  ffThreshold?: number;
 
   // OCR
   ocr?: boolean;
@@ -1351,7 +1354,7 @@ async function analyzeTimeline(params: {
   const { ctx, options, provenanceModules, provenanceNotes } = params;
   const shotDetector = options.shotDetector ?? 'auto';
   const pyThreshold = options.shotThreshold ?? 30;
-  const ffThreshold = 0.35;
+  const ffThreshold = options.ffThreshold ?? 0.35;
 
   const cutsCachePath = join(ctx.videoCacheDir, 'shots.v1.json');
   let cutTimesSeconds: number[] | null = ctx.cacheEnabled

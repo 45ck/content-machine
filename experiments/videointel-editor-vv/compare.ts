@@ -117,7 +117,10 @@ function checkAudio(
   deps: DependencyReport
 ): CheckResult[] {
   const results: CheckResult[] = [];
-  if (!deps.whisper.available) {
+  if (gt.skipAudioChecks) {
+    results.push(skip('Has voiceover', 'synthetic audio (whisper hallucinates on sine tones)'));
+    results.push(skip('Has music', 'synthetic audio (whisper hallucinates on sine tones)'));
+  } else if (!deps.whisper.available) {
     results.push(skip('Has voiceover', 'whisper unavailable'));
     results.push(skip('Has music', 'whisper unavailable'));
   } else {

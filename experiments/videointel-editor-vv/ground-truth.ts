@@ -38,6 +38,11 @@ export interface EditorVVGroundTruth {
   /** Only asserted when deterministic (e.g. listicle with list-like structure). */
   expectedArchetype?: string;
   expectedFormat?: string;
+  /**
+   * Skip voiceover/music checks. Whisper hallucinates on synthetic sine-wave
+   * audio, so these checks are meaningless for Tier 1 (FFmpeg-composed) videos.
+   */
+  skipAudioChecks?: boolean;
   tolerances?: Partial<ComparisonTolerances>;
 }
 
