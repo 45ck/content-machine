@@ -83,6 +83,10 @@ vendor/
 connectors/
 templates/
 
+# Experiments (output artifacts)
+experiments/**/results/
+experiments/**/*.json
+
 # Scratch files
 stash_out.txt
 *.bak

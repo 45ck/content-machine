@@ -218,15 +218,31 @@ export function inferPurpose(spec: VideoSpecV1): VideoPurpose {
 export function inferFormat(spec: VideoSpecV1): VideoFormat {
   const shotCount = spec.timeline.pacing.shot_count;
   const insertedBlocks = spec.inserted_content_blocks ?? [];
+  const transcript = getFullTranscript(spec);
+  const hasNarration = spec.audio.transcript.length > 0;
 
+  // Strong content signals first
   if (insertedBlocks.length >= 2) return 'reaction';
+
+  // Explicit narrative format from the spec
   if (spec.narrative.format === 'listicle') return 'listicle';
   if (spec.narrative.format === 'story') return 'story';
   if (spec.narrative.format === 'montage') return 'montage';
 
-  if (shotCount <= 2 && spec.audio.transcript.length > 0) return 'talking_head';
-  if (shotCount >= 15) return 'compilation';
-  if (shotCount >= 5) return 'montage';
+  // Transcript-derived format (mirrors archetype inference)
+  if (hasNarration && hasListPattern(transcript)) return 'listicle';
+  if (hasNarration && hasHowtoPattern(transcript)) return 'tutorial';
+  if (hasNarration && hasVersusPattern(transcript)) return 'versus';
+
+  // Single/few shots with narration → talking head
+  if (shotCount <= 2 && hasNarration) return 'talking_head';
+
+  // Many shots WITHOUT narration → compilation/montage
+  if (shotCount >= 15 && !hasNarration) return 'compilation';
+  if (shotCount >= 5 && !hasNarration) return 'montage';
+
+  // Narrated videos with multiple shots → talking head (b-roll cutaway pattern)
+  if (hasNarration) return 'talking_head';
 
   return 'talking_head';
 }
