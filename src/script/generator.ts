@@ -237,9 +237,17 @@ export async function generateScript(options: GenerateScriptOptions): Promise<Sc
   if (options.blueprint) {
     const blueprintContext = buildBlueprintContext(options.blueprint);
     if (blueprintContext) {
+      // When blueprint has few scenes, strip the archetype's STRUCTURE/TIMELINE
+      // sections to prevent conflicting scene-count instructions from the template.
+      const bpSceneCount = options.blueprint.scene_slots.length;
+      if (bpSceneCount <= 2) {
+        prompt = prompt
+          .replace(/\n\s*STRUCTURE:[\s\S]*?(?=\n\s*[A-Z]{3,}[\s:]|\n\s*$)/i, '')
+          .replace(/\n\s*TIMELINE[\s\S]*?(?=\n\s*[A-Z]{3,}[\s:]|\n\s*$)/i, '');
+      }
       prompt = `${blueprintContext}\n\n---\n\n${prompt}`;
       log.info(
-        { sceneSlots: options.blueprint.scene_slots.length },
+        { sceneSlots: bpSceneCount },
         'Injected blueprint constraints'
       );
     }

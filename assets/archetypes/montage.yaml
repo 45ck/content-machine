@@ -1,0 +1,27 @@
+id: montage
+name: Montage / Compilation
+description: Music-driven visual sequence with minimal or no narration.
+version: 1
+script:
+  template: |
+    Create a short-form video script for a montage/compilation about: "{{topic}}"
+
+    FORMAT: Montage / Compilation (visual sequence, music-driven)
+    Typical length: 15-60s
+
+    REQUIREMENTS:
+    - Visuals drive the story — narration is optional or minimal.
+    - Each scene is a distinct clip or shot with clear visual direction.
+    - Pacing should match the music energy (fast cuts for high energy, slower for mood).
+    - Text overlays or captions can replace voiceover.
+    - If there is spoken text, keep it short (1-2 sentences per scene max).
+
+    STRUCTURE:
+    1) Hook field: one attention-grabbing visual or text overlay
+    2) Scene 1-N: sequential clips with visual direction and optional short text
+    3) Final scene: closing shot + CTA or text overlay
+
+    TIMELINE (30s template):
+    - 0-2s: hook shot (strongest visual)
+    - 2-25s: montage clips (1-4s each, match music beats)
+    - 25-30s: closing shot + CTA text overlay

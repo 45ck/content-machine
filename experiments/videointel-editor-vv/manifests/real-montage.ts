@@ -34,8 +34,8 @@ export const realMontage: EditorVVManifest = {
     hasCaptions: false,
     expectedPacing: 'slow',
     skipVoiceoverCheck: true,
-    expectedArchetype: 'listicle',
-    expectedFormat: 'talking_head',
+    expectedArchetype: 'montage',
+    expectedFormat: 'montage',
     tolerances: { durationSeconds: 1, cutPointSeconds: 2, sceneCountDelta: 2 },
   },
 };

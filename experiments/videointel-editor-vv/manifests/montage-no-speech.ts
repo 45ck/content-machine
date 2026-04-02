@@ -54,8 +54,8 @@ export const montageNoSpeech: EditorVVManifest = {
     // With ~5 detected scenes in 15s, avg ≈ 3s → 'moderate'.
     expectedPacing: 'moderate',
     skipVoiceoverCheck: true,
-    expectedArchetype: 'listicle',
-    expectedFormat: 'talking_head',
+    expectedArchetype: 'montage',
+    expectedFormat: 'montage',
     tolerances: { sceneCountDelta: 12 },
   },
 };

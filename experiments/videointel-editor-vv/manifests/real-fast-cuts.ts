@@ -31,8 +31,8 @@ export const realFastCuts: EditorVVManifest = {
     hasCaptions: false,
     expectedPacing: 'moderate',
     skipVoiceoverCheck: true,
-    expectedArchetype: 'listicle',
-    expectedFormat: 'talking_head',
+    expectedArchetype: 'montage',
+    expectedFormat: 'montage',
     tolerances: { durationSeconds: 1, cutPointSeconds: 2, sceneCountDelta: 2 },
   },
 };

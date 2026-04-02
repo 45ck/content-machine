@@ -124,6 +124,14 @@ export function inferArchetype(spec: VideoSpecV1): ArchetypeId {
   // Myth: "myth", "debunk", "actually" patterns
   if (hasMythPattern(transcript)) return 'myth' as ArchetypeId;
 
+  // Montage fallback: many shots with no real speech (even without music)
+  const shotCount = spec.timeline.pacing.shot_count;
+  const hasSpeech = hasRealSpeech(spec);
+  if (shotCount >= 5 && !hasSpeech) return 'montage' as ArchetypeId;
+
+  // Story fallback: no real speech, few shots → generic narrative
+  if (!hasSpeech && shotCount <= 2) return 'story' as ArchetypeId;
+
   // Default fallback
   return 'listicle' as ArchetypeId;
 }
@@ -133,6 +141,18 @@ function getFullTranscript(spec: VideoSpecV1): string {
     .map((s) => s.text)
     .join(' ')
     .toLowerCase();
+}
+
+/**
+ * Whisper hallucinates repetitive tokens like "BLANK AUDIO" on silent input.
+ * Filter these out to determine if there is genuine speech content.
+ */
+const WHISPER_HALLUCINATION = /^[\s.,!?]*(?:blank|audio|blank audio|music|you|thank you|thanks for watching|\.{2,})*[\s.,!?]*$/i;
+
+function hasRealSpeech(spec: VideoSpecV1): boolean {
+  return spec.audio.transcript.some(
+    (seg) => !WHISPER_HALLUCINATION.test(seg.text.trim())
+  );
 }
 
 function hasListPattern(transcript: string): boolean {
@@ -174,9 +194,8 @@ function hasHotTakePattern(spec: VideoSpecV1, transcript: string): boolean {
 
 function isCompilation(spec: VideoSpecV1): boolean {
   const shotCount = spec.timeline.pacing.shot_count;
-  const transcriptLength = spec.audio.transcript.length;
   const hasMusic = spec.audio.music_segments.length > 0;
-  return shotCount >= 10 && transcriptLength <= 2 && hasMusic;
+  return shotCount >= 10 && !hasRealSpeech(spec) && hasMusic;
 }
 
 function hasMythPattern(transcript: string): boolean {
@@ -219,7 +238,7 @@ export function inferFormat(spec: VideoSpecV1): VideoFormat {
   const shotCount = spec.timeline.pacing.shot_count;
   const insertedBlocks = spec.inserted_content_blocks ?? [];
   const transcript = getFullTranscript(spec);
-  const hasNarration = spec.audio.transcript.length > 0;
+  const hasNarration = hasRealSpeech(spec);
 
   // Strong content signals first
   if (insertedBlocks.length >= 2) return 'reaction';

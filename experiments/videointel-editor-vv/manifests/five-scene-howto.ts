@@ -84,7 +84,7 @@ export const fiveSceneHowto: EditorVVManifest = {
     hasCaptions: false,
     expectedPacing: 'slow',
     skipVoiceoverCheck: true,
-    expectedArchetype: 'listicle',
-    expectedFormat: 'talking_head',
+    expectedArchetype: 'montage',
+    expectedFormat: 'montage',
   },
 };

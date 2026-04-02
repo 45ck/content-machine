@@ -38,7 +38,7 @@ export const singleShotTalking: EditorVVManifest = {
     hasCaptions: false,
     expectedPacing: 'slow',
     skipVoiceoverCheck: true,
-    expectedArchetype: 'listicle',
+    expectedArchetype: 'story',
     expectedFormat: 'talking_head',
   },
 };
