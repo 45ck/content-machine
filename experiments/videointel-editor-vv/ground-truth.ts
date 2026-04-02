@@ -82,12 +82,22 @@ export interface FfmpegSegment {
 export interface EditorVVManifest {
   name: string;
   description: string;
-  tier: 'ffmpeg' | 'mlt';
+  tier: 'ffmpeg' | 'mlt' | 'real';
   resolution: { width: number; height: number };
   fps: number;
   /** Tier 1 (FFmpeg-composed) segments. */
   segments?: FfmpegSegment[];
   /** Tier 2 (MLT XML) project path. */
   mltXmlPath?: string;
+  /**
+   * Tier 3 (real video) — path or URL to an existing video file.
+   * Relative paths are resolved from the experiment results/ directory.
+   * HTTP(S) URLs are downloaded on first run.
+   */
+  inputPath?: string;
+  /** Source URL for attribution / re-download. */
+  sourceUrl?: string;
+  /** License (e.g. 'CC0', 'CC-BY-4.0', 'Pixabay'). */
+  license?: string;
   groundTruth: EditorVVGroundTruth;
 }

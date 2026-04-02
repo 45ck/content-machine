@@ -1,0 +1,7 @@
+# Generated videos and pipeline output — recreated by the experiment runner
+*.mp4
+*.json
+# Downloaded stock footage
+stock-*.mp4
+bbb-clip.mp4
+talking-head-real.mp4

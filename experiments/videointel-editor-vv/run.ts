@@ -14,6 +14,8 @@
  */
 import * as path from 'node:path';
 import * as fs from 'node:fs';
+import * as https from 'node:https';
+import * as http from 'node:http';
 import { fileURLToPath } from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -205,6 +207,35 @@ async function main(): Promise<void> {
 }
 
 /* ------------------------------------------------------------------ */
+/*  Download helper (for real-video manifests with HTTP URLs)          */
+/* ------------------------------------------------------------------ */
+
+function downloadFile(url: string, dest: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const file = fs.createWriteStream(dest);
+    const get = url.startsWith('https') ? https.get : http.get;
+    get(url, (res) => {
+      // Follow redirects (301/302)
+      if ((res.statusCode === 301 || res.statusCode === 302) && res.headers.location) {
+        file.close();
+        fs.unlinkSync(dest);
+        downloadFile(res.headers.location, dest).then(resolve, reject);
+        return;
+      }
+      if (res.statusCode !== 200) {
+        file.close();
+        fs.unlinkSync(dest);
+        reject(new Error(`Download failed: HTTP ${res.statusCode} for ${url}`));
+        return;
+      }
+      res.pipe(file);
+      file.on('finish', () => { file.close(); resolve(); });
+      file.on('error', (err) => { fs.unlinkSync(dest); reject(err); });
+    }).on('error', (err) => { fs.unlinkSync(dest); reject(err); });
+  });
+}
+
+/* ------------------------------------------------------------------ */
 /*  Composition dispatcher                                             */
 /* ------------------------------------------------------------------ */
 
@@ -213,6 +244,31 @@ async function composeVideo(
   outputDir: string,
   opts?: { verbose?: boolean }
 ): Promise<string> {
+  if (manifest.tier === 'real') {
+    // Real video — resolve inputPath or download from URL
+    if (!manifest.inputPath) throw new Error(`Real manifest ${manifest.name} has no inputPath`);
+    const dest = path.join(outputDir, `${manifest.name}.mp4`);
+
+    if (manifest.inputPath.startsWith('http://') || manifest.inputPath.startsWith('https://')) {
+      if (!fs.existsSync(dest)) {
+        console.log(`    downloading ${manifest.inputPath}`);
+        await downloadFile(manifest.inputPath, dest);
+      } else {
+        console.log('    (reusing downloaded MP4)');
+      }
+      return dest;
+    }
+
+    // Local path — resolve relative to results dir or absolute
+    const resolved = path.isAbsolute(manifest.inputPath)
+      ? manifest.inputPath
+      : path.resolve(outputDir, manifest.inputPath);
+    if (!fs.existsSync(resolved)) {
+      throw new Error(`Input video not found: ${resolved}`);
+    }
+    return resolved;
+  }
+
   if (manifest.tier === 'mlt') {
     const result = await composeFromMlt(manifest, outputDir, opts);
     if (!result) throw new Error('MLT composition unavailable');
