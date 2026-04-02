@@ -18,6 +18,7 @@ import {
   type VideoBlueprintV1,
   type VideoThemeV1,
 } from '../domain';
+import { hasRealSpeech } from './classify';
 
 /* ------------------------------------------------------------------ */
 /*  Public API                                                         */
@@ -203,7 +204,7 @@ export function extractCaptionProfile(spec: VideoSpecV1, theme: VideoThemeV1) {
 export function extractAudioProfile(spec: VideoSpecV1) {
   const speakers = new Set(spec.audio.transcript.map((s) => s.speaker).filter(Boolean));
   return {
-    has_voiceover: spec.audio.transcript.length > 0,
+    has_voiceover: hasRealSpeech(spec),
     has_music: spec.audio.music_segments.length > 0,
     bpm: spec.audio.beat_grid.bpm ?? undefined,
     speaker_count: speakers.size || undefined,

@@ -61,8 +61,7 @@ export const threeSceneListicle: EditorVVManifest = {
     // Real-world captions on video content are tested via Tier 2.
     hasCaptions: false,
     expectedPacing: 'slow',
-    skipVoiceoverCheck: true,
-    expectedArchetype: 'listicle',
-    expectedFormat: 'talking_head',
+    expectedArchetype: 'montage',
+    expectedFormat: 'montage',
   },
 };

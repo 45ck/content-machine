@@ -166,6 +166,23 @@ describe('extractAudioProfile', () => {
     expect(profile.has_music).toBe(true);
     expect(profile.bpm).toBe(128);
   });
+
+  it('returns has_voiceover=false when transcript is all Whisper hallucinations', () => {
+    const spec = createMinimalVideoSpec({
+      audio: {
+        transcript: [
+          { start: 0, end: 5, text: 'BLANK AUDIO' },
+          { start: 5, end: 10, text: 'music' },
+          { start: 10, end: 15, text: 'Thank you for watching' },
+        ],
+        music_segments: [],
+        sound_effects: [],
+        beat_grid: { beats: [] },
+      },
+    });
+    const profile = extractAudioProfile(spec);
+    expect(profile.has_voiceover).toBe(false);
+  });
 });
 
 describe('extractNarrativeStructure', () => {

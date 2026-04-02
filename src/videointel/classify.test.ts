@@ -2,7 +2,14 @@
  * Tests for VideoTheme classification logic.
  */
 import { describe, it, expect, vi } from 'vitest';
-import { classifyVideoSpec, inferArchetype, inferPurpose, inferFormat } from './classify';
+import {
+  classifyVideoSpec,
+  inferArchetype,
+  inferPurpose,
+  inferFormat,
+  hasRealSpeech,
+  WHISPER_HALLUCINATION,
+} from './classify';
 import { VideoThemeV1Schema, VIDEOTHEME_V1_VERSION } from '../domain';
 import {
   createMinimalVideoSpec,
@@ -217,5 +224,214 @@ describe('inferFormat', () => {
 
   it('returns "montage" for many-shot videos with montage format', () => {
     expect(inferFormat(compilationSpec)).toBe('montage');
+  });
+
+  it('returns "montage" for 3-shot silent video (no gap)', () => {
+    const spec = createMinimalVideoSpec({
+      timeline: {
+        shots: [
+          { id: 1, start: 0, end: 5 },
+          { id: 2, start: 5, end: 10 },
+          { id: 3, start: 10, end: 15 },
+        ],
+        pacing: {
+          shot_count: 3,
+          avg_shot_duration: 5,
+          median_shot_duration: 5,
+          fastest_shot_duration: 5,
+          slowest_shot_duration: 5,
+          classification: 'moderate',
+        },
+      },
+      audio: { transcript: [], music_segments: [], sound_effects: [], beat_grid: { beats: [] } },
+    });
+    expect(inferFormat(spec)).toBe('montage');
+  });
+
+  it('returns "story" for 1-shot silent video', () => {
+    const spec = createMinimalVideoSpec({
+      audio: { transcript: [], music_segments: [], sound_effects: [], beat_grid: { beats: [] } },
+    });
+    expect(inferFormat(spec)).toBe('story');
+  });
+});
+
+describe('hasRealSpeech', () => {
+  it('returns false for empty transcript', () => {
+    const spec = createMinimalVideoSpec({
+      audio: { transcript: [], music_segments: [], sound_effects: [], beat_grid: { beats: [] } },
+    });
+    expect(hasRealSpeech(spec)).toBe(false);
+  });
+
+  it('returns false for hallucination-only transcript', () => {
+    const spec = createMinimalVideoSpec({
+      audio: {
+        transcript: [
+          { start: 0, end: 5, text: 'BLANK AUDIO' },
+          { start: 5, end: 10, text: 'music' },
+          { start: 10, end: 15, text: 'Thank you for watching' },
+        ],
+        music_segments: [],
+        sound_effects: [],
+        beat_grid: { beats: [] },
+      },
+    });
+    expect(hasRealSpeech(spec)).toBe(false);
+  });
+
+  it('returns true for real speech mixed with hallucinations', () => {
+    const spec = createMinimalVideoSpec({
+      audio: {
+        transcript: [
+          { start: 0, end: 5, text: 'BLANK AUDIO' },
+          { start: 5, end: 15, text: 'Today I want to show you something amazing.' },
+        ],
+        music_segments: [],
+        sound_effects: [],
+        beat_grid: { beats: [] },
+      },
+    });
+    expect(hasRealSpeech(spec)).toBe(true);
+  });
+
+  it('does NOT filter real speech containing "you"', () => {
+    const spec = createMinimalVideoSpec({
+      audio: {
+        transcript: [{ start: 0, end: 10, text: 'You need to try this recipe!' }],
+        music_segments: [],
+        sound_effects: [],
+        beat_grid: { beats: [] },
+      },
+    });
+    expect(hasRealSpeech(spec)).toBe(true);
+  });
+
+  it('filters bracketed labels like [Music]', () => {
+    const spec = createMinimalVideoSpec({
+      audio: {
+        transcript: [{ start: 0, end: 10, text: '[Music]' }],
+        music_segments: [],
+        sound_effects: [],
+        beat_grid: { beats: [] },
+      },
+    });
+    expect(hasRealSpeech(spec)).toBe(false);
+  });
+
+  it('filters "music upbeat" hallucination pattern', () => {
+    const spec = createMinimalVideoSpec({
+      audio: {
+        transcript: [{ start: 0, end: 10, text: 'music upbeat' }],
+        music_segments: [],
+        sound_effects: [],
+        beat_grid: { beats: [] },
+      },
+    });
+    expect(hasRealSpeech(spec)).toBe(false);
+  });
+});
+
+describe('WHISPER_HALLUCINATION regex', () => {
+  const cases: [string, boolean][] = [
+    ['BLANK AUDIO', true],
+    ['blank audio', true],
+    ['music', true],
+    ['music upbeat', true],
+    ['music playing', true],
+    ['[Music]', true],
+    ['(music)', true],
+    ['Thank you', true],
+    ['Thank you for watching', true],
+    ['Thanks for watching', true],
+    ['subscribe', true],
+    ['like and subscribe', true],
+    ['...', true],
+    ['  .  ', true],
+    ['You need to try this', false],
+    ['Today I want to show you something', false],
+    ['Step 1 open your terminal', false],
+    ['First always start early', false],
+  ];
+
+  for (const [text, shouldMatch] of cases) {
+    it(`${shouldMatch ? 'filters' : 'keeps'}: "${text}"`, () => {
+      expect(WHISPER_HALLUCINATION.test(text.trim())).toBe(shouldMatch);
+    });
+  }
+});
+
+describe('inferArchetype — fallback edge cases', () => {
+  it('returns "montage" for 3-shot speechless video (no gap)', () => {
+    const spec = createMinimalVideoSpec({
+      timeline: {
+        shots: [
+          { id: 1, start: 0, end: 5 },
+          { id: 2, start: 5, end: 10 },
+          { id: 3, start: 10, end: 15 },
+        ],
+        pacing: {
+          shot_count: 3,
+          avg_shot_duration: 5,
+          median_shot_duration: 5,
+          fastest_shot_duration: 5,
+          slowest_shot_duration: 5,
+          classification: 'moderate',
+        },
+      },
+      audio: { transcript: [], music_segments: [], sound_effects: [], beat_grid: { beats: [] } },
+    });
+    expect(inferArchetype(spec)).toBe('montage');
+  });
+
+  it('returns "montage" for 4-shot speechless video (no gap)', () => {
+    const spec = createMinimalVideoSpec({
+      timeline: {
+        shots: [
+          { id: 1, start: 0, end: 5 },
+          { id: 2, start: 5, end: 10 },
+          { id: 3, start: 10, end: 15 },
+          { id: 4, start: 15, end: 20 },
+        ],
+        pacing: {
+          shot_count: 4,
+          avg_shot_duration: 5,
+          median_shot_duration: 5,
+          fastest_shot_duration: 5,
+          slowest_shot_duration: 5,
+          classification: 'moderate',
+        },
+      },
+      audio: { transcript: [], music_segments: [], sound_effects: [], beat_grid: { beats: [] } },
+    });
+    expect(inferArchetype(spec)).toBe('montage');
+  });
+
+  it('returns "story" for 2-shot speechless video', () => {
+    const spec = createMinimalVideoSpec({
+      timeline: {
+        shots: [
+          { id: 1, start: 0, end: 15 },
+          { id: 2, start: 15, end: 30 },
+        ],
+        pacing: {
+          shot_count: 2,
+          avg_shot_duration: 15,
+          median_shot_duration: 15,
+          fastest_shot_duration: 15,
+          slowest_shot_duration: 15,
+          classification: 'slow',
+        },
+      },
+      audio: { transcript: [], music_segments: [], sound_effects: [], beat_grid: { beats: [] } },
+    });
+    expect(inferArchetype(spec)).toBe('story');
+  });
+
+  it('returns "story" for 1-shot speechless video', () => {
+    const spec = createMinimalVideoSpec({
+      audio: { transcript: [], music_segments: [], sound_effects: [], beat_grid: { beats: [] } },
+    });
+    expect(inferArchetype(spec)).toBe('story');
   });
 });

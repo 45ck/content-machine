@@ -124,15 +124,15 @@ export function inferArchetype(spec: VideoSpecV1): ArchetypeId {
   // Myth: "myth", "debunk", "actually" patterns
   if (hasMythPattern(transcript)) return 'myth' as ArchetypeId;
 
-  // Montage fallback: many shots with no real speech (even without music)
+  // Montage fallback: 3+ shots with no real speech (even without music)
   const shotCount = spec.timeline.pacing.shot_count;
   const hasSpeech = hasRealSpeech(spec);
-  if (shotCount >= 5 && !hasSpeech) return 'montage' as ArchetypeId;
+  if (shotCount >= 3 && !hasSpeech) return 'montage' as ArchetypeId;
 
-  // Story fallback: no real speech, few shots → generic narrative
-  if (!hasSpeech && shotCount <= 2) return 'story' as ArchetypeId;
+  // Story fallback: no real speech, 1-2 shots → generic narrative
+  if (!hasSpeech) return 'story' as ArchetypeId;
 
-  // Default fallback
+  // Default fallback (has speech but no pattern matched)
   return 'listicle' as ArchetypeId;
 }
 
@@ -146,10 +146,13 @@ function getFullTranscript(spec: VideoSpecV1): string {
 /**
  * Whisper hallucinates repetitive tokens like "BLANK AUDIO" on silent input.
  * Filter these out to determine if there is genuine speech content.
+ * @internal — exported for reuse in blueprint.ts
  */
-const WHISPER_HALLUCINATION = /^[\s.,!?]*(?:blank|audio|blank audio|music|you|thank you|thanks for watching|\.{2,})*[\s.,!?]*$/i;
+export const WHISPER_HALLUCINATION =
+  /^[\s.,!?♪]*(?:blank|audio|blank audio|music(?:\s+\w+)?|\[.*?\]|\(.*?\)|thank you(?:\s+(?:for watching|so much))?|thanks for watching|subscribe|like and subscribe|\.{2,})*[\s.,!?♪]*$/i;
 
-function hasRealSpeech(spec: VideoSpecV1): boolean {
+/** @internal */
+export function hasRealSpeech(spec: VideoSpecV1): boolean {
   return spec.audio.transcript.some(
     (seg) => !WHISPER_HALLUCINATION.test(seg.text.trim())
   );
@@ -258,12 +261,13 @@ export function inferFormat(spec: VideoSpecV1): VideoFormat {
 
   // Many shots WITHOUT narration → compilation/montage
   if (shotCount >= 15 && !hasNarration) return 'compilation';
-  if (shotCount >= 5 && !hasNarration) return 'montage';
+  if (shotCount >= 3 && !hasNarration) return 'montage';
 
   // Narrated videos with multiple shots → talking head (b-roll cutaway pattern)
   if (hasNarration) return 'talking_head';
 
-  return 'talking_head';
+  // Silent, 1-2 shots → story (not talking_head)
+  return 'story';
 }
 
 /** @internal */
@@ -330,7 +334,7 @@ function inferCaptionStyle(spec: VideoSpecV1): CaptionStyleClass {
   const captionCoverage = spec.editing.captions.reduce((sum, c) => sum + (c.end - c.start), 0);
   const ratio = captionCoverage / Math.max(1, spec.meta.duration);
   if (ratio > 0.3) return 'burned_in';
-  return 'burned_in';
+  return 'animated_word';
 }
 
 function computeJumpCutRatio(spec: VideoSpecV1): number {
