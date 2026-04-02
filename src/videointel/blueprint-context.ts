@@ -19,11 +19,21 @@ export function buildBlueprintContext(blueprint: VideoBlueprintV1): string {
   const parts: string[] = [];
 
   parts.push('BLUEPRINT CONSTRAINTS (from a reference video):');
+  parts.push('IMPORTANT: These constraints OVERRIDE any archetype template defaults.');
+  parts.push('You MUST follow the scene count and duration below, even if the archetype');
+  parts.push('template suggests different numbers.');
   parts.push('');
 
-  // Structure summary
+  // Structure summary — hard constraints
   const sceneCount = blueprint.scene_slots.length;
   const roleFlow = blueprint.scene_slots.map((s) => s.role).join(' → ');
+  parts.push(`- REQUIRED scene count: EXACTLY ${sceneCount} scene${sceneCount === 1 ? '' : 's'} (not more, not fewer)`);
+  if (sceneCount <= 2) {
+    parts.push(`  WARNING: This is a ${sceneCount === 1 ? 'single-scene' : 'two-scene'} video.`);
+    parts.push('  Do NOT add extra list items or numbered points. Ignore any archetype');
+    parts.push('  instructions about "4-5 items" or "numbered points". Write exactly');
+    parts.push(`  ${sceneCount} scene${sceneCount === 1 ? '' : 's'} of spoken content.`);
+  }
   parts.push(`- Structure: ${sceneCount} scenes — ${roleFlow}`);
 
   // Per-scene constraints
@@ -37,7 +47,7 @@ export function buildBlueprintContext(blueprint: VideoBlueprintV1): string {
   const pacing = blueprint.pacing_profile;
   const pacingLabel = pacing.classification ?? 'unknown';
   parts.push(`- Pacing: ${pacingLabel} (avg ${pacing.avg_shot_duration.toFixed(1)}s/shot)`);
-  parts.push(`- Total duration: ~${Math.round(pacing.target_duration)}s`);
+  parts.push(`- REQUIRED total duration: ~${Math.round(pacing.target_duration)}s (aim for this exact length)`);
 
   // Audio
   if (blueprint.audio_profile.has_voiceover) {
