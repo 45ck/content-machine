@@ -12,6 +12,7 @@
  *   npx tsx experiments/videointel-editor-vv/run.ts --manifest three-scene-listicle
  *   npx tsx experiments/videointel-editor-vv/run.ts --skip-compose
  */
+import 'dotenv/config';
 import * as path from 'node:path';
 import * as fs from 'node:fs';
 import * as https from 'node:https';
