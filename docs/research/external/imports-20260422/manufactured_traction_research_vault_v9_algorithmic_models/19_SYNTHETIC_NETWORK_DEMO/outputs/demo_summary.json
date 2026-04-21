@@ -1,0 +1,13 @@
+{
+  "window_seconds": 120,
+  "edge_threshold": 4,
+  "observed_nodes": 27,
+  "observed_edges": 112,
+  "observed_density": 0.3190883190883191,
+  "observed_modularity": 0.3367585848074921,
+  "observed_max_edge_weight": 15,
+  "observed_edges_ge_threshold": 112,
+  "null_simulations": 120,
+  "empirical_p_edges_ge_threshold": 0.008264462809917356,
+  "empirical_p_max_edge_weight": 0.008264462809917356
+}

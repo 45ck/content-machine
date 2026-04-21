@@ -1,0 +1,16 @@
+Condition Code,Short Code,Canonical Name,Definition,Type
+C0,NCO,Native Captions Only,Baseline: only platform/closed captions; no burned-in semantic overlay.,Control
+C1,FTO,Full Transcript Overlay,Burned-in full transcript or near-verbatim captions.,Control / baseline
+C2,KHT,Keyword Highlight Transcript,Full or reduced transcript with selected keywords highlighted.,Comparison
+C3,SCC,Semantic Compression Captions,Compressed meaning without bionic anchors.,Core baseline
+C4,BCC,Bionic Compression Captioning,SCC plus operator and bionic concept anchors.,Core method
+C5,BCC+,Bionic Compression Captioning Plus,"BCC plus placement, visual-load adaptation, muted-first design, micro-rests.",Advanced method
+C6,HBC,Heavy Bionic Control,Bionic-style partial bolding across many or all words.,Negative control
+C7,WDC,Word-by-Word Dynamic Captions,Every word appears or highlights in speech rhythm.,Industry comparison
+C8,BFP,Bottom-Fixed Placement,Caption always placed lower-third regardless of video content.,Placement baseline
+C9,GSP,Gaze-Safe Placement,"Caption avoids face, mouth, hands, product, UI, and high-conflict saliency zones.",Placement method
+C10,PSP,Predictive Semantic Priming,Semantic beat appears slightly before the spoken beat.,Timing method
+C11,SYNC,Synchronized Semantic Overlay,Semantic beat appears exactly with spoken/visual beat.,Timing baseline
+C12,POST,Post-Cue Semantic Overlay,Semantic beat appears after the spoken beat.,Timing control
+C13,VLAC,Visual-Load Adaptive Captioning,Word count/density changes based on frame complexity.,Adaptive method
+C14,MRR,Micro-Rest Rhythm,Brief no-text gaps between semantic beats.,Rhythm method

@@ -1,0 +1,17 @@
+{
+  "asset_id": "authority_122bpm_loop",
+  "type": "music_bed",
+  "bpm": 122,
+  "arousal": 0.58,
+  "valence": 0.61,
+  "loopability": 0.82,
+  "voice_space": 0.77,
+  "rights_source": "owned_generated",
+  "risk_score": 0.12,
+  "best_formats": [
+    "education",
+    "dev_explainer"
+  ],
+  "historical_audio_lift": 0.34,
+  "notes": "Example metadata schema for reusable audio assets."
+}

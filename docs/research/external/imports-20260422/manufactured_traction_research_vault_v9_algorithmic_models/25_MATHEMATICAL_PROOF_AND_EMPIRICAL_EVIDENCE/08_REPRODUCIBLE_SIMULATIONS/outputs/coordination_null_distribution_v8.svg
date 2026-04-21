@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+<rect width="100%" height="100%" fill="white"/>
+<text x="400.0" y="30" text-anchor="middle" font-family="Arial" font-size="20">Coordination null model</text>
+<line x1="60" y1="440" x2="740" y2="440" stroke="black"/>
+<line x1="60" y1="60" x2="60" y2="440" stroke="black"/>
+<rect x="60.0" y="440.0" width="44.5" height="0.0" fill="#777"/><rect x="112.3" y="440.0" width="44.5" height="0.0" fill="#777"/><rect x="164.6" y="440.0" width="44.5" height="0.0" fill="#777"/><rect x="216.9" y="440.0" width="44.5" height="0.0" fill="#777"/><rect x="269.2" y="369.0" width="44.5" height="71.0" fill="#777"/><rect x="321.5" y="60.0" width="44.5" height="380.0" fill="#777"/><rect x="373.8" y="225.4" width="44.5" height="214.6" fill="#777"/><rect x="426.2" y="395.5" width="44.5" height="44.5" fill="#777"/><rect x="478.5" y="432.5" width="44.5" height="7.5" fill="#777"/><rect x="530.8" y="440.0" width="44.5" height="0.0" fill="#777"/><rect x="583.1" y="440.0" width="44.5" height="0.0" fill="#777"/><rect x="635.4" y="440.0" width="44.5" height="0.0" fill="#777"/><rect x="687.7" y="440.0" width="44.5" height="0.0" fill="#777"/>
+<line x1="713.8" y1="60" x2="713.8" y2="440" stroke="red" stroke-dasharray="6,4"/>
+<text x="717.8" y="75" font-family="Arial" font-size="12">observed=12</text>
+<text x="400.0" y="485" text-anchor="middle" font-family="Arial" font-size="14">Max pairwise edge weight</text>
+</svg>

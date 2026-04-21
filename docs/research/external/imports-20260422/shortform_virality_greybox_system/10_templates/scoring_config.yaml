@@ -1,0 +1,39 @@
+platforms:
+  youtube_shorts:
+    weights:
+      viewed_vs_swiped: 1.40
+      average_percentage_viewed: 1.25
+      retention: 0.90
+      satisfaction_proxy: 0.70
+      subscribe_intent: 0.55
+      remix_potential: 0.40
+      negative_risk: -1.30
+  instagram_reels:
+    weights:
+      retention: 1.25
+      dm_share_intent: 1.20
+      save_intent: 0.95
+      originality: 0.75
+      topic_fit: 0.65
+      creator_trust: 0.50
+      negative_risk: -1.20
+      repost_penalty: -0.90
+  tiktok:
+    weights:
+      retention_topic_fit: 1.35
+      stop_score: 1.10
+      share_comment_intent: 0.85
+      trend_sound_fit: 0.60
+      exploration: 0.45
+      skip_risk: -1.25
+      saturation: -0.55
+thresholds:
+  eligibility_minimum: 0.75
+  negative_risk_maximum: 0.45
+  publish_score_minimum: 70
+  revise_score_range: [50, 70]
+  discard_score_maximum: 50
+normalization:
+  epsilon: 0.000001
+  method: log_ratio
+  compression: tanh

@@ -1,0 +1,14 @@
+# Model Selection Matrix
+
+Converted from `48_model_selection_matrix.csv` so the pack remains Markdown-only.
+
+| Tool/model family | Use for | Avoid for | Why | Operating mindset | Primary metrics |
+| --- | --- | --- | --- | --- | --- |
+| Claude Opus 4.7 | Hard architecture, long-horizon refactors, deep codebase analysis, agentic coding, screenshot/document-heavy workflows, complex SaaS prototypes | Cheap classification, quick copy variants, bulk extraction, trivial bug fixes | High capability and long context, but higher cost and potential token burn | Use as senior agent; give it verification, budget, and authority boundaries | Issue success rate, review defects, interventions, token cost, wall time, rollback rate |
+| Claude Sonnet class | Most day-to-day coding, test writing, refactors, product copy, analysis where speed/cost matter | Tasks where repeated failure is costly or architecture is uncertain | Better cost-speed tradeoff for normal work | Use as default worker; escalate to Opus only on failure/complexity | Time saved, pass rate, cost per accepted change |
+| Claude Haiku / small fast model | Classification, routing, extraction, tagging, summarization, low-risk drafts | Architecture, sensitive claims, complex multi-step work | Cheap and fast for repetitive narrow jobs | Use as conveyor belt, not strategist | Cost per 1k items, precision/recall, human correction rate |
+| Claude Code terminal agent | End-to-end repo tasks: inspect, edit, run tests, commit, PR | Tasks without safe sandbox or verifiable acceptance criteria | Agent loop can gather context and verify changes | Delegate outcomes, not keystrokes | Accepted PRs, test passes, fewer human interventions |
+| Cursor-style IDE agent | Interactive coding in editor with immediate human steering | Long autonomous background tasks unless agent supports it well | Good for tight human-in-the-loop dev flow | Pair programmer | Edit acceptance rate, flow interruptions |
+| Codex/Gemini/Warp/other coding agents | Comparison baselines and special-case workflows | Assuming one leaderboard winner wins every task | Different tools/scaffolds change performance | Benchmark against your actual tasks | Side-by-side issue success, latency, cost |
+| Custom multi-agent stack | Research + implementation + reviewer + QA + docs pipelines | Early projects where a single agent suffices | Separates context and roles for complex work | Orchestrate specialist agents with hard gates | Throughput, review defects, blocked tasks, integration failures |
+| Buyer-facing AI concierge | Self-serve software evaluation, onboarding, support, implementation help | High-risk advice without policy, logging, and guardrails | Can reduce buyer friction and answer proof questions instantly | Act as evidence router, not hype machine | Qualified activations, support deflection, trial-to-paid, hallucination incidents |

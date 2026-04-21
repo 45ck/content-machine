@@ -1,0 +1,13 @@
+field,type,required,description
+event_id,string,yes,Unique event/action ID
+account_id,string,yes,Public/authorized actor identifier
+platform,string,yes,Platform or source
+action_type,string,yes,"post, comment, review, vote, stream, lead, install, click"
+object_id,string,yes,Content/product/app/song/launch/review object
+timestamp_utc,datetime,yes,UTC timestamp
+text_or_caption,string,no,Caption/comment/review text where lawful
+url,string,no,Public URL
+media_hash,string,no,Perceptual or content hash where lawful
+hashtags,string,no,Space-separated hashtag list
+disclosure_text,string,no,Observed sponsorship/affiliate disclosure
+source_citation,string,yes,Where evidence came from

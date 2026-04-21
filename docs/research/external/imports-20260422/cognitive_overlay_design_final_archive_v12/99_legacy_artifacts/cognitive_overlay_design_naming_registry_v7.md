@@ -1,0 +1,234 @@
+# Cognitive Overlay Design Naming Registry v7
+
+This registry assigns stable names, short codes, method codes, families, layers, and experiment condition labels to the Cognitive Overlay Design / BCC research program.
+
+## Core vocabulary
+
+- **COD — Cognitive Overlay Design** (Field): The overall field: designing on-screen text, timing, placement, motion, and emphasis to improve attention, comprehension, retention, and accessibility in time-based media. Use when referring to the whole research program.
+- **PRT — Physiological Retention Typography** (Short-form branch): The short-form/mobile branch of COD, based on vision, attention, working memory, gaze, fatigue, and scroll behavior. Use when discussing TikTok/Reels/Shorts typography strategy.
+- **SCCF — Semantic Compression Captioning Family** (Method family): Family of methods that rewrite speech into compact meaning units rather than displaying full transcript text. Use when grouping SCC, BCC, BCC+, gist overlays, and operator-first methods.
+- **SCC — Semantic Compression Captions** (Core method): Shortest meaning-preserving phrases or microstructures derived from speech. Use as the main non-bionic baseline.
+- **BCC — Bionic Compression Captioning** (Named method): Semantic compression plus full-word operator anchors and partial-word concept anchors timed to semantic beats. Use for the original named method.
+- **BCC+ — Bionic Compression Captioning Plus** (Advanced protocol): BCC plus gaze-safe placement, visual-load adaptation, muted-first design, micro-rest timing, and full accessibility captions. Use for the advanced production/research protocol.
+- **ASOE — Adaptive Semantic Overlay Engine** (Future system): A future tool that extracts semantic beats, chooses overlay methods, predicts gaze/conflict, and renders adaptive overlays. Use when referring to the automation/product direction.
+- **DLC — Dual-Layer Captioning** (Architecture): Full closed captions for accessibility plus a separate semantic overlay for retention and gist. Use when separating accessibility captions from creative overlay text.
+- **MPS — Meaning per Second** (Metric): Amount of understood/remembered meaning per second watched. Use as a platform-friendly performance metric.
+- **MPF — Meaning per Fixation** (Metric): Amount of understood/remembered meaning per eye fixation or gaze cost. Use as the research-grade efficiency metric.
+
+## Core experimental conditions
+
+- **C0 / NCO — Native Captions Only**: Baseline: only platform/closed captions; no burned-in semantic overlay.
+- **C1 / FTO — Full Transcript Overlay**: Burned-in full transcript or near-verbatim captions.
+- **C2 / KHT — Keyword Highlight Transcript**: Full or reduced transcript with selected keywords highlighted.
+- **C3 / SCC — Semantic Compression Captions**: Compressed meaning without bionic anchors.
+- **C4 / BCC — Bionic Compression Captioning**: SCC plus operator and bionic concept anchors.
+- **C5 / BCC+ — Bionic Compression Captioning Plus**: BCC plus placement, visual-load adaptation, muted-first design, micro-rests.
+- **C6 / HBC — Heavy Bionic Control**: Bionic-style partial bolding across many or all words.
+- **C7 / WDC — Word-by-Word Dynamic Captions**: Every word appears or highlights in speech rhythm.
+- **C8 / BFP — Bottom-Fixed Placement**: Caption always placed lower-third regardless of video content.
+- **C9 / GSP — Gaze-Safe Placement**: Caption avoids face, mouth, hands, product, UI, and high-conflict saliency zones.
+- **C10 / PSP — Predictive Semantic Priming**: Semantic beat appears slightly before the spoken beat.
+- **C11 / SYNC — Synchronized Semantic Overlay**: Semantic beat appears exactly with spoken/visual beat.
+- **C12 / POST — Post-Cue Semantic Overlay**: Semantic beat appears after the spoken beat.
+- **C13 / VLAC — Visual-Load Adaptive Captioning**: Word count/density changes based on frame complexity.
+- **C14 / MRR — Micro-Rest Rhythm**: Brief no-text gaps between semantic beats.
+
+## Method families
+
+- **SEM — Semantic Compression** (20 items): Methods that rewrite speech into compact meaning units.
+- **TYP — Typography and Anchors** (20 items): Visual emphasis systems: bionic anchors, operators, line breaks, markers.
+- **TIM — Timing and Rhythm** (15 items): When overlays appear, disappear, repeat, pause, or pre-cue meaning.
+- **GAZ — Placement and Gaze** (20 items): Where overlays live relative to face, mouth, action, object, UI, and saliency.
+- **KIN — Motion and Kinetic Text** (15 items): Motion patterns for revealing logic, rhythm, and attention shifts.
+- **VLD — Visual Load and Clutter** (15 items): Rules for density, crowding, backgrounds, contrast, and text budgets.
+- **AUD — Sound and Multimodal** (10 items): Audio-on/off modes, prosody, non-speech sounds, and audiovisual cues.
+- **MEM — Memory and Learning** (15 items): Retrieval, recall, schemas, reinforcement, and microlearning overlays.
+- **ACC — Accessibility and Personalization** (10 items): DHH, L2, ADHD, dyslexia, contrast, low-motion, viewer profile modes.
+- **AIA — AI and Adaptive Systems** (15 items): Extractor, detector, predictor, scorer, and rendering modules.
+- **RET — Platform Retention** (11 items): Hooks, payoff, ethical retention, scroll behavior, and platform-native tests.
+- **CTL — Controls and Failure Modes** (12 items): Baselines, negative controls, and intentionally weak variants.
+
+## Priority naming decision
+
+Use **SCC** when discussing the compression-only baseline. Use **BCC** only when bionic concept anchors are present. Use **BCC+** only when BCC is combined with gaze-safe placement, visual-load adaptation, muted-first testing, and full accessibility captions.
+
+## Method registry
+
+- **SEM-001 / SCC — Semantic Compression Captions** (Method, P0): Rewrite spoken sentences into shortest meaning-preserving phrases.
+- **SEM-002 / PEO — Proposition Extraction Overlay** (Method, P0): Show the underlying claim rather than the literal words.
+- **SEM-003 / OFC — Operator-First Captioning** (Method, P0): Begin overlay with logical operator: Not, Stop, Less, First, Then.
+- **SEM-004 / CPC — Contrast Pair Cards** (Method, P1): Use two-line contrasts: Not X / Y, Stop X / Start Y.
+- **SEM-005 / PCFB — Problem–Cause–Fix Beat Cards** (Method, P0): Display three labels across the clip: Problem, Cause, Fix.
+- **SEM-006 / REN — Rule–Example–Nonexample Captions** (Rule / Mode, P2): Show a rule, a good example, then a wrong example.
+- **SEM-007 / CEP — Claim–Evidence–Payoff Overlay** (Method, P2): Label claim, proof, and takeaway as separate beats.
+- **SEM-008 / TFO — Takeaway-First Overlay** (Method, P1): Show the final point in the first second, then explain.
+- **SEM-009 / AOO — Action-Only Overlay** (Method, P1): For advice clips, show only the next action, not explanation.
+- **SEM-010 / MOC — Memory Object Captions** (Method, P1): End with a short, repeatable phrase: Systems beat mood.
+- **SEM-011 / MVC — Minimal Verb Captioning** (Method, P2): Preserve verbs over nouns when showing fewer words.
+- **SEM-012 / SBT — Semantic Breadcrumb Trail** (Method, P2): Display one small concept per beat that accumulates meaning.
+- **SEM-013 / CLC — Concept Ladder Captions** (Method, P2): Move from concrete to abstract: shoes → start → habit.
+- **SEM-014 / CRL — Compression Ratio Ladder** (Method, P0): Test 100%, 60%, 30%, 15%, and 5% transcript equivalents.
+- **SEM-015 / KMC — Keyword-to-Microphrase Conversion** (Method, P1): Convert isolated keywords into 2–4 word phrase chunks.
+- **SEM-016 / OIOS — One Idea, One Screen Rule** (Rule / Mode, P0): Never show two unrelated ideas in one overlay event.
+- **SEM-017 / GET — Gist vs Exact Mode Toggle** (Rule / Mode, P0): Use gist overlay for retention, closed captions for exact speech.
+- **SEM-018 / AFC — Anti-Filler Captioning** (Method, P1): Remove basically, actually, kind of, really, and redundant phrases.
+- **SEM-019 / CT — Certainty Tags** (Method, P2): Mark claims as Rule, Hypothesis, Example, Warning, Tested.
+- **SEM-020 / QTA — Question-to-Answer Captions** (Method, P1): Open with a concise question, answer one beat later.
+- **TYP-001 / BCA — Bionic Concept Anchors** (Anchor / Typography Component, P0): Partially bold only key concept words after compression.
+- **TYP-002 / FOA — Full-Word Operator Anchors** (Anchor / Typography Component, P0): Bold full operator words: Not, Stop, First, Less.
+- **TYP-003 / SKH — Sparse Keyword Highlight** (Anchor / Typography Component, P0): Highlight only 5–15% of displayed words.
+- **TYP-004 / NM — Number Magnets** (Anchor / Typography Component, P1): Use distinct emphasis for numbers, percentages, steps, dates.
+- **TYP-005 / SLB — Semantic Line Breaks** (Anchor / Typography Component, P1): Break lines by meaning, not by width alone.
+- **TYP-006 / DWC — Dual-Weight Captions** (Anchor / Typography Component, P1): Normal weight for context, bold for decision word.
+- **TYP-007 / AOD — Accent Only on Delta** (Anchor / Typography Component, P2): Highlight only what changes from old belief to new belief.
+- **TYP-008 / DEF — De-Emphasis Fades** (Anchor / Typography Component, P2): Dull background words and keep key terms high opacity.
+- **TYP-009 / CBU — Contrast Block Underlay** (Anchor / Typography Component, P1): Place text on a stable capsule/plate over busy video.
+- **TYP-010 / SOF — Stroke/Outline Fallback** (Anchor / Typography Component, P1): Use outline/shadow only when background contrast is unstable.
+- **TYP-011 / SCC2 — Semantic Color Coding** (Anchor / Typography Component, P2): Assign stable colors to roles: problem, cause, fix.
+- **TYP-012 / SCST — Shape-Coded Status Tokens** (Anchor / Typography Component, P2): Use small shapes/icons for warning, rule, action, proof.
+- **TYP-013 / TTT — Typeface Trust Test** (Anchor / Typography Component, P2): Compare clean sans, condensed bold, handwritten, meme style.
+- **TYP-014 / VWAR — Variable Weight Attention Ramp** (Anchor / Typography Component, P3): Gradually increase weight on words as they become relevant.
+- **TYP-015 / CR — Capitalization Rhythm** (Anchor / Typography Component, P2): Use case intentionally: title case for labels, sentence case for ideas.
+- **TYP-016 / PAT — Punctuation as Timing Cue** (Anchor / Typography Component, P2): Use periods, arrows, colons, and line breaks as rhythm markers.
+- **TYP-017 / IWP — Icon+Word Pairing** (Anchor / Typography Component, P2): Pair a simple icon with a concept word: friction, trigger, proof.
+- **TYP-018 / BDG — Bionic Density Gradient** (Anchor / Typography Component, P0): Test no bionic, one word bionic, all concepts bionic, all words bionic.
+- **TYP-019 / TSH — Trust-Safe Highlighting** (Anchor / Typography Component, P2): Avoid styling that exaggerates uncertain claims.
+- **TYP-020 / ACAC — Accessible Contrast Auto-Check** (Anchor / Typography Component, P0): Auto-check caption/backplate contrast per frame.
+- **TIM-001 / PSP — Predictive Semantic Priming** (Timing Method, P0): Show compressed meaning 200–400 ms before the speaker lands it.
+- **TIM-002 / SLSB — Sync-Locked Semantic Beat** (Timing Method, P1): Show the overlay exactly when the semantic beat is spoken.
+- **TIM-003 / PCC — Post-Cue Confirmation** (Timing Method, P2): Display a summary immediately after the sentence.
+- **TIM-004 / PWC — Pause-Window Captioning** (Timing Method, P1): Place heavier text only during speech pauses or low-action moments.
+- **TIM-005 / BAC — Breath-Aligned Captions** (Timing Method, P2): Use natural speech breaths to segment caption events.
+- **TIM-006 / CLR — Cut-Locked Reveal** (Timing Method, P2): Reveal caption on visual cut or camera movement boundary.
+- **TIM-007 / MEG — Minimum Exposure Guardrail** (Timing Method, P0): No caption shorter than 0.8 sec except one-word impact beats.
+- **TIM-008 / MRR — Micro-Rest Rhythm** (Timing Method, P1): Insert brief no-text gaps between semantic beats.
+- **TIM-009 / ABS — Attentional-Blink Spacing** (Timing Method, P2): Avoid presenting two critical words within 200–500 ms.
+- **TIM-010 / TMD — Tempo-Matched Density** (Timing Method, P1): Decrease word count as speech tempo rises.
+- **TIM-011 / CRP — Caption Refractory Period** (Timing Method, P2): After an emphasized word, hold visual quiet for a beat.
+- **TIM-012 / LFMS — Last-Frame Memory Stamp** (Timing Method, P1): Hold final takeaway for the last 0.8–1.5 sec.
+- **TIM-013 / LCC — Loop Callback Caption** (Timing Method, P2): End with a phrase that reinterprets the opening hook.
+- **TIM-014 / SAC — Speed-Adaptive Captions** (Timing Method, P3): Detect playback speed or speech rate and adjust overlay density.
+- **TIM-015 / OBS — On-Beat Silence** (Timing Method, P2): Use no text during important sounds, laughs, or music drops.
+- **GAZ-001 / MSC — Mouth-Safe Captioning** (Placement Method, P0): Never cover the mouth during speech-heavy clips.
+- **GAZ-002 / ESC — Eye-Safe Captioning** (Placement Method, P1): Avoid covering eyes in emotional/storytelling clips.
+- **GAZ-003 / ASC — Action-Safe Captioning** (Placement Method, P0): Avoid hands, products, joints, cursor, and key action path.
+- **GAZ-004 / ONL — Object-Near Labels** (Placement Method, P1): Place short labels next to the relevant object instead of bottom captions.
+- **GAZ-005 / USZT — UI-Safe Zone Templates** (Placement Method, P0): Define TikTok/Reels/Shorts danger zones and avoid them.
+- **GAZ-006 / SAP — Saliency-Avoiding Placement** (Placement Method, P1): Place text away from predicted high-saliency regions unless it is a label.
+- **GAZ-007 / MMP — Meaning-Map Placement** (Placement Method, P1): Place text where it supports the semantic region of the scene.
+- **GAZ-008 / CAC — Crowding-Aware Captioning** (Placement Method, P0): Avoid placing text near other text, UI, or high-frequency background.
+- **GAZ-009 / NSC — Negative-Space Captions** (Placement Method, P1): Use empty background regions for semantic overlays.
+- **GAZ-010 / SZTH — Shoulder-Zone Talking Head Overlay** (Placement Method, P1): Place captions near upper chest/shoulder, away from mouth/eyes/UI.
+- **GAZ-011 / SRTL — Screen-Recording Target Labels** (Placement Method, P1): Place labels near the cursor/control being discussed.
+- **GAZ-012 / PHC — Product Halo Captions** (Placement Method, P2): Place short labels in a ring around product without covering it.
+- **GAZ-013 / FAP — Foveal Anchor + Peripheral Cue** (Placement Method, P2): Put readable text centrally; use peripheral arrows/icons for orientation.
+- **GAZ-014 / DRAR — Dynamic Reflow Around ROI** (Placement Method, P1): Move captions frame-by-frame around faces/hands/products.
+- **GAZ-015 / STAP — Shot-Type-Aware Placement** (Placement Method, P1): Use different placement rules for talking head, demo, screen recording, story.
+- **GAZ-016 / SFC — Speaker-Following Captions** (Placement Method, P2): Move text near active speaker in multi-speaker clips.
+- **GAZ-017 / ELT — Eye-Line Triangle Rule** (Rule / Mode, P2): Place overlay within triangle between speaker’s eyes, hands/object, and center.
+- **GAZ-018 / PCR — Platform Crop Repositioning** (Placement Method, P1): Automatically reposition overlays for TikTok, Reels, Shorts, YouTube preview.
+- **GAZ-019 / CCD — Caption Collision Detector** (Placement Method, P0): Detect overlap with native captions, stickers, captions, and UI.
+- **GAZ-020 / GRW — Gaze Return Windows** (Placement Method, P2): After text appears, reserve moments where nothing blocks the face/object.
+- **KIN-001 / LM — Logic Motion** (Motion Method, P1): Animate the relation: problem enters, cause connects, fix resolves.
+- **KIN-002 / DCM — Directional Causal Motion** (Motion Method, P2): Move cause toward effect with arrow/line animation.
+- **KIN-003 / KCF — Kinetic Contrast Flip** (Motion Method, P2): Visually flip from false belief to correction.
+- **KIN-004 / FDA — Friction Drag Animation** (Motion Method, P3): Make the word friction move slowly or resist movement.
+- **KIN-005 / SAA — Snap-to-Action Animation** (Motion Method, P2): Action word snaps into place when instruction lands.
+- **KIN-006 / PRL — Progressive Reveal Ladder** (Motion Method, P1): Reveal sequence vertically: cue → action → reward.
+- **KIN-007 / MAS — Motion as Syntax** (Motion Method, P3): Use motion type to encode grammar: contrast slides apart, cause connects.
+- **KIN-008 / MS — Motion Silence** (Motion Method, P1): Keep key ideas static while less important transitions move.
+- **KIN-009 / SMP — Single Micro-Pop** (Motion Method, P1): Only one word pops per beat.
+- **KIN-010 / DKC — De-Karaoke Captions** (Motion Method, P0): Replace active word-by-word highlighting with semantic beats for dense content.
+- **KIN-011 / OAC — Object-Attached Captions** (Motion Method, P2): Caption moves with object or hand only when labeling it.
+- **KIN-012 / GST — Gesture-Synced Text** (Motion Method, P1): Reveal instruction exactly when hand gesture demonstrates it.
+- **KIN-013 / ZBT — Zoom-Blocked Text** (Motion Method, P2): Suppress text during major zoom/camera movement.
+- **KIN-014 / IFC — Impact Freeze Caption** (Motion Method, P2): Briefly freeze/slow frame for a complex takeaway.
+- **KIN-015 / MBS — Motion Budget Score** (Rule / Mode, P1): Limit animated overlay events per 10 seconds.
+- **VLD-001 / VLAW — Visual-Load Adaptive Word Count** (Load-Control Method, P0): Use fewer overlay words when the frame is visually busy.
+- **VLD-002 / DML — Demo Minimal Labels** (Load-Control Method, P1): During demonstrations, show only verbs or labels: twist, lock, pull.
+- **VLD-003 / BBAP — Busy Background Auto-Plate** (Load-Control Method, P1): Add a soft plate behind text only when background is complex.
+- **VLD-004 / BDW — Background Dimming Window** (Load-Control Method, P2): Temporarily dim non-essential background behind text.
+- **VLD-005 / VCS — Visual Complexity Score** (Load-Control Method, P1): Compute frame-level complexity and use it to regulate overlay density.
+- **VLD-006 / CCD2 — Caption Conflict Detector** (Load-Control Method, P0): Detect when too many text layers exist simultaneously.
+- **VLD-007 / HMS — High-Motion Suppression** (Load-Control Method, P1): Reduce caption animation and density during high visual motion.
+- **VLD-008 / STB — Simultaneous Text Budget** (Rule / Mode, P0): Limit screen to one primary text block plus one micro-label.
+- **VLD-009 / NCCC — Native Caption Conflict Checker** (Load-Control Method, P0): Avoid overlay collisions with platform auto-captions or imported captions.
+- **VLD-010 / BPD — Background Pattern Detector** (Load-Control Method, P2): Flag stripes, grids, leaves, and high-frequency textures behind text.
+- **VLD-011 / FLCC — Frame-Level Contrast Correction** (Load-Control Method, P0): Auto adjust text/backplate contrast per frame.
+- **VLD-012 / TDB — Text Dwell Budget** (Rule / Mode, P1): Limit total seconds of on-screen text per 10 seconds of video.
+- **VLD-013 / DVG — Density by Viewer Goal** (Load-Control Method, P2): Use heavier overlays for learning clips, lighter for entertainment clips.
+- **VLD-014 / CSEF — Caption Safe Empty Frames** (Load-Control Method, P2): Intentionally reserve clean frames for text instead of adding text anywhere.
+- **VLD-015 / RFL — Readability Failure Log** (Load-Control Method, P1): Annotate every point where a tester missed or struggled with text.
+- **AUD-001 / AUD — Audio-On Cue Mode** (Rule / Mode, P1): When audio is expected, overlay only cues and structure, not full language.
+- **AUD-002 / MFM — Muted-First Mode** (Rule / Mode, P0): Overlay carries enough meaning without sound.
+- **AUD-003 / DLC — Dual-Layer Captioning** (Multimodal Method, P0): Full closed captions plus separate semantic overlay.
+- **AUD-004 / NSS — Non-Speech Sound Cues** (Multimodal Method, P0): Show [laughter], [music rises], [door slam] only when meaningful.
+- **AUD-005 / PAE — Prosody-Aware Emphasis** (Multimodal Method, P2): Map speaker emphasis/intensity to controlled text weight or motion.
+- **AUD-006 / SAE — Silence as Emphasis** (Multimodal Method, P2): Use no overlay during silence or facial reaction, then land a short caption.
+- **AUD-007 / ACT — Audio Clarity Trigger** (Multimodal Method, P1): If background music/noise is high, increase caption completeness.
+- **AUD-008 / RRC — Rhythm-Respecting Captions** (Multimodal Method, P2): Avoid text changes on every music beat unless text is music/lyric content.
+- **AUD-009 / TI — Tone Icons** (Multimodal Method, P3): Use small icons for sarcasm, warning, encouragement only when tone is ambiguous.
+- **AUD-010 / HCV — Haptic Caption Variant** (Multimodal Method, P3): For AR/wearables, use vibration patterns for emotion or emphasis.
+- **MEM-001 / RPC — Retrieval Prompt Caption** (Learning Method, P1): Ask a 1-question recall prompt at the end: What reduces friction?
+- **MEM-002 / PP — Prediction Prompt** (Learning Method, P2): Before solution, ask viewer to predict cause/fix.
+- **MEM-003 / QCE — Quick Check End Card** (Learning Method, P2): End with micro quiz: Motivation or structure?
+- **MEM-004 / SRAS — Spaced Recap Across Series** (Learning Method, P2): Repeat same memory phrase across multiple videos with variation.
+- **MEM-005 / TBSM — Three-Beat Schema Map** (Learning Method, P1): Always use a small visual map: Problem → Cause → Fix.
+- **MEM-006 / WEF — Worked-Example Fade** (Learning Method, P3): Start with full labels, then fade to minimal cues as viewer learns.
+- **MEM-007 / ANA — Analogy Overlay** (Learning Method, P2): Add one compressed analogy for abstract ideas.
+- **MEM-008 / MCM — Mini Concept Map** (Learning Method, P2): Show 2–4 nodes connected during complex explanations.
+- **MEM-009 / BAS — Before/After State Card** (Learning Method, P2): Show old state → new state visually/textually.
+- **MEM-010 / ARP — Active Recall Pause** (Learning Method, P2): Pause briefly after an instruction before giving answer/example.
+- **MEM-011 / SALS — Save Cue as Learning Signal** (Learning Method, P2): Use a save-worthy rule card, not a begging call-to-action.
+- **MEM-012 / MC — Mnemonic Compression** (Learning Method, P3): Turn takeaways into memorable parallel structures or rhymes.
+- **MEM-013 / ACO — Action Checklist Overlay** (Learning Method, P1): Convert advice into 2–3 checklist items at end.
+- **MEM-014 / EDM — Error Diagnosis Matrix** (Learning Method, P3): Show two-axis quick diagnosis: effort high / clarity low.
+- **MEM-015 / ENF — Example-Nonexample Flip** (Learning Method, P2): Quickly contrast a wrong and right execution.
+- **ACC-001 / CCP — Closed-Caption Preservation Rule** (Rule / Mode, P0): Always keep full captions available when using creative overlays.
+- **ACC-002 / LSM — L2 Simplified Mode** (Rule / Mode, P2): Use simpler vocabulary and more context for second-language viewers.
+- **ACC-003 / ESM — Expert Shorthand Mode** (Rule / Mode, P2): Use domain shorthand for expert audiences.
+- **ACC-004 / NLM — Novice Label Mode** (Rule / Mode, P1): Add labels for unfamiliar concepts before compressing heavily.
+- **ACC-005 / DFV — Dyslexia-Friendly Variant Test** (Access / Personalization Method, P3): Compare bionic, LARF-like annotation, spacing, and plain compression for dyslexic viewers.
+- **ACC-006 / LMM — Low-Motion Mode** (Rule / Mode, P1): Provide a static/low-animation overlay for viewers sensitive to motion.
+- **ACC-007 / OVD — Older Viewer Duration Mode** (Rule / Mode, P2): Increase caption duration and font size for older viewers.
+- **ACC-008 / CBSC — Color-Blind Safe Coding** (Access / Personalization Method, P0): Never rely on color alone; pair with labels/icons/shape.
+- **ACC-009 / RSA — Reader-Speed Adaptive Mode** (Rule / Mode, P3): Allow overlays to persist longer or simplify if viewer often pauses/rewatches.
+- **ACC-010 / VSA — Viewer-State Adaptive Mode** (Rule / Mode, P3): Switch overlay mode based on audio-on/off, device, language, and content category.
+- **AIA-001 / SBE — Semantic Beat Extractor** (System Module, P1): LLM extracts proposition, role, and beat boundaries from transcript.
+- **AIA-002 / GEN — Overlay Variant Generator** (System Module, P1): Auto-generates transcript, keyword, compression, BCC, BCC+, and controls.
+- **AIA-003 / SHP — Saliency Heatmap Placement** (Adaptive System, P1): Predict likely gaze heatmaps and avoid high-conflict zones.
+- **AIA-004 / FMHO — Face/Mouth/Hand/Object Detector** (System Module, P0): Detect visual regions that should not be covered.
+- **AIA-005 / VLP — Visual Load Predictor** (System Module, P1): Estimate per-frame visual complexity to choose word count.
+- **AIA-006 / GSWE — Gaze Simulation Without Eye Tracker** (Adaptive System, P2): Use saliency/meaning maps to simulate likely gaze conflict.
+- **AIA-007 / ABG — Automatic A/B Generator** (System Module, P1): Generate and track variants across platforms.
+- **AIA-008 / BRAS — BCC+ Rubric Auto-Scorer** (System Module, P1): Score compression, anchors, placement, load, contrast, muted clarity.
+- **AIA-009 / PSZT — Platform Safe-Zone Templates** (Adaptive System, P0): Reusable templates for TikTok/Reels/Shorts/Stories UI zones.
+- **AIA-010 / CRO — Compression Ratio Optimizer** (System Module, P2): Suggest percent transcript to display based on speech rate/visual load.
+- **AIA-011 / RWET — Remote Webcam Eye-Tracking Pilot** (Adaptive System, P3): Use webcam gaze estimation for rough large-sample placement tests.
+- **AIA-012 / MPFE — Meaning-Per-Fixation Estimator** (Adaptive System, P3): Combine recall results and gaze/text dwell to estimate efficiency.
+- **AIA-013 / AR — Adaptive Renderer** (System Module, P2): Renders overlays based on detected shot type and visual load.
+- **AIA-014 / HLE — Human-in-the-Loop Editor** (Adaptive System, P0): AI proposes; editor approves proposition, anchor, placement, timing.
+- **AIA-015 / SRNG — Source/Risk Note Generator** (System Module, P2): For research/health/finance clips, overlay flags if claim is advice, evidence, or speculation.
+- **RET-001 / HOO — Hook Card** (Retention Method, P0): Use first 0.5–1.5 sec as a semantic promise.
+- **RET-002 / FPR — Fast Payoff Rule** (Rule / Mode, P0): Deliver the first useful idea within 2–3 seconds.
+- **RET-003 / OLER — Open-Loop With Early Resolution** (Retention Method, P1): Open a gap, resolve quickly, then deepen.
+- **RET-004 / PMM — Progress Marker Microbar** (Retention Method, P2): Show Problem → Cause → Fix progress.
+- **RET-005 / CC — Chapter Chips** (Retention Method, P2): Tiny labels for 30–90s clips: Setup, Mistake, Fix, Rule.
+- **RET-006 / PAY — Payoff Card** (Retention Method, P1): Use final screen as a self-contained takeaway or checklist.
+- **RET-007 / CERP — Comment-Eliciting Recall Prompt** (Retention Method, P2): Ask a non-trivial answer prompt tied to video concept.
+- **RET-008 / PNT — Platform-Native Typography Variant** (Retention Method, P2): Test clean professional vs TikTok-native emoji/non-standard style.
+- **RET-009 / SRMR — Scroll-Rescue Midpoint Reset** (Retention Method, P2): At 40–60%, add a new semantic hook or map update.
+- **RET-010 / LCE — Loop-Compatible Ending** (Retention Method, P2): End with text that connects to first frame without hiding final meaning.
+- **RET-011 / ERF — Ethical Retention Filter** (Retention Method, P0): Reject overlays that increase watch time by confusion instead of clarity.
+- **CTL-001 / FTO — Full Transcript Overlay** (Control / Baseline, P0): Use complete burned-in transcript as baseline.
+- **CTL-002 / KHT — Keyword Highlight Transcript** (Control / Baseline, P0): Highlight important words inside full transcript.
+- **CTL-003 / WWDC — Word-by-Word Dynamic Caption** (Control / Baseline, P0): Active word highlight following speech.
+- **CTL-004 / HBF — Heavy Bionic Formatting** (Control / Baseline, P0): Apply bionic partial bolding to most words.
+- **CTL-005 / ROW — RSVP One-Word Captions** (Control / Baseline, P1): One word at a time in same spot.
+- **CTL-006 / CKT — Constant Kinetic Text** (Control / Baseline, P1): Every word moves or pops.
+- **CTL-007 / NNO — No Overlay / Native Captions Only** (Control / Baseline, P0): Baseline platform state.
+- **CTL-008 / COM — Color-Only Meaning** (Control / Baseline, P1): Use color without labels/icons for semantic roles.
+- **CTL-009 / BOP — Bottom-Only Placement** (Control / Baseline, P0): Always lower-third regardless of content.
+- **CTL-010 / RSP — Random Saliency Pop** (Control / Baseline, P1): Make random words visually pop.
+- **CTL-011 / HDCS — High-Density Caption Stack** (Control / Baseline, P1): Multiple overlays/captions/stickers simultaneously.
+- **CTL-012 / ENS — Emoji/Nonstandard Subtitle Variant** (Control / Baseline, P2): Use platform-native non-standard typography and emoji.

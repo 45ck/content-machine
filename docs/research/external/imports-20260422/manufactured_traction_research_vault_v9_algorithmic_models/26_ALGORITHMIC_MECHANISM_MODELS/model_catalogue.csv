@@ -1,0 +1,26 @@
+file,model
+01_master_proxy_allocation_model.md,Master Proxy Allocation Model
+02_pairwise_rank_flip_model.md,Pairwise Rank-Flip Model
+03_two_stage_recommender_model.md,Two-Stage Recommender Model
+04_multi_behavior_signal_vector_model.md,Multi-Behavior Signal Vector Model
+05_feedback_loop_state_space_model.md,Feedback Loop State-Space Model
+06_bandit_exploration_model.md,Bandit Exploration and Seed Bias Model
+07_social_proof_herding_model.md,Social Proof and Herding Model
+08_threshold_cascade_model.md,Threshold Cascade Model
+09_preferential_attachment_popularity_bias.md,Preferential Attachment and Popularity Bias Model
+10_candidate_gate_bottleneck_model.md,Candidate Gate Bottleneck Model
+11_velocity_burst_model.md,Velocity and Burst Detection Model
+12_coordination_graph_model.md,Coordination Graph Model
+13_coordination_null_model.md,Coordination Null Model
+14_content_similarity_embedding_model.md,Content Similarity and Embedding Model
+15_recommender_profile_injection_model.md,Recommender Profile Injection Model
+16_budget_attribution_feedback_model.md,Budget Attribution Feedback Model
+17_ranked_choice_user_utility_model.md,User Utility vs Platform Proxy Model
+18_detection_confidence_scoring_model.md,Detection Confidence Scoring Model
+19_algorithmic_dampening_countermodel.md,Algorithmic Dampening Countermodel
+20_algorithmic_evidence_boundaries.md,Algorithmic Evidence Boundaries
+21_platform_mapping.md,Platform Mapping to Generic Models
+22_rank_score_function_family.md,Rank Score Function Families
+23_creator_feed_test_batch_model.md,Creator Feed Test-Batch Model
+24_comment_section_narrative_model.md,Comment-Section Narrative Model
+25_multi_layer_system_model.md,Multilayer System Model

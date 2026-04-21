@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+<rect width="100%" height="100%" fill="white"/>
+<text x="400.0" y="30" text-anchor="middle" font-family="Arial" font-size="20">Feedback multiplier path (boost=20)</text>
+<line x1="60" y1="440" x2="740" y2="440" stroke="black"/>
+<line x1="60" y1="60" x2="60" y2="440" stroke="black"/>
+<polyline points="60.0,60.0 95.8,280.4 131.6,373.0 167.4,411.8 203.2,428.2 238.9,435.0 274.7,437.9 310.5,439.1 346.3,439.6 382.1,439.8 417.9,439.9 453.7,440.0 489.5,440.0 525.3,440.0 561.1,440.0 596.8,440.0 632.6,440.0 668.4,440.0 704.2,440.0 740.0,440.0" fill="none" stroke="black" stroke-width="2"/>
+<text x="400.0" y="485" text-anchor="middle" font-family="Arial" font-size="14">Time step</text>
+<text x="18" y="250.0" text-anchor="middle" font-family="Arial" font-size="14" transform="rotate(-90 18 250.0)">Exposure</text>
+<text x="60" y="458" font-family="Arial" font-size="12">0</text>
+<text x="740" y="458" text-anchor="end" font-family="Arial" font-size="12">19</text>
+<text x="52" y="440.0" text-anchor="end" font-family="Arial" font-size="12">13.8</text>
+<text x="52" y="60.0" text-anchor="end" font-family="Arial" font-size="12">30.0</text>
+</svg>

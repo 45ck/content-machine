@@ -1,0 +1,11 @@
+code,scientific_style_name,plain_name,description
+MATH-FUN,Funnellus Probabilisticus,Funnel probability model,Models video performance as a chain of behavioural gates.
+MATH-BAY,Machina Bayesiana Decisionis,Bayesian decision engine,Posterior scale/replicate/rewrite/kill decisions.
+MATH-BND,Allocator Thompsonianus,Thompson sampling bandit,Allocates creative effort between exploration and exploitation.
+MATH-SEQ,Inferentia Sequentia,Sequential testing control,Prevents invalid conclusions from constant peeking.
+MATH-CONF,Intervallum Conformale,Conformal prediction intervals,Adds uncertainty intervals to AI predictions.
+MATH-PWR,Calculus Expositionis,Exposure/power planner,Estimates exposure needed for useful tests.
+AI-GEN,Genoma Creativum Vectoris,Creative genome embeddings,Clusters videos by mechanism and outcome.
+AI-CRIT,Concilium Criticorum,LLM critic council,"Reviews hook, trust, cognition, CTA, and series fit."
+AI-RET,Praedictor Retentionis,Retention forecaster,Predicts likely CTV/APV/CPL ranges before posting.
+AI-ORCH,Orchestrator Experimentorum,Experiment orchestrator,"Registers tests, variants, checkpoints, and decisions."

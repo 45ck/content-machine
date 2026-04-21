@@ -1,0 +1,19 @@
+{
+  "video_id": "abc123",
+  "platform": "TikTok",
+  "duration_sec": 23.4,
+  "views": 10000,
+  "followers_at_post": 1200,
+  "one_sec_retention": 0.84,
+  "three_sec_retention": 0.72,
+  "six_sec_retention": 0.58,
+  "completion_rate": 0.41,
+  "avg_watch_pct": 0.69,
+  "replay_rate": 0.08,
+  "like_rate": 0.07,
+  "comment_rate": 0.006,
+  "share_rate": 0.012,
+  "save_rate": 0.028,
+  "follow_rate": 0.004,
+  "sound_reuses": 0
+}

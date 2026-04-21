@@ -1,0 +1,6 @@
+field,type,required,description
+run_id,integer,yes,Simulation run ID
+preserved_fields,string,yes,What was preserved
+randomized_fields,string,yes,What was randomized
+statistic_name,string,yes,Statistic measured
+statistic_value,float,yes,Value from simulation

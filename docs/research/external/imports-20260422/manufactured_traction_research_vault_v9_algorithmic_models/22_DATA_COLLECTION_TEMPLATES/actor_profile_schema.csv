@@ -1,0 +1,11 @@
+field,type,required,description
+account_id,string,yes,Actor ID
+platform,string,yes,Platform
+profile_url,string,no,Public profile URL
+created_at,datetime,no,Account creation date if public
+follower_count,integer,no,Public follower count
+following_count,integer,no,Public following count
+post_count,integer,no,Public post count
+bio_text,string,no,Bio text
+disclosure_status,string,no,"none, disclosed, unclear, official"
+notes,string,no,Research notes

@@ -1,0 +1,68 @@
+[
+  {
+    "title": "How TikTok recommends videos #ForYou",
+    "type": "official platform guidance",
+    "url": "https://newsroom.tiktok.com/en-us/how-tiktok-recommends-videos-for-you",
+    "use": "Recommendation inputs: user interactions, video information including captions/sounds/hashtags, and device/account settings."
+  },
+  {
+    "title": "TikTok Creative Guidance \u2014 Creative Strategies",
+    "type": "official platform guidance",
+    "url": "https://ads.tiktok.com/business/creativecenter/quicktok/online/tiktok_creative_accelerator/pc/en",
+    "use": "Audio is central to TikTok creative; page states over 93% of top-performing videos use audio."
+  },
+  {
+    "title": "TikTok Commercial Music Library",
+    "type": "official platform guidance",
+    "url": "https://ads.tiktok.com/help/article/commercial-music-library",
+    "use": "Pre-cleared music and commercial-use considerations."
+  },
+  {
+    "title": "OpenAI API \u2014 Text to speech",
+    "type": "official API documentation",
+    "url": "https://developers.openai.com/api/docs/guides/text-to-speech",
+    "use": "TTS generation; GPT-4o mini TTS; voice/tone instruction."
+  },
+  {
+    "title": "OpenAI API \u2014 Audio and speech",
+    "type": "official API documentation",
+    "url": "https://developers.openai.com/api/docs/guides/audio",
+    "use": "Audio endpoints, speech-to-text and TTS model usage."
+  },
+  {
+    "title": "YouTube Help \u2014 Disclosing altered or synthetic content",
+    "type": "official platform policy guidance",
+    "url": "https://support.google.com/youtube/answer/14328491?hl=en",
+    "use": "Synthetic media disclosure requirements, including realistic altered/generated content."
+  },
+  {
+    "title": "Berger & Milkman \u2014 What Makes Online Content Viral?",
+    "type": "peer-reviewed research",
+    "url": "https://journals.sagepub.com/doi/abs/10.1509/jmr.10.0353",
+    "use": "High-arousal emotions and online sharing."
+  },
+  {
+    "title": "Radovanovi\u0107 \u2014 TikTok and Sound",
+    "type": "academic article",
+    "url": "https://insamjournal.com/index.php/ij/article/view/25",
+    "use": "TikTok\u2019s sound-centered/audiovisual culture and music distribution dynamics."
+  },
+  {
+    "title": "CLAP \u2014 Learning Audio Concepts From Natural Language Supervision",
+    "type": "machine learning research",
+    "url": "https://arxiv.org/abs/2206.04769",
+    "use": "Joint audio-text embeddings for retrieval, tagging, and semantic audio matching."
+  },
+  {
+    "title": "PANNs \u2014 Large-Scale Pretrained Audio Neural Networks",
+    "type": "machine learning research",
+    "url": "https://arxiv.org/abs/1912.10211",
+    "use": "Audio embeddings, event classification, and transfer learning from AudioSet."
+  },
+  {
+    "title": "librosa feature extraction documentation",
+    "type": "technical documentation",
+    "url": "https://librosa.org/doc/0.11.0/feature.html",
+    "use": "RMS, spectral, MFCC, rhythm, and onset feature extraction."
+  }
+]

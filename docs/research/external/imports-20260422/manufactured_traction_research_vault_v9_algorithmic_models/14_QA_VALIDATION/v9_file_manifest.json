@@ -1,0 +1,2802 @@
+[
+  {
+    "path": "00_START_HERE/00_Read_Me_First.md",
+    "bytes": 1593,
+    "sha256": "5dd64759eb7722f893c4ffc71982bad9f9e5e216fec02ce6be8496a1ba5b782e"
+  },
+  {
+    "path": "00_START_HERE/01_Folder_Map.md",
+    "bytes": 1411,
+    "sha256": "5efdad374013711156d21cd7e8e49f80c4e0a408523db15876e4b96be59dc1eb"
+  },
+  {
+    "path": "00_START_HERE/02_Scope_Ethics_And_Safety_Boundary.md",
+    "bytes": 1961,
+    "sha256": "40ca0f1716eca5183690a1fac9b935e10c97846913bb19afa2138bb494e644db"
+  },
+  {
+    "path": "00_START_HERE/03_Evidence_Ladder.md",
+    "bytes": 1499,
+    "sha256": "5caa6af6774cc7c18d7bd36828d617df07c560b8c65da6b29caf3d338217002f"
+  },
+  {
+    "path": "00_START_HERE/04_What_Working_Means_And_QA.md",
+    "bytes": 1962,
+    "sha256": "ec83d2187331ed13345642cc0ad68d0817db0689b8c1ea191f4e00f7cf482030"
+  },
+  {
+    "path": "00_START_HERE/05_One_Hour_And_One_Day_Workflows.md",
+    "bytes": 2081,
+    "sha256": "41f7dde95b9209c43a2876cbd5bbd94d871612eae1d6d6e8b5203c8eec8751c4"
+  },
+  {
+    "path": "00_START_HERE/V7_PROOF_LAYER_ADDED.md",
+    "bytes": 1065,
+    "sha256": "8fbe3f259a755f45467bc26dbb5ad66b23ebba02638726f65ba027a3a231d8de"
+  },
+  {
+    "path": "00_START_HERE/V9_ALGORITHMIC_MODELS_CHANGELOG.md",
+    "bytes": 999,
+    "sha256": "8e53e197ab7e87f83a8c9746d71f6063ff6f4dc8269d90660ff429bf6026b26e"
+  },
+  {
+    "path": "01_CORE_THESIS_AND_FRAMEWORKS/01_Core_Thesis.md",
+    "bytes": 2232,
+    "sha256": "0e3e526aa3de79a6a16c67ac39056b93da1bf0694df15883046c21fcb4c73249"
+  },
+  {
+    "path": "01_CORE_THESIS_AND_FRAMEWORKS/02_Five_Signal_Layers.md",
+    "bytes": 1935,
+    "sha256": "6c2276a409da3f7d2ef1e0322e06ea143a155ff02eb1235b172a46a203b2f5ac"
+  },
+  {
+    "path": "01_CORE_THESIS_AND_FRAMEWORKS/03_Legitimate_Growth_vs_Manufactured_Traction.md",
+    "bytes": 1511,
+    "sha256": "d723735f6ec40ab9337b8d99dfecc80d5d19c743b02f45bfd999907c54bc4c02"
+  },
+  {
+    "path": "01_CORE_THESIS_AND_FRAMEWORKS/04_Signal_To_Value_Pipeline.md",
+    "bytes": 1351,
+    "sha256": "f1479a0b29bc469c4b294fdc8501cb4fca20755bb4daba8bfdea93f72b21bf5e"
+  },
+  {
+    "path": "01_CORE_THESIS_AND_FRAMEWORKS/05_Deception_Ladder.md",
+    "bytes": 1258,
+    "sha256": "26eccba19b594d5a63e1108f31f70d18b4572b78f05a12c391f0c0a244cd037f"
+  },
+  {
+    "path": "01_CORE_THESIS_AND_FRAMEWORKS/06_Harms_Framework.md",
+    "bytes": 1365,
+    "sha256": "7527758d0e9770b732f269e8ad305dde66f5c9aaf1443b71ea04a5a7b097c0b9"
+  },
+  {
+    "path": "01_CORE_THESIS_AND_FRAMEWORKS/07_Research_Gap_Map.md",
+    "bytes": 1289,
+    "sha256": "e07a8416a60e23cd2b0696cf8bf47f7399d188c80834b52e62684a970200b553"
+  },
+  {
+    "path": "01_CORE_THESIS_AND_FRAMEWORKS/08_Manufactured_Attention_Academic_Anchor.md",
+    "bytes": 1628,
+    "sha256": "3f334e613301631bac4c17120ac7d5aa26c0c5f15f80ee856eb67982b7c62803"
+  },
+  {
+    "path": "02_DOMAIN_MAP/01_Social_Media_And_Creator_Economy/00_Overview.md",
+    "bytes": 3911,
+    "sha256": "daaadbaa1932beb34159861165f338d5d01e90b53a6779378278220463813af5"
+  },
+  {
+    "path": "02_DOMAIN_MAP/02_Reviews_Reputation_And_Local_Search/00_Overview.md",
+    "bytes": 3927,
+    "sha256": "3339ed320f71defea1d2e40c25c73b5cd92667e52db8194aba777cb3a1e80980"
+  },
+  {
+    "path": "02_DOMAIN_MAP/03_Search_SEO_And_Content_Farms/00_Overview.md",
+    "bytes": 1839,
+    "sha256": "28ef092e986d60ed44f147ae5973c99a9d3cac2def1ba62bcb2d844ebd834ce9"
+  },
+  {
+    "path": "02_DOMAIN_MAP/04_Ads_Leadgen_And_Attribution/00_Overview.md",
+    "bytes": 2645,
+    "sha256": "314111483b8657b1a6cd7ec6d05acb9438d87b609a11eec302927f47d7d1059a"
+  },
+  {
+    "path": "02_DOMAIN_MAP/05_App_Stores_Launch_Platforms_And_Code/00_Overview.md",
+    "bytes": 2952,
+    "sha256": "51522b9c6a35214ee2f957c3ea3b8070d5f716c966b429d55c091d71f46bfa00"
+  },
+  {
+    "path": "02_DOMAIN_MAP/06_Music_Media_And_Synthetic_Content/00_Overview.md",
+    "bytes": 3017,
+    "sha256": "59b8fdf7ce1fe9ba27c9bf82603f8d8bea5d1375a6b77145bf4bf0888b0bc4a8"
+  },
+  {
+    "path": "02_DOMAIN_MAP/07_Startup_Finance_And_Institutional_Trust/00_Overview.md",
+    "bytes": 2849,
+    "sha256": "fdf382c5861267a13af46774395b18ea8144a010258299ad8a629a97bfeaaba1"
+  },
+  {
+    "path": "02_DOMAIN_MAP/08_Dark_Patterns_And_Choice_Architecture/00_Overview.md",
+    "bytes": 2054,
+    "sha256": "e75c36f2e74622e8380e0bdbc129e53b540801cb32bbe0eb1a2e6d86cb843d1c"
+  },
+  {
+    "path": "03_TACTIC_CARDS/00_Tactic_Index.md",
+    "bytes": 8248,
+    "sha256": "0bb8ce9ca64b082881325bdd995421fa2d59341fff7609f4600857e2e94bbb7e"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Attribution/027_install_hijacking.md",
+    "bytes": 2425,
+    "sha256": "566cfcafa9262ea19ff51be152b1e26149e969f8b381c763bb815e5a49809ce0"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Attribution/028_click_flooding.md",
+    "bytes": 2455,
+    "sha256": "f67477fc44a1779153fdf192d2ccfccab32bcd5136dea376c2df44c1465e04a6"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Attribution/029_sdk_spoofing_and_event_spoofing.md",
+    "bytes": 2162,
+    "sha256": "702e2fcbfdf1d90945d3f5b58d091439965f1ca33388cc8ef7ccbf7419ab1c0e"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Attribution/030_cookie_stuffing.md",
+    "bytes": 2135,
+    "sha256": "74d17b1710ddfe99f8fa696afde399bc1273dcb26490441c5c34e354644be0fd"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Attribution/031_coupon_last_click_capture.md",
+    "bytes": 2138,
+    "sha256": "841251bafa18331eb65f53d16e4faeece24ea9f09d14eef6cb513c6acf2297dd"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Attribution/060_measurement_laundering.md",
+    "bytes": 2500,
+    "sha256": "36000bd8468ce564650fa6094d1505ca0dc62a11cb1953b1eb618703169bcd62"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Attribution/086_brand_bidding_capture.md",
+    "bytes": 1009,
+    "sha256": "af59bb2f1c1334a0ffbc159590e5c4e4585faba0e76e7b297a6b168d1a52116f"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Attribution/087_coupon_affiliate_intercept.md",
+    "bytes": 997,
+    "sha256": "d4318ccee0b72fe8712bbf0e4db4d83b77e2c45c6da71e34893081a05cdd84e8"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Attribution/088_hidden_redirect_attribution.md",
+    "bytes": 970,
+    "sha256": "ee519f374dafda6523f565f0781ff6b0bb3b66476b6132800fe025fefbf87f35"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Attribution/089_referrer_spoofing_context.md",
+    "bytes": 1001,
+    "sha256": "f171e6578fd1927f75e50d88d5350f7cf9e5eb1269c9a7573352989628298e72"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Attribution/090_postback_event_inflation.md",
+    "bytes": 1000,
+    "sha256": "ea761ec73ec242969a4cba0c8afc0c0f072ab6105c912f3724dfb873438afbef"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Conversion/023_fake_leads.md",
+    "bytes": 2517,
+    "sha256": "44609b8fd79fd1575adcea955071a32b37ad22527a6e7fc905c9f209b9686cb5"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Conversion/024_click_and_impression_fraud.md",
+    "bytes": 2211,
+    "sha256": "395d2e17bd68c6c787a8a6589efd5dcbc3810547aa026426a85bcceaeeef638e"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Conversion/025_conversion_poisoning.md",
+    "bytes": 2548,
+    "sha256": "9fa1d43b6edd3bf7482ca0ff5b7d1ec133ec5cc054de49ceb2159cc24df3138e"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Conversion/026_fake_installs.md",
+    "bytes": 2727,
+    "sha256": "915164aad29402c65881035e0612c95b45c3e951ccd5cc082d88eab6e1c2250b"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Conversion/081_lead_magnet_quality_masking.md",
+    "bytes": 997,
+    "sha256": "c7fb60ea5f28bd77c86cb4f4839f208b3795e9be409c61a56f32f089ca017851"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Conversion/082_webinar_attendance_inflation.md",
+    "bytes": 1030,
+    "sha256": "dad9188b43954a699c3a7af393c3e9d1fba973c5d43a5099ba031275b6b933aa"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Conversion/083_trial_signup_padding.md",
+    "bytes": 990,
+    "sha256": "1b76ccac9c6eec267072da147340674665a8698d0109ed1b5d8370003340068d"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Conversion/084_fake_waitlist_invites.md",
+    "bytes": 1027,
+    "sha256": "89d8352a132f3a52ecf0b45db2d3d8c1c28cac27eaa5e39c76f4757c75461122"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Conversion/085_referral_loop_pressure.md",
+    "bytes": 1001,
+    "sha256": "f0353ee44968b2f753ea5277639bc5722ae837993e32f3e712c8d531f86f67f3"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Credibility/011_hidden_sponsorship.md",
+    "bytes": 2658,
+    "sha256": "73e607c9f56649a453a8d8ac425da67a52d3d27f647adeb25d47974e3a332dce"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Credibility/012_testimonial_editing.md",
+    "bytes": 2632,
+    "sha256": "4f7c54406e936945a1df5d59dd172b0e2ed38ba4d91f4da4bf1c6ecd1f9d0ecc"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Credibility/013_fake_review_brokers.md",
+    "bytes": 3044,
+    "sha256": "da07caa38bb9857c3cf679d5826fa293da0d728b6e81aa216df24de2474dd5ea"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Credibility/014_review_gating.md",
+    "bytes": 2670,
+    "sha256": "26e386dfae0e11b556c5fed9fb13f52cfcbd09d0dd8678f82099940a40263383"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Credibility/015_review_suppression.md",
+    "bytes": 2549,
+    "sha256": "b0e804adbdd026cfe935f918c01829dd46bacb7c670f82c7a7295a2c9876e1cb"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Credibility/016_review_hijacking_and_catalogue_abuse.md",
+    "bytes": 2667,
+    "sha256": "1de2f1e2b36fbe17f57d0daaf48135125806e8c1fa4563822620170864593224"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Credibility/017_local_maps_fake_engagement.md",
+    "bytes": 2207,
+    "sha256": "b938f7c169103ec4e4623c877c0ed8b8402ba7b30fe8d135c180138ed1036e26"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Credibility/018_trust_platform_manipulation.md",
+    "bytes": 2187,
+    "sha256": "4840c114a83f026275dd9ce22bfe4d71ed616f6965500c814295c45bb1f23e93"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Credibility/019_fake_influencer_audience_quality.md",
+    "bytes": 2925,
+    "sha256": "9eb68325ea2a03b046213e881f333b120028e53c9fe0381eeb0a58e286ed1c2f"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Credibility/020_social_proof_widgets_and_fake_counters.md",
+    "bytes": 2607,
+    "sha256": "db042bf8c4a75261c339edc83dd0d51be83f112d132236c59aff4361be4d1f25"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Credibility/021_trust_badge_and_award_laundering.md",
+    "bytes": 2634,
+    "sha256": "f716c50a5440a8f6e386a3f438496bfeb847b56e03b6106d93768a162a624d5e"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Credibility/022_customer_logo_misuse.md",
+    "bytes": 2267,
+    "sha256": "395f6d7530acb4f50d134f43416cbe7a67a2fad4279bddf936935edbb89a9dec"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Credibility/058_fake_expert_or_employee_personas.md",
+    "bytes": 2828,
+    "sha256": "1d9d9b0da4729185018acfa9e544e920569f639054bff87c342f97012a0831ad"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Credibility/071_screenshot_credential_laundering.md",
+    "bytes": 1063,
+    "sha256": "2fd7e5c73baf32a2919fd0279e73d5b2d8631d4cc780a3e88cd5ad454f467ead"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Credibility/072_press_logo_laundering.md",
+    "bytes": 1024,
+    "sha256": "e1c0efcf9f9e53b61dce9751be9f48fd15873f8e0bb6c8f1ae1166a96d08cb97"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Credibility/073_award_badge_laundering.md",
+    "bytes": 984,
+    "sha256": "0dc7e2823be7f472a5d0ef27f08b40a00a520ee12ced14deb44e19d9697757f6"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Credibility/074_customer_quote_context_stripping.md",
+    "bytes": 989,
+    "sha256": "a4f11eef4889297ef198041b462322d22d23b9e296195cd690f43478e3d3c5e3"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Credibility/075_case_study_exaggeration.md",
+    "bytes": 1016,
+    "sha256": "11971033238e9759be2e9a7fbda29759ba89b52b9bdff0394e516272a6c75a60"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Credibility/076_before_after_manipulation.md",
+    "bytes": 1032,
+    "sha256": "1c408e212a93674a31d3e96778304d0f0667f9d25eb30bc0dd9b510b13bb94e7"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Credibility/077_expert_roundup_authority_padding.md",
+    "bytes": 1000,
+    "sha256": "b3ef03269374f96c101f838e501161f3ff57a62a87ec16fee99f1e4d1421a38c"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Credibility/078_influencer_whitelisting_blur.md",
+    "bytes": 1050,
+    "sha256": "371549a05c3488b961a6b99b530563d00da7c2dab99116f5da02e5f144d5fe7f"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Credibility/079_affiliate_review_conflict_disguising.md",
+    "bytes": 1036,
+    "sha256": "8460899cca3c1bad7a44dbb18571661cf14dddaf9f26350333bc729a27f1534d"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Credibility/080_synthetic_persona_testimonials.md",
+    "bytes": 1046,
+    "sha256": "de152106e4f4e99fb30eb0d17551f03a544f2318a6ec8e81275956c6c33f7034"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Legitimacy/032_product_hunt_launch_rank_gaming.md",
+    "bytes": 2340,
+    "sha256": "4a20980625c5d308c67d4a4b629bdb8a70cf64b9c7fa6facca6251801bcf2a2f"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Legitimacy/033_github_star_inflation.md",
+    "bytes": 2146,
+    "sha256": "ef8169397a84a8a058316f3b4c31957c2a6031d694ed88395065daf5f5815fd2"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Legitimacy/034_startup_arr_inflation.md",
+    "bytes": 2480,
+    "sha256": "72db52ceff4ae28bb3df8fa6ce79ba0407990970ab148edd513040c7f04b2f50"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Legitimacy/035_gmv_revenue_confusion.md",
+    "bytes": 2142,
+    "sha256": "4f1e61bac59c952676a2a0762a75d110a7502bb19c0bd8db99eba12e31cac37d"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Legitimacy/036_compliance_theater.md",
+    "bytes": 2182,
+    "sha256": "a97696f7cd70081af385cdffc42b9badcff92cfa574dd5f53627c570f4d8cad8"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Legitimacy/037_waitlist_and_scarcity_theater.md",
+    "bytes": 2123,
+    "sha256": "c3ca540e7ddcad6dc1ff07b7b38ccae65be7b218781cc14221b74b5ca09450a7"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Legitimacy/038_fake_community_metrics.md",
+    "bytes": 2481,
+    "sha256": "f4991180833568e2c03251f904397795186625526503f68462db08ec06fcadf5"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Legitimacy/039_press_laundering.md",
+    "bytes": 2263,
+    "sha256": "d7ee0613f21e5fb3fb78a7099489351ab5befb4f561d2311f49a9c079db0a532"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Legitimacy/055_false_ip_or_policy_reports.md",
+    "bytes": 2229,
+    "sha256": "fa6f370e54b69530779e31d5d41357cce759ca01c35f03e47fa84034911c069d"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Legitimacy/059_fake_job_postings_as_legitimacy_theater.md",
+    "bytes": 2142,
+    "sha256": "cb0ba7e5b89196276930ba670eafb4df6c7c74f3e276e56486d05ac715963b95"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Legitimacy/091_investor_update_cherry_picking.md",
+    "bytes": 1010,
+    "sha256": "58617f9bf9a2dfb99f52a4cf17f9baaa6e37e8657a266108aace51b1d8b0c568"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Legitimacy/092_beta_user_count_padding.md",
+    "bytes": 980,
+    "sha256": "43ddd95d389d6cdc112eabdc0991afe2c8a4079e844a9665c060c263292f9506"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Legitimacy/093_letter_of_intent_inflation.md",
+    "bytes": 965,
+    "sha256": "9daff403b9ad1ed5cc3cb049a26f6361777938d75353856e9954c66a4b6ad90c"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Legitimacy/094_pilot_revenue_mislabeling.md",
+    "bytes": 976,
+    "sha256": "a3c3cfedf12127b216361882d962422a3051926c887dff1855a0febe852d0ebe"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Legitimacy/095_compliance_badge_overclaim.md",
+    "bytes": 986,
+    "sha256": "72aa11be5fe7f5c5b74b9ed3178539b9ca9bfd8447105f00f08b50bf37b302b8"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Media/044_ai_music_flooding.md",
+    "bytes": 2190,
+    "sha256": "81995bca7acdba13917c468eab0fe1fdefaad723ea7c2bb51b2954ea7965e642"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Media/045_streaming_bot_fraud.md",
+    "bytes": 2582,
+    "sha256": "f7bdeaefdd6172cbc6407f57e14947e3290ea8bf8b432372021f20a90fac9b20"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Media/046_podcast_download_inflation.md",
+    "bytes": 2172,
+    "sha256": "ff1d1838a33b85ccfffb07d762943438ddc92ac8f6c86d0e13b4ccbcc3cee99c"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Media/047_synthetic_influencers_and_ai_clones.md",
+    "bytes": 2350,
+    "sha256": "e40f146b7a37de8e7fc0449c52027f04217a5f9dae5e8b77f7e35592b017e5d3"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Media/048_deepfake_endorsements_and_scam_ads.md",
+    "bytes": 2535,
+    "sha256": "c33c782c830dfed341e7c1f3832833aa0cdd2b18c0a0432e95be74a39008618b"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Media/096_ai_reaction_video_farms.md",
+    "bytes": 997,
+    "sha256": "29f9cc2b2c81a63deec343ec8f5e7728067cab6e222d776d8ee34bbf178a8e60"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Media/097_podcast_chart_velocity_manufacture.md",
+    "bytes": 1014,
+    "sha256": "d8b922bf483eb544f25d331f9283cc7a39acaf4a2014c72082c05a803aed1df8"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Media/098_short_form_audio_meme_manufacturing.md",
+    "bytes": 1007,
+    "sha256": "74e311d7671b64ff6751e4c6c144dd6a7f8868ce137db4e6c751727ff10a4420"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Media/099_playlist_payola_opacity.md",
+    "bytes": 998,
+    "sha256": "aae94fd3452fc8d69dd5ead6f3ac8ba2f1badbe9f7477b40b8371e0dd7b9bdfd"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Media/100_synthetic_event_presence.md",
+    "bytes": 1004,
+    "sha256": "6b5f16b9e438a72005ee12e3bc78c475a36e418b600d1c9fdd0917226504a4cc"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Reputation/054_fake_negative_reviews_and_competitor_sabotage.md",
+    "bytes": 3012,
+    "sha256": "fc080071c21f82552d7e230fb9e1ce096b5b6d332058030bb05cd681a77832b8"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Search/040_scaled_content_abuse.md",
+    "bytes": 2285,
+    "sha256": "ab168334b818b488fb53b612ac0a7db833755c4022b55ae1e34f9b8c8b90b356"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Search/041_site_reputation_abuse.md",
+    "bytes": 2077,
+    "sha256": "1e98e530c630cff5de6e711caf5d71a592b456de4f9d87fc86f0eff344512f59"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Search/042_expired_domain_abuse.md",
+    "bytes": 2057,
+    "sha256": "dff6340b80c0d814ce394f53c3065d8f99182a7e3b3c859bd6cee9918597c1e9"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Search/043_ai_content_flooding.md",
+    "bytes": 2438,
+    "sha256": "175f1086132b4ba85947f30979262dda948c9dbc1ebdd10c85eebd6cd1cb3128"
+  },
+  {
+    "path": "03_TACTIC_CARDS/UI/049_drip_pricing.md",
+    "bytes": 2485,
+    "sha256": "bf0838afa452f21a2c0e6baea17bca1097462f8baa186b3a5eb63545bab115c1"
+  },
+  {
+    "path": "03_TACTIC_CARDS/UI/050_subscription_traps.md",
+    "bytes": 2470,
+    "sha256": "21872022e7a5138f64ce100bf90e4b34904b824c88b3fceba52dc4068cfe2d94"
+  },
+  {
+    "path": "03_TACTIC_CARDS/UI/051_false_urgency_and_countdowns.md",
+    "bytes": 2471,
+    "sha256": "e08b02a68a11bee13850b8464b4bd6891bc8ad3f4fa25c6ed4319c4e37219ff2"
+  },
+  {
+    "path": "03_TACTIC_CARDS/UI/052_preselected_defaults_and_sneaking.md",
+    "bytes": 2512,
+    "sha256": "0e57133d0aa4767a7dd8f43e0efd671c9a42bf8101ca2228413a8f8bc8390461"
+  },
+  {
+    "path": "03_TACTIC_CARDS/UI/053_misleading_button_hierarchy.md",
+    "bytes": 2511,
+    "sha256": "89706a44508163320af318ae77f0741cb5abc1abaa77f5d5d9f3fe035a21d44f"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Visibility/001_coordinated_posting_bursts.md",
+    "bytes": 2708,
+    "sha256": "2d0c6d41c794496c2905198dcd54f3608669a6a164b494cbcac9e6e70eaed1e7"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Visibility/002_paid_clipping_swarms.md",
+    "bytes": 2823,
+    "sha256": "98f29a3e441a41ec734d8ff35d196b970e4430c746bd100de30d963b44de7f64"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Visibility/003_trend_simulation.md",
+    "bytes": 2531,
+    "sha256": "5bd84d4425a5cf9397b7706d0f5f22ee7ba04e3274a951362510ea198b797a67"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Visibility/004_creator_farms_and_ugc_camouflage.md",
+    "bytes": 2990,
+    "sha256": "ac879d9503d983d2a147dd3f50ea78df42438770002051fbea216e9d0ef910da"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Visibility/005_comment_section_narrative_capture.md",
+    "bytes": 2678,
+    "sha256": "b77ac787b5abf19bbd38612ca64623c79428eaa18c8de95d88cdf1834c6621fe"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Visibility/006_engagement_pods_and_exchanges.md",
+    "bytes": 2808,
+    "sha256": "01500ca64e8a2ebe5900d21a61afa3b82b19ef28e8e1aeabc6b18c77bfde6ce6"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Visibility/007_fake_followers_likes_views_or_subs.md",
+    "bytes": 3195,
+    "sha256": "547fdee00bf7b81df7c753a1ba36e968f51d0b747d3bab0f81d492526e05fd6b"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Visibility/008_burner_fan_account_ecosystems.md",
+    "bytes": 2850,
+    "sha256": "cda76aa326243c2d51d7c1fc8b1d65a80a39527e85970483d910d2643e04e429"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Visibility/009_unoriginal_content_farms.md",
+    "bytes": 2455,
+    "sha256": "a5a9a0161f785e4c7ae2537f09264a0135eaa52a7841e3d420069272742f58e2"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Visibility/010_impersonation_and_copycat_pages.md",
+    "bytes": 2848,
+    "sha256": "1bbae9758a6056e46dc8841b7011c16215f0076fd09abb7cafd563c00e983149"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Visibility/056_outrage_rage_bait_amplification.md",
+    "bytes": 2524,
+    "sha256": "2a310d7460e64b5517e55b3367dd1d93d4bab125bd60b314e07711de01d3e55c"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Visibility/057_like_comment_bait.md",
+    "bytes": 2418,
+    "sha256": "7643daf4bf0f95f874e6386c57d304821e5d09405840105cec38f2caa094bd9d"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Visibility/061_cross_platform_narrative_laundering.md",
+    "bytes": 1176,
+    "sha256": "daa09c0740dff6ab4debcd51fcf7261c725f1378e70bd1e94e57e3936d59ece1"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Visibility/062_meme_account_seeding.md",
+    "bytes": 1063,
+    "sha256": "b1ef8554b39c2ecf7ce52ef95136009bc55290f05ca87e4b1fa3c708d03c98dd"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Visibility/063_hashtag_stack_surfing.md",
+    "bytes": 1026,
+    "sha256": "e138168619bb917c215e0e331e937ea365c93e1f4cb1dca2bce11d4539d70805"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Visibility/064_search_to_social_loop.md",
+    "bytes": 1064,
+    "sha256": "f378b96b6e77bb71d7dc5e21049e738535da4276c4facbfa507b26454a20376a"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Visibility/065_poll_and_rank_gaming.md",
+    "bytes": 1028,
+    "sha256": "f801af54d1baf9ddccbbe6989b8e23bc8c81e134e1956257099c3682570fbce7"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Visibility/066_comment_seed_framing.md",
+    "bytes": 1056,
+    "sha256": "cd0bbc45abb285688be405b840f0148bd2175f4110e56fb97cb79e70dc1c982e"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Visibility/067_pinned_comment_funnel.md",
+    "bytes": 1055,
+    "sha256": "a60672b4e2eaa39f246cdb2311cd3c71258d0544ed5b8e4f691653637245be20"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Visibility/068_discord_or_community_raids.md",
+    "bytes": 1009,
+    "sha256": "cce413c489cb6cbfae7a285aa1155c8d688cef90a069d98839bac86d1e5e68ce"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Visibility/069_reaction_chain_manufacturing.md",
+    "bytes": 1052,
+    "sha256": "b8dd4ee6e921b3f60cebe05204ba83c0c1cdc5fdf13b69b3acc6c447f2d3154c"
+  },
+  {
+    "path": "03_TACTIC_CARDS/Visibility/070_reply_guy_astroturfing.md",
+    "bytes": 1066,
+    "sha256": "10356918f09fbd3b8e3d9fe0f2072e07ac8a94c155d6571ebf260a9eeb451f2a"
+  },
+  {
+    "path": "04_CASE_STUDIES/01_geese_chaotic_good_trend_simulation.md",
+    "bytes": 2639,
+    "sha256": "04a8b27e66fcf3779919c6ae6c071ddf5d288aac83d9b836eeb88e6942e89ceb"
+  },
+  {
+    "path": "04_CASE_STUDIES/02_business_insider_clipping_economy.md",
+    "bytes": 2433,
+    "sha256": "2b9c724a805384ef61241af570b57fe42fba8fdc8a972da6134f9b5f40681d8c"
+  },
+  {
+    "path": "04_CASE_STUDIES/03_phia_creator_farm_example.md",
+    "bytes": 2141,
+    "sha256": "301beacaa285de73037316c405e25554bb8781dab02ed007ae129e2337894864"
+  },
+  {
+    "path": "04_CASE_STUDIES/04_photobookshop_accc_hidden_influencer_reviews.md",
+    "bytes": 2202,
+    "sha256": "fe8371ca3beb2af5ddcc92f1ad38fa6900bc3da08b3219719fa8462b8828c048"
+  },
+  {
+    "path": "04_CASE_STUDIES/05_amazon_fake_review_brokers.md",
+    "bytes": 3094,
+    "sha256": "b618b8fdf6828d3949b0babc8f9ef479ee5c7652eee1709f136b5c3f78cf9387"
+  },
+  {
+    "path": "04_CASE_STUDIES/06_trustpilot_fake_review_transparency.md",
+    "bytes": 2066,
+    "sha256": "36c5f6337812ed472937487110b13913c663a44d55c1ad1b44ae7239691ee8ee"
+  },
+  {
+    "path": "04_CASE_STUDIES/07_google_maps_fake_local_reviews.md",
+    "bytes": 2070,
+    "sha256": "964e9186cef0aecc28f13cdc6d06381beee1c142ec472e967942bbf2a4fd6f96"
+  },
+  {
+    "path": "04_CASE_STUDIES/08_product_hunt_launch_rank_theater.md",
+    "bytes": 2335,
+    "sha256": "1ce815b098ff3c3f04a9a50744435d9397b64970f7b6f28d5e0e99656f5de694"
+  },
+  {
+    "path": "04_CASE_STUDIES/09_apple_app_store_discovery_fraud.md",
+    "bytes": 2118,
+    "sha256": "91898a7428215568c01cac0f39082ee88542f801c1c9344403d8c11ae1812275"
+  },
+  {
+    "path": "04_CASE_STUDIES/10_google_play_rating_review_install_policy.md",
+    "bytes": 1973,
+    "sha256": "e9a2e6598ae50bef1d6768783209063a3ecd91b2b94e1a7bfb25ebb9ac082db8"
+  },
+  {
+    "path": "04_CASE_STUDIES/11_google_search_spam_update.md",
+    "bytes": 2220,
+    "sha256": "5b1b21450420f03eda464aa35e4973f654c2b8ac89c6b55ad1523bc377f49f71"
+  },
+  {
+    "path": "04_CASE_STUDIES/12_google_ads_safety_report_2025.md",
+    "bytes": 2417,
+    "sha256": "a44f5f70f40bbf056a8230dcef9cbea84736c2bd2a5932f06e979f4ebbde3dbb"
+  },
+  {
+    "path": "04_CASE_STUDIES/13_appsflyer_mobile_attribution_fraud.md",
+    "bytes": 2397,
+    "sha256": "21db4b3716710d02e7e0427d0aeeddba49f0e0bf76a71cbc0708fb9ee12f12fb"
+  },
+  {
+    "path": "04_CASE_STUDIES/14_doj_michael_smith_ai_streaming_fraud.md",
+    "bytes": 2157,
+    "sha256": "82a16435610bfef82050a877b86b6bdb59565b9d7979cc49b6e09c15961baea9"
+  },
+  {
+    "path": "04_CASE_STUDIES/15_deezer_ai_music_flood.md",
+    "bytes": 2150,
+    "sha256": "d454f711afd2c71c050b52af41e4b6784831965c8b5b7aa696a6e5bc2f94699a"
+  },
+  {
+    "path": "04_CASE_STUDIES/16_cluely_arr_controversy.md",
+    "bytes": 2369,
+    "sha256": "56e333c22675cf794d08dd138ef92f486cf88aa73a0e267efc3adae5cd1d0133"
+  },
+  {
+    "path": "04_CASE_STUDIES/17_delve_compliance_credibility_controversy.md",
+    "bytes": 2073,
+    "sha256": "96a321f4945977d6523b173e8db301c23f537a8f206f9f5a69a02d2ee678d0f6"
+  },
+  {
+    "path": "04_CASE_STUDIES/18_linkedin_engagement_pods_and_automated_comments.md",
+    "bytes": 2146,
+    "sha256": "058acb4ab0f117824e7bedad004dc36add42ddbcc7f16444a884021336f31d22"
+  },
+  {
+    "path": "04_CASE_STUDIES/19_github_fake_star_rank_abuse.md",
+    "bytes": 2058,
+    "sha256": "d0e2f41972f80385f021449fcdd02de593bf72973ab68c2e4637b26a70ccea9d"
+  },
+  {
+    "path": "04_CASE_STUDIES/20_synthetic_influencers_and_ai_clones.md",
+    "bytes": 2297,
+    "sha256": "0a1146e3ecbd0aab30765eee9a989242e462a7e3d8c512b3e09ff775c8f6f9ae"
+  },
+  {
+    "path": "04_CASE_STUDIES/21_dark_patterns_in_subscription_checkout_flows.md",
+    "bytes": 2434,
+    "sha256": "e1907ea11b6dc36b2ab6c5209455ff54ea7ea15999de2276832f11e0df1ecd47"
+  },
+  {
+    "path": "04_CASE_STUDIES/22_meta_unoriginal_content_enforcement.md",
+    "bytes": 2024,
+    "sha256": "d99138c68217e15262d626c9695a8ddd1589e3e73eb528338f71d0cfccae8cd9"
+  },
+  {
+    "path": "05_DETECTION_FORENSICS/01_Red_Flags_By_Signal_Layer.md",
+    "bytes": 1028,
+    "sha256": "e487b324a99310fedfff266407b72631cefb39099a68b3d41f99f7738f7799fb"
+  },
+  {
+    "path": "05_DETECTION_FORENSICS/02_Evidence_Collection_Protocol.md",
+    "bytes": 1285,
+    "sha256": "72952969123a0085cfe7da1c7fd3a233d4ff3520092c4e58a0ef9fd457934304"
+  },
+  {
+    "path": "05_DETECTION_FORENSICS/03_Network_Coordination_Concepts.md",
+    "bytes": 1711,
+    "sha256": "9cde12648942fae67835a7c86c58ad97ff539ab4828a9600cd84502e46c1cfbd"
+  },
+  {
+    "path": "05_DETECTION_FORENSICS/04_Content_Similarity_And_Media_Reuse.md",
+    "bytes": 949,
+    "sha256": "32d60beb6ec87d71e1aedf3d5fcf8c2aaa2905c2eb3e8e5dab4dabff86147bdf"
+  },
+  {
+    "path": "05_DETECTION_FORENSICS/05_Attribution_Anomaly_Checklist.md",
+    "bytes": 2121,
+    "sha256": "51a4d587b9ee51d2da6978acbffa27914bebf83907d4a6f2786f3cc1450f1bc0"
+  },
+  {
+    "path": "05_DETECTION_FORENSICS/06_Source_Reliability_Rubric.md",
+    "bytes": 757,
+    "sha256": "26040c86aced0b8fd88c6184f1029e39afa6ef87a24f4f755023d840d6463099"
+  },
+  {
+    "path": "05_DETECTION_FORENSICS/07_Case_Coding_Sheet.md",
+    "bytes": 519,
+    "sha256": "95ab23f0c4bff198e22f7f1df891c6feb411b8cd1210352127d9143ec6e49c1b"
+  },
+  {
+    "path": "05_DETECTION_FORENSICS/08_Researcher_Interview_Questions.md",
+    "bytes": 966,
+    "sha256": "809c2ec54749a7262832a4351f983c0e03e39300abdc7766871853c5cb6e7083"
+  },
+  {
+    "path": "05_DETECTION_FORENSICS/09_Domain_By_Domain_Red_Flag_Matrix.md",
+    "bytes": 1235,
+    "sha256": "4e72568f02e0ea2a6bfb5f8b4713e07576cd61c6163ec51c96cf194e37cb3db6"
+  },
+  {
+    "path": "06_LAW_POLICY_PLATFORM_RULES/ACCC_Influencer_And_Review_Disclosure.md",
+    "bytes": 1571,
+    "sha256": "114829b9e46de23dac707ff29f1b564f3ef89069f575afc5b331c20153022c72"
+  },
+  {
+    "path": "06_LAW_POLICY_PLATFORM_RULES/Amazon_Fake_Review_Brokers.md",
+    "bytes": 1940,
+    "sha256": "25f61d7653fa57a84d9951a0395db52f63f802595250ff100c04be8d32e04ee2"
+  },
+  {
+    "path": "06_LAW_POLICY_PLATFORM_RULES/Apple_App_Store_Discovery_Fraud.md",
+    "bytes": 1584,
+    "sha256": "b035a5a271c6b6886aa1d461c88525965746c810ee3e753aaa6fdda499ba9c84"
+  },
+  {
+    "path": "06_LAW_POLICY_PLATFORM_RULES/AppsFlyer_Mobile_Fraud_Docs.md",
+    "bytes": 1806,
+    "sha256": "a64d16fd92b232f10b2693d3759ffb7c89f391d42acbaa9ac5e4af56fcadbbfd"
+  },
+  {
+    "path": "06_LAW_POLICY_PLATFORM_RULES/FTC_Fake_Reviews_And_Testimonials.md",
+    "bytes": 1875,
+    "sha256": "6349e772e3ba4e1619b8888856eac17b22946d862420a29e3d80c9c6779c55d4"
+  },
+  {
+    "path": "06_LAW_POLICY_PLATFORM_RULES/GitHub_Rank_Abuse_And_Inauthentic_Activity.md",
+    "bytes": 1533,
+    "sha256": "b09bfeca4c80a39d304e214c371a420d1ba81235c1054a837bd7dc4f117094f0"
+  },
+  {
+    "path": "06_LAW_POLICY_PLATFORM_RULES/Google_Ads_Safety_And_Scam_Ads.md",
+    "bytes": 1872,
+    "sha256": "36c0020bf9475b64efdcb8ae628466759d1129cb3acab15a4f7cb988549b9d6a"
+  },
+  {
+    "path": "06_LAW_POLICY_PLATFORM_RULES/Google_Maps_Fake_Engagement.md",
+    "bytes": 1516,
+    "sha256": "57cca8847e8150deafeacd782a10b7e40a9a2c6e356bb4dc7e392e517e176fb0"
+  },
+  {
+    "path": "06_LAW_POLICY_PLATFORM_RULES/Google_Play_Ratings_Reviews_Installs.md",
+    "bytes": 1485,
+    "sha256": "828376874b8ad4aa73358aa0cfae0cf1646865e631db404a9b2bbe3a8b3a412d"
+  },
+  {
+    "path": "06_LAW_POLICY_PLATFORM_RULES/Google_Search_Spam_Policies.md",
+    "bytes": 1691,
+    "sha256": "826c4df79415d3ce5ba6605f933763151f320dceea2450f621e8d97e6649045b"
+  },
+  {
+    "path": "06_LAW_POLICY_PLATFORM_RULES/LinkedIn_Engagement_Pods_And_Automated_Comments.md",
+    "bytes": 1531,
+    "sha256": "c1d1bfdb4d7adf11b9ce6973daf37c3fa5cb1fa31e3da911ec173b100f0cc403"
+  },
+  {
+    "path": "06_LAW_POLICY_PLATFORM_RULES/Meta_Original_Content_And_Impersonation.md",
+    "bytes": 1522,
+    "sha256": "80d30b0e889930bd78be19ead18f93b38d6273ecc28464c9b6f7f441772b9ca1"
+  },
+  {
+    "path": "06_LAW_POLICY_PLATFORM_RULES/OECD_And_FTC_Dark_Patterns.md",
+    "bytes": 1863,
+    "sha256": "e5898ab755f70f44092e6c03d43322d875b36ad45e35fb824141fea5a3e02d97"
+  },
+  {
+    "path": "06_LAW_POLICY_PLATFORM_RULES/Product_Hunt_Genuine_Engagement.md",
+    "bytes": 1700,
+    "sha256": "4f1724a3f8cddfd8cadf2ede84c0376209630af06c0febe0d00a2095b809de24"
+  },
+  {
+    "path": "06_LAW_POLICY_PLATFORM_RULES/TikTok_Integrity_Authenticity.md",
+    "bytes": 1525,
+    "sha256": "7601e2ae6c0e2c5fb792b37cb4eaa9f9d69698f755fee4a5321e5ec313ad2eeb"
+  },
+  {
+    "path": "06_LAW_POLICY_PLATFORM_RULES/Trustpilot_Fake_Reviews.md",
+    "bytes": 1480,
+    "sha256": "6ecd0fcb76a3d791f7436d01f4f2f330b9e226cae909e89d71450994b70b790c"
+  },
+  {
+    "path": "06_LAW_POLICY_PLATFORM_RULES/X_Authenticity_Platform_Manipulation.md",
+    "bytes": 1470,
+    "sha256": "eda507782e73732efbb3403e1185d90ca921a37e88eadb37facf9c833a44f338"
+  },
+  {
+    "path": "06_LAW_POLICY_PLATFORM_RULES/YouTube_Fake_Engagement.md",
+    "bytes": 1437,
+    "sha256": "3a3a1c47b81c892d753033960cb14e78b262a7f457951ef573e08109df6cbf87"
+  },
+  {
+    "path": "07_PAPER_SLIDES_OUTPUTS/01_Paper_Outline.md",
+    "bytes": 1489,
+    "sha256": "a71483a4e92734056d655244b5d974630895259823d41895def85acd277c7626"
+  },
+  {
+    "path": "07_PAPER_SLIDES_OUTPUTS/02_Abstract_Versions.md",
+    "bytes": 2480,
+    "sha256": "cab2d10cf220ef10bfcf0020eb0af986b821b6510f5be3ab3a3010872be97c57"
+  },
+  {
+    "path": "07_PAPER_SLIDES_OUTPUTS/03_40_Slide_Deck_Outline.md",
+    "bytes": 9099,
+    "sha256": "d3febf3317f2144e479225bac4f01ccb384f5b6329f8b97ae1dc72b160dbc893"
+  },
+  {
+    "path": "07_PAPER_SLIDES_OUTPUTS/04_Speaker_Notes_Master.md",
+    "bytes": 748,
+    "sha256": "f43941f6bb4a240020461cb158f0f0bc924e0a68bfdcbe8c8aaf57800365a3d7"
+  },
+  {
+    "path": "07_PAPER_SLIDES_OUTPUTS/05_Literature_Review_Map.md",
+    "bytes": 3540,
+    "sha256": "8a881ef87a4be8829a5d485fadaa074ed32ff9ea57d2fec0a0c613cb4e0ab33b"
+  },
+  {
+    "path": "07_PAPER_SLIDES_OUTPUTS/06_Argument_Map.md",
+    "bytes": 813,
+    "sha256": "744303ecc8cea997237de8f99d57f16e1759ae4dcbabc21c8e335190b137571a"
+  },
+  {
+    "path": "08_TEMPLATES/Case_Study_Template.md",
+    "bytes": 345,
+    "sha256": "15e13771f681e34b8f2da152547423e6ee4c93fc5268e68c424a024a3a5b4110"
+  },
+  {
+    "path": "08_TEMPLATES/Ethical_Audit_Template.md",
+    "bytes": 604,
+    "sha256": "8bb7df9893cfd5ffc666c2faf02ffc29c6d594c76d8bd99314de57aeceafd8e3"
+  },
+  {
+    "path": "08_TEMPLATES/Slide_Template.md",
+    "bytes": 158,
+    "sha256": "3049984fc31a8eee4b780297325ba1e566ba0e66523fc5c3aae182d263c21163"
+  },
+  {
+    "path": "08_TEMPLATES/Source_Note_Template.md",
+    "bytes": 211,
+    "sha256": "e6d8be17d665b61b04391e3a867757a1a0c4db347adc5736d82764d615e4c559"
+  },
+  {
+    "path": "08_TEMPLATES/Tactic_Card_Template.md",
+    "bytes": 268,
+    "sha256": "e4d211e30cd1f95cd5ca31e44a3932bb4f0965b4a63b3204ebe8a815c9fe6c05"
+  },
+  {
+    "path": "09_SOURCE_INDEX/01_Citation_Bank.md",
+    "bytes": 14854,
+    "sha256": "76d9f65365cd2d507c60712d51a4092ff50fd804a0633377918bf363b7136d24"
+  },
+  {
+    "path": "09_SOURCE_INDEX/02_Evidence_Tier_Map.md",
+    "bytes": 848,
+    "sha256": "8321184a46834e7bd0cebdb23e21f37de7acc590d80c669c05501dc541ab9344"
+  },
+  {
+    "path": "09_SOURCE_INDEX/By_Domain/01_Social_Media_And_Creator_Economy_Sources.md",
+    "bytes": 2608,
+    "sha256": "355d165c034c0de1ef6b15a5519666e041d05d8150835d811c9a469064961dfb"
+  },
+  {
+    "path": "09_SOURCE_INDEX/By_Domain/02_Reviews_Reputation_And_Local_Search_Sources.md",
+    "bytes": 2582,
+    "sha256": "bdf6beca138c61d6274daf3a7bdd7e20dde405861431044c6d7b93efbcd991e6"
+  },
+  {
+    "path": "09_SOURCE_INDEX/By_Domain/03_Search_SEO_And_Content_Farms_Sources.md",
+    "bytes": 573,
+    "sha256": "b213eb9d7f343e390b28e2e4fb141603a32ba5232a1203da42b9739930ca1527"
+  },
+  {
+    "path": "09_SOURCE_INDEX/By_Domain/04_Ads_Leadgen_And_Attribution_Sources.md",
+    "bytes": 1391,
+    "sha256": "91f7c4e48239a17a9456709e2be6e9eaddcc8ce1f2dec3c0430d2aba6bd28e05"
+  },
+  {
+    "path": "09_SOURCE_INDEX/By_Domain/05_App_Stores_Launch_Platforms_And_Code_Sources.md",
+    "bytes": 1675,
+    "sha256": "fc45b9e0a9088ddcc1886441dd5645f163c29a13c5e3491d3af96364c731e656"
+  },
+  {
+    "path": "09_SOURCE_INDEX/By_Domain/06_Music_Media_And_Synthetic_Content_Sources.md",
+    "bytes": 1705,
+    "sha256": "a95088dbb5cc799dc369b295e610533d89d6d9f0d664820d119d6a8f3a3a75b9"
+  },
+  {
+    "path": "09_SOURCE_INDEX/By_Domain/07_Startup_Finance_And_Institutional_Trust_Sources.md",
+    "bytes": 1545,
+    "sha256": "548524c2c37bc1872730d7456223f423fee7293232bd73552261063f371b0d7a"
+  },
+  {
+    "path": "09_SOURCE_INDEX/By_Domain/08_Dark_Patterns_And_Choice_Architecture_Sources.md",
+    "bytes": 753,
+    "sha256": "9fe017a0991305ddf91004741b63d97c1ab4e27ac5a69252104948750f4bb206"
+  },
+  {
+    "path": "09_SOURCE_INDEX/Source_Registry_Expanded_v5.md",
+    "bytes": 2404,
+    "sha256": "74d36709e156ef08e3dc02c95257101cde7576dc1c7da647a6e73c4ccdf80feb"
+  },
+  {
+    "path": "10_APPENDICES/01_Glossary.md",
+    "bytes": 1191,
+    "sha256": "fa5eab2be580c0a83b918c885a75e0af0d3105d5c8f5dbc941671315dcdabb3d"
+  },
+  {
+    "path": "10_APPENDICES/02_Timeline.md",
+    "bytes": 1138,
+    "sha256": "4bea35b609d84d73c3572339d49acc65cf1936cc04baec46dc10e44cd6c398c4"
+  },
+  {
+    "path": "10_APPENDICES/03_Limitations.md",
+    "bytes": 875,
+    "sha256": "43fa533287e9913d7f816a7dc4164bd76120482ed9ff65ef7a9d3af831037c24"
+  },
+  {
+    "path": "10_APPENDICES/04_Extended_Taxonomy_80_Ways.md",
+    "bytes": 2124,
+    "sha256": "001dfc09c9e5fe06383c79643fab882935769665255dd05f778aba90b6913021"
+  },
+  {
+    "path": "11_DEEP_DIVES/01_signal_anatomy_by_domain.md",
+    "bytes": 3429,
+    "sha256": "ce27551b25b6250fbd5e6d3816b35e8612c7723a2838f62f562d23f941ece7bb"
+  },
+  {
+    "path": "11_DEEP_DIVES/02_clipping_economy_deep_dive.md",
+    "bytes": 2523,
+    "sha256": "6651e838d280c20b7e9e24287f5ea11f39e1cf6654df98dc89314db06f3054c2"
+  },
+  {
+    "path": "11_DEEP_DIVES/03_trend_simulation_music_deep_dive.md",
+    "bytes": 1424,
+    "sha256": "811e8cd457e05467cd1c956e10d64733293c5dc0e4b6721c4f74984910bcd19f"
+  },
+  {
+    "path": "11_DEEP_DIVES/04_native_astroturfing_deep_dive.md",
+    "bytes": 1590,
+    "sha256": "ff065ee2769bc2da767c87de0109cb75aff6a0db1beb20a00dd182f9e7b51bbb"
+  },
+  {
+    "path": "11_DEEP_DIVES/05_reviews_testimonials_deep_dive.md",
+    "bytes": 1487,
+    "sha256": "77ead1148bf18bf0108b6759a09351a941c105d95ab0760f1d46a59229d088ee"
+  },
+  {
+    "path": "11_DEEP_DIVES/06_launch_and_badge_manipulation_deep_dive.md",
+    "bytes": 1276,
+    "sha256": "ad89e8d81dfc48abb6ef6388130ea813fbc5f26a7927cc8417a163de8a88fb5d"
+  },
+  {
+    "path": "11_DEEP_DIVES/07_ads_leads_and_attribution_deep_dive.md",
+    "bytes": 1310,
+    "sha256": "adef364219d10842d05bc69a3e298000a8945f11acdd95727f07021420f344d5"
+  },
+  {
+    "path": "11_DEEP_DIVES/08_ai_synthetic_supply_deep_dive.md",
+    "bytes": 1217,
+    "sha256": "709f8f9017a861e07313b78c97fa44cf142c33b3c988a6e3c518a3df78686c15"
+  },
+  {
+    "path": "11_DEEP_DIVES/09_startup_legitimacy_theatre_deep_dive.md",
+    "bytes": 1564,
+    "sha256": "07633fe471c8da371ed04ee719e12819c59d4b085b11a4bcec6e9e69d3b08397"
+  },
+  {
+    "path": "11_DEEP_DIVES/10_platform_policy_boundary_comparison.md",
+    "bytes": 1800,
+    "sha256": "0c85c9923d680d9ab0d233784027c6618e01f627f9f3ad088fd11e9f9258acd5"
+  },
+  {
+    "path": "11_DEEP_DIVES/11_ethical_evaluation_rubric.md",
+    "bytes": 1214,
+    "sha256": "0a06b3a879acce6c38046b64c494b180f716d81b2bd08286b4ba7cacc464f4f1"
+  },
+  {
+    "path": "11_DEEP_DIVES/12_source_triage_and_language_guide.md",
+    "bytes": 1354,
+    "sha256": "0905895f781ef026d366d3fff3b237c05d597ed656cae0b640f9b19c84ee2b15"
+  },
+  {
+    "path": "11_DEEP_DIVES/README.md",
+    "bytes": 302,
+    "sha256": "583fbbbe240687f9a3e9543473258c77b96e0dcd57fe3b350e08128993d281f5"
+  },
+  {
+    "path": "12_ANALYTIC_MATRICES/01_master_tactic_matrix.md",
+    "bytes": 4647,
+    "sha256": "172462a33c723f36859d14cb4b6f63afc35ffb24a29508254640c130744d587a"
+  },
+  {
+    "path": "12_ANALYTIC_MATRICES/02_policy_boundary_matrix.md",
+    "bytes": 1264,
+    "sha256": "085bb34bcc008a00adb84ccb8ca7978f75d30ca2da96fbc62f089ce8eb9f19fa"
+  },
+  {
+    "path": "12_ANALYTIC_MATRICES/03_detection_by_signal_layer.md",
+    "bytes": 785,
+    "sha256": "00dd0aaa959f4f3050009ab1f2fdd82bb039a1d732ae6197ec08125a6ff63dbc"
+  },
+  {
+    "path": "12_ANALYTIC_MATRICES/04_case_by_evidence_status.md",
+    "bytes": 686,
+    "sha256": "257c3e8d7962ad3fdae4f41119430d02b67e34d2ffaa0614502314eb1ca5872c"
+  },
+  {
+    "path": "12_ANALYTIC_MATRICES/05_harm_by_stakeholder.md",
+    "bytes": 835,
+    "sha256": "474763180bd4e7e1e6e20f81a540d92dfe64fc099d91231290f646a2a7d3cce7"
+  },
+  {
+    "path": "12_ANALYTIC_MATRICES/06_safe_wording_matrix.md",
+    "bytes": 774,
+    "sha256": "6215ff8896622e5d14b7fda3f4a6de2c791d520d5f608e99f137c91f46abeedb"
+  },
+  {
+    "path": "12_ANALYTIC_MATRICES/README.md",
+    "bytes": 302,
+    "sha256": "23294d399d74e2d2e1f5e012db7e4037d1580f42ac0afb2e7da91cf03f64bd86"
+  },
+  {
+    "path": "13_STUDY_GUIDES/01_one_page_summary.md",
+    "bytes": 1025,
+    "sha256": "67d8c3d26d437ac6c01ca8da5c43ba56422f4d8e75d09670cdbe8f125c2d03a2"
+  },
+  {
+    "path": "13_STUDY_GUIDES/02_flashcards.md",
+    "bytes": 1167,
+    "sha256": "12b6ff9e8c4e322f2b73ead913dd058afef84ec6a7ae48d3e75ddbb91be13a1b"
+  },
+  {
+    "path": "13_STUDY_GUIDES/03_argument_map.md",
+    "bytes": 610,
+    "sha256": "c31146acfc98e777c6ebdf65a314961a0186f29d53bf36de25e4627c78ede4b0"
+  },
+  {
+    "path": "13_STUDY_GUIDES/README.md",
+    "bytes": 284,
+    "sha256": "1c6363e7b9c3ab4ffdb9c6d5785651a15598af6aed6046010ced18a39d73b73e"
+  },
+  {
+    "path": "14_QA_VALIDATION/QA_REPORT.md",
+    "bytes": 1021,
+    "sha256": "6904bf61f93b7847104c0b507e8321f891c374cb9b7ab8d139722b736d08d276"
+  },
+  {
+    "path": "14_QA_VALIDATION/QA_REPORT_V8.md",
+    "bytes": 133,
+    "sha256": "275038fdcf97c332bc6a45a7bb172d74e4dd2d49bd1cc80f580d5d665b74522b"
+  },
+  {
+    "path": "14_QA_VALIDATION/SHA256SUMS.txt",
+    "bytes": 44639,
+    "sha256": "8fc3101c562db8df6dc29cf051f9e5dda8977c81df68d883eaa7598d1af4252c"
+  },
+  {
+    "path": "14_QA_VALIDATION/V7_QA_REPORT.md",
+    "bytes": 359,
+    "sha256": "7b9df41fad316569350fcd3da456b76b725e4dddbf716312b9e18113f3d59063"
+  },
+  {
+    "path": "14_QA_VALIDATION/file_manifest.csv",
+    "bytes": 46375,
+    "sha256": "be489845239207ba85b1f54d65076f92ea0ac9c3e05c22efe8afbd0acf03297d"
+  },
+  {
+    "path": "14_QA_VALIDATION/file_manifest.json",
+    "bytes": 67349,
+    "sha256": "194b7d410273834ce2a8845f9df77119b293baa39f00c1b7250c5edd9bae11ad"
+  },
+  {
+    "path": "14_QA_VALIDATION/file_manifest_v8.csv",
+    "bytes": 63889,
+    "sha256": "26cb40995c1296aac7326f0b5a617b3b12c617f1aea74c2618352dfa756ccfa0"
+  },
+  {
+    "path": "14_QA_VALIDATION/file_manifest_v8.json",
+    "bytes": 88782,
+    "sha256": "5ca30242fbaa28b949ef3b89f8d0d78058fc90fa2ae0ee2fe2b7e46fcb93b10a"
+  },
+  {
+    "path": "14_QA_VALIDATION/run_local_integrity_check.py",
+    "bytes": 1541,
+    "sha256": "59e291ae117f7626ed947e5b61314729202993c15b7d0075e05cb801fff0893f"
+  },
+  {
+    "path": "14_QA_VALIDATION/source_link_inventory.csv",
+    "bytes": 53754,
+    "sha256": "55abef2b8b657b21744925e638bfa31ffd875455d41102925657386bbafdc80a"
+  },
+  {
+    "path": "14_QA_VALIDATION/v7_SHA256SUMS.txt",
+    "bytes": 51020,
+    "sha256": "acb76bee7432cc1b7434fa182028670a104a04f2411cf56d4b1c42026afd73e4"
+  },
+  {
+    "path": "14_QA_VALIDATION/v7_file_manifest.csv",
+    "bytes": 52965,
+    "sha256": "b7fa957217c3126ae24f032d46ede98833c7cf3ca489b8f0764dd81c2e4fdb16"
+  },
+  {
+    "path": "14_QA_VALIDATION/v7_file_manifest.json",
+    "bytes": 74413,
+    "sha256": "c04ae2cc94b34dca6717a33705a4ad387243f9e05b23ac3dd0636c8fb2a47d6b"
+  },
+  {
+    "path": "15_RESEARCH_PATTERN_ATLAS/00_Overview.md",
+    "bytes": 1160,
+    "sha256": "c4ce2c3a0c776737fa9bc048b61d60c370e149fefc8986f9d1d4540bf38e1d6c"
+  },
+  {
+    "path": "15_RESEARCH_PATTERN_ATLAS/01_Visibility_Patterns_Detailed.md",
+    "bytes": 2165,
+    "sha256": "c7a633eff7f370352b76b31ab9b0bd3ad6d77847eaadc370536c5d46042cc222"
+  },
+  {
+    "path": "15_RESEARCH_PATTERN_ATLAS/02_Credibility_Patterns_Detailed.md",
+    "bytes": 1700,
+    "sha256": "311e559079d3cc12ba3c4e7197d095ef5f211c111d5b55efba0ace22a69f263c"
+  },
+  {
+    "path": "15_RESEARCH_PATTERN_ATLAS/03_Conversion_Patterns_Detailed.md",
+    "bytes": 1456,
+    "sha256": "fdb2fa3ae29dbf2b59de4c0b65fd2ac4776014b3c3a4f9550dc46dbcce446642"
+  },
+  {
+    "path": "15_RESEARCH_PATTERN_ATLAS/04_Attribution_Patterns_Detailed.md",
+    "bytes": 1274,
+    "sha256": "2012f1d20afb8ead560105a2d5ed3156620575219e607455077dbb8761412979"
+  },
+  {
+    "path": "15_RESEARCH_PATTERN_ATLAS/05_Legitimacy_Patterns_Detailed.md",
+    "bytes": 1548,
+    "sha256": "6d0b9e0006f909936afa17345f6181c9a413011becdb087d3d6cfbabdf8a752c"
+  },
+  {
+    "path": "15_RESEARCH_PATTERN_ATLAS/06_Cross_Platform_Sequences.md",
+    "bytes": 1749,
+    "sha256": "4f6d8af2b8c3b821c6627395d9d478ed2ed02372fb5a984829900f93979a135f"
+  },
+  {
+    "path": "15_RESEARCH_PATTERN_ATLAS/07_Failure_Modes_And_Backfire_Risks.md",
+    "bytes": 1116,
+    "sha256": "af9872a08d8291dac62d8a3495a175fdd72e2e4a46b74ba475eaa651cb548b19"
+  },
+  {
+    "path": "15_RESEARCH_PATTERN_ATLAS/08_Ethical_Boundary_Decision_Tree.md",
+    "bytes": 1550,
+    "sha256": "558639e2fc0f415510b4ff1cdfd4f04479c21adeafc929b03c246d61b4ed5f9f"
+  },
+  {
+    "path": "15_RESEARCH_PATTERN_ATLAS/09_Specific_Examples_Crosswalk.md",
+    "bytes": 1945,
+    "sha256": "73b3a987aab5f79402b57791b00f170b0721f8401721ddd27d24ff45ae64acfb"
+  },
+  {
+    "path": "16_RESEARCH_DESIGN/00_Research_Design_Overview.md",
+    "bytes": 1529,
+    "sha256": "893e014d8fefececd5b204158b0b256ddd1c7dfbd54ec725afec90826f3594a6"
+  },
+  {
+    "path": "16_RESEARCH_DESIGN/01_Case_Study_Coding_Template.md",
+    "bytes": 1117,
+    "sha256": "b710f4b7a9b052b1d9db48a325cc1b4567f172ebf841ae8a8ef004afe452fd20"
+  },
+  {
+    "path": "16_RESEARCH_DESIGN/02_Interview_Protocol_For_Ethical_Research.md",
+    "bytes": 1549,
+    "sha256": "6c19313b5e6387313e8adccad3a6f54d6a125c202fe063784fb6ba5edd033d27"
+  },
+  {
+    "path": "16_RESEARCH_DESIGN/03_Evidence_Strength_Scoring_Rubric.md",
+    "bytes": 1319,
+    "sha256": "e7a724bb17f79eb27ffefbb8b31907f6616e10a293969cd724f69736864e184f"
+  },
+  {
+    "path": "16_RESEARCH_DESIGN/04_Public_Data_Collection_Checklist.md",
+    "bytes": 1188,
+    "sha256": "3921e50c7462e1458728d8e00d94525494f95080e3f43208e22f94d6ce336cfb"
+  },
+  {
+    "path": "17_SLIDE_READY_TABLES/00_Slide_Table_Index.md",
+    "bytes": 505,
+    "sha256": "9225c14b1360f484b1b76a1b6dc615a118fd20a760c633a786e49f60ca6d2aba"
+  },
+  {
+    "path": "17_SLIDE_READY_TABLES/01_Five_Signal_Layers_Table.md",
+    "bytes": 822,
+    "sha256": "04d821935da89713f84312cd96baddec658a831c6f0dceb5593efd847643711e"
+  },
+  {
+    "path": "17_SLIDE_READY_TABLES/02_Tactic_By_Signal_Layer_Table.md",
+    "bytes": 922,
+    "sha256": "5e8bf51d2999d73cd5b6241bebeb7f01542abd44f861993e1cea0c594a3d2fdc"
+  },
+  {
+    "path": "17_SLIDE_READY_TABLES/03_Case_Study_Evidence_Table.md",
+    "bytes": 1523,
+    "sha256": "4590e2aa3d6399b8b485db1419ad319bbd35681e0e2cb190e388081ecdfb80f2"
+  },
+  {
+    "path": "17_SLIDE_READY_TABLES/04_Harms_By_Stakeholder_Table.md",
+    "bytes": 903,
+    "sha256": "4568d778706a067bb97f6c1f0635add4dcfc1e2e7efccbd8f6f114667d0ca014"
+  },
+  {
+    "path": "17_SLIDE_READY_TABLES/05_Detection_Red_Flags_Table.md",
+    "bytes": 1101,
+    "sha256": "a558784ab348efc7f8f762fafb91200ec9e3e210dc22bdf767dbf7448734d8da"
+  },
+  {
+    "path": "17_SLIDE_READY_TABLES/06_Platform_Boundary_Table.md",
+    "bytes": 1363,
+    "sha256": "a8acb8b43c30e045813890c5c32022162e2b5c61e27aee9f16f15700cb92716a"
+  },
+  {
+    "path": "18_NETWORK_MATH_AND_VERIFICATION/00_Source_Notes.md",
+    "bytes": 3611,
+    "sha256": "233b8335fdc46a234ffd2569ac83418f7621302b97cf684ea7ae624bf44eae8e"
+  },
+  {
+    "path": "18_NETWORK_MATH_AND_VERIFICATION/01_Graph_Construction_Primer.md",
+    "bytes": 1823,
+    "sha256": "ad19a15154fc9f3f1645a930747e87281dbfb3e6a6c44ee07de7d79e2becde34"
+  },
+  {
+    "path": "18_NETWORK_MATH_AND_VERIFICATION/02_Coordinated_Action_Model.md",
+    "bytes": 1686,
+    "sha256": "45d0c7ede7dd33292c585a503bf9be15f70cc04a3db9167fd910027063931205"
+  },
+  {
+    "path": "18_NETWORK_MATH_AND_VERIFICATION/03_Bipartite_Account_Content_Graphs.md",
+    "bytes": 1391,
+    "sha256": "9c44620b09e3504d32847eeb9a89d91aa1c49a75d824d37aef31777dfcf42867"
+  },
+  {
+    "path": "18_NETWORK_MATH_AND_VERIFICATION/04_Projection_And_Edge_Weighting.md",
+    "bytes": 1340,
+    "sha256": "74d156ac4f6e00823a3927dd4d9ded9ee7b275da3cc96af0b2ed93e49f8d0557"
+  },
+  {
+    "path": "18_NETWORK_MATH_AND_VERIFICATION/05_Temporal_Coordination_Windows.md",
+    "bytes": 1345,
+    "sha256": "a5d6ab629195e84b391a5366409cabff967ca873b9c6ac2dc8b4465178e2076a"
+  },
+  {
+    "path": "18_NETWORK_MATH_AND_VERIFICATION/06_Jaccard_Overlap_Cosine_Similarity.md",
+    "bytes": 1067,
+    "sha256": "eeb0214ada51de3072c0199c15a485df6bb59e5579a77921d78c402c3efdf55e"
+  },
+  {
+    "path": "18_NETWORK_MATH_AND_VERIFICATION/07_Modularity_Community_Detection.md",
+    "bytes": 1427,
+    "sha256": "59fcc270b6ef48bbcbebeabe2b46f986dd70cfccd6d42117e726c1945bbe647d"
+  },
+  {
+    "path": "18_NETWORK_MATH_AND_VERIFICATION/08_Centrality_Interpretation.md",
+    "bytes": 975,
+    "sha256": "9f5ad22771c0cb4eaa99a39b151f5798cf8cce29e7073417e196c19171b8adea"
+  },
+  {
+    "path": "18_NETWORK_MATH_AND_VERIFICATION/09_Broker_Hubs_Bridge_Nodes.md",
+    "bytes": 1169,
+    "sha256": "3411ad98f8bbe8c5e5888395920e96e1e6492a710dac9728acbbde1ba6fbb45e"
+  },
+  {
+    "path": "18_NETWORK_MATH_AND_VERIFICATION/10_Burst_Detection_And_Z_Scores.md",
+    "bytes": 1121,
+    "sha256": "8cf6ee134f02484910cb5bfd35befa5efd9208f176940dfe72f678d39e4df066"
+  },
+  {
+    "path": "18_NETWORK_MATH_AND_VERIFICATION/11_Entropy_Diversity_Metrics.md",
+    "bytes": 1032,
+    "sha256": "2a352e8a0e4f8310a0d8ad547989b7e78b8cdb253210822fa6afde30c71e24a8"
+  },
+  {
+    "path": "18_NETWORK_MATH_AND_VERIFICATION/12_Null_Models_And_Permutation_Tests.md",
+    "bytes": 1226,
+    "sha256": "cbcfaaf5ebd0f1f52d2036ee9e480bb74fadaa5c768e53083e961c3f12ff0ff0"
+  },
+  {
+    "path": "18_NETWORK_MATH_AND_VERIFICATION/13_Multi_Layer_Networks.md",
+    "bytes": 1128,
+    "sha256": "dbb8747f64c4bebf336c19edacdf1cc5cb7e33771865639048324dcf5a5a32b0"
+  },
+  {
+    "path": "18_NETWORK_MATH_AND_VERIFICATION/14_Diffusion_Cascade_Shape.md",
+    "bytes": 1314,
+    "sha256": "98ed8d11b100b3f93745298575e2f7e21e8c0be4ab64d0efccfb40807f7d1787"
+  },
+  {
+    "path": "18_NETWORK_MATH_AND_VERIFICATION/15_Bayesian_Evidence_Scoring.md",
+    "bytes": 1231,
+    "sha256": "419a1d1e17b02fb0c989fd8f3d403af0084f8272b4a37e068198bfd8afec3947"
+  },
+  {
+    "path": "18_NETWORK_MATH_AND_VERIFICATION/16_Causal_Inference_Difference_In_Differences.md",
+    "bytes": 1112,
+    "sha256": "df9cb334504eec98ee5101cf0a82bba6969279c43ea6c5c9416afba5ff6891d3"
+  },
+  {
+    "path": "18_NETWORK_MATH_AND_VERIFICATION/17_Risk_Score_Rubric.md",
+    "bytes": 939,
+    "sha256": "72f7c0667ea24ecd64bf835fed8a906de87f75726e8674486d5e7c31253d6c60"
+  },
+  {
+    "path": "18_NETWORK_MATH_AND_VERIFICATION/18_False_Positive_Guardrails.md",
+    "bytes": 1221,
+    "sha256": "8728700af2fdae9a330ac5d3aa9b608c55638771cd398a9470d76edca721fdb2"
+  },
+  {
+    "path": "18_NETWORK_MATH_AND_VERIFICATION/19_Math_Cheat_Sheet.md",
+    "bytes": 743,
+    "sha256": "57e13d6f08899dc73d7159cd3a07e8663e6f4c14f4a3babf9c2777b0e6dc6194"
+  },
+  {
+    "path": "18_NETWORK_MATH_AND_VERIFICATION/20_Slide_Visualisations_Guide.md",
+    "bytes": 1062,
+    "sha256": "8a67f30d7f09733b5a1abc5e5a7e54f40199c12282b9d31d93ea0bc8aad9e845"
+  },
+  {
+    "path": "18_NETWORK_MATH_AND_VERIFICATION/README.md",
+    "bytes": 2022,
+    "sha256": "16084fab77bafcb62af79da002f7aafc1c4d0dc1db8d38e1fd642948e190f41a"
+  },
+  {
+    "path": "19_SYNTHETIC_NETWORK_DEMO/README.md",
+    "bytes": 1618,
+    "sha256": "336e0aa888865d358451b59025deff910d8aaedfe875d295323ad3f4da9519c7"
+  },
+  {
+    "path": "19_SYNTHETIC_NETWORK_DEMO/data/account_profiles.csv",
+    "bytes": 6113,
+    "sha256": "f05acc1bdd0db2441ae977423e85028e3a1cc5ab77b53e9af1d0d2e34fab6e86"
+  },
+  {
+    "path": "19_SYNTHETIC_NETWORK_DEMO/data/synthetic_engagement.csv",
+    "bytes": 16051,
+    "sha256": "4b2c48d9427ac4d73d6dee432216974f8d2442a345bf2e26a61e48a44796a246"
+  },
+  {
+    "path": "19_SYNTHETIC_NETWORK_DEMO/data/synthetic_posts.csv",
+    "bytes": 84387,
+    "sha256": "a663a32e8321976af101ee6c5f0bd8f61c50803286b41abb8c313083526dd203"
+  },
+  {
+    "path": "19_SYNTHETIC_NETWORK_DEMO/outputs/anomaly_scores_toy.csv",
+    "bytes": 4182,
+    "sha256": "588a6e2c06d371ab17e659f8178fa5894cb1980795f0dc3e68a28b4d8e446776"
+  },
+  {
+    "path": "19_SYNTHETIC_NETWORK_DEMO/outputs/burst_z_scores.csv",
+    "bytes": 9352,
+    "sha256": "ec899046425f316b384cda4b2974f6bedf50d4ac6cbb8360de1913d00c9b75d2"
+  },
+  {
+    "path": "19_SYNTHETIC_NETWORK_DEMO/outputs/community_summary.csv",
+    "bytes": 235,
+    "sha256": "d204e75a30f786f92838dcb905bdee43075a08d621662aa29cace691c498ec54"
+  },
+  {
+    "path": "19_SYNTHETIC_NETWORK_DEMO/outputs/coordination_edges_all.csv",
+    "bytes": 11175,
+    "sha256": "15c6f072fd218f343938d0a26ed34a0654843374593aeda3bd294be76b2c82e8"
+  },
+  {
+    "path": "19_SYNTHETIC_NETWORK_DEMO/outputs/coordination_edges_threshold_4.csv",
+    "bytes": 10577,
+    "sha256": "19dd241672366765654f504e4b77aba8725a5462c1d4b7051ad074b596308249"
+  },
+  {
+    "path": "19_SYNTHETIC_NETWORK_DEMO/outputs/demo_findings.md",
+    "bytes": 1668,
+    "sha256": "5be375e3dc33e1c2e7e20d295a26422c8ecf29e735d2375247b83b622d8e39bf"
+  },
+  {
+    "path": "19_SYNTHETIC_NETWORK_DEMO/outputs/demo_summary.json",
+    "bytes": 398,
+    "sha256": "bb925bad489b921567aa4effaaad89bdecf5188dca213b5e8360a6540eddc29b"
+  },
+  {
+    "path": "19_SYNTHETIC_NETWORK_DEMO/outputs/figures/actor_content_heatmap.png",
+    "bytes": 117825,
+    "sha256": "3563776fcc1c8baa122ae56e59955f7ecbbefe5ab0c070b294a8dd66d24edaf8"
+  },
+  {
+    "path": "19_SYNTHETIC_NETWORK_DEMO/outputs/figures/coordination_network.png",
+    "bytes": 193968,
+    "sha256": "11c0fd974d38550cb57aa75eb1ca0400a51ec2ec81428a56a798825e81317a70"
+  },
+  {
+    "path": "19_SYNTHETIC_NETWORK_DEMO/outputs/figures/edge_weight_histogram.png",
+    "bytes": 51546,
+    "sha256": "60e1e0f85f356163393f8cec7be6b4c507bed46992e86d256fd4e45f566f3d6b"
+  },
+  {
+    "path": "19_SYNTHETIC_NETWORK_DEMO/outputs/figures/null_model_distribution.png",
+    "bytes": 49140,
+    "sha256": "72c624de3e4cfe619a058a3c8a884b74dc0a4e2e231ce727e0948c4aca583d20"
+  },
+  {
+    "path": "19_SYNTHETIC_NETWORK_DEMO/outputs/figures/timeline_bursts.png",
+    "bytes": 182189,
+    "sha256": "242cba9dd72099e5c8a43ee42fcda3e5020f11ec532149adce8005ddda2739b8"
+  },
+  {
+    "path": "19_SYNTHETIC_NETWORK_DEMO/outputs/graph_metrics.csv",
+    "bytes": 1593,
+    "sha256": "328bb552ef48b045809f1b449f9c9940c9e552497642fd79ca25469eceb8746b"
+  },
+  {
+    "path": "19_SYNTHETIC_NETWORK_DEMO/outputs/null_model_statistics.csv",
+    "bytes": 1141,
+    "sha256": "0232cd4b359462c3363d1d85bccb204ab2f9e1b70eaa9c3fe6c4b872d466b207"
+  },
+  {
+    "path": "19_SYNTHETIC_NETWORK_DEMO/scripts/README.md",
+    "bytes": 613,
+    "sha256": "dae53158c53028fd4004c047db083dea12f8a9242d5740462d42d2452fc4ba5a"
+  },
+  {
+    "path": "19_SYNTHETIC_NETWORK_DEMO/scripts/coordination_math.py",
+    "bytes": 4770,
+    "sha256": "9cccd8f77a6cd021aba32a2de6e347ed7c412c12f8092f4fef66417c1b90b71b"
+  },
+  {
+    "path": "19_SYNTHETIC_NETWORK_DEMO/scripts/run_demo.py",
+    "bytes": 1765,
+    "sha256": "222a42c2f28aedd56804f5fa8e54f0621bac5a087c41297ab811ac00b53fbbcf"
+  },
+  {
+    "path": "20_VERIFICATION_PLAYBOOKS/01_Verify_Clipping_Campaigns.md",
+    "bytes": 1462,
+    "sha256": "f7418d86b9398d86c2010ef3105ffadf9e6180baca6a4ce275228be6fbfe316f"
+  },
+  {
+    "path": "20_VERIFICATION_PLAYBOOKS/02_Verify_Trend_Simulation.md",
+    "bytes": 1303,
+    "sha256": "c334a69d21c9b9166e0b14bfaf59fb5c49cd9eacea92889f721a35818f1fbead"
+  },
+  {
+    "path": "20_VERIFICATION_PLAYBOOKS/03_Verify_Reddit_Astroturfing.md",
+    "bytes": 1144,
+    "sha256": "ca4ac6e393510fd2e46804a4f0ff37eae8751381086adc68e749d9824228a10b"
+  },
+  {
+    "path": "20_VERIFICATION_PLAYBOOKS/04_Verify_Fake_Reviews.md",
+    "bytes": 1225,
+    "sha256": "2eef852c4f4b90f9500c8455c8eebb5b8559d84f4a62e96637318dd75d14fa25"
+  },
+  {
+    "path": "20_VERIFICATION_PLAYBOOKS/05_Verify_App_Store_Discovery_Fraud.md",
+    "bytes": 987,
+    "sha256": "6f5213b9ba33ff4f124ac6ebdc5a603002f52c7f140b3363f352ce4166079dbc"
+  },
+  {
+    "path": "20_VERIFICATION_PLAYBOOKS/06_Verify_Product_Hunt_Launch_Theater.md",
+    "bytes": 979,
+    "sha256": "79dda4fb0c99713f9a98591bf0c8ad48a9dc09b76850636d854505ba9167965e"
+  },
+  {
+    "path": "20_VERIFICATION_PLAYBOOKS/07_Verify_Fake_Leads_And_Invalid_Traffic.md",
+    "bytes": 891,
+    "sha256": "7e8b19bf9c3259eb6df2adc0c25a793e93ccd39fd63e84d2255170c1b3e4ed8e"
+  },
+  {
+    "path": "20_VERIFICATION_PLAYBOOKS/08_Verify_Mobile_Attribution_Fraud.md",
+    "bytes": 984,
+    "sha256": "e4c7681a89c71ac2ac5bab70b6ff5fb8595ecb3e40f173992eed59c0fcc00644"
+  },
+  {
+    "path": "20_VERIFICATION_PLAYBOOKS/09_Verify_Streaming_Fraud.md",
+    "bytes": 983,
+    "sha256": "25410aa89f8ea45237dec7166d2ed522551e3050486cf64d2cd685dea4ecaf2f"
+  },
+  {
+    "path": "20_VERIFICATION_PLAYBOOKS/10_Verify_Startup_Metric_Inflation.md",
+    "bytes": 1032,
+    "sha256": "f563a37951979df1198451a8cd200c498a1e754fd2c73ed71bcc778f9fd73048"
+  },
+  {
+    "path": "20_VERIFICATION_PLAYBOOKS/11_Verify_Compliance_Theater.md",
+    "bytes": 820,
+    "sha256": "0919a72184cbe3e299580311df753833993808a15845edeb3d066e4a70f1f568"
+  },
+  {
+    "path": "20_VERIFICATION_PLAYBOOKS/12_Verify_AI_Influencer_Authenticity.md",
+    "bytes": 845,
+    "sha256": "fd8fee4503aa9ac1ff4b1913f5664af6fac31773045ddfaab94cf298848eed8b"
+  },
+  {
+    "path": "20_VERIFICATION_PLAYBOOKS/13_Verify_Comment_Section_Narrative_Capture.md",
+    "bytes": 842,
+    "sha256": "89b79cba890a73e41b4e7bbe88e697dfaa263288d6e5737d793a6a84fa9b731d"
+  },
+  {
+    "path": "20_VERIFICATION_PLAYBOOKS/14_Verify_GitHub_Star_And_Rank_Abuse.md",
+    "bytes": 768,
+    "sha256": "d9ec54f02317a8dde3946afed944eba6c0f50540f151e1f40d3f57cc5e96dadd"
+  },
+  {
+    "path": "20_VERIFICATION_PLAYBOOKS/15_Verify_Google_Maps_Local_Review_Manipulation.md",
+    "bytes": 789,
+    "sha256": "868721c15a52155b6a8849765ede442af3b4a9766d9177641e3cffaab1d7aa09"
+  },
+  {
+    "path": "20_VERIFICATION_PLAYBOOKS/16_Verify_Waitlist_And_Scarcity_Manipulation.md",
+    "bytes": 776,
+    "sha256": "62b3b911d441e4311b9f0b6675100e062a188bb1abd5cdb0ae5733f81841be7f"
+  },
+  {
+    "path": "20_VERIFICATION_PLAYBOOKS/17_Verify_Press_Logo_And_Award_Badge_Laundering.md",
+    "bytes": 708,
+    "sha256": "ff709995713279973047569eb3513e09859c60648e209757a1fad5b3dc9cc829"
+  },
+  {
+    "path": "20_VERIFICATION_PLAYBOOKS/18_Verify_Affiliate_Review_Conflict_Disguise.md",
+    "bytes": 777,
+    "sha256": "843c85dd9fbd0eb7f2d7ef3212913a2e0f217dc60190baf9c370bb622b83ce61"
+  },
+  {
+    "path": "20_VERIFICATION_PLAYBOOKS/README.md",
+    "bytes": 514,
+    "sha256": "4c649f7955a299206a620908c4305c9c8ca0d6378c49e47a9080435ee236f838"
+  },
+  {
+    "path": "21_MATH_APPENDICES/01_Formulas_For_Repeated_Coordination.md",
+    "bytes": 824,
+    "sha256": "41c9ac166ba39a4f3325e386b93376519850f6f3f1c9ab37b6306ca9c149f555"
+  },
+  {
+    "path": "21_MATH_APPENDICES/02_Worked_Example_Repeated_Co_Action.md",
+    "bytes": 642,
+    "sha256": "ccc86c9d758298e6919ced4a7f5984f9ac4ecd15a0e71beff35adf1eda2e4c27"
+  },
+  {
+    "path": "21_MATH_APPENDICES/03_Null_Model_Worked_Example.md",
+    "bytes": 785,
+    "sha256": "84d5aa92c609dfb555e9cf6383f969ba84a6cc34c4201473895b005157239644"
+  },
+  {
+    "path": "21_MATH_APPENDICES/04_Density_And_Modularity_Worked_Example.md",
+    "bytes": 669,
+    "sha256": "6e6dc658b2b5cb2432c655a0bd52d00b68dc92871cd7e56733039f97ae1eb6e2"
+  },
+  {
+    "path": "21_MATH_APPENDICES/05_Entropy_Worked_Example.md",
+    "bytes": 496,
+    "sha256": "abc74a40f53e20b257c1bea724596d1bdbf00a9d52a6a8385179bca6e1ee945b"
+  },
+  {
+    "path": "21_MATH_APPENDICES/06_Burst_Z_Score_Worked_Example.md",
+    "bytes": 500,
+    "sha256": "221a7530103769e44bcd5fdeb8562dbd74de1d8a78ab427b2afd8fb7afcc4f1e"
+  },
+  {
+    "path": "21_MATH_APPENDICES/07_Cascade_Shape_Worked_Example.md",
+    "bytes": 470,
+    "sha256": "a8af1d149b99c916aff5df43d122a7cbbdf3a5088ea8ae55f7e2a9249c7397c5"
+  },
+  {
+    "path": "21_MATH_APPENDICES/08_Likelihood_Ratio_Worked_Example.md",
+    "bytes": 736,
+    "sha256": "7d6d37f7afe967a87ddfadeb06e30c9c5d5ce5fd3e8253838ee23d273f5a2dda"
+  },
+  {
+    "path": "21_MATH_APPENDICES/09_Multi_Layer_Score_Worked_Example.md",
+    "bytes": 571,
+    "sha256": "dc650e5f34d6846d54ebfc7aaeeb97d80fb262d86afec56d10d1bbcb8f924878"
+  },
+  {
+    "path": "21_MATH_APPENDICES/10_From_Maths_To_Evidence_Claim.md",
+    "bytes": 725,
+    "sha256": "80ec5f2af8910f94e01e6a3ac4d015432dda6e27924d2b30745c8b4f3ca20ecd"
+  },
+  {
+    "path": "21_MATH_APPENDICES/README.md",
+    "bytes": 346,
+    "sha256": "06c6982ef887b2e1c667b329a383009da70c58ad80ce11d018f6fd1af9ccd47a"
+  },
+  {
+    "path": "22_DATA_COLLECTION_TEMPLATES/01_Public_Data_Collection_Checklist.md",
+    "bytes": 951,
+    "sha256": "159553c10eda7b0f73dba4626caef2f8d55f03784b328fe04dbcb25d8217bb97"
+  },
+  {
+    "path": "22_DATA_COLLECTION_TEMPLATES/02_Network_Analysis_Workbook_Template.md",
+    "bytes": 764,
+    "sha256": "a9ac1bc916e53a365bfdb6c4ae56cfe38e78fa61010df5c47cbc590f9e97bc0c"
+  },
+  {
+    "path": "22_DATA_COLLECTION_TEMPLATES/03_Visual_Evidence_Log_Template.md",
+    "bytes": 397,
+    "sha256": "9f82ade1a051084339efca1a1143ddfa36261bf0b7959da18ae4ec10eb0ede69"
+  },
+  {
+    "path": "22_DATA_COLLECTION_TEMPLATES/04_Evidence_Strength_Rubric_Network_Math.md",
+    "bytes": 814,
+    "sha256": "f4710b2300f81e60b9344b827e5b9f226c6a0a24745d33e63ba1a3a21730254d"
+  },
+  {
+    "path": "22_DATA_COLLECTION_TEMPLATES/05_Research_Ethics_Check.md",
+    "bytes": 529,
+    "sha256": "53e0c0f43af3f358f7d81cb0a31f2bb9960303c6edb02d697ebd1a9f3d845892"
+  },
+  {
+    "path": "22_DATA_COLLECTION_TEMPLATES/README.md",
+    "bytes": 257,
+    "sha256": "7d68091eceafe3f0a54bae7921906a725cea22dd1ab96eb4ca983587843afef0"
+  },
+  {
+    "path": "22_DATA_COLLECTION_TEMPLATES/account_events_schema.csv",
+    "bytes": 696,
+    "sha256": "e7da13b55ffad825cc914bfcd997aa882443672d4b05c4f178c4177f5c91379e"
+  },
+  {
+    "path": "22_DATA_COLLECTION_TEMPLATES/actor_profile_schema.csv",
+    "bytes": 461,
+    "sha256": "4dbabe4300450e5d5be81e1103a1b9d128dcbc5215d721f01973c12b6763fcd5"
+  },
+  {
+    "path": "22_DATA_COLLECTION_TEMPLATES/case_evidence_schema.csv",
+    "bytes": 461,
+    "sha256": "5fde257636cd2886bff6758c0d50f0276d63871bc1fd6d5ce6e523ed04b27400"
+  },
+  {
+    "path": "22_DATA_COLLECTION_TEMPLATES/edge_list_schema.csv",
+    "bytes": 346,
+    "sha256": "286f8554f6eb4d0cd81836f03483776405f7d116164a6e9244436de60be2c8c7"
+  },
+  {
+    "path": "22_DATA_COLLECTION_TEMPLATES/null_model_run_schema.csv",
+    "bytes": 264,
+    "sha256": "69a8c7a759bdfd8dd5d8821875000b096ef5f5ed5f8c747ba3b606113223e9f3"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/01_Clipping_Pod_Network.md",
+    "bytes": 900,
+    "sha256": "d723b741b3233834e2f0f9f81785bdc213885e88dfd66d039886d06cd728101e"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/02_Trend_Simulation_Network.md",
+    "bytes": 938,
+    "sha256": "4841b5b705b865f3fdee27a8fd832a04a37afab2cea995ca754a25d6ba70fc17"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/03_Reddit_Native_Astroturfing.md",
+    "bytes": 897,
+    "sha256": "ee58bf93e7ceee22ee51bc9af12b14ef2b6b753fae336a1db3c4383abec3a520"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/04_Review_Ring.md",
+    "bytes": 865,
+    "sha256": "48f326e79f69377744b1c10826b7b332ac87577b9c3a06f30ce5e72bc637b802"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/05_App_Store_Rating_Cluster.md",
+    "bytes": 891,
+    "sha256": "05b6695b1c8c41543808e3b54f2aa637494b288f2d3656a063afc210ddbf292b"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/06_Product_Hunt_Reciprocal_Launch_Group.md",
+    "bytes": 899,
+    "sha256": "9b104b14994548279641f2ab5d039adcd6e8456396b56501154f39500e79d763"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/07_GitHub_Star_Burst.md",
+    "bytes": 854,
+    "sha256": "b06260e2a8a07d77a5185914c21809416ddaceb114daa128190e48343b2c96d7"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/08_LinkedIn_Engagement_Pod.md",
+    "bytes": 910,
+    "sha256": "498ad3019a2b8bbb2e654c5b23ad400a8d9eedfcdbaba0d0308a0d3b89d1d2b5"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/09_Google_Maps_Review_Manipulation.md",
+    "bytes": 893,
+    "sha256": "a032ddd242a5379d0991cb1141db6179ac9fc304400af894fc625703632faddc"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/10_Paid_Ad_Invalid_Traffic.md",
+    "bytes": 878,
+    "sha256": "71c6dbb82964286defa6f872ce90805903b1b5ae5fbfb3ef1e23cfca887d279c"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/11_Fake_Lead_Form_Cluster.md",
+    "bytes": 883,
+    "sha256": "b9e41e9e304880a23aea1b366b81eefffdd95694d925120ff1c64838f39fbd72"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/12_Mobile_Click_Flooding.md",
+    "bytes": 876,
+    "sha256": "85dc35c2e147551a384de9f726e9b119cc788afa883842fe459895365c53c21e"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/13_Install_Hijacking.md",
+    "bytes": 842,
+    "sha256": "a387b35670b781218b8b3369603e9f6eaacc1364c71668608609eb1ebf76619a"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/14_Affiliate_Cookie_Stuffing.md",
+    "bytes": 881,
+    "sha256": "1115ea809729b7eb23ad7b28dd68e09a303312414b34216d6c2bed70b9804699"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/15_Streaming_Bot_Cluster.md",
+    "bytes": 876,
+    "sha256": "d5e0f5dbc85dfe257fea68df0cfa4ba9cb5df16eed1be7dab09a5c2afb88ffa4"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/16_AI_Music_Content_Flood.md",
+    "bytes": 874,
+    "sha256": "0c851d4d58c6357de69e49bafeb4d720612ef419d4c9f8c2350523a0d3f1f619"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/17_Search_Scaled_Content_Farm.md",
+    "bytes": 872,
+    "sha256": "b249927a7c5c20da4dec2b119e9959cceca078d43da7392f58bc3186135e0082"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/18_Site_Reputation_Abuse.md",
+    "bytes": 883,
+    "sha256": "8954ccc04bc3b221d06801518fdcfac70a3ecb650a3c3925dc43761638a06199"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/19_Waitlist_Scarcity_Inflation.md",
+    "bytes": 864,
+    "sha256": "ac2cd8c9d7380f112ef6fb8aaef853231a88d1273dbc533248016ed6575e55f0"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/20_ARR_Narrative_Inflation.md",
+    "bytes": 883,
+    "sha256": "b88d38c5f16ff2c6e3e1badb0f14793b7cb64463e6eccb49c2327c1fbc7a5fa4"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/21_Compliance_Badge_Overclaim.md",
+    "bytes": 877,
+    "sha256": "96af7b810deef76e1b96656366e4bf9222cda4ecf4690bededd62745e2a65a32"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/22_Comment_Frame_Seeding.md",
+    "bytes": 866,
+    "sha256": "405edb2d01b7cdc585e98d5c7594c8beea6ca33e6b42007e09e24662e7ef3886"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/23_Meme_Account_Cross_Posting.md",
+    "bytes": 874,
+    "sha256": "56df45a23a8e516a0024a1b98b0e73f75ebc158fe6d1a9b94eb59170721aafc7"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/24_Press_Logo_Context_Stripping.md",
+    "bytes": 872,
+    "sha256": "309c55ec705807146a4c28393bc7002c91fb8075533adbf2ff58f5c50f98c44d"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/25_Synthetic_Influencer_Event_Presence.md",
+    "bytes": 893,
+    "sha256": "9ab742bd6ca7fac81c055b91e5dba4a40f10d4a3130579f63940923af43e7be4"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/26_Coupon_Affiliate_Intercept.md",
+    "bytes": 885,
+    "sha256": "ef055134753adecac5cfe4ab134577167ad3be4f67a05cf8573d42650e6474f6"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/27_Podcast_Chart_Velocity.md",
+    "bytes": 893,
+    "sha256": "494003476cd5ff77db61e048c4cae243989f2685e6fd596ba3b4917738e77f0f"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/28_Webinar_Attendance_Inflation.md",
+    "bytes": 890,
+    "sha256": "bb928a68851e8025d3ff2f9d531fb8a4399a325c40694813bb121841c598652e"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/29_Community_Member_Count_Padding.md",
+    "bytes": 863,
+    "sha256": "f70da38bec090092132646860a429aea6c64e255211ef5065bfe6129baeb2b96"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/30_Customer_Quote_Context_Stripping.md",
+    "bytes": 877,
+    "sha256": "aa2f32d3a81c0749d037a7e0b5c650469c0d38f557d7b17358803740cfe52f80"
+  },
+  {
+    "path": "23_SIGNAL_VERIFICATION_ATLAS/README.md",
+    "bytes": 321,
+    "sha256": "c64f38bb229bcf2f18c3dde1a86fee33c8536bc4a8e15159b79a03c79da5478e"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/01_FORMAL_PROPOSITIONS/Theorem_01_Monotone_Ranking_Response.md",
+    "bytes": 1433,
+    "sha256": "c27d3810547a52a599bb28f2886874319478f462cedb14d516665fac8ca610ae"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/01_FORMAL_PROPOSITIONS/Theorem_02_Exposure_Feedback_Amplification.md",
+    "bytes": 1403,
+    "sha256": "0a1c7a0a1e99df5f87b8de12b7990e2e1be22db82ab67de32992d600002a2f2f"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/01_FORMAL_PROPOSITIONS/Theorem_03_Social_Proof_Herding_Multiplier.md",
+    "bytes": 1408,
+    "sha256": "4440b90779c9efdbafa8c35f8a23c46e5b843ff6082bd28c00ed38fa8476a0ae"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/01_FORMAL_PROPOSITIONS/Theorem_04_Coordination_Null_Model.md",
+    "bytes": 1327,
+    "sha256": "a811d58163f5a08d79e327b1d01cf8e3ce48579cf1a541ea146b291ae4843d7b"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/01_FORMAL_PROPOSITIONS/Theorem_05_Profile_Injection_Linear_Recommender.md",
+    "bytes": 1190,
+    "sha256": "3ad4e679e0122505b055d22458cd7131721b5ad4797f08b0df1992434e1eed79"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/01_FORMAL_PROPOSITIONS/Theorem_06_Fake_Review_Bayesian_Consumer_Model.md",
+    "bytes": 1340,
+    "sha256": "7beb9d0e1fbfc1250060007f743dd6804789ee3657efbf45f5ed287ff34b456b"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/01_FORMAL_PROPOSITIONS/Theorem_07_Attribution_Pollution.md",
+    "bytes": 974,
+    "sha256": "212b2d562a5aa858b26e0b24950b2a6db55e63743b2394b12ae2481b9c88d42d"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/01_FORMAL_PROPOSITIONS/Theorem_08_Royalty_Pool_Streaming_Fraud.md",
+    "bytes": 952,
+    "sha256": "e501f9ace831343faa9668a6b83b80705d4a3997640bb55e7e35864010884769"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/01_FORMAL_PROPOSITIONS/Theorem_09_Thresholded_Launch_Rank.md",
+    "bytes": 837,
+    "sha256": "e63737a866cb4009692a9610c71fdeacee8d2cce734e04e43599b20c2031984f"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/01_FORMAL_PROPOSITIONS/Theorem_10_Proof_Boundary.md",
+    "bytes": 1419,
+    "sha256": "0291892d8e2b2b15feb5ebcad791853d3d039723c81e25d1170da3b091f6cb22"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/02_EMPIRICAL_EVIDENCE_MAPS/claim_to_best_evidence_matrix.md",
+    "bytes": 1262,
+    "sha256": "63c389de311cc47081b022bd4edeee77a24e133ed72225462e93bb84beab2fd1"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/02_EMPIRICAL_EVIDENCE_MAPS/empirical_strength_ladder.md",
+    "bytes": 1527,
+    "sha256": "5b89a446b88243fecde910579306b0f56456614ab33a7e1e1d79f116320c0f77"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/02_EMPIRICAL_EVIDENCE_MAPS/source_table.csv",
+    "bytes": 3784,
+    "sha256": "36ced9bc73050f827ec9227dfd82ba2cc55c00e7b5f0c821af988bdeac909733"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/02_EMPIRICAL_EVIDENCE_MAPS/source_table.md",
+    "bytes": 4101,
+    "sha256": "dfce6c8a8d932b82cafed90f5b532df66dbd9df599f76a49a38f321290d8f833"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/03_COUNTERFACTUAL_TESTS/counterfactual_designs_for_manufactured_traction.md",
+    "bytes": 1544,
+    "sha256": "2e54969a73402c144683a1629028b8515d08329aacd4c594d2991169da60503d"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/03_COUNTERFACTUAL_TESTS/safe_wording_for_proof_claims.md",
+    "bytes": 970,
+    "sha256": "e6cb374307fa43a6364c67e82425567c1046d1b76784fcdb3dcf70f5757cbdf3"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/04_REPRODUCIBLE_TOY_MODELS/README.md",
+    "bytes": 698,
+    "sha256": "6d398d1dd141eae8a8b9d9b93237fb4a2ea65c9d7822c4ce3de69df9706f0fbe"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/04_REPRODUCIBLE_TOY_MODELS/figures/coordination_null_distribution.png",
+    "bytes": 36634,
+    "sha256": "b34557375af5eb6494aec18246ab40f9ba34a4dedac0fd725b51707315eacb7f"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/04_REPRODUCIBLE_TOY_MODELS/figures/feedback_multiplier_paths.png",
+    "bytes": 75417,
+    "sha256": "d922e68259120560d6b88d8e8c1d2da27e050dc5e0501fa9345d5efb05063a92"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/04_REPRODUCIBLE_TOY_MODELS/figures/ranking_boost_curve.png",
+    "bytes": 46007,
+    "sha256": "a507a91baa3174fb46dc6751ef7205c3a79faecde704ed1480e43c6880184265"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/04_REPRODUCIBLE_TOY_MODELS/figures/royalty_pool_fake_streams.png",
+    "bytes": 58136,
+    "sha256": "c4fcde50bb74f1f729fa3614dea663055b2df9fdbfc0c4daa8e56dcc4c47d5ab"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/04_REPRODUCIBLE_TOY_MODELS/figures/toy_coordination_network.png",
+    "bytes": 172035,
+    "sha256": "40b725ccc4c6da3f90f75d45a2d2c4a5a2d8b27ee3fa357b158fac000a9f5b41"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/04_REPRODUCIBLE_TOY_MODELS/outputs/coordination_null_distribution.csv",
+    "bytes": 421,
+    "sha256": "eaee8ca6a46bcb2bfc0b892dc8e6e2256b406c1db329928e7205709f9850324d"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/04_REPRODUCIBLE_TOY_MODELS/outputs/feedback_multiplier_paths.csv",
+    "bytes": 1602,
+    "sha256": "da0e09dde66d40f000a2497fbe26cdf089288a09ce7f6401df983ae11289a953"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/04_REPRODUCIBLE_TOY_MODELS/outputs/observed_coordination_edges.csv",
+    "bytes": 329,
+    "sha256": "ef406ea1f9ea7b04950bb10b59d411c60fa78bb339483bdb77c6ec463c73645e"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/04_REPRODUCIBLE_TOY_MODELS/outputs/ranking_boost_curve.csv",
+    "bytes": 212,
+    "sha256": "62a54083e84df874cf9bd1d96b15d95f349a2593ca00539750bb149da01a4bd5"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/04_REPRODUCIBLE_TOY_MODELS/outputs/royalty_pool_fake_streams.csv",
+    "bytes": 1056,
+    "sha256": "41513953f7955d5e96f0eeedf0921ed5cf590a38bb889ed5883a54e868765dc5"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/04_REPRODUCIBLE_TOY_MODELS/outputs/toy_events.csv",
+    "bytes": 33311,
+    "sha256": "1308ba02609d74a155d9092c84f4ebce756577515b13f6cf9b2692c27c7e92ff"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/04_REPRODUCIBLE_TOY_MODELS/run_all_proof_demos_stub.md",
+    "bytes": 681,
+    "sha256": "bd57f346afb4e0f6341d50c0790beef20b317798571f73765327ed8fac9bf05a"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/05_STATISTICAL_PROOF_TOOLKIT/bayesian_evidence_score.md",
+    "bytes": 900,
+    "sha256": "6265f646d850fb7bfcb25e93e557a05efaf359b770f649007c7dffdc69588072"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/05_STATISTICAL_PROOF_TOOLKIT/coordination_metrics.md",
+    "bytes": 1152,
+    "sha256": "fcccca71d94f1c988fc7d19224a598ac2961df38ecfb70ea2ed567e78d0d6c5a"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/06_VISUAL_EXPLAINERS/proof_flow_diagram.md",
+    "bytes": 691,
+    "sha256": "343187261c27961a02a776046bd7621ca9f9eaaca7cbb5cc874f20fe92b1dd17"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/06_VISUAL_EXPLAINERS/what_counts_as_proof.md",
+    "bytes": 845,
+    "sha256": "a02a242ca153c22849034b544a22f4c59f21f8784a7a7691c716ac56bb4f37ed"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/07_ARGUMENT_DRAFTS_FOR_PAPER/proof_or_closest_possible_section.md",
+    "bytes": 2451,
+    "sha256": "13b06d90f6f64aec8c7c5089c95435cfd5596bd61bf01def2e0edebc82b33871"
+  },
+  {
+    "path": "24_PROOF_OR_CLOSEST_EVIDENCE_LAYER/README.md",
+    "bytes": 1664,
+    "sha256": "a7381fc3feae972a5421a91896c71e99e4646cf4776dd5b3bf3e9ab9f2afa790"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/00_READ_THIS_FIRST/PROOF_MAP.md",
+    "bytes": 1570,
+    "sha256": "0412f0d2faa0a94b224dff350045e30ed0e61d5d309a4aa84b5d3313561a34f3"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/00_READ_THIS_FIRST/README.md",
+    "bytes": 1719,
+    "sha256": "e324686f8b74dbed25316546a0f04b831727ebc0fa8f70254df02f3a4afb2faa"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/01_FORMAL_THEOREMS/01_MONOTONE_ALLOCATION_THEOREM.md",
+    "bytes": 1007,
+    "sha256": "6f025c51cc66b5e48f135a099d5e7c45bdbffe82d494aeec23122c42c61503ca"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/01_FORMAL_THEOREMS/02_FEEDBACK_MULTIPLIER_THEOREM.md",
+    "bytes": 797,
+    "sha256": "9489ec73021e5a292afc3fdb137f6642c91cec03a130f4e540ba3416903c5862"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/01_FORMAL_THEOREMS/03_THRESHOLD_CASCADE_PROOF.md",
+    "bytes": 870,
+    "sha256": "dfc92ee5c82d40096ac5089e6333b3b4a4589b03fe2d6b0838ce803d1ee05fb3"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/01_FORMAL_THEOREMS/04_BAYESIAN_FAKE_REVIEW_PROOF.md",
+    "bytes": 804,
+    "sha256": "68be34368609eace42e1bb20685e3e76c4131c87d07044f221297f65b75cb2ee"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/01_FORMAL_THEOREMS/05_COORDINATION_NULL_MODEL_PROOF.md",
+    "bytes": 890,
+    "sha256": "d74b867681d69c292745cd4305ea52fc1e9b4b3e8cc391548259856c10257351"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/01_FORMAL_THEOREMS/06_RECOMMENDER_PROFILE_INJECTION_PROOF.md",
+    "bytes": 715,
+    "sha256": "7e719a0fcf25af18f481f5167503d8580f92def362be6f655a01359fd3a60582"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/01_FORMAL_THEOREMS/07_ROYALTY_POOL_DIVERSION_PROOF.md",
+    "bytes": 505,
+    "sha256": "05626c852c7750700552e30c40d5ac97e237c35e8d509fbb4e36edce4d6062e5"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/01_FORMAL_THEOREMS/08_ATTRIBUTION_POLLUTION_PROOF.md",
+    "bytes": 533,
+    "sha256": "532d07632383e0935fbde49e87f7f79691b3c36b3fce5da9f5b5f677f88020bd"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/01_FORMAL_THEOREMS/09_LINK_GRAPH_SPAM_PROOF.md",
+    "bytes": 741,
+    "sha256": "5a7f7b40d780ceda2bb24f66d7f5c673678a70e1ead4f4239836f78c847962cc"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/02_CAUSAL_EMPIRICAL_EVIDENCE/akesson_2023_fake_reviews.md",
+    "bytes": 738,
+    "sha256": "82ae6cc5f7425799b1c396557a269554bf9db5c65f88876ade89f64367913480"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/02_CAUSAL_EMPIRICAL_EVIDENCE/chaney_2018_algorithmic_confounding.md",
+    "bytes": 858,
+    "sha256": "2f0e0ef58d80c01286b7680c8ff8d27ad12ecb0bb9ec003cfc5cd6c091bdab92"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/02_CAUSAL_EMPIRICAL_EVIDENCE/graham_2024_coordination_toolkit.md",
+    "bytes": 789,
+    "sha256": "9daea5ca69978f94eeeacfdcad1113690b69c25b6b2d362aeff653a73675f121"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/02_CAUSAL_EMPIRICAL_EVIDENCE/granovetter_1978_thresholds.md",
+    "bytes": 722,
+    "sha256": "c08b9c4c4ee47b700ae014391bdd62ebee644c7c27d77437235d4237d3cd3c75"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/02_CAUSAL_EMPIRICAL_EVIDENCE/klimashevskaia_2024_popularity_bias.md",
+    "bytes": 616,
+    "sha256": "b652209dfe3650c2394d396533bb88ef76fb132859c398137d2345ca7dd4d85b"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/02_CAUSAL_EMPIRICAL_EVIDENCE/muchnik_2013_social_influence.md",
+    "bytes": 697,
+    "sha256": "00ccec4d1be656f19243fb93979d1127734cd7ccf90f0f8d31bdb47cc20dbfe7"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/02_CAUSAL_EMPIRICAL_EVIDENCE/rogers_righetti_2025_manufactured_attention.md",
+    "bytes": 789,
+    "sha256": "45dda19ca4628d6d227a74cb8474a8a9919fb19dbe955ba8b1e7c102d94dfca9"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/02_CAUSAL_EMPIRICAL_EVIDENCE/salganik_2006_music_market.md",
+    "bytes": 822,
+    "sha256": "38201e145c405bcab2a10874fbf69f09528e9298b5eff82ab5bc933bcf064b87"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/02_CAUSAL_EMPIRICAL_EVIDENCE/shao_2018_social_bots.md",
+    "bytes": 718,
+    "sha256": "26beb91731e315055f67cebe9fec750bb5cf081b762c83a7bab7796f719eac61"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/02_CAUSAL_EMPIRICAL_EVIDENCE/van_de_rijt_2014_success_breeds_success.md",
+    "bytes": 733,
+    "sha256": "717cf9f56b2295569a93373606b40d754da50ff90bfec7264f79331663703ebd"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/02_CAUSAL_EMPIRICAL_EVIDENCE/watts_2002_global_cascades.md",
+    "bytes": 687,
+    "sha256": "58799794cfb25e8a1256c6d1fca1f17b4fde1ff212362f1dcd8ae500c03b517a"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/02_CAUSAL_EMPIRICAL_EVIDENCE/wu_davison_2005_link_farms.md",
+    "bytes": 712,
+    "sha256": "1bf76614760a2e150d7cbd06bd3b8db69b30cbdd9736e7414cb105f7a3c6871f"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/02_CAUSAL_EMPIRICAL_EVIDENCE/yang_2021_shilling_attacks.md",
+    "bytes": 723,
+    "sha256": "441ad4443b33bf1bd9caf2661b2c6d6ef463d01a7b8514eea1d54edb7bdc2e77"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/02_CAUSAL_EMPIRICAL_EVIDENCE/zhang_2024_shilling_detection.md",
+    "bytes": 736,
+    "sha256": "24f34ac672b65904c1ffaaf8ea49d1682233f47d0baf09e7f645e103204d58ff"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/02_CAUSAL_EMPIRICAL_EVIDENCE/zoralioglu_2026_dynamic_feedback.md",
+    "bytes": 736,
+    "sha256": "466a2feb451f3bdc765d26b7e631ffd0d1046f47dda561ac4388017def603091"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/03_NETWORK_NULL_MODELS/FALSE_POSITIVE_GUARDRAILS.md",
+    "bytes": 847,
+    "sha256": "f377689adb291dbaaa9787cb6bea1d0377215fdd7c1c6d0658a6a3b265d78c83"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/03_NETWORK_NULL_MODELS/MULTILAYER_COORDINATION_MODEL.md",
+    "bytes": 696,
+    "sha256": "9553b169c44c26ef42d9bbc19bffb03d3192bef3bb8c71c4fef16a61c69d365b"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/03_NETWORK_NULL_MODELS/PERMUTATION_TEST_TEMPLATE.md",
+    "bytes": 665,
+    "sha256": "9f724a132d4050f318d83903aac72b9c80a51ed8d0ac598e5c16c5625dce8310"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/03_NETWORK_NULL_MODELS/REPEATED_COACTION_STATISTICAL_TEST.md",
+    "bytes": 997,
+    "sha256": "26a26007d30f69cb2dc1a566c2a9fcb6ce1911c74d96865e1bccb4985978adfa"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/07_DOMAIN_SPECIFIC_PROOF_BRIEFS/app_store_rank_manipulation.md",
+    "bytes": 1061,
+    "sha256": "96d9f7c07ef574fbdc59382bfc855eccc65e108002bd954842e1fa54a7ed2fe7"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/07_DOMAIN_SPECIFIC_PROOF_BRIEFS/clipping_campaigns.md",
+    "bytes": 1166,
+    "sha256": "c947ff69a740b22a1bcb21ffb482a7b667cb2311743e4a313184e30fe7c1a6e6"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/07_DOMAIN_SPECIFIC_PROOF_BRIEFS/comment_narrative_capture.md",
+    "bytes": 1071,
+    "sha256": "b0774d3c25678058cb2b42ec9457da84b33dee7dc5bb7aa04e9e7424d3fec30f"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/07_DOMAIN_SPECIFIC_PROOF_BRIEFS/creator_farms_and_ugc_camouflage.md",
+    "bytes": 1067,
+    "sha256": "d1afcc9ca62c12efb0c4d6ecfbda0821231bce2566de1b60debd2598500dbb5a"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/07_DOMAIN_SPECIFIC_PROOF_BRIEFS/fake_community_metrics.md",
+    "bytes": 1051,
+    "sha256": "dfe1fb33d6f7eae2af8c55a3fdf55078161f38b747eca86221e3141df02a9a54"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/07_DOMAIN_SPECIFIC_PROOF_BRIEFS/fake_reviews.md",
+    "bytes": 1067,
+    "sha256": "bcf85adf47fd0fd6ea745e2f4fe7318cbf028fab4dbf81e03211d4cb0287165c"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/07_DOMAIN_SPECIFIC_PROOF_BRIEFS/mobile_attribution_fraud.md",
+    "bytes": 1015,
+    "sha256": "55b0d215511bb580490a514534715935fe1f02447ec1cc8117f6d55a5d7e166d"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/07_DOMAIN_SPECIFIC_PROOF_BRIEFS/paid_ad_fake_leads.md",
+    "bytes": 1001,
+    "sha256": "d4f705d805d8899fe0e3837bfe2e8de8ea7171854d77c3c291cb4d96ce5741ab"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/07_DOMAIN_SPECIFIC_PROOF_BRIEFS/product_hunt_launch_theatre.md",
+    "bytes": 1060,
+    "sha256": "748d11069acc7cab18436a93441f5f19e21767b6fff62a465442c0d2e9d2f3e4"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/07_DOMAIN_SPECIFIC_PROOF_BRIEFS/search_spam_and_link_farms.md",
+    "bytes": 999,
+    "sha256": "9f8f243bd201476e49877135ef85adebcbe4eec5a2b71a38ec47908a1d99dd05"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/07_DOMAIN_SPECIFIC_PROOF_BRIEFS/startup_metric_inflation.md",
+    "bytes": 1019,
+    "sha256": "f0b51a8eb90f06abc9068fef0b364224a2c97f12662a78fbd12ee2b94ce0d918"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/07_DOMAIN_SPECIFIC_PROOF_BRIEFS/streaming_fraud.md",
+    "bytes": 1009,
+    "sha256": "2ba850efd8c1026a7f02f31cac707a191df5e7a3cb1701bcf97e941122ec6158"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/08_REPRODUCIBLE_SIMULATIONS/README.md",
+    "bytes": 894,
+    "sha256": "69e2e5b4c2bb5691b90e36510adb72517719c3d8b8f44c551e0064909ed62627"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/08_REPRODUCIBLE_SIMULATIONS/data/bayesian_fake_review_shift.csv",
+    "bytes": 1372,
+    "sha256": "05e518b2c7704233894eca93bd047e0e0eb226e4609ac9d97d78a75abc184746"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/08_REPRODUCIBLE_SIMULATIONS/data/coordination_null_max_edge_distribution.csv",
+    "bytes": 6022,
+    "sha256": "d499852e741396aac8a9feacb1797f01e4dd927d82049384dd1c04f57d075391"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/08_REPRODUCIBLE_SIMULATIONS/data/feedback_multiplier_simulation.csv",
+    "bytes": 2458,
+    "sha256": "6d0bb6526eb6acdf283a9ad29ed45d1bdbb9447c05ad323411d9534d5d45f0e9"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/08_REPRODUCIBLE_SIMULATIONS/data/ranking_boundary_simulation.csv",
+    "bytes": 782,
+    "sha256": "5e131ce3547e605ebd3aeb63282703764820ae751dbf2ae4859284e7f26b5bcb"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/08_REPRODUCIBLE_SIMULATIONS/data/royalty_pool_diversion.csv",
+    "bytes": 2834,
+    "sha256": "d6319d4db9fbd5b663936dd488ecb8c9b47225cc5960ece2fc665f8248ea40d3"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/08_REPRODUCIBLE_SIMULATIONS/outputs/coordination_null_distribution_v8.svg",
+    "bytes": 1488,
+    "sha256": "786c7a91c67d12432ba7b84df3af579a8a1d5ad0a59570cb74468580ddcde41c"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/08_REPRODUCIBLE_SIMULATIONS/outputs/fake_review_posterior_shift.svg",
+    "bytes": 1730,
+    "sha256": "7a2f19f6cf3ebf9dd36aaf49ac618fb5c405850b8cf004917511da834a1206e3"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/08_REPRODUCIBLE_SIMULATIONS/outputs/feedback_multiplier_boost20.svg",
+    "bytes": 1230,
+    "sha256": "ef2d1b0c7d3dfd73f38f838053166ac08e8226ae48961f0b4892ae876f44caa8"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/08_REPRODUCIBLE_SIMULATIONS/outputs/ranking_boundary_curve.svg",
+    "bytes": 2362,
+    "sha256": "f54236481f6233d22604d7af6c074b0abacaa6d294a051fe1bfb30a6ab0babf5"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/08_REPRODUCIBLE_SIMULATIONS/outputs/royalty_pool_diversion_curve.svg",
+    "bytes": 2190,
+    "sha256": "f3a58faf8415a9fdff1849120883c9c79309232852540eee44734ffe99790c78"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/08_REPRODUCIBLE_SIMULATIONS/scripts/run_all_simulations.py",
+    "bytes": 146,
+    "sha256": "50adc9bacae06f85e14842eb45787d1a3e02200af1ee2475b0ffcbf60ca11f82"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/09_SLIDE_READY_MATH/PROOF_PYRAMID.md",
+    "bytes": 477,
+    "sha256": "411ec5d97c839d2936544569ac9afb125c57d41ebac0da7bce786ef607b6c05e"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/09_SLIDE_READY_MATH/SLIDE_MATH_PROOF_SUMMARY.md",
+    "bytes": 1189,
+    "sha256": "9f3c1ea0409753c602e8b783baa5ec9c0d12e8f2023d9d144bd9fc24b5b3a02c"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/10_LIMITS_OF_PROOF_AND_SAFE_WORDING/SAFE_CLAIMS_MATRIX.md",
+    "bytes": 866,
+    "sha256": "dd86eac39b634e95c8432a5079b4acd4096dbcbf6ff87af9e10e04b5adb7b107"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/10_LIMITS_OF_PROOF_AND_SAFE_WORDING/WHAT_COUNTS_AS_PROOF.md",
+    "bytes": 897,
+    "sha256": "82d8dfe57d04f13b63a48a1fe4d6b8d731766f6ad6a42b91347d2f0f06a55f90"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/11_SOURCE_NOTES/source_register_v8.csv",
+    "bytes": 6827,
+    "sha256": "1d81a8877953074ef0bb134fba94997c8d06dfb209551025fca99115324320df"
+  },
+  {
+    "path": "25_MATHEMATICAL_PROOF_AND_EMPIRICAL_EVIDENCE/11_SOURCE_NOTES/source_register_v8.json",
+    "bytes": 9012,
+    "sha256": "1d04e00e30f8388593f2b0ce84009c453847c6a5b5af8ccda63360a133025cf8"
+  },
+  {
+    "path": "26_ALGORITHMIC_MECHANISM_MODELS/01_master_proxy_allocation_model.md",
+    "bytes": 1603,
+    "sha256": "2b0f6184ee0b8ca121a7cd045fdd475d746b944c37b74466fc7bd4881cd7a5dc"
+  },
+  {
+    "path": "26_ALGORITHMIC_MECHANISM_MODELS/02_pairwise_rank_flip_model.md",
+    "bytes": 963,
+    "sha256": "69c85284997daad7b9272ee687951fd0b501d365c088f87c1b9828cc00cbbf68"
+  },
+  {
+    "path": "26_ALGORITHMIC_MECHANISM_MODELS/03_two_stage_recommender_model.md",
+    "bytes": 1336,
+    "sha256": "3b41bbd5d11718b06e62c360766afd27028c288adaa62461c38f75980a5a340d"
+  },
+  {
+    "path": "26_ALGORITHMIC_MECHANISM_MODELS/04_multi_behavior_signal_vector_model.md",
+    "bytes": 1119,
+    "sha256": "29d28c41d587ae4baf0f5eff2a01d339f627e4408710aa825d96442250902f09"
+  },
+  {
+    "path": "26_ALGORITHMIC_MECHANISM_MODELS/05_feedback_loop_state_space_model.md",
+    "bytes": 836,
+    "sha256": "d733097c5e74d240b96b35a3b537754d2be5151bc6debd39dcfc44fdbf76217e"
+  },
+  {
+    "path": "26_ALGORITHMIC_MECHANISM_MODELS/06_bandit_exploration_model.md",
+    "bytes": 977,
+    "sha256": "e536a504de3cc6c0c8c3f525cf09c329a92ed50ee63f5ab234d011ce7437ac8a"
+  },
+  {
+    "path": "26_ALGORITHMIC_MECHANISM_MODELS/07_social_proof_herding_model.md",
+    "bytes": 792,
+    "sha256": "78f25e061aacfee4b8033dba02ff611f17bf3e246704b6173829c47417af2370"
+  },
+  {
+    "path": "26_ALGORITHMIC_MECHANISM_MODELS/08_threshold_cascade_model.md",
+    "bytes": 878,
+    "sha256": "092294133dc14a2ab0012a6e88c5ab1f49cd0ee2e8766236f18acf657e2fbde6"
+  },
+  {
+    "path": "26_ALGORITHMIC_MECHANISM_MODELS/09_preferential_attachment_popularity_bias.md",
+    "bytes": 798,
+    "sha256": "b57912b5acd55438abcc70df4453a76146c61ad295027c5ba5f465e5d9bc06e4"
+  },
+  {
+    "path": "26_ALGORITHMIC_MECHANISM_MODELS/10_candidate_gate_bottleneck_model.md",
+    "bytes": 635,
+    "sha256": "22978c7e03cee3381a2c7918ed070243fe9e07c8cb1e84ecdb7704af94f4167c"
+  },
+  {
+    "path": "26_ALGORITHMIC_MECHANISM_MODELS/11_velocity_burst_model.md",
+    "bytes": 628,
+    "sha256": "5a5ef51c9aadb2695c377ed581a46aa6625409fe08e4bc7516a6ebea50a07899"
+  },
+  {
+    "path": "26_ALGORITHMIC_MECHANISM_MODELS/12_coordination_graph_model.md",
+    "bytes": 698,
+    "sha256": "5fd5676d8a2deacd04a35ee64332178fb34025302e3dcdf3967a03eeeb1c3e73"
+  },
+  {
+    "path": "26_ALGORITHMIC_MECHANISM_MODELS/13_coordination_null_model.md",
+    "bytes": 749,
+    "sha256": "de3b4aa3fb04a365db3085fd46a6a28a3a67509d3a5b08be2e8c1262b4dcd9b9"
+  },
+  {
+    "path": "26_ALGORITHMIC_MECHANISM_MODELS/14_content_similarity_embedding_model.md",
+    "bytes": 754,
+    "sha256": "d458596ed50dab8d2104c014664d7a7a92344c4709cdc8b0a8ea3803dd822fb0"
+  },
+  {
+    "path": "26_ALGORITHMIC_MECHANISM_MODELS/15_recommender_profile_injection_model.md",
+    "bytes": 858,
+    "sha256": "02ff96d96a67514ad2080118fee0703656810687cf4a21b71a54d5755863654b"
+  },
+  {
+    "path": "26_ALGORITHMIC_MECHANISM_MODELS/16_budget_attribution_feedback_model.md",
+    "bytes": 598,
+    "sha256": "7cff5a2ba55899c7760f14271d9c0457765a686bc5450b3d7d30886ec93413ec"
+  },
+  {
+    "path": "26_ALGORITHMIC_MECHANISM_MODELS/17_ranked_choice_user_utility_model.md",
+    "bytes": 627,
+    "sha256": "5ae08af7fcbe3e04ceda63e9f4641c95b595fb31a845a42d8a59b352744d1d7c"
+  },
+  {
+    "path": "26_ALGORITHMIC_MECHANISM_MODELS/18_detection_confidence_scoring_model.md",
+    "bytes": 503,
+    "sha256": "d1e2bc87664fb7ae0ed43729865c5fc71a5bc455a81902ea7c52dfee5041e6aa"
+  },
+  {
+    "path": "26_ALGORITHMIC_MECHANISM_MODELS/19_algorithmic_dampening_countermodel.md",
+    "bytes": 618,
+    "sha256": "ad9921ff5ad345c1cf0aa0e6c9ef17b7c84ae607936300ab53c13c8065033e73"
+  },
+  {
+    "path": "26_ALGORITHMIC_MECHANISM_MODELS/20_algorithmic_evidence_boundaries.md",
+    "bytes": 920,
+    "sha256": "f1b2b2d3f2e9f08ac2795b13a858a207286f1e13eabb3afbd23051f555e00c4b"
+  },
+  {
+    "path": "26_ALGORITHMIC_MECHANISM_MODELS/21_platform_mapping.md",
+    "bytes": 1358,
+    "sha256": "0e6d193aa924e341698491eb4c5830b88a6b92883515d5f00f6943ab7dd97f85"
+  },
+  {
+    "path": "26_ALGORITHMIC_MECHANISM_MODELS/22_rank_score_function_family.md",
+    "bytes": 942,
+    "sha256": "26b19e8214bada1178385e0eebfbd98e2c32b9b70608093be56a8cc48b095cd5"
+  },
+  {
+    "path": "26_ALGORITHMIC_MECHANISM_MODELS/23_creator_feed_test_batch_model.md",
+    "bytes": 784,
+    "sha256": "5871ec075276e387ba3a30c33422bd8d73f6806ad760569cbc68fbd15ae65817"
+  },
+  {
+    "path": "26_ALGORITHMIC_MECHANISM_MODELS/24_comment_section_narrative_model.md",
+    "bytes": 781,
+    "sha256": "636138917daea331137ce1635bc3c03129512ab218c55eee2bc4848b884cd38d"
+  },
+  {
+    "path": "26_ALGORITHMIC_MECHANISM_MODELS/25_multi_layer_system_model.md",
+    "bytes": 720,
+    "sha256": "76fc2c746fa6f32387f7dd57efb96ddfccb560b1bde17f5ab649c3dbda68142e"
+  },
+  {
+    "path": "26_ALGORITHMIC_MECHANISM_MODELS/99_REFERENCES.md",
+    "bytes": 2642,
+    "sha256": "945e152f852f1d553b65c006cde50a8a5f54991c897b46d3dde8632324f8e36f"
+  },
+  {
+    "path": "26_ALGORITHMIC_MECHANISM_MODELS/README.md",
+    "bytes": 1135,
+    "sha256": "dc60467e2aae6ca6ac5d36e0ea0f6485395980a5b72972e6fb42f8fd6f7c43f6"
+  },
+  {
+    "path": "26_ALGORITHMIC_MECHANISM_MODELS/model_catalogue.csv",
+    "bytes": 1708,
+    "sha256": "4ffc28be783631faa94b730c1eabdbf6abb1e1d863a3c96f856754afac3429c6"
+  },
+  {
+    "path": "27_ALGORITHM_SIMULATION_LAB/README.md",
+    "bytes": 1323,
+    "sha256": "a200a9b17adce93f2e46b7209e3c434d3f612fc875a334827b4d6f187aef9d93"
+  },
+  {
+    "path": "27_ALGORITHM_SIMULATION_LAB/data/coordination_events.csv",
+    "bytes": 23909,
+    "sha256": "5b4d06f7cc13183d31c991555d225806c8f856f56cc05d85b6d373a308351318"
+  },
+  {
+    "path": "27_ALGORITHM_SIMULATION_LAB/figures/bandit_seed_bias_arm0.png",
+    "bytes": 63508,
+    "sha256": "98731d0548a72512bae53d3e5cb4c1046c262ba015c2b2171b4d1f4b7cbf2f07"
+  },
+  {
+    "path": "27_ALGORITHM_SIMULATION_LAB/figures/candidate_gate_step.png",
+    "bytes": 35819,
+    "sha256": "34ae2333710da7c23deac75710ff52a1556a0a76e06f64aeb6f364c29497509f"
+  },
+  {
+    "path": "27_ALGORITHM_SIMULATION_LAB/figures/coordination_null_distribution.png",
+    "bytes": 35603,
+    "sha256": "a3e98f53e414f0189b950205dc110f52db33e334b401d2195f32b529bdd60f3f"
+  },
+  {
+    "path": "27_ALGORITHM_SIMULATION_LAB/figures/dampening_condition.png",
+    "bytes": 65333,
+    "sha256": "c4cf6050236abc17ac1baac228a97b3cac9830877d90111ab03acb27cf57b0a7"
+  },
+  {
+    "path": "27_ALGORITHM_SIMULATION_LAB/figures/fake_review_posterior_curve.png",
+    "bytes": 52691,
+    "sha256": "5e71be3858c2f44f5b2ca1ccd9dcca96c93a303d76faa2d0791c1f680e72de59"
+  },
+  {
+    "path": "27_ALGORITHM_SIMULATION_LAB/figures/feedback_multiplier_paths.png",
+    "bytes": 57698,
+    "sha256": "25800837964ab7499fcc707d70b895796aac530980850f84b8de7ea244a41f44"
+  },
+  {
+    "path": "27_ALGORITHM_SIMULATION_LAB/figures/preferential_attachment_seed.png",
+    "bytes": 40885,
+    "sha256": "aef7d5e7ff7519d11dc9cd04cd5f1a06c0a0d4b71339290121ee98e9e6f71cef"
+  },
+  {
+    "path": "27_ALGORITHM_SIMULATION_LAB/figures/rank_flip_boundary.png",
+    "bytes": 52571,
+    "sha256": "be790c90021287f76b4c3039809cee458eff692567be0318fb2919a380ad671f"
+  },
+  {
+    "path": "27_ALGORITHM_SIMULATION_LAB/figures/threshold_cascade_paths.png",
+    "bytes": 89221,
+    "sha256": "4a8d211154e240167b59ae8c579dea7566c21f47ec6a75fa119c9668354ed39a"
+  },
+  {
+    "path": "27_ALGORITHM_SIMULATION_LAB/figures/toy_coordination_graph.png",
+    "bytes": 156466,
+    "sha256": "fb0696e43e98ee0ae1ccd3048c88a5f7c489c85be2c8e92b4e7d67ab8780c1c8"
+  },
+  {
+    "path": "27_ALGORITHM_SIMULATION_LAB/outputs/bandit_seed_bias.csv",
+    "bytes": 2093,
+    "sha256": "4dc549034192f3364ebc1df9a8bf30983a1cd14f78de8949787d1de03e4605bf"
+  },
+  {
+    "path": "27_ALGORITHM_SIMULATION_LAB/outputs/candidate_gate_step.csv",
+    "bytes": 8841,
+    "sha256": "e3755a6920f44f66e857ca7a60cc2b2994dd0bad597d9d79142ec30e5f82c975"
+  },
+  {
+    "path": "27_ALGORITHM_SIMULATION_LAB/outputs/coordination_edges_observed.csv",
+    "bytes": 312,
+    "sha256": "e0462a0b56e34b48ebfed3768e2ee9eb77237275aeb9e5f6d5fc066ae1c97664"
+  },
+  {
+    "path": "27_ALGORITHM_SIMULATION_LAB/outputs/coordination_null_distribution.csv",
+    "bytes": 516,
+    "sha256": "7f9e9d027048642c92688a86964cd1b5fc5a632180639e5f1daf2f63f956fc77"
+  },
+  {
+    "path": "27_ALGORITHM_SIMULATION_LAB/outputs/coordination_null_summary.csv",
+    "bytes": 101,
+    "sha256": "41b2a861d4b78888bc12877546097fe5c8de29c8489656a2be8e728c9703aeac"
+  },
+  {
+    "path": "27_ALGORITHM_SIMULATION_LAB/outputs/dampening_condition.csv",
+    "bytes": 32689,
+    "sha256": "04170fe9134e9b73b05d53ab0dfdaa260ad511b8c41bdecc28905b10f7a33c16"
+  },
+  {
+    "path": "27_ALGORITHM_SIMULATION_LAB/outputs/fake_review_posterior_curve.csv",
+    "bytes": 1279,
+    "sha256": "60fc95485551388403ac9b5069cf5e1c594818d7f4d130633fadddc4f3f29b00"
+  },
+  {
+    "path": "27_ALGORITHM_SIMULATION_LAB/outputs/feedback_multiplier_paths.csv",
+    "bytes": 4868,
+    "sha256": "9f840508169bc18ab59bb66f47b61abbd2089d6f17090a3d7fddcdb219261e33"
+  },
+  {
+    "path": "27_ALGORITHM_SIMULATION_LAB/outputs/preferential_attachment_seed.csv",
+    "bytes": 917,
+    "sha256": "1b16696ea5bf902cd4732188e66ef4a1ab566f853c7e45aaf4b183a391109a99"
+  },
+  {
+    "path": "27_ALGORITHM_SIMULATION_LAB/outputs/rank_flip_curve.csv",
+    "bytes": 3194,
+    "sha256": "ba63f1e9a0c6dba78a4636f0ea36067af07ffea5bc2567b7a8999f333b8d11b0"
+  },
+  {
+    "path": "27_ALGORITHM_SIMULATION_LAB/outputs/threshold_cascade_paths.csv",
+    "bytes": 1177,
+    "sha256": "4af8c7c3cd4d248b5b3cf43c74a63d8616ef15c6a168f8b636f6dd31f7cf27ad"
+  },
+  {
+    "path": "27_ALGORITHM_SIMULATION_LAB/scripts/run_all_algorithmic_simulations.py",
+    "bytes": 2177,
+    "sha256": "318eccce03d22c9f533964c73f38d2ba7b54827dba929f7b635aa6945d0fb995"
+  },
+  {
+    "path": "28_MATHEMATICAL_PROOF_SKETCHES/01_theorem_proxy_manipulation.md",
+    "bytes": 836,
+    "sha256": "ba96dd30869b43a0f59bf7a435da6979d32328bfcde63e881895c98b7e6ab121"
+  },
+  {
+    "path": "28_MATHEMATICAL_PROOF_SKETCHES/02_theorem_feedback_multiplier.md",
+    "bytes": 478,
+    "sha256": "5dc9ac948f4a39592b7cd6cb6fd2db9bf2044d31d6f78708e6ab6591f4f847e0"
+  },
+  {
+    "path": "28_MATHEMATICAL_PROOF_SKETCHES/03_theorem_rank_boundary.md",
+    "bytes": 459,
+    "sha256": "d31995935a6c231a40add5663e053a9d30c90b60e92824540edcbd97ee2d253e"
+  },
+  {
+    "path": "28_MATHEMATICAL_PROOF_SKETCHES/04_theorem_social_proof_posterior.md",
+    "bytes": 565,
+    "sha256": "3237d33c442b4cac13d9874ed9f32bc2489f1699f9a0a5ddbf0a71903d0171c1"
+  },
+  {
+    "path": "28_MATHEMATICAL_PROOF_SKETCHES/05_theorem_coordination_improbability.md",
+    "bytes": 545,
+    "sha256": "4c76dd4bfb6c5b892adda31bd7acfcf0b0344467f4d82b3d1847be9dcf57534c"
+  },
+  {
+    "path": "28_MATHEMATICAL_PROOF_SKETCHES/06_theorem_preferential_attachment_seed.md",
+    "bytes": 481,
+    "sha256": "637ac357f04520796ce63f6d39665ea773589892f352209928d4b5fae85a5589"
+  },
+  {
+    "path": "28_MATHEMATICAL_PROOF_SKETCHES/07_theorem_budget_misallocation.md",
+    "bytes": 411,
+    "sha256": "85a1d59f28979af88a9afc057e7b770de5228534b2ade4db95d336b78732247b"
+  },
+  {
+    "path": "28_MATHEMATICAL_PROOF_SKETCHES/08_theorem_candidate_generation_vulnerability.md",
+    "bytes": 431,
+    "sha256": "d7ccb4f5d80bbacea02288b5f1a8172ea41cf98b3eef6d8982814fe43b5006fa"
+  },
+  {
+    "path": "28_MATHEMATICAL_PROOF_SKETCHES/09_theorem_dampening_condition.md",
+    "bytes": 420,
+    "sha256": "c85739bc1d73b019764aed70c8335534650621df72d938577798e4a1eb6ac134"
+  },
+  {
+    "path": "28_MATHEMATICAL_PROOF_SKETCHES/10_theorem_long_tail_crowdout.md",
+    "bytes": 437,
+    "sha256": "224f662be68aa6d4afe26c2cf4e988737e12bb08536f329d885b3e1e82f7cc70"
+  },
+  {
+    "path": "28_MATHEMATICAL_PROOF_SKETCHES/11_theorem_bandit_seed_bias.md",
+    "bytes": 579,
+    "sha256": "d780a5a0592f1e1ed36d714f6861b63fd24483d6a384c7b897baf9452bdbf501"
+  },
+  {
+    "path": "28_MATHEMATICAL_PROOF_SKETCHES/12_theorem_multilayer_laundering.md",
+    "bytes": 489,
+    "sha256": "b58f480b50e34357ddb0172926968681949ea53284af0f5fec5a41e3b3f3ded0"
+  },
+  {
+    "path": "28_MATHEMATICAL_PROOF_SKETCHES/13_theorem_comment_narrative_shift.md",
+    "bytes": 381,
+    "sha256": "1a27f66da445dc804e7876920869d7e4bdb7667d9c1251ae704e2dd846e0d481"
+  },
+  {
+    "path": "28_MATHEMATICAL_PROOF_SKETCHES/14_theorem_exposure_bias_blind_spot.md",
+    "bytes": 450,
+    "sha256": "0ae7b3ffd5b95c3fa20646ed47d39b1b5bc589713d228b00291001389592a9e7"
+  },
+  {
+    "path": "28_MATHEMATICAL_PROOF_SKETCHES/15_theorem_reputation_token_transfer.md",
+    "bytes": 551,
+    "sha256": "a6ac56601bc7adb108d8dfa748672c106d22c665057912d5eff73a9f29fce62e"
+  },
+  {
+    "path": "28_MATHEMATICAL_PROOF_SKETCHES/99_REFERENCES.md",
+    "bytes": 2628,
+    "sha256": "8e9825d0ef7e2b2938f256405f093c4dfc2ff8ce5dbdfb8f42fce2f4a66a722c"
+  },
+  {
+    "path": "29_ALGORITHM_READY_SLIDES/01_slide_proxy_signal_corruption.md",
+    "bytes": 339,
+    "sha256": "169dc7a64a23ab94715bd78104e3476e09b06e3cd31917f24f5c696a9a481ff6"
+  },
+  {
+    "path": "29_ALGORITHM_READY_SLIDES/02_slide_rank_flip.md",
+    "bytes": 230,
+    "sha256": "28e55d014abefa7aaf88778bbf352230b3b040e864be8b61f517c94de73686b6"
+  },
+  {
+    "path": "29_ALGORITHM_READY_SLIDES/03_slide_feedback_loop.md",
+    "bytes": 236,
+    "sha256": "f3f4be5b7841bdf34d53315f968a0b00fe2a0c55dd034c8bc067d8af6b145070"
+  },
+  {
+    "path": "29_ALGORITHM_READY_SLIDES/04_slide_social_proof.md",
+    "bytes": 264,
+    "sha256": "fe8651aa01f37635d9b1df3ff8bd9b2dd52023f7c0333bbc88b698c0ef50a36a"
+  },
+  {
+    "path": "29_ALGORITHM_READY_SLIDES/05_slide_coordination_graph.md",
+    "bytes": 283,
+    "sha256": "6d48d29e94f6a0f6c753f498e2bda17d4be97af8a4bed5c72c529748f813adca"
+  },
+  {
+    "path": "29_ALGORITHM_READY_SLIDES/06_slide_two_stage_recommender.md",
+    "bytes": 257,
+    "sha256": "b6f7fa2aa25af32c92a83fa0351c85db022638f5f9cec5f5db77f633ce2f8ede"
+  },
+  {
+    "path": "29_ALGORITHM_READY_SLIDES/07_slide_bandit_seed_bias.md",
+    "bytes": 258,
+    "sha256": "37af4168757e34c3d4214d184b0ee0abf75af3a22d01beb3a6dcf629d3c5b087"
+  },
+  {
+    "path": "29_ALGORITHM_READY_SLIDES/08_slide_platform_countermeasures.md",
+    "bytes": 184,
+    "sha256": "6d331e3225e62ee97c0523354b94948e0fa7ea7472bd723540a5e03ddffa121f"
+  },
+  {
+    "path": "29_ALGORITHM_READY_SLIDES/09_slide_candidate_gate.md",
+    "bytes": 271,
+    "sha256": "ed299409c03e62ffdd2812b13abfbde91b05364610439df5a83e13748e87e7d9"
+  },
+  {
+    "path": "29_ALGORITHM_READY_SLIDES/10_slide_multilayer_narrative_laundering.md",
+    "bytes": 307,
+    "sha256": "a39c2ea8056e4ee1da5f979d1ba203acf85ba6d7fa909175fa3418fdd49c2ef4"
+  },
+  {
+    "path": "29_ALGORITHM_READY_SLIDES/README.md",
+    "bytes": 206,
+    "sha256": "0faa5c0ae49f235ae5bb52a46cc1b30510caf08f81ce5f8c4f7cf2f405c9e26a"
+  },
+  {
+    "path": "30_ALGORITHMIC_RESEARCH_AGENDA/01_model_validation_plan.md",
+    "bytes": 722,
+    "sha256": "f7c1eb42aeac1ca46a9139d01a16cf09c07683d15ab297c02a72ba183407df9d"
+  },
+  {
+    "path": "30_ALGORITHMIC_RESEARCH_AGENDA/02_boundary_conditions.md",
+    "bytes": 624,
+    "sha256": "960625a841b252d2a6c6ef889d40613fea84bb0e4a04c2d837e446b790aaa737"
+  },
+  {
+    "path": "30_ALGORITHMIC_RESEARCH_AGENDA/03_public_data_study_design.md",
+    "bytes": 496,
+    "sha256": "798ad0f7d87880283f6d1fb3a5962e407a715e9c7ed9f873335f2dc0c6ace242"
+  },
+  {
+    "path": "30_ALGORITHMIC_RESEARCH_AGENDA/04_paper_claim_strength_table.md",
+    "bytes": 535,
+    "sha256": "1aa88630d317ca06b612e0ccb6cb368e02d1a2e85ec8824efc1a976b76e8dcaf"
+  },
+  {
+    "path": "30_ALGORITHMIC_RESEARCH_AGENDA/05_algorithmic_model_taxonomy.md",
+    "bytes": 878,
+    "sha256": "067cabe6b264105b1c45759c15d5f9b84f2501a4cbc133db2c7c55a984ca4b74"
+  },
+  {
+    "path": "30_ALGORITHMIC_RESEARCH_AGENDA/99_REFERENCES.md",
+    "bytes": 2641,
+    "sha256": "b30d95466fd7375d989e3be5e718cf4dcc9b575aa5e2eda0b1174d6766427ad4"
+  },
+  {
+    "path": "30_ALGORITHMIC_RESEARCH_AGENDA/README.md",
+    "bytes": 554,
+    "sha256": "5367ea96d2c8bde0b709cc6537780952d57ae073d4e824c8ddf4e257f970733a"
+  },
+  {
+    "path": "FIELD_GUIDE_MAP.md",
+    "bytes": 1286,
+    "sha256": "b9c13110f6ba99e26090129823253f1864dc2e55ac80983bd69279b02bad3ce3"
+  },
+  {
+    "path": "FILE_TREE.md",
+    "bytes": 19996,
+    "sha256": "a5ac86fbe83bf102e9058f679f5c7603787d15549a4cb7fe767dcc9a95e02bc8"
+  },
+  {
+    "path": "MANIFEST.md",
+    "bytes": 460,
+    "sha256": "f0b2ab4aa61c9c3df3c132cd39c6e06c89c404397eebe6bd39f7ba05c58dc741"
+  },
+  {
+    "path": "README.md",
+    "bytes": 3505,
+    "sha256": "33fb92a43a9f899910e2d5d43e6e04275337ddaa838656a27e3e4f0054f0f139"
+  },
+  {
+    "path": "V8_MATHEMATICAL_PROOF_CHANGELOG.md",
+    "bytes": 660,
+    "sha256": "ae637656e54fd992038b636d3737de5cd5335506e4f6f4e14437bf8b61c4bd7f"
+  }
+]

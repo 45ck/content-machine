@@ -1,0 +1,34 @@
+# Math and AI Source Index
+
+- [Google Ads API Reporting Overview](./google-ads-reporting.md) — official platform docs
+- [Google Ads API: Creating Responsive Search Ads](./google-rsa.md) — official platform docs
+- [Google Ads API: Reporting on Experiments](./google-experiment-reporting.md) — official platform docs
+- [Meta Marketing API: Conversion Lift Measurement](./meta-conversion-lift.md) — official platform docs
+- [Meta Marketing API: Ad Creative](./meta-creative.md) — official platform docs
+- [TikTok API for Business](./tiktok-api-business.md) — official platform docs
+- [TikTok Ads Manager: Split Testing](./tiktok-split-test.md) — official platform docs
+- [LinkedIn Marketing Developer Platform](./linkedin-marketing-api.md) — official platform docs
+- [LinkedIn Conversion Lift Testing](./linkedin-conversion-lift.md) — official platform docs
+- [LinkedIn Brand Lift Testing](./linkedin-brand-lift.md) — official platform docs
+- [Google Meridian About the Project](./google-meridian.md) — official modeling docs
+- [Meta Robyn Documentation](./meta-robyn.md) — official modeling docs
+- [Robyn Analyst Guide to MMM](./robyn-analyst.md) — official modeling docs
+- [Brodersen et al. 2015: Inferring causal impact using Bayesian structural time-series models](./causalimpact.md) — peer-reviewed paper
+- [Scott 2014: Multi-armed bandit experiments in the online service economy](./bandit-scott.md) — academic paper
+- [Schwartz et al. 2017: Customer Acquisition via Display Advertising Using Multi-Armed Bandit Experiments](./display-bandit.md) — academic paper
+- [Deng et al. 2013: Improving the Sensitivity of Online Controlled Experiments by Utilizing Pre-Experiment Data](./cuped.md) — academic paper
+- [Trustworthy Online Controlled Experiments](./trustworthy-oce.md) — book
+- [Kohavi et al. 2013: Online Controlled Experiments at Large Scale](./oce-large-scale.md) — academic paper
+- [Johari et al. 2021: Always Valid Inference](./always-valid.md) — academic paper
+- [Jin et al. 2017: Bayesian Methods for Media Mix Modeling with Carryover and Shape Effects](./google-bayesian-mmm.md) — academic paper
+- [Wang et al. 2017: A Hierarchical Bayesian Approach to Improve Media Mix Models](./google-hierarchical-mmm.md) — academic paper
+- [Bayesian Hierarchical Media Mix Model Incorporating Reach and Frequency Data](./reach-frequency-mmm.md) — academic paper
+- [Zhao et al. 2017: Uplift Modeling with Multiple Treatments and General Response Types](./uplift-multiple.md) — academic paper
+- [Pinheiro et al. 2025: A machine learning framework for uplift modeling](./uplift-review-2025.md) — academic paper
+- [OpenAI Agents SDK](./openai-agents.md) — official AI engineering docs
+- [OpenAI Evaluation Best Practices](./openai-evals.md) — official AI engineering docs
+- [OpenAI Graders](./openai-graders.md) — official AI engineering docs
+- [Anthropic: Building Effective Agents](./anthropic-effective-agents.md) — official AI engineering guidance
+- [Claude Code Custom Subagents](./claude-subagents.md) — official Claude Code docs
+- [Claude Code Hooks](./claude-hooks.md) — official Claude Code docs
+- [Claude Code Skills](./claude-skills.md) — official Claude Code docs

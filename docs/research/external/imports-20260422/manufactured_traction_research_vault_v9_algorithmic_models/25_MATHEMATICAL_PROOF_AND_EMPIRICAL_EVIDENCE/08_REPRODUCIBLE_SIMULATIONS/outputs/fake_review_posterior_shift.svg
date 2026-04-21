@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+<rect width="100%" height="100%" fill="white"/>
+<text x="400.0" y="30" text-anchor="middle" font-family="Arial" font-size="20">Bayesian belief shift from fake reviews</text>
+<line x1="60" y1="440" x2="740" y2="440" stroke="black"/>
+<line x1="60" y1="60" x2="60" y2="440" stroke="black"/>
+<polyline points="60.0,440.0 71.3,408.4 82.7,380.8 94.0,356.5 105.3,334.9 116.7,315.6 128.0,298.2 139.3,282.6 150.7,268.4 162.0,255.4 173.3,243.5 184.7,232.6 196.0,222.5 207.3,213.2 218.7,204.5 230.0,196.4 241.3,188.9 252.7,181.9 264.0,175.3 275.3,169.1 286.7,163.3 298.0,157.9 309.3,152.7 320.7,147.8 332.0,143.2 343.3,138.8 354.7,134.6 366.0,130.6 377.3,126.8 388.7,123.2 400.0,119.8 411.3,116.5 422.7,113.4 434.0,110.4 445.3,107.5 456.7,104.7 468.0,102.1 479.3,99.5 490.7,97.1 502.0,94.7 513.3,92.5 524.7,90.3 536.0,88.2 547.3,86.1 558.7,84.2 570.0,82.3 581.3,80.4 592.7,78.7 604.0,76.9 615.3,75.3 626.7,73.7 638.0,72.1 649.3,70.6 660.7,69.1 672.0,67.7 683.3,66.3 694.7,65.0 706.0,63.7 717.3,62.4 728.7,61.2 740.0,60.0" fill="none" stroke="black" stroke-width="2"/>
+<text x="400.0" y="485" text-anchor="middle" font-family="Arial" font-size="14">Fake positive reviews</text>
+<text x="18" y="250.0" text-anchor="middle" font-family="Arial" font-size="14" transform="rotate(-90 18 250.0)">Posterior perceived quality</text>
+<text x="60" y="458" font-family="Arial" font-size="12">0</text>
+<text x="740" y="458" text-anchor="end" font-family="Arial" font-size="12">60</text>
+<text x="52" y="440.0" text-anchor="end" font-family="Arial" font-size="12">3.4</text>
+<text x="52" y="60.0" text-anchor="end" font-family="Arial" font-size="12">4.7</text>
+</svg>

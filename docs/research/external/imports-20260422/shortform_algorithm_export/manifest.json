@@ -1,0 +1,33 @@
+{
+  "export_name": "shortform_algorithm_export",
+  "export_date": "2026-04-21",
+  "description": "Markdown research package reconstructing short-form recommendation algorithms as a grey-box mathematical model.",
+  "included_files": [
+    "ALL_IN_ONE_EXPORT.md",
+    "README.md",
+    "conversation/00_visible_conversation_reconstruction.md",
+    "conversation/01_process_timeline.md",
+    "experiments/validation_plan.md",
+    "hypotheses/hypothesis_register.md",
+    "hypotheses/platform_specific_hypotheses.md",
+    "input_screenshots/reddit_instagram_marketing_screenshot_1.jpeg",
+    "input_screenshots/reddit_instagram_marketing_screenshot_2.jpeg",
+    "manifest.json",
+    "math/master_equations.md",
+    "models/01_v1_multi_platform_ranking.md",
+    "models/02_v2_short_form_core_algorithm.md",
+    "models/03_v3_grey_box_architecture.md",
+    "models/04_v4_calibrated_stochastic_model.md",
+    "models/05_v5_hypothesis_ensemble.md",
+    "models/06_v6_weighted_reconstruction_engine.md",
+    "models/07_v7_validation_confirm_deny.md",
+    "sources/references.md",
+    "templates/hypothesis_register_template.csv",
+    "templates/model_inputs_schema.json",
+    "templates/video_metrics_template.csv"
+  ],
+  "limitations": [
+    "Exact platform coefficients are proprietary and not included.",
+    "Hidden chain-of-thought is not included; visible process reconstruction is included."
+  ]
+}

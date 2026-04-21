@@ -1,0 +1,9 @@
+field,type,required,description
+case_id,string,yes,Case identifier
+claim,string,yes,Claim being tested
+evidence_type,string,yes,"network,timing,content,policy,regulator,reporting,interview"
+evidence_summary,string,yes,What was observed
+source_url,string,yes,URL or source reference
+evidence_strength,string,yes,"weak,moderate,strong,documented"
+limitations,string,yes,What this evidence cannot prove
+safe_wording,string,yes,Cautious conclusion wording

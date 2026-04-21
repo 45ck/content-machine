@@ -1,0 +1,8 @@
+field,type,required,description
+source,string,yes,Source node
+target,string,yes,Target node
+edge_type,string,yes,"co_post, co_review, co_vote, co_stream, similarity, attribution"
+weight,float,yes,Edge weight
+window_seconds,integer,no,Timing window used
+example_objects,string,no,Object examples
+method,string,yes,How edge was constructed

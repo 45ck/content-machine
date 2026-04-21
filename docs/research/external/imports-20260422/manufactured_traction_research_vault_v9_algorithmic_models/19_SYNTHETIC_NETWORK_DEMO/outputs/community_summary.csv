@@ -1,0 +1,4 @@
+community_id,size,dominant_known_synthetic_group,group_mix,internal_weight_sum
+1,12,coordinated_alpha,"{""coordinated_alpha"": 12}",990
+2,9,coordinated_beta,"{""coordinated_beta"": 9}",190
+3,6,news_breaking,"{""news_breaking"": 6}",60

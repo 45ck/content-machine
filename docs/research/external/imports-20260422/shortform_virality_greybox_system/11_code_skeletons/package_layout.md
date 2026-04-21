@@ -1,0 +1,62 @@
+# Suggested Package Layout
+
+```text
+shortform_score/
+  pyproject.toml
+  README.md
+  configs/
+    scoring.yaml
+    features.yaml
+    platforms.yaml
+  data/
+    schemas/
+      video_metrics.schema.json
+      signal_scores.schema.json
+  shortform_score/
+    ingestion/
+      load_videos.py
+      load_metrics.py
+      validate_schema.py
+    features/
+      video_features.py
+      audio_features.py
+      text_features.py
+      tribe_features.py
+      creator_features.py
+      trend_features.py
+      audience_features.py
+    models/
+      creator_baseline.py
+      scroll_stop.py
+      retention.py
+      intent.py
+      negative_risk.py
+      audience_fit.py
+      eligibility.py
+      expansion_wave.py
+      final_score.py
+    training/
+      train_signal_model.py
+      train_final_model.py
+      evaluate.py
+      ablate.py
+    inference/
+      score_draft.py
+      score_live.py
+      diagnostics.py
+    api/
+      main.py
+      schemas.py
+    monitoring/
+      drift.py
+      calibration.py
+      model_cards.py
+  notebooks/
+    01_data_audit.ipynb
+    02_baseline_models.ipynb
+    03_ablation_report.ipynb
+  tests/
+    test_features.py
+    test_models.py
+    test_scoring.py
+```

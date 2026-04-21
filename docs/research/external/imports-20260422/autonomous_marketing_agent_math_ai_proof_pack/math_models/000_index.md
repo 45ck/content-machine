@@ -1,0 +1,35 @@
+# Math Models Index
+
+- [Autonomous Marketing State Space Model](./001_autonomous_marketing_state_space_model.md) — Use when modeling the whole system as state, action, observation, reward.
+- [Buyer State POMDP](./002_buyer_state_pomdp.md) — Use when buyer intent is hidden and only inferred from behavior.
+- [Funnel Probability Model](./003_funnel_probability_model.md) — Use for first-principles campaign decomposition.
+- [Logistic Conversion Model](./004_logistic_conversion_model.md) — Use when predicting conversion probability from features.
+- [Bayesian Beta-Binomial Model](./005_bayesian_beta_binomial_model.md) — Use for click/conversion rates with small samples.
+- [Normal / Lognormal Revenue Model](./006_normal_model_for_revenue_and_profit.md) — Use when conversion value varies.
+- [Adstock Carryover Model](./007_adstock_carryover_model.md) — Use when media effects persist over time.
+- [Saturation and Hill Response Model](./008_saturation_hill_response_model.md) — Use when extra spend has diminishing returns.
+- [Frequency, Fatigue, and Wearout Model](./009_frequency_fatigue_wearout_model.md) — Use when repeated exposures degrade response.
+- [Bayesian Media Mix Model](./010_bayesian_media_mix_model.md) — Use when estimating cross-channel effects with uncertainty.
+- [Geo Lift Model](./011_geo_lift_model.md) — Use when randomizing users is not practical but geos can be compared.
+- [Difference-in-Differences Model](./012_difference_in_differences_model.md) — Use with pre/post treatment and control groups.
+- [CausalImpact Structural Time Series Model](./013_causalimpact_structural_time_series_model.md) — Use when estimating campaign impact from time-series counterfactuals.
+- [CUPED Variance Reduction Model](./014_cuped_variance_reduction_model.md) — Use when pre-experiment data can reduce variance.
+- [Ratio Metric and Delta Method](./015_ratio_metric_delta_method.md) — Use for CPA, ROAS, conversion rate, revenue per visitor.
+- [Sequential Testing and Always-Valid Inference](./016_sequential_testing_anytime_valid_model.md) — Use when the system wants to monitor live tests continuously.
+- [Thompson Sampling for Bernoulli Bandits](./017_thompson_sampling_bernoulli_bandit.md) — Use for creative/ad variants with binary outcomes.
+- [Contextual Bandit Model](./018_contextual_bandit_model.md) — Use when variant choice depends on audience/context.
+- [Nonstationary Bandit with Decay](./019_nonstationary_bandit_decay_model.md) — Use when creative performance drifts or fatigues.
+- [Bayesian Optimization for Landing Pages](./020_bayesian_optimization_for_landing_pages.md) — Use when testing continuous or structured design variables.
+- [Uplift Model for Incrementality](./021_uplift_model_incrementality.md) — Use when targeting persuadable users instead of likely responders.
+- [Response Surface and Budget Allocation](./022_response_surface_and_budget_allocation.md) — Use when allocating budget across channels/campaigns.
+- [LTV, CAC, and Payback Model](./023_ltv_cac_payback_model.md) — Use when campaign economics matter more than surface conversions.
+- [Unit Economics Guardrail Model](./024_unit_economics_guardrail_model.md) — Use to prevent scaling unprofitable demand.
+- [Attribution as Weak Evidence Model](./025_attribution_as_weak_evidence_model.md) — Use when platform attribution is useful but not causal.
+- [Risk-Adjusted Profit Utility Model](./026_profit_utility_decision_model.md) — Use for deciding whether to launch, scale, pause, or diagnose.
+- [Power, Sample Size, and MDE](./027_power_sample_size_mde.md) — Use before tests to avoid underpowered nonsense.
+- [Creative Fatigue Detection Model](./028_creative_fatigue_detection_model.md) — Use to detect declining response from repeated exposure.
+- [Pricing and Offer Elasticity Model](./029_pricing_offer_elasticity_model.md) — Use when offer/pricing changes are central.
+- [Probabilistic Roadmap](./030_probabilistic_roadmap.md) — Use to sequence tests by expected value of information.
+- [Model Selection Table](./031_model_selection_table.md) — Use to choose models by problem and data.
+- [Model Failure Modes](./032_model_failure_modes.md) — Use when a mathematical model is giving false certainty.
+- [Formula Cheat Sheet](./033_formula_cheat_sheet.md) — Use as the quick reference for campaign math.

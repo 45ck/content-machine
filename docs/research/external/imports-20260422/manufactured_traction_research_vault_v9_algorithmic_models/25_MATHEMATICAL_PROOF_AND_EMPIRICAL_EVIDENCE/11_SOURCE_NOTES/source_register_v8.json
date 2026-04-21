@@ -1,0 +1,152 @@
+[
+  {
+    "id": "muchnik_2013_social_influence",
+    "title": "Social influence bias: a randomized experiment",
+    "authors": "Lev Muchnik, Sinan Aral, Sean J. Taylor",
+    "year": 2013,
+    "url": "https://pubmed.ncbi.nlm.nih.gov/23929980/",
+    "claim_supported": "Artificial initial positive social feedback can causally increase later positive ratings and final score.",
+    "key_result": "Positive manipulation increased likelihood of positive ratings by 32% and final ratings by 25% on average.",
+    "evidence_type": "Randomized field experiment"
+  },
+  {
+    "id": "salganik_2006_music_market",
+    "title": "Experimental study of inequality and unpredictability in an artificial cultural market",
+    "authors": "Matthew J. Salganik, Peter Sheridan Dodds, Duncan J. Watts",
+    "year": 2006,
+    "url": "https://collaborate.princeton.edu/en/publications/experimental-study-of-inequality-and-unpredictability-in-an-artif/",
+    "claim_supported": "Visible popularity information increases inequality and unpredictability of success.",
+    "key_result": "Increasing social influence increased inequality and unpredictability; success was only partly determined by quality.",
+    "evidence_type": "Controlled online experiment"
+  },
+  {
+    "id": "van_de_rijt_2014_success_breeds_success",
+    "title": "Field experiments of success-breeds-success dynamics",
+    "authors": "Arnout van de Rijt, Soong Moon Kang, Michael Restivo, Akshay Patil",
+    "year": 2014,
+    "url": "https://pubmed.ncbi.nlm.nih.gov/24778230/",
+    "claim_supported": "Arbitrarily bestowed early success can cause subsequent success across domains.",
+    "key_result": "Early success improved subsequent rates of success compared with controls across funding, status, endorsement, and reputation systems.",
+    "evidence_type": "Randomized field experiments"
+  },
+  {
+    "id": "rogers_righetti_2025_manufactured_attention",
+    "title": "Coordinated inauthentic behaviour on Facebook? A typology of manufactured attention",
+    "authors": "Richard Rogers, Nicola Righetti",
+    "year": 2025,
+    "url": "https://journals.sagepub.com/doi/10.1177/29768624251369784",
+    "claim_supported": "Timed repeated co-sharing can reveal manufactured attention networks beyond politics, including commercial and scam networks.",
+    "key_result": "Coordination is operationalized as accounts performing the same action together at least r times within a time window t.",
+    "evidence_type": "Empirical coordination-network analysis"
+  },
+  {
+    "id": "graham_2024_coordination_toolkit",
+    "title": "The coordination network toolkit: a framework for detecting and analysing coordinated behaviour on social media",
+    "authors": "Timothy Graham, Sam Hames, Elizabeth Alpert",
+    "year": 2024,
+    "url": "https://link.springer.com/article/10.1007/s42001-024-00260-z",
+    "claim_supported": "Coordination can be modelled as directed weighted multi-behaviour graphs.",
+    "key_result": "The toolkit builds networks where accounts are connected when they repeatedly perform same or similar actions in a short time window.",
+    "evidence_type": "Open-source methodological framework"
+  },
+  {
+    "id": "chaney_2018_algorithmic_confounding",
+    "title": "How algorithmic confounding in recommendation systems increases homogeneity and decreases utility",
+    "authors": "Allison J. B. Chaney, Brandon M. Stewart, Barbara E. Engelhardt",
+    "year": 2018,
+    "url": "https://bstewart.scholar.princeton.edu/publications/how-algorithmic-confounding-recommendation-systems-increases-homogeneity-and",
+    "claim_supported": "Recommendation systems trained on behaviour shaped by previous recommendations can create feedback loops.",
+    "key_result": "Simulations demonstrate pernicious feedback loops and homogenization without utility gains.",
+    "evidence_type": "Simulation / recommender-systems research"
+  },
+  {
+    "id": "klimashevskaia_2024_popularity_bias",
+    "title": "A survey on popularity bias in recommender systems",
+    "authors": "Anastasiia Klimashevskaia et al.",
+    "year": 2024,
+    "url": "https://link.springer.com/article/10.1007/s11257-024-09406-0",
+    "claim_supported": "Many recommender systems exhibit popularity bias.",
+    "key_result": "Survey finds today\u2019s recommendation algorithms often focus on already-popular items.",
+    "evidence_type": "Survey"
+  },
+  {
+    "id": "zoralioglu_2026_dynamic_feedback",
+    "title": "Dynamic feedback loops in recommender systems",
+    "authors": "Yildiz Zoralioglu, Emre Yalcin",
+    "year": 2026,
+    "url": "https://link.springer.com/article/10.1007/s10844-026-01025-y",
+    "claim_supported": "Iterative feedback can magnify popularity bias, reduce diversity, and misalign systems over time.",
+    "key_result": "Dynamic feedback loops progressively reinforce popularity bias and reduce diversity/personalization across groups.",
+    "evidence_type": "Empirical evaluation with dynamic feedback-loop framework"
+  },
+  {
+    "id": "akesson_2023_fake_reviews",
+    "title": "The Impact of Fake Reviews on Demand and Welfare",
+    "authors": "Jesper Akesson, Robert W. Hahn, Robert D. Metcalfe, Manuel Monti-Nussbaum",
+    "year": 2023,
+    "url": "https://www.nber.org/papers/w31836",
+    "claim_supported": "Positive fake reviews can cause consumers to choose lower-quality products and reduce welfare.",
+    "key_result": "Experiment with 10,000 UK participants; welfare losses estimated around $0.12 per dollar spent in the studied setting.",
+    "evidence_type": "Incentive-compatible online experiment"
+  },
+  {
+    "id": "shao_2018_social_bots",
+    "title": "The spread of low-credibility content by social bots",
+    "authors": "Chengcheng Shao et al.",
+    "year": 2018,
+    "url": "https://www.nature.com/articles/s41467-018-06930-7",
+    "claim_supported": "Bots can play a disproportionate role in early amplification and humans reshare bot-posted content.",
+    "key_result": "Analysis of 14 million messages and 400,000 articles found bots amplified low-credibility content early before virality.",
+    "evidence_type": "Large-scale observational network analysis"
+  },
+  {
+    "id": "granovetter_1978_thresholds",
+    "title": "Threshold Models of Collective Behavior",
+    "authors": "Mark Granovetter",
+    "year": 1978,
+    "url": "https://sociology.stanford.edu/publications/threshold-models-collective-behavior",
+    "claim_supported": "Collective outcomes can change sharply when visible participation crosses individual thresholds.",
+    "key_result": "Threshold distributions determine equilibrium participation; similar average preferences can produce different aggregate outcomes.",
+    "evidence_type": "Mathematical sociology model"
+  },
+  {
+    "id": "watts_2002_global_cascades",
+    "title": "A simple model of global cascades on random networks",
+    "authors": "Duncan J. Watts",
+    "year": 2002,
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC122850/",
+    "claim_supported": "Small shocks can trigger rare large cascades in threshold networks under certain structural conditions.",
+    "key_result": "The model identifies regimes where networks are susceptible to rare global cascades triggered by small shocks.",
+    "evidence_type": "Mathematical network model"
+  },
+  {
+    "id": "yang_2021_shilling_attacks",
+    "title": "A genre trust model for defending shilling attacks in recommender systems",
+    "authors": "Li Yang, Xinxin Niu",
+    "year": 2021,
+    "url": "https://link.springer.com/article/10.1007/s40747-021-00357-2",
+    "claim_supported": "Profile-injection/shilling attacks manipulate recommender systems by pushing or nuking target items.",
+    "key_result": "Describes shilling attack profiles and push/nuke attack logic against collaborative filtering systems.",
+    "evidence_type": "Recommender-system security research"
+  },
+  {
+    "id": "zhang_2024_shilling_detection",
+    "title": "Unsupervised contaminated user profile identification against shilling attack in recommender system",
+    "authors": "Fei Zhang et al.",
+    "year": 2024,
+    "url": "https://journals.sagepub.com/doi/10.3233/IDA-230575",
+    "claim_supported": "Recommender systems remain susceptible to carefully crafted profile injection attacks.",
+    "key_result": "Proposes unsupervised profile-identification methods for attack profiles, including standard and obfuscated behaviour attacks.",
+    "evidence_type": "Detection-method research"
+  },
+  {
+    "id": "wu_davison_2005_link_farms",
+    "title": "Identifying link farm spam pages",
+    "authors": "Baoning Wu, Brian D. Davison",
+    "year": 2005,
+    "url": "https://www.researchgate.net/publication/200110931_Identifying_link_farm_spam_pages",
+    "claim_supported": "Link farms can deteriorate link-based ranking algorithms and can be detected through graph structure.",
+    "key_result": "Proposes algorithms for detecting link farms and improving ranking results through reweighted web graphs.",
+    "evidence_type": "Search-spam detection research"
+  }
+]
