@@ -46,6 +46,14 @@ The durable value is:
 Do not archive Content Machine. **Archive the idea that Content
 Machine itself should be the main agentic control plane.**
 
+## Phase 0 cross-references
+
+- [`03-reorg-synthesis.md`](03-reorg-synthesis.md) — authoritative Phase 0 consolidation.
+- [`classification-20260422.md`](classification-20260422.md) — per-file keep/move/archive/delete.
+- [`04-skill-catalog.md`](04-skill-catalog.md) — ~35 skills grounded in the source pack.
+- [`05-flow-catalog.md`](05-flow-catalog.md) — 10 prompt-language flows.
+- [`../../archive/README.md`](../../archive/README.md) — archive policy and landing zone.
+
 ## Source
 
 Lifted from section 2, 6, 7, 8, and 9 of

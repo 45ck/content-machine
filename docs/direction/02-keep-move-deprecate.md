@@ -1,5 +1,9 @@
 # Keep / Move / Deprecate
 
+> **Note:** The authoritative per-file classification now lives in
+> [`classification-20260422.md`](classification-20260422.md); this
+> document remains the conceptual narrative.
+
 Initial classification from section 10 of the findings doc. Phase 0
 (bead `content-machine-7tf.1`) turns this into a line-by-line audit.
 

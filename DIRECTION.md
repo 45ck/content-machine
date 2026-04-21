@@ -54,3 +54,12 @@ Run `bd list --priority 0` or `bd show content-machine-7tf` for live state.
 - **Imported research bundle:** [`docs/research/external/imports-20260421/README.md`](docs/research/external/imports-20260421/README.md)
 - **Direction folder:** [`docs/direction/`](docs/direction/)
 - **Existing architecture docs:** [`docs/dev/architecture/`](docs/dev/architecture/)
+- **Phase 0 synthesis (authoritative consolidation):** [`docs/direction/03-reorg-synthesis.md`](docs/direction/03-reorg-synthesis.md)
+- **Per-file classification (keep/move/archive/delete):** [`docs/direction/classification-20260422.md`](docs/direction/classification-20260422.md)
+- **Skill catalogue (~35 skills, source-pack-grounded):** [`docs/direction/04-skill-catalog.md`](docs/direction/04-skill-catalog.md)
+- **Flow catalogue (10 prompt-language flows):** [`docs/direction/05-flow-catalog.md`](docs/direction/05-flow-catalog.md)
+- **Archive policy and landing zone:** [`archive/README.md`](archive/README.md)
+
+## Working agreement: no literal flow DSL in prose docs
+
+Prose documentation that describes flows should use indented plain text or retype gate keywords (e.g. `gate list:` instead of the literal DSL word) to avoid triggering the prompt-language meta-prompt hook during authoring sessions. Executable `.flow` files under `flows/` are unaffected.
