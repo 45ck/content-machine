@@ -1,0 +1,7 @@
+# Archive — not published
+archive/
+
+# Decision points (flagged in Phase 0 report — NOT excluded by default):
+# Uncomment only if these directories should be omitted from the published tarball.
+# docs/direction/
+# docs/research/
