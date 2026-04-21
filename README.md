@@ -28,6 +28,12 @@ cm generate "Redis vs PostgreSQL for caching" --archetype versus -o video.mp4
 
 > Early development — working, but APIs may change between releases.
 
+> **Direction:** Content Machine is pivoting to a harness-first content
+> runtime (contracts + runtime + skills) with the CLI demoted to a thin
+> dev shell. See [`DIRECTION.md`](DIRECTION.md) for the north star and
+> the P0 phase plan tracked in [beads](https://github.com/45ck/content-machine)
+> epic `content-machine-7tf`.
+
 ## Install
 
 ```bash

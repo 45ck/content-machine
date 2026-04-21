@@ -1,5 +1,10 @@
 # Documentation
 
+## Direction
+
+- [`DIRECTION.md`](../DIRECTION.md) — where Content Machine is heading (harness-first runtime)
+- [`direction/`](direction/) — phase plan, boundaries, keep/move/deprecate
+
 ## For Users
 
 Start here if you want to use Content Machine:
