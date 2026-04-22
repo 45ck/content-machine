@@ -1,0 +1,5 @@
+{
+  "videoPath": "input/reference.mp4",
+  "outputDir": "output/harness/ingest",
+  "includeFrameAnalysis": true
+}

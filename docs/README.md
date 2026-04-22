@@ -5,6 +5,11 @@
 - [`DIRECTION.md`](../DIRECTION.md) — where Content Machine is heading (harness-first runtime)
 - [`direction/`](direction/) — phase plan, boundaries, keep/move/deprecate
 
+## Harness Surfaces
+
+- [`../skills/README.md`](../skills/README.md) — harness-facing skill scaffolding for Claude Code, Codex CLI, and similar agents
+- [`../flows/README.md`](../flows/README.md) — flow scaffolding and authoring rules for prompt-language orchestration
+
 ## For Users
 
 Start here if you want to use Content Machine:

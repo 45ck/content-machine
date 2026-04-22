@@ -12,12 +12,21 @@
   </picture>
 </p>
 
-**Turn any topic into a TikTok/Reels/Shorts video from the command line.**
+**Harness-first content runtime for Claude Code, Codex CLI, and similar coding agents.**
 
-One command in, vertical video out. Content Machine generates scripts, voiceover, captions, and stock footage — then renders everything into a ready-to-upload MP4.
+Content Machine is moving away from a monolithic "AI video agent" and
+toward repo-local skills, typed artifacts, and deterministic runtime
+surfaces that coding harnesses can call directly.
 
 ```bash
-cm generate "Redis vs PostgreSQL for caching" --archetype versus -o video.mp4
+cat <<'JSON' | npx tsx scripts/harness/brief-to-script.ts
+{
+  "topic": "Redis vs PostgreSQL for caching",
+  "archetype": "versus",
+  "targetDuration": 35,
+  "outputPath": "output/harness/script/script.json"
+}
+JSON
 ```
 
 <p align="center">
@@ -26,54 +35,68 @@ cm generate "Redis vs PostgreSQL for caching" --archetype versus -o video.mp4
   <img src="assets/demo/demo-4-latest-news.gif" alt="Latest news demo" width="32%" />
 </p>
 
-> Early development — working, but APIs may change between releases.
+> Early development. The preferred integration path is now skills plus
+> harness scripts; the legacy CLI remains available while the repo is
+> migrated toward the harness-first direction.
 
-> **Direction:** Content Machine is pivoting to a harness-first content
-> runtime (contracts + runtime + skills) with the CLI demoted to a thin
-> dev shell. See [`DIRECTION.md`](DIRECTION.md) for the north star and
-> the P0 phase plan tracked in [beads](https://github.com/45ck/content-machine)
-> epic `content-machine-7tf`.
+> Start with [`skills/`](skills/README.md),
+> [`scripts/harness/`](scripts/harness/README.md),
+> [`flows/`](flows/README.md), and [`DIRECTION.md`](DIRECTION.md).
 
-## Install
+## Start Here
 
 ```bash
-npm install -g @45ck/content-machine
+npm install
 ```
 
-Or run without installing:
+### For Claude Code and Codex CLI
+
+Use the repo-local skills and the JSON-stdio harness entrypoints:
 
 ```bash
-npx -y @45ck/content-machine --help
+npx tsx scripts/harness/brief-to-script.ts
+npx tsx scripts/harness/ingest.ts
+npx tsx scripts/harness/publish-prep.ts
+```
+
+Starter skills:
+
+- [skills/brief-to-script/SKILL.md](skills/brief-to-script/SKILL.md)
+- [skills/reverse-engineer-winner/SKILL.md](skills/reverse-engineer-winner/SKILL.md)
+- [skills/publish-prep-review/SKILL.md](skills/publish-prep-review/SKILL.md)
+
+### For legacy CLI usage
+
+```bash
+npm run cm -- --help
 ```
 
 Requires Node.js >= 20. See [full installation guide](docs/user/INSTALLATION.md) for optional setup (Whisper, ffmpeg).
 
 ## Quick Start
 
-**1. Try the demo** (no API keys needed):
+**1. Reverse-engineer a reference short**
 
 ```bash
-cm demo -o output/demo.mp4
+cat skills/reverse-engineer-winner/examples/request.json | \
+  npx tsx scripts/harness/ingest.ts
 ```
 
-**2. Generate a real video** (needs OpenAI + Pexels keys):
+**2. Generate a script artifact**
 
 ```bash
-export OPENAI_API_KEY="sk-..."
-export PEXELS_API_KEY="..."
-
-cm generate "5 things every dev should know about Docker" \
-  --archetype listicle \
-  -o output/docker-tips.mp4
+cat skills/brief-to-script/examples/request.json | \
+  npx tsx scripts/harness/brief-to-script.ts
 ```
 
-**3. Diagnose issues:**
+**3. Review a render before upload**
 
 ```bash
-cm doctor
+cat skills/publish-prep-review/examples/request.json | \
+  npx tsx scripts/harness/publish-prep.ts
 ```
 
-See the full [Quickstart guide](docs/user/QUICKSTART.md) for Whisper setup and advanced options.
+The existing CLI quickstart remains in [docs/user/QUICKSTART.md](docs/user/QUICKSTART.md).
 
 ## What You Can Make
 
@@ -92,7 +115,8 @@ More examples: [docs/user/EXAMPLES.md](docs/user/EXAMPLES.md)
 
 ## How It Works
 
-Content Machine runs a 4-stage pipeline — each stage can also run independently:
+The legacy CLI pipeline still exists and remains the bridge to many
+runtime capabilities:
 
 ```
 topic → script → audio + timestamps → visuals → video.mp4
@@ -110,6 +134,9 @@ cm render  --input visuals.json                # Remotion renders MP4
 
 ## Documentation
 
+- **[skills/](skills/README.md)** — starter harness skills for Claude Code and Codex CLI
+- **[scripts/harness/](scripts/harness/README.md)** — JSON-stdio deterministic entrypoints
+- **[flows/](flows/README.md)** — flow docs that will replace CLI control-plane behavior
 - **[User Guide](docs/user/README.md)** — installation, configuration, CLI reference, examples
 - **[Developer Docs](docs/dev/README.md)** — architecture, contributing guides, specs
 - **[Reference](docs/reference/)** — generated CLI references, environment variables, glossary

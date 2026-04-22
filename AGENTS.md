@@ -1,27 +1,52 @@
 # AGENTS.md
 
-**content-machine** — CLI-first automated short-form video generator for TikTok, Reels, and Shorts.
+**content-machine** — harness-first content runtime for short-form video work.
 
-> **Version:** 0.2.x | **License:** MIT | **Architecture:** 4-stage CLI pipeline (TypeScript + Remotion)
+> **Version:** 0.2.x | **License:** MIT | **Direction:** skills + harness scripts + runtime, with the legacy CLI being demoted
 
 This file provides context for AI coding agents (Copilot, Claude Code, Cursor, etc.). For human docs, see [README.md](README.md) and [docs/](docs/).
 
 ---
 
-## Pipeline Overview
+## Preferred Surfaces
+
+Use these first when working as Claude Code, Codex CLI, or similar
+coding harnesses:
+
+- `skills/*/SKILL.md` — harness-facing contracts
+- `scripts/harness/*.ts` — deterministic JSON-stdio entrypoints
+- `src/harness/*` — reusable logic behind those entrypoints
+- `src/*` runtime modules — direct imports only when a harness script
+  does not exist yet
+
+The legacy `cm` surface still exists, but new agent-facing work should
+prefer skills and harness scripts over adding more control-plane logic
+to `src/cli/`.
+
+## Harness Entry Points
 
 ```
-cm generate "topic" --archetype <type> --output video.mp4
+npx tsx scripts/harness/brief-to-script.ts
+npx tsx scripts/harness/ingest.ts
+npx tsx scripts/harness/publish-prep.ts
 ```
 
-Four composable stages, each runnable independently:
+Current starter skills:
 
-| Stage   | Command      | Input           | Output                          | Technology                          |
-| ------- | ------------ | --------------- | ------------------------------- | ----------------------------------- |
-| Script  | `cm script`  | Topic string    | `script.json`                   | LLM (OpenAI/Anthropic/Gemini)       |
-| Audio   | `cm audio`   | Script JSON     | `audio.wav` + `timestamps.json` | kokoro-js (TTS) + whisper.cpp (ASR) |
-| Visuals | `cm visuals` | Timestamps JSON | `visuals.json`                  | Pexels API, Nanobanana (AI images)  |
-| Render  | `cm render`  | All artifacts   | `video.mp4`                     | Remotion (React-based rendering)    |
+- `brief-to-script`
+- `reverse-engineer-winner`
+- `publish-prep-review`
+
+## Legacy Pipeline Overview
+
+The historical 4-stage CLI pipeline remains the bridge for runtime work:
+
+| Stage   | Command      | Input           | Output                          |
+| ------- | ------------ | --------------- | ------------------------------- |
+| Script  | `cm script`  | Topic string    | `script.json`                   |
+| Audio   | `cm audio`   | Script JSON     | `audio.wav` + `timestamps.json` |
+| Visuals | `cm visuals` | Timestamps JSON | `visuals.json`                  |
+| Render  | `cm render`  | All artifacts   | `video.mp4`                     |
 
 ---
 
@@ -58,7 +83,7 @@ src/
 
 ## Architecture Principles
 
-1. **CLI-First** — commands are composable, each stage produces JSON artifacts
+1. **Harness-First** — prefer skills and JSON-stdio harness scripts for agent-facing work
 2. **Dependency Injection** — all providers via constructor; static factories for prod, test factories for fakes
 3. **LLM-First Reasoning** — structured outputs via Zod schemas, not regex heuristics
 4. **Configuration-Driven** — TOML/JSON config, environment variables for secrets
@@ -91,21 +116,23 @@ Update workflow: edit the YAML, then run `npm run repo-facts:gen` or `npm run gl
 
 ---
 
-## Commands
+## Important Paths
 
-| Command        | Description                     |
-| -------------- | ------------------------------- |
-| `cm generate`  | Full pipeline: topic → video    |
-| `cm script`    | Generate script from topic      |
-| `cm audio`     | Generate voiceover + timestamps |
-| `cm visuals`   | Find matching visuals           |
-| `cm render`    | Render final video              |
-| `cm demo`      | Render demo video (no API keys) |
-| `cm doctor`    | Diagnose setup issues           |
-| `cm init`      | Interactive setup wizard        |
-| `cm templates` | Manage render templates         |
-| `cm lab`       | Experiment Lab UI               |
-| `cm feedback`  | Capture/export human feedback   |
+- `skills/` — harness-facing skill contracts
+- `flows/` — future orchestration surface
+- `scripts/harness/` — deterministic JSON-stdio entrypoints
+- `docs/direction/` — migration plan and boundaries
+- `archive/legacy-cli/` — frozen landing zone for surfaces that will be demoted or removed
+
+## CLI Commands Still Worth Knowing
+
+- `cm doctor`
+- `cm script`
+- `cm audio`
+- `cm visuals`
+- `cm render`
+- `cm publish`
+- `cm validate`
 
 ---
 
@@ -123,12 +150,14 @@ Update workflow: edit the YAML, then run `npm run repo-facts:gen` or `npm run gl
 ```bash
 git clone https://github.com/45ck/content-machine.git
 cd content-machine && npm install && cp .env.example .env
-npm run cm -- --help         # Run CLI from source
+npx tsx scripts/harness/ingest.ts   # Run a harness script from source
+npm run cm -- --help                # Run legacy CLI from source
 npm test                     # Watch mode
 npm run quality              # All checks
 ```
 
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:ca08a54f -->
+
 ## Beads Issue Tracker
 
 This project uses **bd (beads)** for issue tracking. Run `bd prime` to see full workflow context and commands.
@@ -169,6 +198,7 @@ bd close <id>         # Complete work
 7. **Hand off** - Provide context for next session
 
 **CRITICAL RULES:**
+
 - Work is NOT complete until `git push` succeeds
 - NEVER stop before pushing - that leaves work stranded locally
 - NEVER say "ready to push when you are" - YOU must push
