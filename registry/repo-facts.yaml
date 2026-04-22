@@ -42,6 +42,7 @@ conventions:
       - 'docs/dev/architecture/experiment-lab/README.md'
       - 'docs/dev/bugs/README.md'
       - 'docs/research/synthesis/README.md'
+      - 'docs/research/external/**'
       - 'docs/dev/glossary/**'
       # Generated docs (undated on purpose)
       - 'docs/reference/GLOSSARY.md'
