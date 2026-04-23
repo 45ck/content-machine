@@ -61,30 +61,31 @@ export async function runPublishPrep(request: PublishPrepRequest): Promise<
     passed: boolean;
   }>
 > {
+  const normalized = PublishPrepRequestSchema.parse(request);
   const script: ScriptOutput = await readJsonArtifact(
-    request.scriptPath,
+    normalized.scriptPath,
     ScriptOutputSchema,
     'script artifact'
   );
-  const outputDir = resolve(request.outputDir);
+  const outputDir = resolve(normalized.outputDir);
   const validatePath = join(outputDir, 'validate.json');
   const scorePath = join(outputDir, 'score.json');
   const packagingPath = join(outputDir, 'packaging.json');
   const publishPath = join(outputDir, 'publish.json');
 
   let packaging;
-  if (request.packaging.enabled) {
+  if (normalized.packaging.enabled) {
     packaging = await generatePackage({
-      topic: request.packaging.topic ?? script.title ?? script.hook ?? 'Untitled short',
-      platform: request.platform,
-      variants: request.packaging.variants,
+      topic: normalized.packaging.topic ?? script.title ?? script.hook ?? 'Untitled short',
+      platform: normalized.platform,
+      variants: normalized.packaging.variants,
     });
     await writeJsonArtifact(packagingPath, PackageOutputSchema.parse(packaging));
   }
 
   const score = scoreScript({
     script,
-    scriptPath: resolve(request.scriptPath),
+    scriptPath: resolve(normalized.scriptPath),
     packaging,
     packagePath: packaging ? packagingPath : undefined,
   });
@@ -93,20 +94,20 @@ export async function runPublishPrep(request: PublishPrepRequest): Promise<
   const publish = await generatePublish({
     script,
     packaging,
-    platform: request.platform,
-    mode: request.publish.mode,
+    platform: normalized.platform,
+    mode: normalized.publish.mode,
   });
   await writeJsonArtifact(publishPath, PublishOutputSchema.parse(publish));
 
-  const validate = await validateVideoPath(resolve(request.videoPath), {
-    profile: request.validate.profile,
+  const validate = await validateVideoPath(resolve(normalized.videoPath), {
+    profile: normalized.validate.profile,
     probe: { engine: 'ffprobe' },
-    cadence: { enabled: request.validate.cadence },
-    quality: { enabled: request.validate.quality },
-    temporal: { enabled: request.validate.temporal },
-    audioSignal: { enabled: request.validate.audioSignal },
-    freeze: { enabled: request.validate.freeze },
-    flowConsistency: { enabled: request.validate.flowConsistency },
+    cadence: { enabled: normalized.validate.cadence },
+    quality: { enabled: normalized.validate.quality },
+    temporal: { enabled: normalized.validate.temporal },
+    audioSignal: { enabled: normalized.validate.audioSignal },
+    freeze: { enabled: normalized.validate.freeze },
+    flowConsistency: { enabled: normalized.validate.flowConsistency },
   });
   await writeJsonArtifact(validatePath, ValidateReportSchema.parse(validate));
 
