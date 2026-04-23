@@ -19,14 +19,14 @@ adapter infrastructure, not the center.
 
 ## Product boundaries we are moving toward
 
-| Layer        | Role                                            | Canonical location |
-|--------------|-------------------------------------------------|--------------------|
-| Contracts    | Typed content schema (scripts, scenes, renders) | `src/contracts/` (to be extracted) |
-| Runtime      | Deterministic media execution core              | `src/runtime/` (to be extracted) |
-| Scripts/hooks| Reproducible deterministic entry points         | `scripts/` |
-| Skills       | Harness-facing content intelligence             | `skills/` (new) |
-| Adapters     | MCP and external-system bridges                 | `connectors/`, optional MCP adapter |
-| CLI          | Thin dev/CI shell over the runtime              | `src/cli/` |
+| Layer         | Role                                            | Canonical location                  |
+| ------------- | ----------------------------------------------- | ----------------------------------- |
+| Contracts     | Typed content schema (scripts, scenes, renders) | `src/contracts/` (to be extracted)  |
+| Runtime       | Deterministic media execution core              | `src/runtime/` (to be extracted)    |
+| Scripts/hooks | Reproducible deterministic entry points         | `scripts/`                          |
+| Skills        | Harness-facing content intelligence             | `skills/` (new)                     |
+| Adapters      | MCP and external-system bridges                 | `connectors/`, optional MCP adapter |
+| CLI           | Thin dev/CI shell over the runtime              | `src/cli/`                          |
 
 See [`docs/direction/01-boundaries.md`](docs/direction/01-boundaries.md)
 for the full breakdown, including what stays in each layer and what
@@ -36,15 +36,15 @@ moves out.
 
 Sequential. Each phase is a P0 bead and unblocks the next.
 
-| Phase | Bead | Outcome |
-|-------|------|---------|
-| 0 | [`content-machine-7tf.1`](docs/direction/phases/phase-0-freeze-and-classify.md) | Freeze CLI, classify every surface keep/move/deprecate |
-| 1 | [`content-machine-7tf.2`](docs/direction/phases/phase-1-contracts.md) | Extract typed content contracts into their own package |
-| 2 | [`content-machine-7tf.3`](docs/direction/phases/phase-2-runtime.md) | Extract deterministic runtime/library core |
-| 3 | [`content-machine-7tf.4`](docs/direction/phases/phase-3-scripts.md) | Build deterministic script/hook surfaces |
-| 4 | [`content-machine-7tf.5`](docs/direction/phases/phase-4-skills.md) | Ship first harness skills |
-| 5 | [`content-machine-7tf.6`](docs/direction/phases/phase-5-cli-decision.md) | Decide CLI fate with trial evidence |
-| 6 | [`content-machine-7tf.7`](docs/direction/phases/phase-6-story-rewrite.md) | Rewrite product story + docs to harness-first |
+| Phase | Bead                                                                            | Outcome                                                |
+| ----- | ------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| 0     | [`content-machine-7tf.1`](docs/direction/phases/phase-0-freeze-and-classify.md) | Freeze CLI, classify every surface keep/move/deprecate |
+| 1     | [`content-machine-7tf.2`](docs/direction/phases/phase-1-contracts.md)           | Extract typed content contracts into their own package |
+| 2     | [`content-machine-7tf.3`](docs/direction/phases/phase-2-runtime.md)             | Extract deterministic runtime/library core             |
+| 3     | [`content-machine-7tf.4`](docs/direction/phases/phase-3-scripts.md)             | Build deterministic script/hook surfaces               |
+| 4     | [`content-machine-7tf.5`](docs/direction/phases/phase-4-skills.md)              | Ship first harness skills                              |
+| 5     | [`content-machine-7tf.6`](docs/direction/phases/phase-5-cli-decision.md)        | Decide CLI fate with trial evidence                    |
+| 6     | [`content-machine-7tf.7`](docs/direction/phases/phase-6-story-rewrite.md)       | Rewrite product story + docs to harness-first          |
 
 Run `bd list --priority 0` or `bd show content-machine-7tf` for live state.
 

@@ -27,7 +27,9 @@ export function buildBlueprintContext(blueprint: VideoBlueprintV1): string {
   // Structure summary — hard constraints
   const sceneCount = blueprint.scene_slots.length;
   const roleFlow = blueprint.scene_slots.map((s) => s.role).join(' → ');
-  parts.push(`- REQUIRED scene count: EXACTLY ${sceneCount} scene${sceneCount === 1 ? '' : 's'} (not more, not fewer)`);
+  parts.push(
+    `- REQUIRED scene count: EXACTLY ${sceneCount} scene${sceneCount === 1 ? '' : 's'} (not more, not fewer)`
+  );
   if (sceneCount <= 2) {
     parts.push(`  WARNING: This is a ${sceneCount === 1 ? 'single-scene' : 'two-scene'} video.`);
     parts.push('  Do NOT add extra list items or numbered points. Ignore any archetype');
@@ -47,7 +49,9 @@ export function buildBlueprintContext(blueprint: VideoBlueprintV1): string {
   const pacing = blueprint.pacing_profile;
   const pacingLabel = pacing.classification ?? 'unknown';
   parts.push(`- Pacing: ${pacingLabel} (avg ${pacing.avg_shot_duration.toFixed(1)}s/shot)`);
-  parts.push(`- REQUIRED total duration: ~${Math.round(pacing.target_duration)}s (aim for this exact length)`);
+  parts.push(
+    `- REQUIRED total duration: ~${Math.round(pacing.target_duration)}s (aim for this exact length)`
+  );
 
   // Audio
   if (blueprint.audio_profile.has_voiceover) {

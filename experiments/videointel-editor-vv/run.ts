@@ -230,9 +230,18 @@ function downloadFile(url: string, dest: string): Promise<void> {
         return;
       }
       res.pipe(file);
-      file.on('finish', () => { file.close(); resolve(); });
-      file.on('error', (err) => { fs.unlinkSync(dest); reject(err); });
-    }).on('error', (err) => { fs.unlinkSync(dest); reject(err); });
+      file.on('finish', () => {
+        file.close();
+        resolve();
+      });
+      file.on('error', (err) => {
+        fs.unlinkSync(dest);
+        reject(err);
+      });
+    }).on('error', (err) => {
+      fs.unlinkSync(dest);
+      reject(err);
+    });
   });
 }
 

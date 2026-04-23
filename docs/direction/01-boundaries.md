@@ -5,14 +5,14 @@ migration. Derived from section 7 and section 11 of the findings doc.
 
 ## Layer map
 
-| Layer         | Owns                                              | Callers                          | Target location |
-|---------------|---------------------------------------------------|----------------------------------|-----------------|
-| Contracts     | Typed content schema, result shapes, validators   | Runtime, skills, scripts, CLI    | `src/contracts/` package |
-| Runtime       | Deterministic media execution, rendering, validation | Scripts, skills, CLI          | `src/runtime/` package |
-| Scripts/hooks | Reproducible deterministic entry points           | Harnesses, CI, humans            | `scripts/` |
-| Skills        | Harness-facing content playbooks + invocations    | Claude Code / Codex / OpenCode   | `skills/` (new) |
-| Adapters      | External-system bridges (MCP, platform connectors)| Runtime (optional)               | `connectors/`, MCP adapter |
-| CLI           | Thin dev/CI shell over the runtime                | Humans, CI                       | `src/cli/` (thin) |
+| Layer         | Owns                                                 | Callers                        | Target location            |
+| ------------- | ---------------------------------------------------- | ------------------------------ | -------------------------- |
+| Contracts     | Typed content schema, result shapes, validators      | Runtime, skills, scripts, CLI  | `src/contracts/` package   |
+| Runtime       | Deterministic media execution, rendering, validation | Scripts, skills, CLI           | `src/runtime/` package     |
+| Scripts/hooks | Reproducible deterministic entry points              | Harnesses, CI, humans          | `scripts/`                 |
+| Skills        | Harness-facing content playbooks + invocations       | Claude Code / Codex / OpenCode | `skills/` (new)            |
+| Adapters      | External-system bridges (MCP, platform connectors)   | Runtime (optional)             | `connectors/`, MCP adapter |
+| CLI           | Thin dev/CI shell over the runtime                   | Humans, CI                     | `src/cli/` (thin)          |
 
 ## Contract layer
 

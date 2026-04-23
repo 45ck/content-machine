@@ -37,17 +37,17 @@ fate is decided in Phase 5 on evidence.
 One layer per row. Dependencies flow downward only. Nothing below a row
 may import upward.
 
-| Layer | Path | Owns | Depends on |
-|-------|------|------|------------|
-| Flows | `flows/*.flow` | prompt-language compositions of skills and scripts | skills, scripts |
-| Skills | `skills/<name>/SKILL.md` + `scripts/`, `references/`, `examples/` | playbook intelligence, invocation contract, JSON-stdio subprocess surface | adapters (optional), runtime (via scripts), contracts |
-| Harness scripts | `scripts/harness/` | deterministic entry points the harness invokes (also `cm-skill` shim) | runtime, contracts, infra |
-| Adapters | `src/adapters/{llm,tts,asr,visuals,mcp}` | external bridges, vendor SDK wrapping, MCP server if retained | contracts, infra |
-| Runtime | `src/runtime/{videospec,media,scoring,features,remotion}` | deterministic media core: ffmpeg, scoring, feature extraction, render | contracts, infra |
-| Infra | `src/infra/{logger,config,errors,retry,events}` | cross-cutting glue | contracts (types only) |
-| Contracts | `src/contracts/` | zod schemas, JSON schema, SQL, pure typed API | none at runtime |
-| CLI (thin) | `src/cli/` | at most 3–4 surviving commands after Phase 5 | runtime, contracts, infra |
-| Archive | `archive/legacy-cli/` | frozen reference; excluded from npm artifact | n/a |
+| Layer           | Path                                                              | Owns                                                                      | Depends on                                            |
+| --------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------- |
+| Flows           | `flows/*.flow`                                                    | prompt-language compositions of skills and scripts                        | skills, scripts                                       |
+| Skills          | `skills/<name>/SKILL.md` + `scripts/`, `references/`, `examples/` | playbook intelligence, invocation contract, JSON-stdio subprocess surface | adapters (optional), runtime (via scripts), contracts |
+| Harness scripts | `scripts/harness/`                                                | deterministic entry points the harness invokes (also `cm-skill` shim)     | runtime, contracts, infra                             |
+| Adapters        | `src/adapters/{llm,tts,asr,visuals,mcp}`                          | external bridges, vendor SDK wrapping, MCP server if retained             | contracts, infra                                      |
+| Runtime         | `src/runtime/{videospec,media,scoring,features,remotion}`         | deterministic media core: ffmpeg, scoring, feature extraction, render     | contracts, infra                                      |
+| Infra           | `src/infra/{logger,config,errors,retry,events}`                   | cross-cutting glue                                                        | contracts (types only)                                |
+| Contracts       | `src/contracts/`                                                  | zod schemas, JSON schema, SQL, pure typed API                             | none at runtime                                       |
+| CLI (thin)      | `src/cli/`                                                        | at most 3–4 surviving commands after Phase 5                              | runtime, contracts, infra                             |
+| Archive         | `archive/legacy-cli/`                                             | frozen reference; excluded from npm artifact                              | n/a                                                   |
 
 Top-level additions: `skills/` (~35 SKILL.md bundles), `flows/` (10
 files), `scripts/{harness,dev,ops,gen,quality,python}/`,
@@ -136,18 +136,18 @@ Each decision is traceable to a quality attribute scenario. Summary form
 Canonical sources per domain. Supporting sources may be cited; excluded
 sources are retained only as history.
 
-| Domain | Canonical source | Supporting | Excluded / history |
-|--------|------------------|------------|--------------------|
-| Retention math (general) | Pack 1 `shortform_virality_greybox_system` | Pack 4 (audio-specific) | v4 research v6 supersedes |
-| Retention math (audio-specific) | Pack 4 `shortform_audio_ai_engineering_export` | Pack 1 | — |
-| Hook / scroll-stop | Pack 1 (19 signal models) | Pack 3 v6 | — |
-| Bandits | Pack 7 `autonomous_marketing_agent_math_ai_proof_pack` (contextual, non-stationary, production) | Pack 4 (audio uplift only) | Pack 1 demoted to reference |
-| Hypothesis registry | Pack 3 `viral_video_research_system_v6` (150+ named) | — | Pack 2 `shortform_algorithm_export/` subsumed; v4 superseded |
-| Audio pipeline | Pack 4 (exclusive) | — | — |
-| Overlays / captions | Pack 5 `cognitive_overlay_design_final_archive_v12` (ASOE engine, COD/PRT/SCCF/BCC) | — | — |
-| Attribution / fraud | Pack 6 `manufactured_traction_research_vault_v9_algorithmic_models` | — | — |
-| Schemas / contracts | Pack 7 (`101_database_schema_sql.md`, `124_ad_agent_output_schemas_json.md`) | — | — |
-| Guardrails / policy | Pack 7 (`123_guardrail_policy_config_yaml.md`) | — | — |
+| Domain                          | Canonical source                                                                                | Supporting                 | Excluded / history                                           |
+| ------------------------------- | ----------------------------------------------------------------------------------------------- | -------------------------- | ------------------------------------------------------------ |
+| Retention math (general)        | Pack 1 `shortform_virality_greybox_system`                                                      | Pack 4 (audio-specific)    | v4 research v6 supersedes                                    |
+| Retention math (audio-specific) | Pack 4 `shortform_audio_ai_engineering_export`                                                  | Pack 1                     | —                                                            |
+| Hook / scroll-stop              | Pack 1 (19 signal models)                                                                       | Pack 3 v6                  | —                                                            |
+| Bandits                         | Pack 7 `autonomous_marketing_agent_math_ai_proof_pack` (contextual, non-stationary, production) | Pack 4 (audio uplift only) | Pack 1 demoted to reference                                  |
+| Hypothesis registry             | Pack 3 `viral_video_research_system_v6` (150+ named)                                            | —                          | Pack 2 `shortform_algorithm_export/` subsumed; v4 superseded |
+| Audio pipeline                  | Pack 4 (exclusive)                                                                              | —                          | —                                                            |
+| Overlays / captions             | Pack 5 `cognitive_overlay_design_final_archive_v12` (ASOE engine, COD/PRT/SCCF/BCC)             | —                          | —                                                            |
+| Attribution / fraud             | Pack 6 `manufactured_traction_research_vault_v9_algorithmic_models`                             | —                          | —                                                            |
+| Schemas / contracts             | Pack 7 (`101_database_schema_sql.md`, `124_ad_agent_output_schemas_json.md`)                    | —                          | —                                                            |
+| Guardrails / policy             | Pack 7 (`123_guardrail_policy_config_yaml.md`)                                                  | —                          | —                                                            |
 
 Skills cite these paths by reference (link or relative path), they do
 not bundle the markdown. Imports live at
@@ -331,11 +331,11 @@ Skill invocation contract (the `cm-skill` shim):
 - **Transport.** Subprocess; JSON on stdin, JSON on stdout, diagnostics
   on stderr.
 - **Input envelope.** `{ "skill": "<name>", "args": { ... },
-  "context": { "cwd": "...", "runId": "...", "env": { ... } } }`.
+"context": { "cwd": "...", "runId": "...", "env": { ... } } }`.
 - **Output envelope.** `{ "ok": true, "result": { ... },
-  "artifacts": [ { "path": "...", "kind": "..." } ],
-  "telemetry": { ... } }` or `{ "ok": false,
-  "error": { "code": "...", "message": "...", "retryable": false } }`.
+"artifacts": [ { "path": "...", "kind": "..." } ],
+"telemetry": { ... } }` or `{ "ok": false,
+"error": { "code": "...", "message": "...", "retryable": false } }`.
 - **Exit codes.** `0` success, `1` validation error (bad input),
   `2` skill precondition failed, `3` runtime error (retryable),
   `4` permanent failure (not retryable).

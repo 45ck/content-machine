@@ -153,9 +153,7 @@ export const WHISPER_HALLUCINATION =
 
 /** @internal */
 export function hasRealSpeech(spec: VideoSpecV1): boolean {
-  return spec.audio.transcript.some(
-    (seg) => !WHISPER_HALLUCINATION.test(seg.text.trim())
-  );
+  return spec.audio.transcript.some((seg) => !WHISPER_HALLUCINATION.test(seg.text.trim()));
 }
 
 function hasListPattern(transcript: string): boolean {

@@ -8,8 +8,10 @@ tests/.tmp/
 vendor/
 templates/
 connectors/
+.beads/
 stryker.conf.json
 docs/research/virality-prediction/
+docs/research/external/imports-*/
 src/research/
 
 # Common CLI artifact outputs (generated files)

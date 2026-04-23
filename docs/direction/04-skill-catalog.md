@@ -16,6 +16,7 @@ This catalogue documents the 31 core skills in the Content-Machine architecture,
 ## Skill Manifest Template
 
 Each skill entry includes:
+
 - **name**: kebab-case identifier
 - **description**: <=400 chars, third-person
 - **domain**: One of six thematic groupings
@@ -121,25 +122,25 @@ Each skill entry includes:
 
 ## Grounding Index (Research Packs)
 
-| Pack | Skills | File Paths |
-|---|---|---|
-| Pack 1: Virality | virality-hook-scorer, retention-survival-predictor, virality-qa-gate | shortform_virality_greybox_system/01_foundations/retention_math.md, 02_signal_models/02_scroll_stop_hook_model.md |
-| Pack 3: Hypothesis Lib | trend-freshness-evaluator, multi-platform-ranker, hypothesis-prioritizer, hypothesis-family-navigator, hypothesis-evidence-synthesizer, shareability-psychology-scorer | viral_video_research_system_v6/03_Hypothesis_Library/master_named_hypothesis_index.md |
-| Pack 4: Audio | tts-prompt-compiler, audio-feature-extractor, music-selector, sfx-compiler, audio-asset-scorer | audio_synthesis_and_feature_extraction_pack/05_prompts/tts_directive_spec.md, 06_code/tts_compiler.py, 06_code/feature_extractor.py, 06_code/bandit_selector.py, 06_code/audio_qa_validator.py, schema.sql |
-| Pack 5: Overlay | caption-overlay-generator, overlay-qa-gate, overlay-method-ranker, visual-load-scorer, accessibility-condition-matcher | cognitive_overlay_design_final_archive_v12/02_naming_registry/full_method_registry.md, 07_adaptive_engine_ASOE/index.md, asoe_quality_checks.md, visual_load_analysis.md, wcag_compliance_module.md |
-| Pack 6: Traction | product-brief-loader, brand-safety-enforcer, manufactured-traction-detector, ethics-boundary-checker, traction-risk-scorer, tactic-card-matcher, claim-generator-and-vetter | manufactured_traction_research_vault_v9_algorithmic_models/01_CORE_THESIS_AND_FRAMEWORKS/brief_schema.md, guardrail_policy_schema.md, fraud_detection_engine.md, ethics_framework.md, risk_synthesis_framework.md, claim_verification_framework.md, 03_TACTIC_CARDS/tactic_card_schema.md |
-| Pack 7: AMA | campaign-measurement-system, bandit-optimizer, legal-review-orchestrator, experiment-protocol-runner, content-brief-generator | autonomous_marketing_agent_math_ai_proof_pack/63_autonomous_experimentation_bandits.md, 124_ad_agent_output_schemas_json.md, 123_guardrail_policy_config_yaml.md |
+| Pack                   | Skills                                                                                                                                                                      | File Paths                                                                                                                                                                                                                                                                                |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Pack 1: Virality       | virality-hook-scorer, retention-survival-predictor, virality-qa-gate                                                                                                        | shortform_virality_greybox_system/01_foundations/retention_math.md, 02_signal_models/02_scroll_stop_hook_model.md                                                                                                                                                                         |
+| Pack 3: Hypothesis Lib | trend-freshness-evaluator, multi-platform-ranker, hypothesis-prioritizer, hypothesis-family-navigator, hypothesis-evidence-synthesizer, shareability-psychology-scorer      | viral_video_research_system_v6/03_Hypothesis_Library/master_named_hypothesis_index.md                                                                                                                                                                                                     |
+| Pack 4: Audio          | tts-prompt-compiler, audio-feature-extractor, music-selector, sfx-compiler, audio-asset-scorer                                                                              | audio_synthesis_and_feature_extraction_pack/05_prompts/tts_directive_spec.md, 06_code/tts_compiler.py, 06_code/feature_extractor.py, 06_code/bandit_selector.py, 06_code/audio_qa_validator.py, schema.sql                                                                                |
+| Pack 5: Overlay        | caption-overlay-generator, overlay-qa-gate, overlay-method-ranker, visual-load-scorer, accessibility-condition-matcher                                                      | cognitive_overlay_design_final_archive_v12/02_naming_registry/full_method_registry.md, 07_adaptive_engine_ASOE/index.md, asoe_quality_checks.md, visual_load_analysis.md, wcag_compliance_module.md                                                                                       |
+| Pack 6: Traction       | product-brief-loader, brand-safety-enforcer, manufactured-traction-detector, ethics-boundary-checker, traction-risk-scorer, tactic-card-matcher, claim-generator-and-vetter | manufactured_traction_research_vault_v9_algorithmic_models/01_CORE_THESIS_AND_FRAMEWORKS/brief_schema.md, guardrail_policy_schema.md, fraud_detection_engine.md, ethics_framework.md, risk_synthesis_framework.md, claim_verification_framework.md, 03_TACTIC_CARDS/tactic_card_schema.md |
+| Pack 7: AMA            | campaign-measurement-system, bandit-optimizer, legal-review-orchestrator, experiment-protocol-runner, content-brief-generator                                               | autonomous_marketing_agent_math_ai_proof_pack/63_autonomous_experimentation_bandits.md, 124_ad_agent_output_schemas_json.md, 123_guardrail_policy_config_yaml.md                                                                                                                          |
 
 ---
 
 ## Phase Mapping Summary
 
-| Phase | Count | Window |
-|---|---|---|
-| 4-Wave1 | 9 skills | Week 1-4 |
-| 4-Wave2 | 10 skills | Week 5-8 |
-| 5 | 12 skills | Week 9-16 |
-| TOTAL | 31 skills | — |
+| Phase   | Count     | Window    |
+| ------- | --------- | --------- |
+| 4-Wave1 | 9 skills  | Week 1-4  |
+| 4-Wave2 | 10 skills | Week 5-8  |
+| 5       | 12 skills | Week 9-16 |
+| TOTAL   | 31 skills | —         |
 
 ---
 
@@ -182,6 +183,7 @@ All 31 skills retain original kebab-case names for external consistency.
 ## Anti-Patterns in Skill Authoring
 
 **DO NOT** violate these constraints in SKILL.md files:
+
 1. **Stateful contracts**: Must be stateless JSON transformers. No file I/O, DB writes, side effects.
 2. **Silent failures**: Output reasoning or error field documenting every decision.
 3. **Mixed concerns**: Do not bundle pre-condition enforcement with core logic. Gates only.

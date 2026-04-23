@@ -246,10 +246,7 @@ export async function generateScript(options: GenerateScriptOptions): Promise<Sc
           .replace(/\n\s*TIMELINE[\s\S]*?(?=\n\s*[A-Z]{3,}[\s:]|\n\s*$)/i, '');
       }
       prompt = `${blueprintContext}\n\n---\n\n${prompt}`;
-      log.info(
-        { sceneSlots: bpSceneCount },
-        'Injected blueprint constraints'
-      );
+      log.info({ sceneSlots: bpSceneCount }, 'Injected blueprint constraints');
     }
   }
 

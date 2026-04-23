@@ -277,7 +277,7 @@ Final flow count: 11.
 - completion gates: `file-exists(runs/<run-id>/visuals/candidates.json)`
   AND per-beat `candidates.length >= 1` (inline predicate) AND no beat
   has only degraded (placeholder) candidates unless `allow-degraded:
-  true`.
+true`.
 - failure modes:
   - Provider hard failure (auth, 5xx loop): that provider's subprocess
     times out after 60s; remaining providers still contribute.
@@ -286,8 +286,7 @@ Final flow count: 11.
     `allow-degraded` is set.
   - Rate-limit storm: `retry max 3` with backoff; after that, provider is
     blacklisted for the rest of the run.
-- parallelism: Two-level `foreach-spawn`, outer ceiling 4, inner ceiling
-  4.
+- parallelism: Two-level `foreach-spawn`, outer ceiling 4, inner ceiling 4.
 - phase: Phase 4 wave 2.
 - status: planned.
 - notes: Replaces most of `src/cli/commands/visuals.ts` and the search
@@ -601,19 +600,19 @@ The left column is the flow. The right columns name the existing
 content-machine surfaces the flow replaces or subsumes. When a surface is
 only partially replaced, the note column explains the boundary.
 
-| flow | replaces | notes |
-|---|---|---|
-| preflight-check | `src/cli/commands/generate-preflight.ts`, doctor-lite path inside `doctor.ts` | The fast, run-blocking subset; full doctor stays separate. |
-| generate-short | `src/cli/commands/generate.ts`, `generate-output.ts`, `generate-quality.ts`, `generate-sync.ts`, `generate-defaults.ts`, orchestration in `src/workflows/runner.ts` | The CLI wrappers collapse into flow input binding. |
-| parallel-script-variants | script-variant logic currently inside `src/workflows/runner.ts` and `src/cli/commands/script.ts` | Extracted so it is composable under `generate-short` and `lab-sweep`. |
-| parallel-visual-search | `src/cli/commands/visuals.ts`, search fan-out in `src/workflows/runner.ts` | Per-provider adapters stay in skills. |
-| evaluate-batch | `src/cli/commands/evaluate.ts`, batch parts of `evaluations/showcase-*.json` replayers | Single-run evaluation is inside `generate-short`; this flow is batch only. |
-| lab-sweep | `src/cli/commands/lab.ts` | The tuning-loop retry budget (max 5) is explicitly called out. |
-| caption-sweep | `scripts/phoenix-loop-caption-sweep.ts` | Phoenix-loop retry shape replaced by `retry max N` plus gate. |
-| doctor | `src/cli/commands/doctor.ts` | The `fix: true` subset is new and guarded. |
-| vendor-refresh | `scripts/vendor.sh`, `scripts/vendor.ps1` | The two shell scripts are retired; the flow is the canonical path. |
-| regenerate-fixtures | ad-hoc regeneration against `src/cli/commands/generate.ts` | New surface; no pre-existing single replacement. |
-| showcase-replay | showcase replayers around `evaluations/showcase-*.json` | The JSON specs remain; the replayer becomes this flow. |
+| flow                     | replaces                                                                                                                                                            | notes                                                                      |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| preflight-check          | `src/cli/commands/generate-preflight.ts`, doctor-lite path inside `doctor.ts`                                                                                       | The fast, run-blocking subset; full doctor stays separate.                 |
+| generate-short           | `src/cli/commands/generate.ts`, `generate-output.ts`, `generate-quality.ts`, `generate-sync.ts`, `generate-defaults.ts`, orchestration in `src/workflows/runner.ts` | The CLI wrappers collapse into flow input binding.                         |
+| parallel-script-variants | script-variant logic currently inside `src/workflows/runner.ts` and `src/cli/commands/script.ts`                                                                    | Extracted so it is composable under `generate-short` and `lab-sweep`.      |
+| parallel-visual-search   | `src/cli/commands/visuals.ts`, search fan-out in `src/workflows/runner.ts`                                                                                          | Per-provider adapters stay in skills.                                      |
+| evaluate-batch           | `src/cli/commands/evaluate.ts`, batch parts of `evaluations/showcase-*.json` replayers                                                                              | Single-run evaluation is inside `generate-short`; this flow is batch only. |
+| lab-sweep                | `src/cli/commands/lab.ts`                                                                                                                                           | The tuning-loop retry budget (max 5) is explicitly called out.             |
+| caption-sweep            | `scripts/phoenix-loop-caption-sweep.ts`                                                                                                                             | Phoenix-loop retry shape replaced by `retry max N` plus gate.              |
+| doctor                   | `src/cli/commands/doctor.ts`                                                                                                                                        | The `fix: true` subset is new and guarded.                                 |
+| vendor-refresh           | `scripts/vendor.sh`, `scripts/vendor.ps1`                                                                                                                           | The two shell scripts are retired; the flow is the canonical path.         |
+| regenerate-fixtures      | ad-hoc regeneration against `src/cli/commands/generate.ts`                                                                                                          | New surface; no pre-existing single replacement.                           |
+| showcase-replay          | showcase replayers around `evaluations/showcase-*.json`                                                                                                             | The JSON specs remain; the replayer becomes this flow.                     |
 
 Surfaces explicitly out of scope for this catalogue:
 
