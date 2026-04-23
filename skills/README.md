@@ -100,10 +100,19 @@ new skills.
   clipping, selection, reframing, and short extraction from long video
 - [`reframe-vertical/`](reframe-vertical/SKILL.md) — speaker, face,
   cursor, and fallback portrait crop strategy
+- [`boundary-snap/`](boundary-snap/SKILL.md) — snap proposed clip
+  boundaries to words, sentence ends, and silence
+- [`text-selection-to-timestamps/`](text-selection-to-timestamps/SKILL.md)
+  — recover exact ranges from transcript text selections
 - [`reddit-story-short/`](reddit-story-short/SKILL.md) — Reddit/text
   story adaptation into narration-led shorts
 - [`ugc-avatar-short/`](ugc-avatar-short/SKILL.md) — avatar or AI-actor
   spokesperson short construction
+- [`slideshow-risk-review/`](slideshow-risk-review/SKILL.md) —
+  repetition and weak-motion review for faceless or animation-heavy
+  shorts
+- [`scene-pacing-verifier/`](scene-pacing-verifier/SKILL.md) — verify
+  narration cues and visual landmarks actually align
 - [`doctor-report/`](doctor-report/SKILL.md) — structured environment
   and dependency diagnostics
 - [`skill-catalog/`](skill-catalog/SKILL.md) — enumerate shipped skills,
