@@ -7,6 +7,7 @@ findings package.
 - [`00-overview.md`](00-overview.md) — north star, stance on CLI, MCP, skills
 - [`01-boundaries.md`](01-boundaries.md) — layer-by-layer product boundaries
 - [`02-keep-move-deprecate.md`](02-keep-move-deprecate.md) — what stays, moves, or freezes
+- [`06-typescript-kernel-cut-line.md`](06-typescript-kernel-cut-line.md) — what TypeScript should actually remain
 - [`phases/`](phases/) — one file per phase, linked to the P0 beads
 
 The top-level [`DIRECTION.md`](../../DIRECTION.md) is the
