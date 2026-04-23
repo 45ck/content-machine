@@ -113,6 +113,16 @@ new skills.
   shorts
 - [`scene-pacing-verifier/`](scene-pacing-verifier/SKILL.md) — verify
   narration cues and visual landmarks actually align
+- [`source-media-review/`](source-media-review/SKILL.md) — audit source
+  clips before planning or render
+- [`scene-variation-check/`](scene-variation-check/SKILL.md) — catch
+  repetitive, slideshow-like scene plans before generation
+- [`shot-prompt-builder/`](shot-prompt-builder/SKILL.md) — turn scene
+  plans into stronger generation prompts
+- [`partial-regeneration/`](partial-regeneration/SKILL.md) — rerun only
+  failed or missing stages instead of the whole project
+- [`reddit-card-overlay/`](reddit-card-overlay/SKILL.md) — build
+  reusable Reddit-style post overlays as visual assets
 - [`doctor-report/`](doctor-report/SKILL.md) — structured environment
   and dependency diagnostics
 - [`skill-catalog/`](skill-catalog/SKILL.md) — enumerate shipped skills,
