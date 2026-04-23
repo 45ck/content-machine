@@ -9,6 +9,7 @@ describe('parseSkillManifest', () => {
   it('parses the starter skill manifests', async () => {
     const skills = [
       'skills/generate-short/SKILL.md',
+      'skills/skill-catalog/SKILL.md',
       'skills/brief-to-script/SKILL.md',
       'skills/reverse-engineer-winner/SKILL.md',
       'skills/script-to-audio/SKILL.md',

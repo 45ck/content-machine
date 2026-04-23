@@ -33,6 +33,7 @@
     "build:types": "tsc -p tsconfig.build.json --emitDeclarationOnly",
     "dev": "tsx watch src/cli/index.ts",
     "cm": "tsx src/cli/index.ts",
+    "harness:skill-catalog": "tsx scripts/harness/skill-catalog.ts",
     "harness:generate-short": "tsx scripts/harness/generate-short.ts",
     "harness:brief-to-script": "tsx scripts/harness/brief-to-script.ts",
     "harness:ingest": "tsx scripts/harness/ingest.ts",

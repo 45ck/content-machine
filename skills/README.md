@@ -69,6 +69,8 @@ new skills.
 
 ## Shipped Starter Skills
 
+- [`skill-catalog/`](skill-catalog/SKILL.md) — enumerate shipped skills,
+  entrypoints, and example requests
 - [`generate-short/`](generate-short/SKILL.md) — topic to full artifact
   chain under one output directory
 - [`brief-to-script/`](brief-to-script/SKILL.md) — topic or blueprint to

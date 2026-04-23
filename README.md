@@ -54,6 +54,7 @@ npm install
 Use the repo-local skills and the JSON-stdio harness entrypoints:
 
 ```bash
+npx tsx scripts/harness/skill-catalog.ts
 npx tsx scripts/harness/generate-short.ts
 npx tsx scripts/harness/brief-to-script.ts
 npx tsx scripts/harness/ingest.ts
@@ -62,6 +63,7 @@ npx tsx scripts/harness/publish-prep.ts
 
 Starter skills:
 
+- [skills/skill-catalog/SKILL.md](skills/skill-catalog/SKILL.md)
 - [skills/generate-short/SKILL.md](skills/generate-short/SKILL.md)
 - [skills/brief-to-script/SKILL.md](skills/brief-to-script/SKILL.md)
 - [skills/reverse-engineer-winner/SKILL.md](skills/reverse-engineer-winner/SKILL.md)

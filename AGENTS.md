@@ -26,6 +26,7 @@ to `src/cli/`.
 ## Harness Entry Points
 
 ```
+npx tsx scripts/harness/skill-catalog.ts
 npx tsx scripts/harness/generate-short.ts
 npx tsx scripts/harness/brief-to-script.ts
 npx tsx scripts/harness/ingest.ts
@@ -34,6 +35,7 @@ npx tsx scripts/harness/publish-prep.ts
 
 Current starter skills:
 
+- `skill-catalog`
 - `generate-short`
 - `brief-to-script`
 - `reverse-engineer-winner`
