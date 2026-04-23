@@ -57,7 +57,7 @@ Node.js 20.6+ is required.
 Use these three surfaces together:
 
 - [`skills/`](skills/README.md): importable short-form video skills
-- [`flows/`](flows/README.md): `45ck/prompt-language` orchestration docs and manifests
+- [`flows/`](flows/README.md): `45ck/prompt-language` docs and manifests
 - [`scripts/harness/`](scripts/harness/README.md): repo-side JSON-stdio runtime entrypoints
 
 If you are deciding where to start:
@@ -224,13 +224,13 @@ can also write to explicit output paths.
 ## Documentation
 
 - **[Agent Quickstart](docs/user/AGENT-QUICKSTART.md)** — primary user path for Claude Code, Codex CLI, and similar tools
-- **[skills/](skills/README.md)** — agent-facing skill contracts
-- **[flows/](flows/README.md)** — orchestration contracts and executable flows
+- **[skills/](skills/README.md)** — agent-facing skill docs
+- **[flows/](flows/README.md)** — `45ck/prompt-language` docs and executable flows
 - **[scripts/harness/](scripts/harness/README.md)** — repo-side JSON-stdio entrypoints and execution model
 - **[Direction](DIRECTION.md)** — migration plan, cut lines, and archive policy
 - **[User Guide](docs/user/README.md)** — skill-pack docs
 - **[Developer Docs](docs/dev/README.md)** — active architecture, registries, and legacy engineering docs
-- **[Reference](docs/reference/)** — generated references, environment variables, glossary, and CLI contracts
+- **[Reference](docs/reference/)** — generated references, environment variables, glossary, and CLI details
 - **[Archive](archive/README.md)** — frozen legacy control-plane code and notes
 
 ## Contributing

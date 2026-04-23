@@ -36,12 +36,24 @@ cat <<'JSON' | node --import tsx scripts/harness/skill-catalog.ts
 JSON
 ```
 
+Or:
+
+```bash
+printf '{}\n' | npm run agent:skill-catalog
+```
+
 List the repo-local flows:
 
 ```bash
 cat <<'JSON' | node --import tsx scripts/harness/flow-catalog.ts
 {}
 JSON
+```
+
+Or:
+
+```bash
+printf '{}\n' | npm run agent:flow-catalog
 ```
 
 ## Step 3: Run the main full-video path
@@ -65,6 +77,9 @@ JSON
 ```
 
 This writes run-scoped files under `runs/demo-run/` by default.
+
+If you prefer npm aliases, the same runner is available as
+`npm run agent:run-flow`.
 
 ## Step 4: Pull a reference video or run one skill directly
 
@@ -109,10 +124,10 @@ JSON
 That creates `.content-machine/skills/` and `.content-machine/flows/`
 with `SKILL.md` files already pointed at the installed package runner.
 
-## Step 6: Read the contract next to the surface
+## Step 6: Read the guide next to the surface
 
-- Skill contract: [`../../skills/README.md`](../../skills/README.md)
-- Flow contract: [`../../flows/README.md`](../../flows/README.md)
+- Skill guide: [`../../skills/README.md`](../../skills/README.md)
+- Flow guide: [`../../flows/README.md`](../../flows/README.md)
 - Repo-side entrypoints: [`../../scripts/harness/README.md`](../../scripts/harness/README.md)
 - Repo direction: [`../../DIRECTION.md`](../../DIRECTION.md)
 

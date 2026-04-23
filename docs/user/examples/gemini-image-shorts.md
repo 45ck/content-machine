@@ -36,7 +36,7 @@ These are real rendered MP4 outputs with voice audio and captions. They are imag
 
 ## Minimal shape
 
-The real review renders were created by generating visuals with `nanobanana`, then rendering those artifacts through the normal audio/timestamps/render pipeline.
+The real review renders were created by generating visuals with `nanobanana`, then rendering those files through the normal audio/timestamps/render pipeline.
 
 ```bash
 cm visuals \

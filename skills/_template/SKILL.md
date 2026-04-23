@@ -10,7 +10,7 @@ argumentHint: '{}'
 entrypoint: node --import tsx scripts/harness/<entrypoint>.ts
 inputs:
   - name: exampleInput
-    description: Replace with the real input contract.
+    description: Replace with the real input shape.
     required: true
 outputs:
   - name: output.json

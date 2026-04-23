@@ -6,8 +6,8 @@ first.
 
 Role split:
 
-- `skills/` = intent contract
-- `flows/` = orchestration contract
+- `skills/` = intent guide
+- `flows/` = orchestration guide
 - `scripts/harness/` = repo-side JSON-stdio surface
 
 ## Purpose
@@ -32,7 +32,7 @@ skills/
 ```
 
 `<skill-id>` should be kebab-case and match the skill identifier used in
-direction docs and future harness manifests.
+direction docs and flow manifests.
 
 ## For Claude Code and Codex CLI
 
@@ -53,8 +53,7 @@ want multiple skills composed under one run directory.
 
 - Keep descriptions concrete enough that an agent can select the skill
   without guessing.
-- Treat `SKILL.md` as the canonical human-readable contract for the
-  skill.
+- Treat `SKILL.md` as the canonical human-readable guide for the skill.
 - Prefer clear JSON boundaries and explicit file paths.
 - Document side effects. If a skill writes to disk, say where.
 - Do not duplicate runtime logic in prose. Point to the script or public
@@ -72,7 +71,7 @@ new skills.
 - Inputs
 - Outputs
 - Runtime or script entrypoints called
-- Artifact contract
+- Output behavior
 - Constraints and non-goals
 - Validation checklist
 

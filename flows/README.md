@@ -5,8 +5,8 @@ This directory holds coding-agent flow specs and executable
 
 Role split:
 
-- `skills/` = intent contract
-- `flows/` = orchestration contract
+- `skills/` = intent guide
+- `flows/` = `45ck/prompt-language` orchestration guide
 - `scripts/harness/` = executable JSON-stdio surface
 
 ## Purpose
@@ -29,7 +29,8 @@ flows/
 ```
 
 Markdown in this directory is operator documentation. `.flow` files are
-machine-readable manifests and should stay minimal.
+machine-readable manifests intended for `45ck/prompt-language` execution
+and should stay minimal.
 
 ## For Claude Code and Codex CLI
 
@@ -38,14 +39,14 @@ A flow doc should tell the agent:
 1. What problem the flow solves.
 2. Which inputs are required and where they come from.
 3. Which skills or sub-flows it calls.
-4. Which artifacts and completion gates mark success.
+4. Which files and completion gates mark success.
 
 If an agent cannot infer retry points, side effects, and failure
 outputs from the doc, the flow is under-specified.
 
 ## Authoring rules
 
-- Keep the canonical human-readable contract in markdown next to the
+- Keep the canonical human-readable guide in markdown next to the
   executable flow.
 - Use the vocabulary from
   [`docs/direction/05-flow-catalog.md`](../docs/direction/05-flow-catalog.md).
@@ -53,7 +54,7 @@ outputs from the doc, the flow is under-specified.
   English or pseudocode so authoring tools do not misread the file as a
   live program.
 - Name flow files in kebab-case and keep flow purpose action-oriented.
-- Document artifact paths under `runs/<run-id>/` when the flow produces
+- Document output paths under `runs/<run-id>/` when the flow produces
   run-scoped outputs.
 
 ## Suggested contents
@@ -79,11 +80,11 @@ Use [`_template/FLOW.md`](_template/FLOW.md) as the starting point.
 
 ## Current Executable Flows
 
-- [`doctor.flow`](doctor.flow) — run the structured diagnostics path
+- [`doctor.flow`](doctor.flow) — `45ck/prompt-language` diagnostics path
 - [`generate-short.flow`](generate-short.flow) — run the end-to-end
-  skills-first topic-to-video path
+  `45ck/prompt-language` topic-to-video path
 - [`reverse-engineer-winner.flow`](reverse-engineer-winner.flow) — run
-  the reference-video ingest path
+  the `45ck/prompt-language` reference-video ingest path
 
 Use the runtime helpers to enumerate or execute them:
 

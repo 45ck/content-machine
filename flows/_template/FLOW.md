@@ -12,15 +12,15 @@ One sentence describing the operator job this flow completes.
 
 ## Inputs
 
-| Name    | Type     | Required | Description                           |
-| ------- | -------- | -------- | ------------------------------------- |
-| `topic` | `string` | yes      | Replace with the real input contract. |
+| Name    | Type     | Required | Description                        |
+| ------- | -------- | -------- | ---------------------------------- |
+| `topic` | `string` | yes      | Replace with the real input shape. |
 
 ## Outputs
 
-| Path or Value               | Description                        |
-| --------------------------- | ---------------------------------- |
-| `runs/<run-id>/output.json` | Replace with the primary artifact. |
+| Path or Value               | Description                           |
+| --------------------------- | ------------------------------------- |
+| `runs/<run-id>/output.json` | Replace with the primary output file. |
 
 ## Skills Or Sub-Flows Called
 

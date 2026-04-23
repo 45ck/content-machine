@@ -37,4 +37,4 @@ in one JSON envelope.
 2. Supply `referenceVideoPath` when the user wants winner analysis to
    shape the script before generation.
 3. Drop to stage-level skills only when you need to inspect, replace, or
-   rerun one artifact boundary in isolation.
+   rerun one file boundary in isolation.

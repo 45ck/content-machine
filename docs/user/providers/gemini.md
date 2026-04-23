@@ -57,4 +57,4 @@ JSON
 ## Notes
 
 - Gemini chat does not have a first-class `system` role; this repo prepends `system` content to the first `user` message.
-- JSON mode uses Gemini `responseMimeType = "application/json"`; always validate outputs against schemas.
+- JSON mode uses Gemini `responseMimeType = "application/json"`; always validate outputs strictly before using them.

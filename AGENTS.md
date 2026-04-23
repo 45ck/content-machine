@@ -13,7 +13,7 @@ This file provides context for AI coding agents (Copilot, Claude Code, Cursor, e
 Use these first when working as Claude Code, Codex CLI, or similar
 coding-agent CLIs:
 
-- `skills/*/SKILL.md` — skill contracts
+- `skills/*/SKILL.md` — skill docs
 - `flows/*.flow` — executable flow manifests
 - `scripts/harness/*.ts` — deterministic JSON-stdio entrypoints
 - `src/harness/*` — reusable logic behind those entrypoints
@@ -53,12 +53,12 @@ Current starter skills:
 
 The historical 4-stage CLI pipeline remains the bridge for runtime work:
 
-| Stage   | Command      | Input           | Output                          |
-| ------- | ------------ | --------------- | ------------------------------- |
-| Script  | `cm script`  | Topic string    | `script.json`                   |
-| Audio   | `cm audio`   | Script JSON     | `audio.wav` + `timestamps.json` |
-| Visuals | `cm visuals` | Timestamps JSON | `visuals.json`                  |
-| Render  | `cm render`  | All artifacts   | `video.mp4`                     |
+| Stage   | Command      | Input                    | Output                          |
+| ------- | ------------ | ------------------------ | ------------------------------- |
+| Script  | `cm script`  | Topic string             | `script.json`                   |
+| Audio   | `cm audio`   | Script JSON              | `audio.wav` + `timestamps.json` |
+| Visuals | `cm visuals` | Timestamps JSON          | `visuals.json`                  |
+| Render  | `cm render`  | Script + audio + visuals | `video.mp4`                     |
 
 ---
 
@@ -86,7 +86,7 @@ src/
 ├── validate/     # Validation systems
 ├── media/        # Media synthesis (Veo, Nanobanana, DepthFlow)
 ├── research/     # Research orchestration
-├── feedback/     # Human feedback schema + JSONL store
+├── feedback/     # Human feedback model + JSONL store
 ├── lab/          # Experiment Lab (review UI)
 └── test/stubs/   # Test fakes (FakeLLMProvider, etc.)
 ```
@@ -97,7 +97,7 @@ src/
 
 1. **Skill Pack First** — prefer skills and JSON-stdio runtime scripts for agent-facing work
 2. **Dependency Injection** — all providers via constructor; static factories for prod, test factories for fakes
-3. **LLM-First Reasoning** — structured outputs via Zod schemas, not regex heuristics
+3. **LLM-First Reasoning** — structured outputs via validators, not regex heuristics
 4. **Configuration-Driven** — TOML/JSON config, environment variables for secrets
 5. **Observability** — structured logging (Pino), cost tracking, progress callbacks
 
@@ -114,7 +114,7 @@ src/
 | ASR        | @remotion/whisper-cpp                     |
 | Visuals    | Pexels, Nanobanana (AI), DepthFlow (2.5D) |
 | Video      | Remotion 4.0                              |
-| Validation | Zod schemas                               |
+| Validation | Zod validation                            |
 | Testing    | Vitest, promptfoo (LLM evals)             |
 
 ---
@@ -130,7 +130,7 @@ Update workflow: edit the YAML, then run `npm run repo-facts:gen` or `npm run gl
 
 ## Important Paths
 
-- `skills/` — skill contracts
+- `skills/` — skill docs
 - `flows/` — `45ck/prompt-language` flow docs plus executable `.flow` manifests
 - `scripts/harness/` — deterministic JSON-stdio entrypoints
 - `docs/direction/` — migration plan and boundaries

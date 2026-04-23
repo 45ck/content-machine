@@ -22,6 +22,12 @@ cat <<'JSON' | node --import tsx scripts/harness/skill-catalog.ts
 JSON
 ```
 
+Or use the friendlier npm alias:
+
+```bash
+printf '{}\n' | npm run agent:skill-catalog
+```
+
 The published npm package also ships a portable runner so another repo
 can install the skills and flows locally:
 
@@ -109,6 +115,12 @@ npm run cm -- doctor
 ```
 
 This checks for Node.js version, API key presence, Whisper installation, and other dependencies.
+
+If you want the repo-side JSON entrypoint instead:
+
+```bash
+printf '{"strict":false}\n' | npm run agent:doctor-report
+```
 
 ## Next Steps
 

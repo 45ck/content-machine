@@ -7,7 +7,7 @@ coding-agent CLIs.
 Role split:
 
 - `skills/` defines when to use something and what it should produce
-- `flows/` defines how multiple skills are orchestrated
+- `flows/` defines how `45ck/prompt-language` orchestrates multiple skills
 - `scripts/harness/` executes the work over JSON stdin/stdout
 
 Each script reads JSON from stdin and writes a single JSON response to
@@ -29,7 +29,7 @@ When to use which entrypoint:
   `video-render.ts` when the agent already knows the exact capability
   it wants.
 
-Most flows write under `runs/<run-id>/`. Direct skills may instead write
+Most `45ck/prompt-language` flows write under `runs/<run-id>/`. Direct skills may instead write
 to explicit output paths provided in the request.
 
 Current entrypoints:
@@ -49,5 +49,4 @@ Current entrypoints:
 
 Installed-package users should prefer
 `node ./node_modules/@45ck/content-machine/agent/run-tool.mjs <tool>`.
-See `skills/*/SKILL.md` for skill contracts and `flows/*` for flow
-contracts.
+See `skills/*/SKILL.md` for skill guides and `flows/*` for flow guides.

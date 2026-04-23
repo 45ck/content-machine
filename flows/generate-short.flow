@@ -18,16 +18,16 @@ inputs:
     required: false
 outputs:
   - name: script/script.json
-    description: Generated script artifact.
+    description: Generated script file.
     required: true
   - name: audio/audio.wav
-    description: Generated voiceover artifact.
+    description: Generated voiceover file.
     required: true
   - name: audio/timestamps.json
-    description: Generated timestamps artifact.
+    description: Generated timestamps file.
     required: true
   - name: visuals/visuals.json
-    description: Generated visuals artifact.
+    description: Generated visuals file.
     required: true
   - name: render/video.mp4
     description: Final rendered short.

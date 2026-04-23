@@ -1,5 +1,5 @@
 name: reverse-engineer-winner
-description: Execute the reference-video reverse-engineering path and write reusable ingest artifacts under runs/{runId}/reverse-engineer.
+description: Execute the reference-video reverse-engineering path and write reusable breakdown files under runs/{runId}/reverse-engineer.
 entrySkill: reverse-engineer-winner
 operatorNotes: flows/reverse-engineer-winner.md
 defaultOutputDir: runs/{runId}/reverse-engineer
@@ -11,15 +11,15 @@ inputs:
     description: Optional explicit output root; otherwise the flow binds runs/{runId}/reverse-engineer.
     required: false
   - name: includeFrameAnalysis
-    description: Include frame analysis artifacts alongside videospec and blueprint outputs.
+    description: Include frame analysis files alongside videospec and blueprint outputs.
     required: false
 outputs:
   - name: videospec.v1.json
-    description: Reverse-engineered VideoSpec artifact.
+    description: Reverse-engineered VideoSpec file.
     required: true
   - name: theme.v1.json
-    description: VideoTheme classification artifact when classification is enabled.
+    description: VideoTheme classification file when classification is enabled.
     required: false
   - name: blueprint.v1.json
-    description: VideoBlueprint artifact for downstream script generation.
+    description: VideoBlueprint file for downstream script generation.
     required: false
