@@ -15,6 +15,7 @@ Current entrypoints:
 
 - `brief-to-script.ts`
 - `ingest.ts`
+- `video-render.ts`
 - `publish-prep.ts`
 
 See `skills/*/SKILL.md` for the intended harness-facing contract.

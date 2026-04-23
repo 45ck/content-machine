@@ -35,6 +35,7 @@
     "cm": "tsx src/cli/index.ts",
     "harness:brief-to-script": "tsx scripts/harness/brief-to-script.ts",
     "harness:ingest": "tsx scripts/harness/ingest.ts",
+    "harness:video-render": "tsx scripts/harness/video-render.ts",
     "harness:publish-prep": "tsx scripts/harness/publish-prep.ts",
     "review:latest": "node scripts/review-latest.mjs",
     "glossary:gen": "node scripts/gen-glossary.mjs",
