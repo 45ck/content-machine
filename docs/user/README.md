@@ -4,8 +4,8 @@ Everything you need to use Content Machine.
 
 Content Machine is now harness-first. The primary path is repo-local
 skills, flows, and JSON-stdio harness scripts for Claude Code, Codex
-CLI, and similar coding agents. The `cm` CLI remains available as a
-compatibility path.
+CLI, and similar coding agents. The old CLI-first guides now live under
+[`archive/legacy-cli/`](../../archive/legacy-cli/README.md).
 
 ## Primary Path: Claude Code / Codex CLI
 
@@ -15,10 +15,10 @@ compatibility path.
    data-driven resources
 3. [Examples](EXAMPLES.md) — workflows and example outputs
 
-## Compatibility Path: legacy CLI
+## Thin `cm` Shell
 
-- [Legacy CLI Quickstart](QUICKSTART.md) — old `cm`-first onboarding path
-- [CLI Compatibility Reference](CLI.md) — compatibility reference for `cm`
+- `npm run cm -- --help` — remaining shell for `config`, `doctor`, `mcp`, and `render`
+- [Legacy CLI Archive](../../archive/legacy-cli/README.md) — frozen command/docs history
 
 ## Shared Reference
 

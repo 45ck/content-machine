@@ -21,14 +21,13 @@ order:
 
 ## Compatibility Surface
 
-These docs remain useful, but they describe the legacy `cm` path rather
-than the primary interface:
+These docs remain useful, but they describe the thin surviving `cm`
+shell or archived legacy paths rather than the primary interface:
 
 - [Installation](user/INSTALLATION.md)
-- [Legacy CLI Quickstart](user/QUICKSTART.md)
-- [CLI Compatibility Reference](user/CLI.md)
 - [Configuration](user/CONFIGURATION.md)
 - [Examples](user/EXAMPLES.md)
+- [Legacy CLI Archive](../archive/legacy-cli/README.md)
 
 Full index: [docs/user/README.md](user/README.md)
 
@@ -51,7 +50,10 @@ These are auto-generated from registries — edit the YAML source, not the outpu
 
 Regenerate with: `npm run repo-facts:gen` / `npm run glossary:gen`
 
-## CLI Command References (Compatibility)
+## Legacy CLI References (Historical)
+
+These dated references are retained for archive/diffing use. The live
+`cm` shell is intentionally smaller than this list.
 
 - [`cm generate`](reference/cm-generate-reference-20260106.md)
 - [`cm script`](reference/cm-script-reference-20260106.md)

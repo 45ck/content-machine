@@ -76,8 +76,6 @@ export * from '../package/schema';
 export * from '../publish/schema';
 /** Research schema + types. */
 export * from '../research/schema';
-/** Workflow schema + types. */
-export * from '../workflows/schema';
 /** Generation policy schema + types. */
 export * from '../policy/schema';
 /** Validation schema + types. */
@@ -93,9 +91,3 @@ export * from '../evaluate/schema';
 /** Quality score schemas + types. */
 export * from '../quality-score/label-schema';
 export * from '../quality-score/feature-schema';
-
-/** Experiment Lab schemas + types. */
-export * from '../lab/schema/run';
-export * from '../lab/schema/experiment';
-export * from '../lab/schema/export';
-export * from '../lab/schema/idempotency';

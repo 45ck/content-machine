@@ -364,7 +364,7 @@ function main() {
 
   const audioCommandPath = path.join(repoRoot, 'src', 'cli', 'commands', 'audio.ts');
   const audioCommand = readTextIfExists(audioCommandPath);
-  if (!audioCommand.includes('DEFAULT_AUDIO_COMMAND_SYNC_STRATEGY')) {
+  if (audioCommand && !audioCommand.includes('DEFAULT_AUDIO_COMMAND_SYNC_STRATEGY')) {
     console.error(
       'Repo facts check failed: src/cli/commands/audio.ts must use DEFAULT_AUDIO_COMMAND_SYNC_STRATEGY from generated repo facts.'
     );
@@ -377,8 +377,9 @@ function main() {
   const initCommandPath = path.join(repoRoot, 'src', 'cli', 'commands', 'init.ts');
   const initCommand = readTextIfExists(initCommandPath);
   if (
-    !initCommand.includes('SUPPORTED_VISUALS_PROVIDER_IDS') ||
-    !initCommand.includes('resolveLlmDefaultModel')
+    initCommand &&
+    (!initCommand.includes('SUPPORTED_VISUALS_PROVIDER_IDS') ||
+      !initCommand.includes('resolveLlmDefaultModel'))
   ) {
     console.error(
       'Repo facts check failed: src/cli/commands/init.ts must derive default provider/model values from generated repo facts.'
@@ -389,10 +390,11 @@ function main() {
     process.exit(1);
   }
   if (
-    !initCommand.includes('DEFAULT_VISUALS_PROVIDER_ID') ||
-    !initCommand.includes('DEFAULT_MOTION_STRATEGY_ID') ||
-    !initCommand.includes('DEFAULT_NANOBANANA_MODEL') ||
-    !initCommand.includes('MOTION_STRATEGIES')
+    initCommand &&
+    (!initCommand.includes('DEFAULT_VISUALS_PROVIDER_ID') ||
+      !initCommand.includes('DEFAULT_MOTION_STRATEGY_ID') ||
+      !initCommand.includes('DEFAULT_NANOBANANA_MODEL') ||
+      !initCommand.includes('MOTION_STRATEGIES'))
   ) {
     console.error(
       'Repo facts check failed: src/cli/commands/init.ts must derive visuals defaults and motion choices from generated repo facts constants.'
@@ -415,8 +417,9 @@ function main() {
   const generateDefaults = readTextIfExists(generateDefaultsPath);
   const generateCombined = generateCommand + generateDefaults;
   if (
-    !generateCombined.includes('DEFAULT_SYNC_PRESET_ID') ||
-    !generateCombined.includes('PREFERRED_QUALITY_SYNC_PRESET_ID')
+    generateCombined &&
+    (!generateCombined.includes('DEFAULT_SYNC_PRESET_ID') ||
+      !generateCombined.includes('PREFERRED_QUALITY_SYNC_PRESET_ID'))
   ) {
     console.error(
       'Repo facts check failed: src/cli/commands/generate*.ts must use generated sync preset defaults.'
@@ -427,8 +430,9 @@ function main() {
     process.exit(1);
   }
   if (
-    !generateCommand.includes('createLLMProvider') ||
-    generateCommand.includes('new OpenAIProvider(')
+    generateCommand &&
+    (!generateCommand.includes('createLLMProvider') ||
+      generateCommand.includes('new OpenAIProvider('))
   ) {
     console.error(
       'Repo facts check failed: src/cli/commands/generate.ts research bootstrap must not hardcode OpenAI provider construction.'

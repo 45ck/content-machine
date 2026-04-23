@@ -36,8 +36,9 @@ JSON
 </p>
 
 > Early development. Skills, flows, and harness scripts are now the
-> primary interface. The `cm` CLI remains as a compatibility layer while
-> the repo is migrated toward the harness-first direction.
+> primary interface. The legacy CLI control plane has been moved into
+> [`archive/legacy-cli/`](archive/legacy-cli/README.md); the remaining
+> `cm` shell is intentionally thin.
 
 > Start with [`skills/`](skills/README.md),
 > [`scripts/harness/`](scripts/harness/README.md),
@@ -106,15 +107,14 @@ Shipped starter skills:
 - [skills/video-render/SKILL.md](skills/video-render/SKILL.md)
 - [skills/publish-prep-review/SKILL.md](skills/publish-prep-review/SKILL.md)
 
-### Compatibility Path: legacy CLI
+### Thin `cm` Shell
 
 ```bash
 npm run cm -- --help
 ```
 
-Use the CLI for migration, old automation, or compatibility-only
-workflows. The primary docs path is now
-[docs/user/HARNESS-QUICKSTART.md](docs/user/HARNESS-QUICKSTART.md).
+Only `config`, `doctor`, `mcp`, and `render` remain live under `cm`.
+Everything else now lives in [`archive/legacy-cli/`](archive/legacy-cli/README.md).
 
 See [full installation guide](docs/user/INSTALLATION.md) for optional
 setup such as Whisper and `ffmpeg`.
@@ -169,8 +169,8 @@ cat skills/doctor-report/examples/request.json | \
 
 The primary user guide is now
 [docs/user/HARNESS-QUICKSTART.md](docs/user/HARNESS-QUICKSTART.md). The
-legacy CLI quickstart remains in
-[docs/user/QUICKSTART.md](docs/user/QUICKSTART.md).
+archived CLI notes live under
+[archive/legacy-cli/](archive/legacy-cli/README.md).
 
 ## How The Repo Is Shaped
 
@@ -202,7 +202,7 @@ can also write to explicit output paths.
 - Reverse-engineer a winning reference short into structured artifacts.
 - Generate only scripts, audio, visuals, or renders when needed.
 - Run structured diagnostics before expensive generation work.
-- Keep the legacy CLI around for migration and compatibility.
+- Use the thin `cm` shell only for config, diagnostics, MCP, or render compatibility.
 
 ![Pipeline overview](assets/demo/pipeline-preview.svg)
 
@@ -213,9 +213,10 @@ can also write to explicit output paths.
 - **[flows/](flows/README.md)** — orchestration contracts and executable flows
 - **[scripts/harness/](scripts/harness/README.md)** — JSON-stdio entrypoints and execution model
 - **[Direction](DIRECTION.md)** — migration plan, cut lines, and archive policy
-- **[User Guide](docs/user/README.md)** — harness-first user docs plus CLI compatibility docs
+- **[User Guide](docs/user/README.md)** — harness-first user docs
 - **[Developer Docs](docs/dev/README.md)** — active architecture, registries, and legacy engineering docs
 - **[Reference](docs/reference/)** — generated references, environment variables, glossary, and CLI contracts
+- **[Archive](archive/README.md)** — frozen legacy control-plane code and notes
 
 ## Contributing
 

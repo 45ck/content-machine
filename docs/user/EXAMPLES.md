@@ -5,24 +5,37 @@
 ### Listicle from a trending topic
 
 ```bash
-cm generate "5 things every dev should know about Docker" \
-  --archetype listicle -o output/docker-tips.mp4
+cat <<'JSON' | npx tsx scripts/harness/brief-to-script.ts
+{
+  "topic": "5 things every dev should know about Docker",
+  "archetype": "listicle",
+  "outputPath": "output/examples/docker-tips/script.json"
+}
+JSON
 ```
 
 ### Side-by-side comparison
 
 ```bash
-cm generate "Redis vs PostgreSQL for caching" \
-  --archetype versus -o output/redis-vs-pg.mp4
+cat <<'JSON' | npx tsx scripts/harness/run-flow.ts
+{
+  "flow": "generate-short",
+  "runId": "redis-vs-pg",
+  "input": {
+    "topic": "Redis vs PostgreSQL for caching",
+    "audio": { "voice": "af_heart" },
+    "visuals": { "provider": "pexels", "orientation": "portrait" },
+    "render": { "fps": 30, "downloadAssets": true }
+  }
+}
+JSON
 ```
 
 ### Research-driven news video
 
 ```bash
-cm research -q "AI news this week" -o output/research.json
-cm generate "AI news this week" \
-  --research output/research.json \
-  --archetype listicle -o output/ai-news.mp4
+cat skills/reverse-engineer-winner/examples/request.json | \
+  npx tsx scripts/harness/ingest.ts
 ```
 
 ### AI-generated visuals (no stock footage)
@@ -30,8 +43,16 @@ cm generate "AI news this week" \
 Requires `GOOGLE_API_KEY` and NanoBanana config:
 
 ```bash
-cm generate "5 tips for writing better TypeScript" \
-  --archetype listicle --keep-artifacts -o output/nanobanana.mp4
+cat <<'JSON' | npx tsx scripts/harness/run-flow.ts
+{
+  "flow": "generate-short",
+  "runId": "nanobanana",
+  "input": {
+    "topic": "5 tips for writing better TypeScript",
+    "visuals": { "provider": "nanobanana", "orientation": "portrait" }
+  }
+}
+JSON
 ```
 
 See [NanoBanana + Ken Burns example](examples/nanobanana-kenburns.md) for full config.

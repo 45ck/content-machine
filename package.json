@@ -1,7 +1,7 @@
 {
   "name": "@45ck/content-machine",
   "version": "0.2.2",
-  "description": "CLI-first automated short-form video generator for TikTok, Reels, and Shorts",
+  "description": "Harness-first content runtime with repo-local skills, flows, and deterministic media scripts",
   "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
@@ -20,13 +20,18 @@
     "dist/**",
     "assets/archetypes/**",
     "assets/fonts/**",
-    "assets/lab/**",
     "assets/templates/**",
+    "skills/**",
+    "flows/**",
+    "scripts/harness/**",
+    "archive/README.md",
+    "archive/legacy-cli/README.md",
     "README.md",
     "LICENSE"
   ],
   "scripts": {
-    "build": "npm run build:cli && npm run build:lib && npm run build:lib:cjs",
+    "clean": "rm -rf dist",
+    "build": "npm run clean && npm run build:cli && npm run build:lib && npm run build:lib:cjs",
     "build:cli": "esbuild src/cli/index.ts --bundle --platform=node --format=cjs --packages=external --log-override:empty-import-meta=silent --outfile=dist/cli/index.cjs",
     "build:lib": "esbuild src/index.ts --bundle --platform=node --format=esm --packages=external --log-override:empty-import-meta=silent --sourcemap --outfile=dist/index.js",
     "build:lib:cjs": "esbuild src/index.ts --bundle --platform=node --format=cjs --packages=external --log-override:empty-import-meta=silent --sourcemap --outfile=dist/index.cjs",
@@ -55,7 +60,7 @@
     "docs:linkcheck": "bash scripts/quality/with-node20.sh node scripts/quality/check-doc-links.mjs",
     "docs:check": "npm run docs:lint && npm run docs:linkcheck",
     "cspell:gen": "node scripts/gen-cspell.mjs",
-    "cspell:check": "bash scripts/quality/with-node20.sh npx --no-install cspell lint --config cspell.json --no-progress README.md docs/README.md docs/dev/*.md docs/user/**/*.md docs/reference/**/*.md src/cli/**/*.{ts,tsx,js,mjs,cjs}",
+    "cspell:check": "bash scripts/quality/with-node20.sh npx --no-install cspell lint --config cspell.json --no-progress README.md docs/README.md docs/dev/*.md docs/user/**/*.md docs/reference/**/*.md src/cli/**/*.{ts,tsx,js,mjs,cjs} src/harness/**/*.{ts,tsx,js,mjs,cjs} scripts/harness/**/*.{ts,tsx,js,mjs,cjs}",
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "bash scripts/quality/with-node20.sh sh -c \"node scripts/quality/clean-coverage.mjs && CM_COVERAGE_SINGLE_WORKER=1 scripts/quality/vitest-coverage-retry.sh\"",
@@ -183,7 +188,9 @@
     "remotion",
     "automation",
     "content-creation",
-    "cli"
+    "harness",
+    "skills",
+    "agent-runtime"
   ],
   "lint-staged": {
     "registry/repo-facts.yaml": [

@@ -13,6 +13,14 @@ restore decision in a direction or classification document.
 | ------------- | ------------------------------ | ----------------- | --------------------------------------- | ---------- |
 | `legacy-cli/` | pre-pivot `cm` command surface | Phase 4+          | `skills/`, `flows/`, `scripts/harness/` | 2026-04-23 |
 
+Current archive contents include:
+
+- legacy CLI commands and tests
+- lab server/review surfaces
+- workflow control-plane modules
+- research orchestrator/indexer surfaces
+- legacy task tracker notes
+
 ## How to restore
 
 Archived modules retain their full history across the move because `git log --follow <file>` traces renames. To revive an archived module, move it back out of `archive/` to its new home and declare it `keep` in a classification doc so future reorg passes do not re-archive it.

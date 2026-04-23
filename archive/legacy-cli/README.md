@@ -14,6 +14,13 @@ Frozen landing zone for the pre-pivot `cm` CLI and its command surface.
 This subtree is where the old CLI-oriented surface lands as it is
 archived out of the active repo shape.
 
+Current contents include:
+
+- archived `src/cli/commands/*` implementations beyond the thin surviving shell
+- archived `src/lab/`, `src/workflows/`, and CLI-only research orchestrators
+- archived CLI-focused tests and user guides
+- archived `tasks/` planning notes that were superseded by beads
+
 ## Use instead
 
 - prefer `skills/` for intent contracts

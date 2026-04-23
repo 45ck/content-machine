@@ -98,10 +98,10 @@ cat skills/doctor-report/examples/request.json | \
 
 ## Legacy CLI
 
-The `cm` CLI still exists, but it is now a compatibility path rather
-than the primary interface.
+The `cm` CLI still exists, but it is now a thin compatibility shell
+rather than the primary interface.
 
 If you need it, use:
 
-- [Legacy CLI Quickstart](QUICKSTART.md)
-- [CLI Compatibility Reference](CLI.md)
+- `npm run cm -- --help`
+- [Legacy CLI Archive](../../archive/legacy-cli/README.md)

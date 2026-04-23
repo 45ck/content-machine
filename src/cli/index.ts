@@ -2,7 +2,7 @@
 /**
  * content-machine CLI entry point
  *
- * Command-line tool for generating short-form video content.
+ * Thin compatibility shell over the harness-first runtime.
  */
 import 'dotenv/config';
 import { Command } from 'commander';
@@ -18,52 +18,7 @@ const COMMAND_LOADERS: Array<[string, CommandLoader]> = [
   ['mcp', async () => (await import('./commands/mcp')).mcpCommand],
   ['config', async () => (await import('./commands/config')).configCommand],
   ['doctor', async () => (await import('./commands/doctor')).doctorCommand],
-  ['demo', async () => (await import('./commands/demo')).demoCommand],
-  ['archetypes', async () => (await import('./commands/archetypes')).archetypesCommand],
-  ['script', async () => (await import('./commands/script')).scriptCommand],
-  ['audio', async () => (await import('./commands/audio')).audioCommand],
-  ['visuals', async () => (await import('./commands/visuals')).visualsCommand],
-  ['media', async () => (await import('./commands/media')).mediaCommand],
   ['render', async () => (await import('./commands/render')).renderCommand],
-  ['assets', async () => (await import('./commands/assets')).assetsCommand],
-  ['package', async () => (await import('./commands/package')).packageCommand],
-  ['research', async () => (await import('./commands/research')).researchCommand],
-  ['retrieve', async () => (await import('./commands/retrieve')).retrieveCommand],
-  ['validate', async () => (await import('./commands/validate')).validateCommand],
-  ['videospec', async () => (await import('./commands/videospec')).videospecCommand],
-  ['score', async () => (await import('./commands/score')).scoreCommand],
-  ['rate', async () => (await import('./commands/rate')).rateCommand],
-  [
-    'caption-quality',
-    async () => (await import('./commands/caption-quality')).captionQualityCommand,
-  ],
-  ['bench', async () => (await import('./commands/bench')).benchCommand],
-  ['captions', async () => (await import('./commands/captions')).captionsCommand],
-  ['publish', async () => (await import('./commands/publish')).publishCommand],
-  ['templates', async () => (await import('./commands/templates')).templatesCommand],
-  ['prompts', async () => (await import('./commands/prompts')).promptsCommand],
-  ['timestamps', async () => (await import('./commands/timestamps')).timestampsCommand],
-  ['import', async () => (await import('./commands/import')).importCommand],
-  ['hooks', async () => (await import('./commands/hooks')).hooksCommand],
-  ['setup', async () => (await import('./commands/setup')).setupCommand],
-  ['workflows', async () => (await import('./commands/workflows')).workflowsCommand],
-  ['feedback', async () => (await import('./commands/feedback')).feedbackCommand],
-  ['telemetry', async () => (await import('./commands/telemetry')).telemetryCommand],
-  ['lab', async () => (await import('./commands/lab')).labCommand],
-  ['generate', async () => (await import('./commands/generate')).generateCommand],
-  ['qa', async () => (await import('./commands/qa')).qaCommand],
-  ['evaluate', async () => (await import('./commands/evaluate')).evaluateCommand],
-  ['annotate', async () => (await import('./commands/annotate')).annotateCommand],
-  ['init', async () => (await import('./commands/init')).initCommand],
-  ['quality-score', async () => (await import('./commands/quality-score')).qualityScoreCommand],
-  [
-    'extract-features',
-    async () => (await import('./commands/extract-features')).extractFeaturesCommand,
-  ],
-  ['quality-rank', async () => (await import('./commands/quality-rank')).qualityRankCommand],
-  ['frame-analyze', async () => (await import('./commands/frame-analyze')).frameAnalyzeCommand],
-  ['classify', async () => (await import('./commands/classify')).classifyCommand],
-  ['blueprint', async () => (await import('./commands/blueprint')).blueprintCommand],
 ];
 
 const COMMAND_MAP = new Map(COMMAND_LOADERS);
@@ -146,7 +101,7 @@ async function loadCommandsForArgs(args: string[]): Promise<void> {
 
 program
   .name('cm')
-  .description('CLI-first automated short-form video generator for TikTok, Reels, and Shorts')
+  .description('Thin compatibility shell for the harness-first Content Machine runtime')
   .version(version)
   .option('--config <path>', 'Path to config file (overrides discovery and $CM_CONFIG)')
   .option('-v, --verbose', 'Enable verbose logging')

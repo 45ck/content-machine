@@ -12,7 +12,6 @@ import {
   AudioOutputSchema,
   RenderOutputSchema,
   ResearchOutputSchema,
-  ResearchSourceEnum,
   ScriptOutputSchema,
   TimestampsOutputSchema,
   VisualsOutputSchema,
@@ -21,7 +20,6 @@ import type {
   AudioOutput,
   RenderOutput,
   ResearchOutput,
-  ResearchSource,
   ScriptOutput,
   TimestampsOutput,
   VisualsOutput,
@@ -132,81 +130,6 @@ export function createContentMachineMcpTools(params: {
             render: Boolean(session.lastRender),
           },
         };
-      },
-    },
-
-    research: {
-      name: 'research',
-      description: 'Research a topic across sources and return structured evidence.',
-      parameters: z.object({
-        query: z.string().min(1),
-        sources: z.array(ResearchSourceEnum).optional(),
-        limitPerSource: z.number().int().positive().optional(),
-        timeRange: z.enum(['hour', 'day', 'week', 'month', 'year', 'all']).optional(),
-        generateAngles: z.boolean().optional(),
-        maxAngles: z.number().int().positive().optional(),
-        timeoutMs: z.number().int().positive().optional(),
-        parallel: z.boolean().optional(),
-        saveToSession: z.boolean().optional().default(true),
-        outputPath: z.string().optional(),
-      }),
-      execute: async (
-        args: {
-          query: string;
-          sources?: ResearchSource[];
-          limitPerSource?: number;
-          timeRange?: 'hour' | 'day' | 'week' | 'month' | 'year' | 'all';
-          generateAngles?: boolean;
-          maxAngles?: number;
-          timeoutMs?: number;
-          parallel?: boolean;
-          saveToSession?: boolean;
-          outputPath?: string;
-        },
-        context: McpToolContext
-      ): Promise<ResearchOutput> => {
-        const session = await sessionStore.get(context);
-
-        const { createLLMProvider } = await import('../../core/llm');
-        const { loadConfig } = await import('../../core/config');
-        const { createResearchOrchestrator } = await import('../../research/orchestrator');
-
-        const cfg = await loadConfig();
-        const wantsAngles = args.generateAngles !== false;
-        const llmProvider = wantsAngles
-          ? createLLMProvider(cfg.llm.provider, cfg.llm.model)
-          : undefined;
-
-        if (args.sources && args.sources.length === 0) {
-          const { UserError } = await loadFastMcp();
-          throw new UserError('sources must be a non-empty array when provided');
-        }
-
-        const orchestratorConfig: Record<string, unknown> = { generateAngles: wantsAngles };
-        if (args.sources && args.sources.length > 0) orchestratorConfig.sources = args.sources;
-        if (args.limitPerSource !== undefined)
-          orchestratorConfig.limitPerSource = args.limitPerSource;
-        if (args.timeRange !== undefined) orchestratorConfig.timeRange = args.timeRange;
-        if (args.maxAngles !== undefined) orchestratorConfig.maxAngles = args.maxAngles;
-        if (args.timeoutMs !== undefined) orchestratorConfig.timeoutMs = args.timeoutMs;
-        if (args.parallel !== undefined) orchestratorConfig.parallel = args.parallel;
-
-        const orchestrator = createResearchOrchestrator(orchestratorConfig, llmProvider);
-
-        context.log.info('Researching', { query: args.query });
-
-        const result = await orchestrator.research(args.query);
-        const output = ResearchOutputSchema.parse(result.output);
-
-        if (args.saveToSession !== false) session.lastResearch = output;
-        await maybeWriteJsonFile(
-          args.outputPath
-            ? await resolveSessionPath(session, args.outputPath, 'outputPath')
-            : undefined,
-          output
-        );
-
-        return output;
       },
     },
 

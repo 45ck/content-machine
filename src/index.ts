@@ -1,5 +1,5 @@
 /**
- * content-machine - CLI-first automated short-form video generator
+ * content-machine - harness-first content runtime
  *
  * @packageDocumentation
  */
@@ -53,8 +53,7 @@ export * from './render/tokens';
 export { createThemeRegistry, defaultThemeRegistry } from './render/themes';
 export type { Theme, ThemeRegistry } from './render/themes';
 
-// Research pipeline
-export { ResearchOrchestrator, createResearchOrchestrator } from './research/orchestrator';
+// Research types
 export type { Evidence, ContentAngle, ResearchOutput, ResearchSource } from './domain';
 export { EvidenceSchema, ContentAngleSchema, ResearchOutputSchema } from './domain';
 
@@ -63,9 +62,6 @@ export { HackerNewsTool } from './research/tools/hackernews';
 export { RedditTool } from './research/tools/reddit';
 export { WebSearchTool } from './research/tools/web-search';
 export type { ResearchTool, SearchToolOptions, SearchToolResult } from './research/tools/types';
-
-// Workflows
-export type { WorkflowDefinition, WorkflowCommand, WorkflowStage, WorkflowInputs } from './domain';
 
 // VideoSpec (reverse-engineering)
 export { analyzeVideoToVideoSpecV1 } from './videospec/analyze';

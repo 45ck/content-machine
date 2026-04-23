@@ -6,19 +6,30 @@
   - Install via [nvm](https://github.com/nvm-sh/nvm) (recommended) or [nodejs.org](https://nodejs.org/)
 - **API keys** — you'll need at least an OpenAI key and a stock footage key to generate real videos (see [API Keys](#api-keys) below)
 
-## Install
+## Install The Repo Surfaces
 
 ```bash
-npm install -g @45ck/content-machine
-
-# Verify
-cm --help
+git clone https://github.com/45ck/content-machine.git
+cd content-machine
+npm install
 ```
 
-Or run without installing:
+Verify the primary surfaces:
 
 ```bash
-npx -y @45ck/content-machine --help
+cat <<'JSON' | npx tsx scripts/harness/skill-catalog.ts
+{}
+JSON
+```
+
+The published npm package also ships the repo-local `skills/`,
+`flows/`, and `scripts/harness/` surfaces, but the canonical path is
+working from the repo checkout.
+
+If you only need the thin compatibility shell, you can also run:
+
+```bash
+npx -y @45ck/content-machine doctor
 ```
 
 ## Optional: Whisper (Better Captions)
@@ -26,10 +37,11 @@ npx -y @45ck/content-machine --help
 For word-level timestamp accuracy and the best caption sync, install Whisper:
 
 ```bash
-cm setup whisper --model base
+npm run cm -- doctor
 ```
 
-This downloads a small (~150MB) speech recognition model. Without Whisper, Content Machine falls back to estimated timestamps that are less accurate.
+Whisper remains optional. The old `cm setup whisper` workflow is part of
+the archived CLI control plane.
 
 ## Optional: ffmpeg
 
@@ -81,13 +93,13 @@ Full list of environment variables: [`docs/reference/ENVIRONMENT-VARIABLES.md`](
 Run the built-in diagnostics:
 
 ```bash
-cm doctor
+npm run cm -- doctor
 ```
 
 This checks for Node.js version, API key presence, Whisper installation, and other dependencies.
 
 ## Next Steps
 
-- [Quickstart](QUICKSTART.md) — generate your first video
+- [Harness Quickstart](HARNESS-QUICKSTART.md) — primary path
 - [Configuration](CONFIGURATION.md) — customize defaults
 - [Examples](EXAMPLES.md) — real-world workflows
