@@ -114,6 +114,10 @@ new skills.
   spokesperson short construction
 - [`scene-by-scene-faceless-pipeline/`](scene-by-scene-faceless-pipeline/SKILL.md)
   — deterministic faceless short assembly with per-scene artifacts
+- [`niche-profile-draft/`](niche-profile-draft/SKILL.md) — generate one
+  niche-shaped draft artifact for script, visuals, and packaging
+- [`draft-embedded-pipeline-state/`](draft-embedded-pipeline-state/SKILL.md)
+  — keep resume state inside the working draft artifact itself
 - [`slideshow-risk-review/`](slideshow-risk-review/SKILL.md) —
   repetition and weak-motion review for faceless or animation-heavy
   shorts
@@ -131,6 +135,8 @@ new skills.
   reusable Reddit-style post overlays as visual assets
 - [`hook-overlay/`](hook-overlay/SKILL.md) — turn the opening hook into
   a designed overlay asset instead of a normal subtitle
+- [`hook-asset-verifier/`](hook-asset-verifier/SKILL.md) — verify the
+  generated hook asset before timeline assembly
 - [`timing-sync/`](timing-sync/SKILL.md) — reconcile real audio
   durations with planned scene timing before render
 - [`continuity-chain/`](continuity-chain/SKILL.md) — generate connected
@@ -147,6 +153,8 @@ new skills.
   — preserve revision history for generated media assets
 - [`asset-fingerprint-cache/`](asset-fingerprint-cache/SKILL.md) —
   fingerprint live media assets for cache busting and change detection
+- [`scene-aware-smart-crop/`](scene-aware-smart-crop/SKILL.md) —
+  choose portrait crop strategy per real scene boundary
 - [`executive-producer-sendback/`](executive-producer-sendback/SKILL.md)
   — run multi-stage production as a stateful pass/revise/send-back loop
 - [`doctor-report/`](doctor-report/SKILL.md) — structured environment
