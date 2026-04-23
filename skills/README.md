@@ -91,6 +91,19 @@ new skills.
 - [`short-form-production-playbook/`](short-form-production-playbook/SKILL.md)
   — hook-first editorial, visual assembly, and reject-regenerate craft
   guidance for making strong shorts
+- [`faceless-mixed-short/`](faceless-mixed-short/SKILL.md) — mixed
+  stock/local/gameplay/AI-generated faceless short construction
+- [`animation-explainer-short/`](animation-explainer-short/SKILL.md) —
+  diagrams, motion cards, generated scenes, and motion-led explainer
+  shorts
+- [`longform-to-shorts/`](longform-to-shorts/SKILL.md) — transcript-led
+  clipping, selection, reframing, and short extraction from long video
+- [`reframe-vertical/`](reframe-vertical/SKILL.md) — speaker, face,
+  cursor, and fallback portrait crop strategy
+- [`reddit-story-short/`](reddit-story-short/SKILL.md) — Reddit/text
+  story adaptation into narration-led shorts
+- [`ugc-avatar-short/`](ugc-avatar-short/SKILL.md) — avatar or AI-actor
+  spokesperson short construction
 - [`doctor-report/`](doctor-report/SKILL.md) — structured environment
   and dependency diagnostics
 - [`skill-catalog/`](skill-catalog/SKILL.md) — enumerate shipped skills,
