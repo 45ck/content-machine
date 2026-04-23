@@ -6,7 +6,7 @@ allowedTools:
   - read
   - write
 model: inherit
-argumentHint: '{"topic":"Redis vs PostgreSQL for caching","archetype":"versus","outputDir":"output/content-machine/generate-short","audio":{"voice":"af_heart"},"visuals":{"provider":"pexels","orientation":"portrait"},"render":{"fps":30,"downloadAssets":true},"publishPrep":{"enabled":true,"platform":"tiktok"}}'
+argumentHint: '{"topic":"Redis vs PostgreSQL for caching","archetype":"versus","outputDir":"output/content-machine/generate-short","audio":{"voice":"af_heart"},"visuals":{"provider":"pexels","orientation":"portrait"},"render":{"fps":30,"downloadAssets":true},"publishPrep":{"enabled":true,"platform":"tiktok","requirePass":true}}'
 entrypoint: node --import tsx scripts/harness/generate-short.ts
 inputs:
   - name: topic
@@ -74,6 +74,9 @@ cat skills/generate-short/examples/request.json | \
   final video files.
 - Runs `publish-prep` by default and writes its bundle unless
   `publishPrep.enabled` is `false`.
+- Fails closed by default when the review bundle reports `passed: false`.
+  Set `publishPrep.requirePass` to `false` only when you explicitly want
+  files written even though the review gate failed.
 - Returns a JSON envelope with the main output paths plus publish
   readiness when the review gate runs.
 

@@ -6,7 +6,7 @@ allowedTools:
   - read
   - write
 model: inherit
-argumentHint: '{"videoPath":"output/video.mp4","scriptPath":"output/script.json","outputDir":"output/content-machine/publish-prep","platform":"tiktok"}'
+argumentHint: '{"videoPath":"output/video.mp4","scriptPath":"output/script.json","outputDir":"output/content-machine/publish-prep","platform":"tiktok","validate":{"profile":"portrait","cadence":true,"audioSignal":true}}'
 entrypoint: node --import tsx scripts/harness/publish-prep.ts
 inputs:
   - name: videoPath
@@ -48,6 +48,9 @@ cat skills/publish-prep-review/examples/request.json | \
 - Writes `validate.json`, `score.json`, and `publish.json` under the
   requested `outputDir`.
 - Optionally writes `packaging.json` if packaging generation is enabled.
+- Validation can include cadence, visual quality, temporal quality,
+  audio signal, freeze detection, and flow consistency checks in
+  addition to the base format/resolution/duration checks.
 - Returns a JSON envelope with a top-level `passed` boolean that combines
   validation and scoring.
 

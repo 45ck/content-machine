@@ -85,6 +85,8 @@ function resolveRemotionEntryPoint(): string {
   const candidates = [
     join(process.cwd(), 'src', 'render', 'remotion', 'index.ts'),
     join(process.cwd(), 'dist', 'render', 'remotion', 'index.js'),
+    join(RENDER_DIR, '..', 'src', 'render', 'remotion', 'index.ts'),
+    join(RENDER_DIR, '..', 'src', 'render', 'remotion', 'index.js'),
     join(RENDER_DIR, 'remotion', 'index.ts'),
     join(RENDER_DIR, 'remotion', 'index.js'),
   ];

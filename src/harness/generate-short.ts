@@ -1,6 +1,7 @@
 import { join, resolve } from 'node:path';
 import { z } from 'zod';
 import { ArchetypeEnum } from '../core/config';
+import { CMError } from '../core/errors';
 import { generateBriefToScript } from './brief-to-script';
 import { ingestReferenceVideo, IngestRequestSchema } from './ingest';
 import { artifactDirectory, type HarnessArtifact, type HarnessToolResult } from './json-stdio';
@@ -47,6 +48,7 @@ const GenerateShortPublishPrepSchema = PublishPrepRequestSchema.omit({
 })
   .extend({
     enabled: z.boolean().default(true),
+    requirePass: z.boolean().default(true),
     outputDir: z.string().min(1).optional(),
   })
   .default({});
@@ -187,6 +189,16 @@ export async function runGenerateShort(request: GenerateShortRequest): Promise<
     artifacts.push(...(publishPrepResult.artifacts ?? []));
     publishPrepDir = publishPrepResult.result.outputDir;
     publishReady = publishPrepResult.result.passed;
+    if (!publishPrepResult.result.passed && normalized.publishPrep.requirePass) {
+      throw new CMError(
+        'VALIDATION_ERROR',
+        'Publish-prep review failed. Refusing to treat the generated short as ready.',
+        {
+          outputDir,
+          publishPrepDir,
+        }
+      );
+    }
   }
 
   return {

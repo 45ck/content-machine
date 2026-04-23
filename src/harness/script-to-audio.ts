@@ -1,3 +1,4 @@
+import { mkdir } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { z } from 'zod';
 import { AudioOutputSchema, ScriptOutputSchema, type AudioOutput } from '../domain';
@@ -54,6 +55,12 @@ export async function runScriptToAudio(request: ScriptToAudioRequest): Promise<
   const outputMetadataPath = resolve(
     normalized.outputMetadataPath ?? join(dirname(audioPath), 'audio.json')
   );
+
+  await Promise.all([
+    mkdir(dirname(audioPath), { recursive: true }),
+    mkdir(dirname(timestampsPath), { recursive: true }),
+    mkdir(dirname(outputMetadataPath), { recursive: true }),
+  ]);
 
   const audioOutput: AudioOutput = AudioOutputSchema.parse(
     await generateAudio({

@@ -22,7 +22,7 @@ describe('runScriptToAudio', () => {
   it('writes audio metadata alongside mock audio and timestamps', async () => {
     const dir = await makeTempDir();
     const scriptPath = join(dir, 'script.json');
-    const outputPath = join(dir, 'audio.wav');
+    const outputPath = join(dir, 'nested', 'audio', 'audio.wav');
 
     await writeJsonArtifact(scriptPath, {
       schemaVersion: '1.0.0',
@@ -40,17 +40,19 @@ describe('runScriptToAudio', () => {
     });
 
     expect(result.result.audioPath).toBe(outputPath);
-    expect(result.result.timestampsPath).toBe(join(dir, 'timestamps.json'));
-    expect(result.result.outputMetadataPath).toBe(join(dir, 'audio.json'));
+    expect(result.result.timestampsPath).toBe(join(dir, 'nested', 'audio', 'timestamps.json'));
+    expect(result.result.outputMetadataPath).toBe(join(dir, 'nested', 'audio', 'audio.json'));
     expect(result.result.wordCount).toBeGreaterThan(0);
 
-    const metadata = JSON.parse(await readFile(join(dir, 'audio.json'), 'utf8')) as {
+    const metadata = JSON.parse(
+      await readFile(join(dir, 'nested', 'audio', 'audio.json'), 'utf8')
+    ) as {
       audioPath: string;
       timestampsPath: string;
       voice: string;
     };
     expect(metadata.audioPath).toBe(outputPath);
-    expect(metadata.timestampsPath).toBe(join(dir, 'timestamps.json'));
+    expect(metadata.timestampsPath).toBe(join(dir, 'nested', 'audio', 'timestamps.json'));
     expect(metadata.voice).toBe('mock-voice');
   });
 });

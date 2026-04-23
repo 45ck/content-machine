@@ -37,6 +37,12 @@ export const PublishPrepRequestSchema = z
     validate: z
       .object({
         profile: z.enum(['portrait', 'landscape']).default('portrait'),
+        cadence: z.boolean().default(true),
+        quality: z.boolean().default(false),
+        temporal: z.boolean().default(false),
+        audioSignal: z.boolean().default(false),
+        freeze: z.boolean().default(false),
+        flowConsistency: z.boolean().default(false),
       })
       .default({}),
   })
@@ -95,8 +101,12 @@ export async function runPublishPrep(request: PublishPrepRequest): Promise<
   const validate = await validateVideoPath(resolve(request.videoPath), {
     profile: request.validate.profile,
     probe: { engine: 'ffprobe' },
-    cadence: { enabled: false },
-    quality: { enabled: false },
+    cadence: { enabled: request.validate.cadence },
+    quality: { enabled: request.validate.quality },
+    temporal: { enabled: request.validate.temporal },
+    audioSignal: { enabled: request.validate.audioSignal },
+    freeze: { enabled: request.validate.freeze },
+    flowConsistency: { enabled: request.validate.flowConsistency },
   });
   await writeJsonArtifact(validatePath, ValidateReportSchema.parse(validate));
 

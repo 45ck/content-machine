@@ -78,6 +78,10 @@ JSON
 
 This writes run-scoped files under `runs/demo-run/` by default.
 
+By default the review gate is fail-closed: if `publish-prep` says the
+short is not ready, `generate-short` exits non-zero instead of quietly
+handing back junk.
+
 If you prefer npm aliases, the same runner is available as
 `npm run agent:run-flow`.
 
@@ -103,6 +107,21 @@ Run diagnostics, including `ffmpeg`, `ffprobe`, and `yt-dlp` checks:
 ```bash
 cat skills/doctor-report/examples/request.json | \
   node --import tsx scripts/harness/doctor-report.ts
+```
+
+Run the review gate directly when you want a deterministic
+ready-to-post verdict:
+
+```bash
+cat <<'JSON' | node --import tsx scripts/harness/publish-prep.ts
+{
+  "videoPath": "runs/demo-run/render/video.mp4",
+  "scriptPath": "runs/demo-run/script/script.json",
+  "outputDir": "runs/demo-run/publish-prep",
+  "platform": "tiktok",
+  "validate": { "cadence": true, "audioSignal": true }
+}
+JSON
 ```
 
 ## Step 5: Install the pack into another project

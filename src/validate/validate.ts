@@ -8,6 +8,8 @@ import { probeVideoWithPython } from './python-probe';
 import { runCadenceGate } from './cadence';
 import { TemporalAnalyzer, runTemporalQualityGate, type TemporalQualityAnalyzer } from './temporal';
 import { FfmpegAudioAnalyzer, runAudioSignalGate, type AudioSignalAnalyzer } from './audio-signal';
+import { FlowConsistencyAnalyzer, runFlowConsistencyGate } from './flow-consistency';
+import { FreezeAnalyzer, runFreezeGate } from './freeze';
 
 export interface ValidateOptions {
   profile: ValidateProfileId;
@@ -36,6 +38,17 @@ export interface ValidateOptions {
   audioSignal?: {
     enabled: boolean;
     analyzer?: AudioSignalAnalyzer;
+  };
+  freeze?: {
+    enabled: boolean;
+    sampleRate?: number;
+    diffThreshold?: number;
+    minRunFrames?: number;
+    analyzer?: FreezeAnalyzer;
+  };
+  flowConsistency?: {
+    enabled: boolean;
+    analyzer?: FlowConsistencyAnalyzer;
   };
 }
 
@@ -117,6 +130,22 @@ export async function validateVideoPath(
     const analyzer = options.audioSignal.analyzer ?? new FfmpegAudioAnalyzer();
     const summary = await analyzer.analyze(videoPath);
     gates.push(runAudioSignalGate(summary, profile));
+  }
+
+  if (options.freeze?.enabled) {
+    const analyzer = options.freeze.analyzer ?? new FreezeAnalyzer();
+    const summary = await analyzer.analyze(videoPath, {
+      sampleRate: options.freeze.sampleRate,
+      diffThreshold: options.freeze.diffThreshold,
+      minRunFrames: options.freeze.minRunFrames,
+    });
+    gates.push(runFreezeGate(summary));
+  }
+
+  if (options.flowConsistency?.enabled) {
+    const analyzer = options.flowConsistency.analyzer ?? new FlowConsistencyAnalyzer();
+    const summary = await analyzer.analyze(videoPath);
+    gates.push(runFlowConsistencyGate(summary));
   }
 
   const passed = gates.every((gate) => gate.passed || gate.severity !== 'error');

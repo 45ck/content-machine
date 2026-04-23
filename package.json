@@ -22,6 +22,7 @@
     "assets/archetypes/**",
     "assets/fonts/**",
     "assets/templates/**",
+    "src/render/remotion/**",
     "skills/**",
     "flows/**",
     "scripts/harness/**",

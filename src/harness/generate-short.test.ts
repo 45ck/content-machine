@@ -281,4 +281,54 @@ describe('runGenerateShort', () => {
     expect(result.result.publishReady).toBe(true);
     expect(result.result.referenceArchetype).toBe('story');
   });
+
+  it('fails closed when publish prep reports the short is not ready', async () => {
+    stageMocks.generateBriefToScript.mockResolvedValue({
+      result: {
+        outputPath: '/tmp/bad/script/script.json',
+        title: 'Script',
+        sceneCount: 3,
+      },
+      artifacts: [],
+    });
+    stageMocks.runScriptToAudio.mockResolvedValue({
+      result: {
+        audioPath: '/tmp/bad/audio/audio.wav',
+        timestampsPath: '/tmp/bad/audio/timestamps.json',
+        outputMetadataPath: '/tmp/bad/audio/audio.json',
+      },
+      artifacts: [],
+    });
+    stageMocks.runTimestampsToVisuals.mockResolvedValue({
+      result: {
+        outputPath: '/tmp/bad/visuals/visuals.json',
+        sceneCount: 3,
+      },
+      artifacts: [],
+    });
+    stageMocks.runVideoRender.mockResolvedValue({
+      result: {
+        outputPath: '/tmp/bad/render/video.mp4',
+        outputMetadataPath: '/tmp/bad/render/render.json',
+      },
+      artifacts: [],
+    });
+    stageMocks.runPublishPrep.mockResolvedValue({
+      result: {
+        outputDir: '/tmp/bad/publish-prep',
+        passed: false,
+      },
+      artifacts: [],
+    });
+
+    await expect(
+      runGenerateShort({
+        topic: 'Bad render example',
+        outputDir: '/tmp/bad',
+        audio: { voice: 'af_heart', mock: true },
+        visuals: { mock: true },
+        render: { mock: true },
+      })
+    ).rejects.toThrow('Publish-prep review failed');
+  });
 });
