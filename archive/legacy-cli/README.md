@@ -19,6 +19,7 @@ Current contents include:
 - archived `src/cli/commands/*` implementations beyond the thin surviving shell
 - archived `src/lab/`, `src/workflows/`, and CLI-only research orchestrators
 - archived CLI-focused tests and user guides
+- archived local template/reference repos under `templates/`
 - archived `tasks/` planning notes that were superseded by beads
 
 ## Use instead

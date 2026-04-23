@@ -27,15 +27,19 @@ provider = "nanobanana"
 motion_strategy = "veo"
 ```
 
-## Run (One Command)
+## Run
 
 ```bash
-cm generate "Docker vs Kubernetes" \
-  --archetype versus \
-  --media \
-  --media-veo-adapter google-veo \
-  --keep-artifacts \
-  --output output/nanobanana-veo/video.mp4
+cat <<'JSON' | npx tsx scripts/harness/run-flow.ts
+{
+  "flow": "generate-short",
+  "runId": "nanobanana-veo",
+  "input": {
+    "topic": "Docker vs Kubernetes",
+    "visuals": { "provider": "nanobanana", "orientation": "portrait" }
+  }
+}
+JSON
 ```
 
 ## Notes

@@ -19,6 +19,7 @@ Current archive contents include:
 - lab server/review surfaces
 - workflow control-plane modules
 - research orchestrator/indexer surfaces
+- local template/reference repos under `archive/legacy-cli/templates/`
 - legacy task tracker notes
 
 ## How to restore

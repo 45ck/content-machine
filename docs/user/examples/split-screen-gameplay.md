@@ -13,22 +13,47 @@ Prereqs:
 mkdir -p ~/.cm/assets/gameplay/subway-surfers
 cp /path/to/subway.mp4 ~/.cm/assets/gameplay/subway-surfers/
 
-# 2) Generate script + audio + timestamps
-cm script --topic "Redis vs PostgreSQL for caching" -o output/script.json
-cm audio --input output/script.json --output output/audio.wav --timestamps output/timestamps.json --tts-speed 1.2
+# 2) Generate script
+cat <<'JSON' | npx tsx scripts/harness/brief-to-script.ts
+{
+  "topic": "Redis vs PostgreSQL for caching",
+  "archetype": "versus",
+  "outputPath": "output/script.json"
+}
+JSON
 
-# 3) Match Pexels visuals + gameplay
-cm visuals --input output/timestamps.json --provider pexels --orientation portrait \
-  --gameplay-style subway-surfers \
-  --output output/demo-subway-pexels/visuals.json
+# 3) Generate audio + timestamps
+cat <<'JSON' | npx tsx scripts/harness/script-to-audio.ts
+{
+  "scriptPath": "output/script.json",
+  "audioOutputPath": "output/audio.wav",
+  "timestampsOutputPath": "output/timestamps.json",
+  "voice": "af_heart"
+}
+JSON
 
-# 4) Render split-screen (gameplay on top, Pexels on bottom)
-cm render --template brainrot-split-gameplay-top --split-layout gameplay-top \
-  --input output/demo-subway-pexels/visuals.json \
-  --timestamps output/timestamps.json \
-  --audio output/audio.wav \
-  --output output/demo-subway-pexels/video.mp4 \
-  --download-assets
+# 4) Match Pexels visuals + gameplay
+cat <<'JSON' | npx tsx scripts/harness/timestamps-to-visuals.ts
+{
+  "timestampsPath": "output/timestamps.json",
+  "provider": "pexels",
+  "orientation": "portrait",
+  "gameplayStyle": "subway-surfers",
+  "outputPath": "output/demo-subway-pexels/visuals.json"
+}
+JSON
+
+# 5) Render split-screen (gameplay on top, Pexels on bottom)
+cat <<'JSON' | npx tsx scripts/harness/video-render.ts
+{
+  "visualsPath": "output/demo-subway-pexels/visuals.json",
+  "timestampsPath": "output/timestamps.json",
+  "audioPath": "output/audio.wav",
+  "outputPath": "output/demo-subway-pexels/video.mp4",
+  "template": "brainrot-split-gameplay-top",
+  "downloadAssets": true
+}
+JSON
 ```
 
 Layout options:

@@ -78,10 +78,11 @@ bench/results/*.json
 bench/pro/youtube-refs.txt
 bench/pro/.yt-dlp-archive.txt
 
-# Local research / reference repos (not part of this project)
+# Local research / reference repos (not part of the live product surface)
 vendor/
 connectors/
 templates/
+archive/legacy-cli/templates/
 
 # Experiments (output artifacts)
 experiments/**/results/

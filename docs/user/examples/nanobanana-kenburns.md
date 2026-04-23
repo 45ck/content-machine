@@ -24,10 +24,17 @@ motion_strategy = "kenburns"
 ## Run
 
 ```bash
-cm generate "5 tips for writing better TypeScript" \
-  --archetype listicle \
-  --keep-artifacts \
-  --output output/nanobanana-kenburns/video.mp4
+cat <<'JSON' | npx tsx scripts/harness/run-flow.ts
+{
+  "flow": "generate-short",
+  "runId": "nanobanana-kenburns",
+  "input": {
+    "topic": "5 tips for writing better TypeScript",
+    "visuals": { "provider": "nanobanana", "orientation": "portrait" },
+    "render": { "downloadAssets": true }
+  }
+}
+JSON
 ```
 
 ## Notes

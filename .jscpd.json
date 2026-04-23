@@ -6,6 +6,7 @@
     "**/dist/**",
     "**/coverage/**",
     "**/vendor/**",
+    "**/archive/**",
     "**/templates/**",
     "**/connectors/**",
     "**/.cache/**",

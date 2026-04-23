@@ -4,7 +4,7 @@ This repo supports Google Gemini for:
 
 - **LLM provider** (script, research helpers, keyword extraction): `llm.provider = "gemini"`
 - **AI image generation** (visuals): `visuals.provider = "nanobanana"`
-- **Optional image-to-video synthesis** (media stage): `motionStrategy = "veo"` + `cm generate --media` (or `cm media`)
+- **Optional image-to-video synthesis** (media stage): `motionStrategy = "veo"` via the harness flow/runtime path
 
 ## Setup
 
@@ -31,13 +31,27 @@ model = "gemini-2.0-flash"
 Then run:
 
 ```bash
-cm script --topic "Redis vs PostgreSQL for caching" --archetype versus
+cat <<'JSON' | npx tsx scripts/harness/brief-to-script.ts
+{
+  "topic": "Redis vs PostgreSQL for caching",
+  "archetype": "versus"
+}
+JSON
 ```
 
 Or end-to-end:
 
 ```bash
-cm generate "Redis vs PostgreSQL for caching" --keep-artifacts --output output/video.mp4
+cat <<'JSON' | npx tsx scripts/harness/run-flow.ts
+{
+  "flow": "generate-short",
+  "runId": "gemini-demo",
+  "input": {
+    "topic": "Redis vs PostgreSQL for caching",
+    "visuals": { "provider": "nanobanana", "orientation": "portrait" }
+  }
+}
+JSON
 ```
 
 ## Notes
