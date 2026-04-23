@@ -1,0 +1,16 @@
+name: doctor
+description: Execute the structured environment diagnostics path and write the report under runs/{runId}/doctor/report.json.
+entrySkill: doctor-report
+operatorNotes: flows/doctor.md
+defaultOutputDir: runs/{runId}/doctor
+inputs:
+  - name: strict
+    description: Fail warnings as well as hard errors.
+    required: false
+  - name: outputPath
+    description: Optional explicit report path; otherwise the flow binds runs/{runId}/doctor/report.json.
+    required: false
+outputs:
+  - name: report.json
+    description: Structured environment and dependency diagnostic report.
+    required: true

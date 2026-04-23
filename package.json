@@ -33,6 +33,7 @@
     "build:types": "tsc -p tsconfig.build.json --emitDeclarationOnly",
     "dev": "tsx watch src/cli/index.ts",
     "cm": "tsx src/cli/index.ts",
+    "harness:doctor-report": "tsx scripts/harness/doctor-report.ts",
     "harness:flow-catalog": "tsx scripts/harness/flow-catalog.ts",
     "harness:run-flow": "tsx scripts/harness/run-flow.ts",
     "harness:skill-catalog": "tsx scripts/harness/skill-catalog.ts",

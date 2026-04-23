@@ -1,6 +1,12 @@
-# Quickstart
+# Legacy CLI Quickstart
 
-This guide takes you from install to your first video in under 5 minutes.
+This page describes the compatibility `cm` path.
+
+If you are using Claude Code, Codex CLI, or another coding harness,
+start with [Harness Quickstart](HARNESS-QUICKSTART.md) instead.
+
+This guide takes you from install to your first video through the legacy
+CLI in under 5 minutes.
 
 ## Step 1: Try the Demo (No API Keys)
 

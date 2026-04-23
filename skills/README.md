@@ -4,6 +4,12 @@ This directory holds harness-facing skills that Claude Code, Codex CLI,
 and similar coding agents can load without reading the whole repository
 first.
 
+Role split:
+
+- `skills/` = intent contract
+- `flows/` = orchestration contract
+- `scripts/harness/` = executable JSON-stdio surface
+
 ## Purpose
 
 - Keep agent-facing intent close to the future skill implementation.
@@ -40,6 +46,9 @@ coding harness answer four questions fast:
 
 If those answers are missing, the skill is not ready to ship.
 
+Use a skill directly when you want one capability. Use a flow when you
+want multiple skills composed under one run directory.
+
 ## Authoring rules
 
 - Keep descriptions concrete enough that a harness can select the skill
@@ -69,6 +78,8 @@ new skills.
 
 ## Shipped Starter Skills
 
+- [`doctor-report/`](doctor-report/SKILL.md) — structured environment
+  and dependency diagnostics
 - [`skill-catalog/`](skill-catalog/SKILL.md) — enumerate shipped skills,
   entrypoints, and example requests
 - [`generate-short/`](generate-short/SKILL.md) — topic to full artifact

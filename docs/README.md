@@ -1,22 +1,32 @@
 # Documentation
 
+Content Machine is in a harness-first migration. Read the docs in this
+order:
+
+- primary: skills, flows, harness scripts, direction docs
+- compatibility: legacy CLI user docs and generated CLI references
+- history: archived code and old engineering surfaces
+
 ## Direction
 
 - [`DIRECTION.md`](../DIRECTION.md) — where Content Machine is heading (harness-first runtime)
 - [`direction/`](direction/) — phase plan, boundaries, keep/move/deprecate
 
-## Harness Surfaces
+## Primary Surfaces
 
 - [`../skills/README.md`](../skills/README.md) — harness-facing skill scaffolding for Claude Code, Codex CLI, and similar agents
 - [`../flows/README.md`](../flows/README.md) — flow scaffolding and authoring rules for prompt-language orchestration
+- [`user/HARNESS-QUICKSTART.md`](user/HARNESS-QUICKSTART.md) — primary user path for the harness-first surface
+- [`../scripts/harness/README.md`](../scripts/harness/README.md) — executable JSON-stdio entrypoints
 
-## For Users
+## Compatibility Surface
 
-Start here if you want to use Content Machine:
+These docs remain useful, but they describe the legacy `cm` path rather
+than the primary interface:
 
 - [Installation](user/INSTALLATION.md)
-- [Quickstart](user/QUICKSTART.md)
-- [CLI Usage](user/CLI.md)
+- [Legacy CLI Quickstart](user/QUICKSTART.md)
+- [CLI Compatibility Reference](user/CLI.md)
 - [Configuration](user/CONFIGURATION.md)
 - [Examples](user/EXAMPLES.md)
 
@@ -27,6 +37,7 @@ Full index: [docs/user/README.md](user/README.md)
 - [Contributing Guide](../CONTRIBUTING.md) — setup, workflow, PR process
 - [Developer Docs](dev/README.md) — architecture, specs, guides
 - [Research Archive](research/) — 86+ research documents
+- [Archive Policy](../archive/README.md) — frozen legacy code and restore policy
 
 ## Reference (Generated)
 
@@ -40,7 +51,7 @@ These are auto-generated from registries — edit the YAML source, not the outpu
 
 Regenerate with: `npm run repo-facts:gen` / `npm run glossary:gen`
 
-## CLI Command References
+## CLI Command References (Compatibility)
 
 - [`cm generate`](reference/cm-generate-reference-20260106.md)
 - [`cm script`](reference/cm-script-reference-20260106.md)

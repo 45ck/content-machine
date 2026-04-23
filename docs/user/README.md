@@ -2,16 +2,26 @@
 
 Everything you need to use Content Machine.
 
-## Getting Started
+Content Machine is now harness-first. The primary path is repo-local
+skills, flows, and JSON-stdio harness scripts for Claude Code, Codex
+CLI, and similar coding agents. The `cm` CLI remains available as a
+compatibility path.
 
-1. [Installation](INSTALLATION.md) — prerequisites, API keys, optional setup
-2. [Quickstart](QUICKSTART.md) — your first video in 5 minutes
-3. [Examples](EXAMPLES.md) — workflows for common use cases
+## Primary Path: Claude Code / Codex CLI
 
-## Reference
+1. [Harness Quickstart](HARNESS-QUICKSTART.md) — primary path for skills,
+   flows, and harness scripts
+2. [Configuration](CONFIGURATION.md) — defaults, providers, and
+   data-driven resources
+3. [Examples](EXAMPLES.md) — workflows and example outputs
 
-- [CLI Usage](CLI.md) — all commands and flags
-- [Configuration](CONFIGURATION.md) — config files, defaults, data-driven resources
+## Compatibility Path: legacy CLI
+
+- [Legacy CLI Quickstart](QUICKSTART.md) — old `cm`-first onboarding path
+- [CLI Compatibility Reference](CLI.md) — compatibility reference for `cm`
+
+## Shared Reference
+
 - [Providers: Google Gemini](providers/gemini.md) — using Gemini as your LLM + visual provider
 
 ## Generated References

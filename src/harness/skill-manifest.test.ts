@@ -8,6 +8,7 @@ const repoRoot = process.cwd();
 describe('parseSkillManifest', () => {
   it('parses the starter skill manifests', async () => {
     const skills = [
+      'skills/doctor-report/SKILL.md',
       'skills/generate-short/SKILL.md',
       'skills/skill-catalog/SKILL.md',
       'skills/brief-to-script/SKILL.md',

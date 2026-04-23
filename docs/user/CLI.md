@@ -1,4 +1,10 @@
-# CLI Usage
+# CLI Compatibility Reference
+
+The `cm` CLI remains available as a compatibility and migration surface.
+It is no longer the primary repo interface.
+
+If you are working from Claude Code, Codex CLI, or another coding
+harness, start with [Harness Quickstart](HARNESS-QUICKSTART.md).
 
 Discover commands and options:
 
@@ -31,7 +37,7 @@ Utilities:
 - `cm research`
 - `cm init`
 
-Command references (dated):
+Command references (dated, compatibility path):
 
 - [`docs/reference/cm-generate-reference-20260106.md`](../reference/cm-generate-reference-20260106.md)
 - [`docs/reference/cm-script-reference-20260106.md`](../reference/cm-script-reference-20260106.md)

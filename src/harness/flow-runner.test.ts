@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { resolve } from 'node:path';
 
 const flowStageMocks = vi.hoisted(() => ({
   runGenerateShort: vi.fn(),
@@ -16,6 +17,8 @@ vi.mock('./ingest', () => ({
 import { runFlowFromManifest } from './flow-runner';
 
 describe('runFlowFromManifest', () => {
+  const repoRoot = process.cwd();
+
   beforeEach(() => {
     Object.values(flowStageMocks).forEach((mock) => mock.mockReset());
   });
@@ -47,17 +50,15 @@ describe('runFlowFromManifest', () => {
     expect(flowStageMocks.runGenerateShort).toHaveBeenCalledWith(
       expect.objectContaining({
         topic: 'Redis vs PostgreSQL',
-        outputDir: '/home/calvin/Documents/GitHub/content-machine/runs/run-123',
+        outputDir: resolve(repoRoot, 'runs/run-123'),
       })
     );
     expect(result.result.flow).toBe('generate-short');
-    expect(result.result.outputDir).toBe(
-      '/home/calvin/Documents/GitHub/content-machine/runs/run-123'
-    );
+    expect(result.result.outputDir).toBe(resolve(repoRoot, 'runs/run-123'));
     expect(result.artifacts).toEqual(
       expect.arrayContaining([
         {
-          path: '/home/calvin/Documents/GitHub/content-machine/runs/run-123',
+          path: resolve(repoRoot, 'runs/run-123'),
           kind: 'directory',
           description: 'Flow output directory',
         },
@@ -80,7 +81,7 @@ describe('runFlowFromManifest', () => {
     expect(flowStageMocks.ingestReferenceVideo).toHaveBeenCalledWith(
       expect.objectContaining({
         videoPath: '/tmp/video.mp4',
-        outputDir: '/home/calvin/Documents/GitHub/content-machine/runs/winner-1/reverse-engineer',
+        outputDir: resolve(repoRoot, 'runs/winner-1/reverse-engineer'),
       })
     );
     expect(result.result.entrySkill).toBe('reverse-engineer-winner');

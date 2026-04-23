@@ -35,9 +35,9 @@ JSON
   <img src="assets/demo/demo-4-latest-news.gif" alt="Latest news demo" width="32%" />
 </p>
 
-> Early development. The preferred integration path is now skills plus
-> harness scripts; the legacy CLI remains available while the repo is
-> migrated toward the harness-first direction.
+> Early development. Skills, flows, and harness scripts are now the
+> primary interface. The `cm` CLI remains as a compatibility layer while
+> the repo is migrated toward the harness-first direction.
 
 > Start with [`skills/`](skills/README.md),
 > [`scripts/harness/`](scripts/harness/README.md),
@@ -49,39 +49,79 @@ JSON
 npm install
 ```
 
-### For Claude Code and Codex CLI
+Node.js 20+ is required.
 
-Use the repo-local skills and the JSON-stdio harness entrypoints:
+### Primary Path: Claude Code and Codex CLI
+
+Use these three surfaces together:
+
+- [`skills/`](skills/README.md): intent contracts for repo-local skills
+- [`flows/`](flows/README.md): orchestration contracts for multi-step runs
+- [`scripts/harness/`](scripts/harness/README.md): executable JSON-stdio entrypoints
+
+If you are deciding where to start:
+
+- Start with a skill when you want one capability.
+- Start with a flow when you want a full multi-step path.
+- Start with `scripts/harness/` only when you need the exact executable
+  entrypoint.
+
+Discover what is shipped:
 
 ```bash
+cat <<'JSON' | npx tsx scripts/harness/skill-catalog.ts
+{}
+JSON
+
+cat <<'JSON' | npx tsx scripts/harness/flow-catalog.ts
+{}
+JSON
+```
+
+Current harness entrypoints:
+
+```bash
+npx tsx scripts/harness/doctor-report.ts
 npx tsx scripts/harness/flow-catalog.ts
 npx tsx scripts/harness/run-flow.ts
 npx tsx scripts/harness/skill-catalog.ts
 npx tsx scripts/harness/generate-short.ts
 npx tsx scripts/harness/brief-to-script.ts
 npx tsx scripts/harness/ingest.ts
+npx tsx scripts/harness/script-to-audio.ts
+npx tsx scripts/harness/timestamps-to-visuals.ts
+npx tsx scripts/harness/video-render.ts
 npx tsx scripts/harness/publish-prep.ts
 ```
 
-Starter skills:
+Shipped starter skills:
 
+- [skills/doctor-report/SKILL.md](skills/doctor-report/SKILL.md)
 - [skills/skill-catalog/SKILL.md](skills/skill-catalog/SKILL.md)
 - [skills/generate-short/SKILL.md](skills/generate-short/SKILL.md)
 - [skills/brief-to-script/SKILL.md](skills/brief-to-script/SKILL.md)
 - [skills/reverse-engineer-winner/SKILL.md](skills/reverse-engineer-winner/SKILL.md)
+- [skills/script-to-audio/SKILL.md](skills/script-to-audio/SKILL.md)
+- [skills/timestamps-to-visuals/SKILL.md](skills/timestamps-to-visuals/SKILL.md)
+- [skills/video-render/SKILL.md](skills/video-render/SKILL.md)
 - [skills/publish-prep-review/SKILL.md](skills/publish-prep-review/SKILL.md)
 
-### For legacy CLI usage
+### Compatibility Path: legacy CLI
 
 ```bash
 npm run cm -- --help
 ```
 
-Requires Node.js >= 20. See [full installation guide](docs/user/INSTALLATION.md) for optional setup (Whisper, ffmpeg).
+Use the CLI for migration, old automation, or compatibility-only
+workflows. The primary docs path is now
+[docs/user/HARNESS-QUICKSTART.md](docs/user/HARNESS-QUICKSTART.md).
+
+See [full installation guide](docs/user/INSTALLATION.md) for optional
+setup such as Whisper and `ffmpeg`.
 
 ## Quick Start
 
-**1. Run the full generate-short flow**
+**1. Run the main end-to-end flow**
 
 ```bash
 cat <<'JSON' | npx tsx scripts/harness/run-flow.ts
@@ -120,50 +160,62 @@ cat skills/publish-prep-review/examples/request.json | \
   npx tsx scripts/harness/publish-prep.ts
 ```
 
-The existing CLI quickstart remains in [docs/user/QUICKSTART.md](docs/user/QUICKSTART.md).
-
-## What You Can Make
-
-| Archetype    | What it produces            | Example                                                |
-| ------------ | --------------------------- | ------------------------------------------------------ |
-| **listicle** | "5 things..." numbered tips | `cm generate "5 Docker tips" --archetype listicle`     |
-| **versus**   | Side-by-side comparison     | `cm generate "Redis vs Postgres" --archetype versus`   |
-| **howto**    | Step-by-step tutorial       | `cm generate "Deploy to AWS" --archetype howto`        |
-| **myth**     | Myth vs reality debunk      | `cm generate "JavaScript myths" --archetype myth`      |
-| **story**    | Narrative with a hook       | `cm generate "How Stripe was built" --archetype story` |
-| **hot-take** | Provocative opinion piece   | `cm generate "REST is dead" --archetype hot-take`      |
-
-More examples: [docs/user/EXAMPLES.md](docs/user/EXAMPLES.md)
-
-[![Gemini image-led short preview](assets/demo/demo-5-gemini-2026-feels-like-2016.gif)](docs/user/examples/gemini-image-shorts.md)
-
-## How It Works
-
-The legacy CLI pipeline still exists and remains the bridge to many
-runtime capabilities:
-
-```
-topic → script → audio + timestamps → visuals → video.mp4
-```
+**5. Run structured environment diagnostics**
 
 ```bash
-# Or run stages individually
-cm script  --topic "Redis vs PostgreSQL"       # LLM generates script
-cm audio   --input script.json                 # TTS + word-level timestamps
-cm visuals --input timestamps.json             # Stock footage matching
-cm render  --input visuals.json                # Remotion renders MP4
+cat skills/doctor-report/examples/request.json | \
+  npx tsx scripts/harness/doctor-report.ts
 ```
+
+The primary user guide is now
+[docs/user/HARNESS-QUICKSTART.md](docs/user/HARNESS-QUICKSTART.md). The
+legacy CLI quickstart remains in
+[docs/user/QUICKSTART.md](docs/user/QUICKSTART.md).
+
+## How The Repo Is Shaped
+
+- `skills/` defines when to use a capability, what it expects, and what
+  artifacts it should return.
+- `flows/` defines multi-step orchestration over one or more skills.
+- `scripts/harness/` exposes deterministic JSON-stdio entrypoints that
+  execute the work.
+- `src/` still contains the small TypeScript kernel for media logic,
+  captions, sync, reverse-engineering, and artifact contracts.
+- `docs/direction/` is the source of truth for the migration plan and
+  cut lines.
+
+Typical artifact flow:
+
+```text
+skill request
+  -> flow or direct harness script
+  -> typed artifacts on disk
+  -> optional render / review / evaluation outputs
+```
+
+Run-scoped flows write under `runs/<run-id>/` by default. Direct skills
+can also write to explicit output paths.
+
+## What You Can Do
+
+- Generate a short-form video artifact chain from a topic.
+- Reverse-engineer a winning reference short into structured artifacts.
+- Generate only scripts, audio, visuals, or renders when needed.
+- Run structured diagnostics before expensive generation work.
+- Keep the legacy CLI around for migration and compatibility.
 
 ![Pipeline overview](assets/demo/pipeline-preview.svg)
 
 ## Documentation
 
-- **[skills/](skills/README.md)** — starter harness skills for Claude Code and Codex CLI
-- **[scripts/harness/](scripts/harness/README.md)** — JSON-stdio deterministic entrypoints
-- **[flows/](flows/README.md)** — executable and planned flow docs for agent-driven orchestration
-- **[User Guide](docs/user/README.md)** — installation, configuration, CLI reference, examples
-- **[Developer Docs](docs/dev/README.md)** — architecture, contributing guides, specs
-- **[Reference](docs/reference/)** — generated CLI references, environment variables, glossary
+- **[Harness Quickstart](docs/user/HARNESS-QUICKSTART.md)** — primary user path for Claude Code and Codex CLI
+- **[skills/](skills/README.md)** — harness-facing skill contracts
+- **[flows/](flows/README.md)** — orchestration contracts and executable flows
+- **[scripts/harness/](scripts/harness/README.md)** — JSON-stdio entrypoints and execution model
+- **[Direction](DIRECTION.md)** — migration plan, cut lines, and archive policy
+- **[User Guide](docs/user/README.md)** — harness-first user docs plus CLI compatibility docs
+- **[Developer Docs](docs/dev/README.md)** — active architecture, registries, and legacy engineering docs
+- **[Reference](docs/reference/)** — generated references, environment variables, glossary, and CLI contracts
 
 ## Contributing
 
@@ -172,7 +224,7 @@ Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
 ```bash
 git clone https://github.com/45ck/content-machine.git
 cd content-machine && npm install && cp .env.example .env
-npm run cm -- --help
+npx tsx scripts/harness/skill-catalog.ts
 ```
 
 ## License

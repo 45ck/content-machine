@@ -1,5 +1,6 @@
 import { join, resolve } from 'node:path';
 import { z } from 'zod';
+import { runDoctorReport, type DoctorReportRequest } from './doctor-report';
 import { runGenerateShort, type GenerateShortRequest } from './generate-short';
 import { loadFlowManifest } from './flow-manifest';
 import { ingestReferenceVideo, type IngestRequest } from './ingest';
@@ -10,13 +11,14 @@ import {
   type HarnessToolResult,
 } from './json-stdio';
 
-type SupportedFlowInput = GenerateShortRequest | IngestRequest;
+type SupportedFlowInput = DoctorReportRequest | GenerateShortRequest | IngestRequest;
 
 type FlowHandler = (
   input: SupportedFlowInput
 ) => Promise<HarnessToolResult<Record<string, unknown>> | HarnessToolResult<unknown>>;
 
 const flowRegistry: Record<string, FlowHandler> = {
+  'doctor-report': async (input) => runDoctorReport(input as DoctorReportRequest),
   'generate-short': async (input) => runGenerateShort(input as GenerateShortRequest),
   'reverse-engineer-winner': async (input) => ingestReferenceVideo(input as IngestRequest),
 };

@@ -3,6 +3,12 @@
 This directory holds harness-consumable flow specs and executable
 `.flow` manifests that orchestrate skills.
 
+Role split:
+
+- `skills/` = intent contract
+- `flows/` = orchestration contract
+- `scripts/harness/` = executable JSON-stdio surface
+
 ## Purpose
 
 - Give Claude Code, Codex CLI, and similar harnesses a stable place to
@@ -40,7 +46,7 @@ outputs from the doc, the flow is under-specified.
 ## Authoring rules
 
 - Keep the canonical human-readable contract in markdown next to the
-  future executable flow.
+  executable flow.
 - Use the vocabulary from
   [`docs/direction/05-flow-catalog.md`](../docs/direction/05-flow-catalog.md).
 - Avoid embedding literal prompt-language DSL in prose docs. Use plain
@@ -65,6 +71,7 @@ Use [`_template/FLOW.md`](_template/FLOW.md) as the starting point.
 
 ## Current Flow Docs
 
+- [`doctor.md`](doctor.md) — structured diagnostics path
 - [`generate-short.md`](generate-short.md) — default harness-oriented
   topic-to-video path
 - [`reverse-engineer-winner.md`](reverse-engineer-winner.md) — reference
@@ -72,6 +79,7 @@ Use [`_template/FLOW.md`](_template/FLOW.md) as the starting point.
 
 ## Current Executable Flows
 
+- [`doctor.flow`](doctor.flow) — run the structured diagnostics path
 - [`generate-short.flow`](generate-short.flow) — run the end-to-end
   skills-first topic-to-video path
 - [`reverse-engineer-winner.flow`](reverse-engineer-winner.flow) — run
@@ -89,3 +97,4 @@ npx tsx scripts/harness/run-flow.ts
 - [DIRECTION.md](../DIRECTION.md)
 - [docs/direction/05-flow-catalog.md](../docs/direction/05-flow-catalog.md)
 - [docs/direction/01-boundaries.md](../docs/direction/01-boundaries.md)
+- [scripts/harness/README.md](../scripts/harness/README.md)
