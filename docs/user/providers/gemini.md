@@ -31,7 +31,7 @@ model = "gemini-2.0-flash"
 Then run:
 
 ```bash
-cat <<'JSON' | npx tsx scripts/harness/brief-to-script.ts
+cat <<'JSON' | node --import tsx scripts/harness/brief-to-script.ts
 {
   "topic": "Redis vs PostgreSQL for caching",
   "archetype": "versus"
@@ -42,7 +42,7 @@ JSON
 Or end-to-end:
 
 ```bash
-cat <<'JSON' | npx tsx scripts/harness/run-flow.ts
+cat <<'JSON' | node --import tsx scripts/harness/run-flow.ts
 {
   "flow": "generate-short",
   "runId": "gemini-demo",

@@ -7,7 +7,7 @@ allowedTools:
   - write
 model: inherit
 argumentHint: '{"timestampsPath":"output/harness/audio/timestamps.json","outputPath":"output/harness/visuals/visuals.json","provider":"pexels","orientation":"portrait"}'
-entrypoint: npx tsx scripts/harness/timestamps-to-visuals.ts
+entrypoint: node --import tsx scripts/harness/timestamps-to-visuals.ts
 inputs:
   - name: timestampsPath
     description: Timestamps artifact that defines scene and word timing.
@@ -44,7 +44,7 @@ outputs:
 
 ```bash
 cat skills/timestamps-to-visuals/examples/request.json | \
-  npx tsx scripts/harness/timestamps-to-visuals.ts
+  node --import tsx scripts/harness/timestamps-to-visuals.ts
 ```
 
 ## Artifact Contract

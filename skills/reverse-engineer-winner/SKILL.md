@@ -7,7 +7,7 @@ allowedTools:
   - write
 model: inherit
 argumentHint: '{"videoPath":"input/reference.mp4","outputDir":"output/harness/ingest"}'
-entrypoint: npx tsx scripts/harness/ingest.ts
+entrypoint: node --import tsx scripts/harness/ingest.ts
 inputs:
   - name: videoPath
     description: Local video path or supported URL to reverse-engineer.
@@ -41,7 +41,7 @@ outputs:
 
 ```bash
 cat skills/reverse-engineer-winner/examples/request.json | \
-  npx tsx scripts/harness/ingest.ts
+  node --import tsx scripts/harness/ingest.ts
 ```
 
 ## Artifact Contract

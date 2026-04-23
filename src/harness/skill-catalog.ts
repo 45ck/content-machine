@@ -1,5 +1,5 @@
 import { access, readdir } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { z } from 'zod';
 import { artifactDirectory, type HarnessToolResult } from './json-stdio';
 import { loadSkillManifest } from './skill-manifest';
@@ -23,6 +23,20 @@ async function pathExists(path: string): Promise<boolean> {
   }
 }
 
+async function resolveSkillsDir(input: string): Promise<string> {
+  if (isAbsolute(input)) return input;
+
+  let currentDir = process.cwd();
+  while (true) {
+    const candidate = resolve(currentDir, input);
+    if (await pathExists(candidate)) return candidate;
+
+    const parentDir = dirname(currentDir);
+    if (parentDir === currentDir) return resolve(input);
+    currentDir = parentDir;
+  }
+}
+
 /** Enumerate shipped skill manifests for harness-side discovery. */
 export async function listSkillCatalog(request: SkillCatalogRequest): Promise<
   HarnessToolResult<{
@@ -41,7 +55,7 @@ export async function listSkillCatalog(request: SkillCatalogRequest): Promise<
   }>
 > {
   const normalized = SkillCatalogRequestSchema.parse(request);
-  const skillsDir = resolve(normalized.skillsDir);
+  const skillsDir = await resolveSkillsDir(normalized.skillsDir);
   const entries = await readdir(skillsDir, { withFileTypes: true });
 
   const skills = await Promise.all(

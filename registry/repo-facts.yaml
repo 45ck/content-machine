@@ -58,7 +58,7 @@ conventions:
 facts:
   runtime:
     node:
-      supported: '>=20'
+      supported: '>=20.6.0'
       packageManager: 'npm'
     language:
       primary: 'TypeScript'

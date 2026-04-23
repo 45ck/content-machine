@@ -7,7 +7,7 @@ allowedTools:
   - write
 model: inherit
 argumentHint: '{"videoPath":"output/video.mp4","scriptPath":"output/script.json","outputDir":"output/harness/publish-prep","platform":"tiktok"}'
-entrypoint: npx tsx scripts/harness/publish-prep.ts
+entrypoint: node --import tsx scripts/harness/publish-prep.ts
 inputs:
   - name: videoPath
     description: Rendered MP4 to validate.
@@ -40,7 +40,7 @@ outputs:
 
 ```bash
 cat skills/publish-prep-review/examples/request.json | \
-  npx tsx scripts/harness/publish-prep.ts
+  node --import tsx scripts/harness/publish-prep.ts
 ```
 
 ## Artifact Contract

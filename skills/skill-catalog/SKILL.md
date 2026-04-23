@@ -6,7 +6,7 @@ allowedTools:
   - read
 model: inherit
 argumentHint: '{"skillsDir":"skills","includeExamples":true}'
-entrypoint: npx tsx scripts/harness/skill-catalog.ts
+entrypoint: node --import tsx scripts/harness/skill-catalog.ts
 inputs:
   - name: skillsDir
     description: Root skills directory to scan for SKILL.md manifests.
@@ -33,7 +33,7 @@ outputs:
 
 ```bash
 cat skills/skill-catalog/examples/request.json | \
-  npx tsx scripts/harness/skill-catalog.ts
+  node --import tsx scripts/harness/skill-catalog.ts
 ```
 
 ## Artifact Contract

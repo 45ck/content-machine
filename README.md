@@ -19,7 +19,7 @@ toward repo-local skills, typed artifacts, and deterministic runtime
 surfaces that coding harnesses can call directly.
 
 ```bash
-cat <<'JSON' | npx tsx scripts/harness/brief-to-script.ts
+cat <<'JSON' | node --import tsx scripts/harness/brief-to-script.ts
 {
   "topic": "Redis vs PostgreSQL for caching",
   "archetype": "versus",
@@ -50,7 +50,7 @@ JSON
 npm install
 ```
 
-Node.js 20+ is required.
+Node.js 20.6+ is required.
 
 ### Primary Path: Claude Code and Codex CLI
 
@@ -70,11 +70,11 @@ If you are deciding where to start:
 Discover what is shipped:
 
 ```bash
-cat <<'JSON' | npx tsx scripts/harness/skill-catalog.ts
+cat <<'JSON' | node --import tsx scripts/harness/skill-catalog.ts
 {}
 JSON
 
-cat <<'JSON' | npx tsx scripts/harness/flow-catalog.ts
+cat <<'JSON' | node --import tsx scripts/harness/flow-catalog.ts
 {}
 JSON
 ```
@@ -82,17 +82,17 @@ JSON
 Current harness entrypoints:
 
 ```bash
-npx tsx scripts/harness/doctor-report.ts
-npx tsx scripts/harness/flow-catalog.ts
-npx tsx scripts/harness/run-flow.ts
-npx tsx scripts/harness/skill-catalog.ts
-npx tsx scripts/harness/generate-short.ts
-npx tsx scripts/harness/brief-to-script.ts
-npx tsx scripts/harness/ingest.ts
-npx tsx scripts/harness/script-to-audio.ts
-npx tsx scripts/harness/timestamps-to-visuals.ts
-npx tsx scripts/harness/video-render.ts
-npx tsx scripts/harness/publish-prep.ts
+node --import tsx scripts/harness/doctor-report.ts
+node --import tsx scripts/harness/flow-catalog.ts
+node --import tsx scripts/harness/run-flow.ts
+node --import tsx scripts/harness/skill-catalog.ts
+node --import tsx scripts/harness/generate-short.ts
+node --import tsx scripts/harness/brief-to-script.ts
+node --import tsx scripts/harness/ingest.ts
+node --import tsx scripts/harness/script-to-audio.ts
+node --import tsx scripts/harness/timestamps-to-visuals.ts
+node --import tsx scripts/harness/video-render.ts
+node --import tsx scripts/harness/publish-prep.ts
 ```
 
 Shipped starter skills:
@@ -124,7 +124,7 @@ setup such as Whisper and `ffmpeg`.
 **1. Run the main end-to-end flow**
 
 ```bash
-cat <<'JSON' | npx tsx scripts/harness/run-flow.ts
+cat <<'JSON' | node --import tsx scripts/harness/run-flow.ts
 {
   "flow": "generate-short",
   "runId": "demo-run",
@@ -143,28 +143,28 @@ JSON
 
 ```bash
 cat skills/reverse-engineer-winner/examples/request.json | \
-  npx tsx scripts/harness/ingest.ts
+  node --import tsx scripts/harness/ingest.ts
 ```
 
 **3. Generate a script artifact**
 
 ```bash
 cat skills/brief-to-script/examples/request.json | \
-  npx tsx scripts/harness/brief-to-script.ts
+  node --import tsx scripts/harness/brief-to-script.ts
 ```
 
 **4. Review a render before upload**
 
 ```bash
 cat skills/publish-prep-review/examples/request.json | \
-  npx tsx scripts/harness/publish-prep.ts
+  node --import tsx scripts/harness/publish-prep.ts
 ```
 
 **5. Run structured environment diagnostics**
 
 ```bash
 cat skills/doctor-report/examples/request.json | \
-  npx tsx scripts/harness/doctor-report.ts
+  node --import tsx scripts/harness/doctor-report.ts
 ```
 
 The primary user guide is now
@@ -225,7 +225,7 @@ Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) to get started.
 ```bash
 git clone https://github.com/45ck/content-machine.git
 cd content-machine && npm install && cp .env.example .env
-npx tsx scripts/harness/skill-catalog.ts
+node --import tsx scripts/harness/skill-catalog.ts
 ```
 
 ## License

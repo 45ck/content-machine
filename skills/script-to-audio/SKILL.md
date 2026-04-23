@@ -7,7 +7,7 @@ allowedTools:
   - write
 model: inherit
 argumentHint: '{"scriptPath":"output/harness/script/script.json","outputDir":"output/harness/audio","voice":"af_heart","ttsSpeed":1,"outputMetadataPath":"output/harness/audio/audio.json"}'
-entrypoint: npx tsx scripts/harness/script-to-audio.ts
+entrypoint: node --import tsx scripts/harness/script-to-audio.ts
 inputs:
   - name: scriptPath
     description: ScriptOutput artifact to synthesize and align.
@@ -45,7 +45,7 @@ outputs:
 
 ```bash
 cat skills/script-to-audio/examples/request.json | \
-  npx tsx scripts/harness/script-to-audio.ts
+  node --import tsx scripts/harness/script-to-audio.ts
 ```
 
 ## Artifact Contract

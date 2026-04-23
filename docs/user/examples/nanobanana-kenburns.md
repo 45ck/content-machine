@@ -24,7 +24,7 @@ motion_strategy = "kenburns"
 ## Run
 
 ```bash
-cat <<'JSON' | npx tsx scripts/harness/run-flow.ts
+cat <<'JSON' | node --import tsx scripts/harness/run-flow.ts
 {
   "flow": "generate-short",
   "runId": "nanobanana-kenburns",

@@ -88,8 +88,8 @@ Use [`_template/FLOW.md`](_template/FLOW.md) as the starting point.
 Use the harness helpers to enumerate or execute them:
 
 ```bash
-npx tsx scripts/harness/flow-catalog.ts
-npx tsx scripts/harness/run-flow.ts
+node --import tsx scripts/harness/flow-catalog.ts
+node --import tsx scripts/harness/run-flow.ts
 ```
 
 ## Related docs

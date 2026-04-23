@@ -38,17 +38,17 @@
     "build:types": "tsc -p tsconfig.build.json --emitDeclarationOnly",
     "dev": "tsx watch src/cli/index.ts",
     "cm": "tsx src/cli/index.ts",
-    "harness:doctor-report": "tsx scripts/harness/doctor-report.ts",
-    "harness:flow-catalog": "tsx scripts/harness/flow-catalog.ts",
-    "harness:run-flow": "tsx scripts/harness/run-flow.ts",
-    "harness:skill-catalog": "tsx scripts/harness/skill-catalog.ts",
-    "harness:generate-short": "tsx scripts/harness/generate-short.ts",
-    "harness:brief-to-script": "tsx scripts/harness/brief-to-script.ts",
-    "harness:ingest": "tsx scripts/harness/ingest.ts",
-    "harness:script-to-audio": "tsx scripts/harness/script-to-audio.ts",
-    "harness:timestamps-to-visuals": "tsx scripts/harness/timestamps-to-visuals.ts",
-    "harness:video-render": "tsx scripts/harness/video-render.ts",
-    "harness:publish-prep": "tsx scripts/harness/publish-prep.ts",
+    "harness:doctor-report": "node --import tsx scripts/harness/doctor-report.ts",
+    "harness:flow-catalog": "node --import tsx scripts/harness/flow-catalog.ts",
+    "harness:run-flow": "node --import tsx scripts/harness/run-flow.ts",
+    "harness:skill-catalog": "node --import tsx scripts/harness/skill-catalog.ts",
+    "harness:generate-short": "node --import tsx scripts/harness/generate-short.ts",
+    "harness:brief-to-script": "node --import tsx scripts/harness/brief-to-script.ts",
+    "harness:ingest": "node --import tsx scripts/harness/ingest.ts",
+    "harness:script-to-audio": "node --import tsx scripts/harness/script-to-audio.ts",
+    "harness:timestamps-to-visuals": "node --import tsx scripts/harness/timestamps-to-visuals.ts",
+    "harness:video-render": "node --import tsx scripts/harness/video-render.ts",
+    "harness:publish-prep": "node --import tsx scripts/harness/publish-prep.ts",
     "review:latest": "node scripts/review-latest.mjs",
     "glossary:gen": "node scripts/gen-glossary.mjs",
     "glossary:check": "node scripts/quality/check-ubiquitous-language.mjs",
@@ -165,7 +165,7 @@
     "vitest": "^2.0.0"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=20.6.0"
   },
   "packageManager": "npm@10.8.2",
   "repository": {

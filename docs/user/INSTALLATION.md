@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-- **Node.js 20 or later** — check with `node --version`
+- **Node.js 20.6 or later** — check with `node --version`
   - Install via [nvm](https://github.com/nvm-sh/nvm) (recommended) or [nodejs.org](https://nodejs.org/)
 - **API keys** — you'll need at least an OpenAI key and a stock footage key to generate real videos (see [API Keys](#api-keys) below)
 
@@ -17,7 +17,7 @@ npm install
 Verify the primary surfaces:
 
 ```bash
-cat <<'JSON' | npx tsx scripts/harness/skill-catalog.ts
+cat <<'JSON' | node --import tsx scripts/harness/skill-catalog.ts
 {}
 JSON
 ```

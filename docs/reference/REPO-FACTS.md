@@ -14,7 +14,7 @@ See also (generated):
 
 ## Runtime
 
-- Node: >=20
+- Node: >=20.6.0
 - Package manager: npm
 - Primary language: TypeScript
 

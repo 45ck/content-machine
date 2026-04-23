@@ -11,10 +11,10 @@ Role split:
 
 Each script reads JSON from stdin and writes a single JSON response to
 stdout. The reusable logic lives under `src/harness/`; these files are
-thin launchers so the harness can run them with `tsx`:
+thin launchers so the harness can run them with Node's `tsx` loader:
 
 ```bash
-npx tsx scripts/harness/ingest.ts < request.json
+node --import tsx scripts/harness/ingest.ts < request.json
 ```
 
 When to use which entrypoint:

@@ -14,7 +14,7 @@ mkdir -p ~/.cm/assets/gameplay/subway-surfers
 cp /path/to/subway.mp4 ~/.cm/assets/gameplay/subway-surfers/
 
 # 2) Generate script
-cat <<'JSON' | npx tsx scripts/harness/brief-to-script.ts
+cat <<'JSON' | node --import tsx scripts/harness/brief-to-script.ts
 {
   "topic": "Redis vs PostgreSQL for caching",
   "archetype": "versus",
@@ -23,7 +23,7 @@ cat <<'JSON' | npx tsx scripts/harness/brief-to-script.ts
 JSON
 
 # 3) Generate audio + timestamps
-cat <<'JSON' | npx tsx scripts/harness/script-to-audio.ts
+cat <<'JSON' | node --import tsx scripts/harness/script-to-audio.ts
 {
   "scriptPath": "output/script.json",
   "audioOutputPath": "output/audio.wav",
@@ -33,7 +33,7 @@ cat <<'JSON' | npx tsx scripts/harness/script-to-audio.ts
 JSON
 
 # 4) Match Pexels visuals + gameplay
-cat <<'JSON' | npx tsx scripts/harness/timestamps-to-visuals.ts
+cat <<'JSON' | node --import tsx scripts/harness/timestamps-to-visuals.ts
 {
   "timestampsPath": "output/timestamps.json",
   "provider": "pexels",
@@ -44,7 +44,7 @@ cat <<'JSON' | npx tsx scripts/harness/timestamps-to-visuals.ts
 JSON
 
 # 5) Render split-screen (gameplay on top, Pexels on bottom)
-cat <<'JSON' | npx tsx scripts/harness/video-render.ts
+cat <<'JSON' | node --import tsx scripts/harness/video-render.ts
 {
   "visualsPath": "output/demo-subway-pexels/visuals.json",
   "timestampsPath": "output/timestamps.json",

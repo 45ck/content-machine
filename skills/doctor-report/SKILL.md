@@ -7,7 +7,7 @@ allowedTools:
   - write
 model: inherit
 argumentHint: '{"strict":false,"outputPath":"output/harness/doctor/doctor.json"}'
-entrypoint: npx tsx scripts/harness/doctor-report.ts
+entrypoint: node --import tsx scripts/harness/doctor-report.ts
 inputs:
   - name: strict
     description: Fail warnings as well as hard errors.
@@ -33,7 +33,7 @@ outputs:
 ## Invocation
 
 ```bash
-cat <<'JSON' | npx tsx scripts/harness/doctor-report.ts
+cat <<'JSON' | node --import tsx scripts/harness/doctor-report.ts
 {
   "strict": false,
   "outputPath": "output/harness/doctor/doctor.json"

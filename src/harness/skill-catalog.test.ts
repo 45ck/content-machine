@@ -6,6 +6,7 @@ import { rm } from 'node:fs/promises';
 import { listSkillCatalog } from './skill-catalog';
 
 const tempDirs: string[] = [];
+const originalCwd = process.cwd();
 
 async function makeTempDir(): Promise<string> {
   const dir = await mkdtemp(join(tmpdir(), 'cm-skill-catalog-'));
@@ -26,7 +27,7 @@ allowedTools:
   - read
 model: inherit
 argumentHint: '{"topic":"example"}'
-entrypoint: npx tsx scripts/harness/${id}.ts
+entrypoint: node --import tsx scripts/harness/${id}.ts
 inputs:
   - name: topic
     description: topic
@@ -47,6 +48,7 @@ outputs:
 }
 
 afterEach(async () => {
+  process.chdir(originalCwd);
   await Promise.all(tempDirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true })));
 });
 
@@ -73,5 +75,23 @@ describe('listSkillCatalog', () => {
         description: 'Skill catalog root directory',
       },
     ]);
+  });
+
+  it('finds the repo-local skills directory from a nested working directory', async () => {
+    const dir = await makeTempDir();
+    const skillsDir = join(dir, 'skills');
+    const nestedDir = join(dir, 'experiments', 'nested');
+
+    await mkdir(skillsDir, { recursive: true });
+    await mkdir(nestedDir, { recursive: true });
+    await writeSkill(skillsDir, 'alpha-skill');
+
+    process.chdir(nestedDir);
+
+    const result = await listSkillCatalog({ skillsDir: 'skills' });
+
+    expect(result.result.skillsDir).toBe(skillsDir);
+    expect(result.result.skillCount).toBe(1);
+    expect(result.result.skills.map((skill) => skill.name)).toEqual(['alpha-skill']);
   });
 });

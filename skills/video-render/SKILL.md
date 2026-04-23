@@ -7,7 +7,7 @@ allowedTools:
   - write
 model: inherit
 argumentHint: '{"visualsPath":"output/visuals.json","timestampsPath":"output/timestamps.json","audioPath":"output/audio.wav","outputPath":"output/harness/render/video.mp4","orientation":"portrait","fps":30,"downloadAssets":true,"outputMetadataPath":"output/harness/render/render.json"}'
-entrypoint: npx tsx scripts/harness/video-render.ts
+entrypoint: node --import tsx scripts/harness/video-render.ts
 inputs:
   - name: visualsPath
     description: Visuals artifact JSON from the visuals stage.
@@ -46,7 +46,7 @@ outputs:
 
 ```bash
 cat skills/video-render/examples/request.json | \
-  npx tsx scripts/harness/video-render.ts
+  node --import tsx scripts/harness/video-render.ts
 ```
 
 ## Artifact Contract

@@ -5,7 +5,7 @@
 ### Listicle from a trending topic
 
 ```bash
-cat <<'JSON' | npx tsx scripts/harness/brief-to-script.ts
+cat <<'JSON' | node --import tsx scripts/harness/brief-to-script.ts
 {
   "topic": "5 things every dev should know about Docker",
   "archetype": "listicle",
@@ -17,7 +17,7 @@ JSON
 ### Side-by-side comparison
 
 ```bash
-cat <<'JSON' | npx tsx scripts/harness/run-flow.ts
+cat <<'JSON' | node --import tsx scripts/harness/run-flow.ts
 {
   "flow": "generate-short",
   "runId": "redis-vs-pg",
@@ -35,7 +35,7 @@ JSON
 
 ```bash
 cat skills/reverse-engineer-winner/examples/request.json | \
-  npx tsx scripts/harness/ingest.ts
+  node --import tsx scripts/harness/ingest.ts
 ```
 
 ### AI-generated visuals (no stock footage)
@@ -43,7 +43,7 @@ cat skills/reverse-engineer-winner/examples/request.json | \
 Requires `GOOGLE_API_KEY` and NanoBanana config:
 
 ```bash
-cat <<'JSON' | npx tsx scripts/harness/run-flow.ts
+cat <<'JSON' | node --import tsx scripts/harness/run-flow.ts
 {
   "flow": "generate-short",
   "runId": "nanobanana",

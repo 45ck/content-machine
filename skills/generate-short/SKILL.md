@@ -7,7 +7,7 @@ allowedTools:
   - write
 model: inherit
 argumentHint: '{"topic":"Redis vs PostgreSQL for caching","archetype":"versus","outputDir":"output/harness/generate-short","audio":{"voice":"af_heart"},"visuals":{"provider":"pexels","orientation":"portrait"},"render":{"fps":30,"downloadAssets":true},"publishPrep":{"enabled":true,"platform":"tiktok"}}'
-entrypoint: npx tsx scripts/harness/generate-short.ts
+entrypoint: node --import tsx scripts/harness/generate-short.ts
 inputs:
   - name: topic
     description: Short brief or topic string to turn into a full artifact chain.
@@ -60,7 +60,7 @@ outputs:
 
 ```bash
 cat skills/generate-short/examples/request.json | \
-  npx tsx scripts/harness/generate-short.ts
+  node --import tsx scripts/harness/generate-short.ts
 ```
 
 ## Artifact Contract

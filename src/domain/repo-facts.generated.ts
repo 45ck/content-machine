@@ -230,7 +230,7 @@ export const CLI_ERROR_CONTRACT = {
 export const REPO_FACTS = {
   runtime: {
     node: {
-      supported: '>=20',
+      supported: '>=20.6.0',
       packageManager: 'npm',
     },
     language: {

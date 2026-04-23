@@ -7,7 +7,7 @@ allowedTools:
   - write
 model: inherit
 argumentHint: '{"topic":"Redis vs PostgreSQL for caching","archetype":"versus","targetDuration":35,"outputPath":"output/harness/script/script.json"}'
-entrypoint: npx tsx scripts/harness/brief-to-script.ts
+entrypoint: node --import tsx scripts/harness/brief-to-script.ts
 inputs:
   - name: topic
     description: Short brief or topic string to turn into a script.
@@ -38,7 +38,7 @@ outputs:
 Pipe JSON to the harness entrypoint:
 
 ```bash
-cat <<'JSON' | npx tsx scripts/harness/brief-to-script.ts
+cat <<'JSON' | node --import tsx scripts/harness/brief-to-script.ts
 {
   "topic": "Redis vs PostgreSQL for caching",
   "archetype": "versus",

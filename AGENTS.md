@@ -27,14 +27,14 @@ to `src/cli/`.
 ## Harness Entry Points
 
 ```
-npx tsx scripts/harness/doctor-report.ts
-npx tsx scripts/harness/flow-catalog.ts
-npx tsx scripts/harness/run-flow.ts
-npx tsx scripts/harness/skill-catalog.ts
-npx tsx scripts/harness/generate-short.ts
-npx tsx scripts/harness/brief-to-script.ts
-npx tsx scripts/harness/ingest.ts
-npx tsx scripts/harness/publish-prep.ts
+node --import tsx scripts/harness/doctor-report.ts
+node --import tsx scripts/harness/flow-catalog.ts
+node --import tsx scripts/harness/run-flow.ts
+node --import tsx scripts/harness/skill-catalog.ts
+node --import tsx scripts/harness/generate-short.ts
+node --import tsx scripts/harness/brief-to-script.ts
+node --import tsx scripts/harness/ingest.ts
+node --import tsx scripts/harness/publish-prep.ts
 ```
 
 Current starter skills:
@@ -107,7 +107,7 @@ src/
 
 | Category   | Technology                                |
 | ---------- | ----------------------------------------- |
-| Language   | TypeScript 5.x, Node.js >= 20             |
+| Language   | TypeScript 5.x, Node.js >= 20.6           |
 | CLI        | Commander.js                              |
 | LLM        | OpenAI, Anthropic, Google Gemini          |
 | TTS        | kokoro-js (local, free)                   |
@@ -162,7 +162,7 @@ Update workflow: edit the YAML, then run `npm run repo-facts:gen` or `npm run gl
 ```bash
 git clone https://github.com/45ck/content-machine.git
 cd content-machine && npm install && cp .env.example .env
-npx tsx scripts/harness/ingest.ts   # Run a harness script from source
+node --import tsx scripts/harness/ingest.ts   # Run a harness script from source
 npm run cm -- --help                # Run legacy CLI from source
 npm test                     # Watch mode
 npm run quality              # All checks

@@ -24,14 +24,14 @@ when you want a multi-step path.
 npm install
 ```
 
-Node.js 20+ is required.
+Node.js 20.6+ is required.
 
 ## Step 2: Discover what is shipped
 
 List the repo-local skills:
 
 ```bash
-cat <<'JSON' | npx tsx scripts/harness/skill-catalog.ts
+cat <<'JSON' | node --import tsx scripts/harness/skill-catalog.ts
 {}
 JSON
 ```
@@ -39,7 +39,7 @@ JSON
 List the repo-local flows:
 
 ```bash
-cat <<'JSON' | npx tsx scripts/harness/flow-catalog.ts
+cat <<'JSON' | node --import tsx scripts/harness/flow-catalog.ts
 {}
 JSON
 ```
@@ -49,7 +49,7 @@ JSON
 `generate-short` is the default multi-step path:
 
 ```bash
-cat <<'JSON' | npx tsx scripts/harness/run-flow.ts
+cat <<'JSON' | node --import tsx scripts/harness/run-flow.ts
 {
   "flow": "generate-short",
   "runId": "demo-run",
@@ -72,21 +72,21 @@ Generate only a script artifact:
 
 ```bash
 cat skills/brief-to-script/examples/request.json | \
-  npx tsx scripts/harness/brief-to-script.ts
+  node --import tsx scripts/harness/brief-to-script.ts
 ```
 
 Reverse-engineer a reference short:
 
 ```bash
 cat skills/reverse-engineer-winner/examples/request.json | \
-  npx tsx scripts/harness/ingest.ts
+  node --import tsx scripts/harness/ingest.ts
 ```
 
 Run structured diagnostics:
 
 ```bash
 cat skills/doctor-report/examples/request.json | \
-  npx tsx scripts/harness/doctor-report.ts
+  node --import tsx scripts/harness/doctor-report.ts
 ```
 
 ## Step 5: Read the contract next to the surface

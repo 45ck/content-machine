@@ -9,27 +9,43 @@ import { createRequireSafe } from '../require';
 
 const execFileAsync = promisify(execFile);
 
-function parseNodeMajor(version: string): number | null {
-  const match = String(version)
-    .trim()
-    .match(/^(\d+)\./);
-  if (!match) return null;
-  const n = Number.parseInt(match[1], 10);
-  return Number.isFinite(n) ? n : null;
+interface NodeVersionParts {
+  major: number;
+  minor: number;
+  patch: number;
 }
 
-function resolveRecommendedNodeMajor(): number | null {
+function parseNodeVersionParts(version: string): NodeVersionParts | null {
+  const match = String(version)
+    .trim()
+    .match(/^v?(\d+)(?:\.(\d+))?(?:\.(\d+))?/);
+  if (!match) return null;
+
+  const major = Number.parseInt(match[1] ?? '', 10);
+  const minor = Number.parseInt(match[2] ?? '0', 10);
+  const patch = Number.parseInt(match[3] ?? '0', 10);
+  if (![major, minor, patch].every(Number.isFinite)) return null;
+
+  return { major, minor, patch };
+}
+
+function compareNodeVersions(a: NodeVersionParts, b: NodeVersionParts): number {
+  if (a.major !== b.major) return a.major - b.major;
+  if (a.minor !== b.minor) return a.minor - b.minor;
+  return a.patch - b.patch;
+}
+
+function formatNodeVersion(parts: NodeVersionParts): string {
+  return `${parts.major}.${parts.minor}.${parts.patch}`;
+}
+
+function resolveRecommendedNodeVersion(): NodeVersionParts | null {
   try {
     const require = createRequireSafe(import.meta.url);
     const pkg = require('../../../package.json') as { engines?: { node?: string } };
     const raw = pkg.engines?.node;
     if (!raw) return null;
-    const match = String(raw)
-      .trim()
-      .match(/^>=\s*(\d+)/);
-    if (!match) return null;
-    const n = Number.parseInt(match[1], 10);
-    return Number.isFinite(n) ? n : null;
+    return parseNodeVersionParts(String(raw).replace(/^>=\s*/, ''));
   } catch {
     return null;
   }
@@ -72,25 +88,25 @@ export interface DoctorOptions {
 
 function buildNodeCheck(): DoctorCheck {
   const currentNode = process.versions.node;
-  const currentMajor = parseNodeMajor(currentNode);
-  const recommendedMajor = resolveRecommendedNodeMajor();
+  const currentVersion = parseNodeVersionParts(currentNode);
+  const recommendedVersion = resolveRecommendedNodeVersion();
 
   const needsUpgrade =
-    currentMajor != null &&
-    recommendedMajor != null &&
-    Number.isFinite(currentMajor) &&
-    currentMajor < recommendedMajor;
+    currentVersion != null &&
+    recommendedVersion != null &&
+    compareNodeVersions(currentVersion, recommendedVersion) < 0;
 
   if (!needsUpgrade) {
     return { id: 'node', label: 'Node.js', status: 'ok', detail: currentNode };
   }
 
+  const recommendedLabel = recommendedVersion ? formatNodeVersion(recommendedVersion) : currentNode;
   return {
     id: 'node',
     label: 'Node.js',
     status: 'warn',
-    detail: `${currentNode} (recommended >= ${recommendedMajor})`,
-    fix: `Install Node >= ${recommendedMajor} (recommended: use nvm and run \`nvm use\`)`,
+    detail: `${currentNode} (recommended >= ${recommendedLabel})`,
+    fix: `Install Node >= ${recommendedLabel} (recommended: use nvm and run \`nvm use\`)`,
     code: 'VERSION_MISMATCH',
   };
 }
