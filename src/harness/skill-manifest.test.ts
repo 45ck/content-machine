@@ -14,6 +14,7 @@ describe('parseSkillManifest', () => {
       'skills/brief-to-script/SKILL.md',
       'skills/reverse-engineer-winner/SKILL.md',
       'skills/script-to-audio/SKILL.md',
+      'skills/short-form-captions/SKILL.md',
       'skills/timestamps-to-visuals/SKILL.md',
       'skills/video-render/SKILL.md',
       'skills/publish-prep-review/SKILL.md',
@@ -23,8 +24,11 @@ describe('parseSkillManifest', () => {
       const markdown = await readFile(join(repoRoot, relativePath), 'utf8');
       const manifest = parseSkillManifest(markdown);
       expect(manifest.name.length).toBeGreaterThan(0);
-      expect(manifest.allowedTools.length).toBeGreaterThan(0);
-      expect(manifest.model).toBe('inherit');
+      expect(manifest.description.length).toBeGreaterThan(0);
+      expect(Array.isArray(manifest.allowedTools)).toBe(true);
+      if (manifest.model) {
+        expect(manifest.model).toBe('inherit');
+      }
     }
   });
 });

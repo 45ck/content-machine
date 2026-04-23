@@ -47,6 +47,21 @@ outputs:
   }
 }
 
+async function writeMinimalSkill(dir: string, id: string): Promise<void> {
+  const skillDir = join(dir, id);
+  await mkdir(skillDir, { recursive: true });
+  await writeFile(
+    join(skillDir, 'SKILL.md'),
+    `---
+name: ${id}
+description: ${id} description
+---
+
+# ${id}
+`
+  );
+}
+
 afterEach(async () => {
   process.chdir(originalCwd);
   await Promise.all(tempDirs.splice(0).map((dir) => rm(dir, { recursive: true, force: true })));
@@ -93,5 +108,20 @@ describe('listSkillCatalog', () => {
     expect(result.result.skillsDir).toBe(skillsDir);
     expect(result.result.skillCount).toBe(1);
     expect(result.result.skills.map((skill) => skill.name)).toEqual(['alpha-skill']);
+  });
+
+  it('accepts playbook-style skills without runtime metadata', async () => {
+    const dir = await makeTempDir();
+    await writeMinimalSkill(dir, 'caption-playbook');
+
+    const result = await listSkillCatalog({ skillsDir: dir });
+    const skill = result.result.skills[0];
+
+    expect(result.result.skillCount).toBe(1);
+    expect(skill?.name).toBe('caption-playbook');
+    expect(skill?.entrypoint).toBeNull();
+    expect(skill?.allowedTools).toEqual([]);
+    expect(skill?.inputs).toEqual([]);
+    expect(skill?.outputs).toEqual([]);
   });
 });

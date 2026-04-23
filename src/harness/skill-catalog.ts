@@ -45,7 +45,7 @@ export async function listSkillCatalog(request: SkillCatalogRequest): Promise<
     skills: Array<{
       name: string;
       description: string;
-      entrypoint: string;
+      entrypoint: string | null;
       manifestPath: string;
       exampleRequestPath: string | null;
       allowedTools: string[];
@@ -71,7 +71,7 @@ export async function listSkillCatalog(request: SkillCatalogRequest): Promise<
         return {
           name: manifest.name,
           description: manifest.description,
-          entrypoint: manifest.entrypoint,
+          entrypoint: manifest.entrypoint ?? null,
           manifestPath,
           exampleRequestPath:
             normalized.includeExamples && (await pathExists(exampleRequestPath))

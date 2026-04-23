@@ -6,10 +6,10 @@ export const SkillManifestSchema = z
   .object({
     name: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
     description: z.string().min(1).max(1024),
-    allowedTools: z.array(z.string().min(1)).min(1),
-    model: z.literal('inherit'),
-    argumentHint: z.string().min(1),
-    entrypoint: z.string().min(1),
+    allowedTools: z.array(z.string().min(1)).default([]),
+    model: z.literal('inherit').optional(),
+    argumentHint: z.string().min(1).optional(),
+    entrypoint: z.string().min(1).optional(),
     inputs: z
       .array(
         z
