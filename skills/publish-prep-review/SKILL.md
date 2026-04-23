@@ -51,6 +51,9 @@ cat skills/publish-prep-review/examples/request.json | \
 - Validation can include cadence, visual quality, temporal quality,
   audio signal, freeze detection, and flow consistency checks in
   addition to the base format/resolution/duration checks.
+- This step reviews the final render. It does not retroactively make
+  already-captioned source footage acceptable; source-text hygiene
+  belongs in the visuals selection step.
 - Returns a JSON envelope with a top-level `passed` boolean that combines
   validation and scoring.
 

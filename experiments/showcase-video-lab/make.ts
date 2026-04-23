@@ -8,9 +8,13 @@ import { promisify } from 'node:util';
 import { resolveFfmpegPath } from '../../src/core/video/ffmpeg';
 import { runPublishPrep } from '../../src/harness/publish-prep';
 import {
+  assertSourceVideoLooksCaptionClean,
+  auditSourceVideoForText,
+} from '../../src/score/source-text-guard';
+import {
   SHOWCASE_CONCEPTS,
-  DEMO_CLIPS,
   type OverlayPosition,
+  type ProceduralVisualMode,
   type ShowcaseConcept,
 } from './concepts';
 
@@ -62,7 +66,10 @@ function buildScriptJson(concept: ShowcaseConcept) {
     scenes: concept.beats.map((beat, index) => ({
       id: `scene-${index + 1}`,
       text: `${beat.headline}. ${beat.subhead}.`,
-      visualDirection: `${concept.label} remix over ${beat.clip} footage with bold overlay typography.`,
+      visualDirection:
+        beat.source.type === 'procedural'
+          ? `${concept.label} procedural motion field (${beat.source.mode}) with bold overlay typography.`
+          : `${concept.label} edit over caption-clean source footage with bold overlay typography.`,
       duration: beat.duration,
     })),
     meta: {
@@ -74,7 +81,70 @@ function buildScriptJson(concept: ShowcaseConcept) {
   };
 }
 
-function buildFfmpegArgs(concept: ShowcaseConcept, outputPath: string): string[] {
+function buildProceduralVideoChain(params: {
+  mode: ProceduralVisualMode;
+  baseColor: string;
+  accentColor: string;
+}): string {
+  const base = [
+    'setpts=PTS-STARTPTS',
+    'format=yuv420p',
+    `drawbox=x=mod(t*220\\,iw+320)-320:y=0:w=320:h=ih:color=${params.accentColor}@0.14:t=fill`,
+    `drawbox=x=0:y=mod(t*160\\,ih+220)-220:w=iw:h=220:color=white@0.05:t=fill`,
+    'noise=alls=10:allf=t+u',
+    'eq=saturation=1.08:contrast=1.04:brightness=0.015',
+  ];
+
+  switch (params.mode) {
+    case 'grid':
+      return [
+        ...base,
+        'drawgrid=w=120:h=120:t=2:c=white@0.06',
+        `drawbox=x=mod(-t*140\\,iw+420)-420:y=0:w=420:h=ih:color=${params.baseColor}@0.12:t=fill`,
+      ].join(',');
+    case 'scan':
+      return [
+        ...base,
+        `drawbox=x=0:y=mod(t*260\\,ih+120)-120:w=iw:h=120:color=${params.accentColor}@0.18:t=fill`,
+        `drawbox=x=0:y=mod(-t*180\\,ih+80)-80:w=iw:h=80:color=white@0.08:t=fill`,
+      ].join(',');
+    case 'pulse':
+      return [
+        ...base,
+        `drawbox=x=0:y=0:w=iw:h=ih:color=${params.accentColor}@0.08:t=fill`,
+        `drawbox=x=mod(t*180\\,iw+500)-500:y=0:w=500:h=ih:color=${params.baseColor}@0.18:t=fill`,
+      ].join(',');
+    case 'signal':
+    default:
+      return [
+        ...base,
+        `drawbox=x=mod(t*280\\,iw+260)-260:y=0:w=260:h=ih:color=${params.accentColor}@0.2:t=fill`,
+        `drawbox=x=mod(-t*180\\,iw+420)-420:y=0:w=420:h=ih:color=${params.baseColor}@0.12:t=fill`,
+      ].join(',');
+  }
+}
+
+const sourceAuditCache = new Map<string, Promise<void>>();
+
+async function assertClipSourceIsSafe(path: string): Promise<void> {
+  if (!sourceAuditCache.has(path)) {
+    sourceAuditCache.set(
+      path,
+      (async () => {
+        const { assessment } = await auditSourceVideoForText(path, { maxSeconds: 6 });
+        assertSourceVideoLooksCaptionClean({
+          videoPath: path,
+          assessment,
+          context: 'showcase-video-lab source clip audit',
+        });
+      })()
+    );
+  }
+
+  await sourceAuditCache.get(path);
+}
+
+async function buildFfmpegArgs(concept: ShowcaseConcept, outputPath: string): Promise<string[]> {
   const inputs: string[] = [];
   const filters: string[] = [];
   const concatInputs: string[] = [];
@@ -83,12 +153,29 @@ function buildFfmpegArgs(concept: ShowcaseConcept, outputPath: string): string[]
 
   for (let i = 0; i < concept.beats.length; i++) {
     const beat = concept.beats[i];
-    const clipPath = DEMO_CLIPS[beat.clip];
-    if (!existsSync(clipPath)) {
-      throw new Error(`Missing demo clip: ${clipPath}`);
+    if (beat.source.type === 'clip') {
+      if (!existsSync(beat.source.path)) {
+        throw new Error(`Missing source clip: ${beat.source.path}`);
+      }
+      await assertClipSourceIsSafe(beat.source.path);
+      inputs.push(
+        '-ss',
+        String(beat.source.start),
+        '-t',
+        String(beat.duration),
+        '-i',
+        beat.source.path
+      );
+    } else {
+      inputs.push(
+        '-f',
+        'lavfi',
+        '-t',
+        String(beat.duration),
+        '-i',
+        `color=c=${concept.baseColor}:s=1080x1920:r=30`
+      );
     }
-
-    inputs.push('-ss', String(beat.start), '-t', String(beat.duration), '-i', clipPath);
     const videoInputIndex = inputIndex++;
 
     inputs.push(
@@ -108,12 +195,22 @@ function buildFfmpegArgs(concept: ShowcaseConcept, outputPath: string): string[]
     const alphaExpr = `if(lt(t\\,0.22)\\,t/0.22\\,if(lt(t\\,${fadeOutStart})\\,1\\,(${beat.duration.toFixed(
       2
     )}-t)/0.25))`;
+    const sourceChain =
+      beat.source.type === 'procedural'
+        ? buildProceduralVideoChain({
+            mode: beat.source.mode,
+            baseColor: concept.baseColor,
+            accentColor: concept.accentColor,
+          })
+        : [
+            'setpts=PTS-STARTPTS',
+            'scale=1080:1920:force_original_aspect_ratio=increase',
+            'crop=1080:1920',
+            'eq=saturation=1.12:contrast=1.05:brightness=0.02',
+          ].join(',');
 
     filters.push(
-      `[${videoInputIndex}:v]setpts=PTS-STARTPTS,` +
-        `scale=1080:1920:force_original_aspect_ratio=increase,` +
-        `crop=1080:1920,` +
-        `eq=saturation=1.18:contrast=1.06:brightness=0.02,` +
+      `[${videoInputIndex}:v]${sourceChain},` +
         `drawbox=x=52:y=${cardY}:w=976:h=430:color=black@0.48:t=fill,` +
         `drawbox=x=52:y=${accentY}:w=976:h=16:color=${concept.accentColor}@1:t=fill,` +
         `drawbox=x=60:y=1834:w=${progressWidth}:h=20:color=${concept.accentColor}@0.95:t=fill,` +
@@ -187,7 +284,7 @@ async function renderConcept(concept: ShowcaseConcept): Promise<void> {
   );
 
   const ffmpegPath = resolveFfmpegPath();
-  const args = buildFfmpegArgs(concept, outputPath);
+  const args = await buildFfmpegArgs(concept, outputPath);
   await execFileAsync(ffmpegPath, args, {
     timeout: 240_000,
     maxBuffer: 20 * 1024 * 1024,

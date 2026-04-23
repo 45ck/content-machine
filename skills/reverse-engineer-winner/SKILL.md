@@ -36,6 +36,8 @@ outputs:
 - Claude Code or Codex needs a deterministic breakdown before proposing
   new scripts or render changes.
 - The agent wants review frames plus structural analysis in one call.
+- The input short is already captioned or fully edited and should be
+  treated as a winner/reference, not as raw footage for `video-render`.
 
 ## Invocation
 
@@ -46,6 +48,11 @@ cat skills/reverse-engineer-winner/examples/request.json | \
 
 Pass a local file path or a supported URL. URL inputs are downloaded
 with `yt-dlp` before the repo runs the video analysis steps.
+
+This skill is the correct home for already-published shorts. If a clip
+already has captions, baked text, or finished edit treatment, ingest it
+here and reuse the resulting blueprint/theme files rather than dropping
+the MP4 into the visuals/render path.
 
 ## Output Contract
 

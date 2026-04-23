@@ -1,7 +1,7 @@
 # Showcase Video Lab
 
 This experiment makes actual vertical short videos from local repo
-footage with no browser render dependency.
+render paths with no browser dependency.
 
 Why it exists:
 
@@ -10,6 +10,16 @@ Why it exists:
 - explore punchier product-story formats than the current examples
 - force every concept through a review pass instead of stopping at a
   rendered file
+- keep showcase outputs caption-clean by default instead of remixing
+  already-finished demo shorts back into the pipeline
+
+Source rule:
+
+- already-published or already-captioned shorts are reference material,
+  not raw footage
+- this lab now builds procedural motion backgrounds by default
+- if someone adds a direct clip source later, the lab audits it for
+  persistent burned-in text before render
 
 ## Concepts
 

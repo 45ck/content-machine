@@ -38,6 +38,9 @@ outputs:
 - The agent needs a stable step before render or media generation work.
 - Claude Code or Codex should produce `visuals.json` instead of
   freeform shot suggestions.
+- The agent needs to route clean local footage, stock, gameplay, or
+  generated shots into the render plan without sneaking already-captioned
+  shorts into `visuals.json`.
 
 ## Invocation
 
@@ -52,6 +55,9 @@ cat skills/timestamps-to-visuals/examples/request.json | \
 - Writes one `visuals.json` file to the requested `outputPath`.
 - Provider selection comes from explicit `provider` / `providers`
   fields plus repo configuration, not ad hoc prompt interpretation.
+- Local footage and gameplay are expected to be caption-clean raw media.
+  If the only source is an already-published short, treat it as a
+  `reverse-engineer-winner` input instead of reusing it as visual stock.
 - Returns a JSON envelope with the final visuals path and generated
   scene count.
 
@@ -60,3 +66,4 @@ cat skills/timestamps-to-visuals/examples/request.json | \
 - `outputPath` exists and points to a valid `visuals.json` file.
 - The visuals plan covers the scenes implied by `timestamps.json`.
 - Each visual entry includes enough metadata for downstream render work.
+- Any local video assets are free of persistent burned-in source text.

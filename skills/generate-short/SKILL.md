@@ -16,7 +16,7 @@ inputs:
     description: Root directory that will receive script, audio, visuals, render, and publish-prep outputs.
     required: false
   - name: referenceVideoPath
-    description: Optional winner or competitor short to ingest before script generation.
+    description: Optional winner or competitor short to ingest before script generation. This is reference analysis only, not raw footage reuse.
     required: false
   - name: audio
     description: Optional audio-stage overrides such as voice, engines, speed, or mock mode.
@@ -57,6 +57,9 @@ outputs:
   inherit blueprint and archetype hints.
 - The run should use the pack's built-in audio, captions, visuals,
   Remotion render, and publish review steps.
+- Reference shorts are for `reverse-engineer-winner` style analysis.
+  Do not feed already-captioned published shorts back in as raw visuals
+  or gameplay.
 
 ## Invocation
 
@@ -70,6 +73,8 @@ cat skills/generate-short/examples/request.json | \
 - Writes a bounded output tree under `outputDir`.
 - If `referenceVideoPath` is supplied, writes ingest files under
   `outputDir/ingest` unless `referenceOutputDir` is overridden.
+- `referenceVideoPath` is analyzed into blueprint/theme files. It is not
+  treated as render-ready source footage.
 - Always writes script, audio, timestamps, visuals, render metadata, and
   final video files.
 - Runs `publish-prep` by default and writes its bundle unless

@@ -60,6 +60,11 @@ want multiple skills composed under one run directory.
   runtime surface the skill invokes.
 - Keep evaluation criteria near the skill so agents can verify
   outcomes consistently.
+- Treat already-published shorts and demo reels as reference inputs,
+  not raw render footage.
+- If a skill uses local footage or gameplay clips, make the
+  caption-clean requirement explicit. Burned-in source text should be
+  rejected before render, not explained away after the fact.
 
 ## Suggested `SKILL.md` sections
 

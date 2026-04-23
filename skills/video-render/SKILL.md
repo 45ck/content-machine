@@ -41,6 +41,9 @@ outputs:
   legacy CLI directly.
 - Claude Code or Codex should return a concrete `video.mp4` and capture
   render metadata for later review or publish prep.
+- The visual plan already points at caption-clean source media. This
+  step is for composition and caption burn-in, not for hiding text that
+  was already present in the source clips.
 
 ## Invocation
 
@@ -59,6 +62,7 @@ cat skills/video-render/examples/request.json | \
 - If `audioMixPath` is supplied, it must already exist and be valid.
 - Returns a JSON envelope with the final video path plus effective size,
   fps, and metadata path.
+- Assumes source text control happened upstream in the visuals step.
 
 ## Validation Checklist
 

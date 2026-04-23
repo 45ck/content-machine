@@ -1,11 +1,19 @@
-import { resolve } from 'node:path';
-
-export type DemoClipId = 'news' | 'retro' | 'cache' | 'holes';
 export type OverlayPosition = 'top' | 'center' | 'bottom';
+export type ProceduralVisualMode = 'signal' | 'grid' | 'scan' | 'pulse';
+
+export type ShowcaseBeatSource =
+  | {
+      type: 'procedural';
+      mode: ProceduralVisualMode;
+    }
+  | {
+      type: 'clip';
+      path: string;
+      start: number;
+    };
 
 export interface ShowcaseBeat {
-  clip: DemoClipId;
-  start: number;
+  source: ShowcaseBeatSource;
   duration: number;
   headline: string;
   subhead: string;
@@ -18,19 +26,11 @@ export interface ShowcaseConcept {
   title: string;
   hook: string;
   thesis: string;
+  baseColor: string;
   accentColor: string;
   label: string;
   beats: ShowcaseBeat[];
 }
-
-const demoRoot = resolve(process.cwd(), 'docs', 'demo');
-
-export const DEMO_CLIPS: Record<DemoClipId, string> = {
-  news: resolve(demoRoot, 'demo-4-latest-news.mp4'),
-  retro: resolve(demoRoot, 'demo-5-gemini-2026-feels-like-2016.mp4'),
-  cache: resolve(demoRoot, 'demo-6-gemini-browser-cache-same-energy.mp4'),
-  holes: resolve(demoRoot, 'demo-7-gemini-black-holes-absurdist.mp4'),
-};
 
 const BEAT = 2.9;
 
@@ -40,12 +40,12 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
     title: 'Latency Is a Feeling',
     hook: 'Users feel speed before they understand features.',
     thesis: 'A good short can sell product quality by dramatizing response time as emotion.',
+    baseColor: '0x07131D',
     accentColor: '0x2FE6D1',
     label: 'SHOWCASE / SPEED',
     beats: [
       {
-        clip: 'news',
-        start: 0.2,
+        source: { type: 'procedural', mode: 'signal' },
         duration: BEAT,
         headline: 'NOBODY ASKS',
         subhead: 'for your p95 at the feed level',
@@ -53,8 +53,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'top',
       },
       {
-        clip: 'retro',
-        start: 6.0,
+        source: { type: 'procedural', mode: 'grid' },
         duration: BEAT,
         headline: 'THEY JUST FEEL',
         subhead: 'whether the app hesitated',
@@ -62,8 +61,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'center',
       },
       {
-        clip: 'cache',
-        start: 8.5,
+        source: { type: 'procedural', mode: 'scan' },
         duration: BEAT,
         headline: 'SPINNER',
         subhead: 'means doubt entered the room',
@@ -71,8 +69,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'bottom',
       },
       {
-        clip: 'holes',
-        start: 5.5,
+        source: { type: 'procedural', mode: 'pulse' },
         duration: BEAT,
         headline: 'COLD START',
         subhead: 'looks like broken intent',
@@ -80,8 +77,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'center',
       },
       {
-        clip: 'cache',
-        start: 15.0,
+        source: { type: 'procedural', mode: 'signal' },
         duration: BEAT,
         headline: 'CACHE HIT',
         subhead: 'feels like trust snapping back',
@@ -89,8 +85,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'top',
       },
       {
-        clip: 'retro',
-        start: 18.2,
+        source: { type: 'procedural', mode: 'grid' },
         duration: BEAT,
         headline: 'FAST UI',
         subhead: 'lets the story outrun the chrome',
@@ -98,8 +93,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'bottom',
       },
       {
-        clip: 'news',
-        start: 4.8,
+        source: { type: 'procedural', mode: 'scan' },
         duration: BEAT,
         headline: 'CUT THE WAIT',
         subhead: 'before you add another button',
@@ -107,8 +101,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'center',
       },
       {
-        clip: 'holes',
-        start: 22.0,
+        source: { type: 'procedural', mode: 'pulse' },
         duration: BEAT,
         headline: 'PRELOAD INTENT',
         subhead: 'not just assets',
@@ -116,8 +109,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'top',
       },
       {
-        clip: 'cache',
-        start: 27.5,
+        source: { type: 'procedural', mode: 'signal' },
         duration: BEAT,
         headline: 'RESPONSE TIME',
         subhead: 'is product design in disguise',
@@ -125,8 +117,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'center',
       },
       {
-        clip: 'retro',
-        start: 31.0,
+        source: { type: 'procedural', mode: 'grid' },
         duration: BEAT,
         headline: 'MAKE IT JUMP',
         subhead: 'before the user can doubt it',
@@ -134,8 +125,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'bottom',
       },
       {
-        clip: 'holes',
-        start: 37.5,
+        source: { type: 'procedural', mode: 'pulse' },
         duration: BEAT,
         headline: 'SHIP THE FEELING',
         subhead: 'and the feature reads louder',
@@ -149,12 +139,12 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
     title: 'Small Loops Win',
     hook: 'The best content tools feel like one tight loop, not five departments.',
     thesis: 'This is a manifesto-style product short about reducing content creation drag.',
+    baseColor: '0x1A0F06',
     accentColor: '0xFF8A00',
     label: 'SHOWCASE / LOOP',
     beats: [
       {
-        clip: 'retro',
-        start: 2.0,
+        source: { type: 'procedural', mode: 'grid' },
         duration: BEAT,
         headline: 'PROMPT',
         subhead: 'is not the product by itself',
@@ -162,8 +152,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'top',
       },
       {
-        clip: 'cache',
-        start: 5.0,
+        source: { type: 'procedural', mode: 'signal' },
         duration: BEAT,
         headline: 'SCRIPT',
         subhead: 'needs a voice immediately after',
@@ -171,8 +160,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'center',
       },
       {
-        clip: 'holes',
-        start: 9.0,
+        source: { type: 'procedural', mode: 'scan' },
         duration: BEAT,
         headline: 'VOICE',
         subhead: 'needs visuals before the energy fades',
@@ -180,8 +168,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'bottom',
       },
       {
-        clip: 'news',
-        start: 7.0,
+        source: { type: 'procedural', mode: 'pulse' },
         duration: BEAT,
         headline: 'VISUALS',
         subhead: 'need render in the same breath',
@@ -189,8 +176,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'center',
       },
       {
-        clip: 'cache',
-        start: 12.0,
+        source: { type: 'procedural', mode: 'signal' },
         duration: BEAT,
         headline: 'RENDER',
         subhead: 'needs a brutal review gate',
@@ -198,8 +184,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'top',
       },
       {
-        clip: 'retro',
-        start: 14.8,
+        source: { type: 'procedural', mode: 'grid' },
         duration: BEAT,
         headline: 'REVIEW',
         subhead: 'needs a rerun path not a shrug',
@@ -207,8 +192,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'bottom',
       },
       {
-        clip: 'holes',
-        start: 18.0,
+        source: { type: 'procedural', mode: 'scan' },
         duration: BEAT,
         headline: 'TOO MANY TOOLS',
         subhead: 'turn momentum into context loss',
@@ -216,8 +200,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'center',
       },
       {
-        clip: 'cache',
-        start: 22.0,
+        source: { type: 'procedural', mode: 'pulse' },
         duration: BEAT,
         headline: 'SMALL LOOPS',
         subhead: 'make quality cheap enough to chase',
@@ -225,8 +208,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'top',
       },
       {
-        clip: 'retro',
-        start: 28.5,
+        source: { type: 'procedural', mode: 'signal' },
         duration: BEAT,
         headline: 'MAKE FILES',
         subhead: 'judge them fast',
@@ -234,8 +216,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'center',
       },
       {
-        clip: 'holes',
-        start: 32.0,
+        source: { type: 'procedural', mode: 'grid' },
         duration: BEAT,
         headline: 'KILL THE DRAG',
         subhead: 'between idea and playback',
@@ -243,8 +224,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'bottom',
       },
       {
-        clip: 'cache',
-        start: 39.0,
+        source: { type: 'procedural', mode: 'pulse' },
         duration: BEAT,
         headline: 'ONE TIGHT LOOP',
         subhead: 'beats a giant control plane',
@@ -258,12 +238,12 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
     title: 'Escape Velocity Storytelling',
     hook: 'Most shorts collapse under too many ideas. The winners escape with one clear force.',
     thesis: 'An absurdist creative direction piece about focus, repetition, and feed gravity.',
+    baseColor: '0x16070D',
     accentColor: '0xFF315C',
     label: 'SHOWCASE / FOCUS',
     beats: [
       {
-        clip: 'holes',
-        start: 1.0,
+        source: { type: 'procedural', mode: 'pulse' },
         duration: BEAT,
         headline: 'EVERY ROADMAP',
         subhead: 'wants to become gravity',
@@ -271,8 +251,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'top',
       },
       {
-        clip: 'retro',
-        start: 9.5,
+        source: { type: 'procedural', mode: 'grid' },
         duration: BEAT,
         headline: 'EVERY FEATURE',
         subhead: 'wants one more sentence',
@@ -280,8 +259,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'center',
       },
       {
-        clip: 'cache',
-        start: 11.0,
+        source: { type: 'procedural', mode: 'signal' },
         duration: BEAT,
         headline: 'EVERY SENTENCE',
         subhead: 'wants one more caveat',
@@ -289,8 +267,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'bottom',
       },
       {
-        clip: 'news',
-        start: 1.0,
+        source: { type: 'procedural', mode: 'scan' },
         duration: BEAT,
         headline: 'THEN THE HOOK',
         subhead: 'dies under polite explanation',
@@ -298,8 +275,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'center',
       },
       {
-        clip: 'holes',
-        start: 14.5,
+        source: { type: 'procedural', mode: 'pulse' },
         duration: BEAT,
         headline: 'CLARITY',
         subhead: 'is escape velocity for the feed',
@@ -307,8 +283,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'top',
       },
       {
-        clip: 'retro',
-        start: 20.0,
+        source: { type: 'procedural', mode: 'grid' },
         duration: BEAT,
         headline: 'ONE CLAIM',
         subhead: 'so the audience can hold it',
@@ -316,8 +291,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'bottom',
       },
       {
-        clip: 'cache',
-        start: 24.0,
+        source: { type: 'procedural', mode: 'signal' },
         duration: BEAT,
         headline: 'ONE VISUAL MOVE',
         subhead: 'so the memory has a shape',
@@ -325,8 +299,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'center',
       },
       {
-        clip: 'holes',
-        start: 28.5,
+        source: { type: 'procedural', mode: 'scan' },
         duration: BEAT,
         headline: 'ONE PAYOFF',
         subhead: 'so the loop feels earned',
@@ -334,8 +307,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'top',
       },
       {
-        clip: 'retro',
-        start: 34.0,
+        source: { type: 'procedural', mode: 'pulse' },
         duration: BEAT,
         headline: 'CUT THE ORBITS',
         subhead: 'keep the force line obvious',
@@ -343,8 +315,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'center',
       },
       {
-        clip: 'cache',
-        start: 41.0,
+        source: { type: 'procedural', mode: 'grid' },
         duration: BEAT,
         headline: 'REPEAT THE VECTOR',
         subhead: 'until the idea bends time',
@@ -352,8 +323,7 @@ export const SHOWCASE_CONCEPTS: ShowcaseConcept[] = [
         position: 'bottom',
       },
       {
-        clip: 'holes',
-        start: 48.0,
+        source: { type: 'procedural', mode: 'signal' },
         duration: BEAT,
         headline: 'MAKE IT ESCAPE',
         subhead: 'or make it shorter',

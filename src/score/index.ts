@@ -63,6 +63,16 @@ export {
   type OcrCaptionSegment,
 } from './burned-in-caption-quality';
 
+export {
+  auditSourceVideoForText,
+  assessSourceTextRisk,
+  assertSourceVideoLooksCaptionClean,
+  DEFAULT_SOURCE_TEXT_GUARD_THRESHOLDS,
+  type AuditSourceVideoOptions,
+  type SourceTextGuardThresholds,
+  type SourceTextRiskAssessment,
+} from './source-text-guard';
+
 // Paging quality metrics
 export {
   analyzePagingQuality,
