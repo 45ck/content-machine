@@ -8,6 +8,9 @@ tests/.tmp/
 vendor/
 templates/
 archive/legacy-cli/templates/
+archive/**
+docs/research/external/shortform-github-import-batch-20260423.md
+scripts/research/
 connectors/
 .beads/
 stryker.conf.json
