@@ -7,7 +7,7 @@ import { artifactFile, type HarnessToolResult } from './json-stdio';
 export const DoctorReportRequestSchema = z
   .object({
     strict: z.boolean().default(false),
-    outputPath: z.string().min(1).default('output/harness/doctor/doctor.json'),
+    outputPath: z.string().min(1).default('output/content-machine/doctor/doctor.json'),
   })
   .strict();
 

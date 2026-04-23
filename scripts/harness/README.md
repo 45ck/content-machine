@@ -1,7 +1,8 @@
-# Harness Scripts
+# Agent Runtime Scripts
 
-These entrypoints are the deterministic subprocess surface for coding
-harnesses such as Claude Code and Codex CLI.
+These entrypoints are the deterministic subprocess surface for the repo
+checkout when you are working from Claude Code, Codex CLI, and similar
+coding-agent CLIs.
 
 Role split:
 
@@ -11,7 +12,7 @@ Role split:
 
 Each script reads JSON from stdin and writes a single JSON response to
 stdout. The reusable logic lives under `src/harness/`; these files are
-thin launchers so the harness can run them with Node's `tsx` loader:
+thin launchers so the repo can run them with Node's `tsx` loader:
 
 ```bash
 node --import tsx scripts/harness/ingest.ts < request.json
@@ -20,12 +21,12 @@ node --import tsx scripts/harness/ingest.ts < request.json
 When to use which entrypoint:
 
 - Use `run-flow.ts` when the request is multi-step and run-scoped.
-- Use `flow-catalog.ts` when the harness needs to discover available
+- Use `flow-catalog.ts` when the agent needs to discover available
   flows.
-- Use `skill-catalog.ts` when the harness needs to discover available
+- Use `skill-catalog.ts` when the agent needs to discover available
   skills.
 - Use a direct stage entrypoint such as `brief-to-script.ts` or
-  `video-render.ts` when the harness already knows the exact capability
+  `video-render.ts` when the agent already knows the exact capability
   it wants.
 
 Most flows write under `runs/<run-id>/`. Direct skills may instead write
@@ -44,6 +45,9 @@ Current entrypoints:
 - `timestamps-to-visuals.ts`
 - `video-render.ts`
 - `publish-prep.ts`
+- `install-skill-pack.ts`
 
+Installed-package users should prefer
+`node ./node_modules/@45ck/content-machine/agent/run-tool.mjs <tool>`.
 See `skills/*/SKILL.md` for skill contracts and `flows/*` for flow
 contracts.

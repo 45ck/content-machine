@@ -21,6 +21,6 @@ or CI setup checks.
 
 ## Current Status
 
-Executable. `doctor.flow` dispatches to the `doctor-report` harness
+Executable. `doctor.flow` dispatches to the `doctor-report` runtime
 skill and writes a structured report under `runs/<run-id>/doctor/` by
 default.

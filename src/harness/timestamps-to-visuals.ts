@@ -28,7 +28,7 @@ const RoutingPolicyEnum = z.enum(
 export const TimestampsToVisualsRequestSchema = z
   .object({
     timestampsPath: z.string().min(1),
-    outputPath: z.string().min(1).default('output/harness/visuals/visuals.json'),
+    outputPath: z.string().min(1).default('output/content-machine/visuals/visuals.json'),
     provider: AssetProviderEnum.optional(),
     providers: z.array(AssetProviderEnum).min(1).optional(),
     localDir: z.string().min(1).optional(),

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Produce the artifact chain needed to study an existing short and reuse
+Produce the file set needed to study an existing short and reuse
 its structure in later generation steps.
 
 ## Inputs
@@ -25,5 +25,5 @@ its structure in later generation steps.
 
 ## Current Status
 
-Documentation-first. The core harness script exists and can already be
+Documentation-first. The core runtime script exists and can already be
 called by Claude Code or Codex CLI over JSON-stdio.

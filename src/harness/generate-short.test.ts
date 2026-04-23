@@ -20,7 +20,7 @@ vi.mock('./ingest', async () => {
     IngestRequestSchema: z
       .object({
         videoPath: z.string(),
-        outputDir: z.string().default('output/harness/ingest'),
+        outputDir: z.string().default('output/content-machine/ingest'),
         includeFrameAnalysis: z.boolean().default(true),
         frameAnalysis: z.object({}).passthrough().default({}),
         videospec: z.object({}).passthrough().default({}),
@@ -56,7 +56,7 @@ vi.mock('./timestamps-to-visuals', async () => {
     TimestampsToVisualsRequestSchema: z
       .object({
         timestampsPath: z.string(),
-        outputPath: z.string().default('output/harness/visuals/visuals.json'),
+        outputPath: z.string().default('output/content-machine/visuals/visuals.json'),
         topic: z.string().optional(),
         mock: z.boolean().default(false),
       })
@@ -73,7 +73,7 @@ vi.mock('./video-render', async () => {
         visualsPath: z.string(),
         timestampsPath: z.string(),
         audioPath: z.string(),
-        outputPath: z.string().default('output/harness/render/render.mp4'),
+        outputPath: z.string().default('output/content-machine/render/render.mp4'),
         outputMetadataPath: z.string().optional(),
         mock: z.boolean().default(false),
       })
@@ -89,7 +89,7 @@ vi.mock('./publish-prep', async () => {
       .object({
         videoPath: z.string(),
         scriptPath: z.string(),
-        outputDir: z.string().default('output/harness/publish-prep'),
+        outputDir: z.string().default('output/content-machine/publish-prep'),
         platform: z.enum(['tiktok', 'instagram', 'youtube']).default('tiktok'),
         packaging: z.object({}).passthrough().default({}),
         publish: z.object({}).passthrough().default({}),

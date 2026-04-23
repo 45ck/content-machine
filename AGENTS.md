@@ -1,8 +1,8 @@
 # AGENTS.md
 
-**content-machine** — harness-first content runtime for short-form video work.
+**content-machine** — short-form video skill pack for coding-agent CLIs.
 
-> **Version:** 0.2.x | **License:** MIT | **Direction:** skills + harness scripts + runtime, with the legacy CLI being demoted
+> **Version:** 0.2.x | **License:** MIT | **Direction:** skills + `45ck/prompt-language` flows + runtime, with the legacy CLI demoted
 
 This file provides context for AI coding agents (Copilot, Claude Code, Cursor, etc.). For human docs, see [README.md](README.md) and [docs/](docs/).
 
@@ -11,20 +11,20 @@ This file provides context for AI coding agents (Copilot, Claude Code, Cursor, e
 ## Preferred Surfaces
 
 Use these first when working as Claude Code, Codex CLI, or similar
-coding harnesses:
+coding-agent CLIs:
 
-- `skills/*/SKILL.md` — harness-facing contracts
+- `skills/*/SKILL.md` — skill contracts
 - `flows/*.flow` — executable flow manifests
 - `scripts/harness/*.ts` — deterministic JSON-stdio entrypoints
 - `src/harness/*` — reusable logic behind those entrypoints
-- `src/*` runtime modules — direct imports only when a harness script
+- `src/*` runtime modules — direct imports only when a runtime script
   does not exist yet
 
 The legacy `cm` surface still exists, but new agent-facing work should
-prefer skills and harness scripts over adding more control-plane logic
+prefer skills, flows, and runtime scripts over adding more control-plane logic
 to `src/cli/`.
 
-## Harness Entry Points
+## Agent Entry Points
 
 ```
 node --import tsx scripts/harness/doctor-report.ts
@@ -95,7 +95,7 @@ src/
 
 ## Architecture Principles
 
-1. **Harness-First** — prefer skills and JSON-stdio harness scripts for agent-facing work
+1. **Skill Pack First** — prefer skills and JSON-stdio runtime scripts for agent-facing work
 2. **Dependency Injection** — all providers via constructor; static factories for prod, test factories for fakes
 3. **LLM-First Reasoning** — structured outputs via Zod schemas, not regex heuristics
 4. **Configuration-Driven** — TOML/JSON config, environment variables for secrets
@@ -130,8 +130,8 @@ Update workflow: edit the YAML, then run `npm run repo-facts:gen` or `npm run gl
 
 ## Important Paths
 
-- `skills/` — harness-facing skill contracts
-- `flows/` — flow docs plus executable `.flow` manifests
+- `skills/` — skill contracts
+- `flows/` — `45ck/prompt-language` flow docs plus executable `.flow` manifests
 - `scripts/harness/` — deterministic JSON-stdio entrypoints
 - `docs/direction/` — migration plan and boundaries
 - `archive/legacy-cli/` — frozen landing zone for surfaces that will be demoted or removed
@@ -162,7 +162,7 @@ Update workflow: edit the YAML, then run `npm run repo-facts:gen` or `npm run gl
 ```bash
 git clone https://github.com/45ck/content-machine.git
 cd content-machine && npm install && cp .env.example .env
-node --import tsx scripts/harness/ingest.ts   # Run a harness script from source
+node --import tsx scripts/harness/ingest.ts   # Run a runtime script from source
 npm run cm -- --help                # Run legacy CLI from source
 npm test                     # Watch mode
 npm run quality              # All checks

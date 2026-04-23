@@ -289,6 +289,18 @@ function computeDoctorOk(checks: DoctorCheck[], strict: boolean): boolean {
   return !hasFail && !(strict && hasWarn);
 }
 
+async function buildYtDlpCheck(): Promise<DoctorCheck> {
+  const ytDlp = await checkBinaryOnPath('yt-dlp', 'yt-dlp');
+  return {
+    id: 'yt-dlp',
+    label: 'yt-dlp',
+    status: asStatus(ytDlp.ok, true),
+    detail: ytDlp.detail,
+    fix: ytDlp.ok ? undefined : ytDlp.fix,
+    code: ytDlp.ok ? undefined : ytDlp.code,
+  };
+}
+
 /**
  * Run environment diagnostics (node, config, whisper, api keys, ffprobe).
  */
@@ -307,6 +319,7 @@ export async function runDoctor(options: DoctorOptions = {}): Promise<DoctorRepo
   checks.push(...buildApiKeyChecks(config));
   checks.push(await buildFfmpegCheck());
   checks.push(await buildFfprobeCheck());
+  checks.push(await buildYtDlpCheck());
 
   return {
     schemaVersion: 1,

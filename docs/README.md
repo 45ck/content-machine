@@ -1,22 +1,22 @@
 # Documentation
 
-Content Machine is in a harness-first migration. Read the docs in this
+Content Machine is now centered on a short-form video skill pack. Read the docs in this
 order:
 
-- primary: skills, flows, harness scripts, direction docs
+- primary: skills, flows, runtime scripts, direction docs
 - compatibility: legacy CLI user docs and generated CLI references
 - history: archived code and old engineering surfaces
 
 ## Direction
 
-- [`DIRECTION.md`](../DIRECTION.md) — where Content Machine is heading (harness-first runtime)
+- [`DIRECTION.md`](../DIRECTION.md) — where Content Machine is heading (skill pack + runtime)
 - [`direction/`](direction/) — phase plan, boundaries, keep/move/deprecate
 
 ## Primary Surfaces
 
-- [`../skills/README.md`](../skills/README.md) — harness-facing skill scaffolding for Claude Code, Codex CLI, and similar agents
-- [`../flows/README.md`](../flows/README.md) — flow scaffolding and authoring rules for prompt-language orchestration
-- [`user/HARNESS-QUICKSTART.md`](user/HARNESS-QUICKSTART.md) — primary user path for the harness-first surface
+- [`../skills/README.md`](../skills/README.md) — short-form video skill scaffolding for Claude Code, Codex CLI, and similar agents
+- [`../flows/README.md`](../flows/README.md) — `45ck/prompt-language` flow scaffolding and authoring rules
+- [`user/AGENT-QUICKSTART.md`](user/AGENT-QUICKSTART.md) — primary user path for the skill-pack surface
 - [`../scripts/harness/README.md`](../scripts/harness/README.md) — executable JSON-stdio entrypoints
 
 ## Compatibility Surface

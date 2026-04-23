@@ -20,7 +20,7 @@ const VideoSpecPassSchema = z.enum(['1', '2', 'both']);
 export const IngestRequestSchema = z
   .object({
     videoPath: z.string().min(1),
-    outputDir: z.string().min(1).default('output/harness/ingest'),
+    outputDir: z.string().min(1).default('output/content-machine/ingest'),
     includeFrameAnalysis: z.boolean().default(true),
     frameAnalysis: z
       .object({

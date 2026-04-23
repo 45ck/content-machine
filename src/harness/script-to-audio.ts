@@ -45,7 +45,7 @@ export async function runScriptToAudio(request: ScriptToAudioRequest): Promise<
     ScriptOutputSchema,
     'script artifact'
   );
-  const outputDir = resolve(normalized.outputDir ?? 'output/harness/audio');
+  const outputDir = resolve(normalized.outputDir ?? 'output/content-machine/audio');
   const audioPath = resolve(normalized.outputPath ?? join(outputDir, 'audio.wav'));
 
   const timestampsPath = resolve(

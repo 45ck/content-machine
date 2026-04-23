@@ -1,67 +1,43 @@
-# <skill-id>
+---
+name: <skill-id>
+description: One-sentence summary of the skill for a coding agent.
+allowedTools:
+  - shell
+  - read
+  - write
+model: inherit
+argumentHint: '{}'
+entrypoint: node --import tsx scripts/harness/<entrypoint>.ts
+inputs:
+  - name: exampleInput
+    description: Replace with the real input contract.
+    required: true
+outputs:
+  - name: output.json
+    description: Replace with the real output file.
+---
 
-## Summary
-
-One paragraph describing the user-visible job this skill does for a
-coding harness.
+# <Skill Name>
 
 ## Use When
 
-- Concrete trigger phrase or operator intent.
-- Concrete trigger phrase or operator intent.
+- Describe when the skill should trigger.
+- Describe the main job it completes.
 
-## Do Not Use When
+## Invocation
 
-- Case that should stay in the CLI, runtime, or a different skill.
-- Case that requires unsupported side effects or missing artifacts.
+```bash
+cat <<'JSON' | node --import tsx scripts/harness/<entrypoint>.ts
+{}
+JSON
+```
 
-## Inputs
+## Output Contract
 
-| Name    | Type     | Required | Description                           |
-| ------- | -------- | -------- | ------------------------------------- |
-| `topic` | `string` | yes      | Replace with the real input contract. |
+- Describe what files are written.
+- Describe any required upstream files.
+- Describe the JSON envelope returned on stdout.
 
-Prefer explicit JSON fields over free-form prose. If the skill accepts
-files, name the expected path and format.
+## Validation Checklist
 
-## Outputs
-
-| Name                | Type     | Description                      |
-| ------------------- | -------- | -------------------------------- |
-| `artifacts.primary` | `string` | Replace with the primary output. |
-
-## Runtime Surface
-
-- Script or command invoked: `scripts/<replace-me>`
-- Runtime module or public API: `<replace-me>`
-- Deterministic boundary: explain what is delegated versus what the
-  skill decides.
-
-## Artifact Contract
-
-- Working directory assumptions:
-- Output directory:
-- Files created:
-- Files read but not modified:
-
-## Invocation Notes For Harnesses
-
-- Preferred call shape for Claude Code:
-- Preferred call shape for Codex CLI:
-- Required environment variables:
-- Safety or approval boundaries:
-
-## Constraints
-
-- Hard limits, latency/cost notes, model requirements, or platform
-  assumptions.
-
-## Validation
-
-- Minimum smoke check:
-- Expected structured success signal:
-- Expected failure signal:
-
-## Related Docs
-
-- Direction or architecture links that ground this skill.
+- List the concrete checks that prove the skill worked.

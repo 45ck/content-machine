@@ -1,7 +1,7 @@
 {
-  "scriptPath": "output/harness/script/script.json",
-  "outputDir": "output/harness/audio",
+  "scriptPath": "output/content-machine/script/script.json",
+  "outputDir": "output/content-machine/audio",
   "voice": "af_heart",
   "ttsSpeed": 1,
-  "outputMetadataPath": "output/harness/audio/audio.json"
+  "outputMetadataPath": "output/content-machine/audio/audio.json"
 }

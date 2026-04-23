@@ -22,9 +22,21 @@ cat <<'JSON' | node --import tsx scripts/harness/skill-catalog.ts
 JSON
 ```
 
-The published npm package also ships the repo-local `skills/`,
-`flows/`, and `scripts/harness/` surfaces, but the canonical path is
-working from the repo checkout.
+The published npm package also ships a portable runner so another repo
+can install the skills and flows locally:
+
+```bash
+npm install @45ck/content-machine
+
+cat <<'JSON' | node ./node_modules/@45ck/content-machine/agent/run-tool.mjs install-skill-pack
+{
+  "targetDir": ".content-machine",
+  "includeFlows": true
+}
+JSON
+```
+
+The canonical path is still working from the repo checkout.
 
 If you only need the thin compatibility shell, you can also run:
 
@@ -100,6 +112,6 @@ This checks for Node.js version, API key presence, Whisper installation, and oth
 
 ## Next Steps
 
-- [Harness Quickstart](HARNESS-QUICKSTART.md) — primary path
+- [Agent Quickstart](AGENT-QUICKSTART.md) — primary path
 - [Configuration](CONFIGURATION.md) — customize defaults
 - [Examples](EXAMPLES.md) — real-world workflows

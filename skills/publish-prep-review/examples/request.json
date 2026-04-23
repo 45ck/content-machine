@@ -1,6 +1,6 @@
 {
   "videoPath": "output/video.mp4",
   "scriptPath": "output/script.json",
-  "outputDir": "output/harness/publish-prep",
+  "outputDir": "output/content-machine/publish-prep",
   "platform": "tiktok"
 }

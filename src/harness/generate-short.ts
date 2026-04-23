@@ -54,7 +54,7 @@ const GenerateShortPublishPrepSchema = PublishPrepRequestSchema.omit({
 export const GenerateShortRequestSchema = z
   .object({
     topic: z.string().min(1),
-    outputDir: z.string().min(1).default('output/harness/generate-short'),
+    outputDir: z.string().min(1).default('output/content-machine/generate-short'),
     archetype: ArchetypeEnum.optional(),
     targetDuration: z.number().positive().default(45),
     llmProvider: z.enum(['default', 'openai', 'anthropic', 'gemini']).default('default'),

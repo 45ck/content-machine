@@ -1,34 +1,34 @@
 ---
 name: video-render
-description: Render a final MP4 from visuals, timestamps, audio, and explicit render options so a harness can produce a deterministic video artifact.
+description: Render a final MP4 from visuals, timestamps, audio, and render options using the repo's Remotion-based video stack.
 allowedTools:
   - shell
   - read
   - write
 model: inherit
-argumentHint: '{"visualsPath":"output/visuals.json","timestampsPath":"output/timestamps.json","audioPath":"output/audio.wav","outputPath":"output/harness/render/video.mp4","orientation":"portrait","fps":30,"downloadAssets":true,"outputMetadataPath":"output/harness/render/render.json"}'
+argumentHint: '{"visualsPath":"output/visuals.json","timestampsPath":"output/timestamps.json","audioPath":"output/audio.wav","outputPath":"output/content-machine/render/video.mp4","orientation":"portrait","fps":30,"downloadAssets":true,"outputMetadataPath":"output/content-machine/render/render.json"}'
 entrypoint: node --import tsx scripts/harness/video-render.ts
 inputs:
   - name: visualsPath
-    description: Visuals artifact JSON from the visuals stage.
+    description: Visuals file from the visuals step.
     required: true
   - name: timestampsPath
-    description: Timestamps artifact JSON from the audio stage.
+    description: Timing file from the audio step.
     required: true
   - name: audioPath
-    description: Final voiceover WAV artifact.
+    description: Final voiceover WAV file.
     required: true
   - name: orientation
     description: Render orientation override such as portrait, landscape, or square.
     required: false
   - name: outputMetadataPath
-    description: Optional output path for structured render metadata.
+    description: Optional output path for render metadata.
     required: false
 outputs:
   - name: video.mp4
     description: Final rendered MP4 written to the requested output path.
   - name: render.json
-    description: Structured render metadata written alongside the video unless overridden.
+    description: Render metadata written alongside the video unless overridden.
 ---
 
 # Video Render
@@ -36,11 +36,11 @@ outputs:
 ## Use When
 
 - The user already has `visuals.json`, `timestamps.json`, and
-  `audio.wav` and wants the deterministic render step only.
-- A harness needs a stable JSON-in/JSON-out boundary for final video
-  generation instead of invoking the legacy CLI directly.
-- Claude Code or Codex should return a concrete `video.mp4` artifact and
-  optionally capture render metadata for later review or publish prep.
+  `audio.wav` and wants the render step only.
+- The agent needs a stable final-video step instead of invoking the
+  legacy CLI directly.
+- Claude Code or Codex should return a concrete `video.mp4` and capture
+  render metadata for later review or publish prep.
 
 ## Invocation
 
@@ -49,10 +49,10 @@ cat skills/video-render/examples/request.json | \
   node --import tsx scripts/harness/video-render.ts
 ```
 
-## Artifact Contract
+## Output Contract
 
 - Reads existing `visuals.json`, `timestamps.json`, and `audio.wav`
-  artifacts without modifying them.
+  files without modifying them.
 - Writes one rendered MP4 to the requested `outputPath`.
 - Writes render metadata to `outputMetadataPath`, defaulting to a
   sibling `render.json`.
@@ -65,4 +65,4 @@ cat skills/video-render/examples/request.json | \
 - `outputPath` exists and points to a non-empty MP4.
 - `outputMetadataPath` exists and reports duration, dimensions, fps, and
   file size.
-- The render used the supplied visuals, timestamps, and audio artifacts.
+- The render used the supplied visuals, timestamps, and audio files.

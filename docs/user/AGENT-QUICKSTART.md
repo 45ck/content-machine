@@ -1,19 +1,19 @@
-# Harness Quickstart
+# Agent Quickstart
 
 This is the primary path for using Content Machine today.
 
-Use this path when you are working from Claude Code, Codex CLI, or a
-similar coding harness that can read repo-local docs and invoke JSON
-stdio subprocesses.
+Use it when you are working from Claude Code, Codex CLI, or a similar
+coding-agent CLI that can read repo-local docs and invoke JSON-stdio
+subprocesses.
 
 ## The three surfaces
 
-- `skills/` defines the intent contract: when to use something, what
-  input it needs, and what artifacts it should produce.
-- `flows/` defines orchestration: which skills run, in what order, and
-  what marks success.
-- `scripts/harness/` is the executable surface: JSON on stdin, JSON on
-  stdout, typed artifacts on disk.
+- `skills/` defines when to use something, what input it needs, and
+  what files it should produce.
+- `flows/` defines `45ck/prompt-language` orchestration: which skills
+  run, in what order, and what marks success.
+- `scripts/harness/` is the repo-side executable surface: JSON on stdin,
+  JSON on stdout, files on disk.
 
 Start with `skills/` when you want one capability. Start with `flows/`
 when you want a multi-step path.
@@ -44,9 +44,9 @@ cat <<'JSON' | node --import tsx scripts/harness/flow-catalog.ts
 JSON
 ```
 
-## Step 3: Run the main end-to-end flow
+## Step 3: Run the main full-video path
 
-`generate-short` is the default multi-step path:
+`generate-short` is the default topic-to-video path:
 
 ```bash
 cat <<'JSON' | node --import tsx scripts/harness/run-flow.ts
@@ -64,36 +64,56 @@ cat <<'JSON' | node --import tsx scripts/harness/run-flow.ts
 JSON
 ```
 
-This writes run-scoped artifacts under `runs/demo-run/` by default.
+This writes run-scoped files under `runs/demo-run/` by default.
 
-## Step 4: Run a single skill directly
+## Step 4: Pull a reference video or run one skill directly
 
-Generate only a script artifact:
+Generate only a script:
 
 ```bash
 cat skills/brief-to-script/examples/request.json | \
   node --import tsx scripts/harness/brief-to-script.ts
 ```
 
-Reverse-engineer a reference short:
+Reverse-engineer a reference short from a local file or supported URL.
+URL inputs use `yt-dlp` before analysis:
 
 ```bash
 cat skills/reverse-engineer-winner/examples/request.json | \
   node --import tsx scripts/harness/ingest.ts
 ```
 
-Run structured diagnostics:
+Run diagnostics, including `ffmpeg`, `ffprobe`, and `yt-dlp` checks:
 
 ```bash
 cat skills/doctor-report/examples/request.json | \
   node --import tsx scripts/harness/doctor-report.ts
 ```
 
-## Step 5: Read the contract next to the surface
+## Step 5: Install the pack into another project
+
+If you want these skills inside a separate coding-agent project, install
+the package there and materialize a local copy:
+
+```bash
+npm install @45ck/content-machine
+
+cat <<'JSON' | node ./node_modules/@45ck/content-machine/agent/run-tool.mjs install-skill-pack
+{
+  "targetDir": ".content-machine",
+  "includeFlows": true
+}
+JSON
+```
+
+That creates `.content-machine/skills/` and `.content-machine/flows/`
+with `SKILL.md` files already pointed at the installed package runner.
+
+## Step 6: Read the contract next to the surface
 
 - Skill contract: [`../../skills/README.md`](../../skills/README.md)
 - Flow contract: [`../../flows/README.md`](../../flows/README.md)
-- Executable entrypoints: [`../../scripts/harness/README.md`](../../scripts/harness/README.md)
+- Repo-side entrypoints: [`../../scripts/harness/README.md`](../../scripts/harness/README.md)
 - Repo direction: [`../../DIRECTION.md`](../../DIRECTION.md)
 
 ## Legacy CLI

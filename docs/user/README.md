@@ -2,15 +2,15 @@
 
 Everything you need to use Content Machine.
 
-Content Machine is now harness-first. The primary path is repo-local
-skills, flows, and JSON-stdio harness scripts for Claude Code, Codex
+Content Machine is now a short-form video skill pack. The primary path is repo-local
+skills, flows, and JSON-stdio runtime scripts for Claude Code, Codex
 CLI, and similar coding agents. The old CLI-first guides now live under
 [`archive/legacy-cli/`](../../archive/legacy-cli/README.md).
 
 ## Primary Path: Claude Code / Codex CLI
 
-1. [Harness Quickstart](HARNESS-QUICKSTART.md) — primary path for skills,
-   flows, and harness scripts
+1. [Agent Quickstart](AGENT-QUICKSTART.md) — primary path for skills,
+   flows, and runtime scripts
 2. [Configuration](CONFIGURATION.md) — defaults, providers, and
    data-driven resources
 3. [Examples](EXAMPLES.md) — workflows and example outputs

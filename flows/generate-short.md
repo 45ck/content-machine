@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Default harness-oriented path for turning a topic into the artifact chain
+Default path for turning a topic into the file set
 required for a short-form video run.
 
 ## Inputs
@@ -27,9 +27,9 @@ required for a short-form video run.
 
 ## Current Status
 
-Executable. `generate-short` now orchestrates the harness-facing script,
-audio, visuals, render, and publish-prep stages and returns the full
-artifact chain in one JSON envelope.
+Executable. `generate-short` now orchestrates the script, audio,
+visuals, render, and publish-prep stages and returns the full file set
+in one JSON envelope.
 
 ## Suggested Claude Code / Codex Path
 

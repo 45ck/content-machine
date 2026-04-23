@@ -16,7 +16,7 @@ inputs:
     required: false
 outputs:
   - name: skills[]
-    description: Structured list of skill manifests with entrypoints, inputs, outputs, and optional example request paths.
+    description: List of skill manifests with entrypoints, inputs, outputs, and optional example request paths.
 ---
 
 # Skill Catalog
@@ -25,7 +25,7 @@ outputs:
 
 - Claude Code or Codex needs to discover the shipped repo-local skills
   before choosing one.
-- A harness wants a structured catalog instead of scraping markdown by
+- The agent wants a structured catalog instead of scraping markdown by
   hand.
 - The user asks what skills are available in this repository right now.
 
@@ -36,11 +36,11 @@ cat skills/skill-catalog/examples/request.json | \
   node --import tsx scripts/harness/skill-catalog.ts
 ```
 
-## Artifact Contract
+## Output Contract
 
 - Reads the `skills/` tree and parses each `SKILL.md` frontmatter.
 - Skips `skills/_template/` unless explicitly requested.
-- Returns the manifest path, entrypoint, tool list, input/output schema
+- Returns the manifest path, entrypoint, tool list, input/output
   summary, and optional `examples/request.json` path for each skill.
 
 ## Validation Checklist

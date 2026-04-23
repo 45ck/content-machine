@@ -1,6 +1,6 @@
 # Flows
 
-This directory holds harness-consumable flow specs and executable
+This directory holds coding-agent flow specs and executable
 `.flow` manifests that orchestrate skills.
 
 Role split:
@@ -11,10 +11,10 @@ Role split:
 
 ## Purpose
 
-- Give Claude Code, Codex CLI, and similar harnesses a stable place to
+- Give Claude Code, Codex CLI, and similar tools a stable place to
   look for orchestration docs.
 - Keep flow intent separate from implementation details in `src/cli/`.
-- Mirror the direction docs that move orchestration toward prompt-language
+- Mirror the direction docs that move orchestration toward `45ck/prompt-language`
   flows over runtime-backed skills.
 
 ## Expected layout
@@ -33,14 +33,14 @@ machine-readable manifests and should stay minimal.
 
 ## For Claude Code and Codex CLI
 
-A flow doc should tell the harness:
+A flow doc should tell the agent:
 
 1. What problem the flow solves.
 2. Which inputs are required and where they come from.
 3. Which skills or sub-flows it calls.
 4. Which artifacts and completion gates mark success.
 
-If a harness cannot infer retry points, side effects, and failure
+If an agent cannot infer retry points, side effects, and failure
 outputs from the doc, the flow is under-specified.
 
 ## Authoring rules
@@ -49,7 +49,7 @@ outputs from the doc, the flow is under-specified.
   executable flow.
 - Use the vocabulary from
   [`docs/direction/05-flow-catalog.md`](../docs/direction/05-flow-catalog.md).
-- Avoid embedding literal prompt-language DSL in prose docs. Use plain
+- Avoid embedding literal `45ck/prompt-language` DSL in prose docs. Use plain
   English or pseudocode so authoring tools do not misread the file as a
   live program.
 - Name flow files in kebab-case and keep flow purpose action-oriented.
@@ -72,7 +72,7 @@ Use [`_template/FLOW.md`](_template/FLOW.md) as the starting point.
 ## Current Flow Docs
 
 - [`doctor.md`](doctor.md) — structured diagnostics path
-- [`generate-short.md`](generate-short.md) — default harness-oriented
+- [`generate-short.md`](generate-short.md) — default full-video
   topic-to-video path
 - [`reverse-engineer-winner.md`](reverse-engineer-winner.md) — reference
   short analysis path
@@ -85,7 +85,7 @@ Use [`_template/FLOW.md`](_template/FLOW.md) as the starting point.
 - [`reverse-engineer-winner.flow`](reverse-engineer-winner.flow) — run
   the reference-video ingest path
 
-Use the harness helpers to enumerate or execute them:
+Use the runtime helpers to enumerate or execute them:
 
 ```bash
 node --import tsx scripts/harness/flow-catalog.ts

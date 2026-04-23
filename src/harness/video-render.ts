@@ -32,7 +32,7 @@ export const VideoRenderRequestSchema = z
     timestampsPath: z.string().min(1),
     audioPath: z.string().min(1),
     audioMixPath: z.string().min(1).optional(),
-    outputPath: z.string().min(1).default('output/harness/render/render.mp4'),
+    outputPath: z.string().min(1).default('output/content-machine/render/render.mp4'),
     outputMetadataPath: z.string().min(1).optional(),
     orientation: OrientationEnum.default('portrait'),
     fps: z.number().int().positive().default(30),

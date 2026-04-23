@@ -1,12 +1,12 @@
 ---
 name: brief-to-script
-description: Turn a topic, packaging hint, or blueprint into a script artifact that the runtime and later stages can consume.
+description: Turn a topic, packaging hint, or blueprint into a script file that the rest of the pack can use.
 allowedTools:
   - shell
   - read
   - write
 model: inherit
-argumentHint: '{"topic":"Redis vs PostgreSQL for caching","archetype":"versus","targetDuration":35,"outputPath":"output/harness/script/script.json"}'
+argumentHint: '{"topic":"Redis vs PostgreSQL for caching","archetype":"versus","targetDuration":35,"outputPath":"output/content-machine/script/script.json"}'
 entrypoint: node --import tsx scripts/harness/brief-to-script.ts
 inputs:
   - name: topic
@@ -20,7 +20,7 @@ inputs:
     required: false
 outputs:
   - name: script.json
-    description: ScriptOutput artifact written to the requested output path.
+    description: Script file written to the requested output path.
 ---
 
 # Brief To Script
@@ -28,14 +28,14 @@ outputs:
 ## Use When
 
 - The user wants a fresh script from a topic or short brief.
-- A harness already has packaging, research, or blueprint artifacts and
-  needs the next deterministic script artifact.
+- The agent already has packaging, research, or blueprint files and
+  needs the next script file.
 - Claude Code or Codex should produce a reusable `script.json` rather
   than freeform prose.
 
 ## Invocation
 
-Pipe JSON to the harness entrypoint:
+Pipe JSON to the repo-side entrypoint:
 
 ```bash
 cat <<'JSON' | node --import tsx scripts/harness/brief-to-script.ts
@@ -43,16 +43,16 @@ cat <<'JSON' | node --import tsx scripts/harness/brief-to-script.ts
   "topic": "Redis vs PostgreSQL for caching",
   "archetype": "versus",
   "targetDuration": 35,
-  "outputPath": "output/harness/script/script.json"
+  "outputPath": "output/content-machine/script/script.json"
 }
 JSON
 ```
 
-## Artifact Contract
+## Output Contract
 
-- Writes one `ScriptOutput` artifact to the requested `outputPath`.
+- Writes one `script.json` file to the requested `outputPath`.
 - If `packagingPath`, `researchPath`, or `blueprintPath` are supplied,
-  they must already exist as valid artifacts.
+  they must already exist.
 - Returns a JSON envelope describing the output path and scene count.
 
 ## Validation Checklist

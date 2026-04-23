@@ -1,5 +1,5 @@
 /**
- * content-machine - harness-first content runtime
+ * content-machine - short-form video skill pack and runtime
  *
  * @packageDocumentation
  */
@@ -68,3 +68,31 @@ export { analyzeVideoToVideoSpecV1 } from './videospec/analyze';
 export type { AnalyzeVideoToVideoSpecV1Options } from './videospec/analyze';
 export { VideoSpecV1Schema, VIDEOSPEC_V1_VERSION } from './domain';
 export type { VideoSpecV1 } from './domain';
+
+// Agent/runtime entrypoints
+export {
+  runHarnessTool,
+  executeHarnessTool,
+  parseHarnessInput,
+  type HarnessArtifact,
+  type HarnessFailure,
+  type HarnessRequestMeta,
+  type HarnessSuccess,
+  type HarnessToolContext,
+  type HarnessToolResult,
+} from './harness/json-stdio';
+export { BriefToScriptRequestSchema, generateBriefToScript } from './harness/brief-to-script';
+export { DoctorReportRequestSchema, runDoctorReport } from './harness/doctor-report';
+export { FlowCatalogRequestSchema, listFlowCatalog } from './harness/flow-catalog';
+export { RunFlowRequestSchema, runFlowHandler, runFlowFromManifest } from './harness/flow-runner';
+export { GenerateShortRequestSchema, runGenerateShort } from './harness/generate-short';
+export { IngestRequestSchema, ingestReferenceVideo } from './harness/ingest';
+export { InstallSkillPackRequestSchema, installSkillPack } from './harness/install-skill-pack';
+export { PublishPrepRequestSchema, runPublishPrep } from './harness/publish-prep';
+export { ScriptToAudioRequestSchema, runScriptToAudio } from './harness/script-to-audio';
+export { SkillCatalogRequestSchema, listSkillCatalog } from './harness/skill-catalog';
+export {
+  TimestampsToVisualsRequestSchema,
+  runTimestampsToVisuals,
+} from './harness/timestamps-to-visuals';
+export { VideoRenderRequestSchema, runVideoRender } from './harness/video-render';

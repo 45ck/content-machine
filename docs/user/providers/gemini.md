@@ -4,7 +4,7 @@ This repo supports Google Gemini for:
 
 - **LLM provider** (script, research helpers, keyword extraction): `llm.provider = "gemini"`
 - **AI image generation** (visuals): `visuals.provider = "nanobanana"`
-- **Optional image-to-video synthesis** (media stage): `motionStrategy = "veo"` via the harness flow/runtime path
+- **Optional image-to-video synthesis** (media stage): `motionStrategy = "veo"` via the flow/runtime path
 
 ## Setup
 

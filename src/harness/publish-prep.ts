@@ -20,7 +20,7 @@ export const PublishPrepRequestSchema = z
   .object({
     videoPath: z.string().min(1),
     scriptPath: z.string().min(1),
-    outputDir: z.string().min(1).default('output/harness/publish-prep'),
+    outputDir: z.string().min(1).default('output/content-machine/publish-prep'),
     platform: PlatformEnum.default('tiktok'),
     packaging: z
       .object({

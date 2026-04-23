@@ -12,11 +12,11 @@
   </picture>
 </p>
 
-**Harness-first content runtime for Claude Code, Codex CLI, and similar coding agents.**
+**Short-form video skill pack for Claude Code, Codex CLI, and similar coding-agent CLIs.**
 
 Content Machine is moving away from a monolithic "AI video agent" and
-toward repo-local skills, typed artifacts, and deterministic runtime
-surfaces that coding harnesses can call directly.
+toward repo-local skills, `45ck/prompt-language` flows, and deterministic
+runtime scripts that coding-agent CLIs can call directly.
 
 ```bash
 cat <<'JSON' | node --import tsx scripts/harness/brief-to-script.ts
@@ -24,7 +24,7 @@ cat <<'JSON' | node --import tsx scripts/harness/brief-to-script.ts
   "topic": "Redis vs PostgreSQL for caching",
   "archetype": "versus",
   "targetDuration": 35,
-  "outputPath": "output/harness/script/script.json"
+  "outputPath": "output/content-machine/script/script.json"
 }
 JSON
 ```
@@ -35,7 +35,7 @@ JSON
   <img src="assets/demo/demo-4-latest-news.gif" alt="Latest news demo" width="32%" />
 </p>
 
-> Early development. Skills, flows, and harness scripts are now the
+> Early development. Skills, flows, and runtime scripts are now the
 > primary interface. The legacy CLI control plane has been moved into
 > [`archive/legacy-cli/`](archive/legacy-cli/README.md); the remaining
 > `cm` shell is intentionally thin.
@@ -52,19 +52,19 @@ npm install
 
 Node.js 20.6+ is required.
 
-### Primary Path: Claude Code and Codex CLI
+### Primary Path: Coding-Agent CLIs
 
 Use these three surfaces together:
 
-- [`skills/`](skills/README.md): intent contracts for repo-local skills
-- [`flows/`](flows/README.md): orchestration contracts for multi-step runs
-- [`scripts/harness/`](scripts/harness/README.md): executable JSON-stdio entrypoints
+- [`skills/`](skills/README.md): importable short-form video skills
+- [`flows/`](flows/README.md): `45ck/prompt-language` orchestration docs and manifests
+- [`scripts/harness/`](scripts/harness/README.md): repo-side JSON-stdio runtime entrypoints
 
 If you are deciding where to start:
 
 - Start with a skill when you want one capability.
 - Start with a flow when you want a full multi-step path.
-- Start with `scripts/harness/` only when you need the exact executable
+- Start with `scripts/harness/` only when you need the exact repo-side executable
   entrypoint.
 
 Discover what is shipped:
@@ -79,7 +79,7 @@ cat <<'JSON' | node --import tsx scripts/harness/flow-catalog.ts
 JSON
 ```
 
-Current harness entrypoints:
+Current repo-side entrypoints:
 
 ```bash
 node --import tsx scripts/harness/doctor-report.ts
@@ -93,6 +93,21 @@ node --import tsx scripts/harness/script-to-audio.ts
 node --import tsx scripts/harness/timestamps-to-visuals.ts
 node --import tsx scripts/harness/video-render.ts
 node --import tsx scripts/harness/publish-prep.ts
+node --import tsx scripts/harness/install-skill-pack.ts
+```
+
+If you want these skills inside another project, install the package
+there and materialize a local pack:
+
+```bash
+npm install @45ck/content-machine
+
+cat <<'JSON' | node ./node_modules/@45ck/content-machine/agent/run-tool.mjs install-skill-pack
+{
+  "targetDir": ".content-machine",
+  "includeFlows": true
+}
+JSON
 ```
 
 Shipped starter skills:
@@ -146,7 +161,7 @@ cat skills/reverse-engineer-winner/examples/request.json | \
   node --import tsx scripts/harness/ingest.ts
 ```
 
-**3. Generate a script artifact**
+**3. Generate a script**
 
 ```bash
 cat skills/brief-to-script/examples/request.json | \
@@ -168,28 +183,28 @@ cat skills/doctor-report/examples/request.json | \
 ```
 
 The primary user guide is now
-[docs/user/HARNESS-QUICKSTART.md](docs/user/HARNESS-QUICKSTART.md). The
+[docs/user/AGENT-QUICKSTART.md](docs/user/AGENT-QUICKSTART.md). The
 archived CLI notes live under
 [archive/legacy-cli/](archive/legacy-cli/README.md).
 
 ## How The Repo Is Shaped
 
 - `skills/` defines when to use a capability, what it expects, and what
-  artifacts it should return.
-- `flows/` defines multi-step orchestration over one or more skills.
+  files it should return.
+- `flows/` defines `45ck/prompt-language` orchestration over one or more skills.
 - `scripts/harness/` exposes deterministic JSON-stdio entrypoints that
   execute the work.
-- `src/` still contains the small TypeScript kernel for media logic,
-  captions, sync, reverse-engineering, and artifact contracts.
+- `src/` still contains the media logic for captions, sync,
+  reverse-engineering, render, and publish prep.
 - `docs/direction/` is the source of truth for the migration plan and
   cut lines.
 
-Typical artifact flow:
+Typical output flow:
 
 ```text
 skill request
-  -> flow or direct harness script
-  -> typed artifacts on disk
+  -> flow or direct runtime script
+  -> files on disk
   -> optional render / review / evaluation outputs
 ```
 
@@ -198,8 +213,8 @@ can also write to explicit output paths.
 
 ## What You Can Do
 
-- Generate a short-form video artifact chain from a topic.
-- Reverse-engineer a winning reference short into structured artifacts.
+- Generate a short-form video from a topic.
+- Reverse-engineer a winning reference short from a local file or URL.
 - Generate only scripts, audio, visuals, or renders when needed.
 - Run structured diagnostics before expensive generation work.
 - Use the thin `cm` shell only for config, diagnostics, MCP, or render compatibility.
@@ -208,12 +223,12 @@ can also write to explicit output paths.
 
 ## Documentation
 
-- **[Harness Quickstart](docs/user/HARNESS-QUICKSTART.md)** — primary user path for Claude Code and Codex CLI
-- **[skills/](skills/README.md)** — harness-facing skill contracts
+- **[Agent Quickstart](docs/user/AGENT-QUICKSTART.md)** — primary user path for Claude Code, Codex CLI, and similar tools
+- **[skills/](skills/README.md)** — agent-facing skill contracts
 - **[flows/](flows/README.md)** — orchestration contracts and executable flows
-- **[scripts/harness/](scripts/harness/README.md)** — JSON-stdio entrypoints and execution model
+- **[scripts/harness/](scripts/harness/README.md)** — repo-side JSON-stdio entrypoints and execution model
 - **[Direction](DIRECTION.md)** — migration plan, cut lines, and archive policy
-- **[User Guide](docs/user/README.md)** — harness-first user docs
+- **[User Guide](docs/user/README.md)** — skill-pack docs
 - **[Developer Docs](docs/dev/README.md)** — active architecture, registries, and legacy engineering docs
 - **[Reference](docs/reference/)** — generated references, environment variables, glossary, and CLI contracts
 - **[Archive](archive/README.md)** — frozen legacy control-plane code and notes

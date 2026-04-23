@@ -2,9 +2,9 @@
   "visualsPath": "output/visuals.json",
   "timestampsPath": "output/timestamps.json",
   "audioPath": "output/audio.wav",
-  "outputPath": "output/harness/render/video.mp4",
+  "outputPath": "output/content-machine/render/video.mp4",
   "orientation": "portrait",
   "fps": 30,
   "downloadAssets": true,
-  "outputMetadataPath": "output/harness/render/render.json"
+  "outputMetadataPath": "output/content-machine/render/render.json"
 }

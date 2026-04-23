@@ -20,7 +20,7 @@ export const BriefToScriptRequestSchema = z
     topic: z.string().min(1),
     archetype: ArchetypeEnum.default('listicle'),
     targetDuration: z.number().positive().default(45),
-    outputPath: z.string().min(1).default('output/harness/script/script.json'),
+    outputPath: z.string().min(1).default('output/content-machine/script/script.json'),
     packagingPath: z.string().min(1).optional(),
     blueprintPath: z.string().min(1).optional(),
     researchPath: z.string().min(1).optional(),

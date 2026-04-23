@@ -1,7 +1,7 @@
 {
   "topic": "Redis vs PostgreSQL for caching",
   "archetype": "versus",
-  "outputDir": "output/harness/generate-short",
+  "outputDir": "output/content-machine/generate-short",
   "audio": {
     "voice": "af_heart"
   },

@@ -1,5 +1,5 @@
 name: generate-short
-description: Execute the default topic-to-video path over the shipped harness skills and write run-scoped artifacts under runs/{runId}.
+description: Execute the default topic-to-video path over the shipped skills and write run-scoped files under runs/{runId}.
 entrySkill: generate-short
 operatorNotes: flows/generate-short.md
 defaultOutputDir: runs/{runId}

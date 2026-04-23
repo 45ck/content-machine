@@ -2,5 +2,5 @@
   "topic": "Redis vs PostgreSQL for caching",
   "archetype": "versus",
   "targetDuration": 35,
-  "outputPath": "output/harness/script/script.json"
+  "outputPath": "output/content-machine/script/script.json"
 }
