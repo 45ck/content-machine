@@ -133,6 +133,14 @@ new skills.
   approve or regenerate selected highlight clips before downstream work
 - [`retry-with-cache/`](retry-with-cache/SKILL.md) — rerun failed
   shorts while keeping valid generated assets
+- [`karaoke-ass-captions/`](karaoke-ass-captions/SKILL.md) — build
+  fixed-position ASS karaoke captions with active-word highlights
+- [`storyboard-continuity-reference/`](storyboard-continuity-reference/SKILL.md)
+  — use previous storyboard frames as controlled continuity references
+- [`generated-asset-versioning/`](generated-asset-versioning/SKILL.md)
+  — preserve revision history for generated media assets
+- [`asset-fingerprint-cache/`](asset-fingerprint-cache/SKILL.md) —
+  fingerprint live media assets for cache busting and change detection
 - [`doctor-report/`](doctor-report/SKILL.md) — structured environment
   and dependency diagnostics
 - [`skill-catalog/`](skill-catalog/SKILL.md) — enumerate shipped skills,
