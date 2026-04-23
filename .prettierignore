@@ -27,3 +27,4 @@ validate.json
 pnpm-lock.yaml
 package-lock.json
 CHANGELOG.md
+*.flow

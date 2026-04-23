@@ -1,0 +1,37 @@
+name: generate-short
+description: Execute the default topic-to-video path over the shipped harness skills and write run-scoped artifacts under runs/{runId}.
+entrySkill: generate-short
+operatorNotes: flows/generate-short.md
+defaultOutputDir: runs/{runId}
+inputs:
+  - name: topic
+    description: Topic or brief to turn into a short.
+    required: true
+  - name: archetype
+    description: Optional archetype override such as listicle or versus.
+    required: false
+  - name: referenceVideoPath
+    description: Optional reference short to ingest before generation.
+    required: false
+  - name: outputDir
+    description: Optional explicit output root; otherwise the flow binds runs/{runId}.
+    required: false
+outputs:
+  - name: script/script.json
+    description: Generated script artifact.
+    required: true
+  - name: audio/audio.wav
+    description: Generated voiceover artifact.
+    required: true
+  - name: audio/timestamps.json
+    description: Generated timestamps artifact.
+    required: true
+  - name: visuals/visuals.json
+    description: Generated visuals artifact.
+    required: true
+  - name: render/video.mp4
+    description: Final rendered short.
+    required: true
+  - name: publish-prep/
+    description: Publish-prep bundle when the review gate is enabled.
+    required: false

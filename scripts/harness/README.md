@@ -13,6 +13,8 @@ npx tsx scripts/harness/ingest.ts < request.json
 
 Current entrypoints:
 
+- `flow-catalog.ts`
+- `run-flow.ts`
 - `skill-catalog.ts`
 - `generate-short.ts`
 - `brief-to-script.ts`

@@ -1,7 +1,7 @@
 # Flows
 
-This directory holds harness-consumable flow specs and, later,
-executable `.flow` programs that orchestrate skills.
+This directory holds harness-consumable flow specs and executable
+`.flow` manifests that orchestrate skills.
 
 ## Purpose
 
@@ -18,12 +18,12 @@ flows/
   README.md
   _template/
     FLOW.md
-  <flow-name>.flow      # future executable artifact
+  <flow-name>.flow      # executable manifest
   <flow-name>.md        # optional operator notes
 ```
 
-Markdown in this directory is documentation. Future `.flow` files will
-be executable artifacts and should stay minimal.
+Markdown in this directory is operator documentation. `.flow` files are
+machine-readable manifests and should stay minimal.
 
 ## For Claude Code and Codex CLI
 
@@ -69,6 +69,20 @@ Use [`_template/FLOW.md`](_template/FLOW.md) as the starting point.
   topic-to-video path
 - [`reverse-engineer-winner.md`](reverse-engineer-winner.md) — reference
   short analysis path
+
+## Current Executable Flows
+
+- [`generate-short.flow`](generate-short.flow) — run the end-to-end
+  skills-first topic-to-video path
+- [`reverse-engineer-winner.flow`](reverse-engineer-winner.flow) — run
+  the reference-video ingest path
+
+Use the harness helpers to enumerate or execute them:
+
+```bash
+npx tsx scripts/harness/flow-catalog.ts
+npx tsx scripts/harness/run-flow.ts
+```
 
 ## Related docs
 

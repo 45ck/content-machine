@@ -14,6 +14,7 @@ Use these first when working as Claude Code, Codex CLI, or similar
 coding harnesses:
 
 - `skills/*/SKILL.md` — harness-facing contracts
+- `flows/*.flow` — executable flow manifests
 - `scripts/harness/*.ts` — deterministic JSON-stdio entrypoints
 - `src/harness/*` — reusable logic behind those entrypoints
 - `src/*` runtime modules — direct imports only when a harness script
@@ -26,6 +27,8 @@ to `src/cli/`.
 ## Harness Entry Points
 
 ```
+npx tsx scripts/harness/flow-catalog.ts
+npx tsx scripts/harness/run-flow.ts
 npx tsx scripts/harness/skill-catalog.ts
 npx tsx scripts/harness/generate-short.ts
 npx tsx scripts/harness/brief-to-script.ts
@@ -126,7 +129,7 @@ Update workflow: edit the YAML, then run `npm run repo-facts:gen` or `npm run gl
 ## Important Paths
 
 - `skills/` — harness-facing skill contracts
-- `flows/` — future orchestration surface
+- `flows/` — flow docs plus executable `.flow` manifests
 - `scripts/harness/` — deterministic JSON-stdio entrypoints
 - `docs/direction/` — migration plan and boundaries
 - `archive/legacy-cli/` — frozen landing zone for surfaces that will be demoted or removed

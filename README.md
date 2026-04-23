@@ -54,6 +54,8 @@ npm install
 Use the repo-local skills and the JSON-stdio harness entrypoints:
 
 ```bash
+npx tsx scripts/harness/flow-catalog.ts
+npx tsx scripts/harness/run-flow.ts
 npx tsx scripts/harness/skill-catalog.ts
 npx tsx scripts/harness/generate-short.ts
 npx tsx scripts/harness/brief-to-script.ts
@@ -82,8 +84,19 @@ Requires Node.js >= 20. See [full installation guide](docs/user/INSTALLATION.md)
 **1. Run the full generate-short flow**
 
 ```bash
-cat skills/generate-short/examples/request.json | \
-  npx tsx scripts/harness/generate-short.ts
+cat <<'JSON' | npx tsx scripts/harness/run-flow.ts
+{
+  "flow": "generate-short",
+  "runId": "demo-run",
+  "input": {
+    "topic": "Redis vs PostgreSQL for caching",
+    "audio": { "voice": "af_heart" },
+    "visuals": { "provider": "pexels", "orientation": "portrait" },
+    "render": { "fps": 30, "downloadAssets": true },
+    "publishPrep": { "enabled": true, "platform": "tiktok" }
+  }
+}
+JSON
 ```
 
 **2. Reverse-engineer a reference short**
