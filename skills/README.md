@@ -100,14 +100,20 @@ new skills.
   clipping, selection, reframing, and short extraction from long video
 - [`reframe-vertical/`](reframe-vertical/SKILL.md) — speaker, face,
   cursor, and fallback portrait crop strategy
+- [`face-or-screen-reframe/`](face-or-screen-reframe/SKILL.md) —
+  branch early between face-led and screen-led portrait crop logic
 - [`boundary-snap/`](boundary-snap/SKILL.md) — snap proposed clip
   boundaries to words, sentence ends, and silence
 - [`text-selection-to-timestamps/`](text-selection-to-timestamps/SKILL.md)
   — recover exact ranges from transcript text selections
+- [`token-level-caption-timestamps/`](token-level-caption-timestamps/SKILL.md)
+  — capture word-level caption timing from real ASR tokens
 - [`reddit-story-short/`](reddit-story-short/SKILL.md) — Reddit/text
   story adaptation into narration-led shorts
 - [`ugc-avatar-short/`](ugc-avatar-short/SKILL.md) — avatar or AI-actor
   spokesperson short construction
+- [`scene-by-scene-faceless-pipeline/`](scene-by-scene-faceless-pipeline/SKILL.md)
+  — deterministic faceless short assembly with per-scene artifacts
 - [`slideshow-risk-review/`](slideshow-risk-review/SKILL.md) —
   repetition and weak-motion review for faceless or animation-heavy
   shorts
@@ -141,6 +147,8 @@ new skills.
   — preserve revision history for generated media assets
 - [`asset-fingerprint-cache/`](asset-fingerprint-cache/SKILL.md) —
   fingerprint live media assets for cache busting and change detection
+- [`executive-producer-sendback/`](executive-producer-sendback/SKILL.md)
+  — run multi-stage production as a stateful pass/revise/send-back loop
 - [`doctor-report/`](doctor-report/SKILL.md) — structured environment
   and dependency diagnostics
 - [`skill-catalog/`](skill-catalog/SKILL.md) — enumerate shipped skills,
