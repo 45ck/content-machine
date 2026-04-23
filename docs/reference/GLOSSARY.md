@@ -354,12 +354,10 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 **Canonical types:**
 
 - `WorkflowId`
-- `WorkflowDefinition`
 
 **Canonical schemas:**
 
 - `WorkflowIdSchema`
-- `WorkflowDefinitionSchema`
 
 **Where it lives:**
 
@@ -677,10 +675,6 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 
 - Not a caption preset (caption presets affect burned-in caption styling).
 - Not a workflow (workflows orchestrate stages broadly; sync presets only tune sync behavior).
-
-**Canonical types:**
-
-- `SyncPresetConfig`
 
 **Where it lives:**
 

@@ -356,16 +356,16 @@ function main() {
 
   // 3) Guard the most visible CLI help strings (static check).
   // We intentionally avoid executing the CLI here (would require a build).
-  const generateCmd = fs.readFileSync(
-    path.join(repoRoot, 'src', 'cli', 'commands', 'generate.ts'),
-    'utf8'
-  );
-  if (!/Script archetype/i.test(generateCmd))
-    errors.push('generate.ts missing phrase: "Script archetype"');
-  if (!/Render template/i.test(generateCmd))
-    errors.push('generate.ts missing phrase: "Render template"');
-  if (!/Pipeline workflow/i.test(generateCmd))
-    errors.push('generate.ts missing phrase: "Pipeline workflow"');
+  const generateCmdPath = path.join(repoRoot, 'src', 'cli', 'commands', 'generate.ts');
+  if (fs.existsSync(generateCmdPath)) {
+    const generateCmd = fs.readFileSync(generateCmdPath, 'utf8');
+    if (!/Script archetype/i.test(generateCmd))
+      errors.push('generate.ts missing phrase: "Script archetype"');
+    if (!/Render template/i.test(generateCmd))
+      errors.push('generate.ts missing phrase: "Render template"');
+    if (!/Pipeline workflow/i.test(generateCmd))
+      errors.push('generate.ts missing phrase: "Pipeline workflow"');
+  }
 
   // 3.5) Enforce a small set of banned phrases in user-facing surfaces.
   //

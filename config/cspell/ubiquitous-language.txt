@@ -106,7 +106,6 @@ StyleResolverDeps
 Sync
 sync-preset
 SyncPreset
-SyncPresetConfig
 Template
 template-pack
 TemplateId
@@ -152,7 +151,5 @@ VisualsProviderIdSchema
 WordTimestamp
 WordTimestampSchema
 Workflow
-WorkflowDefinition
-WorkflowDefinitionSchema
 WorkflowId
 WorkflowIdSchema

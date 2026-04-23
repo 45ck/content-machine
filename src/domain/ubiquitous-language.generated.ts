@@ -172,8 +172,8 @@ export const UBIQUITOUS_LANGUAGE_TERMS: Record<UbiquitousTermId, UbiquitousLangu
     ownedBy: 'pipeline',
     definition:
       'A pipeline orchestration preset for cm generate. Workflows can select stage modes (builtin vs external/import), provide default inputs, and provide workflow defaults. Workflows may contain exec hooks, which require explicit opt-in.',
-    canonicalTypes: ['WorkflowId', 'WorkflowDefinition'],
-    canonicalSchemas: ['WorkflowIdSchema', 'WorkflowDefinitionSchema'],
+    canonicalTypes: ['WorkflowId'],
+    canonicalSchemas: ['WorkflowIdSchema'],
   },
   preset: {
     id: 'preset',
@@ -272,7 +272,7 @@ export const UBIQUITOUS_LANGUAGE_TERMS: Record<UbiquitousTermId, UbiquitousLangu
     ownedBy: 'sync',
     definition:
       'A named quality/speed tradeoff preset for timestamp sync in `cm generate` (fast/standard/quality/maximum). Sync presets set pipeline mode (standard vs audio-first) and related sync-quality options.',
-    canonicalTypes: ['SyncPresetConfig'],
+    canonicalTypes: [],
     canonicalSchemas: [],
   },
   'template-pack': {

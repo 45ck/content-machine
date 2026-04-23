@@ -207,10 +207,8 @@ terms:
       - Not a script format.
     canonicalTypes:
       - WorkflowId
-      - WorkflowDefinition
     canonicalSchemas:
       - WorkflowIdSchema
-      - WorkflowDefinitionSchema
     ownedBy: pipeline
     whereItLives:
       - 'Project workflows: ./.cm/workflows/<id>/workflow.json'
@@ -248,8 +246,7 @@ terms:
     nonExamples:
       - Not a caption preset (caption presets affect burned-in caption styling).
       - Not a workflow (workflows orchestrate stages broadly; sync presets only tune sync behavior).
-    canonicalTypes:
-      - SyncPresetConfig
+    canonicalTypes: []
     canonicalSchemas: []
     ownedBy: sync
     whereItLives:
