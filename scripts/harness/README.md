@@ -13,6 +13,7 @@ npx tsx scripts/harness/ingest.ts < request.json
 
 Current entrypoints:
 
+- `generate-short.ts`
 - `brief-to-script.ts`
 - `ingest.ts`
 - `script-to-audio.ts`

@@ -1,0 +1,20 @@
+{
+  "topic": "Redis vs PostgreSQL for caching",
+  "archetype": "versus",
+  "outputDir": "output/harness/generate-short",
+  "audio": {
+    "voice": "af_heart"
+  },
+  "visuals": {
+    "provider": "pexels",
+    "orientation": "portrait"
+  },
+  "render": {
+    "fps": 30,
+    "downloadAssets": true
+  },
+  "publishPrep": {
+    "enabled": true,
+    "platform": "tiktok"
+  }
+}

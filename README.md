@@ -54,6 +54,7 @@ npm install
 Use the repo-local skills and the JSON-stdio harness entrypoints:
 
 ```bash
+npx tsx scripts/harness/generate-short.ts
 npx tsx scripts/harness/brief-to-script.ts
 npx tsx scripts/harness/ingest.ts
 npx tsx scripts/harness/publish-prep.ts
@@ -61,6 +62,7 @@ npx tsx scripts/harness/publish-prep.ts
 
 Starter skills:
 
+- [skills/generate-short/SKILL.md](skills/generate-short/SKILL.md)
 - [skills/brief-to-script/SKILL.md](skills/brief-to-script/SKILL.md)
 - [skills/reverse-engineer-winner/SKILL.md](skills/reverse-engineer-winner/SKILL.md)
 - [skills/publish-prep-review/SKILL.md](skills/publish-prep-review/SKILL.md)
@@ -75,21 +77,28 @@ Requires Node.js >= 20. See [full installation guide](docs/user/INSTALLATION.md)
 
 ## Quick Start
 
-**1. Reverse-engineer a reference short**
+**1. Run the full generate-short flow**
+
+```bash
+cat skills/generate-short/examples/request.json | \
+  npx tsx scripts/harness/generate-short.ts
+```
+
+**2. Reverse-engineer a reference short**
 
 ```bash
 cat skills/reverse-engineer-winner/examples/request.json | \
   npx tsx scripts/harness/ingest.ts
 ```
 
-**2. Generate a script artifact**
+**3. Generate a script artifact**
 
 ```bash
 cat skills/brief-to-script/examples/request.json | \
   npx tsx scripts/harness/brief-to-script.ts
 ```
 
-**3. Review a render before upload**
+**4. Review a render before upload**
 
 ```bash
 cat skills/publish-prep-review/examples/request.json | \
@@ -136,7 +145,7 @@ cm render  --input visuals.json                # Remotion renders MP4
 
 - **[skills/](skills/README.md)** — starter harness skills for Claude Code and Codex CLI
 - **[scripts/harness/](scripts/harness/README.md)** — JSON-stdio deterministic entrypoints
-- **[flows/](flows/README.md)** — flow docs that will replace CLI control-plane behavior
+- **[flows/](flows/README.md)** — executable and planned flow docs for agent-driven orchestration
 - **[User Guide](docs/user/README.md)** — installation, configuration, CLI reference, examples
 - **[Developer Docs](docs/dev/README.md)** — architecture, contributing guides, specs
 - **[Reference](docs/reference/)** — generated CLI references, environment variables, glossary

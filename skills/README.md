@@ -69,6 +69,8 @@ new skills.
 
 ## Shipped Starter Skills
 
+- [`generate-short/`](generate-short/SKILL.md) — topic to full artifact
+  chain under one output directory
 - [`brief-to-script/`](brief-to-script/SKILL.md) — topic or blueprint to
   `script.json`
 - [`reverse-engineer-winner/`](reverse-engineer-winner/SKILL.md) —

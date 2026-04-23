@@ -26,6 +26,7 @@ to `src/cli/`.
 ## Harness Entry Points
 
 ```
+npx tsx scripts/harness/generate-short.ts
 npx tsx scripts/harness/brief-to-script.ts
 npx tsx scripts/harness/ingest.ts
 npx tsx scripts/harness/publish-prep.ts
@@ -33,8 +34,12 @@ npx tsx scripts/harness/publish-prep.ts
 
 Current starter skills:
 
+- `generate-short`
 - `brief-to-script`
 - `reverse-engineer-winner`
+- `script-to-audio`
+- `timestamps-to-visuals`
+- `video-render`
 - `publish-prep-review`
 
 ## Legacy Pipeline Overview

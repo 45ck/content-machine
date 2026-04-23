@@ -12,10 +12,14 @@ required for a short-form video run.
 - `targetDuration` (optional)
 - `referenceVideo` (optional, used to seed blueprint or comparative work)
 
-## Skills Called
+## Primary Skill
 
-1. `brief-to-script`
-2. `reverse-engineer-winner` when a reference video is present
+- `generate-short`
+
+## Stage Skills Used Internally
+
+1. `reverse-engineer-winner` when a reference video is present
+2. `brief-to-script`
 3. `script-to-audio`
 4. `timestamps-to-visuals`
 5. `video-render`
@@ -23,15 +27,14 @@ required for a short-form video run.
 
 ## Current Status
 
-Documentation-first. The flow is not executable yet, but the skill
-contracts and harness scripts for script, ingest, audio, visuals,
-render, and publish review now exist.
+Executable. `generate-short` now orchestrates the harness-facing script,
+audio, visuals, render, and publish-prep stages and returns the full
+artifact chain in one JSON envelope.
 
 ## Suggested Claude Code / Codex Path
 
-1. If the user supplied a reference video, run `reverse-engineer-winner`.
-2. Generate `script.json` with `brief-to-script`.
-3. Generate `audio.wav` and `timestamps.json` with `script-to-audio`.
-4. Generate `visuals.json` with `timestamps-to-visuals`.
-5. Render `video.mp4` with `video-render`.
-6. Run `publish-prep-review` before calling the job done.
+1. Prefer `generate-short` for the normal end-to-end path.
+2. Supply `referenceVideoPath` when the user wants winner analysis to
+   shape the script before generation.
+3. Drop to stage-level skills only when you need to inspect, replace, or
+   rerun one artifact boundary in isolation.
