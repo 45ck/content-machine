@@ -88,6 +88,9 @@ new skills.
 
 ## Shipped Starter Skills
 
+- [`short-form-production-playbook/`](short-form-production-playbook/SKILL.md)
+  — hook-first editorial, visual assembly, and reject-regenerate craft
+  guidance for making strong shorts
 - [`doctor-report/`](doctor-report/SKILL.md) — structured environment
   and dependency diagnostics
 - [`skill-catalog/`](skill-catalog/SKILL.md) — enumerate shipped skills,
