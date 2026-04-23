@@ -8,7 +8,7 @@
  *
  * @cmTerm reconstruction-fidelity
  */
-import type { VideoSpecV1 } from '../videospec/schema';
+import type { VideoSpecV1 } from '../domain';
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -143,9 +143,7 @@ function scoreSceneCount(a: VideoSpecV1, b: VideoSpecV1): MetricScore {
 
 function scoreSceneDurations(a: VideoSpecV1, b: VideoSpecV1): MetricScore {
   const durs = (spec: VideoSpecV1) =>
-    spec.timeline.shots
-      .map((s) => s.end - s.start)
-      .sort((x, y) => x - y);
+    spec.timeline.shots.map((s) => s.end - s.start).sort((x, y) => x - y);
   const da = durs(a);
   const db = durs(b);
   // Pad shorter array with zeros for cosine similarity

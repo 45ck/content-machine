@@ -28,7 +28,7 @@ function montageSegments() {
     '0xFFC107',
     '0xFF9800',
   ];
-  return colors.map((color, i) => ({
+  return colors.map((color) => ({
     duration: 1,
     video: { type: 'color' as const, color, size: '1080x1920' },
     audio: { type: 'silence' as const },

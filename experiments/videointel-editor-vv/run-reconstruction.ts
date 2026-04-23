@@ -20,8 +20,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 import { generateScript } from '../../src/script/generator';
 import { checkBlueprintCompliance } from '../../src/script/blueprint-compliance';
-import { compareVideoSpecs } from '../../src/videointel/compare';
-import { analyzeVideoToVideoSpecV1 } from '../../src/videospec/analyze';
 import { createLLMProvider } from '../../src/core/llm';
 import type { VideoBlueprintV1, VideoSpecV1, VideoThemeV1 } from '../../src/domain';
 import type { ScriptOutput } from '../../src/script/generator';
@@ -79,6 +77,8 @@ function findRealManifests(resultsDir: string, filter?: string): string[] {
 /*  Main                                                               */
 /* ------------------------------------------------------------------ */
 
+// The experiment intentionally keeps the orchestration inline for readability.
+// eslint-disable-next-line sonarjs/cognitive-complexity
 async function main(): Promise<void> {
   const { doRender, verbose, manifestFilter } = parseArgs();
   const resultsDir = path.resolve(__dirname, 'results');
@@ -139,17 +139,24 @@ async function main(): Promise<void> {
         path.join(resultsDir, `${name}.reconstructed-script.json`),
         JSON.stringify(script, null, 2)
       );
-      console.log(`    Script: ${script.scenes.length} scenes, hook="${script.hook?.substring(0, 40)}..."`);
+      console.log(
+        `    Script: ${script.scenes.length} scenes, hook="${script.hook?.substring(0, 40)}..."`
+      );
 
       // Check blueprint compliance
       const compliance = checkBlueprintCompliance(script, blueprint);
       const compIcon = compliance.fail === 0 ? '\u2713' : '\u2717';
-      console.log(`    Compliance: ${compIcon} ${compliance.pass}P / ${compliance.warn}W / ${compliance.fail}F`);
+      console.log(
+        `    Compliance: ${compIcon} ${compliance.pass}P / ${compliance.warn}W / ${compliance.fail}F`
+      );
 
       if (verbose) {
         for (const check of compliance.checks) {
-          const icon = check.status === 'pass' ? '\u2713' : check.status === 'warn' ? '~' : '\u2717';
-          console.log(`      ${icon} ${check.name}: expected=${check.expected} actual=${check.actual}${check.note ? ` (${check.note})` : ''}`);
+          const icon =
+            check.status === 'pass' ? '\u2713' : check.status === 'warn' ? '~' : '\u2717';
+          console.log(
+            `      ${icon} ${check.name}: expected=${check.expected} actual=${check.actual}${check.note ? ` (${check.note})` : ''}`
+          );
         }
       }
 
@@ -168,7 +175,13 @@ async function main(): Promise<void> {
       console.log(`    ERROR: ${msg}`);
       results.push({
         name,
-        script: { scenes: [], hook: '', cta: '', hashtags: [], mood: '' } as unknown as ScriptOutput,
+        script: {
+          scenes: [],
+          hook: '',
+          cta: '',
+          hashtags: [],
+          mood: '',
+        } as unknown as ScriptOutput,
         compliance: { checks: [], pass: 0, warn: 0, fail: 0 },
         error: msg,
       });
@@ -198,17 +211,23 @@ async function main(): Promise<void> {
     const icon = r.compliance.fail === 0 ? '\u2713' : '\u2717';
     if (r.compliance.fail === 0) perfectCount++;
 
-    const sceneSummary = r.script.scenes.map((s) => {
-      const words = s.text.split(/\s+/).filter(Boolean).length;
-      return `${words}w`;
-    }).join(', ');
+    const sceneSummary = r.script.scenes
+      .map((s) => {
+        const words = s.text.split(/\s+/).filter(Boolean).length;
+        return `${words}w`;
+      })
+      .join(', ');
 
-    console.log(`  ${icon} ${r.name}: ${r.compliance.pass}P/${r.compliance.warn}W/${r.compliance.fail}F — scenes=[${sceneSummary}]`);
+    console.log(
+      `  ${icon} ${r.name}: ${r.compliance.pass}P/${r.compliance.warn}W/${r.compliance.fail}F — scenes=[${sceneSummary}]`
+    );
 
     if (r.fidelity) {
       console.log(`    Fidelity: ${(r.fidelity.aggregate * 100).toFixed(1)}%`);
       for (const m of r.fidelity.metrics) {
-        console.log(`      ${m.name}: ${(m.score * 100).toFixed(0)}%${m.note ? ` (${m.note})` : ''}`);
+        console.log(
+          `      ${m.name}: ${(m.score * 100).toFixed(0)}%${m.note ? ` (${m.note})` : ''}`
+        );
       }
     }
   }

@@ -8,8 +8,7 @@
  *
  * @module script
  */
-import type { ScriptOutput } from './schema';
-import type { VideoBlueprintV1 } from '../domain';
+import type { ScriptOutput, VideoBlueprintV1 } from '../domain';
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -97,8 +96,7 @@ function checkDuration(
   const estimated = estimateScriptDuration(script);
   const ratio = target > 0 ? Math.abs(estimated - target) / target : 0;
   const fmt = (n: number) => `${n.toFixed(1)}s`;
-  if (ratio <= 0.1)
-    return ok('Duration', fmt(target), fmt(estimated));
+  if (ratio <= 0.1) return ok('Duration', fmt(target), fmt(estimated));
   if (ratio <= opts.durationTolerance)
     return warn('Duration', fmt(target), fmt(estimated), `${(ratio * 100).toFixed(0)}% deviation`);
   return fail('Duration', fmt(target), fmt(estimated));
@@ -138,16 +136,18 @@ function checkHook(script: ScriptOutput, blueprint: VideoBlueprintV1): Complianc
     const wordCount = firstScene.text.split(/\s+/).filter(Boolean).length;
     const estDur = wordCount / WORDS_PER_SECOND;
     if (estDur <= hookDur * 2) {
-      return warn('Hook', `required (~${hookDur.toFixed(1)}s)`, `first scene ~${estDur.toFixed(1)}s`, 'short opening scene');
+      return warn(
+        'Hook',
+        `required (~${hookDur.toFixed(1)}s)`,
+        `first scene ~${estDur.toFixed(1)}s`,
+        'short opening scene'
+      );
     }
   }
   return fail('Hook', `required (~${hookDur.toFixed(1)}s)`, 'absent');
 }
 
-function checkPacing(
-  script: ScriptOutput,
-  blueprint: VideoBlueprintV1
-): ComplianceCheck {
+function checkPacing(script: ScriptOutput, blueprint: VideoBlueprintV1): ComplianceCheck {
   const expected = blueprint.pacing_profile.classification;
   if (!expected) return ok('Pacing', 'not specified', 'n/a');
 
@@ -156,9 +156,7 @@ function checkPacing(
     if (s.duration && s.duration > 0) return s.duration;
     return s.text.split(/\s+/).filter(Boolean).length / WORDS_PER_SECOND;
   });
-  const avg = sceneDurs.length > 0
-    ? sceneDurs.reduce((a, b) => a + b, 0) / sceneDurs.length
-    : 0;
+  const avg = sceneDurs.length > 0 ? sceneDurs.reduce((a, b) => a + b, 0) / sceneDurs.length : 0;
 
   let actual: string;
   if (avg < 1.0) actual = 'very_fast';
@@ -170,7 +168,8 @@ function checkPacing(
   // Ordinal distance
   const order = ['very_fast', 'fast', 'moderate', 'slow'];
   const dist = Math.abs(order.indexOf(actual) - order.indexOf(expected));
-  if (dist <= 1) return warn('Pacing', expected, actual, `adjacent pacing (avg ${avg.toFixed(1)}s/scene)`);
+  if (dist <= 1)
+    return warn('Pacing', expected, actual, `adjacent pacing (avg ${avg.toFixed(1)}s/scene)`);
   return fail('Pacing', expected, actual);
 }
 
