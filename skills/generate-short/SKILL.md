@@ -1,48 +1,6 @@
 ---
 name: generate-short
-description: Run the default end-to-end short-video path so Claude Code or Codex can produce a full video, captions, and review files without manually stitching stages together.
-allowedTools:
-  - shell
-  - read
-  - write
-model: inherit
-argumentHint: '{"topic":"Redis vs PostgreSQL for caching","archetype":"versus","outputDir":"output/content-machine/generate-short","audio":{"voice":"af_heart"},"visuals":{"provider":"pexels","orientation":"portrait"},"render":{"fps":30,"downloadAssets":true},"publishPrep":{"enabled":true,"platform":"tiktok","requirePass":true}}'
-entrypoint: node --import tsx scripts/harness/generate-short.ts
-inputs:
-  - name: topic
-    description: Short brief or topic string to turn into a full video run.
-    required: true
-  - name: outputDir
-    description: Root directory that will receive script, audio, visuals, render, and publish-prep outputs.
-    required: false
-  - name: referenceVideoPath
-    description: Optional winner or competitor short to ingest before script generation. This is reference analysis only, not raw footage reuse.
-    required: false
-  - name: audio
-    description: Optional audio-stage overrides such as voice, engines, speed, or mock mode.
-    required: false
-  - name: visuals
-    description: Optional visuals-stage overrides such as provider, routing policy, local footage, or gameplay hints.
-    required: false
-  - name: render
-    description: Optional render overrides such as fps, caption settings, mock mode, or explicit output paths.
-    required: false
-  - name: publishPrep
-    description: Optional review-gate settings; enabled by default.
-    required: false
-outputs:
-  - name: script/script.json
-    description: Script file for the generated short.
-  - name: audio/audio.wav
-    description: Voiceover WAV file.
-  - name: audio/timestamps.json
-    description: Word-level timestamps aligned to the generated audio.
-  - name: visuals/visuals.json
-    description: Visual plan for rendering.
-  - name: render/video.mp4
-    description: Final rendered MP4.
-  - name: publish-prep/
-    description: Validation, score, and publish review bundle when publish prep is enabled.
+description: Build a full short from brief to reviewed MP4 while keeping script, audio, visuals, captions, and validation aligned as one edit.
 ---
 
 # Generate Short
@@ -61,12 +19,37 @@ outputs:
   Do not feed already-captioned published shorts back in as raw visuals
   or gameplay.
 
-## Invocation
+## What This Skill Owns
 
-```bash
-cat skills/generate-short/examples/request.json | \
-  node --import tsx scripts/harness/generate-short.ts
-```
+- Brief-to-script fit for short-form pacing.
+- Audio and timestamp generation that the caption system can actually
+  use.
+- Visual planning that respects caption space instead of fighting it.
+- Caption-treatment choice through
+  [`short-form-captions`](../short-form-captions/SKILL.md).
+- Final render and review gating.
+
+## Workflow
+
+1. Start with the brief, not the render flags.
+2. Generate a script with enough punch to support chunked reading.
+3. Generate audio and timestamps cleanly enough that captions will not
+   be forced to compensate.
+4. Build visuals that leave caption room and avoid baked-in source text.
+5. Choose the caption family before render.
+6. Render.
+7. Review. Reject bad outputs instead of rebranding them as acceptable.
+
+## Technical Surface
+
+- Full runtime entrypoint when you want repo-side execution from a
+  coding-agent CLI:
+  `node --import tsx scripts/harness/generate-short.ts`
+- Supporting code:
+  `src/harness/generate-short.ts`,
+  `src/render/captions/*`,
+  `src/visuals/*`,
+  `src/validate/*`
 
 ## Output Contract
 
@@ -82,8 +65,8 @@ cat skills/generate-short/examples/request.json | \
 - Fails closed by default when the review bundle reports `passed: false`.
   Set `publishPrep.requirePass` to `false` only when you explicitly want
   files written even though the review gate failed.
-- Returns a JSON envelope with the main output paths plus publish
-  readiness when the review gate runs.
+- The point of the skill is the finished edit and review outcome, not
+  just the fact that files were produced.
 
 ## Validation Checklist
 
@@ -92,5 +75,7 @@ cat skills/generate-short/examples/request.json | \
   duration.
 - `visuals/visuals.json` exists and matches the timestamps file.
 - `render/video.mp4` and `render/render.json` exist.
+- The caption treatment matches the script and platform instead of using
+  a random default.
 - If `publishPrep.enabled` is true, `publish-prep/` exists and reports a
-  deterministic pass/fail outcome.
+  clear pass/fail outcome.

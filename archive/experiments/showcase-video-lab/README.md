@@ -1,5 +1,8 @@
 # Showcase Video Lab
 
+Archived experiment. This is no longer part of the main skill-pack
+surface.
+
 This experiment makes actual vertical short videos from local repo
 render paths with no browser dependency.
 
@@ -33,10 +36,10 @@ Source rule:
 ## Run
 
 ```bash
-npx tsx experiments/showcase-video-lab/make.ts
+npx tsx archive/experiments/showcase-video-lab/make.ts
 ```
 
-Outputs are written to `experiments/showcase-video-lab/results/`:
+Outputs are written to `archive/experiments/showcase-video-lab/results/`:
 
 - `<slug>/video.mp4`
 - `<slug>/script.json`

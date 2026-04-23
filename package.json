@@ -217,7 +217,7 @@
       "node scripts/quality/lintstaged-repo-facts-gen.mjs"
     ],
     "*.{ts,tsx}": [
-      "eslint --cache --cache-location .cache/eslint/ --max-warnings 0 --fix",
+      "eslint --cache --cache-location .cache/eslint/ --max-warnings 0 --no-warn-ignored --fix",
       "prettier --write"
     ],
     "*.{json,md,yml,yaml}": [

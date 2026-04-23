@@ -1,34 +1,6 @@
 ---
 name: video-render
-description: Render a final MP4 from visuals, timestamps, audio, and render options using the repo's Remotion-based video stack.
-allowedTools:
-  - shell
-  - read
-  - write
-model: inherit
-argumentHint: '{"visualsPath":"output/visuals.json","timestampsPath":"output/timestamps.json","audioPath":"output/audio.wav","outputPath":"output/content-machine/render/video.mp4","orientation":"portrait","fps":30,"downloadAssets":true,"outputMetadataPath":"output/content-machine/render/render.json"}'
-entrypoint: node --import tsx scripts/harness/video-render.ts
-inputs:
-  - name: visualsPath
-    description: Visuals file from the visuals step.
-    required: true
-  - name: timestampsPath
-    description: Timing file from the audio step.
-    required: true
-  - name: audioPath
-    description: Final voiceover WAV file.
-    required: true
-  - name: orientation
-    description: Render orientation override such as portrait, landscape, or square.
-    required: false
-  - name: outputMetadataPath
-    description: Optional output path for render metadata.
-    required: false
-outputs:
-  - name: video.mp4
-    description: Final rendered MP4 written to the requested output path.
-  - name: render.json
-    description: Render metadata written alongside the video unless overridden.
+description: Assemble the final short from visuals, timestamps, audio, and caption treatment, using the repo's Remotion stack without losing short-form visual intent.
 ---
 
 # Video Render
@@ -36,37 +8,62 @@ outputs:
 ## Use When
 
 - The user already has `visuals.json`, `timestamps.json`, and
-  `audio.wav` and wants the render step only.
-- The agent needs a stable final-video step instead of invoking the
-  legacy CLI directly.
-- Claude Code or Codex should return a concrete `video.mp4` and capture
-  render metadata for later review or publish prep.
-- The visual plan already points at caption-clean source media. This
-  step is for composition and caption burn-in, not for hiding text that
-  was already present in the source clips.
+  `audio.wav` and wants the final video assembly step.
+- The main question is no longer script or visual selection but how the
+  final short should feel once motion, timing, and captions are
+  combined.
+- You need to render a real MP4 while preserving caption intent, safe
+  zones, and short-form pacing.
 
-## Invocation
+## What This Skill Owns
 
-```bash
-cat skills/video-render/examples/request.json | \
-  node --import tsx scripts/harness/video-render.ts
-```
+- Final caption treatment selection in collaboration with
+  [`short-form-captions`](../short-form-captions/SKILL.md).
+- Composition choices such as orientation, pacing feel, overlays, and
+  safe render defaults.
+- Final MP4 quality hygiene: clean sources, readable captions, correct
+  dimensions, and reviewable metadata.
 
-## Output Contract
+## Inputs
 
-- Reads existing `visuals.json`, `timestamps.json`, and `audio.wav`
-  files without modifying them.
-- Writes one rendered MP4 to the requested `outputPath`.
-- Writes render metadata to `outputMetadataPath`, defaulting to a
-  sibling `render.json`.
-- If `audioMixPath` is supplied, it must already exist and be valid.
-- Returns a JSON envelope with the final video path plus effective size,
-  fps, and metadata path.
-- Assumes source text control happened upstream in the visuals step.
+- `visuals.json`
+- `timestamps.json`
+- `audio.wav`
+- optional caption preset or caption overrides
+- optional overlays, audio mix, browser override, or template override
+
+## Render Approach
+
+1. Confirm the visuals are caption-clean. Rendering is not the place to
+   hide pre-existing text burned into source footage.
+2. Choose the closest caption family from
+   [`short-form-captions`](../short-form-captions/SKILL.md).
+3. Keep layout readable before adding more styling. Chunk size, line
+   count, and placement matter more than decorative motion.
+4. Use the repo caption presets as the baseline and then override only
+   the specific fields the brief actually needs.
+5. Render and inspect the actual MP4. Do not trust config alone.
+
+## Technical Surface
+
+- Main implementation: `src/render/service.ts`
+- Caption stack: `src/render/captions/*`
+- Optional runtime entrypoint when you want repo-side execution from a
+  coding-agent CLI:
+  `node --import tsx scripts/harness/video-render.ts`
+
+## Outputs
+
+- one final `video.mp4`
+- sibling render metadata, usually `render.json`
+- optional review bundle if this skill is being used under a larger
+  generate-and-review pass
 
 ## Validation Checklist
 
-- `outputPath` exists and points to a non-empty MP4.
-- `outputMetadataPath` exists and reports duration, dimensions, fps, and
-  file size.
-- The render used the supplied visuals, timestamps, and audio files.
+- The output is a real playable MP4 with the expected aspect ratio.
+- Captions remain readable on a phone-sized viewport.
+- The active-word treatment feels synced, not merely mathematically
+  aligned.
+- No source-text collision was introduced by the footage choice.
+- The final frame composition still leaves room for platform chrome.

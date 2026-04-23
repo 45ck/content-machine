@@ -6,17 +6,18 @@ first.
 
 Role split:
 
-- `skills/` = intent guide
-- `flows/` = orchestration guide
-- `scripts/harness/` = repo-side JSON-stdio surface
+- `skills/` = self-contained craft guides and playbooks
+- `flows/` = prompt-language orchestration
+- `scripts/harness/` = optional repo-side execution surfaces
 
 ## Purpose
 
-- Keep agent-facing intent close to the runtime implementation.
-- Define a predictable shape for discovery, invocation, and outputs.
+- Keep agent-facing judgment close to the runtime implementation.
+- Package visual, editorial, and technical know-how where agents will
+  actually look first.
 - Preserve the repo boundary from [`DIRECTION.md`](../DIRECTION.md):
-  skills own agentic playbooks and call scripts/runtime surfaces rather
-  than re-implementing product logic.
+  skills teach how to do the work well; runtime code exists to support
+  execution, not replace the skill.
 
 ## Expected layout
 
@@ -41,8 +42,8 @@ coding agent answer four questions fast:
 
 1. When should this skill trigger?
 2. What inputs does it need?
-3. What deterministic script/runtime surface does it call?
-4. What files should the agent expect back?
+3. How should the work be done well?
+4. What files or outcomes should the agent expect back?
 
 If those answers are missing, the skill is not ready to ship.
 
@@ -53,11 +54,15 @@ want multiple skills composed under one run directory.
 
 - Keep descriptions concrete enough that an agent can select the skill
   without guessing.
-- Treat `SKILL.md` as the canonical human-readable guide for the skill.
-- Prefer clear JSON boundaries and explicit file paths.
+- Treat `SKILL.md` as the canonical guide for how the work should be
+  done, not just how to call a script.
+- Put style language, decision rules, failure cases, and technical
+  mapping in the skill itself.
+- Use bundled references when the skill needs more depth than one file
+  should carry.
 - Document side effects. If a skill writes to disk, say where.
-- Do not duplicate runtime logic in prose. Point to the script or public
-  runtime surface the skill invokes.
+- If scripts exist, describe them as implementation support, not the
+  identity of the skill.
 - Keep evaluation criteria near the skill so agents can verify
   outcomes consistently.
 - Treat already-published shorts and demo reels as reference inputs,
@@ -75,7 +80,8 @@ new skills.
 - Trigger phrases / selection hints
 - Inputs
 - Outputs
-- Runtime or script entrypoints called
+- Style and technical approach
+- Optional runtime or script surfaces
 - Output behavior
 - Constraints and non-goals
 - Validation checklist
@@ -86,6 +92,8 @@ new skills.
   and dependency diagnostics
 - [`skill-catalog/`](skill-catalog/SKILL.md) — enumerate shipped skills,
   entrypoints, and example requests
+- [`short-form-captions/`](short-form-captions/SKILL.md) — caption
+  design, pacing, highlighting, and implementation patterns
 - [`generate-short/`](generate-short/SKILL.md) — topic to full video
   run under one output directory
 - [`brief-to-script/`](brief-to-script/SKILL.md) — topic or blueprint to

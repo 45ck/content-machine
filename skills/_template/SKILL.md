@@ -1,20 +1,6 @@
 ---
 name: <skill-id>
 description: One-sentence summary of the skill for a coding agent.
-allowedTools:
-  - shell
-  - read
-  - write
-model: inherit
-argumentHint: '{}'
-entrypoint: node --import tsx scripts/harness/<entrypoint>.ts
-inputs:
-  - name: exampleInput
-    description: Replace with the real input shape.
-    required: true
-outputs:
-  - name: output.json
-    description: Replace with the real output file.
 ---
 
 # <Skill Name>
@@ -24,19 +10,28 @@ outputs:
 - Describe when the skill should trigger.
 - Describe the main job it completes.
 
-## Invocation
+## Core Approach
 
-```bash
-cat <<'JSON' | node --import tsx scripts/harness/<entrypoint>.ts
-{}
-JSON
-```
+- Describe how the work should be done well.
+- Include the main decision rules and failure cases.
+- Keep the prose focused on judgment, not wrapper syntax.
 
-## Output Contract
+## Inputs
 
-- Describe what files are written.
-- Describe any required upstream files.
-- Describe the JSON envelope returned on stdout.
+- Describe the real inputs the agent needs.
+
+## Outputs
+
+- Describe the files, decisions, or artifacts the agent should expect.
+
+## Optional Runtime Surface
+
+- If the skill has a repo-side script or entrypoint, mention it here.
+- Treat scripts as implementation support, not the whole skill.
+
+## Technical Notes
+
+- Point to the runtime modules or references that matter.
 
 ## Validation Checklist
 

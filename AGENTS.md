@@ -15,14 +15,15 @@ coding-agent CLIs:
 
 - `skills/*/SKILL.md` — skill docs
 - `flows/*.flow` — executable flow manifests
-- `scripts/harness/*.ts` — deterministic JSON-stdio entrypoints
-- `src/harness/*` — reusable logic behind those entrypoints
+- `scripts/harness/*.ts` — optional repo-side execution surfaces
+- `src/harness/*` — reusable logic behind those surfaces
 - `src/*` runtime modules — direct imports only when a runtime script
   does not exist yet
 
 The legacy `cm` surface still exists, but new agent-facing work should
-prefer skills, flows, and runtime scripts over adding more control-plane logic
-to `src/cli/`.
+prefer skills and flows over adding more control-plane logic to
+`src/cli/`. Runtime scripts exist to support the skills, not define
+them.
 
 ## Agent Entry Points
 
@@ -41,6 +42,7 @@ Current starter skills:
 
 - `doctor-report`
 - `skill-catalog`
+- `short-form-captions`
 - `generate-short`
 - `brief-to-script`
 - `reverse-engineer-winner`
@@ -95,7 +97,7 @@ src/
 
 ## Architecture Principles
 
-1. **Skill Pack First** — prefer skills and JSON-stdio runtime scripts for agent-facing work
+1. **Skill Pack First** — prefer skill docs and flow docs for agent-facing work; runtime scripts back execution when needed
 2. **Dependency Injection** — all providers via constructor; static factories for prod, test factories for fakes
 3. **LLM-First Reasoning** — structured outputs via validators, not regex heuristics
 4. **Configuration-Driven** — TOML/JSON config, environment variables for secrets
