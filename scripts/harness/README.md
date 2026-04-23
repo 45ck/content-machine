@@ -15,6 +15,8 @@ Current entrypoints:
 
 - `brief-to-script.ts`
 - `ingest.ts`
+- `script-to-audio.ts`
+- `timestamps-to-visuals.ts`
 - `video-render.ts`
 - `publish-prep.ts`
 

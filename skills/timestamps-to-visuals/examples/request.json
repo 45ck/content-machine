@@ -1,0 +1,6 @@
+{
+  "timestampsPath": "output/harness/audio/timestamps.json",
+  "outputPath": "output/harness/visuals/visuals.json",
+  "provider": "pexels",
+  "orientation": "portrait"
+}

@@ -73,6 +73,10 @@ new skills.
   `script.json`
 - [`reverse-engineer-winner/`](reverse-engineer-winner/SKILL.md) —
   reference short to VideoSpec/VideoTheme/blueprint artifacts
+- [`script-to-audio/`](script-to-audio/SKILL.md) — `script.json` to
+  `audio.wav` + `timestamps.json`
+- [`timestamps-to-visuals/`](timestamps-to-visuals/SKILL.md) —
+  `timestamps.json` to `visuals.json`
 - [`video-render/`](video-render/SKILL.md) — visuals + timestamps +
   audio artifacts to `video.mp4`
 - [`publish-prep-review/`](publish-prep-review/SKILL.md) — script +

@@ -35,6 +35,8 @@
     "cm": "tsx src/cli/index.ts",
     "harness:brief-to-script": "tsx scripts/harness/brief-to-script.ts",
     "harness:ingest": "tsx scripts/harness/ingest.ts",
+    "harness:script-to-audio": "tsx scripts/harness/script-to-audio.ts",
+    "harness:timestamps-to-visuals": "tsx scripts/harness/timestamps-to-visuals.ts",
     "harness:video-render": "tsx scripts/harness/video-render.ts",
     "harness:publish-prep": "tsx scripts/harness/publish-prep.ts",
     "review:latest": "node scripts/review-latest.mjs",

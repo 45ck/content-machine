@@ -10,6 +10,8 @@ describe('parseSkillManifest', () => {
     const skills = [
       'skills/brief-to-script/SKILL.md',
       'skills/reverse-engineer-winner/SKILL.md',
+      'skills/script-to-audio/SKILL.md',
+      'skills/timestamps-to-visuals/SKILL.md',
       'skills/video-render/SKILL.md',
       'skills/publish-prep-review/SKILL.md',
     ];
