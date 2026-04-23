@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 
 const mockFetch = vi.fn();
-global.fetch = mockFetch as unknown as typeof fetch;
+const originalFetch = global.fetch;
 
 function makeGeminiResponse(words: Array<{ word: string; start: number; end: number }>) {
   return {
@@ -28,6 +28,7 @@ describe('gemini-asr', () => {
   beforeEach(() => {
     vi.resetModules();
     mockFetch.mockReset();
+    global.fetch = mockFetch as unknown as typeof fetch;
     process.env.GOOGLE_API_KEY = 'test-google-key';
     delete process.env.GEMINI_API_KEY;
 
@@ -40,6 +41,7 @@ describe('gemini-asr', () => {
     process.env.GOOGLE_API_KEY = originalGoogleKey;
     process.env.GEMINI_API_KEY = originalGeminiKey;
     fs.rmSync(tmpDir, { recursive: true, force: true });
+    global.fetch = originalFetch;
   });
 
   it('happy path — returns words, duration, and text', async () => {

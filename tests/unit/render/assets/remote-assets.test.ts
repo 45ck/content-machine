@@ -1,5 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { Writable } from 'stream';
+
+const originalFetch = global.fetch;
 
 vi.mock('fs', () => ({
   createWriteStream: vi.fn(
@@ -37,8 +39,13 @@ vi.mock('stream', async (importOriginal) => {
 describe('remote asset downloads', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
+    global.fetch = originalFetch;
     const { rm } = await import('fs/promises');
     (rm as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    global.fetch = originalFetch;
   });
 
   it('handles empty plans', async () => {
