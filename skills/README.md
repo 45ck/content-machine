@@ -123,6 +123,16 @@ new skills.
   failed or missing stages instead of the whole project
 - [`reddit-card-overlay/`](reddit-card-overlay/SKILL.md) — build
   reusable Reddit-style post overlays as visual assets
+- [`hook-overlay/`](hook-overlay/SKILL.md) — turn the opening hook into
+  a designed overlay asset instead of a normal subtitle
+- [`timing-sync/`](timing-sync/SKILL.md) — reconcile real audio
+  durations with planned scene timing before render
+- [`continuity-chain/`](continuity-chain/SKILL.md) — generate connected
+  AI-video scene chains with resume-safe continuity
+- [`highlight-approval-loop/`](highlight-approval-loop/SKILL.md) —
+  approve or regenerate selected highlight clips before downstream work
+- [`retry-with-cache/`](retry-with-cache/SKILL.md) — rerun failed
+  shorts while keeping valid generated assets
 - [`doctor-report/`](doctor-report/SKILL.md) — structured environment
   and dependency diagnostics
 - [`skill-catalog/`](skill-catalog/SKILL.md) — enumerate shipped skills,
