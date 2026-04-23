@@ -25,7 +25,7 @@ mkdir $out -Force | Out-Null
 
 # 1) Generate mock audio + timestamps from the example script
 cm audio --mock `
-  --input examples/complex-plane-rotation/script.json `
+  --input fixtures/examples/complex-plane-rotation/script.json `
   --output "$out/audio.wav" `
   --timestamps "$out/timestamps.json"
 
@@ -40,7 +40,7 @@ cm render `
   --input "$out/visuals.json" `
   --timestamps "$out/timestamps.json" `
   --audio "$out/audio.wav" `
-  --template examples/complex-plane-rotation/template/template.json `
+  --template fixtures/examples/complex-plane-rotation/template/template.json `
   --allow-template-code `
   --template-deps never `
   --no-hook `

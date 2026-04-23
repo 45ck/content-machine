@@ -71,10 +71,11 @@ These examples show stage-by-stage pipelines with all options:
 
 ## Runnable Examples
 
-The `examples/` directory at the repo root contains self-contained examples you can run from source:
+The `fixtures/examples/` directory contains the repo's self-contained
+example packages you can run from source:
 
 ```bash
-ls examples/
+ls fixtures/examples/
 ```
 
 ## Demo Gallery

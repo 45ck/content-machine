@@ -6,13 +6,13 @@ while looping gameplay in the bottom half.
 It is intended to be:
 
 - **offline-friendly** (uses `--mock` for audio + visuals),
-- **repo-friendly** (ships as a self-contained example under `examples/`),
+- **repo-friendly** (ships as a self-contained example under `fixtures/examples/`),
 - a clean baseline for adding **KaTeX/LaTeX equation rendering** later.
 
 ## Files
 
-- `examples/complex-plane-rotation/script.json`
-- `examples/complex-plane-rotation/template/template.json`
+- `fixtures/examples/complex-plane-rotation/script.json`
+- `fixtures/examples/complex-plane-rotation/template/template.json`
 
 ## Steps
 
@@ -27,7 +27,7 @@ $out = "output/examples/complex-plane-rotation"
 mkdir $out -Force | Out-Null
 
 cm audio --mock `
-  --input examples/complex-plane-rotation/script.json `
+  --input fixtures/examples/complex-plane-rotation/script.json `
   --output "$out/audio.wav" `
   --timestamps "$out/timestamps.json"
 
@@ -40,7 +40,7 @@ cm render `
   --input "$out/visuals.json" `
   --timestamps "$out/timestamps.json" `
   --audio "$out/audio.wav" `
-  --template examples/complex-plane-rotation/template/template.json `
+  --template fixtures/examples/complex-plane-rotation/template/template.json `
   --allow-template-code `
   --template-deps never `
   --no-hook `
@@ -49,7 +49,7 @@ cm render `
 
 ## Customize
 
-- Split-screen layout is configured in `examples/complex-plane-rotation/template/template.json` via:
+- Split-screen layout is configured in `fixtures/examples/complex-plane-rotation/template/template.json` via:
   - `params.splitScreenRatio`
   - `params.contentPosition`
   - `params.gameplayPosition`
