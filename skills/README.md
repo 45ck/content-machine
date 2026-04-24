@@ -130,7 +130,8 @@ new skills.
 - [`source-media-review/`](source-media-review/SKILL.md) — audit source
   clips before planning or render
 - [`source-media-analyze/`](source-media-analyze/SKILL.md) — probe
-  source media locally for duration, stream, and orientation metadata
+  source media locally for duration, stream, orientation, scene-change,
+  silence, and audio-energy metadata
 - [`media-index/`](media-index/SKILL.md) — maintain a local reusable
   media inventory
 - [`style-profile-library/`](style-profile-library/SKILL.md) — save
@@ -191,5 +192,6 @@ new skills.
 ## Related docs
 
 - [DIRECTION.md](../DIRECTION.md)
+- [docs/direction/07-short-form-roadmap-20260424.md](../docs/direction/07-short-form-roadmap-20260424.md)
 - [docs/direction/04-skill-catalog.md](../docs/direction/04-skill-catalog.md)
 - [docs/direction/phases/phase-4-skills.md](../docs/direction/phases/phase-4-skills.md)

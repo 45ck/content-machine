@@ -1,145 +1,71 @@
-# Vendoring Policy
+# Reference Repo Policy
 
-Content Machine vendors external repositories for stability and offline development.
+Content Machine uses external repositories as references for local
+implementation decisions, but the current `master` branch does not ship
+a top-level `vendor/` directory.
 
-## Vendored Repositories
+## Current Source Of Truth
 
-| Repo                 | Purpose                             | Branch | Notes                       |
-| -------------------- | ----------------------------------- | ------ | --------------------------- |
-| `remotion`           | Video composition framework         | main   | Core dependency             |
-| `short-video-maker`  | Reference patterns (Pexels, Kokoro) | main   | Patterns only, not imported |
-| `open-deep-research` | Deep research agent patterns        | main   | Reference for weekly job    |
+Reference findings are kept in docs, not in committed vendor trees:
 
-### CLI/TUI Frameworks (`vendor/cli/`)
+- `docs/research/` — original short-form and video-generation research
+- `docs/research/external/` — imported bundles and current synthesis
+- `docs/research/external/short-form-vendor-synthesis-20260424.md` —
+  current short-form implementation synthesis
+- `docs/research/external/repo-deep-dive-implementation-priorities-20260424.md`
+  — repo-pattern implementation priorities
+- `docs/research/external/skill-gap-analysis-20260424.md` — local skill
+  coverage versus reference repos
 
-| Repo                     | Purpose                                     | Branch  |
-| ------------------------ | ------------------------------------------- | ------- |
-| `bubbletea`              | Go TUI framework (Elm-style state)          | default |
-| `bubbles`                | Bubble Tea components                       | default |
-| `lipgloss`               | Terminal layout + styling                   | default |
-| `ink`                    | React renderer for interactive CLIs         | default |
-| `pastel`                 | Ink-based CLI framework (FS routing)        | default |
-| `textual`                | Python app-like TUI framework               | default |
-| `rich`                   | Python rich text, tables, progress, live UI | default |
-| `clipanion`              | Type-safe CLI framework                     | default |
-| `oclif-example-multi-ts` | TypeScript multi-command CLI reference      | default |
+Local developer machines may also have research clones outside this repo,
+for example:
 
-### CLI UX Tooling (`vendor/cli/`)
+- `C:\Projects\content-machine-research\repos`
+- `C:\Projects\content-machine\vendor`
 
-| Repo             | Purpose                                  | Branch  |
-| ---------------- | ---------------------------------------- | ------- |
-| `listr2`         | Task runner with animated pipeline UX    | default |
-| `ora`            | Spinners with success/fail states        | default |
-| `cli-spinners`   | Spinner frames dataset                   | default |
-| `log-update`     | Live redraw updates                      | default |
-| `boxen`          | Boxed callouts/cards                     | default |
-| `boxen-cli`      | Boxen CLI helper                         | default |
-| `terminal-image` | Images in terminal (supported emulators) | default |
+Those paths are useful for investigation, but they are not part of the
+committed `master` tree.
 
-### CLI UX Examples (`vendor/cli/`)
+## Most Useful Reference Families
 
-| Repo             | Purpose                           | Branch  |
-| ---------------- | --------------------------------- | ------- |
-| `lazygit`        | Panel-based keyboard UI           | default |
-| `btop`           | High-density dashboard UI         | default |
-| `bat`            | Polished small-tool UX            | default |
-| `workers-sdk`    | Wrangler CLI (Cloudflare Workers) | default |
-| `vercel`         | Vercel CLI patterns               | default |
-| `netlify-cli`    | Netlify CLI patterns              | default |
-| `firebase-tools` | Firebase CLI patterns             | default |
-| `pnpm`           | Large CLI output discipline       | default |
-| `prisma`         | Guided CLI flows                  | default |
+| Family                | References                                                                        | Use                                                                                |
+| --------------------- | --------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| End-to-end generators | `short-video-maker-gyori`, `vidosy`, `MoneyPrinterTurbo`, `ShortGPT`, `clipforge` | Artifact contracts, resumable stages, provider fallbacks, data-first render props. |
+| Longform clipping     | `yt-short-clipper`, `ViriaRevive`, `video-editing-skill`, `whisperX`, `FunClip`   | Highlight discovery, approval, source signals, boundary snap, ASR alignment.       |
+| Render and captions   | `remotion-template-tiktok`, `remotion-dev-skills`, `captacity`, `clipforge`       | Pixel-fit captions, sidecar exports, render knobs, still-frame checks.             |
+| Style memory          | `youtube-shorts-pipeline`, `video-podcast-maker`                                  | Niche profiles, style profiles, packaging defaults, reusable reference memory.     |
 
-### CLI Recording (`vendor/cli/`)
+## Adding A Committed Vendor
 
-| Repo           | Purpose                        | Branch  |
-| -------------- | ------------------------------ | ------- |
-| `vhs`          | Scripted CLI demos to GIF      | default |
-| `asciinema`    | Terminal session recorder      | default |
-| `terminalizer` | Record + render terminal demos | default |
-
-### Prompt Libraries (`vendor/prompt-libraries/`)
-
-| Repo                                           | Purpose                        | Branch |
-| ---------------------------------------------- | ------------------------------ | ------ |
-| `awesome-nanobanana-pro`                       | Master Nano Banana Pro prompts | main   |
-| `awesome-nano-banana-pro-prompts`              | 1000+ prompts with images      | main   |
-| `awesome-nano-banana-pro-prompts-and-examples` | Daily updated examples         | main   |
-| `Awesome-Nano-Banana-images`                   | Case library with results      | main   |
-| `awesome-nano-banana-jimmylv`                  | Flash-specific prompts         | main   |
-| `awesome-nano-banana-supermaker`               | Playbook and tutorials         | main   |
-| `nanoBananaPrompts`                            | Reproducible prompt gallery    | main   |
-| `awesome-gemini-ai`                            | Broader Gemini patterns        | main   |
-
-### Gemini/Veo Tools (`vendor/gemini/`)
-
-| Repo                        | Purpose                          | Branch |
-| --------------------------- | -------------------------------- | ------ |
-| `cookbook`                  | Official Google notebooks        | main   |
-| `veo-nanobanana-quickstart` | Next.js UI for Veo + Nano Banana | main   |
-| `GeminiGenerator`           | Python batch generation          | master |
-
-### Video Effects (`vendor/video-effects/`)
-
-| Repo                      | Purpose                      | Branch |
-| ------------------------- | ---------------------------- | ------ |
-| `DepthFlow`               | 2.5D parallax animations     | main   |
-| `ComfyUI-Depthflow-Nodes` | ComfyUI workflow integration | main   |
-| `kburns-slideshow`        | Ken Burns effect generator   | main   |
-| `ffmpeg_video_generation` | FFmpeg zoom/pan patterns     | main   |
-| `ffmpeg-cheatsheet`       | FFmpeg command reference     | main   |
-
-### Frame Interpolation (`vendor/frame-interpolation/`)
-
-| Repo   | Purpose                       | Branch |
-| ------ | ----------------------------- | ------ |
-| `FILM` | Google's frame interpolation  | main   |
-| `RIFE` | Real-time frame interpolation | main   |
-
-### Awesome Lists (`vendor/awesome-lists/`)
-
-| Repo                       | Purpose                   | Branch |
-| -------------------------- | ------------------------- | ------ |
-| `awesome-image-to-video`   | Image-to-video tools list | main   |
-| `awesome-video-generation` | Video generation research | main   |
-| `Awesome-Video-Diffusion`  | Diffusion video ecosystem | main   |
-
-## Adding a Vendor
+Do this only when the repo needs a pinned source tree for reproducible
+local development. Prefer docs-only research notes unless source code
+must be available offline inside this checkout.
 
 ```bash
-# Add as submodule
 git submodule add https://github.com/owner/repo.git vendor/repo-name
-
-# Update .gitmodules if needed
 git config -f .gitmodules submodule.vendor/repo-name.shallow true
-
-# Commit
 git add .gitmodules vendor/repo-name
 git commit -m "vendor: add repo-name"
 ```
 
-## Updating Vendors
+If a committed vendor is added, update this file with:
 
-```bash
-# Update all
-git submodule update --remote --merge
+- owner/repo and pinned commit
+- license
+- reason it must be committed rather than referenced in docs
+- what parts are allowed to influence local implementation
 
-# Update specific
-cd vendor/repo-name
-git fetch origin main
-git checkout origin/main
-cd ../..
-git add vendor/repo-name
-git commit -m "vendor: update repo-name"
-```
+## Updating Reference Research
 
-## Policy
+When researching external repos:
 
-1. **Read the README first** - Always check vendor's docs before using
-2. **Prefer upstream PRs** - Don't fork and edit; contribute back
-3. **Document deviations** - If you must patch, document in this file
-4. **Pin versions** - Use specific commits, not floating branches
+1. Read the upstream README and license first.
+2. Inspect concrete files, not only marketing copy.
+3. Record findings in a dated doc under `docs/research/external/`.
+4. Convert useful findings into local runtime contracts or roadmap
+   items.
+5. Do not copy large upstream code blocks into this repo.
 
 ## Current Patches
 
-None yet.
+None.

@@ -17,6 +17,12 @@ The durable value is:
 - thin deterministic scripts/hooks around the runtime
 - a closed feedback loop from published content back into the next iteration
 
+The current short-form build path is documented in
+[`07-short-form-roadmap-20260424.md`](07-short-form-roadmap-20260424.md).
+It prioritizes measured source intelligence, previewable highlight
+approval, pixel-fit captions, and quality-gated renders before upload
+automation.
+
 ## What changed during scrutiny
 
 1. The claim that "MCP is dead" did not survive current docs. MCP is

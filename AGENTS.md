@@ -1,8 +1,8 @@
 # AGENTS.md
 
-**content-machine** — short-form video skill pack for coding-agent CLIs.
+**content-machine** — local-first short-form video skill pack and runtime for coding-agent CLIs.
 
-> **Version:** 0.2.x | **License:** MIT | **Direction:** skills + `45ck/prompt-language` flows + runtime, with the legacy CLI demoted
+> **Version:** 0.2.x | **License:** MIT | **Direction:** skills + `45ck/prompt-language` flows + deterministic runtime, with the legacy CLI demoted
 
 This file provides context for AI coding agents (Copilot, Claude Code, Cursor, etc.). For human docs, see [README.md](README.md) and [docs/](docs/).
 
@@ -41,6 +41,9 @@ node --import tsx scripts/harness/boundary-snap.ts
 node --import tsx scripts/harness/source-media-analyze.ts
 node --import tsx scripts/harness/media-index.ts
 node --import tsx scripts/harness/style-profile-library.ts
+node --import tsx scripts/harness/script-to-audio.ts
+node --import tsx scripts/harness/timestamps-to-visuals.ts
+node --import tsx scripts/harness/video-render.ts
 node --import tsx scripts/harness/publish-prep.ts
 ```
 
@@ -63,16 +66,23 @@ Current starter skills:
 - `video-render`
 - `publish-prep-review`
 
-## Legacy Pipeline Overview
+## Current Short-Form Path
 
-The historical 4-stage CLI pipeline remains the bridge for runtime work:
+The active agent path is skill and harness driven:
 
-| Stage   | Command      | Input                    | Output                          |
-| ------- | ------------ | ------------------------ | ------------------------------- |
-| Script  | `cm script`  | Topic string             | `script.json`                   |
-| Audio   | `cm audio`   | Script JSON              | `audio.wav` + `timestamps.json` |
-| Visuals | `cm visuals` | Timestamps JSON          | `visuals.json`                  |
-| Render  | `cm render`  | Script + audio + visuals | `video.mp4`                     |
+```text
+source-media-analyze
+  -> longform-highlight-select
+  -> boundary-snap
+  -> highlight-approval
+  -> video-render
+  -> publish-prep-review
+```
+
+For topic-to-video generation, use `generate-short` or the
+`generate-short` flow. For longform-to-short work, run source analysis
+before highlight selection so candidates can include audio energy,
+silence, and scene-change signals.
 
 ---
 
@@ -113,7 +123,7 @@ src/
 2. **Dependency Injection** — all providers via constructor; static factories for prod, test factories for fakes
 3. **LLM-First Reasoning** — structured outputs via validators, not regex heuristics
 4. **Configuration-Driven** — TOML/JSON config, environment variables for secrets
-5. **Observability** — structured logging (Pino), cost tracking, progress callbacks
+5. **Observability** — structured logging (Pino), cost tracking, progress callbacks, JSONL progress events
 
 ---
 
@@ -150,15 +160,11 @@ Update workflow: edit the YAML, then run `npm run repo-facts:gen` or `npm run gl
 - `docs/direction/` — migration plan and boundaries
 - `archive/legacy-cli/` — frozen landing zone for surfaces that will be demoted or removed
 
-## CLI Commands Still Worth Knowing
+## Thin `cm` Shell
 
-- `cm doctor`
-- `cm script`
-- `cm audio`
-- `cm visuals`
-- `cm render`
-- `cm publish`
-- `cm validate`
+The live `cm` surface is intentionally small. Use it for config,
+diagnostics, MCP, and render compatibility. New agent-facing work should
+prefer skills, flows, and `scripts/harness/*`.
 
 ---
 

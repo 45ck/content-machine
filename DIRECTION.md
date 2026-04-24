@@ -14,8 +14,8 @@ value is not repo-owned orchestration; it is typed content contracts,
 deterministic media execution, evaluation and validation, reverse
 engineering of winning content, and reusable content playbooks that
 coding harnesses (Claude Code, Codex, OpenCode, and friends) load as
-skills. The CLI is demoted to a thin dev/CI shell. MCP is optional
-adapter infrastructure, not the center.
+skills. The CLI is demoted to a thin local compatibility shell. MCP is
+optional adapter infrastructure, not the center.
 
 ## Product boundaries we are moving toward
 
@@ -26,7 +26,7 @@ adapter infrastructure, not the center.
 | Scripts/hooks | Reproducible deterministic entry points         | `scripts/`                          |
 | Skills        | Harness-facing content intelligence             | `skills/` (new)                     |
 | Adapters      | MCP and external-system bridges                 | `connectors/`, optional MCP adapter |
-| CLI           | Thin dev/CI shell over the runtime              | `src/cli/`                          |
+| CLI           | Thin local compatibility shell over the runtime | `src/cli/`                          |
 
 See [`docs/direction/01-boundaries.md`](docs/direction/01-boundaries.md)
 for the full breakdown, including what stays in each layer and what
@@ -60,6 +60,7 @@ Run `bd list --priority 0` or `bd show content-machine-7tf` for live state.
 - **Skill catalogue (~35 skills, source-pack-grounded):** [`docs/direction/04-skill-catalog.md`](docs/direction/04-skill-catalog.md)
 - **Flow catalogue (10 prompt-language flows):** [`docs/direction/05-flow-catalog.md`](docs/direction/05-flow-catalog.md)
 - **Archive policy and landing zone:** [`archive/README.md`](archive/README.md)
+- **Current short-form roadmap:** [`docs/direction/07-short-form-roadmap-20260424.md`](docs/direction/07-short-form-roadmap-20260424.md)
 
 ## Working agreement: no literal flow DSL in prose docs
 

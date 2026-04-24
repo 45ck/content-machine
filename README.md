@@ -16,6 +16,21 @@ Content Machine is moving away from a monolithic "AI video agent" and
 toward repo-local skills, `45ck/prompt-language` flows, and deterministic
 runtime scripts that coding-agent CLIs can call directly.
 
+The current product focus is high-quality short-form video for TikTok,
+Instagram Reels, and YouTube Shorts. The strongest local path is:
+
+```text
+source media analysis
+  -> highlight selection
+  -> boundary snap
+  -> approval
+  -> style/profile driven render
+  -> quality-gated MP4
+```
+
+See the active roadmap:
+[docs/direction/07-short-form-roadmap-20260424.md](docs/direction/07-short-form-roadmap-20260424.md).
+
 ```bash
 cat <<'JSON' | node --import tsx scripts/harness/brief-to-script.ts
 {
@@ -219,6 +234,10 @@ can also write to explicit output paths.
 
 - Generate a short-form video from a topic.
 - Reverse-engineer a winning reference short from a local file or URL.
+- Analyze longform source media for scene-change, silence, and audio
+  energy signals.
+- Select and approve candidate short-form moments before spending render
+  time.
 - Generate only scripts, audio, visuals, or renders when needed.
 - Run structured diagnostics before expensive generation work.
 - Use the thin `cm` shell only for config, diagnostics, MCP, or render compatibility.
@@ -232,6 +251,7 @@ can also write to explicit output paths.
 - **[flows/](flows/README.md)** — `45ck/prompt-language` docs and executable flows
 - **[scripts/harness/](scripts/harness/README.md)** — repo-side JSON-stdio entrypoints and execution model
 - **[Direction](DIRECTION.md)** — migration plan, cut lines, and archive policy
+- **[Short-Form Roadmap](docs/direction/07-short-form-roadmap-20260424.md)** — current build order for high-quality Shorts/Reels/TikToks
 - **[User Guide](docs/user/README.md)** — skill-pack docs
 - **[Developer Docs](docs/dev/README.md)** — active architecture, registries, and legacy engineering docs
 - **[Reference](docs/reference/)** — generated references, environment variables, glossary, and CLI details

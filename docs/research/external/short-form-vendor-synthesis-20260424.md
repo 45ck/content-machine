@@ -28,8 +28,8 @@ The gap is not architecture. The gap is measured media intelligence and workflow
 
 ## Key Gaps
 
-1. **Highlight ranking is still mostly transcript-first.**  
-   Schema slots exist for `audioEnergyScore`, `sceneChangeScore`, and `llmNarrativeScore`, but those signals are not measured yet.
+1. **Highlight ranking is still only partially multi-signal.**
+   `source-media-analyze` now measures scene changes, silence gaps, and audio RMS/peak, and `longform-highlight-select` can consume those signals. The remaining gap is richer per-span scoring and optional `llmNarrativeScore`.
 
 2. **Approval exists, but preview is not strong enough.**  
    The target workflow should show candidate transcript, score breakdown, preview clip path/command, rejection reasons, and regenerate options before rendering final shorts.
@@ -56,14 +56,20 @@ The strongest repos do not make good Shorts by only rendering prettier captions.
 
 ### 1. Real Source Signals
 
-Extend `source-media-analyze` to measure and write:
+Status: v1 implemented.
 
-- audio RMS / energy peaks by second
+`source-media-analyze` measures and writes:
+
+- audio RMS / peak summaries
 - silence gaps
-- rough scene-change density via ffmpeg or PySceneDetect-compatible output
-- sampled-frame metadata
+- rough scene-change density via ffmpeg
+- sampled-frame count from probe metadata
+
+Remaining follow-up:
+
+- audio energy by second
 - optional OCR/burned-in text risk
-- probe validation for cached media
+- stronger probe validation for cached media
 
 Why: this unlocks multi-signal highlight selection and avoids LLM-only timestamp guesses.
 
