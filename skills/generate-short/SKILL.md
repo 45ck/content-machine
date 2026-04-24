@@ -1,6 +1,47 @@
 ---
 name: generate-short
 description: Build a full short from brief to reviewed MP4 while keeping script, audio, visuals, captions, and validation aligned as one edit.
+allowedTools:
+  - shell
+  - read
+  - write
+model: inherit
+argumentHint: '{"topic":"Redis vs PostgreSQL for caching","archetype":"versus","outputDir":"output/content-machine/generate-short","render":{"fps":30,"downloadAssets":true},"publishPrep":{"enabled":true,"platform":"tiktok"}}'
+entrypoint: node --import tsx scripts/harness/generate-short.ts
+inputs:
+  - name: topic
+    description: Short-form video topic or brief.
+    required: true
+  - name: outputDir
+    description: Directory that will receive the generated stage artifacts.
+    required: false
+  - name: archetype
+    description: Optional script archetype such as listicle or versus.
+    required: false
+  - name: referenceVideoPath
+    description: Optional reference short to reverse-engineer before generation.
+    required: false
+outputs:
+  - name: script/script.json
+    description: Generated script artifact.
+  - name: audio/audio.wav
+    description: Generated voiceover audio.
+  - name: audio/timestamps.json
+    description: Word and scene timing artifact.
+  - name: visuals/visuals.json
+    description: Visual plan for the render step.
+  - name: visuals/visual-quality.json
+    description: Metadata preflight report for visual readiness.
+  - name: render/video.mp4
+    description: Final rendered short.
+  - name: render/captions.remotion.json
+    description: Remotion-compatible caption export.
+  - name: render/captions.srt
+    description: Plain SRT caption sidecar.
+  - name: render/captions.ass
+    description: ASS karaoke-style caption sidecar.
+  - name: quality-summary.json
+    description: Combined visual and caption quality readiness summary.
 ---
 
 # Generate Short
@@ -60,6 +101,10 @@ description: Build a full short from brief to reviewed MP4 while keeping script,
   treated as render-ready source footage.
 - Always writes script, audio, timestamps, visuals, render metadata, and
   final video files.
+- Writes quality sidecars when the default stage settings are used:
+  `visuals/visual-quality.json`, `render/captions.remotion.json`,
+  `render/captions.srt`, `render/captions.ass`, and
+  `quality-summary.json`.
 - Runs `publish-prep` by default and writes its bundle unless
   `publishPrep.enabled` is `false`.
 - Fails closed by default when the review bundle reports `passed: false`.
@@ -74,7 +119,13 @@ description: Build a full short from brief to reviewed MP4 while keeping script,
 - `audio/audio.wav` and `audio/timestamps.json` exist and agree on
   duration.
 - `visuals/visuals.json` exists and matches the timestamps file.
+- `visuals/visual-quality.json` exists and reports whether metadata
+  preflight passed.
 - `render/video.mp4` and `render/render.json` exist.
+- `render/captions.remotion.json`, `render/captions.srt`, and
+  `render/captions.ass` exist when caption export is enabled.
+- `quality-summary.json` exists and reports known visual and caption
+  readiness signals.
 - The caption treatment matches the script and platform instead of using
   a random default.
 - If `publishPrep.enabled` is true, `publish-prep/` exists and reports a

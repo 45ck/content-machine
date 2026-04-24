@@ -1,6 +1,40 @@
 ---
 name: video-render
 description: Assemble the final short from visuals, timestamps, audio, and caption treatment, using the repo's Remotion stack without losing short-form visual intent.
+allowedTools:
+  - shell
+  - read
+  - write
+model: inherit
+argumentHint: '{"visualsPath":"output/visuals.json","timestampsPath":"output/timestamps.json","audioPath":"output/audio.wav","outputPath":"output/content-machine/render/video.mp4","orientation":"portrait","fps":30,"downloadAssets":true}'
+entrypoint: node --import tsx scripts/harness/video-render.ts
+inputs:
+  - name: visualsPath
+    description: Path to visuals.json.
+    required: true
+  - name: timestampsPath
+    description: Path to timestamps.json with word-level timing.
+    required: true
+  - name: audioPath
+    description: Path to generated or source voiceover audio.
+    required: true
+  - name: outputPath
+    description: Path that will receive the rendered MP4.
+    required: false
+  - name: captionPreset
+    description: Optional caption preset override.
+    required: false
+outputs:
+  - name: video.mp4
+    description: Final rendered short.
+  - name: render.json
+    description: Render metadata.
+  - name: captions.remotion.json
+    description: Remotion-compatible caption export.
+  - name: captions.srt
+    description: Plain SRT caption sidecar.
+  - name: captions.ass
+    description: ASS karaoke-style caption sidecar.
 ---
 
 # Video Render
@@ -56,12 +90,17 @@ description: Assemble the final short from visuals, timestamps, audio, and capti
 
 - one final `video.mp4`
 - sibling render metadata, usually `render.json`
+- caption sidecars when `exportCaptions` is enabled:
+  `captions.remotion.json`, `captions.srt`, and `captions.ass`
+- caption quality fields in the JSON result:
+  `captionQualityPassed` and `captionQualityScore`
 - optional review bundle if this skill is being used under a larger
   generate-and-review pass
 
 ## Validation Checklist
 
 - The output is a real playable MP4 with the expected aspect ratio.
+- Caption sidecars exist when `exportCaptions` is enabled.
 - Captions remain readable on a phone-sized viewport.
 - The active-word treatment feels synced, not merely mathematically
   aligned.

@@ -1,63 +1,52 @@
 ---
 name: boundary-snap
-description: Refine proposed clip boundaries to natural cut points by snapping to word edges, sentence ends, pauses, and silence so shorts never start or end in awkward places.
+description: Snap selected highlight candidate boundaries to nearby sentence or pause boundaries before clipping.
+allowedTools:
+  - shell
+  - read
+  - write
+model: inherit
+argumentHint: '{"candidatesPath":"output/content-machine/highlights/highlight-candidates.v1.json","timestampsPath":"output/content-machine/audio/timestamps.json","outputPath":"output/content-machine/highlights/boundary-snap.v1.json"}'
+entrypoint: node --import tsx scripts/harness/boundary-snap.ts
+inputs:
+  - name: candidatesPath
+    description: Path to highlight-candidates.v1.json.
+    required: true
+  - name: timestampsPath
+    description: Word-level timestamp artifact used to locate nearby natural boundaries.
+    required: true
+  - name: outputPath
+    description: Path that will receive boundary-snap.v1.json.
+    required: false
+outputs:
+  - name: boundary-snap.v1.json
+    description: Candidate clip boundaries adjusted to nearby sentence, pause, source, or duration limits.
 ---
 
 # Boundary Snap
 
 ## Use When
 
-- A clip has already been selected, but the cut points still feel rough.
-- The source came from transcript selection, AI clip selection, or human
-  approval and now needs clean editorial trimming.
-- The agent has proposed timestamps but should not trust them as final.
+- A candidate span is promising but may start or end mid-thought.
+- The next tool will cut media and needs exact boundaries.
+- You want deterministic local timing cleanup before rendering.
 
-## Core Approach
+## Invocation
 
-1. Start from word-level timing, not frame guesses.
-2. Snap starts to word boundaries and, when possible, sentence starts.
-3. Snap ends to complete phrases or sentence endings, not abrupt stops.
-4. Prefer nearby silence points when they improve the cut naturally.
-5. Keep the snapped clip within the intended editorial window. Do not
-   drift into a different idea just because the next sentence is cleaner.
+```bash
+cat skills/boundary-snap/examples/request.json | \
+  node --import tsx scripts/harness/boundary-snap.ts
+```
 
-## Inputs
+## Output Contract
 
-- proposed clip start/end times
-- word-level transcript or timestamp units
-- optional audio/video path for silence detection
-- optional target duration constraints
-
-## Outputs
-
-- adjusted clip start/end times
-- rationale for any meaningful expansion or contraction
-
-## Optional Runtime Surface
-
-- Use after [`longform-to-shorts`](../longform-to-shorts/SKILL.md)
-  candidate selection.
-- Feed cleaned clip ranges into [`reframe-vertical`](../reframe-vertical/SKILL.md)
-  and [`video-render`](../video-render/SKILL.md).
-
-## Technical Notes
-
-- Silence detection helps, but should not override obvious semantic
-  boundaries.
-- Sentence completion is usually worth a short extension if it stays
-  within the desired clip range.
-- Avoid mid-word and mid-breath cuts unless the style explicitly wants
-  an interrupt effect.
-
-## Aggregated From
-
-- `AgriciDaniel/claude-shorts` `snap_boundaries.py`
-- `iDoust/youtube-clip` subtitle/trim heuristics
-- `mutonby/openshorts` clip-selection constraints
+- Reads `highlight-candidates.v1.json` and `timestamps.json`.
+- Writes `boundary-snap.v1.json`.
+- Each candidate includes original and snapped start/end times plus
+  reasons for the adjustment.
 
 ## Validation Checklist
 
-- No cut starts or ends inside a word.
-- The clip opens on a clean phrase and lands on a clean payoff.
-- Silence usage improves the cut instead of making it feel delayed.
-- Final timing still matches the selected idea, not a neighboring one.
+- Snapped boundaries stay within the source timestamps.
+- Duration limits remain respected after snapping.
+- Reasons explain why each boundary changed or was retained.

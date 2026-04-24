@@ -41,6 +41,12 @@ Current entrypoints:
 - `generate-short.ts`
 - `brief-to-script.ts`
 - `ingest.ts`
+- `longform-highlight-select.ts`
+- `highlight-approval.ts`
+- `boundary-snap.ts`
+- `source-media-analyze.ts`
+- `media-index.ts`
+- `style-profile-library.ts`
 - `script-to-audio.ts`
 - `timestamps-to-visuals.ts`
 - `video-render.ts`

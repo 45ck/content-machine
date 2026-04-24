@@ -7,7 +7,7 @@ References: `docs/dev/guides/guide-cli-ux-standards-20260106.md`.
 ## Who is the user here?
 
 - Creator-operator (primary): wants a guided setup with defaults that "just work".
-- Engineer-operator: wants non-interactive setup for CI or reproducible environments.
+- Engineer-operator: wants non-interactive setup for local automation or reproducible environments.
 
 ## Job to be done
 
@@ -24,7 +24,7 @@ References: `docs/dev/guides/guide-cli-ux-standards-20260106.md`.
 
 - TOML writer limitations: the current TOML generation is simplified and can drop nested objects beyond one level (risk: config silently incomplete).
 - Environment variable guidance is not OS-aware (PowerShell users get "export ..." examples that do not work).
-- No automation output: there is no `--json` output (useful for CI and tooling).
+- No automation output: there is no `--json` output (useful for local checks and tooling).
 - No explicit overwrite behavior: if the config file already exists, users need a safe "backup/overwrite" flow.
 
 ## Recommendations

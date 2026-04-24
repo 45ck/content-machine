@@ -54,6 +54,11 @@ describe('runVideoRender', () => {
 
     expect(result.result.outputPath).toBe(outputPath);
     expect(result.result.outputMetadataPath).toBe(join(dir, 'render.json'));
+    expect(result.result.captionExportPath).toBe(join(dir, 'captions.remotion.json'));
+    expect(result.result.captionSrtPath).toBe(join(dir, 'captions.srt'));
+    expect(result.result.captionAssPath).toBe(join(dir, 'captions.ass'));
+    expect(result.result.captionQualityPassed).toBe(true);
+    expect(result.result.captionQualityScore).toBeGreaterThanOrEqual(0.85);
     expect(result.artifacts).toEqual([
       {
         path: outputPath,
@@ -65,6 +70,21 @@ describe('runVideoRender', () => {
         kind: 'file',
         description: 'Render metadata artifact',
       },
+      {
+        path: join(dir, 'captions.remotion.json'),
+        kind: 'file',
+        description: 'Remotion-compatible caption JSON artifact',
+      },
+      {
+        path: join(dir, 'captions.srt'),
+        kind: 'file',
+        description: 'SRT caption artifact',
+      },
+      {
+        path: join(dir, 'captions.ass'),
+        kind: 'file',
+        description: 'ASS caption artifact',
+      },
     ]);
 
     const metadata = JSON.parse(await readFile(join(dir, 'render.json'), 'utf8')) as {
@@ -73,5 +93,24 @@ describe('runVideoRender', () => {
     };
     expect(metadata.outputPath).toBe(outputPath);
     expect(metadata.fps).toBe(30);
+
+    const captionExport = JSON.parse(
+      await readFile(join(dir, 'captions.remotion.json'), 'utf8')
+    ) as {
+      captions: Array<{ text: string; startMs: number; endMs: number }>;
+      quality: { passed: boolean; score: number };
+    };
+    expect(captionExport.captions).toEqual([
+      expect.objectContaining({ text: 'test', startMs: 0, endMs: 500 }),
+    ]);
+    expect(captionExport.quality).toEqual(
+      expect.objectContaining({ passed: true, score: result.result.captionQualityScore })
+    );
+    await expect(readFile(join(dir, 'captions.srt'), 'utf8')).resolves.toContain(
+      '00:00:00,000 --> 00:00:00,500'
+    );
+    await expect(readFile(join(dir, 'captions.ass'), 'utf8')).resolves.toContain(
+      'Dialogue: 0,0:00:00.00,0:00:00.50,Default,test'
+    );
   });
 });

@@ -29,7 +29,11 @@ function findUpwards(startDir: string, relPath: string, maxHops = 10): string | 
 
 async function spawnOk(command: string, args: string[], timeoutMs: number): Promise<void> {
   await new Promise<void>((resolvePromise, reject) => {
-    const child = spawn(command, args, { windowsHide: true, stdio: 'ignore' });
+    const child = spawn(command, args, {
+      shell: process.platform === 'win32' && /\.(?:bat|cmd)$/i.test(command),
+      windowsHide: true,
+      stdio: 'ignore',
+    });
 
     const timer = setTimeout(() => {
       child.kill('SIGKILL');

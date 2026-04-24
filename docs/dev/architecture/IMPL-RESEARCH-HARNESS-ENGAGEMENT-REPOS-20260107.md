@@ -61,8 +61,8 @@ We implement `cm research report <runDir>` to normalize metrics into a common `e
 
 ## 6) Testing Strategy
 
-We unit test manifest parsing and command construction without executing external repos (see `docs/dev/architecture/IMPL-PHASE-0-FOUNDATION-20260105.md`).  
-We add a single “smoke adapter” that runs a no-op or minimal script so CI can validate harness wiring without downloading datasets (see `docs/dev/architecture/IMPL-CODE-QUALITY-GATES-20260105.md`).  
+We unit test manifest parsing and command construction without executing external repos (see `docs/dev/architecture/IMPL-PHASE-0-FOUNDATION-20260105.md`).
+We add a single “smoke adapter” that runs a no-op or minimal script so local checks can validate harness wiring without downloading datasets (see `docs/dev/architecture/IMPL-CODE-QUALITY-GATES-20260105.md`).
 We keep full repo execution tests manual or behind a separate tag because datasets are large and licensing-bound (see `vendor/research/virality-prediction/KuaiRand`).
 
 ---

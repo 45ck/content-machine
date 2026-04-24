@@ -1,6 +1,6 @@
 # feature-cli-json-contract-20260106
 
-Implement consistent `--json` output across all commands so the CLI is reliably scriptable (CI, pipelines, tooling).
+Implement consistent `--json` output across all commands so the CLI is reliably scriptable (local checks, pipelines, tooling).
 
 ## User Story
 

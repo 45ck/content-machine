@@ -1,3 +1,4 @@
+import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { z } from 'zod';
 import {
@@ -8,6 +9,7 @@ import {
   type RenderOutput,
 } from '../domain';
 import { OrientationEnum } from '../core/config';
+import { createCaptionExport, formatAssCaptions, formatSrtCaptions } from '../render/captions';
 import { CAPTION_STYLE_PRESETS } from '../render/captions/presets';
 import { renderVideo } from '../render/service';
 import { readJsonArtifact, writeJsonArtifact } from './artifacts';
@@ -34,6 +36,10 @@ export const VideoRenderRequestSchema = z
     audioMixPath: z.string().min(1).optional(),
     outputPath: z.string().min(1).default('output/content-machine/render/render.mp4'),
     outputMetadataPath: z.string().min(1).optional(),
+    exportCaptions: z.boolean().default(true),
+    captionExportPath: z.string().min(1).optional(),
+    captionSrtPath: z.string().min(1).optional(),
+    captionAssPath: z.string().min(1).optional(),
     orientation: OrientationEnum.default('portrait'),
     fps: z.number().int().positive().default(30),
     downloadAssets: z.boolean().default(true),
@@ -56,6 +62,11 @@ export async function runVideoRender(request: VideoRenderRequest): Promise<
   HarnessToolResult<{
     outputPath: string;
     outputMetadataPath: string;
+    captionExportPath: string | null;
+    captionSrtPath: string | null;
+    captionAssPath: string | null;
+    captionQualityPassed: boolean | null;
+    captionQualityScore: number | null;
     duration: number;
     width: number;
     height: number;
@@ -82,6 +93,15 @@ export async function runVideoRender(request: VideoRenderRequest): Promise<
   const outputMetadataPath = resolve(
     normalized.outputMetadataPath ?? join(dirname(outputPath), 'render.json')
   );
+  const captionExportPath = resolve(
+    normalized.captionExportPath ?? join(dirname(outputPath), 'captions.remotion.json')
+  );
+  const captionSrtPath = resolve(
+    normalized.captionSrtPath ?? join(dirname(outputPath), 'captions.srt')
+  );
+  const captionAssPath = resolve(
+    normalized.captionAssPath ?? join(dirname(outputPath), 'captions.ass')
+  );
 
   const renderOutput: RenderOutput = RenderOutputSchema.parse(
     await renderVideo({
@@ -105,19 +125,51 @@ export async function runVideoRender(request: VideoRenderRequest): Promise<
 
   await writeJsonArtifact(outputMetadataPath, renderOutput);
 
+  const artifacts = [
+    artifactFile(renderOutput.outputPath, 'Rendered video artifact'),
+    artifactFile(outputMetadataPath, 'Render metadata artifact'),
+  ];
+  let exportedCaptionJsonPath: string | null = null;
+  let exportedCaptionSrtPath: string | null = null;
+  let exportedCaptionAssPath: string | null = null;
+  let captionQualityPassed: boolean | null = null;
+  let captionQualityScore: number | null = null;
+
+  if (normalized.exportCaptions) {
+    const captionExport = createCaptionExport(timestamps.allWords, {
+      mode: normalized.captionMode === 'page' ? 'page' : 'chunk',
+    });
+    captionQualityPassed = captionExport.quality.passed;
+    captionQualityScore = captionExport.quality.score;
+    await mkdir(dirname(captionExportPath), { recursive: true });
+    await writeJsonArtifact(captionExportPath, captionExport);
+    await writeFile(captionSrtPath, formatSrtCaptions(captionExport.segments), 'utf8');
+    await writeFile(captionAssPath, formatAssCaptions(captionExport.segments), 'utf8');
+    exportedCaptionJsonPath = captionExportPath;
+    exportedCaptionSrtPath = captionSrtPath;
+    exportedCaptionAssPath = captionAssPath;
+    artifacts.push(
+      artifactFile(captionExportPath, 'Remotion-compatible caption JSON artifact'),
+      artifactFile(captionSrtPath, 'SRT caption artifact'),
+      artifactFile(captionAssPath, 'ASS caption artifact')
+    );
+  }
+
   return {
     result: {
       outputPath: renderOutput.outputPath,
       outputMetadataPath,
+      captionExportPath: exportedCaptionJsonPath,
+      captionSrtPath: exportedCaptionSrtPath,
+      captionAssPath: exportedCaptionAssPath,
+      captionQualityPassed,
+      captionQualityScore,
       duration: renderOutput.duration,
       width: renderOutput.width,
       height: renderOutput.height,
       fps: renderOutput.fps,
       fileSize: renderOutput.fileSize,
     },
-    artifacts: [
-      artifactFile(renderOutput.outputPath, 'Rendered video artifact'),
-      artifactFile(outputMetadataPath, 'Render metadata artifact'),
-    ],
+    artifacts,
   };
 }

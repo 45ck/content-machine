@@ -28,7 +28,7 @@ outputs:
   attempting generation work.
 - The agent wants JSON diagnostics instead of parsing the legacy
   `cm doctor` human output.
-- CI or local automation needs a stable `ok` plus check-count summary.
+- Local automation needs a stable `ok` plus check-count summary.
 
 ## Invocation
 

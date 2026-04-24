@@ -93,7 +93,7 @@ export abstract class BaseResearchTool<TResponse, THit> implements ResearchTool 
         success: true,
         evidence,
         totalFound: this.getTotalCount(data, hits.length),
-        searchTimeMs: Date.now() - startTime,
+        searchTimeMs: elapsedMs(startTime),
       };
     } catch (error) {
       return this.createErrorResult(
@@ -111,7 +111,7 @@ export abstract class BaseResearchTool<TResponse, THit> implements ResearchTool 
       success: false,
       evidence: [],
       totalFound: 0,
-      searchTimeMs: Date.now() - startTime,
+      searchTimeMs: elapsedMs(startTime),
       error: errorMessage,
     };
   }
@@ -151,4 +151,8 @@ export abstract class BaseResearchTool<TResponse, THit> implements ResearchTool 
   protected getTotalCount(_response: TResponse, hitsLength: number): number {
     return hitsLength;
   }
+}
+
+function elapsedMs(startTime: number): number {
+  return Math.max(1, Date.now() - startTime);
 }

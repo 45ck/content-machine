@@ -128,7 +128,6 @@ function main() {
   const outSecurityMd = path.join(repoRoot, 'docs', 'reference', 'SECURITY-INVARIANTS.md');
   const outCliMd = path.join(repoRoot, 'docs', 'reference', 'CLI-CONTRACT.md');
   const outPresetsMd = path.join(repoRoot, 'docs', 'reference', 'PIPELINE-PRESETS.md');
-  const outCopilotMd = path.join(repoRoot, '.github', 'copilot-instructions.md');
   const outClaudeMd = path.join(repoRoot, 'CLAUDE.md');
   const outTs = path.join(repoRoot, 'src', 'domain', 'repo-facts.generated.ts');
   const outCspell = path.join(repoRoot, 'config', 'cspell', 'repo-facts.txt');
@@ -142,7 +141,6 @@ function main() {
     outSecurityMd,
     outCliMd,
     outPresetsMd,
-    outCopilotMd,
     outTs,
     outCspell,
   ];
@@ -215,7 +213,7 @@ function main() {
   // Reverse guard: env vars referenced as process.env.* in code/tests/scripts must
   // either be registered in repo-facts, or explicitly allowlisted as host/test/runtime vars.
   const registeredEnvVars = new Set(expected);
-  const envAllowlist = new Set(['CI', 'HOME', 'NODE_ENV', 'USERPROFILE', 'VITEST', 'SOME_KEY']);
+  const envAllowlist = new Set(['HOME', 'NODE_ENV', 'USERPROFILE', 'VITEST', 'SOME_KEY']);
   const envScanRoots = ['src', 'scripts', 'tests'];
   const envScanFiles = [];
   for (const root of envScanRoots) {
@@ -264,7 +262,7 @@ function main() {
     }
   }
 
-  // Ensure CI runs the required npm scripts (basic drift check).
+  // Ensure local quality scripts declared in repo facts exist in package.json.
   const pkgPath = path.join(repoRoot, 'package.json');
   const pkgText = readTextIfExists(pkgPath);
   let pkg = null;
@@ -487,17 +485,6 @@ function main() {
       'Fix: align sync defaults/preset mappings with registry/repo-facts.yaml (see docs/reference/PIPELINE-PRESETS.md).'
     );
     process.exit(1);
-  }
-
-  const ciPath = path.join(repoRoot, registry.quality.ci.workflowPath);
-  const ciText = readTextIfExists(ciPath);
-  for (const script of registry.quality.requiredNpmScripts ?? []) {
-    const needle = `npm run ${script}`;
-    if (!ciText.includes(needle)) {
-      console.error(`Repo facts check failed: CI workflow missing step running: ${needle}`);
-      console.error(`Expected to find it in: ${registry.quality.ci.workflowPath}`);
-      process.exit(1);
-    }
   }
 
   // Conservative source scan: do not log env var values in src/.

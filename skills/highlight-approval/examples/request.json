@@ -1,0 +1,9 @@
+{
+  "candidatesPath": "output/content-machine/highlights/highlight-candidates.v1.json",
+  "outputPath": "output/content-machine/highlights/highlight-approval.v1.json",
+  "approvedCandidateIds": ["highlight-001"],
+  "actor": "local-agent",
+  "notesByCandidateId": {
+    "highlight-001": "Strongest standalone hook and payoff."
+  }
+}

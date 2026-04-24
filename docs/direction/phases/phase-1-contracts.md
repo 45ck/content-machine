@@ -30,4 +30,4 @@ change later.
 - `src/contracts/` builds in isolation and publishes a stable public API.
 - Runtime + CLI + at least one consumer import from `src/contracts/`
   only (no leakage from runtime internals).
-- Contract tests green in CI.
+- Contract tests green locally.

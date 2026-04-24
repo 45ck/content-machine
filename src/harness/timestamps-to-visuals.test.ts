@@ -47,6 +47,9 @@ describe('runTimestampsToVisuals', () => {
     });
 
     expect(result.result.outputPath).toBe(outputPath);
+    expect(result.result.visualQualityPath).toBe(join(dir, 'visual-quality.json'));
+    expect(result.result.visualQualityPassed).toBe(false);
+    expect(result.result.visualQualityScore).toBeLessThan(0.85);
     expect(result.result.sceneCount).toBe(1);
     expect(result.result.fallbacks).toBe(1);
 
@@ -57,5 +60,14 @@ describe('runTimestampsToVisuals', () => {
     expect(visuals.scenes).toHaveLength(1);
     expect(visuals.scenes[0]?.sceneId).toBe('scene-1');
     expect(visuals.fallbacks).toBe(1);
+
+    const quality = JSON.parse(await readFile(join(dir, 'visual-quality.json'), 'utf8')) as {
+      passed: boolean;
+      issues: Array<{ type: string }>;
+    };
+    expect(quality.passed).toBe(false);
+    expect(quality.issues).toEqual(
+      expect.arrayContaining([expect.objectContaining({ type: 'fallback-rate' })])
+    );
   });
 });

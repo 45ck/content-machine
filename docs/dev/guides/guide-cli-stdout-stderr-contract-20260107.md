@@ -4,7 +4,7 @@ This guide defines the stdout/stderr contract for `cm` and how to implement it c
 
 ## Why this matters (CLI UX)
 
-- Users see progress in interactive terminals, but scripts and CI need stable, parseable output.
+- Users see progress in interactive terminals, but scripts and local checks need stable, parseable output.
 - The simplest rule: stdout is the result; stderr is the UI.
 
 ## Contract

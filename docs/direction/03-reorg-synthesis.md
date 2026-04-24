@@ -29,7 +29,7 @@ Content Machine stops being a CLI-shaped AI content agent. It becomes a
 runtime**, orchestrated by **prompt-language flows**, and loaded into
 coding harnesses (Claude Code, Codex, OpenCode). The durable product is
 the skill surface and the runtime it wraps, not a repo-owned control
-plane. MCP is one optional adapter; the CLI is a thin dev/CI shell whose
+plane. MCP is one optional adapter; the CLI is a thin local shell whose
 fate is decided in Phase 5 on evidence.
 
 ## 2. Target architecture
@@ -83,7 +83,7 @@ ad-hoc override.
    stdio subprocesses invokable as `cm-skill <name>`. One shape works
    across Claude Code, Claude Agent SDK, and prompt-language.
 5. **Archive policy.** `archive/` is frozen. Not npm-published
-   (excluded via `package.json` `files`), not in CI, carries a
+   (excluded via `package.json` `files`), not in local quality checks, carries a
    `README.md` at its root explaining the freeze and where to look
    instead. See section 7.
 6. **Excluded from integration.**
@@ -118,7 +118,7 @@ Each decision is traceable to a quality attribute scenario. Summary form
   pulling CLI or adapter code -> dep graph shows zero edges from
   `skills/` into `src/cli/`.
 - **Determinism.** Runtime invoked on identical inputs -> identical
-  artifact hash -> golden fixture parity in CI, no network reads.
+  artifact hash -> golden fixture parity in local checks, no network reads.
 - **Replaceability of adapters.** Swap an LLM vendor -> only
   `src/adapters/llm/` changes -> zero diff in `src/runtime/` or
   `skills/`.
@@ -129,7 +129,7 @@ Each decision is traceable to a quality attribute scenario. Summary form
   canonical source path in section 5 -> skill review rejects
   uncited thresholds.
 - **Archive isolation.** npm pack -> no `archive/` contents -> verified
-  by `npm pack --dry-run` in CI.
+  by `npm pack --dry-run` in local release checks.
 
 ## 5. Research canonicalisation
 
@@ -192,7 +192,7 @@ asking the author.
 - **Exit.**
   - `src/contracts/` builds in isolation (no imports from `runtime/`,
     `adapters/`, `cli/`).
-  - Schema-stability tests pinning the public shape are green in CI.
+  - Schema-stability tests pinning the public shape are green locally.
   - Runtime, CLI, and one script import from contracts only.
 - **Risk.** Hidden type leakage from runtime into contracts via shared
   interfaces. Mitigation: enforce a dep-cruiser (or equivalent) rule
@@ -225,14 +225,14 @@ asking the author.
 - **Entry.** Phase 2 exit satisfied.
 - **Exit.**
   - `scripts/harness/{ingest,render,publish-prep}` or equivalents
-    runnable end-to-end in CI on fixtures.
+    runnable end-to-end locally on fixtures.
   - `cm-skill` shim installed and wired to JSON-stdio invocation.
   - Research orchestrator exists as a skill, not inside `src/research/`.
   - CLI command count dropped to the pre-Phase-5 minimum.
-- **Risk.** CI coverage gap between CLI-invoked paths and
+- **Risk.** Local coverage gap between CLI-invoked paths and
   script-invoked paths. Mitigation: mirror key CLI commands as scripts
   with identical golden traces before removing the CLI command.
-- **Artifact.** `scripts/` tree, harness invocation docs, CI workflow.
+- **Artifact.** `scripts/` tree and harness invocation docs.
 
 ### Phase 4 — Skills and flows first batch; legacy archive
 
@@ -293,7 +293,7 @@ Rules:
 
 - `package.json` `files` field explicitly lists the published paths;
   `archive/**` is excluded.
-- CI excludes `archive/**` from lint, test, and type-check runs.
+- Local checks exclude `archive/**` from lint, test, and type-check runs.
 - `archive/README.md` states the freeze, the date, the reason, and
   where the live replacement lives (pointers into `skills/`, `src/`,
   `scripts/`).

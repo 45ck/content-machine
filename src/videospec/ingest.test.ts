@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { mkdtemp, rm, writeFile, chmod, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
+import { platform } from 'node:process';
 import { join, resolve } from 'node:path';
 import { existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
@@ -11,6 +12,37 @@ function sha256Hex(value: string): string {
 }
 
 async function makeDummyYtDlp(binDir: string): Promise<string> {
+  if (platform === 'win32') {
+    const p = join(binDir, 'yt-dlp-dummy.cmd');
+    const script = `@echo off
+if "%~1"=="--version" (
+  echo dummy
+  exit /b 0
+)
+
+set "out="
+:loop
+if "%~1"=="" goto done
+if "%~1"=="-o" (
+  set "out=%~2"
+  shift
+)
+shift
+goto loop
+
+:done
+if "%out%"=="" (
+  echo missing -o 1>&2
+  exit /b 2
+)
+for %%I in ("%out%") do mkdir "%%~dpI" 2>nul
+> "%out%" echo dummy-video
+exit /b 0
+`;
+    await writeFile(p, script, 'utf-8');
+    return p;
+  }
+
   const p = join(binDir, 'yt-dlp-dummy.sh');
   const script = `#!/usr/bin/env bash
 set -euo pipefail

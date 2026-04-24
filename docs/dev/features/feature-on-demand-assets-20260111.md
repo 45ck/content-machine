@@ -44,7 +44,7 @@ Gaps / inconsistencies:
 - Faster onboarding: install doesn’t imply gigabytes of media/models.
 - Lower disk usage: download only assets actually used.
 - Better “it failed” UX: missing prereqs become actionable fixes.
-- CI friendliness: preflight can enumerate missing dependencies deterministically.
+- local checks friendliness: preflight can enumerate missing dependencies deterministically.
 
 ---
 

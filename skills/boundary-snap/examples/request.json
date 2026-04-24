@@ -1,0 +1,7 @@
+{
+  "candidatesPath": "output/content-machine/highlights/highlight-candidates.v1.json",
+  "timestampsPath": "output/content-machine/audio/timestamps.json",
+  "outputPath": "output/content-machine/highlights/boundary-snap.v1.json",
+  "maxLeadSeconds": 0.9,
+  "maxTailSeconds": 1.1
+}

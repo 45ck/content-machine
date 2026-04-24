@@ -4,7 +4,13 @@ import { ArchetypeEnum } from '../core/config';
 import { CMError } from '../core/errors';
 import { generateBriefToScript } from './brief-to-script';
 import { ingestReferenceVideo, IngestRequestSchema } from './ingest';
-import { artifactDirectory, type HarnessArtifact, type HarnessToolResult } from './json-stdio';
+import { writeJsonArtifact } from './artifacts';
+import {
+  artifactDirectory,
+  artifactFile,
+  type HarnessArtifact,
+  type HarnessToolResult,
+} from './json-stdio';
 import { PublishPrepRequestSchema, runPublishPrep } from './publish-prep';
 import { runScriptToAudio, ScriptToAudioRequestSchema } from './script-to-audio';
 import { runTimestampsToVisuals, TimestampsToVisualsRequestSchema } from './timestamps-to-visuals';
@@ -80,6 +86,71 @@ function dedupeArtifacts(artifacts: HarnessArtifact[]): HarnessArtifact[] {
   return [...unique.values()];
 }
 
+function collectQualitySummary(params: {
+  visualQualityPath?: string | null;
+  visualQualityPassed?: boolean | null;
+  visualQualityScore?: number | null;
+  captionExportPath?: string | null;
+  captionSrtPath?: string | null;
+  captionAssPath?: string | null;
+  captionQualityPassed?: boolean | null;
+  captionQualityScore?: number | null;
+}): {
+  qualityReady: boolean | null;
+  visualQualityPath: string | null;
+  visualQualityPassed: boolean | null;
+  visualQualityScore: number | null;
+  captionQualityPassed: boolean | null;
+  captionQualityScore: number | null;
+  captionExportPath: string | null;
+  captionSrtPath: string | null;
+  captionAssPath: string | null;
+  summary: Record<string, unknown>;
+} {
+  const visualQualityPath = params.visualQualityPath ?? null;
+  const visualQualityPassed = params.visualQualityPassed ?? null;
+  const visualQualityScore = params.visualQualityScore ?? null;
+  const captionQualityPassed = params.captionQualityPassed ?? null;
+  const captionQualityScore = params.captionQualityScore ?? null;
+  const captionExportPath = params.captionExportPath ?? null;
+  const captionSrtPath = params.captionSrtPath ?? null;
+  const captionAssPath = params.captionAssPath ?? null;
+  const knownQualitySignals = [visualQualityPassed, captionQualityPassed].filter(
+    (value): value is boolean => typeof value === 'boolean'
+  );
+  const qualityReady =
+    knownQualitySignals.length > 0 ? knownQualitySignals.every((value) => value) : null;
+
+  return {
+    qualityReady,
+    visualQualityPath,
+    visualQualityPassed,
+    visualQualityScore,
+    captionQualityPassed,
+    captionQualityScore,
+    captionExportPath,
+    captionSrtPath,
+    captionAssPath,
+    summary: {
+      schemaVersion: '1.0.0',
+      ready: qualityReady,
+      visual: {
+        passed: visualQualityPassed,
+        score: visualQualityScore,
+        artifactPath: visualQualityPath,
+      },
+      captions: {
+        passed: captionQualityPassed,
+        score: captionQualityScore,
+        artifactPath: captionExportPath,
+        srtPath: captionSrtPath,
+        assPath: captionAssPath,
+      },
+      createdAt: new Date().toISOString(),
+    },
+  };
+}
+
 /** Run the default skills-first pipeline and return the full artifact chain. */
 export async function runGenerateShort(request: GenerateShortRequest): Promise<
   HarnessToolResult<{
@@ -89,8 +160,18 @@ export async function runGenerateShort(request: GenerateShortRequest): Promise<
     audioPath: string;
     timestampsPath: string;
     visualsPath: string;
+    visualQualityPath: string | null;
     videoPath: string;
     renderMetadataPath: string;
+    qualitySummaryPath: string;
+    qualityReady: boolean | null;
+    visualQualityPassed: boolean | null;
+    visualQualityScore: number | null;
+    captionQualityPassed: boolean | null;
+    captionQualityScore: number | null;
+    captionExportPath: string | null;
+    captionSrtPath: string | null;
+    captionAssPath: string | null;
     publishPrepDir: string | null;
     publishReady: boolean | null;
     archetype: string | null;
@@ -174,6 +255,20 @@ export async function runGenerateShort(request: GenerateShortRequest): Promise<
   });
   artifacts.push(...(renderResult.artifacts ?? []));
 
+  const qualitySummary = collectQualitySummary({
+    visualQualityPath: visualsResult.result.visualQualityPath,
+    visualQualityPassed: visualsResult.result.visualQualityPassed,
+    visualQualityScore: visualsResult.result.visualQualityScore,
+    captionQualityPassed: renderResult.result.captionQualityPassed,
+    captionQualityScore: renderResult.result.captionQualityScore,
+    captionExportPath: renderResult.result.captionExportPath,
+    captionSrtPath: renderResult.result.captionSrtPath,
+    captionAssPath: renderResult.result.captionAssPath,
+  });
+  const qualitySummaryPath = resolve(join(outputDir, 'quality-summary.json'));
+  await writeJsonArtifact(qualitySummaryPath, qualitySummary.summary);
+  artifacts.push(artifactFile(qualitySummaryPath, 'Generate-short quality summary artifact'));
+
   let publishPrepDir: string | null = null;
   let publishReady: boolean | null = null;
   if (normalized.publishPrep.enabled) {
@@ -209,8 +304,18 @@ export async function runGenerateShort(request: GenerateShortRequest): Promise<
       audioPath: audioResult.result.audioPath,
       timestampsPath: audioResult.result.timestampsPath,
       visualsPath: visualsResult.result.outputPath,
+      visualQualityPath: qualitySummary.visualQualityPath,
       videoPath: renderResult.result.outputPath,
       renderMetadataPath: renderResult.result.outputMetadataPath,
+      qualitySummaryPath,
+      qualityReady: qualitySummary.qualityReady,
+      visualQualityPassed: qualitySummary.visualQualityPassed,
+      visualQualityScore: qualitySummary.visualQualityScore,
+      captionQualityPassed: qualitySummary.captionQualityPassed,
+      captionQualityScore: qualitySummary.captionQualityScore,
+      captionExportPath: qualitySummary.captionExportPath,
+      captionSrtPath: qualitySummary.captionSrtPath,
+      captionAssPath: qualitySummary.captionAssPath,
       publishPrepDir,
       publishReady,
       archetype: effectiveArchetype ?? null,

@@ -24,7 +24,7 @@ See the rubric and heuristic map in `docs/dev/specs/cli-ux-command-overhaul-pipe
 
 From `vendor/cli/examples/*`:
 
-- `vendor/cli/examples/workers-sdk` (Wrangler): clear failures with fix lines; CI-friendly output.
+- `vendor/cli/examples/workers-sdk` (Wrangler): clear failures with fix lines; local-automation-friendly output.
 - `vendor/cli/examples/firebase-tools`: "doctor"-like diagnostics and large-surface consistency.
 - `vendor/cli/examples/pnpm`: minimal, disciplined output.
 - `vendor/cli/examples/prisma`: human-readable checklists and actionable next steps.
@@ -59,7 +59,7 @@ H1 3, H2 4, H3 3, H4 2, H5 3, H6 3, H7 3, H8 4, H9 4, H10 3
 2. **Gate receipt (H1,H6,H8):** In human mode, always print a compact gate table: PASS/FAIL for each gate and a final "Validation PASSED/FAILED". (Prisma-style checklists from `vendor/cli/examples/prisma`.)
 3. **Preflight dependencies (H5,H9):** Validate `ffprobe`/python paths early; if missing, print `Fix:` with exact OS-aware commands or `cm doctor` suggestion. (Firebase CLI style.)
 4. **`--warn-only` (H3,H7):** Add `--warn-only` that exits 0 but records failures in the report (non-blocking workflows).
-5. **`--fail-fast` (H7,H8):** Stop on first failing gate for speed in CI; still write report.
+5. **`--fail-fast` (H7,H8):** Stop on first failing gate for speed in local checks; still write report.
 6. **Fix mapping to `cm render` (H2,H9):** When a gate fails, suggest the exact render flag that likely fixes it (orientation, fps, bitrate). (Match between system and world.)
 7. **Profiles discoverability (H6,H10):** Add `cm validate --list-profiles` or include profiles and what they mean in help output.
 8. **Output ergonomics (H6):** Always print `Report: <path>` and in verbose mode print absolute path.
@@ -68,7 +68,7 @@ H1 3, H2 4, H3 3, H4 2, H5 3, H6 3, H7 3, H8 4, H9 4, H10 3
 
 ## `cm score`
 
-**JTBD:** "Score a script for quality/risk proxies and gate it for CI."
+**JTBD:** "Score a script for quality/risk proxies and gate it for local checks."
 
 **Baseline heuristic scorecard (1-5):**  
 H1 3, H2 4, H3 3, H4 4, H5 4, H6 3, H7 3, H8 4, H9 4, H10 3
@@ -85,7 +85,7 @@ H1 3, H2 4, H3 3, H4 4, H5 4, H6 3, H7 3, H8 4, H9 4, H10 3
 2. **Top-3 failed checks first (H8,H6):** Print only top N failures by severity by default; `--verbose` prints all. (Minimalist.)
 3. **Threshold UX (H6,H10):** Change `--min-overall` help text to explicitly say "0.0-1.0" and provide examples like `--min-overall 0.75`.
 4. **Fix lines standardization (H9):** Every failing check should include a short fix line; if missing, print a generic fix: "Revise hook/CTA and re-run cm script". (Recovery.)
-5. **Diff mode (H7):** Add `cm score --compare old.json new.json` that prints deltas and regressions (CI-friendly).
+5. **Diff mode (H7):** Add `cm score --compare old.json new.json` that prints deltas and regressions (local-automation-friendly).
 6. **Receipt includes inputs (H1):** Print which script/package file was scored and their last modified time (helps debugging stale files).
 7. **Machine output clarity (H4):** Ensure JSON envelope outputs include `failedChecks[]` consistently (already present) and add `thresholdUsed`.
 8. **Consistency with `cm rate` (H4):** Use similar phrasing: "PASSED" vs "FAILED" and consistent exit code semantics.
@@ -115,7 +115,7 @@ H1 3, H2 4, H3 3, H4 4, H5 4, H6 3, H7 3, H8 3, H9 4, H10 3
 6. **`--regions` targeting (H7):** Add a flag to focus OCR on a caption bounding box region for speed and reliability (advanced).
 7. **Output comparison (H7):** Add `--compare reportA.json reportB.json` to show improvements after changing caption settings.
 8. **Failure recovery for low rating (H9):** If rating fails, print a minimal command recipe to try next (e.g., "Try: cm generate ... --sync-preset maximum --caption-group-ms 350").
-9. **Quiet mode (H8):** Add `--summary` for CI: only print rating and pass/fail, and still write report JSON.
+9. **Quiet mode (H8):** Add `--summary` for Local checks: only print rating and pass/fail, and still write report JSON.
 10. **Docs link (H10):** Link to the relevant sync strategy guide on failure/suggestions (keep it short, one line).
 
 ## `cm research`
@@ -137,7 +137,7 @@ H1 2, H2 4, H3 3, H4 2, H5 2, H6 3, H7 3, H8 4, H9 3, H10 3
 2. **Per-source progress lines (H1):** Always show per-source start/end, results count, and duration in TTY and non-TTY. (Visibility.)
 3. **Coverage summary (H1,H2):** Print "Configured sources: X, Queried: Y, Errors: Z" so users understand completeness.
 4. **Standardize `--json` (H4):** Implement root JSON envelope for command summary; add `--report-json` for raw evidence list if needed.
-5. **Determinism knobs (H7):** Add `--seed` for angle generation so that CI/test runs are repeatable (when LLM is involved).
+5. **Determinism knobs (H7):** Add `--seed` for angle generation so that local test runs are repeatable (when LLM is involved).
 6. **`--no-network` dry run (H5):** Strengthen `--dry-run` so it prints planned sources and query normalization and guarantees no network.
 7. **Source limit knobs (H7):** Add `--max-results-per-source` and print that in receipt; reduces surprise variability.
 8. **Error grouping (H8):** Group errors by source and print one-line summary per source; avoid multi-page logs.

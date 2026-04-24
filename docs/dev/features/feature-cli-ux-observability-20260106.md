@@ -11,7 +11,7 @@ This feature is the enabling layer for consistent progress updates, JSON mode, a
 
 ## User Story
 
-As a CLI user, I want `cm` to clearly communicate status and progress and to fail with actionable fixes, so I can trust long-running jobs and automate them in scripts/CI.
+As a CLI user, I want `cm` to clearly communicate status and progress and to fail with actionable fixes, so I can trust long-running jobs and automate them in scripts/local checks.
 
 ## HCI Principles (Design Requirements)
 

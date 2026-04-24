@@ -146,6 +146,7 @@ export const ENVIRONMENT_VARIABLES = [
   { name: 'CM_WHISPER_AUTO_INSTALL', required: false },
   { name: 'CM_WHISPER_DIR', required: false },
   { name: 'CM_ASSET_CACHE_DIR', required: false },
+  { name: 'CM_PROGRESS', required: false },
   { name: 'CM_VISUALS_TELEMETRY_PATH', required: false },
   { name: 'CM_ASSET_LINEAGE_PATH', required: false },
   { name: 'CM_VISUALS_OBSERVABILITY', required: false },

@@ -21,7 +21,7 @@ validated JSON artifacts, so external workflows can integrate without forking th
 
 - Use custom footage or a proprietary generator while keeping cm captions and render styles.
 - Plug cm into existing marketing automation without reworking the pipeline.
-- Keep stable inputs and outputs for scripting, CI, and integrations.
+- Keep stable inputs and outputs for scripting, local checks, and integrations.
 
 ## Goals
 

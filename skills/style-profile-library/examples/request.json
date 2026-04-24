@@ -1,0 +1,17 @@
+{
+  "libraryPath": "output/content-machine/library/style-profiles.v1.json",
+  "profile": {
+    "id": "default-shorts",
+    "name": "Default Shorts",
+    "description": "Fast, caption-led vertical shorts with punchy pacing.",
+    "captionStyle": "karaoke-ass",
+    "pacing": "fast",
+    "visualRules": ["vertical-first", "caption-clean", "avoid-slideshow-repetition"],
+    "renderDefaults": {
+      "orientation": "portrait",
+      "captionFontWeight": 700
+    },
+    "references": [],
+    "updatedAt": "2026-04-24T00:00:00.000Z"
+  }
+}

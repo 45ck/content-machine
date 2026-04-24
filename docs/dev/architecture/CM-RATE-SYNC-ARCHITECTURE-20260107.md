@@ -175,7 +175,7 @@ cm generate "Topic" --sync-preset maximum
 
 - **Debug sync issues**: See exactly which words are drifting
 - **Compare strategies**: Measure improvement from audio-first vs standard
-- **Catch regressions**: CI can fail if sync degrades
+- **Catch regressions**: local checks can fail if sync degrades
 
 ### For Production
 

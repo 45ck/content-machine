@@ -5,14 +5,14 @@ migration. Derived from section 7 and section 11 of the findings doc.
 
 ## Layer map
 
-| Layer         | Owns                                                 | Callers                        | Target location            |
-| ------------- | ---------------------------------------------------- | ------------------------------ | -------------------------- |
-| Contracts     | Typed content schema, result shapes, validators      | Runtime, skills, scripts, CLI  | `src/contracts/` package   |
-| Runtime       | Deterministic media execution, rendering, validation | Scripts, skills, CLI           | `src/runtime/` package     |
-| Scripts/hooks | Reproducible deterministic entry points              | Harnesses, CI, humans          | `scripts/`                 |
-| Skills        | Harness-facing content playbooks + invocations       | Claude Code / Codex / OpenCode | `skills/` (new)            |
-| Adapters      | External-system bridges (MCP, platform connectors)   | Runtime (optional)             | `connectors/`, MCP adapter |
-| CLI           | Thin dev/CI shell over the runtime                   | Humans, CI                     | `src/cli/` (thin)          |
+| Layer         | Owns                                                 | Callers                         | Target location            |
+| ------------- | ---------------------------------------------------- | ------------------------------- | -------------------------- |
+| Contracts     | Typed content schema, result shapes, validators      | Runtime, skills, scripts, CLI   | `src/contracts/` package   |
+| Runtime       | Deterministic media execution, rendering, validation | Scripts, skills, CLI            | `src/runtime/` package     |
+| Scripts/hooks | Reproducible deterministic entry points              | Harnesses, local agents, humans | `scripts/`                 |
+| Skills        | Harness-facing content playbooks + invocations       | Claude Code / Codex / OpenCode  | `skills/` (new)            |
+| Adapters      | External-system bridges (MCP, platform connectors)   | Runtime (optional)              | `connectors/`, MCP adapter |
+| CLI           | Thin local shell over the runtime                    | Humans, local agents            | `src/cli/` (thin)          |
 
 ## Contract layer
 
@@ -33,7 +33,7 @@ out. Can be used offline for fixtures. No agentic reasoning here.
 Thin deterministic scripts around the runtime. Examples: ingest a
 topic brief, render from a frozen contract, prep a publish payload.
 Each script is reproducible, log-structured, and callable from any
-harness or CI.
+harness or local agent.
 
 ## Skills layer
 
@@ -53,7 +53,7 @@ Adapters are loadable extensions, not required paths.
 
 ## CLI layer
 
-Kept only as a thin dev/CI shell. Not a product surface. Phase 5
+Kept only as a thin local shell. Not a product surface. Phase 5
 decides whether it stays thin, is kept for specific workflows, or is
 removed entirely.
 

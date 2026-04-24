@@ -165,7 +165,7 @@ C) Content-addressable store (`sha256/<hash>` + metadata)
 α) Explicit setup only  
 β) Auto-download on first use (opt-in)  
 γ) Preflight-first (report missing deps + fixes)  
-δ) Interactive prompts (TTY only; must degrade for `--json`/CI)
+δ) Interactive prompts (TTY only; must degrade for `--json`/local checks)
 
 ---
 
@@ -178,7 +178,7 @@ Scores: 1 (poor) to 5 (excellent).
 Criteria:
 
 - **UX (first run):** minimal friction for creator-operators.
-- **Automation:** works in CI/non-interactive/`--json`.
+- **Automation:** works in local checks/non-interactive/`--json`.
 - **Minimal downloads:** users only fetch what’s needed.
 - **Determinism:** pinned versions, reproducible runs.
 - **Security:** integrity verification, safe extraction, minimized supply-chain risk.
@@ -330,7 +330,7 @@ Policy rules (recommended):
 - Interactive prompts are allowed later, but must be disabled in:
   - `--json`
   - non-TTY
-  - CI
+  - local checks
 
 ---
 

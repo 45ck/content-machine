@@ -22,7 +22,7 @@ This feature adds:
 
 - Time-to-first-video drops sharply.
 - Support burden drops because failures are self-diagnosing.
-- CI and automation become more deterministic (`--json` output + stable exit codes).
+- local automation become more deterministic (`--json` output + stable exit codes).
 
 ## Goals
 
@@ -44,7 +44,7 @@ This feature adds:
 
 ### Options
 
-- `cm doctor --strict`: fail if any warning-level issue exists (useful in CI).
+- `cm doctor --strict`: fail if any warning-level issue exists (useful in local checks).
 - `cm demo --open-lab`: renders and opens `cm lab review` directly.
 
 ## Data Contracts

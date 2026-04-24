@@ -552,13 +552,13 @@ The MVP uses a CLI-first architecture where each pipeline stage is an independen
 
 This pattern was selected based on analysis of orchestration approaches in [L3-CAT-I-ORCHESTRATION-QUEUES-20260104.md](../research/synthesis/L3-CAT-I-ORCHESTRATION-QUEUES-20260104.md). The CLI approach offers advantages for an MVP:
 
-| Benefit           | Description                                                     |
-| ----------------- | --------------------------------------------------------------- |
-| Debuggable        | JSON outputs between stages can be inspected and edited         |
-| Composable        | Individual stages can be re-run without restarting the pipeline |
-| Testable          | Each command can be tested in isolation                         |
-| Scriptable        | Commands can be chained in shell scripts or CI/CD workflows     |
-| No infrastructure | No Redis, PostgreSQL, or Docker required                        |
+| Benefit           | Description                                                            |
+| ----------------- | ---------------------------------------------------------------------- |
+| Debuggable        | JSON outputs between stages can be inspected and edited                |
+| Composable        | Individual stages can be re-run without restarting the pipeline        |
+| Testable          | Each command can be tested in isolation                                |
+| Scriptable        | Commands can be chained in shell scripts or local automation workflows |
+| No infrastructure | No Redis, PostgreSQL, or Docker required                               |
 
 ### 3.2 Pipeline Stages
 
@@ -1990,7 +1990,7 @@ This section provides a candid assessment of architectural gaps, engineering ris
 
 - No distinction between retryable vs. fatal errors
 - No error codes for programmatic handling
-- No structured error output for CI/CD integration
+- No structured error output for local automation integration
 - No guidance on user-facing vs. debug messages
 
 **Missing pieces:**
@@ -2251,11 +2251,11 @@ All 15 research questions from §13.5 have been investigated. Findings are docum
 
 #### Quality & Operations (RQ-13 to RQ-15)
 
-| ID    | Question              | Resolution                                                                                                                                                       | Investigation                                                                                     |
-| ----- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| RQ-13 | Video quality metrics | **PSNR >35dB good, SSIM >0.95 good, VMAF >80 good**. CRF 18 default (h264). PSNR fastest for CI, VMAF slowest for nightly.                                       | [RQ-13-VIDEO-QUALITY-METRICS](../research/investigations/RQ-13-VIDEO-QUALITY-METRICS-20260104.md) |
-| RQ-14 | Error taxonomy        | **Exit codes 0-143** (POSIX compatible). Semantic string codes (E_NETWORK_TIMEOUT). Categories: retryable vs fatal. Structured JSON error output for CI.         | [RQ-14-ERROR-TAXONOMY](../research/investigations/RQ-14-ERROR-TAXONOMY-20260104.md)               |
-| RQ-15 | Cost tracking         | **Langfuse Trace→Span hierarchy**. Token counting per request. Model-specific pricing tables. BullMQ for budget threshold alerts. ~$0.05/video with gpt-4o-mini. | [RQ-15-COST-TRACKING](../research/investigations/RQ-15-COST-TRACKING-20260104.md)                 |
+| ID    | Question              | Resolution                                                                                                                                                         | Investigation                                                                                     |
+| ----- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| RQ-13 | Video quality metrics | **PSNR >35dB good, SSIM >0.95 good, VMAF >80 good**. CRF 18 default (h264). PSNR fastest For local automation, VMAF slowest for nightly.                           | [RQ-13-VIDEO-QUALITY-METRICS](../research/investigations/RQ-13-VIDEO-QUALITY-METRICS-20260104.md) |
+| RQ-14 | Error taxonomy        | **Exit codes 0-143** (POSIX compatible). Semantic string codes (E_NETWORK_TIMEOUT). Categories: retryable vs fatal. Structured JSON error output for local checks. | [RQ-14-ERROR-TAXONOMY](../research/investigations/RQ-14-ERROR-TAXONOMY-20260104.md)               |
+| RQ-15 | Cost tracking         | **Langfuse Trace→Span hierarchy**. Token counting per request. Model-specific pricing tables. BullMQ for budget threshold alerts. ~$0.05/video with gpt-4o-mini.   | [RQ-15-COST-TRACKING](../research/investigations/RQ-15-COST-TRACKING-20260104.md)                 |
 
 #### Iteration 2 Research (RQ-16 to RQ-20)
 

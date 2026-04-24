@@ -35,7 +35,7 @@ npm run quality:full
 - **Symptom:** Lint reports warnings.
   - **Fix:** Fix the warning or update the rule, then rerun `npm run quality`.
 - **Symptom:** Tests fail with missing artifacts.
-  - **Fix:** Ensure required fixtures exist or run in the same environment as CI.
+  - **Fix:** Ensure required fixtures exist or run in the same environment as local checks.
 - **Symptom:** Duplication check fails.
   - **Fix:** Refactor duplicate blocks or update the jscpd config with justification.
 - **Symptom:** Mutation score is below the break threshold.

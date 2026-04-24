@@ -1,0 +1,11 @@
+{
+  "timestampsPath": "output/content-machine/audio/timestamps.json",
+  "outputPath": "output/content-machine/highlights/highlight-candidates.v1.json",
+  "sourceMediaPath": "input/source.mp4",
+  "minDuration": 20,
+  "targetDuration": 35,
+  "maxDuration": 60,
+  "maxCandidates": 5,
+  "minWords": 8,
+  "minGapSeconds": 3
+}

@@ -20,7 +20,6 @@ function main() {
     'docs/reference/SECURITY-INVARIANTS.md',
     'docs/reference/CLI-CONTRACT.md',
     'docs/reference/PIPELINE-PRESETS.md',
-    '.github/copilot-instructions.md',
     'src/domain/repo-facts.generated.ts',
     'config/cspell/repo-facts.txt',
   ];

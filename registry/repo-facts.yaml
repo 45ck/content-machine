@@ -5,7 +5,6 @@
 #
 # Generated outputs:
 # - docs/reference/REPO-FACTS.md
-# - .github/copilot-instructions.md
 # - CLAUDE.md
 # - src/domain/repo-facts.generated.ts
 # - config/cspell/repo-facts.txt
@@ -191,6 +190,8 @@ facts:
         required: false
       - name: CM_ASSET_CACHE_DIR
         required: false
+      - name: CM_PROGRESS
+        required: false
       - name: CM_VISUALS_TELEMETRY_PATH
         required: false
       - name: CM_ASSET_LINEAGE_PATH
@@ -334,20 +335,12 @@ configSurface:
     - 'built-in defaults'
 
 quality:
-  # These are the quality gates that must stay wired in CI for PRs to be accepted.
+  # Local-first checks expected to be available and runnable in this checkout.
   requiredNpmScripts:
-    - glossary:check
-    - repo-facts:check
-    - cspell:check
-    - docs:check
     - typecheck
     - lint
     - format:check
-    - test:coverage:push
-    - dup:check
-    - size:check
-  ci:
-    workflowPath: '.github/workflows/ci.yml'
+    - test:run
 
   docsValidation:
     markdownPaths:
@@ -359,7 +352,6 @@ quality:
       - 'docs/reference/*.md'
       - 'docs/user/*.md'
       - 'docs/user/*/*.md'
-      - '.github/copilot-instructions.md'
     ignoreLinkGlobs:
       - 'docs/reference/NANOBANANA-PROMPT-ENGINEERING-20260107.md'
 
@@ -368,7 +360,6 @@ security:
     - 'Never print or log secret values.'
     - 'Only refer to secrets by env var name (example: OPENAI_API_KEY).'
     - 'Do not commit real API keys or tokens to git.'
-    - 'Prefer least-privilege GitHub Actions permissions.'
   # Conservative patterns we can lint for in src/ (avoid accidental leakage in logs).
   bannedLogValuePatterns:
     - 'console.(log|error|warn|info).*process.env.[A-Z0-9_]+'

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { join, resolve } from 'node:path';
 
 const stageMocks = vi.hoisted(() => ({
   generateBriefToScript: vi.fn(),
@@ -7,6 +8,7 @@ const stageMocks = vi.hoisted(() => ({
   runTimestampsToVisuals: vi.fn(),
   runVideoRender: vi.fn(),
   runPublishPrep: vi.fn(),
+  writeJsonArtifact: vi.fn(),
 }));
 
 vi.mock('./brief-to-script', () => ({
@@ -99,14 +101,20 @@ vi.mock('./publish-prep', async () => {
   };
 });
 
+vi.mock('./artifacts', () => ({
+  writeJsonArtifact: stageMocks.writeJsonArtifact,
+}));
+
 import { runGenerateShort } from './generate-short';
 
 describe('runGenerateShort', () => {
   beforeEach(() => {
     Object.values(stageMocks).forEach((mock) => mock.mockReset());
+    stageMocks.writeJsonArtifact.mockImplementation(async (path: string) => path);
   });
 
   it('orchestrates the stage wrappers without a reference video', async () => {
+    const runDir = resolve('/tmp/run');
     stageMocks.generateBriefToScript.mockResolvedValue({
       result: {
         outputPath: '/tmp/run/script/script.json',
@@ -126,6 +134,9 @@ describe('runGenerateShort', () => {
     stageMocks.runTimestampsToVisuals.mockResolvedValue({
       result: {
         outputPath: '/tmp/run/visuals/visuals.json',
+        visualQualityPath: '/tmp/run/visuals/visual-quality.json',
+        visualQualityPassed: true,
+        visualQualityScore: 0.91,
         sceneCount: 3,
       },
       artifacts: [{ path: '/tmp/run/visuals/visuals.json', kind: 'file', description: 'visuals' }],
@@ -134,6 +145,11 @@ describe('runGenerateShort', () => {
       result: {
         outputPath: '/tmp/run/render/video.mp4',
         outputMetadataPath: '/tmp/run/render/render.json',
+        captionExportPath: '/tmp/run/render/captions.remotion.json',
+        captionSrtPath: '/tmp/run/render/captions.srt',
+        captionAssPath: '/tmp/run/render/captions.ass',
+        captionQualityPassed: true,
+        captionQualityScore: 0.93,
       },
       artifacts: [{ path: '/tmp/run/render/video.mp4', kind: 'file', description: 'video' }],
     });
@@ -153,7 +169,7 @@ describe('runGenerateShort', () => {
       topic: 'Redis vs PostgreSQL for caching',
       archetype: 'versus',
       targetDuration: 45,
-      outputPath: '/tmp/run/script/script.json',
+      outputPath: join(runDir, 'script', 'script.json'),
       blueprintPath: undefined,
       llmProvider: 'default',
     });
@@ -161,12 +177,12 @@ describe('runGenerateShort', () => {
       voice: 'af_heart',
       mock: true,
       scriptPath: '/tmp/run/script/script.json',
-      outputDir: '/tmp/run/audio',
+      outputDir: join(runDir, 'audio'),
     });
     expect(stageMocks.runTimestampsToVisuals).toHaveBeenCalledWith({
       mock: true,
       timestampsPath: '/tmp/run/audio/timestamps.json',
-      outputPath: '/tmp/run/visuals/visuals.json',
+      outputPath: join(runDir, 'visuals', 'visuals.json'),
       topic: 'Redis vs PostgreSQL for caching',
     });
     expect(stageMocks.runVideoRender).toHaveBeenCalledWith({
@@ -174,27 +190,47 @@ describe('runGenerateShort', () => {
       visualsPath: '/tmp/run/visuals/visuals.json',
       timestampsPath: '/tmp/run/audio/timestamps.json',
       audioPath: '/tmp/run/audio/audio.wav',
-      outputPath: '/tmp/run/render/video.mp4',
-      outputMetadataPath: '/tmp/run/render/render.json',
+      outputPath: join(runDir, 'render', 'video.mp4'),
+      outputMetadataPath: join(runDir, 'render', 'render.json'),
     });
     expect(stageMocks.runPublishPrep).not.toHaveBeenCalled();
     expect(result.result.publishPrepDir).toBeNull();
     expect(result.result.publishReady).toBeNull();
+    expect(result.result.qualitySummaryPath).toBe(join(runDir, 'quality-summary.json'));
+    expect(result.result.qualityReady).toBe(true);
+    expect(result.result.visualQualityPassed).toBe(true);
+    expect(result.result.visualQualityScore).toBe(0.91);
+    expect(result.result.captionQualityPassed).toBe(true);
+    expect(result.result.captionQualityScore).toBe(0.93);
     expect(result.result.archetype).toBe('versus');
+    expect(stageMocks.writeJsonArtifact).toHaveBeenCalledWith(
+      join(runDir, 'quality-summary.json'),
+      expect.objectContaining({
+        ready: true,
+        visual: expect.objectContaining({ passed: true, score: 0.91 }),
+        captions: expect.objectContaining({ passed: true, score: 0.93 }),
+      })
+    );
     expect(result.artifacts).toEqual(
       expect.arrayContaining([
         {
-          path: '/tmp/run',
+          path: runDir,
           kind: 'directory',
           description: 'Generate-short output directory',
         },
         { path: '/tmp/run/script/script.json', kind: 'file', description: 'script' },
         { path: '/tmp/run/render/video.mp4', kind: 'file', description: 'video' },
+        {
+          path: join(runDir, 'quality-summary.json'),
+          kind: 'file',
+          description: 'Generate-short quality summary artifact',
+        },
       ])
     );
   });
 
   it('uses reference ingest outputs and runs publish prep by default', async () => {
+    const refDir = resolve('/tmp/ref');
     stageMocks.ingestReferenceVideo.mockResolvedValue({
       result: {
         outputDir: '/tmp/ref/ingest',
@@ -222,6 +258,9 @@ describe('runGenerateShort', () => {
     stageMocks.runTimestampsToVisuals.mockResolvedValue({
       result: {
         outputPath: '/tmp/ref/visuals/visuals.json',
+        visualQualityPath: '/tmp/ref/visuals/visual-quality.json',
+        visualQualityPassed: true,
+        visualQualityScore: 0.9,
         sceneCount: 4,
       },
       artifacts: [{ path: '/tmp/ref/visuals/visuals.json', kind: 'file', description: 'visuals' }],
@@ -230,6 +269,11 @@ describe('runGenerateShort', () => {
       result: {
         outputPath: '/tmp/ref/render/video.mp4',
         outputMetadataPath: '/tmp/ref/render/render.json',
+        captionExportPath: '/tmp/ref/render/captions.remotion.json',
+        captionSrtPath: '/tmp/ref/render/captions.srt',
+        captionAssPath: '/tmp/ref/render/captions.ass',
+        captionQualityPassed: true,
+        captionQualityScore: 0.92,
       },
       artifacts: [{ path: '/tmp/ref/render/video.mp4', kind: 'file', description: 'video' }],
     });
@@ -252,7 +296,7 @@ describe('runGenerateShort', () => {
 
     expect(stageMocks.ingestReferenceVideo).toHaveBeenCalledWith({
       videoPath: '/tmp/winner.mp4',
-      outputDir: '/tmp/ref/ingest',
+      outputDir: join(refDir, 'ingest'),
       includeFrameAnalysis: true,
       frameAnalysis: {},
       videospec: {},
@@ -263,7 +307,7 @@ describe('runGenerateShort', () => {
       topic: 'How Stripe was built',
       archetype: 'story',
       targetDuration: 45,
-      outputPath: '/tmp/ref/script/script.json',
+      outputPath: join(refDir, 'script', 'script.json'),
       blueprintPath: '/tmp/ref/ingest/blueprint.v1.json',
       llmProvider: 'default',
     });
@@ -274,9 +318,10 @@ describe('runGenerateShort', () => {
       validate: {},
       videoPath: '/tmp/ref/render/video.mp4',
       scriptPath: '/tmp/ref/script/script.json',
-      outputDir: '/tmp/ref/publish-prep',
+      outputDir: join(refDir, 'publish-prep'),
     });
     expect(result.result.referenceOutputDir).toBe('/tmp/ref/ingest');
+    expect(result.result.qualityReady).toBe(true);
     expect(result.result.publishPrepDir).toBe('/tmp/ref/publish-prep');
     expect(result.result.publishReady).toBe(true);
     expect(result.result.referenceArchetype).toBe('story');
@@ -302,6 +347,9 @@ describe('runGenerateShort', () => {
     stageMocks.runTimestampsToVisuals.mockResolvedValue({
       result: {
         outputPath: '/tmp/bad/visuals/visuals.json',
+        visualQualityPath: '/tmp/bad/visuals/visual-quality.json',
+        visualQualityPassed: true,
+        visualQualityScore: 0.9,
         sceneCount: 3,
       },
       artifacts: [],
@@ -310,6 +358,11 @@ describe('runGenerateShort', () => {
       result: {
         outputPath: '/tmp/bad/render/video.mp4',
         outputMetadataPath: '/tmp/bad/render/render.json',
+        captionExportPath: '/tmp/bad/render/captions.remotion.json',
+        captionSrtPath: '/tmp/bad/render/captions.srt',
+        captionAssPath: '/tmp/bad/render/captions.ass',
+        captionQualityPassed: true,
+        captionQualityScore: 0.92,
       },
       artifacts: [],
     });

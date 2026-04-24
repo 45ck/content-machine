@@ -135,9 +135,6 @@ export const RepoFactsRegistrySchema = z.object({
   quality: z
     .object({
       requiredNpmScripts: z.array(z.string().min(1)).default([]),
-      ci: z.object({
-        workflowPath: z.string().min(1),
-      }),
       docsValidation: z
         .object({
           markdownPaths: z.array(z.string().min(1)).default([]),
@@ -147,7 +144,6 @@ export const RepoFactsRegistrySchema = z.object({
     })
     .default({
       requiredNpmScripts: [],
-      ci: { workflowPath: '.github/workflows/ci.yml' },
       docsValidation: { markdownPaths: [], ignoreLinkGlobs: [] },
     }),
   security: z

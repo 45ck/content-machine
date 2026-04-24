@@ -15,7 +15,7 @@ For a bounded window, produce real content through the harness +
 skills + scripts path. Track:
 
 - where humans reached for the CLI instead of the skill
-- which CLI commands were invoked in CI only
+- which CLI commands were invoked only by local automation
 - which CLI commands hid behavior that should be in a script
 - which workflows genuinely need a CLI ergonomics story
 

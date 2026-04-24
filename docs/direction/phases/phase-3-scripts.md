@@ -17,7 +17,7 @@ Code / Codex / OpenCode.
    output and a structured log.
 3. No hidden state. No interactive prompts. No network except the
    runtime's explicit adapters.
-4. Wire them into CI so each runs end-to-end on fixtures.
+4. Wire them into local fixture checks so each runs end-to-end.
 
 ## Principle
 
@@ -26,6 +26,6 @@ nothing more. Anything "smart" belongs in a skill calling the script.
 
 ## Acceptance
 
-- At least three end-to-end scripts run green in CI with recorded traces.
+- At least three end-to-end scripts run green locally with recorded traces.
 - Each script has a reference doc under `docs/dev/`.
 - A harness can invoke them from a skill without custom glue.

@@ -1,4 +1,4 @@
-import { resolve } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
 import { z } from 'zod';
 import { TimestampsOutputSchema, VisualsOutputSchema } from '../domain';
 import {
@@ -9,6 +9,7 @@ import {
 import { OrientationEnum } from '../core/config';
 import { PROVIDER_ROUTING_POLICIES, type ProviderRoutingPolicy } from '../visuals/provider-router';
 import { matchVisuals } from '../visuals/matcher';
+import { analyzeVisualsQuality } from '../visuals/quality';
 import { readJsonArtifact, writeJsonArtifact } from './artifacts';
 import { artifactFile, type HarnessToolResult } from './json-stdio';
 import type { AssetProviderName } from '../visuals/providers';
@@ -29,6 +30,8 @@ export const TimestampsToVisualsRequestSchema = z
   .object({
     timestampsPath: z.string().min(1),
     outputPath: z.string().min(1).default('output/content-machine/visuals/visuals.json'),
+    visualQualityPath: z.string().min(1).optional(),
+    exportVisualQuality: z.boolean().default(true),
     provider: AssetProviderEnum.optional(),
     providers: z.array(AssetProviderEnum).min(1).optional(),
     localDir: z.string().min(1).optional(),
@@ -56,6 +59,9 @@ export type TimestampsToVisualsRequest = z.input<typeof TimestampsToVisualsReque
 export async function runTimestampsToVisuals(request: TimestampsToVisualsRequest): Promise<
   HarnessToolResult<{
     outputPath: string;
+    visualQualityPath: string | null;
+    visualQualityPassed: boolean | null;
+    visualQualityScore: number | null;
     sceneCount: number;
     fallbacks: number;
     fromStock: number;
@@ -71,6 +77,9 @@ export async function runTimestampsToVisuals(request: TimestampsToVisualsRequest
     'timestamps artifact'
   );
   const outputPath = resolve(normalized.outputPath);
+  const visualQualityPath = resolve(
+    normalized.visualQualityPath ?? join(dirname(outputPath), 'visual-quality.json')
+  );
   const providerChain = normalized.providers?.length
     ? normalized.providers
     : normalized.provider
@@ -96,9 +105,27 @@ export async function runTimestampsToVisuals(request: TimestampsToVisualsRequest
 
   await writeJsonArtifact(outputPath, visuals);
 
+  const artifacts = [artifactFile(outputPath, 'Generated visuals artifact')];
+  let exportedVisualQualityPath: string | null = null;
+  let visualQualityPassed: boolean | null = null;
+  let visualQualityScore: number | null = null;
+  if (normalized.exportVisualQuality) {
+    const visualQuality = analyzeVisualsQuality(visuals, {
+      targetDurationSeconds: timestamps.totalDuration,
+    });
+    await writeJsonArtifact(visualQualityPath, visualQuality);
+    exportedVisualQualityPath = visualQualityPath;
+    visualQualityPassed = visualQuality.passed;
+    visualQualityScore = visualQuality.score;
+    artifacts.push(artifactFile(visualQualityPath, 'Visual quality preflight artifact'));
+  }
+
   return {
     result: {
       outputPath,
+      visualQualityPath: exportedVisualQualityPath,
+      visualQualityPassed,
+      visualQualityScore,
       sceneCount: visuals.scenes.length,
       fallbacks: visuals.fallbacks,
       fromStock: visuals.fromStock,
@@ -106,6 +133,6 @@ export async function runTimestampsToVisuals(request: TimestampsToVisualsRequest
       fromUserFootage: visuals.fromUserFootage,
       gameplayClip: visuals.gameplayClip?.path ?? null,
     },
-    artifacts: [artifactFile(outputPath, 'Generated visuals artifact')],
+    artifacts,
   };
 }

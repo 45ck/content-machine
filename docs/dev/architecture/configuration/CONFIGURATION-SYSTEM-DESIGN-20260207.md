@@ -70,7 +70,7 @@ Retain `.cmrc.json` support for tooling and advanced structures.
 
 ### Env overrides (optional, power user)
 
-Support environment overrides for CI and quick tests:
+Support environment overrides for local checks and quick tests:
 
 - `CM_LLM_PROVIDER=openai`
 - `CM_CAPTIONS__WORD_ANIMATION_INTENSITY=0.9`

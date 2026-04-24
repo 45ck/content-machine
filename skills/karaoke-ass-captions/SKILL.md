@@ -29,6 +29,8 @@ description: Build ASS-based karaoke captions with fixed-position word highlight
 ## Outputs
 
 - `.ass` subtitle file
+- `.srt` subtitle file when exported through the render harness
+- `captions.remotion.json` when exported through the render harness
 - grouped caption chunks suitable for burn-in
 
 ## Workflow
@@ -63,6 +65,9 @@ description: Build ASS-based karaoke captions with fixed-position word highlight
   the chosen caption role is karaoke or word-led emphasis.
 - Feed the result into [`video-render`](../video-render/SKILL.md) or any
   FFmpeg burn stage that accepts ASS input.
+- The repo-side render harness now emits `captions.ass`,
+  `captions.srt`, and `captions.remotion.json` by default when caption
+  export is enabled.
 
 ## Aggregated From
 
@@ -75,3 +80,5 @@ description: Build ASS-based karaoke captions with fixed-position word highlight
 - Active word timing maps to real spoken timing.
 - Chunk size stays readable on a phone viewport.
 - ASS output is valid and burnable by FFmpeg.
+- SRT and Remotion JSON sidecars stay consistent with the same caption
+  grouping.

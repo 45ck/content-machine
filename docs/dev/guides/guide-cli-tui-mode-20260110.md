@@ -72,7 +72,7 @@ cm generate "Redis vs PostgreSQL for caching" --archetype versus --output output
   - **Fix:** Ensure you're in a TTY and avoid `--json`.
 - **Symptom:** Output looks garbled / flickers
   - **Fix:** Use a modern terminal, disable terminal "bracketed paste" issues, and avoid running inside non-interactive shells.
-- **Symptom:** CI scripts hang after `cm`
+- **Symptom:** local scripts hang after `cm`
   - **Fix:** Use `cm --no-tui ...` or call a specific subcommand (`cm generate`, etc.).
 
 ## Related

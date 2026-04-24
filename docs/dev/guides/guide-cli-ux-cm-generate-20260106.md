@@ -1,6 +1,6 @@
 # guide-cli-ux-cm-generate-20260106
 
-UX review for `cm generate` (topic -> video). This is the "golden path" command for Persona A (creator-operator). It must also be reliable for Persona B (engineer-operator) in CI and scripts.
+UX review for `cm generate` (topic -> video). This is the "golden path" command for Persona A (creator-operator). It must also be reliable for Persona B (engineer-operator) in local checks and scripts.
 
 References: `docs/dev/guides/guide-cli-ux-standards-20260106.md`.
 

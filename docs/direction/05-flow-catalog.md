@@ -89,7 +89,7 @@ Changes after review:
   first-class pre-run checker consumed by multiple CLI entrypoints. It is
   too small to embed inside every generation flow and too important to
   inline; promoting it to its own flow lets both `generate-short` and
-  `evaluate-batch` share it and lets CI run it standalone.
+  `evaluate-batch` share it and lets local checks run it standalone.
 - Did not split `lab-sweep` and `caption-sweep` further. They are
   structurally similar (parametric sweep over a metric gate) but have
   different skills and different gate predicates; merging them would force
@@ -541,8 +541,8 @@ true`.
   - Pinned model manifest references a missing model: preflight catches
     this; if somehow missed, `generate-short` fails and the case is
     marked.
-  - `allow-drift: true` on CI by mistake: gated by a separate CI check
-    that forbids that flag on protected branches.
+  - `allow-drift: true` in release checks by mistake: gated by a
+    separate local check that forbids that flag in release profiles.
 - parallelism: `foreach-spawn`, ceiling 4.
 - phase: Phase 4 wave 3.
 - status: planned.
@@ -592,7 +592,7 @@ true`.
 - phase: Phase 4 wave 3.
 - status: planned.
 - notes: Replaces the ad-hoc replayers around `evaluations/showcase-*.json`.
-  This flow is intended to run in CI on release branches.
+  This flow is intended to run in local release checks.
 
 ## 5. Replaces table
 
@@ -685,8 +685,8 @@ Rationale:
   CPU cores. 4 heavy children saturates the GPU path for LLM inference
   and keeps one core free for the harness. 8 light children comfortably
   fits in CPU-only paths.
-- CI runners are smaller. CI-specific overrides are expected via a
-  `concurrency.ci.yaml` profile; see open question 9.3.
+- Smaller machines need lower ceilings. Local profile overrides are
+  expected via a `concurrency.local.yaml` profile; see open question 9.3.
 - Network-bound flows (`vendor-refresh`, `parallel-visual-search`) are
   capped at 4 irrespective of CPU because provider rate limits, not
   local compute, are the bottleneck.
@@ -782,18 +782,17 @@ atomically after each child returns.
 
 Uncertainty: moderate. Needs a small spike before wave 2.
 
-### 9.3 CI concurrency ceiling
+### 9.3 Local concurrency ceiling
 
-Section 7 asserts that CI needs a lower ceiling than local. The exact
-values depend on the CI runner specs, which vary. Open questions:
+Section 7 asserts that smaller local machines may need a lower ceiling
+than workstation defaults. Open questions:
 
-- What is the default CI runner profile? (GitHub-hosted standard, or a
-  self-hosted fleet?)
-- Should CI-only concurrency live in a `concurrency.ci.yaml` profile
-  consumed by the harness, or as an env override
+- What is the default local low-resource profile?
+- Should low-resource concurrency live in a `concurrency.local.yaml`
+  profile consumed by the harness, or as an env override
   (`CM_CONCURRENCY_HEAVY=2`)?
-- Does CI need a separate gate profile that tightens the domain gates
-  (e.g. stricter retention tolerance on release branches)?
+- Do release checks need a separate gate profile that tightens the
+  domain gates?
 
 Leaning: profile file, discovered by env (`CM_PROFILE=ci`), with explicit
 overrides for ceilings and gates. Do not rely on ambient env vars alone;
@@ -826,7 +825,7 @@ The structure is stable enough to hand off:
   names match exactly.
 - To the runtime view writer: section 7 (concurrency) and section 9.2
   (resumability) feed the runtime view; the deployment view depends on
-  the CI profile decision in 9.3.
+  the local profile decision in 9.3.
 - To the ADR writer: the three load-bearing decisions worth capturing as
   ADRs are (a) flows replace the orchestration parts of the CLI, (b)
   user-defined gates live in `gates.yaml`, (c) concurrency profiles are

@@ -19,10 +19,18 @@ export * from '../feedback/schema';
 export * from '../script/schema';
 /** Audio artifact schema + types. */
 export * from '../audio/schema';
+/** Portable caption export schema + types. */
+export * from '../render/captions/export';
 /** Audio mix artifact schema + types. */
 export * from '../audio/mix/schema';
 /** Visuals artifact schema + types. */
 export * from '../visuals/schema';
+/** Visual quality preflight schema + types. */
+export * from '../visuals/quality';
+/** Highlight selection schema + types. */
+export * from '../highlights/schema';
+/** Local media/style library schemas + types. */
+export * from '../library/schema';
 /** Media synthesis artifact schema + types. */
 export * from '../media/schema';
 /** Hook asset schema + types. */

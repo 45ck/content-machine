@@ -310,7 +310,7 @@ UI code organization (source):
 Build:
 
 - `npm run lab:build` produces `assets/lab/index.html` + bundle JS/CSS.
-- Hook into `prepack`/`prepublishOnly` so global installs always have the UI.
+- Hook into `local build/package scripts` so global installs always have the UI.
 
 ## 11) Runner plan (only after review-only is solid)
 

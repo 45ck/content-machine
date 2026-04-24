@@ -16,7 +16,7 @@ Implement maintainability-focused code quality gates optimized for open-source c
 1. **Prevent hard-to-change code** from accumulating (complexity/depth gates)
 2. **Ensure test coverage** with achievable initial thresholds
 3. **Detect code duplication** before it becomes technical debt
-4. **Reduce PR friction** with deterministic, fast CI gates
+4. **Reduce PR friction** with deterministic, fast local checks gates
 5. **Support contributor success** with clear local validation steps
 
 ### Non-Goals
@@ -30,7 +30,7 @@ Implement maintainability-focused code quality gates optimized for open-source c
 
 ## Architecture
 
-### Quality Gate Pipeline (CI Order)
+### Quality Gate Pipeline (local automation order)
 
 ```
 ┌─────────────┐    ┌─────────────┐    ┌──────────────┐    ┌───────────────┐    ┌─────────────┐
@@ -105,7 +105,7 @@ pnpm add -D @eslint/js globals @typescript-eslint/parser @typescript-eslint/esli
 
 **Key Decisions:**
 
-- **No type-aware linting** — Omit `parserOptions.project` to avoid contributor friction and CI slowdown. TypeScript correctness enforced by `pnpm typecheck`.
+- **No type-aware linting** — Omit `parserOptions.project` to avoid contributor friction and local checks slowdown. TypeScript correctness enforced by `pnpm typecheck`.
 - **Fail on maintainability gates** — `complexity`, `cognitive-complexity`, `max-depth`
 - **Warn on style gates** — `max-lines-per-function`, `max-params`, `no-duplicate-string`
 - **Relax rules for tests** — Tests often have long setup, repeated fixtures
@@ -369,71 +369,26 @@ pnpm-lock.yaml
 |--------|---------|
 | `lint:fix` | Auto-fix ESLint issues |
 | `format` | Format all files with Prettier |
-| `format:check` | Check formatting (CI) |
+| `format:check` | Check formatting (local checks) |
 | `dup:check` | Run duplication detection |
 | `quality` | Run all quality checks locally |
 
 ---
 
-### Step 7: Create GitHub Actions CI Workflow
+### Step 7: Keep Local Quality Runnable
 
-**File:** `.github/workflows/ci.yml`
+**File:** `package.json`
 
-```yaml
-name: CI
+The current local-first baseline is `npm run quality`, which runs
+typecheck, lint, format checks, and Vitest locally. Historical hosted
+workflow examples are superseded by the repository-local scripts.
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
-jobs:
-  quality:
-    name: Quality Gates
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Typecheck
-        run: pnpm typecheck
-
-      - name: Lint
-        run: pnpm lint
-
-      - name: Format check
-        run: pnpm format:check
-
-      - name: Test with coverage
-        run: pnpm test:coverage
-
-      - name: Duplication check
-        run: pnpm dup:check
-
-      - name: Upload coverage
-        uses: codecov/codecov-action@v4
-        with:
-          files: ./coverage/lcov.info
-          fail_ci_if_error: false
+```json
+{
+  "scripts": {
+    "quality": "npm run typecheck && npm run lint && npm run format:check && npm run test:run"
+  }
+}
 ```
 
 ---
@@ -825,8 +780,8 @@ After implementation, verify:
 - [ ] `pnpm test:coverage` reports coverage and enforces thresholds
 - [ ] `pnpm dup:check` runs and respects threshold
 - [ ] `pnpm quality` runs all checks in sequence
-- [ ] CI workflow triggers on push/PR
-- [ ] CI fails correctly when thresholds are violated
+- [ ] local quality workflow triggers on push/PR
+- [ ] local checks fail correctly when thresholds are violated
 - [ ] Vendor folder is excluded from all tools
 - [ ] Test files are excluded from complexity/duplication rules
 
@@ -840,7 +795,7 @@ After implementation, verify:
 | `.jscpd.json`                        | Create | Duplication detection config                |
 | `.prettierrc`                        | Create | Code formatting rules                       |
 | `.prettierignore`                    | Create | Formatting exclusions                       |
-| `.github/workflows/ci.yml`           | Create | CI pipeline                                 |
+| `.github/workflows/local checks.yml` | Create | local quality pipeline                      |
 | `SECURITY.md`                        | Create | Vulnerability reporting                     |
 | `CODE_OF_CONDUCT.md`                 | Create | Community standards                         |
 | `.github/pull_request_template.md`   | Create | PR checklist                                |

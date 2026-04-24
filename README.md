@@ -1,7 +1,5 @@
 # Content Machine
 
-[![CI](https://github.com/45ck/content-machine/actions/workflows/ci.yml/badge.svg)](https://github.com/45ck/content-machine/actions/workflows/ci.yml)
-[![npm](https://img.shields.io/npm/v/%4045ck%2Fcontent-machine)](https://www.npmjs.com/package/@45ck/content-machine)
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 
 <p align="center">
@@ -89,6 +87,12 @@ node --import tsx scripts/harness/skill-catalog.ts
 node --import tsx scripts/harness/generate-short.ts
 node --import tsx scripts/harness/brief-to-script.ts
 node --import tsx scripts/harness/ingest.ts
+node --import tsx scripts/harness/longform-highlight-select.ts
+node --import tsx scripts/harness/highlight-approval.ts
+node --import tsx scripts/harness/boundary-snap.ts
+node --import tsx scripts/harness/source-media-analyze.ts
+node --import tsx scripts/harness/media-index.ts
+node --import tsx scripts/harness/style-profile-library.ts
 node --import tsx scripts/harness/script-to-audio.ts
 node --import tsx scripts/harness/timestamps-to-visuals.ts
 node --import tsx scripts/harness/video-render.ts

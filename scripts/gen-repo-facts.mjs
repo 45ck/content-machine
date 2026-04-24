@@ -196,7 +196,7 @@ function generateQualityGatesMd({ registry }) {
   lines.push('');
   lines.push('> DO NOT EDIT: generated from `registry/repo-facts.yaml`.');
   lines.push('');
-  lines.push('These checks must remain wired in CI and are expected to be runnable locally.');
+  lines.push('These checks are local-first and expected to be runnable in this checkout.');
   lines.push('');
   if ((q.requiredNpmScripts ?? []).length > 0) {
     lines.push('Required npm scripts:');
@@ -204,8 +204,6 @@ function generateQualityGatesMd({ registry }) {
     lines.push(mdList((q.requiredNpmScripts ?? []).map((s) => `\`npm run ${s}\``)));
     lines.push('');
   }
-  lines.push(`CI workflow: \`${q.ci.workflowPath}\``);
-  lines.push('');
   lines.push('');
   return lines.join('\n');
 }
@@ -285,37 +283,6 @@ function generatePipelinePresetsMd({ registry }) {
         lines.push(`  - autoRetrySync: \`${String(pr.autoRetrySync)}\``);
     }
   }
-  lines.push('');
-  lines.push('');
-  return lines.join('\n');
-}
-
-function generateCopilotInstructionsMd({ registry }) {
-  const f = registry.facts;
-  const lines = [];
-  lines.push('# Repository instructions (generated)');
-  lines.push('');
-  lines.push(`This repository is \`${registry.meta.repoName}\`.`);
-  lines.push('');
-  lines.push('## Canonical sources of truth');
-  lines.push('- Repo facts: `registry/repo-facts.yaml`');
-  lines.push('- Ubiquitous language: `registry/ubiquitous-language.yaml`');
-  lines.push('- Artifact contracts: `docs/reference/ARTIFACT-CONTRACTS.md`');
-  lines.push('- Config surface: `docs/reference/CONFIG-SURFACE.md`');
-  lines.push('- CLI contract: `docs/reference/CLI-CONTRACT.md`');
-  lines.push('');
-  lines.push('## Build & quality');
-  lines.push('- Install: `npm ci`');
-  lines.push('- Quality gates: `npm run quality`');
-  lines.push('- Tests: `npm run test:run`');
-  lines.push('');
-  lines.push('## Providers');
-  lines.push('Supported LLM providers:');
-  lines.push(mdProviderLines(f.llm.supportedProviders));
-  lines.push('');
-  lines.push('Default LLM:');
-  lines.push(`- provider: \`${f.llm.default.providerId}\``);
-  lines.push(`- model: \`${f.llm.default.model}\``);
   lines.push('');
   lines.push('');
   return lines.join('\n');
@@ -615,7 +582,6 @@ async function main() {
   const outSecurityMd = path.join(RepoRoot, 'docs', 'reference', 'SECURITY-INVARIANTS.md');
   const outCliMd = path.join(RepoRoot, 'docs', 'reference', 'CLI-CONTRACT.md');
   const outPresetsMd = path.join(RepoRoot, 'docs', 'reference', 'PIPELINE-PRESETS.md');
-  const outCopilotMd = path.join(RepoRoot, '.github', 'copilot-instructions.md');
   const outClaudeMd = path.join(RepoRoot, 'CLAUDE.md');
   const outTs = path.join(RepoRoot, 'src', 'domain', 'repo-facts.generated.ts');
   const outCspell = path.join(RepoRoot, 'config', 'cspell', 'repo-facts.txt');
@@ -656,11 +622,6 @@ async function main() {
     outPresetsMd,
     'markdown'
   );
-  const copilotMd = await formatWithPrettier(
-    generateCopilotInstructionsMd({ registry }),
-    outCopilotMd,
-    'markdown'
-  );
   const claudeMd = await formatWithPrettier(
     generateClaudeMd({ registry }),
     outClaudeMd,
@@ -670,7 +631,6 @@ async function main() {
   const cspellWords = extractCspellWords({ registry });
 
   fs.mkdirSync(path.dirname(outRepoFactsMd), { recursive: true });
-  fs.mkdirSync(path.dirname(outCopilotMd), { recursive: true });
   fs.mkdirSync(path.dirname(outTs), { recursive: true });
   fs.mkdirSync(path.dirname(outCspell), { recursive: true });
 
@@ -682,7 +642,6 @@ async function main() {
   fs.writeFileSync(outSecurityMd, securityMd, 'utf8');
   fs.writeFileSync(outCliMd, cliMd, 'utf8');
   fs.writeFileSync(outPresetsMd, presetsMd, 'utf8');
-  fs.writeFileSync(outCopilotMd, copilotMd, 'utf8');
   fs.writeFileSync(outClaudeMd, claudeMd, 'utf8');
   fs.writeFileSync(outTs, tsCode, 'utf8');
   fs.writeFileSync(outCspell, renderDictionary(cspellWords), 'utf8');

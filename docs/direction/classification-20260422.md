@@ -557,20 +557,20 @@ Pre-beads file-based tracker. AGENTS.md says use beads now.
 
 ## Root config files
 
-| path                 | action   | destination | phase | notes                                       |
-| -------------------- | -------- | ----------- | ----- | ------------------------------------------- |
-| package.json         | refactor | —           | 6     | Update description + files field in Phase 6 |
-| tsconfig\*.json      | keep     | —           | —     | TS config                                   |
-| eslint.config.js     | keep     | —           | —     | Lint config                                 |
-| vitest.config.ts     | keep     | —           | —     | Test config                                 |
-| stryker.conf.json    | keep     | —           | —     | Mutation testing                            |
-| .husky/              | keep     | —           | —     | Git hooks                                   |
-| .github/             | keep     | —           | —     | CI workflows                                |
-| .prompt-language/    | keep     | —           | —     | prompt-language state dir                   |
-| README.md            | refactor | —           | 6     | Phase 6 rewrites harness-first              |
-| CHANGELOG.md         | keep     | —           | —     | Release history                             |
-| DIRECTION.md         | keep     | —           | —     | Living doc                                  |
-| CLAUDE.md, AGENTS.md | keep     | —           | —     | Harness docs                                |
+| path                 | action   | destination | phase | notes                                          |
+| -------------------- | -------- | ----------- | ----- | ---------------------------------------------- |
+| package.json         | refactor | —           | 6     | Update description + files field in Phase 6    |
+| tsconfig\*.json      | keep     | —           | —     | TS config                                      |
+| eslint.config.js     | keep     | —           | —     | Lint config                                    |
+| vitest.config.ts     | keep     | —           | —     | Test config                                    |
+| stryker.conf.json    | keep     | —           | —     | Mutation testing                               |
+| .husky/              | keep     | —           | —     | Git hooks                                      |
+| .github/             | delete   | —           | —     | GitHub automation removed for local-first work |
+| .prompt-language/    | keep     | —           | —     | prompt-language state dir                      |
+| README.md            | refactor | —           | 6     | Phase 6 rewrites harness-first                 |
+| CHANGELOG.md         | keep     | —           | —     | Release history                                |
+| DIRECTION.md         | keep     | —           | —     | Living doc                                     |
+| CLAUDE.md, AGENTS.md | keep     | —           | —     | Harness docs                                   |
 
 ## Decide-later register
 

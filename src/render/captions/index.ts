@@ -91,3 +91,28 @@ export {
 
 // Emphasis types
 export { type EmphasisType, type EmphasisStyle } from './config';
+
+// Portable caption exports
+export {
+  CaptionExportSchema,
+  CaptionExportWordSchema,
+  CaptionSegmentQualityIssueSchema,
+  CaptionSegmentQualityReportSchema,
+  CaptionSegmentSchema,
+  RemotionCaptionSchema,
+  analyzeCaptionSegments,
+  createCaptionExport,
+  formatAssCaptions,
+  formatSrtCaptions,
+  toCaptionSegments,
+  toRemotionCaptions,
+  type AssCaptionStyle,
+  type CaptionExport,
+  type CaptionExportWord,
+  type CaptionSegment,
+  type CaptionSegmentOptions,
+  type CaptionSegmentQualityIssue,
+  type CaptionSegmentQualityReport,
+  type CaptionSegmentQualityThresholds,
+  type RemotionCaption,
+} from './export';

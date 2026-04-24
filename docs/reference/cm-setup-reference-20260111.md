@@ -59,4 +59,4 @@ cm setup whisper --model base --dir ~/.cm/runtime/whisper
 ## Notes
 
 - `cm generate --pipeline audio-first` requires Whisper; `cm setup whisper` is the recommended one-time setup.
-- For CI, cache the whisper directory between runs to avoid repeated downloads.
+- For repeated local runs, cache the whisper directory to avoid repeated downloads.

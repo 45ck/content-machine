@@ -77,7 +77,7 @@ For any “risky” flags or new template changes:
 ### Integration tests (opt-in / environment dependent)
 
 - If `ffprobe` exists: run `cm validate` against a small MP4 and assert it returns a report quickly.
-- If not: skip with a clear reason (do not fail CI unexpectedly).
+- If not: skip with a clear reason (do not fail local checks unexpectedly).
 
 ---
 

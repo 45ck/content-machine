@@ -32,6 +32,58 @@ export { importVisualsFromClips } from './importers/visuals';
 // Visuals/footage matching
 export type { VisualsOutput, VideoClip, VisualAsset } from './domain';
 export { VisualsOutputSchema, VideoClipSchema, VisualAssetSchema } from './domain';
+export {
+  VisualQualityIssueSchema,
+  VisualQualityReportSchema,
+  analyzeVisualsQuality,
+  type VisualQualityIssue,
+  type VisualQualityOptions,
+  type VisualQualityReport,
+} from './visuals/quality';
+export {
+  HIGHLIGHT_SELECTION_SCHEMA_VERSION,
+  HIGHLIGHT_APPROVAL_SCHEMA_VERSION,
+  BOUNDARY_SNAP_SCHEMA_VERSION,
+  SOURCE_MEDIA_ANALYSIS_SCHEMA_VERSION,
+  HighlightApprovalSchema,
+  HighlightApprovalOutputSchema,
+  HighlightCandidateScoresSchema,
+  HighlightCandidateSignalsSchema,
+  HighlightCandidateSourceSignalsSchema,
+  HighlightCandidateSchema,
+  BoundarySnapOutputSchema,
+  HighlightSelectionOutputSchema,
+  HighlightSelectionParamsSchema,
+  SourceMediaAnalysisOutputSchema,
+  type HighlightApproval,
+  type HighlightApprovalOutput,
+  type HighlightCandidate,
+  type HighlightCandidateScores,
+  type HighlightCandidateSignals,
+  type HighlightCandidateSourceSignals,
+  type BoundarySnapOutput,
+  type HighlightSelectionOutput,
+  type HighlightSelectionParams,
+  type SourceMediaAnalysisOutput,
+} from './domain';
+export {
+  analyzeSourceMedia,
+  analyzeSourceMediaFromProbe,
+  createHighlightApproval,
+  selectHighlightCandidates,
+  snapHighlightBoundaries,
+} from './highlights';
+export {
+  MediaIndexSchema,
+  MediaIndexItemSchema,
+  StyleProfileLibrarySchema,
+  StyleProfileSchema,
+  type MediaIndex,
+  type MediaIndexItem,
+  type StyleProfile,
+  type StyleProfileLibrary,
+} from './domain';
+export { buildMediaIndex, upsertStyleProfile } from './library';
 
 // Render pipeline
 export type { RenderProps, RenderOutput } from './domain';
@@ -48,6 +100,31 @@ export { THEME_CAPTION_PRESETS } from './render/presets/caption';
 
 // Style system - tokens
 export * from './render/tokens';
+
+// Caption export/runtime contracts
+export {
+  CaptionExportSchema,
+  CaptionExportWordSchema,
+  CaptionSegmentQualityIssueSchema,
+  CaptionSegmentQualityReportSchema,
+  CaptionSegmentSchema,
+  RemotionCaptionSchema,
+  analyzeCaptionSegments,
+  createCaptionExport,
+  formatAssCaptions,
+  formatSrtCaptions,
+  toCaptionSegments,
+  toRemotionCaptions,
+  type AssCaptionStyle,
+  type CaptionExport,
+  type CaptionExportWord,
+  type CaptionSegment,
+  type CaptionSegmentOptions,
+  type CaptionSegmentQualityIssue,
+  type CaptionSegmentQualityReport,
+  type CaptionSegmentQualityThresholds,
+  type RemotionCaption,
+} from './render/captions/export';
 
 // Style system - themes
 export { createThemeRegistry, defaultThemeRegistry } from './render/themes';
@@ -88,6 +165,21 @@ export { RunFlowRequestSchema, runFlowHandler, runFlowFromManifest } from './har
 export { GenerateShortRequestSchema, runGenerateShort } from './harness/generate-short';
 export { IngestRequestSchema, ingestReferenceVideo } from './harness/ingest';
 export { InstallSkillPackRequestSchema, installSkillPack } from './harness/install-skill-pack';
+export {
+  LongformHighlightSelectRequestSchema,
+  runLongformHighlightSelect,
+} from './harness/longform-highlight-select';
+export { HighlightApprovalRequestSchema, runHighlightApproval } from './harness/highlight-approval';
+export { BoundarySnapRequestSchema, runBoundarySnap } from './harness/boundary-snap';
+export {
+  SourceMediaAnalyzeRequestSchema,
+  runSourceMediaAnalyze,
+} from './harness/source-media-analyze';
+export { MediaIndexRequestSchema, runMediaIndex } from './harness/media-index';
+export {
+  StyleProfileLibraryRequestSchema,
+  runStyleProfileLibrary,
+} from './harness/style-profile-library';
 export { PublishPrepRequestSchema, runPublishPrep } from './harness/publish-prep';
 export { ScriptToAudioRequestSchema, runScriptToAudio } from './harness/script-to-audio';
 export { SkillCatalogRequestSchema, listSkillCatalog } from './harness/skill-catalog';

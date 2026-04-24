@@ -36,7 +36,7 @@ The durable value is:
   deterministically and is callable from both skills and scripts.
 - **Scripts / hooks** are the deterministic execution layer. Thin,
   reproducible, log-structured.
-- **CLI** is a thin dev/CI shell. Not a product interface. May shrink
+- **CLI** is a thin local harness shell. Not a product interface. May shrink
   or be removed after the Phase 5 trial.
 - **MCP** is optional adapter infrastructure for external/shared
   systems, not the default integration path.

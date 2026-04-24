@@ -35,7 +35,7 @@ Recommendation:
 - **Pick #8** (TOML + JSON + env overrides), implemented incrementally.
   - TOML stays primary (human-friendly).
   - JSON remains supported for advanced/nesting parity and tooling.
-  - Env override support remains "power-user" but makes CI and experiments easy.
+  - Env override support remains "power-user" but makes local checks and experiments easy.
 
 Why not TS config (#6) as default: it executes code, complicates trust/safety and reproducibility; can be a future opt-in.
 

@@ -42,6 +42,9 @@ description: Turn a podcast, interview, talk, screen recording, or long YouTube 
 
 ## Optional Runtime Surface
 
+- Use [`longform-highlight-select`](../longform-highlight-select/SKILL.md)
+  to produce ranked candidate moments from word-level timestamps before
+  clipping or reframing.
 - Use [`reverse-engineer-winner`](../reverse-engineer-winner/SKILL.md)
   for reference analysis only, not raw clipping.
 - Use [`video-render`](../video-render/SKILL.md) and
@@ -54,6 +57,9 @@ description: Turn a podcast, interview, talk, screen recording, or long YouTube 
 
 - Pull from `yt-dlp`, transcript, scene detection, and blueprint files
   when available.
+- The first executable selector is transcript/timestamp based. Frame,
+  speaker, face, and cursor signals should be added after candidate
+  moment selection is stable.
 - Use [`reframe-vertical`](../reframe-vertical/SKILL.md) for crop
   strategy.
 - Use [`short-form-captions`](../short-form-captions/SKILL.md) after

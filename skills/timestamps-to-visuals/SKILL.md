@@ -27,6 +27,8 @@ inputs:
 outputs:
   - name: visuals.json
     description: Per-scene visuals plan written to the requested output path.
+  - name: visual-quality.json
+    description: Metadata preflight report for visual readiness.
 ---
 
 # Timestamps To Visuals
@@ -53,17 +55,21 @@ cat skills/timestamps-to-visuals/examples/request.json | \
 
 - Reads an existing `timestamps.json` file without modifying it.
 - Writes one `visuals.json` file to the requested `outputPath`.
+- Writes `visual-quality.json` beside `visuals.json` by default unless
+  visual quality export is disabled.
 - Provider selection comes from explicit `provider` / `providers`
   fields plus repo configuration, not ad hoc prompt interpretation.
 - Local footage and gameplay are expected to be caption-clean raw media.
   If the only source is an already-published short, treat it as a
   `reverse-engineer-winner` input instead of reusing it as visual stock.
 - Returns a JSON envelope with the final visuals path and generated
-  scene count.
+  scene count plus visual quality pass/score fields when exported.
 
 ## Validation Checklist
 
 - `outputPath` exists and points to a valid `visuals.json` file.
+- `visual-quality.json` exists by default and reports the metadata
+  preflight result.
 - The visuals plan covers the scenes implied by `timestamps.json`.
 - Each visual entry includes enough metadata for downstream render work.
 - Any local video assets are free of persistent burned-in source text.

@@ -63,7 +63,7 @@ H1 3, H2 4, H3 3, H4 3, H5 2, H6 4, H7 3, H8 4, H9 3, H10 3
 7. **Non-interactive mode improvements (H7):** Extend `--yes` to allow `--provider`, `--model`, etc. (fully scriptable init).
 8. **Config location clarity (H1):** Print absolute path for where config was written in TTY mode; stdout remains the path.
 9. **Add `cm doctor` hook (H9,H10):** After init success, print `Next: cm doctor` suggestion to validate install before first generate.
-10. **Minimal output mode (H8):** Add `--quiet` for init so CI can create config with near-zero stderr output; still prints stdout path.
+10. **Minimal output mode (H8):** Add `--quiet` for init so local checks can create config with near-zero stderr output; still prints stdout path.
 
 ## `cm templates`
 
@@ -141,7 +141,7 @@ H1 3, H2 4, H3 3, H4 4, H5 3, H6 3, H7 3, H8 4, H9 3, H10 2
 7. **Fix guidance for missing keys (H9):** If `--llm` is set but API key missing, print `Fix: set OPENAI_API_KEY...` and suggest running `cm init`.
 8. **Artifact linking (H1):** Include references to which input script/package were used (paths) in receipt.
 9. **Quality chaining suggestion (H6):** On publish success, print `Next: cm validate <video>` or `Next: cm rate <video>` depending on workflow stage.
-10. **Deterministic defaults (H5,H3):** Keep deterministic mode as default and document the implications for reproducibility and CI.
+10. **Deterministic defaults (H5,H3):** Keep deterministic mode as default and document the implications for reproducibility and local checks.
 
 ## Related docs
 

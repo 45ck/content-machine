@@ -79,7 +79,7 @@ H1 4, H2 4, H3 3, H4 4, H5 3, H6 3, H7 3, H8 4, H9 3, H10 3
 7. **Failure recovery snippet (H9,H10):** On failure, print a ready-to-run recovery command based on where it failed, e.g. `Next: cm audio -i <script>` or `Next: cm render ...`. (Pattern: Vercel "Next steps" `vendor/cli/examples/vercel`.)
 8. **Output path UX (H2,H6):** Print absolute paths in TTY mode for Windows usability, while keeping stdout as the relative primary path. (Pattern: many CLIs show absolute in stderr while keeping stdout stable.)
 9. **Progress phase naming contract (H1,H4):** Lock a stable phase vocabulary for each stage (e.g., `research`, `llm`, `tts`, `asr`, `align`, `search`, `download`, `bundle`, `render-media`) so progress feels consistent across runs. (Align with `docs/dev/features/feature-cli-progress-events-20260106.md`.)
-10. **Quality tail (H6,H7):** Add an optional `--post` group, e.g. `--post validate,rate` to automatically run quality tools after render and include results in the receipt. (Pattern: "pipeline chaining" from CI-minded tools.)
+10. **Quality tail (H6,H7):** Add an optional `--post` group, e.g. `--post validate,rate` to automatically run quality tools after render and include results in the receipt. (Pattern: "pipeline chaining" from local-automation-minded tools.)
 
 ## `cm script`
 

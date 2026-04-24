@@ -199,7 +199,7 @@ These are "quality products", not just utilities:
 
 ## 10) Metrics (how we know it worked)
 
-Quantitative (from tests / CI / telemetry if added later):
+Quantitative (from tests / local checks / telemetry if added later):
 
 - In `--json` mode: stdout is exactly one parseable JSON object (0 extra bytes).
 - In non-TTY mode: no spinners, no ANSI.
@@ -208,7 +208,7 @@ Quantitative (from tests / CI / telemetry if added later):
 Qualitative:
 
 - A new user can successfully run `cm generate` and find outputs without reading docs.
-- A CI user can parse `--json` output without brittle parsing.
+- A local automation user can parse `--json` output without brittle parsing.
 
 ## 11) Rollout plan (safe)
 

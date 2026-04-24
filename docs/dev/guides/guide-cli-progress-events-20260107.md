@@ -2,7 +2,7 @@
 
 This guide defines structured progress events for `cm` and how they are rendered in the terminal.
 
-## Why this matters (HCI)
+## Why this matters (Hlocal checks)
 
 - Long tasks must never feel stuck.
 - Users should always know: what is happening now, what is next, and where outputs go.

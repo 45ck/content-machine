@@ -39,7 +39,12 @@ describe('runDoctorReport', () => {
       failures: 1,
       warnings: 1,
     });
-    expect(result.artifacts).toEqual([
+    expect(result.artifacts).toBeDefined();
+    const normalizedArtifacts = result.artifacts?.map((artifact) => ({
+      ...artifact,
+      path: artifact.path.replace(/\\/g, '/'),
+    }));
+    expect(normalizedArtifacts).toEqual([
       {
         path: expect.stringContaining('tests/.tmp/doctor-report/report.json'),
         kind: 'file',

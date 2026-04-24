@@ -35,7 +35,7 @@ We explicitly label any dataset/model-based prediction code as research-only and
 We implement a new CLI command `cm score` that consumes `script.json`, `timestamps.json`, and `visuals.json` and emits `score.json` (see `docs/research/investigations/RQ-26-ENGAGEMENT-PREDICTION-REPO-INTEGRATION-20260106.md`).  
 We implement deterministic checks (cadence, hook constraints, caption density proxies) as V&V Layer 2 gates (see `docs/dev/guides/VV-FRAMEWORK-20260105.md`).  
 We implement an optional LLM rubric scorer as V&V Layer 3 with structured output validation (see `docs/research/investigations/RQ-24-LLM-EVALUATION-QUALITY-ASSURANCE-20260105.md`).  
-We implement `--gate` mode that exits non-zero on failure to support CI and batch pipelines (see `docs/dev/architecture/IMPL-CODE-QUALITY-GATES-20260105.md`).
+We implement `--gate` mode that exits non-zero on failure to support local checks and batch pipelines (see `docs/dev/architecture/IMPL-CODE-QUALITY-GATES-20260105.md`).
 
 ### Out of Scope
 

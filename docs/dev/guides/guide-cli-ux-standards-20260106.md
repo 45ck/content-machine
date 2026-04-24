@@ -10,7 +10,7 @@ The CLI is the "UI", but the outputs are media assets. That means UX is largely 
 
 - making long operations feel safe and understandable
 - making files and next actions obvious
-- making scripting and CI reliable
+- making scripting and local checks reliable
 
 ## Users (personas)
 
@@ -23,7 +23,7 @@ The CLI is the "UI", but the outputs are media assets. That means UX is largely 
 ### Persona B: Engineer-operator (primary)
 
 - Goal: "I want to automate this and trust it."
-- Environment: CI, cron, scripts, pipelines; non-interactive; wants stable JSON, exit codes, and determinism.
+- Environment: local checks, cron, scripts, pipelines; non-interactive; wants stable JSON, exit codes, and determinism.
 - Needs: no spinners in non-TTY; machine-readable output; stable schemas; explicit artifact paths; predictable failure modes.
 
 ### Persona C: Researcher / ideation (secondary)
@@ -41,7 +41,7 @@ The CLI is the "UI", but the outputs are media assets. That means UX is largely 
 
 - Generate a full short video from a topic.
 - Run or re-run a specific stage (script/audio/visuals/render) without repeating earlier stages.
-- Validate a rendered output for platform requirements (especially in CI).
+- Validate a rendered output for platform requirements (especially in local checks).
 - Produce packaging or research outputs for creative iteration.
 
 ## Mental model (pipeline + artifacts)
@@ -57,7 +57,7 @@ Principle: each command should clearly state (a) required inputs, (b) produced o
 ## Modes (the CLI must behave well in each)
 
 - Interactive (TTY): short status + progress, then a compact summary.
-- Scriptable (pipes/CI): minimal stderr noise; `--json` prints one JSON object to stdout.
+- Scriptable (pipes/local checks): minimal stderr noise; `--json` prints one JSON object to stdout.
 - Debug: `--verbose` increases detail and retains more artifacts.
 - Preview: `--dry-run` shows what would happen without side effects.
 
@@ -133,7 +133,7 @@ Help text should answer, in this order:
 ## Review checklist
 
 - Can a creator answer: what is happening now, what files will I get, where are they, and what do I do next?
-- Can an engineer run it in CI reliably (no spinners in `--json`, stable stdout, meaningful exit codes)?
+- Can an engineer run it in local checks reliably (no spinners in `--json`, stable stdout, meaningful exit codes)?
 - Are invalid flags rejected early with actionable fixes (before expensive work)?
 - Are outputs and schemas versioned and stable enough to automate?
 - Does it work in PowerShell and non-UTF terminals without broken glyphs?

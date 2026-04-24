@@ -15,7 +15,7 @@ improves distribution options while keeping installs small via on-demand assets.
 ## User Value
 
 - Fewer environment issues and faster onboarding.
-- CI and dev setups become more reproducible.
+- local dev setups become more reproducible.
 
 ## Goals
 
@@ -51,7 +51,7 @@ improves distribution options while keeping installs small via on-demand assets.
 
 ## Rollout
 
-- Start with docs + CI checks (package size, minimal file list).
+- Start with docs + local checks checks (package size, minimal file list).
 - Add Docker after `cm doctor` is stable.
 - Evaluate binaries only after API surface stabilizes.
 

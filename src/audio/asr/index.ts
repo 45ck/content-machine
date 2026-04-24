@@ -95,7 +95,6 @@ function resolveWhisperModel(model: NonNullable<ASROptions['model']>): WhisperMo
 
 function shouldAutoInstallWhisper(): boolean {
   if (process.env.NODE_ENV === 'test') return false;
-  if (process.env.CI) return false;
   if (process.env.CM_WHISPER_AUTO_INSTALL === '1') return true;
   if (process.env.CM_WHISPER_AUTO_INSTALL === '0') return false;
   return false;

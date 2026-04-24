@@ -19,7 +19,7 @@ We want the default entry experience to feel "app-like" while preserving the scr
 Constraints:
 
 - Must not break `--json` mode or automation workflows.
-- Must remain usable in non-TTY contexts (CI, pipes).
+- Must remain usable in non-TTY contexts (local checks, pipes).
 - Must not intermix multiple redraw systems (Ink vs ora/log-update).
 
 ## Decision

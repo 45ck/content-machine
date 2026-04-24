@@ -1,13 +1,13 @@
 # guide-cli-ux-cm-validate-20260106
 
-UX review for `cm validate` (video -> validation report). This is the "trust anchor" command for shipping: it should be boring, precise, and CI-friendly.
+UX review for `cm validate` (video -> validation report). This is the "trust anchor" command for shipping: it should be boring, precise, and local-automation-friendly.
 
 References: `docs/dev/guides/guide-cli-ux-standards-20260106.md`.
 
 ## Who is the user here?
 
 - Creator-operator: wants to avoid upload failures and platform rejections.
-- Engineer-operator: wants a gate that can run in CI with stable exit codes and JSON output.
+- Engineer-operator: wants a gate that can run in local checks with stable exit codes and JSON output.
 - Contributor/debugger: wants actionable fixes when a gate fails.
 
 ## Job to be done

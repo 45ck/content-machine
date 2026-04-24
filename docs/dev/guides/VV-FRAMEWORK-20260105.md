@@ -532,75 +532,28 @@ export async function validateRenderQuality(
 
 ---
 
-## 3. CI/CD Integration
+## 3. Local Automation Integration
 
 ### 3.1 Test Matrix
 
-```yaml
-# .github/workflows/quality.yml
-name: Quality Gates
+Recommended local commands:
 
-on:
-  pull_request:
-    paths:
-      - 'src/**'
-      - 'evals/**'
-
-jobs:
-  unit-tests:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: npm ci
-      - run: npm test
-
-  schema-validation:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: npm ci
-      - run: npm run test:schemas
-
-  llm-evals:
-    runs-on: ubuntu-latest
-    if: contains(github.event.pull_request.labels.*.name, 'run-evals')
-    steps:
-      - uses: actions/checkout@v4
-      - run: npm ci
-      - name: Run Script Evals
-        run: npx promptfoo eval -c evals/configs/cm-script.yaml --no-cache -o results.json
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      - name: Check Pass Rate
-        run: |
-          PASS=$(jq '.results.stats.successes' results.json)
-          TOTAL=$(jq '.results.stats.total' results.json)
-          RATE=$(echo "scale=2; $PASS / $TOTAL" | bc)
-          echo "Pass rate: $RATE"
-          if (( $(echo "$RATE < 0.80" | bc -l) )); then
-            echo "::error::Pass rate below 80% threshold"
-            exit 1
-          fi
-
-  video-quality:
-    runs-on: ubuntu-latest
-    if: contains(github.event.pull_request.labels.*.name, 'run-video-tests')
-    steps:
-      - uses: actions/checkout@v4
-      - run: npm ci
-      - run: sudo apt-get install -y ffmpeg
-      - run: npm run test:render
+```bash
+npm run quality
+npm run test:schemas
+npx promptfoo eval -c evals/configs/cm-script.yaml --no-cache -o results.json
+npm run test:render
 ```
 
 ### 3.2 Quality Gates
 
-| Gate              | Trigger                 | Threshold | Blocks Merge |
-| ----------------- | ----------------------- | --------- | ------------ |
-| Unit Tests        | All PRs                 | 100% pass | Yes          |
-| Schema Validation | All PRs                 | 100% pass | Yes          |
-| LLM Evals         | `run-evals` label       | ≥80% pass | Yes          |
-| Video Tests       | `run-video-tests` label | ≥95% pass | Yes          |
-| Manual Review     | Release PRs             | Approval  | Yes          |
+| Gate              | Local trigger            | Threshold |
+| ----------------- | ------------------------ | --------- |
+| Unit Tests        | `npm run quality`        | 100% pass |
+| Schema Validation | `npm run test:schemas`   | 100% pass |
+| LLM Evals         | explicit local eval run  | ≥80% pass |
+| Video Tests       | explicit local video run | ≥95% pass |
+| Manual Review     | release prep             | Approval  |
 
 ---
 

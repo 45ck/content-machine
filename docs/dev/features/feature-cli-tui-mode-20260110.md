@@ -11,7 +11,7 @@
 `content-machine` is CLI-first, but today it behaves like a collection of commands. This feature adds an app-like experience without breaking composability:
 
 - If a user runs `cm` with **no arguments** in a TTY, it launches a **full-screen interactive TUI** (Ink-based) that guides them through the pipeline and provides live progress, previews, and recovery.
-- If `cm` is run in non-interactive contexts (non-TTY, `--json`, CI), it stays **scriptable** and behaves like a normal CLI (help/errors/artifacts).
+- If `cm` is run in non-interactive contexts (non-TTY, `--json`, local checks), it stays **scriptable** and behaves like a normal CLI (help/errors/artifacts).
 
 The "insane UX" goal is to make the default path feel like a product, while still keeping `cm script/audio/visuals/render/generate` as stable, automatable primitives.
 
@@ -200,7 +200,7 @@ Implementation options (choose one early and document via ADR):
 
 - Layer 1: schemas unchanged; TUI reads validated artifacts only.
 - Layer 2: programmatic checks in UI summary (duration, scene count, missing files).
-- Layer 4: manual UX review checklist on Windows Terminal + macOS Terminal + CI non-TTY.
+- Layer 4: manual UX review checklist on Windows Terminal + macOS Terminal + non-TTY local automation.
 
 ## Rollout
 

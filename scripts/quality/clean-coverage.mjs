@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 // Vitest's v8 coverage provider can leave partial state behind when interrupted.
-// Cleaning ensures deterministic coverage runs (especially in CI / quality gates).
+// Cleaning ensures deterministic local coverage runs.
 const coverageDir = path.resolve(process.cwd(), 'coverage');
 
 try {

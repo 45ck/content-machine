@@ -35,6 +35,12 @@ node --import tsx scripts/harness/skill-catalog.ts
 node --import tsx scripts/harness/generate-short.ts
 node --import tsx scripts/harness/brief-to-script.ts
 node --import tsx scripts/harness/ingest.ts
+node --import tsx scripts/harness/longform-highlight-select.ts
+node --import tsx scripts/harness/highlight-approval.ts
+node --import tsx scripts/harness/boundary-snap.ts
+node --import tsx scripts/harness/source-media-analyze.ts
+node --import tsx scripts/harness/media-index.ts
+node --import tsx scripts/harness/style-profile-library.ts
 node --import tsx scripts/harness/publish-prep.ts
 ```
 
@@ -45,6 +51,12 @@ Current starter skills:
 - `short-form-captions`
 - `generate-short`
 - `brief-to-script`
+- `longform-highlight-select`
+- `highlight-approval`
+- `boundary-snap`
+- `source-media-analyze`
+- `media-index`
+- `style-profile-library`
 - `reverse-engineer-winner`
 - `script-to-audio`
 - `timestamps-to-visuals`
@@ -150,12 +162,12 @@ Update workflow: edit the YAML, then run `npm run repo-facts:gen` or `npm run gl
 
 ---
 
-## Testing
+## Local Testing
 
 - **Framework**: Vitest (unit + integration + E2E)
 - **Stubs**: `src/test/stubs/` — FakeLLMProvider, FakeTTSProvider, FakeASRProvider, etc.
 - **LLM evals**: promptfoo configs in `evals/`
-- **Quality gates**: lint, typecheck, format, test coverage, duplication — run `npm run quality`
+- **Local checks**: typecheck, lint, format, and Vitest — run `npm run quality`
 
 ---
 
@@ -167,7 +179,7 @@ cd content-machine && npm install && cp .env.example .env
 node --import tsx scripts/harness/ingest.ts   # Run a runtime script from source
 npm run cm -- --help                # Run legacy CLI from source
 npm test                     # Watch mode
-npm run quality              # All checks
+npm run quality              # Local checks
 ```
 
 <!-- BEGIN BEADS INTEGRATION v:1 profile:minimal hash:ca08a54f -->
@@ -193,28 +205,8 @@ bd close <id>         # Complete work
 
 ## Session Completion
 
-**When ending a work session**, you MUST complete ALL steps below. Work is NOT complete until `git push` succeeds.
+Keep work local unless the user explicitly asks for a push or release.
+Before handoff, run the focused local checks that match the changed
+surface, summarize what passed, and leave the worktree status clear.
 
-**MANDATORY WORKFLOW:**
-
-1. **File issues for remaining work** - Create issues for anything that needs follow-up
-2. **Run quality gates** (if code changed) - Tests, linters, builds
-3. **Update issue status** - Close finished work, update in-progress items
-4. **PUSH TO REMOTE** - This is MANDATORY:
-   ```bash
-   git pull --rebase
-   bd dolt push
-   git push
-   git status  # MUST show "up to date with origin"
-   ```
-5. **Clean up** - Clear stashes, prune remote branches
-6. **Verify** - All changes committed AND pushed
-7. **Hand off** - Provide context for next session
-
-**CRITICAL RULES:**
-
-- Work is NOT complete until `git push` succeeds
-- NEVER stop before pushing - that leaves work stranded locally
-- NEVER say "ready to push when you are" - YOU must push
-- If push fails, resolve and retry until it succeeds
 <!-- END BEADS INTEGRATION -->

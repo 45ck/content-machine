@@ -65,7 +65,7 @@ async function writeVideoSpecCacheArtifacts(params: {
 
   // Keep the analyzer fully offline/deterministic for tests by pre-populating
   // all relevant module caches. We specifically avoid live tesseract OCR here,
-  // since CI/pre-push runs from a clean temp dir.
+  // since local quality runs can execute from a clean temp dir.
   await (
     await import('node:fs/promises')
   ).writeFile(join(videoCacheDir, 'shots.v1.json'), JSON.stringify([1.0], null, 2), 'utf-8');

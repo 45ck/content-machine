@@ -5,7 +5,7 @@ This repo has a few loaded words (template, workflow, archetype, preset, pack). 
 - One meaning per word (no silent synonyms).
 - Canonical definitions live in one place.
 - Code exports are anchored to the definitions via types/schemas + JSDoc.
-- The glossary is generated and checked in CI.
+- The glossary is generated and checked by local quality scripts.
 
 ## Canonical Sources
 

@@ -74,7 +74,7 @@ packaging ergonomics.
 
 ### Integration
 
-- `templates preview` renders an MP4 for each built-in template on CI (short duration).
+- `templates preview` renders an MP4 for each built-in template in local checks (short duration).
 
 ### V&V
 

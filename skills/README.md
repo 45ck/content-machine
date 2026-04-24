@@ -98,6 +98,10 @@ new skills.
   shorts
 - [`longform-to-shorts/`](longform-to-shorts/SKILL.md) — transcript-led
   clipping, selection, reframing, and short extraction from long video
+- [`longform-highlight-select/`](longform-highlight-select/SKILL.md) —
+  rank short-form candidate moments from word-level timestamps
+- [`highlight-approval/`](highlight-approval/SKILL.md) — approve or
+  reject ranked highlight candidates before downstream processing
 - [`reframe-vertical/`](reframe-vertical/SKILL.md) — speaker, face,
   cursor, and fallback portrait crop strategy
 - [`face-or-screen-reframe/`](face-or-screen-reframe/SKILL.md) —
@@ -125,6 +129,12 @@ new skills.
   narration cues and visual landmarks actually align
 - [`source-media-review/`](source-media-review/SKILL.md) — audit source
   clips before planning or render
+- [`source-media-analyze/`](source-media-analyze/SKILL.md) — probe
+  source media locally for duration, stream, and orientation metadata
+- [`media-index/`](media-index/SKILL.md) — maintain a local reusable
+  media inventory
+- [`style-profile-library/`](style-profile-library/SKILL.md) — save
+  reusable local caption, pacing, and render style profiles
 - [`scene-variation-check/`](scene-variation-check/SKILL.md) — catch
   repetitive, slideshow-like scene plans before generation
 - [`shot-prompt-builder/`](shot-prompt-builder/SKILL.md) — turn scene

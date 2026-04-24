@@ -1,0 +1,11 @@
+{
+  "indexPath": "output/content-machine/library/media-index.v1.json",
+  "items": [
+    {
+      "path": "input/source.mp4",
+      "analysisPath": "output/content-machine/highlights/source-media-analysis.v1.json",
+      "category": "longform-source",
+      "tags": ["podcast", "highlight-source"]
+    }
+  ]
+}
