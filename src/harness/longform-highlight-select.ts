@@ -1,6 +1,10 @@
 import { resolve } from 'node:path';
 import { z } from 'zod';
-import { HighlightSelectionOutputSchema, TimestampsOutputSchema } from '../domain';
+import {
+  HighlightSelectionOutputSchema,
+  SourceMediaAnalysisOutputSchema,
+  TimestampsOutputSchema,
+} from '../domain';
 import { selectHighlightCandidates } from '../highlights';
 import { readJsonArtifact, writeJsonArtifact } from './artifacts';
 import { artifactFile, type HarnessToolResult } from './json-stdio';
@@ -21,6 +25,7 @@ export const LongformHighlightSelectRequestSchema = z
     minWords: z.number().int().positive().default(8),
     minGapSeconds: z.number().nonnegative().default(3),
     sourceDuration: z.number().positive().optional(),
+    sourceAnalysisPath: z.string().min(1).optional(),
     progressPath: z.string().min(1).optional(),
   })
   .strict()
@@ -62,6 +67,13 @@ export async function runLongformHighlightSelect(request: LongformHighlightSelec
     TimestampsOutputSchema,
     'timestamps artifact'
   );
+  const sourceAnalysis = normalized.sourceAnalysisPath
+    ? await readJsonArtifact(
+        resolve(normalized.sourceAnalysisPath),
+        SourceMediaAnalysisOutputSchema,
+        'source media analysis artifact'
+      )
+    : null;
 
   await progress.emit({
     tool: 'content-machine/longform-highlight-select',
@@ -73,7 +85,8 @@ export async function runLongformHighlightSelect(request: LongformHighlightSelec
     selectHighlightCandidates(timestamps, {
       timestampsPath,
       sourceMediaPath: normalized.sourceMediaPath ? resolve(normalized.sourceMediaPath) : null,
-      sourceDuration: normalized.sourceDuration,
+      sourceDuration: normalized.sourceDuration ?? sourceAnalysis?.probe.durationSeconds ?? null,
+      sourceAnalysis,
       minDuration: normalized.minDuration,
       targetDuration: normalized.targetDuration,
       maxDuration: normalized.maxDuration,

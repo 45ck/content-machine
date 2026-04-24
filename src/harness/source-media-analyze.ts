@@ -13,6 +13,7 @@ export const SourceMediaAnalyzeRequestSchema = z
       .string()
       .min(1)
       .default('output/content-machine/highlights/source-media-analysis.v1.json'),
+    ffmpegPath: z.string().min(1).optional(),
     ffprobePath: z.string().min(1).optional(),
     progressPath: z.string().min(1).optional(),
   })
@@ -41,7 +42,10 @@ export async function runSourceMediaAnalyze(request: SourceMediaAnalyzeRequest):
     progress: 0.25,
   });
   const analysis = SourceMediaAnalysisOutputSchema.parse(
-    await analyzeSourceMedia(mediaPath, { ffprobePath: normalized.ffprobePath })
+    await analyzeSourceMedia(mediaPath, {
+      ffmpegPath: normalized.ffmpegPath,
+      ffprobePath: normalized.ffprobePath,
+    })
   );
 
   await writeJsonArtifact(outputPath, analysis);

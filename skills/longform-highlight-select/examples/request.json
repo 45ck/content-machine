@@ -2,6 +2,7 @@
   "timestampsPath": "output/content-machine/audio/timestamps.json",
   "outputPath": "output/content-machine/highlights/highlight-candidates.v1.json",
   "sourceMediaPath": "input/source.mp4",
+  "sourceAnalysisPath": "output/content-machine/highlights/source-media-analysis.v1.json",
   "minDuration": 20,
   "targetDuration": 35,
   "maxDuration": 60,

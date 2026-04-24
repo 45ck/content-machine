@@ -7,6 +7,7 @@ import {
   type HighlightCandidateSourceSignals,
   type HighlightSelectionOutput,
   type HighlightSelectionParams,
+  type SourceMediaAnalysisOutput,
   TimestampsOutputSchema,
   type TimestampsOutput,
   type WordTimestamp,
@@ -152,19 +153,66 @@ function calculateSignals(params: {
   };
 }
 
+function overlapSeconds(
+  left: { start: number; end: number },
+  right: { start: number; end: number }
+): number {
+  return Math.max(0, Math.min(left.end, right.end) - Math.max(left.start, right.start));
+}
+
+function sumMeasuredSilence(params: {
+  sourceAnalysis?: SourceMediaAnalysisOutput | null;
+  start: number;
+  end: number;
+}): number {
+  const gaps = params.sourceAnalysis?.sourceSignals.silenceGaps ?? [];
+  return Number(
+    gaps
+      .reduce((sum, gap) => sum + overlapSeconds({ start: params.start, end: params.end }, gap), 0)
+      .toFixed(3)
+  );
+}
+
+function sceneChangeScoreForSpan(params: {
+  sourceAnalysis?: SourceMediaAnalysisOutput | null;
+  start: number;
+  end: number;
+}): number | null {
+  const changes = params.sourceAnalysis?.sourceSignals.sceneChanges;
+  if (!changes) return params.sourceAnalysis?.sourceSignals.sceneChangeScore ?? null;
+  const duration = Math.max(0, params.end - params.start);
+  if (duration <= 0) return null;
+  const count = changes.filter((time) => time >= params.start && time <= params.end).length;
+  return clamp01(count / Math.max(1, duration / 3));
+}
+
 function calculateSourceSignals(
-  signals: HighlightCandidateSignals
+  signals: HighlightCandidateSignals,
+  params: {
+    start: number;
+    end: number;
+    sourceAnalysis?: SourceMediaAnalysisOutput | null;
+  }
 ): HighlightCandidateSourceSignals {
   const fillerOnlySegmentCount =
     signals.fillerWordCount >= Math.max(3, signals.wordCount * 0.5) ? 1 : 0;
+  const measuredSilence = sumMeasuredSilence({
+    sourceAnalysis: params.sourceAnalysis,
+    start: params.start,
+    end: params.end,
+  });
 
   return {
     silenceBeforeSeconds: signals.leadingGapSeconds,
     silenceAfterSeconds: signals.trailingGapSeconds,
-    internalSilenceSeconds: signals.maxInternalGapSeconds,
+    internalSilenceSeconds: Math.max(signals.maxInternalGapSeconds, measuredSilence),
     fillerOnlySegmentCount,
-    audioEnergyScore: null,
-    sceneChangeScore: null,
+    audioEnergyScore: params.sourceAnalysis?.sourceSignals.audioEnergyScore ?? null,
+    sceneChangeScore: sceneChangeScoreForSpan({
+      sourceAnalysis: params.sourceAnalysis,
+      start: params.start,
+      end: params.end,
+    }),
     llmNarrativeScore: null,
   };
 }
@@ -318,6 +366,7 @@ function buildCandidate(params: {
   startIndex: number;
   endIndex: number;
   config: HighlightSelectionParams;
+  sourceAnalysis?: SourceMediaAnalysisOutput | null;
 }): HighlightCandidate | null {
   const spanWords = params.words.slice(params.startIndex, params.endIndex + 1);
   const first = spanWords[0];
@@ -334,7 +383,11 @@ function buildCandidate(params: {
     endIndex: params.endIndex,
   });
   const scores = calculateScores({ duration, config: params.config, signals });
-  const sourceSignals = calculateSourceSignals(signals);
+  const sourceSignals = calculateSourceSignals(signals, {
+    start: first.start,
+    end: last.end,
+    sourceAnalysis: params.sourceAnalysis,
+  });
 
   return {
     id: 'unranked',
@@ -368,9 +421,11 @@ export function selectHighlightCandidates(
     timestampsPath?: string | null;
     sourceMediaPath?: string | null;
     sourceDuration?: number | null;
+    sourceAnalysis?: SourceMediaAnalysisOutput | null;
   } = {}
 ): HighlightSelectionOutput {
-  const { timestampsPath, sourceMediaPath, sourceDuration, ...selectionOptions } = options;
+  const { timestampsPath, sourceMediaPath, sourceDuration, sourceAnalysis, ...selectionOptions } =
+    options;
   const config: HighlightSelectionParams = {
     ...DEFAULT_PARAMS,
     ...selectionOptions,
@@ -389,7 +444,7 @@ export function selectHighlightCandidates(
     });
     if (endIndex === null) continue;
 
-    const candidate = buildCandidate({ words, startIndex, endIndex, config });
+    const candidate = buildCandidate({ words, startIndex, endIndex, config, sourceAnalysis });
     if (candidate) candidates.push(candidate);
   }
 

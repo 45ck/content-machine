@@ -1,6 +1,6 @@
 ---
 name: source-media-analyze
-description: Probe source media locally with ffprobe and produce duration, orientation, stream, and coarse source-signal metadata.
+description: Probe source media locally with ffprobe/ffmpeg and produce duration, orientation, stream, scene-change, silence, and audio-energy metadata.
 allowedTools:
   - shell
   - read
@@ -15,12 +15,15 @@ inputs:
   - name: outputPath
     description: Path that will receive source-media-analysis.v1.json.
     required: false
+  - name: ffmpegPath
+    description: Optional explicit ffmpeg executable path for measured scene/audio signals.
+    required: false
   - name: ffprobePath
     description: Optional explicit ffprobe executable path.
     required: false
 outputs:
   - name: source-media-analysis.v1.json
-    description: Local media probe metadata and coarse signals for later highlight scoring.
+    description: Local media probe metadata and measured signals for later highlight scoring.
 ---
 
 # Source Media Analyze
@@ -31,8 +34,8 @@ outputs:
   clipping, or reframing highlights.
 - You need duration, dimensions, orientation, fps, and stream presence
   without uploading the media anywhere.
-- Highlight scoring should later incorporate source-level audio or scene
-  signals.
+- Highlight scoring should incorporate source-level audio energy,
+  silence, or scene-change signals.
 
 ## Invocation
 
@@ -45,11 +48,16 @@ cat skills/source-media-analyze/examples/request.json | \
 
 - Reads the local source media file.
 - Writes `source-media-analysis.v1.json`.
-- Uses local `ffprobe` or the bundled static binary when available.
+- Uses local `ffprobe`/`ffmpeg` or bundled static binaries when
+  available.
+- Measures scene-change timestamps, silence gaps, audio RMS/peak, and
+  compact normalized source scores on a best-effort basis.
 
 ## Validation Checklist
 
 - `hasVideo`, `hasAudio`, dimensions, duration, fps, and orientation
   are present when ffprobe can read them.
 - Missing streams are warnings, not silent defaults.
+- Missing ffmpeg measurement support is a warning; ffprobe metadata
+  should still be written when possible.
 - No network calls are made.

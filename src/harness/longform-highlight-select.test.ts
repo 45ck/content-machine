@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
 import { writeJsonArtifact } from './artifacts';
 import { runLongformHighlightSelect } from './longform-highlight-select';
-import type { TimestampsOutput, WordTimestamp } from '../domain';
+import type { SourceMediaAnalysisOutput, TimestampsOutput, WordTimestamp } from '../domain';
 
 const tempDirs: string[] = [];
 
@@ -72,17 +72,55 @@ function makeTimestamps(words: WordTimestamp[]): TimestampsOutput {
   };
 }
 
+function makeSourceAnalysis(mediaPath: string): SourceMediaAnalysisOutput {
+  return {
+    schemaVersion: '1.0.0',
+    mediaPath,
+    analyzedAt: '2026-04-24T00:00:00.000Z',
+    probe: {
+      engine: 'ffprobe',
+      durationSeconds: 18,
+      width: 1080,
+      height: 1920,
+      fps: 30,
+      hasAudio: true,
+      hasVideo: true,
+      orientation: 'portrait',
+      videoCodec: 'h264',
+      audioCodec: 'aac',
+      container: 'mp4',
+    },
+    sourceSignals: {
+      audioEnergyScore: 0.82,
+      audioRmsDb: -20,
+      audioPeakDb: -2,
+      silenceGapCount: 1,
+      totalSilenceSeconds: 0.5,
+      silenceGaps: [{ start: 8, end: 8.5, duration: 0.5 }],
+      sceneChangeScore: 0.7,
+      sceneChanges: [6, 9, 12],
+      sampledFrameCount: 120,
+      estimatedSceneCount: 4,
+    },
+    warnings: [],
+  };
+}
+
 describe('runLongformHighlightSelect', () => {
   it('writes highlight candidates and returns the selected candidate summary', async () => {
     const dir = await makeTempDir();
     const timestampsPath = join(dir, 'timestamps.json');
     const outputPath = join(dir, 'highlights', 'highlight-candidates.v1.json');
+    const sourceMediaPath = join(dir, 'source.mp4');
+    const sourceAnalysisPath = join(dir, 'source-analysis.json');
     await writeJsonArtifact(timestampsPath, makeTimestamps(makeWords()));
+    await writeJsonArtifact(sourceAnalysisPath, makeSourceAnalysis(sourceMediaPath));
 
     const result = await runLongformHighlightSelect({
       timestampsPath,
       outputPath,
-      sourceMediaPath: join(dir, 'source.mp4'),
+      sourceMediaPath,
+      sourceAnalysisPath,
       minDuration: 3,
       targetDuration: 9,
       maxDuration: 14,
@@ -101,11 +139,18 @@ describe('runLongformHighlightSelect', () => {
     ]);
 
     const artifact = JSON.parse(await readFile(outputPath, 'utf8')) as {
-      candidates: Array<{ text: string; scores: { total: number } }>;
-      source: { mediaPath: string | null };
+      candidates: Array<{
+        text: string;
+        scores: { total: number };
+        sourceSignals: { audioEnergyScore: number | null; sceneChangeScore: number | null };
+      }>;
+      source: { mediaPath: string | null; sourceDuration: number | null };
     };
-    expect(artifact.source.mediaPath).toBe(join(dir, 'source.mp4'));
+    expect(artifact.source.mediaPath).toBe(sourceMediaPath);
+    expect(artifact.source.sourceDuration).toBe(18);
     expect(artifact.candidates[0]?.text).toContain('Why do clips die');
     expect(artifact.candidates[0]?.scores.total).toBeGreaterThan(0);
+    expect(artifact.candidates[0]?.sourceSignals.audioEnergyScore).toBe(0.82);
+    expect(artifact.candidates[0]?.sourceSignals.sceneChangeScore).not.toBeNull();
   });
 });

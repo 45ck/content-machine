@@ -26,7 +26,13 @@ describe('buildMediaIndex', () => {
           },
           sourceSignals: {
             audioEnergyScore: 0.5,
+            audioRmsDb: -36,
+            audioPeakDb: -3,
+            silenceGapCount: 0,
+            totalSilenceSeconds: 0,
+            silenceGaps: [],
             sceneChangeScore: 1,
+            sceneChanges: [],
             sampledFrameCount: 120,
             estimatedSceneCount: 8,
           },

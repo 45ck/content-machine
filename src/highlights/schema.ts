@@ -195,7 +195,21 @@ export const SourceMediaAnalysisOutputSchema = z
     sourceSignals: z
       .object({
         audioEnergyScore: z.number().min(0).max(1).nullable(),
+        audioRmsDb: z.number().nullable(),
+        audioPeakDb: z.number().nullable(),
+        silenceGapCount: z.number().int().nonnegative(),
+        totalSilenceSeconds: z.number().nonnegative(),
+        silenceGaps: z.array(
+          z
+            .object({
+              start: z.number().nonnegative(),
+              end: z.number().nonnegative(),
+              duration: z.number().nonnegative(),
+            })
+            .strict()
+        ),
         sceneChangeScore: z.number().min(0).max(1).nullable(),
+        sceneChanges: z.array(z.number().nonnegative()),
         sampledFrameCount: z.number().int().nonnegative(),
         estimatedSceneCount: z.number().int().nonnegative().nullable(),
       })

@@ -6,7 +6,7 @@ allowedTools:
   - read
   - write
 model: inherit
-argumentHint: '{"timestampsPath":"output/content-machine/audio/timestamps.json","outputPath":"output/content-machine/highlights/highlight-candidates.v1.json","sourceMediaPath":"input/source.mp4","minDuration":20,"targetDuration":35,"maxDuration":60,"maxCandidates":5,"minGapSeconds":3}'
+argumentHint: '{"timestampsPath":"output/content-machine/audio/timestamps.json","outputPath":"output/content-machine/highlights/highlight-candidates.v1.json","sourceMediaPath":"input/source.mp4","sourceAnalysisPath":"output/content-machine/highlights/source-media-analysis.v1.json","minDuration":20,"targetDuration":35,"maxDuration":60,"maxCandidates":5,"minGapSeconds":3}'
 entrypoint: node --import tsx scripts/harness/longform-highlight-select.ts
 inputs:
   - name: timestampsPath
@@ -17,6 +17,9 @@ inputs:
     required: false
   - name: sourceMediaPath
     description: Optional source video/audio path for provenance.
+    required: false
+  - name: sourceAnalysisPath
+    description: Optional source-media-analysis.v1.json artifact for audio energy, silence, and scene-change scoring.
     required: false
   - name: minDuration
     description: Minimum candidate duration in seconds.
@@ -54,6 +57,8 @@ outputs:
 - Transcript/timestamp-driven candidate selection.
 - Hook, coherence, payoff, boundary, silence-risk, and filler-risk
   scoring.
+- Optional media-signal scoring when paired with
+  `source-media-analysis.v1.json`.
 - The first deterministic artifact before approval, clipping,
   reframing, and final render.
 
@@ -67,6 +72,8 @@ cat skills/longform-highlight-select/examples/request.json | \
 ## Output Contract
 
 - Reads an existing `timestamps.json` artifact.
+- Optionally reads `source-media-analysis.v1.json` to fill candidate
+  `audioEnergyScore`, `sceneChangeScore`, and measured silence overlap.
 - Writes `highlight-candidates.v1.json`.
 - Each candidate contains:
   `start`, `end`, `duration`, `text`, `wordStartIndex`,
@@ -74,13 +81,17 @@ cat skills/longform-highlight-select/examples/request.json | \
   `rejectionReasons`, `approval`, and `approvalNotes`.
 - `approval` starts as `pending` so a later approval loop can accept,
   reject, or regenerate candidates without changing the scoring step.
-- This first version is metadata/transcript based. It does not claim
-  face tracking, crop confidence, or visual salience.
+- This version combines transcript timing with measured source-level
+  audio/scene metadata when provided. It does not claim face tracking,
+  crop confidence, or visual salience.
 
 ## Pair With
 
 - Use before [`boundary-snap`](../boundary-snap/SKILL.md) when the
   candidate needs tighter cut points.
+- Use after [`source-media-analyze`](../source-media-analyze/SKILL.md)
+  when source audio energy, silence gaps, and scene-change density are
+  available.
 - Use before [`reframe-vertical`](../reframe-vertical/SKILL.md) and
   [`scene-aware-smart-crop`](../scene-aware-smart-crop/SKILL.md) when
   the source is not portrait-ready.
