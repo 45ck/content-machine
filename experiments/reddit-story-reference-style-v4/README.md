@@ -9,6 +9,8 @@ Layout target:
 
 - top media fits inside the top half
 - gameplay fits inside the bottom half
+- the opening Reddit post is generated as a fixed-slot screenshot-style
+  card asset, not a freehand fake HTML mockup
 - captions overlay near the seam between the two halves, biased slightly
   into the gameplay side so they do not collide with the Reddit opener
   card

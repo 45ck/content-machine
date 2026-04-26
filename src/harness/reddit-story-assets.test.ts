@@ -1,4 +1,4 @@
-import { mkdtemp, readFile } from 'node:fs/promises';
+import { mkdtemp, readFile, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
@@ -42,8 +42,14 @@ describe('runRedditStoryAssets', () => {
 
     expect(result.result.assets).toHaveLength(2);
     await expect(readFile(join(dir, 'hook.svg'), 'utf8')).resolves.toContain('ORIGINAL POST');
+    await expect(readFile(join(dir, 'hook.svg'), 'utf8')).resolves.toContain('Posted by u/');
     await expect(readFile(join(dir, 'hook.svg'), 'utf8')).resolves.toContain('Wholesome');
     await expect(readFile(join(dir, 'comment-1.svg'), 'utf8')).resolves.toContain('TOP COMMENT');
+    await expect(readFile(result.result.manifestPath, 'utf8')).resolves.toContain('comment-1.png');
     await expect(readFile(result.result.manifestPath, 'utf8')).resolves.toContain('comment-1.svg');
+    const hookPng = await stat(join(dir, 'hook.png'));
+    const commentPng = await stat(join(dir, 'comment-1.png'));
+    expect(hookPng.isFile()).toBe(true);
+    expect(commentPng.isFile()).toBe(true);
   });
 });

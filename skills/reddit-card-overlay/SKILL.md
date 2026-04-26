@@ -29,12 +29,17 @@ description: Build Reddit-style post cards and similar social-thread overlays as
 ## Construction Rules
 
 1. Build the card as its own asset first.
-2. Keep hierarchy clear:
+2. Prefer a fixed-slot screenshot/template layout over freehand fake
+   platform chrome. A believable post card is usually one background
+   template plus a few controlled text slots.
+3. Keep hierarchy clear:
    title first, attribution second, counts third.
-3. Match recognisable Reddit structure without copying platform chrome
+4. Match recognisable Reddit structure without copying platform chrome
    so literally that it becomes distracting.
-4. Use the card as a short visual beat, not a full-screen reading wall.
-5. Pair it with narration and later visual escalation; do not let the
+5. Keep all footer/meta controls inside the visible card bounds; broken
+   alignment reads instantly as fake.
+6. Use the card as a short visual beat, not a full-screen reading wall.
+7. Pair it with narration and later visual escalation; do not let the
    whole short become a static screenshot.
 
 ## Good Pattern
@@ -52,6 +57,8 @@ description: Build Reddit-style post cards and similar social-thread overlays as
 - unreadably small counts and metadata
 - card treated as the only visual for the entire short
 - generic white rectangle with no platform-specific hierarchy
+- custom SVG/HTML chrome with drifting controls, overflowed text, or
+  footer elements hanging outside the card
 
 ## Pair With
 

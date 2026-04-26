@@ -54,6 +54,9 @@ description: Turn a Reddit-style post, confession, text thread, or comment story
   the reference repos:
   title/post card first with upvotes/awards, then story-related support
   footage on top with moving gameplay below.
+- The opener Reddit card should be a controlled template asset, not a
+  fake HTML sketch. Use fixed slots for title, author, counts, awards,
+  and footer so the card reads like a screenshot instead of a mockup.
 - Preferred split-screen layout is true `50/50` vertical stacking:
   top lane `960px`, bottom lane `960px` in a `1080x1920` render.
 - In split-screen Reddit lanes, both top and bottom media should be fit
