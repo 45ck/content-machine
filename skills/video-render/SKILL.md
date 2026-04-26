@@ -103,6 +103,18 @@ outputs:
   over progressive reveal burns when you need stable rendered caption
   verification.
 
+## Isolated Project Rule
+
+- In fresh installed-pack projects, do not assume the renderer can fetch
+  a browser on demand. If the environment already has a cached Remotion
+  browser, pass `browserExecutable` and `chromeMode` explicitly in the
+  render request.
+- Treat that browser override as part of the portable render contract
+  for offline or sandboxed harness runs.
+- If the only path to success is a manual fallback render outside the
+  shipped runtime, record that as a runtime gap instead of pretending
+  the packaged path worked.
+
 ## Technical Surface
 
 - Main implementation: `src/render/service.ts`

@@ -1,0 +1,10 @@
+*/logs/*.jsonl
+*/logs/*.txt
+*/project/.cache/
+*/project/.codex
+*/project/.content-machine/
+*/project/assets/
+*/project/node_modules/
+*/project/outputs/
+*/project/package-lock.json
+*/project/tools/

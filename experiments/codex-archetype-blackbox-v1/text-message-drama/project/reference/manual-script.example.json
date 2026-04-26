@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "1.0.0",
+  "title": "My Friend Sent the Wrong Screenshot to the Wrong Person",
+  "hook": "She tried to roast me in a private chat, then accidentally sent the receipts straight back to me.",
+  "scenes": [
+    {
+      "id": "scene-1",
+      "text": "She texted me like everything was normal, but five minutes later I got a screenshot that was clearly meant for somebody else, and my name was right there in the middle of the joke.",
+      "visualDirection": "Open on the wrong-message beat immediately and make the message UI the main attraction.",
+      "mood": "dramatic"
+    },
+    {
+      "id": "scene-2",
+      "text": "Instead of apologizing, she unsent one line, started acting casual, and pretended I had imagined the whole thing even though I had already saved the screenshot.",
+      "visualDirection": "Use message updates, unsent cues, and timing tension rather than generic filler.",
+      "mood": "tense"
+    },
+    {
+      "id": "scene-3",
+      "text": "So I replied with the exact screenshot she thought I never saw and asked if she wanted to restart the conversation with the truth this time.",
+      "visualDirection": "Build toward a visible receipt-drop reveal.",
+      "mood": "escalating"
+    },
+    {
+      "id": "scene-4",
+      "text": "She panicked, sent three different excuses, then blamed me for being dramatic when all I did was quote her own words back to her.",
+      "visualDirection": "Keep the panic beat inside the message flow and light support motion.",
+      "mood": "chaotic"
+    },
+    {
+      "id": "scene-5",
+      "text": "Now half our friend group says I embarrassed her on purpose, but if you lie in screenshots you should expect screenshots back, so tell me if I went too far.",
+      "visualDirection": "End on a judgment beat with one last clean receipt.",
+      "mood": "judgment"
+    }
+  ],
+  "reasoning": "Reference shape only. Keep the same message-led reveal structure.",
+  "cta": "Was I petty, or just honest?",
+  "hashtags": [
+    "#textstory",
+    "#storytime",
+    "#receipts",
+    "#frienddrama"
+  ],
+  "meta": {
+    "estimatedDuration": 43,
+    "wordCount": 139,
+    "archetype": "story",
+    "topic": "Message-thread reveal with screenshot receipts",
+    "generatedAt": "2026-04-26T17:30:00.000Z",
+    "model": "manual-reference",
+    "promptVersion": "codex-archetype-blackbox-v1"
+  }
+}

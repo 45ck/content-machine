@@ -1,0 +1,25 @@
+{
+  "lane": "gameplay-confession-short",
+  "render": {
+    "width": 1080,
+    "height": 1920,
+    "splitScreenRatio": 0.5,
+    "topLaneHeight": 960,
+    "bottomLaneHeight": 960
+  },
+  "gameplay": {
+    "path": "assets/gameplay/subway.mp4",
+    "duration": 58.1,
+    "style": "subway-surfers"
+  },
+  "topLaneClips": [
+    { "path": "assets/top/seg-10-desk-a.mp4", "duration": 3.0, "beat": "setup" },
+    { "path": "assets/top/seg-11-desk-b.mp4", "duration": 3.0, "beat": "setup" },
+    { "path": "assets/top/seg-20-call-a.mp4", "duration": 2.7, "beat": "conflict" },
+    { "path": "assets/top/seg-21-call-b.mp4", "duration": 2.7, "beat": "conflict" },
+    { "path": "assets/top/seg-30-setup-a.mp4", "duration": 3.0, "beat": "reveal" },
+    { "path": "assets/top/seg-40-panic-a.mp4", "duration": 3.0, "beat": "panic" },
+    { "path": "assets/top/seg-50-aftermath-a.mp4", "duration": 3.0, "beat": "aftermath" },
+    { "path": "assets/top/seg-60-cta.mp4", "duration": 2.667, "beat": "cta" }
+  ]
+}

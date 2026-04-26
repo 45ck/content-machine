@@ -1,0 +1,7 @@
+{
+  "scriptPath": "outputs/work/script.json",
+  "videoPath": "outputs/final/video.mp4",
+  "captionPath": "outputs/final/captions.ass",
+  "outputDir": "outputs/final/publish-prep",
+  "platform": "tiktok"
+}

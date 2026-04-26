@@ -69,6 +69,8 @@ export const VideoRenderRequestSchema = z
     downloadAssets: z.boolean().default(true),
     mock: z.boolean().default(false),
     mockRenderMode: z.enum(['placeholder', 'real']).default('placeholder'),
+    browserExecutable: z.string().min(1).optional(),
+    chromeMode: z.enum(['headless-shell', 'chrome-for-testing']).optional(),
     compositionId: z.string().min(1).optional(),
     splitScreenRatio: z.number().min(0.3).max(0.7).optional(),
     gameplayPosition: z.enum(['top', 'bottom', 'full']).optional(),
@@ -145,6 +147,10 @@ export async function runVideoRender(request: VideoRenderRequest): Promise<
       downloadAssets: normalized.downloadAssets,
       mock: normalized.mock,
       mockRenderMode: normalized.mockRenderMode,
+      browserExecutable: normalized.browserExecutable
+        ? resolve(normalized.browserExecutable)
+        : undefined,
+      chromeMode: normalized.chromeMode,
       compositionId: normalized.compositionId,
       splitScreenRatio: normalized.splitScreenRatio,
       gameplayPosition: normalized.gameplayPosition,

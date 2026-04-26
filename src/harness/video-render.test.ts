@@ -153,6 +153,8 @@ describe('runVideoRender', () => {
       audioPath,
       outputPath,
       mock: true,
+      browserExecutable: '/tmp/fake-chrome',
+      chromeMode: 'chrome-for-testing',
       compositionId: 'SplitScreenGameplay',
       splitScreenRatio: 0.45,
       gameplayPosition: 'bottom',

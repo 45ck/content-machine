@@ -1,0 +1,24 @@
+{
+  "lane": "text-message-drama-short",
+  "render": {
+    "width": 1080,
+    "height": 1920,
+    "splitScreenRatio": 0.5,
+    "topLaneHeight": 960,
+    "bottomLaneHeight": 960
+  },
+  "gameplay": {
+    "path": "assets/gameplay/subway.mp4",
+    "duration": 58.1,
+    "style": "subway-surfers"
+  },
+  "supportClips": [
+    { "path": "assets/top/seg-10-desk-a.mp4", "duration": 3.0, "beat": "setup" },
+    { "path": "assets/top/seg-12-desk-c.mp4", "duration": 3.867, "beat": "setup" },
+    { "path": "assets/top/seg-22-call-c.mp4", "duration": 2.667, "beat": "tension" },
+    { "path": "assets/top/seg-31-setup-b.mp4", "duration": 3.0, "beat": "reveal" },
+    { "path": "assets/top/seg-42-panic-c.mp4", "duration": 3.0, "beat": "panic" },
+    { "path": "assets/top/seg-51-aftermath-b.mp4", "duration": 3.0, "beat": "aftermath" }
+  ],
+  "messageAssetDir": "assets/messages"
+}

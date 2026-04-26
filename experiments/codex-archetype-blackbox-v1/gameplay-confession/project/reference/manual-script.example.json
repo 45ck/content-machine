@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "1.0.0",
+  "title": "I Let My Cousin Fake Being Rich for One Dinner",
+  "hook": "My cousin kept flexing money he did not have, so I let the lie survive exactly one family dinner.",
+  "scenes": [
+    {
+      "id": "scene-1",
+      "text": "He kept showing up in rented clothes, borrowed watches, and fake business-talk voice notes like he was one app launch away from being a millionaire.",
+      "visualDirection": "Open with immediate status-faking energy and a setup that reads as social performance.",
+      "mood": "dramatic"
+    },
+    {
+      "id": "scene-2",
+      "text": "Then he told my aunt I was the broke one and acted like he was covering for me, even though half the stuff he flashed still had return labels on it.",
+      "visualDirection": "Shift into humiliation and social tension, not generic filler.",
+      "mood": "tense"
+    },
+    {
+      "id": "scene-3",
+      "text": "So when dinner started, I quietly asked where the luxury watch came from and watched him try to explain why the model number was still printed on the clasp sticker.",
+      "visualDirection": "Build a reveal beat with pressure and a visible scramble.",
+      "mood": "escalating"
+    },
+    {
+      "id": "scene-4",
+      "text": "He froze, my aunt stared, and the whole fake-rich persona folded in about ten seconds because nobody could keep pretending once the details got specific.",
+      "visualDirection": "Make the panic beat feel sudden and public.",
+      "mood": "chaotic"
+    },
+    {
+      "id": "scene-5",
+      "text": "Now he says I embarrassed him on purpose, but I think I just stopped him from turning every family event into a scam audition, so tell me if I crossed the line.",
+      "visualDirection": "End on judgment bait and a clean payoff.",
+      "mood": "judgment"
+    }
+  ],
+  "reasoning": "Reference shape only. Keep the same compact confession arc and scene structure.",
+  "cta": "Did I expose him, or just ruin the night?",
+  "hashtags": [
+    "#storytime",
+    "#confession",
+    "#aita",
+    "#familydrama"
+  ],
+  "meta": {
+    "estimatedDuration": 44,
+    "wordCount": 138,
+    "archetype": "story",
+    "topic": "Confession short with fast reveal and judgment bait",
+    "generatedAt": "2026-04-26T17:30:00.000Z",
+    "model": "manual-reference",
+    "promptVersion": "codex-archetype-blackbox-v1"
+  }
+}
