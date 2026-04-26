@@ -3,17 +3,19 @@
 Everything you need to use Content Machine.
 
 Content Machine is now a short-form video skill pack. The primary path is repo-local
-skills, flows, and JSON-stdio runtime scripts for Claude Code, Codex
-CLI, and similar coding agents. The old CLI-first guides now live under
+skills and flows for Claude Code, Codex CLI, and similar coding
+agents. Runtime scripts still exist as optional support surfaces. The
+old CLI-first guides now live under
 [`archive/legacy-cli/`](../../archive/legacy-cli/README.md).
 
 ## Primary Path: Claude Code / Codex CLI
 
 1. [Agent Quickstart](AGENT-QUICKSTART.md) — primary path for skills,
-   flows, and runtime scripts
+   flows, and optional repo-side runners
 2. [Configuration](CONFIGURATION.md) — defaults, providers, and
    data-driven resources
-3. [Examples](EXAMPLES.md) — workflows and example outputs
+3. [Reddit Story Split-Screen](examples/reddit-story-split-screen.md) — main reference example
+4. [Examples](EXAMPLES.md) — additional workflows and secondary example outputs
 
 ## Thin `cm` Shell
 

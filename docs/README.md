@@ -17,6 +17,7 @@ order:
 - [`../skills/README.md`](../skills/README.md) — short-form video skill scaffolding for Claude Code, Codex CLI, and similar agents
 - [`../flows/README.md`](../flows/README.md) — `45ck/prompt-language` flow scaffolding and authoring rules
 - [`user/AGENT-QUICKSTART.md`](user/AGENT-QUICKSTART.md) — primary user path for the skill-pack surface
+- [`user/examples/reddit-story-split-screen.md`](user/examples/reddit-story-split-screen.md) — main reference example lane
 - [`../scripts/harness/README.md`](../scripts/harness/README.md) — executable JSON-stdio entrypoints
 
 ## Compatibility Surface
