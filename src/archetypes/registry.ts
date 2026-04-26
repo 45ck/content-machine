@@ -17,7 +17,7 @@ import { homedir } from 'node:os';
 import { basename, dirname, join, resolve } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import { NotFoundError, SchemaError } from '../core/errors';
-import { createRequireSafe } from '../core/require';
+import { resolvePackageRoot } from '../core/package-root';
 import { ArchetypeSpecSchema } from '../domain';
 import type { ArchetypeListEntry, ResolvedArchetype } from './types';
 
@@ -42,9 +42,7 @@ function looksLikePath(spec: string): boolean {
 }
 
 function getPackageRoot(): string {
-  const require = createRequireSafe(import.meta.url);
-  const pkgJsonPath = require.resolve('../../package.json');
-  return dirname(pkgJsonPath);
+  return resolvePackageRoot(import.meta.url);
 }
 
 function getBuiltinDir(): string {

@@ -1,0 +1,12 @@
+<svg width="1080" height="1920" viewBox="0 0 1080 1920" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1080" height="1920" fill="#07131C"/>
+  <rect x="82" y="82" width="916" height="1756" rx="44" fill="#0F172A"/>
+  <rect x="156" y="1180" width="768" height="86" rx="43" fill="#1D4ED8"/>
+  <rect x="180" y="1202" width="620" height="42" rx="21" fill="#93C5FD"/>
+  <circle cx="804" cy="1223" r="74" fill="#FDE047"/>
+  <text x="132" y="360" fill="#E2E8F0" font-size="52" font-family="Arial, sans-serif" font-weight="700">DAMAGE FOOTPRINT</text>
+  <text x="132" y="588" fill="#FFFFFF" font-size="156" font-family="Arial, sans-serif" font-weight="900">9 MILES</text>
+  <text x="132" y="774" fill="#F8FAFC" font-size="96" font-family="Arial, sans-serif" font-weight="800">500 YARDS WIDE</text>
+  <text x="132" y="968" fill="#C7D2FE" font-size="54" font-family="Arial, sans-serif" font-weight="600">Around 40 homes damaged</text>
+  <text x="132" y="1044" fill="#C7D2FE" font-size="54" font-family="Arial, sans-serif" font-weight="600">in and around Enid.</text>
+</svg>

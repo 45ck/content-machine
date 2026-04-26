@@ -6,6 +6,7 @@ import { getOptionalApiKey } from '../config';
 import type { DoctorCheck, DoctorReport, DoctorStatus } from '../../domain/doctor';
 import { LLM_PROVIDERS, VISUALS_PROVIDERS } from '../../domain/repo-facts.generated';
 import { createRequireSafe } from '../require';
+import { resolvePackageJsonPath } from '../package-root';
 
 const execFileAsync = promisify(execFile);
 
@@ -42,7 +43,9 @@ function formatNodeVersion(parts: NodeVersionParts): string {
 function resolveRecommendedNodeVersion(): NodeVersionParts | null {
   try {
     const require = createRequireSafe(import.meta.url);
-    const pkg = require('../../../package.json') as { engines?: { node?: string } };
+    const pkg = require(resolvePackageJsonPath(import.meta.url)) as {
+      engines?: { node?: string };
+    };
     const raw = pkg.engines?.node;
     if (!raw) return null;
     return parseNodeVersionParts(String(raw).replace(/^>=\s*/, ''));

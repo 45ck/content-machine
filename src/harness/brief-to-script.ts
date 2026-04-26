@@ -48,7 +48,8 @@ export async function generateBriefToScript(
   let llmProvider;
   if (request.llmProvider !== 'default') {
     const config = await loadConfig();
-    llmProvider = createLLMProvider(request.llmProvider, config.llm.model);
+    const modelOverride = request.llmProvider === config.llm.provider ? config.llm.model : undefined;
+    llmProvider = createLLMProvider(request.llmProvider, modelOverride);
   }
 
   const script = await generateScript({

@@ -1,0 +1,11 @@
+<svg width="1080" height="1920" viewBox="0 0 1080 1920" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1080" height="1920" fill="#0A0F1C"/>
+  <rect x="70" y="70" width="940" height="1780" rx="48" fill="#111827"/>
+  <path d="M104 1300C260 1100 470 1000 734 992C848 988 936 950 976 876" stroke="#38BDF8" stroke-width="24" stroke-linecap="round"/>
+  <path d="M152 1420C308 1220 518 1120 782 1112C896 1108 956 1084 988 1026" stroke="#FDE047" stroke-width="18" stroke-linecap="round"/>
+  <text x="116" y="344" fill="#CBD5E1" font-size="56" font-family="Arial, sans-serif" font-weight="700">STORM INTENSITY</text>
+  <text x="116" y="552" fill="#FFFFFF" font-size="110" font-family="Arial, sans-serif" font-weight="900">170 TO 175</text>
+  <text x="116" y="686" fill="#FFFFFF" font-size="110" font-family="Arial, sans-serif" font-weight="900">MPH WINDS</text>
+  <text x="116" y="864" fill="#93C5FD" font-size="52" font-family="Arial, sans-serif" font-weight="600">This was not a weak storm.</text>
+  <text x="116" y="936" fill="#93C5FD" font-size="52" font-family="Arial, sans-serif" font-weight="600">It hit with violent EF-4 force.</text>
+</svg>

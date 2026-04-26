@@ -1,0 +1,10 @@
+<svg width="1080" height="1920" viewBox="0 0 1080 1920" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1080" height="1920" fill="#07131C"/>
+  <rect x="72" y="72" width="936" height="1776" rx="48" fill="#0B1220"/>
+  <path d="M130 1214C190 1214 190 1036 250 1036C310 1036 310 1350 370 1350C430 1350 430 980 490 980C550 980 550 1450 610 1450C670 1450 670 1088 730 1088C790 1088 790 1290 850 1290C910 1290 910 1160 950 1160" stroke="#F97316" stroke-width="22" stroke-linecap="round"/>
+  <text x="128" y="356" fill="#F8FAFC" font-size="104" font-family="Arial, sans-serif" font-weight="900">THREE</text>
+  <text x="128" y="486" fill="#F8FAFC" font-size="104" font-family="Arial, sans-serif" font-weight="900">RHYTHMS</text>
+  <text x="128" y="672" fill="#FDE047" font-size="82" font-family="Arial, sans-serif" font-weight="900">VOICE + TEXT + LANE CHANGES</text>
+  <text x="128" y="862" fill="#BFDBFE" font-size="54" font-family="Arial, sans-serif" font-weight="600">That mismatch keeps prediction</text>
+  <text x="128" y="938" fill="#BFDBFE" font-size="54" font-family="Arial, sans-serif" font-weight="600">and attention switched on.</text>
+</svg>

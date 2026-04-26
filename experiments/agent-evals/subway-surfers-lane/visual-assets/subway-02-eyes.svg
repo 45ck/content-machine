@@ -1,0 +1,13 @@
+<svg width="1080" height="1920" viewBox="0 0 1080 1920" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1080" height="1920" fill="#0F172A"/>
+  <rect x="88" y="88" width="904" height="1744" rx="44" fill="#111827"/>
+  <path d="M204 1224C308 1110 420 1054 540 1054C660 1054 772 1110 876 1224" stroke="#38BDF8" stroke-width="30" stroke-linecap="round"/>
+  <circle cx="392" cy="1230" r="54" fill="#F8FAFC"/>
+  <circle cx="688" cy="1230" r="54" fill="#F8FAFC"/>
+  <circle cx="392" cy="1230" r="24" fill="#0F172A"/>
+  <circle cx="688" cy="1230" r="24" fill="#0F172A"/>
+  <text x="132" y="364" fill="#FFFFFF" font-size="112" font-family="Arial, sans-serif" font-weight="900">RESETS</text>
+  <text x="132" y="494" fill="#FFFFFF" font-size="112" font-family="Arial, sans-serif" font-weight="900">YOUR EYES</text>
+  <text x="132" y="684" fill="#93C5FD" font-size="56" font-family="Arial, sans-serif" font-weight="600">The gameplay keeps handing your</text>
+  <text x="132" y="762" fill="#93C5FD" font-size="56" font-family="Arial, sans-serif" font-weight="600">attention a fresh visual target.</text>
+</svg>

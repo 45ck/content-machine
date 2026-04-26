@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { fileURLToPath } from 'node:url';
 import { z, ZodError, type ZodType } from 'zod';
 

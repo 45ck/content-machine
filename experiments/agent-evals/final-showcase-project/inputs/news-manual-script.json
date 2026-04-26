@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "1.0.0",
+  "title": "How Enid Survived an EF-4",
+  "hook": "An EF-4 tornado tore through Enid, Oklahoma, and the shocking part is that no one died.",
+  "scenes": [
+    {
+      "id": "scene-1",
+      "text": "An EF-4 tornado tore through Enid, Oklahoma, and the shocking part is that no one died.",
+      "visualDirection": "Open with a hard, urgent storm card that frames the survival story before the stats.",
+      "mood": "urgent"
+    },
+    {
+      "id": "scene-2",
+      "text": "This was not a near miss. The storm packed one hundred seventy to one hundred seventy five mile per hour winds and carved a violent path straight through town.",
+      "visualDirection": "Escalate with the storm intensity, emphasizing the violence and the scale.",
+      "mood": "intense"
+    },
+    {
+      "id": "scene-3",
+      "text": "It stayed on the ground for about nine miles, stretched roughly five hundred yards wide, and damaged around forty homes in and around Enid.",
+      "visualDirection": "Use clean data-forward framing with path length, width, and home damage called out visually.",
+      "mood": "measured"
+    },
+    {
+      "id": "scene-4",
+      "text": "Emergency crews searched homes, pulled trapped residents out, and officials said the city somehow escaped with only minor injuries instead of mass casualties.",
+      "visualDirection": "Shift into emergency response and rescue energy instead of spectacle.",
+      "mood": "focused"
+    },
+    {
+      "id": "scene-5",
+      "text": "That is why this story matters. Usually when damage looks this severe, there are deaths. Enid got extremely lucky.",
+      "visualDirection": "Slow down and underline the contrast between the visible destruction and the outcome.",
+      "mood": "reflective"
+    },
+    {
+      "id": "scene-6",
+      "text": "The lesson is not that the storm was weaker than it looked. The lesson is that preparation, shelter, and response made the difference when the worst case almost happened.",
+      "visualDirection": "End on a clear takeaway card about preparation, shelter, and response.",
+      "mood": "resolved"
+    }
+  ],
+  "reasoning": "Manual latest-news script built from April 24, 2026 reporting on the Enid tornado so the isolated skill-pack project can render a real short without waiting on rate-limited LLM stages.",
+  "cta": "Preparation is boring right up until it saves a town.",
+  "hashtags": [
+    "#news",
+    "#weather",
+    "#tornado",
+    "#oklahoma",
+    "#explainer"
+  ],
+  "meta": {
+    "estimatedDuration": 34,
+    "wordCount": 111,
+    "archetype": "story",
+    "topic": "April 24, 2026 Enid, Oklahoma tornado explainer",
+    "generatedAt": "2026-04-26T09:45:00.000Z",
+    "model": "manual-latest-news",
+    "promptVersion": "final-showcase-news-v1"
+  }
+}

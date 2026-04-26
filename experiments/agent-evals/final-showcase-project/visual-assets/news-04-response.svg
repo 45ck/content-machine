@@ -1,0 +1,13 @@
+<svg width="1080" height="1920" viewBox="0 0 1080 1920" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1080" height="1920" fill="#111827"/>
+  <rect x="72" y="72" width="936" height="1776" rx="48" fill="#0B1220"/>
+  <rect x="124" y="1252" width="832" height="420" rx="36" fill="#172554"/>
+  <text x="120" y="324" fill="#F8FAFC" font-size="58" font-family="Arial, sans-serif" font-weight="700">EMERGENCY RESPONSE</text>
+  <text x="120" y="542" fill="#FFFFFF" font-size="124" font-family="Arial, sans-serif" font-weight="900">HOME</text>
+  <text x="120" y="674" fill="#FFFFFF" font-size="124" font-family="Arial, sans-serif" font-weight="900">SEARCHES</text>
+  <text x="120" y="850" fill="#FDE047" font-size="90" font-family="Arial, sans-serif" font-weight="900">TRAPPED RESIDENTS</text>
+  <text x="120" y="1398" fill="#DBEAFE" font-size="50" font-family="Arial, sans-serif" font-weight="600">Crews searched homes,</text>
+  <text x="120" y="1472" fill="#DBEAFE" font-size="50" font-family="Arial, sans-serif" font-weight="600">rescued trapped people,</text>
+  <text x="120" y="1546" fill="#DBEAFE" font-size="50" font-family="Arial, sans-serif" font-weight="600">and kept the damage from</text>
+  <text x="120" y="1620" fill="#DBEAFE" font-size="50" font-family="Arial, sans-serif" font-weight="600">becoming a casualty story.</text>
+</svg>
