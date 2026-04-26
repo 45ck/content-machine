@@ -6,6 +6,7 @@ const toolMocks = vi.hoisted(() => ({
   scoreScript: vi.fn(),
   generatePublish: vi.fn(),
   validateVideoPath: vi.fn(),
+  analyzeRenderedCaptionSync: vi.fn(),
 }));
 
 vi.mock('./artifacts', () => ({
@@ -23,6 +24,34 @@ vi.mock('../publish/generator', () => ({
 
 vi.mock('../validate/validate', () => ({
   validateVideoPath: toolMocks.validateVideoPath,
+}));
+
+vi.mock('../validate/caption-sync', () => ({
+  analyzeRenderedCaptionSync: toolMocks.analyzeRenderedCaptionSync,
+  runCaptionSyncGate: vi.fn((report: { passed: boolean }) => ({
+    gateId: 'caption-sync',
+    passed: report.passed,
+    severity: 'error',
+    fix: 'fix captions',
+    message: report.passed ? 'Caption sync OK' : 'Caption sync bad',
+    details: {
+      expectedSegmentCount: 10,
+      observedSegmentCount: 10,
+      matchedSegmentCount: report.passed ? 10 : 3,
+      segmentMatchRatio: report.passed ? 1 : 0.3,
+      durationMatchRatio: report.passed ? 1 : 0.2,
+      medianStartDriftMs: report.passed ? 120 : 900,
+      p95StartDriftMs: report.passed ? 240 : 1200,
+      maxStartDriftMs: report.passed ? 300 : 1500,
+      coverageRatio: report.passed ? 0.8 : 0.1,
+      captionQualityScore: report.passed ? 0.85 : 0.2,
+      meanConfidence: report.passed ? 0.8 : 0.2,
+      minSegmentMatchRatio: 0.65,
+      minDurationMatchRatio: 0.55,
+      maxMedianStartDriftMs: 350,
+      maxP95StartDriftMs: 900,
+    },
+  })),
 }));
 
 import { PublishPrepRequestSchema, runPublishPrep } from './publish-prep';
@@ -83,6 +112,41 @@ function makePublishOutput() {
     hashtags: ['#example'],
     checklist: [{ id: 'upload', label: 'Upload', required: true }],
     createdAt: fixedDate,
+  };
+}
+
+function makeCaptionExport() {
+  return {
+    schemaVersion: '1.0.0',
+    captions: [],
+    segments: [
+      {
+        text: 'Example caption',
+        startMs: 0,
+        endMs: 1000,
+        timestampMs: 0,
+        confidence: 0.9,
+        words: [{ text: 'Example', startMs: 0, endMs: 400, confidence: 0.9 }],
+      },
+    ],
+    quality: {
+      passed: true,
+      score: 0.9,
+      thresholds: {
+        maxCharsPerSecond: 18,
+        minSegmentMs: 700,
+        maxWordsPerSegment: 7,
+        minConfidence: 0.5,
+      },
+      summary: {
+        segmentCount: 1,
+        maxCharsPerSecond: 8,
+        shortestSegmentMs: 1000,
+        maxWordsPerSegment: 2,
+        lowConfidenceCount: 0,
+      },
+      issues: [],
+    },
   };
 }
 
@@ -177,6 +241,7 @@ describe('PublishPrepRequestSchema', () => {
       audioSignal: true,
       freeze: false,
       flowConsistency: false,
+      captionSync: true,
     });
   });
 });
@@ -188,15 +253,25 @@ describe('runPublishPrep', () => {
     toolMocks.readJsonArtifact.mockResolvedValue(makeScript());
     toolMocks.scoreScript.mockReturnValue(makeScoreOutput());
     toolMocks.generatePublish.mockResolvedValue(makePublishOutput());
+    toolMocks.analyzeRenderedCaptionSync.mockResolvedValue({
+      passed: true,
+      matchedSegmentCount: 1,
+      expectedSegmentCount: 1,
+      medianStartDriftMs: 120,
+    });
     toolMocks.writeJsonArtifact.mockResolvedValue(undefined);
   });
 
   it('fails closed when the review gate detects silent audio', async () => {
     toolMocks.validateVideoPath.mockResolvedValue(makeAudioSignalValidateReport());
+    toolMocks.readJsonArtifact
+      .mockResolvedValueOnce(makeScript())
+      .mockResolvedValueOnce(makeCaptionExport());
 
     const result = await runPublishPrep({
       videoPath: '/tmp/run/render/video.mp4',
       scriptPath: '/tmp/run/script/script.json',
+      captionExportPath: '/tmp/run/render/captions.remotion.json',
       outputDir: '/tmp/run/publish-prep',
       platform: 'tiktok',
       packaging: defaultPackaging,
@@ -209,6 +284,7 @@ describe('runPublishPrep', () => {
         audioSignal: true,
         freeze: false,
         flowConsistency: false,
+        captionSync: true,
       },
     });
 
@@ -220,6 +296,7 @@ describe('runPublishPrep', () => {
         freeze: { enabled: false },
       })
     );
+    expect(toolMocks.analyzeRenderedCaptionSync).toHaveBeenCalled();
     expect(result.result.passed).toBe(false);
     expect(result.result.validatePath).toBe('/tmp/run/publish-prep/validate.json');
     expect(result.artifacts).toEqual(
@@ -234,10 +311,14 @@ describe('runPublishPrep', () => {
 
   it('fails closed when the review gate detects a frozen portrait short', async () => {
     toolMocks.validateVideoPath.mockResolvedValue(makeFreezeValidateReport());
+    toolMocks.readJsonArtifact
+      .mockResolvedValueOnce(makeScript())
+      .mockResolvedValueOnce(makeCaptionExport());
 
     const result = await runPublishPrep({
       videoPath: '/tmp/run/render/video.mp4',
       scriptPath: '/tmp/run/script/script.json',
+      captionExportPath: '/tmp/run/render/captions.remotion.json',
       outputDir: '/tmp/run/publish-prep',
       platform: 'tiktok',
       packaging: defaultPackaging,
@@ -250,6 +331,7 @@ describe('runPublishPrep', () => {
         audioSignal: false,
         freeze: true,
         flowConsistency: false,
+        captionSync: true,
       },
     });
 
@@ -261,6 +343,7 @@ describe('runPublishPrep', () => {
         freeze: { enabled: true },
       })
     );
+    expect(toolMocks.analyzeRenderedCaptionSync).toHaveBeenCalled();
     expect(result.result.passed).toBe(false);
     expect(result.result.publishPath).toBe('/tmp/run/publish-prep/publish.json');
   });
@@ -289,11 +372,15 @@ describe('runPublishPrep', () => {
         },
       ],
     });
+    toolMocks.readJsonArtifact
+      .mockResolvedValueOnce(makeScript())
+      .mockResolvedValueOnce(makeCaptionExport());
 
     await runPublishPrep(
       PublishPrepRequestSchema.parse({
         videoPath: '/tmp/run/render/video.mp4',
         scriptPath: '/tmp/run/script/script.json',
+        captionExportPath: '/tmp/run/render/captions.remotion.json',
         outputDir: '/tmp/run/publish-prep',
         platform: 'tiktok',
         packaging: defaultPackaging,
@@ -340,6 +427,59 @@ describe('runPublishPrep', () => {
         },
       ],
     });
+    toolMocks.readJsonArtifact
+      .mockResolvedValueOnce(makeScript())
+      .mockResolvedValueOnce(makeCaptionExport());
+
+    const result = await runPublishPrep({
+      videoPath: '/tmp/run/render/video.mp4',
+      scriptPath: '/tmp/run/script/script.json',
+      captionExportPath: '/tmp/run/render/captions.remotion.json',
+      outputDir: '/tmp/run/publish-prep',
+      platform: 'tiktok',
+      packaging: defaultPackaging,
+      publish: defaultPublish,
+      validate: {
+        profile: 'portrait',
+        cadence: false,
+        quality: false,
+        temporal: false,
+        audioSignal: true,
+        freeze: true,
+        flowConsistency: false,
+        captionSync: true,
+      },
+    });
+
+    expect(result.result.passed).toBe(true);
+    expect(result.artifacts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: '/tmp/run/publish-prep/publish.json',
+          kind: 'file',
+        }),
+      ])
+    );
+  });
+
+  it('fails closed when rendered caption sync cannot be verified', async () => {
+    toolMocks.validateVideoPath.mockResolvedValue({
+      schemaVersion: '1.0.0',
+      videoPath: '/tmp/run/render/video.mp4',
+      profile: 'portrait',
+      passed: true,
+      summary: {
+        width: 1080,
+        height: 1920,
+        durationSeconds: 38,
+        container: 'mp4',
+        videoCodec: 'h264',
+        audioCodec: 'aac',
+      },
+      gates: [],
+      createdAt: fixedDate,
+      runtimeMs: 12,
+    });
 
     const result = await runPublishPrep({
       videoPath: '/tmp/run/render/video.mp4',
@@ -353,20 +493,25 @@ describe('runPublishPrep', () => {
         cadence: false,
         quality: false,
         temporal: false,
-        audioSignal: true,
-        freeze: true,
+        audioSignal: false,
+        freeze: false,
         flowConsistency: false,
+        captionSync: true,
       },
     });
 
-    expect(result.result.passed).toBe(true);
-    expect(result.artifacts).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          path: '/tmp/run/publish-prep/publish.json',
-          kind: 'file',
-        }),
-      ])
+    expect(toolMocks.analyzeRenderedCaptionSync).not.toHaveBeenCalled();
+    expect(result.result.passed).toBe(false);
+    expect(toolMocks.writeJsonArtifact).toHaveBeenCalledWith(
+      '/tmp/run/publish-prep/validate.json',
+      expect.objectContaining({
+        gates: expect.arrayContaining([
+          expect.objectContaining({
+            gateId: 'caption-sync',
+            passed: false,
+          }),
+        ]),
+      })
     );
   });
 });

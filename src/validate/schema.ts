@@ -162,6 +162,29 @@ export const FlowConsistencyGateResultSchema = GateBaseSchema.extend({
 
 export type FlowConsistencyGateResult = z.infer<typeof FlowConsistencyGateResultSchema>;
 
+export const CaptionSyncGateResultSchema = GateBaseSchema.extend({
+  gateId: z.literal('caption-sync'),
+  details: z.object({
+    expectedSegmentCount: z.number().int().nonnegative(),
+    observedSegmentCount: z.number().int().nonnegative(),
+    matchedSegmentCount: z.number().int().nonnegative(),
+    segmentMatchRatio: z.number().min(0).max(1),
+    durationMatchRatio: z.number().min(0).max(1),
+    medianStartDriftMs: z.number().nonnegative(),
+    p95StartDriftMs: z.number().nonnegative(),
+    maxStartDriftMs: z.number().nonnegative(),
+    coverageRatio: z.number().min(0).max(1),
+    captionQualityScore: z.number().min(0).max(1),
+    meanConfidence: z.number().min(0).max(1),
+    minSegmentMatchRatio: z.number().min(0).max(1),
+    minDurationMatchRatio: z.number().min(0).max(1),
+    maxMedianStartDriftMs: z.number().nonnegative(),
+    maxP95StartDriftMs: z.number().nonnegative(),
+  }),
+});
+
+export type CaptionSyncGateResult = z.infer<typeof CaptionSyncGateResultSchema>;
+
 export const GateResultSchema = z.discriminatedUnion('gateId', [
   ResolutionGateResultSchema,
   DurationGateResultSchema,
@@ -173,6 +196,7 @@ export const GateResultSchema = z.discriminatedUnion('gateId', [
   SafetyGateResultSchema,
   FreezeGateResultSchema,
   FlowConsistencyGateResultSchema,
+  CaptionSyncGateResultSchema,
 ]);
 
 export type GateResult = z.infer<typeof GateResultSchema>;

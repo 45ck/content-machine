@@ -293,6 +293,7 @@ export async function runGenerateShort(request: GenerateShortRequest): Promise<
       publish: normalized.publishPrep.publish,
       validate: normalized.publishPrep.validate,
       videoPath: renderResult.result.outputPath,
+      captionExportPath: renderResult.result.captionExportPath ?? undefined,
       scriptPath: scriptResult.result.outputPath,
       outputDir: resolve(normalized.publishPrep.outputDir ?? join(outputDir, 'publish-prep')),
     });

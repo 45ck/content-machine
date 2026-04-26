@@ -1,6 +1,8 @@
-import { resolve, join } from 'node:path';
+import { existsSync } from 'node:fs';
+import { resolve, join, dirname } from 'node:path';
 import { z } from 'zod';
 import {
+  CaptionExportSchema,
   type GateResult,
   PackageOutputSchema,
   PlatformEnum,
@@ -16,6 +18,7 @@ import { artifactFile, type HarnessToolResult } from './json-stdio';
 import { generatePackage } from '../package/generator';
 import { generatePublish } from '../publish/generator';
 import { scoreScript } from '../score/scorer';
+import { analyzeRenderedCaptionSync, runCaptionSyncGate } from '../validate/caption-sync';
 import { validateVideoPath } from '../validate/validate';
 
 const REVIEW_BLOCKING_GATE_IDS = new Set<GateResult['gateId']>([
@@ -28,16 +31,23 @@ const REVIEW_BLOCKING_GATE_IDS = new Set<GateResult['gateId']>([
   'audio-signal',
   'freeze',
   'flow-consistency',
+  'caption-sync',
 ]);
 
 function hasReviewBlockingFailures(report: ValidateReport): boolean {
   return report.gates.some((gate) => !gate.passed && REVIEW_BLOCKING_GATE_IDS.has(gate.gateId));
 }
 
+function inferCaptionExportPath(videoPath: string): string | null {
+  const candidate = join(dirname(videoPath), 'captions.remotion.json');
+  return existsSync(candidate) ? candidate : null;
+}
+
 export const PublishPrepRequestSchema = z
   .object({
     videoPath: z.string().min(1),
     scriptPath: z.string().min(1),
+    captionExportPath: z.string().min(1).optional(),
     outputDir: z.string().min(1).default('output/content-machine/publish-prep'),
     platform: PlatformEnum.default('tiktok'),
     packaging: z
@@ -61,6 +71,7 @@ export const PublishPrepRequestSchema = z
         audioSignal: z.boolean().default(true),
         freeze: z.boolean().default(false),
         flowConsistency: z.boolean().default(false),
+        captionSync: z.boolean().default(true),
       })
       .default({}),
   })
@@ -74,6 +85,7 @@ export async function runPublishPrep(request: PublishPrepRequest): Promise<
     outputDir: string;
     validatePath: string;
     scorePath: string;
+    captionSyncPath: string | null;
     packagingPath: string | null;
     publishPath: string;
     passed: boolean;
@@ -88,6 +100,7 @@ export async function runPublishPrep(request: PublishPrepRequest): Promise<
   const outputDir = resolve(normalized.outputDir);
   const validatePath = join(outputDir, 'validate.json');
   const scorePath = join(outputDir, 'score.json');
+  const captionSyncPath = join(outputDir, 'caption-sync.json');
   const packagingPath = join(outputDir, 'packaging.json');
   const publishPath = join(outputDir, 'publish.json');
 
@@ -127,6 +140,53 @@ export async function runPublishPrep(request: PublishPrepRequest): Promise<
     freeze: { enabled: normalized.validate.freeze },
     flowConsistency: { enabled: normalized.validate.flowConsistency },
   });
+  let captionSyncArtifactPath: string | null = null;
+  if (normalized.validate.captionSync) {
+    const resolvedCaptionExportPath = normalized.captionExportPath
+      ? resolve(normalized.captionExportPath)
+      : inferCaptionExportPath(resolve(normalized.videoPath));
+
+    if (resolvedCaptionExportPath) {
+      const captionExport = await readJsonArtifact(
+        resolvedCaptionExportPath,
+        CaptionExportSchema,
+        'caption export artifact'
+      );
+      const captionSyncReport = await analyzeRenderedCaptionSync({
+        videoPath: resolve(normalized.videoPath),
+        expected: captionExport,
+      });
+      validate.gates.push(runCaptionSyncGate(captionSyncReport));
+      captionSyncArtifactPath = await writeJsonArtifact(captionSyncPath, captionSyncReport);
+    } else {
+      validate.gates.push({
+        gateId: 'caption-sync',
+        passed: false,
+        severity: 'error',
+        fix: 'Render captions to captions.remotion.json next to the final MP4, or pass captionExportPath into publish-prep so review can verify rendered caption sync automatically.',
+        message:
+          'Caption sync could not be verified automatically because the caption export artifact was missing.',
+        details: {
+          expectedSegmentCount: 0,
+          observedSegmentCount: 0,
+          matchedSegmentCount: 0,
+          segmentMatchRatio: 0,
+          durationMatchRatio: 0,
+          medianStartDriftMs: 0,
+          p95StartDriftMs: 0,
+          maxStartDriftMs: 0,
+          coverageRatio: 0,
+          captionQualityScore: 0,
+          meanConfidence: 0,
+          minSegmentMatchRatio: 0,
+          minDurationMatchRatio: 0,
+          maxMedianStartDriftMs: 0,
+          maxP95StartDriftMs: 0,
+        },
+      });
+    }
+  }
+  validate.passed = validate.gates.every((gate) => gate.passed || gate.severity !== 'error');
   await writeJsonArtifact(validatePath, ValidateReportSchema.parse(validate));
 
   const passed = score.passed && validate.passed && !hasReviewBlockingFailures(validate);
@@ -135,6 +195,7 @@ export async function runPublishPrep(request: PublishPrepRequest): Promise<
       outputDir,
       validatePath,
       scorePath,
+      captionSyncPath: captionSyncArtifactPath,
       packagingPath: packaging ? packagingPath : null,
       publishPath,
       passed,
@@ -143,6 +204,9 @@ export async function runPublishPrep(request: PublishPrepRequest): Promise<
       artifactFile(validatePath, 'Video validation report'),
       artifactFile(scorePath, 'Script score report'),
       artifactFile(publishPath, 'Publish metadata report'),
+      ...(captionSyncArtifactPath
+        ? [artifactFile(captionSyncArtifactPath, 'Rendered caption sync review artifact')]
+        : []),
       ...(packaging ? [artifactFile(packagingPath, 'Packaging variants artifact')] : []),
     ],
   };

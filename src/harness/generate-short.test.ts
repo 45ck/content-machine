@@ -91,6 +91,7 @@ vi.mock('./publish-prep', async () => {
       .object({
         videoPath: z.string(),
         scriptPath: z.string(),
+        captionExportPath: z.string().optional(),
         outputDir: z.string().default('output/content-machine/publish-prep'),
         platform: z.enum(['tiktok', 'instagram', 'youtube']).default('tiktok'),
         packaging: z.object({}).passthrough().default({}),
@@ -317,6 +318,7 @@ describe('runGenerateShort', () => {
       publish: {},
       validate: {},
       videoPath: '/tmp/ref/render/video.mp4',
+      captionExportPath: '/tmp/ref/render/captions.remotion.json',
       scriptPath: '/tmp/ref/script/script.json',
       outputDir: join(refDir, 'publish-prep'),
     });
