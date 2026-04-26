@@ -1,0 +1,10 @@
+{
+  "lane": "motion-card-lesson-short",
+  "lessonType": "quiz-reveal",
+  "topic": "What does cache invalidation actually mean?",
+  "targetDuration": 30,
+  "visualRules": {
+    "primaryVisualSystem": "motion-cards",
+    "beats": ["hook", "prompt", "countdown", "answer", "reinforcement", "cta"]
+  }
+}

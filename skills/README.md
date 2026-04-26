@@ -96,6 +96,11 @@ new skills.
 - [`animation-explainer-short/`](animation-explainer-short/SKILL.md) —
   diagrams, motion cards, generated scenes, and motion-led explainer
   shorts
+- [`motion-card-lesson-short/`](motion-card-lesson-short/SKILL.md) —
+  narrow educational or quiz-like shorts built from timed card states
+- [`gameplay-confession-short/`](gameplay-confession-short/SKILL.md) —
+  confession/storytime shorts with motion or receipts on top and Subway
+  Surfers-style gameplay below
 - [`longform-to-shorts/`](longform-to-shorts/SKILL.md) — transcript-led
   clipping, selection, reframing, and short extraction from long video
 - [`longform-highlight-select/`](longform-highlight-select/SKILL.md) —
@@ -114,6 +119,8 @@ new skills.
   — capture word-level caption timing from real ASR tokens
 - [`reddit-story-short/`](reddit-story-short/SKILL.md) — Reddit/text
   story adaptation into narration-led shorts
+- [`text-message-drama-short/`](text-message-drama-short/SKILL.md) —
+  DM, chat-log, and receipt-led story adaptation
 - [`ugc-avatar-short/`](ugc-avatar-short/SKILL.md) — avatar or AI-actor
   spokesperson short construction
 - [`scene-by-scene-faceless-pipeline/`](scene-by-scene-faceless-pipeline/SKILL.md)

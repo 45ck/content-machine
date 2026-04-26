@@ -46,6 +46,11 @@ description: Design and implement burned-in captions for short-form video across
   composition should dominate.
 - `bold` or `neon`: use sparingly for hooks, gaming, or entertainment
   where impact matters more than density.
+- Cross-archetype caption modes:
+  `page-pop` for talking-head or commentary phrases,
+  `karaoke-chip` for viral/high-energy active-word emphasis,
+  `phrase-highlight` for explainers and story lanes that need steadier
+  multi-word chunks.
 
 Read [style-recipes.md](references/style-recipes.md) before changing the
 caption treatment. That file is the fast map from content type to
@@ -63,6 +68,10 @@ layout, emphasis, and motion choices.
   demands impact.
 - Bottom captions are default, but they still need enough edge distance
   to survive platform chrome.
+- Safe-zone defaults:
+  hook cards in roughly the top `15%` to `20%`,
+  subtitles in roughly the bottom `18%` to `25%`,
+  midpoint seam captions only when the split layout truly needs them.
 - In top/bottom split-screen layouts, midpoint overlay captions are
   valid. A dedicated black seam is optional, not required.
 - If midpoint overlay captions sit on moving footage, increase stroke,

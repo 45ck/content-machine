@@ -94,6 +94,11 @@ outputs:
   lanes, because it silently chops off the actual subject.
 - If captions belong on the seam between the two lanes, overlay them at
   the midpoint instead of inserting a dedicated caption band.
+- Treat hook cards and opener assets as their own upper-band layer, not
+  as ordinary subtitles.
+- A thin divider, seam gradient, or center badge is a valid readability
+  aid for split archetypes; use it as a reusable layout token, not ad
+  hoc decoration.
 - For OCR-reviewable exports, prefer full-line active-word highlighting
   over progressive reveal burns when you need stable rendered caption
   verification.

@@ -7,6 +7,14 @@
 
 ## Additional Workflows
 
+- **[Subway Confession Story](examples/subway-confession-story.md)** —
+  confession lane with support footage or receipts on top and gameplay
+  below
+- **[Text Message Drama](examples/text-message-drama.md)** — message
+  bubbles, receipts, and staged reveal beats
+- **[Motion Card Lesson](examples/motion-card-lesson.md)** — narrow
+  educational lane built from timed card states and reveal beats
+
 ### Listicle from a trending topic
 
 ```bash

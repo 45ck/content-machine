@@ -1,0 +1,17 @@
+{
+  "lane": "text-message-drama-short",
+  "storyType": "breakup-dms",
+  "tone": "chaotic",
+  "targetDuration": 40,
+  "visualRules": {
+    "primaryVisualSystem": "message-bubbles-and-receipts",
+    "optionalBottomLane": "subway-surfers gameplay",
+    "captionPlacement": "midpoint overlay below message focus"
+  },
+  "reject": [
+    "generic ai story illustrations",
+    "unreadable screenshot crops",
+    "captions fighting with the chat ui",
+    "static message wall with no reveal rhythm"
+  ]
+}

@@ -50,6 +50,8 @@ description: Turn a podcast, interview, talk, screen recording, or long YouTube 
 - Use [`video-render`](../video-render/SKILL.md) and
   [`publish-prep-review`](../publish-prep-review/SKILL.md) for final
   output and review.
+- Use [`references/production-shape.md`](references/production-shape.md)
+  for the concrete boundary-snap, reframe, and review sequence.
 - If the clipping path becomes a repo runner later, this skill should
   remain the decision layer.
 

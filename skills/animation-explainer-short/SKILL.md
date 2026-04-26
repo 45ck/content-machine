@@ -40,8 +40,12 @@ description: Make a faceless explainer short using diagrams, motion cards, gener
 
 - Use [`faceless-mixed-short`](../faceless-mixed-short/SKILL.md) when
   you need more raw footage support.
+- Use [`motion-card-lesson-short`](../motion-card-lesson-short/SKILL.md)
+  when the lane should stay narrow, card-first, and deterministic.
 - Use [`short-form-captions`](../short-form-captions/SKILL.md) for
   caption family decisions.
+- Use [`references/production-shape.md`](references/production-shape.md)
+  for the stronger scene-planning and motion-card sequence.
 - Use existing generated-media and Remotion render surfaces where
   helpful.
 
