@@ -21,7 +21,8 @@ description: Turn a Reddit-style post, confession, text thread, or comment story
 3. Use on-screen text selectively for high-drama phrases and receipts,
    not for every sentence.
 4. Pair the narration with visually supportive footage, gameplay, UI
-   mockups, cards, or stylized generated scenes.
+   mockups, Reddit post/comment cards, receipts, or stylized generated
+   scenes.
 5. End on judgment, reveal, or unresolved tension that invites comment.
 
 ## Inputs
@@ -48,8 +49,14 @@ description: Turn a Reddit-style post, confession, text thread, or comment story
 
 - Story shorts need stronger pacing control than explainers because the
   viewer is waiting for the turn.
-- Receipts, text messages, post fragments, and reaction cards work
-  better than generic business stock footage.
+- Default visual shape should match the common Reddit-story pattern from
+  the reference repos:
+  title/post card first, then comment/update cards, with moving gameplay
+  or background motion under the narration.
+- Receipts, text messages, Reddit cards, and post fragments work better
+  than generic themed illustrations.
+- Do not fall back to generic AI story illustrations when a Reddit card
+  or comment card would carry the beat more honestly.
 - Background gameplay can help, but only if it does not trivialize the
   story tone.
 

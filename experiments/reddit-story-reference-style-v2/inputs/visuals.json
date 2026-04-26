@@ -1,0 +1,185 @@
+{
+  "schemaVersion": "1.1.0",
+  "scenes": [
+    {
+      "sceneId": "hook-a",
+      "source": "user-footage",
+      "assetPath": "experiments/reddit-story-reference-style-v2/assets/hook-a.svg",
+      "duration": 2.55,
+      "assetType": "image",
+      "motionStrategy": "none",
+      "motionApplied": false
+    },
+    {
+      "sceneId": "hook-b",
+      "source": "user-footage",
+      "assetPath": "experiments/reddit-story-reference-style-v2/assets/hook-b.svg",
+      "duration": 2.564,
+      "assetType": "image",
+      "motionStrategy": "none",
+      "motionApplied": false
+    },
+    {
+      "sceneId": "scene-1-a",
+      "source": "user-footage",
+      "assetPath": "experiments/reddit-story-reference-style-v2/assets/scene-1-a.svg",
+      "duration": 3.273,
+      "assetType": "image",
+      "motionStrategy": "none",
+      "motionApplied": false
+    },
+    {
+      "sceneId": "scene-1-b",
+      "source": "user-footage",
+      "assetPath": "experiments/reddit-story-reference-style-v2/assets/scene-1-b.svg",
+      "duration": 3.273,
+      "assetType": "image",
+      "motionStrategy": "none",
+      "motionApplied": false
+    },
+    {
+      "sceneId": "scene-1-c",
+      "source": "user-footage",
+      "assetPath": "experiments/reddit-story-reference-style-v2/assets/scene-1-c.svg",
+      "duration": 3.273,
+      "assetType": "image",
+      "motionStrategy": "none",
+      "motionApplied": false
+    },
+    {
+      "sceneId": "scene-2-a",
+      "source": "user-footage",
+      "assetPath": "experiments/reddit-story-reference-style-v2/assets/scene-2-a.svg",
+      "duration": 2.652,
+      "assetType": "image",
+      "motionStrategy": "none",
+      "motionApplied": false
+    },
+    {
+      "sceneId": "scene-2-b",
+      "source": "user-footage",
+      "assetPath": "experiments/reddit-story-reference-style-v2/assets/scene-2-b.svg",
+      "duration": 2.651,
+      "assetType": "image",
+      "motionStrategy": "none",
+      "motionApplied": false
+    },
+    {
+      "sceneId": "scene-2-c",
+      "source": "user-footage",
+      "assetPath": "experiments/reddit-story-reference-style-v2/assets/scene-2-c.svg",
+      "duration": 2.652,
+      "assetType": "image",
+      "motionStrategy": "none",
+      "motionApplied": false
+    },
+    {
+      "sceneId": "scene-3-a",
+      "source": "user-footage",
+      "assetPath": "experiments/reddit-story-reference-style-v2/assets/scene-3-a.svg",
+      "duration": 3.568,
+      "assetType": "image",
+      "motionStrategy": "none",
+      "motionApplied": false
+    },
+    {
+      "sceneId": "scene-3-b",
+      "source": "user-footage",
+      "assetPath": "experiments/reddit-story-reference-style-v2/assets/scene-3-b.svg",
+      "duration": 3.568,
+      "assetType": "image",
+      "motionStrategy": "none",
+      "motionApplied": false
+    },
+    {
+      "sceneId": "scene-3-c",
+      "source": "user-footage",
+      "assetPath": "experiments/reddit-story-reference-style-v2/assets/scene-3-c.svg",
+      "duration": 3.568,
+      "assetType": "image",
+      "motionStrategy": "none",
+      "motionApplied": false
+    },
+    {
+      "sceneId": "scene-4-a",
+      "source": "user-footage",
+      "assetPath": "experiments/reddit-story-reference-style-v2/assets/scene-4-a.svg",
+      "duration": 3.985,
+      "assetType": "image",
+      "motionStrategy": "none",
+      "motionApplied": false
+    },
+    {
+      "sceneId": "scene-4-b",
+      "source": "user-footage",
+      "assetPath": "experiments/reddit-story-reference-style-v2/assets/scene-4-b.svg",
+      "duration": 3.984,
+      "assetType": "image",
+      "motionStrategy": "none",
+      "motionApplied": false
+    },
+    {
+      "sceneId": "scene-4-c",
+      "source": "user-footage",
+      "assetPath": "experiments/reddit-story-reference-style-v2/assets/scene-4-c.svg",
+      "duration": 3.985,
+      "assetType": "image",
+      "motionStrategy": "none",
+      "motionApplied": false
+    },
+    {
+      "sceneId": "scene-5-a",
+      "source": "user-footage",
+      "assetPath": "experiments/reddit-story-reference-style-v2/assets/scene-5-a.svg",
+      "duration": 3.136,
+      "assetType": "image",
+      "motionStrategy": "none",
+      "motionApplied": false
+    },
+    {
+      "sceneId": "scene-5-b",
+      "source": "user-footage",
+      "assetPath": "experiments/reddit-story-reference-style-v2/assets/scene-5-b.svg",
+      "duration": 3.136,
+      "assetType": "image",
+      "motionStrategy": "none",
+      "motionApplied": false
+    },
+    {
+      "sceneId": "scene-5-c",
+      "source": "user-footage",
+      "assetPath": "experiments/reddit-story-reference-style-v2/assets/scene-5-c.svg",
+      "duration": 3.137,
+      "assetType": "image",
+      "motionStrategy": "none",
+      "motionApplied": false
+    },
+    {
+      "sceneId": "cta",
+      "source": "user-footage",
+      "assetPath": "experiments/reddit-story-reference-style-v2/assets/cta.svg",
+      "duration": 2.682,
+      "assetType": "image",
+      "motionStrategy": "none",
+      "motionApplied": false
+    }
+  ],
+  "totalAssets": 18,
+  "fromUserFootage": 18,
+  "fromStock": 0,
+  "fallbacks": 0,
+  "fromGenerated": 0,
+  "totalGenerationCost": 0,
+  "provider": "manual-reddit-reference-style",
+  "providerChain": [
+    "manual-reddit-reference-style"
+  ],
+  "gameplayClip": {
+    "path": "/home/calvin/.cm/assets/gameplay/subway-surfers/Iot_bB8lKgE.mp4",
+    "duration": 180.033333,
+    "width": 1080,
+    "height": 1920,
+    "style": "subway-surfers"
+  },
+  "totalDuration": 58.073
+}

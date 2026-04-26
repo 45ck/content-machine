@@ -1,0 +1,6 @@
+{
+  "scriptPath": "experiments/reddit-story-reference-style-v2/inputs/script.json",
+  "videoPath": "experiments/reddit-story-reference-style-v2/final/video.mp4",
+  "captionExportPath": "experiments/reddit-story-reference-style-v2/final/captions.remotion.json",
+  "outputDir": "experiments/reddit-story-reference-style-v2/final/publish-prep"
+}

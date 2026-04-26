@@ -1,0 +1,19 @@
+{
+  "visualsPath": "experiments/reddit-story-reference-style-v2/inputs/visuals.json",
+  "timestampsPath": "experiments/reddit-story-reference-style-v2/inputs/timestamps.json",
+  "audioPath": "experiments/reddit-story-reference-style-v2/inputs/audio.wav",
+  "outputPath": "experiments/reddit-story-reference-style-v2/final/video.mp4",
+  "outputMetadataPath": "experiments/reddit-story-reference-style-v2/final/render.json",
+  "captionExportPath": "experiments/reddit-story-reference-style-v2/final/captions.remotion.json",
+  "captionSrtPath": "experiments/reddit-story-reference-style-v2/final/captions.srt",
+  "captionAssPath": "experiments/reddit-story-reference-style-v2/final/captions.ass",
+  "orientation": "portrait",
+  "fps": 30,
+  "downloadAssets": false,
+  "compositionId": "SplitScreenGameplay",
+  "splitScreenRatio": 0.45,
+  "gameplayPosition": "bottom",
+  "contentPosition": "top",
+  "captionPreset": "minimal",
+  "captionMode": "page"
+}

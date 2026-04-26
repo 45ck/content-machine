@@ -113,4 +113,53 @@ describe('runVideoRender', () => {
       'Dialogue: 0,0:00:00.00,0:00:00.50,Default,test'
     );
   });
+
+  it('accepts split-screen render controls at the harness layer', async () => {
+    const dir = await makeTempDir();
+    const visualsPath = join(dir, 'visuals.json');
+    const timestampsPath = join(dir, 'timestamps.json');
+    const audioPath = join(dir, 'audio.wav');
+    const outputPath = join(dir, 'split.mp4');
+
+    await writeJsonArtifact(visualsPath, {
+      schemaVersion: '1.1.0',
+      scenes: [],
+      gameplayClip: {
+        path: '/tmp/fake-gameplay.mp4',
+        duration: 10,
+        width: 1080,
+        height: 1920,
+        style: 'subway-surfers',
+      },
+      totalAssets: 0,
+      fromUserFootage: 1,
+      fromStock: 0,
+      fromGenerated: 0,
+      fallbacks: 0,
+      totalDuration: 1,
+    });
+    await writeJsonArtifact(timestampsPath, {
+      schemaVersion: '1.0.0',
+      allWords: [{ word: 'test', start: 0, end: 0.5 }],
+      totalDuration: 1,
+      ttsEngine: 'mock',
+      asrEngine: 'mock',
+    });
+    await writeFile(audioPath, Buffer.alloc(0));
+
+    const result = await runVideoRender({
+      visualsPath,
+      timestampsPath,
+      audioPath,
+      outputPath,
+      mock: true,
+      compositionId: 'SplitScreenGameplay',
+      splitScreenRatio: 0.45,
+      gameplayPosition: 'bottom',
+      contentPosition: 'top',
+    });
+
+    expect(result.result.outputPath).toBe(outputPath);
+    expect(result.result.outputMetadataPath).toBe(join(dir, 'render.json'));
+  });
 });

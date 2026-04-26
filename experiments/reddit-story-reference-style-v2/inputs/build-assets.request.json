@@ -1,0 +1,121 @@
+{
+  "outputDir": "experiments/reddit-story-reference-style-v2/assets",
+  "width": 1080,
+  "height": 864,
+  "subreddit": "AmItheAsshole",
+  "author": "throwra_wireframe",
+  "age": "7 hr. ago",
+  "title": "AITA for replacing my roommate's fake work-from-home setup?",
+  "upvotes": "18.4k",
+  "commentCount": "2.1k",
+  "cards": [
+    {
+      "id": "hook-a",
+      "kind": "post",
+      "label": "Original Post",
+      "body": "My roommate staged fake work calls for months."
+    },
+    {
+      "id": "hook-b",
+      "kind": "update",
+      "label": "Update",
+      "body": "So before his next call, I swapped the fake desk for a real one."
+    },
+    {
+      "id": "scene-1-a",
+      "kind": "comment",
+      "label": "Receipt",
+      "body": "Same dead laptop. Same blank spreadsheet."
+    },
+    {
+      "id": "scene-1-b",
+      "kind": "comment",
+      "label": "Receipt",
+      "body": "Every video call looked staged the second you noticed the screen."
+    },
+    {
+      "id": "scene-1-c",
+      "kind": "comment",
+      "label": "Receipt",
+      "body": "But he kept telling his parents he was crushing remote work."
+    },
+    {
+      "id": "scene-2-a",
+      "kind": "comment",
+      "label": "Part Two",
+      "body": "He made me stay quiet in the background during every call."
+    },
+    {
+      "id": "scene-2-b",
+      "kind": "comment",
+      "label": "Part Two",
+      "body": "Like I was an extra helping him sell the lie."
+    },
+    {
+      "id": "scene-2-c",
+      "kind": "comment",
+      "label": "Part Two",
+      "body": "Meanwhile his parents bragged about him to the whole family."
+    },
+    {
+      "id": "scene-3-a",
+      "kind": "update",
+      "label": "Twist",
+      "body": "Then I found out he'd actually been fired months earlier."
+    },
+    {
+      "id": "scene-3-b",
+      "kind": "update",
+      "label": "Twist",
+      "body": "He was burning through rent money to keep the performance going."
+    },
+    {
+      "id": "scene-3-c",
+      "kind": "update",
+      "label": "Twist",
+      "body": "So I bought a cheap monitor, keyboard, and lamp and rebuilt the desk."
+    },
+    {
+      "id": "scene-4-a",
+      "kind": "update",
+      "label": "Reveal",
+      "body": "Then his parents called again."
+    },
+    {
+      "id": "scene-4-b",
+      "kind": "update",
+      "label": "Reveal",
+      "body": "He sat down expecting the usual fake setup."
+    },
+    {
+      "id": "scene-4-c",
+      "kind": "verdict",
+      "label": "Reveal",
+      "body": "Instead the desk looked real, and he completely panicked."
+    },
+    {
+      "id": "scene-5-a",
+      "kind": "verdict",
+      "label": "Aftermath",
+      "body": "Now he says I humiliated him."
+    },
+    {
+      "id": "scene-5-b",
+      "kind": "verdict",
+      "label": "Aftermath",
+      "body": "I think I forced the lie to end before it wrecked his finances."
+    },
+    {
+      "id": "scene-5-c",
+      "kind": "verdict",
+      "label": "Aftermath",
+      "body": "Was that helpful, or way out of line?"
+    },
+    {
+      "id": "cta",
+      "kind": "verdict",
+      "label": "Verdict?",
+      "body": "Would you call this a save or a sabotage?"
+    }
+  ]
+}
