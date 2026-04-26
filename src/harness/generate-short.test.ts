@@ -327,6 +327,59 @@ describe('runGenerateShort', () => {
     expect(result.result.referenceArchetype).toBe('story');
   });
 
+  it('fails closed when visual or caption quality summary is not ready', async () => {
+    stageMocks.generateBriefToScript.mockResolvedValue({
+      result: {
+        outputPath: '/tmp/quality/script/script.json',
+        title: 'Script',
+        sceneCount: 3,
+      },
+      artifacts: [],
+    });
+    stageMocks.runScriptToAudio.mockResolvedValue({
+      result: {
+        audioPath: '/tmp/quality/audio/audio.wav',
+        timestampsPath: '/tmp/quality/audio/timestamps.json',
+        outputMetadataPath: '/tmp/quality/audio/audio.json',
+      },
+      artifacts: [],
+    });
+    stageMocks.runTimestampsToVisuals.mockResolvedValue({
+      result: {
+        outputPath: '/tmp/quality/visuals/visuals.json',
+        visualQualityPath: '/tmp/quality/visuals/visual-quality.json',
+        visualQualityPassed: false,
+        visualQualityScore: 0.42,
+        sceneCount: 3,
+      },
+      artifacts: [],
+    });
+    stageMocks.runVideoRender.mockResolvedValue({
+      result: {
+        outputPath: '/tmp/quality/render/video.mp4',
+        outputMetadataPath: '/tmp/quality/render/render.json',
+        captionExportPath: '/tmp/quality/render/captions.remotion.json',
+        captionSrtPath: '/tmp/quality/render/captions.srt',
+        captionAssPath: '/tmp/quality/render/captions.ass',
+        captionQualityPassed: true,
+        captionQualityScore: 0.92,
+      },
+      artifacts: [],
+    });
+
+    await expect(
+      runGenerateShort({
+        topic: 'Broken fallback-heavy render',
+        outputDir: '/tmp/quality',
+        audio: { voice: 'af_heart', mock: true },
+        visuals: { mock: true },
+        render: { mock: true },
+      })
+    ).rejects.toThrow('Visual or caption quality checks failed');
+
+    expect(stageMocks.runPublishPrep).not.toHaveBeenCalled();
+  });
+
   it('fails closed when publish prep reports the short is not ready', async () => {
     stageMocks.generateBriefToScript.mockResolvedValue({
       result: {

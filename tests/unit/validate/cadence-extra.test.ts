@@ -72,4 +72,27 @@ describe('cadence detection', () => {
     expect(gate.gateId).toBe('cadence');
     expect(gate.details.cutCount).toBe(3);
   });
+
+  it('fails static single-scene output with an explicit error', async () => {
+    detectSceneCutsWithPySceneDetectMock.mockResolvedValue([]);
+
+    const { runCadenceGate } = await import('../../../src/validate/cadence');
+    const gate = await runCadenceGate(
+      {
+        path: 'video.mp4',
+        width: 1080,
+        height: 1920,
+        durationSeconds: 42,
+        container: 'mp4',
+        videoCodec: 'h264',
+        audioCodec: 'aac',
+      },
+      { engine: 'pyscenedetect', maxMedianCutIntervalSeconds: 4 }
+    );
+
+    expect(gate.passed).toBe(false);
+    expect(gate.severity).toBe('error');
+    expect(gate.message).toContain('Cadence too static');
+    expect(gate.message).toContain('single-scene/default-background');
+  });
 });

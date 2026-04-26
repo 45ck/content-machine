@@ -91,6 +91,7 @@ describe('runTemporalQualityGate', () => {
     );
 
     expect(result.passed).toBe(false);
+    expect(result.severity).toBe('error');
     expect(result.message).toContain('flicker score');
   });
 
@@ -117,7 +118,9 @@ describe('runTemporalQualityGate', () => {
     );
 
     expect(result.passed).toBe(false);
+    expect(result.severity).toBe('error');
     expect(result.message).toContain('duplicate frame ratio');
+    expect(result.message).toContain('static/no-motion edit');
   });
 
   it('uses default thresholds when profile has none', async () => {
@@ -141,7 +144,32 @@ describe('runTemporalQualityGate', () => {
     );
 
     expect(result.passed).toBe(true);
-    expect(result.details.flickerMin).toBe(0.5);
-    expect(result.details.maxDuplicateFrameRatio).toBe(0.3);
+    expect(result.details.flickerMin).toBe(0.65);
+    expect(result.details.maxDuplicateFrameRatio).toBe(0.2);
+  });
+
+  it('fails obvious static output with the tightened defaults', async () => {
+    const { runTemporalQualityGate } = await import('../../../src/validate/temporal');
+    const result = runTemporalQualityGate(
+      {
+        flicker: { score: 0.4, variance: 12.0, meanDiff: 1.0 },
+        duplicateFrameRatio: 0.45,
+        framesAnalyzed: 100,
+      },
+      {
+        id: 'portrait',
+        width: 1080,
+        height: 1920,
+        minDurationSeconds: 30,
+        maxDurationSeconds: 60,
+        container: 'mp4',
+        videoCodec: 'h264',
+        audioCodec: 'aac',
+      }
+    );
+
+    expect(result.passed).toBe(false);
+    expect(result.severity).toBe('error');
+    expect(result.message).toContain('static/no-motion edit');
   });
 });

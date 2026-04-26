@@ -1,6 +1,7 @@
 import { resolve, join } from 'node:path';
 import { z } from 'zod';
 import {
+  type GateResult,
   PackageOutputSchema,
   PlatformEnum,
   PublishOutputSchema,
@@ -8,6 +9,7 @@ import {
   ScriptOutputSchema,
   ValidateReportSchema,
   type ScriptOutput,
+  type ValidateReport,
 } from '../domain';
 import { readJsonArtifact, writeJsonArtifact } from './artifacts';
 import { artifactFile, type HarnessToolResult } from './json-stdio';
@@ -15,6 +17,22 @@ import { generatePackage } from '../package/generator';
 import { generatePublish } from '../publish/generator';
 import { scoreScript } from '../score/scorer';
 import { validateVideoPath } from '../validate/validate';
+
+const REVIEW_BLOCKING_GATE_IDS = new Set<GateResult['gateId']>([
+  'resolution',
+  'duration',
+  'format',
+  'cadence',
+  'visual-quality',
+  'temporal-quality',
+  'audio-signal',
+  'freeze',
+  'flow-consistency',
+]);
+
+function hasReviewBlockingFailures(report: ValidateReport): boolean {
+  return report.gates.some((gate) => !gate.passed && REVIEW_BLOCKING_GATE_IDS.has(gate.gateId));
+}
 
 export const PublishPrepRequestSchema = z
   .object({
@@ -40,7 +58,7 @@ export const PublishPrepRequestSchema = z
         cadence: z.boolean().default(true),
         quality: z.boolean().default(false),
         temporal: z.boolean().default(false),
-        audioSignal: z.boolean().default(false),
+        audioSignal: z.boolean().default(true),
         freeze: z.boolean().default(false),
         flowConsistency: z.boolean().default(false),
       })
@@ -111,7 +129,7 @@ export async function runPublishPrep(request: PublishPrepRequest): Promise<
   });
   await writeJsonArtifact(validatePath, ValidateReportSchema.parse(validate));
 
-  const passed = score.passed && validate.passed;
+  const passed = score.passed && validate.passed && !hasReviewBlockingFailures(validate);
   return {
     result: {
       outputDir,

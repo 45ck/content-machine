@@ -81,6 +81,7 @@ describe('runFreezeGate', () => {
     });
 
     expect(result.passed).toBe(false);
+    expect(result.severity).toBe('error');
     expect(result.message).toContain('freeze ratio');
     expect(result.message).toContain('25.0%');
   });
@@ -96,6 +97,7 @@ describe('runFreezeGate', () => {
     });
 
     expect(result.passed).toBe(false);
+    expect(result.severity).toBe('error');
     expect(result.message).toContain('black ratio');
     expect(result.message).toContain('10.0%');
   });
@@ -111,8 +113,8 @@ describe('runFreezeGate', () => {
     });
 
     expect(result.passed).toBe(true);
-    expect(result.details.maxFreezeRatio).toBe(0.15);
-    expect(result.details.maxBlackRatio).toBe(0.05);
+    expect(result.details.maxFreezeRatio).toBe(0.08);
+    expect(result.details.maxBlackRatio).toBe(0.02);
   });
 
   it('respects custom thresholds', async () => {

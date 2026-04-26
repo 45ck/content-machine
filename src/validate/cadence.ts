@@ -38,9 +38,11 @@ export function evaluateCadence(params: {
   durationSeconds: number;
   cutTimesSeconds: number[];
   maxMedianCutIntervalSeconds: number;
+  minCutCount?: number;
 }): CadenceEvaluation {
   const cutTimes = [...params.cutTimesSeconds].filter((t) => Number.isFinite(t) && t >= 0);
   cutTimes.sort((a, b) => a - b);
+  const minCutCount = params.minCutCount ?? 2;
 
   const intervals: number[] = [];
   let prev = 0;
@@ -53,11 +55,13 @@ export function evaluateCadence(params: {
   }
 
   const med = median(intervals);
-  const passed = Number.isFinite(med) && med <= params.maxMedianCutIntervalSeconds;
+  const cutCount = cutTimes.length;
+  const passed =
+    cutCount >= minCutCount && Number.isFinite(med) && med <= params.maxMedianCutIntervalSeconds;
 
   return {
     passed,
-    cutCount: cutTimes.length,
+    cutCount,
     medianCutIntervalSeconds: Number.isFinite(med) ? med : params.durationSeconds,
     maxMedianCutIntervalSeconds: params.maxMedianCutIntervalSeconds,
   };
@@ -113,12 +117,14 @@ export async function runCadenceGate(
   info: VideoInfo,
   options?: {
     maxMedianCutIntervalSeconds?: number;
+    minCutCount?: number;
     threshold?: number;
     engine?: 'ffmpeg' | 'pyscenedetect';
     pythonPath?: string;
   }
 ): Promise<CadenceGateResult> {
   const maxMedian = options?.maxMedianCutIntervalSeconds ?? 3;
+  const minCutCount = options?.minCutCount ?? 2;
   const engine = options?.engine ?? 'ffmpeg';
   const cutTimes =
     engine === 'pyscenedetect'
@@ -135,18 +141,22 @@ export async function runCadenceGate(
     durationSeconds: info.durationSeconds,
     cutTimesSeconds: cutTimes,
     maxMedianCutIntervalSeconds: maxMedian,
+    minCutCount,
   });
+  const tooStatic = evaluation.cutCount < minCutCount;
 
   return {
     gateId: 'cadence',
     passed: evaluation.passed,
-    severity: 'warning',
+    severity: evaluation.passed ? 'warning' : 'error',
     fix: evaluation.passed ? 'none' : 'increase-cut-frequency',
     message: evaluation.passed
       ? `Cadence OK (median cut interval ${evaluation.medianCutIntervalSeconds.toFixed(2)}s)`
-      : `Cadence too slow (median cut interval ${evaluation.medianCutIntervalSeconds.toFixed(
-          2
-        )}s > ${evaluation.maxMedianCutIntervalSeconds}s)`,
+      : tooStatic
+        ? `Cadence too static (only ${evaluation.cutCount} cuts; needs at least ${minCutCount} to avoid a single-scene/default-background edit)`
+        : `Cadence too slow (median cut interval ${evaluation.medianCutIntervalSeconds.toFixed(
+            2
+          )}s > ${evaluation.maxMedianCutIntervalSeconds}s)`,
     details: {
       cutCount: evaluation.cutCount,
       medianCutIntervalSeconds: evaluation.medianCutIntervalSeconds,

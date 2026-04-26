@@ -101,7 +101,41 @@ describe('runAudioSignalGate', () => {
     );
 
     expect(result.passed).toBe(false);
+    expect(result.severity).toBe('warning');
     expect(result.message).toContain('too quiet');
+  });
+
+  it('fails with an error when audio is silent or near-silent', async () => {
+    const { runAudioSignalGate } = await import('../../../src/validate/audio-signal');
+    const result = runAudioSignalGate(
+      {
+        loudnessLUFS: -55,
+        truePeakDBFS: -52,
+        loudnessRange: 0.1,
+        clippingRatio: 0.0,
+        peakLevelDB: -48,
+        snrDB: 0,
+      },
+      {
+        id: 'portrait',
+        width: 1080,
+        height: 1920,
+        minDurationSeconds: 30,
+        maxDurationSeconds: 60,
+        container: 'mp4',
+        videoCodec: 'h264',
+        audioCodec: 'aac',
+        loudnessMinLUFS: -24,
+        loudnessMaxLUFS: -8,
+      }
+    );
+
+    expect(result.passed).toBe(false);
+    expect(result.severity).toBe('error');
+    expect(result.fix).toBe('regenerate-audio');
+    expect(result.message).toContain('silent or near-silent');
+    expect(result.message).toContain('integrated loudness');
+    expect(result.message).toContain('peak level');
   });
 
   it('fails when audio is too loud', async () => {

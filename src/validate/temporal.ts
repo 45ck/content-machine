@@ -19,8 +19,8 @@ export function runTemporalQualityGate(
   summary: TemporalQualitySummary,
   profile: ValidateProfile
 ): TemporalQualityGateResult {
-  const flickerMin = profile.flickerMin ?? 0.5;
-  const maxDuplicateFrameRatio = profile.maxDuplicateFrameRatio ?? 0.3;
+  const flickerMin = profile.flickerMin ?? 0.65;
+  const maxDuplicateFrameRatio = profile.maxDuplicateFrameRatio ?? 0.2;
 
   const flickerPassed = summary.flicker.score >= flickerMin;
   const dupPassed = summary.duplicateFrameRatio <= maxDuplicateFrameRatio;
@@ -31,13 +31,13 @@ export function runTemporalQualityGate(
     issues.push(`flicker score ${summary.flicker.score.toFixed(2)} < ${flickerMin}`);
   if (!dupPassed)
     issues.push(
-      `duplicate frame ratio ${(summary.duplicateFrameRatio * 100).toFixed(1)}% > ${(maxDuplicateFrameRatio * 100).toFixed(1)}%`
+      `duplicate frame ratio ${(summary.duplicateFrameRatio * 100).toFixed(1)}% > ${(maxDuplicateFrameRatio * 100).toFixed(1)}% (static/no-motion edit)`
     );
 
   return {
     gateId: 'temporal-quality',
     passed,
-    severity: 'warning',
+    severity: passed ? 'warning' : 'error',
     fix: passed ? 'none' : 'regenerate-video',
     message: passed
       ? `Temporal quality OK (flicker ${summary.flicker.score.toFixed(2)}, dup ratio ${(summary.duplicateFrameRatio * 100).toFixed(1)}%)`

@@ -1,5 +1,6 @@
 import argparse
 import json
+import math
 import subprocess
 import re
 from typing import Any, Dict
@@ -11,6 +12,14 @@ def _fail(message: str, details: Dict[str, Any] | None = None) -> None:
         payload["error"]["details"] = details
     print(json.dumps(payload))
     raise SystemExit(2)
+
+
+def _finite_float(value: Any, fallback: float) -> float:
+    try:
+        numeric = float(value)
+    except (TypeError, ValueError):
+        return fallback
+    return numeric if math.isfinite(numeric) else fallback
 
 
 def _loudness_via_ffmpeg(
@@ -47,13 +56,13 @@ def _loudness_via_ffmpeg(
 
     loudness = {}
     if "input_i" in data:
-        loudness["integratedLUFS"] = float(data["input_i"])
+        loudness["integratedLUFS"] = _finite_float(data["input_i"], -99.0)
     if "input_tp" in data:
-        loudness["truePeakDBFS"] = float(data["input_tp"])
+        loudness["truePeakDBFS"] = _finite_float(data["input_tp"], -99.0)
     if "input_lra" in data:
-        loudness["loudnessRange"] = float(data["input_lra"])
+        loudness["loudnessRange"] = _finite_float(data["input_lra"], 0.0)
     if "input_thresh" in data:
-        loudness["threshold"] = float(data["input_thresh"])
+        loudness["threshold"] = _finite_float(data["input_thresh"], -99.0)
 
     return loudness if loudness else None
 
@@ -92,12 +101,12 @@ def _detect_clipping(
     # Peak level
     match = re.search(r"Peak level dB:\s*([-\d.]+)", stderr)
     if match:
-        stats["peakLevelDB"] = float(match.group(1))
+        stats["peakLevelDB"] = _finite_float(match.group(1), -99.0)
 
     # Flat factor (consecutive identical samples — indicates clipping)
     match = re.search(r"Flat factor:\s*([\d.]+)", stderr)
     if match:
-        stats["flatFactor"] = float(match.group(1))
+        stats["flatFactor"] = _finite_float(match.group(1), 0.0)
 
     # Clipping ratio from peak count
     # Samples at or above 0 dBFS indicate clipping
@@ -141,7 +150,8 @@ def _snr_estimate(
         try:
             rms_db = float(rms_match.group(1))
             noise_db = float(noise_match.group(1))
-            return rms_db - noise_db
+            snr = rms_db - noise_db
+            return snr if math.isfinite(snr) else None
         except ValueError:
             return None
 

@@ -39,8 +39,8 @@ export function runFreezeGate(
   summary: FreezeSummary,
   options?: { maxFreezeRatio?: number; maxBlackRatio?: number }
 ): FreezeGateResult {
-  const maxFreezeRatio = options?.maxFreezeRatio ?? 0.15;
-  const maxBlackRatio = options?.maxBlackRatio ?? 0.05;
+  const maxFreezeRatio = options?.maxFreezeRatio ?? 0.08;
+  const maxBlackRatio = options?.maxBlackRatio ?? 0.02;
 
   const issues: string[] = [];
   if (summary.freezeRatio > maxFreezeRatio) {
@@ -59,11 +59,11 @@ export function runFreezeGate(
   return {
     gateId: 'freeze',
     passed,
-    severity: 'warning',
+    severity: passed ? 'warning' : 'error',
     fix: passed ? 'none' : 'regenerate-video',
     message: passed
       ? `Freeze detection OK (freeze ${(summary.freezeRatio * 100).toFixed(1)}%, black ${(summary.blackRatio * 100).toFixed(1)}%)`
-      : `Freeze issues: ${issues.join('; ')}`,
+      : `Freeze issues: ${issues.join('; ')} (static/default-background output likely)`,
     details: {
       freezeRatio: summary.freezeRatio,
       blackRatio: summary.blackRatio,

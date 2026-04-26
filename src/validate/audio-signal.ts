@@ -5,6 +5,13 @@ import { resolve } from 'node:path';
 import { resolveFfmpegPath } from '../core/video/ffmpeg';
 import { runPythonJson } from './python-json';
 
+const DEFAULT_LOUDNESS_MIN_LUFS = -24;
+const DEFAULT_LOUDNESS_MAX_LUFS = -8;
+const DEFAULT_MAX_CLIPPING_RATIO = 0.01;
+const DEFAULT_TRUE_PEAK_MAX_DBFS = -1;
+const CRITICAL_SILENCE_MAX_LOUDNESS_LUFS = -45;
+const CRITICAL_SILENCE_MAX_PEAK_LEVEL_DB = -35;
+
 export interface AudioSignalSummary {
   loudnessLUFS: number;
   truePeakDBFS: number;
@@ -23,12 +30,24 @@ export function runAudioSignalGate(
   summary: AudioSignalSummary,
   profile: ValidateProfile
 ): AudioSignalGateResult {
-  const loudnessMin = profile.loudnessMinLUFS ?? -24;
-  const loudnessMax = profile.loudnessMaxLUFS ?? -8;
-  const maxClippingRatio = profile.maxClippingRatio ?? 0.01;
-  const truePeakMax = profile.truePeakMaxDBFS ?? -1;
+  const loudnessMin = profile.loudnessMinLUFS ?? DEFAULT_LOUDNESS_MIN_LUFS;
+  const loudnessMax = profile.loudnessMaxLUFS ?? DEFAULT_LOUDNESS_MAX_LUFS;
+  const maxClippingRatio = profile.maxClippingRatio ?? DEFAULT_MAX_CLIPPING_RATIO;
+  const truePeakMax = profile.truePeakMaxDBFS ?? DEFAULT_TRUE_PEAK_MAX_DBFS;
 
   const issues: string[] = [];
+  const criticalIssues: string[] = [];
+
+  if (summary.loudnessLUFS <= CRITICAL_SILENCE_MAX_LOUDNESS_LUFS) {
+    criticalIssues.push(
+      `integrated loudness ${summary.loudnessLUFS.toFixed(1)} LUFS <= ${CRITICAL_SILENCE_MAX_LOUDNESS_LUFS} LUFS`
+    );
+  }
+  if (summary.peakLevelDB <= CRITICAL_SILENCE_MAX_PEAK_LEVEL_DB) {
+    criticalIssues.push(
+      `peak level ${summary.peakLevelDB.toFixed(1)} dB <= ${CRITICAL_SILENCE_MAX_PEAK_LEVEL_DB} dB`
+    );
+  }
 
   if (summary.loudnessLUFS < loudnessMin) {
     issues.push(
@@ -49,16 +68,21 @@ export function runAudioSignalGate(
     issues.push(`true peak ${summary.truePeakDBFS.toFixed(1)} dBFS > ${truePeakMax} dBFS`);
   }
 
-  const passed = issues.length === 0;
+  const allIssues = criticalIssues.length > 0 ? [...criticalIssues, ...issues] : issues;
+  const passed = allIssues.length === 0;
+  const severity = criticalIssues.length > 0 ? 'error' : 'warning';
+  const fix = passed ? 'none' : criticalIssues.length > 0 ? 'regenerate-audio' : 'remix-audio';
 
   return {
     gateId: 'audio-signal',
     passed,
-    severity: 'warning',
-    fix: passed ? 'none' : 'remix-audio',
+    severity,
+    fix,
     message: passed
       ? `Audio signal OK (${summary.loudnessLUFS.toFixed(1)} LUFS, peak ${summary.truePeakDBFS.toFixed(1)} dBFS)`
-      : `Audio signal issues: ${issues.join('; ')}`,
+      : criticalIssues.length > 0
+        ? `Audio signal failed: output is silent or near-silent (${allIssues.join('; ')})`
+        : `Audio signal issues: ${allIssues.join('; ')}`,
     details: {
       loudnessLUFS: summary.loudnessLUFS,
       truePeakDBFS: summary.truePeakDBFS,

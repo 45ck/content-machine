@@ -269,6 +269,21 @@ export async function runGenerateShort(request: GenerateShortRequest): Promise<
   await writeJsonArtifact(qualitySummaryPath, qualitySummary.summary);
   artifacts.push(artifactFile(qualitySummaryPath, 'Generate-short quality summary artifact'));
 
+  if (
+    normalized.publishPrep.enabled &&
+    normalized.publishPrep.requirePass &&
+    qualitySummary.qualityReady === false
+  ) {
+    throw new CMError(
+      'VALIDATION_ERROR',
+      'Visual or caption quality checks failed. Refusing to treat the generated short as ready.',
+      {
+        outputDir,
+        qualitySummaryPath,
+      }
+    );
+  }
+
   let publishPrepDir: string | null = null;
   let publishReady: boolean | null = null;
   if (normalized.publishPrep.enabled) {
