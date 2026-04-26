@@ -27,9 +27,9 @@ Current result snapshot:
 - `text-message-drama/` produced a real MP4 and real message-card
   assets, but the first Codex run fell back to local assembly after the
   packaged render path hit the browser-download trap
-- the scaffold now includes a checked-in cached-browser override in the
-  render request examples so future blackbox runs do not need to
-  rediscover that fix
+- the scaffold now includes a checked-in browser-resolution helper so
+  future blackbox runs can inject a cached browser path when one exists
+  without hardcoding this repo's warmed-up state
 
 Checked in here:
 

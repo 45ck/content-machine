@@ -17,8 +17,6 @@
   "captionPreset": "capcut",
   "captionMode": "chunk",
   "captionTimingOffsetMs": -100,
-  "browserExecutable": "../../../../node_modules/.remotion/chrome-headless-shell/linux64/chrome-headless-shell-linux64/chrome-headless-shell",
-  "chromeMode": "headless-shell",
   "captionAssStyle": {
     "karaoke": true,
     "fontName": "Arial",
