@@ -17,6 +17,7 @@ const CardSchema = z.object({
   title: z.string().min(1).optional(),
   body: z.string().min(1),
   footer: z.string().min(1).optional(),
+  awards: z.array(z.string().min(1)).max(5).optional(),
 });
 
 export const RedditStoryAssetsRequestSchema = z
@@ -31,6 +32,7 @@ export const RedditStoryAssetsRequestSchema = z
     title: z.string().min(1),
     upvotes: z.string().min(1).default('18.4k'),
     commentCount: z.string().min(1).default('2.1k'),
+    awards: z.array(z.string().min(1)).max(5).default([]),
     cards: z.array(CardSchema).min(1),
   })
   .strict();
@@ -93,6 +95,16 @@ function renderBadge(label: string, x: number, y: number, fill: string, textFill
   ].join('');
 }
 
+function renderAwardChip(label: string, x: number, y: number): string {
+  const width = Math.max(118, Math.min(240, 30 + label.length * 12));
+  return [
+    `<rect x="${x}" y="${y}" width="${width}" height="42" rx="21" fill="#22282C" stroke="#3A4147" stroke-width="1.5" />`,
+    `<text x="${x + 18}" y="${y + 28}" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="800" fill="#FFD166">${escapeXml(
+      label
+    )}</text>`,
+  ].join('');
+}
+
 function redditPalette(kind: z.infer<typeof CardKindEnum>) {
   switch (kind) {
     case 'post':
@@ -120,6 +132,7 @@ function renderCardSvg(
   const headerAuthor = card.author ?? request.author;
   const headerAge = card.age ?? request.age;
   const headerScore = card.score ?? request.upvotes;
+  const awards = card.awards ?? (card.kind === 'post' ? request.awards : []);
   const palette = redditPalette(card.kind);
   const title = card.title ?? (card.kind === 'post' ? request.title : '');
   const hasTitle = title.trim().length > 0;
@@ -129,10 +142,16 @@ function renderCardSvg(
   const footer = card.footer ?? `${request.commentCount} comments`;
 
   const titleStartY = 232;
+  const awardsY = hasTitle ? 346 : 232;
   const bodyStartY = hasTitle ? 364 : 320;
   const bodyLineHeight = hasTitle ? 44 : 56;
   const bodyFontSize = hasTitle ? 32 : 42;
   const bodyWeight = hasTitle ? 600 : 800;
+  const awardMarkup = awards
+    .slice(0, 3)
+    .map((award, index) => renderAwardChip(award, 96 + index * 172, awardsY))
+    .join('');
+  const effectiveBodyStartY = awards.length > 0 && hasTitle ? bodyStartY + 64 : bodyStartY;
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
@@ -179,10 +198,11 @@ function renderCardSvg(
         })
       : ''
   }
+  ${awardMarkup}
   ${renderMultilineText({
     text: bodyLines.join(' '),
     x: 96,
-    y: bodyStartY,
+    y: effectiveBodyStartY,
     maxChars: bodyMaxChars,
     lineHeight: bodyLineHeight,
     fontSize: bodyFontSize,

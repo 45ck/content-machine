@@ -23,6 +23,7 @@ describe('runRedditStoryAssets', () => {
     const result = await runRedditStoryAssets({
       outputDir: dir,
       title: "AITA for replacing my roommate's fake work setup?",
+      awards: ['Gold', 'Wholesome', 'Helpful'],
       cards: [
         {
           id: 'hook',
@@ -41,6 +42,7 @@ describe('runRedditStoryAssets', () => {
 
     expect(result.result.assets).toHaveLength(2);
     await expect(readFile(join(dir, 'hook.svg'), 'utf8')).resolves.toContain('ORIGINAL POST');
+    await expect(readFile(join(dir, 'hook.svg'), 'utf8')).resolves.toContain('Wholesome');
     await expect(readFile(join(dir, 'comment-1.svg'), 'utf8')).resolves.toContain('TOP COMMENT');
     await expect(readFile(result.result.manifestPath, 'utf8')).resolves.toContain('comment-1.svg');
   });

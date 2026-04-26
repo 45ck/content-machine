@@ -89,7 +89,31 @@ describe('caption export', () => {
     ]);
 
     expect(ass).toContain('Format: Layer, Start, End, Style, Text');
+    expect(ass).toContain('SecondaryColour');
     expect(ass).toContain('Dialogue: 0,0:00:01.20,0:00:02.50,Default,Use contracts\\Nnot vibes');
+  });
+
+  it('serializes caption segments as karaoke ASS when requested', () => {
+    const ass = formatAssCaptions(
+      [
+        {
+          text: 'Stop scrolling',
+          startMs: 1200,
+          endMs: 1900,
+          timestampMs: 1200,
+          confidence: null,
+          words: [
+            { text: 'Stop', startMs: 1200, endMs: 1450, confidence: 0.9 },
+            { text: 'scrolling', startMs: 1500, endMs: 1900, confidence: 0.8 },
+          ],
+        },
+      ],
+      { karaoke: true, marginV: 560 }
+    );
+
+    expect(ass).toContain('Style: Default,Arial,72,&H00FFFFFF,&H008A8A8A');
+    expect(ass).toContain(',80,80,560,1');
+    expect(ass).toContain('Dialogue: 0,0:00:01.20,0:00:01.90,Default,{\\k25}Stop {\\k40}scrolling');
   });
 
   it('reports segment-level readability issues', () => {

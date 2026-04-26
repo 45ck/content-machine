@@ -11,6 +11,7 @@ import {
 import { OrientationEnum } from '../core/config';
 import { createCaptionExport, formatAssCaptions, formatSrtCaptions } from '../render/captions';
 import { CAPTION_STYLE_PRESETS } from '../render/captions/presets';
+import { AssCaptionStyle } from '../render/captions/export';
 import { renderVideo } from '../render/service';
 import { readJsonArtifact, writeJsonArtifact } from './artifacts';
 import { artifactFile, type HarnessToolResult } from './json-stdio';
@@ -27,6 +28,22 @@ const CaptionPresetEnum = z.enum(
     ...Array<keyof typeof CAPTION_STYLE_PRESETS>,
   ]
 );
+
+const AssCaptionStyleSchema = z
+  .object({
+    fontName: z.string().min(1).optional(),
+    fontSize: z.number().int().positive().optional(),
+    primaryColor: z.string().min(1).optional(),
+    secondaryColor: z.string().min(1).optional(),
+    outlineColor: z.string().min(1).optional(),
+    backColor: z.string().min(1).optional(),
+    alignment: z.number().int().min(1).max(9).optional(),
+    marginL: z.number().int().nonnegative().optional(),
+    marginR: z.number().int().nonnegative().optional(),
+    marginV: z.number().int().nonnegative().optional(),
+    karaoke: z.boolean().optional(),
+  })
+  .strict();
 
 export const VideoRenderRequestSchema = z
   .object({
@@ -51,6 +68,7 @@ export const VideoRenderRequestSchema = z
     contentPosition: z.enum(['top', 'bottom', 'full']).optional(),
     captionPreset: CaptionPresetEnum.optional(),
     captionMode: z.enum(['page', 'single', 'buildup', 'chunk']).optional(),
+    captionAssStyle: AssCaptionStyleSchema.optional(),
     captionFontFamily: z.string().min(1).optional(),
     captionFontWeight: z
       .union([z.number().int().positive(), z.enum(['normal', 'bold', 'black'])])
@@ -152,7 +170,11 @@ export async function runVideoRender(request: VideoRenderRequest): Promise<
     await mkdir(dirname(captionExportPath), { recursive: true });
     await writeJsonArtifact(captionExportPath, captionExport);
     await writeFile(captionSrtPath, formatSrtCaptions(captionExport.segments), 'utf8');
-    await writeFile(captionAssPath, formatAssCaptions(captionExport.segments), 'utf8');
+    await writeFile(
+      captionAssPath,
+      formatAssCaptions(captionExport.segments, normalized.captionAssStyle as AssCaptionStyle),
+      'utf8'
+    );
     exportedCaptionJsonPath = captionExportPath;
     exportedCaptionSrtPath = captionSrtPath;
     exportedCaptionAssPath = captionAssPath;

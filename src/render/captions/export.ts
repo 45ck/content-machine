@@ -114,12 +114,14 @@ export interface AssCaptionStyle {
   fontName?: string;
   fontSize?: number;
   primaryColor?: string;
+  secondaryColor?: string;
   outlineColor?: string;
   backColor?: string;
   alignment?: number;
   marginL?: number;
   marginR?: number;
   marginV?: number;
+  karaoke?: boolean;
 }
 
 export interface CaptionSegmentQualityThresholds {
@@ -140,12 +142,14 @@ const DEFAULT_ASS_STYLE: Required<AssCaptionStyle> = {
   fontName: 'Arial',
   fontSize: 72,
   primaryColor: '&H00FFFFFF',
+  secondaryColor: '&H008A8A8A',
   outlineColor: '&H00000000',
   backColor: '&H64000000',
   alignment: 2,
   marginL: 80,
   marginR: 80,
   marginV: 220,
+  karaoke: false,
 };
 
 function toCaptionExportWords(
@@ -422,6 +426,23 @@ function escapeAssText(text: string): string {
   return normalizeSubtitleText(text).replace(/[{}]/g, '').replace(/\n/g, '\\N');
 }
 
+function buildAssKaraokeText(segment: CaptionSegment): string {
+  if (!segment.words.length) {
+    return escapeAssText(segment.text);
+  }
+
+  const parts: string[] = [];
+  for (const [index, word] of segment.words.entries()) {
+    const durationCs = Math.max(1, Math.round((word.endMs - word.startMs) / 10));
+    const safeWord = escapeAssText(word.text);
+    parts.push(`{\\k${durationCs}}${safeWord}`);
+    if (index < segment.words.length - 1) {
+      parts.push(' ');
+    }
+  }
+  return parts.join('');
+}
+
 export function formatSrtCaptions(segments: CaptionSegment[]): string {
   return segments
     .map((segment, index) =>
@@ -444,7 +465,7 @@ export function formatAssCaptions(
     (segment) =>
       `Dialogue: 0,${formatAssTime(segment.startMs)},${formatAssTime(
         segment.endMs
-      )},Default,${escapeAssText(segment.text)}`
+      )},Default,${style.karaoke ? buildAssKaraokeText(segment) : escapeAssText(segment.text)}`
   );
 
   return [
@@ -454,8 +475,8 @@ export function formatAssCaptions(
     'PlayResY: 1920',
     '',
     '[V4+ Styles]',
-    'Format: Name, Fontname, Fontsize, PrimaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding',
-    `Style: Default,${style.fontName},${style.fontSize},${style.primaryColor},${style.outlineColor},${style.backColor},1,0,0,0,100,100,0,0,1,4,0,${style.alignment},${style.marginL},${style.marginR},${style.marginV},1`,
+    'Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding',
+    `Style: Default,${style.fontName},${style.fontSize},${style.primaryColor},${style.secondaryColor},${style.outlineColor},${style.backColor},1,0,0,0,100,100,0,0,1,4,0,${style.alignment},${style.marginL},${style.marginR},${style.marginV},1`,
     '',
     '[Events]',
     'Format: Layer, Start, End, Style, Text',

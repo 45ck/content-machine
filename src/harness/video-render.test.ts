@@ -162,4 +162,50 @@ describe('runVideoRender', () => {
     expect(result.result.outputPath).toBe(outputPath);
     expect(result.result.outputMetadataPath).toBe(join(dir, 'render.json'));
   });
+
+  it('writes karaoke ASS captions with style overrides when requested', async () => {
+    const dir = await makeTempDir();
+    const visualsPath = join(dir, 'visuals.json');
+    const timestampsPath = join(dir, 'timestamps.json');
+    const audioPath = join(dir, 'audio.wav');
+    const outputPath = join(dir, 'karaoke.mp4');
+
+    await writeJsonArtifact(visualsPath, {
+      schemaVersion: '1.0.0',
+      scenes: [{ sceneId: 'scene-1', source: 'mock', assetPath: 'mock://asset', duration: 1 }],
+      totalAssets: 1,
+      fromUserFootage: 0,
+      fromStock: 1,
+      fromGenerated: 0,
+      fallbacks: 0,
+    });
+    await writeJsonArtifact(timestampsPath, {
+      schemaVersion: '1.0.0',
+      allWords: [
+        { word: 'Stop', start: 0, end: 0.25 },
+        { word: 'scrolling', start: 0.25, end: 0.65 },
+      ],
+      totalDuration: 1,
+      ttsEngine: 'mock',
+      asrEngine: 'mock',
+    });
+    await writeFile(audioPath, Buffer.alloc(0));
+
+    await runVideoRender({
+      visualsPath,
+      timestampsPath,
+      audioPath,
+      outputPath,
+      mock: true,
+      captionMode: 'page',
+      captionAssStyle: {
+        karaoke: true,
+        marginV: 560,
+      },
+    });
+
+    await expect(readFile(join(dir, 'captions.ass'), 'utf8')).resolves.toContain(
+      'Dialogue: 0,0:00:00.00,0:00:00.65,Default,{\\k25}Stop {\\k40}scrolling'
+    );
+  });
 });
