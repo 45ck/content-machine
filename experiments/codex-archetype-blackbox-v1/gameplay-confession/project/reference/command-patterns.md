@@ -8,7 +8,7 @@ export npm_config_script_shell=/bin/bash
 Install dependencies:
 
 ```bash
-npm install
+npm install --no-bin-links
 ```
 
 Then materialize the local skill pack:
@@ -21,6 +21,16 @@ cat <<'JSON' | node ./node_modules/@45ck/content-machine/agent/run-tool.mjs inst
 }
 JSON
 ```
+
+Visuals:
+
+- start from `reference/visuals.example.json`
+- replace every `/ABSOLUTE/PATH/TO/...` path with the real absolute path
+  inside this project
+- adjust scene durations, keywords, and `totalDuration` so they cover
+  the full spoken runtime from `outputs/work/audio/timestamps.json`
+- keep `gameplayClip.path` pointed at the local gameplay MP4
+- keep the top lane turning over every `2s` to `4s`
 
 Audio:
 
@@ -42,6 +52,9 @@ node reference/resolve-video-render-request.mjs | \
 
 The resolver injects `browserExecutable` and `chromeMode` only if it
 finds a cached Remotion browser in a common local location.
+
+Do not switch to ad hoc local render helpers. The experiment should use
+the shipped runner or explicitly report a packaged-runtime failure.
 
 Review:
 

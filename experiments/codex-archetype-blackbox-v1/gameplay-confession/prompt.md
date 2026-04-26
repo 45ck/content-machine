@@ -32,6 +32,8 @@ Hard rules:
 - do not use mock audio, mock visuals, or placeholder renders
 - do not accept silent audio
 - do not accept fallback-color or static dead backgrounds
+- do not create or use ad hoc fallback render helpers under `tools/`;
+  use the shipped runner and report runtime gaps honestly
 - do not waste time reading package internals beyond the shipped local
   skill files and `agent/run-tool.mjs`
 
@@ -42,6 +44,7 @@ Available local material after setup:
 - `package.json`
 - `reference/asset-manifest.json`
 - `reference/manual-script.example.json`
+- `reference/visuals.example.json`
 - `reference/video-render.request.example.json`
 - `reference/publish-prep.request.example.json`
 - `reference/resolve-video-render-request.mjs`
@@ -54,12 +57,13 @@ Preferred execution path:
    `export PATH="$HOME/.nvm/versions/node/v20.20.0/bin:$PATH"`
    and
    `export npm_config_script_shell=/bin/bash`
-2. run `npm install`
+2. run `npm install --no-bin-links`
 3. run the local skill-pack installer so `.content-machine/skills/`
    exists
 4. inspect only:
    `reference/reference-lane.md`,
    `reference/asset-manifest.json`,
+   `reference/visuals.example.json`,
    `reference/command-patterns.md`,
    `.content-machine/skills/gameplay-confession-short/SKILL.md`,
    `.content-machine/skills/script-to-audio/SKILL.md`,
@@ -68,8 +72,11 @@ Preferred execution path:
 5. write `outputs/work/script.json` in the same shape as
    `reference/manual-script.example.json`
 6. run `script-to-audio`
-7. write `outputs/work/visuals.json` to cover the full audio duration
-   using only `assets/top/*.mp4` and the gameplay clip
+7. write `outputs/work/visuals.json` by copying the shape from
+   `reference/visuals.example.json`, replacing placeholder paths with
+   real absolute local paths, and adjusting durations/keywords so the
+   scenes cover the full audio duration using only `assets/top/*.mp4`
+   and the gameplay clip
 8. run `video-render` using
    `reference/resolve-video-render-request.mjs`
 9. run `publish-prep` using

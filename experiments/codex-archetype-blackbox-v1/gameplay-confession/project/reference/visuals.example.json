@@ -1,0 +1,195 @@
+{
+  "schemaVersion": "1.1.0",
+  "scenes": [
+    {
+      "sceneId": "hook-1",
+      "source": "user-footage",
+      "assetPath": "/ABSOLUTE/PATH/TO/assets/top/seg-20-call-a.mp4",
+      "duration": 3.2,
+      "assetType": "video",
+      "motionStrategy": "none",
+      "motionApplied": false,
+      "matchReasoning": {
+        "reasoning": "Immediate conflict opener for the gameplay confession lane",
+        "conceptsMatched": [
+          "conflict-opener"
+        ]
+      }
+    },
+    {
+      "sceneId": "setup-2",
+      "source": "user-footage",
+      "assetPath": "/ABSOLUTE/PATH/TO/assets/top/seg-10-desk-a.mp4",
+      "duration": 3.0,
+      "assetType": "video",
+      "motionStrategy": "none",
+      "motionApplied": false,
+      "matchReasoning": {
+        "reasoning": "Desk setup beat",
+        "conceptsMatched": [
+          "setup"
+        ]
+      }
+    },
+    {
+      "sceneId": "setup-3",
+      "source": "user-footage",
+      "assetPath": "/ABSOLUTE/PATH/TO/assets/top/seg-11-desk-b.mp4",
+      "duration": 3.0,
+      "assetType": "video",
+      "motionStrategy": "none",
+      "motionApplied": false,
+      "matchReasoning": {
+        "reasoning": "Follow-up setup beat",
+        "conceptsMatched": [
+          "setup"
+        ]
+      }
+    },
+    {
+      "sceneId": "conflict-4",
+      "source": "user-footage",
+      "assetPath": "/ABSOLUTE/PATH/TO/assets/top/seg-21-call-b.mp4",
+      "duration": 2.8,
+      "assetType": "video",
+      "motionStrategy": "none",
+      "motionApplied": false,
+      "matchReasoning": {
+        "reasoning": "Escalation beat",
+        "conceptsMatched": [
+          "conflict"
+        ]
+      }
+    },
+    {
+      "sceneId": "reveal-5",
+      "source": "user-footage",
+      "assetPath": "/ABSOLUTE/PATH/TO/assets/top/seg-30-setup-a.mp4",
+      "duration": 3.0,
+      "assetType": "video",
+      "motionStrategy": "none",
+      "motionApplied": false,
+      "matchReasoning": {
+        "reasoning": "Reveal setup beat",
+        "conceptsMatched": [
+          "reveal"
+        ]
+      }
+    },
+    {
+      "sceneId": "panic-6",
+      "source": "user-footage",
+      "assetPath": "/ABSOLUTE/PATH/TO/assets/top/seg-40-panic-a.mp4",
+      "duration": 3.0,
+      "assetType": "video",
+      "motionStrategy": "none",
+      "motionApplied": false,
+      "matchReasoning": {
+        "reasoning": "Panic beat",
+        "conceptsMatched": [
+          "panic"
+        ]
+      }
+    },
+    {
+      "sceneId": "aftermath-7",
+      "source": "user-footage",
+      "assetPath": "/ABSOLUTE/PATH/TO/assets/top/seg-50-aftermath-a.mp4",
+      "duration": 3.0,
+      "assetType": "video",
+      "motionStrategy": "none",
+      "motionApplied": false,
+      "matchReasoning": {
+        "reasoning": "Aftermath beat",
+        "conceptsMatched": [
+          "aftermath"
+        ]
+      }
+    },
+    {
+      "sceneId": "cta-8",
+      "source": "user-footage",
+      "assetPath": "/ABSOLUTE/PATH/TO/assets/top/seg-60-cta.mp4",
+      "duration": 2.7,
+      "assetType": "video",
+      "motionStrategy": "none",
+      "motionApplied": false,
+      "matchReasoning": {
+        "reasoning": "Judgment bait closer",
+        "conceptsMatched": [
+          "cta"
+        ]
+      }
+    }
+  ],
+  "totalAssets": 8,
+  "fromUserFootage": 8,
+  "fromStock": 0,
+  "fallbacks": 0,
+  "fromGenerated": 0,
+  "totalGenerationCost": 0,
+  "motionStrategy": "none",
+  "gameplayClip": {
+    "path": "/ABSOLUTE/PATH/TO/assets/gameplay/subway.mp4",
+    "duration": 58.1,
+    "width": 1080,
+    "height": 960,
+    "style": "subway-surfers"
+  },
+  "providerRoutingPolicy": "configured",
+  "providerChain": [
+    "manual-local-assets"
+  ],
+  "policyGates": [],
+  "keywords": [
+    {
+      "keyword": "conflict opener",
+      "sectionId": "hook-1",
+      "startTime": 0,
+      "endTime": 3.2
+    },
+    {
+      "keyword": "setup",
+      "sectionId": "setup-2",
+      "startTime": 3.2,
+      "endTime": 6.2
+    },
+    {
+      "keyword": "setup followup",
+      "sectionId": "setup-3",
+      "startTime": 6.2,
+      "endTime": 9.2
+    },
+    {
+      "keyword": "conflict",
+      "sectionId": "conflict-4",
+      "startTime": 9.2,
+      "endTime": 12
+    },
+    {
+      "keyword": "reveal",
+      "sectionId": "reveal-5",
+      "startTime": 12,
+      "endTime": 15
+    },
+    {
+      "keyword": "panic",
+      "sectionId": "panic-6",
+      "startTime": 15,
+      "endTime": 18
+    },
+    {
+      "keyword": "aftermath",
+      "sectionId": "aftermath-7",
+      "startTime": 18,
+      "endTime": 21
+    },
+    {
+      "keyword": "cta",
+      "sectionId": "cta-8",
+      "startTime": 21,
+      "endTime": 23.7
+    }
+  ],
+  "totalDuration": 23.7
+}

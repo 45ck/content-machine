@@ -1,0 +1,195 @@
+{
+  "schemaVersion": "1.1.0",
+  "scenes": [
+    {
+      "sceneId": "card-01-hook",
+      "source": "user-footage",
+      "assetPath": "/ABSOLUTE/PATH/TO/assets/messages/card-01-hook.svg",
+      "duration": 4.0,
+      "assetType": "image",
+      "motionStrategy": "kenburns",
+      "motionApplied": false,
+      "matchReasoning": {
+        "reasoning": "Suspicion opener card",
+        "conceptsMatched": [
+          "message-hook"
+        ]
+      }
+    },
+    {
+      "sceneId": "card-02-reply",
+      "source": "user-footage",
+      "assetPath": "/ABSOLUTE/PATH/TO/assets/messages/card-02-reply.svg",
+      "duration": 3.5,
+      "assetType": "image",
+      "motionStrategy": "kenburns",
+      "motionApplied": false,
+      "matchReasoning": {
+        "reasoning": "Reply beat",
+        "conceptsMatched": [
+          "message-reply"
+        ]
+      }
+    },
+    {
+      "sceneId": "card-03-unsent",
+      "source": "user-footage",
+      "assetPath": "/ABSOLUTE/PATH/TO/assets/messages/card-03-unsent.svg",
+      "duration": 3.5,
+      "assetType": "image",
+      "motionStrategy": "kenburns",
+      "motionApplied": false,
+      "matchReasoning": {
+        "reasoning": "Unsent tension beat",
+        "conceptsMatched": [
+          "unsent"
+        ]
+      }
+    },
+    {
+      "sceneId": "card-04-receipt",
+      "source": "user-footage",
+      "assetPath": "/ABSOLUTE/PATH/TO/assets/messages/card-04-receipt.svg",
+      "duration": 4.0,
+      "assetType": "image",
+      "motionStrategy": "kenburns",
+      "motionApplied": false,
+      "matchReasoning": {
+        "reasoning": "Receipt drop",
+        "conceptsMatched": [
+          "receipt"
+        ]
+      }
+    },
+    {
+      "sceneId": "card-05-clapback",
+      "source": "user-footage",
+      "assetPath": "/ABSOLUTE/PATH/TO/assets/messages/card-05-clapback.svg",
+      "duration": 3.5,
+      "assetType": "image",
+      "motionStrategy": "kenburns",
+      "motionApplied": false,
+      "matchReasoning": {
+        "reasoning": "Clapback beat",
+        "conceptsMatched": [
+          "clapback"
+        ]
+      }
+    },
+    {
+      "sceneId": "card-06-bribe",
+      "source": "user-footage",
+      "assetPath": "/ABSOLUTE/PATH/TO/assets/messages/card-06-bribe.svg",
+      "duration": 3.5,
+      "assetType": "image",
+      "motionStrategy": "kenburns",
+      "motionApplied": false,
+      "matchReasoning": {
+        "reasoning": "Bribe or excuse beat",
+        "conceptsMatched": [
+          "excuse"
+        ]
+      }
+    },
+    {
+      "sceneId": "card-07-sister",
+      "source": "user-footage",
+      "assetPath": "/ABSOLUTE/PATH/TO/assets/messages/card-07-sister.svg",
+      "duration": 3.5,
+      "assetType": "image",
+      "motionStrategy": "kenburns",
+      "motionApplied": false,
+      "matchReasoning": {
+        "reasoning": "Escalation beat",
+        "conceptsMatched": [
+          "escalation"
+        ]
+      }
+    },
+    {
+      "sceneId": "card-08-judgment",
+      "source": "user-footage",
+      "assetPath": "/ABSOLUTE/PATH/TO/assets/messages/card-08-judgment.svg",
+      "duration": 4.0,
+      "assetType": "image",
+      "motionStrategy": "kenburns",
+      "motionApplied": false,
+      "matchReasoning": {
+        "reasoning": "Judgment bait closer",
+        "conceptsMatched": [
+          "judgment"
+        ]
+      }
+    }
+  ],
+  "totalAssets": 8,
+  "fromUserFootage": 8,
+  "fromStock": 0,
+  "fallbacks": 0,
+  "fromGenerated": 0,
+  "totalGenerationCost": 0,
+  "motionStrategy": "kenburns",
+  "gameplayClip": {
+    "path": "/ABSOLUTE/PATH/TO/assets/gameplay/subway.mp4",
+    "duration": 58.1,
+    "width": 1080,
+    "height": 960,
+    "style": "subway-surfers"
+  },
+  "providerRoutingPolicy": "configured",
+  "providerChain": [
+    "manual-message-assets"
+  ],
+  "policyGates": [],
+  "keywords": [
+    {
+      "keyword": "hook",
+      "sectionId": "card-01-hook",
+      "startTime": 0,
+      "endTime": 4
+    },
+    {
+      "keyword": "reply",
+      "sectionId": "card-02-reply",
+      "startTime": 4,
+      "endTime": 7.5
+    },
+    {
+      "keyword": "unsent",
+      "sectionId": "card-03-unsent",
+      "startTime": 7.5,
+      "endTime": 11
+    },
+    {
+      "keyword": "receipt",
+      "sectionId": "card-04-receipt",
+      "startTime": 11,
+      "endTime": 15
+    },
+    {
+      "keyword": "clapback",
+      "sectionId": "card-05-clapback",
+      "startTime": 15,
+      "endTime": 18.5
+    },
+    {
+      "keyword": "excuse",
+      "sectionId": "card-06-bribe",
+      "startTime": 18.5,
+      "endTime": 22
+    },
+    {
+      "keyword": "escalation",
+      "sectionId": "card-07-sister",
+      "startTime": 22,
+      "endTime": 25.5
+    },
+    {
+      "keyword": "judgment",
+      "sectionId": "card-08-judgment",
+      "startTime": 25.5,
+      "endTime": 29.5
+    }
+  ],
+  "totalDuration": 29.5
+}

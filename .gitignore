@@ -87,6 +87,8 @@ archive/legacy-cli/templates/
 # Experiments (output artifacts)
 experiments/**/results/
 experiments/**/*.json
+!experiments/codex-archetype-blackbox-v1/gameplay-confession/project/reference/visuals.example.json
+!experiments/codex-archetype-blackbox-v1/text-message-drama/project/reference/visuals.example.json
 
 # Scratch files
 stash_out.txt
