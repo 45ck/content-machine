@@ -50,6 +50,10 @@ Start here:
 - [reddit-story-short skill](skills/reddit-story-short/SKILL.md)
 - [reddit-card-overlay skill](skills/reddit-card-overlay/SKILL.md)
 
+<p align="center">
+  <video src="docs/demo/demo-8-reddit-story-split-screen.mp4" controls muted playsinline loop width="280"></video>
+</p>
+
 ## Current Focus
 
 Content Machine is not trying to be a giant all-in-one video app. The
@@ -65,9 +69,9 @@ well:
 Read the current build plan:
 [Short-Form Roadmap](docs/direction/07-short-form-roadmap-20260424.md).
 
-The current canonical local render for that lane is:
+Tracked preview clip:
 
-- [`experiments/reddit-story-reference-style-v4/final/video.mp4`](experiments/reddit-story-reference-style-v4/final/video.mp4)
+- [docs/demo/demo-8-reddit-story-split-screen.mp4](docs/demo/demo-8-reddit-story-split-screen.mp4)
 
 > Early development. Skills, flows, and runtime scripts are now the
 > primary interface. The legacy CLI control plane has been moved into

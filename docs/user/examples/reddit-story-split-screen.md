@@ -8,9 +8,13 @@ story short:
 - Subway Surfers gameplay on the bottom half
 - captions overlaid near the midpoint between lanes
 
-The current local reference render is:
+Tracked preview clip:
 
-- [`experiments/reddit-story-reference-style-v4/final/video.mp4`](../../../experiments/reddit-story-reference-style-v4/final/video.mp4)
+- [demo-8-reddit-story-split-screen.mp4](../../demo/demo-8-reddit-story-split-screen.mp4)
+
+<p align="center">
+  <video src="../../demo/demo-8-reddit-story-split-screen.mp4" controls muted playsinline loop width="280"></video>
+</p>
 
 The isolated empty-project Codex evaluation scaffold is:
 
