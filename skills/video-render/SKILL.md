@@ -51,6 +51,8 @@ outputs:
 
 ## What This Skill Owns
 
+- Final composition decisions in collaboration with
+  [`short-form-production-playbook`](../short-form-production-playbook/SKILL.md).
 - Final caption treatment selection in collaboration with
   [`short-form-captions`](../short-form-captions/SKILL.md).
 - Composition choices such as orientation, pacing feel, overlays, and
@@ -70,13 +72,31 @@ outputs:
 
 1. Confirm the visuals are caption-clean. Rendering is not the place to
    hide pre-existing text burned into source footage.
-2. Choose the closest caption family from
+2. If the edit still needs judgment on pacing, hook support, shot
+   variation, or assembly choices, read
+   [`short-form-production-playbook`](../short-form-production-playbook/SKILL.md)
+   before touching render options.
+3. Choose the closest caption family from
    [`short-form-captions`](../short-form-captions/SKILL.md).
-3. Keep layout readable before adding more styling. Chunk size, line
+4. Keep layout readable before adding more styling. Chunk size, line
    count, and placement matter more than decorative motion.
-4. Use the repo caption presets as the baseline and then override only
+5. Use the repo caption presets as the baseline and then override only
    the specific fields the brief actually needs.
-5. Render and inspect the actual MP4. Do not trust config alone.
+6. Render and inspect the actual MP4. Do not trust config alone.
+
+## Split-Screen Rules
+
+- For Reddit-story or gameplay-backed split-screen work, default to a
+  true `50/50` vertical split unless the brief has a stronger reason not
+  to.
+- Treat each lane as its own frame. Fit media inside that lane first,
+  then pad if necessary. Do not use crop-fill as the default in split
+  lanes, because it silently chops off the actual subject.
+- If captions belong on the seam between the two lanes, overlay them at
+  the midpoint instead of inserting a dedicated caption band.
+- For OCR-reviewable exports, prefer full-line active-word highlighting
+  over progressive reveal burns when you need stable rendered caption
+  verification.
 
 ## Technical Surface
 

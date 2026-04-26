@@ -122,6 +122,8 @@ export interface AssCaptionStyle {
   marginR?: number;
   marginV?: number;
   karaoke?: boolean;
+  positionX?: number;
+  positionY?: number;
 }
 
 export interface CaptionSegmentQualityThresholds {
@@ -150,6 +152,8 @@ const DEFAULT_ASS_STYLE: Required<AssCaptionStyle> = {
   marginR: 80,
   marginV: 220,
   karaoke: false,
+  positionX: 0,
+  positionY: 0,
 };
 
 function toCaptionExportWords(
@@ -426,21 +430,50 @@ function escapeAssText(text: string): string {
   return normalizeSubtitleText(text).replace(/[{}]/g, '').replace(/\n/g, '\\N');
 }
 
-function buildAssKaraokeText(segment: CaptionSegment): string {
+function escapeAssTextPreserveSpaces(text: string): string {
+  return escapeAssText(text).replaceAll(' ', '\\h');
+}
+
+function wrapAssStyle(text: string, tags: string): string {
+  return `{${tags}}${text}{\\r}`;
+}
+
+function buildAssPositionPrefix(style: Required<AssCaptionStyle>): string {
+  if (style.positionX <= 0 || style.positionY <= 0) return '';
+  return `{\\pos(${style.positionX},${style.positionY})}`;
+}
+
+function buildAssActiveWordFrames(
+  segment: CaptionSegment,
+  style: Required<AssCaptionStyle>
+): Array<{ startMs: number; endMs: number; text: string }> {
   if (!segment.words.length) {
-    return escapeAssText(segment.text);
+    return [{ startMs: segment.startMs, endMs: segment.endMs, text: escapeAssText(segment.text) }];
   }
 
-  const parts: string[] = [];
-  for (const [index, word] of segment.words.entries()) {
-    const durationCs = Math.max(1, Math.round((word.endMs - word.startMs) / 10));
-    const safeWord = escapeAssText(word.text);
-    parts.push(`{\\k${durationCs}}${safeWord}`);
-    if (index < segment.words.length - 1) {
-      parts.push(' ');
-    }
-  }
-  return parts.join('');
+  return segment.words.map((word, index) => {
+    const nextWord = segment.words[index + 1];
+    const startMs = Math.max(segment.startMs, word.startMs);
+    const endMs = Math.max(startMs + 1, nextWord?.startMs ?? segment.endMs);
+    const text = segment.words
+      .map((candidate) => {
+        const escaped = escapeAssTextPreserveSpaces(candidate.text);
+        if (candidate === word) {
+          return wrapAssStyle(
+            escaped,
+            `\\c${style.primaryColor}\\3c${style.outlineColor}\\bord4\\1a&H00&`
+          );
+        }
+
+        return wrapAssStyle(
+          escaped,
+          `\\c${style.secondaryColor}\\3c${style.outlineColor}\\bord4\\1a&H00&`
+        );
+      })
+      .join('\\h');
+
+    return { startMs, endMs, text };
+  });
 }
 
 export function formatSrtCaptions(segments: CaptionSegment[]): string {
@@ -461,12 +494,22 @@ export function formatAssCaptions(
   styleOverrides: AssCaptionStyle = {}
 ): string {
   const style = { ...DEFAULT_ASS_STYLE, ...styleOverrides };
-  const events = segments.map(
-    (segment) =>
-      `Dialogue: 0,${formatAssTime(segment.startMs)},${formatAssTime(
-        segment.endMs
-      )},Default,${style.karaoke ? buildAssKaraokeText(segment) : escapeAssText(segment.text)}`
-  );
+  const events = segments.flatMap((segment) => {
+    if (!style.karaoke) {
+      return [
+        `Dialogue: 0,${formatAssTime(segment.startMs)},${formatAssTime(segment.endMs)},Default,${buildAssPositionPrefix(
+          style
+        )}${escapeAssText(segment.text)}`,
+      ];
+    }
+
+    return buildAssActiveWordFrames(segment, style).map(
+      (frame) =>
+        `Dialogue: 0,${formatAssTime(frame.startMs)},${formatAssTime(frame.endMs)},Default,${buildAssPositionPrefix(
+          style
+        )}${frame.text}`
+    );
+  });
 
   return [
     '[Script Info]',

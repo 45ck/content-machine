@@ -1,0 +1,29 @@
+{
+  "visualsPath": "experiments/reddit-story-reference-style-v3/inputs/generated-visuals.json",
+  "timestampsPath": "experiments/reddit-story-reference-style-v4/inputs/timestamps.json",
+  "audioPath": "experiments/reddit-story-reference-style-v4/inputs/audio.wav",
+  "outputPath": "experiments/reddit-story-reference-style-v4/final/placeholder.mp4",
+  "outputMetadataPath": "experiments/reddit-story-reference-style-v4/final/placeholder-render.json",
+  "captionExportPath": "experiments/reddit-story-reference-style-v4/final/captions.remotion.json",
+  "captionSrtPath": "experiments/reddit-story-reference-style-v4/final/captions.srt",
+  "captionAssPath": "experiments/reddit-story-reference-style-v4/final/captions.ass",
+  "orientation": "portrait",
+  "fps": 30,
+  "downloadAssets": false,
+  "mock": true,
+  "mockRenderMode": "placeholder",
+  "captionMode": "chunk",
+  "captionTimingOffsetMs": -100,
+  "captionAssStyle": {
+    "karaoke": true,
+    "fontName": "Arial",
+    "fontSize": 48,
+    "primaryColor": "&H00FFFFFF",
+    "secondaryColor": "&H009A9A9A",
+    "outlineColor": "&H00000000",
+    "backColor": "&H64000000",
+    "alignment": 5,
+    "positionX": 540,
+    "positionY": 1030
+  }
+}

@@ -201,11 +201,57 @@ describe('runVideoRender', () => {
       captionAssStyle: {
         karaoke: true,
         marginV: 560,
+        positionX: 540,
+        positionY: 960,
       },
     });
 
     await expect(readFile(join(dir, 'captions.ass'), 'utf8')).resolves.toContain(
-      'Dialogue: 0,0:00:00.00,0:00:00.65,Default,{\\k25}Stop {\\k40}scrolling'
+      'Dialogue: 0,0:00:00.00,0:00:00.25,Default,{\\pos(540,960)}{\\c&H00FFFFFF\\3c&H00000000\\bord4\\1a&H00&}Stop{\\r}\\h{\\c&H008A8A8A\\3c&H00000000\\bord4\\1a&H00&}scrolling{\\r}'
     );
+  });
+
+  it('applies caption timing offsets to exported sidecars', async () => {
+    const dir = await makeTempDir();
+    const visualsPath = join(dir, 'visuals.json');
+    const timestampsPath = join(dir, 'timestamps.json');
+    const audioPath = join(dir, 'audio.wav');
+    const outputPath = join(dir, 'offset.mp4');
+
+    await writeJsonArtifact(visualsPath, {
+      schemaVersion: '1.0.0',
+      scenes: [{ sceneId: 'scene-1', source: 'mock', assetPath: 'mock://asset', duration: 1 }],
+      totalAssets: 1,
+      fromUserFootage: 0,
+      fromStock: 1,
+      fromGenerated: 0,
+      fallbacks: 0,
+    });
+    await writeJsonArtifact(timestampsPath, {
+      schemaVersion: '1.0.0',
+      allWords: [{ word: 'offset', start: 0.5, end: 0.9 }],
+      totalDuration: 1,
+      ttsEngine: 'mock',
+      asrEngine: 'mock',
+    });
+    await writeFile(audioPath, Buffer.alloc(0));
+
+    await runVideoRender({
+      visualsPath,
+      timestampsPath,
+      audioPath,
+      outputPath,
+      mock: true,
+      captionTimingOffsetMs: -250,
+    });
+
+    const captionExport = JSON.parse(
+      await readFile(join(dir, 'captions.remotion.json'), 'utf8')
+    ) as {
+      captions: Array<{ text: string; startMs: number; endMs: number }>;
+    };
+    expect(captionExport.captions).toEqual([
+      expect.objectContaining({ text: 'offset', startMs: 250, endMs: 650 }),
+    ]);
   });
 });

@@ -108,12 +108,17 @@ describe('caption export', () => {
           ],
         },
       ],
-      { karaoke: true, marginV: 560 }
+      { karaoke: true, marginV: 560, positionX: 540, positionY: 960 }
     );
 
     expect(ass).toContain('Style: Default,Arial,72,&H00FFFFFF,&H008A8A8A');
     expect(ass).toContain(',80,80,560,1');
-    expect(ass).toContain('Dialogue: 0,0:00:01.20,0:00:01.90,Default,{\\k25}Stop {\\k40}scrolling');
+    expect(ass).toContain(
+      'Dialogue: 0,0:00:01.20,0:00:01.50,Default,{\\pos(540,960)}{\\c&H00FFFFFF\\3c&H00000000\\bord4\\1a&H00&}Stop{\\r}\\h{\\c&H008A8A8A\\3c&H00000000\\bord4\\1a&H00&}scrolling{\\r}'
+    );
+    expect(ass).toContain(
+      'Dialogue: 0,0:00:01.50,0:00:01.90,Default,{\\pos(540,960)}{\\c&H008A8A8A\\3c&H00000000\\bord4\\1a&H00&}Stop{\\r}\\h{\\c&H00FFFFFF\\3c&H00000000\\bord4\\1a&H00&}scrolling{\\r}'
+    );
   });
 
   it('reports segment-level readability issues', () => {

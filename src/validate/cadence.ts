@@ -71,9 +71,13 @@ export async function detectSceneCutsWithFfmpeg(params: {
   videoPath: string;
   threshold?: number;
   timeoutMs?: number;
+  cropFilter?: string;
 }): Promise<number[]> {
   const threshold = params.threshold ?? 0.3;
   const timeoutMs = params.timeoutMs ?? 30_000;
+  const filter = params.cropFilter
+    ? `${params.cropFilter},select='gt(scene\\,${threshold})',showinfo`
+    : `select='gt(scene\\,${threshold})',showinfo`;
 
   try {
     const { stderr } = await execFileWithOutput(
@@ -83,7 +87,7 @@ export async function detectSceneCutsWithFfmpeg(params: {
         '-i',
         params.videoPath,
         '-vf',
-        `select='gt(scene\\,${threshold})',showinfo`,
+        filter,
         '-f',
         'null',
         '-',
@@ -126,22 +130,75 @@ export async function runCadenceGate(
   const maxMedian = options?.maxMedianCutIntervalSeconds ?? 3;
   const minCutCount = options?.minCutCount ?? 2;
   const engine = options?.engine ?? 'ffmpeg';
-  const cutTimes =
-    engine === 'pyscenedetect'
-      ? await detectSceneCutsWithPySceneDetect({
+  const evaluations: CadenceEvaluation[] = [];
+
+  if (engine === 'pyscenedetect') {
+    const cutTimes = await detectSceneCutsWithPySceneDetect({
+      videoPath: info.path,
+      pythonPath: options?.pythonPath,
+      threshold: options?.threshold,
+    });
+    evaluations.push(
+      evaluateCadence({
+        durationSeconds: info.durationSeconds,
+        cutTimesSeconds: cutTimes,
+        maxMedianCutIntervalSeconds: maxMedian,
+        minCutCount,
+      })
+    );
+  } else {
+    const fullFrameCuts = await detectSceneCutsWithFfmpeg({
+      videoPath: info.path,
+      threshold: options?.threshold,
+    });
+    evaluations.push(
+      evaluateCadence({
+        durationSeconds: info.durationSeconds,
+        cutTimesSeconds: fullFrameCuts,
+        maxMedianCutIntervalSeconds: maxMedian,
+        minCutCount,
+      })
+    );
+
+    if (evaluations[0] && evaluations[0].cutCount < minCutCount) {
+      const halfHeight = `floor(ih/2)`;
+      const [topCuts, bottomCuts] = await Promise.all([
+        detectSceneCutsWithFfmpeg({
           videoPath: info.path,
-          pythonPath: options?.pythonPath,
           threshold: options?.threshold,
+          cropFilter: `crop=iw:${halfHeight}:0:0`,
+        }),
+        detectSceneCutsWithFfmpeg({
+          videoPath: info.path,
+          threshold: options?.threshold,
+          cropFilter: `crop=iw:${halfHeight}:0:${halfHeight}`,
+        }),
+      ]);
+      evaluations.push(
+        evaluateCadence({
+          durationSeconds: info.durationSeconds,
+          cutTimesSeconds: topCuts,
+          maxMedianCutIntervalSeconds: maxMedian,
+          minCutCount,
+        }),
+        evaluateCadence({
+          durationSeconds: info.durationSeconds,
+          cutTimesSeconds: bottomCuts,
+          maxMedianCutIntervalSeconds: maxMedian,
+          minCutCount,
         })
-      : await detectSceneCutsWithFfmpeg({
-          videoPath: info.path,
-          threshold: options?.threshold,
-        });
-  const evaluation = evaluateCadence({
-    durationSeconds: info.durationSeconds,
-    cutTimesSeconds: cutTimes,
-    maxMedianCutIntervalSeconds: maxMedian,
-    minCutCount,
+      );
+    }
+  }
+
+  const evaluation = evaluations.reduce((best, candidate) => {
+    if (candidate.passed !== best.passed) {
+      return candidate.passed ? candidate : best;
+    }
+    if (candidate.cutCount !== best.cutCount) {
+      return candidate.cutCount > best.cutCount ? candidate : best;
+    }
+    return candidate.medianCutIntervalSeconds < best.medianCutIntervalSeconds ? candidate : best;
   });
   const tooStatic = evaluation.cutCount < minCutCount;
 

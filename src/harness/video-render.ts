@@ -42,6 +42,8 @@ const AssCaptionStyleSchema = z
     marginR: z.number().int().nonnegative().optional(),
     marginV: z.number().int().nonnegative().optional(),
     karaoke: z.boolean().optional(),
+    positionX: z.number().int().positive().optional(),
+    positionY: z.number().int().positive().optional(),
   })
   .strict();
 
@@ -68,6 +70,7 @@ export const VideoRenderRequestSchema = z
     contentPosition: z.enum(['top', 'bottom', 'full']).optional(),
     captionPreset: CaptionPresetEnum.optional(),
     captionMode: z.enum(['page', 'single', 'buildup', 'chunk']).optional(),
+    captionTimingOffsetMs: z.number().int().min(-2000).max(2000).optional(),
     captionAssStyle: AssCaptionStyleSchema.optional(),
     captionFontFamily: z.string().min(1).optional(),
     captionFontWeight: z
@@ -162,8 +165,14 @@ export async function runVideoRender(request: VideoRenderRequest): Promise<
   let captionQualityScore: number | null = null;
 
   if (normalized.exportCaptions) {
+    const captionTimingOffsetMs =
+      normalized.captionTimingOffsetMs ??
+      (normalized.captionPreset
+        ? (CAPTION_STYLE_PRESETS[normalized.captionPreset]?.timingOffsetMs ?? 0)
+        : 0);
     const captionExport = createCaptionExport(timestamps.allWords, {
       mode: normalized.captionMode === 'page' ? 'page' : 'chunk',
+      timingOffsetMs: captionTimingOffsetMs,
     });
     captionQualityPassed = captionExport.quality.passed;
     captionQualityScore = captionExport.quality.score;

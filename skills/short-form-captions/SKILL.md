@@ -63,6 +63,11 @@ layout, emphasis, and motion choices.
   demands impact.
 - Bottom captions are default, but they still need enough edge distance
   to survive platform chrome.
+- In top/bottom split-screen layouts, midpoint overlay captions are
+  valid. A dedicated black seam is optional, not required.
+- If midpoint overlay captions sit on moving footage, increase stroke,
+  shadow, and highlight contrast before resorting to a separate caption
+  band.
 - Use background-pill highlighting when the active word must snap
   instantly. Use color-only highlighting when the frame is already busy.
 - Uppercase increases punch but also visual load. Use it where energy
@@ -109,6 +114,8 @@ what this repo already borrowed from other short-form caption systems.
 - The style matches neither the content nor the platform.
 - The captions are technically in sync but feel late because the visual
   emphasis lands after the spoken punch.
+- The export style reveals only fragments of the line, which makes OCR
+  validation and visual sync checks much less trustworthy.
 
 ## Validation Checklist
 

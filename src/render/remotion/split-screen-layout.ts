@@ -13,7 +13,7 @@ export interface SplitRect {
 
 export interface SplitScreenLayoutInput {
   height: number;
-  /** Height ratio for the top slot (0.3..0.7). Defaults to 0.55. */
+  /** Height ratio for the top slot (0.3..0.7). Defaults to 0.5. */
   ratio?: number;
   contentPosition?: SplitScreenPosition;
   gameplayPosition?: SplitScreenPosition;
@@ -44,7 +44,7 @@ function clampRatio(value: number, min: number, max: number): number {
 }
 
 export function computeSplitScreenLayout(input: SplitScreenLayoutInput): SplitScreenLayoutResult {
-  const ratio = clampRatio(input.ratio ?? 0.55, 0.3, 0.7);
+  const ratio = clampRatio(input.ratio ?? 0.5, 0.3, 0.7);
   const resolvedContentPosition: SplitScreenPosition = input.contentPosition ?? 'top';
   const resolvedGameplayPosition: SplitScreenPosition =
     input.gameplayPosition ?? (resolvedContentPosition === 'bottom' ? 'top' : 'bottom');

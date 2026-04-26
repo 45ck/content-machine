@@ -57,7 +57,7 @@ export const SplitScreenGameplay: React.FC<RenderProps> = ({
     () =>
       computeSplitScreenLayout({
         height,
-        ratio: splitScreenRatio ?? 0.55,
+        ratio: splitScreenRatio ?? 0.5,
         contentPosition,
         gameplayPosition,
       }),
@@ -70,6 +70,15 @@ export const SplitScreenGameplay: React.FC<RenderProps> = ({
   const contentTop = layout.content.top;
   const gameplayHeight = layout.gameplay.height;
   const gameplayTop = layout.gameplay.top;
+  const splitMediaStyle = useMemo<React.CSSProperties>(
+    () => ({
+      width: '100%',
+      height: '100%',
+      objectFit: !isContentFull && !isGameplayFull ? 'contain' : 'cover',
+      backgroundColor: '#000000',
+    }),
+    [isContentFull, isGameplayFull]
+  );
   const hookDuration = hook?.duration ?? 0;
   const contentDuration = Math.max(0, totalDuration - hookDuration);
   const durationMs = Math.max(0, Math.round(contentDuration * 1000));
@@ -105,13 +114,14 @@ export const SplitScreenGameplay: React.FC<RenderProps> = ({
                 startFrame={hookFrames + fromFrame}
                 durationInFrames={durationInFrames}
                 containerStyle={{ top: contentTop, height: contentHeight, overflow: 'hidden' }}
+                videoStyle={splitMediaStyle}
               />
             </Sequence>
           ))}
         {!isGameplayFull && clips?.length ? (
           <AbsoluteFill style={{ top: contentTop, height: contentHeight, overflow: 'hidden' }}>
             {clips.map((clip) => (
-              <LegacyClip key={clip.id} clip={clip} fps={fps} />
+              <LegacyClip key={clip.id} clip={clip} fps={fps} mediaStyle={splitMediaStyle} />
             ))}
           </AbsoluteFill>
         ) : null}
@@ -122,7 +132,7 @@ export const SplitScreenGameplay: React.FC<RenderProps> = ({
               <Video
                 src={resolveGameplaySrc(gameplayClip.path)}
                 muted
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                style={splitMediaStyle}
               />
             </Loop>
           ) : (
@@ -183,7 +193,7 @@ export const SplitScreenGameplayComposition: React.FC = () => {
         width: 1080,
         height: 1920,
         fps: 30,
-        splitScreenRatio: 0.55,
+        splitScreenRatio: 0.5,
       }}
     />
   );

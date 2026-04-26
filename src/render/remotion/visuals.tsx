@@ -217,7 +217,11 @@ export const HookClipLayer: React.FC<HookClipProps> = ({ hook, containerStyle })
 );
 
 /** Render legacy clip */
-export const LegacyClip: React.FC<{ clip: VideoClip; fps: number }> = ({ clip, fps }) => {
+export const LegacyClip: React.FC<{
+  clip: VideoClip;
+  fps: number;
+  mediaStyle?: React.CSSProperties;
+}> = ({ clip, fps, mediaStyle }) => {
   const clipStartFrame = Math.floor(clip.startTime * fps);
   const clipDurationFrames = Math.max(1, Math.floor((clip.endTime - clip.startTime) * fps));
 
@@ -227,7 +231,7 @@ export const LegacyClip: React.FC<{ clip: VideoClip; fps: number }> = ({ clip, f
         <Video
           src={resolveMediaSrc(clip.url)}
           muted
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          style={{ width: '100%', height: '100%', objectFit: 'cover', ...mediaStyle }}
         />
       </AbsoluteFill>
     </Sequence>

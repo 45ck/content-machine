@@ -39,6 +39,28 @@ describe('cadence detection', () => {
     expect(cuts).toEqual([0.5, 1.25, 2.5]);
   });
 
+  it('passes crop filters through to ffmpeg when requested', async () => {
+    execFileMock.mockImplementation((_cmd, _args, _opts, cb) => {
+      cb?.(null, '', 'pts_time:1.00');
+    });
+
+    const { detectSceneCutsWithFfmpeg } = await import('../../../src/validate/cadence');
+    await detectSceneCutsWithFfmpeg({
+      videoPath: 'video.mp4',
+      cropFilter: 'crop=iw:floor(ih/2):0:0',
+    });
+
+    expect(execFileMock).toHaveBeenCalledWith(
+      'ffmpeg',
+      expect.arrayContaining([
+        '-vf',
+        "crop=iw:floor(ih/2):0:0,select='gt(scene\\,0.3)',showinfo",
+      ]),
+      expect.any(Object),
+      expect.any(Function)
+    );
+  });
+
   it('throws when ffmpeg is missing', async () => {
     execFileMock.mockImplementation((_cmd, _args, _opts, cb) => {
       const err = new Error('missing');
@@ -94,5 +116,36 @@ describe('cadence detection', () => {
     expect(gate.severity).toBe('error');
     expect(gate.message).toContain('Cadence too static');
     expect(gate.message).toContain('single-scene/default-background');
+  });
+
+  it('rescues split-screen cadence by checking the top and bottom halves', async () => {
+    execFileMock
+      .mockImplementationOnce((_cmd, _args, _opts, cb) => {
+        cb?.(null, '', '');
+      })
+      .mockImplementationOnce((_cmd, _args, _opts, cb) => {
+        cb?.(null, '', 'pts_time:4.0 pts_time:8.0 pts_time:12.0');
+      })
+      .mockImplementationOnce((_cmd, _args, _opts, cb) => {
+        cb?.(null, '', '');
+      });
+
+    const { runCadenceGate } = await import('../../../src/validate/cadence');
+    const gate = await runCadenceGate(
+      {
+        path: 'video.mp4',
+        width: 1080,
+        height: 1920,
+        durationSeconds: 16,
+        container: 'mp4',
+        videoCodec: 'h264',
+        audioCodec: 'aac',
+      },
+      { engine: 'ffmpeg', maxMedianCutIntervalSeconds: 5 }
+    );
+
+    expect(gate.passed).toBe(true);
+    expect(gate.details.cutCount).toBe(3);
+    expect(execFileMock).toHaveBeenCalledTimes(3);
   });
 });

@@ -16,7 +16,8 @@ description: Turn a Reddit-style post, confession, text thread, or comment story
 
 ## Core Approach
 
-1. Open with the conflict, not the metadata.
+1. Open with the conflict fast, but still use a recognizable Reddit
+   thread card in the first beat.
 2. Compress the story into setup, escalation, twist, and payoff.
 3. Use on-screen text selectively for high-drama phrases and receipts,
    not for every sentence.
@@ -51,8 +52,17 @@ description: Turn a Reddit-style post, confession, text thread, or comment story
   viewer is waiting for the turn.
 - Default visual shape should match the common Reddit-story pattern from
   the reference repos:
-  title/post card first, then comment/update cards, with moving gameplay
-  or background motion under the narration.
+  title/post card first with upvotes/awards, then story-related support
+  footage on top with moving gameplay below.
+- Preferred split-screen layout is true `50/50` vertical stacking:
+  top lane `960px`, bottom lane `960px` in a `1080x1920` render.
+- In split-screen Reddit lanes, both top and bottom media should be fit
+  into their half with containment or padded framing when needed. Do not
+  crop-fill them so aggressively that core visual content is cut off.
+- Captions should overlay at the midpoint between the two lanes instead
+  of requiring a dedicated black caption band. Use strong stroke,
+  shadow, and active-word highlighting so the seam overlay stays
+  readable.
 - Receipts, text messages, Reddit cards, and post fragments work better
   than generic themed illustrations.
 - Do not fall back to generic AI story illustrations when a Reddit card

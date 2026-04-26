@@ -30,6 +30,10 @@ export interface RenderedCaptionSyncOptions {
   fps?: number;
   maxSeconds?: number;
   thresholds?: Partial<RenderedCaptionSyncThresholds>;
+  captionRegion?: {
+    yRatio: number;
+    heightRatio: number;
+  };
 }
 
 export interface RenderedCaptionSyncMatch {
@@ -235,6 +239,44 @@ function buildIssue(
   severity: RenderedCaptionSyncIssue['severity'] = 'error'
 ): RenderedCaptionSyncIssue {
   return { type, severity, message };
+}
+
+const SPLIT_SEAM_CAPTION_REGION = {
+  yRatio: 0.42,
+  heightRatio: 0.16,
+} as const;
+
+function shouldRetryCaptionSyncInCenterBand(report: RenderedCaptionSyncReport): boolean {
+  if (report.passed) return false;
+  if (report.captionQualityScore < report.thresholds.minCaptionQualityScore) return true;
+  if (report.meanConfidence < report.thresholds.minMeanConfidence) return true;
+  if (report.matchedSegmentCount === 0) return true;
+  return report.segmentMatchRatio < report.thresholds.minSegmentMatchRatio;
+}
+
+function chooseBetterCaptionSyncReport(
+  left: RenderedCaptionSyncReport,
+  right: RenderedCaptionSyncReport
+): RenderedCaptionSyncReport {
+  if (left.passed !== right.passed) {
+    return left.passed ? left : right;
+  }
+  if (left.matchedSegmentCount !== right.matchedSegmentCount) {
+    return left.matchedSegmentCount > right.matchedSegmentCount ? left : right;
+  }
+  if (left.segmentMatchRatio !== right.segmentMatchRatio) {
+    return left.segmentMatchRatio > right.segmentMatchRatio ? left : right;
+  }
+  if (left.captionQualityScore !== right.captionQualityScore) {
+    return left.captionQualityScore > right.captionQualityScore ? left : right;
+  }
+  if (left.meanConfidence !== right.meanConfidence) {
+    return left.meanConfidence > right.meanConfidence ? left : right;
+  }
+  if (left.medianStartDriftMs !== right.medianStartDriftMs) {
+    return left.medianStartDriftMs < right.medianStartDriftMs ? left : right;
+  }
+  return left.p95StartDriftMs <= right.p95StartDriftMs ? left : right;
 }
 
 export function compareRenderedCaptions(params: {
@@ -465,16 +507,36 @@ export async function analyzeRenderedCaptionSync(params: {
   options?: RenderedCaptionSyncOptions;
 }): Promise<RenderedCaptionSyncReport> {
   const fps = params.options?.fps ?? 3;
+  const thresholds = resolveThresholds(params.options?.thresholds);
+  const primaryRegion = params.options?.captionRegion ?? { yRatio: 0.65, heightRatio: 0.35 };
   const observed = await rateCaptionQuality(params.videoPath, {
     fps,
     maxSeconds: params.options?.maxSeconds,
+    captionRegion: primaryRegion,
   });
-  return compareRenderedCaptions({
+  let bestReport = compareRenderedCaptions({
     videoPath: params.videoPath,
     expected: params.expected,
     observed,
-    thresholds: params.options?.thresholds,
+    thresholds,
   });
+
+  if (!params.options?.captionRegion && shouldRetryCaptionSyncInCenterBand(bestReport)) {
+    const centerObserved = await rateCaptionQuality(params.videoPath, {
+      fps,
+      maxSeconds: params.options?.maxSeconds,
+      captionRegion: SPLIT_SEAM_CAPTION_REGION,
+    });
+    const centerReport = compareRenderedCaptions({
+      videoPath: params.videoPath,
+      expected: params.expected,
+      observed: centerObserved,
+      thresholds,
+    });
+    bestReport = chooseBetterCaptionSyncReport(bestReport, centerReport);
+  }
+
+  return bestReport;
 }
 
 export function runCaptionSyncGate(report: RenderedCaptionSyncReport): CaptionSyncGateResult {
