@@ -9,7 +9,12 @@ import {
   type RenderOutput,
 } from '../domain';
 import { OrientationEnum } from '../core/config';
-import { createCaptionExport, formatAssCaptions, formatSrtCaptions } from '../render/captions';
+import {
+  createCaptionExport,
+  formatAssCaptions,
+  formatSrtCaptions,
+  getCaptionPreset,
+} from '../render/captions';
 import { CAPTION_STYLE_PRESETS } from '../render/captions/presets';
 import { AssCaptionStyle } from '../render/captions/export';
 import { renderVideo } from '../render/service';
@@ -165,13 +170,20 @@ export async function runVideoRender(request: VideoRenderRequest): Promise<
   let captionQualityScore: number | null = null;
 
   if (normalized.exportCaptions) {
+    const resolvedCaptionPreset = getCaptionPreset(normalized.captionPreset ?? 'capcut');
     const captionTimingOffsetMs =
       normalized.captionTimingOffsetMs ??
       (normalized.captionPreset
         ? (CAPTION_STYLE_PRESETS[normalized.captionPreset]?.timingOffsetMs ?? 0)
-        : 0);
+        : resolvedCaptionPreset.timingOffsetMs ?? 0);
+    const captionMode =
+      normalized.captionMode ??
+      (resolvedCaptionPreset.displayMode === 'single' || resolvedCaptionPreset.displayMode === 'buildup'
+        ? 'page'
+        : resolvedCaptionPreset.displayMode ?? 'page');
     const captionExport = createCaptionExport(timestamps.allWords, {
-      mode: normalized.captionMode === 'page' ? 'page' : 'chunk',
+      mode: captionMode === 'chunk' ? 'chunk' : 'page',
+      layout: resolvedCaptionPreset.layout,
       timingOffsetMs: captionTimingOffsetMs,
     });
     captionQualityPassed = captionExport.quality.passed;

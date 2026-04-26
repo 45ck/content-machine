@@ -101,16 +101,16 @@ describe('runVideoRender', () => {
       quality: { passed: boolean; score: number };
     };
     expect(captionExport.captions).toEqual([
-      expect.objectContaining({ text: 'test', startMs: 0, endMs: 500 }),
+      expect.objectContaining({ text: 'test', startMs: 0, endMs: 400 }),
     ]);
     expect(captionExport.quality).toEqual(
       expect.objectContaining({ passed: true, score: result.result.captionQualityScore })
     );
     await expect(readFile(join(dir, 'captions.srt'), 'utf8')).resolves.toContain(
-      '00:00:00,000 --> 00:00:00,500'
+      '00:00:00,000 --> 00:00:00,400'
     );
     await expect(readFile(join(dir, 'captions.ass'), 'utf8')).resolves.toContain(
-      'Dialogue: 0,0:00:00.00,0:00:00.50,Default,test'
+      'Dialogue: 0,0:00:00.00,0:00:00.40,Default,test'
     );
   });
 
@@ -198,6 +198,7 @@ describe('runVideoRender', () => {
       outputPath,
       mock: true,
       captionMode: 'page',
+      captionTimingOffsetMs: 0,
       captionAssStyle: {
         karaoke: true,
         marginV: 560,
@@ -252,6 +253,50 @@ describe('runVideoRender', () => {
     };
     expect(captionExport.captions).toEqual([
       expect.objectContaining({ text: 'offset', startMs: 250, endMs: 650 }),
+    ]);
+  });
+
+  it('uses the caption preset timing offset for exports when no explicit offset is provided', async () => {
+    const dir = await makeTempDir();
+    const visualsPath = join(dir, 'visuals.json');
+    const timestampsPath = join(dir, 'timestamps.json');
+    const audioPath = join(dir, 'audio.wav');
+    const outputPath = join(dir, 'preset-offset.mp4');
+
+    await writeJsonArtifact(visualsPath, {
+      schemaVersion: '1.0.0',
+      scenes: [{ sceneId: 'scene-1', source: 'mock', assetPath: 'mock://asset', duration: 1 }],
+      totalAssets: 1,
+      fromUserFootage: 0,
+      fromStock: 1,
+      fromGenerated: 0,
+      fallbacks: 0,
+    });
+    await writeJsonArtifact(timestampsPath, {
+      schemaVersion: '1.0.0',
+      allWords: [{ word: 'preset', start: 0.5, end: 0.9 }],
+      totalDuration: 1,
+      ttsEngine: 'mock',
+      asrEngine: 'mock',
+    });
+    await writeFile(audioPath, Buffer.alloc(0));
+
+    await runVideoRender({
+      visualsPath,
+      timestampsPath,
+      audioPath,
+      outputPath,
+      mock: true,
+      captionPreset: 'capcut',
+    });
+
+    const captionExport = JSON.parse(
+      await readFile(join(dir, 'captions.remotion.json'), 'utf8')
+    ) as {
+      captions: Array<{ text: string; startMs: number; endMs: number }>;
+    };
+    expect(captionExport.captions).toEqual([
+      expect.objectContaining({ text: 'preset', startMs: 400, endMs: 800 }),
     ]);
   });
 });
