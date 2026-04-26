@@ -1,0 +1,7 @@
+logs/
+project/.content-machine/
+project/node_modules/
+project/outputs/
+project/assets/
+project/package-lock.json
+project/reference/target-contact-sheet.jpg

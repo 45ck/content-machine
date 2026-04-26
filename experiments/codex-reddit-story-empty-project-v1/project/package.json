@@ -1,0 +1,8 @@
+{
+  "name": "codex-reddit-story-empty-project-v1",
+  "private": true,
+  "version": "1.0.0",
+  "dependencies": {
+    "@45ck/content-machine": "file:../../.."
+  }
+}

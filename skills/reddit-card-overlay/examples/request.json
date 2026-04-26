@@ -1,0 +1,18 @@
+{
+  "outputDir": "output/reddit-assets",
+  "theme": "reddit-light",
+  "title": "AITA for cancelling my sister's free wedding photos two days before the event?",
+  "author": "throwra_photographer",
+  "age": "5 hr. ago",
+  "upvotes": "24.8k",
+  "commentCount": "3.6k",
+  "awards": ["Gold", "Wholesome"],
+  "cards": [
+    {
+      "id": "opener",
+      "kind": "post",
+      "label": "Original Post",
+      "body": "My sister kept rewriting the deal and calling me selfish, so I backed out two days before the wedding."
+    }
+  ]
+}

@@ -1,6 +1,44 @@
 ---
 name: reddit-card-overlay
 description: Build Reddit-style post cards and similar social-thread overlays as reusable visual assets so story shorts can show the post, author, votes, and comments cleanly instead of faking everything directly in the timeline.
+allowedTools:
+  - shell
+  - read
+  - write
+model: inherit
+argumentHint: >-
+  {"outputDir":"output/reddit-assets","theme":"reddit-light","title":"AITA
+  for cancelling my sister's free wedding photos two days before the
+  event?","author":"throwra_photographer","upvotes":"24.8k","commentCount":"3.6k","awards":["Gold","Wholesome"],"cards":[{"id":"opener","kind":"post","label":"Original
+  Post","body":"My sister kept rewriting the deal and calling me
+  selfish, so I backed out two days before the wedding."}]}
+entrypoint: node --import tsx scripts/harness/reddit-story-assets.ts
+inputs:
+  - name: outputDir
+    description: Directory that will receive the generated Reddit card assets.
+    required: true
+  - name: title
+    description: The post title or hook shown on the Reddit card.
+    required: true
+  - name: cards
+    description: One or more post/comment/update card payloads to render.
+    required: true
+  - name: theme
+    description: Visual style for the rendered card, usually reddit-light or reddit-dark.
+    required: false
+  - name: upvotes
+    description: Display score for the main card.
+    required: false
+  - name: commentCount
+    description: Comment count shown in the footer.
+    required: false
+outputs:
+  - name: opener.png
+    description: Screenshot-style Reddit card PNG for timeline use.
+  - name: opener.svg
+    description: Editable SVG version of the Reddit card.
+  - name: manifest.json
+    description: Asset manifest with generated card paths.
 ---
 
 # Reddit Card Overlay
@@ -25,6 +63,17 @@ description: Build Reddit-style post cards and similar social-thread overlays as
 
 - a rendered overlay card image or composition asset
 - placement guidance for when it should appear in the short
+
+## Optional Runtime Surface
+
+- Repo-side runner:
+  `node --import tsx scripts/harness/reddit-story-assets.ts`
+- Packaged runner after install:
+  `node ./node_modules/@45ck/content-machine/agent/run-tool.mjs reddit-story-assets`
+
+## Example Request
+
+- [`examples/request.json`](examples/request.json)
 
 ## Construction Rules
 

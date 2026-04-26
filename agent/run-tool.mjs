@@ -6,6 +6,7 @@ import {
   GenerateShortRequestSchema,
   IngestRequestSchema,
   InstallSkillPackRequestSchema,
+  RedditStoryAssetsRequestSchema,
   PublishPrepRequestSchema,
   RunFlowRequestSchema,
   ScriptToAudioRequestSchema,
@@ -13,6 +14,7 @@ import {
   TimestampsToVisualsRequestSchema,
   VideoRenderRequestSchema,
   installSkillPack,
+  runRedditStoryAssets,
   listFlowCatalog,
   listSkillCatalog,
   runDoctorReport,
@@ -59,6 +61,11 @@ const registry = {
     tool: 'content-machine/install-skill-pack',
     inputSchema: InstallSkillPackRequestSchema,
     handler: async ({ input }) => installSkillPack(input),
+  },
+  'reddit-story-assets': {
+    tool: 'content-machine/reddit-story-assets',
+    inputSchema: RedditStoryAssetsRequestSchema,
+    handler: async ({ input }) => runRedditStoryAssets(input),
   },
   'publish-prep': {
     tool: 'content-machine/publish-prep',

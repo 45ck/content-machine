@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "1.0.0",
+  "title": "I Replaced My Roommate's Fake Job Setup",
+  "hook": "My roommate staged fake work calls for months, so I replaced the set with the real thing.",
+  "scenes": [
+    {
+      "id": "scene-1",
+      "text": "He kept telling his parents he was crushing his remote job, but every video call happened at the same fake desk in our living room with a dead laptop and a blank spreadsheet.",
+      "visualDirection": "Open with a Reddit-style confession card and a fake work-from-home setup that looks convincing for exactly three seconds.",
+      "mood": "dramatic"
+    },
+    {
+      "id": "scene-2",
+      "text": "The weird part was that he made me stay quiet in the background, like I was an extra in the lie, while his parents bragged about him to the whole family.",
+      "visualDirection": "Shift to tense apartment visuals and reaction-style framing that sells pressure, secrecy, and secondhand embarrassment.",
+      "mood": "tense"
+    },
+    {
+      "id": "scene-3",
+      "text": "Then I found out he had actually been fired months earlier and was burning through rent money, so I ordered a cheap real monitor, keyboard, and lamp and rebuilt the setup before the next call.",
+      "visualDirection": "Show a fast makeover beat: replacing fake props with a real, cleaner workspace and tightening the visual energy.",
+      "mood": "escalating"
+    },
+    {
+      "id": "scene-4",
+      "text": "When his parents called, he sat down expecting the usual performance, saw the real setup, and completely panicked because now he either had to tell the truth or explain why the lie suddenly looked professional.",
+      "visualDirection": "Use the reveal moment as the peak beat, with a sudden visual snap from composure into panic.",
+      "mood": "chaotic"
+    },
+    {
+      "id": "scene-5",
+      "text": "He says I humiliated him, but I think I forced the lie to end before he wrecked his finances even more, so tell me if that was helpful or way out of line.",
+      "visualDirection": "Close on judgment and comment-bait tension, with verdict-style text energy and a clean ending frame.",
+      "mood": "judgment"
+    }
+  ],
+  "reasoning": "Reference artifact for the empty-project Codex lane. Write the same shape, keep it compact, and preserve the fast conflict-to-payoff arc.",
+  "cta": "Was I helping, or did I cross the line?",
+  "hashtags": [
+    "#redditstory",
+    "#aita",
+    "#roommatedrama",
+    "#storytime"
+  ],
+  "meta": {
+    "estimatedDuration": 47,
+    "wordCount": 145,
+    "archetype": "story",
+    "topic": "Reddit-style confession about replacing a roommate's fake remote-work setup",
+    "generatedAt": "2026-04-26T09:35:00.000Z",
+    "model": "manual-reference",
+    "promptVersion": "empty-project-reddit-lane-v1"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "1.1.0",
+  "scenes": [
+    {
+      "sceneId": "opener",
+      "source": "user-footage",
+      "assetPath": "outputs/work/reddit-assets/opener.png",
+      "duration": 5.0,
+      "assetType": "image",
+      "motionStrategy": "none",
+      "motionApplied": false,
+      "matchReasoning": {
+        "reasoning": "Reddit opener card for the first beat.",
+        "conceptsMatched": ["reddit-opener"]
+      }
+    },
+    {
+      "sceneId": "desk-a",
+      "source": "user-footage",
+      "assetPath": "assets/top/seg-10-desk-a.mp4",
+      "duration": 3.0,
+      "assetType": "video",
+      "motionApplied": false,
+      "matchReasoning": {
+        "reasoning": "Top-lane desk/setup beat after the opener.",
+        "conceptsMatched": ["top-lane-motion"]
+      }
+    }
+  ],
+  "totalAssets": 2,
+  "fromUserFootage": 2,
+  "fromStock": 0,
+  "fallbacks": 0,
+  "fromGenerated": 0,
+  "totalGenerationCost": 0,
+  "providerChain": [
+    "manual-local-split-screen"
+  ],
+  "gameplayClip": {
+    "path": "assets/gameplay/subway.mp4",
+    "duration": 58.1,
+    "style": "subway-surfers"
+  },
+  "keywords": [
+    {
+      "keyword": "reddit opener",
+      "sectionId": "opener",
+      "startTime": 0,
+      "endTime": 5.0
+    },
+    {
+      "keyword": "top lane motion",
+      "sectionId": "desk-a",
+      "startTime": 5.0,
+      "endTime": 8.0
+    }
+  ],
+  "totalDuration": 8.0
+}

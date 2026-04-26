@@ -166,6 +166,10 @@ export { GenerateShortRequestSchema, runGenerateShort } from './harness/generate
 export { IngestRequestSchema, ingestReferenceVideo } from './harness/ingest';
 export { InstallSkillPackRequestSchema, installSkillPack } from './harness/install-skill-pack';
 export {
+  RedditStoryAssetsRequestSchema,
+  runRedditStoryAssets,
+} from './harness/reddit-story-assets';
+export {
   LongformHighlightSelectRequestSchema,
   runLongformHighlightSelect,
 } from './harness/longform-highlight-select';

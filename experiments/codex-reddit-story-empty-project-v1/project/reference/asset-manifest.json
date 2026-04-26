@@ -1,0 +1,35 @@
+{
+  "lane": "reddit-story-split-screen",
+  "render": {
+    "width": 1080,
+    "height": 1920,
+    "splitScreenRatio": 0.5,
+    "topLaneHeight": 960,
+    "bottomLaneHeight": 960
+  },
+  "gameplay": {
+    "path": "assets/gameplay/subway.mp4",
+    "duration": 58.1,
+    "style": "subway-surfers"
+  },
+  "topLaneClips": [
+    { "path": "assets/top/seg-10-desk-a.mp4", "duration": 3.0, "beat": "desk" },
+    { "path": "assets/top/seg-11-desk-b.mp4", "duration": 3.0, "beat": "desk" },
+    { "path": "assets/top/seg-12-desk-c.mp4", "duration": 3.867, "beat": "desk" },
+    { "path": "assets/top/seg-20-call-a.mp4", "duration": 2.7, "beat": "call" },
+    { "path": "assets/top/seg-21-call-b.mp4", "duration": 2.7, "beat": "call" },
+    { "path": "assets/top/seg-22-call-c.mp4", "duration": 2.667, "beat": "call" },
+    { "path": "assets/top/seg-30-setup-a.mp4", "duration": 3.0, "beat": "setup" },
+    { "path": "assets/top/seg-31-setup-b.mp4", "duration": 3.0, "beat": "setup" },
+    { "path": "assets/top/seg-32-setup-c.mp4", "duration": 3.0, "beat": "setup" },
+    { "path": "assets/top/seg-33-setup-d.mp4", "duration": 1.767, "beat": "setup" },
+    { "path": "assets/top/seg-40-panic-a.mp4", "duration": 3.0, "beat": "panic" },
+    { "path": "assets/top/seg-41-panic-b.mp4", "duration": 3.0, "beat": "panic" },
+    { "path": "assets/top/seg-42-panic-c.mp4", "duration": 3.0, "beat": "panic" },
+    { "path": "assets/top/seg-43-panic-d.mp4", "duration": 3.033, "beat": "panic" },
+    { "path": "assets/top/seg-50-aftermath-a.mp4", "duration": 3.0, "beat": "aftermath" },
+    { "path": "assets/top/seg-51-aftermath-b.mp4", "duration": 3.0, "beat": "aftermath" },
+    { "path": "assets/top/seg-52-aftermath-c.mp4", "duration": 3.5, "beat": "aftermath" },
+    { "path": "assets/top/seg-60-cta.mp4", "duration": 2.667, "beat": "cta" }
+  ]
+}

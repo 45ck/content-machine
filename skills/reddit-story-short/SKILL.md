@@ -45,6 +45,13 @@ description: Turn a Reddit-style post, confession, text thread, or comment story
   for execution.
 - Use [`short-form-captions`](../short-form-captions/SKILL.md) for
   aggressive story caption styling.
+- Use
+  [`references/split-screen-reference-lane.md`](references/split-screen-reference-lane.md)
+  when you need the exact opener/top-lane/gameplay/caption recipe.
+
+## Example Request
+
+- [`examples/request.json`](examples/request.json)
 
 ## Technical Notes
 

@@ -1,0 +1,20 @@
+{
+  "outputDir": "outputs/work/reddit-assets",
+  "theme": "reddit-light",
+  "title": "AITA for replacing my roommate's fake home-office setup before his next family call?",
+  "author": "throwra_roommatefix",
+  "upvotes": "21.4k",
+  "commentCount": "3.2k",
+  "awards": [
+    "Gold",
+    "Wholesome"
+  ],
+  "cards": [
+    {
+      "id": "opener",
+      "kind": "post",
+      "label": "Original Post",
+      "body": "My roommate kept staging fake work calls with a dead laptop, so I rebuilt the set with real gear before his next call and now he says I humiliated him."
+    }
+  ]
+}

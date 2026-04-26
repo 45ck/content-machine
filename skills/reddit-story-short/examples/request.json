@@ -1,0 +1,26 @@
+{
+  "lane": "reddit-story-split-screen",
+  "target": {
+    "durationSeconds": 35,
+    "orientation": "portrait",
+    "platform": "tiktok"
+  },
+  "story": {
+    "title": "I cancelled my sister's free wedding photos two days before the event",
+    "hook": "My sister told the whole family I owed her free wedding photos because I shoot part-time, so I cancelled two days before the wedding.",
+    "tone": "dramatic",
+    "subreddit": "AmItheAsshole"
+  },
+  "visualShape": {
+    "opener": "5s Reddit screenshot-style post card with upvotes and awards",
+    "topLaneAfterOpener": "story-related stock or local video clips, cut every 2-4s",
+    "bottomLane": "subway-surfers gameplay",
+    "layout": "50/50 vertical stack",
+    "captions": "overlay at the midpoint between lanes with active-word highlighting"
+  },
+  "reviewRules": {
+    "rejectStaticBackgrounds": true,
+    "rejectSilentAudio": true,
+    "rejectBuggyRedditMockups": true
+  }
+}

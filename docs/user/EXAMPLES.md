@@ -63,6 +63,7 @@ These examples show stage-by-stage pipelines with all options:
 
 - **[Gemini Image-Led Shorts](examples/gemini-image-shorts.md)** — AI-generated images with Gemini, real rendered examples
 - **[Latest News Listicle](examples/latest-news-listicle.md)** — research → script → audio → visuals → video
+- **[Reddit Story Split-Screen](examples/reddit-story-split-screen.md)** — Reddit opener card, top-lane story footage, bottom-lane gameplay
 - **[Split-Screen Gameplay](examples/split-screen-gameplay.md)** — gameplay on one half, stock B-roll on the other
 - **[Complex Plane Rotation](examples/complex-plane-rotation.md)** — custom Remotion template with drawn diagrams
 - **[NanoBanana + Ken Burns](examples/nanobanana-kenburns.md)** — AI-generated images with motion effects
