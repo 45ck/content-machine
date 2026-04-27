@@ -25,6 +25,9 @@
 - **[Motion Card Lesson](examples/motion-card-lesson.md)** —
   card-native educational showcase candidate with prompt, step, payoff,
   captions, and publish-prep validation
+- **[Faceless Mixed Short](examples/faceless-mixed-short.md)** —
+  mixed-source explainer candidate with voiceover, music bed, captions,
+  diagrams, UI cards, and practical tip beats
 - **[Gemini Image-Led Shorts](examples/gemini-image-shorts.md)** —
   real rendered MP4 gallery from the image-led path; useful as a
   supporting showcase, not the flagship lane

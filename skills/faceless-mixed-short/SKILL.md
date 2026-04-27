@@ -37,6 +37,20 @@ description: Build a faceless short that mixes voiceover, stock footage, local f
 - `visuals.json`
 - final MP4 plus review bundle
 
+## Proven Example
+
+- Local proving bundle:
+  `experiments/proving-wave-3/faceless-mixed-short/outputs/final/video.mp4`
+- Tracked preview:
+  `docs/demo/demo-15-faceless-mixed-short.mp4`
+- Pattern used: practical tech hook, cold-phone opener, simplified
+  chemistry diagram, phone UI recovery card, three practical tip cards,
+  recap card, CTA, burned-in captions, quiet synthesized music bed, and
+  final loudness normalization.
+- Publish-prep passed portrait resolution, duration, format, cadence,
+  and audio-signal checks. OCR caption-sync still needs a proper caption
+  export sidecar for FFmpeg fallback renders.
+
 ## Optional Runtime Surface
 
 - Compose this with [`brief-to-script`](../brief-to-script/SKILL.md),
@@ -55,6 +69,14 @@ description: Build a faceless short that mixes voiceover, stock footage, local f
   diagrams, or stylized transitions.
 - Use music and motion changes to separate beats, not to hide weak
   writing.
+- Do not place secondary explanatory text behind captions. The main
+  visual should carry context, and captions should occupy the clean
+  caption zone without text collisions.
+- Mixed-source does not mean random-source. Every source change should
+  map to a beat change: hook, mechanism, consequence, proof, tip, recap.
+- If using FFmpeg fallback assembly, still include a real voiceover,
+  audible but quiet music bed, portrait duration, cadence flashes or
+  real cuts, and publish-prep review on the final MP4.
 
 ## Aggregated From
 
@@ -71,3 +93,5 @@ description: Build a faceless short that mixes voiceover, stock footage, local f
 - Music supports pace without masking narration.
 - The render feels like one edit, not several pipelines stitched
   together.
+- Contact-sheet review shows no source-text collisions, clipped UI,
+  unreadable captions, or accidental blank/default backgrounds.
