@@ -93,11 +93,16 @@ new skills.
   guidance for making strong shorts
 - [`faceless-mixed-short/`](faceless-mixed-short/SKILL.md) — mixed
   stock/local/gameplay/AI-generated faceless short construction
+- [`stock-footage-edutainment-short/`](stock-footage-edutainment-short/SKILL.md)
+  — stock-first explainer lane with hard beat structure and per-scene
+  visual intent
 - [`animation-explainer-short/`](animation-explainer-short/SKILL.md) —
   diagrams, motion cards, generated scenes, and motion-led explainer
   shorts
 - [`motion-card-lesson-short/`](motion-card-lesson-short/SKILL.md) —
   narrow educational or quiz-like shorts built from timed card states
+- [`facts-listicle-short/`](facts-listicle-short/SKILL.md) — numbered
+  or promise-driven fact shorts with one clear beat per fact
 - [`gameplay-confession-short/`](gameplay-confession-short/SKILL.md) —
   confession/storytime shorts with motion or receipts on top and Subway
   Surfers-style gameplay below
@@ -123,6 +128,8 @@ new skills.
   DM, chat-log, and receipt-led story adaptation
 - [`ugc-avatar-short/`](ugc-avatar-short/SKILL.md) — avatar or AI-actor
   spokesperson short construction
+- [`saas-problem-solution-short/`](saas-problem-solution-short/SKILL.md)
+  — creator-adjacent SaaS or product promo lane with proof/demo beats
 - [`scene-by-scene-faceless-pipeline/`](scene-by-scene-faceless-pipeline/SKILL.md)
   — deterministic faceless short assembly with per-scene artifacts
 - [`niche-profile-draft/`](niche-profile-draft/SKILL.md) — generate one

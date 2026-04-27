@@ -12,6 +12,13 @@
   below
 - **[Text Message Drama](examples/text-message-drama.md)** — message
   bubbles, receipts, and staged reveal beats
+- **[Stock Footage Edutainment](examples/stock-footage-edutainment.md)** —
+  MoneyPrinter-style faceless explainer lane with stronger scene
+  contracts
+- **[Facts Listicle](examples/facts-listicle.md)** — numbered fast-fact
+  lane with one beat per fact
+- **[SaaS Problem Solution](examples/saas-problem-solution.md)** —
+  creator-adjacent product lane with hook, pain, demo, and CTA
 - **[Motion Card Lesson](examples/motion-card-lesson.md)** — narrow
   educational lane built from timed card states and reveal beats
 

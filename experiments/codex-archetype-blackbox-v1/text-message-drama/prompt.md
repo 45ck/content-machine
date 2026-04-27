@@ -20,6 +20,8 @@ Objective:
 Style target:
 
 - about `35s` to `50s`
+- keep the written payload closer to `85` to `115` spoken words so the
+  real voiced runtime lands in range after the title, hook, and closer
 - first visible message creates immediate suspicion or tension
 - top half is mainly controlled message-card assets, not generic stock
   footage
@@ -75,17 +77,21 @@ Preferred execution path:
 6. create actual message-card assets under `assets/messages/` as SVG or
    PNG files and use them as the top-lane primary assets
 7. run `script-to-audio`
-8. write `outputs/work/visuals.json` by copying the shape from
+8. inspect `outputs/work/audio/audio.json` or `timestamps.json` using
+   `node`, not `python`
+9. if the real audio duration is above `50s`, shorten the script
+   aggressively and rerun `script-to-audio` before moving on
+10. write `outputs/work/visuals.json` by copying the shape from
    `reference/visuals.example.json`, replacing placeholder paths with
    real absolute local paths, and adjusting durations/keywords so the
    scenes cover the full audio duration using your message-card assets,
    optional `assets/top/*.mp4` support, and the gameplay clip
-9. run `video-render` using
-   `reference/resolve-video-render-request.mjs`
-10. run `publish-prep` using
+11. run `video-render` using
+    `reference/resolve-video-render-request.mjs`
+12. run `publish-prep` using
     `reference/publish-prep.request.example.json`
-11. if review fails, fix the real problem once and rerun
-12. write `outputs/final/report.md`
+13. if review fails, fix the real problem once and rerun
+14. write `outputs/final/report.md`
 
 Required deliverables:
 

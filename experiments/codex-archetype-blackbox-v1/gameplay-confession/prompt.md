@@ -20,6 +20,9 @@ Objective:
 Style target:
 
 - about `35s` to `50s`
+- keep the written payload closer to `95` to `125` spoken words so the
+  real voiced runtime lands in range after the title, hook, and closer
+  are spoken
 - first beat exposes the conflict immediately
 - top half changes every `2s` to `4s`
 - bottom half is continuous Subway Surfers gameplay
@@ -72,17 +75,21 @@ Preferred execution path:
 5. write `outputs/work/script.json` in the same shape as
    `reference/manual-script.example.json`
 6. run `script-to-audio`
-7. write `outputs/work/visuals.json` by copying the shape from
+7. inspect `outputs/work/audio/audio.json` or `timestamps.json` using
+   `node`, not `python`
+8. if the real audio duration is above `50s`, shorten the script
+   aggressively and rerun `script-to-audio` before moving on
+9. write `outputs/work/visuals.json` by copying the shape from
    `reference/visuals.example.json`, replacing placeholder paths with
    real absolute local paths, and adjusting durations/keywords so the
    scenes cover the full audio duration using only `assets/top/*.mp4`
    and the gameplay clip
-8. run `video-render` using
-   `reference/resolve-video-render-request.mjs`
-9. run `publish-prep` using
-   `reference/publish-prep.request.example.json`
-10. if review fails, fix the real problem once and rerun
-11. write `outputs/final/report.md`
+10. run `video-render` using
+    `reference/resolve-video-render-request.mjs`
+11. run `publish-prep` using
+    `reference/publish-prep.request.example.json`
+12. if review fails, fix the real problem once and rerun
+13. write `outputs/final/report.md`
 
 Required deliverables:
 

@@ -14,6 +14,7 @@ Each lane contains:
 
 - `project/` - isolated empty-project workspace Codex is allowed to edit
 - `prompt.md` - exact non-interactive Codex prompt
+- `run.sh` - one-command Codex launcher using `codex exec --json`
 - `logs/` - Codex CLI logs and final message capture
 
 The purpose is not to hand-assemble a good video manually. The purpose
@@ -34,6 +35,7 @@ Current result snapshot:
 Checked in here:
 
 - prompts
+- lane-local `run.sh` launchers
 - project package manifests
 - reference contracts and example requests
 - result summaries

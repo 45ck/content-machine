@@ -45,6 +45,14 @@ cat <<'JSON' | node ./node_modules/@45ck/content-machine/agent/run-tool.mjs scri
 JSON
 ```
 
+After audio:
+
+- inspect `outputs/work/audio/audio.json` with `node`, not `python`
+- if `duration` is above `50`, shorten `outputs/work/script.json` and
+  rerun audio before building `visuals.json`
+- do not stack multiple concurrent `script-to-audio` retries; wait for
+  the packaged command to finish or fail
+
 Render:
 
 ```bash
