@@ -81,6 +81,57 @@ What changed in the repo because of this review:
 - updated the wave README to point at the strongest current candidate
   MP4 per lane instead of weaker fallback picks
 
+Deeper root-cause read:
+
+1. `gameplay-confession-split`
+   The lane is not visually static in concept, but the fallback
+   split-screen assembly is showing larger paragraph-like caption blocks
+   than the exported caption pages expect. The sync checker finds all
+   segments, but timing lands far too early or late because the
+   on-screen text behaves like long held story cards rather than tight
+   short-form pages.
+
+2. `text-thread-reveal`
+   The visual plan is built from five SVG chat screens and each scene in
+   `visuals.json` still reports `motionApplied: false`. That means the
+   lane reads like a screenshot slideshow even in the stronger promoted
+   render. The caption matcher now finds every expected segment, so the
+   remaining problem is mostly weak OCR on static chat images plus long
+   scene holds.
+
+3. `stock-b-roll-explainer`
+   The “better” promoted render is still coming from a plan where every
+   scene sets `motionStrategy: "none"` and `motionApplied: false`.
+   Temporal and freeze failures are therefore honest. The caption-sync
+   failure is no longer total; it is mostly one tail cluster where
+   several pages bunch together and push the P95 drift over the line.
+
+4. `fast-facts-countdown`
+   This lane is not ready for polish work because it is still a proving
+   stub. The real blocker is that the file is only about eight seconds
+   long and the audio track is effectively silent. Caption drift is a
+   secondary issue here, not the main reason it fails.
+
+5. `saas-problem-solution`
+   This is the strongest non-flagship lane because the manual render
+   already passes caption sync. The remaining failures are visual:
+   every scene in the chosen `visuals.json` still reports
+   `motionStrategy: "none"` and `motionApplied: false`, so the proof
+   beats are too still even though the script and captions are now close
+   enough.
+
+Cross-lane conclusion:
+
+- `motionApplied: false` is the repeated smell across the weakest lanes.
+- Static image lanes are the worst offenders, but “video” lanes that are
+  effectively abstract looping backgrounds fail for the same reason.
+- Caption sync failures split into two categories:
+  real timing drift from fallback composition (`gameplay`, parts of
+  `stock`) and OCR weakness on static/chat-heavy lanes (`text-thread`,
+  `saas` confidence noise).
+- The next real quality jump will come from better motion/staging in the
+  visual plans, not from endlessly tweaking the caption scorer.
+
 Recommended next iteration order:
 
 1. `saas-problem-solution`
