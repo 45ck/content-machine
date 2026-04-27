@@ -12,6 +12,9 @@
 
 ## Secondary Real Renders
 
+- **[Stock Footage Edutainment](examples/stock-footage-edutainment.md)** —
+  faceless-information showcase candidate with stock-style motion,
+  narration, captions, and fast transition pulses
 - **[Gemini Image-Led Shorts](examples/gemini-image-shorts.md)** —
   real rendered MP4 gallery from the image-led path; useful as a
   supporting showcase, not the flagship lane
@@ -26,9 +29,6 @@ not all proven examples yet.
   and gameplay below
 - **[Text Message Drama](examples/text-message-drama.md)** — message
   lane grammar; not yet a canonical example
-- **[Stock Footage Edutainment](examples/stock-footage-edutainment.md)** —
-  strongest current faceless-information proving lane, but still not a
-  showcase example
 - **[Facts Listicle](examples/facts-listicle.md)** — numbered fast-fact
   lane shape only; current proving render is too weak to showcase
 - **[SaaS Problem Solution](examples/saas-problem-solution.md)** —

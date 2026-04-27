@@ -56,6 +56,16 @@ payoff`.
 - Use [`shot-prompt-builder`](../shot-prompt-builder/SKILL.md) when
   generated scenes or stronger prompt language are needed.
 
+## Proven Example
+
+- User docs:
+  [`docs/user/examples/stock-footage-edutainment.md`](../../docs/user/examples/stock-footage-edutainment.md)
+- Embedded preview:
+  [`docs/demo/demo-10-stock-broll-explainer.mp4`](../../docs/demo/demo-10-stock-broll-explainer.mp4)
+- Use the wave-3 example as the current faceless-information reference,
+  but keep the review caveat visible: OCR caption-sync still needs a
+  stable final pass for the flashed render.
+
 ## Technical Notes
 
 - Do not stop at one flat list of search terms. Each scene should carry

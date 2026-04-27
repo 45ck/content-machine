@@ -77,6 +77,14 @@ Secondary hybrid preview:
   <video src="docs/demo/demo-8-reddit-story-split-screen.mp4" controls muted playsinline loop width="220"></video>
 </p>
 
+Faceless-information preview:
+
+<p align="center">
+  <a href="docs/demo/demo-10-stock-broll-explainer.mp4">
+    <img src="docs/demo/demo-10-stock-broll-explainer.gif" alt="Stock B-roll explainer showcase candidate" width="220" />
+  </a>
+</p>
+
 Status guide:
 
 - `showcase`: real canonical example users should copy first
@@ -105,6 +113,7 @@ Archetype rollout plan:
 Tracked preview clip:
 
 - [docs/demo/demo-9-reddit-post-over-gameplay.mp4](docs/demo/demo-9-reddit-post-over-gameplay.mp4)
+- [docs/demo/demo-10-stock-broll-explainer.mp4](docs/demo/demo-10-stock-broll-explainer.mp4)
 - [docs/demo/demo-8-reddit-story-split-screen.mp4](docs/demo/demo-8-reddit-story-split-screen.mp4)
 
 > Early development. Skills, flows, and runtime scripts are now the
