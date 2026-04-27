@@ -55,6 +55,10 @@ description: Build a numbered or promise-driven fact short with one clear beat p
   where the viewer is in the sequence.
 - Avoid padded intros like “today we're going to talk about.” Facts
   lanes should start on the payload.
+- If the lane uses a lightweight render or FFmpeg fallback, it still
+  needs caption sidecars and a real publish-prep pass on the final MP4.
+- Mock or silent audio is not acceptable for a proven lane. Facts shorts
+  need real voiceover signal even when the cut is intentionally short.
 
 ## Aggregated From
 
@@ -70,3 +74,7 @@ description: Build a numbered or promise-driven fact short with one clear beat p
 - Numbering, captions, and transitions reinforce the list structure.
 - The short feels intentionally segmented, not like one script chopped
   into pieces.
+- Audio presence and caption drift are checked on the final deliverable,
+  not assumed from the script.
+- If the lane is intentionally under `30s`, expect the portrait review
+  profile to fail duration unless you use a shorter profile on purpose.

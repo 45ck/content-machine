@@ -66,6 +66,12 @@ description: Turn a confession, AITA-style dilemma, roommate drama, or anonymous
   instead of static themed illustrations.
 - Gameplay should stay continuous enough to feel familiar, but the top
   lane still has to carry the editorial rhythm.
+- Fallback assembly is allowed, but it still has to export caption
+  sidecars and pass `publish-prep` against the actual final MP4 before
+  the lane counts as proven.
+- Small top-lane swaps that read as the same frame will still fail
+  cadence review. Make the story-support changes visually obvious enough
+  to register as new beats.
 
 ## Aggregated From
 
@@ -82,3 +88,7 @@ description: Turn a confession, AITA-style dilemma, roommate drama, or anonymous
 - Gameplay supports retention without swallowing the actual story.
 - The result feels like a native storytime short, not a Reddit clone
   with the card removed.
+- The review bundle is attached to the final gameplay-backed MP4, not a
+  pre-burn intermediate.
+- Story-support changes are strong enough that the split-screen cadence
+  detector sees them as real editorial beats.

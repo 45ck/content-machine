@@ -72,6 +72,12 @@ description: Turn chat logs, DMs, iMessage-style arguments, or receipt-heavy rev
   to remain the main identity.
 - If the original screenshots are noisy, rebuild them as controlled
   assets rather than shipping unreadable crops.
+- If local FFmpeg assembly is used, export caption sidecars from the
+  final narration timings first so `publish-prep` can verify the real
+  video instead of only the chat assets.
+- Long holds on one reconstructed chat screen will fail cadence and
+  freeze review. Use stronger zoom changes, staged message reveals, or
+  visible state changes every `2s` to `3s`.
 
 ## Aggregated From
 
@@ -89,3 +95,7 @@ description: Turn chat logs, DMs, iMessage-style arguments, or receipt-heavy rev
 - Captions and message UI do not fight for the same part of the frame.
 - The reveal/payoff is visible in the message flow, not only in the
   voiceover.
+- The review bundle is attached to the shipped chat-thread MP4, not just
+  the message asset sequence.
+- The final message video shows enough motion/change that it does not
+  look like a static screenshot slideshow.

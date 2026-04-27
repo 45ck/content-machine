@@ -91,6 +91,12 @@ layout, emphasis, and motion choices.
 - `Caption.tsx` is the actual visual implementation in Remotion.
 - `render/service.ts` resolves preset plus overrides and passes the
   effective config into render.
+- If the lane uses a local-only or fallback assembly path, export
+  `captions.remotion.json`, `captions.srt`, and `captions.ass` from the
+  final narration timings before review. Do not treat ad-hoc subtitle
+  burns as equivalent to the repo caption contract.
+- Runtime surface for sidecar export:
+  `node --import tsx scripts/harness/caption-export.ts`
 
 Read [technical-map.md](references/technical-map.md) before changing the
 implementation. It maps the repo files to the design choices and notes

@@ -63,6 +63,12 @@ payoff`.
   terms.
 - Music and transitions should separate beats; they should not be used
   to disguise weak visual matching.
+- If a local fallback assembler is used, it still has to emit caption
+  sidecars and go through the same review gate as the canonical render
+  path.
+- If the visual lane falls back to static cards or stills, add real
+  motion treatment or swap the beat. Otherwise temporal/freeze review
+  will correctly treat it as a slideshow.
 
 ## Aggregated From
 
@@ -80,3 +86,7 @@ payoff`.
   filler.
 - Packaging outputs match the script instead of being invented after
   render.
+- Review should be run against the real shipped MP4, not only the scene
+  plan and script.
+- Burned captions are visible in the shipped file; OCR review should not
+  come back with “missing captions.”

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import {
   BriefToScriptRequestSchema,
+  CaptionExportRequestSchema,
   DoctorReportRequestSchema,
   FlowCatalogRequestSchema,
   GenerateShortRequestSchema,
@@ -26,6 +27,7 @@ import {
   runTimestampsToVisuals,
   runVideoRender,
   generateBriefToScript,
+  runCaptionExport,
   ingestReferenceVideo,
 } from '../dist/index.js';
 
@@ -36,6 +38,11 @@ const registry = {
     tool: 'content-machine/brief-to-script',
     inputSchema: BriefToScriptRequestSchema,
     handler: async ({ input }) => generateBriefToScript(input),
+  },
+  'caption-export': {
+    tool: 'content-machine/caption-export',
+    inputSchema: CaptionExportRequestSchema,
+    handler: async ({ input }) => runCaptionExport(input),
   },
   'doctor-report': {
     tool: 'content-machine/doctor-report',

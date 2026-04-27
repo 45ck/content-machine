@@ -60,6 +60,12 @@ description: Turn a product or SaaS into a short ad or creator-style pitch using
   head the whole time is weak.
 - Packaging should match the angle:
   founder pain, workflow speed, money saved, or result unlocked.
+- If the lane falls back to FFmpeg assembly, export caption sidecars
+  from the final narration timings and review the actual shipped MP4
+  before calling the archetype proven.
+- Long static dashboard holds will fail cadence/freeze review even if
+  the copy is good. Keep proof beats moving with zooms, cursor motion,
+  or explicit step changes.
 
 ## Aggregated From
 
@@ -74,3 +80,7 @@ description: Turn a product or SaaS into a short ad or creator-style pitch using
 - There is at least one proof or demo moment.
 - The short feels like a native creator ad, not a brochure read aloud.
 - CTA is singular and matches the lane.
+- The final MP4 keeps real audio signal, visible proof beats, and
+  caption timing that survives OCR review.
+- The demo/proof lane changes often enough that the final short does not
+  read like one static product slide.
