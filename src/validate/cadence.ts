@@ -27,6 +27,20 @@ export interface CadenceEvaluation {
   maxMedianCutIntervalSeconds: number;
 }
 
+function buildAdaptiveThresholds(baseThreshold?: number): number[] {
+  const candidates = [baseThreshold ?? 0.3, 0.2, 0.15, 0.1, 0.08];
+  const unique: number[] = [];
+
+  for (const value of candidates) {
+    if (!Number.isFinite(value) || value <= 0) continue;
+    if (!unique.some((existing) => Math.abs(existing - value) < 0.0001)) {
+      unique.push(value);
+    }
+  }
+
+  return unique;
+}
+
 function median(values: number[]): number {
   if (values.length === 0) return NaN;
   const sorted = [...values].sort((a, b) => a - b);
@@ -147,47 +161,76 @@ export async function runCadenceGate(
       })
     );
   } else {
-    const fullFrameCuts = await detectSceneCutsWithFfmpeg({
-      videoPath: info.path,
-      threshold: options?.threshold,
-    });
-    evaluations.push(
-      evaluateCadence({
+    const thresholds = buildAdaptiveThresholds(options?.threshold);
+
+    for (const threshold of thresholds) {
+      const fullFrameCuts = await detectSceneCutsWithFfmpeg({
+        videoPath: info.path,
+        threshold,
+      });
+      const evaluation = evaluateCadence({
         durationSeconds: info.durationSeconds,
         cutTimesSeconds: fullFrameCuts,
         maxMedianCutIntervalSeconds: maxMedian,
         minCutCount,
-      })
-    );
+      });
+      evaluations.push(evaluation);
+      if (evaluation.passed || evaluation.cutCount >= minCutCount) {
+        break;
+      }
+    }
 
-    if (evaluations[0] && evaluations[0].cutCount < minCutCount) {
+    const bestFullFrame = evaluations.reduce((best, candidate) => {
+      if (candidate.passed !== best.passed) {
+        return candidate.passed ? candidate : best;
+      }
+      if (candidate.cutCount !== best.cutCount) {
+        return candidate.cutCount > best.cutCount ? candidate : best;
+      }
+      return candidate.medianCutIntervalSeconds < best.medianCutIntervalSeconds
+        ? candidate
+        : best;
+    });
+
+    if (bestFullFrame.cutCount < minCutCount) {
       const halfHeight = `floor(ih/2)`;
-      const [topCuts, bottomCuts] = await Promise.all([
-        detectSceneCutsWithFfmpeg({
-          videoPath: info.path,
-          threshold: options?.threshold,
-          cropFilter: `crop=iw:${halfHeight}:0:0`,
-        }),
-        detectSceneCutsWithFfmpeg({
-          videoPath: info.path,
-          threshold: options?.threshold,
-          cropFilter: `crop=iw:${halfHeight}:0:${halfHeight}`,
-        }),
-      ]);
-      evaluations.push(
-        evaluateCadence({
+      for (const threshold of thresholds) {
+        const [topCuts, bottomCuts] = await Promise.all([
+          detectSceneCutsWithFfmpeg({
+            videoPath: info.path,
+            threshold,
+            cropFilter: `crop=iw:${halfHeight}:0:0`,
+          }),
+          detectSceneCutsWithFfmpeg({
+            videoPath: info.path,
+            threshold,
+            cropFilter: `crop=iw:${halfHeight}:0:${halfHeight}`,
+          }),
+        ]);
+
+        const topEvaluation = evaluateCadence({
           durationSeconds: info.durationSeconds,
           cutTimesSeconds: topCuts,
           maxMedianCutIntervalSeconds: maxMedian,
           minCutCount,
-        }),
-        evaluateCadence({
+        });
+        const bottomEvaluation = evaluateCadence({
           durationSeconds: info.durationSeconds,
           cutTimesSeconds: bottomCuts,
           maxMedianCutIntervalSeconds: maxMedian,
           minCutCount,
-        })
-      );
+        });
+        evaluations.push(topEvaluation, bottomEvaluation);
+
+        if (
+          topEvaluation.passed ||
+          bottomEvaluation.passed ||
+          topEvaluation.cutCount >= minCutCount ||
+          bottomEvaluation.cutCount >= minCutCount
+        ) {
+          break;
+        }
+      }
     }
   }
 

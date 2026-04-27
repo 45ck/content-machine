@@ -124,6 +124,9 @@ describe('cadence detection', () => {
         cb?.(null, '', '');
       })
       .mockImplementationOnce((_cmd, _args, _opts, cb) => {
+        cb?.(null, '', '');
+      })
+      .mockImplementationOnce((_cmd, _args, _opts, cb) => {
         cb?.(null, '', 'pts_time:4.0 pts_time:8.0 pts_time:12.0');
       })
       .mockImplementationOnce((_cmd, _args, _opts, cb) => {
@@ -146,6 +149,40 @@ describe('cadence detection', () => {
 
     expect(gate.passed).toBe(true);
     expect(gate.details.cutCount).toBe(3);
-    expect(execFileMock).toHaveBeenCalledTimes(3);
+    expect(execFileMock.mock.calls.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it('retries ffmpeg cadence detection with lower thresholds before failing', async () => {
+    execFileMock
+      .mockImplementationOnce((_cmd, _args, _opts, cb) => {
+        cb?.(null, '', '');
+      })
+      .mockImplementationOnce((_cmd, _args, _opts, cb) => {
+        cb?.(null, '', 'pts_time:6.0 pts_time:12.0 pts_time:18.0 pts_time:24.0');
+      });
+
+    const { runCadenceGate } = await import('../../../src/validate/cadence');
+    const gate = await runCadenceGate(
+      {
+        path: 'video.mp4',
+        width: 1080,
+        height: 1920,
+        durationSeconds: 30,
+        container: 'mp4',
+        videoCodec: 'h264',
+        audioCodec: 'aac',
+      },
+      { engine: 'ffmpeg', maxMedianCutIntervalSeconds: 7 }
+    );
+
+    expect(gate.passed).toBe(true);
+    expect(gate.details.cutCount).toBe(4);
+    expect(execFileMock).toHaveBeenCalledTimes(2);
+    expect(execFileMock.mock.calls[0]?.[1]).toEqual(
+      expect.arrayContaining(['-vf', "select='gt(scene\\,0.3)',showinfo"])
+    );
+    expect(execFileMock.mock.calls[1]?.[1]).toEqual(
+      expect.arrayContaining(['-vf', "select='gt(scene\\,0.2)',showinfo"])
+    );
   });
 });

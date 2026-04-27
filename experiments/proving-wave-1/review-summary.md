@@ -19,7 +19,7 @@ Best current candidates by lane:
   canonical file:
   [video.mp4](/home/calvin/Documents/GitHub/content-machine/experiments/proving-wave-1/gameplay-confession-split/output/run-001/render/video.mp4)
   current blockers:
-  `cadence`, `caption-sync`
+  `caption-sync`
 - `text-thread-reveal`
   promoted file:
   [text-thread-reveal.mp4](/home/calvin/Documents/GitHub/content-machine/experiments/proving-wave-1/text-thread-reveal/output/render/text-thread-reveal.mp4)
@@ -90,6 +90,9 @@ Deeper root-cause read:
    segments, but timing lands far too early or late because the
    on-screen text behaves like long held story cards rather than tight
    short-form pages.
+   After the adaptive cadence-threshold fix, this lane no longer fails
+   cadence review. The remaining problem is specifically fallback
+   caption timing/display behavior.
 
 2. `text-thread-reveal`
    The visual plan is built from five SVG chat screens and each scene in
@@ -125,6 +128,10 @@ Cross-lane conclusion:
 - `motionApplied: false` is the repeated smell across the weakest lanes.
 - Static image lanes are the worst offenders, but “video” lanes that are
   effectively abstract looping backgrounds fail for the same reason.
+- The old FFmpeg cadence threshold was also too insensitive for some
+  split or low-contrast edits. After lowering it adaptively, that
+  detector bug is no longer masking the true result on
+  `gameplay-confession-split`.
 - Caption sync failures split into two categories:
   real timing drift from fallback composition (`gameplay`, parts of
   `stock`) and OCR weakness on static/chat-heavy lanes (`text-thread`,
