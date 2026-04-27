@@ -36,18 +36,17 @@ source or topic
 
 ## Featured Example
 
-The main tracked showcase in this repo is the Reddit split-screen short.
-That is a showcase/hybrid example, not the default for every Reddit
-request. Default Reddit story mode is `reddit-post-over-gameplay`:
-full-screen gameplay, a Reddit post card opener, then captions over
-gameplay with no random support clips.
+The main tracked showcase in this repo is the Reddit post over gameplay
+short. This is the default Reddit story mode: full-screen gameplay, a
+Reddit post card opener, then captions over gameplay with no random
+support clips.
 
 Current showcase shape:
 
-- Reddit screenshot-style opener for the first `4s` to `5s`
-- story-related moving footage on the top half
-- Subway Surfers gameplay on the bottom half
-- midpoint overlay captions with active-word emphasis
+- full-screen Subway Surfers-style gameplay from frame one
+- Reddit screenshot-style opener for the first `3s` to `5s`
+- captions continue directly over gameplay after the opener
+- no stock B-roll, no generated story clips, no split-screen top lane
 
 Named bread-and-butter story archetypes:
 
@@ -60,13 +59,22 @@ Named bread-and-butter story archetypes:
 
 Start here:
 
+- [Reddit Post Over Gameplay](docs/user/examples/reddit-post-over-gameplay.md)
 - [Reddit Story Split-Screen](docs/user/examples/reddit-story-split-screen.md)
 - [reddit-story-short skill](skills/reddit-story-short/SKILL.md)
 - [reddit-post-over-gameplay-short skill](skills/reddit-post-over-gameplay-short/SKILL.md)
 - [reddit-card-overlay skill](skills/reddit-card-overlay/SKILL.md)
 
 <p align="center">
-  <video src="docs/demo/demo-8-reddit-story-split-screen.mp4" controls muted playsinline loop width="280"></video>
+  <a href="docs/demo/demo-9-reddit-post-over-gameplay.mp4">
+    <img src="docs/demo/demo-9-reddit-post-over-gameplay.gif" alt="Reddit post over gameplay showcase" width="280" />
+  </a>
+</p>
+
+Secondary hybrid preview:
+
+<p align="center">
+  <video src="docs/demo/demo-8-reddit-story-split-screen.mp4" controls muted playsinline loop width="220"></video>
 </p>
 
 Status guide:
@@ -96,6 +104,7 @@ Archetype rollout plan:
 
 Tracked preview clip:
 
+- [docs/demo/demo-9-reddit-post-over-gameplay.mp4](docs/demo/demo-9-reddit-post-over-gameplay.mp4)
 - [docs/demo/demo-8-reddit-story-split-screen.mp4](docs/demo/demo-8-reddit-story-split-screen.mp4)
 
 > Early development. Skills, flows, and runtime scripts are now the

@@ -2,6 +2,9 @@
 
 ## Showcase
 
+- **[Reddit Post Over Gameplay](examples/reddit-post-over-gameplay.md)** —
+  default Reddit story mode: full-screen gameplay, Reddit opener card,
+  captions, and no random clips
 - **[Reddit Story Split-Screen](examples/reddit-story-split-screen.md)** —
   current tracked showcase with split-screen grammar. Generic Reddit
   story requests should still use `reddit-post-over-gameplay` unless a
@@ -109,6 +112,8 @@ honest maturity tracking, not for first-time showcase docs.
 
 - **[Proving Wave 1](../../experiments/proving-wave-1/README.md)** —
   current best non-flagship candidates plus their review failures
+- **[Proving Wave 3](../../experiments/proving-wave-3/README.md)** —
+  one-at-a-time archetype proving with embedded demo MP4s
 
 ## Runnable Examples
 

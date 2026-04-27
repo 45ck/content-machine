@@ -79,6 +79,15 @@ scenes, switch to `reddit-story-split-screen` or
 - Use [`video-render`](../video-render/SKILL.md) or a lane-local FFmpeg
   assembly only if it exports caption sidecars and review artifacts.
 
+## Proven Example
+
+- User docs:
+  [`docs/user/examples/reddit-post-over-gameplay.md`](../../docs/user/examples/reddit-post-over-gameplay.md)
+- Embedded preview:
+  [`docs/demo/demo-9-reddit-post-over-gameplay.mp4`](../../docs/demo/demo-9-reddit-post-over-gameplay.mp4)
+- Proving run:
+  [`experiments/proving-wave-3/reddit-post-over-gameplay`](../../experiments/proving-wave-3/reddit-post-over-gameplay)
+
 ## Reject Conditions
 
 - Reddit card is buggy, HTML-looking, or has controls outside bounds.
