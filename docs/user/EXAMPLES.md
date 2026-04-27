@@ -19,6 +19,9 @@
   story showcase candidate with staged chat cards over gameplay support
 - **[SaaS Problem Solution](examples/saas-problem-solution.md)** —
   product-card showcase candidate with pain, proof, and CTA beats
+- **[Facts Listicle](examples/facts-listicle.md)** — countdown facts
+  showcase candidate with real voiceover, timed captions, card resets,
+  and publish-prep validation
 - **[Gemini Image-Led Shorts](examples/gemini-image-shorts.md)** —
   real rendered MP4 gallery from the image-led path; useful as a
   supporting showcase, not the flagship lane
@@ -31,8 +34,6 @@ not all proven examples yet.
 - **[Subway Confession Story](examples/subway-confession-story.md)** —
   proving lane; confession lane with support footage or receipts on top
   and gameplay below
-- **[Facts Listicle](examples/facts-listicle.md)** — numbered fast-fact
-  lane shape only; current proving render is too weak to showcase
 - **[Motion Card Lesson](examples/motion-card-lesson.md)** — narrow
   educational lane brief; no canonical proving render yet
 

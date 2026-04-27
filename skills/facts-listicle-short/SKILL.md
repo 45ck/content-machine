@@ -41,6 +41,19 @@ Script archetype: `listicle`.
 - support visuals plan per fact
 - final MP4 plus review bundle
 
+## Proven Example
+
+- Local proving bundle:
+  `experiments/proving-wave-3/fast-facts-countdown/outputs/final/video.mp4`
+- Tracked preview:
+  `docs/demo/demo-13-fast-facts-countdown.mp4`
+- Pattern used: seven scenes, `30.5s`, Kokoro voiceover, Whisper-derived
+  word timings, burned-in chunked captions, hard card resets, and fast
+  flash pulses for cadence.
+- Publish-prep passed portrait resolution, duration, format, cadence,
+  and audio-signal checks. OCR caption-sync still needs a proper caption
+  export sidecar for FFmpeg fallback renders.
+
 ## Optional Runtime Surface
 
 - Start with [`brief-to-script`](../brief-to-script/SKILL.md) or
@@ -63,6 +76,13 @@ Script archetype: `listicle`.
   needs caption sidecars and a real publish-prep pass on the final MP4.
 - Mock or silent audio is not acceptable for a proven lane. Facts shorts
   need real voiceover signal even when the cut is intentionally short.
+- If using a card-first fallback render, rasterize cards before final
+  assembly rather than decoding SVG on every video frame.
+- If the first publish-prep pass fails audio loudness by a small margin,
+  normalize the final mix instead of accepting a near-silent or
+  under-loud render.
+- Avoid tiny fact-support text that runs to the card edge; wrap support
+  lines inside the portrait safe area before producing the demo MP4/GIF.
 
 ## Aggregated From
 
@@ -82,3 +102,5 @@ Script archetype: `listicle`.
   not assumed from the script.
 - If the lane is intentionally under `30s`, expect the portrait review
   profile to fail duration unless you use a shorter profile on purpose.
+- Captions stay inside safe zones and do not collide with the fact
+  number, chips, or card text.
