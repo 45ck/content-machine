@@ -69,6 +69,9 @@ well:
 Read the current build plan:
 [Short-Form Roadmap](docs/direction/07-short-form-roadmap-20260424.md).
 
+Archetype rollout plan:
+[Archetype Rollout](docs/direction/08-archetype-rollout-20260427.md).
+
 Tracked preview clip:
 
 - [docs/demo/demo-8-reddit-story-split-screen.mp4](docs/demo/demo-8-reddit-story-split-screen.mp4)
@@ -238,6 +241,8 @@ Start here, then follow links downward:
 - [Harness Scripts](scripts/harness/README.md) - executable runtime entrypoints
 - [Short-Form Roadmap](docs/direction/07-short-form-roadmap-20260424.md) -
   what we are building next and why
+- [Archetype Rollout](docs/direction/08-archetype-rollout-20260427.md) -
+  which short-form lanes exist, which are proven, and what gets built next
 - [Direction](DIRECTION.md) - product boundaries and migration decisions
 - [User Guide](docs/user/README.md) - broader usage docs
 - [Developer Docs](docs/dev/README.md) - architecture, registries, and internals

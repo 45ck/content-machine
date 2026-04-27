@@ -11,6 +11,7 @@ order:
 
 - [`DIRECTION.md`](../DIRECTION.md) — where Content Machine is heading (skill pack + runtime)
 - [`direction/`](direction/) — phase plan, boundaries, keep/move/deprecate
+- [`direction/08-archetype-rollout-20260427.md`](direction/08-archetype-rollout-20260427.md) — the full short-form lane catalog and proving order
 
 ## Primary Surfaces
 

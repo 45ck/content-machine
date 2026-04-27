@@ -8,6 +8,8 @@ findings package.
 - [`01-boundaries.md`](01-boundaries.md) — layer-by-layer product boundaries
 - [`02-keep-move-deprecate.md`](02-keep-move-deprecate.md) — what stays, moves, or freezes
 - [`06-typescript-kernel-cut-line.md`](06-typescript-kernel-cut-line.md) — what TypeScript should actually remain
+- [`07-short-form-roadmap-20260424.md`](07-short-form-roadmap-20260424.md) — runtime-first build order
+- [`08-archetype-rollout-20260427.md`](08-archetype-rollout-20260427.md) — lane catalog, proving order, and family rollout
 - [`phases/`](phases/) — one file per phase, linked to the P0 beads
 
 The top-level [`DIRECTION.md`](../../DIRECTION.md) is the
