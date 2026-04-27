@@ -28,18 +28,13 @@
 - **[Faceless Mixed Short](examples/faceless-mixed-short.md)** —
   mixed-source explainer candidate with voiceover, music bed, captions,
   diagrams, UI cards, and practical tip beats
+- **[Subway Confession Story](examples/subway-confession-story.md)** —
+  gameplay-backed storytime showcase candidate with top support footage,
+  bottom Subway Surfers-style gameplay, and midpoint captions
 - **[Gemini Image-Led Shorts](examples/gemini-image-shorts.md)** —
   real rendered MP4 gallery from the image-led path; useful as a
   supporting showcase, not the flagship lane
 
-## Archetype Briefs
-
-These pages describe lane grammar and the right skills to use. They are
-not all proven examples yet.
-
-- **[Subway Confession Story](examples/subway-confession-story.md)** —
-  proving lane; confession lane with support footage or receipts on top
-  and gameplay below
 ## Recipes And Walkthroughs
 
 These are runnable technique docs. Some use provider keys or older

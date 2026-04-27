@@ -53,6 +53,22 @@ Fill variants:
 - split-screen `visuals.json`
 - final vertical MP4 plus review bundle
 
+## Proven Example
+
+- Full local proving render:
+  `experiments/proving-wave-2/gameplay-confession-split/output/final/video.mp4`
+- Tracked preview:
+  `docs/demo/demo-16-gameplay-confession-split.mp4`
+- Pattern used: full `1080x1920`, true top/bottom split, support footage
+  on top, Subway Surfers-style gameplay on bottom, visible hook overlay,
+  midpoint captions, and no preserved black side gutters in the final
+  frame.
+- The tracked preview passed portrait resolution, duration, format,
+  cadence, and audio-signal gates. The original wave-2 full OCR
+  caption-sync gate still fails on median drift/OCR confidence, so treat
+  it as a strong visual showcase candidate rather than a golden
+  caption-sync reference.
+
 ## Optional Runtime Surface
 
 - Build on [`faceless-mixed-short`](../faceless-mixed-short/SKILL.md)
@@ -98,6 +114,12 @@ Fill variants:
 - Small top-lane swaps that read as the same frame will still fail
   cadence review. Make the story-support changes visually obvious enough
   to register as new beats.
+- If promoting an older render, run publish-prep on the actual tracked
+  preview MP4 after compression. Re-encoding can change cadence
+  detection and should not be assumed safe.
+- OCR caption-sync is fragile when gameplay text and burned captions
+  overlap visually. Keep caption contrast high, avoid tiny subtitle
+  text, and prefer clean caption sidecars for future golden examples.
 
 ## Aggregated From
 
@@ -123,3 +145,5 @@ Fill variants:
   pre-burn intermediate.
 - Story-support changes are strong enough that the split-screen cadence
   detector sees them as real editorial beats.
+- The tracked demo file itself passes non-OCR publish-prep before being
+  referenced in README or user examples.

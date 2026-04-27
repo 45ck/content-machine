@@ -109,6 +109,14 @@ Faceless mixed preview:
   </a>
 </p>
 
+Gameplay confession preview:
+
+<p align="center">
+  <a href="docs/demo/demo-16-gameplay-confession-split.mp4">
+    <img src="docs/demo/demo-16-gameplay-confession-split.gif" alt="Gameplay confession split showcase candidate" width="220" />
+  </a>
+</p>
+
 Status guide:
 
 - `showcase`: real canonical example users should copy first
@@ -143,6 +151,7 @@ Tracked preview clip:
 - [docs/demo/demo-13-fast-facts-countdown.mp4](docs/demo/demo-13-fast-facts-countdown.mp4)
 - [docs/demo/demo-14-motion-card-lesson.mp4](docs/demo/demo-14-motion-card-lesson.mp4)
 - [docs/demo/demo-15-faceless-mixed-short.mp4](docs/demo/demo-15-faceless-mixed-short.mp4)
+- [docs/demo/demo-16-gameplay-confession-split.mp4](docs/demo/demo-16-gameplay-confession-split.mp4)
 - [docs/demo/demo-8-reddit-story-split-screen.mp4](docs/demo/demo-8-reddit-story-split-screen.mp4)
 
 > Early development. Skills, flows, and runtime scripts are now the

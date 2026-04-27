@@ -1,9 +1,14 @@
 # Subway Confession Story
 
-Status: `archetype brief`
+Status: `showcase candidate`
 
-This page describes the lane shape. The current repo output for this
-lane is still a proving artifact, not a showcase example.
+Tracked demo:
+
+<p align="center">
+  <a href="../../demo/demo-16-gameplay-confession-split.mp4">
+    <img src="../../demo/demo-16-gameplay-confession-split.gif" alt="Gameplay confession split showcase candidate" width="260" />
+  </a>
+</p>
 
 Pattern name: `gameplay-confession-split`.
 
@@ -29,6 +34,18 @@ Core shape:
 - no black gutters in either lane unless the creative format explicitly
   requires them
 
+Current proving result:
+
+- Full local MP4:
+  `experiments/proving-wave-2/gameplay-confession-split/output/final/video.mp4`
+- Tracked preview MP4:
+  [`docs/demo/demo-16-gameplay-confession-split.mp4`](../../demo/demo-16-gameplay-confession-split.mp4)
+- The tracked preview passed non-OCR publish-prep with portrait format,
+  `41.3s` duration, cadence, and audio-signal checks.
+- Full OCR caption-sync on the original wave-2 render still fails on
+  median drift and OCR confidence, so this is a showcase candidate, not
+  a golden caption-sync example.
+
 Primary skill:
 
 - [gameplay-confession-short](../../../skills/gameplay-confession-short/SKILL.md)
@@ -41,4 +58,4 @@ Related skills:
 
 Best current proving surface:
 
-- [experiments/codex-archetype-blackbox-v1/gameplay-confession/project/reference/reference-lane.md](../../../experiments/codex-archetype-blackbox-v1/gameplay-confession/project/reference/reference-lane.md)
+- [experiments/proving-wave-2/gameplay-confession-split/README.md](../../../experiments/proving-wave-2/gameplay-confession-split/README.md)

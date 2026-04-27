@@ -17,11 +17,12 @@ review record.
 | `fast-facts-countdown`      | [`docs/demo/demo-13-fast-facts-countdown.mp4`](../../docs/demo/demo-13-fast-facts-countdown.mp4) | `showcase candidate` | Portrait publish-prep passes; card layout works; needs caption sidecar/OCR integration for full sync gate. |
 | `motion-card-lesson`        | [`docs/demo/demo-14-motion-card-lesson.mp4`](../../docs/demo/demo-14-motion-card-lesson.mp4) | `showcase candidate` | Portrait publish-prep passes; card-state grammar works; needs richer motion states beyond hard resets. |
 | `faceless-mixed-short`      | [`docs/demo/demo-15-faceless-mixed-short.mp4`](../../docs/demo/demo-15-faceless-mixed-short.mp4) | `showcase candidate` | Portrait publish-prep passes; includes mixed visual modes, captions, and low music bed. |
+| `gameplay-confession-split` | [`docs/demo/demo-16-gameplay-confession-split.mp4`](../../docs/demo/demo-16-gameplay-confession-split.mp4) | `showcase candidate` | Strong native split-screen story lane; non-OCR gates pass; OCR caption-sync still needs cleanup. |
 
 ## Next Lanes
 
-1. `gameplay-confession-split`
-2. `micro-doc-breakdown`
+1. `micro-doc-breakdown`
+2. `ugc-avatar-short`
 
 Keep `reddit-story-split-screen` as the tracked hybrid showcase, but
 keep `reddit-post-over-gameplay` as the default generic Reddit mode.
