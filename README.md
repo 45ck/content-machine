@@ -115,6 +115,7 @@ Tracked preview clip:
 - [docs/demo/demo-9-reddit-post-over-gameplay.mp4](docs/demo/demo-9-reddit-post-over-gameplay.mp4)
 - [docs/demo/demo-10-stock-broll-explainer.mp4](docs/demo/demo-10-stock-broll-explainer.mp4)
 - [docs/demo/demo-11-text-thread-reveal.mp4](docs/demo/demo-11-text-thread-reveal.mp4)
+- [docs/demo/demo-12-saas-problem-solution.mp4](docs/demo/demo-12-saas-problem-solution.mp4)
 - [docs/demo/demo-8-reddit-story-split-screen.mp4](docs/demo/demo-8-reddit-story-split-screen.mp4)
 
 > Early development. Skills, flows, and runtime scripts are now the

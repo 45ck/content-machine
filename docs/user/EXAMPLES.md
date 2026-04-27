@@ -17,6 +17,8 @@
   narration, captions, and fast transition pulses
 - **[Text Message Drama](examples/text-message-drama.md)** — message
   story showcase candidate with staged chat cards over gameplay support
+- **[SaaS Problem Solution](examples/saas-problem-solution.md)** —
+  product-card showcase candidate with pain, proof, and CTA beats
 - **[Gemini Image-Led Shorts](examples/gemini-image-shorts.md)** —
   real rendered MP4 gallery from the image-led path; useful as a
   supporting showcase, not the flagship lane
@@ -31,8 +33,6 @@ not all proven examples yet.
   and gameplay below
 - **[Facts Listicle](examples/facts-listicle.md)** — numbered fast-fact
   lane shape only; current proving render is too weak to showcase
-- **[SaaS Problem Solution](examples/saas-problem-solution.md)** —
-  strongest current commercial proving lane, but still not fully proven
 - **[Motion Card Lesson](examples/motion-card-lesson.md)** — narrow
   educational lane brief; no canonical proving render yet
 

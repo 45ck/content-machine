@@ -53,6 +53,16 @@ Script archetype: `product-demo`.
 - Use [`publish-prep-review`](../publish-prep-review/SKILL.md) to fail
   weak demos or low-information product pitches.
 
+## Proven Example
+
+- User docs:
+  [`docs/user/examples/saas-problem-solution.md`](../../docs/user/examples/saas-problem-solution.md)
+- Embedded preview:
+  [`docs/demo/demo-12-saas-problem-solution.mp4`](../../docs/demo/demo-12-saas-problem-solution.mp4)
+- Use this as a product-card reference, not as the final quality bar for
+  SaaS ads. Stronger future examples should include screen-recorded
+  product proof, cursor motion, or UGC/avatar delivery.
+
 ## Technical Notes
 
 - A SaaS short should usually carry five explicit beats:
