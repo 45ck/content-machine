@@ -3,6 +3,12 @@
 This produces the same style as `output/demo-subway-pexels/video.mp4`: gameplay on one half,
 Pexels B-roll on the other, word-highlighted captions, muted gameplay audio.
 
+This is a split-screen Pexels recipe. It is not the
+`reddit-post-over-gameplay` archetype. For full-screen gameplay-only
+Reddit stories, use
+[`skills/reddit-post-over-gameplay-short/SKILL.md`](../../../skills/reddit-post-over-gameplay-short/SKILL.md)
+and do not request Pexels or random B-roll.
+
 Prereqs:
 
 - `.env` has `OPENAI_API_KEY` (keyword extraction) and `PEXELS_API_KEY` (stock footage).
@@ -38,7 +44,10 @@ cat <<'JSON' | node --import tsx scripts/harness/timestamps-to-visuals.ts
   "timestampsPath": "output/timestamps.json",
   "provider": "pexels",
   "orientation": "portrait",
-  "gameplayStyle": "subway-surfers",
+  "gameplay": {
+    "style": "subway-surfers",
+    "required": true
+  },
   "outputPath": "output/demo-subway-pexels/visuals.json"
 }
 JSON
@@ -50,7 +59,9 @@ cat <<'JSON' | node --import tsx scripts/harness/video-render.ts
   "timestampsPath": "output/timestamps.json",
   "audioPath": "output/audio.wav",
   "outputPath": "output/demo-subway-pexels/video.mp4",
-  "template": "brainrot-split-gameplay-top",
+  "compositionId": "SplitScreenGameplay",
+  "gameplayPosition": "top",
+  "contentPosition": "bottom",
   "downloadAssets": true
 }
 JSON
@@ -58,8 +69,9 @@ JSON
 
 Layout options:
 
-- Swap positions: `--split-layout gameplay-bottom`
-- Force full-screen: `--gameplay-position full` or `--content-position full`
+- Swap positions by changing `gameplayPosition` and `contentPosition`.
+- Do not use this Pexels recipe to force full-screen gameplay-only
+  Reddit output; use `reddit-post-over-gameplay` instead.
 
 Troubleshooting:
 

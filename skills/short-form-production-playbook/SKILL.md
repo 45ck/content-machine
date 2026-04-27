@@ -35,11 +35,13 @@ not hidden chat state.
 3. Decide whether the short is mainly:
    `explainer`, `proof/result`, `reaction`, `clip-and-comment`, or
    `story`.
-4. Pick the caption family before building visuals.
-5. Build visuals that leave room for captions and platform chrome.
-6. Render.
-7. Review.
-8. Reject and regenerate if the edit feels weak, messy, repetitive, or
+4. Pick exactly one archetype before sourcing visuals. Do not blend
+   formats unless the user asks for a hybrid.
+5. Pick the caption family before building visuals.
+6. Build visuals that leave room for captions and platform chrome.
+7. Render.
+8. Review.
+9. Reject and regenerate if the edit feels weak, messy, repetitive, or
    unreadable.
 
 ## What Good Shorts Usually Need
@@ -68,6 +70,8 @@ not hidden chat state.
   caption-aware layout, audio layering.
 - [review-loop.md](references/review-loop.md)
   Self-validation, rejection triggers, and regeneration choices.
+- [archetype-map.md](references/archetype-map.md)
+  Named archetypes, default visual modes, and generation order.
 - For caption styling details, use
   [`../short-form-captions/SKILL.md`](../short-form-captions/SKILL.md).
 
@@ -89,6 +93,8 @@ not hidden chat state.
 - Do not rely on deterministic templates as a substitute for judgment.
 - Do not call a short "good" because the codec, duration, and aspect
   ratio passed.
+- Do not add random clips to a pure gameplay archetype just to create
+  visual variety.
 
 ## Validation Checklist
 
@@ -99,5 +105,6 @@ not hidden chat state.
 - No source-text collision, muddy layout, or dead air slipped through.
 - No black gutters, boxed media, or default template background slipped
   through unless the format intentionally uses them.
+- The final video still matches the chosen archetype.
 - The review step gives a real go/no-go result, and failure leads to a
   concrete reroute.

@@ -7,10 +7,11 @@ lane is still a proving artifact, not a showcase example.
 
 Pattern name: `gameplay-confession-split`.
 
-Default variant: `native-full-bleed-split`.
+Default variant: `subject-safe-split`.
 
-Fallback variant: `contained-blur-split` when the source gets too soft
-or loses the subject after crop-fill.
+Use `crop-fill-split` when the subject survives the crop. Use
+`contained-blur-split` when the source gets too soft or loses the
+subject after crop-fill.
 
 This is the bread-and-butter non-Reddit story lane.
 
@@ -20,8 +21,10 @@ to present itself as a Reddit post.
 Core shape:
 
 - visible stakes in the first line
-- top lane carries full-bleed moving support footage or receipts
-- bottom lane carries full-bleed Subway Surfers or similar gameplay
+- top lane carries moving support footage or receipts with crop/fill
+  chosen per asset
+- bottom lane carries Subway Surfers or similar gameplay with no black
+  gutters
 - captions sit between the lanes with active-word emphasis
 - no black gutters in either lane unless the creative format explicitly
   requires them

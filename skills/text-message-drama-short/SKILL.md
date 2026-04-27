@@ -5,6 +5,10 @@ description: Turn chat logs, DMs, iMessage-style arguments, or receipt-heavy rev
 
 # Text Message Drama Short
 
+Canonical lane ID: `text-thread-reveal`.
+
+Script archetype: `story`.
+
 ## Use When
 
 - The source is a text thread, DM exchange, breakup chat, scam message,

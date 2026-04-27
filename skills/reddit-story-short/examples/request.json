@@ -15,7 +15,8 @@
     "background": "full-screen subway-surfers gameplay from frame one",
     "opener": "3-5s Reddit screenshot-style post card overlay with upvotes and awards",
     "afterOpener": "remove card and continue narration captions directly over gameplay",
-    "captions": "bold two-line active-word captions in the center-lower safe zone"
+    "captions": "bold two-line active-word captions in the center-lower safe zone",
+    "forbiddenLayers": "no stock clips, no random B-roll, no split-screen top lane"
   },
   "reviewRules": {
     "rejectStaticBackgrounds": true,

@@ -5,10 +5,13 @@ card is not the right opener.
 
 Pattern name: `gameplay-confession-split`.
 
-Default variant: `native-full-bleed-split`.
+Default variant: `subject-safe-split`.
 
-Fallback variant: `contained-blur-split` when crop-fill makes the
-important subject too soft or cuts it off.
+Fill variants:
+
+- `crop-fill-split` when the important subject survives the crop.
+- `contained-blur-split` when crop-fill makes the important subject too
+  soft or cuts it off.
 
 ## Shape
 
@@ -22,10 +25,9 @@ important subject too soft or cuts it off.
 
 ## Lane Fill Defaults
 
-- Start with full-bleed crop-fill for both halves so the video feels
-  native to TikTok/Reels instead of boxed.
-- If the source clip has black side gutters, crop them out before
-  scaling.
+- Start by removing black gutters, not by blindly scaling.
+- If the source clip has black side gutters and the subject survives,
+  crop them out before scaling.
 - If crop-fill hurts the shot, use a blurred duplicate of the same clip
   as the lane background and place the contained source over it.
 - Never preserve plain black gutters as the final default.

@@ -1,6 +1,6 @@
 {
   "archetype": "gameplay-confession-split",
-  "variant": "native-full-bleed-split",
+  "variant": "subject-safe-split",
   "storyType": "roommate-drama",
   "tone": "dramatic",
   "targetDuration": 45,
@@ -9,8 +9,8 @@
     "layout": "split-screen-50-50"
   },
   "visualRules": {
-    "topLane": "full-bleed story-related motion clips or receipts",
-    "bottomLane": "full-bleed subway-surfers gameplay",
+    "topLane": "story-related motion clips or receipts with crop-fill or contained-blur chosen per asset",
+    "bottomLane": "subway-surfers gameplay with no black gutters",
     "captionPlacement": "midpoint overlay"
   },
   "reject": [

@@ -14,8 +14,13 @@ old CLI-first guides now live under
    flows, and optional repo-side runners
 2. [Configuration](CONFIGURATION.md) — defaults, providers, and
    data-driven resources
-3. [Reddit Story Split-Screen](examples/reddit-story-split-screen.md) — main reference example
+3. [Reddit Story Split-Screen](examples/reddit-story-split-screen.md) — current showcase/hybrid example
 4. [Examples](EXAMPLES.md) — additional workflows and secondary example outputs
+
+Default Reddit story mode is `reddit-post-over-gameplay`: full-screen
+gameplay with a Reddit post card opener and captions, no random clips.
+The split-screen page is a showcase for the supported hybrid mode, not
+the generic default for every Reddit request.
 
 ## Thin `cm` Shell
 

@@ -28,9 +28,13 @@ description: Score the script, validate the rendered video, and produce publish 
    noise.
 3. Reject source-text collisions, unreadable cadence, freeze, and weak
    pacing even if the MP4 is technically valid.
-4. Use the review bundle to decide whether to rework script, audio,
+4. Reject archetype violations: pure gameplay modes cannot contain
+   random stock clips, split-screen lanes cannot preserve accidental
+   black gutters, and cards/receipts cannot be cropped beyond
+   readability.
+5. Use the review bundle to decide whether to rework script, audio,
    visuals, or captions.
-5. When the bundle fails, route the fix through
+6. When the bundle fails, route the fix through
    [`short-form-production-playbook`](../short-form-production-playbook/SKILL.md)
    instead of retrying the same bad plan.
 
@@ -71,6 +75,21 @@ description: Score the script, validate the rendered video, and produce publish 
   belongs in the visuals selection step.
 - The goal is a trustworthy go/no-go decision, not paperwork.
 
+## Native-Feel Hard Rejects
+
+- Reject `reddit-post-over-gameplay` if any random clip, stock B-roll,
+  generated scene, support footage, or top lane appears.
+- Reject visible black gutters, boxed intermediates, or default blank
+  template backgrounds unless the format explicitly calls for them.
+- Reject any crop that cuts off the primary face, card text, receipt,
+  UI target, gameplay affordance, or other key subject.
+- Reject missing, silent, near-silent, or music-only audio when
+  narration is expected.
+- Reject missing caption sidecars, failed OCR caption sync, unreadable
+  captions, or captions outside safe zones.
+- Reject if the first `1s` to `3s` does not look native: no visible
+  stakes, no hook asset, or only generic gameplay/stock without context.
+
 ## Optional Runtime Surface
 
 - Repo-side runner:
@@ -86,3 +105,7 @@ description: Score the script, validate the rendered video, and produce publish 
 - `score.json` exists and `passed` is true.
 - `publish.json` exists and includes a checklist and description.
 - The review outcome clearly tells you what to fix next if it fails.
+- The rendered video still matches the named archetype selected in the
+  plan.
+- No black gutters, unrelated media layers, cropped-off cards, or
+  cropped-off subjects are visible in the final MP4.

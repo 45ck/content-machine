@@ -23,9 +23,11 @@ description: Turn a Reddit-style post, confession, text thread, or comment story
 3. Compress the story into setup, escalation, twist, and payoff.
 4. Use on-screen text selectively for high-drama phrases and receipts,
    not for every sentence.
-5. Pair the narration with visually supportive footage, gameplay, UI
-   mockups, Reddit post/comment cards, receipts, or stylized generated
-   scenes.
+5. Pair the narration with the selected visual mode. For
+   `reddit-post-over-gameplay`, that means gameplay, Reddit/card
+   overlays, and captions only. For `reddit-story-split-screen`, support
+   footage, UI mockups, receipts, or generated scenes may appear in the
+   top lane when they are story-relevant.
 6. End on judgment, reveal, or unresolved tension that invites comment.
 
 ## Archetype Names
@@ -33,6 +35,7 @@ description: Turn a Reddit-style post, confession, text thread, or comment story
 - `reddit-post-over-gameplay`: the classic pattern. Full-screen
   gameplay starts immediately, a Reddit post card/SVG sits over it for
   the first `3s` to `5s`, then captions continue over the gameplay.
+  This mode has no random clips, no stock B-roll, and no top lane.
 - `reddit-story-split-screen`: hybrid story-support pattern. Reddit
   card opens the short, then story-related footage/receipts run on the
   top half while gameplay runs on the bottom half.
@@ -78,6 +81,10 @@ description: Turn a Reddit-style post, confession, text thread, or comment story
 - Default visual shape for generic "Reddit story" requests should be
   `reddit-post-over-gameplay` unless the user asks for story footage,
   stock footage, receipts, or a split-screen lane.
+- In `reddit-post-over-gameplay`, do not add unrelated support clips to
+  "make it more dynamic." The dynamism comes from gameplay motion,
+  active captions, the opener card, and optional comment/verdict
+  overlays.
 - Use `reddit-story-split-screen` when the story needs support footage
   after the opener:
   title/post card first with upvotes/awards, then story-related support
@@ -101,6 +108,19 @@ description: Turn a Reddit-style post, confession, text thread, or comment story
 - Background gameplay can help, but only if it does not trivialize the
   story tone.
 
+## Mode Selection
+
+- User says "Reddit story", "AITA video", "Subway Surfers Reddit", or
+  "like the ones on TikTok":
+  choose `reddit-post-over-gameplay`.
+- User says "with footage", "with receipts", "stock footage", "top and
+  bottom", or "split screen":
+  choose `reddit-story-split-screen`.
+- User gives a confession/storytime but not a Reddit post:
+  choose `gameplay-confession-split`.
+- If in doubt, choose the simpler mode. Do not add extra video layers
+  without a reason.
+
 ## Aggregated From
 
 - `raga70/FullyAutomatedRedditVideoMakerBot`
@@ -113,4 +133,6 @@ description: Turn a Reddit-style post, confession, text thread, or comment story
 - The middle does not wander or repeat setup.
 - The payoff lands clearly.
 - Visual support matches the tone and does not look accidental.
+- Pure gameplay mode contains only gameplay, Reddit/card overlays, and
+  captions.
 - The short invites reaction without relying on bait-only wording.

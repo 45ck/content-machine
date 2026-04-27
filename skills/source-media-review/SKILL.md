@@ -53,6 +53,10 @@ description: Audit user-supplied video, audio, image, and gameplay inputs before
 
 - already-burned captions or persistent source text
 - speaker framing that will break vertical crops
+- black gutters or letterboxing that must be removed before final
+  render
+- shots where crop-fill would cut off the actual subject and therefore
+  require contained-blur instead
 - gameplay HUDs or screen UI that cannot survive heavy bottom captions
 - footage that is too short to cover the script beat it is assigned to
 - audio drift, clipping, low signal, or music-dominated audio
@@ -79,4 +83,6 @@ description: Audit user-supplied video, audio, image, and gameplay inputs before
 - Caption-clean vs reference-only is explicit.
 - Files marked for direct use are technically compatible with the
   planned output.
+- Any file with gutters has an explicit `crop-fill` or
+  `contained-blur` plan.
 - Rejected files include a concrete reason, not a vague dislike.

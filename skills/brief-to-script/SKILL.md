@@ -1,26 +1,6 @@
 ---
 name: brief-to-script
 description: Turn a topic, packaging hint, or blueprint into a script file that the rest of the pack can use.
-allowedTools:
-  - shell
-  - read
-  - write
-model: inherit
-argumentHint: '{"topic":"Redis vs PostgreSQL for caching","archetype":"versus","targetDuration":35,"outputPath":"output/content-machine/script/script.json"}'
-entrypoint: node --import tsx scripts/harness/brief-to-script.ts
-inputs:
-  - name: topic
-    description: Short brief or topic string to turn into a script.
-    required: true
-  - name: archetype
-    description: Script archetype such as listicle, versus, or howto.
-    required: false
-  - name: blueprintPath
-    description: Optional VideoBlueprint.v1.json to constrain pacing and structure.
-    required: false
-outputs:
-  - name: script.json
-    description: Script file written to the requested output path.
 ---
 
 # Brief To Script
@@ -33,31 +13,59 @@ outputs:
 - Claude Code or Codex should produce a reusable `script.json` rather
   than freeform prose.
 
-## Invocation
+## What This Skill Owns
 
-Pipe JSON to the repo-side entrypoint:
+- Hook quality and first-line momentum.
+- Scene rhythm that can survive chunked captions.
+- Matching script structure to the chosen archetype or blueprint.
+- Writing for spoken delivery instead of blog-style reading.
 
-```bash
-cat <<'JSON' | node --import tsx scripts/harness/brief-to-script.ts
-{
-  "topic": "Redis vs PostgreSQL for caching",
-  "archetype": "versus",
-  "targetDuration": 35,
-  "outputPath": "output/content-machine/script/script.json"
-}
-JSON
-```
+## Core Approach
+
+1. Start from the packaging promise, not the topic label.
+2. Build around spoken payoff beats, not paragraph logic.
+3. Keep scenes short enough that captions and visuals can both breathe.
+4. Write lines that survive voice delivery without sounding read off a
+   page.
+5. If a blueprint exists, treat it as structure and pacing guidance, not
+   handcuffs for exact wording.
+
+## Inputs
+
+- a topic, angle, or packaging promise
+- optional script archetype such as `story`, `listicle`, `versus`,
+  `howto`, or `product-demo`
+- optional `laneId` only as context for tone and pacing; do not use the
+  lane ID as the script archetype
+- optional research, packaging, or blueprint files
+
+## Outputs
+
+- one reusable `script.json`
+- scenes that downstream audio, caption, and visual steps can actually
+  use
 
 ## Output Contract
 
 - Writes one `script.json` file to the requested `outputPath`.
 - If `packagingPath`, `researchPath`, or `blueprintPath` are supplied,
   they must already exist.
-- Returns a JSON envelope describing the output path and scene count.
+- The main success condition is that the script is speakable, scannable,
+  and editable downstream.
+
+## Optional Runtime Surface
+
+- Repo-side runner:
+  `node --import tsx scripts/harness/brief-to-script.ts`
+- Supporting code:
+  `src/harness/brief-to-script.ts`,
+  `src/script/*`
 
 ## Validation Checklist
 
 - `outputPath` exists.
 - Script title and scene count are non-empty.
+- The hook lands quickly and the body supports short-form pacing.
+- Lines read like speech, not article prose.
 - If a blueprint was provided, downstream checks should confirm the
   generated script still matches that blueprint.

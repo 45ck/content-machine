@@ -1,0 +1,30 @@
+{
+  "archetype": "reddit-story-split-screen",
+  "target": {
+    "durationSeconds": 45,
+    "orientation": "portrait",
+    "platform": "tiktok"
+  },
+  "story": {
+    "title": "AITA for exposing my roommate's fake job offer to our landlord?",
+    "hook": "My roommate lied about a six-figure remote job, so I let our landlord hear the rejection voicemail.",
+    "tone": "dramatic",
+    "subreddit": "AmItheAsshole"
+  },
+  "visualShape": {
+    "opener": "3-5s Reddit screenshot-style post card with upvotes, comments, and optional awards",
+    "topLaneAfterOpener": "story-related receipts, screens, faces, or support motion only",
+    "bottomLane": "continuous full-bleed subway-surfers gameplay",
+    "layout": "50/50 vertical stack",
+    "captions": "midpoint overlay with active-word highlighting",
+    "fillMode": "crop-fill for expendable motion; contained-blur for cards, receipts, faces, and screens"
+  },
+  "reject": [
+    "random unrelated clips",
+    "black gutters",
+    "cropped-off cards or faces",
+    "buggy reddit card",
+    "silent audio",
+    "captions under platform UI"
+  ]
+}

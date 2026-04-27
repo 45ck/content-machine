@@ -44,12 +44,49 @@ outputs:
   generated shots into the render plan without sneaking already-captioned
   shorts into `visuals.json`.
 
-## Invocation
+## What This Skill Owns
 
-```bash
-cat skills/timestamps-to-visuals/examples/request.json | \
-  node --import tsx scripts/harness/timestamps-to-visuals.ts
-```
+- Translating spoken beats into visual beats.
+- Picking footage that leaves room for caption treatment.
+- Balancing clarity, pace, and motion across scenes.
+- Enforcing the rule that winner shorts are references, not raw assets.
+
+## Core Approach
+
+1. Read the spoken timing as edit rhythm, not just timestamps.
+2. Choose the archetype before choosing providers. Visual routing must
+   obey the archetype.
+3. Choose visuals that support the line being spoken instead of merely
+   illustrating keywords.
+4. Leave caption space intentionally. The frame is not full just because
+   it can be.
+5. Prefer raw, clean footage over already-finished internet shorts.
+6. Escalate to generated media only when stock, local, or gameplay
+   footage is the wrong fit.
+
+## Archetype Routing Rules
+
+- `reddit-post-over-gameplay`: gameplay only. Do not select stock
+  footage, generated scenes, local B-roll, top-lane support clips, or
+  keyword wallpaper. The visual plan should route one full-screen
+  gameplay source plus Reddit/card and caption overlays.
+- `reddit-story-split-screen`: use a Reddit opener, then top-lane
+  story support plus bottom gameplay. Top-lane clips must be relevant
+  receipts, screens, faces, or story-support motion.
+- `gameplay-confession-split`: non-Reddit story support on top plus
+  gameplay on bottom. Do not add Reddit chrome unless the source is
+  actually Reddit-native.
+
+## Inputs
+
+- `timestamps.json`
+- optional provider preferences
+- optional local footage, gameplay, or routing hints
+- orientation and framing constraints
+
+## Outputs
+
+- one `visuals.json` plan with enough scene metadata for render
 
 ## Output Contract
 
@@ -64,6 +101,15 @@ cat skills/timestamps-to-visuals/examples/request.json | \
   `reverse-engineer-winner` input instead of reusing it as visual stock.
 - Returns a JSON envelope with the final visuals path and generated
   scene count plus visual quality pass/score fields when exported.
+- The main output is a usable cut plan, not keyword wallpaper.
+
+## Optional Runtime Surface
+
+- Repo-side runner:
+  `node --import tsx scripts/harness/timestamps-to-visuals.ts`
+- Supporting code:
+  `src/harness/timestamps-to-visuals.ts`,
+  `src/visuals/*`
 
 ## Validation Checklist
 
@@ -73,3 +119,5 @@ cat skills/timestamps-to-visuals/examples/request.json | \
 - The visuals plan covers the scenes implied by `timestamps.json`.
 - Each visual entry includes enough metadata for downstream render work.
 - Any local video assets are free of persistent burned-in source text.
+- The planned visuals leave enough room for the caption treatment.
+- The visuals plan still matches the chosen archetype.

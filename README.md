@@ -36,11 +36,11 @@ source or topic
 
 ## Featured Example
 
-The main reference lane in this repo is the Reddit split-screen short.
-It is the only current first-class showcase example. Everything else in
-the repo should be treated as either a supported recipe, an archetype
-brief, or a proving artifact until its canonical MP4 and review status
-are equally solid.
+The main tracked showcase in this repo is the Reddit split-screen short.
+That is a showcase/hybrid example, not the default for every Reddit
+request. Default Reddit story mode is `reddit-post-over-gameplay`:
+full-screen gameplay, a Reddit post card opener, then captions over
+gameplay with no random support clips.
 
 Current showcase shape:
 

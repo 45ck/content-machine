@@ -5,6 +5,10 @@ description: Build a numbered or promise-driven fact short with one clear beat p
 
 # Facts Listicle Short
 
+Canonical lane ID: `fast-facts-countdown`.
+
+Script archetype: `listicle`.
+
 ## Use When
 
 - The content is strongest as a compact list, countdown, or “things you

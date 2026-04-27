@@ -5,6 +5,10 @@ description: Turn a topic, fact, or news hook into a faceless stock-footage expl
 
 # Stock Footage Edutainment Short
 
+Canonical lane ID: `stock-b-roll-explainer`.
+
+Script archetype: `explainer` or `howto`.
+
 ## Use When
 
 - The lane should feel like a classic faceless TikTok or Shorts

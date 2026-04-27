@@ -5,6 +5,10 @@ description: Turn a product or SaaS into a short ad or creator-style pitch using
 
 # SaaS Problem Solution Short
 
+Canonical lane ID: `saas-problem-solution`.
+
+Script archetype: `product-demo`.
+
 ## Use When
 
 - The input is a product page, SaaS URL, app, or service that needs a

@@ -5,6 +5,8 @@ description: Create the classic Reddit-story format where a Reddit post card app
 
 # Reddit Post Over Gameplay Short
 
+This is the default Reddit story mode.
+
 ## Use When
 
 - The user asks for the familiar TikTok/Reels Reddit-story format.
@@ -16,6 +18,8 @@ description: Create the classic Reddit-story format where a Reddit post card app
 ## Pattern Name
 
 Use `reddit-post-over-gameplay` for this archetype.
+
+Default variant: `full-gameplay-card`.
 
 Do not confuse it with:
 
@@ -35,11 +39,29 @@ Do not confuse it with:
 5. Continue the narration with bold, two-line captions over gameplay.
 6. End on judgment bait, comments prompt, or unresolved tension.
 
+## Hard Boundary
+
+No random stock clips, no story-support B-roll, no top-lane footage.
+
+The only visual layers are:
+
+- full-screen gameplay
+- opening Reddit card/post overlay
+- narration captions
+- optional comments/verdict overlay near the end
+- optional lightweight engagement stickers that do not change the
+  underlying format
+
+If the plan needs receipts, stock footage, screenshots, or generated
+scenes, switch to `reddit-story-split-screen` or
+`gameplay-confession-split`.
+
 ## Visual Rules
 
 - Render `1080x1920`, `9:16`.
 - Gameplay should be full-bleed. If the gameplay source has black
-  gutters, crop the useful center or build a blurred gameplay fill.
+  gutters, crop the useful center or build a blurred gameplay fill. Do
+  not leave plain side gutters.
 - Keep the Reddit card inside the social safe box; do not cover the
   right-side platform action column or bottom caption area.
 - The card is a hook asset, not a reading wall. Show the title and
@@ -61,6 +83,8 @@ Do not confuse it with:
 
 - Reddit card is buggy, HTML-looking, or has controls outside bounds.
 - Full-screen gameplay has black gutters.
+- Any unrelated stock, B-roll, support clip, or top-lane footage appears
+  in this mode.
 - The post body stays on screen too long and becomes unreadable.
 - Captions collide with the opener card or platform UI safe zones.
 - The video has no voiceover or no audible background/retention audio.

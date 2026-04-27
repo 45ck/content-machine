@@ -93,9 +93,15 @@ outputs:
 - For Reddit-story or gameplay-backed split-screen work, default to a
   true `50/50` vertical split unless the brief has a stronger reason not
   to.
-- Treat each lane as its own frame. Fit media inside that lane first,
-  then pad if necessary. Do not use crop-fill as the default in split
-  lanes, because it silently chops off the actual subject.
+- Honor the upstream fill plan from
+  [`reframe-vertical`](../reframe-vertical/SKILL.md): `crop-fill`,
+  `contained-blur`, or `fit-pad`.
+- Never let a default `contain` render create accidental plain black
+  gutters. If containment is needed, use a designed/blurred fill behind
+  it unless the format intentionally calls for black.
+- For pure `reddit-post-over-gameplay`, render full-screen gameplay
+  only with card/caption overlays. Do not create a top lane or request
+  support clips.
 - If captions belong on the seam between the two lanes, overlay them at
   the midpoint instead of inserting a dedicated caption band.
 - Treat hook cards and opener assets as their own upper-band layer, not
@@ -152,3 +158,6 @@ outputs:
   aligned.
 - No source-text collision was introduced by the footage choice.
 - The final frame composition still leaves room for platform chrome.
+- Pure gameplay modes contain no unrelated video layers.
+- Split-screen lanes use the planned fill strategy and do not show
+  accidental gutters or cropped-off subjects.

@@ -1,26 +1,42 @@
 # Examples
 
-## Featured Example
+## Showcase
 
 - **[Reddit Story Split-Screen](examples/reddit-story-split-screen.md)** —
-  Reddit opener card, top-lane story footage, bottom-lane gameplay
+  current tracked showcase with split-screen grammar. Generic Reddit
+  story requests should still use `reddit-post-over-gameplay` unless a
+  split-screen/top-lane support mode is requested.
 
-## Additional Workflows
+## Secondary Real Renders
+
+- **[Gemini Image-Led Shorts](examples/gemini-image-shorts.md)** —
+  real rendered MP4 gallery from the image-led path; useful as a
+  supporting showcase, not the flagship lane
+
+## Archetype Briefs
+
+These pages describe lane grammar and the right skills to use. They are
+not all proven examples yet.
 
 - **[Subway Confession Story](examples/subway-confession-story.md)** —
-  confession lane with support footage or receipts on top and gameplay
-  below
+  proving lane; confession lane with support footage or receipts on top
+  and gameplay below
 - **[Text Message Drama](examples/text-message-drama.md)** — message
-  bubbles, receipts, and staged reveal beats
+  lane grammar; not yet a canonical example
 - **[Stock Footage Edutainment](examples/stock-footage-edutainment.md)** —
-  MoneyPrinter-style faceless explainer lane with stronger scene
-  contracts
+  strongest current faceless-information proving lane, but still not a
+  showcase example
 - **[Facts Listicle](examples/facts-listicle.md)** — numbered fast-fact
-  lane with one beat per fact
+  lane shape only; current proving render is too weak to showcase
 - **[SaaS Problem Solution](examples/saas-problem-solution.md)** —
-  creator-adjacent product lane with hook, pain, demo, and CTA
+  strongest current commercial proving lane, but still not fully proven
 - **[Motion Card Lesson](examples/motion-card-lesson.md)** — narrow
-  educational lane built from timed card states and reveal beats
+  educational lane brief; no canonical proving render yet
+
+## Recipes And Walkthroughs
+
+These are runnable technique docs. Some use provider keys or older
+surfaces and should not be confused with flagship examples.
 
 ### Listicle from a trending topic
 
@@ -79,15 +95,20 @@ See [NanoBanana + Ken Burns example](examples/nanobanana-kenburns.md) for full c
 
 ## Additional Walkthroughs
 
-These examples show stage-by-stage pipelines with all options:
-
-- **[Gemini Image-Led Shorts](examples/gemini-image-shorts.md)** — AI-generated images with Gemini, real rendered examples
 - **[Latest News Listicle](examples/latest-news-listicle.md)** — research → script → audio → visuals → video
 - **[Split-Screen Gameplay](examples/split-screen-gameplay.md)** — gameplay on one half, stock B-roll on the other
 - **[Complex Plane Rotation](examples/complex-plane-rotation.md)** — custom Remotion template with drawn diagrams
 - **[NanoBanana + Ken Burns](examples/nanobanana-kenburns.md)** — AI-generated images with motion effects
 - **[NanoBanana + Veo](examples/nanobanana-veo.md)** — AI images turned into video clips
 - **[Import Render Templates](examples/import-render-templates.md)** — using and creating custom templates
+
+## Proving Artifacts
+
+Internal proving bundles live under `experiments/` and are useful for
+honest maturity tracking, not for first-time showcase docs.
+
+- **[Proving Wave 1](../../experiments/proving-wave-1/README.md)** —
+  current best non-flagship candidates plus their review failures
 
 ## Runnable Examples
 

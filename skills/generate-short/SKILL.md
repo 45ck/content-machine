@@ -16,7 +16,10 @@ inputs:
     description: Directory that will receive the generated stage artifacts.
     required: false
   - name: archetype
-    description: Optional script archetype such as listicle or versus.
+    description: Optional script archetype such as story, listicle, versus, howto, or product-demo.
+    required: false
+  - name: laneId
+    description: Optional visual/editing lane such as reddit-post-over-gameplay, stock-b-roll-explainer, or gameplay-confession-split.
     required: false
   - name: referenceVideoPath
     description: Optional reference short to reverse-engineer before generation.
@@ -51,7 +54,7 @@ outputs:
 - The user wants the default skills-first path from topic to video files
   in one call.
 - Claude Code or Codex should hand back the full file set instead of
-  manually coordinating stage-level wrappers.
+  manually coordinating each stage itself.
 - A reference winner should be ingested first so script generation can
   inherit blueprint and archetype hints.
 - The run should use the pack's built-in audio, captions, visuals,
@@ -66,6 +69,8 @@ outputs:
 - Audio and timestamp generation that the caption system can actually
   use.
 - Visual planning that respects caption space instead of fighting it.
+- Overall editorial judgment from
+  [`short-form-production-playbook`](../short-form-production-playbook/SKILL.md).
 - Caption-treatment choice through
   [`short-form-captions`](../short-form-captions/SKILL.md).
 - Final render and review gating.
@@ -73,18 +78,25 @@ outputs:
 ## Workflow
 
 1. Start with the brief, not the render flags.
-2. Generate a script with enough punch to support chunked reading.
-3. Generate audio and timestamps cleanly enough that captions will not
+2. Pick `laneId` separately from `archetype` when the brief implies a
+   visual/editing lane. `archetype` is the script shape;
+   `laneId` is the video format.
+3. Generate a script with enough punch to support chunked reading.
+4. Generate audio and timestamps cleanly enough that captions will not
    be forced to compensate.
-4. Build visuals that leave caption room and avoid baked-in source text.
-5. Choose the caption family before render.
-6. Render.
-7. Review. Reject bad outputs instead of rebranding them as acceptable.
+5. Build visuals that leave caption room and avoid baked-in source text.
+6. Choose the caption family before render.
+7. Use
+   [`short-form-production-playbook`](../short-form-production-playbook/SKILL.md)
+   when you need hook, pacing, visual-assembly, or rejection guidance
+   instead of only stage execution.
+8. Render.
+9. Review. Reject bad outputs instead of rebranding them as acceptable.
 
-## Technical Surface
+## Optional Runtime Surface
 
-- Full runtime entrypoint when you want repo-side execution from a
-  coding-agent CLI:
+- Repo-side runner when you want the package to execute the path
+  directly:
   `node --import tsx scripts/harness/generate-short.ts`
 - Supporting code:
   `src/harness/generate-short.ts`,
@@ -105,6 +117,9 @@ outputs:
   `visuals/visual-quality.json`, `render/captions.remotion.json`,
   `render/captions.srt`, `render/captions.ass`, and
   `quality-summary.json`.
+- The default review path should carry `render/captions.remotion.json`
+  into `publish-prep` so the final MP4 is checked for actual rendered
+  caption sync, not just for a valid caption plan on disk.
 - Runs `publish-prep` by default and writes its bundle unless
   `publishPrep.enabled` is `false`.
 - Fails closed by default when the review bundle reports `passed: false`.

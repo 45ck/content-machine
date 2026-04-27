@@ -88,15 +88,18 @@ outputs:
 5. Keep all footer/meta controls inside the visible card bounds; broken
    alignment reads instantly as fake.
 6. Use the card as a short visual beat, not a full-screen reading wall.
-7. Pair it with narration and later visual escalation; do not let the
-   whole short become a static screenshot.
+7. Pair it with narration and the selected archetype. Do not let the
+   whole short become a static screenshot, but also do not add extra
+   visual layers that violate the chosen mode.
 
 ## Good Pattern
 
 - 1 opening beat:
   show the question/post card
 - narration continues while the card exits
-- later beats cut to gameplay, stock, diagrams, or generated scenes
+- later beats follow the chosen archetype:
+  `reddit-post-over-gameplay` stays gameplay-only, while
+  `reddit-story-split-screen` may move into story-support footage
 - optional return:
   use comments, verdict, or reaction callouts as secondary overlays
 
@@ -105,6 +108,7 @@ outputs:
 - full post body on screen for too long
 - unreadably small counts and metadata
 - card treated as the only visual for the entire short
+- random stock/B-roll added to `reddit-post-over-gameplay`
 - generic white rectangle with no platform-specific hierarchy
 - custom SVG/HTML chrome with drifting controls, overflowed text, or
   footer elements hanging outside the card

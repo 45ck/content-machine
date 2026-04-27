@@ -27,11 +27,15 @@ description: Turn a confession, AITA-style dilemma, roommate drama, or anonymous
 
 Use `gameplay-confession-split` for this archetype.
 
-Default variant: `native-full-bleed-split`.
+Default variant: `subject-safe-split`.
 
-Fallback variant: `contained-blur-split` when crop-fill would destroy
-the actual subject. This fallback should use blurred/motion fill behind
-the contained source, not black gutters.
+Fill variants:
+
+- `crop-fill-split`: use when the useful subject survives the crop and
+  the lane needs full-bleed native energy.
+- `contained-blur-split`: use when crop-fill would destroy or soften the
+  actual subject. This uses blurred/motion fill behind the contained
+  source, not black gutters.
 
 ## Inputs
 
@@ -68,13 +72,11 @@ the contained source, not black gutters.
 
 - Default render shape is true `50/50` vertical stacking in
   `1080x1920`.
-- Each lane should feel full-bleed. If incoming clips contain black
-  side gutters, crop the useful center and scale it to the lane instead
-  of preserving the boxed intermediate.
+- Each lane should feel intentional and native. If incoming clips
+  contain black side gutters, remove them with either crop-fill or
+  contained-blur; do not preserve the boxed intermediate.
 - Do not over-scale blindly. If the useful center crop becomes too soft
-  or cuts off the important subject, switch to `contained-blur-split`:
-  full-lane blurred duplicate background with the readable source
-  layered over it.
+  or cuts off the important subject, switch to `contained-blur-split`.
 - The first `1s` to `3s` needs a native hook treatment: title sticker,
   receipt overlay, conflict card, or immediate proof frame. Do not open
   on anonymous B-roll without the stakes visible.

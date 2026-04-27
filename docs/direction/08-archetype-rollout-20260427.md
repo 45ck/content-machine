@@ -3,12 +3,15 @@
 This document turns the current short-form repo scan into a product
 rollout plan.
 
-Reddit split-screen stays the flagship reference lane because it is the
-only one already proven with a strong example surface. Everything else
-should be treated as one of four statuses:
+Reddit split-screen stays the tracked showcase lane because it is the
+only one already proven with a strong example surface. Generic Reddit
+story requests should still default to `reddit-post-over-gameplay`.
+Everything else should be treated as one of these status labels:
 
-- `flagship` — proven lane with docs, skill, and example users should
-  copy first
+- `showcase` — proven lane with docs, skill, and example users can
+  inspect as a reference
+- `default` — the mode agents should choose for generic requests in
+  that family
 - `skill-backed` — lane has a dedicated skill, but still needs a
   stronger proving example or runtime hardening
 - `partial` — broad capability exists, but the lane is still generic,
@@ -60,17 +63,32 @@ Most lanes cluster under a small number of runtime trunks:
   per-shot prompt planning, continuity references, chained scene
   generation
 
-## Flagship
+## Lane ID vs Script Archetype
 
-| Lane                   | Status     | Why it stays first                                                   | First proving example                                                              |
-| ---------------------- | ---------- | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| `reddit-verdict-story` | `flagship` | Main proven story lane and current best showcase for the whole repo. | `AITA for cancelling my sister's free wedding photos two days before the wedding?` |
+Use `laneId` for visual/editing lanes such as
+`reddit-post-over-gameplay`, `stock-b-roll-explainer`, and
+`gameplay-confession-split`.
+
+Use `scriptArchetype` for script shapes such as `story`, `listicle`,
+`howto`, `versus`, and `product-demo`.
+
+Do not pass a lane ID into a script-archetype field unless a runtime
+surface explicitly says it accepts `laneId`.
+
+## Showcase
+
+| Lane                         | Status     | Why it stays visible                                                     | First proving example                                                              |
+| ---------------------------- | ---------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| `reddit-story-split-screen`  | `showcase` | Current tracked showcase/hybrid lane.                                    | `AITA for cancelling my sister's free wedding photos two days before the wedding?` |
+| `gameplay-confession-split`  | `example`  | Current native-feel proving example for non-Reddit gameplay story split. | `My roommate lied about a six-figure remote job.`                                  |
+| `reddit-post-over-gameplay`  | `default`  | Default generic Reddit story mode, still needs first-class proving MP4.  | `AITA for exposing my roommate's fake job offer to our landlord?`                  |
 
 ## Family: Story Lanes
 
 | Lane                        | Status         | Skill now                                                                                                                            | Main gap                                                                     | First proving example                                                                        |
 | --------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| `reddit-verdict-story`      | `flagship`     | [`reddit-story-short`](../../skills/reddit-story-short/SKILL.md), [`reddit-card-overlay`](../../skills/reddit-card-overlay/SKILL.md) | Packaged empty-project render path still needs hardening.                    | `AITA for cancelling my sister's free wedding photos two days before the wedding?`           |
+| `reddit-post-over-gameplay` | `skill-backed` | [`reddit-post-over-gameplay-short`](../../skills/reddit-post-over-gameplay-short/SKILL.md), [`reddit-card-overlay`](../../skills/reddit-card-overlay/SKILL.md) | Needs first-class full-gameplay proving render.                               | `AITA for exposing my roommate's fake job offer to our landlord?`                            |
+| `reddit-story-split-screen` | `showcase`     | [`reddit-story-short`](../../skills/reddit-story-short/SKILL.md), [`reddit-card-overlay`](../../skills/reddit-card-overlay/SKILL.md) | Packaged empty-project render path still needs hardening.                    | `AITA for cancelling my sister's free wedding photos two days before the wedding?`           |
 | `gameplay-confession-split` | `skill-backed` | [`gameplay-confession-short`](../../skills/gameplay-confession-short/SKILL.md)                                                       | Needs cleaner canonical example and better caption/cadence pass.             | `My roommate moved her boyfriend in and still expected me to cover half the rent.`           |
 | `text-thread-reveal`        | `skill-backed` | [`text-message-drama-short`](../../skills/text-message-drama-short/SKILL.md)                                                         | Needs first-class message-card runtime and stronger blackbox render path.    | `The breakup texts looked normal until the wrong-number message exposed everything.`         |
 | `receipt-stack-drama`       | `partial`      | adjacent story skills only                                                                                                           | Needs reusable receipt/phone asset generator and lane-specific scene schema. | `She said I was lying, then I opened the Venmo history, calendar invite, and hotel receipt.` |
@@ -133,13 +151,13 @@ Most lanes cluster under a small number of runtime trunks:
 
 ### Wave 0: Keep The Flagship Stable
 
-1. `reddit-verdict-story`
+1. `reddit-story-split-screen`
 
 ### Wave 1: Reuse The Existing Runtime Most Aggressively
 
-1. `gameplay-confession-split`
-2. `text-thread-reveal`
-3. `stock-b-roll-explainer`
+1. `reddit-post-over-gameplay`
+2. `stock-b-roll-explainer`
+3. `text-thread-reveal`
 4. `fast-facts-countdown`
 5. `saas-problem-solution`
 6. `motion-card-lesson`
@@ -184,16 +202,16 @@ Most lanes cluster under a small number of runtime trunks:
 If the goal is to grow the catalog fast without destabilizing the repo,
 the next ten proving runs should be:
 
-1. `gameplay-confession-split`
-2. `text-thread-reveal`
-3. `stock-b-roll-explainer`
-4. `fast-facts-countdown`
-5. `saas-problem-solution`
+1. `stock-b-roll-explainer`
+2. `reddit-post-over-gameplay`
+3. `text-thread-reveal`
+4. `saas-problem-solution`
+5. `fast-facts-countdown`
 6. `motion-card-lesson`
-7. `micro-doc-breakdown`
-8. `product-demo`
-9. `podcast-insight-clip`
-10. `animation-explainer`
+7. `animation-explainer`
+8. `ugc-avatar`
+9. `micro-doc-breakdown`
+10. `product-demo`
 
 ## Runtime Gaps That Block Many Lanes At Once
 
@@ -205,11 +223,11 @@ the next ten proving runs should be:
 - generated-scene lineage in `visuals.json`
 - per-lane review bundles and blackbox eval scaffolds
 
-## Keep Reddit As The Main Showcase
+## Keep Showcase vs Default Separate
 
-The main README and user docs should keep the Reddit split-screen lane
-as the showcase until at least one lane from each major family has a
-real proving render:
+The README and user docs can keep `reddit-story-split-screen` as a
+tracked showcase while still treating `reddit-post-over-gameplay` as the
+default generic Reddit request. Do not collapse those two modes.
 
 - story
 - faceless information

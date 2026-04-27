@@ -124,6 +124,9 @@ new skills.
   — capture word-level caption timing from real ASR tokens
 - [`reddit-story-short/`](reddit-story-short/SKILL.md) — Reddit/text
   story adaptation into narration-led shorts
+- [`reddit-post-over-gameplay-short/`](reddit-post-over-gameplay-short/SKILL.md)
+  — default Reddit story mode with full-screen gameplay, opener card,
+  and captions only
 - [`text-message-drama-short/`](text-message-drama-short/SKILL.md) —
   DM, chat-log, and receipt-led story adaptation
 - [`ugc-avatar-short/`](ugc-avatar-short/SKILL.md) — avatar or AI-actor

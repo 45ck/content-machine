@@ -1,5 +1,6 @@
 {
   "archetype": "reddit-post-over-gameplay",
+  "variant": "full-gameplay-card",
   "target": {
     "durationSeconds": 45,
     "orientation": "portrait",
@@ -17,7 +18,8 @@
     "background": "full-screen subway-surfers gameplay from frame one",
     "opener": "3-5s Reddit post card overlay with title, author, upvotes, comments, awards",
     "afterOpener": "remove card; continue story with bold active-word captions over gameplay",
-    "captions": "two-line karaoke captions, center-lower safe zone"
+    "captions": "two-line karaoke captions, center-lower safe zone",
+    "forbiddenLayers": "no stock clips, no random B-roll, no top-lane support footage"
   },
   "reject": [
     "black gameplay gutters",

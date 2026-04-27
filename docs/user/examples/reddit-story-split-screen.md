@@ -1,10 +1,10 @@
 # Reddit Story Split-Screen
 
-Status: `flagship showcase`
+Status: `tracked showcase`
 
-This is the strongest current story-lane example in the repo. It is the
-right lane to copy first, even though the underlying canonical render
-still has known review gaps around cadence and caption sync.
+This is the strongest current split-screen story-lane example in the
+repo. It is a showcase for the hybrid split-screen mode, not the
+default for every Reddit request.
 
 This page is for the `reddit-story-split-screen` archetype:
 
@@ -82,5 +82,6 @@ agent in roughly this form:
 
 See also:
 
-- [`skills/reddit-story-short/examples/request.json`](../../../skills/reddit-story-short/examples/request.json)
+- [`skills/reddit-story-short/examples/split-screen-request.json`](../../../skills/reddit-story-short/examples/split-screen-request.json)
+- [`skills/reddit-post-over-gameplay-short/examples/request.json`](../../../skills/reddit-post-over-gameplay-short/examples/request.json)
 - [`skills/reddit-story-short/references/split-screen-reference-lane.md`](../../../skills/reddit-story-short/references/split-screen-reference-lane.md)
