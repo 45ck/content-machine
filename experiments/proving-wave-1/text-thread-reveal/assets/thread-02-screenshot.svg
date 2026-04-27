@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+  <rect width="1080" height="1920" fill="#eef2ff" />
+  <rect x="0" y="0" width="1080" height="170" fill="#ffffff" />
+  <text x="540" y="90" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700" fill="#111827">My Sister</text>
+  <text x="540" y="130" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#6b7280">12:01 AM</text>
+  <rect x="90" y="260" rx="34" ry="34" width="900" height="180" fill="#111827" />
+  <text x="140" y="335" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" fill="#f9fafb">SCREENSHOT</text>
+  <rect x="140" y="500" rx="36" ry="36" width="800" height="620" fill="#ffffff" stroke="#d1d5db" stroke-width="6" />
+  <text x="540" y="580" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="700" fill="#111827">Evan</text>
+  <text x="540" y="625" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#6b7280">11:58 PM</text>
+  <rect x="200" y="720" rx="40" ry="40" width="640" height="170" fill="#22c55e" />
+  <text x="250" y="795" font-family="Arial, Helvetica, sans-serif" font-size="48" font-weight="700" fill="#ffffff">you still up?</text>
+  <text x="250" y="845" font-family="Arial, Helvetica, sans-serif" font-size="28" fill="#dcfce7">Delivered 11:58 PM</text>
+  <rect x="160" y="1260" rx="28" ry="28" width="760" height="130" fill="#fee2e2" stroke="#ef4444" stroke-width="4" />
+  <text x="200" y="1340" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="700" fill="#991b1b">Why is he texting her at midnight?</text>
+</svg>

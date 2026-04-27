@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+  <rect width="1080" height="1920" fill="#f5f3ff" />
+  <rect x="0" y="0" width="1080" height="170" fill="#ffffff" />
+  <text x="540" y="90" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700" fill="#111827">Full Thread</text>
+  <text x="540" y="130" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#6b7280">Shared 12:05 AM</text>
+  <rect x="110" y="260" rx="36" ry="36" width="860" height="1170" fill="#ffffff" stroke="#ddd6fe" stroke-width="6" />
+  <rect x="170" y="390" rx="36" ry="36" width="540" height="150" fill="#22c55e" />
+  <text x="220" y="470" font-family="Arial, Helvetica, sans-serif" font-size="42" fill="#ffffff">you still up?</text>
+  <rect x="360" y="620" rx="36" ry="36" width="440" height="150" fill="#e5e7eb" />
+  <text x="410" y="700" font-family="Arial, Helvetica, sans-serif" font-size="40" fill="#111827">why?</text>
+  <rect x="170" y="850" rx="36" ry="36" width="700" height="220" fill="#22c55e" />
+  <text x="220" y="930" font-family="Arial, Helvetica, sans-serif" font-size="40" fill="#ffffff">just wondering if she ever</text>
+  <text x="220" y="985" font-family="Arial, Helvetica, sans-serif" font-size="40" fill="#ffffff">checks your phone like that</text>
+  <text x="220" y="1040" font-family="Arial, Helvetica, sans-serif" font-size="40" fill="#ffffff">lol</text>
+  <rect x="150" y="1520" rx="28" ry="28" width="780" height="150" fill="#fee2e2" stroke="#ef4444" stroke-width="4" />
+  <text x="190" y="1605" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="700" fill="#991b1b">That one line changes the whole story.</text>
+</svg>

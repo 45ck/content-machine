@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+  <rect width="1080" height="1920" fill="#f3f5f8" />
+  <rect x="0" y="0" width="1080" height="170" fill="#ffffff" />
+  <text x="540" y="90" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700" fill="#111827">Evan</text>
+  <text x="540" y="130" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#6b7280">10:30 PM</text>
+  <rect x="70" y="320" rx="40" ry="40" width="470" height="170" fill="#ffffff" />
+  <text x="110" y="390" font-family="Arial, Helvetica, sans-serif" font-size="40" fill="#111827">Home?</text>
+  <text x="110" y="445" font-family="Arial, Helvetica, sans-serif" font-size="28" fill="#6b7280">Delivered 10:28 PM</text>
+  <rect x="510" y="590" rx="40" ry="40" width="500" height="190" fill="#1f8bff" />
+  <text x="560" y="660" font-family="Arial, Helvetica, sans-serif" font-size="40" fill="#ffffff">Yeah. I’m exhausted.</text>
+  <text x="560" y="715" font-family="Arial, Helvetica, sans-serif" font-size="40" fill="#ffffff">Going straight to sleep.</text>
+  <text x="560" y="760" font-family="Arial, Helvetica, sans-serif" font-size="28" fill="#dbeafe">Read 10:30 PM</text>
+  <rect x="150" y="1030" rx="28" ry="28" width="780" height="120" fill="#fff7d6" stroke="#f59e0b" stroke-width="4" />
+  <text x="190" y="1100" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="700" fill="#92400e">He says he’s asleep.</text>
+ </svg>

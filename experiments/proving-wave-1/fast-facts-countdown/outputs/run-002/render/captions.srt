@@ -1,0 +1,24 @@
+1
+00:00:00,000 --> 00:00:01,400
+Five. Honey lasts for
+ages.
+
+2
+00:00:01,400 --> 00:00:02,600
+Four. Bananas are
+berries.
+
+3
+00:00:02,600 --> 00:00:04,100
+Three. Octopuses have
+three hearts.
+
+4
+00:00:04,100 --> 00:00:06,200
+Two. Venus spins slower
+than its year.
+
+5
+00:00:06,200 --> 00:00:08,000
+One. Wombat poop is cube
+shaped.

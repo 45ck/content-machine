@@ -1,0 +1,26 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,72,&H00FFFFFF,&H008A8A8A,&H00000000,&H64000000,1,0,0,0,100,100,0,0,1,4,0,2,80,80,220,1
+
+[Events]
+Format: Layer, Start, End, Style, Text
+Dialogue: 0,0:00:00.00,0:00:01.70,Default,Number five. Honey does\Nnot spoil.
+Dialogue: 0,0:00:01.70,0:00:03.80,Default,Sealed jars found in\Nancient tombs were
+Dialogue: 0,0:00:03.80,0:00:05.60,Default,still edible thousands\Nof years later.
+Dialogue: 0,0:00:05.60,0:00:07.40,Default,Number four. Bananas are\Nberries, but
+Dialogue: 0,0:00:07.40,0:00:08.30,Default,strawberries are not.
+Dialogue: 0,0:00:08.30,0:00:10.10,Default,Botany rules are\Nstranger than grocery
+Dialogue: 0,0:00:10.10,0:00:11.30,Default,store labels. Number\Nthree.
+Dialogue: 0,0:00:11.30,0:00:13.40,Default,Octopuses have three\Nhearts, and two of
+Dialogue: 0,0:00:13.40,0:00:15.50,Default,them stop beating when\Nthe animal swims.
+Dialogue: 0,0:00:15.50,0:00:17.60,Default,Number two. A day on\NVenus is
+Dialogue: 0,0:00:17.60,0:00:19.70,Default,longer than a year on\NVenus because
+Dialogue: 0,0:00:19.70,0:00:21.20,Default,the planet spins\Nextremely slowly.
+Dialogue: 0,0:00:21.20,0:00:23.30,Default,Number one. Wombat poop\Nis cube shaped,
+Dialogue: 0,0:00:23.30,0:00:25.40,Default,which helps it stay in\Nplace when
+Dialogue: 0,0:00:25.40,0:00:26.30,Default,wombats mark territory.

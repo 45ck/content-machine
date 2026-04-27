@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+  <rect width="1080" height="1920" fill="#f8fafc" />
+  <rect x="0" y="0" width="1080" height="170" fill="#ffffff" />
+  <text x="540" y="90" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700" fill="#111827">Evan</text>
+  <text x="540" y="130" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#6b7280">12:03 AM</text>
+  <rect x="70" y="300" rx="40" ry="40" width="600" height="170" fill="#ffffff" />
+  <text x="120" y="375" font-family="Arial, Helvetica, sans-serif" font-size="40" fill="#111827">Why are you texting my sister?</text>
+  <rect x="470" y="560" rx="40" ry="40" width="540" height="180" fill="#1f8bff" />
+  <text x="520" y="635" font-family="Arial, Helvetica, sans-serif" font-size="40" fill="#ffffff">That is old.</text>
+  <text x="520" y="690" font-family="Arial, Helvetica, sans-serif" font-size="40" fill="#ffffff">You are being dramatic.</text>
+  <rect x="560" y="810" rx="40" ry="40" width="450" height="135" fill="#1f8bff" />
+  <text x="610" y="885" font-family="Arial, Helvetica, sans-serif" font-size="40" fill="#ffffff">Go to sleep.</text>
+  <rect x="110" y="1170" rx="28" ry="28" width="860" height="135" fill="#dbeafe" stroke="#2563eb" stroke-width="4" />
+  <text x="150" y="1250" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="700" fill="#1e3a8a">The replies are too fast to feel normal.</text>
+</svg>

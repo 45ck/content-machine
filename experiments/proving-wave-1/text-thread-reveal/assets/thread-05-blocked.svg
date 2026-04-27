@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+  <rect width="1080" height="1920" fill="#111827" />
+  <rect x="0" y="0" width="1080" height="170" fill="#1f2937" />
+  <text x="540" y="90" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700" fill="#f9fafb">Evan</text>
+  <text x="540" y="130" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" fill="#9ca3af">12:06 AM</text>
+  <rect x="90" y="330" rx="40" ry="40" width="900" height="180" fill="#374151" />
+  <text x="140" y="410" font-family="Arial, Helvetica, sans-serif" font-size="40" fill="#f9fafb">Sent screenshot</text>
+  <text x="140" y="465" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#d1d5db">Delivered</text>
+  <text x="850" y="465" font-family="Arial, Helvetica, sans-serif" font-size="30" fill="#60a5fa">12:06 AM</text>
+  <rect x="170" y="700" rx="50" ry="50" width="740" height="220" fill="#1f2937" stroke="#9ca3af" stroke-width="5" />
+  <text x="540" y="805" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="54" font-weight="700" fill="#f9fafb">typing...</text>
+  <text x="540" y="865" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="34" fill="#9ca3af">then nothing</text>
+  <rect x="170" y="1120" rx="36" ry="36" width="740" height="150" fill="#7f1d1d" />
+  <text x="540" y="1210" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="700" fill="#fee2e2">Message failed to send</text>
+  <text x="540" y="1420" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="58" font-weight="700" fill="#fca5a5">Blocked</text>
+</svg>

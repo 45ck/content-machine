@@ -1,0 +1,16 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,72,&H00FFFFFF,&H008A8A8A,&H00000000,&H64000000,1,0,0,0,100,100,0,0,1,4,0,2,80,80,220,1
+
+[Events]
+Format: Layer, Start, End, Style, Text
+Dialogue: 0,0:00:00.00,0:00:01.40,Default,Five. Honey lasts for\Nages.
+Dialogue: 0,0:00:01.40,0:00:02.60,Default,Four. Bananas are\Nberries.
+Dialogue: 0,0:00:02.60,0:00:04.10,Default,Three. Octopuses have\Nthree hearts.
+Dialogue: 0,0:00:04.10,0:00:06.20,Default,Two. Venus spins slower\Nthan its year.
+Dialogue: 0,0:00:06.20,0:00:08.00,Default,One. Wombat poop is cube\Nshaped.
