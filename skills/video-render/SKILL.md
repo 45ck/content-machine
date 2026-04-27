@@ -70,19 +70,23 @@ outputs:
 
 ## Render Approach
 
-1. Confirm the visuals are caption-clean. Rendering is not the place to
+1. Confirm the output target is portrait `9:16`, normally
+   `1080x1920`, for TikTok, Instagram Reels, and Shorts.
+2. Confirm the visuals are caption-clean. Rendering is not the place to
    hide pre-existing text burned into source footage.
-2. If the edit still needs judgment on pacing, hook support, shot
+3. If the edit still needs judgment on pacing, hook support, shot
    variation, or assembly choices, read
    [`short-form-production-playbook`](../short-form-production-playbook/SKILL.md)
    before touching render options.
-3. Choose the closest caption family from
+4. Choose the closest caption family from
    [`short-form-captions`](../short-form-captions/SKILL.md).
-4. Keep layout readable before adding more styling. Chunk size, line
+5. Keep layout readable before adding more styling. Chunk size, line
    count, and placement matter more than decorative motion.
-5. Use the repo caption presets as the baseline and then override only
+6. Keep caption overlays inside the practical social safe box:
+   `x=96..984`, `y=220..1540` on a `1080x1920` render.
+7. Use the repo caption presets as the baseline and then override only
    the specific fields the brief actually needs.
-6. Render and inspect the actual MP4. Do not trust config alone.
+8. Render and inspect the actual MP4. Do not trust config alone.
 
 ## Split-Screen Rules
 
@@ -102,6 +106,10 @@ outputs:
 - For OCR-reviewable exports, prefer full-line active-word highlighting
   over progressive reveal burns when you need stable rendered caption
   verification.
+- If a fallback ASS burn is used, set `captionAssStyle.maxCharsPerLine`
+  and `captionAssStyle.maxLines`. Never rely on raw `positionY` alone;
+  ASS absolute positioning bypasses margins unless the export code
+  clamps and wraps it.
 
 ## Isolated Project Rule
 
@@ -139,6 +147,7 @@ outputs:
 - The output is a real playable MP4 with the expected aspect ratio.
 - Caption sidecars exist when `exportCaptions` is enabled.
 - Captions remain readable on a phone-sized viewport.
+- Captions stay inside the `1080x1920` frame and social safe box.
 - The active-word treatment feels synced, not merely mathematically
   aligned.
 - No source-text collision was introduced by the footage choice.

@@ -4,6 +4,11 @@ Use this when the goal is a bread-and-butter Reddit story short that
 looks native to TikTok/Reels/Shorts rather than like a generic faceless
 explainer.
 
+Pattern name: `reddit-story-split-screen`.
+
+If the requested format is the classic Reddit post card sitting over
+full-screen gameplay, use `reddit-post-over-gameplay` instead.
+
 ## Shape
 
 1. Open with a Reddit post card for about `4s` to `5s`.
@@ -18,8 +23,10 @@ explainer.
 - Split layout: true `50/50`
 - Top lane: `1080x960`
 - Bottom lane: `1080x960`
-- Fit or pad into each lane when needed; do not blindly crop-fill both
-  halves
+- Default to full-bleed lane presentation. If the source has black
+  gutters, crop the useful center or use a blurred/motion fill.
+- Use contained/padded framing only when crop-fill would cut off the
+  actual Reddit card, receipt, face, or key subject.
 - Captions should overlay between lanes rather than living inside a
   dedicated black band
 

@@ -1,12 +1,23 @@
 # Reddit Story Split-Screen
 
-This is the repo's current reference shape for a bread-and-butter Reddit
-story short:
+Status: `flagship showcase`
+
+This is the strongest current story-lane example in the repo. It is the
+right lane to copy first, even though the underlying canonical render
+still has known review gaps around cadence and caption sync.
+
+This page is for the `reddit-story-split-screen` archetype:
 
 - `5s` Reddit opener card with upvotes/awards
 - story-related footage on the top half after the opener
 - Subway Surfers gameplay on the bottom half
 - captions overlaid near the midpoint between lanes
+
+For the more common Reddit format where the Reddit post card appears
+over full-screen gameplay and then captions continue over gameplay, use
+`reddit-post-over-gameplay`:
+
+- [`skills/reddit-post-over-gameplay-short/SKILL.md`](../../../skills/reddit-post-over-gameplay-short/SKILL.md)
 
 Tracked preview clip:
 
@@ -23,6 +34,7 @@ The isolated empty-project Codex evaluation scaffold is:
 Quick ingredients:
 
 - [`skills/reddit-story-short/SKILL.md`](../../../skills/reddit-story-short/SKILL.md)
+- [`skills/reddit-post-over-gameplay-short/SKILL.md`](../../../skills/reddit-post-over-gameplay-short/SKILL.md)
 - [`skills/reddit-card-overlay/SKILL.md`](../../../skills/reddit-card-overlay/SKILL.md)
 - [`skills/short-form-captions/SKILL.md`](../../../skills/short-form-captions/SKILL.md)
 
@@ -49,7 +61,10 @@ The opener should be a screenshot-style card, not fake HTML chrome.
 
 - opener lasts about `4s` to `5s`
 - top-lane footage should turn over every `2s` to `4s`
-- both halves should fit/pad rather than aggressively crop-fill
+- default to full-bleed lanes; if a source has black gutters, crop the
+  useful center or use a blurred/motion fill
+- use contained/padded framing only when crop-fill would cut off the
+  Reddit card, receipt, face, or key subject
 - captions should not need a dedicated black seam band
 
 ## Codex / Claude Project Shape

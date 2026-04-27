@@ -1,0 +1,29 @@
+{
+  "archetype": "reddit-post-over-gameplay",
+  "target": {
+    "durationSeconds": 45,
+    "orientation": "portrait",
+    "platform": "tiktok"
+  },
+  "story": {
+    "subreddit": "AmItheAsshole",
+    "title": "AITA for exposing my roommate's fake job offer to our landlord?",
+    "author": "throwra_rentpanic",
+    "upvotes": "18.4k",
+    "commentCount": "2.1k",
+    "tone": "dramatic"
+  },
+  "visualShape": {
+    "background": "full-screen subway-surfers gameplay from frame one",
+    "opener": "3-5s Reddit post card overlay with title, author, upvotes, comments, awards",
+    "afterOpener": "remove card; continue story with bold active-word captions over gameplay",
+    "captions": "two-line karaoke captions, center-lower safe zone"
+  },
+  "reject": [
+    "black gameplay gutters",
+    "buggy reddit card",
+    "post body reading wall",
+    "silent audio",
+    "captions under platform UI"
+  ]
+}

@@ -124,6 +124,8 @@ export interface AssCaptionStyle {
   karaoke?: boolean;
   positionX?: number;
   positionY?: number;
+  maxCharsPerLine?: number;
+  maxLines?: number;
 }
 
 export interface CaptionSegmentQualityThresholds {
@@ -154,7 +156,18 @@ const DEFAULT_ASS_STYLE: Required<AssCaptionStyle> = {
   karaoke: false,
   positionX: 0,
   positionY: 0,
+  maxCharsPerLine: 0,
+  maxLines: 2,
 };
+
+const ASS_PLAY_RES_X = 1080;
+const ASS_PLAY_RES_Y = 1920;
+const SOCIAL_SAFE_ZONE = {
+  left: 96,
+  right: 96,
+  top: 220,
+  bottom: 380,
+} as const;
 
 function toCaptionExportWords(
   words: WordTimestamp[],
@@ -438,6 +451,82 @@ function wrapAssStyle(text: string, tags: string): string {
   return `{${tags}}${text}{\\r}`;
 }
 
+function clampNumber(value: number, minimum: number, maximum: number): number {
+  return Math.min(maximum, Math.max(minimum, value));
+}
+
+function deriveMaxCharsPerLine(style: Required<AssCaptionStyle>): number {
+  if (style.maxCharsPerLine > 0) return style.maxCharsPerLine;
+
+  const safeWidth = ASS_PLAY_RES_X - SOCIAL_SAFE_ZONE.left - SOCIAL_SAFE_ZONE.right;
+  const approximateCharacterWidth = Math.max(1, style.fontSize * 0.58);
+  return clampNumber(Math.floor(safeWidth / approximateCharacterWidth), 18, 30);
+}
+
+function normalizeAssStyle(styleOverrides: AssCaptionStyle): Required<AssCaptionStyle> {
+  const style = { ...DEFAULT_ASS_STYLE, ...styleOverrides };
+  return {
+    ...style,
+    fontSize: clampNumber(style.fontSize, 28, 72),
+    marginL: Math.max(style.marginL, SOCIAL_SAFE_ZONE.left),
+    marginR: Math.max(style.marginR, SOCIAL_SAFE_ZONE.right),
+    marginV: Math.max(style.marginV, SOCIAL_SAFE_ZONE.bottom),
+    positionX:
+      style.positionX > 0
+        ? clampNumber(style.positionX, SOCIAL_SAFE_ZONE.left, ASS_PLAY_RES_X - SOCIAL_SAFE_ZONE.right)
+        : 0,
+    positionY:
+      style.positionY > 0
+        ? clampNumber(style.positionY, SOCIAL_SAFE_ZONE.top, ASS_PLAY_RES_Y - SOCIAL_SAFE_ZONE.bottom)
+        : 0,
+    maxLines: clampNumber(style.maxLines, 1, 3),
+  };
+}
+
+function wrapCaptionLines(text: string, style: Required<AssCaptionStyle>): string[] {
+  const normalized = normalizeSubtitleText(text);
+  if (!normalized) return [];
+
+  const maxCharsPerLine = deriveMaxCharsPerLine(style);
+  const maxLines = style.maxLines;
+  const lines: string[] = [];
+
+  for (const [paragraphIndex, paragraph] of normalized.split('\n').entries()) {
+    const words = paragraph.split(/\s+/).filter(Boolean);
+    if (paragraphIndex > 0 && words.length > 0 && lines.length > 0 && lines.length < maxLines) {
+      lines.push(words.shift() as string);
+    }
+
+    for (const word of words) {
+      const current = lines.at(-1);
+      if (!current) {
+        lines.push(word);
+        continue;
+      }
+
+      const wouldFit = `${current} ${word}`.length <= maxCharsPerLine;
+      if (wouldFit) {
+        lines[lines.length - 1] = `${current} ${word}`;
+        continue;
+      }
+
+      if (lines.length >= maxLines) {
+        const ellipsis = current.endsWith('...') ? '' : '...';
+        lines[lines.length - 1] = `${current}${ellipsis}`.slice(0, maxCharsPerLine);
+        break;
+      }
+
+      lines.push(word);
+    }
+  }
+
+  return lines.slice(0, maxLines);
+}
+
+function wrapAssPlainText(text: string, style: Required<AssCaptionStyle>): string {
+  return wrapCaptionLines(text, style).map(escapeAssText).join('\\N');
+}
+
 function buildAssPositionPrefix(style: Required<AssCaptionStyle>): string {
   if (style.positionX <= 0 || style.positionY <= 0) return '';
   return `{\\pos(${style.positionX},${style.positionY})}`;
@@ -451,26 +540,49 @@ function buildAssActiveWordFrames(
     return [{ startMs: segment.startMs, endMs: segment.endMs, text: escapeAssText(segment.text) }];
   }
 
-  return segment.words.map((word, index) => {
-    const nextWord = segment.words[index + 1];
+  const maxCharsPerLine = deriveMaxCharsPerLine(style);
+  const lineByWord = new Map<CaptionExportWord, number>();
+  const renderableWords: CaptionExportWord[] = [];
+  let lineIndex = 0;
+  let lineLength = 0;
+
+  for (const word of segment.words) {
+    const candidateLength = lineLength === 0 ? word.text.length : lineLength + 1 + word.text.length;
+    if (candidateLength > maxCharsPerLine && lineIndex + 1 < style.maxLines) {
+      lineIndex += 1;
+      lineLength = word.text.length;
+    } else if (candidateLength <= maxCharsPerLine || lineIndex + 1 < style.maxLines) {
+      lineLength = candidateLength;
+    } else {
+      break;
+    }
+    lineByWord.set(word, lineIndex);
+    renderableWords.push(word);
+  }
+
+  return renderableWords.map((word, index) => {
+    const nextWord = renderableWords[index + 1];
     const startMs = Math.max(segment.startMs, word.startMs);
     const endMs = Math.max(startMs + 1, nextWord?.startMs ?? segment.endMs);
-    const text = segment.words
-      .map((candidate) => {
+    const text = renderableWords
+      .map((candidate, candidateIndex) => {
+        const previousWord = renderableWords[candidateIndex - 1];
+        const separator =
+          previousWord && lineByWord.get(previousWord) !== lineByWord.get(candidate) ? '\\N' : '\\h';
         const escaped = escapeAssTextPreserveSpaces(candidate.text);
         if (candidate === word) {
-          return wrapAssStyle(
+          return `${candidateIndex === 0 ? '' : separator}${wrapAssStyle(
             escaped,
             `\\c${style.primaryColor}\\3c${style.outlineColor}\\bord4\\1a&H00&`
-          );
+          )}`;
         }
 
-        return wrapAssStyle(
+        return `${candidateIndex === 0 ? '' : separator}${wrapAssStyle(
           escaped,
           `\\c${style.secondaryColor}\\3c${style.outlineColor}\\bord4\\1a&H00&`
-        );
+        )}`;
       })
-      .join('\\h');
+      .join('');
 
     return { startMs, endMs, text };
   });
@@ -493,13 +605,13 @@ export function formatAssCaptions(
   segments: CaptionSegment[],
   styleOverrides: AssCaptionStyle = {}
 ): string {
-  const style = { ...DEFAULT_ASS_STYLE, ...styleOverrides };
+  const style = normalizeAssStyle(styleOverrides);
   const events = segments.flatMap((segment) => {
     if (!style.karaoke) {
       return [
         `Dialogue: 0,${formatAssTime(segment.startMs)},${formatAssTime(segment.endMs)},Default,${buildAssPositionPrefix(
           style
-        )}${escapeAssText(segment.text)}`,
+        )}${wrapAssPlainText(segment.text, style)}`,
       ];
     }
 
@@ -514,8 +626,8 @@ export function formatAssCaptions(
   return [
     '[Script Info]',
     'ScriptType: v4.00+',
-    'PlayResX: 1080',
-    'PlayResY: 1920',
+    `PlayResX: ${ASS_PLAY_RES_X}`,
+    `PlayResY: ${ASS_PLAY_RES_Y}`,
     '',
     '[V4+ Styles]',
     'Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding',

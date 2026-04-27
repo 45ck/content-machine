@@ -1,5 +1,6 @@
 {
-  "lane": "gameplay-confession-short",
+  "archetype": "gameplay-confession-split",
+  "variant": "native-full-bleed-split",
   "storyType": "roommate-drama",
   "tone": "dramatic",
   "targetDuration": 45,
@@ -8,12 +9,13 @@
     "layout": "split-screen-50-50"
   },
   "visualRules": {
-    "topLane": "story-related motion clips or receipts",
-    "bottomLane": "subway-surfers gameplay",
+    "topLane": "full-bleed story-related motion clips or receipts",
+    "bottomLane": "full-bleed subway-surfers gameplay",
     "captionPlacement": "midpoint overlay"
   },
   "reject": [
     "static fallback background",
+    "black gutters",
     "silent audio",
     "slow top-lane cadence",
     "caption/gameplay collisions"

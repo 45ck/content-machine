@@ -51,6 +51,13 @@ not hidden chat state.
 - Constant respect for mobile safe zones.
 - Audio that starts immediately and stays intelligible over music.
 - A real review loop instead of "the file rendered, ship it".
+- Full-bleed vertical composition. If a source clip is boxed with black
+  gutters, crop-fill or build a blurred/motion background; do not
+  preserve gutters just because the clip is already `1080x960` or
+  `1080x1920`.
+- Native-feel opener. The first `1s` to `3s` should show the stakes as
+  a clear visual hook, title card, receipt, face, or conflict overlay,
+  not just a generic stock/gameplay frame.
 
 ## Read These References As Needed
 
@@ -90,5 +97,7 @@ not hidden chat state.
 - Captions match the content and remain readable on phone-sized frames.
 - Visual changes support the spoken rhythm instead of fighting it.
 - No source-text collision, muddy layout, or dead air slipped through.
+- No black gutters, boxed media, or default template background slipped
+  through unless the format intentionally uses them.
 - The review step gives a real go/no-go result, and failure leads to a
   concrete reroute.

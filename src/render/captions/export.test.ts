@@ -112,13 +112,39 @@ describe('caption export', () => {
     );
 
     expect(ass).toContain('Style: Default,Arial,72,&H00FFFFFF,&H008A8A8A');
-    expect(ass).toContain(',80,80,560,1');
+    expect(ass).toContain(',96,96,560,1');
     expect(ass).toContain(
       'Dialogue: 0,0:00:01.20,0:00:01.50,Default,{\\pos(540,960)}{\\c&H00FFFFFF\\3c&H00000000\\bord4\\1a&H00&}Stop{\\r}\\h{\\c&H008A8A8A\\3c&H00000000\\bord4\\1a&H00&}scrolling{\\r}'
     );
     expect(ass).toContain(
       'Dialogue: 0,0:00:01.50,0:00:01.90,Default,{\\pos(540,960)}{\\c&H008A8A8A\\3c&H00000000\\bord4\\1a&H00&}Stop{\\r}\\h{\\c&H00FFFFFF\\3c&H00000000\\bord4\\1a&H00&}scrolling{\\r}'
     );
+  });
+
+  it('keeps ASS captions inside the portrait social safe zone', () => {
+    const ass = formatAssCaptions(
+      [
+        {
+          text: 'This caption line is intentionally too long for a centered social video overlay',
+          startMs: 0,
+          endMs: 2400,
+          timestampMs: 0,
+          confidence: null,
+          words: [],
+        },
+      ],
+      {
+        alignment: 5,
+        fontSize: 72,
+        positionX: 20,
+        positionY: 1800,
+        maxCharsPerLine: 18,
+      }
+    );
+
+    expect(ass).toContain('{\\pos(96,1540)}');
+    expect(ass).toContain('This caption line\\Nis intentionally..');
+    expect(ass).toContain(',96,96,380,1');
   });
 
   it('reports segment-level readability issues', () => {

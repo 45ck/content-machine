@@ -16,15 +16,29 @@ description: Turn a Reddit-style post, confession, text thread, or comment story
 
 ## Core Approach
 
-1. Open with the conflict fast, but still use a recognizable Reddit
+1. Choose the exact Reddit-story archetype before rendering:
+   `reddit-post-over-gameplay` or `reddit-story-split-screen`.
+2. Open with the conflict fast, but still use a recognizable Reddit
    thread card in the first beat.
-2. Compress the story into setup, escalation, twist, and payoff.
-3. Use on-screen text selectively for high-drama phrases and receipts,
+3. Compress the story into setup, escalation, twist, and payoff.
+4. Use on-screen text selectively for high-drama phrases and receipts,
    not for every sentence.
-4. Pair the narration with visually supportive footage, gameplay, UI
+5. Pair the narration with visually supportive footage, gameplay, UI
    mockups, Reddit post/comment cards, receipts, or stylized generated
    scenes.
-5. End on judgment, reveal, or unresolved tension that invites comment.
+6. End on judgment, reveal, or unresolved tension that invites comment.
+
+## Archetype Names
+
+- `reddit-post-over-gameplay`: the classic pattern. Full-screen
+  gameplay starts immediately, a Reddit post card/SVG sits over it for
+  the first `3s` to `5s`, then captions continue over the gameplay.
+- `reddit-story-split-screen`: hybrid story-support pattern. Reddit
+  card opens the short, then story-related footage/receipts run on the
+  top half while gameplay runs on the bottom half.
+- `gameplay-confession-split`: non-Reddit storytime pattern. No Reddit
+  card unless the source is actually Reddit-native; use support footage
+  or receipts on top and gameplay below.
 
 ## Inputs
 
@@ -48,6 +62,10 @@ description: Turn a Reddit-style post, confession, text thread, or comment story
 - Use
   [`references/split-screen-reference-lane.md`](references/split-screen-reference-lane.md)
   when you need the exact opener/top-lane/gameplay/caption recipe.
+- Use
+  [`../reddit-post-over-gameplay-short/SKILL.md`](../reddit-post-over-gameplay-short/SKILL.md)
+  when the desired output is the classic Reddit card over full-screen
+  gameplay format.
 
 ## Example Request
 
@@ -57,8 +75,11 @@ description: Turn a Reddit-style post, confession, text thread, or comment story
 
 - Story shorts need stronger pacing control than explainers because the
   viewer is waiting for the turn.
-- Default visual shape should match the common Reddit-story pattern from
-  the reference repos:
+- Default visual shape for generic "Reddit story" requests should be
+  `reddit-post-over-gameplay` unless the user asks for story footage,
+  stock footage, receipts, or a split-screen lane.
+- Use `reddit-story-split-screen` when the story needs support footage
+  after the opener:
   title/post card first with upvotes/awards, then story-related support
   footage on top with moving gameplay below.
 - The opener Reddit card should be a controlled template asset, not a

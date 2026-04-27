@@ -41,6 +41,8 @@ const AssCaptionStyleSchema = z
     karaoke: z.boolean().optional(),
     positionX: z.number().int().positive().optional(),
     positionY: z.number().int().positive().optional(),
+    maxCharsPerLine: z.number().int().positive().optional(),
+    maxLines: z.number().int().min(1).max(3).optional(),
   })
   .strict();
 

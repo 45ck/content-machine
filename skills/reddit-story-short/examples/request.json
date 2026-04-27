@@ -1,5 +1,5 @@
 {
-  "lane": "reddit-story-split-screen",
+  "archetype": "reddit-post-over-gameplay",
   "target": {
     "durationSeconds": 35,
     "orientation": "portrait",
@@ -12,11 +12,10 @@
     "subreddit": "AmItheAsshole"
   },
   "visualShape": {
-    "opener": "5s Reddit screenshot-style post card with upvotes and awards",
-    "topLaneAfterOpener": "story-related stock or local video clips, cut every 2-4s",
-    "bottomLane": "subway-surfers gameplay",
-    "layout": "50/50 vertical stack",
-    "captions": "overlay at the midpoint between lanes with active-word highlighting"
+    "background": "full-screen subway-surfers gameplay from frame one",
+    "opener": "3-5s Reddit screenshot-style post card overlay with upvotes and awards",
+    "afterOpener": "remove card and continue narration captions directly over gameplay",
+    "captions": "bold two-line active-word captions in the center-lower safe zone"
   },
   "reviewRules": {
     "rejectStaticBackgrounds": true,

@@ -36,23 +36,45 @@ source or topic
 
 ## Featured Example
 
-The main reference lane in this repo is now the Reddit split-screen
-short:
+The main reference lane in this repo is the Reddit split-screen short.
+It is the only current first-class showcase example. Everything else in
+the repo should be treated as either a supported recipe, an archetype
+brief, or a proving artifact until its canonical MP4 and review status
+are equally solid.
+
+Current showcase shape:
 
 - Reddit screenshot-style opener for the first `4s` to `5s`
 - story-related moving footage on the top half
 - Subway Surfers gameplay on the bottom half
 - midpoint overlay captions with active-word emphasis
 
+Named bread-and-butter story archetypes:
+
+- `reddit-post-over-gameplay`: Reddit card over full-screen gameplay,
+  then captions continue over gameplay.
+- `reddit-story-split-screen`: Reddit card opener, then top story
+  footage plus bottom gameplay.
+- `gameplay-confession-split`: non-Reddit storytime with top support
+  footage plus bottom gameplay.
+
 Start here:
 
 - [Reddit Story Split-Screen](docs/user/examples/reddit-story-split-screen.md)
 - [reddit-story-short skill](skills/reddit-story-short/SKILL.md)
+- [reddit-post-over-gameplay-short skill](skills/reddit-post-over-gameplay-short/SKILL.md)
 - [reddit-card-overlay skill](skills/reddit-card-overlay/SKILL.md)
 
 <p align="center">
   <video src="docs/demo/demo-8-reddit-story-split-screen.mp4" controls muted playsinline loop width="280"></video>
 </p>
+
+Status guide:
+
+- `showcase`: real canonical example users should copy first
+- `recipe`: runnable technique walkthrough with explicit prerequisites
+- `archetype brief`: lane grammar and skill links, not yet a proven example
+- `proving artifact`: internal experiment or eval output
 
 ## Current Focus
 

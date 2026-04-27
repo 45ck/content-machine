@@ -58,6 +58,12 @@ layout, emphasis, and motion choices.
 
 ## Visual Rules
 
+- Platform export baseline for TikTok, Instagram Reels, and YouTube
+  Shorts is portrait `9:16`, normally `1080x1920`. Do not switch to a
+  square or landscape canvas to solve caption overflow.
+- Treat the practical caption-safe box on `1080x1920` as roughly
+  `x=96..984` and `y=220..1540`. Anything important outside that box
+  can be hidden by app chrome or edge cropping.
 - Hooks want short chunks, heavier emphasis, and faster turnover.
 - Educational content wants steadier paging, lower CPS, and fewer
   effects.
@@ -68,6 +74,10 @@ layout, emphasis, and motion choices.
   demands impact.
 - Bottom captions are default, but they still need enough edge distance
   to survive platform chrome.
+- ASS sidecar captions must wrap to at most two lines unless the video
+  is an explicitly slower educational layout. Prefer `18` to `26`
+  characters per line for big center captions and `24` to `30` for
+  smaller bottom captions.
 - Safe-zone defaults:
   hook cards in roughly the top `15%` to `20%`,
   subtitles in roughly the bottom `18%` to `25%`,
@@ -95,6 +105,10 @@ layout, emphasis, and motion choices.
   `captions.remotion.json`, `captions.srt`, and `captions.ass` from the
   final narration timings before review. Do not treat ad-hoc subtitle
   burns as equivalent to the repo caption contract.
+- When exporting ASS, pass `captionAssStyle.maxCharsPerLine` and
+  `captionAssStyle.maxLines` for any absolute-position caption overlay.
+  Absolute `positionX`/`positionY` is allowed for split-screen midpoint
+  captions, but it must stay inside the `1080x1920` safe box.
 - Runtime surface for sidecar export:
   `node --import tsx scripts/harness/caption-export.ts`
 
@@ -124,6 +138,8 @@ what this repo already borrowed from other short-form caption systems.
 - Source footage already has burned-in text.
 - Chunks flash too quickly to read.
 - Captions cover faces, UI, or gameplay affordances.
+- Captions spill beyond the `1080x1920` frame or sit under TikTok/Reels
+  interface chrome.
 - Every word is emphasized, which means nothing is emphasized.
 - Stroke and shadow are fighting each other and making edges muddy.
 - The style matches neither the content nor the platform.
