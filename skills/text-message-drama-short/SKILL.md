@@ -58,6 +58,16 @@ Script archetype: `story`.
 - Use [`references/lane-shape.md`](references/lane-shape.md) for the
   exact receipt/message sequence rules.
 
+## Proven Example
+
+- User docs:
+  [`docs/user/examples/text-message-drama.md`](../../docs/user/examples/text-message-drama.md)
+- Embedded preview:
+  [`docs/demo/demo-11-text-thread-reveal.mp4`](../../docs/demo/demo-11-text-thread-reveal.mp4)
+- Use the wave-3 example as the current chat-message reference, but keep
+  the review caveat visible: full publish-prep is still unstable locally
+  for this lane.
+
 ## Example Request
 
 - [`examples/request.json`](examples/request.json)

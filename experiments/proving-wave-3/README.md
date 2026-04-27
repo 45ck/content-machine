@@ -12,13 +12,13 @@ review record.
 | --------------------------- | --------------------------------------------------------------- | -------------------- | ---------------------------------------------------------------------------- |
 | `reddit-post-over-gameplay` | [`docs/demo/demo-9-reddit-post-over-gameplay.mp4`](../../docs/demo/demo-9-reddit-post-over-gameplay.mp4) | `golden showcase` | Correct visual mode; OCR caption-sync gate still needs active-word handling. |
 | `stock-b-roll-explainer`    | [`docs/demo/demo-10-stock-broll-explainer.mp4`](../../docs/demo/demo-10-stock-broll-explainer.mp4) | `showcase candidate` | Non-OCR validation passes; needs stable OCR caption-sync on final flashed render. |
+| `text-thread-reveal`        | [`docs/demo/demo-11-text-thread-reveal.mp4`](../../docs/demo/demo-11-text-thread-reveal.mp4) | `showcase candidate` | Visual lane works; direct cadence passes; full publish-prep unstable locally. |
 
 ## Next Lanes
 
-1. `text-thread-reveal`
-2. `saas-problem-solution`
-3. `fast-facts-countdown`
-4. `motion-card-lesson`
+1. `saas-problem-solution`
+2. `fast-facts-countdown`
+3. `motion-card-lesson`
 
 Keep `reddit-story-split-screen` as the tracked hybrid showcase, but
 keep `reddit-post-over-gameplay` as the default generic Reddit mode.
