@@ -37,6 +37,19 @@ description: Build a narrow educational short around motion cards, timed reveals
 - motion-led render plan
 - final lesson short
 
+## Proven Example
+
+- Local proving bundle:
+  `experiments/proving-wave-3/motion-card-lesson/outputs/final/video.mp4`
+- Tracked preview:
+  `docs/demo/demo-14-motion-card-lesson.mp4`
+- Pattern used: hook card, four step cards, payoff card, CTA card,
+  `30.8s`, Kokoro voiceover, burned-in captions, hard card resets, and
+  flash pulses for cadence.
+- Publish-prep passed portrait resolution, duration, format, cadence,
+  and audio-signal checks. OCR caption-sync still needs a proper caption
+  export sidecar for FFmpeg fallback renders.
+
 ## Optional Runtime Surface
 
 - Use [`animation-explainer-short`](../animation-explainer-short/SKILL.md)
@@ -57,6 +70,12 @@ description: Build a narrow educational short around motion cards, timed reveals
 - Countdowns, answer flips, and term reveals are first-class scene
   events, not styling afterthoughts.
 - This lane works best when every card has one job.
+- The card itself must carry the lesson on mute; captions should
+  reinforce the card state, not be the only source of meaning.
+- Avoid tiny step chips and dense body copy. If the contact sheet is not
+  readable at small preview size, simplify the card before rendering.
+- Mock or silent audio is not acceptable for a proven lane; use real
+  voiceover and verify audio-signal in publish-prep.
 
 ## Aggregated From
 
@@ -71,3 +90,5 @@ description: Build a narrow educational short around motion cards, timed reveals
 - Typography and icons stay readable on mobile.
 - Motion clarifies progression instead of muddying it.
 - The lane feels deliberate and repeatable, not improvised.
+- The final MP4 passes portrait format, cadence, and audio-signal gates
+  before being documented as a showcase candidate.

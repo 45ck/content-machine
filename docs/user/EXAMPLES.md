@@ -22,6 +22,9 @@
 - **[Facts Listicle](examples/facts-listicle.md)** — countdown facts
   showcase candidate with real voiceover, timed captions, card resets,
   and publish-prep validation
+- **[Motion Card Lesson](examples/motion-card-lesson.md)** —
+  card-native educational showcase candidate with prompt, step, payoff,
+  captions, and publish-prep validation
 - **[Gemini Image-Led Shorts](examples/gemini-image-shorts.md)** —
   real rendered MP4 gallery from the image-led path; useful as a
   supporting showcase, not the flagship lane
@@ -34,9 +37,6 @@ not all proven examples yet.
 - **[Subway Confession Story](examples/subway-confession-story.md)** —
   proving lane; confession lane with support footage or receipts on top
   and gameplay below
-- **[Motion Card Lesson](examples/motion-card-lesson.md)** — narrow
-  educational lane brief; no canonical proving render yet
-
 ## Recipes And Walkthroughs
 
 These are runnable technique docs. Some use provider keys or older
