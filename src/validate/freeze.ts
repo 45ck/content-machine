@@ -1,5 +1,5 @@
 import { CMError } from '../core/errors';
-import { resolve } from 'node:path';
+import { resolvePackagePath } from '../core/package-root';
 import { runPythonJson } from './python-json';
 
 export interface FreezeSummary {
@@ -107,7 +107,8 @@ export class FreezeAnalyzer implements FreezeAnalyzerInterface {
 
   constructor(options?: { pythonPath?: string; scriptPath?: string; timeoutMs?: number }) {
     this.pythonPath = options?.pythonPath;
-    this.scriptPath = options?.scriptPath ?? resolve(process.cwd(), 'scripts', 'freeze_detect.py');
+    this.scriptPath =
+      options?.scriptPath ?? resolvePackagePath(import.meta.url, 'scripts', 'freeze_detect.py');
     this.timeoutMs = options?.timeoutMs ?? 120_000;
   }
 

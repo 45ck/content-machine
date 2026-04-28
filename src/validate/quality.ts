@@ -1,7 +1,7 @@
 import type { ValidateProfile } from './profiles';
 import type { VisualQualityGateResult } from '../domain';
 import { CMError } from '../core/errors';
-import { resolve } from 'node:path';
+import { resolvePackagePath } from '../core/package-root';
 import { runPythonJson } from './python-json';
 
 export interface VideoQualitySummary {
@@ -128,7 +128,8 @@ export class PiqBrisqueAnalyzer implements VideoQualityAnalyzer {
 
   constructor(options?: { pythonPath?: string; scriptPath?: string; timeoutMs?: number }) {
     this.pythonPath = options?.pythonPath;
-    this.scriptPath = options?.scriptPath ?? resolve(process.cwd(), 'scripts', 'video_quality.py');
+    this.scriptPath =
+      options?.scriptPath ?? resolvePackagePath(import.meta.url, 'scripts', 'video_quality.py');
     this.timeoutMs = options?.timeoutMs ?? 120_000;
   }
 

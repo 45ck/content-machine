@@ -101,6 +101,9 @@ new skills.
   shorts
 - [`motion-card-lesson-short/`](motion-card-lesson-short/SKILL.md) —
   narrow educational or quiz-like shorts built from timed card states
+- [`micro-doc-breakdown-short/`](micro-doc-breakdown-short/SKILL.md) —
+  documentary-style explainer shorts with archival cards, evidence
+  inserts, timelines, narration, captions, and publish-prep review
 - [`facts-listicle-short/`](facts-listicle-short/SKILL.md) — numbered
   or promise-driven fact shorts with one clear beat per fact
 - [`gameplay-confession-short/`](gameplay-confession-short/SKILL.md) —

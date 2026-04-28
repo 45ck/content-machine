@@ -1,0 +1,61 @@
+{
+  "generatedAt": "2026-04-29",
+  "sourceEvidence": [
+    "docs/research/archetypes/assets/20260429/claude-shorts/caption-styles.md",
+    "docs/research/archetypes/assets/20260429/openshorts/Subtitles.tsx",
+    "docs/research/archetypes/assets/20260429/raga70-reddit-bot/captionGen.py",
+    "docs/research/archetypes/assets/20260429/samurai-ai-shorts/Subtitles.py"
+  ],
+  "recipes": {
+    "bold-education": {
+      "bestFor": ["business", "education", "motivation", "how-to"],
+      "wordsPerPage": "2-3",
+      "case": "uppercase",
+      "fontIntent": "heavy geometric sans",
+      "highlight": "yellow active word",
+      "animation": "snappy pop spring",
+      "position": "lower center above platform chrome",
+      "risk": "can become shouty if every beat is all caps"
+    },
+    "bounce-entertainment": {
+      "bestFor": ["reaction", "challenge", "high-energy story", "meme"],
+      "wordsPerPage": "1-2",
+      "case": "uppercase",
+      "fontIntent": "display/comic",
+      "highlight": "rotating bright colors",
+      "animation": "bouncy scale overshoot",
+      "position": "lower center above platform chrome",
+      "risk": "motion and color can overpower dense footage"
+    },
+    "clean-interview": {
+      "bestFor": ["podcast", "talking head", "professional explanation"],
+      "wordsPerPage": "3-5",
+      "case": "preserve",
+      "fontIntent": "clean bold sans",
+      "highlight": "subtle gray or weight change",
+      "animation": "short fade",
+      "position": "lower third or center-lower",
+      "risk": "too subtle for fast entertainment lanes"
+    },
+    "reddit-one-word": {
+      "bestFor": ["reddit story", "confession", "gameplay background"],
+      "wordsPerPage": "1",
+      "case": "mixed or uppercase",
+      "fontIntent": "large readable sans",
+      "highlight": "single current word",
+      "animation": "hard cut or small pop",
+      "position": "center or lower center depending on gameplay detail",
+      "risk": "fatiguing and low information density if story is complex"
+    },
+    "ugc-hook-plus-subtitles": {
+      "bestFor": ["product ad", "UGC avatar", "testimonial"],
+      "wordsPerPage": "2-4",
+      "case": "natural",
+      "fontIntent": "platform-native bold sans",
+      "highlight": "high contrast active words",
+      "animation": "hook overlay first 3-5s plus active subtitles",
+      "position": "hook top, captions lower center",
+      "risk": "hook, face, product proof, and captions can compete"
+    }
+  }
+}

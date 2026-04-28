@@ -1,5 +1,5 @@
-import { resolve } from 'node:path';
 import { CMError } from '../core/errors';
+import { resolvePackagePath } from '../core/package-root';
 import type { VideoInfo } from './video-info';
 import { runPythonJson } from './python-json';
 
@@ -40,7 +40,8 @@ export async function probeVideoWithPython(
   videoPath: string,
   options?: { pythonPath?: string; scriptPath?: string; timeoutMs?: number; ffprobePath?: string }
 ): Promise<VideoInfo> {
-  const scriptPath = options?.scriptPath ?? resolve(process.cwd(), 'scripts', 'video_info.py');
+  const scriptPath =
+    options?.scriptPath ?? resolvePackagePath(import.meta.url, 'scripts', 'video_info.py');
   const data = await runPythonJson({
     errorCode: 'VIDEO_PROBE_ERROR',
     pythonPath: options?.pythonPath,

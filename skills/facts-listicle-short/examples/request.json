@@ -1,0 +1,9 @@
+{
+  "topic": "5 weird facts about sleep debt",
+  "laneId": "fast-facts-countdown",
+  "scriptArchetype": "listicle",
+  "visualStyle": "numbered cards, quick visual resets, captions, and one fact per beat",
+  "durationSeconds": 40,
+  "platform": "tiktok",
+  "reviewRequired": true
+}

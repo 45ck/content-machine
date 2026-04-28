@@ -1,0 +1,59 @@
+{
+  "id": "topic-faceless-explainer",
+  "name": "Topic-to-faceless explainer",
+  "platforms": ["tiktok", "instagram-reels", "youtube-shorts"],
+  "bestFor": [
+    "news explainers",
+    "how-to tips",
+    "listicles",
+    "myth busting",
+    "science facts",
+    "business lessons"
+  ],
+  "avoidFor": [
+    "high-trust medical/legal/financial advice without review",
+    "topics needing original footage",
+    "claims without sources"
+  ],
+  "sourceRepos": [
+    "gyoridavid/short-video-maker",
+    "rushindrasinha/youtube-shorts-pipeline",
+    "RayVentura/ShortGPT"
+  ],
+  "inputs": ["topic", "brief", "research notes", "niche profile", "style profile"],
+  "stages": [
+    "research",
+    "brief-to-script",
+    "voiceover",
+    "timestamps",
+    "visual plan",
+    "stock/generated asset fetch",
+    "caption render",
+    "music",
+    "final compose",
+    "publish metadata"
+  ],
+  "requiredArtifacts": [
+    "input/brief.json",
+    "analysis/research-notes.json",
+    "selection/script.json",
+    "timing/timestamps.json",
+    "visual-plan/visuals.json",
+    "assets/media-index.json",
+    "render/final.mp4"
+  ],
+  "riskGates": [
+    "unsupported claims",
+    "generic B-roll",
+    "caption-hostile footage",
+    "weak hook",
+    "music rights"
+  ],
+  "localSkillTargets": [
+    "brief-to-script",
+    "script-to-audio",
+    "timestamps-to-visuals",
+    "video-render",
+    "publish-prep-review"
+  ]
+}

@@ -3,17 +3,16 @@
 This is the primary path for using Content Machine today.
 
 Use it when you are working from Claude Code, Codex CLI, or a similar
-coding-agent CLI that can read repo-local docs and invoke JSON-stdio
-subprocesses.
+coding-agent CLI that can read repo-local docs and optionally invoke the
+repo's runners.
 
 ## The three surfaces
 
 - `skills/` defines when to use something, what input it needs, and
-  what files it should produce.
+  how to do it well.
 - `flows/` defines `45ck/prompt-language` orchestration: which skills
   run, in what order, and what marks success.
-- `scripts/harness/` is the repo-side executable surface: JSON on stdin,
-  JSON on stdout, files on disk.
+- `scripts/harness/` is the optional repo-side executable surface.
 
 Start with `skills/` when you want one capability. Start with `flows/`
 when you want a multi-step path.
@@ -109,8 +108,7 @@ cat skills/doctor-report/examples/request.json | \
   node --import tsx scripts/harness/doctor-report.ts
 ```
 
-Run the review gate directly when you want a deterministic
-ready-to-post verdict:
+Run the review gate directly when you want a hard ready-to-post verdict:
 
 ```bash
 cat <<'JSON' | node --import tsx scripts/harness/publish-prep.ts
@@ -147,7 +145,7 @@ with `SKILL.md` files already pointed at the installed package runner.
 
 - Skill guide: [`../../skills/README.md`](../../skills/README.md)
 - Flow guide: [`../../flows/README.md`](../../flows/README.md)
-- Repo-side entrypoints: [`../../scripts/harness/README.md`](../../scripts/harness/README.md)
+- Optional repo-side runners: [`../../scripts/harness/README.md`](../../scripts/harness/README.md)
 - Repo direction: [`../../DIRECTION.md`](../../DIRECTION.md)
 
 ## Legacy CLI

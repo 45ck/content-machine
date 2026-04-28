@@ -1,0 +1,45 @@
+{
+  "id": "motion-graphics-lesson",
+  "name": "Motion graphics lesson",
+  "platforms": ["tiktok", "instagram-reels", "youtube-shorts"],
+  "bestFor": [
+    "abstract concepts",
+    "frameworks",
+    "math/science",
+    "quotes",
+    "visual metaphors",
+    "micro-doc breakdowns"
+  ],
+  "avoidFor": [
+    "content requiring real proof footage",
+    "unreviewed complex claims",
+    "long unchanged slide decks"
+  ],
+  "sourceRepos": [
+    "dr34ming/shorts-project",
+    "calesthio/OpenMontage",
+    "DojoCodingLabs/remotion-superpowers"
+  ],
+  "inputs": ["lesson brief", "timed script", "style tokens", "motion grammar"],
+  "stages": [
+    "beat planning",
+    "scene type selection",
+    "style token selection",
+    "asset generation",
+    "motion render",
+    "caption layer",
+    "audio mix",
+    "review contact sheet",
+    "export"
+  ],
+  "requiredArtifacts": [
+    "input/lesson-brief.json",
+    "selection/beat-plan.json",
+    "visual-plan/scene-types.json",
+    "visual-plan/style-tokens.json",
+    "assets/generated-frames",
+    "render/final.mp4"
+  ],
+  "riskGates": ["unreadable text", "overcomplex motion", "template repetition", "no visual payoff"],
+  "localSkillTargets": ["motion-card-lesson-short", "animation-explainer-short", "video-render"]
+}

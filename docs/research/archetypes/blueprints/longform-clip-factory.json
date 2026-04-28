@@ -1,0 +1,62 @@
+{
+  "id": "longform-clip-factory",
+  "name": "Longform clip factory",
+  "platforms": ["tiktok", "instagram-reels", "youtube-shorts"],
+  "bestFor": [
+    "podcasts",
+    "interviews",
+    "talking heads",
+    "webinars",
+    "screen recordings",
+    "lectures"
+  ],
+  "avoidFor": [
+    "source media with unclear rights",
+    "clips that need missing context",
+    "low-audio-quality recordings"
+  ],
+  "sourceRepos": [
+    "AgriciDaniel/claude-shorts",
+    "SamurAIGPT/AI-Youtube-Shorts-Generator",
+    "imgly/videoclipper",
+    "alperensumeroglu/ai-clips-maker",
+    "eddieoz/reels-clips-automator"
+  ],
+  "inputs": ["local video", "YouTube URL", "transcript", "speaker map"],
+  "stages": [
+    "preflight",
+    "transcribe",
+    "scene/speaker analyze",
+    "candidate scoring",
+    "approval",
+    "boundary snap",
+    "clip extraction",
+    "crop/reframe plan",
+    "captions",
+    "render/export"
+  ],
+  "requiredArtifacts": [
+    "analysis/transcript.json",
+    "analysis/scenes.json",
+    "selection/candidates.json",
+    "selection/approved.json",
+    "timing/snapped-segments.json",
+    "visual-plan/crop-plan.json",
+    "render/clip-*.mp4"
+  ],
+  "riskGates": [
+    "mid-word cuts",
+    "bad crop",
+    "speaker mismatch",
+    "caption overlap",
+    "source rights"
+  ],
+  "localSkillTargets": [
+    "source-media-analyze",
+    "longform-highlight-select",
+    "boundary-snap",
+    "highlight-approval",
+    "video-render",
+    "publish-prep-review"
+  ]
+}

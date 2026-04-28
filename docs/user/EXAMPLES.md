@@ -31,6 +31,9 @@
 - **[Subway Confession Story](examples/subway-confession-story.md)** —
   gameplay-backed storytime showcase candidate with top support footage,
   bottom Subway Surfers-style gameplay, and midpoint captions
+- **[Micro-Doc Breakdown](examples/micro-doc-breakdown.md)** —
+  documentary-style proving candidate with archival cards, evidence
+  inserts, narration, captions, and a base publish-prep pass
 - **[Gemini Image-Led Shorts](examples/gemini-image-shorts.md)** —
   real rendered MP4 gallery from the image-led path; useful as a
   supporting showcase, not the flagship lane

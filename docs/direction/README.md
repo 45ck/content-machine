@@ -10,6 +10,7 @@ findings package.
 - [`06-typescript-kernel-cut-line.md`](06-typescript-kernel-cut-line.md) — what TypeScript should actually remain
 - [`07-short-form-roadmap-20260424.md`](07-short-form-roadmap-20260424.md) — runtime-first build order
 - [`08-archetype-rollout-20260427.md`](08-archetype-rollout-20260427.md) — lane catalog, proving order, and family rollout
+- [`09-vendor-archetype-backlog-20260429.md`](09-vendor-archetype-backlog-20260429.md) — vendor/research-derived archetypes to prove next
 - [`phases/`](phases/) — one file per phase, linked to the P0 beads
 
 The top-level [`DIRECTION.md`](../../DIRECTION.md) is the

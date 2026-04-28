@@ -1,0 +1,40 @@
+{
+  "id": "caption-export-primitives",
+  "name": "Caption and export primitives",
+  "platforms": ["tiktok", "instagram-reels", "youtube-shorts"],
+  "bestFor": ["all short-form lanes"],
+  "avoidFor": ["none"],
+  "sourceRepos": [
+    "AgriciDaniel/claude-shorts",
+    "m-bain/whisperX",
+    "SYSTRAN/faster-whisper",
+    "jianfch/stable-ts",
+    "libass/libass"
+  ],
+  "inputs": ["word timestamps", "target platform", "caption style", "export profile"],
+  "stages": [
+    "normalize timestamps",
+    "chunk captions",
+    "style captions",
+    "safe-zone check",
+    "ASS/SRT export",
+    "MP4 encode",
+    "audio normalize",
+    "final validation"
+  ],
+  "requiredArtifacts": [
+    "timing/words.json",
+    "render/captions.ass",
+    "render/captions.srt",
+    "publish/export-profile.json",
+    "publish/platform-metadata.json"
+  ],
+  "riskGates": [
+    "caption overlap",
+    "caption density",
+    "unsafe margins",
+    "bad loudness",
+    "invalid codec"
+  ],
+  "localSkillTargets": ["short-form-captions", "video-render", "publish-prep-review"]
+}

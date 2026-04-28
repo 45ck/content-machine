@@ -29,3 +29,8 @@ export function resolvePackageRoot(startUrl: string): string {
 export function resolvePackageJsonPath(startUrl: string): string {
   return join(resolvePackageRoot(startUrl), 'package.json');
 }
+
+/** Resolve a path inside the installed package for both source and bundled execution. */
+export function resolvePackagePath(startUrl: string, ...segments: string[]): string {
+  return join(resolvePackageRoot(startUrl), ...segments);
+}

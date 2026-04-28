@@ -1,18 +1,19 @@
 # Agent Runtime Scripts
 
-These entrypoints are the deterministic subprocess surface for the repo
+These entrypoints are the optional repo-side execution surface for the
 checkout when you are working from Claude Code, Codex CLI, and similar
 coding-agent CLIs.
 
 Role split:
 
-- `skills/` defines when to use something and what it should produce
+- `skills/` defines how to do something well and what it should produce
 - `flows/` defines how `45ck/prompt-language` orchestrates multiple skills
 - `scripts/harness/` executes the work over JSON stdin/stdout
 
 Each script reads JSON from stdin and writes a single JSON response to
 stdout. The reusable logic lives under `src/harness/`; these files are
-thin launchers so the repo can run them with Node's `tsx` loader:
+thin launchers so the repo can run them with Node's `tsx` loader when
+an agent wants the package to execute a step directly:
 
 ```bash
 node --import tsx scripts/harness/ingest.ts < request.json
@@ -29,8 +30,9 @@ When to use which entrypoint:
   `video-render.ts` when the agent already knows the exact capability
   it wants.
 
-Most `45ck/prompt-language` flows write under `runs/<run-id>/`. Direct skills may instead write
-to explicit output paths provided in the request.
+Most `45ck/prompt-language` flows write under `runs/<run-id>/`. Direct
+skills may instead write to explicit output paths provided in the
+request.
 
 Current entrypoints:
 

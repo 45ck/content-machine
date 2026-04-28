@@ -1,0 +1,63 @@
+{
+  "generatedAt": "2026-04-29",
+  "sourceReport": "docs/research/archetypes/09-platform-snapshot-20260429.md",
+  "defaults": {
+    "width": 1080,
+    "height": 1920,
+    "aspectRatio": "9:16",
+    "container": "mp4",
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "pixelFormat": "yuv420p",
+    "minFps": 30,
+    "audioLoudnessTarget": "-14 LUFS",
+    "safeZonePolicy": "conservative-centered"
+  },
+  "profiles": {
+    "youtube-shorts": {
+      "durationDefaultSec": 60,
+      "durationMaxSec": 180,
+      "notes": [
+        "YouTube Studio accepts square or vertical Shorts up to 3 minutes.",
+        "Keep generated defaults under 60 seconds unless the run explicitly targets 1-3 minute Shorts.",
+        "Shorts over 1 minute with active Content ID claims can be blocked globally."
+      ],
+      "sources": [
+        "https://support.google.com/youtube/answer/12779649",
+        "https://support.google.com/youtube/answer/15424877"
+      ]
+    },
+    "tiktok": {
+      "durationDefaultSec": 60,
+      "durationMaxSec": 1800,
+      "webUploadMaxSec": 1800,
+      "appUploadMaxSec": 3600,
+      "minResolution": "720x1280",
+      "adMinVerticalResolution": "540x960",
+      "notes": [
+        "TikTok app and web upload surfaces list different duration limits.",
+        "Discovery-first generated content should usually stay in the 15-60 second range.",
+        "Use vertical 9:16 by default."
+      ],
+      "sources": [
+        "https://support.tiktok.com/en/using-tiktok/creating-videos/camera-tools",
+        "https://support.tiktok.com/en/using-tiktok/creating-videos/creator-tools-on-tiktok",
+        "https://ads.tiktok.com/help/article/video-ads-specifications"
+      ]
+    },
+    "instagram-reels": {
+      "durationDefaultSec": 60,
+      "durationMaxSec": null,
+      "acceptedAspectRatioRange": "1.91:1 to 9:16",
+      "minFps": 30,
+      "minResolutionPx": 720,
+      "coverPhotoRecommended": "420x654",
+      "notes": [
+        "Meta Help gives aspect ratio, FPS, and minimum resolution but duration varies by surface/account.",
+        "Use 1080x1920 9:16 for cross-platform output.",
+        "Generate or review a cover/first-frame asset for profile-grid conversion."
+      ],
+      "sources": ["https://www.facebook.com/help/1038071743007909"]
+    }
+  }
+}

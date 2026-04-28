@@ -156,7 +156,7 @@ Update workflow: edit the YAML, then run `npm run repo-facts:gen` or `npm run gl
 
 - `skills/` — skill docs
 - `flows/` — `45ck/prompt-language` flow docs plus executable `.flow` manifests
-- `scripts/harness/` — deterministic JSON-stdio entrypoints
+- `scripts/harness/` — optional repo-side runners
 - `docs/direction/` — migration plan and boundaries
 - `archive/legacy-cli/` — frozen landing zone for surfaces that will be demoted or removed
 

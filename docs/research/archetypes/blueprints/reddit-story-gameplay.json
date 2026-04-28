@@ -1,0 +1,49 @@
+{
+  "id": "reddit-story-gameplay",
+  "name": "Reddit/story over gameplay",
+  "platforms": ["tiktok", "instagram-reels", "youtube-shorts"],
+  "bestFor": ["reddit stories", "confessions", "storytime", "text drama"],
+  "avoidFor": ["claims needing proof", "dense education", "product demos without source assets"],
+  "sourceRepos": [
+    "raga70/FullyAutomatedRedditVideoMakerBot",
+    "1Dengaroo/rshorts",
+    "RayVentura/ShortGPT"
+  ],
+  "inputs": [
+    "story text",
+    "reddit post URL",
+    "generated story prompt",
+    "licensed background footage"
+  ],
+  "stages": [
+    "story normalize",
+    "voiceover",
+    "word timestamps",
+    "background media selection",
+    "reddit/card opener",
+    "active captions",
+    "render",
+    "platform export"
+  ],
+  "requiredArtifacts": [
+    "input/story.json",
+    "assets/voiceover.wav",
+    "timing/voiceover-words.json",
+    "assets/background-video.json",
+    "visual-plan/reddit-card.json",
+    "render/final.mp4",
+    "provenance.json"
+  ],
+  "riskGates": [
+    "background media rights",
+    "caption readability",
+    "reused footage detection",
+    "platform safe zones"
+  ],
+  "localSkillTargets": [
+    "reddit-post-over-gameplay-short",
+    "reddit-story-short",
+    "gameplay-confession-short",
+    "short-form-captions"
+  ]
+}

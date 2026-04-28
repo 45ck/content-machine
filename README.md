@@ -117,6 +117,14 @@ Gameplay confession preview:
   </a>
 </p>
 
+Micro-doc breakdown preview:
+
+<p align="center">
+  <a href="docs/demo/demo-17-micro-doc-breakdown.mp4">
+    <img src="docs/demo/demo-17-micro-doc-breakdown.gif" alt="Micro-doc breakdown proving candidate" width="220" />
+  </a>
+</p>
+
 Status guide:
 
 - `showcase`: real canonical example users should copy first
@@ -152,6 +160,7 @@ Tracked preview clip:
 - [docs/demo/demo-14-motion-card-lesson.mp4](docs/demo/demo-14-motion-card-lesson.mp4)
 - [docs/demo/demo-15-faceless-mixed-short.mp4](docs/demo/demo-15-faceless-mixed-short.mp4)
 - [docs/demo/demo-16-gameplay-confession-split.mp4](docs/demo/demo-16-gameplay-confession-split.mp4)
+- [docs/demo/demo-17-micro-doc-breakdown.mp4](docs/demo/demo-17-micro-doc-breakdown.mp4)
 - [docs/demo/demo-8-reddit-story-split-screen.mp4](docs/demo/demo-8-reddit-story-split-screen.mp4)
 
 > Early development. Skills, flows, and runtime scripts are now the

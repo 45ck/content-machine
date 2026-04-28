@@ -1,5 +1,5 @@
-import { resolve } from 'node:path';
 import { CMError } from '../core/errors';
+import { resolvePackagePath } from '../core/package-root';
 import { runPythonJson } from './python-json';
 
 export interface SceneDetectResult {
@@ -37,7 +37,8 @@ export async function detectSceneCutsWithPySceneDetect(params: {
   timeoutMs?: number;
 }): Promise<number[]> {
   const threshold = params.threshold ?? 30;
-  const scriptPath = params.scriptPath ?? resolve(process.cwd(), 'scripts', 'scene_detect.py');
+  const scriptPath =
+    params.scriptPath ?? resolvePackagePath(import.meta.url, 'scripts', 'scene_detect.py');
 
   const data = await runPythonJson({
     errorCode: 'VALIDATION_ERROR',

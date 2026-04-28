@@ -1,7 +1,7 @@
 import type { ValidateProfile } from './profiles';
 import type { AudioSignalGateResult } from '../domain';
 import { CMError } from '../core/errors';
-import { resolve } from 'node:path';
+import { resolvePackagePath } from '../core/package-root';
 import { resolveFfmpegPath } from '../core/video/ffmpeg';
 import { runPythonJson } from './python-json';
 
@@ -129,7 +129,8 @@ export class FfmpegAudioAnalyzer implements AudioSignalAnalyzer {
 
   constructor(options?: { pythonPath?: string; scriptPath?: string; timeoutMs?: number }) {
     this.pythonPath = options?.pythonPath;
-    this.scriptPath = options?.scriptPath ?? resolve(process.cwd(), 'scripts', 'audio_quality.py');
+    this.scriptPath =
+      options?.scriptPath ?? resolvePackagePath(import.meta.url, 'scripts', 'audio_quality.py');
     this.timeoutMs = options?.timeoutMs ?? 180_000;
   }
 

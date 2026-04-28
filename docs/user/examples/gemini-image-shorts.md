@@ -1,5 +1,10 @@
 # Gemini Image-Led Shorts
 
+Status: `secondary real-render gallery`
+
+These are real rendered outputs and useful supporting examples, but they
+are not the flagship showcase lane for the repo.
+
 This example set tracks three real Content Machine renders that use Gemini image generation via `nanobanana` for the visual layer.
 
 These are real rendered MP4 outputs with voice audio and captions. They are image-led examples, not true Veo video generations yet.

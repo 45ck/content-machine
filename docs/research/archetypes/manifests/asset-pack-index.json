@@ -1,0 +1,76 @@
+{
+  "generatedAt": "2026-04-29",
+  "root": "docs/research/archetypes/assets/20260429",
+  "purpose": "Research evidence only; not production runtime assets.",
+  "assetGroups": [
+    {
+      "id": "claude-shorts",
+      "type": "agent-instructions-and-render-specs",
+      "files": [
+        "SKILL.md",
+        "caption-styles.md",
+        "platform-specs.md",
+        "remotion-patterns.md",
+        "scoring-rubric.md"
+      ]
+    },
+    {
+      "id": "gyoridavid-short-video-maker",
+      "type": "faceless-explainer-runtime",
+      "files": ["shorts.ts", "ShortCreator.ts", "PortraitVideo.tsx", "Pexels.ts", "Remotion.ts"]
+    },
+    {
+      "id": "openshorts",
+      "type": "ugc-avatar-and-overlay-runtime",
+      "files": [
+        "ai-shorts.png",
+        "clip-generator.png",
+        "clip-results.png",
+        "HookOverlay.tsx",
+        "Subtitles.tsx",
+        "ShortVideo.tsx",
+        "VideoEffects.tsx",
+        "hooks.py",
+        "saasshorts.py"
+      ]
+    },
+    {
+      "id": "samurai-ai-shorts",
+      "type": "longform-crop-subtitle-runtime",
+      "files": ["FaceCrop.py", "LanguageTasks.py", "Subtitles.py"]
+    },
+    {
+      "id": "shortgpt",
+      "type": "engine-and-edit-step-patterns",
+      "files": [
+        "content_short_engine.py",
+        "facts_short_engine.py",
+        "reddit_short_engine.py",
+        "make_caption.json",
+        "crop_1920x1080_to_short.json"
+      ]
+    },
+    {
+      "id": "raga70-reddit-bot",
+      "type": "reddit-gameplay-config-and-assembly",
+      "files": ["config.template.toml", "background_videos.json", "captionGen.py", "final_video.py"]
+    },
+    {
+      "id": "dr34ming-shorts-project",
+      "type": "motion-graphics-template-evidence",
+      "files": [
+        "TRANSCRIPT_FORMAT.md",
+        "TEMPLATES_NOTES.md",
+        "girlboss_example.json",
+        "hustle_bro_example.json",
+        "innovation_vertical_diverging_v1.py",
+        "propaganda_v2_frame.png"
+      ]
+    },
+    {
+      "id": "imgly-videoclipper",
+      "type": "browser-clip-factory",
+      "files": ["README.md", "transcript.ts", "engine.ts", "use-cesdk-editor.ts"]
+    }
+  ]
+}

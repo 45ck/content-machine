@@ -1,0 +1,16 @@
+{
+  "platform": "youtube_shorts",
+  "goal": "Choose the best short-form archetype for a 45 second explainer about a new AI feature and return the blueprint, assets, and quality gates content-machine should use.",
+  "inputs": {
+    "topic": "AI feature launch",
+    "source_media": [],
+    "available_assets": ["product screenshots", "brand colors", "voiceover script draft"]
+  },
+  "requested_outputs": [
+    "archetype_route",
+    "blueprint_path",
+    "required_assets",
+    "request_template_path",
+    "quality_gates"
+  ]
+}

@@ -1,7 +1,7 @@
 import type { ValidateProfile } from './profiles';
 import type { TemporalQualityGateResult } from '../domain';
 import { CMError } from '../core/errors';
-import { resolve } from 'node:path';
+import { resolvePackagePath } from '../core/package-root';
 import { runPythonJson } from './python-json';
 
 export interface TemporalQualitySummary {
@@ -92,7 +92,8 @@ export class TemporalAnalyzer implements TemporalQualityAnalyzer {
   constructor(options?: { pythonPath?: string; scriptPath?: string; timeoutMs?: number }) {
     this.pythonPath = options?.pythonPath;
     this.scriptPath =
-      options?.scriptPath ?? resolve(process.cwd(), 'scripts', 'temporal_quality.py');
+      options?.scriptPath ??
+      resolvePackagePath(import.meta.url, 'scripts', 'temporal_quality.py');
     this.timeoutMs = options?.timeoutMs ?? 300_000;
   }
 

@@ -1,0 +1,157 @@
+{
+  "generatedAt": "2026-04-29",
+  "repos": [
+    {
+      "slug": "AgriciDaniel/claude-shorts",
+      "localPath": "vendor/imports-20260423-shortform-downloads-direct/direct-repos/AgriciDaniel__claude-shorts",
+      "archetypes": ["longform-clip-factory", "caption-export-primitives"],
+      "signals": [
+        "agent pipeline",
+        "clip scoring",
+        "boundary snapping",
+        "caption styles",
+        "platform exports"
+      ],
+      "copiedAssets": [
+        "assets/20260429/claude-shorts/SKILL.md",
+        "assets/20260429/claude-shorts/caption-styles.md",
+        "assets/20260429/claude-shorts/platform-specs.md",
+        "assets/20260429/claude-shorts/remotion-patterns.md",
+        "assets/20260429/claude-shorts/scoring-rubric.md"
+      ]
+    },
+    {
+      "slug": "SamurAIGPT/AI-Youtube-Shorts-Generator",
+      "localPath": "vendor/imports-20260423-shortform-github/direct-generators/SamurAIGPT__AI-Youtube-Shorts-Generator",
+      "archetypes": ["longform-clip-factory"],
+      "signals": [
+        "Whisper transcription",
+        "LLM highlight selection",
+        "static face crop",
+        "screen-recording crop",
+        "subtitle burn-in"
+      ],
+      "copiedAssets": [
+        "assets/20260429/samurai-ai-shorts/FaceCrop.py",
+        "assets/20260429/samurai-ai-shorts/LanguageTasks.py",
+        "assets/20260429/samurai-ai-shorts/Subtitles.py"
+      ]
+    },
+    {
+      "slug": "imgly/videoclipper",
+      "localPath": "vendor/imports-20260423-shortform-github/direct-generators/imgly__videoclipper",
+      "archetypes": ["longform-clip-factory"],
+      "signals": [
+        "browser editor",
+        "text matching to word timestamps",
+        "speaker mapping",
+        "non-destructive preview"
+      ],
+      "copiedAssets": [
+        "assets/20260429/imgly-videoclipper/README.md",
+        "assets/20260429/imgly-videoclipper/transcript.ts",
+        "assets/20260429/imgly-videoclipper/engine.ts",
+        "assets/20260429/imgly-videoclipper/use-cesdk-editor.ts"
+      ]
+    },
+    {
+      "slug": "gyoridavid/short-video-maker",
+      "localPath": "vendor/imports-20260423-shortform-github/direct-generators/gyoridavid__short-video-maker",
+      "archetypes": ["topic-to-faceless-explainer"],
+      "signals": [
+        "scene input schema",
+        "Kokoro TTS",
+        "Whisper captions",
+        "Pexels search",
+        "Remotion rendering",
+        "REST/MCP surface"
+      ],
+      "copiedAssets": [
+        "assets/20260429/gyoridavid-short-video-maker/shorts.ts",
+        "assets/20260429/gyoridavid-short-video-maker/ShortCreator.ts",
+        "assets/20260429/gyoridavid-short-video-maker/PortraitVideo.tsx",
+        "assets/20260429/gyoridavid-short-video-maker/Pexels.ts",
+        "assets/20260429/gyoridavid-short-video-maker/Remotion.ts"
+      ]
+    },
+    {
+      "slug": "mutonby/openshorts",
+      "localPath": "vendor/imports-20260423-shortform-github/direct-generators/mutonby__openshorts",
+      "archetypes": ["ugc-avatar-product-short", "longform-clip-factory"],
+      "signals": [
+        "product research",
+        "UGC script generation",
+        "avatar/talking-head generation",
+        "hook overlays",
+        "subtitles",
+        "gallery/publishing"
+      ],
+      "copiedAssets": [
+        "assets/20260429/openshorts/ai-shorts.png",
+        "assets/20260429/openshorts/clip-generator.png",
+        "assets/20260429/openshorts/clip-results.png",
+        "assets/20260429/openshorts/HookOverlay.tsx",
+        "assets/20260429/openshorts/Subtitles.tsx",
+        "assets/20260429/openshorts/ShortVideo.tsx",
+        "assets/20260429/openshorts/VideoEffects.tsx",
+        "assets/20260429/openshorts/hooks.py",
+        "assets/20260429/openshorts/saasshorts.py"
+      ]
+    },
+    {
+      "slug": "RayVentura/ShortGPT",
+      "localPath": "vendor/imports-20260423-shortform-github/direct-generators/RayVentura__ShortGPT",
+      "archetypes": ["topic-to-faceless-explainer", "reddit-story-gameplay"],
+      "signals": [
+        "engine subclasses",
+        "editing-step JSON",
+        "asset DB",
+        "prompt templates",
+        "MoviePy rendering"
+      ],
+      "copiedAssets": [
+        "assets/20260429/shortgpt/content_short_engine.py",
+        "assets/20260429/shortgpt/facts_short_engine.py",
+        "assets/20260429/shortgpt/reddit_short_engine.py",
+        "assets/20260429/shortgpt/make_caption.json",
+        "assets/20260429/shortgpt/crop_1920x1080_to_short.json"
+      ]
+    },
+    {
+      "slug": "raga70/FullyAutomatedRedditVideoMakerBot",
+      "localPath": "vendor/imports-20260423-shortform-downloads-direct/direct-repos/raga70__FullyAutomatedRedditVideoMakerBot",
+      "archetypes": ["reddit-story-gameplay"],
+      "signals": [
+        "Reddit sourcing",
+        "background media pool",
+        "one-word captions",
+        "multi-platform upload automation"
+      ],
+      "copiedAssets": [
+        "assets/20260429/raga70-reddit-bot/config.template.toml",
+        "assets/20260429/raga70-reddit-bot/background_videos.json",
+        "assets/20260429/raga70-reddit-bot/captionGen.py",
+        "assets/20260429/raga70-reddit-bot/final_video.py"
+      ]
+    },
+    {
+      "slug": "dr34ming/shorts-project",
+      "localPath": "vendor/imports-20260423-shortform-github/direct-generators/dr34ming__shorts-project",
+      "archetypes": ["motion-graphics-lesson"],
+      "signals": [
+        "Manim transcript format",
+        "demographic style profiles",
+        "template evolution",
+        "viral title animations"
+      ],
+      "copiedAssets": [
+        "assets/20260429/dr34ming-shorts-project/TRANSCRIPT_FORMAT.md",
+        "assets/20260429/dr34ming-shorts-project/TEMPLATES_NOTES.md",
+        "assets/20260429/dr34ming-shorts-project/girlboss_example.json",
+        "assets/20260429/dr34ming-shorts-project/hustle_bro_example.json",
+        "assets/20260429/dr34ming-shorts-project/innovation_vertical_diverging_v1.py",
+        "assets/20260429/dr34ming-shorts-project/propaganda_v2_frame.png"
+      ]
+    }
+  ]
+}

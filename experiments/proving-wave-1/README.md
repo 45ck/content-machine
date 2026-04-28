@@ -1,5 +1,11 @@
 # Proving Wave 1
 
+Status: `proving artifacts only`
+
+None of the lanes in this folder should be treated as flagship or
+showcase examples yet. This bundle exists to expose runtime and editorial
+gaps honestly.
+
 First proving wave after the archetype rollout plan in
 [docs/direction/08-archetype-rollout-20260427.md](../../docs/direction/08-archetype-rollout-20260427.md).
 
@@ -16,6 +22,7 @@ Goal:
 - one lane folder per archetype
 - one concrete proving report per lane
 - one real final MP4 per lane when the runtime path allows it
+- honest review failures kept visible instead of hidden
 
 Current lane results:
 

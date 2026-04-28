@@ -1,0 +1,49 @@
+{
+  "id": "ugc-avatar-product-short",
+  "name": "UGC/avatar product short",
+  "platforms": ["tiktok", "instagram-reels", "youtube-shorts"],
+  "bestFor": [
+    "SaaS demos",
+    "local business ads",
+    "ecommerce product explainers",
+    "testimonial-style creative"
+  ],
+  "avoidFor": [
+    "unverified product claims",
+    "synthetic-person content without disclosure policy",
+    "regulated claims without approval"
+  ],
+  "sourceRepos": ["mutonby/openshorts"],
+  "inputs": ["product URL", "offer", "audience", "claim bank", "brand constraints"],
+  "stages": [
+    "product research",
+    "claim extraction",
+    "script generation",
+    "avatar selection/generation",
+    "voiceover",
+    "talking-head/lip-sync",
+    "B-roll generation",
+    "captions/hooks",
+    "final compose",
+    "publish metadata"
+  ],
+  "requiredArtifacts": [
+    "input/product-brief.json",
+    "analysis/claim-bank.json",
+    "selection/script.json",
+    "assets/avatar.png",
+    "assets/voiceover.wav",
+    "assets/talking-head.mp4",
+    "assets/broll-manifest.json",
+    "render/final.mp4",
+    "provenance.json"
+  ],
+  "riskGates": [
+    "claim proof",
+    "avatar provenance",
+    "voice consent",
+    "synthetic media disclosure",
+    "brand safety"
+  ],
+  "localSkillTargets": ["ugc-avatar-short", "saas-problem-solution-short", "publish-prep-review"]
+}

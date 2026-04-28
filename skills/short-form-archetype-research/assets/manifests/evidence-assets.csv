@@ -1,0 +1,48 @@
+path,type,size_bytes,source_repo,use,production_reuse
+assets/20260429/claude-shorts/SKILL.md,markdown,12831,AgriciDaniel/claude-shorts,agent pipeline evidence,no-license-review-first
+assets/20260429/claude-shorts/caption-styles.md,markdown,3621,AgriciDaniel/claude-shorts,caption style evidence,no-license-review-first
+assets/20260429/claude-shorts/platform-specs.md,markdown,4403,AgriciDaniel/claude-shorts,platform export evidence,no-license-review-first
+assets/20260429/claude-shorts/remotion-patterns.md,markdown,5123,AgriciDaniel/claude-shorts,render pattern evidence,no-license-review-first
+assets/20260429/claude-shorts/scoring-rubric.md,markdown,4283,AgriciDaniel/claude-shorts,clip scoring evidence,no-license-review-first
+assets/20260429/gyoridavid-short-video-maker/shorts.ts,typescript,4287,gyoridavid/short-video-maker,scene schema evidence,no-license-review-first
+assets/20260429/gyoridavid-short-video-maker/ShortCreator.ts,typescript,8656,gyoridavid/short-video-maker,faceless pipeline evidence,no-license-review-first
+assets/20260429/gyoridavid-short-video-maker/PortraitVideo.tsx,typescript-react,5250,gyoridavid/short-video-maker,portrait Remotion evidence,no-license-review-first
+assets/20260429/gyoridavid-short-video-maker/Pexels.ts,typescript,5729,gyoridavid/short-video-maker,stock search evidence,no-license-review-first
+assets/20260429/gyoridavid-short-video-maker/Remotion.ts,typescript,2706,gyoridavid/short-video-maker,render wrapper evidence,no-license-review-first
+assets/20260429/openshorts/ai-shorts.png,image,399673,mutonby/openshorts,UGC UI reference,research-only
+assets/20260429/openshorts/clip-generator.png,image,294736,mutonby/openshorts,clip UI reference,research-only
+assets/20260429/openshorts/clip-results.png,image,263495,mutonby/openshorts,clip result UI reference,research-only
+assets/20260429/openshorts/HookOverlay.tsx,typescript-react,3709,mutonby/openshorts,hook overlay evidence,no-license-review-first
+assets/20260429/openshorts/Subtitles.tsx,typescript-react,5637,mutonby/openshorts,subtitle component evidence,no-license-review-first
+assets/20260429/openshorts/ShortVideo.tsx,typescript-react,1153,mutonby/openshorts,composition evidence,no-license-review-first
+assets/20260429/openshorts/VideoEffects.tsx,typescript-react,5811,mutonby/openshorts,effects evidence,no-license-review-first
+assets/20260429/openshorts/hooks.py,python,8488,mutonby/openshorts,hook generation evidence,no-license-review-first
+assets/20260429/openshorts/saasshorts.py,python,57556,mutonby/openshorts,UGC/product pipeline evidence,no-license-review-first
+assets/20260429/samurai-ai-shorts/FaceCrop.py,python,9104,SamurAIGPT/AI-Youtube-Shorts-Generator,crop algorithm evidence,no-license-review-first
+assets/20260429/samurai-ai-shorts/LanguageTasks.py,python,4199,SamurAIGPT/AI-Youtube-Shorts-Generator,highlight prompt evidence,no-license-review-first
+assets/20260429/samurai-ai-shorts/Subtitles.py,python,2938,SamurAIGPT/AI-Youtube-Shorts-Generator,subtitle burn-in evidence,no-license-review-first
+assets/20260429/shortgpt/content_short_engine.py,python,8500,RayVentura/ShortGPT,engine pipeline evidence,no-license-review-first
+assets/20260429/shortgpt/facts_short_engine.py,python,1002,RayVentura/ShortGPT,facts engine evidence,no-license-review-first
+assets/20260429/shortgpt/reddit_short_engine.py,python,5792,RayVentura/ShortGPT,reddit engine evidence,no-license-review-first
+assets/20260429/shortgpt/make_caption.json,json,581,RayVentura/ShortGPT,declarative caption step evidence,no-license-review-first
+assets/20260429/shortgpt/crop_1920x1080_to_short.json,json,514,RayVentura/ShortGPT,declarative crop step evidence,no-license-review-first
+assets/20260429/raga70-reddit-bot/config.template.toml,toml,10936,raga70/FullyAutomatedRedditVideoMakerBot,reddit config evidence,no-license-review-first
+assets/20260429/raga70-reddit-bot/background_videos.json,json,1559,raga70/FullyAutomatedRedditVideoMakerBot,background media pool evidence,no-license-review-first
+assets/20260429/raga70-reddit-bot/captionGen.py,python,5823,raga70/FullyAutomatedRedditVideoMakerBot,one-word caption evidence,no-license-review-first
+assets/20260429/raga70-reddit-bot/final_video.py,python,18968,raga70/FullyAutomatedRedditVideoMakerBot,final assembly evidence,no-license-review-first
+assets/20260429/dr34ming-shorts-project/TRANSCRIPT_FORMAT.md,markdown,7709,dr34ming/shorts-project,timed motion input evidence,no-license-review-first
+assets/20260429/dr34ming-shorts-project/TEMPLATES_NOTES.md,markdown,4075,dr34ming/shorts-project,template evolution evidence,no-license-review-first
+assets/20260429/dr34ming-shorts-project/girlboss_example.json,json,628,dr34ming/shorts-project,style profile evidence,no-license-review-first
+assets/20260429/dr34ming-shorts-project/hustle_bro_example.json,json,613,dr34ming/shorts-project,style profile evidence,no-license-review-first
+assets/20260429/dr34ming-shorts-project/innovation_vertical_diverging_v1.py,python,8749,dr34ming/shorts-project,Manim template evidence,no-license-review-first
+assets/20260429/dr34ming-shorts-project/propaganda_v2_frame.png,image,155487,dr34ming/shorts-project,visual style reference,research-only
+assets/20260429/imgly-videoclipper/README.md,markdown,6027,imgly/videoclipper,browser clipper architecture,no-license-review-first
+assets/20260429/imgly-videoclipper/transcript.ts,typescript,8646,imgly/videoclipper,text-to-timestamp matching evidence,no-license-review-first
+assets/20260429/imgly-videoclipper/engine.ts,typescript,279,imgly/videoclipper,CE.SDK engine evidence,no-license-review-first
+assets/20260429/imgly-videoclipper/use-cesdk-editor.ts,typescript,3529,imgly/videoclipper,browser editor hook evidence,no-license-review-first
+assets/20260429/openmontage/SCENE_TYPES.md,markdown,4409,calesthio/OpenMontage,scene vocabulary evidence,no-license-review-first
+assets/20260429/dojo-remotion-superpowers/create-short.md,markdown,4776,DojoCodingLabs/remotion-superpowers,short command evidence,no-license-review-first
+assets/20260429/dojo-remotion-superpowers/media-scout.md,markdown,2630,DojoCodingLabs/remotion-superpowers,media scout role evidence,no-license-review-first
+assets/20260429/dojo-remotion-superpowers/review-video.md,markdown,3875,DojoCodingLabs/remotion-superpowers,review checklist evidence,no-license-review-first
+assets/20260429/dojo-remotion-superpowers/video-director.md,markdown,3036,DojoCodingLabs/remotion-superpowers,video director role evidence,no-license-review-first
+assets/20260429/ai-clips-maker/README.md,markdown,7448,alperensumeroglu/ai-clips-maker,WhisperX/Pyannote overview,no-license-review-first

@@ -14,7 +14,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
-import { basename, dirname, join, resolve } from 'node:path';
+import { basename, join, resolve } from 'node:path';
 import { parse as parseYaml } from 'yaml';
 import { NotFoundError, SchemaError } from '../core/errors';
 import { resolvePackageRoot } from '../core/package-root';

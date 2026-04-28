@@ -25,6 +25,7 @@
     "src/**",
     "skills/**",
     "flows/**",
+    "scripts/*.py",
     "scripts/harness/**",
     "scripts/postinstall.mjs",
     "archive/README.md",
