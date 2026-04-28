@@ -14,9 +14,9 @@ Purpose: normalize how the researched short-form archetypes are made.
 | Motion graphics lesson      | Script, lesson, quote, concept, timed beats           | Script/voiceover timed beats          | Programmatic scenes/cards/diagrams               | Remotion, Manim, HyperFrames                              | beat plan, scene type map, style tokens, generated frames/components        |
 | Caption/export primitives   | Any audio/video plus target platform                  | Word timestamps                       | N/A; overlay layer                               | ASS/SRT, Remotion captions, FFmpeg export                 | caption JSON, font/style preset, safe-zone profile, export profile          |
 
-## Shared Stage Contract
+## Shared Stage Checklist
 
-All six lanes can fit this contract:
+All six lanes can follow this production checklist:
 
 1. `input`: topic, URL, video, script, product brief, or story.
 2. `analysis`: research, transcript, scene detection, or product claim extraction.
@@ -34,7 +34,7 @@ All six lanes can fit this contract:
 - A short is first a timing object, then a visual object.
 - Every asset should have provenance before it enters render.
 - Crop/reframe should be stored as data, not only baked into a video.
-- Captions should be generated once as structured data and rendered into
+- Captions should be generated once as reusable timing data and rendered into
   platform-specific styles.
 - Hook overlays should be component props, not static screenshots.
 - Upload automation should stay outside core generation until auth, policy,
@@ -44,7 +44,7 @@ All six lanes can fit this contract:
 
 | Stage         | Existing Local Surface                    | Gap                                      |
 | ------------- | ----------------------------------------- | ---------------------------------------- |
-| `input`       | `brief-to-script`, `source-media-analyze` | product brief/claim-bank schema          |
+| `input`       | `brief-to-script`, `source-media-analyze` | product brief and claim-bank guidance    |
 | `analysis`    | `source-media-analyze`, `media-index`     | text-selection-to-timestamps             |
 | `selection`   | `longform-highlight-select`               | shared scoring rubric artifact           |
 | `approval`    | `highlight-approval`                      | visual contact sheet approval            |

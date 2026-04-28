@@ -12,10 +12,14 @@ old CLI-first guides now live under
 
 1. [Agent Quickstart](AGENT-QUICKSTART.md) — primary path for skills,
    flows, and optional repo-side runners
-2. [Configuration](CONFIGURATION.md) — defaults, providers, and
+2. [Archetypes](ARCHETYPES.md) — choose the lane before scripting,
+   sourcing media, or rendering
+3. [Quality And Review](QUALITY-AND-REVIEW.md) — review gates for
+   captions, audio, motion, safe zones, and promotion status
+4. [Configuration](CONFIGURATION.md) — defaults, providers, and
    data-driven resources
-3. [Reddit Post Over Gameplay](examples/reddit-post-over-gameplay.md) — default Reddit story example
-4. [Examples](EXAMPLES.md) — additional workflows and secondary example outputs
+5. [Reddit Post Over Gameplay](examples/reddit-post-over-gameplay.md) — default Reddit story example
+6. [Examples](EXAMPLES.md) — additional workflows and secondary example outputs
 
 Default Reddit story mode is `reddit-post-over-gameplay`: full-screen
 gameplay with a Reddit post card opener and captions, no random clips.
@@ -30,6 +34,10 @@ the generic default for every Reddit request.
 ## Shared Reference
 
 - [Providers: Google Gemini](providers/gemini.md) — using Gemini as your LLM + visual provider
+- [Short-Form Archetype Research](../research/archetypes/README.md) —
+  vendor/repo-derived archetype research, recipes, and quality rubrics
+- [Vendor Archetype Backlog](../direction/09-vendor-archetype-backlog-20260429.md) —
+  lanes to build next, one at a time
 
 ## Generated References
 

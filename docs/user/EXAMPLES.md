@@ -1,5 +1,9 @@
 # Examples
 
+Use [Archetypes](ARCHETYPES.md) first if you are choosing what kind of
+short to make. Use [Quality And Review](QUALITY-AND-REVIEW.md) before
+promoting a render as ready.
+
 ## Showcase
 
 - **[Reddit Post Over Gameplay](examples/reddit-post-over-gameplay.md)** —
@@ -9,6 +13,21 @@
   current tracked showcase with split-screen grammar. Generic Reddit
   story requests should still use `reddit-post-over-gameplay` unless a
   split-screen/top-lane support mode is requested.
+
+## Status Summary
+
+| Lane                        | Status               | Demo                                                       |
+| --------------------------- | -------------------- | ---------------------------------------------------------- |
+| `reddit-post-over-gameplay` | `golden showcase`    | [`demo-9`](../demo/demo-9-reddit-post-over-gameplay.mp4)   |
+| `reddit-story-split-screen` | `showcase candidate` | [`demo-8`](../demo/demo-8-reddit-story-split-screen.mp4)   |
+| `stock-b-roll-explainer`    | `showcase candidate` | [`demo-10`](../demo/demo-10-stock-broll-explainer.mp4)     |
+| `text-thread-reveal`        | `showcase candidate` | [`demo-11`](../demo/demo-11-text-thread-reveal.mp4)        |
+| `saas-problem-solution`     | `showcase candidate` | [`demo-12`](../demo/demo-12-saas-problem-solution.mp4)     |
+| `fast-facts-countdown`      | `showcase candidate` | [`demo-13`](../demo/demo-13-fast-facts-countdown.mp4)      |
+| `motion-card-lesson`        | `showcase candidate` | [`demo-14`](../demo/demo-14-motion-card-lesson.mp4)        |
+| `faceless-mixed-short`      | `showcase candidate` | [`demo-15`](../demo/demo-15-faceless-mixed-short.mp4)      |
+| `gameplay-confession-split` | `showcase candidate` | [`demo-16`](../demo/demo-16-gameplay-confession-split.mp4) |
+| `micro-doc-breakdown`       | `proving candidate`  | [`demo-17`](../demo/demo-17-micro-doc-breakdown.mp4)       |
 
 ## Secondary Real Renders
 

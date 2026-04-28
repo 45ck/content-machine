@@ -40,9 +40,9 @@ share a common voice, captions, background asset, and render path.
 
 ## Asset Strategy
 
-The useful copied assets are not stock clips; they are schemas and prompts:
+The useful copied assets are not stock clips; they are recipes and prompts:
 niche profiles, scene plans, caption presets, search-term mapping, music mood
-rules, and platform export configs. Runtime media should be fetched/generated
+rules, and platform export defaults. Runtime media should be fetched/generated
 per run with provenance and cached in the run directory.
 
 ## What To Pull Into content-machine

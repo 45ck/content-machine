@@ -88,9 +88,14 @@ new skills.
 
 ## Shipped Starter Skills
 
+### Archetype And Production Planning
+
 - [`short-form-production-playbook/`](short-form-production-playbook/SKILL.md)
   — hook-first editorial, visual assembly, and reject-regenerate craft
   guidance for making strong shorts
+- [`short-form-archetype-research/`](short-form-archetype-research/SKILL.md)
+  — curated vendor/repo research pack for choosing archetypes and
+  translating patterns into skills, recipes, examples, and quality gates
 - [`faceless-mixed-short/`](faceless-mixed-short/SKILL.md) — mixed
   stock/local/gameplay/AI-generated faceless short construction
 - [`stock-footage-edutainment-short/`](stock-footage-edutainment-short/SKILL.md)
@@ -109,6 +114,9 @@ new skills.
 - [`gameplay-confession-short/`](gameplay-confession-short/SKILL.md) —
   confession/storytime shorts with motion or receipts on top and Subway
   Surfers-style gameplay below
+
+### Longform And Source Media
+
 - [`longform-to-shorts/`](longform-to-shorts/SKILL.md) — transcript-led
   clipping, selection, reframing, and short extraction from long video
 - [`longform-highlight-select/`](longform-highlight-select/SKILL.md) —
@@ -125,6 +133,9 @@ new skills.
   — recover exact ranges from transcript text selections
 - [`token-level-caption-timestamps/`](token-level-caption-timestamps/SKILL.md)
   — capture word-level caption timing from real ASR tokens
+
+### Story, Product, And Visual Lanes
+
 - [`reddit-story-short/`](reddit-story-short/SKILL.md) — Reddit/text
   story adaptation into narration-led shorts
 - [`reddit-post-over-gameplay-short/`](reddit-post-over-gameplay-short/SKILL.md)
@@ -136,6 +147,9 @@ new skills.
   spokesperson short construction
 - [`saas-problem-solution-short/`](saas-problem-solution-short/SKILL.md)
   — creator-adjacent SaaS or product promo lane with proof/demo beats
+
+### Review, Regeneration, And Asset Control
+
 - [`scene-by-scene-faceless-pipeline/`](scene-by-scene-faceless-pipeline/SKILL.md)
   — deterministic faceless short assembly with per-scene artifacts
 - [`niche-profile-draft/`](niche-profile-draft/SKILL.md) — generate one
@@ -188,6 +202,9 @@ new skills.
   choose portrait crop strategy per real scene boundary
 - [`executive-producer-sendback/`](executive-producer-sendback/SKILL.md)
   — run multi-stage production as a stateful pass/revise/send-back loop
+
+### Runtime-Backed Utility Skills
+
 - [`doctor-report/`](doctor-report/SKILL.md) — structured environment
   and dependency diagnostics
 - [`skill-catalog/`](skill-catalog/SKILL.md) — enumerate shipped skills,
@@ -212,6 +229,9 @@ new skills.
 ## Related docs
 
 - [DIRECTION.md](../DIRECTION.md)
+- [docs/user/ARCHETYPES.md](../docs/user/ARCHETYPES.md)
+- [docs/user/QUALITY-AND-REVIEW.md](../docs/user/QUALITY-AND-REVIEW.md)
 - [docs/direction/07-short-form-roadmap-20260424.md](../docs/direction/07-short-form-roadmap-20260424.md)
 - [docs/direction/04-skill-catalog.md](../docs/direction/04-skill-catalog.md)
+- [docs/research/archetypes/README.md](../docs/research/archetypes/README.md)
 - [docs/direction/phases/phase-4-skills.md](../docs/direction/phases/phase-4-skills.md)

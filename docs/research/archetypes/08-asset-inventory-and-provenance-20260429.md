@@ -11,7 +11,7 @@ manifests, and the `short-form-archetype-research` skill pack.
 
 | Class                  | Examples In Bundle                                                              | Use                                                                    |
 | ---------------------- | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| Agent instructions     | `claude-shorts/SKILL.md`, `dojo-remotion-superpowers/*.md`                      | Mine for stage contracts and review checklists                         |
+| Agent instructions     | `claude-shorts/SKILL.md`, `dojo-remotion-superpowers/*.md`                      | Mine for stage checklists and review criteria                          |
 | Caption/export specs   | `caption-styles.md`, `platform-specs.md`, `remotion-patterns.md`                | Compare against local caption/export presets                           |
 | Runtime code excerpts  | `FaceCrop.py`, `ShortCreator.ts`, `PortraitVideo.tsx`, `ShortVideo.tsx`         | Understand algorithms; do not copy into runtime without license review |
 | Prompt/engine patterns | `LanguageTasks.py`, `shortgpt/*engine.py`, editing JSON                         | Extract prompt structure and pipeline boundaries                       |

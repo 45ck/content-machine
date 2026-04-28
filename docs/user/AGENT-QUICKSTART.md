@@ -55,7 +55,21 @@ Or:
 printf '{}\n' | npm run agent:flow-catalog
 ```
 
-## Step 3: Run the main full-video path
+## Step 3: Choose the archetype
+
+Before generating, pick the lane. This prevents generic "topic to video"
+runs from turning into weak stock montages or the wrong Reddit/gameplay
+layout.
+
+- Use [Archetypes](ARCHETYPES.md) for the status table and routing
+  rules.
+- Use `reddit-post-over-gameplay` as the default Reddit/story mode.
+- Use `reddit-story-split-screen` only when top story footage plus
+  bottom gameplay is explicitly wanted.
+- Use [Quality And Review](QUALITY-AND-REVIEW.md) before promoting a
+  render as ready.
+
+## Step 4: Run the main full-video path
 
 `generate-short` is the default topic-to-video path:
 
@@ -84,7 +98,7 @@ handing back junk.
 If you prefer npm aliases, the same runner is available as
 `npm run agent:run-flow`.
 
-## Step 4: Pull a reference video or run one skill directly
+## Step 5: Pull a reference video or run one skill directly
 
 Generate only a script:
 
@@ -122,7 +136,7 @@ cat <<'JSON' | node --import tsx scripts/harness/publish-prep.ts
 JSON
 ```
 
-## Step 5: Install the pack into another project
+## Step 6: Install the pack into another project
 
 If you want these skills inside a separate coding-agent project, install
 the package there and materialize a local copy:
@@ -141,8 +155,10 @@ JSON
 That creates `.content-machine/skills/` and `.content-machine/flows/`
 with `SKILL.md` files already pointed at the installed package runner.
 
-## Step 6: Read the guide next to the surface
+## Step 7: Read the guide next to the surface
 
+- Archetype guide: [`ARCHETYPES.md`](ARCHETYPES.md)
+- Review guide: [`QUALITY-AND-REVIEW.md`](QUALITY-AND-REVIEW.md)
 - Skill guide: [`../../skills/README.md`](../../skills/README.md)
 - Flow guide: [`../../flows/README.md`](../../flows/README.md)
 - Optional repo-side runners: [`../../scripts/harness/README.md`](../../scripts/harness/README.md)

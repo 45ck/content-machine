@@ -12,13 +12,16 @@ order:
 - [`DIRECTION.md`](../DIRECTION.md) — where Content Machine is heading (skill pack + runtime)
 - [`direction/`](direction/) — phase plan, boundaries, keep/move/deprecate
 - [`direction/08-archetype-rollout-20260427.md`](direction/08-archetype-rollout-20260427.md) — the full short-form lane catalog and proving order
+- [`direction/09-vendor-archetype-backlog-20260429.md`](direction/09-vendor-archetype-backlog-20260429.md) — next lanes discovered from vendor/repo research
 
 ## Primary Surfaces
 
 - [`../skills/README.md`](../skills/README.md) — short-form video skill scaffolding for Claude Code, Codex CLI, and similar agents
 - [`../flows/README.md`](../flows/README.md) — `45ck/prompt-language` flow scaffolding and authoring rules
 - [`user/AGENT-QUICKSTART.md`](user/AGENT-QUICKSTART.md) — primary user path for the skill-pack surface
-- [`user/examples/reddit-story-split-screen.md`](user/examples/reddit-story-split-screen.md) — main reference example lane
+- [`user/ARCHETYPES.md`](user/ARCHETYPES.md) — choose the right short-form lane and see maturity status
+- [`user/QUALITY-AND-REVIEW.md`](user/QUALITY-AND-REVIEW.md) — review gates before promoting a render
+- [`user/examples/reddit-post-over-gameplay.md`](user/examples/reddit-post-over-gameplay.md) — golden reference example lane
 - [`../scripts/harness/README.md`](../scripts/harness/README.md) — executable JSON-stdio entrypoints
 
 ## Compatibility Surface
@@ -38,6 +41,7 @@ Full index: [docs/user/README.md](user/README.md)
 - [Contributing Guide](../CONTRIBUTING.md) — setup, workflow, PR process
 - [Developer Docs](dev/README.md) — architecture, specs, guides
 - [Research Archive](research/) — 86+ research documents
+- [Short-Form Archetype Research](research/archetypes/) — repo-derived patterns, recipes, and quality rubrics
 - [Archive Policy](../archive/README.md) — frozen legacy code and restore policy
 
 ## Reference (Generated)
@@ -71,6 +75,7 @@ These dated references are retained for archive/diffing use. The live
 ## Demo Gallery
 
 - [Demo assets](demo/) — GIFs and preview media for README
+- [Examples index](user/EXAMPLES.md) — user-facing examples with status labels
 
 ## Conventions
 

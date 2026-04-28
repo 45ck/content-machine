@@ -1,23 +1,28 @@
 # Asset Inventory And Provenance
 
 Date: 2026-04-29
-Bundle: `docs/research/archetypes/assets/20260429/`
+Bundle: local research import from `docs/research/archetypes/assets/20260429/`
+
+Raw copied vendor files were used as local research evidence but are not the
+product surface. The committed surface is the summarized repo cards, recipes,
+manifests, and the `short-form-archetype-research` skill pack.
 
 ## Asset Classes
 
 | Class                  | Examples In Bundle                                                              | Use                                                                    |
 | ---------------------- | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
-| Agent instructions     | `claude-shorts/SKILL.md`, `dojo-remotion-superpowers/*.md`                      | Mine for stage contracts and review checklists                         |
+| Agent instructions     | `claude-shorts/SKILL.md`, `dojo-remotion-superpowers/*.md`                      | Mine for stage checklists and review criteria                          |
 | Caption/export specs   | `caption-styles.md`, `platform-specs.md`, `remotion-patterns.md`                | Compare against local caption/export presets                           |
 | Runtime code excerpts  | `FaceCrop.py`, `ShortCreator.ts`, `PortraitVideo.tsx`, `ShortVideo.tsx`         | Understand algorithms; do not copy into runtime without license review |
 | Prompt/engine patterns | `LanguageTasks.py`, `shortgpt/*engine.py`, editing JSON                         | Extract prompt structure and pipeline boundaries                       |
 | Scene/template assets  | `SCENE_TYPES.md`, `TRANSCRIPT_FORMAT.md`, `innovation_vertical_diverging_v1.py` | Build local motion grammar vocabulary                                  |
 | Visual evidence        | `openshorts/*.png`, `propaganda_v2_frame.png`                                   | Screenshot/reference only                                              |
-| Config examples        | `config.template.toml`, `background_videos.json`, `shorts.ts`                   | Map useful fields into local schemas                                   |
+| Config examples        | `config.template.toml`, `background_videos.json`, `shorts.ts`                   | Map useful fields into local skills, recipes, and quality checks       |
 
 ## Provenance Rules
 
-- Every copied file is listed in `assets/20260429/MANIFEST.md`.
+- Every copied file should be tracked in the local evidence inventory before
+  being summarized into a committed repo card or recipe.
 - Copied files are evidence, not vendored dependencies.
 - Large media and full repo clones remain in `vendor/`, not tracked research docs.
 - Screenshots are for internal visual comparison only.

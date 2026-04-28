@@ -43,5 +43,4 @@ Machine-readable research helpers:
 - `manifests/caption-style-recipes.json` - reusable caption style recipes.
 - `repo-cards/*.md` - focused per-repo implementation cards.
 - `recipes/*.md` - concrete per-archetype production recipes.
-- `templates/*.request.json` - starter request payloads.
 - `manifests/evidence-assets.csv` - copied evidence asset inventory.

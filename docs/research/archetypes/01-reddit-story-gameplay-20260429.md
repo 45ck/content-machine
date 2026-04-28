@@ -58,6 +58,6 @@ Recommended local asset policy:
 
 - Keep the lane distinct from generic `story`: it needs gameplay/background
   asset rules.
-- Preserve a "Reddit opener + narration + gameplay" script/visual contract.
+- Preserve a "Reddit opener + narration + gameplay" script/visual recipe.
 - Add stronger provenance fields to gameplay/media assets before scaling.
 - Use existing caption gates to prevent unreadable one-word spam.

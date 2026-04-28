@@ -59,6 +59,7 @@ Named bread-and-butter story archetypes:
 
 Start here:
 
+- [Archetype Guide](docs/user/ARCHETYPES.md)
 - [Reddit Post Over Gameplay](docs/user/examples/reddit-post-over-gameplay.md)
 - [Reddit Story Split-Screen](docs/user/examples/reddit-story-split-screen.md)
 - [reddit-story-short skill](skills/reddit-story-short/SKILL.md)
@@ -150,6 +151,12 @@ Read the current build plan:
 Archetype rollout plan:
 [Archetype Rollout](docs/direction/08-archetype-rollout-20260427.md).
 
+User-facing archetype guide:
+[Archetypes](docs/user/ARCHETYPES.md).
+
+Review and promotion rules:
+[Quality And Review](docs/user/QUALITY-AND-REVIEW.md).
+
 Tracked preview clip:
 
 - [docs/demo/demo-9-reddit-post-over-gameplay.mp4](docs/demo/demo-9-reddit-post-over-gameplay.mp4)
@@ -190,10 +197,14 @@ Use these three surfaces together:
 
 If you are deciding where to start:
 
+- Start with [Archetypes](docs/user/ARCHETYPES.md) when choosing what
+  kind of short to make.
 - Start with a skill when you want one capability.
 - Start with a flow when you want a full multi-step path.
 - Start with `scripts/harness/` only when you need the exact repo-side
   executable.
+- Use [Quality And Review](docs/user/QUALITY-AND-REVIEW.md) before
+  promoting a render as a showcase.
 
 Discover what is shipped:
 
@@ -272,9 +283,11 @@ cat skills/doctor-report/examples/request.json | \
   node --import tsx scripts/harness/doctor-report.ts
 ```
 
-Then use the featured example instead of a generic demo:
+Then choose an archetype and use the featured example instead of a
+generic demo:
 
-- [Reddit Story Split-Screen](docs/user/examples/reddit-story-split-screen.md)
+- [Archetypes](docs/user/ARCHETYPES.md)
+- [Reddit Post Over Gameplay](docs/user/examples/reddit-post-over-gameplay.md)
 - [Codex Empty-Project Eval](experiments/codex-reddit-story-empty-project-v1/README.md)
 
 Run the main short-form flow:
@@ -321,7 +334,11 @@ legacy CLI notes live in [archive/legacy-cli/](archive/legacy-cli/README.md).
 Start here, then follow links downward:
 
 - [Reddit Story Split-Screen](docs/user/examples/reddit-story-split-screen.md) -
-  primary example lane
+  hybrid Reddit/gameplay lane
+- [Archetypes](docs/user/ARCHETYPES.md) - lane selection, maturity
+  status, and backlog
+- [Quality And Review](docs/user/QUALITY-AND-REVIEW.md) - review gates
+  before a render is considered ready
 - [Agent Quickstart](docs/user/AGENT-QUICKSTART.md) - quickest user path
 - [Skills](skills/README.md) - all agent-facing capabilities
 - [Flows](flows/README.md) - orchestration patterns
@@ -369,6 +386,8 @@ can also write to explicit output paths.
 ## Documentation
 
 - **[Agent Quickstart](docs/user/AGENT-QUICKSTART.md)** — primary user path for Claude Code, Codex CLI, and similar tools
+- **[Archetypes](docs/user/ARCHETYPES.md)** — choose the right short-form lane and see what is proven
+- **[Quality And Review](docs/user/QUALITY-AND-REVIEW.md)** — review gates for captions, audio, motion, safe zones, and promotion
 - **[skills/](skills/README.md)** — agent-facing skill docs
 - **[flows/](flows/README.md)** — `45ck/prompt-language` docs and executable flows
 - **[scripts/harness/](scripts/harness/README.md)** — optional repo-side runners and execution model

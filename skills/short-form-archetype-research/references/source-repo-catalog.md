@@ -11,7 +11,7 @@ Scope: local short-form research repos in `vendor/`
 | `SamurAIGPT/AI-Youtube-Shorts-Generator`   | Longform clip factory        | Whisper plus GPT highlight selection, static face crop, screen-recording crop, subtitle burn-in         |
 | `imgly/videoclipper`                       | Browser clip factory         | Text-selection-to-timestamps, client-side non-destructive editing, CE.SDK preview/export                |
 | `alperensumeroglu/ai-clips-maker`          | Longform analysis primitives | WhisperX, Pyannote diarization, scene detection, active speaker crop                                    |
-| `gyoridavid/short-video-maker`             | Topic-to-faceless explainer  | Scene schema, Kokoro TTS, Whisper captions, Pexels search, Remotion render, REST/MCP surface            |
+| `gyoridavid/short-video-maker`             | Topic-to-faceless explainer  | Scene planning, Kokoro TTS, Whisper captions, Pexels search, Remotion render, REST/MCP surface          |
 | `rushindrasinha/youtube-shorts-pipeline`   | Niche-driven faceless engine | Niche profiles that shape research, script, visuals, voice, captions, music, metadata                   |
 | `RayVentura/ShortGPT`                      | Prompt/template engine       | Engine subclasses, editing-step JSON, asset DB, prompt templates, MoviePy pipeline                      |
 | `mutonby/openshorts`                       | UGC/avatar and clip platform | Clip generator, AI Shorts, actor/avatar generation, hook overlays, subtitles, publishing flow           |
@@ -34,8 +34,8 @@ to orchestrate stages:
 - `rushindrasinha/youtube-shorts-pipeline`
 
 This matches this repo's skill-first direction. The important extraction is
-not "copy the runtime"; it is "turn the useful stage contracts into local
-skills and harness scripts."
+not "copy the runtime"; it is "turn the useful stage checklists into local
+skills, flows, recipes, and optional runtime scripts."
 
 ### Deterministic Runtime Pipelines
 

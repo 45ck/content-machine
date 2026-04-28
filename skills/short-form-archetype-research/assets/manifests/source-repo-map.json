@@ -59,7 +59,7 @@
       "localPath": "vendor/imports-20260423-shortform-github/direct-generators/gyoridavid__short-video-maker",
       "archetypes": ["topic-to-faceless-explainer"],
       "signals": [
-        "scene input schema",
+        "scene input planning",
         "Kokoro TTS",
         "Whisper captions",
         "Pexels search",

@@ -1,32 +1,54 @@
-# Recipe: Topic-to-faceless Explainer
+# Topic To Faceless Explainer
 
-## Inputs
+Date: 2026-04-29
+Archetype: prompt/topic to faceless short
+Platforms: TikTok, Instagram Reels, YouTube Shorts
 
-- Topic or headline.
-- Audience/niche profile.
-- Target duration.
+## What It Is
 
-## Build Steps
+This archetype starts from a topic, brief, or headline and produces a complete
+voice-led short. The visual layer is stock footage, generated images/video,
+simple motion cards, or mixed B-roll. The creator persona is usually implied
+by script tone, voice, captions, and music rather than a visible host.
 
-1. Research claims if factual.
-2. Write a tight script with hook, body beats, payoff.
-3. Generate voiceover.
-4. Generate timestamps.
-5. Create one visual intent per beat.
-6. Fetch stock or generate assets with provenance.
-7. Reject generic or caption-hostile assets.
-8. Render with captions and music.
-9. Review visual relevance and source claims.
+## How Repos Make It
 
-## Required Reviews
+`gyoridavid/short-video-maker` uses a practical deterministic pipeline: text
+to speech with Kokoro, captions with Whisper, Pexels background video search,
+Remotion composition, and server/API surfaces for automation. Its key concept
+is a scene containing narration text and search terms.
 
-- Claims trace to research notes.
-- B-roll supports the beat.
-- Caption lane stays clear.
-- Music is low enough under voice.
+`rushindrasinha/youtube-shorts-pipeline` frames the same pattern as a niche
+engine. A niche YAML shapes research, script tone, visual vocabulary, voice,
+caption style, music mood, thumbnail, and platform metadata. This is stronger
+than a flat "topic in, video out" prompt because the constraints travel
+through every stage.
 
-## Useful Evidence
+`RayVentura/ShortGPT` uses engine subclasses and prompt templates. Different
+content modes override script generation and custom asset preparation, then
+share a common voice, captions, background asset, and render path.
 
-- `assets/20260429/gyoridavid-short-video-maker/ShortCreator.ts`
-- `assets/20260429/gyoridavid-short-video-maker/shorts.ts`
-- `assets/20260429/shortgpt/facts_short_engine.py`
+## Production Recipe
+
+1. Convert topic into a short brief and audience/niche profile.
+2. Generate a script with hook, 2-4 body beats, and payoff/CTA.
+3. Produce voiceover.
+4. Generate timestamps from the voiceover.
+5. Create a visual plan with search terms or image prompts per beat.
+6. Fetch/generate assets, then reject irrelevant or caption-hostile media.
+7. Render active captions, B-roll, music, and final export profile.
+
+## Asset Strategy
+
+The useful copied assets are not stock clips; they are recipes and prompts:
+niche profiles, scene plans, caption presets, search-term mapping, music mood
+rules, and platform export defaults. Runtime media should be fetched/generated
+per run with provenance and cached in the run directory.
+
+## What To Pull Into content-machine
+
+- Turn niche/profile data into a reusable style-profile library input.
+- Keep `brief-to-script`, `script-to-audio`, `timestamps-to-visuals`, and
+  `video-render` as separate reviewable stages.
+- Prefer scene plans with explicit asset intent over generic visual keywords.
+- Keep stock footage search as a fallback, not the only visual source.

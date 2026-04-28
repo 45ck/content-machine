@@ -10,7 +10,7 @@ validators without importing whole external codebases.
 | ---------------------------- | ------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
 | Text-selection-to-timestamps | `imgly/videoclipper`                              | `text-selection-to-timestamps` skill/harness should match selected transcript text back to word timestamps |
 | Crop plan artifact           | `SamurAIGPT`, `ai-clips-maker`, `claude-shorts`   | JSON crop plan emitted by `source-media-analyze` or `boundary-snap`                                        |
-| Clip scoring rubric          | `claude-shorts`, `openshorts`, `imgly`            | Shared scoring schema for hook, coherence, emotion, density, payoff                                        |
+| Clip scoring rubric          | `claude-shorts`, `openshorts`, `imgly`            | Shared review rubric for hook, coherence, emotion, density, payoff                                         |
 | Platform snapshot config     | Official platform docs plus `claude-shorts` specs | One local export profile reference with configurable duration limits                                       |
 | Asset provenance ledger      | Reddit/gameplay and UGC/avatar repos              | Media index fields for source, license, provider, prompt/query, consent                                    |
 

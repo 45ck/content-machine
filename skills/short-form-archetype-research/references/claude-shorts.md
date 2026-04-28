@@ -28,6 +28,6 @@ candidate approval, boundary snapping, Remotion rendering, and platform export.
 
 ## Extraction
 
-- Promote candidate scoring into a local shared schema.
+- Promote candidate scoring into a local shared review rubric.
 - Keep boundary snapping as an explicit stage.
 - Reuse the Remotion bundle-once-render-many idea in local render harnesses.
