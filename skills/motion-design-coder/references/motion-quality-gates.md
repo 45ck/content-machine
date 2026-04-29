@@ -14,6 +14,8 @@ Use these gates before approving animation-heavy output.
 
 - Remotion uses frame-driven primitives.
 - Interpolations are clamped unless a loop is intentional.
+- Render-time randomness is deterministic and seeded.
+- CSS animation clocks are not used for rendered Remotion output.
 - Springs are tuned for readability.
 - SVG has a stable `viewBox`.
 - HTML/CSS animation prefers transform and opacity.
@@ -32,6 +34,13 @@ Review at least:
 - caption-dense frame
 - final frame
 
+For public examples, also run the repo demo audit after rendering if the
+MP4 is placed under `docs/demo`:
+
+```bash
+npm_config_script_shell=/bin/bash npm run review:demo-videos
+```
+
 ## Failure Modes
 
 Fail or revise when:
@@ -40,6 +49,9 @@ Fail or revise when:
 - text is unreadable during movement
 - captions collide with cards, icons, or platform chrome
 - elements jump because layout properties are animated
+- frame output changes between renders because of browser time or
+  unseeded randomness
+- CSS animations drive Remotion timing and flicker under multi-tab render
 - animation starts or ends between meaningful beats
 - render performance is likely to collapse in batch mode
 - the final MP4 exists but the motion feels unsynchronized

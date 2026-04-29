@@ -26,8 +26,13 @@ Tracked preview clip:
 
 - [`reddit-post-over-gameplay-short`](../../../skills/reddit-post-over-gameplay-short/SKILL.md)
 - [`reddit-card-overlay`](../../../skills/reddit-card-overlay/SKILL.md)
+- [`motion-design-coder`](../../../skills/motion-design-coder/SKILL.md)
 - [`short-form-captions`](../../../skills/short-form-captions/SKILL.md)
 - [`publish-prep-review`](../../../skills/publish-prep-review/SKILL.md)
+
+Use `motion-design-coder` for the Reddit opener card animation only:
+card entrance, slight scale/settle, award/upvote emphasis, and clean
+exit back to gameplay. Do not add random motion layers or stock clips.
 
 ## Current Proving Run
 

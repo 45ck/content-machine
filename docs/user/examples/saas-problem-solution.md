@@ -36,7 +36,13 @@ Related skills:
 
 - [ugc-avatar-short](../../../skills/ugc-avatar-short/SKILL.md)
 - [hook-overlay](../../../skills/hook-overlay/SKILL.md)
+- [motion-design-coder](../../../skills/motion-design-coder/SKILL.md)
 - [publish-prep-review](../../../skills/publish-prep-review/SKILL.md)
+
+Use `motion-design-coder` for proof-card state changes, cursor motion,
+before/after transitions, UI zooms, and CTA pulses. SaaS cards should
+settle before captions need to be read and should never feel like a
+static brochure deck.
 
 Current proving surface:
 

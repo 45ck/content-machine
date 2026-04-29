@@ -39,6 +39,11 @@ Primary skill:
 
 Related skills:
 
+- [motion-design-coder](../../../skills/motion-design-coder/SKILL.md)
 - [animation-explainer-short](../../../skills/animation-explainer-short/SKILL.md)
 - [short-form-captions](../../../skills/short-form-captions/SKILL.md)
 - [video-render](../../../skills/video-render/SKILL.md)
+
+Use `motion-design-coder` for the card animation plan: frame-driven
+entrances, readable hold states, deterministic card resets, caption-safe
+motion, and phone-size review frames.

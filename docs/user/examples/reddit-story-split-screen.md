@@ -36,6 +36,7 @@ Quick ingredients:
 - [`skills/reddit-story-short/SKILL.md`](../../../skills/reddit-story-short/SKILL.md)
 - [`skills/reddit-post-over-gameplay-short/SKILL.md`](../../../skills/reddit-post-over-gameplay-short/SKILL.md)
 - [`skills/reddit-card-overlay/SKILL.md`](../../../skills/reddit-card-overlay/SKILL.md)
+- [`skills/motion-design-coder/SKILL.md`](../../../skills/motion-design-coder/SKILL.md)
 - [`skills/short-form-captions/SKILL.md`](../../../skills/short-form-captions/SKILL.md)
 
 ## Runtime Pattern
@@ -47,7 +48,9 @@ Quick ingredients:
 5. Keep gameplay on the bottom half.
 6. Render `1080x1920` with a true `50/50` split.
 7. Export captions and run review.
-8. Run `npm run review:demo-videos` before promoting the MP4.
+8. Use `motion-design-coder` for opener-card motion, split-lane
+   transitions, receipt/card reveals, and caption-safe midpoint motion.
+9. Run `npm run review:demo-videos` before promoting the MP4.
 
 ## Reddit Opener Asset
 

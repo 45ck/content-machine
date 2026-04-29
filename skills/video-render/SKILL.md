@@ -84,9 +84,13 @@ outputs:
    count, and placement matter more than decorative motion.
 6. Keep caption overlays inside the practical social safe box:
    `x=96..984`, `y=220..1540` on a `1080x1920` render.
-7. Use the repo caption presets as the baseline and then override only
+7. For animation-heavy cards, diagrams, SVG/HTML assets, or Remotion
+   scene work, use
+   [`motion-design-coder`](../motion-design-coder/SKILL.md) before
+   approving the render plan.
+8. Use the repo caption presets as the baseline and then override only
    the specific fields the brief actually needs.
-8. Render and inspect the actual MP4. Do not trust config alone.
+9. Render and inspect the actual MP4. Do not trust config alone.
 
 ## Split-Screen Rules
 
@@ -156,6 +160,10 @@ outputs:
 - Captions stay inside the `1080x1920` frame and social safe box.
 - The active-word treatment feels synced, not merely mathematically
   aligned.
+- Motion is frame-driven and deterministic; no browser-time animation
+  clock or unseeded randomness drives the final Remotion render.
+- Cards, diagrams, captions, and support footage do not compete for
+  attention during the same beat.
 - No source-text collision was introduced by the footage choice.
 - The final frame composition still leaves room for platform chrome.
 - Pure gameplay modes contain no unrelated video layers.

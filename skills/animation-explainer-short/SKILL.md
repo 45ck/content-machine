@@ -23,6 +23,8 @@ description: Make a faceless explainer short using diagrams, motion cards, gener
    stock.
 4. Keep text hierarchy stronger than effect density.
 5. Treat every transition as editorial meaning, not filler movement.
+6. Use [`motion-design-coder`](../motion-design-coder/SKILL.md) when
+   the output includes SVG, HTML/CSS, React, or Remotion animation.
 
 ## Inputs
 
@@ -57,6 +59,9 @@ description: Make a faceless explainer short using diagrams, motion cards, gener
   overproduced transitions when the concept is already dense.
 - Explainers need stronger information hierarchy than entertainment
   shorts.
+- For Remotion scenes, motion should be frame-driven and deterministic;
+  do not use CSS animation clocks or unseeded randomness as the render
+  timing source.
 
 ## Aggregated From
 

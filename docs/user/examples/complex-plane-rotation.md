@@ -9,6 +9,11 @@ It is intended to be:
 - **repo-friendly** (ships as a self-contained example under `fixtures/examples/`),
 - a clean baseline for adding **KaTeX/LaTeX equation rendering** later.
 
+Use [motion-design-coder](../../../skills/motion-design-coder/SKILL.md)
+when editing the Remotion diagram. The rotation, path draw, labels, and
+caption-safe hold states should be frame-driven, clamped, and reviewed
+at representative frames.
+
 ## Files
 
 - `fixtures/examples/complex-plane-rotation/script.json`

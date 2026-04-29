@@ -33,8 +33,13 @@ Primary skill:
 Related skills:
 
 - [hook-overlay](../../../skills/hook-overlay/SKILL.md)
+- [motion-design-coder](../../../skills/motion-design-coder/SKILL.md)
 - [short-form-captions](../../../skills/short-form-captions/SKILL.md)
 - [video-render](../../../skills/video-render/SKILL.md)
+
+Use `motion-design-coder` for chat-bubble reveals, receipt zooms,
+message-state transitions, and caption-safe motion. Message UI should
+move in staged beats, not as one static screenshot.
 
 Current proving surface:
 

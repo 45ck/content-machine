@@ -40,5 +40,10 @@ Primary skill:
 Related skills:
 
 - [stock-footage-edutainment-short](../../../skills/stock-footage-edutainment-short/SKILL.md)
+- [motion-design-coder](../../../skills/motion-design-coder/SKILL.md)
 - [motion-card-lesson-short](../../../skills/motion-card-lesson-short/SKILL.md)
 - [short-form-captions](../../../skills/short-form-captions/SKILL.md)
+
+Use `motion-design-coder` for countdown cards, number pops, fact-card
+resets, and CTA pulses. The listicle should not rely on static cards or
+CSS clocks when rendered through Remotion.

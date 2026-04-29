@@ -41,5 +41,10 @@ Related skills:
 
 - [stock-footage-edutainment-short](../../../skills/stock-footage-edutainment-short/SKILL.md)
 - [animation-explainer-short](../../../skills/animation-explainer-short/SKILL.md)
+- [motion-design-coder](../../../skills/motion-design-coder/SKILL.md)
 - [short-form-captions](../../../skills/short-form-captions/SKILL.md)
 - [publish-prep-review](../../../skills/publish-prep-review/SKILL.md)
+
+Use `motion-design-coder` whenever this lane adds diagrams, UI cards,
+HTML/SVG assets, kinetic type, or Remotion-native scene animation. It
+should define beat frames and review frames before the final render.

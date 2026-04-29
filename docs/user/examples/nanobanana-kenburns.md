@@ -2,6 +2,11 @@
 
 This example generates AI images via Gemini (NanoBanana provider) and renders them with a Ken Burns-style motion effect at render-time (no media synthesis required).
 
+Use [motion-design-coder](../../../skills/motion-design-coder/SKILL.md)
+when tuning Ken Burns, parallax, SVG overlays, or card transitions. The
+motion should be frame-driven in the render path and should not depend
+on CSS animation clocks.
+
 ## Prereqs
 
 - `GOOGLE_API_KEY` (or `GEMINI_API_KEY`)

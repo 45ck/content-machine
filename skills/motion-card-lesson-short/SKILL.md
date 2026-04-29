@@ -54,6 +54,8 @@ description: Build a narrow educational short around motion cards, timed reveals
 
 - Use [`animation-explainer-short`](../animation-explainer-short/SKILL.md)
   when the lesson needs diagrams or generated metaphor scenes.
+- Use [`motion-design-coder`](../motion-design-coder/SKILL.md) when the
+  card system needs smoother SVG, HTML/CSS, React, or Remotion motion.
 - Use [`shot-prompt-builder`](../shot-prompt-builder/SKILL.md) only if
   a beat truly needs a generated support scene.
 - Use [`references/lane-shape.md`](references/lane-shape.md) for the
@@ -74,6 +76,8 @@ description: Build a narrow educational short around motion cards, timed reveals
   reinforce the card state, not be the only source of meaning.
 - Avoid tiny step chips and dense body copy. If the contact sheet is not
   readable at small preview size, simplify the card before rendering.
+- Card motion should settle before the lesson text must be read; avoid
+  moving captions and moving cards at the same time.
 - Mock or silent audio is not acceptable for a proven lane; use real
   voiceover and verify audio-signal in publish-prep.
 

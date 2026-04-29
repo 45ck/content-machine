@@ -104,6 +104,9 @@ new skills.
 - [`animation-explainer-short/`](animation-explainer-short/SKILL.md) —
   diagrams, motion cards, generated scenes, and motion-led explainer
   shorts
+- [`motion-design-coder/`](motion-design-coder/SKILL.md) — SVG,
+  HTML/CSS, React, and Remotion animation craft rules for smoother,
+  deterministic, phone-readable short-form motion
 - [`motion-card-lesson-short/`](motion-card-lesson-short/SKILL.md) —
   narrow educational or quiz-like shorts built from timed card states
 - [`micro-doc-breakdown-short/`](micro-doc-breakdown-short/SKILL.md) —

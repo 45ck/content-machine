@@ -49,3 +49,12 @@ captions, and publish-prep review.
   trail
 - the result should be saveable and explanatory rather than pure story
   entertainment
+
+## Motion Skill
+
+- [motion-design-coder](../../../skills/motion-design-coder/SKILL.md)
+
+Use this for evidence-card motion, receipt reveals, timeline draw-ons,
+archive insert transitions, and caption-safe hold states. Micro-doc
+animation should feel like editorial evidence, not decorative deck
+motion.

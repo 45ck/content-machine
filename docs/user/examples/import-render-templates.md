@@ -5,6 +5,11 @@ Content Machine supports:
 - **Render templates** (data-only): select a Remotion composition + provide render defaults.
 - **Code templates** (trusted mode): render templates that also ship a Remotion project.
 
+When importing or editing a Remotion code template, use
+[motion-design-coder](../../../skills/motion-design-coder/SKILL.md) to
+review animation clocks, interpolation bounds, seeded randomness,
+caption safe zones, and frame samples before promoting the template.
+
 Canonical terminology (generated): [`docs/reference/GLOSSARY.md`](../../reference/GLOSSARY.md)
 
 ## Import a Remotion template repo as a code template

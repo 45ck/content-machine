@@ -54,7 +54,13 @@ Related skills:
 
 - [short-form-captions](../../../skills/short-form-captions/SKILL.md)
 - [hook-overlay](../../../skills/hook-overlay/SKILL.md)
+- [motion-design-coder](../../../skills/motion-design-coder/SKILL.md)
 - [video-render](../../../skills/video-render/SKILL.md)
+
+Use `motion-design-coder` for top-lane receipt/card motion, seam-safe
+caption timing, support-footage transitions, and any SVG/HTML overlays.
+Gameplay should remain the stable motion bed rather than competing with
+overanimated cards.
 
 Best current proving surface:
 
