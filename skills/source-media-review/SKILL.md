@@ -38,6 +38,18 @@ description: Audit user-supplied video, audio, image, and gameplay inputs before
   whether the file is safe for direct use, crop-only use, analysis-only
   use, or rejection
 
+## Analyzer Ownership
+
+- Prefer `@45ck/video-evaluator` for reusable media facts, frame
+  sampling, contact sheets, layout safety, source text/OCR evidence, and
+  generic video gates when that package is installed or available as a
+  built sibling checkout.
+- Keep content-machine decisions local: whether the footage fits the
+  chosen archetype, whether black gutters are acceptable for a lane, and
+  whether the clip should be rejected, cropped, or used as reference.
+- Do not remove the existing `source-media-analyze` v1 compatibility
+  path until the evaluator emits equivalent source-media signals.
+
 ## Review Workflow
 
 1. Probe the file technically with `ffprobe` or equivalent.

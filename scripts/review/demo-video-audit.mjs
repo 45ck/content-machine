@@ -2,6 +2,7 @@
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import sharp from 'sharp';
 
 sharp.cache(false);
@@ -17,6 +18,7 @@ const fps = Number(args.fps ?? 1);
 const maxFrames = Number(args.maxFrames ?? 8);
 const contactFrames = Number(args.contactFrames ?? 12);
 const videoEvaluatorRoot = resolveVideoEvaluatorRoot();
+let videoEvaluatorModulePromise = null;
 
 function parseArgs(argv) {
   const out = {};
@@ -48,11 +50,49 @@ function slugify(filePath) {
 
 function resolveVideoEvaluatorRoot() {
   const explicit = args.videoEvaluatorRoot ?? process.env.VIDEO_EVALUATOR_ROOT;
-  if (explicit) return resolve(String(explicit));
+  if (explicit) {
+    const root = resolve(String(explicit));
+    return hasRunnableVideoEvaluator(root) ? root : null;
+  }
   const sibling = resolve(repoRoot, '..', 'video-evaluator');
-  return existsSync(join(sibling, 'scripts', 'harness', 'layout-safety-review.ts'))
-    ? sibling
-    : null;
+  return hasRunnableVideoEvaluator(sibling) ? sibling : null;
+}
+
+function hasRunnableVideoEvaluator(root) {
+  return (
+    existsSync(join(root, 'dist', 'index.js')) ||
+    existsSync(join(root, 'agent', 'run-tool.mjs')) ||
+    existsSync(join(root, 'scripts', 'harness', 'layout-safety-review.ts'))
+  );
+}
+
+function resolveVideoEvaluatorEntrypoints() {
+  const entrypoints = ['@45ck/video-evaluator'];
+  if (videoEvaluatorRoot) {
+    const distPath = join(videoEvaluatorRoot, 'dist', 'index.js');
+    if (existsSync(distPath)) entrypoints.push(pathToFileURL(distPath).href);
+  }
+  return entrypoints;
+}
+
+async function loadVideoEvaluatorModule() {
+  if (!videoEvaluatorModulePromise) {
+    videoEvaluatorModulePromise = (async () => {
+      for (const specifier of resolveVideoEvaluatorEntrypoints()) {
+        try {
+          const mod = await import(specifier);
+          const runLayoutSafetyReview = mod.runLayoutSafetyReview ?? mod.reviewLayoutSafety;
+          if (typeof runLayoutSafetyReview === 'function') {
+            return { runLayoutSafetyReview };
+          }
+        } catch {
+          // Optional adapter: keep the local audit path when the package is unavailable.
+        }
+      }
+      return null;
+    })();
+  }
+  return videoEvaluatorModulePromise;
 }
 
 function run(command, args, opts = {}) {
@@ -465,15 +505,37 @@ function findLayoutSidecar(videoPath) {
   return existsSync(candidate) ? candidate : null;
 }
 
-function runLayoutSafetyReview(videoPath, slug) {
+async function runLayoutSafetyReview(videoPath, slug) {
   const layoutPath = findLayoutSidecar(videoPath);
-  if (!layoutPath || !videoEvaluatorRoot) return null;
+  if (!layoutPath) return null;
+  const reviewOutputDir = join(outputDir, slug, 'video-evaluator-layout-safety');
+  const moduleAdapter = await loadVideoEvaluatorModule();
+  if (moduleAdapter) {
+    try {
+      const parsed = await moduleAdapter.runLayoutSafetyReview({
+        videoPath,
+        layoutPath,
+        outputDir: reviewOutputDir,
+        frameCount: 8,
+        samplingMode: 'hybrid',
+        runOcr: false,
+      });
+      return parsed.report;
+    } catch (error) {
+      return {
+        failed: true,
+        stderr: error instanceof Error ? error.message : String(error),
+        stdout: '',
+      };
+    }
+  }
+
+  if (!videoEvaluatorRoot) return null;
   const scriptPath = join(videoEvaluatorRoot, 'scripts', 'harness', 'layout-safety-review.ts');
   const agentPath = join(videoEvaluatorRoot, 'agent', 'run-tool.mjs');
   const distPath = join(videoEvaluatorRoot, 'dist', 'index.js');
   const useBuiltAgent = existsSync(agentPath) && existsSync(distPath);
   if (!useBuiltAgent && !existsSync(scriptPath)) return null;
-  const reviewOutputDir = join(outputDir, slug, 'video-evaluator-layout-safety');
   const result = spawnSync(
     process.execPath,
     useBuiltAgent ? [agentPath, 'layout-safety-review'] : ['--import', 'tsx', scriptPath],
@@ -519,7 +581,8 @@ async function analyzeVideo(videoPath) {
     const metrics = await imageMetrics(frame);
     metrics.diffFromPrevious = diffScore(previous, metrics);
     previous = { lumas: metrics.lumas };
-    const { lumas, ...serializableMetrics } = metrics;
+    const serializableMetrics = { ...metrics };
+    delete serializableMetrics.lumas;
     frames.push(serializableMetrics);
   }
   const contactSheetPath = join(outDir, 'contact-sheet.jpg');
@@ -527,7 +590,7 @@ async function analyzeVideo(videoPath) {
   const issues = analyzeIssues({ info, audio, frames }).sort(
     (a, b) => severityRank(b.severity) - severityRank(a.severity)
   );
-  const layoutSafety = runLayoutSafetyReview(videoPath, slug);
+  const layoutSafety = await runLayoutSafetyReview(videoPath, slug);
   if (layoutSafety?.failed) {
     issues.push(
       issue(
@@ -707,7 +770,11 @@ if (args.videoPath) {
     outputDir,
     aggregateContactSheetPath,
     videoCount: reports.length,
-    reports: reports.map(({ frames, ...rest }) => rest),
+    reports: reports.map((report) => {
+      const rest = { ...report };
+      delete rest.frames;
+      return rest;
+    }),
   };
   writeFileSync(join(outputDir, 'summary.json'), JSON.stringify(summary, null, 2));
   writeFileSync(join(outputDir, 'README.md'), markdownSummary(reports));

@@ -48,7 +48,7 @@ Use this order because it catches expensive mistakes early:
 | Scene variation     | slideshow risk, repeated cards, weak motion                | [`scene-variation-check`](../../skills/scene-variation-check/SKILL.md), [`slideshow-risk-review`](../../skills/slideshow-risk-review/SKILL.md)                                                                   |
 | Scene pacing        | visuals not matching narration cues                        | [`scene-pacing-verifier`](../../skills/scene-pacing-verifier/SKILL.md), [`timing-sync`](../../skills/timing-sync/SKILL.md)                                                                                       |
 | Safe vertical crop  | faces, UI, text, or story footage cut off                  | [`reframe-vertical`](../../skills/reframe-vertical/SKILL.md), [`scene-aware-smart-crop`](../../skills/scene-aware-smart-crop/SKILL.md)                                                                           |
-| Layout safety       | cards, diagrams, captions, and UI layers overlapping       | `45ck/video-evaluator` `layout-safety-review`; demo sidecars use `docs/demo/*.layout.json`                                                                                                                       |
+| Layout safety       | cards, diagrams, captions, and UI layers overlapping       | `@45ck/video-evaluator` `layout-safety-review`; demo sidecars use `docs/demo/*.layout.json`                                                                                                                      |
 | Publish prep        | platform format, cadence, audio signal, captions, metadata | [`publish-prep-review`](../../skills/publish-prep-review/SKILL.md), [`scripts/harness/publish-prep.ts`](../../scripts/harness/publish-prep.ts)                                                                   |
 
 ## Publish-Prep Command
@@ -86,7 +86,10 @@ It writes `experiments/video-quality-review-demo/README.md`,
 `summary.json`, per-video frame samples, and an aggregate contact sheet.
 If a promoted MP4 has a matching `docs/demo/*.layout.json` sidecar, the
 audit delegates overlap and caption-safe-zone geometry checks to
-`45ck/video-evaluator` instead of using content-machine-only heuristics.
+`@45ck/video-evaluator` instead of using content-machine-only heuristics.
+The adapter prefers an installed package and can also use a built sibling
+checkout via `VIDEO_EVALUATOR_ROOT=../video-evaluator`; do not commit a
+`file:` dependency for this while the package is not available from npm.
 The default pass is intentionally lightweight (`--maxFrames 8`) so it
 can run against the whole demo folder. For a deeper manual review, run:
 

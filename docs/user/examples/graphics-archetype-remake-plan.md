@@ -18,7 +18,7 @@ caption-safe holds, phone-readable text, and real audit artifacts.
 - Build from a motion brief: each beat lists hold frames, moving
   elements, safe zones, and reject conditions.
 - For graphics-heavy lanes, emit a `*.layout.json` sidecar and run
-  `45ck/video-evaluator` `layout-safety-review` before promotion.
+  `@45ck/video-evaluator` `layout-safety-review` before promotion.
 - Use frame-derived motion only; do not depend on CSS animation clocks or
   random runtime state.
 - Hold primary text long enough to read on a phone before captions

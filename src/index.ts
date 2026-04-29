@@ -146,6 +146,17 @@ export type { AnalyzeVideoToVideoSpecV1Options } from './videospec/analyze';
 export { VideoSpecV1Schema, VIDEOSPEC_V1_VERSION } from './domain';
 export type { VideoSpecV1 } from './domain';
 
+// External analyzer adapters
+export {
+  loadVideoEvaluatorAdapter,
+  resolveVideoEvaluatorEntrypoints,
+  type LayoutSafetyReviewRequest,
+  type LayoutSafetyReviewResult,
+  type VideoEvaluatorAdapter,
+  type VideoEvaluatorAdapterOptions,
+  type VideoEvaluatorEntrypoint,
+} from './adapters/video-evaluator';
+
 // Agent/runtime entrypoints
 export {
   runHarnessTool,

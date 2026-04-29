@@ -52,6 +52,14 @@ cat skills/source-media-analyze/examples/request.json | \
   available.
 - Measures scene-change timestamps, silence gaps, audio RMS/peak, and
   compact normalized source scores on a best-effort basis.
+- Keep the v1 artifact stable for `longform-highlight-select`. Reusable
+  media facts and gates are migrating to `@45ck/video-evaluator`, but
+  this skill remains the content-machine compatibility surface until
+  evaluator source-media signal parity lands.
+- If `@45ck/video-evaluator` artifacts are available, treat them as
+  upstream analyzer evidence; do not delete or rename
+  `source-media-analysis.v1.json` until the adapter preserves this
+  contract.
 
 ## Validation Checklist
 

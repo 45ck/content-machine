@@ -48,3 +48,22 @@ Keep `content-machine` policy local: archetype-specific publish gates, Remotion
 caption sidecar mapping, script quality, short-form pacing expectations,
 longform highlight scoring, publish metadata, and skills/flows that tell agents
 how to make better shorts.
+
+## Adapter/Docs First Slice
+
+This checkout now has a local adapter boundary in
+`src/adapters/video-evaluator.ts`. The adapter attempts to load
+`@45ck/video-evaluator` first, then a built explicit/sibling checkout, so
+content-machine can integrate the package without committing a `file:`
+dependency while the package is not available from the npm registry.
+
+`scripts/review/demo-video-audit.mjs` keeps its existing output contract:
+`summary.json`, `README.md`, per-video `report.json`, frame samples, and
+contact sheets stay under the same paths. When a demo MP4 has a
+`.layout.json` sidecar, the script now prefers the evaluator package API
+for layout safety and falls back to the previous sibling process runner.
+
+Do not remove `src/highlights/source-media-analysis.ts` or the
+`source-media-analysis.v1.json` artifact until source-media signal parity
+exists in `@45ck/video-evaluator` and the harness adapter preserves the v1
+contract for `longform-highlight-select`.

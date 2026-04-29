@@ -168,7 +168,8 @@ new skills.
   clips before planning or render
 - [`source-media-analyze/`](source-media-analyze/SKILL.md) — probe
   source media locally for duration, stream, orientation, scene-change,
-  silence, and audio-energy metadata
+  silence, and audio-energy metadata; keep the v1 artifact stable while
+  reusable analyzer ownership migrates to `@45ck/video-evaluator`
 - [`media-index/`](media-index/SKILL.md) — maintain a local reusable
   media inventory
 - [`style-profile-library/`](style-profile-library/SKILL.md) — save

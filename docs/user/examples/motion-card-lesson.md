@@ -73,3 +73,7 @@ cat <<'JSON' | node "$VIDEO_EVALUATOR_ROOT/agent/run-tool.mjs" layout-safety-rev
 }
 JSON
 ```
+
+The demo audit script runs the same sidecar check through
+`@45ck/video-evaluator` when the package is installed or a built sibling
+checkout is available via `VIDEO_EVALUATOR_ROOT`.

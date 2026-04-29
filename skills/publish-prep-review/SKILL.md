@@ -20,6 +20,9 @@ description: Score the script, validate the rendered video, and produce publish 
 - Failing bad outputs closed instead of pretending they are publishable.
 - Pointing the agent back to the right fix path using
   [`short-form-production-playbook`](../short-form-production-playbook/SKILL.md).
+- Applying content-machine policy on top of reusable analyzer evidence
+  from `@45ck/video-evaluator` when generic video facts, contact sheets,
+  layout safety, or OCR evidence are available.
 
 ## Core Approach
 
@@ -84,6 +87,9 @@ description: Score the script, validate the rendered video, and produce publish 
 - For public examples, run `npm run review:demo-videos` and inspect the
   aggregate contact sheet before linking the MP4 from `docs/demo` or the
   README.
+- Demo review keeps the content-machine output contract but delegates
+  `.layout.json` sidecar checks to `@45ck/video-evaluator` when the
+  package or a built sibling checkout is available.
 - Reject any crop that cuts off the primary face, card text, receipt,
   UI target, gameplay affordance, or other key subject.
 - Reject missing, silent, near-silent, or music-only audio when
