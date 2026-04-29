@@ -81,6 +81,9 @@ description: Score the script, validate the rendered video, and produce publish 
   generated scene, support footage, or top lane appears.
 - Reject visible black gutters, boxed intermediates, or default blank
   template backgrounds unless the format explicitly calls for them.
+- For public examples, run `npm run review:demo-videos` and inspect the
+  aggregate contact sheet before linking the MP4 from `docs/demo` or the
+  README.
 - Reject any crop that cuts off the primary face, card text, receipt,
   UI target, gameplay affordance, or other key subject.
 - Reject missing, silent, near-silent, or music-only audio when

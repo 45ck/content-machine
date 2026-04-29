@@ -1,0 +1,103 @@
+{
+  "version": "2026-04-29",
+  "purpose": "Continuation roadmap for hook packaging, audio mix, visual continuity, and publish handoff artifacts.",
+  "sources": [
+    "docs/research/archetypes/29-hook-narrative-packaging-deep-dive-20260429.md",
+    "docs/research/archetypes/30-audio-voice-music-mix-deep-dive-20260429.md",
+    "docs/research/archetypes/31-visual-continuity-storyboard-generation-deep-dive-20260429.md",
+    "docs/research/archetypes/32-platform-packaging-and-publish-deep-dive-20260429.md"
+  ],
+  "artifacts": [
+    {
+      "id": "hook-tests.v1.json",
+      "stage": "packaging",
+      "purpose": "Compare hook candidates for specificity, muted readability, curiosity, risk, and first-frame pairing.",
+      "priority": 1,
+      "bead": "content-machine-ar19"
+    },
+    {
+      "id": "narrative-package.v1.json",
+      "stage": "packaging",
+      "purpose": "Bind hook, title, cover text, CTA, promise, payoff, and selected platform variants to the video structure.",
+      "priority": 1,
+      "bead": "content-machine-ar19"
+    },
+    {
+      "id": "voice-cast.v1.json",
+      "stage": "audio",
+      "purpose": "Record voice provider, voice id, language, tone, speed, and fallback per speaker.",
+      "priority": 1,
+      "bead": "content-machine-ar20"
+    },
+    {
+      "id": "audio-segments.v1.json",
+      "stage": "audio",
+      "purpose": "Record generated audio unit paths, durations, provider/model/cost metadata, retries, and timing source.",
+      "priority": 1,
+      "bead": "content-machine-ar20"
+    },
+    {
+      "id": "audio-review.v1.json",
+      "stage": "publish-review",
+      "purpose": "Verify narration, music, silence, clipping, ducking, intelligibility, and caption/audio drift.",
+      "priority": 1,
+      "bead": "content-machine-ar20"
+    },
+    {
+      "id": "style-bible.v1.json",
+      "stage": "visuals",
+      "purpose": "Record stable style language, palette, lighting, typography, motion language, and negative constraints.",
+      "priority": 2,
+      "bead": "content-machine-ar21"
+    },
+    {
+      "id": "character-sheet.v1.json",
+      "stage": "visuals",
+      "purpose": "Preserve recurring character appearance, reference assets, allowed variations, and forbidden changes.",
+      "priority": 2,
+      "bead": "content-machine-ar21"
+    },
+    {
+      "id": "storyboard-grid.v1.json",
+      "stage": "visuals",
+      "purpose": "Plan multi-panel storyboard or transition grids with reference mapping and negative constraints.",
+      "priority": 2,
+      "bead": "content-machine-ar21"
+    },
+    {
+      "id": "visual-continuity-report.v1.json",
+      "stage": "visual-review",
+      "purpose": "Review character, environment, style, and motion continuity across adjacent generated visuals.",
+      "priority": 2,
+      "bead": "content-machine-ar21"
+    },
+    {
+      "id": "publish-package.v2.json",
+      "stage": "publish",
+      "purpose": "Tie platform title, description, hashtags, cover text, thumbnail, rights, review bundle, and platform profile to the final video.",
+      "priority": 2,
+      "bead": "content-machine-ar22"
+    },
+    {
+      "id": "thumbnail-plan.v1.json",
+      "stage": "publish",
+      "purpose": "Plan cover frame, generated thumbnail, or designed-card thumbnail with text and safe-zone metadata.",
+      "priority": 2,
+      "bead": "content-machine-ar22"
+    },
+    {
+      "id": "distribution-handoff.v1.json",
+      "stage": "publish",
+      "purpose": "Prepare upload or scheduling handoff with target platforms, package paths, manual steps, credentials needs, and status.",
+      "priority": 2,
+      "bead": "content-machine-ar22"
+    }
+  ],
+  "gates": [
+    "Packaging must not promise a payoff absent from the video.",
+    "Audio duration and mix quality must be measured after generation.",
+    "Recurring generated characters or scenes must cite continuity references.",
+    "Publish metadata must link to review, rights, asset ledger, and platform profile artifacts.",
+    "Upload handoff must not hide required credentials or manual approval."
+  ]
+}

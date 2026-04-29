@@ -1,0 +1,96 @@
+{
+  "version": "2026-04-29",
+  "purpose": "Continuation roadmap for deeper longform selection, reframing, source media review, visual verification, and quality governance artifacts.",
+  "sources": [
+    "docs/research/archetypes/25-clip-selection-and-reframing-deep-dive-20260429.md",
+    "docs/research/archetypes/26-source-media-asset-visual-verification-deep-dive-20260429.md",
+    "docs/research/archetypes/27-review-eval-and-governance-deep-dive-20260429.md",
+    "docs/research/archetypes/28-content-machine-integration-sequence-20260429.md"
+  ],
+  "artifacts": [
+    {
+      "id": "text-selection-candidates.v1.json",
+      "stage": "longform",
+      "purpose": "Store model-selected source transcript text and deterministic matches back to word timestamps.",
+      "priority": 1,
+      "bead": "content-machine-ar14"
+    },
+    {
+      "id": "clip-collection.v1.json",
+      "stage": "longform",
+      "purpose": "Persist approved candidate sets, manual ordering, collection reason, and render readiness.",
+      "priority": 1,
+      "bead": "content-machine-ar14"
+    },
+    {
+      "id": "speaker-face-map.v1.json",
+      "stage": "reframe",
+      "purpose": "Map diarized speakers to face tracks with confidence and optional user confirmation.",
+      "priority": 1,
+      "bead": "content-machine-ar15"
+    },
+    {
+      "id": "smart-crop-track.v1.json",
+      "stage": "reframe",
+      "purpose": "Store frame-level or segment-level crop targets for face, screen, cursor, object, and motion tracking.",
+      "priority": 1,
+      "bead": "content-machine-ar15"
+    },
+    {
+      "id": "source-media-review.v1.json",
+      "stage": "source-review",
+      "purpose": "Record inspected media content, frame samples, risks, usable-for notes, and planning implications.",
+      "priority": 1,
+      "bead": "content-machine-ar16"
+    },
+    {
+      "id": "frame-samples.v1.json",
+      "stage": "source-review",
+      "purpose": "Record sampled frames and reasons for source review, crop review, visual match, and final review.",
+      "priority": 1,
+      "bead": "content-machine-ar16"
+    },
+    {
+      "id": "visual-match-report.v2.json",
+      "stage": "visuals",
+      "purpose": "Verify subject, action, style, caption-lane, and safe-zone match between scene intent and selected visual assets.",
+      "priority": 1,
+      "bead": "content-machine-ar16"
+    },
+    {
+      "id": "review-bundle.v1.json",
+      "stage": "publish-review",
+      "purpose": "Aggregate render validation, script score, caption sync, crop review, source review, asset ledger, visual match, decisions, and cost into one go/no-go report.",
+      "priority": 1,
+      "bead": "content-machine-ar17"
+    },
+    {
+      "id": "provider-selection.v1.json",
+      "stage": "governance",
+      "purpose": "Record provider options, selected provider, score dimensions, reason, and fallback.",
+      "priority": 2,
+      "bead": "content-machine-ar17"
+    },
+    {
+      "id": "cost-log.v1.json",
+      "stage": "governance",
+      "purpose": "Track estimated, reserved, actual, failed, and refunded spend per production operation.",
+      "priority": 2,
+      "bead": "content-machine-ar17"
+    },
+    {
+      "id": "archetype-parity-fixture.v1.json",
+      "stage": "evals",
+      "purpose": "Turn research-pack blueprints, recipes, repo cards, and quality gates into executable parity fixtures.",
+      "priority": 2,
+      "bead": "content-machine-ar18"
+    }
+  ],
+  "gates": [
+    "LLM-selected clips must match back to source words before timestamps are trusted.",
+    "Non-portrait source footage must have a crop mode and target subject before render.",
+    "User media must be inspected before planning claims what it contains.",
+    "Visual assets must pass scene-intent and safe-zone checks before render.",
+    "Publish review must produce a pass/revise/fail status and a concrete rerun action."
+  ]
+}

@@ -20,6 +20,8 @@ Every public example should have:
   uses that as part of the visual design.
 - a contact sheet or manual visual review note for the final MP4.
 - publish-prep output or an explicit reason the gate could not run.
+- the demo-video audit passes if the MP4 will be linked from
+  `docs/demo`.
 
 ## Review Order
 
@@ -71,6 +73,31 @@ Add stricter caption/OCR checks when the render has caption sidecars and
 the local environment supports OCR. If OCR fails, do not hide it; mark
 the lane as a candidate until the drift is fixed.
 
+## Demo Video Audit
+
+Run this before promoting anything into `docs/demo` or the README:
+
+```bash
+npm run review:demo-videos
+```
+
+It writes `experiments/video-quality-review-demo/README.md`,
+`summary.json`, per-video frame samples, and an aggregate contact sheet.
+The default pass is intentionally lightweight (`--maxFrames 8`) so it
+can run against the whole demo folder. For a deeper manual review, run:
+
+```bash
+node scripts/review/demo-video-audit.mjs \
+  --inputDir docs/demo \
+  --outputDir experiments/video-quality-review-demo-deep \
+  --maxFrames 36
+```
+
+Treat these as hard send-backs for public examples: wrong resolution,
+missing or near-silent audio, black/white frames, black gutters, white
+edge artifacts, long static runs, and sparse caption/text signal that
+does not match the intended style.
+
 ## Common Send-Backs
 
 | Problem                                  | Send Back To                 | Fix                                                                             |
@@ -80,6 +107,7 @@ the lane as a candidate until the drift is fixed.
 | captions leave the frame                 | caption style/render         | reduce words per caption, lower font size, enforce safe zones                   |
 | captions drift from speech               | timing/caption export        | use token-level timestamps or regenerate sidecars from real audio               |
 | story footage is cropped off             | source media/reframe         | use 9:16 source or scene-aware crop before composition                          |
+| black gutters or boxed source media      | source media/reframe         | crop-fill, motion-fill, or replace the clip; do not promote the render          |
 | Reddit card looks fake or broken         | overlay asset                | regenerate the card as a first-class visual asset, not HTML pasted into a frame |
 | stock clips feel random                  | visual plan                  | require each clip to support the exact narrated beat                            |
 | output feels unlike TikTok/Reels         | archetype choice             | use the archetype guide before rendering another generic explainer              |
@@ -87,6 +115,8 @@ the lane as a candidate until the drift is fixed.
 ## Current Example Maturity
 
 - `reddit-post-over-gameplay` is the golden showcase.
+- `reddit-story-split-screen` is a recipe lane until a gutter-free demo
+  passes the demo-video audit.
 - `stock-b-roll-explainer`, `text-thread-reveal`,
   `saas-problem-solution`, `fast-facts-countdown`,
   `motion-card-lesson`, `faceless-mixed-short`, and

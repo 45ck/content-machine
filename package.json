@@ -79,6 +79,7 @@
     "agent:publish-prep": "npm run harness:publish-prep",
     "agent:install-skill-pack": "npm run harness:install-skill-pack",
     "review:latest": "node scripts/review-latest.mjs",
+    "review:demo-videos": "node scripts/review/demo-video-audit.mjs --outputDir experiments/video-quality-review-demo",
     "glossary:gen": "node scripts/gen-glossary.mjs",
     "glossary:check": "node scripts/quality/check-ubiquitous-language.mjs",
     "ul:gen": "node scripts/gen-ubiquitous-language-ts.mjs",

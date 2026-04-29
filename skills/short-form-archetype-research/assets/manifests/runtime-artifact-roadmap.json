@@ -1,0 +1,91 @@
+{
+  "version": "2026-04-29",
+  "purpose": "Implementation roadmap for converting the deeper short-form repo research into content-machine runtime artifacts.",
+  "sources": [
+    "docs/research/archetypes/21-caption-timing-rendering-deep-dive-20260429.md",
+    "docs/research/archetypes/22-prompt-schema-extraction-20260429.md",
+    "docs/research/archetypes/23-render-runtime-decision-matrix-20260429.md",
+    "docs/research/archetypes/24-workflow-architecture-deep-dive-20260429.md"
+  ],
+  "artifacts": [
+    {
+      "id": "audio-analysis.v1.json",
+      "stage": "audio",
+      "purpose": "Record speech, music, silence, diarization, loudness, and language hints before captions or clip scoring.",
+      "inspired_by": ["WhisperX", "whisper-timestamped", "AutoClip", "Vinci Clips"],
+      "priority": 1,
+      "bead": "content-machine-ar10"
+    },
+    {
+      "id": "word-timestamps.v2.json",
+      "stage": "captions",
+      "purpose": "Store raw and refined word timing, confidence, speaker labels, and alignment warnings.",
+      "inspired_by": ["WhisperX", "stable-ts", "whisper-timestamped", "rshorts"],
+      "priority": 1,
+      "bead": "content-machine-ar10"
+    },
+    {
+      "id": "caption-groups.v1.json",
+      "stage": "captions",
+      "purpose": "Group words into readable mobile caption chunks with line breaks and reading-speed checks.",
+      "inspired_by": ["rshorts", "pysubs2", "CapCut", "Aegisub"],
+      "priority": 1,
+      "bead": "content-machine-ar10"
+    },
+    {
+      "id": "caption-render-plan.v1.json",
+      "stage": "render",
+      "purpose": "Convert caption groups and recipes into frame-level render cues with platform safe-zone checks.",
+      "inspired_by": ["rshorts", "Remotion prompt-to-video", "OpenReels"],
+      "priority": 1,
+      "bead": "content-machine-ar10"
+    },
+    {
+      "id": "prompt-contract.v1.json",
+      "stage": "planning",
+      "purpose": "Bind prompt family, input schema, output schema, validator, and repair policy for a generation stage.",
+      "inspired_by": ["rshorts", "OpenMontage", "AI Short Video Engine", "ArcReel"],
+      "priority": 1,
+      "bead": "content-machine-ar11"
+    },
+    {
+      "id": "transcript-edit.v1.json",
+      "stage": "longform",
+      "purpose": "Store source-word-preserving transcript edits, removed ranges, hook, and estimated duration.",
+      "inspired_by": ["IMG.LY videoclipper", "Vinci Clips", "AutoClip"],
+      "priority": 1,
+      "bead": "content-machine-ar11"
+    },
+    {
+      "id": "render-runtime-decision.v1.json",
+      "stage": "render",
+      "purpose": "Record renderer options, selected runtime, license notes, fallback runtime, and decision reason.",
+      "inspired_by": ["rshorts", "Editly", "Motion Canvas", "ArcReel", "OpenMontage"],
+      "priority": 1,
+      "bead": "content-machine-ar12"
+    },
+    {
+      "id": "decision-log.v1.json",
+      "stage": "workflow",
+      "purpose": "Audit provider, renderer, fallback, budget, visual, and approval decisions across a project.",
+      "inspired_by": ["OpenMontage", "ArcReel"],
+      "priority": 1,
+      "bead": "content-machine-ar13"
+    },
+    {
+      "id": "project-state.v1.json",
+      "stage": "workflow",
+      "purpose": "Track project status, artifact versions, approval gates, and resumable next actions.",
+      "inspired_by": ["AutoClip", "ArcReel", "AI Story"],
+      "priority": 1,
+      "bead": "content-machine-ar13"
+    }
+  ],
+  "gates": [
+    "Renderer choice is recorded before render.",
+    "Caption timing and caption styling are separately inspectable.",
+    "Longform transcript edits never invent source words unless explicitly marked as rewritten copy.",
+    "Generated or copied assets cannot pass publish review without ledger provenance.",
+    "A failed downstream stage can resume from the last valid upstream artifact."
+  ]
+}

@@ -1,10 +1,10 @@
 # Reddit Story Split-Screen
 
-Status: `tracked showcase`
+Status: `recipe lane; demo rebuild required`
 
-This is the strongest current split-screen story-lane example in the
-repo. It is a showcase for the hybrid split-screen mode, not the
-default for every Reddit request.
+This lane describes the split-screen Reddit story grammar. The previous
+public demo was archived after video audit caught black gutters/boxed
+source media, so do not treat it as a current showcase.
 
 This page is for the `reddit-story-split-screen` archetype:
 
@@ -19,13 +19,13 @@ over full-screen gameplay and then captions continue over gameplay, use
 
 - [`skills/reddit-post-over-gameplay-short/SKILL.md`](../../../skills/reddit-post-over-gameplay-short/SKILL.md)
 
-Tracked preview clip:
+Archived reference clip:
 
-- [demo-8-reddit-story-split-screen.mp4](../../demo/demo-8-reddit-story-split-screen.mp4)
+- [demo-8-reddit-story-split-screen.mp4](../../../archive/demo/demo-8-reddit-story-split-screen.mp4)
 
-<p align="center">
-  <video src="../../demo/demo-8-reddit-story-split-screen.mp4" controls muted playsinline loop width="280"></video>
-</p>
+Use this only as a historical reference for story structure. A new
+public demo must pass gutter detection, audio checks, `1080x1920`
+format, and caption review before it is linked from `docs/demo`.
 
 The isolated empty-project Codex evaluation scaffold is:
 
@@ -47,6 +47,7 @@ Quick ingredients:
 5. Keep gameplay on the bottom half.
 6. Render `1080x1920` with a true `50/50` split.
 7. Export captions and run review.
+8. Run `npm run review:demo-videos` before promoting the MP4.
 
 ## Reddit Opener Asset
 

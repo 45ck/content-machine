@@ -1,0 +1,175 @@
+{
+  "version": "2026-04-29",
+  "purpose": "Continuation roadmap for batch production, localization, style profiles, feedback loops, and upload boundary artifacts.",
+  "sources": [
+    "docs/research/archetypes/33-batch-queue-gallery-production-deep-dive-20260429.md",
+    "docs/research/archetypes/34-localization-dubbing-language-deep-dive-20260429.md",
+    "docs/research/archetypes/35-style-template-profile-system-deep-dive-20260429.md",
+    "docs/research/archetypes/36-feedback-analytics-learning-loop-deep-dive-20260429.md",
+    "docs/research/archetypes/37-risk-compliance-upload-boundaries-deep-dive-20260429.md",
+    "docs/research/archetypes/38-deep-implementation-backlog-sequence-20260429.md"
+  ],
+  "artifacts": [
+    {
+      "id": "batch-run.v1.json",
+      "stage": "batch",
+      "purpose": "Declare the source items, archetype/platform defaults, policy, budget, and output root for a multi-short run.",
+      "priority": 1,
+      "bead": "content-machine-ar23"
+    },
+    {
+      "id": "job-queue-event.v1.jsonl",
+      "stage": "batch",
+      "purpose": "Append queue and stage events for claimed, started, completed, failed, skipped, and approval-needed job states.",
+      "priority": 1,
+      "bead": "content-machine-ar23"
+    },
+    {
+      "id": "sample-approval.v1.json",
+      "stage": "review",
+      "purpose": "Record manual or automated sample approval decisions and rerun actions.",
+      "priority": 1,
+      "bead": "content-machine-ar23"
+    },
+    {
+      "id": "gallery-entry.v1.json",
+      "stage": "review-gallery",
+      "purpose": "Create durable review cards linking preview media, review status, publish package, rights, and asset ledger paths.",
+      "priority": 1,
+      "bead": "content-machine-ar23"
+    },
+    {
+      "id": "batch-output-manifest.v1.json",
+      "stage": "batch-closeout",
+      "purpose": "Summarize passed, failed, blocked, and publish-ready outputs for a batch.",
+      "priority": 1,
+      "bead": "content-machine-ar23"
+    },
+    {
+      "id": "locale-plan.v1.json",
+      "stage": "localization",
+      "purpose": "Declare source and target language, provider constraints, subtitle mode, and localized metadata requirements.",
+      "priority": 1,
+      "bead": "content-machine-ar24"
+    },
+    {
+      "id": "translation-map.v1.json",
+      "stage": "localization",
+      "purpose": "Map source script, caption, title, description, hashtag, and cover text units to translated units.",
+      "priority": 1,
+      "bead": "content-machine-ar24"
+    },
+    {
+      "id": "dub-script.v1.json",
+      "stage": "audio",
+      "purpose": "Prepare translated speech segments with speaker, timing, speed, pronunciation, and emotion instructions.",
+      "priority": 1,
+      "bead": "content-machine-ar24"
+    },
+    {
+      "id": "localized-captions.v1.json",
+      "stage": "captions",
+      "purpose": "Store localized caption groups reconciled to localized audio and platform safe zones.",
+      "priority": 1,
+      "bead": "content-machine-ar24"
+    },
+    {
+      "id": "localized-publish-package.v1.json",
+      "stage": "publish",
+      "purpose": "Bind localized media, captions, title, description, hashtags, cover text, review, and rights status.",
+      "priority": 1,
+      "bead": "content-machine-ar24"
+    },
+    {
+      "id": "style-profile.v2.json",
+      "stage": "planning",
+      "purpose": "Record reusable channel or format defaults for captions, hook treatment, pacing, visual language, audio, thumbnails, and platforms.",
+      "priority": 1,
+      "bead": "content-machine-ar25"
+    },
+    {
+      "id": "template-contract.v1.json",
+      "stage": "render",
+      "purpose": "Declare renderer template capabilities, required assets, caption modes, hook support, safe zones, known limits, and license notes.",
+      "priority": 1,
+      "bead": "content-machine-ar25"
+    },
+    {
+      "id": "preset-resolution-report.v1.json",
+      "stage": "planning",
+      "purpose": "Record how archetype, style profile, platform profile, request overrides, template, caption preset, and audio preset resolved.",
+      "priority": 1,
+      "bead": "content-machine-ar25"
+    },
+    {
+      "id": "template-safety-review.v1.json",
+      "stage": "publish-review",
+      "purpose": "Verify rendered output against the selected template contract and platform constraints.",
+      "priority": 1,
+      "bead": "content-machine-ar25"
+    },
+    {
+      "id": "performance-snapshot.v1.json",
+      "stage": "analytics",
+      "purpose": "Store platform outcome metrics linked to a publish package at a point in time.",
+      "priority": 2,
+      "bead": "content-machine-ar26"
+    },
+    {
+      "id": "creator-feedback.v1.json",
+      "stage": "feedback",
+      "purpose": "Capture structured creator ratings, notes, tags, approval, and requested changes tied to run and variant IDs.",
+      "priority": 2,
+      "bead": "content-machine-ar26"
+    },
+    {
+      "id": "variant-outcome.v1.json",
+      "stage": "evaluation",
+      "purpose": "Compare hooks, packages, profiles, or templates against review, feedback, and performance evidence.",
+      "priority": 2,
+      "bead": "content-machine-ar26"
+    },
+    {
+      "id": "quality-label.v1.json",
+      "stage": "active-learning",
+      "purpose": "Attach human labels and failure tags to feature vectors for quality scorer calibration.",
+      "priority": 2,
+      "bead": "content-machine-ar26"
+    },
+    {
+      "id": "rights-gate.v1.json",
+      "stage": "publish-review",
+      "purpose": "Summarize asset rights, source-media review, public-reference status, attribution requirements, and blockers.",
+      "priority": 1,
+      "bead": "content-machine-ar27"
+    },
+    {
+      "id": "upload-boundary-review.v1.json",
+      "stage": "publish",
+      "purpose": "Decide whether a package is package-only, manual handoff, scheduled upload, or direct-upload capable.",
+      "priority": 1,
+      "bead": "content-machine-ar27"
+    },
+    {
+      "id": "credential-requirement.v1.json",
+      "stage": "publish",
+      "purpose": "Record provider credential requirements without exposing secret values.",
+      "priority": 1,
+      "bead": "content-machine-ar27"
+    },
+    {
+      "id": "repost-risk-review.v1.json",
+      "stage": "publish-review",
+      "purpose": "Prevent public-video reference workflows from becoming unreviewed repost automation.",
+      "priority": 1,
+      "bead": "content-machine-ar27"
+    }
+  ],
+  "gates": [
+    "Batch execution must not bypass review bundle or rights gates.",
+    "Localization must time captions against localized audio.",
+    "Style profiles must resolve through template and platform constraints.",
+    "Feedback and platform outcomes must link back to publish packages or variants.",
+    "Upload automation remains blocked unless credentials, terms review, rights, and manual approval are explicit."
+  ]
+}

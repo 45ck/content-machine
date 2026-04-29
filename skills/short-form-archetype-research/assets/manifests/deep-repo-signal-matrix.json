@@ -1,0 +1,67 @@
+{
+  "generated_at": "2026-04-29",
+  "scope": "second deep pass across local short-form vendor repos and current web/open-source references",
+  "signals": [
+    {
+      "id": "multi_candidate_clip_scoring",
+      "pattern": "Return many scored clip candidates with hooks, reasons, score dimensions, and dedupe groups.",
+      "seen_in": [
+        "Podcli",
+        "Vinci Clips",
+        "Vizard",
+        "SamurAIGPT AI YouTube Shorts Generator",
+        "AutoClip"
+      ],
+      "content_machine_target": "clip-candidates.v2.json"
+    },
+    {
+      "id": "director_score_scene_plan",
+      "pattern": "Create a structured scene plan before generating visual, audio, music, and caption assets.",
+      "seen_in": ["OpenReels", "OpenMontage", "AI Story", "ArcReel"],
+      "content_machine_target": "director-score.v1.json"
+    },
+    {
+      "id": "first_class_crop_plan",
+      "pattern": "Treat vertical reframing as a tracked creative artifact with subject, crop mode, confidence, and fallback.",
+      "seen_in": [
+        "Podcli",
+        "Vinci Clips",
+        "Vizard",
+        "ClippedAI",
+        "SamurAIGPT AI YouTube Shorts Generator"
+      ],
+      "content_machine_target": "crop-plan.v1.json"
+    },
+    {
+      "id": "caption_recipe_artifact",
+      "pattern": "Bind caption treatment to archetype and validate readability, timing, emphasis, and platform safe zones.",
+      "seen_in": ["r/Shorts", "Podcli", "OpenReels", "ClippedAI", "CapCut tutorial corpus"],
+      "content_machine_target": "caption-recipe.v1.json"
+    },
+    {
+      "id": "asset_ledger",
+      "pattern": "Track origin, license, owner, allowed use, local copy path, and review status for every production asset.",
+      "seen_in": ["OpenMontage", "ArcReel", "AI Story", "content-machine research policy"],
+      "content_machine_target": "asset-ledger.v1.json"
+    },
+    {
+      "id": "visual_match_report",
+      "pattern": "Verify stock or generated visuals against scene intent and record query rewrites or rejection reasons.",
+      "seen_in": ["OpenReels", "OpenMontage", "AI Short Video Engine"],
+      "content_machine_target": "visual-match-report.v1.json"
+    },
+    {
+      "id": "run_ledger_events",
+      "pattern": "Emit resumable progress, provider, cost, and decision events across the video pipeline.",
+      "seen_in": ["AutoClip", "ArcReel", "AI Story", "OpenMontage"],
+      "content_machine_target": "run-ledger.v1.jsonl"
+    }
+  ],
+  "reject_patterns": [
+    "watermark removal",
+    "mirror, speed, or color shifts to evade copyright detection",
+    "third-party platform video reuse without permission",
+    "hidden provider or cost decisions",
+    "one-shot viral score with no score dimensions or explanation"
+  ]
+}

@@ -1,0 +1,141 @@
+{
+  "version": "2026-04-29",
+  "purpose": "Continuation roadmap for reference ingest, skill/flow/harness contracts, research evidence briefs, media synthesis orchestration, observability, and eval datasets.",
+  "sources": [
+    "docs/research/archetypes/39-reference-ingest-videospec-blueprint-deep-dive-20260429.md",
+    "docs/research/archetypes/40-flow-skill-harness-contract-deep-dive-20260429.md",
+    "docs/research/archetypes/41-research-evidence-briefing-deep-dive-20260429.md",
+    "docs/research/archetypes/42-media-synthesis-provider-orchestration-deep-dive-20260429.md",
+    "docs/research/archetypes/43-observability-cost-retry-cache-deep-dive-20260429.md",
+    "docs/research/archetypes/44-eval-ci-golden-dataset-deep-dive-20260429.md"
+  ],
+  "artifacts": [
+    {
+      "id": "reference-ingest-request.v1.json",
+      "stage": "reference-ingest",
+      "purpose": "Record how a reference clip was analyzed, including rights boundary and ingest settings.",
+      "priority": 1,
+      "bead": "content-machine-ar29"
+    },
+    {
+      "id": "reference-to-production-brief.v1.json",
+      "stage": "planning",
+      "purpose": "Convert reference analysis into allowed borrowed behaviors, blocked copied elements, asset needs, and quality gates.",
+      "priority": 1,
+      "bead": "content-machine-ar29"
+    },
+    {
+      "id": "skill-route.v1.json",
+      "stage": "planning",
+      "purpose": "Record selected skill, archetype, blueprint, required assets, and quality gates for an agent request.",
+      "priority": 1,
+      "bead": "content-machine-ar30"
+    },
+    {
+      "id": "flow-execution-plan.v1.json",
+      "stage": "workflow",
+      "purpose": "Expand a flow manifest into run id, output directory, inputs, expected outputs, and review gates.",
+      "priority": 1,
+      "bead": "content-machine-ar30"
+    },
+    {
+      "id": "harness-envelope.v1.json",
+      "stage": "workflow",
+      "purpose": "Persist the standard JSON-stdio harness success or failure envelope.",
+      "priority": 1,
+      "bead": "content-machine-ar30"
+    },
+    {
+      "id": "research-query-plan.v1.json",
+      "stage": "research",
+      "purpose": "Declare topic, platform, niche, queries, sources, freshness, and exclusions before evidence collection.",
+      "priority": 2,
+      "bead": "content-machine-ar31"
+    },
+    {
+      "id": "evidence-pack.v1.json",
+      "stage": "research",
+      "purpose": "Normalize evidence, trending topics, searched time, sources, and collection warnings.",
+      "priority": 2,
+      "bead": "content-machine-ar31"
+    },
+    {
+      "id": "brief-package.v1.json",
+      "stage": "script-planning",
+      "purpose": "Hand compact cited evidence, claims, selected angle, constraints, and do-not-claim notes to script generation.",
+      "priority": 2,
+      "bead": "content-machine-ar31"
+    },
+    {
+      "id": "media-synthesis-request.v1.json",
+      "stage": "visuals",
+      "purpose": "Persist typed text-to-video, image-to-video, or scene-to-video generation requests.",
+      "priority": 1,
+      "bead": "content-machine-ar32"
+    },
+    {
+      "id": "media-provider-selection.v1.json",
+      "stage": "visuals",
+      "purpose": "Record provider capability, cost, latency, policy, selected adapter, fallback, and rationale.",
+      "priority": 1,
+      "bead": "content-machine-ar32"
+    },
+    {
+      "id": "media-synthesis-job.v1.json",
+      "stage": "visuals",
+      "purpose": "Persist media synthesis job lifecycle, request, result, error, retries, and cost link.",
+      "priority": 1,
+      "bead": "content-machine-ar32"
+    },
+    {
+      "id": "run-telemetry.v1.jsonl",
+      "stage": "observability",
+      "purpose": "Append pipeline, stage, progress, completion, and failure events for a run.",
+      "priority": 1,
+      "bead": "content-machine-ar33"
+    },
+    {
+      "id": "provider-call-log.v1.jsonl",
+      "stage": "observability",
+      "purpose": "Record provider operations, latency, units, cost, and status.",
+      "priority": 1,
+      "bead": "content-machine-ar33"
+    },
+    {
+      "id": "budget-summary.v1.json",
+      "stage": "review",
+      "purpose": "Summarize stage costs, durations, tokens, budget limit, and warnings.",
+      "priority": 1,
+      "bead": "content-machine-ar33"
+    },
+    {
+      "id": "golden-archetype-dataset.v1.json",
+      "stage": "eval",
+      "purpose": "Bind archetype fixtures to blueprints, recipes, cases, rubrics, expected artifacts, and failure examples.",
+      "priority": 2,
+      "bead": "content-machine-ar34"
+    },
+    {
+      "id": "archetype-parity-report.v2.json",
+      "stage": "eval",
+      "purpose": "Compare generated output against fixture artifacts, schemas, programmatic checks, rubrics, and feature snapshots.",
+      "priority": 2,
+      "bead": "content-machine-ar34"
+    },
+    {
+      "id": "ci-eval-summary.v1.json",
+      "stage": "ci",
+      "purpose": "Summarize datasets, pass rate, failures, skipped cases, cost, and status for local or PR eval runs.",
+      "priority": 2,
+      "bead": "content-machine-ar34"
+    }
+  ],
+  "gates": [
+    "Reference ingest must preserve public-reference and rights boundaries.",
+    "Flow and harness execution must persist route, run id, artifacts, warnings, and errors.",
+    "Research-backed scripts must cite evidence and record do-not-claim constraints.",
+    "Generated media must have provider selection, job, ledger, and review artifacts.",
+    "Provider cost, retry, and cache behavior must be visible before publish approval.",
+    "Golden archetype datasets should fail missing artifacts before subjective rubrics."
+  ]
+}

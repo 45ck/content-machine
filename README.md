@@ -62,6 +62,7 @@ Start here:
 - [Archetype Guide](docs/user/ARCHETYPES.md)
 - [Reddit Post Over Gameplay](docs/user/examples/reddit-post-over-gameplay.md)
 - [Reddit Story Split-Screen](docs/user/examples/reddit-story-split-screen.md)
+  (recipe lane; public demo is being rebuilt after gutter detection)
 - [reddit-story-short skill](skills/reddit-story-short/SKILL.md)
 - [reddit-post-over-gameplay-short skill](skills/reddit-post-over-gameplay-short/SKILL.md)
 - [reddit-card-overlay skill](skills/reddit-card-overlay/SKILL.md)
@@ -70,12 +71,6 @@ Start here:
   <a href="docs/demo/demo-9-reddit-post-over-gameplay.mp4">
     <img src="docs/demo/demo-9-reddit-post-over-gameplay.gif" alt="Reddit post over gameplay showcase" width="280" />
   </a>
-</p>
-
-Secondary hybrid preview:
-
-<p align="center">
-  <video src="docs/demo/demo-8-reddit-story-split-screen.mp4" controls muted playsinline loop width="220"></video>
 </p>
 
 Faceless-information preview:
@@ -168,7 +163,6 @@ Tracked preview clip:
 - [docs/demo/demo-15-faceless-mixed-short.mp4](docs/demo/demo-15-faceless-mixed-short.mp4)
 - [docs/demo/demo-16-gameplay-confession-split.mp4](docs/demo/demo-16-gameplay-confession-split.mp4)
 - [docs/demo/demo-17-micro-doc-breakdown.mp4](docs/demo/demo-17-micro-doc-breakdown.mp4)
-- [docs/demo/demo-8-reddit-story-split-screen.mp4](docs/demo/demo-8-reddit-story-split-screen.mp4)
 
 > Early development. Skills, flows, and runtime scripts are now the
 > primary interface. The legacy CLI control plane has been moved into
