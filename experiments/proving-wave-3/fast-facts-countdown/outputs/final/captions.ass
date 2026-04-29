@@ -1,0 +1,38 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,DejaVu Sans,76,&H00FFFFFF,&H0000E5FF,&H00111111,&H99000000,-1,0,0,0,100,100,0,0,1,7,5,2,82,82,380,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.20,0:00:01.72,Default,,0,0,0,,FIVE FACTS\NTHAT SOUND
+Dialogue: 0,0:00:01.54,0:00:02.82,Default,,0,0,0,,FAKE BUT\NARE REAL
+Dialogue: 0,0:00:02.96,0:00:04.12,Default,,0,0,0,,STAY FOR\NNUMBER ONE
+Dialogue: 0,0:00:04.34,0:00:05.71,Default,,0,0,0,,FIVE HONEY\NCAN STAY
+Dialogue: 0,0:00:05.54,0:00:06.93,Default,,0,0,0,,EDIBLE FOR\NTHOUSANDS OF
+Dialogue: 0,0:00:06.75,0:00:07.75,Default,,0,0,0,,YEARS WHEN\NIT IS
+Dialogue: 0,0:00:07.57,0:00:08.34,Default,,0,0,0,,SEALED PROPERLY
+Dialogue: 0,0:00:08.83,0:00:10.76,Default,,0,0,0,,FOUR BANANAS\NARE TECHNICALLY
+Dialogue: 0,0:00:10.58,0:00:12.08,Default,,0,0,0,,BERRIES BUT\NSTRAWBERRIES
+Dialogue: 0,0:00:11.91,0:00:12.34,Default,,0,0,0,,ARE NOT
+Dialogue: 0,0:00:12.48,0:00:14.08,Default,,0,0,0,,THREE OCT\NUSES HAVE
+Dialogue: 0,0:00:13.99,0:00:15.33,Default,,0,0,0,,THREE HEARTS\NAND TWO
+Dialogue: 0,0:00:15.19,0:00:16.17,Default,,0,0,0,,OF THEM\NPAWS WHEN
+Dialogue: 0,0:00:16.07,0:00:16.50,Default,,0,0,0,,THEY
+Dialogue: 0,0:00:16.32,0:00:17.25,Default,,0,0,0,,SWIM TWO
+Dialogue: 0,0:00:17.33,0:00:18.46,Default,,0,0,0,,A DAY\NON VENUS
+Dialogue: 0,0:00:18.28,0:00:19.63,Default,,0,0,0,,LASTS LONGER\NTHAN
+Dialogue: 0,0:00:19.45,0:00:20.01,Default,,0,0,0,,A YEAR\NON
+Dialogue: 0,0:00:19.83,0:00:20.92,Default,,0,0,0,,VENUS ONE
+Dialogue: 0,0:00:21.08,0:00:22.43,Default,,0,0,0,,OMB ATS\NMAKE
+Dialogue: 0,0:00:22.25,0:00:23.92,Default,,0,0,0,,CUBE SHAPED\NPOOP
+Dialogue: 0,0:00:24.10,0:00:25.07,Default,,0,0,0,,SO IT\NDOES NOT
+Dialogue: 0,0:00:24.89,0:00:25.43,Default,,0,0,0,,ROLL AWAY
+Dialogue: 0,0:00:25.91,0:00:26.85,Default,,0,0,0,,SAVE THIS\NFOR THE
+Dialogue: 0,0:00:26.67,0:00:27.89,Default,,0,0,0,,NEXT TIME\NSOMEONE SAYS
+Dialogue: 0,0:00:27.82,0:00:28.89,Default,,0,0,0,,FACTS ARE\NBORING

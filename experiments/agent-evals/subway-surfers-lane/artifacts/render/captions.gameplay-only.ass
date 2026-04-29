@@ -1,0 +1,43 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,72,&H00FFFFFF,&H00000000,&H64000000,1,0,0,0,100,100,0,0,1,4,0,2,80,80,220,1
+
+[Events]
+Format: Layer, Start, End, Style, Text
+Dialogue: 0,0:00:00.24,0:00:01.60,Default,Why Subway Surfers plus captions
+Dialogue: 0,0:00:02.26,0:00:03.97,Default,is hard to ignore.
+Dialogue: 0,0:00:03.97,0:00:04.05,Default,This is
+Dialogue: 0,0:00:04.19,0:00:05.69,Default,why Subway Surfers under hard-cut
+Dialogue: 0,0:00:06.22,0:00:08.53,Default,captions feels impossible to ignore.
+Dialogue: 0,0:00:09.15,0:00:10.59,Default,Reason one: the gameplay keeps
+Dialogue: 0,0:00:10.88,0:00:11.45,Default,resetting your
+Dialogue: 0,0:00:11.69,0:00:13.40,Default,eyes. You stay stimulated without
+Dialogue: 0,0:00:13.68,0:00:15.18,Default,learning a whole new scene.
+Dialogue: 0,0:00:15.80,0:00:17.89,Default,Reason two: captions remove the
+Dialogue: 0,0:00:17.89,0:00:18.39,Default,effort of
+Dialogue: 0,0:00:18.55,0:00:18.92,Default,listening.
+Dialogue: 0,0:00:19.86,0:00:19.91,Default,Your brain
+Dialogue: 0,0:00:20.22,0:00:21.23,Default,can grab the point in
+Dialogue: 0,0:00:21.39,0:00:22.86,Default,tiny chunks before the sentence
+Dialogue: 0,0:00:23.43,0:00:23.86,Default,even ends.
+Dialogue: 0,0:00:24.49,0:00:26.17,Default,Reason three: the voice, the
+Dialogue: 0,0:00:26.30,0:00:27.36,Default,text, and the lane changes
+Dialogue: 0,0:00:27.82,0:00:29.45,Default,all move on different rhythms.
+Dialogue: 0,0:00:29.94,0:00:29.99,Default,That mismatch
+Dialogue: 0,0:00:30.49,0:00:31.74,Default,keeps your prediction engine
+Dialogue: 0,0:00:32.14,0:00:32.33,Default,awake.
+Dialogue: 0,0:00:32.87,0:00:32.92,Default,So even
+Dialogue: 0,0:00:33.19,0:00:34.61,Default,if the topic is average,
+Dialogue: 0,0:00:34.90,0:00:34.95,Default,the format
+Dialogue: 0,0:00:35.25,0:00:35.40,Default,keeps feeding
+Dialogue: 0,0:00:35.96,0:00:37.72,Default,your brain tiny hits of
+Dialogue: 0,0:00:37.72,0:00:38.12,Default,novelty and
+Dialogue: 0,0:00:38.34,0:00:38.77,Default,clarity.
+Dialogue: 0,0:00:39.31,0:00:40.68,Default,It is not deeper content.
+Dialogue: 0,0:00:41.49,0:00:41.54,Default,It is
+Dialogue: 0,0:00:41.64,0:00:43.18,Default,better attention packaging.

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0b1025"/><stop offset="1" stop-color="#1a2c70"/></linearGradient><filter id="shadow"><feDropShadow dx="0" dy="20" stdDeviation="22" flood-color="#000" flood-opacity="0.45"/></filter></defs>
+<rect width="1080" height="1920" fill="url(#bg)"/>
+<circle cx="855" cy="245" r="275" fill="#7dd3fc" opacity="0.13"/><circle cx="110" cy="1530" r="360" fill="#fff" opacity="0.06"/>
+<rect x="72" y="96" width="936" height="1728" rx="78" fill="rgba(0,0,0,0.22)" stroke="rgba(255,255,255,0.19)" stroke-width="4" filter="url(#shadow)"/>
+<text x="540" y="260" text-anchor="middle" fill="#fff" font-size="84" font-family="DejaVu Sans, Arial" font-weight="900">COLD =</text>
+<text x="540" y="360" text-anchor="middle" fill="#7dd3fc" font-size="90" font-family="DejaVu Sans, Arial" font-weight="900">SLOW CHEMISTRY</text>
+<path d="M180 610 H900" stroke="#fff" stroke-width="12" opacity="0.28"/><path d="M180 610 H410" stroke="#7dd3fc" stroke-width="22" stroke-linecap="round"/>
+<text x="185" y="560" text-anchor="start" fill="#7dd3fc" font-size="56" font-family="DejaVu Sans, Arial" font-weight="900">-5 C</text><text x="900" y="560" text-anchor="end" fill="#fff" font-size="42" font-family="DejaVu Sans, Arial" font-weight="900">WARM</text>
+<circle cx="310" cy="820" r="42" fill="#7dd3fc" opacity="0.72"/>
+<circle cx="455" cy="910" r="38" fill="#7dd3fc" opacity="0.6"/>
+<circle cx="600" cy="820" r="34" fill="#7dd3fc" opacity="0.48"/>
+<circle cx="745" cy="910" r="30" fill="#7dd3fc" opacity="0.36"/>
+<rect x="295" y="1040" width="490" height="135" rx="42" fill="rgba(255,255,255,0.92)"/><text x="540" y="1127" text-anchor="middle" fill="#111" font-size="46" font-family="DejaVu Sans, Arial" font-weight="900">47% reads like 12%</text>
+<path d="M190 1495 H890" stroke="rgba(255,255,255,0.28)" stroke-width="6" stroke-linecap="round"/>
+</svg>

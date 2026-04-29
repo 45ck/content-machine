@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#120d18"/><stop offset="1" stop-color="#513052"/></linearGradient><filter id="shadow"><feDropShadow dx="0" dy="20" stdDeviation="22" flood-color="#000" flood-opacity="0.45"/></filter></defs>
+<rect width="1080" height="1920" fill="url(#bg)"/>
+<circle cx="855" cy="245" r="275" fill="#ff8fab" opacity="0.13"/><circle cx="110" cy="1530" r="360" fill="#fff" opacity="0.06"/>
+<rect x="72" y="96" width="936" height="1728" rx="78" fill="rgba(0,0,0,0.22)" stroke="rgba(255,255,255,0.19)" stroke-width="4" filter="url(#shadow)"/>
+<text x="540" y="260" text-anchor="middle" fill="#fff" font-size="84" font-family="DejaVu Sans, Arial" font-weight="900">20% TO DEAD</text>
+<text x="540" y="360" text-anchor="middle" fill="#ff8fab" font-size="90" font-family="DejaVu Sans, Arial" font-weight="900">THEN BACK</text>
+<rect x="180" y="520" width="720" height="850" rx="64" fill="rgba(255,255,255,0.09)" stroke="rgba(255,255,255,0.25)" stroke-width="4"/>
+<rect x="270" y="620" width="540" height="125" rx="38" fill="rgba(0,0,0,0.35)" stroke="#ffd166" stroke-width="5"/><text x="360" y="700" text-anchor="middle" fill="#ffd166" font-size="52" font-family="DejaVu Sans, Arial" font-weight="900">20%</text><text x="640" y="698" text-anchor="middle" fill="#fff" font-size="38" font-family="DejaVu Sans, Arial" font-weight="900">OUTSIDE</text>
+<rect x="270" y="830" width="540" height="125" rx="38" fill="rgba(0,0,0,0.35)" stroke="#ff4d6d" stroke-width="5"/><text x="360" y="910" text-anchor="middle" fill="#ff4d6d" font-size="52" font-family="DejaVu Sans, Arial" font-weight="900">DEAD</text><text x="640" y="908" text-anchor="middle" fill="#fff" font-size="38" font-family="DejaVu Sans, Arial" font-weight="900">COLD</text>
+<rect x="270" y="1040" width="540" height="125" rx="38" fill="rgba(0,0,0,0.35)" stroke="#ff8fab" stroke-width="5"/><text x="360" y="1120" text-anchor="middle" fill="#ff8fab" font-size="52" font-family="DejaVu Sans, Arial" font-weight="900">23%</text><text x="640" y="1118" text-anchor="middle" fill="#fff" font-size="38" font-family="DejaVu Sans, Arial" font-weight="900">INDOORS</text>
+<path d="M540 760 V820 M540 970 V1030" stroke="#fff" stroke-width="8" opacity="0.35"/>
+<path d="M190 1495 H890" stroke="rgba(255,255,255,0.28)" stroke-width="6" stroke-linecap="round"/>
+</svg>

@@ -1,0 +1,40 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+ScaledBorderAndShadow: yes
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,DejaVu Sans,76,&H00FFFFFF,&H009BE7FF,&H00111111,&H99000000,-1,0,0,0,100,100,0,0,1,7,5,2,78,78,365,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:00.40,0:00:02.45,Default,,0,0,0,,YOUR PHONE IS
+NOT BROKEN
+Dialogue: 0,0:00:02.54,0:00:05.09,Default,,0,0,0,,COLD WEATHER IS
+LYING TO THE BATTERY
+Dialogue: 0,0:00:05.25,0:00:07.04,Default,,0,0,0,,LITHIUM BATTERIES
+MAKE POWER
+Dialogue: 0,0:00:07.04,0:00:10.34,Default,,0,0,0,,BY MOVING IONS
+THROUGH CHEMICAL PASTE
+Dialogue: 0,0:00:10.34,0:00:12.25,Default,,0,0,0,,WHEN THE PASTE
+GETS COLD
+Dialogue: 0,0:00:12.25,0:00:17.44,Default,,0,0,0,,IONS SLOW DOWN
+LESS USABLE CHARGE
+Dialogue: 0,0:00:17.44,0:00:20.55,Default,,0,0,0,,THAT IS WHY
+20% CAN DIE
+Dialogue: 0,0:00:20.55,0:00:23.35,Default,,0,0,0,,THEN COME BACK
+INDOORS
+Dialogue: 0,0:00:23.35,0:00:25.55,Default,,0,0,0,,KEEP IT IN
+AN INSIDE POCKET
+Dialogue: 0,0:00:25.55,0:00:28.14,Default,,0,0,0,,AVOID CHARGING
+WHILE FREEZING
+Dialogue: 0,0:00:28.14,0:00:30.10,Default,,0,0,0,,WARM IT
+SLOWLY
+Dialogue: 0,0:00:30.10,0:00:32.29,Default,,0,0,0,,THE BATTERY
+DID NOT VANISH
+Dialogue: 0,0:00:32.29,0:00:35.79,Default,,0,0,0,,THE CHEMISTRY
+STOPPED PERFORMING
+Dialogue: 0,0:00:35.85,0:00:38.95,Default,,0,0,0,,SAVE THIS BEFORE
+WINTER KILLS YOUR %

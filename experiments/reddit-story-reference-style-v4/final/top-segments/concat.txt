@@ -1,0 +1,7 @@
+file 'seg-0-opener.mp4'
+file 'seg-1-desk.mp4'
+file 'seg-2-call.mp4'
+file 'seg-3-setup.mp4'
+file 'seg-4-panic.mp4'
+file 'seg-5-aftermath.mp4'
+file 'seg-6-cta.mp4'

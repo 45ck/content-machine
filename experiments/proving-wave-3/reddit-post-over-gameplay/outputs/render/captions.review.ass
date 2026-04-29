@@ -1,0 +1,42 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,72,&H00FFFFFF,&H008A8A8A,&H00000000,&H64000000,1,0,0,0,100,100,0,0,1,4,0,2,96,96,380,1
+
+[Events]
+Format: Layer, Start, End, Style, Text
+Dialogue: 0,0:00:00.00,0:00:02.14,Default,My roommate staged\Nfake work calls for
+Dialogue: 0,0:00:02.14,0:00:04.10,Default,months, so I replaced\Nthe set with
+Dialogue: 0,0:00:04.10,0:00:05.01,Default,the real thing.
+Dialogue: 0,0:00:05.08,0:00:07.02,Default,He kept telling his\Nparents he was
+Dialogue: 0,0:00:07.02,0:00:09.37,Default,crushing his remote\Njob, but every video
+Dialogue: 0,0:00:09.37,0:00:11.37,Default,call happened at the\Nsame fake desk
+Dialogue: 0,0:00:11.37,0:00:13.03,Default,in our living room\Nwith a dead
+Dialogue: 0,0:00:13.03,0:00:14.90,Default,laptop and a blank\Nspreadsheet.
+Dialogue: 0,0:00:14.97,0:00:16.59,Default,The weird part was\Nthat he made
+Dialogue: 0,0:00:16.59,0:00:18.59,Default,me stay quiet in the\Nbackground, like
+Dialogue: 0,0:00:18.59,0:00:19.89,Default,I was an extra in the\Nlie,
+Dialogue: 0,0:00:19.89,0:00:21.96,Default,while his parents\Nbragged about him to
+Dialogue: 0,0:00:21.96,0:00:22.93,Default,the whole family.
+Dialogue: 0,0:00:23.00,0:00:24.76,Default,Then I found out he\Nhad actually
+Dialogue: 0,0:00:24.76,0:00:27.13,Default,been fired months\Nearlier and was...
+Dialogue: 0,0:00:27.13,0:00:29.03,Default,through rent money,\Nso I ordered a
+Dialogue: 0,0:00:29.03,0:00:31.47,Default,cheap real monitor,\Nkeyboard, and lamp...
+Dialogue: 0,0:00:31.47,0:00:33.70,Default,rebuilt the setup\Nbefore the next call.
+Dialogue: 0,0:00:33.78,0:00:35.81,Default,When his parents\Ncalled, he sat down
+Dialogue: 0,0:00:35.81,0:00:38.19,Default,expecting the usual\Nperformance, saw the
+Dialogue: 0,0:00:38.19,0:00:40.30,Default,real setup, and\Ncompletely panicked
+Dialogue: 0,0:00:40.30,0:00:42.13,Default,because now he either\Nhad to tell
+Dialogue: 0,0:00:42.13,0:00:43.90,Default,the truth or explain\Nwhy the lie
+Dialogue: 0,0:00:43.90,0:00:45.73,Default,suddenly looked\Nprofessional.
+Dialogue: 0,0:00:45.80,0:00:47.73,Default,He says I humiliated\Nhim, but I
+Dialogue: 0,0:00:47.73,0:00:49.51,Default,think I forced the\Nlie to end
+Dialogue: 0,0:00:49.51,0:00:52.21,Default,before he wrecked his\Nfinances even more,
+Dialogue: 0,0:00:52.21,0:00:54.06,Default,so tell me if that\Nwas helpful
+Dialogue: 0,0:00:54.06,0:00:55.21,Default,or way out of line.
+Dialogue: 0,0:00:55.29,0:00:57.28,Default,Was I helping, or did\NI cross
+Dialogue: 0,0:00:57.28,0:00:57.97,Default,the line?

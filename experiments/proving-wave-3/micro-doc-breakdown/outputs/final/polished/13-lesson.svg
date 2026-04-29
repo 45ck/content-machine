@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#08131f"/>
+    <stop offset=".48" stop-color="#11100d"/>
+    <stop offset="1" stop-color="#050608"/>
+  </linearGradient>
+  
+  <filter id="grain">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/>
+    <feColorMatrix type="saturate" values="0"/>
+    <feComponentTransfer><feFuncA type="table" tableValues="0 0.08"/></feComponentTransfer>
+  </filter>
+</defs>
+<rect width="1080" height="1920" fill="url(#bg)"/>
+<rect x="0" y="0" width="1080" height="1920" filter="url(#grain)" opacity=".6"/>
+<rect x="42" y="42" width="996" height="1700" rx="32" fill="none" stroke="#64e0a1" stroke-width="3" opacity=".78"/>
+<rect x="76" y="72" width="928" height="68" rx="16" fill="#050608" stroke="#64e0a1" stroke-width="2"/>
+<text x="540" y="118" text-anchor="middle" font-size="28" font-weight="800" fill="#64e0a1" letter-spacing="2">THE LESSON</text>
+<text x="92" y="304" font-size="70" font-weight="900" fill="#fff7df" letter-spacing="-2">BETTER EXPERIENCE</text>
+<text x="92" y="379.6" font-size="70" font-weight="900" fill="#fff7df" letter-spacing="-2">KILLS OLD PROFIT</text>
+
+      <g transform="translate(120 610)">
+        <rect x="0" y="0" width="840" height="140" rx="18" fill="none" stroke="#ff6b7a" stroke-width="4"/>
+        <text x="230" y="88" font-size="42" font-weight="800" fill="#fff7df">OLD PROFIT CENTER</text>
+        <path d="M420 190 L420 330 M370 280 L420 330 L470 280" stroke="#64e0a1" stroke-width="16" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="0" y="380" width="840" height="140" rx="18" fill="none" stroke="#64e0a1" stroke-width="4"/>
+        <text x="226" y="468" font-size="42" font-weight="800" fill="#fff7df">BETTER EXPERIENCE</text>
+      </g>
+<text x="92" y="1215" font-size="34" font-weight="800" fill="#64e0a1" letter-spacing="1">FRAME 14</text>
+<text x="92" y="1266" font-size="30" font-weight="700" fill="#fff7df" opacity=".74">Netflix was not magic. It made the pain unnecessary.</text>
+<text x="92" y="1718" font-size="22" font-weight="800" fill="#fff7df" opacity=".48">MICRO-DOC BREAKDOWN</text>
+<text x="802" y="1718" font-size="22" font-weight="800" fill="#fff7df" opacity=".48">ARCHIVE CUT</text>
+</svg>

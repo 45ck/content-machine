@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#06130d"/><stop offset="1" stop-color="#144f35"/></linearGradient><filter id="shadow"><feDropShadow dx="0" dy="20" stdDeviation="22" flood-color="#000" flood-opacity="0.45"/></filter></defs>
+<rect width="1080" height="1920" fill="url(#bg)"/>
+<circle cx="855" cy="245" r="275" fill="#7cfcc4" opacity="0.13"/><circle cx="110" cy="1530" r="360" fill="#fff" opacity="0.06"/>
+<rect x="72" y="96" width="936" height="1728" rx="78" fill="rgba(0,0,0,0.22)" stroke="rgba(255,255,255,0.19)" stroke-width="4" filter="url(#shadow)"/>
+<text x="540" y="260" text-anchor="middle" fill="#fff" font-size="84" font-family="DejaVu Sans, Arial" font-weight="900">BATTERIES</text>
+<text x="540" y="360" text-anchor="middle" fill="#7cfcc4" font-size="90" font-family="DejaVu Sans, Arial" font-weight="900">MOVE IONS</text>
+<rect x="170" y="650" width="740" height="340" rx="90" fill="rgba(255,255,255,0.08)" stroke="#7cfcc4" stroke-width="8"/>
+<path d="M245 820 C365 700 480 940 610 800 C720 680 780 825 850 735" fill="none" stroke="#fff" stroke-width="12" opacity="0.28"/>
+<circle cx="255" cy="760" r="34" fill="#7cfcc4"/><text x="255" y="773" text-anchor="middle" fill="#062015" font-size="31" font-family="DejaVu Sans" font-weight="900">Li+</text>
+<circle cx="370" cy="865" r="34" fill="#7cfcc4"/><text x="370" y="878" text-anchor="middle" fill="#062015" font-size="31" font-family="DejaVu Sans" font-weight="900">Li+</text>
+<circle cx="485" cy="760" r="34" fill="#7cfcc4"/><text x="485" y="773" text-anchor="middle" fill="#062015" font-size="31" font-family="DejaVu Sans" font-weight="900">Li+</text>
+<circle cx="600" cy="865" r="34" fill="#7cfcc4"/><text x="600" y="878" text-anchor="middle" fill="#062015" font-size="31" font-family="DejaVu Sans" font-weight="900">Li+</text>
+<circle cx="715" cy="760" r="34" fill="#7cfcc4"/><text x="715" y="773" text-anchor="middle" fill="#062015" font-size="31" font-family="DejaVu Sans" font-weight="900">Li+</text>
+<circle cx="830" cy="865" r="34" fill="#7cfcc4"/><text x="830" y="878" text-anchor="middle" fill="#062015" font-size="31" font-family="DejaVu Sans" font-weight="900">Li+</text>
+<text x="540" y="1115" text-anchor="middle" fill="#fff" font-size="45" font-family="DejaVu Sans, Arial" font-weight="900">CHEMICAL PASTE</text>
+<path d="M190 1495 H890" stroke="rgba(255,255,255,0.28)" stroke-width="6" stroke-linecap="round"/>
+</svg>

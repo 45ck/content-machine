@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#08131f"/>
+    <stop offset=".48" stop-color="#11100d"/>
+    <stop offset="1" stop-color="#050608"/>
+  </linearGradient>
+  
+  <filter id="grain">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/>
+    <feColorMatrix type="saturate" values="0"/>
+    <feComponentTransfer><feFuncA type="table" tableValues="0 0.08"/></feComponentTransfer>
+  </filter>
+</defs>
+<rect width="1080" height="1920" fill="url(#bg)"/>
+<rect x="0" y="0" width="1080" height="1920" filter="url(#grain)" opacity=".6"/>
+<rect x="42" y="42" width="996" height="1700" rx="32" fill="none" stroke="#f6d45c" stroke-width="3" opacity=".78"/>
+<rect x="76" y="72" width="928" height="68" rx="16" fill="#050608" stroke="#f6d45c" stroke-width="2"/>
+<text x="540" y="118" text-anchor="middle" font-size="28" font-weight="800" fill="#f6d45c" letter-spacing="2">2010</text>
+<text x="92" y="304" font-size="70" font-weight="900" fill="#fff7df" letter-spacing="-2">THE RENTAL EMPIRE</text>
+<text x="92" y="379.6" font-size="70" font-weight="900" fill="#fff7df" letter-spacing="-2">FILED BANKRUPTCY</text>
+
+      <g transform="translate(172 520)">
+        <rect width="736" height="720" rx="18" fill="#f8efd7"/>
+        <text x="238" y="88" font-size="38" font-weight="800" fill="#18120c">BUSINESS DAILY</text>
+        <line x1="92" x2="644" y1="120" y2="120" stroke="#18120c" stroke-width="5"/>
+        <text x="96" y="230" font-family="DejaVu Serif" font-size="56" font-weight="800" fill="#18120c">RENTAL GIANT</text>
+        <text x="96" y="304" font-family="DejaVu Serif" font-size="56" font-weight="800" fill="#18120c">FILES CHAPTER 11</text>
+        <rect x="92" y="394" width="552" height="108" fill="#18120c"/>
+        <text x="294" y="466" font-size="50" font-weight="800" fill="#f6d45c">2010</text>
+      </g>
+<text x="92" y="1215" font-size="34" font-weight="800" fill="#f6d45c" letter-spacing="1">FRAME 12</text>
+<text x="92" y="1266" font-size="30" font-weight="700" fill="#fff7df" opacity=".74">By 2010, the old model had run out of runway.</text>
+<text x="92" y="1718" font-size="22" font-weight="800" fill="#fff7df" opacity=".48">MICRO-DOC BREAKDOWN</text>
+<text x="802" y="1718" font-size="22" font-weight="800" fill="#fff7df" opacity=".48">ARCHIVE CUT</text>
+</svg>

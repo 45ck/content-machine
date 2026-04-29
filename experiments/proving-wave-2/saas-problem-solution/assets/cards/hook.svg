@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="26" stdDeviation="26" flood-color="#020617" flood-opacity="0.42"/>
+    </filter>
+    <linearGradient id="chip" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="0%" stop-color="#FB7185"/>
+      <stop offset="100%" stop-color="#F97316"/>
+    </linearGradient>
+  </defs>
+  <rect x="72" y="92" width="300" height="66" rx="33" fill="url(#chip)" />
+  <text x="108" y="134" fill="#fff7ed" font-size="32" font-family="DejaVu Sans" font-weight="700">ADMIN COST</text>
+  <text x="72" y="250" fill="#F8FAFC" font-size="78" font-family="DejaVu Sans" font-weight="800">15 minutes after</text>
+  <text x="72" y="338" fill="#F8FAFC" font-size="78" font-family="DejaVu Sans" font-weight="800">every sales call?</text>
+  <text x="72" y="410" fill="#CBD5E1" font-size="34" font-family="DejaVu Sans">That is follow-up time vanishing into CRM cleanup.</text>
+  <g filter="url(#shadow)">
+    <rect x="72" y="520" width="936" height="700" rx="48" fill="#0F172A" fill-opacity="0.9"/>
+    <rect x="126" y="594" width="828" height="132" rx="32" fill="#111827"/>
+    <text x="166" y="654" fill="#F8FAFC" font-size="36" font-family="DejaVu Sans" font-weight="700">Post-call checklist</text>
+    <text x="166" y="697" fill="#94A3B8" font-size="30" font-family="DejaVu Sans">Review notes, update CRM, write recap, schedule follow-up</text>
+    <rect x="126" y="778" width="390" height="182" rx="32" fill="#111827"/>
+    <rect x="548" y="778" width="406" height="182" rx="32" fill="#111827"/>
+    <text x="166" y="840" fill="#FB7185" font-size="28" font-family="DejaVu Sans" font-weight="700">TIME LOST</text>
+    <text x="166" y="928" fill="#F8FAFC" font-size="86" font-family="DejaVu Sans" font-weight="800">15:00</text>
+    <text x="588" y="840" fill="#F59E0B" font-size="28" font-family="DejaVu Sans" font-weight="700">NEXT STEP STATUS</text>
+    <text x="588" y="928" fill="#F8FAFC" font-size="62" font-family="DejaVu Sans" font-weight="800">Still pending</text>
+    <rect x="126" y="1016" width="828" height="136" rx="30" fill="#172033"/>
+    <circle cx="182" cy="1084" r="16" fill="#FB7185"/>
+    <text x="222" y="1096" fill="#E2E8F0" font-size="34" font-family="DejaVu Sans">Manual cleanup starts after the most important part is over.</text>
+  </g>
+</svg>
+

@@ -1,0 +1,4 @@
+
+changed 1 package, and audited 4 packages in 1s
+
+found 0 vulnerabilities

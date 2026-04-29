@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#111016"/><stop offset="1" stop-color="#3c2f00"/></linearGradient><filter id="shadow"><feDropShadow dx="0" dy="20" stdDeviation="20" flood-color="#000" flood-opacity="0.45"/></filter></defs>
+  <rect width="1080" height="1920" fill="url(#bg)"/>
+  <path d="M-80 410 C250 220 430 650 760 450 C930 345 1050 240 1190 270" stroke="#ffbe0b" stroke-width="38" opacity="0.20" fill="none"/>
+  <path d="M-120 1550 C260 1360 450 1760 780 1540 C940 1435 1040 1370 1200 1400" stroke="#fff" stroke-width="28" opacity="0.10" fill="none"/>
+  <rect x="76" y="122" width="928" height="1676" rx="78" fill="rgba(0,0,0,0.32)" stroke="rgba(255,255,255,0.24)" stroke-width="5" filter="url(#shadow)"/>
+  <rect x="145" y="205" width="790" height="92" rx="46" fill="#ffbe0b" opacity="0.95"/>
+  <text x="540" y="266" text-anchor="middle" fill="#071013" font-size="38" font-family="DejaVu Sans, Arial" font-weight="900" letter-spacing="8">STEP 1</text>
+  <text x="540" y="575" text-anchor="middle" fill="#fff" font-size="92" font-family="DejaVu Sans, Arial" font-weight="900" letter-spacing="2">EXPLAIN IT</text>
+  <text x="540" y="700" text-anchor="middle" fill="#fff" font-size="104" font-family="DejaVu Sans, Arial" font-weight="900" letter-spacing="2">LIKE A KID</text>
+  <rect x="138" y="875" width="804" height="255" rx="52" fill="rgba(255,255,255,0.94)"/>
+  <text x="540" y="965" text-anchor="middle" fill="#111" font-size="38" font-family="DejaVu Sans, Arial" font-weight="800">If it needs jargon, it is not</text>
+  <text x="540" y="1021" text-anchor="middle" fill="#111" font-size="38" font-family="DejaVu Sans, Arial" font-weight="800">clear yet</text>
+  <path d="M220 1255 H860" stroke="#ffbe0b" stroke-width="14" stroke-linecap="round" opacity="0.75"/>
+  <circle cx="270" cy="1255" r="28" fill="#ffbe0b" opacity="0.35"/>
+  <circle cx="450" cy="1255" r="28" fill="#ffbe0b" opacity="0.47"/>
+  <circle cx="630" cy="1255" r="28" fill="#ffbe0b" opacity="0.59"/>
+  <circle cx="810" cy="1255" r="16" fill="#ffbe0b" opacity="0.71"/>
+  <rect x="105" y="1425" width="180" height="76" rx="38" fill="rgba(255,255,255,0.12)" stroke="#ffbe0b" stroke-width="4"/><text x="195" y="1474" text-anchor="middle" fill="#fff" font-size="27" font-family="DejaVu Sans, Arial" font-weight="900">PROMPT</text>
+  <rect x="325" y="1425" width="180" height="76" rx="38" fill="rgba(255,255,255,0.12)" stroke="#ffbe0b" stroke-width="4"/><text x="415" y="1474" text-anchor="middle" fill="#fff" font-size="27" font-family="DejaVu Sans, Arial" font-weight="900">TEACH</text>
+  <rect x="545" y="1425" width="180" height="76" rx="38" fill="rgba(255,255,255,0.12)" stroke="#ffbe0b" stroke-width="4"/><text x="635" y="1474" text-anchor="middle" fill="#fff" font-size="27" font-family="DejaVu Sans, Arial" font-weight="900">SIMPLE</text>
+</svg>

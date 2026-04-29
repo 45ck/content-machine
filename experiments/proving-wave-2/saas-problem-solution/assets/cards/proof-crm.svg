@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="24" stdDeviation="24" flood-color="#020617" flood-opacity="0.42"/>
+    </filter>
+  </defs>
+  <rect x="72" y="90" width="324" height="64" rx="32" fill="#2563EB" />
+  <text x="110" y="131" fill="#DBEAFE" font-size="32" font-family="DejaVu Sans" font-weight="700">PROOF: CRM DRAFT</text>
+  <text x="72" y="246" fill="#F8FAFC" font-size="74" font-family="DejaVu Sans" font-weight="800">The fields fill themselves</text>
+  <text x="72" y="316" fill="#CBD5E1" font-size="34" font-family="DejaVu Sans">Owner, next step, and due date are already waiting for review.</text>
+  <g filter="url(#shadow)">
+    <rect x="72" y="456" width="936" height="900" rx="56" fill="#0F172A" fill-opacity="0.9"/>
+    <rect x="120" y="540" width="840" height="736" rx="40" fill="#F8FAFC"/>
+    <text x="162" y="620" fill="#0F172A" font-size="36" font-family="DejaVu Sans" font-weight="700">Opportunity note draft</text>
+    <rect x="162" y="676" width="756" height="96" rx="24" fill="#F1F5F9" stroke="#CBD5E1"/>
+    <rect x="162" y="806" width="756" height="96" rx="24" fill="#F1F5F9" stroke="#CBD5E1"/>
+    <rect x="162" y="936" width="756" height="96" rx="24" fill="#F1F5F9" stroke="#CBD5E1"/>
+    <rect x="162" y="1066" width="756" height="132" rx="24" fill="#DBEAFE"/>
+    <text x="192" y="736" fill="#334155" font-size="30" font-family="DejaVu Sans">Owner: AE - Jordan Lee</text>
+    <text x="192" y="866" fill="#334155" font-size="30" font-family="DejaVu Sans">Next step: send security packet + pricing recap</text>
+    <text x="192" y="996" fill="#334155" font-size="30" font-family="DejaVu Sans">Due date: Friday 4:00 PM</text>
+    <text x="192" y="1134" fill="#1D4ED8" font-size="30" font-family="DejaVu Sans" font-weight="700">Summary:</text>
+    <text x="192" y="1184" fill="#0F172A" font-size="28" font-family="DejaVu Sans">Champion asked for pricing recap before security review.</text>
+    <circle cx="870" cy="724" r="18" fill="#22C55E"/>
+    <circle cx="870" cy="854" r="18" fill="#22C55E"/>
+    <circle cx="870" cy="984" r="18" fill="#22C55E"/>
+  </g>
+</svg>
+

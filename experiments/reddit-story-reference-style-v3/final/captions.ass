@@ -1,0 +1,54 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,54,&H00FFFFFF,&H00888888,&H00000000,&H00000000,1,0,0,0,100,100,0,0,1,4,0,8,72,72,828,1
+
+[Events]
+Format: Layer, Start, End, Style, Text
+Dialogue: 0,0:00:00.00,0:00:01.40,Default,{\k14}My {\k56}roommate {\k42}staged {\k28}fake
+Dialogue: 0,0:00:01.68,0:00:02.87,Default,{\k35}calls {\k21}for {\k49}months, {\k14}so
+Dialogue: 0,0:00:02.94,0:00:04.20,Default,{\k56}replaced {\k21}the {\k21}set {\k28}with
+Dialogue: 0,0:00:04.41,0:00:05.11,Default,{\k28}real {\k42}thing.
+Dialogue: 0,0:00:05.18,0:00:06.29,Default,{\k14}He {\k28}kept {\k48}telling {\k21}his
+Dialogue: 0,0:00:06.77,0:00:07.88,Default,{\k14}he {\k21}was {\k55}crushing {\k21}his
+Dialogue: 0,0:00:08.29,0:00:09.47,Default,{\k28}job, {\k21}but {\k35}every {\k35}video
+Dialogue: 0,0:00:09.75,0:00:10.92,Default,{\k55}happened {\k14}at {\k21}the {\k28}same
+Dialogue: 0,0:00:11.20,0:00:12.23,Default,{\k28}desk {\k14}in {\k21}our {\k42}living
+Dialogue: 0,0:00:12.51,0:00:13.55,Default,{\k28}with {\k7}a {\k28}dead {\k42}laptop
+Dialogue: 0,0:00:13.76,0:00:15.00,Default,{\k7}a {\k35}blank {\k83}spreadsheet.
+Dialogue: 0,0:00:15.07,0:00:16.04,Default,{\k19}The {\k32}weird {\k26}part {\k19}was
+Dialogue: 0,0:00:16.30,0:00:16.43,Default,{\k13}he
+Dialogue: 0,0:00:16.69,0:00:17.08,Default,{\k13}me {\k26}stay
+Dialogue: 0,0:00:17.40,0:00:18.69,Default,{\k13}in {\k19}the {\k71}background, {\k26}like
+Dialogue: 0,0:00:18.76,0:00:19.08,Default,{\k19}was {\k13}an
+Dialogue: 0,0:00:19.41,0:00:19.54,Default,{\k13}in
+Dialogue: 0,0:00:19.73,0:00:20.96,Default,{\k26}lie, {\k32}while {\k20}his {\k45}parents
+Dialogue: 0,0:00:21.41,0:00:21.93,Default,{\k32}about {\k20}him
+Dialogue: 0,0:00:22.06,0:00:23.03,Default,{\k19}the {\k32}whole {\k45}family.
+Dialogue: 0,0:00:23.10,0:00:23.98,Default,{\k27}Then {\k7}I {\k34}found {\k20}out
+Dialogue: 0,0:00:24.12,0:00:25.47,Default,{\k20}had {\k54}actually {\k27}been {\k34}fired
+Dialogue: 0,0:00:25.88,0:00:27.23,Default,{\k47}earlier {\k20}and {\k20}was {\k47}burning
+Dialogue: 0,0:00:27.71,0:00:28.59,Default,{\k27}rent {\k41}money, {\k14}so {\k7}I
+Dialogue: 0,0:00:29.06,0:00:30.28,Default,{\k7}a {\k34}cheap {\k27}real {\k54}monitor,
+Dialogue: 0,0:00:30.89,0:00:32.04,Default,{\k20}and {\k27}lamp {\k20}and {\k47}rebuilt
+Dialogue: 0,0:00:32.25,0:00:33.80,Default,{\k34}setup {\k41}before {\k20}the {\k27}next {\k34}call.
+Dialogue: 0,0:00:33.88,0:00:35.30,Default,{\k27}When {\k20}his {\k48}parents {\k48}called,
+Dialogue: 0,0:00:35.44,0:00:36.73,Default,{\k20}sat {\k27}down {\k61}expecting {\k20}the
+Dialogue: 0,0:00:37.07,0:00:38.56,Default,{\k81}performance, {\k20}saw {\k20}the {\k27}real
+Dialogue: 0,0:00:38.97,0:00:40.87,Default,{\k20}and {\k68}completely {\k54}panicked {\k48}because
+Dialogue: 0,0:00:41.08,0:00:41.96,Default,{\k14}he {\k41}either {\k20}had {\k14}to
+Dialogue: 0,0:00:42.23,0:00:43.39,Default,{\k20}the {\k34}truth {\k14}or {\k48}explain
+Dialogue: 0,0:00:43.59,0:00:45.83,Default,{\k20}the {\k20}lie {\k54}suddenly {\k41}looked {\k88}professional.
+Dialogue: 0,0:00:45.90,0:00:47.22,Default,{\k16}He {\k31}says {\k8}I {\k77}humiliated
+Dialogue: 0,0:00:47.52,0:00:48.30,Default,{\k23}but {\k8}I {\k39}think {\k8}I
+Dialogue: 0,0:00:48.76,0:00:49.61,Default,{\k23}the {\k23}lie {\k16}to {\k23}end
+Dialogue: 0,0:00:50.07,0:00:51.61,Default,{\k15}he {\k54}wrecked {\k23}his {\k62}finances
+Dialogue: 0,0:00:51.92,0:00:52.92,Default,{\k39}more, {\k16}so {\k31}tell {\k15}me
+Dialogue: 0,0:00:53.08,0:00:54.31,Default,{\k31}that {\k23}was {\k54}helpful {\k15}or
+Dialogue: 0,0:00:54.54,0:00:55.31,Default,{\k23}out {\k16}of {\k39}line.
+Dialogue: 0,0:00:55.39,0:00:56.60,Default,{\k26}Was {\k9}I {\k69}helping, {\k17}or
+Dialogue: 0,0:00:56.86,0:00:58.07,Default,{\k9}I {\k43}cross {\k26}the {\k43}line?

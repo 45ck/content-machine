@@ -1,0 +1,27 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,72,&H00FFFFFF,&H008A8A8A,&H00000000,&H64000000,1,0,0,0,100,100,0,0,1,4,0,2,80,80,220,1
+
+[Events]
+Format: Layer, Start, End, Style, Text
+Dialogue: 0,0:00:00.00,0:00:02.13,Default,A single notification\Ncan hijack your focus
+Dialogue: 0,0:00:02.13,0:00:04.24,Default,for twenty minutes Your\Nbrain reads every
+Dialogue: 0,0:00:04.24,0:00:06.32,Default,buzz as a tiny maybe\NMaybe it
+Dialogue: 0,0:00:06.32,0:00:08.58,Default,is urgent Maybe it is\Nsocial Maybe
+Dialogue: 0,0:00:08.58,0:00:10.58,Default,it matters That\Nuncertainty is exactly
+Dialogue: 0,0:00:10.58,0:00:12.84,Default,what makes it sticky You\Ndo not
+Dialogue: 0,0:00:12.84,0:00:15.06,Default,just lose the second you\Ntap You
+Dialogue: 0,0:00:15.06,0:00:18.12,Default,lose the restart after\Nit Researchers call
+Dialogue: 0,0:00:18.12,0:00:20.92,Default,that attention residue\NPart of your mind
+Dialogue: 0,0:00:20.92,0:00:23.39,Default,keeps the last tab open\NApps exploit
+Dialogue: 0,0:00:23.39,0:00:26.25,Default,it with badges streaks\Nand autoplay So
+Dialogue: 0,0:00:26.25,0:00:28.94,Default,the best fix is friction\Nnot motivation
+Dialogue: 0,0:00:28.94,0:00:31.14,Default,Move the tempting apps\Nmute the cold
+Dialogue: 0,0:00:31.14,0:00:33.20,Default,alerts and batch your\Nchecks If your
+Dialogue: 0,0:00:33.20,0:00:34.91,Default,phone picks the timing\Nyour brain never
+Dialogue: 0,0:00:34.91,0:00:36.61,Default,gets a clean run at one\Ntask

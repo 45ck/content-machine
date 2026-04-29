@@ -1,0 +1,55 @@
+1
+00:00:00,000 --> 00:00:01,743
+If your reps are still typing CRM
+
+2
+00:00:02,050 --> 00:00:03,893
+notes after every call, you are losing
+
+3
+00:00:04,200 --> 00:00:05,121
+follow-up speed for no
+
+4
+00:00:05,429 --> 00:00:07,559
+reason. They leave the meeting with ten
+
+5
+00:00:07,924 --> 00:00:08,654
+scattered bullets, missed
+
+6
+00:00:09,018 --> 00:00:11,207
+next steps, and Salesforce still half empty.
+
+7
+00:00:11,571 --> 00:00:12,479
+CallScribe records the
+
+8
+00:00:12,933 --> 00:00:15,656
+conversation, pulls action items, and drafts the
+
+9
+00:00:16,110 --> 00:00:19,288
+CRM update while the call is still
+
+10
+00:00:19,288 --> 00:00:21,891
+fresh. You get the summary, objections, owner,
+
+11
+00:00:22,321 --> 00:00:24,901
+and next meeting prefilled for review
+
+12
+00:00:24,901 --> 00:00:27,911
+instead of twenty minutes of manual cleanup.
+
+13
+00:00:27,911 --> 00:00:30,066
+Try CallScribe and get your notes done
+
+14
+00:00:30,425 --> 00:00:32,580
+before the rep leaves the meeting.

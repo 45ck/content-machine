@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="864" viewBox="0 0 1080 864">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="20" stdDeviation="26" flood-color="#8A99AB" flood-opacity="0.18"/>
+    </filter>
+    <clipPath id="body-clip">
+      <rect x="184" y="448" width="800" height="208" rx="0" />
+    </clipPath>
+  </defs>
+  <rect width="1080" height="864" fill="#EEF2F5"/>
+  <rect x="36" y="36" width="1008" height="792" rx="30" fill="#FFFFFF" opacity="0.42"/>
+  <g filter="url(#shadow)">
+    <rect x="42" y="52" width="996" height="772" rx="30" fill="#FFFFFF" stroke="#DFE5EB" stroke-width="1.5"/>
+  </g>
+  <rect x="42" y="52" width="996" height="54" rx="30" fill="#F8FAFC" />
+  <rect x="42" y="86" width="996" height="20" fill="#F8FAFC" />
+  <rect x="64" y="124" width="952" height="678" rx="26" fill="#FFFFFF" stroke="#E6EBF1" stroke-width="1.25"/>
+  <rect x="78" y="142" width="88" height="642" rx="24" fill="#F5F7FA" /><polygon points="122,174 102,206 142,206" fill="#FF4500" /><text x="122" y="246" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="800" fill="#1F2933">18.4k</text><polygon points="122,300 102,268 142,268" fill="#8792A2" />
+  <circle cx="202" cy="196" r="18" fill="#FF4500"/>
+  <text x="202" y="203" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="900" fill="#FFFFFF">r</text>
+  <text x="232" y="196" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="800" fill="#1F2933">r/AmItheAsshole</text>
+  <text x="232" y="226" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="600" fill="#6B7280">Posted by u/throwra_wireframe • 7 hr. ago</text>
+  <rect x="817" y="154" width="171" height="46" rx="23" fill="#FF4500" /><text x="839" y="185" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="800" fill="#FFFFFF">ORIGINAL POST</text>
+  <text x="184" y="288" font-family="Arial, Helvetica, sans-serif" font-size="44" font-weight="800" fill="#1F2933"><tspan x="184" dy="0">AITA for replacing my roommate&apos;s</tspan><tspan x="184" dy="54">fake work-from-home setup?</tspan></text>
+  <rect x="184" y="420" width="104" height="36" rx="18" fill="#F5F7FA" stroke="#E2E7EE" stroke-width="1.25" /><circle cx="202" cy="438" r="12" fill="#FFD54A" /><text x="202" y="443" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="900" fill="#4A3500">★</text><text x="220" y="444" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" fill="#66717D">Gold</text><rect x="332" y="420" width="118" height="36" rx="18" fill="#F5F7FA" stroke="#E2E7EE" stroke-width="1.25" /><circle cx="350" cy="438" r="12" fill="#FFB86C" /><text x="350" y="443" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="900" fill="#5A2C00">♥</text><text x="368" y="444" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" fill="#66717D">Wholesome</text><rect x="480" y="420" width="104" height="36" rx="18" fill="#F5F7FA" stroke="#E2E7EE" stroke-width="1.25" /><circle cx="498" cy="438" r="12" fill="#82D4FF" /><text x="498" y="443" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="900" fill="#0A3753">✚</text><text x="516" y="444" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" fill="#66717D">Helpful</text>
+  <g clip-path="url(#body-clip)">
+    <text x="184" y="478" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="600" fill="#6B7280"><tspan x="184" dy="0">My roommate staged fake work calls for</tspan><tspan x="184" dy="42">months, so I replaced the set with the real</tspan><tspan x="184" dy="42">thing.</tspan></text>
+  </g>
+  <line x1="184" y1="722" x2="984" y2="722" stroke="#E6EBF1" stroke-width="1.5" /><rect x="184" y="744" width="28" height="22" rx="6" fill="none" stroke="#66717D" stroke-width="3" /><path d="M 204 766 l -10 10 l 2 -10" fill="none" stroke="#66717D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" /><text x="300" y="760" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="#66717D">2.1k comments</text><path d="M 774 758 q 18 -24 42 -24" fill="none" stroke="#66717D" stroke-width="4" stroke-linecap="round" /><path d="M 816 734 l 18 18 l -20 10" fill="none" stroke="#66717D" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" /><text x="850" y="760" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="#66717D">Share</text><circle cx="898" cy="750" r="5" fill="#66717D" /><circle cx="918" cy="750" r="5" fill="#66717D" /><circle cx="938" cy="750" r="5" fill="#66717D" />
+</svg>

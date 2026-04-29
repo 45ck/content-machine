@@ -1,0 +1,30 @@
+{
+  "total_duration": 22.0,
+  "format": "vertical",
+  "resolution": "1080x1920",
+  "theme": "empowerment",
+  "target_demographic": "girlboss",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 7.0,
+      "text": "Your journey isn't about being perfect",
+      "audio_file": null,
+      "emphasis": "medium"
+    },
+    {
+      "start": 7.0,
+      "end": 15.0,
+      "text": "It's about being brave enough to start",
+      "audio_file": null,
+      "emphasis": "high"
+    },
+    {
+      "start": 15.0,
+      "end": 22.0,
+      "text": "Even when you're scared",
+      "audio_file": null,
+      "emphasis": "high"
+    }
+  ]
+}

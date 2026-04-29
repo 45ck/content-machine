@@ -1,0 +1,32 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,64,&H00FFFFFF,&H0000D7FF,&H00000000,&H90000000,1,0,0,0,100,100,0,0,1,4,0,2,110,110,384,1
+
+[Events]
+Format: Layer, Start, End, Style, Text
+Dialogue: 0,0:00:00.23,0:00:02.10,Default,Block buster did not die\Nbecause people
+Dialogue: 0,0:00:02.10,0:00:03.38,Default,stopped loving movies
+Dialogue: 0,0:00:03.78,0:00:05.61,Default,It died because the\Nbusiness model was
+Dialogue: 0,0:00:05.70,0:00:07.56,Default,built around a world\Nwhere inconven ience
+Dialogue: 0,0:00:07.56,0:00:08.49,Default,was profitable
+Dialogue: 0,0:00:09.12,0:00:10.82,Default,Late fees were not just\Nannoying
+Dialogue: 0,0:00:11.38,0:00:12.54,Default,They were part of the\Nmachine
+Dialogue: 0,0:00:13.19,0:00:15.09,Default,Netflix attacked the\Npain point first
+Dialogue: 0,0:00:15.48,0:00:17.52,Default,No due dates no store\Ntrip and
+Dialogue: 0,0:00:17.52,0:00:18.74,Default,no late fee surprise
+Dialogue: 0,0:00:19.90,0:00:21.19,Default,Then Block buster had\Ndebt
+Dialogue: 0,0:00:21.63,0:00:23.70,Default,thousands of stores and\Na digital shift
+Dialogue: 0,0:00:23.70,0:00:24.70,Default,it could not out run
+Dialogue: 0,0:00:25.06,0:00:27.89,Default,By 2010 the old rental\Nempire filed
+Dialogue: 0,0:00:27.90,0:00:28.77,Default,for bankruptcy
+Dialogue: 0,0:00:29.32,0:00:31.18,Default,The lesson is not that\NNetflix was
+Dialogue: 0,0:00:31.18,0:00:31.47,Default,magic
+Dialogue: 0,0:00:31.95,0:00:34.00,Default,It is that a better\Ncustomer experience
+Dialogue: 0,0:00:34.00,0:00:36.22,Default,can make the old profit\Ncenter disappear
+Dialogue: 0,0:00:36.83,0:00:38.42,Default,Save this for the next\Ntime someone
+Dialogue: 0,0:00:38.42,0:00:40.11,Default,says Netflix killed it\Novernight

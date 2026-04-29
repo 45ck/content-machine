@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1b1b12"/><stop offset="1" stop-color="#9d6b53"/></linearGradient><filter id="shadow"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000" flood-opacity="0.45"/></filter></defs>
+  <rect width="1080" height="1920" fill="url(#bg)"/>
+  <circle cx="80" cy="240" r="8" fill="#caffbf" opacity="0.2"/>
+<circle cx="260" cy="240" r="13" fill="#caffbf" opacity="0.3"/>
+<circle cx="440" cy="240" r="18" fill="#caffbf" opacity="0.4"/>
+<circle cx="620" cy="240" r="8" fill="#caffbf" opacity="0.5"/>
+<circle cx="800" cy="240" r="13" fill="#caffbf" opacity="0.6"/>
+<circle cx="980" cy="240" r="18" fill="#caffbf" opacity="0.2"/>
+<circle cx="80" cy="630" r="8" fill="#caffbf" opacity="0.3"/>
+<circle cx="260" cy="630" r="13" fill="#caffbf" opacity="0.4"/>
+<circle cx="440" cy="630" r="18" fill="#caffbf" opacity="0.5"/>
+<circle cx="620" cy="630" r="8" fill="#caffbf" opacity="0.6"/>
+<circle cx="800" cy="630" r="13" fill="#caffbf" opacity="0.2"/>
+<circle cx="980" cy="630" r="18" fill="#caffbf" opacity="0.3"/>
+<circle cx="80" cy="1020" r="8" fill="#caffbf" opacity="0.4"/>
+<circle cx="260" cy="1020" r="13" fill="#caffbf" opacity="0.5"/>
+<circle cx="440" cy="1020" r="18" fill="#caffbf" opacity="0.6"/>
+<circle cx="620" cy="1020" r="8" fill="#caffbf" opacity="0.2"/>
+<circle cx="800" cy="1020" r="13" fill="#caffbf" opacity="0.3"/>
+<circle cx="980" cy="1020" r="18" fill="#caffbf" opacity="0.4"/>
+  <circle cx="885" cy="235" r="245" fill="#caffbf" opacity="0.18"/>
+  <circle cx="140" cy="1670" r="360" fill="#fff" opacity="0.08"/>
+  <rect x="70" y="120" width="940" height="1680" rx="72" fill="rgba(0,0,0,0.28)" stroke="rgba(255,255,255,0.28)" stroke-width="5" filter="url(#shadow)"/>
+  <text x="540" y="300" text-anchor="middle" fill="#caffbf" font-size="96" font-family="DejaVu Sans, Arial" font-weight="900" letter-spacing="8">1</text>
+  <text x="540" y="640" text-anchor="middle" fill="#ffffff" font-size="112" font-family="DejaVu Sans, Arial" font-weight="900" letter-spacing="4">WOMBATS</text>
+  <text x="540" y="785" text-anchor="middle" fill="#ffffff" font-size="104" font-family="DejaVu Sans, Arial" font-weight="900" letter-spacing="2">MAKE CUBES</text>
+  <rect x="145" y="905" width="790" height="250" rx="46" fill="rgba(255,255,255,0.92)"/>
+  <text x="540" y="980" text-anchor="middle" fill="#121212" font-size="38" font-family="DejaVu Sans, Arial" font-weight="800">cube shaped poop does not roll</text>
+  <text x="540" y="1038" text-anchor="middle" fill="#121212" font-size="38" font-family="DejaVu Sans, Arial" font-weight="800">away</text>
+  <path d="M170 1260 H910" stroke="#caffbf" stroke-width="10" stroke-linecap="round" opacity="0.9"/>
+  <rect x="85" y="1470" width="165" height="64" rx="32" fill="rgba(255,255,255,0.13)" stroke="#caffbf" stroke-width="3"/><text x="167" y="1512" font-size="23" text-anchor="middle" fill="#fff" font-family="DejaVu Sans, Arial" font-weight="700">CUBES</text>
+<rect x="270" y="1470" width="165" height="64" rx="32" fill="rgba(255,255,255,0.13)" stroke="#caffbf" stroke-width="3"/><text x="352" y="1512" font-size="23" text-anchor="middle" fill="#fff" font-family="DejaVu Sans, Arial" font-weight="700">NATURE</text>
+<rect x="455" y="1470" width="165" height="64" rx="32" fill="rgba(255,255,255,0.13)" stroke="#caffbf" stroke-width="3"/><text x="537" y="1512" font-size="23" text-anchor="middle" fill="#fff" font-family="DejaVu Sans, Arial" font-weight="700">UNREAL</text>
+</svg>

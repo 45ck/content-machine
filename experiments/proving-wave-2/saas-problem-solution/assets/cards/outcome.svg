@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="24" stdDeviation="24" flood-color="#020617" flood-opacity="0.42"/>
+    </filter>
+  </defs>
+  <rect x="72" y="90" width="280" height="64" rx="32" fill="#0891B2" />
+  <text x="110" y="131" fill="#CFFAFE" font-size="32" font-family="DejaVu Sans" font-weight="700">OUTCOME</text>
+  <text x="72" y="246" fill="#F8FAFC" font-size="74" font-family="DejaVu Sans" font-weight="800">Faster follow-up.</text>
+  <text x="72" y="332" fill="#F8FAFC" font-size="74" font-family="DejaVu Sans" font-weight="800">Cleaner pipeline.</text>
+  <text x="72" y="402" fill="#CBD5E1" font-size="34" font-family="DejaVu Sans">Less guesswork after the call means more deals moving forward.</text>
+  <g filter="url(#shadow)">
+    <rect x="72" y="520" width="936" height="780" rx="56" fill="#0F172A" fill-opacity="0.9"/>
+    <rect x="120" y="612" width="248" height="230" rx="32" fill="#111827"/>
+    <rect x="416" y="612" width="248" height="230" rx="32" fill="#111827"/>
+    <rect x="712" y="612" width="248" height="230" rx="32" fill="#111827"/>
+    <text x="154" y="682" fill="#5EEAD4" font-size="28" font-family="DejaVu Sans" font-weight="700">FOLLOW-UP SPEED</text>
+    <text x="154" y="782" fill="#F8FAFC" font-size="74" font-family="DejaVu Sans" font-weight="800">Up</text>
+    <text x="450" y="682" fill="#86EFAC" font-size="28" font-family="DejaVu Sans" font-weight="700">PIPELINE HYGIENE</text>
+    <text x="450" y="782" fill="#F8FAFC" font-size="74" font-family="DejaVu Sans" font-weight="800">Clean</text>
+    <text x="746" y="682" fill="#93C5FD" font-size="28" font-family="DejaVu Sans" font-weight="700">DEAL RISK</text>
+    <text x="746" y="782" fill="#F8FAFC" font-size="74" font-family="DejaVu Sans" font-weight="800">Down</text>
+    <rect x="120" y="914" width="840" height="254" rx="32" fill="#111827"/>
+    <text x="164" y="992" fill="#F8FAFC" font-size="38" font-family="DejaVu Sans" font-weight="700">The win is not just automation</text>
+    <text x="164" y="1054" fill="#CBD5E1" font-size="30" font-family="DejaVu Sans">It is a faster, cleaner post-call system that keeps</text>
+    <text x="164" y="1100" fill="#CBD5E1" font-size="30" font-family="DejaVu Sans">momentum alive while the conversation is still fresh.</text>
+  </g>
+</svg>
+

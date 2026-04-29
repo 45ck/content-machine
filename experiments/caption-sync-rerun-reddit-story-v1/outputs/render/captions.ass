@@ -1,0 +1,54 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,72,&H00FFFFFF,&H00000000,&H64000000,1,0,0,0,100,100,0,0,1,4,0,2,80,80,220,1
+
+[Events]
+Format: Layer, Start, End, Style, Text
+Dialogue: 0,0:00:00.00,0:00:01.40,Default,My roommate staged fake work
+Dialogue: 0,0:00:01.68,0:00:02.87,Default,calls for months, so I
+Dialogue: 0,0:00:02.94,0:00:04.20,Default,replaced the set with the
+Dialogue: 0,0:00:04.41,0:00:05.11,Default,real thing.
+Dialogue: 0,0:00:05.18,0:00:06.29,Default,He kept telling his parents
+Dialogue: 0,0:00:06.77,0:00:07.88,Default,he was crushing his remote
+Dialogue: 0,0:00:08.29,0:00:09.47,Default,job, but every video call
+Dialogue: 0,0:00:09.75,0:00:10.92,Default,happened at the same fake
+Dialogue: 0,0:00:11.20,0:00:12.23,Default,desk in our living room
+Dialogue: 0,0:00:12.51,0:00:13.55,Default,with a dead laptop and
+Dialogue: 0,0:00:13.76,0:00:15.00,Default,a blank spreadsheet.
+Dialogue: 0,0:00:15.07,0:00:16.04,Default,The weird part was that
+Dialogue: 0,0:00:16.30,0:00:16.43,Default,he made
+Dialogue: 0,0:00:16.69,0:00:17.08,Default,me stay quiet
+Dialogue: 0,0:00:17.40,0:00:18.69,Default,in the background, like I
+Dialogue: 0,0:00:18.76,0:00:19.08,Default,was an extra
+Dialogue: 0,0:00:19.41,0:00:19.54,Default,in the
+Dialogue: 0,0:00:19.73,0:00:20.96,Default,lie, while his parents bragged
+Dialogue: 0,0:00:21.41,0:00:21.93,Default,about him to
+Dialogue: 0,0:00:22.06,0:00:23.03,Default,the whole family.
+Dialogue: 0,0:00:23.10,0:00:23.98,Default,Then I found out he
+Dialogue: 0,0:00:24.12,0:00:25.47,Default,had actually been fired months
+Dialogue: 0,0:00:25.88,0:00:27.23,Default,earlier and was burning through
+Dialogue: 0,0:00:27.71,0:00:28.59,Default,rent money, so I ordered
+Dialogue: 0,0:00:29.06,0:00:30.28,Default,a cheap real monitor, keyboard,
+Dialogue: 0,0:00:30.89,0:00:32.04,Default,and lamp and rebuilt the
+Dialogue: 0,0:00:32.25,0:00:33.80,Default,setup before the next call.
+Dialogue: 0,0:00:33.88,0:00:35.30,Default,When his parents called, he
+Dialogue: 0,0:00:35.44,0:00:36.73,Default,sat down expecting the usual
+Dialogue: 0,0:00:37.07,0:00:38.56,Default,performance, saw the real setup,
+Dialogue: 0,0:00:38.97,0:00:40.87,Default,and completely panicked because now
+Dialogue: 0,0:00:41.08,0:00:41.96,Default,he either had to tell
+Dialogue: 0,0:00:42.23,0:00:43.39,Default,the truth or explain why
+Dialogue: 0,0:00:43.59,0:00:45.83,Default,the lie suddenly looked professional.
+Dialogue: 0,0:00:45.90,0:00:47.22,Default,He says I humiliated him,
+Dialogue: 0,0:00:47.52,0:00:48.30,Default,but I think I forced
+Dialogue: 0,0:00:48.76,0:00:49.61,Default,the lie to end before
+Dialogue: 0,0:00:50.07,0:00:51.61,Default,he wrecked his finances even
+Dialogue: 0,0:00:51.92,0:00:52.92,Default,more, so tell me if
+Dialogue: 0,0:00:53.08,0:00:54.31,Default,that was helpful or way
+Dialogue: 0,0:00:54.54,0:00:55.31,Default,out of line.
+Dialogue: 0,0:00:55.39,0:00:56.60,Default,Was I helping, or did
+Dialogue: 0,0:00:56.86,0:00:58.07,Default,I cross the line?

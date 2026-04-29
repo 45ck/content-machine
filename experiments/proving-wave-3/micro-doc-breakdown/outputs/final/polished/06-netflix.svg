@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#08131f"/>
+    <stop offset=".48" stop-color="#11100d"/>
+    <stop offset="1" stop-color="#050608"/>
+  </linearGradient>
+  
+  <filter id="grain">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/>
+    <feColorMatrix type="saturate" values="0"/>
+    <feComponentTransfer><feFuncA type="table" tableValues="0 0.08"/></feComponentTransfer>
+  </filter>
+</defs>
+<rect width="1080" height="1920" fill="url(#bg)"/>
+<rect x="0" y="0" width="1080" height="1920" filter="url(#grain)" opacity=".6"/>
+<rect x="42" y="42" width="996" height="1700" rx="32" fill="none" stroke="#ff3b3b" stroke-width="3" opacity=".78"/>
+<rect x="76" y="72" width="928" height="68" rx="16" fill="#050608" stroke="#ff3b3b" stroke-width="2"/>
+<text x="540" y="118" text-anchor="middle" font-size="28" font-weight="800" fill="#ff3b3b" letter-spacing="2">THE ATTACK</text>
+<text x="92" y="304" font-size="70" font-weight="900" fill="#fff7df" letter-spacing="-2">NETFLIX REMOVED</text>
+<text x="92" y="379.6" font-size="70" font-weight="900" fill="#fff7df" letter-spacing="-2">THE PAIN POINT</text>
+
+      <g transform="translate(96 670)">
+        <rect width="888" height="330" rx="28" fill="#130c0c" stroke="#ff3b3b" stroke-width="5"/>
+        <line x1="120" x2="768" y1="170" y2="170" stroke="#fff" opacity=".28" stroke-width="8"/>
+        <circle cx="130" cy="170" r="36" fill="#fff7df"/><text x="86" y="104" font-size="30" font-weight="800" fill="#fff7df">DVD</text><circle cx="450" cy="170" r="36" fill="#ff3b3b"/><text x="378" y="104" font-size="30" font-weight="800" fill="#fff7df">NO DUE DATE</text><circle cx="770" cy="170" r="36" fill="#ff3b3b"/><text x="670" y="104" font-size="30" font-weight="800" fill="#fff7df">STREAMING</text>
+        <rect x="88" y="250" width="188" height="50" rx="25" fill="none" stroke="#ff3b3b" stroke-width="3"/><text x="116" y="284" font-size="22" font-weight="800" fill="#fff7df">STORE TRIP</text><rect x="356" y="250" width="188" height="50" rx="25" fill="none" stroke="#ff3b3b" stroke-width="3"/><text x="384" y="284" font-size="22" font-weight="800" fill="#fff7df">LATE FEE</text><rect x="624" y="250" width="188" height="50" rx="25" fill="none" stroke="#ff3b3b" stroke-width="3"/><text x="652" y="284" font-size="22" font-weight="800" fill="#fff7df">DUE DATE</text>
+      </g>
+<text x="92" y="1215" font-size="34" font-weight="800" fill="#ff3b3b" letter-spacing="1">FRAME 07</text>
+<text x="92" y="1266" font-size="30" font-weight="700" fill="#fff7df" opacity=".74">No due dates. No store trip. No late fee surprise.</text>
+<text x="92" y="1718" font-size="22" font-weight="800" fill="#fff7df" opacity=".48">MICRO-DOC BREAKDOWN</text>
+<text x="802" y="1718" font-size="22" font-weight="800" fill="#fff7df" opacity=".48">ARCHIVE CUT</text>
+</svg>

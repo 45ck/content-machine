@@ -1,0 +1,44 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,72,&H00FFFFFF,&H00000000,&H64000000,1,0,0,0,100,100,0,0,1,4,0,2,80,80,220,1
+
+[Events]
+Format: Layer, Start, End, Style, Text
+Dialogue: 0,0:00:00.00,0:00:01.31,Default,An EF-4 tornado tore through
+Dialogue: 0,0:00:01.85,0:00:04.01,Default,Enid, Oklahoma, and the shocking
+Dialogue: 0,0:00:04.01,0:00:04.94,Default,part is that no one
+Dialogue: 0,0:00:05.17,0:00:06.33,Default,died. This was not a
+Dialogue: 0,0:00:06.41,0:00:06.72,Default,near miss.
+Dialogue: 0,0:00:07.11,0:00:08.42,Default,The storm packed one hundred
+Dialogue: 0,0:00:08.96,0:00:10.97,Default,seventy to one hundred seventy
+Dialogue: 0,0:00:10.97,0:00:12.13,Default,five mile per hour winds
+Dialogue: 0,0:00:12.52,0:00:13.83,Default,and carved a violent path
+Dialogue: 0,0:00:14.14,0:00:15.68,Default,straight through town.
+Dialogue: 0,0:00:15.68,0:00:16.69,Default,It stayed on the ground
+Dialogue: 0,0:00:17.15,0:00:19.24,Default,for about nine miles, stretched
+Dialogue: 0,0:00:19.24,0:00:21.40,Default,roughly five hundred yards wide,
+Dialogue: 0,0:00:21.40,0:00:23.41,Default,and damaged around forty homes
+Dialogue: 0,0:00:23.41,0:00:24.26,Default,in and around Enid.
+Dialogue: 0,0:00:24.65,0:00:27.28,Default,Emergency crews searched homes, pulled
+Dialogue: 0,0:00:27.28,0:00:29.75,Default,trapped residents out, and officials
+Dialogue: 0,0:00:29.75,0:00:31.14,Default,said the city somehow escaped
+Dialogue: 0,0:00:31.68,0:00:33.31,Default,with only minor injuries
+Dialogue: 0,0:00:33.31,0:00:35.16,Default,instead of mass casualties.
+Dialogue: 0,0:00:35.16,0:00:36.17,Default,That is why this story
+Dialogue: 0,0:00:36.55,0:00:38.87,Default,matters. Usually when damage looks
+Dialogue: 0,0:00:38.87,0:00:40.88,Default,this severe, there are deaths.
+Dialogue: 0,0:00:40.88,0:00:42.58,Default,Enid got extremely lucky.
+Dialogue: 0,0:00:42.58,0:00:43.66,Default,The lesson is not that
+Dialogue: 0,0:00:43.97,0:00:45.29,Default,the storm was weaker than
+Dialogue: 0,0:00:45.59,0:00:45.75,Default,it looked.
+Dialogue: 0,0:00:46.29,0:00:48.38,Default,The lesson is that preparation,
+Dialogue: 0,0:00:48.38,0:00:50.39,Default,shelter, and response made the
+Dialogue: 0,0:00:50.39,0:00:52.40,Default,difference when the worst case
+Dialogue: 0,0:00:52.40,0:00:53.55,Default,almost happened.
+Dialogue: 0,0:00:53.55,0:00:55.56,Default,Preparation is boring right up
+Dialogue: 0,0:00:55.56,0:00:56.96,Default,until it saves a town.

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#08131f"/>
+    <stop offset=".48" stop-color="#11100d"/>
+    <stop offset="1" stop-color="#050608"/>
+  </linearGradient>
+  
+  <filter id="grain">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/>
+    <feColorMatrix type="saturate" values="0"/>
+    <feComponentTransfer><feFuncA type="table" tableValues="0 0.08"/></feComponentTransfer>
+  </filter>
+</defs>
+<rect width="1080" height="1920" fill="url(#bg)"/>
+<rect x="0" y="0" width="1080" height="1920" filter="url(#grain)" opacity=".6"/>
+<rect x="42" y="42" width="996" height="1700" rx="32" fill="none" stroke="#f6d45c" stroke-width="3" opacity=".78"/>
+<rect x="76" y="72" width="928" height="68" rx="16" fill="#050608" stroke="#f6d45c" stroke-width="2"/>
+<text x="540" y="118" text-anchor="middle" font-size="28" font-weight="800" fill="#f6d45c" letter-spacing="2">CASE FILE 01</text>
+<text x="92" y="248" font-size="70" font-weight="900" fill="#fff7df" letter-spacing="-2">BLOCKBUSTER</text>
+<text x="92" y="323.6" font-size="70" font-weight="900" fill="#fff7df" letter-spacing="-2">DID NOT DIE</text>
+<text x="92" y="399.20000000000005" font-size="70" font-weight="900" fill="#fff7df" letter-spacing="-2">OVERNIGHT</text>
+
+      <g transform="translate(150 610)">
+        <rect x="0" y="0" width="780" height="410" rx="28" fill="#f8efd7" opacity=".95"/>
+        <rect x="48" y="72" width="684" height="120" rx="14" fill="#101827"/>
+        <rect x="74" y="98" width="230" height="68" fill="#174e88"/>
+        <rect x="326" y="98" width="156" height="68" fill="#f6d45c"/>
+        <rect x="504" y="98" width="200" height="68" fill="#174e88"/>
+        <text x="170" y="265" font-size="54" font-weight="800" fill="#111">RENTAL NIGHT</text>
+        <circle cx="140" cy="345" r="54" fill="#111"/><circle cx="640" cy="345" r="54" fill="#111"/>
+      </g>
+<text x="92" y="1215" font-size="34" font-weight="800" fill="#f6d45c" letter-spacing="1">FRAME 01</text>
+<text x="92" y="1266" font-size="30" font-weight="700" fill="#fff7df" opacity=".74">The simple story is wrong.</text>
+<text x="92" y="1718" font-size="22" font-weight="800" fill="#fff7df" opacity=".48">MICRO-DOC BREAKDOWN</text>
+<text x="802" y="1718" font-size="22" font-weight="800" fill="#fff7df" opacity=".48">ARCHIVE CUT</text>
+</svg>

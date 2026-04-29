@@ -1,0 +1,30 @@
+{
+  "total_duration": 25.0,
+  "format": "vertical",
+  "resolution": "1080x1920",
+  "theme": "growth",
+  "target_demographic": "hustle-bro",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 8.0,
+      "text": "Most people work 40 hours a week",
+      "audio_file": null,
+      "emphasis": "medium"
+    },
+    {
+      "start": 8.0,
+      "end": 17.0,
+      "text": "Winners work 40 hours by Wednesday",
+      "audio_file": null,
+      "emphasis": "high"
+    },
+    {
+      "start": 17.0,
+      "end": 25.0,
+      "text": "That's the difference",
+      "audio_file": null,
+      "emphasis": "high"
+    }
+  ]
+}

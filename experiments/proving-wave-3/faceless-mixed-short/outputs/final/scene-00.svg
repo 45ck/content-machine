@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#07131f"/><stop offset="1" stop-color="#314963"/></linearGradient><filter id="shadow"><feDropShadow dx="0" dy="20" stdDeviation="22" flood-color="#000" flood-opacity="0.45"/></filter></defs>
+<rect width="1080" height="1920" fill="url(#bg)"/>
+<circle cx="855" cy="245" r="275" fill="#9be7ff" opacity="0.13"/><circle cx="110" cy="1530" r="360" fill="#fff" opacity="0.06"/>
+<rect x="72" y="96" width="936" height="1728" rx="78" fill="rgba(0,0,0,0.22)" stroke="rgba(255,255,255,0.19)" stroke-width="4" filter="url(#shadow)"/>
+<text x="540" y="260" text-anchor="middle" fill="#fff" font-size="84" font-family="DejaVu Sans, Arial" font-weight="900">YOUR PHONE</text>
+<text x="540" y="360" text-anchor="middle" fill="#9be7ff" font-size="90" font-family="DejaVu Sans, Arial" font-weight="900">IS NOT BROKEN</text>
+<rect x="342" y="530" width="396" height="710" rx="60" fill="#101820" stroke="#9be7ff" stroke-width="8"/>
+<rect x="386" y="605" width="308" height="76" rx="38" fill="rgba(255,255,255,0.12)"/>
+<rect x="425" y="835" width="230" height="112" rx="34" fill="none" stroke="#fff" stroke-width="10"/>
+<rect x="658" y="872" width="26" height="38" rx="8" fill="#fff"/>
+<rect x="445" y="855" width="92" height="72" rx="18" fill="#ff4d6d"/>
+<text x="540" y="1090" text-anchor="middle" fill="#fff" font-size="46" font-family="DejaVu Sans, Arial" font-weight="900">LOW BATTERY</text>
+<text x="540" y="1160" text-anchor="middle" fill="#ff4d6d" font-size="82" font-family="DejaVu Sans, Arial" font-weight="900">12%</text>
+<circle cx="210" cy="410" r="95" fill="#fff" opacity="0.07"/><circle cx="865" cy="1340" r="170" fill="#fff" opacity="0.08"/>
+<path d="M190 1495 H890" stroke="rgba(255,255,255,0.28)" stroke-width="6" stroke-linecap="round"/>
+</svg>

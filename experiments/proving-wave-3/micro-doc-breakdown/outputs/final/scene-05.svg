@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#151515"/><stop offset="1" stop-color="#3b3528"/></linearGradient><filter id="shadow"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000" flood-opacity="0.5"/></filter></defs>
+<rect width="1080" height="1920" fill="url(#bg)"/>
+<rect width="1080" height="1920" fill="#000" opacity="0.12"/>
+<circle cx="0" cy="0" r="1" fill="#fff" opacity="0.1"/>
+<circle cx="97" cy="193" r="2" fill="#fff" opacity="0.2"/>
+<circle cx="194" cy="386" r="3" fill="#fff" opacity="0.3"/>
+<circle cx="291" cy="579" r="1" fill="#fff" opacity="0.4"/>
+<circle cx="388" cy="772" r="2" fill="#fff" opacity="0.5"/>
+<circle cx="485" cy="965" r="3" fill="#fff" opacity="0.1"/>
+<circle cx="582" cy="1158" r="1" fill="#fff" opacity="0.2"/>
+<circle cx="679" cy="1351" r="2" fill="#fff" opacity="0.3"/>
+<circle cx="776" cy="1544" r="3" fill="#fff" opacity="0.4"/>
+<circle cx="873" cy="1737" r="1" fill="#fff" opacity="0.5"/>
+<circle cx="970" cy="10" r="2" fill="#fff" opacity="0.1"/>
+<circle cx="1067" cy="203" r="3" fill="#fff" opacity="0.2"/>
+<circle cx="84" cy="396" r="1" fill="#fff" opacity="0.3"/>
+<circle cx="181" cy="589" r="2" fill="#fff" opacity="0.4"/>
+<circle cx="278" cy="782" r="3" fill="#fff" opacity="0.5"/>
+<circle cx="375" cy="975" r="1" fill="#fff" opacity="0.1"/>
+<circle cx="472" cy="1168" r="2" fill="#fff" opacity="0.2"/>
+<circle cx="569" cy="1361" r="3" fill="#fff" opacity="0.3"/>
+<circle cx="666" cy="1554" r="1" fill="#fff" opacity="0.4"/>
+<circle cx="763" cy="1747" r="2" fill="#fff" opacity="0.5"/>
+<circle cx="860" cy="20" r="3" fill="#fff" opacity="0.1"/>
+<circle cx="957" cy="213" r="1" fill="#fff" opacity="0.2"/>
+<circle cx="1054" cy="406" r="2" fill="#fff" opacity="0.3"/>
+<circle cx="71" cy="599" r="3" fill="#fff" opacity="0.4"/>
+<circle cx="168" cy="792" r="1" fill="#fff" opacity="0.5"/>
+<circle cx="265" cy="985" r="2" fill="#fff" opacity="0.1"/>
+<circle cx="362" cy="1178" r="3" fill="#fff" opacity="0.2"/>
+<circle cx="459" cy="1371" r="1" fill="#fff" opacity="0.3"/>
+<circle cx="556" cy="1564" r="2" fill="#fff" opacity="0.4"/>
+<circle cx="653" cy="1757" r="3" fill="#fff" opacity="0.5"/>
+<circle cx="750" cy="30" r="1" fill="#fff" opacity="0.1"/>
+<circle cx="847" cy="223" r="2" fill="#fff" opacity="0.2"/>
+<circle cx="944" cy="416" r="3" fill="#fff" opacity="0.3"/>
+<circle cx="1041" cy="609" r="1" fill="#fff" opacity="0.4"/>
+<circle cx="58" cy="802" r="2" fill="#fff" opacity="0.5"/>
+<circle cx="155" cy="995" r="3" fill="#fff" opacity="0.1"/>
+<circle cx="252" cy="1188" r="1" fill="#fff" opacity="0.2"/>
+<circle cx="349" cy="1381" r="2" fill="#fff" opacity="0.3"/>
+<circle cx="446" cy="1574" r="3" fill="#fff" opacity="0.4"/>
+<circle cx="543" cy="1767" r="1" fill="#fff" opacity="0.5"/>
+<circle cx="640" cy="40" r="2" fill="#fff" opacity="0.1"/>
+<circle cx="737" cy="233" r="3" fill="#fff" opacity="0.2"/>
+<circle cx="834" cy="426" r="1" fill="#fff" opacity="0.3"/>
+<circle cx="931" cy="619" r="2" fill="#fff" opacity="0.4"/>
+<circle cx="1028" cy="812" r="3" fill="#fff" opacity="0.5"/>
+<circle cx="45" cy="1005" r="1" fill="#fff" opacity="0.1"/>
+<circle cx="142" cy="1198" r="2" fill="#fff" opacity="0.2"/>
+<circle cx="239" cy="1391" r="3" fill="#fff" opacity="0.3"/>
+<circle cx="336" cy="1584" r="1" fill="#fff" opacity="0.4"/>
+<circle cx="433" cy="1777" r="2" fill="#fff" opacity="0.5"/>
+<circle cx="530" cy="50" r="3" fill="#fff" opacity="0.1"/>
+<circle cx="627" cy="243" r="1" fill="#fff" opacity="0.2"/>
+<circle cx="724" cy="436" r="2" fill="#fff" opacity="0.3"/>
+<circle cx="821" cy="629" r="3" fill="#fff" opacity="0.4"/>
+<circle cx="918" cy="822" r="1" fill="#fff" opacity="0.5"/>
+<circle cx="1015" cy="1015" r="2" fill="#fff" opacity="0.1"/>
+<circle cx="32" cy="1208" r="3" fill="#fff" opacity="0.2"/>
+<circle cx="129" cy="1401" r="1" fill="#fff" opacity="0.3"/>
+<circle cx="226" cy="1594" r="2" fill="#fff" opacity="0.4"/>
+<circle cx="323" cy="1787" r="3" fill="#fff" opacity="0.5"/>
+<circle cx="420" cy="60" r="1" fill="#fff" opacity="0.1"/>
+<circle cx="517" cy="253" r="2" fill="#fff" opacity="0.2"/>
+<circle cx="614" cy="446" r="3" fill="#fff" opacity="0.3"/>
+<circle cx="711" cy="639" r="1" fill="#fff" opacity="0.4"/>
+<circle cx="808" cy="832" r="2" fill="#fff" opacity="0.5"/>
+<circle cx="905" cy="1025" r="3" fill="#fff" opacity="0.1"/>
+<circle cx="1002" cy="1218" r="1" fill="#fff" opacity="0.2"/>
+<circle cx="19" cy="1411" r="2" fill="#fff" opacity="0.3"/>
+<circle cx="116" cy="1604" r="3" fill="#fff" opacity="0.4"/>
+<circle cx="213" cy="1797" r="1" fill="#fff" opacity="0.5"/>
+<rect x="58" y="88" width="964" height="1744" rx="42" fill="rgba(0,0,0,0.24)" stroke="rgba(248,241,220,0.26)" stroke-width="4"/>
+<rect x="118" y="150" width="844" height="86" rx="16" fill="rgba(0,0,0,0.38)" stroke="#f3c74d" stroke-width="3"/>
+<text x="540" y="207" text-anchor="middle" fill="#f3c74d" font-size="32" font-family="DejaVu Sans, Georgia, serif" font-weight="900">2010</text>
+<text x="540" y="352" text-anchor="middle" fill="#fff" font-size="76" font-family="DejaVu Sans, Georgia, serif" font-weight="900">THE RENTAL EMPIRE</text>
+<text x="540" y="452" text-anchor="middle" fill="#f3c74d" font-size="72" font-family="DejaVu Sans, Georgia, serif" font-weight="900">FILED BANKRUPTCY</text>
+<rect x="140" y="600" width="800" height="670" rx="18" fill="#eee4c9" stroke="#2a2418" stroke-width="5" filter="url(#shadow)"/>
+<text x="540" y="705" text-anchor="middle" fill="#201b11" font-size="44" font-family="DejaVu Sans, Georgia, serif" font-weight="900">BUSINESS DAILY</text><path d="M210 755 H870" stroke="#201b11" stroke-width="5"/><text x="540" y="870" text-anchor="middle" fill="#201b11" font-size="70" font-family="Georgia, DejaVu Serif" font-weight="900">RENTAL GIANT</text><text x="540" y="955" text-anchor="middle" fill="#201b11" font-size="70" font-family="Georgia, DejaVu Serif" font-weight="900">FILES CHAPTER 11</text><rect x="240" y="1040" width="600" height="115" fill="#201b11"/><text x="540" y="1118" text-anchor="middle" fill="#f3c74d" font-size="58" font-family="DejaVu Sans Mono" font-weight="900">2010</text><path d="M240 1200 H840" stroke="#201b11" stroke-width="4" opacity="0.4"/><path d="M150 1515 H930" stroke="#f3c74d" stroke-width="8" opacity="0.7" stroke-linecap="round"/>
+<text x="150" y="1582" fill="rgba(248,241,220,0.55)" font-size="28" font-family="DejaVu Sans Mono" font-weight="700">MICRO-DOC BREAKDOWN</text>
+<text x="930" y="1582" text-anchor="end" fill="rgba(248,241,220,0.55)" font-size="28" font-family="DejaVu Sans Mono" font-weight="700">ARCHIVE CUT</text>
+</svg>

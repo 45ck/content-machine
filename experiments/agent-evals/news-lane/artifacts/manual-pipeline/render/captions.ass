@@ -1,0 +1,52 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1080
+PlayResY: 1920
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Arial,72,&H00FFFFFF,&H00000000,&H64000000,1,0,0,0,100,100,0,0,1,4,0,2,80,80,220,1
+
+[Events]
+Format: Layer, Start, End, Style, Text
+Dialogue: 0,0:00:00.00,0:00:01.20,Default,How can stocks hit records
+Dialogue: 0,0:00:01.50,0:00:02.70,Default,while oil still swings like
+Dialogue: 0,0:00:03.00,0:00:03.60,Default,a warning siren?
+Dialogue: 0,0:00:03.90,0:00:04.50,Default,On April twenty
+Dialogue: 0,0:00:04.80,0:00:05.10,Default,fourth, Intel
+Dialogue: 0,0:00:05.40,0:00:05.70,Default,jumped twenty
+Dialogue: 0,0:00:06.00,0:00:06.60,Default,three point six
+Dialogue: 0,0:00:06.90,0:00:07.80,Default,percent after a strong
+Dialogue: 0,0:00:08.10,0:00:08.40,Default,quarter, and
+Dialogue: 0,0:00:08.70,0:00:09.90,Default,that helped push the S
+Dialogue: 0,0:00:10.20,0:00:11.40,Default,and P five hundred and
+Dialogue: 0,0:00:11.70,0:00:12.00,Default,Nasdaq to
+Dialogue: 0,0:00:12.30,0:00:13.20,Default,records. But oil was
+Dialogue: 0,0:00:13.50,0:00:14.10,Default,reacting to a
+Dialogue: 0,0:00:14.40,0:00:14.70,Default,different story:
+Dialogue: 0,0:00:15.00,0:00:15.30,Default,traders were
+Dialogue: 0,0:00:15.60,0:00:16.50,Default,watching the Strait of
+Dialogue: 0,0:00:16.80,0:00:17.10,Default,Hormuz, where
+Dialogue: 0,0:00:17.40,0:00:17.70,Default,any disruption
+Dialogue: 0,0:00:18.00,0:00:19.20,Default,can squeeze a huge global
+Dialogue: 0,0:00:19.50,0:00:19.80,Default,supply route.
+Dialogue: 0,0:00:20.10,0:00:20.40,Default,Washington also
+Dialogue: 0,0:00:20.70,0:00:21.90,Default,said it would not renew
+Dialogue: 0,0:00:22.20,0:00:22.50,Default,Iranian oil
+Dialogue: 0,0:00:22.80,0:00:23.10,Default,waivers, which
+Dialogue: 0,0:00:23.40,0:00:24.00,Default,kept pressure on
+Dialogue: 0,0:00:24.30,0:00:24.60,Default,energy expectations
+Dialogue: 0,0:00:24.90,0:00:25.20,Default,even before
+Dialogue: 0,0:00:25.50,0:00:25.80,Default,diplomacy looked
+Dialogue: 0,0:00:26.10,0:00:26.40,Default,shakier. Then
+Dialogue: 0,0:00:26.70,0:00:27.00,Default,ceasefire talks
+Dialogue: 0,0:00:27.30,0:00:27.90,Default,wobbled when the
+Dialogue: 0,0:00:28.20,0:00:28.50,Default,planned Pakistan
+Dialogue: 0,0:00:28.80,0:00:29.40,Default,trip for U.S.
+Dialogue: 0,0:00:29.70,0:00:30.00,Default,envoys was
+Dialogue: 0,0:00:30.30,0:00:30.60,Default,canceled, so
+Dialogue: 0,0:00:30.90,0:00:31.20,Default,stocks kept
+Dialogue: 0,0:00:31.50,0:00:31.80,Default,celebrating earnings
+Dialogue: 0,0:00:32.10,0:00:33.30,Default,while oil kept pricing war
+Dialogue: 0,0:00:33.60,0:00:34.50,Default,risk. Follow for fast
+Dialogue: 0,0:00:34.80,0:00:35.70,Default,plain-English market breakdowns.
