@@ -1,0 +1,120 @@
+{
+  "version": "2026-04-29",
+  "purpose": "Roadmap for agent-facing motion design skills, SVG/HTML/CSS/Remotion animation planning, smoothness review, and publish-prep integration.",
+  "sources": [
+    "docs/research/archetypes/45-agent-motion-design-skill-systems-deep-dive-20260429.md",
+    "docs/research/archetypes/46-remotion-svg-html-css-animation-quality-deep-dive-20260429.md",
+    "docs/research/archetypes/47-animation-review-render-validation-deep-dive-20260429.md",
+    "docs/research/archetypes/48-animation-skill-implementation-sequence-20260429.md"
+  ],
+  "externalSources": [
+    "https://github.com/openai/skills/blob/main/skills/.system/skill-creator/SKILL.md",
+    "https://docs.anthropic.com/en/docs/claude-code/slash-commands",
+    "https://docs.anthropic.com/en/docs/claude-code/hooks",
+    "https://www.remotion.dev/docs/interpolate",
+    "https://www.remotion.dev/docs/spring",
+    "https://www.remotion.dev/docs/sequence",
+    "https://www.remotion.dev/docs/transitions",
+    "https://www.remotion.dev/docs/performance"
+  ],
+  "artifacts": [
+    {
+      "id": "motion-design-coder.skill",
+      "stage": "agent-skill",
+      "purpose": "Reusable skill that routes SVG, HTML/CSS, and Remotion animation work through motion briefs, token reuse, and validation.",
+      "priority": 1,
+      "bead": "content-machine-ar35"
+    },
+    {
+      "id": "motion-brief.v1.json",
+      "stage": "planning",
+      "purpose": "Record animation surface, duration, visual goal, beat frames, moving elements, safe zones, blocked effects, and review frames.",
+      "priority": 1,
+      "bead": "content-machine-ar36"
+    },
+    {
+      "id": "agent-motion-skill.v1.json",
+      "stage": "agent-skill",
+      "purpose": "Record which skill, command, references, source docs, and constraints guided generated animation code.",
+      "priority": 1,
+      "bead": "content-machine-ar36"
+    },
+    {
+      "id": "motion-code-review.v1.json",
+      "stage": "review",
+      "purpose": "Review generated animation code for frame timing, token use, transform/opacity preference, layout stability, and performance risks.",
+      "priority": 1,
+      "bead": "content-machine-ar36"
+    },
+    {
+      "id": "motion-token-map.v1.json",
+      "stage": "planning",
+      "purpose": "Tie generated animation to timing, easing, spring, and custom motion tokens.",
+      "priority": 1,
+      "bead": "content-machine-ar37"
+    },
+    {
+      "id": "remotion-motion-plan.v1.json",
+      "stage": "render-planning",
+      "purpose": "Plan Remotion sequences, transitions, springs, interpolations, caption safe zones, and performance budget.",
+      "priority": 1,
+      "bead": "content-machine-ar37"
+    },
+    {
+      "id": "svg-motion-plan.v1.json",
+      "stage": "asset-planning",
+      "purpose": "Plan SVG viewBox, animated elements, path draws, masks, transforms, text strategy, and fallback.",
+      "priority": 2,
+      "bead": "content-machine-ar37"
+    },
+    {
+      "id": "html-css-motion-plan.v1.json",
+      "stage": "asset-planning",
+      "purpose": "Plan HTML/CSS selectors, CSS variables, keyframes, transform-only checks, and blocked properties.",
+      "priority": 2,
+      "bead": "content-machine-ar37"
+    },
+    {
+      "id": "motion-frame-samples.v1.json",
+      "stage": "validation",
+      "purpose": "Index screenshot or still-frame samples for representative motion frames.",
+      "priority": 1,
+      "bead": "content-machine-ar38"
+    },
+    {
+      "id": "motion-smoothness-report.v1.json",
+      "stage": "validation",
+      "purpose": "Check jitter, layout shift, unexpected jumps, transition coherence, and motion density.",
+      "priority": 1,
+      "bead": "content-machine-ar38"
+    },
+    {
+      "id": "animation-safe-zone-report.v1.json",
+      "stage": "validation",
+      "purpose": "Verify moving elements do not collide with captions or platform safe zones.",
+      "priority": 1,
+      "bead": "content-machine-ar38"
+    },
+    {
+      "id": "render-performance-risk.v1.json",
+      "stage": "validation",
+      "purpose": "Identify GPU-heavy effects, layout animation, external fetches, expensive JS, uncached assets, and recommended precomputes.",
+      "priority": 1,
+      "bead": "content-machine-ar38"
+    },
+    {
+      "id": "motion-review-bundle.v1.json",
+      "stage": "publish-review",
+      "purpose": "Aggregate motion plan, code review, frame samples, smoothness, safe-zone, and performance reports into pass/revise/fail.",
+      "priority": 1,
+      "bead": "content-machine-ar39"
+    }
+  ],
+  "gates": [
+    "Animation code must be frame-driven or explicitly keyframed.",
+    "Motion plans must protect caption and platform safe zones.",
+    "Agents should use repo timing, easing, and spring tokens before inventing new values.",
+    "Motion-heavy output requires representative frame review, not only a final MP4 existence check.",
+    "Publish prep should fail janky, unreadable, unsafe, or render-expensive motion."
+  ]
+}
