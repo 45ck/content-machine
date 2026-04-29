@@ -45,6 +45,10 @@ evidence assets, and implementation decisions for `content-machine`.
 37. `42-media-synthesis-provider-orchestration-deep-dive-20260429.md` - media synthesis requests, provider selection, job records, generated media ledgers, and media review.
 38. `43-observability-cost-retry-cache-deep-dive-20260429.md` - run telemetry, provider call logs, retry policy, cache decisions, and budget summaries.
 39. `44-eval-ci-golden-dataset-deep-dive-20260429.md` - golden archetype datasets, eval run plans, parity reports, failure cases, and CI summaries.
+40. `45-agent-motion-design-skill-systems-deep-dive-20260429.md` - Claude Code/Codex skill systems for smoother SVG, HTML, CSS, and Remotion animation output.
+41. `46-remotion-svg-html-css-animation-quality-deep-dive-20260429.md` - frame-driven Remotion, SVG, HTML, and CSS motion quality rules.
+42. `47-animation-review-render-validation-deep-dive-20260429.md` - frame samples, smoothness reports, safe-zone reports, performance risk, and motion review bundles.
+43. `48-animation-skill-implementation-sequence-20260429.md` - implementation sequence for motion-design skills, schemas, harnesses, and eval fixtures.
 
 ## Archetype Reports
 
@@ -78,6 +82,7 @@ Machine-readable research helpers:
 - `manifests/creative-production-artifact-roadmap.json` - continuation roadmap for hook, audio, visual continuity, and publish handoff artifacts.
 - `manifests/operations-localization-feedback-roadmap.json` - continuation roadmap for batch, localization, style, feedback, and upload boundary artifacts.
 - `manifests/agent-runtime-eval-roadmap.json` - continuation roadmap for reference ingest, flow contracts, research briefs, media synthesis, telemetry, and eval artifacts.
+- `manifests/agent-motion-design-roadmap.json` - continuation roadmap for agent motion-design skills, Remotion/SVG/HTML/CSS plans, smoothness review, and publish-prep integration.
 - `repo-cards/*.md` - focused per-repo implementation cards.
 - `recipes/*.md` - concrete per-archetype production recipes.
 - `manifests/evidence-assets.csv` - copied evidence asset inventory.

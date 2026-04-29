@@ -86,6 +86,13 @@ primary archetype and the one secondary behavior it borrows.
     [observability-cost-retry-cache-deep-dive.md](references/observability-cost-retry-cache-deep-dive.md),
     and
     [eval-ci-golden-dataset-deep-dive.md](references/eval-ci-golden-dataset-deep-dive.md).
+15. For better agent-generated SVG, HTML, CSS, and Remotion animation,
+    use [`motion-design-coder`](../motion-design-coder/SKILL.md) and read
+    [agent-motion-design-skill-systems-deep-dive.md](references/agent-motion-design-skill-systems-deep-dive.md),
+    [remotion-svg-html-css-animation-quality-deep-dive.md](references/remotion-svg-html-css-animation-quality-deep-dive.md),
+    [animation-review-render-validation-deep-dive.md](references/animation-review-render-validation-deep-dive.md),
+    and
+    [animation-skill-implementation-sequence.md](references/animation-skill-implementation-sequence.md).
 
 ## Archetype Map
 
@@ -255,6 +262,21 @@ The agent-runtime/eval pass adds:
 - `golden-failure-case.v1.json`
 - `ci-eval-summary.v1.json`
 
+The agent-motion-design pass adds:
+
+- `motion-brief.v1.json`
+- `agent-motion-skill.v1.json`
+- `motion-code-review.v1.json`
+- `motion-token-map.v1.json`
+- `remotion-motion-plan.v1.json`
+- `svg-motion-plan.v1.json`
+- `html-css-motion-plan.v1.json`
+- `motion-frame-samples.v1.json`
+- `motion-smoothness-report.v1.json`
+- `animation-safe-zone-report.v1.json`
+- `render-performance-risk.v1.json`
+- `motion-review-bundle.v1.json`
+
 Use `assets/manifests/runtime-artifact-roadmap.json` to map these artifacts
 to source signals, priorities, and Beads.
 Use `assets/manifests/production-quality-artifact-roadmap.json` for the
@@ -266,6 +288,9 @@ batch/localization/style/feedback/risk continuation work.
 Use `assets/manifests/agent-runtime-eval-roadmap.json` for reference ingest,
 agent execution contracts, research evidence, media synthesis, telemetry, and
 eval continuation work.
+Use `assets/manifests/agent-motion-design-roadmap.json` for motion-design
+skill, Remotion/SVG/HTML/CSS planning, smoothness review, and publish-prep
+integration work.
 
 ## Non-Goals
 
