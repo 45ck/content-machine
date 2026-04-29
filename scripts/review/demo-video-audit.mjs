@@ -16,6 +16,7 @@ const outputDir = resolve(args.outputDir ?? defaultOut);
 const fps = Number(args.fps ?? 1);
 const maxFrames = Number(args.maxFrames ?? 8);
 const contactFrames = Number(args.contactFrames ?? 12);
+const videoEvaluatorRoot = resolveVideoEvaluatorRoot();
 
 function parseArgs(argv) {
   const out = {};
@@ -43,6 +44,15 @@ function todayStamp() {
 
 function slugify(filePath) {
   return basename(filePath).replace(/\.mp4$/i, '');
+}
+
+function resolveVideoEvaluatorRoot() {
+  const explicit = args.videoEvaluatorRoot ?? process.env.VIDEO_EVALUATOR_ROOT;
+  if (explicit) return resolve(String(explicit));
+  const sibling = resolve(repoRoot, '..', 'video-evaluator');
+  return existsSync(join(sibling, 'scripts', 'harness', 'layout-safety-review.ts'))
+    ? sibling
+    : null;
 }
 
 function run(command, args, opts = {}) {
@@ -450,6 +460,47 @@ function analyzeIssues({ info, audio, frames }) {
   return issues;
 }
 
+function findLayoutSidecar(videoPath) {
+  const candidate = videoPath.replace(/\.mp4$/i, '.layout.json');
+  return existsSync(candidate) ? candidate : null;
+}
+
+function runLayoutSafetyReview(videoPath, slug) {
+  const layoutPath = findLayoutSidecar(videoPath);
+  if (!layoutPath || !videoEvaluatorRoot) return null;
+  const scriptPath = join(videoEvaluatorRoot, 'scripts', 'harness', 'layout-safety-review.ts');
+  const agentPath = join(videoEvaluatorRoot, 'agent', 'run-tool.mjs');
+  const distPath = join(videoEvaluatorRoot, 'dist', 'index.js');
+  const useBuiltAgent = existsSync(agentPath) && existsSync(distPath);
+  if (!useBuiltAgent && !existsSync(scriptPath)) return null;
+  const reviewOutputDir = join(outputDir, slug, 'video-evaluator-layout-safety');
+  const result = spawnSync(
+    process.execPath,
+    useBuiltAgent ? [agentPath, 'layout-safety-review'] : ['--import', 'tsx', scriptPath],
+    {
+      cwd: videoEvaluatorRoot,
+      encoding: 'utf8',
+      input: `${JSON.stringify({
+        videoPath,
+        layoutPath,
+        outputDir: reviewOutputDir,
+        frameCount: 8,
+        samplingMode: 'hybrid',
+        runOcr: false,
+      })}\n`,
+    }
+  );
+  if (result.status !== 0) {
+    return {
+      failed: true,
+      stderr: result.stderr,
+      stdout: result.stdout,
+    };
+  }
+  const parsed = JSON.parse(result.stdout);
+  return parsed.result.report;
+}
+
 function severityRank(severity) {
   return severity === 'error' ? 3 : severity === 'warning' ? 2 : 1;
 }
@@ -476,6 +527,31 @@ async function analyzeVideo(videoPath) {
   const issues = analyzeIssues({ info, audio, frames }).sort(
     (a, b) => severityRank(b.severity) - severityRank(a.severity)
   );
+  const layoutSafety = runLayoutSafetyReview(videoPath, slug);
+  if (layoutSafety?.failed) {
+    issues.push(
+      issue(
+        'warning',
+        'layout-safety-review-failed',
+        'video-evaluator layout safety review failed.',
+        {
+          stderr: layoutSafety.stderr,
+        }
+      )
+    );
+  } else if (layoutSafety) {
+    for (const layoutIssue of layoutSafety.issues) {
+      issues.push(
+        issue(
+          layoutIssue.severity,
+          `layout-${layoutIssue.code}`,
+          layoutIssue.message,
+          layoutIssue.details
+        )
+      );
+    }
+    issues.sort((a, b) => severityRank(b.severity) - severityRank(a.severity));
+  }
   const report = {
     videoPath,
     slug,
@@ -484,6 +560,7 @@ async function analyzeVideo(videoPath) {
     contactSheetPath,
     sampledFrameCount: frames.length,
     issues,
+    layoutSafety: layoutSafety?.failed ? { failed: true } : layoutSafety,
     metrics: {
       maxWhiteRatio: Math.max(...frames.map((f) => f.whiteRatio)),
       maxEdgeWhiteRatio: Math.max(...frames.map((f) => f.edgeWhiteRatio)),

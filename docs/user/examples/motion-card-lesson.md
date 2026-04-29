@@ -25,11 +25,16 @@ Core shape:
 Current proving result:
 
 - Final local MP4:
-  `experiments/proving-wave-3/motion-card-lesson/outputs/final/video.mp4`
+  `experiments/proving-wave-3/motion-card-lesson/outputs/motion-card-v2/video.mp4`
+- Motion brief:
+  `experiments/proving-wave-3/motion-card-lesson/outputs/motion-card-v2/motion-brief.v1.json`
+- Layout safety annotations:
+  `docs/demo/demo-14-motion-card-lesson.layout.json`
 - Tracked preview MP4:
   [`docs/demo/demo-14-motion-card-lesson.mp4`](../../demo/demo-14-motion-card-lesson.mp4)
-- Publish-prep passed with portrait format, `30.8s` duration, cadence,
-  and audio-signal checks.
+- Repo video audit passed with portrait format, `30.25s` duration,
+  H.264 `yuv420p`, audio present, caption-safe frame samples, and
+  `video-evaluator/layout-safety-review` overlap checks.
 - OCR caption-sync was not run for this FFmpeg fallback render because
   there is no `captions.remotion.json` sidecar yet.
 
@@ -47,3 +52,22 @@ Related skills:
 Use `motion-design-coder` for the card animation plan: frame-driven
 entrances, readable hold states, deterministic card resets, caption-safe
 motion, and phone-size review frames.
+
+Regeneration command:
+
+```bash
+node experiments/proving-wave-3/motion-card-lesson/tools/build-motion-card-v2.mjs
+```
+
+Focused layout review:
+
+```bash
+cat <<'JSON' | node /home/calvin/Documents/GitHub/video-evaluator/agent/run-tool.mjs layout-safety-review
+{
+  "videoPath": "docs/demo/demo-14-motion-card-lesson.mp4",
+  "layoutPath": "docs/demo/demo-14-motion-card-lesson.layout.json",
+  "outputDir": "experiments/proving-wave-3/motion-card-lesson/outputs/motion-card-v2-layout-review",
+  "runOcr": false
+}
+JSON
+```

@@ -2,7 +2,9 @@
 
 Use [Archetypes](ARCHETYPES.md) first if you are choosing what kind of
 short to make. Use [Quality And Review](QUALITY-AND-REVIEW.md) before
-promoting a render as ready.
+promoting a render as ready. Use the
+[Graphics Archetype Remake Plan](examples/graphics-archetype-remake-plan.md)
+when improving non-Reddit motion/card-heavy examples.
 
 ## Showcase
 

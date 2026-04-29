@@ -1,0 +1,560 @@
+{
+  "schemaVersion": "layout-annotations.v1",
+  "videoWidth": 1080,
+  "videoHeight": 1920,
+  "safeZones": {
+    "caption": {
+      "x0": 76,
+      "y0": 1375,
+      "x1": 1004,
+      "y1": 1585
+    },
+    "platformUi": {
+      "x0": 0,
+      "y0": 0,
+      "x1": 1080,
+      "y1": 130
+    }
+  },
+  "frames": [
+    {
+      "index": 1,
+      "timeSeconds": 2.2,
+      "elements": [
+        {
+          "id": "hook:card-shell",
+          "role": "container",
+          "box": {
+            "x0": 58,
+            "y0": 78,
+            "x1": 1022,
+            "y1": 1288
+          },
+          "ignoreOverlap": true
+        },
+        {
+          "id": "hook:header",
+          "role": "label",
+          "box": {
+            "x0": 94,
+            "y0": 116,
+            "x1": 986,
+            "y1": 194
+          }
+        },
+        {
+          "id": "hook:headline",
+          "role": "primary",
+          "box": {
+            "x0": 150,
+            "y0": 255,
+            "x1": 930,
+            "y1": 505
+          }
+        },
+        {
+          "id": "hook:visual",
+          "role": "visual",
+          "box": {
+            "x0": 345,
+            "y0": 520,
+            "x1": 735,
+            "y1": 880
+          }
+        },
+        {
+          "id": "hook:support-copy",
+          "role": "support",
+          "box": {
+            "x0": 164,
+            "y0": 940,
+            "x1": 916,
+            "y1": 1072
+          }
+        },
+        {
+          "id": "hook:progress",
+          "role": "progress",
+          "box": {
+            "x0": 150,
+            "y0": 1110,
+            "x1": 960,
+            "y1": 1165
+          }
+        },
+        {
+          "id": "hook:chips",
+          "role": "navigation",
+          "box": {
+            "x0": 65,
+            "y0": 1215,
+            "x1": 1015,
+            "y1": 1290
+          }
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "timeSeconds": 6.365,
+      "elements": [
+        {
+          "id": "step-1:card-shell",
+          "role": "container",
+          "box": {
+            "x0": 58,
+            "y0": 78,
+            "x1": 1022,
+            "y1": 1288
+          },
+          "ignoreOverlap": true
+        },
+        {
+          "id": "step-1:header",
+          "role": "label",
+          "box": {
+            "x0": 94,
+            "y0": 116,
+            "x1": 986,
+            "y1": 194
+          }
+        },
+        {
+          "id": "step-1:headline",
+          "role": "primary",
+          "box": {
+            "x0": 150,
+            "y0": 305,
+            "x1": 930,
+            "y1": 470
+          }
+        },
+        {
+          "id": "step-1:visual",
+          "role": "visual",
+          "box": {
+            "x0": 205,
+            "y0": 570,
+            "x1": 875,
+            "y1": 800
+          }
+        },
+        {
+          "id": "step-1:support-copy",
+          "role": "support",
+          "box": {
+            "x0": 164,
+            "y0": 940,
+            "x1": 916,
+            "y1": 1072
+          }
+        },
+        {
+          "id": "step-1:progress",
+          "role": "progress",
+          "box": {
+            "x0": 150,
+            "y0": 1110,
+            "x1": 960,
+            "y1": 1165
+          }
+        },
+        {
+          "id": "step-1:chips",
+          "role": "navigation",
+          "box": {
+            "x0": 65,
+            "y0": 1215,
+            "x1": 1015,
+            "y1": 1290
+          }
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "timeSeconds": 10.665,
+      "elements": [
+        {
+          "id": "step-2:card-shell",
+          "role": "container",
+          "box": {
+            "x0": 58,
+            "y0": 78,
+            "x1": 1022,
+            "y1": 1288
+          },
+          "ignoreOverlap": true
+        },
+        {
+          "id": "step-2:header",
+          "role": "label",
+          "box": {
+            "x0": 94,
+            "y0": 116,
+            "x1": 986,
+            "y1": 194
+          }
+        },
+        {
+          "id": "step-2:headline",
+          "role": "primary",
+          "box": {
+            "x0": 150,
+            "y0": 305,
+            "x1": 930,
+            "y1": 470
+          }
+        },
+        {
+          "id": "step-2:visual",
+          "role": "visual",
+          "box": {
+            "x0": 315,
+            "y0": 475,
+            "x1": 765,
+            "y1": 925
+          }
+        },
+        {
+          "id": "step-2:support-copy",
+          "role": "support",
+          "box": {
+            "x0": 164,
+            "y0": 940,
+            "x1": 916,
+            "y1": 1072
+          }
+        },
+        {
+          "id": "step-2:progress",
+          "role": "progress",
+          "box": {
+            "x0": 150,
+            "y0": 1110,
+            "x1": 960,
+            "y1": 1165
+          }
+        },
+        {
+          "id": "step-2:chips",
+          "role": "navigation",
+          "box": {
+            "x0": 65,
+            "y0": 1215,
+            "x1": 1015,
+            "y1": 1290
+          }
+        }
+      ]
+    },
+    {
+      "index": 4,
+      "timeSeconds": 15.295,
+      "elements": [
+        {
+          "id": "step-3:card-shell",
+          "role": "container",
+          "box": {
+            "x0": 58,
+            "y0": 78,
+            "x1": 1022,
+            "y1": 1288
+          },
+          "ignoreOverlap": true
+        },
+        {
+          "id": "step-3:header",
+          "role": "label",
+          "box": {
+            "x0": 94,
+            "y0": 116,
+            "x1": 986,
+            "y1": 194
+          }
+        },
+        {
+          "id": "step-3:headline",
+          "role": "primary",
+          "box": {
+            "x0": 150,
+            "y0": 305,
+            "x1": 930,
+            "y1": 470
+          }
+        },
+        {
+          "id": "step-3:visual",
+          "role": "visual",
+          "box": {
+            "x0": 170,
+            "y0": 540,
+            "x1": 910,
+            "y1": 856
+          }
+        },
+        {
+          "id": "step-3:support-copy",
+          "role": "support",
+          "box": {
+            "x0": 164,
+            "y0": 940,
+            "x1": 916,
+            "y1": 1072
+          }
+        },
+        {
+          "id": "step-3:progress",
+          "role": "progress",
+          "box": {
+            "x0": 150,
+            "y0": 1110,
+            "x1": 960,
+            "y1": 1165
+          }
+        },
+        {
+          "id": "step-3:chips",
+          "role": "navigation",
+          "box": {
+            "x0": 65,
+            "y0": 1215,
+            "x1": 1015,
+            "y1": 1290
+          }
+        }
+      ]
+    },
+    {
+      "index": 5,
+      "timeSeconds": 20.36,
+      "elements": [
+        {
+          "id": "step-4:card-shell",
+          "role": "container",
+          "box": {
+            "x0": 58,
+            "y0": 78,
+            "x1": 1022,
+            "y1": 1288
+          },
+          "ignoreOverlap": true
+        },
+        {
+          "id": "step-4:header",
+          "role": "label",
+          "box": {
+            "x0": 94,
+            "y0": 116,
+            "x1": 986,
+            "y1": 194
+          }
+        },
+        {
+          "id": "step-4:headline",
+          "role": "primary",
+          "box": {
+            "x0": 150,
+            "y0": 305,
+            "x1": 930,
+            "y1": 470
+          }
+        },
+        {
+          "id": "step-4:visual",
+          "role": "visual",
+          "box": {
+            "x0": 190,
+            "y0": 545,
+            "x1": 890,
+            "y1": 861
+          }
+        },
+        {
+          "id": "step-4:support-copy",
+          "role": "support",
+          "box": {
+            "x0": 164,
+            "y0": 940,
+            "x1": 916,
+            "y1": 1072
+          }
+        },
+        {
+          "id": "step-4:progress",
+          "role": "progress",
+          "box": {
+            "x0": 150,
+            "y0": 1110,
+            "x1": 960,
+            "y1": 1165
+          }
+        },
+        {
+          "id": "step-4:chips",
+          "role": "navigation",
+          "box": {
+            "x0": 65,
+            "y0": 1215,
+            "x1": 1015,
+            "y1": 1290
+          }
+        }
+      ]
+    },
+    {
+      "index": 6,
+      "timeSeconds": 25.56,
+      "elements": [
+        {
+          "id": "payoff:card-shell",
+          "role": "container",
+          "box": {
+            "x0": 58,
+            "y0": 78,
+            "x1": 1022,
+            "y1": 1288
+          },
+          "ignoreOverlap": true
+        },
+        {
+          "id": "payoff:header",
+          "role": "label",
+          "box": {
+            "x0": 94,
+            "y0": 116,
+            "x1": 986,
+            "y1": 194
+          }
+        },
+        {
+          "id": "payoff:headline",
+          "role": "primary",
+          "box": {
+            "x0": 150,
+            "y0": 305,
+            "x1": 930,
+            "y1": 470
+          }
+        },
+        {
+          "id": "payoff:visual",
+          "role": "visual",
+          "box": {
+            "x0": 250,
+            "y0": 540,
+            "x1": 800,
+            "y1": 932
+          }
+        },
+        {
+          "id": "payoff:support-copy",
+          "role": "support",
+          "box": {
+            "x0": 164,
+            "y0": 940,
+            "x1": 916,
+            "y1": 1072
+          }
+        },
+        {
+          "id": "payoff:progress",
+          "role": "progress",
+          "box": {
+            "x0": 150,
+            "y0": 1110,
+            "x1": 960,
+            "y1": 1165
+          }
+        },
+        {
+          "id": "payoff:chips",
+          "role": "navigation",
+          "box": {
+            "x0": 65,
+            "y0": 1215,
+            "x1": 1015,
+            "y1": 1290
+          }
+        }
+      ]
+    },
+    {
+      "index": 7,
+      "timeSeconds": 29.495,
+      "elements": [
+        {
+          "id": "cta:card-shell",
+          "role": "container",
+          "box": {
+            "x0": 58,
+            "y0": 78,
+            "x1": 1022,
+            "y1": 1288
+          },
+          "ignoreOverlap": true
+        },
+        {
+          "id": "cta:header",
+          "role": "label",
+          "box": {
+            "x0": 94,
+            "y0": 116,
+            "x1": 986,
+            "y1": 194
+          }
+        },
+        {
+          "id": "cta:headline",
+          "role": "primary",
+          "box": {
+            "x0": 150,
+            "y0": 305,
+            "x1": 930,
+            "y1": 470
+          }
+        },
+        {
+          "id": "cta:visual",
+          "role": "visual",
+          "box": {
+            "x0": 170,
+            "y0": 555,
+            "x1": 910,
+            "y1": 855
+          }
+        },
+        {
+          "id": "cta:support-copy",
+          "role": "support",
+          "box": {
+            "x0": 164,
+            "y0": 940,
+            "x1": 916,
+            "y1": 1072
+          }
+        },
+        {
+          "id": "cta:progress",
+          "role": "progress",
+          "box": {
+            "x0": 150,
+            "y0": 1110,
+            "x1": 960,
+            "y1": 1165
+          }
+        },
+        {
+          "id": "cta:chips",
+          "role": "navigation",
+          "box": {
+            "x0": 65,
+            "y0": 1215,
+            "x1": 1015,
+            "y1": 1290
+          }
+        }
+      ]
+    }
+  ]
+}

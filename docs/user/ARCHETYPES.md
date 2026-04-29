@@ -6,6 +6,10 @@ writing, sourcing media, rendering captions, or reviewing quality.
 
 Use this page when deciding what kind of short to make.
 
+For non-Reddit lanes that depend on designed graphics, cards, SVG,
+HTML/CSS, or Remotion-style motion, track polish work in the
+[Graphics Archetype Remake Plan](examples/graphics-archetype-remake-plan.md).
+
 ## Status Labels
 
 - `golden showcase`: the main example to copy first.

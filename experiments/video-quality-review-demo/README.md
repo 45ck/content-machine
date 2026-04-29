@@ -1,6 +1,6 @@
 # Demo Video Quality Review
 
-Generated: 2026-04-29T00:51:39.915Z
+Generated: 2026-04-29T02:21:47.191Z
 
 Heuristics used: ffprobe metadata, ffmpeg audio volume, capped even frame sampling, white/black frame detection, edge artifact detection, low-motion runs, caption-band signal, and contact sheets.
 
@@ -99,8 +99,8 @@ Heuristics used: ffprobe metadata, ffmpeg audio volume, capped even frame sampli
 
 - Path: `/home/calvin/Documents/GitHub/content-machine/docs/demo/demo-14-motion-card-lesson.mp4`
 - Resolution: 1080x1920
-- Duration: 30.57s
-- Audio: aac (mean -19 dB, max -2 dB)
+- Duration: 30.25s
+- Audio: aac (mean -21.2 dB, max -1.8 dB)
 - Contact sheet: [demo-14-motion-card-lesson/contact-sheet.jpg](demo-14-motion-card-lesson/contact-sheet.jpg)
 - Issues: none detected by automated heuristics
 
