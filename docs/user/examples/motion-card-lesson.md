@@ -62,7 +62,9 @@ node experiments/proving-wave-3/motion-card-lesson/tools/build-motion-card-v2.mj
 Focused layout review:
 
 ```bash
-cat <<'JSON' | node /home/calvin/Documents/GitHub/video-evaluator/agent/run-tool.mjs layout-safety-review
+VIDEO_EVALUATOR_ROOT=../video-evaluator
+
+cat <<'JSON' | node "$VIDEO_EVALUATOR_ROOT/agent/run-tool.mjs" layout-safety-review
 {
   "videoPath": "docs/demo/demo-14-motion-card-lesson.mp4",
   "layoutPath": "docs/demo/demo-14-motion-card-lesson.layout.json",

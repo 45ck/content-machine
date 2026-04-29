@@ -152,6 +152,10 @@ User-facing archetype guide:
 Review and promotion rules:
 [Quality And Review](docs/user/QUALITY-AND-REVIEW.md).
 
+Graphics-heavy demos can also ship `docs/demo/*.layout.json` sidecars.
+The demo audit uses `45ck/video-evaluator` to catch declared element
+overlap and caption safe-zone collisions when those sidecars exist.
+
 Tracked preview clip:
 
 - [docs/demo/demo-9-reddit-post-over-gameplay.mp4](docs/demo/demo-9-reddit-post-over-gameplay.mp4)
