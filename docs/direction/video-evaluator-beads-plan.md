@@ -63,6 +63,19 @@ contact sheets stay under the same paths. When a demo MP4 has a
 `.layout.json` sidecar, the script now prefers the evaluator package API
 for layout safety and falls back to the previous sibling process runner.
 
+Current integration state:
+
+- Content Machine uses `video-evaluator` for reusable analysis in the
+  docs/demo audit path, especially layout-safety evidence for graphics-heavy
+  short-form examples.
+- The promoted example review workflow treats evaluator artifacts as shared
+  evidence, not as the content-generation control plane.
+- Skills, archetype guidance, render recipes, caption styles, timing policy,
+  publish metadata, and short-form send-back rules remain in this repo.
+- `video-evaluator` is the target home for generic facts such as media probe
+  data, source-media signals, caption OCR/sync checks, technical video review,
+  contact sheets, and bundle review prompts once each surface reaches parity.
+
 Do not remove `src/highlights/source-media-analysis.ts` or the
 `source-media-analysis.v1.json` artifact until source-media signal parity
 exists in `@45ck/video-evaluator` and the harness adapter preserves the v1

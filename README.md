@@ -153,8 +153,11 @@ Review and promotion rules:
 [Quality And Review](docs/user/QUALITY-AND-REVIEW.md).
 
 Graphics-heavy demos can also ship `docs/demo/*.layout.json` sidecars.
-The demo audit uses `45ck/video-evaluator` to catch declared element
-overlap and caption safe-zone collisions when those sidecars exist.
+The demo audit uses `45ck/video-evaluator` as the shared analyzer for
+declared element overlap, caption safe-zone collisions, and reusable video
+evidence. Content Machine keeps skills, archetype recipes, Remotion choices,
+caption style guidance, and publish policy local; the evaluator owns generic
+analysis that can be reused by other repos.
 
 Tracked preview clip:
 

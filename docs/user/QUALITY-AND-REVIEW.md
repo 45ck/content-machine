@@ -90,6 +90,9 @@ audit delegates overlap and caption-safe-zone geometry checks to
 The adapter prefers an installed package and can also use a built sibling
 checkout via `VIDEO_EVALUATOR_ROOT=../video-evaluator`; do not commit a
 `file:` dependency for this while the package is not available from npm.
+Use the evaluator output as shared evidence. Keep the actual promotion
+decision in Content Machine because it depends on archetype fit, hook quality,
+caption style, pacing, and publish readiness, not only generic video facts.
 The default pass is intentionally lightweight (`--maxFrames 8`) so it
 can run against the whole demo folder. For a deeper manual review, run:
 
