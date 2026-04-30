@@ -92,7 +92,7 @@ Each skill entry includes:
 
 ---
 
-### Autonomous Marketing Agent (2 skills)
+### Campaign Measurement & Experimentation (2 skills)
 
 1. **campaign-measurement-system** (5) - Aggregates platform metrics, computes ROI, attribution, variance. Pack 7: autonomous_marketing_agent_math_ai_proof_pack/124_ad_agent_output_schemas_json.md
 

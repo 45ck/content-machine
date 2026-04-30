@@ -15,8 +15,8 @@ own header for authorship and date.
 
 ## Specifications
 
-- `vibeforge-content-machine-spec-v0.2.docx` — VibeForge content-machine
-  spec, v0.2.
+- `early-content-machine-spec-v0.2.docx` — early content-machine spec,
+  v0.2, retained as archival research provenance.
 - `machine-set-spec-content-machine-and-demo-machine.md` — deep-research
   report on the machine-set covering content-machine and demo-machine.
 

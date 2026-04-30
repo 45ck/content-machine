@@ -74,7 +74,7 @@ most directly feeds.
   distinguish organic vs manufactured traction, dark-patterns review
   for generated content.
 
-## Autonomous marketing agent pack
+## Campaign measurement and experimentation pack
 
 - `autonomous_marketing_agent_math_ai_proof_pack/` — large curriculum
   and build-spec bundle (~150 files): six-month curriculum, annotated
