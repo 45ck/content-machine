@@ -226,6 +226,33 @@ function makeFreezeValidateReport() {
   };
 }
 
+function makeHealthyValidateReport() {
+  return {
+    ...makeAudioSignalValidateReport(),
+    passed: true,
+    gates: [
+      {
+        gateId: 'audio-signal',
+        passed: true,
+        severity: 'warning',
+        fix: 'none',
+        message: 'Audio signal OK (-14.2 LUFS, peak -1.5 dBFS)',
+        details: {
+          loudnessLUFS: -14.2,
+          truePeakDBFS: -1.5,
+          loudnessRange: 8,
+          clippingRatio: 0,
+          snrDB: 25,
+          loudnessMinLUFS: -24,
+          loudnessMaxLUFS: -8,
+          maxClippingRatio: 0.01,
+          truePeakMaxDBFS: -1,
+        },
+      },
+    ],
+  };
+}
+
 describe('PublishPrepRequestSchema', () => {
   it('enables fail-closed short-form gates by default', () => {
     const parsed = PublishPrepRequestSchema.parse({
@@ -243,6 +270,18 @@ describe('PublishPrepRequestSchema', () => {
       flowConsistency: false,
       captionSync: true,
     });
+  });
+
+  it('accepts optional provenance review inputs', () => {
+    const parsed = PublishPrepRequestSchema.parse({
+      videoPath: '/tmp/run/render/video.mp4',
+      scriptPath: '/tmp/run/script/script.json',
+      assetLedgerPath: '/tmp/run/provenance/asset-ledger.json',
+      mediaIndexPath: '/tmp/run/library/media-index.v1.json',
+    });
+
+    expect(parsed.assetLedgerPath).toBe('/tmp/run/provenance/asset-ledger.json');
+    expect(parsed.mediaIndexPath).toBe('/tmp/run/library/media-index.v1.json');
   });
 });
 
@@ -403,30 +442,7 @@ describe('runPublishPrep', () => {
   });
 
   it('passes when the review gate reports healthy audio and motion', async () => {
-    toolMocks.validateVideoPath.mockResolvedValue({
-      ...makeAudioSignalValidateReport(),
-      passed: true,
-      gates: [
-        {
-          gateId: 'audio-signal',
-          passed: true,
-          severity: 'warning',
-          fix: 'none',
-          message: 'Audio signal OK (-14.2 LUFS, peak -1.5 dBFS)',
-          details: {
-            loudnessLUFS: -14.2,
-            truePeakDBFS: -1.5,
-            loudnessRange: 8,
-            clippingRatio: 0,
-            snrDB: 25,
-            loudnessMinLUFS: -24,
-            loudnessMaxLUFS: -8,
-            maxClippingRatio: 0.01,
-            truePeakMaxDBFS: -1,
-          },
-        },
-      ],
-    });
+    toolMocks.validateVideoPath.mockResolvedValue(makeHealthyValidateReport());
     toolMocks.readJsonArtifact
       .mockResolvedValueOnce(makeScript())
       .mockResolvedValueOnce(makeCaptionExport());
@@ -459,6 +475,163 @@ describe('runPublishPrep', () => {
           kind: 'file',
         }),
       ])
+    );
+  });
+
+  it('fails closed when asset ledger provenance needs review', async () => {
+    toolMocks.validateVideoPath.mockResolvedValue(makeHealthyValidateReport());
+    toolMocks.readJsonArtifact
+      .mockResolvedValueOnce(makeScript())
+      .mockResolvedValueOnce(makeCaptionExport())
+      .mockResolvedValueOnce({
+        schemaVersion: 'asset-ledger.v1',
+        assets: [
+          {
+            assetId: 'music-bed',
+            assetType: 'music',
+            usageMode: 'downloaded-asset',
+            sourceUrl: 'https://example.com/music-bed',
+            licenseName: 'CC BY 4.0',
+            licenseUrl: 'https://example.com/license',
+            attributionText: 'Music by Example',
+            reviewStatus: 'needs-review',
+            contentIdRisk: 'unknown',
+          },
+        ],
+      });
+
+    const result = await runPublishPrep({
+      videoPath: '/tmp/run/render/video.mp4',
+      scriptPath: '/tmp/run/script/script.json',
+      captionExportPath: '/tmp/run/render/captions.remotion.json',
+      assetLedgerPath: '/tmp/run/provenance/asset-ledger.json',
+      outputDir: '/tmp/run/publish-prep',
+      platform: 'tiktok',
+      packaging: defaultPackaging,
+      publish: defaultPublish,
+      validate: {
+        profile: 'portrait',
+        cadence: false,
+        quality: false,
+        temporal: false,
+        audioSignal: true,
+        freeze: false,
+        flowConsistency: false,
+        captionSync: true,
+      },
+    });
+
+    expect(result.result.passed).toBe(false);
+    expect(result.result.provenancePassed).toBe(false);
+    expect(result.result.provenancePath).toBe('/tmp/run/publish-prep/provenance.json');
+    expect(toolMocks.writeJsonArtifact).toHaveBeenCalledWith(
+      '/tmp/run/publish-prep/provenance.json',
+      expect.objectContaining({
+        passed: false,
+        summary: expect.objectContaining({
+          assetCount: 1,
+          errorCount: expect.any(Number),
+        }),
+        checks: expect.arrayContaining([
+          expect.objectContaining({
+            checkId: 'reviewStatus-approved',
+            passed: false,
+            assetRef: 'music-bed',
+          }),
+          expect.objectContaining({
+            checkId: 'content-id-risk-cleared',
+            passed: false,
+            assetRef: 'music-bed',
+          }),
+        ]),
+      })
+    );
+    expect(result.artifacts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          path: '/tmp/run/publish-prep/provenance.json',
+          kind: 'file',
+        }),
+      ])
+    );
+  });
+
+  it('passes when media index provenance is approved', async () => {
+    toolMocks.validateVideoPath.mockResolvedValue(makeHealthyValidateReport());
+    toolMocks.readJsonArtifact
+      .mockResolvedValueOnce(makeScript())
+      .mockResolvedValueOnce(makeCaptionExport())
+      .mockResolvedValueOnce({
+        schemaVersion: '1.0.0',
+        items: [
+          {
+            path: '/tmp/run/media/music-bed.wav',
+            type: 'audio',
+            category: null,
+            durationSeconds: 30,
+            width: null,
+            height: null,
+            fps: null,
+            orientation: 'unknown',
+            hasAudio: true,
+            hasVideo: false,
+            tags: ['music'],
+            transcriptPath: null,
+            metadata: {
+              provenance: {
+                sourceUrl: 'https://example.com/music-bed',
+                provider: 'example-library',
+                licenseName: 'CC BY 4.0',
+                licenseUrl: 'https://example.com/license',
+                attributionText: 'Music by Example',
+                usageMode: 'downloaded-asset',
+                reviewStatus: 'approved',
+              },
+              audioSource: {
+                platformSource: 'example-library',
+                contentIdRisk: 'none-known',
+                mixRole: 'music-bed',
+              },
+            },
+            indexedAt: fixedDate,
+          },
+        ],
+        warnings: [],
+      });
+
+    const result = await runPublishPrep({
+      videoPath: '/tmp/run/render/video.mp4',
+      scriptPath: '/tmp/run/script/script.json',
+      captionExportPath: '/tmp/run/render/captions.remotion.json',
+      mediaIndexPath: '/tmp/run/library/media-index.v1.json',
+      outputDir: '/tmp/run/publish-prep',
+      platform: 'tiktok',
+      packaging: defaultPackaging,
+      publish: defaultPublish,
+      validate: {
+        profile: 'portrait',
+        cadence: false,
+        quality: false,
+        temporal: false,
+        audioSignal: true,
+        freeze: false,
+        flowConsistency: false,
+        captionSync: true,
+      },
+    });
+
+    expect(result.result.passed).toBe(true);
+    expect(result.result.provenancePassed).toBe(true);
+    expect(toolMocks.writeJsonArtifact).toHaveBeenCalledWith(
+      '/tmp/run/publish-prep/provenance.json',
+      expect.objectContaining({
+        passed: true,
+        summary: expect.objectContaining({
+          mediaIndexPath: '/tmp/run/library/media-index.v1.json',
+          assetCount: 1,
+          errorCount: 0,
+        }),
+      })
     );
   });
 

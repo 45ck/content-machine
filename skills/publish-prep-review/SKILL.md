@@ -1,6 +1,42 @@
 ---
 name: publish-prep-review
 description: Score the script, validate the rendered video, and produce publish metadata so the agent can decide whether a short is ready to upload.
+allowedTools:
+  - shell
+  - read
+  - write
+entrypoint: node --import tsx scripts/harness/publish-prep-review.ts
+inputs:
+  - name: videoPath
+    description: Path to the final rendered MP4.
+    required: true
+  - name: scriptPath
+    description: Path to the source script.json artifact.
+    required: true
+  - name: outputDir
+    description: Directory that will receive the review bundle.
+    required: false
+  - name: platform
+    description: Target platform such as tiktok, reels, or shorts.
+    required: false
+  - name: captionExportPath
+    description: Optional captions.remotion.json sidecar for rendered caption-sync review.
+    required: false
+  - name: assetLedgerPath
+    description: Optional asset ledger for rights, license, attribution, generated-asset, and audio claim review.
+    required: false
+  - name: mediaIndexPath
+    description: Optional media-index.v1.json with metadata.provenance or metadata.audioSource entries.
+    required: false
+outputs:
+  - name: validate.json
+    description: Video validation and gate report.
+  - name: score.json
+    description: Script and readiness score report.
+  - name: publish.json
+    description: Publish metadata and checklist.
+  - name: provenance.json
+    description: Optional rights and asset provenance review when provenance inputs are supplied.
 ---
 
 # Publish Prep Review
@@ -47,12 +83,14 @@ description: Score the script, validate the rendered video, and produce publish 
 - source `script.json`
 - target platform
 - optional validation preferences
+- optional `assetLedgerPath` and `mediaIndexPath` provenance evidence
 
 ## Outputs
 
 - `validate.json`
 - `score.json`
 - `publish.json`
+- optional `provenance.json`
 - optional packaging metadata
 
 ## Output Contract
@@ -60,6 +98,9 @@ description: Score the script, validate the rendered video, and produce publish 
 - Writes `validate.json`, `score.json`, and `publish.json` under the
   requested `outputDir`.
 - Optionally writes `packaging.json` if packaging generation is enabled.
+- Optionally writes `provenance.json` if `assetLedgerPath` or
+  `mediaIndexPath` is supplied. Any provenance error fails the final
+  `passed` result.
 - Validation can include cadence, visual quality, temporal quality,
   audio signal, freeze detection, flow consistency, and automatic
   rendered-caption sync checks in addition to the base
@@ -99,10 +140,37 @@ description: Score the script, validate the rendered video, and produce publish 
 - Reject if the first `1s` to `3s` does not look native: no visible
   stakes, no hook asset, or only generic gameplay/stock without context.
 
+## Rights And Provenance Gate
+
+- This gate verifies the existing ledger, source notes, media index, or
+  provenance files. Do not rerun scouting here; fail with a fix path if
+  evidence is missing.
+- Runtime review accepts `assetLedgerPath` with `assets[]` or `items[]`,
+  plus `mediaIndexPath` whose entries store evidence under
+  `metadata.provenance` or `metadata.audioSource`.
+- `generate-short` emits `provenance/asset-ledger.json` automatically
+  and passes it into publish-prep unless a custom
+  `publishPrep.assetLedgerPath` is supplied.
+- Public examples need source notes or an asset ledger for every
+  external model, texture, clip, image, icon, font, audio track,
+  component copy, and AI-generated asset.
+- Fail public readiness when rights are unknown, source evidence is
+  missing, attribution is required but absent, or the asset is
+  editorial-only, non-commercial, no-derivatives, watermarked,
+  scraper-only, or likely to trigger a platform claim without proof.
+- Fail public readiness when YouTube-origin audio lacks ownership,
+  explicit permission, official download/export evidence, or compatible
+  license plus permitted access.
+- Music, SFX, ambience, and extracted audio need Content ID risk notes
+  plus license certificate or permission evidence when the source
+  provides it.
+- AI-generated media needs provider, model, prompt/reference, job id or
+  workflow, settings, and output hash so the render can be audited later.
+
 ## Optional Runtime Surface
 
 - Repo-side runner:
-  `node --import tsx scripts/harness/publish-prep.ts`
+  `node --import tsx scripts/harness/publish-prep-review.ts`
 - Supporting code:
   `src/harness/publish-prep.ts`,
   `src/validate/*`,

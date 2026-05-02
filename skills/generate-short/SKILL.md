@@ -45,6 +45,8 @@ outputs:
     description: ASS karaoke-style caption sidecar.
   - name: quality-summary.json
     description: Combined visual and caption quality readiness summary.
+  - name: provenance/asset-ledger.json
+    description: Generated asset ledger for publish-prep provenance review.
 ---
 
 # Generate Short
@@ -117,9 +119,18 @@ outputs:
   `visuals/visual-quality.json`, `render/captions.remotion.json`,
   `render/captions.srt`, `render/captions.ass`, and
   `quality-summary.json`.
+- Writes `provenance/asset-ledger.json` for every completed run. The
+  ledger records generated script/audio/render artifacts, visual scene
+  assets, gameplay backgrounds, caption sidecars, file hashes when local
+  files exist, and review status for assets that still need rights
+  evidence.
 - The default review path should carry `render/captions.remotion.json`
   into `publish-prep` so the final MP4 is checked for actual rendered
   caption sync, not just for a valid caption plan on disk.
+- Unless `publishPrep.assetLedgerPath` overrides it, the generated asset
+  ledger is passed into `publish-prep`. `publishPrep.mediaIndexPath`
+  adds reusable media-index evidence. Any rights/provenance error fails
+  the final publish-ready result.
 - Runs `publish-prep` by default and writes its bundle unless
   `publishPrep.enabled` is `false`.
 - Fails closed by default when the review bundle reports `passed: false`.
@@ -141,6 +152,9 @@ outputs:
   `render/captions.ass` exist when caption export is enabled.
 - `quality-summary.json` exists and reports known visual and caption
   readiness signals.
+- `provenance/asset-ledger.json` exists and has entries for generated
+  assets plus any visual, gameplay, audio mix, and caption assets that
+  entered the render.
 - The caption treatment matches the script and platform instead of using
   a random default.
 - If `publishPrep.enabled` is true, `publish-prep/` exists and reports a

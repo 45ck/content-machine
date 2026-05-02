@@ -2,9 +2,11 @@ import { join, resolve } from 'node:path';
 import { z } from 'zod';
 import { ArchetypeEnum } from '../core/config';
 import { CMError } from '../core/errors';
+import { AudioOutputSchema, VisualsOutputSchema } from '../domain';
+import { buildGenerateShortAssetLedger } from '../provenance';
 import { generateBriefToScript } from './brief-to-script';
 import { ingestReferenceVideo, IngestRequestSchema } from './ingest';
-import { writeJsonArtifact } from './artifacts';
+import { readJsonArtifact, writeJsonArtifact } from './artifacts';
 import {
   artifactDirectory,
   artifactFile,
@@ -64,6 +66,7 @@ export const GenerateShortRequestSchema = z
     topic: z.string().min(1),
     outputDir: z.string().min(1).default('output/content-machine/generate-short'),
     archetype: ArchetypeEnum.optional(),
+    laneId: z.string().min(1).optional(),
     targetDuration: z.number().positive().default(45),
     llmProvider: z.enum(['default', 'openai', 'anthropic', 'gemini']).default('default'),
     referenceVideoPath: z.string().min(1).optional(),
@@ -77,6 +80,11 @@ export const GenerateShortRequestSchema = z
   .strict();
 
 export type GenerateShortRequest = z.input<typeof GenerateShortRequestSchema>;
+type NormalizedGenerateShortRequest = z.output<typeof GenerateShortRequestSchema>;
+type BriefToScriptResult = Awaited<ReturnType<typeof generateBriefToScript>>;
+type ScriptToAudioResult = Awaited<ReturnType<typeof runScriptToAudio>>;
+type TimestampsToVisualsResult = Awaited<ReturnType<typeof runTimestampsToVisuals>>;
+type VideoRenderResult = Awaited<ReturnType<typeof runVideoRender>>;
 
 function dedupeArtifacts(artifacts: HarnessArtifact[]): HarnessArtifact[] {
   const unique = new Map<string, HarnessArtifact>();
@@ -151,6 +159,111 @@ function collectQualitySummary(params: {
   };
 }
 
+async function writeGenerateShortAssetLedger(params: {
+  normalized: NormalizedGenerateShortRequest;
+  outputDir: string;
+  effectiveArchetype?: string;
+  scriptResult: BriefToScriptResult;
+  audioResult: ScriptToAudioResult;
+  visualsResult: TimestampsToVisualsResult;
+  renderResult: VideoRenderResult;
+  qualitySummaryPath: string;
+}): Promise<string> {
+  const {
+    normalized,
+    outputDir,
+    effectiveArchetype,
+    scriptResult,
+    audioResult,
+    visualsResult,
+    renderResult,
+    qualitySummaryPath,
+  } = params;
+  const assetLedgerPath = resolve(join(outputDir, 'provenance', 'asset-ledger.json'));
+  const [audioMetadata, visuals] = await Promise.all([
+    readJsonArtifact(audioResult.result.outputMetadataPath, AudioOutputSchema, 'audio metadata'),
+    readJsonArtifact(visualsResult.result.outputPath, VisualsOutputSchema, 'visuals artifact'),
+  ]);
+  const assetLedger = await buildGenerateShortAssetLedger({
+    topic: normalized.topic,
+    archetype: effectiveArchetype ?? null,
+    laneId: normalized.laneId ?? null,
+    llmProvider: normalized.llmProvider,
+    scriptPath: scriptResult.result.outputPath,
+    audio: {
+      audioPath: audioResult.result.audioPath,
+      timestampsPath: audioResult.result.timestampsPath,
+      outputMetadataPath: audioResult.result.outputMetadataPath,
+      voice: audioResult.result.voice ?? normalized.audio.voice ?? 'unknown-voice',
+      ttsEngine: audioResult.result.ttsEngine ?? 'unknown-tts',
+      asrEngine: audioResult.result.asrEngine ?? 'unknown-asr',
+      audioMix: audioMetadata.audioMix ?? null,
+    },
+    visualsPath: visualsResult.result.outputPath,
+    visuals,
+    render: {
+      outputPath: renderResult.result.outputPath,
+      outputMetadataPath: renderResult.result.outputMetadataPath,
+      captionExportPath: renderResult.result.captionExportPath,
+      captionSrtPath: renderResult.result.captionSrtPath,
+      captionAssPath: renderResult.result.captionAssPath,
+    },
+    qualitySummaryPath,
+  });
+  await writeJsonArtifact(assetLedgerPath, assetLedger);
+  return assetLedgerPath;
+}
+
+async function runPublishPrepForGenerateShort(params: {
+  normalized: NormalizedGenerateShortRequest;
+  outputDir: string;
+  scriptPath: string;
+  renderResult: VideoRenderResult;
+  assetLedgerPath: string;
+}): Promise<{
+  publishPrepDir: string | null;
+  publishReady: boolean | null;
+  artifacts: HarnessArtifact[];
+}> {
+  const { normalized, outputDir, scriptPath, renderResult, assetLedgerPath } = params;
+  if (!normalized.publishPrep.enabled) {
+    return { publishPrepDir: null, publishReady: null, artifacts: [] };
+  }
+
+  const publishPrepResult = await runPublishPrep({
+    platform: normalized.publishPrep.platform,
+    packaging: normalized.publishPrep.packaging,
+    publish: normalized.publishPrep.publish,
+    validate: normalized.publishPrep.validate,
+    assetLedgerPath: normalized.publishPrep.assetLedgerPath ?? assetLedgerPath,
+    ...(normalized.publishPrep.mediaIndexPath
+      ? { mediaIndexPath: normalized.publishPrep.mediaIndexPath }
+      : {}),
+    videoPath: renderResult.result.outputPath,
+    captionExportPath: renderResult.result.captionExportPath ?? undefined,
+    scriptPath,
+    outputDir: resolve(normalized.publishPrep.outputDir ?? join(outputDir, 'publish-prep')),
+  });
+  const publishPrepDir = publishPrepResult.result.outputDir;
+  const publishReady = publishPrepResult.result.passed;
+  if (!publishReady && normalized.publishPrep.requirePass) {
+    throw new CMError(
+      'VALIDATION_ERROR',
+      'Publish-prep review failed. Refusing to treat the generated short as ready.',
+      {
+        outputDir,
+        publishPrepDir,
+      }
+    );
+  }
+
+  return {
+    publishPrepDir,
+    publishReady,
+    artifacts: publishPrepResult.artifacts ?? [],
+  };
+}
+
 /** Run the default skills-first pipeline and return the full artifact chain. */
 export async function runGenerateShort(request: GenerateShortRequest): Promise<
   HarnessToolResult<{
@@ -172,10 +285,12 @@ export async function runGenerateShort(request: GenerateShortRequest): Promise<
     captionExportPath: string | null;
     captionSrtPath: string | null;
     captionAssPath: string | null;
+    assetLedgerPath: string;
     publishPrepDir: string | null;
     publishReady: boolean | null;
     archetype: string | null;
     referenceArchetype: string | null;
+    laneId: string | null;
   }>
 > {
   const normalized = GenerateShortRequestSchema.parse(request);
@@ -212,6 +327,12 @@ export async function runGenerateShort(request: GenerateShortRequest): Promise<
         'Reference ingest completed without a blueprint artifact; script generation continued without blueprint guidance.'
       );
     }
+  }
+
+  if (normalized.laneId) {
+    warnings.push(
+      `Accepted laneId "${normalized.laneId}" as routing context; the current generate-short harness still maps execution through shared script, audio, visuals, render, and publish-prep stages.`
+    );
   }
 
   const scriptResult = await generateBriefToScript({
@@ -269,6 +390,18 @@ export async function runGenerateShort(request: GenerateShortRequest): Promise<
   await writeJsonArtifact(qualitySummaryPath, qualitySummary.summary);
   artifacts.push(artifactFile(qualitySummaryPath, 'Generate-short quality summary artifact'));
 
+  const assetLedgerPath = await writeGenerateShortAssetLedger({
+    normalized,
+    outputDir,
+    effectiveArchetype,
+    scriptResult,
+    audioResult,
+    visualsResult,
+    renderResult,
+    qualitySummaryPath,
+  });
+  artifacts.push(artifactFile(assetLedgerPath, 'Asset provenance ledger artifact'));
+
   if (
     normalized.publishPrep.enabled &&
     normalized.publishPrep.requirePass &&
@@ -284,33 +417,14 @@ export async function runGenerateShort(request: GenerateShortRequest): Promise<
     );
   }
 
-  let publishPrepDir: string | null = null;
-  let publishReady: boolean | null = null;
-  if (normalized.publishPrep.enabled) {
-    const publishPrepResult = await runPublishPrep({
-      platform: normalized.publishPrep.platform,
-      packaging: normalized.publishPrep.packaging,
-      publish: normalized.publishPrep.publish,
-      validate: normalized.publishPrep.validate,
-      videoPath: renderResult.result.outputPath,
-      captionExportPath: renderResult.result.captionExportPath ?? undefined,
-      scriptPath: scriptResult.result.outputPath,
-      outputDir: resolve(normalized.publishPrep.outputDir ?? join(outputDir, 'publish-prep')),
-    });
-    artifacts.push(...(publishPrepResult.artifacts ?? []));
-    publishPrepDir = publishPrepResult.result.outputDir;
-    publishReady = publishPrepResult.result.passed;
-    if (!publishPrepResult.result.passed && normalized.publishPrep.requirePass) {
-      throw new CMError(
-        'VALIDATION_ERROR',
-        'Publish-prep review failed. Refusing to treat the generated short as ready.',
-        {
-          outputDir,
-          publishPrepDir,
-        }
-      );
-    }
-  }
+  const publishPrep = await runPublishPrepForGenerateShort({
+    normalized,
+    outputDir,
+    scriptPath: scriptResult.result.outputPath,
+    renderResult,
+    assetLedgerPath,
+  });
+  artifacts.push(...publishPrep.artifacts);
 
   return {
     result: {
@@ -332,10 +446,12 @@ export async function runGenerateShort(request: GenerateShortRequest): Promise<
       captionExportPath: qualitySummary.captionExportPath,
       captionSrtPath: qualitySummary.captionSrtPath,
       captionAssPath: qualitySummary.captionAssPath,
-      publishPrepDir,
-      publishReady,
+      assetLedgerPath,
+      publishPrepDir: publishPrep.publishPrepDir,
+      publishReady: publishPrep.publishReady,
       archetype: effectiveArchetype ?? null,
       referenceArchetype,
+      laneId: normalized.laneId ?? null,
     },
     artifacts: dedupeArtifacts(artifacts),
     warnings,

@@ -2,22 +2,34 @@
 import {
   AssetLedgerRequestSchema,
   BriefToScriptRequestSchema,
+  BoundarySnapRequestSchema,
   CaptionExportRequestSchema,
   DoctorReportRequestSchema,
   FlowCatalogRequestSchema,
   GenerateShortRequestSchema,
+  HighlightApprovalRequestSchema,
   IngestRequestSchema,
   InstallSkillPackRequestSchema,
+  LongformHighlightSelectRequestSchema,
+  MediaIndexRequestSchema,
   RedditStoryAssetsRequestSchema,
   PublishPrepRequestSchema,
   RunFlowRequestSchema,
   ScriptToAudioRequestSchema,
   SkillCatalogRequestSchema,
+  SourceMediaAnalyzeRequestSchema,
+  StyleProfileLibraryRequestSchema,
   TimestampsToVisualsRequestSchema,
   VideoRenderRequestSchema,
   runAssetLedger,
   installSkillPack,
   runRedditStoryAssets,
+  runBoundarySnap,
+  runHighlightApproval,
+  runLongformHighlightSelect,
+  runMediaIndex,
+  runSourceMediaAnalyze,
+  runStyleProfileLibrary,
   listFlowCatalog,
   listSkillCatalog,
   runDoctorReport,
@@ -40,6 +52,11 @@ const registry = {
     tool: 'content-machine/asset-ledger',
     inputSchema: AssetLedgerRequestSchema,
     handler: async ({ input }) => runAssetLedger(input),
+  },
+  'boundary-snap': {
+    tool: 'content-machine/boundary-snap',
+    inputSchema: BoundarySnapRequestSchema,
+    handler: async ({ input }) => runBoundarySnap(input),
   },
   'brief-to-script': {
     tool: 'content-machine/brief-to-script',
@@ -66,6 +83,11 @@ const registry = {
     inputSchema: GenerateShortRequestSchema,
     handler: async ({ input }) => runGenerateShort(input),
   },
+  'highlight-approval': {
+    tool: 'content-machine/highlight-approval',
+    inputSchema: HighlightApprovalRequestSchema,
+    handler: async ({ input }) => runHighlightApproval(input),
+  },
   ingest: {
     tool: 'content-machine/ingest',
     inputSchema: IngestRequestSchema,
@@ -76,6 +98,16 @@ const registry = {
     inputSchema: InstallSkillPackRequestSchema,
     handler: async ({ input }) => installSkillPack(input),
   },
+  'longform-highlight-select': {
+    tool: 'content-machine/longform-highlight-select',
+    inputSchema: LongformHighlightSelectRequestSchema,
+    handler: async ({ input }) => runLongformHighlightSelect(input),
+  },
+  'media-index': {
+    tool: 'content-machine/media-index',
+    inputSchema: MediaIndexRequestSchema,
+    handler: async ({ input }) => runMediaIndex(input),
+  },
   'reddit-story-assets': {
     tool: 'content-machine/reddit-story-assets',
     inputSchema: RedditStoryAssetsRequestSchema,
@@ -85,6 +117,16 @@ const registry = {
     tool: 'content-machine/publish-prep',
     inputSchema: PublishPrepRequestSchema,
     handler: async ({ input }) => runPublishPrep(input),
+  },
+  'publish-prep-review': {
+    tool: 'content-machine/publish-prep-review',
+    inputSchema: PublishPrepRequestSchema,
+    handler: async ({ input }) => runPublishPrep(input),
+  },
+  'reverse-engineer-winner': {
+    tool: 'content-machine/reverse-engineer-winner',
+    inputSchema: IngestRequestSchema,
+    handler: async ({ input }) => ingestReferenceVideo(input),
   },
   'run-flow': {
     tool: 'content-machine/run-flow',
@@ -101,6 +143,16 @@ const registry = {
     inputSchema: SkillCatalogRequestSchema,
     handler: async ({ input }) => listSkillCatalog(input),
   },
+  'source-media-analyze': {
+    tool: 'content-machine/source-media-analyze',
+    inputSchema: SourceMediaAnalyzeRequestSchema,
+    handler: async ({ input }) => runSourceMediaAnalyze(input),
+  },
+  'style-profile-library': {
+    tool: 'content-machine/style-profile-library',
+    inputSchema: StyleProfileLibraryRequestSchema,
+    handler: async ({ input }) => runStyleProfileLibrary(input),
+  },
   'timestamps-to-visuals': {
     tool: 'content-machine/timestamps-to-visuals',
     inputSchema: TimestampsToVisualsRequestSchema,
@@ -113,11 +165,28 @@ const registry = {
   },
 };
 
-if (!toolName || !(toolName in registry)) {
-  const supported = Object.keys(registry).sort();
-  process.stderr.write(
-    `Expected a supported tool name as the first argument.\nSupported tools: ${supported.join(', ')}\n`
-  );
+const supportedTools = Object.keys(registry).sort();
+
+function printUsage(stream) {
+  stream.write('Usage: run-tool.mjs <tool> < request.json\n');
+  stream.write('       run-tool.mjs list\n');
+  stream.write('       run-tool.mjs --help\n');
+  stream.write(`Supported tools: ${supportedTools.join(', ')}\n`);
+}
+
+if (toolName === 'list') {
+  process.stdout.write(`${JSON.stringify({ tools: supportedTools }, null, 2)}\n`);
+  process.exit(0);
+}
+
+if (!toolName || toolName === '--help' || toolName === '-h') {
+  printUsage(process.stdout);
+  process.exit(0);
+}
+
+if (!(toolName in registry)) {
+  process.stderr.write(`Unsupported tool: ${toolName}\n`);
+  printUsage(process.stderr);
   process.exit(1);
 }
 

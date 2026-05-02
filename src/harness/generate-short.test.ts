@@ -8,6 +8,7 @@ const stageMocks = vi.hoisted(() => ({
   runTimestampsToVisuals: vi.fn(),
   runVideoRender: vi.fn(),
   runPublishPrep: vi.fn(),
+  readJsonArtifact: vi.fn(),
   writeJsonArtifact: vi.fn(),
 }));
 
@@ -92,6 +93,8 @@ vi.mock('./publish-prep', async () => {
         videoPath: z.string(),
         scriptPath: z.string(),
         captionExportPath: z.string().optional(),
+        assetLedgerPath: z.string().optional(),
+        mediaIndexPath: z.string().optional(),
         outputDir: z.string().default('output/content-machine/publish-prep'),
         platform: z.enum(['tiktok', 'instagram', 'youtube']).default('tiktok'),
         packaging: z.object({}).passthrough().default({}),
@@ -103,14 +106,61 @@ vi.mock('./publish-prep', async () => {
 });
 
 vi.mock('./artifacts', () => ({
+  readJsonArtifact: stageMocks.readJsonArtifact,
   writeJsonArtifact: stageMocks.writeJsonArtifact,
 }));
 
 import { runGenerateShort } from './generate-short';
 
+function makeAudioMetadata() {
+  return {
+    schemaVersion: '1.0.0',
+    audioPath: '/tmp/run/audio/audio.wav',
+    timestampsPath: '/tmp/run/audio/timestamps.json',
+    timestamps: {
+      schemaVersion: '1.0.0',
+      scenes: [],
+      allWords: [{ word: 'Example', start: 0, end: 0.4, confidence: 0.9 }],
+      totalDuration: 1,
+      ttsEngine: 'kokoro',
+      asrEngine: 'whisper',
+    },
+    duration: 1,
+    wordCount: 1,
+    voice: 'af_heart',
+    sampleRate: 24000,
+  };
+}
+
+function makeVisualsArtifact() {
+  return {
+    schemaVersion: '1.1.0',
+    scenes: [
+      {
+        sceneId: 'scene-1',
+        source: 'mock',
+        assetPath: 'mock://scene-1.mp4',
+        duration: 1,
+        assetType: 'video',
+        motionApplied: false,
+        motionStrategy: 'none',
+      },
+    ],
+    totalAssets: 1,
+    fromUserFootage: 0,
+    fromStock: 0,
+    fallbacks: 0,
+    fromGenerated: 0,
+    totalGenerationCost: 0,
+  };
+}
+
 describe('runGenerateShort', () => {
   beforeEach(() => {
     Object.values(stageMocks).forEach((mock) => mock.mockReset());
+    stageMocks.readJsonArtifact.mockImplementation(async (path: string) =>
+      path.includes('/visuals/') ? makeVisualsArtifact() : makeAudioMetadata()
+    );
     stageMocks.writeJsonArtifact.mockImplementation(async (path: string) => path);
   });
 
@@ -198,6 +248,7 @@ describe('runGenerateShort', () => {
     expect(result.result.publishPrepDir).toBeNull();
     expect(result.result.publishReady).toBeNull();
     expect(result.result.qualitySummaryPath).toBe(join(runDir, 'quality-summary.json'));
+    expect(result.result.assetLedgerPath).toBe(join(runDir, 'provenance', 'asset-ledger.json'));
     expect(result.result.qualityReady).toBe(true);
     expect(result.result.visualQualityPassed).toBe(true);
     expect(result.result.visualQualityScore).toBe(0.91);
@@ -210,6 +261,17 @@ describe('runGenerateShort', () => {
         ready: true,
         visual: expect.objectContaining({ passed: true, score: 0.91 }),
         captions: expect.objectContaining({ passed: true, score: 0.93 }),
+      })
+    );
+    expect(stageMocks.writeJsonArtifact).toHaveBeenCalledWith(
+      join(runDir, 'provenance', 'asset-ledger.json'),
+      expect.objectContaining({
+        assets: expect.arrayContaining([
+          expect.objectContaining({
+            assetId: 'audio:voiceover',
+            reviewStatus: 'generated-local',
+          }),
+        ]),
       })
     );
     expect(result.artifacts).toEqual(
@@ -225,6 +287,11 @@ describe('runGenerateShort', () => {
           path: join(runDir, 'quality-summary.json'),
           kind: 'file',
           description: 'Generate-short quality summary artifact',
+        },
+        {
+          path: join(runDir, 'provenance', 'asset-ledger.json'),
+          kind: 'file',
+          description: 'Asset provenance ledger artifact',
         },
       ])
     );
@@ -317,6 +384,7 @@ describe('runGenerateShort', () => {
       packaging: {},
       publish: {},
       validate: {},
+      assetLedgerPath: join(refDir, 'provenance', 'asset-ledger.json'),
       videoPath: '/tmp/ref/render/video.mp4',
       captionExportPath: '/tmp/ref/render/captions.remotion.json',
       scriptPath: '/tmp/ref/script/script.json',

@@ -44,6 +44,7 @@ Current entrypoints:
 - `asset-ledger.ts`
 - `brief-to-script.ts`
 - `ingest.ts`
+- `reverse-engineer-winner.ts`
 - `longform-highlight-select.ts`
 - `highlight-approval.ts`
 - `boundary-snap.ts`
@@ -53,9 +54,14 @@ Current entrypoints:
 - `script-to-audio.ts`
 - `timestamps-to-visuals.ts`
 - `video-render.ts`
+- `caption-export.ts`
 - `publish-prep.ts`
+- `publish-prep-review.ts`
+- `reddit-story-assets.ts`
 - `install-skill-pack.ts`
 
 Installed-package users should prefer
 `node ./node_modules/@45ck/content-machine/agent/run-tool.mjs <tool>`.
+Use `node ./node_modules/@45ck/content-machine/agent/run-tool.mjs list`
+to inspect packaged tool names.
 See `skills/*/SKILL.md` for skill guides and `flows/*` for flow guides.

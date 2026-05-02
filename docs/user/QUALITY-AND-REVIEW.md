@@ -18,6 +18,8 @@ Every public example should have:
 - captions inside mobile safe zones.
 - no source clip with baked-in captions unless the skill intentionally
   uses that as part of the visual design.
+- source notes, an asset ledger, or media-index provenance for external,
+  generated, and audio assets.
 - a contact sheet or manual visual review note for the final MP4.
 - publish-prep output or an explicit reason the gate could not run.
 - the demo-video audit passes if the MP4 will be linked from
@@ -34,22 +36,24 @@ Use this order because it catches expensive mistakes early:
    captions can be chunked into readable phrases.
 3. Visual plan: verify each narration beat has a specific visual job.
 4. Render: inspect the actual MP4, not only JSON artifacts.
-5. Publish-prep: run platform, cadence, audio, and caption checks.
+5. Publish-prep: run platform, cadence, audio, caption, and provenance
+   checks.
 6. Send-back: fix the first upstream cause instead of patching symptoms
    in the final export.
 
 ## Required Gates
 
-| Gate                | What It Catches                                            | Skills Or Runtime Surface                                                                                                                                                                                        |
-| ------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Source media review | bad footage, silence, baked text, wrong crop, reused junk  | [`source-media-review`](../../skills/source-media-review/SKILL.md), [`source-media-analyze`](../../skills/source-media-analyze/SKILL.md)                                                                         |
-| Caption timing      | captions drifting away from voiceover                      | [`token-level-caption-timestamps`](../../skills/token-level-caption-timestamps/SKILL.md), [`timing-sync`](../../skills/timing-sync/SKILL.md), [`short-form-captions`](../../skills/short-form-captions/SKILL.md) |
-| Caption design      | captions outside frame, too many words, unreadable styling | [`short-form-captions`](../../skills/short-form-captions/SKILL.md), [`karaoke-ass-captions`](../../skills/karaoke-ass-captions/SKILL.md)                                                                         |
-| Scene variation     | slideshow risk, repeated cards, weak motion                | [`scene-variation-check`](../../skills/scene-variation-check/SKILL.md), [`slideshow-risk-review`](../../skills/slideshow-risk-review/SKILL.md)                                                                   |
-| Scene pacing        | visuals not matching narration cues                        | [`scene-pacing-verifier`](../../skills/scene-pacing-verifier/SKILL.md), [`timing-sync`](../../skills/timing-sync/SKILL.md)                                                                                       |
-| Safe vertical crop  | faces, UI, text, or story footage cut off                  | [`reframe-vertical`](../../skills/reframe-vertical/SKILL.md), [`scene-aware-smart-crop`](../../skills/scene-aware-smart-crop/SKILL.md)                                                                           |
-| Layout safety       | cards, diagrams, captions, and UI layers overlapping       | `@45ck/video-evaluator` `layout-safety-review`; demo sidecars use `docs/demo/*.layout.json`                                                                                                                      |
-| Publish prep        | platform format, cadence, audio signal, captions, metadata | [`publish-prep-review`](../../skills/publish-prep-review/SKILL.md), [`scripts/harness/publish-prep.ts`](../../scripts/harness/publish-prep.ts)                                                                   |
+| Gate                | What It Catches                                               | Skills Or Runtime Surface                                                                                                                                                                                        |
+| ------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Source media review | bad footage, silence, baked text, wrong crop, reused junk     | [`source-media-review`](../../skills/source-media-review/SKILL.md), [`source-media-analyze`](../../skills/source-media-analyze/SKILL.md)                                                                         |
+| Caption timing      | captions drifting away from voiceover                         | [`token-level-caption-timestamps`](../../skills/token-level-caption-timestamps/SKILL.md), [`timing-sync`](../../skills/timing-sync/SKILL.md), [`short-form-captions`](../../skills/short-form-captions/SKILL.md) |
+| Caption design      | captions outside frame, too many words, unreadable styling    | [`short-form-captions`](../../skills/short-form-captions/SKILL.md), [`karaoke-ass-captions`](../../skills/karaoke-ass-captions/SKILL.md)                                                                         |
+| Scene variation     | slideshow risk, repeated cards, weak motion                   | [`scene-variation-check`](../../skills/scene-variation-check/SKILL.md), [`slideshow-risk-review`](../../skills/slideshow-risk-review/SKILL.md)                                                                   |
+| Scene pacing        | visuals not matching narration cues                           | [`scene-pacing-verifier`](../../skills/scene-pacing-verifier/SKILL.md), [`timing-sync`](../../skills/timing-sync/SKILL.md)                                                                                       |
+| Safe vertical crop  | faces, UI, text, or story footage cut off                     | [`reframe-vertical`](../../skills/reframe-vertical/SKILL.md), [`scene-aware-smart-crop`](../../skills/scene-aware-smart-crop/SKILL.md)                                                                           |
+| Layout safety       | cards, diagrams, captions, and UI layers overlapping          | `@45ck/video-evaluator` `layout-safety-review`; demo sidecars use `docs/demo/*.layout.json`                                                                                                                      |
+| Publish prep        | platform format, cadence, audio signal, captions, metadata    | [`publish-prep-review`](../../skills/publish-prep-review/SKILL.md), [`scripts/harness/publish-prep.ts`](../../scripts/harness/publish-prep.ts)                                                                   |
+| Provenance          | unknown rights, missing licenses, risky audio, weak AI traces | [`publish-prep-review`](../../skills/publish-prep-review/SKILL.md), [`media-index`](../../skills/media-index/SKILL.md), asset ledgers                                                                            |
 
 ## Publish-Prep Command
 
@@ -60,6 +64,8 @@ cat <<'JSON' | node --import tsx scripts/harness/publish-prep.ts
 {
   "videoPath": "runs/demo-run/render/video.mp4",
   "scriptPath": "runs/demo-run/script/script.json",
+  "assetLedgerPath": "runs/demo-run/provenance/asset-ledger.json",
+  "mediaIndexPath": "output/content-machine/library/media-index.v1.json",
   "outputDir": "runs/demo-run/publish-prep",
   "platform": "tiktok",
   "validate": {
@@ -74,16 +80,38 @@ Add stricter caption/OCR checks when the render has caption sidecars and
 the local environment supports OCR. If OCR fails, do not hide it; mark
 the lane as a candidate until the drift is fixed.
 
+`generate-short` writes `provenance/asset-ledger.json` automatically and
+passes that ledger into publish-prep unless `publishPrep.assetLedgerPath`
+points to a custom reviewed ledger. Generated local artifacts can pass
+from the automatic ledger; stock footage, user footage, gameplay,
+external audio, or reusable library media still need explicit rights
+evidence before public readiness passes.
+
+For manually assembled demos or older runs, build the ledger directly:
+
+```bash
+cat skills/asset-ledger/examples/request.json | \
+  node --import tsx scripts/harness/asset-ledger.ts
+```
+
+When `assetLedgerPath` or `mediaIndexPath` is supplied, publish-prep also
+writes `provenance.json`. Any provenance error blocks `passed: true`;
+warnings stay visible for human review.
+
 ## Demo Video Audit
 
 Run this before promoting anything into `docs/demo` or the README:
 
 ```bash
 npm run review:demo-videos
+npm run public-demo:check
 ```
 
 It writes `experiments/video-quality-review-demo/README.md`,
 `summary.json`, per-video frame samples, and an aggregate contact sheet.
+The public demo check is static: it verifies demo source notes,
+provenance entries, review-report paths, maturity labels, and package
+intent without rerendering media.
 If a promoted MP4 has a matching `docs/demo/*.layout.json` sidecar, the
 audit delegates overlap and caption-safe-zone geometry checks to
 `@45ck/video-evaluator` instead of using content-machine-only heuristics.
@@ -125,7 +153,7 @@ does not match the intended style.
 ## Current Example Maturity
 
 - `reddit-post-over-gameplay` is the golden showcase.
-- `reddit-story-split-screen` is a recipe lane until a gutter-free demo
+- `reddit-story-split-screen` is a workflow lane until a gutter-free demo
   passes the demo-video audit.
 - `stock-b-roll-explainer`, `text-thread-reveal`,
   `saas-problem-solution`, `fast-facts-countdown`,

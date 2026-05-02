@@ -69,9 +69,19 @@ layout.
 - Use [Quality And Review](QUALITY-AND-REVIEW.md) before promoting a
   render as ready.
 
-## Step 4: Run the main full-video path
+## Step 4: Optional no-key smoke test
 
-`generate-short` is the default topic-to-video path:
+If you only want to prove the artifact chain without API keys, use the
+no-key smoke path in
+[`content-machine-self-demo`](examples/content-machine-self-demo.md#no-key-smoke-test).
+It creates mock audio, mock visuals, caption sidecars, render metadata,
+and a placeholder MP4. It is not a publishable demo.
+
+## Step 5: Run the main full-video path
+
+`generate-short` is the default topic-to-video path. Use this after
+provider credentials are configured, for example `OPENAI_API_KEY` plus a
+visual provider key such as `PEXELS_API_KEY` when using Pexels visuals:
 
 ```bash
 cat <<'JSON' | node --import tsx scripts/harness/run-flow.ts
@@ -93,12 +103,15 @@ This writes run-scoped files under `runs/demo-run/` by default.
 
 By default the review gate is fail-closed: if `publish-prep` says the
 short is not ready, `generate-short` exits non-zero instead of quietly
-handing back junk.
+handing back junk. The run also writes
+`runs/demo-run/provenance/asset-ledger.json` and passes it into
+publish-prep, so stock footage, user media, gameplay, or external audio
+must have rights evidence before the run is considered publish-ready.
 
 If you prefer npm aliases, the same runner is available as
 `npm run agent:run-flow`.
 
-## Step 5: Pull a reference video or run one skill directly
+## Step 6: Pull a reference video or run one skill directly
 
 Generate only a script:
 
@@ -108,11 +121,12 @@ cat skills/brief-to-script/examples/request.json | \
 ```
 
 Reverse-engineer a reference short from a local file or supported URL.
-URL inputs use `yt-dlp` before analysis:
+URL inputs use `yt-dlp` before analysis; only use URLs you own, have
+permission to analyze, or can otherwise use under the source terms:
 
 ```bash
 cat skills/reverse-engineer-winner/examples/request.json | \
-  node --import tsx scripts/harness/ingest.ts
+  node --import tsx scripts/harness/reverse-engineer-winner.ts
 ```
 
 Run diagnostics, including `ffmpeg`, `ffprobe`, and `yt-dlp` checks:
@@ -125,10 +139,11 @@ cat skills/doctor-report/examples/request.json | \
 Run the review gate directly when you want a hard ready-to-post verdict:
 
 ```bash
-cat <<'JSON' | node --import tsx scripts/harness/publish-prep.ts
+cat <<'JSON' | node --import tsx scripts/harness/publish-prep-review.ts
 {
   "videoPath": "runs/demo-run/render/video.mp4",
   "scriptPath": "runs/demo-run/script/script.json",
+  "assetLedgerPath": "runs/demo-run/provenance/asset-ledger.json",
   "outputDir": "runs/demo-run/publish-prep",
   "platform": "tiktok",
   "validate": { "cadence": true, "audioSignal": true }
@@ -136,7 +151,7 @@ cat <<'JSON' | node --import tsx scripts/harness/publish-prep.ts
 JSON
 ```
 
-## Step 6: Install the pack into another project
+## Step 7: Install the pack into another project
 
 If you want these skills inside a separate coding-agent project, install
 the package there and materialize a local copy:
@@ -155,7 +170,7 @@ JSON
 That creates `.content-machine/skills/` and `.content-machine/flows/`
 with `SKILL.md` files already pointed at the installed package runner.
 
-## Step 7: Read the guide next to the surface
+## Step 8: Read the guide next to the surface
 
 - Archetype guide: [`ARCHETYPES.md`](ARCHETYPES.md)
 - Review guide: [`QUALITY-AND-REVIEW.md`](QUALITY-AND-REVIEW.md)
