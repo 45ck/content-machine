@@ -72,6 +72,9 @@ not hidden chat state.
   Self-validation, rejection triggers, and regeneration choices.
 - [archetype-map.md](references/archetype-map.md)
   Named archetypes, default visual modes, and generation order.
+- For external resource scouting, use
+  [`../creative-source-scout/SKILL.md`](../creative-source-scout/SKILL.md)
+  before copying assets or relying on a site.
 - For caption styling details, use
   [`../short-form-captions/SKILL.md`](../short-form-captions/SKILL.md).
 

@@ -71,6 +71,10 @@ description: Build a narrow educational short around motion cards, timed reveals
   reinforcement timing are locked.
 - Countdowns, answer flips, and term reveals are first-class scene
   events, not styling afterthoughts.
+- Useful source-inspired motifs include flip-word headlines, answer
+  flips, shimmer stats, proof marquees, bento cards, countdown rings,
+  and spotlight callouts; rebuild them with deterministic Remotion/SVG
+  motion unless reuse rights are verified.
 - This lane works best when every card has one job.
 - The card itself must carry the lesson on mute; captions should
   reinforce the card state, not be the only source of meaning.

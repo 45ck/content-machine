@@ -69,6 +69,9 @@ description: Build a faceless short that mixes voiceover, stock footage, local f
   diagrams, or stylized transitions.
 - Use music and motion changes to separate beats, not to hide weak
   writing.
+- Route music beds, SFX, ambience, and YouTube-origin audio through
+  [`audio-source-policy`](../creative-source-scout/references/audio-source-policy.md)
+  before direct use in public demos.
 - Do not place secondary explanatory text behind captions. The main
   visual should carry context, and captions should occupy the clean
   caption zone without text collisions.

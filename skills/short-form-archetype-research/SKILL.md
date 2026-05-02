@@ -1,6 +1,6 @@
 ---
 name: short-form-archetype-research
-description: Route and quality-gate TikTok, Instagram Reels, and YouTube Shorts production using the local 2026-04-29 archetype research pack, blueprints, repo evidence summaries, recipes, and provenance rules.
+description: Route and quality-gate TikTok, Instagram Reels, and YouTube Shorts production using the local 2026-04-29 archetype research pack, blueprints, repo evidence summaries, workflow guides, and provenance rules.
 ---
 
 # Short-Form Archetype Research
@@ -10,7 +10,7 @@ description: Route and quality-gate TikTok, Instagram Reels, and YouTube Shorts 
 - The user asks how winning Reels, TikToks, or YouTube Shorts are made.
 - You need to choose a production archetype before using
   `generate-short`, `video-render`, or a lane-specific skill.
-- You need repo-backed evidence, asset requirements, recipes,
+- You need repo-backed evidence, asset requirements, workflow guides,
   or quality gates for a short-form format.
 - You are comparing content-machine output against reference repos and
   want parity checks rather than generic style advice.
@@ -28,8 +28,8 @@ primary archetype and the one secondary behavior it borrows.
 1. Read [routing-guide.md](references/routing-guide.md) to choose the
    archetype.
 2. Load the matching JSON blueprint from `assets/blueprints/`.
-3. Load the matching recipe from `references/` when execution details
-   matter.
+3. Load the matching workflow guide from `references/` when execution
+   details matter.
 4. Use lane-specific `examples/request.json` files when a production
    skill ships one.
 5. Check [asset-pack-spec.md](references/asset-pack-spec.md) and

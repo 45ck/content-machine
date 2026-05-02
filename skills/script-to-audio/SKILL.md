@@ -1,6 +1,31 @@
 ---
 name: script-to-audio
 description: Generate a voiceover WAV plus timestamps from a script file so later steps can build captions and video from it.
+allowedTools:
+  - shell
+  - read
+  - write
+entrypoint: node --import tsx scripts/harness/script-to-audio.ts
+inputs:
+  - name: scriptPath
+    description: Path to an existing script.json artifact.
+    required: true
+  - name: outputDir
+    description: Directory that will receive audio and timestamp artifacts.
+    required: false
+  - name: voice
+    description: Optional TTS voice id.
+    required: false
+  - name: mock
+    description: Use local mock audio and timestamps for smoke tests.
+    required: false
+outputs:
+  - name: audio.wav
+    description: Generated voiceover audio.
+  - name: timestamps.json
+    description: Word and scene timing artifact.
+  - name: audio.json
+    description: Audio-stage metadata artifact.
 ---
 
 # Script To Audio

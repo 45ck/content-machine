@@ -11,6 +11,54 @@ you have a script or clip candidate.
   subject of the short.
 - Vary scene type, scale, and motion. A sequence of near-identical shots
   reads as lazy even if the cuts are technically fast.
+- Use
+  [`creative-source-scout`](../../creative-source-scout/SKILL.md)
+  before relying on external animation, 3D, stock, audio, font, icon, or
+  AI-generation sources.
+- Unknown rights mean `inspiration-only` or `code-native-rebuild`, not a
+  public render asset.
+
+## Source Routing
+
+- **Code-native motion**: choose for hook cards, diagrams, UI-style
+  explainers, creative-coding backgrounds, and OSS demos where rights
+  must be simple.
+- **Stock footage**: choose for real-world B-roll only after
+  source-media review confirms caption cleanliness and provenance.
+- **3D/procedural gameplay**: choose as an additive retention rail, not
+  a replacement for Reddit cards, receipts, captions, or the selected
+  archetype.
+- **AI image/video**: choose for impossible shots, metaphor scenes, and
+  continuity chains; store provider/model/job/prompt evidence.
+- **Imported models/audio/fonts/icons**: choose only when license,
+  attribution, and redistribution limits are explicit.
+
+## Source-Inspired Technique Palette
+
+- UI/component sources become `HookCard`, `FlipWordHeadline`,
+  `ShimmerStat`, `SpotlightCallout`, `AuroraBackdrop`,
+  `DiagramDrawOn`, `MarqueeProofStrip`, `BentoBeatCard`, or
+  `PointerHighlight`.
+- 3D sources become low-poly road/tunnel loops, lane runners, shader
+  grids, parallax terrain, orbiting collectibles, or simple character
+  run cycles.
+- Creative-coding sources become seeded flow fields, particles, SDF
+  masks, waveform visuals, contour maps, or precomputed
+  reaction-diffusion textures.
+- AI-video sources use first-frame discipline, last-frame chaining,
+  tagged references, provider-native multi-shot prompts, and an async
+  job ledger.
+
+## Provenance Gate
+
+Before render, external assets need source notes or an asset ledger with
+source URL, provider, author, title, license, license URL, retrieval
+date, file hash, usage mode, attribution text, modifications, rights
+flags, and review status.
+
+Reject public demo use if the source is editorial-only, watermarked,
+non-commercial, no-derivatives, personal-use, scraper-only, missing
+license evidence, or likely to trigger a platform claim without proof.
 
 ## Frame Design
 

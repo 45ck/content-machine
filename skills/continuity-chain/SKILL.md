@@ -24,6 +24,8 @@ description: Generate multi-scene AI video sequences with better visual continui
 - first seed image or first clip
 - ordered scene list
 - default chain prompt or per-scene prompts
+- optional provider/model, reference asset ids, seed/settings, and
+  rights notes
 - output directory for generated clips
 
 ## Outputs
@@ -38,9 +40,14 @@ description: Generate multi-scene AI video sequences with better visual continui
 1. Seed scene 1 from the chosen image or initial clip.
 2. For each later scene, extract the last frame of the previous clip.
 3. Use that extracted frame as the input image for the next generation.
-4. Skip scenes that already rendered successfully unless regeneration is
+4. Use provider-native continuity when available:
+   start/end keyframes, video extension, reference libraries,
+   multi-shot prompts, or reusable ComfyUI workflow graphs.
+5. Record provider, model, prompt, references, job id, settings, output
+   hash, and seed if available.
+6. Skip scenes that already rendered successfully unless regeneration is
    required.
-5. Keep the chain order explicit so a failed scene does not corrupt the
+7. Keep the chain order explicit so a failed scene does not corrupt the
    rest of the run.
 
 ## Good Uses
@@ -62,6 +69,8 @@ description: Generate multi-scene AI video sequences with better visual continui
   when several prompts belong to one continuous generated sequence.
 - Pair with [`partial-regeneration`](../partial-regeneration/SKILL.md)
   to resume interrupted scene chains.
+- Pair with [`creative-source-scout`](../creative-source-scout/SKILL.md)
+  when reference images, providers, or model terms need verification.
 
 ## Aggregated From
 

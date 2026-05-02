@@ -52,6 +52,11 @@ description: Audit user-supplied video, audio, image, and gameplay inputs before
 
 ## Review Workflow
 
+Use [`source-media-analyze`](../source-media-analyze/SKILL.md) instead
+when you only need duration, orientation, codec, scene changes, silence,
+or audio-energy metadata. Use this full review when visual fitness,
+caption cleanliness, provenance, or reuse risk affects the plan.
+
 1. Probe the file technically with `ffprobe` or equivalent.
 2. Sample representative frames. Do not trust just frame 1.
 3. Check for burned-in text, existing captions, watermarks, UI chrome,
@@ -60,6 +65,34 @@ description: Audit user-supplied video, audio, image, and gameplay inputs before
    whether speech overlaps music or effects.
 5. Write a short implication note:
    `use directly`, `use with crop`, `reference only`, or `reject`.
+
+## External Source Intake
+
+For downloaded stock, gameplay, audio, fonts, icons, models, textures,
+or generated media, review provenance before visual quality:
+
+- Use
+  [`provenance-and-license-gates.md`](../creative-source-scout/references/provenance-and-license-gates.md)
+  for copied, downloaded, generated, packaged, or public assets.
+- Use
+  [`audio-source-policy.md`](../creative-source-scout/references/audio-source-policy.md)
+  for music, SFX, ambience, extracted audio, or YouTube-origin audio.
+- If provenance fails, stop before frame sampling or render planning.
+- source URL and provider are known
+- creator/author and license URL are recorded
+- license allows the planned public/demo/commercial use
+- attribution text is present when required or useful
+- file hash and retrieval date are recorded
+- audio sources include Content ID risk, certificate or permission
+  evidence, and whether the asset is music, SFX, ambience, or extracted
+  audio
+- YouTube-origin media is direct-use only when ownership, explicit
+  permission, official download/export, or compatible license plus
+  permitted access is documented; otherwise it is reference-only
+- editorial-only, non-commercial, no-derivatives, watermarked, or
+  sample-preview assets are rejected for public demos
+- recognizable people, brands, copyrighted characters, UI, artwork, or
+  property have explicit rights notes or are rejected
 
 ## What To Look For
 

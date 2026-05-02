@@ -77,6 +77,9 @@ payoff`.
   terms.
 - Music and transitions should separate beats; they should not be used
   to disguise weak visual matching.
+- Music beds and SFX need the same source evidence as stock footage; use
+  [`audio-source-policy`](../creative-source-scout/references/audio-source-policy.md)
+  before pulling from royalty-free libraries or YouTube-origin sources.
 - If a local fallback assembler is used, it still has to emit caption
   sidecars and go through the same review gate as the canonical render
   path.

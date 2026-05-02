@@ -41,6 +41,9 @@ description: Turn a short's opening hook into its own styled visual asset or ove
 3. Give the hook its own padding, corner radius, shadow, and contrast.
 4. Position it intentionally against safe zones and platform chrome.
 5. Let the hook leave before the normal caption rhythm fully takes over.
+6. Use source-inspired treatments such as spotlight cards, pointer
+   highlights, typewriter/flip-word reveals, shimmer proof chips, or
+   bold banners only when they settle before normal captions take over.
 
 ## Good Pattern
 

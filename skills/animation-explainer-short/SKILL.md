@@ -25,6 +25,9 @@ description: Make a faceless explainer short using diagrams, motion cards, gener
 5. Treat every transition as editorial meaning, not filler movement.
 6. Use [`motion-design-coder`](../motion-design-coder/SKILL.md) when
    the output includes SVG, HTML/CSS, React, or Remotion animation.
+7. Use [`creative-source-scout`](../creative-source-scout/SKILL.md)
+   when pulling from animation libraries, creative-coding references,
+   AI-video providers, stock footage, icons, fonts, or 3D sources.
 
 ## Inputs
 
@@ -62,6 +65,10 @@ description: Make a faceless explainer short using diagrams, motion cards, gener
 - For Remotion scenes, motion should be frame-driven and deterministic;
   do not use CSS animation clocks or unseeded randomness as the render
   timing source.
+- Map abstract beats to original code-native visual metaphors when
+  possible: flow fields for systems, SDF masks for concepts, particles
+  for scale, waveform visuals for sound/data, and precomputed organic
+  textures for emergence.
 
 ## Aggregated From
 

@@ -27,11 +27,17 @@ description: Convert a scene plan into stronger image or video generation prompt
   `lighting_key`, `color_temperature`
 - optional `texture_keywords`
 - optional high-level style context for the whole project
+- optional provider fields:
+  `duration`, `aspect_ratio`, `negative_prompt`, `start_image`,
+  `end_image`, `reference_elements`, `motion_strength`, `seed`,
+  `provider`, `model`, and `rights_notes`
 
 ## Output
 
 - one generation prompt per visual scene
 - optional hero-scene markers for the scenes that deserve extra effort
+- optional provider-ready fields for image-to-video, text-to-video,
+  multi-shot, or reference-driven providers
 
 ## Prompt Construction Order
 
@@ -47,6 +53,15 @@ description: Convert a scene plan into stronger image or video generation prompt
    high-key, neon, golden hour, tungsten, cold office, etc.
 6. Style:
    only as a light final nudge, not the whole prompt
+
+For video providers, also specify:
+
+- first frame or start image when image-to-video is safer than
+  text-to-video
+- end image or last-frame seed when continuity matters
+- reference elements for character, object, style, or environment
+- duration, aspect ratio, motion strength, and negative prompt
+- provider/model and rights notes for any reference media
 
 ## Good Prompt Behavior
 

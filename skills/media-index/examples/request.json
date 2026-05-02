@@ -5,7 +5,20 @@
       "path": "input/source.mp4",
       "analysisPath": "output/content-machine/highlights/source-media-analysis.v1.json",
       "category": "longform-source",
-      "tags": ["podcast", "highlight-source"]
+      "tags": ["podcast", "highlight-source"],
+      "metadata": {
+        "provenance": {
+          "sourceUrl": "https://example.com/source",
+          "provider": "user-supplied",
+          "licenseName": "owned-or-permissioned",
+          "reviewStatus": "needs-review"
+        },
+        "audioSource": {
+          "platformSource": "user-supplied",
+          "contentIdRisk": "unknown",
+          "mixRole": "source"
+        }
+      }
     }
   ]
 }

@@ -91,6 +91,10 @@ outputs:
 7. Pair it with narration and the selected archetype. Do not let the
    whole short become a static screenshot, but also do not add extra
    visual layers that violate the chosen mode.
+8. If adapting UI/component-library patterns, use accessible card
+   hierarchy and light entry/exit micro-motion only; do not copy
+   platform chrome, premium component code, or unclear marketplace
+   assets.
 
 ## Good Pattern
 

@@ -74,23 +74,29 @@ outputs:
    `1080x1920`, for TikTok, Instagram Reels, and Shorts.
 2. Confirm the visuals are caption-clean. Rendering is not the place to
    hide pre-existing text burned into source footage.
-3. If the edit still needs judgment on pacing, hook support, shot
+3. Confirm music, SFX, ambience, or extracted audio already has source
+   evidence and Content ID risk notes. Rendering is not the place to
+   turn unclear YouTube downloads into a public demo asset.
+   - If source/audio evidence is missing, stop and route back to
+     [`source-media-review`](../source-media-review/SKILL.md) or
+     [`audio-source-policy`](../creative-source-scout/references/audio-source-policy.md).
+4. If the edit still needs judgment on pacing, hook support, shot
    variation, or assembly choices, read
    [`short-form-production-playbook`](../short-form-production-playbook/SKILL.md)
    before touching render options.
-4. Choose the closest caption family from
+5. Choose the closest caption family from
    [`short-form-captions`](../short-form-captions/SKILL.md).
-5. Keep layout readable before adding more styling. Chunk size, line
+6. Keep layout readable before adding more styling. Chunk size, line
    count, and placement matter more than decorative motion.
-6. Keep caption overlays inside the practical social safe box:
+7. Keep caption overlays inside the practical social safe box:
    `x=96..984`, `y=220..1540` on a `1080x1920` render.
-7. For animation-heavy cards, diagrams, SVG/HTML assets, or Remotion
+8. For animation-heavy cards, diagrams, SVG/HTML assets, or Remotion
    scene work, use
    [`motion-design-coder`](../motion-design-coder/SKILL.md) before
    approving the render plan.
-8. Use the repo caption presets as the baseline and then override only
+9. Use the repo caption presets as the baseline and then override only
    the specific fields the brief actually needs.
-9. Render and inspect the actual MP4. Do not trust config alone.
+10. Render and inspect the actual MP4. Do not trust config alone.
 
 ## Split-Screen Rules
 

@@ -1,0 +1,32 @@
+{
+  "topic": "Product-demo short for Content Machine, an open-source local-first short-form video toolkit for coding agents. Show the problem: topic-to-video agents are usually opaque. Demo the solution: repo-local skills and flows create script, audio, timestamps, visuals, captions, render metadata, and publish-prep review as inspectable files. End with: clone it, run diagnostics, then run generate-short. Avoid claims about guaranteed virality, hands-off publishing, or perfect quality without review.",
+  "archetype": "product-demo",
+  "laneId": "tool-workflow-explainer",
+  "targetDuration": 35,
+  "outputDir": "runs/cm-self-demo-product",
+  "audio": {
+    "voice": "af_heart",
+    "requireWhisper": false
+  },
+  "visuals": {
+    "provider": "pexels",
+    "orientation": "portrait",
+    "topic": "developer terminal coding agent video editing workflow"
+  },
+  "render": {
+    "fps": 30,
+    "downloadAssets": true,
+    "captionPreset": "capcut",
+    "captionMode": "chunk"
+  },
+  "publishPrep": {
+    "enabled": true,
+    "platform": "tiktok",
+    "requirePass": false,
+    "validate": {
+      "cadence": true,
+      "audioSignal": true,
+      "captionSync": true
+    }
+  }
+}

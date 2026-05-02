@@ -1,6 +1,27 @@
 ---
 name: brief-to-script
 description: Turn a topic, packaging hint, or blueprint into a script file that the rest of the pack can use.
+allowedTools:
+  - shell
+  - read
+  - write
+entrypoint: node --import tsx scripts/harness/brief-to-script.ts
+inputs:
+  - name: topic
+    description: Topic, angle, or packaging promise to turn into a script.
+    required: true
+  - name: archetype
+    description: Optional script archetype such as story, listicle, versus, howto, or product-demo.
+    required: false
+  - name: outputPath
+    description: Path that will receive script.json.
+    required: false
+  - name: blueprintPath
+    description: Optional VideoBlueprint artifact to guide structure and pacing.
+    required: false
+outputs:
+  - name: script.json
+    description: Speakable short-form script artifact.
 ---
 
 # Brief To Script

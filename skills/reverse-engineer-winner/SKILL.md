@@ -1,6 +1,28 @@
 ---
 name: reverse-engineer-winner
 description: Analyze a reference short from a local file or URL into reusable breakdown files so an agent can study what made it work.
+allowedTools:
+  - shell
+  - read
+  - write
+entrypoint: node --import tsx scripts/harness/reverse-engineer-winner.ts
+inputs:
+  - name: videoPath
+    description: Local path or supported URL for the reference short.
+    required: true
+  - name: outputDir
+    description: Directory that will receive analysis artifacts.
+    required: false
+  - name: includeFrameAnalysis
+    description: Include sampled frame-analysis outputs.
+    required: false
+outputs:
+  - name: videospec.v1.json
+    description: Reverse-engineered VideoSpec artifact.
+  - name: theme.v1.json
+    description: Optional VideoTheme classification artifact.
+  - name: blueprint.v1.json
+    description: Optional VideoBlueprint artifact for downstream generation.
 ---
 
 # Reverse Engineer Winner
@@ -56,7 +78,7 @@ the MP4 into the visuals/render path.
 ## Optional Runtime Surface
 
 - Repo-side runner:
-  `node --import tsx scripts/harness/ingest.ts`
+  `node --import tsx scripts/harness/reverse-engineer-winner.ts`
 - Supporting code:
   `src/harness/ingest.ts`,
   `src/videospec/*`,
