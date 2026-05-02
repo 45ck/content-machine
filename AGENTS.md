@@ -34,7 +34,7 @@ relevant `.content-machine/skills/*/SKILL.md` before running tools.
 Packaged runtime calls should use:
 
 ```bash
-npx cm-agent <tool>
+npx --no-install cm-agent <tool>
 ```
 
 For installed flows, pass `"flowsDir": ".content-machine/flows"` to

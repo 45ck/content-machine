@@ -5,6 +5,9 @@ import { fileURLToPath } from 'node:url';
 import { z } from 'zod';
 import { artifactDirectory, artifactFile, type HarnessToolResult } from './json-stdio';
 
+const instructionBlockStart = '<!-- BEGIN CONTENT MACHINE INSTALL v:1 -->';
+const instructionBlockEnd = '<!-- END CONTENT MACHINE INSTALL -->';
+
 function resolvePackageRoot(startDir: string): string {
   let currentDir = resolve(startDir);
   for (let i = 0; i < 8; i++) {
@@ -29,6 +32,8 @@ export const InstallSkillPackRequestSchema = z
     includeFlows: z.boolean().default(true),
     includeExamples: z.boolean().default(true),
     overwrite: z.boolean().default(false),
+    writeInstructions: z.boolean().default(false),
+    instructionFile: z.string().min(1).default('AGENTS.md'),
   })
   .strict();
 
@@ -167,12 +172,34 @@ async function writePackReadme(params: {
   packageName: string;
   includeFlows: boolean;
   includeExamples: boolean;
+  writeInstructions: boolean;
+  instructionFile: string;
 }) {
   const readmePath = join(params.targetDir, 'README.md');
   const targetPrefix = relativeTargetPrefix(params.targetDir);
   const runner = 'npx --no-install cm-agent';
   const explicitRunner = `node ./node_modules/${params.packageName}/agent/run-tool.mjs`;
   const skillOrFlow = params.includeFlows ? 'skill or flow' : 'skill';
+  const refreshFlags = [
+    '--overwrite',
+    params.writeInstructions ? '--write-instructions' : '',
+    params.writeInstructions && params.instructionFile !== 'AGENTS.md'
+      ? `--instruction-file ${params.instructionFile}`
+      : '',
+    params.includeFlows ? '' : '--no-flows',
+    params.includeExamples ? '' : '--no-examples',
+  ]
+    .filter(Boolean)
+    .join(' ');
+  const rootInstructionFlags = [
+    '--overwrite',
+    '--write-instructions',
+    params.instructionFile !== 'AGENTS.md' ? `--instruction-file ${params.instructionFile}` : '',
+    params.includeFlows ? '' : '--no-flows',
+    params.includeExamples ? '' : '--no-examples',
+  ]
+    .filter(Boolean)
+    .join(' ');
   const text = `# Content Machine Skill Pack
 
 This directory is a portable copy of the Content Machine skill pack for
@@ -187,9 +214,16 @@ repo-aware agents.
 > \`runs/<run-id>/\`, and only call a video ready when publish-prep
 > passes.
 
-If your harness only auto-loads root instructions, copy the relevant
-rules from \`${targetPrefix}/AGENTS.md\` into the project root
-\`AGENTS.md\`, \`CLAUDE.md\`, or equivalent harness instruction file.
+${
+  params.writeInstructions
+    ? `\`cm-install\` also wrote a managed root instruction block to \`${params.instructionFile}\`.
+Confirm your harness loads that file before asking for video work.
+`
+    : `If your harness only auto-loads root instructions, either copy the relevant
+rules from \`${targetPrefix}/AGENTS.md\` into the project root instruction file
+or rerun \`npx cm-install --target ${targetPrefix} ${rootInstructionFlags}\`.
+`
+}
 
 ## Copy-Paste Prompts
 
@@ -227,7 +261,7 @@ package first:
 
 \`\`\`bash
 npm install --save-dev ${params.packageName}@latest
-npx cm-install --target ${targetPrefix} --overwrite
+npx cm-install --target ${targetPrefix} ${refreshFlags}
 \`\`\`
 
 List available runtime tools:
@@ -317,7 +351,7 @@ pack, treat those as reference-only and use \`${runner}\` for execution.
 ## Update Or Remove
 
 - Update: \`npm install --save-dev ${params.packageName}@latest\`, then
-  \`npx cm-install --target ${targetPrefix} --overwrite\`.
+  \`npx cm-install --target ${targetPrefix} ${refreshFlags}\`.
 - Remove: delete \`${targetPrefix}/\`, remove any copied root
   instruction snippets, then run \`npm uninstall ${params.packageName}\`
   if the package is no longer needed.
@@ -354,7 +388,7 @@ These instructions apply to the materialized Content Machine pack in
 
 - \`skills/\` are decision and craft docs: when to use a capability,
   what inputs it needs, and what quality bar it must meet.
-${params.includeFlows ? '- `flows/` are orchestration docs: multi-step paths, gates, and run-scoped outputs.\n' : ''}- \`cm-agent\` is execution only: use it when a skill or flow needs a
+${params.includeFlows ? '- `flows/` are orchestration docs: multi-step paths, gates, and run-scoped outputs.\n' : ''}- \`cm-agent\` is execution only: use it when a ${params.includeFlows ? 'skill or flow' : 'skill'} needs a
   deterministic JSON-stdio runtime tool.
 - Primary runner: \`npx --no-install cm-agent <tool>\`.
 - Fallback runner: \`${explicitRunner} <tool>\`.
@@ -445,6 +479,100 @@ Content Machine checkout.
   return agentGuidePath;
 }
 
+function buildRootInstructionBlock(params: { targetDir: string; includeFlows: boolean }): string {
+  const targetPrefix = relativeTargetPrefix(params.targetDir);
+  return `${instructionBlockStart}
+## Content Machine
+
+Use the materialized Content Machine pack in \`${targetPrefix}\` for short-form
+video work.
+
+- Read \`${targetPrefix}/README.md\` and \`${targetPrefix}/AGENTS.md\` before
+  planning video work.
+- Use \`${targetPrefix}/skills/\` for capability docs${
+    params.includeFlows ? ` and \`${targetPrefix}/flows/\` for multi-step flows` : ''
+  }.
+- Execute runtime tools with \`npx --no-install cm-agent <tool>\`.
+- Pass \`skillsDir: "${targetPrefix}/skills"\` to skill discovery tools${
+    params.includeFlows ? ` and \`flowsDir: "${targetPrefix}/flows"\` to flow tools` : ''
+  }.
+- Write artifacts under \`runs/<run-id>/\` and do not call a video ready until
+  publish-prep passes.
+${instructionBlockEnd}
+`;
+}
+
+async function writeRootInstructions(params: {
+  targetDir: string;
+  includeFlows: boolean;
+  instructionFile: string;
+}): Promise<string> {
+  const instructionFilePath = resolve(params.instructionFile);
+  const block = buildRootInstructionBlock({
+    targetDir: params.targetDir,
+    includeFlows: params.includeFlows,
+  });
+  let current = '';
+
+  try {
+    current = await readFile(instructionFilePath, 'utf8');
+  } catch (error) {
+    if (!error || typeof error !== 'object' || !('code' in error) || error.code !== 'ENOENT') {
+      throw error;
+    }
+    current = '';
+  }
+
+  const startIndex = current.indexOf(instructionBlockStart);
+  const firstEndIndex = current.indexOf(instructionBlockEnd);
+  const endIndex =
+    startIndex >= 0
+      ? current.indexOf(instructionBlockEnd, startIndex + instructionBlockStart.length)
+      : -1;
+  const extraStartIndex =
+    startIndex >= 0
+      ? current.indexOf(instructionBlockStart, startIndex + instructionBlockStart.length)
+      : -1;
+  const extraEndIndex =
+    endIndex >= 0
+      ? current.indexOf(instructionBlockEnd, endIndex + instructionBlockEnd.length)
+      : -1;
+  let next: string;
+
+  if (startIndex < 0 && firstEndIndex >= 0) {
+    throw new Error(
+      `Instruction file has an incomplete Content Machine managed block: ${instructionFilePath}`
+    );
+  }
+  if (startIndex >= 0 && firstEndIndex >= 0 && firstEndIndex < startIndex) {
+    throw new Error(
+      `Instruction file has a stray Content Machine managed block end marker: ${instructionFilePath}`
+    );
+  }
+  if (startIndex >= 0 !== endIndex >= 0) {
+    throw new Error(
+      `Instruction file has an incomplete Content Machine managed block: ${instructionFilePath}`
+    );
+  }
+  if (extraStartIndex >= 0 || extraEndIndex >= 0) {
+    throw new Error(
+      `Instruction file has multiple Content Machine managed blocks: ${instructionFilePath}`
+    );
+  }
+
+  if (startIndex >= 0 && endIndex >= startIndex) {
+    const before = current.slice(0, startIndex).trimEnd();
+    const after = current.slice(endIndex + instructionBlockEnd.length).trimStart();
+    next = [before, block.trimEnd(), after].filter(Boolean).join('\n\n');
+  } else {
+    next = [current.trimEnd(), block.trimEnd()].filter(Boolean).join('\n\n');
+  }
+
+  await mkdir(dirname(instructionFilePath), { recursive: true });
+  await writeFile(instructionFilePath, `${next}\n`, 'utf8');
+  return instructionFilePath;
+}
+
 /** Materialize a portable skill pack that points to the installed npm package. */
 export async function installSkillPack(request: InstallSkillPackRequest): Promise<
   HarnessToolResult<{
@@ -453,6 +581,7 @@ export async function installSkillPack(request: InstallSkillPackRequest): Promis
     flowsDir: string | null;
     readmePath: string;
     agentGuidePath: string;
+    instructionFilePath: string | null;
     packageName: string;
   }>
 > {
@@ -462,6 +591,7 @@ export async function installSkillPack(request: InstallSkillPackRequest): Promis
   const flowsDir = normalized.includeFlows ? join(targetDir, 'flows') : null;
   const readmePath = join(targetDir, 'README.md');
   const agentGuidePath = join(targetDir, 'AGENTS.md');
+  let instructionFilePath: string | null = null;
 
   const targetHasContent = await directoryHasEntries(targetDir);
   if (targetHasContent && !normalized.overwrite) {
@@ -508,6 +638,8 @@ export async function installSkillPack(request: InstallSkillPackRequest): Promis
     packageName: normalized.packageName,
     includeFlows: normalized.includeFlows,
     includeExamples: normalized.includeExamples,
+    writeInstructions: normalized.writeInstructions,
+    instructionFile: normalized.instructionFile,
   });
   await writePackAgentGuide({
     targetDir,
@@ -515,6 +647,13 @@ export async function installSkillPack(request: InstallSkillPackRequest): Promis
     includeFlows: normalized.includeFlows,
     includeExamples: normalized.includeExamples,
   });
+  if (normalized.writeInstructions) {
+    instructionFilePath = await writeRootInstructions({
+      targetDir,
+      includeFlows: normalized.includeFlows,
+      instructionFile: normalized.instructionFile,
+    });
+  }
 
   return {
     result: {
@@ -523,6 +662,7 @@ export async function installSkillPack(request: InstallSkillPackRequest): Promis
       flowsDir,
       readmePath,
       agentGuidePath,
+      instructionFilePath,
       packageName: normalized.packageName,
     },
     artifacts: [
@@ -531,6 +671,9 @@ export async function installSkillPack(request: InstallSkillPackRequest): Promis
       ...(flowsDir ? [artifactDirectory(flowsDir, 'Materialized flows directory')] : []),
       artifactFile(readmePath, 'Skill pack README'),
       artifactFile(agentGuidePath, 'Skill pack agent instructions'),
+      ...(instructionFilePath
+        ? [artifactFile(instructionFilePath, 'Root harness instructions')]
+        : []),
     ],
   };
 }

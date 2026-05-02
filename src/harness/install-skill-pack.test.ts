@@ -49,6 +49,8 @@ describe('installSkillPack', () => {
     expect(result.result.targetDir).toContain('.content-machine');
     expect(result.result.flowsDir).toBeTruthy();
     expect(result.result.agentGuidePath).toContain('AGENTS.md');
+    expect(result.result.instructionFilePath).toBeNull();
+    expect(existsSync(join(root, 'AGENTS.md'))).toBe(false);
     expect(briefSkill).toContain(
       'entrypoint: node ./node_modules/@45ck/content-machine/agent/run-tool.mjs brief-to-script'
     );
@@ -178,6 +180,76 @@ describe('installSkillPack', () => {
 
       expect(generateShort?.operatorNotesPath).toBe(expectedNotesPath);
       expect(existsSync(expectedNotesPath)).toBe(true);
+    } finally {
+      process.chdir(originalCwd);
+    }
+  });
+
+  it('writes and refreshes a managed root instruction block when requested', async () => {
+    const root = await makeTempDir();
+    const targetDir = '.content-machine';
+    const originalCwd = process.cwd();
+
+    await writeFile(join(root, 'AGENTS.md'), '# Existing Rules\n\nKeep this.\n');
+
+    process.chdir(root);
+    try {
+      const first = await installSkillPack({
+        targetDir,
+        writeInstructions: true,
+        overwrite: true,
+      });
+      let rootInstructions = await readFile(join(root, 'AGENTS.md'), 'utf8');
+
+      expect(first.result.instructionFilePath).toBe(join(root, 'AGENTS.md'));
+      expect(first.artifacts).toContainEqual(
+        expect.objectContaining({ description: 'Root harness instructions' })
+      );
+      expect(rootInstructions).toContain('# Existing Rules');
+      expect(rootInstructions).toContain('<!-- BEGIN CONTENT MACHINE INSTALL v:1 -->');
+      expect(rootInstructions).toContain('.content-machine/flows/');
+      expect(rootInstructions.match(/BEGIN CONTENT MACHINE INSTALL/g)).toHaveLength(1);
+      expect(rootInstructions.match(/END CONTENT MACHINE INSTALL/g)).toHaveLength(1);
+
+      await writeFile(join(root, 'AGENTS.md'), `${rootInstructions}\nAfter user note.\n`);
+
+      await installSkillPack({
+        targetDir,
+        includeFlows: false,
+        writeInstructions: true,
+        overwrite: true,
+      });
+      rootInstructions = await readFile(join(root, 'AGENTS.md'), 'utf8');
+
+      expect(rootInstructions).toContain('# Existing Rules');
+      expect(rootInstructions).toContain('After user note.');
+      expect(rootInstructions).not.toContain('.content-machine/flows/');
+      expect(rootInstructions.match(/BEGIN CONTENT MACHINE INSTALL/g)).toHaveLength(1);
+      expect(rootInstructions.match(/END CONTENT MACHINE INSTALL/g)).toHaveLength(1);
+      expect(rootInstructions.indexOf('BEGIN CONTENT MACHINE INSTALL')).toBeLessThan(
+        rootInstructions.indexOf('END CONTENT MACHINE INSTALL')
+      );
+    } finally {
+      process.chdir(originalCwd);
+    }
+  });
+
+  it('rejects incomplete managed root instruction blocks instead of appending', async () => {
+    const root = await makeTempDir();
+    const targetDir = '.content-machine';
+    const originalCwd = process.cwd();
+
+    await writeFile(join(root, 'AGENTS.md'), '<!-- BEGIN CONTENT MACHINE INSTALL v:1 -->\n');
+
+    process.chdir(root);
+    try {
+      await expect(
+        installSkillPack({
+          targetDir,
+          writeInstructions: true,
+          overwrite: true,
+        })
+      ).rejects.toThrow('incomplete Content Machine managed block');
     } finally {
       process.chdir(originalCwd);
     }

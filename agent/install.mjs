@@ -14,6 +14,8 @@ Options:
   --package-name <name>   Package used in generated runner commands (default: ${DEFAULT_PACKAGE_NAME})
   --no-flows              Do not copy flow manifests
   --no-examples           Do not copy skill example request files
+  --write-instructions    Add/update a root harness instruction block
+  --instruction-file <p>  Root instruction file to update (default: AGENTS.md)
   --overwrite, --force    Replace an existing target directory
   --json                  Print JSON output
   --help, -h              Show this help
@@ -35,6 +37,8 @@ function parseArgs(args) {
     includeFlows: true,
     includeExamples: true,
     overwrite: false,
+    writeInstructions: false,
+    instructionFile: 'AGENTS.md',
   };
   let json = false;
 
@@ -58,6 +62,21 @@ function parseArgs(args) {
     }
     if (arg === '--no-examples') {
       request.includeExamples = false;
+      continue;
+    }
+    if (arg === '--write-instructions') {
+      request.writeInstructions = true;
+      continue;
+    }
+    if (arg === '--instruction-file') {
+      request.instructionFile = readFlagValue(args, index, arg);
+      request.writeInstructions = true;
+      index += 1;
+      continue;
+    }
+    if (arg.startsWith('--instruction-file=')) {
+      request.instructionFile = arg.slice('--instruction-file='.length);
+      request.writeInstructions = true;
       continue;
     }
     if (arg === '--target') {
@@ -86,19 +105,31 @@ function parseArgs(args) {
 }
 
 function printHumanResult(result) {
-  const { targetDir, skillsDir, flowsDir, readmePath, agentGuidePath, packageName } = result.result;
+  const {
+    targetDir,
+    skillsDir,
+    flowsDir,
+    readmePath,
+    agentGuidePath,
+    instructionFilePath,
+    packageName,
+  } = result.result;
   process.stdout.write(`Content Machine skill pack installed.
 
 Target: ${targetDir}
 Skills: ${skillsDir}
 ${flowsDir ? `Flows: ${flowsDir}\n` : ''}README: ${readmePath}
 Agent guide: ${agentGuidePath}
-Package runner: node ./node_modules/${packageName}/agent/run-tool.mjs
+${instructionFilePath ? `Root instructions: ${instructionFilePath}\n` : ''}Package runner: node ./node_modules/${packageName}/agent/run-tool.mjs
 
 Next:
 1. Read ${readmePath}
 2. Read ${agentGuidePath}
-3. If your harness auto-loads root instructions only, copy or import ${agentGuidePath}
+3. ${
+    instructionFilePath
+      ? `Confirm your harness loads ${instructionFilePath}`
+      : 'If your harness auto-loads root instructions only, rerun with --write-instructions'
+  }
 4. Run: npx --no-install cm-agent list
 `);
 }

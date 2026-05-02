@@ -14,8 +14,11 @@ repo-aware agent to use Content Machine from your own project.
 ```bash
 npm install --save-dev @45ck/content-machine
 
-npx cm-install --target .content-machine
+npx cm-install --target .content-machine --write-instructions
 ```
+
+Use `--instruction-file CLAUDE.md` for Claude Code projects that load
+root `CLAUDE.md` instead of `AGENTS.md`.
 
 This creates a materialized pack:
 
@@ -25,32 +28,38 @@ This creates a materialized pack:
 - `.content-machine/skills/` — all shipped `SKILL.md` files
 - `.content-machine/flows/` — runnable flow manifests when
   `includeFlows` is true
+- `AGENTS.md` — managed root instruction block when
+  `--write-instructions` is used
 
-Tell the agent to read `.content-machine/README.md`,
+The managed root block points your agent at `.content-machine/README.md`,
 `.content-machine/AGENTS.md`, and `.content-machine/skills/` before
-making videos. Full copy-paste prompt:
+video work. Full copy-paste prompt:
 [Agent Harness Install](AGENT-HARNESS-INSTALL.md).
 
 CLI options:
 
-| CLI Option       | Default                 | Use                                                                |
-| ---------------- | ----------------------- | ------------------------------------------------------------------ |
-| `--target`       | `.content-machine`      | Where to materialize skills, flows, README, and agent instructions |
-| `--package-name` | `@45ck/content-machine` | Package or fork name used in generated runner commands             |
-| `--no-flows`     | flows included          | Skip `.flow` manifests when you only want skill docs               |
-| `--no-examples`  | examples included       | Remove skill `examples/request.json` files                         |
-| `--overwrite`    | off                     | Refresh an existing materialized pack intentionally                |
-| `--json`         | off                     | Print machine-readable install output                              |
+| CLI Option             | Default                 | Use                                                                |
+| ---------------------- | ----------------------- | ------------------------------------------------------------------ |
+| `--target`             | `.content-machine`      | Where to materialize skills, flows, README, and agent instructions |
+| `--package-name`       | `@45ck/content-machine` | Package or fork name used in generated runner commands             |
+| `--no-flows`           | flows included          | Skip `.flow` manifests when you only want skill docs               |
+| `--no-examples`        | examples included       | Remove skill `examples/request.json` files                         |
+| `--write-instructions` | off                     | Add or refresh a managed root harness instruction block            |
+| `--instruction-file`   | `AGENTS.md`             | File for the managed instruction block, such as `CLAUDE.md`        |
+| `--overwrite`          | off                     | Refresh an existing materialized pack intentionally                |
+| `--json`               | off                     | Print machine-readable install output                              |
 
 JSON-stdio fields:
 
-| Field             | Default                 | Use                                 |
-| ----------------- | ----------------------- | ----------------------------------- |
-| `targetDir`       | `.content-machine`      | Equivalent to `--target`            |
-| `packageName`     | `@45ck/content-machine` | Equivalent to `--package-name`      |
-| `includeFlows`    | `true`                  | Set to `false` with `--no-flows`    |
-| `includeExamples` | `true`                  | Set to `false` with `--no-examples` |
-| `overwrite`       | `false`                 | Equivalent to `--overwrite`         |
+| Field               | Default                 | Use                                  |
+| ------------------- | ----------------------- | ------------------------------------ |
+| `targetDir`         | `.content-machine`      | Equivalent to `--target`             |
+| `packageName`       | `@45ck/content-machine` | Equivalent to `--package-name`       |
+| `includeFlows`      | `true`                  | Set to `false` with `--no-flows`     |
+| `includeExamples`   | `true`                  | Set to `false` with `--no-examples`  |
+| `overwrite`         | `false`                 | Equivalent to `--overwrite`          |
+| `writeInstructions` | `false`                 | Equivalent to `--write-instructions` |
+| `instructionFile`   | `AGENTS.md`             | Equivalent to `--instruction-file`   |
 
 The JSON-stdio form remains available for agents that prefer structured
 stdin:
@@ -61,7 +70,9 @@ cat <<'JSON' | npx --no-install cm-agent install-skill-pack
   "targetDir": ".content-machine",
   "includeFlows": true,
   "includeExamples": true,
-  "overwrite": false
+  "overwrite": false,
+  "writeInstructions": true,
+  "instructionFile": "AGENTS.md"
 }
 JSON
 ```
@@ -155,19 +166,30 @@ Full list of environment variables: [`docs/reference/ENVIRONMENT-VARIABLES.md`](
 
 ## Verify Your Setup
 
-Run the built-in diagnostics:
+Installed project:
+
+```bash
+cat <<'JSON' | npx --no-install cm-agent doctor-report
+{
+  "strict": false
+}
+JSON
+```
+
+Repo checkout:
 
 ```bash
 npm run cm -- doctor
 ```
 
-This checks for Node.js version, API key presence, Whisper installation, and other dependencies.
-
-If you want the repo-side JSON entrypoint instead:
+Or use the repo-side JSON entrypoint:
 
 ```bash
 printf '{"strict":false}\n' | npm run agent:doctor-report
 ```
+
+These checks cover Node.js version, API key presence, Whisper
+installation, and other dependencies.
 
 ## Next Steps
 

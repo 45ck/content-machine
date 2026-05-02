@@ -173,14 +173,14 @@ repo-aware coding agent to use Content Machine inside your own project:
 ```bash
 npm install --save-dev @45ck/content-machine
 
-npx cm-install --target .content-machine
+npx cm-install --target .content-machine --write-instructions
 npx --no-install cm-agent list
 ```
 
-Then tell the agent to read `.content-machine/README.md`,
-`.content-machine/AGENTS.md`, and `.content-machine/skills/`. See
-[Agent Harness Install](docs/user/AGENT-HARNESS-INSTALL.md) for the
-copy-paste prompt.
+The `--write-instructions` flag adds a managed root block that points
+agents at `.content-machine/`. See
+[Agent Harness Install](docs/user/AGENT-HARNESS-INSTALL.md) for Claude
+Code and other harness-specific variants.
 
 Installed-pack commands use `npx --no-install cm-agent <tool>`. The
 repo-local `node --import tsx scripts/harness/*.ts` commands below are
@@ -239,14 +239,9 @@ JSON
 Current repo-side entrypoints are listed in
 [`scripts/harness/`](scripts/harness/README.md).
 
-If you want these skills inside another project, install the package
-there and materialize a local pack:
-
-```bash
-npm install --save-dev @45ck/content-machine
-
-npx cm-install --target .content-machine
-```
+If you want these skills inside another project, use
+[Agent Harness Install](docs/user/AGENT-HARNESS-INSTALL.md) to
+materialize a local `.content-machine/` pack and root instruction block.
 
 Use [`skills/`](skills/README.md) or the `skill-catalog` harness script
 for the current shipped skill list.

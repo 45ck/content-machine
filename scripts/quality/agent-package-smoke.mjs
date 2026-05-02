@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { isAbsolute, join } from 'node:path';
 
@@ -75,12 +75,43 @@ try {
   }
 
   const installDefault = JSON.parse(
-    run('npx', ['--no-install', 'cm-install', '--target', '.content-machine', '--json'], {
-      cwd: appDir,
-    })
+    run(
+      'npx',
+      [
+        '--no-install',
+        'cm-install',
+        '--target',
+        '.content-machine',
+        '--write-instructions',
+        '--json',
+      ],
+      {
+        cwd: appDir,
+      }
+    )
   );
   assert(installDefault.ok === true, 'cm-install default did not report ok=true');
   assert(existsSync(join(appDir, '.content-machine', 'AGENTS.md')), 'AGENTS.md was not installed');
+  assert(existsSync(join(appDir, 'AGENTS.md')), 'root AGENTS.md was not written');
+  assert(
+    installDefault.result.instructionFilePath.endsWith('AGENTS.md'),
+    'cm-install did not report root AGENTS.md'
+  );
+  const rootAgents = readFileSync(join(appDir, 'AGENTS.md'), 'utf8');
+  assert(
+    rootAgents.includes('<!-- BEGIN CONTENT MACHINE INSTALL v:1 -->'),
+    'root AGENTS.md is missing managed start marker'
+  );
+  assert(
+    rootAgents.includes('<!-- END CONTENT MACHINE INSTALL -->'),
+    'root AGENTS.md is missing managed end marker'
+  );
+  assert(rootAgents.includes('.content-machine/skills/'), 'root AGENTS.md is missing skills path');
+  assert(rootAgents.includes('.content-machine/flows/'), 'root AGENTS.md is missing flows path');
+  assert(
+    rootAgents.includes('npx --no-install cm-agent'),
+    'root AGENTS.md is missing cm-agent runner'
+  );
 
   const skillCatalog = JSON.parse(
     run('npx', ['--no-install', 'cm-agent', 'skill-catalog'], {
@@ -109,6 +140,8 @@ try {
         '--overwrite',
         '--no-flows',
         '--no-examples',
+        '--instruction-file',
+        'CLAUDE.md',
         '--json',
       ],
       { cwd: appDir }
@@ -116,7 +149,22 @@ try {
   );
   assert(refresh.ok === true, 'cm-install refresh did not report ok=true');
   assert(refresh.result.flowsDir === null, 'no-flows refresh still reported flowsDir');
+  assert(
+    refresh.result.instructionFilePath.endsWith('CLAUDE.md'),
+    'cm-install did not report CLAUDE.md instruction path'
+  );
+  assert(
+    refresh.artifacts.some((artifact) => artifact.description === 'Root harness instructions'),
+    'cm-install did not report root instruction artifact'
+  );
   assert(!existsSync(join(appDir, '.content-machine', 'flows')), 'no-flows refresh left flows dir');
+  assert(existsSync(join(appDir, 'CLAUDE.md')), 'CLAUDE.md instruction file was not written');
+  const rootClaude = readFileSync(join(appDir, 'CLAUDE.md'), 'utf8');
+  assert(
+    rootClaude.includes('<!-- BEGIN CONTENT MACHINE INSTALL v:1 -->'),
+    'CLAUDE.md is missing managed start marker'
+  );
+  assert(!rootClaude.includes('.content-machine/flows/'), 'CLAUDE.md still references flows');
   assert(
     !existsSync(join(appDir, '.content-machine', 'skills', 'generate-short', 'examples')),
     'no-examples refresh left generate-short examples'

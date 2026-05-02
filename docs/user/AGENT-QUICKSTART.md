@@ -52,9 +52,12 @@ For an existing agent project:
 
 ```bash
 npm install --save-dev @45ck/content-machine
-npx cm-install --target .content-machine
+npx cm-install --target .content-machine --write-instructions
 npx --no-install cm-agent list
 ```
+
+Use `--instruction-file CLAUDE.md` with `cm-install` when Claude Code
+should load the root instruction block from `CLAUDE.md`.
 
 For a Content Machine checkout:
 
@@ -192,6 +195,29 @@ If you prefer npm aliases, the same runner is available as
 
 ## Step 6: Pull a reference video or run one skill directly
 
+Installed project:
+
+```bash
+cat .content-machine/skills/brief-to-script/examples/request.json | \
+  npx --no-install cm-agent brief-to-script
+
+cat .content-machine/skills/reverse-engineer-winner/examples/request.json | \
+  npx --no-install cm-agent reverse-engineer-winner
+
+cat <<'JSON' | npx --no-install cm-agent publish-prep
+{
+  "videoPath": "runs/demo-run/render/video.mp4",
+  "scriptPath": "runs/demo-run/script/script.json",
+  "assetLedgerPath": "runs/demo-run/provenance/asset-ledger.json",
+  "outputDir": "runs/demo-run/publish-prep",
+  "platform": "tiktok",
+  "validate": { "cadence": true, "audioSignal": true }
+}
+JSON
+```
+
+Repo checkout:
+
 Generate only a script:
 
 ```bash
@@ -238,13 +264,14 @@ the package there and materialize a local copy:
 ```bash
 npm install --save-dev @45ck/content-machine
 
-npx cm-install --target .content-machine
+npx cm-install --target .content-machine --write-instructions
 ```
 
 That creates `.content-machine/skills/` and `.content-machine/flows/`
 with `SKILL.md` files already pointed at the installed package runner.
 It also writes `.content-machine/README.md` and
-`.content-machine/AGENTS.md`, which tell the harness how to discover
+`.content-machine/AGENTS.md`, plus a managed root instruction block when
+`--write-instructions` is used. These tell the harness how to discover
 skills, pass `flowsDir`, run diagnostics, and validate outputs.
 
 ## Step 8: Read the guide next to the surface

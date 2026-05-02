@@ -19,8 +19,9 @@ video skill pack.
 
 Do this:
 1. Run `npm install --save-dev @45ck/content-machine`.
-2. Run `npx cm-install --target .content-machine` to materialize the
-   local pack.
+2. Run `npx cm-install --target .content-machine --write-instructions`
+   for Codex-style `AGENTS.md` loading, or add
+   `--instruction-file CLAUDE.md` for Claude Code.
 3. Read `.content-machine/README.md` and `.content-machine/AGENTS.md`.
 4. Verify the runner with `npx --no-install cm-agent list`.
 5. Run doctor-report and tell me what is missing before generating real videos.
@@ -32,14 +33,26 @@ call an MP4 ready when publish-prep passes.
 
 If you want the exact command form:
 
+Codex CLI or generic `AGENTS.md` harness:
+
 ```bash
 npm install --save-dev @45ck/content-machine
 
-npx cm-install --target .content-machine
+npx cm-install --target .content-machine --write-instructions
 ```
 
-Use `npx cm-install --overwrite` when intentionally refreshing an
-existing `.content-machine/` pack after upgrading the npm package.
+Claude Code:
+
+```bash
+npm install --save-dev @45ck/content-machine
+
+npx cm-install --target .content-machine --write-instructions --instruction-file CLAUDE.md
+```
+
+Use `npx cm-install --target .content-machine --overwrite --write-instructions`
+when intentionally refreshing an existing `.content-machine/` pack after
+upgrading the npm package.
+Preserve the same `--instruction-file` value when refreshing.
 
 ## What Gets Installed
 
@@ -50,18 +63,19 @@ existing `.content-machine/` pack after upgrading the npm package.
 | `.content-machine/skills/`   | `SKILL.md` files that explain when and how to use each capability          |
 | `.content-machine/flows/`    | Optional `.flow` manifests for multi-step jobs                             |
 | `node_modules/@45ck/...`     | Runtime implementation, `cm-agent`, `cm-install`, and `agent/run-tool.mjs` |
+| `AGENTS.md` or `CLAUDE.md`   | Optional managed root block when `--write-instructions` is used            |
 
 The copied skill docs are rewritten to call the installed package
 runner, so agents do not need the source repo checkout.
 
 ## Harness Matrix
 
-| Harness                 | Install Pattern                                                                                                                                |
-| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| Codex CLI               | Put Content Machine guidance in project `AGENTS.md`, or ask Codex to read `.content-machine/AGENTS.md` after install.                          |
-| Claude Code             | Put `@.content-machine/AGENTS.md` in project `CLAUDE.md`, or ask Claude to read `.content-machine/README.md` and `.content-machine/AGENTS.md`. |
-| Cursor or editor agents | Run the install command in the project terminal, then mention `.content-machine/skills/` in chat or project rules.                             |
-| Generic shell agent     | Give it the command block and tell it to use `npx --no-install cm-agent <tool>` for JSON-stdio runtime calls.                                  |
+| Harness                 | Install Pattern                                                                                                     |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Codex CLI               | Use `--write-instructions` so the managed block lands in project `AGENTS.md`, then ask Codex for video outcomes.    |
+| Claude Code             | Use `--write-instructions --instruction-file CLAUDE.md` so Claude loads the managed block from project `CLAUDE.md`. |
+| Cursor or editor agents | Run the install command in the project terminal, then mention `.content-machine/skills/` in chat or project rules.  |
+| Generic shell agent     | Give it the command block and tell it to use `npx --no-install cm-agent <tool>` for JSON-stdio runtime calls.       |
 
 Content Machine does not require a special native plugin registry. The
 portable install works because most coding agents can read repo-local
