@@ -1,0 +1,344 @@
+{
+  "schemaVersion": "demo-provenance.v1",
+  "updatedAt": "2026-05-02",
+  "policyRefs": [
+    "docs/user/CREATIVE-SOURCES.md",
+    "skills/creative-source-scout/references/provenance-and-license-gates.md",
+    "skills/creative-source-scout/references/audio-source-policy.md",
+    "skills/publish-prep-review/SKILL.md"
+  ],
+  "demos": [
+    {
+      "demoId": "demo-5-gemini-2026-feels-like-2016",
+      "title": "Gemini 2026 Feels Like 2016",
+      "videoPath": "docs/demo/demo-5-gemini-2026-feels-like-2016.mp4",
+      "sourceDoc": "docs/user/examples/gemini-image-shorts.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-5-gemini-2026-feels-like-2016/report.json",
+      "maturity": "archive preview",
+      "publicUse": "archive",
+      "rightsStatus": "needs-review",
+      "reviewStatus": "pass",
+      "assetLedger": [
+        {
+          "kind": "historical-demo",
+          "usageMode": "generated-asset",
+          "licenseStatus": "needs-review",
+          "contentIdRisk": "unknown",
+          "summary": "Historical Gemini image/video demo retained for reference; do not promote until source prompts, provider terms, and audio notes are reconstructed."
+        }
+      ],
+      "promotionBlockedReasons": ["historical provenance incomplete"]
+    },
+    {
+      "demoId": "demo-6-gemini-browser-cache-same-energy",
+      "title": "Gemini Browser Cache Same Energy",
+      "videoPath": "docs/demo/demo-6-gemini-browser-cache-same-energy.mp4",
+      "sourceDoc": "docs/user/examples/gemini-image-shorts.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-6-gemini-browser-cache-same-energy/report.json",
+      "maturity": "archive preview",
+      "publicUse": "archive",
+      "rightsStatus": "needs-review",
+      "reviewStatus": "pass",
+      "assetLedger": [
+        {
+          "kind": "historical-demo",
+          "usageMode": "generated-asset",
+          "licenseStatus": "needs-review",
+          "contentIdRisk": "unknown",
+          "summary": "Historical Gemini image/video demo retained for reference; do not promote until source prompts, provider terms, and audio notes are reconstructed."
+        }
+      ],
+      "promotionBlockedReasons": ["historical provenance incomplete"]
+    },
+    {
+      "demoId": "demo-7-gemini-black-holes-absurdist",
+      "title": "Gemini Black Holes Absurdist",
+      "videoPath": "docs/demo/demo-7-gemini-black-holes-absurdist.mp4",
+      "sourceDoc": "docs/user/examples/gemini-image-shorts.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-7-gemini-black-holes-absurdist/report.json",
+      "maturity": "archive preview",
+      "publicUse": "archive",
+      "rightsStatus": "needs-review",
+      "reviewStatus": "pass",
+      "assetLedger": [
+        {
+          "kind": "historical-demo",
+          "usageMode": "generated-asset",
+          "licenseStatus": "needs-review",
+          "contentIdRisk": "unknown",
+          "summary": "Historical Gemini image/video demo retained for reference; do not promote until source prompts, provider terms, and audio notes are reconstructed."
+        }
+      ],
+      "promotionBlockedReasons": ["historical provenance incomplete"]
+    },
+    {
+      "demoId": "demo-9-reddit-post-over-gameplay",
+      "title": "Reddit Post Over Gameplay",
+      "videoPath": "docs/demo/demo-9-reddit-post-over-gameplay.mp4",
+      "gifPath": "docs/demo/demo-9-reddit-post-over-gameplay.gif",
+      "sourceDoc": "docs/user/examples/reddit-post-over-gameplay.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-9-reddit-post-over-gameplay/report.json",
+      "assetLedgerPath": "docs/demo/provenance/demo-9-reddit-post-over-gameplay/asset-ledger.json",
+      "publishPrepProvenancePath": "docs/demo/provenance/demo-9-reddit-post-over-gameplay/publish-prep/provenance.json",
+      "maturity": "golden showcase",
+      "publicUse": "promoted",
+      "rightsStatus": "approved",
+      "reviewStatus": "pass",
+      "assetLedger": [
+        {
+          "kind": "gameplay-background",
+          "usageMode": "generated-asset",
+          "licenseStatus": "repo-generated",
+          "contentIdRisk": "none-known",
+          "summary": "Synthetic gameplay-style background, Reddit-style opener card, captions, and narration are generated for the demo rather than copied from a public Reddit post or commercial game."
+        }
+      ],
+      "promotionBlockedReasons": []
+    },
+    {
+      "demoId": "demo-10-stock-broll-explainer",
+      "title": "Stock B-roll Explainer",
+      "videoPath": "docs/demo/demo-10-stock-broll-explainer.mp4",
+      "gifPath": "docs/demo/demo-10-stock-broll-explainer.gif",
+      "sourceDoc": "docs/user/examples/stock-footage-edutainment.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-10-stock-broll-explainer/report.json",
+      "maturity": "showcase candidate",
+      "publicUse": "candidate",
+      "rightsStatus": "needs-review",
+      "reviewStatus": "pass",
+      "assetLedger": [
+        {
+          "kind": "stock-style-support",
+          "usageMode": "downloaded-asset",
+          "licenseStatus": "needs-review",
+          "contentIdRisk": "possible",
+          "summary": "Stock-style support footage and music bed require per-asset source URLs/license evidence before this candidate can become golden."
+        }
+      ],
+      "promotionBlockedReasons": ["asset-level stock/audio evidence not attached"]
+    },
+    {
+      "demoId": "demo-11-text-thread-reveal",
+      "title": "Text Thread Reveal",
+      "videoPath": "docs/demo/demo-11-text-thread-reveal.mp4",
+      "gifPath": "docs/demo/demo-11-text-thread-reveal.gif",
+      "sourceDoc": "docs/user/examples/text-message-drama.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-11-text-thread-reveal/report.json",
+      "maturity": "showcase candidate",
+      "publicUse": "candidate",
+      "rightsStatus": "documented-local",
+      "reviewStatus": "pass",
+      "assetLedger": [
+        {
+          "kind": "staged-message-ui",
+          "usageMode": "code-native-rebuild",
+          "licenseStatus": "repo-generated",
+          "contentIdRisk": "none-known",
+          "summary": "Message bubbles, story text, captions, and support layout are staged/generated demo assets rather than copied private DMs."
+        }
+      ],
+      "promotionBlockedReasons": ["publish-prep bundle still needs to be attached"]
+    },
+    {
+      "demoId": "demo-12-saas-problem-solution",
+      "title": "SaaS Problem Solution",
+      "videoPath": "docs/demo/demo-12-saas-problem-solution.mp4",
+      "gifPath": "docs/demo/demo-12-saas-problem-solution.gif",
+      "sourceDoc": "docs/user/examples/saas-problem-solution.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-12-saas-problem-solution/report.json",
+      "maturity": "showcase candidate",
+      "publicUse": "candidate",
+      "rightsStatus": "documented-local",
+      "reviewStatus": "pass",
+      "assetLedger": [
+        {
+          "kind": "product-cards",
+          "usageMode": "code-native-rebuild",
+          "licenseStatus": "repo-generated",
+          "contentIdRisk": "none-known",
+          "summary": "Problem, proof, demo, and CTA cards are generated for the example; no real customer data or third-party product UI is required."
+        }
+      ],
+      "promotionBlockedReasons": ["publish-prep bundle still needs to be attached"]
+    },
+    {
+      "demoId": "demo-13-fast-facts-countdown",
+      "title": "Fast Facts Countdown",
+      "videoPath": "docs/demo/demo-13-fast-facts-countdown.mp4",
+      "gifPath": "docs/demo/demo-13-fast-facts-countdown.gif",
+      "sourceDoc": "docs/user/examples/facts-listicle.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-13-fast-facts-countdown/report.json",
+      "maturity": "showcase candidate",
+      "publicUse": "candidate",
+      "rightsStatus": "documented-local",
+      "reviewStatus": "pass",
+      "assetLedger": [
+        {
+          "kind": "motion-cards",
+          "usageMode": "code-native-rebuild",
+          "licenseStatus": "repo-generated",
+          "contentIdRisk": "none-known",
+          "summary": "Countdown cards, captions, and simple motion graphics are repo-generated visual assets."
+        }
+      ],
+      "promotionBlockedReasons": [
+        "claim/source citations should be attached for fact-heavy public use"
+      ]
+    },
+    {
+      "demoId": "demo-14-motion-card-lesson",
+      "title": "Motion Card Lesson",
+      "videoPath": "docs/demo/demo-14-motion-card-lesson.mp4",
+      "gifPath": "docs/demo/demo-14-motion-card-lesson.gif",
+      "layoutPath": "docs/demo/demo-14-motion-card-lesson.layout.json",
+      "sourceDoc": "docs/user/examples/motion-card-lesson.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-14-motion-card-lesson/report.json",
+      "maturity": "showcase candidate",
+      "publicUse": "candidate",
+      "rightsStatus": "approved",
+      "reviewStatus": "pass",
+      "assetLedger": [
+        {
+          "kind": "remotion-motion-cards",
+          "usageMode": "code-native-rebuild",
+          "licenseStatus": "repo-generated",
+          "contentIdRisk": "none-known",
+          "summary": "Deterministic Remotion/SVG motion cards with layout sidecar and video-evaluator layout-safety review."
+        }
+      ],
+      "promotionBlockedReasons": ["publish-prep bundle still needs to be attached"]
+    },
+    {
+      "demoId": "demo-15-faceless-mixed-short",
+      "title": "Faceless Mixed Short",
+      "videoPath": "docs/demo/demo-15-faceless-mixed-short.mp4",
+      "gifPath": "docs/demo/demo-15-faceless-mixed-short.gif",
+      "sourceDoc": "docs/user/examples/faceless-mixed-short.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-15-faceless-mixed-short/report.json",
+      "maturity": "showcase candidate",
+      "publicUse": "candidate",
+      "rightsStatus": "needs-review",
+      "reviewStatus": "pass",
+      "assetLedger": [
+        {
+          "kind": "mixed-source-assets",
+          "usageMode": "downloaded-asset",
+          "licenseStatus": "needs-review",
+          "contentIdRisk": "possible",
+          "summary": "Mixed stock-like support, diagrams, UI cards, generated assets, captions, and music need asset-level source evidence before flagship promotion."
+        }
+      ],
+      "promotionBlockedReasons": ["asset-level stock/audio evidence not attached"]
+    },
+    {
+      "demoId": "demo-16-gameplay-confession-split",
+      "title": "Gameplay Confession Split",
+      "videoPath": "docs/demo/demo-16-gameplay-confession-split.mp4",
+      "gifPath": "docs/demo/demo-16-gameplay-confession-split.gif",
+      "sourceDoc": "docs/user/examples/subway-confession-story.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-16-gameplay-confession-split/report.json",
+      "maturity": "showcase candidate",
+      "publicUse": "candidate",
+      "rightsStatus": "needs-review",
+      "reviewStatus": "pass",
+      "assetLedger": [
+        {
+          "kind": "gameplay-and-story-support",
+          "usageMode": "generated-asset",
+          "licenseStatus": "needs-review",
+          "contentIdRisk": "possible",
+          "summary": "Confession story, split layout, and gameplay rail are demo assets; external gameplay or support footage must carry per-asset provenance before promotion."
+        }
+      ],
+      "promotionBlockedReasons": ["gameplay/source evidence not attached"]
+    },
+    {
+      "demoId": "demo-17-micro-doc-breakdown",
+      "title": "Micro Doc Breakdown",
+      "videoPath": "docs/demo/demo-17-micro-doc-breakdown.mp4",
+      "gifPath": "docs/demo/demo-17-micro-doc-breakdown.gif",
+      "sourceDoc": "docs/user/examples/micro-doc-breakdown.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-17-micro-doc-breakdown/report.json",
+      "maturity": "proving candidate",
+      "publicUse": "candidate",
+      "rightsStatus": "needs-review",
+      "reviewStatus": "pass",
+      "assetLedger": [
+        {
+          "kind": "documentary-cards",
+          "usageMode": "generated-asset",
+          "licenseStatus": "needs-review",
+          "contentIdRisk": "possible",
+          "summary": "Archival-style cards and evidence inserts are demonstration assets; fact/source citations need to be attached before stronger promotion."
+        }
+      ],
+      "promotionBlockedReasons": ["evidence/source citations should be attached"]
+    },
+    {
+      "demoId": "demo-18-content-machine-reddit-gameplay-remix",
+      "title": "Content Machine Reddit Gameplay Remix",
+      "videoPath": "docs/demo/demo-18-content-machine-reddit-gameplay-remix.mp4",
+      "gifPath": "docs/demo/demo-18-content-machine-reddit-gameplay-remix.gif",
+      "sourceDoc": "docs/user/examples/content-machine-self-demo.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-18-content-machine-reddit-gameplay-remix/report.json",
+      "maturity": "supporting showcase candidate",
+      "publicUse": "supporting",
+      "rightsStatus": "approved",
+      "reviewStatus": "pass",
+      "assetLedger": [
+        {
+          "kind": "repo-self-demo",
+          "usageMode": "code-native-rebuild",
+          "licenseStatus": "repo-generated",
+          "contentIdRisk": "none-known",
+          "summary": "Deterministic no-key repo explainer preview using generated Reddit/gameplay packaging, local captions, and quiet synthesized audio."
+        }
+      ],
+      "promotionBlockedReasons": ["publish-prep sidecars still need to be attached"]
+    },
+    {
+      "demoId": "demo-19-content-machine-motion-cards",
+      "title": "Content Machine Motion Cards",
+      "videoPath": "docs/demo/demo-19-content-machine-motion-cards.mp4",
+      "gifPath": "docs/demo/demo-19-content-machine-motion-cards.gif",
+      "sourceDoc": "docs/user/examples/content-machine-self-demo.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-19-content-machine-motion-cards/report.json",
+      "maturity": "supporting showcase candidate",
+      "publicUse": "supporting",
+      "rightsStatus": "approved",
+      "reviewStatus": "pass-with-info",
+      "assetLedger": [
+        {
+          "kind": "repo-self-demo",
+          "usageMode": "code-native-rebuild",
+          "licenseStatus": "repo-generated",
+          "contentIdRisk": "none-known",
+          "summary": "Deterministic no-key repo explainer preview using generated motion cards, local captions, and quiet synthesized audio."
+        }
+      ],
+      "promotionBlockedReasons": ["publish-prep sidecars still need to be attached"]
+    },
+    {
+      "demoId": "demo-20-content-machine-3d-runner",
+      "title": "Content Machine 3D Runner",
+      "videoPath": "docs/demo/demo-20-content-machine-3d-runner.mp4",
+      "gifPath": "docs/demo/demo-20-content-machine-3d-runner.gif",
+      "sourceDoc": "docs/user/examples/procedural-gameplay-backgrounds.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-20-content-machine-3d-runner/report.json",
+      "maturity": "experimental preview",
+      "publicUse": "experimental",
+      "rightsStatus": "approved",
+      "reviewStatus": "error:wrong-resolution",
+      "assetLedger": [
+        {
+          "kind": "procedural-3d-background",
+          "usageMode": "code-native-rebuild",
+          "licenseStatus": "repo-generated",
+          "contentIdRisk": "none-known",
+          "summary": "Code-native low-poly 3D/procedural runner preview; no external model, texture, or gameplay clip is required for the tracked preview."
+        }
+      ],
+      "promotionBlockedReasons": ["current tracked preview is 720x1280, not 1080x1920"]
+    }
+  ]
+}

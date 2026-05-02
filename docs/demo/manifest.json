@@ -1,0 +1,350 @@
+{
+  "schemaVersion": "demo-manifest.v1",
+  "updatedAt": "2026-05-02",
+  "generatedReadmePath": "docs/demo/README.md",
+  "provenanceManifestPath": "docs/demo/provenance.v1.json",
+  "demos": [
+    {
+      "demoId": "demo-5-gemini-2026-feels-like-2016",
+      "title": "Gemini 2026 Feels Like 2016",
+      "maturity": "archive preview",
+      "publicUse": "archive",
+      "videoPath": "docs/demo/demo-5-gemini-2026-feels-like-2016.mp4",
+      "sourceDoc": "docs/user/examples/gemini-image-shorts.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-5-gemini-2026-feels-like-2016/report.json",
+      "provenanceNotesPath": "docs/demo/provenance/README.md#demo-5-gemini-2026-feels-like-2016",
+      "archetype": "historical-gemini-image-short",
+      "skills": [],
+      "flowPaths": [],
+      "whatItShows": "Historical Gemini image/video short retained as archive evidence, not a current public lane.",
+      "watchReason": "Use only as historical context while newer skill-backed lanes are promoted.",
+      "reproducePath": "docs/user/examples/gemini-image-shorts.md"
+    },
+    {
+      "demoId": "demo-6-gemini-browser-cache-same-energy",
+      "title": "Gemini Browser Cache Same Energy",
+      "maturity": "archive preview",
+      "publicUse": "archive",
+      "videoPath": "docs/demo/demo-6-gemini-browser-cache-same-energy.mp4",
+      "sourceDoc": "docs/user/examples/gemini-image-shorts.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-6-gemini-browser-cache-same-energy/report.json",
+      "provenanceNotesPath": "docs/demo/provenance/README.md#demo-6-gemini-browser-cache-same-energy",
+      "archetype": "historical-gemini-image-short",
+      "skills": [],
+      "flowPaths": [],
+      "whatItShows": "Historical Gemini image/video short retained as archive evidence, not a current public lane.",
+      "watchReason": "Use only as historical context while newer skill-backed lanes are promoted.",
+      "reproducePath": "docs/user/examples/gemini-image-shorts.md"
+    },
+    {
+      "demoId": "demo-7-gemini-black-holes-absurdist",
+      "title": "Gemini Black Holes Absurdist",
+      "maturity": "archive preview",
+      "publicUse": "archive",
+      "videoPath": "docs/demo/demo-7-gemini-black-holes-absurdist.mp4",
+      "sourceDoc": "docs/user/examples/gemini-image-shorts.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-7-gemini-black-holes-absurdist/report.json",
+      "provenanceNotesPath": "docs/demo/provenance/README.md#demo-7-gemini-black-holes-absurdist",
+      "archetype": "historical-gemini-image-short",
+      "skills": [],
+      "flowPaths": [],
+      "whatItShows": "Historical Gemini image/video short retained as archive evidence, not a current public lane.",
+      "watchReason": "Use only as historical context while newer skill-backed lanes are promoted.",
+      "reproducePath": "docs/user/examples/gemini-image-shorts.md"
+    },
+    {
+      "demoId": "demo-9-reddit-post-over-gameplay",
+      "title": "Reddit Post Over Gameplay",
+      "maturity": "golden showcase",
+      "publicUse": "promoted",
+      "featuredRank": 1,
+      "videoPath": "docs/demo/demo-9-reddit-post-over-gameplay.mp4",
+      "gifPath": "docs/demo/demo-9-reddit-post-over-gameplay.gif",
+      "sourceDoc": "docs/user/examples/reddit-post-over-gameplay.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-9-reddit-post-over-gameplay/report.json",
+      "assetLedgerPath": "docs/demo/provenance/demo-9-reddit-post-over-gameplay/asset-ledger.json",
+      "publishPrepProvenancePath": "docs/demo/provenance/demo-9-reddit-post-over-gameplay/publish-prep/provenance.json",
+      "provenanceNotesPath": "docs/demo/provenance/README.md#demo-9-reddit-post-over-gameplay",
+      "archetype": "reddit-post-over-gameplay",
+      "skills": [
+        {
+          "name": "reddit-post-over-gameplay-short",
+          "path": "skills/reddit-post-over-gameplay-short/SKILL.md"
+        },
+        {
+          "name": "reddit-card-overlay",
+          "path": "skills/reddit-card-overlay/SKILL.md"
+        },
+        {
+          "name": "video-render",
+          "path": "skills/video-render/SKILL.md"
+        }
+      ],
+      "flowPaths": [],
+      "whatItShows": "A Reddit-style opener card appears over full-screen gameplay, then captions continue directly over the gameplay.",
+      "watchReason": "Copy this first for Reddit posts, AITA stories, confessions, and low-attention story shorts.",
+      "reproducePath": "docs/user/examples/reddit-post-over-gameplay.md"
+    },
+    {
+      "demoId": "demo-10-stock-broll-explainer",
+      "title": "Stock B-roll Explainer",
+      "maturity": "showcase candidate",
+      "publicUse": "candidate",
+      "videoPath": "docs/demo/demo-10-stock-broll-explainer.mp4",
+      "gifPath": "docs/demo/demo-10-stock-broll-explainer.gif",
+      "sourceDoc": "docs/user/examples/stock-footage-edutainment.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-10-stock-broll-explainer/report.json",
+      "provenanceNotesPath": "docs/demo/provenance/README.md#demo-10-stock-broll-explainer",
+      "archetype": "stock-footage-edutainment",
+      "skills": [
+        {
+          "name": "stock-footage-edutainment-short",
+          "path": "skills/stock-footage-edutainment-short/SKILL.md"
+        }
+      ],
+      "flowPaths": [],
+      "whatItShows": "Topic-to-explainer structure with timed stock-style support visuals, captions, and music.",
+      "watchReason": "Use when a viewer needs a quick information explainer rather than a story or product pitch.",
+      "reproducePath": "docs/user/examples/stock-footage-edutainment.md"
+    },
+    {
+      "demoId": "demo-11-text-thread-reveal",
+      "title": "Text Thread Reveal",
+      "maturity": "showcase candidate",
+      "publicUse": "candidate",
+      "videoPath": "docs/demo/demo-11-text-thread-reveal.mp4",
+      "gifPath": "docs/demo/demo-11-text-thread-reveal.gif",
+      "sourceDoc": "docs/user/examples/text-message-drama.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-11-text-thread-reveal/report.json",
+      "provenanceNotesPath": "docs/demo/provenance/README.md#demo-11-text-thread-reveal",
+      "archetype": "text-message-drama",
+      "skills": [
+        {
+          "name": "text-message-drama-short",
+          "path": "skills/text-message-drama-short/SKILL.md"
+        }
+      ],
+      "flowPaths": [],
+      "whatItShows": "Chat bubbles, timestamps, and receipt-style reveals become the main visual grammar.",
+      "watchReason": "Use when the source is DMs, message logs, receipts, or reveal-driven social drama.",
+      "reproducePath": "docs/user/examples/text-message-drama.md"
+    },
+    {
+      "demoId": "demo-12-saas-problem-solution",
+      "title": "SaaS Problem Solution",
+      "maturity": "showcase candidate",
+      "publicUse": "candidate",
+      "videoPath": "docs/demo/demo-12-saas-problem-solution.mp4",
+      "gifPath": "docs/demo/demo-12-saas-problem-solution.gif",
+      "sourceDoc": "docs/user/examples/saas-problem-solution.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-12-saas-problem-solution/report.json",
+      "provenanceNotesPath": "docs/demo/provenance/README.md#demo-12-saas-problem-solution",
+      "archetype": "saas-problem-solution",
+      "skills": [
+        {
+          "name": "saas-problem-solution-short",
+          "path": "skills/saas-problem-solution-short/SKILL.md"
+        }
+      ],
+      "flowPaths": [],
+      "whatItShows": "Product pain, solution, proof, demo, and CTA beats are packaged as a short ad.",
+      "watchReason": "Use when the output needs to explain a SaaS/product offer without becoming a deck.",
+      "reproducePath": "docs/user/examples/saas-problem-solution.md"
+    },
+    {
+      "demoId": "demo-13-fast-facts-countdown",
+      "title": "Fast Facts Countdown",
+      "maturity": "showcase candidate",
+      "publicUse": "candidate",
+      "videoPath": "docs/demo/demo-13-fast-facts-countdown.mp4",
+      "gifPath": "docs/demo/demo-13-fast-facts-countdown.gif",
+      "sourceDoc": "docs/user/examples/facts-listicle.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-13-fast-facts-countdown/report.json",
+      "provenanceNotesPath": "docs/demo/provenance/README.md#demo-13-fast-facts-countdown",
+      "archetype": "facts-listicle",
+      "skills": [
+        {
+          "name": "facts-listicle-short",
+          "path": "skills/facts-listicle-short/SKILL.md"
+        }
+      ],
+      "flowPaths": [],
+      "whatItShows": "Numbered facts land as one beat per fact with countdown-native pacing.",
+      "watchReason": "Use when a topic can be understood as a ranked list, countdown, or promise-driven fact stack.",
+      "reproducePath": "docs/user/examples/facts-listicle.md"
+    },
+    {
+      "demoId": "demo-14-motion-card-lesson",
+      "title": "Motion Card Lesson",
+      "maturity": "showcase candidate",
+      "publicUse": "candidate",
+      "videoPath": "docs/demo/demo-14-motion-card-lesson.mp4",
+      "gifPath": "docs/demo/demo-14-motion-card-lesson.gif",
+      "layoutPath": "docs/demo/demo-14-motion-card-lesson.layout.json",
+      "sourceDoc": "docs/user/examples/motion-card-lesson.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-14-motion-card-lesson/report.json",
+      "provenanceNotesPath": "docs/demo/provenance/README.md#demo-14-motion-card-lesson",
+      "archetype": "motion-card-lesson",
+      "skills": [
+        {
+          "name": "motion-card-lesson-short",
+          "path": "skills/motion-card-lesson-short/SKILL.md"
+        },
+        {
+          "name": "motion-design-coder",
+          "path": "skills/motion-design-coder/SKILL.md"
+        }
+      ],
+      "flowPaths": [],
+      "whatItShows": "Designed motion cards and timed reveals explain one concept without stock footage.",
+      "watchReason": "Use when the content is educational and clarity matters more than cinematic footage.",
+      "reproducePath": "docs/user/examples/motion-card-lesson.md"
+    },
+    {
+      "demoId": "demo-15-faceless-mixed-short",
+      "title": "Faceless Mixed Short",
+      "maturity": "showcase candidate",
+      "publicUse": "candidate",
+      "videoPath": "docs/demo/demo-15-faceless-mixed-short.mp4",
+      "gifPath": "docs/demo/demo-15-faceless-mixed-short.gif",
+      "sourceDoc": "docs/user/examples/faceless-mixed-short.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-15-faceless-mixed-short/report.json",
+      "provenanceNotesPath": "docs/demo/provenance/README.md#demo-15-faceless-mixed-short",
+      "archetype": "faceless-mixed-short",
+      "skills": [
+        {
+          "name": "faceless-mixed-short",
+          "path": "skills/faceless-mixed-short/SKILL.md"
+        }
+      ],
+      "flowPaths": [],
+      "whatItShows": "Voiceover, stock-style media, cards, diagrams, captions, and music combine into one faceless edit.",
+      "watchReason": "Use when the source needs multiple visual supports rather than one strict visual grammar.",
+      "reproducePath": "docs/user/examples/faceless-mixed-short.md"
+    },
+    {
+      "demoId": "demo-16-gameplay-confession-split",
+      "title": "Gameplay Confession Split",
+      "maturity": "showcase candidate",
+      "publicUse": "candidate",
+      "videoPath": "docs/demo/demo-16-gameplay-confession-split.mp4",
+      "gifPath": "docs/demo/demo-16-gameplay-confession-split.gif",
+      "sourceDoc": "docs/user/examples/subway-confession-story.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-16-gameplay-confession-split/report.json",
+      "provenanceNotesPath": "docs/demo/provenance/README.md#demo-16-gameplay-confession-split",
+      "archetype": "gameplay-confession-split",
+      "skills": [
+        {
+          "name": "gameplay-confession-short",
+          "path": "skills/gameplay-confession-short/SKILL.md"
+        }
+      ],
+      "flowPaths": [],
+      "whatItShows": "Story support footage sits above a gameplay pacing rail for confession/storytime formats.",
+      "watchReason": "Use when gameplay should hold attention but the story also needs visual context.",
+      "reproducePath": "docs/user/examples/subway-confession-story.md"
+    },
+    {
+      "demoId": "demo-17-micro-doc-breakdown",
+      "title": "Micro Doc Breakdown",
+      "maturity": "proving candidate",
+      "publicUse": "candidate",
+      "videoPath": "docs/demo/demo-17-micro-doc-breakdown.mp4",
+      "gifPath": "docs/demo/demo-17-micro-doc-breakdown.gif",
+      "sourceDoc": "docs/user/examples/micro-doc-breakdown.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-17-micro-doc-breakdown/report.json",
+      "provenanceNotesPath": "docs/demo/provenance/README.md#demo-17-micro-doc-breakdown",
+      "archetype": "micro-doc-breakdown",
+      "skills": [
+        {
+          "name": "micro-doc-breakdown-short",
+          "path": "skills/micro-doc-breakdown-short/SKILL.md"
+        }
+      ],
+      "flowPaths": [],
+      "whatItShows": "Timeline cards, evidence inserts, narration, and captions make a short micro-documentary.",
+      "watchReason": "Use when the content needs a proof trail instead of a pure entertainment format.",
+      "reproducePath": "docs/user/examples/micro-doc-breakdown.md"
+    },
+    {
+      "demoId": "demo-18-content-machine-reddit-gameplay-remix",
+      "title": "Content Machine Reddit Gameplay Remix",
+      "maturity": "supporting showcase candidate",
+      "publicUse": "supporting",
+      "featuredRank": 2,
+      "videoPath": "docs/demo/demo-18-content-machine-reddit-gameplay-remix.mp4",
+      "gifPath": "docs/demo/demo-18-content-machine-reddit-gameplay-remix.gif",
+      "sourceDoc": "docs/user/examples/content-machine-self-demo.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-18-content-machine-reddit-gameplay-remix/report.json",
+      "provenanceNotesPath": "docs/demo/provenance/README.md#demo-18-content-machine-reddit-gameplay-remix",
+      "archetype": "repo-self-demo-reddit-gameplay",
+      "skills": [
+        {
+          "name": "generate-short",
+          "path": "skills/generate-short/SKILL.md"
+        },
+        {
+          "name": "reddit-post-over-gameplay-short",
+          "path": "skills/reddit-post-over-gameplay-short/SKILL.md"
+        }
+      ],
+      "flowPaths": ["flows/showcase-content-machine.flow", "flows/showcase-content-machine.md"],
+      "whatItShows": "The repo explains itself with low-attention Reddit/gameplay packaging and local generated assets.",
+      "watchReason": "Use for OSS onboarding when the viewer needs to understand the repo in seconds.",
+      "reproducePath": "docs/user/examples/content-machine-self-demo.md"
+    },
+    {
+      "demoId": "demo-19-content-machine-motion-cards",
+      "title": "Content Machine Motion Cards",
+      "maturity": "supporting showcase candidate",
+      "publicUse": "supporting",
+      "featuredRank": 3,
+      "videoPath": "docs/demo/demo-19-content-machine-motion-cards.mp4",
+      "gifPath": "docs/demo/demo-19-content-machine-motion-cards.gif",
+      "sourceDoc": "docs/user/examples/content-machine-self-demo.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-19-content-machine-motion-cards/report.json",
+      "provenanceNotesPath": "docs/demo/provenance/README.md#demo-19-content-machine-motion-cards",
+      "archetype": "repo-self-demo-motion-cards",
+      "skills": [
+        {
+          "name": "motion-card-lesson-short",
+          "path": "skills/motion-card-lesson-short/SKILL.md"
+        },
+        {
+          "name": "motion-design-coder",
+          "path": "skills/motion-design-coder/SKILL.md"
+        }
+      ],
+      "flowPaths": ["flows/showcase-content-machine.flow", "flows/showcase-content-machine.md"],
+      "whatItShows": "The repo explains itself with deterministic motion cards, captions, and generated audio.",
+      "watchReason": "Use when the showcase needs to feel more educational than meme/story-native.",
+      "reproducePath": "docs/user/examples/content-machine-self-demo.md"
+    },
+    {
+      "demoId": "demo-20-content-machine-3d-runner",
+      "title": "Content Machine 3D Runner",
+      "maturity": "experimental preview",
+      "publicUse": "experimental",
+      "videoPath": "docs/demo/demo-20-content-machine-3d-runner.mp4",
+      "gifPath": "docs/demo/demo-20-content-machine-3d-runner.gif",
+      "sourceDoc": "docs/user/examples/procedural-gameplay-backgrounds.md",
+      "reviewReportPath": "experiments/video-quality-review-demo/demo-20-content-machine-3d-runner/report.json",
+      "provenanceNotesPath": "docs/demo/provenance/README.md#demo-20-content-machine-3d-runner",
+      "archetype": "procedural-gameplay-background",
+      "skills": [
+        {
+          "name": "procedural-gameplay-backgrounds",
+          "path": "skills/procedural-gameplay-backgrounds/SKILL.md"
+        },
+        {
+          "name": "motion-design-coder",
+          "path": "skills/motion-design-coder/SKILL.md"
+        }
+      ],
+      "flowPaths": ["flows/showcase-content-machine.flow", "flows/showcase-content-machine.md"],
+      "whatItShows": "Code-native 3D/procedural motion can be an additive gameplay-style background layer.",
+      "watchReason": "Use as a direction preview only; the tracked clip is still below the 1080x1920 promotion bar.",
+      "reproducePath": "docs/user/examples/procedural-gameplay-backgrounds.md"
+    }
+  ]
+}

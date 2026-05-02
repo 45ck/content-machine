@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "1.0.0",
+  "passed": true,
+  "summary": {
+    "assetLedgerPath": "docs/demo/provenance/demo-9-reddit-post-over-gameplay/asset-ledger.json",
+    "mediaIndexPath": null,
+    "assetCount": 5,
+    "errorCount": 0,
+    "warningCount": 0
+  },
+  "checks": [
+    {
+      "checkId": "reviewStatus-approved",
+      "passed": true,
+      "severity": "error",
+      "assetRef": "demo-9:script",
+      "message": "Generated demo script is documented as local generated media.",
+      "fix": "No fix required."
+    },
+    {
+      "checkId": "content-id-risk-cleared",
+      "passed": true,
+      "severity": "error",
+      "assetRef": "demo-9:voiceover",
+      "message": "Generated voiceover has no known Content ID risk.",
+      "fix": "No fix required."
+    },
+    {
+      "checkId": "generated-provider-present",
+      "passed": true,
+      "severity": "error",
+      "assetRef": "demo-9:gameplay-background",
+      "message": "Generated gameplay-style background provider/workflow is documented.",
+      "fix": "No fix required."
+    },
+    {
+      "checkId": "rights-flags-allowed",
+      "passed": true,
+      "severity": "error",
+      "assetRef": "demo-9:reddit-card",
+      "message": "No prohibited rights flags are present.",
+      "fix": "No fix required."
+    }
+  ],
+  "createdAt": "2026-05-02T00:00:00.000Z"
+}

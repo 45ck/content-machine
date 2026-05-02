@@ -1,0 +1,82 @@
+{
+  "schemaVersion": "1.0.0",
+  "assets": [
+    {
+      "assetId": "demo-9:script",
+      "assetType": "script",
+      "kind": "reddit-story-script",
+      "stage": "brief-to-script",
+      "provider": "content-machine",
+      "usageMode": "generated-asset",
+      "reviewStatus": "generated-local",
+      "rightsStatus": "generated-local",
+      "licenseName": "repo-generated",
+      "prompt": "Synthetic Reddit-style story opener for the content-machine gameplay showcase.",
+      "workflow": "content-machine/demo-render"
+    },
+    {
+      "assetId": "demo-9:voiceover",
+      "assetType": "voiceover",
+      "kind": "narration",
+      "stage": "script-to-audio",
+      "provider": "content-machine",
+      "usageMode": "generated-asset",
+      "reviewStatus": "generated-local",
+      "rightsStatus": "generated-local",
+      "licenseName": "repo-generated",
+      "contentIdRisk": "none-known",
+      "mixRole": "voiceover",
+      "prompt": "Narration generated for the tracked demo.",
+      "workflow": "content-machine/demo-render"
+    },
+    {
+      "assetId": "demo-9:gameplay-background",
+      "assetType": "video",
+      "kind": "gameplay-background",
+      "stage": "video-render",
+      "provider": "content-machine",
+      "usageMode": "generated-asset",
+      "reviewStatus": "generated-local",
+      "rightsStatus": "generated-local",
+      "licenseName": "repo-generated",
+      "contentIdRisk": "none-known",
+      "prompt": "Synthetic gameplay-style motion background; not copied from Subway Surfers or another commercial game.",
+      "workflow": "content-machine/demo-render"
+    },
+    {
+      "assetId": "demo-9:reddit-card",
+      "assetType": "image",
+      "kind": "reddit-card-overlay",
+      "stage": "video-render",
+      "provider": "content-machine",
+      "usageMode": "generated-asset",
+      "reviewStatus": "generated-local",
+      "rightsStatus": "generated-local",
+      "licenseName": "repo-generated",
+      "prompt": "Generated Reddit-style card UI with synthetic post text.",
+      "workflow": "content-machine/demo-render"
+    },
+    {
+      "assetId": "demo-9:captions",
+      "assetType": "caption",
+      "kind": "caption-sidecars",
+      "stage": "video-render",
+      "provider": "content-machine",
+      "usageMode": "generated-asset",
+      "reviewStatus": "generated-local",
+      "rightsStatus": "generated-local",
+      "licenseName": "repo-generated",
+      "prompt": "Burned-in captions and sidecar caption artifacts generated from the demo narration.",
+      "workflow": "content-machine/demo-render"
+    }
+  ],
+  "summary": {
+    "assetCount": 5,
+    "generatedCount": 5,
+    "externalCount": 0,
+    "needsReviewCount": 0,
+    "audioCount": 1
+  },
+  "warnings": [],
+  "createdAt": "2026-05-02T00:00:00.000Z"
+}

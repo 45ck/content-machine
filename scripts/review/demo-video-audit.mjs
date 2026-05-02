@@ -693,7 +693,7 @@ function markdownSummary(reports) {
   lines.push('', '## Details', '');
   for (const report of reports) {
     lines.push(`### ${basename(report.videoPath)}`, '');
-    lines.push(`- Path: \`${report.videoPath}\``);
+    lines.push(`- Path: \`${relativePath(repoRoot, report.videoPath)}\``);
     lines.push(`- Resolution: ${report.info.width}x${report.info.height}`);
     lines.push(`- Duration: ${report.info.durationSeconds.toFixed(2)}s`);
     lines.push(
@@ -712,6 +712,7 @@ function markdownSummary(reports) {
     }
     lines.push('');
   }
+  while (lines.at(-1) === '') lines.pop();
   return `${lines.join('\n')}\n`;
 }
 
