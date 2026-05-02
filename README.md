@@ -173,13 +173,7 @@ repo-aware coding agent to use Content Machine inside your own project:
 ```bash
 npm install @45ck/content-machine
 
-cat <<'JSON' | node ./node_modules/@45ck/content-machine/agent/run-tool.mjs install-skill-pack
-{
-  "targetDir": ".content-machine",
-  "includeFlows": true,
-  "includeExamples": true
-}
-JSON
+npx cm-install --target .content-machine
 ```
 
 Then tell the agent to read `.content-machine/README.md`,
@@ -246,13 +240,7 @@ there and materialize a local pack:
 ```bash
 npm install @45ck/content-machine
 
-cat <<'JSON' | node ./node_modules/@45ck/content-machine/agent/run-tool.mjs install-skill-pack
-{
-  "targetDir": ".content-machine",
-  "includeFlows": true,
-  "includeExamples": true
-}
-JSON
+npx cm-install --target .content-machine
 ```
 
 Use [`skills/`](skills/README.md) or the `skill-catalog` harness script

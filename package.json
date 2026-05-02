@@ -7,7 +7,9 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "cm": "dist/cli/index.cjs"
+    "cm": "dist/cli/index.cjs",
+    "cm-agent": "agent/run-tool.mjs",
+    "cm-install": "agent/install.mjs"
   },
   "exports": {
     ".": {

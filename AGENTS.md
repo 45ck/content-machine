@@ -34,7 +34,7 @@ relevant `.content-machine/skills/*/SKILL.md` before running tools.
 Packaged runtime calls should use:
 
 ```bash
-node ./node_modules/@45ck/content-machine/agent/run-tool.mjs <tool>
+npx cm-agent <tool>
 ```
 
 For installed flows, pass `"flowsDir": ".content-machine/flows"` to

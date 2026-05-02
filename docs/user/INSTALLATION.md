@@ -14,14 +14,7 @@ repo-aware agent to use Content Machine from your own project.
 ```bash
 npm install @45ck/content-machine
 
-cat <<'JSON' | node ./node_modules/@45ck/content-machine/agent/run-tool.mjs install-skill-pack
-{
-  "targetDir": ".content-machine",
-  "includeFlows": true,
-  "includeExamples": true,
-  "overwrite": false
-}
-JSON
+npx cm-install --target .content-machine
 ```
 
 This creates a materialized pack:
@@ -47,6 +40,20 @@ Install options:
 | `includeFlows`    | `true`                  | Copy `.flow` manifests for multi-step runs                         |
 | `includeExamples` | `true`                  | Keep skill `examples/request.json` files                           |
 | `overwrite`       | `false`                 | Refresh an existing materialized pack intentionally                |
+
+The JSON-stdio form remains available for agents that prefer structured
+stdin:
+
+```bash
+cat <<'JSON' | npx cm-agent install-skill-pack
+{
+  "targetDir": ".content-machine",
+  "includeFlows": true,
+  "includeExamples": true,
+  "overwrite": false
+}
+JSON
+```
 
 ## Install From A Repo Checkout
 

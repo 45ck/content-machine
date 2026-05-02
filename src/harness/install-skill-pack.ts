@@ -205,6 +205,13 @@ List available runtime tools:
 ${runner} list
 \`\`\`
 
+The same command is also available through the local npm bin after
+install:
+
+\`\`\`bash
+npx cm-agent list
+\`\`\`
+
 List installed skills:
 
 \`\`\`bash
@@ -273,7 +280,8 @@ These instructions apply to the materialized Content Machine pack in
 ## Role Split
 
 - \`skills/\` tells the agent when and how to do a specific video job.
-${params.includeFlows ? '- `flows/` tells the agent how to run multi-step jobs.\n' : ''}- \`${runner}\` is the runtime bridge for JSON-stdio tool calls.
+${params.includeFlows ? '- `flows/` tells the agent how to run multi-step jobs.\n' : ''}- \`npx cm-agent <tool>\` is the short runtime bridge for JSON-stdio tool calls.
+- \`${runner}\` is the explicit runner path if npm bins are unavailable.
 
 ## How To Use It
 
@@ -290,16 +298,16 @@ ${params.includeFlows ? '- `flows/` tells the agent how to run multi-step jobs.\
 ## Useful Commands
 
 \`\`\`bash
-${runner} list
+npx cm-agent list
 
-cat <<'JSON' | ${runner} skill-catalog
+cat <<'JSON' | npx cm-agent skill-catalog
 {
   "skillsDir": "${targetPrefix}/skills",
   "includeExamples": true
 }
 JSON
 
-cat <<'JSON' | ${runner} doctor-report
+cat <<'JSON' | npx cm-agent doctor-report
 {
   "strict": false
 }

@@ -190,13 +190,7 @@ the package there and materialize a local copy:
 ```bash
 npm install @45ck/content-machine
 
-cat <<'JSON' | node ./node_modules/@45ck/content-machine/agent/run-tool.mjs install-skill-pack
-{
-  "targetDir": ".content-machine",
-  "includeFlows": true,
-  "includeExamples": true
-}
-JSON
+npx cm-install --target .content-machine
 ```
 
 That creates `.content-machine/skills/` and `.content-machine/flows/`

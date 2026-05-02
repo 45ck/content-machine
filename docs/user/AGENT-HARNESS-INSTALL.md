@@ -19,9 +19,10 @@ video skill pack.
 
 Do this:
 1. Run `npm install @45ck/content-machine`.
-2. Run the packaged install tool to materialize `.content-machine/`.
+2. Run `npx cm-install --target .content-machine` to materialize the
+   local pack.
 3. Read `.content-machine/README.md` and `.content-machine/AGENTS.md`.
-4. Verify the runner with `node ./node_modules/@45ck/content-machine/agent/run-tool.mjs list`.
+4. Verify the runner with `npx cm-agent list`.
 5. Run doctor-report and tell me what is missing before generating real videos.
 
 After install, when I ask for a short, choose the right Content Machine
@@ -34,28 +35,21 @@ If you want the exact command form:
 ```bash
 npm install @45ck/content-machine
 
-cat <<'JSON' | node ./node_modules/@45ck/content-machine/agent/run-tool.mjs install-skill-pack
-{
-  "targetDir": ".content-machine",
-  "includeFlows": true,
-  "includeExamples": true,
-  "overwrite": false
-}
-JSON
+npx cm-install --target .content-machine
 ```
 
-Use `"overwrite": true` when intentionally refreshing an existing
-`.content-machine/` pack after upgrading the npm package.
+Use `npx cm-install --overwrite` when intentionally refreshing an
+existing `.content-machine/` pack after upgrading the npm package.
 
 ## What Gets Installed
 
-| Path                         | Purpose                                                                   |
-| ---------------------------- | ------------------------------------------------------------------------- |
-| `.content-machine/README.md` | Human and agent orientation for the materialized pack                     |
-| `.content-machine/AGENTS.md` | Agent-facing operating rules that can be copied into root instructions    |
-| `.content-machine/skills/`   | `SKILL.md` files that explain when and how to use each capability         |
-| `.content-machine/flows/`    | Optional `.flow` manifests for multi-step jobs                            |
-| `node_modules/@45ck/...`     | Runtime implementation and `agent/run-tool.mjs` JSON-stdio command bridge |
+| Path                         | Purpose                                                                    |
+| ---------------------------- | -------------------------------------------------------------------------- |
+| `.content-machine/README.md` | Human and agent orientation for the materialized pack                      |
+| `.content-machine/AGENTS.md` | Agent-facing operating rules that can be copied into root instructions     |
+| `.content-machine/skills/`   | `SKILL.md` files that explain when and how to use each capability          |
+| `.content-machine/flows/`    | Optional `.flow` manifests for multi-step jobs                             |
+| `node_modules/@45ck/...`     | Runtime implementation, `cm-agent`, `cm-install`, and `agent/run-tool.mjs` |
 
 The copied skill docs are rewritten to call the installed package
 runner, so agents do not need the source repo checkout.
@@ -67,7 +61,7 @@ runner, so agents do not need the source repo checkout.
 | Codex CLI               | Ask Codex to run the copy-paste prompt, then point it at `.content-machine/skills/` and `.content-machine/AGENTS.md`. |
 | Claude Code             | Ask Claude to run the copy-paste prompt, then let it read `.content-machine/README.md`; copy AGENTS rules if needed.  |
 | Cursor or editor agents | Run the command in the project terminal, then mention `.content-machine/skills/` in the chat or project instructions. |
-| Generic shell agent     | Give it the command block and tell it to use `agent/run-tool.mjs <tool>` for JSON-stdio runtime calls.                |
+| Generic shell agent     | Give it the command block and tell it to use `npx cm-agent <tool>` for JSON-stdio runtime calls.                      |
 
 Content Machine does not require a special native plugin registry. The
 portable install works because most coding agents can read repo-local
@@ -110,13 +104,13 @@ The agent should:
 List tools:
 
 ```bash
-node ./node_modules/@45ck/content-machine/agent/run-tool.mjs list
+npx cm-agent list
 ```
 
 List materialized skills:
 
 ```bash
-cat <<'JSON' | node ./node_modules/@45ck/content-machine/agent/run-tool.mjs skill-catalog
+cat <<'JSON' | npx cm-agent skill-catalog
 {
   "skillsDir": ".content-machine/skills",
   "includeExamples": true
@@ -127,7 +121,7 @@ JSON
 Run a flow from the installed pack:
 
 ```bash
-cat <<'JSON' | node ./node_modules/@45ck/content-machine/agent/run-tool.mjs run-flow
+cat <<'JSON' | npx cm-agent run-flow
 {
   "flowsDir": ".content-machine/flows",
   "flow": "generate-short",
@@ -143,7 +137,7 @@ JSON
 Run diagnostics:
 
 ```bash
-cat <<'JSON' | node ./node_modules/@45ck/content-machine/agent/run-tool.mjs doctor-report
+cat <<'JSON' | npx cm-agent doctor-report
 {
   "strict": false
 }

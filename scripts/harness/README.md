@@ -63,13 +63,14 @@ Current entrypoints:
 Installed-package users should prefer
 `node ./node_modules/@45ck/content-machine/agent/run-tool.mjs <tool>`.
 Use `node ./node_modules/@45ck/content-machine/agent/run-tool.mjs list`
-to inspect packaged tool names.
+to inspect packaged tool names. The local npm bin alias is shorter:
+`npx cm-agent <tool>`.
 
 When using a materialized pack in another project, pass the installed
 directories explicitly:
 
 ```bash
-cat <<'JSON' | node ./node_modules/@45ck/content-machine/agent/run-tool.mjs run-flow
+cat <<'JSON' | npx cm-agent run-flow
 {
   "flowsDir": ".content-machine/flows",
   "flow": "generate-short",
