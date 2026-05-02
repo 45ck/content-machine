@@ -147,6 +147,34 @@ describe('caption export', () => {
     expect(ass).toContain(',96,96,380,1');
   });
 
+  it('serializes boxed ASS captions for noisy gameplay backgrounds', () => {
+    const ass = formatAssCaptions(
+      [
+        {
+          text: 'The caption has to survive moving gameplay',
+          startMs: 0,
+          endMs: 2400,
+          timestampMs: 0,
+          confidence: null,
+          words: [],
+        },
+      ],
+      {
+        alignment: 5,
+        borderStyle: 3,
+        outline: 10,
+        shadow: 0,
+        positionX: 540,
+        positionY: 1260,
+        maxCharsPerLine: 24,
+      }
+    );
+
+    expect(ass).toContain('Style: Default,Arial,72,&H00FFFFFF,&H008A8A8A');
+    expect(ass).toContain(',3,10,0,5,96,96,380,1');
+    expect(ass).toContain('{\\pos(540,1260)}The caption has to\\Nsurvive moving gameplay');
+  });
+
   it('reports segment-level readability issues', () => {
     const report = analyzeCaptionSegments([
       {

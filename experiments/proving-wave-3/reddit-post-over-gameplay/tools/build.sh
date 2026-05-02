@@ -50,33 +50,23 @@ node --import tsx scripts/harness/caption-export.ts <<JSON \
   "captionAssPath": "$ROOT/outputs/render/captions.ass",
   "captionPreset": "capcut",
   "captionMode": "page",
-  "captionTimingOffsetMs": -550,
+  "captionTimingOffsetMs": 0,
   "captionAssStyle": {
-    "karaoke": true,
     "fontName": "Arial",
-    "fontSize": 58,
+    "fontSize": 64,
     "primaryColor": "&H00FFFFFF",
-    "secondaryColor": "&H00D8D8D8",
+    "secondaryColor": "&H00FFFFFF",
     "outlineColor": "&H00000000",
     "backColor": "&H8C000000",
+    "borderStyle": 3,
+    "outline": 10,
+    "shadow": 0,
     "alignment": 5,
     "positionX": 540,
     "positionY": 1260,
     "maxCharsPerLine": 24,
     "maxLines": 2
   }
-}
-JSON
-
-node --import tsx scripts/harness/caption-export.ts <<JSON \
-  > "$ROOT/outputs/render/caption-export-review.stdout.json"
-{
-  "timestampsPath": "$ROOT/timestamps.json",
-  "captionExportPath": "$ROOT/outputs/render/captions.review.remotion.json",
-  "captionSrtPath": "$ROOT/outputs/render/captions.review.srt",
-  "captionAssPath": "$ROOT/outputs/render/captions.review.ass",
-  "captionPreset": "capcut",
-  "captionMode": "page"
 }
 JSON
 
@@ -98,10 +88,7 @@ ffmpeg -y \
   -c:a aac -b:a 160k -shortest \
   "$ROOT/outputs/final/video.mp4" >/dev/null 2>&1
 
-ffmpeg -y -i "$ROOT/outputs/final/video.mp4" \
-  -vf "scale=540:960" \
-  -c:v libx264 -crf 30 -preset veryfast -c:a aac -b:a 96k \
-  docs/demo/demo-9-reddit-post-over-gameplay.mp4 >/dev/null 2>&1
+cp "$ROOT/outputs/final/video.mp4" docs/demo/demo-9-reddit-post-over-gameplay.mp4
 
 rm -rf "$ROOT/outputs/final/publish-prep"
 node --import tsx scripts/harness/publish-prep.ts <<JSON \
@@ -111,7 +98,7 @@ node --import tsx scripts/harness/publish-prep.ts <<JSON \
   "scriptPath": "$ROOT/script.json",
   "outputDir": "$ROOT/outputs/final/publish-prep",
   "platform": "tiktok",
-  "captionExportPath": "$ROOT/outputs/render/captions.review.remotion.json"
+  "captionExportPath": "$ROOT/outputs/render/captions.remotion.json"
 }
 JSON
 

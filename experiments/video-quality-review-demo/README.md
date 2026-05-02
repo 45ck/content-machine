@@ -1,6 +1,6 @@
 # Demo Video Quality Review
 
-Generated: 2026-05-02T09:39:35.849Z
+Generated: 2026-05-02T23:39:24.358Z
 
 Heuristics used: ffprobe metadata, ffmpeg audio volume, capped even frame sampling, white/black frame detection, edge artifact detection, low-motion runs, caption-band signal, and contact sheets.
 

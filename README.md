@@ -149,9 +149,9 @@ analysis that can be reused by other repos.
 
 Tracked preview assets live in
 [`docs/demo/`](docs/demo/README.md). The root README features the
-default Reddit/gameplay example, but it remains a showcase candidate
-until OCR caption-sync passes. Supporting and experimental clips stay in
-the gallery until review evidence says they should move up.
+default Reddit/gameplay example as the first golden showcase. Supporting
+and experimental clips stay in the gallery until review evidence says
+they should move up.
 
 > Early development. Skills and flows are now the primary interface;
 > runtime scripts are support surfaces behind those docs. The legacy

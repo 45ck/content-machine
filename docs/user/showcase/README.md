@@ -41,7 +41,8 @@ Maturity labels on this page are checked against that manifest by
 Use `demo-9` first when the request is a Reddit story, confession, or
 AITA-style short. It shows the default shape: a Reddit opener card over
 full-screen gameplay, then captions continuing over the same gameplay.
-It remains a showcase candidate until the OCR caption-sync gate passes.
+It is the first promoted golden showcase because the current render
+passes publish-prep, including OCR caption-sync.
 
 ## Repo Explainer Previews
 
@@ -70,7 +71,7 @@ is an additive treatment, not the default archetype.
 
 | Preview                                                                                                                      | What People Should Understand                                                          | Start Here                                                                                    | Maturity                        |
 | ---------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | ------------------------------- |
-| [`demo-9`](https://github.com/45ck/content-machine/blob/master/docs/demo/demo-9-reddit-post-over-gameplay.mp4)               | Reddit card opens over gameplay, then captions continue over full-screen gameplay      | [`reddit-post-over-gameplay-short`](../../../skills/reddit-post-over-gameplay-short/SKILL.md) | `showcase candidate`            |
+| [`demo-9`](https://github.com/45ck/content-machine/blob/master/docs/demo/demo-9-reddit-post-over-gameplay.mp4)               | Reddit card opens over gameplay, then captions continue over full-screen gameplay      | [`reddit-post-over-gameplay-short`](../../../skills/reddit-post-over-gameplay-short/SKILL.md) | `golden showcase`               |
 | [`demo-10`](https://github.com/45ck/content-machine/blob/master/docs/demo/demo-10-stock-broll-explainer.mp4)                 | Topic-to-explainer lane using stock-style support visuals                              | [`stock-footage-edutainment-short`](../../../skills/stock-footage-edutainment-short/SKILL.md) | `showcase candidate`            |
 | [`demo-11`](https://github.com/45ck/content-machine/blob/master/docs/demo/demo-11-text-thread-reveal.mp4)                    | Chat/DM receipts become the primary visual grammar                                     | [`text-message-drama-short`](../../../skills/text-message-drama-short/SKILL.md)               | `showcase candidate`            |
 | [`demo-12`](https://github.com/45ck/content-machine/blob/master/docs/demo/demo-12-saas-problem-solution.mp4)                 | Product pain, proof, demo, and CTA beats                                               | [`saas-problem-solution-short`](../../../skills/saas-problem-solution-short/SKILL.md)         | `showcase candidate`            |

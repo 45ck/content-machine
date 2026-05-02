@@ -1,14 +1,13 @@
 # Reddit Post Over Gameplay
 
-Status: `showcase candidate`
+Status: `golden showcase`
 
 This is the default Reddit story mode for generic "Reddit story",
 "AITA video", or "Subway Surfers Reddit" requests.
 
-Use this as the default Reddit/story visual lane, but keep the maturity
-label at `showcase candidate` until the automated OCR caption-sync gate
-passes. The latest OCR gate still reports active-word drift and is
-tracked under the review notes below.
+Use this as the default Reddit/story visual lane. The tracked demo is
+promoted because the current render passes publish-prep, including OCR
+caption-sync on the boxed phrase-caption treatment.
 
 Tracked preview clip:
 
@@ -77,13 +76,12 @@ exit back to gameplay. Do not add random motion layers or stock clips.
 
 Review status:
 
-- passed: resolution, duration, format, cadence, audio signal
-- failed: OCR caption-sync gate still reports drift on active-word ASS
-  captions
+- passed: resolution, duration, format, cadence, audio signal,
+  OCR caption-sync
 
 The visual mode is correct: the render contains only gameplay, a Reddit
-opener card, captions, and audio. The remaining work is evaluator and
-caption-render polish, not archetype routing.
+opener card, boxed phrase captions, and audio. This is the default
+story/gameplay example to copy first.
 
 ## Reject Rules
 

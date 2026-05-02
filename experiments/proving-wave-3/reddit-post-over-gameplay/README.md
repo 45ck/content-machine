@@ -9,7 +9,7 @@ This run proves the default Reddit story mode:
 - full-screen gameplay only
 - Reddit post opener card over gameplay
 - no stock clips, no top lane, no generated B-roll
-- active-word captions over gameplay
+- boxed phrase captions over gameplay
 - audible narration
 
 ## Artifacts
@@ -28,19 +28,18 @@ This run proves the default Reddit story mode:
 `publish-prep` results for the final MP4:
 
 - passed: `resolution`, `duration`, `format`, `cadence`,
-  `audio-signal`
-- failed: `caption-sync`
+  `audio-signal`, `caption-sync`
 
-Caption-sync failure details from the current OCR gate:
+Caption-sync details from the current OCR gate:
 
 - matched `26/31` expected caption segments
-- median drift: `386ms`
-- P95 drift: `1291ms`
+- median drift: `223ms`
+- P95 drift: `553ms`
 
 Manual visual review of the contact sheet confirms the archetype routing
 is correct: no random clips, no top lane, no black gutters, and no
-static fallback background. The remaining gap is active-word caption
-evaluation/render polish.
+static fallback background. The boxed caption treatment keeps text
+readable over moving gameplay and passes the automated sync gate.
 
 ## Build Shape
 

@@ -55,8 +55,8 @@
     {
       "demoId": "demo-9-reddit-post-over-gameplay",
       "title": "Reddit Post Over Gameplay",
-      "maturity": "showcase candidate",
-      "publicUse": "candidate",
+      "maturity": "golden showcase",
+      "publicUse": "promoted",
       "featuredRank": 1,
       "videoPath": "docs/demo/demo-9-reddit-post-over-gameplay.mp4",
       "gifPath": "docs/demo/demo-9-reddit-post-over-gameplay.gif",
@@ -82,7 +82,7 @@
       ],
       "flowPaths": [],
       "whatItShows": "A Reddit-style opener card appears over full-screen gameplay, then captions continue directly over the gameplay.",
-      "watchReason": "Use this first for Reddit posts, AITA stories, confessions, and low-attention story shorts; keep it a candidate until OCR caption-sync passes.",
+      "watchReason": "Use this first for Reddit posts, AITA stories, confessions, and low-attention story shorts with a Reddit opener over gameplay.",
       "reproducePath": "docs/user/examples/reddit-post-over-gameplay.md"
     },
     {

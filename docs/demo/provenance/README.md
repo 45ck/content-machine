@@ -45,7 +45,7 @@ they are not golden until those artifacts exist and pass.
 
 ## demo-9-reddit-post-over-gameplay
 
-- Maturity: `showcase candidate`
+- Maturity: `golden showcase`
 - Source doc:
   [`reddit-post-over-gameplay`](../../user/examples/reddit-post-over-gameplay.md)
 - Review: [`report.json`](../../../experiments/video-quality-review-demo/demo-9-reddit-post-over-gameplay/report.json)
@@ -55,9 +55,8 @@ they are not golden until those artifacts exist and pass.
 - Source notes: synthetic gameplay-style background, Reddit-style opener
   card, captions, and narration are generated for the demo rather than
   copied from a public Reddit post or commercial game.
-- Promotion note: visual lane is the default story example, but OCR
-  caption-sync still reports active-word drift, so this is not a golden
-  showcase yet.
+- Promotion note: default story example with passing publish-prep gates,
+  including OCR caption-sync on the boxed phrase-caption render.
 
 ## demo-10-stock-broll-explainer
 

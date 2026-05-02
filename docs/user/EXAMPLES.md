@@ -24,7 +24,7 @@ Demo-backed status labels are checked against
 
 | Lane                                    | Status                          | Demo                                                                   |
 | --------------------------------------- | ------------------------------- | ---------------------------------------------------------------------- |
-| `reddit-post-over-gameplay`             | `showcase candidate`            | [`demo-9`](../demo/demo-9-reddit-post-over-gameplay.mp4)               |
+| `reddit-post-over-gameplay`             | `golden showcase`               | [`demo-9`](../demo/demo-9-reddit-post-over-gameplay.mp4)               |
 | `reddit-story-split-screen`             | `workflow; rebuild demo`        | archived, not public showcase                                          |
 | `stock-b-roll-explainer`                | `showcase candidate`            | [`demo-10`](../demo/demo-10-stock-broll-explainer.mp4)                 |
 | `text-thread-reveal`                    | `showcase candidate`            | [`demo-11`](../demo/demo-11-text-thread-reveal.mp4)                    |

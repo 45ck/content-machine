@@ -16,7 +16,7 @@ import {
   getCaptionPreset,
 } from '../render/captions';
 import { CAPTION_STYLE_PRESETS } from '../render/captions/presets';
-import { AssCaptionStyle } from '../render/captions/export';
+import type { AssCaptionStyle } from '../render/captions/export';
 import { renderVideo } from '../render/service';
 import { readJsonArtifact, writeJsonArtifact } from './artifacts';
 import { artifactFile, type HarnessToolResult } from './json-stdio';
@@ -42,6 +42,9 @@ const AssCaptionStyleSchema = z
     secondaryColor: z.string().min(1).optional(),
     outlineColor: z.string().min(1).optional(),
     backColor: z.string().min(1).optional(),
+    borderStyle: z.union([z.literal(1), z.literal(3)]).optional(),
+    outline: z.number().int().min(0).max(20).optional(),
+    shadow: z.number().int().min(0).max(20).optional(),
     alignment: z.number().int().min(1).max(9).optional(),
     marginL: z.number().int().nonnegative().optional(),
     marginR: z.number().int().nonnegative().optional(),

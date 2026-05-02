@@ -117,6 +117,9 @@ export interface AssCaptionStyle {
   secondaryColor?: string;
   outlineColor?: string;
   backColor?: string;
+  borderStyle?: number;
+  outline?: number;
+  shadow?: number;
   alignment?: number;
   marginL?: number;
   marginR?: number;
@@ -149,6 +152,9 @@ const DEFAULT_ASS_STYLE: Required<AssCaptionStyle> = {
   secondaryColor: '&H008A8A8A',
   outlineColor: '&H00000000',
   backColor: '&H64000000',
+  borderStyle: 1,
+  outline: 4,
+  shadow: 0,
   alignment: 2,
   marginL: 80,
   marginR: 80,
@@ -471,6 +477,9 @@ function normalizeAssStyle(styleOverrides: AssCaptionStyle): Required<AssCaption
   return {
     ...style,
     fontSize: clampNumber(style.fontSize, 28, 72),
+    borderStyle: style.borderStyle === 3 ? 3 : 1,
+    outline: clampNumber(style.outline, 0, 20),
+    shadow: clampNumber(style.shadow, 0, 20),
     marginL: Math.max(style.marginL, SOCIAL_SAFE_ZONE.left),
     marginR: Math.max(style.marginR, SOCIAL_SAFE_ZONE.right),
     marginV: Math.max(style.marginV, SOCIAL_SAFE_ZONE.bottom),
@@ -586,13 +595,13 @@ function buildAssActiveWordFrames(
         if (candidate === word) {
           return `${candidateIndex === 0 ? '' : separator}${wrapAssStyle(
             escaped,
-            `\\c${style.primaryColor}\\3c${style.outlineColor}\\bord4\\1a&H00&`
+            `\\c${style.primaryColor}\\3c${style.outlineColor}\\bord${style.outline}\\1a&H00&`
           )}`;
         }
 
         return `${candidateIndex === 0 ? '' : separator}${wrapAssStyle(
           escaped,
-          `\\c${style.secondaryColor}\\3c${style.outlineColor}\\bord4\\1a&H00&`
+          `\\c${style.secondaryColor}\\3c${style.outlineColor}\\bord${style.outline}\\1a&H00&`
         )}`;
       })
       .join('');
@@ -646,7 +655,7 @@ export function formatAssCaptions(
     '',
     '[V4+ Styles]',
     'Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding',
-    `Style: Default,${style.fontName},${style.fontSize},${style.primaryColor},${style.secondaryColor},${style.outlineColor},${style.backColor},1,0,0,0,100,100,0,0,1,4,0,${style.alignment},${style.marginL},${style.marginR},${style.marginV},1`,
+    `Style: Default,${style.fontName},${style.fontSize},${style.primaryColor},${style.secondaryColor},${style.outlineColor},${style.backColor},1,0,0,0,100,100,0,0,${style.borderStyle},${style.outline},${style.shadow},${style.alignment},${style.marginL},${style.marginR},${style.marginV},1`,
     '',
     '[Events]',
     'Format: Layer, Start, End, Style, Text',

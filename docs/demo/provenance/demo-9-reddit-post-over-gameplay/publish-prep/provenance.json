@@ -6,7 +6,25 @@
     "mediaIndexPath": null,
     "assetCount": 5,
     "errorCount": 0,
-    "warningCount": 0
+    "warningCount": 0,
+    "renderReview": {
+      "source": "experiments/proving-wave-3/reddit-post-over-gameplay/outputs/final/publish-prep",
+      "passed": true,
+      "passedGates": [
+        "resolution",
+        "duration",
+        "format",
+        "cadence",
+        "audio-signal",
+        "caption-sync"
+      ],
+      "captionSync": {
+        "expectedSegmentCount": 31,
+        "matchedSegmentCount": 26,
+        "medianStartDriftMs": 223,
+        "p95StartDriftMs": 552.75
+      }
+    }
   },
   "checks": [
     {
@@ -42,5 +60,5 @@
       "fix": "No fix required."
     }
   ],
-  "createdAt": "2026-05-02T00:00:00.000Z"
+  "createdAt": "2026-05-03T00:00:00.000Z"
 }

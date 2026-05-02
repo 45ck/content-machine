@@ -80,8 +80,8 @@
       "reviewReportPath": "experiments/video-quality-review-demo/demo-9-reddit-post-over-gameplay/report.json",
       "assetLedgerPath": "docs/demo/provenance/demo-9-reddit-post-over-gameplay/asset-ledger.json",
       "publishPrepProvenancePath": "docs/demo/provenance/demo-9-reddit-post-over-gameplay/publish-prep/provenance.json",
-      "maturity": "showcase candidate",
-      "publicUse": "candidate",
+      "maturity": "golden showcase",
+      "publicUse": "promoted",
       "rightsStatus": "approved",
       "reviewStatus": "pass",
       "assetLedger": [
@@ -92,8 +92,7 @@
           "contentIdRisk": "none-known",
           "summary": "Synthetic gameplay-style background, Reddit-style opener card, captions, and narration are generated for the demo rather than copied from a public Reddit post or commercial game."
         }
-      ],
-      "promotionBlockedReasons": ["OCR caption-sync gate still reports active-word drift"]
+      ]
     },
     {
       "demoId": "demo-10-stock-broll-explainer",

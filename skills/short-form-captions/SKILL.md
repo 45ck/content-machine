@@ -109,6 +109,10 @@ layout, emphasis, and motion choices.
   `captionAssStyle.maxLines` for any absolute-position caption overlay.
   Absolute `positionX`/`positionY` is allowed for split-screen midpoint
   captions, but it must stay inside the `1080x1920` safe box.
+- For noisy gameplay, procedural motion, or fast stock backgrounds,
+  prefer boxed ASS captions with `captionAssStyle.borderStyle: 3` and a
+  larger `outline` value before accepting an OCR caption-sync failure as
+  unavoidable.
 - Runtime surface for sidecar export:
   `node --import tsx scripts/harness/caption-export.ts`
 

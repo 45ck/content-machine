@@ -66,7 +66,7 @@
       "reviewStatus": "generated-local",
       "rightsStatus": "generated-local",
       "licenseName": "repo-generated",
-      "prompt": "Burned-in captions and sidecar caption artifacts generated from the demo narration.",
+      "prompt": "Boxed phrase captions and sidecar caption artifacts generated from the demo narration.",
       "workflow": "content-machine/demo-render"
     }
   ],
@@ -78,5 +78,5 @@
     "audioCount": 1
   },
   "warnings": [],
-  "createdAt": "2026-05-02T00:00:00.000Z"
+  "createdAt": "2026-05-03T00:00:00.000Z"
 }

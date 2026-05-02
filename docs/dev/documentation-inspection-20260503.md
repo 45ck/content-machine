@@ -109,36 +109,36 @@ adjacent to the commands a first-time agent runs.
 
 ## Independent Ratings - Showcase, Examples, And Review
 
-| Doc                                                     |   P | Aud | Acc | Act | Scan | Maintainability | Notes                                                              |
-| ------------------------------------------------------- | --: | --: | --: | --: | ---: | --------------: | ------------------------------------------------------------------ |
-| `docs/user/showcase/README.md`                          |   5 |   5 |   4 |   4 |    5 |               3 | Strong visual menu; keep it as human gallery.                      |
-| `docs/demo/README.md`                                   |   5 |   5 |   4 |   4 |    4 |               4 | Good generated demo index; dense by design.                        |
-| `docs/demo/provenance/README.md`                        |   5 |   4 |   4 |   4 |    5 |               4 | Strong audit trail.                                                |
-| `docs/user/QUALITY-AND-REVIEW.md`                       |   5 |   5 |   4 |   5 |    5 |               3 | Good publish gate; conflicts with one golden label.                |
-| `docs/user/ARCHETYPES.md`                               |   5 |   5 |   4 |   4 |    4 |               3 | Useful status matrix; should be source-backed.                     |
-| `docs/user/CREATIVE-SOURCES.md`                         |   5 |   4 |   5 |   4 |    5 |               2 | Valuable source catalog; external-source churn creates drift risk. |
-| `docs/user/EXAMPLES.md`                                 |   4 |   4 |   4 |   4 |    4 |               3 | Good bridge; should prefer harness-first examples.                 |
-| `docs/user/examples/README.md`                          |   5 |   4 |   5 |   4 |    5 |               4 | Strong example index.                                              |
-| `docs/user/examples/content-machine-self-demo.md`       |   5 |   5 |   5 |   5 |    4 |               3 | Best repo-explainer recipe.                                        |
-| `docs/user/examples/reddit-post-over-gameplay.md`       |   5 |   5 |   4 |   4 |    5 |               2 | Flagship page, but golden status conflicts with OCR-gate text.     |
-| `docs/user/examples/reddit-story-split-screen.md`       |   5 |   5 |   5 |   4 |    5 |               4 | Strong lane doc.                                                   |
-| `docs/user/examples/procedural-gameplay-backgrounds.md` |   5 |   5 |   5 |   4 |    5 |               4 | Strong additive 3D/procedural example.                             |
-| `docs/user/examples/motion-card-lesson.md`              |   5 |   4 |   5 |   5 |    4 |               3 | Runnable and clear.                                                |
-| `docs/user/examples/split-screen-gameplay.md`           |   4 |   4 |   4 |   5 |    4 |               3 | Actionable but overlaps story-gameplay docs.                       |
-| `docs/user/examples/latest-news-listicle.md`            |   4 |   3 |   3 |   4 |    4 |               1 | Older command style; high drift.                                   |
-| `docs/user/examples/nanobanana-veo.md`                  |   4 |   4 |   4 |   4 |    5 |               1 | Useful but provider/status churn risk.                             |
-| `docs/user/examples/nanobanana-kenburns.md`             |   4 |   4 |   4 |   4 |    5 |               2 | Useful visual example; provider naming can drift.                  |
-| `docs/user/examples/complex-plane-rotation.md`          |   4 |   3 |   4 |   3 |    4 |               2 | Good niche example; not central onboarding.                        |
-| `docs/user/examples/import-render-templates.md`         |   3 |   3 |   4 |   3 |    4 |               2 | Useful migration note; legacy surface risk.                        |
-| `docs/user/examples/gemini-image-shorts.md`             |   4 |   3 |   4 |   3 |    4 |               1 | Provider-specific and higher drift.                                |
-| `docs/user/examples/graphics-archetype-remake-plan.md`  |   4 |   4 |   5 |   3 |    4 |               2 | Good plan doc; less directly runnable.                             |
-| `docs/user/examples/faceless-mixed-short.md`            |   4 |   4 |   5 |   3 |    5 |               3 | Clear lane description; add runnable request block.                |
-| `docs/user/examples/facts-listicle.md`                  |   4 |   4 |   5 |   3 |    5 |               3 | Clear lane description; add runnable request block.                |
-| `docs/user/examples/micro-doc-breakdown.md`             |   4 |   4 |   5 |   3 |    5 |               3 | Clear lane description; add runnable request block.                |
-| `docs/user/examples/saas-problem-solution.md`           |   4 |   4 |   5 |   3 |    5 |               3 | Clear lane description; add runnable request block.                |
-| `docs/user/examples/stock-footage-edutainment.md`       |   4 |   4 |   5 |   3 |    5 |               3 | Clear lane description; add runnable request block.                |
-| `docs/user/examples/subway-confession-story.md`         |   4 |   4 |   5 |   3 |    5 |               2 | Good example; term/source status can drift.                        |
-| `docs/user/examples/text-message-drama.md`              |   4 |   4 |   4 |   3 |    5 |               2 | Good lane doc; add stronger reproduction path.                     |
+| Doc                                                     |   P | Aud | Acc | Act | Scan | Maintainability | Notes                                                                  |
+| ------------------------------------------------------- | --: | --: | --: | --: | ---: | --------------: | ---------------------------------------------------------------------- |
+| `docs/user/showcase/README.md`                          |   5 |   5 |   4 |   4 |    5 |               3 | Strong visual menu; keep it as human gallery.                          |
+| `docs/demo/README.md`                                   |   5 |   5 |   4 |   4 |    4 |               4 | Good generated demo index; dense by design.                            |
+| `docs/demo/provenance/README.md`                        |   5 |   4 |   4 |   4 |    5 |               4 | Strong audit trail.                                                    |
+| `docs/user/QUALITY-AND-REVIEW.md`                       |   5 |   5 |   4 |   5 |    5 |               3 | Good publish gate; conflicts with one golden label.                    |
+| `docs/user/ARCHETYPES.md`                               |   5 |   5 |   4 |   4 |    4 |               3 | Useful status matrix; should be source-backed.                         |
+| `docs/user/CREATIVE-SOURCES.md`                         |   5 |   4 |   5 |   4 |    5 |               2 | Valuable source catalog; external-source churn creates drift risk.     |
+| `docs/user/EXAMPLES.md`                                 |   4 |   4 |   4 |   4 |    4 |               3 | Good bridge; should prefer harness-first examples.                     |
+| `docs/user/examples/README.md`                          |   5 |   4 |   5 |   4 |    5 |               4 | Strong example index.                                                  |
+| `docs/user/examples/content-machine-self-demo.md`       |   5 |   5 |   5 |   5 |    4 |               3 | Best repo-explainer recipe.                                            |
+| `docs/user/examples/reddit-post-over-gameplay.md`       |   5 |   5 |   4 |   4 |    5 |               2 | Flagship page; boxed caption follow-up now aligns status and OCR gate. |
+| `docs/user/examples/reddit-story-split-screen.md`       |   5 |   5 |   5 |   4 |    5 |               4 | Strong lane doc.                                                       |
+| `docs/user/examples/procedural-gameplay-backgrounds.md` |   5 |   5 |   5 |   4 |    5 |               4 | Strong additive 3D/procedural example.                                 |
+| `docs/user/examples/motion-card-lesson.md`              |   5 |   4 |   5 |   5 |    4 |               3 | Runnable and clear.                                                    |
+| `docs/user/examples/split-screen-gameplay.md`           |   4 |   4 |   4 |   5 |    4 |               3 | Actionable but overlaps story-gameplay docs.                           |
+| `docs/user/examples/latest-news-listicle.md`            |   4 |   3 |   3 |   4 |    4 |               1 | Older command style; high drift.                                       |
+| `docs/user/examples/nanobanana-veo.md`                  |   4 |   4 |   4 |   4 |    5 |               1 | Useful but provider/status churn risk.                                 |
+| `docs/user/examples/nanobanana-kenburns.md`             |   4 |   4 |   4 |   4 |    5 |               2 | Useful visual example; provider naming can drift.                      |
+| `docs/user/examples/complex-plane-rotation.md`          |   4 |   3 |   4 |   3 |    4 |               2 | Good niche example; not central onboarding.                            |
+| `docs/user/examples/import-render-templates.md`         |   3 |   3 |   4 |   3 |    4 |               2 | Useful migration note; legacy surface risk.                            |
+| `docs/user/examples/gemini-image-shorts.md`             |   4 |   3 |   4 |   3 |    4 |               1 | Provider-specific and higher drift.                                    |
+| `docs/user/examples/graphics-archetype-remake-plan.md`  |   4 |   4 |   5 |   3 |    4 |               2 | Good plan doc; less directly runnable.                                 |
+| `docs/user/examples/faceless-mixed-short.md`            |   4 |   4 |   5 |   3 |    5 |               3 | Clear lane description; add runnable request block.                    |
+| `docs/user/examples/facts-listicle.md`                  |   4 |   4 |   5 |   3 |    5 |               3 | Clear lane description; add runnable request block.                    |
+| `docs/user/examples/micro-doc-breakdown.md`             |   4 |   4 |   5 |   3 |    5 |               3 | Clear lane description; add runnable request block.                    |
+| `docs/user/examples/saas-problem-solution.md`           |   4 |   4 |   5 |   3 |    5 |               3 | Clear lane description; add runnable request block.                    |
+| `docs/user/examples/stock-footage-edutainment.md`       |   4 |   4 |   5 |   3 |    5 |               3 | Clear lane description; add runnable request block.                    |
+| `docs/user/examples/subway-confession-story.md`         |   4 |   4 |   5 |   3 |    5 |               2 | Good example; term/source status can drift.                            |
+| `docs/user/examples/text-message-drama.md`              |   4 |   4 |   4 |   3 |    5 |               2 | Good lane doc; add stronger reproduction path.                         |
 
 Dependent score for `showcase -> runnable example -> provenance -> review`:
 **3.5/5**. The audit trail is strong. Reproducibility is uneven because
@@ -239,7 +239,7 @@ priority docs/runtime inconsistency.
 | Severity | Finding                                                                                                    | Evidence                                                                             | Recommended Fix                                                                                                      |
 | -------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |
 | S1       | `doctor.flow` run-scoped output is inconsistent with `doctor-report` schema.                               | `flows/doctor.flow`, `src/harness/flow-runner.ts`, `src/harness/doctor-report.ts`    | Either bind `outputPath` instead of `outputDir`, or let `doctor-report` accept `outputDir`. Then update `doctor.md`. |
-| S1       | Golden showcase label conflicts with OCR review gate.                                                      | `docs/user/examples/reddit-post-over-gameplay.md`, `docs/user/QUALITY-AND-REVIEW.md` | Downgrade status to candidate until gate passes, or update gate evidence if it now passes.                           |
+| S1       | Resolved follow-up: golden showcase label needed matching OCR review evidence.                             | `docs/user/examples/reddit-post-over-gameplay.md`, `docs/user/QUALITY-AND-REVIEW.md` | Updated the demo-9 boxed caption render and docs after publish-prep caption-sync passed.                             |
 | S2       | Root onboarding has too many competing starts.                                                             | `README.md` headings around install, quick start, how to use, visitor map, docs      | Collapse to one golden path plus secondary links.                                                                    |
 | S2       | Quickstart places install-into-another-project after generation.                                           | `docs/user/AGENT-QUICKSTART.md`                                                      | Move install mode decision to the top and make external install an appendix after the first path is clear.           |
 | S2       | Verification is not consistently first-class.                                                              | `docs/user/AGENT-QUICKSTART.md`, `docs/user/AGENT-HARNESS-INSTALL.md`                | Add one golden command chain: Node check, install, `cm-agent list`, `doctor-report`, generate, publish prep.         |
