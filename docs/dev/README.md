@@ -23,6 +23,8 @@ Primary dev docs (dated):
 
 - Current direction: [`DIRECTION.md`](../../DIRECTION.md),
   [`docs/direction/`](../direction/)
+- Documentation inspections:
+  [`documentation-inspection-20260503.md`](documentation-inspection-20260503.md)
 - Architecture: [`docs/dev/architecture/`](architecture/)
 - Guides: [`docs/dev/guides/`](guides/)
 - Feature specs: [`docs/dev/features/`](features/)

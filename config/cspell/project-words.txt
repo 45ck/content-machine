@@ -22,6 +22,7 @@ dslr
 emph
 evals
 envato
+fagan
 ffprobe
 ggml
 gyori
