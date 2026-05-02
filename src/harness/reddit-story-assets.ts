@@ -4,8 +4,11 @@ import sharp from 'sharp';
 import { z } from 'zod';
 import { artifactFile, type HarnessToolResult } from './json-stdio';
 
-const ThemeEnum = z.enum(['reddit-light', 'reddit-dark']);
+const REDDIT_LIGHT_THEME = 'reddit-light';
+const REDDIT_DARK_THEME = 'reddit-dark';
+const ThemeEnum = z.enum([REDDIT_LIGHT_THEME, REDDIT_DARK_THEME]);
 const CardKindEnum = z.enum(['post', 'comment', 'update', 'verdict']);
+const SYSTEM_FONT_FAMILY = 'Arial, Helvetica, sans-serif';
 
 const CardSchema = z.object({
   id: z.string().min(1),
@@ -24,7 +27,7 @@ const CardSchema = z.object({
 export const RedditStoryAssetsRequestSchema = z
   .object({
     outputDir: z.string().min(1),
-    theme: ThemeEnum.default('reddit-light'),
+    theme: ThemeEnum.default(REDDIT_LIGHT_THEME),
     width: z.number().int().positive().default(1080),
     height: z.number().int().positive().default(864),
     subreddit: z.string().min(1).default('AmItheAsshole'),
@@ -94,7 +97,7 @@ function renderMultilineText(params: {
 }): string {
   const lines = params.lines;
   return [
-    `<text x="${params.x}" y="${params.y}" font-family="${params.fontFamily ?? 'Arial, Helvetica, sans-serif'}" font-size="${params.fontSize}" font-weight="${params.fontWeight ?? 600}" fill="${params.fill}"${params.opacity ? ` opacity="${params.opacity}"` : ''}>`,
+    `<text x="${params.x}" y="${params.y}" font-family="${params.fontFamily ?? SYSTEM_FONT_FAMILY}" font-size="${params.fontSize}" font-weight="${params.fontWeight ?? 600}" fill="${params.fill}"${params.opacity ? ` opacity="${params.opacity}"` : ''}>`,
     ...lines.map((line, index) => {
       const dy = index === 0 ? 0 : params.lineHeight;
       return `<tspan x="${params.x}" dy="${dy}">${escapeXml(line)}</tspan>`;
@@ -116,7 +119,7 @@ function renderBadge(label: string, x: number, y: number, fill: string, textFill
   const width = measurePillWidth(label, 108, 280, 11);
   return [
     `<rect x="${x}" y="${y}" width="${width}" height="46" rx="23" fill="${fill}" />`,
-    `<text x="${x + 22}" y="${y + 31}" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="800" fill="${textFill}">${escapeXml(label.toUpperCase())}</text>`,
+    `<text x="${x + 22}" y="${y + 31}" font-family="${SYSTEM_FONT_FAMILY}" font-size="19" font-weight="800" fill="${textFill}">${escapeXml(label.toUpperCase())}</text>`,
   ].join('');
 }
 
@@ -132,14 +135,14 @@ function awardGlyph(label: string): { glyph: string; fill: string; textFill: str
 function renderAwardChip(label: string, x: number, y: number, theme: RedditTheme): string {
   const width = measurePillWidth(label, 104, 220, 10);
   const glyph = awardGlyph(label);
-  const textColor = theme === 'reddit-light' ? '#66717D' : '#B5BDC7';
-  const pillFill = theme === 'reddit-light' ? '#F5F7FA' : '#20252B';
-  const pillStroke = theme === 'reddit-light' ? '#E2E7EE' : '#313842';
+  const textColor = theme === REDDIT_LIGHT_THEME ? '#66717D' : '#B5BDC7';
+  const pillFill = theme === REDDIT_LIGHT_THEME ? '#F5F7FA' : '#20252B';
+  const pillStroke = theme === REDDIT_LIGHT_THEME ? '#E2E7EE' : '#313842';
   return [
     `<rect x="${x}" y="${y}" width="${width}" height="36" rx="18" fill="${pillFill}" stroke="${pillStroke}" stroke-width="1.25" />`,
     `<circle cx="${x + 18}" cy="${y + 18}" r="12" fill="${glyph.fill}" />`,
-    `<text x="${x + 18}" y="${y + 23}" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="900" fill="${glyph.textFill}">${glyph.glyph}</text>`,
-    `<text x="${x + 36}" y="${y + 24}" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="700" fill="${textColor}">${escapeXml(
+    `<text x="${x + 18}" y="${y + 23}" text-anchor="middle" font-family="${SYSTEM_FONT_FAMILY}" font-size="13" font-weight="900" fill="${glyph.textFill}">${glyph.glyph}</text>`,
+    `<text x="${x + 36}" y="${y + 24}" font-family="${SYSTEM_FONT_FAMILY}" font-size="16" font-weight="700" fill="${textColor}">${escapeXml(
       label
     )}</text>`,
   ].join('');
@@ -154,7 +157,7 @@ function redditPalette(theme: RedditTheme, kind: RedditCardKind) {
         : kind === 'verdict'
           ? '#16A34A'
           : '#8892A0';
-  if (theme === 'reddit-light') {
+  if (theme === REDDIT_LIGHT_THEME) {
     return {
       canvas: '#EEF2F5',
       shell: '#FFFFFF',
@@ -206,7 +209,7 @@ function renderVoteRail(params: {
   return [
     `<rect x="${params.x}" y="${params.y}" width="${params.width}" height="${params.height}" rx="24" fill="${params.palette.railFill}" />`,
     `<polygon points="${centerX},${topY - 22} ${centerX - 20},${topY + 10} ${centerX + 20},${topY + 10}" fill="${params.palette.accent}" />`,
-    `<text x="${centerX}" y="${params.y + 104}" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="26" font-weight="800" fill="${params.palette.scoreText}">${escapeXml(
+    `<text x="${centerX}" y="${params.y + 104}" text-anchor="middle" font-family="${SYSTEM_FONT_FAMILY}" font-size="26" font-weight="800" fill="${params.palette.scoreText}">${escapeXml(
       params.score
     )}</text>`,
     `<polygon points="${centerX},${downY + 22} ${centerX - 20},${downY - 10} ${centerX + 20},${downY - 10}" fill="${params.palette.textMuted}" />`,
@@ -227,12 +230,12 @@ function renderFooter(params: {
     `<line x1="${params.x}" y1="${params.y - 26}" x2="${params.x + params.width}" y2="${params.y - 26}" stroke="${params.palette.divider}" stroke-width="1.5" />`,
     `<rect x="${params.x}" y="${params.y - 4}" width="28" height="22" rx="6" fill="none" stroke="${params.palette.footerText}" stroke-width="3" />`,
     `<path d="M ${params.x + 20} ${params.y + 18} l -10 10 l 2 -10" fill="none" stroke="${params.palette.footerText}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />`,
-    `<text x="${commentsX}" y="${params.y + 12}" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="${params.palette.footerText}">${escapeXml(
+    `<text x="${commentsX}" y="${params.y + 12}" font-family="${SYSTEM_FONT_FAMILY}" font-size="24" font-weight="700" fill="${params.palette.footerText}">${escapeXml(
       params.footer
     )}</text>`,
     `<path d="M ${shareX} ${params.y + 10} q 18 -24 42 -24" fill="none" stroke="${params.palette.footerText}" stroke-width="4" stroke-linecap="round" />`,
     `<path d="M ${shareX + 42} ${params.y - 14} l 18 18 l -20 10" fill="none" stroke="${params.palette.footerText}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />`,
-    `<text x="${shareX + 76}" y="${params.y + 12}" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" fill="${params.palette.footerText}">Share</text>`,
+    `<text x="${shareX + 76}" y="${params.y + 12}" font-family="${SYSTEM_FONT_FAMILY}" font-size="24" font-weight="700" fill="${params.palette.footerText}">Share</text>`,
     `<circle cx="${moreX}" cy="${params.y + 2}" r="5" fill="${params.palette.footerText}" />`,
     `<circle cx="${moreX + 20}" cy="${params.y + 2}" r="5" fill="${params.palette.footerText}" />`,
     `<circle cx="${moreX + 40}" cy="${params.y + 2}" r="5" fill="${params.palette.footerText}" />`,
@@ -266,7 +269,7 @@ function renderCardSvg(
   const title = card.title ?? (card.kind === 'post' ? request.title : '');
   const hasTitle = title.trim().length > 0;
   const titleLines = hasTitle ? clampTextLines(title, 34, card.kind === 'post' ? 2 : 1) : [];
-  const bodyMaxChars = request.theme === 'reddit-light' ? 44 : 42;
+  const bodyMaxChars = request.theme === REDDIT_LIGHT_THEME ? 44 : 42;
   const bodyLines = clampTextLines(card.body, bodyMaxChars, hasTitle ? 4 : 5);
   const footer = card.footer ?? `${request.commentCount} comments`;
   const headerY = cardY + 84;
@@ -296,7 +299,7 @@ function renderCardSvg(
   <defs>
     <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
       <feDropShadow dx="0" dy="20" stdDeviation="26" flood-color="${palette.outerShadow}" flood-opacity="${
-        request.theme === 'reddit-light' ? '0.18' : '0.35'
+        request.theme === REDDIT_LIGHT_THEME ? '0.18' : '0.35'
       }"/>
     </filter>
     <clipPath id="body-clip">
@@ -306,8 +309,8 @@ function renderCardSvg(
   <rect width="${width}" height="${height}" fill="${palette.canvas}"/>
   <rect x="${framePad}" y="${framePad}" width="${width - framePad * 2}" height="${
     height - framePad * 2
-  }" rx="30" fill="${request.theme === 'reddit-light' ? '#FFFFFF' : '#121518'}" opacity="${
-    request.theme === 'reddit-light' ? '0.42' : '0.3'
+  }" rx="30" fill="${request.theme === REDDIT_LIGHT_THEME ? '#FFFFFF' : '#121518'}" opacity="${
+    request.theme === REDDIT_LIGHT_THEME ? '0.42' : '0.3'
   }"/>
   <g filter="url(#shadow)">
     <rect x="${screenshotX}" y="${screenshotY}" width="${screenshotWidth}" height="${screenshotHeight}" rx="30" fill="${palette.shell}" stroke="${palette.shellStroke}" stroke-width="1.5"/>
@@ -324,11 +327,11 @@ function renderCardSvg(
     palette,
   })}
   <circle cx="${contentX + 18}" cy="${headerY - 12}" r="18" fill="${palette.accent}"/>
-  <text x="${contentX + 18}" y="${headerY - 5}" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="900" fill="#FFFFFF">r</text>
-  <text x="${contentX + 48}" y="${headerY - 12}" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="800" fill="${palette.textPrimary}">r/${escapeXml(
+  <text x="${contentX + 18}" y="${headerY - 5}" text-anchor="middle" font-family="${SYSTEM_FONT_FAMILY}" font-size="20" font-weight="900" fill="#FFFFFF">r</text>
+  <text x="${contentX + 48}" y="${headerY - 12}" font-family="${SYSTEM_FONT_FAMILY}" font-size="28" font-weight="800" fill="${palette.textPrimary}">r/${escapeXml(
     headerSubreddit
   )}</text>
-  <text x="${contentX + 48}" y="${headerY + 18}" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="600" fill="${palette.textSecondary}">Posted by u/${escapeXml(
+  <text x="${contentX + 48}" y="${headerY + 18}" font-family="${SYSTEM_FONT_FAMILY}" font-size="20" font-weight="600" fill="${palette.textSecondary}">Posted by u/${escapeXml(
     headerAuthor
   )} • ${escapeXml(headerAge)}</text>
   ${labelMarkup}
@@ -367,6 +370,7 @@ function renderCardSvg(
 </svg>`;
 }
 
+/** Renders Reddit-style story cards as SVG/PNG assets and writes a manifest artifact. */
 export async function runRedditStoryAssets(request: RedditStoryAssetsRequest): Promise<
   HarnessToolResult<{
     outputDir: string;

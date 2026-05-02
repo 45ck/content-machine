@@ -183,12 +183,13 @@ export async function runVideoRender(request: VideoRenderRequest): Promise<
       normalized.captionTimingOffsetMs ??
       (normalized.captionPreset
         ? (CAPTION_STYLE_PRESETS[normalized.captionPreset]?.timingOffsetMs ?? 0)
-        : resolvedCaptionPreset.timingOffsetMs ?? 0);
+        : (resolvedCaptionPreset.timingOffsetMs ?? 0));
     const captionMode =
       normalized.captionMode ??
-      (resolvedCaptionPreset.displayMode === 'single' || resolvedCaptionPreset.displayMode === 'buildup'
+      (resolvedCaptionPreset.displayMode === 'single' ||
+      resolvedCaptionPreset.displayMode === 'buildup'
         ? 'page'
-        : resolvedCaptionPreset.displayMode ?? 'page');
+        : (resolvedCaptionPreset.displayMode ?? 'page'));
     const captionExport = createCaptionExport(timestamps.allWords, {
       mode: captionMode === 'chunk' ? 'chunk' : 'page',
       layout: resolvedCaptionPreset.layout,

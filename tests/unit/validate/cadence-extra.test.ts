@@ -52,10 +52,7 @@ describe('cadence detection', () => {
 
     expect(execFileMock).toHaveBeenCalledWith(
       'ffmpeg',
-      expect.arrayContaining([
-        '-vf',
-        "crop=iw:floor(ih/2):0:0,select='gt(scene\\,0.3)',showinfo",
-      ]),
+      expect.arrayContaining(['-vf', "crop=iw:floor(ih/2):0:0,select='gt(scene\\,0.3)',showinfo"]),
       expect.any(Object),
       expect.any(Function)
     );

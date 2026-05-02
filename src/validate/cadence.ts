@@ -48,6 +48,7 @@ function median(values: number[]): number {
   return sorted.length % 2 === 1 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
 }
 
+/** Evaluates whether detected scene cuts satisfy the configured pacing cadence gate. */
 export function evaluateCadence(params: {
   durationSeconds: number;
   cutTimesSeconds: number[];
@@ -81,6 +82,7 @@ export function evaluateCadence(params: {
   };
 }
 
+/** Detects scene-cut timestamps with ffmpeg's scene filter and optional crop filtering. */
 export async function detectSceneCutsWithFfmpeg(params: {
   videoPath: string;
   threshold?: number;
@@ -96,16 +98,7 @@ export async function detectSceneCutsWithFfmpeg(params: {
   try {
     const { stderr } = await execFileWithOutput(
       'ffmpeg',
-      [
-        '-hide_banner',
-        '-i',
-        params.videoPath,
-        '-vf',
-        filter,
-        '-f',
-        'null',
-        '-',
-      ],
+      ['-hide_banner', '-i', params.videoPath, '-vf', filter, '-f', 'null', '-'],
       { windowsHide: true, timeout: timeoutMs }
     );
 
@@ -131,6 +124,7 @@ export async function detectSceneCutsWithFfmpeg(params: {
   }
 }
 
+/** Runs the cadence quality gate against a probed video using ffmpeg or PySceneDetect. */
 export async function runCadenceGate(
   info: VideoInfo,
   options?: {
@@ -187,9 +181,7 @@ export async function runCadenceGate(
       if (candidate.cutCount !== best.cutCount) {
         return candidate.cutCount > best.cutCount ? candidate : best;
       }
-      return candidate.medianCutIntervalSeconds < best.medianCutIntervalSeconds
-        ? candidate
-        : best;
+      return candidate.medianCutIntervalSeconds < best.medianCutIntervalSeconds ? candidate : best;
     });
 
     if (bestFullFrame.cutCount < minCutCount) {

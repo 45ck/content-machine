@@ -129,11 +129,7 @@ export const SplitScreenGameplay: React.FC<RenderProps> = ({
         <AbsoluteFill style={{ top: gameplayTop, height: gameplayHeight }}>
           {gameplayClip?.path ? (
             <Loop durationInFrames={totalFrames}>
-              <Video
-                src={resolveGameplaySrc(gameplayClip.path)}
-                muted
-                style={splitMediaStyle}
-              />
+              <Video src={resolveGameplaySrc(gameplayClip.path)} muted style={splitMediaStyle} />
             </Loop>
           ) : (
             <div style={{ width: '100%', height: '100%', backgroundColor: '#0b0b0f' }} />

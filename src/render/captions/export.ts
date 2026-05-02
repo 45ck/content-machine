@@ -276,6 +276,7 @@ function scoreMinimum(value: number, minimum: number): number {
   return Math.max(0, value / minimum);
 }
 
+/** Scores caption segments for readability, timing, density, and confidence. */
 export function analyzeCaptionSegments(
   segments: CaptionSegment[],
   thresholds: CaptionSegmentQualityThresholds = {}
@@ -387,6 +388,7 @@ export function analyzeCaptionSegments(
   });
 }
 
+/** Converts caption segments into the Remotion caption shape used by render compositions. */
 export function toRemotionCaptions(segments: CaptionSegment[]): RemotionCaption[] {
   return segments.map((segment) =>
     RemotionCaptionSchema.parse({
@@ -399,6 +401,7 @@ export function toRemotionCaptions(segments: CaptionSegment[]): RemotionCaption[
   );
 }
 
+/** Builds the complete caption export artifact from word-level timestamps and layout options. */
 export function createCaptionExport(
   words: WordTimestamp[],
   options: CaptionSegmentOptions = {}
@@ -473,11 +476,19 @@ function normalizeAssStyle(styleOverrides: AssCaptionStyle): Required<AssCaption
     marginV: Math.max(style.marginV, SOCIAL_SAFE_ZONE.bottom),
     positionX:
       style.positionX > 0
-        ? clampNumber(style.positionX, SOCIAL_SAFE_ZONE.left, ASS_PLAY_RES_X - SOCIAL_SAFE_ZONE.right)
+        ? clampNumber(
+            style.positionX,
+            SOCIAL_SAFE_ZONE.left,
+            ASS_PLAY_RES_X - SOCIAL_SAFE_ZONE.right
+          )
         : 0,
     positionY:
       style.positionY > 0
-        ? clampNumber(style.positionY, SOCIAL_SAFE_ZONE.top, ASS_PLAY_RES_Y - SOCIAL_SAFE_ZONE.bottom)
+        ? clampNumber(
+            style.positionY,
+            SOCIAL_SAFE_ZONE.top,
+            ASS_PLAY_RES_Y - SOCIAL_SAFE_ZONE.bottom
+          )
         : 0,
     maxLines: clampNumber(style.maxLines, 1, 3),
   };
@@ -568,7 +579,9 @@ function buildAssActiveWordFrames(
       .map((candidate, candidateIndex) => {
         const previousWord = renderableWords[candidateIndex - 1];
         const separator =
-          previousWord && lineByWord.get(previousWord) !== lineByWord.get(candidate) ? '\\N' : '\\h';
+          previousWord && lineByWord.get(previousWord) !== lineByWord.get(candidate)
+            ? '\\N'
+            : '\\h';
         const escaped = escapeAssTextPreserveSpaces(candidate.text);
         if (candidate === word) {
           return `${candidateIndex === 0 ? '' : separator}${wrapAssStyle(
@@ -588,6 +601,7 @@ function buildAssActiveWordFrames(
   });
 }
 
+/** Formats caption segments as an SRT subtitle file. */
 export function formatSrtCaptions(segments: CaptionSegment[]): string {
   return segments
     .map((segment, index) =>
@@ -601,6 +615,7 @@ export function formatSrtCaptions(segments: CaptionSegment[]): string {
     .join('\n');
 }
 
+/** Formats caption segments as an ASS subtitle file with optional karaoke word highlighting. */
 export function formatAssCaptions(
   segments: CaptionSegment[],
   styleOverrides: AssCaptionStyle = {}
