@@ -1,13 +1,14 @@
 # Reddit Post Over Gameplay
 
-Status: `golden showcase`
+Status: `showcase candidate`
 
 This is the default Reddit story mode for generic "Reddit story",
 "AITA video", or "Subway Surfers Reddit" requests.
 
-`golden showcase` means the visual lane and routing are the example to
-copy first. The latest automated OCR caption-sync gate still reports
-active-word drift and is tracked under the review notes below.
+Use this as the default Reddit/story visual lane, but keep the maturity
+label at `showcase candidate` until the automated OCR caption-sync gate
+passes. The latest OCR gate still reports active-word drift and is
+tracked under the review notes below.
 
 Tracked preview clip:
 
@@ -16,6 +17,35 @@ Tracked preview clip:
 <p align="center">
   <video src="../../demo/demo-9-reddit-post-over-gameplay.mp4" controls muted playsinline loop width="280"></video>
 </p>
+
+## Runnable Request
+
+Ask an installed agent:
+
+```text
+Use Content Machine from .content-machine to make a
+reddit-post-over-gameplay short from this story. Keep gameplay
+full-screen, show a Reddit opener card for 3-5 seconds, continue
+captions directly over gameplay, write artifacts under
+runs/reddit-story-demo, and only call it ready if publish-prep passes.
+```
+
+Command form:
+
+```bash
+cat <<'JSON' | npx --no-install cm-agent run-flow
+{
+  "flowsDir": ".content-machine/flows",
+  "flow": "generate-short",
+  "runId": "reddit-story-demo",
+  "input": {
+    "topic": "AITA-style story about a roommate hiding a fake job offer",
+    "laneId": "reddit-post-over-gameplay",
+    "publishPrep": { "enabled": true, "platform": "tiktok" }
+  }
+}
+JSON
+```
 
 ## Shape
 

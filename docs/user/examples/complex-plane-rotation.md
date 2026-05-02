@@ -1,5 +1,8 @@
 # Complex Plane Rotation (Drawn Diagrams + Gameplay)
 
+> Legacy CLI walkthrough. This remains useful as a custom Remotion
+> template example, but it is not the primary agent harness path.
+
 This example demonstrates a **code template** that draws a complex plane diagram in Remotion (top half),
 while looping gameplay in the bottom half.
 

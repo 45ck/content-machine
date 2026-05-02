@@ -2,8 +2,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { resolve } from 'node:path';
 
 const flowStageMocks = vi.hoisted(() => ({
+  runDoctorReport: vi.fn(),
   runGenerateShort: vi.fn(),
   ingestReferenceVideo: vi.fn(),
+}));
+
+vi.mock('./doctor-report', () => ({
+  runDoctorReport: flowStageMocks.runDoctorReport,
 }));
 
 vi.mock('./generate-short', () => ({
@@ -64,6 +69,34 @@ describe('runFlowFromManifest', () => {
         },
       ])
     );
+  });
+
+  it('binds the default run output directory for doctor-report', async () => {
+    flowStageMocks.runDoctorReport.mockResolvedValue({
+      result: { outputPath: '/tmp/runs/doctor-1/doctor/report.json', ok: true },
+      artifacts: [
+        {
+          path: '/tmp/runs/doctor-1/doctor/report.json',
+          kind: 'file',
+          description: 'doctor',
+        },
+      ],
+    });
+
+    const result = await runFlowFromManifest({
+      flow: 'flows/doctor.flow',
+      runId: 'doctor-1',
+      input: { strict: false },
+    });
+
+    expect(flowStageMocks.runDoctorReport).toHaveBeenCalledWith(
+      expect.objectContaining({
+        strict: false,
+        outputDir: resolve(repoRoot, 'runs/doctor-1/doctor'),
+      })
+    );
+    expect(result.result.entrySkill).toBe('doctor-report');
+    expect(result.result.outputDir).toBe(resolve(repoRoot, 'runs/doctor-1/doctor'));
   });
 
   it('dispatches reverse-engineer-winner to the ingest handler', async () => {

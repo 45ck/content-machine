@@ -52,4 +52,20 @@ describe('runDoctorReport', () => {
       },
     ]);
   });
+
+  it('writes report.json inside outputDir when outputPath is not set', async () => {
+    doctorMocks.runDoctor.mockResolvedValue({
+      ok: true,
+      strict: false,
+      checks: [{ id: 'one', label: 'One', status: 'ok' }],
+    });
+
+    const result = await runDoctorReport({
+      outputDir: 'tests/.tmp/doctor-report/run-scoped',
+    });
+
+    expect(result.result.outputPath.replace(/\\/g, '/')).toContain(
+      'tests/.tmp/doctor-report/run-scoped/report.json'
+    );
+  });
 });

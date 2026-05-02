@@ -14,8 +14,11 @@ its structure in later generation steps.
 ## Skills Called
 
 1. `reverse-engineer-winner`
-2. `brief-to-script` for any follow-up topic that should inherit the
-   extracted blueprint
+
+Follow-up only: call `brief-to-script` manually after this flow when a
+new topic should inherit the extracted blueprint. The executable
+`reverse-engineer-winner.flow` currently runs only the
+`reverse-engineer-winner` ingest path.
 
 ## Completion Gates
 
@@ -23,7 +26,17 @@ its structure in later generation steps.
 - `theme.v1.json` exists when classification is enabled
 - `blueprint.v1.json` exists when blueprint generation is enabled
 
+## Failure And Retry Notes
+
+- URL inputs can fail because of download permissions, source terms, or
+  `yt-dlp` availability; prefer local files when reproducibility matters.
+- If frame analysis is too expensive, rerun with lighter analysis
+  settings rather than skipping the whole reverse-engineering step.
+- Treat extracted blueprints as structure references, not permission to
+  reuse the source footage.
+
 ## Current Status
 
-Documentation-first. The core runtime script exists and can already be
-called by Claude Code or Codex CLI over JSON-stdio.
+Executable. The manifest dispatches to the `reverse-engineer-winner`
+runtime path and writes the reverse-engineering artifact bundle under
+the bound output directory.

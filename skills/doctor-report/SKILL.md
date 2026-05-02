@@ -15,6 +15,9 @@ inputs:
   - name: outputPath
     description: Path for the doctor report file.
     required: false
+  - name: outputDir
+    description: Directory for run-scoped report.json when outputPath is not set.
+    required: false
 outputs:
   - name: doctor.json
     description: Doctor report containing the check list and top-level ok status.
@@ -44,12 +47,14 @@ JSON
 ## Output Contract
 
 - Runs the same core doctor checks used by the legacy CLI.
-- Writes one JSON report file to `outputPath`.
+- Writes one JSON report file to `outputPath`, or to
+  `outputDir/report.json` when a flow binds a run-scoped output
+  directory.
 - Returns a JSON envelope with `ok`, strict mode, and warning/failure
   counts.
 
 ## Validation Checklist
 
-- `outputPath` exists.
+- The resolved report path exists.
 - The report contains a top-level `ok` boolean and a `checks` array.
 - Failure and warning counts in the envelope match the file.

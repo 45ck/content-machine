@@ -54,6 +54,18 @@ when intentionally refreshing an existing `.content-machine/` pack after
 upgrading the npm package.
 Preserve the same `--instruction-file` value when refreshing.
 
+## First-Run Order
+
+Use this order before generating real videos:
+
+1. Confirm Node.js 20.6+ with `node --version`.
+2. Install the pack with `cm-install`.
+3. Verify the runner with `npx --no-install cm-agent list`.
+4. List skills and flows so the agent sees the local surface.
+5. Run `doctor-report` and fix missing dependencies or keys.
+6. Run `generate-short` or a narrower skill.
+7. Inspect `publish-prep` before calling the MP4 ready.
+
 ## What Gets Installed
 
 | Path                         | Purpose                                                                    |
@@ -147,6 +159,16 @@ cat <<'JSON' | npx --no-install cm-agent skill-catalog
 JSON
 ```
 
+Run diagnostics before real generation:
+
+```bash
+cat <<'JSON' | npx --no-install cm-agent doctor-report
+{
+  "strict": false
+}
+JSON
+```
+
 Run a flow from the installed pack:
 
 ```bash
@@ -159,16 +181,6 @@ cat <<'JSON' | npx --no-install cm-agent run-flow
     "topic": "Redis vs PostgreSQL for caching",
     "publishPrep": { "enabled": true, "platform": "tiktok" }
   }
-}
-JSON
-```
-
-Run diagnostics:
-
-```bash
-cat <<'JSON' | npx --no-install cm-agent doctor-report
-{
-  "strict": false
 }
 JSON
 ```

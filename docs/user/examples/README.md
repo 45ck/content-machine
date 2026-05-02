@@ -8,7 +8,7 @@ fastest visual overview.
 ## Start Here
 
 - [`reddit-post-over-gameplay.md`](reddit-post-over-gameplay.md) —
-  default Reddit story mode and the golden showcase.
+  default Reddit story mode and first story showcase candidate.
 - [`content-machine-self-demo.md`](content-machine-self-demo.md) —
   repo-explainer workflow with full and no-key smoke paths.
 - [`procedural-gameplay-backgrounds.md`](procedural-gameplay-backgrounds.md)

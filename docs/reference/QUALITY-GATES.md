@@ -12,6 +12,7 @@ Required npm scripts:
 - `npm run test:run`
 - `npm run docs:check`
 - `npm run public-demo:check`
+- `npm run showcase-status:check`
 - `npm run cspell:check`
 - `npm run repo-facts:check`
 - `npm run glossary:check`
@@ -30,6 +31,9 @@ Checked markdown paths:
 - `docs/reference/*.md`
 - `docs/user/*.md`
 - `docs/user/*/*.md`
+- `flows/*.md`
+- `flows/*.flow`
+- `scripts/harness/README.md`
 
 Linkcheck ignore globs:
 

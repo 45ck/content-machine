@@ -10,8 +10,32 @@ inputs:
   - name: archetype
     description: Optional archetype override such as listicle or versus.
     required: false
+  - name: laneId
+    description: Optional concrete lane id such as reddit-post-over-gameplay.
+    required: false
+  - name: targetDuration
+    description: Optional target duration in seconds.
+    required: false
+  - name: llmProvider
+    description: "Optional provider selector: default, openai, anthropic, or gemini."
+    required: false
   - name: referenceVideoPath
     description: Optional reference short to ingest before generation.
+    required: false
+  - name: ingest
+    description: Optional reference ingest settings.
+    required: false
+  - name: audio
+    description: Optional voice, mock, music, and audio-generation settings.
+    required: false
+  - name: visuals
+    description: Optional visual provider, mock, asset, and orientation settings.
+    required: false
+  - name: render
+    description: Optional render and caption settings.
+    required: false
+  - name: publishPrep
+    description: Optional publish-prep review settings.
     required: false
   - name: outputDir
     description: Optional explicit output root; otherwise the flow binds runs/{runId}.

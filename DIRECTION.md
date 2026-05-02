@@ -24,7 +24,7 @@ optional adapter infrastructure, not the center.
 | Contracts     | Typed content schema (scripts, scenes, renders) | `src/contracts/` (to be extracted)  |
 | Runtime       | Deterministic media execution core              | `src/runtime/` (to be extracted)    |
 | Scripts/hooks | Reproducible deterministic entry points         | `scripts/`                          |
-| Skills        | Harness-facing content intelligence             | `skills/` (new)                     |
+| Skills        | Harness-facing content intelligence             | `skills/`                           |
 | Adapters      | MCP and external-system bridges                 | `connectors/`, optional MCP adapter |
 | CLI           | Thin local compatibility shell over the runtime | `src/cli/`                          |
 
@@ -57,7 +57,8 @@ Run `bd list --priority 0` or `bd show content-machine-7tf` for live state.
 - **Phase 0 synthesis (authoritative consolidation):** [`docs/direction/03-reorg-synthesis.md`](docs/direction/03-reorg-synthesis.md)
 - **Per-file classification (keep/move/archive/delete):** [`docs/direction/classification-20260422.md`](docs/direction/classification-20260422.md)
 - **TypeScript kernel cut line (what survives vs archives):** [`docs/direction/06-typescript-kernel-cut-line.md`](docs/direction/06-typescript-kernel-cut-line.md)
-- **Skill catalogue (~35 skills, source-pack-grounded):** [`docs/direction/04-skill-catalog.md`](docs/direction/04-skill-catalog.md)
+- **Live skill catalogue:** [`skills/README.md`](skills/README.md)
+- **Historical skill planning snapshot:** [`docs/direction/04-skill-catalog.md`](docs/direction/04-skill-catalog.md)
 - **Flow catalogue (10 prompt-language flows):** [`docs/direction/05-flow-catalog.md`](docs/direction/05-flow-catalog.md)
 - **Archive policy and landing zone:** [`archive/README.md`](archive/README.md)
 - **Current short-form roadmap:** [`docs/direction/07-short-form-roadmap-20260424.md`](docs/direction/07-short-form-roadmap-20260424.md)

@@ -9,8 +9,11 @@ required for a short-form video run.
 
 - `topic`
 - `archetype` (optional)
+- `laneId` (optional)
 - `targetDuration` (optional)
-- `referenceVideo` (optional, used to seed blueprint or comparative work)
+- `referenceVideoPath` (optional, used to seed blueprint or comparative work)
+- `audio`, `visuals`, `render`, and `publishPrep` stage settings
+  (optional)
 
 ## Primary Skill
 
@@ -38,3 +41,13 @@ in one JSON envelope.
    shape the script before generation.
 3. Drop to stage-level skills only when you need to inspect, replace, or
    rerun one file boundary in isolation.
+
+## Failure And Retry Notes
+
+- If provider keys are missing, run `doctor-report` first and use the
+  no-key smoke path only for artifact-chain validation.
+- If publish-prep fails, do not call the MP4 ready; inspect
+  `runs/<run-id>/publish-prep/` and rerun only the failed stage when
+  possible.
+- If only captions, visuals, or render failed, prefer the stage-level
+  skills instead of regenerating the whole short.

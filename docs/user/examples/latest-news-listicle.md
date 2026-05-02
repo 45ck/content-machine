@@ -1,5 +1,9 @@
 # Latest News Listicle (Research -> Video)
 
+> Legacy CLI walkthrough. Keep this for research-to-video reference, but
+> do not treat it as the primary agent harness path. New agent-facing
+> examples should prefer `skills/`, `flows/`, and `scripts/harness/`.
+
 This reproduces the "latest news listicle" pipeline:
 
 `research.json -> script.json -> audio.wav + timestamps.json -> visuals.json -> video.mp4`

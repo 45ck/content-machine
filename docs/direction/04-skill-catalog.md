@@ -202,5 +202,7 @@ All 31 skills retain original kebab-case names for external consistency.
 ---
 
 **Catalogue Version**: 2026-04-22
-**Status**: Authoritative
-**Next Review**: 2026-05-22
+**Status**: Historical planning snapshot; not authoritative for shipped
+skills.
+**Next Review**: Superseded by [`skills/README.md`](../../skills/README.md)
+and the `skill-catalog` runtime surface.

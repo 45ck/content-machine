@@ -1,4 +1,5 @@
 import { readFile } from 'node:fs/promises';
+import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { parseFlowManifest } from './flow-manifest';
@@ -7,11 +8,10 @@ const repoRoot = process.cwd();
 
 describe('parseFlowManifest', () => {
   it('parses the shipped flow manifests', async () => {
-    const flows = [
-      'flows/doctor.flow',
-      'flows/generate-short.flow',
-      'flows/reverse-engineer-winner.flow',
-    ];
+    const flows = readdirSync(join(repoRoot, 'flows'))
+      .filter((file) => file.endsWith('.flow'))
+      .sort()
+      .map((file) => join('flows', file));
 
     for (const relativePath of flows) {
       const manifestSource = await readFile(join(repoRoot, relativePath), 'utf8');

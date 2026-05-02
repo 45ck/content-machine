@@ -158,7 +158,7 @@ does not match the intended style.
 
 ## Current Example Maturity
 
-- `reddit-post-over-gameplay` is the golden showcase.
+- `reddit-post-over-gameplay` is the default story showcase candidate.
 - `reddit-story-split-screen` is a workflow lane until a gutter-free demo
   passes the demo-video audit.
 - `stock-b-roll-explainer`, `text-thread-reveal`,

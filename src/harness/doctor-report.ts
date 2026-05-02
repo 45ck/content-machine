@@ -1,4 +1,4 @@
-import { resolve } from 'node:path';
+import { join, resolve } from 'node:path';
 import { z } from 'zod';
 import { runDoctor } from '../core/doctor';
 import { writeJsonArtifact } from './artifacts';
@@ -7,7 +7,8 @@ import { artifactFile, type HarnessToolResult } from './json-stdio';
 export const DoctorReportRequestSchema = z
   .object({
     strict: z.boolean().default(false),
-    outputPath: z.string().min(1).default('output/content-machine/doctor/doctor.json'),
+    outputPath: z.string().min(1).optional(),
+    outputDir: z.string().min(1).optional(),
   })
   .strict();
 
@@ -25,7 +26,12 @@ export async function runDoctorReport(request: DoctorReportRequest): Promise<
   }>
 > {
   const normalized = DoctorReportRequestSchema.parse(request);
-  const outputPath = resolve(normalized.outputPath);
+  const outputPath = resolve(
+    normalized.outputPath ??
+      (normalized.outputDir
+        ? join(normalized.outputDir, 'report.json')
+        : 'output/content-machine/doctor/doctor.json')
+  );
   const report = await runDoctor({ strict: normalized.strict });
 
   await writeJsonArtifact(outputPath, report);

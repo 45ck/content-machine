@@ -93,6 +93,16 @@ Key artifacts:
 - `npm run review:demo-videos` and `npm run public-demo:check` pass
   before promotion.
 
+## Failure And Retry Notes
+
+- If the 3D/gameplay background fails, keep the same script and rerun
+  only visuals or render with a simpler caption-clean background.
+- If caption-sync fails, keep the demo as a showcase candidate until the
+  timing issue is fixed and checked.
+- Do not promote the demo from local output alone; update
+  `docs/demo/manifest.json`, provenance notes, and review evidence
+  together.
+
 ## Related Docs
 
 - [`docs/user/examples/content-machine-self-demo.md`](../docs/user/examples/content-machine-self-demo.md)

@@ -1,5 +1,8 @@
 # Import Render Templates and Code Templates
 
+> Legacy CLI walkthrough. Keep this for template migration reference,
+> but new agent-facing docs should prefer skill and harness examples.
+
 Content Machine supports:
 
 - **Render templates** (data-only): select a Remotion composition + provide render defaults.

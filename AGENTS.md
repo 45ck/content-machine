@@ -96,6 +96,7 @@ source-media-analyze
   -> longform-highlight-select
   -> boundary-snap
   -> highlight-approval
+  -> extract/reframe approved clip and build render inputs
   -> video-render
   -> publish-prep-review
 ```

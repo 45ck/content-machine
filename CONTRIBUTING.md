@@ -19,7 +19,7 @@ Not sure where to start? Some areas that always welcome help:
 git clone https://github.com/45ck/content-machine.git
 cd content-machine
 
-nvm install && nvm use   # or ensure Node.js >= 20
+nvm install && nvm use   # or ensure Node.js >= 20.6
 npm install
 cp .env.example .env     # add API keys as needed
 
@@ -30,7 +30,7 @@ npm run cm -- --help     # verify it works
 
 1. Create a branch: `git checkout -b my-feature`
 2. Make your changes
-3. Run checks: `npm run quality` (runs typecheck, lint, format, tests, duplication)
+3. Run checks: `npm run quality` (typecheck, lint, format, tests)
 4. Commit and open a PR
 
 ### Running Checks Individually
@@ -42,6 +42,8 @@ npm run format         # Prettier
 npm test               # Vitest (watch mode)
 npm run test:run       # Vitest (single run)
 npm run test:coverage  # With coverage report
+npm run docs:check     # User/demo docs, links, and showcase status
+npm run dup:check      # Duplication check when refactoring
 ```
 
 ### Writing Tests

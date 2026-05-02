@@ -287,6 +287,16 @@ cat <<'JSON' | ${runner} skill-catalog
 JSON
 \`\`\`
 
+Run diagnostics before real generation:
+
+\`\`\`bash
+cat <<'JSON' | ${runner} doctor-report
+{
+  "strict": false
+}
+JSON
+\`\`\`
+
 ${
   params.includeExamples
     ? `Run a direct skill example:
@@ -332,16 +342,7 @@ JSON
 
 `
       : ''
-  }Run diagnostics before real generation:
-
-\`\`\`bash
-cat <<'JSON' | ${runner} doctor-report
-{
-  "strict": false
-}
-JSON
-\`\`\`
-
+  }
 ## Source-Repo Paths In Copied Docs
 
 Some copied ${params.includeFlows ? 'skill or flow docs' : 'skill docs'} may still mention source-checkout paths
@@ -429,6 +430,14 @@ cat <<'JSON' | npx --no-install cm-agent skill-catalog
 JSON
 \`\`\`
 
+\`\`\`bash
+cat <<'JSON' | npx --no-install cm-agent doctor-report
+{
+  "strict": false
+}
+JSON
+\`\`\`
+
 ${
   params.includeFlows
     ? `\`\`\`bash
@@ -450,14 +459,7 @@ JSON
 
 `
     : ''
-}\`\`\`bash
-cat <<'JSON' | npx --no-install cm-agent doctor-report
-{
-  "strict": false
 }
-JSON
-\`\`\`
-
 ## Human Prompt Pattern
 
 When the user asks for video work, prefer this interpretation:

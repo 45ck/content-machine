@@ -47,6 +47,7 @@ conventions:
       - 'docs/dev/architecture/configuration/README.md'
       - 'docs/dev/architecture/experiment-lab/README.md'
       - 'docs/dev/bugs/README.md'
+      - 'docs/research/README.md'
       - 'docs/research/archetypes/README.md'
       - 'docs/research/archetypes/assets/**'
       - 'docs/research/archetypes/recipes/**'
@@ -266,6 +267,8 @@ facts:
         required: false
       - name: CM_RUN_REAL_OUTPUT_TESTS
         required: false
+      - name: CM_KEEP_PACKAGE_SMOKE
+        required: false
       - name: PYTHON_PATH
         required: false
       - name: CM_PYTHON
@@ -361,6 +364,7 @@ quality:
     - test:run
     - docs:check
     - public-demo:check
+    - showcase-status:check
     - cspell:check
     - repo-facts:check
     - glossary:check
@@ -377,6 +381,9 @@ quality:
       - 'docs/reference/*.md'
       - 'docs/user/*.md'
       - 'docs/user/*/*.md'
+      - 'flows/*.md'
+      - 'flows/*.flow'
+      - 'scripts/harness/README.md'
     ignoreLinkGlobs:
       - 'docs/reference/NANOBANANA-PROMPT-ENGINEERING-20260107.md'
 

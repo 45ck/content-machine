@@ -66,7 +66,7 @@ Named bread-and-butter story archetypes:
 - `gameplay-confession-split`: non-Reddit storytime with top support
   footage plus bottom gameplay.
 
-Start here:
+Useful next links:
 
 - [Agent Harness Install](docs/user/AGENT-HARNESS-INSTALL.md)
 - [Agent Quickstart](docs/user/AGENT-QUICKSTART.md)
@@ -101,7 +101,7 @@ manifest, preview status, source docs, and review caveats.
 
 Full gallery status guide:
 
-- `golden showcase`: the main example users should copy first
+- `golden showcase`: a promoted example with passing review gates
 - `showcase candidate`: real MP4 exists, but review or polish gaps remain
 - `supporting showcase candidate`: useful for onboarding or a secondary workflow
 - `proving candidate`: real MP4 exists, but it is not a default yet
@@ -148,9 +148,10 @@ caption style guidance, and publish policy local; the evaluator owns generic
 analysis that can be reused by other repos.
 
 Tracked preview assets live in
-[`docs/demo/`](docs/demo/README.md). The root README only promotes the
-golden Reddit/gameplay example; supporting and experimental clips stay
-in the gallery until review evidence says they should move up.
+[`docs/demo/`](docs/demo/README.md). The root README features the
+default Reddit/gameplay example, but it remains a showcase candidate
+until OCR caption-sync passes. Supporting and experimental clips stay in
+the gallery until review evidence says they should move up.
 
 > Early development. Skills and flows are now the primary interface;
 > runtime scripts are support surfaces behind those docs. The legacy
@@ -158,10 +159,12 @@ in the gallery until review evidence says they should move up.
 > [`archive/legacy-cli/`](archive/legacy-cli/README.md); the remaining
 > `cm` shell is intentionally thin.
 
-> Start with [Agent Quickstart](docs/user/AGENT-QUICKSTART.md), then use
-> [Archetypes](docs/user/ARCHETYPES.md), [Showcase Gallery](docs/user/showcase/README.md),
+> The primary user path is
+> [Agent Quickstart](docs/user/AGENT-QUICKSTART.md), with
+> [Archetypes](docs/user/ARCHETYPES.md),
+> [Showcase Gallery](docs/user/showcase/README.md),
 > [skills/](skills/README.md), [flows/](flows/README.md), and
-> [scripts/harness/](scripts/harness/README.md) as needed.
+> [scripts/harness/](scripts/harness/README.md) as deeper surfaces.
 
 ## Start Here
 
@@ -258,68 +261,9 @@ Everything else now lives in [`archive/legacy-cli/`](archive/legacy-cli/README.m
 See [full installation guide](docs/user/INSTALLATION.md) for optional
 setup such as Whisper and `ffmpeg`.
 
-## Quick Start
-
-Run diagnostics:
-
-```bash
-cat skills/doctor-report/examples/request.json | \
-  node --import tsx scripts/harness/doctor-report.ts
-```
-
-Then choose an archetype and use the featured example instead of a
-generic demo:
-
-- [Archetypes](docs/user/ARCHETYPES.md)
-- [Creative Sources](docs/user/CREATIVE-SOURCES.md)
-- [Reddit Post Over Gameplay](docs/user/examples/reddit-post-over-gameplay.md)
-- [Content Machine Self-Demo Short](docs/user/examples/content-machine-self-demo.md)
-  includes a no-key smoke path plus the real product-demo request
-- [Codex Empty-Project Eval](experiments/codex-reddit-story-empty-project-v1/README.md)
-
-Run the main short-form flow:
-
-```bash
-cat <<'JSON' | node --import tsx scripts/harness/run-flow.ts
-{
-  "flow": "generate-short",
-  "runId": "demo-run",
-  "input": {
-    "topic": "Redis vs PostgreSQL for caching",
-    "audio": { "voice": "af_heart" },
-    "visuals": { "provider": "pexels", "orientation": "portrait" },
-    "render": { "fps": 30, "downloadAssets": true },
-    "publishPrep": { "enabled": true, "platform": "tiktok" }
-  }
-}
-JSON
-```
-
-The full beginner path is here:
-[Agent Harness Install](docs/user/AGENT-HARNESS-INSTALL.md) for existing
-projects, then [Agent Quickstart](docs/user/AGENT-QUICKSTART.md).
-
-## How To Use It
-
-Use one of three surfaces:
-
-- [skills/](skills/README.md) when an agent needs one capability
-- [flows/](flows/README.md) when an agent needs a multi-step workflow
-- [scripts/harness/](scripts/harness/README.md) when you need the exact
-  executable JSON-stdio entrypoint
-
-The remaining `cm` CLI is intentionally small:
-
-```bash
-npm run cm -- --help
-```
-
-Use it for config, diagnostics, MCP, and render compatibility. Archived
-legacy CLI notes live in [archive/legacy-cli/](archive/legacy-cli/README.md).
-
 ## Read Deeper
 
-Start here, then follow links downward:
+Use these when you need more context:
 
 - [Reddit Story Split-Screen](docs/user/examples/reddit-story-split-screen.md) -
   hybrid Reddit/gameplay lane

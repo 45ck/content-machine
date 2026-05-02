@@ -179,6 +179,7 @@ export const ENVIRONMENT_VARIABLES = [
   { name: 'CM_MCP_CLEANUP_ARTIFACTS_ON_EVICT', required: false },
   { name: 'CM_MCP_SWEEP_INTERVAL_MS', required: false },
   { name: 'CM_RUN_REAL_OUTPUT_TESTS', required: false },
+  { name: 'CM_KEEP_PACKAGE_SMOKE', required: false },
   { name: 'PYTHON_PATH', required: false },
   { name: 'CM_PYTHON', required: false },
   { name: 'CM_FFMPEG', required: false },

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "demo-manifest.v1",
-  "updatedAt": "2026-05-02",
+  "updatedAt": "2026-05-03",
   "generatedReadmePath": "docs/demo/README.md",
   "provenanceManifestPath": "docs/demo/provenance.v1.json",
   "demos": [
@@ -55,8 +55,8 @@
     {
       "demoId": "demo-9-reddit-post-over-gameplay",
       "title": "Reddit Post Over Gameplay",
-      "maturity": "golden showcase",
-      "publicUse": "promoted",
+      "maturity": "showcase candidate",
+      "publicUse": "candidate",
       "featuredRank": 1,
       "videoPath": "docs/demo/demo-9-reddit-post-over-gameplay.mp4",
       "gifPath": "docs/demo/demo-9-reddit-post-over-gameplay.gif",
@@ -82,7 +82,7 @@
       ],
       "flowPaths": [],
       "whatItShows": "A Reddit-style opener card appears over full-screen gameplay, then captions continue directly over the gameplay.",
-      "watchReason": "Copy this first for Reddit posts, AITA stories, confessions, and low-attention story shorts.",
+      "watchReason": "Use this first for Reddit posts, AITA stories, confessions, and low-attention story shorts; keep it a candidate until OCR caption-sync passes.",
       "reproducePath": "docs/user/examples/reddit-post-over-gameplay.md"
     },
     {

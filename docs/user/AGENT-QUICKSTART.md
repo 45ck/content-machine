@@ -67,7 +67,7 @@ npm install
 
 Node.js 20.6+ is required.
 
-## Step 2: Discover what is shipped
+## Step 2: Discover and verify what is shipped
 
 Installed project:
 
@@ -82,6 +82,16 @@ JSON
 cat <<'JSON' | npx --no-install cm-agent flow-catalog
 {
   "flowsDir": ".content-machine/flows"
+}
+JSON
+```
+
+Then run diagnostics before generation:
+
+```bash
+cat <<'JSON' | npx --no-install cm-agent doctor-report
+{
+  "strict": false
 }
 JSON
 ```
@@ -111,6 +121,22 @@ Or:
 ```bash
 printf '{}\n' | npm run agent:flow-catalog
 ```
+
+Then run diagnostics:
+
+```bash
+printf '{"strict":false}\n' | npm run agent:doctor-report
+```
+
+Golden first-run order:
+
+1. Confirm Node.js 20.6+.
+2. Install or use the repo checkout.
+3. List skills and flows.
+4. Run `doctor-report`.
+5. Choose the archetype.
+6. Run `generate-short`.
+7. Inspect `publish-prep` before calling the MP4 ready.
 
 ## Step 3: Choose the archetype
 
@@ -256,10 +282,11 @@ cat <<'JSON' | node --import tsx scripts/harness/publish-prep.ts
 JSON
 ```
 
-## Step 7: Install the pack into another project
+## Appendix: Install the pack into another project
 
-If you want these skills inside a separate coding-agent project, install
-the package there and materialize a local copy:
+If you are already working from this repo, skip this during first-run
+generation. Use it only when you want these skills inside a separate
+coding-agent project:
 
 ```bash
 npm install --save-dev @45ck/content-machine
@@ -274,7 +301,7 @@ It also writes `.content-machine/README.md` and
 `--write-instructions` is used. These tell the harness how to discover
 skills, pass `flowsDir`, run diagnostics, and validate outputs.
 
-## Step 8: Read the guide next to the surface
+## Read the guide next to the surface
 
 - Archetype guide: [`ARCHETYPES.md`](ARCHETYPES.md)
 - Review guide: [`QUALITY-AND-REVIEW.md`](QUALITY-AND-REVIEW.md)
