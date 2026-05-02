@@ -331,7 +331,7 @@ export const UBIQUITOUS_LANGUAGE_TERMS: Record<UbiquitousTermId, UbiquitousLangu
     term: 'VideoBlueprint',
     ownedBy: 'videointel',
     definition:
-      'A versioned JSON artifact produced by `cm blueprint` that captures the reusable structural recipe of a video: scene slots, pacing profile, caption profile, audio profile, and narrative structure. Used to constrain forward pipeline generation via `cm script --blueprint`.',
+      'A versioned JSON artifact produced by `cm blueprint` that captures the reusable structural pattern of a video: scene slots, pacing profile, caption profile, audio profile, and narrative structure. Used to constrain forward pipeline generation via `cm script --blueprint`.',
     canonicalTypes: ['VideoBlueprintV1'],
     canonicalSchemas: ['VideoBlueprintV1Schema'],
   },
@@ -341,7 +341,7 @@ export const UBIQUITOUS_LANGUAGE_TERMS: Record<UbiquitousTermId, UbiquitousLangu
     term: 'VideoTheme',
     ownedBy: 'videointel',
     definition:
-      'A versioned JSON artifact produced by `cm classify` that captures the content archetype, purpose, format, style, and edit signature of a reverse-engineered video. Used as input to blueprint extraction.',
+      'A versioned JSON artifact produced by `cm classify` that captures the script archetype, purpose, format, style, and edit signature of a reverse-engineered video. Used as input to blueprint extraction.',
     canonicalTypes: ['VideoThemeV1'],
     canonicalSchemas: ['VideoThemeV1Schema'],
   },

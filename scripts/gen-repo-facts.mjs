@@ -108,7 +108,9 @@ function generateEnvironmentVariablesMd({ registry }) {
   lines.push('');
   lines.push('> DO NOT EDIT: generated from `registry/repo-facts.yaml`.');
   lines.push('');
-  lines.push('Names only. Do not commit secret values.');
+  lines.push(
+    'This reference lists variable names only. `.env.example` may include safe placeholder/default values; never commit real secrets.'
+  );
   lines.push('');
   lines.push('See also (generated):');
   lines.push('- `docs/reference/CONFIG-SURFACE.md`');
@@ -203,6 +205,22 @@ function generateQualityGatesMd({ registry }) {
     lines.push('');
     lines.push(mdList((q.requiredNpmScripts ?? []).map((s) => `\`npm run ${s}\``)));
     lines.push('');
+  }
+  if (q.docsValidation) {
+    lines.push('Documentation validation:');
+    lines.push('');
+    if ((q.docsValidation.markdownPaths ?? []).length > 0) {
+      lines.push('Checked markdown paths:');
+      lines.push('');
+      lines.push(mdList((q.docsValidation.markdownPaths ?? []).map((p) => `\`${p}\``)));
+      lines.push('');
+    }
+    if ((q.docsValidation.ignoreLinkGlobs ?? []).length > 0) {
+      lines.push('Linkcheck ignore globs:');
+      lines.push('');
+      lines.push(mdList((q.docsValidation.ignoreLinkGlobs ?? []).map((p) => `\`${p}\``)));
+      lines.push('');
+    }
   }
   lines.push('');
   return lines.join('\n');

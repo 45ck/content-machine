@@ -2,7 +2,7 @@
 
 > DO NOT EDIT: generated from `registry/repo-facts.yaml`.
 
-Names only. Do not commit secret values.
+This reference lists variable names only. `.env.example` may include safe placeholder/default values; never commit real secrets.
 
 See also (generated):
 
@@ -70,3 +70,4 @@ See also (generated):
 - `REDIS_URL`
 - `REMOTION_CONCURRENCY`
 - `TAVILY_API_KEY`
+- `VIDEO_EVALUATOR_ROOT`

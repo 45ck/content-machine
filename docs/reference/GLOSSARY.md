@@ -840,7 +840,7 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 
 **Term:** VideoBlueprint
 
-**Definition:** A versioned JSON artifact produced by `cm blueprint` that captures the reusable structural recipe of a video: scene slots, pacing profile, caption profile, audio profile, and narrative structure. Used to constrain forward pipeline generation via `cm script --blueprint`.
+**Definition:** A versioned JSON artifact produced by `cm blueprint` that captures the reusable structural pattern of a video: scene slots, pacing profile, caption profile, audio profile, and narrative structure. Used to constrain forward pipeline generation via `cm script --blueprint`.
 
 **Not:**
 
@@ -874,7 +874,7 @@ This repo uses a few loaded words. This glossary makes them unambiguous and poin
 
 **Term:** VideoTheme
 
-**Definition:** A versioned JSON artifact produced by `cm classify` that captures the content archetype, purpose, format, style, and edit signature of a reverse-engineered video. Used as input to blueprint extraction.
+**Definition:** A versioned JSON artifact produced by `cm classify` that captures the script archetype, purpose, format, style, and edit signature of a reverse-engineered video. Used as input to blueprint extraction.
 
 **Not:**
 

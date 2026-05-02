@@ -14,7 +14,7 @@
 
 - Path: `.env.example`
 - Secrets: `false`
-- Purpose: Documented environment variables (names only).
+- Purpose: Documented environment variable names plus safe placeholder/default values.
 
 ## project-config
 

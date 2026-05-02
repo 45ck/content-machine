@@ -3,6 +3,7 @@ dist/
 coverage/
 report/
 .cache/
+runs/
 test-e2e-output/
 tests/.tmp/
 vendor/
@@ -15,7 +16,9 @@ connectors/
 .beads/
 stryker.conf.json
 docs/research/virality-prediction/
+docs/research/**
 docs/research/external/imports-*/
+experiments/**
 src/research/
 
 # Common CLI artifact outputs (generated files)

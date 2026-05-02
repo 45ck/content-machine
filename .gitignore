@@ -6,6 +6,7 @@ dist/
 
 # Output
 output/
+runs/
 *.mp4
 *.mp3
 *.wav
@@ -84,12 +85,16 @@ bench/pro/.yt-dlp-archive.txt
 # Local research / reference repos (not part of the live product surface)
 vendor/
 connectors/
-templates/
+/templates/
 archive/legacy-cli/templates/
+docs/research/archetypes/templates/
+skills/short-form-archetype-research/assets/templates/
 
 # Experiments (output artifacts)
 experiments/**/results/
 experiments/**/*.json
+experiments/video-quality-review-demo/**/frames/
+experiments/video-quality-review-demo/**/video-evaluator-layout-safety/
 !experiments/codex-archetype-blackbox-v1/gameplay-confession/project/reference/visuals.example.json
 !experiments/codex-archetype-blackbox-v1/text-message-drama/project/reference/visuals.example.json
 

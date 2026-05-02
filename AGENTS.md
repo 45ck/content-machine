@@ -36,6 +36,7 @@ node --import tsx scripts/harness/generate-short.ts
 node --import tsx scripts/harness/asset-ledger.ts
 node --import tsx scripts/harness/brief-to-script.ts
 node --import tsx scripts/harness/ingest.ts
+node --import tsx scripts/harness/reverse-engineer-winner.ts
 node --import tsx scripts/harness/longform-highlight-select.ts
 node --import tsx scripts/harness/highlight-approval.ts
 node --import tsx scripts/harness/boundary-snap.ts
@@ -45,27 +46,25 @@ node --import tsx scripts/harness/style-profile-library.ts
 node --import tsx scripts/harness/script-to-audio.ts
 node --import tsx scripts/harness/timestamps-to-visuals.ts
 node --import tsx scripts/harness/video-render.ts
+node --import tsx scripts/harness/caption-export.ts
 node --import tsx scripts/harness/publish-prep.ts
+node --import tsx scripts/harness/publish-prep-review.ts
+node --import tsx scripts/harness/reddit-story-assets.ts
+node --import tsx scripts/harness/install-skill-pack.ts
 ```
 
-Current starter skills:
+Discover the live skill and flow surface instead of relying on a static
+list:
 
-- `doctor-report`
-- `skill-catalog`
-- `short-form-captions`
-- `generate-short`
-- `brief-to-script`
-- `longform-highlight-select`
-- `highlight-approval`
-- `boundary-snap`
-- `source-media-analyze`
-- `media-index`
-- `style-profile-library`
-- `reverse-engineer-winner`
-- `script-to-audio`
-- `timestamps-to-visuals`
-- `video-render`
-- `publish-prep-review`
+```bash
+cat <<'JSON' | node --import tsx scripts/harness/skill-catalog.ts
+{}
+JSON
+
+cat <<'JSON' | node --import tsx scripts/harness/flow-catalog.ts
+{}
+JSON
+```
 
 ## Current Short-Form Path
 
@@ -193,7 +192,9 @@ npm run quality              # Local checks
 
 ## Beads Issue Tracker
 
-This project uses **bd (beads)** for issue tracking. Run `bd prime` to see full workflow context and commands.
+This project uses **bd (beads)** for issue tracking when the `bd`
+binary is installed. Run `bd prime` to see full workflow context and
+commands.
 
 ### Quick Reference
 
@@ -206,9 +207,12 @@ bd close <id>         # Complete work
 
 ### Rules
 
-- Use `bd` for ALL task tracking — do NOT use TodoWrite, TaskCreate, or markdown TODO lists
-- Run `bd prime` for detailed command reference and session close protocol
-- Use `bd remember` for persistent knowledge — do NOT use MEMORY.md files
+- Use `bd` for ALL task tracking when available — do NOT use
+  TodoWrite, TaskCreate, or markdown TODO lists
+- Run `bd prime` for detailed command reference and session close
+  protocol
+- Use `bd remember` for persistent knowledge — do NOT use MEMORY.md
+  files
 
 ## Session Completion
 

@@ -6,7 +6,10 @@
 # - the canonical types/schemas in code that represent it
 # - where it appears in the CLI
 #
-# `docs/reference/GLOSSARY.md` is generated from this file.
+# Generated outputs:
+# - docs/reference/GLOSSARY.md
+# - src/domain/ubiquitous-language.generated.ts
+# - config/cspell/ubiquitous-language.txt
 
 version: 1
 
@@ -641,7 +644,7 @@ terms:
     id: video-theme
     canonicalName: Video Theme (Classification Artifact)
     definition: >
-      A versioned JSON artifact produced by `cm classify` that captures the content archetype,
+      A versioned JSON artifact produced by `cm classify` that captures the script archetype,
       purpose, format, style, and edit signature of a reverse-engineered video. Used as input
       to blueprint extraction.
     nonExamples:
@@ -663,7 +666,7 @@ terms:
     canonicalName: Video Blueprint (Structure Extraction Artifact)
     definition: >
       A versioned JSON artifact produced by `cm blueprint` that captures the reusable structural
-      recipe of a video: scene slots, pacing profile, caption profile, audio profile, and narrative
+      pattern of a video: scene slots, pacing profile, caption profile, audio profile, and narrative
       structure. Used to constrain forward pipeline generation via `cm script --blueprint`.
     nonExamples:
       - Not a render template (templates select compositions and render defaults).

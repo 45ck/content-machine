@@ -5,6 +5,13 @@
 #
 # Generated outputs:
 # - docs/reference/REPO-FACTS.md
+# - docs/reference/ARTIFACT-CONTRACTS.md
+# - docs/reference/ENVIRONMENT-VARIABLES.md
+# - docs/reference/CONFIG-SURFACE.md
+# - docs/reference/QUALITY-GATES.md
+# - docs/reference/SECURITY-INVARIANTS.md
+# - docs/reference/CLI-CONTRACT.md
+# - docs/reference/PIPELINE-PRESETS.md
 # - CLAUDE.md
 # - src/domain/repo-facts.generated.ts
 # - config/cspell/repo-facts.txt
@@ -40,6 +47,11 @@ conventions:
       - 'docs/dev/architecture/configuration/README.md'
       - 'docs/dev/architecture/experiment-lab/README.md'
       - 'docs/dev/bugs/README.md'
+      - 'docs/research/archetypes/README.md'
+      - 'docs/research/archetypes/assets/**'
+      - 'docs/research/archetypes/recipes/**'
+      - 'docs/research/archetypes/repo-cards/**'
+      - 'docs/research/archetypes/templates/README.md'
       - 'docs/research/synthesis/README.md'
       - 'docs/research/external/**'
       - 'docs/dev/glossary/**'
@@ -198,6 +210,8 @@ facts:
         required: false
       - name: CM_VISUALS_OBSERVABILITY
         required: false
+      - name: VIDEO_EVALUATOR_ROOT
+        required: false
       - name: CM_MEDIA_SORA_ENDPOINT
         required: false
       - name: CM_MEDIA_SORA_MODEL
@@ -302,7 +316,7 @@ configSurface:
       secrets: true
     - id: dotenv-example
       path: '.env.example'
-      purpose: Documented environment variables (names only).
+      purpose: Documented environment variable names plus safe placeholder/default values.
       secrets: false
     - id: project-config
       path: '.content-machine.toml'
@@ -341,6 +355,11 @@ quality:
     - lint
     - format:check
     - test:run
+    - docs:check
+    - public-demo:check
+    - cspell:check
+    - repo-facts:check
+    - glossary:check
 
   docsValidation:
     markdownPaths:
@@ -348,6 +367,8 @@ quality:
       - 'AGENTS.md'
       - 'CLAUDE.md'
       - 'docs/README.md'
+      - 'docs/demo/README.md'
+      - 'docs/demo/provenance/*.md'
       - 'docs/dev/*.md'
       - 'docs/reference/*.md'
       - 'docs/user/*.md'

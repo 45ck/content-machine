@@ -31,7 +31,7 @@ voice = "af_heart"
 These are intentionally data-defined (no code changes required):
 
 - Script archetypes: `assets/archetypes/`, `./.cm/archetypes/`, `~/.cm/archetypes/`
-- Render templates: `assets/dev/templates/`, `./.cm/dev/templates/`, `~/.cm/dev/templates/`
+- Render templates: `assets/templates/`, `./.cm/templates/`, `~/.cm/templates/`
 - Pipeline workflows: `./.cm/workflows/`, `~/.cm/workflows/`
 
 Canonical terminology (generated): [`docs/reference/GLOSSARY.md`](../reference/GLOSSARY.md)

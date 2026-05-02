@@ -150,6 +150,7 @@ export const ENVIRONMENT_VARIABLES = [
   { name: 'CM_VISUALS_TELEMETRY_PATH', required: false },
   { name: 'CM_ASSET_LINEAGE_PATH', required: false },
   { name: 'CM_VISUALS_OBSERVABILITY', required: false },
+  { name: 'VIDEO_EVALUATOR_ROOT', required: false },
   { name: 'CM_MEDIA_SORA_ENDPOINT', required: false },
   { name: 'CM_MEDIA_SORA_MODEL', required: false },
   { name: 'CM_MEDIA_VEO_ENDPOINT', required: false },
