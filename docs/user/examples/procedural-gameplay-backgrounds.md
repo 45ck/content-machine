@@ -1,6 +1,6 @@
 # Procedural Gameplay Backgrounds
 
-Status: `skill-backed; experimental preview`
+Status: `supporting showcase candidate`
 
 Use this when a short needs gameplay-like retention motion, but the
 user did not provide rights-cleared gameplay footage. The output should
@@ -49,12 +49,14 @@ The example request lives at
 
 ## Promotion Notes
 
-- `demo-20` is an experimental preview: `720x1280`, `24fps`, H.264/AAC.
-- The current demo-video audit intentionally flags it with
-  `error:wrong-resolution`; see
+- `demo-20` is a supporting showcase: `1080x1920`, `24fps`, H.264/AAC,
+  and `31s`.
+- The current demo-video audit passes it with no automated issues; see
   [`experiments/video-quality-review-demo`](../../../experiments/video-quality-review-demo/README.md).
-- Use it to explain the direction, not as the final quality bar.
-- A promoted version should render at `1080x1920`, include contact-sheet
-  review, and pass the demo-video and publish-prep gates.
+- Publish-prep also passes for the tracked script, MP4, and asset
+  ledger under
+  [`docs/demo/provenance/demo-20-content-machine-3d-runner`](../../demo/provenance/demo-20-content-machine-3d-runner/asset-ledger.json).
+- Use it to prove the direction, but keep it additive: the chosen short
+  archetype still owns the story, captions, and review gates.
 - Keep JavaScript/Three.js code inside trusted templates until the repo
   has a first-party 3D render path with tests.

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "1.0.0",
+  "platform": "tiktok",
+  "title": "Content Machine 3D Runner",
+  "description": "Content Machine 3D Runner\n\nAI video agents hide the mess. This one shows every file.\n\nStar it, run doctor, then build a short you can debug.",
+  "hashtags": [
+    "opensource",
+    "codingagents",
+    "videoautomation",
+    "3d"
+  ],
+  "checklist": [
+    {
+      "id": "render-quality",
+      "label": "Video passes cm validate (resolution/format)",
+      "required": true
+    },
+    {
+      "id": "captions",
+      "label": "Captions are readable on a phone",
+      "required": true
+    },
+    {
+      "id": "cover-text",
+      "label": "Cover text is 2-6 words and legible",
+      "required": true
+    },
+    {
+      "id": "hook",
+      "label": "First 2 seconds match the hook promise",
+      "required": true
+    },
+    {
+      "id": "hashtag-sanity",
+      "label": "Hashtags are relevant (no spam)",
+      "required": false
+    }
+  ],
+  "createdAt": "2026-05-02T09:37:55.412Z"
+}

@@ -219,10 +219,6 @@ ${table(['Demo', 'Maturity', 'What It Proves', 'Skill / Flow', 'Inspect'], publi
 ## Archive Previews
 
 ${table(['Demo', 'Maturity', 'Why It Stays Archived', 'Inspect'], archiveRows)}
-
-\`demo-20\` intentionally remains below the public quality bar until a
-\`1080x1920\` version exists. Keep that caveat visible wherever the 3D
-preview is linked.
 `;
 }
 

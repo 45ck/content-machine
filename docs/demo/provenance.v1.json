@@ -325,20 +325,22 @@
       "gifPath": "docs/demo/demo-20-content-machine-3d-runner.gif",
       "sourceDoc": "docs/user/examples/procedural-gameplay-backgrounds.md",
       "reviewReportPath": "experiments/video-quality-review-demo/demo-20-content-machine-3d-runner/report.json",
-      "maturity": "experimental preview",
-      "publicUse": "experimental",
+      "assetLedgerPath": "docs/demo/provenance/demo-20-content-machine-3d-runner/asset-ledger.json",
+      "publishPrepProvenancePath": "docs/demo/provenance/demo-20-content-machine-3d-runner/publish-prep/provenance.json",
+      "maturity": "supporting showcase candidate",
+      "publicUse": "supporting",
       "rightsStatus": "approved",
-      "reviewStatus": "error:wrong-resolution",
+      "reviewStatus": "pass",
       "assetLedger": [
         {
           "kind": "procedural-3d-background",
-          "usageMode": "code-native-rebuild",
+          "usageMode": "generated-asset",
           "licenseStatus": "repo-generated",
           "contentIdRisk": "none-known",
-          "summary": "Code-native low-poly 3D/procedural runner preview; no external model, texture, or gameplay clip is required for the tracked preview."
+          "summary": "Code-native low-poly 3D/procedural runner preview rendered at 1080x1920; no external model, texture, gameplay clip, downloaded music, or API asset is required for the tracked preview."
         }
       ],
-      "promotionBlockedReasons": ["current tracked preview is 720x1280, not 1080x1920"]
+      "promotionBlockedReasons": []
     }
   ]
 }

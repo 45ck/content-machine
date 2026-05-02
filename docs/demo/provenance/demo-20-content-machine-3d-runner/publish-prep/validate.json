@@ -1,0 +1,92 @@
+{
+  "schemaVersion": "1.0.0",
+  "videoPath": "docs/demo/demo-20-content-machine-3d-runner.mp4",
+  "profile": "portrait",
+  "passed": true,
+  "summary": {
+    "width": 1080,
+    "height": 1920,
+    "durationSeconds": 31,
+    "container": "mp4",
+    "videoCodec": "h264",
+    "audioCodec": "aac"
+  },
+  "gates": [
+    {
+      "gateId": "resolution",
+      "passed": true,
+      "severity": "error",
+      "fix": "adjust-render-resolution",
+      "message": "Resolution OK (1080x1920)",
+      "details": {
+        "expectedWidth": 1080,
+        "expectedHeight": 1920,
+        "actualWidth": 1080,
+        "actualHeight": 1920
+      }
+    },
+    {
+      "gateId": "duration",
+      "passed": true,
+      "severity": "error",
+      "fix": "adjust-content-length",
+      "message": "Duration OK (31.0s)",
+      "details": {
+        "minSeconds": 30,
+        "maxSeconds": 60,
+        "actualSeconds": 31
+      }
+    },
+    {
+      "gateId": "format",
+      "passed": true,
+      "severity": "error",
+      "fix": "adjust-render-format",
+      "message": "Format OK (mp4/h264/aac)",
+      "details": {
+        "expected": {
+          "container": "mp4",
+          "videoCodec": "h264",
+          "audioCodec": "aac"
+        },
+        "actual": {
+          "container": "mp4",
+          "videoCodec": "h264",
+          "audioCodec": "aac"
+        }
+      }
+    },
+    {
+      "gateId": "cadence",
+      "passed": true,
+      "severity": "warning",
+      "fix": "none",
+      "message": "Cadence OK (median cut interval 2.08s)",
+      "details": {
+        "cutCount": 17,
+        "medianCutIntervalSeconds": 2.0833650000000006,
+        "maxMedianCutIntervalSeconds": 3
+      }
+    },
+    {
+      "gateId": "audio-signal",
+      "passed": true,
+      "severity": "warning",
+      "fix": "none",
+      "message": "Audio signal OK (-22.7 LUFS, peak -2.1 dBFS)",
+      "details": {
+        "loudnessLUFS": -22.72,
+        "truePeakDBFS": -2.12,
+        "loudnessRange": 0.6,
+        "clippingRatio": 0,
+        "snrDB": 8.686738000000002,
+        "loudnessMinLUFS": -24,
+        "loudnessMaxLUFS": -8,
+        "maxClippingRatio": 0.01,
+        "truePeakMaxDBFS": -1
+      }
+    }
+  ],
+  "createdAt": "2026-05-02T09:37:55.532Z",
+  "runtimeMs": 9384
+}

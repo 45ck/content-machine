@@ -155,12 +155,16 @@ they are not golden until those artifacts exist and pass.
 
 ## demo-20-content-machine-3d-runner
 
-- Maturity: `experimental preview`
+- Maturity: `supporting showcase candidate`
 - Source doc:
   [`procedural-gameplay-backgrounds`](../../user/examples/procedural-gameplay-backgrounds.md)
 - Review: [`report.json`](../../../experiments/video-quality-review-demo/demo-20-content-machine-3d-runner/report.json)
+- Machine evidence:
+  [`asset-ledger.json`](demo-20-content-machine-3d-runner/asset-ledger.json),
+  [`render-3d-runner.mjs`](demo-20-content-machine-3d-runner/render-3d-runner.mjs),
+  [`publish-prep/provenance.json`](demo-20-content-machine-3d-runner/publish-prep/provenance.json)
 - Source notes: code-native low-poly 3D/procedural runner preview; no
-  external model, texture, or gameplay clip is required for the tracked
-  preview.
-- Promotion block: current tracked preview is `720x1280`, not
-  `1080x1920`.
+  external model, texture, gameplay clip, downloaded music, or
+  API-generated asset is required for the tracked preview. The current
+  tracked version is `1080x1920`, passes automated demo-video audit,
+  and passes publish-prep with provenance evidence.

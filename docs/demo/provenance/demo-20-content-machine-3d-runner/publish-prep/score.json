@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "1.0.0",
+  "input": {
+    "scriptPath": "docs/demo/provenance/demo-20-content-machine-3d-runner/script.json"
+  },
+  "passed": true,
+  "overall": 0.9642857142857143,
+  "dimensions": {
+    "title": 0.8571428571428572,
+    "hook": 1,
+    "structure": 1,
+    "safety": 1
+  },
+  "checks": [
+    {
+      "checkId": "title-present",
+      "passed": true,
+      "severity": "error",
+      "message": "Title present",
+      "fix": "set-title"
+    },
+    {
+      "checkId": "no-rage-bait",
+      "passed": true,
+      "severity": "error",
+      "message": "No rage-bait patterns detected"
+    },
+    {
+      "checkId": "hook-word-count",
+      "passed": true,
+      "severity": "warning",
+      "message": "Hook length 11 words",
+      "details": {
+        "hookWords": 11,
+        "target": [
+          3,
+          18
+        ]
+      }
+    },
+    {
+      "checkId": "scene-count",
+      "passed": true,
+      "severity": "warning",
+      "message": "Scene count 5",
+      "details": {
+        "sceneCount": 5,
+        "target": [
+          3,
+          12
+        ]
+      }
+    },
+    {
+      "checkId": "estimated-duration",
+      "passed": true,
+      "severity": "warning",
+      "message": "Estimated duration 31.0s",
+      "details": {
+        "estimatedDuration": 31,
+        "target": [
+          15,
+          60
+        ]
+      }
+    }
+  ],
+  "createdAt": "2026-05-02T09:37:55.409Z"
+}

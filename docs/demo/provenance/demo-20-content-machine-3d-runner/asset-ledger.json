@@ -1,0 +1,114 @@
+{
+  "schemaVersion": "1.0.0",
+  "assets": [
+    {
+      "assetId": "demo-20:procedural-scene-code",
+      "assetType": "source-code",
+      "kind": "code-native-3d-runner",
+      "stage": "procedural-gameplay-backgrounds",
+      "path": "docs/demo/provenance/demo-20-content-machine-3d-runner/render-3d-runner.mjs",
+      "localPath": "docs/demo/provenance/demo-20-content-machine-3d-runner/render-3d-runner.mjs",
+      "provider": "content-machine",
+      "licenseName": "repo-generated",
+      "rightsStatus": "generated-local",
+      "usageMode": "generated-asset",
+      "reviewStatus": "generated-local",
+      "contentIdRisk": "none-known",
+      "prompt": "Deterministic software-3D endless runner showing Content Machine pipeline artifacts; no external models, textures, gameplay clips, or API-generated media.",
+      "workflow": "content-machine/procedural-gameplay-backgrounds",
+      "fileHash": "sha256:5b849ff51269318766c7f13eb73c273d5581c44a5383d099ce61cf77ead4a246",
+      "metadata": {
+        "resolution": "1080x1920",
+        "fps": 24,
+        "durationSeconds": 31,
+        "sourcePolicy": "code-native"
+      }
+    },
+    {
+      "assetId": "demo-20:pulse-audio",
+      "assetType": "audio",
+      "kind": "synthesized-pulse-bed",
+      "stage": "procedural-gameplay-backgrounds",
+      "path": "docs/demo/demo-20-content-machine-3d-runner.mp4",
+      "localPath": "docs/demo/demo-20-content-machine-3d-runner.mp4",
+      "provider": "content-machine",
+      "licenseName": "repo-generated",
+      "rightsStatus": "generated-local",
+      "usageMode": "generated-asset",
+      "reviewStatus": "generated-local",
+      "contentIdRisk": "none-known",
+      "mixRole": "music-bed",
+      "prompt": "Programmatic pulse audio generated directly in the render script; no downloaded music or samples.",
+      "workflow": "content-machine/procedural-gameplay-backgrounds",
+      "fileHash": "sha256:cb4bb54e91d8c264144c6a539847093c27216842881ca2f398455d1e77471f25",
+      "metadata": {}
+    },
+    {
+      "assetId": "demo-20:preview-gif",
+      "assetType": "image",
+      "kind": "preview-gif",
+      "stage": "demo-gallery",
+      "path": "docs/demo/demo-20-content-machine-3d-runner.gif",
+      "localPath": "docs/demo/demo-20-content-machine-3d-runner.gif",
+      "provider": "content-machine",
+      "licenseName": "repo-generated",
+      "rightsStatus": "generated-local",
+      "usageMode": "generated-asset",
+      "reviewStatus": "generated-local",
+      "contentIdRisk": "none-known",
+      "prompt": "Preview GIF derived from the tracked deterministic demo MP4.",
+      "workflow": "scripts/make-demo-gif.sh",
+      "fileHash": "sha256:c9d480f75092bb6939b5ebeeb25cf056f89c7fcb75a720535a3dd2a7eb39e9f2",
+      "metadata": {}
+    },
+    {
+      "assetId": "script:main",
+      "assetType": "script",
+      "kind": "script-artifact",
+      "stage": "brief-to-script",
+      "path": "docs/demo/provenance/demo-20-content-machine-3d-runner/script.json",
+      "localPath": "docs/demo/provenance/demo-20-content-machine-3d-runner/script.json",
+      "provider": "content-machine",
+      "licenseName": "repo-generated",
+      "rightsStatus": "generated-local",
+      "usageMode": "generated-asset",
+      "reviewStatus": "generated-local",
+      "prompt": "Content Machine 3D runner demo",
+      "workflow": "content-machine/procedural-gameplay-backgrounds",
+      "fileHash": "sha256:d1071538bbf660d7a319cc825d073d99d8f7c29971e82cf24f7a44ede62a23e6",
+      "createdAt": "2026-05-02T00:00:00.000Z",
+      "metadata": {
+        "source": "asset-ledger-harness"
+      }
+    },
+    {
+      "assetId": "render:video",
+      "assetType": "video",
+      "kind": "final-render",
+      "stage": "video-render",
+      "path": "docs/demo/demo-20-content-machine-3d-runner.mp4",
+      "localPath": "docs/demo/demo-20-content-machine-3d-runner.mp4",
+      "provider": "content-machine",
+      "licenseName": "repo-generated",
+      "rightsStatus": "generated-local",
+      "usageMode": "generated-asset",
+      "reviewStatus": "generated-local",
+      "prompt": "Content Machine 3D runner demo",
+      "workflow": "content-machine/procedural-gameplay-backgrounds",
+      "fileHash": "sha256:cb4bb54e91d8c264144c6a539847093c27216842881ca2f398455d1e77471f25",
+      "createdAt": "2026-05-02T00:00:00.000Z",
+      "metadata": {
+        "source": "asset-ledger-harness"
+      }
+    }
+  ],
+  "summary": {
+    "assetCount": 5,
+    "generatedCount": 5,
+    "externalCount": 0,
+    "needsReviewCount": 0,
+    "audioCount": 1
+  },
+  "warnings": [],
+  "createdAt": "2026-05-02T00:00:00.000Z"
+}

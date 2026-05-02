@@ -323,12 +323,14 @@
     {
       "demoId": "demo-20-content-machine-3d-runner",
       "title": "Content Machine 3D Runner",
-      "maturity": "experimental preview",
-      "publicUse": "experimental",
+      "maturity": "supporting showcase candidate",
+      "publicUse": "supporting",
       "videoPath": "docs/demo/demo-20-content-machine-3d-runner.mp4",
       "gifPath": "docs/demo/demo-20-content-machine-3d-runner.gif",
       "sourceDoc": "docs/user/examples/procedural-gameplay-backgrounds.md",
       "reviewReportPath": "experiments/video-quality-review-demo/demo-20-content-machine-3d-runner/report.json",
+      "assetLedgerPath": "docs/demo/provenance/demo-20-content-machine-3d-runner/asset-ledger.json",
+      "publishPrepProvenancePath": "docs/demo/provenance/demo-20-content-machine-3d-runner/publish-prep/provenance.json",
       "provenanceNotesPath": "docs/demo/provenance/README.md#demo-20-content-machine-3d-runner",
       "archetype": "procedural-gameplay-background",
       "skills": [
@@ -342,8 +344,8 @@
         }
       ],
       "flowPaths": ["flows/showcase-content-machine.flow", "flows/showcase-content-machine.md"],
-      "whatItShows": "Code-native 3D/procedural motion can be an additive gameplay-style background layer.",
-      "watchReason": "Use as a direction preview only; the tracked clip is still below the 1080x1920 promotion bar.",
+      "whatItShows": "Code-native 3D/procedural motion can be a rights-safe gameplay-style background layer with audit and provenance evidence.",
+      "watchReason": "Use when a short needs gameplay energy but no rights-cleared gameplay footage is available.",
       "reproducePath": "docs/user/examples/procedural-gameplay-backgrounds.md"
     }
   ]

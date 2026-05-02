@@ -32,10 +32,11 @@ when improving non-Reddit motion/card-heavy examples.
 | `micro-doc-breakdown`                   | `proving candidate`             | [`demo-17`](../demo/demo-17-micro-doc-breakdown.mp4)                   |
 | `content-machine-reddit-gameplay-remix` | `supporting showcase candidate` | [`demo-18`](../demo/demo-18-content-machine-reddit-gameplay-remix.mp4) |
 | `content-machine-motion-cards`          | `supporting showcase candidate` | [`demo-19`](../demo/demo-19-content-machine-motion-cards.mp4)          |
-| `procedural-gameplay-backgrounds`       | `experimental preview`          | [`demo-20`](../demo/demo-20-content-machine-3d-runner.mp4)             |
+| `procedural-gameplay-backgrounds`       | `supporting showcase candidate` | [`demo-20`](../demo/demo-20-content-machine-3d-runner.mp4)             |
 
-`demo-20` is intentionally experimental at `720x1280`; keep it in docs
-as an additive 3D/procedural direction, not a promoted README example.
+`demo-20` is now a `1080x1920` supporting showcase with audit and
+provenance evidence. Keep it framed as an additive 3D/procedural
+treatment, not the default content archetype.
 
 ## Secondary Real Renders
 

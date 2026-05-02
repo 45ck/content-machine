@@ -1,6 +1,6 @@
 # Demo Video Quality Review
 
-Generated: 2026-05-02T05:15:22.908Z
+Generated: 2026-05-02T09:39:35.849Z
 
 Heuristics used: ffprobe metadata, ffmpeg audio volume, capped even frame sampling, white/black frame detection, edge artifact detection, low-motion runs, caption-band signal, and contact sheets.
 
@@ -22,7 +22,7 @@ Heuristics used: ffprobe metadata, ffmpeg audio volume, capped even frame sampli
 | `demo-17-micro-doc-breakdown.mp4` | `pass` | none | [contact-sheet](demo-17-micro-doc-breakdown/contact-sheet.jpg) |
 | `demo-18-content-machine-reddit-gameplay-remix.mp4` | `pass` | none | [contact-sheet](demo-18-content-machine-reddit-gameplay-remix/contact-sheet.jpg) |
 | `demo-19-content-machine-motion-cards.mp4` | `pass` | info:caption-band-sparse | [contact-sheet](demo-19-content-machine-motion-cards/contact-sheet.jpg) |
-| `demo-20-content-machine-3d-runner.mp4` | `error` | error:wrong-resolution | [contact-sheet](demo-20-content-machine-3d-runner/contact-sheet.jpg) |
+| `demo-20-content-machine-3d-runner.mp4` | `pass` | none | [contact-sheet](demo-20-content-machine-3d-runner/contact-sheet.jpg) |
 
 ## Details
 
@@ -156,9 +156,8 @@ Heuristics used: ffprobe metadata, ffmpeg audio volume, capped even frame sampli
 ### demo-20-content-machine-3d-runner.mp4
 
 - Path: `docs/demo/demo-20-content-machine-3d-runner.mp4`
-- Resolution: 720x1280
-- Duration: 16.79s
-- Audio: aac (mean -30 dB, max -12.9 dB)
+- Resolution: 1080x1920
+- Duration: 31.00s
+- Audio: aac (mean -20.5 dB, max -2.1 dB)
 - Contact sheet: [demo-20-content-machine-3d-runner/contact-sheet.jpg](demo-20-content-machine-3d-runner/contact-sheet.jpg)
-- Issues:
-  - `error:wrong-resolution` - Expected 1080x1920, got 720x1280
+- Issues: none detected by automated heuristics

@@ -35,6 +35,7 @@ kenney
 kling
 kokoro
 krea
+lerp
 libx
 listicle
 lofi
@@ -47,6 +48,7 @@ movflags
 mutonby
 nanobanana
 noreferrer
+noto
 onnx
 pageseg
 pexels
