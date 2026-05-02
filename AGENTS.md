@@ -25,6 +25,21 @@ prefer skills and flows over adding more control-plane logic to
 `src/cli/`. Runtime scripts exist to support the skills, not define
 them.
 
+## Installed Pack Context
+
+When this repo is installed inside another project, the materialized
+pack should live under `.content-machine/`. Agents should read
+`.content-machine/README.md`, `.content-machine/AGENTS.md`, and the
+relevant `.content-machine/skills/*/SKILL.md` before running tools.
+Packaged runtime calls should use:
+
+```bash
+node ./node_modules/@45ck/content-machine/agent/run-tool.mjs <tool>
+```
+
+For installed flows, pass `"flowsDir": ".content-machine/flows"` to
+`run-flow` or `flow-catalog`.
+
 ## Agent Entry Points
 
 ```

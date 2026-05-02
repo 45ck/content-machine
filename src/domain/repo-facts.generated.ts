@@ -35,6 +35,7 @@ export const CONFIG_SURFACE_FILES = {
   dotenv: '.env',
   'dotenv-example': '.env.example',
   'project-config': '.content-machine.toml',
+  'installed-skill-pack': './.content-machine/',
   'project-data': './.cm/',
   'user-data': '~/.cm/',
   'output-dir': './output/',

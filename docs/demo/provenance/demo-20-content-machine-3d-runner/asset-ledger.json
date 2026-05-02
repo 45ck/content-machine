@@ -16,7 +16,7 @@
       "contentIdRisk": "none-known",
       "prompt": "Deterministic software-3D endless runner showing Content Machine pipeline artifacts; no external models, textures, gameplay clips, or API-generated media.",
       "workflow": "content-machine/procedural-gameplay-backgrounds",
-      "fileHash": "sha256:5b849ff51269318766c7f13eb73c273d5581c44a5383d099ce61cf77ead4a246",
+      "fileHash": "sha256:f505e85a295d9d6f71b1b4ff572f08d3476eb5881bd4176d74e8bb388d41f2ea",
       "metadata": {
         "resolution": "1080x1920",
         "fps": 24,

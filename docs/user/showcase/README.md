@@ -4,6 +4,10 @@ Use this page when someone needs to understand Content Machine fast:
 pick a lane, look at the preview, then open the skill or example that
 made it.
 
+Use the showcase as a menu for prompts: pick the row that matches the
+desired video, then ask your agent to use that skill or lane. Do not
+start with render flags unless you already know the format.
+
 Content Machine is not one render template. It is a skill pack that lets
 agents combine scripts, timestamps, visuals, captions, gameplay,
 graphics, and review artifacts into inspectable short-form videos.

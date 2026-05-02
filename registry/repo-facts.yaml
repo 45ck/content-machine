@@ -322,6 +322,10 @@ configSurface:
       path: '.content-machine.toml'
       purpose: Project configuration (non-secret defaults).
       secrets: false
+    - id: installed-skill-pack
+      path: './.content-machine/'
+      purpose: Materialized Content Machine skills, flows, README, and agent instructions installed into another project.
+      secrets: false
     - id: project-data
       path: './.cm/'
       purpose: Project-scoped installs (templates/workflows/archetypes/etc).

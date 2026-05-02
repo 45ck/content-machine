@@ -21,6 +21,7 @@ the docs in this order:
 
 - [`../skills/README.md`](../skills/README.md) — short-form video skill scaffolding for Claude Code, Codex CLI, and similar agents
 - [`../flows/README.md`](../flows/README.md) — `45ck/prompt-language` flow scaffolding and authoring rules
+- [`user/AGENT-HARNESS-INSTALL.md`](user/AGENT-HARNESS-INSTALL.md) — copy-paste install prompt and materialized `.content-machine/` usage for agent harnesses
 - [`user/AGENT-QUICKSTART.md`](user/AGENT-QUICKSTART.md) — primary user path for the skill-pack surface
 - [`user/INSTALLATION.md`](user/INSTALLATION.md) — local setup,
   optional dependencies, and install checks

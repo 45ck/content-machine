@@ -68,6 +68,7 @@ Named bread-and-butter story archetypes:
 
 Start here:
 
+- [Agent Harness Install](docs/user/AGENT-HARNESS-INSTALL.md)
 - [Agent Quickstart](docs/user/AGENT-QUICKSTART.md)
 - [Archetype Guide](docs/user/ARCHETYPES.md)
 - [Showcase Gallery](docs/user/showcase/README.md)
@@ -164,6 +165,30 @@ in the gallery until review evidence says they should move up.
 
 ## Start Here
 
+### Install Into An Existing Agent Project
+
+Use this when you want Claude Code, Codex CLI, Cursor, or another
+repo-aware coding agent to use Content Machine inside your own project:
+
+```bash
+npm install @45ck/content-machine
+
+cat <<'JSON' | node ./node_modules/@45ck/content-machine/agent/run-tool.mjs install-skill-pack
+{
+  "targetDir": ".content-machine",
+  "includeFlows": true,
+  "includeExamples": true
+}
+JSON
+```
+
+Then tell the agent to read `.content-machine/README.md`,
+`.content-machine/AGENTS.md`, and `.content-machine/skills/`. See
+[Agent Harness Install](docs/user/AGENT-HARNESS-INSTALL.md) for the
+copy-paste prompt.
+
+### Work From This Repo
+
 ```bash
 npm install
 ```
@@ -224,7 +249,8 @@ npm install @45ck/content-machine
 cat <<'JSON' | node ./node_modules/@45ck/content-machine/agent/run-tool.mjs install-skill-pack
 {
   "targetDir": ".content-machine",
-  "includeFlows": true
+  "includeFlows": true,
+  "includeExamples": true
 }
 JSON
 ```
@@ -282,7 +308,8 @@ JSON
 ```
 
 The full beginner path is here:
-[Agent Quickstart](docs/user/AGENT-QUICKSTART.md).
+[Agent Harness Install](docs/user/AGENT-HARNESS-INSTALL.md) for existing
+projects, then [Agent Quickstart](docs/user/AGENT-QUICKSTART.md).
 
 ## How To Use It
 
@@ -314,6 +341,9 @@ Start here, then follow links downward:
   before a render is considered ready
 - [Creative Sources](docs/user/CREATIVE-SOURCES.md) - external source
   scouting for animation, 3D, stock, audio, and AI generation
+- [Agent Harness Install](docs/user/AGENT-HARNESS-INSTALL.md) - install
+  Content Machine into Codex CLI, Claude Code, Cursor, or another
+  repo-aware agent project
 - [Agent Quickstart](docs/user/AGENT-QUICKSTART.md) - quickest user path
 - [Skills](skills/README.md) - all agent-facing capabilities
 - [Flows](flows/README.md) - orchestration patterns

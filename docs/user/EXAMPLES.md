@@ -38,6 +38,22 @@ when improving non-Reddit motion/card-heavy examples.
 provenance evidence. Keep it framed as an additive 3D/procedural
 treatment, not the default content archetype.
 
+## Prompt Examples For Agent Harnesses
+
+Use these inside Claude Code, Codex CLI, Cursor, or another harness
+after installing the pack:
+
+- "Run Content Machine doctor and tell me what is missing before
+  generation."
+- "Make a faceless stock-footage explainer about `{topic}` and review
+  the final MP4 before calling it ready."
+- "Analyze `{referenceVideoPath}` as a winner, then generate a new short
+  with the same pacing, not the same footage."
+- "Turn `{longformVideo}` into candidate shorts; select moments first,
+  then snap boundaries before rendering."
+- "Use `reddit-post-over-gameplay` for this story. Keep gameplay
+  full-screen and show the Reddit opener card for 3-5 seconds."
+
 ## Secondary Real Renders
 
 - **[Stock Footage Edutainment](examples/stock-footage-edutainment.md)** —

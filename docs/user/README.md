@@ -12,23 +12,26 @@ surfaces. The old CLI-first guides now live under
 
 1. [Installation](INSTALLATION.md) — local setup, optional dependencies,
    and install checks
-2. [Agent Quickstart](AGENT-QUICKSTART.md) — primary path for skills,
+2. [Agent Harness Install](AGENT-HARNESS-INSTALL.md) — copy-paste
+   install prompt and materialized `.content-machine/` usage for Codex
+   CLI, Claude Code, Cursor, and similar harnesses
+3. [Agent Quickstart](AGENT-QUICKSTART.md) — primary path for skills,
    flows, and optional repo-side runners
-3. [Archetypes](ARCHETYPES.md) — choose the lane before scripting,
+4. [Archetypes](ARCHETYPES.md) — choose the lane before scripting,
    sourcing media, or rendering
-4. [Showcase Gallery](showcase/README.md) — fast visual map of demos,
+5. [Showcase Gallery](showcase/README.md) — fast visual map of demos,
    skills, maturity, and what each lane proves
-5. [Quality And Review](QUALITY-AND-REVIEW.md) — review gates for
+6. [Quality And Review](QUALITY-AND-REVIEW.md) — review gates for
    captions, audio, motion, safe zones, and promotion status
-6. [Configuration](CONFIGURATION.md) — defaults, providers, and
+7. [Configuration](CONFIGURATION.md) — defaults, providers, and
    data-driven resources
-7. [Creative Sources](CREATIVE-SOURCES.md) — resource scouting for
+8. [Creative Sources](CREATIVE-SOURCES.md) — resource scouting for
    animation, 3D, stock, audio, and AI generation sites
-8. [Reddit Post Over Gameplay](examples/reddit-post-over-gameplay.md) —
+9. [Reddit Post Over Gameplay](examples/reddit-post-over-gameplay.md) —
    default Reddit story example
-9. [Examples](EXAMPLES.md) — status summary and selected runnable
-   walkthroughs
-10. [Example Pages](examples/README.md) — categorized index of every
+10. [Examples](EXAMPLES.md) — status summary and selected runnable
+    walkthroughs
+11. [Example Pages](examples/README.md) — categorized index of every
     page under `docs/user/examples/`
 
 Default Reddit story mode is `reddit-post-over-gameplay`: full-screen

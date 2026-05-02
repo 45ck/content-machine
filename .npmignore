@@ -1,5 +1,8 @@
-# Archive — not published
-archive/
+# Full archive payload is not published. package.json intentionally
+# includes only lightweight archive README files for compatibility links.
+archive/**
+!archive/README.md
+!archive/legacy-cli/README.md
 
 # Decision points (flagged in Phase 0 report — NOT excluded by default):
 # Uncomment only if these directories should be omitted from the published tarball.

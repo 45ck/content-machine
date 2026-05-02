@@ -11,7 +11,6 @@ const frameDir = join(rootDir, 'frames');
 const width = 1080;
 const height = 1920;
 const designWidth = 1080;
-const designHeight = 1920;
 const fps = 24;
 const durationSeconds = 31;
 const totalFrames = Math.round(durationSeconds * fps);
@@ -51,11 +50,30 @@ const artifactRuns = [
 function clamp(value, minValue = 0, maxValue = 1) {
   return Math.min(maxValue, Math.max(minValue, value));
 }
-function lerp(a, b, t) { return a + (b - a) * t; }
-function easeOutCubic(t) { t = clamp(t); return 1 - Math.pow(1 - t, 3); }
-function easeInOut(t) { t = clamp(t); return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
-function easeOutBack(t) { t = clamp(t); const c1 = 1.70158; const c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); }
-function escapeXml(value) { return String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;'); }
+function lerp(a, b, t) {
+  return a + (b - a) * t;
+}
+function easeOutCubic(t) {
+  t = clamp(t);
+  return 1 - Math.pow(1 - t, 3);
+}
+function easeInOut(t) {
+  t = clamp(t);
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+}
+function easeOutBack(t) {
+  t = clamp(t);
+  const c1 = 1.70158;
+  const c3 = c1 + 1;
+  return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+}
+function escapeXml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;');
+}
 
 function shade(hex, amount) {
   const n = parseInt(hex.slice(1), 16);
@@ -73,7 +91,12 @@ function project(point, yaw = 0) {
   const dz = rz - camera.z;
   if (dz <= 0.2) return null;
   const s = camera.focal / dz;
-  return { x: designWidth / 2 + (rx - camera.x) * s, y: camera.horizon - (point.y - camera.y) * s, s, z: dz };
+  return {
+    x: designWidth / 2 + (rx - camera.x) * s,
+    y: camera.horizon - (point.y - camera.y) * s,
+    s,
+    z: dz,
+  };
 }
 
 function polygon(points, fill, stroke = 'none', sw = 0, opacity = 1) {
@@ -88,12 +111,21 @@ function face(points3, fill, stroke, sw, opacity = 1) {
 }
 
 function cube({ x, y, z, w, h, d, color, stroke = '#020617', opacity = 1 }) {
-  const x0 = x - w / 2, x1 = x + w / 2;
-  const y0 = y, y1 = y + h;
-  const z0 = z - d / 2, z1 = z + d / 2;
+  const x0 = x - w / 2,
+    x1 = x + w / 2;
+  const y0 = y,
+    y1 = y + h;
+  const z0 = z - d / 2,
+    z1 = z + d / 2;
   const v = {
-    fbl: { x: x0, y: y0, z: z0 }, fbr: { x: x1, y: y0, z: z0 }, ftl: { x: x0, y: y1, z: z0 }, ftr: { x: x1, y: y1, z: z0 },
-    bbl: { x: x0, y: y0, z: z1 }, bbr: { x: x1, y: y0, z: z1 }, btl: { x: x0, y: y1, z: z1 }, btr: { x: x1, y: y1, z: z1 },
+    fbl: { x: x0, y: y0, z: z0 },
+    fbr: { x: x1, y: y0, z: z0 },
+    ftl: { x: x0, y: y1, z: z0 },
+    ftr: { x: x1, y: y1, z: z0 },
+    bbl: { x: x0, y: y0, z: z1 },
+    bbr: { x: x1, y: y0, z: z1 },
+    btl: { x: x0, y: y1, z: z1 },
+    btr: { x: x1, y: y1, z: z1 },
   };
   return [
     face([v.bbl, v.bbr, v.btr, v.btl], shade(color, -55), stroke, 2, opacity),
@@ -104,7 +136,18 @@ function cube({ x, y, z, w, h, d, color, stroke = '#020617', opacity = 1 }) {
   ];
 }
 
-function textLine({ x, y, text, size, fill = '#fff', weight = 900, anchor = 'middle', opacity = 1, stroke = '#020617', strokeWidth = 0 }) {
+function textLine({
+  x,
+  y,
+  text,
+  size,
+  fill = '#fff',
+  weight = 900,
+  anchor = 'middle',
+  opacity = 1,
+  stroke = '#020617',
+  strokeWidth = 0,
+}) {
   return `<text x="${x}" y="${y}" text-anchor="${anchor}" font-family="${fontFamily}" font-size="${size}" font-weight="${weight}" fill="${fill}" opacity="${opacity}" paint-order="stroke" stroke="${stroke}" stroke-width="${strokeWidth}" stroke-linejoin="round">${escapeXml(text)}</text>`;
 }
 
@@ -112,8 +155,12 @@ function rect({ x, y, w, h, rx = 24, fill = '#fff', stroke = 'none', sw = 0, opa
   return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}" opacity="${opacity}"/>`;
 }
 
-function activeBeat(time) { return beats.find((beat) => time >= beat.start && time < beat.end) ?? beats.at(-1); }
-function beatProgress(beat, time) { return clamp((time - beat.start) / (beat.end - beat.start)); }
+function activeBeat(time) {
+  return beats.find((beat) => time >= beat.start && time < beat.end) ?? beats.at(-1);
+}
+function beatProgress(beat, time) {
+  return clamp((time - beat.start) / (beat.end - beat.start));
+}
 
 function background(time) {
   const pulse = 0.5 + Math.sin(time * 2.1) * 0.5;
@@ -138,12 +185,48 @@ function road(time) {
     const z0 = 4 + i * 8 - offset;
     const z1 = z0 + 7.7;
     const fill = i % 2 === 0 ? '#0f172a' : '#111827';
-    faces.push(face([{ x: -4.2, y: 0, z: z0 }, { x: 4.2, y: 0, z: z0 }, { x: 4.2, y: 0, z: z1 }, { x: -4.2, y: 0, z: z1 }], fill, '#1e293b', 1));
+    faces.push(
+      face(
+        [
+          { x: -4.2, y: 0, z: z0 },
+          { x: 4.2, y: 0, z: z0 },
+          { x: 4.2, y: 0, z: z1 },
+          { x: -4.2, y: 0, z: z1 },
+        ],
+        fill,
+        '#1e293b',
+        1
+      )
+    );
     for (const laneX of [-1.4, 1.4]) {
-      faces.push(face([{ x: laneX - 0.035, y: 0.018, z: z0 + 1 }, { x: laneX + 0.035, y: 0.018, z: z0 + 1 }, { x: laneX + 0.035, y: 0.018, z: z1 - 1 }, { x: laneX - 0.035, y: 0.018, z: z1 - 1 }], '#38bdf8', 'none', 0, 0.75));
+      faces.push(
+        face(
+          [
+            { x: laneX - 0.035, y: 0.018, z: z0 + 1 },
+            { x: laneX + 0.035, y: 0.018, z: z0 + 1 },
+            { x: laneX + 0.035, y: 0.018, z: z1 - 1 },
+            { x: laneX - 0.035, y: 0.018, z: z1 - 1 },
+          ],
+          '#38bdf8',
+          'none',
+          0,
+          0.75
+        )
+      );
     }
     for (const sideX of [-4.55, 4.55]) {
-      faces.push(...cube({ x: sideX, y: 0, z: z0 + 3.8, w: 0.22, h: 0.16, d: 6.3, color: '#0ea5e9', opacity: 0.78 }));
+      faces.push(
+        ...cube({
+          x: sideX,
+          y: 0,
+          z: z0 + 3.8,
+          w: 0.22,
+          h: 0.16,
+          d: 6.3,
+          color: '#0ea5e9',
+          opacity: 0.78,
+        })
+      );
     }
   }
   return faces;
@@ -153,12 +236,24 @@ function city(time) {
   const faces = [];
   const speed = 10;
   for (let i = 0; i < 18; i++) {
-    const z = 12 + ((i * 9 - time * speed) % 120 + 120) % 120;
+    const z = 12 + ((((i * 9 - time * speed) % 120) + 120) % 120);
     const side = i % 2 === 0 ? -1 : 1;
     const x = side * (6.2 + (i % 4) * 1.4);
     const h = 1.5 + (i % 5) * 0.62;
     const color = ['#1e3a8a', '#312e81', '#164e63', '#581c87'][i % 4];
-    faces.push(...cube({ x, y: 0, z, w: 1.1 + (i % 3) * 0.4, h, d: 1.1, color, stroke: '#0f172a', opacity: 0.72 }));
+    faces.push(
+      ...cube({
+        x,
+        y: 0,
+        z,
+        w: 1.1 + (i % 3) * 0.4,
+        h,
+        d: 1.1,
+        color,
+        stroke: '#0f172a',
+        opacity: 0.72,
+      })
+    );
   }
   return faces;
 }
@@ -173,11 +268,25 @@ function artifactObjects(time) {
     const z = lerp(58, 5.5, eased);
     const bob = Math.sin((time - artifact.start) * 9) * 0.14;
     const size = artifact.label.length > 11 ? 1.45 : 1.3;
-    faces.push(...cube({ x: artifact.lane, y: 0.18 + bob, z, w: size, h: 0.76, d: 1.0, color: artifact.color, stroke: '#020617', opacity: clamp((1 - p) / 0.14) }));
+    faces.push(
+      ...cube({
+        x: artifact.lane,
+        y: 0.18 + bob,
+        z,
+        w: size,
+        h: 0.76,
+        d: 1.0,
+        color: artifact.color,
+        stroke: '#020617',
+        opacity: clamp((1 - p) / 0.14),
+      })
+    );
     const projected = project({ x: artifact.lane, y: 1.15 + bob, z: z - 0.55 });
     if (projected && projected.s > 15) {
       const opacity = clamp((1 - p) / 0.18);
-      labels.push(`<g opacity="${opacity}" filter="url(#shadow3d)">${rect({ x: projected.x - 132 * projected.s / 120, y: projected.y - 34 * projected.s / 120, w: 264 * projected.s / 120, h: 54 * projected.s / 120, rx: 16 * projected.s / 120, fill: '#020617', stroke: artifact.color, sw: 2 })}${textLine({ x: projected.x, y: projected.y + 7 * projected.s / 120, text: artifact.label, size: Math.max(18, 27 * projected.s / 120), fill: '#f8fafc', weight: 950, strokeWidth: 2 })}</g>`);
+      labels.push(
+        `<g opacity="${opacity}" filter="url(#shadow3d)">${rect({ x: projected.x - (132 * projected.s) / 120, y: projected.y - (34 * projected.s) / 120, w: (264 * projected.s) / 120, h: (54 * projected.s) / 120, rx: (16 * projected.s) / 120, fill: '#020617', stroke: artifact.color, sw: 2 })}${textLine({ x: projected.x, y: projected.y + (7 * projected.s) / 120, text: artifact.label, size: Math.max(18, (27 * projected.s) / 120), fill: '#f8fafc', weight: 950, strokeWidth: 2 })}</g>`
+      );
     }
   }
   return { faces, labels };
@@ -187,7 +296,17 @@ function blackBox(time) {
   if (time > 2.05) return { faces: [], overlay: '' };
   const boom = clamp((time - 0.82) / 0.55);
   const shake = Math.sin(time * 80) * (1 - boom) * 0.18;
-  const faces = cube({ x: shake, y: 0.55 + boom * 0.25, z: 15 - boom * 4, w: 2.4 + boom * 1.5, h: 1.75 + boom * 1.1, d: 1.7 + boom * 1.3, color: boom > 0 ? '#ef4444' : '#111827', stroke: boom > 0.4 ? '#fecaca' : '#64748b', opacity: 1 - clamp((time - 1.55) / 0.5) });
+  const faces = cube({
+    x: shake,
+    y: 0.55 + boom * 0.25,
+    z: 15 - boom * 4,
+    w: 2.4 + boom * 1.5,
+    h: 1.75 + boom * 1.1,
+    d: 1.7 + boom * 1.3,
+    color: boom > 0 ? '#ef4444' : '#111827',
+    stroke: boom > 0.4 ? '#fecaca' : '#64748b',
+    opacity: 1 - clamp((time - 1.55) / 0.5),
+  });
   const particles = Array.from({ length: 22 }, (_, i) => {
     const angle = (i / 22) * Math.PI * 2;
     const dist = boom * (70 + (i % 5) * 28);
@@ -195,7 +314,18 @@ function blackBox(time) {
     const y = 760 + Math.sin(angle) * dist;
     return `<circle cx="${x}" cy="${y}" r="${8 + (i % 4) * 4}" fill="${i % 2 ? '#facc15' : '#ef4444'}" opacity="${clamp(boom) * (1 - clamp((time - 1.48) / 0.52))}"/>`;
   }).join('');
-  const overlay = time < 1.38 ? textLine({ x: 540, y: 758, text: 'BLACK BOX', size: 56, fill: '#fecaca', weight: 950, strokeWidth: 8 }) : particles;
+  const overlay =
+    time < 1.38
+      ? textLine({
+          x: 540,
+          y: 758,
+          text: 'BLACK BOX',
+          size: 56,
+          fill: '#fecaca',
+          weight: 950,
+          strokeWidth: 8,
+        })
+      : particles;
   return { faces, overlay };
 }
 
@@ -209,7 +339,9 @@ function validateGate(time) {
   faces.push(...cube({ x: 2.7, y: 0, z, w: 0.36, h: 3.2, d: 0.55, color: '#ef4444', opacity }));
   faces.push(...cube({ x: 0, y: 2.75, z, w: 5.8, h: 0.36, d: 0.55, color: '#ef4444', opacity }));
   const label = project({ x: 0, y: 3.65, z: z - 0.3 });
-  const overlay = label ? `<g opacity="${opacity}" filter="url(#shadow3d)">${textLine({ x: label.x, y: label.y, text: 'REJECT JUNK', size: Math.max(28, label.s * 0.55), fill: '#fecaca', weight: 950, strokeWidth: 8 })}</g>` : '';
+  const overlay = label
+    ? `<g opacity="${opacity}" filter="url(#shadow3d)">${textLine({ x: label.x, y: label.y, text: 'REJECT JUNK', size: Math.max(28, label.s * 0.55), fill: '#fecaca', weight: 950, strokeWidth: 8 })}</g>`
+    : '';
   return { faces, overlay };
 }
 
@@ -219,26 +351,24 @@ function successPortal(time) {
   const z = lerp(42, 8.2, easeOutCubic(p));
   const opacity = clamp(p / 0.2) * clamp((31.0 - time) / 0.5);
   const faces = [];
-  faces.push(...cube({ x: 0, y: 0.12, z, w: 5.8, h: 3.6, d: 0.34, color: '#16a34a', stroke: '#bbf7d0', opacity: opacity * 0.62 }));
+  faces.push(
+    ...cube({
+      x: 0,
+      y: 0.12,
+      z,
+      w: 5.8,
+      h: 3.6,
+      d: 0.34,
+      color: '#16a34a',
+      stroke: '#bbf7d0',
+      opacity: opacity * 0.62,
+    })
+  );
   const center = project({ x: 0, y: 2.25, z: z - 0.28 });
-  const overlay = center ? `<g opacity="${opacity}" filter="url(#glowText)">${textLine({ x: center.x, y: center.y, text: 'PIPELINE PASSED', size: Math.max(34, center.s * 0.58), fill: '#bbf7d0', weight: 950, strokeWidth: 8 })}</g>` : '';
+  const overlay = center
+    ? `<g opacity="${opacity}" filter="url(#glowText)">${textLine({ x: center.x, y: center.y, text: 'PIPELINE PASSED', size: Math.max(34, center.s * 0.58), fill: '#bbf7d0', weight: 950, strokeWidth: 8 })}</g>`
+    : '';
   return { faces, overlay };
-}
-
-function runner(time) {
-  const lean = Math.sin(time * 5.2) * 5;
-  const bob = Math.sin(time * 13) * 12;
-  return `<g transform="translate(540 ${1510 + bob}) rotate(${lean})" filter="url(#shadow3d)">
-    <ellipse cx="0" cy="164" rx="92" ry="22" fill="#000" opacity="0.36"/>
-    <path d="M-125 122 C-58 84 58 84 125 122 L88 164 C24 186 -24 186 -88 164 Z" fill="#38bdf8" stroke="#cffafe" stroke-width="8"/>
-    <circle cx="0" cy="-74" r="50" fill="#f8fafc" stroke="#020617" stroke-width="8"/>
-    <rect x="-52" y="-22" width="104" height="138" rx="36" fill="#8b5cf6" stroke="#020617" stroke-width="8"/>
-    <path d="M-46 34 L-112 92" stroke="#f8fafc" stroke-width="22" stroke-linecap="round"/>
-    <path d="M46 34 L112 92" stroke="#f8fafc" stroke-width="22" stroke-linecap="round"/>
-    <path d="M-22 108 L-72 178" stroke="#f8fafc" stroke-width="25" stroke-linecap="round"/>
-    <path d="M22 108 L74 178" stroke="#f8fafc" stroke-width="25" stroke-linecap="round"/>
-    <text x="0" y="23" text-anchor="middle" font-family="${fontFamily}" font-size="36" font-weight="950" fill="#fff">CM</text>
-  </g>`;
 }
 
 function runner3dParts(time) {
@@ -433,7 +563,10 @@ function renderSvg(frame) {
   faces.push(...artifacts.faces);
   const runner3d = runner3dParts(time);
   faces.push(...runner3d.faces);
-  const sortedFaces = faces.sort((a, b) => b.depth - a.depth).map((item) => item.svg).join('');
+  const sortedFaces = faces
+    .sort((a, b) => b.depth - a.depth)
+    .map((item) => item.svg)
+    .join('');
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 1080 1920">
     ${background(time)}
     ${sortedFaces}
@@ -454,9 +587,19 @@ async function writePulseAudio(audioPath) {
   const samples = Math.floor(durationSeconds * sampleRate);
   const dataSize = samples * 2;
   const header = Buffer.alloc(44);
-  header.write('RIFF', 0); header.writeUInt32LE(36 + dataSize, 4); header.write('WAVE', 8); header.write('fmt ', 12);
-  header.writeUInt32LE(16, 16); header.writeUInt16LE(1, 20); header.writeUInt16LE(1, 22); header.writeUInt32LE(sampleRate, 24);
-  header.writeUInt32LE(sampleRate * 2, 28); header.writeUInt16LE(2, 32); header.writeUInt16LE(16, 34); header.write('data', 36); header.writeUInt32LE(dataSize, 40);
+  header.write('RIFF', 0);
+  header.writeUInt32LE(36 + dataSize, 4);
+  header.write('WAVE', 8);
+  header.write('fmt ', 12);
+  header.writeUInt32LE(16, 16);
+  header.writeUInt16LE(1, 20);
+  header.writeUInt16LE(1, 22);
+  header.writeUInt32LE(sampleRate, 24);
+  header.writeUInt32LE(sampleRate * 2, 28);
+  header.writeUInt16LE(2, 32);
+  header.writeUInt16LE(16, 34);
+  header.write('data', 36);
+  header.writeUInt32LE(dataSize, 40);
   const stream = createWriteStream(audioPath);
   stream.write(header);
   const chunkSamples = 4096;
@@ -470,7 +613,9 @@ async function writePulseAudio(audioPath) {
       const kick = Math.sin(2 * Math.PI * 76 * t) * 0.58 * env;
       const hat = Math.sin(2 * Math.PI * 1900 * t) * 0.052 * (beat < 0.035 ? 1 : 0);
       const rise = Math.sin(2 * Math.PI * (220 + t * 6) * t) * 0.035;
-      const hit = beats.some((b) => Math.abs(t - b.start) < 0.045) ? Math.sin(2 * Math.PI * 520 * t) * 0.18 : 0;
+      const hit = beats.some((b) => Math.abs(t - b.start) < 0.045)
+        ? Math.sin(2 * Math.PI * 520 * t) * 0.18
+        : 0;
       const value = clamp(kick + hat + rise + hit, -0.82, 0.82);
       buffer.writeInt16LE(Math.round(value * 32767), i * 2);
     }
@@ -484,23 +629,75 @@ async function render() {
   await mkdir(frameDir, { recursive: true });
   console.log(`Rendering ${totalFrames} 3D JS frames...`);
   for (let frame = 0; frame < totalFrames; frame++) {
-    await sharp(Buffer.from(renderSvg(frame))).png().toFile(join(frameDir, `frame-${String(frame + 1).padStart(4, '0')}.png`));
+    await sharp(Buffer.from(renderSvg(frame)))
+      .png()
+      .toFile(join(frameDir, `frame-${String(frame + 1).padStart(4, '0')}.png`));
     if ((frame + 1) % 90 === 0) console.log(`Rendered ${frame + 1}/${totalFrames}`);
   }
   const audioPath = join(rootDir, 'pulse-bed.wav');
   await writePulseAudio(audioPath);
   const videoPath = join(rootDir, 'content-machine-3d-runner.mp4');
-  await execFile('ffmpeg', ['-y', '-framerate', String(fps), '-i', join(frameDir, 'frame-%04d.png'), '-i', audioPath, '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-profile:v', 'high', '-level', '4.1', '-c:a', 'aac', '-b:a', '128k', '-movflags', '+faststart', '-shortest', videoPath]);
+  await execFile('ffmpeg', [
+    '-y',
+    '-framerate',
+    String(fps),
+    '-i',
+    join(frameDir, 'frame-%04d.png'),
+    '-i',
+    audioPath,
+    '-c:v',
+    'libx264',
+    '-pix_fmt',
+    'yuv420p',
+    '-profile:v',
+    'high',
+    '-level',
+    '4.1',
+    '-c:a',
+    'aac',
+    '-b:a',
+    '128k',
+    '-movflags',
+    '+faststart',
+    '-shortest',
+    videoPath,
+  ]);
   const sheetPath = join(rootDir, 'contact-sheet.jpg');
-  await execFile('ffmpeg', ['-y', '-i', videoPath, '-vf', "select='eq(n,18)+eq(n,72)+eq(n,135)+eq(n,210)+eq(n,300)+eq(n,430)',scale=270:480,tile=3x2", '-frames:v', '1', sheetPath]);
+  await execFile('ffmpeg', [
+    '-y',
+    '-i',
+    videoPath,
+    '-vf',
+    "select='eq(n,18)+eq(n,72)+eq(n,135)+eq(n,210)+eq(n,300)+eq(n,430)',scale=270:480,tile=3x2",
+    '-frames:v',
+    '1',
+    sheetPath,
+  ]);
   const htmlPath = join(rootDir, 'preview.html');
   const absVideo = resolve(videoPath);
   const absSheet = resolve(sheetPath);
-  await writeFile(htmlPath, `<!doctype html><meta charset="utf-8"><title>Content Machine 3D Runner</title><body style="margin:0;background:#020617;color:white;font-family:system-ui;display:grid;place-items:center;min-height:100vh"><main style="display:flex;gap:24px;align-items:center"><video src="file://${absVideo}" controls autoplay loop style="height:94vh;max-width:54vw;border-radius:22px;box-shadow:0 24px 90px #000"></video><section style="max-width:430px"><h1>Content Machine 3D Runner</h1><p>3D JavaScript-style pipeline chase: files become track objects, validate gate rejects junk, final CTA lands fast.</p><p><a style="color:#67e8f9" href="file://${absVideo}">Open MP4 directly</a></p><img src="file://${absSheet}" style="width:100%;border-radius:16px"></section></main></body>`);
+  await writeFile(
+    htmlPath,
+    `<!doctype html><meta charset="utf-8"><title>Content Machine 3D Runner</title><body style="margin:0;background:#020617;color:white;font-family:system-ui;display:grid;place-items:center;min-height:100vh"><main style="display:flex;gap:24px;align-items:center"><video src="file://${absVideo}" controls autoplay loop style="height:94vh;max-width:54vw;border-radius:22px;box-shadow:0 24px 90px #000"></video><section style="max-width:430px"><h1>Content Machine 3D Runner</h1><p>3D JavaScript-style pipeline chase: files become track objects, validate gate rejects junk, final CTA lands fast.</p><p><a style="color:#67e8f9" href="file://${absVideo}">Open MP4 directly</a></p><img src="file://${absSheet}" style="width:100%;border-radius:16px"></section></main></body>`
+  );
   const videoStat = await stat(videoPath);
-  const manifest = { title: 'Content Machine 3D Runner', videoPath, contactSheetPath: sheetPath, htmlPath, durationSeconds, fps, width, height, fileSizeBytes: videoStat.size, note: 'Deterministic JavaScript software-3D endless-runner showcase. No external assets or API keys.' };
+  const manifest = {
+    title: 'Content Machine 3D Runner',
+    videoPath,
+    contactSheetPath: sheetPath,
+    htmlPath,
+    durationSeconds,
+    fps,
+    width,
+    height,
+    fileSizeBytes: videoStat.size,
+    note: 'Deterministic JavaScript software-3D endless-runner showcase. No external assets or API keys.',
+  };
   await writeFile(join(rootDir, 'manifest.json'), JSON.stringify(manifest, null, 2));
   console.log(JSON.stringify(manifest, null, 2));
 }
 
-render().catch((error) => { console.error(error); process.exit(1); });
+render().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

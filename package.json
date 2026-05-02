@@ -60,6 +60,7 @@
     "build:lib": "esbuild src/index.ts --bundle --platform=node --format=esm --packages=external --log-override:empty-import-meta=silent --sourcemap --outfile=dist/index.js",
     "build:lib:cjs": "esbuild src/index.ts --bundle --platform=node --format=cjs --packages=external --log-override:empty-import-meta=silent --sourcemap --outfile=dist/index.cjs",
     "build:types": "tsc -p tsconfig.build.json --emitDeclarationOnly",
+    "prepack": "npm run build",
     "dev": "tsx watch src/cli/index.ts",
     "cm": "tsx src/cli/index.ts",
     "harness:doctor-report": "node --import tsx scripts/harness/doctor-report.ts",

@@ -64,4 +64,19 @@ Installed-package users should prefer
 `node ./node_modules/@45ck/content-machine/agent/run-tool.mjs <tool>`.
 Use `node ./node_modules/@45ck/content-machine/agent/run-tool.mjs list`
 to inspect packaged tool names.
+
+When using a materialized pack in another project, pass the installed
+directories explicitly:
+
+```bash
+cat <<'JSON' | node ./node_modules/@45ck/content-machine/agent/run-tool.mjs run-flow
+{
+  "flowsDir": ".content-machine/flows",
+  "flow": "generate-short",
+  "runId": "demo-run",
+  "input": { "topic": "Example short" }
+}
+JSON
+```
+
 See `skills/*/SKILL.md` for skill guides and `flows/*` for flow guides.

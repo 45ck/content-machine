@@ -6,7 +6,52 @@
   - Install via [nvm](https://github.com/nvm-sh/nvm) (recommended) or [nodejs.org](https://nodejs.org/)
 - **API keys** — you'll need at least an OpenAI key and a stock footage key to generate real videos (see [API Keys](#api-keys) below)
 
-## Install The Repo Surfaces
+## Install Into An Agent Project
+
+Use this path when you want Claude Code, Codex CLI, Cursor, or another
+repo-aware agent to use Content Machine from your own project.
+
+```bash
+npm install @45ck/content-machine
+
+cat <<'JSON' | node ./node_modules/@45ck/content-machine/agent/run-tool.mjs install-skill-pack
+{
+  "targetDir": ".content-machine",
+  "includeFlows": true,
+  "includeExamples": true,
+  "overwrite": false
+}
+JSON
+```
+
+This creates a materialized pack:
+
+- `.content-machine/README.md` — how humans and agents should use the pack
+- `.content-machine/AGENTS.md` — agent operating rules to read or copy
+  into root project instructions
+- `.content-machine/skills/` — all shipped `SKILL.md` files
+- `.content-machine/flows/` — runnable flow manifests when
+  `includeFlows` is true
+
+Tell the agent to read `.content-machine/README.md`,
+`.content-machine/AGENTS.md`, and `.content-machine/skills/` before
+making videos. Full copy-paste prompt:
+[Agent Harness Install](AGENT-HARNESS-INSTALL.md).
+
+Install options:
+
+| Option            | Default                 | Use                                                                |
+| ----------------- | ----------------------- | ------------------------------------------------------------------ |
+| `targetDir`       | `.content-machine`      | Where to materialize skills, flows, README, and agent instructions |
+| `packageName`     | `@45ck/content-machine` | Package or fork name used in generated runner commands             |
+| `includeFlows`    | `true`                  | Copy `.flow` manifests for multi-step runs                         |
+| `includeExamples` | `true`                  | Keep skill `examples/request.json` files                           |
+| `overwrite`       | `false`                 | Refresh an existing materialized pack intentionally                |
+
+## Install From A Repo Checkout
+
+Use this path when contributing to Content Machine itself or running the
+source checkout directly.
 
 ```bash
 git clone https://github.com/45ck/content-machine.git
@@ -22,27 +67,11 @@ cat <<'JSON' | node --import tsx scripts/harness/skill-catalog.ts
 JSON
 ```
 
-Or use the friendlier npm alias:
+Or use the npm alias:
 
 ```bash
 printf '{}\n' | npm run agent:skill-catalog
 ```
-
-The published npm package also ships a portable runner so another repo
-can install the skills and flows locally:
-
-```bash
-npm install @45ck/content-machine
-
-cat <<'JSON' | node ./node_modules/@45ck/content-machine/agent/run-tool.mjs install-skill-pack
-{
-  "targetDir": ".content-machine",
-  "includeFlows": true
-}
-JSON
-```
-
-The canonical path is still working from the repo checkout.
 
 If you only need the thin compatibility shell, you can also run:
 

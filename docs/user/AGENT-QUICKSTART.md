@@ -6,6 +6,33 @@ Use it when you are working from Claude Code, Codex CLI, or a similar
 coding-agent CLI that can read repo-local docs and optionally invoke the
 repo's runners.
 
+## Install Mode
+
+- Existing project: use
+  [Agent Harness Install](AGENT-HARNESS-INSTALL.md) to materialize
+  `.content-machine/skills/`, `.content-machine/flows/`, and
+  `.content-machine/AGENTS.md`.
+- Content Machine checkout: use the repo-local `skills/`, `flows/`, and
+  `scripts/harness/` paths in this guide.
+
+## Talk To Your Agent First
+
+After install, you normally do not need to memorize commands. Ask your
+agent for the outcome and let it read the local `skills/`, `flows/`, and
+runtime docs.
+
+Try:
+
+> Use Content Machine to make a 35-second TikTok-style explainer about
+> Redis vs PostgreSQL for caching. Pick the best lane, run the default
+> `generate-short` flow, and only call it ready if publish-prep passes.
+
+If you already know the format:
+
+> Use the `reddit-post-over-gameplay` lane to turn this story into a
+> vertical short. Keep gameplay full-screen, show a Reddit opener card
+> for 3-5 seconds, add bold captions, and run the review gate.
+
 ## The three surfaces
 
 - `skills/` defines when to use something, what input it needs, and
@@ -82,6 +109,10 @@ and a placeholder MP4. It is not a publishable demo.
 `generate-short` is the default topic-to-video path. Use this after
 provider credentials are configured, for example `OPENAI_API_KEY` plus a
 visual provider key such as `PEXELS_API_KEY` when using Pexels visuals:
+
+Use the command form when scripting automation. Inside Claude Code,
+Codex CLI, Cursor, or another agent harness, the normal interaction is
+to ask for the outcome and let the agent choose the skill or flow.
 
 ```bash
 cat <<'JSON' | node --import tsx scripts/harness/run-flow.ts
@@ -162,13 +193,17 @@ npm install @45ck/content-machine
 cat <<'JSON' | node ./node_modules/@45ck/content-machine/agent/run-tool.mjs install-skill-pack
 {
   "targetDir": ".content-machine",
-  "includeFlows": true
+  "includeFlows": true,
+  "includeExamples": true
 }
 JSON
 ```
 
 That creates `.content-machine/skills/` and `.content-machine/flows/`
 with `SKILL.md` files already pointed at the installed package runner.
+It also writes `.content-machine/README.md` and
+`.content-machine/AGENTS.md`, which tell the harness how to discover
+skills, pass `flowsDir`, run diagnostics, and validate outputs.
 
 ## Step 8: Read the guide next to the surface
 

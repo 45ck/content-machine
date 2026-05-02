@@ -22,6 +22,12 @@
 - Secrets: `false`
 - Purpose: Project configuration (non-secret defaults).
 
+## installed-skill-pack
+
+- Path: `./.content-machine/`
+- Secrets: `false`
+- Purpose: Materialized Content Machine skills, flows, README, and agent instructions installed into another project.
+
 ## project-data
 
 - Path: `./.cm/`

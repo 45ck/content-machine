@@ -50,6 +50,11 @@ If those answers are missing, the skill is not ready to ship.
 Use a skill directly when you want one capability. Use a flow when you
 want multiple skills composed under one run directory.
 
+To install these skills into another project, use
+[`docs/user/AGENT-HARNESS-INSTALL.md`](../docs/user/AGENT-HARNESS-INSTALL.md).
+The install tool materializes `.content-machine/skills/` and rewrites
+runtime entrypoints to the packaged `agent/run-tool.mjs` runner.
+
 ## Authoring rules
 
 - Keep descriptions concrete enough that an agent can select the skill

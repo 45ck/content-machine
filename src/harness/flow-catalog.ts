@@ -1,5 +1,6 @@
+import { existsSync } from 'node:fs';
 import { readdir } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { z } from 'zod';
 import { artifactDirectory, type HarnessToolResult } from './json-stdio';
 import { loadFlowManifest } from './flow-manifest';
@@ -11,6 +12,15 @@ export const FlowCatalogRequestSchema = z
   .strict();
 
 export type FlowCatalogRequest = z.input<typeof FlowCatalogRequestSchema>;
+
+function resolveOperatorNotesPath(manifestPath: string, operatorNotes: string): string {
+  if (isAbsolute(operatorNotes)) return operatorNotes;
+
+  const relativeToManifest = resolve(dirname(manifestPath), operatorNotes);
+  if (existsSync(relativeToManifest)) return relativeToManifest;
+
+  return resolve(operatorNotes);
+}
 
 /** Enumerate executable flow manifests for harness-side discovery. */
 export async function listFlowCatalog(request: FlowCatalogRequest): Promise<
@@ -45,7 +55,9 @@ export async function listFlowCatalog(request: FlowCatalogRequest): Promise<
           description: manifest.description,
           entrySkill: manifest.entrySkill,
           manifestPath,
-          operatorNotesPath: manifest.operatorNotes ? resolve(manifest.operatorNotes) : null,
+          operatorNotesPath: manifest.operatorNotes
+            ? resolveOperatorNotesPath(manifestPath, manifest.operatorNotes)
+            : null,
           defaultOutputDir: manifest.defaultOutputDir ?? null,
           inputs: manifest.inputs,
           outputs: manifest.outputs,
