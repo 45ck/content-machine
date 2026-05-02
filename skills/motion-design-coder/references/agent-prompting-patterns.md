@@ -91,8 +91,23 @@ When installing this skill into a fresh project, include:
 - source media strategy
 - whether animation is Remotion-native, standalone SVG, or HTML/CSS asset
 - existing examples to imitate
+- external source handoff:
+  source URL, usage mode, license status, attribution, fallback, and
+  downstream skill
 - hard rejects: jitter, layout shifts, CSS clocks in Remotion, gutters,
   unreadable text, missing audio, missing captions
+
+## Source-Inspired Prompt Add-On
+
+Use this when adapting animation libraries or creative-coding sites:
+
+```text
+Use the source as inspiration only unless its license is verified.
+Translate the pattern into original frame-driven Remotion/SVG/Canvas
+motion. Do not copy paid examples, premium template code, or assets.
+Record source URL, usage mode, license status, attribution needs, and
+fallback if rights are unclear.
+```
 
 ## Review Language
 

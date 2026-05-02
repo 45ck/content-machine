@@ -86,7 +86,7 @@ new skills.
 - Constraints and non-goals
 - Validation checklist
 
-## Shipped Starter Skills
+## Shipped Skills
 
 ### Archetype And Production Planning
 
@@ -95,7 +95,8 @@ new skills.
   guidance for making strong shorts
 - [`short-form-archetype-research/`](short-form-archetype-research/SKILL.md)
   — curated vendor/repo research pack for choosing archetypes and
-  translating patterns into skills, recipes, examples, and quality gates
+  translating patterns into skills, workflows, examples, and quality
+  gates
 - [`faceless-mixed-short/`](faceless-mixed-short/SKILL.md) — mixed
   stock/local/gameplay/AI-generated faceless short construction
 - [`stock-footage-edutainment-short/`](stock-footage-edutainment-short/SKILL.md)
@@ -117,6 +118,13 @@ new skills.
 - [`gameplay-confession-short/`](gameplay-confession-short/SKILL.md) —
   confession/storytime shorts with motion or receipts on top and Subway
   Surfers-style gameplay below
+
+### Creative Sourcing
+
+- [`creative-source-scout/`](creative-source-scout/SKILL.md) —
+  brainstorm, shortlist, and verify external creative sites for
+  animation, UI components, 3D assets, stock media, audio, AI generation,
+  and inspiration
 
 ### Longform And Source Media
 
@@ -150,6 +158,12 @@ new skills.
   spokesperson short construction
 - [`saas-problem-solution-short/`](saas-problem-solution-short/SKILL.md)
   — creator-adjacent SaaS or product promo lane with proof/demo beats
+
+### Additive Visual Treatments
+
+- [`procedural-gameplay-backgrounds/`](procedural-gameplay-backgrounds/SKILL.md)
+  — caption-clean 3D or procedural gameplay-like backgrounds that add
+  retention motion without replacing the chosen lane
 
 ### Review, Regeneration, And Asset Control
 
@@ -207,14 +221,17 @@ new skills.
 - [`executive-producer-sendback/`](executive-producer-sendback/SKILL.md)
   — run multi-stage production as a stateful pass/revise/send-back loop
 
+### Caption And Support Skills
+
+- [`short-form-captions/`](short-form-captions/SKILL.md) — caption
+  design, pacing, highlighting, and implementation patterns
+
 ### Runtime-Backed Utility Skills
 
 - [`doctor-report/`](doctor-report/SKILL.md) — structured environment
   and dependency diagnostics
 - [`skill-catalog/`](skill-catalog/SKILL.md) — enumerate shipped skills,
   entrypoints, and example requests
-- [`short-form-captions/`](short-form-captions/SKILL.md) — caption
-  design, pacing, highlighting, and implementation patterns
 - [`generate-short/`](generate-short/SKILL.md) — topic to full video
   run under one output directory
 - [`asset-ledger/`](asset-ledger/SKILL.md) — build or update
@@ -236,6 +253,7 @@ new skills.
 
 - [DIRECTION.md](../DIRECTION.md)
 - [docs/user/ARCHETYPES.md](../docs/user/ARCHETYPES.md)
+- [docs/user/CREATIVE-SOURCES.md](../docs/user/CREATIVE-SOURCES.md)
 - [docs/user/QUALITY-AND-REVIEW.md](../docs/user/QUALITY-AND-REVIEW.md)
 - [docs/direction/07-short-form-roadmap-20260424.md](../docs/direction/07-short-form-roadmap-20260424.md)
 - [docs/direction/04-skill-catalog.md](../docs/direction/04-skill-catalog.md)

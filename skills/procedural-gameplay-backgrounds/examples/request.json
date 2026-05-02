@@ -1,0 +1,15 @@
+{
+  "style": "low-poly-3d-runner",
+  "duration": 18,
+  "fps": 30,
+  "resolution": {
+    "width": 1080,
+    "height": 1920
+  },
+  "layout": "full-screen-background",
+  "outputDir": "runs/procedural-gameplay-background-demo",
+  "sourcePolicy": "code-native-original",
+  "captionSafeZone": true,
+  "loopable": false,
+  "notes": "Generate or select a caption-clean procedural gameplay background, then attach it as visuals.gameplayClip.path or use it in a trusted code template."
+}

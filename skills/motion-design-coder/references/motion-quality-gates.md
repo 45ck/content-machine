@@ -9,6 +9,8 @@ Use these gates before approving animation-heavy output.
 - Beat frames are named.
 - Caption and platform safe zones are named.
 - Moving elements have clear purpose.
+- Any external inspiration has a source URL, usage mode, license status,
+  and fallback plan.
 
 ## Code Gates
 
@@ -20,6 +22,17 @@ Use these gates before approving animation-heavy output.
 - SVG has a stable `viewBox`.
 - HTML/CSS animation prefers transform and opacity.
 - Heavy render effects are documented.
+
+## Source Gates
+
+- Component-library and creative-coding sources are treated as
+  inspiration unless reuse rights are verified.
+- Copied code, fonts, icons, images, models, textures, or audio have
+  asset-ledger/source-note records.
+- Premium examples, paid templates, watermarked previews, and unclear
+  marketplace assets are not included.
+- Procedural or generative visuals use deterministic seed/frame inputs
+  and have particle/node/performance budgets.
 
 ## Frame Review Gates
 

@@ -53,13 +53,19 @@ short.
    [remotion-patterns.md](references/remotion-patterns.md).
 5. For SVG, HTML, and CSS, use transform/opacity-first patterns. Read
    [svg-html-css-patterns.md](references/svg-html-css-patterns.md).
-6. When prompting Claude Code, Codex CLI, or another coding agent, use
+6. If external inspiration or component sources are needed, use
+   [`creative-source-scout`](../creative-source-scout/SKILL.md) first
+   and rebuild original, deterministic motion rather than copying
+   unclear assets.
+   For concrete motifs, read
+   [source-inspired-patterns.md](references/source-inspired-patterns.md).
+7. When prompting Claude Code, Codex CLI, or another coding agent, use
    [agent-prompting-patterns.md](references/agent-prompting-patterns.md)
    so the agent produces a motion brief, code constraints, and review
    frames instead of generic animation styling.
-7. Before approval, apply
+8. Before approval, apply
    [motion-quality-gates.md](references/motion-quality-gates.md).
-8. If rendering a full short, hand off to
+9. If rendering a full short, hand off to
    [`video-render`](../video-render/SKILL.md) and preserve the motion
    plan for publish review.
 
