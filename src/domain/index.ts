@@ -31,6 +31,8 @@ export * from '../visuals/quality';
 export * from '../highlights/schema';
 /** Local media/style library schemas + types. */
 export * from '../library/schema';
+/** Asset provenance schema + types. */
+export * from '../provenance/schema';
 /** Media synthesis artifact schema + types. */
 export * from '../media/schema';
 /** Hook asset schema + types. */

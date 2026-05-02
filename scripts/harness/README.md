@@ -41,6 +41,7 @@ Current entrypoints:
 - `run-flow.ts`
 - `skill-catalog.ts`
 - `generate-short.ts`
+- `asset-ledger.ts`
 - `brief-to-script.ts`
 - `ingest.ts`
 - `longform-highlight-select.ts`

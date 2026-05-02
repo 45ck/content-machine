@@ -1,0 +1,22 @@
+{
+  "outputPath": "output/content-machine/provenance/asset-ledger.json",
+  "artifacts": {
+    "scriptPath": "output/content-machine/script/script.json",
+    "audioPath": "output/content-machine/audio/audio.wav",
+    "visualsPath": "output/content-machine/visuals/visuals.json",
+    "renderPath": "output/content-machine/render/video.mp4"
+  },
+  "assets": [
+    {
+      "assetId": "external:music-bed",
+      "assetType": "music",
+      "kind": "music-bed",
+      "usageMode": "downloaded-asset",
+      "sourceUrl": "https://example.com/music-bed",
+      "licenseName": "needs-review",
+      "reviewStatus": "needs-review",
+      "contentIdRisk": "unknown",
+      "summary": "Replace this example entry with the real source and license evidence."
+    }
+  ]
+}

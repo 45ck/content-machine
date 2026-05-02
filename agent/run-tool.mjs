@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import {
+  AssetLedgerRequestSchema,
   BriefToScriptRequestSchema,
   CaptionExportRequestSchema,
   DoctorReportRequestSchema,
@@ -14,6 +15,7 @@ import {
   SkillCatalogRequestSchema,
   TimestampsToVisualsRequestSchema,
   VideoRenderRequestSchema,
+  runAssetLedger,
   installSkillPack,
   runRedditStoryAssets,
   listFlowCatalog,
@@ -34,6 +36,11 @@ import {
 const toolName = process.argv[2];
 
 const registry = {
+  'asset-ledger': {
+    tool: 'content-machine/asset-ledger',
+    inputSchema: AssetLedgerRequestSchema,
+    handler: async ({ input }) => runAssetLedger(input),
+  },
   'brief-to-script': {
     tool: 'content-machine/brief-to-script',
     inputSchema: BriefToScriptRequestSchema,

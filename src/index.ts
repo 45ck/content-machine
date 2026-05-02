@@ -74,16 +74,24 @@ export {
   snapHighlightBoundaries,
 } from './highlights';
 export {
+  AssetLedgerEntrySchema,
+  AssetLedgerInputSchema,
+  AssetLedgerSchema,
+  ASSET_LEDGER_SCHEMA_VERSION,
   MediaIndexSchema,
   MediaIndexItemSchema,
   StyleProfileLibrarySchema,
   StyleProfileSchema,
+  type AssetLedger,
+  type AssetLedgerEntry,
+  type AssetLedgerInput,
   type MediaIndex,
   type MediaIndexItem,
   type StyleProfile,
   type StyleProfileLibrary,
 } from './domain';
 export { buildMediaIndex, upsertStyleProfile } from './library';
+export { buildGenerateShortAssetLedger } from './provenance';
 
 // Render pipeline
 export type { RenderProps, RenderOutput } from './domain';
@@ -169,6 +177,7 @@ export {
   type HarnessToolContext,
   type HarnessToolResult,
 } from './harness/json-stdio';
+export { AssetLedgerRequestSchema, runAssetLedger } from './harness/asset-ledger';
 export { BriefToScriptRequestSchema, generateBriefToScript } from './harness/brief-to-script';
 export { DoctorReportRequestSchema, runDoctorReport } from './harness/doctor-report';
 export { FlowCatalogRequestSchema, listFlowCatalog } from './harness/flow-catalog';

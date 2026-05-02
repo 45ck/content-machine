@@ -33,6 +33,7 @@ node --import tsx scripts/harness/flow-catalog.ts
 node --import tsx scripts/harness/run-flow.ts
 node --import tsx scripts/harness/skill-catalog.ts
 node --import tsx scripts/harness/generate-short.ts
+node --import tsx scripts/harness/asset-ledger.ts
 node --import tsx scripts/harness/brief-to-script.ts
 node --import tsx scripts/harness/ingest.ts
 node --import tsx scripts/harness/longform-highlight-select.ts

@@ -217,6 +217,8 @@ new skills.
   design, pacing, highlighting, and implementation patterns
 - [`generate-short/`](generate-short/SKILL.md) — topic to full video
   run under one output directory
+- [`asset-ledger/`](asset-ledger/SKILL.md) — build or update
+  `asset-ledger.json` for publish-prep provenance review
 - [`brief-to-script/`](brief-to-script/SKILL.md) — topic or blueprint to
   `script.json`
 - [`reverse-engineer-winner/`](reverse-engineer-winner/SKILL.md) —
