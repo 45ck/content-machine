@@ -56,7 +56,7 @@ The JSON-stdio form remains available for agents that prefer structured
 stdin:
 
 ```bash
-cat <<'JSON' | npx cm-agent install-skill-pack
+cat <<'JSON' | npx --no-install cm-agent install-skill-pack
 {
   "targetDir": ".content-machine",
   "includeFlows": true,
