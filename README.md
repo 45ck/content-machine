@@ -171,15 +171,20 @@ Use this when you want Claude Code, Codex CLI, Cursor, or another
 repo-aware coding agent to use Content Machine inside your own project:
 
 ```bash
-npm install @45ck/content-machine
+npm install --save-dev @45ck/content-machine
 
 npx cm-install --target .content-machine
+npx --no-install cm-agent list
 ```
 
 Then tell the agent to read `.content-machine/README.md`,
 `.content-machine/AGENTS.md`, and `.content-machine/skills/`. See
 [Agent Harness Install](docs/user/AGENT-HARNESS-INSTALL.md) for the
 copy-paste prompt.
+
+Installed-pack commands use `npx --no-install cm-agent <tool>`. The
+repo-local `node --import tsx scripts/harness/*.ts` commands below are
+for contributors working inside this checkout.
 
 ### Work From This Repo
 
@@ -238,7 +243,7 @@ If you want these skills inside another project, install the package
 there and materialize a local pack:
 
 ```bash
-npm install @45ck/content-machine
+npm install --save-dev @45ck/content-machine
 
 npx cm-install --target .content-machine
 ```
@@ -352,23 +357,24 @@ The primary user guide is now
 archived CLI notes live under
 [archive/legacy-cli/](archive/legacy-cli/README.md).
 
-## How The Repo Is Shaped
+## Visitor Map
 
-```text
-skills/            agent-readable capability docs and examples
-flows/             executable prompt-language workflow manifests
-scripts/harness/   JSON-stdio runtime entrypoints for repo checkouts
-agent/             installed-package runner for materialized skill packs
-src/harness/       reusable logic behind the JSON-stdio entrypoints
-src/               TypeScript media, render, scoring, validation, and providers
-assets/            archetypes, fonts, templates, and lightweight README assets
-fixtures/          small runnable examples and test fixtures
-evals/             promptfoo and scoring eval configs
-experiments/       tracked proving reports; generated outputs stay ignored
-registry/          source YAML for generated glossary and repo facts
-docs/              user, developer, direction, research, and reference docs
-archive/           frozen legacy surfaces and old demos
-```
+| Path                | Role                                                         |
+| ------------------- | ------------------------------------------------------------ |
+| `skills/`           | Agent-readable capability docs and examples                  |
+| `flows/`            | Executable prompt-language workflow manifests                |
+| `scripts/harness/`  | JSON-stdio runtime entrypoints for repo checkouts            |
+| `agent/`            | Installed-package runner and `cm-install` bin                |
+| `docs/user/`        | Human-facing install, quickstart, gallery, and examples      |
+| `docs/demo/`        | Generated demo manifest, provenance, previews, and caveats   |
+| `src/harness/`      | Reusable logic behind JSON-stdio entrypoints                 |
+| `src/`              | TypeScript media, render, scoring, validation, and providers |
+| `assets/`           | Archetypes, fonts, templates, and lightweight README assets  |
+| `fixtures/`         | Small runnable examples and test fixtures                    |
+| `experiments/`      | Tracked proving reports; generated outputs stay ignored      |
+| `evals/` / `bench/` | Promptfoo configs, scoring evals, and benchmark material     |
+| `registry/`         | Source YAML for generated glossary and repo facts            |
+| `archive/`          | Frozen legacy surfaces and old demos                         |
 
 Run-scoped flows write under `runs/<run-id>/` by default. Direct skills
 can also write to explicit output paths.

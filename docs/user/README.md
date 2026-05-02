@@ -10,11 +10,11 @@ surfaces. The old CLI-first guides now live under
 
 ## Primary Path: Claude Code / Codex CLI
 
-1. [Installation](INSTALLATION.md) — local setup, optional dependencies,
-   and install checks
-2. [Agent Harness Install](AGENT-HARNESS-INSTALL.md) — copy-paste
+1. [Agent Harness Install](AGENT-HARNESS-INSTALL.md) — copy-paste
    install prompt and materialized `.content-machine/` usage for Codex
    CLI, Claude Code, Cursor, and similar harnesses
+2. [Installation](INSTALLATION.md) — package setup, optional
+   dependencies, and install checks
 3. [Agent Quickstart](AGENT-QUICKSTART.md) — primary path for skills,
    flows, and optional repo-side runners
 4. [Archetypes](ARCHETYPES.md) — choose the lane before scripting,

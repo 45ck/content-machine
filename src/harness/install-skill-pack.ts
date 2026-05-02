@@ -166,10 +166,13 @@ async function writePackReadme(params: {
   targetDir: string;
   packageName: string;
   includeFlows: boolean;
+  includeExamples: boolean;
 }) {
   const readmePath = join(params.targetDir, 'README.md');
   const targetPrefix = relativeTargetPrefix(params.targetDir);
-  const runner = `node ./node_modules/${params.packageName}/agent/run-tool.mjs`;
+  const runner = 'npx --no-install cm-agent';
+  const explicitRunner = `node ./node_modules/${params.packageName}/agent/run-tool.mjs`;
+  const skillOrFlow = params.includeFlows ? 'skill or flow' : 'skill';
   const text = `# Content Machine Skill Pack
 
 This directory is a portable copy of the Content Machine skill pack for
@@ -180,7 +183,7 @@ repo-aware agents.
 
 > Use Content Machine from \`${targetPrefix}\`. Read
 > \`${targetPrefix}/skills/README.md\` first, choose the right skill or
-> flow, run tools through \`${runner}\`, write artifacts under
+> ${params.includeFlows ? 'flow' : 'direct runtime tool'}, run tools through \`${runner}\`, write artifacts under
 > \`runs/<run-id>/\`, and only call a video ready when publish-prep
 > passes.
 
@@ -188,15 +191,43 @@ If your harness only auto-loads root instructions, copy the relevant
 rules from \`${targetPrefix}/AGENTS.md\` into the project root
 \`AGENTS.md\`, \`CLAUDE.md\`, or equivalent harness instruction file.
 
+## Copy-Paste Prompts
+
+Topic to short:
+
+> Use Content Machine from \`${targetPrefix}\` to make a 35-second
+> vertical explainer about Redis versus PostgreSQL for caching. Pick the
+> lane, run the default generation path, write artifacts under
+> \`runs/redis-cache-short/\`, and only call it ready if publish-prep
+> passes.
+
+Known lane:
+
+> Use the \`reddit-post-over-gameplay\` lane for this story. Keep
+> gameplay full-screen, show the Reddit opener card for 3-5 seconds, use
+> bold captions, and report the final MP4 plus publish-prep artifacts.
+
+Longform clipping:
+
+> Turn this longform video into three candidate shorts. Analyze the
+> source first, select moments, snap boundaries, ask before rendering,
+> then render only the approved candidate and run publish-prep.
+
 ## What Was Installed
 
 - Skills live under \`${targetPrefix}/skills/\`
-${params.includeFlows ? `- Flows live under \`${targetPrefix}/flows/\`\n` : ''}- The packaged runner lives at \`${runner}\`
+${params.includeFlows ? `- Flows live under \`${targetPrefix}/flows/\`\n` : ''}- Runtime commands use \`${runner} <tool>\`
+- Fallback runner path: \`${explicitRunner} <tool>\`
 
 ## Run From Project Root
 
+Node.js 20.6+ is required. The npm package should already be installed
+because \`cm-install\` created this pack. When refreshing, upgrade the
+package first:
+
 \`\`\`bash
-npm install ${params.packageName}
+npm install --save-dev ${params.packageName}@latest
+npx cm-install --target ${targetPrefix} --overwrite
 \`\`\`
 
 List available runtime tools:
@@ -205,11 +236,10 @@ List available runtime tools:
 ${runner} list
 \`\`\`
 
-The same command is also available through the local npm bin after
-install:
+If npm bins are unavailable, use the explicit package path:
 
 \`\`\`bash
-npx cm-agent list
+${explicitRunner} list
 \`\`\`
 
 List installed skills:
@@ -218,21 +248,39 @@ List installed skills:
 cat <<'JSON' | ${runner} skill-catalog
 {
   "skillsDir": "${targetPrefix}/skills",
-  "includeExamples": true
+  "includeExamples": ${params.includeExamples}
 }
 JSON
 \`\`\`
 
-Run a direct skill example:
+${
+  params.includeExamples
+    ? `Run a direct skill example:
 
 \`\`\`bash
 cat ${targetPrefix}/skills/generate-short/examples/request.json | \\
   ${runner} generate-short
 \`\`\`
 
-${
-  params.includeFlows
-    ? `Run an installed flow:
+`
+    : ''
+}${
+    params.includeFlows
+      ? `List installed flows:
+
+\`\`\`bash
+cat <<'JSON' | ${runner} flow-catalog
+{
+  "flowsDir": "${targetPrefix}/flows"
+}
+JSON
+\`\`\`
+
+`
+      : ''
+  }${
+    params.includeFlows
+      ? `Run an installed flow:
 
 \`\`\`bash
 cat <<'JSON' | ${runner} run-flow
@@ -249,17 +297,41 @@ JSON
 \`\`\`
 
 `
-    : ''
-}## Operating Rules
+      : ''
+  }Run diagnostics before real generation:
+
+\`\`\`bash
+cat <<'JSON' | ${runner} doctor-report
+{
+  "strict": false
+}
+JSON
+\`\`\`
+
+## Source-Repo Paths In Copied Docs
+
+Some copied ${params.includeFlows ? 'skill or flow docs' : 'skill docs'} may still mention source-checkout paths
+such as \`scripts/harness/\` for contributor context. In an installed
+pack, treat those as reference-only and use \`${runner}\` for execution.
+
+## Update Or Remove
+
+- Update: \`npm install --save-dev ${params.packageName}@latest\`, then
+  \`npx cm-install --target ${targetPrefix} --overwrite\`.
+- Remove: delete \`${targetPrefix}/\`, remove any copied root
+  instruction snippets, then run \`npm uninstall ${params.packageName}\`
+  if the package is no longer needed.
+- Keep or delete \`runs/\` separately; it contains user-generated
+  outputs and is not part of the installed pack.
+
+## Operating Rules
 
 - Ask for outcomes, not flags: "make a Reddit story short" or "turn
   this long video into three candidate shorts."
-- Choose the archetype or skill before rendering.
+- Choose the archetype or ${skillOrFlow} before rendering.
 - Keep source media, rights notes, generated assets, captions, and
   publish-prep output inspectable under \`runs/\`.
 - Do not treat a render as publish-ready unless the review gate passes.
-- Use \`overwrite: true\` on the install command when intentionally
-  refreshing this pack.
 `;
   await writeFile(readmePath, text, 'utf8');
 }
@@ -268,10 +340,11 @@ async function writePackAgentGuide(params: {
   targetDir: string;
   packageName: string;
   includeFlows: boolean;
+  includeExamples: boolean;
 }) {
   const agentGuidePath = join(params.targetDir, 'AGENTS.md');
   const targetPrefix = relativeTargetPrefix(params.targetDir);
-  const runner = `node ./node_modules/${params.packageName}/agent/run-tool.mjs`;
+  const explicitRunner = `node ./node_modules/${params.packageName}/agent/run-tool.mjs`;
   const text = `# Content Machine Installed Pack
 
 These instructions apply to the materialized Content Machine pack in
@@ -279,35 +352,72 @@ These instructions apply to the materialized Content Machine pack in
 
 ## Role Split
 
-- \`skills/\` tells the agent when and how to do a specific video job.
-${params.includeFlows ? '- `flows/` tells the agent how to run multi-step jobs.\n' : ''}- \`npx cm-agent <tool>\` is the short runtime bridge for JSON-stdio tool calls.
-- \`${runner}\` is the explicit runner path if npm bins are unavailable.
+- \`skills/\` are decision and craft docs: when to use a capability,
+  what inputs it needs, and what quality bar it must meet.
+${params.includeFlows ? '- `flows/` are orchestration docs: multi-step paths, gates, and run-scoped outputs.\n' : ''}- \`cm-agent\` is execution only: use it when a skill or flow needs a
+  deterministic JSON-stdio runtime tool.
+- Primary runner: \`npx --no-install cm-agent <tool>\`.
+- Fallback runner: \`${explicitRunner} <tool>\`.
 
 ## How To Use It
 
-1. Read \`${targetPrefix}/skills/README.md\`, then the relevant
+1. Choose the lane first, then choose a skill for one capability${
+    params.includeFlows ? ' or a flow for a multi-step run' : ''
+  }.
+2. Read \`${targetPrefix}/skills/README.md\`, then the relevant
    \`skills/<name>/SKILL.md\`.
-2. If the request is multi-step, use \`run-flow\` and pass
+${
+  params.includeFlows
+    ? `3. For executable multi-step work, use \`run-flow\` and pass
    \`"flowsDir": "${targetPrefix}/flows"\`.
-3. If the request is one stage, call the direct tool named by the skill.
+4. For one stage, call the direct tool named by the skill.
+5. Write artifacts under \`runs/<run-id>/\` unless the user asks for a
+   different output directory.
+6. Run publish-prep or the skill's listed validation before saying a
+   video is ready.`
+    : `3. For executable work, call the direct tool named by the skill.
 4. Write artifacts under \`runs/<run-id>/\` unless the user asks for a
    different output directory.
 5. Run publish-prep or the skill's listed validation before saying a
-   video is ready.
+   video is ready.`
+}
 
 ## Useful Commands
 
 \`\`\`bash
-npx cm-agent list
+npx --no-install cm-agent list
 
-cat <<'JSON' | npx cm-agent skill-catalog
+cat <<'JSON' | npx --no-install cm-agent skill-catalog
 {
   "skillsDir": "${targetPrefix}/skills",
-  "includeExamples": true
+  "includeExamples": ${params.includeExamples}
+}
+JSON
+\`\`\`
+
+${
+  params.includeFlows
+    ? `\`\`\`bash
+cat <<'JSON' | npx --no-install cm-agent flow-catalog
+{
+  "flowsDir": "${targetPrefix}/flows"
 }
 JSON
 
-cat <<'JSON' | npx cm-agent doctor-report
+cat <<'JSON' | npx --no-install cm-agent run-flow
+{
+  "flowsDir": "${targetPrefix}/flows",
+  "flow": "generate-short",
+  "runId": "demo-run",
+  "input": { "topic": "Example short" }
+}
+JSON
+\`\`\`
+
+`
+    : ''
+}\`\`\`bash
+cat <<'JSON' | npx --no-install cm-agent doctor-report
 {
   "strict": false
 }
@@ -318,9 +428,18 @@ JSON
 
 When the user asks for video work, prefer this interpretation:
 
-> Pick the right Content Machine skill or flow, explain the lane briefly,
+> Pick the right Content Machine skill${
+    params.includeFlows ? ' or flow' : ''
+  }, explain the lane briefly,
 > run the needed JSON-stdio tools, keep artifacts inspectable, and only
 > call the output ready when validation passes.
+
+## Source-Repo Path Warning
+
+If a copied doc mentions \`scripts/harness/\`, use it only as source-repo
+context. Installed projects should execute tools with
+\`npx --no-install cm-agent <tool>\` unless the user is working inside the
+Content Machine checkout.
 `;
   await writeFile(agentGuidePath, text, 'utf8');
   return agentGuidePath;
@@ -349,6 +468,9 @@ export async function installSkillPack(request: InstallSkillPackRequest): Promis
     const error = new Error(`Target already exists: ${targetDir}`);
     (error as Error & { code: string }).code = 'TARGET_EXISTS';
     throw error;
+  }
+  if (targetHasContent && normalized.overwrite) {
+    await rm(targetDir, { recursive: true, force: true });
   }
 
   await mkdir(targetDir, { recursive: true });
@@ -385,11 +507,13 @@ export async function installSkillPack(request: InstallSkillPackRequest): Promis
     targetDir,
     packageName: normalized.packageName,
     includeFlows: normalized.includeFlows,
+    includeExamples: normalized.includeExamples,
   });
   await writePackAgentGuide({
     targetDir,
     packageName: normalized.packageName,
     includeFlows: normalized.includeFlows,
+    includeExamples: normalized.includeExamples,
   });
 
   return {

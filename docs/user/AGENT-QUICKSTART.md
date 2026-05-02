@@ -35,16 +35,28 @@ If you already know the format:
 
 ## The three surfaces
 
-- `skills/` defines when to use something, what input it needs, and
-  how to do it well.
-- `flows/` defines `45ck/prompt-language` orchestration: which skills
-  run, in what order, and what marks success.
-- `scripts/harness/` is the optional repo-side executable surface.
+- `skills/` or `.content-machine/skills/` defines when to use
+  something, what input it needs, and how to do it well.
+- `flows/` or `.content-machine/flows/` defines `45ck/prompt-language`
+  orchestration: which skills run, in what order, and what marks
+  success.
+- `scripts/harness/` is the repo-checkout executable surface;
+  installed projects use `npx --no-install cm-agent <tool>` instead.
 
 Start with `skills/` when you want one capability. Start with `flows/`
 when you want a multi-step path.
 
-## Step 1: Install dependencies
+## Step 1: Choose install mode
+
+For an existing agent project:
+
+```bash
+npm install --save-dev @45ck/content-machine
+npx cm-install --target .content-machine
+npx --no-install cm-agent list
+```
+
+For a Content Machine checkout:
 
 ```bash
 npm install
@@ -54,7 +66,24 @@ Node.js 20.6+ is required.
 
 ## Step 2: Discover what is shipped
 
-List the repo-local skills:
+Installed project:
+
+```bash
+cat <<'JSON' | npx --no-install cm-agent skill-catalog
+{
+  "skillsDir": ".content-machine/skills",
+  "includeExamples": true
+}
+JSON
+
+cat <<'JSON' | npx --no-install cm-agent flow-catalog
+{
+  "flowsDir": ".content-machine/flows"
+}
+JSON
+```
+
+Repo checkout:
 
 ```bash
 cat <<'JSON' | node --import tsx scripts/harness/skill-catalog.ts
@@ -67,8 +96,6 @@ Or:
 ```bash
 printf '{}\n' | npm run agent:skill-catalog
 ```
-
-List the repo-local flows:
 
 ```bash
 cat <<'JSON' | node --import tsx scripts/harness/flow-catalog.ts
@@ -113,6 +140,27 @@ visual provider key such as `PEXELS_API_KEY` when using Pexels visuals:
 Use the command form when scripting automation. Inside Claude Code,
 Codex CLI, Cursor, or another agent harness, the normal interaction is
 to ask for the outcome and let the agent choose the skill or flow.
+
+Installed project:
+
+```bash
+cat <<'JSON' | npx --no-install cm-agent run-flow
+{
+  "flowsDir": ".content-machine/flows",
+  "flow": "generate-short",
+  "runId": "demo-run",
+  "input": {
+    "topic": "Redis vs PostgreSQL for caching",
+    "audio": { "voice": "af_heart" },
+    "visuals": { "provider": "pexels", "orientation": "portrait" },
+    "render": { "fps": 30, "downloadAssets": true },
+    "publishPrep": { "enabled": true, "platform": "tiktok" }
+  }
+}
+JSON
+```
+
+Repo checkout:
 
 ```bash
 cat <<'JSON' | node --import tsx scripts/harness/run-flow.ts
@@ -170,7 +218,7 @@ cat skills/doctor-report/examples/request.json | \
 Run the review gate directly when you want a hard ready-to-post verdict:
 
 ```bash
-cat <<'JSON' | node --import tsx scripts/harness/publish-prep-review.ts
+cat <<'JSON' | node --import tsx scripts/harness/publish-prep.ts
 {
   "videoPath": "runs/demo-run/render/video.mp4",
   "scriptPath": "runs/demo-run/script/script.json",
@@ -188,7 +236,7 @@ If you want these skills inside a separate coding-agent project, install
 the package there and materialize a local copy:
 
 ```bash
-npm install @45ck/content-machine
+npm install --save-dev @45ck/content-machine
 
 npx cm-install --target .content-machine
 ```

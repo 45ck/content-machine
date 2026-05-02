@@ -19,58 +19,35 @@ an agent wants the package to execute a step directly:
 node --import tsx scripts/harness/ingest.ts < request.json
 ```
 
-When to use which entrypoint:
+Installed-package users should prefer `npx --no-install cm-agent <tool>`.
+Do not use repo-local `node --import tsx scripts/harness/*.ts` commands
+unless you are working inside the Content Machine checkout.
 
-- Use `run-flow.ts` when the request is multi-step and run-scoped.
-- Use `flow-catalog.ts` when the agent needs to discover available
-  flows.
-- Use `skill-catalog.ts` when the agent needs to discover available
-  skills.
-- Use a direct stage entrypoint such as `brief-to-script.ts` or
-  `video-render.ts` when the agent already knows the exact capability
-  it wants.
+## Entrypoint Groups
+
+| Group              | Entrypoints                                                                               | Use                                                                 |
+| ------------------ | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| Discovery          | `skill-catalog.ts`, `flow-catalog.ts`, `doctor-report.ts`                                 | Inspect available skills, flows, and environment readiness          |
+| Full flows         | `run-flow.ts`, `generate-short.ts`, `reverse-engineer-winner.ts`                          | Run multi-step or run-scoped work                                   |
+| Stage runners      | `brief-to-script.ts`, `script-to-audio.ts`, `timestamps-to-visuals.ts`, `video-render.ts` | Execute a known stage directly                                      |
+| Review/provenance  | `asset-ledger.ts`, `caption-export.ts`, `publish-prep.ts`, `publish-prep-review.ts`       | Validate outputs and preserve rights/review evidence                |
+| Source and library | `ingest.ts`, `source-media-analyze.ts`, `media-index.ts`, `style-profile-library.ts`      | Prepare or catalog reusable inputs                                  |
+| Longform selection | `longform-highlight-select.ts`, `highlight-approval.ts`, `boundary-snap.ts`               | Pick, approve, and clean clip boundaries before render              |
+| Story assets       | `reddit-story-assets.ts`                                                                  | Generate reusable Reddit/story visual assets                        |
+| Install/package    | `install-skill-pack.ts`                                                                   | Materialize `.content-machine/` into another agent-aware repository |
 
 Most `45ck/prompt-language` flows write under `runs/<run-id>/`. Direct
 skills may instead write to explicit output paths provided in the
 request.
 
-Current entrypoints:
-
-- `doctor-report.ts`
-- `flow-catalog.ts`
-- `run-flow.ts`
-- `skill-catalog.ts`
-- `generate-short.ts`
-- `asset-ledger.ts`
-- `brief-to-script.ts`
-- `ingest.ts`
-- `reverse-engineer-winner.ts`
-- `longform-highlight-select.ts`
-- `highlight-approval.ts`
-- `boundary-snap.ts`
-- `source-media-analyze.ts`
-- `media-index.ts`
-- `style-profile-library.ts`
-- `script-to-audio.ts`
-- `timestamps-to-visuals.ts`
-- `video-render.ts`
-- `caption-export.ts`
-- `publish-prep.ts`
-- `publish-prep-review.ts`
-- `reddit-story-assets.ts`
-- `install-skill-pack.ts`
-
-Installed-package users should prefer
+Fallback when npm bins are unavailable:
 `node ./node_modules/@45ck/content-machine/agent/run-tool.mjs <tool>`.
-Use `node ./node_modules/@45ck/content-machine/agent/run-tool.mjs list`
-to inspect packaged tool names. The local npm bin alias is shorter:
-`npx cm-agent <tool>`.
 
 When using a materialized pack in another project, pass the installed
 directories explicitly:
 
 ```bash
-cat <<'JSON' | npx cm-agent run-flow
+cat <<'JSON' | npx --no-install cm-agent run-flow
 {
   "flowsDir": ".content-machine/flows",
   "flow": "generate-short",

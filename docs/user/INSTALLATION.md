@@ -12,7 +12,7 @@ Use this path when you want Claude Code, Codex CLI, Cursor, or another
 repo-aware agent to use Content Machine from your own project.
 
 ```bash
-npm install @45ck/content-machine
+npm install --save-dev @45ck/content-machine
 
 npx cm-install --target .content-machine
 ```
@@ -31,15 +31,26 @@ Tell the agent to read `.content-machine/README.md`,
 making videos. Full copy-paste prompt:
 [Agent Harness Install](AGENT-HARNESS-INSTALL.md).
 
-Install options:
+CLI options:
 
-| Option            | Default                 | Use                                                                |
-| ----------------- | ----------------------- | ------------------------------------------------------------------ |
-| `targetDir`       | `.content-machine`      | Where to materialize skills, flows, README, and agent instructions |
-| `packageName`     | `@45ck/content-machine` | Package or fork name used in generated runner commands             |
-| `includeFlows`    | `true`                  | Copy `.flow` manifests for multi-step runs                         |
-| `includeExamples` | `true`                  | Keep skill `examples/request.json` files                           |
-| `overwrite`       | `false`                 | Refresh an existing materialized pack intentionally                |
+| CLI Option       | Default                 | Use                                                                |
+| ---------------- | ----------------------- | ------------------------------------------------------------------ |
+| `--target`       | `.content-machine`      | Where to materialize skills, flows, README, and agent instructions |
+| `--package-name` | `@45ck/content-machine` | Package or fork name used in generated runner commands             |
+| `--no-flows`     | flows included          | Skip `.flow` manifests when you only want skill docs               |
+| `--no-examples`  | examples included       | Remove skill `examples/request.json` files                         |
+| `--overwrite`    | off                     | Refresh an existing materialized pack intentionally                |
+| `--json`         | off                     | Print machine-readable install output                              |
+
+JSON-stdio fields:
+
+| Field             | Default                 | Use                                 |
+| ----------------- | ----------------------- | ----------------------------------- |
+| `targetDir`       | `.content-machine`      | Equivalent to `--target`            |
+| `packageName`     | `@45ck/content-machine` | Equivalent to `--package-name`      |
+| `includeFlows`    | `true`                  | Set to `false` with `--no-flows`    |
+| `includeExamples` | `true`                  | Set to `false` with `--no-examples` |
+| `overwrite`       | `false`                 | Equivalent to `--overwrite`         |
 
 The JSON-stdio form remains available for agents that prefer structured
 stdin:
@@ -83,7 +94,7 @@ printf '{}\n' | npm run agent:skill-catalog
 If you only need the thin compatibility shell, you can also run:
 
 ```bash
-npx -y @45ck/content-machine doctor
+npx -p @45ck/content-machine cm doctor
 ```
 
 ## Optional: Whisper (Better Captions)

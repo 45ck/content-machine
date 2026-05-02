@@ -18,11 +18,11 @@ Install Content Machine in this repo and use it as the local short-form
 video skill pack.
 
 Do this:
-1. Run `npm install @45ck/content-machine`.
+1. Run `npm install --save-dev @45ck/content-machine`.
 2. Run `npx cm-install --target .content-machine` to materialize the
    local pack.
 3. Read `.content-machine/README.md` and `.content-machine/AGENTS.md`.
-4. Verify the runner with `npx cm-agent list`.
+4. Verify the runner with `npx --no-install cm-agent list`.
 5. Run doctor-report and tell me what is missing before generating real videos.
 
 After install, when I ask for a short, choose the right Content Machine
@@ -33,7 +33,7 @@ call an MP4 ready when publish-prep passes.
 If you want the exact command form:
 
 ```bash
-npm install @45ck/content-machine
+npm install --save-dev @45ck/content-machine
 
 npx cm-install --target .content-machine
 ```
@@ -56,12 +56,12 @@ runner, so agents do not need the source repo checkout.
 
 ## Harness Matrix
 
-| Harness                 | Install Pattern                                                                                                       |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| Codex CLI               | Ask Codex to run the copy-paste prompt, then point it at `.content-machine/skills/` and `.content-machine/AGENTS.md`. |
-| Claude Code             | Ask Claude to run the copy-paste prompt, then let it read `.content-machine/README.md`; copy AGENTS rules if needed.  |
-| Cursor or editor agents | Run the command in the project terminal, then mention `.content-machine/skills/` in the chat or project instructions. |
-| Generic shell agent     | Give it the command block and tell it to use `npx cm-agent <tool>` for JSON-stdio runtime calls.                      |
+| Harness                 | Install Pattern                                                                                                                                |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Codex CLI               | Put Content Machine guidance in project `AGENTS.md`, or ask Codex to read `.content-machine/AGENTS.md` after install.                          |
+| Claude Code             | Put `@.content-machine/AGENTS.md` in project `CLAUDE.md`, or ask Claude to read `.content-machine/README.md` and `.content-machine/AGENTS.md`. |
+| Cursor or editor agents | Run the install command in the project terminal, then mention `.content-machine/skills/` in chat or project rules.                             |
+| Generic shell agent     | Give it the command block and tell it to use `npx --no-install cm-agent <tool>` for JSON-stdio runtime calls.                                  |
 
 Content Machine does not require a special native plugin registry. The
 portable install works because most coding agents can read repo-local
@@ -69,7 +69,21 @@ Markdown and run local commands. If your harness has its own native
 skill folder, copy or symlink `.content-machine/skills/*` there and keep
 the generated entrypoints pointed at `node_modules/@45ck/content-machine`.
 
+Reference behavior: Codex
+[discovers `AGENTS.md`](https://developers.openai.com/codex/guides/agents-md)
+project instructions, while Claude Code
+[reads `CLAUDE.md`](https://code.claude.com/docs/en/memory) and can
+import another markdown file with `@path` syntax.
+
 ## How To Talk To The Agent After Install
+
+Low-attention version:
+
+```text
+Use Content Machine from .content-machine. Pick the lane, choose a skill
+for one capability or a flow for a multi-step run, write artifacts to
+runs/<run-id>, run publish-prep, and tell me pass/fail plus artifact paths.
+```
 
 Ask for outcomes, not low-level flags:
 
@@ -92,7 +106,8 @@ first, snap boundaries, then render only the approved candidate.
 
 The agent should:
 
-1. Choose an archetype or skill.
+1. Choose the lane first, then choose a skill for one capability or a
+   flow for a multi-step run.
 2. Read the relevant `SKILL.md` and optional flow.
 3. Run the packaged runner only for executable stages.
 4. Preserve script, audio, timestamps, visuals, captions, render
@@ -104,13 +119,13 @@ The agent should:
 List tools:
 
 ```bash
-npx cm-agent list
+npx --no-install cm-agent list
 ```
 
 List materialized skills:
 
 ```bash
-cat <<'JSON' | npx cm-agent skill-catalog
+cat <<'JSON' | npx --no-install cm-agent skill-catalog
 {
   "skillsDir": ".content-machine/skills",
   "includeExamples": true
@@ -121,7 +136,7 @@ JSON
 Run a flow from the installed pack:
 
 ```bash
-cat <<'JSON' | npx cm-agent run-flow
+cat <<'JSON' | npx --no-install cm-agent run-flow
 {
   "flowsDir": ".content-machine/flows",
   "flow": "generate-short",
@@ -137,7 +152,7 @@ JSON
 Run diagnostics:
 
 ```bash
-cat <<'JSON' | npx cm-agent doctor-report
+cat <<'JSON' | npx --no-install cm-agent doctor-report
 {
   "strict": false
 }

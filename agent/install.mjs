@@ -98,7 +98,8 @@ Package runner: node ./node_modules/${packageName}/agent/run-tool.mjs
 Next:
 1. Read ${readmePath}
 2. Read ${agentGuidePath}
-3. Run: npx cm-agent list
+3. If your harness auto-loads root instructions only, copy or import ${agentGuidePath}
+4. Run: npx --no-install cm-agent list
 `);
 }
 

@@ -116,6 +116,7 @@
     "demo:gen": "bash scripts/quality/with-node20.sh node scripts/quality/generate-demo-gallery.mjs",
     "demo:check": "bash scripts/quality/with-node20.sh node scripts/quality/generate-demo-gallery.mjs --check && npm run public-demo:check",
     "public-demo:check": "bash scripts/quality/with-node20.sh node scripts/quality/check-public-demo.mjs",
+    "agent:package-smoke": "bash scripts/quality/with-node20.sh node scripts/quality/agent-package-smoke.mjs",
     "creative-sources:gen": "bash scripts/quality/with-node20.sh node skills/creative-source-scout/scripts/build-catalog.mjs",
     "creative-sources:check": "bash scripts/quality/with-node20.sh node skills/creative-source-scout/scripts/build-catalog.mjs --check",
     "glossary:gen": "node scripts/gen-glossary.mjs",

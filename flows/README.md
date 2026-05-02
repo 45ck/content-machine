@@ -82,13 +82,12 @@ Use [`_template/FLOW.md`](_template/FLOW.md) as the starting point.
 
 ## Current Executable Flows
 
-- [`doctor.flow`](doctor.flow) — `45ck/prompt-language` diagnostics path
-- [`generate-short.flow`](generate-short.flow) — run the end-to-end
-  `45ck/prompt-language` topic-to-video path
-- [`reverse-engineer-winner.flow`](reverse-engineer-winner.flow) — run
-  the `45ck/prompt-language` reference-video ingest path
-- [`showcase-content-machine.flow`](showcase-content-machine.flow) —
-  run the Content Machine self-demo path through `generate-short`
+| Flow                                                             | Operator Notes                                               | Entry Skill                | Runner Tool               | Outputs                          |
+| ---------------------------------------------------------------- | ------------------------------------------------------------ | -------------------------- | ------------------------- | -------------------------------- |
+| [`doctor.flow`](doctor.flow)                                     | [`doctor.md`](doctor.md)                                     | `doctor-report`            | `flow-catalog`/`run-flow` | environment report artifacts     |
+| [`generate-short.flow`](generate-short.flow)                     | [`generate-short.md`](generate-short.md)                     | `generate-short`           | `run-flow`                | `runs/<run-id>/` short artifacts |
+| [`reverse-engineer-winner.flow`](reverse-engineer-winner.flow)   | [`reverse-engineer-winner.md`](reverse-engineer-winner.md)   | `reverse-engineer-winner`  | `run-flow`                | reference breakdown artifacts    |
+| [`showcase-content-machine.flow`](showcase-content-machine.flow) | [`showcase-content-machine.md`](showcase-content-machine.md) | `showcase-content-machine` | `run-flow`                | self-demo run artifacts          |
 
 ## Skill-Only Chains
 
@@ -104,8 +103,9 @@ source-media-analyze
   -> publish-prep-review
 ```
 
-Keep this distinction explicit until a dedicated longform flow manifest
-exists, so users do not hunt for a missing `longform-to-shorts.flow`.
+There is no `longform-to-shorts.flow` yet. Do not call `run-flow` for
+it; chain the listed skills manually until a dedicated longform manifest
+exists.
 
 Use the runtime helpers to enumerate or execute them:
 

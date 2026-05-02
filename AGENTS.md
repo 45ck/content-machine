@@ -42,6 +42,12 @@ For installed flows, pass `"flowsDir": ".content-machine/flows"` to
 
 ## Agent Entry Points
 
+If Content Machine is installed into another project as
+`.content-machine/`, do not use the source-checkout
+`scripts/harness/*` commands below. Use `npx --no-install cm-agent <tool>`
+from that project and pass `.content-machine/skills` or
+`.content-machine/flows` explicitly.
+
 ```
 node --import tsx scripts/harness/doctor-report.ts
 node --import tsx scripts/harness/flow-catalog.ts

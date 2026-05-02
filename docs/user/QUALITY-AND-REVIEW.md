@@ -98,6 +98,12 @@ When `assetLedgerPath` or `mediaIndexPath` is supplied, publish-prep also
 writes `provenance.json`. Any provenance error blocks `passed: true`;
 warnings stay visible for human review.
 
+Expected publish-prep output is inspectable, not just a console message:
+`validate.json`, `score.json`, `publish.json`, optional
+`provenance.json`, and a clear ready/not-ready verdict. The user-facing
+gate is `publish-prep`; `publish-prep-review` remains an alias in skill
+docs where older examples still name the review-focused wrapper.
+
 ## Demo Video Audit
 
 Run this before promoting anything into `docs/demo` or the README:
