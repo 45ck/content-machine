@@ -1,0 +1,37 @@
+name: showcase-content-machine
+description: Run the Content Machine self-demo path from brief to reviewed MP4, with Reddit/gameplay/3D treatment expressed as generation context.
+entrySkill: generate-short
+operatorNotes: flows/showcase-content-machine.md
+defaultOutputDir: runs/{runId}
+inputs:
+  - name: topic
+    description: Product-demo brief explaining Content Machine and its inspectable artifact chain.
+    required: true
+  - name: laneId
+    description: Visual lane hint, normally reddit-post-over-gameplay or tool-workflow-explainer.
+    required: false
+  - name: visuals
+    description: Visual provider and optional gameplay/3D background context.
+    required: false
+  - name: publishPrep
+    description: Publish-prep review settings for the final MP4.
+    required: false
+outputs:
+  - name: script/script.json
+    description: Product-demo script for the repo explainer.
+    required: true
+  - name: audio/audio.wav
+    description: Voiceover file.
+    required: true
+  - name: audio/timestamps.json
+    description: Word or segment timestamps for captions and visuals.
+    required: true
+  - name: visuals/visuals.json
+    description: Beat-aware visual plan with optional gameplay context.
+    required: true
+  - name: render/video.mp4
+    description: Final rendered self-demo short.
+    required: true
+  - name: publish-prep/
+    description: Review bundle for deciding whether the self-demo is publishable.
+    required: true

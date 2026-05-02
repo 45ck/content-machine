@@ -10,13 +10,23 @@ For non-Reddit lanes that depend on designed graphics, cards, SVG,
 HTML/CSS, or Remotion-style motion, track polish work in the
 [Graphics Archetype Remake Plan](examples/graphics-archetype-remake-plan.md).
 
+3D, procedural gameplay, generated loops, and similar motion systems are
+additive visual treatments. They should make a chosen lane more
+watchable; they should not replace the script archetype, captions,
+source-media workflow, cards, stock clips, local footage, or review
+gates.
+
 ## Status Labels
 
 - `golden showcase`: the main example to copy first.
 - `showcase candidate`: real MP4 exists and the lane is usable, but it
   still has review or polish gaps.
+- `supporting showcase candidate`: useful for explaining the repo or a
+  secondary workflow, but not the main example to copy first.
 - `proving candidate`: real MP4 exists, but the lane is not ready to
   promote as a default.
+- `experimental preview`: useful direction or visual treatment, but
+  below the public promotion bar until review caveats are resolved.
 - `skill-backed`: skill/docs exist, but the lane still needs a stronger
   public example.
 - `backlog`: useful archetype, not yet built as a first-class lane.
@@ -36,18 +46,18 @@ That default means:
 
 ## Proven And Proving Lanes
 
-| Lane                        | Status                 | Use When                                                               | Skill                                                                                      | Example                                                            | Demo                                                       |
-| --------------------------- | ---------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ | ---------------------------------------------------------- |
-| `reddit-post-over-gameplay` | `golden showcase`      | Reddit/story post over full-screen gameplay                            | [`reddit-post-over-gameplay-short`](../../skills/reddit-post-over-gameplay-short/SKILL.md) | [Reddit Post Over Gameplay](examples/reddit-post-over-gameplay.md) | [`demo-9`](../demo/demo-9-reddit-post-over-gameplay.mp4)   |
-| `reddit-story-split-screen` | `recipe; rebuild demo` | User explicitly wants top story footage plus bottom gameplay           | [`reddit-story-short`](../../skills/reddit-story-short/SKILL.md)                           | [Reddit Story Split-Screen](examples/reddit-story-split-screen.md) | archived until gutter-free rebuild                         |
-| `stock-b-roll-explainer`    | `showcase candidate`   | Topic or headline needs faceless stock-style narration                 | [`stock-footage-edutainment-short`](../../skills/stock-footage-edutainment-short/SKILL.md) | [Stock Footage Edutainment](examples/stock-footage-edutainment.md) | [`demo-10`](../demo/demo-10-stock-broll-explainer.mp4)     |
-| `text-thread-reveal`        | `showcase candidate`   | Chat logs, DMs, receipts, or message drama                             | [`text-message-drama-short`](../../skills/text-message-drama-short/SKILL.md)               | [Text Message Drama](examples/text-message-drama.md)               | [`demo-11`](../demo/demo-11-text-thread-reveal.mp4)        |
-| `saas-problem-solution`     | `showcase candidate`   | Product, SaaS, offer, proof, demo, and CTA                             | [`saas-problem-solution-short`](../../skills/saas-problem-solution-short/SKILL.md)         | [SaaS Problem Solution](examples/saas-problem-solution.md)         | [`demo-12`](../demo/demo-12-saas-problem-solution.mp4)     |
-| `fast-facts-countdown`      | `showcase candidate`   | Numbered facts, rankings, myths, or quick lessons                      | [`facts-listicle-short`](../../skills/facts-listicle-short/SKILL.md)                       | [Facts Listicle](examples/facts-listicle.md)                       | [`demo-13`](../demo/demo-13-fast-facts-countdown.mp4)      |
-| `motion-card-lesson`        | `showcase candidate`   | Concept explained through designed cards or diagrams                   | [`motion-card-lesson-short`](../../skills/motion-card-lesson-short/SKILL.md)               | [Motion Card Lesson](examples/motion-card-lesson.md)               | [`demo-14`](../demo/demo-14-motion-card-lesson.mp4)        |
-| `faceless-mixed-short`      | `showcase candidate`   | Mixed stock, local clips, diagrams, UI, generated images, and captions | [`faceless-mixed-short`](../../skills/faceless-mixed-short/SKILL.md)                       | [Faceless Mixed Short](examples/faceless-mixed-short.md)           | [`demo-15`](../demo/demo-15-faceless-mixed-short.mp4)      |
-| `gameplay-confession-split` | `showcase candidate`   | Non-Reddit confession or storytime with support footage plus gameplay  | [`gameplay-confession-short`](../../skills/gameplay-confession-short/SKILL.md)             | [Subway Confession Story](examples/subway-confession-story.md)     | [`demo-16`](../demo/demo-16-gameplay-confession-split.mp4) |
-| `micro-doc-breakdown`       | `proving candidate`    | Mini documentary, myth correction, timeline, evidence inserts          | [`micro-doc-breakdown-short`](../../skills/micro-doc-breakdown-short/SKILL.md)             | [Micro-Doc Breakdown](examples/micro-doc-breakdown.md)             | [`demo-17`](../demo/demo-17-micro-doc-breakdown.mp4)       |
+| Lane                        | Status                   | Use When                                                               | Skill                                                                                      | Example                                                            | Demo                                                       |
+| --------------------------- | ------------------------ | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ | ---------------------------------------------------------- |
+| `reddit-post-over-gameplay` | `golden showcase`        | Reddit/story post over full-screen gameplay                            | [`reddit-post-over-gameplay-short`](../../skills/reddit-post-over-gameplay-short/SKILL.md) | [Reddit Post Over Gameplay](examples/reddit-post-over-gameplay.md) | [`demo-9`](../demo/demo-9-reddit-post-over-gameplay.mp4)   |
+| `reddit-story-split-screen` | `workflow; rebuild demo` | User explicitly wants top story footage plus bottom gameplay           | [`reddit-story-short`](../../skills/reddit-story-short/SKILL.md)                           | [Reddit Story Split-Screen](examples/reddit-story-split-screen.md) | archived until gutter-free rebuild                         |
+| `stock-b-roll-explainer`    | `showcase candidate`     | Topic or headline needs faceless stock-style narration                 | [`stock-footage-edutainment-short`](../../skills/stock-footage-edutainment-short/SKILL.md) | [Stock Footage Edutainment](examples/stock-footage-edutainment.md) | [`demo-10`](../demo/demo-10-stock-broll-explainer.mp4)     |
+| `text-thread-reveal`        | `showcase candidate`     | Chat logs, DMs, receipts, or message drama                             | [`text-message-drama-short`](../../skills/text-message-drama-short/SKILL.md)               | [Text Message Drama](examples/text-message-drama.md)               | [`demo-11`](../demo/demo-11-text-thread-reveal.mp4)        |
+| `saas-problem-solution`     | `showcase candidate`     | Product, SaaS, offer, proof, demo, and CTA                             | [`saas-problem-solution-short`](../../skills/saas-problem-solution-short/SKILL.md)         | [SaaS Problem Solution](examples/saas-problem-solution.md)         | [`demo-12`](../demo/demo-12-saas-problem-solution.mp4)     |
+| `fast-facts-countdown`      | `showcase candidate`     | Numbered facts, rankings, myths, or quick lessons                      | [`facts-listicle-short`](../../skills/facts-listicle-short/SKILL.md)                       | [Facts Listicle](examples/facts-listicle.md)                       | [`demo-13`](../demo/demo-13-fast-facts-countdown.mp4)      |
+| `motion-card-lesson`        | `showcase candidate`     | Concept explained through designed cards or diagrams                   | [`motion-card-lesson-short`](../../skills/motion-card-lesson-short/SKILL.md)               | [Motion Card Lesson](examples/motion-card-lesson.md)               | [`demo-14`](../demo/demo-14-motion-card-lesson.mp4)        |
+| `faceless-mixed-short`      | `showcase candidate`     | Mixed stock, local clips, diagrams, UI, generated images, and captions | [`faceless-mixed-short`](../../skills/faceless-mixed-short/SKILL.md)                       | [Faceless Mixed Short](examples/faceless-mixed-short.md)           | [`demo-15`](../demo/demo-15-faceless-mixed-short.mp4)      |
+| `gameplay-confession-split` | `showcase candidate`     | Non-Reddit confession or storytime with support footage plus gameplay  | [`gameplay-confession-short`](../../skills/gameplay-confession-short/SKILL.md)             | [Subway Confession Story](examples/subway-confession-story.md)     | [`demo-16`](../demo/demo-16-gameplay-confession-split.mp4) |
+| `micro-doc-breakdown`       | `proving candidate`      | Mini documentary, myth correction, timeline, evidence inserts          | [`micro-doc-breakdown-short`](../../skills/micro-doc-breakdown-short/SKILL.md)             | [Micro-Doc Breakdown](examples/micro-doc-breakdown.md)             | [`demo-17`](../demo/demo-17-micro-doc-breakdown.mp4)       |
 
 ## Source-Media Lanes
 
@@ -61,6 +71,16 @@ the agent needs to find the best short-form moment.
 | Snap edit boundaries                    | [`boundary-snap`](../../skills/boundary-snap/SKILL.md), [`text-selection-to-timestamps`](../../skills/text-selection-to-timestamps/SKILL.md)                                                                     |
 | Reframe to vertical                     | [`reframe-vertical`](../../skills/reframe-vertical/SKILL.md), [`face-or-screen-reframe`](../../skills/face-or-screen-reframe/SKILL.md), [`scene-aware-smart-crop`](../../skills/scene-aware-smart-crop/SKILL.md) |
 | Render and review                       | [`video-render`](../../skills/video-render/SKILL.md), [`publish-prep-review`](../../skills/publish-prep-review/SKILL.md)                                                                                         |
+
+## Additive Visual Treatments
+
+Use these after the lane has been chosen. They change the support
+visuals, not the content grammar.
+
+| Treatment                         | Status                 | Use When                                                                                                           | Skill                                                                                      | Example                                                                        | Demo                                                       |
+| --------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ | ---------------------------------------------------------- |
+| `procedural-gameplay-backgrounds` | `experimental preview` | The short needs gameplay-like motion without supplied gameplay; current demo is `720x1280` and not README-promoted | [`procedural-gameplay-backgrounds`](../../skills/procedural-gameplay-backgrounds/SKILL.md) | [Procedural Gameplay Backgrounds](examples/procedural-gameplay-backgrounds.md) | [`demo-20`](../demo/demo-20-content-machine-3d-runner.mp4) |
+| `motion-design-code`              | `skill-backed`         | The visual system is SVG, HTML/CSS, React, or Remotion motion                                                      | [`motion-design-coder`](../../skills/motion-design-coder/SKILL.md)                         | [Motion Card Lesson](examples/motion-card-lesson.md)                           | [`demo-14`](../demo/demo-14-motion-card-lesson.mp4)        |
 
 ## Research-Backed Families
 

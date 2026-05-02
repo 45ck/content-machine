@@ -13,12 +13,21 @@
 **Content Machine is a local-first short-form video toolkit for coding
 agents.**
 
-It helps Claude Code, Codex CLI, and similar agents create TikToks,
+It helps Claude Code, Codex CLI, and similar agents create TikTok videos,
 Instagram Reels, and YouTube Shorts by calling repo-local skills,
 flows, and deterministic media scripts.
 
 The goal is simple: turn a topic or source video into a high-quality
 vertical short with inspectable artifacts at every step.
+
+## 30-Second Version
+
+- **What it is:** a skill pack plus deterministic runtime for making
+  short-form videos from coding-agent CLIs.
+- **How it works:** agents read `skills/`, pick or run `flows/`, then
+  call JSON-stdio scripts only when execution is needed.
+- **Why it matters:** every stage writes files you can inspect: script,
+  audio, timestamps, visuals, captions, render metadata, and review.
 
 Content Machine is moving away from a monolithic "AI video agent" and
 toward repo-local skills and `45ck/prompt-language` flows for building
@@ -59,74 +68,44 @@ Named bread-and-butter story archetypes:
 
 Start here:
 
+- [Agent Quickstart](docs/user/AGENT-QUICKSTART.md)
 - [Archetype Guide](docs/user/ARCHETYPES.md)
+- [Showcase Gallery](docs/user/showcase/README.md)
+- [Creative Sources](docs/user/CREATIVE-SOURCES.md)
 - [Reddit Post Over Gameplay](docs/user/examples/reddit-post-over-gameplay.md)
 - [Reddit Story Split-Screen](docs/user/examples/reddit-story-split-screen.md)
-  (recipe lane; public demo is being rebuilt after gutter detection)
+  (workflow lane; public demo is being rebuilt after gutter detection)
 - [reddit-story-short skill](skills/reddit-story-short/SKILL.md)
 - [reddit-post-over-gameplay-short skill](skills/reddit-post-over-gameplay-short/SKILL.md)
 - [reddit-card-overlay skill](skills/reddit-card-overlay/SKILL.md)
 
 <p align="center">
-  <a href="docs/demo/demo-9-reddit-post-over-gameplay.mp4">
-    <img src="docs/demo/demo-9-reddit-post-over-gameplay.gif" alt="Reddit post over gameplay showcase" width="280" />
+  <a href="https://github.com/45ck/content-machine/blob/master/docs/demo/demo-9-reddit-post-over-gameplay.mp4">
+    <img src="https://raw.githubusercontent.com/45ck/content-machine/master/docs/demo/demo-9-reddit-post-over-gameplay.gif" alt="Reddit post over gameplay showcase" width="280" />
   </a>
 </p>
 
-Faceless-information preview:
+The README embeds only the flagship preview, but the fastest orientation
+path is three clips:
 
-<p align="center">
-  <a href="docs/demo/demo-10-stock-broll-explainer.mp4">
-    <img src="docs/demo/demo-10-stock-broll-explainer.gif" alt="Stock B-roll explainer showcase candidate" width="220" />
-  </a>
-</p>
+| Need                                      | Watch                                                                                                                        | Inspect                                                                                      | Reproduce                                                    |
+| ----------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| Story/default gameplay format             | [`demo-9`](https://github.com/45ck/content-machine/blob/master/docs/demo/demo-9-reddit-post-over-gameplay.mp4)               | [`provenance`](docs/demo/provenance/README.md#demo-9-reddit-post-over-gameplay)              | [`example`](docs/user/examples/reddit-post-over-gameplay.md) |
+| Low-attention OSS repo explainer          | [`demo-18`](https://github.com/45ck/content-machine/blob/master/docs/demo/demo-18-content-machine-reddit-gameplay-remix.mp4) | [`provenance`](docs/demo/provenance/README.md#demo-18-content-machine-reddit-gameplay-remix) | [`example`](docs/user/examples/content-machine-self-demo.md) |
+| Cleaner educational motion-card explainer | [`demo-19`](https://github.com/45ck/content-machine/blob/master/docs/demo/demo-19-content-machine-motion-cards.mp4)          | [`provenance`](docs/demo/provenance/README.md#demo-19-content-machine-motion-cards)          | [`example`](docs/user/examples/content-machine-self-demo.md) |
 
-Fast-facts preview:
+Open the [Showcase Gallery](docs/user/showcase/README.md) for every lane
+and the [Demo Gallery](docs/demo/README.md) for the generated demo
+manifest, preview status, source docs, and review caveats.
 
-<p align="center">
-  <a href="docs/demo/demo-13-fast-facts-countdown.mp4">
-    <img src="docs/demo/demo-13-fast-facts-countdown.gif" alt="Fast facts countdown showcase candidate" width="220" />
-  </a>
-</p>
+Full gallery status guide:
 
-Motion-card lesson preview:
-
-<p align="center">
-  <a href="docs/demo/demo-14-motion-card-lesson.mp4">
-    <img src="docs/demo/demo-14-motion-card-lesson.gif" alt="Motion card lesson showcase candidate" width="220" />
-  </a>
-</p>
-
-Faceless mixed preview:
-
-<p align="center">
-  <a href="docs/demo/demo-15-faceless-mixed-short.mp4">
-    <img src="docs/demo/demo-15-faceless-mixed-short.gif" alt="Faceless mixed short showcase candidate" width="220" />
-  </a>
-</p>
-
-Gameplay confession preview:
-
-<p align="center">
-  <a href="docs/demo/demo-16-gameplay-confession-split.mp4">
-    <img src="docs/demo/demo-16-gameplay-confession-split.gif" alt="Gameplay confession split showcase candidate" width="220" />
-  </a>
-</p>
-
-Micro-doc breakdown preview:
-
-<p align="center">
-  <a href="docs/demo/demo-17-micro-doc-breakdown.mp4">
-    <img src="docs/demo/demo-17-micro-doc-breakdown.gif" alt="Micro-doc breakdown proving candidate" width="220" />
-  </a>
-</p>
-
-Status guide:
-
-- `showcase`: real canonical example users should copy first
-- `recipe`: runnable technique walkthrough with explicit prerequisites
-- `archetype brief`: lane grammar and skill links, not yet a proven example
-- `proving artifact`: internal experiment or eval output
+- `golden showcase`: the main example users should copy first
+- `showcase candidate`: real MP4 exists, but review or polish gaps remain
+- `supporting showcase candidate`: useful for onboarding or a secondary workflow
+- `proving candidate`: real MP4 exists, but it is not a default yet
+- `experimental preview`: directionally useful, below the public promotion bar
+- `workflow`: runnable technique walkthrough with explicit prerequisites
 
 ## Current Focus
 
@@ -137,6 +116,8 @@ well:
 - pick strong short-form moments from long videos
 - approve highlights before expensive render work
 - generate scripts, audio, visuals, captions, and MP4s as separate files
+- compose lanes with optional visual treatments such as 3D/procedural
+  gameplay backgrounds
 - keep every step inspectable and repeatable
 - use skills and flows as the main interface, with `cm` kept thin
 
@@ -149,36 +130,37 @@ Archetype rollout plan:
 User-facing archetype guide:
 [Archetypes](docs/user/ARCHETYPES.md).
 
+Fast visual map of what the repo can make:
+[Showcase Gallery](docs/user/showcase/README.md).
+
+Preview asset index:
+[Demo Gallery](docs/demo/README.md).
+
 Review and promotion rules:
 [Quality And Review](docs/user/QUALITY-AND-REVIEW.md).
 
 Graphics-heavy demos can also ship `docs/demo/*.layout.json` sidecars.
 The demo audit uses `45ck/video-evaluator` as the shared analyzer for
 declared element overlap, caption safe-zone collisions, and reusable video
-evidence. Content Machine keeps skills, archetype recipes, Remotion choices,
+evidence. Content Machine keeps skills, archetype workflows, Remotion choices,
 caption style guidance, and publish policy local; the evaluator owns generic
 analysis that can be reused by other repos.
 
-Tracked preview clip:
+Tracked preview assets live in
+[`docs/demo/`](docs/demo/README.md). The root README only promotes the
+golden Reddit/gameplay example; supporting and experimental clips stay
+in the gallery until review evidence says they should move up.
 
-- [docs/demo/demo-9-reddit-post-over-gameplay.mp4](docs/demo/demo-9-reddit-post-over-gameplay.mp4)
-- [docs/demo/demo-10-stock-broll-explainer.mp4](docs/demo/demo-10-stock-broll-explainer.mp4)
-- [docs/demo/demo-11-text-thread-reveal.mp4](docs/demo/demo-11-text-thread-reveal.mp4)
-- [docs/demo/demo-12-saas-problem-solution.mp4](docs/demo/demo-12-saas-problem-solution.mp4)
-- [docs/demo/demo-13-fast-facts-countdown.mp4](docs/demo/demo-13-fast-facts-countdown.mp4)
-- [docs/demo/demo-14-motion-card-lesson.mp4](docs/demo/demo-14-motion-card-lesson.mp4)
-- [docs/demo/demo-15-faceless-mixed-short.mp4](docs/demo/demo-15-faceless-mixed-short.mp4)
-- [docs/demo/demo-16-gameplay-confession-split.mp4](docs/demo/demo-16-gameplay-confession-split.mp4)
-- [docs/demo/demo-17-micro-doc-breakdown.mp4](docs/demo/demo-17-micro-doc-breakdown.mp4)
-
-> Early development. Skills, flows, and runtime scripts are now the
-> primary interface. The legacy CLI control plane has been moved into
+> Early development. Skills and flows are now the primary interface;
+> runtime scripts are support surfaces behind those docs. The legacy
+> CLI control plane has been moved into
 > [`archive/legacy-cli/`](archive/legacy-cli/README.md); the remaining
 > `cm` shell is intentionally thin.
 
-> Start with [`skills/`](skills/README.md),
-> [`scripts/harness/`](scripts/harness/README.md),
-> [`flows/`](flows/README.md), and [`DIRECTION.md`](DIRECTION.md).
+> Start with [Agent Quickstart](docs/user/AGENT-QUICKSTART.md), then use
+> [Archetypes](docs/user/ARCHETYPES.md), [Showcase Gallery](docs/user/showcase/README.md),
+> [skills/](skills/README.md), [flows/](flows/README.md), and
+> [scripts/harness/](scripts/harness/README.md) as needed.
 
 ## Start Here
 
@@ -188,13 +170,24 @@ npm install
 
 Node.js 20.6+ is required.
 
+First run order:
+
+1. Run `doctor-report` to check the environment.
+2. Use the no-key smoke path in
+   [`content-machine-self-demo`](docs/user/examples/content-machine-self-demo.md#no-key-smoke-test)
+   if you only want to prove the artifact chain.
+3. Run `generate-short` or
+   [`showcase-content-machine`](flows/showcase-content-machine.md) when
+   API keys and provider credentials are ready.
+
 ### Primary Path: Coding-Agent CLIs
 
-Use these three surfaces together:
+Use these surfaces in this order:
 
-- [`skills/`](skills/README.md): importable short-form video skills
-- [`flows/`](flows/README.md): `45ck/prompt-language` docs and manifests
-- [`scripts/harness/`](scripts/harness/README.md): optional repo-side runners behind the skills
+- [`skills/`](skills/README.md): decide what job the agent is doing
+- [`flows/`](flows/README.md): coordinate multi-step work
+- [`scripts/harness/`](scripts/harness/README.md): execute a repo-side
+  JSON-stdio step when a skill or flow needs runtime support
 
 If you are deciding where to start:
 
@@ -219,22 +212,8 @@ cat <<'JSON' | node --import tsx scripts/harness/flow-catalog.ts
 JSON
 ```
 
-Current repo-side entrypoints:
-
-```bash
-node --import tsx scripts/harness/doctor-report.ts
-node --import tsx scripts/harness/flow-catalog.ts
-node --import tsx scripts/harness/run-flow.ts
-node --import tsx scripts/harness/skill-catalog.ts
-node --import tsx scripts/harness/generate-short.ts
-node --import tsx scripts/harness/brief-to-script.ts
-node --import tsx scripts/harness/ingest.ts
-node --import tsx scripts/harness/script-to-audio.ts
-node --import tsx scripts/harness/timestamps-to-visuals.ts
-node --import tsx scripts/harness/video-render.ts
-node --import tsx scripts/harness/publish-prep.ts
-node --import tsx scripts/harness/install-skill-pack.ts
-```
+Current repo-side entrypoints are listed in
+[`scripts/harness/`](scripts/harness/README.md).
 
 If you want these skills inside another project, install the package
 there and materialize a local pack:
@@ -250,18 +229,8 @@ cat <<'JSON' | node ./node_modules/@45ck/content-machine/agent/run-tool.mjs inst
 JSON
 ```
 
-Shipped starter skills:
-
-- [skills/doctor-report/SKILL.md](skills/doctor-report/SKILL.md)
-- [skills/skill-catalog/SKILL.md](skills/skill-catalog/SKILL.md)
-- [skills/short-form-captions/SKILL.md](skills/short-form-captions/SKILL.md)
-- [skills/generate-short/SKILL.md](skills/generate-short/SKILL.md)
-- [skills/brief-to-script/SKILL.md](skills/brief-to-script/SKILL.md)
-- [skills/reverse-engineer-winner/SKILL.md](skills/reverse-engineer-winner/SKILL.md)
-- [skills/script-to-audio/SKILL.md](skills/script-to-audio/SKILL.md)
-- [skills/timestamps-to-visuals/SKILL.md](skills/timestamps-to-visuals/SKILL.md)
-- [skills/video-render/SKILL.md](skills/video-render/SKILL.md)
-- [skills/publish-prep-review/SKILL.md](skills/publish-prep-review/SKILL.md)
+Use [`skills/`](skills/README.md) or the `skill-catalog` harness script
+for the current shipped skill list.
 
 ### Thin `cm` Shell
 
@@ -288,7 +257,10 @@ Then choose an archetype and use the featured example instead of a
 generic demo:
 
 - [Archetypes](docs/user/ARCHETYPES.md)
+- [Creative Sources](docs/user/CREATIVE-SOURCES.md)
 - [Reddit Post Over Gameplay](docs/user/examples/reddit-post-over-gameplay.md)
+- [Content Machine Self-Demo Short](docs/user/examples/content-machine-self-demo.md)
+  includes a no-key smoke path plus the real product-demo request
 - [Codex Empty-Project Eval](experiments/codex-reddit-story-empty-project-v1/README.md)
 
 Run the main short-form flow:
@@ -340,6 +312,8 @@ Start here, then follow links downward:
   status, and backlog
 - [Quality And Review](docs/user/QUALITY-AND-REVIEW.md) - review gates
   before a render is considered ready
+- [Creative Sources](docs/user/CREATIVE-SOURCES.md) - external source
+  scouting for animation, 3D, stock, audio, and AI generation
 - [Agent Quickstart](docs/user/AGENT-QUICKSTART.md) - quickest user path
 - [Skills](skills/README.md) - all agent-facing capabilities
 - [Flows](flows/README.md) - orchestration patterns
@@ -363,12 +337,19 @@ archived CLI notes live under
 ## How The Repo Is Shaped
 
 ```text
-skills/            agent-readable capability docs
-flows/             multi-step prompt-language workflows
-scripts/harness/   JSON-stdio runtime entrypoints
-src/               TypeScript media, render, scoring, and provider logic
+skills/            agent-readable capability docs and examples
+flows/             executable prompt-language workflow manifests
+scripts/harness/   JSON-stdio runtime entrypoints for repo checkouts
+agent/             installed-package runner for materialized skill packs
+src/harness/       reusable logic behind the JSON-stdio entrypoints
+src/               TypeScript media, render, scoring, validation, and providers
+assets/            archetypes, fonts, templates, and lightweight README assets
+fixtures/          small runnable examples and test fixtures
+evals/             promptfoo and scoring eval configs
+experiments/       tracked proving reports; generated outputs stay ignored
+registry/          source YAML for generated glossary and repo facts
 docs/              user, developer, direction, research, and reference docs
-archive/           retired legacy surfaces
+archive/           frozen legacy surfaces and old demos
 ```
 
 Run-scoped flows write under `runs/<run-id>/` by default. Direct skills
@@ -389,6 +370,7 @@ can also write to explicit output paths.
 - **[Agent Quickstart](docs/user/AGENT-QUICKSTART.md)** — primary user path for Claude Code, Codex CLI, and similar tools
 - **[Archetypes](docs/user/ARCHETYPES.md)** — choose the right short-form lane and see what is proven
 - **[Quality And Review](docs/user/QUALITY-AND-REVIEW.md)** — review gates for captions, audio, motion, safe zones, and promotion
+- **[Creative Sources](docs/user/CREATIVE-SOURCES.md)** — source scouting rules and the `1000`-site candidate catalog
 - **[skills/](skills/README.md)** — agent-facing skill docs
 - **[flows/](flows/README.md)** — `45ck/prompt-language` docs and executable flows
 - **[scripts/harness/](scripts/harness/README.md)** — optional repo-side runners and execution model

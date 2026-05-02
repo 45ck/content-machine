@@ -5,6 +5,10 @@ Status: `golden showcase`
 This is the default Reddit story mode for generic "Reddit story",
 "AITA video", or "Subway Surfers Reddit" requests.
 
+`golden showcase` means the visual lane and routing are the example to
+copy first. The latest automated OCR caption-sync gate still reports
+active-word drift and is tracked under the review notes below.
+
 Tracked preview clip:
 
 - [demo-9-reddit-post-over-gameplay.mp4](../../demo/demo-9-reddit-post-over-gameplay.mp4)

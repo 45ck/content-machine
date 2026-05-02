@@ -1,15 +1,24 @@
 ---
 document: skill-catalog
-status: authoritative
+status: historical-planning
 ratified: 2026-04-22
 phase: 0
 ---
 
-# Content-Machine Skill Catalogue
+# Historical Skill Catalogue
 
 ## Overview
 
-This catalogue documents the 31 core skills in the Content-Machine architecture, organized across six domains and deployed in three implementation phases. Each skill is a stateless, JSON-in/JSON-out microservice invoked via `cm-skill <name>`. For integration patterns, orchestration sequences, and deprecation timelines, see `03-reorg-synthesis.md`.
+This is a 2026-04-22 planning snapshot for 31 proposed `cm-skill`
+microservices. It is retained for historical direction only.
+
+The live skill surface is now the repo-local skill pack:
+
+- [`skills/README.md`](../../skills/README.md)
+- [`scripts/harness/skill-catalog.ts`](../../scripts/harness/skill-catalog.ts)
+- [`flows/README.md`](../../flows/README.md)
+
+Do not treat this file as the authoritative shipped catalogue.
 
 ---
 

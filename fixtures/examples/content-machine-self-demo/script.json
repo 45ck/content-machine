@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "1.0.0",
+  "scenes": [
+    {
+      "id": "hook",
+      "text": "Most topic to video tools ask you to trust a black box.",
+      "visualDirection": "A terminal window with a vague generate command dissolves into a messy folder of unknown files.",
+      "duration": 4
+    },
+    {
+      "id": "problem",
+      "text": "Content Machine makes every stage inspectable: script, audio, timestamps, visuals, captions, render metadata, and review.",
+      "visualDirection": "Show a clean artifact tree where each pipeline stage writes one clear JSON or media file.",
+      "duration": 8
+    },
+    {
+      "id": "solution",
+      "text": "Agents read skills to understand the job, flows to coordinate steps, and harness scripts to run the repo through JSON standard input.",
+      "visualDirection": "Three labeled cards: skills, flows, harness scripts, connected by arrows into a short-form video timeline.",
+      "duration": 8
+    },
+    {
+      "id": "proof",
+      "text": "That means a failed caption check or weak visual plan is visible before anyone pretends the short is ready.",
+      "visualDirection": "A publish-prep report highlights pass and fail checks beside a video preview.",
+      "duration": 7
+    },
+    {
+      "id": "cta",
+      "text": "Clone it, run doctor report, then generate a short you can actually debug.",
+      "visualDirection": "End card with clone, doctor-report, and generate-short commands stacked as a simple checklist.",
+      "duration": 5
+    }
+  ],
+  "reasoning": "Offline-friendly self-demo script for proving the Content Machine artifact chain without API calls. The smoke path uses mock audio, mock visuals, and mock render output; the full self-demo request should be used for a publishable demo candidate.",
+  "title": "Content Machine in 30 Seconds",
+  "hook": "Topic-to-video should not be a black box.",
+  "cta": "Clone it, run diagnostics, then generate a short.",
+  "hashtags": ["opensource", "codingagents", "videoautomation", "shortform"],
+  "meta": {
+    "estimatedDuration": 32,
+    "wordCount": 67,
+    "archetype": "product-demo",
+    "topic": "Content Machine self-demo",
+    "generatedAt": "2026-05-01T00:00:00.000Z",
+    "model": "manual-fixture",
+    "promptVersion": "self-demo-smoke-v1",
+    "llmCost": 0
+  }
+}

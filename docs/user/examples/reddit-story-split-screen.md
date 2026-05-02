@@ -1,6 +1,6 @@
 # Reddit Story Split-Screen
 
-Status: `recipe lane; demo rebuild required`
+Status: `workflow lane; demo rebuild required`
 
 This lane describes the split-screen Reddit story grammar. The previous
 public demo was archived after video audit caught black gutters/boxed

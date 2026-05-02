@@ -3,7 +3,7 @@
 This produces the same style as `output/demo-subway-pexels/video.mp4`: gameplay on one half,
 Pexels B-roll on the other, word-highlighted captions, muted gameplay audio.
 
-This is a split-screen Pexels recipe. It is not the
+This is a split-screen Pexels workflow. It is not the
 `reddit-post-over-gameplay` archetype. For full-screen gameplay-only
 Reddit stories, use
 [`skills/reddit-post-over-gameplay-short/SKILL.md`](../../../skills/reddit-post-over-gameplay-short/SKILL.md)
@@ -70,7 +70,7 @@ JSON
 Layout options:
 
 - Swap positions by changing `gameplayPosition` and `contentPosition`.
-- Do not use this Pexels recipe to force full-screen gameplay-only
+- Do not use this Pexels workflow to force full-screen gameplay-only
   Reddit output; use `reddit-post-over-gameplay` instead.
 
 Troubleshooting:

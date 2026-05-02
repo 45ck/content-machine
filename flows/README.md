@@ -77,6 +77,8 @@ Use [`_template/FLOW.md`](_template/FLOW.md) as the starting point.
   topic-to-video path
 - [`reverse-engineer-winner.md`](reverse-engineer-winner.md) — reference
   short analysis path
+- [`showcase-content-machine.md`](showcase-content-machine.md) — repo
+  self-demo path for an OSS/social showcase clip
 
 ## Current Executable Flows
 
@@ -85,6 +87,25 @@ Use [`_template/FLOW.md`](_template/FLOW.md) as the starting point.
   `45ck/prompt-language` topic-to-video path
 - [`reverse-engineer-winner.flow`](reverse-engineer-winner.flow) — run
   the `45ck/prompt-language` reference-video ingest path
+- [`showcase-content-machine.flow`](showcase-content-machine.flow) —
+  run the Content Machine self-demo path through `generate-short`
+
+## Skill-Only Chains
+
+The longform-to-shorts path is currently shipped as runtime-backed
+skills rather than one executable `.flow` manifest:
+
+```text
+source-media-analyze
+  -> longform-highlight-select
+  -> boundary-snap
+  -> highlight-approval
+  -> video-render
+  -> publish-prep-review
+```
+
+Keep this distinction explicit until a dedicated longform flow manifest
+exists, so users do not hunt for a missing `longform-to-shorts.flow`.
 
 Use the runtime helpers to enumerate or execute them:
 

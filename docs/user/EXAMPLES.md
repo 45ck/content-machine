@@ -11,21 +11,31 @@ when improving non-Reddit motion/card-heavy examples.
 - **[Reddit Post Over Gameplay](examples/reddit-post-over-gameplay.md)** —
   default Reddit story mode: full-screen gameplay, Reddit opener card,
   captions, and no random clips
+- **[Showcase Gallery](showcase/README.md)** — fast visual map of demos,
+  skills, maturity, and what each preview proves
+- **[Example Pages](examples/README.md)** — categorized index of the
+  example docs folder
 
 ## Status Summary
 
-| Lane                        | Status                 | Demo                                                       |
-| --------------------------- | ---------------------- | ---------------------------------------------------------- |
-| `reddit-post-over-gameplay` | `golden showcase`      | [`demo-9`](../demo/demo-9-reddit-post-over-gameplay.mp4)   |
-| `reddit-story-split-screen` | `recipe; rebuild demo` | archived, not public showcase                              |
-| `stock-b-roll-explainer`    | `showcase candidate`   | [`demo-10`](../demo/demo-10-stock-broll-explainer.mp4)     |
-| `text-thread-reveal`        | `showcase candidate`   | [`demo-11`](../demo/demo-11-text-thread-reveal.mp4)        |
-| `saas-problem-solution`     | `showcase candidate`   | [`demo-12`](../demo/demo-12-saas-problem-solution.mp4)     |
-| `fast-facts-countdown`      | `showcase candidate`   | [`demo-13`](../demo/demo-13-fast-facts-countdown.mp4)      |
-| `motion-card-lesson`        | `showcase candidate`   | [`demo-14`](../demo/demo-14-motion-card-lesson.mp4)        |
-| `faceless-mixed-short`      | `showcase candidate`   | [`demo-15`](../demo/demo-15-faceless-mixed-short.mp4)      |
-| `gameplay-confession-split` | `showcase candidate`   | [`demo-16`](../demo/demo-16-gameplay-confession-split.mp4) |
-| `micro-doc-breakdown`       | `proving candidate`    | [`demo-17`](../demo/demo-17-micro-doc-breakdown.mp4)       |
+| Lane                                    | Status                          | Demo                                                                   |
+| --------------------------------------- | ------------------------------- | ---------------------------------------------------------------------- |
+| `reddit-post-over-gameplay`             | `golden showcase`               | [`demo-9`](../demo/demo-9-reddit-post-over-gameplay.mp4)               |
+| `reddit-story-split-screen`             | `workflow; rebuild demo`        | archived, not public showcase                                          |
+| `stock-b-roll-explainer`                | `showcase candidate`            | [`demo-10`](../demo/demo-10-stock-broll-explainer.mp4)                 |
+| `text-thread-reveal`                    | `showcase candidate`            | [`demo-11`](../demo/demo-11-text-thread-reveal.mp4)                    |
+| `saas-problem-solution`                 | `showcase candidate`            | [`demo-12`](../demo/demo-12-saas-problem-solution.mp4)                 |
+| `fast-facts-countdown`                  | `showcase candidate`            | [`demo-13`](../demo/demo-13-fast-facts-countdown.mp4)                  |
+| `motion-card-lesson`                    | `showcase candidate`            | [`demo-14`](../demo/demo-14-motion-card-lesson.mp4)                    |
+| `faceless-mixed-short`                  | `showcase candidate`            | [`demo-15`](../demo/demo-15-faceless-mixed-short.mp4)                  |
+| `gameplay-confession-split`             | `showcase candidate`            | [`demo-16`](../demo/demo-16-gameplay-confession-split.mp4)             |
+| `micro-doc-breakdown`                   | `proving candidate`             | [`demo-17`](../demo/demo-17-micro-doc-breakdown.mp4)                   |
+| `content-machine-reddit-gameplay-remix` | `supporting showcase candidate` | [`demo-18`](../demo/demo-18-content-machine-reddit-gameplay-remix.mp4) |
+| `content-machine-motion-cards`          | `supporting showcase candidate` | [`demo-19`](../demo/demo-19-content-machine-motion-cards.mp4)          |
+| `procedural-gameplay-backgrounds`       | `experimental preview`          | [`demo-20`](../demo/demo-20-content-machine-3d-runner.mp4)             |
+
+`demo-20` is intentionally experimental at `720x1280`; keep it in docs
+as an additive 3D/procedural direction, not a promoted README example.
 
 ## Secondary Real Renders
 
@@ -51,14 +61,42 @@ when improving non-Reddit motion/card-heavy examples.
 - **[Micro-Doc Breakdown](examples/micro-doc-breakdown.md)** —
   documentary-style proving candidate with archival cards, evidence
   inserts, narration, captions, and a base publish-prep pass
+- **[Content Machine Self-Demo Short](examples/content-machine-self-demo.md)** —
+  repo-explainer workflow with tracked Reddit/gameplay and motion-card
+  preview variants
+- **[Procedural Gameplay Backgrounds](examples/procedural-gameplay-backgrounds.md)** —
+  additive 3D/procedural gameplay treatment for caption-clean retention
+  motion
 - **[Gemini Image-Led Shorts](examples/gemini-image-shorts.md)** —
   real rendered MP4 gallery from the image-led path; useful as a
   supporting showcase, not the flagship lane
 
-## Recipes And Walkthroughs
+## Workflows And Walkthroughs
 
 These are runnable technique docs. Some use provider keys or older
 surfaces and should not be confused with flagship examples.
+
+### Content Machine self-demo
+
+Use this when you want a short that explains the repo with its own
+`generate-short` path:
+
+```bash
+cat skills/generate-short/examples/content-machine-self-demo.request.json | \
+  node --import tsx scripts/harness/generate-short.ts
+```
+
+Each completed `generate-short` run now emits
+`provenance/asset-ledger.json`; publish-prep reviews that ledger by
+default, so example promotion should include both the asset ledger and
+the publish-prep `provenance.json` result.
+
+If provider keys or rate limits are not available, run the no-key smoke
+path instead. See
+[Content Machine Self-Demo Short](examples/content-machine-self-demo.md).
+Tracked supporting previews are
+[`demo-18`](../demo/demo-18-content-machine-reddit-gameplay-remix.mp4)
+and [`demo-19`](../demo/demo-19-content-machine-motion-cards.mp4).
 
 ### Listicle from a trending topic
 
@@ -93,7 +131,7 @@ JSON
 
 ```bash
 cat skills/reverse-engineer-winner/examples/request.json | \
-  node --import tsx scripts/harness/ingest.ts
+  node --import tsx scripts/harness/reverse-engineer-winner.ts
 ```
 
 ### AI-generated visuals (no stock footage)
@@ -119,6 +157,7 @@ See [NanoBanana + Ken Burns example](examples/nanobanana-kenburns.md) for full c
 
 - **[Latest News Listicle](examples/latest-news-listicle.md)** — research → script → audio → visuals → video
 - **[Split-Screen Gameplay](examples/split-screen-gameplay.md)** — gameplay on one half, stock B-roll on the other
+- **[Procedural Gameplay Backgrounds](examples/procedural-gameplay-backgrounds.md)** — 3D/procedural gameplay-like backgrounds as an additive visual treatment
 - **[Complex Plane Rotation](examples/complex-plane-rotation.md)** — custom Remotion template with drawn diagrams
 - **[NanoBanana + Ken Burns](examples/nanobanana-kenburns.md)** — AI-generated images with motion effects
 - **[NanoBanana + Veo](examples/nanobanana-veo.md)** — AI images turned into video clips
@@ -145,4 +184,5 @@ ls fixtures/examples/
 
 ## Demo Gallery
 
-See generated output samples in [`docs/demo/`](../demo/).
+See generated output samples and maturity labels in
+[`docs/demo/`](../demo/README.md).

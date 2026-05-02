@@ -12,6 +12,9 @@ restore decision in a direction or classification document.
 | path          | archived-from                  | archived-in-phase | replaced-by                             | date       |
 | ------------- | ------------------------------ | ----------------- | --------------------------------------- | ---------- |
 | `legacy-cli/` | pre-pivot `cm` command surface | Phase 4+          | `skills/`, `flows/`, `scripts/harness/` | 2026-04-23 |
+| `demo/`       | old demo MP4s                  | Phase 4+          | `docs/demo/` promoted showcases         | 2026-04-23 |
+| `experiments/` | old proving artifacts          | Phase 4+          | `experiments/` tracked reports only     | 2026-04-23 |
+| `root-artifacts/` | old root media/artifacts       | Phase 4+          | `assets/` or ignored local outputs      | 2026-04-23 |
 
 Current archive contents include:
 
@@ -20,6 +23,7 @@ Current archive contents include:
 - workflow control-plane modules
 - research orchestrator/indexer surfaces
 - local template/reference repos under `archive/legacy-cli/templates/`
+- old demo MP4s and root-level media artifacts retained for diffing
 - legacy task tracker notes
 
 ## How to restore
