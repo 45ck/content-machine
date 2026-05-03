@@ -1,0 +1,27 @@
+{
+  "platform": "youtube_shorts",
+  "archetype": "topic-faceless-explainer",
+  "goal": "Generate and evaluate packaging variants before writing the script.",
+  "inputs": {
+    "topic": "Why phone batteries degrade faster in hot cars",
+    "audience": "curious everyday tech users",
+    "tone": "clear, slightly urgent, practical",
+    "proof_points": [
+      "Lithium-ion batteries age faster at high temperatures",
+      "Heat can permanently reduce maximum capacity",
+      "Simple storage habits can slow degradation"
+    ],
+    "constraints": {
+      "duration_seconds": 45,
+      "aspect_ratio": "9:16",
+      "avoid_claims": ["Do not imply every hot-car exposure destroys a battery instantly"]
+    }
+  },
+  "requested_outputs": [
+    "packaging-variants.v1.json",
+    "defaultVariantId",
+    "selectionRationale",
+    "hook_overlay_direction",
+    "platform_metadata"
+  ]
+}

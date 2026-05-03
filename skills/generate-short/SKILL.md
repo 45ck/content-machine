@@ -76,24 +76,34 @@ outputs:
 - Caption-treatment choice through
   [`short-form-captions`](../short-form-captions/SKILL.md).
 - Final render and review gating.
+- Optional hook packaging, virality review, retention pass, platform
+  packaging, and metrics feedback as agent-facing quality layers around
+  the runtime path.
 
 ## Workflow
 
 1. Start with the brief, not the render flags.
-2. Pick `laneId` separately from `archetype` when the brief implies a
+2. Use [`hook-packaging`](../hook-packaging/SKILL.md) before scripting
+   when the title, cover, opening frame, or platform promise matters.
+3. Pick `laneId` separately from `archetype` when the brief implies a
    visual/editing lane. `archetype` is the script shape;
    `laneId` is the video format.
-3. Generate a script with enough punch to support chunked reading.
-4. Generate audio and timestamps cleanly enough that captions will not
+4. Generate a script with enough punch to support chunked reading.
+5. Generate audio and timestamps cleanly enough that captions will not
    be forced to compensate.
-5. Build visuals that leave caption room and avoid baked-in source text.
-6. Choose the caption family before render.
-7. Use
+6. Build visuals that leave caption room and avoid baked-in source text.
+7. Choose the caption family before render.
+8. Use
    [`short-form-production-playbook`](../short-form-production-playbook/SKILL.md)
    when you need hook, pacing, visual-assembly, or rejection guidance
    instead of only stage execution.
-8. Render.
-9. Review. Reject bad outputs instead of rebranding them as acceptable.
+9. Use [`virality-review`](../virality-review/SKILL.md) and
+   [`retention-pass`](../retention-pass/SKILL.md) before final approval
+   when the hook, retention, or payoff is a risk.
+10. Render.
+11. Use [`platform-packaging`](../platform-packaging/SKILL.md) for
+    platform-specific metadata and upload checklist work.
+12. Review. Reject bad outputs instead of rebranding them as acceptable.
 
 ## Optional Runtime Surface
 

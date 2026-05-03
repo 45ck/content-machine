@@ -1,0 +1,9 @@
+{
+  "artifactPath": "output/content-machine/draft/script.json",
+  "platform": "tiktok",
+  "archetype": "topic-faceless-explainer",
+  "viewer": "busy founders evaluating automation tools",
+  "stage": "pre-production",
+  "styleProfilePath": "output/content-machine/library/style-profiles.v1.json",
+  "referenceBreakdownPath": "output/content-machine/ingest/videospec.v1.json"
+}

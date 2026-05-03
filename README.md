@@ -107,17 +107,20 @@ the packaged runtime only when execution is needed.
 
 ## Skills At A Glance
 
-| If You Want                              | Give Your Agent This Skill Or Flow                                                                                                                                                   |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Full topic-to-video short                | [`generate-short`](skills/generate-short/SKILL.md) or [`generate-short.flow`](flows/generate-short.flow)                                                                             |
-| Reddit story over Subway-style gameplay  | [`reddit-post-over-gameplay-short`](skills/reddit-post-over-gameplay-short/SKILL.md), [`reddit-card-overlay`](skills/reddit-card-overlay/SKILL.md)                                   |
-| Confession or storytime over gameplay    | [`gameplay-confession-short`](skills/gameplay-confession-short/SKILL.md), [`reddit-story-short`](skills/reddit-story-short/SKILL.md)                                                 |
-| Longform video cut into vertical shorts  | [`longform-to-shorts`](skills/longform-to-shorts/SKILL.md), [`longform-clip-extract`](skills/longform-clip-extract/SKILL.md), [`reframe-vertical`](skills/reframe-vertical/SKILL.md) |
-| Product, SaaS, or creator-style ad       | [`saas-problem-solution-short`](skills/saas-problem-solution-short/SKILL.md), [`ugc-avatar-short`](skills/ugc-avatar-short/SKILL.md)                                                 |
-| Motion cards, diagrams, or coded visuals | [`motion-card-lesson-short`](skills/motion-card-lesson-short/SKILL.md), [`motion-design-coder`](skills/motion-design-coder/SKILL.md)                                                 |
-| 3D/procedural gameplay backgrounds       | [`procedural-gameplay-backgrounds`](skills/procedural-gameplay-backgrounds/SKILL.md)                                                                                                 |
-| Captions, timing, and review             | [`short-form-captions`](skills/short-form-captions/SKILL.md), [`video-render`](skills/video-render/SKILL.md), [`publish-prep-review`](skills/publish-prep-review/SKILL.md)           |
-| Source media, rights, and reuse          | [`creative-source-scout`](skills/creative-source-scout/SKILL.md), [`source-media-review`](skills/source-media-review/SKILL.md), [`asset-ledger`](skills/asset-ledger/SKILL.md)       |
+| If You Want                              | Give Your Agent This Skill Or Flow                                                                                                                                                               |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Full topic-to-video short                | [`generate-short`](skills/generate-short/SKILL.md) or [`generate-short.flow`](flows/generate-short.flow)                                                                                         |
+| Reddit story over Subway-style gameplay  | [`reddit-post-over-gameplay-short`](skills/reddit-post-over-gameplay-short/SKILL.md), [`reddit-card-overlay`](skills/reddit-card-overlay/SKILL.md)                                               |
+| Confession or storytime over gameplay    | [`gameplay-confession-short`](skills/gameplay-confession-short/SKILL.md), [`reddit-story-short`](skills/reddit-story-short/SKILL.md)                                                             |
+| Longform video cut into vertical shorts  | [`longform-to-shorts`](skills/longform-to-shorts/SKILL.md), [`longform-clip-extract`](skills/longform-clip-extract/SKILL.md), [`reframe-vertical`](skills/reframe-vertical/SKILL.md)             |
+| Product, SaaS, or creator-style ad       | [`saas-problem-solution-short`](skills/saas-problem-solution-short/SKILL.md), [`ugc-avatar-short`](skills/ugc-avatar-short/SKILL.md)                                                             |
+| Motion cards, diagrams, or coded visuals | [`motion-card-lesson-short`](skills/motion-card-lesson-short/SKILL.md), [`motion-design-coder`](skills/motion-design-coder/SKILL.md)                                                             |
+| 3D/procedural gameplay backgrounds       | [`procedural-gameplay-backgrounds`](skills/procedural-gameplay-backgrounds/SKILL.md)                                                                                                             |
+| Hook/title/cover packaging               | [`hook-packaging`](skills/hook-packaging/SKILL.md), [`platform-packaging`](skills/platform-packaging/SKILL.md), [`hook-overlay`](skills/hook-overlay/SKILL.md)                                   |
+| Virality and retention review            | [`virality-review`](skills/virality-review/SKILL.md), [`retention-pass`](skills/retention-pass/SKILL.md), [`publish-prep-review`](skills/publish-prep-review/SKILL.md)                           |
+| Captions, timing, and review             | [`short-form-captions`](skills/short-form-captions/SKILL.md), [`video-render`](skills/video-render/SKILL.md), [`publish-prep-review`](skills/publish-prep-review/SKILL.md)                       |
+| Source media, rights, and reuse          | [`creative-source-scout`](skills/creative-source-scout/SKILL.md), [`source-media-review`](skills/source-media-review/SKILL.md), [`asset-ledger`](skills/asset-ledger/SKILL.md)                   |
+| Learn from published results             | [`metrics-feedback-loop`](skills/metrics-feedback-loop/SKILL.md), [`style-profile-library`](skills/style-profile-library/SKILL.md), [`niche-profile-draft`](skills/niche-profile-draft/SKILL.md) |
 
 The complete catalog lives in [`skills/`](skills/README.md), executable
 multi-step paths live in [`flows/`](flows/README.md), and deterministic
@@ -149,6 +152,8 @@ video pipeline from scratch:
 - Longform podcast, interview, talk, or screen-recording clips.
 - Reviewed MP4s with provenance, captions, source rights, and quality
   gates.
+- Hook, retention, platform-fit, and metrics feedback loops that improve
+  future shorts without pretending virality is guaranteed.
 
 ## Start Here
 
@@ -157,6 +162,7 @@ video pipeline from scratch:
 - **Understand the workflow:**
   [Agent Quickstart](docs/user/AGENT-QUICKSTART.md)
 - **Pick a video lane:** [Archetypes](docs/user/ARCHETYPES.md)
+- **Review hook/retention:** [Virality And Retention](docs/user/VIRALITY-AND-RETENTION.md)
 - **Watch examples:** [Showcase Gallery](docs/user/showcase/README.md)
   and [Demo Gallery](docs/demo/README.md)
 - **Browse skills:** [Skills](skills/README.md)

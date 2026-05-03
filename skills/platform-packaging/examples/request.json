@@ -1,0 +1,21 @@
+{
+  "scriptPath": "output/script.json",
+  "videoPath": "output/video.mp4",
+  "publishPrepPath": "output/content-machine/publish-prep/publish.json",
+  "outputPath": "output/content-machine/platform-packaging/platform_packaging.json",
+  "platforms": ["tiktok", "reels", "shorts", "linkedin", "x"],
+  "audience": "creators and small teams evaluating short-form production workflows",
+  "brandVoice": "clear, practical, and lightly opinionated",
+  "campaignGoal": "drive viewers to review the workflow notes before trying the template",
+  "ctaTarget": "project README or launch page",
+  "disclosures": {
+    "aiGeneratedMedia": true,
+    "sponsored": false,
+    "affiliateLinks": false
+  },
+  "constraints": {
+    "doNotAutoUpload": true,
+    "region": "US",
+    "bannedWords": []
+  }
+}

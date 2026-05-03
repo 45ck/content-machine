@@ -23,15 +23,17 @@ surfaces. The old CLI-first guides now live under
    skills, maturity, and what each lane proves
 6. [Quality And Review](QUALITY-AND-REVIEW.md) — review gates for
    captions, audio, motion, safe zones, and promotion status
-7. [Configuration](CONFIGURATION.md) — defaults, providers, and
+7. [Virality And Retention](VIRALITY-AND-RETENTION.md) — hook,
+   packaging, retention, platform-fit, and metrics feedback workflow
+8. [Configuration](CONFIGURATION.md) — defaults, providers, and
    data-driven resources
-8. [Creative Sources](CREATIVE-SOURCES.md) — resource scouting for
+9. [Creative Sources](CREATIVE-SOURCES.md) — resource scouting for
    animation, 3D, stock, audio, and AI generation sites
-9. [Reddit Post Over Gameplay](examples/reddit-post-over-gameplay.md) —
-   default Reddit story example
-10. [Examples](EXAMPLES.md) — status summary and selected runnable
+10. [Reddit Post Over Gameplay](examples/reddit-post-over-gameplay.md) —
+    default Reddit story example
+11. [Examples](EXAMPLES.md) — status summary and selected runnable
     walkthroughs
-11. [Example Pages](examples/README.md) — categorized index of every
+12. [Example Pages](examples/README.md) — categorized index of every
     page under `docs/user/examples/`
 
 Default Reddit story mode is `reddit-post-over-gameplay`: full-screen
@@ -59,6 +61,9 @@ Index roles:
   rules plus the `1000`-site candidate catalog
 - [Short-Form Archetype Research](../research/archetypes/README.md) —
   vendor/repo-derived archetype research, workflows, and quality rubrics
+- [Virality And Retention](VIRALITY-AND-RETENTION.md) — how agents use
+  hook packaging, virality review, retention passes, platform packaging,
+  and metrics feedback without promising guaranteed reach
 - [Vendor Archetype Backlog](../direction/09-vendor-archetype-backlog-20260429.md) —
   lanes to build next, one at a time
 

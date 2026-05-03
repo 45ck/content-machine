@@ -28,6 +28,16 @@ required for a short-form video run.
 5. `video-render`
 6. `publish-prep-review` as the closing review gate
 
+Supporting quality skills can wrap the runtime path when needed:
+
+- `hook-packaging` before scripting when the title, cover, or opening
+  frame needs variants.
+- `virality-review` and `retention-pass` before final approval when the
+  hook, pacing, or payoff is uncertain.
+- `platform-packaging` after render for platform-specific metadata and
+  upload checklists.
+- `metrics-feedback-loop` after publish metrics exist.
+
 ## Current Status
 
 Executable. `generate-short` now orchestrates the script, audio,

@@ -1,0 +1,15 @@
+{
+  "receiptsPath": "output/content-machine/publish-prep/publish.json",
+  "metricsPath": "output/content-machine/performance/short-001.json",
+  "styleProfilePath": "output/content-machine/library/style-profiles.v1.json",
+  "nicheProfilePath": "profiles/niche.json",
+  "outputPath": "output/content-machine/learning/metrics-feedback.v1.json",
+  "baseline": {
+    "platform": "shorts",
+    "durationBand": "30-45s",
+    "medianCompletionRate": 0.58,
+    "medianShareRate": 0.012,
+    "medianSaveRate": 0.009
+  },
+  "learningGoal": "Update future hook, pacing, caption, and packaging decisions from meaningful outcome signals."
+}

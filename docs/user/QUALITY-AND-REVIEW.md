@@ -32,28 +32,36 @@ Use this order because it catches expensive mistakes early:
 1. Source media: reject wrong aspect ratio, silent files, baked-in
    captions, watermarks, unusable stock clips, and default fallback
    backgrounds before render.
-2. Script and timing: check hook, duration, scene count, and whether the
+2. Hook packaging: generate and choose the hook/title/cover promise
+   before the script and render inherit a weak angle.
+3. Script and timing: check hook, duration, scene count, and whether the
    captions can be chunked into readable phrases.
-3. Visual plan: verify each narration beat has a specific visual job.
-4. Render: inspect the actual MP4, not only JSON artifacts.
-5. Publish-prep: run platform, cadence, audio, caption, and provenance
+4. Visual plan: verify each narration beat has a specific visual job.
+5. Virality and retention: check hook, clarity, payoff, pacing,
+   repetition, platform fit, and mobile skim value before final approval.
+6. Render: inspect the actual MP4, not only JSON artifacts.
+7. Publish-prep: run platform, cadence, audio, caption, and provenance
    checks.
-6. Send-back: fix the first upstream cause instead of patching symptoms
+8. Send-back: fix the first upstream cause instead of patching symptoms
    in the final export.
 
 ## Required Gates
 
-| Gate                | What It Catches                                               | Skills Or Runtime Surface                                                                                                                                                                                        |
-| ------------------- | ------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Source media review | bad footage, silence, baked text, wrong crop, reused junk     | [`source-media-review`](../../skills/source-media-review/SKILL.md), [`source-media-analyze`](../../skills/source-media-analyze/SKILL.md)                                                                         |
-| Caption timing      | captions drifting away from voiceover                         | [`token-level-caption-timestamps`](../../skills/token-level-caption-timestamps/SKILL.md), [`timing-sync`](../../skills/timing-sync/SKILL.md), [`short-form-captions`](../../skills/short-form-captions/SKILL.md) |
-| Caption design      | captions outside frame, too many words, unreadable styling    | [`short-form-captions`](../../skills/short-form-captions/SKILL.md), [`karaoke-ass-captions`](../../skills/karaoke-ass-captions/SKILL.md)                                                                         |
-| Scene variation     | slideshow risk, repeated cards, weak motion                   | [`scene-variation-check`](../../skills/scene-variation-check/SKILL.md), [`slideshow-risk-review`](../../skills/slideshow-risk-review/SKILL.md)                                                                   |
-| Scene pacing        | visuals not matching narration cues                           | [`scene-pacing-verifier`](../../skills/scene-pacing-verifier/SKILL.md), [`timing-sync`](../../skills/timing-sync/SKILL.md)                                                                                       |
-| Safe vertical crop  | faces, UI, text, or story footage cut off                     | [`reframe-vertical`](../../skills/reframe-vertical/SKILL.md), [`scene-aware-smart-crop`](../../skills/scene-aware-smart-crop/SKILL.md)                                                                           |
-| Layout safety       | cards, diagrams, captions, and UI layers overlapping          | `@45ck/video-evaluator` `layout-safety-review`; demo sidecars use `docs/demo/*.layout.json`                                                                                                                      |
-| Publish prep        | platform format, cadence, audio signal, captions, metadata    | [`publish-prep-review`](../../skills/publish-prep-review/SKILL.md), [`scripts/harness/publish-prep.ts`](../../scripts/harness/publish-prep.ts)                                                                   |
-| Provenance          | unknown rights, missing licenses, risky audio, weak AI traces | [`publish-prep-review`](../../skills/publish-prep-review/SKILL.md), [`media-index`](../../skills/media-index/SKILL.md), asset ledgers                                                                            |
+| Gate                | What It Catches                                                  | Skills Or Runtime Surface                                                                                                                                                                                                                    |
+| ------------------- | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Source media review | bad footage, silence, baked text, wrong crop, reused junk        | [`source-media-review`](../../skills/source-media-review/SKILL.md), [`source-media-analyze`](../../skills/source-media-analyze/SKILL.md)                                                                                                     |
+| Hook packaging      | weak promise, vague title, unreadable cover, unsupported CTA     | [`hook-packaging`](../../skills/hook-packaging/SKILL.md), [`hook-overlay`](../../skills/hook-overlay/SKILL.md), [`platform-packaging`](../../skills/platform-packaging/SKILL.md)                                                             |
+| Caption timing      | captions drifting away from voiceover                            | [`token-level-caption-timestamps`](../../skills/token-level-caption-timestamps/SKILL.md), [`timing-sync`](../../skills/timing-sync/SKILL.md), [`short-form-captions`](../../skills/short-form-captions/SKILL.md)                             |
+| Caption design      | captions outside frame, too many words, unreadable styling       | [`short-form-captions`](../../skills/short-form-captions/SKILL.md), [`karaoke-ass-captions`](../../skills/karaoke-ass-captions/SKILL.md)                                                                                                     |
+| Scene variation     | slideshow risk, repeated cards, weak motion                      | [`scene-variation-check`](../../skills/scene-variation-check/SKILL.md), [`slideshow-risk-review`](../../skills/slideshow-risk-review/SKILL.md)                                                                                               |
+| Scene pacing        | visuals not matching narration cues                              | [`scene-pacing-verifier`](../../skills/scene-pacing-verifier/SKILL.md), [`timing-sync`](../../skills/timing-sync/SKILL.md)                                                                                                                   |
+| Virality review     | weak hook, unclear promise, missing payoff, platform mismatch    | [`virality-review`](../../skills/virality-review/SKILL.md), [`short-form-archetype-research`](../../skills/short-form-archetype-research/SKILL.md), [`short-form-production-playbook`](../../skills/short-form-production-playbook/SKILL.md) |
+| Retention pass      | dead air, slow first frame, visual repetition, caption overload  | [`retention-pass`](../../skills/retention-pass/SKILL.md), [`scene-pacing-verifier`](../../skills/scene-pacing-verifier/SKILL.md), [`slideshow-risk-review`](../../skills/slideshow-risk-review/SKILL.md)                                     |
+| Safe vertical crop  | faces, UI, text, or story footage cut off                        | [`reframe-vertical`](../../skills/reframe-vertical/SKILL.md), [`scene-aware-smart-crop`](../../skills/scene-aware-smart-crop/SKILL.md)                                                                                                       |
+| Layout safety       | cards, diagrams, captions, and UI layers overlapping             | `@45ck/video-evaluator` `layout-safety-review`; demo sidecars use `docs/demo/*.layout.json`                                                                                                                                                  |
+| Platform packaging  | one caption pasted everywhere, bad hashtags, missing disclosures | [`platform-packaging`](../../skills/platform-packaging/SKILL.md), [`publish-prep-review`](../../skills/publish-prep-review/SKILL.md), [`asset-ledger`](../../skills/asset-ledger/SKILL.md)                                                   |
+| Publish prep        | platform format, cadence, audio signal, captions, metadata       | [`publish-prep-review`](../../skills/publish-prep-review/SKILL.md), [`scripts/harness/publish-prep.ts`](../../scripts/harness/publish-prep.ts)                                                                                               |
+| Provenance          | unknown rights, missing licenses, risky audio, weak AI traces    | [`publish-prep-review`](../../skills/publish-prep-review/SKILL.md), [`media-index`](../../skills/media-index/SKILL.md), asset ledgers                                                                                                        |
 
 ## Publish-Prep Command
 
@@ -103,6 +111,17 @@ Expected publish-prep output is inspectable, not just a console message:
 `provenance.json`, and a clear ready/not-ready verdict. The user-facing
 gate is `publish-prep`; `publish-prep-review` remains an alias in skill
 docs where older examples still name the review-focused wrapper.
+
+## Post-Publish Learning
+
+After a short has enough evidence, use
+[`metrics-feedback-loop`](../../skills/metrics-feedback-loop/SKILL.md)
+to separate meaningful outcomes from vanity metrics and propose
+repeat/kill/test-next decisions. Durable lessons should become
+reviewable updates to
+[`style-profile-library`](../../skills/style-profile-library/SKILL.md)
+or [`niche-profile-draft`](../../skills/niche-profile-draft/SKILL.md),
+not hidden chat memory.
 
 ## Demo Video Audit
 

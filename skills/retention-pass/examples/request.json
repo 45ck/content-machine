@@ -1,0 +1,9 @@
+{
+  "scriptPath": "output/content-machine/script/script.json",
+  "timelinePath": "output/content-machine/render/timeline.json",
+  "scenePlanPath": "output/content-machine/visuals/visuals.json",
+  "captionExportPath": "output/content-machine/render/captions.remotion.json",
+  "videoPath": "output/video.mp4",
+  "platform": "tiktok",
+  "targetDurationSeconds": 45
+}

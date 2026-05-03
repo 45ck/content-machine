@@ -32,17 +32,23 @@ not hidden chat state.
 
 1. Decide the promise of the short in one sentence.
 2. Decide the hook in one visual beat and one spoken beat.
-3. Decide whether the short is mainly:
+3. Use [`hook-packaging`](../hook-packaging/SKILL.md) when title,
+   cover, opening-frame, or platform metadata variants should be chosen
+   before the script locks in.
+4. Decide whether the short is mainly:
    `explainer`, `proof/result`, `reaction`, `clip-and-comment`, or
    `story`.
-4. Pick exactly one archetype before sourcing visuals. Do not blend
+5. Pick exactly one archetype before sourcing visuals. Do not blend
    formats unless the user asks for a hybrid.
-5. Pick the caption family before building visuals.
-6. Build visuals that leave room for captions and platform chrome.
-7. Render.
-8. Review.
-9. Reject and regenerate if the edit feels weak, messy, repetitive, or
-   unreadable.
+6. Pick the caption family before building visuals.
+7. Build visuals that leave room for captions and platform chrome.
+8. Use [`virality-review`](../virality-review/SKILL.md) and
+   [`retention-pass`](../retention-pass/SKILL.md) before final approval
+   when the hook, pacing, or platform fit is uncertain.
+9. Render.
+10. Review.
+11. Reject and regenerate if the edit feels weak, messy, repetitive, or
+    unreadable.
 
 ## What Good Shorts Usually Need
 
@@ -85,7 +91,8 @@ not hidden chat state.
 - If you are executing, use the repo skills to produce files, but keep
   this playbook as the decision layer:
   `brief-to-script`, `script-to-audio`, `timestamps-to-visuals`,
-  `video-render`, `publish-prep-review`.
+  `video-render`, `virality-review`, `retention-pass`,
+  `platform-packaging`, `publish-prep-review`.
 - Prefer resumable phase artifacts over one giant prompt or one giant
   run log.
 

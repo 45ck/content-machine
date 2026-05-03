@@ -99,6 +99,7 @@ Use this matrix before scanning the exhaustive catalog.
 | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Full topic-to-video run          | [`generate-short/`](generate-short/SKILL.md)                                                                                                                                                         | [`publish-prep-review/`](publish-prep-review/SKILL.md), [`short-form-production-playbook/`](short-form-production-playbook/SKILL.md)                                                           |
 | Pick a short-form lane           | [`short-form-production-playbook/`](short-form-production-playbook/SKILL.md)                                                                                                                         | [`docs/user/ARCHETYPES.md`](../docs/user/ARCHETYPES.md), lane-specific skills                                                                                                                  |
+| Package the hook/title/cover     | [`hook-packaging/`](hook-packaging/SKILL.md)                                                                                                                                                         | [`platform-packaging/`](platform-packaging/SKILL.md), [`hook-overlay/`](hook-overlay/SKILL.md), [`publish-prep-review/`](publish-prep-review/SKILL.md)                                         |
 | Reddit/story over gameplay       | [`reddit-post-over-gameplay-short/`](reddit-post-over-gameplay-short/SKILL.md)                                                                                                                       | [`reddit-card-overlay/`](reddit-card-overlay/SKILL.md), [`procedural-gameplay-backgrounds/`](procedural-gameplay-backgrounds/SKILL.md), captions                                               |
 | Product or SaaS short            | [`saas-problem-solution-short/`](saas-problem-solution-short/SKILL.md)                                                                                                                               | [`ugc-avatar-short/`](ugc-avatar-short/SKILL.md), [`motion-design-coder/`](motion-design-coder/SKILL.md)                                                                                       |
 | Educational cards or diagrams    | [`motion-card-lesson-short/`](motion-card-lesson-short/SKILL.md)                                                                                                                                     | [`motion-design-coder/`](motion-design-coder/SKILL.md), [`short-form-captions/`](short-form-captions/SKILL.md)                                                                                 |
@@ -107,6 +108,8 @@ Use this matrix before scanning the exhaustive catalog.
 | Captions, timing, and sync       | [`short-form-captions/`](short-form-captions/SKILL.md)                                                                                                                                               | [`token-level-caption-timestamps/`](token-level-caption-timestamps/SKILL.md), [`timing-sync/`](timing-sync/SKILL.md), [`karaoke-ass-captions/`](karaoke-ass-captions/SKILL.md)                 |
 | Source rights and reusable media | [`creative-source-scout/`](creative-source-scout/SKILL.md)                                                                                                                                           | [`source-media-review/`](source-media-review/SKILL.md), [`media-index/`](media-index/SKILL.md), [`asset-ledger/`](asset-ledger/SKILL.md)                                                       |
 | Asset lifecycle and reruns       | [`asset-fingerprint-cache/`](asset-fingerprint-cache/SKILL.md)                                                                                                                                       | [`generated-asset-versioning/`](generated-asset-versioning/SKILL.md), [`partial-regeneration/`](partial-regeneration/SKILL.md), [`retry-with-cache/`](retry-with-cache/SKILL.md)               |
+| Review virality and retention    | [`virality-review/`](virality-review/SKILL.md), [`retention-pass/`](retention-pass/SKILL.md)                                                                                                         | [`publish-prep-review/`](publish-prep-review/SKILL.md), [`short-form-production-playbook/`](short-form-production-playbook/SKILL.md)                                                           |
+| Learn from posted results        | [`metrics-feedback-loop/`](metrics-feedback-loop/SKILL.md)                                                                                                                                           | [`style-profile-library/`](style-profile-library/SKILL.md), [`niche-profile-draft/`](niche-profile-draft/SKILL.md), [`reverse-engineer-winner/`](reverse-engineer-winner/SKILL.md)             |
 | Review and sendback loops        | [`publish-prep-review/`](publish-prep-review/SKILL.md)                                                                                                                                               | [`executive-producer-sendback/`](executive-producer-sendback/SKILL.md), [`scene-pacing-verifier/`](scene-pacing-verifier/SKILL.md), [`slideshow-risk-review/`](slideshow-risk-review/SKILL.md) |
 
 ## Shipped Skills
@@ -194,6 +197,24 @@ selection; use this list when checking whether a specific skill exists.
 - [`procedural-gameplay-backgrounds/`](procedural-gameplay-backgrounds/SKILL.md)
   — caption-clean 3D or procedural gameplay-like backgrounds that add
   retention motion without replacing the chosen lane
+
+### Hook, Packaging, Virality, And Learning
+
+- [`hook-packaging/`](hook-packaging/SKILL.md) — generate, score, and
+  select hook, title, cover, opening-frame, and metadata variants before
+  script or render work locks in
+- [`platform-packaging/`](platform-packaging/SKILL.md) — adapt an
+  approved short into platform-specific titles, captions, hashtags,
+  CTAs, disclosures, and upload checklists without auto-uploading
+- [`virality-review/`](virality-review/SKILL.md) — review hook,
+  retention, clarity, payoff, risk, and platform fit without promising
+  guaranteed reach
+- [`retention-pass/`](retention-pass/SKILL.md) — catch first-frame,
+  dead-air, visual-turnover, caption-density, repetition, and payoff
+  problems before final approval
+- [`metrics-feedback-loop/`](metrics-feedback-loop/SKILL.md) — turn
+  publish receipts and performance metrics into repeat, kill, test-next,
+  style-profile, and niche-profile updates
 
 ### Review, Regeneration, And Asset Control
 
