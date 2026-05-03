@@ -43,6 +43,50 @@ source or topic
   -> quality-gated MP4
 ```
 
+## Use It In Your Repo
+
+Copy this into Claude Code, Codex CLI, Cursor, or another repo-aware
+agent from the project where you want to make videos:
+
+```text
+Install Content Machine in this repo.
+
+Read the install instructions:
+https://github.com/45ck/content-machine/blob/master/docs/user/AGENT-HARNESS-INSTALL.md
+
+Then install the package, materialize `.content-machine/`, verify
+`cm-agent`, run doctor-report, and tell me what is missing before
+generating real videos. After install, use Content Machine skills and
+flows for short-form video work, write artifacts under `runs/<run-id>/`,
+and only call an MP4 ready when publish-prep passes.
+```
+
+If you want the commands yourself:
+
+```bash
+npm install --save-dev @45ck/content-machine
+npx cm-install --target .content-machine --write-instructions
+npx --no-install cm-agent list
+```
+
+Use `--instruction-file CLAUDE.md` with `cm-install` when Claude Code
+should load the managed instruction block from `CLAUDE.md`.
+
+## Skill Pack At A Glance
+
+| Job                        | Start Here                                                                                                                                                         |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Full topic-to-video short  | [`generate-short`](skills/generate-short/SKILL.md) or [`generate-short.flow`](flows/generate-short.flow)                                                           |
+| Reddit story over gameplay | [`reddit-post-over-gameplay-short`](skills/reddit-post-over-gameplay-short/SKILL.md)                                                                               |
+| Longform video to shorts   | [`longform-to-shorts`](skills/longform-to-shorts/SKILL.md) plus [`longform-clip-extract`](skills/longform-clip-extract/SKILL.md)                                   |
+| Motion cards or coded 3D   | [`motion-design-coder`](skills/motion-design-coder/SKILL.md) plus [`procedural-gameplay-backgrounds`](skills/procedural-gameplay-backgrounds/SKILL.md)             |
+| Captions and final review  | [`short-form-captions`](skills/short-form-captions/SKILL.md) plus [`publish-prep-review`](skills/publish-prep-review/SKILL.md)                                     |
+| Source media and rights    | [`creative-source-scout`](skills/creative-source-scout/SKILL.md), [`media-index`](skills/media-index/SKILL.md), and [`asset-ledger`](skills/asset-ledger/SKILL.md) |
+
+The full catalogs live in [`skills/`](skills/README.md),
+[`flows/`](flows/README.md), and
+[`scripts/harness/`](scripts/harness/README.md).
+
 ## Featured Example
 
 The main tracked showcase in this repo is the Reddit post over gameplay
@@ -172,6 +216,10 @@ they should move up.
 
 Use this when you want Claude Code, Codex CLI, Cursor, or another
 repo-aware coding agent to use Content Machine inside your own project:
+
+Tell your agent to follow
+[Agent Harness Install](docs/user/AGENT-HARNESS-INSTALL.md), or run the
+same commands directly:
 
 ```bash
 npm install --save-dev @45ck/content-machine

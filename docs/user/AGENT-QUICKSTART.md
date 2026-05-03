@@ -46,6 +46,26 @@ If you already know the format:
 Start with `skills/` when you want one capability. Start with `flows/`
 when you want a multi-step path.
 
+## How Agents Actually Use The Pack
+
+The skills are normal repo files, not magic commands. A coding agent uses
+them the same way it uses `AGENTS.md`, `CLAUDE.md`, project docs, and
+local scripts:
+
+1. The root instruction block points the agent at `.content-machine/`.
+2. The agent reads `.content-machine/AGENTS.md` for operating rules.
+3. The agent chooses a skill for one capability or a flow for a
+   coordinated run.
+4. The agent opens the relevant `SKILL.md` or flow notes before acting.
+5. The agent calls `npx --no-install cm-agent <tool>` only when it needs
+   deterministic runtime execution.
+6. The agent writes inspectable artifacts under `runs/<run-id>/` and
+   reports review status.
+
+That separation matters: skills contain judgment, flows contain
+orchestration, and `cm-agent` tools execute the parts that should be
+deterministic.
+
 ## Step 1: Choose install mode
 
 For an existing agent project:

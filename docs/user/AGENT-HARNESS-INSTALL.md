@@ -8,6 +8,27 @@ pack, then ask for video outcomes. The agent should read the local
 skills and flows, run JSON-stdio tools when execution is needed, and
 return inspectable artifacts instead of hiding the pipeline.
 
+## Mental Model
+
+Content Machine is not a hosted app and does not require a special
+agent marketplace install. It gives your existing coding-agent harness
+three repo-local things it already knows how to use:
+
+- **Skills** in `.content-machine/skills/`: Markdown playbooks that tell
+  the agent when to use a capability, what inputs it needs, and what a
+  good result looks like.
+- **Flows** in `.content-machine/flows/`: multi-step recipes for jobs
+  such as full topic-to-video generation or longform clip selection.
+- **Tools** through `npx --no-install cm-agent <tool>`: deterministic
+  JSON-stdio runtime calls for stages that need code execution, such as
+  audio generation, timestamp conversion, render, and publish review.
+
+The installed root instruction block tells Codex CLI, Claude Code, or a
+similar harness to look in `.content-machine/` first. From there, the
+agent chooses the relevant skill or flow, reads only the needed local
+docs, runs the packaged tool when execution is required, and reports the
+artifact paths it wrote under `runs/`.
+
 ## Copy-Paste Prompt
 
 Paste this into Claude Code, Codex CLI, Cursor, or another repo-aware
@@ -146,6 +167,21 @@ The agent should:
 4. Preserve script, audio, timestamps, visuals, captions, render
    metadata, asset ledger, and publish-prep outputs.
 5. Report what passed, what failed, and where the artifacts are.
+
+Good agent behavior looks like this:
+
+```text
+User asks for outcome
+  -> agent reads .content-machine/AGENTS.md
+  -> agent lists or selects skills/flows
+  -> agent opens the relevant SKILL.md or .flow notes
+  -> agent calls cm-agent only for runtime work
+  -> agent returns artifact paths plus review status
+```
+
+Bad behavior is skipping the local skill docs, inventing a one-shot
+pipeline, hiding intermediate files, or calling an MP4 ready before the
+publish-prep gate passes.
 
 ## Runtime Commands Agents Can Use
 
