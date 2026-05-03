@@ -73,13 +73,29 @@ motion cards, and 3D/procedural gameplay:
 
 ## Use It In Your Repo
 
-Open your agent inside the repo where you want to make videos and say:
+Open your agent inside the repo where you want to make videos and paste
+this:
 
-> Install Content Machine in this repo. Follow the Agent Harness Install
-> guide, materialize `.content-machine/`, verify the local runner, run
-> doctor-report, then use Content Machine skills and flows for
-> short-form video work. Write artifacts under `runs/<run-id>/` and do
-> not call an MP4 ready unless publish-prep passes.
+```text
+Install Content Machine in this repo and use it as the local short-form
+video skill pack.
+
+Follow the Agent Harness Install guide:
+https://github.com/45ck/content-machine/blob/master/docs/user/AGENT-HARNESS-INSTALL.md
+
+Do the install for this harness, materialize `.content-machine/`, write
+the right root instruction block for Codex CLI, Claude Code, Cursor, or
+this repo-aware agent, then verify the local runner.
+
+After install:
+- List the installed skills and flows.
+- Run doctor-report.
+- Tell me what dependencies, API keys, or media assets are missing.
+- For any video request, choose the right Content Machine skill or flow
+  first.
+- Write artifacts under `runs/<run-id>/`.
+- Do not call an MP4 ready unless publish-prep passes.
+```
 
 Install details are in
 [Agent Harness Install](docs/user/AGENT-HARNESS-INSTALL.md). The quick
