@@ -38,9 +38,11 @@ script.
 ## Current Status
 
 Executable for selection, boundary cleanup, optional approval, and
-render handoff. It does not yet cut the source clip, run smart crop, or
-call `video-render` directly because that handoff still needs explicit
-clip-local `audioPath`, `timestampsPath`, and `visualsPath` artifacts.
+render handoff. Use `longform-clip-extract` after approval to cut the
+source clip and write clip-local `audioPath`, `timestampsPath`, and
+`visualsPath` artifacts. The flow still does not call `video-render`
+directly because crop/reframe review may be needed between extraction
+and render.
 
 ## Suggested Claude Code / Codex Path
 
@@ -51,8 +53,10 @@ clip-local `audioPath`, `timestampsPath`, and `visualsPath` artifacts.
    brief already authorizes automatic selection.
 4. Rerun with `approvedCandidateIds` to write
    `highlights/highlight-approval.v1.json`.
-5. Cut and reframe the approved source range, then create render inputs
-   before calling `video-render` and `publish-prep-review`.
+5. Run `longform-clip-extract` to cut the approved source range and
+   create clip-local render inputs.
+6. Reframe if needed, then call `video-render` and
+   `publish-prep-review`.
 
 ## Example Request
 
@@ -110,9 +114,9 @@ Key artifacts:
 - Candidate output exists and has at least one viable candidate, or
   warnings explain why none were selected.
 - Boundary snap output exists unless `snapBoundaries` is false.
-- First-pass handoff can be `needs-approval`; before clipping or render
-  work starts, rerun with approval so `highlight-approval.v1.json`
-  exists.
+- First-pass handoff can be `needs-approval`; before extraction or
+  render work starts, rerun with approval so
+  `highlight-approval.v1.json` exists.
 - Render handoff explicitly names missing clip, reframe, audio,
   timestamp, visuals, render, and publish-prep steps.
 
@@ -124,5 +128,5 @@ Key artifacts:
   controls or improve the transcript before rendering anything.
 - If the user rejects all candidates, rerun selection with different
   duration bounds rather than polishing weak clips with captions.
-- Do not treat this flow as final MP4 generation until a dedicated
-  clipping/reframe runner is added.
+- Do not treat this flow as final MP4 generation; after approval, run
+  `longform-clip-extract`, then reframe/render/review.

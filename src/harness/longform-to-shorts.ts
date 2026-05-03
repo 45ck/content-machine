@@ -178,9 +178,9 @@ function buildRenderHandoff(params: {
     ],
     nextSteps: [
       'Review candidatePlans and choose approvedCandidateIds if approval is still pending.',
-      'Cut sourceMediaPath to snappedStart/snappedEnd for each approved candidate.',
+      'Run longform-clip-extract for each approved candidate to cut source media and write clip-local render inputs.',
       'Run reframe-vertical, face-or-screen-reframe, or scene-aware-smart-crop for non-portrait clips.',
-      'Create clip-local audio, timestamps, and visuals artifacts before calling video-render.',
+      'Pass extracted audioPath, timestampsPath, and visualsPath to video-render.',
       'Run publish-prep-review before calling any rendered MP4 ready.',
     ],
     warnings: params.warnings,

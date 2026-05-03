@@ -70,7 +70,13 @@ try {
   run('npm', ['install', tarballPath, '--silent'], { cwd: appDir });
 
   const list = JSON.parse(run('npx', ['--no-install', 'cm-agent', 'list'], { cwd: appDir }));
-  for (const tool of ['install-skill-pack', 'flow-catalog', 'run-flow', 'skill-catalog']) {
+  for (const tool of [
+    'install-skill-pack',
+    'flow-catalog',
+    'longform-clip-extract',
+    'run-flow',
+    'skill-catalog',
+  ]) {
     assert(list.tools.includes(tool), `cm-agent list is missing ${tool}`);
   }
 

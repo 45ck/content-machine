@@ -59,6 +59,7 @@ node --import tsx scripts/harness/brief-to-script.ts
 node --import tsx scripts/harness/ingest.ts
 node --import tsx scripts/harness/reverse-engineer-winner.ts
 node --import tsx scripts/harness/longform-to-shorts.ts
+node --import tsx scripts/harness/longform-clip-extract.ts
 node --import tsx scripts/harness/longform-highlight-select.ts
 node --import tsx scripts/harness/highlight-approval.ts
 node --import tsx scripts/harness/boundary-snap.ts
@@ -97,13 +98,16 @@ source-media-analyze
   -> longform-highlight-select
   -> boundary-snap
   -> highlight-approval
-  -> render-handoff.v1.json
+  -> longform-clip-extract
+  -> video-render
+  -> publish-prep-review
 ```
 
 For topic-to-video generation, use `generate-short` or the
 `generate-short` flow. For longform-to-short planning, use
-`longform-to-shorts` or the `longform-to-shorts` flow, then cut/reframe
-approved source ranges and build render inputs before `video-render`.
+`longform-to-shorts` or the `longform-to-shorts` flow, then use
+`longform-clip-extract` to materialize approved source ranges before
+`video-render`.
 
 ---
 

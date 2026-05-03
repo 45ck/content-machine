@@ -103,12 +103,14 @@ source-media-analyze
   -> boundary-snap
   -> highlight-approval
   -> render-handoff.v1.json
+  -> longform-clip-extract
 ```
 
-After approval, the agent still needs to cut and reframe the source
-clip, then create clip-local `audioPath`, `timestampsPath`, and
-`visualsPath` inputs before calling `video-render`. Do not jump from
-approved highlight JSON directly to final MP4 generation.
+After approval, use `longform-clip-extract` to cut the source clip and
+write clip-local `audioPath`, `timestampsPath`, and `visualsPath`
+artifacts. The agent may still need to reframe the extracted clip before
+calling `video-render`, so do not jump from approved highlight JSON
+directly to final MP4 generation.
 
 Use the runtime helpers to enumerate or execute them:
 

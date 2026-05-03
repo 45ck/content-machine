@@ -133,7 +133,8 @@ captions, and run the review gate.
 ```text
 Turn this longform video into three candidate shorts. Select moments
 first with the longform-to-shorts flow, snap boundaries, show me the
-candidate plan, then render only the approved candidate.
+candidate plan, extract only the approved candidate, then render and
+review it.
 ```
 
 The agent should:
@@ -204,6 +205,20 @@ cat <<'JSON' | npx --no-install cm-agent run-flow
     "sourceMediaPath": "input/source/source.mp4",
     "maxCandidates": 3
   }
+}
+JSON
+```
+
+Extract approved longform clips after approval:
+
+```bash
+cat <<'JSON' | npx --no-install cm-agent longform-clip-extract
+{
+  "sourceMediaPath": "input/source/source.mp4",
+  "approvalPath": "runs/source-clips/longform-to-shorts/highlights/highlight-approval.v1.json",
+  "boundarySnapPath": "runs/source-clips/longform-to-shorts/highlights/boundary-snap.v1.json",
+  "timestampsPath": "input/source/timestamps.json",
+  "outputDir": "runs/source-clips/extracted"
 }
 JSON
 ```

@@ -231,7 +231,7 @@ If you are deciding where to start:
   executable.
 - For longform source videos, start with
   [`longform-to-shorts`](flows/longform-to-shorts.md) to select and
-  approve clips before any render work.
+  approve clips, then use `longform-clip-extract` before render work.
 - Use [Quality And Review](docs/user/QUALITY-AND-REVIEW.md) before
   promoting a render as a showcase.
 

@@ -193,6 +193,10 @@ export {
   LongformHighlightSelectRequestSchema,
   runLongformHighlightSelect,
 } from './harness/longform-highlight-select';
+export {
+  LongformClipExtractRequestSchema,
+  runLongformClipExtract,
+} from './harness/longform-clip-extract';
 export { LongformToShortsRequestSchema, runLongformToShorts } from './harness/longform-to-shorts';
 export { HighlightApprovalRequestSchema, runHighlightApproval } from './harness/highlight-approval';
 export { BoundarySnapRequestSchema, runBoundarySnap } from './harness/boundary-snap';

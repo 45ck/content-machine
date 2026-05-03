@@ -81,11 +81,13 @@ outputs:
 - Use [`video-render`](../video-render/SKILL.md) and
   [`publish-prep-review`](../publish-prep-review/SKILL.md) for final
   output and review.
+- Use [`longform-clip-extract`](../longform-clip-extract/SKILL.md) after
+  approval to cut source ranges and write clip-local render inputs.
 - Use [`references/production-shape.md`](references/production-shape.md)
   for the concrete boundary-snap, reframe, and review sequence.
 - The current executable path stops at `render-handoff.v1.json`. It does
-  not cut the source clip, reframe, or call `video-render` until
-  clip-local render inputs exist.
+  not call `video-render` directly; run `longform-clip-extract` first,
+  then reframe if needed.
 
 ## Invocation
 

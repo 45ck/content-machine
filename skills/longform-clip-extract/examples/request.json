@@ -1,0 +1,8 @@
+{
+  "sourceMediaPath": "input/source.mp4",
+  "approvalPath": "runs/source-clips/longform-to-shorts/highlights/highlight-approval.v1.json",
+  "boundarySnapPath": "runs/source-clips/longform-to-shorts/highlights/boundary-snap.v1.json",
+  "timestampsPath": "input/source/timestamps.json",
+  "outputDir": "runs/source-clips/extracted",
+  "videoMode": "copy"
+}

@@ -252,7 +252,7 @@ Longform clipping:
       ? 'Run the longform-to-shorts flow first'
       : 'Use the longform-to-shorts skill and runtime first'
   }, show the candidate plan, ask before rendering, then render only
-> the approved candidate and run publish-prep.
+> the approved candidate after extraction and run publish-prep.
 
 ## What Was Installed
 

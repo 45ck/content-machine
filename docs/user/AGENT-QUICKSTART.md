@@ -145,7 +145,8 @@ Golden first-run order:
 
 For longform source videos, replace step 6 with
 `longform-to-shorts`: select candidate clips first, get approval, then
-cut/reframe/render only the approved ranges.
+run `longform-clip-extract`, reframe if needed, and render only the
+approved ranges.
 
 ## Step 3: Choose the archetype
 
@@ -268,8 +269,22 @@ JSON
 ```
 
 Review `runs/source-clips/longform-to-shorts/handoff/render-handoff.v1.json`,
-approve a candidate, then create clip-local render inputs before
-calling `video-render`.
+approve a candidate, then run `longform-clip-extract` to create
+clip-local render inputs before calling `video-render`.
+
+Installed command form:
+
+```bash
+cat <<'JSON' | npx --no-install cm-agent longform-clip-extract
+{
+  "sourceMediaPath": "input/source/source.mp4",
+  "approvalPath": "runs/source-clips/longform-to-shorts/highlights/highlight-approval.v1.json",
+  "boundarySnapPath": "runs/source-clips/longform-to-shorts/highlights/boundary-snap.v1.json",
+  "timestampsPath": "input/source/timestamps.json",
+  "outputDir": "runs/source-clips/extracted"
+}
+JSON
+```
 
 ## Step 7: Pull a reference video or run one skill directly
 
