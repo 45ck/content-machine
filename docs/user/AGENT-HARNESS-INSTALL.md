@@ -111,6 +111,11 @@ for one capability or a flow for a multi-step run, write artifacts to
 runs/<run-id>, run publish-prep, and tell me pass/fail plus artifact paths.
 ```
 
+Assume the user already has Claude Code, Codex CLI, Cursor, or another
+agent harness. The user should not have to memorize low-level flags; the
+harness reads `.content-machine/skills`, `.content-machine/flows`, and
+calls `cm-agent` only when it needs deterministic runtime execution.
+
 Ask for outcomes, not low-level flags:
 
 ```text
@@ -127,7 +132,8 @@ captions, and run the review gate.
 
 ```text
 Turn this longform video into three candidate shorts. Select moments
-first, snap boundaries, then render only the approved candidate.
+first with the longform-to-shorts flow, snap boundaries, show me the
+candidate plan, then render only the approved candidate.
 ```
 
 The agent should:
@@ -180,6 +186,23 @@ cat <<'JSON' | npx --no-install cm-agent run-flow
   "input": {
     "topic": "Redis vs PostgreSQL for caching",
     "publishPrep": { "enabled": true, "platform": "tiktok" }
+  }
+}
+JSON
+```
+
+Run the longform candidate-planning flow from the installed pack:
+
+```bash
+cat <<'JSON' | npx --no-install cm-agent run-flow
+{
+  "flowsDir": ".content-machine/flows",
+  "flow": "longform-to-shorts",
+  "runId": "source-clips",
+  "input": {
+    "timestampsPath": "input/source/timestamps.json",
+    "sourceMediaPath": "input/source/source.mp4",
+    "maxCandidates": 3
   }
 }
 JSON

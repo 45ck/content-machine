@@ -75,6 +75,8 @@ Use [`_template/FLOW.md`](_template/FLOW.md) as the starting point.
 - [`doctor.md`](doctor.md) — structured diagnostics path
 - [`generate-short.md`](generate-short.md) — default full-video
   topic-to-video path
+- [`longform-to-shorts.md`](longform-to-shorts.md) — longform source
+  to candidate clips, boundary cleanup, approval, and render handoff
 - [`reverse-engineer-winner.md`](reverse-engineer-winner.md) — reference
   short analysis path
 - [`showcase-content-machine.md`](showcase-content-machine.md) — repo
@@ -82,35 +84,31 @@ Use [`_template/FLOW.md`](_template/FLOW.md) as the starting point.
 
 ## Current Executable Flows
 
-| Flow                                                             | Operator Notes                                               | Entry Skill               | Runner Tool               | Outputs                          |
-| ---------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------- | ------------------------- | -------------------------------- |
-| [`doctor.flow`](doctor.flow)                                     | [`doctor.md`](doctor.md)                                     | `doctor-report`           | `flow-catalog`/`run-flow` | environment report artifacts     |
-| [`generate-short.flow`](generate-short.flow)                     | [`generate-short.md`](generate-short.md)                     | `generate-short`          | `run-flow`                | `runs/<run-id>/` short artifacts |
-| [`reverse-engineer-winner.flow`](reverse-engineer-winner.flow)   | [`reverse-engineer-winner.md`](reverse-engineer-winner.md)   | `reverse-engineer-winner` | `run-flow`                | reference breakdown artifacts    |
-| [`showcase-content-machine.flow`](showcase-content-machine.flow) | [`showcase-content-machine.md`](showcase-content-machine.md) | `generate-short`          | `run-flow`                | self-demo run artifacts          |
+| Flow                                                             | Operator Notes                                               | Entry Skill               | Runner Tool               | Outputs                                 |
+| ---------------------------------------------------------------- | ------------------------------------------------------------ | ------------------------- | ------------------------- | --------------------------------------- |
+| [`doctor.flow`](doctor.flow)                                     | [`doctor.md`](doctor.md)                                     | `doctor-report`           | `flow-catalog`/`run-flow` | environment report artifacts            |
+| [`generate-short.flow`](generate-short.flow)                     | [`generate-short.md`](generate-short.md)                     | `generate-short`          | `run-flow`                | `runs/<run-id>/` short artifacts        |
+| [`longform-to-shorts.flow`](longform-to-shorts.flow)             | [`longform-to-shorts.md`](longform-to-shorts.md)             | `longform-to-shorts`      | `run-flow`                | candidate, approval, and handoff bundle |
+| [`reverse-engineer-winner.flow`](reverse-engineer-winner.flow)   | [`reverse-engineer-winner.md`](reverse-engineer-winner.md)   | `reverse-engineer-winner` | `run-flow`                | reference breakdown artifacts           |
+| [`showcase-content-machine.flow`](showcase-content-machine.flow) | [`showcase-content-machine.md`](showcase-content-machine.md) | `generate-short`          | `run-flow`                | self-demo run artifacts                 |
 
-## Skill-Only Chains
+## Longform Handoff Boundary
 
-The longform-to-shorts path is currently shipped as runtime-backed
-skills rather than one executable `.flow` manifest:
+The executable longform flow intentionally stops at a reviewed render
+handoff:
 
 ```text
 source-media-analyze
   -> longform-highlight-select
   -> boundary-snap
   -> highlight-approval
-  -> extract/reframe the approved clip into source media for render
-  -> build or reuse audio, timestamps, and visuals inputs
-  -> video-render
-  -> publish-prep-review
+  -> render-handoff.v1.json
 ```
 
-There is no `longform-to-shorts.flow` yet. Do not call `run-flow` for
-it; chain the listed skills manually until a dedicated longform manifest
-exists. The handoff into `video-render` still needs explicit
-`audioPath`, `timestampsPath`, and `visualsPath` inputs, so do not jump
-from approved highlight JSON directly to render without creating those
-artifacts.
+After approval, the agent still needs to cut and reframe the source
+clip, then create clip-local `audioPath`, `timestampsPath`, and
+`visualsPath` inputs before calling `video-render`. Do not jump from
+approved highlight JSON directly to final MP4 generation.
 
 Use the runtime helpers to enumerate or execute them:
 

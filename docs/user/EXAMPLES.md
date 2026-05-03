@@ -53,8 +53,8 @@ after installing the pack:
   the final MP4 before calling it ready."
 - "Analyze `{referenceVideoPath}` as a winner, then generate a new short
   with the same pacing, not the same footage."
-- "Turn `{longformVideo}` into candidate shorts; select moments first,
-  then snap boundaries before rendering."
+- "Turn `{longformVideo}` into candidate shorts with
+  `longform-to-shorts`; show the candidate plan before rendering."
 - "Use `reddit-post-over-gameplay` for this story. Keep gameplay
   full-screen and show the Reddit opener card for 3-5 seconds."
 

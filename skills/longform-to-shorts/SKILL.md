@@ -1,6 +1,31 @@
 ---
 name: longform-to-shorts
 description: Turn a podcast, interview, talk, screen recording, or long YouTube video into strong vertical shorts by selecting moments, snapping cut boundaries, reframing to 9:16, and rendering with native captions.
+allowedTools:
+  - shell
+  - read
+  - write
+model: inherit
+argumentHint: '{"timestampsPath":"output/content-machine/audio/timestamps.json","sourceMediaPath":"input/source.mp4","outputDir":"runs/source-clips/longform-to-shorts","maxCandidates":3}'
+entrypoint: node --import tsx scripts/harness/longform-to-shorts.ts
+inputs:
+  - name: timestampsPath
+    description: Word-level timestamps from the longform transcript or ASR pass.
+    required: true
+  - name: sourceMediaPath
+    description: Optional local source video or audio path for analysis and clipping provenance.
+    required: false
+  - name: outputDir
+    description: Directory for candidate, boundary, approval, and handoff artifacts.
+    required: false
+  - name: approvedCandidateIds
+    description: Candidate ids to approve after review.
+    required: false
+outputs:
+  - name: highlight-candidates.v1.json
+    description: Ranked short-form candidate moments.
+  - name: render-handoff.v1.json
+    description: Explicit handoff naming what still must be clipped, reframed, rendered, and reviewed.
 ---
 
 # Longform To Shorts
@@ -40,11 +65,17 @@ description: Turn a podcast, interview, talk, screen recording, or long YouTube 
 - portrait-ready render inputs
 - final short MP4s plus review bundles if executed end to end
 
-## Optional Runtime Surface
+## Runtime Surface
 
+- Use the executable
+  [`longform-to-shorts.flow`](../../flows/longform-to-shorts.flow) when
+  a Claude Code, Codex CLI, Cursor, or similar harness needs the
+  selection path in one run-scoped call.
+- Use the direct `longform-to-shorts` runtime when one harness tool call
+  is enough and the flow manifest is not needed.
 - Use [`longform-highlight-select`](../longform-highlight-select/SKILL.md)
-  to produce ranked candidate moments from word-level timestamps before
-  clipping or reframing.
+  directly only when you need to inspect or replace the selection stage
+  in isolation.
 - Use [`reverse-engineer-winner`](../reverse-engineer-winner/SKILL.md)
   for reference analysis only, not raw clipping.
 - Use [`video-render`](../video-render/SKILL.md) and
@@ -52,8 +83,24 @@ description: Turn a podcast, interview, talk, screen recording, or long YouTube 
   output and review.
 - Use [`references/production-shape.md`](references/production-shape.md)
   for the concrete boundary-snap, reframe, and review sequence.
-- If the clipping path becomes a repo runner later, this skill should
-  remain the decision layer.
+- The current executable path stops at `render-handoff.v1.json`. It does
+  not cut the source clip, reframe, or call `video-render` until
+  clip-local render inputs exist.
+
+## Invocation
+
+Inside a harness, prefer outcome prompts such as:
+
+> Use Content Machine to turn this longform video into candidate shorts.
+> Run the longform-to-shorts flow, show me the candidate plan, and do
+> not render until I approve a candidate.
+
+Repo-local command form:
+
+```bash
+cat skills/longform-to-shorts/examples/request.json | \
+  node --import tsx scripts/harness/longform-to-shorts.ts
+```
 
 ## Technical Notes
 

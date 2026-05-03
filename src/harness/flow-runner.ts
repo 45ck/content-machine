@@ -4,6 +4,7 @@ import { runDoctorReport, type DoctorReportRequest } from './doctor-report';
 import { runGenerateShort, type GenerateShortRequest } from './generate-short';
 import { loadFlowManifest } from './flow-manifest';
 import { ingestReferenceVideo, type IngestRequest } from './ingest';
+import { runLongformToShorts, type LongformToShortsRequest } from './longform-to-shorts';
 import {
   artifactDirectory,
   type HarnessArtifact,
@@ -11,7 +12,11 @@ import {
   type HarnessToolResult,
 } from './json-stdio';
 
-type SupportedFlowInput = DoctorReportRequest | GenerateShortRequest | IngestRequest;
+type SupportedFlowInput =
+  | DoctorReportRequest
+  | GenerateShortRequest
+  | IngestRequest
+  | LongformToShortsRequest;
 
 type FlowHandler = (
   input: SupportedFlowInput
@@ -20,6 +25,7 @@ type FlowHandler = (
 const flowRegistry: Record<string, FlowHandler> = {
   'doctor-report': async (input) => runDoctorReport(input as DoctorReportRequest),
   'generate-short': async (input) => runGenerateShort(input as GenerateShortRequest),
+  'longform-to-shorts': async (input) => runLongformToShorts(input as LongformToShortsRequest),
   'reverse-engineer-winner': async (input) => ingestReferenceVideo(input as IngestRequest),
 };
 

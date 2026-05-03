@@ -1,0 +1,49 @@
+name: longform-to-shorts
+description: Execute the longform source-to-candidate-shorts planning path and write run-scoped selection, boundary, optional approval, and render handoff artifacts.
+entrySkill: longform-to-shorts
+operatorNotes: flows/longform-to-shorts.md
+defaultOutputDir: runs/{runId}/longform-to-shorts
+inputs:
+  - name: timestampsPath
+    description: Word-level timestamps from the longform source transcript or ASR pass.
+    required: true
+  - name: sourceMediaPath
+    description: Optional local source video or audio path to analyze and cite for clipping.
+    required: false
+  - name: approvedCandidateIds
+    description: Optional candidate ids to approve; omit on the first pass to force review before rendering.
+    required: false
+  - name: autoApproveSelected
+    description: Optional shortcut that approves the selected top candidate; keep false when user review is required.
+    required: false
+  - name: minDuration
+    description: Optional minimum candidate duration in seconds.
+    required: false
+  - name: targetDuration
+    description: Optional preferred candidate duration in seconds.
+    required: false
+  - name: maxDuration
+    description: Optional maximum candidate duration in seconds.
+    required: false
+  - name: maxCandidates
+    description: Optional maximum number of ranked candidate clips to return.
+    required: false
+  - name: outputDir
+    description: Optional explicit output root; otherwise the flow binds runs/{runId}/longform-to-shorts.
+    required: false
+outputs:
+  - name: highlights/highlight-candidates.v1.json
+    description: Ranked candidate clips with timing, scores, transcript text, and pending approval state.
+    required: true
+  - name: highlights/boundary-snap.v1.json
+    description: Candidate boundaries snapped to nearby word, sentence, or silence boundaries.
+    required: false
+  - name: highlights/highlight-approval.v1.json
+    description: Explicit approval artifact when approvedCandidateIds or autoApproveSelected is provided.
+    required: false
+  - name: highlights/source-media-analysis.v1.json
+    description: Local source probe and signal metadata when sourceMediaPath is provided.
+    required: false
+  - name: handoff/render-handoff.v1.json
+    description: Honest next-step handoff for clipping, reframing, render inputs, video-render, and publish-prep.
+    required: true

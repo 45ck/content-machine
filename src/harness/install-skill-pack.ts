@@ -227,6 +227,10 @@ or rerun \`npx cm-install --target ${targetPrefix} ${rootInstructionFlags}\`.
 
 ## Copy-Paste Prompts
 
+Assume the user already works in Claude Code, Codex CLI, Cursor, or a
+similar agent harness. Ask for outcomes; let the harness read this pack
+and call \`${runner}\` only when it needs deterministic execution.
+
 Topic to short:
 
 > Use Content Machine from \`${targetPrefix}\` to make a 35-second
@@ -243,9 +247,12 @@ Known lane:
 
 Longform clipping:
 
-> Turn this longform video into three candidate shorts. Analyze the
-> source first, select moments, snap boundaries, ask before rendering,
-> then render only the approved candidate and run publish-prep.
+> Turn this longform video into three candidate shorts. ${
+    params.includeFlows
+      ? 'Run the longform-to-shorts flow first'
+      : 'Use the longform-to-shorts skill and runtime first'
+  }, show the candidate plan, ask before rendering, then render only
+> the approved candidate and run publish-prep.
 
 ## What Was Installed
 
@@ -340,6 +347,23 @@ cat <<'JSON' | ${runner} run-flow
 JSON
 \`\`\`
 
+Plan longform clips before rendering:
+
+\`\`\`bash
+cat <<'JSON' | ${runner} run-flow
+{
+  "flowsDir": "${targetPrefix}/flows",
+  "flow": "longform-to-shorts",
+  "runId": "source-clips",
+  "input": {
+    "timestampsPath": "input/source/timestamps.json",
+    "sourceMediaPath": "input/source/source.mp4",
+    "maxCandidates": 3
+  }
+}
+JSON
+\`\`\`
+
 `
       : ''
   }
@@ -417,6 +441,10 @@ ${
    video is ready.`
 }
 
+Assume the human is operating through Claude Code, Codex CLI, Cursor, or
+a similar harness. Interpret requests as outcomes first, not as demands
+that the user choose low-level flags.
+
 ## Useful Commands
 
 \`\`\`bash
@@ -453,6 +481,23 @@ cat <<'JSON' | npx --no-install cm-agent run-flow
   "flow": "generate-short",
   "runId": "demo-run",
   "input": { "topic": "Example short" }
+}
+JSON
+\`\`\`
+
+Plan longform clips before rendering:
+
+\`\`\`bash
+cat <<'JSON' | npx --no-install cm-agent run-flow
+{
+  "flowsDir": "${targetPrefix}/flows",
+  "flow": "longform-to-shorts",
+  "runId": "source-clips",
+  "input": {
+    "timestampsPath": "input/source/timestamps.json",
+    "sourceMediaPath": "input/source/source.mp4",
+    "maxCandidates": 3
+  }
 }
 JSON
 \`\`\`

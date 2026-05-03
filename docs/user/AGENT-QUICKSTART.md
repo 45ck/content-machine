@@ -67,6 +67,11 @@ npm install
 
 Node.js 20.6+ is required.
 
+The expected operator model is an existing coding-agent harness such as
+Claude Code, Codex CLI, Cursor, or similar. Ask the harness for the
+outcome and let it read the skills/flows and call the JSON-stdio runtime
+when needed; the command examples are for automation and debugging.
+
 ## Step 2: Discover and verify what is shipped
 
 Installed project:
@@ -137,6 +142,10 @@ Golden first-run order:
 5. Choose the archetype.
 6. Run `generate-short`.
 7. Inspect `publish-prep` before calling the MP4 ready.
+
+For longform source videos, replace step 6 with
+`longform-to-shorts`: select candidate clips first, get approval, then
+cut/reframe/render only the approved ranges.
 
 ## Step 3: Choose the archetype
 
@@ -219,7 +228,50 @@ must have rights evidence before the run is considered publish-ready.
 If you prefer npm aliases, the same runner is available as
 `npm run agent:run-flow`.
 
-## Step 6: Pull a reference video or run one skill directly
+## Step 6: Plan longform clips before rendering
+
+Use this when the input is a podcast, interview, talk, screen recording,
+or other long source file. The flow writes candidate and handoff
+artifacts; it does not pretend approved JSON is already a final MP4.
+
+Installed project:
+
+```bash
+cat <<'JSON' | npx --no-install cm-agent run-flow
+{
+  "flowsDir": ".content-machine/flows",
+  "flow": "longform-to-shorts",
+  "runId": "source-clips",
+  "input": {
+    "timestampsPath": "input/source/timestamps.json",
+    "sourceMediaPath": "input/source/source.mp4",
+    "maxCandidates": 3
+  }
+}
+JSON
+```
+
+Repo checkout:
+
+```bash
+cat <<'JSON' | node --import tsx scripts/harness/run-flow.ts
+{
+  "flow": "longform-to-shorts",
+  "runId": "source-clips",
+  "input": {
+    "timestampsPath": "input/source/timestamps.json",
+    "sourceMediaPath": "input/source/source.mp4",
+    "maxCandidates": 3
+  }
+}
+JSON
+```
+
+Review `runs/source-clips/longform-to-shorts/handoff/render-handoff.v1.json`,
+approve a candidate, then create clip-local render inputs before
+calling `video-render`.
+
+## Step 7: Pull a reference video or run one skill directly
 
 Installed project:
 

@@ -28,7 +28,7 @@ unless you are working inside the Content Machine checkout.
 | Group              | Entrypoints                                                                               | Use                                                                 |
 | ------------------ | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
 | Discovery          | `skill-catalog.ts`, `flow-catalog.ts`, `doctor-report.ts`                                 | Inspect available skills, flows, and environment readiness          |
-| Full flows         | `run-flow.ts`, `generate-short.ts`, `reverse-engineer-winner.ts`                          | Run multi-step or run-scoped work                                   |
+| Full flows         | `run-flow.ts`, `generate-short.ts`, `longform-to-shorts.ts`, `reverse-engineer-winner.ts` | Run multi-step or run-scoped work                                   |
 | Stage runners      | `brief-to-script.ts`, `script-to-audio.ts`, `timestamps-to-visuals.ts`, `video-render.ts` | Execute a known stage directly                                      |
 | Review/provenance  | `asset-ledger.ts`, `caption-export.ts`, `publish-prep.ts`, `publish-prep-review.ts`       | Validate outputs and preserve rights/review evidence                |
 | Source and library | `ingest.ts`, `source-media-analyze.ts`, `media-index.ts`, `style-profile-library.ts`      | Prepare or catalog reusable inputs                                  |
@@ -38,7 +38,10 @@ unless you are working inside the Content Machine checkout.
 
 Most `45ck/prompt-language` flows write under `runs/<run-id>/`. Direct
 skills may instead write to explicit output paths provided in the
-request.
+request. Humans normally ask Claude Code, Codex CLI, Cursor, or another
+agent harness for the outcome; these JSON-stdio scripts are the
+execution surface the harness can call when it needs deterministic
+repo-side work.
 
 Fallback when npm bins are unavailable:
 `node ./node_modules/@45ck/content-machine/agent/run-tool.mjs <tool>`.
@@ -53,6 +56,23 @@ cat <<'JSON' | npx --no-install cm-agent run-flow
   "flow": "generate-short",
   "runId": "demo-run",
   "input": { "topic": "Example short" }
+}
+JSON
+```
+
+Longform planning uses the same installed flow surface:
+
+```bash
+cat <<'JSON' | npx --no-install cm-agent run-flow
+{
+  "flowsDir": ".content-machine/flows",
+  "flow": "longform-to-shorts",
+  "runId": "source-clips",
+  "input": {
+    "timestampsPath": "input/source/timestamps.json",
+    "sourceMediaPath": "input/source/source.mp4",
+    "maxCandidates": 3
+  }
 }
 JSON
 ```

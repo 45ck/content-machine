@@ -209,6 +209,11 @@ First run order:
 
 ### Primary Path: Coding-Agent CLIs
 
+Content Machine assumes you already work inside Claude Code, Codex CLI,
+Cursor, or a similar agent harness. The human UX is to ask that harness
+for the outcome; the repo gives the harness skills, flows, and
+JSON-stdio tools it can read or execute.
+
 Use these surfaces in this order:
 
 - [`skills/`](skills/README.md): decide what job the agent is doing
@@ -224,6 +229,9 @@ If you are deciding where to start:
 - Start with a flow when you want a full multi-step path.
 - Start with `scripts/harness/` only when you need the exact repo-side
   executable.
+- For longform source videos, start with
+  [`longform-to-shorts`](flows/longform-to-shorts.md) to select and
+  approve clips before any render work.
 - Use [Quality And Review](docs/user/QUALITY-AND-REVIEW.md) before
   promoting a render as a showcase.
 

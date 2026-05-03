@@ -1,0 +1,9 @@
+{
+  "timestampsPath": "output/content-machine/audio/timestamps.json",
+  "sourceMediaPath": "input/source.mp4",
+  "outputDir": "runs/source-clips/longform-to-shorts",
+  "targetDuration": 35,
+  "maxDuration": 60,
+  "maxCandidates": 3,
+  "autoApproveSelected": false
+}

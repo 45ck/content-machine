@@ -10,6 +10,7 @@ import {
   HighlightApprovalRequestSchema,
   IngestRequestSchema,
   InstallSkillPackRequestSchema,
+  LongformToShortsRequestSchema,
   LongformHighlightSelectRequestSchema,
   MediaIndexRequestSchema,
   RedditStoryAssetsRequestSchema,
@@ -27,6 +28,7 @@ import {
   runBoundarySnap,
   runHighlightApproval,
   runLongformHighlightSelect,
+  runLongformToShorts,
   runMediaIndex,
   runSourceMediaAnalyze,
   runStyleProfileLibrary,
@@ -102,6 +104,11 @@ const registry = {
     tool: 'content-machine/longform-highlight-select',
     inputSchema: LongformHighlightSelectRequestSchema,
     handler: async ({ input }) => runLongformHighlightSelect(input),
+  },
+  'longform-to-shorts': {
+    tool: 'content-machine/longform-to-shorts',
+    inputSchema: LongformToShortsRequestSchema,
+    handler: async ({ input }) => runLongformToShorts(input),
   },
   'media-index': {
     tool: 'content-machine/media-index',

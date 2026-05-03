@@ -5,6 +5,7 @@ const flowStageMocks = vi.hoisted(() => ({
   runDoctorReport: vi.fn(),
   runGenerateShort: vi.fn(),
   ingestReferenceVideo: vi.fn(),
+  runLongformToShorts: vi.fn(),
 }));
 
 vi.mock('./doctor-report', () => ({
@@ -17,6 +18,10 @@ vi.mock('./generate-short', () => ({
 
 vi.mock('./ingest', () => ({
   ingestReferenceVideo: flowStageMocks.ingestReferenceVideo,
+}));
+
+vi.mock('./longform-to-shorts', () => ({
+  runLongformToShorts: flowStageMocks.runLongformToShorts,
 }));
 
 import { runFlowFromManifest } from './flow-runner';
@@ -118,5 +123,41 @@ describe('runFlowFromManifest', () => {
       })
     );
     expect(result.result.entrySkill).toBe('reverse-engineer-winner');
+  });
+
+  it('dispatches longform-to-shorts to the longform handler', async () => {
+    flowStageMocks.runLongformToShorts.mockResolvedValue({
+      result: {
+        outputDir: '/tmp/runs/longform-1/longform-to-shorts',
+        candidatesPath:
+          '/tmp/runs/longform-1/longform-to-shorts/highlights/highlight-candidates.v1.json',
+        renderHandoffPath: '/tmp/runs/longform-1/longform-to-shorts/handoff/render-handoff.v1.json',
+        candidateCount: 2,
+        selectedCandidateId: 'highlight-001',
+      },
+      artifacts: [
+        {
+          path: '/tmp/runs/longform-1/longform-to-shorts/handoff/render-handoff.v1.json',
+          kind: 'file',
+          description: 'handoff',
+        },
+      ],
+    });
+
+    const result = await runFlowFromManifest({
+      flow: 'flows/longform-to-shorts.flow',
+      runId: 'longform-1',
+      input: { timestampsPath: '/tmp/source/timestamps.json', maxCandidates: 3 },
+    });
+
+    expect(flowStageMocks.runLongformToShorts).toHaveBeenCalledWith(
+      expect.objectContaining({
+        timestampsPath: '/tmp/source/timestamps.json',
+        maxCandidates: 3,
+        outputDir: resolve(repoRoot, 'runs/longform-1/longform-to-shorts'),
+      })
+    );
+    expect(result.result.entrySkill).toBe('longform-to-shorts');
+    expect(result.result.outputDir).toBe(resolve(repoRoot, 'runs/longform-1/longform-to-shorts'));
   });
 });
