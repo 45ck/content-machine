@@ -28,6 +28,22 @@ Keep every phase artifact-driven where possible. Script, timestamps,
 visual plan, render metadata, and review bundle should exist as files,
 not hidden chat state.
 
+## User Instruction Fidelity
+
+- Treat user-specified source surfaces as hard constraints. If the user
+  asks to show a real app, product UI, website, browser, Discord guild,
+  or workflow, capture that real surface instead of substituting a mock,
+  recreation, static HTML, staged fake UI, or synthetic stand-in.
+- Only use mockups, generated UI, fake websites, or simulated product
+  states when the user explicitly requests them or when you clearly ask
+  and receive approval first.
+- If a requested real flow is blocked, stop and report the blocker with
+  the closest truthful fallback. Do not silently replace the real flow
+  with something easier.
+- For product demos, preserve the user's requested interaction method.
+  If they ask for keyboard/manual use, use actual browser/app input
+  events rather than API-posting the result behind the scenes.
+
 ## First Pass
 
 1. Decide the promise of the short in one sentence.
