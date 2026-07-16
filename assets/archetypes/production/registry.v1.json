@@ -1,0 +1,1942 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "content-machine-production-archetype-registry",
+  "redcowBoundary": "Affordance tags are compositional hints only. They are not observed probabilities, audience claims, platform weights, performance scores, or per-video REDCOW assessments.",
+  "costClasses": {
+    "L0": {
+      "label": "local or already owned",
+      "rule": "Uses owned media, code-native graphics, local tools, and no required metered generation."
+    },
+    "L1": {
+      "label": "licensed stock or free-account source",
+      "rule": "Requires asset-level license capture or a free stock/API account but no required metered generation."
+    },
+    "L2": {
+      "label": "metered generation or specialist compute",
+      "rule": "Likely uses metered image, video, voice, or specialist rendering; verify price and terms at execution time."
+    },
+    "L3": {
+      "label": "bespoke production",
+      "rule": "Requires a custom shoot, presenter, actor, location, or substantial manual production."
+    }
+  },
+  "sources": [
+    {
+      "id": "content-machine-direct",
+      "kind": "local-repository",
+      "url": "https://github.com/45ck/content-machine",
+      "licenseStatus": "first-party-mit",
+      "usageMode": "implementation",
+      "licenseReference": "LICENSE",
+      "notes": "Direct raw checkout is authoritative; npm installations are not used for registry truth."
+    },
+    {
+      "id": "pexels-license",
+      "kind": "asset-license",
+      "url": "https://www.pexels.com/license/",
+      "licenseStatus": "asset-license",
+      "usageMode": "asset-source",
+      "licenseReference": "https://www.pexels.com/license/",
+      "notes": "Asset-level provenance is still required; do not imply endorsement or misuse identifiable people."
+    },
+    {
+      "id": "short-video-maker",
+      "kind": "public-repository",
+      "url": "https://github.com/gyoridavid/short-video-maker",
+      "licenseStatus": "verified-permissive",
+      "usageMode": "pattern-only",
+      "licenseReference": "MIT license displayed by the repository",
+      "notes": "Useful reference for TTS, captions, Pexels sourcing, music, and Remotion composition; visual quality is not assumed."
+    },
+    {
+      "id": "reddit-video-maker-bot",
+      "kind": "public-repository",
+      "url": "https://github.com/raga70/FullyAutomatedRedditVideoMakerBot",
+      "licenseStatus": "verified-copyleft",
+      "usageMode": "pattern-only",
+      "licenseReference": "GPL-3.0",
+      "notes": "Format grammar only. Reject its downloaded-gameplay, API-key rotation, cookie transfer, unofficial uploader, and 2FA-avoidance patterns."
+    },
+    {
+      "id": "ai-youtube-shorts-generator",
+      "kind": "public-repository",
+      "url": "https://github.com/SamurAIGPT/AI-Youtube-Shorts-Generator",
+      "licenseStatus": "needs-review",
+      "usageMode": "pattern-only",
+      "licenseReference": null,
+      "notes": "Useful longform-selection and vertical-crop pattern; repository claims MIT in README but no root LICENSE was visible during review."
+    },
+    {
+      "id": "remotion-skills-marketplace",
+      "kind": "skill-marketplace",
+      "url": "https://skills.sh/remotion-dev/skills/remotion-best-practices",
+      "licenseStatus": "needs-review",
+      "usageMode": "pattern-only",
+      "licenseReference": null,
+      "notes": "Discovery reference for captions, assets, transitions, composition management, and parametric video; marketplace popularity is not a rights grant."
+    },
+    {
+      "id": "fake-chat-reference",
+      "kind": "public-repository",
+      "url": "https://github.com/AmirPhenomenal/fake-chat",
+      "licenseStatus": "needs-review",
+      "usageMode": "pattern-only",
+      "licenseReference": null,
+      "notes": "Chat-video interaction pattern only. Build a generic code-native interface; do not copy WhatsApp trade dress or repository code without a license."
+    }
+  ],
+  "archetypes": [
+    {
+      "id": "owned-footage-proof",
+      "version": 1,
+      "name": "Owned Footage Proof",
+      "family": "authentic-footage",
+      "status": "implemented",
+      "scriptArchetypeIds": ["case-study", "story", "bts", "before-after"],
+      "whenToUse": [
+        "The thesis is stronger when Calvin, a participant, or a real environment is visible.",
+        "A source recording already contains a specific claim, action, demonstration, or correction."
+      ],
+      "whenNotToUse": [
+        "No owned or explicitly licensed source recording exists.",
+        "The clip is mostly dead air and cannot support a complete proof-bearing beat without fabricating context."
+      ],
+      "beatGrammar": [
+        {
+          "id": "proof-first",
+          "purpose": "Open on the strongest owned visual or spoken proof.",
+          "visualRule": "Use the source frame immediately; no generic title slate.",
+          "audioRule": "Retain intelligible source dialogue or start narration on the first frame."
+        },
+        {
+          "id": "context",
+          "purpose": "Name the situation and the exact claim being tested.",
+          "visualRule": "Use a restrained label or owned cutaway that adds missing context.",
+          "audioRule": "Remove filler and preserve semantic continuity."
+        },
+        {
+          "id": "mechanism",
+          "purpose": "Show what changed, failed, or was built.",
+          "visualRule": "Alternate source footage with owned evidence or a code-native diagram only when it explains the action.",
+          "audioRule": "Prioritize dialogue; duck music beneath speech."
+        },
+        {
+          "id": "payoff",
+          "purpose": "Land the result or correction.",
+          "visualRule": "Return to the clearest source frame and show the outcome without a decorative montage.",
+          "audioRule": "End on the completed sentence; no synthetic cliff-hanger."
+        }
+      ],
+      "inputs": [
+        {
+          "kind": "owned-video",
+          "required": true,
+          "sourceRule": "Exact owned source file with item-level provenance and approved edit range.",
+          "acceptedRights": ["owned", "explicit-license", "user-attested"]
+        },
+        {
+          "kind": "owned-audio",
+          "required": false,
+          "sourceRule": "Use source dialogue or a separately consented narration recording.",
+          "acceptedRights": ["owned", "explicit-license", "user-attested"]
+        },
+        {
+          "kind": "screenshot",
+          "required": false,
+          "sourceRule": "Only screenshots Calvin owns or may display, with private data redacted before render.",
+          "acceptedRights": ["owned", "explicit-license"]
+        }
+      ],
+      "rights": {
+        "defaultPosture": "owned-or-explicitly-licensed",
+        "transformRule": "Edit for clarity and pacing while preserving the speaker's meaning, chronology, and consent scope.",
+        "hardStops": [
+          "Unverified ownership or participant consent",
+          "Private identifiers visible in frame",
+          "Edit changes the meaning of the source statement"
+        ]
+      },
+      "cost": {
+        "class": "L0",
+        "drivers": ["Manual source review", "Optional transcription and reframing"]
+      },
+      "captionZones": {
+        "primary": { "x": 0.08, "y": 0.62, "width": 0.84, "height": 0.2 },
+        "exclusions": [
+          { "x": 0, "y": 0, "width": 1, "height": 0.12 },
+          { "x": 0, "y": 0.88, "width": 1, "height": 0.12 }
+        ]
+      },
+      "audio": {
+        "narrationRequired": false,
+        "requiredTracks": ["source-dialogue", "room-tone"],
+        "mixRule": "Source dialogue leads; music is optional and must remain below speech without masking consonants."
+      },
+      "implementation": {
+        "status": "implemented",
+        "skillIds": [
+          "source-media-analyze",
+          "longform-highlight-select",
+          "highlight-approval",
+          "longform-clip-extract",
+          "reframe-vertical",
+          "video-render"
+        ],
+        "flowPaths": ["flows/longform-to-shorts.flow"],
+        "harnessPaths": [
+          "scripts/harness/source-media-analyze.ts",
+          "scripts/harness/longform-highlight-select.ts",
+          "scripts/harness/longform-clip-extract.ts",
+          "scripts/harness/video-render.ts"
+        ],
+        "templateIds": ["tiktok-captions"],
+        "nextGap": "Add a public, rights-cleared authentic-footage showcase with exact source-range provenance."
+      },
+      "phoneViewport": {
+        "exampleId": "owned-footage-proof-phone-v1",
+        "width": 1080,
+        "height": 1920,
+        "layers": [
+          {
+            "id": "source-video",
+            "kind": "video",
+            "rect": { "x": 0, "y": 0, "width": 1, "height": 1 },
+            "zIndex": 0,
+            "content": "Owned vertical or reframed source footage"
+          },
+          {
+            "id": "proof-label",
+            "kind": "graphic",
+            "rect": { "x": 0.08, "y": 0.14, "width": 0.64, "height": 0.1 },
+            "zIndex": 2,
+            "content": "One specific context or result label"
+          },
+          {
+            "id": "captions",
+            "kind": "caption",
+            "rect": { "x": 0.08, "y": 0.62, "width": 0.84, "height": 0.2 },
+            "zIndex": 3,
+            "content": "Dialogue captions, maximum two lines"
+          }
+        ]
+      },
+      "patternSourceIds": ["content-machine-direct", "ai-youtube-shorts-generator"],
+      "redcowAffordances": ["R", "C", "O"],
+      "qualityRisks": [
+        "Weak crop hides the proof",
+        "Over-editing removes authenticity",
+        "Caption timing drifts from source dialogue"
+      ]
+    },
+    {
+      "id": "screen-proof-teardown",
+      "version": 1,
+      "name": "Screen Proof Teardown",
+      "family": "screen-proof",
+      "status": "skill-backed",
+      "scriptArchetypeIds": ["howto", "case-study", "myth", "hot-take"],
+      "whenToUse": [
+        "The claim can be proven with a product screen, code path, chart, error, diff, or before-and-after state."
+      ],
+      "whenNotToUse": [
+        "The screen contains private data that cannot be safely redacted.",
+        "The thesis is emotional or experiential and the interface would only be filler."
+      ],
+      "beatGrammar": [
+        {
+          "id": "show-failure",
+          "purpose": "Open on the exact broken or surprising screen state.",
+          "visualRule": "Crop tightly to the evidence and highlight one region.",
+          "audioRule": "State what the viewer is looking at in plain language."
+        },
+        {
+          "id": "trace-cause",
+          "purpose": "Walk through the smallest causal path.",
+          "visualRule": "Use cursor, zoom, diff, or callout; never animate unrelated UI.",
+          "audioRule": "One spoken explanation per visible action."
+        },
+        {
+          "id": "apply-change",
+          "purpose": "Show the intervention or correction.",
+          "visualRule": "Keep the relevant before/after states visually comparable.",
+          "audioRule": "Use a subtle action SFX only if it marks the actual change."
+        },
+        {
+          "id": "verify-result",
+          "purpose": "End on observable proof.",
+          "visualRule": "Show the passing state, changed output, or exact result label.",
+          "audioRule": "Name the verification, not a generic CTA."
+        }
+      ],
+      "inputs": [
+        {
+          "kind": "screen-recording",
+          "required": true,
+          "sourceRule": "Owned recording with secrets, account identifiers, and private data removed before ingestion.",
+          "acceptedRights": ["owned", "user-attested"]
+        },
+        {
+          "kind": "screenshot",
+          "required": false,
+          "sourceRule": "Owned or licensed evidence frame with a documented redaction review.",
+          "acceptedRights": ["owned", "explicit-license"]
+        },
+        {
+          "kind": "code-native-graphics",
+          "required": false,
+          "sourceRule": "Use only for arrows, zooms, diffs, and causal labels tied to the evidence.",
+          "acceptedRights": ["owned", "generated-with-provenance"]
+        }
+      ],
+      "rights": {
+        "defaultPosture": "owned-or-explicitly-licensed",
+        "transformRule": "Redact first, then crop and annotate only the proof-bearing regions; retain enough context to avoid a misleading result.",
+        "hardStops": [
+          "Secrets or private identifiers visible",
+          "Third-party dashboard terms prohibit capture",
+          "Annotation implies a result not present in the recording"
+        ]
+      },
+      "cost": {
+        "class": "L0",
+        "drivers": ["Redaction review", "Manual cursor and zoom choreography"]
+      },
+      "captionZones": {
+        "primary": { "x": 0.08, "y": 0.7, "width": 0.84, "height": 0.16 },
+        "exclusions": [
+          { "x": 0.06, "y": 0.12, "width": 0.88, "height": 0.52 },
+          { "x": 0, "y": 0.9, "width": 1, "height": 0.1 }
+        ]
+      },
+      "audio": {
+        "narrationRequired": true,
+        "requiredTracks": ["narration", "sfx"],
+        "mixRule": "Narration owns the explanation; action SFX may mark real clicks or state changes but must not simulate proof."
+      },
+      "implementation": {
+        "status": "skill-backed",
+        "skillIds": [
+          "face-or-screen-reframe",
+          "hook-overlay",
+          "motion-design-coder",
+          "video-render"
+        ],
+        "flowPaths": [],
+        "harnessPaths": ["scripts/harness/video-render.ts"],
+        "templateIds": ["tiktok-captions"],
+        "nextGap": "Create a dedicated proof-crop composition with deterministic redaction and callout anchors."
+      },
+      "phoneViewport": {
+        "exampleId": "screen-proof-teardown-phone-v1",
+        "width": 1080,
+        "height": 1920,
+        "layers": [
+          {
+            "id": "screen",
+            "kind": "video",
+            "rect": { "x": 0.06, "y": 0.12, "width": 0.88, "height": 0.52 },
+            "zIndex": 0,
+            "content": "Tightly cropped owned screen recording"
+          },
+          {
+            "id": "callout",
+            "kind": "graphic",
+            "rect": { "x": 0.1, "y": 0.2, "width": 0.42, "height": 0.12 },
+            "zIndex": 2,
+            "content": "One anchored proof callout"
+          },
+          {
+            "id": "captions",
+            "kind": "caption",
+            "rect": { "x": 0.08, "y": 0.7, "width": 0.84, "height": 0.16 },
+            "zIndex": 3,
+            "content": "Narration captions below the evidence"
+          }
+        ]
+      },
+      "patternSourceIds": ["content-machine-direct", "remotion-skills-marketplace"],
+      "redcowAffordances": ["R", "E", "C", "O"],
+      "qualityRisks": [
+        "Unreadable interface",
+        "Private data leak",
+        "Cursor motion without explanatory value",
+        "Captions cover the evidence"
+      ]
+    },
+    {
+      "id": "stock-b-roll-explainer",
+      "version": 1,
+      "name": "Stock B-Roll Explainer",
+      "family": "stock",
+      "status": "implemented",
+      "scriptArchetypeIds": ["listicle", "howto", "myth", "story"],
+      "whenToUse": [
+        "A public-safe topic needs broad visual context and no owned proof footage exists."
+      ],
+      "whenNotToUse": [
+        "The claim depends on an exact product, person, event, or mechanism that generic stock cannot prove.",
+        "Search results would force unrelated keyword wallpaper."
+      ],
+      "beatGrammar": [
+        {
+          "id": "specific-hook",
+          "purpose": "State one concrete question, contrast, or fact.",
+          "visualRule": "Use the closest literal licensed clip, not a mood montage.",
+          "audioRule": "Narration begins immediately."
+        },
+        {
+          "id": "explain",
+          "purpose": "Advance one idea per source clip.",
+          "visualRule": "Each clip must add setting, action, object, or consequence.",
+          "audioRule": "Change visuals on semantic boundaries rather than arbitrary intervals."
+        },
+        {
+          "id": "anchor",
+          "purpose": "Introduce a diagram, label, or number when stock alone is ambiguous.",
+          "visualRule": "Use code-native graphics over or between clips.",
+          "audioRule": "Name the relationship shown by the graphic."
+        },
+        {
+          "id": "takeaway",
+          "purpose": "End with a concise conclusion or next check.",
+          "visualRule": "Return to the most specific visual; avoid a generic sunset or handshake.",
+          "audioRule": "No unsupported urgency or sales close."
+        }
+      ],
+      "inputs": [
+        {
+          "kind": "licensed-stock-video",
+          "required": true,
+          "sourceRule": "Capture asset URL, author, license, retrieval date, hash, and modifications for every clip.",
+          "acceptedRights": ["stock-license", "public-domain", "explicit-license"]
+        },
+        {
+          "kind": "code-native-graphics",
+          "required": false,
+          "sourceRule": "Add only when it explains a relationship stock cannot show.",
+          "acceptedRights": ["owned", "generated-with-provenance"]
+        },
+        {
+          "kind": "owned-audio",
+          "required": false,
+          "sourceRule": "Use owned narration or a separately authorized generated voice.",
+          "acceptedRights": ["owned", "explicit-license", "generated-with-provenance"]
+        }
+      ],
+      "rights": {
+        "defaultPosture": "licensed-stock",
+        "transformRule": "Sequence licensed clips into an original explanation, keep asset-level provenance, and avoid endorsement or sensitive-person implications.",
+        "hardStops": [
+          "Unknown clip license",
+          "Editorial-only or noncommercial restriction",
+          "Watermark",
+          "Identifiable person shown in a harmful or misleading context"
+        ]
+      },
+      "cost": {
+        "class": "L1",
+        "drivers": ["Stock API account", "Asset review and provenance ledger"]
+      },
+      "captionZones": {
+        "primary": { "x": 0.08, "y": 0.64, "width": 0.84, "height": 0.18 },
+        "exclusions": [
+          { "x": 0, "y": 0, "width": 1, "height": 0.12 },
+          { "x": 0, "y": 0.9, "width": 1, "height": 0.1 }
+        ]
+      },
+      "audio": {
+        "narrationRequired": true,
+        "requiredTracks": ["narration", "music"],
+        "mixRule": "Narration leads; music supplies continuity but never compensates for weak visual relevance."
+      },
+      "implementation": {
+        "status": "implemented",
+        "skillIds": [
+          "stock-footage-edutainment-short",
+          "timestamps-to-visuals",
+          "asset-ledger",
+          "video-render"
+        ],
+        "flowPaths": ["flows/generate-short.flow"],
+        "harnessPaths": [
+          "scripts/harness/timestamps-to-visuals.ts",
+          "scripts/harness/asset-ledger.ts",
+          "scripts/harness/video-render.ts"
+        ],
+        "templateIds": ["tiktok-captions"],
+        "nextGap": "Improve semantic source matching and show asset provenance in the public demo review."
+      },
+      "phoneViewport": {
+        "exampleId": "stock-b-roll-explainer-phone-v1",
+        "width": 1080,
+        "height": 1920,
+        "layers": [
+          {
+            "id": "stock-video",
+            "kind": "video",
+            "rect": { "x": 0, "y": 0, "width": 1, "height": 1 },
+            "zIndex": 0,
+            "content": "One rights-cleared literal stock clip per semantic beat"
+          },
+          {
+            "id": "fact-card",
+            "kind": "graphic",
+            "rect": { "x": 0.08, "y": 0.14, "width": 0.7, "height": 0.12 },
+            "zIndex": 2,
+            "content": "Optional number or causal label"
+          },
+          {
+            "id": "captions",
+            "kind": "caption",
+            "rect": { "x": 0.08, "y": 0.64, "width": 0.84, "height": 0.18 },
+            "zIndex": 3,
+            "content": "High-contrast narration captions"
+          }
+        ]
+      },
+      "patternSourceIds": ["content-machine-direct", "pexels-license", "short-video-maker"],
+      "redcowAffordances": ["R", "C", "W"],
+      "qualityRisks": [
+        "Keyword wallpaper",
+        "Repeated stock motifs",
+        "Implied endorsement",
+        "Visual changes do not follow meaning"
+      ]
+    },
+    {
+      "id": "ui-native-thread-reveal",
+      "version": 1,
+      "name": "UI-Native Thread Reveal",
+      "family": "ui-native",
+      "status": "implemented",
+      "scriptArchetypeIds": ["story", "reaction", "case-study"],
+      "whenToUse": [
+        "The story is inherently a sequence of messages, comments, commits, receipts, or decisions."
+      ],
+      "whenNotToUse": [
+        "The UI is decorative and the same story would be clearer as direct narration.",
+        "The source contains private messages without permission or safe fictionalization."
+      ],
+      "beatGrammar": [
+        {
+          "id": "first-message",
+          "purpose": "Open on the message that creates the question.",
+          "visualRule": "Show one large readable bubble or card.",
+          "audioRule": "Optional message sound must be subtle and consistent."
+        },
+        {
+          "id": "escalation",
+          "purpose": "Reveal only messages that change the interpretation.",
+          "visualRule": "Animate the thread vertically with stable sender positions.",
+          "audioRule": "Narration may bridge context but must not race ahead of the visible text."
+        },
+        {
+          "id": "receipt",
+          "purpose": "Show the decisive response, diff, or evidence.",
+          "visualRule": "Pause motion and highlight the exact line.",
+          "audioRule": "Use silence or one restrained emphasis sound at the reveal."
+        },
+        {
+          "id": "meaning",
+          "purpose": "Explain what the thread proves.",
+          "visualRule": "End on a generic summary card, not copied platform chrome.",
+          "audioRule": "State the interpretation and uncertainty plainly."
+        }
+      ],
+      "inputs": [
+        {
+          "kind": "user-authored-text",
+          "required": true,
+          "sourceRule": "Use fictional, owned, consented, or safely redacted text; do not scrape private messages.",
+          "acceptedRights": ["owned", "explicit-license", "user-attested"]
+        },
+        {
+          "kind": "code-native-ui",
+          "required": true,
+          "sourceRule": "Render a generic interface with original tokens and no copied platform marks or trade dress.",
+          "acceptedRights": ["owned", "generated-with-provenance"]
+        },
+        {
+          "kind": "screenshot",
+          "required": false,
+          "sourceRule": "A real screenshot requires ownership, redaction, and contextual review; prefer reconstruction.",
+          "acceptedRights": ["owned", "explicit-license", "quotation-review"]
+        }
+      ],
+      "rights": {
+        "defaultPosture": "owned-or-explicitly-licensed",
+        "transformRule": "Rebuild the interaction in a generic code-native UI, minimize quoted text, redact identities, and preserve the source meaning.",
+        "hardStops": [
+          "Private message without consent",
+          "Copied platform branding or trade dress",
+          "Fabricated quote presented as real",
+          "Unreadable dense thread"
+        ]
+      },
+      "cost": { "class": "L0", "drivers": ["Manual text editing", "Code-native UI choreography"] },
+      "captionZones": {
+        "primary": { "x": 0.08, "y": 0.74, "width": 0.84, "height": 0.12 },
+        "exclusions": [
+          { "x": 0.06, "y": 0.12, "width": 0.88, "height": 0.56 },
+          { "x": 0, "y": 0.9, "width": 1, "height": 0.1 }
+        ]
+      },
+      "audio": {
+        "narrationRequired": false,
+        "requiredTracks": ["narration", "sfx"],
+        "mixRule": "Narration is optional when the thread is self-contained; message SFX must not fire on every bubble."
+      },
+      "implementation": {
+        "status": "implemented",
+        "skillIds": [
+          "text-message-drama-short",
+          "motion-design-coder",
+          "short-form-captions",
+          "video-render"
+        ],
+        "flowPaths": [],
+        "harnessPaths": ["scripts/harness/video-render.ts"],
+        "templateIds": ["tiktok-captions"],
+        "nextGap": "Add a generic thread component that explicitly avoids WhatsApp, Reddit, and Instagram trade dress."
+      },
+      "phoneViewport": {
+        "exampleId": "ui-native-thread-reveal-phone-v1",
+        "width": 1080,
+        "height": 1920,
+        "layers": [
+          {
+            "id": "thread-panel",
+            "kind": "ui",
+            "rect": { "x": 0.06, "y": 0.12, "width": 0.88, "height": 0.56 },
+            "zIndex": 0,
+            "content": "Generic original thread UI with two sender columns"
+          },
+          {
+            "id": "receipt-highlight",
+            "kind": "graphic",
+            "rect": { "x": 0.12, "y": 0.38, "width": 0.76, "height": 0.12 },
+            "zIndex": 2,
+            "content": "Highlight for the decisive line"
+          },
+          {
+            "id": "captions",
+            "kind": "caption",
+            "rect": { "x": 0.08, "y": 0.74, "width": 0.84, "height": 0.12 },
+            "zIndex": 3,
+            "content": "Optional bridging narration"
+          }
+        ]
+      },
+      "patternSourceIds": ["content-machine-direct", "fake-chat-reference"],
+      "redcowAffordances": ["R", "E", "D", "C"],
+      "qualityRisks": [
+        "Copied platform appearance",
+        "Text too small",
+        "Reveal cadence outruns reading",
+        "Private or fabricated material appears authentic"
+      ]
+    },
+    {
+      "id": "generated-image-microstory",
+      "version": 1,
+      "name": "Generated Image Microstory",
+      "family": "generated-image",
+      "status": "skill-backed",
+      "scriptArchetypeIds": ["story", "meme-pov", "myth"],
+      "whenToUse": [
+        "A fictional, historical, abstract, or impossible-to-shoot sequence benefits from consistent illustrative frames."
+      ],
+      "whenNotToUse": [
+        "Real proof or a real person is required.",
+        "Generated images could be mistaken for documentary evidence.",
+        "The concept lacks a shot-to-shot continuity plan."
+      ],
+      "beatGrammar": [
+        {
+          "id": "world-frame",
+          "purpose": "Establish the visual premise in one unmistakable image.",
+          "visualRule": "Use a single subject, setting, and camera grammar.",
+          "audioRule": "Narration identifies fiction, reconstruction, or illustration when needed."
+        },
+        {
+          "id": "change",
+          "purpose": "Show one meaningful state change per frame.",
+          "visualRule": "Carry character, palette, props, and spatial continuity forward.",
+          "audioRule": "Scene changes follow sentence or clause boundaries."
+        },
+        {
+          "id": "turn",
+          "purpose": "Reveal the consequence or contradiction.",
+          "visualRule": "Use the largest compositional change only at the narrative turn.",
+          "audioRule": "Avoid trailer-style overstatement."
+        },
+        {
+          "id": "resolve",
+          "purpose": "Land the idea and disclose generated media when required.",
+          "visualRule": "End with a clear final state and optional provenance label.",
+          "audioRule": "Narration closes the story rather than looping artificially."
+        }
+      ],
+      "inputs": [
+        {
+          "kind": "generated-image",
+          "required": true,
+          "sourceRule": "Every image needs provider/model/prompt/retrieval metadata, exact hash, and human review for identity and rights risks.",
+          "acceptedRights": ["generated-with-provenance"]
+        },
+        {
+          "kind": "user-authored-text",
+          "required": true,
+          "sourceRule": "Original or licensed script with no imitation of a living creator's distinctive expression.",
+          "acceptedRights": ["owned", "explicit-license", "user-attested"]
+        },
+        {
+          "kind": "generated-audio",
+          "required": false,
+          "sourceRule": "Use a licensed voice or consented synthetic voice with required disclosure and lineage.",
+          "acceptedRights": ["generated-with-provenance", "explicit-license"]
+        }
+      ],
+      "rights": {
+        "defaultPosture": "generated-with-provenance",
+        "transformRule": "Generate original frames from an owned storyboard, retain provider lineage, and label reconstructions where viewers could infer documentary truth.",
+        "hardStops": [
+          "Unconsented real-person likeness",
+          "No provider or prompt lineage",
+          "Generated frame presented as real evidence",
+          "Style imitation request targeting a living creator"
+        ]
+      },
+      "cost": {
+        "class": "L2",
+        "drivers": ["Image generation", "Continuity iterations", "Optional synthetic narration"]
+      },
+      "captionZones": {
+        "primary": { "x": 0.08, "y": 0.66, "width": 0.84, "height": 0.16 },
+        "exclusions": [
+          { "x": 0, "y": 0, "width": 1, "height": 0.12 },
+          { "x": 0, "y": 0.9, "width": 1, "height": 0.1 }
+        ]
+      },
+      "audio": {
+        "narrationRequired": true,
+        "requiredTracks": ["narration", "music", "sfx"],
+        "mixRule": "Narration carries continuity; music and SFX support state changes without manufacturing realism."
+      },
+      "implementation": {
+        "status": "skill-backed",
+        "skillIds": [
+          "scene-by-scene-faceless-pipeline",
+          "shot-prompt-builder",
+          "storyboard-continuity-reference",
+          "generated-asset-versioning",
+          "slideshow-risk-review",
+          "video-render"
+        ],
+        "flowPaths": ["flows/generate-short.flow"],
+        "harnessPaths": ["scripts/harness/video-render.ts"],
+        "templateIds": ["tiktok-captions"],
+        "nextGap": "Add a first-class slideshow composition with continuity checks and visible provenance metadata in review artifacts."
+      },
+      "phoneViewport": {
+        "exampleId": "generated-image-microstory-phone-v1",
+        "width": 1080,
+        "height": 1920,
+        "layers": [
+          {
+            "id": "generated-frame",
+            "kind": "image",
+            "rect": { "x": 0, "y": 0, "width": 1, "height": 1 },
+            "zIndex": 0,
+            "content": "One reviewed generated image with gentle camera motion"
+          },
+          {
+            "id": "provenance-label",
+            "kind": "graphic",
+            "rect": { "x": 0.08, "y": 0.14, "width": 0.46, "height": 0.07 },
+            "zIndex": 2,
+            "content": "Illustration or reconstruction label when needed"
+          },
+          {
+            "id": "captions",
+            "kind": "caption",
+            "rect": { "x": 0.08, "y": 0.66, "width": 0.84, "height": 0.16 },
+            "zIndex": 3,
+            "content": "Narration captions"
+          }
+        ]
+      },
+      "patternSourceIds": ["content-machine-direct", "remotion-skills-marketplace"],
+      "redcowAffordances": ["E", "D", "C", "O"],
+      "qualityRisks": [
+        "Character drift",
+        "Synthetic evidence ambiguity",
+        "Generic pan-and-zoom slideshow",
+        "Unclear disclosure"
+      ]
+    },
+    {
+      "id": "generated-video-concept",
+      "version": 1,
+      "name": "Generated Video Concept",
+      "family": "generated-video",
+      "status": "skill-backed",
+      "scriptArchetypeIds": ["story", "meme-pov", "product-demo"],
+      "whenToUse": [
+        "The motion itself communicates an impossible, speculative, or previsualized concept that owned footage cannot show."
+      ],
+      "whenNotToUse": [
+        "A real product result, event, person, or experiment must be proven.",
+        "A still image or code-native diagram would communicate the mechanism more honestly and cheaply."
+      ],
+      "beatGrammar": [
+        {
+          "id": "declare-mode",
+          "purpose": "Make the generated or conceptual nature clear when material could be read as real.",
+          "visualRule": "Use the strongest reviewed shot with a concise label.",
+          "audioRule": "Narration frames the clip as concept, simulation, or illustration."
+        },
+        {
+          "id": "motion-proof",
+          "purpose": "Use motion to show the relationship that justified video generation.",
+          "visualRule": "One subject action and one camera intention per shot.",
+          "audioRule": "Describe the relationship, not visual spectacle alone."
+        },
+        {
+          "id": "compare",
+          "purpose": "Connect the generated motion to the thesis or a real constraint.",
+          "visualRule": "Use a code-native card, owned screen, or second generated shot with stable continuity.",
+          "audioRule": "Name what is hypothetical versus observed."
+        },
+        {
+          "id": "close",
+          "purpose": "End on the takeaway and provenance cue.",
+          "visualRule": "Freeze or settle on a legible final composition.",
+          "audioRule": "No claim that the generated scene actually occurred."
+        }
+      ],
+      "inputs": [
+        {
+          "kind": "generated-video",
+          "required": true,
+          "sourceRule": "Provider/model/prompt/input asset/retrieval/exact-hash lineage and human review are mandatory.",
+          "acceptedRights": ["generated-with-provenance"]
+        },
+        {
+          "kind": "generated-image",
+          "required": false,
+          "sourceRule": "Image-to-video inputs need their own provenance and stable rights-cleared delivery path.",
+          "acceptedRights": ["generated-with-provenance", "owned", "explicit-license"]
+        },
+        {
+          "kind": "owned-audio",
+          "required": false,
+          "sourceRule": "Narration and music must be owned, licensed, or separately generated with provenance.",
+          "acceptedRights": ["owned", "explicit-license", "generated-with-provenance"]
+        }
+      ],
+      "rights": {
+        "defaultPosture": "generated-with-provenance",
+        "transformRule": "Treat outputs as generated assets, preserve the full lineage, disclose synthetic scenes when context could imply reality, and never use them as proof of a real outcome.",
+        "hardStops": [
+          "No provider lineage",
+          "Unconsented likeness",
+          "Synthetic event presented as real",
+          "Unknown music rights",
+          "Provider terms not checked for intended use"
+        ]
+      },
+      "cost": {
+        "class": "L2",
+        "drivers": [
+          "Video generation",
+          "Rejected generations",
+          "Optional image-to-video input hosting"
+        ]
+      },
+      "captionZones": {
+        "primary": { "x": 0.08, "y": 0.66, "width": 0.84, "height": 0.16 },
+        "exclusions": [
+          { "x": 0, "y": 0, "width": 1, "height": 0.12 },
+          { "x": 0, "y": 0.9, "width": 1, "height": 0.1 }
+        ]
+      },
+      "audio": {
+        "narrationRequired": true,
+        "requiredTracks": ["narration", "music", "sfx"],
+        "mixRule": "Narration distinguishes concept from fact; generated ambience must not imply documentary capture."
+      },
+      "implementation": {
+        "status": "skill-backed",
+        "skillIds": [
+          "shot-prompt-builder",
+          "storyboard-continuity-reference",
+          "continuity-chain",
+          "generated-asset-versioning",
+          "video-render"
+        ],
+        "flowPaths": ["flows/generate-short.flow"],
+        "harnessPaths": ["scripts/harness/video-render.ts"],
+        "templateIds": ["tiktok-captions"],
+        "nextGap": "Wire a provider-neutral generated-video lineage adapter into the local render and review harness."
+      },
+      "phoneViewport": {
+        "exampleId": "generated-video-concept-phone-v1",
+        "width": 1080,
+        "height": 1920,
+        "layers": [
+          {
+            "id": "generated-shot",
+            "kind": "video",
+            "rect": { "x": 0, "y": 0, "width": 1, "height": 1 },
+            "zIndex": 0,
+            "content": "Reviewed generated motion with one clear subject action"
+          },
+          {
+            "id": "mode-label",
+            "kind": "graphic",
+            "rect": { "x": 0.08, "y": 0.14, "width": 0.42, "height": 0.07 },
+            "zIndex": 2,
+            "content": "Concept or generated-scene label"
+          },
+          {
+            "id": "captions",
+            "kind": "caption",
+            "rect": { "x": 0.08, "y": 0.66, "width": 0.84, "height": 0.16 },
+            "zIndex": 3,
+            "content": "Narration captions"
+          }
+        ]
+      },
+      "patternSourceIds": ["content-machine-direct", "remotion-skills-marketplace"],
+      "redcowAffordances": ["E", "D", "O"],
+      "qualityRisks": [
+        "Motion artifacts",
+        "Continuity drift",
+        "Synthetic scene mistaken for proof",
+        "High retry cost"
+      ]
+    },
+    {
+      "id": "motion-card-lesson",
+      "version": 1,
+      "name": "Motion Card Lesson",
+      "family": "motion-graphics",
+      "status": "implemented",
+      "scriptArchetypeIds": ["howto", "listicle", "myth", "versus"],
+      "whenToUse": [
+        "A concept, framework, comparison, or mechanism is clearer as designed text, shapes, cards, or diagrams."
+      ],
+      "whenNotToUse": [
+        "Real-world proof is available and the graphics would hide it.",
+        "The lesson is only animated typography with no visual relationship."
+      ],
+      "beatGrammar": [
+        {
+          "id": "problem-card",
+          "purpose": "State the question or broken model.",
+          "visualRule": "Use one dominant card and one relationship.",
+          "audioRule": "Narration names the misconception or task."
+        },
+        {
+          "id": "build-model",
+          "purpose": "Introduce components in causal order.",
+          "visualRule": "Animate persistent objects; do not reset the entire scene for each sentence.",
+          "audioRule": "Each spoken clause maps to one visual change."
+        },
+        {
+          "id": "transform",
+          "purpose": "Show the comparison, flow, or state change.",
+          "visualRule": "Move, connect, group, or replace elements to express the mechanism.",
+          "audioRule": "Use SFX only on semantically meaningful transitions."
+        },
+        {
+          "id": "carry-card",
+          "purpose": "End on a compact reusable takeaway.",
+          "visualRule": "Compose one screenshotable summary card with no internal production labels.",
+          "audioRule": "Read the takeaway once and stop."
+        }
+      ],
+      "inputs": [
+        {
+          "kind": "code-native-graphics",
+          "required": true,
+          "sourceRule": "Original SVG, HTML/CSS, React, or Remotion primitives with source-controlled design tokens.",
+          "acceptedRights": ["owned", "generated-with-provenance"]
+        },
+        {
+          "kind": "user-authored-text",
+          "required": true,
+          "sourceRule": "Original concise lesson with evidence references outside the render when required.",
+          "acceptedRights": ["owned", "explicit-license", "user-attested"]
+        },
+        {
+          "kind": "owned-audio",
+          "required": false,
+          "sourceRule": "Owned or separately authorized narration and sound design.",
+          "acceptedRights": ["owned", "explicit-license", "generated-with-provenance"]
+        }
+      ],
+      "rights": {
+        "defaultPosture": "owned-or-explicitly-licensed",
+        "transformRule": "Build original graphic composition from primitives; trace any external icon, font, or illustration through the asset ledger.",
+        "hardStops": [
+          "Unlicensed font or icon",
+          "Copied creator card system",
+          "Internal labels visible",
+          "Animation does not encode the stated relationship"
+        ]
+      },
+      "cost": { "class": "L0", "drivers": ["Design and motion implementation time"] },
+      "captionZones": {
+        "primary": { "x": 0.08, "y": 0.72, "width": 0.84, "height": 0.14 },
+        "exclusions": [
+          { "x": 0.08, "y": 0.16, "width": 0.84, "height": 0.46 },
+          { "x": 0, "y": 0.9, "width": 1, "height": 0.1 }
+        ]
+      },
+      "audio": {
+        "narrationRequired": true,
+        "requiredTracks": ["narration", "sfx", "music"],
+        "mixRule": "Narration and visual state changes stay synchronized; transition sounds are sparse and functional."
+      },
+      "implementation": {
+        "status": "implemented",
+        "skillIds": [
+          "motion-card-lesson-short",
+          "animation-explainer-short",
+          "motion-design-coder",
+          "video-render"
+        ],
+        "flowPaths": ["flows/generate-short.flow"],
+        "harnessPaths": ["scripts/harness/video-render.ts"],
+        "templateIds": ["tiktok-captions"],
+        "nextGap": "Create reusable relationship primitives for cause, contrast, sequence, hierarchy, and feedback."
+      },
+      "phoneViewport": {
+        "exampleId": "motion-card-lesson-phone-v1",
+        "width": 1080,
+        "height": 1920,
+        "layers": [
+          {
+            "id": "diagram",
+            "kind": "graphic",
+            "rect": { "x": 0.08, "y": 0.16, "width": 0.84, "height": 0.46 },
+            "zIndex": 0,
+            "content": "Persistent cards, nodes, or comparison columns"
+          },
+          {
+            "id": "section-label",
+            "kind": "graphic",
+            "rect": { "x": 0.08, "y": 0.1, "width": 0.5, "height": 0.06 },
+            "zIndex": 2,
+            "content": "Short thesis or step label"
+          },
+          {
+            "id": "captions",
+            "kind": "caption",
+            "rect": { "x": 0.08, "y": 0.72, "width": 0.84, "height": 0.14 },
+            "zIndex": 3,
+            "content": "Narration captions below the diagram"
+          }
+        ]
+      },
+      "patternSourceIds": ["content-machine-direct", "remotion-skills-marketplace"],
+      "redcowAffordances": ["C", "O", "W"],
+      "qualityRisks": [
+        "Animated text wallpaper",
+        "Diagram resets destroy continuity",
+        "Too many simultaneous objects",
+        "Captions duplicate the whole card"
+      ]
+    },
+    {
+      "id": "spatial-3d-explainer",
+      "version": 1,
+      "name": "Spatial 3D Explainer",
+      "family": "spatial-3d",
+      "status": "backlog",
+      "scriptArchetypeIds": ["howto", "product-demo", "versus"],
+      "whenToUse": [
+        "Depth, occlusion, assembly, camera movement, or a genuinely spatial relationship is essential to the explanation."
+      ],
+      "whenNotToUse": [
+        "The idea is a flat list, timeline, text comparison, or decorative logo reveal.",
+        "A 2D diagram communicates the same relationship more legibly."
+      ],
+      "beatGrammar": [
+        {
+          "id": "orient",
+          "purpose": "Establish the object, space, and viewer orientation.",
+          "visualRule": "Use one stable camera and visible reference frame.",
+          "audioRule": "Name the spatial relationship before moving the camera."
+        },
+        {
+          "id": "isolate",
+          "purpose": "Separate the component or path under discussion.",
+          "visualRule": "Use opacity, cutaway, or exploded view rather than rapid orbiting.",
+          "audioRule": "One narration clause per isolated component."
+        },
+        {
+          "id": "transform",
+          "purpose": "Demonstrate assembly, motion, flow, or depth-dependent change.",
+          "visualRule": "Camera movement follows the mechanism and stops before the next explanation.",
+          "audioRule": "Use restrained mechanical SFX only when they clarify an action."
+        },
+        {
+          "id": "return",
+          "purpose": "Return to the complete system and state the takeaway.",
+          "visualRule": "Reassemble or restore the reference view with one final label.",
+          "audioRule": "Conclude with the spatial insight, not the rendering process."
+        }
+      ],
+      "inputs": [
+        {
+          "kind": "code-native-graphics",
+          "required": true,
+          "sourceRule": "Original 3D scene or rights-cleared models with material and texture provenance.",
+          "acceptedRights": ["owned", "explicit-license", "generated-with-provenance"]
+        },
+        {
+          "kind": "product-capture",
+          "required": false,
+          "sourceRule": "Reference images or scans must be owned or explicitly licensed and safe to model.",
+          "acceptedRights": ["owned", "explicit-license"]
+        },
+        {
+          "kind": "owned-audio",
+          "required": false,
+          "sourceRule": "Owned or licensed narration and sound design.",
+          "acceptedRights": ["owned", "explicit-license", "generated-with-provenance"]
+        }
+      ],
+      "rights": {
+        "defaultPosture": "mixed-all-assets-cleared",
+        "transformRule": "Use original or rights-cleared models, materials, textures, fonts, and audio; 3D must encode a spatial claim rather than decorate it.",
+        "hardStops": [
+          "Unknown model or texture license",
+          "3D adds no spatial information",
+          "Camera motion causes loss of orientation",
+          "Brand model used without permission"
+        ]
+      },
+      "cost": {
+        "class": "L2",
+        "drivers": ["Modeling", "Rendering", "Specialist review", "Optional licensed model assets"]
+      },
+      "captionZones": {
+        "primary": { "x": 0.08, "y": 0.72, "width": 0.84, "height": 0.14 },
+        "exclusions": [
+          { "x": 0.04, "y": 0.12, "width": 0.92, "height": 0.52 },
+          { "x": 0, "y": 0.9, "width": 1, "height": 0.1 }
+        ]
+      },
+      "audio": {
+        "narrationRequired": true,
+        "requiredTracks": ["narration", "sfx", "music"],
+        "mixRule": "Narration establishes orientation; mechanical SFX mark real transformations without cinematic overload."
+      },
+      "implementation": {
+        "status": "backlog",
+        "skillIds": [],
+        "flowPaths": [],
+        "harnessPaths": [],
+        "templateIds": [],
+        "nextGap": "Build one spatially justified Three.js or Remotion 3D composition and reject decorative 3D requests in its skill contract."
+      },
+      "phoneViewport": {
+        "exampleId": "spatial-3d-explainer-phone-v1",
+        "width": 1080,
+        "height": 1920,
+        "layers": [
+          {
+            "id": "three-d-stage",
+            "kind": "video",
+            "rect": { "x": 0.04, "y": 0.12, "width": 0.92, "height": 0.52 },
+            "zIndex": 0,
+            "content": "Stable spatial stage with one object system"
+          },
+          {
+            "id": "axis-label",
+            "kind": "graphic",
+            "rect": { "x": 0.08, "y": 0.16, "width": 0.34, "height": 0.08 },
+            "zIndex": 2,
+            "content": "Orientation or component label"
+          },
+          {
+            "id": "captions",
+            "kind": "caption",
+            "rect": { "x": 0.08, "y": 0.72, "width": 0.84, "height": 0.14 },
+            "zIndex": 3,
+            "content": "Narration captions"
+          }
+        ]
+      },
+      "patternSourceIds": ["content-machine-direct", "remotion-skills-marketplace"],
+      "redcowAffordances": ["E", "C", "O"],
+      "qualityRisks": [
+        "Decorative 3D",
+        "Camera disorientation",
+        "High render cost",
+        "Unknown model asset rights"
+      ]
+    },
+    {
+      "id": "reddit-post-over-gameplay",
+      "version": 1,
+      "name": "Post Over Full-Screen Gameplay",
+      "family": "story-gameplay",
+      "status": "implemented",
+      "scriptArchetypeIds": ["story", "reaction", "hot-take"],
+      "whenToUse": [
+        "A user-authored or permissioned post/story needs a visually active but semantically secondary background."
+      ],
+      "whenNotToUse": [
+        "The gameplay is downloaded from a creator or game video without rights.",
+        "The story needs evidence, product proof, or source footage that gameplay would obscure."
+      ],
+      "beatGrammar": [
+        {
+          "id": "gameplay-first",
+          "purpose": "Establish continuous motion from frame one.",
+          "visualRule": "Full-screen licensed or procedural gameplay fills the phone frame.",
+          "audioRule": "Narration starts immediately; gameplay audio is muted or very low."
+        },
+        {
+          "id": "post-card",
+          "purpose": "Present the title or setup briefly.",
+          "visualRule": "Use a generic original post card for the opening only.",
+          "audioRule": "Read or summarize the hook without copying unnecessary text."
+        },
+        {
+          "id": "story-run",
+          "purpose": "Carry the story with captions while gameplay remains secondary.",
+          "visualRule": "Remove the card and preserve a clear caption lane over uninterrupted gameplay.",
+          "audioRule": "Narration drives pacing; no random B-roll inserts."
+        },
+        {
+          "id": "resolution",
+          "purpose": "Land the final decision, reveal, or question.",
+          "visualRule": "Use a concise final caption or card without interrupting gameplay continuity.",
+          "audioRule": "Resolve the spoken sentence; avoid fake loop truncation."
+        }
+      ],
+      "inputs": [
+        {
+          "kind": "user-authored-text",
+          "required": true,
+          "sourceRule": "Original, permissioned, licensed, or safely transformed text; public posts are not automatically reusable scripts.",
+          "acceptedRights": ["owned", "explicit-license", "user-attested", "quotation-review"]
+        },
+        {
+          "kind": "licensed-gameplay",
+          "required": false,
+          "sourceRule": "Gameplay must be owned, explicitly licensed, or supplied with a usable license and asset ledger.",
+          "acceptedRights": ["owned", "explicit-license", "stock-license"]
+        },
+        {
+          "kind": "procedural-gameplay",
+          "required": false,
+          "sourceRule": "Prefer original procedural gameplay when external gameplay rights are unclear.",
+          "acceptedRights": ["owned", "generated-with-provenance"]
+        },
+        {
+          "kind": "code-native-ui",
+          "required": true,
+          "sourceRule": "Use an original generic post card rather than copied Reddit interface assets.",
+          "acceptedRights": ["owned", "generated-with-provenance"]
+        }
+      ],
+      "rights": {
+        "defaultPosture": "mixed-all-assets-cleared",
+        "transformRule": "Use original or permissioned story text, code-native post UI, and owned/licensed/procedural gameplay; keep creator examples as pattern inspiration only.",
+        "hardStops": [
+          "Downloaded creator gameplay",
+          "Scraped post used verbatim without review",
+          "Copied Reddit branding or user identity",
+          "Watermark",
+          "Gameplay and caption collision"
+        ]
+      },
+      "cost": {
+        "class": "L0",
+        "drivers": ["Procedural gameplay generation", "Narration and caption timing"]
+      },
+      "captionZones": {
+        "primary": { "x": 0.08, "y": 0.62, "width": 0.84, "height": 0.2 },
+        "exclusions": [
+          { "x": 0.08, "y": 0.14, "width": 0.84, "height": 0.26 },
+          { "x": 0, "y": 0.9, "width": 1, "height": 0.1 }
+        ]
+      },
+      "audio": {
+        "narrationRequired": true,
+        "requiredTracks": ["narration", "music", "sfx"],
+        "mixRule": "Narration is primary; gameplay audio stays muted or low and music never competes with captions."
+      },
+      "implementation": {
+        "status": "implemented",
+        "skillIds": [
+          "reddit-post-over-gameplay-short",
+          "reddit-card-overlay",
+          "procedural-gameplay-backgrounds",
+          "short-form-captions",
+          "video-render"
+        ],
+        "flowPaths": ["flows/generate-short.flow"],
+        "harnessPaths": [
+          "scripts/harness/reddit-story-assets.ts",
+          "scripts/harness/video-render.ts"
+        ],
+        "templateIds": ["brainrot-split-gameplay", "tiktok-captions"],
+        "nextGap": "Rename legacy brainrot template ids in a backward-compatible migration and keep the lane non-default outside story requests."
+      },
+      "phoneViewport": {
+        "exampleId": "reddit-post-over-gameplay-phone-v1",
+        "width": 1080,
+        "height": 1920,
+        "layers": [
+          {
+            "id": "gameplay",
+            "kind": "video",
+            "rect": { "x": 0, "y": 0, "width": 1, "height": 1 },
+            "zIndex": 0,
+            "content": "Owned, licensed, or procedural continuous gameplay"
+          },
+          {
+            "id": "post-card",
+            "kind": "ui",
+            "rect": { "x": 0.08, "y": 0.14, "width": 0.84, "height": 0.26 },
+            "zIndex": 2,
+            "content": "Generic post card visible only for the setup"
+          },
+          {
+            "id": "captions",
+            "kind": "caption",
+            "rect": { "x": 0.08, "y": 0.62, "width": 0.84, "height": 0.2 },
+            "zIndex": 3,
+            "content": "Narration captions over gameplay"
+          }
+        ]
+      },
+      "patternSourceIds": ["content-machine-direct", "reddit-video-maker-bot"],
+      "redcowAffordances": ["R", "D", "O"],
+      "qualityRisks": [
+        "Game footage rights failure",
+        "Gameplay becomes the subject",
+        "Card and caption collision",
+        "Copied social UI",
+        "Low-quality synthetic story voice"
+      ]
+    },
+    {
+      "id": "story-gameplay-split",
+      "version": 1,
+      "name": "Story Support Plus Gameplay Split",
+      "family": "story-gameplay",
+      "status": "proving",
+      "scriptArchetypeIds": ["story", "reaction", "meme-pov"],
+      "whenToUse": [
+        "The story benefits from visible support footage while gameplay supplies continuous secondary motion.",
+        "The user explicitly requests a split-screen confession or storytime treatment."
+      ],
+      "whenNotToUse": [
+        "Only one source layer is meaningful.",
+        "The vertical split makes either source unreadable or introduces gutters.",
+        "The format is chosen by habit rather than thesis fit."
+      ],
+      "beatGrammar": [
+        {
+          "id": "dual-hook",
+          "purpose": "Establish the story-support layer and continuous gameplay without ambiguity.",
+          "visualRule": "Top and bottom panels fill the frame edge-to-edge with no gutter.",
+          "audioRule": "One narration track owns the story; source support audio is muted unless essential."
+        },
+        {
+          "id": "setup",
+          "purpose": "Introduce the situation and characters.",
+          "visualRule": "Top support footage changes only when it adds story information; gameplay remains continuous.",
+          "audioRule": "Captions follow narration and stay out of panel boundaries."
+        },
+        {
+          "id": "escalation",
+          "purpose": "Advance the conflict or confession.",
+          "visualRule": "Use support footage, simple labels, or a brief receipt; do not add a third filler source.",
+          "audioRule": "Music stays below narration and source dialogue."
+        },
+        {
+          "id": "resolve",
+          "purpose": "Land the reveal or decision.",
+          "visualRule": "Hold the clearest support frame while gameplay continues beneath.",
+          "audioRule": "Complete the resolution without a forced loop."
+        }
+      ],
+      "inputs": [
+        {
+          "kind": "owned-video",
+          "required": true,
+          "sourceRule": "Top support footage must be owned, licensed, or generated with provenance and relate directly to the story.",
+          "acceptedRights": [
+            "owned",
+            "explicit-license",
+            "generated-with-provenance",
+            "user-attested"
+          ]
+        },
+        {
+          "kind": "licensed-gameplay",
+          "required": false,
+          "sourceRule": "Bottom gameplay must be owned or explicitly licensed; public creator uploads are not stock.",
+          "acceptedRights": ["owned", "explicit-license", "stock-license"]
+        },
+        {
+          "kind": "procedural-gameplay",
+          "required": false,
+          "sourceRule": "Use an original procedural loop when gameplay rights are unclear.",
+          "acceptedRights": ["owned", "generated-with-provenance"]
+        },
+        {
+          "kind": "user-authored-text",
+          "required": true,
+          "sourceRule": "Original or permissioned story text with an explicit disclosure posture for fiction.",
+          "acceptedRights": ["owned", "explicit-license", "user-attested"]
+        }
+      ],
+      "rights": {
+        "defaultPosture": "mixed-all-assets-cleared",
+        "transformRule": "Every panel must have its own provenance; combine only rights-cleared assets and preserve the story's factual or fictional status.",
+        "hardStops": [
+          "Downloaded Subway Surfers or creator footage",
+          "Panel gutters",
+          "Unreadable support footage",
+          "Unclear fiction or confession provenance"
+        ]
+      },
+      "cost": {
+        "class": "L1",
+        "drivers": ["Two source lanes", "Support-footage sourcing", "Split-screen QA"]
+      },
+      "captionZones": {
+        "primary": { "x": 0.08, "y": 0.43, "width": 0.84, "height": 0.14 },
+        "exclusions": [
+          { "x": 0, "y": 0, "width": 1, "height": 0.4 },
+          { "x": 0, "y": 0.58, "width": 1, "height": 0.42 }
+        ]
+      },
+      "audio": {
+        "narrationRequired": true,
+        "requiredTracks": ["narration", "music"],
+        "mixRule": "One narration track leads; support and gameplay source audio remain muted unless an approved story beat requires dialogue."
+      },
+      "implementation": {
+        "status": "proving",
+        "skillIds": [
+          "gameplay-confession-short",
+          "reddit-story-short",
+          "procedural-gameplay-backgrounds",
+          "short-form-captions",
+          "video-render"
+        ],
+        "flowPaths": ["flows/generate-short.flow"],
+        "harnessPaths": [
+          "scripts/harness/reddit-story-assets.ts",
+          "scripts/harness/video-render.ts"
+        ],
+        "templateIds": ["brainrot-split-gameplay-top", "tiktok-captions"],
+        "nextGap": "Rebuild the public demo without gutters and prove OCR-safe captions before promotion."
+      },
+      "phoneViewport": {
+        "exampleId": "story-gameplay-split-phone-v1",
+        "width": 1080,
+        "height": 1920,
+        "layers": [
+          {
+            "id": "support-video",
+            "kind": "video",
+            "rect": { "x": 0, "y": 0, "width": 1, "height": 0.43 },
+            "zIndex": 0,
+            "content": "Story-specific owned or licensed support footage"
+          },
+          {
+            "id": "gameplay",
+            "kind": "video",
+            "rect": { "x": 0, "y": 0.57, "width": 1, "height": 0.43 },
+            "zIndex": 0,
+            "content": "Owned, licensed, or procedural gameplay"
+          },
+          {
+            "id": "captions",
+            "kind": "caption",
+            "rect": { "x": 0.08, "y": 0.43, "width": 0.84, "height": 0.14 },
+            "zIndex": 3,
+            "content": "Captions in the controlled center band"
+          }
+        ]
+      },
+      "patternSourceIds": ["content-machine-direct", "reddit-video-maker-bot"],
+      "redcowAffordances": ["R", "D", "O"],
+      "qualityRisks": [
+        "Split-screen overload",
+        "Rights failure in either panel",
+        "Gutters",
+        "Captions cross panel edges",
+        "Gameplay chosen by default"
+      ]
+    },
+    {
+      "id": "evidence-reaction",
+      "version": 1,
+      "name": "Evidence Reaction",
+      "family": "evidence-reaction",
+      "status": "skill-backed",
+      "scriptArchetypeIds": ["reaction", "myth", "hot-take", "case-study"],
+      "whenToUse": [
+        "A source excerpt, claim, screenshot, chart, or clip needs contextual commentary, correction, or verification."
+      ],
+      "whenNotToUse": [
+        "The source is used mainly for entertainment rather than analysis.",
+        "The excerpt cannot be licensed, quoted, or reviewed under the intended use.",
+        "Commentary merely repeats the source."
+      ],
+      "beatGrammar": [
+        {
+          "id": "source-claim",
+          "purpose": "Show the minimum excerpt needed to understand the claim.",
+          "visualRule": "Display a bounded excerpt with source label and no copied creator branding beyond what review requires.",
+          "audioRule": "Use only the minimal source audio necessary, or read a short attributed excerpt."
+        },
+        {
+          "id": "reaction",
+          "purpose": "State the precise agreement, disagreement, or question.",
+          "visualRule": "Switch to owned commentary, code-native annotation, or split view.",
+          "audioRule": "Commentary must add analysis immediately."
+        },
+        {
+          "id": "evidence",
+          "purpose": "Supply proof, counterexample, mechanism, or uncertainty.",
+          "visualRule": "Use owned screen proof, document excerpt, or diagram with exact attribution.",
+          "audioRule": "Distinguish sourced fact from inference."
+        },
+        {
+          "id": "verdict",
+          "purpose": "Conclude with the corrected or qualified claim.",
+          "visualRule": "End on a concise original verdict card and source reference.",
+          "audioRule": "Avoid pile-on language and unsupported certainty."
+        }
+      ],
+      "inputs": [
+        {
+          "kind": "commentary-source-excerpt",
+          "required": true,
+          "sourceRule": "Minimal attributed excerpt with rights or quotation review; do not download and repost whole creator clips.",
+          "acceptedRights": ["explicit-license", "quotation-review", "public-domain"]
+        },
+        {
+          "kind": "owned-video",
+          "required": false,
+          "sourceRule": "Owned reaction, narration, or explanation footage with consent.",
+          "acceptedRights": ["owned", "user-attested"]
+        },
+        {
+          "kind": "document-excerpt",
+          "required": false,
+          "sourceRule": "Public or licensed evidence excerpt with precise source and no unnecessary personal data.",
+          "acceptedRights": ["explicit-license", "quotation-review", "public-domain"]
+        },
+        {
+          "kind": "code-native-graphics",
+          "required": false,
+          "sourceRule": "Original annotations and verdict cards.",
+          "acceptedRights": ["owned", "generated-with-provenance"]
+        }
+      ],
+      "rights": {
+        "defaultPosture": "quotation-or-commentary-review-required",
+        "transformRule": "Use the minimum necessary source excerpt, add substantial original analysis, attribute clearly, and run jurisdiction-appropriate quotation/commentary review.",
+        "hardStops": [
+          "Whole creator clip reused",
+          "No added analysis",
+          "Unknown music embedded in excerpt",
+          "Source identity obscured where attribution is required",
+          "Harassment or pile-on framing"
+        ]
+      },
+      "cost": {
+        "class": "L0",
+        "drivers": ["Rights review", "Source verification", "Original commentary recording"]
+      },
+      "captionZones": {
+        "primary": { "x": 0.08, "y": 0.68, "width": 0.84, "height": 0.16 },
+        "exclusions": [
+          { "x": 0.06, "y": 0.12, "width": 0.88, "height": 0.42 },
+          { "x": 0, "y": 0.9, "width": 1, "height": 0.1 }
+        ]
+      },
+      "audio": {
+        "narrationRequired": true,
+        "requiredTracks": ["source-dialogue", "narration"],
+        "mixRule": "Source audio is minimal and bounded; original commentary takes over immediately and remains dominant."
+      },
+      "implementation": {
+        "status": "skill-backed",
+        "skillIds": [
+          "micro-doc-breakdown-short",
+          "source-media-review",
+          "hook-overlay",
+          "asset-ledger",
+          "video-render"
+        ],
+        "flowPaths": ["flows/reverse-engineer-winner.flow"],
+        "harnessPaths": ["scripts/harness/asset-ledger.ts", "scripts/harness/video-render.ts"],
+        "templateIds": ["tiktok-captions"],
+        "nextGap": "Add an excerpt-duration and attribution review gate that is independent of platform download mechanics."
+      },
+      "phoneViewport": {
+        "exampleId": "evidence-reaction-phone-v1",
+        "width": 1080,
+        "height": 1920,
+        "layers": [
+          {
+            "id": "source-excerpt",
+            "kind": "video",
+            "rect": { "x": 0.06, "y": 0.12, "width": 0.88, "height": 0.42 },
+            "zIndex": 0,
+            "content": "Minimal attributed source excerpt"
+          },
+          {
+            "id": "analysis-callout",
+            "kind": "graphic",
+            "rect": { "x": 0.08, "y": 0.54, "width": 0.84, "height": 0.1 },
+            "zIndex": 2,
+            "content": "Original correction or evidence label"
+          },
+          {
+            "id": "captions",
+            "kind": "caption",
+            "rect": { "x": 0.08, "y": 0.68, "width": 0.84, "height": 0.16 },
+            "zIndex": 3,
+            "content": "Original commentary captions"
+          }
+        ]
+      },
+      "patternSourceIds": ["content-machine-direct"],
+      "redcowAffordances": ["R", "E", "C", "O"],
+      "qualityRisks": [
+        "Insufficient transformation",
+        "Context collapse",
+        "Creator asset overuse",
+        "Source audio rights",
+        "Commentary becomes a pile-on"
+      ]
+    },
+    {
+      "id": "product-screen-demo",
+      "version": 1,
+      "name": "Product Screen Demo",
+      "family": "product-demo",
+      "status": "implemented",
+      "scriptArchetypeIds": ["product-demo", "howto", "before-after", "case-study"],
+      "whenToUse": [
+        "A real product workflow, output, or before-and-after can be demonstrated on screen."
+      ],
+      "whenNotToUse": [
+        "The product is not ready to show, the capture is simulated, or the result cannot be verified.",
+        "The video would rely on claims rather than observable product behavior."
+      ],
+      "beatGrammar": [
+        {
+          "id": "pain-state",
+          "purpose": "Show the exact starting problem or friction.",
+          "visualRule": "Use a real owned screen, input, or before state.",
+          "audioRule": "Name the task without exaggerated stakes."
+        },
+        {
+          "id": "action",
+          "purpose": "Demonstrate the smallest successful workflow.",
+          "visualRule": "Crop to the active region and show each real state change.",
+          "audioRule": "Narration follows, not precedes, the visible action."
+        },
+        {
+          "id": "proof-output",
+          "purpose": "Show the exact product output or result.",
+          "visualRule": "Hold the output long enough to inspect and add one factual label.",
+          "audioRule": "State what was produced and any meaningful constraint."
+        },
+        {
+          "id": "fit",
+          "purpose": "Clarify who should use it and when it is not a fit.",
+          "visualRule": "Use a concise original end card or return to the product result.",
+          "audioRule": "Use a transparent CTA only when an offer or affiliation is actually present."
+        }
+      ],
+      "inputs": [
+        {
+          "kind": "product-capture",
+          "required": true,
+          "sourceRule": "Owned product screen recording from a safe demo account with private data removed.",
+          "acceptedRights": ["owned", "explicit-license", "user-attested"]
+        },
+        {
+          "kind": "screen-recording",
+          "required": true,
+          "sourceRule": "Capture the real action and result; simulated UI must be labeled as prototype or concept.",
+          "acceptedRights": ["owned", "explicit-license"]
+        },
+        {
+          "kind": "code-native-graphics",
+          "required": false,
+          "sourceRule": "Use arrows, zooms, and labels only to clarify the real workflow.",
+          "acceptedRights": ["owned", "generated-with-provenance"]
+        }
+      ],
+      "rights": {
+        "defaultPosture": "owned-or-explicitly-licensed",
+        "transformRule": "Demonstrate real product behavior from a safe account, retain the actual outcome, and label prototypes or simulated states explicitly.",
+        "hardStops": [
+          "Secret or customer data visible",
+          "Fabricated product result",
+          "Prototype presented as shipped behavior",
+          "Hidden commercial relationship"
+        ]
+      },
+      "cost": {
+        "class": "L0",
+        "drivers": ["Demo account preparation", "Screen capture and annotation"]
+      },
+      "captionZones": {
+        "primary": { "x": 0.08, "y": 0.72, "width": 0.84, "height": 0.14 },
+        "exclusions": [
+          { "x": 0.06, "y": 0.12, "width": 0.88, "height": 0.5 },
+          { "x": 0, "y": 0.9, "width": 1, "height": 0.1 }
+        ]
+      },
+      "audio": {
+        "narrationRequired": true,
+        "requiredTracks": ["narration", "sfx"],
+        "mixRule": "Narration tracks the real workflow; click SFX are sparse and may not imply a state change that did not occur."
+      },
+      "implementation": {
+        "status": "implemented",
+        "skillIds": [
+          "saas-problem-solution-short",
+          "face-or-screen-reframe",
+          "hook-overlay",
+          "video-render"
+        ],
+        "flowPaths": ["flows/generate-short.flow"],
+        "harnessPaths": ["scripts/harness/video-render.ts"],
+        "templateIds": ["tiktok-captions"],
+        "nextGap": "Add a deterministic before/action/output screen composition with redaction and proof-hold checks."
+      },
+      "phoneViewport": {
+        "exampleId": "product-screen-demo-phone-v1",
+        "width": 1080,
+        "height": 1920,
+        "layers": [
+          {
+            "id": "product-screen",
+            "kind": "video",
+            "rect": { "x": 0.06, "y": 0.12, "width": 0.88, "height": 0.5 },
+            "zIndex": 0,
+            "content": "Owned product capture with visible real state changes"
+          },
+          {
+            "id": "proof-label",
+            "kind": "graphic",
+            "rect": { "x": 0.08, "y": 0.62, "width": 0.68, "height": 0.08 },
+            "zIndex": 2,
+            "content": "One factual result or constraint"
+          },
+          {
+            "id": "captions",
+            "kind": "caption",
+            "rect": { "x": 0.08, "y": 0.72, "width": 0.84, "height": 0.14 },
+            "zIndex": 3,
+            "content": "Narration captions"
+          }
+        ]
+      },
+      "patternSourceIds": ["content-machine-direct", "remotion-skills-marketplace"],
+      "redcowAffordances": ["R", "D", "C", "O"],
+      "qualityRisks": [
+        "Unreadable product UI",
+        "Demo data leak",
+        "Simulated outcome",
+        "Annotation covers the action",
+        "Generic ad language"
+      ]
+    },
+    {
+      "id": "deliberate-hybrid",
+      "version": 1,
+      "name": "Deliberate Hybrid",
+      "family": "hybrid",
+      "status": "implemented",
+      "scriptArchetypeIds": ["case-study", "story", "howto", "myth", "product-demo", "versus"],
+      "whenToUse": [
+        "One thesis genuinely requires two or more distinct proof roles, such as owned footage plus screen proof plus a diagram."
+      ],
+      "whenNotToUse": [
+        "The mix exists only to increase visual change.",
+        "A single source lane can carry the whole explanation.",
+        "Any source lacks rights, provenance, or a specific semantic role."
+      ],
+      "beatGrammar": [
+        {
+          "id": "anchor-source",
+          "purpose": "Open on the strongest real or explanatory anchor.",
+          "visualRule": "Choose exactly one primary source lane for the opening.",
+          "audioRule": "Narration names the thesis and the visible source."
+        },
+        {
+          "id": "proof-switch",
+          "purpose": "Move to a second source only when the proof role changes.",
+          "visualRule": "Use a motivated transition and keep labels consistent across source types.",
+          "audioRule": "The sentence explains why the visual source changed."
+        },
+        {
+          "id": "synthesis",
+          "purpose": "Combine the sources into one mechanism or comparison.",
+          "visualRule": "Use a code-native diagram, split view, or matched before/after; never stack every source at once.",
+          "audioRule": "Narration distinguishes observation, inference, and illustration."
+        },
+        {
+          "id": "return-anchor",
+          "purpose": "Close on the original anchor with the new meaning visible.",
+          "visualRule": "Return to the strongest proof or a compact takeaway card.",
+          "audioRule": "End with one conclusion and no unrelated montage."
+        }
+      ],
+      "inputs": [
+        {
+          "kind": "owned-video",
+          "required": false,
+          "sourceRule": "Owned footage may serve as the primary proof or human anchor.",
+          "acceptedRights": ["owned", "explicit-license", "user-attested"]
+        },
+        {
+          "kind": "screen-recording",
+          "required": false,
+          "sourceRule": "Owned redacted screen proof may serve as the action or result layer.",
+          "acceptedRights": ["owned", "explicit-license"]
+        },
+        {
+          "kind": "licensed-stock-video",
+          "required": false,
+          "sourceRule": "Stock is allowed only for context that cannot be shown with a more specific source.",
+          "acceptedRights": ["stock-license", "public-domain", "explicit-license"]
+        },
+        {
+          "kind": "code-native-graphics",
+          "required": true,
+          "sourceRule": "Original graphics provide connective tissue and must encode a real relationship.",
+          "acceptedRights": ["owned", "generated-with-provenance"]
+        },
+        {
+          "kind": "generated-image",
+          "required": false,
+          "sourceRule": "Generated imagery is illustration only and needs full provenance.",
+          "acceptedRights": ["generated-with-provenance"]
+        },
+        {
+          "kind": "generated-video",
+          "required": false,
+          "sourceRule": "Generated video is used only when motion is essential and cannot be mistaken for proof.",
+          "acceptedRights": ["generated-with-provenance"]
+        }
+      ],
+      "rights": {
+        "defaultPosture": "mixed-all-assets-cleared",
+        "transformRule": "Assign every asset one semantic role, retain asset-level provenance, disclose generated material when needed, and remove any source that does not advance the thesis.",
+        "hardStops": [
+          "Any unlicensed source",
+          "Source switch has no semantic reason",
+          "Generated illustration presented as proof",
+          "More than one dominant layer competes for attention",
+          "Asset ledger incomplete"
+        ]
+      },
+      "cost": {
+        "class": "L2",
+        "drivers": [
+          "Multi-source review",
+          "Asset provenance",
+          "Custom transitions",
+          "Optional generation"
+        ]
+      },
+      "captionZones": {
+        "primary": { "x": 0.08, "y": 0.7, "width": 0.84, "height": 0.14 },
+        "exclusions": [
+          { "x": 0.06, "y": 0.12, "width": 0.88, "height": 0.48 },
+          { "x": 0, "y": 0.9, "width": 1, "height": 0.1 }
+        ]
+      },
+      "audio": {
+        "narrationRequired": true,
+        "requiredTracks": ["narration", "music", "sfx"],
+        "mixRule": "One narration spine unifies the source changes; source audio appears only when it is the evidence."
+      },
+      "implementation": {
+        "status": "implemented",
+        "skillIds": [
+          "faceless-mixed-short",
+          "timestamps-to-visuals",
+          "asset-ledger",
+          "scene-variation-check",
+          "video-render"
+        ],
+        "flowPaths": ["flows/generate-short.flow"],
+        "harnessPaths": [
+          "scripts/harness/timestamps-to-visuals.ts",
+          "scripts/harness/asset-ledger.ts",
+          "scripts/harness/video-render.ts"
+        ],
+        "templateIds": ["tiktok-captions"],
+        "nextGap": "Add a source-role planner that fails when a requested asset has no declared semantic job."
+      },
+      "phoneViewport": {
+        "exampleId": "deliberate-hybrid-phone-v1",
+        "width": 1080,
+        "height": 1920,
+        "layers": [
+          {
+            "id": "primary-proof",
+            "kind": "video",
+            "rect": { "x": 0.06, "y": 0.12, "width": 0.88, "height": 0.48 },
+            "zIndex": 0,
+            "content": "One primary source at a time: owned footage, screen proof, or licensed context"
+          },
+          {
+            "id": "connector",
+            "kind": "graphic",
+            "rect": { "x": 0.08, "y": 0.6, "width": 0.7, "height": 0.08 },
+            "zIndex": 2,
+            "content": "Code-native connector or evidence label"
+          },
+          {
+            "id": "captions",
+            "kind": "caption",
+            "rect": { "x": 0.08, "y": 0.7, "width": 0.84, "height": 0.14 },
+            "zIndex": 3,
+            "content": "Single narration spine"
+          }
+        ]
+      },
+      "patternSourceIds": [
+        "content-machine-direct",
+        "pexels-license",
+        "short-video-maker",
+        "remotion-skills-marketplace"
+      ],
+      "redcowAffordances": ["R", "E", "C", "O", "W"],
+      "qualityRisks": [
+        "Visual collage",
+        "Inconsistent provenance",
+        "Unmotivated source changes",
+        "Generated material looks like evidence",
+        "Cost grows without added meaning"
+      ]
+    }
+  ]
+}

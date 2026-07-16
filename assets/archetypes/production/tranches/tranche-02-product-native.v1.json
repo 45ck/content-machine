@@ -1,0 +1,965 @@
+{
+  "schemaVersion": "1.0.0",
+  "kind": "content-machine-production-archetype-registry",
+  "redcowBoundary": "This tranche intentionally declares no REDCOW affordance tags. It contains no observed probabilities, audience claims, platform weights, performance statistics, or per-video assessments.",
+  "costClasses": {
+    "L0": {
+      "label": "local or already owned",
+      "rule": "Uses owned media, code-native graphics, local tools, and no required metered generation."
+    },
+    "L1": {
+      "label": "licensed stock or free-account source",
+      "rule": "Requires asset-level license capture or a free stock/API account but no required metered generation."
+    },
+    "L2": {
+      "label": "metered generation or specialist compute",
+      "rule": "Likely uses metered image, video, voice, or specialist rendering; verify price and terms at execution time."
+    },
+    "L3": {
+      "label": "bespoke production",
+      "rule": "Requires a custom shoot, presenter, actor, location, or substantial manual production."
+    }
+  },
+  "sources": [
+    {
+      "id": "content-machine-direct",
+      "kind": "local-repository",
+      "url": "https://github.com/45ck/content-machine",
+      "licenseStatus": "first-party-mit",
+      "usageMode": "implementation",
+      "licenseReference": "LICENSE",
+      "notes": "Direct raw checkout is authoritative; npm installations are not used for registry truth."
+    },
+    {
+      "id": "pexels-license",
+      "kind": "asset-license",
+      "url": "https://www.pexels.com/license/",
+      "licenseStatus": "asset-license",
+      "usageMode": "asset-source",
+      "licenseReference": "https://www.pexels.com/license/",
+      "notes": "Asset-level provenance remains mandatory and identifiable people may not be placed in harmful, offensive, or implied-endorsement contexts."
+    }
+  ],
+  "archetypes": [
+    {
+      "id": "ugc-avatar-product-proof",
+      "version": 1,
+      "name": "UGC or Avatar Product Proof",
+      "family": "product-demo",
+      "status": "skill-backed",
+      "scriptArchetypeIds": ["product-demo", "case-study", "before-after", "story"],
+      "whenToUse": [
+        "A real user, authorized presenter, or clearly disclosed synthetic avatar can demonstrate an actual product experience.",
+        "The product has an observable workflow or result that can appear beside the presenter."
+      ],
+      "whenNotToUse": [
+        "No valid consent or likeness authority exists for the presenter or avatar.",
+        "The script invents personal experience, typical results, or product use that did not occur.",
+        "A material commercial connection cannot be disclosed clearly."
+      ],
+      "beatGrammar": [
+        {
+          "id": "identity-and-context",
+          "purpose": "Establish who is speaking and whether the presentation is authentic, sponsored, employee-made, or synthetic.",
+          "visualRule": "Show the authorized presenter or labeled avatar with a short context or disclosure label.",
+          "audioRule": "Use the presenter's own voice or an authorized disclosed synthetic voice; do not impersonate a real customer."
+        },
+        {
+          "id": "real-problem",
+          "purpose": "Name the exact product task or problem from a truthful perspective.",
+          "visualRule": "Keep the presenter visible or cut to the real starting product state.",
+          "audioRule": "Do not use fabricated first-person experience or unsupported superlatives."
+        },
+        {
+          "id": "product-proof",
+          "purpose": "Demonstrate the real action and observable output.",
+          "visualRule": "Use owned product capture, matched before/after, or a clearly labeled prototype beside the presenter.",
+          "audioRule": "Narration follows the visible product behavior and states meaningful limits."
+        },
+        {
+          "id": "fit-and-disclosure",
+          "purpose": "Clarify who the product is for, what result is not promised, and any material connection.",
+          "visualRule": "End on the actual output plus a legible disclosure or fit card.",
+          "audioRule": "Disclose sponsorship, employment, affiliate, gifting, or synthetic presentation plainly when applicable."
+        }
+      ],
+      "inputs": [
+        {
+          "kind": "owned-video",
+          "required": false,
+          "sourceRule": "Human presenter footage requires identity, recording, editing, and intended-use consent.",
+          "acceptedRights": ["owned", "explicit-license", "user-attested"]
+        },
+        {
+          "kind": "generated-video",
+          "required": false,
+          "sourceRule": "Synthetic avatar footage requires provider lineage, authorized likeness and voice inputs, and an explicit disclosure posture.",
+          "acceptedRights": ["generated-with-provenance", "explicit-license"]
+        },
+        {
+          "kind": "product-capture",
+          "required": true,
+          "sourceRule": "Use an owned safe demo account and show actual behavior; label prototypes or simulated states.",
+          "acceptedRights": ["owned", "explicit-license"]
+        },
+        {
+          "kind": "user-authored-text",
+          "required": true,
+          "sourceRule": "The script must reflect genuine experience or transparent presenter copy, not a fabricated testimonial.",
+          "acceptedRights": ["owned", "explicit-license", "user-attested"]
+        }
+      ],
+      "rights": {
+        "defaultPosture": "mixed-all-assets-cleared",
+        "transformRule": "Preserve the speaker's real experience, disclose material connections and synthetic presentation, and bind every product result to observable capture.",
+        "hardStops": [
+          "No presenter or likeness consent",
+          "Synthetic presenter could reasonably be mistaken for a real customer",
+          "Fake or unverified product experience",
+          "Typical-results implication without substantiation",
+          "Material connection hidden or unreadable",
+          "Prototype presented as shipped behavior"
+        ]
+      },
+      "cost": {
+        "class": "L2",
+        "drivers": [
+          "Presenter production or avatar generation",
+          "Consent and disclosure review",
+          "Product capture"
+        ]
+      },
+      "captionZones": {
+        "primary": { "x": 0.08, "y": 0.7, "width": 0.84, "height": 0.14 },
+        "exclusions": [
+          { "x": 0.06, "y": 0.12, "width": 0.42, "height": 0.5 },
+          { "x": 0.52, "y": 0.12, "width": 0.42, "height": 0.5 },
+          { "x": 0, "y": 0.9, "width": 1, "height": 0.1 }
+        ]
+      },
+      "audio": {
+        "narrationRequired": true,
+        "requiredTracks": ["narration", "music", "sfx"],
+        "mixRule": "Authorized presenter or disclosed synthetic narration leads; product SFX must come from the real capture or remain clearly illustrative."
+      },
+      "implementation": {
+        "status": "skill-backed",
+        "skillIds": [
+          "ugc-avatar-short",
+          "saas-problem-solution-short",
+          "generated-asset-versioning",
+          "video-render"
+        ],
+        "flowPaths": ["flows/generate-short.flow"],
+        "harnessPaths": ["scripts/harness/video-render.ts"],
+        "templateIds": ["tiktok-captions"],
+        "nextGap": "Add a presenter-consent and material-connection manifest plus an avatar disclosure review fixture."
+      },
+      "phoneViewport": {
+        "exampleId": "ugc-avatar-product-proof-phone-v1",
+        "width": 1080,
+        "height": 1920,
+        "layers": [
+          {
+            "id": "presenter",
+            "kind": "video",
+            "rect": { "x": 0.06, "y": 0.12, "width": 0.42, "height": 0.5 },
+            "zIndex": 0,
+            "content": "Authorized human presenter or clearly disclosed synthetic avatar"
+          },
+          {
+            "id": "product-proof",
+            "kind": "video",
+            "rect": { "x": 0.52, "y": 0.12, "width": 0.42, "height": 0.5 },
+            "zIndex": 0,
+            "content": "Real product capture or labeled prototype"
+          },
+          {
+            "id": "disclosure",
+            "kind": "graphic",
+            "rect": { "x": 0.08, "y": 0.62, "width": 0.84, "height": 0.06 },
+            "zIndex": 2,
+            "content": "Material-connection or synthetic-presenter disclosure when applicable"
+          },
+          {
+            "id": "captions",
+            "kind": "caption",
+            "rect": { "x": 0.08, "y": 0.7, "width": 0.84, "height": 0.14 },
+            "zIndex": 3,
+            "content": "Presenter captions"
+          }
+        ]
+      },
+      "patternSourceIds": ["content-machine-direct"],
+      "redcowAffordances": [],
+      "qualityRisks": [
+        "Synthetic presenter looks deceptive",
+        "Presenter and product panels are both too small",
+        "Disclosure is visually subordinate",
+        "Generic testimonial language replaces product proof"
+      ]
+    },
+    {
+      "id": "comment-reply-short",
+      "version": 1,
+      "name": "Comment Reply Short",
+      "family": "ui-native",
+      "status": "backlog",
+      "scriptArchetypeIds": ["reaction", "howto", "myth", "hot-take"],
+      "whenToUse": [
+        "A real permissioned or safely paraphrased question creates a precise answer, correction, or demonstration.",
+        "The reply adds enough original evidence or instruction to stand alone without the original thread."
+      ],
+      "whenNotToUse": [
+        "The comment is private, identifying, hostile, or shown mainly to trigger a pile-on.",
+        "The answer merely repeats the comment or depends on copied platform UI.",
+        "The source comment cannot be quoted, paraphrased, or displayed safely."
+      ],
+      "beatGrammar": [
+        {
+          "id": "question-card",
+          "purpose": "Present the minimum question needed for context.",
+          "visualRule": "Use a generic reconstructed comment card with a pseudonym or no identity unless attribution is required and permitted.",
+          "audioRule": "Read or paraphrase only the relevant question."
+        },
+        {
+          "id": "direct-answer",
+          "purpose": "Answer immediately in one sentence.",
+          "visualRule": "Transition to owned presenter, screen proof, or code-native answer card.",
+          "audioRule": "Do not bait, ridicule, or mischaracterize the commenter."
+        },
+        {
+          "id": "evidence-or-demo",
+          "purpose": "Show the mechanism, example, or exact demonstration.",
+          "visualRule": "Use one proof carrier and keep the comment card offscreen.",
+          "audioRule": "Distinguish fact, opinion, and uncertainty."
+        },
+        {
+          "id": "portable-takeaway",
+          "purpose": "Make the answer useful beyond the original exchange.",
+          "visualRule": "End with an original summary card rather than the source platform chrome.",
+          "audioRule": "Invite further questions only if no engagement automation is implied."
+        }
+      ],
+      "inputs": [
+        {
+          "kind": "commentary-source-excerpt",
+          "required": true,
+          "sourceRule": "Use only the minimum permissioned, attributable, or safely paraphrased comment text; redact identity by default.",
+          "acceptedRights": ["explicit-license", "quotation-review", "user-attested"]
+        },
+        {
+          "kind": "code-native-ui",
+          "required": true,
+          "sourceRule": "Build a generic comment card with original typography and tokens; do not copy Instagram, TikTok, YouTube, or Reddit trade dress.",
+          "acceptedRights": ["owned", "generated-with-provenance"]
+        },
+        {
+          "kind": "user-authored-text",
+          "required": true,
+          "sourceRule": "The reply must be original and independently useful.",
+          "acceptedRights": ["owned", "user-attested"]
+        }
+      ],
+      "rights": {
+        "defaultPosture": "quotation-or-commentary-review-required",
+        "transformRule": "Minimize or paraphrase the source question, remove unnecessary identity, add substantial original answer content, and use generic code-native UI.",
+        "hardStops": [
+          "Private comment or message",
+          "Unnecessary username, avatar, or identifying detail",
+          "Copied platform trade dress",
+          "Harassment, ridicule, or pile-on framing",
+          "Answer depends on engagement automation or an account action"
+        ]
+      },
+      "cost": {
+        "class": "L0",
+        "drivers": [
+          "Comment rights and privacy review",
+          "Generic UI composition",
+          "Answer proof production"
+        ]
+      },
+      "captionZones": {
+        "primary": { "x": 0.08, "y": 0.7, "width": 0.84, "height": 0.14 },
+        "exclusions": [
+          { "x": 0.08, "y": 0.14, "width": 0.84, "height": 0.28 },
+          { "x": 0, "y": 0.9, "width": 1, "height": 0.1 }
+        ]
+      },
+      "audio": {
+        "narrationRequired": true,
+        "requiredTracks": ["narration", "sfx"],
+        "mixRule": "Narration owns the answer; use at most one restrained UI cue for the question card."
+      },
+      "implementation": {
+        "status": "backlog",
+        "skillIds": [],
+        "flowPaths": [],
+        "harnessPaths": [],
+        "templateIds": [],
+        "nextGap": "Build a generic comment-card component and a privacy/quotation review skill before claiming runtime support."
+      },
+      "phoneViewport": {
+        "exampleId": "comment-reply-short-phone-v1",
+        "width": 1080,
+        "height": 1920,
+        "layers": [
+          {
+            "id": "question-card",
+            "kind": "ui",
+            "rect": { "x": 0.08, "y": 0.14, "width": 0.84, "height": 0.28 },
+            "zIndex": 1,
+            "content": "Generic reconstructed question with identity removed by default"
+          },
+          {
+            "id": "answer-proof",
+            "kind": "video",
+            "rect": { "x": 0.06, "y": 0.46, "width": 0.88, "height": 0.2 },
+            "zIndex": 0,
+            "content": "Owned answer footage, screen proof, or diagram"
+          },
+          {
+            "id": "captions",
+            "kind": "caption",
+            "rect": { "x": 0.08, "y": 0.7, "width": 0.84, "height": 0.14 },
+            "zIndex": 3,
+            "content": "Original answer captions"
+          }
+        ]
+      },
+      "patternSourceIds": ["content-machine-direct"],
+      "redcowAffordances": [],
+      "qualityRisks": [
+        "Question text too small",
+        "Identity leak",
+        "Platform imitation",
+        "Reply becomes a callout rather than an answer",
+        "Comment card remains onscreen too long"
+      ]
+    },
+    {
+      "id": "document-to-gameplay-explainer",
+      "version": 1,
+      "name": "Document to Gameplay Explainer",
+      "family": "story-gameplay",
+      "status": "skill-backed",
+      "scriptArchetypeIds": ["story", "howto", "listicle", "myth"],
+      "whenToUse": [
+        "A rights-cleared document, article, paper, or owner-authored text contains a sequence that benefits from continuous secondary motion.",
+        "The gameplay is explicitly a background treatment while document meaning remains primary."
+      ],
+      "whenNotToUse": [
+        "The document cannot be quoted, summarized, or transformed under a verified rights posture.",
+        "The document itself contains diagrams, evidence, or layout that must stay visible.",
+        "Gameplay would trivialize sensitive, tragic, medical, legal, or otherwise high-stakes material."
+      ],
+      "beatGrammar": [
+        {
+          "id": "source-and-question",
+          "purpose": "Identify the document and the exact question being answered.",
+          "visualRule": "Use a brief generic source card over owned, licensed, or procedural gameplay.",
+          "audioRule": "Attribute the source and distinguish quotation from summary."
+        },
+        {
+          "id": "plain-language-sequence",
+          "purpose": "Convert the document into a clear causal or chronological explanation.",
+          "visualRule": "Remove the source card; use captions and occasional code-native labels over uninterrupted gameplay.",
+          "audioRule": "Paraphrase by default and quote only the minimum necessary text."
+        },
+        {
+          "id": "evidence-anchor",
+          "purpose": "Show one exact excerpt, number, or diagram when paraphrase alone would be ambiguous.",
+          "visualRule": "Pause or dim gameplay behind a legible excerpt card with attribution.",
+          "audioRule": "State the limits and context of the excerpt."
+        },
+        {
+          "id": "takeaway",
+          "purpose": "Land the practical meaning without overstating the source.",
+          "visualRule": "Return to gameplay with one original takeaway caption.",
+          "audioRule": "End with the supported conclusion and uncertainty."
+        }
+      ],
+      "inputs": [
+        {
+          "kind": "document-excerpt",
+          "required": true,
+          "sourceRule": "Record author, title, URL or local authority, license or quotation review, retrieval date, excerpt boundaries, and transformation.",
+          "acceptedRights": ["owned", "explicit-license", "public-domain", "quotation-review"]
+        },
+        {
+          "kind": "licensed-gameplay",
+          "required": false,
+          "sourceRule": "Gameplay must be owned or explicitly licensed; public creator uploads are not stock.",
+          "acceptedRights": ["owned", "explicit-license", "stock-license"]
+        },
+        {
+          "kind": "procedural-gameplay",
+          "required": false,
+          "sourceRule": "Prefer original procedural gameplay when external gameplay rights are unclear.",
+          "acceptedRights": ["owned", "generated-with-provenance"]
+        },
+        {
+          "kind": "code-native-ui",
+          "required": true,
+          "sourceRule": "Source and excerpt cards must be original and generic.",
+          "acceptedRights": ["owned", "generated-with-provenance"]
+        }
+      ],
+      "rights": {
+        "defaultPosture": "quotation-or-commentary-review-required",
+        "transformRule": "Paraphrase by default, quote only what the explanation requires, preserve attribution and context, and clear gameplay independently.",
+        "hardStops": [
+          "Unknown document rights",
+          "Substantial copied text replaces original explanation",
+          "Market-substituting summary or reproduction",
+          "Downloaded creator gameplay",
+          "Sensitive subject trivialized by gameplay",
+          "Attribution missing"
+        ]
+      },
+      "cost": {
+        "class": "L0",
+        "drivers": [
+          "Document review and excerpt mapping",
+          "Procedural gameplay",
+          "Narration and caption timing"
+        ]
+      },
+      "captionZones": {
+        "primary": { "x": 0.08, "y": 0.64, "width": 0.84, "height": 0.18 },
+        "exclusions": [
+          { "x": 0.08, "y": 0.14, "width": 0.84, "height": 0.28 },
+          { "x": 0, "y": 0.9, "width": 1, "height": 0.1 }
+        ]
+      },
+      "audio": {
+        "narrationRequired": true,
+        "requiredTracks": ["narration", "music", "sfx"],
+        "mixRule": "Narration carries the document meaning; gameplay audio stays muted or low and never competes with attribution."
+      },
+      "implementation": {
+        "status": "skill-backed",
+        "skillIds": [
+          "reddit-post-over-gameplay-short",
+          "procedural-gameplay-backgrounds",
+          "source-media-review",
+          "asset-ledger",
+          "short-form-captions",
+          "video-render"
+        ],
+        "flowPaths": ["flows/generate-short.flow"],
+        "harnessPaths": ["scripts/harness/asset-ledger.ts", "scripts/harness/video-render.ts"],
+        "templateIds": ["brainrot-split-gameplay", "tiktok-captions"],
+        "nextGap": "Add a document-excerpt manifest and a source-card renderer that records quotation versus paraphrase at beat level."
+      },
+      "phoneViewport": {
+        "exampleId": "document-to-gameplay-explainer-phone-v1",
+        "width": 1080,
+        "height": 1920,
+        "layers": [
+          {
+            "id": "gameplay",
+            "kind": "video",
+            "rect": { "x": 0, "y": 0, "width": 1, "height": 1 },
+            "zIndex": 0,
+            "content": "Owned, licensed, or procedural gameplay as secondary motion"
+          },
+          {
+            "id": "source-card",
+            "kind": "ui",
+            "rect": { "x": 0.08, "y": 0.14, "width": 0.84, "height": 0.28 },
+            "zIndex": 2,
+            "content": "Brief attributed source or excerpt card"
+          },
+          {
+            "id": "captions",
+            "kind": "caption",
+            "rect": { "x": 0.08, "y": 0.64, "width": 0.84, "height": 0.18 },
+            "zIndex": 3,
+            "content": "Original explanation captions"
+          }
+        ]
+      },
+      "patternSourceIds": ["content-machine-direct"],
+      "redcowAffordances": [],
+      "qualityRisks": [
+        "Document meaning is oversimplified",
+        "Quotation boundaries disappear",
+        "Gameplay trivializes the subject",
+        "Source card and captions collide",
+        "Gameplay rights are assumed"
+      ]
+    },
+    {
+      "id": "before-after-transformation-proof",
+      "version": 1,
+      "name": "Before and After Transformation Proof",
+      "family": "authentic-footage",
+      "status": "skill-backed",
+      "scriptArchetypeIds": ["before-after", "case-study", "product-demo", "howto"],
+      "whenToUse": [
+        "The same object, workflow, screen, or measurable state can be shown before and after a real intervention.",
+        "The comparison can be captured with matched framing, definition, and conditions."
+      ],
+      "whenNotToUse": [
+        "Before and after states use different definitions, conditions, crops, lighting, scales, or time windows.",
+        "The transformation is simulated, cherry-picked, or cannot be reproduced.",
+        "The subject is a person's health, body, finances, or other sensitive outcome without appropriate substantiation and consent."
+      ],
+      "beatGrammar": [
+        {
+          "id": "matched-before",
+          "purpose": "Establish the exact starting state and comparison conditions.",
+          "visualRule": "Show the before state with date, definition, or condition label and a locked comparison frame.",
+          "audioRule": "State the baseline without exaggeration."
+        },
+        {
+          "id": "intervention",
+          "purpose": "Show what changed between states.",
+          "visualRule": "Use owned process footage, screen steps, or a compact method card.",
+          "audioRule": "Name the intervention and meaningful confounders or limits."
+        },
+        {
+          "id": "matched-after",
+          "purpose": "Reveal the result under the same comparison definition.",
+          "visualRule": "Use matched crop, scale, lighting, and metric display; avoid cosmetic transition tricks.",
+          "audioRule": "State the observed result only."
+        },
+        {
+          "id": "verification-and-limit",
+          "purpose": "Explain how the result was checked and what it does not prove.",
+          "visualRule": "Use a verification card or return to the split comparison.",
+          "audioRule": "Separate the observed change from causal inference or typical-results claims."
+        }
+      ],
+      "inputs": [
+        {
+          "kind": "screenshot",
+          "required": true,
+          "sourceRule": "Before and after stills must be owned or licensed, identically defined, and bound to capture conditions.",
+          "acceptedRights": ["owned", "explicit-license", "user-attested"]
+        },
+        {
+          "kind": "owned-video",
+          "required": false,
+          "sourceRule": "Process footage requires ownership and participant consent.",
+          "acceptedRights": ["owned", "explicit-license", "user-attested"]
+        },
+        {
+          "kind": "product-capture",
+          "required": false,
+          "sourceRule": "Product or workflow results must come from a safe real capture rather than a mock result.",
+          "acceptedRights": ["owned", "explicit-license"]
+        },
+        {
+          "kind": "code-native-graphics",
+          "required": true,
+          "sourceRule": "Use original labels, metric cards, and matched-state guides.",
+          "acceptedRights": ["owned", "generated-with-provenance"]
+        }
+      ],
+      "rights": {
+        "defaultPosture": "owned-or-explicitly-licensed",
+        "transformRule": "Keep before and after definitions and framing matched, disclose meaningful conditions, and never visually enhance one state to manufacture the effect.",
+        "hardStops": [
+          "Mismatched crop, scale, lighting, definition, or time window",
+          "Synthetic or retouched result presented as observed",
+          "No consent for identifiable person",
+          "Sensitive-outcome claim lacks appropriate substantiation",
+          "Exceptional result presented as typical",
+          "Intervention omitted"
+        ]
+      },
+      "cost": {
+        "class": "L0",
+        "drivers": [
+          "Matched capture setup",
+          "Condition and metric verification",
+          "Optional process edit"
+        ]
+      },
+      "captionZones": {
+        "primary": { "x": 0.08, "y": 0.72, "width": 0.84, "height": 0.14 },
+        "exclusions": [
+          { "x": 0.04, "y": 0.14, "width": 0.44, "height": 0.5 },
+          { "x": 0.52, "y": 0.14, "width": 0.44, "height": 0.5 },
+          { "x": 0, "y": 0.9, "width": 1, "height": 0.1 }
+        ]
+      },
+      "audio": {
+        "narrationRequired": true,
+        "requiredTracks": ["narration", "sfx"],
+        "mixRule": "Narration states baseline, intervention, result, and limitation; avoid impact SFX that exaggerate the reveal."
+      },
+      "implementation": {
+        "status": "skill-backed",
+        "skillIds": [
+          "source-media-analyze",
+          "face-or-screen-reframe",
+          "hook-overlay",
+          "video-render"
+        ],
+        "flowPaths": ["flows/longform-to-shorts.flow"],
+        "harnessPaths": [
+          "scripts/harness/source-media-analyze.ts",
+          "scripts/harness/video-render.ts"
+        ],
+        "templateIds": ["tiktok-captions"],
+        "nextGap": "Add a matched-state comparison manifest and a review that rejects inconsistent crop, scale, lighting, and metric definitions."
+      },
+      "phoneViewport": {
+        "exampleId": "before-after-transformation-proof-phone-v1",
+        "width": 1080,
+        "height": 1920,
+        "layers": [
+          {
+            "id": "before",
+            "kind": "image",
+            "rect": { "x": 0.04, "y": 0.14, "width": 0.44, "height": 0.5 },
+            "zIndex": 0,
+            "content": "Owned matched before state with condition label"
+          },
+          {
+            "id": "after",
+            "kind": "image",
+            "rect": { "x": 0.52, "y": 0.14, "width": 0.44, "height": 0.5 },
+            "zIndex": 0,
+            "content": "Owned matched after state with the same definition"
+          },
+          {
+            "id": "conditions",
+            "kind": "graphic",
+            "rect": { "x": 0.08, "y": 0.64, "width": 0.84, "height": 0.06 },
+            "zIndex": 2,
+            "content": "Intervention, window, and metric definition"
+          },
+          {
+            "id": "captions",
+            "kind": "caption",
+            "rect": { "x": 0.08, "y": 0.72, "width": 0.84, "height": 0.14 },
+            "zIndex": 3,
+            "content": "Verification and limitation captions"
+          }
+        ]
+      },
+      "patternSourceIds": ["content-machine-direct"],
+      "redcowAffordances": [],
+      "qualityRisks": [
+        "False visual comparison",
+        "Exceptional result framed as typical",
+        "Intervention disappears from the story",
+        "Sensitive personal outcome is exploited",
+        "Impact effects exaggerate the result"
+      ]
+    },
+    {
+      "id": "search-intent-answer",
+      "version": 1,
+      "name": "Search Intent Answer",
+      "family": "motion-graphics",
+      "status": "skill-backed",
+      "scriptArchetypeIds": ["howto", "listicle", "myth", "versus"],
+      "whenToUse": [
+        "A stable, specific question can be answered directly with an owned explanation and evidence.",
+        "The answer can satisfy informational intent without pretending to know platform search volume or ranking behavior."
+      ],
+      "whenNotToUse": [
+        "The query is invented, ambiguous, or used as clickbait rather than answered.",
+        "The topic is time-sensitive and the source set is stale.",
+        "The answer needs individualized medical, legal, financial, or other professional advice."
+      ],
+      "beatGrammar": [
+        {
+          "id": "exact-question",
+          "purpose": "State the real question in plain language.",
+          "visualRule": "Use an original search-style card with no copied engine trade dress.",
+          "audioRule": "Read the question once and begin the answer immediately."
+        },
+        {
+          "id": "short-answer",
+          "purpose": "Give the concise answer before details.",
+          "visualRule": "Replace the question card with one answer card or relevant screen proof.",
+          "audioRule": "Use appropriate uncertainty and freshness language."
+        },
+        {
+          "id": "method-or-evidence",
+          "purpose": "Show the steps, comparison, or evidence behind the answer.",
+          "visualRule": "Use motion cards, product screen, owned footage, or licensed stock only when each adds meaning.",
+          "audioRule": "One claim per visible evidence beat."
+        },
+        {
+          "id": "boundary-and-next-step",
+          "purpose": "State when the answer applies and the next safe action.",
+          "visualRule": "Use a concise summary card with source freshness or limitation cue.",
+          "audioRule": "Do not promise ranking, volume, or universal outcomes."
+        }
+      ],
+      "inputs": [
+        {
+          "kind": "user-authored-text",
+          "required": true,
+          "sourceRule": "The query and answer must be editorially selected and supported; no platform analytics or keyword-provider read is implied.",
+          "acceptedRights": ["owned", "user-attested"]
+        },
+        {
+          "kind": "code-native-ui",
+          "required": true,
+          "sourceRule": "Use a generic original query card with no copied search-engine branding.",
+          "acceptedRights": ["owned", "generated-with-provenance"]
+        },
+        {
+          "kind": "code-native-graphics",
+          "required": true,
+          "sourceRule": "Original steps, comparisons, and source labels carry the answer.",
+          "acceptedRights": ["owned", "generated-with-provenance"]
+        },
+        {
+          "kind": "licensed-stock-video",
+          "required": false,
+          "sourceRule": "Use only as literal context with asset-level provenance.",
+          "acceptedRights": ["stock-license", "explicit-license", "public-domain"]
+        }
+      ],
+      "rights": {
+        "defaultPosture": "mixed-all-assets-cleared",
+        "transformRule": "Use original query and answer composition, cite current authoritative evidence where needed, and clear every optional stock asset separately.",
+        "hardStops": [
+          "Copied search-engine trade dress",
+          "Fabricated search demand or ranking claim",
+          "Stale source on a time-sensitive answer",
+          "Question is not actually answered",
+          "Individualized high-stakes advice",
+          "Unknown stock license"
+        ]
+      },
+      "cost": {
+        "class": "L0",
+        "drivers": ["Answer research", "Motion-card production", "Optional licensed stock"]
+      },
+      "captionZones": {
+        "primary": { "x": 0.08, "y": 0.72, "width": 0.84, "height": 0.14 },
+        "exclusions": [
+          { "x": 0.08, "y": 0.14, "width": 0.84, "height": 0.44 },
+          { "x": 0, "y": 0.9, "width": 1, "height": 0.1 }
+        ]
+      },
+      "audio": {
+        "narrationRequired": true,
+        "requiredTracks": ["narration", "music", "sfx"],
+        "mixRule": "Narration delivers the answer; UI SFX are optional and never simulate a real search interaction."
+      },
+      "implementation": {
+        "status": "skill-backed",
+        "skillIds": [
+          "facts-listicle-short",
+          "motion-card-lesson-short",
+          "stock-footage-edutainment-short",
+          "video-render"
+        ],
+        "flowPaths": ["flows/generate-short.flow"],
+        "harnessPaths": ["scripts/harness/video-render.ts"],
+        "templateIds": ["tiktok-captions"],
+        "nextGap": "Add a query-answer brief that requires source freshness and rejects unsupported platform-demand claims."
+      },
+      "phoneViewport": {
+        "exampleId": "search-intent-answer-phone-v1",
+        "width": 1080,
+        "height": 1920,
+        "layers": [
+          {
+            "id": "query-card",
+            "kind": "ui",
+            "rect": { "x": 0.08, "y": 0.14, "width": 0.84, "height": 0.16 },
+            "zIndex": 1,
+            "content": "Generic original question card"
+          },
+          {
+            "id": "answer-proof",
+            "kind": "graphic",
+            "rect": { "x": 0.08, "y": 0.34, "width": 0.84, "height": 0.24 },
+            "zIndex": 0,
+            "content": "Answer, steps, comparison, or screen-proof panel"
+          },
+          {
+            "id": "captions",
+            "kind": "caption",
+            "rect": { "x": 0.08, "y": 0.72, "width": 0.84, "height": 0.14 },
+            "zIndex": 3,
+            "content": "Direct answer captions"
+          }
+        ]
+      },
+      "patternSourceIds": ["content-machine-direct", "pexels-license"],
+      "redcowAffordances": [],
+      "qualityRisks": [
+        "Query card imitates a platform",
+        "Answer is delayed",
+        "Unsupported demand claim",
+        "Stale answer",
+        "Generic stock replaces proof"
+      ]
+    },
+    {
+      "id": "review-mined-product-proof",
+      "version": 1,
+      "name": "Review-Mined Product Proof",
+      "family": "product-demo",
+      "status": "skill-backed",
+      "scriptArchetypeIds": ["product-demo", "case-study", "myth", "before-after"],
+      "whenToUse": [
+        "Genuine permissioned reviews reveal a specific recurring problem, objection, or use case that the product can demonstrate honestly.",
+        "The review excerpt can be paired with real product behavior and transparent material-context disclosure."
+      ],
+      "whenNotToUse": [
+        "The review is copied from an unrelated site, cannot be verified as genuine, or lacks display permission.",
+        "Reviews were fabricated, selectively edited to reverse meaning, or incentivized on a required-positive basis.",
+        "The product cannot substantiate the result or typical-experience implication."
+      ],
+      "beatGrammar": [
+        {
+          "id": "review-problem",
+          "purpose": "Present the minimum genuine excerpt that names the customer problem or objection.",
+          "visualRule": "Use a generic review card with consented attribution or redacted identity and a source-context label.",
+          "audioRule": "Read or paraphrase the excerpt without changing sentiment."
+        },
+        {
+          "id": "product-response",
+          "purpose": "State how the product addresses the specific issue.",
+          "visualRule": "Replace the review card with a real product workflow or output.",
+          "audioRule": "Do not imply that one review represents every customer."
+        },
+        {
+          "id": "observable-proof",
+          "purpose": "Demonstrate the exact feature, result, or limitation.",
+          "visualRule": "Use owned capture and factual labels; show a counter-limit when relevant.",
+          "audioRule": "State what was observed and what remains user-dependent."
+        },
+        {
+          "id": "context-and-fit",
+          "purpose": "Disclose relevant commercial or incentive context and clarify product fit.",
+          "visualRule": "Use a concise original disclosure/fit card beside the real output.",
+          "audioRule": "Disclose material connections and avoid universal outcome claims."
+        }
+      ],
+      "inputs": [
+        {
+          "kind": "commentary-source-excerpt",
+          "required": true,
+          "sourceRule": "Record review source, reviewer permission or applicable display right, purchase/use verification when available, incentive and relationship context, retrieval date, excerpt boundaries, and transformation.",
+          "acceptedRights": ["explicit-license", "quotation-review", "user-attested"]
+        },
+        {
+          "kind": "product-capture",
+          "required": true,
+          "sourceRule": "Use a real owned product workflow or output that addresses the quoted issue.",
+          "acceptedRights": ["owned", "explicit-license"]
+        },
+        {
+          "kind": "code-native-ui",
+          "required": true,
+          "sourceRule": "Rebuild a generic original review card; do not copy platform stars, badges, avatars, or trade dress.",
+          "acceptedRights": ["owned", "generated-with-provenance"]
+        },
+        {
+          "kind": "user-authored-text",
+          "required": true,
+          "sourceRule": "Product response, context, and limitations must be original and substantiated.",
+          "acceptedRights": ["owned", "user-attested"]
+        }
+      ],
+      "rights": {
+        "defaultPosture": "quotation-or-commentary-review-required",
+        "transformRule": "Use genuine reviews with permission or a reviewed quotation basis, preserve sentiment and context, disclose incentives or relationships, and pair every claim with real product proof.",
+        "hardStops": [
+          "Fake, copied, or unverifiable review",
+          "Review display permission or quotation basis missing",
+          "Review edited to reverse or distort meaning",
+          "Incentive conditioned on positive sentiment",
+          "Material connection hidden",
+          "Exceptional testimonial framed as typical",
+          "Copied review-platform trade dress",
+          "No substantiated product proof"
+        ]
+      },
+      "cost": {
+        "class": "L0",
+        "drivers": [
+          "Review authenticity and permission review",
+          "Product capture",
+          "Disclosure and substantiation review"
+        ]
+      },
+      "captionZones": {
+        "primary": { "x": 0.08, "y": 0.72, "width": 0.84, "height": 0.14 },
+        "exclusions": [
+          { "x": 0.08, "y": 0.14, "width": 0.84, "height": 0.22 },
+          { "x": 0.06, "y": 0.4, "width": 0.88, "height": 0.24 },
+          { "x": 0, "y": 0.9, "width": 1, "height": 0.1 }
+        ]
+      },
+      "audio": {
+        "narrationRequired": true,
+        "requiredTracks": ["narration", "sfx"],
+        "mixRule": "Narration distinguishes the reviewer's experience from verified product behavior; avoid testimonial crowd or applause effects."
+      },
+      "implementation": {
+        "status": "skill-backed",
+        "skillIds": [
+          "saas-problem-solution-short",
+          "text-message-drama-short",
+          "asset-ledger",
+          "video-render"
+        ],
+        "flowPaths": ["flows/generate-short.flow"],
+        "harnessPaths": ["scripts/harness/asset-ledger.ts", "scripts/harness/video-render.ts"],
+        "templateIds": ["tiktok-captions"],
+        "nextGap": "Add a review-evidence manifest covering authenticity, display permission, incentives, relationship disclosure, excerpt integrity, and typical-results posture."
+      },
+      "phoneViewport": {
+        "exampleId": "review-mined-product-proof-phone-v1",
+        "width": 1080,
+        "height": 1920,
+        "layers": [
+          {
+            "id": "review-card",
+            "kind": "ui",
+            "rect": { "x": 0.08, "y": 0.14, "width": 0.84, "height": 0.22 },
+            "zIndex": 2,
+            "content": "Generic genuine-review excerpt with source context and consented or redacted attribution"
+          },
+          {
+            "id": "product-proof",
+            "kind": "video",
+            "rect": { "x": 0.06, "y": 0.4, "width": 0.88, "height": 0.24 },
+            "zIndex": 0,
+            "content": "Real product workflow or output addressing the review issue"
+          },
+          {
+            "id": "disclosure",
+            "kind": "graphic",
+            "rect": { "x": 0.08, "y": 0.65, "width": 0.84, "height": 0.05 },
+            "zIndex": 2,
+            "content": "Material-connection, incentive, or typical-results context when applicable"
+          },
+          {
+            "id": "captions",
+            "kind": "caption",
+            "rect": { "x": 0.08, "y": 0.72, "width": 0.84, "height": 0.14 },
+            "zIndex": 3,
+            "content": "Product response and limitation captions"
+          }
+        ]
+      },
+      "patternSourceIds": ["content-machine-direct"],
+      "redcowAffordances": [],
+      "qualityRisks": [
+        "Review authenticity is assumed",
+        "Excerpt loses context",
+        "Product proof is weaker than the testimonial",
+        "Disclosure is unreadable",
+        "Generic platform review UI is copied"
+      ]
+    }
+  ]
+}

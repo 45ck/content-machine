@@ -214,6 +214,25 @@ export { PublishPrepRequestSchema, runPublishPrep } from './harness/publish-prep
 export { ScriptToAudioRequestSchema, runScriptToAudio } from './harness/script-to-audio';
 export { SkillCatalogRequestSchema, listSkillCatalog } from './harness/skill-catalog';
 export {
+  ArchetypeLaneCatalogRequestSchema,
+  listArchetypeLanes,
+} from './harness/archetype-lane-catalog';
+export {
+  DEFAULT_PRODUCTION_ARCHETYPE_REGISTRY_PATH,
+  loadProductionArchetypeRegistry,
+  resolveProductionArchetypeRegistryPath,
+  validateProductionArchetypeImplementationPaths,
+} from './archetypes/production-registry';
+export {
+  ProductionArchetypeFamilySchema,
+  ProductionArchetypeRegistrySchema,
+  ProductionArchetypeSchema,
+  ProductionArchetypeStatusSchema,
+  ProductionCostClassSchema,
+  type ProductionArchetype,
+  type ProductionArchetypeRegistry,
+} from './archetypes/production-schema';
+export {
   TimestampsToVisualsRequestSchema,
   runTimestampsToVisuals,
 } from './harness/timestamps-to-visuals';

@@ -6,6 +6,22 @@ writing, sourcing media, rendering captions, or reviewing quality.
 
 Use this page when deciding what kind of short to make.
 
+The machine-readable production-lane source of truth is
+[`assets/archetypes/production/registry.v1.json`](../../assets/archetypes/production/registry.v1.json).
+It is intentionally separate from the legacy script prompt files in
+`assets/archetypes/*.yaml`: a script archetype defines rhetorical structure,
+while a production archetype defines the media/edit composition, source and
+rights posture, cost class, caption/audio zones, implementation path, and a
+`1080x1920` phone-viewport example. Inspect the validated registry with:
+
+```bash
+echo '{}' | node --import tsx scripts/harness/archetype-lane-catalog.ts
+```
+
+Public creator videos remain pattern inspiration only. Registry source links
+never grant rights to reuse creator media, identity, scripts, gameplay, music,
+or interface assets.
+
 For non-Reddit lanes that depend on designed graphics, cards, SVG,
 HTML/CSS, or Remotion-style motion, track polish work in the
 [Graphics Archetype Remake Plan](examples/graphics-archetype-remake-plan.md).

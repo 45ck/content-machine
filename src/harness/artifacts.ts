@@ -6,7 +6,7 @@ import { ZodError, z, type ZodTypeAny } from 'zod';
 export async function writeJsonArtifact(path: string, data: unknown): Promise<string> {
   const resolved = resolve(path);
   await mkdir(dirname(resolved), { recursive: true });
-  await writeFile(resolved, JSON.stringify(data, null, 2), 'utf8');
+  await writeFile(resolved, `${JSON.stringify(data, null, 2)}\n`, 'utf8');
   return resolved;
 }
 
