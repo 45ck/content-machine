@@ -2,6 +2,33 @@
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 
+## Project status — 14 November 2026
+
+I’m no longer actively developing or maintaining this version of Content Machine.
+The code remains available under the MIT licence for reference and forks. I’m not
+committing to ongoing updates, fixes, issue responses or pull-request reviews.
+
+**[Explore the interactive build log](https://content-machine-blog-aquinus.vercel.app/)**
+— watch an AI editor assemble a real Wayrest studio film, then see how the editing
+station fits into a connected business workflow. This is the approved standalone
+preview while its native CalvinKennedy.com article is being integrated. The film
+and production layers are real; the AI actions and publishing workflow are scripted
+demonstrations, not a live autonomous service.
+
+### Build a system around your work
+
+Bring one recurring task, the tools you already use and an example of a good result.
+Through **[Calvin Kennedy](https://calvinkennedy.com/work-with-me/)** and
+**[Wayrest](https://wayrest.com.au/contact/)**, you can get advice, build alongside
+us or discuss a tailored implementation. Any project or continuing support is
+separately scoped; it is not support for this unmaintained repository.
+
+The documentation below describes the original project. Installation instructions,
+provider integrations and roadmap notes are retained as reference, not a promise
+of current compatibility or future releases.
+
+---
+
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/banner.dark.png" />
@@ -184,22 +211,23 @@ video pipeline from scratch:
 | `src/`             | TypeScript media, render, scoring, validation, and providers    |
 | `archive/`         | Frozen legacy CLI/control-plane surfaces                        |
 
-## Current Direction
+## Historical Direction
 
-Content Machine is intentionally not a giant all-in-one video app. The
-active direction is a small, reliable local runtime that coding agents
-can use well: choose the right short-form lane, preserve intermediate
-files, review before promotion, and keep the legacy `cm` shell thin.
+Content Machine was designed as a small local runtime that coding agents
+could use: choose the right short-form lane, preserve intermediate files,
+review before promotion, and keep the legacy `cm` shell thin.
 
-Read deeper in [Direction](DIRECTION.md),
+[Direction](DIRECTION.md),
 [Short-Form Roadmap](docs/direction/07-short-form-roadmap-20260424.md),
-and [Developer Docs](docs/dev/README.md).
+and [Developer Docs](docs/dev/README.md) remain historical technical references,
+not an active roadmap or a maintenance commitment.
 
-## Contributing
+## Contributing and Forks
 
-See [CONTRIBUTING.md](CONTRIBUTING.md). Contributor setup, test
-commands, package smoke checks, and low-level runner examples live in
-the deeper docs so this README can stay focused on what the project does.
+Forks are permitted under the MIT licence. I’m not committing to reviewing
+contributions to this repository. [CONTRIBUTING.md](CONTRIBUTING.md) remains a
+technical reference for anyone maintaining their own fork; its original
+contribution process does not override the project-status notice above.
 
 ## License
 
